@@ -1,9 +1,8 @@
 //
-// $Id: TrimmedObjectTileSet.java,v 1.2 2003/01/12 01:19:58 shaper Exp $
+// $Id: TrimmedObjectTileSet.java,v 1.3 2003/01/13 22:49:46 mdb Exp $
 
 package com.threerings.media.tile;
 
-import java.awt.Image;
 import java.awt.Rectangle;
 
 import java.io.IOException;
@@ -12,6 +11,7 @@ import java.io.OutputStream;
 import com.samskivert.util.StringUtil;
 
 import com.threerings.media.Log;
+import com.threerings.media.image.Mirage;
 import com.threerings.media.tile.util.TileSetTrimmer;
 
 /**
@@ -30,16 +30,15 @@ public class TrimmedObjectTileSet extends TileSet
     }
 
     // documentation inherited
-    protected Rectangle computeTileBounds (int tileIndex, Image tilesetImage)
+    protected Rectangle computeTileBounds (int tileIndex)
     {
-        // N/A
-        return null;
+        return _bounds[tileIndex];
     }
 
     // documentation inherited
-    protected Tile createTile (int tileIndex, Image tilesetImage)
+    protected Tile createTile (int tileIndex, Mirage tileImage)
     {
-        ObjectTile tile = new ObjectTile(tilesetImage, _bounds[tileIndex]);
+        ObjectTile tile = new ObjectTile(tileImage);
         tile.setBase(_ometrics[tileIndex].width, _ometrics[tileIndex].height);
         tile.setOrigin(_ometrics[tileIndex].x, _ometrics[tileIndex].y);
         return tile;

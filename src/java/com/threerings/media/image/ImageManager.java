@@ -1,21 +1,37 @@
 //
-// $Id: ImageManager.java,v 1.34 2003/01/08 05:17:35 ray Exp $
+// $Id: ImageManager.java,v 1.35 2003/01/13 22:49:46 mdb Exp $
 
 package com.threerings.media.image;
 
 import java.awt.Component;
 import java.awt.Graphics2D;
-import java.awt.Image;
+import java.awt.GraphicsConfiguration;
+import java.awt.Rectangle;
+import java.awt.Transparency;
 import java.awt.image.BufferedImage;
 
 import java.io.BufferedInputStream;
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+
+import com.sun.imageio.plugins.png.PNGImageReaderSpi;
+import javax.imageio.ImageIO;
+import javax.imageio.stream.ImageInputStream;
+
 import com.samskivert.io.NestableIOException;
+import com.samskivert.util.ConfigUtil;
 import com.samskivert.util.LRUHashMap;
+import com.samskivert.util.StringUtil;
 import com.samskivert.util.Throttle;
+import com.samskivert.util.Tuple;
 
 import com.threerings.media.Log;
 import com.threerings.resource.ResourceManager;
@@ -25,6 +41,45 @@ import com.threerings.resource.ResourceManager;
  */
 public class ImageManager
 {
+    /**
+     * Used to identify an image for caching and reconstruction.
+     */
+    public static class ImageKey
+    {
+        /** The data provider from which this image's data is loaded. */
+        public ImageDataProvider daprov;
+
+        /** The path used to identify the image to the data provider. */
+        public String path;
+
+        protected ImageKey (ImageDataProvider daprov, String path)
+        {
+            this.daprov = daprov;
+            this.path = path;
+        }
+
+        public int hashCode ()
+        {
+            return path.hashCode() ^ daprov.getIdent().hashCode();
+        }
+
+        public boolean equals (Object other)
+        {
+            if (other == null || !(other instanceof ImageKey)) {
+                return false;
+            }
+
+            ImageKey okey = (ImageKey)other;
+            return ((okey.daprov.getIdent().equals(daprov.getIdent())) &&
+                    (okey.path.equals(path)));
+        }
+
+        public String toString ()
+        {
+            return daprov.getIdent() + ":" + path;
+        }
+    }
+
     /**
      * Construct an image manager with the specified {@link
      * ResourceManager} from which it will obtain its data. A non-null
@@ -37,6 +92,12 @@ public class ImageManager
     {
 	_rmgr = rmgr;
 
+        // create our image cache
+        int icsize = ConfigUtil.getSystemProperty(
+            "narya.media.image.cache_size", DEFAULT_IMAGE_CACHE_SIZE);
+        Log.debug("Creating image cache [size=" + icsize + "].");
+        _ccache = new LRUHashMap(icsize);
+
         // try to figure out which image loader we'll be using
         try {
             _loader = (ImageLoader)Class.forName(IMAGEIO_LOADER).newInstance();
@@ -45,123 +106,253 @@ public class ImageManager
                      "Falling back to Toolkit [error=" + t + "].");
             _loader = new ToolkitLoader(context);
         }
+
+        // obtain our graphics configuration
+        if (context != null) {
+            _gc = context.getGraphicsConfiguration();
+        } else {
+            _gc = ImageUtil.getDefGC();
+        }
     }
 
     /**
-     * Loads up the requested image from the specified resource set and
-     * caches it for faster retrieval henceforth.
+     * Creates a buffered image, optimized for display on our graphics
+     * device.
      */
-    public Image getImage (String rset, String path)
+    public BufferedImage createImage (int width, int height, int transparency)
     {
-        if (rset == null || path == null) {
-            String errmsg = "Must supply non-null resource set and path " +
-                "[rset=" + rset + ", path=" + path + "]";
+        return _gc.createCompatibleImage(width, height, transparency);
+    }
+
+    /**
+     * Loads (and caches) the specified image from the resource manager
+     * using the supplied path to identify the image.
+     */
+    public BufferedImage getImage (String path)
+    {
+        return getImage(null, path, null);
+    }
+
+    /**
+     * Like {@link #getImage(String)} but the specified colorizations are
+     * applied to the image before it is returned.
+     */
+    public BufferedImage getImage (String path, Colorization[] zations)
+    {
+        return getImage(null, path, zations);
+    }
+
+    /**
+     * Like {@link #getImage(String)} but the image is loaded from the
+     * specified resource set rathern than the default resource set.
+     */
+    public BufferedImage getImage (String rset, String path)
+    {
+        return getImage(rset, path, null);
+    }
+
+    /**
+     * Like {@link #getImage(String,String)} but the specified
+     * colorizations are applied to the image before it is returned.
+     */
+    public BufferedImage getImage (String rset, String path,
+                                   Colorization[] zations)
+    {
+        if (StringUtil.blank(path)) {
+            String errmsg = "Invalid image path [rset=" + rset +
+                ", path=" + path + "]";
             throw new IllegalArgumentException(errmsg);
         }
 
-        // periodically report our image cache performance
-        reportCachePerformance();
-
-        String key = rset + ":" + path;
-	Image img = (Image)_imgs.get(key);
-	if (img != null) {
-	    // Log.info("Retrieved image from cache [path=" + path + "].");
-	    return img;
-	}
-
-        InputStream imgin = null;
-        try {
-            // first attempt to load the image from the specified resource set
-            try {
-                imgin = _rmgr.getResource(rset, path);
-            } catch (FileNotFoundException fnfe) {
-                // fall through and try the classpath
-            }
-
-            // if that fails, attempt to load the image from the classpath
-            if (imgin == null) {
-                imgin = _rmgr.getResource(path);
-//                 Log.info("Fell back to classpath [rset=" + rset +
-//                          ", path=" + path + "].");
-            }
-
-            // now load up and optimize the image for display
-            img = createImage(imgin);
-
-        } catch (IOException ioe) {
-            Log.warning("Failure loading image [rset=" + rset +
-                        ", path=" + path + ", error=" + ioe + "].");
-
-        } finally {
-            if (imgin != null) {
-                try {
-                    imgin.close();
-                } catch (IOException ioe) {
-                    Log.warning("Failure closing image input stream " +
-                                "[rset=" + rset + ", path=" + path +
-                                ", error=" + ioe + "].");
-                }
-            }
-        }
-
-        // Log.info("Loading image into cache [path=" + path + "].");
-        if (img != null) {
-            _imgs.put(key, img);
-        } else {
-            Log.warning("Unable to load image " +
-                        "[rset=" + rset + ", path=" + path + "].");
-            Thread.dumpStack();
-            // fake it so that we don't crap out
-            img = ImageUtil.createImage(1, 1);
-        }
-        return img;
+        return getImage(getImageKey(rset, path), zations);
     }
 
     /**
-     * Loads the image via the resource manager using the specified path
-     * and caches it for faster retrieval henceforth.
+     * Returns an image key that can be used to fetch the image identified
+     * by the specified resource set and image path.
      */
-    public Image getImage (String path)
+    public ImageKey getImageKey (String rset, String path)
     {
+        return getImageKey(getDataProvider(rset), path);
+    }
+
+    /**
+     * Returns an image key that can be used to fetch the image identified
+     * by the specified data provider and image path.
+     */
+    public ImageKey getImageKey (ImageDataProvider daprov, String path)
+    {
+        return new ImageKey(daprov, path);
+    }
+
+    /**
+     * Obtains the image identified by the specified key, caching if
+     * possible. The image will be recolored using the supplied
+     * colorizations if requested.
+     */
+    public BufferedImage getImage (ImageKey key, Colorization[] zations)
+    {
+        CacheRecord crec = (CacheRecord)_ccache.get(key);
+        if (crec != null) {
+//             Log.info("Cache hit [key=" + key + ", crec=" + crec + "].");
+            return crec.getImage(zations);
+        }
+//         Log.info("Cache miss [key=" + key + ", crec=" + crec + "].");
+
+        // load up the raw image
+        BufferedImage image = loadImage(key);
+        if (image == null) {
+            Log.warning("Failed to load image " + key + ".");
+        }
+
+        // create a cache record
+        crec = new CacheRecord(image);
+        _ccache.put(key, crec);
+        _keySet.add(key);
+
         // periodically report our image cache performance
         reportCachePerformance();
 
-	Image img = (Image)_imgs.get(path);
-	if (img != null) {
-	    // Log.info("Retrieved image from cache [path=" + path + "].");
-	    return img;
-	}
+        return crec.getImage(zations);
+    }
 
-        InputStream imgin = null;
-        try {
-            imgin = _rmgr.getResource(path);
-            img = createImage(imgin);
+    /**
+     * Returns the data provider configured to obtain image data from the
+     * specified resource set.
+     */
+    protected ImageDataProvider getDataProvider (final String rset)
+    {
+        if (rset == null) {
+            return _defaultProvider;
+        }
 
-        } catch (IOException ioe) {
-            Log.warning("Failure loading image [path=" + path +
-                        ", error=" + ioe + "].");
-
-        } finally {
-            if (imgin != null) {
-                try {
-                    imgin.close();
-                } catch (IOException ioe) {
-                    Log.warning("Failure closing image input stream " +
-                                "[path=" + path + ", error=" + ioe + "].");
+        ImageDataProvider dprov = (ImageDataProvider)_providers.get(rset);
+        if (dprov == null) {
+            dprov = new ImageDataProvider() {
+                public ImageInputStream loadImageData (String path)
+                    throws IOException {
+                    // first attempt to load the image from the specified
+                    // resource set
+                    try {
+                        return _rmgr.getImageResource(rset, path);
+                    } catch (FileNotFoundException fnfe) {
+                        // fall back to trying the classpath
+                        return _rmgr.getImageResource(path);
+                    }
                 }
+
+                public String getIdent () {
+                    return "rmgr:" + rset;
+                }
+            };
+            _providers.put(rset, dprov);
+        }
+
+        return dprov;
+    }
+
+    /**
+     * Loads and returns the image with the specified key from the
+     * supplied data provider.
+     */
+    protected BufferedImage loadImage (ImageKey key)
+    {
+        BufferedImage image = null;
+        ImageInputStream imgin = null;
+        try {
+            Log.debug("Loading image " + key + ".");
+            imgin = key.daprov.loadImageData(key.path);
+            image = loadImage(imgin);
+
+        } catch (Exception e) {
+            Log.warning("Unable to load image '" + key + "'.");
+            Log.logStackTrace(e);
+
+            // create a blank image in its stead
+            image = createImage(1, 1, Transparency.OPAQUE);
+        }
+
+        if (imgin != null) {
+            try {
+                imgin.close();
+            } catch (IOException ioe) {
+                Log.warning("Failure closing image input '" + key + "'.");
+                Log.logStackTrace(ioe);
             }
         }
 
-        // Log.info("Loading image into cache [path=" + path + "].");
-        if (img != null) {
-            _imgs.put(path, img);
-        } else {
-            Log.warning("Unable to load image [path=" + path + "].");
-            Thread.dumpStack();
-            // fake it so that we don't crap out
-            img = ImageUtil.createImage(1, 1);
+        return image;
+    }
+
+    /**
+     * Called by {@link #loadImage(ImageKey)} to do the actual image
+     * loading.
+     */
+    protected BufferedImage loadImage (ImageInputStream imgin)
+        throws IOException
+    {
+        return ImageIO.read(imgin);
+//         _reader.setInput(imgin, false, false);
+//         return _reader.read(0, null);
+    }
+
+    /**
+     * Creates a mirage which is an image optimized for display on our
+     * current display device and which will be stored into video memory
+     * if possible.
+     */
+    public Mirage getMirage (ImageKey key)
+    {
+        return getMirage(key, null, null);
+    }
+
+    /**
+     * Like {@link #getMirage(ImageKey)} but that only the specified
+     * subimage of the source image is used to build the mirage.
+     */
+    public Mirage getMirage (ImageKey key, Rectangle bounds)
+    {
+        return getMirage(key, bounds, null);
+    }
+
+    /**
+     * Like {@link #getMirage(ImageKey)} but the supplied colorizations
+     * are applied to the source image before creating the mirage.
+     */
+    public Mirage getMirage (ImageKey key, Colorization[] zations)
+    {
+        return getMirage(key, null, zations);
+    }
+
+    /**
+     * Like {@link #getMirage(ImageKey,Colorization[])} except that the
+     * mirage is created using only the specified subset of the original
+     * image.
+     */
+    public Mirage getMirage (ImageKey key, Rectangle bounds,
+                             Colorization[] zations)
+    {
+        if (bounds == null) {
+            BufferedImage src = getImage(key, zations);
+            bounds = new Rectangle(0, 0, src.getWidth(), src.getHeight());
+//             return new BufferedMirage(src);
+//         } else {
+//             BufferedImage src = getImage(key, zations);
+//             src = src.getSubimage(bounds.x, bounds.y,
+//                                   bounds.width, bounds.height);
+//             return new BufferedMirage(src);
         }
-        return img;
+        return new CachedVolatileMirage(this, key, bounds, zations);
+//         return new BlankMirage(bounds.width, bounds.height);
+    }
+
+    /**
+     * Returns the graphics configuration that should be used to optimize
+     * images for display.
+     */
+    public GraphicsConfiguration getGraphicsConfiguration ()
+    {
+        return _gc;
     }
 
     /**
@@ -170,125 +361,74 @@ public class ImageManager
      */
     protected void reportCachePerformance ()
     {
-        if (!_cacheStatThrottle.throttleOp()) {
-            long size = ImageUtil.getEstimatedMemoryUsage(
-                _imgs.values().iterator());
-            int[] eff = _imgs.getTrackedEffectiveness();
-            Log.debug("ImageManager LRU [mem=" + (size / 1024) + "k" +
-                      ", size=" + _imgs.size() +  ", hits=" + eff[0] +
-                      ", misses=" + eff[1] + "].");
+        if (/* Log.getLevel() != Log.log.DEBUG || */
+            _cacheStatThrottle.throttleOp()) {
+            return;
         }
+
+        // compute our estimated memory usage
+        long size = 0;
+        Iterator iter = _ccache.values().iterator();
+        while (iter.hasNext()) {
+            size += ((CacheRecord)iter.next()).getEstimatedMemoryUsage();
+        }
+
+        int[] eff = _ccache.getTrackedEffectiveness();
+        Log.info("ImageManager LRU [mem=" + (size / 1024) + "k" +
+                 ", size=" + _ccache.size() +  ", hits=" + eff[0] +
+                 ", misses=" + eff[1] + ", totalKeys=" + _keySet.size() + "].");
     }
 
-    /**
-     * Loads the image via the resource manager using the specified
-     * path. Does no caching and does not convert the image for optimized
-     * display on the target graphics configuration. Instead the original
-     * image as returned by the image loader is returned.
-     */
-    public Image loadImage (String path)
-        throws IOException
+    /** Maintains a source image and a set of colorized versions in the
+     * image cache. */
+    protected static class CacheRecord
     {
-        InputStream imgin = null;
-        try {
-            imgin = _rmgr.getResource(path);
-            return _loader.loadImage(new BufferedInputStream(imgin));
+        public CacheRecord (BufferedImage source)
+        {
+            _source = source;
+        }
 
-        } catch (IllegalArgumentException iae) {
-            String errmsg = "Error loading image [path=" + path + "]";
-            throw new NestableIOException(errmsg, iae);
-
-        } finally {
-            if (imgin != null) {
-                imgin.close();
+        public BufferedImage getImage (Colorization[] zations)
+        {
+            if (zations == null) {
+                return _source;
             }
-        }
-    }
 
-    /**
-     * Loads the image from the given resource set using the specified
-     * path. Does no caching and does not convert the image for optimized
-     * display on the target graphics configuration. Instead the original
-     * image as returned by the image loader is returned.
-     */
-    public Image loadImage (String rset, String path)
-        throws IOException
-    {
-        InputStream imgin = null;
-        try {
-            imgin = _rmgr.getResource(rset, path);
-            return _loader.loadImage(new BufferedInputStream(imgin));
-
-        } catch (Throwable t) {
-            String errmsg = "Error loading image " +
-                "[rset=" + rset + ", path=" + path + "]";
-            throw new NestableIOException(errmsg, t);
-
-        } finally {
-            if (imgin != null) {
-                imgin.close();
+            if (_colorized == null) {
+                _colorized = new ArrayList();
             }
-        }
-    }
 
-    /**
-     * Loads the image from the supplied input stream. Does no caching and
-     * does not convert the image for optimized display on the target
-     * graphics configuration. Instead the original image as returned by
-     * the image loader is returned.
-     */
-    public Image loadImage (InputStream source)
-        throws IOException
-    {
-        try {
-            return _loader.loadImage(new BufferedInputStream(source));
-        } catch (IllegalArgumentException iae) {
-            String errmsg = "Error loading image";
-            throw new NestableIOException(errmsg, iae);
-        }
-    }
+            // we search linearly through our list of colorized copies
+            // because it is not likely to be very long
+            int csize = _colorized.size();
+            for (int ii = 0; ii < csize; ii++) {
+                Tuple tup = (Tuple)_colorized.get(ii);
+                Colorization[] tzations = (Colorization[])tup.left;
+                if (Arrays.equals(zations, tzations)) {
+                    return (BufferedImage)tup.right;
+                }
+            }
 
-    /**
-     * Creates an image that is optimized for rendering in the client's
-     * environment and decodes the image data from the specified source
-     * image into that target image. The resulting image is not cached.
-     */
-    public Image createImage (InputStream source)
-        throws IOException
-    {
-        return createImage(loadImage(source));
-    }
-
-    /**
-     * Creates an image that is optimized for rendering in the client's
-     * environment and renders the supplied image into the optimized
-     * image.  The resulting image is not cached.
-     */
-    public Image createImage (Image src)
-    {
-        // not to freak out if we get this far and have no image
-        if (src == null) {
-            return null;
+            BufferedImage cimage = ImageUtil.recolorImage(_source, zations);
+            _colorized.add(new Tuple(zations, cimage));
+            return cimage;
         }
 
-        int swidth = src.getWidth(null);
-        int sheight = src.getHeight(null);
-        BufferedImage dest = null;
-
-        // use the same kind of transparency as the source image if we can
-        // when converting the image to a format optimized for display
-        if (src instanceof BufferedImage) {
-            int trans = ((BufferedImage)src).getColorModel().getTransparency();
-            dest = ImageUtil.createImage(swidth, sheight, trans);
-        } else {
-            dest = ImageUtil.createImage(swidth, sheight);
+        public long getEstimatedMemoryUsage ()
+        {
+            return ImageUtil.getEstimatedMemoryUsage(_source);
         }
 
-        Graphics2D gfx = dest.createGraphics();
-        gfx.drawImage(src, 0, 0, null);
-        gfx.dispose();
+        public String toString ()
+        {
+            return "[wid=" + _source.getWidth() +
+                ", hei=" + _source.getHeight() +
+                ", ccount=" + ((_colorized == null) ? 0 : _colorized.size()) +
+                "]";
+        }
 
-        return dest;
+        protected BufferedImage _source;
+        protected ArrayList _colorized;
     }
 
     /** A reference to the resource manager via which we load image data
@@ -300,10 +440,36 @@ public class ImageManager
     protected ImageLoader _loader;
 
     /** A cache of loaded images. */
-    protected LRUHashMap _imgs = new LRUHashMap(IMAGE_CACHE_SIZE);
+    protected LRUHashMap _ccache;
+
+    /** The set of all keys we've ever seen. */
+    protected HashSet _keySet = new HashSet();
 
     /** Throttle our cache status logging to once every 30 seconds. */
     protected Throttle _cacheStatThrottle = new Throttle(1, 30000L);
+
+    /** The graphics configuration for the default screen device. */
+    protected GraphicsConfiguration _gc;
+
+    /** Our default data provider. */
+    protected ImageDataProvider _defaultProvider = new ImageDataProvider() {
+        public ImageInputStream loadImageData (String path)
+            throws IOException {
+            return _rmgr.getImageResource(path);
+        }
+
+        public String getIdent () {
+            return "rmgr:default";
+        }
+    };
+
+//     /** Temporary hacked PNG reader that actually closes its
+//      * InflaterInputStream when it's done with it. */
+//     protected PNGImageReader _reader =
+//         new PNGImageReader(new PNGImageReaderSpi());
+
+    /** Data providers for different resource sets. */
+    protected HashMap _providers = new HashMap();
 
     /** The classname of the ImageIO-based image loader which we attempt
      * to use but fallback from if we're not running a JVM that has
@@ -312,5 +478,5 @@ public class ImageManager
         "com.threerings.media.image.ImageIOLoader";
 
     /** The maximum number of images that may be cached at any one time. */
-    protected static final int IMAGE_CACHE_SIZE = 30;
+    protected static final int DEFAULT_IMAGE_CACHE_SIZE = 100;
 }

@@ -1,9 +1,10 @@
 //
-// $Id: TileIcon.java,v 1.1 2002/05/06 18:08:32 mdb Exp $
+// $Id: TileIcon.java,v 1.2 2003/01/13 22:49:46 mdb Exp $
 
 package com.threerings.media.tile;
 
 import java.awt.Component;
+import java.awt.Graphics2D;
 import java.awt.Graphics;
 
 import javax.swing.Icon;
@@ -25,7 +26,7 @@ public class TileIcon implements Icon
     // documentation inherited from interface
     public void paintIcon (Component c, Graphics g, int x, int y)
     {
-        _tile.paint(g, x, y);
+        _tile.paint((Graphics2D)g, x, y);
     }
     
     // documentation inherited from interface

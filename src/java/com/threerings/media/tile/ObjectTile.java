@@ -1,15 +1,24 @@
 //
-// $Id: ObjectTile.java,v 1.12 2003/01/08 04:09:02 mdb Exp $
+// $Id: ObjectTile.java,v 1.13 2003/01/13 22:49:46 mdb Exp $
 
 package com.threerings.media.tile;
 
-import java.awt.Image;
-import java.awt.Rectangle;
+import com.threerings.media.image.Mirage;
 
 /**
  * An object tile extends the base tile to provide support for objects
- * whose image spans more than one unit tile.  An object tile has
- * dimensions (in tile units) that represent its footprint or "shadow".
+ * whose image spans more than one unit tile.
+ *
+ * <p> An object tile is generally positioned based on its origin rather
+ * than the upper left of its image. Generally this origin is in the
+ * bottom center of the object image, but can be configured to be anywhere
+ * that the natural center point of "contact" is for the object. Note that
+ * this does not automatically adjust the semantics of {@link #paint}, it
+ * is just expected that the caller will account for the object tile's
+ * origin when painting, if appropriate.
+ *
+ * <p> An object tile has dimensions (in tile units) that represent its
+ * footprint or "shadow".
  */
 public class ObjectTile extends Tile
 {
@@ -17,21 +26,9 @@ public class ObjectTile extends Tile
      * Constructs a new object tile with the specified image. The base
      * width and height should be set before using this tile.
      */
-    public ObjectTile (Image image, Rectangle bounds)
+    public ObjectTile (Mirage image)
     {
-        super(image, bounds);
-    }
-
-    /**
-     * Constructs a new object tile with the specified base width and
-     * height.
-     */
-    public ObjectTile (Image image, Rectangle bounds,
-                       int baseWidth, int baseHeight)
-    {
-	super(image, bounds);
-	_baseWidth = baseWidth;
-	_baseHeight = baseHeight;
+        super(image);
     }
 
     /**
@@ -53,7 +50,7 @@ public class ObjectTile extends Tile
     /**
      * Sets the object footprint in tile units.
      */
-    public void setBase (int width, int height)
+    protected void setBase (int width, int height)
     {
         _baseWidth = width;
         _baseHeight = height;
@@ -91,7 +88,7 @@ public class ObjectTile extends Tile
      * the origin tile and the left side of the image is aligned with the
      * left edge of the left-most base tile.
      */
-    public void setOrigin (int x, int y)
+    protected void setOrigin (int x, int y)
     {
         _originX = x;
         _originY = y;

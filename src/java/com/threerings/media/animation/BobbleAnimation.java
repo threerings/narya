@@ -1,16 +1,16 @@
 //
-// $Id: BobbleAnimation.java,v 1.5 2002/11/20 02:18:49 mdb Exp $
+// $Id: BobbleAnimation.java,v 1.6 2003/01/13 22:49:46 mdb Exp $
 
 package com.threerings.media.animation;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
-import java.awt.Image;
 import java.awt.Rectangle;
 
 import com.threerings.util.RandomUtil;
 
 import com.threerings.media.Log;
+import com.threerings.media.image.Mirage;
 
 /**
  * An animation that bobbles an image around within a specific horizontal
@@ -29,10 +29,10 @@ public class BobbleAnimation extends Animation
      * @param duration the time to animate in milliseconds.
      */
     public BobbleAnimation (
-        Image image, int sx, int sy, int rx, int ry, int duration)
+        Mirage image, int sx, int sy, int rx, int ry, int duration)
     {
-        super(new Rectangle(sx - rx, sy - ry, sx + image.getWidth(null) + rx,
-                            sy + image.getHeight(null) + ry));
+        super(new Rectangle(sx - rx, sy - ry, sx + image.getWidth() + rx,
+                            sy + image.getHeight() + ry));
 
         // save things off
         _image = image;
@@ -72,7 +72,7 @@ public class BobbleAnimation extends Animation
     // documentation inherited
     public void paint (Graphics2D gfx)
     {
-        gfx.drawImage(_image, _x, _y, null);
+        _image.paint(gfx, _x, _y);
     }
 
     // documentation inherited
@@ -98,7 +98,7 @@ public class BobbleAnimation extends Animation
     protected int _sx, _sy;
 
     /** The image to animate. */
-    protected Image _image;
+    protected Mirage _image;
 
     /** Animation ending timing information. */
     protected long _duration, _end;

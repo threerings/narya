@@ -1,5 +1,5 @@
 //
-// $Id: FadeAnimation.java,v 1.5 2002/10/01 04:24:34 shaper Exp $
+// $Id: FadeAnimation.java,v 1.6 2003/01/13 22:49:46 mdb Exp $
 
 package com.threerings.media.animation;
 
@@ -7,10 +7,10 @@ import java.awt.AlphaComposite;
 import java.awt.Color;
 import java.awt.Composite;
 import java.awt.Graphics2D;
-import java.awt.Image;
 import java.awt.Rectangle;
 
 import com.threerings.media.Log;
+import com.threerings.media.image.Mirage;
 
 /**
  * An animation that displays an image fading from one alpha level to
@@ -30,9 +30,9 @@ public class FadeAnimation extends Animation
      * @param target the target alpha level.
      */
     public FadeAnimation (
-        Image image, int x, int y, float alpha, float step, float target)
+        Mirage image, int x, int y, float alpha, float step, float target)
     {
-        super(new Rectangle(x, y, image.getWidth(null), image.getHeight(null)));
+        super(new Rectangle(x, y, image.getWidth(), image.getHeight()));
 
         // save things off
         _image = image;
@@ -90,7 +90,7 @@ public class FadeAnimation extends Animation
         } else {
             gfx.setComposite(_comp);
         }
-        gfx.drawImage(_image, _x, _y, null);
+        _image.paint(gfx, _x, _y);
         gfx.setComposite(ocomp);
     }
 
@@ -126,7 +126,7 @@ public class FadeAnimation extends Animation
     protected int _x, _y;
 
     /** The image to animate. */
-    protected Image _image;
+    protected Mirage _image;
 
     /** The starting animation time. */
     protected long _start;

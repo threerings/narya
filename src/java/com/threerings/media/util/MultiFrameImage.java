@@ -1,10 +1,9 @@
 //
-// $Id: MultiFrameImage.java,v 1.3 2002/09/17 19:11:13 mdb Exp $
+// $Id: MultiFrameImage.java,v 1.4 2003/01/13 22:49:47 mdb Exp $
 
 package com.threerings.media.util;
 
-import java.awt.Graphics;
-import java.awt.Image;
+import java.awt.Graphics2D;
 
 /**
  * The multi-frame image interface provides encapsulated access to a set
@@ -31,7 +30,7 @@ public interface MultiFrameImage
      * Renders the specified frame into the specified graphics object at
      * the specified coordinates.
      */
-    public void paintFrame (Graphics g, int index, int x, int y);
+    public void paintFrame (Graphics2D g, int index, int x, int y);
 
     /**
      * Returns true if the specified frame contains a non-transparent

@@ -1,14 +1,11 @@
 //
-// $Id: ObjectTileSet.java,v 1.8 2003/01/08 04:09:02 mdb Exp $
+// $Id: ObjectTileSet.java,v 1.9 2003/01/13 22:49:46 mdb Exp $
 
 package com.threerings.media.tile;
 
-import java.awt.Image;
-import java.awt.Rectangle;
-import java.util.Arrays;
-
 import com.samskivert.util.StringUtil;
-import com.threerings.media.image.ImageManager;
+
+import com.threerings.media.image.Mirage;
 
 /**
  * The object tileset supports the specification of object information for
@@ -69,24 +66,15 @@ public class ObjectTileSet extends SwissArmyTileSet
      * Creates instances of {@link ObjectTile}, which can span more than a
      * single tile's space in a display.
      */
-    protected Tile createTile (int tileIndex, Image tilesetImage)
+    protected Tile createTile (int tileIndex, Mirage image)
     {
-        // default object dimensions to (1, 1)
-        int wid = 1, hei = 1;
-
-        // retrieve object dimensions if known
+        ObjectTile tile = new ObjectTile(image);
         if (_owidths != null) {
-            wid = _owidths[tileIndex];
-            hei = _oheights[tileIndex];
+            tile.setBase(_owidths[tileIndex], _oheights[tileIndex]);
         }
-
-        Rectangle bounds = computeTileBounds(tileIndex, tilesetImage);
-        ObjectTile tile = new ObjectTile(tilesetImage, bounds, wid, hei);
-
         if (_xorigins != null) {
             tile.setOrigin(_xorigins[tileIndex], _yorigins[tileIndex]);
         }
-
         return tile;
             
     }

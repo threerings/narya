@@ -1,5 +1,5 @@
 //
-// $Id: DumpBundle.java,v 1.8 2003/01/08 04:09:02 mdb Exp $
+// $Id: DumpBundle.java,v 1.9 2003/01/13 22:49:47 mdb Exp $
 
 package com.threerings.media.tile.bundle.tools;
 
@@ -8,8 +8,6 @@ import java.util.Iterator;
 
 import com.threerings.resource.ResourceManager;
 import com.threerings.resource.ResourceBundle;
-
-import com.threerings.media.image.ImageManager;
 
 import com.threerings.media.tile.TileSet;
 import com.threerings.media.tile.bundle.BundleUtil;
@@ -34,7 +32,6 @@ public class DumpBundle
         // create a resource and image manager in case they want to dump
         // the tiles
         ResourceManager rmgr = new ResourceManager("rsrc");
-        ImageManager imgr = new ImageManager(rmgr, null);
 
         for (int i = 0; i < args.length; i++) {
             // oh the hackery
@@ -47,7 +44,7 @@ public class DumpBundle
             try {
                 ResourceBundle bundle = new ResourceBundle(file);
                 TileSetBundle tsb = BundleUtil.extractBundle(bundle);
-                tsb.init(bundle, imgr);
+                tsb.init(bundle);
 
                 Iterator tsids = tsb.enumerateTileSetIds();
                 while (tsids.hasNext()) {

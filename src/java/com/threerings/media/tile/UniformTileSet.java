@@ -1,13 +1,10 @@
 //
-// $Id: UniformTileSet.java,v 1.10 2003/01/08 04:09:02 mdb Exp $
+// $Id: UniformTileSet.java,v 1.11 2003/01/13 22:49:46 mdb Exp $
 
 package com.threerings.media.tile;
 
-import java.awt.Image;
 import java.awt.Rectangle;
-
-import com.threerings.media.Log;
-import com.threerings.media.image.ImageUtil;
+import java.awt.image.BufferedImage;
 
 /**
  * A uniform tileset is one that is composed of tiles that are all the
@@ -65,28 +62,13 @@ public class UniformTileSet extends TileSet
         return _height;
     }
 
-    /**
-     * Returns the image that would be used by the tile at the specified
-     * index. Because the uniform tileset is often used simply to provide
-     * access to a collection of uniform images, this method is provided
-     * to bypass the creation of a {@link Tile} object when all that is
-     * desired is access to the underlying image.
-     */
-    public Image getTileImage (int tileIndex)
-    {
-        Image tsimg = getTileSetImage();
-        if (tsimg == null) {
-            return null;
-        }
-        Rectangle tb = computeTileBounds(tileIndex, tsimg);
-        return ImageUtil.getSubimage(tsimg, tb.x, tb.y, tb.width, tb.height);
-    }
-
     // documentation inherited
-    protected Rectangle computeTileBounds (int tileIndex, Image tilesetImage)
+    protected Rectangle computeTileBounds (int tileIndex)
     {
+        BufferedImage tsimg = getTileSetImage();
+
         // figure out from whence to crop the tile
-        int tilesPerRow = tilesetImage.getWidth(null) / _width;
+        int tilesPerRow = tsimg.getWidth() / _width;
         int row = tileIndex / tilesPerRow;
         int col = tileIndex % tilesPerRow;
 

@@ -1,5 +1,5 @@
 //
-// $Id: ImageUtil.java,v 1.21 2003/01/08 04:28:13 ray Exp $
+// $Id: ImageUtil.java,v 1.22 2003/01/13 22:49:46 mdb Exp $
 
 package com.threerings.media.image;
 
@@ -426,8 +426,8 @@ public class ImageUtil
 
             // copy the RGB from the base image
             for (int ii=0; ii < 3; ii++) {
-                int[] cdata = basedata.getSamples(0, 0, wid, hei,
-                                                  ii, (int[]) null);
+                int[] cdata = basedata.getSamples(
+                    0, 0, wid, hei, ii, (int[]) null);
                 target.setSamples(0, 0, wid, hei, ii, cdata);
             }
 
@@ -490,22 +490,11 @@ public class ImageUtil
      * Returns true if the supplied image contains a non-transparent pixel
      * at the specified coordinates, false otherwise.
      */
-    public static boolean hitTest (Image image, int x, int y)
+    public static boolean hitTest (BufferedImage image, int x, int y)
     {
-        if (image instanceof BufferedImage) {
-            BufferedImage bimage = (BufferedImage)image;
-            int argb = bimage.getRGB(x, y);
-            // int alpha = argb >> 24;
-            // Log.info("Checking [x=" + x + ", y=" + y + ", " + alpha);
-
-            // it's only a hit if the pixel is non-transparent
-            return (argb >> 24) != 0;
-
-        } else {
-            Log.warning("Can't check for transparent pixel " +
-                        "[image=" + image + "].");
-            return true;
-        }
+        // it's only a hit if the pixel is non-transparent
+        int argb = image.getRGB(x, y);
+        return (argb >> 24) != 0;
     }
 
     /**

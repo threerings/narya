@@ -1,10 +1,9 @@
 //
-// $Id: SwissArmyTileSet.java,v 1.8 2002/05/06 18:08:32 mdb Exp $
+// $Id: SwissArmyTileSet.java,v 1.9 2003/01/13 22:49:46 mdb Exp $
 
 package com.threerings.media.tile;
 
 import java.awt.Dimension;
-import java.awt.Image;
 import java.awt.Point;
 import java.awt.Rectangle;
 
@@ -128,7 +127,7 @@ public class SwissArmyTileSet extends TileSet
     }
 
     // documentation inherited
-    protected Rectangle computeTileBounds (int tileIndex, Image tilesetImage)
+    protected Rectangle computeTileBounds (int tileIndex)
     {
 	// find the row number containing the sought-after tile
 	int ridx, tcount, ty, tx;

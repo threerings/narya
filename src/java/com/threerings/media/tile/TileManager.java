@@ -1,16 +1,24 @@
 //
-// $Id: TileManager.java,v 1.26 2003/01/08 04:09:02 mdb Exp $
+// $Id: TileManager.java,v 1.27 2003/01/13 22:49:46 mdb Exp $
 
 package com.threerings.media.tile;
 
-import java.awt.Image;
+import java.awt.Rectangle;
+import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Iterator;
 
 import com.samskivert.io.PersistenceException;
 import com.samskivert.util.HashIntMap;
+import com.samskivert.util.IntTuple;
 
 import com.threerings.media.Log;
+import com.threerings.media.image.Colorization;
+import com.threerings.media.image.ImageDataProvider;
 import com.threerings.media.image.ImageManager;
+import com.threerings.media.image.Mirage;
+import com.samskivert.util.LRUHashMap;
 
 /**
  * The tile manager provides a simplified interface for retrieving and
@@ -27,17 +35,8 @@ import com.threerings.media.image.ImageManager;
  * Loading tilesets from a repository supports games with vast numbers of
  * tiles to which more tiles may be added on the fly (think the tiles for
  * an isometric-display graphical MUD).
- *
- * <p> When the tile manager is used to load tiles via the tileset
- * repository, it caches the resulting tile instance so that they can be
- * fetched again without rebuilding the tile image. Tilesets that are
- * fetched by hand are not cached and it is assumed that the requesting
- * application will cache the tile objects itself (probably by retaining
- * references directly to the tile instances in which it is interested).
- * The tile creation process is not hugely expensive, but does involve
- * extracting the tile image from the larger tileset image.
  */
-public class TileManager implements ImageProvider
+public class TileManager
 {
     /**
      * Creates a tile manager and provides it with a reference to the
@@ -48,8 +47,8 @@ public class TileManager implements ImageProvider
      */
     public TileManager (ImageManager imgr)
     {
-        // keep this guy around for later
         _imgr = imgr;
+        _defaultProvider = new IMImageProvider(_imgr, (String)null);
     }
 
     /**
@@ -59,13 +58,7 @@ public class TileManager implements ImageProvider
     public UniformTileSet loadTileSet (
         String imgPath, int count, int width, int height)
     {
-        UniformTileSet uts = new UniformTileSet();
-        uts.setImageProvider(this);
-        uts.setImagePath(imgPath);
-        uts.setTileCount(count);
-        uts.setWidth(width);
-        uts.setHeight(height);
-        return uts;
+        return loadCachedTileSet("", imgPath, count, width, height);
     }
 
     /**
@@ -73,15 +66,40 @@ public class TileManager implements ImageProvider
      * specified resource set) with the specified metadata parameters.
      */
     public UniformTileSet loadTileSet (
-        final String rset, String imgPath, int count, int width, int height)
+        String rset, String imgPath, int count, int width, int height)
     {
-        UniformTileSet uts = loadTileSet(imgPath, count, width, height);
-        // load up the image data from the image manager
-        uts.setImageProvider(new ImageProvider() {
-            public Image loadImage (String path) throws IOException {
-                return _imgr.getImage(rset, path);
-            }
-        });
+        UniformTileSet uts = loadCachedTileSet(
+            rset, imgPath, count, width, height);
+        uts.setImageProvider(getImageProvider(rset));
+        return uts;
+    }
+
+    /**
+     * Returns an image provider that will load images from the specified
+     * resource set.
+     */
+    public ImageProvider getImageProvider (String rset)
+    {
+        return new IMImageProvider(_imgr, rset);
+    }
+
+    /**
+     * Used to load and cache tilesets loaded via {@link #loadTileSet}.
+     */
+    protected UniformTileSet loadCachedTileSet (
+        String bundle, String imgPath, int count, int width, int height)
+    {
+        String key = bundle + "::" + imgPath;
+        UniformTileSet uts = (UniformTileSet)_handcache.get(key);
+        if (uts == null) {
+            uts = new UniformTileSet();
+            uts.setImageProvider(_defaultProvider);
+            uts.setImagePath(imgPath);
+            uts.setTileCount(count);
+            uts.setWidth(width);
+            uts.setHeight(height);
+            _handcache.put(key, uts);
+        }
         return uts;
     }
 
@@ -122,17 +140,46 @@ public class TileManager implements ImageProvider
         }
 
         try {
-            TileSet set = (TileSet)_cache.get(tileSetId);
+            TileSet set = (TileSet)_setcache.get(tileSetId);
             if (set == null) {
                 set = _setrep.getTileSet(tileSetId);
-                _cache.put(tileSetId, set);
+                _setcache.put(tileSetId, set);
             }
             return set;
 
         } catch (PersistenceException pe) {
-            Log.warning("Unable to load tileset [id=" + tileSetId +
+            Log.warning("Failure loading tileset [id=" + tileSetId +
                         ", error=" + pe + "].");
             throw new NoSuchTileSetException(tileSetId);
+        }
+    }
+
+    /**
+     * Returns the tileset with the specified name.
+     *
+     * @throws NoSuchTileSetException if no tileset with the specified
+     * name is available via our configured tile set repository.
+     */
+    public TileSet getTileSet (String name)
+        throws NoSuchTileSetException
+    {
+        // make sure we have a repository configured
+        if (_setrep == null) {
+            throw new NoSuchTileSetException(name);
+        }
+
+        try {
+            TileSet set = (TileSet)_byname.get(name);
+            if (set == null) {
+                set = _setrep.getTileSet(name);
+                _byname.put(name, set);
+            }
+            return set;
+
+        } catch (PersistenceException pe) {
+            Log.warning("Failure loading tileset [name=" + name +
+                        ", error=" + pe + "].");
+            throw new NoSuchTileSetException(name);
         }
     }
 
@@ -152,20 +199,21 @@ public class TileManager implements ImageProvider
         return set.getTile(tileIndex);
     }
 
-    // documentation inherited
-    public Image loadImage (String path)
-        throws IOException
-    {
-        // load up the image data from the resource manager
-        return _imgr.getImage(path);
-    }
-
     /** The entity through which we decode and cache images. */
     protected ImageManager _imgr;
 
     /** Cache of tilesets that have been requested thus far. */
-    protected HashIntMap _cache = new HashIntMap();
+    protected HashIntMap _setcache = new HashIntMap();
+
+    /** A cache of tilesets that have been loaded by hand. */
+    protected HashMap _handcache = new HashMap();
+
+    /** A mapping from tileset name to tileset. */
+    protected HashMap _byname = new HashMap();
 
     /** The tile set repository. */
     protected TileSetRepository _setrep;
+
+    /** Used to load tileset images from the default resource source. */
+    protected ImageProvider _defaultProvider;
 }

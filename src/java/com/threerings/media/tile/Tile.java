@@ -1,18 +1,11 @@
 //
-// $Id: Tile.java,v 1.25 2003/01/08 04:09:02 mdb Exp $
+// $Id: Tile.java,v 1.26 2003/01/13 22:49:46 mdb Exp $
 
 package com.threerings.media.tile;
 
-import java.awt.Graphics;
-import java.awt.Image;
-import java.awt.Rectangle;
-import java.awt.Shape;
-import java.awt.image.BufferedImage;
+import java.awt.Graphics2D;
 
-import com.samskivert.util.StringUtil;
-
-import com.threerings.media.Log;
-import com.threerings.media.image.ImageUtil;
+import com.threerings.media.image.Mirage;
 
 /**
  * A tile represents a single square in a single layer in a scene.
@@ -20,40 +13,14 @@ import com.threerings.media.image.ImageUtil;
 public class Tile implements Cloneable
 {
     /**
-     * Constructs a tile with the specified tileset image.
+     * Constructs a tile with the specified image.
      *
-     * @param image the tileset image from which our tile image is
-     * extracted.
-     * @param bounds the bounds of the tile image within the greater
-     * tileset image.
+     * @param image our tile image in mirage form (which is optimized for
+     * screen rendering).
      */
-    public Tile (Image image, Rectangle bounds)
+    public Tile (Mirage image)
     {
-        _image = image;
-        _bounds = bounds;
-    }
-
-    /**
-     * Called to create our subimage.
-     */
-    protected void createSubImage ()
-    {
-        if (_image instanceof BufferedImage) {
-            try {
-                _subimage = ImageUtil.getSubimage(
-                    _image, _bounds.x, _bounds.y,
-                    _bounds.width, _bounds.height);
-            } catch (RuntimeException rte) {
-                Log.warning("Failure creating subimage [src=" + _image +
-                            ", bounds=" + StringUtil.toString(_bounds) +
-                            ", error=" + rte + "].");
-                throw rte;
-            }
-
-        } else {
-            String errmsg = "Can't obtain tile image [tile=" + this + "].";
-            throw new RuntimeException(errmsg);
-        }
+        _mirage = image;
     }
 
     /**
@@ -61,7 +28,7 @@ public class Tile implements Cloneable
      */
     public int getWidth ()
     {
-        return _bounds.width;
+        return _mirage.getWidth();
     }
 
     /**
@@ -69,16 +36,16 @@ public class Tile implements Cloneable
      */
     public int getHeight ()
     {
-        return _bounds.height;
+        return _mirage.getHeight();
     }
 
     /**
      * Render the tile image at the specified position in the given
      * graphics context.
      */
-    public void paint (Graphics gfx, int x, int y)
+    public void paint (Graphics2D gfx, int x, int y)
     {
-        gfx.drawImage(getImage(), x, y, null);
+        _mirage.paint(gfx, x, y);
     }
 
     /**
@@ -87,22 +54,7 @@ public class Tile implements Cloneable
      */
     public boolean hitTest (int x, int y)
     {
-        return ImageUtil.hitTest(_image, _bounds.x + x, _bounds.y + y);
-    }
-
-    /**
-     * Returns the image used to render this tile, if access to that image
-     * can be obtained. The tile must have been created with a {@link
-     * BufferedImage} and derived classes may refuse to implement this
-     * function if they do special stuff that hampers their ability to
-     * return a single image describing the tile.
-     */
-    public Image getImage ()
-    {
-        if (_subimage == null) {
-            createSubImage();
-        }
-        return _subimage;
+        return _mirage.hitTest(x, y);
     }
 
     /**
@@ -135,18 +87,10 @@ public class Tile implements Cloneable
      */
     protected void toString (StringBuffer buf)
     {
-	buf.append("srcimg=").append(_image.getClass().getName());
-        buf.append("[").append(_image.getWidth(null)).append("x");
-        buf.append(_image.getHeight(null)).append("]");
-	buf.append(", bounds=").append(StringUtil.toString(_bounds));
+        buf.append(_mirage.getWidth()).append("x");
+        buf.append(_mirage.getHeight());
     }
 
     /** Our tileset image. */
-    protected Image _image;
-
-    /** Our cropped tileset image. */
-    protected Image _subimage;
-
-    /** The bounds of the tile image within the tileset image. */
-    protected Rectangle _bounds;
+    protected Mirage _mirage;
 }

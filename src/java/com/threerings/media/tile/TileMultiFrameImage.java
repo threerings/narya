@@ -1,9 +1,9 @@
 //
-// $Id: TileMultiFrameImage.java,v 1.1 2002/09/17 20:39:03 mdb Exp $
+// $Id: TileMultiFrameImage.java,v 1.2 2003/01/13 22:49:46 mdb Exp $
 
 package com.threerings.media.tile;
 
-import java.awt.Graphics;
+import java.awt.Graphics2D;
 
 import com.threerings.media.Log;
 import com.threerings.media.util.MultiFrameImage;
@@ -32,52 +32,25 @@ public class TileMultiFrameImage implements MultiFrameImage
     // documentation inherited from interface
     public int getWidth (int index)
     {
-        try {
-            return _source.getTile(index).getWidth();
-        } catch (NoSuchTileException nste) {
-            Log.warning("Eh? Tile set reported 'no such tile' " +
-                        "[tcount=" + _source.getTileCount() +
-                        ", tindex=" + index + "].");
-            return -1;
-        }
+        return _source.getTile(index).getWidth();
     }
 
     // documentation inherited from interface
     public int getHeight (int index)
     {
-        try {
-            return _source.getTile(index).getHeight();
-        } catch (NoSuchTileException nste) {
-            Log.warning("Eh? Tile set reported 'no such tile' " +
-                        "[tcount=" + _source.getTileCount() +
-                        ", tindex=" + index + "].");
-            return -1;
-        }
+        return _source.getTile(index).getHeight();
     }
 
     // documentation inherited from interface
-    public void paintFrame (Graphics g, int index, int x, int y)
+    public void paintFrame (Graphics2D g, int index, int x, int y)
     {
-        try {
-            _source.getTile(index).paint(g, x, y);
-        } catch (NoSuchTileException nste) {
-            Log.warning("Eh? Tile set reported 'no such tile' " +
-                        "[tcount=" + _source.getTileCount() +
-                        ", tindex=" + index + "].");
-        }
+        _source.getTile(index).paint(g, x, y);
     }
 
     // documentation inherited from interface
     public boolean hitTest (int index, int x, int y)
     {
-        try {
-            return _source.getTile(index).hitTest(x, y);
-        } catch (NoSuchTileException nste) {
-            Log.warning("Eh? Tile set reported 'no such tile' " +
-                        "[tcount=" + _source.getTileCount() +
-                        ", tindex=" + index + "].");
-            return false;
-        }
+        return _source.getTile(index).hitTest(x, y);
     }
 
     protected TileSet _source;

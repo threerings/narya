@@ -1,10 +1,12 @@
 //
-// $Id: TileSetBundle.java,v 1.12 2003/01/08 04:09:02 mdb Exp $
+// $Id: TileSetBundle.java,v 1.13 2003/01/13 22:49:47 mdb Exp $
 
 package com.threerings.media.tile.bundle;
 
 import java.awt.Image;
 import javax.imageio.ImageIO;
+import javax.imageio.stream.FileImageInputStream;
+import javax.imageio.stream.ImageInputStream;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -20,8 +22,7 @@ import com.samskivert.util.HashIntMap;
 
 import com.threerings.resource.ResourceBundle;
 
-import com.threerings.media.image.ImageManager;
-import com.threerings.media.tile.ImageProvider;
+import com.threerings.media.image.ImageDataProvider;
 import com.threerings.media.tile.TileSet;
 
 /**
@@ -29,17 +30,16 @@ import com.threerings.media.tile.TileSet;
  * bundle of tilesets stored on the local filesystem.
  */
 public class TileSetBundle extends HashIntMap
-    implements Serializable, ImageProvider
+    implements Serializable, ImageDataProvider
 {
     /**
      * Initializes this resource bundle with a reference to the jarfile
      * from which it was loaded and from which it can load image data. The
      * image manager will be used to decode the images.
      */
-    public void init (ResourceBundle bundle, ImageManager imgr)
+    public void init (ResourceBundle bundle)
     {
         _bundle = bundle;
-        _imgr = imgr;
     }
 
     /**
@@ -82,19 +82,17 @@ public class TileSetBundle extends HashIntMap
         return values().iterator();
     }
 
-    // documentation inherited
-    public Image loadImage (String path)
+    // documentation inherited from interface
+    public String getIdent ()
+    {
+        return "tsb:" + _bundle.getSource();
+    }
+
+    // documentation inherited from interface
+    public ImageInputStream loadImageData (String path)
         throws IOException
     {
-        // obtain the image data from our jarfile
-        InputStream imgin = _bundle.getResource(path);
-        if (imgin == null) {
-            String errmsg = "No such image in resource bundle " +
-                "[bundle=" + _bundle + ", path=" + path + "].";
-            throw new FileNotFoundException(errmsg);
-        }
-        // return _imgr.createImage(imgin);
-        return ImageIO.read(imgin);
+        return new FileImageInputStream(_bundle.getResourceFile(path));
     }
 
     // custom serialization process
@@ -120,7 +118,6 @@ public class TileSetBundle extends HashIntMap
         for (int i = 0; i < count; i++) {
             int tileSetId = in.readInt();
             TileSet set = (TileSet)in.readObject();
-            set.setImageProvider(this);
             put(tileSetId, set);
         }
     }
@@ -128,10 +125,7 @@ public class TileSetBundle extends HashIntMap
     /** That from which we load our tile images. */
     protected transient ResourceBundle _bundle;
 
-    /** We use the image manager to decode our images. */
-    protected transient ImageManager _imgr;
-
     /** Increase this value when object's serialized state is impacted by
      * a class change (modification of fields, inheritance). */
-    private static final long serialVersionUID = 1;
+    private static final long serialVersionUID = 2;
  }

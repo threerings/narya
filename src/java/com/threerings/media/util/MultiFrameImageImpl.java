@@ -1,12 +1,11 @@
 //
-// $Id: MultiFrameImageImpl.java,v 1.4 2003/01/08 04:09:03 mdb Exp $
+// $Id: MultiFrameImageImpl.java,v 1.5 2003/01/13 22:49:47 mdb Exp $
 
 package com.threerings.media.util;
 
-import java.awt.Graphics;
-import java.awt.Image;
+import java.awt.Graphics2D;
 
-import com.threerings.media.image.ImageUtil;
+import com.threerings.media.image.Mirage;
 
 /**
  * A basic implementation of the {@link MultiFrameImage} interface
@@ -18,41 +17,41 @@ public class MultiFrameImageImpl implements MultiFrameImage
     /**
      * Constructs a multiple frame image object.
      */
-    public MultiFrameImageImpl (Image[] imgs)
+    public MultiFrameImageImpl (Mirage[] mirages)
     {
-        _imgs = imgs;
+        _mirages = mirages;
     }
 
     // documentation inherited
     public int getFrameCount ()
     {
-        return _imgs.length;
+        return _mirages.length;
     }
 
     // documentation inherited from interface
     public int getWidth (int index)
     {
-        return _imgs[index].getWidth(null);
+        return _mirages[index].getWidth();
     }
 
     // documentation inherited from interface
     public int getHeight (int index)
     {
-        return _imgs[index].getHeight(null);
+        return _mirages[index].getHeight();
     }
 
     // documentation inherited from interface
-    public void paintFrame (Graphics g, int index, int x, int y)
+    public void paintFrame (Graphics2D g, int index, int x, int y)
     {
-        g.drawImage(_imgs[index], x, y, null);
+        _mirages[index].paint(g, x, y);
     }
 
     // documentation inherited from interface
     public boolean hitTest (int index, int x, int y)
     {
-        return ImageUtil.hitTest(_imgs[index], x, y);
+        return _mirages[index].hitTest(x, y);
     }
 
     /** The frame images. */
-    protected Image _imgs[];
+    protected Mirage[] _mirages;
 }

@@ -1,5 +1,5 @@
 //
-// $Id: Colorization.java,v 1.6 2003/01/08 04:09:02 mdb Exp $
+// $Id: Colorization.java,v 1.7 2003/01/13 22:49:46 mdb Exp $
 
 package com.threerings.media.image;
 
@@ -98,6 +98,12 @@ public class Colorization
         }
 
         return true;
+    }
+
+    // documentation inherited
+    public int hashCode ()
+    {
+        return colorizationId ^ rootColor.hashCode();
     }
 
     /**

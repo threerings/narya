@@ -1,25 +1,25 @@
 //
-// $Id: SingleFrameImageImpl.java,v 1.5 2003/01/13 22:49:47 mdb Exp $
+// $Id: SingleTileImageImpl.java,v 1.1 2003/01/13 22:49:47 mdb Exp $
 
 package com.threerings.media.util;
 
 import java.awt.Graphics2D;
 
-import com.threerings.media.image.Mirage;
+import com.threerings.media.tile.Tile;
 
 /**
  * The single frame image class is a basic implementation of the {@link
  * MultiFrameImage} interface intended to facilitate the creation of MFIs
- * whose display frames consist of only a single image.
+ * whose display frames consist of only a single tile image.
  */
-public class SingleFrameImageImpl implements MultiFrameImage
+public class SingleTileImageImpl implements MultiFrameImage
 {
     /**
      * Constructs a single frame image object.
      */
-    public SingleFrameImageImpl (Mirage mirage)
+    public SingleTileImageImpl (Tile tile)
     {
-        _mirage = mirage;
+        _tile = tile;
     }
 
     // documentation inherited
@@ -31,27 +31,27 @@ public class SingleFrameImageImpl implements MultiFrameImage
     // documentation inherited from interface
     public int getWidth (int index)
     {
-        return _mirage.getWidth();
+        return _tile.getWidth();
     }
 
     // documentation inherited from interface
     public int getHeight (int index)
     {
-        return _mirage.getHeight();
+        return _tile.getHeight();
     }
 
     // documentation inherited from interface
     public void paintFrame (Graphics2D g, int index, int x, int y)
     {
-        _mirage.paint(g, x, y);
+        _tile.paint(g, x, y);
     }
 
     // documentation inherited from interface
     public boolean hitTest (int index, int x, int y)
     {
-        return _mirage.hitTest(x, y);
+        return _tile.hitTest(x, y);
     }
 
     /** The frame image. */
-    protected Mirage _mirage;
+    protected Tile _tile;
 }

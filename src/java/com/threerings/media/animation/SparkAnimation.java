@@ -1,19 +1,19 @@
 //
-// $Id: SparkAnimation.java,v 1.1 2002/11/27 01:37:14 shaper Exp $
+// $Id: SparkAnimation.java,v 1.2 2003/01/13 22:49:46 mdb Exp $
 
 package com.threerings.media.animation;
 
 import java.awt.AlphaComposite;
 import java.awt.Composite;
 import java.awt.Graphics2D;
-import java.awt.Image;
 import java.awt.Rectangle;
 
 import java.util.Arrays;
 
-import com.threerings.media.animation.Animation;
-
 import com.threerings.util.RandomUtil;
+
+import com.threerings.media.animation.Animation;
+import com.threerings.media.image.Mirage;
 
 /**
  * Displays a set of spark images originating from a specified position
@@ -41,7 +41,7 @@ public class SparkAnimation extends Animation
     public SparkAnimation (Rectangle bounds, int x, int y, int jog,
                            float minxvel, float minyvel,
                            float xvel, float yvel,
-                           float g, Image[] images, long delay)
+                           float g, Mirage[] images, long delay)
     {
         super(bounds);
 
@@ -141,7 +141,7 @@ public class SparkAnimation extends Animation
         gfx.setComposite(_comp);
         // draw all sparks
         for (int ii = 0; ii < _icount; ii++) {
-            gfx.drawImage(_images[ii], _xpos[ii], _ypos[ii], null);
+            _images[ii].paint(gfx, _xpos[ii], _ypos[ii]);
         }
         // restore the original composite
         gfx.setComposite(ocomp);
@@ -158,7 +158,7 @@ public class SparkAnimation extends Animation
     }
 
     /** The spark images we're animating. */
-    protected Image[] _images;
+    protected Mirage[] _images;
 
     /** The number of images we're animating. */
     protected int _icount;

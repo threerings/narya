@@ -1,5 +1,5 @@
 //
-// $Id: NoSuchTileException.java,v 1.1 2001/10/11 00:41:26 shaper Exp $
+// $Id: NoSuchTileException.java,v 1.2 2003/01/13 22:49:46 mdb Exp $
 
 package com.threerings.media.tile;
 
@@ -7,7 +7,7 @@ package com.threerings.media.tile;
  * Thrown when an attempt is made to retrieve a non-existent tile from the
  * tile manager.
  */
-public class NoSuchTileException extends TileException
+public class NoSuchTileException extends RuntimeException
 {
     public NoSuchTileException (int tid)
     {

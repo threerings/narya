@@ -1,10 +1,12 @@
 //
-// $Id: TileSetRepository.java,v 1.3 2001/11/29 00:12:11 mdb Exp $
+// $Id: TileSetRepository.java,v 1.4 2003/01/13 22:49:46 mdb Exp $
 
 package com.threerings.media.tile;
 
 import java.util.Iterator;
 import com.samskivert.io.PersistenceException;
+
+import com.threerings.media.image.ImageDataProvider;
 
 /**
  * The tileset repository interface should be implemented by classes that
@@ -28,7 +30,9 @@ public interface TileSetRepository
         throws PersistenceException;
 
     /**
-     * Returns the {@link TileSet} with the specified tile set identifier.
+     * Returns the {@link TileSet} with the specified tile set
+     * identifier. The repository is responsible for configuring the tile
+     * set with an image provider.
      *
      * @exception NoSuchTileSetException thrown if no tileset exists with
      * the specified identifier.
@@ -36,5 +40,18 @@ public interface TileSetRepository
      * communicating with the underlying persistence mechanism.
      */
     public TileSet getTileSet (int tileSetId)
+        throws NoSuchTileSetException, PersistenceException;
+
+    /**
+     * Returns the {@link TileSet} with the specified tile set name. The
+     * repository is responsible for configuring the tile set with an
+     * image provider.
+     *
+     * @exception NoSuchTileSetException thrown if no tileset exists with
+     * the specified name.
+     * @exception PersistenceException thrown if an error occurs
+     * communicating with the underlying persistence mechanism.
+     */
+    public TileSet getTileSet (String setName)
         throws NoSuchTileSetException, PersistenceException;
 }

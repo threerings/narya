@@ -1,9 +1,10 @@
 //
-// $Id: TileSetBundler.java,v 1.9 2003/01/12 01:19:33 shaper Exp $
+// $Id: TileSetBundler.java,v 1.10 2003/01/13 22:49:47 mdb Exp $
 
 package com.threerings.media.tile.bundle.tools;
 
-import java.awt.Image;
+import java.awt.Rectangle;
+import java.awt.image.BufferedImage;
 import javax.imageio.ImageIO;
 
 import java.io.File;
@@ -31,9 +32,11 @@ import com.samskivert.io.NestableIOException;
 import com.samskivert.io.PersistenceException;
 
 import com.threerings.media.Log;
+import com.threerings.media.image.Colorization;
+import com.threerings.media.image.Mirage;
 
-import com.threerings.media.tile.ImageProvider;
 import com.threerings.media.tile.ObjectTileSet;
+import com.threerings.media.tile.SimpleCachingImageProvider;
 import com.threerings.media.tile.TileSet;
 import com.threerings.media.tile.TileSetIDBroker;
 import com.threerings.media.tile.TrimmedObjectTileSet;
@@ -54,39 +57,39 @@ import com.threerings.media.tile.tools.xml.TileSetRuleSet;
  * parsers. An example configuration follows:
  *
  * <pre>
- * <bundler-config>
- *   <mapping>
- *     <path>bundle.tilesets.uniform</path>
- *     <ruleset>
+ * &lt;bundler-config&gt;
+ *   &lt;mapping&gt;
+ *     &lt;path&gt;bundle.tilesets.uniform&lt;/path&gt;
+ *     &lt;ruleset&gt;
  *       com.threerings.media.tile.tools.xml.UniformTileSetRuleSet
- *     </ruleset>
- *   </mapping>
- *   <mapping>
- *     <path>bundle.tilesets.object</path>
- *     <ruleset>
+ *     &lt;/ruleset&gt;
+ *   &lt;/mapping&gt;
+ *   &lt;mapping&gt;
+ *     &lt;path&gt;bundle.tilesets.object&lt;/path&gt;
+ *     &lt;ruleset&gt;
  *       com.threerings.media.tile.tools.xml.ObjectTileSetRuleSet
- *     </ruleset>
- *   </mapping>
- * </bundler-config>
+ *     &lt;/ruleset&gt;
+ *   &lt;/mapping&gt;
+ * &lt;/bundler-config&gt;
  * </pre>
  *
  * This configuration would be used to parse a bundle description that
  * looked something like the following:
  *
  * <pre>
- * <bundle>
- *   <tilesets>
- *     <uniform>
- *       <tileset>
- *         <!-- ... -->
- *       </tileset>
- *     </uniform>
- *     <object>
- *       <tileset>
- *         <!-- ... -->
- *       </tileset>
- *     </object>
- *   </tilesets>
+ * &lt;bundle&gt;
+ *   &lt;tilesets&gt;
+ *     &lt;uniform&gt;
+ *       &lt;tileset&gt;
+ *         &lt;!-- ... --&gt;
+ *       &lt;/tileset&gt;
+ *     &lt;/uniform&gt;
+ *     &lt;object&gt;
+ *       &lt;tileset&gt;
+ *         &lt;!-- ... --&gt;
+ *       &lt;/tileset&gt;
+ *     &lt;/object&gt;
+ *   &lt;/tilesets&gt;
  * </pre>
  *
  * The class specified in the <code>ruleset</code> element must derive
@@ -277,6 +280,14 @@ public class TileSetBundler
         Manifest manifest = new Manifest();
         JarOutputStream jar = new JarOutputStream(fout, manifest);
 
+        // create an image provider for loading our tileset images
+        SimpleCachingImageProvider improv = new SimpleCachingImageProvider() {
+            protected BufferedImage loadImage (String path)
+                throws IOException {
+                return ImageIO.read(new File(bundleDesc.getParent(), path));
+            }
+        };
+
         try {
             // write all of the image files to the bundle, converting the
             // tilesets to trimmed tilesets in the process
@@ -300,14 +311,8 @@ public class TileSetBundler
                 if (set instanceof ObjectTileSet) {
                     // set the tileset up with an image provider; we need to
                     // do this so that we can trim it!
-                    set.setImageProvider(new ImageProvider() {
-                        public Image loadImage (String path)
-                            throws IOException {
-                            File source = new File(bundleDesc.getParent(),
-                                                   path);
-                            return ImageIO.read(source);
-                        }
-                    });
+                    set.setImageProvider(improv);
+
                     // create a trimmed object tileset, which will write
                     // the trimmed tileset image to the jar output stream
                     TrimmedObjectTileSet tset =

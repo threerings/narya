@@ -1,24 +1,21 @@
 //
-// $Id: NoSuchTileSetException.java,v 1.1 2001/10/11 00:41:26 shaper Exp $
+// $Id: NoSuchTileSetException.java,v 1.2 2003/01/13 22:49:46 mdb Exp $
 
 package com.threerings.media.tile;
 
 /**
- * Thrown when an attempt is made to retrieve a non-existent tile set
- * from the tile set manager.
+ * Thrown when an attempt is made to retrieve a non-existent tile set from
+ * the tile set manager.
  */
-public class NoSuchTileSetException extends TileException
+public class NoSuchTileSetException extends Exception
 {
-    public NoSuchTileSetException (int tsid)
+    public NoSuchTileSetException (String tileSetName)
     {
-	super("No such tile set [tsid=" + tsid + "]");
-	_tsid = tsid;
+	super("No tile set named '" + tileSetName + "'");
     }
 
-    public int getTileSetId ()
+    public NoSuchTileSetException (int tileSetId)
     {
-	return _tsid;
+	super("No tile set with id '" + tileSetId + "'");
     }
-
-    protected int _tsid;
 }

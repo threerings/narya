@@ -1,5 +1,5 @@
 //
-// $Id: ImageSprite.java,v 1.16 2002/11/20 05:33:20 mdb Exp $
+// $Id: ImageSprite.java,v 1.17 2003/01/13 22:49:46 mdb Exp $
 
 package com.threerings.media.sprite;
 
@@ -8,7 +8,6 @@ import java.awt.Color;
 import java.awt.Composite;
 
 import java.awt.Graphics2D;
-import java.awt.Image;
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 
@@ -16,6 +15,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 
 import com.threerings.media.Log;
+import com.threerings.media.image.Mirage;
 import com.threerings.media.util.MultiFrameImage;
 import com.threerings.media.util.SingleFrameImageImpl;
 
@@ -75,7 +75,7 @@ public class ImageSprite extends Sprite
      * Constructs an image sprite that will display the supplied single
      * image when rendering itself.
      */
-    public ImageSprite (Image image)
+    public ImageSprite (Mirage image)
     {
         this(new SingleFrameImageImpl(image));
     }
@@ -85,8 +85,9 @@ public class ImageSprite extends Sprite
     {
         super.init();
 
-        // now that we have our spritemanager, we can initialize our frames
-        setFrameIndex(0, true);
+        // now that we have our sprite manager, we can lay ourselves out
+        // and initialize our frames
+        layout();
     }
 
     /**
@@ -157,7 +158,19 @@ public class ImageSprite extends Sprite
 
         // set and init our frames
         _frames = frames;
-        setFrameIndex(0, true);
+        _frameIdx = 0;
+        layout();
+    }
+
+    /**
+     * Instructs this sprite to lay out its current frame and any
+     * accoutrements.
+     */
+    public void layout ()
+    {
+        if (_frames != null) {
+            setFrameIndex(_frameIdx, true);
+        }
     }
 
     /**

@@ -1,5 +1,5 @@
 //
-// $Id: TileSetTrimmer.java,v 1.5 2003/01/08 04:09:03 mdb Exp $
+// $Id: TileSetTrimmer.java,v 1.6 2003/01/13 22:49:47 mdb Exp $
 
 package com.threerings.media.tile.util;
 
@@ -20,7 +20,6 @@ import com.samskivert.util.StringUtil;
 import com.threerings.media.Log;
 
 import com.threerings.media.image.ImageUtil;
-import com.threerings.media.tile.NoSuchTileException;
 import com.threerings.media.tile.Tile;
 import com.threerings.media.tile.TileSet;
 
@@ -88,17 +87,11 @@ public class TileSetTrimmer
         for (int ii = 0; ii < tcount; ii++) {
             // extract the image from the original tileset
             try {
-                Tile tile = source.getTile(ii);
-                timgs[ii] = (BufferedImage)tile.getImage();
-
+                timgs[ii] = source.getTileImage(ii);
             } catch (RasterFormatException rfe) {
                 throw new IOException("Failed to get tile image " +
                                       "[tidx=" + ii + ", tset=" + source +
                                       ", rfe=" + rfe + "].");
-
-            } catch (NoSuchTileException nste) {
-                throw new RuntimeException("WTF? No such tile [tset=" + source +
-                                           ", tidx=" + ii + "]");
             }
 
             // figure out how tightly we can trim it

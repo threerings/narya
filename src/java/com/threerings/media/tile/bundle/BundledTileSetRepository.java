@@ -1,5 +1,5 @@
 //
-// $Id: BundledTileSetRepository.java,v 1.8 2003/01/08 04:09:02 mdb Exp $
+// $Id: BundledTileSetRepository.java,v 1.9 2003/01/13 22:49:47 mdb Exp $
 
 package com.threerings.media.tile.bundle;
 
@@ -16,7 +16,10 @@ import com.threerings.resource.ResourceBundle;
 import com.threerings.resource.ResourceManager;
 
 import com.threerings.media.Log;
+import com.threerings.media.image.ImageDataProvider;
 import com.threerings.media.image.ImageManager;
+
+import com.threerings.media.tile.IMImageProvider;
 import com.threerings.media.tile.NoSuchTileSetException;
 import com.threerings.media.tile.TileSet;
 import com.threerings.media.tile.TileSetRepository;
@@ -35,13 +38,13 @@ public class BundledTileSetRepository
      *
      * @param rmgr the resource manager from which to obtain our resource
      * set.
-     * @param imgr the image manager that we'll use to decode and cache
-     * images.
+     * @param imgr the image manager through which we will configure the
+     * tile sets to load their images.
      * @param name the name of the resource set from which we will be
      * loading our tile data.
      */
-    public BundledTileSetRepository (
-        ResourceManager rmgr, ImageManager imgr, String name)
+    public BundledTileSetRepository (ResourceManager rmgr, ImageManager imgr,
+                                     String name)
     {
         // first we obtain the resource set from which we will load up our
         // tileset bundles
@@ -64,7 +67,7 @@ public class BundledTileSetRepository
                 // unserialize our tileset bundle
                 TileSetBundle tsb = BundleUtil.extractBundle(rbundles[i]);
                 // initialize it and add it to the list
-                tsb.init(rbundles[i], imgr);
+                tsb.init(rbundles[i]);
                 tbundles.add(tsb);
                 
             } catch (Exception e) {
@@ -78,43 +81,15 @@ public class BundledTileSetRepository
         // finally create one big fat array of all of the tileset bundles
         _bundles = new TileSetBundle[tbundles.size()];
         tbundles.toArray(_bundles);
-    }
 
-    /**
-     * Searches for the tileset with the specified name, which must reside
-     * in a tileset bundle identified by the supplied bundle identifying
-     * string.
-     *
-     * @param bundleId a string that will be substring matched against the
-     * names of all known tileset bundles. Only bundles whose bundle file
-     * path contains this string will be searched.
-     * @param setName the name of the tileset to be located.
-     *
-     * @return The first tileset matching the supplied parameters or null
-     * if no matching tileset could be found.
-     */
-    public TileSet locateTileSet (String bundleId, String setName)
-    {
-        int bcount = _bundles.length;
-        for (int ii = 0; ii < bcount; ii++) {
-            TileSetBundle tsb = _bundles[ii];
-            // skip non-matching bundles
-            if (tsb.getSource().getPath().indexOf(bundleId) == -1) {
-                continue;
-            }
-            // search for the tileset in this bundle
-            Iterator tsiter = tsb.enumerateTileSets();
-            while (tsiter.hasNext()) {
-                TileSet set = (TileSet)tsiter.next();
-                if (set.getName().equals(setName)) {
-                    return set;
-                }
-            }
+        // create image providers for our bundles
+        _improvs = new IMImageProvider[_bundles.length];
+        for (int ii = 0; ii < _bundles.length; ii++) {
+            _improvs[ii] = new IMImageProvider(imgr, _bundles[ii]);
         }
-        return null;
     }
 
-    // documentation inherited
+    // documentation inherited from interface
     public Iterator enumerateTileSetIds ()
         throws PersistenceException
     {
@@ -130,7 +105,7 @@ public class BundledTileSetRepository
         });
     }
 
-    // documentation inherited
+    // documentation inherited from interface
     public Iterator enumerateTileSets ()
         throws PersistenceException
     {
@@ -146,7 +121,7 @@ public class BundledTileSetRepository
         });
     }
 
-    // documentation inherited
+    // documentation inherited from interface
     public TileSet getTileSet (int tileSetId)
         throws NoSuchTileSetException, PersistenceException
     {
@@ -155,12 +130,36 @@ public class BundledTileSetRepository
         for (int i = 0; i < blength; i++) {
             tset = _bundles[i].getTileSet(tileSetId);
             if (tset != null) {
+                tset.setImageProvider(_improvs[i]);
                 return tset;
             }
         }
         throw new NoSuchTileSetException(tileSetId);
     }
 
+    // documentation inherited from interface
+    public TileSet getTileSet (String setName)
+        throws NoSuchTileSetException, PersistenceException
+    {
+        int bcount = _bundles.length;
+        for (int ii = 0; ii < bcount; ii++) {
+            TileSetBundle tsb = _bundles[ii];
+            // search for the tileset in this bundle
+            Iterator tsiter = tsb.enumerateTileSets();
+            while (tsiter.hasNext()) {
+                TileSet set = (TileSet)tsiter.next();
+                if (set.getName().equals(setName)) {
+                    set.setImageProvider(_improvs[ii]);
+                    return set;
+                }
+            }
+        }
+        return null;
+    }
+
     /** An array of tileset bundles from which we obtain tilesets. */
     protected TileSetBundle[] _bundles;
+
+    /** Image providers for each of our tile set bundles. */
+    protected IMImageProvider[] _improvs;
 }

@@ -1,5 +1,5 @@
 //
-// $Id: ExplodeAnimation.java,v 1.13 2002/10/01 04:24:34 shaper Exp $
+// $Id: ExplodeAnimation.java,v 1.14 2003/01/13 22:49:46 mdb Exp $
 
 package com.threerings.media.animation;
 
@@ -7,14 +7,14 @@ import java.awt.AlphaComposite;
 import java.awt.Color;
 import java.awt.Composite;
 import java.awt.Graphics2D;
-import java.awt.Image;
 import java.awt.Rectangle;
 import java.awt.Shape;
 
 import com.samskivert.util.StringUtil;
+import com.threerings.util.RandomUtil;
 
 import com.threerings.media.Log;
-import com.threerings.util.RandomUtil;
+import com.threerings.media.image.Mirage;
 
 /**
  * An animation that displays an object exploding into chunks, fading out
@@ -88,7 +88,7 @@ public class ExplodeAnimation extends Animation
      * @param height the height of the object.
      */
     public ExplodeAnimation (
-        Image image, ExplodeInfo info, int x, int y, int width, int height)
+        Mirage image, ExplodeInfo info, int x, int y, int width, int height)
     {
         super(info.bounds);
 
@@ -233,7 +233,7 @@ public class ExplodeAnimation extends Animation
             if (_image != null) {
                 // draw the image chunk
                 gfx.clipRect(-_hcwid, -_hchei, _cwid, _chei);
-                gfx.drawImage(_image, -_hcwid + xoff, -_hchei + yoff, null);
+                _image.paint(gfx, -_hcwid + xoff, -_hchei + yoff);
 
             } else {
                 // draw the color chunk
@@ -303,7 +303,7 @@ public class ExplodeAnimation extends Animation
     protected Color _color;
 
     /** The image to animate if we're using an image. */
-    protected Image _image;
+    protected Mirage _image;
 
     /** The starting animation time. */
     protected long _start;

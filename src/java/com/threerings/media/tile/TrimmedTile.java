@@ -1,18 +1,14 @@
 //
-// $Id: TrimmedTile.java,v 1.4 2003/01/08 04:09:02 mdb Exp $
+// $Id: TrimmedTile.java,v 1.5 2003/01/13 22:49:46 mdb Exp $
 
 package com.threerings.media.tile;
 
-import java.awt.Graphics;
-import java.awt.Image;
+import java.awt.Graphics2D;
 import java.awt.Rectangle;
-import java.awt.Shape;
-
-import java.awt.image.BufferedImage;
 
 import com.samskivert.util.StringUtil;
 
-import com.threerings.media.image.ImageUtil;
+import com.threerings.media.image.Mirage;
 
 /**
  * Behaves just like a regular tile, but contains a "trimmed" image which
@@ -28,61 +24,48 @@ public class TrimmedTile extends Tile
      *
      * @param tilesetSource the tileset image that contains our trimmed
      * tile image.
-     * @param bounds contains the width and height of the
+     * @param tbounds contains the width and height of the
      * <em>untrimmed</em> tile, but the x and y offset of the
-     * <em>trimmed</em> tile image in the supplied tileset source image.
-     * @param tbounds the bounds of the trimmed image in the coordinate
-     * system defined by the untrimmed image.
+     * <em>trimmed</em> tile image in the original untrimmed tile image.
      */
-    public TrimmedTile (Image image, Rectangle bounds, Rectangle tbounds)
+    public TrimmedTile (Mirage image, Rectangle tbounds)
     {
-        super(image, bounds);
+        super(image);
         _tbounds = tbounds;
     }
 
     // documentation inherited
-    public void paint (Graphics gfx, int x, int y)
+    public int getWidth ()
     {
-        if (_subimage == null) {
-            createSubImage();
-        }
-        gfx.drawImage(_subimage, x + _tbounds.x, y + _tbounds.y, null);
-    }
-
-    /**
-     * Returns the bounds of the trimmed image within the coordinate
-     * system defined by the complete virtual tile. The returned rectangle
-     * should <em>not</em> be modified.
-     */
-    public Rectangle getTrimmedBounds ()
-    {
-        return _tbounds;
+        return _tbounds.width;
     }
 
     // documentation inherited
-    public Image getImage ()
+    public int getHeight ()
     {
-        String errmsg = "Can't convert trimmed tile to image " +
-            "[tile=" + this + "].";
-        throw new RuntimeException(errmsg);
+        return _tbounds.height;
+    }
+
+    // documentation inherited
+    public void paint (Graphics2D gfx, int x, int y)
+    {
+        _mirage.paint(gfx, x + _tbounds.x, y + _tbounds.y);
+    }
+
+    /**
+     * Fills in the bounds of the trimmed image within the coordinate
+     * system defined by the complete virtual tile.
+     */
+    public void getTrimmedBounds (Rectangle tbounds)
+    {
+        tbounds.setBounds(_tbounds.x, _tbounds.y,
+                          _mirage.getWidth(), _mirage.getHeight());
     }
 
     // documentation inherited
     public boolean hitTest (int x, int y)
     {
-        return ImageUtil.hitTest(_image, _bounds.x + x, _bounds.y + y);
-    }
-
-    // documentation inherited
-    protected void createSubImage ()
-    {
-        if (_image instanceof BufferedImage) {
-            _subimage = ImageUtil.getSubimage(_image, _bounds.x, _bounds.y,
-                                              _tbounds.width, _tbounds.height);
-        } else {
-            String errmsg = "Can't obtain tile image [tile=" + this + "].";
-            throw new RuntimeException(errmsg);
-        }
+        return super.hitTest(x - _tbounds.x, y - _tbounds.y);
     }
 
     // documentation inherited
@@ -91,7 +74,6 @@ public class TrimmedTile extends Tile
 	buf.append(", tbounds=").append(StringUtil.toString(_tbounds));
     }
 
-    /** The dimensions of the trimmed image in the coordinate space
-     * defined by the untrimmed image. */
+    /** Our extra trimmed image dimension information. */
     protected Rectangle _tbounds;
 }

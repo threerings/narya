@@ -1,14 +1,14 @@
 //
-// $Id: TrimmedTileSet.java,v 1.5 2002/08/19 22:58:15 mdb Exp $
+// $Id: TrimmedTileSet.java,v 1.6 2003/01/13 22:49:46 mdb Exp $
 
 package com.threerings.media.tile;
 
-import java.awt.Image;
 import java.awt.Rectangle;
 
 import java.io.IOException;
 import java.io.OutputStream;
 
+import com.threerings.media.image.Mirage;
 import com.threerings.media.tile.util.TileSetTrimmer;
 
 /**
@@ -24,17 +24,15 @@ public class TrimmedTileSet extends TileSet
     }
 
     // documentation inherited
-    protected Rectangle computeTileBounds (int tileIndex, Image tilesetImage)
+    protected Rectangle computeTileBounds (int tileIndex)
     {
-        // N/A
-        return null;
+        return _obounds[tileIndex];
     }
 
     // documentation inherited
-    protected Tile createTile (int tileIndex, Image tilesetImage)
+    protected Tile createTile (int tileIndex, Mirage image)
     {
-        return new TrimmedTile(
-            tilesetImage, _obounds[tileIndex], _tbounds[tileIndex]);
+        return new TrimmedTile(image, _tbounds[tileIndex]);
     }
 
     /**
@@ -51,23 +49,13 @@ public class TrimmedTileSet extends TileSet
         final TrimmedTileSet tset = new TrimmedTileSet();
         tset.setName(source.getName());
         int tcount = source.getTileCount();
+        tset._tbounds = new Rectangle[tcount];
+        tset._obounds = new Rectangle[tcount];
 
         // grab the dimensions of the original tiles
-        tset._obounds = new Rectangle[tcount];
         for (int ii = 0; ii < tcount; ii++) {
-            try {
-                Tile tile = source.getTile(ii);
-                tset._obounds[ii] = new Rectangle();
-                tset._obounds[ii].width = tile.getWidth();
-                tset._obounds[ii].height = tile.getHeight();
-            } catch (NoSuchTileException nste) {
-                String errmsg = "Urk! TileSet is ill-behaved. " +
-                    "Claimed to have " + tcount + " tiles, but choked when " +
-                    "we asked for tile " + ii + " [tset=" + source + "].";
-                throw new RuntimeException(errmsg);
-            }
+            tset._tbounds[ii] = source.computeTileBounds(ii);
         }
-        tset._tbounds = new Rectangle[tcount];
 
         // create the trimmed tileset image
         TileSetTrimmer.TrimMetricsReceiver tmr =
@@ -75,10 +63,10 @@ public class TrimmedTileSet extends TileSet
                 public void trimmedTile (int tileIndex, int imageX, int imageY,
                                          int trimX, int trimY,
                                          int trimWidth, int trimHeight) {
-                    tset._obounds[tileIndex].x = imageX;
-                    tset._obounds[tileIndex].y = imageY;
-                    tset._tbounds[tileIndex] =
-                        new Rectangle(trimX, trimY, trimWidth, trimHeight);
+                    tset._tbounds[tileIndex].x = trimX;
+                    tset._tbounds[tileIndex].y = trimY;
+                    tset._obounds[tileIndex] =
+                        new Rectangle(imageX, imageY, trimWidth, trimHeight);
                 }
             };
         TileSetTrimmer.trimTileSet(source, destImage, tmr);
@@ -86,11 +74,11 @@ public class TrimmedTileSet extends TileSet
         return tset;
     }
 
-    /** The width and height of the untrimmed tile, and the x and y offset
+    /** The width and height of the trimmed tile, and the x and y offset
      * of the trimmed image within our tileset image. */
     protected Rectangle[] _obounds;
 
-    /** The width and height of the trimmed image and the x and y offset
+    /** The width and height of the untrimmed image and the x and y offset
      * within the untrimmed image at which the trimmed image should be
      * rendered. */
     protected Rectangle[] _tbounds;

@@ -1,22 +1,21 @@
 //
-// $Id: TileSet.java,v 1.35 2003/01/08 04:09:02 mdb Exp $
+// $Id: TileSet.java,v 1.36 2003/01/13 22:49:46 mdb Exp $
 
 package com.threerings.media.tile;
 
 import java.awt.Color;
-import java.awt.Image;
 import java.awt.Rectangle;
-import java.awt.Transparency;
 import java.awt.image.BufferedImage;
-
-import java.io.IOException;
 import java.io.Serializable;
 
+import com.samskivert.util.ConfigUtil;
+import com.samskivert.util.LRUHashMap;
 import com.samskivert.util.StringUtil;
+import com.samskivert.util.Tuple;
 
 import com.threerings.media.Log;
 import com.threerings.media.image.Colorization;
-import com.threerings.media.image.ImageUtil;
+import com.threerings.media.image.Mirage;
 
 /**
  * A tileset stores information on a single logical set of tiles. It
@@ -70,10 +69,6 @@ public abstract class TileSet
     public void setImagePath (String imagePath)
     {
         _imagePath = imagePath;
-
-        // clear out any reference to a loaded image and cached tiles
-        _tilesetImg = null;
-        _tiles = null;
     }
 
     /**
@@ -90,14 +85,16 @@ public abstract class TileSet
     public abstract int getTileCount ();
 
     /**
-     * Creates a copy of this tileset with the supplied colorizations
-     * applied to its source image.
+     * Creates a copy of this tileset which will apply the supplied
+     * colorizations to its tileset image when creating tiles.
      */
-    public TileSet cloneColorized (Colorization[] zations)
+    public TileSet clone (Colorization[] zations)
     {
-        TileSet tset = null;
         try {
-            tset = (TileSet)clone();
+            TileSet tset = (TileSet)clone();
+            tset._zations = zations;
+            return tset;
+
         } catch (CloneNotSupportedException cnse) {
             Log.warning("Unable to clone tileset prior to colorization " +
                         "[tset=" + this +
@@ -105,37 +102,6 @@ public abstract class TileSet
                         ", error=" + cnse + "].");
             return null;
         }
-
-        // make sure the tileset was able to load its image
-        Image timg = tset.getTileSetImage();
-        if (timg == null) {
-            Log.warning("Failed to load tileset image in preparation " +
-                        "for colorization [tset=" + tset + "].");
-            // return the uncolorized tileset since it has no freaking
-            // source image anyway
-            return tset;
-
-        } else if (!(timg instanceof BufferedImage)) {
-            Log.warning("Can't recolor tileset with non-buffered " +
-                        "image source [source=" + timg + "].");
-            return tset;
-        }
-
-        // create the recolored image and update the tileset
-        tset._tilesetImg =
-            ImageUtil.recolorImage((BufferedImage)timg, zations);
-
-        return tset;
-    }
-
-    // documentation inherited
-    public Object clone ()
-        throws CloneNotSupportedException
-    {
-        TileSet dup = (TileSet)super.clone();
-        // clear out the tileset cache
-        dup._tiles = null;
-        return dup;
     }
 
     /**
@@ -170,35 +136,81 @@ public abstract class TileSet
     public Tile getTile (int tileIndex)
         throws NoSuchTileException
     {
-        int tcount = getTileCount();
+        checkTileIndex(tileIndex);
 
+        // create our tile cache if necessary
+        if (_tiles == null) {
+            int tcsize = ConfigUtil.getSystemProperty(
+                "narya.media.tile.cache_size", DEFAULT_TILE_CACHE_SIZE);
+            Log.debug("Creating tile cache [size=" + tcsize + "].");
+            _tiles = new LRUHashMap(tcsize);
+        }
+
+        // fetch and cache the tile
+        Tuple key = new Tuple(this, new Integer(tileIndex));
+        Tile tile = (Tile)_tiles.get(key);
+        if (tile == null) {
+            // create and initialize the tile object
+            tile = createTile(tileIndex, getTileMirage(tileIndex));
+            initTile(tile);
+            _tiles.put(key, tile);
+        }
+
+        return tile;
+    }
+
+    /**
+     * Returns the entire, raw, uncut, unprepared tileset source image.
+     */
+    public BufferedImage getTileSetImage ()
+    {
+        return _improv.getTileSetImage(_imagePath, _zations);
+    }
+
+    /**
+     * Returns the raw (unprepared) image that would be used by the tile
+     * at the specified index.
+     */
+    public BufferedImage getTileImage (int tileIndex)
+        throws NoSuchTileException
+    {
+        checkTileIndex(tileIndex);
+        Rectangle bounds = computeTileBounds(tileIndex);
+        BufferedImage timg = getTileSetImage();
+        return timg.getSubimage(bounds.x, bounds.y,
+                                bounds.width, bounds.height);
+    }
+
+    /**
+     * Returns a prepared version of the image that would be used by the
+     * tile at the specified index. Because tilesets are often used simply
+     * to provide access to a collection of uniform images, this method is
+     * provided to bypass the creation of a {@link Tile} object when all
+     * that is desired is access to the underlying image.
+     */
+    public Mirage getTileMirage (int tileIndex)
+        throws NoSuchTileException
+    {
+        checkTileIndex(tileIndex);
+        Rectangle bounds = computeTileBounds(tileIndex);
+        if (_improv == null) {
+            Log.warning("Aiya! Tile set missing image provider " +
+                        "[path=" + _imagePath + "].");
+        }
+        return _improv.getTileImage(_imagePath, bounds, _zations);
+    }
+
+    /**
+     * Used to ensure that the specified tile index is valid.
+     */
+    protected void checkTileIndex (int tileIndex)
+        throws NoSuchTileException
+    {
 	// bail if there's no such tile
+        int tcount = getTileCount();
 	if (tileIndex < 0 || tileIndex >= tcount) {
 	    throw new NoSuchTileException(tileIndex);
 	}
-
-        // create our tile cache array if necessary
-        if (_tiles == null) {
-            _tiles = new Tile[tcount];
-        }
-
-        // fill in the cache if necessary
-        if (_tiles[tileIndex] == null) {
-            // get our tileset image
-            Image tsimg = getTileSetImage();
-            if (tsimg == null) {
-                // we already logged an error, so we can just freak out
-                throw new NoSuchTileException(tileIndex);
-            }
-
-            // create, initialize and cache the tile object
-            Tile tile = createTile(tileIndex, tsimg);
-            initTile(tile);
-//             _tiles[tileIndex] = tile;
-            return tile;
-        }
-
-        return _tiles[tileIndex];
     }
 
     /**
@@ -210,25 +222,20 @@ public abstract class TileSet
      *
      * @param tileIndex the index of the tile whose bounds are to be
      * computed.
-     * @param tilesetImage the tileset image that contains the imagery for
-     * the tile in question.
      */
-    protected abstract Rectangle computeTileBounds (
-        int tileIndex, Image tilesetImage);
+    protected abstract Rectangle computeTileBounds (int tileIndex);
 
     /**
      * Creates a tile for the specified tile index.
      *
      * @param tileIndex the index of the tile to be created.
-     * @param tilesetImage the tileset image that contains the imagery for
-     * the tile to be created.
+     * @param image the tile image in the form of a {@link Mirage}.
      *
      * @return a configured tile.
      */
-    protected Tile createTile (int tileIndex, Image tilesetImage)
+    protected Tile createTile (int tileIndex, Mirage image)
     {
-        return new Tile(tilesetImage,
-                        computeTileBounds(tileIndex, tilesetImage));
+        return new Tile(image);
     }
 
     /**
@@ -241,42 +248,6 @@ public abstract class TileSet
     protected void initTile (Tile tile)
     {
 	// nothing for now
-    }
-
-    /**
-     * Returns the tileset image (which is loaded if it has not yet been
-     * loaded). Generally this is not called by external entities, rather
-     * {@link #getTile} is used and the image rendered by rendering the
-     * tile.
-     *
-     * @return the tileset image or null if an error occurred loading the
-     * image.
-     */
-    public Image getTileSetImage ()
-    {
-        // return it straight away if it's already loaded
-	if (_tilesetImg != null) {
-            return _tilesetImg;
-        }
-
-        // load up the tileset image via the image provider
-        try {
-            _tilesetImg = _improv.loadImage(_imagePath);
-
-            // HACKOLA: if we're a vessel tileset, colorize ourselves
-            if (_name != null && (this instanceof ObjectTileSet) &&
-                _name.indexOf("Vessel") != -1) {
-                _tilesetImg = ImageUtil.recolorImage(
-                    (BufferedImage)_tilesetImg, ZATIONS);
-            }
-
-        } catch (IOException ioe) {
-            Log.warning("Failed to retrieve tileset image " +
-                        "[name=" + _name + ", path=" + _imagePath +
-                        ", error=" + ioe + "].");
-	}
-
-        return _tilesetImg;
     }
 
     /**
@@ -307,17 +278,11 @@ public abstract class TileSet
     /** The tileset name. */
     protected String _name;
 
-    /** A sparse array containing the tiles that have been requested from
-     * this tileset. */
-    protected transient Tile[] _tiles;
+    /** Colorizations to be applied to tiles created from this tileset. */
+    protected transient Colorization[] _zations;
 
     /** The entity from which we obtain our tile image. */
     protected transient ImageProvider _improv;
-
-    /** The image containing all tile images for this set. This is private
-     * because it should be accessed via {@link #getTileSetImage} even by
-     * derived classes. */
-    private transient Image _tilesetImg;
 
     /** Increase this value when object's serialized state is impacted by
      * a class change (modification of fields, inheritance). */
@@ -332,4 +297,10 @@ public abstract class TileSet
                          new float[] { .1f, .3f, 0.6f },
                          new float[] { .71f, 0f, .07f }),
     };
+
+    /** A weak cache of our tiles. */
+    protected static LRUHashMap _tiles;
+
+    /** The default tile cache size. */
+    protected static final int DEFAULT_TILE_CACHE_SIZE = 500;
 }
