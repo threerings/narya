@@ -1,5 +1,5 @@
 //
-// $Id: SparseMisoSceneModel.java,v 1.4 2003/04/21 17:08:57 mdb Exp $
+// $Id: SparseMisoSceneModel.java,v 1.5 2003/04/24 21:11:23 mdb Exp $
 
 package com.threerings.miso.data;
 
@@ -99,6 +99,15 @@ public class SparseMisoSceneModel extends MisoSceneModel
         }
 
         public void addObject (ObjectInfo info) {
+            // sanity check: see if there is already an object of this
+            // type at these coordinates
+            if (ListUtil.indexOfEqual(objectInfo, info) != -1 ||
+                indexOfUn(info) != -1) {
+                Log.warning("Refusing to add duplicate interesting " +
+                            "object " + info + ".");
+                return;
+            }
+
             if (info.isInteresting()) {
                 objectInfo = (ObjectInfo[])ArrayUtil.append(objectInfo, info);
             } else {
@@ -118,7 +127,7 @@ public class SparseMisoSceneModel extends MisoSceneModel
             }
 
             // look for it in the uninteresting arrays
-            oidx = IntListUtil.indexOf(objectTileIds, info.tileId);
+            oidx = indexOfUn(info);
             if (oidx != -1) {
                 objectTileIds = ArrayUtil.splice(objectTileIds, oidx, 1);
                 objectXs = ArrayUtil.splice(objectXs, oidx, 1);
@@ -127,6 +136,22 @@ public class SparseMisoSceneModel extends MisoSceneModel
             }
 
             return false;
+        }
+
+        /**
+         * Returns the index of the specified object in the uninteresting
+         * arrays or -1 if it is not in this section as an uninteresting
+         * object.
+         */
+        protected int indexOfUn (ObjectInfo info)
+        {
+            for (int ii = 0; ii < objectTileIds.length; ii++) {
+                if (objectTileIds[ii] == info.tileId &&
+                    objectXs[ii] == info.x && objectYs[ii] == info.y) {
+                    return ii;
+                }
+            }
+            return -1;
         }
 
         public void getObjects (Rectangle region, ObjectSet set) {
