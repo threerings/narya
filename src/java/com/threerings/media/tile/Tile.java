@@ -1,5 +1,5 @@
 //
-// $Id: Tile.java,v 1.20 2002/06/18 22:19:56 mdb Exp $
+// $Id: Tile.java,v 1.21 2002/06/19 00:20:49 mdb Exp $
 
 package com.threerings.media.tile;
 
@@ -30,7 +30,13 @@ public class Tile implements Cloneable
     {
         _image = image;
         _bounds = bounds;
-        _subimage = getImage();
+        if (_image instanceof BufferedImage) {
+            _subimage = ImageUtil.getSubimage(_image, _bounds.x, _bounds.y,
+                                              _bounds.width, _bounds.height);
+        } else {
+            String errmsg = "Can't obtain tile image [tile=" + this + "].";
+            throw new RuntimeException(errmsg);
+        }
     }
 
     /**
@@ -80,14 +86,7 @@ public class Tile implements Cloneable
      */
     public Image getImage ()
     {
-        if (_image instanceof BufferedImage) {
-            return ImageUtil.getSubimage(_image, _bounds.x, _bounds.y,
-                                         _bounds.width, _bounds.height);
-
-        } else {
-            String errmsg = "Can't obtain tile image [tile=" + this + "].";
-            throw new RuntimeException(errmsg);
-        }
+        return _subimage;
     }
 
     /**
