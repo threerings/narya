@@ -1,5 +1,5 @@
 //
-// $Id: ResourceManager.java,v 1.12 2002/04/01 16:49:26 mdb Exp $
+// $Id: ResourceManager.java,v 1.13 2002/04/01 20:47:28 mdb Exp $
 
 package com.threerings.resource;
 
@@ -321,6 +321,7 @@ public class ResourceManager
 
                 // read the data from the URL into the cache file
                 if (readData) {
+                    Log.info("Downloading bundle [url=" + burl + "].");
                     InputStream in = ucon.getInputStream();
                     FileOutputStream out = new FileOutputStream(cfile);
                     // pipe the input stream into the output stream
