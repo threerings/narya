@@ -1,5 +1,5 @@
 //
-// $Id: LocationProvider.java,v 1.4 2001/08/11 00:22:55 mdb Exp $
+// $Id: LocationProvider.java,v 1.5 2001/08/11 02:07:20 mdb Exp $
 
 package com.threerings.cocktail.party.server;
 
@@ -56,6 +56,12 @@ public class LocationProvider extends InvocationProvider
             // if we're still locked, a previous moveTo request hasn't
             // been fully processed
             return "m.move_in_progress";
+        }
+
+        // make sure they're not already in the location they're asking to
+        // move to
+        if (source.location == placeId) {
+            return "m.already_there";
         }
 
         // find out if they were previously in some other location
