@@ -1,5 +1,5 @@
 //
-// $Id: CardPanel.java,v 1.7 2004/11/02 02:40:27 andrzej Exp $
+// $Id: CardPanel.java,v 1.8 2004/11/04 02:03:47 andrzej Exp $
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -160,7 +160,9 @@ public abstract class CardPanel extends VirtualMediaPanel
         
         MouseAdapter ma = new MouseAdapter() {
             public void mousePressed (MouseEvent me) {
-                if(_activeSprite instanceof CardSprite) {
+                if (_activeSprite != null && !isManaged(_activeSprite)) {
+                    _activeSprite = null;
+                } else if (_activeSprite instanceof CardSprite) {
                     _handleX = _activeSprite.getX() - me.getX();
                     _handleY = _activeSprite.getY() - me.getY();
                             
@@ -173,11 +175,13 @@ public abstract class CardPanel extends VirtualMediaPanel
                 }
             }  
             public void mouseReleased (MouseEvent me) {
-                if (_activeSprite instanceof CardSprite && _hasBeenDragged) {
+                if (_activeSprite != null && !isManaged(_activeSprite)) {
+                    _activeSprite = null;
+                } else if (_activeSprite instanceof CardSprite && _hasBeenDragged) {
                     _activeSprite.queueNotification(
                         new CardSpriteDraggedOp((CardSprite)_activeSprite, me)
                     );
-                } else if(_activeSprite instanceof ButtonSprite) {
+                } else if (_activeSprite instanceof ButtonSprite) {
                     ButtonSprite bs = (ButtonSprite)_activeSprite;
                     if (bs.isPressed()) {
                         CommandEvent ce = new CommandEvent(CardPanel.this, bs.getActionCommand(),
@@ -190,7 +194,9 @@ public abstract class CardPanel extends VirtualMediaPanel
                 }
             }
             public void mouseClicked (MouseEvent me) {
-                if (_activeSprite instanceof CardSprite) {
+                if (_activeSprite != null && !isManaged(_activeSprite)) {
+                    _activeSprite = null;
+                } else if (_activeSprite instanceof CardSprite) {
                     _activeSprite.queueNotification(
                         new CardSpriteClickedOp((CardSprite)_activeSprite, me)
                     );
@@ -227,11 +233,13 @@ public abstract class CardPanel extends VirtualMediaPanel
                 }
                 
                 if (newActiveSprite != _activeSprite) {
-                    if (_activeSprite instanceof CardSprite) {
+                    if (_activeSprite instanceof CardSprite && 
+                        isManaged(_activeSprite)) {
                         _activeSprite.queueNotification(
                             new CardSpriteExitedOp((CardSprite)_activeSprite, me)
                         );
-                    } else if (_activeSprite instanceof ButtonSprite) {
+                    } else if (_activeSprite instanceof ButtonSprite && 
+                        isManaged(_activeSprite)) {
                         ((ButtonSprite)_activeSprite).setPressed(false);
                     }
                     if (newActiveSprite instanceof CardSprite) {
