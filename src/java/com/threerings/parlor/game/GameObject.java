@@ -1,5 +1,5 @@
 //
-// $Id: GameObject.java,v 1.12 2002/10/27 23:54:32 shaper Exp $
+// $Id: GameObject.java,v 1.13 2002/10/29 02:09:03 shaper Exp $
 
 package com.threerings.parlor.game;
 
@@ -119,9 +119,51 @@ public class GameObject extends PlaceObject
     /**
      * Returns whether the given player index in the game is occupied.
      */
-    public boolean isOccupiedPlayer (int index)
+    public boolean isOccupiedPlayer (int pidx)
     {
-        return (players[index] != null);
+        return (players[pidx] != null);
+    }
+
+    /**
+     * Returns whether the given player index is a winner, or false if the
+     * winners are not yet assigned.
+     */
+    public boolean isWinner (int pidx)
+    {
+        return (winners == null) ? false : winners[pidx];
+    }
+
+    /**
+     * Returns the number of winners for this game, or <code>0</code> if
+     * the winners array is not populated, e.g., the game is not yet over.
+     */
+    public int getWinnerCount ()
+    {
+        int count = 0;
+        int size = (winners == null) ? 0 : winners.length;
+        for (int ii = 0; ii < size; ii++) {
+            if (winners[ii]) {
+                count++;
+            }
+        }
+        return count;
+    }
+
+    /**
+     * Returns the winner index of the first winning player for this game,
+     * or <code>-1</code> if there are no winners or the winners array is
+     * not yet assigned.  This is only likely to be useful for games that
+     * are known to have a single winner.
+     */
+    public int getWinnerIndex ()
+    {
+        int size = (winners == null) ? 0 : winners.length;
+        for (int ii = 0; ii < size; ii++) {
+            if (winners[ii]) {
+                return ii;
+            }
+        }
+        return -1;
     }
 
     /**
