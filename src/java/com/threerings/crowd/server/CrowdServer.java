@@ -1,9 +1,8 @@
 //
-// $Id: CrowdServer.java,v 1.6 2001/08/08 23:48:51 mdb Exp $
+// $Id: CrowdServer.java,v 1.7 2001/09/28 22:32:28 mdb Exp $
 
 package com.threerings.cocktail.party.server;
 
-import java.io.IOException;
 import java.util.HashMap;
 
 import com.threerings.cocktail.cher.server.CherServer;
@@ -27,7 +26,7 @@ public class PartyServer extends CherServer
      * Initializes all of the server services and prepares for operation.
      */
     public void init ()
-        throws IOException
+        throws Exception
     {
         // do the cher server initialization
         super.init();

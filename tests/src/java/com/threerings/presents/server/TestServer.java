@@ -1,9 +1,7 @@
 //
-// $Id: TestServer.java,v 1.2 2001/08/08 23:48:51 mdb Exp $
+// $Id: TestServer.java,v 1.3 2001/09/28 22:32:28 mdb Exp $
 
 package com.threerings.cocktail.cher.server.test;
-
-import java.io.IOException;
 
 import com.threerings.cocktail.cher.Log;
 import com.threerings.cocktail.cher.dobj.*;
@@ -17,7 +15,7 @@ public class TestServer extends CherServer
     public static TestObject testobj;
 
     public void init ()
-        throws IOException
+        throws Exception
     {
         super.init();
 

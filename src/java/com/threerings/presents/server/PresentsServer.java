@@ -1,9 +1,8 @@
 //
-// $Id: PresentsServer.java,v 1.12 2001/08/08 23:56:20 mdb Exp $
+// $Id: PresentsServer.java,v 1.13 2001/09/28 22:32:28 mdb Exp $
 
 package com.threerings.cocktail.cher.server;
 
-import java.io.IOException;
 import com.samskivert.util.Config;
 
 import com.threerings.cocktail.cher.Log;
@@ -51,7 +50,7 @@ public class CherServer
      * Initializes all of the server services and prepares for operation.
      */
     public void init ()
-        throws IOException
+        throws Exception
     {
         // create our configuration object
         config = new Config();

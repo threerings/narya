@@ -1,9 +1,7 @@
 //
-// $Id: WhirledServer.java,v 1.3 2001/09/28 22:23:48 mdb Exp $
+// $Id: WhirledServer.java,v 1.4 2001/09/28 22:32:28 mdb Exp $
 
 package com.threerings.whirled.server;
-
-import java.io.IOException;
 
 import com.samskivert.jdbc.ConnectionProvider;
 import com.samskivert.jdbc.StaticConnectionProvider;
@@ -34,7 +32,7 @@ public class WhirledServer extends PartyServer
      * Initializes all of the server services and prepares for operation.
      */
     public void init ()
-        throws IOException
+        throws Exception
     {
         // do the cher server initialization
         super.init();
@@ -65,11 +63,11 @@ public class WhirledServer extends PartyServer
      * whirled server configuration and use those properties to create a
      * {@link com.samskivert.jdbc.StaticConnectionProvider}.
      *
-     * @exception IOException thrown if an error occurs creating the
+     * @exception Exception thrown if an error occurs creating the
      * connection provider.
      */
     protected ConnectionProvider createConnectionProvider (Config config)
-        throws IOException
+        throws Exception
     {
         String dbmap = config.getValue(DBMAP_KEY, DEF_DBMAP);
         return new StaticConnectionProvider(dbmap);
@@ -81,12 +79,12 @@ public class WhirledServer extends PartyServer
      * (which they most likely will), they should override this method and
      * instantiate the scene repository of their choosing.
      *
-     * @exception IOException thrown if any error occurs while
-     * instantiating or initializing the scene repository.
+     * @exception Exception thrown if any error occurs while instantiating
+     * or initializing the scene repository.
      */
     protected SceneRepository createSceneRepository (
         ConnectionProvider conprov)
-        throws IOException
+        throws Exception
     {
         return new DummySceneRepository();
     }
