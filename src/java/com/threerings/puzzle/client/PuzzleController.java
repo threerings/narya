@@ -1,5 +1,5 @@
 //
-// $Id: PuzzleController.java,v 1.6 2004/04/28 18:57:55 ray Exp $
+// $Id: PuzzleController.java,v 1.7 2004/04/29 00:28:05 ray Exp $
 
 package com.threerings.puzzle.client;
 
@@ -12,6 +12,8 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
 import java.util.ArrayList;
+
+import com.samskivert.swing.util.MouseHijacker;
 
 import com.samskivert.util.CollectionUtil;
 import com.samskivert.util.ObserverList;
@@ -152,12 +154,16 @@ public abstract class PuzzleController extends GameController
 
         // if we're moving focus to chat..
         if (chatting) {
+            // don't let mouse clicks land on the board
+            final MouseHijacker jack = new MouseHijacker(_panel.getBoardView());
+
             // ...enable "click to unchat" mode in the puzzle board view
             MouseAdapter unpauser = new MouseAdapter() {
                 public void mousePressed (MouseEvent event) {
                     setChatting(false);
                     _panel.removeMouseListener(this);
                     _panel.getBoardView().removeMouseListener(this);
+                    jack.release();
                 }
             };
             _panel.addMouseListener(unpauser);
