@@ -1,5 +1,5 @@
 //
-// $Id: ConMgrStats.java,v 1.1 2004/08/04 02:31:18 mdb Exp $
+// $Id: ConMgrStats.java,v 1.2 2004/08/04 02:36:56 mdb Exp $
 
 package com.threerings.presents.data;
 
@@ -12,6 +12,12 @@ public class ConMgrStats implements Streamable
 {
     /** The current index into the history arrays. */
     public int current;
+
+    /** The size of the queue of waiting to auth sockets. */
+    public int[] authQueueSize;
+
+    /** The size of the queue of waiting to die sockets. */
+    public int[] deathQueueSize;
 
     /** The outgoing queue size. */
     public int[] outQueueSize;
@@ -36,6 +42,8 @@ public class ConMgrStats implements Streamable
     public void increment ()
     {
         current++;
+        authQueueSize[current] = 0;
+        deathQueueSize[current] = 0;
         outQueueSize[current] = 0;
         overQueueSize[current] = 0;
         bytesIn[current] = 0;

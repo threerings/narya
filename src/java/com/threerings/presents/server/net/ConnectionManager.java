@@ -1,5 +1,5 @@
 //
-// $Id: ConnectionManager.java,v 1.40 2004/08/04 02:31:18 mdb Exp $
+// $Id: ConnectionManager.java,v 1.41 2004/08/04 02:36:56 mdb Exp $
 
 package com.threerings.presents.server.net;
 
@@ -102,9 +102,23 @@ public class ConnectionManager extends LoopingThread
     /**
      * Returns our current runtime statistics. When the stats are fetched
      * the counters are rolled to the next bucket. 60 buckets are tracked.
+     * <em>Note:</em> don't call this method <em>too</em> frequently (more
+     * often than once every few seconds or so) as it has to total things
+     * up and run a number of synchronized methods.
      */
     public synchronized ConMgrStats getStats ()
     {
+        // fill in our snapshot values
+        _stats.authQueueSize[_stats.current] = _authq.size();
+        _stats.deathQueueSize[_stats.current] = _deathq.size();
+        _stats.outQueueSize[_stats.current] = _outq.size();
+        if (_oflowqs.size() > 0) {
+            Iterator oqiter = _oflowqs.values().iterator();
+            while (oqiter.hasNext()) {
+                OverflowQueue oq = (OverflowQueue)oqiter.next();
+                _stats.overQueueSize[_stats.current] += oq.size();
+            }
+        }
         _stats.increment();
         return _stats;
     }
