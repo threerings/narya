@@ -1,5 +1,5 @@
 //
-// $Id: PuzzleController.java,v 1.16 2004/10/23 01:19:39 mdb Exp $
+// $Id: PuzzleController.java,v 1.17 2004/10/28 18:59:35 mdb Exp $
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -66,7 +66,7 @@ public abstract class PuzzleController extends GameController
     /** The action command to toggle chatting mode. */
     public static final String TOGGLE_CHATTING = "toggle_chat";
 
-    /** Used by {@link #fireWhenActionCleared}. */
+    /** Used by {@link PuzzleController#fireWhenActionCleared}. */
     public static interface ClearPender
     {
         /** {@link #actionCleared} return code. */
