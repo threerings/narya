@@ -1,5 +1,5 @@
 //
-// $Id: SpotSceneDirector.java,v 1.28 2003/04/07 21:50:04 mdb Exp $
+// $Id: SpotSceneDirector.java,v 1.29 2003/05/06 00:21:59 mdb Exp $
 
 package com.threerings.whirled.spot.client;
 
@@ -271,22 +271,17 @@ public class SpotSceneDirector extends BasicDirector
         return true;
     }
 
-    // documentation inherited
+    // documentation inherited from interface
     public void objectAvailable (DObject object)
     {
-        // we've got our cluster chat object, configure the chat director
-        // with it and keep a reference ourselves
+        clearCluster();
+        _clobj = object;
         if (_chatdir != null) {
-            // unwire and clear out our cluster chat object if we've got one
-            clearCluster();
-
-            // set up the new cluster object
             _chatdir.addAuxiliarySource(object, CLUSTER_CHAT_TYPE);
-            _clobj = object;
         }
     }
 
-    // documentation inherited
+    // documentation inherited from interface
     public void requestFailed (int oid, ObjectAccessException cause)
     {
         Log.warning("Unable to subscribe to cluster chat object " +
@@ -296,25 +291,13 @@ public class SpotSceneDirector extends BasicDirector
     // documentation inherited from interface
     public void attributeChanged (AttributeChangedEvent event)
     {
-        int cloid = _self.getClusterOid();
-        if ((_clobj == null && cloid <= 0) ||
-            (_clobj != null && cloid == _clobj.getOid())) {
-            // our cluster didn't change, we can stop now
-            return;
-        }
-
-        // clear out any old cluster object
-        clearCluster();
-
-        // if there's a new cluster object, subscribe to it
-        if (_chatdir != null && cloid > 0) {
-            DObjectManager omgr = _ctx.getDObjectManager();
-            // we'll wire up to the chat director when this completes
-            omgr.subscribeToObject(cloid, this);
+        if (event.getName().equals(_self.getClusterField()) &&
+            !event.getValue().equals(event.getOldValue())) {
+            maybeUpdateCluster();
         }
     }
 
-    // documentation inherited from interface
+    // documentation inherited
     public void clientDidLogon (Client client)
     {
         super.clientDidLogon(client);
@@ -322,9 +305,12 @@ public class SpotSceneDirector extends BasicDirector
         // listen to the client object
         client.getClientObject().addListener(this);
         _self = (ClusteredBodyObject)client.getClientObject();
+
+        // we may need to subscribe to a cluster due to session resumption
+        maybeUpdateCluster();
     }
 
-    // documentation inherited from interface
+    // documentation inherited
     public void clientObjectDidChange (Client client)
     {
         super.clientObjectDidChange(client);
@@ -363,9 +349,30 @@ public class SpotSceneDirector extends BasicDirector
     {
         // clear out our last known location id
         _location = null;
+    }
 
-        // unwire and clear out our cluster chat object if we've got one
+    /**
+     * Checks to see if our cluster has changed and does the necessary
+     * subscription machinations if necessary.
+     */
+    protected void maybeUpdateCluster ()
+    {
+        int cloid = _self.getClusterOid();
+        if ((_clobj == null && cloid <= 0) ||
+            (_clobj != null && cloid == _clobj.getOid())) {
+            // our cluster didn't change, we can stop now
+            return;
+        }
+
+        // clear out any old cluster object
         clearCluster();
+
+        // if there's a new cluster object, subscribe to it
+        if (_chatdir != null && cloid > 0) {
+            DObjectManager omgr = _ctx.getDObjectManager();
+            // we'll wire up to the chat director when this completes
+            omgr.subscribeToObject(cloid, this);
+        }
     }
 
     /**
@@ -374,10 +381,10 @@ public class SpotSceneDirector extends BasicDirector
      */
     protected void clearCluster ()
     {
-        if (_chatdir != null && _clobj != null) {
-            // unwire the auxiliary chat object
-            _chatdir.removeAuxiliarySource(_clobj);
-            // unsubscribe as well
+        if (_clobj != null) {
+            if (_chatdir != null) {
+                _chatdir.removeAuxiliarySource(_clobj);
+            }
             DObjectManager omgr = _ctx.getDObjectManager();
             omgr.unsubscribeFromObject(_clobj.getOid(), this);
             _clobj = null;

@@ -1,5 +1,5 @@
 //
-// $Id: ClusteredBodyObject.java,v 1.1 2003/02/12 07:23:31 mdb Exp $
+// $Id: ClusteredBodyObject.java,v 1.2 2003/05/06 00:21:59 mdb Exp $
 
 package com.threerings.whirled.spot.data;
 
@@ -12,6 +12,11 @@ import com.threerings.whirled.data.ScenedBodyObject;
  */
 public interface ClusteredBodyObject extends ScenedBodyObject
 {
+    /**
+     * Returns the field name of the cluster oid distributed object field.
+     */
+    public String getClusterField ();
+
     /**
      * Returns the oid of the cluster to which this user currently
      * belongs.
