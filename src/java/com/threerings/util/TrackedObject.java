@@ -1,5 +1,5 @@
 //
-// $Id: TrackedObject.java,v 1.2 2004/08/14 01:32:23 ray Exp $
+// $Id: TrackedObject.java,v 1.3 2004/08/14 01:52:46 mdb Exp $
 
 package com.threerings.util;
 
@@ -34,7 +34,10 @@ public class TrackedObject
 
     /** Records that this object was collected. */
     protected void finalize ()
+        throws Throwable
     {
+        super.finalize();
+
         Class clazz = getClass();
         synchronized (_map) {
             int[] count = (int[])_map.get(clazz);
