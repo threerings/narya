@@ -1,5 +1,5 @@
 //
-// $Id: DObject.java,v 1.52 2002/10/04 01:31:59 mdb Exp $
+// $Id: DObject.java,v 1.53 2002/10/06 20:25:05 mdb Exp $
 
 package com.threerings.presents.dobj;
 
@@ -415,7 +415,8 @@ public class DObject implements Streamable
 
         } catch (Exception e) {
             String errmsg = "Attribute setting failure [name=" + name +
-                ", value=" + value + "].";
+                ", value=" + value +
+                ", vclass=" + value.getClass().getName() + "].";
             throw new ObjectAccessException(errmsg, e);
         }
     }
