@@ -1,5 +1,5 @@
 //
-// $Id: ViewerApp.java,v 1.13 2001/11/02 03:09:10 shaper Exp $
+// $Id: ViewerApp.java,v 1.14 2001/11/08 02:58:24 mdb Exp $
 
 package com.threerings.miso.viewer;
 
@@ -8,6 +8,8 @@ import java.io.IOException;
 
 import com.samskivert.swing.util.SwingUtil;
 import com.samskivert.util.Config;
+
+import com.threerings.resource.ResourceManager;
 
 import com.threerings.media.ImageManager;
 import com.threerings.media.tile.TileManager;
@@ -37,7 +39,8 @@ public class ViewerApp
 	_config = MisoUtil.createConfig(
             ViewerModel.CONFIG_KEY, "rsrc/config/miso/viewer");
 	_model = createModel(_config, args);
-        _imgmgr = MisoUtil.createImageManager(_frame);
+        _rsrcmgr = new ResourceManager("rsrc");
+        _imgmgr = new ImageManager(_rsrcmgr, _frame);
 	_tilemgr = MisoUtil.createTileManager(_config, _imgmgr);
 	_screpo = MisoUtil.createSceneRepository(_config, _tilemgr);
 
@@ -79,6 +82,11 @@ public class ViewerApp
 	    return _tilemgr;
 	}
 
+        public ResourceManager getResourceManager ()
+        {
+            return _rsrcmgr;
+        }
+
         public XMLSceneRepository getSceneRepository ()
         {
             return _screpo;
@@ -114,6 +122,9 @@ public class ViewerApp
 
     /** The config object. */
     protected Config _config;
+
+    /** The resource manager. */
+    protected ResourceManager _rsrcmgr;
 
     /** The scene repository. */
     protected XMLSceneRepository _screpo;

@@ -1,11 +1,12 @@
 //
-// $Id: ViewerSceneViewPanel.java,v 1.29 2001/11/02 15:28:20 shaper Exp $
+// $Id: ViewerSceneViewPanel.java,v 1.30 2001/11/08 02:58:24 mdb Exp $
 
 package com.threerings.miso.viewer;
 
 import java.awt.*;
 import java.awt.event.*;
 import java.io.IOException;
+import java.io.InputStream;
 import javax.swing.JPanel;
 
 import com.samskivert.util.Config;
@@ -112,7 +113,9 @@ public class ViewerSceneViewPanel extends SceneViewPanel
 	ViewerModel model = _ctx.getViewerModel();
         try {
 	    XMLSceneRepository screpo = _ctx.getSceneRepository();
-            _view.setScene(screpo.loadScene(model.scenefile));
+            InputStream scin = _ctx.getResourceManager().
+                getResource(model.scenefile);
+            _view.setScene(screpo.loadScene(scin));
 
         } catch (IOException ioe) {
             Log.warning("Exception loading scene [fname=" + model.scenefile +

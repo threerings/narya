@@ -1,5 +1,5 @@
 //
-// $Id: TestApp.java,v 1.3 2001/11/08 02:07:36 mdb Exp $
+// $Id: TestApp.java,v 1.4 2001/11/08 02:58:23 mdb Exp $
 
 package com.threerings.cast.builder;
 
@@ -9,6 +9,7 @@ import javax.swing.JFrame;
 import com.samskivert.util.Config;
 import com.samskivert.swing.util.SwingUtil;
 
+import com.threerings.resource.ResourceManager;
 import com.threerings.media.ImageManager;
 
 import com.threerings.cast.Log;
@@ -26,7 +27,9 @@ public class TestApp
 
         // create the handles on our various services
         _config = MisoUtil.createConfig();
-	_imgmgr = MisoUtil.createImageManager(_frame);
+
+        ResourceManager rsrcmgr = new ResourceManager("rsrc");
+	_imgmgr = new ImageManager(rsrcmgr, _frame);
 
         CharacterManager charmgr =
             MisoUtil.createCharacterManager(_config, _imgmgr);
