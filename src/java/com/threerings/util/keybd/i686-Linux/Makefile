@@ -1,5 +1,5 @@
 #
-# $Id: Makefile,v 1.3 2003/01/12 02:06:10 shaper Exp $
+# $Id: Makefile,v 1.4 2003/02/18 23:06:54 ray Exp $
 
 #
 # Executable definitions
@@ -19,7 +19,7 @@ INSTALL_PATH=${ROOT}/dist/lib/i686-Linux
 #
 # Parameter and file definitions
 
-INCLUDES=-I.. -I/usr/local/jdk1.4/include -I/usr/local/jdk1.4/include/linux
+INCLUDES=-I.. -I${JAVA_HOME}/include -I${JAVA_HOME}/include/linux
 LIBRARIES=-lX11
 TARGET=libkeybd.so
 INSTALL_TARGET=${INSTALL_PATH}/${TARGET}
