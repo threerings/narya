@@ -1,9 +1,9 @@
 //
-// $Id: SceneView.java,v 1.24 2002/02/17 23:45:36 mdb Exp $
+// $Id: SceneView.java,v 1.25 2002/02/19 01:24:59 mdb Exp $
 
 package com.threerings.miso.scene;
 
-import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.event.MouseEvent;
@@ -19,22 +19,6 @@ import com.threerings.media.sprite.Path;
 public interface SceneView
 {
     /**
-     * Invalidate a list of rectangles in screen pixel coordinates in the
-     * scene view for later repainting.
-     *
-     * @param rects the list of {@link java.awt.Rectangle} objects.
-     */
-    public void invalidateRects (List rects);
-
-    /**
-     * Invalidate a rectangle in screen pixel coordinates in the scene
-     * view for later repainting.
-     *
-     * @param rect the {@link java.awt.Rectangle} object.
-     */
-    public void invalidateRect (Rectangle rect);
-
-    /**
      * Scrolls the view by the requested number of pixels. As the view is
      * not responsible for maintaining the back buffer, this will simply
      * dirty the regions exposed by scrolling and update the view's
@@ -46,9 +30,10 @@ public interface SceneView
     /**
      * Renders the scene to the given graphics context.
      *
-     * @param g the graphics context.
+     * @param gfx the graphics context.
+     * @param invalidRects the list of invalid regions to be repainted.
      */
-    public void paint (Graphics g);
+    public void paint (Graphics2D gfx, List invalidRects);
 
     /**
      * Sets the scene that we're rendering.

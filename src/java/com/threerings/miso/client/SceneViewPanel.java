@@ -1,5 +1,5 @@
 //
-// $Id: SceneViewPanel.java,v 1.29 2002/02/18 00:40:58 mdb Exp $
+// $Id: SceneViewPanel.java,v 1.30 2002/02/19 01:24:59 mdb Exp $
 
 package com.threerings.miso.scene;
 
@@ -16,6 +16,8 @@ import java.util.List;
 import com.threerings.media.animation.AnimationManager;
 import com.threerings.media.animation.AnimatedPanel;
 import com.threerings.media.sprite.SpriteManager;
+
+import com.threerings.miso.Log;
 import com.threerings.miso.util.MisoUtil;
 
 /**
@@ -145,16 +147,16 @@ public class SceneViewPanel extends AnimatedPanel
     }
 
     // documentation inherited
-    protected void render (Graphics2D gfx)
+    protected void render (Graphics2D gfx, List invalidRects)
     {
         // translate into happy space
         gfx.translate(-_tx, -_ty);
 
         // render the view
-        _view.paint(gfx);
+        _view.paint(gfx, invalidRects);
 
         // give derived classes a chance to render on top of the view
-        renderOnView(gfx);
+        renderOnView(gfx, invalidRects);
 
         // translate back out of happy space
         gfx.translate(_tx, _ty);
@@ -166,21 +168,8 @@ public class SceneViewPanel extends AnimatedPanel
      * called after the view is rendered, so things drawn here appear on
      * top of the scene view.
      */
-    protected void renderOnView (Graphics2D gfx)
+    protected void renderOnView (Graphics2D gfx, List invalidRects)
     {
-    }
-
-    // documentation inherited
-    public void invalidateRects (List rects)
-    {
-        // pass the invalid rects on to our scene view
-        _view.invalidateRects(rects);
-    }
-
-    // documentation inherited
-    public void invalidateRect (Rectangle rect)
-    {
-        _view.invalidateRect(rect);
     }
 
     /**
