@@ -1,5 +1,5 @@
 //
-// $Id: SimpleDisplayMisoSceneImpl.java,v 1.2 2003/02/20 00:40:13 ray Exp $
+// $Id: SimpleDisplayMisoSceneImpl.java,v 1.3 2003/04/01 02:17:58 mdb Exp $
 
 package com.threerings.miso.client;
 
@@ -9,6 +9,7 @@ import com.threerings.media.tile.NoSuchTileException;
 import com.threerings.media.tile.NoSuchTileSetException;
 import com.threerings.media.tile.ObjectTile;
 import com.threerings.media.tile.Tile;
+import com.threerings.media.tile.TileSet;
 
 import com.threerings.miso.Log;
 import com.threerings.miso.client.util.ObjectSet;
@@ -49,6 +50,13 @@ public class SimpleDisplayMisoSceneImpl extends SimpleMisoSceneImpl
         _base = new BaseTile[swid*shei];
         _fringe = new Tile[swid*shei];
         _covered = new boolean[swid*shei];
+    }
+
+    // documentation inherited from interface
+    public void init ()
+    {
+        int swid = _model.width;
+        int shei = _model.height;
 
         // load up the tiles for our base layer
         for (int column = 0; column < shei; column++) {
@@ -155,7 +163,6 @@ public class SimpleDisplayMisoSceneImpl extends SimpleMisoSceneImpl
             // nothing doing
             return;
         }
-        int tsid = fqTileId >> 16, tid = (fqTileId & 0xFFFF);
 
         // this is a bit magical, but the tile manager will fetch tiles
         // from the tileset repository and the tile set id from which we
@@ -164,7 +171,7 @@ public class SimpleDisplayMisoSceneImpl extends SimpleMisoSceneImpl
         // is well
         String errmsg = null;
         try {
-            _base[y*_model.width+x] = (BaseTile)_tmgr.getTile(tsid, tid);
+            _base[y*_model.width+x] = (BaseTile)_tmgr.getTile(fqTileId);
         } catch (ClassCastException cce) {
             errmsg = "Scene contains non-base tile in base layer";
         } catch (NoSuchTileSetException nste) {
@@ -174,7 +181,7 @@ public class SimpleDisplayMisoSceneImpl extends SimpleMisoSceneImpl
         }
 
         if (errmsg != null) {
-            Log.warning(errmsg + " [tsid=" + tsid + ", tid=" + tid +
+            Log.warning(errmsg + " [fqtid=" + fqTileId +
                         ", x=" + x + ", y=" + y + "].");
         }
     }
@@ -186,7 +193,8 @@ public class SimpleDisplayMisoSceneImpl extends SimpleMisoSceneImpl
     {
         int tsid = (info.tileId >> 16) & 0xFFFF, tid = (info.tileId & 0xFFFF);
         try {
-            initObject(info, (ObjectTile)_tmgr.getTile(tsid, tid));
+            initObject(info, (ObjectTile)_tmgr.getTile(
+                           tsid, tid, getColorizer(info)));
             return true;
         } catch (NoSuchTileException nste) {
             Log.warning("Scene contains non-existent object tile " +
@@ -275,6 +283,18 @@ public class SimpleDisplayMisoSceneImpl extends SimpleMisoSceneImpl
     protected ObjectInfo createObjectInfo (ObjectInfo source)
     {
         return new DisplayObjectInfo(source);
+    }
+
+    /**
+     * Returns the colorizer for the specified display object. The
+     * colorizer must provide colorization assignments that will be used
+     * to recolor the tile image when it is obtained from the tile
+     * manager. For an object with no colorizations, it is valid to return
+     * null here.
+     */
+    protected TileSet.Colorizer getColorizer (DisplayObjectInfo oinfo)
+    {
+        return null;
     }
 
     /** The tile manager from which we load tiles. */

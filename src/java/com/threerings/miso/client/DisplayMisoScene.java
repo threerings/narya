@@ -1,5 +1,5 @@
 //
-// $Id: DisplayMisoScene.java,v 1.10 2003/02/12 07:21:15 mdb Exp $
+// $Id: DisplayMisoScene.java,v 1.11 2003/04/01 02:17:58 mdb Exp $
 
 package com.threerings.miso.client;
 
@@ -13,6 +13,12 @@ import com.threerings.miso.tile.BaseTile;
  */
 public interface DisplayMisoScene extends MisoScene
 {
+    /**
+     * This will be called before the scene is displayed to give it a
+     * chance to look up its image data and prepare itself for display.
+     */
+    public void init ();
+
     /**
      * Returns the base tile at the specified coordinates.
      */

@@ -1,5 +1,5 @@
 //
-// $Id: IsoSceneView.java,v 1.134 2003/03/10 09:24:04 ray Exp $
+// $Id: IsoSceneView.java,v 1.135 2003/04/01 02:17:58 mdb Exp $
 
 package com.threerings.miso.client;
 
@@ -106,6 +106,7 @@ public class IsoSceneView implements SceneView
     public void setScene (DisplayMisoScene scene)
     {
         _scene = scene;
+        _scene.init();
 
         // obtain a list of the objects in the scene and generate records
         // for each of them that contain precomputed metrics

@@ -1,5 +1,5 @@
 //
-// $Id: VirtualDisplayMisoSceneImpl.java,v 1.1 2003/02/12 07:21:15 mdb Exp $
+// $Id: VirtualDisplayMisoSceneImpl.java,v 1.2 2003/04/01 02:17:58 mdb Exp $
 
 package com.threerings.miso.client;
 
@@ -20,6 +20,11 @@ import com.threerings.miso.tile.BaseTile;
 public class VirtualDisplayMisoSceneImpl
     implements DisplayMisoScene
 {
+    // documentation inherited from interface
+    public void init ()
+    {
+    }
+
     // documentation inherited from interface
     public int getBaseTileId (int x, int y)
     {
