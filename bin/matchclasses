@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: matchclasses,v 1.7 2003/07/24 23:50:32 mdb Exp $
+# $Id: matchclasses,v 1.8 2003/07/24 23:51:50 mdb Exp $
 #
 # A script which inspects a hierarchy of classes and generates lists of
 # classes that match specified criterion. The criterion are that a class
@@ -89,7 +89,7 @@ while (@gclasses) {
     my @cargs = splice(@gclasses, 0, min($ccount, 100));
     my $carg = "'" . join("' '", @cargs) . "'";
 
-    print "javap -classpath $classpath $carg\n";
+    # print "javap -classpath $classpath $carg\n";
 
     if (!open(JAVAP, "javap -classpath $classpath $carg|")) {
         warn "Can't inspect $carg: $!\n";
