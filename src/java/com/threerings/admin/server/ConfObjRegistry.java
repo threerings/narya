@@ -1,21 +1,34 @@
 //
-// $Id: ConfObjRegistry.java,v 1.7 2004/02/25 14:39:14 mdb Exp $
+// $Id: ConfObjRegistry.java,v 1.8 2004/03/04 02:50:30 eric Exp $
 
 package com.threerings.admin.server;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 
 import java.util.HashMap;
 import java.util.Iterator;
 
+import com.samskivert.io.ByteArrayOutInputStream;
 import com.samskivert.util.Config;
+import com.samskivert.util.StringUtil;
+
+import com.threerings.io.ObjectInputStream;
+import com.threerings.io.ObjectOutputStream;
+import com.threerings.io.Streamable;
 
 import com.threerings.presents.dobj.AttributeChangeListener;
 import com.threerings.presents.dobj.AttributeChangedEvent;
 import com.threerings.presents.dobj.DObject;
+import com.threerings.presents.dobj.EntryAddedEvent;
+import com.threerings.presents.dobj.EntryRemovedEvent;
+import com.threerings.presents.dobj.EntryUpdatedEvent;
+import com.threerings.presents.dobj.SetListener;
 
 import com.threerings.admin.Log;
+import com.threerings.presents.dobj.ObjectAccessException;
 
 /**
  * Provides a registry of configuration distributed objects. Using
@@ -89,7 +102,7 @@ public class ConfObjRegistry
      * registration.
      */
     protected static class ConfObjRecord
-        implements AttributeChangeListener
+        implements AttributeChangeListener, SetListener
     {
         public DObject confObj;
         public Config config;
@@ -123,6 +136,26 @@ public class ConfObjRegistry
             }
         }
 
+        // documentation inherited
+        public void entryAdded (EntryAddedEvent event)
+        {
+            // TODO test
+            serializeAttribute(event.getName());
+        }
+
+        // documentation inherited
+        public void entryUpdated (EntryUpdatedEvent event)
+        {
+            serializeAttribute(event.getName());
+        }
+
+        // documentation inherited
+        public void entryRemoved (EntryRemovedEvent event)
+        {
+            // TODO test
+            serializeAttribute(event.getName());
+        }
+
         public void attributeChanged (AttributeChangedEvent event)
         {
             // mirror this configuration update to the on-disk config
@@ -145,7 +178,6 @@ public class ConfObjRegistry
                 config.setValue(key, (int[])value);
             } else if (value instanceof String[]) {
                 config.setValue(key, (String[])value);
-
             } else {
                 Log.info("Unable to flush config object change " +
                          "[cobj=" + confObj.getClass().getName() +
@@ -195,6 +227,25 @@ public class ConfObjRegistry
                     String[] defval = (String[])field.get(confObj);
                     field.set(confObj, config.getValue(key, defval));
 
+                } else if (Streamable.class.isAssignableFrom(type)) {
+
+                    // don't freak out if the conf is blank.
+                    String value = config.getValue(key, "");
+                    if (StringUtil.blank(value)) {
+                        return;
+                    }
+
+                    try {
+                        ByteArrayInputStream bin = new ByteArrayInputStream(
+                            StringUtil.unhexlate(value));
+                        ObjectInputStream oin = new ObjectInputStream(bin);
+                        field.set(confObj, oin.readObject());
+                    } catch (Exception e) {
+                        Log.warning("Failure decoding config value [type=" +
+                                    type + ", field=" + field + ", exception=" +
+                                    e + "].");
+                    }
+
                 } else {
                     Log.warning("Can't init field of unknown type " +
                                 "[cobj=" + confObj.getClass().getName() +
@@ -233,6 +284,50 @@ public class ConfObjRegistry
                 }
             }
             return key.toString();
+        }
+
+        /**
+         * Get the specified attribute from the configuration object, and
+         * serialize it.
+         */
+        protected void serializeAttribute (String attributeName)
+        {
+            String key = fieldToKey(attributeName);
+            Object value;
+            try {
+                value = confObj.getAttribute(attributeName);
+            } catch (ObjectAccessException oae) {
+                Log.warning("Exception getting dset [setname=" + attributeName +
+                            "exception=" + oae + "].");
+                return;
+            }
+
+            if (value instanceof Streamable) {
+                serialize(key, value);
+            } else {
+                Log.info("Unable to flush config object change " +
+                         "[cobj=" + confObj.getClass().getName() +
+                         ", key=" + key +
+                         ", type=" + value.getClass().getName() +
+                         ", value=" + value + "].");
+            }
+        }
+
+        /**
+         * Save the specified object as serialized data associated with
+         * the specified key.
+         */
+        protected void serialize (String key, Object value)
+        {
+            ByteArrayOutInputStream out = new ByteArrayOutInputStream();
+            ObjectOutputStream oout = new ObjectOutputStream(out);
+            try {
+                oout.writeObject(value);
+                oout.flush();
+                config.setValue(key, StringUtil.hexlate(out.toByteArray()));
+            } catch (IOException ioe) {
+                Log.info("Error serializing value " + value);
+            }
         }
 
         protected static final int[] INT_ARRAY_PROTO = new int[0];
