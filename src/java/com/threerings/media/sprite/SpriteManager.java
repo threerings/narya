@@ -1,5 +1,5 @@
 //
-// $Id: SpriteManager.java,v 1.19 2002/01/22 20:09:02 shaper Exp $
+// $Id: SpriteManager.java,v 1.20 2002/01/31 01:04:13 mdb Exp $
 
 package com.threerings.media.sprite;
 
@@ -62,6 +62,28 @@ public class SpriteManager
         for (int ii = 0; ii < size; ii++) {
             Sprite sprite = (Sprite)_sprites.get(ii);
             if (sprite.intersects(shape)) {
+                list.add(sprite);
+            }
+        }
+    }
+
+    /**
+     * When an animated view is determining what entity in its view is
+     * under the mouse pointer, it may require a list of sprites that are
+     * "hit" by a particular pixel. The sprites' bounds are first checked
+     * and sprites with bounds that contain the supplied point are further
+     * checked for a non-transparent at the specified location.
+     *
+     * @param list the list to fill with any intersecting sprites.
+     * @param x the x (screen) coordinate to be checked.
+     * @param y the y (screen) coordinate to be checked.
+     */
+    public void getHitSprites (List list, int x, int y)
+    {
+        int size = _sprites.size();
+        for (int ii = 0; ii < size; ii++) {
+            Sprite sprite = (Sprite)_sprites.get(ii);
+            if (sprite.hitTest(x, y)) {
                 list.add(sprite);
             }
         }
