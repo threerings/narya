@@ -1,5 +1,5 @@
 //
-// $Id: SafeSubscriber.java,v 1.2 2003/12/11 18:46:02 mdb Exp $
+// $Id: SafeSubscriber.java,v 1.3 2003/12/11 18:47:43 mdb Exp $
 
 package com.threerings.presents.util;
 
@@ -168,6 +168,14 @@ public class SafeSubscriber
     // documentation inherited from interface
     public void requestFailed (int oid, ObjectAccessException cause)
     {
+        // do the right thing with our pending state
+        if (!_pending) {
+            Log.warning("Criminy creole! Our subscribe failed but we're " +
+                        "not pending!? " + this);
+            // go with our badselves, it's the only way
+        }
+        _pending = false;
+
         // if we're active, let our subscriber know that the shit hit the fan
         if (_active) {
             _subscriber.requestFailed(oid, cause);
