@@ -1,7 +1,7 @@
 //
-// $Id: GameController.java,v 1.6 2001/10/11 04:07:51 mdb Exp $
+// $Id: GameController.java,v 1.7 2001/10/11 21:08:21 mdb Exp $
 
-package com.threerings.parlor.client;
+package com.threerings.parlor.game;
 
 import java.awt.event.ActionEvent;
 
@@ -14,8 +14,6 @@ import com.threerings.crowd.data.PlaceObject;
 import com.threerings.crowd.util.CrowdContext;
 
 import com.threerings.parlor.Log;
-import com.threerings.parlor.data.GameConfig;
-import com.threerings.parlor.data.GameObject;
 import com.threerings.parlor.util.ParlorContext;
 
 /**

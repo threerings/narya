@@ -1,7 +1,7 @@
 //
-// $Id: GameManager.java,v 1.7 2001/10/11 04:07:51 mdb Exp $
+// $Id: GameManager.java,v 1.8 2001/10/11 21:08:21 mdb Exp $
 
-package com.threerings.parlor.server;
+package com.threerings.parlor.game;
 
 import com.threerings.presents.dobj.MessageEvent;
 
@@ -12,10 +12,7 @@ import com.threerings.crowd.server.CrowdServer;
 import com.threerings.crowd.server.CrowdServer;
 
 import com.threerings.parlor.Log;
-import com.threerings.parlor.client.GameCodes;
 import com.threerings.parlor.client.ParlorCodes;
-import com.threerings.parlor.data.GameConfig;
-import com.threerings.parlor.data.GameObject;
 
 /**
  * The game manager handles the server side management of a game. It

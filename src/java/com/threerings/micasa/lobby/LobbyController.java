@@ -1,5 +1,5 @@
 //
-// $Id: LobbyController.java,v 1.5 2001/10/11 04:13:33 mdb Exp $
+// $Id: LobbyController.java,v 1.6 2001/10/11 21:08:21 mdb Exp $
 
 package com.threerings.micasa.lobby;
 
@@ -10,7 +10,7 @@ import com.threerings.crowd.client.PlaceView;
 import com.threerings.crowd.util.CrowdContext;
 
 import com.threerings.parlor.client.*;
-import com.threerings.parlor.data.GameConfig;
+import com.threerings.parlor.game.GameConfig;
 
 import com.threerings.micasa.Log;
 import com.threerings.micasa.util.MiCasaContext;

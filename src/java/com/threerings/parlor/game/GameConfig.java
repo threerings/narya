@@ -1,7 +1,7 @@
 //
-// $Id: GameConfig.java,v 1.6 2001/10/11 04:07:51 mdb Exp $
+// $Id: GameConfig.java,v 1.7 2001/10/11 21:08:21 mdb Exp $
 
-package com.threerings.parlor.data;
+package com.threerings.parlor.game;
 
 import java.io.IOException;
 import java.io.DataInputStream;

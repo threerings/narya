@@ -1,9 +1,9 @@
 //
-// $Id: InvitationResponseObserver.java,v 1.4 2001/10/01 06:19:15 mdb Exp $
+// $Id: InvitationResponseObserver.java,v 1.5 2001/10/11 21:08:21 mdb Exp $
 
 package com.threerings.parlor.client;
 
-import com.threerings.parlor.data.GameConfig;
+import com.threerings.parlor.game.GameConfig;
 
 /**
  * A client entity that wishes to generate invitations for games must

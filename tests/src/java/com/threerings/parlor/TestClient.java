@@ -1,5 +1,5 @@
 //
-// $Id: TestClient.java,v 1.3 2001/10/11 04:07:51 mdb Exp $
+// $Id: TestClient.java,v 1.4 2001/10/11 21:08:22 mdb Exp $
 
 package com.threerings.parlor.test;
 
@@ -15,7 +15,7 @@ import com.threerings.crowd.client.*;
 
 import com.threerings.parlor.Log;
 import com.threerings.parlor.client.*;
-import com.threerings.parlor.data.*;
+import com.threerings.parlor.game.*;
 import com.threerings.parlor.util.ParlorContext;
 
 public class TestClient

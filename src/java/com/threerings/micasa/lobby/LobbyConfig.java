@@ -1,5 +1,5 @@
 //
-// $Id: LobbyConfig.java,v 1.3 2001/10/11 04:13:33 mdb Exp $
+// $Id: LobbyConfig.java,v 1.4 2001/10/11 21:08:21 mdb Exp $
 
 package com.threerings.micasa.lobby;
 
@@ -12,7 +12,7 @@ import com.samskivert.util.StringUtil;
 
 import com.threerings.crowd.data.PlaceConfig;
 
-import com.threerings.parlor.data.GameConfig;
+import com.threerings.parlor.game.GameConfig;
 
 public class LobbyConfig extends PlaceConfig
 {

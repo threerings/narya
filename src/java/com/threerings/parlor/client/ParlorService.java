@@ -1,5 +1,5 @@
 //
-// $Id: ParlorService.java,v 1.6 2001/10/11 04:07:51 mdb Exp $
+// $Id: ParlorService.java,v 1.7 2001/10/11 21:08:21 mdb Exp $
 
 package com.threerings.parlor.client;
 
@@ -7,7 +7,7 @@ import com.threerings.presents.client.Client;
 import com.threerings.presents.client.InvocationDirector;
 
 import com.threerings.parlor.Log;
-import com.threerings.parlor.data.GameConfig;
+import com.threerings.parlor.game.GameConfig;
 
 /**
  * This class provides an interface to the various parlor services that

@@ -1,5 +1,5 @@
 //
-// $Id: ParlorProvider.java,v 1.6 2001/10/11 04:07:51 mdb Exp $
+// $Id: ParlorProvider.java,v 1.7 2001/10/11 21:08:22 mdb Exp $
 
 package com.threerings.parlor.server;
 
@@ -10,7 +10,7 @@ import com.threerings.crowd.server.CrowdServer;
 
 import com.threerings.parlor.Log;
 import com.threerings.parlor.client.ParlorCodes;
-import com.threerings.parlor.data.GameConfig;
+import com.threerings.parlor.game.GameConfig;
 
 /**
  * The parlor provider handles the server side of the various Parlor
