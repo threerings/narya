@@ -1,5 +1,5 @@
 //
-// $Id: SoundManager.java,v 1.30 2002/11/26 02:46:52 ray Exp $
+// $Id: SoundManager.java,v 1.31 2002/11/26 18:54:39 ray Exp $
 
 package com.threerings.media;
 
@@ -550,7 +550,7 @@ public class SoundManager
             break;
 
         case STOP:
-            shutdownMusic();
+            stopMusicPlayer();
             break;
         }
     }
@@ -568,6 +568,14 @@ public class SoundManager
     protected void shutdownMusic ()
     {
         _musicStack.clear();
+        stopMusicPlayer();
+    }
+
+    /**
+     * Stop the current music player.
+     */
+    protected void stopMusicPlayer ()
+    {
         if (_musicPlayer != null) {
             _musicPlayer.stop();
             _musicPlayer.shutdown();
