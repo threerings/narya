@@ -1,12 +1,12 @@
 //
-// $Id: ValueMarshaller.java,v 1.2 2001/08/09 00:59:53 mdb Exp $
+// $Id: ValueMarshaller.java,v 1.3 2001/09/17 05:18:21 mdb Exp $
 
 package com.threerings.cocktail.cher.dobj.io;
 
 import java.io.*;
 import java.util.HashMap;
 
-import com.samskivert.util.IntMap;
+import com.samskivert.util.HashIntMap;
 
 /**
  * The value marshaller provides a mechanism for marshalling and
@@ -483,7 +483,7 @@ public class ValueMarshaller
     }
 
     protected static HashMap _outmap = new HashMap();
-    protected static IntMap _inmap = new IntMap();
+    protected static HashIntMap _inmap = new HashIntMap();
 
     protected static Class[] _classes = {
         Byte.class,

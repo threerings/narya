@@ -1,5 +1,5 @@
 //
-// $Id: TileSetManagerImpl.java,v 1.11 2001/08/16 23:17:46 mdb Exp $
+// $Id: TileSetManagerImpl.java,v 1.12 2001/09/17 05:18:21 mdb Exp $
 
 package com.threerings.media.tile;
 
@@ -63,5 +63,5 @@ public abstract class TileSetManagerImpl implements TileSetManager
     protected ImageManager _imgmgr;
 
     /** The available tilesets keyed by tileset id. */
-    protected IntMap _tilesets = new IntMap();
+    protected HashIntMap _tilesets = new HashIntMap();
 }

@@ -1,5 +1,5 @@
 //
-// $Id: TileManager.java,v 1.15 2001/08/16 23:14:20 mdb Exp $
+// $Id: TileManager.java,v 1.16 2001/09/17 05:18:21 mdb Exp $
 
 package com.threerings.media.tile;
 
@@ -7,7 +7,7 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 
-import com.samskivert.util.IntMap;
+import com.samskivert.util.HashIntMap;
 
 import com.threerings.media.Log;
 
@@ -70,7 +70,7 @@ public class TileManager
     }
 
     /** Cache of tiles that have been requested thus far. */
-    protected IntMap _tiles = new IntMap();
+    protected HashIntMap _tiles = new HashIntMap();
 
     /** The tileset manager. */
     protected TileSetManager _tilesetmgr;

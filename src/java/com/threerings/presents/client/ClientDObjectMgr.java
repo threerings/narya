@@ -1,10 +1,10 @@
 //
-// $Id: ClientDObjectMgr.java,v 1.5 2001/08/07 20:38:58 mdb Exp $
+// $Id: ClientDObjectMgr.java,v 1.6 2001/09/17 05:18:20 mdb Exp $
 
 package com.threerings.cocktail.cher.client;
 
 import java.util.ArrayList;
-import com.samskivert.util.IntMap;
+import com.samskivert.util.HashIntMap;
 import com.samskivert.util.Queue;
 
 import com.threerings.cocktail.cher.Log;
@@ -331,8 +331,8 @@ public class ClientDObjectMgr
      * This table contains all of the distributed objects that are active
      * on this client.
      */
-    protected IntMap _ocache = new IntMap();
+    protected HashIntMap _ocache = new HashIntMap();
 
     /** This table contains pending subscriptions. */
-    protected IntMap _penders = new IntMap();
+    protected HashIntMap _penders = new HashIntMap();
 }
