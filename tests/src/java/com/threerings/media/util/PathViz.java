@@ -1,5 +1,5 @@
 //
-// $Id: PathViz.java,v 1.1 2002/09/17 03:59:27 mdb Exp $
+// $Id: PathViz.java,v 1.2 2002/09/18 20:09:55 mdb Exp $
 
 package com.threerings.media.util;
 
@@ -35,7 +35,7 @@ public class PathViz extends MediaPanel
         Point start = new Point(150, 150);
         double sangle = -3*Math.PI/4;
         ArcPath path = new ArcPath(
-            start, 64, 48, sangle, -Math.PI/2, MOVE_DURATION);
+            start, 64, 48, sangle, -Math.PI/2, MOVE_DURATION, ArcPath.NORMAL);
 //         LinePath path = new LinePath(0, 0, 300, 300, MOVE_DURATION);
         sprite.move(path);
     }
