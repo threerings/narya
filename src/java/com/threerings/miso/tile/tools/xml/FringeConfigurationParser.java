@@ -1,5 +1,5 @@
 //
-// $Id: FringeConfigurationParser.java,v 1.2 2002/04/04 04:06:57 ray Exp $
+// $Id: FringeConfigurationParser.java,v 1.3 2002/04/05 01:35:11 ray Exp $
 
 package com.threerings.miso.scene.tools.xml;
 
@@ -10,7 +10,7 @@ import org.apache.commons.digester.Digester;
 import org.apache.commons.digester.Rule;
 
 import com.samskivert.util.StringUtil;
-import com.samskivert.xml.SetPropertyFieldsRule;
+import com.samskivert.xml.ValidatedSetNextRule;
 
 import com.threerings.tools.xml.CompiledConfigParser;
 
@@ -67,9 +67,24 @@ public class FringeConfigurationParser extends CompiledConfigParser
         // create and configure fringe config instances
         prefix += "/base";
         digest.addObjectCreate(prefix, FringeRecord.class.getName());
-        digest.addSetNext(
-            prefix, "addFringeRecord", FringeRecord.class.getName());
-        digest.addRule(prefix, new Rule(digest) {
+
+        // you'd better match parens if you have any hope of wading
+        // in these waters
+        digest.addRule(prefix,
+            new ValidatedSetNextRule(digest, "addFringeRecord",
+                new ValidatedSetNextRule.Validator () {
+                    public boolean isValid (Object target) {
+                        FringeRecord frec = (FringeRecord) target;
+                        if ((frec.base_tsid == 0) ||
+                            (frec.priority <= 0)) {
+                            Log.warning("A FringeRecord was not added " +
+                                "because it was improperly specified.");
+                            return false;
+                        }
+                        return true;
+                    }
+                }) {
+
             // parse the fringe record, converting tileset names to tileset
             // ids
             public void begin (Attributes attrs)
@@ -94,6 +109,9 @@ public class FringeConfigurationParser extends CompiledConfigParser
 
                     } else if ("priority".equals(name)) {
                         frec.priority = Integer.parseInt(value);
+                    } else {
+                        Log.warning("Skipping unknown attribute " +
+                                    "[name=" + name + "].");
                     }
                 }
             }
@@ -102,9 +120,19 @@ public class FringeConfigurationParser extends CompiledConfigParser
         // create the tileset records in each fringe record
         prefix += "/tileset";
         digest.addObjectCreate(prefix, FringeTileSetRecord.class.getName());
-        digest.addSetNext(
-            prefix, "addTileset", FringeTileSetRecord.class.getName());
-        digest.addRule(prefix, new Rule(digest) {
+        digest.addRule(prefix, new ValidatedSetNextRule(digest, "addTileset",
+            new ValidatedSetNextRule.Validator() {
+                public boolean isValid (Object target) {
+                    FringeTileSetRecord ftsr = (FringeTileSetRecord) target;
+                    if (ftsr.fringe_tsid == 0) {
+                        Log.warning("A FringeTileSetRecord was not added " +
+                            "because it was improperly specified.");
+                        return false;
+                    }
+                    return true;
+                }
+            }) {
+                
             // parse the fringe tilesetrecord, converting tileset names to ids
             public void begin (Attributes attrs)
             throws Exception
@@ -128,6 +156,9 @@ public class FringeConfigurationParser extends CompiledConfigParser
 
                     } else if ("mask".equals(name)) {
                         f.mask = Boolean.getBoolean(value);
+                    } else {
+                        Log.warning("Skipping unknown attribute " +
+                                    "[name=" + name + "].");
                     }
                 }
             }

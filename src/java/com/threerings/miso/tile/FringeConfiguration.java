@@ -1,5 +1,5 @@
 //
-// $Id: FringeConfiguration.java,v 1.3 2002/04/05 00:34:57 ray Exp $
+// $Id: FringeConfiguration.java,v 1.4 2002/04/05 01:35:11 ray Exp $
 
 package com.threerings.miso.scene;
 
@@ -34,11 +34,7 @@ public class FringeConfiguration implements Serializable
         /** Used when parsing the tilesets definitions. */
         public void addTileset (FringeTileSetRecord record)
         {
-            // don't add it unless we found a valid fringe tileset id for
-            // the name as specified in the xml
-            if (record.fringe_tsid != 0) {
-                tilesets.add(record);
-            }
+            tilesets.add(record);
         }
      }
 
