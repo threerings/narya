@@ -1,5 +1,5 @@
 //
-// $Id: SpeakProvider.java,v 1.3 2003/01/22 23:14:44 shaper Exp $
+// $Id: SpeakProvider.java,v 1.4 2003/03/30 02:52:41 mdb Exp $
 
 package com.threerings.crowd.chat;
 
@@ -149,9 +149,8 @@ public class SpeakProvider
      * @param mode the mode of the message, see {@link
      * ChatCodes#DEFAULT_MODE}.
      */
-    public static void sendSpeak (
-        DObject speakObj, String speaker,
-        String bundle, String message, byte mode)
+    public static void sendSpeak (DObject speakObj, String speaker,
+                                  String bundle, String message, byte mode)
     {
         // pass the message along to all observers
         notifyObservers(speakObj, speaker, bundle, message, mode);
