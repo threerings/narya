@@ -1,5 +1,5 @@
 //
-// $Id: SceneViewPanel.java,v 1.9 2001/08/21 20:02:39 mdb Exp $
+// $Id: SceneViewPanel.java,v 1.10 2001/08/21 21:18:21 mdb Exp $
 
 package com.threerings.miso.scene;
 
@@ -91,7 +91,6 @@ public class SceneViewPanel
             paint(g);
 
         } catch (NullPointerException e) {
-            g = null;
             e.printStackTrace();
         }
     }
