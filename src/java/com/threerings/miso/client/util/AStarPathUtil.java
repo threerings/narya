@@ -1,5 +1,5 @@
 //
-// $Id: AStarPathUtil.java,v 1.11 2002/02/07 19:57:24 mdb Exp $
+// $Id: AStarPathUtil.java,v 1.12 2002/02/07 20:02:53 mdb Exp $
 
 package com.threerings.miso.scene.util;
 
@@ -70,9 +70,6 @@ public class AStarPathUtil
 		// construct and return the acceptable path
 		return getNodePath(n);
 	    }
-
-	    // TODO: don't allow diagonal traversal if horiz and vert
-	    // are impassable.
 
 	    // consider each successor of the node
 	    considerStep(info, n, n.x - 1, n.y - 1, 14);
