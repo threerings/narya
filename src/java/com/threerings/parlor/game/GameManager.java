@@ -1,5 +1,5 @@
 //
-// $Id: GameManager.java,v 1.60 2003/02/12 05:34:53 mdb Exp $
+// $Id: GameManager.java,v 1.61 2003/04/11 21:22:30 mdb Exp $
 
 package com.threerings.parlor.game;
 
@@ -279,7 +279,7 @@ public class GameManager extends PlaceManager
      */
     public int getPlayerOid (int index)
     {
-        return _playerOids[index];
+        return (_playerOids == null) ? -1 : _playerOids[index];
     }
 
     /**
