@@ -1,5 +1,5 @@
 //
-// $Id: CharacterManager.java,v 1.13 2002/02/09 23:39:17 shaper Exp $
+// $Id: CharacterManager.java,v 1.14 2002/02/10 00:05:36 shaper Exp $
 
 package com.threerings.cast;
 
@@ -88,6 +88,29 @@ public class CharacterManager
                         "[e=" + e + "].");
             Log.logStackTrace(e);
             return null;
+        }
+    }
+
+    /**
+     * Informs the character manager that the action sequence for the
+     * given character descriptor is likely to be needed in the near
+     * future and so any efforts that can be made to load it into the
+     * action sequence cache in advance should be undertaken.
+     *
+     * <p> This will eventually be revamped to spiffily load action
+     * sequences in the background.
+     */
+    public void resolveActionSequence (CharacterDescriptor desc, String action)
+    {
+        try {
+            if (getActionFrames(desc, action) == null) {
+                Log.warning("Failed to resolve action sequence " +
+                            "[desc=" + desc + ", action=" + action + "].");
+            }
+
+        } catch (NoSuchComponentException nsce) {
+            Log.warning("Failed to resolve action sequence " +
+                        "[nsce=" + nsce + "].");
         }
     }
 
