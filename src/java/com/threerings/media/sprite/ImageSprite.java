@@ -1,5 +1,5 @@
 //
-// $Id: ImageSprite.java,v 1.17 2003/01/13 22:49:46 mdb Exp $
+// $Id: ImageSprite.java,v 1.18 2003/06/24 02:25:10 ray Exp $
 
 package com.threerings.media.sprite;
 
@@ -135,6 +135,14 @@ public class ImageSprite extends Sprite
     public void setFrameRate (float fps)
     {
         _frameDelay = (long)(1000/fps);
+    }
+
+    /**
+     * Set the image to be used for this sprite.
+     */
+    public void setMirage (Mirage mirage)
+    {
+        setFrames(new SingleFrameImageImpl(mirage));
     }
 
     /**
