@@ -1,5 +1,5 @@
 //
-// $Id: PlaceController.java,v 1.12 2003/01/09 02:46:58 mdb Exp $
+// $Id: PlaceController.java,v 1.13 2004/08/16 22:57:44 mdb Exp $
 
 package com.threerings.crowd.client;
 
@@ -69,6 +69,14 @@ public abstract class PlaceController extends Controller
     public PlaceView getPlaceView ()
     {
         return _view;
+    }
+
+    /**
+     * Returns the {@link PlaceConfig} associated with this place.
+     */
+    public PlaceConfig getPlaceConfig ()
+    {
+        return _config;
     }
 
     /**
