@@ -1,5 +1,5 @@
 //
-// $Id: VirtualMediaPanel.java,v 1.12 2002/10/30 09:34:08 shaper Exp $
+// $Id: VirtualMediaPanel.java,v 1.13 2002/11/20 22:15:34 mdb Exp $
 
 package com.threerings.media;
 
@@ -52,6 +52,15 @@ public class VirtualMediaPanel extends MediaPanel
         // make a note of our new x and y offsets
         _nx = x;
         _ny = y;
+    }
+
+    /**
+     * Returns the bounds of the viewport in virtual coordinates. The
+     * returned rectangle must <em>not</em> be modified.
+     */
+    public Rectangle getViewBounds ()
+    {
+        return _vbounds;
     }
 
     /**
@@ -110,7 +119,7 @@ public class VirtualMediaPanel extends MediaPanel
      */
     protected void processMouseEvent (MouseEvent event)
     {
-        event.translatePoint(_tx, _ty);
+        event.translatePoint(_vbounds.x, _vbounds.y);
         super.processMouseEvent(event);
     }
 
@@ -121,7 +130,7 @@ public class VirtualMediaPanel extends MediaPanel
      */
     protected void processMouseMotionEvent (MouseEvent event)
     {
-        event.translatePoint(_tx, _ty);
+        event.translatePoint(_vbounds.x, _vbounds.y);
         super.processMouseMotionEvent(event);
     }
 
@@ -129,7 +138,7 @@ public class VirtualMediaPanel extends MediaPanel
     protected void dirtyScreenRect (Rectangle rect)
     {
         // translate the screen rect into happy coordinates
-        rect.translate(_tx, _ty);
+        rect.translate(_vbounds.x, _vbounds.y);
         _remgr.addDirtyRegion(rect);
     }
 
@@ -147,6 +156,10 @@ public class VirtualMediaPanel extends MediaPanel
     public void setBounds (int x, int y, int width, int height)
     {
         super.setBounds(x, y, width, height);
+
+        // keep track of the size of the viewport
+        _vbounds.width = getWidth();
+        _vbounds.height = getHeight();
 
         // we need to obtain our absolute screen coordinates to work
         // around the Windows copyArea() bug
@@ -178,12 +191,12 @@ public class VirtualMediaPanel extends MediaPanel
 
         // if we have a new target location, we'll need to generate dirty
         // regions for the area exposed by the scrolling
-        if (_nx != _tx || _ny != _ty) {
+        if (_nx != _vbounds.x || _ny != _vbounds.y) {
             // determine how far we'll be moving on this tick
-            _dx = _nx - _tx; _dy = _ny - _ty;
+            _dx = _nx - _vbounds.x; _dy = _ny - _vbounds.y;
 
 //             Log.info("Scrolling into place [n=(" + _nx + ", " + _ny +
-//                      "), t=(" + _tx + ", " + _ty +
+//                      "), t=(" + _vbounds.x + ", " + _vbounds.y +
 //                      "), d=(" + _dx + ", " + _dy +
 //                      "), width=" + width + ", height=" + height + "].");
 
@@ -208,7 +221,7 @@ public class VirtualMediaPanel extends MediaPanel
             // now go ahead and update our location so that changes in
             // between here and the call to paint() for this tick don't
             // booch everything
-            _tx = _nx; _ty = _ny;
+            _vbounds.x = _nx; _vbounds.y = _ny;
         }
     }
 
@@ -225,7 +238,7 @@ public class VirtualMediaPanel extends MediaPanel
         }
 
         int width = getWidth(), height = getHeight();
-        int nx = _tx, ny = _ty;
+        int nx = _vbounds.x, ny = _vbounds.y;
 
         // figure out where to move
         switch (_fmode) {
@@ -289,20 +302,20 @@ public class VirtualMediaPanel extends MediaPanel
         }
 
         // translate into happy space
-        gfx.translate(-_tx, -_ty);
+        gfx.translate(-_vbounds.x, -_vbounds.y);
 
         // now do the actual painting
         super.paint(gfx, dirty);
 
         // translate back out of happy space
-        gfx.translate(_tx, _ty);
+        gfx.translate(_vbounds.x, _vbounds.y);
     }
 
     // documentation inherited
     protected void constrainToBounds (Rectangle dirty)
     {
         SwingUtilities.computeIntersection(
-            _tx, _ty, getWidth(), getHeight(), dirty);
+            _vbounds.x, _vbounds.y, getWidth(), getHeight(), dirty);
     }
 
     /**
@@ -316,8 +329,8 @@ public class VirtualMediaPanel extends MediaPanel
         return Math.min(Math.max(tx, 0), vlen-len);
     }
 
-    /** Our viewport offsets. */
-    protected int _tx, _ty;
+    /** Our viewport bounds in virtual coordinates. */
+    protected Rectangle _vbounds = new Rectangle();
 
     /** Our target offsets to be effected on the next tick. */
     protected int _nx, _ny;
