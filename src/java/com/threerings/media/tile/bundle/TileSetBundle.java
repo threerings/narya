@@ -1,9 +1,10 @@
 //
-// $Id: TileSetBundle.java,v 1.5 2001/12/07 01:33:29 mdb Exp $
+// $Id: TileSetBundle.java,v 1.6 2002/05/09 16:51:26 mdb Exp $
 
 package com.threerings.media.tile.bundle;
 
 import java.awt.Image;
+import javax.imageio.ImageIO;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -83,7 +84,8 @@ public class TileSetBundle
                 "[bundle=" + _bundle + ", path=" + path + "].";
             throw new FileNotFoundException(errmsg);
         }
-        return _imgr.createImage(imgin);
+        // return _imgr.createImage(imgin);
+        return ImageIO.read(imgin);
     }
 
     // custom serialization process
