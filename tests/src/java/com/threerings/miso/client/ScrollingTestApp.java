@@ -1,5 +1,5 @@
 //
-// $Id: ScrollingTestApp.java,v 1.3 2002/02/19 04:45:55 mdb Exp $
+// $Id: ScrollingTestApp.java,v 1.4 2002/02/19 07:21:15 mdb Exp $
 
 package com.threerings.miso.scene;
 
@@ -88,15 +88,16 @@ public class ScrollingTestApp
 
         // size and position the window, entering full-screen exclusive
         // mode if available
-//         if (gd.isFullScreenSupported()) {
-//             Log.info("Entering full-screen exclusive mode.");
-//             gd.setFullScreenWindow(_frame);
+        if (gd.isFullScreenSupported()) {
+            Log.info("Entering full-screen exclusive mode.");
+            gd.setFullScreenWindow(_frame);
+            _frame.setUndecorated(true);
 
-//         } else {
+        } else {
             Log.warning("Full-screen exclusive mode not available.");
             _frame.pack();
             SwingUtil.centerWindow(_frame);
-//         }
+        }
     }
 
     /**
