@@ -1,5 +1,5 @@
 //
-// $Id: PuzzleControllerDelegate.java,v 1.4 2004/08/27 02:20:27 mdb Exp $
+// $Id: PuzzleControllerDelegate.java,v 1.5 2004/10/15 23:33:51 mdb Exp $
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -142,25 +142,6 @@ public class PuzzleControllerDelegate extends GameControllerDelegate
      * @param board the newly initialized and ready-to-go board.
      */
     public void setBoard (Board board)
-    {
-    }
-
-    /**
-     * Called when the game is suspended while we wait for a new piece
-     * packet from the server.
-     */
-    public void didSuspend ()
-    {
-    }
-
-    /**
-     * Called when the game is resumed once a new piece packet arrives
-     * from the server while we were suspended awaiting its arrival.
-     *
-     * @param delta the time elapsed in milliseconds while we were
-     * suspended.
-     */
-    public void didResume (long delta)
     {
     }
 

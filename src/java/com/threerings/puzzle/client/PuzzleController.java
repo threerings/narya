@@ -1,5 +1,5 @@
 //
-// $Id: PuzzleController.java,v 1.12 2004/08/27 02:20:27 mdb Exp $
+// $Id: PuzzleController.java,v 1.13 2004/10/15 23:33:51 mdb Exp $
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -231,12 +231,7 @@ public abstract class PuzzleController extends GameController
      */
     protected boolean canStartChatting ()
     {
-        // if we're waiting, we can't pause
-        if (isWaiting()) {
-            return false;
-        }
-
-        // otherwise, check with the delegates
+        // check with the delegates
         final boolean[] canChatNow = new boolean[] { true };
         applyToDelegates(PuzzleControllerDelegate.class, new DelegateOp() {
             public void apply (PlaceControllerDelegate delegate) {
@@ -301,9 +296,6 @@ public abstract class PuzzleController extends GameController
 
         // clean up and clear out
         clearAction();
-
-        // we're certainly no longer waiting
-        _waitstamp = -1;
 
         // unregister the puzzle object's chat
         _pctx.getChatDirector().removeAuxiliarySource(plobj);
@@ -591,6 +583,9 @@ public abstract class PuzzleController extends GameController
     {
         if (_astate == CLEAR_PENDING && canClearAction()) {
             actuallyClearAction();
+        } else {
+            Log.info("Not clearing action [astate=" + _astate +
+                     ", canClear=" + canClearAction() + "].");
         }
     }
 
@@ -714,97 +709,6 @@ public abstract class PuzzleController extends GameController
                 applyToDelegates(PuzzleControllerDelegate.class, dop);
 
                 return CARE_NOT;
-            }
-        });
-    }
-
-    /**
-     * Adds a waiting entity to the list of entities awaiting the receipt
-     * of data from the server, and without whose happiness the show must
-     * not go on.
-     */
-    public void addWaiter (Object waiter)
-    {
-        if (!_waiters.contains(waiter)) {
-            _waiters.add(waiter);
-            String state = (_waitstamp == -1) ? "(suspending)" : "(suspended)";
-            Log.info("Adding waiter " + state + " [waiter=" + waiter + "].");
-            // suspend things if we weren't already suspended
-            if (_waitstamp == -1) {
-                _waitstamp = _pview.getTimeStamp();
-                didSuspend();
-            }
-
-        } else {
-            Log.warning("Already-waiting waiter attempted to wait again " +
-                        "[waiter=" + waiter + "].");
-        }
-    }
-
-    /**
-     * Removes a waiting entity from the list of entities awaiting the
-     * receipt of data from the server, and without whose happiness the
-     * show must not go on.
-     */
-    public void removeWaiter (Object waiter)
-    {
-        if (_waiters.remove(waiter)) {
-            // resume things once we've no longer got any waiters
-            if (_waiters.size() == 0 && _waitstamp != -1) {
-                long delta = _pview.getTimeStamp() - _waitstamp;
-                _waitstamp = -1;
-                didResume(delta);
-            }
-            String state = (_waitstamp == -1) ? "(resumed)" : "(suspended)";
-            Log.info("Removed waiter " + state + " [waiter=" + waiter + "].");
-
-        } else {
-            Log.warning("Requested to remove a waiter that's not waiting " +
-                        "[waiter=" + waiter + "].");
-        }
-    }
-
-    /**
-     * Returns whether things are paused while we wait for a new piece
-     * packet from the server.
-     */
-    public boolean isWaiting ()
-    {
-        return (_waitstamp != -1);
-    }
-
-    /**
-     * Called when the game is suspended while we wait for a new piece
-     * packet from the server.
-     */
-    public void didSuspend ()
-    {
-        // we've somehow whipped through all of our pieces, so send a
-        // progress update to the server straightaway which will in turn
-        // prompt it to send us more pieces
-        sendProgressUpdate();
-
-        // let our delegates do their business
-        applyToDelegates(PuzzleControllerDelegate.class, new DelegateOp() {
-            public void apply (PlaceControllerDelegate delegate) {
-                ((PuzzleControllerDelegate)delegate).didSuspend();
-            }
-        });
-    }        
-
-    /**
-     * Called when the game is resumed once a new piece packet arrives
-     * from the server while we were suspended awaiting its arrival.
-     *
-     * @param delta the time elapsed in milliseconds while we were
-     * suspended.
-     */
-    public void didResume (final long delta)
-    {
-        // let our delegates do their business
-        applyToDelegates(PuzzleControllerDelegate.class, new DelegateOp() {
-            public void apply (PlaceControllerDelegate delegate) {
-                ((PuzzleControllerDelegate)delegate).didResume(delta);
             }
         });
     }
@@ -1014,13 +918,6 @@ public abstract class PuzzleController extends GameController
     /** Board snapshots that correspond to our board state after each of
      * our events has been applied. */
     protected ArrayList _states = new ArrayList();
-
-    /** The entities waiting on some action before the puzzle can proceed
-     * apace, and accordingly for whom the puzzle is paused. */
-    protected ArrayList _waiters = new ArrayList();
-
-    /** The time at which we paused waiting for pieces. */
-    protected long _waitstamp = -1;
 
     /** A flag indicating that we're in chatting mode. */
     protected boolean _chatting = false;
