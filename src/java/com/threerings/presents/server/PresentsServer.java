@@ -1,5 +1,5 @@
 //
-// $Id: PresentsServer.java,v 1.24 2002/08/14 19:07:56 mdb Exp $
+// $Id: PresentsServer.java,v 1.25 2002/10/01 05:15:45 mdb Exp $
 
 package com.threerings.presents.server;
 
@@ -124,8 +124,14 @@ public class PresentsServer
      */
     public void run ()
     {
-        // start up the connection manager
-        conmgr.start();
+        // post a unit that will start up the connection manager when
+        // everything else in the dobjmgr queue is processed
+        omgr.postUnit(new Runnable() {
+            public void run () {
+                // start up the connection manager
+                conmgr.start();
+            }
+        });
         // invoke the dobjmgr event loop
         omgr.run();
     }
