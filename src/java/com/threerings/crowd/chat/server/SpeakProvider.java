@@ -1,5 +1,5 @@
 //
-// $Id: SpeakProvider.java,v 1.10 2003/06/14 01:18:27 mdb Exp $
+// $Id: SpeakProvider.java,v 1.11 2003/06/14 01:55:42 eric Exp $
 
 package com.threerings.crowd.chat.server;
 
@@ -283,7 +283,7 @@ public class SpeakProvider
      */
     protected static void pruneHistory (long now, ArrayList history)
     {
-        for (int ii = history.size()-1; ii >= 0; ii++) {
+        for (int ii = history.size()-1; ii >= 0; ii--) {
             ChatMessage msg = (ChatMessage)history.get(ii);
             if (now - msg.timestamp > HISTORY_EXPIRATION) {
                 Log.info("Expiring from history " + msg + ".");
