@@ -1,5 +1,5 @@
 //
-// $Id: AnimationManager.java,v 1.4 2002/01/19 07:01:19 mdb Exp $
+// $Id: AnimationManager.java,v 1.5 2002/02/17 23:38:18 mdb Exp $
 
 package com.threerings.media.animation;
 
@@ -86,7 +86,7 @@ public class AnimationManager
                 }
             };
             // register the refresh interval
-            _iid = IntervalManager.register(this, REFRESH_INTERVAL, null, true);
+            _iid = IntervalManager.register(this, _refreshInterval, null, true);
         }
     }
 
@@ -162,6 +162,67 @@ public class AnimationManager
     }
 
     /**
+     * Lets the animation manager know that the animated view is scrolling
+     * at the specified rate (in milliseconds per pixel) so that it can
+     * adjust its rendering loop interval to coincide with the scrolling
+     * speed, and cause the animated view to be rendered every time
+     * through the loop regardless of whether it has dirty regions (so
+     * that it can scroll).
+     */
+    public void setScrolling (int mspp)
+    {
+        // sanity check
+        if (mspp < 0) {
+            String errmsg ="Negative scroll velocity illegal " +
+                "[mspp=" + mspp + "]";
+            throw new IllegalArgumentException(errmsg);
+        }
+
+        // make a note of our scrolling velocity
+        _scrollvel = mspp;
+
+        // we want to adjust our refresh interval at which we tick to
+        // coincide with an even number of scrolled pixels
+        long upperTarget = 1000 / MIN_FRAME_RATE;
+        long lowerTarget = 1000 / MAX_FRAME_RATE;
+
+        // start out assuming that we can refresh for every pixel
+        _refreshInterval = _scrollvel;
+
+        // if the interval is too quick, bump it up a bit
+        if (_refreshInterval < lowerTarget) {
+            // keep adding a pixel at a time until we're above our minimum
+            // refresh interval
+            while (_refreshInterval < lowerTarget) {
+                _refreshInterval += mspp;
+            }
+
+            // if it's too slow, we'll want to refresh at some even
+            // division of the desired rate
+        } else if (_refreshInterval > upperTarget) {
+            // try dividing the desired rate by larger and larger values
+            // until we're under the upper target
+            for (int i = 2; i < 100 && _refreshInterval > upperTarget; i++) {
+                _refreshInterval = (mspp / i);
+            }
+
+            // if the desired velocity is more than one hundred times
+            // slower than our desired framerate, then they're not going
+            // to notice if things aren't perfectly in sync, so fuck 'em
+            if (_refreshInterval > upperTarget) {
+                _refreshInterval = DEFAULT_REFRESH_INTERVAL;
+            }
+        }
+
+//         Log.info("Set scrolling velocity [velocity=" + _scrollvel +
+//                  ", refresh=" + _refreshInterval + "].");
+
+        // now stop and start ourselves to reregister our interval
+        stop();
+        start();
+    }
+
+    /**
      * Called by our interval when we'd like to begin a tick.  Returns
      * whether we're already ticking, and notes that we've requested
      * another tick.
@@ -228,14 +289,15 @@ public class AnimationManager
         // that this will also clear out the contents of our internal
         // dirty rectangle list.
         List rects = mergeDirtyRects(_dirty);
+        int rcount = rects.size();
 
         // invalidate screen-rects dirtied by sprites and/or animations
-	if (rects.size() > 0) {
+	if (rcount > 0 || _scrollvel > 0) {
 	    // pass the dirty-rects on to the scene view
 	    _view.invalidateRects(rects);
 
 	    // refresh the display
-            _view.paintImmediately();
+            _view.paintImmediately(rcount);
 	}
 
         // remove any finished animations
@@ -343,6 +405,9 @@ public class AnimationManager
     /** The ticker runnable that we put on the AWT thread periodically. */
     protected Runnable _ticker;
 
+    /** The number of milliseconds in between our refreshes. */
+    protected long _refreshInterval = DEFAULT_REFRESH_INTERVAL;
+
     /** The number of outstanding tick requests. */
     protected int _ticking = 0;
 
@@ -355,9 +420,20 @@ public class AnimationManager
     /** The view on which we are animating. */
     protected AnimatedView _view;
 
-    /** The desired number of refresh operations per second. */
-    protected static final int FRAME_RATE = 70;
+    /** The velocity at which we are scrolling (in milliseconds per pixel)
+     * or zero if we're not scrolling. */
+    protected int _scrollvel;
+
+    /** The default number of refresh operations per second. */
+    protected static final int DEFAULT_FRAME_RATE = 30;
+
+    /** The minimum frame rate we'll adjust to when scrolling. */
+    protected static final int MIN_FRAME_RATE = 20;
+
+    /** The maximum frame rate we'll adjust to when scrolling. */
+    protected static final int MAX_FRAME_RATE = 40;
 
     /** The milliseconds to sleep to obtain desired frame rate. */
-    protected static final long REFRESH_INTERVAL = 1000 / FRAME_RATE;
+    protected static final long DEFAULT_REFRESH_INTERVAL =
+        1000 / DEFAULT_FRAME_RATE;
 }
