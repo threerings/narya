@@ -1,7 +1,7 @@
 //
-// $Id: TestApp.java,v 1.6 2001/11/21 02:42:16 mdb Exp $
+// $Id: TestApp.java,v 1.7 2001/11/27 08:41:49 mdb Exp $
 
-package com.threerings.cast.tools.builder;
+package com.threerings.cast.builder;
 
 import java.io.IOException;
 import javax.swing.JFrame;
@@ -14,6 +14,7 @@ import com.threerings.resource.ResourceManager;
 import com.threerings.cast.Log;
 import com.threerings.cast.CharacterManager;
 import com.threerings.cast.ComponentRepository;
+import com.threerings.cast.bundle.BundledComponentRepository;
 
 import com.threerings.miso.scene.MisoCharacterSprite;
 import com.threerings.miso.util.MisoUtil;
@@ -21,6 +22,7 @@ import com.threerings.miso.util.MisoUtil;
 public class TestApp
 {
     public TestApp (String[] args)
+        throws IOException
     {
         _frame = new TestFrame();
         _frame.setSize(800, 600);
@@ -29,15 +31,14 @@ public class TestApp
         // create the handles on our various services
         _config = MisoUtil.createConfig();
 
-        ResourceManager rsrcmgr = new ResourceManager(null, "rsrc");
-
-        // TBD: sort out component repository
-        ComponentRepository crepo = null;
+        ResourceManager rmgr = new ResourceManager(null, "rsrc");
+        ComponentRepository crepo =
+            new BundledComponentRepository(rmgr, "components");
         CharacterManager charmgr = new CharacterManager(crepo);
         charmgr.setCharacterClass(MisoCharacterSprite.class);
 
         // initialize the frame
-        ((TestFrame)_frame).init(charmgr);
+        ((TestFrame)_frame).init(charmgr, crepo);
     }
 
     public void run ()
@@ -48,8 +49,13 @@ public class TestApp
 
     public static void main (String[] args)
     {
-        TestApp app = new TestApp(args);
-        app.run();
+        try {
+            TestApp app = new TestApp(args);
+            app.run();
+        } catch (IOException ioe) {
+            System.err.println("Error initializing app.");
+            ioe.printStackTrace();
+        }
     }
 
     /** The test frame. */

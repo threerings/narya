@@ -1,11 +1,12 @@
 //
-// $Id: TestFrame.java,v 1.3 2001/11/18 04:09:20 mdb Exp $
+// $Id: TestFrame.java,v 1.4 2001/11/27 08:41:49 mdb Exp $
 
-package com.threerings.cast.tools.builder;
+package com.threerings.cast.builder;
 
 import javax.swing.JFrame;
 
 import com.threerings.cast.CharacterManager;
+import com.threerings.cast.ComponentRepository;
 
 public class TestFrame extends JFrame
 {
@@ -17,8 +18,8 @@ public class TestFrame extends JFrame
         setDefaultCloseOperation(EXIT_ON_CLOSE);
     }
 
-    public void init (CharacterManager charmgr)
+    public void init (CharacterManager charmgr, ComponentRepository crepo)
     {
-        getContentPane().add(new BuilderPanel(charmgr));
+        getContentPane().add(new BuilderPanel(charmgr, crepo));
     }
 }
