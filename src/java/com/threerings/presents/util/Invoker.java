@@ -1,5 +1,5 @@
 //
-// $Id: Invoker.java,v 1.11 2003/09/24 17:10:49 mdb Exp $
+// $Id: Invoker.java,v 1.12 2003/10/08 04:10:29 mdb Exp $
 
 package com.threerings.presents.util;
 
@@ -143,8 +143,8 @@ public class Invoker extends LoopingThread
 
                 // report long runners
                 if (duration > 500L) {
-                    Log.warning("Invoker unit ran long [class=" + key +
-                                ", duration=" + duration + "].");
+                    Log.warning("Invoker unit ran for '" + duration + "ms: " +
+                                unit + "' (" + key + ").");
                 }
             }
 
