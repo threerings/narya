@@ -1,5 +1,5 @@
 //
-// $Id: OccupantManager.java,v 1.9 2001/12/19 23:11:59 mdb Exp $
+// $Id: OccupantManager.java,v 1.10 2001/12/20 02:48:21 mdb Exp $
 
 package com.threerings.crowd.client;
 
@@ -75,6 +75,28 @@ public class OccupantManager
             return null;
         }
         return (OccupantInfo)_place.occupantInfo.get(new Integer(bodyOid));
+    }
+
+    /**
+     * Returns the occupant info for the user in question if it exists in
+     * the currently occupied place. Returns null if no occupant info
+     * exists with the specified username.
+     */
+    public OccupantInfo getOccupantInfo (String username)
+    {
+        // make sure we're somewhere
+        if (_place == null) {
+            return null;
+        }
+
+        Iterator iter = _place.occupantInfo.elements();
+        while (iter.hasNext()) {
+            OccupantInfo info = (OccupantInfo)iter.next();
+            if (info.username.equals(username)) {
+                return info;
+            }
+        }
+        return null;
     }
 
     // inherit documentation
