@@ -1,5 +1,5 @@
 //
-// $Id: TileSetBundler.java,v 1.4 2002/02/05 20:29:09 mdb Exp $
+// $Id: TileSetBundler.java,v 1.5 2002/04/01 16:49:26 mdb Exp $
 
 package com.threerings.media.tile.bundle.tools;
 
@@ -22,7 +22,7 @@ import org.apache.commons.digester.Digester;
 import org.apache.commons.digester.Rule;
 import org.apache.commons.digester.RuleSetBase;
 
-import org.apache.commons.util.StreamUtils;
+import org.apache.commons.io.StreamUtils;
 
 import com.samskivert.io.NestableIOException;
 import com.samskivert.io.PersistenceException;

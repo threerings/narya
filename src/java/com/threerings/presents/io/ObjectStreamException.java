@@ -1,5 +1,5 @@
 //
-// $Id: ObjectStreamException.java,v 1.5 2001/10/16 16:44:20 mdb Exp $
+// $Id: ObjectStreamException.java,v 1.6 2002/04/01 16:49:26 mdb Exp $
 
 package com.threerings.presents.io;
 
@@ -7,8 +7,8 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.io.PrintWriter;
 
-import org.apache.commons.util.exception.Nestable;
-import org.apache.commons.util.exception.NestableDelegate;
+import org.apache.commons.lang.exception.Nestable;
+import org.apache.commons.lang.exception.NestableDelegate;
 
 /**
  * The object stream exception is used to communicate an error in

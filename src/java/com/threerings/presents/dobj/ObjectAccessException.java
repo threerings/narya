@@ -1,9 +1,9 @@
 //
-// $Id: ObjectAccessException.java,v 1.3 2002/02/02 09:42:36 mdb Exp $
+// $Id: ObjectAccessException.java,v 1.4 2002/04/01 16:49:26 mdb Exp $
 
 package com.threerings.presents.dobj;
 
-import org.apache.commons.util.exception.NestableException;
+import org.apache.commons.lang.exception.NestableException;
 
 /**
  * An object access exception is delivered when an object is not

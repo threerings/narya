@@ -1,5 +1,5 @@
 //
-// $Id: ToolkitLoader.java,v 1.1 2001/12/07 01:33:29 mdb Exp $
+// $Id: ToolkitLoader.java,v 1.2 2002/04/01 16:49:26 mdb Exp $
 
 package com.threerings.media;
 
@@ -11,7 +11,7 @@ import java.awt.Toolkit;
 import java.io.IOException;
 import java.io.InputStream;
 
-import org.apache.commons.util.StreamUtils;
+import org.apache.commons.io.StreamUtils;
 
 /**
  * Loads images using the default AWT toolkit (for compatibility with

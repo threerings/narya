@@ -1,5 +1,5 @@
 //
-// $Id: ComponentBundlerTask.java,v 1.5 2002/03/08 22:36:43 mdb Exp $
+// $Id: ComponentBundlerTask.java,v 1.6 2002/04/01 16:49:26 mdb Exp $
 
 package com.threerings.cast.bundle.tools;
 
@@ -22,7 +22,7 @@ import com.samskivert.util.HashIntMap;
 import com.samskivert.util.StringUtil;
 import com.samskivert.util.Tuple;
 
-import org.apache.commons.util.StreamUtils;
+import org.apache.commons.io.StreamUtils;
 
 import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.DirectoryScanner;

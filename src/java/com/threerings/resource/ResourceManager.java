@@ -1,5 +1,5 @@
 //
-// $Id: ResourceManager.java,v 1.11 2002/03/15 19:12:16 mdb Exp $
+// $Id: ResourceManager.java,v 1.12 2002/04/01 16:49:26 mdb Exp $
 
 package com.threerings.resource;
 
@@ -20,7 +20,7 @@ import java.util.HashMap;
 import java.util.Properties;
 import java.util.StringTokenizer;
 
-import org.apache.commons.util.StreamUtils;
+import org.apache.commons.io.StreamUtils;
 import com.samskivert.util.StringUtil;
 
 /**
