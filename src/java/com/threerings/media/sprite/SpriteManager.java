@@ -1,5 +1,5 @@
 //
-// $Id: SpriteManager.java,v 1.21 2002/02/19 03:57:53 mdb Exp $
+// $Id: SpriteManager.java,v 1.22 2002/02/19 03:58:37 mdb Exp $
 
 package com.threerings.media.sprite;
 
@@ -301,7 +301,7 @@ public class SpriteManager
     protected static final Comparator SPRITE_COMP = new SpriteComparator();
 
     /** The sprite objects we're managing. */
-    protected ArrayList _sprites;
+    protected SortableArrayList _sprites;
 
     /** The dirty rectangles created by sprites. */
     protected ArrayList _dirty;
