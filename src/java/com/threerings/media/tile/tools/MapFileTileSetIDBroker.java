@@ -1,5 +1,5 @@
 //
-// $Id: MapFileTileSetIDBroker.java,v 1.3 2002/04/03 22:03:23 mdb Exp $
+// $Id: MapFileTileSetIDBroker.java,v 1.4 2002/04/03 22:42:22 mdb Exp $
 
 package com.threerings.media.tile.tools;
 
@@ -38,6 +38,7 @@ public class MapFileTileSetIDBroker implements TileSetIDBroker
             FileInputStream fin = new FileInputStream(mapfile);
             ObjectInputStream oin = new ObjectInputStream(fin);
             _nextTileSetID = oin.readInt();
+            _storedTileSetID = _nextTileSetID;
             _map = (HashMap)oin.readObject();
             oin.close();
 
@@ -75,6 +76,11 @@ public class MapFileTileSetIDBroker implements TileSetIDBroker
     public void commit ()
         throws PersistenceException
     {
+        // only write ourselves out if we've changed
+        if (_storedTileSetID == _nextTileSetID) {
+            return;
+        }
+
         try {
             FileOutputStream fout = new FileOutputStream(_mapfile);
             ObjectOutputStream oout = new ObjectOutputStream(fout);
@@ -93,6 +99,9 @@ public class MapFileTileSetIDBroker implements TileSetIDBroker
 
     /** The next tileset id that we'll assign. */
     protected int _nextTileSetID;
+
+    /** The last tileset id assigned when we were unserialized. */
+    protected int _storedTileSetID;
 
     /** Our mapping from tileset names to ids. */
     protected HashMap _map;
