@@ -1,5 +1,5 @@
 //
-// $Id: Communicator.java,v 1.35 2004/08/27 02:20:18 mdb Exp $
+// $Id: Communicator.java,v 1.36 2004/10/21 23:36:27 mdb Exp $
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -312,6 +312,10 @@ public class Communicator
         // then write the framed message to actual output stream
         try {
             ByteBuffer buffer = _fout.frameAndReturnBuffer();
+            if (buffer.limit() > 4096) {
+                Log.info("Whoa, writin' a big one [msg=" + msg +
+                         ", size=" + buffer.limit() + "].");
+            }
             int wrote = _channel.write(buffer);
             if (wrote != buffer.limit()) {
                 Log.warning("Aiya! Couldn't write entire message [msg=" + msg +
