@@ -1,5 +1,5 @@
 //
-// $Id: SceneViewPanel.java,v 1.27 2002/02/12 08:53:59 mdb Exp $
+// $Id: SceneViewPanel.java,v 1.28 2002/02/17 23:45:36 mdb Exp $
 
 package com.threerings.miso.scene;
 
@@ -114,6 +114,14 @@ public class SceneViewPanel extends AnimatedPanel
         Dimension size = getSize();
         _tx = (_viewmodel.bounds.width - size.width)/2;
         _ty = (_viewmodel.bounds.height - size.height)/2;
+    }
+
+    /**
+     * If we're scrolling, we need to pass the word on to our scene view.
+     */
+    protected void viewWillScroll (int dx, int dy)
+    {
+        _view.scrollView(dx, dy);
     }
 
     /**

@@ -1,5 +1,5 @@
 //
-// $Id: SceneView.java,v 1.23 2002/01/31 01:07:02 mdb Exp $
+// $Id: SceneView.java,v 1.24 2002/02/17 23:45:36 mdb Exp $
 
 package com.threerings.miso.scene;
 
@@ -33,6 +33,15 @@ public interface SceneView
      * @param rect the {@link java.awt.Rectangle} object.
      */
     public void invalidateRect (Rectangle rect);
+
+    /**
+     * Scrolls the view by the requested number of pixels. As the view is
+     * not responsible for maintaining the back buffer, this will simply
+     * dirty the regions exposed by scrolling and update the view's
+     * internal offsets. It also instructs the sprite manager to dirty the
+     * scrolled bounds of all sprites in the view.
+     */
+    public void scrollView (int dx, int dy);
 
     /**
      * Renders the scene to the given graphics context.
