@@ -1,5 +1,5 @@
 //
-// $Id: IsoSceneViewModel.java,v 1.16 2001/10/22 18:21:41 shaper Exp $
+// $Id: IsoSceneViewModel.java,v 1.17 2001/10/22 23:55:14 mdb Exp $
 
 package com.threerings.miso.scene;
 
@@ -15,13 +15,13 @@ import com.threerings.miso.util.MisoUtil;
 
 /**
  * The iso scene view model provides a holding place for the myriad
- * parameters and bits of data that describe the details of an
- * isometric view of a scene.
+ * parameters and bits of data that describe the details of an isometric
+ * view of a scene.
  *
- * <p> The member data are public to facilitate speedy referencing by
- * the {@link IsoSceneView} class.  The model should only be modified
- * through the constructor's passed-in {@link
- * com.samskivert.util.Config} object and the accessor methods.
+ * <p> The member data are public to facilitate speedy referencing by the
+ * {@link IsoSceneView} class.  The model should only be modified through
+ * the constructor's passed-in {@link Config} object and the accessor
+ * methods.
  */
 public class IsoSceneViewModel
 {

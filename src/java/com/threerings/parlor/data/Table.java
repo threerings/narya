@@ -1,5 +1,5 @@
 //
-// $Id: Table.java,v 1.2 2001/10/19 22:02:36 mdb Exp $
+// $Id: Table.java,v 1.3 2001/10/22 23:56:01 mdb Exp $
 
 package com.threerings.parlor.data;
 
@@ -44,7 +44,8 @@ public class Table
     /**
      * Creates a new table instance, and assigns it the next monotonically
      * increasing table id. The supplied config instance must implement
-     * {@link TableConfig} or a {@link ClassCastException} will be thrown.
+     * {@link TableConfig} or a <code>ClassCastException</code> will be
+     * thrown.
      *
      * @param lobbyOid the object id of the lobby in which this table is
      * to live.
@@ -83,7 +84,7 @@ public class Table
     }
 
     /**
-     * Once a table is ready to play (see {@link #readyToPlay}), the
+     * Once a table is ready to play (see {@link #readyToStart}), the
      * players array can be fetched using this method. It will return an
      * array containing the usernames of all of the players in the game,
      * sized properly and with each player in the appropriate position.
