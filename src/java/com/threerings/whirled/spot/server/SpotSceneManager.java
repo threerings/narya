@@ -1,5 +1,5 @@
 //
-// $Id: SpotSceneManager.java,v 1.27 2003/02/14 21:34:26 mdb Exp $
+// $Id: SpotSceneManager.java,v 1.28 2003/03/17 19:34:26 mdb Exp $
 
 package com.threerings.whirled.spot.server;
 
@@ -80,6 +80,18 @@ public class SpotSceneManager extends SceneManager
     public void clearEnteringBody (BodyObject body)
     {
         _enterers.remove(body.getOid());
+    }
+
+    /**
+     * This is called when a user requests to traverse a portal from this
+     * scene to another scene. The manager may return an error code string
+     * that will be reported back to the caller explaining the failure or
+     * <code>null</code> indicating that it is OK for the caller to
+     * traverse the portal.
+     */
+    public String mayTraversePortal (BodyObject body, Portal portal)
+    {
+        return null;
     }
 
     // documentation inherited

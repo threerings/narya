@@ -1,5 +1,5 @@
 //
-// $Id: SpotProvider.java,v 1.15 2003/02/12 07:23:31 mdb Exp $
+// $Id: SpotProvider.java,v 1.16 2003/03/17 19:34:26 mdb Exp $
 
 package com.threerings.whirled.spot.server;
 
@@ -76,6 +76,12 @@ public class SpotProvider
         // obtain the destination scene and location id
         SpotScene rss = (SpotScene)smgr.getScene();
         final Portal fdest = rss.getPortal(portalId);
+
+        // give the source scene manager a chance to do access control
+        String errmsg = smgr.mayTraversePortal(fsource, fdest);
+        if (errmsg != null) {
+            throw new InvocationException(errmsg);
+        }
 
         // make sure this portal has valid info
         if (fdest == null || !fdest.isValid()) {
