@@ -1,5 +1,5 @@
 //
-// $Id: AnimatedPanel.java,v 1.19 2002/04/06 04:49:43 mdb Exp $
+// $Id: AnimatedPanel.java,v 1.20 2002/04/15 17:46:41 mdb Exp $
 
 package com.threerings.media.animation;
 
@@ -107,40 +107,51 @@ public class AnimatedPanel extends JComponent
     }
 
     /**
-     * Instructs the view to begin scrolling with the specified velocities
-     * in milliseconds per pixel. A setting of zero indicates that
-     * scrolling should be deactivated in that direction. Negative values
-     * mean that the view should be scrolled one pixel in the opposite
-     * direction in the positive number of milliseconds.
+     * Instructs the view to scroll by the specified number of pixels
+     * (which can be negative if it should scroll in the negative x or y
+     * direction) in the specified number of milliseconds. While the view
+     * is scrolling, derived classes can hear about the scrolled
+     * increments by overriding {@link #viewWillScroll} and they can find
+     * out when scrolling is complete by overriding {@link
+     * #viewFinishedScrolling}.
+     *
+     * @param dx the number of pixels in the x direction to scroll.
+     * @param dy the number of pixels in the y direction to scroll.
+     * @param millis the number of milliseconds in which to do it. The
+     * scrolling is calculated such that we will "drop frames" in order to
+     * scroll the necessary distance by the requested time.
      */
-    public void setScrolling (int msppx, int msppy)
+    public void setScrolling (int dx, int dy, long millis)
     {
-        // set our scrolling parameters
-        _msppx = msppx;
-        _msppy = msppy;
-        _lastx = _lasty = 0;
-
-        // if the velocities are zero, stop the scrolling, otherwise make
-        // a note of the time at which scrolling started
-        if (msppx == 0 && msppy == 0) {
-            _stime = 0;
-            _animmgr.setScrolling(0);
-
-        } else {
-            _stime = System.currentTimeMillis();
-
-            // set our scrolling speed to the (absolute value of the)
-            // lower of the two velocities (but not to zero if either one
-            // is zero)
-            if (_msppx == 0) {
-                _animmgr.setScrolling(Math.abs(msppy));
-            } else if (_msppy == 0) {
-                _animmgr.setScrolling(Math.abs(msppx));
-            } else {
-                _animmgr.setScrolling(
-                    Math.min(Math.abs(msppx), Math.abs(msppy)));
-            }
+        // if dx and dy are zero, we've got nothing to do
+        if (dx == 0 && dy == 0) {
+            return;
         }
+
+        // set our scrolling parameters
+        _scrollx = dx;
+        _scrolly = dy;
+        _last = System.currentTimeMillis();
+        _ttime = _last + millis;
+
+        // figure out the lesser (but non-zero) of the two scroll deltas
+        int absx = Math.abs(dx), absy = Math.abs(dy);
+        int mindist = absx;
+        if (absx == 0) {
+            mindist = absy;
+        } else if (absy == 0) {
+            mindist = absx;
+        } else {
+            mindist = Math.min(absx, absy);
+        }
+
+        // let the animation manager know how "fast" we'll be scrolling so
+        // that it can determine its frame rate
+        int mspp = (int)(millis/mindist);
+        _animmgr.setScrolling(mspp);
+
+//         Log.info("Scrolling [dx=" + dx + ", dy=" + dy +
+//                  ", millis=" + millis + "ms, mspp=" + mspp + "].");
     }
 
     // documentation inherited
@@ -232,29 +243,34 @@ public class AnimatedPanel extends JComponent
 //                 Log.info(StringUtil.toMatrixString(_histo.getBuckets(), 10, 3));
 //             }
 //         }
-//         _last = now;
 
         int width = getWidth(), height = getHeight();
 
         // if scrolling is enabled, determine the scrolling delta to be
         // used and do the business
         int dx = 0, dy = 0;
-        if (_stime != 0) {
-            // compute the total distance scrolled since we started (to
-            // avoid rounding errors)
-            // long now = System.currentTimeMillis();
+        if (_ttime != 0) {
+            // if we've blown past our allotted time, we want to scroll
+            // the rest of the way
+            if (now > _ttime) {
+                dx = _scrollx;
+                dy = _scrolly;
 
-            // determine how many pixels further along we've moved and
-            // make a note of our latest position
-            if (_msppx != 0) {
-                int xdist = (int)((now - _stime) / _msppx);
-                dx = (xdist - _lastx);
-                _lastx = xdist;
-            }
-            if (_msppy != 0) {
-                int ydist = (int)((now - _stime) / _msppy);
-                dy = (ydist - _lasty);
-                _lasty = ydist;
+                Log.info("Scrolling rest [dx=" + dx + ", dy=" + dy + "].");
+
+            } else {
+                // otherwise figure out how many milliseconds have gone by
+                // since we last scrolled and scroll the requisite amount
+                float dt = (float)(now - _last);
+                float rt = (float)(_ttime - _last);
+
+                // our delta is the remaining distance multiplied by the
+                // time delta divided by the remaining time
+                dx = Math.round((float)(_scrollx * dt) / rt);
+                dy = Math.round((float)(_scrolly * dt) / rt);
+
+//                 Log.info("Scrolling delta [dt=" + dt + ", rt=" + rt +
+//                          ", dx=" + dx + ", dy=" + dy + "].");
             }
 
             // and add invalid rectangles for the exposed areas
@@ -291,7 +307,18 @@ public class AnimatedPanel extends JComponent
                 // prepare to be scrolled
                 viewWillScroll(dx, dy, now, invalidRects);
             }
+
+            // subtract our scrolled deltas from the time remaining
+            _scrollx -= dx;
+            _scrolly -= dy;
+            if (_scrollx == 0 && _scrolly == 0) {
+                _ttime = 0;
+                viewFinishedScrolling();
+            }
         }
+
+        // keep track of the last time we rendered
+        _last = now;
 
         // if we didn't scroll and have no invalid rects, there's no need
         // to repaint anything
@@ -404,6 +431,16 @@ public class AnimatedPanel extends JComponent
     }
 
     /**
+     * Called during the same frame that we scrolled into the final
+     * desired position. This method is called after {@link
+     * #viewWillScroll} is called with the final scrolling deltas.
+     */
+    protected void viewFinishedScrolling ()
+    {
+        Log.info("viewFinishedScrolling");
+    }
+
+    /**
      * Derived classes that wish to operate in a coordinate system based
      * on a view size that is larger or smaller than the viewport size
      * (the actual dimensions of the animated panel) can override this
@@ -449,15 +486,11 @@ public class AnimatedPanel extends JComponent
     /** Our viewport offsets. */
     protected int _tx, _ty;
 
-    /** The scrolling velocity in milliseconds per pixel. */
-    protected int _msppx, _msppy;
+    /** The time at which we expect to stop scrolling. */
+    protected long _ttime;
 
-    /** The time at which the scrolling velocity was set. */
-    protected long _stime;
-
-    /** Used to determine how many pixels we've scrolled since the
-     * scrolling velocity was last set. */
-    protected int _lastx, _lasty;
+    /** Used to determine how many pixels we have left to scroll. */
+    protected int _scrollx, _scrolly;
 
     /** The last time we were rendered. */
     protected long _last;
