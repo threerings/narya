@@ -1,5 +1,5 @@
 //
-// $Id: PresentsServer.java,v 1.39 2004/02/25 14:45:16 mdb Exp $
+// $Id: PresentsServer.java,v 1.40 2004/06/03 09:03:06 mdb Exp $
 
 package com.threerings.presents.server;
 
@@ -151,11 +151,7 @@ public class PresentsServer
     public boolean signalReceived (int signo)
     {
         // this is called when we receive a ctrl-c
-        omgr.postUnit(new Runnable() {
-            public void run () {
-                shutdown();
-            }
-        });
+        queueShutdown();
         return true;
     }
 
@@ -255,6 +251,19 @@ public class PresentsServer
         // finally shut down the invoker and distributed object manager
         // (The invoker does both for us.)
         invoker.shutdown();
+    }
+
+    /**
+     * Queues up a request to shutdown on the dobjmgr thread. This method
+     * may be safely called from any thread.
+     */
+    public void queueShutdown ()
+    {
+        omgr.postUnit(new Runnable() {
+            public void run () {
+                shutdown();
+            }
+        });
     }
 
     /**
