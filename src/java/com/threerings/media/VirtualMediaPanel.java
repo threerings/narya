@@ -1,5 +1,5 @@
 //
-// $Id: VirtualMediaPanel.java,v 1.13 2002/11/20 22:15:34 mdb Exp $
+// $Id: VirtualMediaPanel.java,v 1.14 2003/04/12 01:26:29 mdb Exp $
 
 package com.threerings.media;
 
@@ -66,8 +66,8 @@ public class VirtualMediaPanel extends MediaPanel
     /**
      * Instructs the view to follow the supplied pathable; ensuring that
      * the pathable always remains in the center of the view. The virtual
-     * coordinates will be adjusted after every tick to center the view on
-     * the sprite.
+     * coordinates will be adjusted immediately and then on every tick to
+     * center the view on the sprite.
      *
      * @param pable the pathable to follow.
      */
@@ -75,6 +75,7 @@ public class VirtualMediaPanel extends MediaPanel
     {
         _fmode = CENTER_ON_PATHABLE;
         _fpath = pable;
+        trackPathable(); // immediately update our location
     }
 
     /**
@@ -85,6 +86,7 @@ public class VirtualMediaPanel extends MediaPanel
     {
         _fmode = ENCLOSE_PATHABLE;
         _fpath = pable;
+        trackPathable(); // immediately update our location
     }
 
     /**
