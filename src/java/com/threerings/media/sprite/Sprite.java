@@ -1,5 +1,5 @@
 //
-// $Id: Sprite.java,v 1.25 2001/10/13 01:08:59 shaper Exp $
+// $Id: Sprite.java,v 1.26 2001/10/22 18:13:09 shaper Exp $
 
 package com.threerings.media.sprite;
 
@@ -114,8 +114,7 @@ public class Sprite
     }
 
     /**
-     * Moves the sprite to the specified location. The location specified
-     * will be used as the center of the bottom edge of the sprite.
+     * Moves the sprite to the specified location.
      *
      * @param x the x-position in pixels.
      * @param y the y-position in pixels.
@@ -275,18 +274,15 @@ public class Sprite
 
         // determine our drawing offsets and rendered rectangle size
         if (_frame == null) {
-            _rxoff = 0;
-            _ryoff = 0;
             _rbounds.width = 0;
             _rbounds.height = 0;
 
         } else {
             _rbounds.width = _frame.getWidth(null);
             _rbounds.height = _frame.getHeight(null);
-            _rxoff = -(_rbounds.width / 2);
-            _ryoff = -_rbounds.height;
         }
 
+        updateRenderOffset();
         updateRenderOrigin();
         invalidate();
     }
@@ -413,14 +409,22 @@ public class Sprite
     }
 
     /**
+     * Updates the sprite's render offset which is used to determine
+     * where to place the top-left corner of the render bounds.
+     */
+    protected void updateRenderOffset ()
+    {
+        _rxoff = 0;
+        _ryoff = 0;
+    }
+
+    /**
      * Update the coordinates at which the sprite image is drawn to
      * reflect the sprite's current position.
      */
     protected void updateRenderOrigin ()
     {
-        // our render origin differs from our location. our location is
-        // the center of the bottom edge of our rendered rectangle, but
-        // our render origin is the upper left
+        // our render origin may differ from our location
         _rbounds.x = _x + _rxoff;
         _rbounds.y = _y + _ryoff;
     }
