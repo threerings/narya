@@ -1,5 +1,5 @@
 //
-// $Id: DropBoardView.java,v 1.4 2004/08/27 02:20:29 mdb Exp $
+// $Id: DropBoardView.java,v 1.5 2004/08/29 06:50:47 mdb Exp $
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -30,8 +30,13 @@ import java.awt.Rectangle;
 import java.util.Iterator;
 
 import com.threerings.media.image.Mirage;
+import com.threerings.media.sprite.ImageSprite;
+import com.threerings.media.sprite.PathAdapter;
 import com.threerings.media.sprite.Sprite;
+import com.threerings.media.util.LinePath;
+import com.threerings.media.util.Path;
 
+import com.threerings.puzzle.Log;
 import com.threerings.puzzle.client.PuzzleBoardView;
 import com.threerings.puzzle.client.ScoreAnimation;
 import com.threerings.puzzle.data.Board;
@@ -128,34 +133,152 @@ public abstract class DropBoardView extends PuzzleBoardView
     }
 
     /**
-     * Dirties the rectangle encompassing the piece segment with the given
-     * direction and length whose bottom-leftmost corner is at <code>(col,
-     * row)</code>.
+     * Creates a new piece sprite and places it directly in it's correct
+     * position.
      */
-    public void dirtySegment (int dir, int col, int row, int len)
+    public void createPiece (int piece, int sx, int sy)
     {
-        int x = _pwid * col, y = (_phei * row) - _roff;
-        int wid = (dir == VERTICAL) ? _pwid : len * _pwid;
-        int hei = (dir == VERTICAL) ? _phei * len : _phei;
-        _remgr.invalidateRegion(x, y, wid, hei);
+        if (sx < 0 || sy < 0 || sx >= _bwid || sy >= _bhei) {
+            Log.warning("Requested to create piece in invalid location " +
+                        "[sx=" + sx + ", sy=" + sy + "].");
+            Thread.dumpStack();
+            return;
+        }
+        createPiece(piece, sx, sy, sx, sy, 0L);
     }
 
     /**
-     * Dirties the rectangle encompassing the specified piece in the
-     * board.
+     * Refreshes the piece sprite at the specified location, if no sprite
+     * exists at the location, one will be created. <em>Note:</em> this
+     * method assumes the default {@link ImageSprite} is being used to
+     * display pieces. If {@link #createPieceSprite} is overridden to
+     * return a non-ImageSprite, this method must also be customized.
      */
-    public void dirtyPiece (int col, int row)
+    public void updatePiece (int sx, int sy)
     {
-        _remgr.invalidateRegion(_pwid * col, (_phei * row) - _roff,
-                                _pwid, _phei);
+        updatePiece(_dboard.getPiece(sx, sy), sx, sy);
     }
 
     /**
-     * Dirties a rectangular region of pieces.
+     * Updates the piece sprite at the specified location, if no sprite
+     * exists at the location, one will be created. <em>Note:</em> this
+     * method assumes the default {@link ImageSprite} is being used to
+     * display pieces. If {@link #createPieceSprite} is overridden to
+     * return a non-ImageSprite, this method must also be customized.
      */
-    public void dirtyPieces (int xx, int yy, int width, int height)
+    public void updatePiece (int piece, int sx, int sy)
     {
-        _remgr.invalidateRegion(xx*_pwid, yy*_phei, width*_pwid, height*_phei);
+        if (sx < 0 || sy < 0 || sx >= _bwid || sy >= _bhei) {
+            Log.warning("Requested to update piece in invalid location " +
+                        "[sx=" + sx + ", sy=" + sy + "].");
+            Thread.dumpStack();
+            return;
+        }
+        int spos = sy * _bwid + sx;
+        if (_pieces[spos] != null) {
+            ((ImageSprite)_pieces[spos]).setMirage(getPieceImage(piece));
+        } else {
+            createPiece(piece, sx, sy);
+        }
+    }
+
+    /**
+     * Creates a new piece sprite and moves it into position on the board.
+     */
+    public void createPiece (int piece, int sx, int sy, int tx, int ty,
+                             long duration)
+    {
+        if (tx < 0 || ty < 0 || tx >= _bwid || ty >= _bhei) {
+            Log.warning("Requested to create and move piece to invalid " +
+                        "location [tx=" + tx + ", ty=" + ty + "].");
+            Thread.dumpStack();
+            return;
+        }
+        Sprite sprite = createPieceSprite(piece);
+        addSprite(sprite);
+        movePiece(sprite, sx, sy, tx, ty, duration);
+    }
+
+    /**
+     * Instructs the view to move the piece at the specified starting
+     * position to the specified destination position. There must be a
+     * sprite at the starting position, if there is a sprite at the
+     * destination position, it must also be moved immediately following
+     * this call (as in the case of a swap) to avoid badness.
+     *
+     * @return the piece sprite that is being moved.
+     */
+    public Sprite movePiece (int sx, int sy, int tx, int ty, long duration)
+    {
+        int spos = sy * _bwid + sx;
+        Sprite piece = _pieces[spos];
+        if (piece == null) {
+            Log.warning("Missing source sprite for drop [sx=" + sx +
+                        ", sy=" + sy + ", tx=" + tx + ", ty=" + ty + "].");
+            return null;
+        }
+        _pieces[spos] = null;
+        movePiece(piece, sx, sy, tx, ty, duration);
+        return piece;
+    }
+
+    /**
+     * A helper function for moving pieces into place.
+     */
+    protected void movePiece (Sprite piece, final int sx, final int sy,
+                              final int tx, final int ty, long duration)
+    {
+        final Exception where = new Exception();
+
+        // if the sprite needn't move, then just position it and be done
+        Point start = new Point();
+        getPiecePosition(sx, sy, start);
+        if (sx == tx && sy == ty) {
+            int tpos = ty * _bwid + tx;
+            if (_pieces[tpos] != null) {
+                Log.warning("Zoiks! Asked to add a piece where we already " +
+                            "have one [sx=" + sx + ", sy=" + sy +
+                            ", tx=" + tx + ", ty=" + ty + "].");
+                Log.logStackTrace(where);
+                return;
+            }
+            _pieces[tpos] = piece;
+            piece.setLocation(start.x, start.y);
+            return;
+        }
+
+        // otherwise create a path and do some bits
+        Point end = new Point();
+        getPiecePosition(tx, ty, end);
+        piece.addSpriteObserver(new PathAdapter() {
+            public void pathCompleted (Sprite sprite, Path path, long when) {
+                sprite.removeSpriteObserver(this);
+                int tpos = ty * _bwid + tx;
+                if (_pieces[tpos] != null) {
+                    Log.warning("Oh god, we're dropping onto another piece " +
+                                "[sx=" + sx + ", sy=" + sy +
+                                ", tx=" + tx + ", ty=" + ty + "].");
+                    Log.logStackTrace(where);
+                    return;
+                }
+                _pieces[tpos] = sprite;
+                if (_actionSprites.remove(sprite)) {
+                    maybeFireCleared();
+                }
+                pieceArrived(when, sprite, tx, ty);
+            }
+        });
+        _actionSprites.add(piece);
+        piece.move(new LinePath(start, end, duration));
+    }
+
+    /**
+     * Called when a piece is finished moving into its requested position.
+     * Derived classes may wish to take this opportunity to play a sound
+     * or whatnot.
+     */
+    protected void pieceArrived (long tickStamp, Sprite sprite, int px, int py)
+    {
     }
 
     /**
@@ -192,9 +315,63 @@ public abstract class DropBoardView extends PuzzleBoardView
             }
         }
 
+        // remove all of this board's piece sprites
+        int pcount = (_pieces == null) ? 0 : _pieces.length;
+        for (int ii = 0; ii < pcount; ii++) {
+            if (_pieces[ii] != null) {
+                removeSprite(_pieces[ii]);
+            }
+        }
+
         super.setBoard(board);
 
         _dboard = (DropBoard)board;
+
+        // create the pieces for the new board
+        Point spos = new Point();
+        int width = _dboard.getWidth(), height = _dboard.getHeight();
+        _pieces = new Sprite[width * height];
+        for (int yy = 0; yy < height; yy++) {
+            for (int xx = 0; xx < width; xx++) {
+                Sprite piece = createPieceSprite(_dboard.getPiece(xx, yy));
+                if (piece != null) {
+                    int ppos = yy * width + xx;
+                    getPiecePosition(xx, yy, spos);
+                    piece.setLocation(spos.x, spos.y);
+                    addSprite(piece);
+                    _pieces[ppos] = piece;
+                }
+            }
+        }
+    }
+
+    /**
+     * Returns the piece sprite at the specified location.
+     */
+    public Sprite getPieceSprite (int xx, int yy)
+    {
+        return _pieces[yy * _dboard.getWidth() + xx];
+    }
+
+    /**
+     * Clears the specified piece from the board.
+     */
+    public void clearPieceSprite (int xx, int yy)
+    {
+        int ppos = yy * _dboard.getWidth() + xx;
+        if (_pieces[ppos] != null) {
+            removeSprite(_pieces[ppos]);
+            _pieces[ppos] = null;
+        }
+    }
+
+    /**
+     * Clears out a piece from the board along with its piece sprite.
+     */
+    public void clearPiece (int xx, int yy)
+    {
+        _dboard.setPiece(xx, yy, PIECE_NONE);
+        clearPieceSprite(xx, yy);
     }
 
     /**
@@ -204,6 +381,19 @@ public abstract class DropBoardView extends PuzzleBoardView
     public DropSprite createPieces (int col, int row, int[] pieces, int dist)
     {
 	return new DropSprite(this, col, row, pieces, dist);
+    }
+
+    /**
+     * Dirties the rectangle encompassing the segment with the given
+     * direction and length whose bottom-leftmost corner is at <code>(col,
+     * row)</code>.
+     */
+    public void dirtySegment (int dir, int col, int row, int len)
+    {
+        int x = _pwid * col, y = (_phei * row) - _roff;
+        int wid = (dir == VERTICAL) ? _pwid : len * _pwid;
+        int hei = (dir == VERTICAL) ? _phei * len : _phei;
+        _remgr.invalidateRegion(x, y, wid, hei);
     }
 
     /**
@@ -295,6 +485,20 @@ public abstract class DropBoardView extends PuzzleBoardView
     }
 
     /**
+     * Creates the sprite that is used to display the specified piece. If
+     * the piece represents no piece, this method should return null.
+     */
+    protected Sprite createPieceSprite (int piece)
+    {
+        if (piece == PIECE_NONE) {
+            return null;
+        }
+        ImageSprite sprite = new ImageSprite(getPieceImage(piece));
+        sprite.setRenderOrder(-1);
+        return sprite;
+    }
+
+    /**
      * Populates <code>pos</code> with the most appropriate screen
      * coordinates to center a rectangle of the given width and height (in
      * pixels) within the specified rectangle (in board coordinates).
@@ -370,6 +574,9 @@ public abstract class DropBoardView extends PuzzleBoardView
 
     /** The drop board. */
     protected DropBoard _dboard;
+
+    /** A sprite for every piece displayed in the drop board. */
+    protected Sprite[] _pieces;
 
     /** The piece dimensions in pixels. */
     protected int _pwid, _phei;

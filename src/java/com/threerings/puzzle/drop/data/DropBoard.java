@@ -1,5 +1,5 @@
 //
-// $Id: DropBoard.java,v 1.7 2004/08/27 02:20:30 mdb Exp $
+// $Id: DropBoard.java,v 1.8 2004/08/29 06:50:47 mdb Exp $
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -143,6 +143,15 @@ public class DropBoard extends Board
             Log.logStackTrace(e);
             return -1;
         }
+    }
+
+    /**
+     * For boards that are always filled, this method is called to obtain
+     * pieces to fill the board.
+     */
+    public int getNextPiece ()
+    {
+        return PIECE_NONE;
     }
 
     /**

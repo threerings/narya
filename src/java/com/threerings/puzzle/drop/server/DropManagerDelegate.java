@@ -1,5 +1,5 @@
 //
-// $Id: DropManagerDelegate.java,v 1.4 2004/08/27 02:20:30 mdb Exp $
+// $Id: DropManagerDelegate.java,v 1.5 2004/08/29 06:50:47 mdb Exp $
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -129,7 +129,7 @@ public abstract class DropManagerDelegate extends PuzzleManagerDelegate
      */
     protected boolean dropPieces (DropBoard board)
     {
-	return (_dropper.dropPieces(board, null).size() > 0);
+	return (_dropper.dropPieces(board, null) > 0);
     }
 
     /**

@@ -1,5 +1,5 @@
 //
-// $Id: DropControllerDelegate.java,v 1.5 2004/08/27 02:20:29 mdb Exp $
+// $Id: DropControllerDelegate.java,v 1.6 2004/08/29 06:50:47 mdb Exp $
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -51,7 +51,6 @@ import com.threerings.puzzle.drop.data.DropCodes;
 import com.threerings.puzzle.drop.data.DropConfig;
 import com.threerings.puzzle.drop.data.DropLogic;
 import com.threerings.puzzle.drop.data.DropPieceCodes;
-import com.threerings.puzzle.drop.util.DropPieceProvider;
 import com.threerings.puzzle.drop.util.PieceDropLogic;
 import com.threerings.puzzle.drop.util.PieceDropper.PieceDropInfo;
 import com.threerings.puzzle.drop.util.PieceDropper;
@@ -150,15 +149,6 @@ public abstract class DropControllerDelegate extends PuzzleControllerDelegate
     }
 
     /**
-     * Get the DropPieceProvider for this puzzle. This is currently
-     * only needed if you are using the alwaysfilled property of dropboards.
-     */
-    protected DropPieceProvider getDropPieceProvider ()
-    {
-        return null;
-    }
-
-    /**
      * Returns the speed with which the next board row should rise into
      * place, in pixels per millisecond.
      */
@@ -217,14 +207,14 @@ public abstract class DropControllerDelegate extends PuzzleControllerDelegate
         }
 
         // evolve the board to kick-start the game into action
-        tryEvolveBoard();
+        unstabilizeBoard();
     }
 
     // documentation inherited
     protected boolean canClearAction ()
     {
-//         Log.info("Drop can clear " + _evolving);
-        return !_evolving && super.canClearAction();
+//         Log.info("Drop can clear " + _stable);
+        return _stable && super.canClearAction();
     }
 
     /**
@@ -534,21 +524,21 @@ public abstract class DropControllerDelegate extends PuzzleControllerDelegate
             }
             // keep dropping the drop block
             sprite.drop();
+            return;
+        }
+
+        if (sprite.getDistance() > 0) {
+            sprite.drop();
 
         } else {
-            if (sprite.getDistance() > 0) {
-                sprite.drop();
+            // remove the sprite
+            _dview.removeSprite(sprite);
 
-            } else {
-                // remove the sprite
-                _dview.removeSprite(sprite);
+            // apply the pieces to the board
+            applyDropSprite(sprite, col, row);
 
-                // apply the pieces to the board
-                applyDropSprite(sprite, col, row);
-
-                // perform any new destruction and falling
-                tryEvolveBoard();
-            }
+            // perform any new destruction and falling
+            unstabilizeBoard();
         }
     }
 
@@ -562,62 +552,13 @@ public abstract class DropControllerDelegate extends PuzzleControllerDelegate
         // set the pieces in the board
         int[] pieces = sprite.getPieces();
         _dboard.setSegment(VERTICAL, col, row, pieces);
-        // dirty the updated board pieces
-        _dview.dirtySegment(VERTICAL, col, row, pieces.length);
-    }
-
-    /**
-     * Calls {@link #tryEvolveBoard(boolean)} with debugging deactivated.
-     */
-    protected void tryEvolveBoard ()
-    {
-        tryEvolveBoard(false);
-    }
-
-    /**
-     * Attempts to evolve the board. This involves first calling {@link
-     * #canEvolveBoard} and only calling {@link #evolveBoard} if the
-     * former returned true. If the board is fully stabilized, {@link
-     * #boardDidStabilize} will be called to reinstate the puzzle action.
-     */
-    protected void tryEvolveBoard (boolean debug)
-    {
-        // if we can't evolve the board because things are going on, we
-        // bail out immediately
-        if (!canEvolveBoard()) {
-            if (debug) {
-                Log.info("Can't evolve board " +
-                         "[acount=" + _dview.getActionCount() + "].");
-            }
-            return;
-        }
-
-        // if we do not evolve the board in any way, let the derived class
-        // know that the board stabilized so that they can drop in a new
-        // piece if they like or take whatever other action is appropriate
-        _evolving = evolveBoard();
-        if (debug) {
-            Log.info("Evolved board [evolving=" + _evolving + "].");
-        }
-
-        // if we're no longer evolving and the action has not ended, go
-        // ahead and let our derived class know that the board has
-        // stabilized so that it can drop in the next piece or somesuch
-        if (!_evolving) {
-            if (_ctrl.hasAction()) {
-                // this will trigger further puzzle activity
-                if (debug) {
-                    Log.info("Board did stabilize");
-                }
-                boardDidStabilize();
-
-            } else {
-                if (debug) {
-                    Log.info("Maybe clearing action.");
-                }
-                // this will ensure that if we have been postponing action
-                // due to board evolution, that it will now be cleared
-                maybeClearAction();
+        // create the updated board pieces
+        for (int dy = 0; dy < pieces.length; dy++) {
+            // pieces outside the board are discarded
+            if (row - dy >= 0) {
+                // note: vertical segments are applied counting downwards
+                // from the starting row toward row zero
+                _dview.createPiece(pieces[dy], col, row - dy);
             }
         }
     }
@@ -629,7 +570,7 @@ public abstract class DropControllerDelegate extends PuzzleControllerDelegate
      */
     protected boolean canEvolveBoard ()
     {
-        return (_dview.getActionCount() == 0);
+        return (!_ctrl.isWaiting() && _dview.getActionCount() == 0);
     }
 
     /**
@@ -646,6 +587,16 @@ public abstract class DropControllerDelegate extends PuzzleControllerDelegate
      * cleared prior to the final stabilization of the board).
      */
     protected abstract boolean evolveBoard ();
+
+    /**
+     * Derived classes should call this method whenever they change some
+     * board state that will require board evolution to restabilize the
+     * board.
+     */
+    protected void unstabilizeBoard ()
+    {
+        _stable = false;
+    }
 
     /**
      * Called when the board has been fully evolved and is once again
@@ -683,7 +634,7 @@ public abstract class DropControllerDelegate extends PuzzleControllerDelegate
      */
     protected void animationDidFinish (Animation anim)
     {
-        tryEvolveBoard();
+        unstabilizeBoard();
     }
 
     /**
@@ -766,7 +717,7 @@ public abstract class DropControllerDelegate extends PuzzleControllerDelegate
                     if (!error) {
                         // stuff the piece into the board
                         _dboard.setPiece(col, row, pieces[ii]);
-                        _dview.dirtyPiece(col, row);
+                        _dview.createPiece(pieces[ii], col, row);
                     }
                 }
 
@@ -827,7 +778,7 @@ public abstract class DropControllerDelegate extends PuzzleControllerDelegate
         // forcibly land the block if we bounce twice at the same row
         if (_bounceStamp == 0 && _bounceRow == bounceRow) {
             if (checkBlockLanded("double-bounced", true, true)) {
-                tryEvolveBoard();
+                unstabilizeBoard();
             }
             return;
         }
@@ -878,7 +829,7 @@ public abstract class DropControllerDelegate extends PuzzleControllerDelegate
         // make sure we weren't cancelled for some reason
         if (_bounceStamp != 0) {
             if (checkBlockLanded("bounced", true, true)) {
-                tryEvolveBoard();
+                unstabilizeBoard();
 
             } else if (_blocksprite != null) {
                 // take the block sprite out of bouncing mode
@@ -897,31 +848,20 @@ public abstract class DropControllerDelegate extends PuzzleControllerDelegate
      */
     protected boolean dropPieces ()
     {
-	// get a list of the piece columns to be dropped
-	List drops = _dropper.getDroppedPieces(_dboard, getDropPieceProvider());
-        int size = drops.size();
-	if (size == 0) {
-	    return false;
-	}
-
-        // drop each column
-        for (int ii = 0; ii < size; ii++) {
-	    PieceDropInfo pdi = (PieceDropInfo)drops.get(ii);
-	    // Log.info("Dropping column segment [pdi=" + pdi + "].");
-
-	    // clear the dropping pieces from the board
-            _dboard.setSegment(
-                VERTICAL, pdi.col, pdi.row, pdi.pieces.length, PIECE_NONE);
-
-	    // create a piece sprite animating the pieces falling
-	    DropSprite sprite = _dview.createPieces(
-                pdi.col, pdi.row, pdi.pieces, pdi.dist);
-            sprite.setVelocity(1.5f * getPieceVelocity(true));
-            sprite.addSpriteObserver(_dropMovedHandler);
-            _dview.addActionSprite(sprite);
-	}
-
-	return true;
+        PieceDropper.DropObserver drobs = new PieceDropper.DropObserver() {
+            public void pieceDropped (
+                int piece, int sx, int sy, int dx, int dy) {
+                float vel = getPieceVelocity(true) * 1.5f;
+                long duration = (long)(_dview.getPieceHeight() *
+                                       Math.abs(dy-sy) / vel);
+                if (sy < 0) {
+                    _dview.createPiece(piece, sx, sy, dx, dy, duration);
+                } else {
+                    _dview.movePiece(sx, sy, dx, dy, duration);
+                }
+            }
+        };
+        return (_dropper.dropPieces(_dboard, drobs) > 0);
     }
 
     /**
@@ -947,6 +887,45 @@ public abstract class DropControllerDelegate extends PuzzleControllerDelegate
         if ((_bounceStamp != 0) &&
             ((tickStamp - _bounceStamp) >= _bounceInterval)) {
             bounceTimerExpired();
+        }
+
+        // if we can't evolve the board because it doesn't need evolving
+        // or things are going on, we stop here
+        if (_stable || !canEvolveBoard()) {
+            return;
+        }
+
+        // if we do not evolve the board in any way, let the derived class
+        // know that the board stabilized so that they can drop in a new
+        // piece if they like or take whatever other action is appropriate
+        boolean evolving = evolveBoard();
+        boolean debug = false;
+        if (debug) {
+            Log.info("Evolved board [evolving=" + evolving + "].");
+        }
+
+        // if we're no longer evolving and the action has not ended, go
+        // ahead and let our derived class know that the board has
+        // stabilized so that it can drop in the next piece or somesuch
+        if (!evolving) {
+            // no evolving again until someone destabilizes the board
+            _stable = true;
+
+            if (_ctrl.hasAction()) {
+                // this will trigger further puzzle activity
+                if (debug) {
+                    Log.info("Board did stabilize");
+                }
+                boardDidStabilize();
+
+            } else {
+                if (debug) {
+                    Log.info("Maybe clearing action.");
+                }
+                // this will ensure that if we have been postponing action
+                // due to board evolution, that it will now be cleared
+                maybeClearAction();
+            }
         }
     }
 
@@ -989,7 +968,7 @@ public abstract class DropControllerDelegate extends PuzzleControllerDelegate
 
         // we're un-paused, so we should try evolving the board to start
         // things up again
-        tryEvolveBoard(true);
+        unstabilizeBoard();
     }
 
     /**
@@ -1107,7 +1086,7 @@ public abstract class DropControllerDelegate extends PuzzleControllerDelegate
 
             if (canRise) {
                 // evolve the board
-                tryEvolveBoard();
+                unstabilizeBoard();
 
             } else {
                 Log.debug("Sticking fork in it [risers=" +
@@ -1170,14 +1149,14 @@ public abstract class DropControllerDelegate extends PuzzleControllerDelegate
     /** The drop board. */
     protected DropBoard _dboard;
 
-    /** Whether or not we are in the middle of board evolution. */
-    protected boolean _evolving;
-
     /** Whether the game is using drop block functionality. */
     protected boolean _usedrop;
 
     /** Whether the game is using board rising functionality. */
     protected boolean _userise;
+
+    /** Whether or not the board is currently stable. */
+    protected boolean _stable;
 
     /** The board dimensions in pieces. */
     protected int _bwid, _bhei;
@@ -1238,6 +1217,16 @@ public abstract class DropControllerDelegate extends PuzzleControllerDelegate
         public void pieceMoved (
             DropSprite sprite, long when, int col, int row) {
             handleDropSpriteMoved(sprite, when, col, row);
+        }
+    };
+
+    /** A piece operation that will update piece sprites as board
+     * positions are updated. */
+    protected DropBoard.PieceOperation _updateBoardOp =
+        new DropBoard.PieceOperation() {
+        public boolean execute (DropBoard board, int col, int row) {
+            _dview.updatePiece(col, row);
+            return true;
         }
     };
 

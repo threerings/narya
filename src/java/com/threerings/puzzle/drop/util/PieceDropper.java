@@ -1,5 +1,5 @@
 //
-// $Id: PieceDropper.java,v 1.3 2004/08/27 02:20:31 mdb Exp $
+// $Id: PieceDropper.java,v 1.4 2004/08/29 06:50:47 mdb Exp $
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -22,6 +22,7 @@
 package com.threerings.puzzle.drop.util;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import com.samskivert.util.StringUtil;
@@ -72,6 +73,15 @@ public class PieceDropper
     }
 
     /**
+     * Called to inform a drop observer that a piece has been dropped.
+     */
+    public static interface DropObserver
+    {
+        /** Indicates that the specified piece was dropped. */
+        public void pieceDropped (int piece, int sx, int sy, int dx, int dy);
+    }
+
+    /**
      * Constructs a piece dropper that uses the supplied piece drop logic
      * to specialise itself for a particular puzzle.
      */
@@ -81,83 +91,63 @@ public class PieceDropper
     }
 
     /**
-     * Destructively modifies the supplied board to contain pieces dropped
-     * in the first of potentially multiple drop positions and returns a
-     * list of {@link PieceDropInfo} objects detailing all column segments
-     * to be dropped.  Note that a single list is used internally to store
-     * the drop info objects, and so callers that care to do anything
-     * long-term with the drop info should create their own copy of the
-     * list or somesuch.
+     * Effects any drops possible on the supplied board (modifying the
+     * board in the progress) and notifying the supplied drop observer of
+     * those drops.
      *
-     * @param DropPieceProvider if the board should always be filled
-     * (as specified by the PieceDropLogic) this will provide
-     * information on the newly filled in pieces.
+     * @return the number of pieces dropped.
      */
-    public List dropPieces (DropBoard board, DropPieceProvider provider)
+    public int dropPieces (DropBoard board, DropObserver drobs)
     {
-        int bhei = board.getHeight(), bwid = board.getWidth();
-        _drops.clear();
+        int dropped = 0, bhei = board.getHeight(), bwid = board.getWidth();
 	for (int yy = bhei - 1; yy >= 0; yy--) {
 	    for (int xx = 0; xx < bwid; xx++) {
-		// find all drops in this column
-		getColumnDrops(board, _drops, xx, yy);
+                dropped += dropPieces(board, xx, yy, drobs);
 	    }
 	}
 
+        // if the board wants pieces to be dropped in to fill the gaps, do
+        // that now
         if (_logic.boardAlwaysFilled()) {
-            addFillingDrops(board, provider, _drops);
+            for (int xx = 0; xx < bwid; xx++) {
+                int dist = board.getDropDistance(xx, -1);
+                for (int ii = 0; ii < dist; ii++) {
+                    int yy = (-1 - ii);
+                    int piece = board.getNextPiece();
+                    if (piece != PIECE_NONE) {
+                        drop(board, piece, xx, yy, yy + dist, drobs);
+                        dropped++;
+                    }
+                }
+            }
         }
 
-	return _drops;
+        return dropped;
     }
 
     /**
-     * Analyzes but does not modify the supplied board and returns a list
-     * of {@link PieceDropInfo} objects detailing all column segments to
-     * be dropped.  Note that a single list is used internally to store
-     * the drop info objects, and so callers that care to do anything
-     * long-term with the drop info should create their own copy of the
-     * list or somesuch.
-     *
-     * @param DropPieceProvider if the board should always be filled
-     * (as specified by the PieceDropLogic) this will provide
-     * information on the newly filled in pieces.
+     * Computes and effects the drop for the specified piece and any
+     * associated attached pieces. The supplied observer is notified of
+     * all drops.
      */
-    public List getDroppedPieces (DropBoard board, DropPieceProvider provider)
-    {
-        // grab a snapshot of the board within which we're dropping
-        // pieces to avoid modifying the source board directly while we're
-        // figuring out what to drop where
-        if (_board == null) {
-            _board = (DropBoard)board.clone();
-        } else {
-            board.copyInto(_board);
-        }
-        return dropPieces(_board, provider);
-    }
-
-    /**
-     * Populates the <code>drops</code> list with {@link PieceDropInfo}
-     * objects detailing the column segments to be dropped per empty space
-     * below.  Destructively modifies the given board to reflect the final
-     * positions of the column segments once dropped.
-     */
-    protected void getColumnDrops (DropBoard board, List drops, int x, int y)
+    protected int dropPieces (
+        DropBoard board, int xx, int yy, DropObserver drobs)
     {
 	// skip empty or fixed pieces
-	int piece = board.getPiece(x, y);
+	int piece = board.getPiece(xx, yy);
         if (!_logic.isDroppablePiece(piece)) {
-	    return;
+	    return 0;
 	}
 
+        int dropped = 0;
 	if (_logic.isConstrainedPiece(piece)) {
             // find out where this constrained block starts and ends
-            int start = _logic.getConstrainedEdge(board, x, y, LEFT);
-            int end = _logic.getConstrainedEdge(board, x, y, RIGHT);
+            int start = _logic.getConstrainedEdge(board, xx, yy, LEFT);
+            int end = _logic.getConstrainedEdge(board, xx, yy, RIGHT);
             int bwid = board.getWidth();
             if (start < 0 || end >= bwid) {
                 Log.warning("Board reported bogus constrained edge " +
-                            "[x=" + x + ", y=" + y +
+                            "[x=" + xx + ", y=" + yy +
                             ", start=" + start + ", end=" + end + "].");
                 board.dump();
                 start = Math.max(start, 0);
@@ -167,182 +157,47 @@ public class PieceDropper
             // get the smallest drop distance across all of the block columns
             int dist = board.getHeight() - 1;
             for (int xpos = start; xpos <= end; xpos++) {
-                dist = Math.min(dist, board.getDropDistance(xpos, y));
+                dist = Math.min(dist, board.getDropDistance(xpos, yy));
             }
 	    if (dist == 0) {
-		return;
+		return 0;
 	    }
 
-	    // scoot along the bottom edge of the block dropping each column
+	    // scoot along the bottom edge of the block, noting the drop
+	    // for each column
             for (int xpos = start; xpos <= end; xpos++) {
-		addDropInfo(board, drops, true, xpos, y, dist);
+                piece = board.getPiece(xpos, yy);
+                drop(board, piece, xpos, yy, yy + dist, drobs);
+                dropped++;
 	    }
 
 	} else {
 	    // get the distance to drop the pieces
-	    int dist = board.getDropDistance(x, y);
+	    int dist = board.getDropDistance(xx, yy);
 	    if (dist == 0) {
-		return;
+		return 0;
 	    }
-
-	    // add the column segment to the list of drops
-	    addDropInfo(board, drops, false, x, y, dist);
+            drop(board, piece, xx, yy, yy + dist, drobs);
+            dropped++;
 	}
+
+        return dropped;
     }
 
-    /**
-     * Adds a {@link PieceDropInfo} object to the drop list detailing
-     * dropping of the column segment at the specified location.
-     *
-     * @param board the working board.
-     * @param allowConst whether to allow dropping constrained pieces in
-     * the specified column segment.
-     * @param x the column x-coordinate.
-     * @param y the column segment bottom y-coordinate.
-     * @param dist the distance to drop the pieces.
-     */
-    protected void addDropInfo (DropBoard board, List drops,
-                                boolean allowConst, int x, int y, int dist)
+    /** Helpy helper function. */
+    protected final void drop (DropBoard board, int piece,
+                               int xx, int yy, int ty, DropObserver drobs)
     {
-        // sanity check our column
-        if (x < 0 || x >= board.getWidth()) {
-            Log.warning("Requested to add bogus drop info [board=" + board +
-                        ", drops=" + StringUtil.toString(drops) +
-                        ", allowConst=" + allowConst +
-                        ", x=" + x + ", y=" + y + ", dist=" + dist + "].");
-            Thread.dumpStack();
+        // don't try to clear things out if we're filling in from off-board
+        if (yy >= 0) {
+            board.setPiece(xx, yy, PIECE_NONE);
         }
-
-	// traverse up the column looking for an empty or block piece
-	// that will terminate this column segment
-	int height = getDropHeight(board, allowConst, x, y, dist);
-
-	// create the piece drop info object
-	PieceDropInfo pdi = new PieceDropInfo(x, y, dist);
-
-	// copy in the relevant pieces
-	pdi.pieces = new int[height];
-	int idx = 0;
-	for (int yy = y; yy > (y - height); yy--) {
-	    pdi.pieces[idx++] = board.getPiece(x, yy);
-	}
-
-	// update the working copy of the board with the eventual
-	// piece locations
-	dropPieces(board, pdi);
-
-	// add the column segment to the pot
-	drops.add(pdi);
-    }
-
-    /**
-     * If we want to keep the board filled at all times,
-     * this method will be called to create drop objects for the
-     * newly-filled in pieces.
-     */
-    protected void addFillingDrops (
-        DropBoard board, DropPieceProvider provider, List drops)
-    {
-        boolean out = false;
-        // drop in new pieces for empty spaces at the top
-        for (int xx=0, bwid=board.getWidth(); xx < bwid; xx++) {
-            // get the distance to drop the pieces
-            int dist = board.getDropDistance(xx, -1);
-            if (dist != 0) {
-                PieceDropInfo pdi = new PieceDropInfo(xx, -1, dist);
-                pdi.pieces = new int[dist];
-                for (int ii=0; ii < dist; ii++) {
-                    try {
-                        pdi.pieces[ii] = provider.getNextPiece();
-                    } catch (DropPieceProvider.OutOfPiecesException oop) {
-                        // well, how far did we get?
-                        int[] something = new int[ii];
-                        System.arraycopy(pdi.pieces, 0, something, 0, ii);
-                        pdi.pieces = something;
-                        out = true;
-                        break;
-                    }
-                }
-
-                dropPieces(board, pdi);
-                drops.add(pdi);
-
-                // if we're outta pieces, bail.
-                if (out) {
-                    return;
-                }
-            }
+        board.setPiece(xx, ty, piece);
+        if (drobs != null) {
+            drobs.pieceDropped(piece, xx, yy, xx, ty);
         }
     }
 
-    /**
-     * Returns the height of the piece segment to be dropped at the
-     * given coordinates.
-     */
-    protected int getDropHeight (
-        DropBoard board, boolean allowConst, int x, int y, int dist)
-    {
-	int height = 0;
-	for (int yy = y; yy >= 0; yy--) {
-	    int curpiece = board.getPiece(x, yy);
-            if (!_logic.isClimbablePiece(allowConst, curpiece, true)) {
-		return height;
-	    }
-
-	    height++;
-
-            if (!_logic.isClimbablePiece(allowConst, curpiece, false)) {
-                return height;
-            }
-	}
-
-	return height;
-    }
-
-    /**
-     * Updates the given board to reflect the eventual destination of the
-     * given pieces.
-     */
-    protected void dropPieces (DropBoard board, PieceDropInfo pdi)
-    {
-	// clear out the original piece positions
-        if (!board.setSegment(
-                VERTICAL, pdi.col, pdi.row, pdi.pieces.length, PIECE_NONE)) {
-            Log.warning("Bogosity encountered when clearing pieces for drop " +
-                        "[bwid=" + board.getWidth() +
-                        ", bhei=" + board.getHeight() + ", pdi=" + pdi + "].");
-        }
-        // place the pieces in their destination positions
-	applyPieces(board, pdi);
-    }
-
-    /**
-     * Applies the pieces in the given piece drop info object to the given
-     * board at their eventual destination positions.
-     */
-    protected void applyPieces (DropBoard board, PieceDropInfo pdi)
-    {
-	int start = pdi.row, end = (pdi.row - pdi.pieces.length);
-	int idx = 0;
-        boolean error = false;
-	for (int yy = (start + pdi.dist); yy > (end + pdi.dist); yy--) {
-	    error = !board.setPiece(pdi.col, yy, pdi.pieces[idx++]) || error;
-	}
-        if (error) {
-            Log.warning("Bogosity encountered while applying dropped " +
-                        "pieces to board [bwid=" + board.getWidth() +
-                        ", bhei=" + board.getHeight() + ", pdi=" + pdi + "].");
-        }
-    }
-
-    /** The piece drop logic used to allow puzzle-specific piece dropping
-     * hooks. */
+    /** Allows puzzle-specific customizations. */
     protected PieceDropLogic _logic;
-
-    /** The list of piece drop info objects detailing the piece drops
-     * resulting from the last call to {@link #getDroppedPieces}. */
-    protected ArrayList _drops = new ArrayList();
-
-    /** The board on which pieces are being dropped. */
-    protected DropBoard _board;
 }
