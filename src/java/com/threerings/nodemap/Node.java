@@ -1,5 +1,5 @@
 //
-// $Id: Node.java,v 1.3 2001/08/23 23:44:12 shaper Exp $
+// $Id: Node.java,v 1.4 2001/08/27 21:38:41 shaper Exp $
 
 package com.threerings.nodemap;
 
@@ -169,18 +169,12 @@ public abstract class Node
     /**
      * Handle mouse-entered events for this node.
      */
-    public void handleMouseEntered ()
-    {
-	Log.info("handleMouseEntered [n=" + this + "].");
-    }
+    public void handleMouseEntered () { }
 
     /**
      * Handle mouse-exited events for this node.
      */
-    public void handleMouseExited ()
-    {
-	Log.info("handleMouseExited [n=" + this + "].");
-    }
+    public void handleMouseExited () { }
 
     /**
      * Handle mouse-clicked events for this node.
@@ -188,10 +182,7 @@ public abstract class Node
      * @param x the x-coordinate in intra-node pixels.
      * @param y the y-coordinate in intra-node pixels.
      */
-    public void handleMouseClicked (int x, int y)
-    {
-	Log.info("handleMouseClicked [n=" + this + "].");
-    }
+    public void handleMouseClicked (int x, int y) { }
 
     /**
      * Return a string representation of this node.
