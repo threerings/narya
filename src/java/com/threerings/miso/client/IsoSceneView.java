@@ -1,5 +1,5 @@
 //
-// $Id: IsoSceneView.java,v 1.112 2002/06/18 22:38:12 mdb Exp $
+// $Id: IsoSceneView.java,v 1.113 2002/06/22 00:45:18 ray Exp $
 
 package com.threerings.miso.scene;
 
@@ -473,11 +473,6 @@ public class IsoSceneView implements SceneView
     {
         // make sure we have a scene
         if (_scene == null) {
-            return null;
-        }
-
-        // make sure the destination point is within our bounds
-        if (!_model.bounds.contains(x, y)) {
             return null;
         }
 
