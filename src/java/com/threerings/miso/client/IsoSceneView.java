@@ -1,5 +1,5 @@
 //
-// $Id: IsoSceneView.java,v 1.107 2002/04/27 18:41:14 mdb Exp $
+// $Id: IsoSceneView.java,v 1.108 2002/04/27 23:07:41 mdb Exp $
 
 package com.threerings.miso.scene;
 
@@ -321,7 +321,8 @@ public class IsoSceneView implements SceneView
                 Polygon tpoly = getTilePoly(xx, yy);
 
                 // skip non-intersecting tiles
-                if (!tpoly.intersects(clip)) {
+                // if (!tpoly.intersects(clip)) {
+                if (!tpoly.getBounds().intersects(clip)) {
                     continue;
                 }
 
