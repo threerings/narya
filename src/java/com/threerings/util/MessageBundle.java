@@ -1,5 +1,5 @@
 //
-// $Id: MessageBundle.java,v 1.12 2002/05/24 20:33:30 mdb Exp $
+// $Id: MessageBundle.java,v 1.13 2002/08/16 19:31:39 mdb Exp $
 
 package com.threerings.util;
 
@@ -199,7 +199,7 @@ public class MessageBundle
                 buf.append('|');
             }
             // escape the string while adding to the buffer
-            String arg = args[i];
+            String arg = (args[i] == null) ? "" : args[i];
             int alength = arg.length();
             for (int p = 0; p < alength; p++) {
                 char ch = arg.charAt(p);
