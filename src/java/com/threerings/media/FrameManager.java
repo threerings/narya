@@ -1,5 +1,5 @@
 //
-// $Id: FrameManager.java,v 1.21 2002/11/20 02:18:49 mdb Exp $
+// $Id: FrameManager.java,v 1.22 2002/11/20 02:26:33 mdb Exp $
 
 package com.threerings.media;
 
@@ -35,6 +35,8 @@ import com.samskivert.util.ObserverList;
 import com.samskivert.util.StringUtil;
 
 import com.threerings.media.timer.MediaTimer;
+import com.threerings.media.timer.SystemMediaTimer;
+
 import com.threerings.media.util.PerformanceMonitor;
 import com.threerings.media.util.PerformanceObserver;
 
@@ -93,6 +95,18 @@ import com.threerings.media.util.PerformanceObserver;
 public class FrameManager
     implements PerformanceObserver
 {
+    /**
+     * Creates a frame manager that will use a {@link SystemMediaTimer} to
+     * obtain timing information, which is available on every platform,
+     * but returns inaccurate time stamps on many platforms.
+     *
+     * @see #FrameManager(Frame)
+     */
+    public FrameManager (Frame frame)
+    {
+        this(frame, new SystemMediaTimer());
+    }
+
     /**
      * Constructs a frame manager that will do its rendering to the
      * supplied frame. It is likely that the caller will want to have put
