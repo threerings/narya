@@ -1,5 +1,5 @@
 //
-// $Id: VirtualMediaPanel.java,v 1.19 2003/05/08 04:52:24 ray Exp $
+// $Id: VirtualMediaPanel.java,v 1.20 2003/05/08 16:10:50 mdb Exp $
 
 package com.threerings.media;
 
@@ -110,20 +110,6 @@ public class VirtualMediaPanel extends MediaPanel
     {
         _fpath = null;
         _fmode = -1;
-    }
-
-    /**
-     * Configures a region of interest which will be displayed in the
-     * center of the viewport in situations where the media panel's actual
-     * size is smaller than its view size.
-     *
-     * @param region the region of interest or null if there is to be no
-     * region of interest (in which case the view will simply be
-     * centered).
-     */
-    public void setRegionOfInterest (Rectangle region)
-    {
-        _interest = region;
     }
 
     /**
@@ -396,9 +382,6 @@ public class VirtualMediaPanel extends MediaPanel
 
     /** Our tiling background image. */
     protected Mirage _background;
-
-    /** A region of interest which we'll try to keep visible. */
-    protected Rectangle _interest;
 
     /** The mode we're using when following a pathable. */
     protected int _fmode = -1;
