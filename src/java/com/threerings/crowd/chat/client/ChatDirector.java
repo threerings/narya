@@ -1,5 +1,5 @@
 //
-// $Id: ChatDirector.java,v 1.48 2003/09/15 21:11:40 ray Exp $
+// $Id: ChatDirector.java,v 1.49 2003/09/16 21:26:15 ray Exp $
 
 package com.threerings.crowd.chat.client;
 
@@ -576,7 +576,7 @@ public class ChatDirector extends BasicDirector
     /**
      * Run a message through all the currently registered filters.
      */
-    protected String filter (String msg, String otherUser, boolean outgoing)
+    public String filter (String msg, String otherUser, boolean outgoing)
     {
         _filterMessageOp.setMessage(msg, otherUser, outgoing);
         _filters.apply(_filterMessageOp);

@@ -1,5 +1,5 @@
 //
-// $Id: SpotSceneDirector.java,v 1.31 2003/08/13 00:11:03 mdb Exp $
+// $Id: SpotSceneDirector.java,v 1.32 2003/09/16 21:26:14 ray Exp $
 
 package com.threerings.whirled.spot.client;
 
@@ -270,7 +270,10 @@ public class SpotSceneDirector extends BasicDirector
             return false;
         }
 
-        _sservice.clusterSpeak(_ctx.getClient(), message, mode);
+        message = _chatdir.filter(message, null, true);
+        if (message != null) {
+            _sservice.clusterSpeak(_ctx.getClient(), message, mode);
+        }
         return true;
     }
 
