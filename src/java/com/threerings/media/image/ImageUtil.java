@@ -1,5 +1,5 @@
 //
-// $Id: ImageUtil.java,v 1.30 2003/04/09 22:02:20 mdb Exp $
+// $Id: ImageUtil.java,v 1.31 2003/05/07 01:48:27 ray Exp $
 
 package com.threerings.media.image;
 
@@ -161,28 +161,60 @@ public class ImageUtil
 
     /**
      * Paints multiple copies of the supplied image using the supplied
+     * graphics context such that the requested area is filled with the
+     * image.
+     */
+    public static void tileImage (
+        Graphics g, Image image, int x, int y, int width, int height)
+    {
+        int iwidth = image.getWidth(null), iheight = image.getHeight(null);
+        int xnum = width / iwidth, xplus = width % iwidth;
+        int ynum = height / iheight, yplus = height % iheight;
+        Shape oclip = g.getClip();
+
+        for (int ii=0; ii < ynum; ii++) {
+            // draw the full copies of the image across
+            int xx = x;
+            for (int jj=0; jj < xnum; jj++) {
+                g.drawImage(image, xx, y, null);
+                xx += iwidth;
+            }
+
+            if (xplus > 0) {
+                g.clipRect(xx, y, xplus, iheight);
+                g.drawImage(image, xx, y, null);
+                g.setClip(oclip);
+            }
+
+            y += iheight;
+        }
+
+        if (yplus > 0) {
+            int xx = x;
+            for (int jj=0; jj < xnum; jj++) {
+                g.clipRect(xx, y, iwidth, yplus);
+                g.drawImage(image, xx, y, null);
+                g.setClip(oclip);
+                xx += iwidth;
+            }
+
+            if (xplus > 0) {
+                g.clipRect(xx, y, xplus, yplus);
+                g.drawImage(image, xx, y, null);
+                g.setClip(oclip);
+            }
+        }
+    }
+
+    /**
+     * Paints multiple copies of the supplied image using the supplied
      * graphics context such that the requested width is filled with the
      * image.
      */
     public static void tileImageAcross (Graphics g, Image image,
                                         int x, int y, int width)
     {
-        int iwidth = image.getWidth(null), iheight = image.getHeight(null);
-        int tcount = width/iwidth, extra = width % iwidth;
-
-        // draw the full copies of the image
-        for (int ii = 0; ii < tcount; ii++) {
-            g.drawImage(image, x, y, null);
-            x += iwidth;
-        }
-
-        // clip the final blit
-        if (extra > 0) {
-            Shape oclip = g.getClip();
-            g.clipRect(x, y, extra, iheight);
-            g.drawImage(image, x, y, null);
-            g.setClip(oclip);
-        }
+        tileImage(g, image, x, y, width, image.getHeight(null));
     }
 
     /**
@@ -193,22 +225,7 @@ public class ImageUtil
     public static void tileImageDown (Graphics g, Image image,
                                       int x, int y, int height)
     {
-        int iwidth = image.getWidth(null), iheight = image.getHeight(null);
-        int tcount = height/iheight, extra = height % iheight;
-
-        // draw the full copies of the image
-        for (int ii = 0; ii < tcount; ii++) {
-            g.drawImage(image, x, y, null);
-            y += iheight;
-        }
-
-        // clip the final blit
-        if (extra > 0) {
-            Shape oclip = g.getClip();
-            g.clipRect(x, y, iwidth, extra);
-            g.drawImage(image, x, y, null);
-            g.setClip(oclip);
-        }
+        tileImage(g, image, x, y, image.getWidth(null), height);
     }
 
     // Not fully added because we're not using it anywhere, plus
