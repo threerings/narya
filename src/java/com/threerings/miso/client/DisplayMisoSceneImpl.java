@@ -1,5 +1,5 @@
 //
-// $Id: DisplayMisoSceneImpl.java,v 1.20 2001/08/10 00:47:34 shaper Exp $
+// $Id: DisplayMisoSceneImpl.java,v 1.21 2001/08/10 01:31:25 shaper Exp $
 
 package com.threerings.miso.scene;
 
@@ -66,7 +66,7 @@ public class Scene
 	_sid = SID_INVALID;
 	_name = DEF_SCENE_NAME;
         _locations = new ArrayList();
-	_spots = new SpotGroup();
+	_clusters = new ArrayList();
         _exits = new ArrayList();
 
 	    tiles = new Tile[TILE_WIDTH][TILE_HEIGHT][NUM_LAYERS];
@@ -92,22 +92,22 @@ public class Scene
      * @param tiles the tiles comprising the scene.
      */
     public Scene (TileManager tilemgr, String name,
-                  ArrayList locations, ArrayList spots, ArrayList exits,
+                  ArrayList locations, ArrayList clusters, ArrayList exits,
                   Tile tiles[][][])
     {
         _tilemgr = tilemgr;
         _sid = SID_INVALID;
         _name = name;
         _locations = locations;
-	_spots = new SpotGroup(spots);
+	_clusters = clusters;
         _exits = exits;
         this.tiles = tiles;
     }
 
-    public void updateLocation (int x, int y, int orient, int spotidx)
+    public void updateLocation (int x, int y, int orient, int clusteridx)
     {
 	Log.info("updateLocation [x=" + x + ", y=" + y +
-		 ", orient=" + orient + ", spotidx=" + spotidx + "].");
+		 ", orient=" + orient + ", clusteridx=" + clusteridx + "].");
 
 	// look the location up in our existing location list
 	int size = _locations.size();
@@ -121,8 +121,8 @@ public class Scene
 		tloc.y = y;
 		tloc.orient = orient;
 
-		// and update the spot contents
-		_spots.respot(tloc, spotidx);
+		// and update the cluster contents
+		ClusterUtil.regroup(_clusters, tloc, clusteridx);
 
 		return;
 	    }
@@ -130,7 +130,7 @@ public class Scene
 
 	// else we didn't find a location object, so create one
 	_locations.add(loc = new Location(x, y, orient));
-	_spots.respot(loc, spotidx);
+	ClusterUtil.regroup(_clusters, loc, clusteridx);
 }
 
     /**
@@ -158,11 +158,11 @@ public class Scene
     }
 
     /**
-     * Return the spot group.
+     * Return the cluster list.
      */
-    public SpotGroup getSpotGroup ()
+    public ArrayList getClusters ()
     {
-	return _spots;
+	return _clusters;
     }
 
     /**
@@ -173,9 +173,9 @@ public class Scene
         return _exits;
     }
 
-    public int getNumSpots ()
+    public int getNumClusters ()
     {
-	return _spots.size();
+	return _clusters.size();
     }
 
     /**
@@ -214,8 +214,8 @@ public class Scene
         buf.append("[name=").append(_name);
         buf.append(", sid=").append(_sid);
         buf.append(", locations=").append(StringUtil.toString(_locations));
+        buf.append(", clusters=").append(StringUtil.toString(_clusters));
         buf.append(", exits=").append(StringUtil.toString(_exits));
-        buf.append(", spots=").append(StringUtil.toString(_spots));
         return buf.append("]").toString();
     }
 
@@ -231,11 +231,11 @@ public class Scene
     /** The locations within the scene. */
     protected ArrayList _locations;
 
+    /** The clusters within the scene. */
+    protected ArrayList _clusters;
+
     /** The exits to different scenes. */
     protected ArrayList _exits;
-
-    /** The spots within the scene. */
-    protected SpotGroup _spots;
 
     /** The default tile for the base layer in the scene. */
     protected Tile _deftile;

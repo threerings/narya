@@ -1,5 +1,5 @@
 //
-// $Id: XMLSceneParser.java,v 1.7 2001/08/10 00:47:34 shaper Exp $
+// $Id: XMLSceneParser.java,v 1.8 2001/08/10 01:31:25 shaper Exp $
 
 package com.threerings.miso.scene.xml;
 
@@ -70,9 +70,9 @@ public class XMLSceneParser extends DefaultHandler
             int vals[] = StringUtil.parseIntArray(_chars.toString());
             _scLocations = toLocationsList(vals);
 
-	} else if (qName.equals("spot")) {
+	} else if (qName.equals("cluster")) {
 	    int vals[] = StringUtil.parseIntArray(_chars.toString());
-	    _scSpots.add(toSpot(_scLocations, vals));
+	    _scClusters.add(toCluster(_scLocations, vals));
 
 	} else if (qName.equals("exits")) {
             String vals[] = StringUtil.parseStringArray(_chars.toString());
@@ -88,7 +88,8 @@ public class XMLSceneParser extends DefaultHandler
         } else if (qName.equals("scene")) {
             // construct the scene object on tag close
             _scene = new Scene(
-                _tilemgr, _scName, _scLocations, _scSpots, _scExits, _scTiles);
+                _tilemgr, _scName, _scLocations, _scClusters,
+		_scExits, _scTiles);
 
             Log.info("Constructed parsed scene [scene=" + _scene + "].");
 	}
@@ -168,22 +169,22 @@ public class XMLSceneParser extends DefaultHandler
     }
 
     /**
-     * Given an array of integer values, return a <code>Spot</code>
+     * Given an array of integer values, return a <code>Cluster</code>
      * object containing the location objects identified by location
      * index number in the integer array.
      *
      * @param locs the locations list.
      * @param vals the integer values.
      *
-     * @return the spot object.
+     * @return the cluster object.
      */
-    protected Spot toSpot (ArrayList locs, int[] vals)
+    protected Cluster toCluster (ArrayList locs, int[] vals)
     {
-	Spot spot = new Spot();
+	Cluster cluster = new Cluster();
 	for (int ii = 0; ii < vals.length; ii++) {
-	    spot.add((Location)locs.get(vals[ii]));
+	    cluster.add((Location)locs.get(vals[ii]));
 	}
-	return spot;
+	return cluster;
     }
 
     /**
@@ -268,7 +269,7 @@ public class XMLSceneParser extends DefaultHandler
 	_scTiles = new Tile[width][height][Scene.NUM_LAYERS];
 	_scLocations = null;
 	_scExits = null;
-	_scSpots = new ArrayList();
+	_scClusters = new ArrayList();
     }	
 
     /**
@@ -320,7 +321,7 @@ public class XMLSceneParser extends DefaultHandler
     // temporary storage of scene object values and data
     protected StringBuffer _chars;
     protected String _scName;
-    protected ArrayList _scLocations, _scExits, _scSpots;
+    protected ArrayList _scLocations, _scExits, _scClusters;
     protected Tile[][][] _scTiles;
     protected int _scLnum, _scRownum, _scColstart;
 }

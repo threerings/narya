@@ -1,5 +1,5 @@
 //
-// $Id: XMLSceneWriter.java,v 1.5 2001/08/10 00:47:34 shaper Exp $
+// $Id: XMLSceneWriter.java,v 1.6 2001/08/10 01:31:25 shaper Exp $
 
 package com.threerings.miso.scene.xml;
 
@@ -53,9 +53,9 @@ public class XMLSceneWriter extends DataWriter
             dataElement("version", "" + Scene.VERSION);
             dataElement("locations", getLocationData(scene));
 
-	    startElement("spots");
-	    writeSpots(scene);
-	    endElement("spots");
+	    startElement("clusters");
+	    writeClusters(scene);
+	    endElement("clusters");
 
             dataElement("exits", getExitData(scene));
 
@@ -76,32 +76,32 @@ public class XMLSceneWriter extends DataWriter
     }
 
     /**
-     * Output XML detailing the spot objects.  Spots are described by
-     * a list of location object indexes that are contained within the
-     * spot.
+     * Output XML detailing the cluster objects.  Clusters are
+     * described by a list of location object indexes that are
+     * contained within the cluster.
      *
      * @param scene the scene object.
      */
-    protected void writeSpots (Scene scene) throws SAXException
+    protected void writeClusters (Scene scene) throws SAXException
     {
-	ArrayList spots = scene.getSpotGroup().getSpots();
+	ArrayList clusters = scene.getClusters();
 	ArrayList locs = scene.getLocations();
 
-	int size = spots.size();
+	int size = clusters.size();
 	for (int ii = 0; ii < size; ii++) {
 
 	    StringBuffer buf = new StringBuffer();
 
-	    Spot spot = (Spot)spots.get(ii);
-	    ArrayList spotlocs = spot.getLocations();
+	    Cluster cluster = (Cluster)clusters.get(ii);
+	    ArrayList clusterlocs = cluster.getLocations();
 
-	    int spotsize = spotlocs.size();
-	    for (int jj = 0; jj < spotsize; jj++) {
-		buf.append(locs.indexOf(spotlocs.get(jj))).append(",");
-		if (jj < spotsize - 1) buf.append(",");
+	    int clustersize = clusterlocs.size();
+	    for (int jj = 0; jj < clustersize; jj++) {
+		buf.append(locs.indexOf(clusterlocs.get(jj))).append(",");
+		if (jj < clustersize - 1) buf.append(",");
 	    }
 
-	    dataElement("spot", buf.toString());
+	    dataElement("cluster", buf.toString());
 	}
     }
 
@@ -159,8 +159,8 @@ public class XMLSceneWriter extends DataWriter
 
     /**
      * Return a string representation of the locations in the scene.
-     * Each location is specified by a comma-delimited quartet of
-     * (spot id, x, y, orientation) values.
+     * Each location is specified by a comma-delimited triplet of
+     * (x, y, orientation) values.
      *
      * @return the locations in String format.
      */
