@@ -1,6 +1,6 @@
 <?xml version="1.0" standalone="yes"?>
 
-<!-- $Id: tilesets.xml,v 1.17 2001/09/27 18:41:13 shaper Exp $ -->
+<!-- $Id: tilesets.xml,v 1.18 2001/09/28 03:46:01 shaper Exp $ -->
 
 <!-- Initial test tileset description data. -->
 
@@ -85,7 +85,7 @@
   </tileset>
 
   <tileset tsid="1010" name="Sword Pieces">
-    <imagefile>media/miso/tiles/sword-pieces.gif</imagefile>
+    <imagefile>media/miso/tiles/sword-pieces.png</imagefile>
     <rowheight>10</rowheight>
     <rowwidth>10</rowwidth>
     <tilecount>44</tilecount>
