@@ -1,5 +1,5 @@
 //
-// $Id: FadeAnimation.java,v 1.8 2004/08/27 02:12:38 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -27,37 +27,32 @@ import java.awt.Graphics2D;
 import java.awt.Rectangle;
 
 import com.threerings.media.Log;
-import com.threerings.media.image.Mirage;
 
 /**
  * An animation that displays an image fading from one alpha level to
  * another in specified increments over time.  The animation is finished
  * when the specified target alpha is reached.
  */
-public class FadeAnimation extends Animation
+public abstract class FadeAnimation extends Animation
 {
     /**
      * Constructs a fade animation.
      *
      * @param image the image to animate.
-     * @param x the image x-position.
-     * @param y the image y-position.
+     * @param bounds our bounds.
      * @param alpha the starting alpha.
      * @param step the alpha amount to step by each millisecond.
      * @param target the target alpha level.
      */
-    public FadeAnimation (
-        Mirage image, int x, int y, float alpha, float step, float target)
+    protected FadeAnimation (
+        Rectangle bounds, float alpha, float step, float target)
     {
-        super(new Rectangle(x, y, image.getWidth(), image.getHeight()));
+        super(bounds);
 
         // save things off
-        _image = image;
-        _x = x;
-        _y = y;
-        _startAlpha = _alpha = alpha;
+        _startAlpha = _alpha = Math.max(alpha, 0.0f);
         _step = step;
-        _target = target;
+        _target = Math.min(target, 1.0f);
 
         // create the initial composite
         _comp = AlphaComposite.getInstance(AlphaComposite.SRC_OVER, _alpha);
@@ -66,13 +61,8 @@ public class FadeAnimation extends Animation
     // documentation inherited
     public void tick (long timestamp)
     {
-        if (_start == 0) {
-            // initialize our starting time
-            _start = timestamp;
-        }
-
         // figure out the current alpha
-        long msecs = timestamp - _start;
+        long msecs = timestamp - _firstTick;
         _alpha = _startAlpha + (msecs * _step);
         if (_alpha < 0.0f) {
             _alpha = 0.0f;
@@ -91,14 +81,6 @@ public class FadeAnimation extends Animation
     }
 
     // documentation inherited
-    public void fastForward (long timeDelta)
-    {
-        if (_start > 0) {
-            _start += timeDelta;
-        }
-    }
-
-    // documentation inherited
     public void paint (Graphics2D gfx)
     {
         Composite ocomp = gfx.getComposite();
@@ -107,17 +89,20 @@ public class FadeAnimation extends Animation
         } else {
             gfx.setComposite(_comp);
         }
-        _image.paint(gfx, _x, _y);
+        paintAnimation(gfx);
         gfx.setComposite(ocomp);
     }
+
+    /**
+     * Here is where derived animations actually render their image.
+     */
+    protected abstract void paintAnimation (Graphics2D gfx);
 
     // documentation inherited
     protected void toString (StringBuffer buf)
     {
         super.toString(buf);
 
-        buf.append(", x=").append(_x);
-        buf.append(", y=").append(_y);
         buf.append(", alpha=").append(_alpha);
         buf.append(", startAlpha=").append(_startAlpha);
         buf.append(", step=").append(_step);
@@ -138,13 +123,4 @@ public class FadeAnimation extends Animation
 
     /** The starting alpha. */
     protected float _startAlpha;
-
-    /** The image position. */
-    protected int _x, _y;
-
-    /** The image to animate. */
-    protected Mirage _image;
-
-    /** The starting animation time. */
-    protected long _start;
 }
