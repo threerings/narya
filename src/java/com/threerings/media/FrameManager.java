@@ -1,5 +1,5 @@
 //
-// $Id: FrameManager.java,v 1.42 2003/05/08 21:26:27 mdb Exp $
+// $Id: FrameManager.java,v 1.43 2003/05/19 03:01:13 mdb Exp $
 
 package com.threerings.media;
 
@@ -277,6 +277,14 @@ public abstract class FrameManager
     public void removeFrameParticipant (FrameParticipant participant)
     {
         _participants.remove(participant);
+    }
+
+    /**
+     * Returns the frame being managed.
+     */
+    public JFrame getFrame ()
+    {
+        return _frame;
     }
 
     /**
