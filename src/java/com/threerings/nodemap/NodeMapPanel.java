@@ -1,5 +1,5 @@
 //
-// $Id: NodeMapPanel.java,v 1.5 2001/10/11 00:41:27 shaper Exp $
+// $Id: NodeMapPanel.java,v 1.6 2001/12/18 08:39:20 mdb Exp $
 
 package com.threerings.nodemap;
 
@@ -61,15 +61,29 @@ public class NodeMapPanel extends JPanel
 	_map.setToolTipManager(new ToolTipManager(this));
     }
 
+    /**
+     * Returns the node map currently being displayed by this panel.
+     */
+    public NodeMap getNodeMap ()
+    {
+        return _map;
+    }
+
     public void paintComponent (Graphics g)
     {
 	super.paintComponent(g);
-	_map.paint(g);
+        if (_map != null) {
+            _map.paint(g);
+        }
     }
 
     public Dimension getPreferredSize ()
     {
-	return _map.getSize();
+        if (_map != null) {
+            return _map.getSize();
+        } else {
+            return new Dimension(100, 100);
+        }
     }
 
     public void showToolTip (ToolTipProvider tipper, int x, int y)
@@ -92,12 +106,16 @@ public class NodeMapPanel extends JPanel
 
     public void mouseClicked (MouseEvent e)
     {
-	_map.handleMouseClicked(e.getX(), e.getY());
+        if (_map != null) {
+            _map.handleMouseClicked(e.getX(), e.getY());
+        }
     }
 
     public void mouseExited (MouseEvent e)
     {
-	_map.handleMouseExited();
+        if (_map != null) {
+            _map.handleMouseExited();
+        }
     }
 
     public void mousePressed (MouseEvent e) { }
@@ -108,8 +126,10 @@ public class NodeMapPanel extends JPanel
 
     public void mouseMoved (MouseEvent e)
     {
-	_map.handleMouseMoved(e.getX(), e.getY());
-	repaint();
+        if (_map != null) {
+            _map.handleMouseMoved(e.getX(), e.getY());
+            repaint();
+        }
     }
 
     public void mouseDragged (MouseEvent e) { }
