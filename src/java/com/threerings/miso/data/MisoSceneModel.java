@@ -1,5 +1,5 @@
 //
-// $Id: MisoSceneModel.java,v 1.6 2002/05/16 02:25:19 ray Exp $
+// $Id: MisoSceneModel.java,v 1.7 2002/05/16 03:54:18 mdb Exp $
 
 package com.threerings.miso.scene;
 
@@ -54,7 +54,7 @@ public class MisoSceneModel
         // write everything into a ByteBuffer, viewed as an IntBuffer and
         // then write the bytes from those operations out to the output
         // stream
-        ByteBuffer bbuf = ByteBuffer.allocate(8*tcount + 4*otc + 4*3);
+        ByteBuffer bbuf = ByteBuffer.allocate(4*tcount + 4*otc + 4*3);
         IntBuffer ibuf = bbuf.asIntBuffer();
 
         // insert the dimensions
@@ -72,8 +72,7 @@ public class MisoSceneModel
         // next write out the object action strings
         int acount = otc/3;
         for (int i = 0; i < acount; i++) {
-            String action = objectActions[i];
-            out.writeUTF((action == null) ? "" : action);
+            out.writeUTF((objectActions[i] == null) ? "" : objectActions[i]);
         }
     }
 
