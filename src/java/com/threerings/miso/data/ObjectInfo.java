@@ -1,10 +1,11 @@
 //
-// $Id: ObjectInfo.java,v 1.3 2003/03/05 21:17:27 ray Exp $
+// $Id: ObjectInfo.java,v 1.4 2003/07/12 04:16:10 mdb Exp $
 
 package com.threerings.miso.data;
 
 import com.samskivert.util.StringUtil;
 import com.threerings.io.SimpleStreamableObject;
+import com.threerings.media.tile.TileUtil;
 
 /**
  * Contains information about an object in a Miso scene.
@@ -137,5 +138,12 @@ public class ObjectInfo extends SimpleStreamableObject
             // notgunnahappen.
             return null;
         }
+    }
+
+    /** Enhances our {@link SimpleStreamableObject#toString} output. */
+    public String tileIdToString ()
+    {
+        return (TileUtil.getTileSetId(tileId) + ":" +
+                TileUtil.getTileIndex(tileId));
     }
 }
