@@ -1,5 +1,5 @@
 //
-// $Id: BuilderModel.java,v 1.1 2001/11/02 01:10:28 shaper Exp $
+// $Id: BuilderModel.java,v 1.2 2001/11/02 15:39:07 shaper Exp $
 
 package com.threerings.cast.builder;
 
@@ -54,16 +54,16 @@ public class BuilderModel
      */
     public List getComponentClasses ()
     {
-        return _classes;
+        return Collections.unmodifiableList(_classes);
     }
 
     /**
-     * Returns a hashtable of the components available for each
-     * component class, keyed on component class id.
+     * Returns a map of the components available for each component
+     * class, keyed on component class id.
      */
-    public HashIntMap getComponents ()
+    public Map getComponents ()
     {
-        return _components;
+        return Collections.unmodifiableMap(_components);
     }
 
     /**
