@@ -1,5 +1,5 @@
 //
-// $Id: ViewerApp.java,v 1.21 2001/12/12 19:52:50 mdb Exp $
+// $Id: ViewerApp.java,v 1.22 2001/12/16 06:52:11 shaper Exp $
 
 package com.threerings.miso.viewer;
 
@@ -20,6 +20,7 @@ import com.threerings.cast.bundle.BundledComponentRepository;
 
 import com.threerings.miso.Log;
 import com.threerings.miso.scene.DisplayMisoSceneImpl;
+import com.threerings.miso.scene.MisoCharacterSprite;
 import com.threerings.miso.scene.MisoSceneModel;
 import com.threerings.miso.tools.scene.xml.MisoSceneParser;
 import com.threerings.miso.util.MisoContext;
@@ -65,6 +66,7 @@ public class ViewerApp
         BundledComponentRepository crepo =
             new BundledComponentRepository(rmgr, imgr, "components");
         CharacterManager charmgr = new CharacterManager(crepo);
+        charmgr.setCharacterClass(MisoCharacterSprite.class);
 
         // create our scene view panel
         _panel = new ViewerSceneViewPanel(ctx, spritemgr, charmgr, crepo);

@@ -1,5 +1,5 @@
 //
-// $Id: ViewerSceneViewPanel.java,v 1.35 2001/11/29 23:36:31 mdb Exp $
+// $Id: ViewerSceneViewPanel.java,v 1.36 2001/12/16 06:52:11 shaper Exp $
 
 package com.threerings.miso.viewer;
 
@@ -46,9 +46,6 @@ public class ViewerSceneViewPanel extends SceneViewPanel
 
         // create an animation manager for this panel
   	_animmgr = new AnimationManager(spritemgr, this);
-
-        // configure the character manager from which we obtain sprites
-        charmgr.setCharacterClass(MisoCharacterSprite.class);
 
         // create the character descriptors
         _descUser = CastUtil.getRandomDescriptor(crepo);
