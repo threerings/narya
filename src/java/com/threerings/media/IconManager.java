@@ -1,10 +1,9 @@
 //
-// $Id: IconManager.java,v 1.3 2002/10/17 17:43:21 mdb Exp $
+// $Id: IconManager.java,v 1.4 2002/12/07 02:09:45 shaper Exp $
 
 package com.threerings.media;
 
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.Properties;
 
 import java.awt.Color;
@@ -14,6 +13,7 @@ import java.awt.Graphics;
 import javax.swing.Icon;
 
 import com.samskivert.util.ConfigUtil;
+import com.samskivert.util.LRUHashMap;
 import com.samskivert.util.StringUtil;
 
 import com.threerings.media.tile.NoSuchTileException;
@@ -150,9 +150,8 @@ public class IconManager
      * they should be loaded from the classpath. */
     protected String _rsrcSet;
 
-    /** A cache of our icon tilesets. TODO: use a real LRU cache instead
-     * of a hash map. */
-    protected HashMap _icons = new HashMap();
+    /** A cache of our icon tilesets. */
+    protected LRUHashMap _icons = new LRUHashMap(ICON_CACHE_SIZE);
     
     /** The icon we return when we are unable to load a requested icon. */
     protected Icon _errorIcon = new Icon() {
@@ -175,4 +174,7 @@ public class IconManager
     /** The suffix we append to an icon set name to obtain the tileset
      * metrics configuration parameter. */
     protected static final String METRICS_SUFFIX = ".metrics";
+
+    /** The maximum number of icons that may be cached at any one time. */
+    protected static final int ICON_CACHE_SIZE = 50;
 }
