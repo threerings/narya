@@ -1,12 +1,14 @@
 //
-// $Id: FrameRepaintManager.java,v 1.1 2002/04/23 01:16:27 mdb Exp $
+// $Id: FrameRepaintManager.java,v 1.2 2002/04/27 02:33:14 mdb Exp $
 
 package com.threerings.media;
 
 import java.applet.Applet;
 
 import java.awt.Component;
+import java.awt.Frame;
 import java.awt.Graphics;
+import java.awt.Image;
 import java.awt.Rectangle;
 import java.awt.Window;
 
@@ -14,6 +16,7 @@ import javax.swing.CellRendererPane;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.RepaintManager;
+import javax.swing.SwingUtilities;
 
 import java.util.HashMap;
 import java.util.Iterator;
@@ -30,6 +33,17 @@ import com.samskivert.util.StringUtil;
  */
 public class FrameRepaintManager extends RepaintManager
 {
+    /**
+     * Components that are rooted in this frame will be rendered into the
+     * offscreen buffer managed by the frame manager. Other components
+     * will be rendered into separate offscreen buffers and repainted in
+     * the normal Swing manner.
+     */
+    public FrameRepaintManager (Frame frame)
+    {
+        _rootFrame = frame;
+    }
+
     // documentation inherited
     public synchronized void addInvalidComponent (JComponent comp) 
     {
@@ -126,7 +140,7 @@ public class FrameRepaintManager extends RepaintManager
 	}
         return null;
     }
-    
+
     // documentation inherited
     public synchronized Rectangle getDirtyRegion (JComponent comp)
     {
@@ -191,34 +205,101 @@ public class FrameRepaintManager extends RepaintManager
             Entry entry = (Entry)iter.next();
             JComponent comp = (JComponent)entry.getKey();
             Rectangle drect = (Rectangle)entry.getValue();
-            Rectangle orect = (Rectangle)drect.clone();
-            Component root = FrameManager.getRoot(comp, drect);
 
-            Rectangle cbounds =
-                new Rectangle(0, 0, comp.getWidth(), comp.getHeight());
-            Rectangle obounds = comp.getBounds();
-            FrameManager.getRoot(comp, cbounds);
+            // get the root component, adjust the clipping (dirty)
+            // rectangle and obtain the bounds of the client in absolute
+            // coordinates
+            Component root = getRoot(comp, drect, _cbounds);
 
-            Rectangle clip = drect.intersection(cbounds);
-
-            if (root != null) {
-//                 if (!(comp instanceof JButton)) {
+            // if this component is rooted in our frame, repaint it into
+            // the supplied graphics instance
+            if (root == _rootFrame) {
 //                 Log.info("Repainting [comp=" + comp.getClass().getName() +
-//                          StringUtil.toString(obounds) +
-//                          StringUtil.toString(cbounds) +
-//                          ", root=" + root.getClass().getName() +
-//                          ", clip=" + StringUtil.toString(clip) +
-//                          ", drect=" + StringUtil.toString(drect) +
-//                          ", orect=" + StringUtil.toString(orect) + "].");
-//                 }
-                g.setClip(clip);
-                root.paint(g);
+//                          StringUtil.toString(_cbounds) +
+//                          ", drect=" + StringUtil.toString(drect) + "].");
+                g.setClip(drect);
+                g.translate(_cbounds.x, _cbounds.y);
+                comp.paint(g);
+                g.translate(-_cbounds.x, -_cbounds.y);
+
+            } else if (root != null) {
+//                 Log.info("Repainting old-school " +
+//                          "[comp=" + comp.getClass().getName() + "].");
+                // otherwise, repaint with standard swing double buffers
+                Image obuf = getOffscreenBuffer(
+                    comp, _cbounds.width, _cbounds.height);
+                Graphics og = null, cg = null;
+                try {
+                    og = obuf.getGraphics();
+                    comp.paint(og);
+                    cg = comp.getGraphics();
+                    cg.drawImage(obuf, 0, 0, null);
+
+                } finally {
+                    if (og != null) {
+                        og.dispose();
+                    }
+                    if (cg != null) {
+                        cg.dispose();
+                    }
+                }
             }
         }
 
         // clear out the mapping of dirty components
         _spare.clear();
     }
+
+    /**
+     * Locates the root component for the supplied component, translates
+     * the supplied dirty rectangle into the root components' coordinate
+     * system and fills in the component's bounds in the root coordinate
+     * system.
+     */
+    protected Component getRoot (JComponent comp, Rectangle dirty,
+                                 Rectangle bounds)
+    {
+        boolean debug = false;
+
+        // start with the component's untranslated bounds
+        bounds.setBounds(0, 0, comp.getWidth(), comp.getHeight());
+
+	for (Component c = comp; c != null; c = c.getParent()) {
+	    if (!c.isVisible() || c.getPeer() == null) {
+		return null;
+	    }
+
+            if (!(c instanceof JComponent)) {
+		return c;
+	    }
+
+            if (debug) {
+                Log.info("Adjusting " + c.getClass().getName() + " " +
+                         c.getX() + ", " + c.getY() + ".");
+            }
+
+            // adjust our coordinates
+            dirty.x += c.getX();
+            dirty.y += c.getY();
+            bounds.x += c.getX();
+            bounds.y += c.getY();
+
+            if (debug) {
+                Log.info("Intersecting " + c.getBounds() + " and " +
+                         dirty + ".");
+            }
+            SwingUtilities.computeIntersection(
+                c.getX(), c.getY(), c.getWidth(), c.getHeight(), dirty);
+            if (debug) {
+                Log.info("Intersected " + dirty + ".");
+            }
+	}
+
+        return null;
+    }
+
+    /** The managed frame. */
+    protected Frame _rootFrame;
 
     /** A list of invalid components. */
     protected Object[] _invalid;
@@ -229,4 +310,7 @@ public class FrameRepaintManager extends RepaintManager
     /** A spare hashmap that we swap in while repainting dirty components
      * in the old hashmap. */
     protected HashMap _spare = new HashMap();
+
+    /** Used to compute dirty components' bounds. */
+    protected Rectangle _cbounds = new Rectangle();
 }

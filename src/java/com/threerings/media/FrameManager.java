@@ -1,5 +1,5 @@
 //
-// $Id: FrameManager.java,v 1.2 2002/04/23 03:10:59 mdb Exp $
+// $Id: FrameManager.java,v 1.3 2002/04/27 02:33:14 mdb Exp $
 
 package com.threerings.media;
 
@@ -97,7 +97,7 @@ public class FrameManager
         _frame.setIgnoreRepaint(true);
 
         // set up our custom repaint manager
-        _remgr = new FrameRepaintManager();
+        _remgr = new FrameRepaintManager(_frame);
         RepaintManager.setCurrentManager(_remgr);
 
         // turn off double buffering for the whole business because we
@@ -324,7 +324,7 @@ public class FrameManager
 
 //                         // copy the off-screen buffer on-screen
 //                         fg.setClip(bounds);
-//                         fg.drawImage(_backimg, fi.left, fi.top, null);
+//                         fg.drawImage(_backimg, 0, 0, null);
 
                     } catch (Throwable t) {
                         String ptos = StringUtil.safeToString(part);
