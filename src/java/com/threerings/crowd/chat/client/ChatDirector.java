@@ -1,5 +1,5 @@
 //
-// $Id: ChatDirector.java,v 1.17 2002/02/26 05:47:40 mdb Exp $
+// $Id: ChatDirector.java,v 1.18 2002/02/26 20:37:55 mdb Exp $
 
 package com.threerings.crowd.chat;
 
@@ -65,6 +65,42 @@ public class ChatDirector
     public void removeChatDisplay (ChatDisplay display)
     {
         _displays.remove(display);
+    }
+
+    /**
+     * Requests that the specified system message be dispatched to all
+     * registered chat displays. The message will be delivered as if it
+     * were received on the main chat object (meaning the chat type will
+     * be {@link ChatCodes#PLACE_CHAT_TYPE}).
+     *
+     * @param bundle the message bundle identifier that should be used to
+     * localize this message.
+     * @param message the localizable message string.
+     */
+    public void displaySystemMessage (String bundle, String message)
+    {
+        displaySystemMessage(PLACE_CHAT_TYPE, bundle, message);
+    }
+
+    /**
+     * Requests that the specified system message be dispatched to all
+     * registered chat displays.
+     *
+     * @param type {@link ChatCodes#PLACE_CHAT_TYPE} if the message was
+     * received on the place object or the type associated with the
+     * auxiliary chat object on which the message was received.
+     * @param bundle the message bundle identifier that should be used to
+     * localize this message.
+     * @param message the localizable message string.
+     */
+    public void displaySystemMessage (
+        String type, String bundle, String message)
+    {
+        // pass this on to our chat displays
+        for (int i = 0; i < _displays.size(); i++) {
+            ChatDisplay display = (ChatDisplay)_displays.get(i);
+            display.displaySystemMessage(type, bundle, message);
+        }
     }
 
     /**
@@ -247,12 +283,7 @@ public class ChatDirector
     {
         String bundle = (String)args[0];
         String message = (String)args[1];
-
-        // pass this on to our chat displays
-        for (int i = 0; i < _displays.size(); i++) {
-            ChatDisplay display = (ChatDisplay)_displays.get(i);
-            display.displaySystemMessage(type, bundle, message);
-        }
+        displaySystemMessage(type, bundle, message);
     }
 
     /**
