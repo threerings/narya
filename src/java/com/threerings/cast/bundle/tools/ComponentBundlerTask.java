@@ -1,5 +1,5 @@
 //
-// $Id: ComponentBundlerTask.java,v 1.7 2002/04/07 23:15:29 mdb Exp $
+// $Id: ComponentBundlerTask.java,v 1.8 2002/04/11 01:33:51 mdb Exp $
 
 package com.threerings.cast.bundle.tools;
 
@@ -255,11 +255,18 @@ public class ComponentBundlerTask extends Task
     protected void saveBroker (File mapfile, ComponentIDBroker broker)
         throws BuildException
     {
+        HashMapIDBroker hbroker = (HashMapIDBroker)broker;
+
+        // bail if the broker wasn't modified
+        if (!hbroker.isModified()) {
+            return;
+        }
+
         try {
             FileOutputStream fout = new FileOutputStream(mapfile);
             DataOutputStream dout =
                 new DataOutputStream(new BufferedOutputStream(fout));
-            ((HashMapIDBroker)broker).writeTo(dout);
+            hbroker.writeTo(dout);
             dout.close();
         } catch (IOException ioe) {
             throw new BuildException("Unable to store component ID map " +
@@ -286,6 +293,11 @@ public class ComponentBundlerTask extends Task
             throws PersistenceException
         {
             // nothing doing
+        }
+
+        public boolean isModified ()
+        {
+            return _nextCID != _startCID;
         }
 
         public void writeTo (DataOutputStream dout)
@@ -320,9 +332,13 @@ public class ComponentBundlerTask extends Task
             }
             // read in our most recently assigned component id
             _nextCID = din.readInt();
+            // keep track of this so that we can tell if we were modified
+            _startCID = _nextCID;
         }
 
         protected int _nextCID = 0;
+
+        protected int _startCID = 0;
     }
 
     /** The path to our component bundle file. */
