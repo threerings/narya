@@ -1,5 +1,5 @@
 //
-// $Id: MediaPanel.java,v 1.4 2002/04/27 04:57:05 mdb Exp $
+// $Id: MediaPanel.java,v 1.5 2002/04/27 22:40:09 mdb Exp $
 
 package com.threerings.media;
 
@@ -344,7 +344,7 @@ public class MediaPanel extends JComponent
 
         // we may need to do some scrolling
         if (_dx != 0 || _dy != 0) {
-            gfx.copyArea(0, 0, getWidth(), getHeight(), -_dx, -_dy);
+            gfx.copyArea(0, 0, width, height, -_dx, -_dy);
         }
 
         // get our dirty rectangles
