@@ -1,5 +1,5 @@
 //
-// $Id: ConfigEditorPanel.java,v 1.5 2002/09/23 01:32:32 mdb Exp $
+// $Id: ConfigEditorPanel.java,v 1.6 2002/09/25 03:01:14 mdb Exp $
 
 package com.threerings.admin.client;
 
@@ -36,11 +36,6 @@ public class ConfigEditorPanel extends JPanel
 
         setLayout(new VGroupLayout(VGroupLayout.STRETCH, VGroupLayout.STRETCH,
                                    5, VGroupLayout.CENTER));
-
-        // put a label at the top
-        JLabel header = new JLabel("Configuration Editor");
-        header.setFont(header.getFont().deriveFont(Font.BOLD, 18));
-        add(header, VGroupLayout.FIXED);
 
         // create our objects tabbed pane
         add(_oeditors = new JTabbedPane());
