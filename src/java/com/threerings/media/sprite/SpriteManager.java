@@ -1,5 +1,5 @@
 //
-// $Id: SpriteManager.java,v 1.38 2002/10/08 21:03:37 ray Exp $
+// $Id: SpriteManager.java,v 1.39 2002/11/05 20:52:39 mdb Exp $
 
 package com.threerings.media.sprite;
 
@@ -7,10 +7,11 @@ import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.Shape;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+
+import com.samskivert.util.ObserverList;
 
 import com.threerings.media.AbstractMediaManager;
 import com.threerings.media.Log;
@@ -133,12 +134,10 @@ public class SpriteManager extends AbstractMediaManager
     }
 
     // documentation inherited
-    protected void dispatchEvent (ArrayList observers, Object event)
+    protected void dispatchEvent (ObserverList observers, Object event)
     {
-        SpriteEvent sevt = (SpriteEvent) event;
-        for (int ii=0, nn=observers.size(); ii < nn; ii++) {
-            ((SpriteObserver) observers.get(ii)).handleEvent(sevt);
-        }
+        _dispatchOp.init((SpriteEvent)event);
+        observers.apply(_dispatchOp);
     }
 
 // NOTE- collision handling code is turned off for now. To re-implement,
@@ -213,4 +212,23 @@ public class SpriteManager extends AbstractMediaManager
 //	    return (s2.getX() - s1.getX());
 //	}
 //    }
+
+    /** Used by {@link #dispatchEvent}. */
+    protected static class DispatchOp implements ObserverList.ObserverOp
+    {
+        public void init (SpriteEvent event)
+        {
+            _event = event;
+        }
+
+        public boolean apply (Object observer)
+        {
+            ((SpriteObserver)observer).handleEvent(_event);
+            return true;
+        }
+
+        protected SpriteEvent _event;
+    };
+
+    protected DispatchOp _dispatchOp = new DispatchOp();
 }
