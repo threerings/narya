@@ -1,5 +1,5 @@
 //
-// $Id: ImageSprite.java,v 1.6 2002/05/31 03:38:03 mdb Exp $
+// $Id: ImageSprite.java,v 1.7 2002/06/05 23:38:18 ray Exp $
 
 package com.threerings.media.sprite;
 
@@ -82,7 +82,8 @@ public class ImageSprite extends Sprite
     {
         super.init(spritemgr);
 
-        setFrames(_frames);
+        // now that we have our spritemanager, we can initialize our frames
+        initFrames();
     }
 
     /**
@@ -151,10 +152,19 @@ public class ImageSprite extends Sprite
             return;
         }
 
+        // set and init our frames
+        _frames = frames;
+        initFrames();
+    }
+
+    /**
+     * Initialize our frames.
+     */
+    protected void initFrames ()
+    {
         // start with our old bounds
         Rectangle dirty = new Rectangle(_bounds);
 
-        _frames = frames;
         _frameIdx %= _frames.getFrameCount();
 
         // determine our drawing offsets and rendered rectangle size
