@@ -1,5 +1,5 @@
 //
-// $Id: DSet.java,v 1.22 2002/10/27 18:49:51 mdb Exp $
+// $Id: DSet.java,v 1.23 2002/12/13 02:07:27 mdb Exp $
 
 package com.threerings.presents.dobj;
 
@@ -144,6 +144,23 @@ public class DSet
             }
             protected int _index = 0;
         };
+    }
+
+    /**
+     * Copies the elements of this distributed set into the supplied
+     * array. If the array is not large enough to hold all of the
+     * elements, as many as fit into the array will be copied. If the
+     * <code>array</code> argument is null, an object array of sufficient
+     * size to contain all of the elements of this set will be created and
+     * returned.
+     */
+    public Object toArray (Object[] array)
+    {
+        if (array == null) {
+            array = new Object[size()];
+        }
+        System.arraycopy(_entries, 0, array, 0, array.length);
+        return array;
     }
 
     /**
