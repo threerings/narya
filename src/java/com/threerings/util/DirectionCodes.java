@@ -1,5 +1,5 @@
 //
-// $Id: DirectionCodes.java,v 1.2 2002/03/26 01:31:15 shaper Exp $
+// $Id: DirectionCodes.java,v 1.3 2002/06/26 02:37:18 mdb Exp $
 
 package com.threerings.util;
 
@@ -54,6 +54,33 @@ public interface DirectionCodes
     /** A direction code indicating south. */
     public static final int SOUTH = 7;
 
-    /** The total number of directions. */
+    /** The number of basic compass directions. */
     public static final int DIRECTION_COUNT = 8;
+
+    /** A direction code indicating west by southwest. */
+    public static final int WESTSOUTHWEST = 8;
+
+    /** A direction code indicating west by northwest. */
+    public static final int WESTNORTHWEST = 9;
+
+    /** A direction code indicating north by northwest. */
+    public static final int NORTHNORTHWEST = 10;
+
+    /** A direction code indicating north by northeast. */
+    public static final int NORTHNORTHEAST = 11;
+
+    /** A direction code indicating east by northeast. */
+    public static final int EASTNORTHEAST = 12;
+
+    /** A direction code indicating east by southeast. */
+    public static final int EASTSOUTHEAST = 13;
+
+    /** A direction code indicating south by southeast. */
+    public static final int SOUTHSOUTHEAST = 14;
+
+    /** A direction code indicating south by southwest. */
+    public static final int SOUTHSOUTHWEST = 15;
+
+    /** The number of fine compass directions. */
+    public static final int FINE_DIRECTION_COUNT = 16;
 }
