@@ -1,5 +1,5 @@
 //
-// $Id: AnimatedPanel.java,v 1.3 2001/12/15 04:20:26 mdb Exp $
+// $Id: AnimatedPanel.java,v 1.4 2001/12/16 08:04:25 mdb Exp $
 
 package com.threerings.media.sprite;
 
@@ -92,9 +92,14 @@ public class AnimatedPanel extends JPanel implements AnimatedView
 
         try {
             Graphics pcg = getGraphics();
-            g = pcg.create();
-            pcg.dispose();
-            paint(g);
+            // apparently getGraphics() can fail if we are removed from
+            // the UI between the time that we queued up the code that
+            // calls this method and the time that it's called
+            if (pcg != null) {
+                g = pcg.create();
+                pcg.dispose();
+                paint(g);
+            }
 
         } catch (NullPointerException e) {
             e.printStackTrace();
