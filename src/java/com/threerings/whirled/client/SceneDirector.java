@@ -1,5 +1,5 @@
 //
-// $Id: SceneDirector.java,v 1.7 2001/11/12 20:56:55 mdb Exp $
+// $Id: SceneDirector.java,v 1.8 2001/12/04 00:30:27 mdb Exp $
 
 package com.threerings.whirled.client;
 
@@ -71,10 +71,34 @@ public class SceneDirector
      */
     public void moveTo (int sceneId)
     {
+        // prepare to move to this scene (sets up pending data)
+        if (!prepareMoveTo(sceneId)) {
+            return;
+        }
+
+        // check the version of our cached copy of the scene to which
+        // we're requesting to move; if we were unable to load it, assume
+        // a cached version of zero
+        int sceneVers = 0;
+        if (_pendingModel != null) {
+            sceneVers = _pendingModel.version;
+        }
+
+        // issue a moveTo request
+        SceneService.moveTo(_ctx.getClient(), sceneId, sceneVers, this);
+    }
+
+    /**
+     * Prepares to move to the requested scene. The location observers are
+     * asked to ratify the move and our pending scene mode is loaded from
+     * the scene repository.
+     */
+    protected boolean prepareMoveTo (int sceneId)
+    {
         // first check to see if our observers are happy with this move
         // request
         if (!mayMoveTo(sceneId)) {
-            return;
+            return false;
         }
 
         // complain if we're over-writing a pending request
@@ -92,18 +116,13 @@ public class SceneDirector
 
         // load up the pending scene so that we can communicate it's most
         // recent version to the server
-        int sceneVers = 0;
         _pendingModel = loadSceneModel(sceneId);
-        // if we were unable to load it, assume a previous version of zero
-        if (_pendingModel != null) {
-            sceneVers = _pendingModel.version;
-        }
 
         // make a note of our pending scene id
         _pendingSceneId = sceneId;
 
-        // issue a moveTo request
-        SceneService.moveTo(_ctx.getClient(), sceneId, sceneVers, this);
+        // all systems go
+        return true;
     }
 
     /**
