@@ -1,19 +1,19 @@
 //
-// $Id: IsoSceneView.java,v 1.82 2002/01/08 22:16:59 shaper Exp $
+// $Id: IsoSceneView.java,v 1.83 2002/01/11 16:17:34 shaper Exp $
 
 package com.threerings.miso.scene;
 
+import java.awt.BasicStroke;
 import java.awt.Color;
+import java.awt.Font;
+import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.Point;
 import java.awt.Polygon;
+import java.awt.Rectangle;
 import java.awt.Shape;
 import java.awt.Stroke;
-import java.awt.Rectangle;
-import java.awt.FontMetrics;
-import java.awt.Point;
-import java.awt.Font;
-import java.awt.BasicStroke;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -21,7 +21,7 @@ import java.util.List;
 
 import com.samskivert.util.HashIntMap;
 
-import com.threerings.media.sprite.DirtyRectList;
+import com.threerings.media.animation.AnimationManager;
 import com.threerings.media.sprite.Path;
 import com.threerings.media.sprite.SpriteManager;
 
@@ -45,14 +45,19 @@ public class IsoSceneView implements SceneView
     /**
      * Constructs an iso scene view.
      *
+     * @param animmgr the animation manager.
      * @param spritemgr the sprite manager.
      * @param model the data model.
      */
-    public IsoSceneView (SpriteManager spritemgr, IsoSceneViewModel model)
+    public IsoSceneView (AnimationManager animmgr, SpriteManager spritemgr,
+                         IsoSceneViewModel model)
     {
+        // save off references
+        _animmgr = animmgr;
         _spritemgr = spritemgr;
-
         _model = model;
+
+        // give the model a chance to pre-calculate various things
         _model.precalculate();
 
         // create our polygon arrays and create polygons for each of the
@@ -105,6 +110,9 @@ public class IsoSceneView implements SceneView
 
         // render the scene to the graphics context
         renderScene(gfx);
+
+        // render any animations
+        _animmgr.renderAnimations(gfx);
 
         // draw frames of dirty tiles and rectangles
         // drawDirtyRegions(gfx);
@@ -366,7 +374,7 @@ public class IsoSceneView implements SceneView
     }
 
     // documentation inherited
-    public void invalidateRects (DirtyRectList rects)
+    public void invalidateRects (List rects)
     {
         int size = rects.size();
         for (int ii = 0; ii < size; ii++) {
@@ -625,4 +633,7 @@ public class IsoSceneView implements SceneView
 
     /** The sprite manager. */
     protected SpriteManager _spritemgr;
+
+    /** The animation manager. */
+    protected AnimationManager _animmgr;
 }

@@ -1,5 +1,5 @@
 //
-// $Id: ViewerSceneViewPanel.java,v 1.37 2002/01/08 22:16:59 shaper Exp $
+// $Id: ViewerSceneViewPanel.java,v 1.38 2002/01/11 16:17:34 shaper Exp $
 
 package com.threerings.miso.viewer;
 
@@ -15,7 +15,7 @@ import com.threerings.cast.CharacterManager;
 import com.threerings.cast.ComponentRepository;
 import com.threerings.cast.util.CastUtil;
 
-import com.threerings.media.sprite.AnimationManager;
+import com.threerings.media.animation.AnimationManager;
 import com.threerings.media.sprite.LineSegmentPath;
 import com.threerings.media.sprite.PathCompletedEvent;
 import com.threerings.media.sprite.SpriteEvent;
@@ -44,9 +44,6 @@ public class ViewerSceneViewPanel extends SceneViewPanel
                                  ComponentRepository crepo)
     {
 	super(ctx.getConfig(), spritemgr);
-
-        // create an animation manager for this panel
-        _animmgr = new AnimationManager(spritemgr, this);
 
         // create the character descriptors
         _descUser = CastUtil.getRandomDescriptor(crepo);
@@ -212,9 +209,6 @@ public class ViewerSceneViewPanel extends SceneViewPanel
 
     /** The character descriptor for the decoy characters. */
     protected CharacterDescriptor _descDecoy;
-
-    /** The animation manager. */
-    protected AnimationManager _animmgr;
 
     /** The sprite we're manipulating within the view. */
     protected MisoCharacterSprite _sprite;

@@ -1,5 +1,5 @@
 //
-// $Id: SwingSceneViewPanel.java,v 1.1 2002/01/08 22:19:29 shaper Exp $
+// $Id: SwingSceneViewPanel.java,v 1.2 2002/01/11 16:17:34 shaper Exp $
 
 package com.threerings.miso.scene;
 
@@ -10,11 +10,14 @@ import java.awt.Rectangle;
 
 import javax.swing.JComponent;
 
+import java.util.List;
+
 import com.samskivert.util.Config;
 
-import com.threerings.media.sprite.AnimatedPanel;
-import com.threerings.media.sprite.DirtyRectList;
+import com.threerings.media.animation.AnimatedView;
+import com.threerings.media.animation.AnimationManager;
 import com.threerings.media.sprite.SpriteManager;
+
 import com.threerings.miso.util.MisoUtil;
 
 /**
@@ -30,7 +33,7 @@ import com.threerings.miso.util.MisoUtil;
  * do not depend on use of the animation manager to refresh the display.
  */
 public class SwingSceneViewPanel extends JComponent
-    implements IsoSceneViewModelListener
+    implements AnimatedView, IsoSceneViewModelListener
 {
     /**
      * Constructs the scene view panel.
@@ -44,8 +47,11 @@ public class SwingSceneViewPanel extends JComponent
         // the scene display has changed and needs must be repainted
         _viewmodel.addListener(this);
 
+        // create an animation manager for this panel
+        AnimationManager animmgr = new AnimationManager(spritemgr, this);
+
 	// create the scene view
-        _view = newSceneView(spritemgr, _viewmodel);
+        _view = newSceneView(animmgr, spritemgr, _viewmodel);
     }
 
     /**
@@ -60,9 +66,9 @@ public class SwingSceneViewPanel extends JComponent
      * Constructs the underlying scene view implementation.
      */
     protected IsoSceneView newSceneView (
-	SpriteManager smgr, IsoSceneViewModel model)
+	AnimationManager amgr, SpriteManager smgr, IsoSceneViewModel model)
     {
-        return new IsoSceneView(smgr, model);
+        return new IsoSceneView(amgr, smgr, model);
     }
 
     /**
@@ -89,7 +95,7 @@ public class SwingSceneViewPanel extends JComponent
     }
 
     // documentation inherited
-    public void invalidateRects (DirtyRectList rects)
+    public void invalidateRects (List rects)
     {
         // pass the invalid rects on to our scene view
         _view.invalidateRects(rects);
@@ -99,6 +105,12 @@ public class SwingSceneViewPanel extends JComponent
     public void invalidateRect (Rectangle rect)
     {
         _view.invalidateRect(rect);
+    }
+
+    // documentation inherited
+    public void paintImmediately ()
+    {
+        repaint();
     }
 
     /**

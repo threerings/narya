@@ -1,13 +1,23 @@
 //
-// $Id: SpriteManager.java,v 1.16 2001/10/25 01:40:26 shaper Exp $
+// $Id: SpriteManager.java,v 1.17 2002/01/11 16:17:33 shaper Exp $
 
 package com.threerings.media.sprite;
 
-import java.awt.*;
-import java.util.*;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.Polygon;
+import java.awt.Rectangle;
+import java.awt.Shape;
+
+import java.util.Arrays;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.Iterator;
 import java.util.List;
 
+import com.samskivert.util.CollectionUtil;
 import com.samskivert.util.Tuple;
+
 import com.threerings.media.Log;
 
 /**
@@ -22,7 +32,7 @@ public class SpriteManager
     {
         _sprites = new ArrayList();
 	_notify = new ArrayList();
-        _dirty = new DirtyRectList();
+        _dirty = new ArrayList();
     }
 
     /**
@@ -90,39 +100,6 @@ public class SpriteManager
     }
 
     /**
-     * Return the list of dirty rects in screen pixel coordinates that
-     * have been created by any sprites since the last time the dirty
-     * rects were requested.
-     *
-     * @return the list of dirty rects.
-     */
-    public DirtyRectList getDirtyRects ()
-    {
-        DirtyRectList merged = new DirtyRectList();
-
-        while (_dirty.size() > 0) {
-            // pop the next rectangle from the dirty list
-            Rectangle mr = (Rectangle)_dirty.remove(0);
-
-            // merge in any overlapping rectangles
-            for (int ii = 0; ii < _dirty.size(); ii++) {
-                Rectangle r = (Rectangle)_dirty.get(ii);
-                if (mr.intersects(r)) {
-                    // remove the overlapping rectangle from the list
-                    _dirty.remove(ii--);
-                    // grow the merged dirty rectangle
-                    mr.add(r);
-                }
-            }
-
-            // add the merged rectangle to the list
-            merged.add(mr);
-        }
-
-        return merged;
-    }
-
-    /**
      * Render the sprites residing within the given polygon to the given
      * graphics context.
      *
@@ -163,7 +140,7 @@ public class SpriteManager
      * queue by the {@link AnimationManager}.  Handles moving about of
      * sprites and reporting of sprite collisions.
      */
-    public void tick (long timestamp)
+    public void tick (long timestamp, List rects)
     {
 	// tick all sprites
 	tickSprites(timestamp);
@@ -181,6 +158,13 @@ public class SpriteManager
 	// observers may take, such as sprite removal, won't screw us
 	// up elsewhere.
 	handleSpriteEvents();
+
+        // add all generated dirty rectangles to the passed-in dirty
+        // rectangle list
+        CollectionUtil.addAll(rects, _dirty.iterator());
+
+        // clear out our internal dirty rectangle list
+        _dirty.clear();
     }
 
     /**
@@ -312,7 +296,7 @@ public class SpriteManager
     protected ArrayList _sprites;
 
     /** The dirty rectangles created by sprites. */
-    protected DirtyRectList _dirty;
+    protected ArrayList _dirty;
 
     /** The list of pending sprite notifications. */
     protected ArrayList _notify;

@@ -1,5 +1,5 @@
 //
-// $Id: SceneViewPanel.java,v 1.22 2002/01/08 22:16:59 shaper Exp $
+// $Id: SceneViewPanel.java,v 1.23 2002/01/11 16:17:34 shaper Exp $
 
 package com.threerings.miso.scene;
 
@@ -7,10 +7,12 @@ import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Rectangle;
 
+import java.util.List;
+
 import com.samskivert.util.Config;
 
-import com.threerings.media.sprite.AnimatedPanel;
-import com.threerings.media.sprite.DirtyRectList;
+import com.threerings.media.animation.AnimationManager;
+import com.threerings.media.animation.AnimatedPanel;
 import com.threerings.media.sprite.SpriteManager;
 import com.threerings.miso.util.MisoUtil;
 
@@ -27,6 +29,12 @@ public class SceneViewPanel extends AnimatedPanel
      */
     public SceneViewPanel (Config config, SpriteManager spritemgr)
     {
+        // save off references
+        _spritemgr = spritemgr;
+
+        // create an animation manager for this panel
+        _animmgr = new AnimationManager(_spritemgr, this);
+
         // create the data model for the scene view
         _viewmodel = new IsoSceneViewModel(config);
 
@@ -35,7 +43,7 @@ public class SceneViewPanel extends AnimatedPanel
         _viewmodel.addListener(this);
 
 	// create the scene view
-        _view = newSceneView(spritemgr, _viewmodel);
+        _view = newSceneView(_animmgr, spritemgr, _viewmodel);
     }
 
     /**
@@ -50,9 +58,9 @@ public class SceneViewPanel extends AnimatedPanel
      * Constructs the underlying scene view implementation.
      */
     protected IsoSceneView newSceneView (
-	SpriteManager smgr, IsoSceneViewModel model)
+	AnimationManager amgr, SpriteManager smgr, IsoSceneViewModel model)
     {
-        return new IsoSceneView(smgr, model);
+        return new IsoSceneView(amgr, smgr, model);
     }
 
     /**
@@ -78,7 +86,7 @@ public class SceneViewPanel extends AnimatedPanel
     }
 
     // documentation inherited
-    public void invalidateRects (DirtyRectList rects)
+    public void invalidateRects (List rects)
     {
         // pass the invalid rects on to our scene view
         _view.invalidateRects(rects);
@@ -113,4 +121,10 @@ public class SceneViewPanel extends AnimatedPanel
 
     /** The scene view we're managing. */
     protected SceneView _view;
+
+    /** A reference to the active sprite manager. */
+    protected SpriteManager _spritemgr;
+
+    /** A reference to the active animation manager. */
+    protected AnimationManager _animmgr;
 }

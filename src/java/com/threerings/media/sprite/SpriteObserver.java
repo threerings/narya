@@ -1,5 +1,5 @@
 //
-// $Id: SpriteObserver.java,v 1.3 2001/09/13 19:36:20 mdb Exp $
+// $Id: SpriteObserver.java,v 1.4 2002/01/11 16:17:33 shaper Exp $
 
 package com.threerings.media.sprite;
 
@@ -14,7 +14,6 @@ public interface SpriteObserver
      * This method is called by the {@link SpriteManager} when something
      * interesting is accomplished by or happens to the sprite.
      *
-     * @param sprite the sprite involved.
      * @param event the sprite event.
      */
     public void handleEvent (SpriteEvent event);

@@ -1,14 +1,24 @@
 //
-// $Id: SpritePanel.java,v 1.9 2002/01/08 22:16:58 shaper Exp $
+// $Id: SpritePanel.java,v 1.10 2002/01/11 16:17:33 shaper Exp $
 
 package com.threerings.cast.builder;
 
-import java.awt.*;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.Rectangle;
 
-import com.threerings.media.sprite.*;
+import com.threerings.media.animation.AnimatedPanel;
+import com.threerings.media.animation.AnimationManager;
+import com.threerings.media.sprite.Sprite;
+import com.threerings.media.sprite.SpriteManager;
 
 import com.threerings.cast.Log;
-import com.threerings.cast.*;
+import com.threerings.cast.CharacterDescriptor;
+import com.threerings.cast.CharacterManager;
+import com.threerings.cast.CharacterSprite;
+import com.threerings.cast.StandardActions;
 
 /**
  * The sprite panel displays a character sprite centered in the panel

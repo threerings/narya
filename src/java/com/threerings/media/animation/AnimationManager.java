@@ -1,9 +1,14 @@
 //
-// $Id: AnimationManager.java,v 1.21 2001/12/18 09:46:07 mdb Exp $
+// $Id: AnimationManager.java,v 1.1 2002/01/11 16:17:33 shaper Exp $
 
-package com.threerings.media.sprite;
+package com.threerings.media.animation;
 
-import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.Rectangle;
+
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.swing.JComponent;
 import javax.swing.SwingUtilities;
 import javax.swing.event.AncestorEvent;
@@ -13,6 +18,7 @@ import com.samskivert.util.Interval;
 import com.samskivert.util.IntervalManager;
 
 import com.threerings.media.Log;
+import com.threerings.media.sprite.SpriteManager;
 import com.threerings.media.util.PerformanceMonitor;
 import com.threerings.media.util.PerformanceObserver;
 
@@ -75,6 +81,64 @@ public class AnimationManager
     }
 
     /**
+     * Adds a rectangle to the dirty rectangle list.  Note that the
+     * rectangle may be destructively modified by the animation manager at
+     * some later date.
+     *
+     * @param rect the rectangle to add.
+     */
+    public void addDirtyRect (Rectangle rect)
+    {
+        _dirty.add(rect);
+    }
+
+    /**
+     * Registers the given {@link Animation} with the animation manager
+     * for ticking and painting.
+     */
+    public void registerAnimation (Animation anim)
+    {
+        if (_anims.contains(anim)) {
+            Log.warning("Attempt to register animation more than once " +
+                        "[anim=" + anim + "].");
+            return;
+        }
+
+        anim.setAnimationManager(this);
+        _anims.add(anim);
+        // Log.info("Registered animation [anim=" + anim + "].");
+    }
+
+    /**
+     * Un-registers the given {@link Animation} from the animation
+     * manager.
+     */
+    public void unregisterAnimation (Animation anim)
+    {
+        // un-register the animation
+        if (!_anims.remove(anim)) {
+            Log.warning("Attempt to un-register animation that isn't " +
+                        "registered [anim=" + anim + "].");
+        }
+
+        // dirty the animation bounds
+        anim.invalidate();
+        // Log.info("Un-registered animation [anim=" + anim + "].");
+    }
+
+    /**
+     * Renders all registered animations to the given graphics context.
+     */
+    public void renderAnimations (Graphics2D gfx)
+    {
+        int size = _anims.size();
+        for (int ii = 0; ii < size; ii++) {
+            Animation anim = (Animation)_anims.get(ii);
+            anim.paint(gfx);
+        }
+    }
+
+    /**
      * Called by our interval when we'd like to begin a tick.  Returns
      * whether we're already ticking, and notes that we've requested
      * another tick.
@@ -130,10 +194,17 @@ public class AnimationManager
         long now = System.currentTimeMillis();
 
         // call tick on all sprites
-        _spritemgr.tick(now);
+        _spritemgr.tick(now, _dirty);
 
-        // invalidate screen-rects dirtied by sprites
-        DirtyRectList rects = _spritemgr.getDirtyRects();
+        // call tick on all animations
+        tickAnimations(now);
+
+        // perform a single pass merging overlapping rectangles.  note
+        // that this will also clear out the contents of our internal
+        // dirty rectangle list.
+        List rects = mergeDirtyRects(_dirty);
+
+        // invalidate screen-rects dirtied by sprites and/or animations
 	if (rects.size() > 0) {
 	    // pass the dirty-rects on to the scene view
 	    _view.invalidateRects(rects);
@@ -142,8 +213,11 @@ public class AnimationManager
             _view.paintImmediately();
 	}
 
+        // remove any finished animations
+        removeFinishedAnimations();
+
 	// update refresh-rate information
-	// PerformanceMonitor.tick(AnimationManager.this, "refresh");
+	PerformanceMonitor.tick(AnimationManager.this, "refresh");
 
         if (finishedTick()) {
             // finishedTick returning true means there's been a
@@ -151,6 +225,40 @@ public class AnimationManager
             // this tick, so we want to queue up another tick
             // immediately
             queueTick();
+        }
+    }
+
+    /**
+     * Calls tick on all animations currently registered with the
+     * animation manager.
+     */
+    protected void tickAnimations (long timestamp)
+    {
+        int size = _anims.size();
+        for (int ii = 0; ii < size; ii++) {
+            ((Animation)_anims.get(ii)).tick(timestamp);
+//             if (anim.isFinished()) {
+//                 anim.notifyObservers(new AnimationWillCompleteEvent(anim));
+//             }
+        }
+    }
+
+    /**
+     * Removes any finished animations from the list of animations and
+     * notifies their respective animation observers, if any.
+     */
+    protected void removeFinishedAnimations ()
+    {
+        int size = _anims.size();
+        for (int ii = size - 1; ii >= 0; ii--) {
+            Animation anim = (Animation)_anims.get(ii);
+            if (anim.isFinished()) {
+                // let any animation observers know that we're done
+                anim.notifyObservers(new AnimationCompletedEvent(anim));
+                // un-register the animation
+                unregisterAnimation(anim);
+                Log.info("Removed finished animation [anim=" + anim + "].");
+            }
         }
     }
 
@@ -165,11 +273,50 @@ public class AnimationManager
         }
     }
 
+    /**
+     * Returns a new list of dirty rectangles representing the given list
+     * with any intersecting rectangles merged.  The given list is
+     * destructively modified and cleared of all contents.
+     *
+     * @return the list of merged dirty rects.
+     */
+    protected List mergeDirtyRects (List rects)
+    {
+        ArrayList merged = new ArrayList();
+
+        while (rects.size() > 0) {
+            // pop the next rectangle from the dirty list
+            Rectangle mr = (Rectangle)rects.remove(0);
+
+            // merge in any overlapping rectangles
+            for (int ii = 0; ii < rects.size(); ii++) {
+                Rectangle r = (Rectangle)rects.get(ii);
+                if (mr.intersects(r)) {
+                    // remove the overlapping rectangle from the list
+                    rects.remove(ii--);
+                    // grow the merged dirty rectangle
+                    mr.add(r);
+                }
+            }
+
+            // add the merged rectangle to the list
+            merged.add(mr);
+        }
+
+        return merged;
+    }
+
     // documentation inherited
     public void checkpoint (String name, int ticks)
     {
         Log.info(name + " [ticks=" + ticks + "].");
     }
+
+    /** The list of animations. */
+    protected ArrayList _anims = new ArrayList();
+
+    /** The dirty rectangles. */
+    protected ArrayList _dirty = new ArrayList();
 
     /** The ticker runnable that we put on the AWT thread periodically. */
     protected Runnable _ticker;

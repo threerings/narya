@@ -1,10 +1,10 @@
 //
-// $Id: AnimatedView.java,v 1.6 2002/01/08 22:16:58 shaper Exp $
+// $Id: AnimatedView.java,v 1.1 2002/01/11 16:17:33 shaper Exp $
 
-package com.threerings.media.sprite;
+package com.threerings.media.animation;
 
 import java.awt.Rectangle;
-import javax.swing.JComponent;
+import java.util.List;
 
 /**
  * A view that wishes to interact with the animation manager needs to
@@ -20,7 +20,7 @@ public interface AnimatedView
      *
      * @param rects the list of {@link java.awt.Rectangle} objects.
      */
-    public void invalidateRects (DirtyRectList rects);
+    public void invalidateRects (List rects);
 
     /**
      * Invalidates a rectangle in screen pixel coordinates in the scene

@@ -1,5 +1,5 @@
 //
-// $Id: SceneView.java,v 1.21 2002/01/08 22:16:59 shaper Exp $
+// $Id: SceneView.java,v 1.22 2002/01/11 16:17:34 shaper Exp $
 
 package com.threerings.miso.scene;
 
@@ -8,7 +8,6 @@ import java.awt.Point;
 import java.awt.Rectangle;
 import java.util.List;
 
-import com.threerings.media.sprite.DirtyRectList;
 import com.threerings.media.sprite.Path;
 
 /**
@@ -24,7 +23,7 @@ public interface SceneView
      *
      * @param rects the list of {@link java.awt.Rectangle} objects.
      */
-    public void invalidateRects (DirtyRectList rects);
+    public void invalidateRects (List rects);
 
     /**
      * Invalidate a rectangle in screen pixel coordinates in the scene

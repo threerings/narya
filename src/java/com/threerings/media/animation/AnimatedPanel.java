@@ -1,7 +1,7 @@
 //
-// $Id: AnimatedPanel.java,v 1.6 2002/01/08 22:16:58 shaper Exp $
+// $Id: AnimatedPanel.java,v 1.1 2002/01/11 16:17:33 shaper Exp $
 
-package com.threerings.media.sprite;
+package com.threerings.media.animation;
 
 import java.awt.AWTException;
 import java.awt.BufferCapabilities;
@@ -11,6 +11,8 @@ import java.awt.ImageCapabilities;
 import java.awt.Rectangle;
 
 import java.awt.image.BufferStrategy;
+
+import java.util.List;
 
 import com.threerings.media.Log;
 
@@ -36,12 +38,14 @@ public class AnimatedPanel extends Canvas implements AnimatedView
     // documentation inherited
     public void paint (Graphics g)
     {
+        // Log.info("AnimatedPanel paint");
         update(g);
     }
 
     // documentation inherited
     public void update (Graphics g)
     {
+        // Log.info("AnimatedPanel update");
         paintImmediately();
     }
 
@@ -56,7 +60,7 @@ public class AnimatedPanel extends Canvas implements AnimatedView
     }
 
     // documentation inherited
-    public void invalidateRects (DirtyRectList rects)
+    public void invalidateRects (List rects)
     {
         // nothing for now
     }
@@ -97,13 +101,27 @@ public class AnimatedPanel extends Canvas implements AnimatedView
         _strategy.show();
     }
 
+    // documentation inherited
     public void createBufferStrategy (int numBuffers)
     {
-        // for now, always use un-accelerated blitting.  page-flipping
-        // seems to result in artifacts in certain conditions, and the
-        // buffer strategy's volatile images are irretrievably lost when
-        // the panel is hidden.
+        // explicitly avoid trying to create a page-flipping strategy, as
+        // page-flipping seems to result in artifacts in certain
+        // conditions, and the buffer strategy's volatile images are
+        // irretrievably lost when the panel is hidden.
+
+        // try an accelerated blitting strategy
         BufferCapabilities bufferCaps = new BufferCapabilities(
+            new ImageCapabilities(true), new ImageCapabilities(true), null);
+        try {
+            createBufferStrategy(numBuffers, bufferCaps);
+            Log.info("Created accelerated blitting strategy.");
+            return;
+        } catch (AWTException e) {
+            // failed, fall through to the next potential strategy
+        }
+
+        // try an un-accelerated blitting strategy
+        bufferCaps = new BufferCapabilities(
             new ImageCapabilities(false), new ImageCapabilities(false), null);
         try {
             createBufferStrategy(numBuffers, bufferCaps);
