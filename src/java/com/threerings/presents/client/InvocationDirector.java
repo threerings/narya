@@ -1,5 +1,5 @@
 //
-// $Id: InvocationDirector.java,v 1.18 2002/04/10 06:08:59 mdb Exp $
+// $Id: InvocationDirector.java,v 1.19 2002/04/11 01:41:04 mdb Exp $
 
 package com.threerings.presents.client;
 
@@ -268,8 +268,8 @@ public class InvocationDirector
             rspmeth.invoke(receiver, nargs);
         } catch (Exception e) {
             Log.warning("Error invoking receiver method " +
-                        "[receiver=" + receiver + ", method=" + rspmeth +
-                        ", error=" + e + "].");
+                        "[receiver=" + receiver + ", method=" + rspmeth + "].");
+            Log.logStackTrace(e);
         }
     }
 
