@@ -1,5 +1,5 @@
 //
-// $Id: ImageManager.java,v 1.42 2003/01/15 02:48:45 mdb Exp $
+// $Id: ImageManager.java,v 1.43 2003/01/15 02:50:36 mdb Exp $
 
 package com.threerings.media.image;
 
@@ -355,7 +355,7 @@ public class ImageManager
             src = getImage(key, zations);
             bounds = new Rectangle(0, 0, src.getWidth(), src.getHeight());
 
-        } else if (_prepareImages.getValue()) {
+        } else if (!_prepareImages.getValue()) {
             src = getImage(key, zations);
             src = src.getSubimage(bounds.x, bounds.y,
                                   bounds.width, bounds.height);
