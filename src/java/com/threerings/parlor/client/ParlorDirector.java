@@ -1,5 +1,5 @@
 //
-// $Id: ParlorDirector.java,v 1.7 2001/10/03 03:43:14 mdb Exp $
+// $Id: ParlorDirector.java,v 1.8 2001/10/06 00:25:29 mdb Exp $
 
 package com.threerings.parlor.client;
 
@@ -191,26 +191,10 @@ public class ParlorDirector
      * player is ready to begin.
      *
      * @param gameOid the object id of the game object.
-     * @param config the configuration information for the started game.
      */
-    public void handleGameReadyNotification (int gameOid, GameConfig config)
+    public void handleGameReadyNotification (int gameOid)
     {
-        Log.info("Handling game ready [goid=" + gameOid +
-                 ", config=" + config + "].");
-
-        try {
-            // create the game controller for this game
-            GameController ctrl = (GameController)
-                config.getControllerClass().newInstance();
-
-            // initialize it and get things underway
-            ctrl.init(_ctx, gameOid, config);
-
-        } catch (Exception e) {
-            Log.warning("Unable to instantiate game controller " +
-                        "[goid=" + gameOid + ", config=" + config +
-                        ", error=" + e + "].");
-        }
+        Log.info("Handling game ready [goid=" + gameOid + "].");
     }
 
     /**

@@ -1,5 +1,5 @@
 //
-// $Id: GameController.java,v 1.1 2001/10/01 06:19:15 mdb Exp $
+// $Id: GameController.java,v 1.2 2001/10/06 00:25:29 mdb Exp $
 
 package com.threerings.parlor.client;
 
@@ -8,6 +8,9 @@ import java.awt.event.ActionEvent;
 import com.samskivert.swing.Controller;
 
 import com.threerings.cocktail.cher.dobj.*;
+import com.threerings.cocktail.party.client.PlaceController;
+import com.threerings.cocktail.party.data.PlaceConfig;
+import com.threerings.cocktail.party.util.PartyContext;
 
 import com.threerings.parlor.Log;
 import com.threerings.parlor.data.GameConfig;
@@ -24,7 +27,8 @@ import com.threerings.parlor.util.ParlorContext;
  * subscription to the game object and dispatch of commands and
  * distributed object events.
  */
-public class GameController extends Controller implements Subscriber
+public abstract class GameController
+    extends PlaceController implements Subscriber
 {
     /**
      * Initializes this game controller with the game configuration that
@@ -33,21 +37,17 @@ public class GameController extends Controller implements Subscriber
      * game-specific configuration parameters but they should be sure to
      * call <code>super.init</code> in such cases.
      *
-     * @param gameOid the object id of the game object for the game we are
-     * intended to control.
+     * @param ctx the client context.
      * @param config the configuration of the game we are intended to
      * control.
      */
-    public void init (ParlorContext ctx, int gameOid, GameConfig config)
+    public void init (PartyContext ctx, PlaceConfig config)
     {
-        // keep a reference to our context
-        _ctx = ctx;
+        super.init(ctx, config);
 
-        // subscribe to the game object
-        _ctx.getDObjectManager().subscribeToObject(gameOid, this);
-
-        // keep the config around for later
-        _config = config;
+        // cast our references
+        _ctx = (ParlorContext)ctx;
+        _config = (GameConfig)config;
     }
 
     /**
@@ -57,21 +57,21 @@ public class GameController extends Controller implements Subscriber
      */
     public boolean handleAction (ActionEvent action)
     {
-        return false;
+        return super.handleAction(action);
     }
 
     // documentation inherited
     public void objectAvailable (DObject object)
     {
-        // keep a reference around to the game object
-        _gobj = (GameObject)object;
+        Log.warning("Got call to objectAvailable()?! " +
+                    "[object=" + object + "].");
     }
 
     // documentation inherited
     public void requestFailed (int oid, ObjectAccessException cause)
     {
-        Log.warning("Unable to subscribe to game object!? [oid=" + oid +
-                    ", cause=" + cause + "].");
+        Log.warning("Got call to requestFailed()?! " +
+                    "[oid=" + oid + ", cause=" + cause + "].");
     }
 
     // documentation inherited

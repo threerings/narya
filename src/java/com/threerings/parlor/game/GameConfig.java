@@ -1,5 +1,5 @@
 //
-// $Id: GameConfig.java,v 1.4 2001/10/03 03:43:37 mdb Exp $
+// $Id: GameConfig.java,v 1.5 2001/10/06 00:25:29 mdb Exp $
 
 package com.threerings.parlor.data;
 
@@ -7,7 +7,7 @@ import java.io.IOException;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 
-import com.threerings.cocktail.cher.io.Streamable;
+import com.threerings.cocktail.party.data.PlaceConfig;
 
 /**
  * The game config class encapsulates the configuration information for a
@@ -31,34 +31,16 @@ import com.threerings.cocktail.cher.io.Streamable;
  * information and overriding {@link #writeTo} and {@link #readFrom} to
  * provide code to serialize and unserialize the additional fields.
  */
-public abstract class GameConfig implements Streamable
+public abstract class GameConfig extends PlaceConfig
 {
     /** Indicates whether or not this game is rated. */
     public boolean rated = false;
-
-    /**
-     * Returns the class that should be used to create a controller for
-     * this game. The controller class must derive from {@link
-     * com.threerings.parlor.client.GameController}.
-     */
-    public abstract Class getControllerClass ();
-
-    /**
-     * Returns the name of the class that should be used to create a
-     * manager for this game. The manager class must derive from {@link
-     * com.threerings.parlor.server.GameManager}. <em>Note:</em> this
-     * method differs from {@link #getControllerClass} because we want to
-     * avoid compile time linkage of the game config object (which is used
-     * on the client) to server code. This allows a code optimizer (DashO
-     * Pro, for example) to remove the server code from the client,
-     * knowing that it is never used.
-     */
-    public abstract String getManagerClassName ();
 
     // documentation inherited
     public void writeTo (DataOutputStream out)
         throws IOException
     {
+        super.writeTo(out);
         out.writeBoolean(rated);
     }
 
@@ -66,33 +48,14 @@ public abstract class GameConfig implements Streamable
     public void readFrom (DataInputStream in)
         throws IOException
     {
+        super.readFrom(in);
         rated = in.readBoolean();
     }
 
-    /**
-     * Generates a string representation of this object by calling the
-     * overridable {@link #toString(StringBuffer)} which builds up the
-     * string in a manner friendly to derived classes.
-     */
-    public String toString ()
-    {
-        StringBuffer buf = new StringBuffer();
-        buf.append("[");
-        toString(buf);
-        buf.append("]");
-        return buf.toString();
-    }
-
-    /**
-     * An extensible mechanism for generating a string representation of
-     * this object. Derived classes should override this method, calling
-     * super and then appending their own data to the supplied string
-     * buffer. The regular {@link #toString} function will call this
-     * derived function to generate its string.
-     */
+    // documentation inherited
     protected void toString (StringBuffer buf)
     {
-        buf.append("type=").append(getClass().getName());
+        super.toString(buf);
         buf.append(", rated=").append(rated);
     }
 }

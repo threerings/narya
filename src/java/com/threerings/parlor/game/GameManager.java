@@ -1,5 +1,5 @@
 //
-// $Id: GameManager.java,v 1.3 2001/10/03 03:44:27 mdb Exp $
+// $Id: GameManager.java,v 1.4 2001/10/06 00:25:29 mdb Exp $
 
 package com.threerings.parlor.server;
 
@@ -24,25 +24,32 @@ import com.threerings.parlor.data.GameObject;
 public class GameManager
     extends PlaceManager implements ParlorCodes
 {
+    protected Class getPlaceObjectClass ()
+    {
+        return GameObject.class;
+    }
+
+    // documentation inherited
+    protected void didInit ()
+    {
+        super.didInit();
+
+        // cast our configuration object (do we need to do this?)
+        _gconfig = (GameConfig)_config;
+    }
+
     /**
      * Initializes the game manager with the supplied game configuration
      * object. This happens before startup and before the game object has
      * been created.
      *
-     * @param config the game configuration.
      * @param players the usernames of all of the players in this game or
      * null if the game has no specific set of players.
      */
-    public void init (GameConfig config, String[] players)
+    public void setPlayers (String[] players)
     {
         // keep this info for later
-        _config = config;
         _players = players;
-    }
-
-    protected Class getPlaceObjectClass ()
-    {
-        return GameObject.class;
     }
 
     // documentation inherited
@@ -55,7 +62,7 @@ public class GameManager
         // we have a specific set of players)
         if (_players != null) {
             Object[] args = new Object[] {
-                new Integer(_gameobj.getOid()), _config };
+                new Integer(_gameobj.getOid()) };
             for (int i = 0; i < _players.length; i++) {
                 BodyObject bobj = PartyServer.lookupBody(_players[i]);
                 // deliver a game ready notification to the player
@@ -76,7 +83,7 @@ public class GameManager
     }
 
     /** A reference to our game configuration. */
-    protected GameConfig _config;
+    protected GameConfig _gconfig;
 
     /** The usernames of the players of this game. */
     protected String[] _players;

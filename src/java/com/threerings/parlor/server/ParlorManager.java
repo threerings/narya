@@ -1,5 +1,5 @@
 //
-// $Id: ParlorManager.java,v 1.5 2001/10/03 03:45:16 mdb Exp $
+// $Id: ParlorManager.java,v 1.6 2001/10/06 00:25:29 mdb Exp $
 
 package com.threerings.parlor.server;
 
@@ -168,9 +168,6 @@ public class ParlorManager
     protected void processAcceptedInvitation (Invitation invite)
     {
         try {
-            Class gmclass =
-                Class.forName(invite.config.getManagerClassName());
-
 //              Log.info("Creating game manager [invite=" + invite +
 //                       ", class=" + gmclass.getName() + "].");
 
@@ -180,12 +177,12 @@ public class ParlorManager
             // started up (which is done by the place registry once the
             // game object creation has completed)
             GameManager gmgr = (GameManager)
-                PartyServer.plreg.createPlace(gmclass);
+                PartyServer.plreg.createPlace(invite.config);
 
             // provide the game manager with some initialization info
             String[] players = new String[] {
                 invite.invitee.username, invite.inviter.username };
-            gmgr.init(invite.config, players);
+            gmgr.setPlayers(players);
 
         } catch (Exception e) {
             Log.warning("Unable to create game manager [invite=" + invite +
