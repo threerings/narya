@@ -1,5 +1,5 @@
 //
-// $Id: TileSet.java,v 1.31 2002/09/17 21:17:15 mdb Exp $
+// $Id: TileSet.java,v 1.32 2002/09/17 21:29:26 mdb Exp $
 
 package com.threerings.media.tile;
 
@@ -132,7 +132,7 @@ public abstract class TileSet
     public Object clone ()
         throws CloneNotSupportedException
     {
-        TileSet dup = (TileSet)clone();
+        TileSet dup = (TileSet)super.clone();
         // clear out the tileset cache
         dup._tiles = null;
         return dup;
@@ -170,34 +170,35 @@ public abstract class TileSet
     public Tile getTile (int tileIndex)
         throws NoSuchTileException
     {
+        int tcount = getTileCount();
+
 	// bail if there's no such tile
-	if (tileIndex < 0 || tileIndex >= getTileCount()) {
+	if (tileIndex < 0 || tileIndex >= tcount) {
 	    throw new NoSuchTileException(tileIndex);
 	}
 
         // create our tile cache array if necessary
         if (_tiles == null) {
-            _tiles = new Tile[getTileCount()];
+            _tiles = new Tile[tcount];
         }
 
-        // return the cached tile if possible
-        if (_tiles[tileIndex] != null) {
-            return _tiles[tileIndex];
+        // fill in the cache if necessary
+        if (_tiles[tileIndex] == null) {
+            // get our tileset image
+            Image tsimg = getTileSetImage();
+            if (tsimg == null) {
+                // we already logged an error, so we can just freak out
+                throw new NoSuchTileException(tileIndex);
+            }
+
+            // create, initialize and cache the tile object
+            Tile tile = createTile(tileIndex, tsimg);
+            initTile(tile);
+//             _tiles[tileIndex] = tile;
+            return tile;
         }
 
-        // get our tileset image
-        Image tsimg = getTileSetImage();
-        if (tsimg == null) {
-            // we already logged an error, so we can just freak out
-            throw new NoSuchTileException(tileIndex);
-        }
-
-	// create, initialize and cache the tile object
-        Tile tile = createTile(tileIndex, tsimg);
-        initTile(tile);
-        _tiles[tileIndex] = tile;
-
-        return tile;
+        return _tiles[tileIndex];
     }
 
     /**
