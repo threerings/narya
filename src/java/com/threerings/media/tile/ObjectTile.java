@@ -1,5 +1,5 @@
 //
-// $Id: ObjectTile.java,v 1.15 2003/02/06 06:23:05 mdb Exp $
+// $Id: ObjectTile.java,v 1.16 2003/02/12 05:33:18 mdb Exp $
 
 package com.threerings.media.tile;
 
@@ -123,6 +123,14 @@ public class ObjectTile extends Tile
     {
         _spot = new Point(x, y);
         _sorient = orient;
+    }
+
+    /**
+     * Returns true if this object has a spot.
+     */
+    public boolean hasSpot ()
+    {
+        return (_spot != null);
     }
 
     /**
