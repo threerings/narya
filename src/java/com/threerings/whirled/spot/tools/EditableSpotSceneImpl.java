@@ -1,5 +1,5 @@
 //
-// $Id: EditableSpotSceneImpl.java,v 1.8 2001/12/05 09:20:10 mdb Exp $
+// $Id: EditableSpotSceneImpl.java,v 1.9 2001/12/07 02:10:14 mdb Exp $
 
 package com.threerings.whirled.tools.spot;
 
@@ -142,6 +142,10 @@ public class EditableSpotSceneImpl extends EditableSceneImpl
     {
         // add the location to the end of the location list
         _delegate.getLocations().add(loc);
+
+        // make sure we've got the highest location id in our next
+        // location id field
+        _nextLocationId = Math.max(_nextLocationId, loc.locationId);
     }
 
     // documentation inherited
