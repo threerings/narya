@@ -67,7 +67,10 @@ public class SceneDirector extends BasicDirector
      * @param locdir the location director in use on the client, with
      * which the scene director will coordinate when changing location.
      * @param screp the entity from which the scene director will load
-     * scene data from the local client scene storage.
+     * scene data from the local client scene storage. This may be null
+     * when the SceneDirector is constructed, but it should be
+     * supplied via {@link #setSceneRepository} prior to really using
+     * this director.
      * @param fact the factory that knows which derivation of {@link
      * Scene} to create for the current system.
      */
@@ -79,7 +82,7 @@ public class SceneDirector extends BasicDirector
         // we'll need these for later
         _ctx = ctx;
         _locdir = locdir;
-        _screp = screp;
+        setSceneRepository(screp);
         _fact = fact;
 
         // set ourselves up as a failure handler with the location
@@ -89,6 +92,14 @@ public class SceneDirector extends BasicDirector
         // register for scene notifications
         _ctx.getClient().getInvocationDirector().registerReceiver(
             new SceneDecoder(this));
+    }
+
+    /**
+     * Set the scene repository.
+     */
+    public void setSceneRepository (SceneRepository screp)
+    {
+        _screp = screp;
     }
 
     /**
