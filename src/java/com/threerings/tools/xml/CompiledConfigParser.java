@@ -1,5 +1,5 @@
 //
-// $Id: CompiledConfigParser.java,v 1.1 2002/03/08 06:15:21 mdb Exp $
+// $Id: CompiledConfigParser.java,v 1.2 2002/03/08 09:40:21 mdb Exp $
 
 package com.threerings.yohoho.tools.xml;
 
@@ -32,7 +32,6 @@ public abstract class CompiledConfigParser
         throws IOException, SAXException
     {
         Digester digester = new Digester();
-        digester.setDebug(99);
         Serializable config = createConfigObject();
         addRules(digester);
         digester.push(config);
