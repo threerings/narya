@@ -1,5 +1,5 @@
 //
-// $Id: ParlorManager.java,v 1.9 2001/10/11 21:08:22 mdb Exp $
+// $Id: ParlorManager.java,v 1.10 2001/10/17 02:49:17 mdb Exp $
 
 package com.threerings.parlor.server;
 
@@ -187,6 +187,7 @@ public class ParlorManager
         } catch (Exception e) {
             Log.warning("Unable to create game manager [invite=" + invite +
                         ", error=" + e + "].");
+            Log.logStackTrace(e);
         }
     }
 
