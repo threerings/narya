@@ -1,16 +1,25 @@
 //
-// $Id: LocationDirector.java,v 1.18 2002/03/11 19:51:24 mdb Exp $
+// $Id: LocationDirector.java,v 1.19 2002/05/22 21:46:53 shaper Exp $
 
 package com.threerings.crowd.client;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import com.threerings.presents.client.*;
-import com.threerings.presents.dobj.*;
+import com.samskivert.util.ObserverList;
+import com.samskivert.util.ObserverList.ObserverOp;
+
+import com.threerings.presents.client.Client;
+import com.threerings.presents.client.SessionObserver;
+import com.threerings.presents.dobj.DObject;
+import com.threerings.presents.dobj.DObjectManager;
+import com.threerings.presents.dobj.ObjectAccessException;
+import com.threerings.presents.dobj.Subscriber;
 
 import com.threerings.crowd.Log;
-import com.threerings.crowd.data.*;
+import com.threerings.crowd.data.BodyObject;
+import com.threerings.crowd.data.PlaceConfig;
+import com.threerings.crowd.data.PlaceObject;
 import com.threerings.crowd.util.CrowdContext;
 
 /**
@@ -140,18 +149,17 @@ public class LocationDirector
      * @return true if everyone is happy with the move, false if it was
      * vetoed by one of the location observers.
      */
-    public boolean mayMoveTo (int placeId)
+    public boolean mayMoveTo (final int placeId)
     {
-        for (int i = 0; i < _observers.size(); i++) {
-            LocationObserver obs = (LocationObserver)_observers.get(i);
-            if (!obs.locationMayChange(placeId)) {
-                Log.info("Location change vetoed by observer " +
-                         "[pid=" + placeId + ", obs=" + obs + "].");
-                return false;
+        final boolean[] vetoed = new boolean[1];
+        _observers.apply(new ObserverOp() {
+            public boolean apply (Object obs) {
+                LocationObserver lobs = (LocationObserver)obs;
+                vetoed[0] = (vetoed[0] || !lobs.locationMayChange(placeId));
+                return true;
             }
-        }
-
-        return true;
+        });
+        return !vetoed[0];
     }
 
     /**
@@ -166,26 +174,8 @@ public class LocationDirector
      */
     public void didMoveTo (int placeId, PlaceConfig config)
     {
-        DObjectManager omgr = _ctx.getDObjectManager();
-
-        // do some cleaning up if we were previously in a place
-        if (_plobj != null) {
-            // let the old controller know that things are going away
-            if (_controller != null) {
-                try {
-                    _controller.didLeavePlace(_plobj);
-                } catch (Exception e) {
-                    Log.warning("Place controller choked in " +
-                                "didLeavePlace [plobj=" + _plobj + "].");
-                    Log.logStackTrace(e);
-                }
-                _controller = null;
-            }
-
-            // unsubscribe from our old place object
-            omgr.unsubscribeFromObject(_plobj.getOid(), this);
-            _plobj = null;
-        }
+        // do some cleaning up in case we were previously in a place
+        didLeavePlace();
 
         // make a note that we're now mostly in the new location
         _previousPlaceId = _placeId;
@@ -205,7 +195,38 @@ public class LocationDirector
         }
 
         // subscribe to our new place object to complete the move
-        omgr.subscribeToObject(_placeId, this);
+        _ctx.getDObjectManager().subscribeToObject(_placeId, this);
+    }
+
+    /**
+     * Called when we're leaving our current location.  Informs the
+     * location's controller that we're departing, unsubscribes from the
+     * location's place object, and clears out our internal place
+     * information.
+     */
+    protected void didLeavePlace ()
+    {
+        if (_plobj != null) {
+            // let the old controller know that things are going away
+            if (_controller != null) {
+                try {
+                    _controller.didLeavePlace(_plobj);
+                } catch (Exception e) {
+                    Log.warning("Place controller choked in " +
+                                "didLeavePlace [plobj=" + _plobj + "].");
+                    Log.logStackTrace(e);
+                }
+                _controller = null;
+            }
+
+            // unsubscribe from our old place object
+            _ctx.getDObjectManager().unsubscribeFromObject(
+                _plobj.getOid(), this);
+            _plobj = null;
+
+            // and clear out the associated place id
+            _placeId = -1;
+        }
     }
 
     /**
@@ -251,9 +272,11 @@ public class LocationDirector
 
     public void clientDidLogoff (Client client)
     {
-        // clear our our references
-        _plobj = null;
-        _placeId = -1;
+        // clear ourselves out and inform observers of our departure
+        didLeavePlace();
+
+        // let our observers know that we're no longer in a location
+        _observers.apply(_didChangeOp);
     }
 
     /**
@@ -305,10 +328,7 @@ public class LocationDirector
         }
 
         // let our observers know that all is well on the western front
-        for (int i = 0; i < _observers.size(); i++) {
-            LocationObserver obs = (LocationObserver)_observers.get(i);
-            obs.locationDidChange(_plobj);
-        }
+        _observers.apply(_didChangeOp);
     }
 
     /**
@@ -374,19 +394,22 @@ public class LocationDirector
         }
     }
 
-    protected void notifyFailure (int placeId, String reason)
+    protected void notifyFailure (final int placeId, final String reason)
     {
-        for (int i = 0; i < _observers.size(); i++) {
-            LocationObserver obs = (LocationObserver)_observers.get(i);
-            obs.locationChangeFailed(placeId, reason);
-        }
+        _observers.apply(new ObserverOp() {
+            public boolean apply (Object obs) {
+                ((LocationObserver)obs).locationChangeFailed(placeId, reason);
+                return true;
+            }
+        });
     }
 
     /** The context through which we access needed services. */
     protected CrowdContext _ctx;
 
     /** Our location observer list. */
-    protected List _observers = new ArrayList();
+    protected ObserverList _observers =
+        new ObserverList(ObserverList.SAFE_IN_ORDER_NOTIFY);
 
     /** The oid of the place we currently occupy. */
     protected int _placeId = -1;
@@ -409,4 +432,12 @@ public class LocationDirector
     /** The entity that deals when we fail to subscribe to a place
      * object. */
     protected FailureHandler _failureHandler;
+
+    /** The operation used to inform observers that the location changed. */
+    protected ObserverOp _didChangeOp = new ObserverOp() {
+        public boolean apply (Object obs) {
+            ((LocationObserver)obs).locationDidChange(_plobj);
+            return true;
+        }
+    };
 }
