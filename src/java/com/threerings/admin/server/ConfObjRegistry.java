@@ -1,5 +1,5 @@
 //
-// $Id: ConfObjRegistry.java,v 1.5 2003/01/22 01:42:51 mdb Exp $
+// $Id: ConfObjRegistry.java,v 1.6 2003/09/18 21:35:02 mdb Exp $
 
 package com.threerings.admin.server;
 
@@ -135,10 +135,14 @@ public class ConfObjRegistry
                 config.setValue(key, ((Integer)value).intValue());
             } else if (value instanceof Long) {
                 config.setValue(key, ((Long)value).longValue());
+            } else if (value instanceof Float) {
+                config.setValue(key, ((Float)value).floatValue());
             } else if (value instanceof Boolean) {
                 config.setValue(key, ((Boolean)value).booleanValue());
             } else if (value instanceof String) {
                 config.setValue(key, (String)value);
+            } else if (value instanceof float[]) {
+                config.setValue(key, (float[])value);
             } else if (value instanceof int[]) {
                 config.setValue(key, (int[])value);
             } else if (value instanceof String[]) {
