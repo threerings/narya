@@ -1,0 +1,211 @@
+#!/usr/local/bin/python
+#
+# $Id: pack-components,v 1.1 2001/11/05 20:43:30 shaper Exp $
+#
+# A script to pack individual animation sequence frames for a set of
+# components into a single large image for each action sequence for
+# each component.  The resulting images are added to a zip archive to
+# facilitate transmission from one place to another.
+#
+# The animation frames are expected to be stored one per file, and
+# represent each component viewed in each of the 8 cardinal compass
+# directions (N, NE, E, SE, S, SW, W, NW) for each action sequence.
+# Current action sequences are "standing" and "walking".
+#
+# For now, animation frame image file names are required to conform to
+# the following format:
+#
+# M_<component abbreviation>_Cam0[1-8]_000<0-6>.png
+#                                  ^        ^
+#                                  |        |
+#                             orientation frame
+#                                         index
+#
+# The standing action sequence has only 1 frame of animation for each
+# orientation.  The image is expected to be in the file for frame
+# index 0.
+#
+# The walking action sequence has 6 frames of animation for each
+# orientation.  The images are expected to start at frame index 1,
+# with other frames following.
+#
+# Accordingly, there should be a total of 56 image files for each
+# component (8 frames for standing, and 48 frames for walking.)
+#
+# 11/02/01 - Walter Korman (shaper@waywardgeeks.org)
+#
+
+import sys, os, re, time, Image, zipfile
+
+#
+# Constants.
+#
+frameWid = frameHei = 94
+numOrients = 8
+numFrames = 7
+dirTmp = "/tmp"
+
+# our application-specific error class
+class Error(Exception):
+    pass
+
+#
+# Returns a tuple detailing the given file's orientation index and
+# frame index, or None if an error occurs.
+#
+def getFileInfo (file):
+    # get the frame orientation
+    match = re.search("_Cam(\d+)_", file)
+    if not match: return None
+    # orientation index is 1-based in file name
+    orient = int(match.group(1)) - 1
+
+    # get the frame index
+    match = re.search("(\d+)\.png", file)
+    if not match: return None
+    frameidx = int(match.group(1))
+
+    return [orient, frameidx]
+
+#
+# Creates the temporary working directory used for data file storage,
+# or raises an error if the directory cannot be created.
+#
+def createTempDirectory ():
+    if not os.path.exists(dirTmp):
+        os.mkdir(dirTmp)
+        if not os.path.isfile(dirTmp):
+            raise OSError("Can't create temp directory [dir=%s]." % dirTmp)
+
+#
+# Returns a copy of the given image cropped to include only the
+# frame of the specified dimensions, which is assumed to be
+# centered within the source image.
+#
+def cropToFrame (im):
+    size = im.getbbox()
+    x = (size[2] - frameWid) / 2
+    y = (size[3] - frameHei) / 2
+    return im.crop([x, y, (x + frameWid), (y + frameHei)])
+
+#
+# Returns the expected file name for the image file corresponding to
+# the given component file id, orientation and frame index.
+#
+def getSourceImageFile (fileid, orient, frameidx):
+    return "M_%s_Cam0%d_000%d.png" % (fileid, (orient + 1), frameidx)
+
+#
+# Returns the file name for the image file containing all frames of
+# animation for the given action and component file id.
+#
+def getActionFile (action, fileid):
+    return "%s/%s_%s.png" % (dirTmp, action, fileid)
+
+#
+# Returns a file name for an archive of component images.  The
+# current time and date is embedded in the archive name.
+#
+def getArchiveFile ():
+    suffix = time.strftime("%Y%m%d_%H%M", time.localtime())
+    return "%s/components_%s.zip" % (dirTmp, suffix)
+
+#
+# Creates a single large image containing all frames of animation for
+# the given action and file id and writes the resulting image to a
+# file.
+#
+def createActionImage (frameCount, startIndex, action, fileid, frames):
+    # create the blank image
+    imgwid = (frameWid * frameCount)
+    imghei = (frameHei * numOrients)
+    composite = Image.new("RGBA", [imgwid, imghei])
+
+    # slap all animation frames into the full image
+    destx = desty = 0
+    for i in range(numOrients):
+        for j in range(frameCount):
+            composite.paste(frames[i][startIndex + j], (destx, desty))
+            destx += frameWid
+        destx = 0
+        desty += frameHei
+
+    # write out the full image
+    imgFile = getActionFile(action, fileid)
+    apply(composite.save, (imgFile,), { 'optimize': 1 })
+
+#
+# Creates a zip archive for the given list of component file ids.
+# Assumes the action sequence images for the components have already
+# been created.
+#
+def createArchive (files):
+    archiveFile = getArchiveFile()
+    print "Creating archive [file=%s]" % archiveFile
+
+    archive = zipfile.ZipFile(archiveFile, 'w', zipfile.ZIP_DEFLATED)
+    for fileid in files:
+        archive.write(getActionFile("standing", fileid))
+        archive.write(getActionFile("walking", fileid))
+    archive.close()
+
+#
+# Creates the full animation sequence images for the given component
+# file id and writes them to disk in preparation for archiving.
+#
+def packComponent (fileid):
+    print "Packing '" + fileid + "'..."
+
+    # initialize the frames
+    frames = {}
+
+    for i in range(numOrients):
+        frames[i] = {}
+
+        for j in range(numFrames):
+            file = getSourceImageFile(fileid, i, j)
+            if not os.path.exists(file):
+                raise Error("Missing animation frame [file=%s]." % file)
+
+            # get the file's orientation and frame index
+            info = getFileInfo(file)
+            if not info:
+                raise Error("Can't get file animation info [file=%s]." % file)
+            [orient, frameidx] = info
+
+            # get a handle on the image object
+            im = Image.open(file)
+
+            # crop the image
+            frames[orient][frameidx] = cropToFrame(im)
+
+    # generate the full standing image
+    createActionImage(1, 0, "standing", fileid, frames)
+
+    # generate the full walking image
+    createActionImage(numFrames - 1, 1, "walking", fileid, frames)
+
+#
+# Main program
+#
+if __name__ == "__main__":
+    files = sys.argv[1:]
+    if not files:
+        print "Usage: pack-component fileid [fileid2 fileid3 ...]"
+        sys.exit(1)
+
+    # make sure the temporary file directory exists
+    createTempDirectory()
+
+    try :
+        # create full animation sequence images for all components
+        for fileid in files:
+            packComponent(fileid)
+
+        # package them all up
+        createArchive(files)
+
+        print "Done."
+
+    except Error, e:
+        print "Error: %s" % e
