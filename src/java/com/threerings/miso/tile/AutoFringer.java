@@ -1,5 +1,5 @@
 //
-// $Id: AutoFringer.java,v 1.11 2002/05/06 18:08:32 mdb Exp $
+// $Id: AutoFringer.java,v 1.12 2002/05/09 16:48:34 mdb Exp $
 
 package com.threerings.miso.tile;
 
@@ -13,6 +13,7 @@ import java.util.HashMap;
 
 import com.samskivert.util.HashIntMap;
 import com.samskivert.util.QuickSort;
+import com.samskivert.util.StringUtil;
 
 import com.threerings.media.Log;
 
@@ -78,8 +79,8 @@ public class AutoFringer
 
         for (int row = Math.max(r.y - 1, 0); row < lastrow; row++) {
             for (int col = Math.max(r.x - 1, 0); col < lastcol; col++) {
-                fringelayer.setTile(col, row,
-                    getFringeTile(scene, row, col, maskcache, rando));
+                Tile tile = getFringeTile(scene, row, col, maskcache, rando);
+                fringelayer.setTile(col, row, tile);
             }
         }
 
@@ -154,15 +155,13 @@ public class AutoFringer
         QuickSort.sort(fringers);
 
         FringeTile tile = null;
-
         for (int ii=0; ii < fringers.length; ii++) {
             int[] indexes = getFringeIndexes(fringers[ii].bits);
-            for (int jj=0; jj < indexes.length; jj++) {
 
+            for (int jj=0; jj < indexes.length; jj++) {
                 try {
                     Image fimg = getTileImage(fringers[ii].baseset,
                                               indexes[jj], masks, rando);
-
                     if (tile == null) {
                         tile = new FringeTile(fimg);
                     } else {
@@ -289,6 +288,12 @@ public class AutoFringer
         public int compareTo (Object o)
         {
             return priority - ((FringerRec) o).priority;
+        }
+
+        public String toString ()
+        {
+            return "[base=" + baseset + ", pri=" + priority +
+                ", bits=" + Integer.toString(bits, 16) + "]";
         }
     }
 
