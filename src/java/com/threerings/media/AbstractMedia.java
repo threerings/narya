@@ -1,5 +1,5 @@
 //
-// $Id: AbstractMedia.java,v 1.4 2002/11/14 00:07:35 ray Exp $
+// $Id: AbstractMedia.java,v 1.5 2002/11/20 05:32:51 mdb Exp $
 
 package com.threerings.media;
 
@@ -35,7 +35,10 @@ public abstract class AbstractMedia
      * Called periodically by this media's manager to give it
      * a chance to do its thing.
      *
-     * @param tickStamp the system time for this tick.
+     * @param tickStamp a time stamp associated with this tick.
+     * <em>Note:</em> this is not obtained from a call to {@link
+     * System#currentTimeMillis} and cannot be compared to timestamps
+     * obtained there from.
      */
     public abstract void tick (long tickStamp);
 
