@@ -1,5 +1,5 @@
 //
-// $Id: TableConfig.java,v 1.2 2001/10/23 20:23:29 mdb Exp $
+// $Id: TableConfig.java,v 1.3 2003/03/27 23:45:04 mdb Exp $
 
 package com.threerings.parlor.data;
 
@@ -21,10 +21,10 @@ public interface TableConfig
     public int getMaximumPlayers ();
 
     /**
-     * Returns the number of players desired for this game, or -1 if the
-     * table services should allow up to the maximum number of players to
-     * join the table, but also allow the game to be started by the table
-     * creator any time after the minimum number of players has arrived.
+     * Returns the number of players that when reached, will cause the
+     * game to automatically be started. If this value is -1 the game will
+     * not automatically be started until the maximum number of players is
+     * reached.
      */
     public int getDesiredPlayers ();
 

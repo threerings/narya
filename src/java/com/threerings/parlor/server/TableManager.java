@@ -1,5 +1,5 @@
 //
-// $Id: TableManager.java,v 1.8 2002/10/06 00:53:15 mdb Exp $
+// $Id: TableManager.java,v 1.9 2003/03/27 23:45:04 mdb Exp $
 
 package com.threerings.parlor.server;
 
@@ -157,8 +157,8 @@ public class TableManager
             throw new InvocationException(error);
         }
 
-        // determine whether or not it's time to start the game
-        if (table.readyToStart()) {
+        // if the table is sufficiently full, start the game automatically
+        if (table.shouldBeStarted()) {
             // create the game manager
             GameManager gmgr = 
                 createGameManager(table.config, table.getPlayers());

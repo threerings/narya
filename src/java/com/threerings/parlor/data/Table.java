@@ -1,5 +1,5 @@
 //
-// $Id: Table.java,v 1.15 2003/03/27 23:25:59 mdb Exp $
+// $Id: Table.java,v 1.16 2003/03/27 23:45:04 mdb Exp $
 
 package com.threerings.parlor.data;
 
@@ -84,10 +84,11 @@ public class Table
     }
 
     /**
-     * Once a table is ready to play (see {@link #readyToStart}), the
-     * players array can be fetched using this method. It will return an
-     * array containing the usernames of all of the players in the game,
-     * sized properly and with each player in the appropriate position.
+     * Once a table is ready to play (see {@link #mayBeStarted} and {@link
+     * #shouldBeStarted}), the players array can be fetched using this
+     * method. It will return an array containing the usernames of all of
+     * the players in the game, sized properly and with each player in the
+     * appropriate position.
      */
     public String[] getPlayers ()
     {
@@ -189,24 +190,41 @@ public class Table
     }
 
     /**
-     * Returns true if this table has occupants in all of the desired
-     * positions and should be started.
+     * Returns true if this table has a sufficient number of occupants
+     * that the game can be started.
      */
-    public boolean readyToStart ()
+    public boolean mayBeStarted ()
+    {
+        // make sure at least the minimum number of players are here
+        int want = _tconfig.getMinimumPlayers(), have = 0;
+        for (int i = 0; i < occupants.length; i++) {
+            if (!StringUtil.blank(occupants[i])) {
+                if (++have == want) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Returns true if sufficient seats are occupied that the game should
+     * be automatically started.
+     */
+    public boolean shouldBeStarted ()
     {
         int need = _tconfig.getDesiredPlayers();
         if (need == -1) {
             need = _tconfig.getMaximumPlayers();
         }
-
-        // make sure the first "need" players are filled in
-        for (int i = 0; i < need; i++) {
+        for (int i = 0; i < occupants.length; i++) {
             if (StringUtil.blank(occupants[i])) {
-                return false;
+                if (--need == 0) {
+                    return true;
+                }
             }
         }
-
-        return true;
+        return false;
     }
 
     /**
