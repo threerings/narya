@@ -1,5 +1,5 @@
 //
-// $Id: ChatDirector.java,v 1.12 2001/10/18 23:55:24 mdb Exp $
+// $Id: ChatDirector.java,v 1.13 2001/12/16 21:02:57 mdb Exp $
 
 package com.threerings.crowd.chat;
 
@@ -109,6 +109,25 @@ public class ChatDirector
     public int requestTell (String target, String message)
     {
         return ChatService.tell(_ctx.getClient(), target, message, this);
+    }
+
+    /**
+     * Adds an additional object via which chat messages may arrive. The
+     * chat director assumes the caller will be managing the subscription
+     * to this object and will remain subscribed to it for as long as it
+     * remains in effect as an auxilliary chat source.
+     */
+    public void addAuxilliarySource (DObject source)
+    {
+        source.addListener(this);
+    }
+
+    /**
+     * Removes a previously added auxilliary chat source.
+     */
+    public void removeAuxilliarySource (DObject source)
+    {
+        source.removeListener(this);
     }
 
     // documentation inherited
