@@ -66,6 +66,7 @@ public class SparkAnimation extends Animation
         // save things off
         _ox = x;
         _oy = y;
+        _xacc = xacc;
         _yacc = yacc;
         _images = images;
         _delay = delay;
@@ -80,27 +81,37 @@ public class SparkAnimation extends Animation
         for (int ii = 0; ii < _icount; ii++) {
             // initialize spark position
             int ajog = (jog == 0) ? 0 : RandomUtil.getInt(jog);
-            _xpos[ii] = x + ajog * getDirectionMult();
-            _ypos[ii] = y + ajog * getDirectionMult();
+            _xpos[ii] = x + ajog * randomDirection();
+            _ypos[ii] = y + ajog * randomDirection();
 
-            // choose a random x-axis velocity between the minimum and
-            // maximum passed in, and moving left or right at random
-            _sxvel[ii] = Math.max(RandomUtil.getFloat(xvel), minxvel) *
-                getDirectionMult();
+            // Choose random X and Y axis velocities between the inputted
+            // bounds
+            _sxvel[ii] = minxvel + RandomUtil.getFloat(1) * (xvel - minxvel);
+            _syvel[ii] = minyvel + RandomUtil.getFloat(1) * (yvel - minyvel);
 
-            // choose a random y-axis velocity between the minimum and
-            // maximum passed in. if there is any gravitational
-            // acceleration, make the y-axis velocity negative; else,
-            // choose to move up or down at random.
-            _syvel[ii] = (Math.max(RandomUtil.getFloat(yvel), minyvel)) *
-                ((_yacc != 0) ? -1.0f : getDirectionMult());
+            // If accelerationes were given, make the starting velocities
+            // move against that acceleration; otherwise pick directions
+            // at random
+            if (_xacc > 0) {
+                _sxvel[ii] = -_sxvel[ii];
+            } else if (_xacc == 0) {
+                _sxvel[ii] *= randomDirection();
+            }
+            if (_yacc > 0) {
+                _syvel[ii] = -_syvel[ii];
+            } else if (_yacc == 0) {
+                _syvel[ii] *= randomDirection();
+            }
         }
 
         _alpha = 1.0f;
         _comp = AlphaComposite.getInstance(AlphaComposite.SRC_OVER, _alpha);
     }
 
-    protected int getDirectionMult ()
+    /**
+     * Returns at random -1 for negative direction or +1 for positive.
+     */
+    protected int randomDirection ()
     {
         return (RandomUtil.getInt(2) == 0) ? -1 : 1;
     }
@@ -134,7 +145,8 @@ public class SparkAnimation extends Animation
         // move all sparks and check whether any remain to be animated
         for (int ii = 0; ii < _icount; ii++) {
             // determine the travel distance
-            int xtrav = (int)(_sxvel[ii] * msecs);
+            int xtrav = (int)
+                ((_sxvel[ii] * msecs) + (0.5f * _xacc * (msecs * msecs)));
             int ytrav = (int)
                 ((_syvel[ii] * msecs) + (0.5f * _yacc * (msecs * msecs)));
 
