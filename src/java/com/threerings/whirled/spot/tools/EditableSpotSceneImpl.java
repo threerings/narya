@@ -1,5 +1,5 @@
 //
-// $Id: EditableSpotSceneImpl.java,v 1.5 2001/12/05 03:49:29 mdb Exp $
+// $Id: EditableSpotSceneImpl.java,v 1.6 2001/12/05 07:38:54 mdb Exp $
 
 package com.threerings.whirled.tools.spot;
 
@@ -148,7 +148,7 @@ public class EditableSpotSceneImpl
     // documentation inherited
     public void addLocation (Location loc)
     {
-        // add the delegate location to the end of the location array
+        // add the location to the end of the location array
         int lcount = _locations.length;
         Location[] nlocs = new Location[lcount+1];
         System.arraycopy(_locations, 0, nlocs, 0, lcount);
