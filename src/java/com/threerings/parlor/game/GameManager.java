@@ -1,5 +1,5 @@
 //
-// $Id: GameManager.java,v 1.48 2002/10/15 23:07:23 shaper Exp $
+// $Id: GameManager.java,v 1.49 2002/10/24 07:01:08 shaper Exp $
 
 package com.threerings.parlor.game;
 
@@ -60,18 +60,9 @@ public class GameManager extends PlaceManager
      */
     public int addPlayer (String player)
     {
-        // make sure we've space to add another player
-        int size = _gameobj.players.length;
-        if (_playerCount == size) {
-            Log.warning("Attempt to add player to full game " +
-                        "[game=" + _gameobj.which() + ", player=" + player +
-                        ", players=" + StringUtil.toString(_gameobj.players) +
-                        "].");
-            return -1;
-        }
-
         // determine the first available player index
         int pidx = -1;
+        int size = _gameobj.players.length;
         for (int ii = 0; ii < size; ii++) {
             if (!_gameobj.isOccupiedPlayer(ii)) {
                 pidx = ii;
@@ -81,12 +72,61 @@ public class GameManager extends PlaceManager
 
         // sanity-check the player index
         if (pidx == -1) {
-            Log.warning("Couldn't find free player index for player who " +
-                        "ought to be addable?! [game=" + _gameobj.which() +
-                        ", player=" + player +
+            Log.warning("Couldn't find free player index for player  " +
+                        "[game=" + _gameobj.which() + ", player=" + player +
                         ", players=" + StringUtil.toString(_gameobj.players) +
                         "].");
             return -1;
+        }
+
+        // proceed with the rest of the adding business
+        return (!addPlayerAt(player, pidx)) ? -1 : pidx;
+    }
+
+    /**
+     * Adds the given player to the game at the specified player index.
+     * This should only be called before the game is started, and is most
+     * likely to be used to add players to party games.
+     *
+     * @param player the username of the player to add to this game.
+     * @param pidx the player index at which the player is to be added.
+     * @return true if the player was added successfully, false if not.
+     */
+    public boolean addPlayerAt (String player, int pidx)
+    {
+        // make sure the specified player index is valid
+        if (pidx < 0 || pidx >= _gameobj.players.length) {
+            Log.warning("Attempt to add player at an invalid index " +
+                        "[game=" + _gameobj.which() + ", player=" + player +
+                        ", pidx=" + pidx + "].");
+            return false;
+        }
+
+        // make sure the player index is available
+        if (_gameobj.players[pidx] != null) {
+            Log.warning("Attempt to add player at occupied index " +
+                        "[game=" + _gameobj.which() + ", player=" + player +
+                        ", pidx=" + pidx + "].");
+            return false;
+        }
+
+        // make sure the player isn't already somehow a part of the game
+        // to avoid any potential badness that might ensue if we added
+        // them more than once
+        if (_gameobj.getPlayerIndex(player) != -1) {
+            Log.warning("Attempt to add player to game that they're already " +
+                        "playing [game=" + _gameobj.which() +
+                        ", player=" + player + "].");
+            return false;
+        }
+
+        // get the player's body object
+        BodyObject bobj = CrowdServer.lookupBody(player);
+        if (bobj == null) {
+            Log.warning("Unable to get body object while adding player " +
+                        "[game=" + _gameobj.which() +
+                        ", player=" + player + "].");
+            return false;
         }
 
         // fill in the player's information
@@ -95,22 +135,13 @@ public class GameManager extends PlaceManager
         // increment the number of players in the game
         _playerCount++;
 
-        // deliver a game ready notification to the player
-        BodyObject bobj = CrowdServer.lookupBody(player);
-        if (bobj == null) {
-            Log.warning("Newly added player's body object went away before " +
-                        "game ready notification could be sent " +
-                        "[game=" + _gameobj.which() + ", player=" + player +
-                        ", players=" + StringUtil.toString(_gameobj.players) +
-                        "].");
-        } else {
-            ParlorSender.gameIsReady(bobj, _gameobj.getOid());
-        }
+        // save off their oid
+        _playerOids[pidx] = bobj.getOid();
 
         // let derived classes do what they like
         playerWasAdded(player, pidx);
 
-        return pidx;
+        return true;
     }
 
     /**
