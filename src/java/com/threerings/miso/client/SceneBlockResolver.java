@@ -1,10 +1,11 @@
 //
-// $Id: SceneBlockResolver.java,v 1.5 2003/05/20 23:57:48 mdb Exp $
+// $Id: SceneBlockResolver.java,v 1.6 2003/05/21 17:10:41 mdb Exp $
 
 package com.threerings.miso.client;
 
 import java.awt.EventQueue;
 
+import com.samskivert.util.Histogram;
 import com.samskivert.util.LoopingThread;
 import com.samskivert.util.Queue;
 
@@ -71,9 +72,23 @@ public class SceneBlockResolver extends LoopingThread
         }
 
         try {
+            long start = System.currentTimeMillis();
             Log.debug("Resolving block " + block + ".");
             if (block.resolve()) {
                 Log.debug("Resolved block " + block + ".");
+            }
+            long elapsed = System.currentTimeMillis() - start;
+            _histo.addValue((int)elapsed);
+
+            // warn if a block takes a long time to resolve
+            if (elapsed > LONG_RESOLVE_TIME) {
+                Log.warning("Block took long time to resolve [block=" + block +
+                            ", elapsed=" + elapsed + "ms].");
+            }
+
+            // report statistics
+            if (_queue.size() == 0) {
+                Log.info("Resolution histogram " + _histo.summarize() + ".");
             }
 
             // queue it up on the AWT thread to complete its resolution
@@ -95,4 +110,10 @@ public class SceneBlockResolver extends LoopingThread
 
     /** Indicates whether or not we are resolving or suspended. */
     protected boolean _resolving = true;
+
+    /** Used to time block loading. */
+    protected Histogram _histo = new Histogram(0, 25, 100);
+
+    /** Blocks shouldn't take too long to resolve. */
+    protected static final long LONG_RESOLVE_TIME = 500L;
 }
