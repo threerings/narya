@@ -1,5 +1,5 @@
 //
-// $Id: PresentsClient.java,v 1.61 2003/10/25 00:01:04 mdb Exp $
+// $Id: PresentsClient.java,v 1.62 2004/02/21 00:52:16 mdb Exp $
 
 package com.threerings.presents.server;
 
@@ -9,6 +9,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 
 import com.samskivert.util.HashIntMap;
+import com.samskivert.util.Throttle;
 
 import com.threerings.presents.Log;
 import com.threerings.presents.data.ClientObject;
@@ -396,6 +397,27 @@ public class PresentsClient
     }
 
     /**
+     * Queues up a runnable on the object manager thread where we can
+     * safely end the session.
+     */
+    protected void safeEndSession ()
+    {
+        PresentsServer.omgr.postUnit(new Runnable() {
+            public void run () {
+                if (getClientObject() == null) {
+                    // refuse to end the session unless the client is
+                    // fully resolved
+                    Log.warning("Refusing logoff request from " +
+                                "still-resolving client " + this + ".");
+                } else {
+                    // end the session in a civilized manner
+                    endSession();
+                }
+            }
+        });
+    }
+
+    /**
      * This is called when the server is shut down in the middle of a
      * client session. In this circumstance, {@link #endSession} will
      * <em>not</em> be called and so any persistent data that might
@@ -639,6 +661,21 @@ public class PresentsClient
     {
         _messagesIn++; // count 'em up!
 
+        // if the client has been getting crazy with the cheeze whiz,
+        // stick a fork in them; the first time through we end our
+        // session, subsequently _throttle is null and we just drop any
+        // messages that come in until we've fully shutdown
+        if (_throttle == null) {
+            Log.info("Dropping message from force-quit client [conn=" + _conn +
+                     ", msg=" + message + "].");
+            return;
+        } else if (_throttle.throttleOp(message.received)) {
+            Log.warning("Client sent more than 100 messages in 10 seconds, " +
+                        "forcing disconnect " + this + ".");
+            safeEndSession();
+            _throttle = null;
+        }
+
         // we dispatch to a message dispatcher that is specialized for the
         // particular class of message that we received
         MessageDispatcher disp = (MessageDispatcher)
@@ -820,22 +857,7 @@ public class PresentsClient
         public void dispatch (final PresentsClient client, UpstreamMessage msg)
         {
             Log.debug("Client requested logoff " + client + ".");
-
-            // queue up a runnable on the object manager thread where we
-            // can safely end the session
-            PresentsServer.omgr.postUnit(new Runnable() {
-                public void run () {
-                    if (client.getClientObject() == null) {
-                        // refuse to end the session unless the client is
-                        // fully resolved
-                        Log.warning("Refusing logoff request from " +
-                                    "still-resolving client " + client + ".");
-                    } else {
-                        // end the session in a civilized manner
-                        client.endSession();
-                    }
-                }
-            });
+            client.safeEndSession();
         }
     }
 
@@ -854,6 +876,10 @@ public class PresentsClient
     /** The time at which this client most recently connected or
      * disconnected. */
     protected long _networkStamp;
+
+    /** Limit the client from sending too many messages too frequently.
+     * 100 messages in 10 seconds and you're audi. */
+    protected Throttle _throttle = new Throttle(100, 10 * 1000L);
 
     // keep these for kicks and giggles
     protected int _messagesIn;
