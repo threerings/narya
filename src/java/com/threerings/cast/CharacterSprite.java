@@ -1,5 +1,5 @@
 //
-// $Id: CharacterSprite.java,v 1.30 2002/05/15 23:54:04 mdb Exp $
+// $Id: CharacterSprite.java,v 1.31 2002/05/29 23:27:14 mdb Exp $
 
 package com.threerings.cast;
 
@@ -168,7 +168,7 @@ public class CharacterSprite extends ImageSprite
     }
 
     // documentation inherited
-    protected void pathBeginning ()
+    public void pathBeginning ()
     {
         super.pathBeginning();
 
@@ -178,7 +178,7 @@ public class CharacterSprite extends ImageSprite
     }
 
     // documentation inherited
-    protected void pathCompleted ()
+    public void pathCompleted ()
     {
         super.pathCompleted();
         halt();

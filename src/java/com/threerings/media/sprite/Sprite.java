@@ -1,5 +1,5 @@
 //
-// $Id: Sprite.java,v 1.43 2002/04/25 16:23:30 mdb Exp $
+// $Id: Sprite.java,v 1.44 2002/05/29 23:27:14 mdb Exp $
 
 package com.threerings.media.sprite;
 
@@ -292,7 +292,7 @@ public abstract class Sprite
     /**
      * Called by the active path when it begins.
      */
-    protected void pathBeginning ()
+    public void pathBeginning ()
     {
         // nothing for now
     }
@@ -300,7 +300,7 @@ public abstract class Sprite
     /**
      * Called by the active path when it has completed.
      */
-    protected void pathCompleted ()
+    public void pathCompleted ()
     {
         // keep a reference to the path just completed
         Path oldpath = _path;
