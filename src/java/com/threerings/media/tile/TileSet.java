@@ -1,5 +1,5 @@
 //
-// $Id: TileSet.java,v 1.42 2003/01/24 21:42:15 mdb Exp $
+// $Id: TileSet.java,v 1.43 2003/02/04 21:38:46 mdb Exp $
 
 package com.threerings.media.tile;
 
@@ -219,7 +219,7 @@ public abstract class TileSet
 	// bail if there's no such tile
         int tcount = getTileCount();
 	if (tileIndex < 0 || tileIndex >= tcount) {
-	    throw new NoSuchTileException(tileIndex);
+	    throw new NoSuchTileException(this, tileIndex);
 	}
     }
 

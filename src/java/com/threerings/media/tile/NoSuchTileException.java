@@ -1,5 +1,5 @@
 //
-// $Id: NoSuchTileException.java,v 1.2 2003/01/13 22:49:46 mdb Exp $
+// $Id: NoSuchTileException.java,v 1.3 2003/02/04 21:38:46 mdb Exp $
 
 package com.threerings.media.tile;
 
@@ -9,9 +9,9 @@ package com.threerings.media.tile;
  */
 public class NoSuchTileException extends RuntimeException
 {
-    public NoSuchTileException (int tid)
+    public NoSuchTileException (TileSet set, int tid)
     {
-	super("No such tile [tid=" + tid + "]");
+	super("No such tile [set=" + set + ", tid=" + tid + "]");
 	_tid = tid;
     }
 
