@@ -1,5 +1,5 @@
 //
-// $Id: IsoUtil.java,v 1.28 2002/04/09 04:37:38 ray Exp $
+// $Id: IsoUtil.java,v 1.29 2002/04/09 17:02:50 ray Exp $
 
 package com.threerings.miso.scene.util;
 
@@ -483,45 +483,37 @@ public class IsoUtil
     public static Polygon getMultiTilePolygon (IsoSceneViewModel model,
                                                Point sp1, Point sp2)
     {
-        Point temp;
+        int minx, maxx, miny, maxy;
         Point[] p = new Point[4];
-        for (int ii=0; ii < p.length; ii++) {
-            p[ii] = new Point();
-        }
 
-        // randomly assign all tile combinations to these points
-        IsoUtil.tileToScreen(model, sp1.x, sp1.y, p[0]);
-        IsoUtil.tileToScreen(model, sp2.x, sp2.y, p[1]);
-        IsoUtil.tileToScreen(model, sp1.x, sp2.y, p[2]);
-        IsoUtil.tileToScreen(model, sp2.x, sp1.y, p[3]);
+        // load in all possible screen coords
+        IsoUtil.tileToScreen(model, sp1.x, sp1.y, p[0] = new Point());
+        IsoUtil.tileToScreen(model, sp2.x, sp2.y, p[1] = new Point());
+        IsoUtil.tileToScreen(model, sp1.x, sp2.y, p[2] = new Point());
+        IsoUtil.tileToScreen(model, sp2.x, sp1.y, p[3] = new Point());
 
-        // let's put the minimum X in spot 0.
+        // locate the indexes of min/max for x and y
+        minx = maxx = miny = maxy = 0;
         for (int ii=1; ii < 4; ii++) {
-            if (p[0].x > p[ii].x) {
-                temp = p[0]; p[0] = p[ii]; p[ii] = temp;
+            if (p[ii].x < p[minx].x) {
+                minx = ii;
+            } else if (p[ii].x > p[maxx].x) {
+                maxx = ii;
+            }
+
+            if (p[ii].y < p[miny].y) {
+                miny = ii;
+            } else if (p[ii].y > p[maxy].y) {
+                maxy = ii;
             }
         }
-
-        // and the minimum Y in spot 1.
-        for (int ii=2; ii < 4; ii++) {
-            if (p[1].y > p[ii].y) {
-                temp = p[1]; p[1] = p[ii]; p[ii] = temp;
-            }
-        }
-
-        // and the maximum X in spot 2.
-        if (p[2].x < p[3].x) {
-            temp = p[2]; p[2] = p[3]; p[3] = temp;
-        }
-
-        // and of course the maximum Y ends up in spot 3.
 
         // now make the polygon! Whoo!
         Polygon poly = new SmartPolygon();
-        poly.addPoint(p[0].x, p[0].y + model.tilehhei);
-        poly.addPoint(p[1].x + model.tilehwid, p[1].y);
-        poly.addPoint(p[2].x + model.tilewid, p[2].y + model.tilehhei);
-        poly.addPoint(p[3].x + model.tilehwid, p[3].y + model.tilehei);
+        poly.addPoint(p[minx].x, p[minx].y + model.tilehhei);
+        poly.addPoint(p[miny].x + model.tilehwid, p[miny].y);
+        poly.addPoint(p[maxx].x + model.tilewid, p[maxx].y + model.tilehhei);
+        poly.addPoint(p[maxy].x + model.tilehwid, p[maxy].y + model.tilehei);
 
         return poly;
     }
