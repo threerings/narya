@@ -1,5 +1,5 @@
 //
-// $Id: ImageManager.java,v 1.28 2002/12/07 00:58:00 shaper Exp $
+// $Id: ImageManager.java,v 1.29 2002/12/07 01:00:58 shaper Exp $
 
 package com.threerings.media;
 
@@ -68,12 +68,7 @@ public class ImageManager
         }
 
         // periodically report our image cache performance
-        if (!_cacheStatThrottle.throttleOp()) {
-            int size = getCachedImageSize() / 1024;
-            int[] eff = _imgs.getTrackedEffectiveness();
-            Log.debug("ImageManager LRU [size=" + size + "k pixels" +
-                      ", hits=" + eff[0] + ", misses=" + eff[1] + "].");
-        }
+        reportCachePerformance();
 
         String key = rset + ":" + path;
 	Image img = (Image)_imgs.get(key);
@@ -125,6 +120,9 @@ public class ImageManager
      */
     public Image getImage (String path)
     {
+        // periodically report our image cache performance
+        reportCachePerformance();
+
 	Image img = (Image)_imgs.get(path);
 	if (img != null) {
 	    // Log.info("Retrieved image from cache [path=" + path + "].");
@@ -148,6 +146,20 @@ public class ImageManager
             img = ImageUtil.createImage(1, 1);
         }
         return img;
+    }
+
+    /**
+     * Reports statistics detailing the image manager cache performance
+     * and the current size of the cached images.
+     */
+    protected void reportCachePerformance ()
+    {
+        if (!_cacheStatThrottle.throttleOp()) {
+            int size = getCachedImageSize() / 1024;
+            int[] eff = _imgs.getTrackedEffectiveness();
+            Log.debug("ImageManager LRU [size=" + size + "k pixels" +
+                      ", hits=" + eff[0] + ", misses=" + eff[1] + "].");
+        }
     }
 
     /**
