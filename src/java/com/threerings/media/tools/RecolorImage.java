@@ -1,5 +1,5 @@
 //
-// $Id: RecolorImage.java,v 1.3 2003/01/08 04:09:03 mdb Exp $
+// $Id: RecolorImage.java,v 1.4 2004/02/22 18:55:26 ray Exp $
 
 package com.threerings.media.tools;
 
@@ -229,7 +229,7 @@ public class RecolorImage extends JPanel
             frame.getContentPane().add(panel, BorderLayout.CENTER);
             frame.setSize(600, 600);
             SwingUtil.centerWindow(frame);
-            frame.show();
+            frame.setVisible(true);
 
         } catch (Exception e) {
             e.printStackTrace(System.err);

@@ -1,5 +1,5 @@
 //
-// $Id: MisoScenePanel.java,v 1.57 2004/01/12 05:53:59 mdb Exp $
+// $Id: MisoScenePanel.java,v 1.58 2004/02/22 18:55:26 ray Exp $
 
 package com.threerings.miso.client;
 
@@ -364,7 +364,7 @@ public class MisoScenePanel extends VirtualMediaPanel
             _dframe = new JFrame("Scene block resolver");
             _dframe.setContentPane(_dpanel);
             _dframe.pack();
-            _dframe.show();
+            _dframe.setVisible(true);
         }
     }
 

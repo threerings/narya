@@ -1,5 +1,5 @@
 //
-// $Id: SimulatorApp.java,v 1.14 2003/12/10 03:31:41 mdb Exp $
+// $Id: SimulatorApp.java,v 1.15 2004/02/22 18:55:26 ray Exp $
 
 package com.threerings.micasa.simulator.client;
 
@@ -98,7 +98,7 @@ public class SimulatorApp
         // position everything and show the frame
         frame.setSize(800, 600);
         SwingUtil.centerWindow(frame);
-        frame.show();
+        frame.setVisible(true);
 
         // start up the client
         Client client = _client.getParlorContext().getClient();

@@ -1,5 +1,5 @@
 //
-// $Id: MiCasaApp.java,v 1.11 2004/01/24 05:58:16 mdb Exp $
+// $Id: MiCasaApp.java,v 1.12 2004/02/22 18:55:26 ray Exp $
 
 package com.threerings.micasa.client;
 
@@ -48,7 +48,7 @@ public class MiCasaApp
         // position everything and show the frame
         _frame.setSize(800, 600);
         SwingUtil.centerWindow(_frame);
-        _frame.show();
+        _frame.setVisible(true);
 
         Client client = _client.getContext().getClient();
 
