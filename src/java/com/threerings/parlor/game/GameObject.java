@@ -1,5 +1,5 @@
 //
-// $Id: GameObject.java,v 1.22 2004/09/13 16:11:10 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
