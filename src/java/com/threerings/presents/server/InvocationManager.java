@@ -1,5 +1,5 @@
 //
-// $Id: InvocationManager.java,v 1.18 2003/10/26 02:45:19 mdb Exp $
+// $Id: InvocationManager.java,v 1.19 2003/12/09 20:41:23 mdb Exp $
 
 package com.threerings.presents.server;
 
@@ -124,6 +124,12 @@ public class InvocationManager
      */
     public void clearDispatcher (InvocationMarshaller marsh)
     {
+        if (marsh == null) {
+            Log.warning("Refusing to unregister null marshaller.");
+            Thread.dumpStack();
+            return;
+        }
+
         if (_dispatchers.remove(marsh.getInvocationCode()) == null) {
             Log.warning("Requested to remove unregistered marshaller? " +
                         "[marsh=" + marsh + "].");
