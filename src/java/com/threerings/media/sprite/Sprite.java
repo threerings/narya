@@ -1,5 +1,5 @@
 //
-// $Id: Sprite.java,v 1.39 2002/03/16 03:15:05 shaper Exp $
+// $Id: Sprite.java,v 1.40 2002/04/15 23:10:23 mdb Exp $
 
 package com.threerings.media.sprite;
 
@@ -45,6 +45,25 @@ public abstract class Sprite
     }
 
     /**
+     * Returns true if this sprite should scroll along with the view or
+     * false if it should remain fixed relative to the view when it
+     * scrolls.
+     */
+    public boolean scrollsWithView ()
+    {
+        return _scrollsWithView;
+    }
+
+    /**
+     * Specifies whether this sprite scrolls when the view scrolls or
+     * remains fixed relative to the view.
+     */
+    public void setScrollsWithView (boolean scrollsWithView)
+    {
+        _scrollsWithView = scrollsWithView;
+    }
+
+    /**
      * Called by the sprite manager to initialize the sprite when a sprite
      * is added to said manager for management.
      *
@@ -68,7 +87,9 @@ public abstract class Sprite
     }
 
     /**
-     * Returns the sprite's x position in screen coordinates.
+     * Returns the sprite's x position in screen coordinates. This is the
+     * x coordinate of the sprite's origin, not the upper left of its
+     * bounds.
      */
     public int getX ()
     {
@@ -76,7 +97,9 @@ public abstract class Sprite
     }
 
     /**
-     * Returns the sprite's y position in screen coordinates.
+     * Returns the sprite's y position in screen coordinates. This is the
+     * y coordinate of the sprite's origin, not the upper left of its
+     * bounds.
      */
     public int getY ()
     {
@@ -173,11 +196,12 @@ public abstract class Sprite
         if (dirty.intersects(_bounds)) {
             // grow the dirty rectangle to reflect our new location
             dirty.add(_bounds);
+
         } else {
-            // dirty the new rectangle separately from the old to
-            // avoid potentially creating a large dirty rectangle if
+            // dirty the our new bounds rectangle separately from the old
+            // to avoid potentially creating a large dirty rectangle if
             // the sprite warps from place to place
-            invalidate(new Rectangle(_bounds));
+            invalidate(null);
         }
 
         // invalidate the potentially-grown starting dirty rectangle
@@ -386,6 +410,49 @@ public abstract class Sprite
     }
 
     /**
+     * Called by the sprite manager to let us know that the view we occupy
+     * is scrolling by the specified amount.
+     *
+     * @return a dirty rectangle that will be added to the list of
+     * rectangles dirtied by the scrolling or null if the sprite scrolled
+     * along with the view and didn't create any dirty region.
+     */
+    protected Rectangle viewWillScroll (int dx, int dy)
+    {
+        if (_scrollsWithView) {
+            // update our coordinates
+            _x += dx;
+            _y += dy;
+            _bounds.translate(dx, dy);
+
+            // and let any path that we're following know what's up
+            if (_path != null) {
+                _path.viewWillScroll(dx, dy);
+            }
+
+            return null;
+
+        } else {
+            // if we're not scrolling, then we need to dirty our bounds
+            // and the part of our bounds that were just scrolled out from
+            // under us
+            Rectangle dirty = new Rectangle(_bounds);
+
+            // expand the rectangle to contain the scrolled regions
+            int ex = dirty.x - dx, ey = dirty.y - dy;
+            if (dx < 0) {
+                ex += dirty.width;
+            }
+            if (dy < 0) {
+                ey += dirty.height;
+            }
+            dirty.add(ex, ey);
+
+            return dirty;
+        }
+    }
+
+    /**
      * Inform all sprite observers of a sprite event.
      *
      * @param event the sprite event.
@@ -421,6 +488,9 @@ public abstract class Sprite
         buf.append(", y=").append(_y);
     }
 
+    /** The sprite manager. */
+    protected SpriteManager _spritemgr;
+
     /** The location of the sprite in pixel coordinates. */
     protected int _x, _y;
 
@@ -433,6 +503,11 @@ public abstract class Sprite
     /** The orientation of this sprite. */
     protected int _orient = NONE;
 
+    /** True if we should move along with the view when it scrolls, false
+     * if we should remain fixed relative to the viewport. We are fixed by
+     * default. */
+    protected boolean _scrollsWithView = false;
+
     /** When moving, the path the sprite is traversing. */
     protected Path _path;
 
@@ -441,7 +516,4 @@ public abstract class Sprite
 
     /** The sprite observers observing this sprite. */
     protected ArrayList _observers;
-
-    /** The sprite manager. */
-    protected SpriteManager _spritemgr;
 }

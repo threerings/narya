@@ -1,5 +1,5 @@
 //
-// $Id: SpriteManager.java,v 1.27 2002/03/16 03:15:05 shaper Exp $
+// $Id: SpriteManager.java,v 1.28 2002/04/15 23:10:24 mdb Exp $
 
 package com.threerings.media.sprite;
 
@@ -54,24 +54,14 @@ public class SpriteManager
      */
     public void viewWillScroll (int dx, int dy, List invalidRects)
     {
-        // presently all sprites move relative to the scrolling view
+        // let the sprites know that the view is scrolling
         int size = _sprites.size();
         for (int i = 0; i < size; i++) {
             Sprite sprite = (Sprite)_sprites.get(i);
-            Rectangle dirty = new Rectangle(sprite.getBounds());
-
-            // expand the rectangle to contain the scrolled regions
-            int ex = dirty.x - dx, ey = dirty.y - dy;
-            if (dx < 0) {
-                ex += dirty.width;
+            Rectangle dirty = sprite.viewWillScroll(dx, dy);
+            if (dirty != null) {
+                invalidRects.add(dirty);
             }
-            if (dy < 0) {
-                ey += dirty.height;
-            }
-            dirty.add(ex, ey);
-
-            // append it to the list
-            invalidRects.add(dirty);
         }
     }
 
