@@ -1,5 +1,5 @@
 //
-// $Id: DSet.java,v 1.14 2002/02/08 04:44:32 mdb Exp $
+// $Id: DSet.java,v 1.15 2002/02/08 05:14:22 mdb Exp $
 
 package com.threerings.presents.dobj;
 
@@ -358,6 +358,9 @@ public class DSet
         for (int i = 0; i < elength; i++) {
             Element elem = _elements[i];
             if (elem != null) {
+                if (_elementType == null) {
+                    out.writeUTF(elem.getClass().getName());
+                }
                 elem.writeTo(out);
             }
         }
