@@ -1,5 +1,5 @@
 //
-// $Id: PuzzleController.java,v 1.18 2004/10/28 19:20:04 mdb Exp $
+// $Id: PuzzleController.java,v 1.19 2004/10/29 16:32:10 mdb Exp $
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -343,37 +343,47 @@ public abstract class PuzzleController extends GameController
     }
 
     // documentation inherited
-    protected void gameDidStart ()
+    public void attributeChanged (AttributeChangedEvent event)
     {
-        // we have to postpone all game starting activity until the
-        // current action has ended; only after all the animations have
-        // been completed will everything be in a state fit for starting
-        // back up again
-        fireWhenActionCleared(new ClearPender() {
-            public int actionCleared () {
-                // do the standard game did start business
-                PuzzleController.super.gameDidStart();
-                // we don't always start the action immediately
-                return startActionImmediately() ?
-                    RESTART_ACTION : NO_RESTART_ACTION;
-            }
-        });
-    }
+        // deal with game state changes
+        if (event.getName().equals(PuzzleObject.STATE)) {
+            switch (event.getIntValue()) {
+            case PuzzleObject.IN_PLAY:
+                // we have to postpone all game starting activity until the
+                // current action has ended; only after all the animations have
+                // been completed will everything be in a state fit for
+                // starting back up again
+                fireWhenActionCleared(new ClearPender() {
+                    public int actionCleared () {
+                        // do the standard game did start business
+                        gameDidStart();
+                        // we don't always start the action immediately
+                        return startActionImmediately() ?
+                               RESTART_ACTION : NO_RESTART_ACTION;
+                    }
+                });
+                break;
 
-    // documentation inherited
-    protected void gameDidEnd ()
-    {
-        // clean up and clear out
-        clearAction();
+            case PuzzleObject.GAME_OVER:
+                // similarly we haev to postpone game ending activity until
+                // the current action has ended
+                // clean up and clear out
+                clearAction();
+                // wait until the action is cleared before we roll down to our
+                // delegates and do all that business
+                fireWhenActionCleared(new ClearPender() {
+                    public int actionCleared () {
+                        gameDidEnd();
+                        return CARE_NOT;
+                    }
+                });
+                break;
 
-        // wait until the action is cleared before we roll down to our
-        // delegates and do all that business
-        fireWhenActionCleared(new ClearPender() {
-            public int actionCleared () {
-                PuzzleController.super.gameDidEnd();
-                return CARE_NOT;
+            default:
+                super.attributeChanged(event);
+                break;
             }
-        });
+        }
     }
 
     // documentation inherited
