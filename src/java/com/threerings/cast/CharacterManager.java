@@ -1,5 +1,5 @@
 //
-// $Id: CharacterManager.java,v 1.20 2002/05/06 18:08:31 mdb Exp $
+// $Id: CharacterManager.java,v 1.21 2002/06/14 21:15:31 shaper Exp $
 
 package com.threerings.cast;
 
@@ -264,5 +264,5 @@ public class CharacterManager
 
     /** The number of actions to cache before we start clearing them
      * out. */
-    protected static final int ACTION_CACHE_SIZE = 5;
+    protected static final int ACTION_CACHE_SIZE = 30;
 }
