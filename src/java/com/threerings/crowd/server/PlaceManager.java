@@ -1,5 +1,5 @@
 //
-// $Id: PlaceManager.java,v 1.26 2002/02/13 03:21:28 mdb Exp $
+// $Id: PlaceManager.java,v 1.27 2002/02/14 18:08:53 mdb Exp $
 
 package com.threerings.crowd.server;
 
@@ -105,13 +105,6 @@ public class PlaceManager
         _config = config;
         _omgr = omgr;
 
-        // initialize our delegates
-        applyToDelegates(new DelegateOp() {
-            public void apply (PlaceManagerDelegate delegate) {
-                delegate.didInit(_config);
-            }
-        });
-
         // let derived classes do initialization stuff
         didInit();
     }
@@ -125,6 +118,12 @@ public class PlaceManager
      */
     protected void didInit ()
     {
+        // initialize our delegates
+        applyToDelegates(new DelegateOp() {
+            public void apply (PlaceManagerDelegate delegate) {
+                delegate.didInit(_config);
+            }
+        });
     }
 
     /**
@@ -142,13 +141,6 @@ public class PlaceManager
         // we'll need to hear about place object events
         plobj.addListener(this);
 
-        // let our delegates know that we've started up
-        applyToDelegates(new DelegateOp() {
-            public void apply (PlaceManagerDelegate delegate) {
-                delegate.didStartup(_plobj);
-            }
-        });
-
         // let our derived classes do their thang
         didStartup();
     }
@@ -161,6 +153,12 @@ public class PlaceManager
      */
     protected void didStartup ()
     {
+        // let our delegates know that we've started up
+        applyToDelegates(new DelegateOp() {
+            public void apply (PlaceManagerDelegate delegate) {
+                delegate.didStartup(_plobj);
+            }
+        });
     }
 
     /**
@@ -171,16 +169,6 @@ public class PlaceManager
     {
         // destroy the object and everything will follow from that
         CrowdServer.omgr.destroyObject(_plobj.getOid());
-
-        // let our delegates know that we've shut down
-        applyToDelegates(new DelegateOp() {
-            public void apply (PlaceManagerDelegate delegate) {
-                delegate.didShutdown();
-            }
-        });
-
-        // let our derived classes do their thang
-        didShutdown();
     }
 
     /**
@@ -191,6 +179,12 @@ public class PlaceManager
      */
     protected void didShutdown ()
     {
+        // let our delegates know that we've shut down
+        applyToDelegates(new DelegateOp() {
+            public void apply (PlaceManagerDelegate delegate) {
+                delegate.didShutdown();
+            }
+        });
     }
 
     /**
@@ -373,7 +367,7 @@ public class PlaceManager
         // unregister ourselves
         _registry.unmapPlaceManager(this);
 
-        // let our derived classes shut themselves down
+        // let our derived classes and delegates shut themselves down
         didShutdown();
     }
 
