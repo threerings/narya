@@ -1,5 +1,5 @@
 //
-// $Id: ComponentClass.java,v 1.7 2002/12/16 03:08:39 mdb Exp $
+// $Id: ComponentClass.java,v 1.8 2002/12/19 21:44:12 mdb Exp $
 
 package com.threerings.cast;
 
@@ -83,6 +83,10 @@ public class ComponentClass implements Serializable
             return "[pri=" + renderPriority + ", action=" + action +
                 ", orients=" + orients + "]";
         }
+
+        /** Increase this value when object's serialized state is impacted
+         * by a class change (modification of fields, inheritance). */
+        private static final long serialVersionUID = 1;
     }
 
     /** The component class name. */
