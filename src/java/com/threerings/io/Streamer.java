@@ -1,5 +1,5 @@
 //
-// $Id: Streamer.java,v 1.5 2002/12/23 00:40:39 mdb Exp $
+// $Id: Streamer.java,v 1.6 2003/04/10 17:47:45 mdb Exp $
 
 package com.threerings.io;
 
@@ -196,9 +196,18 @@ public class Streamer
             // count and create an array instance of the appropriate type
             // and size
             if (_target.isArray()) {
-                return Array.newInstance(
-                    _target.getComponentType(), in.readInt());
+                int length = in.readInt();
+                if (ObjectInputStream.STREAM_DEBUG) {
+                    Log.info(in.hashCode() + ": Creating array '" +
+                             _target.getComponentType().getName() +
+                             "[" + length + "]'.");
+                }
+                return Array.newInstance(_target.getComponentType(), length);
             } else {
+                if (ObjectInputStream.STREAM_DEBUG) {
+                    Log.info(in.hashCode() + ": Creating object '" +
+                             _target.getName() + "'.");
+                }
                 return _target.newInstance();
             }
 
@@ -230,8 +239,11 @@ public class Streamer
         // if we're supposed to and one exists, use the reader method
         if (useReader && _reader != null) {
             try {
-//                 Log.info("Reading with reader " +
-//                          "[class=" + _target.getName() + "].");
+                if (ObjectInputStream.STREAM_DEBUG) {
+                    Log.info(in.hashCode() + ": Reading with reader '" +
+                             _target.getName() + "." +
+                             _reader.getName() + "()'.");
+                }
                 _reader.invoke(object, new Object[] { in });
 
             } catch (Throwable t) {
@@ -247,6 +259,10 @@ public class Streamer
                 throw new NestableIOException(errmsg, t);
             }
             return;
+        }
+
+        if (ObjectInputStream.STREAM_DEBUG) {
+            Log.info(in.hashCode() + ": Reading '" + _target.getName() + "'.");
         }
 
         // if we're reading in an array, do some special business
@@ -266,14 +282,25 @@ public class Streamer
                     if (mask.isSet(ii)) {
                         Object element = _delegate.createObject(in);
                         in.setCurrent(_delegate, element);
+                        if (ObjectInputStream.STREAM_DEBUG) {
+                            Log.info(in.hashCode() +
+                                     ": Reading fixed element '" + ii + "'.");
+                        }
                         _delegate.readObject(element, in, useReader);
                         Array.set(object, ii, element);
+                    } else if (ObjectInputStream.STREAM_DEBUG) {
+                        Log.info(in.hashCode() +
+                                 ": Skipping null element '" + ii + "'.");
                     }
                 }
 
             } else {
                 // otherwise we had to write each object out individually
                 for (int ii = 0; ii < length; ii++) {
+                    if (ObjectInputStream.STREAM_DEBUG) {
+                        Log.info(in.hashCode() +
+                                 ": Reading free element '" + ii + "'.");
+                    }
                     Array.set(object, ii, in.readObject());
                 }
             }
@@ -293,6 +320,10 @@ public class Streamer
                 throw new IOException(errmsg);
             }
             try {
+                if (ObjectInputStream.STREAM_DEBUG) {
+                    Log.info(in.hashCode() +
+                             ": Reading field '" + field.getName() + "'.");
+                }
                 fm.readField(field, object, in);
             } catch (Exception e) {
                 Log.logStackTrace(e);
@@ -301,6 +332,10 @@ public class Streamer
                     ", field=" + field.getName() + "]";
                 throw new NestableIOException(errmsg, e);
             }
+        }
+
+        if (ObjectInputStream.STREAM_DEBUG) {
+            Log.info(in.hashCode() + ": Read object '" + object + "'.");
         }
     }
 

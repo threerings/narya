@@ -1,5 +1,5 @@
 //
-// $Id: ObjectInputStream.java,v 1.2 2002/12/02 22:10:10 mdb Exp $
+// $Id: ObjectInputStream.java,v 1.3 2003/04/10 17:47:45 mdb Exp $
 
 package com.threerings.io;
 
@@ -50,6 +50,9 @@ public class ObjectInputStream extends DataInputStream
 
             // a zero code indicates a null value
             if (code == 0) {
+                if (STREAM_DEBUG) {
+                    Log.info(hashCode() + ": Read null.");
+                }
                 return null;
 
             // if the code is negative, that means that we've never
@@ -63,6 +66,9 @@ public class ObjectInputStream extends DataInputStream
                 String cname = readUTF();
                 Class sclass = Class.forName(cname);
                 Streamer streamer = Streamer.getStreamer(sclass);
+                if (STREAM_DEBUG) {
+                    Log.info(hashCode() + ": New class '" + cname + "'.");
+                }
 
                 // sanity check
                 if (streamer == null) {
@@ -184,4 +190,7 @@ public class ObjectInputStream extends DataInputStream
 
     /** The streamer being used currently. */
     protected Streamer _streamer;
+
+    /** Used to activate verbose debug logging. */
+    protected static final boolean STREAM_DEBUG = false;
 }
