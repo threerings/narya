@@ -23,7 +23,6 @@ package com.threerings.presents.dobj;
 
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
-import java.lang.reflect.Method;
 
 import java.util.Arrays;
 import java.util.Comparator;
@@ -295,13 +294,7 @@ public class DObject extends TrackedObject
      */
     public void addToSet (String setName, DSet.Entry entry)
     {
-        String mname = "addTo" + StringUtils.capitalize(setName);
-        try {
-            Method m = getClass().getMethod(mname, ENTRY_CLASS_ARGS);
-            m.invoke(this, new Object[] { entry });
-        } catch (Exception e) {
-            throw new IllegalArgumentException("No such set: " + setName);
-        }
+        requestEntryAdd(setName, getSet(setName), entry);
     }
 
     /**
@@ -309,13 +302,7 @@ public class DObject extends TrackedObject
      */
     public void updateSet (String setName, DSet.Entry entry)
     {
-        String mname = "update" + StringUtils.capitalize(setName);
-        try {
-            Method m = getClass().getMethod(mname, ENTRY_CLASS_ARGS);
-            m.invoke(this, new Object[] { entry });
-        } catch (Exception e) {
-            throw new IllegalArgumentException("No such set: " + setName);
-        }
+        requestEntryUpdate(setName, getSet(setName), entry);
     }
 
     /**
@@ -323,13 +310,7 @@ public class DObject extends TrackedObject
      */
     public void removeFromSet (String setName, Comparable key)
     {
-        String mname = "removeFrom" + StringUtils.capitalize(setName);
-        try {
-            Method m = getClass().getMethod(mname, KEY_CLASS_ARGS);
-            m.invoke(this, new Object[] { key });
-        } catch (Exception e) {
-            throw new IllegalArgumentException("No such set: " + setName);
-        }
+        requestEntryRemove(setName, getSet(setName), key);
     }
 
     /**
