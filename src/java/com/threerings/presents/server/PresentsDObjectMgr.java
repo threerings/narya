@@ -1,5 +1,5 @@
 //
-// $Id: PresentsDObjectMgr.java,v 1.26 2002/11/05 02:17:56 mdb Exp $
+// $Id: PresentsDObjectMgr.java,v 1.27 2002/11/28 22:51:52 mdb Exp $
 
 package com.threerings.presents.server;
 
@@ -130,12 +130,28 @@ public class PresentsDObjectMgr
     }
 
     /**
+     * Returns true if the thread invoking this method is the same thread
+     * that is doing distributed object event dispatch. Code that wishes
+     * to enforce that it is either always or never called on the event
+     * dispatch thread will want to make use of this method.
+     */
+    public synchronized boolean isEventDispatchThread ()
+    {
+        return Thread.currentThread() == _dobjThread;
+    }
+
+    /**
      * Runs the dobjmgr event loop until it is requested to exit. This
      * should be called from the main application thread.
      */
     public void run ()
     {
         Log.info("DOMGR running.");
+
+        // make a note of the thread that's processing events
+        synchronized (this) {
+            _dobjThread = Thread.currentThread();
+        }
 
         while (isRunning()) {
             // pop the next unit off the queue
@@ -759,6 +775,11 @@ public class PresentsDObjectMgr
     /** The default access controller to use when creating distributed
      * objects. */
     protected AccessController _defaultController;
+
+    /** We keep track of which thread is executing the event loop so that
+     * other services can enforce restrictions on code that should or
+     * should not be called from the event dispatch thread. */
+    protected Thread _dobjThread;
 
     /** Check whether we should generate a report every 100 events. */
     protected static final long REPORT_CHECK_PERIOD = 100;
