@@ -1,5 +1,5 @@
 //
-// $Id: MediaPanel.java,v 1.22 2002/11/20 02:18:49 mdb Exp $
+// $Id: MediaPanel.java,v 1.23 2002/11/20 03:11:43 mdb Exp $
 
 package com.threerings.media;
 
@@ -114,6 +114,16 @@ public class MediaPanel extends JComponent
     public RegionManager getRegionManager ()
     {
         return _remgr;
+    }
+
+    /**
+     * Returns a timestamp from the {@link MediaTimer} used to track time
+     * intervals for this media panel. <em>Note:</em> this should only be
+     * called from the AWT thread.
+     */
+    public long getTimeStamp ()
+    {
+        return _framemgr.getTimeStamp();
     }
 
     /**
