@@ -1,5 +1,5 @@
 //
-// $Id: TestConfig.java,v 1.6 2004/08/27 02:21:02 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -21,6 +21,7 @@
 
 package com.threerings.parlor;
 
+import com.threerings.parlor.client.GameConfigurator;
 import com.threerings.parlor.game.GameConfig;
 
 public class TestConfig extends GameConfig
@@ -28,7 +29,7 @@ public class TestConfig extends GameConfig
     /** The foozle parameter. */
     public int foozle;
 
-    public Class getConfiguratorClass ()
+    public GameConfigurator createConfigurator ()
     {
         return null;
     }

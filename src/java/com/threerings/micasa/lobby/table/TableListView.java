@@ -1,5 +1,5 @@
 //
-// $Id: TableListView.java,v 1.8 2004/08/27 02:12:51 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -93,18 +93,14 @@ public class TableListView extends JPanel
     	_matchList.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
         panel.add(new JScrollPane(_matchList));
 
-        // create our configurator interface
+        // create and initialize the configurator interface
         GameConfig gconfig = null;
         try {
             gconfig = config.getGameConfig();
-            Class cclass = gconfig.getConfiguratorClass();
-            if (cclass != null) {
-                // create and initialize the configurator interface
-                _figger = (GameConfigurator)cclass.newInstance();
+            _figger = gconfig.createConfigurator();
+            if (_figger != null) {
                 _figger.init(_ctx);
-                // give it the game config
                 _figger.setGameConfig(gconfig);
-                // and add the whole business to the main UI
                 panel.add(_figger, VGroupLayout.FIXED);
             }
 

@@ -24,6 +24,8 @@ package com.threerings.parlor.game;
 import com.threerings.crowd.data.PlaceConfig;
 import com.threerings.util.Name;
 
+import com.threerings.parlor.client.GameConfigurator;
+
 /**
  * The game config class encapsulates the configuration information for a
  * particular type of game. The hierarchy of game config objects mimics
@@ -68,12 +70,11 @@ public abstract class GameConfig extends PlaceConfig implements Cloneable
     public abstract String getBundleName ();
     
     /**
-     * Returns the class that should be used to create a user interface
-     * that can be used to configure this instance prior to starting the
-     * game. The configurator class must derive from {@link
-     * GameConfigurator}.
+     * Creates a configurator that can be used to create a user interface
+     * for configuring this instance prior to starting the game. If no
+     * configuration is necessary, this method should return null.
      */
-    public abstract Class getConfiguratorClass ();
+    public abstract GameConfigurator createConfigurator ();
 
     /**
      * Returns an array of strings that describe the configuration of this
