@@ -1,5 +1,5 @@
 //
-// $Id: ViewerSceneViewPanel.java,v 1.11 2001/08/15 22:06:21 shaper Exp $
+// $Id: ViewerSceneViewPanel.java,v 1.12 2001/08/21 20:02:39 mdb Exp $
 
 package com.threerings.miso.viewer;
 
@@ -32,7 +32,7 @@ public class ViewerSceneViewPanel extends SceneViewPanel
         _sprite = sprite;
 
         // create an animation manager for this panel
-  	_animmgr = new AnimationManager(spritemgr, this, _view);
+  	_animmgr = new AnimationManager(spritemgr, this);
 
         // listen to the desired events
 	addMouseListener(this);

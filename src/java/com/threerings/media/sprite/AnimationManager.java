@@ -1,5 +1,5 @@
 //
-// $Id: AnimationManager.java,v 1.12 2001/08/14 23:35:22 mdb Exp $
+// $Id: AnimationManager.java,v 1.13 2001/08/21 20:02:39 mdb Exp $
 
 package com.threerings.media.sprite;
 
@@ -24,14 +24,12 @@ public class AnimationManager implements Interval, PerformanceObserver
 {
     /**
      * Construct and initialize the animation manager with a sprite
-     * manager and the panel that animations will take place within.
+     * manager and the view in which the animations will take place.
      */
-    public AnimationManager (SpriteManager spritemgr, JComponent target,
-                             AnimatedView view)
+    public AnimationManager (SpriteManager spritemgr, AnimatedView view)
     {
         // save off references to the objects we care about
         _spritemgr = spritemgr;
-        _target = target;
         _view = view;
 
         // create a ticker for queueing up tick requests on the AWT thread
@@ -111,33 +109,12 @@ public class AnimationManager implements Interval, PerformanceObserver
 
         // invalidate screen-rects dirtied by sprites
         ArrayList rects = _spritemgr.getDirtyRects();
-
 	if (rects.size() > 0) {
-
 	    // pass the dirty-rects on to the scene view
 	    _view.invalidateRects(rects);
 
-	    // refresh the display.
-
-	    // since we know the target panel is always opaque and not
-	    // dependent on swing's double-buffering, we bypass the
-	    // antics that <code>paintImmediately()</code> performs in
-	    // the interest of better performance and grab the
-	    // target's graphics object straightaway.
-
-	    Graphics g = null;
-	    try {
-	        Graphics pcg = _target.getGraphics();
-		g = pcg.create();
-		pcg.dispose();
-	    } catch(NullPointerException e) {
-		g = null;
-		e.printStackTrace();
-	    }
-
-	    if (g != null) {
-		_target.paint(g);
-	    }
+	    // refresh the display
+            _view.paintImmediately();
 	}
 
 	// update refresh-rate information
@@ -171,9 +148,6 @@ public class AnimationManager implements Interval, PerformanceObserver
 
     /** The sprite manager. */
     protected SpriteManager _spritemgr;
-
-    /** The component to refresh. */
-    protected JComponent _target;
 
     /** The view on which we are animating. */
     protected AnimatedView _view;

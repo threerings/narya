@@ -1,21 +1,29 @@
 //
-// $Id: SceneView.java,v 1.13 2001/08/16 23:14:21 mdb Exp $
+// $Id: SceneView.java,v 1.14 2001/08/21 20:02:39 mdb Exp $
 
 package com.threerings.miso.scene;
 
-import java.awt.Component;
 import java.awt.Graphics;
+import java.util.List;
 
-import com.threerings.media.sprite.*;
+import com.threerings.media.sprite.Path;
 import com.threerings.media.tile.Tile;
 
 /**
- * The SceneView interface provides an interface to be implemented by
+ * The scene view interface provides an interface to be implemented by
  * classes that provide a view of a given scene by drawing the scene
  * contents onto a particular GUI component.
  */
-public interface SceneView extends AnimatedView
+public interface SceneView
 {
+    /**
+     * Invalidate a list of rectangles in screen pixel coordinates in the
+     * scene view for later repainting.
+     *
+     * @param rects the list of {@link java.awt.Rectangle} objects.
+     */
+    public void invalidateRects (List rects);
+
     /**
      * Render the scene to the given graphics context.
      *

@@ -1,11 +1,13 @@
 //
-// $Id: SceneViewPanel.java,v 1.8 2001/08/16 23:14:21 mdb Exp $
+// $Id: SceneViewPanel.java,v 1.9 2001/08/21 20:02:39 mdb Exp $
 
 package com.threerings.miso.scene;
 
 import java.awt.*;
+import java.util.List;
 import javax.swing.JPanel;
 
+import com.threerings.media.sprite.AnimatedView;
 import com.threerings.media.sprite.SpriteManager;
 import com.threerings.media.tile.TileManager;
 
@@ -14,7 +16,8 @@ import com.threerings.media.tile.TileManager;
  * <code>SceneView</code>, rendering it to the screen, and handling
  * view-related UI events.
  */
-public class SceneViewPanel extends JPanel
+public class SceneViewPanel
+    extends JPanel implements AnimatedView
 {
     /**
      * Construct the panel and initialize it with a context.
@@ -62,6 +65,35 @@ public class SceneViewPanel extends JPanel
 
 	_view.paint(_offg);
 	g.drawImage(_offimg, 0, 0, null);
+    }
+
+    // documentation inherited
+    public void invalidateRects (List rects)
+    {
+        // pass the invalid rects on to our scene view
+        _view.invalidateRects(rects);
+    }
+
+    /**
+     * Paints this panel immediately. Since we know that we are always
+     * opaque and not dependent on Swing's double-buffering, we bypass the
+     * antics that <code>JComponent.paintImmediately()</code> performs in
+     * the interest of better performance.
+     */
+    public void paintImmediately ()
+    {
+        Graphics g = null;
+
+        try {
+            Graphics pcg = getGraphics();
+            g = pcg.create();
+            pcg.dispose();
+            paint(g);
+
+        } catch (NullPointerException e) {
+            g = null;
+            e.printStackTrace();
+        }
     }
 
     public void paintComponent (Graphics g)
