@@ -1,5 +1,5 @@
 //
-// $Id: BundledTileSetRepository.java,v 1.6 2002/09/23 18:19:57 mdb Exp $
+// $Id: BundledTileSetRepository.java,v 1.7 2002/10/16 23:23:32 shaper Exp $
 
 package com.threerings.media.tile.bundle;
 
@@ -58,7 +58,7 @@ public class BundledTileSetRepository
 
         // iterate over the resource bundles in the set, loading up the
         // tileset bundles in each resource bundle
-        ArrayList tbundles = new ArrayList();;
+        ArrayList tbundles = new ArrayList();
         for (int i = 0; i < rbundles.length; i++) {
             try {
                 // unserialize our tileset bundle
