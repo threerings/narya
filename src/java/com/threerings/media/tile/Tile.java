@@ -1,5 +1,5 @@
 //
-// $Id: Tile.java,v 1.26 2003/01/13 22:49:46 mdb Exp $
+// $Id: Tile.java,v 1.27 2003/01/17 02:30:50 mdb Exp $
 
 package com.threerings.media.tile;
 
@@ -37,6 +37,14 @@ public class Tile implements Cloneable
     public int getHeight ()
     {
         return _mirage.getHeight();
+    }
+
+    /**
+     * Returns the estimated memory usage of our underlying tile image.
+     */
+    public long getEstimatedMemoryUsage ()
+    {
+        return _mirage.getEstimatedMemoryUsage();
     }
 
     /**
