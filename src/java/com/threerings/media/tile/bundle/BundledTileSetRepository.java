@@ -1,5 +1,5 @@
 //
-// $Id: BundledTileSetRepository.java,v 1.12 2003/06/18 05:48:45 mdb Exp $
+// $Id: BundledTileSetRepository.java,v 1.13 2003/06/19 01:12:32 ray Exp $
 
 package com.threerings.media.tile.bundle;
 
@@ -79,22 +79,8 @@ public class BundledTileSetRepository
 
         // iterate over the resource bundles in the set, loading up the
         // tileset bundles in each resource bundle
-        ArrayList tbundles = new ArrayList();
         for (int i = 0; i < rbundles.length; i++) {
-            try {
-                // unserialize our tileset bundle
-                TileSetBundle tsb = BundleUtil.extractBundle(rbundles[i]);
-                // initialize it and add it to the list
-                tsb.init(rbundles[i]);
-                addBundle(idmap, namemap, tsb);
-
-            } catch (Exception e) {
-                Log.warning("Unable to load tileset bundle '" +
-                            BundleUtil.METADATA_PATH + "' from resource " +
-                            "bundle [rbundle=" + rbundles[i] +
-                            ", error=" + e + "].");
-                Log.logStackTrace(e);
-            }
+            addBundle(idmap, namemap, rbundles[i]);
         }
 
         // fill in our bundles array and wake up any waiters
@@ -102,6 +88,37 @@ public class BundledTileSetRepository
             _idmap = idmap;
             _namemap = namemap;
             notifyAll();
+        }
+    }
+
+    /**
+     * Registers the bundle with the tileset repository, overriding any
+     * bundle with the same id or name.
+     */
+    public void addBundle (ResourceBundle bundle)
+    {
+        addBundle(_idmap, _namemap, bundle);
+    }
+
+    /**
+     * Extracts the tileset bundle from the supplied resource bundle
+     * and registers it.
+     */
+    protected void addBundle (HashIntMap idmap, HashMap namemap,
+        ResourceBundle bundle)
+    {
+        try {
+            TileSetBundle tsb = BundleUtil.extractBundle(bundle);
+            // initialize it and add it to the list
+            tsb.init(bundle);
+            addBundle(idmap, namemap, tsb);
+
+        } catch (Exception e) {
+            Log.warning("Unable to load tileset bundle '" +
+                        BundleUtil.METADATA_PATH + "' from resource " +
+                        "bundle [rbundle=" + bundle +
+                        ", error=" + e + "].");
+            Log.logStackTrace(e);
         }
     }
 
