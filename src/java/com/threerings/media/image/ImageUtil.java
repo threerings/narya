@@ -1,9 +1,11 @@
 //
-// $Id: ImageUtil.java,v 1.14 2002/05/06 23:23:08 mdb Exp $
+// $Id: ImageUtil.java,v 1.15 2002/05/09 16:49:16 mdb Exp $
 
 package com.threerings.media.util;
 
+import java.awt.AlphaComposite;
 import java.awt.Color;
+import java.awt.Graphics2D;
 import java.awt.Graphics;
 import java.awt.GraphicsConfiguration;
 import java.awt.GraphicsDevice;
@@ -246,20 +248,38 @@ public class ImageUtil
         Raster maskdata = mask.getData();
         Raster basedata = base.getData();
 
-        WritableRaster target =
-            basedata.createCompatibleWritableRaster(wid, hei);
+        // create a new image using the rasters if possible
+        if (maskdata.getNumBands() == 4 && basedata.getNumBands() >= 3) {
+            WritableRaster target =
+                basedata.createCompatibleWritableRaster(wid, hei);
 
-        // copy the alpha from the mask image
-        int[] adata = maskdata.getSamples(0, 0, wid, hei, 3, (int[]) null);
-        target.setSamples(0, 0, wid, hei, 3, adata);
+            // copy the alpha from the mask image
+            int[] adata = maskdata.getSamples(0, 0, wid, hei, 3, (int[]) null);
+            target.setSamples(0, 0, wid, hei, 3, adata);
 
-        // copy the RGB from the base image
-        for (int ii=0; ii < 3; ii++) {
-            int[] cdata = basedata.getSamples(0, 0, wid, hei, ii, (int[]) null);
-            target.setSamples(0, 0, wid, hei, ii, cdata);
+            // copy the RGB from the base image
+            for (int ii=0; ii < 3; ii++) {
+                int[] cdata = basedata.getSamples(0, 0, wid, hei,
+                                                  ii, (int[]) null);
+                target.setSamples(0, 0, wid, hei, ii, cdata);
+            }
+
+            return new BufferedImage(mask.getColorModel(), target, true, null);
+
+        } else {
+            // otherwise composite them by rendering them with an alpha
+            // rule
+            BufferedImage target = createImage(wid, hei);
+            Graphics2D g2 = target.createGraphics();
+            try {
+                g2.drawImage(mask, 0, 0, null);
+                g2.setComposite(AlphaComposite.SrcIn);
+                g2.drawImage(base, 0, 0, null);
+            } finally {
+                g2.dispose();
+            }
+            return target;
         }
-
-        return new BufferedImage(mask.getColorModel(), target, true, null);
     }
 
     /**
