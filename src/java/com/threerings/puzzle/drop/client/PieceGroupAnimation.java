@@ -1,5 +1,5 @@
 //
-// $Id: PieceGroupAnimation.java,v 1.2 2004/08/27 02:20:29 mdb Exp $
+// $Id: PieceGroupAnimation.java,v 1.3 2004/09/20 22:17:54 mdb Exp $
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -87,41 +87,14 @@ public abstract class PieceGroupAnimation extends Animation
         for (int yy = 0; yy < height; yy++) {
             for (int xx = 0; xx < width; xx++) {
                 int spos = yy*width+xx;
-                _sprites[spos] = createSprite(_view, xx, yy);
+                _sprites[spos] = _view.getPieceSprite(xx, yy);
                 if (_sprites[spos] != null) {
                     configureSprite(_sprites[spos], xx, yy);
                     _sprites[spos].addSpriteObserver(this);
-                    _view.addSprite(_sprites[spos]);
                     _penders++;
                 }
             }
         }
-    }
-
-    // documentation inherited
-    protected void didFinish (long tickStamp)
-    {
-        super.didFinish(tickStamp);
-
-        // remove all of our sprites
-        for (int ii = 0; ii < _sprites.length; ii++) {
-            if (_sprites[ii] != null) {
-                _view.removeSprite(_sprites[ii]);
-            }
-        }
-    }
-
-    /**
-     * Creates a sprite for each piece position. This method can return
-     * null and no sprite will be used for the specified coordinates. The
-     * default implementation creates an image sprite with the piece image
-     * from the supplied coordinates.
-     */
-    protected Sprite createSprite (DropBoardView view, int xx, int yy)
-    {
-        int piece = _board.getPiece(xx, yy);
-        return (piece == DropPieceCodes.PIECE_NONE) ? null :
-            new ImageSprite(_view.getPieceImage(piece));
     }
 
     /**
