@@ -1,5 +1,5 @@
 //
-// $Id: InvocationDirector.java,v 1.14 2001/10/12 00:03:03 mdb Exp $
+// $Id: InvocationDirector.java,v 1.15 2001/10/12 20:26:00 mdb Exp $
 
 package com.threerings.presents.client;
 
@@ -195,8 +195,8 @@ public class InvocationDirector
             rspmeth.invoke(rsptarg, rargs);
         } catch (Exception e) {
             Log.warning("Error invoking response target method " +
-                        "[target=" + rsptarg + ", method=" + rspmeth +
-                        ", error=" + e + "].");
+                        "[target=" + rsptarg + ", method=" + rspmeth + "].");
+            Log.logStackTrace(e);
         }
     }
 
