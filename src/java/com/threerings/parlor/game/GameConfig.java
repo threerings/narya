@@ -1,5 +1,5 @@
 //
-// $Id: GameConfig.java,v 1.8 2002/03/26 22:58:31 mdb Exp $
+// $Id: GameConfig.java,v 1.9 2002/06/05 00:47:13 ray Exp $
 
 package com.threerings.parlor.game;
 
@@ -30,7 +30,7 @@ import com.threerings.crowd.data.PlaceConfig;
 public abstract class GameConfig extends PlaceConfig
 {
     /** Indicates whether or not this game is rated. */
-    public boolean rated = false;
+    public boolean rated = true;
 
     /**
      * Returns true if this game config object is equal to the supplied
