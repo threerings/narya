@@ -86,6 +86,10 @@
       classdef="${cbundle.dir}/classes.xml"
       target="${cbundle.dir}/metadata.jar"/>
 
+    <!-- blow away the components map file so that we get a consistent
+         mapping every time-->
+    <delete file="${cbundle.dir}/components.map"/>         
+
     <!-- build the component bundles -->
     <cbundle target="${cbundle.dir}/pirate/components.jar"
       mapfile="${cbundle.dir}/components.map">
