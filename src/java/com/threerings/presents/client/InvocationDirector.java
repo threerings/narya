@@ -1,5 +1,5 @@
 //
-// $Id: InvocationDirector.java,v 1.24 2002/12/08 02:18:50 mdb Exp $
+// $Id: InvocationDirector.java,v 1.25 2003/01/21 22:10:41 mdb Exp $
 
 package com.threerings.presents.client;
 
@@ -132,6 +132,7 @@ public class InvocationDirector
                 Log.warning("Receiver unregistered for which we have no " +
                             "id to code mapping [code=" + receiverCode + "].");
             } else {
+                Log.debug("Clearing receiver " + rreg + ".");
                 _receivers.remove(rreg.receiverId);
             }
             _clobj.removeFromReceivers(receiverCode);
@@ -150,6 +151,8 @@ public class InvocationDirector
         _clobj.addToReceivers(reg);
         // and map the receiver in our receivers table
         _receivers.put(reg.receiverId, decoder);
+        Log.debug("Registered receiver " + StringUtil.shortClassName(decoder) +
+                  " " + reg + ".");
     }
 
     /**
