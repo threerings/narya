@@ -70,7 +70,7 @@ foreach $dir (@dirs) {
 $classpath = "$classpath:$jlib";
 
 # specify our resource root (the resource manager needs this)
-my $rootarg = "-Dresource_url=file:$realroot/rsrc";
+my $rootarg = "-Dresource_url=file:$root/rsrc";
 
 my $pid_file = undef;
 my $i = 0;
