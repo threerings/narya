@@ -119,7 +119,7 @@ public class ConnectionManager extends LoopingThread
      * action may be specified and it may be cleared by calling this
      * method with null.
      */
-    public synchronized void setShutdownAction (Runnable onExit)
+    public void setShutdownAction (Runnable onExit)
     {
         _onExit = onExit;
     }
@@ -546,10 +546,7 @@ public class ConnectionManager extends LoopingThread
     // documentation inherited
     protected void didShutdown ()
     {
-        Runnable onExit = null;
-        synchronized (this) {
-            onExit = _onExit;
-        }
+        Runnable onExit = _onExit;
         if (onExit != null) {
             Log.info("Connection Manager thread exited (running onExit).");
             onExit.run();
@@ -776,7 +773,7 @@ public class ConnectionManager extends LoopingThread
     protected ConMgrStats _stats;
 
     /** A runnable to execute when the connection manager thread exits. */
-    protected Runnable _onExit;
+    protected volatile Runnable _onExit;
 
     /** Used to create an overflow queue on the first partial write. */
     protected PartialWriteHandler _oflowHandler = new PartialWriteHandler() {
