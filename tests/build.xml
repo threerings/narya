@@ -105,6 +105,12 @@
 
   <!-- test the tileset bundling process -->
   <target name="tsbundles" description="Build tileset bundles.">
+
+    <!-- blow away the tilesetid map file so that we get a consistent
+         mapping every time-->
+    <delete file="${tbundle.dir}/tilesets.map"/>         
+
+    <!-- build the tileset bundles -->
     <taskdef name="tilebundle"
       classname="com.threerings.media.tile.bundle.tools.TileSetBundlerTask"/>
     <tilebundle config="${tbundle.dir}/bundler-config.xml"
