@@ -1,5 +1,5 @@
 //
-// $Id: SpotSceneManager.java,v 1.10 2002/06/20 22:14:58 mdb Exp $
+// $Id: SpotSceneManager.java,v 1.11 2002/06/20 22:16:09 mdb Exp $
 
 package com.threerings.whirled.spot.server;
 
@@ -183,13 +183,6 @@ public class SpotSceneManager extends SceneManager
         // stick our new friend into that location, if it's not a portal
         if (!_isPortal[locidx]) {
             _locationOccs[locidx] = bodyOid;
-            Log.info("Putting user in location [where=" + where() +
-                     ", boid=" + source.getOid() +
-                     ", locId=" + locationId + "].");
-        } else {
-            Log.info("Putting user on portal [where=" + where() +
-                     ", boid=" + source.getOid() +
-                     ", locId=" + locationId + "].");
         }
 
         // update a clone of their occupant info, we need to clone because
