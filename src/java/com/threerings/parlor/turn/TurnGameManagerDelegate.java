@@ -1,5 +1,5 @@
 //
-// $Id: TurnGameManagerDelegate.java,v 1.2 2002/02/12 07:01:54 mdb Exp $
+// $Id: TurnGameManagerDelegate.java,v 1.3 2002/02/12 07:17:33 mdb Exp $
 
 package com.threerings.parlor.turn;
 
@@ -62,6 +62,24 @@ public class TurnGameManagerDelegate
         if (_turnIdx != -1) {
             startTurn();
         }
+    }
+
+    /**
+     * Returns the index of the current turn holder as configured in the
+     * game object.
+     *
+     * @return the index into the players array of the current turn holder
+     * or -1 if there is no current turn holder.
+     */
+    public int getTurnHolderIndex ()
+    {
+        String holder = _turnGame.getTurnHolder();
+        for (int i = 0; i < _players.length; i++) {
+            if (_players[i].equals(holder)) {
+                return i;
+            }
+        }
+        return -1;
     }
 
     /**
@@ -142,24 +160,6 @@ public class TurnGameManagerDelegate
     {
         // next!
         _turnIdx = (_turnIdx + 1) % _players.length;
-    }
-
-    /**
-     * Returns the index of the current turn holder as configured in the
-     * game object.
-     *
-     * @return the index into the players array of the current turn holder
-     * or -1 if there is no current turn holder.
-     */
-    protected int getTurnHolderIndex ()
-    {
-        String holder = _turnGame.getTurnHolder();
-        for (int i = 0; i < _players.length; i++) {
-            if (_players[i].equals(holder)) {
-                return i;
-            }
-        }
-        return -1;
     }
 
     /** The game manager for which we are delegating. */
