@@ -6,3 +6,10 @@ destroyed.
 
 Flesh out the mechanism for passing config information to place managers.
 Make it easy to build an inheriting chain of configuration properties.
+
+Occupant info needs to be stored in place objects. We could create special
+list distributed object fields that can store homogenous lists of objects
+that implement some sort of serializable interface. Once this is done,
+it'll have to be wired up on the server side so that extended occupant
+info can be easily provided and on the client side so that that info can
+be passed around the client.
