@@ -1,5 +1,5 @@
 //
-// $Id: Table.java,v 1.13 2003/03/23 02:20:49 mdb Exp $
+// $Id: Table.java,v 1.14 2003/03/27 23:20:55 mdb Exp $
 
 package com.threerings.parlor.data;
 
@@ -196,7 +196,7 @@ public class Table
     {
         int need = _tconfig.getDesiredPlayers();
         if (need == -1) {
-            need = _tconfig.getMaximumPlayers();
+            need = _tconfig.getMinimumPlayers();
         }
 
         // make sure the first "need" players are filled in
