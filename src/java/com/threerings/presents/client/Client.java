@@ -339,12 +339,15 @@ public class Client
     /**
      * Requests that this client connect and logon to the server with
      * which it was previously configured.
+     *
+     * @return false if we're already logged on, true if a logon attempt
+     * was initiated.
      */
-    public synchronized void logon ()
+    public synchronized boolean logon ()
     {
         // if we have a communicator reference, we're already logged on
         if (_comm != null) {
-            return;
+            return false;
         }
 
         // otherwise create a new communicator instance and start it up.
@@ -355,12 +358,16 @@ public class Client
 
         // register an interval that we'll use to keep the clock synced
         // and to send pings when appropriate
-        _tickInterval = new Interval() {
-            public void expired () {
-                tick();
-            }
-        };
-        _tickInterval.schedule(5000L, true);
+        if (_tickInterval == null) {
+            _tickInterval = new Interval() {
+                public void expired () {
+                    tick();
+                }
+            };
+            _tickInterval.schedule(5000L, true);
+        }
+
+        return true;
     }
 
     /**
