@@ -1,5 +1,5 @@
 //
-// $Id: ImageSprite.java,v 1.13 2002/09/17 19:14:59 mdb Exp $
+// $Id: ImageSprite.java,v 1.14 2002/09/17 20:21:19 mdb Exp $
 
 package com.threerings.media.sprite;
 
@@ -64,7 +64,7 @@ public class ImageSprite extends Sprite
      */
     public ImageSprite (MultiFrameImage frames)
     {
-	// initialize frame animation member data
+        // initialize frame animation member data
         _frames = frames;
         _frameIdx = 0;
         _animMode = NO_ANIMATION;
