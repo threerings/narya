@@ -1,5 +1,5 @@
 //
-// $Id: ConnectionManager.java,v 1.34 2003/08/20 18:54:23 mdb Exp $
+// $Id: ConnectionManager.java,v 1.35 2003/09/24 18:37:55 mdb Exp $
 
 package com.threerings.presents.server.net;
 
@@ -57,40 +57,6 @@ public class ConnectionManager extends LoopingThread
 
         // register as a "state of server" reporter
         PresentsServer.registerReporter(this);
-
-        try {
-            // create our listening socket and add it to the select set
-            _listener = ServerSocketChannel.open();
-            _listener.configureBlocking(false);
-
-            InetSocketAddress isa = new InetSocketAddress(_port);
-            _listener.socket().bind(isa);
-            Log.info("Server listening on " + isa + ".");
-
-        } catch (IOException ioe) {
-            Log.warning("Failure creating listen socket " +
-                        "[port=" + _port + "].");
-            throw ioe;
-        }
-
-        // register our listening socket and map its select key to a net
-        // event handler that will accept new connections
-        SelectionKey lkey =
-            _listener.register(_selector, SelectionKey.OP_ACCEPT);
-        _handlers.put(lkey, new NetEventHandler() {
-            public int handleEvent (long when) {
-                acceptConnection();
-                // there's no easy way to measure bytes read when
-                // accepting a connection, so we claim nothing
-                return 0;
-            }
-            public boolean checkIdle (long now) {
-                return false; // we're never idle
-            }
-        });
-
-        // we'll use this for sending messages to clients
-        _framer = new FramingOutputStream();
     }
 
     /**
@@ -213,7 +179,39 @@ public class ConnectionManager extends LoopingThread
     // documentation inherited
     protected void willStart ()
     {
-        Log.info("Connection Manager listening [port=" + _port + "].");
+        try {
+            // create our listening socket and add it to the select set
+            _listener = ServerSocketChannel.open();
+            _listener.configureBlocking(false);
+
+            InetSocketAddress isa = new InetSocketAddress(_port);
+            _listener.socket().bind(isa);
+            Log.info("Server listening on " + isa + ".");
+
+            // register our listening socket and map its select key to a
+            // net event handler that will accept new connections
+            SelectionKey lkey =
+                _listener.register(_selector, SelectionKey.OP_ACCEPT);
+            _handlers.put(lkey, new NetEventHandler() {
+                public int handleEvent (long when) {
+                    acceptConnection();
+                    // there's no easy way to measure bytes read when
+                    // accepting a connection, so we claim nothing
+                    return 0;
+                }
+                public boolean checkIdle (long now) {
+                    return false; // we're never idle
+                }
+            });
+
+        } catch (IOException ioe) {
+            Log.warning("Failure listening to socket on port '" +_port + "'.");
+            Log.logStackTrace(ioe);
+            return;
+        }
+
+        // we'll use this for sending messages to clients
+        _framer = new FramingOutputStream();
     }
 
     /**
