@@ -45,7 +45,8 @@
   <target name="javadoc" depends="prepare">
     <javadoc sourcepath="src/java"
              packagenames="com.threerings.*"
-             destdir="${javadoc.home}">
+             destdir="${javadoc.home}"
+             additionalparam="-breakiterator">
       <classpath>
         <fileset dir="${java.libraries}" includes="**/*.jar"/>
         <fileset dir="lib" includes="**/*.jar"/>
