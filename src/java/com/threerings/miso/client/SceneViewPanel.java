@@ -1,5 +1,5 @@
 //
-// $Id: SceneViewPanel.java,v 1.30 2002/02/19 01:24:59 mdb Exp $
+// $Id: SceneViewPanel.java,v 1.31 2002/02/19 05:03:17 mdb Exp $
 
 package com.threerings.miso.scene;
 
@@ -121,7 +121,7 @@ public class SceneViewPanel extends AnimatedPanel
      */
     protected void viewWillScroll (int dx, int dy)
     {
-        _view.scrollView(dx, dy);
+        _view.viewWillScroll(dx, dy);
     }
 
     /**

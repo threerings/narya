@@ -1,5 +1,5 @@
 //
-// $Id: AnimatedPanel.java,v 1.12 2002/02/19 04:45:13 mdb Exp $
+// $Id: AnimatedPanel.java,v 1.13 2002/02/19 05:03:17 mdb Exp $
 
 package com.threerings.media.animation;
 
@@ -159,6 +159,8 @@ public class AnimatedPanel extends Canvas implements AnimatedView
 //         }
 //         _last = now;
 
+        int width = getWidth(), height = getHeight();
+
         // if scrolling is enabled, determine the scrolling delta to be
         // used and do the business
         int dx = 0, dy = 0;
@@ -178,6 +180,18 @@ public class AnimatedPanel extends Canvas implements AnimatedView
                 int ydist = (int)((now - _stime) / _msppy);
                 dy = (ydist - _lasty);
                 _lasty = ydist;
+            }
+
+            // and add invalid rectangles for the exposed areas
+            if (dx > 0) {
+                invalidRects.add(new Rectangle(width - dx, 0, dx, height));
+            } else if (dx < 0) {
+                invalidRects.add(new Rectangle(0, 0, -dx, height));
+            }
+            if (dy > 0) {
+                invalidRects.add(new Rectangle(0, height - dy, width, dy));
+            } else if (dy < 0) {
+                invalidRects.add(new Rectangle(0, 0, width, -dy));
             }
 
             // let our derived classes do whatever they need to do to
@@ -208,7 +222,6 @@ public class AnimatedPanel extends Canvas implements AnimatedView
                 createBackBuffer(gc);
             }
 
-            int width = getWidth(), height = getHeight();
             Graphics g = null;
             try {
                 g = _backimg.getGraphics();
@@ -236,20 +249,6 @@ public class AnimatedPanel extends Canvas implements AnimatedView
                 if (_stime != 0) {
                     // if it was OK, we may need to do some scrolling
                     g.copyArea(0, 0, width, height, -dx, -dy);
-
-                    // and add invalid rectangles for the exposed areas
-                    if (dx > 0) {
-                        invalidRects.add(
-                            new Rectangle(width - dx, 0, dx, height));
-                    } else if (dx < 0) {
-                        invalidRects.add(new Rectangle(0, 0, -dx, height));
-                    }
-                    if (dy > 0) {
-                        invalidRects.add(
-                            new Rectangle(0, height - dy, width, dy));
-                    } else if (dy < 0) {
-                        invalidRects.add(new Rectangle(0, 0, width, -dy));
-                    }
                 }
 
                 // iterate through the invalid rectangles, copying those

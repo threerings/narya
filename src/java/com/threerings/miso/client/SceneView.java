@@ -1,5 +1,5 @@
 //
-// $Id: SceneView.java,v 1.25 2002/02/19 01:24:59 mdb Exp $
+// $Id: SceneView.java,v 1.26 2002/02/19 05:03:17 mdb Exp $
 
 package com.threerings.miso.scene;
 
@@ -19,13 +19,13 @@ import com.threerings.media.sprite.Path;
 public interface SceneView
 {
     /**
-     * Scrolls the view by the requested number of pixels. As the view is
-     * not responsible for maintaining the back buffer, this will simply
-     * dirty the regions exposed by scrolling and update the view's
-     * internal offsets. It also instructs the sprite manager to dirty the
-     * scrolled bounds of all sprites in the view.
+     * Lets the view know that it will be scrolled by the specified number
+     * of pixels in each direction the next time that {@link #paint} is
+     * called. This is called automatically by the {@link SceneViewPanel}
+     * which takes care of dirtying the regions exposed by the scrolling
+     * and copying the scrollable pixels.
      */
-    public void scrollView (int dx, int dy);
+    public void viewWillScroll (int dx, int dy);
 
     /**
      * Renders the scene to the given graphics context.

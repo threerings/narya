@@ -1,5 +1,5 @@
 //
-// $Id: IsoSceneView.java,v 1.99 2002/02/19 04:45:14 mdb Exp $
+// $Id: IsoSceneView.java,v 1.100 2002/02/19 05:03:17 mdb Exp $
 
 package com.threerings.miso.scene;
 
@@ -121,14 +121,8 @@ public class IsoSceneView implements SceneView
         invalidate();
     }
 
-    /**
-     * Scrolls the view by the requested number of pixels. As the view is
-     * not responsible for maintaining the back buffer, this will simply
-     * dirty the regions exposed by scrolling and update the view's
-     * internal offsets. It also instructs the sprite manager to dirty the
-     * scrolled bounds of all sprites in the view.
-     */
-    public void scrollView (int dx, int dy)
+    // documentation inherited from interface
+    public void viewWillScroll (int dx, int dy)
     {
         // adjust our offsets
         _xoff += dx;
@@ -157,28 +151,9 @@ public class IsoSceneView implements SceneView
             _tiledy -= 1;
             _yoff += _model.tilehei;
         }
-
-        // now dirty the exposed regions
-        if (dx > 0) {
-            invalidateRect(
-                new Rectangle(_model.bounds.x + _model.bounds.width - dx,
-                              _model.bounds.y, dx, _model.bounds.height));
-        } else if (dx < 0) {
-            invalidateRect(new Rectangle(_model.bounds.x, _model.bounds.y,
-                                         -dx, _model.bounds.height));
-        }
-
-        if (dy > 0) {
-            invalidateRect(new Rectangle(_model.bounds.x, _model.bounds.y +
-                                         _model.bounds.height - dy,
-                                         _model.bounds.width, dy));
-        } else if (dy < 0) {
-            invalidateRect(new Rectangle(_model.bounds.x, _model.bounds.y,
-                                         _model.bounds.width, -dy));
-        }
     }
 
-    // documentation inherited
+    // documentation inherited from interface
     public void paint (Graphics2D gfx, List invalidRects)
     {
 	if (_scene == null) {
