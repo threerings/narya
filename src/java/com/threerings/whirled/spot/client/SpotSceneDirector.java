@@ -1,5 +1,5 @@
 //
-// $Id: SpotSceneDirector.java,v 1.34 2004/03/10 16:20:04 mdb Exp $
+// $Id: SpotSceneDirector.java,v 1.35 2004/08/13 21:46:46 ray Exp $
 
 package com.threerings.whirled.spot.client;
 
@@ -281,9 +281,17 @@ public class SpotSceneDirector extends BasicDirector
     public void objectAvailable (DObject object)
     {
         clearCluster();
-        _clobj = object;
-        if (_chatdir != null) {
-            _chatdir.addAuxiliarySource(object, CLUSTER_CHAT_TYPE);
+        int oid = object.getOid();
+        if (oid != _self.getClusterOid()) {
+            // we got it too late, just unsubscribe
+            DObjectManager omgr = _ctx.getDObjectManager();
+            omgr.unsubscribeFromObject(oid, this);
+        } else {
+            // it's our new cluster!
+            _clobj = object;
+            if (_chatdir != null) {
+                _chatdir.addAuxiliarySource(object, CLUSTER_CHAT_TYPE);
+            }
         }
     }
 
@@ -387,7 +395,7 @@ public class SpotSceneDirector extends BasicDirector
      */
     protected void clearCluster ()
     {
-        if (_clobj != null) {
+        if (_clobj != null && _clobj.getOid() != _self.getClusterOid()) {
             if (_chatdir != null) {
                 _chatdir.removeAuxiliarySource(_clobj);
             }
