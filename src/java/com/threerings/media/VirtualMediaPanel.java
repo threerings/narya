@@ -390,16 +390,8 @@ public class VirtualMediaPanel extends MediaPanel
                              height - Math.abs(_dy), -_dx, -_dy);
                 } catch (Exception e) {
                     // HACK when it throws an exception trying to do the
-                    // copy area, just tag the are we were trying to copy
-                    // to onto the end of the dirty rects array.
-                    int length = dirty.length;
-                    Rectangle[] ndirty = new Rectangle[length + 1];
-                    System.arraycopy(dirty, 0, ndirty, 0, length);
-                    ndirty[length] =new Rectangle(_vbounds.x + cx-_dx,
-                                                  _vbounds.y + cy-_dy,
-                                                  width - Math.abs(_dx),
-                                                  height - Math.abs(_dy));
-                    dirty = ndirty;
+                    // copy area, just repaint everything
+                    dirty = new Rectangle[] { new Rectangle(_vbounds) };
                 }    
             } else {
                 gfx.copyArea(cx, cy,
