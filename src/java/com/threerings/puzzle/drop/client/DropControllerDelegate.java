@@ -1,5 +1,5 @@
 //
-// $Id: DropControllerDelegate.java,v 1.3 2004/02/25 14:48:44 mdb Exp $
+// $Id: DropControllerDelegate.java,v 1.4 2004/07/10 05:18:59 mdb Exp $
 
 package com.threerings.puzzle.drop.client;
 
@@ -703,6 +703,11 @@ public abstract class DropControllerDelegate extends PuzzleControllerDelegate
 //                  ", commit=" + commit + ", pctdone=" + pctdone + "].");
 
         if (_dboard.isValidDrop(rows, cols, pctdone)) {
+            if (commit) {
+                Log.info("Not valid drop [source=" + source +
+                         ", commit=" + commit + ", atTop=" + atTop +
+                         ", pctdone=" + pctdone + "].");
+            }
             return false;
         }
 
@@ -937,6 +942,18 @@ public abstract class DropControllerDelegate extends PuzzleControllerDelegate
     public boolean needsPaint ()
     {
         return false;
+    }
+
+    // documentation inherited
+    public void didSuspend ()
+    {
+        super.didSuspend();
+
+        // make sure our drop sprite is not dropping quickly
+        if (_blocksprite != null) {
+            _fastDrop = false;
+            _blocksprite.setVelocity(getPieceVelocity(false));
+        }
     }
 
     // documentation inherited
