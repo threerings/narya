@@ -1,5 +1,5 @@
 //
-// $Id: CharacterManager.java,v 1.21 2002/06/14 21:15:31 shaper Exp $
+// $Id: CharacterManager.java,v 1.22 2002/06/19 23:31:57 mdb Exp $
 
 package com.threerings.cast;
 
@@ -198,6 +198,9 @@ public class CharacterManager
         int[] cids = descrip.getComponentIds();
         int ccount = cids.length;
         Colorization[][] zations = descrip.getColorizations();
+
+        Log.debug("Compositing action [action=" + action +
+                  ", descrip=" + descrip + "].");
 
         // obtain the necessary components
         ColorizedComponent[] components = new ColorizedComponent[ccount];

@@ -1,7 +1,9 @@
 //
-// $Id: CharacterSprite.java,v 1.33 2002/06/12 07:00:49 ray Exp $
+// $Id: CharacterSprite.java,v 1.34 2002/06/19 23:31:57 mdb Exp $
 
 package com.threerings.cast;
+
+import java.awt.Graphics2D;
 
 import com.threerings.media.sprite.ImageSprite;
 import com.threerings.media.util.Path;
@@ -113,7 +115,6 @@ public class CharacterSprite extends ImageSprite
             _aframes = _charmgr.getActionFrames(_descrip, action);
 
             // update the sprite render attributes
-            setOrigin(actseq.origin.x, actseq.origin.y);
             setFrameRate(actseq.framesPerSecond);
             setFrames(_aframes.getFrames(_orient));
 
@@ -134,30 +135,24 @@ public class CharacterSprite extends ImageSprite
         }
     }
 
-    /**
-     * Sets the origin coordinates representing the "base" of the
-     * sprite, which in most cases corresponds to the center of the
-     * bottom of the sprite image.
-     */
-    public void setOrigin (int x, int y)
-    {
-        _xorigin = x;
-        _yorigin = y;
+//     // documentation inherited
+//     public void paint (Graphics2D gfx)
+//     {
+//         // DEBUG: draw our origin
+//         gfx.setColor(java.awt.Color.white);
+//         gfx.drawOval(_x - 3, _y - 3, 6, 6);
 
-        updateRenderOffset();
-        updateRenderOrigin();
-    }
+//         super.paint(gfx);
+//     }
 
     // documentation inherited
-    protected void updateRenderOffset ()
+    protected void accomodateFrame (int width, int height)
     {
-        super.updateRenderOffset();
+        super.accomodateFrame(width, height);
 
-        if (_frames != null) {
-            // our location is based on the character origin coordinates
-            _rxoff = -_xorigin;
-            _ryoff = -_yorigin;
-        }
+        // we need to update the render offset for this frame
+        _rxoff = -_aframes.getXOrigin(_orient, _frameIdx);
+        _ryoff = -_aframes.getYOrigin(_orient, _frameIdx);
     }
 
     // documentation inherited
@@ -221,7 +216,4 @@ public class CharacterSprite extends ImageSprite
     /** The animation frames for the active action sequence in each
      * orientation. */
     protected ActionFrames _aframes;
-
-    /** The origin of the sprite. */
-    protected int _xorigin, _yorigin;
 }

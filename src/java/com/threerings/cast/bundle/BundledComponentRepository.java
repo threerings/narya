@@ -1,10 +1,11 @@
 //
-// $Id: BundledComponentRepository.java,v 1.13 2002/06/19 08:33:14 mdb Exp $
+// $Id: BundledComponentRepository.java,v 1.14 2002/06/19 23:31:57 mdb Exp $
 
 package com.threerings.cast.bundle;
 
 import java.awt.Graphics;
 import java.awt.Image;
+import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 
 import java.io.File;
@@ -36,16 +37,19 @@ import com.threerings.media.tile.ImageProvider;
 import com.threerings.media.tile.NoSuchTileException;
 import com.threerings.media.tile.Tile;
 import com.threerings.media.tile.TileSet;
+import com.threerings.media.tile.TrimmedTile;
 
 import com.threerings.util.DirectionCodes;
 
 import com.threerings.cast.ActionFrames;
+import com.threerings.cast.ActionSequence;
 import com.threerings.cast.CharacterComponent;
 import com.threerings.cast.ComponentClass;
 import com.threerings.cast.ComponentRepository;
 import com.threerings.cast.FrameProvider;
 import com.threerings.cast.Log;
 import com.threerings.cast.NoSuchComponentException;
+import com.threerings.cast.TrimmedMultiFrameImage;
 
 /**
  * A component repository implementation that obtains information from
@@ -262,10 +266,20 @@ public class BundledComponentRepository
             String path = component.componentClass.name + "/" +
                 component.name + "/" + action +
                 BundleUtil.TILESET_EXTENSION;
+
+            // obtain the action sequence definition for this action
+            ActionSequence actseq = (ActionSequence)_actions.get(action);
+            if (actseq == null) {
+                Log.warning("Missing action sequence definition " +
+                            "[action=" + action +
+                            ", component=" + component + "].");
+                return null;
+            }
+
             try {
                 TileSet aset = (TileSet)BundleUtil.loadObject(_bundle, path);
                 aset.setImageProvider(this);
-                return new TileSetFrameImage(aset);
+                return new TileSetFrameImage(aset, actseq);
 
             } catch (Exception e) {
                 Log.warning("Error loading tileset for action " +
@@ -289,15 +303,16 @@ public class BundledComponentRepository
          * Constructs a tileset frame image with the specified tileset and
          * for the specified orientation.
          */
-        public TileSetFrameImage (TileSet set)
+        public TileSetFrameImage (TileSet set, ActionSequence actseq)
         {
             _set = set;
+            _actseq = actseq;
         }
 
         // documentation inherited from interface
-        public MultiFrameImage getFrames (final int orient)
+        public TrimmedMultiFrameImage getFrames (final int orient)
         {
-            return new MultiFrameImage() {
+            return new TrimmedMultiFrameImage() {
                 // documentation inherited
                 public int getFrameCount ()
                 {
@@ -333,13 +348,39 @@ public class BundledComponentRepository
                     Tile tile = getTile(orient, index);
                     return (tile != null) ? tile.hitTest(x, y) : false;
                 }
+
+                // documentation inherited from interface
+                public void getTrimmedBounds (int index, Rectangle bounds)
+                {
+                    Tile tile = getTile(orient, index);
+                    if (tile instanceof TrimmedTile) {
+                        TrimmedTile ttile = (TrimmedTile)tile;
+                        bounds.setBounds(ttile.getTrimmedBounds());
+                    } else {
+                        bounds.setBounds(
+                            0, 0, tile.getWidth(), tile.getHeight());
+                    }
+                }
             };
+        }
+
+        // documentation inherited from interface
+        public int getXOrigin (int orient, int index)
+        {
+            return _actseq.origin.x;
+        }
+
+        // documentation inherited from interface
+        public int getYOrigin (int orient, int index)
+        {
+            return _actseq.origin.y;
         }
 
         // documentation inherited from interface
         public ActionFrames cloneColorized (Colorization[] zations)
         {
-            return new TileSetFrameImage(_set.cloneColorized(zations));
+            return new TileSetFrameImage(
+                _set.cloneColorized(zations), _actseq);
         }
 
         /**
@@ -360,6 +401,9 @@ public class BundledComponentRepository
 
         /** The tileset from which we obtain our frame images. */
         protected TileSet _set;
+
+        /** The action sequence for which we're providing frame images. */
+        protected ActionSequence _actseq;
     }
 
     /** We use the image manager to decode and cache images. */

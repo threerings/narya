@@ -1,5 +1,5 @@
 //
-// $Id: ActionFrames.java,v 1.3 2002/05/15 23:54:04 mdb Exp $
+// $Id: ActionFrames.java,v 1.4 2002/06/19 23:31:57 mdb Exp $
 
 package com.threerings.cast;
 
@@ -21,7 +21,23 @@ public interface ActionFrames
      * Returns the multi-frame image that comprises the frames for the
      * specified orientation.
      */
-    public MultiFrameImage getFrames (int orient);
+    public TrimmedMultiFrameImage getFrames (int orient);
+
+    /**
+     * Returns the x offset from the upper left of the image to the
+     * "origin" for this character frame. A sprite with location (x, y)
+     * will be rendered such that its origin is coincident with that
+     * location.
+     */
+    public int getXOrigin (int orient, int frameIdx);
+
+    /**
+     * Returns the y offset from the upper left of the image to the
+     * "origin" for this character frame. A sprite with location (x, y)
+     * will be rendered such that its origin is coincident with that
+     * location.
+     */
+    public int getYOrigin (int orient, int frameIdx);
 
     /**
      * Creates a clone of these action frames which will have the supplied
