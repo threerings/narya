@@ -1,5 +1,5 @@
 //
-// $Id: ImageSprite.java,v 1.1 2002/03/16 03:15:05 shaper Exp $
+// $Id: ImageSprite.java,v 1.2 2002/03/27 21:51:15 mdb Exp $
 
 package com.threerings.media.sprite;
 
@@ -141,9 +141,9 @@ public class ImageSprite extends Sprite
      *
      * @param fps the desired frames per second.
      */
-    public void setFrameRate (int fps)
+    public void setFrameRate (float fps)
     {
-        _frameDelay = 1000L/fps;
+        _frameDelay = (long)(1000/fps);
     }
 
     /**
