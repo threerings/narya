@@ -1,5 +1,5 @@
 //
-// $Id: ImageManager.java,v 1.24 2002/11/13 04:24:51 mdb Exp $
+// $Id: ImageManager.java,v 1.25 2002/11/13 06:42:54 mdb Exp $
 
 package com.threerings.media;
 
@@ -177,7 +177,7 @@ public class ImageManager
         } catch (Throwable t) {
             String errmsg = "Error loading image " +
                 "[rset=" + rset + ", path=" + path + "]";
-            throw new NestableIOException(errmsg, iae);
+            throw new NestableIOException(errmsg, t);
         }
     }
 
