@@ -45,6 +45,7 @@ import com.threerings.crowd.server.PlaceManagerDelegate;
 
 import com.threerings.parlor.Log;
 import com.threerings.parlor.data.ParlorCodes;
+import com.threerings.parlor.game.data.GameAI;
 import com.threerings.parlor.game.data.GameCodes;
 import com.threerings.parlor.game.data.GameConfig;
 import com.threerings.parlor.game.data.GameMarshaller;
@@ -276,30 +277,30 @@ public class GameManager extends PlaceManager
     }
     
     /**
-     * Sets the specified player as an AI with the specified skill.  It is
-     * assumed that this will be set soon after the player names for all
-     * AIs present in the game. (It should be done before human players
-     * start trickling into the game.)
+     * Sets the specified player as an AI with the specified
+     * configuration. It is assumed that this will be set soon after the
+     * player names for all AIs present in the game. (It should be done
+     * before human players start trickling into the game.)
      *
      * @param pidx the player index of the AI.
-     * @param skill the skill level, from 0 to 100 inclusive.
+     * @param ai the AI configuration.
      */
-    public void setAI (final int pidx, final byte skill, final byte personality)
+    public void setAI (final int pidx, final GameAI ai)
     {
         if (_AIs == null) {
-            // create and initialize the AI skill level array
-            _AIs = new AI[getPlayerSlots()];
+            // create and initialize the AI configuration array
+            _AIs = new GameAI[getPlayerSlots()];
             // set up a delegate op for AI ticking
             _tickAIOp = new TickAIDelegateOp();
         }
 
-        // save off the AI's skill level
-        _AIs[pidx] = new AI(skill, personality);
+        // save off the AI's configuration
+        _AIs[pidx] = ai;
 
         // let the delegates know that the player's been made an AI
         applyToDelegates(new DelegateOp() {
             public void apply (PlaceManagerDelegate delegate) {
-                ((GameManagerDelegate)delegate).setAI(pidx, skill, personality);
+                ((GameManagerDelegate)delegate).setAI(pidx, ai);
             }
         });
     }
@@ -708,7 +709,7 @@ public class GameManager extends PlaceManager
     /**
      * Called by tickAIs to tick each AI in the game.
      */
-    protected void tickAI (int pidx, AI ai)
+    protected void tickAI (int pidx, GameAI ai)
     {
         _tickAIOp.setAI(pidx, ai);
         applyToDelegates(_tickAIOp);
@@ -1052,14 +1053,14 @@ public class GameManager extends PlaceManager
             ((GameManagerDelegate) delegate).tickAI(_pidx, _ai);
         }
 
-        public void setAI (int pidx, AI ai)
+        public void setAI (int pidx, GameAI ai)
         {
             _pidx = pidx;
             _ai = ai;
         }
 
         protected int _pidx;
-        protected AI _ai;
+        protected GameAI _ai;
     }
 
     /**
@@ -1083,9 +1084,9 @@ public class GameManager extends PlaceManager
     /** The oids of our player and AI body objects. */
     protected int[] _playerOids;
 
-    /** If AIs are present, contains their skill levels, or -1 at human
+    /** If AIs are present, contains their configuration, or null at human
      * player indexes. */
-    protected AI[] _AIs;
+    protected GameAI[] _AIs;
 
     /** If non-null, contains bundles and messages that should be sent as
      * system messages once the game has started. */

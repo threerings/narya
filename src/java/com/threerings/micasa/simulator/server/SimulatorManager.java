@@ -37,6 +37,7 @@ import com.threerings.crowd.server.PlaceManager;
 import com.threerings.crowd.server.PlaceRegistry.CreationObserver;
 import com.threerings.crowd.server.PlaceRegistry;
 
+import com.threerings.parlor.game.data.GameAI;
 import com.threerings.parlor.game.data.GameConfig;
 import com.threerings.parlor.game.data.GameObject;
 import com.threerings.parlor.game.server.GameManager;
@@ -135,7 +136,7 @@ public class SimulatorManager
 
             for (int ii = 1; ii < _playerCount; ii++) {
                 // mark all simulants as AI players
-                _gmgr.setAI(ii, skill, (byte) 0);
+                _gmgr.setAI(ii, new GameAI(0, skill));
             }
 
             // resolve the simulant body objects

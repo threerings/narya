@@ -23,6 +23,8 @@ package com.threerings.parlor.game.server;
 
 import com.threerings.crowd.server.PlaceManagerDelegate;
 
+import com.threerings.parlor.game.data.GameAI;
+
 /**
  * Extends the {@link PlaceManagerDelegate} mechanism with game manager
  * specific methods.
@@ -59,7 +61,7 @@ public class GameManagerDelegate extends PlaceManagerDelegate
      * @param pidx the player index to fake some gameplay for.
      * @param ai a record indicating the AI's configuration.
      */
-    public void tickAI (int pidx, AI ai)
+    public void tickAI (int pidx, GameAI ai)
     {
     }
 
@@ -88,9 +90,9 @@ public class GameManagerDelegate extends PlaceManagerDelegate
 
     /**
      * Called when the specified player has been set as an AI with the
-     * given skill level (ranging from 0 to 100 inclusive.)
+     * supplied AI configuration.
      */
-    public void setAI (int pidx, byte skill, byte personality)
+    public void setAI (int pidx, GameAI ai)
     {
     }
 }
