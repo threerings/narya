@@ -1,5 +1,5 @@
 //
-// $Id: SceneObject.java,v 1.7 2003/05/02 21:50:22 ray Exp $
+// $Id: SceneObject.java,v 1.8 2003/05/27 18:25:19 mdb Exp $
 
 package com.threerings.miso.client;
 
@@ -50,20 +50,7 @@ public class SceneObject
         this.info = info;
 
         // resolve our object tile
-        int tsid = TileUtil.getTileSetId(info.tileId);
-        int tidx = TileUtil.getTileIndex(info.tileId);
-        try {
-            tile = (ObjectTile)panel.getTileManager().getTile(
-                tsid, tidx, panel.getColorizer(info));
-            computeInfo(panel.getSceneMetrics());
-
-        } catch (NoSuchTileException nste) {
-            Log.warning("Scene contains non-existent object tile " +
-                        "[info=" + info + "].");
-        } catch (NoSuchTileSetException te) {
-            Log.warning("Scene contains non-existent object tileset " +
-                        "[info=" + info + "].");
-        }
+        refreshObjectTile(panel);
     }
 
     /**
@@ -218,6 +205,31 @@ public class SceneObject
         info.x = tx;
         info.y = ty;
         computeInfo(metrics);
+    }
+
+    /**
+     * Reloads and recolorizes our object tile. It is not intended for the
+     * actual object tile used by a scene object to change in its
+     * lifetime, only attributes of that object like its colorizations. So
+     * don't do anything crazy like change our {@link ObjectInfo}'s
+     * <code>tileId</code> and call this method or things might break.
+     */
+    public void refreshObjectTile (MisoScenePanel panel)
+    {
+        int tsid = TileUtil.getTileSetId(info.tileId);
+        int tidx = TileUtil.getTileIndex(info.tileId);
+        try {
+            tile = (ObjectTile)panel.getTileManager().getTile(
+                tsid, tidx, panel.getColorizer(info));
+            computeInfo(panel.getSceneMetrics());
+
+        } catch (NoSuchTileException nste) {
+            Log.warning("Scene contains non-existent object tile " +
+                        "[info=" + info + "].");
+        } catch (NoSuchTileSetException te) {
+            Log.warning("Scene contains non-existent object tileset " +
+                        "[info=" + info + "].");
+        }
     }
 
     /**
