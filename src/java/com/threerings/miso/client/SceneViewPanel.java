@@ -1,5 +1,5 @@
 //
-// $Id: SceneViewPanel.java,v 1.45 2002/10/08 21:03:37 ray Exp $
+// $Id: SceneViewPanel.java,v 1.46 2002/11/03 01:15:06 mdb Exp $
 
 package com.threerings.miso.scene;
 
@@ -97,7 +97,11 @@ public class SceneViewPanel extends VirtualMediaPanel
      */
     public void setScene (DisplayMisoScene scene)
     {
-	_view.setScene(scene);
+        if (scene == null) {
+            Log.warning("Ignoring request to set null scene.");
+        } else {
+            _view.setScene(scene);
+        }
     }
 
     /**
