@@ -88,6 +88,10 @@
       mapfile="${tbundle.dir}/tilesets.map"
       bundledef="${tbundle.dir}/ground/bundle.xml"
       target="${tbundle.dir}/ground/bundle.jar"/>
+    <tilebundle config="${tbundle.dir}/bundler-config.xml"
+      mapfile="${tbundle.dir}/tilesets.map"
+      bundledef="${tbundle.dir}/objects/bundle.xml"
+      target="${tbundle.dir}/objects/bundle.jar"/>
   </target>
 
 </project>
