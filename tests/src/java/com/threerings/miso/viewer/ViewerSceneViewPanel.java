@@ -1,5 +1,5 @@
 //
-// $Id: ViewerSceneViewPanel.java,v 1.33 2001/11/27 08:49:58 mdb Exp $
+// $Id: ViewerSceneViewPanel.java,v 1.34 2001/11/29 20:31:22 mdb Exp $
 
 package com.threerings.miso.viewer;
 
@@ -26,6 +26,7 @@ import com.threerings.media.util.PerformanceMonitor;
 import com.threerings.media.util.PerformanceObserver;
 
 import com.threerings.miso.Log;
+import com.threerings.miso.scene.DisplayMisoScene;
 import com.threerings.miso.scene.MisoCharacterSprite;
 import com.threerings.miso.scene.SceneViewPanel;
 import com.threerings.miso.scene.util.IsoUtil;
@@ -49,7 +50,7 @@ public class ViewerSceneViewPanel extends SceneViewPanel
         // configure the character manager from which we obtain sprites
         charmgr.setCharacterClass(MisoCharacterSprite.class);
 
-        // create the character descriptors FIXME
+        // create the character descriptors
         _descUser = CastUtil.getRandomDescriptor(crepo);
         _descDecoy = CastUtil.getRandomDescriptor(crepo);
 
@@ -69,6 +70,16 @@ public class ViewerSceneViewPanel extends SceneViewPanel
 	PerformanceMonitor.register(this, "paint", 1000);
     }
 
+    // documentation inherited
+    public void setScene (DisplayMisoScene scene)
+    {
+        super.setScene(scene);
+
+        // now that we have a scene, we can create valid paths for our
+        // decoy sprites
+        createDecoyPaths();
+    }
+
     /**
      * Creates a new sprite.
      */
@@ -79,8 +90,10 @@ public class ViewerSceneViewPanel extends SceneViewPanel
         MisoCharacterSprite s =
             (MisoCharacterSprite)charmgr.getCharacter(desc);
         if (s != null) {
+            // start 'em out standing
+            s.setActionSequence(MisoCharacterSprite.STANDING);
             s.setLocation(300, 300);
-            IsoUtil.setSpriteSceneLocation(_scenemodel, s);
+            IsoUtil.setSpriteSceneLocation(_viewmodel, s);
             s.addSpriteObserver(this);
             spritemgr.addSprite(s);
         }
@@ -97,6 +110,15 @@ public class ViewerSceneViewPanel extends SceneViewPanel
         _decoys = new MisoCharacterSprite[NUM_DECOYS];
         for (int ii = 0; ii < NUM_DECOYS; ii++) {
             _decoys[ii] = createSprite(spritemgr, charmgr, _descDecoy);
+        }
+    }
+
+    /**
+     * Creates paths for the decoy sprites.
+     */
+    protected void createDecoyPaths ()
+    {
+        for (int ii = 0; ii < NUM_DECOYS; ii++) {
             if (_decoys[ii] != null) {
                 createRandomPath(_decoys[ii]);
             }
@@ -159,7 +181,7 @@ public class ViewerSceneViewPanel extends SceneViewPanel
      */
     protected void createRandomPath (MisoCharacterSprite s)
     {
-        Dimension d = _scenemodel.bounds.getSize();
+        Dimension d = _viewmodel.bounds.getSize();
 
         int x, y;
         do {
