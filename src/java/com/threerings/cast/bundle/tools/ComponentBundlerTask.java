@@ -1,5 +1,5 @@
 //
-// $Id: ComponentBundlerTask.java,v 1.1 2001/11/27 08:09:35 mdb Exp $
+// $Id: ComponentBundlerTask.java,v 1.2 2001/11/29 00:15:25 mdb Exp $
 
 package com.threerings.cast.tools.bundle;
 
@@ -79,9 +79,9 @@ public class ComponentBundlerTask extends Task
      */
     public void execute () throws BuildException
     {
-        // make sure everythign was set up properly
+        // make sure everything was set up properly
         ensureSet(_target, "Must specify the path to the target bundle " +
-                  "file via the 'file' attribute.");
+                  "file via the 'target' attribute.");
         ensureSet(_mapfile, "Must specify the path to the component map " +
                   "file via the 'mapfile' attribute.");
 
