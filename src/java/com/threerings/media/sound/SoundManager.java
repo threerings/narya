@@ -1,5 +1,5 @@
 //
-// $Id: SoundManager.java,v 1.66 2003/10/16 01:01:51 ray Exp $
+// $Id: SoundManager.java,v 1.67 2003/12/22 22:25:34 mdb Exp $
 
 package com.threerings.media.sound;
 
@@ -381,15 +381,13 @@ public class SoundManager
     {
         synchronized (_queue) {
             if (_queue.size() < MAX_QUEUE_SIZE) {
-                /*
-                if (_verbose.getValue()) {
+//                 if (_verbose.getValue()) {
                     Log.info("Sound request [key=" + skey + "].");
-                }
-                */
+//                 }
                 _queue.append(PLAY);
                 _queue.append(skey);
 
-            } else if (_verbose.getValue()) {
+            } else /* if (_verbose.getValue()) */ {
                 Log.warning("SoundManager not playing sound because " +
                             "too many sounds in queue [key=" + skey +
                             ", queue=" + _queue + "].");
@@ -441,6 +439,7 @@ public class SoundManager
         if (key.isExpired()) {
             return;
         }
+
         try {
             // get the sound data from our LRU cache
             byte[] data = getClipData(key);
@@ -454,14 +453,12 @@ public class SoundManager
             LineSpooler.play(stream, _clipVol, key);
 
         } catch (IOException ioe) {
-            if (_verbose.getValue()) {
-                Log.warning("Error loading sound file [key=" + key +
-                    ", e=" + ioe + "].");
-            }
+            Log.warning("Error loading sound file [key=" + key +
+                        ", e=" + ioe + "].");
 
         } catch (UnsupportedAudioFileException uafe) {
-            Log.warning("Unsupported sound format [key=" + key + ", e=" +
-                uafe + "].");
+            Log.warning("Unsupported sound format [key=" + key +
+                        ", e=" + uafe + "].");
 
         } catch (LineUnavailableException lue) {
             // this error comes every goddamned time we play a sound on
@@ -1062,9 +1059,9 @@ public class SoundManager
             int count = 0;
             byte[] data = new byte[BUFFER_SIZE];
 
-            if (_verbose.getValue()) {
+//             if (_verbose.getValue()) {
                 Log.info("Sound playing [key=" + _key.key + "].");
-            }
+//             }
             while (_valid && count != -1) {
                 try {
                     count = _stream.read(data, 0, data.length);
