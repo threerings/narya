@@ -1,5 +1,5 @@
 //
-// $Id: BodyObject.java,v 1.2 2002/02/20 23:35:42 mdb Exp $
+// $Id: BodyObject.java,v 1.3 2002/06/20 22:37:32 mdb Exp $
 
 package com.threerings.crowd.data;
 
@@ -23,6 +23,14 @@ public class BodyObject extends ClientObject
      * currently occupy no place.
      */
     public int location = -1;
+
+    /**
+     * Returns a short string identifying this body.
+     */
+    public String who ()
+    {
+        return username + " (" + getOid() + ")";
+    }
 
     /**
      * Requests that the <code>username</code> field be set to the specified

@@ -1,5 +1,5 @@
 //
-// $Id: BodyObject.dobj,v 1.8 2002/02/08 23:10:36 mdb Exp $
+// $Id: BodyObject.dobj,v 1.9 2002/06/20 22:37:32 mdb Exp $
 
 package com.threerings.crowd.data;
 
@@ -17,4 +17,12 @@ public class BodyObject extends ClientObject
      * currently occupy no place.
      */
     public int location = -1;
+
+    /**
+     * Returns a short string identifying this body.
+     */
+    public String who ()
+    {
+        return username + " (" + getOid() + ")";
+    }
 }
