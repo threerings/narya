@@ -1,5 +1,5 @@
 //
-// $Id: TileSet.java,v 1.38 2003/01/15 02:31:50 mdb Exp $
+// $Id: TileSet.java,v 1.39 2003/01/15 02:36:18 mdb Exp $
 
 package com.threerings.media.tile;
 
@@ -141,8 +141,7 @@ public abstract class TileSet
 
         // create our tile cache if necessary
         if (_tiles == null) {
-            int tcsize = MediaPrefs.config.getValue(
-                TILE_CACHE_SIZE_KEY, DEFAULT_TILE_CACHE_SIZE);
+            int tcsize = _cacheSize.getValue();
             Log.debug("Creating tile cache [size=" + tcsize + "].");
             _tiles = new LRUHashMap(tcsize);
         }
@@ -307,12 +306,5 @@ public abstract class TileSet
     protected static RuntimeAdjust.IntAdjust _cacheSize =
         new RuntimeAdjust.IntAdjust(
             "Size (in tiles) of the tile LRU cache [requires reboot]",
-            TILE_CACHE_SIZE_KEY, MediaPrefs.config, DEFAULT_TILE_CACHE_SIZE);
-
-    /** The config key for our cache size property. */
-    protected static final String TILE_CACHE_SIZE_KEY =
-        "narya.media.tile.cache_size";
-
-    /** The default tile cache size. */
-    protected static final int DEFAULT_TILE_CACHE_SIZE = 500;
+            "narya.media.tile.cache_size", MediaPrefs.config, 500);
 }

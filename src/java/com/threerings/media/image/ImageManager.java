@@ -1,5 +1,5 @@
 //
-// $Id: ImageManager.java,v 1.39 2003/01/15 02:31:50 mdb Exp $
+// $Id: ImageManager.java,v 1.40 2003/01/15 02:36:18 mdb Exp $
 
 package com.threerings.media.image;
 
@@ -94,8 +94,7 @@ public class ImageManager
 	_rmgr = rmgr;
 
         // create our image cache
-        int icsize = MediaPrefs.config.getValue(
-            IMAGE_CACHE_SIZE_KEY, DEFAULT_IMAGE_CACHE_SIZE);
+        int icsize = _cacheSize.getValue();
         Log.debug("Creating image cache [size=" + icsize + "].");
         _ccache = new LRUHashMap(icsize);
 
@@ -491,18 +490,11 @@ public class ImageManager
     protected static RuntimeAdjust.IntAdjust _cacheSize =
         new RuntimeAdjust.IntAdjust(
             "Size (in images) of the image manager LRU cache [requires reboot]",
-            IMAGE_CACHE_SIZE_KEY, MediaPrefs.config, DEFAULT_IMAGE_CACHE_SIZE);
+            "narya.media.image.cache_size", MediaPrefs.config, 100);
 
     /** The classname of the ImageIO-based image loader which we attempt
      * to use but fallback from if we're not running a JVM that has
      * ImageIO support. */
     protected static final String IMAGEIO_LOADER =
         "com.threerings.media.image.ImageIOLoader";
-
-    /** The config key for our cache size property. */
-    protected static final String IMAGE_CACHE_SIZE_KEY =
-        "narya.media.image.cache_size";
-
-    /** The maximum number of images that may be cached at any one time. */
-    protected static final int DEFAULT_IMAGE_CACHE_SIZE = 100;
 }
