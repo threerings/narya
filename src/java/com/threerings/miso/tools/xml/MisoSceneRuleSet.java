@@ -1,5 +1,5 @@
 //
-// $Id: MisoSceneRuleSet.java,v 1.9 2002/05/17 19:06:23 ray Exp $
+// $Id: MisoSceneRuleSet.java,v 1.10 2002/09/23 23:07:11 mdb Exp $
 
 package com.threerings.miso.scene.tools.xml;
 
@@ -62,6 +62,8 @@ public class MisoSceneRuleSet extends RuleSetBase
                          new SetFieldRule(digester, "objectTileIds"));
         digester.addRule(_prefix + "/actions",
                          new SetFieldRule(digester, "objectActions"));
+        digester.addRule(_prefix + "/priorities",
+                         new SetFieldRule(digester, "objectPrios"));
 
         // we have to unfuck the objectActions field in the event that
         // there's one object in the objects element which has a blank
@@ -75,14 +77,6 @@ public class MisoSceneRuleSet extends RuleSetBase
                 if (model.objectTileIds.length > 0 &&
                     model.objectActions.length == 0) {
                     model.objectActions = new String[1];
-                }
-
-                // check to see if we've read in an old-style model.
-                // TODO: remove this someday after all our scenes are
-                // converted.
-                if (model.vwidth == 0) {
-                    model.convertOldSchool(10, 12);
-                    Log.info("Converted old-school MisoSceneModel.");
                 }
             }
         });

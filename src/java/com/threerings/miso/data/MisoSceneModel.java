@@ -1,5 +1,5 @@
 //
-// $Id: MisoSceneModel.java,v 1.9 2002/07/23 05:54:52 mdb Exp $
+// $Id: MisoSceneModel.java,v 1.10 2002/09/23 23:07:11 mdb Exp $
 
 package com.threerings.miso.scene;
 
@@ -43,6 +43,10 @@ public class MisoSceneModel extends SimpleStreamableObject
      * Elements of this array may be null but will be converted to the
      * empty string during serialization. */
     public String[] objectActions;
+
+    /** Render priorities for each object tile in the scene, which are
+     * used to resolve overlapped object render order conflicts. */
+    public byte[] objectPrios;
 
     /**
      * Get the fully-qualified tile id of the base tile at the specified
@@ -120,34 +124,6 @@ public class MisoSceneModel extends SimpleStreamableObject
     }
 
     /**
-     * Convert an old school model to the new-style, baby.
-     * TODO: Remove this method someday after we've converted all
-     * our old scenes.
-     */
-    public void convertOldSchool (int vwidth, int vheight)
-    {
-        // sanity check
-        if (baseTileIds.length != (width * height)) {
-            Log.warning("This isn't an old-school scene model!");
-            return;
-        }
-
-        this.vwidth = vwidth;
-        this.vheight = vheight;
-
-        // make a copy of the oldschool base tile ids
-        int[] oldschool = baseTileIds;
-        allocateBaseTileArray();
-
-        int idx = 0;
-        for (int yy=0; yy < height; yy++) {
-            for (int xx=0; xx < width; xx++) {
-                setBaseTile(xx, yy, oldschool[idx++]);
-            }
-        }
-    }
-
-    /**
      * Allocate the base tile array.
      */
     protected void allocateBaseTileArray ()
@@ -165,6 +141,7 @@ public class MisoSceneModel extends SimpleStreamableObject
         model.baseTileIds = (int[])baseTileIds.clone();
         model.objectTileIds = (int[])objectTileIds.clone();
         model.objectActions = (String[])objectActions.clone();
+        model.objectPrios = (byte[])objectPrios.clone();
         return model;
     }
 
@@ -204,5 +181,6 @@ public class MisoSceneModel extends SimpleStreamableObject
         model.allocateBaseTileArray();
         model.objectTileIds = new int[0];
         model.objectActions = new String[0];
+        model.objectPrios = new byte[0];
     }
 }

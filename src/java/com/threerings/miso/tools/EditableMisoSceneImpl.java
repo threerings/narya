@@ -1,5 +1,5 @@
 //
-// $Id: EditableMisoSceneImpl.java,v 1.23 2002/09/23 21:54:50 mdb Exp $
+// $Id: EditableMisoSceneImpl.java,v 1.24 2002/09/23 23:07:11 mdb Exp $
 
 package com.threerings.miso.scene.tools;
 
@@ -118,7 +118,6 @@ public class EditableMisoSceneImpl
         EditableSceneObject scobj = (EditableSceneObject)
             createSceneObject(x, y, tile);
         scobj.fqTileId = fqTileId;
-        scobj.index = _objects.size();
         _objects.add(scobj);
 
         // toggle the "covered" flag on in all base tiles below this
@@ -160,6 +159,7 @@ public class EditableMisoSceneImpl
         if (ocount > 0) {
             int[] otids = new int[ocount*3];
             String[] actions = new String[ocount];
+            byte[] prios = new byte[ocount];
 
             for (int ii = 0; ii < ocount; ii++) {
                 EditableSceneObject scobj = (EditableSceneObject)
@@ -168,11 +168,13 @@ public class EditableMisoSceneImpl
                 otids[3*ii+1] = scobj.y;
                 otids[3*ii+2] = scobj.fqTileId;
                 actions[ii] = scobj.action;
+                prios[ii] = scobj.priority;
             }
 
             // stuff the new arrays into the model
             _model.objectTileIds = otids;
             _model.objectActions = actions;
+            _model.objectPrios = prios;
         }
 
         // and we're ready to roll
@@ -187,12 +189,12 @@ public class EditableMisoSceneImpl
 
     // documentation inherited
     protected SceneObject expandObject (
-        int col, int row, int tsid, int tid, int fqTid, String action)
+        int col, int row, int tsid, int tid, int fqTid, int objidx)
         throws NoSuchTileException, NoSuchTileSetException
     {
         // do the actual object creation
         EditableSceneObject scobj = (EditableSceneObject)
-            super.expandObject(col, row, tsid, tid, fqTid, action);
+            super.expandObject(col, row, tsid, tid, fqTid, objidx);
 
         // we need this to track object layer mods
         scobj.fqTileId = fqTid;

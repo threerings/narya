@@ -1,5 +1,5 @@
 //
-// $Id: DirtyItemList.java,v 1.13 2002/09/18 02:32:57 mdb Exp $
+// $Id: DirtyItemList.java,v 1.14 2002/09/23 23:07:11 mdb Exp $
 
 package com.threerings.miso.scene;
 
@@ -525,16 +525,16 @@ public class DirtyItemList
             }
 
             // if the two objects are scene objects and they overlap, we
-            // compare them solely based on the order in which they were
-            // added to the scene; this allows the scene creator to avoid
-            // all sorts of sticky business wherein the render order
-            // between two overlapping objects cannot be determined
+            // compare them solely based on their human assigned render
+            // priority scene; this allows us to avoid all sorts of sticky
+            // business wherein the render order between two overlapping
+            // objects cannot be determined without a z-buffer
             if ((da.obj instanceof SceneObject) &&
                 (db.obj instanceof SceneObject)) {
                 SceneObject soa = (SceneObject)da.obj;
                 SceneObject sob = (SceneObject)db.obj;
                 if (IsoUtil.objectFootprintsOverlap(soa, sob)) {
-                    return (soa.index - sob.index);
+                    return (soa.priority - sob.priority);
                 }
             }
 

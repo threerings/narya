@@ -1,5 +1,5 @@
 //
-// $Id: DisplayObjectInfo.java,v 1.2 2002/09/23 21:54:50 mdb Exp $
+// $Id: DisplayObjectInfo.java,v 1.3 2002/09/23 23:07:11 mdb Exp $
 
 package com.threerings.miso.scene;
 
@@ -20,8 +20,8 @@ public class SceneObject
     /** The x and y tile coordinates of the object. */
     public int x = -1, y = -1;
 
-    /** The object's index in the scene object list. */
-    public int index = -1;
+    /** The object's render priority. */
+    public byte priority = 0;
 
     /** The action associated with this object or null if it has no
      * action. */

@@ -1,5 +1,5 @@
 //
-// $Id: MisoSceneWriter.java,v 1.7 2002/05/17 19:06:23 ray Exp $
+// $Id: MisoSceneWriter.java,v 1.8 2002/09/23 23:07:11 mdb Exp $
 
 package com.threerings.miso.scene.tools.xml;
 
@@ -46,5 +46,7 @@ public class MisoSceneWriter
                            StringUtil.toString(model.objectTileIds, "", ""));
         writer.dataElement("actions",
                            StringUtil.joinEscaped(model.objectActions));
+        writer.dataElement("priorities",
+                           StringUtil.toString(model.objectPrios, "", ""));
     }
 }

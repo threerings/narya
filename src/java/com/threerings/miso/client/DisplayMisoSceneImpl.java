@@ -1,5 +1,5 @@
 //
-// $Id: DisplayMisoSceneImpl.java,v 1.61 2002/09/23 21:54:50 mdb Exp $
+// $Id: DisplayMisoSceneImpl.java,v 1.62 2002/09/23 23:07:11 mdb Exp $
 
 package com.threerings.miso.scene;
 
@@ -138,17 +138,14 @@ public class DisplayMisoSceneImpl
         for (int ii = 0; ii < ocount; ii+= 3) {
             int col = _model.objectTileIds[ii];
             int row = _model.objectTileIds[ii+1];
-            String action = _model.objectActions[ii/3];
             int fqTid = _model.objectTileIds[ii+2];
-            int tsid = (fqTid >> 16) & 0xFFFF;
-            int tid = (fqTid & 0xFFFF);
+            int tsid = (fqTid >> 16) & 0xFFFF, tid = (fqTid & 0xFFFF);
             try {
-                expandObject(col, row, tsid, tid, fqTid, action);
+                expandObject(col, row, tsid, tid, fqTid, ii/3);
             } catch (TileException te) {
                 Log.warning("Scene contains non-existent object tile " +
                             "[tsid=" + tsid + ", tid=" + tid +
-                            ", col=" + col + ", row=" + row +
-                            ", action=" + action + "].");
+                            ", col=" + col + ", row=" + row + "].");
             }
         }
     }
@@ -162,23 +159,26 @@ public class DisplayMisoSceneImpl
      * tables).
      */
     protected SceneObject expandObject (
-        int col, int row, int tsid, int tid, int fqTid, String action)
+        int col, int row, int tsid, int tid, int fqTid, int objidx)
         throws NoSuchTileException, NoSuchTileSetException
     {
         // create and initialize an object info record for this object
         SceneObject scobj = createSceneObject(
             col, row, (ObjectTile)_tmgr.getTile(tsid, tid));
-        if (!StringUtil.blank(action)) {
-            scobj.action = action;
+
+        // assign the object's remaining attributes
+        if (!StringUtil.blank(_model.objectActions[objidx])) {
+            scobj.action = _model.objectActions[objidx];
+        }
+        // if we have object priorities, use 'em
+        if (_model.objectPrios != null) {
+            scobj.priority = _model.objectPrios[objidx];
         }
 
         // generate a "shadow" for this object tile by toggling the
         // "covered" flag on in all base tiles below it (to prevent
         // sprites from walking on those tiles)
         setObjectTileFootprint(scobj.tile, col, row, true);
-
-        // assign the object its index
-        scobj.index = _objects.size();
 
         // add the info record to the list
         _objects.add(scobj);
@@ -209,8 +209,6 @@ public class DisplayMisoSceneImpl
             SceneObject scobj = (SceneObject)_objects.get(ii);
             if (region.contains(scobj.x, scobj.y)) {
                 set.insert(scobj);
-            } else {
-                System.err.println("Skipping " + scobj + ", not in " + region + ".");
             }
         }
     }
