@@ -1,5 +1,5 @@
 //
-// $Id: SoundManager.java,v 1.45 2003/02/07 02:53:49 ray Exp $
+// $Id: SoundManager.java,v 1.46 2003/02/12 01:44:44 ray Exp $
 
 package com.threerings.media.sound;
 
@@ -502,6 +502,9 @@ public class SoundManager
 
         } else if (path.endsWith(".mp3")) {
             return Mp3Player.class;
+
+        } else if (path.endsWith(".ogg")) {
+            return OggPlayer.class;
 
         } else {
             return null;
