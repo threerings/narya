@@ -1,5 +1,5 @@
 //
-// $Id: LocationDirector.java,v 1.21 2002/06/14 00:57:48 mdb Exp $
+// $Id: LocationDirector.java,v 1.22 2002/06/14 01:19:16 mdb Exp $
 
 package com.threerings.crowd.client;
 
@@ -105,12 +105,17 @@ public class LocationDirector
             return;
         }
 
+        // we need to call this both to mark that we're issuing a move
+        // request and to check to see if the last issued request should
+        // be considered stale
+        boolean refuse = checkRepeatMove();
+
         // complain if we're over-writing a pending request
         if (_pendingPlaceId != -1) {
             // if the pending request has been outstanding more than a
             // minute, go ahead and let this new one through in an attempt
             // to recover from dropped moveTo requests
-            if (checkRepeatMove()) {
+            if (refuse) {
                 Log.warning("Refusing moveTo; We have a request outstanding " +
                             "[ppid=" + _pendingPlaceId +
                             ", npid=" + placeId + "].");
