@@ -1,5 +1,5 @@
 //
-// $Id: ComponentBundlerTask.java,v 1.15 2002/09/26 02:05:59 mdb Exp $
+// $Id: ComponentBundlerTask.java,v 1.16 2002/09/27 19:02:15 mdb Exp $
 
 package com.threerings.cast.bundle.tools;
 
@@ -146,8 +146,8 @@ public class ComponentBundlerTask extends Task
             // deal with the filesets
             for (int i = 0; i < _filesets.size(); i++) {
                 FileSet fs = (FileSet)_filesets.get(i);
-                DirectoryScanner ds = fs.getDirectoryScanner(project);
-                File fromDir = fs.getDir(project);
+                DirectoryScanner ds = fs.getDirectoryScanner(getProject());
+                File fromDir = fs.getDir(getProject());
                 String[] srcFiles = ds.getIncludedFiles();
 
                 for (int f = 0; f < srcFiles.length; f++) {

@@ -1,5 +1,5 @@
 //
-// $Id: TileSetBundlerTask.java,v 1.4 2002/09/11 20:28:05 mdb Exp $
+// $Id: TileSetBundlerTask.java,v 1.5 2002/09/27 19:02:15 mdb Exp $
 
 package com.threerings.media.tile.bundle.tools;
 
@@ -68,8 +68,8 @@ public class TileSetBundlerTask extends Task
             // deal with the filesets
             for (int i = 0; i < _filesets.size(); i++) {
                 FileSet fs = (FileSet)_filesets.get(i);
-                DirectoryScanner ds = fs.getDirectoryScanner(project);
-                File fromDir = fs.getDir(project);
+                DirectoryScanner ds = fs.getDirectoryScanner(getProject());
+                File fromDir = fs.getDir(getProject());
                 String[] srcFiles = ds.getIncludedFiles();
 
                 for (int f = 0; f < srcFiles.length; f++) {
