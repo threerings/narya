@@ -1,5 +1,5 @@
 //
-// $Id: GameManager.java,v 1.10 2001/10/12 19:30:44 mdb Exp $
+// $Id: GameManager.java,v 1.11 2001/10/17 02:48:57 mdb Exp $
 
 package com.threerings.parlor.game;
 
@@ -55,11 +55,11 @@ public class GameManager
      */
     public void setPlayers (String[] players)
     {
-        // keep this info for later
+        // keep this around for now, we'll need it later
         _players = players;
 
         // instantiate a player oid array which we'll fill in later
-        _playerOids = new int[_players.length];
+        _playerOids = new int[players.length];
     }
 
     // documentation inherited
@@ -69,6 +69,9 @@ public class GameManager
 
         // obtain a casted reference to our game object
         _gameobj = (GameObject)_plobj;
+
+        // stick the players into the game object
+        _gameobj.setPlayers(_players);
 
         // let the players of this game know that we're ready to roll (if
         // we have a specific set of players)
@@ -197,11 +200,11 @@ public class GameManager
     /** A reference to our game configuration. */
     protected GameConfig _gconfig;
 
-    /** The usernames of the players of this game. */
-    protected String[] _players;
-
     /** A reference to our game object. */
     protected GameObject _gameobj;
+
+    /** The usernames of the players of this game. */
+    protected String[] _players;
 
     /** The oids of our player's body objects. */
     protected int[] _playerOids;

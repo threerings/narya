@@ -1,8 +1,9 @@
 //
-// $Id: GameObject.dobj,v 1.4 2001/10/11 21:08:21 mdb Exp $
+// $Id: GameObject.dobj,v 1.5 2001/10/17 02:48:57 mdb Exp $
 
 package com.threerings.parlor.game;
 
+import com.samskivert.util.StringUtil;
 import com.threerings.crowd.data.PlaceObject;
 
 /**
@@ -22,6 +23,9 @@ public class GameObject extends PlaceObject
 
     /** The field name of the <code>isRated</code> field. */
     public static final String IS_RATED = "isRated";
+
+    /** The field name of the <code>players</code> field. */
+    public static final String PLAYERS = "players";
 
     /** A game state constant indicating that the game has not yet started
      * and is still awaiting the arrival of all of the players. */
@@ -43,6 +47,9 @@ public class GameObject extends PlaceObject
     /** Indicates whether or not this game is rated. */
     public boolean isRated;
 
+    /** The username of the players involved in this game. */
+    public String[] players;
+
     /** Requests that the <code>state</code> field be set to the specified
      * value. */
     public void setState (int state)
@@ -55,5 +62,21 @@ public class GameObject extends PlaceObject
     public void setIsRated (boolean isRated)
     {
         requestAttributeChange(IS_RATED, new Boolean(isRated));
+    }
+
+    /** Requests that the <code>players</code> field be set to the
+     * specified value. */
+    public void setPlayers (String[] value)
+    {
+        requestAttributeChange(PLAYERS, value);
+    }
+
+    // documentation inherited
+    protected void toString (StringBuffer buf)
+    {
+        super.toString(buf);
+        buf.append(", state=").append(state);
+        buf.append(", isRated=").append(isRated);
+        buf.append(", players=").append(StringUtil.toString(players));
     }
 }
