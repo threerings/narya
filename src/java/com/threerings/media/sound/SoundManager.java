@@ -1,5 +1,5 @@
 //
-// $Id: SoundManager.java,v 1.36 2002/12/04 02:14:12 ray Exp $
+// $Id: SoundManager.java,v 1.37 2002/12/04 21:42:34 ray Exp $
 
 package com.threerings.media;
 
@@ -272,6 +272,26 @@ public class SoundManager
         synchronized (_queue) {
             _queue.append(UNLOCK);
             _queue.append(new SoundKey(pkgPath, key));
+        }
+    }
+
+    /**
+     * Batch lock a list of sounds.
+     */
+    public void lock (String pkgPath, String[] keys)
+    {
+        for (int ii=0; ii < keys.length; ii++) {
+            lock(pkgPath, keys[ii]);
+        }
+    }
+
+    /**
+     * Batch unlock a list of sounds.
+     */
+    public void unlock (String pkgPath, String[] keys)
+    {
+        for (int ii=0; ii < keys.length; ii++) {
+            unlock(pkgPath, keys[ii]);
         }
     }
 
