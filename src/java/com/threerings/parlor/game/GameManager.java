@@ -1,11 +1,16 @@
 //
-// $Id: GameManager.java,v 1.32 2002/06/03 21:08:57 shaper Exp $
+// $Id: GameManager.java,v 1.33 2002/06/06 22:13:56 ray Exp $
 
 package com.threerings.parlor.game;
+
+import java.util.ArrayList;
+import java.util.Iterator;
 
 import com.threerings.presents.dobj.AttributeChangeListener;
 import com.threerings.presents.dobj.AttributeChangedEvent;
 import com.threerings.presents.dobj.MessageEvent;
+
+import com.threerings.crowd.chat.ChatProvider;
 
 import com.threerings.crowd.data.BodyObject;
 import com.threerings.crowd.data.PlaceObject;
@@ -112,6 +117,38 @@ public class GameManager extends PlaceManager
     public int getRoundId ()
     {
         return _roundId;
+    }
+
+    /**
+     * Sends a system message to the players in the game room.
+     */
+    public void systemMessage (String msgbundle, String msg)
+    {
+        systemMessage(msgbundle, msg, false);
+    }
+
+    /**
+     * Sends a system message to the players in the game room.
+     *
+     * @param waitForStart if true, the message will not be sent until the
+     * game has started.
+     */
+    public void systemMessage (
+        String msgbundle, String msg, boolean waitForStart)
+    {
+        if (waitForStart && ((_gameobj == null) ||
+                             (_gameobj.state == GameObject.AWAITING_PLAYERS))) {
+            // queue up the message.
+            if (_startmsgs == null) {
+                _startmsgs = new ArrayList();
+            }
+            _startmsgs.add(msgbundle);
+            _startmsgs.add(msg);
+            return;
+        }
+
+        // otherwise, just deliver the message
+        ChatProvider.sendSystemMessage(_gameobj.getOid(), msgbundle, msg);
     }
 
     // documentation inherited
@@ -244,6 +281,15 @@ public class GameManager extends PlaceManager
                 ((GameManagerDelegate)delegate).gameDidStart();
             }
         });
+
+        // inform the players of any pending messages.
+        if (_startmsgs != null) {
+            for (Iterator iter = _startmsgs.iterator(); iter.hasNext(); ) {
+                systemMessage((String) iter.next(), // bundle
+                              (String) iter.next()); // message
+            }
+            _startmsgs = null;
+        }
 
         // and register ourselves to receive AI ticks
         if (_AIs != null) {
@@ -456,6 +502,10 @@ public class GameManager extends PlaceManager
     /** If AIs are present, contains their skill levels, or -1 at human
      * player indexes. */
     protected byte[] _AIs;
+
+    /** If non-null, contains bundles and messages that should be sent
+     * as system messages once the game has started. */
+    protected ArrayList _startmsgs;
 
     /** Our delegate operator to tick AIs. */
     protected TickAIDelegateOp _tickAIOp;
