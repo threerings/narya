@@ -1,5 +1,5 @@
 //
-// $Id: AuthResponseData.java,v 1.7 2001/10/01 22:14:55 mdb Exp $
+// $Id: AuthResponseData.java,v 1.8 2001/10/03 03:41:04 mdb Exp $
 
 package com.threerings.cocktail.cher.net;
 
@@ -25,6 +25,7 @@ public class AuthResponseData extends DObject
     // documentation inherited
     protected void toString (StringBuffer buf)
     {
+        super.toString(buf);
         buf.append(", code=").append(code);
     }
 }
