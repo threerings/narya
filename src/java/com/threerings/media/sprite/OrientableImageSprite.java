@@ -1,5 +1,5 @@
 //
-// $Id: OrientableImageSprite.java,v 1.2 2004/10/15 00:14:23 andrzej Exp $
+// $Id: OrientableImageSprite.java,v 1.3 2004/10/15 00:59:53 andrzej Exp $
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -87,59 +87,59 @@ public class OrientableImageSprite extends ImageSprite
                 break;
                     
             case EAST:
-                theta = -Math.PI*0.5;
-                break;
-                
-            case WEST:
                 theta = Math.PI*0.5;
                 break;
                 
+            case WEST:
+                theta = -Math.PI*0.5;
+                break;
+                
             case NORTHEAST:
-                theta = -Math.PI*0.25;
+                theta = Math.PI*0.25;
                 break;
             
             case NORTHWEST:
-                theta = Math.PI*0.25;
+                theta = -Math.PI*0.25;
                 break;
                 
             case SOUTHEAST:
-                theta = -Math.PI*0.75;
-                break;
-                
-            case SOUTHWEST:
                 theta = Math.PI*0.75;
                 break;
                 
-            case NORTHNORTHEAST:
-                theta = Math.PI*0.125;
+            case SOUTHWEST:
+                theta = -Math.PI*0.75;
                 break;
                 
-            case NORTHNORTHWEST:
+            case NORTHNORTHEAST:
                 theta = -Math.PI*0.125;
                 break;
                 
-            case SOUTHSOUTHEAST:
-                theta = Math.PI*0.875;
+            case NORTHNORTHWEST:
+                theta = Math.PI*0.125;
                 break;
                 
-            case SOUTHSOUTHWEST:
+            case SOUTHSOUTHEAST:
                 theta = -Math.PI*0.875;
                 break;
                 
+            case SOUTHSOUTHWEST:
+                theta = Math.PI*0.875;
+                break;
+                
             case EASTNORTHEAST:
-                theta = Math.PI*0.375;
-                break;
-                
-            case EASTSOUTHEAST:
-                theta = Math.PI*0.625;
-                break;
-                
-            case WESTNORTHWEST:
                 theta = -Math.PI*0.375;
                 break;
                 
-            case WESTSOUTHWEST:
+            case EASTSOUTHEAST:
                 theta = -Math.PI*0.625;
+                break;
+                
+            case WESTNORTHWEST:
+                theta = Math.PI*0.375;
+                break;
+                
+            case WESTSOUTHWEST:
+                theta = Math.PI*0.625;
                 break;
         }
         
