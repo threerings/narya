@@ -1,5 +1,5 @@
 //
-// $Id: SimulatorApp.java,v 1.5 2002/02/09 20:47:11 mdb Exp $
+// $Id: SimulatorApp.java,v 1.6 2002/04/03 21:53:17 shaper Exp $
 
 package com.threerings.micasa.simulator.client;
 
@@ -101,9 +101,13 @@ public class SimulatorApp
             username =
                 "bob" + ((int)(Math.random() * Integer.MAX_VALUE) % 500);
         }
+        String password = System.getProperty("password");
+        if (password == null) {
+            password = "test";
+        }
 
         // create and set our credentials
-        Credentials creds = new UsernamePasswordCreds(username, "test");
+        Credentials creds = new UsernamePasswordCreds(username, password);
         client.setCredentials(creds);
         client.logon();
     }
