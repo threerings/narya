@@ -1,5 +1,5 @@
 //
-// $Id: SpotService.java,v 1.14 2003/03/26 02:06:06 mdb Exp $
+// $Id: SpotService.java,v 1.15 2003/03/27 00:10:08 mdb Exp $
 
 package com.threerings.whirled.spot.client;
 
@@ -42,9 +42,10 @@ public interface SpotService extends InvocationService
      * Requests that this client start or join the specified cluster. They
      * will be relocated appropriately by the scene manager.
      *
-     * @param friendOid the bodyOid of another user; the calling user will
-     * be made to join the target user's cluster, or create a cluster with
-     * the target user if they are not already in one.
+     * @param friendOid the bodyOid of another user or the oid of an
+     * existing cluster; the calling user will be made to join the cluster
+     * or target user's cluster, or create a cluster with the target user
+     * if they are not already in one.
      */
     public void joinCluster (Client client, int friendOid,
                              ConfirmListener listener);

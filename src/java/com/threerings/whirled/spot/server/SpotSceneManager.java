@@ -1,5 +1,5 @@
 //
-// $Id: SpotSceneManager.java,v 1.33 2003/03/26 22:34:24 mdb Exp $
+// $Id: SpotSceneManager.java,v 1.34 2003/03/27 00:10:08 mdb Exp $
 
 package com.threerings.whirled.spot.server;
 
@@ -230,42 +230,44 @@ public class SpotSceneManager extends SceneManager
      * user to join a particular cluster.
      *
      * @param joiner the body to be moved.
-     * @param friendOid the bodyOid of another user; the moving user will
-     * be made to join the other user's cluster.
+     * @param targetOid the bodyOid of another user or the oid of an
+     * existing cluster; the moving user will be made to join the other
+     * user's cluster.
      *
      * @exception InvocationException thrown with a reason code explaining
      * the failure if there is a problem processing the request.
      */
-    protected void handleJoinCluster (BodyObject joiner, int friendOid)
+    protected void handleJoinCluster (BodyObject joiner, int targetOid)
         throws InvocationException
     {
-        ClusterRecord clrec = (ClusterRecord)_clusters.get(friendOid);
+        // if the cluster already exists, add this user and be done
+        ClusterRecord clrec = (ClusterRecord)_clusters.get(targetOid);
         if (clrec != null) {
-            // if the cluster already exists, add this user and be done
-            if (clrec.addBody(joiner)) {
-                _clusters.put(joiner.getOid(), clrec);
-            }
+            clrec.addBody(joiner);
             return;
         }
 
-        // otherwise we have to create a new cluster and add our two
-        // charter members!
-        clrec = new ClusterRecord();
-        BodyObject member = (BodyObject)CrowdServer.omgr.getObject(friendOid);
-        if (member == null) {
-            Log.warning("Can't create cluster, missing target " +
+        // otherwise see if they sent us the user's oid
+        DObject tobj = CrowdServer.omgr.getObject(targetOid);
+        if (!(tobj instanceof BodyObject)) {
+            Log.warning("Can't join cluster, missing target " +
                         "[creator=" + joiner.who() +
-                        ", friendOid=" + friendOid + "].");
+                        ", targetOid=" + targetOid + "].");
+            throw new InvocationException(NO_SUCH_CLUSTER);
+        }
+
+        // see if the friend is already in a cluster
+        BodyObject friend = (BodyObject)tobj;
+        clrec = getCluster(friend.getOid());
+        if (clrec != null) {
+            clrec.addBody(joiner);
             return;
         }
 
-        // add our two lovely users to the newly created cluster
-        if (clrec.addBody(member)) {
-            _clusters.put(member.getOid(), clrec);
-        }
-        if (clrec.addBody(joiner)) {
-            _clusters.put(joiner.getOid(), clrec);
-        }
+        // otherwise we create a new cluster and add our charter members!
+        clrec = new ClusterRecord();
+        clrec.addBody(friend);
+        clrec.addBody(joiner);
     }
 
     /**
@@ -273,10 +275,21 @@ public class SpotSceneManager extends SceneManager
      */
     protected void removeFromCluster (int bodyOid)
     {
-        ClusterRecord clrec = (ClusterRecord)_clusters.remove(bodyOid);
+        ClusterRecord clrec = getCluster(bodyOid);
         if (clrec != null) {
             clrec.removeBody(bodyOid);
         }
+    }
+
+    /**
+     * Fetches the cluster record for the specified body.
+     */
+    protected ClusterRecord getCluster (int bodyOid)
+    {
+        ClusteredBodyObject bobj = (ClusteredBodyObject)
+            CrowdServer.omgr.getObject(bodyOid);
+        return (bobj == null) ? null : 
+            (ClusterRecord)_clusters.get(bobj.getClusterOid());
     }
 
     /**
@@ -286,7 +299,7 @@ public class SpotSceneManager extends SceneManager
     protected void handleClusterSpeakRequest (
         int sourceOid, String source, String bundle, String message, byte mode)
     {
-        ClusterRecord clrec = (ClusterRecord)_clusters.get(sourceOid);
+        ClusterRecord clrec = getCluster(sourceOid);
         if (clrec == null) {
             Log.warning("Non-clustered user requested cluster speak " +
                         "[where=" + where() + ", chatter=" + source +
@@ -304,34 +317,6 @@ public class SpotSceneManager extends SceneManager
     protected SceneLocation locationForBody (int bodyOid)
     {
         return (SceneLocation)_ssobj.occupantLocs.get(new Integer(bodyOid));
-    }
-
-    /**
-     * Converts the x and y coordinates in the supplied location object to
-     * Cartesian coordinates that can be manipulated geometrically. The
-     * default implementation assumes the location coordinates are
-     * Cartesian, but systems that use different coordinate systems will
-     * want to override this method and perform the appropriate
-     * conversions.
-     */
-    protected void locationToCoords (int lx, int ly, Point coords)
-    {
-        coords.x = lx;
-        coords.y = ly;
-    }
-
-    /**
-     * Converts the supplied x and y coordinates (obtained from a prior
-     * call to {@link #locationToCoords}) to location coordinates that can
-     * be sent back to the client. The default implementation assumes the
-     * location coordinates are Cartesian, but systems that use different
-     * coordinate systems will want to override this method and perform
-     * the appropriate conversions.
-     */
-    protected void coordsToLocation (int cx, int cy, Point loc)
-    {
-        loc.x = cx;
-        loc.y = cy;
     }
 
     /**
@@ -463,6 +448,7 @@ public class SpotSceneManager extends SceneManager
         {
             // keep this feller around
             _clobj = (ClusterObject)object;
+            _clusters.put(_clobj.getOid(), this);
 
             // let any mapped users know about our cluster
             Iterator iter = values().iterator();
@@ -506,6 +492,7 @@ public class SpotSceneManager extends SceneManager
             Log.info("Cluster empty, going away " +
                      "[cloid=" + _clobj.getOid() + "].");
             _ssobj.removeFromClusters(_cluster.getKey());
+            _clusters.remove(_clobj.getOid());
             CrowdServer.omgr.destroyObject(_clobj.getOid());
         }
 
