@@ -1,5 +1,5 @@
 //
-// $Id: AnimatedPanel.java,v 1.11 2002/02/19 03:57:30 mdb Exp $
+// $Id: AnimatedPanel.java,v 1.12 2002/02/19 04:45:13 mdb Exp $
 
 package com.threerings.media.animation;
 
@@ -242,13 +242,13 @@ public class AnimatedPanel extends Canvas implements AnimatedView
                         invalidRects.add(
                             new Rectangle(width - dx, 0, dx, height));
                     } else if (dx < 0) {
-                        invalidRects.add(new Rectangle(0, 0, dx, height));
+                        invalidRects.add(new Rectangle(0, 0, -dx, height));
                     }
                     if (dy > 0) {
                         invalidRects.add(
                             new Rectangle(0, height - dy, width, dy));
                     } else if (dy < 0) {
-                        invalidRects.add(new Rectangle(0, 0, width, dy));
+                        invalidRects.add(new Rectangle(0, 0, width, -dy));
                     }
                 }
 

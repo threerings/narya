@@ -1,5 +1,5 @@
 //
-// $Id: IsoSceneView.java,v 1.98 2002/02/19 01:26:17 mdb Exp $
+// $Id: IsoSceneView.java,v 1.99 2002/02/19 04:45:14 mdb Exp $
 
 package com.threerings.miso.scene;
 
@@ -165,7 +165,7 @@ public class IsoSceneView implements SceneView
                               _model.bounds.y, dx, _model.bounds.height));
         } else if (dx < 0) {
             invalidateRect(new Rectangle(_model.bounds.x, _model.bounds.y,
-                                         dx, _model.bounds.height));
+                                         -dx, _model.bounds.height));
         }
 
         if (dy > 0) {
@@ -174,7 +174,7 @@ public class IsoSceneView implements SceneView
                                          _model.bounds.width, dy));
         } else if (dy < 0) {
             invalidateRect(new Rectangle(_model.bounds.x, _model.bounds.y,
-                                         _model.bounds.width, dy));
+                                         _model.bounds.width, -dy));
         }
     }
 
