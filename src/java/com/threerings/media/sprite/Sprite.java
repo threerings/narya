@@ -1,5 +1,5 @@
 //
-// $Id: Sprite.java,v 1.27 2001/10/23 01:59:50 shaper Exp $
+// $Id: Sprite.java,v 1.28 2001/10/25 01:39:38 shaper Exp $
 
 package com.threerings.media.sprite;
 
@@ -94,7 +94,7 @@ public class Sprite
      */
     public int getWidth ()
     {
-	return _rbounds.width;
+	return _bounds.width;
     }
 
     /**
@@ -102,7 +102,7 @@ public class Sprite
      */
     public int getHeight ()
     {
-	return _rbounds.height;
+	return _bounds.height;
     }
 
     /**
@@ -110,7 +110,7 @@ public class Sprite
      */
     public Rectangle getBounds ()
     {
-	return _rbounds;
+	return _bounds;
     }
 
     /**
@@ -121,16 +121,18 @@ public class Sprite
      */
     public void setLocation (int x, int y)
     {
-        // invalidate our current position
-        invalidate();
+        // create a starting dirty rectangle with our current position
+        Rectangle dirty = new Rectangle(_bounds);
         // move ourselves
         _x = x;
         _y = y;
         // we need to update our draw position which is based on the size
         // of our current frame
         updateRenderOrigin();
-        // invalidate our new position
-        invalidate();
+        // grow the dirty rectangle to reflect our new location
+        dirty.add(_bounds);
+        // and invalidate the whole shebang
+        invalidate(dirty);
     }
 
     /**
@@ -192,7 +194,7 @@ public class Sprite
      */
     public void paint (Graphics2D gfx)
     {
-        gfx.drawImage(_frame, _rbounds.x, _rbounds.y, null);
+        gfx.drawImage(_frame, _bounds.x, _bounds.y, null);
     }
 
     /**
@@ -222,7 +224,7 @@ public class Sprite
      */
     public boolean intersects (Shape shape)
     {
-        return shape.intersects(_rbounds);
+        return shape.intersects(_bounds);
     }
 
     /**
@@ -274,12 +276,12 @@ public class Sprite
 
         // determine our drawing offsets and rendered rectangle size
         if (_frame == null) {
-            _rbounds.width = 0;
-            _rbounds.height = 0;
+            _bounds.width = 0;
+            _bounds.height = 0;
 
         } else {
-            _rbounds.width = _frame.getWidth(null);
-            _rbounds.height = _frame.getHeight(null);
+            _bounds.width = _frame.getWidth(null);
+            _bounds.height = _frame.getHeight(null);
         }
 
         updateRenderOffset();
@@ -338,25 +340,28 @@ public class Sprite
     }
 
     /**
-     * Returns the bounds that will be drawn upon when this sprite is
-     * rendered.
+     * Invalidate the sprite's bounding rectangle for later repainting.
      */
-    public Rectangle getRenderedBounds ()
+    public void invalidate ()
     {
-        return _rbounds;
+        invalidate(null);
     }
 
     /**
-     * Invalidate the sprite's display rectangle for later repainting.
+     * Invalidate the given display rectangle for later repainting.
+     * Passing <code>null</code> will simply invalidate the sprite's
+     * entire rendered bounds.  Note that the given rectangle may be
+     * destructively modified at some later time, e.g., by {@link
+     * SpriteManager#getDirtyRects}.
      */
-    public void invalidate ()
+    protected void invalidate (Rectangle r)
     {
         if (_frame == null) {
             return;
         }
 
         if (_spritemgr != null) {
-            _spritemgr.addDirtyRect(getRenderedBounds());
+            _spritemgr.addDirtyRect((r != null) ? r : new Rectangle(_bounds));
 
         } else {
             Log.warning("Was invalidated but have no sprite manager " +
@@ -427,8 +432,8 @@ public class Sprite
     protected void updateRenderOrigin ()
     {
         // our render origin may differ from our location
-        _rbounds.x = _x + _rxoff;
-        _rbounds.y = _y + _ryoff;
+        _bounds.x = _x + _rxoff;
+        _bounds.y = _y + _ryoff;
     }
 
     /**
@@ -511,7 +516,7 @@ public class Sprite
     protected int _rxoff, _ryoff;
 
     /** Our rendered bounds in pixel coordinates. */
-    protected Rectangle _rbounds = new Rectangle();
+    protected Rectangle _bounds = new Rectangle();
 
     /** What type of animation is desired for this sprite. */
     protected int _animMode;
