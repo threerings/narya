@@ -1,5 +1,5 @@
 //
-// $Id: IsoSceneView.java,v 1.70 2001/10/26 01:17:21 shaper Exp $
+// $Id: IsoSceneView.java,v 1.71 2001/10/27 01:37:37 shaper Exp $
 
 package com.threerings.miso.scene;
 
@@ -216,7 +216,7 @@ public class IsoSceneView implements SceneView
 
                     // draw both layers at this tile position
                     for (int kk = MisoScene.LAYER_BASE;
-                         kk < MisoScene.LAYER_FRINGE; kk++) {
+                         kk <= MisoScene.LAYER_FRINGE; kk++) {
 
                         // get the tile at these coordinates and layer
                         Tile tile = tiles[kk][xx][yy];
