@@ -1,5 +1,5 @@
 //
-// $Id: PresentsDObjectMgr.java,v 1.8 2001/07/19 19:30:14 mdb Exp $
+// $Id: PresentsDObjectMgr.java,v 1.9 2001/07/23 21:12:55 mdb Exp $
 
 package com.threerings.cocktail.cher.server;
 
@@ -117,26 +117,21 @@ public class CherDObjectMgr implements DObjectManager
 
             try {
                 // everything's good so far, apply the event to the object
-                if (!event.applyToObject(target)) {
-                    // if the event returns false from applyToObject, this
-                    // means it's a silent event and we shouldn't notify
-                    // the subscribers
-                    continue;
+                boolean notify = event.applyToObject(target);
+
+                // do any internal management necessary based on this
+                // event
+                // **TBD**
+
+                // if the event returns false from applyToObject, this
+                // means it's a silent event and we shouldn't notify the
+                // subscribers
+                if (notify) {
+                    target.notifySubscribers(event);
                 }
 
             } catch (Exception e) {
-                Log.warning("Failure applying event [event=" + event +
-                            ", target=" + target + ", error=" + e + "].");
-                Log.logStackTrace(e);
-                continue;
-            }
-
-            try {
-                // and notify the object's subscribers
-                target.notifySubscribers(event);
-
-            } catch (Exception e) {
-                Log.warning("Failure dispatching event [event=" + event +
+                Log.warning("Failure processing event [event=" + event +
                             ", target=" + target + "].");
                 Log.logStackTrace(e);
             }
