@@ -1,5 +1,5 @@
 //
-// $Id: SpriteIcon.java,v 1.3 2002/09/13 04:50:31 mdb Exp $
+// $Id: SpriteIcon.java,v 1.4 2002/11/05 03:40:06 mdb Exp $
 
 package com.threerings.media.sprite;
 
@@ -46,24 +46,13 @@ public class SpriteIcon implements Icon
         _padding = padding;
     }
 
-    /**
-     * Origin offsets to use when rendering the icon (useful for tweaking
-     * when trying to get sprites that weren't designed to be stuffed into
-     * labels to behave appropriately).
-     */
-    public void setOriginOffset (int offx, int offy)
-    {
-        _offx = offx;
-        _offy = offy;
-    }
-
     // documentation inherited from interface
     public void paintIcon (Component c, Graphics g, int x, int y)
     {
-        // move the sprite to a "location" that is in the bottom center of
-        // our bounds (plus whatever offsets we have)
-        _sprite.setLocation(x + _sprite.getWidth()/2 + _offx + _padding,
-                            y + _sprite.getHeight() + _offy + _padding);
+        // move the sprite to a "location" that results in its image being
+        // in the upper left of the rectangle we desire
+        _sprite.setLocation(x + _sprite.getXOffset() + _padding,
+                            y + _sprite.getYOffset() + _padding);
         _sprite.paint((Graphics2D)g);
     }
     
@@ -84,7 +73,4 @@ public class SpriteIcon implements Icon
 
     /** Used to put a bit of padding around the sprite image. */
     protected int _padding;
-
-    /** Origin offsets to use when rendering the icon. */
-    protected int _offx, _offy;
 }
