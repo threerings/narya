@@ -1,5 +1,5 @@
 //
-// $Id: Card.java,v 1.3 2004/10/15 00:14:23 andrzej Exp $
+// $Id: Card.java,v 1.4 2004/10/15 03:09:46 andrzej Exp $
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -125,8 +125,7 @@ public class Card implements CardCodes,
     // Documentation inherited.
     public Comparable getKey ()
     {
-        if(_key == null)
-        {
+        if(_key == null) {
             _key = new Byte(_value);
         }
         
@@ -151,12 +150,10 @@ public class Card implements CardCodes,
      */
     public boolean equals (Object other)
     {
-        if(other instanceof Card)
-        {
+        if(other instanceof Card) {
             return _value == ((Card)other)._value;
         }
-        else
-        {
+        else {
             return false;
         }
     }
@@ -170,22 +167,17 @@ public class Card implements CardCodes,
     {
         int number = getNumber();
         
-        if(number == JOKER)
-        {
+        if(number == JOKER) {
             return "Jk";
         }
-        else
-        {
+        else {
             StringBuffer sb = new StringBuffer();
             
-            if(number >= 2 && number <= 9)
-            {
+            if(number >= 2 && number <= 9) {
                 sb.append(Integer.toString(number));
             }
-            else
-            {
-                switch(number)
-                {
+            else {
+                switch(number) {
                     case 10: sb.append('T'); break;
                     case JACK: sb.append('J'); break;
                     case QUEEN: sb.append('Q'); break;
@@ -195,8 +187,7 @@ public class Card implements CardCodes,
                 }
             }
             
-            switch(getSuit())
-            {
+            switch(getSuit()) {
                 case HEARTS: sb.append('h'); break;
                 case DIAMONDS: sb.append('d'); break;
                 case CLUBS: sb.append('c'); break;

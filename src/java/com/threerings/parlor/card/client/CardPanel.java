@@ -1,5 +1,5 @@
 //
-// $Id: CardPanel.java,v 1.2 2004/10/15 00:14:23 andrzej Exp $
+// $Id: CardPanel.java,v 1.3 2004/10/15 03:09:46 andrzej Exp $
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -52,9 +52,6 @@ public abstract class CardPanel extends VirtualMediaPanel
     /** Calls CardSpriteObserver.cardSpriteClicked. */ 
     protected static class CardSpriteClickedOp implements ObserverList.ObserverOp
     {
-        protected CardSprite _sprite;
-        protected MouseEvent _me;
-        
         public CardSpriteClickedOp (CardSprite sprite, MouseEvent me)
         {
             _sprite = sprite;
@@ -66,14 +63,14 @@ public abstract class CardPanel extends VirtualMediaPanel
             ((CardSpriteObserver)observer).cardSpriteClicked(_sprite, _me);
             return true;
         }
+        
+        protected CardSprite _sprite;
+        protected MouseEvent _me;
     }
     
     /** Calls CardSpriteObserver.cardSpriteDragged. */
     protected static class CardSpriteDraggedOp implements ObserverList.ObserverOp
     {
-        protected CardSprite _sprite;
-        protected MouseEvent _me;
-        
         public CardSpriteDraggedOp (CardSprite sprite, MouseEvent me)
         {
             _sprite = sprite;
@@ -85,6 +82,9 @@ public abstract class CardPanel extends VirtualMediaPanel
             ((CardSpriteObserver)observer).cardSpriteDragged(_sprite, _me);
             return true;
         }
+        
+        protected CardSprite _sprite;
+        protected MouseEvent _me;
     }
     
     
@@ -97,93 +97,77 @@ public abstract class CardPanel extends VirtualMediaPanel
     {
         super(frameManager);
         
-        addMouseListener(
-            new MouseAdapter()
-            {
-                public void mousePressed (MouseEvent me)
-                {
-                    ArrayList al = new ArrayList();
+        MouseAdapter ma = new MouseAdapter() {
+            public void mousePressed (MouseEvent me) {
+                ArrayList al = new ArrayList();
                     
-                    _spritemgr.getHitSprites(al, me.getX(), me.getY());
+                _spritemgr.getHitSprites(al, me.getX(), me.getY());
                     
-                    if(al.size() > 0)
-                    {
-                        Iterator it = al.iterator();
-                        int highestLayer = Integer.MIN_VALUE;
-                        CardSprite highestSprite = null;
+                if(al.size() > 0) {
+                    Iterator it = al.iterator();
+                    int highestLayer = Integer.MIN_VALUE;
+                    CardSprite highestSprite = null;
                         
-                        while(it.hasNext())
-                        {
-                            Sprite sprite = (Sprite)it.next();
+                    while(it.hasNext()) {
+                        Sprite sprite = (Sprite)it.next();
                             
-                            if(sprite instanceof CardSprite)
-                            {
-                                CardSprite cs = (CardSprite)sprite;
+                        if(sprite instanceof CardSprite) {
+                            CardSprite cs = (CardSprite)sprite;
                                 
-                                if(cs.getRenderOrder() > highestLayer)
-                                {
-                                    highestLayer = cs.getRenderOrder();
-                                    highestSprite = cs;
-                                }
+                            if(cs.getRenderOrder() > highestLayer) {
+                                highestLayer = cs.getRenderOrder();
+                                highestSprite = cs;
                             }
                         }
+                    }
                         
-                        _activeCardSprite = highestSprite;
-                        
-                        if(_activeCardSprite != null)
-                        {
-                            _handleX = _activeCardSprite.getX() - me.getX();
-                            _handleY = _activeCardSprite.getY() - me.getY();
+                    _activeCardSprite = highestSprite;
+                       
+                    if(_activeCardSprite != null) {
+                        _handleX = _activeCardSprite.getX() - me.getX();
+                        _handleY = _activeCardSprite.getY() - me.getY();
                             
-                            _hasBeenDragged = false;
-                        }
-                    }
-                    else
-                    {
-                        _activeCardSprite = null;
+                        _hasBeenDragged = false;
                     }
                 }
-                
-                public void mouseReleased (MouseEvent me)
-                {
-                    if(_activeCardSprite != null && _hasBeenDragged)
-                    {
-                        _activeCardSprite.queueNotification(
-                            new CardSpriteDraggedOp(_activeCardSprite, me)
-                        );
-                    }
+                else {
+                    _activeCardSprite = null;
                 }
-                
-                public void mouseClicked (MouseEvent me)
-                {
-                    if(_activeCardSprite != null)
-                    {
-                        _activeCardSprite.queueNotification(
-                            new CardSpriteClickedOp(_activeCardSprite, me)
-                        );
-                    }
+            }  
+            public void mouseReleased (MouseEvent me) {
+                if(_activeCardSprite != null && _hasBeenDragged) {
+                    _activeCardSprite.queueNotification(
+                        new CardSpriteDraggedOp(_activeCardSprite, me)
+                    );
                 }
             }
-        );
+            public void mouseClicked (MouseEvent me) {
+                if(_activeCardSprite != null) {
+                    _activeCardSprite.queueNotification(
+                        new CardSpriteClickedOp(_activeCardSprite, me)
+                    );
+                }
+            }
+        };
+            
+        addMouseListener(ma);
         
-        addMouseMotionListener(
-            new MouseMotionAdapter()
+        MouseMotionAdapter mma = new MouseMotionAdapter() {
+            public void mouseDragged (MouseEvent me)
             {
-                public void mouseDragged (MouseEvent me)
-                {
-                    if(_activeCardSprite != null &&
-                       _activeCardSprite.isDraggable())
-                    {
-                        _activeCardSprite.setLocation(
-                            me.getX() + _handleX,
-                            me.getY() + _handleY
-                        );
+                if(_activeCardSprite != null &&
+                   _activeCardSprite.isDraggable()) {
+                    _activeCardSprite.setLocation(
+                        me.getX() + _handleX,
+                        me.getY() + _handleY
+                    );
                         
-                        _hasBeenDragged = true;
-                    }
+                    _hasBeenDragged = true;
                 }
             }
-        );
+        };
+        
+        addMouseMotionListener(mma);
     }
     
     /**

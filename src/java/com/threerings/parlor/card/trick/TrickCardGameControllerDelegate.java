@@ -1,5 +1,5 @@
 //
-// $Id: TrickCardGameControllerDelegate.java,v 1.2 2004/10/15 00:14:23 andrzej Exp $
+// $Id: TrickCardGameControllerDelegate.java,v 1.3 2004/10/15 03:09:46 andrzej Exp $
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -50,12 +50,10 @@ public class TrickCardGameControllerDelegate extends TurnGameControllerDelegate
         
         TrickCardGameObject tcgObj = (TrickCardGameObject)_gameObj;
         
-        if(ace.getName().equals(tcgObj.getPlayingHandFieldName()))
-        {
+        if(ace.getName().equals(tcgObj.getPlayingHandFieldName())) {
             _tcgctrl.playingHandDidChange(tcgObj.getPlayingHand());
         }
-        else if(ace.getName().equals(tcgObj.getPlayingTrickFieldName()))
-        {
+        else if(ace.getName().equals(tcgObj.getPlayingTrickFieldName())) {
             _tcgctrl.playingTrickDidChange(tcgObj.getPlayingTrick());
         }
     }

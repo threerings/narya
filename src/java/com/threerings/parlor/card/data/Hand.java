@@ -1,5 +1,5 @@
 //
-// $Id: Hand.java,v 1.2 2004/10/15 00:14:23 andrzej Exp $
+// $Id: Hand.java,v 1.3 2004/10/15 03:09:46 andrzej Exp $
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -57,10 +57,8 @@ public class Hand implements CardCodes,
         
         Iterator it = cards.iterator();
         
-        while(it.hasNext())
-        {
-            if(((Card)it.next()).getSuit() == suit)
-            {
+        while(it.hasNext()) {
+            if(((Card)it.next()).getSuit() == suit) {
                 members++;   
             }
         }

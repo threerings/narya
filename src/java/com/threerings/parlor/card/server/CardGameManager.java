@@ -1,5 +1,5 @@
 //
-// $Id: CardGameManager.java,v 1.3 2004/10/15 00:14:23 andrzej Exp $
+// $Id: CardGameManager.java,v 1.4 2004/10/15 03:09:46 andrzej Exp $
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -50,12 +50,10 @@ public class CardGameManager extends GameManager
      */
     public Hand dealHand (Deck deck, int size, int playerIndex)
     {
-        if(deck.cards.size() < size)
-        {
+        if(deck.cards.size() < size) {
             return null;
         }
-        else
-        {
+        else {
             Hand hand = deck.dealHand(size);
             
             _omgr.postEvent(
@@ -82,16 +80,13 @@ public class CardGameManager extends GameManager
      */
     public Hand[] dealHands (Deck deck, int size)
     {
-        if(deck.cards.size() < size * _playerCount)
-        {
+        if(deck.cards.size() < size * _playerCount) {
             return null;
         }
-        else
-        {
+        else {
             Hand[] hands = new Hand[_playerCount];
             
-            for(int i=0;i<_playerCount;i++)
-            {
+            for(int i=0;i<_playerCount;i++) {
                 hands[i] = dealHand(deck, size, i);   
             }
             
