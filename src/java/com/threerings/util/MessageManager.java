@@ -1,5 +1,5 @@
 //
-// $Id: MessageManager.java,v 1.5 2002/11/01 00:01:37 mdb Exp $
+// $Id: MessageManager.java,v 1.6 2002/12/12 22:24:51 mdb Exp $
 
 package com.threerings.util;
 
@@ -130,7 +130,7 @@ public class MessageManager
         // initialize our message bundle, cache it and return it (if we
         // couldn't resolve the bundle, the message bundle will cope with
         // it's null resource bundle)
-        bundle.init(path, rbundle, _global);
+        bundle.init(this, path, rbundle, _global);
         _cache.put(path, bundle);
         return bundle;
     }

@@ -1,5 +1,5 @@
 //
-// $Id: MessageBundle.java,v 1.16 2002/11/12 08:18:03 mdb Exp $
+// $Id: MessageBundle.java,v 1.17 2002/12/12 22:24:51 mdb Exp $
 
 package com.threerings.util;
 
@@ -23,8 +23,10 @@ public class MessageBundle
      * from the supplied resource bundle. The path is provided purely for
      * reporting purposes.
      */
-    public void init (String path, ResourceBundle bundle, MessageBundle parent)
+    public void init (MessageManager msgmgr, String path,
+                      ResourceBundle bundle, MessageBundle parent)
     {
+        _msgmgr = msgmgr;
         _path = path;
         _bundle = bundle;
         _parent = parent;
@@ -148,6 +150,13 @@ public class MessageBundle
      */
     public String get (String key, Object[] args)
     {
+        // if this is a qualfied key, we need to pass the buck to the
+        // appropriate message bundle
+        if (key.startsWith(QUAL_PREFIX)) {
+            MessageBundle qbundle = _msgmgr.getBundle(getBundle(key));
+            return qbundle.get(getUnqualifiedKey(key), args);
+        }
+
         String msg = getResourceString(key);
         return (msg != null) ? MessageFormat.format(msg, args)
                              : (key + StringUtil.toString(args));
@@ -167,6 +176,15 @@ public class MessageBundle
      */
     public String xlate (String compoundKey)
     {
+        // if this is a qualfied key, we need to pass the buck to the
+        // appropriate message bundle; we have to do it here because we
+        // want the compound arguments of this key to be translated in the
+        // context of the containing message bundle qualification
+        if (compoundKey.startsWith(QUAL_PREFIX)) {
+            MessageBundle qbundle = _msgmgr.getBundle(getBundle(compoundKey));
+            return qbundle.xlate(getUnqualifiedKey(compoundKey));
+        }
+
         // to be more efficient about creating unnecessary objects, we
         // do some checking before splitting
         int tidx = compoundKey.indexOf('|');
@@ -335,6 +353,72 @@ public class MessageBundle
         return compose(key, targs);
     }
 
+    /**
+     * Returns a fully qualified message key which, when translated by
+     * some other bundle, will know to resolve and utilize the supplied
+     * bundle to translate this particular key.
+     */
+    public static String qualify (String bundle, String key)
+    {
+        // sanity check
+        if (bundle.indexOf(QUAL_PREFIX) != -1 ||
+            bundle.indexOf(QUAL_SEP) != -1 ||
+            key.indexOf(QUAL_PREFIX) != -1) {
+            String errmsg = "Message bundle may not contain '" + QUAL_PREFIX +
+                "' or '" + QUAL_SEP + "' and message key may not contain '" +
+                QUAL_PREFIX + "' [bundle=" + bundle + ", key=" + key + "]";
+            throw new IllegalArgumentException(errmsg);
+        }
+        return QUAL_PREFIX + bundle + QUAL_SEP + key;
+    }
+
+    /**
+     * Returns the bundle name from a fully qualified message key.
+     *
+     * @see #qualify
+     */
+    public static String getBundle (String qualifiedKey)
+    {
+        if (!qualifiedKey.startsWith(QUAL_PREFIX)) {
+            throw new IllegalArgumentException(
+                qualifiedKey + " is not a fully qualified message key.");
+        }
+
+        int qsidx = qualifiedKey.indexOf(QUAL_SEP);
+        if (qsidx == -1) {
+            throw new IllegalArgumentException(
+                qualifiedKey + " is not a valid fully qualified key.");
+        }
+
+        return qualifiedKey.substring(QUAL_PREFIX.length(), qsidx);
+    }
+
+    /**
+     * Returns the unqualified portion of the key from a fully qualified
+     * message key.
+     *
+     * @see #qualify
+     */
+    public static String getUnqualifiedKey (String qualifiedKey)
+    {
+        if (!qualifiedKey.startsWith(QUAL_PREFIX)) {
+            throw new IllegalArgumentException(
+                qualifiedKey + " is not a fully qualified message key.");
+        }
+
+        int qsidx = qualifiedKey.indexOf(QUAL_SEP);
+        if (qsidx == -1) {
+            throw new IllegalArgumentException(
+                qualifiedKey + " is not a valid fully qualified key.");
+        }
+
+        return qualifiedKey.substring(qsidx+1);
+    }
+
+    /** The message manager via whom we'll resolve fully qualified
+     * translation strings. */
+    protected MessageManager _msgmgr;
+
     /** The path that identifies the resource bundle we are using to
      * obtain our messages. */
     protected String _path;
@@ -349,4 +433,11 @@ public class MessageBundle
      * doing recursive translations and won't be translated. */
     protected static final String TAINT_CHAR = "~";
     // protected static final String TAINT_CHAR = '~';
+
+    /** Used to mark fully qualified message keys. */
+    protected static final String QUAL_PREFIX = "%";
+
+    /** Used to separate the bundle qualifier from the message key in a
+     * fully qualified message key. */
+    protected static final String QUAL_SEP = ":";
 }
