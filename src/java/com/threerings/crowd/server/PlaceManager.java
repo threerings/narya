@@ -1,5 +1,5 @@
 //
-// $Id: PlaceManager.java,v 1.46 2003/08/15 18:40:48 mdb Exp $
+// $Id: PlaceManager.java,v 1.47 2003/08/20 01:54:57 mdb Exp $
 
 package com.threerings.crowd.server;
 
@@ -440,7 +440,7 @@ public class PlaceManager
             }
         });
 
-        Log.info("Place became empty " + where() + ".");
+//         Log.info("Place became empty " + where() + ".");
 
         // queue up a shutdown interval
         long idlePeriod = idleUnloadPeriod();
