@@ -1,9 +1,9 @@
 //
-// $Id: BoardSummary.java,v 1.1 2003/11/26 01:42:34 mdb Exp $
+// $Id: BoardSummary.java,v 1.2 2004/08/23 21:10:01 mdb Exp $
 
 package com.threerings.puzzle.data;
 
-import com.threerings.io.SimpleStreamableObject;
+import com.threerings.io.TrackedStreamableObject;
 
 /**
  * Provides summarized data representing a player's board in a puzzle
@@ -16,7 +16,7 @@ import com.threerings.io.SimpleStreamableObject;
  * <p> Note all non-transient members of this and derived classes will
  * automatically be serialized when the summary is sent over the wire.
  */
-public abstract class BoardSummary extends SimpleStreamableObject
+public abstract class BoardSummary extends TrackedStreamableObject
 {
     /**
      * Constructs an empty board summary for use when un-serializing.
