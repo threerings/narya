@@ -1,0 +1,38 @@
+Cher Mk3 Design -*- outline -*-
+
+* Why Cher?
+The basic function of this layer is to allow the sharing (Cher-ing) of
+information among different nodes in the network. Plus, I don't think Cher
+has ever had a software system named after her and it's high time. Imagine
+Cher as the social lubricant that allows the party goers to communicate.
+
+* Client components
+
+** DObjectManager
+Manages object proxies; converts value change requests into events,
+forwards them via the iomgr; dispatches events on incoming queue; reaps
+proxies when last subscriber goes away
+
+** UI (AWT/Swing)
+Standard AWT/Swing UI
+
+** UI (Controller)?
+Provides a paradigm of controllers and commands; code can post commands
+back to the controller queue for later execution; UI elements structured
+to automatically generate commands; will probably opt not to use this in
+favor of Swing's built-in paradigms
+
+** I/O Manager
+*** Reader
+Reads incoming data from the socket; decodes messages; posts events to
+domgr queue; notifies object subscription penders (this should be done
+asychronously)
+
+*** Writer
+Encodes object subscription and event forwarding requests; writes them to
+the outgoing socket
+
+** Client object
+Informs exo-client about connection state changes; provides interface to
+connection + authentication (logon) and disconnection (logoff); provides
+access to omgr and client dobj
