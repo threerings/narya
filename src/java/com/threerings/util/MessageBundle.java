@@ -1,5 +1,5 @@
 //
-// $Id: MessageBundle.java,v 1.21 2003/11/05 23:10:43 mdb Exp $
+// $Id: MessageBundle.java,v 1.22 2003/12/11 06:34:43 mdb Exp $
 
 package com.threerings.util;
 
@@ -7,6 +7,7 @@ import java.text.MessageFormat;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 
+import com.samskivert.text.MessageUtil;
 import com.samskivert.util.StringUtil;
 
 /**
@@ -43,7 +44,7 @@ public class MessageBundle
     {
         // if this string is tainted, we don't translate it, instead we
         // simply remove the taint character and return it to the caller
-        if (key.startsWith(TAINT_CHAR)) {
+        if (key.startsWith(MessageUtil.TAINT_CHAR)) {
             return key.substring(1);
         }
 
@@ -127,7 +128,7 @@ public class MessageBundle
         }
         Object[] args = new Object[] { new Integer(value) };
         return (format == null) ? (key + StringUtil.toString(args)) :
-            MessageFormat.format(escape(format), args);
+            MessageFormat.format(MessageUtil.escape(format), args);
     }
 
     /**
@@ -189,14 +190,15 @@ public class MessageBundle
     {
         // if this is a qualified key, we need to pass the buck to the
         // appropriate message bundle
-        if (key.startsWith(QUAL_PREFIX)) {
+        if (key.startsWith(MessageUtil.QUAL_PREFIX)) {
             MessageBundle qbundle = _msgmgr.getBundle(getBundle(key));
             return qbundle.get(getUnqualifiedKey(key), args);
         }
 
         String msg = getResourceString(key);
-        return (msg != null) ? MessageFormat.format(escape(msg), args)
-                             : (key + StringUtil.toString(args));
+        return (msg != null) ?
+            MessageFormat.format(MessageUtil.escape(msg), args)
+            : (key + StringUtil.toString(args));
     }
 
     /**
@@ -217,7 +219,7 @@ public class MessageBundle
         // appropriate message bundle; we have to do it here because we
         // want the compound arguments of this key to be translated in the
         // context of the containing message bundle qualification
-        if (compoundKey.startsWith(QUAL_PREFIX)) {
+        if (compoundKey.startsWith(MessageUtil.QUAL_PREFIX)) {
             MessageBundle qbundle = _msgmgr.getBundle(getBundle(compoundKey));
             return qbundle.xlate(getUnqualifiedKey(compoundKey));
         }
@@ -236,10 +238,10 @@ public class MessageBundle
             for (int i = 0; i < args.length; i++) {
                 // if the argument is tainted, do no further translation
                 // (it might contain |s or other fun stuff)
-                if (args[i].startsWith(TAINT_CHAR)) {
-                    args[i] = unescape(args[i].substring(1));
+                if (args[i].startsWith(MessageUtil.TAINT_CHAR)) {
+                    args[i] = MessageUtil.unescape(args[i].substring(1));
                 } else {
-                    args[i] = xlate(unescape(args[i]));
+                    args[i] = xlate(MessageUtil.unescape(args[i]));
                 }
             }
             return get(key, args);
@@ -254,7 +256,7 @@ public class MessageBundle
      */
     public static String taint (String text)
     {
-        return TAINT_CHAR + text;
+        return MessageUtil.taint(text);
     }
 
     /**
@@ -263,56 +265,7 @@ public class MessageBundle
      */
     public static String compose (String key, String[] args)
     {
-        StringBuffer buf = new StringBuffer();
-        buf.append(key);
-        buf.append('|');
-        for (int i = 0; i < args.length; i++) {
-            if (i > 0) {
-                buf.append('|');
-            }
-            // escape the string while adding to the buffer
-            String arg = (args[i] == null) ? "" : args[i];
-            int alength = arg.length();
-            for (int p = 0; p < alength; p++) {
-                char ch = arg.charAt(p);
-                if (ch == '|') {
-                    buf.append("\\!");
-                } else if (ch == '\\') {
-                    buf.append("\\\\");
-                } else {
-                    buf.append(ch);
-                }
-            }
-        }
-        return buf.toString();
-    }
-
-    /**
-     * Unescapes characters that are escaped in a call to compose.
-     */
-    protected static String unescape (String value)
-    {
-        int bsidx = value.indexOf('\\');
-        if (bsidx == -1) {
-            return value;
-        }
-
-        StringBuffer buf = new StringBuffer();
-        int vlength = value.length();
-        for (int i = 0; i < vlength; i++) {
-            char ch = value.charAt(i);
-            if (ch != '\\') {
-                buf.append(ch);
-            } else if (i < vlength-1) {
-                // look at the next character
-                ch = value.charAt(++i);
-                buf.append((ch == '!') ? '|' : ch);
-            } else {
-                buf.append(ch);
-            }
-        }
-
-        return buf.toString();
+        return MessageUtil.compose(key, args);
     }
 
     /**
@@ -382,12 +335,7 @@ public class MessageBundle
      */
     public static String tcompose (String key, String[] args)
     {
-        int acount = args.length;
-        String[] targs = new String[acount];
-        for (int ii = 0; ii < acount; ii++) {
-            targs[ii] = taint(args[ii]);
-        }
-        return compose(key, targs);
+        return MessageUtil.tcompose(key, args);
     }
 
     /**
@@ -397,15 +345,7 @@ public class MessageBundle
      */
     public static String qualify (String bundle, String key)
     {
-        // sanity check
-        if (bundle.indexOf(QUAL_PREFIX) != -1 ||
-            bundle.indexOf(QUAL_SEP) != -1) {
-            String errmsg = "Message bundle may not contain '" + QUAL_PREFIX +
-                "' or '" + QUAL_SEP + "' [bundle=" + bundle +
-                ", key=" + key + "]";
-            throw new IllegalArgumentException(errmsg);
-        }
-        return QUAL_PREFIX + bundle + QUAL_SEP + key;
+        return MessageUtil.qualify(bundle, key);
     }
 
     /**
@@ -415,18 +355,7 @@ public class MessageBundle
      */
     public static String getBundle (String qualifiedKey)
     {
-        if (!qualifiedKey.startsWith(QUAL_PREFIX)) {
-            throw new IllegalArgumentException(
-                qualifiedKey + " is not a fully qualified message key.");
-        }
-
-        int qsidx = qualifiedKey.indexOf(QUAL_SEP);
-        if (qsidx == -1) {
-            throw new IllegalArgumentException(
-                qualifiedKey + " is not a valid fully qualified key.");
-        }
-
-        return qualifiedKey.substring(QUAL_PREFIX.length(), qsidx);
+        return MessageUtil.getBundle(qualifiedKey);
     }
 
     /**
@@ -437,31 +366,7 @@ public class MessageBundle
      */
     public static String getUnqualifiedKey (String qualifiedKey)
     {
-        if (!qualifiedKey.startsWith(QUAL_PREFIX)) {
-            throw new IllegalArgumentException(
-                qualifiedKey + " is not a fully qualified message key.");
-        }
-
-        int qsidx = qualifiedKey.indexOf(QUAL_SEP);
-        if (qsidx == -1) {
-            throw new IllegalArgumentException(
-                qualifiedKey + " is not a valid fully qualified key.");
-        }
-
-        return qualifiedKey.substring(qsidx+1);
-    }
-
-    /**
-     * Used to escape single quotes so that they are not interpreted by
-     * {@link MessageFormat}. As we assume all single quotes are to be
-     * escaped, we cannot use the characters <code>{</code> and
-     * <code>}</code> in our translation strings, but this is a small
-     * price to pay to have to differentiate between messages that will
-     * and won't eventually be parsed by a {@link MessageFormat} instance.
-     */
-    protected static String escape (String message)
-    {
-        return StringUtil.replace(message, "'", "''");
+        return MessageUtil.getUnqualifiedKey(qualifiedKey);
     }
 
     /** The message manager via whom we'll resolve fully qualified
@@ -477,16 +382,4 @@ public class MessageBundle
 
     /** Our parent bundle if we're not the global bundle. */
     protected MessageBundle _parent;
-
-    /** Text prefixed by this character will be considered tainted when
-     * doing recursive translations and won't be translated. */
-    protected static final String TAINT_CHAR = "~";
-    // protected static final String TAINT_CHAR = '~';
-
-    /** Used to mark fully qualified message keys. */
-    protected static final String QUAL_PREFIX = "%";
-
-    /** Used to separate the bundle qualifier from the message key in a
-     * fully qualified message key. */
-    protected static final String QUAL_SEP = ":";
 }
