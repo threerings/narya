@@ -1,5 +1,5 @@
 //
-// $Id: PlaceObject.dobj,v 1.8 2002/02/08 23:10:36 mdb Exp $
+// $Id: PlaceObject.dobj,v 1.9 2002/04/15 14:30:49 shaper Exp $
 
 package com.threerings.crowd.data;
 
@@ -14,7 +14,7 @@ public class PlaceObject extends DObject
     public OidList occupants = new OidList();
 
     /**
-     * Contains an info record (of type {@link OccupantInfo} for each
+     * Contains an info record (of type {@link OccupantInfo}) for each
      * occupant that contains information about that occupant that needs
      * to be known by everyone in the place.
      */
