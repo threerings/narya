@@ -1,5 +1,5 @@
 //
-// $Id: PlaceManager.java,v 1.45 2003/06/03 21:41:33 ray Exp $
+// $Id: PlaceManager.java,v 1.46 2003/08/15 18:40:48 mdb Exp $
 
 package com.threerings.crowd.server;
 
@@ -9,10 +9,13 @@ import java.util.Iterator;
 import java.util.Properties;
 
 import com.samskivert.util.HashIntMap;
+import com.samskivert.util.IntervalManager;
 import com.samskivert.util.StringUtil;
 
 import com.threerings.presents.data.ClientObject;
 import com.threerings.presents.server.InvocationManager;
+import com.threerings.presents.server.PresentsDObjectMgr;
+import com.threerings.presents.server.util.SafeInterval;
 
 import com.threerings.presents.dobj.DObject;
 import com.threerings.presents.dobj.DObjectManager;
@@ -266,6 +269,9 @@ public class PlaceManager
 
         // clear out our services
         _invmgr.clearDispatcher(_plobj.speakService);
+
+        // make sure we don't have any shutdowner in the queue
+        cancelShutdowner();
     }
 
     /**
@@ -370,6 +376,9 @@ public class PlaceManager
                 delegate.bodyEntered(bodyOid);
             }
         });
+
+        // if we were on the road to shutting down, step off
+        cancelShutdowner();
     }
 
     /**
@@ -430,6 +439,49 @@ public class PlaceManager
                 delegate.placeBecameEmpty();
             }
         });
+
+        Log.info("Place became empty " + where() + ".");
+
+        // queue up a shutdown interval
+        long idlePeriod = idleUnloadPeriod();
+        if (idlePeriod > 0L) {
+            SafeInterval si = new SafeInterval((PresentsDObjectMgr)_omgr) {
+                public void intervalExpired (int id, Object arg) {
+                    _iid = id;
+                    super.intervalExpired(id, arg);
+                }
+                public void run () {
+                    if (_iid == _shutdownId) {
+                        _shutdownId = -1;
+                        Log.info("Unloading idle place '" + where () + "'.");
+                        shutdown();
+                    }
+                }
+                protected int _iid;
+            };
+            _shutdownId = IntervalManager.register(si, idlePeriod, null, false);
+        }
+    }
+
+    /**
+     * Cancels any registered shutdown interval.
+     */
+    protected void cancelShutdowner ()
+    {
+        if (_shutdownId != -1) {
+            IntervalManager.remove(_shutdownId);
+            _shutdownId = -1;
+        }
+    }
+
+    /**
+     * Returns the period (in milliseconds) of emptiness after which this
+     * place manager will unload itself and shutdown. Returning
+     * <code>0</code> indicates that the place should never be shutdown.
+     */
+    protected long idleUnloadPeriod ()
+    {
+        return 5 * 60 * 1000L;
     }
 
     /**
@@ -614,4 +666,9 @@ public class PlaceManager
 
     /** Used to keep a canonical copy of the occupant info records. */
     protected HashIntMap _occInfo = new HashIntMap();
+
+    /** The id of the interval currently registered to shut this place
+     * down after a certain period of idility. Is <code>-1</code> if no
+     * interval is currently registered. */
+    protected int _shutdownId = -1;
 }
