@@ -1,5 +1,5 @@
 //
-// $Id: DirtyItemList.java,v 1.22 2003/02/12 05:46:05 mdb Exp $
+// $Id: DirtyItemList.java,v 1.23 2003/03/30 02:15:13 mdb Exp $
 
 package com.threerings.miso.client;
 
@@ -104,16 +104,45 @@ public class DirtyItemList
                          "[items=" + toString(_yitems) + "].");
             }
 
-            // sort items into proper render order
-            _items.sort(_rcomp);
+            // sort the items according to the depth of the rear-most tile
+            _ditems.addAll(_items);
+            _ditems.sort(REAR_DEPTH_COMP);
+
+            // now insertion sort the items from back to front into the
+            // render-sorted array
+            _items.clear();
+          POS_LOOP:
+            for (int ii = 0; ii < size; ii++) {
+                DirtyItem item = (DirtyItem)_ditems.get(ii);
+                for (int rr = _items.size()-1; rr >= 0; rr--) {
+                    DirtyItem pitem = (DirtyItem)_items.get(rr);
+                    // if we render in front of this item, insert
+                    // ourselves immediately following it
+                    if (_rcomp.compare(item, pitem) > 0) {
+                        _items.add(rr+1, item);
+                        continue POS_LOOP;
+                    }
+                }
+                // we don't render in front of anyone, so we go at the
+                // front of the list
+                _items.add(0, item);
+            }
 
             // clear out our temporary arrays
             _xitems.clear();
             _yitems.clear();
+            _ditems.clear();
         }
 
         if (DEBUG_SORT) {
             Log.info("Sorted for render [items=" + toString(_items) + "].");
+            for (int ii = 0, ll = _items.size()-1; ii < ll; ii++) {
+                DirtyItem a = (DirtyItem)_items.get(ii);
+                DirtyItem b = (DirtyItem)_items.get(ii+1);
+                if (_rcomp.compare(a, b) > 0) {
+                    Log.warning("Invalid ordering [a=" + a + ", b=" + b + "].");
+                }
+            }
         }
     }
 
@@ -168,24 +197,32 @@ public class DirtyItemList
     }
 
     /**
+     * Returns an abbreviated string representation of the given dirty
+     * item describing only its origin coordinates and render priority.
+     * Intended for debugging purposes.
+     */
+    protected static String toString (DirtyItem a)
+    {
+        StringBuffer buf = new StringBuffer("[");
+        toString(buf, a);
+        return buf.append("]").toString();
+    }
+
+    /**
      * Returns an abbreviated string representation of the two given dirty
-     * items describing each by only its origin coordinates.  Intended for
-     * debugging purposes.
+     * items. See {@link #toString(DirtyItem}.
      */
     protected static String toString (DirtyItem a, DirtyItem b)
     {
-        StringBuffer buf = new StringBuffer();
-        buf.append("[(ox=").append(a.ox);
-        buf.append(", oy=").append(a.oy).append("), ");
-        buf.append("(ox=").append(b.ox);
-        buf.append(", oy=").append(b.oy).append(")");
+        StringBuffer buf = new StringBuffer("[");
+        toString(buf, a);
+        toString(buf, b);
         return buf.append("]").toString();
     }
 
     /**
      * Returns an abbreviated string representation of the given dirty
-     * items describing each by only its origin coordinates.  Intended for
-     * debugging purposes.
+     * items. See {@link #toString(DirtyItem}.
      */
     protected static String toString (SortableArrayList items)
     {
@@ -193,13 +230,19 @@ public class DirtyItemList
         buf.append("[");
         for (int ii = 0; ii < items.size(); ii++) {
             DirtyItem item = (DirtyItem)items.get(ii);
-            buf.append("(ox=").append(item.ox);
-            buf.append(", oy=").append(item.oy).append(")");
+            toString(buf, item);
             if (ii < (items.size() - 1)) {
                 buf.append(", ");
             }
         }
         return buf.append("]").toString();
+    }
+
+    /** Helper function for {@link #toString(DirtyItem)}. */
+    protected static void toString (StringBuffer buf, DirtyItem item)
+    {
+        buf.append("(o:+").append(item.ox).append("+").append(item.oy);
+        buf.append(" p:").append(item.getRenderPriority()).append(")");
     }
 
     /**
@@ -304,6 +347,28 @@ public class DirtyItemList
         }
 
         /**
+         * Returns the "depth" of our rear-most tile.
+         */
+        public int getRearDepth ()
+        {
+            return ry + lx;
+        }
+
+        /**
+         * Returns the render priority for this dirty item. It will be
+         * zero unless this is a display object which may have a custom
+         * render priority.
+         */
+        public int getRenderPriority ()
+        {
+            if (obj instanceof DisplayObjectInfo) {
+                return ((DisplayObjectInfo)obj).getPriority();
+            } else {
+                return 0;
+            }
+        }
+
+        /**
          * Releases all references held by this dirty item so that it
          * doesn't inadvertently hold on to any objects while waiting to
          * be reused.
@@ -385,16 +450,7 @@ public class DirtyItemList
 
             // if they do overlap, incorporate render priority; assume
             // non-display objects have a render priority of zero
-            int aprio = 0;
-            if (da.obj instanceof DisplayObjectInfo) {
-                aprio = ((DisplayObjectInfo)da.obj).getPriority();
-            }
-            int bprio = 0;
-            if (db.obj instanceof DisplayObjectInfo) {
-                bprio = ((DisplayObjectInfo)db.obj).getPriority();
-            }
-
-            return aprio - bprio;
+            return da.getRenderPriority() - db.getRenderPriority();
         }
 
         /** The axis this comparator sorts on. */
@@ -414,6 +470,23 @@ public class DirtyItemList
         {
             DirtyItem da = (DirtyItem)a;
             DirtyItem db = (DirtyItem)b;
+
+            // if the two objects are scene objects and they overlap, we
+            // compare them solely based on their human assigned priority
+            if ((da.obj instanceof DisplayObjectInfo) &&
+                (db.obj instanceof DisplayObjectInfo)) {
+                DisplayObjectInfo soa = (DisplayObjectInfo)da.obj;
+                DisplayObjectInfo sob = (DisplayObjectInfo)db.obj;
+                if (IsoUtil.objectFootprintsOverlap(soa, sob)) {
+                    int result = soa.getPriority() - sob.getPriority();
+                    if (DEBUG_COMPARE) {
+                        String items = DirtyItemList.toString(da, db);
+                        Log.info("compare: overlapping [result=" + result +
+                                 ", items=" + items + "].");
+                    }
+                    return result;
+                }
+            }
 
             // check for partitioning objects on the y-axis
             int result = comparePartitioned(Y_AXIS, da, db);
@@ -587,28 +660,15 @@ public class DirtyItemList
                 }
             }
 
-            // if the two objects are scene objects and they overlap, we
-            // compare them solely based on their human assigned render
-            // priority scene; this allows us to avoid all sorts of sticky
-            // business wherein the render order between two overlapping
-            // objects cannot be determined without a z-buffer
-            if ((da.obj instanceof DisplayObjectInfo) &&
-                (db.obj instanceof DisplayObjectInfo)) {
-                DisplayObjectInfo soa = (DisplayObjectInfo)da.obj;
-                DisplayObjectInfo sob = (DisplayObjectInfo)db.obj;
-                if (IsoUtil.objectFootprintsOverlap(soa, sob)) {
-                    return (soa.getPriority() - sob.getPriority());
-                }
-            }
-
             // otherwise use a consistent ordering for non-overlappers;
             // see narya/docs/miso/render_sort_diagram.png for more info
-            if (da.lx > db.ox) {
+            if (db.lx <= da.ox && db.ry <= da.oy) {
                 return 1;
-            } else if (da.ry > db.oy) {
-                return (db.lx > da.ox) ? -1 : 1;
+            } else if (db.lx >= da.lx && db.ry >= da.ry) {
+                return -1;
+            } else {
+                return 0;
             }
-            return -1;
         }
     }
 
@@ -623,6 +683,9 @@ public class DirtyItemList
 
     /** The list of dirty items sorted by y-position. */
     protected SortableArrayList _yitems = new SortableArrayList();
+
+    /** The list of dirty items sorted by rear-depth. */
+    protected SortableArrayList _ditems = new SortableArrayList();
 
     /** The render comparator we'll use for our final, magical sort. */
     protected Comparator _rcomp = new RenderComparator();
@@ -659,4 +722,13 @@ public class DirtyItemList
      * y-coordinate order. */
     protected static final Comparator ORIGIN_Y_COMP =
         new OriginComparator(Y_AXIS);
+
+    /** The comparator used to sort dirty items in ascending "rear-depth"
+     * order. */
+    protected static final Comparator REAR_DEPTH_COMP = new Comparator() {
+        public int compare (Object o1, Object o2) {
+            return (((DirtyItem)o1).getRearDepth() -
+                    ((DirtyItem)o2).getRearDepth());
+        }
+    };
 }
