@@ -1,5 +1,5 @@
 //
-// $Id: SpritePanel.java,v 1.13 2002/04/23 01:17:28 mdb Exp $
+// $Id: SpritePanel.java,v 1.14 2002/06/19 23:24:04 mdb Exp $
 
 package com.threerings.cast.builder;
 
@@ -9,10 +9,9 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
 
-import java.util.List;
+import javax.swing.JPanel;
 
-import com.threerings.media.FrameManager;
-import com.threerings.media.MediaPanel;
+import java.util.List;
 
 import com.threerings.util.DirectionCodes;
 
@@ -26,17 +25,14 @@ import com.threerings.cast.StandardActions;
  * The sprite panel displays a character sprite centered in the panel
  * suitable for user perusal.
  */
-public class SpritePanel extends MediaPanel
+public class SpritePanel extends JPanel
     implements DirectionCodes, BuilderModelListener
 {
     /**
      * Constructs the sprite panel.
      */
-    public SpritePanel (FrameManager framemgr, CharacterManager charmgr,
-                        BuilderModel model)
+    public SpritePanel (CharacterManager charmgr, BuilderModel model)
     {
-        super(framemgr);
-
         // save off references
         _charmgr = charmgr;
         _model = model;
@@ -47,17 +43,10 @@ public class SpritePanel extends MediaPanel
     }
 
     // documentation inherited
-    protected void paintMiddle (Graphics2D gfx, List invalidRects)
+    public void paintComponent (Graphics g)
     {
-        // clear the background
-        gfx.setColor(Color.lightGray);
-        Dimension d = getSize();
-        gfx.fillRect(0, 0, d.width - 1, d.height - 1);
-
-        if (_sprite == null) {
-            // create the sprite if it's not yet extant
-            generateSprite();
-        }
+        super.paintComponent(g);
+        Graphics2D gfx = (Graphics2D)g;
 
         if (_sprite != null) {
             // render the sprite
@@ -66,9 +55,10 @@ public class SpritePanel extends MediaPanel
     }
 
     // documentation inherited
-    public void setBounds (Rectangle r)
+    public void doLayout ()
     {
-        super.setBounds(r);
+        super.doLayout();
+        generateSprite();
         centerSprite();
     }
 

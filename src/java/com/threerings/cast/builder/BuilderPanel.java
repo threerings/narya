@@ -1,12 +1,10 @@
 //
-// $Id: BuilderPanel.java,v 1.6 2002/04/23 01:17:28 mdb Exp $
+// $Id: BuilderPanel.java,v 1.7 2002/06/19 23:24:04 mdb Exp $
 
 package com.threerings.cast.builder;
 
 import javax.swing.*;
 import com.samskivert.swing.*;
-
-import com.threerings.media.FrameManager;
 
 import com.threerings.cast.CharacterManager;
 import com.threerings.cast.ComponentRepository;
@@ -21,8 +19,8 @@ public class BuilderPanel extends JPanel
     /**
      * Constructs the builder panel.
      */
-    public BuilderPanel (FrameManager framemgr, CharacterManager charmgr,
-                         ComponentRepository crepo)
+    public BuilderPanel (CharacterManager charmgr,
+                         ComponentRepository crepo, String cprefix)
     {
         setLayout(new VGroupLayout());
 
@@ -37,8 +35,8 @@ public class BuilderPanel extends JPanel
 
         // create the component selection and sprite display panels
         JPanel sub = new JPanel(gl);
-        sub.add(new ComponentPanel(model));
-        sub.add(new SpritePanel(framemgr, charmgr, model));
+        sub.add(new ComponentPanel(model, cprefix));
+        sub.add(new SpritePanel(charmgr, model));
         add(sub);
     }
 }

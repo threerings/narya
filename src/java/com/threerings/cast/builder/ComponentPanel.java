@@ -1,5 +1,5 @@
 //
-// $Id: ComponentPanel.java,v 1.6 2001/11/27 08:09:35 mdb Exp $
+// $Id: ComponentPanel.java,v 1.7 2002/06/19 23:24:04 mdb Exp $
 
 package com.threerings.cast.builder;
 
@@ -24,27 +24,35 @@ public class ComponentPanel extends JPanel
     /**
      * Constructs the component panel.
      */
-    public ComponentPanel (BuilderModel model)
+    public ComponentPanel (BuilderModel model, String cprefix)
     {
 	setLayout(new VGroupLayout(GroupLayout.STRETCH));
 	// set up a border
 	setBorder(BorderFactory.createEtchedBorder());
         // add the component editors to the panel
-        addClassEditors(model);
+        addClassEditors(model, cprefix);
     }
 
     /**
      * Adds editor user interface elements for each component class to
      * allow the user to select the desired component.
      */
-    protected void addClassEditors (BuilderModel model)
+    protected void addClassEditors (BuilderModel model, String cprefix)
     {
         List classes = model.getComponentClasses();
         int size = classes.size();
         for (int ii = 0; ii < size; ii++) {
             ComponentClass cclass = (ComponentClass)classes.get(ii);
+            if (!cclass.name.startsWith(cprefix)) {
+                continue;
+            }
             List ccomps = model.getComponents(cclass);
-            add(new ClassEditor(model, cclass, ccomps));
+            if (ccomps.size() > 0) {
+                add(new ClassEditor(model, cclass, ccomps));
+            } else {
+                Log.info("Not creating editor for empty class " +
+                         "[class=" + cclass + "].");
+            }
         }
     }
 }
