@@ -1,5 +1,5 @@
 //
-// $Id: FrameManager.java,v 1.1 2002/04/23 01:16:27 mdb Exp $
+// $Id: FrameManager.java,v 1.2 2002/04/23 03:10:59 mdb Exp $
 
 package com.threerings.media;
 
@@ -8,6 +8,7 @@ import java.applet.Applet;
 import java.awt.Component;
 import java.awt.Frame;
 import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.GraphicsConfiguration;
 import java.awt.GraphicsDevice;
 import java.awt.Image;
@@ -299,6 +300,11 @@ public class FrameManager
                     // get the bounds of this component
                     pcomp.getBounds(bounds);
 
+                    // the bounds adjustment we're about to call will add
+                    // in the components initial bounds offsets, so we
+                    // remove them here
+                    bounds.setLocation(0, 0);
+
                     // convert them into top-level coordinates; also note
                     // that if this component does not have a valid or
                     // visible root, we don't want to paint it either
@@ -310,6 +316,7 @@ public class FrameManager
                         // render this participant
 //                         Log.info("Rendering [comp=" + pcomp.getClass().getName() +
 //                                  ", bounds=" + StringUtil.toString(bounds) + "].");
+
                         g.setClip(bounds);
                         g.translate(bounds.x, bounds.y);
                         pcomp.paint(g);
