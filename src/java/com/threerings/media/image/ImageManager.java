@@ -1,5 +1,5 @@
 //
-// $Id: ImageManager.java,v 1.48 2003/04/25 15:51:34 mdb Exp $
+// $Id: ImageManager.java,v 1.49 2003/04/25 18:21:28 mdb Exp $
 
 package com.threerings.media.image;
 
@@ -189,7 +189,10 @@ public class ImageManager
      */
     public BufferedImage getImage (ImageKey key, Colorization[] zations)
     {
-        CacheRecord crec = (CacheRecord)_ccache.get(key);
+        CacheRecord crec = null;
+        synchronized (_ccache) {
+            crec = (CacheRecord)_ccache.get(key);
+        }
         if (crec != null) {
 //             Log.info("Cache hit [key=" + key + ", crec=" + crec + "].");
             return crec.getImage(zations);
@@ -209,7 +212,9 @@ public class ImageManager
 
         // create a cache record
         crec = new CacheRecord(key, image);
-        _ccache.put(key, crec);
+        synchronized (_ccache) {
+            _ccache.put(key, crec);
+        }
         _keySet.add(key);
 
         // periodically report our image cache performance
@@ -397,12 +402,15 @@ public class ImageManager
 
         // compute our estimated memory usage
         long size = 0;
-        Iterator iter = _ccache.values().iterator();
-        while (iter.hasNext()) {
-            size += ((CacheRecord)iter.next()).getEstimatedMemoryUsage();
-        }
 
-        int[] eff = _ccache.getTrackedEffectiveness();
+        int[] eff = null;
+        synchronized (_ccache) {
+            Iterator iter = _ccache.values().iterator();
+            while (iter.hasNext()) {
+                size += ((CacheRecord)iter.next()).getEstimatedMemoryUsage();
+            }
+            eff = _ccache.getTrackedEffectiveness();
+        }
         Log.info("ImageManager LRU [mem=" + (size / 1024) + "k" +
                  ", size=" + _ccache.size() +  ", hits=" + eff[0] +
                  ", misses=" + eff[1] + ", totalKeys=" + _keySet.size() + "].");
