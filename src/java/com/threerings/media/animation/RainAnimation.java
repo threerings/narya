@@ -1,5 +1,5 @@
 //
-// $Id: RainAnimation.java,v 1.3 2002/04/23 01:16:28 mdb Exp $
+// $Id: RainAnimation.java,v 1.4 2002/04/25 16:23:30 mdb Exp $
 
 package com.threerings.media.animation;
 
@@ -71,6 +71,12 @@ public class RainAnimation extends Animation
         }
 
         invalidate();
+    }
+
+    // documentation inherited
+    public void fastForward (long timeDelta)
+    {
+        _end += timeDelta;
     }
 
     // documentation inherited

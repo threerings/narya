@@ -1,5 +1,5 @@
 //
-// $Id: BobbleAnimation.java,v 1.3 2002/04/15 18:18:20 mdb Exp $
+// $Id: BobbleAnimation.java,v 1.4 2002/04/25 16:23:30 mdb Exp $
 
 package com.threerings.media.animation;
 
@@ -56,6 +56,12 @@ public class BobbleAnimation extends Animation
         int dy = RandomUtil.getInt(_ry);
         _x = (_sx + dx) * ((RandomUtil.getInt(2) == 0) ? -1 : 1);
         _y = (_sy + dy) * ((RandomUtil.getInt(2) == 0) ? -1 : 1);
+    }
+
+    // documentation inherited
+    public void fastForward (long timeDelta)
+    {
+        _end += timeDelta;
     }
 
     // documentation inherited

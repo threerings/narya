@@ -1,5 +1,5 @@
 //
-// $Id: MediaPanel.java,v 1.2 2002/04/23 03:10:39 mdb Exp $
+// $Id: MediaPanel.java,v 1.3 2002/04/25 16:23:30 mdb Exp $
 
 package com.threerings.media;
 
@@ -129,6 +129,41 @@ public class MediaPanel extends JComponent
 
 //         Log.info("Scrolling [dx=" + dx + ", dy=" + dy +
 //                  ", millis=" + millis + "ms, mspp=" + mspp + "].");
+    }
+
+    /**
+     * Pauses the sprites and animations that are currently active on this
+     * media panel. Also stops listening to the frame tick while paused.
+     */
+    public void setPaused (boolean paused)
+    {
+        // sanity check
+        if ((paused && (_pauseTime != 0)) ||
+            (!paused && (_pauseTime == 0))) {
+            Log.warning("Requested to pause when paused or vice-versa " +
+                        "[paused=" + paused + "].");
+            return;
+        }
+
+        if (paused) {
+            // stop listening to the frame tick
+            _framemgr.removeFrameParticipant(this);
+            // make a note of our pause time
+            _pauseTime = System.currentTimeMillis();
+
+        } else {
+            // start listening to the frame tick once again
+            _framemgr.registerFrameParticipant(this);
+
+            // let the animation and sprite managers know that we just
+            // warped into the future
+            long delta = System.currentTimeMillis() - _pauseTime;
+            _animmgr.fastForward(delta);
+            _spritemgr.fastForward(delta);
+
+            // clear out our pause time
+            _pauseTime = 0;
+        }
     }
 
     /**
@@ -483,4 +518,7 @@ public class MediaPanel extends JComponent
 
     /** Used to correlate tick()s with paint()s. */
     protected boolean _tickPaintPending = false;
+
+    /** Used to track the clock time at which we were paused. */
+    protected long _pauseTime;
 }

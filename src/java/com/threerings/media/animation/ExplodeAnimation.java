@@ -1,5 +1,5 @@
 //
-// $Id: ExplodeAnimation.java,v 1.7 2002/04/15 18:18:20 mdb Exp $
+// $Id: ExplodeAnimation.java,v 1.8 2002/04/25 16:23:30 mdb Exp $
 
 package com.threerings.media.animation;
 
@@ -132,6 +132,12 @@ public class ExplodeAnimation extends Animation
     public void setStartTime (long timestamp)
     {
         _start = timestamp;
+    }
+
+    // documentation inherited
+    public void fastForward (long timeDelta)
+    {
+        _start += timeDelta;
     }
 
     // documentation inherited

@@ -1,5 +1,5 @@
 //
-// $Id: SpriteManager.java,v 1.29 2002/04/23 01:16:28 mdb Exp $
+// $Id: SpriteManager.java,v 1.30 2002/04/25 16:23:31 mdb Exp $
 
 package com.threerings.media.sprite;
 
@@ -207,6 +207,22 @@ public class SpriteManager
 	// observers may take, such as sprite removal, won't screw us
 	// up elsewhere.
 	handleSpriteEvents();
+    }
+
+    /**
+     * If the sprite manager is paused for some length of time, it should
+     * be fast forwarded by the appropriate number of milliseconds.  This
+     * allows sprites to smoothly pick up where they left off rather than
+     * abruptly jumping into the future, thinking that some outrageous
+     * amount of time passed since their last tick.
+     */
+    public void fastForward (long timeDelta)
+    {
+        int size = _sprites.size();
+	for (int ii = 0; ii < size; ii++) {
+            Sprite sprite = (Sprite)_sprites.get(ii);
+	    sprite.fastForward(timeDelta);
+        }
     }
 
     /**

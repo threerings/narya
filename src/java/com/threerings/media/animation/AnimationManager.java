@@ -1,5 +1,5 @@
 //
-// $Id: AnimationManager.java,v 1.9 2002/04/23 01:16:28 mdb Exp $
+// $Id: AnimationManager.java,v 1.10 2002/04/25 16:23:30 mdb Exp $
 
 package com.threerings.media.animation;
 
@@ -99,6 +99,22 @@ public class AnimationManager
                 anim.didFinish();
                 // Log.info("Removed finished animation [anim=" + anim + "].");
             }
+        }
+    }
+
+    /**
+     * If the animation manager is paused for some length of time, it
+     * should be fast forwarded by the appropriate number of milliseconds.
+     * This allows animations to smoothly pick up where they left off
+     * rather than abruptly jumping into the future, thinking that some
+     * outrageous amount of time passed since their last tick.
+     */
+    public void fastForward (long timeDelta)
+    {
+        // fast forward all of our animations
+        int size = _anims.size();
+        for (int ii = 0; ii < size; ii++) {
+            ((Animation)_anims.get(ii)).fastForward(timeDelta);
         }
     }
 

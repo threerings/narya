@@ -1,5 +1,5 @@
 //
-// $Id: Sprite.java,v 1.42 2002/04/23 01:16:28 mdb Exp $
+// $Id: Sprite.java,v 1.43 2002/04/25 16:23:30 mdb Exp $
 
 package com.threerings.media.sprite;
 
@@ -333,6 +333,20 @@ public abstract class Sprite
         // if we've a path, move the sprite along toward its destination
         if (_path != null) {
             _path.updatePosition(this, tickStamp);
+        }
+    }
+
+    /**
+     * This is called if the sprite manager is paused for some length of
+     * time and then unpaused. Sprites should adjust any time stamps they
+     * are maintaining internally by the delta so that time maintains the
+     * illusion of flowing smoothly forward.
+     */
+    public void fastForward (long timeDelta)
+    {
+        // fast forward any path we're following
+        if (_path != null) {
+            _path.fastForward(timeDelta);
         }
     }
 

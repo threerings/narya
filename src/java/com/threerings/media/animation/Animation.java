@@ -1,5 +1,5 @@
 //
-// $Id: Animation.java,v 1.5 2002/04/23 01:16:28 mdb Exp $
+// $Id: Animation.java,v 1.6 2002/04/25 16:23:30 mdb Exp $
 
 package com.threerings.media.animation;
 
@@ -74,6 +74,16 @@ public abstract class Animation
      * animation's bounds intersect the clipping region.
      */
     public abstract void paint (Graphics2D gfx);
+
+    /**
+     * This is called if the animation manager is paused for some length
+     * of time and then unpaused. Animations should adjust any time stamps
+     * they are maintaining internally by the delta so that time maintains
+     * the illusion of flowing smoothly forward.
+     */
+    public void fastForward (long timeDelta)
+    {
+    }
 
     /**
      * Returns true if the animation has finished all of its business,

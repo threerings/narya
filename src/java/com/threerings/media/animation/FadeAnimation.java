@@ -1,5 +1,5 @@
 //
-// $Id: FadeAnimation.java,v 1.3 2002/01/31 17:35:41 shaper Exp $
+// $Id: FadeAnimation.java,v 1.4 2002/04/25 16:23:30 mdb Exp $
 
 package com.threerings.media.animation;
 
@@ -74,6 +74,12 @@ public class FadeAnimation extends Animation
 
         // dirty ourselves
         invalidate();
+    }
+
+    // documentation inherited
+    public void fastForward (long timeDelta)
+    {
+        _start += timeDelta;
     }
 
     // documentation inherited

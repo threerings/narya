@@ -1,5 +1,5 @@
 //
-// $Id: LineSegmentPath.java,v 1.20 2002/04/16 20:38:24 mdb Exp $
+// $Id: LineSegmentPath.java,v 1.21 2002/04/25 16:23:30 mdb Exp $
 
 package com.threerings.media.sprite;
 
@@ -210,6 +210,12 @@ public class LineSegmentPath
         }        
 
         return false;
+    }
+
+    // documentation inherited
+    public void fastForward (long timeDelta)
+    {
+        _nodestamp += timeDelta;
     }
 
     /**

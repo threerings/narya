@@ -1,5 +1,5 @@
 //
-// $Id: Path.java,v 1.4 2002/04/23 01:16:28 mdb Exp $
+// $Id: Path.java,v 1.5 2002/04/25 16:23:30 mdb Exp $
 
 package com.threerings.media.sprite;
 
@@ -40,6 +40,14 @@ public interface Path
      * path determined that the sprite should not move at this time.
      */
     public boolean updatePosition (Sprite sprite, long tickStamp);
+
+    /**
+     * This is called if the sprite manager is paused for some length of
+     * time and then unpaused. Paths should adjust any time stamps they
+     * are maintaining internally by the delta so that time maintains the
+     * illusion of flowing smoothly forward.
+     */
+    public void fastForward (long timeDelta);
 
     /**
      * Sets the velocity of this sprite in pixels per millisecond. The
