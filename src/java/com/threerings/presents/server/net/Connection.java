@@ -1,5 +1,5 @@
 //
-// $Id: Connection.java,v 1.11 2002/11/05 02:17:56 mdb Exp $
+// $Id: Connection.java,v 1.12 2002/11/06 21:05:13 shaper Exp $
 
 package com.threerings.presents.server.net;
 
@@ -271,7 +271,7 @@ public abstract class Connection implements NetEventHandler
         if (isClosed()) {
             return;
         }
-        Log.info("Disconncecting idle client [conn=" + this +
+        Log.info("Disconnecting idle client [conn=" + this +
                  ", idle=" + idleMillis + "ms].");
         handleFailure(new SocketTimeoutException("Idle too long"));
     }
