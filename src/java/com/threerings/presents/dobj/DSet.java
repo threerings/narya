@@ -1,5 +1,5 @@
 //
-// $Id: DSet.java,v 1.13 2002/02/04 01:34:59 mdb Exp $
+// $Id: DSet.java,v 1.14 2002/02/08 04:44:32 mdb Exp $
 
 package com.threerings.presents.dobj;
 
@@ -439,8 +439,12 @@ public class DSet
      */
     public String toString ()
     {
-        StringBuffer buf = new StringBuffer();
-        buf.append("[etype=").append(_elementType.getName());
+        StringBuffer buf = new StringBuffer("[");
+        if (_elementType == null) {
+            buf.append("etype=NONE");
+        } else {
+            buf.append("etype=").append(_elementType.getName());
+        }
         buf.append(", elems=(");
         String prefix = "";
         for (int i = 0; i < _elements.length; i++) {
