@@ -1,5 +1,5 @@
 //
-// $Id: CharacterSprite.java,v 1.28 2002/05/04 19:38:13 mdb Exp $
+// $Id: CharacterSprite.java,v 1.29 2002/05/06 23:24:15 mdb Exp $
 
 package com.threerings.cast;
 
@@ -192,10 +192,13 @@ public class CharacterSprite extends ImageSprite
      */
     protected void halt ()
     {
-        // disable animation
-        setAnimationMode(NO_ANIMATION);
-        // come to a halt looking settled and at peace
-        setActionSequence(getRestingAction());
+        // only do something if we're actually animating
+        if (_animMode != NO_ANIMATION) {
+            // disable animation
+            setAnimationMode(NO_ANIMATION);
+            // come to a halt looking settled and at peace
+            setActionSequence(getRestingAction());
+        }
     }
 
     /** The action to use when at rest. */
