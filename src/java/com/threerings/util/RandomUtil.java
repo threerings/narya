@@ -1,5 +1,5 @@
 //
-// $Id: RandomUtil.java,v 1.2 2001/12/14 16:46:01 shaper Exp $
+// $Id: RandomUtil.java,v 1.3 2002/01/15 18:05:01 shaper Exp $
 
 package com.threerings.media.util;
 
@@ -22,6 +22,15 @@ public class RandomUtil
     public static int getInt (int high)
     {
 	return _rnd.nextInt(high);
+    }
+
+    /**
+     * Returns a pseudorandom, uniformly distributed float value between
+     * 0.0 (inclusive) and the specified value (inclusive).
+     */
+    public static float getFloat (float high)
+    {
+        return _rnd.nextFloat() * high;
     }
 
     /** The random object from which we choose random numbers. */
