@@ -1,5 +1,5 @@
 //
-// $Id: OccupantList.java,v 1.8 2004/08/27 02:12:49 mdb Exp $
+// $Id: OccupantList.java,v 1.9 2004/11/15 01:47:52 mdb Exp $
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -29,8 +29,7 @@ import com.threerings.crowd.client.OccupantObserver;
 import com.threerings.crowd.client.PlaceView;
 import com.threerings.crowd.data.OccupantInfo;
 import com.threerings.crowd.data.PlaceObject;
-
-import com.threerings.micasa.util.MiCasaContext;
+import com.threerings.crowd.util.CrowdContext;
 
 /**
  * The occupant list displays the list of users that are in a particular
@@ -43,7 +42,7 @@ public class OccupantList
      * Constructs an occupant list with the supplied context which it will
      * use to register itself with the necessary managers.
      */
-    public OccupantList (MiCasaContext ctx)
+    public OccupantList (CrowdContext ctx)
     {
         // set up our list model
         _model = new DefaultListModel();
@@ -95,7 +94,7 @@ public class OccupantList
     }
 
     /** Our client context. */
-    protected MiCasaContext _ctx;
+    protected CrowdContext _ctx;
 
     /** A list model that provides a vector interface. */
     protected DefaultListModel _model;

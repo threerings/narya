@@ -1,5 +1,5 @@
 //
-// $Id: ChatPanel.java,v 1.28 2004/08/27 02:12:49 mdb Exp $
+// $Id: ChatPanel.java,v 1.29 2004/11/15 01:47:52 mdb Exp $
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -62,15 +62,15 @@ import com.threerings.crowd.client.OccupantObserver;
 import com.threerings.crowd.client.PlaceView;
 import com.threerings.crowd.data.OccupantInfo;
 import com.threerings.crowd.data.PlaceObject;
+import com.threerings.crowd.util.CrowdContext;
 
 import com.threerings.micasa.Log;
-import com.threerings.micasa.util.MiCasaContext;
 
 public class ChatPanel
     extends JPanel
     implements ActionListener, ChatDisplay, OccupantObserver, PlaceView
 {
-    public ChatPanel (MiCasaContext ctx)
+    public ChatPanel (CrowdContext ctx)
     {
         // keep this around for later
         _ctx = ctx;
@@ -315,7 +315,7 @@ public class ChatPanel
         return size;
     }
 
-    protected MiCasaContext _ctx;
+    protected CrowdContext _ctx;
     protected ChatDirector _chatdtr;
 
     protected boolean _focus = true;
