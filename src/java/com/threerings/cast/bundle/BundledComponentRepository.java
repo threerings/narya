@@ -1,5 +1,5 @@
 //
-// $Id: BundledComponentRepository.java,v 1.7 2002/02/19 22:09:50 mdb Exp $
+// $Id: BundledComponentRepository.java,v 1.8 2002/03/08 09:35:14 mdb Exp $
 
 package com.threerings.cast.bundle;
 
@@ -244,7 +244,7 @@ public class BundledComponentRepository
                     "[bundle=" + _bundle + ", path=" + path + "].";
                 throw new FileNotFoundException(errmsg);
             }
-            return _imgr.createImage(imgin);
+            return _imgr.loadImage(imgin);
         }
 
         // documentation inherited
