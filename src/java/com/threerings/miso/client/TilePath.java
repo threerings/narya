@@ -1,5 +1,5 @@
 //
-// $Id: TilePath.java,v 1.5 2002/05/31 03:38:03 mdb Exp $
+// $Id: TilePath.java,v 1.6 2002/06/12 07:01:29 ray Exp $
 
 package com.threerings.miso.scene;
 
@@ -50,7 +50,9 @@ public class TilePath extends LineSegmentPath
     {
         boolean moved = super.tick(pable, timestamp);
 
-        if (moved) {
+        if (moved && (_dest instanceof TilePathNode)) {
+            TilePathNode dest = (TilePathNode) _dest;
+
             MisoCharacterSprite mcs = (MisoCharacterSprite)pable;
             int sx = mcs.getX(), sy = mcs.getY();
             Point pos = new Point();
@@ -63,7 +65,7 @@ public class TilePath extends LineSegmentPath
                 // if the sprite has reached the destination tile,
                 // update the sprite's tile location and remember
                 // we've arrived
-                int dtx = _dest.getTileX(), dty = _dest.getTileY();
+                int dtx = dest.getTileX(), dty = dest.getTileY();
                 if (pos.x == dtx && pos.y == dty) {
                     mcs.setTileLocation(dtx, dty);
                     // Log.info("Sprite arrived [dtx=" + dtx +
@@ -90,7 +92,7 @@ public class TilePath extends LineSegmentPath
     protected PathNode getNextNode ()
     {
         // upgrade the path node to a tile path node
-        _dest = (TilePathNode)super.getNextNode();
+        _dest = super.getNextNode();
 
         // note that we've not yet arrived at the destination tile 
         _arrived = false;
@@ -183,7 +185,7 @@ public class TilePath extends LineSegmentPath
     protected boolean _arrived;
 
     /** The destination tile path node. */
-    protected TilePathNode _dest;
+    protected PathNode _dest;
 
     /** The iso scene view model. */
     protected IsoSceneViewModel _model;
