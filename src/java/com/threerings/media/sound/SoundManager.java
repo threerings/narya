@@ -1,5 +1,5 @@
 //
-// $Id: SoundManager.java,v 1.42 2003/01/08 04:09:02 mdb Exp $
+// $Id: SoundManager.java,v 1.43 2003/01/17 00:21:10 mdb Exp $
 
 package com.threerings.media.sound;
 
@@ -39,7 +39,7 @@ import org.apache.commons.io.StreamUtils;
 import org.apache.commons.lang.Constant;
 
 import com.samskivert.util.Config;
-import com.samskivert.util.LockableLRUHashMap;
+import com.samskivert.util.LRUHashMap;
 import com.samskivert.util.Queue;
 
 import com.threerings.resource.ResourceManager;
@@ -131,11 +131,12 @@ public class SoundManager
                             stopMusic(key);
 
                         } else if (LOCK == command) {
-                            _clipCache.lock(key);
                             getClipData(key); // preload
+                            // copy the cached sound into the lock map
+                            _lockedClips.put(key, _clipCache.get(key));
 
                         } else if (UNLOCK == command) {
-                            _clipCache.unlock(key);
+                            _lockedClips.remove(key);
 
                         } else if (UPDATE_MUSIC_VOL == command) {
                             updateMusicVolume();
@@ -636,8 +637,15 @@ public class SoundManager
         }
 
         byte[][] data = (byte[][]) _clipCache.get(key);
-        if (data == null) {
 
+        // see if it's in the locked cache (we first look in the regular
+        // clip cache so that locked clips that are still cached continue
+        // to be moved to the head of the LRU queue)
+        if (data == null) {
+            data = (byte[][]) _lockedClips.get(key);
+        }
+
+        if (data == null) {
             // if there is a test sound, JUST use the test sound.
             InputStream stream = getTestClip(key);
             if (stream != null) {
@@ -1053,7 +1061,12 @@ public class SoundManager
     protected int _musicAction = NONE;
 
     /** The cache of recent audio clips . */
-    protected LockableLRUHashMap _clipCache = new LockableLRUHashMap(10);
+    protected LRUHashMap _clipCache = new LRUHashMap(10);
+
+    /** The set of locked audio clips; this is separate from the LRU so
+     * that locking clips doesn't booch up an otherwise normal caching
+     * agenda. */
+    protected HashMap _lockedClips = new HashMap();
 
     /** The clips that are currently active. */
     protected ArrayList _activeClips = new ArrayList();
