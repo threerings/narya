@@ -1,12 +1,14 @@
 //
-// $Id: TrimmedTile.java,v 1.1 2002/05/06 18:08:32 mdb Exp $
+// $Id: TrimmedTile.java,v 1.2 2002/06/19 08:28:25 mdb Exp $
 
 package com.threerings.media.tile;
 
-import java.awt.Graphics2D;
+import java.awt.Graphics;
 import java.awt.Image;
 import java.awt.Rectangle;
 import java.awt.Shape;
+
+import java.awt.image.BufferedImage;
 
 import com.samskivert.util.StringUtil;
 
@@ -39,13 +41,12 @@ public class TrimmedTile extends Tile
     }
 
     // documentation inherited
-    public void paint (Graphics2D gfx, int x, int y)
+    public void paint (Graphics gfx, int x, int y)
     {
-        int vx = x + _tbounds.x, vy = y + _tbounds.y;
-        Shape oclip = gfx.getClip();
-        gfx.clipRect(vx, vy, _tbounds.width, _tbounds.height);
-	gfx.drawImage(_image, vx - _bounds.x, vy - _bounds.y, null);
-        gfx.setClip(oclip);
+        if (_subimage == null) {
+            createSubImage();
+        }
+        gfx.drawImage(_subimage, x + _tbounds.x, y + _tbounds.y, null);
     }
 
     // documentation inherited
@@ -60,6 +61,18 @@ public class TrimmedTile extends Tile
     public boolean hitTest (int x, int y)
     {
         return ImageUtil.hitTest(_image, _bounds.x + x, _bounds.y + y);
+    }
+
+    // documentation inherited
+    protected void createSubImage ()
+    {
+        if (_image instanceof BufferedImage) {
+            _subimage = ImageUtil.getSubimage(_image, _bounds.x, _bounds.y,
+                                              _tbounds.width, _tbounds.height);
+        } else {
+            String errmsg = "Can't obtain tile image [tile=" + this + "].";
+            throw new RuntimeException(errmsg);
+        }
     }
 
     // documentation inherited
