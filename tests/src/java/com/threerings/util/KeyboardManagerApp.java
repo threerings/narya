@@ -1,12 +1,14 @@
 //
-// $Id: KeyboardManagerApp.java,v 1.2 2002/01/18 23:32:15 shaper Exp $
+// $Id: KeyboardManagerApp.java,v 1.3 2002/01/22 18:11:33 shaper Exp $
 
 package com.threerings.util;
 
-import java.awt.Frame;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+
+import javax.swing.JFrame;
+import javax.swing.JPanel;
 
 import com.samskivert.swing.Controller;
 import com.samskivert.swing.ControllerProvider;
@@ -32,12 +34,17 @@ public class KeyboardManagerApp
         app.run();
     }
 
-    protected class TestFrame extends Frame implements ControllerProvider
+    protected static class TestFrame extends JFrame
+        implements ControllerProvider
     {
         public TestFrame ()
         {
             // create the test controller
             _ctrl = new TestController();
+
+            setDefaultCloseOperation(EXIT_ON_CLOSE);
+
+            JPanel top = new JPanel();
 
             // add some sample key mappings
             KeyTranslatorImpl xlate = new KeyTranslatorImpl();
@@ -47,7 +54,9 @@ public class KeyboardManagerApp
             xlate.addPressCommand(KeyEvent.VK_SPACE, TestController.DROP);
 
             // create the keyboard manager
-            KeyboardManager keymgr = new KeyboardManager(this, xlate);
+            KeyboardManager keymgr = new KeyboardManager(top, xlate);
+
+            getContentPane().add(top);
         }
 
         // documentation inherited
@@ -60,7 +69,7 @@ public class KeyboardManagerApp
         protected Controller _ctrl;
     }
 
-    protected class TestController extends Controller
+    protected static class TestController extends Controller
     {
         public static final String MOVE_LEFT = "move_left";
         public static final String MOVE_RIGHT = "move_right";
@@ -76,5 +85,5 @@ public class KeyboardManagerApp
     }
 
     /** The test frame. */
-    protected Frame _frame;
+    protected JFrame _frame;
 }
