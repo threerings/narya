@@ -1,10 +1,11 @@
 //
-// $Id: ZoneDirector.java,v 1.5 2002/05/26 02:24:46 mdb Exp $
+// $Id: ZoneDirector.java,v 1.6 2002/05/26 02:35:02 mdb Exp $
 
 package com.threerings.whirled.zone.client;
 
 import java.util.ArrayList;
 
+import com.threerings.presents.client.InvocationReceiver;
 import com.threerings.crowd.data.PlaceConfig;
 
 import com.threerings.whirled.client.SceneDirector;
@@ -12,6 +13,7 @@ import com.threerings.whirled.data.SceneModel;
 import com.threerings.whirled.util.WhirledContext;
 
 import com.threerings.whirled.zone.Log;
+import com.threerings.whirled.zone.data.ZoneCodes;
 import com.threerings.whirled.zone.data.ZoneSummary;
 
 /**
@@ -24,6 +26,7 @@ import com.threerings.whirled.zone.data.ZoneSummary;
  * generate an overview map or similar.
  */
 public class ZoneDirector
+    implements InvocationReceiver, ZoneCodes
 {
     /**
      * Constructs a zone director with the supplied context, and delegate
@@ -35,6 +38,10 @@ public class ZoneDirector
     {
         _ctx = ctx;
         _scdir = scdir;
+
+        // register for zone notifications
+        _ctx.getClient().getInvocationDirector().registerReceiver(
+            MODULE_NAME, this);
     }
 
     /**
