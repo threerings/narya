@@ -1,5 +1,5 @@
 //
-// $Id: CharacterSprite.java,v 1.23 2002/03/08 22:35:55 mdb Exp $
+// $Id: CharacterSprite.java,v 1.24 2002/03/15 01:10:25 mdb Exp $
 
 package com.threerings.cast;
 
@@ -51,12 +51,32 @@ public class CharacterSprite
     }
 
     /**
+     * Returns the action to be used when the sprite is at rest. Derived
+     * classes may wish to override this method and vary the action based
+     * on external parameters (or randomly).
+     */
+    public String getRestingAction ()
+    {
+        return _restingAction;
+    }
+
+    /**
      * Specifies the action to use when the sprite is following a path.
      * The default is <code>WALKING</code>.
      */
     public void setFollowingPathAction (String action)
     {
         _followingPathAction = action;
+    }
+
+    /**
+     * Returns the action to be used when the sprite is following a path.
+     * Derived classes may wish to override this method and vary the
+     * action based on external parameters (or randomly).
+     */
+    public String getFollowingPathAction ()
+    {
+        return _followingPathAction;
     }
 
     /**
@@ -142,7 +162,7 @@ public class CharacterSprite
         super.pathBeginning();
 
         // enable walking animation
-        setActionSequence(_followingPathAction);
+        setActionSequence(getFollowingPathAction());
         setAnimationMode(TIME_BASED);
     }
 
@@ -162,7 +182,7 @@ public class CharacterSprite
         // disable animation
         setAnimationMode(NO_ANIMATION);
         // come to a halt looking settled and at peace
-        setActionSequence(_restingAction);
+        setActionSequence(getRestingAction());
     }
 
     /** The action to use when at rest. */
