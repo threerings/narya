@@ -1,5 +1,5 @@
 //
-// $Id: IconManager.java,v 1.4 2002/12/07 02:09:45 shaper Exp $
+// $Id: IconManager.java,v 1.5 2002/12/07 02:13:00 shaper Exp $
 
 package com.threerings.media;
 
@@ -175,6 +175,6 @@ public class IconManager
      * metrics configuration parameter. */
     protected static final String METRICS_SUFFIX = ".metrics";
 
-    /** The maximum number of icons that may be cached at any one time. */
-    protected static final int ICON_CACHE_SIZE = 50;
+    /** The maximum number of icon tilesets that may be cached at once. */
+    protected static final int ICON_CACHE_SIZE = 10;
 }
