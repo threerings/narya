@@ -1,5 +1,5 @@
 //
-// $Id: ButtonSprite.java,v 1.2 2004/11/02 23:49:58 andrzej Exp $
+// $Id: ButtonSprite.java,v 1.3 2004/11/05 02:07:19 andrzej Exp $
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -41,14 +41,14 @@ public class ButtonSprite extends Sprite
     /** The normal, square button style. */
     public static final int NORMAL = 0;
     
-    /** The sausage button style. */
-    public static final int SAUSAGE = 1;
+    /** The rounded button style. */
+    public static final int ROUNDED = 1;
     
     /**
      * Constructs a button sprite.
      *
      * @param label the label to render on the button
-     * @param style the style of button to render (NORMAL or SAUSAGE)
+     * @param style the style of button to render (NORMAL or ROUNDED)
      * @param backgroundColor the background color of the button
      * @param alternateColor the alternate (outline) color
      * @param actionCommand the button's command
@@ -66,6 +66,32 @@ public class ButtonSprite extends Sprite
     }
 
     /**
+     * Constructs a button sprite.
+     *
+     * @param label the label to render on the button
+     * @param style the style of button to render (NORMAL or ROUNDED)
+     * @param arcWidth the width of the corner arcs for rounded buttons
+     * @param arcHeight the height of the corner arcs for rounded buttons
+     * @param backgroundColor the background color of the button
+     * @param alternateColor the alternate (outline) color
+     * @param actionCommand the button's command
+     * @param commandArgument the button's command argument
+     */
+    public ButtonSprite (Label label, int style, int arcWidth, int arcHeight,
+        Color backgroundColor, Color alternateColor, String actionCommand, 
+        Object commandArgument)
+    {
+        _label = label;
+        _style = style;
+        _arcWidth = arcWidth;
+        _arcHeight = arcHeight;
+        _backgroundColor = backgroundColor;
+        _alternateColor = alternateColor;
+        _actionCommand = actionCommand;
+        _commandArgument = commandArgument;
+    }
+    
+    /**
      * Returns a reference to the label displayed by this sprite.
      */
     public Label getLabel ()
@@ -81,7 +107,7 @@ public class ButtonSprite extends Sprite
         // size the bounds to fit our label
         Dimension size = _label.getSize();
         _bounds.width = size.width + PADDING*2 + 
-            (_style == SAUSAGE ? size.height : 0);
+            (_style == ROUNDED ? _arcWidth : 0);
         _bounds.height = size.height + PADDING*2;
     }
     
@@ -100,6 +126,40 @@ public class ButtonSprite extends Sprite
     public int getStyle ()
     {
         return _style;
+    }
+    
+    /**
+     * Sets the arc width for rounded buttons.
+     */
+    public void setArcWidth (int arcWidth) 
+    {
+        _arcWidth = arcWidth;
+        updateBounds();
+    }
+    
+    /**
+     * Returns the arc width for rounded buttons.
+     */
+    public int getArcWidth ()
+    {
+        return _arcWidth;
+    }
+    
+    /**
+     * Sets the arc height for rounded buttons.
+     */
+    public void setArcHeight (int arcHeight) 
+    {
+        _arcHeight = arcHeight;
+        updateBounds();
+    }
+    
+    /**
+     * Returns the arc height for rounded buttons.
+     */
+    public int getArcHeight ()
+    {
+        return _arcHeight;
     }
     
     /**
@@ -216,31 +276,46 @@ public class ButtonSprite extends Sprite
                 _label.render(gfx, _bounds.x + (_pressed ? PADDING : PADDING - 1),
                     _bounds.y + (_pressed ? PADDING : PADDING - 1));
                 break;
-            case SAUSAGE:
+            case ROUNDED:
                 Object aaState = SwingUtil.activateAntiAliasing(gfx);
+                // draw outline
                 gfx.setColor(_alternateColor);
                 gfx.fillRoundRect(_bounds.x, _bounds.y, _bounds.width, _bounds.height, 
-                    _bounds.height, _bounds.height);
+                    _arcWidth, _arcHeight);
+                // draw foreground
                 gfx.setColor(_enabled ? _backgroundColor : _backgroundColor.darker());
                 int innerBoundsX = _bounds.x+1, innerBoundsY = _bounds.y+1, 
-                    innerBoundsWidth = _bounds.width-2, innerBoundsHeight = _bounds.height-2;
+                    innerBoundsWidth = _bounds.width-2, innerBoundsHeight = _bounds.height-2,
+                    innerBoundsArcWidth = _arcWidth-2, innerBoundsArcHeight = _arcHeight-2;
                 gfx.fillRoundRect(innerBoundsX, innerBoundsY, innerBoundsWidth, innerBoundsHeight,
-                    innerBoundsHeight, innerBoundsHeight);
+                    innerBoundsArcWidth, innerBoundsArcHeight);
                 Color brighter = _enabled ? _backgroundColor.brighter() : _backgroundColor,
                     darker = _enabled ? _backgroundColor.darker() : _backgroundColor.darker().darker();
+                // draw the upper left/lower right corners (always dark)
+                gfx.setColor(darker);
+                gfx.drawArc(innerBoundsX, innerBoundsY, innerBoundsArcWidth, innerBoundsArcHeight, 90, 90);
+                gfx.drawArc(innerBoundsX + innerBoundsWidth - innerBoundsArcWidth - 1,
+                    innerBoundsY + innerBoundsHeight - innerBoundsArcHeight - 1,
+                    innerBoundsArcWidth, innerBoundsArcHeight, 270, 90);
+                // draw the upper right (dark when pressed)
                 gfx.setColor(_pressed ? darker : brighter);
-                gfx.drawArc(innerBoundsX + innerBoundsWidth - innerBoundsHeight, innerBoundsY,
-                    innerBoundsHeight-1, innerBoundsHeight-1, 270, 180);
+                gfx.drawLine(innerBoundsX + innerBoundsArcWidth/2, innerBoundsY, 
+                    innerBoundsX + innerBoundsWidth - innerBoundsArcWidth/2, innerBoundsY);
+                gfx.drawArc(innerBoundsX + innerBoundsWidth - innerBoundsArcWidth - 1, innerBoundsY,
+                    innerBoundsArcWidth, innerBoundsArcHeight, 0, 90);
+                gfx.drawLine(innerBoundsX + innerBoundsWidth - 1, innerBoundsY + innerBoundsArcHeight/2,
+                    innerBoundsX + innerBoundsWidth - 1, innerBoundsY + innerBoundsHeight - innerBoundsArcHeight/2);
+                // draw the lower left (light when pressed)
                 gfx.setColor(_pressed ? brighter : darker);
-                gfx.drawArc(innerBoundsX, innerBoundsY, innerBoundsHeight-1, innerBoundsHeight-1, 90, 180);
-                gfx.drawLine(innerBoundsX + innerBoundsHeight/2 - 2, innerBoundsY + innerBoundsHeight - 1, 
-                    innerBoundsX + innerBoundsWidth - innerBoundsHeight/2 + 1, 
+                gfx.drawLine(innerBoundsX, innerBoundsY + innerBoundsArcHeight/2, innerBoundsX,
+                    innerBoundsY + innerBoundsHeight - innerBoundsArcHeight/2);
+                gfx.drawArc(innerBoundsX, innerBoundsY + innerBoundsHeight - innerBoundsArcHeight - 1,
+                    innerBoundsArcWidth, innerBoundsArcHeight, 180, 90);
+                gfx.drawLine(innerBoundsX + innerBoundsArcWidth/2, innerBoundsY + innerBoundsHeight - 1, 
+                    innerBoundsX + innerBoundsWidth - innerBoundsArcWidth/2, 
                     innerBoundsY + innerBoundsHeight - 1);
-                gfx.setColor(_pressed ? darker : brighter);
-                gfx.drawLine(innerBoundsX + innerBoundsHeight/2 - 2, innerBoundsY, 
-                    innerBoundsX + innerBoundsWidth - innerBoundsHeight/2 + 1, innerBoundsY);
                 SwingUtil.restoreAntiAliasing(gfx, aaState);
-                _label.render(gfx, _bounds.x + _bounds.height/2 + PADDING - (_pressed ? 3 : 2), 
+                _label.render(gfx, _bounds.x + PADDING + _arcWidth/2 - (_pressed ? 2 : 1), 
                     _bounds.y + PADDING + (_pressed ? 1 : 0));
                 break;
         }
@@ -259,6 +334,12 @@ public class ButtonSprite extends Sprite
     
     /** The button style. */
     protected int _style;
+    
+    /** The width of the corner arcs for rounded rectangle buttons. */
+    protected int _arcWidth;
+    
+    /** The height of the corner arcs for rounded rectangle buttons. */
+    protected int _arcHeight;
     
     /** The action command generated by this button. */
     protected String _actionCommand;
