@@ -55,8 +55,9 @@ if (defined $libpath) {
 my $classpath = "-classpath $root/dist/classes";
 
 # add zip and jar files from our lib/ directory and the system lib/ directory
-my @dirs = ( "$root/lib", "/usr/share/java" );
+my @dirs = ( "$root/lib", $ENV{"JAVA_LIBS"} );
 foreach $dir (@dirs) {
+    next unless (defined $dir);
     if (opendir(DIR, $dir)) {
         foreach $lib (grep { /.(zip|jar)/ && -f "$dir/$_" } readdir(DIR)) {
             $classpath .= ":$dir/$lib";
