@@ -1,5 +1,5 @@
 //
-// $Id: XMLSceneWriter.java,v 1.15 2001/10/11 00:41:27 shaper Exp $
+// $Id: XMLSceneWriter.java,v 1.16 2001/10/17 22:18:22 shaper Exp $
 
 package com.threerings.miso.scene.xml;
 
@@ -17,6 +17,7 @@ import com.threerings.media.tile.Tile;
 
 import com.threerings.miso.Log;
 import com.threerings.miso.scene.*;
+import com.threerings.miso.tile.ShadowTile;
 
 /**
  * The <code>XMLSceneWriter</code> writes a {@link
@@ -216,6 +217,14 @@ public class XMLSceneWriter extends DataWriter
                 Log.warning("Null tile [x=" + ii + ", rownum=" + rownum +
                             ", lnum=" + lnum + "].");
                 continue;
+            }
+
+            // replace shadow tiles with the default tile for the
+            // scene since they'll be re-created when the object's
+            // footprint is stamped into the scene upon its
+            // un-serialization
+            if (tile instanceof ShadowTile) {
+                tile = scene.getDefaultTile();
             }
 
             buf.append(tile.tsid).append(",");
