@@ -1,5 +1,5 @@
 //
-// $Id: IsoUtil.java,v 1.27 2002/04/09 04:36:06 ray Exp $
+// $Id: IsoUtil.java,v 1.28 2002/04/09 04:37:38 ray Exp $
 
 package com.threerings.miso.scene.util;
 
@@ -476,6 +476,10 @@ public class IsoUtil
         return poly;
     }
 
+    /**
+     * Return a screen-coordinates polygon framing the two specified
+     * tile-coordinate points.
+     */
     public static Polygon getMultiTilePolygon (IsoSceneViewModel model,
                                                Point sp1, Point sp2)
     {
