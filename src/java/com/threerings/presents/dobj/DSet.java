@@ -1,5 +1,5 @@
 //
-// $Id: DSet.java,v 1.29 2003/07/11 01:21:23 ray Exp $
+// $Id: DSet.java,v 1.30 2003/07/11 01:49:52 mdb Exp $
 
 package com.threerings.presents.dobj;
 
@@ -143,6 +143,14 @@ public class DSet
      */
     public Iterator entries ()
     {
+        // the crazy sanity checks
+        if (_size < 0 ||_size > _entries.length ||
+            (_size > 0 && _entries[_size-1] == null)) {
+            Log.warning("DSet in a bad way [size=" + _size +
+                        ", entries=" + StringUtil.toString(_entries) + "].");
+            Thread.dumpStack();
+        }
+
         return new Iterator() {
             public boolean hasNext () {
                 checkComodification();
@@ -159,8 +167,16 @@ public class DSet
                 if (_modCount != _expectedModCount) {
                     throw new ConcurrentModificationException();
                 }
+                if (_ssize != _size) {
+                    Log.warning("Size changed during iteration " +
+                                "[ssize=" + _ssize + ", nsize=" + _size +
+                                ", entsries=" + StringUtil.toString(_entries) +
+                                "].");
+                    Thread.dumpStack();
+                }
             }
             protected int _index = 0;
+            protected int _ssize = _size;
             protected int _expectedModCount = _modCount;
         };
     }
