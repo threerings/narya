@@ -1,5 +1,5 @@
 //
-// $Id: JNLPDownloader.java,v 1.3 2003/08/05 07:03:34 mdb Exp $
+// $Id: JNLPDownloader.java,v 1.4 2003/08/08 03:40:46 mdb Exp $
 
 package com.threerings.resource;
 
@@ -23,6 +23,7 @@ import java.net.URLConnection;
 import com.sun.javaws.cache.Patcher;
 import com.sun.javaws.jardiff.JarDiffPatcher;
 
+import com.samskivert.io.StreamUtil;
 import com.samskivert.util.StringUtil;
 
 import com.threerings.resource.DownloadManager.DownloadDescriptor;
@@ -144,10 +145,11 @@ public class JNLPDownloader extends Downloader
                     // value);
                 }
             };
-            JarDiffPatcher patcher = new JarDiffPatcher();
 
+            JarDiffPatcher patcher = new JarDiffPatcher();
+            BufferedOutputStream out = null;
             try {
-                BufferedOutputStream out = new BufferedOutputStream(
+                out = new BufferedOutputStream(
                     new FileOutputStream(_desc.destFile));
                 patcher.applyPatch(delegate, oldDest.getPath(),
                                    _patchFile.getPath(), out);
@@ -156,6 +158,7 @@ public class JNLPDownloader extends Downloader
             } catch (IOException ioe) {
                 Log.warning("Failure applying patch [rfile=" + _desc.destFile +
                             ", error=" + ioe + "]. Cleaning up and failing.");
+                StreamUtil.close(out);
                 oldDest.delete();
                 cleanUpAndFail(ioe);
             }
@@ -219,12 +222,18 @@ public class JNLPDownloader extends Downloader
     protected void cleanUpAndFail (IOException cause)
         throws IOException
     {
-        _desc.destFile.delete();
+        if (!_desc.destFile.delete()) {
+            Log.warning("Failed to delete " + _desc.destFile +
+                        " in cleanUpAndFail().");
+        }
         if (_patchFile != null) {
             _patchFile.delete();
         }
         if (_vfile != null) {
-            _vfile.delete();
+            if (!_vfile.delete()) {
+                Log.warning("Failed to delete " + _vfile +
+                            " in cleanUpAndFail().");
+            }
         }
 
         IOException failure = new IOException(
