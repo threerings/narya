@@ -1,5 +1,5 @@
 //
-// $Id: AStarPathUtil.java,v 1.3 2001/08/16 23:14:21 mdb Exp $
+// $Id: AStarPathUtil.java,v 1.4 2001/08/23 00:55:30 shaper Exp $
 
 package com.threerings.miso.scene.util;
 
@@ -260,10 +260,14 @@ class AStarNode implements Comparable
     /** The node from which we reached this node. */
     public AStarNode parent;
 
+    /** The node's monotonically-increasing unique identifier. */
+    public int id;
+
     public AStarNode (int x, int y)
     {
 	this.x = x;
 	this.y = y;
+	id = _nextid++;
     }
 
     public int compareTo (Object o)
@@ -274,12 +278,15 @@ class AStarNode implements Comparable
 	// results returned here, and we'd like to allow multiple
 	// nodes with equivalent scores in our set, we explicitly
 	// define object equivalence as the result of object.equals(),
-	// else we use the object hashcode since it will return a
-	// consistent, though arbitrary, ordering for the objects.
+	// else we use the unique node id since it will return a
+	// consistent ordering for the objects.
   	if (f == bf) {
-	    return (this == o) ? 0 : (hashCode() - o.hashCode());
+	    return (this == o) ? 0 : (id - ((AStarNode)o).id);
   	}
 
 	return f - bf;
     }
+
+    /** The next unique node id. */
+    protected static int _nextid = 0;
 }
