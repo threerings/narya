@@ -1,5 +1,5 @@
 //
-// $Id: BuilderPanel.java,v 1.2 2001/11/01 01:40:42 shaper Exp $
+// $Id: BuilderPanel.java,v 1.3 2001/11/02 01:10:28 shaper Exp $
 
 package com.threerings.cast.builder;
 
@@ -10,6 +10,7 @@ import java.util.Iterator;
 import javax.swing.*;
 
 import com.samskivert.swing.*;
+import com.samskivert.util.StringUtil;
 
 import com.threerings.cast.*;
 
@@ -18,15 +19,13 @@ import com.threerings.cast.*;
  * composited character and facilities for altering the individual
  * components that comprise the character's display image.
  */
-public class BuilderPanel extends JPanel implements ActionListener
+public class BuilderPanel extends JPanel
 {
     /**
      * Constructs the builder panel.
      */
     public BuilderPanel (CharacterManager charmgr)
     {
-        _charmgr = charmgr;
-
         setLayout(new VGroupLayout());
 
 	// give ourselves a wee bit of a border
@@ -35,39 +34,13 @@ public class BuilderPanel extends JPanel implements ActionListener
         GroupLayout gl = new HGroupLayout(GroupLayout.STRETCH);
         gl.setOffAxisPolicy(GroupLayout.STRETCH);
 
+        // create the builder model
+        BuilderModel model = new BuilderModel(charmgr);
+
         // create the component selection and sprite display panels
         JPanel sub = new JPanel(gl);
-        sub.add(_comppanel = new ComponentPanel(_charmgr));
-        sub.add(_spritepanel = new SpritePanel());
-
+        sub.add(new ComponentPanel(model));
+        sub.add(new SpritePanel(charmgr, model));
         add(sub);
-
-        // create the "OK" button
-        JButton ok = new JButton("OK");
-        ok.addActionListener(this);
-        ok.setActionCommand("ok");
-        add(ok);
     }
-
-    public void actionPerformed (ActionEvent e)
-    {
-	String cmd = e.getActionCommand();
-	if (cmd.equals("ok")) {
-            CharacterDescriptor desc = _comppanel.getDescriptor();
-            CharacterSprite sprite = _charmgr.getCharacter(desc);
-            _spritepanel.setSprite(sprite);
-        } else {
-	    Log.warning("Unknown action command [cmd=" + cmd + "].");
-        }
-    }
-
-    /** The component panel that displays components available for
-     * selection. */
-    protected ComponentPanel _comppanel;
-
-    /** The sprite panel that displays the composited character sprite. */
-    protected SpritePanel _spritepanel;
-
-    /** The character manager. */
-    protected CharacterManager _charmgr;
 }

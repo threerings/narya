@@ -1,5 +1,5 @@
 //
-// $Id: CharacterManager.java,v 1.7 2001/11/01 01:40:42 shaper Exp $
+// $Id: CharacterManager.java,v 1.8 2001/11/02 01:10:28 shaper Exp $
 
 package com.threerings.cast;
 
@@ -43,7 +43,7 @@ public class CharacterManager
 
         // get the array of component ids of each class
         CharacterComponent components[] = getComponents(desc.getComponents());
-        if (components.length == 0) {
+        if (components == null || components.length == 0) {
             Log.warning("No character components in descriptor.");
             return null;
         }
@@ -146,7 +146,6 @@ public class CharacterManager
         // render all component frames one atop another
         for (int ii = 0; ii < _renderRank.length; ii++) {
             int clidx = _renderRank[ii].clid;
-            Log.info("Compositing component [c=" + components[clidx] + "].");
             TileUtil.compositeFrames(frames, components[clidx].getFrames());
         }
 

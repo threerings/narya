@@ -1,5 +1,5 @@
 //
-// $Id: SpritePanel.java,v 1.1 2001/10/30 16:16:01 shaper Exp $
+// $Id: SpritePanel.java,v 1.2 2001/11/02 01:10:28 shaper Exp $
 
 package com.threerings.cast.builder;
 
@@ -10,36 +10,35 @@ import javax.swing.border.BevelBorder;
 import com.threerings.media.sprite.*;
 
 import com.threerings.cast.Log;
-import com.threerings.cast.CharacterSprite;
+import com.threerings.cast.*;
 
 /**
  * The sprite panel displays a character sprite centered in the panel
  * suitable for user perusal.
  */
-public class SpritePanel extends AnimatedPanel
+public class SpritePanel
+    extends AnimatedPanel
+    implements BuilderModelListener
 {
     /**
      * Constructs the sprite panel.
      */
-    public SpritePanel ()
+    public SpritePanel (CharacterManager charmgr, BuilderModel model)
     {
-        // create and save off references to our managers
+        // save off references
+        _charmgr = charmgr;
+        _model = model;
+
+        // create managers
         _spritemgr = new SpriteManager();
         _animmgr = new AnimationManager(_spritemgr, this);
 
         // create a visually pleasing border
         setBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED));
-    }
 
-    /**
-     * Sets the sprite to be displayed.
-     */
-    public void setSprite (CharacterSprite sprite)
-    {
-        _sprite = sprite;
-        _sprite.setOrientation(Sprite.DIR_SOUTHWEST);
-        centerSprite();
-        repaint();
+        // listen to the builder model so that we can update the
+        // sprite when a new component is selected
+        _model.addListener(this);
     }
 
     // documentation inherited
@@ -52,6 +51,11 @@ public class SpritePanel extends AnimatedPanel
         Dimension d = getSize();
         gfx.fillRect(0, 0, d.width - 1, d.height - 1);
 
+        if (_sprite == null) {
+            // create the sprite if it's not yet extant
+            generateSprite();
+        }
+
         if (_sprite != null) {
             // render the sprite
             _sprite.paint((Graphics2D)g);
@@ -63,6 +67,37 @@ public class SpritePanel extends AnimatedPanel
     {
         super.setBounds(r);
         centerSprite();
+    }
+
+    // documentation inherited
+    public void modelChanged (int event)
+    {
+        if (event == COMPONENT_CHANGED) {
+            generateSprite();
+        }
+    }
+
+    /**
+     * Generates a new character sprite for display to reflect the
+     * currently selected character components.
+     */
+    protected void generateSprite ()
+    {
+        int components[] = _model.getSelectedComponents();
+        CharacterDescriptor desc = new CharacterDescriptor(components);
+        CharacterSprite sprite = _charmgr.getCharacter(desc);
+        setSprite(sprite);
+    }
+
+    /**
+     * Sets the sprite to be displayed.
+     */
+    protected void setSprite (CharacterSprite sprite)
+    {
+        _sprite = sprite;
+        _sprite.setOrientation(Sprite.DIR_SOUTHWEST);
+        centerSprite();
+        repaint();
     }
 
     /**
@@ -86,4 +121,10 @@ public class SpritePanel extends AnimatedPanel
 
     /** The sprite manager. */
     protected SpriteManager _spritemgr;
+
+    /** The character manager. */
+    protected CharacterManager _charmgr;
+
+    /** The builder model. */
+    protected BuilderModel _model;
 }
