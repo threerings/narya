@@ -1,5 +1,5 @@
 //
-// $Id: ClientManager.java,v 1.7 2001/07/25 17:59:30 mdb Exp $
+// $Id: ClientManager.java,v 1.8 2001/08/03 02:25:49 mdb Exp $
 
 package com.threerings.cocktail.cher.server;
 
@@ -32,17 +32,17 @@ public class ClientManager implements ConnectionObserver
 
     /**
      * Instructs the client manager to construct instances of this derived
-     * class of <code>Client</code> to managed newly accepted client
+     * class of <code>CherClient</code> to managed newly accepted client
      * connections.
      *
-     * @see Client
+     * @see CherClient
      */
     public void setClientClass (Class clientClass)
     {
         // sanity check
-        if (!Client.class.isAssignableFrom(clientClass)) {
+        if (!CherClient.class.isAssignableFrom(clientClass)) {
             Log.warning("Requested to use client class that does not " +
-                        "derive from Client " +
+                        "derive from CherClient " +
                         "[class=" + clientClass.getName() + "].");
             return;
         }
@@ -75,8 +75,8 @@ public class ClientManager implements ConnectionObserver
     /**
      * Returns the class that should be used when creating a distributed
      * object to accompany a particular client session. In general, this
-     * is only used by the <code>Client</code> object when it is setting
-     * up a client's session for the first time.
+     * is only used by the <code>CherClient</code> object when it is
+     * setting up a client's session for the first time.
      */
     public Class getClientObjectClass ()
     {
@@ -96,7 +96,7 @@ public class ClientManager implements ConnectionObserver
         String username = creds.getUsername();
 
         // see if there's a client already registered with this username
-        Client client = (Client)_usermap.get(username);
+        CherClient client = (CherClient)_usermap.get(username);
 
         if (client != null) {
             Log.info("Session resumed [username=" + username +
@@ -108,7 +108,7 @@ public class ClientManager implements ConnectionObserver
                      ", conn=" + conn + "].");
             // create a new client and stick'em in the table
             try {
-                client = (Client)_clientClass.newInstance();
+                client = (CherClient)_clientClass.newInstance();
                 client.init(this, username, conn);
                 _usermap.put(username, client);
             } catch (Exception e) {
@@ -136,7 +136,7 @@ public class ClientManager implements ConnectionObserver
         void connectionFailed (Connection conn, IOException fault)
     {
         // remove the client from the connection map
-        Client client = (Client)_conmap.remove(conn);
+        CherClient client = (CherClient)_conmap.remove(conn);
         if (client != null) {
             Log.info("Unmapped failed client [client=" + client +
                      ", conn=" + conn + ", fault=" + fault + "].");
@@ -157,7 +157,7 @@ public class ClientManager implements ConnectionObserver
     public synchronized void connectionClosed (Connection conn)
     {
         // remove the client from the connection map
-        Client client = (Client)_conmap.remove(conn);
+        CherClient client = (CherClient)_conmap.remove(conn);
         if (client != null) {
             Log.info("Unmapped client [client=" + client +
                      ", conn=" + conn + "].");
@@ -170,10 +170,10 @@ public class ClientManager implements ConnectionObserver
      * Called by the client instance when the client requests a logoff.
      * This is called from the conmgr thread.
      */
-    synchronized void clientDidEndSession (Client client)
+    synchronized void clientDidEndSession (CherClient client)
     {
         // remove the client from the username map
-        Client rc = (Client)_usermap.remove(client.getUsername());
+        CherClient rc = (CherClient)_usermap.remove(client.getUsername());
 
         // sanity check because we can
         if (rc == null) {
@@ -192,6 +192,6 @@ public class ClientManager implements ConnectionObserver
     protected HashMap _usermap = new HashMap();
     protected HashMap _conmap = new HashMap();
 
-    protected Class _clientClass = Client.class;
+    protected Class _clientClass = CherClient.class;
     protected Class _clobjClass = ClientObject.class;
 }

@@ -1,5 +1,5 @@
 //
-// $Id: PresentsClient.java,v 1.12 2001/08/03 02:21:16 mdb Exp $
+// $Id: PresentsClient.java,v 1.13 2001/08/03 02:25:49 mdb Exp $
 
 package com.threerings.cocktail.cher.server;
 
@@ -26,7 +26,7 @@ import com.threerings.cocktail.cher.server.net.*;
  * not overlap with its other client duties which are called from the
  * conmgr thread and therefore also need not be synchronized.
  */
-public class Client implements Subscriber, MessageHandler
+public class CherClient implements Subscriber, MessageHandler
 {
     /**
      * Initializes this client instance with the specified username and
@@ -52,7 +52,7 @@ public class Client implements Subscriber, MessageHandler
             public void requestFailed (int oid, ObjectAccessException cause)
             {
                 Log.warning("Unable to create client object " +
-                            "[client=" + Client.this +
+                            "[client=" + CherClient.this +
                             ", error=" + cause + "].");
             }
 
@@ -291,7 +291,7 @@ public class Client implements Subscriber, MessageHandler
         /**
          * Dispatch the supplied message for the specified client.
          */
-        public void dispatch (Client client, UpstreamMessage mge);
+        public void dispatch (CherClient client, UpstreamMessage mge);
     }
 
     /**
@@ -299,7 +299,7 @@ public class Client implements Subscriber, MessageHandler
      */
     protected static class SubscribeDispatcher implements MessageDispatcher
     {
-        public void dispatch (Client client, UpstreamMessage msg)
+        public void dispatch (CherClient client, UpstreamMessage msg)
         {
             SubscribeRequest req = (SubscribeRequest)msg;
             Log.info("Subscribing [client=" + client +
@@ -314,7 +314,7 @@ public class Client implements Subscriber, MessageHandler
      */
     protected static class UnsubscribeDispatcher implements MessageDispatcher
     {
-        public void dispatch (Client client, UpstreamMessage msg)
+        public void dispatch (CherClient client, UpstreamMessage msg)
         {
             UnsubscribeRequest req = (UnsubscribeRequest)msg;
             Log.info("Unsubscribing [client=" + client +
@@ -329,7 +329,7 @@ public class Client implements Subscriber, MessageHandler
      */
     protected static class ForwardEventDispatcher implements MessageDispatcher
     {
-        public void dispatch (Client client, UpstreamMessage msg)
+        public void dispatch (CherClient client, UpstreamMessage msg)
         {
             ForwardEventRequest req = (ForwardEventRequest)msg;
             DEvent fevt = req.getEvent();
@@ -350,7 +350,7 @@ public class Client implements Subscriber, MessageHandler
      */
     protected static class PingDispatcher implements MessageDispatcher
     {
-        public void dispatch (Client client, UpstreamMessage msg)
+        public void dispatch (CherClient client, UpstreamMessage msg)
         {
             Log.info("Received client ping [client=" + client + "].");
             // send a pong response
@@ -368,7 +368,7 @@ public class Client implements Subscriber, MessageHandler
      */
     protected static class LogoffDispatcher implements MessageDispatcher
     {
-        public void dispatch (Client client, UpstreamMessage msg)
+        public void dispatch (CherClient client, UpstreamMessage msg)
         {
             Log.info("Client requested logoff " +
                      "[client=" + client + "].");
