@@ -1,5 +1,5 @@
 //
-// $Id: ConnectionManager.java,v 1.25 2002/11/18 18:53:10 mdb Exp $
+// $Id: ConnectionManager.java,v 1.26 2002/11/18 18:56:52 mdb Exp $
 
 package com.threerings.presents.server.net;
 
@@ -12,7 +12,6 @@ import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 import java.nio.channels.spi.SelectorProvider;
 
-import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.SocketException;
 
@@ -64,8 +63,7 @@ public class ConnectionManager extends LoopingThread
             _listener = ServerSocketChannel.open();
             _listener.configureBlocking(false);
 
-            InetAddress lh = InetAddress.getLocalHost();
-            InetSocketAddress isa = new InetSocketAddress(lh, _port);
+            InetSocketAddress isa = new InetSocketAddress(_port);
             _listener.socket().bind(isa);
             Log.info("Server listening on " + isa + ".");
 
