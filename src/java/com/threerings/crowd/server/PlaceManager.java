@@ -1,5 +1,5 @@
 //
-// $Id: PlaceManager.java,v 1.28 2002/03/18 23:21:26 mdb Exp $
+// $Id: PlaceManager.java,v 1.29 2002/04/17 22:02:08 mdb Exp $
 
 package com.threerings.crowd.server;
 
@@ -135,9 +135,6 @@ public class PlaceManager
         // keep track of this
         _plobj = plobj;
 
-        // configure the occupant info set
-        plobj.occupantInfo.setEntryType(getOccupantInfoClass());
-
         // we'll need to hear about place object events
         plobj.addListener(this);
 
@@ -188,13 +185,14 @@ public class PlaceManager
     }
 
     /**
-     * When the manager starts up, it configures its place object occupant
-     * info set by setting the type of occupant info objects it will
-     * contain. Managers that wish to use derived occupant info classes
-     * should override this function and return a reference to their
-     * derived class.
+     * Returns the appropriate derived class of {@link OccupantInfo} that
+     * will be used to provide occupant info for this body. An occupant
+     * info record is created when a body enters a place.
+     *
+     * @param body the body that is entering the place and for whom we are
+     * creating an occupant info record.
      */
-    protected Class getOccupantInfoClass ()
+    protected Class getOccupantInfoClass (BodyObject body)
     {
         return OccupantInfo.class;
     }
@@ -211,7 +209,7 @@ public class PlaceManager
         // create a new occupant info instance
         try {
             OccupantInfo info = (OccupantInfo)
-                getOccupantInfoClass().newInstance();
+                getOccupantInfoClass(body).newInstance();
             populateOccupantInfo(info, body);
             return info;
 
