@@ -1,5 +1,5 @@
 //
-// $Id: SpotSceneDirector.java,v 1.14 2002/06/14 01:40:16 ray Exp $
+// $Id: SpotSceneDirector.java,v 1.15 2002/07/22 22:26:26 ray Exp $
 
 package com.threerings.whirled.spot.client;
 
@@ -12,6 +12,7 @@ import com.threerings.presents.dobj.DObjectManager;
 import com.threerings.presents.dobj.ObjectAccessException;
 import com.threerings.presents.dobj.Subscriber;
 
+import com.threerings.crowd.chat.ChatCodes;
 import com.threerings.crowd.chat.ChatDirector;
 import com.threerings.crowd.client.LocationAdapter;
 import com.threerings.crowd.client.LocationDirector;
@@ -206,6 +207,18 @@ public class SpotSceneDirector
      */
     public boolean requestClusterSpeak (String message)
     {
+        return requestClusterSpeak(message, ChatCodes.DEFAULT_MODE);
+    }
+
+    /**
+     * Sends a chat message to the other users in the cluster to which the
+     * location that we currently occupy belongs.
+     *
+     * @return true if a cluster speak message was delivered, false if we
+     * are not in a valid cluster and refused to deliver the request.
+     */
+    public boolean requestClusterSpeak (String message, String mode)
+    {
         // make sure we're currently in a scene
         DisplaySpotScene scene = (DisplaySpotScene)_scdir.getScene();
         if (scene == null) {
@@ -231,7 +244,7 @@ public class SpotSceneDirector
 
         // we're all clear to go
         SpotService.clusterSpeak(
-            _ctx.getClient(), scene.getId(), _locationId, message, this);
+            _ctx.getClient(), scene.getId(), _locationId, message, mode, this);
         return true;
     }
 

@@ -1,5 +1,5 @@
 //
-// $Id: ChatProvider.java,v 1.10 2002/04/30 17:27:30 mdb Exp $
+// $Id: ChatProvider.java,v 1.11 2002/07/22 22:26:26 ray Exp $
 
 package com.threerings.crowd.chat;
 
@@ -84,11 +84,35 @@ public class ChatProvider
     public static void sendChatMessage (
         int placeOid, String speaker, String bundle, String message)
     {
+        sendChatMessage(
+            placeOid, speaker, bundle, message, ChatCodes.DEFAULT_MODE);
+    }
+
+    /**
+     * Sends a chat notification to the specified place object originating
+     * with the specified speaker (the speaker optionally being a server
+     * entity that wishes to fake a "speak" message) and with the supplied
+     * message content.
+     *
+     * @param placeOid the place to which to deliver the chat message.
+     * @param speaker the username of the user that generated the message
+     * (or some special speaker name for server messages).
+     * @param bundle null when the message originates from a real human,
+     * the bundle identifier that will be used by the client to translate
+     * the message text when the message originates from a server entity
+     * "faking" a chat message.
+     * @param message the text of the chat message.
+     * @param mode the mode of the message, @see ChatCodes.DEFAULT_MODE
+     */
+    public static void sendChatMessage (
+        int placeOid, String speaker, String bundle, String message,
+        String mode)
+    {
         Object[] outargs = null;
         if (bundle == null) {
-            outargs = new Object[] { speaker, message };
+            outargs = new Object[] { speaker, message, mode };
         } else {
-            outargs = new Object[] { speaker, bundle, message };
+            outargs = new Object[] { speaker, bundle, message, mode };
         }
         MessageEvent nevt = new MessageEvent(
             placeOid, ChatService.SPEAK_NOTIFICATION, outargs);

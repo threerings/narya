@@ -1,5 +1,5 @@
 //
-// $Id: ChatDisplay.java,v 1.10 2002/07/17 20:53:31 shaper Exp $
+// $Id: ChatDisplay.java,v 1.11 2002/07/22 22:26:26 ray Exp $
 
 package com.threerings.crowd.chat;
 
@@ -27,9 +27,13 @@ public interface ChatDisplay
      * contain a bundle identifier that should be used to translate the
      * message text.
      * @param message the text of the message.
+     * @param mode the mode of the speak (@see ChatCodes.DEFAULT_MODE
+     *                                    @see ChatCodes.THINK_MODE,
+     *                                    @see ChatCodes.EMOTE_MODE ).
      */
     public void displaySpeakMessage (
-        String type, String speaker, String bundle, String message);
+        String type, String speaker, String bundle, String message,
+        String mode);
 
     /**
      * Called to display a tell message. A tell message is one that is

@@ -1,5 +1,5 @@
 //
-// $Id: SpotProvider.java,v 1.10 2002/06/20 22:38:58 mdb Exp $
+// $Id: SpotProvider.java,v 1.11 2002/07/22 22:26:26 ray Exp $
 
 package com.threerings.whirled.spot.server;
 
@@ -194,10 +194,11 @@ public class SpotProvider extends InvocationProvider
      * Handles {@link SpotCodes#CLUSTER_SPEAK_REQUEST} messages.
      */
     public void handleClusterSpeakRequest (
-        BodyObject source, int invid, int sceneId, int locId, String message)
+        BodyObject source, int invid, int sceneId, int locId, String message,
+        String mode)
     {
         sendClusterChatMessage(sceneId, locId, source.getOid(),
-                               source.username, null, message);
+                               source.username, null, message, mode);
     }
 
     /**
@@ -221,7 +222,7 @@ public class SpotProvider extends InvocationProvider
      */
     public static void sendClusterChatMessage (
         int sceneId, int locId, int speakerOid, String speaker,
-        String bundle, String message)
+        String bundle, String message, String mode)
     {
         // look up the scene manager for the specified scene
         SpotSceneManager smgr = (SpotSceneManager)
@@ -237,7 +238,7 @@ public class SpotProvider extends InvocationProvider
             // need to check that the location exists and that the speaker
             // occupies it and so on
             smgr.handleClusterSpeakRequest(
-                speakerOid, speaker, locId, bundle, message);
+                speakerOid, speaker, locId, bundle, message, mode);
         }
     }
 

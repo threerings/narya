@@ -1,5 +1,5 @@
 //
-// $Id: ChatDirector.java,v 1.25 2002/07/17 20:53:31 shaper Exp $
+// $Id: ChatDirector.java,v 1.26 2002/07/22 22:26:26 ray Exp $
 
 package com.threerings.crowd.chat;
 
@@ -351,21 +351,24 @@ public class ChatDirector
         }
 
         String bundle = null;
-        String message = null;
+        String message, mode;
 
         // determine whether this speak message originated from another
         // client or from a server entity
-        if (args.length == 2) {
+        if (args.length == 3) {
             message = (String)args[1];
+            mode = (String) args[2];
+
         } else {
             bundle = (String)args[1];
             message = (String)args[2];
+            mode = (String) args[3];
         }
 
         // pass this on to our chat displays
         for (int i = 0; i < _displays.size(); i++) {
             ChatDisplay display = (ChatDisplay)_displays.get(i);
-            display.displaySpeakMessage(type, speaker, bundle, message);
+            display.displaySpeakMessage(type, speaker, bundle, message, mode);
         }
     }
 
