@@ -1,5 +1,5 @@
 //
-// $Id: SoundManager.java,v 1.26 2002/11/23 02:09:36 ray Exp $
+// $Id: SoundManager.java,v 1.27 2002/11/23 03:24:26 ray Exp $
 
 package com.threerings.media;
 
@@ -222,7 +222,16 @@ public class SoundManager
      */
     public void setMusicVolume (float vol)
     {
+        float oldvol = _musicVol;
         _musicVol = Math.max(0f, Math.min(1f, vol));
+
+        if ((oldvol == 0f) && (_musicVol != 0f)) {
+            _musicAction = START;
+        } else if ((oldvol != 0f) && (_musicVol == 0f)) {
+            _musicAction = STOP;
+        } else {
+            _musicAction = NONE;
+        }
         _queue.append(UPDATE_MUSIC_VOL);
     }
 
@@ -268,7 +277,7 @@ public class SoundManager
             type = DEFAULT;
         }
 
-        if (_player != null && isEnabled(type)) {
+        if (_player != null && (_clipVol != 0f) && isEnabled(type)) {
             synchronized (_queue) {
                 if (_queue.size() < MAX_QUEUE_SIZE) {
                     _queue.append(PLAY);
@@ -370,6 +379,14 @@ public class SoundManager
     protected void playTopMusic ()
     {
         if (_musicStack.isEmpty()) {
+            return;
+        }
+
+        // if the volume is off, we don't actually want to play anything
+        // but we want to at least decrement any loopers by one
+        // and keep them on the top of the queue
+        if (_musicVol == 0f) {
+            handleMusicStopped();
             return;
         }
 
@@ -497,11 +514,22 @@ public class SoundManager
 
     /**
      * Attempt to modify the music volume for any playing tracks.
+     *
+     * @param start
      */
     protected void updateMusicVolume ()
     {
         if (_musicPlayer != null) {
             _musicPlayer.setVolume(_musicVol);
+        }
+        switch (_musicAction) {
+        case START:
+            playTopMusic();
+            break;
+
+        case STOP:
+            shutdownMusic();
+            break;
         }
     }
 
@@ -517,6 +545,7 @@ public class SoundManager
         if (_musicPlayer != null) {
             _musicPlayer.stop();
             _musicPlayer.shutdown();
+            _musicPlayer = null;
         }
     }
 
@@ -716,6 +745,12 @@ public class SoundManager
                 }
             }
 
+            // SO, I used to just always drain, but I found what appears
+            // to be a bug in linux's native implementation of drain
+            // that sometimes resulted in the internals of drain
+            // going into an infinite loop. Checking to see if the line
+            // isActive (engaging in I/O) before calling drain seems
+            // to have stopped the problem from happening.
             if (_line.isActive()) {
 //                Log.info("Waiting for drain (" + hashCode() + ", active=" +
 //                    _line.isActive() + ", running=" + _line.isRunning()+
@@ -831,7 +866,10 @@ public class SoundManager
 
     /** Volume levels for both sound clips and music. */
     protected float _clipVol = 1f, _musicVol = 1f;
-    
+
+    /** The action to take when adjusting music volume. */
+    protected int _musicAction = NONE;
+
     /** The cache of recent audio clips . */
     protected LockableLRUHashMap _clipCache = new LockableLRUHashMap(10);
 
@@ -855,6 +893,11 @@ public class SoundManager
     protected Object LOCK = new Object();
     protected Object UNLOCK = new Object();
     protected Object DIE = new Object();
+
+    /** Music action constants. */
+    protected static final int NONE = 0;
+    protected static final int START = 1;
+    protected static final int STOP = 2;
 
     /** The queue size at which we start to ignore requests to play sounds. */
     protected static final int MAX_QUEUE_SIZE = 25;
