@@ -1,5 +1,5 @@
 //
-// $Id: AnimationSequencer.java,v 1.15 2004/08/27 02:12:38 mdb Exp $
+// $Id: AnimationSequencer.java,v 1.16 2004/09/18 22:56:35 mdb Exp $
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -37,16 +37,20 @@ import com.threerings.media.Log;
  * are also provided for running code upon the completion of animations in
  * the sequence.
  */
-public abstract class AnimationSequencer extends Animation
+public class AnimationSequencer extends Animation
 {
     /**
      * Constructs an animation sequencer with the expectation that
      * animations will be added via subsequent calls to {@link
      * #addAnimation}.
+     *
+     * @param animmgr the animation manager to which to add our animations
+     * when they are ready to start.
      */
-    public AnimationSequencer ()
+    public AnimationSequencer (AnimationManager animmgr)
     {
         super(new Rectangle());
+        _animmgr = animmgr;
     }
 
     /**
@@ -158,14 +162,18 @@ public abstract class AnimationSequencer extends Animation
 
     /**
      * Called when the time comes to start an animation.  Derived classes
-     * must implement this method and pass the animation on to their
+     * may override this method and pass the animation on to their
      * animation manager and do whatever else they need to do with
-     * operating animations.
+     * operating animations. The default implementation simply adds them
+     * to the media panel supplied when we were constructed.
      *
      * @param anim the animation to be displayed.
      * @param tickStamp the timestamp at which this animation was fired.
      */
-    protected abstract void startAnimation (Animation anim, long tickStamp);
+    protected void startAnimation (Animation anim, long tickStamp)
+    {
+        _animmgr.registerAnimation(anim);
+    }
 
     protected class AnimRecord extends AnimationAdapter
     {
@@ -252,6 +260,9 @@ public abstract class AnimationSequencer extends Animation
         protected long _delta;
         protected AnimRecord _trigger;
     }
+
+    /** The animation manager in which we run animations. */
+    protected AnimationManager _animmgr;
 
     /** Animations that have not been fired. */
     protected ArrayList _queued = new ArrayList();
