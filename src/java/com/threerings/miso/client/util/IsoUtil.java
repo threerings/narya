@@ -1,5 +1,5 @@
 //
-// $Id: IsoUtil.java,v 1.10 2001/10/18 20:24:05 shaper Exp $
+// $Id: IsoUtil.java,v 1.11 2001/10/19 23:26:31 shaper Exp $
 
 package com.threerings.miso.scene.util;
 
@@ -204,11 +204,17 @@ public class IsoUtil
 	}
     }
 
+    /**
+     * Returns the tile coordinate of the given full coordinate.
+     */
     public static int fullToTile (int val)
     {
 	return (val / FULL_TILE_FACTOR);
     }
 
+    /**
+     * Returns the fine coordinate of the given full coordinate.
+     */
     public static int fullToFine (int val)
     {
 	return (val - ((val / FULL_TILE_FACTOR) * FULL_TILE_FACTOR));

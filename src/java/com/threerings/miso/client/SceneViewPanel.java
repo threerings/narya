@@ -1,5 +1,5 @@
 //
-// $Id: SceneViewPanel.java,v 1.17 2001/10/18 21:01:44 shaper Exp $
+// $Id: SceneViewPanel.java,v 1.18 2001/10/19 23:26:31 shaper Exp $
 
 package com.threerings.miso.scene;
 
@@ -29,7 +29,7 @@ public class SceneViewPanel extends AnimatedPanel
         _scenemodel = new IsoSceneViewModel(config);
 
         // listen to the iso scene view model to receive notice when
-        // location or coordinate display is toggled
+        // the scene display has changed and needs must be repainted
         _scenemodel.addListener(this);
 
 	// create the scene view

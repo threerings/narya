@@ -1,5 +1,5 @@
 //
-// $Id: IsoSceneView.java,v 1.63 2001/10/18 20:25:46 shaper Exp $
+// $Id: IsoSceneView.java,v 1.64 2001/10/19 23:26:31 shaper Exp $
 
 package com.threerings.miso.scene;
 
@@ -13,6 +13,7 @@ import java.util.*;
 import com.samskivert.util.HashIntMap;
 
 import com.threerings.media.sprite.*;
+import com.threerings.media.sprite.DirtyItemList.DirtyItem;
 import com.threerings.media.tile.Tile;
 import com.threerings.media.tile.ObjectTile;
 
@@ -227,13 +228,21 @@ public class IsoSceneView implements SceneView
     protected void renderDirtyItems (Graphics2D gfx)
     {
         // sort the dirty sprites and objects visually back-to-front
-        _dirtyItems.sort(IsoUtil.DIRTY_COMP);
+        int size = _dirtyItems.size();
+        DirtyItem items[] = new DirtyItem[size];
+        _dirtyItems.toArray(items);
+        Arrays.sort(items, IsoUtil.DIRTY_COMP);
+
+        // save original clipping region
+        Shape clip = gfx.getClip();
 
         // render dirty sprites and objects
-        int size = _dirtyItems.size();
         for (int ii = 0; ii < size; ii++) {
-            ((DirtyItemList.DirtyItem)_dirtyItems.get(ii)).paint(gfx);
+            items[ii].paint(gfx);
         }
+
+        // restore original clipping region
+        gfx.setClip(clip);
     }
 
     /**
@@ -403,10 +412,10 @@ public class IsoSceneView implements SceneView
             Rectangle r = (Rectangle)rects.get(ii);
 
 	    // dirty the tiles impacted by this rectangle
-	    invalidateScreenRect(rects, r.x, r.y, r.width, r.height);
+	    Rectangle tileBounds = invalidateScreenRect(r);
 
             // dirty any sprites or objects impacted by this rectangle
-            invalidateItems(r);
+            invalidateItems(tileBounds);
 
 	    // save the rectangle for potential display later
 	    _dirtyRects.add(r);
@@ -417,51 +426,46 @@ public class IsoSceneView implements SceneView
      * Invalidate the specified rectangle in screen pixel coordinates
      * in the view.
      *
-     * @param rects the dirty rectangle list that we're processing because
-     * we may have to add dirty rectangles to it when invalidating this
-     * particular rect.
-     * @param x the rectangle x-position.
-     * @param y the rectangle y-position.
-     * @param width the rectangle width.
-     * @param height the rectangle height.
+     * @param rect the dirty rectangle.
      */
-    public void invalidateScreenRect (
-        DirtyRectList rects, int x, int y, int width, int height)
+    public Rectangle invalidateScreenRect (Rectangle r)
     {
+        Rectangle tileBounds = new Rectangle();
+
 	// note that corner tiles may be included unnecessarily, but
 	// checking to determine whether they're actually needed
 	// complicates the code with likely-insufficient benefit
 
 	// determine the top-left tile impacted by this rect
         Point tpos = new Point();
-        IsoUtil.screenToTile(_model, x, y, tpos);
+        IsoUtil.screenToTile(_model, r.x, r.y, tpos);
 
 	// determine screen coordinates for top-left tile
 	Point topleft = new Point();
 	IsoUtil.tileToScreen(_model, tpos.x, tpos.y, topleft);
 
 	// determine number of horizontal and vertical tiles for rect
-	int numh = (int)Math.ceil((float)width / (float)_model.tilewid);
-	int numv = (int)Math.ceil((float)height / (float)_model.tilehhei);
+	int numh = (int)Math.ceil((float)r.width / (float)_model.tilewid);
+	int numv = (int)Math.ceil((float)r.height / (float)_model.tilehhei);
 
 	// set up iterating variables
-	int tx = tpos.x, ty = tpos.y, mx = tpos.x, my = tpos.y;;
+	int tx = tpos.x, ty = tpos.y, mx = tpos.x, my = tpos.y;
 
 	// set the starting screen y-position
 	int screenY = topleft.y;
 
 	// add top row if rect may overlap
-	if (y < (screenY + _model.tilehhei)) {
+	if (r.y < (screenY + _model.tilehhei)) {
 	    ty--;
 	    for (int ii = 0; ii < numh; ii++) {
-		addDirtyTile(rects, tx++, ty--);
+		addDirtyTile(tileBounds, tx++, ty--);
 	    }
 	}
 
 	// add rows to the bottom if rect may overlap
 	int ypos = screenY + (numv * _model.tilehhei);
-	if ((y + height) > ypos) {
-	    numv += ((y + height) > (ypos + _model.tilehhei)) ? 2 : 1;
+	if ((r.y + r.height) > ypos) {
+	    numv += ((r.y + r.height) > (ypos + _model.tilehhei)) ? 2 : 1;
 	}
 
 	// add dirty tiles from each affected row
@@ -480,20 +484,20 @@ public class IsoSceneView implements SceneView
 	    }
 
 	    // skip leftmost tile if rect doesn't overlap
-  	    if (x > screenX + _model.tilewid) {
+  	    if (r.x > screenX + _model.tilewid) {
   		tx++;
   		ty--;
 		screenX += _model.tilewid;
   	    }
 
 	    // add to the right edge if rect may overlap
-	    if (x + width > (screenX + (length * _model.tilewid))) {
+	    if (r.x + r.width > (screenX + (length * _model.tilewid))) {
 		length++;
 	    }
 
 	    // add all tiles in the row to the dirty set
 	    for (int jj = 0; jj < length; jj++) {
-		addDirtyTile(rects, tx++, ty--);
+		addDirtyTile(tileBounds, tx++, ty--);
 	    }
 
 	    // step along the x- or y-axis appropriately
@@ -509,14 +513,16 @@ public class IsoSceneView implements SceneView
 	    // toggle whether we're drawing an odd-numbered row
 	    isodd = !isodd;
 	}
+
+        return tileBounds;
     }
 
     /**
-     * Marks the tile at the given coordinates dirty and adds dirty
-     * rectangles to the dirty rectangle list for any sprites
-     * currently occupying the tile.
+     * Marks the tile at the given coordinates dirty and expands the
+     * tile bounds rectangle to include the rectangle for the dirtied
+     * tile.
      */
-    protected void addDirtyTile (DirtyRectList rects, int x, int y)
+    protected void addDirtyTile (Rectangle tileBounds, int x, int y)
     {
 	// constrain x-coordinate to a valid range
 	if (x < 0) {
@@ -532,6 +538,9 @@ public class IsoSceneView implements SceneView
 	    y = _model.scenehei - 1;
 	}
 
+        // expand the tile bounds rectangle to include this tile
+        tileBounds.add(_polys[x][y].getBounds());
+
 	// do nothing if the tile's already dirty
 	if (_dirty[x][y]) {
 	    return;
@@ -540,14 +549,6 @@ public class IsoSceneView implements SceneView
 	// mark the tile dirty
 	_numDirty++;
 	_dirty[x][y] = true;
-
-        // add the dirty rectangles of any sprites that we've just
-        // inadvertently touched by dirtying this tile
-        invalidateIntersectingSprites(rects, _polys[x][y]);
-
-        // similarly, add any objects that we've just touched to the
-        // dirty item list
-        invalidateIntersectingObjects(rects, _polys[x][y]);
     }
 
     /**
@@ -564,12 +565,16 @@ public class IsoSceneView implements SceneView
         int size = _dirtySprites.size();
         for (int ii = 0; ii < size; ii++) {
             Sprite sprite = (Sprite)_dirtySprites.get(ii);
+
+            // get the sprite's position in tile coordinates
             Point tpos = new Point();
             IsoUtil.screenToTile(_model, sprite.getX(), sprite.getY(), tpos);
 
-            if (_dirtyItems.appendDirtySprite(sprite, tpos.x, tpos.y)) {
-                // Log.info("Dirtied item: " + sprite);
-            }
+            // get the dirty portion of the sprite
+            Rectangle drect = sprite.getBounds().intersection(r);
+
+            _dirtyItems.appendDirtySprite(sprite, tpos.x, tpos.y, drect);
+            // Log.info("Dirtied item: " + sprite);
         }
 
         // add any objects impacted by the dirty rectangle
@@ -581,55 +586,15 @@ public class IsoSceneView implements SceneView
             Polygon poly = (Polygon)_objpolys.get(coord);
 
             if (poly.intersects(r)) {
+
+                // get the dirty portion of the object
+                Rectangle drect = poly.getBounds().intersection(r);
+
                 int tx = coord >> 16, ty = coord & 0x0000FFFF;
-                if (_dirtyItems.appendDirtyObject(
-                    tiles[tx][ty], poly, tx, ty)) {
-                    // Log.info("Dirtied item: Object(" + tx + ", " +
-                    // ty + ")");
-                }
-            }
-        }
-    }
-
-    /**
-     * Adds dirty rectangles to the dirty rectangle list for any
-     * sprites in the scene whose bounding rectangle overlaps with the
-     * given shape.
-     */
-    protected void invalidateIntersectingSprites (
-        DirtyRectList rects, Shape bounds)
-    {
-        _dirtySprites.clear();
-        _spritemgr.getIntersectingSprites(_dirtySprites, bounds);
-
-        int size = _dirtySprites.size();
-        for (int ii = 0; ii < size; ii++) {
-            Sprite sprite = (Sprite)_dirtySprites.get(ii);
-            if (rects.appendDirtyRect(sprite.getRenderedBounds())) {
-                // Log.info("Expanded for: " + sprite);
-            }
-        }
-    }
-
-    /**
-     * Adds dirty rectangles to the dirty rectangle list for any
-     * objects in the scene whose bounding rectangle overlaps with the
-     * given shape's bounding rectangle.
-     */
-    protected void invalidateIntersectingObjects (
-        DirtyRectList rects, Shape bounds)
-    {
-        ObjectTile tiles[][] = _scene.getObjectLayer();
-        Iterator iter = _objpolys.keys();
-        while (iter.hasNext()) {
-            // get the object's coordinates and bounding polygon
-            int coord = ((Integer)iter.next()).intValue();
-            Polygon poly = (Polygon)_objpolys.get(coord);
-
-            if (poly.intersects(bounds.getBounds())) {
-                if (rects.appendDirtyRect(poly.getBounds())) {
-                    // Log.info("Expanded for: " + poly.getBounds());
-                }
+                _dirtyItems.appendDirtyObject(
+                    tiles[tx][ty], poly, tx, ty, drect);
+                // Log.info("Dirtied item: Object(" + tx + ", " +
+                // ty + ")");
             }
         }
     }
@@ -638,8 +603,10 @@ public class IsoSceneView implements SceneView
     public Path getPath (AmbulatorySprite sprite, int x, int y)
     {
         // make sure the destination point is within our bounds
-        if (x < 0 || x >= _model.bounds.width ||
-            y < 0 || y >= _model.bounds.height) {
+        if (x < 0 ||
+            x >= _model.bounds.width ||
+            y < 0 ||
+            y >= _model.bounds.height) {
             return null;
         }
 
@@ -654,10 +621,9 @@ public class IsoSceneView implements SceneView
 	int tby = IsoUtil.fullToTile(fpos.y);
 
 	// get a reasonable path from start to end
-	List tilepath =
-	    AStarPathUtil.getPath(
-		_scene.getBaseLayer(), _model.scenewid, _model.scenehei,
-		sprite, stpos.x, stpos.y, tbx, tby);
+	List tilepath = AStarPathUtil.getPath(
+            _scene.getBaseLayer(), _model.scenewid, _model.scenehei,
+            sprite, stpos.x, stpos.y, tbx, tby);
 	if (tilepath == null) {
 	    return null;
 	}
@@ -701,8 +667,8 @@ public class IsoSceneView implements SceneView
 	if (prev == stpos) {
 	    // if our destination is within our origination tile,
 	    // direction is based on fine coordinates
-	    dir = IsoUtil.getDirection(_model, sprite.getX(), sprite.getY(),
-				       spos.x, spos.y);
+	    dir = IsoUtil.getDirection(
+                _model, sprite.getX(), sprite.getY(), spos.x, spos.y);
 	} else {
 	    // else it's based on the last tile we traversed
 	    dir = IsoUtil.getIsoDirection(prev.x, prev.y, tbx, tby);
