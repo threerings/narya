@@ -1,5 +1,5 @@
 //
-// $Id: ConfObjRegistry.java,v 1.11 2004/08/27 02:12:24 mdb Exp $
+// $Id: ConfObjRegistry.java,v 1.12 2004/09/29 04:04:20 mdb Exp $
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -40,6 +40,7 @@ import com.threerings.io.Streamable;
 import com.threerings.presents.dobj.AttributeChangeListener;
 import com.threerings.presents.dobj.AttributeChangedEvent;
 import com.threerings.presents.dobj.DObject;
+import com.threerings.presents.dobj.DSet;
 import com.threerings.presents.dobj.EntryAddedEvent;
 import com.threerings.presents.dobj.EntryRemovedEvent;
 import com.threerings.presents.dobj.EntryUpdatedEvent;
@@ -196,6 +197,8 @@ public class ConfObjRegistry
                 config.setValue(key, (int[])value);
             } else if (value instanceof String[]) {
                 config.setValue(key, (String[])value);
+            } else if (value instanceof DSet) {
+                serializeAttribute(event.getName());
             } else {
                 Log.info("Unable to flush config object change " +
                          "[cobj=" + confObj.getClass().getName() +
@@ -320,7 +323,7 @@ public class ConfObjRegistry
             try {
                 value = confObj.getAttribute(attributeName);
             } catch (ObjectAccessException oae) {
-                Log.warning("Exception getting dset [setname=" + attributeName +
+                Log.warning("Exception getting field [name=" + attributeName +
                             "exception=" + oae + "].");
                 return;
             }

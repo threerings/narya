@@ -1,5 +1,5 @@
 //
-// $Id: DSetEditor.java,v 1.6 2004/08/27 02:12:23 mdb Exp $
+// $Id: DSetEditor.java,v 1.7 2004/09/29 04:04:20 mdb Exp $
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -42,6 +42,8 @@ import com.samskivert.util.SortableArrayList;
 import com.threerings.media.SafeScrollPane;
 
 import com.threerings.presents.Log;
+import com.threerings.presents.dobj.AttributeChangeListener;
+import com.threerings.presents.dobj.AttributeChangedEvent;
 import com.threerings.presents.dobj.DObject;
 import com.threerings.presents.dobj.DSet;
 import com.threerings.presents.dobj.EntryAddedEvent;
@@ -53,7 +55,7 @@ import com.threerings.presents.dobj.SetListener;
  * Allows simple editing of DSets withing a distributed object.
  */
 public class DSetEditor extends JPanel
-    implements SetListener, ActionListener
+    implements AttributeChangeListener, SetListener, ActionListener
 {
     /**
      * Construct a DSet editor to merely display the specified set.
@@ -142,12 +144,7 @@ public class DSetEditor extends JPanel
         _table.addActionListener(this);
 
         // populate the table
-        DSet.Entry[] entries =  new DSet.Entry[_set.size()];
-        _set.toArray(entries);
-        for (int ii=0; ii < entries.length; ii++) {
-            _keys.insertSorted(entries[ii].getKey());
-        }
-        _table.setData(entries); // this works because DSet itself is sorted
+        refreshData();
     }
 
     // documentation inherited
@@ -189,11 +186,30 @@ public class DSetEditor extends JPanel
         }
     }
 
+    // documentation inherited from interface SetListener
+    public void attributeChanged (AttributeChangedEvent event)
+    {
+        if (event.getName().equals(_setName)) {
+            refreshData();
+        }
+    }
+
     // documentation inherited from interface ActionListener
     public void actionPerformed (ActionEvent event)
     {
         CommandEvent ce = (CommandEvent) event;
         _setter.updateSet(_setName, (DSet.Entry) ce.getArgument());
+    }
+
+    protected void refreshData ()
+    {
+        _keys = new SortableArrayList();
+        DSet.Entry[] entries =  new DSet.Entry[_set.size()];
+        _set.toArray(entries);
+        for (int ii=0; ii < entries.length; ii++) {
+            _keys.insertSorted(entries[ii].getKey());
+        }
+        _table.setData(entries); // this works because DSet itself is sorted
     }
 
     /** The object that contains the set we're displaying. */
@@ -206,7 +222,7 @@ public class DSetEditor extends JPanel
     protected DSet _set;
 
     /** An array we use to track our entries' positions by key. */
-    protected SortableArrayList _keys = new SortableArrayList();
+    protected SortableArrayList _keys;
 
     /** The table used to edit. */
     protected ObjectEditorTable _table;
