@@ -1,5 +1,5 @@
 //
-// $Id: ResourceBundle.java,v 1.23 2003/08/20 03:52:36 mdb Exp $
+// $Id: ResourceBundle.java,v 1.24 2003/10/22 18:50:27 mdb Exp $
 
 package com.threerings.resource;
 
@@ -148,8 +148,8 @@ public class ResourceBundle
                         new FileOutputStream(efile));
                     jin = _jarSource.getInputStream(entry);
                     StreamUtils.pipe(jin, fout);
-                } catch (IOException ioe) {
-                    Log.warning("Failure unpacking " + efile + ": " + ioe);
+                } catch (Exception e) {
+                    Log.warning("Failure unpacking " + efile + ": " + e);
                     failure = true;
                 } finally {
                     StreamUtil.close(jin);
