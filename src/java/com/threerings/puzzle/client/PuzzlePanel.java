@@ -85,6 +85,15 @@ public abstract class PuzzlePanel extends JPanel
         setPuzzleGrabsKeys(false);
     }
 
+    // documentation inherited
+    public void removeNotify ()
+    {
+        super.removeNotify();
+
+        // don't ever leave with the keys grabbed
+        setPuzzleGrabsKeys(false);
+    }
+
     /**
      * Temporarily replaces the puzzle board display with the supplied
      * overlay panel.  The panel can be removed and the board display
