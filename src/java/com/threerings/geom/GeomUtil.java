@@ -1,5 +1,5 @@
 //
-// $Id: GeomUtil.java,v 1.3 2002/10/29 06:07:22 mdb Exp $
+// $Id: GeomUtil.java,v 1.4 2003/04/28 20:27:52 mdb Exp $
 
 package com.threerings.geom;
 
@@ -139,5 +139,26 @@ public class GeomUtil
         if (tained.y + tained.height > tainer.y + tainer.height) {
             tainer.y = tained.y - (tainer.height - tained.height);
         }
+    }
+
+    /**
+     * Adds the target rectangle to the bounds of the source rectangle. If
+     * the source rectangle is null, a new rectangle is created that is the
+     * size of the target rectangle.
+     *
+     * @return the source rectangle.
+     */
+    public static Rectangle grow (Rectangle source, Rectangle target)
+    {
+        if (target == null) {
+            Log.warning("Can't grow with null rectangle [src=" + source +
+                        ", tgt=" + target + "].");
+            Thread.dumpStack();
+        } else if (source == null) {
+            source = new Rectangle(target);
+        } else {
+            source.add(target);
+        }
+        return source;
     }
 }
