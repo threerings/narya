@@ -1,5 +1,5 @@
 //
-// $Id: MessageEvent.java,v 1.1 2001/07/19 05:56:20 mdb Exp $
+// $Id: MessageEvent.java,v 1.2 2001/07/19 19:17:06 mdb Exp $
 
 package com.threerings.cocktail.cher.dobj;
 
@@ -8,6 +8,7 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.lang.reflect.Method;
 
+import com.samskivert.util.StringUtil;
 import com.threerings.cocktail.cher.dobj.io.ValueMarshaller;
 
 /**
@@ -112,7 +113,7 @@ public class MessageEvent extends TypedEvent
     public String toString ()
     {
         return "[MSG:targetOid=" + _toid + ", name=" + _name +
-            ", args=" + _args + "]";
+            ", args=" + StringUtil.toString(_args) + "]";
     }
 
     protected String _name;
