@@ -39,6 +39,7 @@ import com.threerings.crowd.data.PlaceObject;
  */
 public class GameObject extends PlaceObject
 {
+    // AUTO-GENERATED: FIELDS START
     /** The field name of the <code>gameService</code> field. */
     public static final String GAME_SERVICE = "gameService";
 
@@ -59,6 +60,7 @@ public class GameObject extends PlaceObject
 
     /** The field name of the <code>creator</code> field. */
     public static final String CREATOR = "creator";
+    // AUTO-GENERATED: FIELDS END
 
     /** A game state constant indicating that the game has not yet started
      * and is still awaiting the arrival of all of the players. */
@@ -201,129 +203,151 @@ public class GameObject extends PlaceObject
         buf.append(":").append(state);
     }
 
+    // AUTO-GENERATED: METHODS START
     /**
-     * Requests that the <code>gameService</code> field be set to the specified
-     * value. The local value will be updated immediately and an event
-     * will be propagated through the system to notify all listeners that
-     * the attribute did change. Proxied copies of this object (on
+     * Requests that the <code>gameService</code> field be set to the
+     * specified value. The local value will be updated immediately and an
+     * event will be propagated through the system to notify all listeners
+     * that the attribute did change. Proxied copies of this object (on
      * clients) will apply the value change when they received the
      * attribute changed notification.
      */
-    public void setGameService (GameMarshaller gameService)
+    public void setGameService (GameMarshaller value)
     {
-        requestAttributeChange(GAME_SERVICE, gameService);
-        this.gameService = gameService;
+        GameMarshaller ovalue = this.gameService;
+        requestAttributeChange(
+            GAME_SERVICE, value, ovalue);
+        this.gameService = value;
     }
 
     /**
-     * Requests that the <code>state</code> field be set to the specified
-     * value. The local value will be updated immediately and an event
-     * will be propagated through the system to notify all listeners that
-     * the attribute did change. Proxied copies of this object (on
+     * Requests that the <code>state</code> field be set to the
+     * specified value. The local value will be updated immediately and an
+     * event will be propagated through the system to notify all listeners
+     * that the attribute did change. Proxied copies of this object (on
      * clients) will apply the value change when they received the
      * attribute changed notification.
      */
-    public void setState (int state)
+    public void setState (int value)
     {
-        requestAttributeChange(STATE, new Integer(state));
-        this.state = state;
+        int ovalue = this.state;
+        requestAttributeChange(
+            STATE, new Integer(value), new Integer(ovalue));
+        this.state = value;
     }
 
     /**
-     * Requests that the <code>isRated</code> field be set to the specified
-     * value. The local value will be updated immediately and an event
-     * will be propagated through the system to notify all listeners that
-     * the attribute did change. Proxied copies of this object (on
+     * Requests that the <code>isRated</code> field be set to the
+     * specified value. The local value will be updated immediately and an
+     * event will be propagated through the system to notify all listeners
+     * that the attribute did change. Proxied copies of this object (on
      * clients) will apply the value change when they received the
      * attribute changed notification.
      */
-    public void setIsRated (boolean isRated)
+    public void setIsRated (boolean value)
     {
-        requestAttributeChange(IS_RATED, new Boolean(isRated));
-        this.isRated = isRated;
+        boolean ovalue = this.isRated;
+        requestAttributeChange(
+            IS_RATED, new Boolean(value), new Boolean(ovalue));
+        this.isRated = value;
     }
 
     /**
-     * Requests that the <code>players</code> field be set to the specified
-     * value. The local value will be updated immediately and an event
-     * will be propagated through the system to notify all listeners that
-     * the attribute did change. Proxied copies of this object (on
+     * Requests that the <code>players</code> field be set to the
+     * specified value. The local value will be updated immediately and an
+     * event will be propagated through the system to notify all listeners
+     * that the attribute did change. Proxied copies of this object (on
      * clients) will apply the value change when they received the
      * attribute changed notification.
      */
-    public void setPlayers (Name[] players)
+    public void setPlayers (Name[] value)
     {
-        requestAttributeChange(PLAYERS, players);
-        this.players = players;
+        Name[] ovalue = this.players;
+        requestAttributeChange(
+            PLAYERS, value, ovalue);
+        this.players = value;
     }
 
     /**
      * Requests that the <code>index</code>th element of
-     * <code>players</code> field be set to the specified value. The local
-     * value will be updated immediately and an event will be propagated
-     * through the system to notify all listeners that the attribute did
-     * change. Proxied copies of this object (on clients) will apply the
-     * value change when they received the attribute changed notification.
+     * <code>players</code> field be set to the specified value.
+     * The local value will be updated immediately and an event will be
+     * propagated through the system to notify all listeners that the
+     * attribute did change. Proxied copies of this object (on clients)
+     * will apply the value change when they received the attribute
+     * changed notification.
      */
     public void setPlayersAt (Name value, int index)
     {
-        requestElementUpdate(PLAYERS, value, index);
+        Name ovalue = this.players[index];
+        requestElementUpdate(
+            PLAYERS, index, value, ovalue);
         this.players[index] = value;
     }
 
     /**
-     * Requests that the <code>winners</code> field be set to the specified
-     * value. The local value will be updated immediately and an event
-     * will be propagated through the system to notify all listeners that
-     * the attribute did change. Proxied copies of this object (on
+     * Requests that the <code>winners</code> field be set to the
+     * specified value. The local value will be updated immediately and an
+     * event will be propagated through the system to notify all listeners
+     * that the attribute did change. Proxied copies of this object (on
      * clients) will apply the value change when they received the
      * attribute changed notification.
      */
-    public void setWinners (boolean[] winners)
+    public void setWinners (boolean[] value)
     {
-        requestAttributeChange(WINNERS, winners);
-        this.winners = winners;
+        boolean[] ovalue = this.winners;
+        requestAttributeChange(
+            WINNERS, value, ovalue);
+        this.winners = value;
     }
 
     /**
      * Requests that the <code>index</code>th element of
-     * <code>winners</code> field be set to the specified value. The local
-     * value will be updated immediately and an event will be propagated
-     * through the system to notify all listeners that the attribute did
-     * change. Proxied copies of this object (on clients) will apply the
-     * value change when they received the attribute changed notification.
+     * <code>winners</code> field be set to the specified value.
+     * The local value will be updated immediately and an event will be
+     * propagated through the system to notify all listeners that the
+     * attribute did change. Proxied copies of this object (on clients)
+     * will apply the value change when they received the attribute
+     * changed notification.
      */
     public void setWinnersAt (boolean value, int index)
     {
-        requestElementUpdate(WINNERS, new Boolean(value), index);
+        boolean ovalue = this.winners[index];
+        requestElementUpdate(
+            WINNERS, index, new Boolean(value), new Boolean(ovalue));
         this.winners[index] = value;
     }
 
     /**
-     * Requests that the <code>roundId</code> field be set to the specified
-     * value. The local value will be updated immediately and an event
-     * will be propagated through the system to notify all listeners that
-     * the attribute did change. Proxied copies of this object (on
+     * Requests that the <code>roundId</code> field be set to the
+     * specified value. The local value will be updated immediately and an
+     * event will be propagated through the system to notify all listeners
+     * that the attribute did change. Proxied copies of this object (on
      * clients) will apply the value change when they received the
      * attribute changed notification.
      */
-    public void setRoundId (int roundId)
+    public void setRoundId (int value)
     {
-        requestAttributeChange(ROUND_ID, new Integer(roundId));
-        this.roundId = roundId;
+        int ovalue = this.roundId;
+        requestAttributeChange(
+            ROUND_ID, new Integer(value), new Integer(ovalue));
+        this.roundId = value;
     }
 
     /**
-     * Requests that the <code>creator</code> field be set to the specified
-     * value. The local value will be updated immediately and an event
-     * will be propagated through the system to notify all listeners that
-     * the attribute did change. Proxied copies of this object (on
+     * Requests that the <code>creator</code> field be set to the
+     * specified value. The local value will be updated immediately and an
+     * event will be propagated through the system to notify all listeners
+     * that the attribute did change. Proxied copies of this object (on
      * clients) will apply the value change when they received the
      * attribute changed notification.
      */
-    public void setCreator (int creator)
+    public void setCreator (int value)
     {
-        requestAttributeChange(CREATOR, new Integer(creator));
-        this.creator = creator;
+        int ovalue = this.creator;
+        requestAttributeChange(
+            CREATOR, new Integer(value), new Integer(ovalue));
+        this.creator = value;
     }
+    // AUTO-GENERATED: METHODS END
 }

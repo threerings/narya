@@ -39,11 +39,13 @@ import com.threerings.presents.dobj.DObject;
  */
 public class TimeBaseObject extends DObject
 {
+    // AUTO-GENERATED: FIELDS START
     /** The field name of the <code>evenBase</code> field. */
     public static final String EVEN_BASE = "evenBase";
 
     /** The field name of the <code>oddBase</code> field. */
     public static final String ODD_BASE = "oddBase";
+    // AUTO-GENERATED: FIELDS END
 
     /** The even time base, used to decode even delta times. */
     public long evenBase;
@@ -126,31 +128,37 @@ public class TimeBaseObject extends DObject
         return delta;
     }
 
+    // AUTO-GENERATED: METHODS START
     /**
-     * Requests that the <code>evenBase</code> field be set to the specified
-     * value. The local value will be updated immediately and an event
-     * will be propagated through the system to notify all listeners that
-     * the attribute did change. Proxied copies of this object (on
+     * Requests that the <code>evenBase</code> field be set to the
+     * specified value. The local value will be updated immediately and an
+     * event will be propagated through the system to notify all listeners
+     * that the attribute did change. Proxied copies of this object (on
      * clients) will apply the value change when they received the
      * attribute changed notification.
      */
-    public void setEvenBase (long evenBase)
+    public void setEvenBase (long value)
     {
-        requestAttributeChange(EVEN_BASE, new Long(evenBase));
-        this.evenBase = evenBase;
+        long ovalue = this.evenBase;
+        requestAttributeChange(
+            EVEN_BASE, new Long(value), new Long(ovalue));
+        this.evenBase = value;
     }
 
     /**
-     * Requests that the <code>oddBase</code> field be set to the specified
-     * value. The local value will be updated immediately and an event
-     * will be propagated through the system to notify all listeners that
-     * the attribute did change. Proxied copies of this object (on
+     * Requests that the <code>oddBase</code> field be set to the
+     * specified value. The local value will be updated immediately and an
+     * event will be propagated through the system to notify all listeners
+     * that the attribute did change. Proxied copies of this object (on
      * clients) will apply the value change when they received the
      * attribute changed notification.
      */
-    public void setOddBase (long oddBase)
+    public void setOddBase (long value)
     {
-        requestAttributeChange(ODD_BASE, new Long(oddBase));
-        this.oddBase = oddBase;
+        long ovalue = this.oddBase;
+        requestAttributeChange(
+            ODD_BASE, new Long(value), new Long(ovalue));
+        this.oddBase = value;
     }
+    // AUTO-GENERATED: METHODS END
 }

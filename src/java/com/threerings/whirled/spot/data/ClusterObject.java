@@ -32,8 +32,10 @@ import com.threerings.crowd.chat.data.SpeakObject;
 public class ClusterObject extends DObject
     implements SpeakObject
 {
+    // AUTO-GENERATED: FIELDS START
     /** The field name of the <code>occupants</code> field. */
     public static final String OCCUPANTS = "occupants";
+    // AUTO-GENERATED: FIELDS END
 
     /**
      * Tracks the oid of the body objects that occupy this cluster.
@@ -48,10 +50,11 @@ public class ClusterObject extends DObject
         }
     }
 
+    // AUTO-GENERATED: METHODS START
     /**
-     * Requests that the specified oid be added to the
-     * <code>occupants</code> oid list. The list will not change until the
-     * event is actually propagated through the system.
+     * Requests that <code>oid</code> be added to the <code>occupants</code>
+     * oid list. The list will not change until the event is actually
+     * propagated through the system.
      */
     public void addToOccupants (int oid)
     {
@@ -59,7 +62,7 @@ public class ClusterObject extends DObject
     }
 
     /**
-     * Requests that the specified oid be removed from the
+     * Requests that <code>oid</code> be removed from the
      * <code>occupants</code> oid list. The list will not change until the
      * event is actually propagated through the system.
      */
@@ -67,4 +70,5 @@ public class ClusterObject extends DObject
     {
         requestOidRemove(OCCUPANTS, oid);
     }
+    // AUTO-GENERATED: METHODS END
 }

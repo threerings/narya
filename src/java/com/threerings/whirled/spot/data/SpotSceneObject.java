@@ -29,11 +29,13 @@ import com.threerings.whirled.data.SceneObject;
  */
 public class SpotSceneObject extends SceneObject
 {
+    // AUTO-GENERATED: FIELDS START
     /** The field name of the <code>occupantLocs</code> field. */
     public static final String OCCUPANT_LOCS = "occupantLocs";
 
     /** The field name of the <code>clusters</code> field. */
     public static final String CLUSTERS = "clusters";
+    // AUTO-GENERATED: FIELDS END
 
     /** A distributed set containing {@link SceneLocation} records for all
      * occupants of this scene. */
@@ -42,6 +44,7 @@ public class SpotSceneObject extends SceneObject
     /** Contains information on all {@link Cluster}s in this scene. */
     public DSet clusters = new DSet();
 
+    // AUTO-GENERATED: METHODS START
     /**
      * Requests that the specified entry be added to the
      * <code>occupantLocs</code> set. The set will not change until the event is
@@ -49,7 +52,7 @@ public class SpotSceneObject extends SceneObject
      */
     public void addToOccupantLocs (DSet.Entry elem)
     {
-        requestEntryAdd(OCCUPANT_LOCS, elem);
+        requestEntryAdd(OCCUPANT_LOCS, occupantLocs, elem);
     }
 
     /**
@@ -59,7 +62,7 @@ public class SpotSceneObject extends SceneObject
      */
     public void removeFromOccupantLocs (Comparable key)
     {
-        requestEntryRemove(OCCUPANT_LOCS, key);
+        requestEntryRemove(OCCUPANT_LOCS, occupantLocs, key);
     }
 
     /**
@@ -69,7 +72,7 @@ public class SpotSceneObject extends SceneObject
      */
     public void updateOccupantLocs (DSet.Entry elem)
     {
-        requestEntryUpdate(OCCUPANT_LOCS, elem);
+        requestEntryUpdate(OCCUPANT_LOCS, occupantLocs, elem);
     }
 
     /**
@@ -84,7 +87,7 @@ public class SpotSceneObject extends SceneObject
      */
     public void setOccupantLocs (DSet occupantLocs)
     {
-        requestAttributeChange(OCCUPANT_LOCS, occupantLocs);
+        requestAttributeChange(OCCUPANT_LOCS, occupantLocs, this.occupantLocs);
         this.occupantLocs = occupantLocs;
     }
 
@@ -95,7 +98,7 @@ public class SpotSceneObject extends SceneObject
      */
     public void addToClusters (DSet.Entry elem)
     {
-        requestEntryAdd(CLUSTERS, elem);
+        requestEntryAdd(CLUSTERS, clusters, elem);
     }
 
     /**
@@ -105,7 +108,7 @@ public class SpotSceneObject extends SceneObject
      */
     public void removeFromClusters (Comparable key)
     {
-        requestEntryRemove(CLUSTERS, key);
+        requestEntryRemove(CLUSTERS, clusters, key);
     }
 
     /**
@@ -115,7 +118,7 @@ public class SpotSceneObject extends SceneObject
      */
     public void updateClusters (DSet.Entry elem)
     {
-        requestEntryUpdate(CLUSTERS, elem);
+        requestEntryUpdate(CLUSTERS, clusters, elem);
     }
 
     /**
@@ -130,7 +133,8 @@ public class SpotSceneObject extends SceneObject
      */
     public void setClusters (DSet clusters)
     {
-        requestAttributeChange(CLUSTERS, clusters);
+        requestAttributeChange(CLUSTERS, clusters, this.clusters);
         this.clusters = clusters;
     }
+    // AUTO-GENERATED: METHODS END
 }

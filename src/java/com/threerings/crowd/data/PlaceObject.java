@@ -42,6 +42,7 @@ import com.threerings.crowd.chat.data.SpeakObject;
 public class PlaceObject extends DObject
     implements SpeakObject
 {
+    // AUTO-GENERATED: FIELDS START
     /** The field name of the <code>occupants</code> field. */
     public static final String OCCUPANTS = "occupants";
 
@@ -50,6 +51,7 @@ public class PlaceObject extends DObject
 
     /** The field name of the <code>speakService</code> field. */
     public static final String SPEAK_SERVICE = "speakService";
+    // AUTO-GENERATED: FIELDS END
 
     /**
      * Tracks the oid of the body objects of all of the occupants of this
@@ -113,10 +115,11 @@ public class PlaceObject extends DObject
         }
     }
 
+    // AUTO-GENERATED: METHODS START
     /**
-     * Requests that the specified oid be added to the
-     * <code>occupants</code> oid list. The list will not change until the
-     * event is actually propagated through the system.
+     * Requests that <code>oid</code> be added to the <code>occupants</code>
+     * oid list. The list will not change until the event is actually
+     * propagated through the system.
      */
     public void addToOccupants (int oid)
     {
@@ -124,7 +127,7 @@ public class PlaceObject extends DObject
     }
 
     /**
-     * Requests that the specified oid be removed from the
+     * Requests that <code>oid</code> be removed from the
      * <code>occupants</code> oid list. The list will not change until the
      * event is actually propagated through the system.
      */
@@ -140,7 +143,7 @@ public class PlaceObject extends DObject
      */
     public void addToOccupantInfo (DSet.Entry elem)
     {
-        requestEntryAdd(OCCUPANT_INFO, elem);
+        requestEntryAdd(OCCUPANT_INFO, occupantInfo, elem);
     }
 
     /**
@@ -150,7 +153,7 @@ public class PlaceObject extends DObject
      */
     public void removeFromOccupantInfo (Comparable key)
     {
-        requestEntryRemove(OCCUPANT_INFO, key);
+        requestEntryRemove(OCCUPANT_INFO, occupantInfo, key);
     }
 
     /**
@@ -160,7 +163,7 @@ public class PlaceObject extends DObject
      */
     public void updateOccupantInfo (DSet.Entry elem)
     {
-        requestEntryUpdate(OCCUPANT_INFO, elem);
+        requestEntryUpdate(OCCUPANT_INFO, occupantInfo, elem);
     }
 
     /**
@@ -175,21 +178,24 @@ public class PlaceObject extends DObject
      */
     public void setOccupantInfo (DSet occupantInfo)
     {
-        requestAttributeChange(OCCUPANT_INFO, occupantInfo);
+        requestAttributeChange(OCCUPANT_INFO, occupantInfo, this.occupantInfo);
         this.occupantInfo = occupantInfo;
     }
 
     /**
-     * Requests that the <code>speakService</code> field be set to the specified
-     * value. The local value will be updated immediately and an event
-     * will be propagated through the system to notify all listeners that
-     * the attribute did change. Proxied copies of this object (on
+     * Requests that the <code>speakService</code> field be set to the
+     * specified value. The local value will be updated immediately and an
+     * event will be propagated through the system to notify all listeners
+     * that the attribute did change. Proxied copies of this object (on
      * clients) will apply the value change when they received the
      * attribute changed notification.
      */
-    public void setSpeakService (SpeakMarshaller speakService)
+    public void setSpeakService (SpeakMarshaller value)
     {
-        requestAttributeChange(SPEAK_SERVICE, speakService);
-        this.speakService = speakService;
+        SpeakMarshaller ovalue = this.speakService;
+        requestAttributeChange(
+            SPEAK_SERVICE, value, ovalue);
+        this.speakService = value;
     }
+    // AUTO-GENERATED: METHODS END
 }

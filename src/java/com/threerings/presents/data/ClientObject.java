@@ -32,8 +32,10 @@ import com.threerings.presents.dobj.DSet;
  */
 public class ClientObject extends DObject
 {
+    // AUTO-GENERATED: FIELDS START
     /** The field name of the <code>receivers</code> field. */
     public static final String RECEIVERS = "receivers";
+    // AUTO-GENERATED: FIELDS END
 
     /** The name of a message event delivered to the client when they
      * switch usernames (and therefore user objects). */
@@ -79,6 +81,7 @@ public class ClientObject extends DObject
     /** Used to reference count resolved client objects. */
     protected transient int _references;
 
+    // AUTO-GENERATED: METHODS START
     /**
      * Requests that the specified entry be added to the
      * <code>receivers</code> set. The set will not change until the event is
@@ -86,7 +89,7 @@ public class ClientObject extends DObject
      */
     public void addToReceivers (DSet.Entry elem)
     {
-        requestEntryAdd(RECEIVERS, elem);
+        requestEntryAdd(RECEIVERS, receivers, elem);
     }
 
     /**
@@ -96,7 +99,7 @@ public class ClientObject extends DObject
      */
     public void removeFromReceivers (Comparable key)
     {
-        requestEntryRemove(RECEIVERS, key);
+        requestEntryRemove(RECEIVERS, receivers, key);
     }
 
     /**
@@ -106,7 +109,7 @@ public class ClientObject extends DObject
      */
     public void updateReceivers (DSet.Entry elem)
     {
-        requestEntryUpdate(RECEIVERS, elem);
+        requestEntryUpdate(RECEIVERS, receivers, elem);
     }
 
     /**
@@ -121,7 +124,8 @@ public class ClientObject extends DObject
      */
     public void setReceivers (DSet receivers)
     {
-        requestAttributeChange(RECEIVERS, receivers);
+        requestAttributeChange(RECEIVERS, receivers, this.receivers);
         this.receivers = receivers;
     }
+    // AUTO-GENERATED: METHODS END
 }

@@ -33,6 +33,7 @@ import com.threerings.crowd.chat.data.SpeakObject;
 public class BodyObject extends ClientObject
     implements SpeakObject
 {
+    // AUTO-GENERATED: FIELDS START
     /** The field name of the <code>username</code> field. */
     public static final String USERNAME = "username";
 
@@ -44,6 +45,7 @@ public class BodyObject extends ClientObject
 
     /** The field name of the <code>awayMessage</code> field. */
     public static final String AWAY_MESSAGE = "awayMessage";
+    // AUTO-GENERATED: FIELDS END
 
     /**
      * The username associated with this body object.
@@ -90,59 +92,69 @@ public class BodyObject extends ClientObject
         return buf.append(")").toString();
     }
 
+    // AUTO-GENERATED: METHODS START
     /**
-     * Requests that the <code>username</code> field be set to the specified
-     * value. The local value will be updated immediately and an event
-     * will be propagated through the system to notify all listeners that
-     * the attribute did change. Proxied copies of this object (on
+     * Requests that the <code>username</code> field be set to the
+     * specified value. The local value will be updated immediately and an
+     * event will be propagated through the system to notify all listeners
+     * that the attribute did change. Proxied copies of this object (on
      * clients) will apply the value change when they received the
      * attribute changed notification.
      */
-    public void setUsername (Name username)
+    public void setUsername (Name value)
     {
-        requestAttributeChange(USERNAME, username);
-        this.username = username;
+        Name ovalue = this.username;
+        requestAttributeChange(
+            USERNAME, value, ovalue);
+        this.username = value;
     }
 
     /**
-     * Requests that the <code>location</code> field be set to the specified
-     * value. The local value will be updated immediately and an event
-     * will be propagated through the system to notify all listeners that
-     * the attribute did change. Proxied copies of this object (on
+     * Requests that the <code>location</code> field be set to the
+     * specified value. The local value will be updated immediately and an
+     * event will be propagated through the system to notify all listeners
+     * that the attribute did change. Proxied copies of this object (on
      * clients) will apply the value change when they received the
      * attribute changed notification.
      */
-    public void setLocation (int location)
+    public void setLocation (int value)
     {
-        requestAttributeChange(LOCATION, new Integer(location));
-        this.location = location;
+        int ovalue = this.location;
+        requestAttributeChange(
+            LOCATION, new Integer(value), new Integer(ovalue));
+        this.location = value;
     }
 
     /**
-     * Requests that the <code>status</code> field be set to the specified
-     * value. The local value will be updated immediately and an event
-     * will be propagated through the system to notify all listeners that
-     * the attribute did change. Proxied copies of this object (on
+     * Requests that the <code>status</code> field be set to the
+     * specified value. The local value will be updated immediately and an
+     * event will be propagated through the system to notify all listeners
+     * that the attribute did change. Proxied copies of this object (on
      * clients) will apply the value change when they received the
      * attribute changed notification.
      */
-    public void setStatus (byte status)
+    public void setStatus (byte value)
     {
-        requestAttributeChange(STATUS, new Byte(status));
-        this.status = status;
+        byte ovalue = this.status;
+        requestAttributeChange(
+            STATUS, new Byte(value), new Byte(ovalue));
+        this.status = value;
     }
 
     /**
-     * Requests that the <code>awayMessage</code> field be set to the specified
-     * value. The local value will be updated immediately and an event
-     * will be propagated through the system to notify all listeners that
-     * the attribute did change. Proxied copies of this object (on
+     * Requests that the <code>awayMessage</code> field be set to the
+     * specified value. The local value will be updated immediately and an
+     * event will be propagated through the system to notify all listeners
+     * that the attribute did change. Proxied copies of this object (on
      * clients) will apply the value change when they received the
      * attribute changed notification.
      */
-    public void setAwayMessage (String awayMessage)
+    public void setAwayMessage (String value)
     {
-        requestAttributeChange(AWAY_MESSAGE, awayMessage);
-        this.awayMessage = awayMessage;
+        String ovalue = this.awayMessage;
+        requestAttributeChange(
+            AWAY_MESSAGE, value, ovalue);
+        this.awayMessage = value;
     }
+    // AUTO-GENERATED: METHODS END
 }

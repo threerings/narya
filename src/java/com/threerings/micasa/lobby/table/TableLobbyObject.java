@@ -29,8 +29,10 @@ public class TableLobbyObject
     extends LobbyObject
     implements com.threerings.parlor.data.TableLobbyObject
 {
+    // AUTO-GENERATED: FIELDS START
     /** The field name of the <code>tableSet</code> field. */
     public static final String TABLE_SET = "tableSet";
+    // AUTO-GENERATED: FIELDS END
 
     /** A set containing all of the tables being managed by this lobby. */
     public DSet tableSet = new DSet();
@@ -59,6 +61,7 @@ public class TableLobbyObject
         removeFromTableSet(key);
     }
 
+    // AUTO-GENERATED: METHODS START
     /**
      * Requests that the specified entry be added to the
      * <code>tableSet</code> set. The set will not change until the event is
@@ -66,7 +69,7 @@ public class TableLobbyObject
      */
     public void addToTableSet (DSet.Entry elem)
     {
-        requestEntryAdd(TABLE_SET, elem);
+        requestEntryAdd(TABLE_SET, tableSet, elem);
     }
 
     /**
@@ -76,7 +79,7 @@ public class TableLobbyObject
      */
     public void removeFromTableSet (Comparable key)
     {
-        requestEntryRemove(TABLE_SET, key);
+        requestEntryRemove(TABLE_SET, tableSet, key);
     }
 
     /**
@@ -86,7 +89,7 @@ public class TableLobbyObject
      */
     public void updateTableSet (DSet.Entry elem)
     {
-        requestEntryUpdate(TABLE_SET, elem);
+        requestEntryUpdate(TABLE_SET, tableSet, elem);
     }
 
     /**
@@ -101,7 +104,8 @@ public class TableLobbyObject
      */
     public void setTableSet (DSet tableSet)
     {
-        requestAttributeChange(TABLE_SET, tableSet);
+        requestAttributeChange(TABLE_SET, tableSet, this.tableSet);
         this.tableSet = tableSet;
     }
+    // AUTO-GENERATED: METHODS END
 }
