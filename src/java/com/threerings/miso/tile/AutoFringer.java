@@ -1,5 +1,5 @@
 //
-// $Id: AutoFringer.java,v 1.20 2003/04/17 19:21:16 mdb Exp $
+// $Id: AutoFringer.java,v 1.21 2003/04/22 20:36:11 mdb Exp $
 
 package com.threerings.miso.tile;
 
@@ -66,22 +66,19 @@ public class AutoFringer
         _fringers.clear();
 
         // walk through our influence tiles
-        int maxy = row + 2, maxx = col + 2;
-        for (int y = row - 1; y < maxy; y++) {
-            for (int x = col - 1; x < maxx; x++) {
+        for (int y = row - 1, maxy = row + 2; y < maxy; y++) {
+            for (int x = col - 1, maxx = col + 2; x < maxx; x++) {
                 // we sensibly do not consider ourselves
                 if ((x == col) && (y == row)) {
                     continue;
                 }
 
-                // make sure there's a tile at this position
+                // determine the tileset for this tile
                 int btid = scene.getBaseTileId(x, y);
-                if (btid == -1) {
-                    continue;
-                }
+                int baseset = (btid <= 0) ?
+                    scene.getDefaultBaseTileSet() : (btid >> 16);
 
                 // determine if it fringes on our tile
-                int baseset = btid >> 16;
                 int pri = _fringeconf.fringesOn(baseset, underset);
                 if (pri == -1) {
                     continue;
