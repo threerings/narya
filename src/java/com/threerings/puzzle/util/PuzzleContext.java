@@ -1,5 +1,5 @@
 //
-// $Id: PuzzleContext.java,v 1.2 2003/11/26 02:11:34 mdb Exp $
+// $Id: PuzzleContext.java,v 1.3 2003/11/26 23:16:13 mdb Exp $
 
 package com.threerings.puzzle.util;
 
@@ -11,11 +11,12 @@ import com.threerings.media.FrameManager;
 import com.threerings.media.sound.SoundManager;
 
 import com.threerings.crowd.chat.client.ChatDirector;
+import com.threerings.parlor.util.ParlorContext;
 
 /**
  * Provides access to entities needed by the puzzle services.
  */
-public interface PuzzleContext
+public interface PuzzleContext extends ParlorContext
 {
     /**
      * Returns the username of the local user.
