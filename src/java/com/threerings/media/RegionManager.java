@@ -1,5 +1,5 @@
 //
-// $Id: RegionManager.java,v 1.5 2002/10/29 20:33:26 shaper Exp $
+// $Id: RegionManager.java,v 1.6 2002/10/29 23:44:23 shaper Exp $
 
 package com.threerings.media;
 
@@ -49,8 +49,8 @@ public class RegionManager
     {
         // sanity-check the rectangle
         if (rect == null || (rect.width <= 0 || rect.height <= 0)) {
-            Log.warning("Attempt to add invalid rectangle as a dirty region?!" +
-                        "[rect=" + StringUtil.toString(rect) + "].");
+            Log.warning("Attempt to add invalid rectangle as a dirty " +
+                        "region?! [rect=" + StringUtil.toString(rect) + "].");
             Thread.dumpStack();
             return;
         }
