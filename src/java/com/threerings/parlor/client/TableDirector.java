@@ -1,5 +1,5 @@
 //
-// $Id: TableDirector.java,v 1.3 2001/10/23 20:26:30 mdb Exp $
+// $Id: TableDirector.java,v 1.4 2001/10/23 23:47:02 mdb Exp $
 
 package com.threerings.parlor.client;
 
@@ -165,9 +165,9 @@ public class TableManager
             return;
         }
 
-        // go ahead and issue the create request
+        // issue the join request
         ParlorService.joinTable(
-            _ctx.getClient(), tableId, position, this);
+            _ctx.getClient(), _lobby.getOid(), tableId, position, this);
     }
 
     /**
@@ -184,8 +184,9 @@ public class TableManager
             return;
         }
 
-        // go ahead and issue the create request
-        ParlorService.leaveTable(_ctx.getClient(), tableId, this);
+        // issue the leave request
+        ParlorService.leaveTable(
+            _ctx.getClient(), _lobby.getOid(), tableId, this);
     }
 
     // documentation inherited

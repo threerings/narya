@@ -1,5 +1,5 @@
 //
-// $Id: Table.java,v 1.5 2001/10/23 20:23:29 mdb Exp $
+// $Id: Table.java,v 1.6 2001/10/23 23:47:02 mdb Exp $
 
 package com.threerings.parlor.data;
 
@@ -37,6 +37,10 @@ public class Table
      * slots may not be filled. */
     public String[] occupants;
 
+    /** The body oids of the occupants of this table. (This is not
+     * propagated to remote instances.) */
+    public int[] bodyOids;
+
     /** The game config for the game that is being matchmade. This config
      * instance will also implement {@link TableConfig}. */
     public GameConfig config;
@@ -66,6 +70,7 @@ public class Table
 
         // make room for the maximum number of players
         occupants = new String[_tconfig.getMaximumPlayers()];
+        bodyOids = new int[occupants.length];
     }
 
     /**
@@ -115,11 +120,15 @@ public class Table
      * Requests to seat the specified user at the specified position in
      * this table.
      *
+     * @param position the position in which to seat the user.
+     * @param username the username of the user to be set.
+     * @param bodyOid the body object id of the user to be set.
+     *
      * @return null if the user was successfully seated, a string error
      * code explaining the failure if the user was not able to be seated
      * at that position.
      */
-    public String setOccupant (int position, String username)
+    public String setOccupant (int position, String username, int bodyOid)
     {
         // find out how many positions we have for occupation
         int maxpos = _tconfig.getDesiredPlayers();
@@ -140,6 +149,7 @@ public class Table
 
         // otherwise all is well, stick 'em in
         occupants[position] = username;
+        bodyOids[position] = bodyOid;
         return null;
     }
 
@@ -156,6 +166,27 @@ public class Table
         for (int i = 0; i < occupants.length; i++) {
             if (username.equals(occupants[i])) {
                 occupants[i] = "";
+                bodyOids[i] = 0;
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Requests that the user identified by the specified body object id
+     * be removed from their seat at this table.
+     *
+     * @return true if the user was seated at the table and has now been
+     * removed, false if the user was never seated at the table in the
+     * first place.
+     */
+    public boolean clearOccupant (int bodyOid)
+    {
+        for (int i = 0; i < bodyOids.length; i++) {
+            if (bodyOid == bodyOids[i]) {
+                occupants[i] = "";
+                bodyOids[i] = 0;
                 return true;
             }
         }
@@ -168,7 +199,7 @@ public class Table
      */
     public boolean readyToStart ()
     {
-        int need = _tconfig.getMinimumPlayers();
+        int need = _tconfig.getDesiredPlayers();
         if (need == -1) {
             need = _tconfig.getMaximumPlayers();
         }
@@ -230,6 +261,7 @@ public class Table
         lobbyOid = in.readInt();
         gameOid = in.readInt();
         occupants = (String[])ValueMarshaller.readFrom(in);
+        // bodyOids = new int[occupants.length]; // not used
         config = (GameConfig)ValueMarshaller.readFrom(in);
         _tconfig = (TableConfig)config;
     }
@@ -256,6 +288,7 @@ public class Table
             ", lobbyOid=" + lobbyOid +
             ", gameOid=" + gameOid +
             ", occupants=" + StringUtil.toString(occupants) +
+            ", bodyOids=" + StringUtil.toString(bodyOids) +
             ", config=" + config + "]";
     }
 

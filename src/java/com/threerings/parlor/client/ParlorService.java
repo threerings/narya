@@ -1,5 +1,5 @@
 //
-// $Id: ParlorService.java,v 1.9 2001/10/23 20:23:29 mdb Exp $
+// $Id: ParlorService.java,v 1.10 2001/10/23 23:47:01 mdb Exp $
 
 package com.threerings.parlor.client;
 
@@ -32,19 +32,17 @@ public class ParlorService implements ParlorCodes
      * @param invitee the username of the user to be invited.
      * @param config a game config object detailing the type and
      * configuration of the game to be created.
-     * @param rsptarget the object reference that will receive and process
+     * @param rsptgt the object reference that will receive and process
      * the response.
      *
      * @return the invocation request id of the generated request.
      */
     public static int invite (Client client, String invitee,
-                              GameConfig config, Object rsptarget)
+                              GameConfig config, Object rsptgt)
     {
         InvocationDirector invdir = client.getInvocationDirector();
         Object[] args = new Object[] { invitee, config };
-        Log.info("Sending invite request [to=" + invitee +
-                 ", cfg=" + config + "].");
-        return invdir.invoke(MODULE_NAME, INVITE_ID, args, rsptarget);
+        return invdir.invoke(MODULE_NAME, INVITE_ID, args, rsptgt);
     }
 
     /**
@@ -63,23 +61,20 @@ public class ParlorService implements ParlorCodes
      * the case of an invitation refusal or an updated game configuration
      * object in the case of a counter-invitation, or null in the case of
      * an accepted invitation).
-     * @param rsptarget the object reference that will receive and process
+     * @param rsptgt the object reference that will receive and process
      * the response.
      *
      * @return the invocation request id of the generated request.
      */
     public static int respond (Client client, int inviteId, int code,
-                               Object arg, Object rsptarget)
+                               Object arg, Object rsptgt)
     {
         InvocationDirector invdir = client.getInvocationDirector();
         Object[] args = new Object[] {
             new Integer(inviteId), new Integer(code), null };
         // we can't have a null argument so we use the empty string
         args[2] = (arg == null) ? "" : arg;
-        Log.info("Sending invitation response [inviteId=" + inviteId +
-                 ", code=" + code + ", arg=" + arg + "].");
-        return invdir.invoke(
-            MODULE_NAME, RESPOND_INVITE_ID, args, rsptarget);
+        return invdir.invoke(MODULE_NAME, RESPOND_INVITE_ID, args, rsptgt);
     }
 
     /**
@@ -90,18 +85,16 @@ public class ParlorService implements ParlorCodes
      * @param client a connected, operational client instance.
      * @param inviteId the unique id previously assigned by the server to
      * this invitation.
-     * @param rsptarget the object reference that will receive and process
+     * @param rsptgt the object reference that will receive and process
      * the response.
      *
      * @return the invocation request id of the generated request.
      */
-    public static int cancel (Client client, int inviteId, Object rsptarget)
+    public static int cancel (Client client, int inviteId, Object rsptgt)
     {
         InvocationDirector invdir = client.getInvocationDirector();
         Object[] args = new Object[] { new Integer(inviteId) };
-        Log.info("Sending invitation cancellation " +
-                 "[inviteId=" + inviteId + "].");
-        return invdir.invoke(MODULE_NAME, CANCEL_INVITE_ID, args, rsptarget);
+        return invdir.invoke(MODULE_NAME, CANCEL_INVITE_ID, args, rsptgt);
     }
 
     /**
@@ -114,20 +107,17 @@ public class ParlorService implements ParlorCodes
      * created table.
      * @param config the game config for the game to be matchmade by the
      * table.
-     * @param rsptarget the object reference that will receive and process
+     * @param rsptgt the object reference that will receive and process
      * the response.
      *
      * @return the invocation request id of the generated request.
      */
     public static int createTable (
-        Client client, int lobbyOid, GameConfig config, Object rsptarget)
+        Client client, int lobbyOid, GameConfig config, Object rsptgt)
     {
         InvocationDirector invdir = client.getInvocationDirector();
         Object[] args = new Object[] { new Integer(lobbyOid), config };
-        Log.info("Sending table creation request " +
-                 "[lobbyOid=" + lobbyOid + ", config=" + config + "].");
-        return invdir.invoke(
-            MODULE_NAME, CREATE_TABLE_REQUEST, args, rsptarget);
+        return invdir.invoke(MODULE_NAME, CREATE_TABLE_REQUEST, args, rsptgt);
     }
 
     /**
@@ -136,25 +126,24 @@ public class ParlorService implements ParlorCodes
      * be added to the specified table at the specified position.
      *
      * @param client a connected, operational client instance.
+     * @param lobbyOid the oid of the lobby that contains the table.
      * @param tableId the unique id of the table to which this user wishes
      * to be added.
      * @param position the position at the table to which this user desires
      * to be added.
-     * @param rsptarget the object reference that will receive and process
+     * @param rsptgt the object reference that will receive and process
      * the response.
      *
      * @return the invocation request id of the generated request.
      */
-    public static int joinTable (
-        Client client, int tableId, int position, Object rsptarget)
+    public static int joinTable (Client client, int lobbyOid, int tableId,
+                                 int position, Object rsptgt)
     {
         InvocationDirector invdir = client.getInvocationDirector();
-        Object[] args = new Object[] { new Integer(tableId),
+        Object[] args = new Object[] { new Integer(lobbyOid),
+                                       new Integer(tableId),
                                        new Integer(position) };
-        Log.info("Sending join table request " +
-                 "[tableId=" + tableId + ", position=" + position + "].");
-        return invdir.invoke(
-            MODULE_NAME, JOIN_TABLE_REQUEST, args, rsptarget);
+        return invdir.invoke(MODULE_NAME, JOIN_TABLE_REQUEST, args, rsptgt);
     }
 
     /**
@@ -163,21 +152,20 @@ public class ParlorService implements ParlorCodes
      * be removed from the specified table.
      *
      * @param client a connected, operational client instance.
+     * @param lobbyOid the oid of the lobby that contains the table.
      * @param tableId the unique id of the table from which this user
      * wishes to be removed.
-     * @param rsptarget the object reference that will receive and process
+     * @param rsptgt the object reference that will receive and process
      * the response.
      *
      * @return the invocation request id of the generated request.
      */
     public static int leaveTable (
-        Client client, int tableId, Object rsptarget)
+        Client client, int lobbyOid, int tableId, Object rsptgt)
     {
         InvocationDirector invdir = client.getInvocationDirector();
-        Object[] args = new Object[] { new Integer(tableId) };
-        Log.info("Sending leave table request " +
-                 "[tableId=" + tableId + "].");
-        return invdir.invoke(
-            MODULE_NAME, LEAVE_TABLE_REQUEST, args, rsptarget);
+        Object[] args = new Object[] { new Integer(lobbyOid),
+                                       new Integer(tableId) };
+        return invdir.invoke(MODULE_NAME, LEAVE_TABLE_REQUEST, args, rsptgt);
     }
 }
