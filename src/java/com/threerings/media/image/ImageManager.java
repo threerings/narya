@@ -1,5 +1,5 @@
 //
-// $Id: ImageManager.java,v 1.38 2003/01/15 00:47:08 mdb Exp $
+// $Id: ImageManager.java,v 1.39 2003/01/15 02:31:50 mdb Exp $
 
 package com.threerings.media.image;
 
@@ -486,6 +486,13 @@ public class ImageManager
     /** Data providers for different resource sets. */
     protected HashMap _providers = new HashMap();
 
+    /** Register our image cache size with the runtime adjustments
+     * framework. */
+    protected static RuntimeAdjust.IntAdjust _cacheSize =
+        new RuntimeAdjust.IntAdjust(
+            "Size (in images) of the image manager LRU cache [requires reboot]",
+            IMAGE_CACHE_SIZE_KEY, MediaPrefs.config, DEFAULT_IMAGE_CACHE_SIZE);
+
     /** The classname of the ImageIO-based image loader which we attempt
      * to use but fallback from if we're not running a JVM that has
      * ImageIO support. */
@@ -498,11 +505,4 @@ public class ImageManager
 
     /** The maximum number of images that may be cached at any one time. */
     protected static final int DEFAULT_IMAGE_CACHE_SIZE = 100;
-
-    /** Register our image cache size with the runtime adjustments
-     * framework. */
-    protected static RuntimeAdjust.IntAdjust _cacheSize =
-        new RuntimeAdjust.IntAdjust(
-            "Size (in images) of the image manager LRU cache [requires reboot]",
-            IMAGE_CACHE_SIZE_KEY, MediaPrefs.config, DEFAULT_IMAGE_CACHE_SIZE);
 }

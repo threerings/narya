@@ -1,5 +1,5 @@
 //
-// $Id: TileSet.java,v 1.37 2003/01/15 00:47:09 mdb Exp $
+// $Id: TileSet.java,v 1.38 2003/01/15 02:31:50 mdb Exp $
 
 package com.threerings.media.tile;
 
@@ -302,17 +302,17 @@ public abstract class TileSet
     /** A weak cache of our tiles. */
     protected static LRUHashMap _tiles;
 
-    /** The config key for our cache size property. */
-    protected static final String TILE_CACHE_SIZE_KEY =
-        "narya.media.tile.cache_size";
-
-    /** The default tile cache size. */
-    protected static final int DEFAULT_TILE_CACHE_SIZE = 500;
-
     /** Register our tile cache size with the runtime adjustments
      * framework. */
     protected static RuntimeAdjust.IntAdjust _cacheSize =
         new RuntimeAdjust.IntAdjust(
             "Size (in tiles) of the tile LRU cache [requires reboot]",
             TILE_CACHE_SIZE_KEY, MediaPrefs.config, DEFAULT_TILE_CACHE_SIZE);
+
+    /** The config key for our cache size property. */
+    protected static final String TILE_CACHE_SIZE_KEY =
+        "narya.media.tile.cache_size";
+
+    /** The default tile cache size. */
+    protected static final int DEFAULT_TILE_CACHE_SIZE = 500;
 }
