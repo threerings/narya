@@ -1,5 +1,5 @@
 //
-// $Id: PresentsClient.java,v 1.58 2003/09/25 21:07:54 mdb Exp $
+// $Id: PresentsClient.java,v 1.59 2003/09/29 18:28:22 mdb Exp $
 
 package com.threerings.presents.server;
 
@@ -439,15 +439,17 @@ public class PresentsClient
      * Clears out the tracked client subscriptions. Called when the client
      * goes away and shouldn't be called otherwise.
      */
-    protected void clearSubscrips ()
+    protected void clearSubscrips (boolean verbose)
     {
-        Iterator enum = _subscrips.elements();
-        while (enum.hasNext()) {
+        for (Iterator enum = _subscrips.elements(); enum.hasNext(); ) {
             DObject object = (DObject)enum.next();
-//              Log.info("Clearing subscription [client=" + this +
-//                       ", obj=" + object.getOid() + "].");
+            if (verbose) {
+                Log.info("Clearing subscription [client=" + this +
+                         ", obj=" + object.getOid() + "].");
+            }
             object.removeSubscriber(this);
         }
+        _subscrips.clear();
     }
 
     /**
@@ -496,7 +498,7 @@ public class PresentsClient
         // clear out our subscriptions so that we don't get a complaint
         // about inability to forward the object destroyed event we're
         // about to generate
-        clearSubscrips();
+        clearSubscrips(false);
     }
 
     /**
@@ -585,7 +587,7 @@ public class PresentsClient
     {
         // clear out our dobj subscriptions in case they weren't cleared
         // by a call to sessionDidEnd
-        clearSubscrips();
+        clearSubscrips(false);
     }
 
     /**
@@ -692,7 +694,7 @@ public class PresentsClient
         // make darned sure we don't have any remaining subscriptions
         if (_subscrips.size() > 0) {
             Log.warning("Clearing stale subscriptions [client=" + this + "].");
-            clearSubscrips();
+            clearSubscrips(true);
         }
         return false;
     }
