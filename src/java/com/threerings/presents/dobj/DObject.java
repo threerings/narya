@@ -1,5 +1,5 @@
 //
-// $Id: DObject.java,v 1.37 2002/02/05 22:27:26 mdb Exp $
+// $Id: DObject.java,v 1.38 2002/02/06 22:47:28 mdb Exp $
 
 package com.threerings.presents.dobj;
 
@@ -438,9 +438,7 @@ public class DObject
     }
 
     /**
-     * Generates a string representation of this object by calling the
-     * overridable {@link #toString(StringBuffer)} which builds up the
-     * string in a manner friendly to derived classes.
+     * Generates a string representation of this object.
      */
     public String toString ()
     {
