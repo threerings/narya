@@ -1,5 +1,5 @@
 //
-// $Id: DObject.java,v 1.25 2001/08/16 03:45:43 mdb Exp $
+// $Id: DObject.java,v 1.26 2001/08/21 19:35:02 mdb Exp $
 
 package com.threerings.cocktail.cher.dobj;
 
@@ -262,13 +262,25 @@ public class DObject
         // Log.info("Dispatching event to " + _scount +
         // " subscribers: " + event);
 
-        for (int i = 0; i < _scount; i++) {
+        // nothing to do if we've no subscribers
+        if (_subs == null) {
+            return;
+        }
+
+        // otherwise iterate over the subscribers array and notify
+        int slength = _subs.length;
+        for (int i = 0; i < slength; i++) {
             Subscriber sub = (Subscriber)_subs[i];
+            // skip empty spots
+            if (sub == null) {
+                continue;
+            }
+
             // notify the subscriber
             if (!sub.handleEvent(event, this)) {
                 // if they return false, we need to remove them from the
                 // subscriber list
-                _subs[i--] = null;
+                _subs[i] = null;
 
                 // if we just removed our last subscriber, we need to let
                 // the omgr know about it
