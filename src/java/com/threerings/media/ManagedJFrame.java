@@ -1,5 +1,5 @@
 //
-// $Id: ManagedJFrame.java,v 1.2 2002/04/28 02:50:32 mdb Exp $
+// $Id: ManagedJFrame.java,v 1.3 2002/06/11 00:52:37 mdb Exp $
 
 package com.threerings.media;
 
@@ -14,7 +14,7 @@ import com.threerings.media.Log;
 
 /**
  * When using the {@link FrameManager}, one must use this top-level frame
- * class (or the {@link ManagedFrame} class if one is not using Swing.
+ * class.
  */
 public class ManagedJFrame extends JFrame
 {

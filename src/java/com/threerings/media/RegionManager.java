@@ -1,5 +1,5 @@
 //
-// $Id: RegionManager.java,v 1.1 2002/04/23 01:16:27 mdb Exp $
+// $Id: RegionManager.java,v 1.2 2002/06/11 00:52:37 mdb Exp $
 
 package com.threerings.media;
 
@@ -46,7 +46,7 @@ public class RegionManager
 
     /**
      * Returns true if dirty regions have been accumulated since the last
-     * call to {@link #getDirtyRects}.
+     * call to {@link #getDirtyRegions}.
      */
     public boolean haveDirtyRegions ()
     {

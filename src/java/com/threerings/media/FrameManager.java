@@ -1,5 +1,5 @@
 //
-// $Id: FrameManager.java,v 1.9 2002/05/22 01:48:08 shaper Exp $
+// $Id: FrameManager.java,v 1.10 2002/06/11 00:52:37 mdb Exp $
 
 package com.threerings.media;
 
@@ -59,11 +59,10 @@ import com.threerings.media.util.PerformanceObserver;
  * buffer (if supported, an off-screen buffer if not). Updates that were
  * computed during the tick should be rendered in this call to paint. The
  * paint call will propagate down to all components in the UI hierarchy,
- * some of which may be {@link FrameParticipants} and will have prepared
+ * some of which may be {@link FrameParticipant}s and will have prepared
  * themselves for their upcoming painting in the previous call to {@link
  * FrameParticipant#tick}. When the call to paint completes, the flip
- * buffer is flipped and the process starts all over again.
- * </ul>
+ * buffer is flipped and the process starts all over again.  </ul>
  *
  * <p> The ticking and rendering takes place on the AWT thread so as to
  * avoid the need for complicated coordination between AWT event handler
@@ -230,8 +229,8 @@ public class FrameManager
     }        
 
     /**
-     * Called once per frame to invoke {@link FrameParticipant#paint} on
-     * all of our frame participants.
+     * Called once per frame to invoke {@link Component#paint} on all of
+     * our frame participants' components.
      */
     protected void paintParticipants (long tickStamp)
     {

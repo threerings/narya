@@ -1,5 +1,5 @@
 //
-// $Id: MediaPanel.java,v 1.10 2002/06/11 00:05:31 mdb Exp $
+// $Id: MediaPanel.java,v 1.11 2002/06/11 00:52:37 mdb Exp $
 
 package com.threerings.media;
 
@@ -628,7 +628,7 @@ public class MediaPanel extends JComponent
      * (the actual dimensions of the animated panel) can override this
      * method and return the desired size of the view. The animated panel
      * will take this size into account and translate into the view
-     * coordinate system before calling {@link #render}.
+     * coordinate system before calling the paint methods.
      */
     protected Dimension getViewSize ()
     {
