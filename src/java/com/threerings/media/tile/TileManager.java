@@ -1,17 +1,16 @@
 //
-// $Id: TileManager.java,v 1.21 2001/11/18 04:09:21 mdb Exp $
+// $Id: TileManager.java,v 1.22 2001/11/30 02:34:57 mdb Exp $
 
 package com.threerings.media.tile;
 
 import java.awt.image.BufferedImage;
 import java.io.IOException;
-import javax.imageio.ImageIO;
 
 import com.samskivert.io.PersistenceException;
 import com.samskivert.util.HashIntMap;
 
-import com.threerings.resource.ResourceManager;
 import com.threerings.media.Log;
+import com.threerings.media.ImageManager;
 
 /**
  * The tile manager provides a simplified interface for retrieving and
@@ -42,12 +41,15 @@ public class TileManager implements ImageProvider
 {
     /**
      * Creates a tile manager and provides it with a reference to the
-     * resource manager from which it will load tileset image data.
+     * image manager from which it will load tileset images.
+     *
+     * @param imgr the image manager via which the tile manager will
+     * decode and cache images.
      */
-    public TileManager (ResourceManager rmgr)
+    public TileManager (ImageManager imgr)
     {
         // keep this guy around for later
-        _rmgr = rmgr;
+        _imgr = imgr;
     }
 
     /**
@@ -138,11 +140,11 @@ public class TileManager implements ImageProvider
         throws IOException
     {
         // load up the image data from the resource manager
-        return ImageIO.read(_rmgr.getResource(path));
+        return _imgr.getImage(path);
     }
 
-    /** The entity through which we load image data. */
-    protected ResourceManager _rmgr;
+    /** The entity through which we decode and cache images. */
+    protected ImageManager _imgr;
 
     /** Cache of tilesets that have been requested thus far. */
     protected HashIntMap _cache = new HashIntMap();

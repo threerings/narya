@@ -1,10 +1,9 @@
 //
-// $Id: TileSetBundle.java,v 1.3 2001/11/29 00:13:42 mdb Exp $
+// $Id: TileSetBundle.java,v 1.4 2001/11/30 02:34:57 mdb Exp $
 
 package com.threerings.media.tile.bundle;
 
 import java.awt.image.BufferedImage;
-import javax.imageio.ImageIO;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -18,6 +17,7 @@ import java.util.Iterator;
 import com.samskivert.util.HashIntMap;
 
 import com.threerings.resource.ResourceBundle;
+import com.threerings.media.ImageManager;
 import com.threerings.media.tile.TileSet;
 import com.threerings.media.tile.ImageProvider;
 
@@ -31,11 +31,13 @@ public class TileSetBundle
 {
     /**
      * Initializes this resource bundle with a reference to the jarfile
-     * from which it was loaded and from which it can load image data.
+     * from which it was loaded and from which it can load image data. The
+     * image manager will be used to decode the images.
      */
-    public void init (ResourceBundle bundle)
+    public void init (ResourceBundle bundle, ImageManager imgr)
     {
         _bundle = bundle;
+        _imgr = imgr;
     }
 
     /**
@@ -81,7 +83,7 @@ public class TileSetBundle
                 "[bundle=" + _bundle + ", path=" + path + "].";
             throw new FileNotFoundException(errmsg);
         }
-        return ImageIO.read(imgin);
+        return _imgr.createImage(imgin);
     }
 
     // custom serialization process
@@ -114,4 +116,7 @@ public class TileSetBundle
 
     /** That from which we load our tile images. */
     protected ResourceBundle _bundle;
+
+    /** We use the image manager to decode our images. */
+    protected ImageManager _imgr;
  }

@@ -1,5 +1,5 @@
 //
-// $Id: BundledTileSetRepository.java,v 1.4 2001/11/29 21:57:31 mdb Exp $
+// $Id: BundledTileSetRepository.java,v 1.5 2001/11/30 02:34:57 mdb Exp $
 
 package com.threerings.media.tile.bundle;
 
@@ -16,6 +16,7 @@ import com.threerings.resource.ResourceBundle;
 import com.threerings.resource.ResourceManager;
 
 import com.threerings.media.Log;
+import com.threerings.media.ImageManager;
 import com.threerings.media.tile.NoSuchTileSetException;
 import com.threerings.media.tile.TileSet;
 import com.threerings.media.tile.TileSetRepository;
@@ -34,10 +35,13 @@ public class BundledTileSetRepository
      *
      * @param rmgr the resource manager from which to obtain our resource
      * set.
+     * @param imgr the image manager that we'll use to decode and cache
+     * images.
      * @param name the name of the resource set from which we will be
      * loading our tile data.
      */
-    public BundledTileSetRepository (ResourceManager rmgr, String name)
+    public BundledTileSetRepository (
+        ResourceManager rmgr, ImageManager imgr, String name)
     {
         // first we obtain the resource set from which we will load up our
         // tileset bundles
@@ -57,7 +61,12 @@ public class BundledTileSetRepository
         ArrayList tbundles = new ArrayList();;
         for (int i = 0; i < rbundles.length; i++) {
             try {
-                tbundles.add(BundleUtil.extractBundle(rbundles[i]));
+                // unserialize our tileset bundle
+                TileSetBundle tsb = BundleUtil.extractBundle(rbundles[i]);
+                // initialize it and add it to the list
+                tsb.init(rbundles[i], imgr);
+                tbundles.add(tsb);
+                
             } catch (Exception e) {
                 Log.warning("Unable to load tileset bundle from resource " +
                             "bundle [rbundle=" + rbundles[i] +

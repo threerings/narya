@@ -1,11 +1,10 @@
 //
-// $Id: BundledComponentRepository.java,v 1.2 2001/11/29 00:15:06 mdb Exp $
+// $Id: BundledComponentRepository.java,v 1.3 2001/11/30 02:34:57 mdb Exp $
 
 package com.threerings.cast.bundle;
 
 import java.awt.Image;
 import java.awt.image.BufferedImage;
-import javax.imageio.ImageIO;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -24,6 +23,8 @@ import org.apache.commons.collections.Predicate;
 
 import com.threerings.resource.ResourceBundle;
 import com.threerings.resource.ResourceManager;
+
+import com.threerings.media.ImageManager;
 
 import com.threerings.media.sprite.MultiFrameImage;
 import com.threerings.media.sprite.Sprite;
@@ -54,15 +55,21 @@ public class BundledComponentRepository
      *
      * @param rmgr the resource manager from which to obtain our resource
      * set.
+     * @param imgr the image manager that we'll use to decode and cache
+     * images.
      * @param name the name of the resource set from which we will be
      * loading our component data.
      *
      * @exception IOException thrown if an I/O error occurs while reading
      * our metadata from the resource bundles.
      */
-    public BundledComponentRepository (ResourceManager rmgr, String name)
+    public BundledComponentRepository (
+        ResourceManager rmgr, ImageManager imgr, String name)
         throws IOException
     {
+        // keep this guy around
+        _imgr = imgr;
+
         // first we obtain the resource set from whence will come our
         // bundles
         ResourceBundle[] rbundles = rmgr.getResourceSet(name);
@@ -199,7 +206,7 @@ public class BundledComponentRepository
                     "[bundle=" + _bundle + ", path=" + path + "].";
                 throw new FileNotFoundException(errmsg);
             }
-            return ImageIO.read(imgin);
+            return _imgr.createImage(imgin);
         }
 
         // documentation inherited
@@ -288,6 +295,9 @@ public class BundledComponentRepository
          * frames. */
         protected int _orient;
     }
+
+    /** We use the image manager to decode and cache images. */
+    protected ImageManager _imgr;
 
     /** A table of action sequences. */
     protected HashMap _actions;

@@ -1,5 +1,5 @@
 //
-// $Id: BundleUtil.java,v 1.1 2001/11/29 21:57:31 mdb Exp $
+// $Id: BundleUtil.java,v 1.2 2001/11/30 02:34:57 mdb Exp $
 
 package com.threerings.media.tile.bundle;
 
@@ -20,8 +20,8 @@ public class BundleUtil
     public static final String METADATA_PATH = "tsbundles.dat";
 
     /**
-     * Extracts and initializes a serialized tileset bundle instance from
-     * the supplied resource bundle.
+     * Extracts, but does not initialize, a serialized tileset bundle
+     * instance from the supplied resource bundle.
      */
     public static TileSetBundle extractBundle (ResourceBundle bundle)
         throws IOException, ClassNotFoundException
@@ -31,8 +31,6 @@ public class BundleUtil
         ObjectInputStream oin = new ObjectInputStream(
             new BufferedInputStream(tbin));
         TileSetBundle tsb = (TileSetBundle)oin.readObject();
-        // initialize the bundle and add it to the list
-        tsb.init(bundle);
         return tsb;
     }
 }
