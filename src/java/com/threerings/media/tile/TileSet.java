@@ -1,5 +1,5 @@
 //
-// $Id: TileSet.java,v 1.41 2003/01/18 23:09:37 mdb Exp $
+// $Id: TileSet.java,v 1.42 2003/01/24 21:42:15 mdb Exp $
 
 package com.threerings.media.tile;
 
@@ -58,7 +58,7 @@ public abstract class TileSet
      */
     public String getName ()
     {
-	return _name;
+	return (_name == null) ? _imagePath : _name;
     }
 
     /**
