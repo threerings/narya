@@ -1,5 +1,5 @@
 //
-// $Id: PlaceManager.java,v 1.43 2003/02/26 17:54:56 mdb Exp $
+// $Id: PlaceManager.java,v 1.44 2003/03/25 01:12:29 mdb Exp $
 
 package com.threerings.crowd.server;
 
@@ -9,6 +9,7 @@ import java.util.Iterator;
 import java.util.Properties;
 
 import com.samskivert.util.HashIntMap;
+import com.samskivert.util.StringUtil;
 
 import com.threerings.presents.data.ClientObject;
 import com.threerings.presents.server.InvocationManager;
@@ -338,7 +339,8 @@ public class PlaceManager
      */
     public String where ()
     {
-        return String.valueOf(_plobj.getOid());
+        return StringUtil.shortClassName(this) + ":" + (
+            (_plobj != null) ? String.valueOf(_plobj.getOid()) : "-1");
     }
 
     /**
