@@ -1,5 +1,5 @@
 //
-// $Id: SceneDirector.java,v 1.11 2002/04/15 16:28:03 shaper Exp $
+// $Id: SceneDirector.java,v 1.12 2002/04/18 14:08:47 shaper Exp $
 
 package com.threerings.whirled.client;
 
@@ -77,6 +77,13 @@ public class SceneDirector
      */
     public void moveTo (int sceneId)
     {
+        // sanity-check the destination scene id
+        if (sceneId == _sceneId) {
+            Log.warning("Refusing request to move to the same scene " +
+                        "[sceneId=" + sceneId + "].");
+            return;
+        }
+
         // prepare to move to this scene (sets up pending data)
         if (!prepareMoveTo(sceneId)) {
             return;
