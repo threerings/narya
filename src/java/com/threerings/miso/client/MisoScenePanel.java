@@ -409,13 +409,17 @@ public class MisoScenePanel extends VirtualMediaPanel
             return;
         }
 
-        if (_hobject instanceof Sprite) {
-            handleSpritePressed((Sprite)_hobject, e.getX(), e.getY());
-        } else if (_hobject instanceof SceneObject) {
-            handleObjectPressed((SceneObject)_hobject, e.getX(), e.getY());
-        } else {
-            handleMousePressed(_hobject, e);
+        if (e.getButton() == MouseEvent.BUTTON1) {
+            if (_hobject instanceof Sprite) {
+                handleSpritePressed((Sprite)_hobject, e.getX(), e.getY());
+                return;
+            } else if (_hobject instanceof SceneObject) {
+                handleObjectPressed((SceneObject)_hobject, e.getX(), e.getY());
+                return;
+            }
         }
+        // if not button1, or _hobject not Sprite or SceneObject...
+        handleMousePressed(_hobject, e);
     }
 
     /**
