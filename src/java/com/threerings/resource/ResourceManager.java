@@ -379,7 +379,6 @@ public class ResourceManager
 
         // if we didn't find anything, try the classloader
         String rpath = PathUtil.appendPath(_rootPath, path);
-        Log.info("looing for resource in " + _loader);
         in = _loader.getResourceAsStream(rpath);
         if (in != null) {
             return in;
@@ -414,7 +413,6 @@ public class ResourceManager
 
         // if we didn't find anything, try the classloader
         String rpath = PathUtil.appendPath(_rootPath, path);
-        Log.info("looing for resource in " + _loader);
         InputStream in = _loader.getResourceAsStream(rpath);
         if (in != null) {
             return new MemoryCacheImageInputStream(new BufferedInputStream(in));
