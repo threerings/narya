@@ -1,5 +1,5 @@
 //
-// $Id: SpriteManager.java,v 1.23 2002/02/19 07:41:36 mdb Exp $
+// $Id: SpriteManager.java,v 1.24 2002/02/19 19:55:14 mdb Exp $
 
 package com.threerings.media.sprite;
 
@@ -48,6 +48,40 @@ public class SpriteManager
     {
         _tx = tx;
         _ty = ty;
+    }
+
+    /**
+     * Lets the sprite manager know that the view is about to scroll by
+     * the specified offsets. It can update the positions of its sprites
+     * if they are tracking the scrolled view, or generate dirty regions
+     * for the sprites that remain in place (meaning they move relative to
+     * the scrolling view). Regions invalidated by the scrolled sprites
+     * should be appended to the supplied invalid rectangles list.
+     */
+    public void viewWillScroll (int dx, int dy, List invalidRects)
+    {
+        // presently all sprites move relative to the scrolling view
+        int size = _sprites.size();
+        for (int i = 0; i < size; i++) {
+            Sprite sprite = (Sprite)_sprites.get(i);
+            Rectangle dirty = new Rectangle(sprite.getBounds());
+
+            // expand the rectangle to contain the scrolled regions
+            int ex = dirty.x - dx, ey = dirty.y - dy;
+            if (dx < 0) {
+                ex += dirty.width;
+            }
+            if (dy < 0) {
+                ey += dirty.height;
+            }
+            dirty.add(ex, ey);
+
+            // translate the rectangle according to our viewport offset
+            dirty.translate(-_tx, -_ty);
+
+            // append it to the list
+            invalidRects.add(dirty);
+        }
     }
 
     /**
