@@ -1,5 +1,5 @@
 //
-// $Id: GameManager.java,v 1.34 2002/06/12 07:59:19 shaper Exp $
+// $Id: GameManager.java,v 1.35 2002/06/19 23:06:08 shaper Exp $
 
 package com.threerings.parlor.game;
 
@@ -72,10 +72,10 @@ public class GameManager extends PlaceManager
     }
 
     /**
-     * Sets the specified player as an AI with the specified skill.
-     * It is assumed that this will be set soon after the player names for all
-     * AIs present in the game. (It should be done before human players start
-     * trickling into the game.)
+     * Sets the specified player as an AI with the specified skill.  It is
+     * assumed that this will be set soon after the player names for all
+     * AIs present in the game. (It should be done before human players
+     * start trickling into the game.)
      *
      * @param pidx the player index of the AI.
      * @param skill the skill level, from 0 to 100 inclusive.
@@ -101,6 +101,23 @@ public class GameManager extends PlaceManager
     public String[] getPlayers ()
     {
         return _players;
+    }
+
+    /**
+     * Returns an array of the AI skill levels if AIs are present in this
+     * game.
+     */
+    public byte[] getAIs ()
+    {
+        return _AIs;
+    }
+
+    /**
+     * Returns whether the player at the specified player index is an AI.
+     */
+    public boolean isAI (int pidx)
+    {
+        return (_AIs != null && _AIs[pidx] != -1);
     }
 
     /**
