@@ -1,5 +1,5 @@
 //
-// $Id: AutoFringer.java,v 1.13 2002/05/17 19:07:04 ray Exp $
+// $Id: AutoFringer.java,v 1.14 2002/12/07 02:30:37 shaper Exp $
 
 package com.threerings.miso.tile;
 
@@ -71,6 +71,8 @@ public class AutoFringer
     public void fringe (MisoSceneModel scene, TileLayer fringelayer,
                         Rectangle r, Random rando) 
     {
+        long start = System.currentTimeMillis();
+
         // create a hash to cache our masks
         HashMap maskcache = new HashMap();
 
@@ -85,6 +87,12 @@ public class AutoFringer
         }
 
         // and then we throw maskcache out...
+        long now = System.currentTimeMillis();
+        long size = ImageUtil.getEstimatedMemoryUsage(
+            maskcache.values().iterator());
+        Log.debug("Finished fringing scene [ms=" + (now - start) +
+                  ", mem=" + (size / 1024) + "k" +
+                  ", size=" + maskcache.size() + "].");
     }
 
     /**
