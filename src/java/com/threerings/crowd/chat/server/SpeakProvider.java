@@ -25,6 +25,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 import com.samskivert.util.ObserverList;
+import com.threerings.util.MessageManager;
 import com.threerings.util.Name;
 
 import com.threerings.presents.data.ClientObject;
@@ -124,7 +125,7 @@ public class SpeakProvider
             // we normally don't listen for responses to speak messages so
             // we can't just throw an InvocationException we have to
             // specifically communicate the error to the user
-            sendFeedback(source, null, errmsg);
+            sendFeedback(source, MessageManager.GLOBAL_BUNDLE, errmsg);
             return;
         }
 

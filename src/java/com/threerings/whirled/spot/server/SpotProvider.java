@@ -22,6 +22,7 @@
 package com.threerings.whirled.spot.server;
 
 import com.samskivert.util.StringUtil;
+import com.threerings.util.MessageManager;
 import com.threerings.util.Name;
 
 import com.threerings.presents.data.ClientObject;
@@ -30,6 +31,7 @@ import com.threerings.presents.server.InvocationException;
 import com.threerings.presents.server.InvocationProvider;
 
 import com.threerings.crowd.chat.data.ChatCodes;
+import com.threerings.crowd.chat.server.SpeakProvider;
 import com.threerings.crowd.data.BodyObject;
 import com.threerings.crowd.server.PlaceRegistry;
 
@@ -244,7 +246,9 @@ public class SpotProvider
         BodyObject source = (BodyObject)caller;
         String errmsg = source.checkAccess(ChatCodes.CHAT_ACCESS, null);
         if (errmsg != null) {
-            throw new InvocationException(errmsg);
+            SpeakProvider.sendFeedback(source,
+                MessageManager.GLOBAL_BUNDLE, errmsg);
+            return;
         }
 
         sendClusterChatMessage(getCallerSceneId(caller), source.getOid(),
