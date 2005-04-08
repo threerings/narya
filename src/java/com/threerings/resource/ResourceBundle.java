@@ -1,5 +1,5 @@
 //
-// $Id: ResourceBundle.java,v 1.32 2004/10/18 21:38:22 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -221,12 +221,17 @@ public class ResourceBundle
         // clear out any .jarv file that Getdown might be maintaining so
         // that we ensure that it is revalidated
         File vfile = new File(FileUtil.resuffix(_source, ".jar", ".jarv"));
-        vfile.delete();
+        if (vfile.exists() && !vfile.delete()) {
+            Log.warning("Failed to delete " + vfile + ".");
+        }
 
         // close and delete our source jar file
         if (deleteJar && _source != null) {
             closeJar();
-            _source.delete();
+            if (!_source.delete()) {
+                Log.warning("Failed to delete " + _source +
+                            " [exists=" + _source.exists() + "].");
+            }
         }
     }
 
