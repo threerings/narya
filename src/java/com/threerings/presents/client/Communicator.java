@@ -434,7 +434,13 @@ public class Communicator
 
             // establish a socket connection to said server
             Log.debug("Connecting [host=" + host + ", port=" + port + "].");
-            _channel = SocketChannel.open(new InetSocketAddress(host, port));
+            InetSocketAddress addr = new InetSocketAddress(host, port);
+            try {
+                _channel = SocketChannel.open(addr);
+            } catch (IOException ioe) {
+                Log.warning("Error opening [addr=" + addr + "].");
+                throw ioe; // rethrow
+            }
             _channel.configureBlocking(true);
 
             // our messages are framed (preceded by their length), so we
