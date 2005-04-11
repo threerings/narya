@@ -65,6 +65,20 @@ public class TurnGameManagerDelegate extends GameManagerDelegate
         return _tgmgr.getPlayerIndex(_turnGame.getTurnHolder());
     }
 
+    /** Test if it's the inputted player's turn. */
+    public boolean isPlayersTurn (int playerIndex)
+    {
+        // Don't accidently match a visitor's id of -1 with the "no one's
+        // turn" state of turn -1.
+        int turnHolder = getTurnHolderIndex();
+        if (turnHolder < 0) {
+            return false;
+        }
+
+        // It's this player's turn if the ids match
+        return (turnHolder == playerIndex);
+    }
+
     /**
      * Called to start the next turn. It calls {@link
      * TurnGameManager#turnWillStart} to allow our owning manager to
