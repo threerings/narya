@@ -591,7 +591,7 @@ public class ConnectionManager extends LoopingThread
                 return;
             }
 
-            Log.debug("Accepted connection " + channel + ".");
+//             Log.debug("Accepted connection " + channel + ".");
 
             // create a new authing connection object to manage the
             // authentication of this client connection and register it
