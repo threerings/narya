@@ -255,7 +255,7 @@ public class PresentsDObjectMgr
             if (elapsed > 500000) {
                 Log.warning("Unit '" + StringUtil.safeToString(unit) +
                             " [" + StringUtil.shortClassName(unit) +
-                            "]' ran for " + elapsed + "ms.");
+                            "]' ran for " + (elapsed/1000) + "ms.");
             }
 
             // record the time spent processing this unit
