@@ -243,8 +243,11 @@ public class PresentsDObjectMgr
                 if (_nextQueueReport != 0L) {
                     Log.info("Max dobj queue size " + _maxQueueSize);
                     _maxQueueSize = queueSize;
+                    _nextQueueReport += 60 * 1000L;
+
+                } else {
+                    _nextQueueReport = startMillis + 60 * 1000L;
                 }
-                _nextQueueReport = startMillis + 60 * 1000L;
             }
         }
 
