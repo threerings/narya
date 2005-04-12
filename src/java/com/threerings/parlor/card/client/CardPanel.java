@@ -695,7 +695,7 @@ public abstract class CardPanel extends VirtualMediaPanel
                 addSprite(cs);
             }
             LinePath adjust = new LinePath(new Point(getHandX(size, i),
-                getHandY(cs, false)), adjustDuration);
+                getHandY(cs, false, false)), adjustDuration);
             cs.move(adjust);
         }
     }
@@ -720,7 +720,7 @@ public abstract class CardPanel extends VirtualMediaPanel
         int size = _handSprites.size();
         for (int i = 0; i < size; i++) {
             CardSprite cs = (CardSprite)_handSprites.get(i);
-            cs.setLocation(cs.getX(), getHandY(cs, false));
+            cs.setLocation(cs.getX(), getHandY(cs, false, true));
         }
     }
     
@@ -746,14 +746,17 @@ public abstract class CardPanel extends VirtualMediaPanel
      *
      * @param mouseOver whether or not the mouse cursor is currently on the
      * card
+     * @param raiseOnlySelectable whether or not to raise the only selectable
+     * card automatically
      */
-    protected int getHandY (CardSprite card, boolean mouseOver)
+    protected int getHandY (CardSprite card, boolean mouseOver,
+        boolean raiseOnlySelectable)
     {
         if (_selectedHandSprites.contains(card)) {
             return _handLocation.y - _selectedCardOffset;
             
-        } else if (isSelectable(card) && (mouseOver ||
-            getSelectableCount() == 1)) {
+        } else if (isSelectable(card) &&
+            (mouseOver || (raiseOnlySelectable && isOnlySelectable(card)))) {
             return _handLocation.y - _selectableCardOffset;
             
         } else {
@@ -762,27 +765,30 @@ public abstract class CardPanel extends VirtualMediaPanel
     }
     
     /**
-     * Returns the number of sprites in the hand that are selectable.
-     */
-    protected int getSelectableCount ()
-    {
-        int size = _handSprites.size(), count = 0;
-        for (int i = 0; i < size; i++) {
-            if (isSelectable((CardSprite)_handSprites.get(i))) {
-                count++;
-            }
-        }
-        return count;
-    }
-    
-    /**
      * Given the current selection mode and predicate, determines if the
      * specified sprite is selectable.
      */
-    protected boolean isSelectable (CardSprite sprite) {
+    protected boolean isSelectable (CardSprite sprite)
+    {
         return _handSelectionMode != NONE &&
             (_handSelectionPredicate == null ||
                 _handSelectionPredicate.evaluate(sprite));
+    }
+    
+    /**
+     * Determines whether the specified sprite is the only selectable sprite
+     * in the hand.
+     */
+    protected boolean isOnlySelectable (CardSprite sprite)
+    {
+        int size = _handSprites.size();
+        for (int i = 0; i < size; i++) {
+            CardSprite cs = (CardSprite)_handSprites.get(i);
+            if (cs != sprite && isSelectable(cs)) {
+                return false;
+            }
+        }
+        return true;
     }
     
     /**
@@ -841,10 +847,7 @@ public abstract class CardPanel extends VirtualMediaPanel
     
     /** The sprites for cards within the hand that have been selected. */
     protected ArrayList _selectedHandSprites = new ArrayList();
-    
-    /** The sprites for cards within the hand that are selectable. */
-    protected ArrayList _selectableHandSprites = new ArrayList();
-    
+
     /** The current selection mode for the hand. */
     protected int _handSelectionMode;
     
@@ -899,14 +902,16 @@ public abstract class CardPanel extends VirtualMediaPanel
         public void cardSpriteEntered (CardSprite sprite, MouseEvent me) {
             // update the offset
             if (_handSprites.contains(sprite)) {
-                sprite.setLocation(sprite.getX(), getHandY(sprite, true));
+                sprite.setLocation(sprite.getX(), getHandY(sprite, true,
+                    true));
             }
         }
         
         public void cardSpriteExited (CardSprite sprite, MouseEvent me) {
             // update the offset
             if (_handSprites.contains(sprite)) {
-                sprite.setLocation(sprite.getX(), getHandY(sprite, false));
+                sprite.setLocation(sprite.getX(), getHandY(sprite, false,
+                    true));
             }
         }
         
