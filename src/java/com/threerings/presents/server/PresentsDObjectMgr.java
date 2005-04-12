@@ -218,9 +218,22 @@ public class PresentsDObjectMgr
      */
     protected void processUnit (Object unit)
     {
-        long start = 0L;
-        if (_eventCount % UNIT_PROFILING_INTERVAL == 0) {
-            start = _timer.highResCounter();
+        long start = _timer.highResCounter();
+        long freq = _timer.highResFrequency();
+
+        if (REPORT_BIG_QUEUE) {
+            // keep track of the largest queue size we've seen
+            int queueSize = _evqueue.size();
+            if (queueSize > _maxQueueSize) {
+                _maxQueueSize = queueSize;
+            }
+
+            // report and reset our largest queue size once per minute
+            long startMillis = start * 1000 / freq;
+            if (_lastQueueReport - startMillis > 60 * 1000L) {
+                Log.info("Max dobj queue size " + _maxQueueSize);
+                _maxQueueSize = queueSize;
+            }
         }
 
         try {
@@ -245,19 +258,18 @@ public class PresentsDObjectMgr
             handleFatalError(unit, soe);
         }
 
-        if (start != 0L) {
-            long elapsed = _timer.highResCounter() - start;
+        // compute the elapsed time in microseconds
+        long elapsed = _timer.highResCounter() - start;
+        elapsed = elapsed * 1000000 / freq;
 
-            // convert the elapsed time to microseconds
-            elapsed = elapsed * 1000000 / _timer.highResFrequency();
+        // report excessively long units
+        if (elapsed > 500000) {
+            Log.warning("Unit '" + StringUtil.safeToString(unit) +
+                        " [" + StringUtil.shortClassName(unit) +
+                        "]' ran for " + (elapsed/1000) + "ms.");
+        }
 
-            // report excessively long units
-            if (elapsed > 500000) {
-                Log.warning("Unit '" + StringUtil.safeToString(unit) +
-                            " [" + StringUtil.shortClassName(unit) +
-                            "]' ran for " + (elapsed/1000) + "ms.");
-            }
-
+        if (_eventCount % UNIT_PROFILING_INTERVAL == 0) {
             // record the time spent processing this unit
             String cname = StringUtil.shortClassName(unit);
             UnitProfile uprof = (UnitProfile)_profiles.get(cname);
@@ -973,11 +985,20 @@ public class PresentsDObjectMgr
     /** Used to profile our events and runnable units. */
     protected HashMap _profiles = new HashMap();
 
+    /** The largest queue size in the past minute. */
+    protected long _maxQueueSize;
+
+    /** The time at which we last reported our max queue size. */
+    protected long _lastQueueReport;
+
     /** The frequency with which we take a profiling sample. */
     protected static final int UNIT_PROFILING_INTERVAL = 100;
 
     /** The default size of an oid list refs vector. */
     protected static final int DEFREFVEC_SIZE = 4;
+
+    /** Whether to periodically report our largest event queue size. */
+    protected static final boolean REPORT_BIG_QUEUE = false;
 
     /**
      * This table maps event classes to helper methods that perform some
