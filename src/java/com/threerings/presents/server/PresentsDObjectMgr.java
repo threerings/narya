@@ -92,6 +92,15 @@ public class PresentsDObjectMgr
         }
     }
 
+    /**
+     * Toggles whether or not we track and report our largest event queue
+     * size.
+     */
+    public void setReportQueueSize (boolean reportQueueSize)
+    {
+        _reportQueueSize = reportQueueSize;
+    }
+
     // documentation inherited from interface
     public boolean isManager (DObject object)
     {
@@ -221,7 +230,7 @@ public class PresentsDObjectMgr
         long start = _timer.highResCounter();
         long freq = _timer.highResFrequency();
 
-        if (REPORT_BIG_QUEUE) {
+        if (_reportQueueSize) {
             // keep track of the largest queue size we've seen
             int queueSize = _evqueue.size();
             if (queueSize > _maxQueueSize) {
@@ -230,9 +239,10 @@ public class PresentsDObjectMgr
 
             // report and reset our largest queue size once per minute
             long startMillis = start * 1000 / freq;
-            if (_lastQueueReport - startMillis > 60 * 1000L) {
+            if (_nextQueueReport < startMillis) {
                 Log.info("Max dobj queue size " + _maxQueueSize);
                 _maxQueueSize = queueSize;
+                _nextQueueReport = startMillis + 60 * 1000L;
             }
         }
 
@@ -985,20 +995,20 @@ public class PresentsDObjectMgr
     /** Used to profile our events and runnable units. */
     protected HashMap _profiles = new HashMap();
 
+    /** Whether or not we track and report our event queue size. */
+    protected boolean _reportQueueSize = false;
+
     /** The largest queue size in the past minute. */
     protected long _maxQueueSize;
 
     /** The time at which we last reported our max queue size. */
-    protected long _lastQueueReport;
+    protected long _nextQueueReport;
 
     /** The frequency with which we take a profiling sample. */
     protected static final int UNIT_PROFILING_INTERVAL = 100;
 
     /** The default size of an oid list refs vector. */
     protected static final int DEFREFVEC_SIZE = 4;
-
-    /** Whether to periodically report our largest event queue size. */
-    protected static final boolean REPORT_BIG_QUEUE = false;
 
     /**
      * This table maps event classes to helper methods that perform some
