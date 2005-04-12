@@ -240,8 +240,10 @@ public class PresentsDObjectMgr
             // report and reset our largest queue size once per minute
             long startMillis = start * 1000 / freq;
             if (_nextQueueReport < startMillis) {
-                Log.info("Max dobj queue size " + _maxQueueSize);
-                _maxQueueSize = queueSize;
+                if (_nextQueueReport != 0L) {
+                    Log.info("Max dobj queue size " + _maxQueueSize);
+                    _maxQueueSize = queueSize;
+                }
                 _nextQueueReport = startMillis + 60 * 1000L;
             }
         }
