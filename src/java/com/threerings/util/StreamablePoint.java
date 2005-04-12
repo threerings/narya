@@ -28,5 +28,20 @@ import com.threerings.io.Streamable;
 public class StreamablePoint extends Point
     implements Streamable
 {
-    // This space intentionally left blank
+    // Some handy constructors
+
+    public StreamablePoint ()
+    {
+        super();
+    }
+
+    public StreamablePoint (int x, int y)
+    {
+        super(x, y);
+    }
+
+    public StreamablePoint (Point p)
+    {
+        super(p);
+    }
 }
