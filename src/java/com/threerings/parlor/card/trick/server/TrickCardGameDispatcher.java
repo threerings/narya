@@ -19,28 +19,27 @@
 // License along with this library; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 
-package com.threerings.parlor.card.server;
+package com.threerings.parlor.card.trick.server;
 
-import com.threerings.parlor.card.client.CardGameService;
 import com.threerings.parlor.card.data.Card;
-import com.threerings.parlor.card.data.CardGameMarshaller;
+import com.threerings.parlor.card.trick.client.TrickCardGameService;
+import com.threerings.parlor.card.trick.data.TrickCardGameMarshaller;
 import com.threerings.presents.client.Client;
-import com.threerings.presents.client.InvocationService;
 import com.threerings.presents.data.ClientObject;
 import com.threerings.presents.data.InvocationMarshaller;
 import com.threerings.presents.server.InvocationDispatcher;
 import com.threerings.presents.server.InvocationException;
 
 /**
- * Dispatches requests to the {@link CardGameProvider}.
+ * Dispatches requests to the {@link TrickCardGameProvider}.
  */
-public class CardGameDispatcher extends InvocationDispatcher
+public class TrickCardGameDispatcher extends InvocationDispatcher
 {
     /**
      * Creates a dispatcher that may be registered to dispatch invocation
      * service requests for the specified provider.
      */
-    public CardGameDispatcher (CardGameProvider provider)
+    public TrickCardGameDispatcher (TrickCardGameProvider provider)
     {
         this.provider = provider;
     }
@@ -48,7 +47,7 @@ public class CardGameDispatcher extends InvocationDispatcher
     // documentation inherited
     public InvocationMarshaller createMarshaller ()
     {
-        return new CardGameMarshaller();
+        return new TrickCardGameMarshaller();
     }
 
     // documentation inherited
@@ -57,10 +56,17 @@ public class CardGameDispatcher extends InvocationDispatcher
         throws InvocationException
     {
         switch (methodId) {
-        case CardGameMarshaller.SEND_CARDS_TO_PLAYER:
-            ((CardGameProvider)provider).sendCardsToPlayer(
+        case TrickCardGameMarshaller.PLAY_CARD:
+            ((TrickCardGameProvider)provider).playCard(
                 source,
-                ((Integer)args[0]).intValue(), (Card[])args[1], (InvocationService.ConfirmListener)args[2]
+                (Card)args[0]
+            );
+            return;
+
+        case TrickCardGameMarshaller.SEND_CARDS_TO_PLAYER:
+            ((TrickCardGameProvider)provider).sendCardsToPlayer(
+                source,
+                ((Integer)args[0]).intValue(), (Card[])args[1]
             );
             return;
 

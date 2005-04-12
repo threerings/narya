@@ -1,5 +1,5 @@
 //
-// $Id$
+// $Id: TrickCardGameObject.java 3382 2005-03-03 19:55:35Z mdb $
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -19,43 +19,36 @@
 // License along with this library; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 
-package com.threerings.parlor.card.trick.server;
+package com.threerings.parlor.card.data;
 
-import com.threerings.parlor.turn.server.TurnGameManager;
+import com.threerings.io.Streamable;
 
 /**
- * A card game manager interface for trick-based card games, such as
- * Spades and Hearts.
+ * Pairs a player index with the card that the player played in the trick.
  */
-public interface TrickCardGameManager extends TurnGameManager
+public class PlayerCard implements Streamable
 {
-    /**
-     * Notifies the manager that a hand is about to start.
-     */
-    public void handWillStart ();
+    /** The index of the player. */
+    public int pidx;
+    
+    /** The card that the player played. */
+    public Card card;
     
     /**
-     * Notifies the manager that a hand just started.
+     * No-argument constructor for deserialization.
      */
-    public void handDidStart ();
+    public PlayerCard ()
+    {}
     
     /**
-     * Notifies the manager that a hand has ended.
+     * Creates a new player card.
+     *
+     * @param pidx the index of the player
+     * @param card the card played
      */
-    public void handDidEnd ();
-    
-    /**
-     * Notifies the manager that a trick is about to start.
-     */
-    public void trickWillStart ();
-    
-    /**
-     * Notifies the manager that a trick just started.
-     */
-    public void trickDidStart ();
-    
-    /**
-     * Notifies the manager that a trick has ended.
-     */
-    public void trickDidEnd ();
+    public PlayerCard (int pidx, Card card)
+    {
+        this.pidx = pidx;
+        this.card = card;
+    }
 }

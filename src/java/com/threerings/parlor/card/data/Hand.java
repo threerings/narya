@@ -1,5 +1,5 @@
 //
-// $Id: Hand.java,v 1.4 2004/10/15 18:20:28 andrzej Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -21,28 +21,44 @@
 
 package com.threerings.parlor.card.data;
 
-import java.util.Iterator;
-
-import com.threerings.io.Streamable;
-
 import com.threerings.util.StreamableArrayList;
 
 /**
  * Instances of this class represent hands of cards.
  */
-public class Hand implements CardCodes,
-                             Streamable
+public class Hand extends StreamableArrayList
 {
-    /** The cards in the hand. */
-    public StreamableArrayList cards;
-    
+    /**
+     * Adds all of the specified cards to this hand.
+     */
+    public void addAll (Card[] cards)
+    {
+        for (int i = 0; i < cards.length; i++) {
+            add(cards[i]);
+        }
+    }
     
     /**
-     * Default constructor creates an empty hand.
+     * Removes all of the specified cards from this hand.
      */
-    public Hand ()
+    public void removeAll (Card[] cards)
     {
-        cards = new StreamableArrayList();
+        for (int i = 0; i < cards.length; i++) {
+            remove(cards[i]);
+        }
+    }
+    
+    /**
+     * Checks whether this hand contains all of the specified cards.
+     */
+    public boolean containsAll (Card[] cards)
+    {
+        for (int i = 0; i < cards.length; i++) {
+            if (!contains(cards[i])) {
+                return false;
+            }
+        }
+        return true;
     }
     
     /**
@@ -53,26 +69,12 @@ public class Hand implements CardCodes,
      */
     public int getSuitMemberCount (int suit)
     {
-        int members = 0;
-        
-        Iterator it = cards.iterator();
-        
-        while (it.hasNext()) {
-            if (((Card)it.next()).getSuit() == suit) {
-                members++;   
+        int len = size(), members = 0;
+        for (int i = 0; i < len; i++) {
+            if (((Card)get(i)).getSuit() == suit) {
+                members++;
             }
         }
-        
         return members;
-    }
-    
-    /**
-     * Returns a string representation of this hand.
-     *
-     * @return a description of this hand
-     */
-    public String toString ()
-    {
-        return "[cards=" + cards.toString() + "]";
     }
 }

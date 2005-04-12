@@ -47,4 +47,24 @@ public interface CardGameReceiver extends InvocationReceiver
      * @param cards the cards received
      */
     public void receivedCardsFromPlayer (int plidx, Card[] cards);
+    
+    /**
+     * Dispatched to the client when the server has forced it to send
+     * a set of cards to another player.
+     *
+     * @param plidx the index of the player to which the cards were sent
+     * @param cards the cards sent
+     */
+    public void sentCardsToPlayer (int plidx, Card[] cards);
+    
+    /**
+     * Dispatched to the client when a set of cards is transferred between
+     * two other players in the game.
+     *
+     * @param fromidx the index of the player sending the cards
+     * @param toidx the index of the player receiving the cards
+     * @param cards the number of cards transferred
+     */
+    public void cardsTransferredBetweenPlayers (int fromidx, int toidx,
+        int cards);
 }

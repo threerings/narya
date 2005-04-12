@@ -19,35 +19,43 @@
 // License along with this library; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 
-package com.threerings.parlor.card.data;
+package com.threerings.parlor.card.trick.data;
 
-import com.threerings.parlor.card.client.CardGameService;
 import com.threerings.parlor.card.data.Card;
+import com.threerings.parlor.card.trick.client.TrickCardGameService;
 import com.threerings.presents.client.Client;
-import com.threerings.presents.client.InvocationService;
 import com.threerings.presents.data.InvocationMarshaller;
 import com.threerings.presents.dobj.InvocationResponseEvent;
 
 /**
- * Provides the implementation of the {@link CardGameService} interface
+ * Provides the implementation of the {@link TrickCardGameService} interface
  * that marshalls the arguments and delivers the request to the provider
  * on the server. Also provides an implementation of the response listener
  * interfaces that marshall the response arguments and deliver them back
  * to the requesting client.
  */
-public class CardGameMarshaller extends InvocationMarshaller
-    implements CardGameService
+public class TrickCardGameMarshaller extends InvocationMarshaller
+    implements TrickCardGameService
 {
-    /** The method id used to dispatch {@link #sendCardsToPlayer} requests. */
-    public static final int SEND_CARDS_TO_PLAYER = 1;
+    /** The method id used to dispatch {@link #playCard} requests. */
+    public static final int PLAY_CARD = 1;
 
     // documentation inherited from interface
-    public void sendCardsToPlayer (Client arg1, int arg2, Card[] arg3, InvocationService.ConfirmListener arg4)
+    public void playCard (Client arg1, Card arg2)
     {
-        InvocationMarshaller.ConfirmMarshaller listener4 = new InvocationMarshaller.ConfirmMarshaller();
-        listener4.listener = arg4;
+        sendRequest(arg1, PLAY_CARD, new Object[] {
+            arg2
+        });
+    }
+
+    /** The method id used to dispatch {@link #sendCardsToPlayer} requests. */
+    public static final int SEND_CARDS_TO_PLAYER = 2;
+
+    // documentation inherited from interface
+    public void sendCardsToPlayer (Client arg1, int arg2, Card[] arg3)
+    {
         sendRequest(arg1, SEND_CARDS_TO_PLAYER, new Object[] {
-            new Integer(arg2), arg3, listener4
+            new Integer(arg2), arg3
         });
     }
 

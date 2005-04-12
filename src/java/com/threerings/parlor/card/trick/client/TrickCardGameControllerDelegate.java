@@ -21,11 +21,9 @@
 
 package com.threerings.parlor.card.trick.client;
 
-import com.threerings.presents.dobj.AttributeChangedEvent;
-
 import com.threerings.parlor.turn.client.TurnGameControllerDelegate;
 
-import com.threerings.parlor.card.trick.data.TrickCardGameObject;
+import com.threerings.parlor.card.client.CardGameController;
 
 /**
  * A card game controller delegate for trick-based card games, such as
@@ -39,30 +37,13 @@ public class TrickCardGameControllerDelegate
      *
      * @param controller the game controller
      */
-    public TrickCardGameControllerDelegate (TrickCardGameController
+    public TrickCardGameControllerDelegate (CardGameController
         controller)
     {
         super(controller);
-        
-        _tcgctrl = controller;
+        _cgctrl = controller;
     }
     
-    // Documentation inherited
-    public void attributeChanged (AttributeChangedEvent ace)
-    {
-        super.attributeChanged(ace);
-        
-        TrickCardGameObject tcgObj = (TrickCardGameObject)_gameObj;
-        
-        if (ace.getName().equals(tcgObj.getPlayingHandFieldName())) {
-            _tcgctrl.playingHandDidChange(tcgObj.getPlayingHand());
-        }
-        else if (ace.getName().equals(tcgObj.getPlayingTrickFieldName())) {
-            _tcgctrl.playingTrickDidChange(tcgObj.getPlayingTrick());
-        }
-    }
-    
-    
-    /** The trick card game controller. */
-    protected TrickCardGameController _tcgctrl;
+    /** The card game controller. */
+    protected CardGameController _cgctrl;
 }

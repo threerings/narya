@@ -1,5 +1,5 @@
 //
-// $Id$
+// $Id: CardCodes.java 3224 2004-11-19 19:04:56Z andrzej $
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -19,29 +19,24 @@
 // License along with this library; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 
-package com.threerings.parlor.card.trick.client;
+package com.threerings.parlor.card.trick.data;
 
-import com.threerings.parlor.turn.client.TurnGameController;
+import com.threerings.parlor.card.data.CardCodes;
 
 /**
- * A card game controller interface for trick-based card games, such as
- * Spades and Hearts.
+ * Constants relating to trick-based card games.
  */
-public interface TrickCardGameController extends TurnGameController
+public interface TrickCardCodes extends CardCodes
 {
-    /**
-     * Notifies the controller that the gameplay entered or left a hand.
-     *
-     * @param playingHand true if the gameplay entered a hand, false if
-     * it left one
-     */
-    public void playingHandDidChange (boolean playingHand);
+    /** For four-player games, the top (opposite) player. */
+    public static final int TOP = 0;
     
-    /**
-     * Notifies the controller that the gameplay entered or left a trick.
-     *
-     * @param playingTrick true if the gameplay entered a trick, false if
-     * it left one
-     */
-    public void playingTrickDidChange (boolean playingTrick);
+    /** For four-player games, the bottom (own) player. */
+    public static final int BOTTOM = 1;
+    
+    /** For four-player games, the player on the left. */
+    public static final int LEFT = 2;
+    
+    /** For four-player games, the player on the right. */
+    public static final int RIGHT = 3;
 }

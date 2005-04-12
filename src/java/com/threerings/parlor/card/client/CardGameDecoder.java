@@ -24,6 +24,14 @@ public class CardGameDecoder extends InvocationDecoder
      * notifications. */
     public static final int RECEIVED_CARDS_FROM_PLAYER = 2;
 
+    /** The method id used to dispatch {@link CardGameReceiver#sentCardsToPlayer}
+     * notifications. */
+    public static final int SENT_CARDS_TO_PLAYER = 3;
+
+    /** The method id used to dispatch {@link CardGameReceiver#cardsTransferredBetweenPlayers}
+     * notifications. */
+    public static final int CARDS_TRANSFERRED_BETWEEN_PLAYERS = 4;
+
     /**
      * Creates a decoder that may be registered to dispatch invocation
      * service notifications to the specified receiver.
@@ -52,6 +60,18 @@ public class CardGameDecoder extends InvocationDecoder
         case RECEIVED_CARDS_FROM_PLAYER:
             ((CardGameReceiver)receiver).receivedCardsFromPlayer(
                 ((Integer)args[0]).intValue(), (Card[])args[1]
+            );
+            return;
+
+        case SENT_CARDS_TO_PLAYER:
+            ((CardGameReceiver)receiver).sentCardsToPlayer(
+                ((Integer)args[0]).intValue(), (Card[])args[1]
+            );
+            return;
+
+        case CARDS_TRANSFERRED_BETWEEN_PLAYERS:
+            ((CardGameReceiver)receiver).cardsTransferredBetweenPlayers(
+                ((Integer)args[0]).intValue(), ((Integer)args[1]).intValue(), ((Integer)args[2]).intValue()
             );
             return;
 

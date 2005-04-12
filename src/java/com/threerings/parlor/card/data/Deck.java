@@ -23,28 +23,20 @@ package com.threerings.parlor.card.data;
 
 import java.util.Collections;
 
-import com.threerings.io.Streamable;
-
 import com.threerings.util.StreamableArrayList;
 
 /**
  * Instances of this class represent decks of cards.
  */
-public class Deck implements CardCodes,
-                             Streamable
+public class Deck extends StreamableArrayList
+    implements CardCodes
 {
-    /** The cards in the deck. */
-    public StreamableArrayList cards;
-    
-    
     /**
      * Default constructor creates an unshuffled deck of cards without
      * jokers.
      */
     public Deck ()
     {
-        cards = new StreamableArrayList();
-        
         reset(false);
     }
     
@@ -56,8 +48,6 @@ public class Deck implements CardCodes,
      */
     public Deck (boolean includeJokers)
     {
-        cards = new StreamableArrayList();
-        
         reset(includeJokers);
     }
     
@@ -70,17 +60,17 @@ public class Deck implements CardCodes,
      */
     public void reset (boolean includeJokers)
     {
-        cards.clear();
+        clear();
         
-        for (int i=SPADES;i<=DIAMONDS;i++) {
-            for (int j=2;j<=ACE;j++) {
-                cards.add(new Card(j, i));
+        for (int i = SPADES; i <= DIAMONDS; i++) {
+            for (int j = 2; j <= ACE; j++) {
+                add(new Card(j, i));
             }
         }
         
         if (includeJokers) {
-            cards.add(new Card(RED_JOKER, 3));
-            cards.add(new Card(BLACK_JOKER, 3));
+            add(new Card(RED_JOKER, 3));
+            add(new Card(BLACK_JOKER, 3));
         }
     }
     
@@ -89,7 +79,7 @@ public class Deck implements CardCodes,
      */
     public void shuffle ()
     {
-        Collections.shuffle(cards);
+        Collections.shuffle(this);
     }
     
     /**
@@ -101,15 +91,15 @@ public class Deck implements CardCodes,
      */
     public Hand dealHand (int size)
     {
-        if (cards.size() < size) {
+        if (size() < size) {
             return null;
-        }
-        else {
+            
+        } else {
             Hand hand = new Hand();
         
-            int cardsLeft = cards.size();
-            for (int i=0;i<size;i++) {
-                hand.cards.add(cards.remove(--cardsLeft));
+            int cardsLeft = size();
+            for (int i = 0; i < size; i++) {
+                hand.add(remove(--cardsLeft));
             }
             
             return hand;
@@ -123,17 +113,7 @@ public class Deck implements CardCodes,
      */
     public void returnHand (Hand hand)
     {
-        cards.addAll(hand.cards);
-        hand.cards.clear();
-    }
-    
-    /**
-     * Returns a string representation of this deck.
-     *
-     * @return a description of this deck
-     */
-    public String toString ()
-    {
-        return "[cards=" + cards.toString() + "]";
+        addAll(hand);
+        hand.clear();
     }
 }

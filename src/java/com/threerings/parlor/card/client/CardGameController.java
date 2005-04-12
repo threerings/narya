@@ -21,20 +21,22 @@
 
 package com.threerings.parlor.card.client;
 
+import com.threerings.util.Name;
+
 import com.threerings.crowd.data.PlaceObject;
 
 import com.threerings.parlor.card.data.Card;
 import com.threerings.parlor.card.data.CardCodes;
 import com.threerings.parlor.card.data.Hand;
-
 import com.threerings.parlor.game.client.GameController;
+import com.threerings.parlor.turn.client.TurnGameController;
 
 /**
  * A controller class for card games.  Handles common functions like
  * accepting dealt hands.
  */
 public abstract class CardGameController extends GameController
-    implements CardCodes, CardGameReceiver
+    implements TurnGameController, CardCodes, CardGameReceiver
 {
     // Documentation inherited.
     public void willEnterPlace (PlaceObject plobj)
@@ -54,6 +56,10 @@ public abstract class CardGameController extends GameController
             CardGameDecoder.RECEIVER_CODE);
     }
     
+    // Documentation inherited.
+    public void turnDidChange (Name turnHolder)
+    {}
+    
     /**
      * Called when the server deals the client a new hand of cards.  Default
      * implementation does nothing.
@@ -71,5 +77,28 @@ public abstract class CardGameController extends GameController
      * @param cards the cards received
      */
     public void receivedCardsFromPlayer (int plidx, Card[] cards)
+    {}
+    
+    /**
+     * Dispatched to the client when the server has forced it to send
+     * a set of cards to another player.  Default implementation does
+     * nothing.
+     *
+     * @param plidx the index of the player to which the cards were sent
+     * @param cards the cards sent
+     */
+    public void sentCardsToPlayer (int plidx, Card[] cards)
+    {}
+    
+    /**
+     * Dispatched to the client when a set of cards is transferred between
+     * two other players in the game.  Default implementation does nothing.
+     *
+     * @param fromidx the index of the player sending the cards
+     * @param toidx the index of the player receiving the cards
+     * @param cards the number of cards transferred
+     */
+    public void cardsTransferredBetweenPlayers (int fromidx, int toidx,
+        int cards)
     {}
 }

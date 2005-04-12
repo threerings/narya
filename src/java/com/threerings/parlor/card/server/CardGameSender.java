@@ -40,4 +40,28 @@ public class CardGameSender extends InvocationSender
             new Object[] { new Integer(arg1), arg2 });
     }
 
+    /**
+     * Issues a notification that will result in a call to {@link
+     * CardGameReceiver#sentCardsToPlayer} on a client.
+     */
+    public static void sentCardsToPlayer (
+        ClientObject target, int arg1, Card[] arg2)
+    {
+        sendNotification(
+            target, CardGameDecoder.RECEIVER_CODE, CardGameDecoder.SENT_CARDS_TO_PLAYER,
+            new Object[] { new Integer(arg1), arg2 });
+    }
+
+    /**
+     * Issues a notification that will result in a call to {@link
+     * CardGameReceiver#cardsTransferredBetweenPlayers} on a client.
+     */
+    public static void cardsTransferredBetweenPlayers (
+        ClientObject target, int arg1, int arg2, int arg3)
+    {
+        sendNotification(
+            target, CardGameDecoder.RECEIVER_CODE, CardGameDecoder.CARDS_TRANSFERRED_BETWEEN_PLAYERS,
+            new Object[] { new Integer(arg1), new Integer(arg2), new Integer(arg3) });
+    }
+
 }
