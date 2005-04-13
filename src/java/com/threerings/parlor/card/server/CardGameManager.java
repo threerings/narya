@@ -81,14 +81,14 @@ public class CardGameManager extends GameManager
     {
         if (deck.size() < size) {
             return null;
-        }
-        else {
+
+        } else {
             Hand hand = deck.dealHand(size);
-            
-            CardGameSender.sendHand(
-                (ClientObject)PresentsServer.omgr.getObject(
-                    _playerOids[playerIndex]), hand);
-            
+            if (!isAI(playerIndex)) {
+                CardGameSender.sendHand(
+                    (ClientObject)PresentsServer.omgr.getObject(
+                        _playerOids[playerIndex]), hand);
+            }
             return hand;
         }
     }
