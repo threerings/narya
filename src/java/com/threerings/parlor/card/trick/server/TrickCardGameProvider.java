@@ -33,4 +33,12 @@ public interface TrickCardGameProvider extends InvocationProvider
      */
     public void playCard (ClientObject client, Card card)
         throws InvocationException;
+        
+    /**
+     * Processes a request for a rematch.
+     *
+     * @param client the client object
+     */
+    public void requestRematch (ClientObject client)
+        throws InvocationException;
 }

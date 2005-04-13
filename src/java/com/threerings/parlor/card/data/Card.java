@@ -40,6 +40,17 @@ public class Card implements DSet.Entry, Comparable, CardCodes
     {}
     
     /**
+     * Creates a new card.
+     *
+     * @param number the number of the card
+     * @param suit the suit of the card
+     */
+    public Card (int number, int suit)
+    {
+        _value = (byte)((suit << 5) | number);
+    }
+    
+    /**
      * Returns the value of the card, either from 2 to 11 or
      * KING, QUEEN, JACK, ACE, RED_JOKER, or BLACK_JOKER.
      *
@@ -223,17 +234,6 @@ public class Card implements DSet.Entry, Comparable, CardCodes
             
             return sb.toString();
         }
-    }
-    
-    /**
-     * Protected constructor for Deck.
-     *
-     * @param number the number of the card
-     * @param suit the suit of the card
-     */
-    protected Card (int number, int suit)
-    {
-        _value = (byte)((suit << 5) | number);
     }
     
     /** The number of the card. */

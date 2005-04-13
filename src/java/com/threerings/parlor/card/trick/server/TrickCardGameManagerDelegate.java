@@ -116,6 +116,10 @@ public class TrickCardGameManagerDelegate extends TurnGameManagerDelegate
             _trickCardGame.setTrickState(TrickCardGameObject.BETWEEN_HANDS);
         }
         
+        // initialize the array of rematch requests
+        _trickCardGame.setRematchRequests(
+            new int[_cardGame.getPlayerCount()]);
+        
         super.gameDidEnd();
     }
     
@@ -256,6 +260,56 @@ public class TrickCardGameManagerDelegate extends TurnGameManagerDelegate
                 _endTrickInterval.schedule(_endTrickDelay);
             }
         }
+    }
+    
+    // Documentation inherited.
+    public void requestRematch (ClientObject client)
+        throws InvocationException
+    {
+        // make sure the game is over
+        if (_cardGame.state != CardGameObject.GAME_OVER) {
+            throw new InvocationException("m.game_not_over");
+        }
+        
+        // make sure the requester is one of the players
+        int pidx = _cgmgr.getPlayerIndex(client);
+        if (pidx == -1) {
+            throw new InvocationException("m.not_playing");
+        }
+        
+        // make sure the player hasn't already requested
+        if (_trickCardGame.getRematchRequests()[pidx] !=
+            TrickCardGameObject.NO_REQUEST) {
+            throw new InvocationException("m.already_requested");
+        }
+        
+        // if player is first requesting, set to request; else set
+        // to accept
+        int req = (getRematchRequestCount() == 0 ?
+            TrickCardGameObject.REQUESTS_REMATCH :
+            TrickCardGameObject.ACCEPTS_REMATCH);
+        _trickCardGame.setRematchRequestsAt(req, pidx);
+        
+        // if all players accept the rematch, restart the game
+        if (getRematchRequestCount() == _cardGame.getPlayerCount()) {
+            _cgmgr.startGame();
+        }
+    }
+    
+    /**
+     * Returns the number of players currently requesting or accepting
+     * a rematch.
+     */
+    protected int getRematchRequestCount ()
+    {
+        int[] rematchRequests = _trickCardGame.getRematchRequests();
+        int count = 0;
+        for (int i = 0; i < rematchRequests.length; i++) {
+            if (rematchRequests[i] != TrickCardGameObject.NO_REQUEST) {
+                count++;
+            }
+        }
+        return count;
     }
     
     /**

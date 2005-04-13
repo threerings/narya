@@ -43,6 +43,15 @@ public interface TrickCardGameObject extends TurnGameObject
     /** The number of states defined for the base trick card game object. */
     public static final int TRICK_STATE_COUNT = 3;
     
+    /** Indicates that the player has not requested or accepted a rematch. */
+    public static final int NO_REQUEST = 0;
+    
+    /** Indicates that the player has requested a rematch. */
+    public static final int REQUESTS_REMATCH = 1;
+    
+    /** Indicates that the player has accepted the rematch request. */
+    public static final int ACCEPTS_REMATCH = 2;
+    
     /**
      * Returns a reference to the trick card game service used to make
      * requests to the server.
@@ -127,6 +136,35 @@ public interface TrickCardGameObject extends TurnGameObject
      * @param lastCardsPlayed the last array of cards played
      */
     public void setLastCardsPlayed (PlayerCard[] lastCardsPlayed);
+    
+    /**
+     * Returns the name of the field that contains the rematch requests.
+     *
+     * @return the name of the rematchRequests field
+     */
+    public String getRematchRequestsFieldName ();
+    
+    /**
+     * Returns the array of rematch requests.
+     *
+     * @return the array of rematch requests
+     */
+    public int[] getRematchRequests ();
+    
+    /**
+     * Sets the array of rematch requests.
+     *
+     * @param rematchRequests the array of rematch requests
+     */
+    public void setRematchRequests (int[] rematchRequests);
+    
+    /**
+     * Sets an element of the rematch request array.
+     *
+     * @param rematchRequest the rematch request value
+     * @param index the index at which to set the value
+     */
+    public void setRematchRequestsAt (int rematchRequest, int index);
     
     /**
      * Checks whether a user can play the specified card at this time.

@@ -29,4 +29,11 @@ public interface TrickCardGameService extends InvocationService
      * @param card the card to play
      */
     public void playCard (Client client, Card card);
+    
+    /**
+     * A request for a rematch.
+     *
+     * @param client the client object
+     */
+    public void requestRematch (Client client);
 }

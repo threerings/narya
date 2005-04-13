@@ -63,6 +63,12 @@ public class TrickCardGameDispatcher extends InvocationDispatcher
             );
             return;
 
+        case TrickCardGameMarshaller.REQUEST_REMATCH:
+            ((TrickCardGameProvider)provider).requestRematch(
+                source                
+            );
+            return;
+
         case TrickCardGameMarshaller.SEND_CARDS_TO_PLAYER:
             ((TrickCardGameProvider)provider).sendCardsToPlayer(
                 source,
