@@ -36,11 +36,11 @@ public class TrickCardGameUtil
      * For four-player games with fixed partnerships, this returns the index
      * of the player's team.
      *
-     * @param plidx the player index
+     * @param pidx the player index
      */
-    public static int getTeamIndex (int plidx)
+    public static int getTeamIndex (int pidx)
     {
-        return plidx / 2;
+        return pidx / 2;
     }
     
     /**
@@ -58,9 +58,9 @@ public class TrickCardGameUtil
      * For four-player games with fixed partnerships, this returns the index
      * of the player's partner.
      */
-    public static int getPartnerIndex (int plidx)
+    public static int getPartnerIndex (int pidx)
     {
-        return plidx ^ 1;
+        return pidx ^ 1;
     }
     
     /**
@@ -76,16 +76,15 @@ public class TrickCardGameUtil
     }
     
     /**
-     * For four-player games with fixed partnerships, this returns the index
-     * of the player after the specified player going clockwise around the
-     * table.
+     * For four-player games, this returns the index of the player after the
+     * specified player going clockwise around the table.
      */
-    public static int getNextInClockwiseSequence (int plidx)
+    public static int getNextInClockwiseSequence (int pidx)
     {
         //   0
         // 2   3
         //   1
-        switch (plidx) {
+        switch (pidx) {
             case 0: return 3;
             case 1: return 2;
             case 2: return 0;
@@ -105,6 +104,33 @@ public class TrickCardGameUtil
     public static int getRelativeLocation (int pidx1, int pidx2)
     {
         return RELATIVE_LOCATIONS[pidx1][pidx2];
+    }
+    
+    /**
+     * For four-player games, returns the index of the player to the left of
+     * the specified player.
+     */
+    public static int getLeftIndex (int pidx)
+    {
+        return getNextInClockwiseSequence(pidx);
+    }
+    
+    /**
+     * For four-player games, returns the index of the player to the right of
+     * the specified player.
+     */
+    public static int getRightIndex (int pidx)
+    {
+        return getNextInClockwiseSequence(pidx) ^ 1;
+    }
+    
+    /**
+     * For four-player games, returns the index of the player across from the
+     * specified player.
+     */
+    public static int getOppositeIndex (int pidx)
+    {
+        return pidx ^ 1;
     }
     
     /**

@@ -30,8 +30,8 @@ import com.samskivert.swing.Label;
 /**
  * A sprite that uses a label to render itself.  If the label has not been
  * previously laid out (see {@link Label#layout}) it will be done when the
- * sprite is added to a media panel.  The label should not be altered
- * after the sprite is created.
+ * sprite is added to a media panel.  If the label is altered after the
+ * sprite is created, {@link #updateBounds} should be called.
  */
 public class LabelSprite extends Sprite
 {
@@ -60,6 +60,16 @@ public class LabelSprite extends Sprite
         _antiAliased = antiAliased;
     }
 
+    /**
+     * Updates the bounds of the sprite after a change to the label.
+     */
+    public void updateBounds ()
+    {
+        Dimension size = _label.getSize();
+        _bounds.width = size.width;
+        _bounds.height = size.height;
+    }
+    
     // documentation inherited
     protected void init ()
     {
@@ -79,9 +89,7 @@ public class LabelSprite extends Sprite
         }
 
         // size the bounds to fit our label
-        Dimension size = _label.getSize();
-        _bounds.width = size.width;
-        _bounds.height = size.height;
+        updateBounds();        
     }
 
     // documentation inherited

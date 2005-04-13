@@ -171,26 +171,12 @@ public abstract class CardPanel extends VirtualMediaPanel
     
     /**
      * Sets the selection mode for the hand (NONE, PLAY_SINGLE, SELECT_SINGLE,
-     * or SELECT_MULTIPLE).  Changing the selection mode can change the
-     * current selection (clearing the selection, for example, if disabling
-     * selection mode).
+     * or SELECT_MULTIPLE).  Changing the selection mode does not change the
+     * current selection.
      */
     public void setHandSelectionMode (int mode)
     {
-        if (_handSelectionMode == mode) {
-            return;
-        }
         _handSelectionMode = mode;
-        
-        // if entered non-selection or single-selection mode, deselect all
-        // or all but one card
-        if (mode != SELECT_MULTIPLE) {
-            CardSprite[] sprites = getSelectedHandSprites();
-            int begin = (mode == SELECT_SINGLE ? 1 : 0);
-            for (int i = begin; i < sprites.length; i++) {
-                deselectHandSprite(sprites[i]);
-            }
-        }
         
         // update the offsets of all cards in the hand
         updateHandOffsets();
@@ -426,7 +412,8 @@ public abstract class CardPanel extends VirtualMediaPanel
     }
     
     /**
-     * Flies a set of cards from the hand into the ether.
+     * Flies a set of cards from the hand into the ether.  Clears any selected
+     * cards.
      *
      * @param cards the card sprites to remove from the hand
      * @param dest the point to fly the cards to
@@ -440,10 +427,10 @@ public abstract class CardPanel extends VirtualMediaPanel
         // fly each sprite over, removing it from the hand immediately and
         // from the board when it finishes its path
         for (int i = 0; i < cards.length; i++) {
+            removeFromHand(cards[i]);
             LinePath flight = new LinePath(dest, flightDuration);
             cards[i].addSpriteObserver(_pathEndRemover);
             cards[i].moveAndFadeOut(flight, flightDuration, fadePortion);
-            removeFromHand(cards[i]);
         }
         
         // adjust the hand to cover the hole
@@ -451,7 +438,8 @@ public abstract class CardPanel extends VirtualMediaPanel
     }
     
     /**
-     * Flies a set of cards from the ether into the hand.
+     * Flies a set of cards from the ether into the hand.  Clears any selected
+     * cards.
      *
      * @param cards the cards to add to the hand
      * @param src the point to fly the cards from
@@ -546,7 +534,7 @@ public abstract class CardPanel extends VirtualMediaPanel
     }
     
     /**
-     * Flies a card from the hand onto the board.
+     * Flies a card from the hand onto the board.  Clears any cards selected.
      *
      * @param card the sprite to remove from the hand
      * @param dest the point to fly the card to
@@ -671,8 +659,8 @@ public abstract class CardPanel extends VirtualMediaPanel
     
     /**
      * Expands or collapses the hand to accommodate new cards or cover the
-     * space left by removed cards.  Skips unmanaged sprites.  Assumes that
-     * selection is disabled.
+     * space left by removed cards.  Skips unmanaged sprites.  Clears out
+     * any selected cards.
      *
      * @param adjustDuration the amount of time to spend settling the cards
      * into their new locations
@@ -680,6 +668,9 @@ public abstract class CardPanel extends VirtualMediaPanel
      */
     protected void adjustHand (long adjustDuration, boolean updateLayers)
     {
+        // clear out selected cards
+        clearHandSelection();
+        
         // Sort the hand
         QuickSort.sort(_handSprites);
         
@@ -887,7 +878,8 @@ public abstract class CardPanel extends VirtualMediaPanel
         new CardSpriteObserver() {
         public void cardSpriteClicked (CardSprite sprite, MouseEvent me) {
             // select, deselect, or play card in hand
-            if (_selectedHandSprites.contains(sprite)) {
+            if (_selectedHandSprites.contains(sprite) &&
+                _handSelectionMode != NONE) {
                 deselectHandSprite(sprite);
                 
             } else if (_handSprites.contains(sprite) && isSelectable(sprite)) {
