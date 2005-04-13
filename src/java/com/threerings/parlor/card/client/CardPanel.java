@@ -671,7 +671,8 @@ public abstract class CardPanel extends VirtualMediaPanel
     
     /**
      * Expands or collapses the hand to accommodate new cards or cover the
-     * space left by removed cards.  Skips unmanaged sprites.
+     * space left by removed cards.  Skips unmanaged sprites.  Assumes that
+     * selection is disabled.
      *
      * @param adjustDuration the amount of time to spend settling the cards
      * into their new locations
@@ -695,7 +696,7 @@ public abstract class CardPanel extends VirtualMediaPanel
                 addSprite(cs);
             }
             LinePath adjust = new LinePath(new Point(getHandX(size, i),
-                getHandY(cs, false, false)), adjustDuration);
+                _handLocation.y), adjustDuration);
             cs.move(adjust);
         }
     }
