@@ -21,6 +21,9 @@
 
 package com.threerings.resource;
 
+import java.awt.Rectangle;
+import java.awt.image.BufferedImage;
+
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -34,12 +37,11 @@ import java.security.Permission;
 import javax.imageio.ImageIO;
 import javax.imageio.stream.ImageInputStream;
 
-import com.samskivert.net.AttachableURLFactory;
 import com.samskivert.io.ByteArrayOutInputStream;
-import java.awt.image.BufferedImage;
-import java.awt.Rectangle;
-import com.threerings.geom.GeomUtil;
+import com.samskivert.net.AttachableURLFactory;
 import com.samskivert.util.StringUtil;
+
+import com.threerings.geom.GeomUtil;
 
 /**
  * This class is not used directly, except by a registering ResourceManager
