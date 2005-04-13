@@ -91,6 +91,15 @@ public class TrickCardGameManagerDelegate extends TurnGameManagerDelegate
             _trickCardGame.getTrickCardGameService());
     }
     
+    // Documentation inherited.
+    public void gameWillStart ()
+    {
+        super.gameWillStart();
+        
+        // clear out the last cards played
+        _trickCardGame.setLastCardsPlayed(null);
+    }
+    
     /**
      * Called when the game has started.  Default implementation starts the
      * first hand.
@@ -499,6 +508,9 @@ public class TrickCardGameManagerDelegate extends TurnGameManagerDelegate
     {
         // store the trick results for late-joiners
         _trickCardGame.setLastCardsPlayed(_trickCardGame.getCardsPlayed());
+        
+        // clear out the cards played in the trick
+        _trickCardGame.setCardsPlayed(null);
         
         // verify that each player has at least one card
         if (anyHandsEmpty()) {
