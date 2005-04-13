@@ -280,8 +280,13 @@ public abstract class Connection implements NetEventHandler
             close();
 
         } catch (ClassNotFoundException cnfe) {
-            Log.warning("Error reading message from socket " +
-                        "[channel=" + _channel + ", error=" + cnfe + "].");
+            try {
+                Log.warning("Error reading message from socket " +
+                            "[channel=" + _channel + ", error=" + cnfe + "].");
+            } catch (Error err) {
+                Log.warning("Error reading message from socket " +
+                    "and error printing channel [error=" + cnfe + "].");
+            }
             // deal with the failure
             handleFailure(new NestableIOException(
                               "Unable to decode incoming message.", cnfe));
@@ -291,8 +296,14 @@ public abstract class Connection implements NetEventHandler
             // dropped the connection" failure
             String msg = ioe.getMessage();
             if (msg == null || msg.indexOf("reset by peer") == -1) {
-                Log.warning("Error reading message from socket " +
-                            "[channel=" + _channel + ", error=" + ioe + "].");
+                try {
+                    Log.warning("Error reading message from socket " +
+                                "[channel=" + _channel +
+                                ", error=" + ioe + "].");
+                } catch (Error err) {
+                    Log.warning("Error reading message from socket " +
+                        "and error printing channel [error=" + ioe + "].");
+                }
             }
             // deal with the failure
             handleFailure(ioe);

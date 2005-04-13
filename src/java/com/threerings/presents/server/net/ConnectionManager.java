@@ -583,9 +583,14 @@ public class ConnectionManager extends LoopingThread
             }
 
             if (!(channel instanceof SelectableChannel)) {
-                Log.warning("Provided with un-selectable socket as " +
-                            "result of accept(), can't cope " +
-                            "[channel=" + channel + "].");
+                try {
+                    Log.warning("Provided with un-selectable socket as " +
+                                "result of accept(), can't cope " +
+                                "[channel=" + channel + "].");
+                } catch (Error err) {
+                    Log.warning("Un-selectable channel also couldn't " +
+                        "be printed.");
+                }
                 // stick a fork in the socket
                 channel.socket().close();
                 return;
