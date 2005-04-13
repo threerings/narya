@@ -21,7 +21,10 @@
 
 package com.threerings.parlor.card.client;
 
+import java.awt.Color;
+import java.awt.Graphics2D;
 import java.awt.Point;
+import java.awt.Rectangle;
 import java.awt.event.MouseEvent;
 
 import java.util.ArrayList;
@@ -617,7 +620,15 @@ public abstract class CardPanel extends VirtualMediaPanel
             _boardSprites.remove(cards[i]);
         }
     }
-    
+
+    // documentation inherited
+    protected void paintBehind (Graphics2D gfx, Rectangle dirtyRect)
+    {
+        gfx.setColor(DEFAULT_BACKGROUND);
+        gfx.fill(dirtyRect);
+        super.paintBehind(gfx, dirtyRect);
+    }
+
     /**
      * Flies a set of cards from the board into the ether through an
      * intermediate point.
@@ -1082,4 +1093,7 @@ public abstract class CardPanel extends VirtualMediaPanel
         protected CardSprite _sprite;
         protected MouseEvent _me;
     }
+
+    /** A nice default green card table background color. */
+    protected static Color DEFAULT_BACKGROUND = new Color(0x326D36);
 }
