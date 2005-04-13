@@ -25,6 +25,9 @@ import java.lang.reflect.Field;
 
 import javax.swing.JCheckBox;
 
+import com.samskivert.swing.GroupLayout;
+import com.samskivert.swing.Spacer;
+
 import com.threerings.presents.dobj.DObject;
 import com.threerings.presents.util.PresentsContext;
 
@@ -37,8 +40,11 @@ public class BooleanFieldEditor extends FieldEditor
     {
         super(ctx, field, object);
 
-        // and a text entry field to display the field value
-        add(_value = new JCheckBox());
+        // add a checkbox to display the field value
+        add(_value = new JCheckBox(), GroupLayout.FIXED);
+        // add a spacer so that clicks to the right of the checkbox
+        // don't toggle it
+        add(new Spacer(1, 1));
         _value.addActionListener(this);
 
         // we want to let the user know if they remove focus from a text
