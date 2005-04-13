@@ -142,6 +142,19 @@ public class TrickCardGameUtil
     }
     
     /**
+     * Checks whether the specified array contains the given card.
+     */
+    public static boolean containsCard (PlayerCard[] cards, Card card)
+    {
+        for (int i = 0; i < cards.length; i++) {
+            if (cards[i].card.equals(card)) {
+                return true;
+            }
+        }
+        return false;
+    }
+    
+    /**
      * Determines the number of cards that belong to the specified suit within
      * the array given.
      */
