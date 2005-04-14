@@ -211,8 +211,7 @@ public class TurnGameManagerDelegate extends GameManagerDelegate
                     "change turn.");
                 break;
             }
-        } while (_tgmgr.getPlayerName(_turnIdx) == null ||
-                 !_tgmgr.isActivePlayer(_turnIdx));
+        } while (!_tgmgr.isActivePlayer(_turnIdx));
     }
 
     /** The game manager for which we are delegating. */
