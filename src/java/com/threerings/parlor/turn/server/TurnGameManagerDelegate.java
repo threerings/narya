@@ -145,6 +145,10 @@ public class TurnGameManagerDelegate extends GameManagerDelegate
         // and start the next turn if desired
         if (_turnIdx != -1) {
             startTurn();
+
+        } else {
+            // otherwise, clear out the turn holder
+            _turnGame.setTurnHolder(null);
         }
     }
 
