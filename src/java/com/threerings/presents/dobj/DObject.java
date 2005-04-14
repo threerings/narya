@@ -959,12 +959,4 @@ public class DObject extends TrackedObject
             return ((Field)o1).getName().compareTo(((Field)o2).getName());
         }
     };
-
-    /** Used when calling set methods dynamically. */
-    protected static final Class[] ENTRY_CLASS_ARGS =
-        new Class[] { DSet.Entry.class };
-
-    /** Used when calling set methods dynamically. */
-    protected static final Class[] KEY_CLASS_ARGS =
-        new Class[] { Comparable.class };
 }
