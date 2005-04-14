@@ -200,23 +200,34 @@ public abstract class GameController extends PlaceController
     {
         // deal with game state changes
         if (event.getName().equals(GameObject.STATE)) {
-            switch (event.getIntValue()) {
-            case GameObject.IN_PLAY:
-                gameDidStart();
-                break;
-            case GameObject.GAME_OVER:
-                gameDidEnd();
-                break;
-            case GameObject.CANCELLED:
-                gameWasCancelled();
-                break;
-            default:
+            if (!handleStateChange(event.getIntValue())) {
                 Log.warning("Game transitioned to unknown state " +
                             "[gobj=" + _gobj +
                             ", state=" + event.getIntValue() + "].");
-                break;
             }
         }
+    }
+
+    /**
+     * Derived classes can override this method if they add additional
+     * game states and should handle transitions to those states,
+     * returning true to indicate they were handled and calling super for
+     * the normal game states.
+     */
+    protected boolean handleStateChange (int state)
+    {
+        switch (state) {
+        case GameObject.IN_PLAY:
+            gameDidStart();
+            return true;
+        case GameObject.GAME_OVER:
+            gameDidEnd();
+            return true;
+        case GameObject.CANCELLED:
+            gameWasCancelled();
+            return true;
+        }
+        return false;
     }
 
     /**
