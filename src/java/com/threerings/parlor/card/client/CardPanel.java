@@ -723,7 +723,7 @@ public abstract class CardPanel extends VirtualMediaPanel
         int size = _handSprites.size();
         for (int i = 0; i < size; i++) {
             CardSprite cs = (CardSprite)_handSprites.get(i);
-            cs.setLocation(cs.getX(), getHandY(cs, false, true));
+            cs.setLocation(cs.getX(), getHandY(cs));
         }
     }
     
@@ -744,22 +744,16 @@ public abstract class CardPanel extends VirtualMediaPanel
     }
     
     /**
-     * Determines the y location of the specified card, given its selection
-     * state.
-     *
-     * @param mouseOver whether or not the mouse cursor is currently on the
-     * card
-     * @param raiseOnlySelectable whether or not to raise the only selectable
-     * card automatically
+     * Determines the y location of the specified card sprite, given its
+     * selection state.
      */
-    protected int getHandY (CardSprite card, boolean mouseOver,
-        boolean raiseOnlySelectable)
+    protected int getHandY (CardSprite sprite)
     {
-        if (_selectedHandSprites.contains(card)) {
+        if (_selectedHandSprites.contains(sprite)) {
             return _handLocation.y - _selectedCardOffset;
             
-        } else if (isSelectable(card) &&
-            (mouseOver || (raiseOnlySelectable && isOnlySelectable(card)))) {
+        } else if (isSelectable(sprite) &&
+            (sprite == _activeCardSprite || isOnlySelectable(sprite))) {
             return _handLocation.y - _selectableCardOffset;
             
         } else {
@@ -845,6 +839,9 @@ public abstract class CardPanel extends VirtualMediaPanel
     /** The width of the playing cards. */
     protected int _cardWidth;
     
+    /** The currently active card sprite (the one that the mouse is over). */
+    protected CardSprite _activeCardSprite;
+    
     /** The sprites for cards within the hand. */
     protected ArrayList _handSprites = new ArrayList();
     
@@ -906,16 +903,14 @@ public abstract class CardPanel extends VirtualMediaPanel
         public void cardSpriteEntered (CardSprite sprite, MouseEvent me) {
             // update the offset
             if (_handSprites.contains(sprite)) {
-                sprite.setLocation(sprite.getX(), getHandY(sprite, true,
-                    true));
+                sprite.setLocation(sprite.getX(), getHandY(sprite));
             }
         }
         
         public void cardSpriteExited (CardSprite sprite, MouseEvent me) {
             // update the offset
             if (_handSprites.contains(sprite)) {
-                sprite.setLocation(sprite.getX(), getHandY(sprite, false,
-                    true));
+                sprite.setLocation(sprite.getX(), getHandY(sprite));
             }
         }
         
@@ -998,7 +993,6 @@ public abstract class CardPanel extends VirtualMediaPanel
             }
         }
         
-        protected CardSprite _activeCardSprite;
         protected int _handleX, _handleY;
         protected boolean _hasBeenDragged;
     }
