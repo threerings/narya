@@ -66,7 +66,17 @@ public class CardGameManager extends GameManager
     // Documentation inherited.
     public void turnDidEnd ()
     {}
-    
+
+    /**
+     * This should be called to start a rematched game. It just starts the
+     * current game anew, but provides a mechanism for derived classes to
+     * do special things when there is a rematch.
+     */
+    public void rematchGame ()
+    {
+        startGame();
+    }
+
     /**
      * Deals a hand of cards to the player at the specified index from
      * the given Deck.

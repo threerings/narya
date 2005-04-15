@@ -301,7 +301,7 @@ public class TrickCardGameManagerDelegate extends TurnGameManagerDelegate
         
         // if all players accept the rematch, restart the game
         if (getRematchRequestCount() == _cardGame.getPlayerCount()) {
-            _cgmgr.startGame();
+            _cgmgr.rematchGame();
         }
     }
     
