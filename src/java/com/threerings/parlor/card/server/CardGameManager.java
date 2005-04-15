@@ -74,7 +74,20 @@ public class CardGameManager extends GameManager
      */
     public void rematchGame ()
     {
-        startGame();
+        if (gameWillRematch()) {
+            startGame();
+        }
+    }
+
+    /**
+     * Derived classes can override this method and take any action needed
+     * prior to a game rematch. If the rematch needs to be vetoed for any
+     * reason, they can return false from this method and the rematch will
+     * be aborted.
+     */
+    protected boolean gameWillRematch ()
+    {
+        return true;
     }
 
     /**
