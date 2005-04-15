@@ -389,8 +389,8 @@ public abstract class PuzzleManager extends GameManager
                 }
             }
         }
-        // these will be sent to the players on the first status update
-        _puzobj.summaries = summaries;
+
+        _puzobj.setSummaries(summaries);
     }
 
     /**

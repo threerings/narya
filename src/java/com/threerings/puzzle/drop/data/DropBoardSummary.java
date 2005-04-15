@@ -1,5 +1,5 @@
 //
-// $Id: DropBoardSummary.java,v 1.2 2004/08/27 02:20:30 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -47,9 +47,6 @@ public class DropBoardSummary extends BoardSummary
     public DropBoardSummary (Board board)
     {
         super(board);
-
-        // create the columns array
-        columns = new byte[_dboard.getWidth()];
     }
 
     /**
@@ -72,9 +69,11 @@ public class DropBoardSummary extends BoardSummary
     // documentation inherited
     public void setBoard (Board board)
     {
-        super.setBoard(board);
-
         _dboard = (DropBoard)board;
+        // create the columns array
+        columns = new byte[_dboard.getWidth()];
+
+        super.setBoard(board);
     }
 
     // documentation inherited
