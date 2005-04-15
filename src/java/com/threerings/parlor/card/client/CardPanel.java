@@ -254,8 +254,7 @@ public abstract class CardPanel extends VirtualMediaPanel
         
         // add to list and update offset
         _selectedHandSprites.add(sprite);
-        sprite.setLocation(sprite.getX(),
-            _handLocation.y - _selectedCardOffset);
+        sprite.setLocation(sprite.getX(), getHandY(sprite));
         
         // notify the observers
         ObserverList.ObserverOp op = new ObserverList.ObserverOp() {
@@ -279,7 +278,7 @@ public abstract class CardPanel extends VirtualMediaPanel
         
         // remove from list and update offset
         _selectedHandSprites.remove(sprite);
-        sprite.setLocation(sprite.getX(), _handLocation.y);
+        sprite.setLocation(sprite.getX(), getHandY(sprite));
         
         // notify the observers
         ObserverList.ObserverOp op = new ObserverList.ObserverOp() {
