@@ -441,19 +441,21 @@ public abstract class CardPanel extends VirtualMediaPanel
     
     /**
      * Flies a set of cards from the ether into the hand.  Clears any selected
-     * cards.  If the drop duration is nonzero, the cards will first fly to
-     * the selected card offset and then drop slowly into the hand.
+     * cards.  The cards will first fly to the selected card offset, pause for
+     * the specified duration, and then drop into the hand.
      *
      * @param cards the cards to add to the hand
      * @param src the point to fly the cards from
      * @param flightDuration the duration of the cards' flight
+     * @param pauseDuration the duration of the pause before dropping into the
+     * hand
      * @param dropDuration the duration of the cards' drop into the
      * hand
      * @param fadePortion the amount of time to spend fading in
      * as a proportion of the flight duration
      */
     public void flyIntoHand (Card[] cards, Point src, long flightDuration,
-        long dropDuration, float fadePortion)
+        long pauseDuration, long dropDuration, float fadePortion)
     {
         // first create the sprites and add them to the list
         CardSprite[] sprites = new CardSprite[cards.length];
@@ -474,22 +476,15 @@ public abstract class CardPanel extends VirtualMediaPanel
             sprites[i].addSpriteObserver(_handSpriteObserver);
             addSprite(sprites[i]);
             
-            // if dropping, create a path sequence combining flight and drop
-            Path path;
-            long pathDuration;
-            Point hp = new Point(getHandX(size, idx), _handLocation.y);
-            if (dropDuration > 0) {
-                LinePath flight = new LinePath(new Point(hp.x, hp.y -
-                        _selectedCardOffset), flightDuration),
-                    drop = new LinePath(hp, dropDuration);
-                path = new PathSequence(flight, drop);
-                pathDuration = flightDuration + dropDuration;
-                
-            } else {
-                path = new LinePath(hp, flightDuration);
-                pathDuration = flightDuration;
-            }
-            sprites[i].moveAndFadeIn(path, pathDuration, fadePortion);
+            // create a path sequence containing flight, pause, and drop
+            ArrayList paths = new ArrayList();
+            Point hp2 = new Point(getHandX(size, idx), _handLocation.y),
+                hp1 = new Point(hp2.x, hp2.y - _selectedCardOffset);
+            paths.add(new LinePath(hp1, flightDuration));
+            paths.add(new LinePath(hp1, pauseDuration));
+            paths.add(new LinePath(hp2, dropDuration));
+            sprites[i].moveAndFadeIn(new PathSequence(paths), flightDuration +
+                pauseDuration + dropDuration, fadePortion);
         }
     }
     
