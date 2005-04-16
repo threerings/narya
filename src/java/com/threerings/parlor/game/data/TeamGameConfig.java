@@ -24,15 +24,14 @@ package com.threerings.parlor.game.data;
 import com.threerings.parlor.data.TableConfig;
 
 /**
- * Provides additional information for games with fixed teams.
+ * Provides additional information for games with teams.
  */
 public interface TeamGameConfig extends TableConfig
 {
     /**
-     * Returns the number of players on the first n-1 of n teams.  For
-     * instance, a game with four players in two partnerships would
-     * return { 2 }, indicating that players 0 and 1 are partnered
-     * against players 2 and 3.
+     * Returns the members of each team.  For instance, a game with three
+     * players in two teams--players 0 and 2 versus player 1--would return
+     * { {0, 2}, {1} }.
      */
-    public int[] getTeamCounts ();
+    public int[][] getTeamMemberIndices();
 }

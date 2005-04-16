@@ -40,7 +40,7 @@ public class TrickCardGameUtil
      */
     public static int getTeamIndex (int pidx)
     {
-        return pidx / 2;
+        return pidx & 1;
     }
     
     /**
@@ -51,7 +51,7 @@ public class TrickCardGameUtil
      */
     public static int getOtherTeamIndex (int tidx)
     {
-        return 1 - tidx;
+        return tidx ^ 1;
     }
     
     /**
@@ -60,7 +60,7 @@ public class TrickCardGameUtil
      */
     public static int getPartnerIndex (int pidx)
     {
-        return pidx ^ 1;
+        return pidx ^ 2;
     }
     
     /**
@@ -72,7 +72,7 @@ public class TrickCardGameUtil
      */
     public static int getTeamMemberIndex (int tidx, int midx)
     {
-        return tidx * 2 + midx;
+        return (midx << 1) | tidx;
     }
     
     /**
@@ -82,15 +82,9 @@ public class TrickCardGameUtil
     public static int getNextInClockwiseSequence (int pidx)
     {
         //   0
-        // 2   3
-        //   1
-        switch (pidx) {
-            case 0: return 3;
-            case 1: return 2;
-            case 2: return 0;
-            case 3: return 1;
-            default: return -1;
-        }
+        // 3   1
+        //   2
+        return (pidx + 1) & 3;
     }
     
     /**
@@ -103,7 +97,7 @@ public class TrickCardGameUtil
      */
     public static int getRelativeLocation (int pidx1, int pidx2)
     {
-        return RELATIVE_LOCATIONS[pidx1][pidx2];
+        return (pidx2 - pidx1) & 3;
     }
     
     /**
@@ -112,7 +106,7 @@ public class TrickCardGameUtil
      */
     public static int getLeftIndex (int pidx)
     {
-        return getNextInClockwiseSequence(pidx);
+        return (pidx + 1) & 3;
     }
     
     /**
@@ -121,7 +115,7 @@ public class TrickCardGameUtil
      */
     public static int getRightIndex (int pidx)
     {
-        return getNextInClockwiseSequence(pidx) ^ 1;
+        return (pidx + 3) & 3;
     }
     
     /**
@@ -130,7 +124,7 @@ public class TrickCardGameUtil
      */
     public static int getOppositeIndex (int pidx)
     {
-        return pidx ^ 1;
+        return pidx ^ 2;
     }
     
     /**
@@ -198,9 +192,4 @@ public class TrickCardGameUtil
         }
         return highest;
     }
-    
-    /** The locations of the other players for each player index. */
-    protected static final int[][] RELATIVE_LOCATIONS = {
-        {BOTTOM, TOP, RIGHT, LEFT}, {TOP, BOTTOM, LEFT, RIGHT},
-        {LEFT, RIGHT, BOTTOM, TOP}, {RIGHT, LEFT, TOP, BOTTOM} };
 }

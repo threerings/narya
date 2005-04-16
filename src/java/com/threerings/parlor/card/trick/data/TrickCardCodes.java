@@ -28,14 +28,14 @@ import com.threerings.parlor.card.data.CardCodes;
  */
 public interface TrickCardCodes extends CardCodes
 {
-    /** For four-player games, the top (opposite) player. */
-    public static final int TOP = 0;
-    
     /** For four-player games, the bottom (own) player. */
-    public static final int BOTTOM = 1;
+    public static final int BOTTOM = 0;
     
     /** For four-player games, the player on the left. */
-    public static final int LEFT = 2;
+    public static final int LEFT = 1;
+    
+    /** For four-player games, the top (opposite) player. */
+    public static final int TOP = 2;
     
     /** For four-player games, the player on the right. */
     public static final int RIGHT = 3;
