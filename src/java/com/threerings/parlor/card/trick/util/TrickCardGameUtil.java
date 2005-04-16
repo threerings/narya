@@ -81,9 +81,9 @@ public class TrickCardGameUtil
      */
     public static int getNextInClockwiseSequence (int pidx)
     {
-        //   0
-        // 3   1
         //   2
+        // 1   3
+        //   0
         return (pidx + 1) & 3;
     }
     

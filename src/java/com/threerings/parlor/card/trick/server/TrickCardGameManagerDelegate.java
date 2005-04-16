@@ -338,7 +338,7 @@ public class TrickCardGameManagerDelegate extends TurnGameManagerDelegate
     protected void verifyPlayersTurn (Name username)
         throws InvocationException
     {
-        if (!_trickCardGame.getTurnHolder().equals(username)) {
+        if (!username.equals(_trickCardGame.getTurnHolder()) {
             throw new InvocationException("m.not_your_turn");
         }
     }
