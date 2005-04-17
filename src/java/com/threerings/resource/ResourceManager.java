@@ -373,6 +373,15 @@ public class ResourceManager
     }
 
     /**
+     * Configures the class loader this manager should use to load
+     * resources if/when there are no bundles from which to load them.
+     */
+    public void setClassLoader (ClassLoader loader)
+    {
+        _loader = loader;
+    }
+
+    /**
      * Fetches a resource from the local repository.
      *
      * @param path the path to the resource
