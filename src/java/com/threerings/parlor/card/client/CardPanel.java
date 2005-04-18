@@ -778,21 +778,28 @@ public abstract class CardPanel extends VirtualMediaPanel
      */
     protected boolean isSelectable (CardSprite sprite)
     {
-        return _handSelectionMode != NONE &&
+        return _handSelectionMode != NONE && sprite.getPath() == null &&
             (_handSelectionPredicate == null ||
                 _handSelectionPredicate.evaluate(sprite));
     }
     
     /**
      * Determines whether the specified sprite is the only selectable sprite
-     * in the hand.
+     * in the hand according to the selection predicate.
      */
     protected boolean isOnlySelectable (CardSprite sprite)
     {
+        // if there's no predicate, last remaining card is only selectable
+        if (_handSelectionPredicate == null) {
+            return _handSprites.size() == 1 && _handSprites.contains(sprite);
+        }
+        
+        // otherwise, look for a sprite that fits the predicate and isn't the
+        // parameter
         int size = _handSprites.size();
         for (int i = 0; i < size; i++) {
             CardSprite cs = (CardSprite)_handSprites.get(i);
-            if (cs != sprite && isSelectable(cs)) {
+            if (cs != sprite && _handSelectionPredicate.evaluate(cs)) {
                 return false;
             }
         }
@@ -885,6 +892,10 @@ public abstract class CardPanel extends VirtualMediaPanel
     /** The sprites for cards on the board. */
     protected ArrayList _boardSprites = new ArrayList();
     
+    /** The hand sprite observer instance. */
+    protected HandSpriteObserver _handSpriteObserver =
+        new HandSpriteObserver();
+        
     /** A path observer that removes the sprite at the end of its path. */
     protected PathAdapter _pathEndRemover = new PathAdapter() {
         public void pathCompleted (Sprite sprite, Path path, long when) {
@@ -893,9 +904,17 @@ public abstract class CardPanel extends VirtualMediaPanel
     };
     
     /** Listens for interactions with cards in hand. */
-    protected CardSpriteObserver _handSpriteObserver =
-        new CardSpriteObserver() {
-        public void cardSpriteClicked (CardSprite sprite, MouseEvent me) {
+    protected class HandSpriteObserver extends PathAdapter
+        implements CardSpriteObserver
+    {
+        public void pathCompleted (Sprite sprite, Path path, long when)
+        {
+            // update the offset
+            updateOffset((CardSprite)sprite);
+        }
+        
+        public void cardSpriteClicked (CardSprite sprite, MouseEvent me)
+        {
             // select, deselect, or play card in hand
             if (_selectedHandSprites.contains(sprite) &&
                 _handSelectionMode != NONE) {
@@ -911,21 +930,26 @@ public abstract class CardPanel extends VirtualMediaPanel
             }
         }
         
-        public void cardSpriteEntered (CardSprite sprite, MouseEvent me) {
+        public void cardSpriteEntered (CardSprite sprite, MouseEvent me)
+        {
             // update the offset
+            updateOffset(sprite);
+        }
+        
+        public void cardSpriteExited (CardSprite sprite, MouseEvent me)
+        {
+            // update the offset
+            updateOffset(sprite);
+        }
+        
+        public void cardSpriteDragged (CardSprite sprite, MouseEvent me)
+        {}
+        
+        protected void updateOffset (CardSprite sprite)
+        {
             if (_handSprites.contains(sprite)) {
                 sprite.setLocation(sprite.getX(), getHandY(sprite));
             }
-        }
-        
-        public void cardSpriteExited (CardSprite sprite, MouseEvent me) {
-            // update the offset
-            if (_handSprites.contains(sprite)) {
-                sprite.setLocation(sprite.getX(), getHandY(sprite));
-            }
-        }
-        
-        public void cardSpriteDragged (CardSprite sprite, MouseEvent me) {
         }
     };
     
