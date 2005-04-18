@@ -172,8 +172,8 @@ public class CardGameManager extends GameManager
      * @param toPlayerIdx the index of the player receiving the cards
      * @param cards the cards to be exchanged
      */
-    public void transferCardsBetweenPlayers (final int fromPlayerIdx,
-        final int toPlayerIdx, final Card[] cards)
+    public void transferCardsBetweenPlayers (int fromPlayerIdx,
+        int toPlayerIdx,  Card[] cards)
     {
         // Notify the sender that the cards have been taken
         CardGameSender.sentCardsToPlayer(getClientObject(fromPlayerIdx),
@@ -185,6 +185,47 @@ public class CardGameManager extends GameManager
         
         // and everybody else in the room other than the sender and the
         // receiver with the number of cards sent
+        notifyCardsTransferred(fromPlayerIdx, toPlayerIdx, cards.length);
+    }
+    
+    /**
+     * Sends sets of cards between players simultaneously.  Each player is
+     * guaranteed to receive the notification of cards received after the
+     * notification of cards sent.  The length of the arrays passed must
+     * be equal to the player count.
+     *
+     * @param toPlayerIndices for each player, the index of the player to
+     * transfer cards to
+     * @param cards for each player, the cards to transfer
+     */
+    public void transferCardsBetweenPlayers (int[] toPlayerIndices,
+        Card[][] cards)
+    {
+        // Send all removal notices
+        for (int i = 0; i < _playerCount; i++) {
+            CardGameSender.sentCardsToPlayer(getClientObject(i),
+                toPlayerIndices[i], cards[i]);
+        }
+        
+        // Send all addition notices and notify everyone else
+        for (int i = 0; i < _playerCount; i++) {
+            CardGameSender.sendCardsFromPlayer(
+                getClientObject(toPlayerIndices[i]), i, cards[i]);
+            notifyCardsTransferred(i, toPlayerIndices[i], cards[i].length);
+        }
+    }
+    
+    /**
+     * Notifies everyone in the room (other than the sender and the receiver)
+     * that a set of cards have been transferred.
+     *
+     * @param playerIdx the index of the player sending the cards
+     * @param toPlayerIdx the index of the player receiving the cards
+     * @param cards the number of cards sent
+     */
+    protected void notifyCardsTransferred (final int fromPlayerIdx,
+        final int toPlayerIdx, final int cards)
+    {
         final int senderOid = _playerOids[fromPlayerIdx],
             receiverOid = _playerOids[toPlayerIdx];
         OccupantOp op = new OccupantOp() {
@@ -193,13 +234,13 @@ public class CardGameManager extends GameManager
                 if (oid != senderOid && oid != receiverOid) {
                     CardGameSender.cardsTransferredBetweenPlayers(
                         (ClientObject)PresentsServer.omgr.getObject(
-                            oid), fromPlayerIdx, toPlayerIdx, cards.length);
+                            oid), fromPlayerIdx, toPlayerIdx, cards);
                 }
             }
         };
         applyToOccupants(op);
     }
-        
+    
     /** The card game object. */
     protected CardGameObject _cardgameobj;
 }
