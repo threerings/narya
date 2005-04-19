@@ -734,7 +734,7 @@ public abstract class CardPanel extends VirtualMediaPanel
         int size = _handSprites.size();
         for (int i = 0; i < size; i++) {
             CardSprite cs = (CardSprite)_handSprites.get(i);
-            if (cs.getPath() != null) {
+            if (cs.getPath() == null) {
                 cs.setLocation(cs.getX(), getHandY(cs));
             }
         }
