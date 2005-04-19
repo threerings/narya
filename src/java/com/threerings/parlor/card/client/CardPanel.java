@@ -734,7 +734,9 @@ public abstract class CardPanel extends VirtualMediaPanel
         int size = _handSprites.size();
         for (int i = 0; i < size; i++) {
             CardSprite cs = (CardSprite)_handSprites.get(i);
-            cs.setLocation(cs.getX(), getHandY(cs));
+            if (cs.getPath() != null) {
+                cs.setLocation(cs.getX(), getHandY(cs));
+            }
         }
     }
     
@@ -778,7 +780,7 @@ public abstract class CardPanel extends VirtualMediaPanel
      */
     protected boolean isSelectable (CardSprite sprite)
     {
-        return _handSelectionMode != NONE && sprite.getPath() == null &&
+        return _handSelectionMode != NONE &&
             (_handSelectionPredicate == null ||
                 _handSelectionPredicate.evaluate(sprite));
     }
@@ -909,8 +911,7 @@ public abstract class CardPanel extends VirtualMediaPanel
     {
         public void pathCompleted (Sprite sprite, Path path, long when)
         {
-            // update the offset
-            updateOffset((CardSprite)sprite);
+            maybeUpdateOffset((CardSprite)sprite);
         }
         
         public void cardSpriteClicked (CardSprite sprite, MouseEvent me)
@@ -932,22 +933,21 @@ public abstract class CardPanel extends VirtualMediaPanel
         
         public void cardSpriteEntered (CardSprite sprite, MouseEvent me)
         {
-            // update the offset
-            updateOffset(sprite);
+            maybeUpdateOffset(sprite);
         }
         
         public void cardSpriteExited (CardSprite sprite, MouseEvent me)
         {
-            // update the offset
-            updateOffset(sprite);
+            maybeUpdateOffset(sprite);
         }
         
         public void cardSpriteDragged (CardSprite sprite, MouseEvent me)
         {}
         
-        protected void updateOffset (CardSprite sprite)
+        protected void maybeUpdateOffset (CardSprite sprite)
         {
-            if (_handSprites.contains(sprite)) {
+            // update the offset if it's in the hand and isn't moving
+            if (_handSprites.contains(sprite) && sprite.getPath() == null) {
                 sprite.setLocation(sprite.getX(), getHandY(sprite));
             }
         }
