@@ -239,6 +239,15 @@ public class EditorApp implements Runnable
     }
 
     /**
+     * Derived classes can override this method and add additional scene
+     * types.
+     */
+    protected void enumerateSceneTypes (List types)
+    {
+        types.add(StageSceneModel.WORLD);
+    }
+
+    /**
      * Instantiate the application object and start it running.
      */
     public static void main (String[] args)
@@ -322,7 +331,7 @@ public class EditorApp implements Runnable
 	}
 
         public void enumerateSceneTypes (List types) {
-            types.add(StageSceneModel.WORLD);
+            EditorApp.this.enumerateSceneTypes(types);
         }
     }
 
