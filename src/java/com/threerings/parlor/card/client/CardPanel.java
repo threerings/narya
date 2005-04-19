@@ -734,7 +734,7 @@ public abstract class CardPanel extends VirtualMediaPanel
         int size = _handSprites.size();
         for (int i = 0; i < size; i++) {
             CardSprite cs = (CardSprite)_handSprites.get(i);
-            if (cs.getPath() == null) {
+            if (!cs.isMoving()) {
                 cs.setLocation(cs.getX(), getHandY(cs));
             }
         }
@@ -947,7 +947,7 @@ public abstract class CardPanel extends VirtualMediaPanel
         protected void maybeUpdateOffset (CardSprite sprite)
         {
             // update the offset if it's in the hand and isn't moving
-            if (_handSprites.contains(sprite) && sprite.getPath() == null) {
+            if (_handSprites.contains(sprite) && !sprite.isMoving()) {
                 sprite.setLocation(sprite.getX(), getHandY(sprite));
             }
         }
