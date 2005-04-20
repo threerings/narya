@@ -113,8 +113,10 @@ public class TrickCardGameManagerDelegate extends TurnGameManagerDelegate
     }
     
     // Documentation inherited.
-    public void gameWillEnd ()
+    public void gameDidEnd ()
     {
+        super.gameDidEnd();
+        
         // make sure all intervals are cancelled
         _turnTimeoutInterval.cancel();
         _endTrickInterval.cancel();
@@ -127,9 +129,7 @@ public class TrickCardGameManagerDelegate extends TurnGameManagerDelegate
         
         // initialize the array of rematch requests
         _trickCardGame.setRematchRequests(
-            new int[_cardGame.getPlayerCount()]);
-        
-        super.gameDidEnd();
+            new int[_cardGame.getPlayerCount()]); 
     }
     
     // Documentation inherited.
