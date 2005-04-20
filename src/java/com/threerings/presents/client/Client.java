@@ -702,7 +702,7 @@ public class Client
     protected String _version = "";
 
     /** An entity that gives us the ability to process events on the main
-     * client thread (which is also the AWT thread). */
+     * client thread. */
     protected RunQueue _runQueue;
 
     /** The distributed object manager we're using during this session. */

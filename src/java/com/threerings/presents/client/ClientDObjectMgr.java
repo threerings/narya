@@ -173,8 +173,8 @@ public class ClientDObjectMgr
     }
 
     /**
-     * Invoked on the AWT thread to process any newly arrived messages
-     * that we have waiting in our queue.
+     * Invoked on the main client thread to process any newly arrived
+     * messages that we have waiting in our queue.
      */
     public void run ()
     {
