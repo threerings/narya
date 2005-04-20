@@ -27,16 +27,21 @@ import com.samskivert.util.Queue;
 import com.samskivert.util.RunQueue;
 import com.samskivert.util.StringUtil;
 
-import com.jme.app.AbstractGame;
-import com.jme.input.InputHandler;
-import com.jme.math.Vector3f;
-import com.jme.renderer.Camera;
-import com.jme.renderer.ColorRGBA;
 import com.jme.scene.Node;
+import com.jme.scene.state.LightState;
+import com.jme.scene.state.ZBufferState;
+
 import com.jme.system.DisplaySystem;
 import com.jme.system.JmeException;
 import com.jme.system.PropertiesIO;
 import com.jme.system.lwjgl.LWJGLPropertiesDialog;
+
+import com.jme.app.AbstractGame;
+import com.jme.input.InputHandler;
+import com.jme.light.PointLight;
+import com.jme.math.Vector3f;
+import com.jme.renderer.Camera;
+import com.jme.renderer.ColorRGBA;
 import com.jme.util.Timer;
 
 import com.threerings.presents.client.Client;
@@ -116,6 +121,23 @@ public class JmeApp
 
             // initialize our main camera controls and user input handling
             initInput();
+
+            // initialize the root node
+            initRoot();
+
+            // initialize the lighting
+            initLighting();
+
+            // update everything for the zeroth tick
+            _root.updateGeometricState(0f, true);
+            _root.updateRenderState();
+
+            // create and add our statistics display
+            if (displayStatistics()) {
+                _stats = new StatsDisplay(_display.getRenderer());
+                _stats.updateGeometricState(0f, true);
+                _stats.updateRenderState();
+            }
 
         } catch (Throwable t) {
             Log.logStackTrace(t);
@@ -220,6 +242,37 @@ public class JmeApp
     }
 
     /**
+     * Creates our root node and sets up the basic rendering system.
+     */
+    protected void initRoot ()
+    {
+        _root = new Node("Root");
+
+        // set up a zbuffer
+        ZBufferState zbuf = _display.getRenderer().createZBufferState();
+        zbuf.setEnabled(true);
+        zbuf.setFunction(ZBufferState.CF_LEQUAL);
+        _root.setRenderState(zbuf);
+    }
+
+    /**
+     * Sets up some default lighting.
+     */
+    protected void initLighting ()
+    {
+        PointLight light = new PointLight();
+        light.setDiffuse(new ColorRGBA(1.0f, 1.0f, 1.0f, 1.0f));
+        light.setAmbient(new ColorRGBA(0.5f, 0.5f, 0.5f, 1.0f));
+        light.setLocation(new Vector3f(100, 100, 100));
+        light.setEnabled(true);
+
+        _lights = _display.getRenderer().createLightState();
+        _lights.setEnabled(true);
+        _lights.attach(light);
+        _root.setRenderState(_lights);
+    }
+
+    /**
      * Processes a single frame.
      */
     protected final void processFrame ()
@@ -263,6 +316,11 @@ public class JmeApp
 
         // run all of the controllers attached to nodes
         _root.updateGeometricState(timePerFrame, true);
+
+        // update our stats display if we have one
+        if (_stats != null) {
+            _stats.update(_timer, _display.getRenderer());
+        }
     }
 
     /**
@@ -279,6 +337,11 @@ public class JmeApp
 
         // this would render bounding boxes
         // _display.getRenderer().drawBounds(_root);
+
+        // draw our stats atop everything
+        if (_stats != null) {
+            _display.getRenderer().draw(_stats);
+        }
     }
 
     /**
@@ -299,6 +362,15 @@ public class JmeApp
             _display.close();
         }
         System.exit(0);
+    }
+
+    /**
+     * If true we'll display some renderer statistics at the bottom of the
+     * screen.
+     */
+    protected boolean displayStatistics ()
+    {
+        return true;
     }
 
     /**
@@ -329,7 +401,10 @@ public class JmeApp
     protected DisplaySystem _display;
     protected Camera _camera;
     protected InputHandler _input;
+
     protected Node _root;
+    protected LightState _lights;
+    protected StatsDisplay _stats;
 
     protected int _failures;
 
