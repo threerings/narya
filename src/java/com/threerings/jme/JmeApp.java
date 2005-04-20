@@ -28,18 +28,27 @@ import com.samskivert.util.RunQueue;
 import com.samskivert.util.StringUtil;
 
 import com.jme.app.AbstractGame;
+import com.jme.input.InputHandler;
+import com.jme.math.Vector3f;
+import com.jme.renderer.Camera;
+import com.jme.renderer.ColorRGBA;
+import com.jme.scene.Node;
+import com.jme.system.DisplaySystem;
+import com.jme.system.JmeException;
 import com.jme.system.PropertiesIO;
 import com.jme.system.lwjgl.LWJGLPropertiesDialog;
 import com.jme.util.Timer;
 
 import com.threerings.presents.client.Client;
 
+import com.threerings.jme.input.GodViewHandler;
+
 /**
- * Extends the {@link AbstractGame} providing integration with the
+ * Defines a basic application framework providing integration with the
  * <a href="../presents/package.html">Presents</a> networking system and
  * targeting a fixed framerate.
  */
-public abstract class JmeApp extends AbstractGame
+public class JmeApp
     implements RunQueue
 {
     /**
@@ -63,10 +72,14 @@ public abstract class JmeApp extends AbstractGame
         if (framesPerSecond <= 0) {
             throw new IllegalArgumentException("FPS must be > 0.");
         }
-        _targetTicksPerFrame = _timer.getResolution() / framesPerSecond;
+        _targetFrameTime = (float)_timer.getResolution() / framesPerSecond;
     }
 
-    // documentation inherited
+    /**
+     * Initializes this application and starts up the main rendering and
+     * event processing loop. This method will not return until the
+     * application is terminated with a call to {@link #stop}.
+     */
     public void start ()
     {
         synchronized (this) {
@@ -75,10 +88,10 @@ public abstract class JmeApp extends AbstractGame
 
         try {
             // load up our renderer configuration
-            properties = new PropertiesIO(getConfigPath("jme.cfg"));
-            if (!properties.load()) {
+            _properties = new PropertiesIO(getConfigPath("jme.cfg"));
+            if (!_properties.load()) {
                 LWJGLPropertiesDialog dialog =
-                    new LWJGLPropertiesDialog(properties, (String)null);
+                    new LWJGLPropertiesDialog(_properties, (String)null);
                 while (dialog.isVisible()) {
                     try {
                         Thread.sleep(5);
@@ -90,26 +103,28 @@ public abstract class JmeApp extends AbstractGame
             }
 
             // create an appropriate timer
-            _timer = Timer.getTimer(properties.getRenderer());
+            _timer = Timer.getTimer(_properties.getRenderer());
 
             // default to 60 fps
             setTargetFrameRate(60);
 
-            // initialize the AbstractGame
-            initSystem();
-            assertDisplayCreated();
+            // initialize the rendering system
+            initDisplay();
+            if (!_display.isCreated()) {
+                throw new IllegalStateException("Failed to initialize display?");
+            }
 
-            // initialize our derived class
-            initGame();
+            // initialize our main camera controls and user input handling
+            initInput();
 
         } catch (Throwable t) {
             Log.logStackTrace(t);
-            quit();
+            exit();
             return;
         }
 
         // enter the main rendering and event processing loop
-        while (!finished && !display.isClosing()) {
+        while (!_finished && !_display.isClosing()) {
             try {
                 processFrame();
                 _failures = 0;
@@ -118,19 +133,26 @@ public abstract class JmeApp extends AbstractGame
                 Log.logStackTrace(t);
                 // stick a fork in things if we fail too many times in a row
                 if (++_failures > MAX_SUCCESSIVE_FAILURES) {
-                    finish();
+                    stop();
                 }
             }
         }
 
         try {
             cleanup();
-            display.reset();
         } catch (Throwable t) {
             Log.logStackTrace(t);
         } finally {
-            quit();
+            exit();
         }
+    }
+
+    /**
+     * Instructs the application to stop the main loop, cleanup and exit.
+     */
+    public void stop ()
+    {
+        _finished = true;
     }
 
     // documentation inherited from interface RunQueue
@@ -146,17 +168,69 @@ public abstract class JmeApp extends AbstractGame
     }
 
     /**
+     * Initializes the underlying rendering system, creating a display of
+     * the proper resolution and depth.
+     */
+    protected void initDisplay ()
+        throws JmeException
+    {
+        // create the main display system
+        _display = DisplaySystem.getDisplaySystem(_properties.getRenderer());
+        _display.createWindow(
+            _properties.getWidth(), _properties.getHeight(),
+            _properties.getDepth(), _properties.getFreq(),
+            _properties.getFullscreen());
+
+        // create a camera
+        float width = _display.getWidth(), height = _display.getHeight();
+        _camera = _display.getRenderer().createCamera((int)width, (int)height);
+
+        // start with a black background
+        _display.getRenderer().setBackgroundColor(ColorRGBA.black);
+
+        // set up the camera
+        _camera.setFrustumPerspective(45.0f, width / height, 1, 1000);
+        Vector3f loc = new Vector3f(0.0f, 0.0f, 25.0f);
+        Vector3f left = new Vector3f( -1.0f, 0.0f, 0.0f);
+        Vector3f up = new Vector3f(0.0f, 1.0f, 0.0f);
+        Vector3f dir = new Vector3f(0.0f, 0f, -1.0f);
+        _camera.setFrame(loc, left, up, dir);
+        _camera.update();
+        _display.getRenderer().setCamera(_camera);
+
+        // tell the renderer to keep track of rendering information (total
+        // triangles drawn, etc.)
+        _display.getRenderer().enableStatistics(true);
+
+//         // set our display title
+//         _display.setTitle("TBD");
+    }
+
+    /**
+     * Sets up a main input controller to handle the camera and deal with
+     * global user input.
+     */
+    protected void initInput ()
+    {
+        _input = new GodViewHandler(this, _camera, _properties.getRenderer());
+
+//         /** Signal to all key inputs they should work Nx faster. */
+//         input.setKeySpeed(150f);
+//         input.setMouseSpeed(1f);
+    }
+
+    /**
      * Processes a single frame.
      */
     protected final void processFrame ()
     {
-        _frameStart = _timer.getTime();
+        float frameStart = _timer.getTime();
 
         // update our simulation and render a frame
-        update(-1f);
-        render(-1f);
+        update(frameStart);
+        render(frameStart);
 
-        display.getRenderer().displayBackBuffer();
+        _display.getRenderer().displayBackBuffer();
         _frames++;
 
         // now process events or sleep until the next frame
@@ -171,14 +245,58 @@ public abstract class JmeApp extends AbstractGame
             } else {
                 r.run();
             }
-        } while (_timer.getTime() - _frameStart < _targetTicksPerFrame);
+        } while (_timer.getTime() - frameStart < _targetFrameTime);
     }
 
-    // documentation inherited
-    protected void quit ()
+    /**
+     * Called every frame to update whatever sort of real time business we
+     * have that needs updating.
+     */
+    protected void update (float frameTime)
     {
-        if (display != null) {
-            display.close();
+        // recalculate the frame rate
+        _timer.update();
+
+        // update the input system
+        float timePerFrame = _timer.getTimePerFrame();
+        _input.update(timePerFrame);
+
+        // run all of the controllers attached to nodes
+        _root.updateGeometricState(timePerFrame, true);
+    }
+
+    /**
+     * Called every frame to issue the rendering instructions for this frame.
+     */
+    protected void render (float frameTime)
+    {
+        // clear out our previous information
+        _display.getRenderer().clearStatistics();
+        _display.getRenderer().clearBuffers();
+
+        // draw the root node and all of its children
+        _display.getRenderer().draw(_root);
+
+        // this would render bounding boxes
+        // _display.getRenderer().drawBounds(_root);
+    }
+
+    /**
+     * Called when the application is terminating cleanly after having
+     * successfully completed initialization and begun the main loop.
+     */
+    protected void cleanup ()
+    {
+        _display.reset();
+    }
+
+    /**
+     * Closes the display and exits the JVM process.
+     */
+    protected void exit ()
+    {
+        if (_display != null) {
+            _display.close();
         }
         System.exit(0);
     }
@@ -205,14 +323,19 @@ public abstract class JmeApp extends AbstractGame
     protected Timer _timer;
     protected Thread _dispatchThread;
     protected Queue _evqueue = new Queue();
+    protected boolean _finished;
+
+    protected PropertiesIO _properties;
+    protected DisplaySystem _display;
+    protected Camera _camera;
+    protected InputHandler _input;
+    protected Node _root;
 
     protected int _failures;
 
     protected int _frames;
     protected float _lastFPSStamp;
-
-    protected long _targetTicksPerFrame;
-    protected long _frameStart;
+    protected float _targetFrameTime;
 
     /** If we fail 100 frames in a row, stick a fork in ourselves. */
     protected static final int MAX_SUCCESSIVE_FAILURES = 100;
