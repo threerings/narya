@@ -69,7 +69,7 @@ public class TurnGameControllerDelegate extends GameControllerDelegate
     {
         BodyObject self = (BodyObject)_ctx.getClient().getClientObject();
         return (_gameObj.state == GameObject.IN_PLAY &&
-                _turnGame.getTurnHolder().equals(self.username));
+                self.username.equals(_turnGame.getTurnHolder()));
     }
 
     /**
