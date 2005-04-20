@@ -22,7 +22,6 @@
 package com.threerings.jme;
 
 import java.io.File;
-import java.util.logging.Level;
 
 import com.samskivert.util.Queue;
 import com.samskivert.util.RunQueue;
@@ -194,6 +193,11 @@ public abstract class JmeApp extends AbstractGame
         String home = System.getProperty("user.dir");
         if (!StringUtil.blank(home)) {
             cfgdir = home + File.separator + cfgdir;
+        }
+        // create the configuration directory if it does not already exist
+        File dir = new File(cfgdir);
+        if (!dir.exists()) {
+            dir.mkdir();
         }
         return cfgdir + File.separator + file;
     }
