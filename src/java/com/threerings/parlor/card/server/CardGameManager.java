@@ -176,12 +176,17 @@ public class CardGameManager extends GameManager
         int toPlayerIdx,  Card[] cards)
     {
         // Notify the sender that the cards have been taken
-        CardGameSender.sentCardsToPlayer(getClientObject(fromPlayerIdx),
-            toPlayerIdx, cards);
+        ClientObject fromClient = getClientObject(fromPlayerIdx);
+        if (fromClient != null) {
+            CardGameSender.sentCardsToPlayer(fromClient, toPlayerIdx, cards);
+        }
         
         // Notify the receiver with the cards
-        CardGameSender.sendCardsFromPlayer(getClientObject(toPlayerIdx),
-            fromPlayerIdx, cards);
+        ClientObject toClient = getClientObject(toPlayerIdx);
+        if (toClient != null) {
+            CardGameSender.sendCardsFromPlayer(toClient, fromPlayerIdx,
+                cards);
+        }
         
         // and everybody else in the room other than the sender and the
         // receiver with the number of cards sent
@@ -203,14 +208,19 @@ public class CardGameManager extends GameManager
     {
         // Send all removal notices
         for (int i = 0; i < _playerCount; i++) {
-            CardGameSender.sentCardsToPlayer(getClientObject(i),
-                toPlayerIndices[i], cards[i]);
+            ClientObject fromClient = getClientObject(i);
+            if (fromClient != null) {
+                CardGameSender.sentCardsToPlayer(fromClient,
+                    toPlayerIndices[i], cards[i]);
+            }
         }
         
         // Send all addition notices and notify everyone else
         for (int i = 0; i < _playerCount; i++) {
-            CardGameSender.sendCardsFromPlayer(
-                getClientObject(toPlayerIndices[i]), i, cards[i]);
+            ClientObject toClient = getClientObject(toPlayerIndices[i]);
+            if (toClient != null) {
+                CardGameSender.sendCardsFromPlayer(toClient, i, cards[i]);
+            }
             notifyCardsTransferred(i, toPlayerIndices[i], cards[i].length);
         }
     }
@@ -232,9 +242,12 @@ public class CardGameManager extends GameManager
             public void apply (OccupantInfo info) {
                 int oid = info.getBodyOid();
                 if (oid != senderOid && oid != receiverOid) {
-                    CardGameSender.cardsTransferredBetweenPlayers(
-                        (ClientObject)PresentsServer.omgr.getObject(
-                            oid), fromPlayerIdx, toPlayerIdx, cards);
+                    ClientObject client =
+                        (ClientObject)PresentsServer.omgr.getObject(oid);
+                    if (client != null) {
+                        CardGameSender.cardsTransferredBetweenPlayers(client,
+                            fromPlayerIdx, toPlayerIdx, cards);
+                    }
                 }
             }
         };

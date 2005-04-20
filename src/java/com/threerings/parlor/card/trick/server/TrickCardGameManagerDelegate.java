@@ -197,8 +197,8 @@ public class TrickCardGameManagerDelegate extends TurnGameManagerDelegate
     /**
      * Processes a request to transfer a group of cards between players.
      * Default implementation verifies that the user's hand contains the
-     * specified cards, then transfers the cards (letting everyone know
-     * that the transfer has taken place).
+     * specified cards, then calls {@link #sendCardsToPlayer(int, int,
+     * Card[])}.
      */
     public void sendCardsToPlayer (ClientObject client, int toidx,
         Card[] cards)
@@ -215,6 +215,18 @@ public class TrickCardGameManagerDelegate extends TurnGameManagerDelegate
             throw new InvocationException("m.not_holding_card");
         }
         
+        // send the cards
+        sendCardsToPlayer(fromidx, toidx, cards);
+    }
+    
+    /**
+     * Sends cards between players without error checking.  Default
+     * implementation transfers the cards between hands and notifies
+     * everyone of the transfer using {@link
+     * CardGameManager#transferCardsBetweenPlayers(int, int, Card[])}.
+     */
+    protected void sendCardsToPlayer (int fromidx, int toidx, Card[] cards)
+    {
         // remove from sending player's hand
         _hands[fromidx].removeAll(cards);
         
@@ -250,6 +262,15 @@ public class TrickCardGameManagerDelegate extends TurnGameManagerDelegate
             throw new InvocationException("m.card_not_playable");
         }
         
+        // play the card
+        playCard(pidx, card);
+    }
+    
+    /**
+     * Plays a card for a player without error checking.
+     */
+    protected void playCard (int pidx, Card card)
+    {
         // play the card by removing it from the hand and adding it to the end
         // of the cards played array
         _hands[pidx].remove(card);
@@ -388,15 +409,7 @@ public class TrickCardGameManagerDelegate extends TurnGameManagerDelegate
             TrickCardGameObject.PLAYING_TRICK) {
             int pidx = _cardGame.getPlayerIndex(
                 _trickCardGame.getTurnHolder());
-            Card card = pickRandomPlayableCard(_hands[pidx]);
-            try {
-                playCard(_cgmgr.getClientObject(pidx), card);
-                
-            } catch (InvocationException ie) {
-                Log.warning("Couldn't play card [card=" + card + ", hand=" +
-                    _hands[pidx] + "].");
-                Log.logStackTrace(ie);
-            }
+            playCard(pidx, pickRandomPlayableCard(_hands[pidx]));
         }
     }
     
