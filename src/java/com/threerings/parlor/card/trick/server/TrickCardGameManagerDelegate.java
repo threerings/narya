@@ -143,7 +143,8 @@ public class TrickCardGameManagerDelegate extends TurnGameManagerDelegate
     {
         super.startTurn();
         
-        // schedule the timeout interval
+        // initialize the timeout flag and schedule the timeout interval
+        _turnTimedOut = false;
         _turnTimeoutInterval.schedule(_trickCardGame.getTurnDuration());
     }
     
@@ -152,6 +153,14 @@ public class TrickCardGameManagerDelegate extends TurnGameManagerDelegate
     {
         // cancel the timeout interval
         _turnTimeoutInterval.cancel();
+        
+        // reduce or increase the turn duration scale
+        if (_turnTimedOut) {
+            reduceTurnDurationScale(_turnIdx);
+            
+        } else {
+            increaseTurnDurationScale(_turnIdx);
+        }
         
         super.endTurn();
     }
@@ -267,6 +276,9 @@ public class TrickCardGameManagerDelegate extends TurnGameManagerDelegate
         if (!_trickCardGame.isCardPlayable(_hands[pidx], card)) {
             throw new InvocationException("m.card_not_playable");
         }
+        
+        // since the player managed to avoid a timeout, increase turn duration
+        increaseTurnDurationScale(pidx);
         
         // play the card
         playCard(pidx, card);
@@ -397,14 +409,10 @@ public class TrickCardGameManagerDelegate extends TurnGameManagerDelegate
     
     /**
      * Called when the current turn times out.  Default implementation
-     * reduces the turn duration and plays a random playable card if in the
-     * trick-playing state.
+     * plays a random playable card if in the trick-playing state.
      */
     protected void turnTimedOut ()
     {
-        // reduce turn duration scale
-        reduceTurnDurationScale(_turnIdx);
-        
         if (_trickCardGame.getTrickState() ==
             TrickCardGameObject.PLAYING_TRICK) {
             playCard(_turnIdx, pickRandomPlayableCard(_hands[_turnIdx]));
@@ -419,6 +427,20 @@ public class TrickCardGameManagerDelegate extends TurnGameManagerDelegate
         float oldScale = _trickCardGame.getTurnDurationScales()[pidx],
             newScale = Math.max(oldScale - TURN_DURATION_SCALE_REDUCTION,
                 MINIMUM_TURN_DURATION_SCALE);
+        if (newScale != oldScale) {
+            _trickCardGame.setTurnDurationScalesAt(newScale, pidx);
+        }
+    }
+    
+    /**
+     * Increases the specified player's turn duration due to avoiding a
+     * time-out.
+     */
+    protected void increaseTurnDurationScale (int pidx)
+    {
+        float oldScale = _trickCardGame.getTurnDurationScales()[pidx],
+            newScale = Math.min(oldScale + TURN_DURATION_SCALE_INCREASE,
+                1.0f);
         if (newScale != oldScale) {
             _trickCardGame.setTurnDurationScalesAt(newScale, pidx);
         }
@@ -577,10 +599,14 @@ public class TrickCardGameManagerDelegate extends TurnGameManagerDelegate
     /** The hands of each player. */
     protected Hand[] _hands;
     
+    /** Whether or not the turn timed out. */
+    protected boolean _turnTimedOut;
+    
     /** The all-purpose turn timeout interval.  */
     protected Interval _turnTimeoutInterval =
         new Interval(PresentsServer.omgr) {
         public void expired () {
+            _turnTimedOut = true;
             turnTimedOut();
         }
     };
@@ -595,6 +621,11 @@ public class TrickCardGameManagerDelegate extends TurnGameManagerDelegate
     /** Reduce turn duration scales by this amount each time the player times
      * out. */
     protected static final float TURN_DURATION_SCALE_REDUCTION = 0.25f;
+    
+    /**
+     * Increase turn duration scales by this amount each time the player
+     * manages not to time out. */
+    protected static final float TURN_DURATION_SCALE_INCREASE = 0.5f;
     
     /** Don't let turn duration scales get below this level. */
     protected static final float MINIMUM_TURN_DURATION_SCALE = 0.1f;
