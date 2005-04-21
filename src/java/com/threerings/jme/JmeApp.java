@@ -38,6 +38,7 @@ import com.jme.system.lwjgl.LWJGLPropertiesDialog;
 
 import com.jme.app.AbstractGame;
 import com.jme.input.InputHandler;
+import com.jme.input.InputSystem;
 import com.jme.light.PointLight;
 import com.jme.math.Vector3f;
 import com.jme.renderer.Camera;
@@ -77,72 +78,75 @@ public class JmeApp
         if (framesPerSecond <= 0) {
             throw new IllegalArgumentException("FPS must be > 0.");
         }
-        _targetFrameTime = (float)_timer.getResolution() / framesPerSecond;
+        _targetFrameTicks = _timer.getResolution() / framesPerSecond;
     }
 
     /**
-     * Initializes this application and starts up the main rendering and
-     * event processing loop. This method will not return until the
-     * application is terminated with a call to {@link #stop}.
+     * Does the main initialization of the application. This method should
+     * be called first, and then the {@link #run} method should be called
+     * to begin the rendering/event loop. Derived classes can override
+     * this, being sure to call super before doing their own
+     * initalization.
      */
-    public void start ()
+    public void init ()
+    {
+        // load up our renderer configuration
+        _properties = new PropertiesIO(getConfigPath("jme.cfg"));
+        if (!_properties.load()) {
+            LWJGLPropertiesDialog dialog =
+                new LWJGLPropertiesDialog(_properties, (String)null);
+            while (dialog.isVisible()) {
+                try {
+                    Thread.sleep(5);
+                } catch (InterruptedException e) {
+                    Log.warning("Error waiting for dialog system, " +
+                                "using defaults.");
+                }
+            }
+        }
+
+        // create an appropriate timer
+        _timer = Timer.getTimer(_properties.getRenderer());
+
+        // default to 60 fps
+        setTargetFrameRate(60);
+
+        // initialize the rendering system
+        initDisplay();
+        if (!_display.isCreated()) {
+            throw new IllegalStateException("Failed to initialize display?");
+        }
+
+        // initialize our main camera controls and user input handling
+        initInput();
+
+        // initialize the root node
+        initRoot();
+
+        // initialize the lighting
+        initLighting();
+
+        // update everything for the zeroth tick
+        _root.updateGeometricState(0f, true);
+        _root.updateRenderState();
+
+        // create and add our statistics display
+        if (displayStatistics()) {
+            _stats = new StatsDisplay(_display.getRenderer());
+            _stats.updateGeometricState(0f, true);
+            _stats.updateRenderState();
+        }
+    }
+
+    /**
+     * Starts up the main rendering and event processing loop. This method
+     * will not return until the application is terminated with a call to
+     * {@link #stop}.
+     */
+    public void run ()
     {
         synchronized (this) {
             _dispatchThread = Thread.currentThread();
-        }
-
-        try {
-            // load up our renderer configuration
-            _properties = new PropertiesIO(getConfigPath("jme.cfg"));
-            if (!_properties.load()) {
-                LWJGLPropertiesDialog dialog =
-                    new LWJGLPropertiesDialog(_properties, (String)null);
-                while (dialog.isVisible()) {
-                    try {
-                        Thread.sleep(5);
-                    } catch (InterruptedException e) {
-                        Log.warning("Error waiting for dialog system, " +
-                                    "using defaults.");
-                    }
-                }
-            }
-
-            // create an appropriate timer
-            _timer = Timer.getTimer(_properties.getRenderer());
-
-            // default to 60 fps
-            setTargetFrameRate(60);
-
-            // initialize the rendering system
-            initDisplay();
-            if (!_display.isCreated()) {
-                throw new IllegalStateException("Failed to initialize display?");
-            }
-
-            // initialize our main camera controls and user input handling
-            initInput();
-
-            // initialize the root node
-            initRoot();
-
-            // initialize the lighting
-            initLighting();
-
-            // update everything for the zeroth tick
-            _root.updateGeometricState(0f, true);
-            _root.updateRenderState();
-
-            // create and add our statistics display
-            if (displayStatistics()) {
-                _stats = new StatsDisplay(_display.getRenderer());
-                _stats.updateGeometricState(0f, true);
-                _stats.updateRenderState();
-            }
-
-        } catch (Throwable t) {
-            Log.logStackTrace(t);
-            exit();
-            return;
         }
 
         // enter the main rendering and event processing loop
@@ -277,17 +281,19 @@ public class JmeApp
      */
     protected final void processFrame ()
     {
-        float frameStart = _timer.getTime();
-
         // update our simulation and render a frame
+        long frameStart = _timer.getTime();
         update(frameStart);
         render(frameStart);
 
         _display.getRenderer().displayBackBuffer();
         _frames++;
 
-        // now process events or sleep until the next frame
-        do {
+        // now process events or sleep until the next frame (assume zero
+        // frame duration to start to ensure that we always process at
+        // least one event per frame)
+        long frameDuration = 0L;
+        while (frameDuration < _targetFrameTicks) {
             Runnable r = (Runnable)_evqueue.getNonBlocking();
             if (r == null) {
                 try {
@@ -298,14 +304,15 @@ public class JmeApp
             } else {
                 r.run();
             }
-        } while (_timer.getTime() - frameStart < _targetFrameTime);
+            frameDuration = _timer.getTime() - frameStart;
+        } 
     }
 
     /**
      * Called every frame to update whatever sort of real time business we
      * have that needs updating.
      */
-    protected void update (float frameTime)
+    protected void update (long frameTick)
     {
         // recalculate the frame rate
         _timer.update();
@@ -351,6 +358,13 @@ public class JmeApp
     protected void cleanup ()
     {
         _display.reset();
+
+        if (InputSystem.getKeyInput() != null) {
+            InputSystem.getKeyInput().destroy();
+        }
+        if (InputSystem.getMouseInput() != null) {
+            InputSystem.getMouseInput().destroy();
+        }
     }
 
     /**
@@ -380,7 +394,7 @@ public class JmeApp
     protected String getConfigPath (String file)
     {
         String cfgdir = ".narya";
-        String home = System.getProperty("user.dir");
+        String home = System.getProperty("user.home");
         if (!StringUtil.blank(home)) {
             cfgdir = home + File.separator + cfgdir;
         }
@@ -410,7 +424,7 @@ public class JmeApp
 
     protected int _frames;
     protected float _lastFPSStamp;
-    protected float _targetFrameTime;
+    protected long _targetFrameTicks;
 
     /** If we fail 100 frames in a row, stick a fork in ourselves. */
     protected static final int MAX_SUCCESSIVE_FAILURES = 100;
