@@ -27,6 +27,10 @@ import com.samskivert.util.Queue;
 import com.samskivert.util.RunQueue;
 import com.samskivert.util.StringUtil;
 
+import com.jme.renderer.Camera;
+import com.jme.renderer.ColorRGBA;
+import com.jme.renderer.Renderer;
+
 import com.jme.scene.Node;
 import com.jme.scene.state.LightState;
 import com.jme.scene.state.ZBufferState;
@@ -36,18 +40,20 @@ import com.jme.system.JmeException;
 import com.jme.system.PropertiesIO;
 import com.jme.system.lwjgl.LWJGLPropertiesDialog;
 
-import com.jme.app.AbstractGame;
+import com.jme.ui.UIFonts;
+import com.jme.ui.UIColorScheme;
+
 import com.jme.input.InputHandler;
 import com.jme.input.InputSystem;
+
 import com.jme.light.PointLight;
 import com.jme.math.Vector3f;
-import com.jme.renderer.Camera;
-import com.jme.renderer.ColorRGBA;
 import com.jme.util.Timer;
 
 import com.threerings.presents.client.Client;
 
 import com.threerings.jme.input.GodViewHandler;
+import com.threerings.jme.input.HardwareMouse;
 
 /**
  * Defines a basic application framework providing integration with the
@@ -58,19 +64,6 @@ public class JmeApp
     implements RunQueue
 {
     /**
-     * Returns our average frames per second since the last call to this
-     * method.
-     */
-    public float getFramesPerSecond ()
-    {
-        float now = _timer.getTime(), delta = now - _lastFPSStamp;
-        float fps = _frames / delta;
-        _lastFPSStamp = now;
-        _frames = 0;
-        return fps;
-    }
-
-    /**
      * Configures the target frame rate in frames per second.
      */
     public void setTargetFrameRate (long framesPerSecond)
@@ -79,6 +72,15 @@ public class JmeApp
             throw new IllegalArgumentException("FPS must be > 0.");
         }
         _targetFrameTicks = _timer.getResolution() / framesPerSecond;
+    }
+
+    /**
+     * Returns a context implementation that provides access to all the
+     * necessary bits.
+     */
+    public JmeContext getContext ()
+    {
+        return _ctx;
     }
 
     /**
@@ -125,6 +127,9 @@ public class JmeApp
 
         // initialize the lighting
         initLighting();
+
+        // initialize the UI support stuff
+        initInterface();
 
         // update everything for the zeroth tick
         _root.updateGeometricState(0f, true);
@@ -239,10 +244,14 @@ public class JmeApp
     protected void initInput ()
     {
         _input = new GodViewHandler(this, _camera, _properties.getRenderer());
+        _bufferedInput = new InputHandler();
 
-//         /** Signal to all key inputs they should work Nx faster. */
-//         input.setKeySpeed(150f);
-//         input.setMouseSpeed(1f);
+        // we don't hide the cursor
+        InputSystem.getMouseInput().setCursorVisible(true);
+        HardwareMouse mouse = new HardwareMouse("Mouse");
+        mouse.setMouseInput(InputSystem.getMouseInput());
+        _input.setMouse(mouse);
+        _bufferedInput.setMouse(mouse);
     }
 
     /**
@@ -277,6 +286,17 @@ public class JmeApp
     }
 
     /**
+     * Initializes our user interface bits.
+     */
+    protected void initInterface ()
+    {
+        String[] names = { "main" };
+        String[] locs = { StatsDisplay.DEFAULT_JME_FONT };
+        _fonts = new UIFonts(names, locs);
+        _colorScheme = new UIColorScheme();
+    }
+
+    /**
      * Processes a single frame.
      */
     protected final void processFrame ()
@@ -287,7 +307,6 @@ public class JmeApp
         render(frameStart);
 
         _display.getRenderer().displayBackBuffer();
-        _frames++;
 
         // now process events or sleep until the next frame (assume zero
         // frame duration to start to ensure that we always process at
@@ -320,6 +339,7 @@ public class JmeApp
         // update the input system
         float timePerFrame = _timer.getTimePerFrame();
         _input.update(timePerFrame);
+        _bufferedInput.update(timePerFrame);
 
         // run all of the controllers attached to nodes
         _root.updateGeometricState(timePerFrame, true);
@@ -406,25 +426,53 @@ public class JmeApp
         return cfgdir + File.separator + file;
     }
 
+    /** Provides access to various needed bits. */
+    protected JmeContext _ctx = new JmeContext() {
+        public Renderer getRenderer () {
+            return _display.getRenderer();
+        }
+
+        public Node getRoot () {
+            return _root;
+        }
+
+        public InputHandler getInputHandler () {
+            return _input;
+        }
+
+        public InputHandler getBufferedInputHandler () {
+            return _bufferedInput;
+        }
+
+        public UIColorScheme getColorScheme () {
+            return _colorScheme;
+        }
+
+        public UIFonts getFonts () {
+            return _fonts;
+        }
+    };
+
     protected Timer _timer;
     protected Thread _dispatchThread;
     protected Queue _evqueue = new Queue();
-    protected boolean _finished;
 
     protected PropertiesIO _properties;
     protected DisplaySystem _display;
     protected Camera _camera;
     protected InputHandler _input;
+    protected InputHandler _bufferedInput;
+
+    protected long _targetFrameTicks;
+    protected boolean _finished;
+    protected int _failures;
 
     protected Node _root;
     protected LightState _lights;
     protected StatsDisplay _stats;
 
-    protected int _failures;
-
-    protected int _frames;
-    protected float _lastFPSStamp;
-    protected long _targetFrameTicks;
+    protected UIColorScheme _colorScheme;
+    protected UIFonts _fonts;
 
     /** If we fail 100 frames in a row, stick a fork in ourselves. */
     protected static final int MAX_SUCCESSIVE_FAILURES = 100;

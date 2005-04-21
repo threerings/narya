@@ -14,6 +14,6 @@ public class JabberController extends PlaceController
 {
     protected PlaceView createPlaceView (CrowdContext ctx)
     {
-        return null;
+        return new JabberView(ctx);
     }
 }

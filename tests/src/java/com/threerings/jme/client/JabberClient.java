@@ -21,6 +21,12 @@
 
 package com.threerings.jme.client;
 
+import com.jme.input.InputHandler;
+import com.jme.renderer.Renderer;
+import com.jme.scene.Node;
+import com.jme.ui.UIColorScheme;
+import com.jme.ui.UIFonts;
+
 import com.samskivert.util.Config;
 import com.threerings.util.MessageManager;
 
@@ -33,6 +39,8 @@ import com.threerings.crowd.client.LocationDirector;
 import com.threerings.crowd.client.OccupantDirector;
 import com.threerings.crowd.client.PlaceView;
 import com.threerings.crowd.util.CrowdContext;
+
+import com.threerings.jme.JmeContext;
 
 /**
  * The Jabber client takes care of instantiating all of the proper
@@ -49,6 +57,8 @@ public class JabberClient
      */
     public void init (JabberApp app)
     {
+        _app = app;
+
         // create our context
         _ctx = createContextImpl();
 
@@ -125,7 +135,7 @@ public class JabberClient
      * The context implementation. This provides access to all of the
      * objects and services that are needed by the operating client.
      */
-    protected class JabberContextImpl implements CrowdContext
+    protected class JabberContextImpl implements CrowdContext, JmeContext
     {
         /**
          * Apparently the default constructor has default access, rather
@@ -133,52 +143,68 @@ public class JabberClient
          * protected. Why, I don't know, but we need to be able to extend
          * this class elsewhere, so we need this.
          */
-        protected JabberContextImpl ()
-        {
+        protected JabberContextImpl () {
         }
 
-        public Client getClient ()
-        {
+        public Client getClient () {
             return _client;
         }
 
-        public DObjectManager getDObjectManager ()
-        {
+        public DObjectManager getDObjectManager () {
             return _client.getDObjectManager();
         }
 
-        public Config getConfig ()
-        {
+        public Config getConfig () {
             return _config;
         }
 
-        public LocationDirector getLocationDirector ()
-        {
+        public LocationDirector getLocationDirector () {
             return _locdir;
         }
 
-        public OccupantDirector getOccupantDirector ()
-        {
+        public OccupantDirector getOccupantDirector () {
             return _occdir;
         }
 
-        public ChatDirector getChatDirector ()
-        {
+        public ChatDirector getChatDirector () {
             return _chatdir;
         }
 
-        public void setPlaceView (PlaceView view)
-        {
+        public void setPlaceView (PlaceView view) {
             // TBD
         }
 
-        public void clearPlaceView (PlaceView view)
-        {
+        public void clearPlaceView (PlaceView view) {
             // we'll just let the next place view replace our old one
+        }
+
+        public Renderer getRenderer () {
+            return _app.getContext().getRenderer();
+        }
+
+        public Node getRoot () {
+            return _app.getContext().getRoot();
+        }
+
+        public InputHandler getInputHandler () {
+            return _app.getContext().getInputHandler();
+        }
+
+        public InputHandler getBufferedInputHandler () {
+            return _app.getContext().getBufferedInputHandler();
+        }
+
+        public UIColorScheme getColorScheme () {
+            return _app.getContext().getColorScheme();
+        }
+
+        public UIFonts getFonts () {
+            return _app.getContext().getFonts();
         }
     }
 
     protected CrowdContext _ctx;
+    protected JabberApp _app;
     protected Config _config = new Config("jabber");
 
     protected Client _client;

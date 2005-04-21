@@ -21,6 +21,8 @@
 
 package com.threerings.jme.client;
 
+import com.jme.util.LoggingSystem;
+
 import com.threerings.util.Name;
 
 import com.threerings.presents.client.Client;
@@ -80,6 +82,8 @@ public class JabberApp extends JmeApp
 
     public static void main (String[] args)
     {
+        LoggingSystem.getLogger().setLevel(java.util.logging.Level.OFF);
+
         String server = "localhost";
         if (args.length > 0) {
             server = args[0];
