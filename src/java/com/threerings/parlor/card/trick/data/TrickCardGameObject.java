@@ -92,6 +92,35 @@ public interface TrickCardGameObject extends TurnGameObject
     public void setTrickState (int trickState);
     
     /**
+     * Returns an array containing the turn duration scales for each player.
+     * Turn duration scales decrease each time players time out.
+     *
+     * @return the array of turn duration scales
+     */
+    public float[] getTurnDurationScales ();
+    
+    /**
+     * Sets the array of turn duration scales.
+     *
+     * @param turnDurationScales the array of turn duration scales
+     */
+    public void setTurnDurationScales (float[] turnDurationScales);
+    
+    /**
+     * Sets an element of the array of turn duration scales.
+     *
+     * @param turnDurationScale the turn duration scale
+     * @param index the index of the turn duration scale
+     */
+    public void setTurnDurationScalesAt (float turnDurationScale, int index);
+    
+    /**
+     * Returns the duration of the current turn, which may depend on the state
+     * of the game as well as the duration scale of the active player.
+     */
+    public long getTurnDuration ();
+    
+    /**
      * Returns the name of the field that contains the history of the trick
      * in terms of the cards played by each player.
      *

@@ -22,6 +22,7 @@
 package com.threerings.parlor.card.trick.server;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 
 import com.samskivert.util.ArrayUtil;
 import com.samskivert.util.Interval;
@@ -98,6 +99,11 @@ public class TrickCardGameManagerDelegate extends TurnGameManagerDelegate
         
         // clear out the last cards played
         _trickCardGame.setLastCardsPlayed(null);
+        
+        // initialize the turn duration scales
+        float[] scales = new float[_cardGame.getPlayerCount()];
+        Arrays.fill(scales, 1.0f);
+        _trickCardGame.setTurnDurationScales(scales);
     }
     
     /**
@@ -138,7 +144,7 @@ public class TrickCardGameManagerDelegate extends TurnGameManagerDelegate
         super.startTurn();
         
         // schedule the timeout interval
-        _turnTimeoutInterval.schedule(getTurnTimeoutDelay());
+        _turnTimeoutInterval.schedule(_trickCardGame.getTurnDuration());
     }
     
     // Documentation inherited.
@@ -390,26 +396,31 @@ public class TrickCardGameManagerDelegate extends TurnGameManagerDelegate
     }
     
     /**
-     * Returns the amount of time to allow before timing out the turn
-     * by calling {@link #turnTimedOut}.  Default implementation returns
-     * a minute.
-     */
-    protected long getTurnTimeoutDelay ()
-    {
-        return 60 * 1000L;
-    }
-    
-    /**
      * Called when the current turn times out.  Default implementation
-     * plays a random playable card if in the trick-playing state.
+     * reduces the turn duration and plays a random playable card if in the
+     * trick-playing state.
      */
     protected void turnTimedOut ()
     {
+        // reduce turn duration scale
+        reduceTurnDurationScale(_turnIdx);
+        
         if (_trickCardGame.getTrickState() ==
             TrickCardGameObject.PLAYING_TRICK) {
-            int pidx = _cardGame.getPlayerIndex(
-                _trickCardGame.getTurnHolder());
-            playCard(pidx, pickRandomPlayableCard(_hands[pidx]));
+            playCard(_turnIdx, pickRandomPlayableCard(_hands[_turnIdx]));
+        }
+    }
+    
+    /**
+     * Reduces the specified player's turn duration due to a time-out.
+     */
+    protected void reduceTurnDurationScale (int pidx)
+    {
+        float oldScale = _trickCardGame.getTurnDurationScales()[pidx],
+            newScale = Math.max(oldScale - TURN_DURATION_SCALE_REDUCTION,
+                MINIMUM_TURN_DURATION_SCALE);
+        if (newScale != oldScale) {
+            _trickCardGame.setTurnDurationScalesAt(newScale, pidx);
         }
     }
     
@@ -580,4 +591,11 @@ public class TrickCardGameManagerDelegate extends TurnGameManagerDelegate
             endTrick();
         }
     };
+    
+    /** Reduce turn duration scales by this amount each time the player times
+     * out. */
+    protected static final float TURN_DURATION_SCALE_REDUCTION = 0.25f;
+    
+    /** Don't let turn duration scales get below this level. */
+    protected static final float MINIMUM_TURN_DURATION_SCALE = 0.1f;
 }
