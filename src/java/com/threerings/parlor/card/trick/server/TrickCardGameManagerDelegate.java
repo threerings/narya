@@ -277,9 +277,6 @@ public class TrickCardGameManagerDelegate extends TurnGameManagerDelegate
             throw new InvocationException("m.card_not_playable");
         }
         
-        // since the player managed to avoid a timeout, increase turn duration
-        increaseTurnDurationScale(pidx);
-        
         // play the card
         playCard(pidx, card);
     }
