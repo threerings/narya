@@ -158,11 +158,18 @@ public class CardGameManager extends GameManager
     }
     
     /**
-     * Returns the client object corresponding to the specified player index.
+     * Returns the client object corresponding to the specified player index,
+     * or null if the position is not occupied by a player.
      */
     public ClientObject getClientObject (int pidx)
     {
-        return (ClientObject)PresentsServer.omgr.getObject(_playerOids[pidx]);
+        if (_playerOids[pidx] != 0) {
+            return (ClientObject)PresentsServer.omgr.getObject(
+                _playerOids[pidx]);
+        
+        } else {
+            return null;
+        }
     }
     
     /**
