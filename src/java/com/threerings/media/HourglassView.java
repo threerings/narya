@@ -15,6 +15,7 @@ import com.samskivert.util.Interval;
 import com.samskivert.util.ResultListener;
 
 import com.threerings.media.image.Mirage;
+import com.threerings.media.util.MultiFrameImage;
 
 /**
  * Displays an hourglass with the sand level representing the amount of
@@ -27,10 +28,11 @@ public class HourglassView extends TimerView
      */
     public HourglassView (FrameManager fmgr, JComponent host, int x, int y,
                           Mirage glassImage, Mirage topImage, Rectangle topRect,
-                          Mirage botImage, Rectangle botRect, Color sandColor)
+                          Mirage botImage, Rectangle botRect,
+                          MultiFrameImage sandTrickle)
     {
         this(fmgr, host, x, y, glassImage, topImage, topRect, new Point(0, 0),
-             botImage, botRect, new Point(0, 0), sandColor);
+             botImage, botRect, new Point(0, 0), sandTrickle);
     }
 
     /**
@@ -39,7 +41,8 @@ public class HourglassView extends TimerView
     public HourglassView (
         FrameManager fmgr, JComponent host, int x, int y, Mirage glassImage,
         Mirage topImage, Rectangle topRect, Point topOff,
-        Mirage botImage, Rectangle botRect, Point botOff, Color sandColor)
+        Mirage botImage, Rectangle botRect, Point botOff,
+        MultiFrameImage sandTrickle)
     {
         super(fmgr, host, new Rectangle(x, y, glassImage.getWidth(),
                                         glassImage.getHeight()));
@@ -49,16 +52,15 @@ public class HourglassView extends TimerView
         _topOff = topOff;
         _botRect = botRect;
         _botOff = botOff;
-        _sandColor = sandColor;
 
         // Save hourglass images
         _hourglass = glassImage;
         _sandTop = topImage;
         _sandBottom = botImage;
+        _sandTrickle = sandTrickle;
 
         // Initialize the falling grain of sand
-        _sandY = _topRect.y + _topRect.height;
-        _sandTime = 0;
+        _sandY = 0;
 
         // Percentage changes smaller than one pixel in the hourglass
         // itself definitely won't be noticed
@@ -66,21 +68,25 @@ public class HourglassView extends TimerView
     }
 
     // documentation inherited
+    public void changeComplete (float complete)
+    {
+        super.changeComplete(complete);
+        setSandTrickleY();
+    }
+
+    // documentation inherited
     public void tick (long tickStamp)
     {
-        // Let the parent hand its stuff
+        // Let the parent handle its stuff
         super.tick(tickStamp);
 
-        // Check if the falling sand dot should move
-        if (_sandTime + SAND_RATE < tickStamp)
-        {
-            // Move the sand grain, possibly wrapping around
-            if (++_sandY > getSandBottomTop(_renderComplete)) {
-                _sandY = _topRect.y + _topRect.height;
-            }
+        // check if the sand should be updated
+        if (tickStamp > _sandStamp) {
 
-            // This is when the grain was last updated
-            _sandTime = tickStamp;
+            // update the sand frame
+            setSandTrickleY();
+            _sandFrame = (_sandFrame + 1) % _sandTrickle.getFrameCount();
+            _sandStamp = tickStamp + SAND_RATE;
 
             // Make sure the timer gets repainted
             invalidate();
@@ -103,6 +109,16 @@ public class HourglassView extends TimerView
         gfx.clipRect(_topRect.x, top, _topRect.width,
                      _topRect.height - (top-_topRect.y));
         _sandTop.paint(gfx, _topOff.x, _topOff.y);
+
+        // paint the current sand frame
+        gfx.setClip(oclip);
+        int sandtop = _topRect.y + _topRect.height;
+        if (_sandY < _botRect.height) {
+            gfx.clipRect(_botRect.x, sandtop, _botRect.width, _sandY);
+        }
+        _sandTrickle.paintFrame(gfx, _sandFrame,
+            _botRect.x + (_botRect.width - _sandTrickle.getWidth(_sandFrame))/2,
+            sandtop);
         gfx.setClip(oclip);
 
         // Paint the current bottom sand level
@@ -112,11 +128,16 @@ public class HourglassView extends TimerView
         _sandBottom.paint(gfx, _botOff.x, _botOff.y);
         gfx.setClip(oclip);
 
-        // Paint the sand trickle
-        gfx.setColor(_sandColor);
-        gfx.fillRect(_hourglass.getWidth() / 2, _sandY, 1, 1);
-
+        // untranslate
         gfx.translate(-_bounds.x, -_bounds.y);
+    }
+
+    /**
+     * Set the y position of the trickle.
+     */
+    protected void setSandTrickleY ()
+    {
+        _sandY = (int) (_botRect.height * Math.min(1f, (_complete / .025)));
     }
 
     /**
@@ -134,19 +155,21 @@ public class HourglassView extends TimerView
     /** Offsets at which to render the sand images. */
     protected Point _topOff, _botOff;
 
-    /** The y-coordinate of the current sand bit trickling down. */
-    protected int _sandY;
-
-    /** The color of the rendered sand. */
-    protected Color _sandColor;
-
     /** Our images. */
     protected Mirage _hourglass, _sandTop, _sandBottom;
 
-    /** The last time the sand pixel moved. */
-    protected long _sandTime = 0;
+    /** The sand trickle. */
+    protected MultiFrameImage _sandTrickle;
 
-    /** How many milliseconds it takes the animated sand drop to move
-     * one pixel. */
-    protected static final long SAND_RATE = 100;
+    /** The last time the sand updated moved. */
+    protected long _sandStamp;
+
+    /** The next sand frame to be painted. */
+    protected int _sandFrame;
+
+    /** The position of the top of the sand. */
+    protected int _sandY;
+
+    /** How often the sand frame updates. */
+    protected static final long SAND_RATE = 80;
 }
