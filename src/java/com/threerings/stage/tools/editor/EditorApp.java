@@ -37,7 +37,6 @@ import com.threerings.resource.ResourceManager;
 import com.threerings.media.FrameManager;
 import com.threerings.media.image.ColorPository;
 import com.threerings.media.image.ImageManager;
-import com.threerings.media.sound.SoundManager;
 import com.threerings.media.util.ModeUtil;
 
 import com.threerings.media.tile.TileSetRepository;
@@ -153,7 +152,6 @@ public class EditorApp implements Runnable
         }
 
         _colpos = ColorPository.loadColorPository(_rmgr);
-        _soundmgr = new SoundManager(_rmgr, null, null);
         _kbdmgr = new KeyboardManager();
         _keydisp = new KeyDispatcher(_frame);
         
@@ -290,10 +288,6 @@ public class EditorApp implements Runnable
             return _msgmgr;
         }
 
-        public SoundManager getSoundManager() {
-            return _soundmgr;
-        }
-
         public KeyboardManager getKeyboardManager() {
             return _kbdmgr;
         }
@@ -345,7 +339,6 @@ public class EditorApp implements Runnable
     protected TileSetRepository _tsrepo;
     protected ColorPository _colpos;
     protected MessageManager _msgmgr;
-    protected SoundManager _soundmgr;
     protected KeyboardManager _kbdmgr;
     protected BundledComponentRepository _crepo;
     protected KeyDispatcher _keydisp;

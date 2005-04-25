@@ -11,7 +11,6 @@ import com.threerings.util.MessageManager;
 import com.threerings.media.FrameManager;
 import com.threerings.media.image.ColorPository;
 import com.threerings.media.image.ImageManager;
-import com.threerings.media.sound.SoundManager;
 
 import com.threerings.cast.CharacterManager;
 import com.threerings.cast.ComponentRepository;
@@ -49,11 +48,6 @@ public interface StageContext
      * Returns a reference to the message manager used by the client.
      */
     public MessageManager getMessageManager ();
-
-    /**
-     * Returns a reference to the sound manager used by the client.
-     */
-    public SoundManager getSoundManager();
 
     /**
      * Returns a reference to the keyboard manager.

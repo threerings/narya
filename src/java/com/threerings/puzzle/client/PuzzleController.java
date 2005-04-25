@@ -38,7 +38,6 @@ import com.samskivert.util.ObserverList;
 import com.samskivert.util.StringUtil;
 
 import com.threerings.media.FrameParticipant;
-import com.threerings.media.sound.SoundCodes;
 
 import com.threerings.presents.dobj.AttributeChangeListener;
 import com.threerings.presents.dobj.AttributeChangedEvent;
@@ -124,15 +123,6 @@ public abstract class PuzzleController extends GameController
     public int getPlayerIndex ()
     {
         return _pidx;
-    }
-
-    /**
-     * Convenience method for playing a puzzle sound effect.
-     */
-    public void playSound (String packagePath, String key)
-    {
-        _pctx.getSoundManager().play(
-            SoundCodes.GAME_FX, packagePath, key);
     }
 
     // documentation inherited

@@ -27,7 +27,6 @@ import com.threerings.util.MessageManager;
 import com.threerings.util.Name;
 
 import com.threerings.media.FrameManager;
-import com.threerings.media.sound.SoundManager;
 
 import com.threerings.parlor.util.ParlorContext;
 
@@ -60,9 +59,4 @@ public interface PuzzleContext extends ParlorContext
      * Provides access to the key dispatcher.
      */
     public KeyDispatcher getKeyDispatcher ();
-
-    /**
-     * Provides access to the sound manager.
-     */
-    public SoundManager getSoundManager ();
 }

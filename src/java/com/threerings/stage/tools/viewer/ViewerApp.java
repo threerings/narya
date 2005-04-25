@@ -24,7 +24,6 @@ import com.threerings.media.FrameManager;
 import com.threerings.media.IconManager;
 import com.threerings.media.image.ColorPository;
 import com.threerings.media.image.ImageManager;
-import com.threerings.media.sound.SoundManager;
 import com.threerings.media.tile.bundle.BundledTileSetRepository;
 
 import com.threerings.cast.CharacterManager;
@@ -75,8 +74,6 @@ public class ViewerApp
         _colpos = ColorPository.loadColorPository(_rmgr);
         _crepo = new BundledComponentRepository(_rmgr, _imgr, "components");
         _mesgmgr = new MessageManager("rsrc.i18n");
-        _soundmgr = new SoundManager(
-            _rmgr, "general", "media/stage/feedback/default.wav");
 
 	_frame = new ViewerFrame(gc);
         _framemgr = FrameManager.newInstance(_frame);
@@ -131,11 +128,6 @@ public class ViewerApp
         // documentation inherited from interface
         public IconManager getIconManager () {
             return null;
-        }
-
-        // documentation inherited from interface
-        public SoundManager getSoundManager() {
-            return _soundmgr;
         }
 
         // documentation inherited from interface
@@ -210,7 +202,6 @@ public class ViewerApp
     protected BundledComponentRepository _crepo;
     protected ColorPository _colpos;
     protected MessageManager _mesgmgr;
-    protected SoundManager _soundmgr;
 
     protected FrameManager _framemgr;
     protected ViewerFrame _frame;
