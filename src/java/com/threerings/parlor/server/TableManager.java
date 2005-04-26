@@ -84,6 +84,7 @@ public class TableManager
      * will be created.
      *
      * @param creator the body object that will own the new table.
+     * @param tableConfig the configuration parameters for the table.
      * @param config the configuration of the game to be created.
      *
      * @return the id of the newly created table.
@@ -92,18 +93,10 @@ public class TableManager
      * not able processed for some reason. The explanation will be
      * provided in the message data of the exception.
      */
-    public int createTable (BodyObject creator, GameConfig config)
+    public int createTable (BodyObject creator, TableConfig tableConfig,
+            GameConfig config)
         throws InvocationException
     {
-        // make sure the game config implements TableConfig
-        if (!(config instanceof TableConfig)) {
-            Log.warning("Requested to matchmake a non-table game " +
-                        "using the table services [creator=" + creator +
-                        ", lobby=" + _plobj.getOid() +
-                        ", config=" + config + "].");
-            throw new InvocationException(INTERNAL_ERROR);
-        }
-
         // make sure the creator is an occupant of the lobby in which
         // they are requesting to create a table
         if (!_plobj.occupants.contains(creator.getOid())) {
@@ -114,7 +107,7 @@ public class TableManager
         }
 
         // create a brand spanking new table
-        Table table = new Table(_plobj.getOid(), config);
+        Table table = new Table(_plobj.getOid(), tableConfig, config);
 
         // stick the creator into the first non-AI position
         int cpos = (config.ais == null) ? 0 : config.ais.length;

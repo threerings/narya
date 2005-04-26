@@ -2,7 +2,7 @@
 // $Id$
 //
 // Narya library - tools for developing networked games
-// Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
+// Copyright (C) 2002-2005 Three Rings Design, Inc., All Rights Reserved
 // http://www.threerings.net/code/narya/
 //
 // This library is free software; you can redistribute it and/or modify it
@@ -19,20 +19,20 @@
 // License along with this library; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 
-package com.threerings.parlor.data;
+package com.threerings.parlor.game.data;
 
-import com.threerings.io.SimpleStreamableObject;
+import com.threerings.parlor.data.TableConfigurator;
+import com.threerings.parlor.util.ParlorContext;
 
 /**
- * Table configuration parameters for a game that is to be matchmade
- * using the table services.
+ * An interface to be implemented by GameConfigs if they want to be
+ * able to use Table matchmaking services.
  */
-public class TableConfig extends SimpleStreamableObject
+public interface TableableGameConfig
 {
-    /** The number of players that are desired for the table, or -1 for a
-     * party game. */
-    public int desiredPlayerCount;
-
-    /** Whether the table is "private". */
-    public boolean privateTable;
+    /**
+     * Called when this GameConfig is to be used for Table matchmaking,
+     * returns the TableConfigurator to be used to configure the Table.
+     */
+    public TableConfigurator createTableConfigurator (ParlorContext ctx);
 }

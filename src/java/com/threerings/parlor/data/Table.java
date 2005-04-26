@@ -21,10 +21,6 @@
 
 package com.threerings.parlor.data;
 
-import java.io.IOException;
-
-import com.threerings.io.ObjectInputStream;
-
 import com.samskivert.util.StringUtil;
 import com.threerings.util.Name;
 
@@ -52,16 +48,18 @@ public class Table
     public int gameOid = -1;
 
     /** An array of the usernames of the occupants of this table (some
-     * slots may not be filled). */
+     * slots may not be filled), or null if a party game. */
     public Name[] occupants;
 
-    /** The body oids of the occupants of this table. (This is not
-     * propagated to remote instances.) */
+    /** The body oids of the occupants of this table, or null if a party game.
+     * (This is not propagated to remote instances.) */
     public transient int[] bodyOids;
 
-    /** The game config for the game that is being matchmade. This config
-     * instance will also implement {@link TableConfig}. */
+    /** The game config for the game that is being matchmade. */
     public GameConfig config;
+
+    /** The table configuration object. */
+    public TableConfig tconfig;
 
     /**
      * Creates a new table instance, and assigns it the next monotonically
@@ -74,7 +72,7 @@ public class Table
      * @param config the configuration of the game being matchmade by this
      * table.
      */
-    public Table (int lobbyOid, GameConfig config)
+    public Table (int lobbyOid, TableConfig tconfig, GameConfig config)
     {
         // assign a unique table id
         tableId = new Integer(++_tableIdCounter);
@@ -83,18 +81,20 @@ public class Table
         this.lobbyOid = lobbyOid;
 
         // keep a casted reference around
-        _tconfig = (TableConfig)config;
+        this.tconfig = tconfig;
         this.config = config;
 
         // make room for the maximum number of players
-        occupants = new Name[_tconfig.getMaximumPlayers()];
-        bodyOids = new int[occupants.length];
+        if (tconfig.desiredPlayerCount != -1) {
+            occupants = new Name[tconfig.desiredPlayerCount];
+            bodyOids = new int[occupants.length];
 
-        // fill in information on the AIs
-        int acount = (config.ais == null) ? 0 : config.ais.length;
-        for (int ii = 0; ii < acount; ii++) {
-            // TODO: handle this naming business better
-            occupants[ii] = new Name("AI " + (ii+1));
+            // fill in information on the AIs
+            int acount = (config.ais == null) ? 0 : config.ais.length;
+            for (int ii = 0; ii < acount; ii++) {
+                // TODO: handle this naming business better
+                occupants[ii] = new Name("AI " + (ii+1));
+            }
         }
     }
 
@@ -103,18 +103,6 @@ public class Table
      */
     public Table ()
     {
-    }
-
-    /**
-     * Extends default behavior to initialize transient members.
-     */
-    public void readObject (ObjectInputStream in)
-        throws IOException, ClassNotFoundException
-    {
-        in.defaultReadObject();
-        
-        // initialize casted reference
-        _tconfig = (TableConfig)config;
     }
     
     /**
@@ -134,6 +122,10 @@ public class Table
      */
     public Name[] getPlayers ()
     {
+        if (occupants == null) {
+            return null;
+        }
+
         // count up the players
         int pcount = 0;
         for (int i = 0; i < occupants.length; i++) {
@@ -168,15 +160,8 @@ public class Table
      */
     public String setOccupant (int position, Name username, int bodyOid)
     {
-        // find out how many positions we have for occupation
-        int maxpos = _tconfig.getDesiredPlayers();
-        // if there is no desired number of players, use the max
-        if (maxpos == -1) {
-            maxpos = _tconfig.getMaximumPlayers();
-        }
-
         // make sure the requested position is a valid one
-        if (position >= maxpos || position < 0) {
+        if (position >= tconfig.desiredPlayerCount || position < 0) {
             return INVALID_TABLE_POSITION;
         }
 
@@ -245,8 +230,11 @@ public class Table
      */
     public boolean mayBeStarted ()
     {
+        // TODO: this becomes more meaningful if we implement games
+        // that can optionally be started with less than the desired number
+
         // make sure at least the minimum number of players are here
-        int want = _tconfig.getMinimumPlayers(), have = 0;
+        int want = tconfig.desiredPlayerCount, have = 0;
         for (int i = 0; i < occupants.length; i++) {
             if (occupants[i] != null) {
                 if (++have == want) {
@@ -263,10 +251,7 @@ public class Table
      */
     public boolean shouldBeStarted ()
     {
-        int need = _tconfig.getDesiredPlayers();
-        if (need == -1) {
-            need = _tconfig.getMaximumPlayers();
-        }
+        int need = tconfig.desiredPlayerCount;
         for (int i = 0; i < occupants.length; i++) {
             if (occupants[i] != null && --need == 0) {
                 return true;
@@ -328,9 +313,6 @@ public class Table
             ", bodyOids=" + StringUtil.toString(bodyOids) +
             ", config=" + config + "]";
     }
-
-    /** A casted reference of our game config object. */
-    protected transient TableConfig _tconfig;
 
     /** A counter for assigning table ids. */
     protected static int _tableIdCounter = 0;

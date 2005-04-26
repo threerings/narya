@@ -37,6 +37,7 @@ import com.threerings.parlor.Log;
 import com.threerings.parlor.client.ParlorService.InviteListener;
 import com.threerings.parlor.client.ParlorService.TableListener;
 import com.threerings.parlor.data.ParlorCodes;
+import com.threerings.parlor.data.TableConfig;
 import com.threerings.parlor.game.data.GameConfig;
 import com.threerings.parlor.game.server.GameManager;
 
@@ -113,7 +114,7 @@ public class ParlorProvider
      * Processes a request from the client to create a new table.
      */
     public void createTable (ClientObject caller, int lobbyOid,
-                             GameConfig config, TableListener listener)
+            TableConfig tableConfig, GameConfig config, TableListener listener)
         throws InvocationException
     {
         Log.info("Handling create table request [caller=" + caller.who() +
@@ -121,7 +122,7 @@ public class ParlorProvider
 
         // pass the creation request on to the table manager
         TableManager tmgr = getTableManager(lobbyOid);
-        int tableId = tmgr.createTable((BodyObject)caller, config);
+        int tableId = tmgr.createTable((BodyObject)caller, tableConfig, config);
         listener.tableCreated(tableId);
     }
 

@@ -36,6 +36,7 @@ import com.threerings.crowd.data.PlaceObject;
 
 import com.threerings.parlor.Log;
 import com.threerings.parlor.data.Table;
+import com.threerings.parlor.data.TableConfig;
 import com.threerings.parlor.data.TableLobbyObject;
 import com.threerings.parlor.game.data.GameConfig;
 import com.threerings.parlor.util.ParlorContext;
@@ -146,7 +147,7 @@ public class TableDirector extends BasicDirector
      * will be added to the first position in the table. The response will
      * be communicated via the {@link TableObserver} interface.
      */
-    public void createTable (GameConfig config)
+    public void createTable (TableConfig tableConfig, GameConfig config)
     {
         // if we're already in a table, refuse the request
         if (_ourTable != null) {
@@ -163,7 +164,8 @@ public class TableDirector extends BasicDirector
         }
 
         // go ahead and issue the create request
-        _pservice.createTable(_ctx.getClient(), _lobby.getOid(), config, this);
+        _pservice.createTable(_ctx.getClient(), _lobby.getOid(), tableConfig,
+            config, this);
     }
 
     /**

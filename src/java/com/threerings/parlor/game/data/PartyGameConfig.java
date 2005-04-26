@@ -21,12 +21,10 @@
 
 package com.threerings.parlor.game.data;
 
-import com.threerings.parlor.data.TableConfig;
-
 /**
  * Provides additional information for party games.
  */
-public interface PartyGameConfig extends TableConfig
+public interface PartyGameConfig
 {
     /**
      * Returns true if this party game is being played in party game mode,

@@ -26,6 +26,8 @@ import com.threerings.util.Name;
 import com.threerings.presents.client.Client;
 import com.threerings.presents.client.InvocationService;
 
+import com.threerings.parlor.data.TableConfig;
+
 import com.threerings.parlor.game.data.GameConfig;
 
 /**
@@ -115,12 +117,13 @@ public interface ParlorService extends InvocationService
      * @param client a connected, operational client instance.
      * @param lobbyOid the oid of the lobby that will contain the newly
      * created table.
+     * @param tableConfig the table configuration parameters.
      * @param config the game config for the game to be matchmade by the
      * table.
      * @param listener will receive and process the response.
      */
-    public void createTable (Client client, int lobbyOid, GameConfig config,
-                             TableListener listener);
+    public void createTable (Client client, int lobbyOid,
+            TableConfig tableConfig, GameConfig config, TableListener listener);
 
     /**
      * You probably don't want to call this directly, but want to call

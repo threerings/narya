@@ -23,6 +23,7 @@ package com.threerings.parlor.server;
 
 import com.threerings.parlor.client.ParlorService;
 import com.threerings.parlor.data.ParlorMarshaller;
+import com.threerings.parlor.data.TableConfig;
 import com.threerings.parlor.game.data.GameConfig;
 import com.threerings.presents.client.Client;
 import com.threerings.presents.client.InvocationService;
@@ -68,7 +69,7 @@ public class ParlorDispatcher extends InvocationDispatcher
         case ParlorMarshaller.CREATE_TABLE:
             ((ParlorProvider)provider).createTable(
                 source,
-                ((Integer)args[0]).intValue(), (GameConfig)args[1], (ParlorService.TableListener)args[2]
+                ((Integer)args[0]).intValue(), (TableConfig)args[1], (GameConfig)args[2], (ParlorService.TableListener)args[3]
             );
             return;
 

@@ -22,6 +22,7 @@
 package com.threerings.parlor.data;
 
 import com.threerings.parlor.client.ParlorService;
+import com.threerings.parlor.data.TableConfig;
 import com.threerings.parlor.game.data.GameConfig;
 import com.threerings.presents.client.Client;
 import com.threerings.presents.client.InvocationService;
@@ -118,12 +119,12 @@ public class ParlorMarshaller extends InvocationMarshaller
     public static final int CREATE_TABLE = 2;
 
     // documentation inherited from interface
-    public void createTable (Client arg1, int arg2, GameConfig arg3, ParlorService.TableListener arg4)
+    public void createTable (Client arg1, int arg2, TableConfig arg3, GameConfig arg4, ParlorService.TableListener arg5)
     {
-        ParlorMarshaller.TableMarshaller listener4 = new ParlorMarshaller.TableMarshaller();
-        listener4.listener = arg4;
+        ParlorMarshaller.TableMarshaller listener5 = new ParlorMarshaller.TableMarshaller();
+        listener5.listener = arg5;
         sendRequest(arg1, CREATE_TABLE, new Object[] {
-            new Integer(arg2), arg3, listener4
+            new Integer(arg2), arg3, arg4, listener5
         });
     }
 

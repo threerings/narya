@@ -21,6 +21,7 @@
 
 package com.threerings.micasa.lobby.table;
 
+import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.Iterator;
@@ -44,7 +45,9 @@ import com.threerings.parlor.client.SeatednessObserver;
 import com.threerings.parlor.client.TableDirector;
 import com.threerings.parlor.client.TableObserver;
 import com.threerings.parlor.data.Table;
+import com.threerings.parlor.data.TableConfigurator;
 import com.threerings.parlor.game.data.GameConfig;
+import com.threerings.parlor.game.data.TableableGameConfig;
 
 import com.threerings.crowd.client.PlaceView;
 import com.threerings.crowd.data.PlaceObject;
@@ -97,6 +100,10 @@ public class TableListView extends JPanel
         GameConfig gconfig = null;
         try {
             gconfig = config.getGameConfig();
+            _tableFigger =
+                ((TableableGameConfig) gconfig).createTableConfigurator(_ctx);
+            panel.add((Component) _tableFigger, VGroupLayout.FIXED);
+
             _figger = gconfig.createConfigurator();
             if (_figger != null) {
                 _figger.init(_ctx);
@@ -222,7 +229,8 @@ public class TableListView extends JPanel
     {
         // the create table button was clicked. use the game config as
         // configured by the configurator to create a table
-        _tdtr.createTable(_figger.getGameConfig());
+        _tdtr.createTable(_tableFigger.getTableConfig(),
+                          _figger.getGameConfig());
     }
 
     // documentation inherited
@@ -276,7 +284,10 @@ public class TableListView extends JPanel
     /** The list of tables that are in play. */
     protected JPanel _playList;
 
-    /** The interface used to configure a table before creating it. */
+    /** The interface used to configure the table for a game. */
+    protected TableConfigurator _tableFigger;
+
+    /** The interface used to configure a game before creating it. */
     protected GameConfigurator _figger;
 
     /** Our create table button. */

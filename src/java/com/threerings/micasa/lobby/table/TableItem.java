@@ -1,5 +1,5 @@
 //
-// $Id: TableItem.java,v 1.5 2004/08/27 02:12:51 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -41,7 +41,6 @@ import com.threerings.crowd.data.BodyObject;
 import com.threerings.parlor.client.TableDirector;
 import com.threerings.parlor.client.SeatednessObserver;
 import com.threerings.parlor.data.Table;
-import com.threerings.parlor.data.TableConfig;
 
 import com.threerings.micasa.Log;
 import com.threerings.micasa.util.MiCasaContext;
@@ -73,9 +72,6 @@ public class TableItem
         // figure out who we are
         _self = ((BodyObject)ctx.getClient().getClientObject()).username;
 
-        // grab the table config reference
-        _tconfig = (TableConfig)table.config;
-
         // now create our user interface
     	setBorder(BorderFactory.createLineBorder(Color.black));
         setLayout(new GridBagLayout());
@@ -88,10 +84,7 @@ public class TableItem
         add(tlabel, gbc);
 
         // we have one button for every "seat" at the table
-        int bcount = _tconfig.getDesiredPlayers();
-        if (bcount == -1) {
-            bcount = _tconfig.getMaximumPlayers();
-        }
+        int bcount = table.occupants.length;
 
         // create blank buttons for now and then we'll update everything
         // with the current state when we're done
@@ -242,9 +235,6 @@ public class TableItem
 
     /** A reference to our table director. */
     protected TableDirector _tdtr;
-
-    /** A casted reference to our table config object. */
-    protected TableConfig _tconfig;
 
     /** We have a button for each "seat" at the table. */
     protected JButton[] _seats;

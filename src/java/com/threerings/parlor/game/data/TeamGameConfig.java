@@ -26,7 +26,7 @@ import com.threerings.parlor.data.TableConfig;
 /**
  * Provides additional information for games with teams.
  */
-public interface TeamGameConfig extends TableConfig
+public interface TeamGameConfig
 {
     /**
      * Returns the members of each team.  For instance, a game with three
