@@ -365,6 +365,9 @@ public abstract class CardPanel extends VirtualMediaPanel
             addSprite(cs);
             cs.fadeIn(i * cardDuration, cardDuration);
         }
+        
+        // make sure we have the right card sprite active
+        updateActiveCardSprite();
     }
     
     /**
@@ -746,6 +749,9 @@ public abstract class CardPanel extends VirtualMediaPanel
      */
     protected void updateHandOffsets ()
     {
+        // make active card sprite is up-to-date
+        updateActiveCardSprite();
+        
         int size = _handSprites.size();
         for (int i = 0; i < size; i++) {
             CardSprite cs = (CardSprite)_handSprites.get(i);
@@ -871,15 +877,6 @@ public abstract class CardPanel extends VirtualMediaPanel
         }
     }
     
-    // Documentation inherited.
-    protected void didTick (long tickStamp)
-    {
-        super.didTick(tickStamp);
-        
-        // update active card sprite
-        updateActiveCardSprite();
-    }
-    
     /**
      * Updates the active card sprite based on the location of the mouse
      * pointer.
@@ -974,6 +971,7 @@ public abstract class CardPanel extends VirtualMediaPanel
     {
         public void pathCompleted (Sprite sprite, Path path, long when)
         {
+            updateActiveCardSprite();
             maybeUpdateOffset((CardSprite)sprite);
         }
         
