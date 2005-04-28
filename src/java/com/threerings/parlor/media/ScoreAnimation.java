@@ -1,5 +1,5 @@
 //
-// $Id$
+// $Id: ScoreAnimation.java 3479 2005-04-13 19:06:33Z mdb $
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -19,13 +19,22 @@
 // License along with this library; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 
-package com.threerings.puzzle.client;
+package com.threerings.parlor.media;
+
+import java.awt.Color;
+import java.awt.Font;
 
 import com.samskivert.swing.Label;
+
+import com.threerings.media.MediaPanel;
 import com.threerings.media.animation.FloatingTextAnimation;
 
 public class ScoreAnimation extends FloatingTextAnimation
 {
+    { // initializer, run automatically with every constructor
+        setRenderOrder(Integer.MAX_VALUE);
+    }
+
     /**
      * Constructs a score animation for the given score value centered at
      * the given coordinates.
@@ -54,5 +63,24 @@ public class ScoreAnimation extends FloatingTextAnimation
                            int destx, int desty, long floatPeriod)
     {
         super(label, sx, sy, destx, desty, floatPeriod);
+    }
+
+    /**
+     * Create and configure a Label suitable for a ScoreAnimation with
+     * all the most common options.
+     */
+    public static Label createLabel (String score, Color c, Font font,
+                                     MediaPanel host)
+    {
+        Label label = new Label(score);
+        label.setTargetWidth(host.getWidth());
+        label.setStyle(Label.OUTLINE);
+        label.setTextColor(c);
+        label.setAlternateColor(Color.BLACK);
+        label.setFont(font);
+        label.setAlignment(Label.CENTER);
+        label.layout(host);
+
+        return label;
     }
 }

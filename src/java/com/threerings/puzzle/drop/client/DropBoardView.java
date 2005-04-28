@@ -23,6 +23,7 @@ package com.threerings.puzzle.drop.client;
 
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.Rectangle;
@@ -36,9 +37,10 @@ import com.threerings.media.sprite.Sprite;
 import com.threerings.media.util.LinePath;
 import com.threerings.media.util.Path;
 
+import com.threerings.parlor.media.ScoreAnimation;
+
 import com.threerings.puzzle.Log;
 import com.threerings.puzzle.client.PuzzleBoardView;
-import com.threerings.puzzle.client.ScoreAnimation;
 import com.threerings.puzzle.data.Board;
 import com.threerings.puzzle.data.PuzzleConfig;
 import com.threerings.puzzle.util.PuzzleContext;
@@ -425,34 +427,19 @@ public abstract class DropBoardView extends PuzzleBoardView
     }
 
     /**
-     * Creates and returns an animation which makes use of a label sprite
-     * that is assigned a path that floats it a short distance up the
-     * view, with the label initially centered within the view.
-     *
-     * @param score the score text to display.
-     * @param color the color of the text.
-     */
-    public ScoreAnimation createScoreAnimation (String score, Color color)
-    {
-        return createScoreAnimation(
-            score, color, MEDIUM_FONT_SIZE, 0, _bhei - 1, _bwid, _bhei);
-    }
-
-    /**
      * Creates and returns an animation showing the specified score
      * floating up the view, with the label initially centered within the
      * view.
      *
      * @param score the score text to display.
      * @param color the color of the text.
-     * @param fontSize the size of the text; a value between 0 and {@link
-     * #FONT_SIZES}.length - 1.
+     * @param font the font.
      */
     public ScoreAnimation createScoreAnimation (
-        String score, Color color, int fontSize)
+        String score, Color color, Font font)
     {
         return createScoreAnimation(
-            score, color, fontSize, 0, _bhei - 1, _bwid, _bhei);
+            score, color, font, 0, _bhei - 1, _bwid, _bhei);
     }
 
     /**
@@ -461,30 +448,7 @@ public abstract class DropBoardView extends PuzzleBoardView
      *
      * @param score the score text to display.
      * @param color the color of the text.
-     * @param x the left coordinate in board coordinates of the rectangle
-     * within which the score is to be centered.
-     * @param y the bottom coordinate in board coordinates of the
-     * rectangle within which the score is to be centered.
-     * @param width the width in board coordinates of the rectangle within
-     * which the score is to be centered.
-     * @param height the height in board coordinates of the rectangle
-     * within which the score is to be centered.
-     */
-    public ScoreAnimation createScoreAnimation (
-        String score, Color color, int x, int y, int width, int height)
-    {
-        return createScoreAnimation(
-            score, color, MEDIUM_FONT_SIZE, x, y, width, height);
-    }
-
-    /**
-     * Creates and returns an animation showing the specified score
-     * floating up the view.
-     *
-     * @param score the score text to display.
-     * @param color the color of the text.
-     * @param fontSize the size of the text; a value between 0 and {@link
-     * #FONT_SIZES}.length - 1.
+     * @param font the font to use.
      * @param x the left coordinate in board coordinates of the rectangle
      * within which the score is to be centered.
      * @param y the bottom coordinate in board coordinates of the
@@ -495,12 +459,12 @@ public abstract class DropBoardView extends PuzzleBoardView
      * within which the score is to be centered.
      */
     public ScoreAnimation createScoreAnimation (String score, Color color,
-                                                int fontSize, int x, int y,
+                                                Font font, int x, int y,
                                                 int width, int height)
     {
         // create the score animation
         ScoreAnimation anim =
-            createScoreAnimation(score, color, fontSize, x, y);
+            createScoreAnimation(score, color, font, x, y);
 
         // position the label within the specified rectangle
         Dimension lsize = anim.getLabel().getSize();

@@ -33,7 +33,6 @@ import javax.swing.UIManager;
 
 import com.samskivert.swing.Label;
 import com.samskivert.swing.util.SwingUtil;
-import com.samskivert.util.RunAnywhere;
 import com.samskivert.util.StringUtil;
 
 import com.threerings.media.VirtualMediaPanel;
@@ -41,6 +40,8 @@ import com.threerings.media.animation.Animation;
 import com.threerings.media.animation.AnimationAdapter;
 import com.threerings.media.image.Mirage;
 import com.threerings.media.sprite.Sprite;
+
+import com.threerings.parlor.media.ScoreAnimation;
 
 import com.threerings.puzzle.Log;
 import com.threerings.puzzle.data.Board;
@@ -103,6 +104,8 @@ public abstract class PuzzleBoardView extends VirtualMediaPanel
 
     /**
      * Set whether this puzzle is paused or not.
+     * If paused, a label will be displayed with the component's font,
+     * which may be set with setFont().
      */
     public void setPaused (boolean paused)
     {
@@ -110,9 +113,10 @@ public abstract class PuzzleBoardView extends VirtualMediaPanel
             String pmsg = _pctrl.getPauseString();
             pmsg = _ctx.getMessageManager().getBundle(
                 PuzzleCodes.PUZZLE_MESSAGE_BUNDLE).xlate(pmsg);
+            // create a label using our component's standard font
             _pauseLabel = new Label(pmsg, Label.BOLD | Label.OUTLINE,
                                     Color.WHITE, Color.BLACK,
-                                    _fonts[getPauseFont()]);
+                                    getFont());
             _pauseLabel.setTargetWidth(_bounds.width);
             _pauseLabel.layout(this);
         } else {
@@ -259,28 +263,15 @@ public abstract class PuzzleBoardView extends VirtualMediaPanel
      *
      * @param score the score text to display.
      * @param color the color of the text.
-     * @param fontSize the size of the text; a value between 0 and {@link
-     * #getPuzzleFontCount} - 1.
+     * @param font the font whith which to create the score animation.
      * @param x the x-position at which the score is to be placed.
      * @param y the y-position at which the score is to be placed.
      */
     public ScoreAnimation createScoreAnimation (
-        String score, Color color, int fontSize, int x, int y)
+        String score, Color color, Font font, int x, int y)
     {
-        // create and configure the label
-        Label label = new Label(score);
-        label.setTargetWidth(_bounds.width);
-        label.setStyle(Label.OUTLINE);
-        label.setTextColor(color);
-        label.setAlternateColor(Color.black);
-        label.setFont(getPuzzleFont(fontSize));
-        label.setAlignment(Label.CENTER);
-        label.layout(this);
-
-        // create the score animation
-        ScoreAnimation anim = createScoreAnimation(label, x, y);
-        anim.setRenderOrder(getScoreRenderOrder());
-        return anim;
+        return createScoreAnimation(
+            ScoreAnimation.createLabel(score, color, font, this), x, y);
     }
 
     /**
@@ -291,59 +282,6 @@ public abstract class PuzzleBoardView extends VirtualMediaPanel
     protected ScoreAnimation createScoreAnimation (Label label, int x, int y)
     {
         return new ScoreAnimation(label, x, y);
-    }
-
-    /**
-     * Returns the render order to be assigned to score animations by
-     * default.  Derived classes may wish to override this method to
-     * change the default render order.
-     *
-     * @see #createScoreAnimation
-     */
-    protected int getScoreRenderOrder ()
-    {
-        return 1;
-    }
-
-    /**
-     * Returns the puzzle font to be used for the specified score.
-     */
-    public int getFont (String why, int score, int maxScore)
-    {
-        int fontSize = (int)(score*getPuzzleFontCount()/maxScore);
-        fontSize = Math.min(FONT_SIZES.length-1, fontSize);
-//         Log.info("Font for " + why + " (" + score + " of " + maxScore +
-//                  ") => " + fontSize + ".");
-        return fontSize;
-    }
-
-    /**
-     * Returns the puzzle font to use for the pause message.
-     */
-    public int getPauseFont ()
-    {
-        return FONT_SIZES.length - 2;
-    }
-    
-    /**
-     * Returns the number of different puzzle font sizes so that those who
-     * care to choose a font size out of the range of possible sizes can
-     * do so gracefully.
-     */
-    public int getPuzzleFontCount ()
-    {
-        return FONT_SIZES.length;
-    }
-
-    /**
-     * Returns the puzzle font of the specified size.
-     *
-     * @param size the desired font size; a value between 0 and {@link
-     * #getPuzzleFontCount} - 1.
-     */
-    public static Font getPuzzleFont (int size)
-    {
-        return _fonts[size];
     }
 
     /**
@@ -483,9 +421,6 @@ public abstract class PuzzleBoardView extends VirtualMediaPanel
         }
     };
 
-    /** The puzzle fonts. */
-    protected static Font[] _fonts;
-
     /** Temporary action debugging. */
     protected static boolean DEBUG_ACTION = false;
 
@@ -496,33 +431,4 @@ public abstract class PuzzleBoardView extends VirtualMediaPanel
 
     /** The default vertical distance to float score animations. */
     protected static final int DEFAULT_SCORE_DISTANCE = 30;
-
-    /** The mid-sized font used as the default size for score
-     * animations. */
-    protected static final int MEDIUM_FONT_SIZE = 1;
-
-    /** The puzzle font sizes. */
-    protected static final double[] FONT_SIZES = {
-        24d, 30d, 36d, 42d, 52d, 68d };
-
-    static {
-        // create the puzzle fonts
-        Font ofont = UIManager.getFont("Label.serifFont");
-        if (ofont == null) {
-            ofont = new Font("Helvetica", Font.PLAIN, 16);
-        }
-        ofont = ofont.deriveFont((float)FONT_SIZES[0]);
-        _fonts = new Font[FONT_SIZES.length];
-        for (int ii = 0; ii < _fonts.length; ii++) {
-            double scale = FONT_SIZES[ii]/FONT_SIZES[0];
-            // MacOS X Java currently doesn't dig scaling fonts with
-            // affine transformations
-            if (RunAnywhere.isMacOS()) {
-                _fonts[ii] = ofont.deriveFont((float)FONT_SIZES[ii]);
-            } else {
-                _fonts[ii] = ofont.deriveFont(
-                    AffineTransform.getScaleInstance(scale * 1.1d, scale));
-            }
-        }
-    }
 }
