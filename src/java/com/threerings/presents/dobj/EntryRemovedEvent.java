@@ -1,5 +1,5 @@
 //
-// $Id: EntryRemovedEvent.java,v 1.17 2004/08/27 02:20:20 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -20,6 +20,8 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 
 package com.threerings.presents.dobj;
+
+import com.threerings.presents.Log;
 
 /**
  * An entry removed event is dispatched when an entry is removed from a
@@ -82,10 +84,14 @@ public class EntryRemovedEvent extends NamedEvent
     {
         if (_oldEntry == UNSET_OLD_ENTRY) {
             DSet set = (DSet)target.getAttribute(_name);
-            // fetch the previous value for interested callers
-            _oldEntry = set.get(_key);
-            // remove it from the set
-            set.removeKey(_key);
+            // remove, fetch the previous value for interested callers
+            _oldEntry = set.removeKey(_key);
+            if (_oldEntry == null) {
+                // complain if there was actually nothing there
+                Log.warning("No matching entry to remove [key=" + _key +
+                            ", set=" + set + "].");
+                return false;
+            }
         }
         return true;
     }

@@ -1,5 +1,5 @@
 //
-// $Id: EntryUpdatedEvent.java,v 1.13 2004/08/27 02:20:20 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -87,10 +87,8 @@ public class EntryUpdatedEvent extends NamedEvent
         if (_oldEntry == UNSET_OLD_ENTRY) {
             DSet set = (DSet)target.getAttribute(_name);
             // fetch the previous value for interested callers
-            _oldEntry = set.get(_entry.getKey());
-
-            // update the entry
-            if (!set.update(_entry)) {
+            _oldEntry = set.update(_entry);
+            if (_oldEntry == null) {
                 // complain if we didn't update anything
                 Log.warning("No matching entry to update [entry=" + this +
                             ", set=" + set + "].");

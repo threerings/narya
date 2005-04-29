@@ -295,7 +295,7 @@ public class DSet
      */
     protected boolean remove (Entry elem)
     {
-        return removeKey(elem.getKey());
+        return (null != removeKey(elem.getKey()));
     }
 
     /**
@@ -304,10 +304,10 @@ public class DSet
      * <code>removeFrom{Set}()</code> method should be called on the
      * distributed object that contains the set in question.
      *
-     * @return true if a matching entry was removed, false if no entry
-     * in the set matched the key.
+     * @return the old matching entry if found and removed, null if not
+     * found.
      */
-    protected boolean removeKey (Object key)
+    protected Entry removeKey (Object key)
     {
         // look up this entry's position in our set
         int eidx = ArrayUtil.binarySearch(
@@ -316,13 +316,14 @@ public class DSet
         // if we found it, remove it
         if (eidx >= 0) {
             // shift the remaining elements down
+            Entry oldEntry = _entries[eidx];
             System.arraycopy(_entries, eidx+1, _entries, eidx, _size-eidx-1);
             _entries[--_size] = null;
             _modCount++;
-            return true;
+            return oldEntry;
 
         } else {
-            return false;
+            return null;
         }
     }
 
@@ -333,10 +334,10 @@ public class DSet
      * <code>update{Set}()</code> method should be called on the
      * distributed object that contains the set in question.
      *
-     * @return true if the entry was updated, false if it was not
-     * already in the set (in which case nothing is updated).
+     * @return the old entry that was replaced, or null if it was not
+     * found (in which case nothing is updated).
      */
-    protected boolean update (Entry elem)
+    protected Entry update (Entry elem)
     {
         // look up this entry's position in our set
         int eidx = ArrayUtil.binarySearch(
@@ -344,11 +345,12 @@ public class DSet
 
         // if we found it, update it
         if (eidx >= 0) {
+            Entry oldEntry = _entries[eidx];
             _entries[eidx] = elem;
             _modCount++;
-            return true;
+            return oldEntry;
         } else {
-            return false;
+            return null;
         }
     }
 

@@ -866,8 +866,10 @@ public class DObject extends TrackedObject
         // if we're on the authoritative server, we update the set immediately
         DSet.Entry oldEntry = null;
         if (_omgr != null && _omgr.isManager(this)) {
-            oldEntry = set.get(key);
-            set.removeKey(key);
+            oldEntry = set.removeKey(key);
+            if (oldEntry == null) {
+                Thread.dumpStack();
+            }
         }
         // dispatch an entry removed event
         postEvent(new EntryRemovedEvent(_oid, name, key, oldEntry));
@@ -881,8 +883,10 @@ public class DObject extends TrackedObject
         // if we're on the authoritative server, we update the set immediately
         DSet.Entry oldEntry = null;
         if (_omgr != null && _omgr.isManager(this)) {
-            oldEntry = set.get(entry.getKey());
-            set.update(entry);
+            oldEntry = set.update(entry);
+            if (oldEntry == null) {
+                Thread.dumpStack();
+            }
         }
         // dispatch an entry updated event
         postEvent(new EntryUpdatedEvent(_oid, name, entry, oldEntry));

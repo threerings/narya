@@ -84,7 +84,10 @@ public class EntryAddedEvent extends NamedEvent
         throws ObjectAccessException
     {
         if (!_alreadyApplied) {
-            ((DSet)target.getAttribute(_name)).add(_entry);
+            boolean added = ((DSet)target.getAttribute(_name)).add(_entry);
+            if (!added) {
+                Log.warning("Duplicate entry found [event=" + this + "].");
+            }
         }
         return true;
     }
