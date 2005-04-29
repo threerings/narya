@@ -203,6 +203,9 @@
       <fileset dir="${classes.dir}" includes="com/threerings/stage/**"/>
       <fileset dir="${classes.dir}" includes="rsrc/media/stage/**"/>
     </jar>
+    <jar destfile="${deploy.dir}/${app.name}-jme.jar">
+      <fileset dir="${classes.dir}" includes="com/threerings/jme/**"/>
+    </jar>
   </target>
 
   <!-- generate a class hierarchy diagram -->

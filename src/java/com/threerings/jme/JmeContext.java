@@ -25,8 +25,7 @@ import com.jme.input.InputHandler;
 import com.jme.renderer.Renderer;
 import com.jme.scene.Node;
 
-import com.jme.ui.UIColorScheme;
-import com.jme.ui.UIFonts;
+import com.jme.bui.event.InputDispatcher;
 
 /**
  * Provides access to the various bits needed by things that operate in
@@ -40,15 +39,12 @@ public interface JmeContext
     /** Returns the root of our scene graph. */
     public Node getRoot ();
 
-    /** Returns our main (unbuffered) input handler. */
-    public InputHandler getInputHandler ();
+//     /** Returns our main (unbuffered) input handler. */
+//     public InputHandler getInputHandler ();
 
-    /** Returns our buffered input handler. */
-    public InputHandler getBufferedInputHandler ();
+//     /** Returns our buffered input handler. */
+//     public InputHandler getBufferedInputHandler ();
 
-    /** Returns the color scheme to be used by UI elements. */
-    public UIColorScheme getColorScheme ();
-
-    /** Returns our font collection. */
-    public UIFonts getFonts ();
+    /** Returns our main input dispatcher. */
+    public InputDispatcher getInputDispatcher ();
 }

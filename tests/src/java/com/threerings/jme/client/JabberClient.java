@@ -21,11 +21,10 @@
 
 package com.threerings.jme.client;
 
+import com.jme.bui.event.InputDispatcher;
 import com.jme.input.InputHandler;
 import com.jme.renderer.Renderer;
 import com.jme.scene.Node;
-import com.jme.ui.UIColorScheme;
-import com.jme.ui.UIFonts;
 
 import com.samskivert.util.Config;
 import com.threerings.util.MessageManager;
@@ -186,20 +185,16 @@ public class JabberClient
             return _app.getContext().getRoot();
         }
 
-        public InputHandler getInputHandler () {
-            return _app.getContext().getInputHandler();
-        }
+//         public InputHandler getInputHandler () {
+//             return _app.getContext().getInputHandler();
+//         }
 
-        public InputHandler getBufferedInputHandler () {
-            return _app.getContext().getBufferedInputHandler();
-        }
+//         public InputHandler getBufferedInputHandler () {
+//             return _app.getContext().getBufferedInputHandler();
+//         }
 
-        public UIColorScheme getColorScheme () {
-            return _app.getContext().getColorScheme();
-        }
-
-        public UIFonts getFonts () {
-            return _app.getContext().getFonts();
+        public InputDispatcher getInputDispatcher () {
+            return _app.getContext().getInputDispatcher();
         }
     }
 

@@ -21,6 +21,12 @@
 
 package com.threerings.jme.client;
 
+import com.jme.bounding.BoundingBox;
+import com.jme.math.FastMath;
+import com.jme.math.Matrix3f;
+import com.jme.math.Vector3f;
+import com.jme.renderer.ColorRGBA;
+import com.jme.scene.shape.Box;
 import com.jme.util.LoggingSystem;
 
 import com.threerings.util.Name;
@@ -46,6 +52,35 @@ public class JabberApp extends JmeApp
         // initialize our client instance
         _client = new JabberClient();
         _client.init(this);
+
+        // add some simple geometry for kicks
+        Vector3f max = new Vector3f(15, 15, 15);
+        Vector3f min = new Vector3f(5, 5, 5);
+
+        Box t = new Box("Box", min, max);
+        t.setModelBound(new BoundingBox());
+        t.updateModelBound();
+        t.setLocalTranslation(new Vector3f(0, 0, -15));
+        ColorRGBA[] colors = new ColorRGBA[24];
+        for (int i = 0; i < 24; i++) {
+            colors[i] = ColorRGBA.randomColor();
+        }
+        t.setColors(colors);
+        _root.attachChild(t);
+        _root.updateRenderState();
+
+        // set up the camera
+        Vector3f loc = new Vector3f(0, -200, 200);
+        _camera.setLocation(loc);
+        Matrix3f rotm = new Matrix3f();
+        rotm.fromAngleAxis(-FastMath.PI/5, _camera.getLeft());
+        rotm.mult(_camera.getDirection(), _camera.getDirection());
+        rotm.mult(_camera.getUp(), _camera.getUp());
+        rotm.mult(_camera.getLeft(), _camera.getLeft());
+        _camera.update();
+
+        // speed up key input
+        _input.setKeySpeed(100f);
     }
 
     public void run (String server, int port, String username, String password)

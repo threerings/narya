@@ -40,9 +40,7 @@ import com.jme.system.JmeException;
 import com.jme.system.PropertiesIO;
 import com.jme.system.lwjgl.LWJGLPropertiesDialog;
 
-import com.jme.ui.UIFonts;
-import com.jme.ui.UIColorScheme;
-
+import com.jme.bui.event.InputDispatcher;
 import com.jme.input.InputHandler;
 import com.jme.input.InputSystem;
 
@@ -244,14 +242,16 @@ public class JmeApp
     protected void initInput ()
     {
         _input = new GodViewHandler(this, _camera, _properties.getRenderer());
-        _bufferedInput = new InputHandler();
 
-        // we don't hide the cursor
-        InputSystem.getMouseInput().setCursorVisible(true);
         HardwareMouse mouse = new HardwareMouse("Mouse");
         mouse.setMouseInput(InputSystem.getMouseInput());
         _input.setMouse(mouse);
-        _bufferedInput.setMouse(mouse);
+
+        InputSystem.createInputSystem(_properties.getRenderer());
+        _dispatcher = new InputDispatcher(_timer, _input);
+
+        // we don't hide the cursor
+        InputSystem.getMouseInput().setCursorVisible(true);
     }
 
     /**
@@ -280,7 +280,8 @@ public class JmeApp
         light.setEnabled(true);
 
         _lights = _display.getRenderer().createLightState();
-        _lights.setEnabled(true);
+        // _lights.setEnabled(true);
+        _lights.setEnabled(false);
         _lights.attach(light);
         _root.setRenderState(_lights);
     }
@@ -290,10 +291,6 @@ public class JmeApp
      */
     protected void initInterface ()
     {
-        String[] names = { "main" };
-        String[] locs = { StatsDisplay.DEFAULT_JME_FONT };
-        _fonts = new UIFonts(names, locs);
-        _colorScheme = new UIColorScheme();
     }
 
     /**
@@ -338,8 +335,7 @@ public class JmeApp
 
         // update the input system
         float timePerFrame = _timer.getTimePerFrame();
-        _input.update(timePerFrame);
-        _bufferedInput.update(timePerFrame);
+        _dispatcher.update(timePerFrame);
 
         // run all of the controllers attached to nodes
         _root.updateGeometricState(timePerFrame, true);
@@ -440,16 +436,8 @@ public class JmeApp
             return _input;
         }
 
-        public InputHandler getBufferedInputHandler () {
-            return _bufferedInput;
-        }
-
-        public UIColorScheme getColorScheme () {
-            return _colorScheme;
-        }
-
-        public UIFonts getFonts () {
-            return _fonts;
+        public InputDispatcher getInputDispatcher () {
+            return _dispatcher;
         }
     };
 
@@ -460,8 +448,9 @@ public class JmeApp
     protected PropertiesIO _properties;
     protected DisplaySystem _display;
     protected Camera _camera;
+
     protected InputHandler _input;
-    protected InputHandler _bufferedInput;
+    protected InputDispatcher _dispatcher;
 
     protected long _targetFrameTicks;
     protected boolean _finished;
@@ -470,9 +459,6 @@ public class JmeApp
     protected Node _root;
     protected LightState _lights;
     protected StatsDisplay _stats;
-
-    protected UIColorScheme _colorScheme;
-    protected UIFonts _fonts;
 
     /** If we fail 100 frames in a row, stick a fork in ourselves. */
     protected static final int MAX_SUCCESSIVE_FAILURES = 100;
