@@ -31,6 +31,7 @@ import com.threerings.util.Name;
 import com.threerings.util.RandomUtil;
 
 import com.threerings.presents.data.ClientObject;
+import com.threerings.presents.dobj.DObject;
 import com.threerings.presents.server.InvocationException;
 import com.threerings.presents.server.PresentsServer;
 
@@ -286,24 +287,29 @@ public class TrickCardGameManagerDelegate extends TurnGameManagerDelegate
      */
     protected void playCard (int pidx, Card card)
     {
-        // play the card by removing it from the hand and adding it to the end
-        // of the cards played array
-        _hands[pidx].remove(card);
-        PlayerCard[] cards = (PlayerCard[])ArrayUtil.append(
-            _trickCardGame.getCardsPlayed(), new PlayerCard(pidx, card));
-        _trickCardGame.setCardsPlayed(cards);
-        
-        // end the user's turn
-        endTurn();
-        
-        // end the trick if everyone has played a card
-        if (_turnIdx == -1) {
-            if (_endTrickDelay == 0) {
-                endTrick();
-                
-            } else {
-                _endTrickInterval.schedule(_endTrickDelay);
+        ((DObject) _trickCardGame).startTransaction();
+        try {
+            // play the card by removing it from the hand and adding it
+            // to the end of the cards played array
+            _hands[pidx].remove(card);
+            PlayerCard[] cards = (PlayerCard[])ArrayUtil.append(
+                _trickCardGame.getCardsPlayed(), new PlayerCard(pidx, card));
+            _trickCardGame.setCardsPlayed(cards);
+            
+            // end the user's turn
+            endTurn();
+            
+            // end the trick if everyone has played a card
+            if (_turnIdx == -1) {
+                if (_endTrickDelay == 0) {
+                    endTrick();
+                    
+                } else {
+                    _endTrickInterval.schedule(_endTrickDelay);
+                }
             }
+        } finally {
+            ((DObject) _trickCardGame).commitTransaction();
         }
     }
     
