@@ -53,8 +53,8 @@ public class ChatView extends BContainer
     {
         _chatdtr = chatdtr;
         setLayoutManager(new BorderLayout(2, 2));
-        addChild(_text = new BTextArea(), BorderLayout.CENTER);
-        addChild(_input = new BTextField(), BorderLayout.SOUTH);
+        add(_text = new BTextArea(), BorderLayout.CENTER);
+        add(_input = new BTextField(), BorderLayout.SOUTH);
 
         _input.addListener(new ActionListener() {
             public void actionPerformed (ActionEvent event) {
