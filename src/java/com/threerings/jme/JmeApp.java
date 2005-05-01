@@ -130,6 +130,8 @@ public class JmeApp
         initInterface();
 
         // update everything for the zeroth tick
+        _iface.updateRenderState();
+        _geom.updateRenderState();
         _root.updateGeometricState(0f, true);
         _root.updateRenderState();
 
@@ -261,11 +263,15 @@ public class JmeApp
     {
         _root = new Node("Root");
 
+        // set up a node for our geometry
+        _geom = new Node("Geometry");
+
         // set up a zbuffer
         ZBufferState zbuf = _display.getRenderer().createZBufferState();
         zbuf.setEnabled(true);
         zbuf.setFunction(ZBufferState.CF_LEQUAL);
-        _root.setRenderState(zbuf);
+        _geom.setRenderState(zbuf);
+        _root.attachChild(_geom);
     }
 
     /**
@@ -280,10 +286,9 @@ public class JmeApp
         light.setEnabled(true);
 
         _lights = _display.getRenderer().createLightState();
-        // _lights.setEnabled(true);
-        _lights.setEnabled(false);
+        _lights.setEnabled(true);
         _lights.attach(light);
-        _root.setRenderState(_lights);
+        _geom.setRenderState(_lights);
     }
 
     /**
@@ -291,6 +296,9 @@ public class JmeApp
      */
     protected void initInterface ()
     {
+        // set up a node for our interface
+        _iface = new Node("Interface");
+        _root.attachChild(_iface);
     }
 
     /**
@@ -424,12 +432,24 @@ public class JmeApp
 
     /** Provides access to various needed bits. */
     protected JmeContext _ctx = new JmeContext() {
+        public DisplaySystem getDisplay () {
+            return _display;
+        }
+
         public Renderer getRenderer () {
             return _display.getRenderer();
         }
 
-        public Node getRoot () {
-            return _root;
+        public Camera getCamera () {
+            return _camera;
+        }
+
+        public Node getGeometry () {
+            return _geom;
+        }
+
+        public Node getInterface () {
+            return _iface;
         }
 
         public InputHandler getInputHandler () {
@@ -456,7 +476,7 @@ public class JmeApp
     protected boolean _finished;
     protected int _failures;
 
-    protected Node _root;
+    protected Node _root, _geom, _iface;
     protected LightState _lights;
     protected StatsDisplay _stats;
 

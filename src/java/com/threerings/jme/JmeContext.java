@@ -22,8 +22,10 @@
 package com.threerings.jme;
 
 import com.jme.input.InputHandler;
+import com.jme.renderer.Camera;
 import com.jme.renderer.Renderer;
 import com.jme.scene.Node;
+import com.jme.system.DisplaySystem;
 
 import com.jme.bui.event.InputDispatcher;
 
@@ -33,17 +35,23 @@ import com.jme.bui.event.InputDispatcher;
  */
 public interface JmeContext
 {
-    /** Returns the renderer being used to draw everythign. */
+    /** Returns the display to which we are rendering. */
+    public DisplaySystem getDisplay ();
+
+    /** Returns the renderer being used to draw everything. */
     public Renderer getRenderer ();
 
-    /** Returns the root of our scene graph. */
-    public Node getRoot ();
+    /** Returns the camera being used to view the scene. */
+    public Camera getCamera ();
 
-//     /** Returns our main (unbuffered) input handler. */
-//     public InputHandler getInputHandler ();
+    /** Returns the main geometry of our scene graph. */
+    public Node getGeometry ();
 
-//     /** Returns our buffered input handler. */
-//     public InputHandler getBufferedInputHandler ();
+    /** Returns the main interface node of our scene graph. */
+    public Node getInterface ();
+
+    /** Returns our main input handler. */
+    public InputHandler getInputHandler ();
 
     /** Returns our main input dispatcher. */
     public InputDispatcher getInputDispatcher ();
