@@ -417,7 +417,22 @@ public class ConnectionManager extends LoopingThread
         } catch (IOException ioe) {
             Log.warning("Failure select()ing [ioe=" + ioe + "].");
             return;
+
+        } catch (RuntimeException re) {
+            // this block of code deals with a bug in the _selector that
+            // we observed on 2005-05-02, instead of looping indefinitely
+            // after things go pear-shaped, shut us down in an orderly
+            // fashion
+            Log.warning("Failure select()ing [re=" + re + "].");
+            Log.logStackTrace(re);
+            if (_runtimeExceptionCount++ >= 20) {
+                Log.warning("Too many errors, bailing.");
+                shutdown();
+            }
+            return;
         }
+        // clear the runtime error count
+        _runtimeExceptionCount = 0;
 
         // process those events
 //         Log.info("Ready set " + StringUtil.toString(ready) + ".");
@@ -803,6 +818,9 @@ public class ConnectionManager extends LoopingThread
     protected Selector _selector;
     protected ServerSocketChannel _listener;
     protected ResultListener _startlist;
+
+    /** Counts consecutive runtime errors in select(). */
+    protected int _runtimeExceptionCount;
 
     /** Maps selection keys to network event handlers. */
     protected HashMap _handlers = new HashMap();
