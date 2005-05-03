@@ -174,30 +174,15 @@ public abstract class CardPanel extends VirtualMediaPanel
     
     /**
      * Sets the selection mode for the hand (NONE, PLAY_SINGLE, SELECT_SINGLE,
-     * or SELECT_MULTIPLE) and updates the hand sprite offsets.  Changing the
-     * selection mode does not change the current selection.
-     */
-    public void setHandSelectionMode (int mode)
-    {
-        setHandSelectionMode(mode, true);
-    }
-    
-    /**
-     * Sets the selection mode for the hand (NONE, PLAY_SINGLE, SELECT_SINGLE,
      * or SELECT_MULTIPLE).  Changing the selection mode does not change the
      * current selection.
-     *
-     * @param updateOffsets if true, immediately update the offsets of the
-     * cards in the hand
      */
-    public void setHandSelectionMode (int mode, boolean updateOffsets)
+    public void setHandSelectionMode (int mode)
     {
         _handSelectionMode = mode;
         
         // update the offsets of all cards in the hand
-        if (updateOffsets) {
-            updateHandOffsets();
-        }
+        updateHandOffsets();
     }
     
     /**
@@ -733,13 +718,11 @@ public abstract class CardPanel extends VirtualMediaPanel
     }
     
     /**
-     * Removes a card from the hand, deselecting it if selected.
+     * Removes a card from the hand.
      */
     protected void removeFromHand (CardSprite card)
     {
-        if (_selectedHandSprites.contains(card)) {
-            deselectHandSprite(card);
-        }
+        _selectedHandSprites.remove(card);
         _handSprites.remove(card);
     }
     
@@ -884,12 +867,12 @@ public abstract class CardPanel extends VirtualMediaPanel
     protected void updateActiveCardSprite ()
     {
         // can't do anything if we don't know where the mouse pointer is
-        if (_mouseMotionEvent == null) {
+        if (_mouseEvent == null) {
             return;
         }
         
         Sprite newHighestHit = _spritemgr.getHighestHitSprite(
-            _mouseMotionEvent.getX(), _mouseMotionEvent.getY());
+            _mouseEvent.getX(), _mouseEvent.getY());
         
         CardSprite newActiveCardSprite =
             (newHighestHit instanceof CardSprite ? 
@@ -900,24 +883,24 @@ public abstract class CardPanel extends VirtualMediaPanel
                 isManaged(_activeCardSprite)) {
                 _activeCardSprite.queueNotification(
                     new CardSpriteExitedOp(_activeCardSprite,
-                        _mouseMotionEvent)
+                        _mouseEvent)
                 );
             }
             _activeCardSprite = newActiveCardSprite;
             if (_activeCardSprite != null) {
                 _activeCardSprite.queueNotification(
                     new CardSpriteEnteredOp(_activeCardSprite,
-                        _mouseMotionEvent)
+                        _mouseEvent)
                 );
             }
         }
     }
-        
+    
     /** The width of the playing cards. */
     protected int _cardWidth;
     
-    /** The last motion event received from the mouse. */
-    protected MouseEvent _mouseMotionEvent;
+    /** The last motion/entrance/exit event received from the mouse. */
+    protected MouseEvent _mouseEvent;
     
     /** The currently active card sprite (the one that the mouse is over). */
     protected CardSprite _activeCardSprite;
@@ -1050,14 +1033,14 @@ public abstract class CardPanel extends VirtualMediaPanel
         
         public void mouseMoved (MouseEvent me)
         {
-            _mouseMotionEvent = me;
+            _mouseEvent = me;
             
             updateActiveCardSprite();
         }
         
         public void mouseDragged (MouseEvent me)
         {
-            _mouseMotionEvent = me;
+            _mouseEvent = me;
             
             if (_activeCardSprite != null &&
                 isManaged(_activeCardSprite) &&
@@ -1071,6 +1054,16 @@ public abstract class CardPanel extends VirtualMediaPanel
             } else {
                 updateActiveCardSprite();
             }
+        }
+        
+        public void mouseEntered (MouseEvent me)
+        {
+            _mouseEvent = me;
+        }
+        
+        public void mouseExited (MouseEvent me)
+        {
+            _mouseEvent = me;
         }
         
         protected int _handleX, _handleY;
