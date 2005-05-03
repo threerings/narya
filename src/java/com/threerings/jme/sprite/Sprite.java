@@ -79,6 +79,7 @@ public class Sprite extends Node
 
         // save off this path
         _path = path;
+        addController(_path);
     }
 
     /**
