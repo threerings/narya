@@ -211,6 +211,7 @@ public class JmeApp
             _properties.getWidth(), _properties.getHeight(),
             _properties.getDepth(), _properties.getFreq(),
             _properties.getFullscreen());
+        _display.setVSyncEnabled(true);
 
         // create a camera
         float width = _display.getWidth(), height = _display.getHeight();
