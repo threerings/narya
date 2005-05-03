@@ -62,10 +62,10 @@ public abstract class CardPanel extends VirtualMediaPanel
     public static final int NONE = 0;
     
     /** The selection mode in which the user can select a single card. */
-    public static final int SINGLE = 2;
+    public static final int SINGLE = 1;
     
     /** The selection mode in which the user can select multiple cards. */
-    public static final int MULTIPLE = 3;
+    public static final int MULTIPLE = 2;
     
     /**
      * A predicate class for {@link CardSprite}s.  Provides control over which
