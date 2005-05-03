@@ -61,14 +61,11 @@ public abstract class CardPanel extends VirtualMediaPanel
     /** The selection mode in which cards are not selectable. */
     public static final int NONE = 0;
     
-    /** The selection mode in which the user can play a single card. */
-    public static final int PLAY_SINGLE = 1;
-    
     /** The selection mode in which the user can select a single card. */
-    public static final int SELECT_SINGLE = 2;
+    public static final int SINGLE = 2;
     
     /** The selection mode in which the user can select multiple cards. */
-    public static final int SELECT_MULTIPLE = 3;
+    public static final int MULTIPLE = 3;
     
     /**
      * A predicate class for {@link CardSprite}s.  Provides control over which
@@ -87,11 +84,6 @@ public abstract class CardPanel extends VirtualMediaPanel
      */
     public static interface CardSelectionObserver
     {
-        /**
-         * Called when a card has been played.
-         */
-        public void cardSpritePlayed (CardSprite sprite);
-        
         /**
          * Called when a card has been selected.
          */
@@ -173,8 +165,8 @@ public abstract class CardPanel extends VirtualMediaPanel
     }
     
     /**
-     * Sets the selection mode for the hand (NONE, PLAY_SINGLE, SELECT_SINGLE,
-     * or SELECT_MULTIPLE).  Changing the selection mode does not change the
+     * Sets the selection mode for the hand (NONE, PLAY_SINGLE, SINGLE,
+     * or MULTIPLE).  Changing the selection mode does not change the
      * current selection.
      */
     public void setHandSelectionMode (int mode)
@@ -219,21 +211,6 @@ public abstract class CardPanel extends VirtualMediaPanel
     }
     
     /**
-     * Programmatically plays a sprite in the hand.
-     */
-    public void playHandSprite (final CardSprite sprite)
-    {
-        // notify the observers
-        ObserverList.ObserverOp op = new ObserverList.ObserverOp() {
-            public boolean apply (Object obs) {
-                ((CardSelectionObserver)obs).cardSpritePlayed(sprite);
-                return true;
-            }
-        };
-        _handSelectionObservers.apply(op);
-    }
-    
-    /**
      * Programmatically selects a sprite in the hand.
      */
     public void selectHandSprite (final CardSprite sprite)
@@ -245,7 +222,7 @@ public abstract class CardPanel extends VirtualMediaPanel
         
         // if in single card mode and there's another card selected,
         // deselect it
-        if (_handSelectionMode == SELECT_SINGLE) {
+        if (_handSelectionMode == SINGLE) {
             CardSprite oldSprite = getSelectedHandSprite();
             if (oldSprite != null) {
                 deselectHandSprite(oldSprite);
@@ -966,12 +943,7 @@ public abstract class CardPanel extends VirtualMediaPanel
                 deselectHandSprite(sprite);
                 
             } else if (_handSprites.contains(sprite) && isSelectable(sprite)) {
-                if (_handSelectionMode == PLAY_SINGLE) {
-                    playHandSprite(sprite);
-                
-                } else {
-                    selectHandSprite(sprite);
-                }
+                selectHandSprite(sprite);
             }
         }
         
