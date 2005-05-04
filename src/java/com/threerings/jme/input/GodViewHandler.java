@@ -234,8 +234,10 @@ public class GodViewHandler extends InputHandler
         _rotm.mult(_camera.getUp(), _camera.getUp());
         _rotm.mult(_camera.getLeft(), _camera.getLeft());
         _rotm.mult(_camera.getDirection(), _camera.getDirection());
-        _rotm.mult(_rxdir, _rxdir);
-        _rotm.mult(_rydir, _rydir);
+        if (around == _groundNormal) {
+            _rotm.mult(_rxdir, _rxdir);
+            _rotm.mult(_rydir, _rydir);
+        }
 
         // and move the camera to its new location
         _camera.setLocation(center.add(direction));
