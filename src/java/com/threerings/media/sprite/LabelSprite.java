@@ -77,15 +77,7 @@ public class LabelSprite extends Sprite
 
         // if our label is not yet laid out, do the deed
         if (!_label.isLaidOut()) {
-            Graphics2D gfx = (Graphics2D)_mgr.getMediaPanel().getGraphics();
-            if (gfx != null) {
-                gfx.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
-                                     (_antiAliased) ?
-                                     RenderingHints.VALUE_ANTIALIAS_ON :
-                                     RenderingHints.VALUE_ANTIALIAS_OFF);
-                _label.layout(gfx);
-                gfx.dispose();
-            }
+            layoutLabel();
         }
 
         // size the bounds to fit our label
@@ -96,6 +88,23 @@ public class LabelSprite extends Sprite
     public void paint (Graphics2D gfx)
     {
         _label.render(gfx, _bounds.x, _bounds.y);
+    }
+
+    /**
+     * Lays out our underlying label which must be done if the text is
+     * changed.
+     */
+    protected void layoutLabel ()
+    {
+        Graphics2D gfx = (Graphics2D)_mgr.getMediaPanel().getGraphics();
+        if (gfx != null) {
+            gfx.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
+                                 (_antiAliased) ?
+                                 RenderingHints.VALUE_ANTIALIAS_ON :
+                                 RenderingHints.VALUE_ANTIALIAS_OFF);
+            _label.layout(gfx);
+            gfx.dispose();
+        }
     }
 
     /** The label associated with this sprite. */
