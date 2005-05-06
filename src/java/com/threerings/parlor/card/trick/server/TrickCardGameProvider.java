@@ -22,8 +22,7 @@ public interface TrickCardGameProvider extends InvocationProvider
      * @param cards the cards to send
      */
     public void sendCardsToPlayer (ClientObject client, int toidx,
-        Card[] cards)
-        throws InvocationException;
+        Card[] cards);
     
     /**
      * Plays a card in the trick.
@@ -31,14 +30,12 @@ public interface TrickCardGameProvider extends InvocationProvider
      * @param client the client object
      * @param card the card to play
      */
-    public void playCard (ClientObject client, Card card)
-        throws InvocationException;
+    public void playCard (ClientObject client, Card card);
         
     /**
      * Processes a request for a rematch.
      *
      * @param client the client object
      */
-    public void requestRematch (ClientObject client)
-        throws InvocationException;
+    public void requestRematch (ClientObject client);
 }

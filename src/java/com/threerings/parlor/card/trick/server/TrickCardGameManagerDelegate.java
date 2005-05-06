@@ -26,13 +26,13 @@ import java.util.Arrays;
 
 import com.samskivert.util.ArrayUtil;
 import com.samskivert.util.Interval;
+import com.samskivert.util.StringUtil;
 
 import com.threerings.util.Name;
 import com.threerings.util.RandomUtil;
 
 import com.threerings.presents.data.ClientObject;
 import com.threerings.presents.dobj.DObject;
-import com.threerings.presents.server.InvocationException;
 import com.threerings.presents.server.PresentsServer;
 
 import com.threerings.crowd.data.BodyObject;
@@ -218,17 +218,22 @@ public class TrickCardGameManagerDelegate extends TurnGameManagerDelegate
      */
     public void sendCardsToPlayer (ClientObject client, int toidx,
         Card[] cards)
-        throws InvocationException
     {
         // make sure they're actually a player
         int fromidx = _cgmgr.getPlayerIndex(client);
         if (fromidx == -1) {
-            throw new InvocationException("m.not_playing");
+            Log.warning("Send request from non-player [username=" +
+                ((BodyObject)client).username + ", cards=" +
+                StringUtil.toString(cards) + "].");
+            return;
         }
         
         // make sure they have the cards
         if (!_hands[fromidx].containsAll(cards)) {
-            throw new InvocationException("m.not_holding_card");
+            Log.warning("Tried to send cards not held [username=" +
+                ((BodyObject)client).username + ", cards=" +
+                StringUtil.toString(cards) + "].");
+            return;
         }
         
         // send the cards
@@ -255,27 +260,32 @@ public class TrickCardGameManagerDelegate extends TurnGameManagerDelegate
     
     // Documentation inherited.
     public void playCard (ClientObject client, Card card)
-        throws InvocationException
     {
         // make sure we're playing a trick
         if (_trickCardGame.getTrickState() !=
             TrickCardGameObject.PLAYING_TRICK) {
-            throw new InvocationException("not_playing_trick");
+            return; // silently ignore play attempts after timeouts
         }
         
         // make sure it's their turn
         Name username = ((BodyObject)client).username;
-        verifyPlayersTurn(username);
+        if (!username.equals(_trickCardGame.getTurnHolder())) {
+            return;
+        }
         
         // make sure their hand contains the specified card
         int pidx = _cardGame.getPlayerIndex(username);
         if (!_hands[pidx].contains(card)) {
-            throw new InvocationException("m.not_holding_card");
+            Log.warning("Tried to play card not held [username=" + username +
+                ", card=" + card + "].");
+            return;
         }
         
         // make sure the card is legal to play
         if (!_trickCardGame.isCardPlayable(_hands[pidx], card)) {
-            throw new InvocationException("m.card_not_playable");
+            Log.warning("Tried to play illegal card [username=" + username +
+                ", card=" + card + "].");
+            return;
         }
         
         // play the card
@@ -315,23 +325,28 @@ public class TrickCardGameManagerDelegate extends TurnGameManagerDelegate
     
     // Documentation inherited.
     public void requestRematch (ClientObject client)
-        throws InvocationException
     {
         // make sure the game is over
         if (_cardGame.state != CardGameObject.GAME_OVER) {
-            throw new InvocationException("m.game_not_over");
+            Log.warning("Tried to request rematch when game wasn't over " +
+                "[username=" + ((BodyObject)client).username + "].");
+            return;
         }
         
         // make sure the requester is one of the players
         int pidx = _cgmgr.getPlayerIndex(client);
         if (pidx == -1) {
-            throw new InvocationException("m.not_playing");
+            Log.warning("Rematch request from non-player [username=" +
+                ((BodyObject)client).username + "].");
+            return;
         }
         
         // make sure the player hasn't already requested
         if (_trickCardGame.getRematchRequests()[pidx] !=
             TrickCardGameObject.NO_REQUEST) {
-            throw new InvocationException("m.already_requested");
+            Log.warning("Repeated rematch request [username=" +
+                ((BodyObject)client).username + "].");
+            return;
         }
         
         // if player is first requesting, set to request; else set
@@ -371,18 +386,6 @@ public class TrickCardGameManagerDelegate extends TurnGameManagerDelegate
     {
         return _trickCardGame.getCardsPlayed().length ==
             _cardGame.getPlayerCount();
-    }
-    
-    /**
-     * Throws an {@link InvocationException} if it is not the specified
-     * user's turn.
-     */
-    protected void verifyPlayersTurn (Name username)
-        throws InvocationException
-    {
-        if (!username.equals(_trickCardGame.getTurnHolder())) {
-            throw new InvocationException("m.not_your_turn");
-        }
     }
     
     // Documentation inherited.
