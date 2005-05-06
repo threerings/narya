@@ -30,6 +30,7 @@ import java.awt.Graphics;
 import java.awt.Rectangle;
 import java.awt.Shape;
 
+import java.awt.event.ActionEvent;
 import java.awt.event.MouseEvent;
 
 import javax.swing.JComponent;
@@ -646,15 +647,21 @@ public class MediaPanel extends JComponent
             
             if ((_activeSprite instanceof ActionSprite) &&
                     _activeSprite.hitTest(me.getX(), me.getY())) {
+                ActionEvent event;
                 if (_activeSprite instanceof CommandSprite) {
                     CommandSprite cs = (CommandSprite) _activeSprite;
-                    Controller.postAction(MediaPanel.this,
-                        cs.getActionCommand(), cs.getCommandArgument());
+                    event = new CommandEvent(
+                        MediaPanel.this, cs.getActionCommand(),
+                        cs.getCommandArgument(), me.getWhen(),
+                        me.getModifiers());
 
                 } else {
-                    Controller.postAction(MediaPanel.this,
-                        ((ActionSprite) _activeSprite).getActionCommand());
+                    ActionSprite as = (ActionSprite) _activeSprite;
+                    event = new ActionEvent(
+                        MediaPanel.this, ActionEvent.ACTION_PERFORMED,
+                        as.getActionCommand(), me.getWhen(), me.getModifiers());
                 }
+                Controller.postAction(event);
             }
             
             if (!(_activeSprite instanceof HoverSprite)) {
