@@ -259,7 +259,7 @@ public class TrickCardGameManagerDelegate extends TurnGameManagerDelegate
     }
     
     // Documentation inherited.
-    public void playCard (ClientObject client, Card card)
+    public void playCard (ClientObject client, Card card, int handSize)
     {
         // make sure we're playing a trick
         if (_trickCardGame.getTrickState() !=
@@ -273,8 +273,13 @@ public class TrickCardGameManagerDelegate extends TurnGameManagerDelegate
             return;
         }
         
-        // make sure their hand contains the specified card
+        // make sure they're on the right trick
         int pidx = _cardGame.getPlayerIndex(username);
+        if (_hands[pidx].size() != handSize) {
+            return;
+        }
+        
+        // make sure their hand contains the specified card
         if (!_hands[pidx].contains(card)) {
             Log.warning("Tried to play card not held [username=" + username +
                 ", card=" + card + "].");

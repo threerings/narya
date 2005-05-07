@@ -29,9 +29,11 @@ public interface TrickCardGameProvider extends InvocationProvider
      *
      * @param client the client object
      * @param card the card to play
+     * @param handSize the size of the player's hand, which is used to verify
+     * that the request is for the current trick
      */
-    public void playCard (ClientObject client, Card card);
-        
+    public void playCard (ClientObject client, Card card, int handSize);
+    
     /**
      * Processes a request for a rematch.
      *

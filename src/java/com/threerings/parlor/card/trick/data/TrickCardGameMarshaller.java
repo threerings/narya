@@ -41,10 +41,10 @@ public class TrickCardGameMarshaller extends InvocationMarshaller
     public static final int PLAY_CARD = 1;
 
     // documentation inherited from interface
-    public void playCard (Client arg1, Card arg2)
+    public void playCard (Client arg1, Card arg2, int arg3)
     {
         sendRequest(arg1, PLAY_CARD, new Object[] {
-            arg2
+            arg2, new Integer(arg3)
         });
     }
 

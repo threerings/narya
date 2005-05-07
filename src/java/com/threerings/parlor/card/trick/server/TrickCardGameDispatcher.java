@@ -59,7 +59,7 @@ public class TrickCardGameDispatcher extends InvocationDispatcher
         case TrickCardGameMarshaller.PLAY_CARD:
             ((TrickCardGameProvider)provider).playCard(
                 source,
-                (Card)args[0]
+                (Card)args[0], ((Integer)args[1]).intValue()
             );
             return;
 
