@@ -30,6 +30,8 @@ import com.jme.bui.event.ActionEvent;
 import com.jme.bui.event.ActionListener;
 import com.jme.bui.layout.BorderLayout;
 
+import com.jme.renderer.ColorRGBA;
+
 import com.threerings.util.Name;
 
 import com.threerings.crowd.chat.client.ChatDirector;
@@ -86,13 +88,15 @@ public class ChatView extends BContainer
         if (msg instanceof UserMessage) {
             UserMessage umsg = (UserMessage) msg;
             if (umsg.localtype == ChatCodes.USER_CHAT_TYPE) {
-                append("[" + umsg.speaker + " whispers] " + umsg.message);
+                append("[" + umsg.speaker + " whispers] ", ColorRGBA.green);
+                append(umsg.message + "\n");
             } else {
-                append("<" + umsg.speaker + "> " + umsg.message);
+                append("<" + umsg.speaker + "> ", ColorRGBA.blue);
+                append(umsg.message + "\n");
             }
 
         } else if (msg instanceof SystemMessage) {
-            append(msg.message);
+            append(msg.message + "\n", ColorRGBA.red);
 
         } else {
             Log.warning("Received unknown message type: " + msg + ".");
@@ -101,12 +105,17 @@ public class ChatView extends BContainer
 
     protected void displayError (String message)
     {
-        append(message);
+        append(message + "\n", ColorRGBA.red);
+    }
+
+    protected void append (String text, ColorRGBA color)
+    {
+        _text.appendText(text, color);
     }
 
     protected void append (String text)
     {
-        _text.appendText(text + "\n");
+        _text.appendText(text);
     }
 
     protected boolean handleInput (String text)
