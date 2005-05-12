@@ -200,10 +200,6 @@ public class TurnGameManagerDelegate extends GameManagerDelegate
         }
 
         // find the next occupied active player slot
-        //
-        // FIXME: This might be a player that has state PLAYER_LEFT_GAME.
-        // It seems possible to make the GameManager track the active
-        // player count, not just the player count, and ignore 
         int size = _turnGame.getPlayers().length;
         int oturnIdx = _turnIdx;
         do {
