@@ -249,12 +249,6 @@ public class JmeApp
         HardwareMouse mouse = new HardwareMouse("Mouse");
         mouse.setMouseInput(InputSystem.getMouseInput());
         _input.setMouse(mouse);
-
-        InputSystem.createInputSystem(_properties.getRenderer());
-        _dispatcher = new InputDispatcher(_timer, _input);
-
-        // we don't hide the cursor
-        InputSystem.getMouseInput().setCursorVisible(true);
     }
 
     /**
@@ -300,6 +294,11 @@ public class JmeApp
         // set up a node for our interface
         _iface = new Node("Interface");
         _root.attachChild(_iface);
+
+        InputSystem.createInputSystem(_properties.getRenderer());
+        _dispatcher = new InputDispatcher(_timer, _input, _iface);
+        // we don't hide the cursor
+        InputSystem.getMouseInput().setCursorVisible(true);
     }
 
     /**
