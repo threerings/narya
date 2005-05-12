@@ -671,6 +671,9 @@ public class GameManager extends PlaceManager
      */
     protected void gameWillStart ()
     {
+        // initialize the player status
+        _gameobj.setPlayerStatus(new int[getPlayerSlots()]);
+                
         // increment the round identifier
         _gameobj.setRoundId(_gameobj.roundId + 1);
 

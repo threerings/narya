@@ -239,9 +239,6 @@ public abstract class PuzzleManager extends GameManager
         // initialize the seed that goes out with this round
         _puzobj.setSeed(RandomUtil.rand.nextLong());
 
-        // initialize the player status
-        _puzobj.setPlayerStatus(new int[size]);
-
         // initialize the player boards
         initBoards();
 
