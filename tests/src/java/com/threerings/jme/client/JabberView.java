@@ -28,11 +28,11 @@ public class JabberView extends BWindow
         _ctx = ctx;
         _jctx = (JmeContext)ctx;
         _chat = new ChatView(_jctx, _ctx.getChatDirector());
-        addChild(_chat, BorderLayout.CENTER);
+        add(_chat, BorderLayout.CENTER);
 
         setBounds(0, 40, 640, 240);
         layout();
-        _jctx.getRoot().attachChild(this);
+        _jctx.getInterface().attachChild(getNode());
         _jctx.getInputDispatcher().addWindow(this);
     }
 
