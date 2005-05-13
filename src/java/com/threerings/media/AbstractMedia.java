@@ -174,16 +174,19 @@ public abstract class AbstractMedia
      * (least to greatest). Those with the same render order value will be
      * rendered in arbitrary order.
      *
-     * <p> This must be set <em>before</em> the media is added to the
-     * appropriate manager and must not change while the manager is
-     * managing it. If you wish to change the render order, remove the
-     * media from the manager, change the order and add it back again.
+     * <p>This method may not be called during a tick.
      *
      * @see #HUD_LAYER
      */
     public void setRenderOrder (int renderOrder)
     {
-        _renderOrder = renderOrder;
+        if (_renderOrder != renderOrder) {
+            _renderOrder = renderOrder;
+            if (_mgr != null) {
+                _mgr.renderOrderDidChange(this);
+                invalidate();
+            }
+        }
     }
 
     /**

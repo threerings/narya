@@ -684,9 +684,7 @@ public abstract class CardPanel extends VirtualMediaPanel
                 continue;
             }
             if (updateLayers) {
-                removeSprite(cs);
                 cs.setRenderOrder(i);
-                addSprite(cs);
             }
             LinePath adjust = new LinePath(new Point(getHandX(size, i),
                 _handLocation.y), adjustDuration);
@@ -805,9 +803,7 @@ public abstract class CardPanel extends VirtualMediaPanel
         int size = _boardSprites.size(), adjustment = layer - highest;
         for (int i = 0; i < size; i++) {
             CardSprite cs = (CardSprite)_boardSprites.get(i);
-            removeSprite(cs);
             cs.setRenderOrder(cs.getRenderOrder() + adjustment);
-            addSprite(cs);
         }
     }
     

@@ -164,6 +164,20 @@ public abstract class AbstractMediaManager
     }
 
     /**
+     * Called by a {@link AbstractMedia} when its render order has changed.
+     */
+    public void renderOrderDidChange (AbstractMedia media)
+    {
+        if (_tickStamp > 0) {
+            Log.warning("Egads! Render order changed during a tick.");
+            Thread.dumpStack();
+        }
+        
+        _media.remove(media);
+        _media.insertSorted(media, RENDER_ORDER);
+    }
+    
+    /**
      * Calls {@link AbstractMedia#tick} on all media to give them a chance
      * to move about, change their look, generate dirty regions, and so
      * forth.
