@@ -36,6 +36,8 @@ import com.threerings.media.image.Colorization;
 import com.threerings.media.image.Mirage;
 import com.threerings.media.image.ImageUtil;
 import com.threerings.media.image.BufferedMirage;
+import com.threerings.media.util.MultiFrameImage;
+import com.threerings.media.util.MultiFrameImageImpl;
 
 /**
  * A tileset stores information on a single logical set of tiles. It
@@ -224,6 +226,25 @@ public abstract class TileSet
         reportCachePerformance();
 
         return tile;
+    }
+
+    /** Returns a multiframe image of all the tiles in this tile set. */
+    public MultiFrameImage getTileMultiFrameImage ()
+    {
+        return getTileMultiFrameImage(null);
+    }
+
+    /** Returns a multiframe image of all the tiles in this tile set. */
+    public MultiFrameImage getTileMultiFrameImage (Colorization[] zations)
+    {
+        // Load each tile's image
+        Mirage[] images = new Mirage[getTileCount()];
+        for (int i = 0; i < images.length; i++) {
+            images[i] = getTileMirage(i, zations);
+        }
+
+        // Construct a multiframe image from these images
+        return new MultiFrameImageImpl(images);
     }
 
     /**
