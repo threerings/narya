@@ -55,7 +55,7 @@ public class CrowdClient extends PresentsClient
         super.sessionWillStart();
 
         // configure a specific access controller for the client object
-        _clobj.setAccessController(_userAccessController);
+        _clobj.setAccessController(CrowdObjectAccess.USER);
     }
 
     // documentation inherited
@@ -107,8 +107,4 @@ public class CrowdClient extends PresentsClient
     {
         CrowdServer.plreg.locprov.leaveOccupiedPlace(bobj);
     }
-
-    /** The access controller to use for user objects. */
-    protected static AccessController _userAccessController =
-        CrowdObjectAccess.USER;
 }
