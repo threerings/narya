@@ -21,6 +21,7 @@
 
 package com.threerings.crowd.server;
 
+import com.threerings.presents.dobj.AccessController;
 import com.threerings.presents.server.PresentsClient;
 
 import com.threerings.crowd.Log;
@@ -54,7 +55,7 @@ public class CrowdClient extends PresentsClient
         super.sessionWillStart();
 
         // configure a specific access controller for the client object
-        _clobj.setAccessController(CrowdObjectAccess.USER);
+        _clobj.setAccessController(_userAccessController);
     }
 
     // documentation inherited
@@ -106,4 +107,8 @@ public class CrowdClient extends PresentsClient
     {
         CrowdServer.plreg.locprov.leaveOccupiedPlace(bobj);
     }
+
+    /** The access controller to use for user objects. */
+    protected static AccessController _userAccessController =
+        CrowdObjectAccess.USER;
 }
