@@ -57,6 +57,9 @@ public class CrowdServer extends PresentsServer
         // configure the client manager to use our resolver
         clmgr.setClientResolverClass(CrowdClientResolver.class);
 
+        // configure the dobject manager with our access controller
+        omgr.setDefaultAccessController(CrowdObjectAccess.DEFAULT);
+
         // create our place registry
         plreg = createPlaceRegistry(invmgr, omgr);
 

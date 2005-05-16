@@ -1,5 +1,5 @@
 //
-// $Id: CrowdClient.java,v 1.26 2004/10/01 22:04:18 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -46,6 +46,15 @@ public class CrowdClient extends PresentsClient
             BodyProvider.updateOccupantStatus(
                 bobj, bobj.location, OccupantInfo.DISCONNECTED);
         }
+    }
+
+    // documentation inherited
+    protected void sessionWillStart ()
+    {
+        super.sessionWillStart();
+
+        // configure a specific access controller for the client object
+        _clobj.setAccessController(CrowdObjectAccess.USER);
     }
 
     // documentation inherited
