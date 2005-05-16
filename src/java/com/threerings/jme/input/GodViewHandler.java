@@ -29,7 +29,8 @@ public class GodViewHandler extends InputHandler
     /**
      * Creates the handler.
      *
-     * @param app The application to be terminated on an "exit" action.
+     * @param app The application to be terminated on an "exit" action or
+     * null if this functionality is not desired.
      * @param cam The camera to move with this handler.
      * @param api The API from which to create a KeyBindingManager.
      */
@@ -109,13 +110,15 @@ public class GodViewHandler extends InputHandler
 
     protected void setActions (Camera cam, final JmeApp app)
     {
-        KeyInputAction exit = new KeyInputAction() {
-            public void performAction (InputActionEvent evt) {
-                app.stop();
-            }
-        };
-        exit.setKey("exit");
-        addAction(exit);
+        if (app != null) {
+            KeyInputAction exit = new KeyInputAction() {
+                public void performAction (InputActionEvent evt) {
+                    app.stop();
+                }
+            };
+            exit.setKey("exit");
+            addAction(exit);
+        }
 
         KeyScreenShotAction screen = new KeyScreenShotAction();
         screen.setKey("screenshot");
