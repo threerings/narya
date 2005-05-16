@@ -92,11 +92,21 @@ public class BodyObject extends ClientObject
     public String checkAccess (String feature, Object context)
     {
         // our default access control policy; how quaint
-        if (ChatCodes.CHAT_ACCESS.equals(feature)) {
+        if (ChatCodes.BROADCAST_ACCESS.equals(feature)) {
+            return getTokens().isAdmin() ? null : ChatCodes.ACCESS_DENIED;
+        } else if (ChatCodes.CHAT_ACCESS.equals(feature)) {
             return null;
         } else {
             return InvocationCodes.ACCESS_DENIED;
         }
+    }
+
+    /**
+     * Returns this user's access control tokens.
+     */
+    public TokenRing getTokens ()
+    {
+        return EMPTY_TOKENS;
     }
 
     // documentation inherited
@@ -181,4 +191,7 @@ public class BodyObject extends ClientObject
         this.awayMessage = value;
     }
     // AUTO-GENERATED: METHODS END
+
+    /** The default (no tokens) access control. */
+    protected static final TokenRing EMPTY_TOKENS = new TokenRing();
 }
