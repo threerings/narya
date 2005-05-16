@@ -28,7 +28,7 @@ package com.threerings.jme;
 public class Log
 {
     public static com.samskivert.util.Log log =
-	new com.samskivert.util.Log("jme");
+	new com.samskivert.util.Log("narya.jme");
 
     /** Convenience function. */
     public static void debug (String message)

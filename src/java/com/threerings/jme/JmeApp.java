@@ -48,8 +48,6 @@ import com.jme.light.PointLight;
 import com.jme.math.Vector3f;
 import com.jme.util.Timer;
 
-import com.threerings.presents.client.Client;
-
 import com.threerings.jme.input.GodViewHandler;
 import com.threerings.jme.input.HardwareMouse;
 
