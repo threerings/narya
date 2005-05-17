@@ -205,6 +205,7 @@
     </jar>
     <jar destfile="${deploy.dir}/${app.name}-jme.jar">
       <fileset dir="${classes.dir}" includes="com/threerings/jme/**"/>
+      <fileset dir="${classes.dir}" includes="rsrc/media/jme/**"/>
     </jar>
   </target>
 
