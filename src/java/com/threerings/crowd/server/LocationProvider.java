@@ -108,6 +108,12 @@ public class LocationProvider
             return pmgr.getConfig();
         }
 
+        // make sure they have access to the specified place
+        String errmsg;
+        if ((errmsg = pmgr.ratifyBodyEntry(source)) != null) {
+            throw new InvocationException(errmsg);
+        }
+        
         // acquire a lock on the body object to ensure that rapid fire
         // moveTo requests don't break things
         if (!source.acquireLock("moveToLock")) {

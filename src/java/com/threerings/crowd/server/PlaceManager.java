@@ -318,6 +318,19 @@ public class PlaceManager
     }
 
     /**
+     * Provides an opportunity for the place manager to prevent bodies from
+     * entering.
+     *
+     * @return <code>null</code> if the body can enter, otherwise a
+     * translatable message explaining the reason the body is blocked
+     * from entering
+     */
+    public String ratifyBodyEntry (BodyObject body)
+    {
+        return null;
+    }
+    
+    /**
      * Returns the appropriate derived class of {@link OccupantInfo} that
      * will be used to provide occupant info for this body. An occupant
      * info record is created when a body enters a place.
