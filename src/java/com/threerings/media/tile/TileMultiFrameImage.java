@@ -1,5 +1,5 @@
 //
-// $Id: TileMultiFrameImage.java,v 1.4 2004/08/27 02:12:41 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -23,6 +23,7 @@ package com.threerings.media.tile;
 
 import java.awt.Graphics2D;
 
+import com.threerings.media.image.Colorization;
 import com.threerings.media.util.MultiFrameImage;
 
 /**
@@ -38,6 +39,15 @@ public class TileMultiFrameImage implements MultiFrameImage
     public TileMultiFrameImage (TileSet source)
     {
         _source = source;
+    }
+
+    /**
+     * Creates a recoolored tile MFI which will obtain its image frames
+     * from the specified source tileset.
+     */
+    public TileMultiFrameImage (TileSet source, Colorization[] zations)
+    {
+        this(source.clone(zations));
     }
 
     // documentation inherited from interface

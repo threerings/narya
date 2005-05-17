@@ -228,25 +228,6 @@ public abstract class TileSet
         return tile;
     }
 
-    /** Returns a multiframe image of all the tiles in this tile set. */
-    public MultiFrameImage getTileMultiFrameImage ()
-    {
-        return getTileMultiFrameImage(null);
-    }
-
-    /** Returns a multiframe image of all the tiles in this tile set. */
-    public MultiFrameImage getTileMultiFrameImage (Colorization[] zations)
-    {
-        // Load each tile's image
-        Mirage[] images = new Mirage[getTileCount()];
-        for (int i = 0; i < images.length; i++) {
-            images[i] = getTileMirage(i, zations);
-        }
-
-        // Construct a multiframe image from these images
-        return new MultiFrameImageImpl(images);
-    }
-
     /**
      * Returns a prepared version of the image that would be used by the
      * tile at the specified index. Because tilesets are often used simply
