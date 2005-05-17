@@ -219,9 +219,9 @@ public class JmeApp
         _display.getRenderer().setBackgroundColor(ColorRGBA.black);
 
         // set up the camera
-        _camera.setFrustumPerspective(45.0f, width / height, 1, 1000);
+        _camera.setFrustumPerspective(45.0f, width / height, 1, 10000);
         Vector3f loc = new Vector3f(0.0f, 0.0f, 25.0f);
-        Vector3f left = new Vector3f( -1.0f, 0.0f, 0.0f);
+        Vector3f left = new Vector3f(-1.0f, 0.0f, 0.0f);
         Vector3f up = new Vector3f(0.0f, 1.0f, 0.0f);
         Vector3f dir = new Vector3f(0.0f, 0f, -1.0f);
         _camera.setFrame(loc, left, up, dir);
@@ -242,7 +242,7 @@ public class JmeApp
      */
     protected void initInput ()
     {
-        _input = new GodViewHandler(this, _camera, _properties.getRenderer());
+        _input = new GodViewHandler(null, _camera, _properties.getRenderer());
 
         HardwareMouse mouse = new HardwareMouse("Mouse");
         mouse.setMouseInput(InputSystem.getMouseInput());
