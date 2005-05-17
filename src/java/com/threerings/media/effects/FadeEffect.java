@@ -32,24 +32,32 @@ public class FadeEffect
 {
     public FadeEffect (float alpha, float step, float target)
     {
+        if ((step == 0f) || (alpha > target && step > 0f) ||
+                (alpha < target && step < 0f)) {
+            throw new IllegalArgumentException("Step specified is illegal: " +
+                "Fade would never finish (start=" + alpha + ", step=" + step +
+                ", target=" + target + ")");
+        }
+
         // save things off
-        _startAlpha = _alpha = Math.max(alpha, 0.0f);
+        _startAlpha = alpha; 
         _step = step;
-        _target = Math.min(target, 1.0f);
+        _target = target;
 
         // create the initial composite
+        _alpha = Math.max(0f, Math.min(1f, _startAlpha));
         _comp = AlphaComposite.getInstance(AlphaComposite.SRC_OVER, _alpha);
     }
 
     public void init (long tickStamp)
     {
+        _finished = false;
         _initStamp = tickStamp;
     }
 
     public boolean finished ()
     {
-        return (_startAlpha < _target) ?
-            (_alpha >= _target) : (_alpha <= _target);
+        return _finished;
     }
 
     public float getAlpha ()
@@ -62,6 +70,8 @@ public class FadeEffect
         // figure out the current alpha
         long msecs = tickStamp - _initStamp;
         float alpha = _startAlpha + (msecs * _step);
+        _finished = (_startAlpha < _target) ? (alpha >= _target)
+                                            : (alpha <= _target);
         if (alpha < 0.0f) {
             alpha = 0.0f;
         } else if (alpha > 1.0f) {
@@ -74,7 +84,8 @@ public class FadeEffect
             return true;
         }
 
-        return false;
+        // return false, unless we're finished
+        return _finished;
     }
 
     public void beforePaint (Graphics2D gfx)
@@ -108,4 +119,7 @@ public class FadeEffect
 
     /** Time zero. */
     protected long _initStamp;
+
+    /** True when we're finished. */
+    protected boolean _finished;
 }
