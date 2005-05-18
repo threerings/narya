@@ -379,7 +379,7 @@ public abstract class Sprite extends AbstractMedia
     }
 
     // documentation inherited
-    public void shutdown ()
+    protected void shutdown ()
     {
         super.shutdown();
         cancelMove(); // cancel any active path
