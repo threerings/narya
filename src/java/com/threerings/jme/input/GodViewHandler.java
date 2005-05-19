@@ -29,17 +29,14 @@ public class GodViewHandler extends InputHandler
     /**
      * Creates the handler.
      *
-     * @param app The application to be terminated on an "exit" action or
-     * null if this functionality is not desired.
      * @param cam The camera to move with this handler.
      * @param api The API from which to create a KeyBindingManager.
      */
-    public GodViewHandler (JmeApp app, Camera cam, String api)
+    public GodViewHandler (Camera cam, String api)
     {
         _camera = cam;
         setKeyBindings(api);
-        setMouse(cam);
-        setActions(cam, app);
+        addActions(cam);
     }
 
     /**
@@ -50,6 +47,26 @@ public class GodViewHandler extends InputHandler
     {
         _minZ = minZ;
         _maxZ = maxZ;
+    }
+
+    /**
+     * Configures limits on the camera roll.
+     */
+    public void setRollLimits (float minAngle, float maxAngle)
+    {
+        _minRoll = minAngle;
+        _maxRoll = maxAngle;
+    }
+
+    /**
+     * Configures limits on the distance the camera can be panned.
+     */
+    public void setPanLimits (float minX, float minY, float maxX, float maxY)
+    {
+        _minX = minX;
+        _minY = minY;
+        _maxX = maxX;
+        _maxY = maxY;
     }
 
     /**
@@ -90,44 +107,32 @@ public class GodViewHandler extends InputHandler
         keyboard.set("rollForward", KeyInput.KEY_HOME);
         keyboard.set("rollBack", KeyInput.KEY_END);
         keyboard.set("screenshot", KeyInput.KEY_F12);
-        keyboard.set("exit", KeyInput.KEY_ESCAPE);
 
         setKeyBindingManager(keyboard);
     }
 
-    protected void setMouse (Camera cam)
+    protected void addActions (Camera cam)
     {
-//         RelativeMouse mouse = new RelativeMouse("Mouse Input");
-//         mouse.setMouseInput(InputSystem.getMouseInput());
-//         setMouse(mouse);
-
-//         MouseLook mouseLook = new MouseLook(mouse, cam, 1.0f);
-//         mouseLook.setKey("mouselook");
-//         mouseLook.setLockAxis(
-//             new Vector3f(cam.getUp().x, cam.getUp().y, cam.getUp().z));
-//         addAction(mouseLook);
-    }
-
-    protected void setActions (Camera cam, final JmeApp app)
-    {
-        if (app != null) {
-            KeyInputAction exit = new KeyInputAction() {
-                public void performAction (InputActionEvent evt) {
-                    app.stop();
-                }
-            };
-            exit.setKey("exit");
-            addAction(exit);
-        }
-
         KeyScreenShotAction screen = new KeyScreenShotAction();
         screen.setKey("screenshot");
         addAction(screen);
 
+        addPanActions(cam);
+        addZoomActions(cam);
+        addOrbitActions(cam);
+        addRollActions(cam);
+    }
+
+    /**
+     * Adds actions for panning the camera around the scene.
+     */
+    protected void addPanActions (Camera cam)
+    {
         CameraAction forward = new CameraAction(cam, 0.5f) {
             public void performAction (InputActionEvent evt) {
                 Vector3f loc = _camera.getLocation();
                 loc.addLocal(_rydir.mult(speed * evt.getTime(), _temp));
+                boundPan(loc);
                 _camera.setLocation(loc);
                 _camera.update();
             }
@@ -139,6 +144,7 @@ public class GodViewHandler extends InputHandler
             public void performAction (InputActionEvent evt) {
                 Vector3f loc = _camera.getLocation();
                 loc.subtractLocal(_rydir.mult(speed * evt.getTime(), _temp));
+                boundPan(loc);
                 _camera.setLocation(loc);
                 _camera.update();
             }
@@ -150,6 +156,7 @@ public class GodViewHandler extends InputHandler
             public void performAction (InputActionEvent evt) {
                 Vector3f loc = _camera.getLocation();
                 loc.subtractLocal(_rxdir.mult(speed * evt.getTime(), _temp));
+                boundPan(loc);
                 _camera.setLocation(loc);
                 _camera.update();
             }
@@ -161,13 +168,20 @@ public class GodViewHandler extends InputHandler
             public void performAction (InputActionEvent evt) {
                 Vector3f loc = _camera.getLocation();
                 loc.addLocal(_rxdir.mult(speed * evt.getTime(), _temp));
+                boundPan(loc);
                 _camera.setLocation(loc);
                 _camera.update();
             }
         };
         right.setKey("right");
         addAction(right);
+    }
 
+    /**
+     * Adds actions for zooming the camaera in and out.
+     */
+    protected void addZoomActions (Camera cam)
+    {
         CameraAction zoomIn = new CameraAction(cam, 0.5f) {
             public void performAction (InputActionEvent evt) {
                 Vector3f loc = _camera.getLocation();
@@ -195,7 +209,13 @@ public class GodViewHandler extends InputHandler
         };
         zoomOut.setKey("zoomOut");
         addAction(zoomOut);
+    }
 
+    /**
+     * Adds actions for orbiting the camera around the viewpoint.
+     */
+    protected void addOrbitActions (Camera cam)
+    {
         OrbitAction orbitRight = new OrbitAction(-FastMath.PI / 2);
         orbitRight.setKey("turnRight");
         addAction(orbitRight);
@@ -203,7 +223,13 @@ public class GodViewHandler extends InputHandler
         OrbitAction orbitLeft = new OrbitAction(FastMath.PI / 2);
         orbitLeft.setKey("turnLeft");
         addAction(orbitLeft);
+    }
 
+    /**
+     * Adds actions for rolling the camera around the yaw axis.
+     */
+    protected void addRollActions (Camera cam)
+    {
         RollAction rollForward = new RollAction(-FastMath.PI / 2);
         rollForward.setKey("rollForward");
         addAction(rollForward);
@@ -255,6 +281,12 @@ public class GodViewHandler extends InputHandler
         return camera.getLocation().add(camera.getDirection().mult(dist));
     }
 
+    protected void boundPan (Vector3f loc)
+    {
+        loc.x = Math.max(Math.min(loc.x, _maxX), _minX);
+        loc.y = Math.max(Math.min(loc.y, _maxY), _minY);
+    }
+
     protected abstract class CameraAction extends KeyInputAction
     {
         public CameraAction (Camera camera, float speed)
@@ -303,7 +335,11 @@ public class GodViewHandler extends InputHandler
     protected Camera _camera;
     protected Matrix3f _rotm = new Matrix3f();
 
+    protected float _minX = Float.MIN_VALUE, _maxX = Float.MAX_VALUE;
+    protected float _minY = Float.MIN_VALUE, _maxY = Float.MAX_VALUE;
     protected float _minZ = Float.MIN_VALUE, _maxZ = Float.MAX_VALUE;
+    protected float _minRoll = Float.MIN_VALUE, _maxRoll = Float.MAX_VALUE;
+
     protected static final Vector3f _xdir = new Vector3f(1, 0, 0);
     protected static final Vector3f _ydir = new Vector3f(0, 1, 0);
 

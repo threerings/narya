@@ -43,6 +43,7 @@ import com.jme.system.lwjgl.LWJGLPropertiesDialog;
 import com.jme.bui.event.InputDispatcher;
 import com.jme.input.InputHandler;
 import com.jme.input.InputSystem;
+import com.jme.input.Mouse;
 
 import com.jme.light.PointLight;
 import com.jme.math.Vector3f;
@@ -242,11 +243,28 @@ public class JmeApp
      */
     protected void initInput ()
     {
-        _input = new GodViewHandler(null, _camera, _properties.getRenderer());
+        _input = createInputHandler(_camera, _properties.getRenderer());
+        _input.setMouse(createMouse());
+    }
 
+    /**
+     * Creates the input handler used to control our camera and manage
+     * non-UI keyboard input.
+     */
+    protected InputHandler createInputHandler (Camera camera, String api)
+    {
+        return new GodViewHandler(camera, api);
+    }
+
+    /**
+     * Creates the type of mouse handler we'll use to manage the mouse
+     * position.
+     */
+    protected Mouse createMouse ()
+    {
         HardwareMouse mouse = new HardwareMouse("Mouse");
         mouse.setMouseInput(InputSystem.getMouseInput());
-        _input.setMouse(mouse);
+        return mouse;
     }
 
     /**
