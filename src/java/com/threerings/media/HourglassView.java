@@ -81,7 +81,7 @@ public class HourglassView extends TimerView
         super.tick(tickStamp);
 
         // check if the sand should be updated
-        if (tickStamp > _sandStamp) {
+        if (_enabled && _running && tickStamp > _sandStamp) {
 
             // update the sand frame
             setSandTrickleY();

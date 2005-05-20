@@ -315,6 +315,10 @@ public class TimerView
     // documentation inherited
     public void tick (long now)
     {
+        if (!_enabled) {
+            return;
+        }
+
         // Initialize the starting time if necessary
         if (_start == Long.MIN_VALUE) {
             _start = now - Math.round(_duration * _complete);
