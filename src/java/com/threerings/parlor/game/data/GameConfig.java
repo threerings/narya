@@ -21,6 +21,9 @@
 
 package com.threerings.parlor.game.data;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.threerings.crowd.data.PlaceConfig;
 import com.threerings.util.Name;
 
@@ -92,16 +95,16 @@ public abstract class GameConfig extends PlaceConfig implements Cloneable
     }
 
     /**
-     * Returns an array of strings that describe the configuration of this
+     * Returns a List of strings that describe the configuration of this
      * game. This should eventually be rolled into a more general
      * purpose mechanism for generating descriptions of game
      * configurations as well as editors for game configurations (which
      * already exists in rudimentary form).  Default implementation returns
-     * an empty array.
+     * an empty list.
      */
-    public String[] getDescription ()
+    public List getDescription ()
     {
-        return new String[0];
+        return new ArrayList(); // nothing by default
     }
 
     /**
