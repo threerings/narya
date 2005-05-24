@@ -91,18 +91,7 @@ public class JmeApp
     {
         // load up our renderer configuration
         _properties = new PropertiesIO(getConfigPath("jme.cfg"));
-        if (!_properties.load()) {
-            LWJGLPropertiesDialog dialog =
-                new LWJGLPropertiesDialog(_properties, (String)null);
-            while (dialog.isVisible()) {
-                try {
-                    Thread.sleep(5);
-                } catch (InterruptedException e) {
-                    Log.warning("Error waiting for dialog system, " +
-                                "using defaults.");
-                }
-            }
-        }
+        readDisplayConfig();
 
         // create an appropriate timer
         _timer = Timer.getTimer(_properties.getRenderer());
@@ -195,6 +184,27 @@ public class JmeApp
     public boolean isDispatchThread ()
     {
         return Thread.currentThread() == _dispatchThread;
+    }
+
+    /**
+     * Reads in the contents of our display properties. Derivations may
+     * wish to override this and configure the display properties from
+     * some other source.
+     */
+    protected void readDisplayConfig ()
+    {
+        if (!_properties.load()) {
+            LWJGLPropertiesDialog dialog =
+                new LWJGLPropertiesDialog(_properties, (String)null);
+            while (dialog.isVisible()) {
+                try {
+                    Thread.sleep(5);
+                } catch (InterruptedException e) {
+                    Log.warning("Error waiting for dialog system, " +
+                                "using defaults.");
+                }
+            }
+        }
     }
 
     /**
