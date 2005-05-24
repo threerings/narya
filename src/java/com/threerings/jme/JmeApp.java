@@ -136,8 +136,8 @@ public class JmeApp
 
             return true;
 
-        } catch (Exception e) {
-            reportInitFailure(e);
+        } catch (Throwable t) {
+            reportInitFailure(t);
             return false;
         }
     }
@@ -342,9 +342,9 @@ public class JmeApp
      * Called when initialization fails to give the application a chance
      * to report the failure to the user.
      */
-    protected void reportInitFailure (Exception e)
+    protected void reportInitFailure (Throwable t)
     {
-        Log.logStackTrace(e);
+        Log.logStackTrace(t);
     }
 
     /**
