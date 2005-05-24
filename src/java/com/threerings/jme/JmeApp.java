@@ -86,48 +86,59 @@ public class JmeApp
      * to begin the rendering/event loop. Derived classes can override
      * this, being sure to call super before doing their own
      * initalization.
+     *
+     * @return true if the application initialized successfully, false if
+     * initialization failed. (See {@link #reportInitFailure}.)
      */
-    public void init ()
+    public boolean init ()
     {
-        // load up our renderer configuration
-        _properties = new PropertiesIO(getConfigPath("jme.cfg"));
-        readDisplayConfig();
+        try {
+            // load up our renderer configuration
+            _properties = new PropertiesIO(getConfigPath("jme.cfg"));
+            readDisplayConfig();
 
-        // create an appropriate timer
-        _timer = Timer.getTimer(_properties.getRenderer());
+            // create an appropriate timer
+            _timer = Timer.getTimer(_properties.getRenderer());
 
-        // default to 60 fps
-        setTargetFrameRate(60);
+            // default to 60 fps
+            setTargetFrameRate(60);
 
-        // initialize the rendering system
-        initDisplay();
-        if (!_display.isCreated()) {
-            throw new IllegalStateException("Failed to initialize display?");
-        }
+            // initialize the rendering system
+            initDisplay();
+            if (!_display.isCreated()) {
+                throw new IllegalStateException("Failed to initialize display?");
+            }
 
-        // initialize our main camera controls and user input handling
-        initInput();
+            // initialize our main camera controls and user input handling
+            initInput();
 
-        // initialize the root node
-        initRoot();
+            // initialize the root node
+            initRoot();
 
-        // initialize the lighting
-        initLighting();
+            // initialize the lighting
+            initLighting();
 
-        // initialize the UI support stuff
-        initInterface();
+            // initialize the UI support stuff
+            initInterface();
 
-        // update everything for the zeroth tick
-        _iface.updateRenderState();
-        _geom.updateRenderState();
-        _root.updateGeometricState(0f, true);
-        _root.updateRenderState();
+            // update everything for the zeroth tick
+            _iface.updateRenderState();
+            _geom.updateRenderState();
+            _root.updateGeometricState(0f, true);
+            _root.updateRenderState();
 
-        // create and add our statistics display
-        if (displayStatistics()) {
-            _stats = new StatsDisplay(_display.getRenderer());
-            _stats.updateGeometricState(0f, true);
-            _stats.updateRenderState();
+            // create and add our statistics display
+            if (displayStatistics()) {
+                _stats = new StatsDisplay(_display.getRenderer());
+                _stats.updateGeometricState(0f, true);
+                _stats.updateRenderState();
+            }
+
+            return true;
+
+        } catch (Exception e) {
+            reportInitFailure(e);
+            return false;
         }
     }
 
@@ -325,6 +336,15 @@ public class JmeApp
         _dispatcher = new InputDispatcher(_timer, _input, _iface);
         // we don't hide the cursor
         InputSystem.getMouseInput().setCursorVisible(true);
+    }
+
+    /**
+     * Called when initialization fails to give the application a chance
+     * to report the failure to the user.
+     */
+    protected void reportInitFailure (Exception e)
+    {
+        Log.logStackTrace(e);
     }
 
     /**
