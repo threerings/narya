@@ -455,7 +455,8 @@ public abstract class DropControllerDelegate extends PuzzleControllerDelegate
             return;
         }
 
-        if (!_ctrl.isGameOver() && _puzobj.isActivePlayer(_pidx)) {
+        if (_pidx != -1 && !_ctrl.isGameOver() &&
+                _puzobj.isActivePlayer(_pidx)) {
             // create the next block
             _blocksprite = createNextBlock();
             if (_blocksprite != null) {
@@ -620,7 +621,7 @@ public abstract class DropControllerDelegate extends PuzzleControllerDelegate
      */
     protected void updateSelfSummary ()
     {
-        if (_puzobj != null && _puzobj.summaries != null) {
+        if (_pidx != -1 && _puzobj != null && _puzobj.summaries != null) {
             BoardSummary bsum = _puzobj.summaries[_pidx];
             bsum.setBoard(_dboard);
             bsum.summarize();
