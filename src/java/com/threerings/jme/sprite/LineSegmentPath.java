@@ -62,7 +62,6 @@ public class LineSegmentPath extends Path
         // if we have completed our path, move the sprite to the final
         // position and wrap everything up
         if (_current >= _durations.length) {
-            System.err.println("Finished!");
             _sprite.setLocalTranslation(_points[_points.length-1]);
             _sprite.pathCompleted();
             return;
