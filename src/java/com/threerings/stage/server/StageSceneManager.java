@@ -34,8 +34,8 @@ import com.threerings.whirled.spot.server.SpotSceneManager;
 
 import com.threerings.stage.Log;
 import com.threerings.stage.client.StageSceneService;
-import com.threerings.stage.data.AddObjectUpdate;
 import com.threerings.stage.data.DefaultColorUpdate;
+import com.threerings.stage.data.ModifyObjectsUpdate;
 import com.threerings.stage.data.StageCodes;
 import com.threerings.stage.data.StageMisoSceneModel;
 import com.threerings.stage.data.StageOccupantInfo;
@@ -110,11 +110,11 @@ public class StageSceneManager extends SpotSceneManager
 
         // create our scene update which will be stored in the database
         // and used to efficiently update clients
-        final AddObjectUpdate update = new AddObjectUpdate();
-        update.init(_sscene.getId(), _sscene.getVersion(), info,
-            killOverlap ? lappers : null);
+        final ModifyObjectsUpdate update = new ModifyObjectsUpdate();
+        update.init(_sscene.getId(), _sscene.getVersion(),
+            new ObjectInfo[] { info }, killOverlap ? lappers : null);
 
-        Log.info("Adding object '" + update + ".");
+        Log.info("Modifying objects '" + update + ".");
         recordUpdate(update, true);
 
         return true;
@@ -166,15 +166,36 @@ public class StageSceneManager extends SpotSceneManager
             throw new InvocationException(err);
         }
 
-        boolean allowOverlap =
-            (user.checkAccess(StageCodes.MODIFY_SCENE_ACCESS, _sscene) == null);
-        if (addObject(info, false, allowOverlap)) {
+        if (addObject(info, false, true)) {
             listener.requestProcessed();
         } else {
             listener.requestFailed(StageCodes.ERR_NO_OVERLAP);
         }
     }
 
+    // documentation inherited from interface
+    public void removeObject (ClientObject caller, ObjectInfo info,
+                              StageSceneService.ConfirmListener listener)
+        throws InvocationException
+    {
+        BodyObject user = (BodyObject)caller;
+        String err = user.checkAccess(StageCodes.MODIFY_SCENE_ACCESS, _sscene);
+        if (err != null) {
+            throw new InvocationException(err);
+        }
+        
+        // create our scene update which will be stored in the database
+        // and used to efficiently update clients
+        ModifyObjectsUpdate update = new ModifyObjectsUpdate();
+        update.init(_sscene.getId(), _sscene.getVersion(),
+            null, new ObjectInfo[] { info });
+
+        Log.info("Modifying objects '" + update + ".");
+        recordUpdate(update, true);
+        
+        listener.requestProcessed();
+    }
+    
     // documentation inherited
     protected void gotSceneData ()
     {

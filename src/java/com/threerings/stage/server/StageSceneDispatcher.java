@@ -64,6 +64,13 @@ public class StageSceneDispatcher extends InvocationDispatcher
             );
             return;
 
+        case StageSceneMarshaller.REMOVE_OBJECT:
+            ((StageSceneProvider)provider).removeObject(
+                source,
+                (ObjectInfo)args[0], (InvocationService.ConfirmListener)args[1]
+            );
+            return;
+
         default:
             super.dispatchRequest(source, methodId, args);
         }
