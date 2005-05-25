@@ -574,15 +574,6 @@ public abstract class PuzzleManager extends GameManager
                 }
             }
         }
-
-        if (_puzobj.state != PuzzleObject.GAME_OVER) {
-            // inform remaining users that the user left
-            BodyObject user = (BodyObject)CrowdServer.omgr.getObject(bodyOid);
-            if (user != null) {
-                systemMessage(MessageBundle.tcompose(
-                                  "m.user_left", user.username));
-            }
-        }
     }
 
     /**
