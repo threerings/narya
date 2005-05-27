@@ -144,4 +144,19 @@ public class MathUtil
         // the standard deviation is the square root of the variance
         return new float[] { mean, variance, (float)Math.sqrt(variance) };
     }
+
+    /**
+     * Computes (N choose K), the number of ways to select K different
+     * elements from a set of size N.
+     */
+    public static int choose (int n, int k)
+    {
+        // Base case: One way to select or not select the whole set
+        if (k <= 0 || k >= n) {
+            return 1;
+        }
+
+        // Recurse using pascal's triangle
+        return (choose(n-1, k-1) + choose(n-1, k));
+    }
 }
