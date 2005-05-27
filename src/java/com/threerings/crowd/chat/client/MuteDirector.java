@@ -1,5 +1,5 @@
 //
-// $Id: MuteDirector.java,v 1.13 2004/08/27 02:12:30 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -113,9 +113,21 @@ public class MuteDirector extends BasicDirector
      */
     public void setMuted (Name username, boolean mute)
     {
-        if (mute ? _mutelist.add(username) : _mutelist.remove(username)) {
-            _chatdir.displayFeedback(null, MessageBundle.tcompose(
-                mute ? "m.muted" : "m.unmuted", username));
+        boolean changed = mute ? _mutelist.add(username)
+                               : _mutelist.remove(username);
+        String feedback;
+        if (mute) {
+            feedback = "m.muted";
+        } else {
+            feedback = changed ? "m.unmuted" : "m.notmuted";
+        }
+
+        // always give some feedback to the user
+        _chatdir.displayFeedback(null,
+            MessageBundle.tcompose(feedback, username));
+
+        // if the mutelist actually changed, notify observers
+        if (changed) {
             notifyObservers(username, mute);
         }
     }
