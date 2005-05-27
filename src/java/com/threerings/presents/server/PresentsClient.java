@@ -203,13 +203,13 @@ public class PresentsClient
                 Object[] args = new Object[] { new Integer(clobj.getOid()) };
                 _clobj.postMessage(ClientObject.CLOBJ_CHANGED, args);
 
+                // call down to any derived classes
+                clientObjectWillChange(_clobj, clobj);
+
                 // let the caller know that we've got some new business
                 if (ucl != null) {
                     ucl.changeReported(clobj);
                 }
-
-                // call down to any derived classes
-                clientObjectWillChange(_clobj, clobj);
 
                 // release our old client object; this will destroy it
                 _cmgr.releaseClientObject(_username);
