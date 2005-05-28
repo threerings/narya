@@ -1,5 +1,5 @@
 //
-// $Id: FrameRepaintManager.java,v 1.22 2004/10/23 17:21:54 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -44,6 +44,7 @@ import java.util.Iterator;
 import java.util.Map.Entry;
 
 import com.samskivert.util.ListUtil;
+import com.samskivert.util.RunAnywhere;
 import com.samskivert.util.StringUtil;
 
 /**
@@ -128,6 +129,14 @@ public class FrameRepaintManager extends RepaintManager
                 Log.info("Invalidating " + toString(vroot) + ".");
             }
             _invalid = ListUtil.add(_invalid, vroot);
+
+            // on the mac, components frequently do not repaint themselves
+            // after being invalidated so we have to force a repaint from
+            // the validation roon on down
+            if (RunAnywhere.isMacOS() && vroot instanceof JComponent) {
+                addDirtyRegion((JComponent)vroot, 0, 0,
+                               vroot.getWidth(), vroot.getHeight());
+            }
         }
     }
 
@@ -177,7 +186,15 @@ public class FrameRepaintManager extends RepaintManager
     protected Component getRoot (Component comp)
     {
 	for (Component c = comp; c != null; c = c.getParent()) {
-	    if (!c.isVisible() || !c.isDisplayable()) {
+            boolean hidden = !c.isDisplayable();
+            // on the mac, the JRootPane is invalidated before it is
+            // visible and is never again invalidated or repainted, so we
+            // punt and allow all invisible components to be invalidated
+            // and revalidated
+            if (!RunAnywhere.isMacOS()) {
+                hidden |= !c.isVisible();
+            }
+	    if (hidden) {
 		return null;
 	    }
             if (c instanceof Window || c instanceof Applet) {
