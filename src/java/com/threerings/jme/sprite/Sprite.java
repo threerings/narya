@@ -22,6 +22,7 @@
 package com.threerings.jme.sprite;
 
 import com.jme.scene.Node;
+import com.jme.scene.Spatial;
 
 import com.samskivert.util.ObserverList;
 
@@ -110,6 +111,54 @@ public class Sprite extends Node
         oldpath.wasRemoved();
         if (_observers != null) {
             _observers.apply(new CompletedOp(this, oldpath));
+        }
+    }
+
+    /**
+     * Configures the speed of all controllers in our model hierarchy.
+     */
+    public void setAnimationSpeed (float speed)
+    {
+        setAnimationSpeed(this, speed);
+    }
+
+    /**
+     * Configures the speed of all controllers in our model hierarchy.
+     */
+    public void setAnimationActive (boolean active)
+    {
+        setAnimationActive(this, active);
+    }
+
+    /**
+     * Helper function for {@link #setAnimationSpeed(float)}.
+     */
+    protected static void setAnimationSpeed (Spatial spatial, float speed)
+    {
+        for (int ii = 0; ii < spatial.getControllers().size(); ii++) {
+            spatial.getController(ii).setSpeed(speed);
+        }
+        if (spatial instanceof Node) {
+            Node node = (Node)spatial;
+            for (int ii = 0; ii < node.getQuantity(); ii++) {
+                setAnimationSpeed(node.getChild(ii), speed);
+            }
+        }
+    }
+
+    /**
+     * Helper function for {@link #setAnimationActive(boolean)}.
+     */
+    protected static void setAnimationActive (Spatial spatial, boolean active)
+    {
+        for (int ii = 0; ii < spatial.getControllers().size(); ii++) {
+            spatial.getController(ii).setActive(active);
+        }
+        if (spatial instanceof Node) {
+            Node node = (Node)spatial;
+            for (int ii = 0; ii < node.getQuantity(); ii++) {
+                setAnimationActive(node.getChild(ii), active);
+            }
         }
     }
 
