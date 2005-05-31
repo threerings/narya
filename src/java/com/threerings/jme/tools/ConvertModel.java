@@ -29,10 +29,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.URL;
 
-import com.jme.app.SimpleGame;
-import com.jme.renderer.lwjgl.LWJGLRenderer;
-import com.jme.system.DisplaySystem;
 import com.jmex.model.XMLparser.Converters.AseToJme;
+import com.jmex.model.XMLparser.Converters.DummyDisplaySystem;
 import com.jmex.model.XMLparser.Converters.FormatConverter;
 import com.jmex.model.XMLparser.Converters.MaxToJme;
 import com.jmex.model.XMLparser.Converters.Md2ToJme;
@@ -43,7 +41,7 @@ import com.jmex.model.XMLparser.Converters.ObjToJme;
  * A tool for converting various 3D model formats into JME's internal
  * format.
  */
-public class ConvertModel extends SimpleGame
+public class ConvertModel
 {
     public static void main (String[] args)
     {
@@ -52,18 +50,14 @@ public class ConvertModel extends SimpleGame
             System.exit(-1);
         }
 
+        // create a dummy display system which the converters need
+        new DummyDisplaySystem();
+
         ConvertModel app = new ConvertModel();
-        app._source = new File(args[0]);
-        app._target = new File(args[1]);
+        File source = new File(args[0]);
+        File target = new File(args[1]);
 
-        app.setDialogBehaviour(
-            SimpleGame.FIRSTRUN_OR_NOCONFIGFILE_SHOW_PROPS_DIALOG);
-        app.start();
-    }
-
-    protected void simpleInitGame ()
-    {
-        String path = _source.getPath().toLowerCase();
+        String path = source.getPath().toLowerCase();
         String type = path.substring(path.lastIndexOf(".") + 1);
 
         // set up our converter
@@ -71,7 +65,7 @@ public class ConvertModel extends SimpleGame
         if (type.equals("obj")) {
             convert = new ObjToJme();
             try {
-                convert.setProperty("mtllib", new URL("file:" + _source));
+                convert.setProperty("mtllib", new URL("file:" + source));
             } catch (Exception e) {
                 System.err.println("Failed to create material URL: " + e);
                 System.exit(-1);
@@ -92,20 +86,16 @@ public class ConvertModel extends SimpleGame
         // and do the deed
         try {
             BufferedOutputStream bout = new BufferedOutputStream(
-                new FileOutputStream(_target));
+                new FileOutputStream(target));
             BufferedInputStream bin = new BufferedInputStream(
-                new FileInputStream(_source));
+                new FileInputStream(source));
             convert.convert(bin, bout);
             bout.close();
         } catch (IOException ioe) {
-            System.err.println("Error converting '" + _source +
-                               "' to '" + _target + "'.");
+            System.err.println("Error converting '" + source +
+                               "' to '" + target + "'.");
             ioe.printStackTrace(System.err);
             System.exit(-1);
         }
-
-        finish();
     }
-
-    protected File _source, _target;
 }
