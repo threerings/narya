@@ -24,6 +24,9 @@ package com.threerings.admin.client;
 import java.lang.reflect.Field;
 
 import javax.swing.JCheckBox;
+import javax.swing.JPanel;
+
+import com.samskivert.swing.HGroupLayout;
 
 import com.samskivert.swing.GroupLayout;
 import com.samskivert.swing.Spacer;
@@ -40,12 +43,16 @@ public class BooleanFieldEditor extends FieldEditor
     {
         super(ctx, field, object);
 
+        JPanel jpan = new JPanel(new HGroupLayout(HGroupLayout.STRETCH));
+
         // add a checkbox to display the field value
-        add(_value = new JCheckBox(), GroupLayout.FIXED);
+        jpan.add(_value = new JCheckBox(), GroupLayout.FIXED);
         // add a spacer so that clicks to the right of the checkbox
         // don't toggle it
-        add(new Spacer(1, 1));
+        jpan.add(new Spacer(1, 1));
         _value.addActionListener(this);
+
+        add(jpan);
 
         // we want to let the user know if they remove focus from a text
         // box without changing a field that it's not saved
