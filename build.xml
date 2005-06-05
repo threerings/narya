@@ -77,6 +77,14 @@
   <target name="check-available">
     <available property="jme.present"
      classname="com.jme.scene.Node" classpathref="classpath"/>
+    <available property="jme-bui.present"
+     classname="com.jme.bui.BWindow" classpathref="classpath"/>
+    <condition property="build.jme">
+      <and>
+        <isset property="jme.present"/>
+        <isset property="jme-bui.present"/>
+      </and>
+    </condition>
   </target>
 
   <!-- prepares the application directories -->
@@ -105,7 +113,7 @@
            debug="on" optimize="{$build.optimize}" deprecation="on"
            source="1.4" target="1.4">
       <classpath refid="classpath"/>
-      <exclude name="com/threerings/jme/**" unless="jme.present"/>
+      <exclude name="com/threerings/jme/**" unless="build.jme"/>
       <exclude name="**/OggPlayer.java"/>
       <exclude name="**/ModPlayer.java"/>
       <exclude name="**/MidiPlayer.java"/>
