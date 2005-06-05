@@ -1,5 +1,5 @@
 //
-// $Id: OrientableImageSprite.java,v 1.5 2004/10/15 18:20:28 andrzej Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -144,7 +144,7 @@ public class OrientableImageSprite extends ImageSprite
         
         return AffineTransform.getRotateInstance(
             theta,
-            (_ox - _oyoff) + _frames.getWidth(_frameIdx)/2,
+            (_ox - _oxoff) + _frames.getWidth(_frameIdx)/2,
             (_oy - _oyoff) + _frames.getHeight(_frameIdx)/2
         );
     }
