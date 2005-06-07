@@ -470,17 +470,8 @@ public class MisoScenePanel extends VirtualMediaPanel
         }
 
         // make the menu surround the clicked object, but with consistent size
-        Rectangle mbounds = new Rectangle(scobj.bounds);
-        Dimension radbox = getObjectRadialSize();
-        if (mbounds.width != radbox.width) {
-            mbounds.x += (mbounds.width-radbox.width)/2;
-            mbounds.width = radbox.width;
-        }
-        if (mbounds.height != radbox.height) {
-            mbounds.y += (mbounds.height-radbox.height)/2;
-            mbounds.height = radbox.height;
-        }
-
+        Rectangle mbounds = getRadialMenuBounds(scobj);
+        
         _activeMenu = menu;
         _activeMenu.addActionListener(new ActionListener() {
             public void actionPerformed (ActionEvent e) {
@@ -497,6 +488,26 @@ public class MisoScenePanel extends VirtualMediaPanel
         _activeMenu.activate(this, mbounds, scobj);
     }
 
+    /**
+     * Returns an appropriate set of menu bounds for the specified object.
+     * Returns a rectangle of the size specified by
+     * {@link #getObjectRadialSize} centered around the object.
+     */
+    protected Rectangle getRadialMenuBounds (SceneObject scobj)
+    {
+        Rectangle mbounds = new Rectangle(scobj.bounds);
+        Dimension radbox = getObjectRadialSize();
+        if (mbounds.width != radbox.width) {
+            mbounds.x += (mbounds.width-radbox.width)/2;
+            mbounds.width = radbox.width;
+        }
+        if (mbounds.height != radbox.height) {
+            mbounds.y += (mbounds.height-radbox.height)/2;
+            mbounds.height = radbox.height;
+        }
+        return mbounds;
+    }
+    
     /**
      * Returns the size of the rectangle around which we create an
      * object's radial menu. The default is a sensible size, but derived
