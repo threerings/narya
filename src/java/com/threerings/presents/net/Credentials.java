@@ -1,5 +1,5 @@
 //
-// $Id: Credentials.java,v 1.14 2004/08/27 02:20:22 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -59,6 +59,11 @@ public abstract class Credentials implements Streamable
     public Name getUsername ()
     {
         return _username;
+    }
+
+    public void setUsername (Name name)
+    {
+        _username = name;
     }
 
     // documentation inherited
