@@ -175,9 +175,6 @@ public abstract class DropControllerDelegate extends PuzzleControllerDelegate
 
 //         Log.info("Starting drop action");
 
-        // save off the player index
-        _pidx = _ctrl.getPlayerIndex();
-
         // add ourselves as a frame participant
         _ctx.getFrameManager().registerFrameParticipant(this);
 
@@ -455,8 +452,8 @@ public abstract class DropControllerDelegate extends PuzzleControllerDelegate
             return;
         }
 
-        if (_pidx != -1 && !_ctrl.isGameOver() &&
-                _puzobj.isActivePlayer(_pidx)) {
+        int pidx = _ctrl.getPlayerIndex();
+        if (pidx != -1 && !_ctrl.isGameOver() && _puzobj.isActivePlayer(pidx)) {
             // create the next block
             _blocksprite = createNextBlock();
             if (_blocksprite != null) {
@@ -621,11 +618,12 @@ public abstract class DropControllerDelegate extends PuzzleControllerDelegate
      */
     protected void updateSelfSummary ()
     {
-        if (_pidx != -1 && _puzobj != null && _puzobj.summaries != null) {
-            BoardSummary bsum = _puzobj.summaries[_pidx];
+        int pidx = _ctrl.getPlayerIndex();
+        if (pidx != -1 && _puzobj != null && _puzobj.summaries != null) {
+            BoardSummary bsum = _puzobj.summaries[pidx];
             bsum.setBoard(_dboard);
             bsum.summarize();
-            _dpanel.setSummary(_pidx, bsum);
+            _dpanel.setSummary(pidx, bsum);
         }
     }
 
@@ -1131,9 +1129,6 @@ public abstract class DropControllerDelegate extends PuzzleControllerDelegate
 
     /** The board dimensions in pieces. */
     protected int _bwid, _bhei;
-
-    /** Our player index in the game. */
-    protected int _pidx;
 
     /** The distance the board row travels in pixels. */
     protected int _risedist;
