@@ -1,5 +1,5 @@
 //
-// $Id$
+// $Id: GameConfigurator.java 3590 2005-06-08 23:20:18Z ray $
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -19,16 +19,7 @@
 // License along with this library; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 
-package com.threerings.parlor.client;
-
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.Insets;
-
-import javax.swing.JComponent;
-import javax.swing.JPanel;
-
-import com.samskivert.swing.VGroupLayout;
+package com.threerings.parlor.game.client;
 
 import com.threerings.parlor.game.data.GameConfig;
 import com.threerings.parlor.util.ParlorContext;
@@ -43,17 +34,8 @@ import com.threerings.parlor.util.ParlorContext;
  * based on the class returned from the {@link GameConfig} and then
  * initialize it with a call to {@link #init}.
  */
-public class GameConfigurator extends JPanel
+public abstract class GameConfigurator
 {
-    // initializer
-    {
-        // BACKcompatible, older code (and toybox) expects the layout
-        // to be a vgroup, so we default to that
-        VGroupLayout layout = new VGroupLayout(VGroupLayout.NONE);
-        layout.setOffAxisPolicy(VGroupLayout.STRETCH);
-        setLayout(layout);
-    }
-
     /**
      * Initializes this game configurator, creates its user interface
      * elements and prepares it for display.
@@ -104,40 +86,6 @@ public class GameConfigurator extends JPanel
     }
 
     /**
-     * Add a control to the interface. This should be the standard way
-     * that configurator controls are added, but note also that external
-     * entities may add their own controls that are related to the game,
-     * but do not directly alter the game config, so that all the controls
-     * are added in a uniform manner and are well aligned.
-     */
-    public void addControl (JComponent label, JComponent control)
-    {
-        // BACKcompatible, newer code will call this method, and so
-        // we need to switch the layout to gridbag instead of vgroup
-        if (!(getLayout() instanceof GridBagLayout)) {
-            setLayout(new GridBagLayout());
-        }
-
-        // Set up the constraints. There's really no point in saving
-        // this somewhere, as they're cloned anyway with every component
-        // insertion.
-        GridBagConstraints lc = new GridBagConstraints();
-        lc.gridx = 0;
-        lc.anchor = GridBagConstraints.NORTHWEST;
-        lc.insets = _labelInsets;
-
-        GridBagConstraints cc = new GridBagConstraints();
-        cc.gridx = 1;
-        cc.anchor = GridBagConstraints.NORTHWEST;
-        cc.insets = _controlInsets;
-        cc.gridwidth = GridBagConstraints.REMAINDER;
-
-        // add the components
-        add(label, lc);
-        add(control, cc);
-    }
-
-    /**
      * Derived classes will want to override this method, flushing values
      * from the user interface to the game config object so that it is
      * properly configured prior to being returned to the {@link
@@ -152,10 +100,4 @@ public class GameConfigurator extends JPanel
 
     /** Our game configuration. */
     protected GameConfig _config;
-
-    /** Insets for configuration labels. */
-    protected Insets _labelInsets = new Insets(1, 0, 1, 4);
-
-    /** Insets for configuration controls. */
-    protected Insets _controlInsets = new Insets(1, 4, 1, 0);
 }

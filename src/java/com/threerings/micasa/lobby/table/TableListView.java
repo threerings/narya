@@ -40,14 +40,14 @@ import com.threerings.micasa.Log;
 import com.threerings.micasa.lobby.LobbyConfig;
 import com.threerings.micasa.util.MiCasaContext;
 
-import com.threerings.parlor.client.GameConfigurator;
 import com.threerings.parlor.client.SeatednessObserver;
+import com.threerings.parlor.client.TableConfigurator;
 import com.threerings.parlor.client.TableDirector;
 import com.threerings.parlor.client.TableObserver;
 import com.threerings.parlor.data.Table;
-import com.threerings.parlor.data.TableConfigurator;
+import com.threerings.parlor.game.client.GameConfigurator;
+import com.threerings.parlor.game.client.SwingGameConfigurator;
 import com.threerings.parlor.game.data.GameConfig;
-import com.threerings.parlor.game.data.TableableGameConfig;
 
 import com.threerings.crowd.client.PlaceView;
 import com.threerings.crowd.data.PlaceObject;
@@ -100,15 +100,22 @@ public class TableListView extends JPanel
         GameConfig gconfig = null;
         try {
             gconfig = config.getGameConfig();
-            _tableFigger =
-                ((TableableGameConfig) gconfig).createTableConfigurator(_ctx);
-            panel.add((Component) _tableFigger, VGroupLayout.FIXED);
+
+            _tableFigger = gconfig.createTableConfigurator();
+            if (_tableFigger == null) {
+                Log.warning("Game config has not been set up to work with " +
+                    "tables: it needs to return non-null from " +
+                    "createTableConfigurator().");
+                // let's just wait until we throw an NPE below
+            }
 
             _figger = gconfig.createConfigurator();
+            _tableFigger.init(_ctx, _figger);
             if (_figger != null) {
                 _figger.init(_ctx);
                 _figger.setGameConfig(gconfig);
-                panel.add(_figger, VGroupLayout.FIXED);
+                panel.add(((SwingGameConfigurator) _figger).getPanel(),
+                    VGroupLayout.FIXED);
             }
 
             _create = new JButton("Create table");

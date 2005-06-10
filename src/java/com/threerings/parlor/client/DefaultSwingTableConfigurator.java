@@ -22,80 +22,100 @@
 package com.threerings.parlor.client;
 
 import javax.swing.JCheckBox;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 import com.samskivert.swing.SimpleSlider;
 import com.samskivert.swing.VGroupLayout;
 
-import com.threerings.parlor.data.TableConfigurator;
 import com.threerings.parlor.data.TableConfig;
 import com.threerings.parlor.util.ParlorContext;
 
+import com.threerings.parlor.game.client.SwingGameConfigurator;
+import com.threerings.parlor.game.data.GameConfig;
 
 /**
  * Provides a default implementation of a TableConfigurator for
  * a Swing interface.
  */
-public class DefaultSwingTableConfigurator extends JPanel
-    implements TableConfigurator
+public class DefaultSwingTableConfigurator extends TableConfigurator
 {
     /**
      * Create a TableConfigurator that allows only the specified number
      * of players and lets the configuring user enable private games
      * only if the number of players is greater than 2.
      */
-    public DefaultSwingTableConfigurator (ParlorContext ctx, int players)
+    public DefaultSwingTableConfigurator (int players)
     {
-        this(ctx, players, (players > 2));
+        this(players, (players > 2));
     }
 
     /**
      * Create a TableConfigurator that allows only the specified number
      * of players and lets the user configure a private table, or not.
      */
-    public DefaultSwingTableConfigurator (ParlorContext ctx, int players,
-            boolean allowPrivate)
+    public DefaultSwingTableConfigurator (int players, boolean allowPrivate)
     {
-        this(ctx, players, players, players, allowPrivate);
+        this(players, players, players, allowPrivate);
     }
 
     /**
      * Create a TableConfigurator that allows for the specified configuration
      * parameters.
      */
-    public DefaultSwingTableConfigurator (ParlorContext ctx, int minPlayers,
+    public DefaultSwingTableConfigurator (int minPlayers,
             int desiredPlayers, int maxPlayers, boolean allowPrivate)
     {
-        super(new VGroupLayout()); // TODO: layout improvement?
-
-        // TODO: translations
-        _playerSlider = new SimpleSlider(
-            "Seats:", minPlayers, maxPlayers, desiredPlayers);
-        _privateCheck = new JCheckBox("Private?:");
-
-        // figure out what to actually show
+        // create a slider for players, if applicable
         if (minPlayers != maxPlayers) {
-            add(_playerSlider);
+            _playerSlider = new SimpleSlider(
+                "", minPlayers, maxPlayers, desiredPlayers);
+
+        } else {
+            _config.desiredPlayerCount = desiredPlayers;
         }
+
+        // create up the checkbox for private games, if applicable
         if (allowPrivate) {
-            add(_privateCheck);
+            _privateCheck = new JCheckBox();
         }
     }
 
-    // documentation inherited from interface TableConfigurator
+    // documentation inherited
+    protected void createConfigInterface ()
+    {
+        super.createConfigInterface();
+
+        SwingGameConfigurator gconf = (SwingGameConfigurator) _gameConfigurator;
+
+        if (_playerSlider != null) {
+            // TODO: proper translation
+            gconf.addControl(new JLabel("Players:"), _playerSlider);
+        }
+
+        if (_privateCheck != null) {
+            // TODO: proper translation
+            gconf.addControl(new JLabel("Private:"), _privateCheck);
+        }
+    }
+
+    // documentation inherited
     public boolean isEmpty ()
     {
-        return (getComponentCount() == 0);
+        return (_playerSlider == null) && (_privateCheck == null);
     }
 
-    // documentation inherited from interface TableConfigurator
-    public TableConfig getTableConfig ()
+    // documentation inherited
+    protected void flushTableConfig()
     {
-        TableConfig tconfig = new TableConfig();
-        tconfig.desiredPlayerCount = _playerSlider.getValue();
-        tconfig.privateTable = _privateCheck.isSelected();
+        super.flushTableConfig();
 
-        return tconfig;
+        if (_playerSlider != null) {
+            _config.desiredPlayerCount = _playerSlider.getValue();
+        }
+        if (_privateCheck != null) {
+            _config.privateTable = _privateCheck.isSelected();
+        }
     }
 
     /** A slider for configuring the number of players at the table. */

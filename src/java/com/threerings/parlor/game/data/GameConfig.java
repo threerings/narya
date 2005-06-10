@@ -27,7 +27,8 @@ import java.util.List;
 import com.threerings.crowd.data.PlaceConfig;
 import com.threerings.util.Name;
 
-import com.threerings.parlor.client.GameConfigurator;
+import com.threerings.parlor.client.TableConfigurator;
+import com.threerings.parlor.game.client.GameConfigurator;
 
 /**
  * The game config class encapsulates the configuration information for a
@@ -74,6 +75,15 @@ public abstract class GameConfig extends PlaceConfig implements Cloneable
      * configuration is necessary, this method should return null.
      */
     public abstract GameConfigurator createConfigurator ();
+
+    /**
+     * Creates a table configurator for initializing 'table' properties
+     * of the game. The default implementation returns null.
+     */
+    public TableConfigurator createTableConfigurator ()
+    {
+        return null;
+    }
 
     /**
      * Returns a translatable label describing this game.
