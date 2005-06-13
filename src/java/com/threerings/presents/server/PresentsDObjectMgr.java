@@ -238,16 +238,16 @@ public class PresentsDObjectMgr
                 _maxQueueSize = queueSize;
             }
 
-            // report and reset our largest queue size once per minute
+            // report and reset our largest queue size once every 5 minutes
             long startMillis = start * 1000 / freq;
             if (_nextQueueReport < startMillis) {
                 if (_nextQueueReport != 0L) {
                     _statslog.log("max_dobj_queue_size " + _maxQueueSize);
                     _maxQueueSize = queueSize;
-                    _nextQueueReport += 60 * 1000L;
+                    _nextQueueReport += QUEUE_PROFILING_INTERVAL;
 
                 } else {
-                    _nextQueueReport = startMillis + 60 * 1000L;
+                    _nextQueueReport = startMillis + QUEUE_PROFILING_INTERVAL;
                 }
             }
         }
@@ -1015,6 +1015,9 @@ public class PresentsDObjectMgr
 
     /** The default size of an oid list refs vector. */
     protected static final int DEFREFVEC_SIZE = 4;
+
+    /** The frequency with which we report maximum queue size. */
+    protected static final long QUEUE_PROFILING_INTERVAL = 5 * 60 * 1000L;
 
     /**
      * This table maps event classes to helper methods that perform some

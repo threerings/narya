@@ -98,15 +98,17 @@ public class PresentsInvoker extends Invoker
                 _maxQueueSize = queueSize;
             }
 
-            // report and reset our largest queue size once per minute
+            // report and reset our largest queue size once every 5 minutes
             if (_nextQueueReport < start) {
                 if (_nextQueueReport != 0L) {
                     _statslog.log("max_invoker_queue_size " + _maxQueueSize);
                     _maxQueueSize = queueSize;
-                    _nextQueueReport += 60 * 1000L;
+                    _nextQueueReport +=
+                        PresentsDObjectMgr.QUEUE_PROFILING_INTERVAL;
 
                 } else {
-                    _nextQueueReport = start + 60 * 1000L;
+                    _nextQueueReport =
+                        start + PresentsDObjectMgr.QUEUE_PROFILING_INTERVAL;
                 }
             }
         }
