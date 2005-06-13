@@ -33,6 +33,10 @@ public class TableConfig extends SimpleStreamableObject
      * party game. */
     public int desiredPlayerCount;
 
+    /** The minimum number of players needed for the game to start at
+     * the creator's discretion. */
+    public int minimumPlayerCount;
+
     /** Whether the table is "private". */
     public boolean privateTable;
 }

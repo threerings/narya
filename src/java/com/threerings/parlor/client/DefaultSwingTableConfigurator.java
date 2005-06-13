@@ -66,6 +66,8 @@ public class DefaultSwingTableConfigurator extends TableConfigurator
     public DefaultSwingTableConfigurator (int minPlayers,
             int desiredPlayers, int maxPlayers, boolean allowPrivate)
     {
+        _config.minimumPlayerCount = minPlayers;
+
         // create a slider for players, if applicable
         if (minPlayers != maxPlayers) {
             _playerSlider = new SimpleSlider(

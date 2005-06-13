@@ -63,12 +63,11 @@ public class Table
 
     /**
      * Creates a new table instance, and assigns it the next monotonically
-     * increasing table id. The supplied config instance must implement
-     * {@link TableConfig} or a <code>ClassCastException</code> will be
-     * thrown.
+     * increasing table id.
      *
      * @param lobbyOid the object id of the lobby in which this table is
      * to live.
+     * @param tconfig the table configuration for this table.
      * @param config the configuration of the game being matchmade by this
      * table.
      */
@@ -114,6 +113,33 @@ public class Table
     }
 
     /**
+     * Returns true if there is no one sitting at this table.
+     */
+    public boolean isEmpty ()
+    {
+        for (int i = 0; i < bodyOids.length; i++) {
+            if (bodyOids[i] != 0) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /**
+     * Count the number of players currently occupying this table.
+     */
+    public int getOccupiedCount ()
+    {
+        int count = 0;
+        for (int ii = 0; ii < occupants.length; ii++) {
+            if (occupants[ii] != null) {
+                count++;
+            }
+        }
+        return count;
+    }
+
+    /**
      * Once a table is ready to play (see {@link #mayBeStarted} and {@link
      * #shouldBeStarted}), the players array can be fetched using this
      * method. It will return an array containing the usernames of all of
@@ -126,20 +152,11 @@ public class Table
             return null;
         }
 
-        // count up the players
-        int pcount = 0;
-        for (int i = 0; i < occupants.length; i++) {
-            if (occupants[i] != null) {
-                pcount++;
-            }
-        }
-
         // create and populate the players array
-        Name[] players = new Name[pcount];
-        pcount = 0;
-        for (int i = 0; i < occupants.length; i++) {
-            if (occupants[i] != null) {
-                players[pcount++] = occupants[i];
+        Name[] players = new Name[getOccupiedCount()];
+        for (int ii = 0, dex = 0; ii < occupants.length; ii++) {
+            if (occupants[ii] != null) {
+                players[dex++] = occupants[ii];
             }
         }
 
@@ -230,19 +247,7 @@ public class Table
      */
     public boolean mayBeStarted ()
     {
-        // TODO: this becomes more meaningful if we implement games
-        // that can optionally be started with less than the desired number
-
-        // make sure at least the minimum number of players are here
-        int want = tconfig.desiredPlayerCount, have = 0;
-        for (int i = 0; i < occupants.length; i++) {
-            if (occupants[i] != null) {
-                if (++have == want) {
-                    return true;
-                }
-            }
-        }
-        return false;
+        return tconfig.minimumPlayerCount <= getOccupiedCount();
     }
 
     /**
@@ -251,26 +256,7 @@ public class Table
      */
     public boolean shouldBeStarted ()
     {
-        int need = tconfig.desiredPlayerCount;
-        for (int i = 0; i < occupants.length; i++) {
-            if (occupants[i] != null && --need == 0) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    /**
-     * Returns true if there is no one sitting at this table.
-     */
-    public boolean isEmpty ()
-    {
-        for (int i = 0; i < bodyOids.length; i++) {
-            if (bodyOids[i] != 0) {
-                return false;
-            }
-        }
-        return true;
+        return tconfig.desiredPlayerCount <= getOccupiedCount();
     }
 
     /**
