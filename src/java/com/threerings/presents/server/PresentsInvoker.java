@@ -23,6 +23,7 @@ package com.threerings.presents.server;
 
 import java.util.Iterator;
 
+import com.samskivert.util.AuditLogger;
 import com.samskivert.util.Histogram;
 import com.samskivert.util.Invoker;
 import com.samskivert.util.StringUtil;
@@ -50,6 +51,15 @@ public class PresentsInvoker extends Invoker
     }
 
     /**
+     * Configures this manager with a log to which runtime statistics will
+     * be recorded.
+     */
+    public void setStatsLog (AuditLogger logger)
+    {
+        _statslog = logger;
+    }
+
+    /**
      * Will do a sophisticated shutdown of both itself and the DObjectManager
      * thread.
      */
@@ -73,6 +83,32 @@ public class PresentsInvoker extends Invoker
             buffer.append("  ").append(key).append(" ");
             buffer.append(profile).append("\n");
             profile.clear();
+        }
+    }
+
+    // documentation inherited
+    protected void willInvokeUnit (Unit unit, long start)
+    {
+        super.willInvokeUnit(unit, start);
+
+        if (_statslog != null) {
+            // keep track of the largest queue size we've seen
+            int queueSize = _queue.size();
+            if (queueSize > _maxQueueSize) {
+                _maxQueueSize = queueSize;
+            }
+
+            // report and reset our largest queue size once per minute
+            if (_nextQueueReport < start) {
+                if (_nextQueueReport != 0L) {
+                    _statslog.log("max_invoker_queue_size " + _maxQueueSize);
+                    _maxQueueSize = queueSize;
+                    _nextQueueReport += 60 * 1000L;
+
+                } else {
+                    _nextQueueReport = start + 60 * 1000L;
+                }
+            }
         }
     }
 
@@ -176,5 +212,15 @@ public class PresentsInvoker extends Invoker
         protected static final int MAX_LOOPS = 10000;
     }
 
+    /** The distributed object manager with which we interoperate. */
     protected PresentsDObjectMgr _omgr;
+
+    /** Used to report runtime statistics. */
+    protected AuditLogger _statslog;
+
+    /** The largest queue size in the past minute. */
+    protected long _maxQueueSize;
+
+    /** The time at which we last reported our max queue size. */
+    protected long _nextQueueReport;
 }

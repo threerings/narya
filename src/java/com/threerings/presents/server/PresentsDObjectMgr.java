@@ -28,6 +28,7 @@ import java.util.List;
 
 import sun.misc.Perf;
 
+import com.samskivert.util.AuditLogger;
 import com.samskivert.util.HashIntMap;
 import com.samskivert.util.Histogram;
 import com.samskivert.util.Invoker;
@@ -93,12 +94,12 @@ public class PresentsDObjectMgr
     }
 
     /**
-     * Toggles whether or not we track and report our largest event queue
-     * size.
+     * Configures this manager with a log to which runtime statistics will
+     * be recorded.
      */
-    public void setReportQueueSize (boolean reportQueueSize)
+    public void setStatsLog (AuditLogger logger)
     {
-        _reportQueueSize = reportQueueSize;
+        _statslog = logger;
     }
 
     // documentation inherited from interface
@@ -230,7 +231,7 @@ public class PresentsDObjectMgr
         long start = _timer.highResCounter();
         long freq = _timer.highResFrequency();
 
-        if (_reportQueueSize) {
+        if (_statslog != null) {
             // keep track of the largest queue size we've seen
             int queueSize = _evqueue.size();
             if (queueSize > _maxQueueSize) {
@@ -241,7 +242,7 @@ public class PresentsDObjectMgr
             long startMillis = start * 1000 / freq;
             if (_nextQueueReport < startMillis) {
                 if (_nextQueueReport != 0L) {
-                    Log.info("Max dobj queue size " + _maxQueueSize);
+                    _statslog.log("max_dobj_queue_size " + _maxQueueSize);
                     _maxQueueSize = queueSize;
                     _nextQueueReport += 60 * 1000L;
 
@@ -1000,8 +1001,8 @@ public class PresentsDObjectMgr
     /** Used to profile our events and runnable units. */
     protected HashMap _profiles = new HashMap();
 
-    /** Whether or not we track and report our event queue size. */
-    protected boolean _reportQueueSize = false;
+    /** Used to report runtime statistics. */
+    protected AuditLogger _statslog;
 
     /** The largest queue size in the past minute. */
     protected long _maxQueueSize;
