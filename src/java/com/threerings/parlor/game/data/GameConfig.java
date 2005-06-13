@@ -106,11 +106,7 @@ public abstract class GameConfig extends PlaceConfig implements Cloneable
 
     /**
      * Returns a List of strings that describe the configuration of this
-     * game. This should eventually be rolled into a more general
-     * purpose mechanism for generating descriptions of game
-     * configurations as well as editors for game configurations (which
-     * already exists in rudimentary form).  Default implementation returns
-     * an empty list.
+     * game. Default implementation returns an empty list.
      */
     public List getDescription ()
     {
