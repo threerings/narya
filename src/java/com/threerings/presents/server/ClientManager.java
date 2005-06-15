@@ -150,6 +150,14 @@ public class ClientManager
     }
 
     /**
+     * Return the number of client resolutions are currently happening.
+     */
+    public int getOutstandingResolutionCount ()
+    {
+        return _outstandingResolutions;
+    }
+
+    /**
      * Enumerates all active client objects.
      */
     public Iterator enumerateClientObjects ()
@@ -196,7 +204,7 @@ public class ClientManager
      * when the caller is finished with the client object.
      */
     public synchronized void resolveClientObject (
-        Name username, ClientResolutionListener listener)
+        Name username, final ClientResolutionListener listener)
     {
         // look to see if the client object is already resolved
         ClientObject clobj = (ClientObject)_objmap.get(username);
@@ -219,11 +227,21 @@ public class ClientManager
             // client object, populate it and notify the listeners
             clr = (ClientResolver)_clrClass.newInstance();
             clr.init(username);
-            clr.addResolutionListener(listener);
+            clr.addResolutionListener(new ClientResolutionListener() {
+                public void clientResolved (Name username, ClientObject clobj) {
+                    listener.clientResolved(username, clobj);
+                    _outstandingResolutions--;
+                }
+                public void resolutionFailed (Name username, Exception cause) {
+                    listener.resolutionFailed(username, cause);
+                    _outstandingResolutions--;
+                }
+            });
 
             // request that the appropriate client object be created by
             // the dobject manager which starts the whole business off
             PresentsServer.omgr.createObject(clr.getClientObjectClass(), clr);
+            _outstandingResolutions++;
 
         } catch (Exception e) {
             // let the listener know that we're hosed
@@ -495,6 +513,9 @@ public class ClientManager
 
     /** The client resolver class in use. */
     protected Class _clrClass = ClientResolver.class;
+
+    /** A count of how many client objects are currently being resolved. */
+    protected int _outstandingResolutions;
 
     /** The frequency with which we check for expired clients. */
     protected static final long CLIENT_FLUSH_INTERVAL = 60 * 1000L;
