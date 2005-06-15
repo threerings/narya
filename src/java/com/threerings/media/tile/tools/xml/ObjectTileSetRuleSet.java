@@ -1,5 +1,5 @@
 //
-// $Id: ObjectTileSetRuleSet.java,v 1.12 2004/08/27 02:12:44 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -53,6 +53,8 @@ import com.threerings.util.DirectionUtil;
  *   &lt;objectHeights&gt;3, 4, 3, 4&lt;/objectHeights&gt;
  *   &lt;!-- the default render priorities for these object tiles --&gt;
  *   &lt;priorities&gt;0, 0, -1, 0&lt;/priorities&gt;
+ *   &lt;!-- the constraints for these object tiles --&gt;
+ *   &lt;constraints&gt;ATTACH_N, ATTACH_E, ATTACH_S, ATTACH_W&lt;/constraints&gt;
  * &lt;/tileset&gt;
  * </pre>
  */
@@ -159,6 +161,21 @@ public class ObjectTileSetRuleSet extends SwissArmyTileSetRuleSet
                         }
                     }
                     set.setSpotOrients(sorients);
+                }
+            });
+    
+        digester.addRule(
+            _prefix + TILESET_PATH + "/constraints",
+                new CallMethodSpecialRule() {
+                public void parseAndSet (String bodyText, Object target)
+                {
+                    String[] constrs = StringUtil.parseStringArray(
+                        bodyText);
+                    String[][] constraints = new String[constrs.length][];
+                    for (int ii = 0; ii < constrs.length; ii++) {
+                        constraints[ii] = constrs[ii].split("\\s*|\\s*");
+                    }
+                    ((ObjectTileSet)target).setConstraints(constraints);
                 }
             });
     }

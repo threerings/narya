@@ -1,5 +1,5 @@
 //
-// $Id: ObjectTileSet.java,v 1.19 2004/08/30 22:09:29 ray Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -21,6 +21,7 @@
 
 package com.threerings.media.tile;
 
+import com.samskivert.util.ListUtil;
 import com.samskivert.util.StringUtil;
 
 import com.threerings.media.image.Colorization;
@@ -35,6 +36,28 @@ import com.threerings.media.image.Colorization;
 public class ObjectTileSet extends SwissArmyTileSet
     implements RecolorableTileSet
 {
+    /** A constraint indicating that the object must be attached to another
+     * object in the indicated direction. */
+    public static final String ATTACH_N = "ATTACH_N", ATTACH_E = "ATTACH_E",
+        ATTACH_S = "ATTACH_S", ATTACH_W = "ATTACH_W";
+    
+    /** A constraint indicating that the object must have empty space in the
+     * indicated direction. */
+    public static final String SPACE_N = "SPACE_N", SPACE_E = "SPACE_E",
+        SPACE_S = "SPACE_S", SPACE_W = "SPACE_W";
+        
+    /** A constraint indicating that the object is a surface (e.g., table). */
+    public static final String SURFACE = "SURFACE";
+    
+    /** A constraint indicating that the object must be placed on a surface. */
+    public static final String ON_SURFACE = "ON_SURFACE";
+ 
+    /** A constraint indicating that the object is a wall. */
+    public static final String WALL = "WALL";
+ 
+    /** A constraint indicating that the object must be placed on a wall. */
+    public static final String ON_WALL = "ON_WALL";
+    
     /**
      * Sets the widths (in unit tile count) of the objects in this
      * tileset. This must be accompanied by a call to {@link
@@ -114,6 +137,14 @@ public class ObjectTileSet extends SwissArmyTileSet
     }
 
     /**
+     * Sets the lists of constraints associated with our object tiles.
+     */
+    public void setConstraints (String[][] constraints)
+    {
+        _constraints = constraints;
+    }
+    
+    /**
      * Returns the x coordinate of the spot associated with the specified
      * tile index.
      */
@@ -140,6 +171,24 @@ public class ObjectTileSet extends SwissArmyTileSet
         return (_sorients == null) ? 0 : _sorients[tileIdx];
     }
 
+    /**
+     * Returns the list of constraints associated with the specified tile
+     * index, or <code>null</code> if the index has no constraints.
+     */
+    public String[] getConstraints (int tileIdx)
+    {
+        return (_constraints == null) ? null : _constraints[tileIdx];
+    }
+    
+    /**
+     * Checks whether the tile at the specified index has the given constraint.
+     */
+    public boolean hasConstraint (int tileIdx, String constraint)
+    {
+        return (_constraints == null) ? false :
+            ListUtil.contains(_constraints[tileIdx], constraint);
+    }
+    
     // documentation inherited from interface RecolorableTileSet
     public String[] getColorizations ()
     {
@@ -159,6 +208,7 @@ public class ObjectTileSet extends SwissArmyTileSet
 	buf.append(", xspots=").append(StringUtil.toString(_xspots));
 	buf.append(", yspots=").append(StringUtil.toString(_yspots));
 	buf.append(", sorients=").append(StringUtil.toString(_sorients));
+	buf.append(", constraints=").append(StringUtil.toString(_constraints));
     }
 
     // documentation inherited
@@ -228,6 +278,9 @@ public class ObjectTileSet extends SwissArmyTileSet
     /** The orientation of the "spots" associated with our tiles. */
     protected byte[] _sorients;
 
+    /** Lists of constraints associated with our tiles. */
+    protected String[][] _constraints;
+    
     /** Increase this value when object's serialized state is impacted by
      * a class change (modification of fields, inheritance). */
     private static final long serialVersionUID = 1;

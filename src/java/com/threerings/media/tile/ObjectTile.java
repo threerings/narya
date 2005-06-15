@@ -1,5 +1,5 @@
 //
-// $Id: ObjectTile.java,v 1.18 2004/08/27 02:12:41 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -24,6 +24,7 @@ package com.threerings.media.tile;
 import java.awt.Dimension;
 import java.awt.Point;
 
+import com.samskivert.util.ListUtil;
 import com.samskivert.util.StringUtil;
 
 import com.threerings.util.DirectionUtil;
@@ -165,6 +166,24 @@ public class ObjectTile extends Tile
         return _sorient;
     }
 
+    /**
+     * Returns the list of constraints associated with this object, or
+     * <code>null</code> if the object has no constraints.
+     */
+    public String[] getConstraints ()
+    {
+        return _constraints;
+    }
+    
+    /**
+     * Checks whether this object has the given constraint.
+     */
+    public boolean hasConstraint (String constraint)
+    {
+        return (_constraints == null) ? false :
+            ListUtil.contains(_constraints, constraint);
+    }
+    
     // documentation inherited
     public void toString (StringBuffer buf)
     {
@@ -176,6 +195,10 @@ public class ObjectTile extends Tile
             buf.append(", spot=").append(StringUtil.toString(_spot));
             buf.append(", sorient=");
             buf.append(DirectionUtil.toShortString(_sorient));
+        }
+        if (_constraints != null) {
+            buf.append(", constraints=").append(StringUtil.toString(
+                _constraints));
         }
     }
 
@@ -195,4 +218,7 @@ public class ObjectTile extends Tile
 
     /** The orientation of the "spot" associated with this object. */
     protected byte _sorient;
+    
+    /** The list of constraints associated with this object. */
+    protected String[] _constraints;
 }
