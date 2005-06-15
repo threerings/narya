@@ -47,15 +47,4 @@ public class GameMarshaller extends InvocationMarshaller
         });
     }
 
-    /** The method id used to dispatch {@link #startPartyGame} requests. */
-    public static final int START_PARTY_GAME = 2;
-
-    // documentation inherited from interface
-    public void startPartyGame (Client arg1)
-    {
-        sendRequest(arg1, START_PARTY_GAME, new Object[] {
-            
-        });
-    }
-
 }

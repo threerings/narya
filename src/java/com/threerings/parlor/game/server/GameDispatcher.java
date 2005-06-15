@@ -61,12 +61,6 @@ public class GameDispatcher extends InvocationDispatcher
             );
             return;
 
-        case GameMarshaller.START_PARTY_GAME:
-            ((GameProvider)provider).startPartyGame(
-                source                
-            );
-            return;
-
         default:
             super.dispatchRequest(source, methodId, args);
         }

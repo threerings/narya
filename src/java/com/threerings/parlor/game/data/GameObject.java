@@ -58,9 +58,6 @@ public class GameObject extends PlaceObject
     /** The field name of the <code>roundId</code> field. */
     public static final String ROUND_ID = "roundId";
 
-    /** The field name of the <code>creator</code> field. */
-    public static final String CREATOR = "creator";
-
     /** The field name of the <code>playerStatus</code> field. */
     public static final String PLAYER_STATUS = "playerStatus";
     // AUTO-GENERATED: FIELDS END
@@ -105,9 +102,6 @@ public class GameObject extends PlaceObject
 
     /** The unique round identifier for the current round. */
     public int roundId;
-
-    /** The player index of the creating player if this is a party game. */
-    public int creator;
 
     /** If null, indicates that all present players are active, or for
      * more complex games can be non-null to indicate the current status
@@ -378,22 +372,6 @@ public class GameObject extends PlaceObject
     }
 
     /**
-     * Requests that the <code>creator</code> field be set to the
-     * specified value. The local value will be updated immediately and an
-     * event will be propagated through the system to notify all listeners
-     * that the attribute did change. Proxied copies of this object (on
-     * clients) will apply the value change when they received the
-     * attribute changed notification.
-     */
-    public void setCreator (int value)
-    {
-        int ovalue = this.creator;
-        requestAttributeChange(
-            CREATOR, new Integer(value), new Integer(ovalue));
-        this.creator = value;
-    }
-
-    /**
      * Requests that the <code>playerStatus</code> field be set to the
      * specified value. The local value will be updated immediately and an
      * event will be propagated through the system to notify all listeners
@@ -405,7 +383,7 @@ public class GameObject extends PlaceObject
     {
         int[] ovalue = this.playerStatus;
         requestAttributeChange(
-                PLAYER_STATUS, value, ovalue);
+            PLAYER_STATUS, value, ovalue);
         this.playerStatus = (value == null) ? null : (int[])value.clone();
     }
 
@@ -422,7 +400,7 @@ public class GameObject extends PlaceObject
     {
         int ovalue = this.playerStatus[index];
         requestElementUpdate(
-                PLAYER_STATUS, index, new Integer(value), new Integer(ovalue));
+            PLAYER_STATUS, index, new Integer(value), new Integer(ovalue));
         this.playerStatus[index] = value;
     }
     // AUTO-GENERATED: METHODS END

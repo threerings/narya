@@ -35,10 +35,4 @@ public interface GameProvider extends InvocationProvider
      * service request.
      */
     public void playerReady (ClientObject caller);
-
-    /**
-     * Called when the client has sent a {@link
-     * GameService#startPartyGame} service request.
-     */
-    public void startPartyGame (ClientObject caller);
 }

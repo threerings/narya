@@ -518,9 +518,6 @@ public class GameManager extends PlaceManager
     {
         super.bodyLeft(bodyOid);
 
-        // TODO: if this is a party game not yet in play and the creator
-        // left, choose a new creator if at least one player still remains
-
         // deal with disappearing players
     }
 
@@ -968,51 +965,6 @@ public class GameManager extends PlaceManager
         return (!_gameobj.isOccupiedPlayer(pidx) ||  // unoccupied slot
                 _playerOids[pidx] != 0 ||            // player is ready
                 isAI(pidx));                         // player is AI
-    }
-
-    // documentation inherited from interface
-    public void startPartyGame (ClientObject caller)
-    {
-        // make sure this is a party game
-        if (!isPartyGame()) {
-            Log.warning("Attempt to player-start a non-party game " +
-                        "[game=" + _gameobj.which() +
-                        ", caller=" + caller + "].");
-            return;
-        }
-
-        // make sure the caller is the creating player
-        BodyObject plobj = (BodyObject)caller;
-        int pidx = _gameobj.getPlayerIndex(plobj.username);
-        if (pidx != _gameobj.creator) {
-            Log.warning("Attempt to start party game by non-creating player " +
-                        "[game=" + _gameobj.which() +
-                        ", creator=" + getPlayerName(_gameobj.creator) +
-                        ", caller=" + caller + "].");
-            return;
-        }
-
-        // make sure the game is ready to go
-        if (!canStartPartyGame()) {
-            Log.warning("Attempt to start party game that can't yet begin " +
-                        "[game=" + _gameobj.which() +
-                        ", caller=" + caller + "].");
-            return;
-        }
-
-        // start things up
-        startGame();
-    }
-
-    /**
-     * Returns whether this party game is all set to begin.  The default
-     * implementation returns true.  Derived classes that implement a
-     * party game should override this method to enforce any prerequisites
-     * (such as a minimum number of players) as appropriate.
-     */
-    protected boolean canStartPartyGame ()
-    {
-        return true;
     }
 
     /**

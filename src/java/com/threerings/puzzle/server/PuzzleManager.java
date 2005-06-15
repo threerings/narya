@@ -553,42 +553,10 @@ public abstract class PuzzleManager extends GameManager
         super.bodyLeft(bodyOid);
 
         int pidx = IntListUtil.indexOf(_playerOids, bodyOid);
-        if (pidx != -1) {
-            if (_puzobj.isInPlay() && _puzobj.isActivePlayer(pidx)) {
-                // end the player's game if they bail on an in-progress puzzle
-                endPlayerGame(pidx);
-
-            } else if (_puzobj.state == PuzzleObject.AWAITING_PLAYERS &&
-                isPartyGame()) {
-                // handle a player leaving a party game that hasn't yet begun
-                if (removePlayer(getPlayerName(pidx))) {
-                    // if they were the creator, choose a new creator
-                    if (getPlayerCount() > 0 && _puzobj.creator == pidx) {
-                        int npidx = getNextCreator(pidx);
-                        _puzobj.setCreator(npidx);
-                        // inform occupants of the creator change
-                        String message = MessageBundle.tcompose(
-                            "m.creator_replaced", getPlayerName(npidx));
-                        systemMessage(message);
-                    }
-                }
-            }
+        if (pidx != -1 && _puzobj.isInPlay() && _puzobj.isActivePlayer(pidx)) {
+            // end the player's game if they bail on an in-progress puzzle
+            endPlayerGame(pidx);
         }
-    }
-
-    /**
-     * Returns the player index of the next feasible creating player
-     * following the given player index, or <code>-1</code> if there is no
-     * such available player.
-     */
-    protected int getNextCreator (int pidx)
-    {
-        int size = getPlayerSlots();
-        int npidx = pidx;
-        do {
-            npidx = (npidx + 1) % size;
-        } while (npidx != pidx && !_puzobj.isOccupiedPlayer(npidx));
-        return (npidx == pidx) ? -1 : npidx;
     }
 
     /**
