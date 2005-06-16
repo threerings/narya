@@ -327,6 +327,7 @@ public abstract class TileSet
         } else {
             Log.warning("Requested invalid tile [tset=" + this +
                         ", index=" + tileIndex + "].");
+            Thread.dumpStack();
             return false;
         }
     }
