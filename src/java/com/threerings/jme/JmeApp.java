@@ -41,6 +41,7 @@ import com.jme.system.PropertiesIO;
 import com.jme.system.lwjgl.LWJGLPropertiesDialog;
 
 import com.jme.bui.event.InputDispatcher;
+import com.jme.bui.event.PolledInputDispatcher;
 import com.jme.input.InputHandler;
 import com.jme.input.InputSystem;
 import com.jme.input.Mouse;
@@ -156,7 +157,8 @@ public class JmeApp
         // enter the main rendering and event processing loop
         while (!_finished && !_display.isClosing()) {
             try {
-                processFrame();
+                long frameStart = processFrame();
+                processEvents(frameStart);
                 _failures = 0;
 
             } catch (Throwable t) {
@@ -225,12 +227,16 @@ public class JmeApp
     protected void initDisplay ()
         throws JmeException
     {
-        // create the main display system
-        _display = DisplaySystem.getDisplaySystem(_properties.getRenderer());
-        _display.createWindow(
-            _properties.getWidth(), _properties.getHeight(),
-            _properties.getDepth(), _properties.getFreq(),
-            _properties.getFullscreen());
+        // create the main display system (JmeCanvasApp creates the
+        // display and the window earlier and in a different way, so we
+        // need to avoid doing that here if it's already been done)
+        if (_display == null) {
+            _display = DisplaySystem.getDisplaySystem(_properties.getRenderer());
+            _display.createWindow(
+                _properties.getWidth(), _properties.getHeight(),
+                _properties.getDepth(), _properties.getFreq(),
+                _properties.getFullscreen());
+        }
         _display.setVSyncEnabled(true);
 
         // create a camera
@@ -264,6 +270,7 @@ public class JmeApp
      */
     protected void initInput ()
     {
+        InputSystem.createInputSystem(_properties.getRenderer());
         _input = createInputHandler(_camera, _properties.getRenderer());
         _input.setMouse(createMouse());
     }
@@ -332,8 +339,7 @@ public class JmeApp
         _iface = new Node("Interface");
         _root.attachChild(_iface);
 
-        InputSystem.createInputSystem(_properties.getRenderer());
-        _dispatcher = new InputDispatcher(_timer, _input, _iface);
+        _dispatcher = new PolledInputDispatcher(_timer, _input, _iface);
         // we don't hide the cursor
         InputSystem.getMouseInput().setCursorVisible(true);
     }
@@ -350,7 +356,7 @@ public class JmeApp
     /**
      * Processes a single frame.
      */
-    protected final void processFrame ()
+    protected final long processFrame ()
     {
         // update our simulation and render a frame
         long frameStart = _timer.getTime();
@@ -358,7 +364,15 @@ public class JmeApp
         render(frameStart);
 
         _display.getRenderer().displayBackBuffer();
+        return frameStart;
+    }
 
+    /**
+     * Processes as many events as possible until it is time to display
+     * the next frame.
+     */
+    protected void processEvents (long frameStart)
+    {
         // now process events or sleep until the next frame (assume zero
         // frame duration to start to ensure that we always process at
         // least one event per frame)
