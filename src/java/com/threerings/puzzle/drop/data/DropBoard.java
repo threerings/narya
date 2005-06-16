@@ -604,7 +604,7 @@ public class DropBoard extends Board
                 }
                 buf.append(StringUtils.rightPad(str, padwid));
 	    }
-	    Log.warning(buf.toString());
+	    System.err.println(buf.toString());
 	}
     }
 
