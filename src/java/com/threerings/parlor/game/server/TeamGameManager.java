@@ -2,7 +2,7 @@
 // $Id$
 //
 // Narya library - tools for developing networked games
-// Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
+// Copyright (C) 2002-2005 Three Rings Design, Inc., All Rights Reserved
 // http://www.threerings.net/code/narya/
 //
 // This library is free software; you can redistribute it and/or modify it
@@ -19,19 +19,18 @@
 // License along with this library; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 
-package com.threerings.parlor.game.data;
-
-import com.threerings.parlor.data.TableConfig;
+package com.threerings.parlor.game.server;
 
 /**
- * Provides additional information for games with teams.
+ * An interface to be implemented by a game if it wants to hear about
+ * the team indices that were configured during matchmaking.
  */
-public interface TeamGameConfig
+public interface TeamGameManager
 {
     /**
-     * Returns the members of each team.  For instance, a game with three
-     * players in two teams--players 0 and 2 versus player 1--would return
-     * { {0, 2}, {1} }.
+     * Set the team member indices. For example, a game with
+     * three players in two teams- players 0 and 2 versus player 1- would
+     * have { {0, 2}, {1} } set.
      */
-    public int[][] getTeamMemberIndices();
+    public void setTeamMemberIndices (int[][] teams);
 }

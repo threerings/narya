@@ -21,7 +21,10 @@
 
 package com.threerings.parlor.data;
 
+import com.samskivert.util.ArrayIntSet;
+import com.samskivert.util.ListUtil;
 import com.samskivert.util.StringUtil;
+
 import com.threerings.util.Name;
 
 import com.threerings.presents.dobj.DSet;
@@ -164,6 +167,35 @@ public class Table
     }
 
     /**
+     * For a team game, get the team member indices of the compressed
+     * players array returned by getPlayers().
+     */
+    public int[][] getTeamMemberIndices ()
+    {
+        int[][] teams = tconfig.teamMemberIndices;
+        if (teams == null) {
+            return null;
+        }
+
+        // compress the team indexes down
+        ArrayIntSet set = new ArrayIntSet();
+        int[][] newTeams = new int[teams.length][];
+        Name[] players = getPlayers();
+        for (int ii=0; ii < teams.length; ii++) {
+            set.clear();
+            for (int jj=0; jj < teams[ii].length; jj++) {
+                Name occ = occupants[teams[ii][jj]];
+                if (occ != null) {
+                    set.add(ListUtil.indexOf(players, occ));
+                }
+            }
+            newTeams[ii] = set.toIntArray();
+        }
+
+        return newTeams;
+    }
+
+    /**
      * Requests to seat the specified user at the specified position in
      * this table.
      *
@@ -247,7 +279,26 @@ public class Table
      */
     public boolean mayBeStarted ()
     {
-        return tconfig.minimumPlayerCount <= getOccupiedCount();
+        if (tconfig.teamMemberIndices == null) {
+            // for a normal game, just check to see if we're past the minimum
+            return tconfig.minimumPlayerCount <= getOccupiedCount();
+
+        } else {
+            // for a team game, make sure each team has the minimum players
+            int[][] teams = tconfig.teamMemberIndices;
+            for (int ii=0; ii < teams.length; ii++) {
+                int teamCount = 0;
+                for (int jj=0; jj < teams[ii].length; jj++) {
+                    if (occupants[teams[ii][jj]] != null) {
+                        teamCount++;
+                    }
+                }
+                if (teamCount < tconfig.minimumPlayerCount) {
+                    return false;
+                }
+            }
+            return true;
+        }
     }
 
     /**

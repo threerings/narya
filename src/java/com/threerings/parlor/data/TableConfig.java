@@ -29,13 +29,20 @@ import com.threerings.io.SimpleStreamableObject;
  */
 public class TableConfig extends SimpleStreamableObject
 {
-    /** The number of players that are desired for the table, or -1 for a
-     * party game. */
+    /** The total number of players that are desired for the table,
+     * or -1 for a party game. For team games, this should be set to the
+     * total number of players overall, as teams may be unequal. */
     public int desiredPlayerCount;
 
-    /** The minimum number of players needed for the game to start at
-     * the creator's discretion. */
+    /** The minimum number of players needed overall (or per-team if a
+     * team-based game) for the game to start at the creator's discretion. */
     public int minimumPlayerCount;
+
+    /** If non-null, indicates that this is a team-based game and contains
+     * the team assignments for each player. For example, a game with
+     * three players in two teams- players 0 and 2 versus player 1- would
+     * have { {0, 2}, {1} }; */
+    public int[][] teamMemberIndices;
 
     /** Whether the table is "private". */
     public boolean privateTable;
