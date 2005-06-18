@@ -33,6 +33,40 @@ import com.samskivert.util.ObserverList;
  */
 public class Sprite extends Node
 {
+    /**
+     * Walks down the hierarchy provided setting the animation speed on
+     * any controllers found along the way.
+     */
+    public static void setAnimationSpeed (Spatial spatial, float speed)
+    {
+        for (int ii = 0; ii < spatial.getControllers().size(); ii++) {
+            spatial.getController(ii).setSpeed(speed);
+        }
+        if (spatial instanceof Node) {
+            Node node = (Node)spatial;
+            for (int ii = 0; ii < node.getQuantity(); ii++) {
+                setAnimationSpeed(node.getChild(ii), speed);
+            }
+        }
+    }
+
+    /**
+     * Walks down the hierarchy provided turning on or off any controllers
+     * found along the way.
+     */
+    public static void setAnimationActive (Spatial spatial, boolean active)
+    {
+        for (int ii = 0; ii < spatial.getControllers().size(); ii++) {
+            spatial.getController(ii).setActive(active);
+        }
+        if (spatial instanceof Node) {
+            Node node = (Node)spatial;
+            for (int ii = 0; ii < node.getQuantity(); ii++) {
+                setAnimationActive(node.getChild(ii), active);
+            }
+        }
+    }
+
     public Sprite ()
     {
         super("");
@@ -128,38 +162,6 @@ public class Sprite extends Node
     public void setAnimationActive (boolean active)
     {
         setAnimationActive(this, active);
-    }
-
-    /**
-     * Helper function for {@link #setAnimationSpeed(float)}.
-     */
-    protected static void setAnimationSpeed (Spatial spatial, float speed)
-    {
-        for (int ii = 0; ii < spatial.getControllers().size(); ii++) {
-            spatial.getController(ii).setSpeed(speed);
-        }
-        if (spatial instanceof Node) {
-            Node node = (Node)spatial;
-            for (int ii = 0; ii < node.getQuantity(); ii++) {
-                setAnimationSpeed(node.getChild(ii), speed);
-            }
-        }
-    }
-
-    /**
-     * Helper function for {@link #setAnimationActive(boolean)}.
-     */
-    protected static void setAnimationActive (Spatial spatial, boolean active)
-    {
-        for (int ii = 0; ii < spatial.getControllers().size(); ii++) {
-            spatial.getController(ii).setActive(active);
-        }
-        if (spatial instanceof Node) {
-            Node node = (Node)spatial;
-            for (int ii = 0; ii < node.getQuantity(); ii++) {
-                setAnimationActive(node.getChild(ii), active);
-            }
-        }
     }
 
     /** Used to dispatch {@link PathObserver#pathCancelled}. */
