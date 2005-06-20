@@ -1,5 +1,5 @@
 //
-// $Id: TrimmedObjectTileSet.java,v 1.16 2004/08/30 22:09:29 ray Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -26,6 +26,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.Serializable;
 
+import com.samskivert.util.ListUtil;
 import com.samskivert.util.StringUtil;
 
 import com.threerings.media.image.Colorization;
@@ -75,6 +76,24 @@ public class TrimmedObjectTileSet extends TileSet
         return (_bits == null) ? -1 : _bits[tileIdx].sorient;
     }
 
+    /**
+     * Returns the constraints associated with the specified tile index, or
+     * <code>null</code> if the object has no associated constraints.
+     */
+    public String[] getConstraints (int tileIdx)
+    {
+        return (_bits == null) ? null : _bits[tileIdx].constraints;
+    }
+    
+    /**
+     * Checks whether the tile at the specified index has the given constraint.
+     */
+    public boolean hasConstraint (int tileIdx, String constraint)
+    {
+        return (_bits == null || _bits[tileIdx].constraints == null) ? false :
+            ListUtil.contains(_bits[tileIdx].constraints, constraint);
+    }
+    
     // documentation inherited from interface RecolorableTileSet
     public String[] getColorizations ()
     {
@@ -136,6 +155,7 @@ public class TrimmedObjectTileSet extends TileSet
             if (bits.sorient != -1) {
                 otile.setSpot(bits.xspot, bits.yspot, bits.sorient);
             }
+            otile.setConstraints(bits.constraints);
         }
     }
 
@@ -174,7 +194,8 @@ public class TrimmedObjectTileSet extends TileSet
 
         // create our bits if needed
         if (source._priorities != null ||
-            source._xspots != null) {
+            source._xspots != null ||
+            source._constraints != null) {
             tset._bits = new Bits[tcount];
         }
 
@@ -204,6 +225,9 @@ public class TrimmedObjectTileSet extends TileSet
                 tset._bits[ii].xspot = source._xspots[ii];
                 tset._bits[ii].yspot = source._yspots[ii];
                 tset._bits[ii].sorient = source._sorients[ii];
+            }
+            if (source._constraints != null) {
+                tset._bits[ii].constraints = source._constraints[ii];
             }
         }
 
@@ -243,6 +267,9 @@ public class TrimmedObjectTileSet extends TileSet
         /** The orientation of the "spot" associated with this object. */
         public byte sorient = -1;
 
+        /** The constraints associated with this object. */
+        public String[] constraints;
+        
         /** Generates a string representation of this instance. */
         public String toString ()
         {
@@ -251,7 +278,7 @@ public class TrimmedObjectTileSet extends TileSet
 
         /** Increase this value when object's serialized state is impacted
          * by a class change (modification of fields, inheritance). */
-        private static final long serialVersionUID = 1;
+        private static final long serialVersionUID = 2;
     }
 
     /** Contains the width and height of each object tile and the offset

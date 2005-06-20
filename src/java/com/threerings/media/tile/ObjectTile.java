@@ -184,6 +184,14 @@ public class ObjectTile extends Tile
             ListUtil.contains(_constraints, constraint);
     }
     
+    /**
+     * Configures this object's constraints.
+     */
+    public void setConstraints (String[] constraints)
+    {
+        _constraints = constraints;
+    }
+    
     // documentation inherited
     public void toString (StringBuffer buf)
     {

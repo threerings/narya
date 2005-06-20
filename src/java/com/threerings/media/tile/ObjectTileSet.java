@@ -249,6 +249,9 @@ public class ObjectTileSet extends SwissArmyTileSet
             otile.setSpot(_xspots[tileIndex], _yspots[tileIndex],
                           _sorients[tileIndex]);
         }
+        if (_constraints != null) {
+            otile.setConstraints(_constraints[tileIndex]);
+        }
     }
 
     /** The width (in tile units) of our object tiles. */
@@ -283,5 +286,5 @@ public class ObjectTileSet extends SwissArmyTileSet
     
     /** Increase this value when object's serialized state is impacted by
      * a class change (modification of fields, inheritance). */
-    private static final long serialVersionUID = 1;
+    private static final long serialVersionUID = 2;
 }

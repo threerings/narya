@@ -21,8 +21,11 @@
 
 package com.threerings.stage.server;
 
+import java.awt.Container;
+
 import com.threerings.resource.ResourceManager;
 
+import com.threerings.media.image.ImageManager;
 import com.threerings.media.tile.TileManager;
 import com.threerings.media.tile.bundle.BundledTileSetRepository;
 
@@ -42,6 +45,9 @@ public abstract class StageServer extends WhirledServer
      * the server and client). */
     public ResourceManager rsrcmgr;
 
+    /** Provides access to image resources. */
+    public static ImageManager imagemgr;
+        
     /** Provides access to our tile repository. */
     public static TileManager tilemgr;
 
@@ -56,10 +62,11 @@ public abstract class StageServer extends WhirledServer
         rsrcmgr = new ResourceManager("rsrc");
         rsrcmgr.initBundles(null, "config/resource/manager.properties", null);
 
-        // create our tile manager and repository
-        tilemgr = new TileManager(null);
+        // create our image manager, tile manager and repository
+        imagemgr = new ImageManager(rsrcmgr, null);
+        tilemgr = new TileManager(imagemgr);
         tilemgr.setTileSetRepository(
-            new BundledTileSetRepository(rsrcmgr, null,
+            new BundledTileSetRepository(rsrcmgr, imagemgr,
                                          StageCodes.TILESET_RSRC_SET));
 
         Log.info("Stage server initialized.");

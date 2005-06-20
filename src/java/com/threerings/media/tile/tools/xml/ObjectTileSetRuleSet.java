@@ -173,7 +173,7 @@ public class ObjectTileSetRuleSet extends SwissArmyTileSetRuleSet
                         bodyText);
                     String[][] constraints = new String[constrs.length][];
                     for (int ii = 0; ii < constrs.length; ii++) {
-                        constraints[ii] = constrs[ii].split("\\s*|\\s*");
+                        constraints[ii] = constrs[ii].split("\\s*\\|\\s*");
                     }
                     ((ObjectTileSet)target).setConstraints(constraints);
                 }
