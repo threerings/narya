@@ -1,5 +1,5 @@
 //
-// $Id: BundledTileSetRepository.java,v 1.15 2004/08/27 02:12:42 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -51,7 +51,8 @@ public class BundledTileSetRepository
      * @param rmgr the resource manager from which to obtain our resource
      * set.
      * @param imgr the image manager through which we will configure the
-     * tile sets to load their images.
+     * tile sets to load their images, or <code>null</code> if image tiles
+     * should not be loaded (only the tile metadata)
      * @param name the name of the resource set from which we will be
      * loading our tile data.
      */
@@ -141,7 +142,8 @@ public class BundledTileSetRepository
     protected void addBundle (HashIntMap idmap, HashMap namemap,
                               TileSetBundle bundle)
     {
-        IMImageProvider improv = new IMImageProvider(_imgr, bundle);
+        IMImageProvider improv = (_imgr == null) ?
+            null : new IMImageProvider(_imgr, bundle);
 
         // map all of the tilesets in this bundle
         for (Iterator iter = bundle.entrySet().iterator(); iter.hasNext(); ) {

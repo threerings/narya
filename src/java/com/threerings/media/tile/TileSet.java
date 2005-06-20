@@ -367,7 +367,9 @@ public abstract class TileSet
      */
     protected void initTile (Tile tile, int tileIndex, Colorization[] zations)
     {
-        tile.setImage(getTileMirage(tileIndex, zations));
+        if (_improv != null) {
+            tile.setImage(getTileMirage(tileIndex, zations));
+        }
     }
 
     /**
@@ -387,6 +389,7 @@ public abstract class TileSet
     protected void reportCachePerformance ()
     {
         if (/* Log.getLevel() != Log.log.DEBUG || */
+            _improv == null ||
             _cacheStatThrottle.throttleOp()) {
             return;
         }
