@@ -23,6 +23,8 @@ package com.threerings.jme;
 
 import java.awt.Canvas;
 import java.awt.EventQueue;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
 
 import com.jme.renderer.Renderer;
 import com.jme.renderer.lwjgl.LWJGLRenderer;
@@ -45,6 +47,11 @@ public class JmeCanvasApp extends JmeApp
         _canvas = _display.createCanvas(width, height);
         ((JMECanvas)_canvas).setImplementor(_winimp);
         _canvas.setBounds(0, 0, width, height);
+        _canvas.addComponentListener(new ComponentAdapter() {
+            public void componentResized (ComponentEvent ce) {
+                _winimp.resizeCanvas(_canvas.getWidth(), _canvas.getHeight());
+            }
+        });
     }
 
     /**
@@ -109,6 +116,7 @@ public class JmeCanvasApp extends JmeApp
             LWJGLRenderer renderer =
                 new LWJGLRenderer(_canvas.getWidth(), _canvas.getHeight());
             renderer.setHeadless(true);
+            setRenderer(renderer);
             _display.setRenderer(renderer);
             DisplaySystem.updateStates(renderer);
 
