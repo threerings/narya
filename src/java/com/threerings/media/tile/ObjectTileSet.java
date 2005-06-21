@@ -36,15 +36,13 @@ import com.threerings.media.image.Colorization;
 public class ObjectTileSet extends SwissArmyTileSet
     implements RecolorableTileSet
 {
-    /** A constraint indicating that the object must be attached to another
-     * object in the indicated direction. */
-    public static final String ATTACH_N = "ATTACH_N", ATTACH_E = "ATTACH_E",
-        ATTACH_S = "ATTACH_S", ATTACH_W = "ATTACH_W";
+    /** A constraint prefix indicating that the object must be attached to a
+     * wall facing the suffixed direction (N, E, S, or W). */
+    public static final String ATTACH = "ATTACH_";
     
-    /** A constraint indicating that the object must have empty space in the
-     * indicated direction. */
-    public static final String SPACE_N = "SPACE_N", SPACE_E = "SPACE_E",
-        SPACE_S = "SPACE_S", SPACE_W = "SPACE_W";
+    /** A constraint prefix indicating that the object must have empty space in
+     * the suffixed direction (N, E, S, or W). */
+    public static final String SPACE = "SPACE_";
         
     /** A constraint indicating that the object is a surface (e.g., table). */
     public static final String SURFACE = "SURFACE";
@@ -52,11 +50,13 @@ public class ObjectTileSet extends SwissArmyTileSet
     /** A constraint indicating that the object must be placed on a surface. */
     public static final String ON_SURFACE = "ON_SURFACE";
  
-    /** A constraint indicating that the object is a wall. */
-    public static final String WALL = "WALL";
+    /** A constraint prefix indicating that the object is a wall facing the
+     * suffixed direction (N, E, S, or W). */
+    public static final String WALL = "WALL_";
  
-    /** A constraint indicating that the object must be placed on a wall. */
-    public static final String ON_WALL = "ON_WALL";
+    /** A constraint prefix indicating that the object must be placed on a wall
+     * facing the suffixed direction (N, E, S, or W). */
+    public static final String ON_WALL = "ON_WALL_";
     
     /**
      * Sets the widths (in unit tile count) of the objects in this

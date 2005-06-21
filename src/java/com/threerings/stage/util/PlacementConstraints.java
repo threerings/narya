@@ -13,6 +13,7 @@ import com.samskivert.util.ListUtil;
 import com.samskivert.util.StringUtil;
 
 import com.threerings.util.DirectionCodes;
+import com.threerings.util.DirectionUtil;
 import com.threerings.util.MessageBundle;
 
 import com.threerings.media.tile.ObjectTile;
@@ -148,26 +149,27 @@ public class PlacementConstraints
                 !isOnSurface(added[i], added, removed)) {
                 return MessageBundle.qualify(STAGE_MESSAGE_BUNDLE,
                     "m.not_on_surface");
-                
-            } else if (added[i].tile.hasConstraint(ObjectTileSet.ON_WALL) &&
-                !isOnWall(added[i], added, removed)) {
+            }
+            
+            int dir = getConstraintDirection(added[i], ObjectTileSet.ON_WALL);
+            if (dir != NONE && !isOnWall(added[i], added, removed, dir)) {
                 return MessageBundle.qualify(STAGE_MESSAGE_BUNDLE,
                     "m.not_on_wall");
             }
             
-            int dir = getConstraintDirection(added[i], "ATTACH");
+            dir = getConstraintDirection(added[i], ObjectTileSet.ATTACH);
             if (dir != NONE && !isAttached(added[i], added, removed, dir)) {
                 return MessageBundle.qualify(STAGE_MESSAGE_BUNDLE,
                     "m.not_attached");
             }
             
-            dir = getConstraintDirection(added[i], "SPACE");
+            dir = getConstraintDirection(added[i], ObjectTileSet.SPACE);
             if (dir != NONE && !hasSpace(added[i], added, removed, dir)) {
                 return MessageBundle.qualify(STAGE_MESSAGE_BUNDLE,
                     "m.no_space");
             }
             
-            if (!checkAdjacentSpace(added[i], added, removed)) {
+            if (hasSpaceConstrainedAdjacent(added[i], added, removed)) {
                 return MessageBundle.qualify(STAGE_MESSAGE_BUNDLE,
                     "m.no_space_adj");
             }
@@ -178,15 +180,18 @@ public class PlacementConstraints
                 hasOnSurface(removed[i], added, removed)) {
                 return MessageBundle.qualify(STAGE_MESSAGE_BUNDLE,
                     "m.has_on_surface");
+            }
             
-            } else if (removed[i].tile.hasConstraint(ObjectTileSet.WALL) &&
-                hasOnWall(removed[i], added, removed)) {
-                return MessageBundle.qualify(STAGE_MESSAGE_BUNDLE,
-                    "m.has_on_wall");
+            int dir = getConstraintDirection(removed[i], ObjectTileSet.WALL);
+            if (dir != NONE) {
+                if (hasOnWall(removed[i], added, removed, dir)) {
+                    return MessageBundle.qualify(STAGE_MESSAGE_BUNDLE,
+                        "m.has_on_wall");
                 
-            } else if (!checkAdjacentAttached(removed[i], added, removed)) {
-                return MessageBundle.qualify(STAGE_MESSAGE_BUNDLE,
-                    "m.has_attached");
+                } else if (hasAttached(removed[i], added, removed, dir)) {
+                    return MessageBundle.qualify(STAGE_MESSAGE_BUNDLE,
+                        "m.has_attached");
+                }
             }
         }
         
@@ -203,33 +208,14 @@ public class PlacementConstraints
     }
     
     /**
-     * Determines whether the specified object is on a wall.
+     * Determines whether the specified object is on a wall facing the
+     * specified direction.
      */
     protected boolean isOnWall (ObjectData data, ObjectData[] added,
-        ObjectData[] removed)
+        ObjectData[] removed, int dir)
     {
-        return isCovered(data.bounds, added, removed, ObjectTileSet.WALL);
-    }
-    
-    /**
-     * Verifies that the objects adjacent to the given object will still have
-     * their attachment constraints met if the object is removed.
-     */
-    protected boolean checkAdjacentAttached (ObjectData data,
-        ObjectData[] added, ObjectData[] removed)
-    {
-        Rectangle rect = new Rectangle(data.bounds);
-        rect.grow(1, 1);
-        ArrayList objects = getObjectData(rect, added, removed);
-        
-        for (int i = 0, size = objects.size(); i < size; i++) {
-            ObjectData odata = (ObjectData)objects.get(i);
-            int dir = getConstraintDirection(odata, "ATTACH");
-            if (dir != NONE && !isAttached(odata, added, removed, dir)) {
-                return false;
-            }
-        }
-        return true;
+        return isCovered(data.bounds, added, removed,
+            getDirectionalConstraint(ObjectTileSet.WALL, dir));
     }
     
     /**
@@ -240,7 +226,7 @@ public class PlacementConstraints
         ObjectData[] removed, int dir)
     {
         return isCovered(getAdjacentEdge(data.bounds, dir), added, removed,
-            ObjectTileSet.WALL);
+            getDirectionalConstraint(ObjectTileSet.WALL, dir));
     }
     
     /**
@@ -272,24 +258,27 @@ public class PlacementConstraints
     }
     
     /**
-     * Verifies that that objects adjacent to the given object will still have
+     * Verifies that the objects adjacent to the given object will still have
      * their space constraints met if the object is added.
      */
-    protected boolean checkAdjacentSpace (ObjectData data, ObjectData[] added,
-        ObjectData[] removed)
+    protected boolean hasSpaceConstrainedAdjacent (ObjectData data,
+        ObjectData[] added, ObjectData[] removed)
     {
-        Rectangle rect = new Rectangle(data.bounds);
-        rect.grow(1, 1);
-        ArrayList objects = getObjectData(rect, added, removed);
-        
-        for (int i = 0, size = objects.size(); i < size; i++) {
-            ObjectData odata = (ObjectData)objects.get(i);
-            int dir = getConstraintDirection(odata, "SPACE");
-            if (dir != NONE && !hasSpace(odata, added, removed, dir)) {
-                return false;
-            }
-        }
-        return true;
+        return hasSpaceConstrainedAdjacent(data, added, removed, NORTH) ||
+            hasSpaceConstrainedAdjacent(data, added, removed, EAST) ||
+            hasSpaceConstrainedAdjacent(data, added, removed, SOUTH) ||
+            hasSpaceConstrainedAdjacent(data, added, removed, WEST);
+    }
+    
+    /**
+     * Checks space constraints for objects in the specified direction.
+     */
+    protected boolean hasSpaceConstrainedAdjacent (ObjectData data,
+        ObjectData[] added, ObjectData[] removed, int dir)
+    {
+        int oppDir = DirectionUtil.getOpposite(dir);
+        return hasConstrained(getAdjacentEdge(data.bounds, dir), added,
+            removed, getDirectionalConstraint(ObjectTileSet.SPACE, oppDir));
     }
     
     /**
@@ -344,10 +333,21 @@ public class PlacementConstraints
      * Determines whether the specified wall has anything on it.
      */
     protected boolean hasOnWall (ObjectData data, ObjectData[] added,
-        ObjectData[] removed)
+        ObjectData[] removed, int dir)
     {
         return hasConstrained(data.bounds, added, removed,
-            ObjectTileSet.ON_WALL);
+            getDirectionalConstraint(ObjectTileSet.ON_WALL, dir));
+    }
+    
+    /**
+     * Determines whether the specified wall has anything attached to it.
+     */
+    protected boolean hasAttached (ObjectData data, ObjectData[] added,
+        ObjectData[] removed, int dir)
+    {
+        int oppDir = DirectionUtil.getOpposite(dir);
+        return hasConstrained(getAdjacentEdge(data.bounds, oppDir), added,
+            removed, getDirectionalConstraint(ObjectTileSet.ATTACH, dir));
     }
     
     /**
@@ -369,26 +369,32 @@ public class PlacementConstraints
     
     /**
      * Returns the direction in which the specified object is constrained by
-     * appending "_[NESW]" to the given constraint prefix.  Returns
+     * appending "[NESW]" to the given constraint prefix.  Returns
      * <code>NONE</code> if there is no such directional constraint.
      */
     protected int getConstraintDirection (ObjectData data, String prefix)
     {
-        if (data.tile.hasConstraint(prefix + "_N")) {
-            return NORTH;
-            
-        } else if (data.tile.hasConstraint(prefix + "_E")) {
-            return EAST;
-            
-        } else if (data.tile.hasConstraint(prefix + "_S")) {
-            return SOUTH;
-            
-        } else if (data.tile.hasConstraint(prefix + "_W")) {
-            return WEST;
-            
-        } else {
+        String[] constraints = data.tile.getConstraints();
+        if (constraints == null) {
             return NONE;
         }
+        
+        for (int i = 0; i < constraints.length; i++) {
+            if (constraints[i].startsWith(prefix)) {
+                return DirectionUtil.fromShortString(
+                    constraints[i].substring(prefix.length()));
+            }
+        }
+        return NONE;
+    }
+    
+    /**
+     * Given a constraint prefix and a direction, returns the directional
+     * constraint.
+     */
+    protected String getDirectionalConstraint (String prefix, int dir)
+    {
+        return prefix + DirectionUtil.toShortString(dir);
     }
     
     /**
