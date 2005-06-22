@@ -45,9 +45,11 @@ import com.threerings.jme.JmeApp;
 public class JabberApp extends JmeApp
 {
     // documentation inherited
-    public void init ()
+    public boolean init ()
     {
-        super.init();
+        if (!super.init()) {
+            return false;
+        }
 
         // initialize our client instance
         _client = new JabberClient();
@@ -81,6 +83,8 @@ public class JabberApp extends JmeApp
 
         // speed up key input
         _input.setKeySpeed(100f);
+
+        return true;
     }
 
     public void run (String server, int port, String username, String password)
