@@ -179,7 +179,7 @@ public class GameObject extends PlaceObject
      */
     public boolean isOccupiedPlayer (int pidx)
     {
-        return (players[pidx] != null);
+        return (pidx >= 0 && pidx < players.length) && (players[pidx] != null);
     }
 
     /**
