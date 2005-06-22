@@ -24,8 +24,10 @@ public class PathTest extends JmeApp
     {
         super.initRoot();
 
+        float range = 56, muzvel = 24;
+
         // set up the camera
-        Vector3f loc = new Vector3f(250, -600, 0);
+        Vector3f loc = new Vector3f(range/2, -range*2, 0);
         _camera.setLocation(loc);
         Matrix3f rotm = new Matrix3f();
         rotm.fromAngleAxis(-FastMath.PI/2, _camera.getLeft());
@@ -33,8 +35,6 @@ public class PathTest extends JmeApp
         rotm.multLocal(_camera.getUp());
         rotm.multLocal(_camera.getLeft());
         _camera.update();
-
-        float range = 560, muzvel = 82;
 
         Box box = new Box("box", new Vector3f(-1, -1, -1),
                           new Vector3f(1, 1, 1));
@@ -45,9 +45,8 @@ public class PathTest extends JmeApp
         box2.setLocalTranslation(new Vector3f(range, 0, 0));
         _geom.attachChild(box2);
 
-        Sphere ball = new Sphere("ball", 10, 10, 1);
         Sprite shot = new Sprite();
-        shot.attachChild(ball);
+        shot.attachChild(box);
         _geom.attachChild(shot);
 
         Vector3f start = new Vector3f(0, 0, 0);
@@ -65,7 +64,8 @@ public class PathTest extends JmeApp
         vel.multLocal(muzvel);
 
         float time = BallisticPath.computeFlightTime(range, muzvel, angle);
-        shot.move(new BallisticPath(shot, start, vel, GRAVITY, time));
+        shot.move(new OrientingBallisticPath(
+                      shot, new Vector3f(1, 0, 0), start, vel, GRAVITY, time));
 
         System.out.println("Range: " + range);
         System.out.println("Muzzle velocity: " + muzvel);
