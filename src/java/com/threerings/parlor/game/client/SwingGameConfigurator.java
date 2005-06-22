@@ -62,14 +62,8 @@ public abstract class SwingGameConfigurator extends GameConfigurator
      */
     public void addControl (JComponent label, JComponent control)
     {
-        // BACKcompatible, newer code will call this method, and so
-        // we need to switch the layout to gridbag instead of vgroup
-        if (!(_panel.getLayout() instanceof GridBagLayout)) {
-            _panel.setLayout(new GridBagLayout());
-        }
-
         // Set up the constraints. There's really no point in saving
-        // this somewhere, as they're cloned anyway with every component
+        // these somewhere, as they're cloned anyway with every component
         // insertion.
         GridBagConstraints lc = new GridBagConstraints();
         lc.gridx = 0;
@@ -88,15 +82,7 @@ public abstract class SwingGameConfigurator extends GameConfigurator
     }
 
     /** The panel on which the config options are placed. */
-    protected JPanel _panel = new JPanel();
-
-    { // initializer
-        // BACKcompatible, older code (and toybox) expects the layout
-        // to be a vgroup, so we default to that
-        VGroupLayout layout = new VGroupLayout(VGroupLayout.NONE);
-        layout.setOffAxisPolicy(VGroupLayout.STRETCH);
-        _panel.setLayout(layout);
-    }
+    protected JPanel _panel = new JPanel(new GridBagLayout());
 
     /** Insets for configuration labels. */
     protected Insets _labelInsets = new Insets(1, 0, 1, 4);
