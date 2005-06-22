@@ -34,13 +34,15 @@ public class PathTest extends JmeApp
         rotm.multLocal(_camera.getLeft());
         _camera.update();
 
+        float range = 560, muzvel = 82;
+
         Box box = new Box("box", new Vector3f(-1, -1, -1),
                           new Vector3f(1, 1, 1));
         _geom.attachChild(box);
 
         Box box2 = new Box("box2", new Vector3f(-1, -1, -1),
                            new Vector3f(1, 1, 1));
-        box2.setLocalTranslation(new Vector3f(560, 0, 0));
+        box2.setLocalTranslation(new Vector3f(range, 0, 0));
         _geom.attachChild(box2);
 
         Sphere ball = new Sphere("ball", 10, 10, 1);
@@ -52,19 +54,25 @@ public class PathTest extends JmeApp
 
         // start with the "cannon" pointed along the x axis
         Vector3f vel = new Vector3f(1, 0, 0);
+
         // rotate it up (around the y axis) the necessary elevation
         Quaternion rot = new Quaternion();
-        rot.fromAngleAxis(-FastMath.PI*27.35f/180f, new Vector3f(0, 1, 0));
-//         rot.fromAngleAxis(-FastMath.PI*62.65f/180f, new Vector3f(0, 1, 0));
+        float angle = BallisticPath.computeElevation(range, muzvel, -9.8f);
+        rot.fromAngleAxis(angle, new Vector3f(0, 1, 0));
         rot.multLocal(vel);
-        // give the cannon a "muzzle velocity"
-        vel.multLocal(82f);
 
-        System.out.println("Start: " + start);
+        // give the cannon its muzzle velocity
+        vel.multLocal(muzvel);
+
+        float time = BallisticPath.computeFlightTime(range, muzvel, angle);
+        shot.move(new BallisticPath(shot, start, vel, GRAVITY, time));
+
+        System.out.println("Range: " + range);
+        System.out.println("Muzzle velocity: " + muzvel);
+        System.out.println("Angle: " + angle + " (" +
+                           (angle * 180 / FastMath.PI) + ")");
+        System.out.println("Flight time: " + time);
         System.out.println("Velocity: " + vel);
-
-        shot.move(new BallisticPath(shot, start, vel, GRAVITY, 7.7f));
-//        shot.move(new BallisticPath(shot, start, vel, GRAVITY, 15f));
     }
 
     public static void main (String[] args)

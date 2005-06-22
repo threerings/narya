@@ -21,6 +21,7 @@
 
 package com.threerings.jme.sprite;
 
+import com.jme.math.FastMath;
 import com.jme.math.Vector3f;
 
 /**
@@ -60,6 +61,26 @@ public class BallisticPath extends Path
             _accel.mult(time, _temp);
             _velocity.addLocal(_temp);
         }
+    }
+
+    /**
+     * Computes and returns the angle of elevation needed to launch a
+     * ballistic projectile at the specified velocity and have it travel
+     * the specified range (when it will once again reach the launch
+     * elevation).
+     */
+    public static float computeElevation (float range, float vel, float accel)
+    {
+        return FastMath.asin(accel * range / (vel * vel)) / 2;
+    }
+
+    /**
+     * Computes and returns the flight time of a projectile launched at an
+     * angle previously computed with {@link #computeElevation}..
+     */
+    public static float computeFlightTime (float range, float vel, float angle)
+    {
+        return range / (vel * FastMath.cos(angle));
     }
 
     protected Vector3f _curpos, _velocity, _accel;
