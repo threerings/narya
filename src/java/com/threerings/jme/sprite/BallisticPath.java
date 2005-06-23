@@ -29,6 +29,9 @@ import com.jme.math.Vector3f;
  */
 public class BallisticPath extends Path
 {
+    /** Gravity: it's the law. */
+    public static final float G = -9.8f;
+
     /**
      * Moves the supplied sprite from the starting coordinate (which will
      * be modified) using the starting velocity, under the specified
