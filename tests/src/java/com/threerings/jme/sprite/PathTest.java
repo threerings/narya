@@ -3,6 +3,7 @@
 
 package com.threerings.jme.sprite;
 
+import java.util.Arrays;
 import java.util.logging.Level;
 
 import com.jme.math.FastMath;
@@ -11,12 +12,14 @@ import com.jme.math.Quaternion;
 import com.jme.math.Vector3f;
 import com.jme.renderer.ColorRGBA;
 import com.jme.scene.shape.Box;
+import com.jme.scene.shape.Disk;
 import com.jme.scene.shape.Quad;
 import com.jme.scene.shape.Sphere;
 import com.jme.scene.state.LightState;
 import com.jme.util.LoggingSystem;
 
 import com.threerings.jme.JmeApp;
+import com.threerings.jme.sprite.LineSegmentPath;
 
 /**
  * Used for testing paths.
@@ -51,24 +54,30 @@ public class PathTest extends JmeApp
             }
         }
 
+        Box target = new Box("target", new Vector3f(-.1f, -.1f, -.1f),
+                             new Vector3f(.1f, .1f, .1f));
+        target.setLocalTranslation(new Vector3f(dist, dist, 0));
+        _geom.attachChild(target);
+
         Box box = new Box("box", new Vector3f(-1, -0.5f, -0.25f),
                           new Vector3f(1, 0.5f, 0.25f));
-        _geom.attachChild(box);
-
-        Box box2 = new Box("box2", new Vector3f(-.1f, -.1f, -.1f),
-                           new Vector3f(.1f, .1f, .1f));
-        box2.setLocalTranslation(new Vector3f(dist, dist, 0));
-        _geom.attachChild(box2);
-
+        Disk disk = new Disk("dot", 10, 10, 0.5f);
+        disk.setLightCombineMode(LightState.OFF);
+        disk.setLocalTranslation(new Vector3f(0.5f, 0f, 0.3f));
         Sprite shot = new Sprite();
         shot.attachChild(box);
+        shot.attachChild(disk);
         _geom.attachChild(shot);
 
-        Vector3f start = new Vector3f(0, 0, 0);
+//         testBallistic(shot, target);
+        testLineSegment(shot);
+    }
 
+    protected void testBallistic (Sprite shot, Box target)
+    {
         // start with the "cannon" pointed along the x axis
-        Vector3f diff = box2.getLocalTranslation().subtract(
-            box.getLocalTranslation());
+        Vector3f diff = target.getLocalTranslation().subtract(
+            shot.getLocalTranslation());
         Vector3f vel = diff.normalize();
         float range = diff.length(), angle = -FastMath.PI/4;
 
@@ -85,6 +94,7 @@ public class PathTest extends JmeApp
                                      FastMath.sin(2*angle));
         vel.multLocal(muzvel);
 
+        Vector3f start = new Vector3f(0, 0, 0);
         float time = BallisticPath.computeFlightTime(range, muzvel, angle);
         shot.move(new OrientingBallisticPath(
                       shot, new Vector3f(1, 0, 0), start, vel, GRAVITY, time));
@@ -96,6 +106,20 @@ public class PathTest extends JmeApp
                            (angle * 180 / FastMath.PI) + ")");
         System.out.println("Flight time: " + time);
         System.out.println("Velocity: " + vel);
+    }
+
+    protected void testLineSegment (Sprite shot)
+    {
+        Vector3f[] points = new Vector3f[] {
+            new Vector3f(0, 0, 0), new Vector3f(2, 0, 0), new Vector3f(3, 0, 0),
+            new Vector3f(3, 2, 0), new Vector3f(5, 2, 0), new Vector3f(5, -2, 0),
+            new Vector3f(-4, -2, 0)
+        };
+        float[] durations = new float[points.length];
+        Arrays.fill(durations, 1f);
+        Vector3f up = new Vector3f(0, 0, 1);
+        Vector3f orient = new Vector3f(1, 0, 0);
+        shot.move(new LineSegmentPath(shot, up, orient, points, durations));
     }
 
     public static void main (String[] args)

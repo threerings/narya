@@ -50,8 +50,8 @@ public class OrientingBallisticPath extends BallisticPath
         _up = accel.negate();
         _up.normalizeLocal();
 
-        computeRotation(velocity);
-        _sprite.getLocalRotation().set(_rotate);
+        _sprite.setLocalRotation(
+            PathUtil.computeAxisRotation(_up, velocity, _rotate));
     }
 
     // documentation inherited
@@ -60,24 +60,11 @@ public class OrientingBallisticPath extends BallisticPath
         // do the normal update
         super.update(time);
 
-        computeRotation(_velocity);
-        _sprite.getLocalRotation().set(_rotate);
-    }
-
-    protected void computeRotation (Vector3f velocity)
-    {
-        _axes[0].set(velocity);
-        _axes[0].normalizeLocal();
-        _axes[0].cross(_up, _axes[1]);
-        _axes[1].normalizeLocal();
-        _axes[1].cross(_axes[0], _axes[2]);
-        _axes[2].cross(_axes[0], _axes[1]);
-        _rotate.fromAxes(_axes);
+        _sprite.setLocalRotation(
+            PathUtil.computeAxisRotation(_up, _velocity, _rotate));
     }
 
     protected Vector3f _orient;
     protected Vector3f _up;
-    protected Vector3f[] _axes = {
-        new Vector3f(), new Vector3f(), new Vector3f() };
     protected Quaternion _rotate = new Quaternion();
 }

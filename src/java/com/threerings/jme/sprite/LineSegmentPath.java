@@ -21,6 +21,7 @@
 
 package com.threerings.jme.sprite;
 
+import com.jme.math.Quaternion;
 import com.jme.math.Vector3f;
 
 /**
@@ -39,11 +40,15 @@ public class LineSegmentPath extends Path
      * traversal. This will as a result be shorter by one element than the
      * points array.
      */
-    public LineSegmentPath (Sprite sprite, Vector3f[] points, float[] durations)
+    public LineSegmentPath (Sprite sprite, Vector3f up, Vector3f orient,
+                            Vector3f[] points, float[] durations)
     {
         super(sprite);
+        _up = up;
+        _orient = orient;
         _points = points;
         _durations = durations;
+        updateRotation();
     }
 
     // documentation inherited
@@ -57,6 +62,9 @@ public class LineSegmentPath extends Path
         if (_accum > _durations[_current]) {
             _accum -= _durations[_current];
             _current++;
+            if (_current < _points.length-1) {
+                updateRotation();
+            }
         }
 
         // if we have completed our path, move the sprite to the final
@@ -73,9 +81,18 @@ public class LineSegmentPath extends Path
         _sprite.setLocalTranslation(_temp);
     }
 
+    protected void updateRotation ()
+    {
+        _points[_current+1].subtract(_points[_current], _temp);
+        PathUtil.computeRotation(_up, _orient, _temp, _rotate);
+        _sprite.getLocalRotation().set(_rotate);
+    }
+
+    protected Vector3f _up, _orient;
     protected Vector3f[] _points;
     protected float[] _durations;
     protected float _accum;
     protected int _current;
     protected Vector3f _temp = new Vector3f(0, 0, 0);
+    protected Quaternion _rotate = new Quaternion();
 }
