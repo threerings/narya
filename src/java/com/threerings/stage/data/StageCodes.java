@@ -23,12 +23,14 @@ package com.threerings.stage.data;
 
 import com.threerings.util.MessageBundle;
 
+import com.threerings.presents.data.InvocationCodes;
+
 import com.threerings.crowd.data.BodyObject;
 
 /**
  * Codes and constants relating to the Stage system.
  */
-public interface StageCodes
+public interface StageCodes extends InvocationCodes
 {
     /** The i18n bundle identifier for the Stage system. */
     public static final String STAGE_MESSAGE_BUNDLE = "stage.general";

@@ -52,7 +52,10 @@ public class PlacementConstraints
             public void visit (ObjectInfo info) {
                 ObjectData data = createObjectData(info);
                 if (data != null) {
-                    _objectData.put(info, data);
+                    // clone the map key, as the visit method reuses a
+                    // single ObjectInfo instance for uninteresting objects
+                    // in a section
+                    _objectData.put((ObjectInfo)info.clone(), data);
                 }
             }
         };
@@ -122,11 +125,19 @@ public class PlacementConstraints
         ObjectData[] addedData = new ObjectData[added.length];
         for (int i = 0; i < added.length; i++) {
             addedData[i] = createObjectData(added[i]);
+            if (addedData[i] == null) {
+                return INTERNAL_ERROR;
+            }
         }
         
         ObjectData[] removedData = new ObjectData[removed.length];
         for (int i = 0; i < removed.length; i++) {
             removedData[i] = (ObjectData)_objectData.get(removed[i]);
+            if (removedData[i] == null) {
+                Log.warning("Couldn't match object info up to data [info=" +
+                    removed[i] + "].");
+                return INTERNAL_ERROR;
+            }
         }
         
         return allowModifyObjects(addedData, removedData);
