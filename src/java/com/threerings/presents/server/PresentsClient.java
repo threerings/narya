@@ -463,7 +463,13 @@ public class PresentsClient
      */
     public void shutdown  ()
     {
-        // nothing to do by default
+        // if the client is connected, we need to fake the computation of
+        // their final connect time because we won't be closing their
+        // socket normally
+        if (getConnection() != null) {
+            long now = System.currentTimeMillis();
+            _connectTime += ((now - _networkStamp) / 1000);
+        }
     }
 
     /**
@@ -663,6 +669,13 @@ public class PresentsClient
      */
     protected synchronized void setConnection (Connection conn)
     {
+        // if our connection is being cleared out, record the amount of
+        // time we were connected to our total connected time
+        long now = System.currentTimeMillis();
+        if (_conn != null && conn == null) {
+            _connectTime += ((now - _networkStamp) / 1000);
+        }
+
         // keep a handle to the new connection
         _conn = conn;
 
@@ -678,7 +691,7 @@ public class PresentsClient
         }
 
         // make a note that our network status changed
-        _networkStamp = System.currentTimeMillis();
+        _networkStamp = now;
     }
 
     /**
@@ -932,6 +945,10 @@ public class PresentsClient
     /** The time at which this client most recently connected or
      * disconnected. */
     protected long _networkStamp;
+
+    /** The total number of seconds for which the user was connected to
+     * the server in this session. */
+    protected int _connectTime;
 
     /** Prevent the client from sending too many messages too frequently.
      * 100 messages in 10 seconds and you're audi. */
