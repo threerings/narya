@@ -76,7 +76,7 @@ public class GodViewHandler extends InputHandler
      */
     public void setZoomLevel (float level)
     {
-        Log.info("Zoom " + level + " " + _camera.getLocation());
+//         Log.info("Zoom " + level + " " + _camera.getLocation());
         level = Math.max(0f, Math.min(level, 1f));
         _camera.getLocation().z = _minZ + (_maxZ - _minZ) * level;
         _camera.update();
