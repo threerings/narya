@@ -90,22 +90,40 @@ public class GodViewHandler extends InputHandler
         return (_camera.getLocation().z - _minZ) / (_maxZ - _minZ);
     }
 
+    /**
+     * Swings the camera around the point on the ground at which it is
+     * "looking", by the requested angle (in radians).
+     */
+    public void rotateCamera (float deltaAngle)
+    {
+        rotateCamera(_groundNormal, deltaAngle);
+    }
+
     protected void setKeyBindings (String api)
     {
         KeyBindingManager keyboard = KeyBindingManager.getKeyBindingManager();
         InputSystem.createInputSystem(api);
 
         keyboard.setKeyInput(InputSystem.getKeyInput());
+
+        // the key bindings for the pan actions
         keyboard.set("forward", KeyInput.KEY_W);
         keyboard.set("backward", KeyInput.KEY_S);
         keyboard.set("left", KeyInput.KEY_A);
         keyboard.set("right", KeyInput.KEY_D);
+
+        // the key bindings for the zoom actions
         keyboard.set("zoomIn", KeyInput.KEY_UP);
         keyboard.set("zoomOut", KeyInput.KEY_DOWN);
+
+        // the key bindings for the orbit actions
         keyboard.set("turnRight", KeyInput.KEY_RIGHT);
         keyboard.set("turnLeft", KeyInput.KEY_LEFT);
+
+        // the key bindings for the roll actions
         keyboard.set("rollForward", KeyInput.KEY_HOME);
         keyboard.set("rollBack", KeyInput.KEY_END);
+
         keyboard.set("screenshot", KeyInput.KEY_F12);
 
         setKeyBindingManager(keyboard);
