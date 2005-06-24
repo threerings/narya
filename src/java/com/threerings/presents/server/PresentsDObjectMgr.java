@@ -280,9 +280,9 @@ public class PresentsDObjectMgr
 
         // report excessively long units
         if (elapsed > 500000) {
-            Log.warning("Unit '" + StringUtil.safeToString(unit) +
-                        " [" + StringUtil.shortClassName(unit) +
-                        "]' ran for " + (elapsed/1000) + "ms.");
+            Log.warning("Long dobj unit [unit=" + StringUtil.safeToString(unit) +
+                        " (" + StringUtil.shortClassName(unit) + ")" +
+                        ", time=" + (elapsed/1000) + "ms].");
         }
 
         if (_eventCount % UNIT_PROFILING_INTERVAL == 0) {
