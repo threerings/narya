@@ -468,7 +468,7 @@ public class JmeApp
      */
     protected boolean displayStatistics ()
     {
-        return true;
+        return false;
     }
 
     /**
