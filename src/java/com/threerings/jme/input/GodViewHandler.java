@@ -150,8 +150,7 @@ public class GodViewHandler extends InputHandler
             public void performAction (InputActionEvent evt) {
                 Vector3f loc = _camera.getLocation();
                 loc.addLocal(_rydir.mult(speed * evt.getTime(), _temp));
-                boundPan(loc);
-                _camera.setLocation(loc);
+                _camera.setLocation(boundPan(loc));
                 _camera.update();
             }
         };
@@ -162,8 +161,7 @@ public class GodViewHandler extends InputHandler
             public void performAction (InputActionEvent evt) {
                 Vector3f loc = _camera.getLocation();
                 loc.subtractLocal(_rydir.mult(speed * evt.getTime(), _temp));
-                boundPan(loc);
-                _camera.setLocation(loc);
+                _camera.setLocation(boundPan(loc));
                 _camera.update();
             }
         };
@@ -174,8 +172,7 @@ public class GodViewHandler extends InputHandler
             public void performAction (InputActionEvent evt) {
                 Vector3f loc = _camera.getLocation();
                 loc.subtractLocal(_rxdir.mult(speed * evt.getTime(), _temp));
-                boundPan(loc);
-                _camera.setLocation(loc);
+                _camera.setLocation(boundPan(loc));
                 _camera.update();
             }
         };
@@ -186,8 +183,7 @@ public class GodViewHandler extends InputHandler
             public void performAction (InputActionEvent evt) {
                 Vector3f loc = _camera.getLocation();
                 loc.addLocal(_rxdir.mult(speed * evt.getTime(), _temp));
-                boundPan(loc);
-                _camera.setLocation(loc);
+                _camera.setLocation(boundPan(loc));
                 _camera.update();
             }
         };
@@ -206,7 +202,7 @@ public class GodViewHandler extends InputHandler
                 if (loc.z > _minZ) {
                     _camera.getDirection().mult(speed * evt.getTime(), _temp);
                     loc.addLocal(_temp);
-                    _camera.setLocation(loc);
+                    _camera.setLocation(boundPan(loc));
                     _camera.update();
                 }
             }
@@ -220,7 +216,7 @@ public class GodViewHandler extends InputHandler
                 if (loc.z < _maxZ) {
                     _camera.getDirection().mult(speed * evt.getTime(), _temp);
                     loc.subtractLocal(_temp);
-                    _camera.setLocation(loc);
+                    _camera.setLocation(boundPan(loc));
                     _camera.update();
                 }
             }
@@ -287,7 +283,7 @@ public class GodViewHandler extends InputHandler
         }
 
         // and move the camera to its new location
-        _camera.setLocation(center.add(direction));
+        _camera.setLocation(boundPan(center.add(direction)));
 
         _camera.update();
     }
@@ -299,10 +295,11 @@ public class GodViewHandler extends InputHandler
         return camera.getLocation().add(camera.getDirection().mult(dist));
     }
 
-    protected void boundPan (Vector3f loc)
+    protected Vector3f boundPan (Vector3f loc)
     {
         loc.x = Math.max(Math.min(loc.x, _maxX), _minX);
         loc.y = Math.max(Math.min(loc.y, _maxY), _minY);
+        return loc;
     }
 
     protected abstract class CameraAction extends KeyInputAction
