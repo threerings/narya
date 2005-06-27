@@ -77,6 +77,14 @@ public class ChatView extends BContainer
         _chatdtr.removeChatDisplay(this);
     }
 
+    /**
+     * Instructs our chat input field to request focus.
+     */
+    public void requestFocus ()
+    {
+        _input.requestFocus();
+    }
+
     // documentation inherited from interface ChatDisplay
     public void clear ()
     {
