@@ -50,11 +50,12 @@ public class TileFringer
         public String getDefaultType ();
     }
 
-    public static interface ImageSource
+    public static interface ImageSource extends ImageUtil.ImageCreator
     {
         /** Creates a blank image into which various fringe images will be
          * composited. */
-        public BufferedImage createImage (int width, int height);
+        public BufferedImage createImage (
+            int width, int height, int transparency);
 
         /** Returns the source image for a tile of the specified type.
          * This can be randomly selected and change from call to call. */
@@ -143,25 +144,34 @@ public class TileFringer
         QuickSort.sort(fringers);
 
         BufferedImage source = _isrc.getTileSource(baseType);
-        int width = source.getWidth(), height = source.getHeight();
-        BufferedImage ftimg = _isrc.createImage(width, height);
-        stampTileImage(source, ftimg, width, height);
-        for (int ii = 0; ii < fringers.length; ii++) {
-            int[] indexes = getFringeIndexes(fringers[ii].bits);
-            for (int jj = 0; jj < indexes.length; jj++) {
-                ftimg = getTileImage(ftimg, fringers[ii].fringerType,
-                                     indexes[jj], masks, hashValue);
-            }
-        }
+        BufferedImage ftimg = _isrc.createImage(
+            source.getWidth(), source.getHeight(), Transparency.OPAQUE);
+        Graphics2D gfx = (Graphics2D)ftimg.getGraphics();
+        try {
+            // start with the base tile image
+            gfx.drawImage(source, 0, 0, null);
 
+            // and stamp the fringers on top of it
+            for (int ii = 0; ii < fringers.length; ii++) {
+                int[] indexes = getFringeIndexes(fringers[ii].bits);
+                for (int jj = 0; jj < indexes.length; jj++) {
+                    stampTileImage(gfx, fringers[ii].fringerType,
+                                   indexes[jj], masks, hashValue);
+                }
+            }
+
+        } finally {
+            gfx.dispose();
+        }
         return ftimg;
     }
 
     /**
-     * Retrieve or compose an image for the specified fringe.
+     * Looks up or creates the appropriate fringe mask and draws it into
+     * the supplied graphics context.
      */
-    protected BufferedImage getTileImage (
-        BufferedImage ftimg, String fringerType, int index,
+    protected void stampTileImage (
+        Graphics2D gfx, String fringerType, int index,
         HashMap masks, int hashValue)
     {
         FringeConfiguration.FringeRecord frec =
@@ -171,28 +181,26 @@ public class TileFringer
         if (fsimg == null) {
             Log.warning("Missing fringe source image [type=" + fringerType +
                         ", hash=" + hashValue + ", frec=" + frec + "].");
-            return ftimg;
+            return;
         }
 
-        if (!frec.mask) {
+        if (frec.mask) {
+            // it's a mask; look for it in the cache
+            String maskkey = fringerType + ":" + frec.name + ":" + index;
+            BufferedImage mimg = (BufferedImage)masks.get(maskkey);
+            if (mimg == null) {
+                BufferedImage fsrc = getSubimage(fsimg, index);
+                BufferedImage bsrc = _isrc.getTileSource(fringerType);
+                mimg = ImageUtil.composeMaskedImage(_isrc, fsrc, bsrc);
+                masks.put(maskkey, mimg);
+            }
+            gfx.drawImage(mimg, 0, 0, null);
+
+        } else {
             // this is a non-mask image so just use the data from the
             // fringe source image directly
-            BufferedImage stamp = getSubimage(fsimg, index);
-            return stampTileImage(stamp, ftimg, stamp.getWidth(),
-                                  stamp.getHeight());
+            gfx.drawImage(getSubimage(fsimg, index), 0, 0, null);
         }
-
-        // otherwise, it's a mask; look for it in the cache
-        String maskkey = fringerType + ":" + frec.name + ":" + index;
-        BufferedImage mimg = (BufferedImage)masks.get(maskkey);
-        if (mimg == null) {
-            BufferedImage fsrc = getSubimage(fsimg, index);
-            BufferedImage bsrc = _isrc.getTileSource(fringerType);
-            mimg = ImageUtil.composeMaskedImage(null, fsrc, bsrc); // TODO
-            masks.put(maskkey, mimg);
-        }
-        return stampTileImage(mimg, ftimg, mimg.getWidth(null),
-                              mimg.getHeight(null));
     }
 
     /**
@@ -204,23 +212,6 @@ public class TileFringer
     {
         int size = source.getHeight(), x = size * index;
         return source.getSubimage(x, 0, size, size);
-    }
-
-    /** Helper function for {@link #getTileImage}. */
-    protected BufferedImage stampTileImage (
-        BufferedImage stamp, BufferedImage ftimg, int width, int height)
-    {
-        // create the target image if necessary
-        if (ftimg == null) {
-            ftimg = _isrc.createImage(width, height);
-        }
-        Graphics2D gfx = (Graphics2D)ftimg.getGraphics();
-        try {
-            gfx.drawImage(stamp, 0, 0, null);
-        } finally {
-            gfx.dispose();
-        }
-        return ftimg;
     }
 
     /**
