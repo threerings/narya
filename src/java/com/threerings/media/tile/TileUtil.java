@@ -1,5 +1,5 @@
 //
-// $Id: TileUtil.java,v 1.6 2004/08/27 02:12:41 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -50,4 +50,21 @@ public class TileUtil
     {
         return (fqTileId & 0xFFFF);
     }
+
+    /**
+     * Compute some hash value for "randomizing" tileset picks
+     * based on x and y coordinates.
+     *
+     * @return a positive, seemingly random number based on x and y.
+     */
+    public static int getTileHash (int x, int y)
+    {
+        long seed = ((x ^ y) ^ MULTIPLIER) & MASK;
+        long hash = (seed * MULTIPLIER + ADDEND) & MASK;
+        return (int) (hash >>> 30);
+    }
+
+    protected static final long MULTIPLIER = 0x5DEECE66DL;
+    protected static final long ADDEND = 0xBL;
+    protected static final long MASK = (1L << 48) - 1;
 }

@@ -1,5 +1,5 @@
 //
-// $Id: SceneBlock.java,v 1.26 2004/10/28 17:49:02 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -36,6 +36,7 @@ import com.threerings.geom.GeomUtil;
 import com.threerings.media.tile.NoSuchTileSetException;
 import com.threerings.media.tile.ObjectTile;
 import com.threerings.media.tile.TileSet;
+import com.threerings.media.tile.TileUtil;
 import com.threerings.media.util.MathUtil;
 
 import com.threerings.miso.Log;
@@ -258,7 +259,7 @@ public class SceneBlock
         BaseTile tile = _base[index(tx, ty)];
         if (tile == null && _defset != null) {
             tile = (BaseTile)_defset.getTile(
-                MisoUtil.getTileHash(tx, ty) % _defset.getTileCount());
+                TileUtil.getTileHash(tx, ty) % _defset.getTileCount());
         }
         return tile;
     }

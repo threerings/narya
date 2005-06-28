@@ -1,5 +1,5 @@
 //
-// $Id: AutoFringer.java,v 1.30 2004/10/28 17:49:02 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -38,10 +38,10 @@ import com.threerings.media.tile.NoSuchTileSetException;
 import com.threerings.media.tile.Tile;
 import com.threerings.media.tile.TileManager;
 import com.threerings.media.tile.TileSet;
+import com.threerings.media.tile.TileUtil;
 
 import com.threerings.miso.Log;
 import com.threerings.miso.data.MisoSceneModel;
-import com.threerings.miso.util.MisoUtil;
 
 /**
  * Automatically fringes a scene according to the rules in the supplied
@@ -136,7 +136,7 @@ public class AutoFringer
 
         BaseTile frTile = new BaseTile();
         frTile.setPassable(passable);
-        composeFringeTile(frTile, frecs, masks, MisoUtil.getTileHash(col, row));
+        composeFringeTile(frTile, frecs, masks, TileUtil.getTileHash(col, row));
         return frTile;
     }
 

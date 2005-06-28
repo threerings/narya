@@ -169,19 +169,6 @@ public class MisoUtil
     }
 
     /**
-     * Compute some hash value for "randomizing" tileset picks
-     * based on x and y coordinates.
-     *
-     * @return a positive, seemingly random number based on x and y.
-     */
-    public static int getTileHash (int x, int y)
-    {
-        long seed = ((x ^ y) ^ MULTIPLIER) & MASK;
-        long hash = (seed * MULTIPLIER + ADDEND) & MASK;
-        return (int) (hash >>> 30);
-    }
-
-    /**
      * Returns the tile coordinate of the given full coordinate.
      */
     public static int fullToTile (int val)
@@ -528,8 +515,4 @@ public class MisoUtil
 
     /** Multiplication factor to embed tile coords in full coords. */
     protected static final int FULL_TILE_FACTOR = 100;
-
-    protected static final long MULTIPLIER = 0x5DEECE66DL;
-    protected static final long ADDEND = 0xBL;
-    protected static final long MASK = (1L << 48) - 1;
 }
