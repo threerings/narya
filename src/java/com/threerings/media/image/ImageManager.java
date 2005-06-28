@@ -54,6 +54,7 @@ import com.threerings.resource.ResourceManager;
  * Provides a single point of access for image retrieval and caching.
  */
 public class ImageManager
+    implements ImageUtil.ImageCreator
 {
     /**
      * Used to identify an image for caching and reconstruction.

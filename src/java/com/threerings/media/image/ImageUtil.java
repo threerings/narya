@@ -50,6 +50,15 @@ import com.samskivert.swing.Label;
  */
 public class ImageUtil
 {
+    public static interface ImageCreator
+    {
+        /** Used by routines that need to create new images to allow the
+         * caller to dictate the format (which may mean using
+         * createCompatibleImage). */
+        public BufferedImage createImage (
+            int width, int height, int transparency);
+    }
+
     /**
      * Creates a new buffered image with the same sample model and color
      * model as the source image but with the new width and height.
@@ -273,9 +282,9 @@ public class ImageUtil
      * traced with the given color and thickness.
      */
     public static BufferedImage createTracedImage (
-        ImageManager imgr, BufferedImage src, Color tcolor, int thickness)
+        ImageCreator isrc, BufferedImage src, Color tcolor, int thickness)
     {
-        return createTracedImage(imgr, src, tcolor, thickness, 1.0f, 1.0f);
+        return createTracedImage(isrc, src, tcolor, thickness, 1.0f, 1.0f);
     }
 
     /**
@@ -283,12 +292,12 @@ public class ImageUtil
      * traced with the given color, thickness and alpha transparency.
      */
     public static BufferedImage createTracedImage (
-        ImageManager imgr, BufferedImage src, Color tcolor, int thickness,
+        ImageCreator isrc, BufferedImage src, Color tcolor, int thickness,
         float startAlpha, float endAlpha)
     {
         // create the destination image
         int wid = src.getWidth(), hei = src.getHeight();
-        BufferedImage dest = imgr.createImage(
+        BufferedImage dest = isrc.createImage(
             wid, hei, Transparency.TRANSLUCENT);
         return createTracedImage(
             src, dest, tcolor, thickness, startAlpha, endAlpha);
@@ -408,7 +417,7 @@ public class ImageUtil
      * values from the second.
      */
     public static BufferedImage composeMaskedImage (
-        ImageManager imgr, BufferedImage mask, BufferedImage base)
+        ImageCreator isrc, BufferedImage mask, BufferedImage base)
     {
         int wid = base.getWidth();
         int hei = base.getHeight();
@@ -437,7 +446,7 @@ public class ImageUtil
         } else {
             // otherwise composite them by rendering them with an alpha
             // rule
-            BufferedImage target = imgr.createImage(
+            BufferedImage target = isrc.createImage(
                 wid, hei, Transparency.TRANSLUCENT);
             Graphics2D g2 = target.createGraphics();
             try {
@@ -458,7 +467,7 @@ public class ImageUtil
      * clear.
      */
     public static BufferedImage composeMaskedImage (
-        ImageManager imgr, Shape mask, BufferedImage base)
+        ImageCreator isrc, Shape mask, BufferedImage base)
     {
         int wid = base.getWidth();
         int hei = base.getHeight();
@@ -475,7 +484,7 @@ public class ImageUtil
         //  But it's something to consider)
 
         // composite them by rendering them with an alpha rule
-        BufferedImage target = imgr.createImage(
+        BufferedImage target = isrc.createImage(
             wid, hei, Transparency.TRANSLUCENT);
         Graphics2D g2 = target.createGraphics();
         try {
