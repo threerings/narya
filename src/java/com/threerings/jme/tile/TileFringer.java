@@ -144,6 +144,11 @@ public class TileFringer
         QuickSort.sort(fringers);
 
         BufferedImage source = _isrc.getTileSource(baseType);
+        if (source == null) {
+            Log.warning("Missing source tile [type=" + baseType + "].");
+            return null;
+        }
+
         BufferedImage ftimg = _isrc.createImage(
             source.getWidth(), source.getHeight(), Transparency.OPAQUE);
         Graphics2D gfx = (Graphics2D)ftimg.getGraphics();
