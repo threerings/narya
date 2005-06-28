@@ -109,7 +109,7 @@ public class FringeConfiguration implements Serializable
      */
     public void addTileRecord (TileRecord record)
     {
-        if (!record.isValid()) {
+        if (record.isValid()) {
             _trecs.put(record.type, record);
         } else {
             Log.warning("Refusing to add invalid tile record " +
