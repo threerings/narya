@@ -75,8 +75,8 @@ public class TileFringer
     }
 
     /**
-     * Compute and return the fringe tile to be inserted at the specified
-     * location.
+     * Computes, creates and returns the base tile with the appropriate
+     * fringe imagery applied to it for the specified location.
      *
      * @param masks used to cache intermediate images of tiles cut out
      * using a fringe mask.
@@ -113,11 +113,13 @@ public class TileFringer
                 FringerRec fringer = (fringers == null) ?
                     null : fringers.find(fringerType);
                 if (fringer == null) {
-                    fringers = new FringerRec(fringerType, pri, fringers);
+                    fringer = fringers =
+                        new FringerRec(fringerType, pri, fringers);
                 }
 
                 // now turn on the appropriate fringebits
-                fringer.bits |= FLAGMATRIX[y - row + 1][x - col + 1];
+                int dy = y - row, dx = x - col;
+                fringer.bits |= FLAGMATRIX[dy*3+dx+4];
             }
         }
 
@@ -128,19 +130,22 @@ public class TileFringer
 
         // otherwise compose a fringe tile from the specified fringes
         return composeFringeTile(
-            fringers.toArray(), masks, TileUtil.getTileHash(col, row));
+            baseType, fringers.toArray(), masks, TileUtil.getTileHash(col, row));
     }
 
     /**
      * Compose a fringe tile out of the various fringe images needed.
      */
     protected BufferedImage composeFringeTile (
-        FringerRec[] fringers, HashMap masks, int hashValue)
+        String baseType, FringerRec[] fringers, HashMap masks, int hashValue)
     {
         // sort the array so that higher priority fringers get drawn first
         QuickSort.sort(fringers);
 
-        BufferedImage ftimg = null;
+        BufferedImage source = _isrc.getTileSource(baseType);
+        int width = source.getWidth(), height = source.getHeight();
+        BufferedImage ftimg = _isrc.createImage(width, height);
+        stampTileImage(source, ftimg, width, height);
         for (int ii = 0; ii < fringers.length; ii++) {
             int[] indexes = getFringeIndexes(fringers[ii].bits);
             for (int jj = 0; jj < indexes.length; jj++) {
@@ -328,7 +333,6 @@ public class TileFringer
         }
     }
 
-    // fringe bits: see docs/miso/fringebits.png
     protected static final int NORTH     = 1 << 0;
     protected static final int NORTHEAST = 1 << 1;
     protected static final int EAST      = 1 << 2;
@@ -341,17 +345,16 @@ public class TileFringer
     protected static final int NUM_FRINGEBITS = 8;
 
     /** A matrix mapping adjacent tiles to which fringe bits they affect.
-     * (x and y are offset by +1, since we can't have -1 as an array
-     * index) again, see docs/miso/fringebits.png */
-    protected static final int[][] FLAGMATRIX = {
-        { NORTHEAST, (NORTHEAST | EAST | SOUTHEAST), SOUTHEAST },
-        { (NORTHWEST | NORTH | NORTHEAST), 0, (SOUTHEAST | SOUTH | SOUTHWEST) },
-        { NORTHWEST, (NORTHWEST | WEST | SOUTHWEST), SOUTHWEST }
+     * (x and y are offset by +1, since we can't have -1 as an array index).
+     * These are "upside down" thanks to OpenGL. */
+    protected static final int[] FLAGMATRIX = {
+        SOUTHWEST, (SOUTHEAST | SOUTH | SOUTHWEST), SOUTHEAST,
+        (NORTHWEST | WEST | SOUTHWEST), 0, (NORTHEAST | EAST | SOUTHEAST),
+        NORTHWEST, (NORTHWEST | NORTH | NORTHEAST), NORTHEAST,
     };
 
     /** The fringe tiles we use. These are the 17 possible tiles made up
-     * of continuous fringebits sections. Huh? see
-     * docs/miso/fringebits.png */
+     * of continuous fringebits sections. */
     protected static final int[] FRINGETILES = {
         SOUTHEAST,
         SOUTHWEST | SOUTH | SOUTHEAST,
