@@ -87,6 +87,9 @@ public class TileFringer
     {
         // get the type of the tile we are considering
         String baseType = tiles.getTileType(col, row);
+        if (baseType == null) {
+            baseType = tiles.getDefaultType();
+        }
 
         // start with an empty fringer list
         FringerRec fringers = null;
