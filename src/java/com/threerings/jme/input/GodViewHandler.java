@@ -355,11 +355,11 @@ public class GodViewHandler extends InputHandler
     protected float _minZ = Float.MIN_VALUE, _maxZ = Float.MAX_VALUE;
     protected float _minRoll = Float.MIN_VALUE, _maxRoll = Float.MAX_VALUE;
 
+    protected Vector3f _rxdir = new Vector3f(1, 0, 0);
+    protected Vector3f _rydir = new Vector3f(0, 1, 0);
+
     protected static final Vector3f _xdir = new Vector3f(1, 0, 0);
     protected static final Vector3f _ydir = new Vector3f(0, 1, 0);
-
-    protected static final Vector3f _rxdir = new Vector3f(1, 0, 0);
-    protected static final Vector3f _rydir = new Vector3f(0, 1, 0);
 
     protected static final Vector3f _groundNormal = new Vector3f(0, 0, 1);
 }
