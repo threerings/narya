@@ -54,9 +54,20 @@ public class PathTest extends JmeApp
             }
         }
 
+        for (int yy = -1; yy <= 1; yy++) {
+            for (int xx = -1; xx <= 1; xx++) {
+                if (xx != 0 || yy != 0) {
+                    setup(xx * dist, yy * dist);
+                }
+            }
+        }
+    }
+
+    protected void setup (float x, float y)
+    {
         Box target = new Box("target", new Vector3f(-.1f, -.1f, -.1f),
                              new Vector3f(.1f, .1f, .1f));
-        target.setLocalTranslation(new Vector3f(dist, dist, 0));
+        target.setLocalTranslation(new Vector3f(x, y, 0));
         _geom.attachChild(target);
 
         Box box = new Box("box", new Vector3f(-1, -0.5f, -0.25f),
@@ -69,8 +80,8 @@ public class PathTest extends JmeApp
         shot.attachChild(disk);
         _geom.attachChild(shot);
 
-//         testBallistic(shot, target);
-        testLineSegment(shot);
+        testBallistic(shot, target);
+//         testLineSegment(shot);
     }
 
     protected void testBallistic (Sprite shot, Box target)
