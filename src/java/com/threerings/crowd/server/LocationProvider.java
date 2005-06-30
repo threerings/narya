@@ -76,6 +76,15 @@ public class LocationProvider
     }
 
     /**
+     * Requests that we leave our current place and move to nowhere land.
+     */
+    public void leavePlace (ClientObject caller)
+        throws InvocationException
+    {
+        leaveOccupiedPlace((BodyObject)caller);
+    }
+
+    /**
      * Moves the specified body from whatever location they currently
      * occupy to the location identified by the supplied place id.
      *

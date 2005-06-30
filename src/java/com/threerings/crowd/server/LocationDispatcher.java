@@ -56,6 +56,12 @@ public class LocationDispatcher extends InvocationDispatcher
         throws InvocationException
     {
         switch (methodId) {
+        case LocationMarshaller.LEAVE_PLACE:
+            ((LocationProvider)provider).leavePlace(
+                source                
+            );
+            return;
+
         case LocationMarshaller.MOVE_TO:
             ((LocationProvider)provider).moveTo(
                 source,

@@ -1,5 +1,5 @@
 //
-// $Id: LocationService.java,v 1.9 2004/08/27 02:12:33 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -57,4 +57,9 @@ public interface LocationService extends InvocationService
      * failure.
      */
     public void moveTo (Client client, int placeId, MoveListener listener);
+
+    /**
+     * Requests that we leave our current place and move to nowhere land.
+     */
+    public void leavePlace (Client client);
 }

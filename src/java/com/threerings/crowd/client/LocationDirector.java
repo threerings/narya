@@ -189,6 +189,23 @@ public class LocationDirector extends BasicDirector
     }
 
     /**
+     * Issues a request to leave our current location.
+     *
+     * @return true if we were able to leave, false if we are in the
+     * middle of moving somewhere and can't yet leave.
+     */
+    public boolean leavePlace ()
+    {
+        if (_pendingPlaceId != -1) {
+            return false;
+        }
+
+        _lservice.leavePlace(_ctx.getClient());
+        didLeavePlace();
+        return true;
+    }
+
+    /**
      * This can be called by cooperating directors that need to coopt the
      * moving process to extend it in some way or other. In such
      * situations, they should call this method before moving to a new

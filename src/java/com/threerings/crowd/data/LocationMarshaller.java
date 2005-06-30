@@ -68,8 +68,19 @@ public class LocationMarshaller extends InvocationMarshaller
         }
     }
 
+    /** The method id used to dispatch {@link #leavePlace} requests. */
+    public static final int LEAVE_PLACE = 1;
+
+    // documentation inherited from interface
+    public void leavePlace (Client arg1)
+    {
+        sendRequest(arg1, LEAVE_PLACE, new Object[] {
+            
+        });
+    }
+
     /** The method id used to dispatch {@link #moveTo} requests. */
-    public static final int MOVE_TO = 1;
+    public static final int MOVE_TO = 2;
 
     // documentation inherited from interface
     public void moveTo (Client arg1, int arg2, LocationService.MoveListener arg3)
