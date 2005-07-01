@@ -112,19 +112,15 @@ public abstract class PuzzleManager extends GameManager
         }
     }
 
-    /**
-     * Ends the game for the given player.
-     */
-    public void endPlayerGame (int pidx)
+    // documentation inherited
+    protected void playerGameDidEnd (int pidx)
     {
-        // don't update board summaries for AI players since they keep
-        // their own board summary up to date
+        super.playerGameDidEnd(pidx);
+
         if (!isAI(pidx)) {
             // update the board summary with the player's final board
             updateBoardSummary(pidx);
         }
-
-        super.endPlayerGame(pidx);
 
         // force a status update
         updateStatus();
@@ -457,18 +453,6 @@ public abstract class PuzzleManager extends GameManager
     protected boolean applyProgressEvent (int pidx, int gevent, Board cboard)
     {
         return false;
-    }
-
-    // documentation inherited
-    protected void bodyLeft (int bodyOid)
-    {
-        super.bodyLeft(bodyOid);
-
-        int pidx = IntListUtil.indexOf(_playerOids, bodyOid);
-        if (pidx != -1 && _puzobj.isInPlay() && _puzobj.isActivePlayer(pidx)) {
-            // end the player's game if they bail on an in-progress puzzle
-            endPlayerGame(pidx);
-        }
     }
 
     /**

@@ -34,14 +34,6 @@ public interface PuzzleCodes extends InvocationCodes
     /** The default puzzle difficulty level. */
     public static final int DEFAULT_DIFFICULTY = 2;
 
-    /** The name of the message event to a placeObject that a player
-     * was knocked out of a puzzle. */
-    public static final String PLAYER_KNOCKED_OUT = "playerKnocked";
-
-    /** The name of the message event to a placeObject that reports
-     * the winners and losers of a game. */
-    public static final String WINNERS_AND_LOSERS = "winnersAndLosers";
-
     /** Whether to enable debug logging and assertions for puzzles. Note
      * that enabling this may result in the server or client exiting
      * unexpectedly if certain error conditions arise in order to

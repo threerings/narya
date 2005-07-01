@@ -26,6 +26,7 @@ import java.util.Arrays;
 import java.util.Iterator;
 
 import com.samskivert.util.Interval;
+import com.samskivert.util.IntListUtil;
 import com.samskivert.util.RepeatCallTracker;
 import com.samskivert.util.StringUtil;
 import com.threerings.util.Name;
@@ -370,7 +371,8 @@ public class GameManager extends PlaceManager
      */
     public boolean isActivePlayer (int pidx)
     {
-        return _gameobj.isActivePlayer(pidx);
+        return _gameobj.isActivePlayer(pidx) &&
+            (getPlayerOid(pidx) > 0 || isAI(pidx));
     }
 
     /**
@@ -541,6 +543,12 @@ public class GameManager extends PlaceManager
         super.bodyLeft(bodyOid);
 
         // deal with disappearing players
+        int pidx = IntListUtil.indexOf(_playerOids, bodyOid);
+        if (pidx != -1 && _gameobj.isInPlay() &&
+                _gameobj.isActivePlayer(pidx)) {
+            // end the player's game if they bail on an in-progress puzzle
+            endPlayerGame(pidx);
+        }
     }
 
     /**
@@ -659,18 +667,6 @@ public class GameManager extends PlaceManager
         // TEMP: clear out our game end tracker
         _gameEndTracker.clear();
 
-        // TODO: find the right place to put this
-        // any players who have not claimed that they are ready should now
-        // be given le boote royale
-        for (int ii = 0; ii < _playerOids.length; ii++) {
-            if (_playerOids[ii] == -1) {
-                Log.info("Booting no-show player [game=" + _gameobj.which() +
-                         ", player=" + getPlayerName(ii) + "].");
-                _playerOids[ii] = 0; // unfiddle the blank oid
-                endPlayerGame(ii);
-            }
-        }
-
         // make sure everyone has turned up
         if (!allPlayersReady()) {
             Log.warning("Requested to start a game that is still " +
@@ -756,6 +752,17 @@ public class GameManager extends PlaceManager
         if (_AIs != null && needsAITick()) {
             AIGameTicker.registerAIGame(this);
         }
+
+        // any players who have not claimed that they are ready should now
+        // be given le boote royale
+        for (int ii = 0; ii < _playerOids.length; ii++) {
+            if (_playerOids[ii] == -1) {
+                Log.info("Booting no-show player [game=" + _gameobj.which() +
+                         ", player=" + getPlayerName(ii) + "].");
+                _playerOids[ii] = 0; // unfiddle the blank oid
+                endPlayerGame(ii);
+            }
+        }
     }
 
     /**
@@ -791,14 +798,15 @@ public class GameManager extends PlaceManager
             // end the player's game
             if (_gameobj.playerStatus != null) {
                 _gameobj.setPlayerStatusAt(GameObject.PLAYER_LEFT_GAME, pidx);
-
-                // let derived classes do some business
-                playerGameDidEnd(pidx);
             }
+
+            // let derived classes do some business
+            playerGameDidEnd(pidx);
 
             String message = MessageBundle.tcompose(
                 "m.player_game_over", getPlayerName(pidx));
             systemMessage(GAME_MESSAGE_BUNDLE, message);
+
         } finally {
             _gameobj.commitTransaction();
         }

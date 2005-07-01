@@ -180,9 +180,14 @@ public class TurnGameManagerDelegate extends GameManagerDelegate
     protected void setFirstTurnHolder ()
     {
         int size = _turnGame.getPlayers().length;
-        do {
-            _turnIdx = RandomUtil.getInt(size);
-        } while (_tgmgr.getPlayerName(_turnIdx) == null);
+        int firstPick = _turnIdx = RandomUtil.getInt(size);
+        while (!_tgmgr.isActivePlayer(_turnIdx)) {
+            _turnIdx = (_turnIdx + 1) % size;
+            if (_turnIdx == firstPick) {
+                Log.warning("No players eligible for first turn. Choking.");
+                return;
+            }
+        }
     }
 
     /**
