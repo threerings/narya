@@ -28,6 +28,13 @@ import com.threerings.presents.data.InvocationCodes;
  */
 public interface GameCodes extends InvocationCodes
 {
+    /** The message bundle identifier for general game messages. */
+    public static final String GAME_MESSAGE_BUNDLE = "game.general";
+
+    /** The name of the message event to a placeObject that a player
+     * was knocked out of a puzzle. */
+    public static final String PLAYER_KNOCKED_OUT = "playerKnocked";
+
     /** The name of the message event to a placeObject that reports
      * the winners and losers of a game. */
     public static final String WINNERS_AND_LOSERS = "winnersAndLosers";

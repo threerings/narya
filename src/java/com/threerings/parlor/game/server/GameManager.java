@@ -53,6 +53,8 @@ import com.threerings.parlor.game.data.GameObject;
 import com.threerings.parlor.game.data.PartyGameConfig;
 import com.threerings.parlor.server.ParlorSender;
 
+import com.threerings.util.MessageBundle;
+
 /**
  * The game manager handles the server side management of a game. It
  * manipulates the game state in accordance with the logic of the game
@@ -412,6 +414,26 @@ public class GameManager extends PlaceManager
         SpeakProvider.sendInfo(_gameobj, msgbundle, msg);
     }
 
+    /**
+     * Report to the knocked-out player's room that they were knocked out.
+     */
+    protected void reportPlayerKnockedOut (int pidx)
+    {
+        BodyObject user = getPlayer(pidx);
+        if (user == null) {
+            // body object can be null for ai players
+            return;
+        }
+
+        OidList knocky = new OidList(1);
+        knocky.add(user.getOid());
+
+        DObject place = CrowdServer.omgr.getObject(user.location);
+        if (place != null) {
+            place.postMessage(PLAYER_KNOCKED_OUT, new Object[] { knocky });
+        }
+    }
+
     // documentation inherited
     protected Class getPlaceObjectClass ()
     {
@@ -594,11 +616,22 @@ public class GameManager extends PlaceManager
      */
     protected void handlePartialNoShow ()
     {
-        // cancel the game
-        if (_gameobj.state != GameObject.GAME_OVER &&
-            _gameobj.state != GameObject.CANCELLED) {
-            _gameobj.setState(GameObject.CANCELLED);
+        // mark the no-show players; this will cause allPlayersReady() to
+        // think that everyone has arrived, but still allow us to tell who
+        // has not shown up in gameDidStart()
+        for (int ii = 0; ii < _playerOids.length; ii++) {
+            if (_playerOids[ii] == 0) {
+                _playerOids[ii] = -1;
+            }
         }
+
+        // go ahead and start the game; gameDidStart() will take care of
+        // giving the boot to anyone who isn't around
+        Log.info("Forcing start of partial no-show game " +
+                 "[game=" + _gameobj.which() +
+                 ", players=" + StringUtil.toString(_gameobj.players) +
+                 ", poids=" + StringUtil.toString(_playerOids) + "].");
+        startGame();
     }
 
     /**
@@ -625,6 +658,18 @@ public class GameManager extends PlaceManager
 
         // TEMP: clear out our game end tracker
         _gameEndTracker.clear();
+
+        // TODO: find the right place to put this
+        // any players who have not claimed that they are ready should now
+        // be given le boote royale
+        for (int ii = 0; ii < _playerOids.length; ii++) {
+            if (_playerOids[ii] == -1) {
+                Log.info("Booting no-show player [game=" + _gameobj.which() +
+                         ", player=" + getPlayerName(ii) + "].");
+                _playerOids[ii] = 0; // unfiddle the blank oid
+                endPlayerGame(ii);
+            }
+        }
 
         // make sure everyone has turned up
         if (!allPlayersReady()) {
@@ -734,6 +779,65 @@ public class GameManager extends PlaceManager
         _tickAIOp.setAI(pidx, ai);
         applyToDelegates(_tickAIOp);
     }
+
+    /**
+     * Ends the game for the given player.
+     */
+    public void endPlayerGame (int pidx)
+    {
+        // go for a little transactional efficiency
+        _gameobj.startTransaction();
+        try {
+            // end the player's game
+            if (_gameobj.playerStatus != null) {
+                _gameobj.setPlayerStatusAt(GameObject.PLAYER_LEFT_GAME, pidx);
+
+                // let derived classes do some business
+                playerGameDidEnd(pidx);
+            }
+
+            String message = MessageBundle.tcompose(
+                "m.player_game_over", getPlayerName(pidx));
+            systemMessage(GAME_MESSAGE_BUNDLE, message);
+        } finally {
+            _gameobj.commitTransaction();
+        }
+
+        // if it's time to end the game, then do so
+        if (shouldEndGame()) {
+            endGame();
+
+        } else {
+            // otherwise report that the player was knocked out to other
+            // people in his/her room
+            reportPlayerKnockedOut(pidx);
+        }
+    }
+
+    /**
+     * Called when a player has been marked as knocked out but before the
+     * knock-out status update has been sent to the players. Any status
+     * information that needs be updated in light of the knocked out
+     * player can be updated here.
+     */
+    protected void playerGameDidEnd (int pidx)
+    {
+    }
+
+    /**
+     * Called when a player leaves the game in order to determine whether
+     * the game should be ended based on its current state, which will
+     * include updated player status for the player in question.  The
+     * default implementation returns true if the game is in play and
+     * there is only one player left.  Derived classes may wish to
+     * override this method in order to customize the required end-game
+     * conditions.
+     */
+    protected boolean shouldEndGame ()
+    {
+        return (_gameobj.isInPlay() && _gameobj.getActivePlayerCount() == 1);
+    }
+
 
     /**
      * Called when the game is known to be over. This will call some
