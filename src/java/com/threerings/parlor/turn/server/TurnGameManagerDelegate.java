@@ -96,7 +96,7 @@ public class TurnGameManagerDelegate extends GameManagerDelegate
         // sanity check
         if (_turnIdx < 0 || _turnIdx >= _turnGame.getPlayers().length) {
             Log.warning("startTurn() called with invalid turn index " +
-                        "[turnIdx=" + _turnIdx + "].");
+                        "[game=" + where() + ", turnIdx=" + _turnIdx + "].");
             // abort, abort
             return;
         }
@@ -105,7 +105,7 @@ public class TurnGameManagerDelegate extends GameManagerDelegate
         Name name = _tgmgr.getPlayerName(_turnIdx);
         if (name == null) {
             Log.warning("startTurn() called with invalid player " +
-                        "[turnIdx=" + _turnIdx + "].");
+                        "[game=" + where() + ", turnIdx=" + _turnIdx + "].");
             return;
         }
 
@@ -184,7 +184,8 @@ public class TurnGameManagerDelegate extends GameManagerDelegate
         while (!_tgmgr.isActivePlayer(_turnIdx)) {
             _turnIdx = (_turnIdx + 1) % size;
             if (_turnIdx == firstPick) {
-                Log.warning("No players eligible for first turn. Choking.");
+                Log.warning("No players eligible for first turn. Choking. " +
+                            "[game=" + where() + "].");
                 return;
             }
         }
@@ -213,7 +214,7 @@ public class TurnGameManagerDelegate extends GameManagerDelegate
                 // if we've wrapped all the way around, stop where we are
                 // even if the current player is not active.
                 Log.warning("1 or less active players. Unable to properly " +
-                    "change turn.");
+                            "change turn. [game=" + where() + "].");
                 break;
             }
         } while (!_tgmgr.isActivePlayer(_turnIdx));
