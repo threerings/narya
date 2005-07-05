@@ -24,6 +24,7 @@ package com.threerings.io;
 import java.io.InputStream;
 import java.io.DataInputStream;
 import java.io.IOException;
+import java.util.HashMap;
 
 import com.samskivert.util.HashIntMap;
 import com.samskivert.util.StringUtil;
@@ -58,6 +59,19 @@ public class ObjectInputStream extends DataInputStream
     }
 
     /**
+     * Configures this object input stream with a mapping from an old
+     * class name to a new one. Serialized instances of the old class name
+     * will use the new class name when unserializing.
+     */
+    public void addTranslation (String oldname, String newname)
+    {
+        if (_translations == null) {
+            _translations = new HashMap();
+        }
+        _translations.put(oldname, newname);
+    }
+
+    /**
      * Reads a {@link Streamable} instance or one of the supported object
      * types from the input stream.
      */
@@ -88,9 +102,18 @@ public class ObjectInputStream extends DataInputStream
                 // first swap the code into positive-land
                 code *= -1;
 
-                // read in the class metadata, create a class mapping record
-                // for the class, and cache it
+                // read in the class metadata
                 String cname = readUTF();
+                // if we have a translation (used to cope when serialized
+                // classes are renamed) use it
+                if (_translations != null) {
+                    String tname = (String)_translations.get(cname);
+                    if (tname != null) {
+                        cname = tname;
+                    }
+                }
+
+                // create a class mapping record, and cache it
                 Class sclass = Class.forName(cname, true, _loader);
                 Streamer streamer = Streamer.getStreamer(sclass);
                 if (STREAM_DEBUG) {
@@ -220,6 +243,10 @@ public class ObjectInputStream extends DataInputStream
 
     /** The class loader we use to instantiate objects. */
     protected ClassLoader _loader = getClass().getClassLoader();
+
+    /** An optional set of class name translations to use when
+     * unserializing objects. */
+    protected HashMap _translations;
 
     /** Used to activate verbose debug logging. */
     protected static final boolean STREAM_DEBUG = false;
