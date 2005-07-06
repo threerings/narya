@@ -255,18 +255,27 @@ public class PlaceManager
         // keep track of this
         _plobj = plobj;
 
-        // create and register a speaker service instance that clients can
-        // use to speak in this place
-        SpeakMarshaller speakService =
-            (SpeakMarshaller)_invmgr.registerDispatcher(
-                new SpeakDispatcher(new SpeakProvider(_plobj, this)), false);
-        plobj.setSpeakService(speakService);
+        // we usually want to create and register a speaker service instance
+        // that clients can use to speak in this place
+        if (shouldCreateSpeakService()) {
+            plobj.setSpeakService((SpeakMarshaller) _invmgr.registerDispatcher(
+                new SpeakDispatcher(new SpeakProvider(plobj, this)), false));
+        }
 
         // we'll need to hear about place object events
         plobj.addListener(this);
 
         // let our derived classes do their thang
         didStartup();
+    }
+
+    /**
+     * @return true if we should create a speaker service for our place object
+     * so that clients can use it to speak in this place.
+     */
+    protected boolean shouldCreateSpeakService ()
+    {
+        return true;
     }
 
     /**
@@ -295,7 +304,9 @@ public class PlaceManager
         CrowdServer.omgr.destroyObject(_plobj.getOid());
 
         // clear out our services
-        _invmgr.clearDispatcher(_plobj.speakService);
+        if (_plobj.speakService != null) {
+            _invmgr.clearDispatcher(_plobj.speakService);
+        }
 
         // make sure we don't have any shutdowner in the queue
         cancelShutdowner();
