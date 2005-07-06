@@ -445,6 +445,10 @@ public class ConnectionManager extends LoopingThread
                 if (handler == null) {
                     Log.warning("Received network event but have no " +
                                 "registered handler [selkey=" + selkey + "].");
+                    // request that this key be removed from our selection
+                    // set, which normally happens automatically but for
+                    // some reason didn't
+                    selkey.cancel();
                     continue;
                 }
 
