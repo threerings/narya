@@ -1,5 +1,5 @@
 //
-// $Id: ClientResolver.java,v 1.7 2004/08/27 02:20:23 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -114,6 +114,9 @@ public class ClientResolver extends Invoker.Unit
             reportFailure(_failure);
 
         } else {
+            // do more resolution goodness on the dobj thread
+            finishResolution(_clobj);
+
             // otherwise let the client manager know that we're all clear
             PresentsServer.clmgr.mapClientObject(_username, _clobj);
 
@@ -151,6 +154,16 @@ public class ClientResolver extends Invoker.Unit
      */
     protected void resolveClientData (ClientObject clobj)
         throws Exception
+    {
+        // nothing to do by default
+    }
+
+    /**
+     * This method is called on the dobj thread after resolveClientData
+     * returns normally, it should finish populating the client object
+     * with any data that is NOT loaded from a database.
+     */
+    protected void finishResolution (ClientObject clobj)
     {
         // nothing to do by default
     }
