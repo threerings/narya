@@ -114,10 +114,10 @@ public class ClientResolver extends Invoker.Unit
             reportFailure(_failure);
 
         } else {
-            // do more resolution goodness on the dobj thread
+            // otherwise, do more resolution goodness on the dobj thread
             finishResolution(_clobj);
 
-            // otherwise let the client manager know that we're all clear
+            // let the client manager know that we're all clear
             PresentsServer.clmgr.mapClientObject(_username, _clobj);
 
             // and let the listeners in on the secret as well
