@@ -25,6 +25,7 @@ import java.awt.AlphaComposite;
 import java.awt.Composite;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
+import java.awt.Shape;
 
 import com.threerings.util.RandomUtil;
 
@@ -46,35 +47,39 @@ public class SparkAnimation extends Animation
      * @param bounds the bounding rectangle for the animation.
      * @param x the starting x-position for the sparks.
      * @param y the starting y-position for the sparks.
-     * @param jog the maximum distance by which to "jog" the initial spark
+     * @param xjog the maximum X distance by which to "jog" the initial spark
+     * positions, or 0 if no jogging is desired.
+     * @param yjog the maximum Y distance by which to "jog" the initial spark
      * positions, or 0 if no jogging is desired.
      * @param minxvel the minimum starting x-velocity of the sparks.
      * @param minyvel the minimum starting y-velocity of the sparks.
-     * @param xvel the maximum x-velocity of the sparks.
-     * @param yvel the maximum y-velocity of the sparks.
+     * @param maxxvel the maximum x-velocity of the sparks.
+     * @param maxyvel the maximum y-velocity of the sparks.
      * @param xacc the x axis acceleration, or 0 if none is desired.
      * @param yacc the y axis acceleration, or 0 if none is desired.
      * @param images the spark images to be animated.
      * @param delay the duration of the animation in milliseconds.
+     * @param fade do the fade thing
      */
-    public SparkAnimation (Rectangle bounds, int x, int y, int jog,
+    public SparkAnimation (Rectangle bounds, int x, int y, int xjog, int yjog,
                            float minxvel, float minyvel,
-                           float xvel, float yvel,
+                           float maxxvel, float maxyvel,
                            float xacc, float yacc,
-                           Mirage[] images, long delay)
+                           Mirage[] images, long delay, boolean fade)
     {
         super(bounds);
 
         // save things off
-        _ox = x;
-        _oy = y;
         _xacc = xacc;
         _yacc = yacc;
         _images = images;
         _delay = delay;
+        _fade = fade;
 
         // initialize various things
         _icount = images.length;
+        _ox = new int[_icount];
+        _oy = new int[_icount];
         _xpos = new int[_icount];
         _ypos = new int[_icount];
         _sxvel = new float[_icount];
@@ -82,14 +87,15 @@ public class SparkAnimation extends Animation
 
         for (int ii = 0; ii < _icount; ii++) {
             // initialize spark position
-            int ajog = (jog == 0) ? 0 : RandomUtil.getInt(jog);
-            _xpos[ii] = x + ajog * randomDirection();
-            _ypos[ii] = y + ajog * randomDirection();
+            _ox[ii] = x + 
+                ((xjog == 0) ? 0 : RandomUtil.getInt(xjog) * randomDirection());
+            _oy[ii] = y +
+                ((yjog == 0) ? 0 : RandomUtil.getInt(yjog) * randomDirection());
 
             // Choose random X and Y axis velocities between the inputted
             // bounds
-            _sxvel[ii] = minxvel + RandomUtil.getFloat(1) * (xvel - minxvel);
-            _syvel[ii] = minyvel + RandomUtil.getFloat(1) * (yvel - minyvel);
+            _sxvel[ii] = minxvel + RandomUtil.getFloat(1) * (maxxvel - minxvel);
+            _syvel[ii] = minyvel + RandomUtil.getFloat(1) * (maxyvel - minyvel);
 
             // If accelerationes were given, make the starting velocities
             // move against that acceleration; otherwise pick directions
@@ -106,8 +112,10 @@ public class SparkAnimation extends Animation
             }
         }
 
-        _alpha = 1.0f;
-        _comp = AlphaComposite.getInstance(AlphaComposite.SRC_OVER, _alpha);
+        if (_fade) {
+            _alpha = 1.0f;
+            _comp = AlphaComposite.getInstance(AlphaComposite.SRC_OVER, _alpha);
+        }
     }
 
     /**
@@ -138,23 +146,26 @@ public class SparkAnimation extends Animation
 
         // figure out the distance the chunks have travelled
         long msecs = Math.max(timestamp - _start, 0);
+        long msecsSq = msecs * msecs;
 
         // calculate the alpha level with which to render the chunks
-        float pctdone = msecs / (float)_delay;
-        _alpha = Math.max(0.1f, Math.min(1.0f, 1.0f - pctdone));
-        _comp = AlphaComposite.getInstance(AlphaComposite.SRC_OVER, _alpha);
+        if (_fade) {
+            float pctdone = msecs / (float)_delay;
+            _alpha = Math.max(0.1f, Math.min(1.0f, 1.0f - pctdone));
+            _comp = AlphaComposite.getInstance(AlphaComposite.SRC_OVER, _alpha);
+        }
 
         // move all sparks and check whether any remain to be animated
         for (int ii = 0; ii < _icount; ii++) {
             // determine the travel distance
             int xtrav = (int)
-                ((_sxvel[ii] * msecs) + (0.5f * _xacc * (msecs * msecs)));
+                ((_sxvel[ii] * msecs) + (0.5f * _xacc * msecsSq));
             int ytrav = (int)
-                ((_syvel[ii] * msecs) + (0.5f * _yacc * (msecs * msecs)));
+                ((_syvel[ii] * msecs) + (0.5f * _yacc * msecsSq));
 
             // update the position
-            _xpos[ii] = _ox + xtrav;
-            _ypos[ii] = _oy + ytrav;
+            _xpos[ii] = _ox[ii] + xtrav;
+            _ypos[ii] = _oy[ii] + ytrav;
         }
 
         // note whether we're finished
@@ -168,15 +179,23 @@ public class SparkAnimation extends Animation
     // documentation inherited
     public void paint (Graphics2D gfx)
     {
+        Shape oclip = gfx.getClip();
+        gfx.clip(_bounds);
         Composite ocomp = gfx.getComposite();
-        // set the alpha composite to reflect the current fade-out
-        gfx.setComposite(_comp);
+
+        if (_fade) {
+            // set the alpha composite to reflect the current fade-out
+            gfx.setComposite(_comp);
+        }
+
         // draw all sparks
         for (int ii = 0; ii < _icount; ii++) {
             _images[ii].paint(gfx, _xpos[ii], _ypos[ii]);
         }
-        // restore the original composite
+
+        // restore the original gfx settings
         gfx.setComposite(ocomp);
+        gfx.setClip(oclip);
     }
 
     // documentation inherited
@@ -207,20 +226,20 @@ public class SparkAnimation extends Animation
     /** The starting y-axis velocity of each chunk. */
     protected float[] _syvel;
 
-    /** The current x-axis position of each spark. */
-    protected int[] _xpos;
+    /** The starting 'jog' positions for each spark. */
+    protected int[] _ox, _oy;
 
-    /** The current y-axis position of each spark. */
-    protected int[] _ypos;
-
-    /** The starting spark position. */
-    protected int _ox, _oy;
+    /** The current positions of each spark. */
+    protected int[] _xpos, _ypos;
 
     /** The starting animation time. */
     protected long _start;
 
     /** The ending animation time. */
     protected long _end;
+
+    /** Whether or not we should fade the sparks out. */
+    protected boolean _fade;
 
     /** The percent alpha with which to render the images. */
     protected float _alpha;
