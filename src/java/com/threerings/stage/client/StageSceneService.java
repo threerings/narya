@@ -20,8 +20,8 @@ public interface StageSceneService extends InvocationService
                            ConfirmListener listener);
     
     /**
-     * Requests to remove the supplied object from the current scene.
+     * Requests to remove the supplied objects from the current scene.
      */
-    public void removeObject (Client client, ObjectInfo info,
-                              ConfirmListener listener);
+    public void removeObjects (Client client, ObjectInfo[] info,
+                               ConfirmListener listener);
 }

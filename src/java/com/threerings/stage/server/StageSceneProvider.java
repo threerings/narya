@@ -26,7 +26,7 @@ public interface StageSceneProvider extends InvocationProvider
     /**
      * Handles a {@link StageSceneService#removeObject} request.
      */
-    public void removeObject (ClientObject caller, ObjectInfo info,
-                              StageSceneService.ConfirmListener listener)
+    public void removeObjects (ClientObject caller, ObjectInfo[] info,
+                               StageSceneService.ConfirmListener listener)
         throws InvocationException;
 }

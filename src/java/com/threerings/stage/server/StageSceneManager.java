@@ -174,8 +174,8 @@ public class StageSceneManager extends SpotSceneManager
     }
 
     // documentation inherited from interface
-    public void removeObject (ClientObject caller, ObjectInfo info,
-                              StageSceneService.ConfirmListener listener)
+    public void removeObjects (ClientObject caller, ObjectInfo[] info,
+                               StageSceneService.ConfirmListener listener)
         throws InvocationException
     {
         BodyObject user = (BodyObject)caller;
@@ -187,8 +187,7 @@ public class StageSceneManager extends SpotSceneManager
         // create our scene update which will be stored in the database
         // and used to efficiently update clients
         ModifyObjectsUpdate update = new ModifyObjectsUpdate();
-        update.init(_sscene.getId(), _sscene.getVersion(),
-            null, new ObjectInfo[] { info });
+        update.init(_sscene.getId(), _sscene.getVersion(), null, info);
 
         Log.info("Modifying objects '" + update + ".");
         recordUpdate(update, true);

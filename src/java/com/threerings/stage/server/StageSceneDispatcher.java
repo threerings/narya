@@ -64,10 +64,10 @@ public class StageSceneDispatcher extends InvocationDispatcher
             );
             return;
 
-        case StageSceneMarshaller.REMOVE_OBJECT:
-            ((StageSceneProvider)provider).removeObject(
+        case StageSceneMarshaller.REMOVE_OBJECTS:
+            ((StageSceneProvider)provider).removeObjects(
                 source,
-                (ObjectInfo)args[0], (InvocationService.ConfirmListener)args[1]
+                (ObjectInfo[])args[0], (InvocationService.ConfirmListener)args[1]
             );
             return;
 
