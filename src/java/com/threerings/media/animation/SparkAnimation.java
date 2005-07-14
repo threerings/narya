@@ -127,23 +127,21 @@ public class SparkAnimation extends Animation
     }
 
     // documentation inherited
+    protected void willStart (long stamp)
+    {
+        super.willStart(stamp);
+        _start = stamp;
+    }
+
+    // documentation inherited
     public void fastForward (long timeDelta)
     {
-        if (_start > 0) {
-            _start += timeDelta;
-            _end += timeDelta;
-        }
+        _start += timeDelta;
     }
 
     // documentation inherited
     public void tick (long timestamp)
     {
-        if (_start == 0) {
-            // initialize our starting time
-            _start = timestamp;
-            _end = _start + _delay;
-        }
-
         // figure out the distance the chunks have travelled
         long msecs = Math.max(timestamp - _start, 0);
         long msecsSq = msecs * msecs;
@@ -154,6 +152,9 @@ public class SparkAnimation extends Animation
             _alpha = Math.max(0.1f, Math.min(1.0f, 1.0f - pctdone));
             _comp = AlphaComposite.getInstance(AlphaComposite.SRC_OVER, _alpha);
         }
+
+        // assume all sparks have moved outside the bounds
+        boolean allOutside = true;
 
         // move all sparks and check whether any remain to be animated
         for (int ii = 0; ii < _icount; ii++) {
@@ -166,10 +167,17 @@ public class SparkAnimation extends Animation
             // update the position
             _xpos[ii] = _ox[ii] + xtrav;
             _ypos[ii] = _oy[ii] + ytrav;
+
+            // check to see if any are still in. Stop looking
+            // when we find one
+            if (allOutside && _bounds.intersects(_xpos[ii], _ypos[ii],
+                _images[ii].getWidth(), _images[ii].getHeight())) {
+                allOutside = false;
+            }
         }
 
         // note whether we're finished
-        _finished = (timestamp >= _end);
+        _finished = allOutside || (msecs >= _delay);
 
         // dirty ourselves
         // TODO: only do this if at least one spark actually moved
@@ -234,9 +242,6 @@ public class SparkAnimation extends Animation
 
     /** The starting animation time. */
     protected long _start;
-
-    /** The ending animation time. */
-    protected long _end;
 
     /** Whether or not we should fade the sparks out. */
     protected boolean _fade;
