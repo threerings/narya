@@ -33,7 +33,7 @@ import com.jme.system.DisplaySystem;
 import com.jme.util.awt.JMECanvas;
 import com.jme.util.awt.JMECanvasImplementor;
 
-import com.jme.bui.event.CanvasInputDispatcher;
+import com.jme.bui.CanvasRootNode;
 
 /**
  * Extends the basic {@link JmeApp} with the necessary wiring to use the
@@ -105,7 +105,8 @@ public class JmeCanvasApp extends JmeApp
         _iface = new Node("Interface");
         _root.attachChild(_iface);
 
-        _dispatcher = new CanvasInputDispatcher(_iface, _canvas);
+        _rnode = new CanvasRootNode(_canvas);
+        _iface.attachChild(_rnode);
     }
 
     /** This is used if we embed our GL display in an AWT component. */

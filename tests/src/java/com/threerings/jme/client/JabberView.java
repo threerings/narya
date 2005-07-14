@@ -30,7 +30,7 @@ public class JabberView extends BWindow
         _chat = new ChatView(_jctx, _ctx.getChatDirector());
         add(_chat, BorderLayout.CENTER);
 
-        _jctx.getInputDispatcher().addWindow(this);
+        _jctx.getRootNode().addWindow(this);
         setBounds(0, 40, 640, 240);
     }
 

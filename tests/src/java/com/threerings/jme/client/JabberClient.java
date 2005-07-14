@@ -21,7 +21,7 @@
 
 package com.threerings.jme.client;
 
-import com.jme.bui.event.InputDispatcher;
+import com.jme.bui.BRootNode;
 import com.jme.input.InputHandler;
 import com.jme.renderer.Camera;
 import com.jme.renderer.Renderer;
@@ -207,8 +207,8 @@ public class JabberClient
 //             return _app.getContext().getBufferedInputHandler();
 //         }
 
-        public InputDispatcher getInputDispatcher () {
-            return _app.getContext().getInputDispatcher();
+        public BRootNode getRootNode () {
+            return _app.getContext().getRootNode();
         }
     }
 

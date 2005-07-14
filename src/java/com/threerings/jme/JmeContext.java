@@ -27,7 +27,7 @@ import com.jme.renderer.Renderer;
 import com.jme.scene.Node;
 import com.jme.system.DisplaySystem;
 
-import com.jme.bui.event.InputDispatcher;
+import com.jme.bui.BRootNode;
 
 /**
  * Provides access to the various bits needed by things that operate in
@@ -53,6 +53,6 @@ public interface JmeContext
     /** Returns our main input handler. */
     public InputHandler getInputHandler ();
 
-    /** Returns our main input dispatcher. */
-    public InputDispatcher getInputDispatcher ();
+    /** Returns our UI root node. */
+    public BRootNode getRootNode ();
 }

@@ -40,8 +40,8 @@ import com.jme.system.JmeException;
 import com.jme.system.PropertiesIO;
 import com.jme.system.lwjgl.LWJGLPropertiesDialog;
 
-import com.jme.bui.event.InputDispatcher;
-import com.jme.bui.event.PolledInputDispatcher;
+import com.jme.bui.BRootNode;
+import com.jme.bui.PolledRootNode;
 import com.jme.input.InputHandler;
 import com.jme.input.InputSystem;
 import com.jme.input.Mouse;
@@ -339,7 +339,8 @@ public class JmeApp
         _iface = new Node("Interface");
         _root.attachChild(_iface);
 
-        _dispatcher = new PolledInputDispatcher(_timer, _input, _iface);
+        _rnode = new PolledRootNode(_timer, _input);
+        _iface.attachChild(_rnode);
         // we don't hide the cursor
         InputSystem.getMouseInput().setCursorVisible(true);
     }
@@ -401,11 +402,8 @@ public class JmeApp
         // recalculate the frame rate
         _timer.update();
 
-        // update the input system
-        float timePerFrame = _timer.getTimePerFrame();
-        _dispatcher.update(timePerFrame);
-
         // run all of the controllers attached to nodes
+        float timePerFrame = _timer.getTimePerFrame();
         _root.updateGeometricState(timePerFrame, true);
 
         // update our stats display if we have one
@@ -516,8 +514,8 @@ public class JmeApp
             return _input;
         }
 
-        public InputDispatcher getInputDispatcher () {
-            return _dispatcher;
+        public BRootNode getRootNode () {
+            return _rnode;
         }
     };
 
@@ -530,7 +528,7 @@ public class JmeApp
     protected Camera _camera;
 
     protected InputHandler _input;
-    protected InputDispatcher _dispatcher;
+    protected BRootNode _rnode;
 
     protected long _targetFrameTicks;
     protected boolean _finished;
