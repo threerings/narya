@@ -93,7 +93,9 @@ public class Streamer
             }
 
             // create a streamer for this class and cache it
-//             Log.info("Creating a streamer for '" + target.getName() + "'.");
+            if (ObjectInputStream.STREAM_DEBUG) {
+                Log.info("Creating a streamer for '" + target.getName() + "'.");
+            }
             stream = new Streamer(target);
             _streamers.put(target, stream);
         }
@@ -115,8 +117,10 @@ public class Streamer
         // if we're supposed to and one exists, use the writer method
         if (useWriter && _writer != null) {
             try {
-//                 Log.info("Writing with writer " +
-//                          "[class=" + _target.getName() + "].");
+                if (ObjectInputStream.STREAM_DEBUG) {
+                    Log.info("Writing with writer " +
+                             "[class=" + _target.getName() + "].");
+                }
                 _writer.invoke(object, new Object[] { out });
 
             } catch (Throwable t) {
@@ -187,8 +191,10 @@ public class Streamer
                 throw new IOException(errmsg);
             }
             try {
-//                 Log.info("Writing field [class=" + _target.getName() +
-//                          ", field=" + field.getName() + "].");
+                if (ObjectInputStream.STREAM_DEBUG) {
+                    Log.info("Writing field [class=" + _target.getName() +
+                             ", field=" + field.getName() + "].");
+                }
                 fm.writeField(field, object, out);
             } catch (Exception e) {
                 Log.logStackTrace(e);
@@ -414,8 +420,10 @@ public class Streamer
         _marshallers = new FieldMarshaller[fcount];
         for (int ii = 0; ii < fcount; ii++) {
             _marshallers[ii] = FieldMarshaller.getFieldMarshaller(_fields[ii]);
-//             Log.info("Using " + _marshallers[ii] + " for " +
-//                      _target.getName() + "." + _fields[ii].getName() + ".");
+            if (ObjectInputStream.STREAM_DEBUG) {
+                Log.info("Using " + _marshallers[ii] + " for " +
+                         _target.getName() + "." + _fields[ii].getName() + ".");
+            }
         }
 
         // look up the reader and writer methods

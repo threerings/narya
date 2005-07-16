@@ -1,5 +1,5 @@
 //
-// $Id: FieldMarshaller.java,v 1.8 2004/08/27 02:12:36 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -244,18 +244,6 @@ public abstract class FieldMarshaller
                 Field field, Object source, ObjectOutputStream out)
                 throws Exception {
                 out.writeDouble(field.getDouble(source));
-            }
-        });
-        _marshallers.put(String.class, new FieldMarshaller() {
-            public void readField (
-                Field field, Object target, ObjectInputStream in)
-                throws Exception {
-                field.set(target, in.readUTF());
-            }
-            public void writeField (
-                Field field, Object source, ObjectOutputStream out)
-                throws Exception {
-                out.writeUTF((String)field.get(source));
             }
         });
         _marshallers.put(Date.class, new FieldMarshaller() {
