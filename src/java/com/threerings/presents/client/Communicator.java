@@ -246,7 +246,7 @@ public class Communicator
             closeChannel();
 
             // let the client know when we finally go away
-            _client.cleanup();
+            _client.cleanup(_logonError);
         }
 
         Log.debug("Reader thread exited.");
@@ -271,7 +271,7 @@ public class Communicator
 
         // let the client know when we finally go away
         if (_reader == null) {
-            _client.cleanup();
+            _client.cleanup(_logonError);
         }
     }
 
@@ -413,9 +413,9 @@ public class Communicator
             } catch (Exception e) {
                 Log.debug("Logon failed: " + e);
                 Log.logStackTrace(e);
-                // let the observers know that we've failed
-                _client.notifyObservers(Client.CLIENT_FAILED_TO_LOGON, e);
-                // and terminate our communicator thread
+                // once we're shutdown we'll report this error
+                _logonError = e;
+                // terminate our communicator thread
                 shutdown();
             }
         }
@@ -602,6 +602,7 @@ public class Communicator
     protected Queue _msgq = new Queue();
 
     protected long _lastWrite;
+    protected Exception _logonError;
 
     /** We use this to frame our upstream messages. */
     protected FramingOutputStream _fout;

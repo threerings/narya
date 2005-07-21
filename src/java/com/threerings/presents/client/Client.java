@@ -431,7 +431,7 @@ public class Client
     public void standaloneLogoff ()
     {
         notifyObservers(CLIENT_DID_LOGOFF, null);
-        cleanup();
+        cleanup(null);
     }
     
     /**
@@ -529,7 +529,7 @@ public class Client
         _clobj = clobj;
 
         // let the client know that logon has now fully succeeded
-        notifyObservers(Client.CLIENT_DID_LOGON, null);
+        notifyObservers(CLIENT_DID_LOGON, null);
     }
 
     /**
@@ -539,7 +539,7 @@ public class Client
     protected void getClientObjectFailed (Exception cause)
     {
         // pass the buck onto the listeners
-        notifyObservers(Client.CLIENT_FAILED_TO_LOGON, cause);
+        notifyObservers(CLIENT_FAILED_TO_LOGON, cause);
     }
 
     /**
@@ -552,7 +552,7 @@ public class Client
         _cloid = _clobj.getOid();
 
         // report to our observers
-        notifyObservers(Client.CLIENT_OBJECT_CHANGED, null);
+        notifyObservers(CLIENT_OBJECT_CHANGED, null);
     }
 
     boolean notifyObservers (int code, Exception cause)
@@ -582,7 +582,7 @@ public class Client
         }
     }
 
-    synchronized void cleanup ()
+    synchronized void cleanup (final Exception logonError)
     {
         // we know that prior to the call to this method, the observers
         // were notified with CLIENT_DID_LOGOFF; that may not have been
@@ -598,8 +598,18 @@ public class Client
                 _clobj = null;
                 _cloid = -1;
                 _standalone = false;
+
                 // and let our invocation director know we're logged off
                 _invdir.cleanup();
+
+                // if we were cleaned up due to a failure to logon, we can
+                // report the logon error now that the communicator is
+                // cleaned up; this allows a logon failure listener to
+                // immediately try another logon (hopefully with something
+                // changed like the server or port)
+                if (logonError != null) {
+                    notifyObservers(CLIENT_FAILED_TO_LOGON, logonError);
+                }
             }
         });
     }
