@@ -67,7 +67,7 @@ public class MiCasaClient
         createContextServices();
 
         // for test purposes, hardcode the server info
-        _client.setServer("localhost", 4007);
+        _client.setServer("localhost", Client.DEFAULT_SERVER_PORT);
 
         // keep this for later
         _frame = frame;

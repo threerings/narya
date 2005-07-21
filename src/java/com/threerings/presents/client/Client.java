@@ -44,7 +44,7 @@ public class Client
 {
     /** The default port on which the server listens for client
      * connections. */
-    public static final int DEFAULT_SERVER_PORT = 4007;
+    public static final int DEFAULT_SERVER_PORT = 47624;
 
     /**
      * Constructs a client object with the supplied credentials and

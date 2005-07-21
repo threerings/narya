@@ -55,7 +55,7 @@ public class TestClient
         _client.addClientObserver(this);
 
         // for test purposes, hardcode the server info
-        _client.setServer("localhost", 4007);
+        _client.setServer("localhost", Client.DEFAULT_SERVER_PORT);
     }
 
     public void run ()

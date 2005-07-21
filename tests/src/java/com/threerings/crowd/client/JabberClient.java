@@ -63,7 +63,7 @@ public class JabberClient
         createContextServices();
 
         // for test purposes, hardcode the server info
-        _client.setServer("localhost", 4007);
+        _client.setServer("localhost", Client.DEFAULT_SERVER_PORT);
         _client.addClientObserver(this);
 
         // keep this for later

@@ -154,7 +154,7 @@ public class TestClient
         Client client = new Client(creds, tclient);
         tclient.setClient(client);
         client.addClientObserver(tclient);
-        client.setServer("localhost", 4007);
+        client.setServer("localhost", Client.DEFAULT_SERVER_PORT);
         client.logon();
         // start up our event processing loop
         tclient.run();
