@@ -210,6 +210,93 @@ public class PlacementConstraints
     }
     
     /**
+     * Determines whether the specified surface has anything on it that won't
+     * be held up if the surface is removed.
+     */
+    protected boolean hasOnSurface (ObjectData data, ObjectData[] added,
+        ObjectData[] removed)
+    {
+        ArrayList objects = getObjectData(data.bounds, added, removed);
+        for (int i = 0, size = objects.size(); i < size; i++) {
+            ObjectData odata = (ObjectData)objects.get(i);
+            if (odata.tile.hasConstraint(ObjectTileSet.ON_SURFACE) &&
+                !isOnSurface(odata, added, removed)) {
+                return true;
+            }
+        }
+        return false;
+    }
+    
+    /**
+     * Determines whether the specified wall has anything on it that won't be
+     * held up if the wall is removed.
+     */
+    protected boolean hasOnWall (ObjectData data, ObjectData[] added,
+        ObjectData[] removed, int dir)
+    {
+        ArrayList objects = getObjectData(data.bounds, added, removed);
+        for (int i = 0, size = objects.size(); i < size; i++) {
+            ObjectData odata = (ObjectData)objects.get(i);
+            if (getConstraintDirection(odata, ObjectTileSet.ON_WALL) == dir &&
+                !isOnWall(odata, added, removed, dir)) {
+                return true;
+            }
+        }
+        return false;
+    }
+    
+    /**
+     * Determines whether the specified wall has anything attached to it that
+     * won't be held up if the wall is removed.
+     */
+    protected boolean hasAttached (ObjectData data, ObjectData[] added,
+        ObjectData[] removed, int dir)
+    {
+        ArrayList objects = getObjectData(getAdjacentEdge(data.bounds,
+            DirectionUtil.getOpposite(dir)), added, removed);
+        for (int i = 0, size = objects.size(); i < size; i++) {
+            ObjectData odata = (ObjectData)objects.get(i);
+            if (getConstraintDirection(odata, ObjectTileSet.ATTACH) == dir &&
+                !isAttached(odata, added, removed, dir)) {
+                return true;
+            }
+        }
+        return false;
+    }
+    
+    /**
+     * Verifies that the objects adjacent to the given object will still have
+     * their space constraints met if the object is added.
+     */
+    protected boolean hasSpaceConstrainedAdjacent (ObjectData data,
+        ObjectData[] added, ObjectData[] removed)
+    {
+        Rectangle rect = new Rectangle(data.bounds);
+        rect.grow(1, 1);
+        
+        ArrayList objects = getObjectData(rect, added, removed);
+        for (int i = 0, size = objects.size(); i < size; i++) {
+            ObjectData odata = (ObjectData)objects.get(i);
+            int dir = getConstraintDirection(odata, ObjectTileSet.SPACE);
+            if (dir != NONE && !hasSpace(odata, added, removed, dir)) {
+                return true;
+            }
+        }
+        return false;
+    }
+    
+    /**
+     * Determines whether the specified object has empty space in the specified
+     * direction.
+     */
+    protected boolean hasSpace (ObjectData data, ObjectData[] added,
+        ObjectData[] removed, int dir)
+    {
+        return getObjectData(getAdjacentEdge(data.bounds, dir), added,
+            removed).size() == 0;
+    }
+    
+    /**
      * Determines whether the specified object is on a surface.
      */
     protected boolean isOnSurface (ObjectData data, ObjectData[] added,
@@ -269,41 +356,6 @@ public class PlacementConstraints
     }
     
     /**
-     * Verifies that the objects adjacent to the given object will still have
-     * their space constraints met if the object is added.
-     */
-    protected boolean hasSpaceConstrainedAdjacent (ObjectData data,
-        ObjectData[] added, ObjectData[] removed)
-    {
-        return hasSpaceConstrainedAdjacent(data, added, removed, NORTH) ||
-            hasSpaceConstrainedAdjacent(data, added, removed, EAST) ||
-            hasSpaceConstrainedAdjacent(data, added, removed, SOUTH) ||
-            hasSpaceConstrainedAdjacent(data, added, removed, WEST);
-    }
-    
-    /**
-     * Checks space constraints for objects in the specified direction.
-     */
-    protected boolean hasSpaceConstrainedAdjacent (ObjectData data,
-        ObjectData[] added, ObjectData[] removed, int dir)
-    {
-        int oppDir = DirectionUtil.getOpposite(dir);
-        return hasConstrained(getAdjacentEdge(data.bounds, dir), added,
-            removed, getDirectionalConstraint(ObjectTileSet.SPACE, oppDir));
-    }
-    
-    /**
-     * Determines whether the specified object has empty space in the specified
-     * direction.
-     */
-    protected boolean hasSpace (ObjectData data, ObjectData[] added,
-        ObjectData[] removed, int dir)
-    {
-        return getObjectData(getAdjacentEdge(data.bounds, dir), added,
-            removed).size() == 0;
-    }
-    
-    /**
      * Creates and returns a rectangle that covers the specified rectangle's
      * adjacent edge (the squares one tile beyond the bounds) in the specified
      * direction.
@@ -328,54 +380,6 @@ public class PlacementConstraints
             default:
                 return null;
         }
-    }
-    
-    /**
-     * Determines whether the specified surface has anything on it.
-     */
-    protected boolean hasOnSurface (ObjectData data, ObjectData[] added,
-        ObjectData[] removed)
-    {
-        return hasConstrained(data.bounds, added, removed,
-            ObjectTileSet.ON_SURFACE);
-    }
-    
-    /**
-     * Determines whether the specified wall has anything on it.
-     */
-    protected boolean hasOnWall (ObjectData data, ObjectData[] added,
-        ObjectData[] removed, int dir)
-    {
-        return hasConstrained(data.bounds, added, removed,
-            getDirectionalConstraint(ObjectTileSet.ON_WALL, dir));
-    }
-    
-    /**
-     * Determines whether the specified wall has anything attached to it.
-     */
-    protected boolean hasAttached (ObjectData data, ObjectData[] added,
-        ObjectData[] removed, int dir)
-    {
-        int oppDir = DirectionUtil.getOpposite(dir);
-        return hasConstrained(getAdjacentEdge(data.bounds, oppDir), added,
-            removed, getDirectionalConstraint(ObjectTileSet.ATTACH, dir));
-    }
-    
-    /**
-     * Determines whether the given rectangle overlaps any objects with the
-     * given constraint.
-     */
-    protected boolean hasConstrained (Rectangle rect, ObjectData[] added,
-        ObjectData[] removed, String constraint)
-    {
-        ArrayList objects = getObjectData(rect, added, removed);
-        for (int i = 0, size = objects.size(); i < size; i++) {
-            ObjectData data = (ObjectData)objects.get(i);
-            if (data.tile.hasConstraint(constraint)) {
-                return true;
-            }
-        }
-        return false;
     }
     
     /**
