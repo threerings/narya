@@ -69,7 +69,18 @@ public class ConnectionManager extends LoopingThread
     public ConnectionManager (int port)
         throws IOException
     {
-        _port = port;
+        this(new int[] { port });
+    }
+
+    /**
+     * Constructs and initialized a connection manager (binding socket on
+     * which it will listen for client connections to each of the
+     * specified ports).
+     */
+    public ConnectionManager (int[] ports)
+        throws IOException
+    {
+        _ports = ports;
         _selector = SelectorProvider.provider().openSelector();
 
         // create our stats record
@@ -249,38 +260,47 @@ public class ConnectionManager extends LoopingThread
     // documentation inherited
     protected void willStart ()
     {
-        try {
-            // create our listening socket and add it to the select set
-            _listener = ServerSocketChannel.open();
-            _listener.configureBlocking(false);
+        int successes = 0;
+        IOException _failure = null;
+        for (int ii = 0; ii < _ports.length; ii++) {
+            try {
+                // create a listening socket and add it to the select set
+                final ServerSocketChannel listener = ServerSocketChannel.open();
+                listener.configureBlocking(false);
 
-            InetSocketAddress isa = new InetSocketAddress(_port);
-            _listener.socket().bind(isa);
-            Log.info("Server listening on " + isa + ".");
+                InetSocketAddress isa = new InetSocketAddress(_ports[ii]);
+                listener.socket().bind(isa);
+                Log.info("Server listening on " + isa + ".");
 
-            // register our listening socket and map its select key to a
-            // net event handler that will accept new connections
-            SelectionKey lkey =
-                _listener.register(_selector, SelectionKey.OP_ACCEPT);
-            _handlers.put(lkey, new NetEventHandler() {
-                public int handleEvent (long when) {
-                    acceptConnection();
-                    // there's no easy way to measure bytes read when
-                    // accepting a connection, so we claim nothing
-                    return 0;
-                }
-                public boolean checkIdle (long now) {
-                    return false; // we're never idle
-                }
-            });
+                // register this listening socket and map its select key
+                // to a net event handler that will accept new connections
+                SelectionKey lkey =
+                    listener.register(_selector, SelectionKey.OP_ACCEPT);
+                _handlers.put(lkey, new NetEventHandler() {
+                    public int handleEvent (long when) {
+                        acceptConnection(listener);
+                        // there's no easy way to measure bytes read when
+                        // accepting a connection, so we claim nothing
+                        return 0;
+                    }
+                    public boolean checkIdle (long now) {
+                        return false; // we're never idle
+                    }
+                });
+                successes++;
 
-        } catch (IOException ioe) {
-            Log.warning("Failure listening to socket on port '" +_port + "'.");
-            Log.logStackTrace(ioe);
+            } catch (IOException ioe) {
+                Log.warning("Failure listening to socket on " +
+                            "port '" +_ports[ii] + "'.");
+                Log.logStackTrace(ioe);
+                _failure = ioe;
+            }
+        }
 
-            // notify our startup listener, if we have one
+        // if we failed to listen on at least one port, give up the ghost
+        if (successes == 0) {
             if (_startlist != null) {
-                _startlist.requestFailed(ioe);
+                _startlist.requestFailed(_failure);
             }
             return;
         }
@@ -588,12 +608,12 @@ public class ConnectionManager extends LoopingThread
      * Called by our net event handler when a new connection is ready to
      * be accepted on our listening socket.
      */
-    protected void acceptConnection ()
+    protected void acceptConnection (ServerSocketChannel listener)
     {
         SocketChannel channel = null;
 
         try {
-            channel = _listener.accept();
+            channel = listener.accept();
             if (channel == null) {
                 // in theory this shouldn't happen because we got an
                 // ACCEPT_READY event, but better safe than sorry
@@ -817,10 +837,9 @@ public class ConnectionManager extends LoopingThread
         protected int _msgs, _partials;
     }
 
-    protected int _port;
+    protected int[] _ports;
     protected Authenticator _author;
     protected Selector _selector;
-    protected ServerSocketChannel _listener;
     protected ResultListener _startlist;
 
     /** Counts consecutive runtime errors in select(). */
