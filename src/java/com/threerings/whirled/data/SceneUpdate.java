@@ -1,5 +1,5 @@
 //
-// $Id: SceneUpdate.java,v 1.3 2004/08/27 02:20:42 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -21,7 +21,12 @@
 
 package com.threerings.whirled.data;
 
+import java.io.IOException;
+
 import com.samskivert.util.StringUtil;
+
+import com.threerings.io.ObjectInputStream;
+import com.threerings.io.ObjectOutputStream;
 import com.threerings.io.Streamable;
 
 import com.threerings.whirled.Log;
@@ -106,6 +111,64 @@ public class SceneUpdate
     }
 
     /**
+     * Writes our custom streamable fields.
+     */
+    public void writeObject (ObjectOutputStream out)
+        throws IOException
+    {
+        if (_nondb) {
+            out.writeInt(_targetId);
+            out.writeInt(_targetVersion);
+        }
+        out.defaultWriteObject();
+    }
+
+    /**
+     * Reads our custom streamable fields.
+     */
+    public void readObject (ObjectInputStream in)
+        throws IOException, ClassNotFoundException
+    {
+        if (_nondb) {
+            _targetId = in.readInt();
+            _targetVersion = in.readInt();
+        }
+        in.defaultReadObject();
+    }
+
+    /**
+     * Serializes the bare representation of this instance without the scene id
+     * and version fields.  Useful when storing updates in a database where the
+     * scene id and version fields are stored in separate columns and the rest
+     * if the representation is contained in an opaque blob.
+     */
+    public void persistTo (ObjectOutputStream out)
+        throws IOException
+    {
+        _nondb = false;
+        try {
+            out.writeBareObject(this);
+        } finally {
+            _nondb = true;
+        }
+    }
+
+    /**
+     * Unserializes this instance from the bare representation created by
+     * {@link #persistTo}.
+     */
+    public void unpersistFrom (ObjectInputStream in)
+        throws IOException, ClassNotFoundException
+    {
+        _nondb = false;
+        try {
+            in.readBareObject(this);
+        } finally {
+            _nondb = true;
+        }
+    }
+    
+    /**
      * Generates a string representation of this instance.
      */
     public String toString ()
@@ -128,8 +191,11 @@ public class SceneUpdate
     }
 
     /** The version number of the scene on which we operate. */
-    protected int _targetId;
+    protected transient int _targetId;
 
     /** The version number of the scene on which we operate. */
-    protected int _targetVersion;
+    protected transient int _targetVersion;
+    
+    /** Used when serializing this update for storage in the database. */
+    protected transient boolean _nondb = true;
 }
