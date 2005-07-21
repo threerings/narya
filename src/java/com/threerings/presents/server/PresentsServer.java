@@ -119,7 +119,7 @@ public class PresentsServer
         invoker.start();
 
         // create our connection manager
-        conmgr = new ConnectionManager(getListenPort());
+        conmgr = new ConnectionManager(getListenPorts());
         conmgr.setAuthenticator(new DummyAuthenticator());
 
         // create our client manager
@@ -151,9 +151,9 @@ public class PresentsServer
      * Returns the port on which the connection manager will listen for
      * client connections.
      */
-    protected int getListenPort ()
+    protected int[] getListenPorts ()
     {
-        return Client.DEFAULT_SERVER_PORT;
+        return new int[] { Client.DEFAULT_SERVER_PORT };
     }
 
     /**
