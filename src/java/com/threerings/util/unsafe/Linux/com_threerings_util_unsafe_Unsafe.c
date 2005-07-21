@@ -56,6 +56,28 @@ Java_com_threerings_util_unsafe_Unsafe_nativeSleep (
 }
 
 JNIEXPORT jboolean JNICALL
+Java_com_threerings_util_unsafe_Unsafe_nativeSetuid (
+    JNIEnv* env, jclass clazz, jint uid)
+{
+    if (setuid((uid_t)uid) != 0) {
+        fprintf(stderr, "setuid(%d) failed: %s\n", uid, strerror(errno));
+        return JNI_FALSE;
+    }
+    return JNI_TRUE;
+}
+
+JNIEXPORT jboolean JNICALL
+Java_com_threerings_util_unsafe_Unsafe_nativeSetgid (
+    JNIEnv* env, jclass clazz, jint gid)
+{
+    if (setgid((gid_t)gid) != 0) {
+        fprintf(stderr, "setgid(%d) failed: %s\n", gid, strerror(errno));
+        return JNI_FALSE;
+    }
+    return JNI_TRUE;
+}
+
+JNIEXPORT jboolean JNICALL
 Java_com_threerings_util_unsafe_Unsafe_init (JNIEnv* env, jclass clazz)
 {
     JavaVM* jvm;

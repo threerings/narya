@@ -1,5 +1,5 @@
 //
-// $Id: Unsafe.java,v 1.2 2004/08/27 02:20:38 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -72,6 +72,32 @@ public class Unsafe
     }
 
     /**
+     * Sets the processes uid to the specified value.
+     *
+     * @return true if the uid was changed, false if we were unable to do so.
+     */
+    public static boolean setuid (int uid)
+    {
+        if (_loaded && !RunAnywhere.isWindows()) {
+            return nativeSetuid(uid);
+        }
+        return false;
+    }
+
+    /**
+     * Sets the processes uid to the specified value.
+     *
+     * @return true if the uid was changed, false if we were unable to do so.
+     */
+    public static boolean setgid (int gid)
+    {
+        if (_loaded && !RunAnywhere.isWindows()) {
+            return nativeSetgid(gid);
+        }
+        return false;
+    }
+
+    /**
      * Reenable garbage collection after a call to {@link #disableGC}.
      */
     protected static native void enableGC ();
@@ -85,6 +111,16 @@ public class Unsafe
      * Sleeps the current thread for the specified number of milliseconds.
      */
     protected static native void nativeSleep (int millis);
+
+    /**
+     * Calls through to the native OS system call to change our uid.
+     */
+    protected static native boolean nativeSetuid (int uid);
+
+    /**
+     * Calls through to the native OS system call to change our gid.
+     */
+    protected static native boolean nativeSetgid (int gid);
 
     /**
      * Called to initialize our library.
