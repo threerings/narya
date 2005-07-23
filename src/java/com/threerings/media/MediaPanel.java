@@ -481,23 +481,32 @@ public class MediaPanel extends JComponent
             // clip to this dirty region
             clipToDirtyRegion(gfx, clip);
 
-            // paint the behind the scenes stuff
-            paintBehind(gfx, clip);
-
-            // paint back sprites and animations
-            paintBits(gfx, AnimationManager.BACK, clip);
-
-            // paint the between the scenes stuff
-            paintBetween(gfx, clip);
-
-            // paint front sprites and animations
-            paintBits(gfx, AnimationManager.FRONT, clip);
-
-            // paint anything in front
-            paintInFront(gfx, clip);
+            // paint the region
+            paintDirtyRect(gfx, clip);   
         }
     }
 
+    /**
+     * Paints all the layers of the specified dirty region.
+     */
+    protected void paintDirtyRect (Graphics2D gfx, Rectangle rect)
+    {
+        // paint the behind the scenes stuff
+        paintBehind(gfx, rect);
+
+        // paint back sprites and animations
+        paintBits(gfx, AnimationManager.BACK, rect);
+
+        // paint the between the scenes stuff
+        paintBetween(gfx, rect);
+
+        // paint front sprites and animations
+        paintBits(gfx, AnimationManager.FRONT, rect);
+
+        // paint anything in front
+        paintInFront(gfx, rect);
+    }
+    
     /**
      * Called by the main rendering code to constrain this dirty rectangle
      * to the bounds of the media panel. If a derived class is using dirty
