@@ -28,8 +28,8 @@ public class StageSceneObject extends SpotSceneObject
     /** The light level in this scene. 0f being fully on, 1f fully shaded. */
     public float lightLevel = 0f;
 
-    /** The color of the light, if the light level is not 0f. */
-    public int lightShade = 0;
+    /** The color of the light. */
+    public int lightShade = 0xFFFFFF;
 
     // AUTO-GENERATED: METHODS START
     /**
