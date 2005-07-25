@@ -21,12 +21,14 @@
 
 package com.threerings.io;
 
-import java.lang.NoSuchMethodException;
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+
+import java.security.AccessController;
+import java.security.PrivilegedAction;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -76,7 +78,7 @@ public class Streamer
      * does not implement {@link Streamable} and is not one of the basic
      * object types (@see {@link ObjectOutputStream}).
      */
-    public synchronized static Streamer getStreamer (Class target)
+    public synchronized static Streamer getStreamer (final Class target)
         throws IOException
     {
         // if we have not yet initialized ourselves, do so now
@@ -96,8 +98,22 @@ public class Streamer
             if (ObjectInputStream.STREAM_DEBUG) {
                 Log.info("Creating a streamer for '" + target.getName() + "'.");
             }
-            stream = new Streamer(target);
-            _streamers.put(target, stream);
+
+            // create our streamer in a privileged block so that it can
+            // introspect on the to be streamed class
+            Object res = AccessController.doPrivileged(new PrivilegedAction() {
+                public Object run () {
+                    try {
+                        return new Streamer(target);
+                    } catch (IOException ioe) {
+                        return ioe;
+                    }
+                }
+            });
+            if (res instanceof IOException) {
+                throw (IOException)res;
+            }
+            _streamers.put(target, stream = (Streamer)res);
         }
         return stream;
     }
