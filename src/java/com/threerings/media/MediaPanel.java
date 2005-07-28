@@ -95,6 +95,7 @@ public class MediaPanel extends JComponent
     {
         // keep this for later
         _framemgr = framemgr;
+        setOpaque(true); // our repaints shouldn't cause other jcomponents to
 
         // create our region manager
         _remgr = new RegionManager();
@@ -386,6 +387,16 @@ public class MediaPanel extends JComponent
     public Component getComponent ()
     {
         return this;
+    }
+
+    // documentation inherited
+    public void setOpaque (boolean opaque)
+    {
+        if (!opaque) {
+            Log.warning("Media panels shouldn't be setOpaque(false).");
+            Thread.dumpStack();
+        }
+        super.setOpaque(true);
     }
 
     // documentation inherited
