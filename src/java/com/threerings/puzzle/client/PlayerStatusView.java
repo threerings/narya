@@ -80,8 +80,10 @@ public class PlayerStatusView extends JPanel
      */
     public void setStatus (int status)
     {
-        _status = status;
-        repaint();
+        if (_status != status) {
+            _status = status;
+            repaint();
+        }
     }
 
     /**
@@ -89,8 +91,10 @@ public class PlayerStatusView extends JPanel
      */
     public void setHighlighted (boolean highlight)
     {
-        _highlight = highlight;
-        repaint();
+        if (_highlight != highlight) {
+            _highlight = highlight;
+            repaint();
+        }
     }
 
     /** Returns a string representation of this instance. */
