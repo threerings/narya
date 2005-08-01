@@ -436,6 +436,10 @@ public class ConnectionManager extends LoopingThread
 
         } catch (IOException ioe) {
             Log.warning("Failure select()ing [ioe=" + ioe + "].");
+            if ("Invalid argument".equals(ioe.getMessage())) {
+                // what is this, anyway?
+                Log.logStackTrace(ioe);
+            }
             return;
 
         } catch (RuntimeException re) {
