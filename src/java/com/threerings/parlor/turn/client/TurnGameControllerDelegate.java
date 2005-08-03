@@ -117,7 +117,18 @@ public class TurnGameControllerDelegate extends GameControllerDelegate
     {
         // handle turn changes
         if (event.getName().equals(_thfield)) {
-            _tgctrl.turnDidChange((Name)event.getValue());
+            Name name = (Name)event.getValue();
+            Name oname = (Name)event.getOldValue();
+            if (TurnGameObject.TURN_HOLDER_REPLACED.equals(name) ||
+                TurnGameObject.TURN_HOLDER_REPLACED.equals(oname)) {
+                // small hackery: ignore the turn holder being set to
+                // TURN_HOLDER_REPLACED as it means that we're replacing
+                // the current turn holder rather than switching turns;
+                // also ignore the new turn holder when we switch from THR
+                // to a real name again
+            } else {
+                _tgctrl.turnDidChange(name);
+            }
         }
     }
 

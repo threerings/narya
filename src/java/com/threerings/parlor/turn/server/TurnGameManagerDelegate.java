@@ -158,6 +158,20 @@ public class TurnGameManagerDelegate extends GameManagerDelegate
         _turnGame = (TurnGameObject)plobj;
     }
 
+    // documentation inherited
+    public void playerWasReplaced (int pidx, Name oplayer, Name nplayer)
+    {
+        // we need to update the turn holder if the current turn holder
+        // was the player that was replaced and we need to do so in a way
+        // that doesn't make everyone think that the turn just changed
+        if (oplayer != null && oplayer.equals(_turnGame.getTurnHolder())) {
+            // small hackery: this will indicate to the client that we are
+            // replacing the turn holder rather than changing the turn
+            _turnGame.setTurnHolder(TurnGameObject.TURN_HOLDER_REPLACED);
+            _turnGame.setTurnHolder(nplayer);
+        }
+    }
+
     /**
      * This should be called from {@link GameManager#gameDidStart} to let
      * the turn delegate perform start of game processing.

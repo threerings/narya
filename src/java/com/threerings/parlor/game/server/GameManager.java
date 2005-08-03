@@ -271,6 +271,36 @@ public class GameManager extends PlaceManager
     }
 
     /**
+     * Replaces the player at the specified index and calls {@link
+     * #playerWasReplaced} to let derived classes and delegates know
+     * what's going on.
+     */
+    public void replacePlayer (final int pidx, final Name player)
+    {
+        final Name oplayer = _gameobj.players[pidx];
+        _gameobj.setPlayersAt(player, pidx);
+
+        // allow derived classes to respond
+        playerWasReplaced(pidx, oplayer, player);
+
+        // notify our delegates
+        applyToDelegates(new DelegateOp() {
+            public void apply (PlaceManagerDelegate delegate) {
+                ((GameManagerDelegate)delegate).playerWasReplaced(
+                    pidx, oplayer, player);
+            }
+        });
+    }
+
+    /**
+     * Called when a player has been replaced via a call to {@link
+     * #replacePlayer}.
+     */
+    protected void playerWasReplaced (int pidx, Name oldPlayer, Name newPlayer)
+    {
+    }
+
+    /**
      * Returns the user object for the player with the specified index or
      * null if the player at that index is not online.
      */

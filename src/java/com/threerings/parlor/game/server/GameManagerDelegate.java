@@ -21,6 +21,8 @@
 
 package com.threerings.parlor.game.server;
 
+import com.threerings.util.Name;
+
 import com.threerings.crowd.server.PlaceManagerDelegate;
 
 import com.threerings.parlor.game.data.GameAI;
@@ -51,6 +53,14 @@ public class GameManagerDelegate extends PlaceManagerDelegate
      * Called by the game manager after the game was started.
      */
     public void gameDidStart ()
+    {
+    }
+
+    /**
+     * Called when a player in the game has been replaced by a call to
+     * {@link GameManager#replacePlayer}.
+     */
+    public void playerWasReplaced (int pidx, Name oldPlayer, Name newPlayer)
     {
     }
 

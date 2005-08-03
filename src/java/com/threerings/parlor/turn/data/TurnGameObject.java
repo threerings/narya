@@ -31,6 +31,12 @@ import com.threerings.parlor.game.data.GameObject;
  */
 public interface TurnGameObject
 {
+    /** A special value used to communicate to the client that the current
+     * turn holder was replaced (perhaps due to disconnection or departure
+     * and being replaced by an AI). */
+    public static final Name TURN_HOLDER_REPLACED =
+        new Name("__TURN_HOLDER_REPLACED__");
+
     /**
      * Returns the distributed object field name of the
      * <code>turnHolder</code> field in the object that implements this
