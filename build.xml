@@ -142,6 +142,7 @@
       <classpath refid="classpath"/>
       <link href="http://java.sun.com/j2se/1.4/docs/api/"/>
       <link href="http://samskivert.com/code/samskivert/samskivert/docs/api"/>
+      <link href="http://www.jmonkeyengine.com/doc"/>
       <fileset dir="src/java" includes="**/*.java">
         <exclude name="**/OggPlayer.java"/>
         <exclude name="**/ModPlayer.java"/>
