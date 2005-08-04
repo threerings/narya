@@ -74,6 +74,18 @@ public class TokenRing extends SimpleStreamableObject
     }
 
     /**
+     * Set the specified token to be on or off.
+     */
+    public void setToken (int token, boolean on)
+    {
+        if (on) {
+            setToken(token);
+        } else {
+            clearToken(token);
+        }
+    }
+
+    /**
      * Adds the specified token to this ring.
      */
     public void setToken (int token)
