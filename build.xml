@@ -75,6 +75,8 @@
 
   <!-- checks the availability of certain libraries -->
   <target name="check-available">
+    <available property="lwjgl.present"
+     classname="org.lwjgl.LWJGLException" classpathref="classpath"/>
     <available property="jme.present"
      classname="com.jme.scene.Node" classpathref="classpath"/>
     <available property="jme-bui.present"
@@ -83,6 +85,11 @@
       <and>
         <isset property="jme.present"/>
         <isset property="jme-bui.present"/>
+      </and>
+    </condition>
+    <condition property="build.openal">
+      <and>
+        <isset property="lwjgl.present"/>
       </and>
     </condition>
   </target>
@@ -115,6 +122,7 @@
            source="1.4" target="1.4">
       <classpath refid="classpath"/>
       <exclude name="com/threerings/jme/**" unless="build.jme"/>
+      <exclude name="com/threerings/openal/**" unless="build.openal"/>
       <exclude name="**/OggPlayer.java"/>
       <exclude name="**/ModPlayer.java"/>
       <exclude name="**/MidiPlayer.java"/>
@@ -141,6 +149,8 @@
              stylesheetfile="docs/stylesheet.css">
       <classpath refid="classpath"/>
       <link href="http://java.sun.com/j2se/1.4/docs/api/"/>
+      <!-- ant documentation is not available online, sorry kids -->
+      <link href="file:///usr/share/doc/ant-doc/javadocs"/>
       <link href="http://samskivert.com/code/samskivert/samskivert/docs/api"/>
       <link href="http://www.jmonkeyengine.com/doc"/>
       <fileset dir="src/java" includes="**/*.java">
@@ -222,6 +232,9 @@
     <jar destfile="${deploy.dir}/${app.name}-jme.jar">
       <fileset dir="${classes.dir}" includes="com/threerings/jme/**"/>
       <fileset dir="${classes.dir}" includes="rsrc/media/jme/**"/>
+    </jar>
+    <jar destfile="${deploy.dir}/${app.name}-openal.jar">
+      <fileset dir="${classes.dir}" includes="com/threerings/openal/**"/>
     </jar>
   </target>
 
