@@ -5,8 +5,6 @@ package com.threerings.openal;
 
 import java.io.IOException;
 
-import org.lwjgl.util.WaveData;
-
 import com.samskivert.util.Interval;
 import com.samskivert.util.Queue;
 import com.samskivert.util.RunQueue;
@@ -34,19 +32,7 @@ public class TestSoundManager
         };
 
         SoundManager smgr = SoundManager.createSoundManager(rqueue);
-        ClipProvider provider = new ClipProvider() {
-            public Clip loadClip (String path) throws IOException {
-                Clip clip = new Clip();
-                WaveData file = WaveData.create(path);
-                if (file == null) {
-                    throw new IOException("Error loading " + path);
-                }
-                clip.format = file.format;
-                clip.frequency = file.samplerate;
-                clip.data = file.data;
-                return clip;
-            }
-        };
+        ClipProvider provider = new WaveDataClipProvider();
         final SoundGroup group = smgr.createGroup(provider, 5);
         final String path = args[0];
 
