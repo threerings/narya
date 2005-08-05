@@ -27,14 +27,12 @@ import java.nio.IntBuffer;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.openal.AL10;
 
-import com.samskivert.util.LRUHashMap;
 import com.samskivert.util.ObserverList;
 
 /**
  * Represents a sound that has been loaded into the OpenAL system.
  */
 public class ClipBuffer
-    implements LRUHashMap.LRUItem
 {
     /** Used to notify parties interested in when a clip is loaded. */
     public static interface Observer
@@ -164,8 +162,10 @@ public class ClipBuffer
         }
     }
 
-    // documentation inherited from interface LRUHashMap.LRUItem
-    public void removedFromMap (LRUHashMap map)
+    /**
+     * Frees up the internal audio buffers associated with this clip.
+     */
+    public void dispose ()
     {
         if (_bufferId != null) {
             // we've been given the boot, free up our buffer

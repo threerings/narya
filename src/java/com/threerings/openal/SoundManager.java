@@ -120,6 +120,13 @@ public class SoundManager
             return;
         }
 
+        // configure our LRU map with a removal observer
+        _clips.setRemovalObserver(new LRUHashMap.RemovalObserver() {
+            public void removedFromMap (LRUHashMap map, Object item) {
+                ((ClipBuffer)item).dispose();
+            }
+        });
+
         // create our loading queue
         _toLoad = new Queue();
 
