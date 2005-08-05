@@ -76,6 +76,7 @@ public class SoundManager
      */
     public void setCacheSize (int bytes)
     {
+        _clips.setMaxSize(bytes);
     }
 
     /**

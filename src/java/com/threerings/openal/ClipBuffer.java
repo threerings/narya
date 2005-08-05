@@ -31,9 +31,7 @@ import com.samskivert.util.LRUHashMap;
 import com.samskivert.util.ObserverList;
 
 /**
- * Represents a sound that has been loaded into the OpenAL system, or one
- * that was loaded but has been flushed and which can be reloaded as
- * needed.
+ * Represents a sound that has been loaded into the OpenAL system.
  */
 public class ClipBuffer
     implements LRUHashMap.LRUItem
