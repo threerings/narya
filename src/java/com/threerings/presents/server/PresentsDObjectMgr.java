@@ -287,7 +287,17 @@ public class PresentsDObjectMgr
 
         if (_eventCount % UNIT_PROFILING_INTERVAL == 0) {
             // record the time spent processing this unit
-            String cname = StringUtil.shortClassName(unit);
+            String cname;
+            // to more sensibly record non-event "units" we need to do
+            // some jiggery pokery
+            if (unit instanceof Runnable) {
+                cname = unit.toString();
+                int laidx = cname.lastIndexOf("@");
+                cname = (laidx == -1) ? cname : cname.substring(0, laidx);
+                cname = StringUtil.shortClassName(cname);
+            } else {
+                cname = StringUtil.shortClassName(unit);
+            }
             UnitProfile uprof = (UnitProfile)_profiles.get(cname);
             if (uprof == null) {
                 _profiles.put(cname, uprof = new UnitProfile());
