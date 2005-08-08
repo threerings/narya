@@ -285,16 +285,20 @@ public class PresentsDObjectMgr
                         ", time=" + (elapsed/1000) + "ms].");
         }
 
+        // periodically sample and record the time spent processing a unit
         if (_eventCount % UNIT_PROFILING_INTERVAL == 0) {
-            // record the time spent processing this unit
             String cname;
-            // to more sensibly record non-event "units" we need to do
-            // some jiggery pokery
+            // do some jiggery pokery to get more fine grained profiling
+            // details on certain "popular" unit types
             if (unit instanceof Runnable) {
                 cname = unit.toString();
                 int laidx = cname.lastIndexOf("@");
                 cname = (laidx == -1) ? cname : cname.substring(0, laidx);
                 cname = StringUtil.shortClassName(cname);
+            } else if (unit instanceof InvocationRequestEvent) {
+                InvocationRequestEvent ire = (InvocationRequestEvent)unit;
+                cname = "dobj.InvocationRequestEvent:" +
+                    ire.getInvCode() + ":" + ire.getMethodId();
             } else {
                 cname = StringUtil.shortClassName(unit);
             }
