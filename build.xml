@@ -137,7 +137,7 @@
      executable="make"><arg line="install"/></exec>
     <exec os="Linux" dir="src/java/com/threerings/util/keybd/Linux" 
      executable="make"><arg line="install"/></exec>
-    <exec os="Linux" dir="src/java/com/threerings/util/unsafe/Linux" 
+    <exec dir="src/java/com/threerings/util/unsafe/${os.name}" 
      executable="make"><arg line="install"/></exec>
   </target>
 
