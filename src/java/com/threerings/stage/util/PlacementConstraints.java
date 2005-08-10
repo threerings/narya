@@ -271,10 +271,11 @@ public class PlacementConstraints
     protected boolean hasSpaceConstrainedAdjacent (ObjectData data,
         ObjectData[] added, ObjectData[] removed)
     {
-        Rectangle rect = new Rectangle(data.bounds);
-        rect.grow(1, 1);
+        Rectangle r = data.bounds;
+        // grow the ObjectData bounds 1 square in each direction
+        _constrainRect.setBounds(r.x - 1, r.y - 1, r.width + 2, r.height + 2);
         
-        ArrayList objects = getObjectData(rect, added, removed);
+        ArrayList objects = getObjectData(_constrainRect, added, removed);
         for (int i = 0, size = objects.size(); i < size; i++) {
             ObjectData odata = (ObjectData)objects.get(i);
             int dir = getConstraintDirection(odata, ObjectTileSet.SPACE);
@@ -487,4 +488,7 @@ public class PlacementConstraints
     /** For all objects in the scene, maps {@link ObjectInfo}s to
      * {@link ObjectData}s. */
     protected HashMap _objectData = new HashMap();
+
+    /** One rectangle we'll re-use for all constraints ops. */
+    protected static final Rectangle _constrainRect = new Rectangle();
 }
