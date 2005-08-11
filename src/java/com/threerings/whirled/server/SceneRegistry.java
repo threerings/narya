@@ -273,6 +273,7 @@ public class SceneRegistry
     {
         Log.info("Failed to resolve scene [sceneId=" + sceneId +
                  ", cause=" + cause + "].");
+        Log.logStackTrace(cause);
 
         // alas things didn't work out, notify our penders
         ArrayList penders = (ArrayList)_penders.remove(sceneId);
