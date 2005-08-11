@@ -66,21 +66,21 @@ public class SceneManager extends PlaceManager
     protected void setSceneData (Scene scene, UpdateList updates,
                                  SceneRegistry screg)
     {
+        _scene = scene;
+        _screg = screg;
+        _updates = updates;
+
         // make sure the list and our version of the scene are in
         // accordance
-        if (!updates.validate(scene.getVersion())) {
+        if (!_updates.validate(scene.getVersion())) {
             Log.warning("Provided with invalid updates; flushing " +
                         "[where=" + where() +
                         ", sceneId=" + scene.getId() + "].");
             // clear out the update list as it will not allow us to bring
             // clients up to date with our current scene version; instead
             // they'll have to download the whole thing
-            updates = new UpdateList();
+            _updates = new UpdateList();
         }
-
-        _scene = scene;
-        _screg = screg;
-        _updates = updates;
 
         // let derived classes react to the receipt of scene data
         gotSceneData();
