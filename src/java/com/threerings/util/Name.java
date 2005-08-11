@@ -1,5 +1,5 @@
 //
-// $Id: Name.java,v 1.4 2004/08/27 02:20:36 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -99,14 +99,16 @@ public class Name extends TrackedStreamableObject
     // documentation inherited
     public boolean equals (Object other)
     {
-        // we have to be of the same derived class but we don't want to
-        // wig out if the classes were loaded from different class loaders
-        if (other == null ||
-            !other.getClass().getName().equals(getClass().getName())) {
-            return false;
-        } else {
-            return getNormal().equals(((Name)other).getNormal());
+        if (other != null) {
+            Class c = getClass();
+            Class oc = other.getClass();
+            // we have to be of the same derived class but we don't want to
+            // wig out if the classes were loaded from different class loaders
+            if (c == oc || c.getName().equals(oc.getName())) {
+                return getNormal().equals(((Name)other).getNormal());
+            }
         }
+        return false;
     }
 
     // documentation inherited
