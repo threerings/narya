@@ -237,12 +237,25 @@ public class PlaceRegistry
         _pmgrs.put(plobj.getOid(), pmgr);
 
         // start the place manager up with the newly created place object
-        pmgr.startup(plobj);
+        try {
+            pmgr.startup(plobj);
+        } catch (Exception e) {
+            Log.warning("Error starting place manager [obj=" + object +
+                ", pmgr=" + pmgr + "].");
+            Log.logStackTrace(e);
+        }
 
         // inform the creation observer that the place object was created
         // and provided to the manager
         if (observer != null) {
-            observer.placeCreated(plobj, pmgr);
+            try {
+                observer.placeCreated(plobj, pmgr);
+            } catch (Exception e) {
+                Log.warning("Error informing CreationObserver of place " +
+                    "[obj=" + object + ", pmgr=" + pmgr + ", obs=" + observer +
+                    "].");
+                Log.logStackTrace(e);
+            }
         }
     }
 
