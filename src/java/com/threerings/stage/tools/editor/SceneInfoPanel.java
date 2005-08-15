@@ -25,9 +25,9 @@ import javax.swing.event.PopupMenuListener;
 
 import com.samskivert.swing.GroupLayout;
 import com.samskivert.swing.HGroupLayout;
+import com.samskivert.util.Collections;
 import com.samskivert.util.CollectionUtil;
 import com.samskivert.util.SortableArrayList;
-import com.samskivert.util.SortedIterator;
 
 import com.threerings.miso.data.ObjectInfo;
 import com.threerings.miso.data.SparseMisoSceneModel.ObjectVisitor;
@@ -186,7 +186,8 @@ public class SceneInfoPanel extends JPanel
         DefaultComboBoxModel model =
             (DefaultComboBoxModel) _colorClasses.getModel();
         model.removeAllElements();
-        for (Iterator itr = new SortedIterator(set); itr.hasNext(); ) {
+        for (Iterator itr = Collections.getSortedIterator(set);
+                itr.hasNext(); ) {
             model.addElement(itr.next());
         }
         if (selected != null) {
