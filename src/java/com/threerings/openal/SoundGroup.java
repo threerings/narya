@@ -48,7 +48,11 @@ public class SoundGroup
      */
     public Sound getSound (String path)
     {
-        return new Sound(this, _manager.getClip(_provider, path));
+        if (_manager.isInitialized()) {
+            return new Sound(this, _manager.getClip(_provider, path));
+        } else {
+            return new BlankSound();
+        }
     }
 
     /**
@@ -66,6 +70,12 @@ public class SoundGroup
     {
         _manager = manager;
         _provider = provider;
+
+        // if we were unable to initialize the sound system at all, just
+        // stop here and we'll behave as if we have no available sources
+        if (!_manager.isInitialized()) {
+            return;
+        }
 
         // create our sources
         _sourceIds = BufferUtils.createIntBuffer(sources);

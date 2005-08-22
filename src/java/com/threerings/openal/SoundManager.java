@@ -70,6 +70,14 @@ public class SoundManager
     }
 
     /**
+     * Returns true if we were able to initialize the sound system.
+     */
+    public boolean isInitialized ()
+    {
+        return (_toLoad != null);
+    }
+
+    /**
      * Configures the size of our sound cache. If this value is larger
      * than memory available to the underlying sound system, it will be
      * reduced when OpenAL first tells us we're out of memory.
