@@ -61,10 +61,7 @@ public class LineSegmentPath extends Path
         // segment time and move on to the next segment
         if (_accum > _durations[_current]) {
             _accum -= _durations[_current];
-            _current++;
-            if (_current < _points.length-1) {
-                updateRotation();
-            }
+            advance();
         }
 
         // if we have completed our path, move the sprite to the final
@@ -79,6 +76,14 @@ public class LineSegmentPath extends Path
         _temp.interpolate(_points[_current], _points[_current+1],
                           _accum / _durations[_current]);
         _sprite.setLocalTranslation(_temp);
+    }
+
+    protected void advance ()
+    {
+        _current++;
+        if (_current < _points.length-1) {
+            updateRotation();
+        }
     }
 
     protected void updateRotation ()
