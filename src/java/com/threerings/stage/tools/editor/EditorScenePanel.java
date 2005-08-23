@@ -961,9 +961,9 @@ public class EditorScenePanel extends StageScenePanel
     }
 
     // documentation inherited
-    protected boolean skipActionlessObjects ()
+    protected boolean skipHitObject (SceneObject scobj)
     {
-        return false;
+        return false; // skip nothing
     }
 
     /**

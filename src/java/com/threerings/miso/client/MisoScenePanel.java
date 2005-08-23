@@ -1141,9 +1141,8 @@ public class MisoScenePanel extends VirtualMediaPanel
                 continue;
             }
 
-            // skip actionless objects if we're configured to do so
-            if (skipActionlessObjects() &&
-                StringUtil.blank(scobj.info.action)) {
+            // see if we should skip it
+            if (skipHitObject(scobj)) {
                 continue;
             }
 
@@ -1159,12 +1158,14 @@ public class MisoScenePanel extends VirtualMediaPanel
     }
 
     /**
-     * Indicates whether or not actionless objects are allowed to be the
-     * hover object. By default, they are not.
+     * Determines whether we should skip the specified object when compiling
+     * the list of objects under a specified point using
+     * {@link #getHitObjects}.  The default implementation returns
+     * <code>true</code> iff the object has no action.
      */
-    protected boolean skipActionlessObjects ()
+    protected boolean skipHitObject (SceneObject scobj)
     {
-        return true;
+        return StringUtil.blank(scobj.info.action);
     }
 
     /**
