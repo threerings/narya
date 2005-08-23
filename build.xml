@@ -80,7 +80,7 @@
     <available property="jme.present"
      classname="com.jme.scene.Node" classpathref="classpath"/>
     <available property="jme-bui.present"
-     classname="com.jme.bui.BWindow" classpathref="classpath"/>
+     classname="com.jmex.bui.BWindow" classpathref="classpath"/>
     <condition property="build.jme">
       <and>
         <isset property="jme.present"/>
