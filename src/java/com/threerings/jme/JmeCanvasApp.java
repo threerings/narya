@@ -33,7 +33,7 @@ import com.jme.system.DisplaySystem;
 import com.jme.util.awt.JMECanvas;
 import com.jme.util.awt.JMECanvasImplementor;
 
-import com.jme.bui.CanvasRootNode;
+import com.jmex.bui.CanvasRootNode;
 
 /**
  * Extends the basic {@link JmeApp} with the necessary wiring to use the

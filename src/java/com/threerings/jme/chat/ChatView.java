@@ -23,12 +23,12 @@ package com.threerings.jme.chat;
 
 import java.util.StringTokenizer;
 
-import com.jme.bui.BContainer;
-import com.jme.bui.BTextArea;
-import com.jme.bui.BTextField;
-import com.jme.bui.event.ActionEvent;
-import com.jme.bui.event.ActionListener;
-import com.jme.bui.layout.BorderLayout;
+import com.jmex.bui.BContainer;
+import com.jmex.bui.BTextArea;
+import com.jmex.bui.BTextField;
+import com.jmex.bui.event.ActionEvent;
+import com.jmex.bui.event.ActionListener;
+import com.jmex.bui.layout.BorderLayout;
 
 import com.jme.renderer.ColorRGBA;
 

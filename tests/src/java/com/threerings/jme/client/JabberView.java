@@ -3,10 +3,10 @@
 
 package com.threerings.jme.client;
 
-import com.jme.bui.BLabel;
-import com.jme.bui.BLookAndFeel;
-import com.jme.bui.BWindow;
-import com.jme.bui.layout.BorderLayout;
+import com.jmex.bui.BLabel;
+import com.jmex.bui.BLookAndFeel;
+import com.jmex.bui.BWindow;
+import com.jmex.bui.layout.BorderLayout;
 
 import com.threerings.crowd.client.PlaceView;
 import com.threerings.crowd.data.PlaceObject;

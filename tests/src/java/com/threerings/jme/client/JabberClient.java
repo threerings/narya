@@ -21,7 +21,7 @@
 
 package com.threerings.jme.client;
 
-import com.jme.bui.BRootNode;
+import com.jmex.bui.BRootNode;
 import com.jme.input.InputHandler;
 import com.jme.renderer.Camera;
 import com.jme.renderer.Renderer;

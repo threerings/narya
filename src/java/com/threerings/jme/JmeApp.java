@@ -40,8 +40,8 @@ import com.jme.system.JmeException;
 import com.jme.system.PropertiesIO;
 import com.jme.system.lwjgl.LWJGLPropertiesDialog;
 
-import com.jme.bui.BRootNode;
-import com.jme.bui.PolledRootNode;
+import com.jmex.bui.BRootNode;
+import com.jmex.bui.PolledRootNode;
 import com.jme.input.InputHandler;
 import com.jme.input.InputSystem;
 import com.jme.input.Mouse;

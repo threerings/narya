@@ -27,7 +27,7 @@ import com.jme.renderer.Renderer;
 import com.jme.scene.Node;
 import com.jme.system.DisplaySystem;
 
-import com.jme.bui.BRootNode;
+import com.jmex.bui.BRootNode;
 
 /**
  * Provides access to the various bits needed by things that operate in
