@@ -56,6 +56,20 @@ import com.threerings.presents.dobj.*;
 public class PresentsDObjectMgr
     implements RootDObjectManager, RunQueue, PresentsServer.Reporter
 {
+    /** Contains operational statistics that are tracked by the
+     * distributed object manager for a particular period of time (e.g. 5
+     * minutes). The snapshot for the most recently completed period can
+     * be requested via {@link #getStats()}. . */
+    public static class Stats
+    {
+        /** The largest size of the distributed object queue during the
+         * period. */
+        public int maxQueueSize;
+
+        /** The number of events dispatched during the period. */
+        public int eventCount;
+    }
+
     /**
      * Creates the dobjmgr and prepares it for operation.
      */
@@ -91,15 +105,6 @@ public class PresentsDObjectMgr
                 obj.setAccessController(controller);
             }
         }
-    }
-
-    /**
-     * Configures this manager with a log to which runtime statistics will
-     * be recorded.
-     */
-    public void setStatsLog (AuditLogger logger)
-    {
-        _statslog = logger;
     }
 
     // documentation inherited from interface
@@ -190,6 +195,15 @@ public class PresentsDObjectMgr
     }
 
     /**
+     * Returns the runtime statistics for the most recently completed
+     * reporting period.
+     */
+    public Stats getStats ()
+    {
+        return _recent;
+    }
+
+    /**
      * Returns true if the thread invoking this method is the same thread
      * that is doing distributed object event dispatch. Code that wishes
      * to enforce that it is either always or never called on the event
@@ -231,24 +245,22 @@ public class PresentsDObjectMgr
         long start = _timer.highResCounter();
         long freq = _timer.highResFrequency();
 
-        if (_statslog != null) {
-            // keep track of the largest queue size we've seen
-            int queueSize = _evqueue.size();
-            if (queueSize > _maxQueueSize) {
-                _maxQueueSize = queueSize;
-            }
+        // keep track of the largest queue size we've seen
+        int queueSize = _evqueue.size();
+        if (queueSize > _current.maxQueueSize) {
+            _current.maxQueueSize = queueSize;
+        }
 
-            // report and reset our largest queue size once every 5 minutes
-            long startMillis = start * 1000 / freq;
-            if (_nextQueueReport < startMillis) {
-                if (_nextQueueReport != 0L) {
-                    _statslog.log("max_dobj_queue_size " + _maxQueueSize);
-                    _maxQueueSize = queueSize;
-                    _nextQueueReport += QUEUE_PROFILING_INTERVAL;
-
-                } else {
-                    _nextQueueReport = startMillis + QUEUE_PROFILING_INTERVAL;
-                }
+        // report and reset our largest queue size once every 5 minutes
+        long startMillis = start * 1000 / freq;
+        if (_nextStatsSnapshot < startMillis) {
+            _recent = _current;
+            _current = new Stats();
+            if (_nextStatsSnapshot != 0L) {
+                _current.maxQueueSize = queueSize;
+                _nextStatsSnapshot += STATS_SNAPSHOT_INTERVAL;
+            } else {
+                _nextStatsSnapshot = startMillis + STATS_SNAPSHOT_INTERVAL;
             }
         }
 
@@ -419,6 +431,7 @@ public class PresentsDObjectMgr
 
         // track the number of events dispatched
         ++_eventCount;
+        ++_current.eventCount;
         return true;
     }
 
@@ -717,11 +730,6 @@ public class PresentsDObjectMgr
     {
         report.append("* presents.PresentsDObjectMgr:\n");
 
-        long processed = (_eventCount - _lastEventCount);
-        report.append("- Events since last report: ").append(processed);
-        report.append("\n");
-        _lastEventCount = _eventCount;
-
         report.append("- Unit profiles: ").append(_profiles.size());
         report.append("\n");
         for (Iterator iter = _profiles.keySet().iterator(); iter.hasNext(); ) {
@@ -986,12 +994,6 @@ public class PresentsDObjectMgr
     /** Used to track the number of events dispatched over time. */
     protected long _eventCount = 0;
 
-    /** Used to track the number of events dispatched over of time. */
-    protected long _lastEventCount = 0;
-
-    /** The last time at which we generated a report. */
-    protected long _lastReportStamp;
-
     /** Track fatal errors so that we can stick a fork in ourselves if
      * things get too far out of hand. More than 30 fatal errors in the
      * span of a minute and we throw in the towel. */
@@ -1015,14 +1017,11 @@ public class PresentsDObjectMgr
     /** Used to profile our events and runnable units. */
     protected HashMap _profiles = new HashMap();
 
-    /** Used to report runtime statistics. */
-    protected AuditLogger _statslog;
+    /** Used to track runtime statistics. */
+    protected Stats _recent = new Stats(), _current = _recent;
 
-    /** The largest queue size in the past minute. */
-    protected long _maxQueueSize;
-
-    /** The time at which we last reported our max queue size. */
-    protected long _nextQueueReport;
+    /** The time at which we last took a snapshot of our stats. */
+    protected long _nextStatsSnapshot;
 
     /** The frequency with which we take a profiling sample. */
     protected static final int UNIT_PROFILING_INTERVAL = 100;
@@ -1030,8 +1029,8 @@ public class PresentsDObjectMgr
     /** The default size of an oid list refs vector. */
     protected static final int DEFREFVEC_SIZE = 4;
 
-    /** The frequency with which we report maximum queue size. */
-    protected static final long QUEUE_PROFILING_INTERVAL = 5 * 60 * 1000L;
+    /** The frequency with which we roll over our runtime stats. */
+    protected static final long STATS_SNAPSHOT_INTERVAL = 5 * 60 * 1000L;
 
     /**
      * This table maps event classes to helper methods that perform some
