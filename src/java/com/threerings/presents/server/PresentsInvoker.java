@@ -104,11 +104,11 @@ public class PresentsInvoker extends Invoker
                     _statslog.log("max_invoker_queue_size " + _maxQueueSize);
                     _maxQueueSize = queueSize;
                     _nextQueueReport +=
-                        PresentsDObjectMgr.QUEUE_PROFILING_INTERVAL;
+                        PresentsDObjectMgr.STATS_SNAPSHOT_INTERVAL;
 
                 } else {
                     _nextQueueReport =
-                        start + PresentsDObjectMgr.QUEUE_PROFILING_INTERVAL;
+                        start + PresentsDObjectMgr.STATS_SNAPSHOT_INTERVAL;
                 }
             }
         }
