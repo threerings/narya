@@ -80,7 +80,7 @@ public class Sprite extends Node
     public void addObserver (SpriteObserver obs)
     {
         if (_observers == null) {
-            _observers = new ObserverList(ObserverList.FAST_UNSAFE_NOTIFY);
+            _observers = new ObserverList(ObserverList.SAFE_IN_ORDER_NOTIFY);
         }
         _observers.add(obs);
     }
