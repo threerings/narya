@@ -743,7 +743,8 @@ public class ChatDirector extends BasicDirector
      * chat message. Derived classes may wish to throttle chat or restrict
      * certain types in certain circumstances for whatever reason.
      *
-     * @return null if the chat is permitted, a translatable string
+     * @return null if the chat is permitted, SUCCESS if the chat is permitted
+     * and has already been dealt with, or a translatable string
      * indicating the reason for rejection if not.
      */
     protected String checkCanChat (
