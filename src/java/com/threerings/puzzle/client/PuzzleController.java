@@ -829,16 +829,15 @@ public abstract class PuzzleController extends GameController
         protected PuzzlePanel _panel;
     }
 
-    /** The mouse jockey for unpausing our puzzles. */
-    protected Unpauser _unpauser;
-
-    /** Handles the sending of puzzle progress updates. We can't just
+    /** A special frame participant that handles the sending of puzzle
+     * progress updates. We can't just
      * register an interval for this because sometimes the clock goes
      * backwards in time in windows and our intervals don't get called for
      * a long period of time which causes the server to think the client
      * is disconnected or cheating and resign them from the puzzle. God
      * bless you, Microsoft. */
-    protected FrameParticipant _updater = new FrameParticipant() {
+    protected class Updater implements FrameParticipant
+    {
         public void tick (long tickStamp) {
             if (_astate == ACTION_CLEARED) {
                 // remove ourselves as the action is now cleared; we can't
@@ -862,8 +861,22 @@ public abstract class PuzzleController extends GameController
             return null;
         }
 
-        protected long _lastProgressTick;
-    };
+        public long _lastProgressTick;
+    }
+
+    /**
+     * Create the updater to be used in this puzzle.
+     */
+    protected Updater createUpdater ()
+    {
+        return new Updater();
+    }
+
+    /** The mouse jockey for unpausing our puzzles. */
+    protected Unpauser _unpauser;
+
+    /** Handles the sending of puzzle progress updates. */
+    protected Updater _updater = createUpdater();
 
     /** Listens for players being knocked out. */
     protected ElementUpdateListener _kolist = new ElementUpdateListener() {
