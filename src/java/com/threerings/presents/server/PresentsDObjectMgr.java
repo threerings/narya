@@ -25,6 +25,7 @@ import java.lang.reflect.*;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import sun.misc.Perf;
 
@@ -309,8 +310,11 @@ public class PresentsDObjectMgr
                 cname = StringUtil.shortClassName(cname);
             } else if (unit instanceof InvocationRequestEvent) {
                 InvocationRequestEvent ire = (InvocationRequestEvent)unit;
-                cname = "dobj.InvocationRequestEvent:" +
-                    ire.getInvCode() + ":" + ire.getMethodId();
+                Class c = PresentsServer.invmgr.getDispatcherClass(
+                    ire.getInvCode());
+                cname = (c == null)
+                    ? "dobj.InvocationRequestEvent:(no longer registered)"
+                    : StringUtil.shortClassName(c) + ":" + ire.getMethodId();
             } else {
                 cname = StringUtil.shortClassName(unit);
             }
@@ -467,10 +471,10 @@ public class PresentsDObjectMgr
      */
     public void dumpUnitProfiles ()
     {
-        Iterator iter = _profiles.keySet().iterator();
-        while (iter.hasNext()) {
-            String cname = (String)iter.next();
-            UnitProfile uprof = (UnitProfile)_profiles.get(cname);
+        for (Iterator itr = _profiles.entrySet().iterator(); itr.hasNext(); ) {
+            Map.Entry entry = (Map.Entry) itr.next();
+            String cname = (String) entry.getKey();
+            UnitProfile uprof = (UnitProfile) entry.getValue();
             Log.info("P: " + cname + " => " + uprof);
         }
     }
@@ -732,9 +736,10 @@ public class PresentsDObjectMgr
 
         report.append("- Unit profiles: ").append(_profiles.size());
         report.append("\n");
-        for (Iterator iter = _profiles.keySet().iterator(); iter.hasNext(); ) {
-            String cname = (String)iter.next();
-            UnitProfile uprof = (UnitProfile)_profiles.get(cname);
+        for (Iterator itr = _profiles.entrySet().iterator(); itr.hasNext(); ) {
+            Map.Entry entry = (Map.Entry) itr.next();
+            String cname = (String) entry.getKey();
+            UnitProfile uprof = (UnitProfile) entry.getValue();
             report.append("  ").append(cname).append(" ").append(uprof);
             report.append("\n");
         }

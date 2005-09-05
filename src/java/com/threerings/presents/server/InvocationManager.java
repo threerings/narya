@@ -151,6 +151,19 @@ public class InvocationManager
         }
     }
 
+    /**
+     * Get the class that is being used to dispatch the specified
+     * invocation code, for informational purposes.
+     * 
+     * @return the Class, or null if no dispatcher is registered with
+     * the specified code.
+     */
+    public Class getDispatcherClass (int invCode)
+    {
+        Object dispatcher = _dispatchers.get(invCode);
+        return (dispatcher == null) ? null : dispatcher.getClass();
+    }
+
     public void objectAvailable (DObject object)
     {
         // this must be our invocation object
