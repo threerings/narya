@@ -304,9 +304,7 @@ public class PresentsDObjectMgr
             String cname;
             // do some jiggery pokery to get more fine grained profiling
             // details on certain "popular" unit types
-            if (unit instanceof Runnable) {
-                cname = StringUtil.shortClassName(unit);
-            } else if (unit instanceof Interval.RunQueueRunnable) {
+            if (unit instanceof Interval.RunQueueRunnable) {
                 Interval ival = ((Interval.RunQueueRunnable)unit).getInterval();
                 cname = StringUtil.shortClassName(ival);
             } else if (unit instanceof InvocationRequestEvent) {
