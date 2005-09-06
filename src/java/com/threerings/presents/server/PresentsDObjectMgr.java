@@ -32,6 +32,7 @@ import sun.misc.Perf;
 import com.samskivert.util.AuditLogger;
 import com.samskivert.util.HashIntMap;
 import com.samskivert.util.Histogram;
+import com.samskivert.util.Interval;
 import com.samskivert.util.Invoker;
 import com.samskivert.util.Queue;
 import com.samskivert.util.RunQueue;
@@ -304,10 +305,10 @@ public class PresentsDObjectMgr
             // do some jiggery pokery to get more fine grained profiling
             // details on certain "popular" unit types
             if (unit instanceof Runnable) {
-                cname = unit.toString();
-                int laidx = cname.lastIndexOf("@");
-                cname = (laidx == -1) ? cname : cname.substring(0, laidx);
-                cname = StringUtil.shortClassName(cname);
+                cname = StringUtil.shortClassName(unit);
+            } else if (unit instanceof Interval.RunQueueRunnable) {
+                Interval ival = ((Interval.RunQueueRunnable)unit).getInterval();
+                cname = StringUtil.shortClassName(ival);
             } else if (unit instanceof InvocationRequestEvent) {
                 InvocationRequestEvent ire = (InvocationRequestEvent)unit;
                 Class c = PresentsServer.invmgr.getDispatcherClass(
