@@ -46,12 +46,12 @@ public class ObjectTileSet extends SwissArmyTileSet
     /** A constraint indicating that the object must be placed on a surface. */
     public static final String ON_SURFACE = "ON_SURFACE";
  
-    /** A constraint prefix indicating that the object is a normal-height wall
-     * facing the suffixed direction (N, E, S, or W). */
+    /** A constraint prefix indicating that the object is a wall facing the
+     * suffixed direction (N, E, S, or W). */
     public static final String WALL = "WALL_";
  
     /** A constraint prefix indicating that the object must be placed on a
-     * normal-height wall facing the suffixed direction (N, E, S, or W). */
+     * wall facing the suffixed direction (N, E, S, or W). */
     public static final String ON_WALL = "ON_WALL_";
     
     /** A constraint prefix indicating that the object must be attached to a
