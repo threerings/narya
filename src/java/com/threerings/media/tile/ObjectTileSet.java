@@ -35,11 +35,7 @@ import com.threerings.media.image.Colorization;
  */
 public class ObjectTileSet extends SwissArmyTileSet
     implements RecolorableTileSet
-{
-    /** A constraint prefix indicating that the object must be attached to a
-     * wall facing the suffixed direction (N, E, S, or W). */
-    public static final String ATTACH = "ATTACH_";
-    
+{   
     /** A constraint prefix indicating that the object must have empty space in
      * the suffixed direction (N, E, S, or W). */
     public static final String SPACE = "SPACE_";
@@ -50,13 +46,22 @@ public class ObjectTileSet extends SwissArmyTileSet
     /** A constraint indicating that the object must be placed on a surface. */
     public static final String ON_SURFACE = "ON_SURFACE";
  
-    /** A constraint prefix indicating that the object is a wall facing the
-     * suffixed direction (N, E, S, or W). */
+    /** A constraint prefix indicating that the object is a normal-height wall
+     * facing the suffixed direction (N, E, S, or W). */
     public static final String WALL = "WALL_";
  
-    /** A constraint prefix indicating that the object must be placed on a wall
-     * facing the suffixed direction (N, E, S, or W). */
+    /** A constraint prefix indicating that the object must be placed on a
+     * normal-height wall facing the suffixed direction (N, E, S, or W). */
     public static final String ON_WALL = "ON_WALL_";
+    
+    /** A constraint prefix indicating that the object must be attached to a
+     * wall facing the suffixed direction (N, E, S, or W). */
+    public static final String ATTACH = "ATTACH_";
+    
+    /** The low suffix for walls and attachments. Low attachments can be placed
+     * on low or normal walls; normal attachments can only be placed on normal
+     * walls. */
+    public static final String LOW = "_LOW";
     
     /**
      * Sets the widths (in unit tile count) of the objects in this

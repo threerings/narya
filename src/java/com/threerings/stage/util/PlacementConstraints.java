@@ -155,6 +155,8 @@ public class PlacementConstraints
     protected String allowModifyObjects (ObjectData[] added,
         ObjectData[] removed)
     {
+        DirectionHeight dirheight = new DirectionHeight();
+        
         for (int i = 0; i < added.length; i++) {
             if (added[i].tile.hasConstraint(ObjectTileSet.ON_SURFACE) &&
                 !isOnSurface(added[i], added, removed)) {
@@ -168,8 +170,9 @@ public class PlacementConstraints
                     "m.not_on_wall");
             }
             
-            dir = getConstraintDirection(added[i], ObjectTileSet.ATTACH);
-            if (dir != NONE && !isAttached(added[i], added, removed, dir)) {
+            if (getConstraintDirectionHeight(added[i], ObjectTileSet.ATTACH,
+                    dirheight) && !isAttached(added[i], added, removed,
+                        dirheight.dir, dirheight.low)) {
                 return MessageBundle.qualify(STAGE_MESSAGE_BUNDLE,
                     "m.not_attached");
             }
@@ -252,12 +255,15 @@ public class PlacementConstraints
     protected boolean hasAttached (ObjectData data, ObjectData[] added,
         ObjectData[] removed, int dir)
     {
+        DirectionHeight dirheight = new DirectionHeight();
+        
         ArrayList objects = getObjectData(getAdjacentEdge(data.bounds,
             DirectionUtil.getOpposite(dir)), added, removed);
         for (int i = 0, size = objects.size(); i < size; i++) {
             ObjectData odata = (ObjectData)objects.get(i);
-            if (getConstraintDirection(odata, ObjectTileSet.ATTACH) == dir &&
-                !isAttached(odata, added, removed, dir)) {
+            if (getConstraintDirectionHeight(odata, ObjectTileSet.ATTACH,
+                    dirheight) && !isAttached(odata, added, removed,
+                        dirheight.dir, dirheight.low)) {
                 return true;
             }
         }
@@ -303,7 +309,8 @@ public class PlacementConstraints
     protected boolean isOnSurface (ObjectData data, ObjectData[] added,
         ObjectData[] removed)
     {
-        return isCovered(data.bounds, added, removed, ObjectTileSet.SURFACE);
+        return isCovered(data.bounds, added, removed, ObjectTileSet.SURFACE,
+            null);
     }
     
     /**
@@ -314,27 +321,29 @@ public class PlacementConstraints
         ObjectData[] removed, int dir)
     {
         return isCovered(data.bounds, added, removed,
-            getDirectionalConstraint(ObjectTileSet.WALL, dir));
+            getDirectionalConstraint(ObjectTileSet.WALL, dir), null);
     }
     
     /**
      * Determines whether the specified object is attached to another object in
-     * the specified direction.
+     * the specified direction and at the specified height.
      */
     protected boolean isAttached (ObjectData data, ObjectData[] added,
-        ObjectData[] removed, int dir)
+        ObjectData[] removed, int dir, boolean low)
     {
         return isCovered(getAdjacentEdge(data.bounds, dir), added, removed,
-            getDirectionalConstraint(ObjectTileSet.WALL, dir));
+            getDirectionalConstraint(ObjectTileSet.WALL, dir), low ?
+            getDirectionalConstraint(ObjectTileSet.WALL, dir, true) : null);
     }
     
     /**
      * Given a rectangle, determines whether all of the tiles within
      * the rectangle intersect an object.  If the constraint parameter is
-     * non-null, the intersected objects must have that constraint.
+     * non-null, the intersected objects must have that constraint (or the
+     * alternate constraint, if specified).
      */
     protected boolean isCovered (Rectangle rect, ObjectData[] added,
-        ObjectData[] removed, String constraint)
+        ObjectData[] removed, String constraint, String altstraint)
     {
         ArrayList objects = getObjectData(rect, added, removed);
         for (int y = rect.y, ymax = rect.y + rect.height; y < ymax; y++) {
@@ -343,7 +352,9 @@ public class PlacementConstraints
                 for (int i = 0, size = objects.size(); i < size; i++) {
                     ObjectData data = (ObjectData)objects.get(i);
                     if (data.bounds.contains(x, y) && (constraint == null ||
-                            data.tile.hasConstraint(constraint))) {
+                            data.tile.hasConstraint(constraint) ||
+                            (altstraint != null &&
+                                data.tile.hasConstraint(altstraint)))) {
                         covered = true;
                         break;
                     }
@@ -390,18 +401,38 @@ public class PlacementConstraints
      */
     protected int getConstraintDirection (ObjectData data, String prefix)
     {
+        DirectionHeight dirheight = new DirectionHeight();
+        return getConstraintDirectionHeight(data, prefix, dirheight) ?
+            dirheight.dir : NONE;
+    }
+    
+    /**
+     * Populates the supplied {@link DirectionHeight} object with the direction
+     * and height of the constraint identified by the given prefix.
+     *
+     * @return true if the object was successfully populated, false if there is
+     * no such constraint
+     */
+    protected boolean getConstraintDirectionHeight (ObjectData data,
+        String prefix, DirectionHeight dirheight)
+    {
         String[] constraints = data.tile.getConstraints();
         if (constraints == null) {
-            return NONE;
+            return false;
         }
         
         for (int i = 0; i < constraints.length; i++) {
             if (constraints[i].startsWith(prefix)) {
-                return DirectionUtil.fromShortString(
-                    constraints[i].substring(prefix.length()));
+                int fromidx = prefix.length(),
+                    toidx = constraints[i].indexOf('_', fromidx);
+                dirheight.dir = DirectionUtil.fromShortString(toidx == -1 ?
+                    constraints[i].substring(fromidx) :
+                    constraints[i].substring(fromidx, toidx));
+                dirheight.low = constraints[i].endsWith(ObjectTileSet.LOW);
+                return true;
             }
         }
-        return NONE;
+        return false;
     }
     
     /**
@@ -410,7 +441,18 @@ public class PlacementConstraints
      */
     protected String getDirectionalConstraint (String prefix, int dir)
     {
-        return prefix + DirectionUtil.toShortString(dir);
+        return getDirectionalConstraint(prefix, dir, false);
+    }
+    
+    /**
+     * Given a constraint prefix, direction, and height, returns the
+     * directional constraint.
+     */
+    protected String getDirectionalConstraint (String prefix, int dir,
+        boolean low)
+    {
+        return prefix + DirectionUtil.toShortString(dir) +
+            (low ? ObjectTileSet.LOW : "");
     }
     
     /**
@@ -474,6 +516,13 @@ public class PlacementConstraints
             this.bounds = bounds;
             this.tile = tile;
         }
+    }
+    
+    /** Contains the direction and height of a constraint. */
+    protected class DirectionHeight
+    {
+        public int dir;
+        public boolean low;
     }
     
     /** The tile manager to use for object dimensions and constraints. */
