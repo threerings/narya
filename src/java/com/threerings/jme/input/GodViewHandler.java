@@ -91,12 +91,40 @@ public class GodViewHandler extends InputHandler
     }
 
     /**
+     * Configures the rotational velocity of the camera, which is used to
+     * smoothly slide the camera to its new position following a call to
+     * {@link #rotateCamera}.
+     */
+    public void setRotateVelocity (float radiansPerSecond)
+    {
+        _rotateVelocity = radiansPerSecond;
+    }
+
+    /**
      * Swings the camera around the point on the ground at which it is
-     * "looking", by the requested angle (in radians).
+     * "looking", by the requested angle (in radians). The camera does not
+     * jump by the specified angle but rather smoothly rotates there.
      */
     public void rotateCamera (float deltaAngle)
     {
-        rotateCamera(_groundNormal, deltaAngle);
+        _rotateDelta += deltaAngle;
+    }
+
+    // documentation inherited
+    public void update (float time)
+    {
+        super.update(time);
+
+        float deltaAngle = 0;
+        if (_rotateDelta < 0) {
+            deltaAngle = Math.min(time * _rotateVelocity, -_rotateDelta);
+        } else if (_rotateDelta > 0) {
+            deltaAngle = Math.max(-1f * time * _rotateVelocity, -_rotateDelta);
+        }
+        if (deltaAngle != 0) {
+            _rotateDelta += deltaAngle;
+            rotateCamera(_groundNormal, deltaAngle);
+        }
     }
 
     protected void setKeyBindings (String api)
@@ -349,6 +377,8 @@ public class GodViewHandler extends InputHandler
 
     protected Camera _camera;
     protected Matrix3f _rotm = new Matrix3f();
+
+    protected float _rotateVelocity = 3*FastMath.PI/2, _rotateDelta;
 
     protected float _minX = Float.MIN_VALUE, _maxX = Float.MAX_VALUE;
     protected float _minY = Float.MIN_VALUE, _maxY = Float.MAX_VALUE;
