@@ -110,6 +110,15 @@ public class GodViewHandler extends InputHandler
         _rotateDelta += deltaAngle;
     }
 
+    /**
+     * Returns true if the camera is still rotating due to a previous call
+     * to {@link #rotateCamera}.
+     */
+    public boolean isRotating ()
+    {
+        return _rotateDelta != 0;
+    }
+
     // documentation inherited
     public void update (float time)
     {
@@ -378,7 +387,7 @@ public class GodViewHandler extends InputHandler
     protected Camera _camera;
     protected Matrix3f _rotm = new Matrix3f();
 
-    protected float _rotateVelocity = 3*FastMath.PI/2, _rotateDelta;
+    protected float _rotateVelocity = FastMath.PI, _rotateDelta;
 
     protected float _minX = Float.MIN_VALUE, _maxX = Float.MAX_VALUE;
     protected float _minY = Float.MIN_VALUE, _maxY = Float.MAX_VALUE;
