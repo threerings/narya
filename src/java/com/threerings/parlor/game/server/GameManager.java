@@ -576,7 +576,7 @@ public class GameManager extends PlaceManager
         int pidx = IntListUtil.indexOf(_playerOids, bodyOid);
         if (pidx != -1 && _gameobj.isInPlay() &&
                 _gameobj.isActivePlayer(pidx)) {
-            // end the player's game if they bail on an in-progress puzzle
+            // end the player's game if they bail on an in-progress game
             endPlayerGame(pidx);
         }
     }
@@ -1225,7 +1225,7 @@ public class GameManager extends PlaceManager
     /** The interval for the game manager tick. */
     protected static Interval _tickInterval;
 
-    /** We give players 30 seconds to turn up in a puzzle and after that,
+    /** We give players 30 seconds to turn up in a game; after that,
      * they're considered a no show. */
     protected static final long NOSHOW_DELAY = 30 * 1000L;
 
