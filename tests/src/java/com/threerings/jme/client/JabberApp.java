@@ -28,6 +28,7 @@ import com.jme.math.Vector3f;
 import com.jme.renderer.ColorRGBA;
 import com.jme.scene.shape.Box;
 import com.jme.util.LoggingSystem;
+import com.jme.util.geom.BufferUtils;
 
 import com.threerings.util.Name;
 
@@ -67,7 +68,7 @@ public class JabberApp extends JmeApp
         for (int i = 0; i < 24; i++) {
             colors[i] = ColorRGBA.randomColor();
         }
-        t.setColors(colors);
+        t.setColorBuffer(BufferUtils.createFloatBuffer(colors));
         _root.attachChild(t);
         _root.updateRenderState();
 
