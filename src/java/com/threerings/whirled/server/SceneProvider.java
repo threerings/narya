@@ -1,5 +1,5 @@
 //
-// $Id: SceneProvider.java,v 1.20 2004/08/27 02:20:43 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -101,8 +101,13 @@ public class SceneProvider
     {
         try {
             effectSceneMove(source, scmgr, sceneVersion, listener);
+
         } catch (InvocationException sfe) {
             listener.requestFailed(sfe.getMessage());
+
+        } catch (RuntimeException re) {
+            Log.logStackTrace(re);
+            listener.requestFailed(INTERNAL_ERROR);
         }
     }
 

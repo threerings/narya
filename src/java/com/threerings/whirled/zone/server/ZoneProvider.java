@@ -225,6 +225,10 @@ public class ZoneProvider
 
         } catch (InvocationException ie) {
             listener.requestFailed(ie.getMessage());
+
+        } catch (RuntimeException re) {
+            Log.logStackTrace(re);
+            listener.requestFailed(INTERNAL_ERROR);
         }
     }
 
