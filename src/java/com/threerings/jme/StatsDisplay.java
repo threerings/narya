@@ -58,7 +58,7 @@ public class StatsDisplay extends Node
         font.setEnabled(true);
 
         _text = new Text("StatsLabel", "");
-        _text.setCullMode(CULL_ALWAYS);
+        _text.setCullMode(CULL_NEVER);
         _text.setTextureCombineMode(TextureState.REPLACE);
 
         attachChild(_text);
