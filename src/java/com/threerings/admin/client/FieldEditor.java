@@ -103,7 +103,7 @@ public abstract class FieldEditor extends JPanel
         }
 
         // submit an attribute changed event with the new value
-        if (value != null) {
+        if (!ObjectUtil.equals(value, getValue())) {
             try {
                 _object.changeAttribute(_field.getName(), value);
             } catch (ObjectAccessException oae) {
