@@ -570,15 +570,16 @@ public class GameManager extends PlaceManager
     // documentation inherited
     protected void bodyLeft (int bodyOid)
     {
-        super.bodyLeft(bodyOid);
-
-        // deal with disappearing players
+        // first resign the player from the game
         int pidx = IntListUtil.indexOf(_playerOids, bodyOid);
-        if (pidx != -1 && _gameobj.isInPlay() &&
-                _gameobj.isActivePlayer(pidx)) {
+        if (pidx != -1 && _gameobj.isInPlay() && _gameobj.isActivePlayer(pidx)) {
             // end the player's game if they bail on an in-progress game
             endPlayerGame(pidx);
         }
+
+        // then complete the bodyLeft() processing which may result in a call
+        // to placeBecameEmpty() which will shut the game down
+        super.bodyLeft(bodyOid);
     }
 
     /**
@@ -875,7 +876,6 @@ public class GameManager extends PlaceManager
     {
         return (_gameobj.isInPlay() && _gameobj.getActivePlayerCount() == 1);
     }
-
 
     /**
      * Called when the game is known to be over. This will call some
