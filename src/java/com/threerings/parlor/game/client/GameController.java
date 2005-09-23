@@ -108,8 +108,7 @@ public abstract class GameController extends PlaceController
                 public void run () {
                     // finally let the game manager know that we're ready
                     // to roll
-                    Log.info("Reporting ready " + _gobj.which() + ".");
-                    _gobj.gameService.playerReady(_ctx.getClient());
+                    playerReady();
                 }
             });
         }
@@ -228,6 +227,16 @@ public abstract class GameController extends PlaceController
             return true;
         }
         return false;
+    }
+
+    /**
+     * Called after we've entered the game and everything has initialized
+     * to notify the server that we, as a player, are ready to play.
+     */
+    protected void playerReady ()
+    {
+        Log.info("Reporting ready " + _gobj.which() + ".");
+        _gobj.gameService.playerReady(_ctx.getClient());
     }
 
     /**
