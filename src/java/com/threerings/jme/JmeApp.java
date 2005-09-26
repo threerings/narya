@@ -107,7 +107,8 @@ public class JmeApp
             // initialize the rendering system
             initDisplay();
             if (!_display.isCreated()) {
-                throw new IllegalStateException("Failed to initialize display?");
+                throw new IllegalStateException(
+                    "Failed to initialize display?");
             }
 
             // initialize our main camera controls and user input handling
