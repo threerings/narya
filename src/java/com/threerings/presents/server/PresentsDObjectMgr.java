@@ -282,10 +282,9 @@ public class PresentsDObjectMgr
         } catch (Exception e) {
             Log.warning("Execution unit failed [unit=" + unit + "].");
             Log.logStackTrace(e);
-        } catch (OutOfMemoryError oome) {
-            handleFatalError(unit, oome);
-        } catch (StackOverflowError soe) {
-            handleFatalError(unit, soe);
+
+        } catch (Error e) {
+            handleFatalError(unit, e);
         }
 
         // compute the elapsed time in microseconds
@@ -425,11 +424,8 @@ public class PresentsDObjectMgr
                         ", target=" + target + "].");
             Log.logStackTrace(e);
 
-        } catch (OutOfMemoryError oome) {
-            handleFatalError(event, oome);
-
-        } catch (StackOverflowError soe) {
-            handleFatalError(event, soe);
+        } catch (Error e) {
+            handleFatalError(event, e);
         }
 
         // track the number of events dispatched
