@@ -25,6 +25,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 
+import com.samskivert.util.ArrayIntSet;
 import com.samskivert.util.Interval;
 import com.samskivert.util.IntListUtil;
 import com.samskivert.util.RepeatCallTracker;
@@ -35,7 +36,6 @@ import com.threerings.presents.data.ClientObject;
 import com.threerings.presents.dobj.AttributeChangeListener;
 import com.threerings.presents.dobj.AttributeChangedEvent;
 import com.threerings.presents.dobj.DObject;
-import com.threerings.presents.dobj.OidList;
 
 import com.threerings.crowd.chat.server.SpeakProvider;
 
@@ -457,12 +457,10 @@ public class GameManager extends PlaceManager
             return;
         }
 
-        OidList knocky = new OidList(1);
-        knocky.add(user.getOid());
-
         DObject place = CrowdServer.omgr.getObject(user.location);
         if (place != null) {
-            place.postMessage(PLAYER_KNOCKED_OUT, new Object[] { knocky });
+            place.postMessage(PLAYER_KNOCKED_OUT,
+                new Object[] { new int[] { user.getOid() } });
         }
     }
 
@@ -996,19 +994,23 @@ public class GameManager extends PlaceManager
      */
     protected void reportWinnersAndLosers ()
     {
-        OidList winners = new OidList();
-        OidList losers = new OidList();
-        OidList places = new OidList();
+        int numPlayers = _playerOids.length;
 
-        Object[] args = new Object[] { winners, losers };
+        // set up 3 sets that will not need internal expanding
+        ArrayIntSet winners = new ArrayIntSet(numPlayers);
+        ArrayIntSet losers = new ArrayIntSet(numPlayers);
+        ArrayIntSet places = new ArrayIntSet(numPlayers);
 
-        for (int ii=0, nn=_playerOids.length; ii < nn; ii++) {
+        for (int ii=0; ii < numPlayers; ii++) {
             BodyObject user = getPlayer(ii);
             if (user != null) {
                 places.add(user.location);
                 (_gameobj.isWinner(ii) ? winners : losers).add(user.getOid());
             }
         }
+
+        Object[] args =
+            new Object[] { winners.toIntArray(), losers.toIntArray() };
 
         // now send a message event to each room
         for (int ii=0, nn = places.size(); ii < nn; ii++) {
