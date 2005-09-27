@@ -25,7 +25,7 @@ public class ${name}Marshaller extends InvocationMarshaller
         public static final int $lm.code = $velocityCount;
 
         // documentation inherited from interface
-        public void $lm.method.name ($lm.argList)
+        public void $lm.method.name ($lm.getArgList(false))
         {
             omgr.postEvent(new InvocationResponseEvent(
                                callerOid, requestId, $lm.code,
@@ -56,7 +56,7 @@ public class ${name}Marshaller extends InvocationMarshaller
     public static final int $m.code = $velocityCount;
 
     // documentation inherited from interface
-    public void $m.method.name ($m.argList)
+    public void $m.method.name ($m.getArgList(false))
     {
 #foreach ($la in $m.listenerArgs)
         $la.marshaller listener$la.index = new ${la.marshaller}();

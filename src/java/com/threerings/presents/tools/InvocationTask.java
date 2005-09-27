@@ -119,16 +119,16 @@ public abstract class InvocationTask extends Task
             return StringUtil.unStudlyName(method.getName()).toUpperCase();
         }
 
-        public String getArgList ()
+        public String getArgList (boolean providerMode)
         {
             StringBuffer buf = new StringBuffer();
             Class[] args = method.getParameterTypes();
-            for (int ii = 0; ii < args.length; ii++) {
+            for (int ii = providerMode ? 1 : 0; ii < args.length; ii++) {
                 if (buf.length() > 0) {
                     buf.append(", ");
                 }
                 buf.append(GenUtil.simpleName(args[ii]));
-                buf.append(" arg").append(ii+1);
+                buf.append(" arg").append(providerMode ? ii : ii+1);
             }
             return buf.toString();
         }

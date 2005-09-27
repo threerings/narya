@@ -1,0 +1,24 @@
+package $package;
+
+#foreach ($import in $imports)
+import $import;
+#end
+
+/**
+ * Defines the server-side of the {@link ${name}Service}.
+ */
+public interface ${name}Provider extends InvocationProvider
+{
+#foreach ($m in $methods)
+    /**
+     * Handles a {@link ${name}Service#$m.method.name} request.
+     */
+#if ($m.listenerArgs.size() > 0)
+    public void $m.method.name (ClientObject caller, $m.getArgList(true))
+        throws InvocationException;
+#else
+    public void $m.method.name (ClientObject caller, $m.getArgList(true));
+#end
+
+#end
+}

@@ -27,6 +27,7 @@ import com.threerings.presents.data.InvocationMarshaller;
 import com.threerings.presents.dobj.InvocationResponseEvent;
 import com.threerings.presents.server.InvocationDispatcher;
 import com.threerings.presents.server.InvocationException;
+import com.threerings.presents.server.InvocationProvider;
 
 /**
  * An Ant task for generating invocation service marshalling and
@@ -132,6 +133,8 @@ public class GenServiceTask extends InvocationTask
                            imports.keySet().iterator());
         generateDispatcher(source, sname, spackage, methods,
                            imports.keySet().iterator());
+        generateProvider(source, sname, spackage, methods, listeners,
+                         imports.keySet().iterator());
     }
 
     protected void generateMarshaller (
@@ -217,6 +220,46 @@ public class GenServiceTask extends InvocationTask
         }
     }
 
+    protected void generateProvider (
+        File source, String sname, String spackage, List methods,
+        List listeners, Iterator imports)
+    {
+        String name = StringUtil.replace(sname, "Service", "");
+        String mname = StringUtil.replace(sname, "Service", "Provider");
+        String mpackage = StringUtil.replace(spackage, ".client", ".server");
+
+        // construct our imports list
+        SortableArrayList implist = new SortableArrayList();
+        CollectionUtil.addAll(implist, imports);
+        checkedAdd(implist, ClientObject.class.getName());
+        checkedAdd(implist, InvocationProvider.class.getName());
+        checkedAdd(implist, InvocationException.class.getName());
+        implist.sort();
+
+        VelocityContext ctx = new VelocityContext();
+        ctx.put("name", name);
+        ctx.put("package", mpackage);
+        ctx.put("methods", methods);
+        ctx.put("listeners", listeners);
+        ctx.put("imports", implist);
+
+        try {
+            StringWriter sw = new StringWriter();
+            _velocity.mergeTemplate(PROVIDER_TMPL, "UTF-8", ctx, sw);
+
+            // determine the path to our provider file
+            String mpath = source.getPath();
+            mpath = StringUtil.replace(mpath, "Service", "Provider");
+            mpath = StringUtil.replace(mpath, "/client/", "/server/");
+
+            writeFile(mpath, sw.toString());
+
+        } catch (Exception e) {
+            System.err.println("Failed processing template");
+            e.printStackTrace(System.err);
+        }
+    }
+
     /** Specifies the path to the marshaller template. */
     protected static final String MARSHALLER_TMPL =
         "com/threerings/presents/tools/marshaller.tmpl";
@@ -224,4 +267,8 @@ public class GenServiceTask extends InvocationTask
     /** Specifies the path to the dispatcher template. */
     protected static final String DISPATCHER_TMPL =
         "com/threerings/presents/tools/dispatcher.tmpl";
+
+    /** Specifies the path to the provider template. */
+    protected static final String PROVIDER_TMPL =
+        "com/threerings/presents/tools/provider.tmpl";
 }
