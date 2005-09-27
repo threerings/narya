@@ -22,6 +22,7 @@
 package com.threerings.parlor.card.data;
 
 import java.util.Collections;
+import java.util.List;
 
 import com.threerings.util.StreamableArrayList;
 
@@ -91,16 +92,17 @@ public class Deck extends StreamableArrayList
      */
     public Hand dealHand (int size)
     {
-        if (size() < size) {
+        int dsize = size();
+        if (dsize < size) {
             return null;
             
         } else {
             Hand hand = new Hand();
         
-            int cardsLeft = size();
-            for (int i = 0; i < size; i++) {
-                hand.add(remove(--cardsLeft));
-            }
+            // use a sublist view to manipulate the top of the deck
+            List sublist = subList(dsize - size, dsize);
+            hand.addAll(sublist);
+            sublist.clear();
             
             return hand;
         }
