@@ -10,15 +10,14 @@ import $import;
 public interface ${name}Provider extends InvocationProvider
 {
 #foreach ($m in $methods)
+#if ($velocityCount > 1)
+
+#end
     /**
      * Handles a {@link ${name}Service#$m.method.name} request.
      */
-#if ($m.listenerArgs.size() > 0)
-    public void $m.method.name (ClientObject caller, $m.getArgList(true))
-        throws InvocationException;
-#else
-    public void $m.method.name (ClientObject caller, $m.getArgList(true));
-#end
+    public void $m.method.name (ClientObject caller#if ($m.hasArgs()), #end$m.getArgList(true))#if ($m.listenerArgs.size() > 0)
 
+        throws InvocationException#end;
 #end
 }

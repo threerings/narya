@@ -11,6 +11,7 @@ import java.lang.reflect.Modifier;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 
@@ -78,6 +79,22 @@ public class GenServiceTask extends InvocationTask
         }
     }
 
+    /** Used to track services for which we should not generate a provider
+     * interface. */
+    public class Providerless
+    {
+        public void setService (String className)
+        {
+            _providerless.add(className);
+        }
+    }
+
+    // documentation inherited
+    public Providerless createProviderless ()
+    {
+        return new Providerless();
+    }
+
     // documentation inherited
     protected void processService (File source, Class service)
     {
@@ -133,8 +150,10 @@ public class GenServiceTask extends InvocationTask
                            imports.keySet().iterator());
         generateDispatcher(source, sname, spackage, methods,
                            imports.keySet().iterator());
-        generateProvider(source, sname, spackage, methods, listeners,
-                         imports.keySet().iterator());
+        if (!_providerless.contains(sname)) {
+            generateProvider(source, sname, spackage, methods, listeners,
+                             imports.keySet().iterator());
+        }
     }
 
     protected void generateMarshaller (
@@ -259,6 +278,9 @@ public class GenServiceTask extends InvocationTask
             e.printStackTrace(System.err);
         }
     }
+
+    /** Services for which we should not generate provider interfaces. */
+    protected HashSet _providerless = new HashSet();
 
     /** Specifies the path to the marshaller template. */
     protected static final String MARSHALLER_TMPL =
