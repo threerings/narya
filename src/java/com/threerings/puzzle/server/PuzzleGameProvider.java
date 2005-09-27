@@ -1,8 +1,8 @@
 //
-// $Id: PuzzleGameProvider.java,v 1.2 2004/08/27 02:20:32 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
-// Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
+// Copyright (C) 2002-2005 Three Rings Design, Inc., All Rights Reserved
 // http://www.threerings.net/code/narya/
 //
 // This library is free software; you can redistribute it and/or modify it
@@ -21,27 +21,25 @@
 
 package com.threerings.puzzle.server;
 
+import com.threerings.presents.client.Client;
 import com.threerings.presents.data.ClientObject;
+import com.threerings.presents.server.InvocationException;
 import com.threerings.presents.server.InvocationProvider;
-
 import com.threerings.puzzle.client.PuzzleGameService;
 import com.threerings.puzzle.data.Board;
 
 /**
- * Handles the server side of the puzzle game services.
+ * Defines the server-side of the {@link PuzzleGameService}.
  */
 public interface PuzzleGameProvider extends InvocationProvider
 {
     /**
-     * Called when the client has sent a {@link
-     * PuzzleGameService#updateProgress} service request.
+     * Handles a {@link PuzzleGameService#updateProgress} request.
      */
-    public void updateProgress (ClientObject caller, int roundId, int[] events);
+    public void updateProgress (ClientObject caller, int arg1, int[] arg2);
 
     /**
-     * Called when the client has sent a {@link
-     * PuzzleGameService#updateProgressSync} service request.
+     * Handles a {@link PuzzleGameService#updateProgressSync} request.
      */
-    public void updateProgressSync (
-        ClientObject caller, int roundId, int[] events, Board[] states);
+    public void updateProgressSync (ClientObject caller, int arg1, int[] arg2, Board[] arg3);
 }

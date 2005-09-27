@@ -2,7 +2,7 @@
 // $Id$
 //
 // Narya library - tools for developing networked games
-// Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
+// Copyright (C) 2002-2005 Three Rings Design, Inc., All Rights Reserved
 // http://www.threerings.net/code/narya/
 //
 // This library is free software; you can redistribute it and/or modify it
@@ -21,18 +21,19 @@
 
 package com.threerings.parlor.game.server;
 
+import com.threerings.parlor.game.client.GameService;
+import com.threerings.presents.client.Client;
 import com.threerings.presents.data.ClientObject;
+import com.threerings.presents.server.InvocationException;
 import com.threerings.presents.server.InvocationProvider;
 
 /**
- * Provides access to the server-side implementation of the game
- * invocation services.
+ * Defines the server-side of the {@link GameService}.
  */
 public interface GameProvider extends InvocationProvider
 {
     /**
-     * Called when the client has sent a {@link GameService#playerReady}
-     * service request.
+     * Handles a {@link GameService#playerReady} request.
      */
     public void playerReady (ClientObject caller);
 }

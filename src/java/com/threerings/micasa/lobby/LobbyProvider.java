@@ -1,8 +1,8 @@
 //
-// $Id: LobbyProvider.java,v 1.6 2004/08/27 02:12:50 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
-// Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
+// Copyright (C) 2002-2005 Three Rings Design, Inc., All Rights Reserved
 // http://www.threerings.net/code/narya/
 //
 // This library is free software; you can redistribute it and/or modify it
@@ -21,29 +21,27 @@
 
 package com.threerings.micasa.lobby;
 
+import com.threerings.micasa.lobby.LobbyService;
+import com.threerings.presents.client.Client;
 import com.threerings.presents.data.ClientObject;
+import com.threerings.presents.server.InvocationException;
 import com.threerings.presents.server.InvocationProvider;
-
-import com.threerings.micasa.lobby.LobbyService.CategoriesListener;
-import com.threerings.micasa.lobby.LobbyService.LobbiesListener;
+import java.util.List;
 
 /**
- * Provides access to the server-side implementation of the lobby
- * services.
+ * Defines the server-side of the {@link LobbyService}.
  */
 public interface LobbyProvider extends InvocationProvider
 {
     /**
-     * Processes a request by the client to obtain a list of the lobby
-     * categories available on this server.
+     * Handles a {@link LobbyService#getCategories} request.
      */
-    public void getCategories (ClientObject caller,
-                               CategoriesListener listener);
+    public void getCategories (ClientObject caller, LobbyService.CategoriesListener arg1)
+        throws InvocationException;
 
     /**
-     * Processes a request by the client to obtain a list of lobbies
-     * matching the supplied category string.
+     * Handles a {@link LobbyService#getLobbies} request.
      */
-    public void getLobbies (ClientObject caller, String category,
-                            LobbiesListener listener);
+    public void getLobbies (ClientObject caller, String arg1, LobbyService.LobbiesListener arg2)
+        throws InvocationException;
 }

@@ -57,6 +57,17 @@
     <service header="lib/SOURCE_HEADER" classpathref="classpath">
       <fileset dir="src/java" includes="**/*Service.java"
         excludes="**/InvocationService.java"/>
+      <providerless service="AdminService"/>
+      <providerless service="ChatService"/>
+      <providerless service="SpeakService"/>
+      <providerless service="LocationService"/>
+      <providerless service="BodyService"/>
+      <providerless service="SimulatorService"/>
+      <providerless service="ParlorService"/>
+      <providerless service="TimeBaseService"/>
+      <providerless service="SpotService"/>
+      <providerless service="ZoneService"/>
+      <providerless service="SceneService"/>
     </service>
   </target>
 
