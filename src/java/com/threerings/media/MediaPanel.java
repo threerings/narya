@@ -703,18 +703,17 @@ public class MediaPanel extends JComponent
         // documentation inherited
         public void mouseMoved (MouseEvent me)
         {
-            if (_activeSprite instanceof HoverSprite) {
-                if (!_activeSprite.hitTest(me.getX(), me.getY())) {
-                    ((HoverSprite) _activeSprite).setHovered(false);
-                    _activeSprite = null;
-                }
-            }
-
             Sprite s = getHit(me);
-            if (s instanceof HoverSprite) {
-                ((HoverSprite) s).setHovered(true);
+            if (_activeSprite == s) {
+                return;
+            }
+            if (_activeSprite instanceof HoverSprite) {
+                ((HoverSprite) _activeSprite).setHovered(false);
             }
             _activeSprite = s;
+            if (_activeSprite instanceof HoverSprite) {
+                ((HoverSprite) _activeSprite).setHovered(true);
+            }
         }
 
         /**
@@ -723,6 +722,8 @@ public class MediaPanel extends JComponent
          */
         protected Sprite getHit (MouseEvent me)
         {
+            // TODO: this should get all hit sprites, sort them by render
+            // priority and then return the first non-disabled sprite
             Sprite s = _spritemgr.getHighestHitSprite(me.getX(), me.getY());
             if (!(s instanceof DisableableSprite) ||
                  ((DisableableSprite) s).isEnabled()) {
