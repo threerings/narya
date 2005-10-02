@@ -710,13 +710,11 @@ public class MediaPanel extends JComponent
                 }
             }
 
-            if (_activeSprite == null) {
-                Sprite s = getHit(me);
-                if (s instanceof HoverSprite) {
-                    ((HoverSprite) s).setHovered(true);
-                    _activeSprite = s;
-                }
+            Sprite s = getHit(me);
+            if (s instanceof HoverSprite) {
+                ((HoverSprite) s).setHovered(true);
             }
+            _activeSprite = s;
         }
 
         /**
