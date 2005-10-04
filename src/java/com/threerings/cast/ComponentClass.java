@@ -1,5 +1,5 @@
 //
-// $Id: ComponentClass.java,v 1.10 2004/08/27 02:12:25 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -25,6 +25,7 @@ import java.io.Serializable;
 
 import com.samskivert.util.ArrayIntSet;
 import com.samskivert.util.SortableArrayList;
+import com.samskivert.util.StringUtil;
 
 /**
  * Denotes a class of components to which {@link CharacterComponent}
@@ -111,18 +112,13 @@ public class ComponentClass implements Serializable
     /** The default render priority. */
     public int renderPriority;
 
-    /**
-     * Creates a component class with the specified name and default
-     * render priority.
-     */
-    public ComponentClass (String name, int defaultRenderPriority)
-    {
-        this.name = name;
-        this.renderPriority = defaultRenderPriority;
-    }
+    /** The color classes to use when recoloring components of this class. May
+     * be null if a system does not use recolorable components. */
+    public String[] colors;
 
     /**
-     * Creates an uninitialized instance suitable for unserialization.
+     * Creates an uninitialized instance suitable for unserialization or
+     * population during XML parsing.
      */
     public ComponentClass ()
     {
@@ -187,7 +183,8 @@ public class ComponentClass implements Serializable
      */
     public String toString ()
     {
-        return "[name=" + name + ", renderPriority=" + renderPriority + "]";
+        return "[name=" + name + ", renderPriority=" + renderPriority +
+            ", colors=" + StringUtil.toString(colors) + "]";
     }
 
     /** A list of render priority overrides. */
@@ -195,5 +192,5 @@ public class ComponentClass implements Serializable
 
     /** Increase this value when object's serialized state is impacted by
      * a class change (modification of fields, inheritance). */
-    private static final long serialVersionUID = 2;
+    private static final long serialVersionUID = 3;
 }
