@@ -196,7 +196,7 @@ public class MediaPanel extends JComponent
         if (((sprite instanceof ActionSprite) ||
              (sprite instanceof HoverSprite)) && (_actionSpriteCount++ == 0)) {
             if (_actionHandler == null) {
-                _actionHandler = new ActionSpriteHandler();
+                _actionHandler = createActionSpriteHandler();
             }
             addMouseListener(_actionHandler);
             addMouseMotionListener(_actionHandler);
@@ -607,6 +607,15 @@ public class MediaPanel extends JComponent
             _animmgr.paint(gfx, layer, dirty);
             _spritemgr.paint(gfx, layer, dirty);
         }
+    }
+
+    /**
+     * Creates the mouse listener that will handle action sprites and their
+     * variants.
+     */
+    protected ActionSpriteHandler createActionSpriteHandler ()
+    {
+        return new ActionSpriteHandler();
     }
 
     /** The frame manager with whom we register. */
