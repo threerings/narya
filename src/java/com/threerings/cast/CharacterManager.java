@@ -150,6 +150,41 @@ public class CharacterManager
     }
 
     /**
+     * Obtains the composited animation frames for the specified action for a
+     * character with the specified descriptor. The resulting composited
+     * animation will be cached.
+     *
+     * @exception NoSuchComponentException thrown if any of the components in
+     * the supplied descriptor do not exist.
+     * @exception IllegalArgumentException thrown if any of the components
+     * referenced in the descriptor do not support the specified action.
+     */
+    public ActionFrames getActionFrames (
+        CharacterDescriptor descrip, String action)
+        throws NoSuchComponentException
+    {
+        Tuple key = new Tuple(descrip, action);
+        ActionFrames frames = (ActionFrames)_actionFrames.get(key);
+        if (frames == null) {
+            // this doesn't actually composite the images, but prepares an
+            // object to be able to do so
+            frames = createCompositeFrames(descrip, action);
+            _actionFrames.put(key, frames);
+        }
+
+        // periodically report our frame image cache performance
+        if (!_cacheStatThrottle.throttleOp()) {
+            long size = getEstimatedCacheMemoryUsage();
+            int[] eff = _frameCache.getTrackedEffectiveness();
+            Log.debug("CharacterManager LRU [mem=" + (size / 1024) + "k" +
+                      ", size=" + _frameCache.size() + ", hits=" + eff[0] +
+                      ", misses=" + eff[1] + "].");
+        }
+
+        return frames;
+    }
+
+    /**
      * Informs the character manager that the action sequence for the
      * given character descriptor is likely to be needed in the near
      * future and so any efforts that can be made to load it into the
@@ -179,41 +214,6 @@ public class CharacterManager
     protected ActionSequence getActionSequence (String action)
     {
         return (ActionSequence)_actions.get(action);
-    }
-
-    /**
-     * Obtains the composited animation frames for the specified action
-     * for a character with the specified descriptor. The resulting
-     * composited animation will be cached.
-     *
-     * @exception NoSuchComponentException thrown if any of the components
-     * in the supplied descriptor do not exist.
-     * @exception IllegalArgumentException thrown if any of the components
-     * referenced in the descriptor do not support the specified action.
-     */
-    protected ActionFrames getActionFrames (
-        CharacterDescriptor descrip, String action)
-        throws NoSuchComponentException
-    {
-        Tuple key = new Tuple(descrip, action);
-        ActionFrames frames = (ActionFrames)_actionFrames.get(key);
-        if (frames == null) {
-            // this doesn't actually composite the images, but prepares an
-            // object to be able to do so
-            frames = createCompositeFrames(descrip, action);
-            _actionFrames.put(key, frames);
-        }
-
-        // periodically report our frame image cache performance
-        if (!_cacheStatThrottle.throttleOp()) {
-            long size = getEstimatedCacheMemoryUsage();
-            int[] eff = _frameCache.getTrackedEffectiveness();
-            Log.debug("CharacterManager LRU [mem=" + (size / 1024) + "k" +
-                      ", size=" + _frameCache.size() + ", hits=" + eff[0] +
-                      ", misses=" + eff[1] + "].");
-        }
-
-        return frames;
     }
 
     /**
