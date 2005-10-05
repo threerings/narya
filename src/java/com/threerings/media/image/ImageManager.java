@@ -23,7 +23,6 @@ package com.threerings.media.image;
 
 import java.awt.Component;
 import java.awt.Graphics2D;
-import java.awt.GraphicsConfiguration;
 import java.awt.Rectangle;
 import java.awt.Transparency;
 import java.awt.image.BufferedImage;
@@ -96,16 +95,26 @@ public class ImageManager
     }
 
     /**
-     * Construct an image manager with the specified {@link
-     * ResourceManager} from which it will obtain its data. A non-null
-     * <code>context</code> must be provided if there is any expectation
-     * that the image manager will not be able to load images via the
-     * ImageIO services and will have to fallback to Toolkit-style
-     * loading.
+     * This interface allows the image manager to create images that are in a
+     * format optimal for rendering to the screen.
      */
-    public ImageManager (ResourceManager rmgr, Component context)
+    public interface OptimalImageCreator
+    {
+        /**
+         * Requests that a blank image be created that is in a format and of a
+         * depth that are optimal for rendering to the screen.
+         */
+        public BufferedImage createImage (int width, int height, int trans);
+    }
+
+    /**
+     * Construct an image manager with the specified {@link ResourceManager}
+     * from which it will obtain its data.
+     */
+    public ImageManager (ResourceManager rmgr, OptimalImageCreator icreator)
     {
 	_rmgr = rmgr;
+        _icreator = icreator;
 
         // create our image cache
         int icsize = _cacheSize.getValue();
@@ -116,13 +125,15 @@ public class ImageManager
             }
         });
         _ccache.setTracking(true);
+    }
 
-        // obtain our graphics configuration
-        if (context != null) {
-            _gc = context.getGraphicsConfiguration();
-        } else {
-            _gc = ImageUtil.getDefGC();
-        }
+    /**
+     * A convenience constructor that creates an {@link AWTImageCreator} for
+     * use by the image manager.
+     */
+    public ImageManager (ResourceManager rmgr, Component context)
+    {
+        this(rmgr, new AWTImageCreator(context));
     }
 
     /**
@@ -131,15 +142,7 @@ public class ImageManager
      */
     public BufferedImage createImage (int width, int height, int transparency)
     {
-        // DEBUG: override transparency for the moment on all images
-        transparency = Transparency.TRANSLUCENT;
-	if (_gc != null) {
-            return _gc.createCompatibleImage(width, height, transparency);
-        } else {
-            // if we're running in headless mode, do everything in 24-bit
-            return new BufferedImage(
-                width, height, BufferedImage.TYPE_INT_ARGB);
-        }
+        return _icreator.createImage(width, height, transparency);
     }
 
     /**
@@ -224,8 +227,8 @@ public class ImageManager
      * they (some day) will automatically use volatile images to increase
      * performance.
      */
-    public BufferedImage getPreparedImage (String rset, String path,
-                                           Colorization[] zations)
+    public BufferedImage getPreparedImage (
+        String rset, String path, Colorization[] zations)
     {
         BufferedImage image = getImage(rset, path, zations);
         BufferedImage prepped = null;
@@ -462,12 +465,12 @@ public class ImageManager
     }
 
     /**
-     * Returns the graphics configuration that should be used to optimize
-     * images for display.
+     * Returns the image creator that can be used to create buffered images
+     * optimized for rendering to the screen.
      */
-    public GraphicsConfiguration getGraphicsConfiguration ()
+    public OptimalImageCreator getImageCreator ()
     {
-        return _gc;
+        return _icreator;
     }
 
     /**
@@ -564,6 +567,9 @@ public class ImageManager
      * by default. */
     protected ResourceManager _rmgr;
 
+    /** We use this to create images optimized for rendering. */
+    protected OptimalImageCreator _icreator;
+
     /** A cache of loaded images. */
     protected LRUHashMap _ccache;
 
@@ -572,9 +578,6 @@ public class ImageManager
 
     /** Throttle our cache status logging to once every 300 seconds. */
     protected Throttle _cacheStatThrottle = new Throttle(1, 300000L);
-
-    /** The graphics configuration for the default screen device. */
-    protected GraphicsConfiguration _gc;
 
     /** Our default data provider. */
     protected ImageDataProvider _defaultProvider = new ImageDataProvider() {

@@ -21,6 +21,7 @@
 
 package com.threerings.cast.bundle;
 
+import java.awt.Component;
 import java.util.Iterator;
 
 import com.threerings.cast.ComponentClass;
@@ -43,7 +44,7 @@ public class BundledComponentRepositoryTest extends TestCase
             ResourceManager rmgr = new ResourceManager("rsrc");
             rmgr.initBundles(
                 null, "config/resource/manager.properties", null);
-            ImageManager imgr = new ImageManager(rmgr, null);
+            ImageManager imgr = new ImageManager(rmgr, (Component)null);
             BundledComponentRepository repo =
                 new BundledComponentRepository(rmgr, imgr, "components");
 
