@@ -5,7 +5,12 @@ commons-digester.jar
 commons-io.jar
 commons-lang.jar
 commons-logging.jar
+jme-bui.jar
+jme.jar
+jme-model.jar
 junit-3.7.jar
+lwjgl.jar
+lwjgl_util.jar
 samskivert.jar
 velocity-1.5-dev.jar
 xml-writer.jar
