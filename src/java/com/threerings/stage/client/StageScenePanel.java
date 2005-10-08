@@ -327,9 +327,7 @@ public class StageScenePanel extends MisoScenePanel
 
     /**
      * Adds or updates the specified cluster in the view. Metrics will be
-     * created that allow the cluster to be rendered and hovered over
-     * (which would make it the active cluster as indicated by {@link
-     * #getActiveCluster}).
+     * created that allow the cluster to be rendered and hovered over.
      *
      * @param cluster the cluster record to be added.
      * @param bounds the screen coordinates that bound the occupants of

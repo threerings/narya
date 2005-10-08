@@ -34,8 +34,7 @@ import com.threerings.crowd.server.CrowdServer;
 import com.threerings.crowd.server.PlaceManager;
 
 import com.threerings.parlor.Log;
-import com.threerings.parlor.client.ParlorService.InviteListener;
-import com.threerings.parlor.client.ParlorService.TableListener;
+import com.threerings.parlor.client.ParlorService;
 import com.threerings.parlor.data.ParlorCodes;
 import com.threerings.parlor.data.TableConfig;
 import com.threerings.parlor.game.data.GameConfig;
@@ -67,8 +66,8 @@ public class ParlorProvider
      * Processes a request from the client to invite another user to play
      * a game.
      */
-    public void invite (ClientObject caller, Name invitee,
-                        GameConfig config, InviteListener listener)
+    public void invite (ClientObject caller, Name invitee, GameConfig config,
+                        ParlorService.InviteListener listener)
         throws InvocationException
     {
 //          Log.info("Handling invite request [source=" + source +
@@ -113,8 +112,9 @@ public class ParlorProvider
     /**
      * Processes a request from the client to create a new table.
      */
-    public void createTable (ClientObject caller, int lobbyOid,
-            TableConfig tableConfig, GameConfig config, TableListener listener)
+    public void createTable (
+        ClientObject caller, int lobbyOid, TableConfig tableConfig,
+        GameConfig config, ParlorService.TableListener listener)
         throws InvocationException
     {
         Log.info("Handling create table request [caller=" + caller.who() +

@@ -236,7 +236,7 @@ public class CardGameManager extends GameManager
      * Notifies everyone in the room (other than the sender and the receiver)
      * that a set of cards have been transferred.
      *
-     * @param playerIdx the index of the player sending the cards
+     * @param fromPlayerIdx the index of the player sending the cards
      * @param toPlayerIdx the index of the player receiving the cards
      * @param cards the number of cards sent
      */

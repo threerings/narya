@@ -23,6 +23,8 @@ package com.threerings.crowd.chat.data;
 
 import com.threerings.presents.data.InvocationCodes;
 
+import com.threerings.crowd.data.BodyObject;
+
 import com.threerings.crowd.chat.client.ChatDirector;
 import com.threerings.crowd.chat.client.SpeakService;
 

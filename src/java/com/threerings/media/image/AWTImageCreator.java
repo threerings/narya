@@ -23,6 +23,7 @@ package com.threerings.media.image;
 
 import java.awt.Component;
 import java.awt.GraphicsConfiguration;
+import java.awt.GraphicsDevice;
 import java.awt.Transparency;
 import java.awt.image.BufferedImage;
 

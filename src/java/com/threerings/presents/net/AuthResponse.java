@@ -30,11 +30,11 @@ package com.threerings.presents.net;
  */
 public class AuthResponse extends DownstreamMessage
 {
-    /** Auxilliary authentication data to be communicated to the {@link
-     * PresentsClient} once a session is started. This is a means by which
-     * the <code>Authenticator</code> can pass information loaded from,
-     * say, an authentication database into the runtime system to be used,
-     * for example for permissions. */
+    /** Auxilliary authentication data to be communicated to the <code>
+     * PresentsClient</code> once a session is started. This is a means by
+     * which the <code>Authenticator</code> can pass information loaded from,
+     * say, an authentication database into the runtime system to be used, for
+     * example for permissions. */
     public transient Object authdata;
 
     /**

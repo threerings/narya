@@ -302,7 +302,7 @@ public class EditorScenePanel extends StageScenePanel
     }
 
     /**
-     * Called by the {@link ObjectEditorPanel} when it is dismissed.
+     * Called by the {@link ObjectEditorDialog} when it is dismissed.
      */
     protected void objectEditorDismissed ()
     {
