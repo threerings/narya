@@ -21,14 +21,14 @@
 
 package com.threerings.whirled.spot.data;
 
-import com.threerings.io.TrackedStreamableObject;
+import com.threerings.io.SimpleStreamableObject;
 import com.threerings.util.DirectionCodes;
 import com.threerings.util.DirectionUtil;
 
 /**
  * Contains information on a scene occupant's position and orientation.
  */
-public class Location extends TrackedStreamableObject
+public class Location extends SimpleStreamableObject
     implements Cloneable
 {
     /** The user's x position (interpreted by the display system). */

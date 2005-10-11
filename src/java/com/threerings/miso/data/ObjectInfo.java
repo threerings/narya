@@ -24,13 +24,12 @@ package com.threerings.miso.data;
 import com.samskivert.util.StringUtil;
 
 import com.threerings.io.SimpleStreamableObject;
-import com.threerings.io.TrackedStreamableObject;
 import com.threerings.media.tile.TileUtil;
 
 /**
  * Contains information about an object in a Miso scene.
  */
-public class ObjectInfo extends TrackedStreamableObject
+public class ObjectInfo extends SimpleStreamableObject
     implements Cloneable
 {
     /** The fully qualified object tile id. */

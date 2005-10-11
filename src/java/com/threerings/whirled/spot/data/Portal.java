@@ -1,5 +1,5 @@
 //
-// $Id: Portal.java,v 1.7 2004/08/27 02:20:45 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -21,7 +21,7 @@
 
 package com.threerings.whirled.spot.data;
 
-import com.threerings.io.TrackedStreamableObject;
+import com.threerings.io.SimpleStreamableObject;
 import com.threerings.util.DirectionUtil;
 
 /**
@@ -33,7 +33,7 @@ import com.threerings.util.DirectionUtil;
  * when using this portal and the location at which the body sprite should
  * appear in that target scene.
  */
-public class Portal extends TrackedStreamableObject
+public class Portal extends SimpleStreamableObject
     implements Cloneable
 {
     /** This portal's unique identifier. */

@@ -1,5 +1,5 @@
 //
-// $Id: MisoSceneModel.java,v 1.22 2004/08/27 02:20:06 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -24,7 +24,7 @@ package com.threerings.miso.data;
 import java.awt.Rectangle;
 import java.util.Random;
 
-import com.threerings.io.TrackedStreamableObject;
+import com.threerings.io.SimpleStreamableObject;
 
 import com.threerings.miso.util.ObjectSet;
 
@@ -32,7 +32,7 @@ import com.threerings.miso.util.ObjectSet;
  * Contains basic information for a miso scene model that is shared among
  * the specialized model implementations.
  */
-public abstract class MisoSceneModel extends TrackedStreamableObject
+public abstract class MisoSceneModel extends SimpleStreamableObject
     implements Cloneable
 {
     /**

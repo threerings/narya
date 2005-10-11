@@ -21,7 +21,7 @@
 
 package com.threerings.puzzle.data;
 
-import com.threerings.io.TrackedStreamableObject;
+import com.threerings.io.SimpleStreamableObject;
 
 /**
  * Provides summarized data representing a player's board in a puzzle
@@ -34,7 +34,7 @@ import com.threerings.io.TrackedStreamableObject;
  * <p> Note all non-transient members of this and derived classes will
  * automatically be serialized when the summary is sent over the wire.
  */
-public abstract class BoardSummary extends TrackedStreamableObject
+public abstract class BoardSummary extends SimpleStreamableObject
 {
     /**
      * Constructs an empty board summary for use when un-serializing.

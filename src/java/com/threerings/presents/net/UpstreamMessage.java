@@ -1,5 +1,5 @@
 //
-// $Id: UpstreamMessage.java,v 1.14 2004/08/27 02:20:22 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -21,14 +21,14 @@
 
 package com.threerings.presents.net;
 
-import com.threerings.io.TrackedStreamableObject;
+import com.threerings.io.SimpleStreamableObject;
 
 /**
  * This class encapsulates a message in the distributed object protocol
  * that flows from the client to the server.  Upstream messages include
  * object subscription, event forwarding and session management.
  */
-public abstract class UpstreamMessage extends TrackedStreamableObject
+public abstract class UpstreamMessage extends SimpleStreamableObject
 {
     /**
      * This is a unique (within the context of a reasonable period of

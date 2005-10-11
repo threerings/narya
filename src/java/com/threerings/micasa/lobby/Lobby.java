@@ -1,5 +1,5 @@
 //
-// $Id: Lobby.java,v 1.6 2004/08/27 02:12:50 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -21,13 +21,13 @@
 
 package com.threerings.micasa.lobby;
 
-import com.threerings.io.TrackedStreamableObject;
+import com.threerings.io.SimpleStreamableObject;
 
 /**
  * A simple class for keeping track of information for each lobby in
  * operation on the server.
  */
-public class Lobby extends TrackedStreamableObject
+public class Lobby extends SimpleStreamableObject
 {
     /** The object id of the lobby place object. */
     public int placeOid;

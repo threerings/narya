@@ -23,7 +23,7 @@ package com.threerings.crowd.data;
 
 import com.samskivert.util.StringUtil;
 
-import com.threerings.io.TrackedStreamableObject;
+import com.threerings.io.SimpleStreamableObject;
 
 import com.threerings.crowd.client.LocationDirector;
 import com.threerings.crowd.client.PlaceController;
@@ -41,7 +41,7 @@ import com.threerings.crowd.client.PlaceController;
  * #getControllerClass} and {@link #getManagerClassName}, returning the
  * appropriate place controller and manager class for that place.
  */
-public abstract class PlaceConfig extends TrackedStreamableObject
+public abstract class PlaceConfig extends SimpleStreamableObject
 {
     /**
      * Returns the class that should be used to create a controller for

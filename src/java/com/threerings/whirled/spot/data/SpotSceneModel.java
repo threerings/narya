@@ -1,5 +1,5 @@
 //
-// $Id: SpotSceneModel.java,v 1.13 2004/10/23 17:36:32 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -24,7 +24,7 @@ package com.threerings.whirled.spot.data;
 import com.samskivert.util.ArrayUtil;
 import com.samskivert.util.ListUtil;
 
-import com.threerings.io.TrackedStreamableObject;
+import com.threerings.io.SimpleStreamableObject;
 
 import com.threerings.whirled.data.AuxModel;
 import com.threerings.whirled.data.SceneModel;
@@ -35,7 +35,7 @@ import com.threerings.whirled.data.SceneModel;
  * scene and unchanging, so that portals can stably reference the target
  * portal in the scene to which they connect.
  */
-public class SpotSceneModel extends TrackedStreamableObject
+public class SpotSceneModel extends SimpleStreamableObject
     implements AuxModel
 {
     /** An array containing all portals in this scene. */

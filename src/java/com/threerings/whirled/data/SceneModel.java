@@ -1,5 +1,5 @@
 //
-// $Id: SceneModel.java,v 1.11 2004/08/27 02:20:42 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -23,7 +23,7 @@ package com.threerings.whirled.data;
 
 import com.samskivert.util.ArrayUtil;
 
-import com.threerings.io.TrackedStreamableObject;
+import com.threerings.io.SimpleStreamableObject;
 
 /**
  * The scene model is the bare bones representation of the data for a
@@ -34,7 +34,7 @@ import com.threerings.io.TrackedStreamableObject;
  * what is transmitted over the wire when communicating scenes from the
  * server to the client.
  */
-public class SceneModel extends TrackedStreamableObject
+public class SceneModel extends SimpleStreamableObject
     implements Cloneable
 {
     /** This scene's unique identifier. */

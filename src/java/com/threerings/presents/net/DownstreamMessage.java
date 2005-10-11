@@ -1,5 +1,5 @@
 //
-// $Id: DownstreamMessage.java,v 1.13 2004/08/27 02:20:22 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -21,14 +21,14 @@
 
 package com.threerings.presents.net;
 
-import com.threerings.io.TrackedStreamableObject;
+import com.threerings.io.SimpleStreamableObject;
 
 /**
  * This class encapsulates a message in the distributed object protocol
  * that flows from the server to the client. Downstream messages include
  * object subscription, event forwarding and session management.
  */
-public abstract class DownstreamMessage extends TrackedStreamableObject
+public abstract class DownstreamMessage extends SimpleStreamableObject
 {
     /**
      * The message id of the upstream message with which this downstream

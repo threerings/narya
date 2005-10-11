@@ -29,7 +29,7 @@ import com.samskivert.util.ArrayUtil;
 import com.samskivert.util.ListUtil;
 import com.samskivert.util.StringUtil;
 
-import com.threerings.io.TrackedStreamableObject;
+import com.threerings.io.SimpleStreamableObject;
 
 import com.threerings.media.util.MathUtil;
 import com.threerings.util.StreamableHashIntMap;
@@ -53,7 +53,7 @@ public class SparseMisoSceneModel extends MisoSceneModel
     /** Contains information on a section of this scene. This is only
      * public so that the scene model parser can do its job, so don't go
      * poking around in here. */
-    public static class Section extends TrackedStreamableObject
+    public static class Section extends SimpleStreamableObject
         implements Cloneable
     {
         /** The tile coordinate of our upper leftmost tile. */

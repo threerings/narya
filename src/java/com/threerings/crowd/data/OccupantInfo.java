@@ -1,5 +1,5 @@
 //
-// $Id: OccupantInfo.java,v 1.14 2004/08/27 02:12:33 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -21,7 +21,7 @@
 
 package com.threerings.crowd.data;
 
-import com.threerings.io.TrackedStreamableObject;
+import com.threerings.io.SimpleStreamableObject;
 import com.threerings.util.Name;
 
 import com.threerings.presents.dobj.DSet;
@@ -44,7 +44,7 @@ import com.threerings.presents.dobj.DSet;
  * responsible for adding the code to clone those attributes when a clone
  * is requested.
  */
-public class OccupantInfo extends TrackedStreamableObject
+public class OccupantInfo extends SimpleStreamableObject
     implements DSet.Entry, Cloneable
 {
     /** Constant value for {@link #status}. */

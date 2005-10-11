@@ -122,7 +122,7 @@ import com.threerings.presents.Log;
  *
  * Fields of type {@link Streamable} can also be used.
  */
-public class DObject extends TrackedObject
+public class DObject
     implements Streamable
 {
     public DObject ()
