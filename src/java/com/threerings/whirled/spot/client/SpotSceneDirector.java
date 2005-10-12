@@ -313,7 +313,7 @@ public class SpotSceneDirector extends BasicDirector
     // documentation inherited from interface
     public void objectAvailable (DObject object)
     {
-        clearCluster();
+        clearCluster(false);
         int oid = object.getOid();
         if (oid != _self.getClusterOid()) {
             // we got it too late, just unsubscribe
@@ -380,7 +380,7 @@ public class SpotSceneDirector extends BasicDirector
         _location = null;
         _pendingLoc = null;
         _sservice = null;
-        clearCluster();
+        clearCluster(true);
 
         // stop listening to the client object
         client.getClientObject().removeListener(this);
@@ -416,7 +416,7 @@ public class SpotSceneDirector extends BasicDirector
         }
 
         // clear out any old cluster object
-        clearCluster();
+        clearCluster(false);
 
         // if there's a new cluster object, subscribe to it
         if (_chatdir != null && cloid > 0) {
@@ -429,10 +429,13 @@ public class SpotSceneDirector extends BasicDirector
     /**
      * Convenience routine to unwire chat for and unsubscribe from our
      * current cluster, if any.
+     *
+     * @param force clear the cluster even if we're still apparently in it.
      */
-    protected void clearCluster ()
+    protected void clearCluster (boolean force)
     {
-        if (_clobj != null && _clobj.getOid() != _self.getClusterOid()) {
+        if (_clobj != null &&
+                (force || (_clobj.getOid() != _self.getClusterOid()))) {
             if (_chatdir != null) {
                 _chatdir.removeAuxiliarySource(_clobj);
             }
