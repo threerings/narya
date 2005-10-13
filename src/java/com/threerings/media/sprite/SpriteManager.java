@@ -81,14 +81,14 @@ public class SpriteManager extends AbstractMediaManager
      * and sprites with bounds that contain the supplied point are further
      * checked for a non-transparent at the specified location.
      *
-     * @param list the list to fill with any intersecting sprites.
+     * @param list the list to fill with any intersecting sprites, the
+     *        sprites with the highest render order provided first.
      * @param x the x (screen) coordinate to be checked.
      * @param y the y (screen) coordinate to be checked.
      */
     public void getHitSprites (List list, int x, int y)
     {
-        int size = _media.size();
-        for (int ii = 0; ii < size; ii++) {
+        for (int ii = _media.size() - 1; ii >= 0; ii--) {
             Sprite sprite = (Sprite)_media.get(ii);
             if (sprite.hitTest(x, y)) {
                 list.add(sprite);
@@ -106,18 +106,14 @@ public class SpriteManager extends AbstractMediaManager
      */
     public Sprite getHighestHitSprite (int x, int y)
     {
-        int size = _media.size(),
-            highestLayer = Integer.MIN_VALUE;
-        Sprite highestSprite = null;
-        for (int ii = 0; ii < size; ii++) {
+        // since they're stored in lowest -> highest order..
+        for (int ii = _media.size() - 1; ii >= 0; ii--) {
             Sprite sprite = (Sprite)_media.get(ii);
-            if (sprite.hitTest(x, y) &&
-                sprite.getRenderOrder() > highestLayer) {
-                highestSprite = sprite;
-                highestLayer = sprite.getRenderOrder();
+            if (sprite.hitTest(x, y)) {
+                return sprite;
             }
         }
-        return highestSprite;
+        return null;
     }
     
     /**
