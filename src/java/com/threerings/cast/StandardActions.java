@@ -1,5 +1,5 @@
 //
-// $Id: StandardActions.java,v 1.2 2004/08/27 02:12:26 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -23,9 +23,8 @@ package com.threerings.cast;
 
 /**
  * Actions are referenced by name and this interface defines constants for
- * two standard actions: standing and walking. Because character sprites
- * follow paths, it is helpful for them to take care of switching between
- * the standing and walking actions automatically.
+ * standard actions and action suffixes used by the shadow and cropping
+ * support.
  */
 public interface StandardActions
 {
@@ -34,4 +33,10 @@ public interface StandardActions
 
     /** The name of the standard walking action. */
     public static final String WALKING = "walking";
+
+    /** The suffix appended to an action to obtain its shadow image. */
+    public static final String SHADOW_SUFFIX = "_shadow";
+
+    /** The suffix appended to an action to obtain its crop image. */
+    public static final String CROP_SUFFIX = "_crop";
 }

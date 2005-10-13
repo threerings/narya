@@ -1,5 +1,5 @@
 //
-// $Id: ClassRuleSet.java,v 1.4 2004/08/27 02:12:28 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -20,6 +20,8 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 
 package com.threerings.cast.tools.xml;
+
+import java.awt.Color;
 
 import org.apache.commons.digester.Digester;
 import org.apache.commons.digester.RuleSetBase;
@@ -74,12 +76,19 @@ public class ClassRuleSet extends RuleSetBase
                                  ComponentClass.class.getName());
 
         // grab the attributes from the <class> tag
-        digester.addRule(_prefix + CLASS_PATH, new SetPropertyFieldsRule());
+        SetPropertyFieldsRule rule = new SetPropertyFieldsRule();
+        rule.addFieldParser("shadowColor", new FieldParser() {
+            public Object parse (String text) {
+                int[] values = StringUtil.parseIntArray(text);
+                return new Color(values[0], values[1], values[2], values[3]);
+            }
+        });
+        digester.addRule(_prefix + CLASS_PATH, rule);
 
         // parse render priority overrides
         String opath = _prefix + CLASS_PATH + "/override";
         digester.addObjectCreate(opath, PriorityOverride.class.getName());
-        SetPropertyFieldsRule rule = new SetPropertyFieldsRule();
+        rule = new SetPropertyFieldsRule();
         rule.addFieldParser("orients", new FieldParser() {
             public Object parse (String text) {
                 String[] orients = StringUtil.parseStringArray(text);

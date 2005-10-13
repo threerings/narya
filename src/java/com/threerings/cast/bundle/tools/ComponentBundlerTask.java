@@ -1,5 +1,5 @@
 //
-// $Id: ComponentBundlerTask.java,v 1.21 2004/08/27 02:12:28 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -47,6 +47,7 @@ import java.util.zip.Deflater;
 import org.apache.commons.digester.Digester;
 
 import com.samskivert.io.PersistenceException;
+import com.samskivert.util.FileUtil;
 import com.samskivert.util.HashIntMap;
 import com.samskivert.util.SortableArrayList;
 import com.samskivert.util.Tuple;
@@ -63,6 +64,7 @@ import com.threerings.media.tile.TrimmedTileSet;
 import com.threerings.media.tile.tools.xml.SwissArmyTileSetRuleSet;
 
 import com.threerings.cast.ComponentIDBroker;
+import com.threerings.cast.StandardActions;
 import com.threerings.cast.bundle.BundleUtil;
 import com.threerings.cast.tools.xml.ActionRuleSet;
 
@@ -199,44 +201,27 @@ public class ComponentBundlerTask extends Task
                             ", action=" + info[2] + "].");
                         continue;
                     }
+                    aset.setImageProvider(improv);
 
                     // obtain the component id from our id broker
                     int cid = broker.getComponentID(info[0], info[1]);
                     // add a mapping for this component
                     mapping.put(cid, new Tuple(info[0], info[1]));
 
-                    // construct the path that'll go in the jar file
-                    String ipath = composePath(
-                        info, BundleUtil.IMAGE_EXTENSION);
-                    jout.putNextEntry(new JarEntry(ipath));
+                    // process and store the main component image
+                    processComponent(info, aset, cfile, jout);
 
-                    // create a trimmed tileset based on the source action
-                    // tileset and stuff the new trimmed image into the
-                    // jar file at the same time
-                    aset.setImagePath(cfile.getPath());
-                    aset.setImageProvider(improv);
-
-                    TrimmedTileSet tset = null;
-                    try {
-                        tset = TrimmedTileSet.trimTileSet(aset, jout);
-                        tset.setImagePath(ipath);
-                    } catch (Throwable t) {
-                        System.err.println(
-                            "Failure trimming tileset " +
-                            "[class=" + info[0] + ", name=" + info[1] +
-                            ", action=" + info[2] +
-                            ", srcimg=" + aset.getImagePath() + "].");
-                        t.printStackTrace(System.err);
-                    }
-
-                    // then write our trimmed tileset to the jar file
-                    if (tset != null) {
-                        String tpath = composePath(
-                            info, BundleUtil.TILESET_EXTENSION);
-                        jout.putNextEntry(new JarEntry(tpath));
-                        ObjectOutputStream oout = new ObjectOutputStream(jout);
-                        oout.writeObject(tset);
-                        oout.flush();
+                    // pick up any auxiliary images as well like the shadow or
+                    // crop files
+                    String action = info[2];
+                    String ext = BundleUtil.IMAGE_EXTENSION;
+                    for (int aa = 0; aa < AUX_EXTS.length; aa++) {
+                        File afile = new File(
+                            FileUtil.resuffix(cfile, ext, AUX_EXTS[aa] + ext));
+                        if (afile.exists()) {
+                            info[2] = action + AUX_EXTS[aa];
+                            processComponent(info, aset, afile, jout);
+                        }
                     }
                 }
             }
@@ -261,6 +246,43 @@ public class ComponentBundlerTask extends Task
 
         // save our updated component ID broker
         saveBroker(_mapfile, broker);
+    }
+
+    protected void processComponent (
+        String[] info, TileSet aset, File cfile, JarOutputStream jout)
+        throws IOException
+    {
+        // construct the path that'll go in the jar file
+        String ipath = composePath(
+            info, BundleUtil.IMAGE_EXTENSION);
+        jout.putNextEntry(new JarEntry(ipath));
+
+        // create a trimmed tileset based on the source action tileset and
+        // stuff the new trimmed image into the jar file at the same time
+        aset.setImagePath(cfile.getPath());
+
+        TrimmedTileSet tset = null;
+        try {
+            tset = TrimmedTileSet.trimTileSet(aset, jout);
+            tset.setImagePath(ipath);
+        } catch (Throwable t) {
+            System.err.println(
+                "Failure trimming tileset " +
+                "[class=" + info[0] + ", name=" + info[1] +
+                ", action=" + info[2] +
+                ", srcimg=" + aset.getImagePath() + "].");
+            t.printStackTrace(System.err);
+        }
+
+        // then write our trimmed tileset to the jar file
+        if (tset != null) {
+            String tpath = composePath(
+                info, BundleUtil.TILESET_EXTENSION);
+            jout.putNextEntry(new JarEntry(tpath));
+            ObjectOutputStream oout = new ObjectOutputStream(jout);
+            oout.writeObject(tset);
+            oout.flush();
+        }
     }
 
     protected boolean outOfDate (ArrayList sources, File target)
@@ -594,4 +616,8 @@ public class ComponentBundlerTask extends Task
 
     /** Used to separate keys and values in the map file. */
     protected static final String SEP_STR = " := ";
+
+    /** Used to process auxilliary tilesets. */
+    protected static final String[] AUX_EXTS = {
+        StandardActions.SHADOW_SUFFIX, StandardActions.CROP_SUFFIX };
 }

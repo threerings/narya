@@ -21,6 +21,7 @@
 
 package com.threerings.cast;
 
+import java.awt.Color;
 import java.io.Serializable;
 
 import com.samskivert.util.ArrayIntSet;
@@ -116,6 +117,24 @@ public class ComponentClass implements Serializable
      * be null if a system does not use recolorable components. */
     public String[] colors;
 
+    /** Indicates whether or not components in this class have an associated
+     * shadow image. */
+    public boolean shadowed;
+
+    /** Null for a normal component, the color of the pre-composited shadow for
+     * the special "shadow" component class. */
+    public Color shadowColor;
+
+    /** Zero for a normal component, defines the (inclusive) lower bound of the
+     * range of components whose shadow will be included in this pre-composited
+     * shadow layer for a shadow component. */
+    public int minShadowPri;
+
+    /** Zero for a normal component, defines the (inclusive) upper bound of the
+     * range of components whose shadow will be included in this pre-composited
+     * shadow layer for a shadow component. */
+    public int maxShadowPri;
+
     /**
      * Creates an uninitialized instance suitable for unserialization or
      * population during XML parsing.
@@ -183,8 +202,19 @@ public class ComponentClass implements Serializable
      */
     public String toString ()
     {
-        return "[name=" + name + ", renderPriority=" + renderPriority +
-            ", colors=" + StringUtil.toString(colors) + "]";
+        StringBuffer buf = new StringBuffer("[");
+        buf.append("name=").append(name);
+        buf.append(", pri=").append(renderPriority);
+        if (colors != null) {
+            buf.append(", colors=").append(StringUtil.toString(colors));
+        }
+        if (shadowColor != null) {
+            buf.append(", shadow=");
+            buf.append(StringUtil.toString(shadowColor.getComponents(null)));
+            buf.append(" (").append(minShadowPri).append("-");
+            buf.append(maxShadowPri).append(")");
+        }
+        return buf.append("]").toString();
     }
 
     /** A list of render priority overrides. */

@@ -256,6 +256,8 @@ public class CharacterManager
         for (int ii = 0; ii < ccount; ii++) {
             sources[ii] = new ComponentFrames();
             sources[ii].ccomp = _crepo.getComponent(cids[ii]);
+
+            // load up the main component images
             ActionFrames source = sources[ii].ccomp.getFrames(action);
             if (source == null) {
                 String errmsg = "Cannot composite action frames; no such " +
@@ -265,6 +267,17 @@ public class CharacterManager
             }
             sources[ii].frames = (zations == null || zations[ii] == null) ?
                 source : source.cloneColorized(zations[ii]);
+
+            // load up the shadow images if they are needed
+            if (sources[ii].ccomp.componentClass.shadowed) {
+                sources[ii].shadowFrames = sources[ii].ccomp.getFrames(
+                    action + StandardActions.SHADOW_SUFFIX);
+                if (sources[ii].shadowFrames == null) {
+                    Log.warning("Missing shadow frames for action " +
+                                "[action=" + action +
+                                ", comp=" + sources[ii].ccomp + "].");
+                }
+            }
         }
 
         // use those to create an entity that will lazily composite things
