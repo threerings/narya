@@ -170,15 +170,17 @@ public class RandomUtil
         int size = values.size();
         if (size < 2) {
             throw new IllegalArgumentException(
-                "Must have at least one element [size=" + size + "]");
+                "Must have at least two elements [size=" + size + "]");
         }
 
         int pick = getInt(size - 1);
-        Object val = values.get(pick);
-        if (val == skip) {
-            val = values.get(pick + 1);
+        for (int ii = 0; ii < size; ii++) {
+            Object val = values.get(ii);
+            if ((val != skip) && (pick-- == 0)) {
+                return val;
+            }
         }
-        return val;
+        return null;
     }
 
     /**
