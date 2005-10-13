@@ -167,13 +167,25 @@ public class RandomUtil
      */
     public static Object pickRandom (List values, Object skip)
     {
+        return pickRandom(values, skip, rand);
+    }
+
+    /**
+     * Picks a random object from the supplied List. The specified skip
+     * object will be skipped when selecting a random value. The skipped
+     * object must exist exactly once in the List.
+     *
+     * @return a randomly selected item.
+     */
+    public static Object pickRandom (List values, Object skip, Random r)
+    {
         int size = values.size();
         if (size < 2) {
             throw new IllegalArgumentException(
                 "Must have at least two elements [size=" + size + "]");
         }
 
-        int pick = getInt(size - 1);
+        int pick = r.nextInt(size - 1);
         for (int ii = 0; ii < size; ii++) {
             Object val = values.get(ii);
             if ((val != skip) && (pick-- == 0)) {
