@@ -39,6 +39,7 @@ import javax.swing.event.AncestorEvent;
 import javax.swing.event.MouseInputAdapter;
 
 import java.util.Arrays;
+import java.util.ArrayList;
 
 import com.samskivert.swing.Controller;
 import com.samskivert.swing.Label;
@@ -726,20 +727,21 @@ public class MediaPanel extends JComponent
         }
 
         /**
-         * Utility method, get the highest sprite, return it
-         * if it's enabled.
+         * Utility method, get the highest non-disabled action/hover sprite.
          */
         protected Sprite getHit (MouseEvent me)
         {
-            // TODO: this should get all hit sprites, sort them by render
-            // priority and then return the first non-disabled sprite
-            Sprite s = _spritemgr.getHighestHitSprite(me.getX(), me.getY());
-            if (!(s instanceof DisableableSprite) ||
-                 ((DisableableSprite) s).isEnabled()) {
-                return s;
-            } else {
-                return null;
+            ArrayList list = new ArrayList();
+            _spritemgr.getHitSprites(list, me.getX(), me.getY());
+            for (int ii = 0, nn = list.size(); ii < nn; ii++) {
+                Object o = list.get(ii);
+                if ((o instanceof HoverSprite || o instanceof ActionSprite) &&
+                        (!(o instanceof DisableableSprite) ||
+                         ((DisableableSprite) o).isEnabled())) {
+                    return (Sprite) o;
+                }
             }
+            return null;
         }
 
         /** The active hover sprite, or action sprite. */
