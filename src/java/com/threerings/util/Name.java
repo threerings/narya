@@ -23,7 +23,7 @@ package com.threerings.util;
 
 import java.util.regex.Pattern;
 
-import com.threerings.io.TrackedStreamableObject;
+import com.threerings.io.SimpleStreamableObject;
 
 /**
  * Contains the name of an entity. Provides a means by which names can be
@@ -31,7 +31,7 @@ import com.threerings.io.TrackedStreamableObject;
  * things exactly or the challenge of inserting code to normalize names
  * everywhere they are compared.
  */
-public class Name extends TrackedStreamableObject
+public class Name extends SimpleStreamableObject
     implements Comparable
 {
     /** A blank name for use in situations where it is needed.
