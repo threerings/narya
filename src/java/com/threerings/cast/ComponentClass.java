@@ -213,6 +213,8 @@ public class ComponentClass implements Serializable
             buf.append(StringUtil.toString(shadowColor.getComponents(null)));
             buf.append(" (").append(minShadowPri).append("-");
             buf.append(maxShadowPri).append(")");
+        } else {
+            buf.append(", shadowed=").append(shadowed);
         }
         return buf.append("]").toString();
     }
