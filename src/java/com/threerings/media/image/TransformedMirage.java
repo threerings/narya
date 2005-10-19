@@ -47,13 +47,15 @@ public class TransformedMirage
         // clone the transform so that it doesn't get changed on us.
         _transform = (AffineTransform) transform.clone();
         computeTransformedBounds();
+        _transform.preConcatenate(
+            AffineTransform.getTranslateInstance(-_bounds.x, -_bounds.y));
     }
 
     // documentation inherited from interface Mirage
     public void paint (Graphics2D gfx, int x, int y)
     {
         AffineTransform otrans = gfx.getTransform();
-        gfx.translate(x - _bounds.x, y - _bounds.y);
+        gfx.translate(x, y);
         gfx.transform(_transform);
         _base.paint(gfx, 0, 0);
         gfx.setTransform(otrans);
@@ -94,7 +96,6 @@ public class TransformedMirage
             baseSnap.getType());
         Graphics2D gfx = (Graphics2D) img.getGraphics();
         try {
-            gfx.translate(-_bounds.x, -_bounds.y);
             gfx.transform(_transform);
             gfx.drawImage(baseSnap, 0, 0, null);
         } finally {
