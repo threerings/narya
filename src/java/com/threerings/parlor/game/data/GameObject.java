@@ -49,6 +49,9 @@ public class GameObject extends PlaceObject
     /** The field name of the <code>isRated</code> field. */
     public static final String IS_RATED = "isRated";
 
+    /** The field name of the <code>isPrivate</code> field. */
+    public static final String IS_PRIVATE = "isPrivate";
+
     /** The field name of the <code>players</code> field. */
     public static final String PLAYERS = "players";
 
@@ -92,6 +95,9 @@ public class GameObject extends PlaceObject
 
     /** Indicates whether or not this game is rated. */
     public boolean isRated;
+
+    /** Indicates whether the game is "private". */
+    public boolean isPrivate;
 
     /** The usernames of the players involved in this game. */
     public Name[] players;
@@ -287,6 +293,22 @@ public class GameObject extends PlaceObject
         requestAttributeChange(
             IS_RATED, new Boolean(value), new Boolean(ovalue));
         this.isRated = value;
+    }
+
+    /**
+     * Requests that the <code>isPrivate</code> field be set to the
+     * specified value. The local value will be updated immediately and an
+     * event will be propagated through the system to notify all listeners
+     * that the attribute did change. Proxied copies of this object (on
+     * clients) will apply the value change when they received the
+     * attribute changed notification.
+     */
+    public void setIsPrivate (boolean value)
+    {
+        boolean ovalue = this.isPrivate;
+        requestAttributeChange(
+            IS_PRIVATE, new Boolean(value), new Boolean(ovalue));
+        this.isPrivate = value;
     }
 
     /**

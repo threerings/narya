@@ -28,6 +28,7 @@ import com.samskivert.util.HashIntMap;
 import com.samskivert.util.StringUtil;
 import com.threerings.util.Name;
 
+import com.threerings.presents.dobj.ChangeListener;
 import com.threerings.presents.dobj.ObjectAddedEvent;
 import com.threerings.presents.dobj.ObjectDeathListener;
 import com.threerings.presents.dobj.ObjectDestroyedEvent;
@@ -47,6 +48,7 @@ import com.threerings.parlor.data.Table;
 import com.threerings.parlor.data.TableConfig;
 import com.threerings.parlor.data.TableLobbyObject;
 import com.threerings.parlor.game.data.GameConfig;
+import com.threerings.parlor.game.data.GameObject;
 import com.threerings.parlor.game.server.GameManager;
 
 /**
@@ -285,6 +287,9 @@ public class TableManager
         // update the table with the newly created game object
         table.gameOid = plobj.getOid();
 
+        // configure the privacy of the game
+        ((GameObject) plobj).setIsPrivate(table.tconfig.privateTable);
+
         // clear the occupant to table mappings as this game is underway
         for (int i = 0; i < table.bodyOids.length; i++) {
             _boidMap.remove(table.bodyOids[i]);
@@ -292,11 +297,7 @@ public class TableManager
 
         // add an object death listener to unmap the table when the game
         // finally goes away
-        plobj.addListener(new ObjectDeathListener() {
-            public void objectDestroyed (ObjectDestroyedEvent event) {
-                unmapTable(event.getTargetOid());
-            }
-        });
+        plobj.addListener(_gameDeathListener);
 
         // and then update the lobby object that contains the table
         _tlobj.updateTables(table);
@@ -370,4 +371,11 @@ public class TableManager
 
     /** A mapping from body oid to table. */
     protected HashIntMap _boidMap = new HashIntMap();
+
+    /** A listener that prunes tables after the game dies. */
+    protected ChangeListener _gameDeathListener = new ObjectDeathListener() {
+        public void objectDestroyed (ObjectDestroyedEvent event) {
+            unmapTable(event.getTargetOid());
+        }
+    };
 }
