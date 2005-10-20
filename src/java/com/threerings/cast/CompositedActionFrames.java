@@ -46,10 +46,6 @@ public class CompositedActionFrames
 
         public ActionFrames frames;
 
-        public ActionFrames shadowFrames;
-
-        public ActionFrames cropFrames;
-
         public String toString () {
             return ccomp + ":" + frames;
         }

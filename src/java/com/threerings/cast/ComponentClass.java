@@ -117,23 +117,13 @@ public class ComponentClass implements Serializable
      * be null if a system does not use recolorable components. */
     public String[] colors;
 
-    /** Indicates whether or not components in this class have an associated
-     * shadow image. */
-    public boolean shadowed;
+    /** Indicates the class name of the shadow layer to which this component
+     * class contributes a shadow. */
+    public String shadow;
 
     /** Null for a normal component, the color of the pre-composited shadow for
      * the special "shadow" component class. */
     public Color shadowColor;
-
-    /** Zero for a normal component, defines the (inclusive) lower bound of the
-     * range of components whose shadow will be included in this pre-composited
-     * shadow layer for a shadow component. */
-    public int minShadowPri;
-
-    /** Zero for a normal component, defines the (inclusive) upper bound of the
-     * range of components whose shadow will be included in this pre-composited
-     * shadow layer for a shadow component. */
-    public int maxShadowPri;
 
     /**
      * Creates an uninitialized instance suitable for unserialization or
@@ -178,6 +168,25 @@ public class ComponentClass implements Serializable
     }
 
     /**
+     * Returns true if this component class contributes a shadow to a
+     * particular shadow layer. Note: this is different from <em>being</em> a
+     * shadow layer which is determined by calling {@link #isShadow}.
+     */
+    public boolean isShadowed ()
+    {
+        return (shadow != null);
+    }
+
+    /**
+     * Returns true if this component class is a shadow layer rather than a
+     * normal component class.
+     */
+    public boolean isShadow ()
+    {
+        return (shadowColor != null);
+    }
+
+    /**
      * Classes with the same name are the same.
      */
     public boolean equals (Object other)
@@ -211,10 +220,8 @@ public class ComponentClass implements Serializable
         if (shadowColor != null) {
             buf.append(", shadow=");
             buf.append(StringUtil.toString(shadowColor.getComponents(null)));
-            buf.append(" (").append(minShadowPri).append("-");
-            buf.append(maxShadowPri).append(")");
-        } else {
-            buf.append(", shadowed=").append(shadowed);
+        } else if (shadow != null) {
+            buf.append(", shadow=").append(shadow);
         }
         return buf.append("]").toString();
     }
