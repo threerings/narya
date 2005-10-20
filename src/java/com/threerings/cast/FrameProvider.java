@@ -1,5 +1,5 @@
 //
-// $Id: FrameProvider.java,v 1.3 2004/08/27 02:12:25 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -33,5 +33,5 @@ public interface FrameProvider
      * the specified action does not exist for the specified component.
      */
     public ActionFrames getFrames (
-        CharacterComponent component, String action);
+        CharacterComponent component, String action, String type);
 }

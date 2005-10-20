@@ -21,11 +21,14 @@
 
 package com.threerings.cast;
 
-import java.util.Iterator;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 
 import com.samskivert.util.LRUHashMap;
 import com.samskivert.util.RuntimeAdjust;
+import com.samskivert.util.StringUtil;
 import com.samskivert.util.Throttle;
 import com.samskivert.util.Tuple;
 
@@ -255,37 +258,99 @@ public class CharacterManager
         HashMap shadows = null;
 
         // create colorized versions of all of the source action frames
-        ComponentFrames[] sources = new ComponentFrames[ccount];
+        ArrayList sources = new ArrayList(ccount);
         for (int ii = 0; ii < ccount; ii++) {
-            sources[ii] = new ComponentFrames();
-            sources[ii].ccomp = _crepo.getComponent(cids[ii]);
+            ComponentFrames cframes = new ComponentFrames();
+            sources.add(cframes);
+            CharacterComponent ccomp =
+                (cframes.ccomp = _crepo.getComponent(cids[ii]));
 
             // load up the main component images
-            ActionFrames source = sources[ii].ccomp.getFrames(action);
+            ActionFrames source = ccomp.getFrames(action, null);
             if (source == null) {
                 String errmsg = "Cannot composite action frames; no such " +
                     "action for component [action=" + action +
-                    ", desc=" + descrip + ", comp=" + sources[ii].ccomp + "]";
+                    ", desc=" + descrip + ", comp=" + ccomp + "]";
                 throw new RuntimeException(errmsg);
             }
-            sources[ii].frames = (zations == null || zations[ii] == null) ?
+            cframes.frames = (zations == null || zations[ii] == null) ?
                 source : source.cloneColorized(zations[ii]);
 
-//             // load up the shadow images if they are needed
-//             if (sources[ii].ccomp.componentClass.isShadowed()) {
-//                 sources[ii].shadowFrames = sources[ii].ccomp.getFrames(
-//                     action + StandardActions.SHADOW_SUFFIX);
-//                 if (sources[ii].shadowFrames == null) {
-//                     Log.warning("Missing shadow frames for action " +
-//                                 "[action=" + action +
-//                                 ", comp=" + sources[ii].ccomp + "].");
-//                 }
-//             }
+            // if this component has a shadow, make a note of it
+            if (ccomp.componentClass.isShadowed()) {
+                if (shadows == null) {
+                    shadows = new HashMap();
+                }
+                ArrayList shadlist = (ArrayList)
+                    shadows.get(ccomp.componentClass.shadow);
+                if (shadlist == null) {
+                    shadows.put(ccomp.componentClass.shadow,
+                                shadlist = new ArrayList());
+                }
+                shadlist.add(ccomp);
+            }
+        }
+
+        // now create any necessary shadow layers
+        if (shadows != null) {
+            Iterator iter = shadows.entrySet().iterator();
+            while (iter.hasNext()) {
+                Map.Entry entry = (Map.Entry)iter.next();
+                String sclass = (String)entry.getKey();
+                ArrayList scomps = (ArrayList)entry.getValue();
+                ComponentFrames scf = compositeShadow(action, sclass, scomps);
+                if (scf != null) {
+                    sources.add(scf);
+                }
+            }
         }
 
         // use those to create an entity that will lazily composite things
         // together as they are needed
-        return new CompositedActionFrames(_imgr, _frameCache, action, sources);
+        ComponentFrames[] cfvec = (ComponentFrames[])sources.toArray(
+            new ComponentFrames[sources.size()]);
+        return new CompositedActionFrames(_imgr, _frameCache, action, cfvec);
+    }
+
+    protected ComponentFrames compositeShadow (
+        String action, String sclass, ArrayList scomps)
+    {
+        final ComponentClass cclass = _crepo.getComponentClass(sclass);
+        if (cclass == null) {
+            Log.warning("Components reference non-existent shadow layer class " +
+                        "[sclass=" + sclass +
+                        ", scomps=" + StringUtil.toString(scomps) + "].");
+            return null;
+        }
+
+        ComponentFrames cframes = new ComponentFrames();
+        // create a fake component for the shadow layer
+        cframes.ccomp = new CharacterComponent(-1, "shadow", cclass, null);
+
+        ComponentFrames[] sources = new ComponentFrames[scomps.size()];
+        for (int ii = 0, ll = scomps.size(); ii < ll; ii++) {
+            sources[ii] = new ComponentFrames();
+            sources[ii].ccomp = (CharacterComponent)scomps.get(ii);
+            sources[ii].frames = sources[ii].ccomp.getFrames(
+                action, StandardActions.SHADOW_TYPE);
+            if (sources[ii].frames == null) {
+                Log.warning("Missing shadow frames for action " +
+                            "[action=" + action +
+                            ", comp=" + sources[ii].ccomp + "].");
+            }
+        }
+
+        // create custom action frames that use a special compositing
+        // multi-frame image that does the necessary shadow magic
+        cframes.frames = new CompositedActionFrames(
+            _imgr, _frameCache, action, sources) {
+            protected CompositedMultiFrameImage createFrames (int orient) {
+                return new CompositedShadowImage(
+                    _imgr, _sources, _action, orient, cclass.shadowAlpha);
+            }
+        };
+
+        return cframes;
     }
 
     /** The image manager with whom we interact. */

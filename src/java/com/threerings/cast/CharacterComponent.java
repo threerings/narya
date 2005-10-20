@@ -59,13 +59,15 @@ public class CharacterComponent implements Serializable
     }
 
     /**
-     * Returns the image frames for the specified action animation or null
-     * if no animation for the specified action is available for this
-     * component.
+     * Returns the image frames for the specified action animation or null if
+     * no animation for the specified action is available for this component.
+     *
+     * @param type null for the normal action frames or one of the custom
+     * action sub-types: {@link StandardActions#SHADOW_TYPE}, etc.
      */
-    public ActionFrames getFrames (String action)
+    public ActionFrames getFrames (String action, String type)
     {
-        return _frameProvider.getFrames(this, action);
+        return _frameProvider.getFrames(this, action, type);
     }
 
     /**

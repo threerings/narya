@@ -89,8 +89,7 @@ public class CompositedActionFrames
         CompositedMultiFrameImage cmfi =
             (CompositedMultiFrameImage)_frameCache.get(_key);
         if (cmfi == null) {
-            cmfi = new CompositedMultiFrameImage(
-                _imgr, _sources, _action, orient);
+            cmfi = createFrames(orient);
             _frameCache.put(new CompositedFramesKey(orient), cmfi);
         }
         return cmfi;
@@ -116,6 +115,14 @@ public class CompositedActionFrames
     public ActionFrames cloneColorized (Colorization[] zations)
     {
         throw new RuntimeException("What you talkin' about Willis?");
+    }
+
+    /**
+     * Creates our underlying multi-frame image for a particular orientation.
+     */
+    protected CompositedMultiFrameImage createFrames (int orient)
+    {
+        return new CompositedMultiFrameImage(_imgr, _sources, _action, orient);
     }
 
     /** Used to cache composited frames for a particular action and

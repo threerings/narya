@@ -1,5 +1,5 @@
 //
-// $Id: BundledComponentRepository.java,v 1.36 2004/10/28 17:49:01 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -297,7 +297,7 @@ public class BundledComponentRepository
 
         // documentation inherited
         public ActionFrames getFrames (
-            CharacterComponent component, String action)
+            CharacterComponent component, String action, String type)
         {
             // obtain the action sequence definition for this action
             ActionSequence actseq = (ActionSequence)_actions.get(action);
@@ -308,11 +308,17 @@ public class BundledComponentRepository
                 return null;
             }
 
+            // determine our image path name
+            String imgpath = action, dimgpath = ActionSequence.DEFAULT_SEQUENCE;
+            if (type != null) {
+                imgpath += "_" + type;
+                dimgpath += "_" + type;
+            }
+
             String root = component.componentClass.name + "/" +
                 component.name + "/";
-            String cpath = root + action + BundleUtil.TILESET_EXTENSION;
-            String dpath = root + ActionSequence.DEFAULT_SEQUENCE +
-                BundleUtil.TILESET_EXTENSION;
+            String cpath = root + imgpath + BundleUtil.TILESET_EXTENSION;
+            String dpath = root + dimgpath + BundleUtil.TILESET_EXTENSION;
 
             // look to see if this tileset is already cached (as the
             // custom action or the default action)
@@ -342,7 +348,7 @@ public class BundledComponentRepository
                 // if that failed too, we're hosed
                 if (aset == null) {
                     Log.warning("Unable to locate tileset for action '" +
-                                action + "' " + component + ".");
+                                imgpath + "' " + component + ".");
                     if (_wipeOnFailure) {
                         _bundle.wipeBundle(false);
                     }
@@ -354,7 +360,7 @@ public class BundledComponentRepository
                 return new TileSetFrameImage(aset, actseq);
 
             } catch (Exception e) {
-                Log.warning("Error loading tileset for action '" + action +
+                Log.warning("Error loading tileset for action '" + imgpath +
                             "' " + component + ".");
                 Log.logStackTrace(e);
                 return null;

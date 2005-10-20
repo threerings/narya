@@ -619,5 +619,6 @@ public class ComponentBundlerTask extends Task
 
     /** Used to process auxilliary tilesets. */
     protected static final String[] AUX_EXTS = {
-        StandardActions.SHADOW_SUFFIX, StandardActions.CROP_SUFFIX };
+        "_" + StandardActions.SHADOW_TYPE,
+        "_" + StandardActions.CROP_TYPE };
 }

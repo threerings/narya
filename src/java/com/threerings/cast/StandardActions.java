@@ -34,9 +34,9 @@ public interface StandardActions
     /** The name of the standard walking action. */
     public static final String WALKING = "walking";
 
-    /** The suffix appended to an action to obtain its shadow image. */
-    public static final String SHADOW_SUFFIX = "_shadow";
+    /** A special action sub-type for shadow imagery. */
+    public static final String SHADOW_TYPE = "shadow";
 
-    /** The suffix appended to an action to obtain its crop image. */
-    public static final String CROP_SUFFIX = "_crop";
+    /** A special action sub-type for crop imagery. */
+    public static final String CROP_TYPE = "crop";
 }

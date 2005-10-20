@@ -121,9 +121,9 @@ public class ComponentClass implements Serializable
      * class contributes a shadow. */
     public String shadow;
 
-    /** Null for a normal component, the color of the pre-composited shadow for
-     * the special "shadow" component class. */
-    public Color shadowColor;
+    /** 1.0 for a normal component, the alpha value of the pre-composited
+     * shadow for the special "shadow" component class. */
+    public float shadowAlpha = 1.0f;
 
     /**
      * Creates an uninitialized instance suitable for unserialization or
@@ -183,7 +183,7 @@ public class ComponentClass implements Serializable
      */
     public boolean isShadow ()
     {
-        return (shadowColor != null);
+        return (shadowAlpha != 1.0f);
     }
 
     /**
@@ -217,9 +217,8 @@ public class ComponentClass implements Serializable
         if (colors != null) {
             buf.append(", colors=").append(StringUtil.toString(colors));
         }
-        if (shadowColor != null) {
-            buf.append(", shadow=");
-            buf.append(StringUtil.toString(shadowColor.getComponents(null)));
+        if (shadowAlpha != 1.0f) {
+            buf.append(", shadow=").append(shadowAlpha);
         } else if (shadow != null) {
             buf.append(", shadow=").append(shadow);
         }
