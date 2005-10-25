@@ -153,6 +153,10 @@ public class ChatDirector extends BasicDirector
         _ctx.getLocationDirector().addLocationObserver(this);
 
         // register our default chat handlers
+        if (_bundle == null || _msgmgr == null) {
+            Log.warning("Null bundle or message manager given to ChatDirector");
+            return;
+        }
         MessageBundle msg = _msgmgr.getBundle(_bundle);
         registerCommandHandler(msg, "help", new HelpHandler());
         registerCommandHandler(msg, "clear", new ClearHandler());

@@ -78,6 +78,8 @@ public class ChatPanel
 
         // create our chat director and register ourselves with it
         _chatdtr = new ChatDirector(_ctx, null, null);
+        // XXX - the line above royally borks things because it sends
+        // null, null downstream.
         _chatdtr.addChatDisplay(this);
 
         // register as an occupant observer

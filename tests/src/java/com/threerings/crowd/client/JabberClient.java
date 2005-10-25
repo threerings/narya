@@ -84,6 +84,14 @@ public class JabberClient
     }
 
     /**
+     * Sets the roomId to which we will connect upon logon.
+     */
+    public void setRoom (int roomId)
+    {
+        _roomId = roomId;
+    }
+
+    /**
      * Returns a reference to the context in effect for this client. This
      * reference is valid for the lifetime of the application.
      */
@@ -100,7 +108,7 @@ public class JabberClient
         // place on the whole server; a normal client would either issue
         // an invocation service request at this point or look at
         // something in the BootstrapData to figure out what to do
-        _ctx.getLocationDirector().moveTo(2);
+        _ctx.getLocationDirector().moveTo(_roomId);
     }
 
     // documentation inherited from interface SessionObserver
@@ -231,6 +239,7 @@ public class JabberClient
     protected OccupantDirector _occdir;
     protected ChatDirector _chatdir;
     protected MessageManager _msgmgr;
+    protected int _roomId;
 
     /** The prefix prepended to localization bundle names before looking
      * them up in the classpath. */

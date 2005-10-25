@@ -50,13 +50,15 @@ public class JabberApp
         _client.init(_frame);
     }
 
-    public void run (String server, int port, String username, String password)
+    public void run (String server, int port, String username, String password,
+        int roomId)
     {
         // position everything and show the frame
         _frame.setSize(800, 600);
         SwingUtil.centerWindow(_frame);
         _frame.setVisible(true);
 
+        _client.setRoom(roomId);
         Client client = _client.getContext().getClient();
 
         // pass them on to the client
@@ -90,6 +92,14 @@ public class JabberApp
 
         String username = (args.length > 2) ? args[2] : null;
         String password = (args.length > 3) ? args[3] : null;
+        int roomId = 2;
+        if (args.length > 4) {
+            try {
+               roomId = Integer.parseInt(args[4]);
+            } catch (NumberFormatException e) {
+            // so what?
+            }
+        }
 
         JabberApp app = new JabberApp();
         try {
@@ -101,7 +111,7 @@ public class JabberApp
         }
 
         // and run it
-        app.run(server, port, username, password);
+        app.run(server, port, username, password, roomId);
     }
 
     protected JabberClient _client;
