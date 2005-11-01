@@ -327,23 +327,28 @@ public class CharacterManager
         // create a fake component for the shadow layer
         cframes.ccomp = new CharacterComponent(-1, "shadow", cclass, null);
 
-        ComponentFrames[] sources = new ComponentFrames[scomps.size()];
+        ArrayList sources = new ArrayList();
         for (int ii = 0, ll = scomps.size(); ii < ll; ii++) {
-            sources[ii] = new ComponentFrames();
-            sources[ii].ccomp = (CharacterComponent)scomps.get(ii);
-            sources[ii].frames = sources[ii].ccomp.getFrames(
+            ComponentFrames source = new ComponentFrames();
+            source.ccomp = (CharacterComponent)scomps.get(ii);
+            source.frames = source.ccomp.getFrames(
                 action, StandardActions.SHADOW_TYPE);
-            if (sources[ii].frames == null) {
+            if (source.frames == null) {
                 Log.warning("Missing shadow frames for action " +
                             "[action=" + action +
-                            ", comp=" + sources[ii].ccomp + "].");
+                            ", comp=" + source.ccomp + "].");
+                // skip this shadow component
+                continue;
             }
+            sources.add(source);
         }
 
         // create custom action frames that use a special compositing
         // multi-frame image that does the necessary shadow magic
+        ComponentFrames[] svec = (ComponentFrames[])
+            sources.toArray(new ComponentFrames[sources.size()]);
         cframes.frames = new CompositedActionFrames(
-            _imgr, _frameCache, action, sources) {
+            _imgr, _frameCache, action, svec) {
             protected CompositedMultiFrameImage createFrames (int orient) {
                 return new CompositedShadowImage(
                     _imgr, _sources, _action, orient, cclass.shadowAlpha);
