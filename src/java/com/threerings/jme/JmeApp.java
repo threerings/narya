@@ -52,7 +52,6 @@ import com.jme.math.Vector3f;
 import com.jme.util.Timer;
 
 import com.threerings.jme.input.GodViewHandler;
-import com.threerings.jme.input.HardwareMouse;
 
 /**
  * Defines a basic application framework providing integration with the
