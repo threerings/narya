@@ -40,11 +40,12 @@ import com.jme.system.JmeException;
 import com.jme.system.PropertiesIO;
 import com.jme.system.lwjgl.LWJGLPropertiesDialog;
 
+import com.jme.input.InputHandler;
+import com.jme.input.KeyInput;
+import com.jme.input.Mouse;
+import com.jme.input.MouseInput;
 import com.jmex.bui.BRootNode;
 import com.jmex.bui.PolledRootNode;
-import com.jme.input.InputHandler;
-import com.jme.input.InputSystem;
-import com.jme.input.Mouse;
 
 import com.jme.light.PointLight;
 import com.jme.math.Vector3f;
@@ -271,9 +272,7 @@ public class JmeApp
      */
     protected void initInput ()
     {
-        InputSystem.createInputSystem(_properties.getRenderer());
         _input = createInputHandler(_camera, _properties.getRenderer());
-        _input.setMouse(createMouse());
     }
 
     /**
@@ -283,17 +282,6 @@ public class JmeApp
     protected InputHandler createInputHandler (Camera camera, String api)
     {
         return new GodViewHandler(camera, api);
-    }
-
-    /**
-     * Creates the type of mouse handler we'll use to manage the mouse
-     * position.
-     */
-    protected Mouse createMouse ()
-    {
-        HardwareMouse mouse = new HardwareMouse("Mouse");
-        mouse.setMouseInput(InputSystem.getMouseInput());
-        return mouse;
     }
 
     /**
@@ -343,7 +331,7 @@ public class JmeApp
         _rnode = new PolledRootNode(_timer, _input);
         _iface.attachChild(_rnode);
         // we don't hide the cursor
-        InputSystem.getMouseInput().setCursorVisible(true);
+        MouseInput.get().setCursorVisible(true);
     }
 
     /**
@@ -441,13 +429,8 @@ public class JmeApp
     protected void cleanup ()
     {
         _display.reset();
-
-        if (InputSystem.getKeyInput() != null) {
-            InputSystem.getKeyInput().destroy();
-        }
-        if (InputSystem.getMouseInput() != null) {
-            InputSystem.getMouseInput().destroy();
-        }
+        KeyInput.destroyIfInitalized();
+        MouseInput.destroyIfInitalized();
     }
 
     /**

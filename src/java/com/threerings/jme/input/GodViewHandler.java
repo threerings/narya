@@ -9,7 +9,6 @@ import com.jme.math.Vector3f;
 import com.jme.renderer.Camera;
 
 import com.jme.input.InputHandler;
-import com.jme.input.InputSystem;
 import com.jme.input.KeyBindingManager;
 import com.jme.input.KeyInput;
 import com.jme.input.RelativeMouse;
@@ -139,9 +138,6 @@ public class GodViewHandler extends InputHandler
     protected void setKeyBindings (String api)
     {
         KeyBindingManager keyboard = KeyBindingManager.getKeyBindingManager();
-        InputSystem.createInputSystem(api);
-
-        keyboard.setKeyInput(InputSystem.getKeyInput());
 
         // the key bindings for the pan actions
         keyboard.set("forward", KeyInput.KEY_W);
@@ -162,15 +158,11 @@ public class GodViewHandler extends InputHandler
         keyboard.set("rollBack", KeyInput.KEY_END);
 
         keyboard.set("screenshot", KeyInput.KEY_F12);
-
-        setKeyBindingManager(keyboard);
     }
 
     protected void addActions (Camera cam)
     {
-        KeyScreenShotAction screen = new KeyScreenShotAction();
-        screen.setKey("screenshot");
-        addAction(screen);
+        addAction(new KeyScreenShotAction(), "screenshot", false);
 
         addPanActions(cam);
         addZoomActions(cam);
@@ -191,8 +183,7 @@ public class GodViewHandler extends InputHandler
                 _camera.update();
             }
         };
-        forward.setKey("forward");
-        addAction(forward);
+        addAction(forward, "forward", true);
 
         CameraAction backward = new CameraAction(cam, 0.5f) {
             public void performAction (InputActionEvent evt) {
@@ -202,8 +193,7 @@ public class GodViewHandler extends InputHandler
                 _camera.update();
             }
         };
-        backward.setKey("backward");
-        addAction(backward);
+        addAction(backward, "backward", true);
 
         CameraAction left = new CameraAction(cam, 0.5f) {
             public void performAction (InputActionEvent evt) {
@@ -213,8 +203,7 @@ public class GodViewHandler extends InputHandler
                 _camera.update();
             }
         };
-        left.setKey("left");
-        addAction(left);
+        addAction(left, "left", true);
 
         CameraAction right = new CameraAction(cam, 0.5f) {
             public void performAction (InputActionEvent evt) {
@@ -224,8 +213,7 @@ public class GodViewHandler extends InputHandler
                 _camera.update();
             }
         };
-        right.setKey("right");
-        addAction(right);
+        addAction(right, "right", true);
     }
 
     /**
@@ -244,8 +232,7 @@ public class GodViewHandler extends InputHandler
                 }
             }
         };
-        zoomIn.setKey("zoomIn");
-        addAction(zoomIn);
+        addAction(zoomIn, "zoomIn", true);
 
         CameraAction zoomOut = new CameraAction(cam, 0.5f) {
             public void performAction (InputActionEvent evt) {
@@ -258,8 +245,7 @@ public class GodViewHandler extends InputHandler
                 }
             }
         };
-        zoomOut.setKey("zoomOut");
-        addAction(zoomOut);
+        addAction(zoomOut, "zoomOut", true);
     }
 
     /**
@@ -267,13 +253,8 @@ public class GodViewHandler extends InputHandler
      */
     protected void addOrbitActions (Camera cam)
     {
-        OrbitAction orbitRight = new OrbitAction(-FastMath.PI / 2);
-        orbitRight.setKey("turnRight");
-        addAction(orbitRight);
-
-        OrbitAction orbitLeft = new OrbitAction(FastMath.PI / 2);
-        orbitLeft.setKey("turnLeft");
-        addAction(orbitLeft);
+        addAction(new OrbitAction(-FastMath.PI / 2), "turnRight", true);
+        addAction(new OrbitAction(FastMath.PI / 2), "turnLeft", true);
     }
 
     /**
@@ -281,13 +262,8 @@ public class GodViewHandler extends InputHandler
      */
     protected void addRollActions (Camera cam)
     {
-        RollAction rollForward = new RollAction(-FastMath.PI / 2);
-        rollForward.setKey("rollForward");
-        addAction(rollForward);
-
-        RollAction rollBack = new RollAction(FastMath.PI / 2);
-        rollBack.setKey("rollBack");
-        addAction(rollBack);
+        addAction(new RollAction(-FastMath.PI / 2), "rollForward", true);
+        addAction(new RollAction(FastMath.PI / 2), "rollBack", true);
     }
 
     /**

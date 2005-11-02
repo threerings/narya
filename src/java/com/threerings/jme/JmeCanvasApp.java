@@ -30,8 +30,8 @@ import com.jme.renderer.Renderer;
 import com.jme.renderer.lwjgl.LWJGLRenderer;
 import com.jme.scene.Node;
 import com.jme.system.DisplaySystem;
-import com.jme.util.awt.JMECanvas;
-import com.jme.util.awt.JMECanvasImplementor;
+import com.jmex.awt.JMECanvas;
+import com.jmex.awt.JMECanvasImplementor;
 
 import com.jmex.bui.CanvasRootNode;
 
