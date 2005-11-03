@@ -154,22 +154,16 @@
 
   <!-- build the javadoc documentation -->
   <target name="javadoc" depends="prepare">
-    <javadoc packagenames="com.threerings.*" destdir="${javadoc.home}"
-             additionalparam="-breakiterator -quiet"
-             link="http://www.threerings.net/code/narya/narya/docs/api"
-             stylesheetfile="docs/stylesheet.css">
+    <javadoc sourcepath="src/java" packagenames="com.threerings.*"
+             destdir="${javadoc.home}" stylesheetfile="docs/stylesheet.css"
+             additionalparam="-breakiterator"
+             link="http://www.threerings.net/code/narya/narya/docs/api">
       <classpath refid="classpath"/>
       <link href="http://java.sun.com/j2se/1.4/docs/api/"/>
       <!-- ant documentation is not available online, sorry kids -->
       <link href="file:///usr/share/doc/ant-doc/javadocs"/>
       <link href="http://samskivert.com/code/samskivert/samskivert/docs/api"/>
       <link href="http://www.jmonkeyengine.com/doc"/>
-      <fileset dir="src/java" includes="**/*.java">
-        <exclude name="**/OggPlayer.java"/>
-        <exclude name="**/ModPlayer.java"/>
-        <exclude name="**/MidiPlayer.java"/>
-        <exclude name="**/Mp3Player.java"/>
-      </fileset>
     </javadoc>
     <copy todir="${javadoc.home}">
       <fileset dir="src/java" includes="**/*.png"/>
