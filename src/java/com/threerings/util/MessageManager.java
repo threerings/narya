@@ -82,6 +82,17 @@ public class MessageManager
     }
 
     /**
+     * Get the locale that is being used to translate messages.
+     * This may be useful if using standard translations, for example
+     * new SimpleDateFormat("EEEE", getLocale()) to get the name of a weekday
+     * that matches the language being used for all other client translations.
+     */
+    public Locale getLocale ()
+    {
+        return _locale;
+    }
+
+    /**
      * Sets the locale to the specified locale. Subsequent message bundles
      * fetched via the message manager will use the new locale. The
      * message bundle cache will also be cleared.
