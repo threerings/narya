@@ -71,15 +71,15 @@ public class Name extends SimpleStreamableObject
      */
     public boolean isValid ()
     {
-        return !blank();
+        return !isBlank();
     }
 
     /**
      * Returns true if this name is blank, false if it contains data.
      */
-    public boolean blank ()
+    public boolean isBlank ()
     {
-        return blank(this);
+        return isBlank(this);
     }
 
     /**
@@ -125,7 +125,7 @@ public class Name extends SimpleStreamableObject
      * Returns true if this name is null or blank, false if it contains
      * useful data. This works on derived classes as well.
      */
-    public static boolean blank (Name name)
+    public static boolean isBlank (Name name)
     {
         return (name == null || name.toString().equals(BLANK.toString()));
     }
