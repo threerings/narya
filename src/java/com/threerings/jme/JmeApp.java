@@ -460,7 +460,7 @@ public class JmeApp
     {
         String cfgdir = ".narya";
         String home = System.getProperty("user.home");
-        if (!StringUtil.blank(home)) {
+        if (!StringUtil.isBlank(home)) {
             cfgdir = home + File.separator + cfgdir;
         }
         // create the configuration directory if it does not already exist

@@ -307,13 +307,13 @@ public class GenDObjectTask extends Task
             }
             if (fsection.length() > 0) {
                 String prev = get(lines, nstart-1);
-                if (!StringUtil.blank(prev) && !prev.equals("{")) {
+                if (!StringUtil.isBlank(prev) && !prev.equals("{")) {
                     bout.newLine();
                 }
                 writeln(bout, "    " + FIELDS_START);
                 bout.write(fsection.toString());
                 writeln(bout, "    " + FIELDS_END);
-                if (!StringUtil.blank(get(lines, nend))) {
+                if (!StringUtil.isBlank(get(lines, nend))) {
                     bout.newLine();
                 }
             }
@@ -322,14 +322,14 @@ public class GenDObjectTask extends Task
             }
 
             if (msection.length() > 0) {
-                if (!StringUtil.blank(get(lines, mstart-1))) {
+                if (!StringUtil.isBlank(get(lines, mstart-1))) {
                     bout.newLine();
                 }
                 writeln(bout, "    " + METHODS_START);
                 bout.write(msection.toString());
                 writeln(bout, "    " + METHODS_END);
                 String next = get(lines, mend);
-                if (!StringUtil.blank(next) && !next.equals("}")) {
+                if (!StringUtil.isBlank(next) && !next.equals("}")) {
                     bout.newLine();
                 }
             }

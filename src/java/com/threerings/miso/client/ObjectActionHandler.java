@@ -1,5 +1,5 @@
 //
-// $Id: ObjectActionHandler.java,v 1.3 2004/08/27 02:20:06 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -89,7 +89,7 @@ public class ObjectActionHandler
      */
     public static String getType (String command)
     {
-        int cidx = StringUtil.blank(command) ? -1 : command.indexOf(':');
+        int cidx = StringUtil.isBlank(command) ? -1 : command.indexOf(':');
         return (cidx == -1) ? "" : command.substring(0, cidx);
     }
 
@@ -99,7 +99,7 @@ public class ObjectActionHandler
      */
     public static String getAction (String command)
     {
-        int cidx = StringUtil.blank(command) ? -1 : command.indexOf(':');
+        int cidx = StringUtil.isBlank(command) ? -1 : command.indexOf(':');
         return (cidx == -1) ? command : command.substring(cidx+1);
     }
 

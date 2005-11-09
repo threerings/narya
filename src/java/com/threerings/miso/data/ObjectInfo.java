@@ -127,7 +127,7 @@ public class ObjectInfo extends SimpleStreamableObject
      */
     public boolean isInteresting ()
     {
-        return (!StringUtil.blank(action) || priority != 0 ||
+        return (!StringUtil.isBlank(action) || priority != 0 ||
                 sx != 0 || sy != 0 || zations != 0);
     }
 

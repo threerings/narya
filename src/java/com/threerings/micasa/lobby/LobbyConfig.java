@@ -94,7 +94,7 @@ public class LobbyConfig extends PlaceConfig
         throws Exception
     {
         String value = config.getProperty(key);
-        if (StringUtil.blank(value)) {
+        if (StringUtil.isBlank(value)) {
             throw new Exception("Missing '" + key + "' definition in " +
                                 "lobby configuration.");
         }

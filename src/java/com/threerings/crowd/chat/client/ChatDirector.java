@@ -422,7 +422,7 @@ public class ChatDirector extends BasicDirector
 
         // if not a command then just speak
         String message = text.trim();
-        if (StringUtil.blank(message)) {
+        if (StringUtil.isBlank(message)) {
             // report silent failure for now
             return ChatCodes.SUCCESS;
         }
@@ -673,7 +673,7 @@ public class ChatDirector extends BasicDirector
                     // note whether or not we have an auto-response
                     BodyObject self = (BodyObject)
                         _ctx.getClient().getClientObject();
-                    if (!StringUtil.blank(self.awayMessage)) {
+                    if (!StringUtil.isBlank(self.awayMessage)) {
                         autoResponse = self.awayMessage;
                     }
                 }
@@ -1090,7 +1090,7 @@ public class ChatDirector extends BasicDirector
             String hcmd = "";
 
             // grab the command they want help on
-            if (!StringUtil.blank(args)) {
+            if (!StringUtil.isBlank(args)) {
                 hcmd = args;
                 int sidx = args.indexOf(" ");
                 if (sidx != -1) {
@@ -1150,7 +1150,7 @@ public class ChatDirector extends BasicDirector
         public String handleCommand (
             SpeakService speakSvc, String command, String args, String[] history)
         {
-            if (StringUtil.blank(args)) {
+            if (StringUtil.isBlank(args)) {
                 return "m.usage_speak";
             }
             // note the command to be stored in the history
@@ -1165,7 +1165,7 @@ public class ChatDirector extends BasicDirector
         public String handleCommand (
             SpeakService speakSvc, String command, String args, String[] history)
         {
-            if (StringUtil.blank(args)) {
+            if (StringUtil.isBlank(args)) {
                 return "m.usage_emote";
             }
             // note the command to be stored in the history
@@ -1180,7 +1180,7 @@ public class ChatDirector extends BasicDirector
         public String handleCommand (
             SpeakService speakSvc, String command, String args, String[] history)
         {
-            if (StringUtil.blank(args)) {
+            if (StringUtil.isBlank(args)) {
                 return "m.usage_think";
             }
             // note the command to be stored in the history

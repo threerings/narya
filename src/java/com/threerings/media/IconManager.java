@@ -117,12 +117,12 @@ public class IconManager
             // load it up if not
             if (set == null) {
                 String path = _config.getProperty(iconSet + PATH_SUFFIX);
-                if (StringUtil.blank(path)) {
+                if (StringUtil.isBlank(path)) {
                     throw new Exception("No path specified for icon set");
                 }
 
                 String metstr = _config.getProperty(iconSet + METRICS_SUFFIX);
-                if (StringUtil.blank(metstr)) {
+                if (StringUtil.isBlank(metstr)) {
                     throw new Exception("No metrics specified for icon set");
                 }
 

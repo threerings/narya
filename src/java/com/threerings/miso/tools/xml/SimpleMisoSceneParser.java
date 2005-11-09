@@ -1,5 +1,5 @@
 //
-// $Id: SimpleMisoSceneParser.java,v 1.3 2004/08/27 02:20:09 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -49,7 +49,7 @@ public class SimpleMisoSceneParser
         SimpleMisoSceneRuleSet set = new SimpleMisoSceneRuleSet();
 
         // configure our top-level path prefix
-        if (StringUtil.blank(prefix)) {
+        if (StringUtil.isBlank(prefix)) {
             _prefix = set.getOuterElement();
         } else {
             _prefix = prefix + "/" + set.getOuterElement();

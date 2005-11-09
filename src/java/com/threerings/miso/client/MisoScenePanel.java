@@ -1033,7 +1033,7 @@ public class MisoScenePanel extends VirtualMediaPanel
             String action = scobj.info.action;
 
             // if the object has no action, skip it
-            if (StringUtil.blank(action)) {
+            if (StringUtil.isBlank(action)) {
                 continue;
             }
 
@@ -1165,7 +1165,7 @@ public class MisoScenePanel extends VirtualMediaPanel
      */
     protected boolean skipHitObject (SceneObject scobj)
     {
-        return StringUtil.blank(scobj.info.action);
+        return StringUtil.isBlank(scobj.info.action);
     }
 
     /**

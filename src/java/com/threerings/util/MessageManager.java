@@ -150,7 +150,7 @@ public class MessageManager
             String mbclass = null;
             try {
                 mbclass = rbundle.getString(MBUNDLE_CLASS_KEY);
-                if (!StringUtil.blank(mbclass)) {
+                if (!StringUtil.isBlank(mbclass)) {
                     bundle = (MessageBundle)
                         Class.forName(mbclass).newInstance();
                 }

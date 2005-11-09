@@ -90,7 +90,7 @@ public class FringeConfigurationParser extends CompiledConfigParser
 
                 for (int ii=0; ii < attrs.getLength(); ii++) {
                     String name = attrs.getLocalName(ii);
-                    if (StringUtil.blank(name)) {
+                    if (StringUtil.isBlank(name)) {
                         name = attrs.getQName(ii);
                     }
                     String value = attrs.getValue(ii);
@@ -139,7 +139,7 @@ public class FringeConfigurationParser extends CompiledConfigParser
 
                 for (int ii=0; ii < attrs.getLength(); ii++) {
                     String name = attrs.getLocalName(ii);
-                    if (StringUtil.blank(name)) {
+                    if (StringUtil.isBlank(name)) {
                         name = attrs.getQName(ii);
                     }
                     String value = attrs.getValue(ii);

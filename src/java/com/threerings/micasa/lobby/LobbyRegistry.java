@@ -135,7 +135,7 @@ public class LobbyRegistry
 
             // get the lobby manager class and UGI
             String cfgClass = props.getProperty("config");
-            if (StringUtil.blank(cfgClass)) {
+            if (StringUtil.isBlank(cfgClass)) {
                 throw new Exception("Missing 'config' definition in " +
                                     "lobby configuration.");
             }

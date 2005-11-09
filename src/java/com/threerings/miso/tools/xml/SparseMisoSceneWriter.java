@@ -1,5 +1,5 @@
 //
-// $Id: SparseMisoSceneWriter.java,v 1.4 2004/08/27 02:20:09 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -102,7 +102,7 @@ public class SparseMisoSceneWriter implements NestableWriter
                 attrs.addAttribute("", "x", "", "", String.valueOf(info.x));
                 attrs.addAttribute("", "y", "", "", String.valueOf(info.y));
 
-                if (!StringUtil.blank(info.action)) {
+                if (!StringUtil.isBlank(info.action)) {
                     attrs.addAttribute("", "action", "", "", info.action);
                 }
                 if (info.priority != 0) {

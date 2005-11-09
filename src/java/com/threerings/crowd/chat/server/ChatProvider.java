@@ -136,7 +136,7 @@ public class ChatProvider
             idle = System.currentTimeMillis() - tobj.statusTime;
         }
         String awayMessage = null;
-        if (!StringUtil.blank(tobj.awayMessage)) {
+        if (!StringUtil.isBlank(tobj.awayMessage)) {
             awayMessage = tobj.awayMessage;
         }
         listener.tellSucceeded(idle, awayMessage);

@@ -98,9 +98,9 @@ public class Handler extends URLStreamHandler
                 try {
                     // if there are query parameters, we need special magic
                     String query = url.getQuery();
-                    if (!StringUtil.blank(query)) {
+                    if (!StringUtil.isBlank(query)) {
                         _stream = getStream(bundle, path, query);
-                    } else if (StringUtil.blank(bundle)) {
+                    } else if (StringUtil.isBlank(bundle)) {
                         _stream = _rmgr.getResource(path);
                     } else {
                         _stream = _rmgr.getResource(bundle, path);
@@ -177,7 +177,7 @@ public class Handler extends URLStreamHandler
         // locate the tile image, then write that subimage back out in PNG
         // format into memory and return an input stream for that
         ImageInputStream stream =
-            StringUtil.blank(bundle) ? _rmgr.getImageResource(path)
+            StringUtil.isBlank(bundle) ? _rmgr.getImageResource(path)
                                      : _rmgr.getImageResource(bundle, path);
         BufferedImage src = ImageIO.read(stream);
         Rectangle trect = GeomUtil.getTile(

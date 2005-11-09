@@ -101,14 +101,14 @@ public abstract class TileSetRuleSet
         boolean valid = true;
 
         // check for the 'name' attribute
-        if (StringUtil.blank(set.getName())) {
+        if (StringUtil.isBlank(set.getName())) {
             Log.warning("Tile set definition missing 'name' attribute " +
                         "[set=" + set + "].");
             valid = false;
         }
 
         // check for an <imagePath> element
-        if (StringUtil.blank(set.getImagePath())) {
+        if (StringUtil.isBlank(set.getImagePath())) {
             Log.warning("Tile set definition missing <imagePath> element " +
                         "[set=" + set + "].");
             valid = false;

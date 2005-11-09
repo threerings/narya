@@ -1,5 +1,5 @@
 //
-// $Id: LobbyManager.java,v 1.8 2004/08/27 02:12:50 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -57,7 +57,7 @@ public class LobbyManager extends PlaceManager
         throws Exception
     {
         String value = config.getProperty(key);
-        if (StringUtil.blank(value)) {
+        if (StringUtil.isBlank(value)) {
             throw new Exception("Missing '" + key + "' definition in " +
                                 "lobby configuration.");
         }

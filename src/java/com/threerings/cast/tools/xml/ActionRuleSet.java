@@ -1,5 +1,5 @@
 //
-// $Id: ActionRuleSet.java,v 1.4 2004/08/27 02:12:28 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -129,7 +129,7 @@ public class ActionRuleSet extends RuleSetBase
      */
     public static String validate (ActionSequence seq)
     {
-        if (StringUtil.blank(seq.name)) {
+        if (StringUtil.isBlank(seq.name)) {
             return "Missing 'name' definition.";
         }
         if (seq.framesPerSecond == 0) {

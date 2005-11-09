@@ -548,7 +548,7 @@ public class SoundManager
      */
     protected boolean isTesting ()
     {
-        return !StringUtil.blank(_testDir.getValue());
+        return !StringUtil.isBlank(_testDir.getValue());
     }
 
     /**
@@ -608,7 +608,7 @@ public class SoundManager
     protected InputStream getTestClip (SoundKey key)
     {
         String testDirectory = _testDir.getValue();
-        if (StringUtil.blank(testDirectory)) {
+        if (StringUtil.isBlank(testDirectory)) {
             return null;
         }
 

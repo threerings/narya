@@ -179,7 +179,7 @@ public class ImageManager
     public BufferedImage getImage (String rset, String path,
                                    Colorization[] zations)
     {
-        if (StringUtil.blank(path)) {
+        if (StringUtil.isBlank(path)) {
             String errmsg = "Invalid image path [rset=" + rset +
                 ", path=" + path + "]";
             throw new IllegalArgumentException(errmsg);

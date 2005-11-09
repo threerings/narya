@@ -264,7 +264,7 @@ public class ConfObjRegistry
 
                     // don't freak out if the conf is blank.
                     String value = config.getValue(key, "");
-                    if (StringUtil.blank(value)) {
+                    if (StringUtil.isBlank(value)) {
                         return;
                     }
 

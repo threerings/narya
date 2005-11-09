@@ -142,7 +142,7 @@ public class ObjectEditorDialog extends JInternalFrame
 
     protected Object[] computeZations (String[] zations, int index)
     {
-        if (zations.length <= index || StringUtil.blank(zations[index])) {
+        if (zations.length <= index || StringUtil.isBlank(zations[index])) {
             return null;
         }
         ColorPository cpos = _ctx.getColorPository();
