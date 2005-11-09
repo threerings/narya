@@ -45,10 +45,10 @@ public abstract class CameraPath
     {
     }
 
-    protected CameraPath (Camera camera)
+    protected CameraPath (CameraHandler camhand)
     {
-        _camera = camera;
+        _camhand = camhand;
     }
 
-    protected Camera _camera;
+    protected CameraHandler _camhand;
 }

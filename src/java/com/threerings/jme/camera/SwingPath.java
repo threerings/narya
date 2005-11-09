@@ -22,7 +22,6 @@
 package com.threerings.jme.camera;
 
 import com.jme.math.FastMath;
-import com.jme.math.Matrix3f;
 import com.jme.math.Vector3f;
 import com.jme.renderer.Camera;
 
@@ -48,10 +47,10 @@ public class SwingPath extends CameraPath
      * @param zoom the distance to zoom along the camera's view axis (negative
      * = in, positive = out).
      */
-    public SwingPath (Camera camera, Vector3f spot, Vector3f axis,
+    public SwingPath (CameraHandler camhand, Vector3f spot, Vector3f axis,
                       float angle, float angvel, float zoom)
     {
-        super(camera);
+        super(camhand);
 
         if (angle == 0) {
             Log.warning("Requested to swing camera through zero degrees " +
@@ -97,25 +96,8 @@ public class SwingPath extends CameraPath
             done = true;
         }
 
-        // get a vector from the camera's position to the point around which
-        // we're going to orbit
-        Vector3f camloc = _camera.getLocation();
-        Vector3f direction = camloc.subtract(_spot);
-
-        // create a rotation matrix
-        _rotm.fromAxisAngle(_axis, deltaAngle);
-
-        // rotate the center to camera vector and the camera itself
-        _rotm.mult(direction, direction);
-        _rotm.mult(_camera.getUp(), _camera.getUp());
-        _rotm.mult(_camera.getLeft(), _camera.getLeft());
-        _rotm.mult(_camera.getDirection(), _camera.getDirection());
-
-        // and move the camera to its new location (accounting for the zoom)
-        float scale = 1 + (deltaZoom / direction.length());
-        direction.scaleAdd(scale, _spot);
-        _camera.setLocation(direction);
-        _camera.update();
+        // have the camera handler do the necessary rotating and zooming
+        _camhand.rotateCamera(_spot, _axis, deltaAngle, deltaZoom);
 
         return done;
     }
@@ -123,5 +105,4 @@ public class SwingPath extends CameraPath
     protected Vector3f _spot, _axis;
     protected float _angle, _angvel, _rotated;
     protected float _zoom, _zoomvel, _zoomed;
-    protected Matrix3f _rotm = new Matrix3f();
 }

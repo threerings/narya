@@ -51,8 +51,7 @@ import com.jme.light.PointLight;
 import com.jme.math.Vector3f;
 import com.jme.util.Timer;
 
-import com.threerings.jme.camera.CameraPath;
-import com.threerings.jme.camera.GodViewHandler;
+import com.threerings.jme.camera.CameraHandler;
 
 /**
  * Defines a basic application framework providing integration with the
@@ -182,27 +181,6 @@ public class JmeApp
     }
 
     /**
-     * Starts the camera moving along a path which will be updated every tick
-     * until it is complete.
-     */
-    public void moveCamera (CameraPath path)
-    {
-        if (_campath != null) {
-            _campath.abort();
-        }
-        _campath = path;
-    }
-
-    /**
-     * Returns true if the camera is currently animating along a path, false if
-     * it is not.
-     */
-    public boolean cameraIsMoving ()
-    {
-        return (_campath != null);
-    }
-
-    /**
      * Instructs the application to stop the main loop, cleanup and exit.
      */
     public void stop ()
@@ -293,16 +271,26 @@ public class JmeApp
      */
     protected void initInput ()
     {
-        _input = createInputHandler(_camera, _properties.getRenderer());
+        _camhand = createCameraHandler(_camera);
+        _input = createInputHandler(_camhand, _properties.getRenderer());
     }
 
     /**
-     * Creates the input handler used to control our camera and manage
-     * non-UI keyboard input.
+     * Creates the camera handler which provides various camera manipulation
+     * functionality.
      */
-    protected InputHandler createInputHandler (Camera camera, String api)
+    protected CameraHandler createCameraHandler (Camera camera)
     {
-        return new GodViewHandler(camera, api);
+        return new CameraHandler(camera);
+    }
+
+    /**
+     * Creates the input handler used to control our camera and manage non-UI
+     * keyboard input.
+     */
+    protected InputHandler createInputHandler (CameraHandler camhand, String api)
+    {
+        return new InputHandler();
     }
 
     /**
@@ -416,12 +404,8 @@ public class JmeApp
         float timePerFrame = _timer.getTimePerFrame();
         _root.updateGeometricState(timePerFrame, true);
 
-        // if there's a camera path, update that as well
-        if (_campath != null) {
-            if (_campath.tick(timePerFrame)) {
-                _campath = null;
-            }
-        }
+        // update the camera handler
+        _camhand.update(timePerFrame);
 
         // update our stats display if we have one
         if (_stats != null) {
@@ -538,7 +522,7 @@ public class JmeApp
     protected PropertiesIO _properties;
     protected DisplaySystem _display;
     protected Camera _camera;
-    protected CameraPath _campath;
+    protected CameraHandler _camhand;
 
     protected InputHandler _input;
     protected BRootNode _rnode;
