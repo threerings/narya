@@ -1,7 +1,7 @@
 //
 // $Id$
 
-package com.threerings.jme.input;
+package com.threerings.jme.camera;
 
 import com.jme.math.FastMath;
 import com.jme.math.Matrix3f;

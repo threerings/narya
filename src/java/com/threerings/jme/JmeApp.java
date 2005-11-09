@@ -51,7 +51,8 @@ import com.jme.light.PointLight;
 import com.jme.math.Vector3f;
 import com.jme.util.Timer;
 
-import com.threerings.jme.input.GodViewHandler;
+import com.threerings.jme.camera.CameraPath;
+import com.threerings.jme.camera.GodViewHandler;
 
 /**
  * Defines a basic application framework providing integration with the
@@ -178,6 +179,27 @@ public class JmeApp
         } finally {
             exit();
         }
+    }
+
+    /**
+     * Starts the camera moving along a path which will be updated every tick
+     * until it is complete.
+     */
+    public void moveCamera (CameraPath path)
+    {
+        if (_campath != null) {
+            _campath.abort();
+        }
+        _campath = path;
+    }
+
+    /**
+     * Returns true if the camera is currently animating along a path, false if
+     * it is not.
+     */
+    public boolean cameraIsMoving ()
+    {
+        return (_campath != null);
     }
 
     /**
@@ -394,6 +416,13 @@ public class JmeApp
         float timePerFrame = _timer.getTimePerFrame();
         _root.updateGeometricState(timePerFrame, true);
 
+        // if there's a camera path, update that as well
+        if (_campath != null) {
+            if (_campath.tick(timePerFrame)) {
+                _campath = null;
+            }
+        }
+
         // update our stats display if we have one
         if (_stats != null) {
             _stats.update(_timer, _display.getRenderer());
@@ -509,6 +538,7 @@ public class JmeApp
     protected PropertiesIO _properties;
     protected DisplaySystem _display;
     protected Camera _camera;
+    protected CameraPath _campath;
 
     protected InputHandler _input;
     protected BRootNode _rnode;
