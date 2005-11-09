@@ -22,12 +22,13 @@
 package com.threerings.jme;
 
 import com.jme.input.InputHandler;
-import com.jme.renderer.Camera;
 import com.jme.renderer.Renderer;
 import com.jme.scene.Node;
 import com.jme.system.DisplaySystem;
 
 import com.jmex.bui.BRootNode;
+
+import com.threerings.jme.camera.CameraHandler;
 
 /**
  * Provides access to the various bits needed by things that operate in
@@ -41,8 +42,8 @@ public interface JmeContext
     /** Returns the renderer being used to draw everything. */
     public Renderer getRenderer ();
 
-    /** Returns the camera being used to view the scene. */
-    public Camera getCamera ();
+    /** Returns the handler for the camera being used to view the scene. */
+    public CameraHandler getCameraHandler ();
 
     /** Returns the main geometry of our scene graph. */
     public Node getGeometry ();

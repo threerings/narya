@@ -494,8 +494,8 @@ public class JmeApp
             return _display.getRenderer();
         }
 
-        public Camera getCamera () {
-            return _camera;
+        public CameraHandler getCameraHandler () {
+            return _camhand;
         }
 
         public Node getGeometry () {

@@ -23,7 +23,6 @@ package com.threerings.jme.client;
 
 import com.jmex.bui.BRootNode;
 import com.jme.input.InputHandler;
-import com.jme.renderer.Camera;
 import com.jme.renderer.Renderer;
 import com.jme.scene.Node;
 import com.jme.system.DisplaySystem;
@@ -42,6 +41,7 @@ import com.threerings.crowd.client.PlaceView;
 import com.threerings.crowd.util.CrowdContext;
 
 import com.threerings.jme.JmeContext;
+import com.threerings.jme.camera.CameraHandler;
 
 /**
  * The Jabber client takes care of instantiating all of the proper
@@ -187,8 +187,8 @@ public class JabberClient
             return _app.getContext().getDisplay();
         }
 
-        public Camera getCamera () {
-            return _app.getContext().getCamera();
+        public CameraHandler getCameraHandler () {
+            return _app.getContext().getCameraHandler();
         }
 
         public Node getGeometry () {
