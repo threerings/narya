@@ -158,6 +158,10 @@ public class ChatView extends BContainer
             displayError("Error: unknown slash command.");
             return false;
 
+        } else if (text.length() == 0) {
+            // no empty banter
+            return false;
+
         } else {
             // request to send this text as a chat message
             _chatdtr.requestSpeak(null, text, ChatCodes.DEFAULT_MODE);
