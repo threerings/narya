@@ -92,11 +92,6 @@ public class JmeCanvasApp extends JmeApp
         return EventQueue.isDispatchThread();
     }
 
-    protected void initInput ()
-    {
-        // can't do GL input with AWT
-    }
-
     /**
      * Initializes our user interface bits.
      */
