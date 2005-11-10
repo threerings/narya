@@ -277,8 +277,8 @@ public class CameraHandler
         // start with the location of the camera moved out into the near
         // frustum plane
         _temp.set(loc);
-        _temp.scaleAdd(_camera.getFrustumNear(), _camera.getDirection(),
-                       loc);
+        _temp.scaleAdd(_camera.getFrustumNear(), _camera.getDirection(), loc);
+
         // then slide it over to a corner of the near frustum rectangle
         _temp.scaleAdd(left, _camera.getLeft(), _temp);
         _temp.scaleAdd(up, _camera.getUp(), _temp);
