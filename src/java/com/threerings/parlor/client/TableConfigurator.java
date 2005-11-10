@@ -42,6 +42,18 @@ public abstract class TableConfigurator
     }
 
     /**
+     * Optionally, you can set a pre-configured TableConfig
+     * that will be used to initialize the display parameters (if possible).
+     * This should be called prior to init().
+     */
+    public void setTableConfig (TableConfig config)
+    {
+        if (config != null) {
+            _config = config;
+        }
+    }
+
+    /**
      * Initialize the TableConfigurator.
      *
      * At the time this is called, the GameConfigurator should have
