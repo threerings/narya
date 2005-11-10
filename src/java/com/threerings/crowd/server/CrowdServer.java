@@ -60,6 +60,9 @@ public class CrowdServer extends PresentsServer
         // configure the dobject manager with our access controller
         omgr.setDefaultAccessController(CrowdObjectAccess.DEFAULT);
 
+        // create our body locator
+        _lookup = createBodyLocator();
+
         // create our place registry
         plreg = createPlaceRegistry(invmgr, omgr);
 
@@ -82,6 +85,21 @@ public class CrowdServer extends PresentsServer
     }
 
     /**
+     * Allow derived instances to create a custom {@link BodyLocator}. If the
+     * system opts not to use {@link BodyObject#username} as a user's visible
+     * name, it will need to provide a custom {@link BodyLocator}.
+     */
+    protected BodyLocator createBodyLocator ()
+    {
+        return new BodyLocator() {
+            public BodyObject get (Name visibleName) {
+                // by default visibleName is username
+                return (BodyObject)clmgr.getClientObject(visibleName);
+            }
+        };
+    }
+
+    /**
      * Enumerates the body objects for all active users on the server.
      * This should only be called from the dobjmgr thread.  The caller had
      * best be certain they know what they're doing, since this should
@@ -93,13 +111,13 @@ public class CrowdServer extends PresentsServer
     }
 
     /**
-     * The server maintains a mapping of username to body object for all
-     * active users on the server. This should only be called from the
-     * dobjmgr thread.
+     * Looks up the {@link BodyObject} for the user with the specified visible
+     * name, returns null if they are not online. This should only be called
+     * from the dobjmgr thread.
      */
-    public static BodyObject lookupBody (Name username)
+    public static BodyObject lookupBody (Name visibleName)
     {
-        return (BodyObject)clmgr.getClientObject(username);
+        return _lookup.get(visibleName);
     }
 
     public static void main (String[] args)
@@ -113,6 +131,20 @@ public class CrowdServer extends PresentsServer
             Log.logStackTrace(e);
         }
     }
+
+    /** An interface that allows server extensions to reconfigure the body
+     * lookup process. See {@link #lookupBody}, {@link #createBodyLocator}. */
+    protected static interface BodyLocator
+    {
+        /** Returns the body object for the user with the specified visible
+         * name, or null if they are not online. This will only be called from
+         * the dobjmgr thread. */
+        public BodyObject get (Name visibleName);
+    }
+
+    /** Used to look up {@link BodyObject} instance for online users. See
+     * {@link #lookupBody}. */
+    protected static BodyLocator _lookup;
 
     /** The config key for our list of invocation provider mappings. */
     protected final static String PROVIDERS_KEY = "providers";

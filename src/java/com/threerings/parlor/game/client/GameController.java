@@ -103,7 +103,7 @@ public abstract class GameController extends PlaceController
         // runnable here that will let the game manager know that we're
         // ready on the next pass through the distributed event loop
         Log.info("Entering game " + _gobj.which() + ".");
-        if (_gobj.getPlayerIndex(bobj.username) != -1) {
+        if (_gobj.getPlayerIndex(bobj.getVisibleName()) != -1) {
             _ctx.getClient().getRunQueue().postRunnable(new Runnable() {
                 public void run () {
                     // finally let the game manager know that we're ready

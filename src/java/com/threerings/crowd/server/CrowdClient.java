@@ -92,7 +92,7 @@ public class CrowdClient extends PresentsClient
 
         // clear our chat history
         if (body != null) {
-            SpeakProvider.clearHistory(body.username);
+            SpeakProvider.clearHistory(body.getVisibleName());
         }
     }
 

@@ -114,7 +114,7 @@ public class TableManager
         // stick the creator into the first non-AI position
         int cpos = (config.ais == null) ? 0 : config.ais.length;
         String error =
-            table.setOccupant(cpos, creator.username, creator.getOid());
+            table.setOccupant(cpos, creator.getVisibleName(), creator.getOid());
         if (error != null) {
             Log.warning("Unable to add creator to position zero of " +
                         "table!? [table=" + table + ", creator=" + creator +
@@ -170,8 +170,8 @@ public class TableManager
         }
 
         // request that the user be added to the table at that position
-        String error =
-            table.setOccupant(position, joiner.username, joiner.getOid());
+        String error = table.setOccupant(
+            position, joiner.getVisibleName(), joiner.getOid());
         // if that failed, report the error
         if (error != null) {
             throw new InvocationException(error);
@@ -215,7 +215,7 @@ public class TableManager
         }
 
         // request that the user be removed from the table
-        if (!table.clearOccupant(leaver.username)) {
+        if (!table.clearOccupant(leaver.getVisibleName())) {
             throw new InvocationException(NOT_AT_TABLE);
         }
 

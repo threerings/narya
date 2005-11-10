@@ -103,8 +103,8 @@ public class ParlorManager
         _invites.put(invite.inviteId, invite);
 
         // deliver an invite notification to the invitee
-        ParlorSender.sendInvite(invitee, invite.inviteId,
-                                inviter.username, config);
+        ParlorSender.sendInvite(
+            invitee, invite.inviteId, inviter.getVisibleName(), config);
 
         // and let the caller know the invite id we assigned
         return invite.inviteId;

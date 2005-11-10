@@ -223,7 +223,7 @@ public class TrickCardGameManagerDelegate extends TurnGameManagerDelegate
         int fromidx = _cgmgr.getPlayerIndex(client);
         if (fromidx == -1) {
             Log.warning("Send request from non-player [username=" +
-                ((BodyObject)client).username + ", cards=" +
+                ((BodyObject)client).who() + ", cards=" +
                 StringUtil.toString(cards) + "].");
             return;
         }
@@ -231,7 +231,7 @@ public class TrickCardGameManagerDelegate extends TurnGameManagerDelegate
         // make sure they have the cards
         if (!_hands[fromidx].containsAll(cards)) {
             Log.warning("Tried to send cards not held [username=" +
-                ((BodyObject)client).username + ", cards=" +
+                ((BodyObject)client).who() + ", cards=" +
                 StringUtil.toString(cards) + "].");
             return;
         }
@@ -268,7 +268,7 @@ public class TrickCardGameManagerDelegate extends TurnGameManagerDelegate
         }
         
         // make sure it's their turn
-        Name username = ((BodyObject)client).username;
+        Name username = ((BodyObject)client).getVisibleName();
         if (!username.equals(_trickCardGame.getTurnHolder())) {
             return;
         }
@@ -334,7 +334,7 @@ public class TrickCardGameManagerDelegate extends TurnGameManagerDelegate
         // make sure the game is over
         if (_cardGame.state != CardGameObject.GAME_OVER) {
             Log.warning("Tried to request rematch when game wasn't over " +
-                "[username=" + ((BodyObject)client).username + "].");
+                "[username=" + ((BodyObject)client).who() + "].");
             return;
         }
         
@@ -342,7 +342,7 @@ public class TrickCardGameManagerDelegate extends TurnGameManagerDelegate
         int pidx = _cgmgr.getPlayerIndex(client);
         if (pidx == -1) {
             Log.warning("Rematch request from non-player [username=" +
-                ((BodyObject)client).username + "].");
+                ((BodyObject)client).who() + "].");
             return;
         }
         
@@ -350,7 +350,7 @@ public class TrickCardGameManagerDelegate extends TurnGameManagerDelegate
         if (_trickCardGame.getRematchRequests()[pidx] !=
             TrickCardGameObject.NO_REQUEST) {
             Log.warning("Repeated rematch request [username=" +
-                ((BodyObject)client).username + "].");
+                ((BodyObject)client).who() + "].");
             return;
         }
         

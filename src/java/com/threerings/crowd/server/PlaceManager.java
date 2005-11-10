@@ -408,9 +408,9 @@ public class PlaceManager
      */
     protected void populateOccupantInfo (OccupantInfo info, BodyObject body)
     {
-        // the base occupant info is only their username
+        // the base occupant info is only their name and connection status
         info.bodyOid = new Integer(body.getOid());
-        info.username = body.username;
+        info.username = body.getVisibleName();
         info.status = body.status;
     }
 

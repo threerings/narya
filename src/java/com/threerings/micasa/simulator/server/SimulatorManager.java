@@ -104,7 +104,7 @@ public class SimulatorManager
 
                 // configure the game config with the player names
                 config.players = new Name[_playerCount];
-                config.players[0] = _source.username;
+                config.players[0] = _source.getVisibleName();
                 for (int ii = 1; ii < _playerCount; ii++) {
                     config.players[ii] = new Name("simulant" + ii);
                 }

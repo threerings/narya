@@ -177,7 +177,9 @@ public class ParlorProvider
 
         try {
             // just this fellow will be playing
-            config.players = new Name[] { user.username };
+            if (config.players == null || config.players.length == 0) {
+                config.players = new Name[] { user.getVisibleName() };
+            }
 
             // create the game manager and begin its initialization
             // process

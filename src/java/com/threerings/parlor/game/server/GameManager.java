@@ -1062,7 +1062,7 @@ public class GameManager extends PlaceManager
         BodyObject plobj = (BodyObject)caller;
 
         // get the user's player index
-        int pidx = _gameobj.getPlayerIndex(plobj.username);
+        int pidx = _gameobj.getPlayerIndex(plobj.getVisibleName());
         if (pidx == -1) {
             // only complain if this is not a party game, since it's
             // perfectly normal to receive a player ready notification

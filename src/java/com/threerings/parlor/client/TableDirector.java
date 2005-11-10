@@ -304,7 +304,7 @@ public class TableDirector extends BasicDirector
         // look for our username in the occupants array
         BodyObject self = (BodyObject)_ctx.getClient().getClientObject();
         for (int i = 0; i < table.occupants.length; i++) {
-            if (self.username.equals(table.occupants[i])) {
+            if (self.getVisibleName().equals(table.occupants[i])) {
                 _ourTable = table;
                 break;
             }

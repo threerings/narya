@@ -51,7 +51,9 @@ public class BodyObject extends ClientObject
     // AUTO-GENERATED: FIELDS END
 
     /**
-     * The username associated with this body object.
+     * The username associated with this body object. This should not be used
+     * directly; in general {@link #getVisibleName} should be used unless you
+     * specifically know that you want the username.
      */
     public Name username;
 
@@ -107,6 +109,15 @@ public class BodyObject extends ClientObject
     public TokenRing getTokens ()
     {
         return EMPTY_TOKENS;
+    }
+
+    /**
+     * Returns the name that should be displayed to other users and used for
+     * the chat system. The default is to use {@link #username}.
+     */
+    public Name getVisibleName ()
+    {
+        return username;
     }
 
     // documentation inherited

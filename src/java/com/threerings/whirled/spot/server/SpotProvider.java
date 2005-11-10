@@ -252,7 +252,7 @@ public class SpotProvider
         }
 
         sendClusterChatMessage(getCallerSceneId(caller), source.getOid(),
-                               source.username, null, message, mode);
+                               source.getVisibleName(), null, message, mode);
     }
 
     /**

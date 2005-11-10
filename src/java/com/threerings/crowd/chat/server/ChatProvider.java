@@ -128,7 +128,7 @@ public class ChatProvider
         }
 
         // deliver a tell notification to the target player
-        sendTellMessage(tobj, source.username, null, message);
+        sendTellMessage(tobj, source.getVisibleName(), null, message);
 
         // let the teller know it went ok
         long idle = 0L;
@@ -161,7 +161,7 @@ public class ChatProvider
             throw new InvocationException(errmsg);
         }
 
-        broadcast(body.username, null, message, false);
+        broadcast(body.getVisibleName(), null, message, false);
     }
 
     /**

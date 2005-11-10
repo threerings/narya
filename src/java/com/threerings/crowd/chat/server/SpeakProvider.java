@@ -143,7 +143,7 @@ public class SpeakProvider
 
         } else {
             // issue the speak message on our speak object
-            sendSpeak(_speakObj, source.username, null, message, mode);
+            sendSpeak(_speakObj, source.getVisibleName(), null, message, mode);
         }
     }
 
@@ -312,9 +312,8 @@ public class SpeakProvider
     }
 
     /**
-     * Notes that the specified user was privy to the specified
-     * message. If {@link ChatMessage#timestamp} is not already filled in,
-     * it will be.
+     * Notes that the specified user was privy to the specified message. If
+     * {@link ChatMessage#timestamp} is not already filled in, it will be.
      */
     protected static void noteMessage (Name username, UserMessage msg)
     {
@@ -375,7 +374,7 @@ public class SpeakProvider
         public void apply (int bodyOid) {
             DObject dobj = CrowdServer.omgr.getObject(bodyOid);
             if (dobj != null && dobj instanceof BodyObject) {
-                noteMessage(((BodyObject)dobj).username, message);
+                noteMessage(((BodyObject)dobj).getVisibleName(), message);
             }
         }
 

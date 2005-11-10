@@ -70,7 +70,7 @@ public class TableItem
         _tdtr.addSeatednessObserver(this);
 
         // figure out who we are
-        _self = ((BodyObject)ctx.getClient().getClientObject()).username;
+        _self = ((BodyObject)ctx.getClient().getClientObject()).getVisibleName();
 
         // now create our user interface
     	setBorder(BorderFactory.createLineBorder(Color.black));
