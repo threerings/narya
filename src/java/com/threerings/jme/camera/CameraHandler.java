@@ -23,6 +23,7 @@ package com.threerings.jme.camera;
 
 import com.jme.math.FastMath;
 import com.jme.math.Matrix3f;
+import com.jme.math.Plane;
 import com.jme.math.Vector3f;
 import com.jme.renderer.Camera;
 
@@ -55,13 +56,23 @@ public class CameraHandler
 
     /**
      * Configures limits on the distance the camera can be panned.
+     *
+     * @param boundViaFrustum if true instead of bounding the camera's
+     * position, we will compute the intersections of the view frustum with the
+     * ground plan and bound that rectangle into the specified bounds.
+     * <em>Note:</em> the camera must generally be pointing down at the ground
+     * (up to perhaps 45 degrees or so) for this to work. At higher angles the
+     * back of the view frustum will intersect the ground plane at or near
+     * infinity.
      */
-    public void setPanLimits (float minX, float minY, float maxX, float maxY)
+    public void setPanLimits (float minX, float minY, float maxX, float maxY,
+                              boolean boundViaFrustum)
     {
         _minX = minX;
         _minY = minY;
         _maxX = maxX;
         _maxY = maxY;
+        _boundViaFrustum = boundViaFrustum;
     }
 
     /**
@@ -197,7 +208,7 @@ public class CameraHandler
 
         // if we're rotating around the ground normal, we need to update our
         // notion of side-to-side and forward for panning
-        if (axis == _groundNormal) {
+        if (axis == _ground.normal) {
             _rotm.mult(_rxdir, _rxdir);
             _rotm.mult(_rydir, _rydir);
         }
@@ -215,7 +226,7 @@ public class CameraHandler
      */
     public void orbitCamera (float deltaAngle)
     {
-        rotateCamera(getGroundPoint(), _groundNormal, deltaAngle, 0);
+        rotateCamera(getGroundPoint(), _ground.normal, deltaAngle, 0);
     }
 
     /**
@@ -232,26 +243,67 @@ public class CameraHandler
      */
     public Vector3f getGroundPoint ()
     {
-        float dist = -1f * _groundNormal.dot(_camera.getLocation()) /
-            _groundNormal.dot(_camera.getDirection());
+        float dist = -1f * _ground.normal.dot(_camera.getLocation()) /
+            _ground.normal.dot(_camera.getDirection());
         return _camera.getLocation().add(_camera.getDirection().mult(dist));
     }
 
     /**
      * Returns the ground normal. Z is the default ground plane and the normal
-     * points in the positive z direction.
+     * points in the positive z direction. <em>Do not modify this value.</em>
      */
     public Vector3f getGroundNormal ()
     {
-        return _groundNormal;
+        return _ground.normal;
     }
 
     protected Vector3f bound (Vector3f loc)
     {
-        loc.x = Math.max(Math.min(loc.x, _maxX), _minX);
-        loc.y = Math.max(Math.min(loc.y, _maxY), _minY);
+        if (_boundViaFrustum) {
+            bound(_camera.getFrustumLeft(), _camera.getFrustumTop(), loc);
+            bound(_camera.getFrustumLeft(), _camera.getFrustumBottom(), loc);
+            bound(_camera.getFrustumRight(), _camera.getFrustumTop(), loc);
+            bound(_camera.getFrustumRight(), _camera.getFrustumBottom(), loc);
+        } else {
+            loc.x = Math.max(Math.min(loc.x, _maxX), _minX);
+            loc.y = Math.max(Math.min(loc.y, _maxY), _minY);
+        }
         loc.z = Math.max(Math.min(loc.z, _maxZ), _minZ);
         return loc;
+    }
+
+    protected void bound (float left, float up, Vector3f loc)
+    {
+        // start with the location of the camera moved out into the near
+        // frustum plane
+        _temp.set(loc);
+        _temp.scaleAdd(_camera.getFrustumNear(), _camera.getDirection(),
+                       loc);
+        // then slide it over to a corner of the near frustum rectangle
+        _temp.scaleAdd(left, _camera.getLeft(), _temp);
+        _temp.scaleAdd(up, _camera.getUp(), _temp);
+
+        // turn this into a vector with origin at the camera's location
+        _temp.subtractLocal(loc);
+        _temp.normalizeLocal();
+
+        // determine the intersection of said vector with the ground plane
+        float dist = -1f * _ground.normal.dot(loc) / _ground.normal.dot(_temp);
+        _temp.scaleAdd(dist, _temp, loc);
+
+        // we then assume that if the corner of the "viewable ground rectangle"
+        // is outside our bounds that we can simply adjust the camera location
+        // by the amount it is out of bounds
+        if (_temp.x > _maxX) {
+            loc.x -= (_temp.x - _maxX);
+        } else if (_temp.x < _minX) {
+            loc.x += (_minX - _temp.x);
+        }
+        if (_temp.y > _maxY) {
+            loc.y -= (_temp.y - _maxY);
+        } else if (_temp.y < _minY) {
+            loc.y += (_minY - _temp.y);
+        }
     }
 
     protected Camera _camera;
@@ -259,6 +311,7 @@ public class CameraHandler
     protected Matrix3f _rotm = new Matrix3f();
     protected Vector3f _temp = new Vector3f();
 
+    protected boolean _boundViaFrustum;
     protected float _minX = Float.MIN_VALUE, _maxX = Float.MAX_VALUE;
     protected float _minY = Float.MIN_VALUE, _maxY = Float.MAX_VALUE;
     protected float _minZ = Float.MIN_VALUE, _maxZ = Float.MAX_VALUE;
@@ -270,5 +323,5 @@ public class CameraHandler
     protected static final Vector3f _xdir = new Vector3f(1, 0, 0);
     protected static final Vector3f _ydir = new Vector3f(0, 1, 0);
 
-    protected static final Vector3f _groundNormal = new Vector3f(0, 0, 1);
+    protected static final Plane _ground = new Plane(new Vector3f(0, 0, 1), 0);
 }
