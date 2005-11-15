@@ -116,7 +116,7 @@ public class SceneUpdate
     public void writeObject (ObjectOutputStream out)
         throws IOException
     {
-        if (_nondb) {
+        if (null == _dbSer.get()) {
             out.writeInt(_targetId);
             out.writeInt(_targetVersion);
         }
@@ -129,7 +129,7 @@ public class SceneUpdate
     public void readObject (ObjectInputStream in)
         throws IOException, ClassNotFoundException
     {
-        if (_nondb) {
+        if (null == _dbSer.get()) {
             _targetId = in.readInt();
             _targetVersion = in.readInt();
         }
@@ -145,11 +145,11 @@ public class SceneUpdate
     public void persistTo (ObjectOutputStream out)
         throws IOException
     {
-        _nondb = false;
+        _dbSer.set(Boolean.TRUE);
         try {
             out.writeBareObject(this);
         } finally {
-            _nondb = true;
+            _dbSer.set(null);
         }
     }
 
@@ -160,11 +160,11 @@ public class SceneUpdate
     public void unpersistFrom (ObjectInputStream in)
         throws IOException, ClassNotFoundException
     {
-        _nondb = false;
+        _dbSer.set(Boolean.TRUE);
         try {
             in.readBareObject(this);
         } finally {
-            _nondb = true;
+            _dbSer.set(null);
         }
     }
     
@@ -197,5 +197,5 @@ public class SceneUpdate
     protected transient int _targetVersion;
     
     /** Used when serializing this update for storage in the database. */
-    protected transient boolean _nondb = true;
+    protected static ThreadLocal _dbSer = new ThreadLocal();
 }
