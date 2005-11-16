@@ -48,6 +48,7 @@ public class LineSegmentPath extends Path
         _orient = orient;
         _points = points;
         _durations = durations;
+        PathUtil.computeRotation(up, orient, Vector3f.UNIT_X, _prerot);
         updateRotation();
     }
 
@@ -89,7 +90,8 @@ public class LineSegmentPath extends Path
     protected void updateRotation ()
     {
         _points[_current+1].subtract(_points[_current], _temp);
-        PathUtil.computeRotation(_up, _orient, _temp, _rotate);
+        PathUtil.computeAxisRotation(_up, _temp, _rotate);
+        _rotate.multLocal(_prerot);
         _sprite.getLocalRotation().set(_rotate);
     }
 
@@ -99,5 +101,6 @@ public class LineSegmentPath extends Path
     protected float _accum;
     protected int _current;
     protected Vector3f _temp = new Vector3f(0, 0, 0);
-    protected Quaternion _rotate = new Quaternion();
+    protected Quaternion _prerot = new Quaternion(),
+        _rotate = new Quaternion();
 }

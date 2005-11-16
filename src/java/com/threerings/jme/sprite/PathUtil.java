@@ -44,10 +44,9 @@ public class PathUtil
     {
         _axes[0].set(orient);
         _axes[0].normalizeLocal();
-        _axes[0].cross(up, _axes[1]);
+        up.cross(_axes[0], _axes[1]);
         _axes[1].normalizeLocal();
-        _axes[1].cross(_axes[0], _axes[2]);
-        _axes[2].cross(_axes[0], _axes[1]);
+        _axes[0].cross(_axes[1], _axes[2]);
         target.fromAxes(_axes);
         return target;
     }
