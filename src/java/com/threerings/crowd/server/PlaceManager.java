@@ -267,6 +267,9 @@ public class PlaceManager
 
         // let our derived classes do their thang
         didStartup();
+
+        // since we start empty, we need to immediately assume shutdown
+        checkShutdownInterval();
     }
 
     /**
@@ -499,6 +502,14 @@ public class PlaceManager
 
 //         Log.info("Place became empty " + where() + ".");
 
+        checkShutdownInterval();
+    }
+
+    /**
+     * Called on startup and when the place is empty.
+     */
+    protected void checkShutdownInterval ()
+    {
         // queue up a shutdown interval
         long idlePeriod = idleUnloadPeriod();
         if (idlePeriod > 0L) {
