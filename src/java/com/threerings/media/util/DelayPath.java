@@ -41,6 +41,9 @@ public class DelayPath extends TimedPath
     // documentation inherited
     public boolean tick (Pathable pable, long tickstamp)
     {
+        if (tickstamp >= _startStamp + _duration) {
+            pable.pathCompleted(tickstamp);
+        }
         return false;
     }
 }
