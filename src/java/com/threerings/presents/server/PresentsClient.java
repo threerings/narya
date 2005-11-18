@@ -28,6 +28,7 @@ import java.util.Iterator;
 
 import com.samskivert.util.HashIntMap;
 import com.samskivert.util.Throttle;
+import com.samskivert.util.ResultListener;
 import com.threerings.util.Name;
 
 import com.threerings.presents.Log;
@@ -82,8 +83,13 @@ public class PresentsClient
         /** Called when the new client object has been resolved and the
          * new client object reported to the client, but the old one has
          * not yet been destroyed. Any events delivered on this callback
-         * to the old client object will be delivered. */
-        public void changeReported (ClientObject newObj);
+         * to the old client object will be delivered.
+         *
+         * @param rl when this method is finished with its business and
+         * the old client object can be destroyed, the result listener
+         * should be called.
+         * */
+        public void changeReported (ClientObject newObji, ResultListener rl);
 
         /** Called when the user change is completed, the old client
          * object is destroyed and all updates are committed. */
@@ -184,7 +190,9 @@ public class PresentsClient
     public void setUsername (Name username, final UserChangeListener ucl)
     {
         ClientResolutionListener clr = new ClientResolutionListener() {
-            public void clientResolved (Name username, ClientObject clobj) {
+            public void clientResolved (final Name username,
+                    final ClientObject clobj)
+            {
                 // if they old client object is gone by now, they ended
                 // their session while we were switching, so freak out
                 if (_clobj == null) {
@@ -208,9 +216,25 @@ public class PresentsClient
 
                 // let the caller know that we've got some new business
                 if (ucl != null) {
-                    ucl.changeReported(clobj);
-                }
+                    ucl.changeReported(clobj, new ResultListener() {
+                        public void requestCompleted (Object result) {
+                            finishResolved(username, clobj);
+                        }
 
+                        public void requestFailed (Exception cause) {
+                            finishResolved(username, clobj);
+                        }
+                    });
+                } else {
+                    finishResolved(username, clobj);
+                }
+            }
+
+            /**
+             * Finish the final phase of the switch.
+             */
+            protected void finishResolved (Name username, ClientObject clobj)
+            {
                 // release our old client object; this will destroy it
                 _cmgr.releaseClientObject(_username);
 
