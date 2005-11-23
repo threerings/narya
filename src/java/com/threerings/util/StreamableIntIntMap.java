@@ -1,5 +1,5 @@
 //
-// $Id: StreamableIntIntMap.java,v 1.2 2004/08/27 02:20:36 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -65,11 +65,10 @@ public class StreamableIntIntMap extends IntIntMap
     {
         int ecount = size();
         out.writeInt(ecount);
-        Iterator iter = keys();
-        while (iter.hasNext()) {
-            int key = ((Integer)iter.next()).intValue();
-            out.writeInt(key);
-            out.writeInt(get(key));
+        for (Iterator itr = entrySet().iterator(); itr.hasNext(); ) {
+            Entry entry = (Entry) itr.next();
+            out.writeInt(entry.getIntKey());
+            out.writeInt(entry.getIntValue());
         }
     }
 
