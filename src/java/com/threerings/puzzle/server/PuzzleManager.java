@@ -98,6 +98,16 @@ public abstract class PuzzleManager extends GameManager
     }
 
     /**
+     * Handles the server and client states being out of sync when in
+     * debug mode.  The default implementation halts the server.
+     */
+    protected void handleBoardNotEqual ()
+    {
+        // bail out so that we know something's royally borked
+        System.exit(0);
+    }
+
+    /**
      * Calls {@link BoardSummary#summarize} on the given player's board
      * summary to refresh the summary information in preparation for
      * sending along to the client(s).
@@ -433,8 +443,7 @@ public abstract class PuzzleManager extends GameManager
         }
         if (!equal) {
             if (DEBUG_PUZZLE) {
-                // bail out so that we know something's royally borked
-                System.exit(0);
+                handleBoardNotEqual();
             } else {
                 // dump the board state since we're not debugging and
                 // didn't just do it above
