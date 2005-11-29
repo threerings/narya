@@ -60,6 +60,7 @@ import com.threerings.crowd.chat.data.ChatMessage;
 import com.threerings.crowd.chat.data.SystemMessage;
 import com.threerings.crowd.chat.data.TellFeedbackMessage;
 import com.threerings.crowd.chat.data.UserMessage;
+import com.threerings.crowd.chat.data.UserSystemMessage;
 
 /**
  * The chat director is the client side coordinator of all chat related
@@ -656,17 +657,27 @@ public class ChatDirector extends BasicDirector
             String localtype = getLocalType(event.getTargetOid());
             String message = msg.message;
             String autoResponse = null;
+            Name speaker = null;
+            byte mode = (byte) -1;
 
-            // if the message came from a user, make sure we want to hear it
+            // figure out if the message was triggered by another user
             if (msg instanceof UserMessage) {
                 UserMessage umsg = (UserMessage)msg;
-                Name speaker = umsg.speaker;
+                speaker = umsg.speaker;
+                mode = umsg.mode;
+
+            } else if (msg instanceof UserSystemMessage) {
+                speaker = ((UserSystemMessage) msg).speaker;
+            }
+
+            // if there was an originating speaker, see if we want to hear it
+            if (speaker != null) {
                 if ((message = filter(message, speaker, false)) == null) {
                     return;
                 }
 
                 if (USER_CHAT_TYPE.equals(localtype) &&
-                    umsg.mode == ChatCodes.DEFAULT_MODE) {
+                    mode == ChatCodes.DEFAULT_MODE) {
                     // if it was a tell, add the speaker as a chatter
                     addChatter(speaker);
 
@@ -687,9 +698,8 @@ public class ChatDirector extends BasicDirector
 
             // if we auto-responded, report as much
             if (autoResponse != null) {
-                Name teller = ((UserMessage) msg).speaker;
                 String amsg = MessageBundle.tcompose(
-                    "m.auto_responded", teller, autoResponse);
+                    "m.auto_responded", speaker, autoResponse);
                 displayFeedback(_bundle, amsg);
             }
         }
