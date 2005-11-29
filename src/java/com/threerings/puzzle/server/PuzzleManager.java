@@ -117,6 +117,15 @@ public abstract class PuzzleManager extends GameManager
     {
         super.playerGameDidEnd(pidx);
 
+        updateSummaryOnDeath(pidx);
+    }
+
+    /**
+     * Updates the board summary for a player who has been eliminated and
+     *  performs an update to communicate this change.
+     */
+    protected void updateSummaryOnDeath (int pidx)
+    {
         if (!isAI(pidx)) {
             // update the board summary with the player's final board
             updateBoardSummary(pidx);
