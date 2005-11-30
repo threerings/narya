@@ -264,7 +264,7 @@ public abstract class PuzzleController extends GameController
         generateNewBoard();
 
         // if the game is already in play, start up the action
-        if (_puzobj.state == PuzzleObject.IN_PLAY) {
+        if (_puzobj.isInPlay() && _puzobj.isActivePlayer(_pidx)) {
             startAction();
         }
     }
