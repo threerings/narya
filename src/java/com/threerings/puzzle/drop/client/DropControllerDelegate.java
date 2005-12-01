@@ -288,6 +288,8 @@ public abstract class DropControllerDelegate extends PuzzleControllerDelegate
 
         // update the casted board reference
         _dboard = (DropBoard)board;
+        // and update our self-summary
+        updateSelfSummary();
     }
 
     // documentation inherited
@@ -616,7 +618,7 @@ public abstract class DropControllerDelegate extends PuzzleControllerDelegate
      * than the server-side board from which all other player board
      * summaries originate.
      */
-    protected void updateSelfSummary ()
+    public void updateSelfSummary ()
     {
         int pidx = _ctrl.getPlayerIndex();
         if (pidx != -1 && _puzobj != null && _puzobj.summaries != null) {
