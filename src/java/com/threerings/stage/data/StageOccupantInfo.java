@@ -21,6 +21,7 @@
 
 package com.threerings.stage.data;
 
+import com.threerings.crowd.data.BodyObject;
 import com.threerings.crowd.data.OccupantInfo;
 
 /**
@@ -28,6 +29,17 @@ import com.threerings.crowd.data.OccupantInfo;
  */
 public class StageOccupantInfo extends OccupantInfo
 {
+    /** Creates a new instance for the specified body. */
+    public StageOccupantInfo (BodyObject body)
+    {
+        super(body);
+    }
+
+    /** Creates a blank instance for unserialization. */
+    public StageOccupantInfo ()
+    {
+    }
+
     /**
      * Should return true if the occupant in question is available to be
      * clustered with, false if they are "busy". This means that a user

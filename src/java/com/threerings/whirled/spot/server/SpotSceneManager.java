@@ -172,12 +172,12 @@ public class SpotSceneManager extends SceneManager
     }
 
     // documentation inherited
-    protected void populateOccupantInfo (OccupantInfo info, BodyObject body)
+    protected void insertOccupantInfo (OccupantInfo info, BodyObject body)
     {
-        super.populateOccupantInfo(info, body);
+        super.insertOccupantInfo(info, body);
 
-        // we don't actually populate their occupant info, but instead
-        // assign them their starting location in the scene
+        // we don't actually populate their occupant info, but instead assign
+        // them their starting location in the scene
         int portalId = _enterers.remove(body.getOid());
         Portal entry;
         if (portalId != -1) {

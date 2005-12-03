@@ -120,6 +120,15 @@ public class BodyObject extends ClientObject
         return username;
     }
 
+    /**
+     * Creates a blank occupant info instance that will used to publish
+     * information about the various bodies occupying a place.
+     */
+    public OccupantInfo createOccupantInfo ()
+    {
+        return new OccupantInfo(this);
+    }
+
     // documentation inherited
     public void applyToListeners (ListenerOp op)
     {

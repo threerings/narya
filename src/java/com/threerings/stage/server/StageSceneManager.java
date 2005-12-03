@@ -265,12 +265,6 @@ public class StageSceneManager extends SpotSceneManager
     }
 
     // documentation inherited
-    protected Class getOccupantInfoClass (BodyObject body)
-    {
-        return StageOccupantInfo.class;
-    }
-
-    // documentation inherited
     protected void bodyLeft (int bodyOid)
     {
         super.bodyLeft(bodyOid);

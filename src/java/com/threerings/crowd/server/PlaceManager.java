@@ -343,39 +343,24 @@ public class PlaceManager
     {
         return null;
     }
-    
-    /**
-     * Returns the appropriate derived class of {@link OccupantInfo} that
-     * will be used to provide occupant info for this body. An occupant
-     * info record is created when a body enters a place.
-     *
-     * @param body the body that is entering the place and for whom we are
-     * creating an occupant info record.
-     */
-    protected Class getOccupantInfoClass (BodyObject body)
-    {
-        return OccupantInfo.class;
-    }
 
     /**
-     * Builds an occupant info record for the specified body object and
+     * Builds an {@link OccupantInfo} record for the specified body object and
      * inserts it into our place object. This is called by the location
-     * services when a body enters a place. It should not be overridden by
-     * derived classes, they should override {@link
-     * #populateOccupantInfo}, which is set up for that sort of thing.
+     * services when a body enters a place. If a derived class wishes to
+     * perform custom actions when an occupant is being inserted into a room,
+     * they should override {@link #insertOccupantInfo}, if they want to react
+     * to a body having entered, they should override {@link #bodyEntered}.
      */
     public OccupantInfo buildOccupantInfo (BodyObject body)
     {
         try {
             // create a new occupant info instance
-            OccupantInfo info = (OccupantInfo)
-                getOccupantInfoClass(body).newInstance();
+            OccupantInfo info = body.createOccupantInfo();
 
-            // configure it with the appropriate values
-            populateOccupantInfo(info, body);
-
-            // insert the occupant info into our canonical table
-            _occInfo.put(info.getBodyOid(), info);
+            // insert the occupant info into our canonical table; this is done
+            // in a method so that derived classes
+            insertOccupantInfo(info, body);
 
             // clone the canonical copy and insert it into the DSet
             _plobj.addToOccupantInfo((OccupantInfo)info.clone());
@@ -404,17 +389,14 @@ public class PlaceManager
     }
 
     /**
-     * Derived classes should override this method if they are making use
-     * of a derived occupant info class. They should call the super
-     * implementation and then populate the occupant info fields in their
-     * extended object.
+     * Called when an occupant is being added to this place. This will be
+     * before the call to {@link #bodyEntered} and gives the derived class a
+     * chance to set up additional information about the occupant that might
+     * not be tracked in the occupant info.
      */
-    protected void populateOccupantInfo (OccupantInfo info, BodyObject body)
+    protected void insertOccupantInfo (OccupantInfo info, BodyObject body)
     {
-        // the base occupant info is only their name and connection status
-        info.bodyOid = new Integer(body.getOid());
-        info.username = body.getVisibleName();
-        info.status = body.status;
+        _occInfo.put(info.getBodyOid(), info);
     }
 
     /**

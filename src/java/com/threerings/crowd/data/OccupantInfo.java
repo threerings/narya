@@ -26,18 +26,18 @@ import com.threerings.util.Name;
 
 import com.threerings.presents.dobj.DSet;
 
+import com.threerings.crowd.data.BodyObject;
+
 /**
  * The occupant info object contains all of the information about an
  * occupant of a place that should be shared with other occupants of the
  * place. These objects are stored in the place object itself and are
  * updated when bodies enter and exit a place.
  *
- * <p> A system that builds upon the Crowd framework can extend this class
- * to include extra information about their occupants. They will need to
- * be sure to return the proper class from {@link
- * com.threerings.crowd.server.PlaceManager#getOccupantInfoClass} and
- * populate their occupant info in {@link
- * com.threerings.crowd.server.PlaceManager#populateOccupantInfo}.
+ * <p> A system that builds upon the Crowd framework can extend this class to
+ * include extra information about their occupants. They will need to provide a
+ * derived {@link BodyObject} that creates and configures their occupant info
+ * in {@link BodyObject#createOccupantInfo}.
  *
  * <p> Note also that this class implements {@link Cloneable} which means
  * that if derived classes add non-primitive attributes, they are
@@ -67,6 +67,22 @@ public class OccupantInfo extends SimpleStreamableObject
 
     /** The status of this occupant. */
     public byte status = ACTIVE;
+
+    /**
+     * Creates an occupant info with information from the specified occupant's
+     * body object.
+     */
+    public OccupantInfo (BodyObject body)
+    {
+        bodyOid = new Integer(body.getOid());
+        username = body.getVisibleName();
+        status = body.status;
+    }
+
+    /** A blank constructor used for unserialization. */
+    public OccupantInfo ()
+    {
+    }
 
     /** Access to the body object id as an int. */
     public int getBodyOid ()
