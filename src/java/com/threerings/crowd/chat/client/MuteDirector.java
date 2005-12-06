@@ -23,6 +23,7 @@ package com.threerings.crowd.chat.client;
 
 import java.util.HashSet;
 
+import com.samskivert.util.CollectionUtil;
 import com.samskivert.util.ObserverList;
 
 import com.threerings.util.MessageBundle;
@@ -68,8 +69,17 @@ public class MuteDirector extends BasicDirector
     {
         this(ctx);
 
-        for (int ii=0, nn=list.length; ii < nn; ii++) {
-            _mutelist.add(list[ii]);
+        CollectionUtil.addAll(_mutelist, list);
+    }
+
+    /**
+     * Called to shut down the mute director.
+     */
+    public void shutdown ()
+    {
+        if (_chatdir != null) {
+            _chatdir.removeChatFilter(this);
+            _chatdir = null;
         }
     }
 
