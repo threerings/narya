@@ -122,6 +122,21 @@ public abstract class PuzzleManager extends GameManager
         }
     }
 
+    /**
+     * Applies updateBoardSummary on all the players' boards.  AI board
+     * summaries should be updated by the AI logic. 
+     */
+    public void updateBoardSummaries ()
+    {
+        if (_puzobj.summaries != null) {
+            for (int ii = 0; ii < _puzobj.summaries.length; ii++) {
+                if (!isAI(ii)) {
+                    updateBoardSummary(ii);
+                }
+            }
+        }
+    }
+
     // documentation inherited
     protected void playerGameDidEnd (int pidx)
     {
@@ -286,8 +301,9 @@ public abstract class PuzzleManager extends GameManager
     {
         // if we're a board summary updating kind of puzzle, do that
         if (needsBoardSummaries()) {
-            // they're already modified in-situ, so we just rebroadcast
-            // the latest versions
+            // generate the latest summaries
+            updateBoardSummaries();
+            // then broadcast them to the clients
             _puzobj.setSummaries(_puzobj.summaries);
         }
     }

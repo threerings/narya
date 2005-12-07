@@ -147,8 +147,6 @@ public abstract class DropManagerDelegate extends PuzzleManagerDelegate
      */
     protected void placedBlock (int pidx)
     {
-        // update the player's board levels
-        _puzmgr.updateBoardSummary(pidx);
     }
 
     /** The drop game board for each player. */
