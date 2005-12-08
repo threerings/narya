@@ -45,6 +45,11 @@ public class ArcPath extends TimedPath
      * follow this path. */
     public static final int FINE = 1;
 
+    /** An orientation indicating that the pathable should not be oriented
+     * as it moves along the path.
+     */
+    public static final int NONE = 2;
+
     /**
      * Creates an arc path that will animate a pathable from the specified
      * starting position along an ellipse defined by the supplied
@@ -130,36 +135,39 @@ public class ArcPath extends TimedPath
         // determine where we should be along the path
         computePosition(_center, _xradius, _yradius, angle, _tpos);
 
-        // compute the pathable's new orientation
-        double theta = angle + ((_delta > 0) ? Math.PI/2 : -Math.PI/2);
-        int orient;
-        switch (_orient) {
-        default:
-        case NORMAL:
-            orient = DirectionUtil.getDirection(theta);
-            // adjust it appropriately
-            orient = DirectionUtil.rotateCW(orient, 2*_orientOffset);
-            break;
+        // Skip this if we are not reorienting as we follow the path.
+        if (_orient != NONE) {
+            // compute the pathable's new orientation
+            double theta = angle + ((_delta > 0) ? Math.PI/2 : -Math.PI/2);
+            int orient;
+            switch (_orient) {
+            default:
+            case NORMAL:
+                orient = DirectionUtil.getDirection(theta);
+                // adjust it appropriately
+                orient = DirectionUtil.rotateCW(orient, 2*_orientOffset);
+                break;
+                
+            case FINE:
+                orient = DirectionUtil.getFineDirection(theta);
+                // adjust it appropriately
+                orient = DirectionUtil.rotateCW(orient, _orientOffset);
+                break;
+            }
 
-        case FINE:
-            orient = DirectionUtil.getFineDirection(theta);
-            // adjust it appropriately
-            orient = DirectionUtil.rotateCW(orient, _orientOffset);
-            break;
-        }
-
+            // update the pathable's orientation if it changed
+            if (pable.getOrientation() != orient) {
+                pable.setOrientation(orient);
+                modified = true;
+            }
+        }            
+         
         // update the pathable's location if it moved
         if (pable.getX() != _tpos.x || pable.getY() != _tpos.y) {
             pable.setLocation(_tpos.x, _tpos.y);
             modified = true;
         }
-
-        // update the pathable's orientation if it changed
-        if (pable.getOrientation() != orient) {
-            pable.setOrientation(orient);
-            modified = true;
-        }
-
+                
         // if we completed our path, let the sprite know
         if (angle == _sangle + _delta) {
             pable.pathCompleted(timestamp);
