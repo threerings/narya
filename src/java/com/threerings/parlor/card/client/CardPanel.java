@@ -315,7 +315,9 @@ public abstract class CardPanel extends VirtualMediaPanel
         }
         
         // sort them
-        QuickSort.sort(_handSprites);
+        if (shouldSortHand()) {
+            QuickSort.sort(_handSprites);
+        }
         
         // fade them in at proper locations and layers
         long cardDuration = fadeDuration / size;
@@ -357,7 +359,9 @@ public abstract class CardPanel extends VirtualMediaPanel
     public void showHand (Hand hand)
     {
         // sort the hand
-        QuickSort.sort(hand);
+        if (shouldSortHand()) {
+            QuickSort.sort(hand);
+        }
         
         // set the sprites
         int len = Math.min(_handSprites.size(), hand.size());
@@ -660,6 +664,15 @@ public abstract class CardPanel extends VirtualMediaPanel
     }
     
     /**
+     * Returns whether the user's hand should be sorted when displayed.  By
+     *  default, hands are sorted.
+     */
+    protected boolean shouldSortHand ()
+    {
+        return true;
+    }
+
+    /**
      * Expands or collapses the hand to accommodate new cards or cover the
      * space left by removed cards.  Skips unmanaged sprites.  Clears out
      * any selected cards.
@@ -674,7 +687,9 @@ public abstract class CardPanel extends VirtualMediaPanel
         clearHandSelection();
         
         // Sort the hand
-        QuickSort.sort(_handSprites);
+        if (shouldSortHand()) {
+            QuickSort.sort(_handSprites);
+        }
         
         // Move each card to its proper position (and, optionally, layer)
         int size = _handSprites.size();
