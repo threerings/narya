@@ -1,5 +1,5 @@
 //
-// $Id: LinePath.java,v 1.14 2004/08/27 02:12:47 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -61,6 +61,20 @@ public class LinePath extends TimedPath
     public LinePath (Point dest, long duration)
     {
         this(null, dest, duration);
+    }
+
+    /**
+     * Return a copy of the path, translated by the specified amounts.
+     */
+    public Path getTranslatedInstance (int x, int y)
+    {
+        if (_source == null) {
+            return new LinePath(null, new Point(_dest.x + x, _dest.y + y),
+                _duration);
+        } else {
+            return new LinePath(_source.x + x, _source.y + y, _dest.x + x,
+                _dest.y + y, _duration);
+        }
     }
 
     // documentation inherited

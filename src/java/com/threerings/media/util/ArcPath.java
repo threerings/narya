@@ -1,5 +1,5 @@
 //
-// $Id: ArcPath.java,v 1.5 2004/08/27 02:12:47 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -79,6 +79,20 @@ public class ArcPath extends TimedPath
         _center = new Point(
             (int)(start.x - Math.round(Math.cos(sangle) * xradius)),
             (int)(start.y - Math.round(Math.sin(sangle) * yradius)));
+    }
+
+    /**
+     * Return a copy of the path, translated by the specified amounts.
+     */
+    public Path getTranslatedInstance (int x, int y)
+    {
+        int startx =
+            (int)(_center.x + Math.round(Math.cos(_sangle) * _xradius));
+        int starty =
+            (int)(_center.y + Math.round(Math.sin(_sangle) * _yradius));
+
+        return new ArcPath(new Point (startx + x, starty + y),
+            _xradius, _yradius, _sangle, _delta, _duration, _orient);
     }
 
     /**
