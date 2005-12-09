@@ -91,7 +91,7 @@ public class TeamPuzzleObject extends PuzzleObject
             // if this is a valid target and tcount is zero, stop; note
             // that we rely on the short-circuit to only decrement tcount
             // when we're on a valid target
-            if (isValidTarget(pidx, tpidx) && (tcount-- == 0)) {
+            if (isRandomValidTarget(pidx, tpidx) && (tcount-- == 0)) {
                 return tpidx;
             }
             tpidx++;
@@ -112,7 +112,7 @@ public class TeamPuzzleObject extends PuzzleObject
     {
         int count = 0;
         for (int ii = 0; ii < players.length; ii++) {
-            if (isValidTarget(pidx, ii)) {
+            if (isRandomValidTarget(pidx, ii)) {
                 count++;
             }
         }
@@ -131,6 +131,19 @@ public class TeamPuzzleObject extends PuzzleObject
         return (tpidx >= 0 && tpidx < players.length &&
                 pidx != tpidx && isActivePlayer(tpidx) &&
                 teams[pidx] != teams[tpidx]);
+    }
+ 
+    /**
+     * Returns whether one player may target another player on random 
+     * reassignment.
+     *
+     * @param pidx the player index of the player attempting to change
+     * their target player.
+     * @param tpidx the player index of the player being targeted.
+     */
+    protected boolean isRandomValidTarget (int pidx, int tpidx)
+    {
+        return isValidTarget(pidx, tpidx);
     }
 
     // AUTO-GENERATED: METHODS START
