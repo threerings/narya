@@ -46,6 +46,9 @@ public class CharacterSprite extends ImageSprite
         _descrip = descrip;
         _charmgr = charmgr;
 
+        // sanity check our values
+        sanityCheckDescrip();
+
         // assign an arbitrary starting orientation
         _orient = SOUTHWEST;
 
@@ -69,6 +72,9 @@ public class CharacterSprite extends ImageSprite
     {
         // keep the new descriptor
         _descrip = descrip;
+
+        // sanity check our values
+        sanityCheckDescrip();
 
         // update our action frames
         updateActionFrames();
@@ -133,37 +139,6 @@ public class CharacterSprite extends ImageSprite
         updateActionFrames();
     }
 
-    /**
-     * Rebuilds our action frames given our current character descriptor
-     * and action sequence. This is called when either of those two things
-     * changes.
-     */
-    protected void updateActionFrames ()
-    {
-        // get a reference to the action sequence so that we can obtain
-        // our animation frames and configure our frames per second
-        ActionSequence actseq = _charmgr.getActionSequence(_action);
-        if (actseq == null) {
-            String errmsg = "No such action '" + _action + "'.";
-            throw new IllegalArgumentException(errmsg);
-        }
-
-        try {
-            // obtain our animation frames for this action sequence
-            _aframes = _charmgr.getActionFrames(_descrip, _action);
-
-            // clear out our frames so that we recomposite on next tick
-            _frames = null;
-
-            // update the sprite render attributes
-            setFrameRate(actseq.framesPerSecond);
-
-        } catch (NoSuchComponentException nsce) {
-            Log.warning("Character sprite references non-existent " +
-                        "component [sprite=" + this + ", err=" + nsce + "].");
-        }
-    }
-
     // documentation inherited
     public void setOrientation (int orient)
     {
@@ -202,25 +177,27 @@ public class CharacterSprite extends ImageSprite
     }
 
     // documentation inherited
-    protected boolean tickPath (long tickStamp)
+    public void cancelMove ()
     {
-        boolean moved = super.tickPath(tickStamp);
-        // composite our action frames if our path caused them to become
-        // invalid
-        compositeActionFrames();
-        return moved;
+        super.cancelMove();
+        halt();
     }
 
-    /** Called to recomposite our action frames if needed. */
-    protected final void compositeActionFrames ()
+    // documentation inherited
+    public void pathBeginning ()
     {
-        if (_frames == null) {
-            if (_aframes == null) {
-                Log.warning("Have no action frames! " + _aframes + ".");
-            } else {
-                setFrames(_aframes.getFrames(_orient));
-            }
-        }
+        super.pathBeginning();
+
+        // enable walking animation
+        setAnimationMode(TIME_BASED);
+        setActionSequence(getFollowingPathAction());
+    }
+
+    // documentation inherited
+    public void pathCompleted (long timestamp)
+    {
+        super.pathCompleted(timestamp);
+        halt();
     }
 
     // documentation inherited
@@ -252,6 +229,73 @@ public class CharacterSprite extends ImageSprite
      */
     protected void decorateInFront (Graphics2D gfx)
     {
+    }
+
+    /**
+     * Rebuilds our action frames given our current character descriptor
+     * and action sequence. This is called when either of those two things
+     * changes.
+     */
+    protected void updateActionFrames ()
+    {
+        // get a reference to the action sequence so that we can obtain
+        // our animation frames and configure our frames per second
+        ActionSequence actseq = _charmgr.getActionSequence(_action);
+        if (actseq == null) {
+            String errmsg = "No such action '" + _action + "'.";
+            throw new IllegalArgumentException(errmsg);
+        }
+
+        try {
+            // obtain our animation frames for this action sequence
+            _aframes = _charmgr.getActionFrames(_descrip, _action);
+
+            // clear out our frames so that we recomposite on next tick
+            _frames = null;
+
+            // update the sprite render attributes
+            setFrameRate(actseq.framesPerSecond);
+
+        } catch (NoSuchComponentException nsce) {
+            Log.warning("Character sprite references non-existent " +
+                        "component [sprite=" + this + ", err=" + nsce + "].");
+
+        } catch (Exception e) {
+            Log.warning("Failed to obtain action frames [sprite=" + this +
+                        ", descrip=" + _descrip + ", action=" + _action + "].");
+            Log.logStackTrace(e);
+        }
+    }
+
+    /** Called to recomposite our action frames if needed. */
+    protected final void compositeActionFrames ()
+    {
+        if (_frames == null && _aframes != null) {
+            setFrames(_aframes.getFrames(_orient));
+        }
+    }
+
+    /**
+     * Makes it easier to track down problems with bogus character descriptors.
+     */
+    protected void sanityCheckDescrip ()
+    {
+        if (_descrip.getComponentIds() == null ||
+            _descrip.getComponentIds().length == 0) {
+            Log.warning("Invalid character descriptor [sprite=" + this +
+                        ", descrip=" + _descrip + "].");
+            Thread.dumpStack();
+        }
+    }
+
+    // documentation inherited
+    protected boolean tickPath (long tickStamp)
+    {
+        boolean moved = super.tickPath(tickStamp);
+        // composite our action frames if our path caused them to become
+        // invalid
+        compositeActionFrames();
+        return moved;
     }
 
     // documentation inherited
@@ -309,30 +353,6 @@ public class CharacterSprite extends ImageSprite
      */
     protected void unionDecorationBounds (Rectangle bounds)
     {
-    }
-
-    // documentation inherited
-    public void cancelMove ()
-    {
-        super.cancelMove();
-        halt();
-    }
-
-    // documentation inherited
-    public void pathBeginning ()
-    {
-        super.pathBeginning();
-
-        // enable walking animation
-        setAnimationMode(TIME_BASED);
-        setActionSequence(getFollowingPathAction());
-    }
-
-    // documentation inherited
-    public void pathCompleted (long timestamp)
-    {
-        super.pathCompleted(timestamp);
-        halt();
     }
 
     /**

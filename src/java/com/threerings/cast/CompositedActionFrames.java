@@ -62,7 +62,8 @@ public class CompositedActionFrames
         // sanity check
         if (sources == null || sources.length == 0) {
             String errmsg = "Requested to composite invalid set of source " +
-                "frames! [sources=" + StringUtil.toString(sources) + "].";
+                "frames! [action=" + action +
+                ", sources=" + StringUtil.toString(sources) + "].";
             throw new RuntimeException(errmsg);
         }
 
