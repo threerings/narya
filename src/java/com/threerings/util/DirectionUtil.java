@@ -23,6 +23,8 @@ package com.threerings.util;
 
 import java.awt.Point;
 
+import com.samskivert.util.IntListUtil;
+
 /**
  * Direction related utility functions.
  */
@@ -131,6 +133,44 @@ public class DirectionUtil implements DirectionCodes
     public static int getOpposite (int direction)
     {
         return rotateCW(direction, FINE_CW_ROTATE.length/2);
+    }
+
+    /**
+     * Get the direction closest to the specified direction, out of
+     * the directions in the possible list (preferring a clockwise match).
+     */
+    public static int getClosest (int direction, int[] possible)
+    {
+        return getClosest(direction, possible, true);
+    }
+
+    /**
+     * Get the direction closest to the specified direction, out of
+     * the directions in the possible list.
+     *
+     * @param preferCW whether to prefer a clockwise match or a
+     * counter-clockwise match.
+     */
+    public static int getClosest (int direction, int[] possible,
+            boolean preferCW)
+    {
+        // rotate a tick at a time, looking for matches
+        int first = direction;
+        int second = direction;
+        for (int ii = 0; ii <= FINE_DIRECTION_COUNT / 2; ii++) {
+            if (IntListUtil.contains(possible, first)) {
+                return first;
+            }
+
+            if (ii != 0 && IntListUtil.contains(possible, second)) {
+                return second;
+            }
+
+            first = preferCW ? rotateCW(first, 1) : rotateCCW(first, 1);
+            second = preferCW ? rotateCCW(second, 1) : rotateCW(second, 1);
+        }
+
+        return NONE;
     }
 
     /**
