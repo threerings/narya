@@ -214,7 +214,7 @@ public class CharacterManager
      * Returns the action sequence instance with the specified name or
      * null if no such sequence exists.
      */
-    protected ActionSequence getActionSequence (String action)
+    public ActionSequence getActionSequence (String action)
     {
         return (ActionSequence)_actions.get(action);
     }
