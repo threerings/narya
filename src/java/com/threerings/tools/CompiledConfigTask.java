@@ -1,5 +1,5 @@
 //
-// $Id: CompiledConfigTask.java,v 1.3 2004/08/27 02:20:35 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -23,9 +23,15 @@ package com.threerings.tools;
 
 import java.io.File;
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Iterator;
 
 import org.apache.tools.ant.BuildException;
+import org.apache.tools.ant.DirectoryScanner;
 import org.apache.tools.ant.Task;
+import org.apache.tools.ant.types.FileSet;
+
+import com.samskivert.util.FileUtil;
 
 import com.threerings.tools.xml.CompiledConfigParser;
 import com.threerings.util.CompiledConfig;
@@ -51,6 +57,11 @@ public class CompiledConfigTask extends Task
         _target = target;
     }
 
+    public void addFileset (FileSet set)
+    {
+        _filesets.add(set);
+    }
+
     public void execute () throws BuildException
     {
         // instantiate and sanity check the parser class
@@ -64,27 +75,51 @@ public class CompiledConfigTask extends Task
         if (!(pobj instanceof CompiledConfigParser)) {
             throw new BuildException("Invalid parser class: " + _parser);
         }
+        CompiledConfigParser parser = (CompiledConfigParser)pobj;
 
+        // if we have a single file and target specified, do those
+        if (_configdef != null) {
+            parse(parser, _configdef, _target);
+        }
+
+        // deal with the filesets
+        for (Iterator iter = _filesets.iterator(); iter.hasNext(); ) {
+            FileSet fs = (FileSet)iter.next();
+            DirectoryScanner ds = fs.getDirectoryScanner(getProject());
+            File fromDir = fs.getDir(getProject());
+            String[] srcFiles = ds.getIncludedFiles();
+            for (int ii = 0; ii < srcFiles.length; ii++) {
+                File confdef = new File(fromDir, srcFiles[ii]);
+                parse(parser, confdef, null);
+            }
+        }
+    }
+
+    protected void parse (CompiledConfigParser parser, File confdef, File target)
+        throws BuildException
+    {
         // make sure the source file exists
-        if (!_configdef.exists()) {
-            String errmsg = "Config definition file not found " +
-                "[path=" + _configdef.getPath() + "]";
+        if (!confdef.exists()) {
+            String errmsg = "Config definition file not found: " + confdef;
             throw new BuildException(errmsg);
         }
 
-        CompiledConfigParser parser = (CompiledConfigParser)pobj;
-        Serializable config = null;
+        // if no target was specified, resuffix the source file as to .dat
+        if (target == null) {
+            target = new File(FileUtil.resuffix(confdef, ".xml", ".dat"));
+        }
 
+        System.out.println("Compiling " + confdef + "...");
+        Serializable config = null;
         try {
             // parse it on up
-            config = parser.parseConfig(_configdef);
+            config = parser.parseConfig(confdef);
         } catch (Exception e) {
             throw new BuildException("Failure parsing config definition", e);
         }
-
         try {
             // and write it on out
-            CompiledConfig.saveConfig(_target, config);
+            CompiledConfig.saveConfig(target, config);
         } catch (Exception e) {
             throw new BuildException("Failure writing serialized config", e);
         }
@@ -93,4 +128,5 @@ public class CompiledConfigTask extends Task
     protected File _configdef;
     protected File _target;
     protected String _parser;
+    protected ArrayList _filesets = new ArrayList();
 }
