@@ -1,5 +1,5 @@
 //
-// $Id: CompiledConfig.java,v 1.4 2004/08/27 02:20:36 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -29,8 +29,6 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 
-import com.samskivert.io.NestableIOException;
-
 /**
  * Used to load and store compiled configuration data (generally XML files
  * that are parsed into Java object models and then serialized for rapid
@@ -49,7 +47,7 @@ public class CompiledConfig
             return (Serializable)oin.readObject();
         } catch (ClassNotFoundException cnfe) {
             String errmsg = "Unknown config class";
-            throw new NestableIOException(errmsg, cnfe);
+            throw (IOException) new IOException(errmsg).initCause(cnfe);
         }
     }
 

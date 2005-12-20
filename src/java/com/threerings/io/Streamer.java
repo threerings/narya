@@ -34,7 +34,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import com.samskivert.io.NestableIOException;
 import com.samskivert.util.ClassUtil;
 
 import com.threerings.presents.Log;
@@ -149,7 +148,7 @@ public class Streamer
                 }
                 String errmsg = "Failure invoking streamable writer " +
                     "[class=" + _target.getName() + "]";
-                throw new NestableIOException(errmsg, t);
+                throw (IOException) new IOException(errmsg).initCause(t);
             }
             return;
         }
@@ -217,7 +216,7 @@ public class Streamer
                 String errmsg = "Failure writing streamable field " +
                     "[class=" + _target.getName() +
                     ", field=" + field.getName() + "]";
-                throw new NestableIOException(errmsg, e);
+                throw (IOException) new IOException(errmsg).initCause(e);
             }
         }
     }
@@ -254,12 +253,12 @@ public class Streamer
         } catch (InstantiationException ie) {
             String errmsg = "Error instantiating object " +
                 "[type=" + _target.getName() + "]";
-            throw new NestableIOException(errmsg, ie);
+            throw (IOException) new IOException(errmsg).initCause(ie);
 
         } catch (IllegalAccessException iae) {
             String errmsg = "Error instantiating object " +
                 "[type=" + _target.getName() + "]";
-            throw new NestableIOException(errmsg, iae);
+            throw (IOException) new IOException(errmsg).initCause(iae);
         }
     }
 
@@ -296,7 +295,7 @@ public class Streamer
                 }
                 String errmsg = "Failure invoking streamable reader " +
                     "[class=" + _target.getName() + "]";
-                throw new NestableIOException(errmsg, t);
+                throw (IOException) new IOException(errmsg).initCause(t);
             }
             return;
         }
@@ -378,7 +377,7 @@ public class Streamer
                 String errmsg = "Failure reading streamable field " +
                     "[class=" + _target.getName() +
                     ", field=" + field.getName() + "]";
-                throw new NestableIOException(errmsg, e);
+                throw (IOException) new IOException(errmsg).initCause(e);
             }
         }
 

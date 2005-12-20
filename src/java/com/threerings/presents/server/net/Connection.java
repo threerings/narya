@@ -28,8 +28,6 @@ import java.net.InetAddress;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.SocketChannel;
 
-import com.samskivert.io.NestableIOException;
-
 import com.threerings.io.FramedInputStream;
 import com.threerings.io.FramingOutputStream;
 import com.threerings.io.ObjectInputStream;
@@ -288,8 +286,8 @@ public abstract class Connection implements NetEventHandler
                     "and error printing channel [error=" + cnfe + "].");
             }
             // deal with the failure
-            handleFailure(new NestableIOException(
-                              "Unable to decode incoming message.", cnfe));
+            handleFailure((IOException) new IOException(
+                "Unable to decode incoming message.").initCause(cnfe));
 
         } catch (IOException ioe) {
             // don't log a warning for the ever-popular "the client

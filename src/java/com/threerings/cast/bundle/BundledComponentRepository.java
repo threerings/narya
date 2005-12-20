@@ -31,7 +31,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 
-import com.samskivert.io.NestableIOException;
 import com.samskivert.util.HashIntMap;
 import com.samskivert.util.IntIntMap;
 import com.samskivert.util.Tuple;
@@ -141,8 +140,8 @@ public class BundledComponentRepository
             }
 
         } catch (ClassNotFoundException cnfe) {
-            throw new NestableIOException(
-                "Internal error unserializing metadata", cnfe);
+            throw (IOException) new IOException(
+                "Internal error unserializing metadata").initCause(cnfe);
         }
 
         // if we failed to load our classes or actions, create empty

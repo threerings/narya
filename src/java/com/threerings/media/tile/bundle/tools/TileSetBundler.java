@@ -41,7 +41,6 @@ import org.apache.commons.digester.Digester;
 import org.apache.commons.io.CopyUtils;
 import org.xml.sax.SAXException;
 
-import com.samskivert.io.NestableIOException;
 import com.samskivert.io.PersistenceException;
 
 import com.threerings.media.Log;
@@ -158,7 +157,7 @@ public class TileSetBundler
         } catch (SAXException saxe) {
             String errmsg = "Failure parsing bundler config file " +
                 "[file=" + configFile.getPath() + "]";
-            throw new NestableIOException(errmsg, saxe);
+            throw (IOException) new IOException(errmsg).initCause(saxe);
         }
         fin.close();
 
@@ -185,7 +184,7 @@ public class TileSetBundler
             } catch (Exception e) {
                 String errmsg = "Unable to create tileset rule set " +
                     "instance [mapping=" + map + "].";
-                throw new NestableIOException(errmsg, e);
+                throw (IOException) new IOException(errmsg).initCause(e);
             }
         }
     }
@@ -245,7 +244,7 @@ public class TileSetBundler
         } catch (SAXException saxe) {
             String errmsg = "Failure parsing bundle description file " +
                 "[path=" + bundleDesc.getPath() + "]";
-            throw new NestableIOException(errmsg, saxe);
+            throw (IOException) new IOException(errmsg).initCause(saxe);
         } finally {
             fin.close();
         }
@@ -293,7 +292,7 @@ public class TileSetBundler
                 } catch (PersistenceException pe) {
                     String errmsg = "Failure obtaining a tileset id for " +
                         "tileset [set=" + set + "].";
-                    throw new NestableIOException(errmsg, pe);
+                    throw (IOException) new IOException(errmsg).initCause(pe);
                 }
             }
 
@@ -421,8 +420,9 @@ public class TileSetBundler
                             CopyUtils.copy(imgin, jar);
                         }
                     } catch (Exception e) {
-                        throw new NestableIOException(
-                            "Failure bundling image " + ifile + ": " + e, e);
+                        String msg = "Failure bundling image " + ifile +
+                            ": " + e;
+                        throw (IOException) new IOException(msg).initCause(e);
                     }
                 }
             }
@@ -447,7 +447,7 @@ public class TileSetBundler
                 Log.warning("Failed to close botched bundle '" + target + "'.");
             }
             String errmsg = "Failed to create bundle " + target + ": " + e;
-            throw new NestableIOException(errmsg, e);
+            throw (IOException) new IOException(errmsg).initCause(e);
         }
     }
 

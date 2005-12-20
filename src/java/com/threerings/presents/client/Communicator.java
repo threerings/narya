@@ -30,7 +30,6 @@ import java.nio.channels.SocketChannel;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 
-import com.samskivert.io.NestableIOException;
 import com.samskivert.util.LoopingThread;
 import com.samskivert.util.Queue;
 import com.samskivert.util.RuntimeAdjust;
@@ -377,8 +376,8 @@ public class Communicator
             return msg;
 
         } catch (ClassNotFoundException cnfe) {
-            throw new NestableIOException(
-                "Unable to decode incoming message.", cnfe);
+            throw (IOException) new IOException(
+                "Unable to decode incoming message.").initCause(cnfe);
         }
     }
 

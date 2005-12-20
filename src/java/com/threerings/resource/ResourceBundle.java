@@ -32,7 +32,6 @@ import java.util.Enumeration;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
-import com.samskivert.io.NestableIOException;
 import com.samskivert.io.StreamUtil;
 import com.samskivert.util.FileUtil;
 import com.samskivert.util.StringUtil;
@@ -372,11 +371,11 @@ public class ResourceBundle
             return false;
 
         } catch (IOException ioe) {
-            Log.warning("Failure reading jar file '" + _source + "'.");
+            String msg = "Failed to resolve resource bundle jar file '" +
+                _source + "'";
+            Log.warning(msg + ".");
             Log.logStackTrace(ioe);
-            throw new NestableIOException(
-                "Failed to resolve resource bundle jar file '" +
-                _source + "'", ioe);
+            throw (IOException) new IOException(msg).initCause(ioe);
         }
     }
 
