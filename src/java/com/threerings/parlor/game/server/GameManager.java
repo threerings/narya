@@ -315,7 +315,7 @@ public class GameManager extends PlaceManager
         Name name = getPlayerName(playerIdx);
         return (name == null) ? null : CrowdServer.lookupBody(name);
     }
-    
+
     /**
      * Sets the specified player as an AI with the specified
      * configuration. It is assumed that this will be set soon after the
@@ -355,7 +355,7 @@ public class GameManager extends PlaceManager
     }
 
     /**
-     * Returns the player index of the given user in the game, or 
+     * Returns the player index of the given user in the game, or
      * <code>-1</code> if the player is not involved in the game.
      */
     public int getPlayerIndex (Name username)
@@ -431,8 +431,7 @@ public class GameManager extends PlaceManager
         String msgbundle, String msg, boolean waitForStart)
     {
         if (waitForStart &&
-            ((_gameobj == null) ||
-             (_gameobj.state == GameObject.AWAITING_PLAYERS))) {
+            ((_gameobj == null) || (_gameobj.state == GameObject.PRE_GAME))) {
             // queue up the message.
             if (_startmsgs == null) {
                 _startmsgs = new ArrayList();
@@ -609,8 +608,7 @@ public class GameManager extends PlaceManager
     {
         // start up the game if we're not a party game and if we haven't
         // already done so
-        if (!isPartyGame() &&
-            _gameobj.state == GameObject.AWAITING_PLAYERS) {
+        if (!isPartyGame() && _gameobj.state == GameObject.PRE_GAME) {
             startGame();
         }
     }
@@ -624,7 +622,7 @@ public class GameManager extends PlaceManager
     protected void checkForNoShows ()
     {
         // nothing to worry about if we're already started
-        if (_gameobj.state != GameObject.AWAITING_PLAYERS) {
+        if (_gameobj.state != GameObject.PRE_GAME) {
             return;
         }
 
@@ -740,7 +738,7 @@ public class GameManager extends PlaceManager
     {
         // initialize the player status
         _gameobj.setPlayerStatus(new int[getPlayerSlots()]);
-                
+
         // increment the round identifier
         _gameobj.setRoundId(_gameobj.roundId + 1);
 
@@ -750,6 +748,32 @@ public class GameManager extends PlaceManager
                 ((GameManagerDelegate)delegate).gameWillStart();
             }
         });
+    }
+
+    /**
+     * Called when the game state changes. This happens after the attribute
+     * change event has propagated.
+     *
+     * @param state the new game state.
+     * @param oldState the previous game state.
+     */
+    protected void stateDidChange (int state, int oldState)
+    {
+        switch (state) {
+        case GameObject.IN_PLAY:
+            gameDidStart();
+            break;
+
+        case GameObject.CANCELLED:
+            // fall through to GAME_OVER case
+
+        case GameObject.GAME_OVER:
+            // call gameDidEnd() only if the game was previously in play
+            if (oldState == GameObject.IN_PLAY) {
+                gameDidEnd();
+            }
+            break;
+        }
     }
 
     /**
@@ -941,7 +965,7 @@ public class GameManager extends PlaceManager
     {
         return (_gameobj.state == GameObject.GAME_OVER);
     }
-    
+
     /**
      * Called when the game is about to end, but before the game end
      * notification has been delivered to the players.  Derived classes
@@ -984,7 +1008,7 @@ public class GameManager extends PlaceManager
         if (shouldConcludeGame() && winnerCount > 0 && !_gameobj.isDraw()) {
             reportWinnersAndLosers();
         }
-        
+
         // calculate ratings and all that...
     }
 
@@ -1020,7 +1044,7 @@ public class GameManager extends PlaceManager
             }
         }
     }
-    
+
     /**
      * Called when the game is to be reset to its starting state in
      * preparation for a new game without actually ending the current
@@ -1124,22 +1148,8 @@ public class GameManager extends PlaceManager
     public void attributeChanged (AttributeChangedEvent event)
     {
         if (event.getName().equals(GameObject.STATE)) {
-            switch (_committedState = event.getIntValue()) {
-            case GameObject.IN_PLAY:
-                gameDidStart();
-                break;
-
-            case GameObject.CANCELLED:
-                // fall through to GAME_OVER case
-                
-            case GameObject.GAME_OVER:
-                // Call gameDidEnd only if it was actually started
-                if (((Integer)event.getOldValue()).intValue() ==
-                    GameObject.IN_PLAY) {
-                    gameDidEnd();
-                }
-                break;
-            }
+            stateDidChange(_committedState = event.getIntValue(),
+                           ((Integer)event.getOldValue()).intValue());
         }
     }
 

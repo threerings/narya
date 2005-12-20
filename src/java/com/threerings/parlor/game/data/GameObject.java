@@ -67,7 +67,7 @@ public class GameObject extends PlaceObject
 
     /** A game state constant indicating that the game has not yet started
      * and is still awaiting the arrival of all of the players. */
-    public static final int AWAITING_PLAYERS = 0;
+    public static final int PRE_GAME = 0;
 
     /** A game state constant indicating that the game is in play. */
     public static final int IN_PLAY = 1;
@@ -89,9 +89,9 @@ public class GameObject extends PlaceObject
     /** Provides general game invocation services. */
     public GameMarshaller gameService;
 
-    /** The game state, one of {@link #AWAITING_PLAYERS}, {@link #IN_PLAY},
+    /** The game state, one of {@link #PRE_GAME}, {@link #IN_PLAY},
      * {@link #GAME_OVER}, or {@link #CANCELLED}. */
-    public int state;
+    public int state = PRE_GAME;
 
     /** Indicates whether or not this game is rated. */
     public boolean isRated;
