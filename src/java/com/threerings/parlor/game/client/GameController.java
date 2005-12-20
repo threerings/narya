@@ -199,7 +199,7 @@ public abstract class GameController extends PlaceController
     {
         // deal with game state changes
         if (event.getName().equals(GameObject.STATE)) {
-            if (!handleStateChange(event.getIntValue())) {
+            if (!stateDidChange(event.getIntValue())) {
                 Log.warning("Game transitioned to unknown state " +
                             "[gobj=" + _gobj +
                             ", state=" + event.getIntValue() + "].");
@@ -208,12 +208,11 @@ public abstract class GameController extends PlaceController
     }
 
     /**
-     * Derived classes can override this method if they add additional
-     * game states and should handle transitions to those states,
-     * returning true to indicate they were handled and calling super for
-     * the normal game states.
+     * Derived classes can override this method if they add additional game
+     * states and should handle transitions to those states, returning true to
+     * indicate they were handled and calling super for the normal game states.
      */
-    protected boolean handleStateChange (int state)
+    protected boolean stateDidChange (int state)
     {
         switch (state) {
         case GameObject.IN_PLAY:
