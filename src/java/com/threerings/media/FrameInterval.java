@@ -41,6 +41,7 @@ public abstract class FrameInterval
                 _nextTime += _repeatDelay;
             } else {
                 _nextTime = -1;
+                cancel();
             }
             expired();
         }
