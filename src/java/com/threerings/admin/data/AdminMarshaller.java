@@ -47,6 +47,7 @@ public class AdminMarshaller extends InvocationMarshaller
         // documentation inherited from interface
         public void gotConfigInfo (String[] arg1, int[] arg2)
         {
+            _invId = null;
             omgr.postEvent(new InvocationResponseEvent(
                                callerOid, requestId, GOT_CONFIG_INFO,
                                new Object[] { arg1, arg2 }));

@@ -51,6 +51,7 @@ public class ZoneMarshaller extends InvocationMarshaller
         // documentation inherited from interface
         public void moveSucceeded (int arg1, PlaceConfig arg2, ZoneSummary arg3)
         {
+            _invId = null;
             omgr.postEvent(new InvocationResponseEvent(
                                callerOid, requestId, MOVE_SUCCEEDED,
                                new Object[] { new Integer(arg1), arg2, arg3 }));
@@ -63,6 +64,7 @@ public class ZoneMarshaller extends InvocationMarshaller
         // documentation inherited from interface
         public void moveSucceededWithScene (int arg1, PlaceConfig arg2, ZoneSummary arg3, SceneModel arg4)
         {
+            _invId = null;
             omgr.postEvent(new InvocationResponseEvent(
                                callerOid, requestId, MOVE_SUCCEEDED_WITH_SCENE,
                                new Object[] { new Integer(arg1), arg2, arg3, arg4 }));
@@ -75,6 +77,7 @@ public class ZoneMarshaller extends InvocationMarshaller
         // documentation inherited from interface
         public void moveSucceededWithUpdates (int arg1, PlaceConfig arg2, ZoneSummary arg3, SceneUpdate[] arg4)
         {
+            _invId = null;
             omgr.postEvent(new InvocationResponseEvent(
                                callerOid, requestId, MOVE_SUCCEEDED_WITH_UPDATES,
                                new Object[] { new Integer(arg1), arg2, arg3, arg4 }));

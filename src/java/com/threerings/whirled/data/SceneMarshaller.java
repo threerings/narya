@@ -50,6 +50,7 @@ public class SceneMarshaller extends InvocationMarshaller
         // documentation inherited from interface
         public void moveSucceeded (int arg1, PlaceConfig arg2)
         {
+            _invId = null;
             omgr.postEvent(new InvocationResponseEvent(
                                callerOid, requestId, MOVE_SUCCEEDED,
                                new Object[] { new Integer(arg1), arg2 }));
@@ -62,6 +63,7 @@ public class SceneMarshaller extends InvocationMarshaller
         // documentation inherited from interface
         public void moveSucceededWithScene (int arg1, PlaceConfig arg2, SceneModel arg3)
         {
+            _invId = null;
             omgr.postEvent(new InvocationResponseEvent(
                                callerOid, requestId, MOVE_SUCCEEDED_WITH_SCENE,
                                new Object[] { new Integer(arg1), arg2, arg3 }));
@@ -74,6 +76,7 @@ public class SceneMarshaller extends InvocationMarshaller
         // documentation inherited from interface
         public void moveSucceededWithUpdates (int arg1, PlaceConfig arg2, SceneUpdate[] arg3)
         {
+            _invId = null;
             omgr.postEvent(new InvocationResponseEvent(
                                callerOid, requestId, MOVE_SUCCEEDED_WITH_UPDATES,
                                new Object[] { new Integer(arg1), arg2, arg3 }));

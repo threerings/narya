@@ -51,6 +51,7 @@ public class ParlorMarshaller extends InvocationMarshaller
         // documentation inherited from interface
         public void inviteReceived (int arg1)
         {
+            _invId = null;
             omgr.postEvent(new InvocationResponseEvent(
                                callerOid, requestId, INVITE_RECEIVED,
                                new Object[] { new Integer(arg1) }));
@@ -82,6 +83,7 @@ public class ParlorMarshaller extends InvocationMarshaller
         // documentation inherited from interface
         public void tableCreated (int arg1)
         {
+            _invId = null;
             omgr.postEvent(new InvocationResponseEvent(
                                callerOid, requestId, TABLE_CREATED,
                                new Object[] { new Integer(arg1) }));
