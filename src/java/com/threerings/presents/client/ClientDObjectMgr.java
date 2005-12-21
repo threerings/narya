@@ -178,9 +178,9 @@ public class ClientDObjectMgr
      */
     public void run ()
     {
-        // process all of the events on our queue
+        // process the next event on our queue
         Object obj;
-        while ((obj = _actions.getNonBlocking()) != null) {
+        if ((obj = _actions.getNonBlocking()) != null) {
             // do the proper thing depending on the object
             if (obj instanceof BootstrapNotification) {
                 BootstrapData data = ((BootstrapNotification)obj).getData();
