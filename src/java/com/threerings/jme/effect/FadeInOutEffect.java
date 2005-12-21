@@ -30,7 +30,7 @@ import com.jme.scene.state.AlphaState;
 import com.jme.system.DisplaySystem;
 
 /**
- * Fades the screen in to a solid color or out from a solid color.
+ * Fades the screen in from a solid color or out to a solid color.
  */
 public class FadeInOutEffect extends Quad
 {
