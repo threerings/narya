@@ -27,6 +27,7 @@ public class ${name}Marshaller extends InvocationMarshaller
         // documentation inherited from interface
         public void $lm.method.name ($lm.getArgList(false))
         {
+            _invId = null;
             omgr.postEvent(new InvocationResponseEvent(
                                callerOid, requestId, $lm.code,
                                new Object[] { $lm.getWrappedArgList(false) }));

@@ -70,9 +70,19 @@ public class InvocationMarshaller
          * responses. This is only valid on the server. */
         public transient DObjectManager omgr;
 
+        /**
+         * Set an identifier for the invocation that this listener
+         * is used for, so we can report it if we are never responded-to.
+         */
+        public void setInvocationId (String name)
+        {
+            _invId = name;
+        }
+
         // documentation inherited from interface
         public void requestFailed (String cause)
         {
+            _invId = null;
             omgr.postEvent(new InvocationResponseEvent(
                                callerOid, requestId, REQUEST_FAILED_RSPID,
                                new Object[] { cause }));
@@ -103,6 +113,20 @@ public class InvocationMarshaller
             return "[callerOid=" + callerOid + ", reqId=" + requestId +
                 ", type=" + getClass().getName() + "]";
         }
+
+        // documentation inherited
+        protected void finalize ()
+            throws Throwable
+        {
+            if (_invId != null && getClass() != ListenerMarshaller.class) {
+                Log.warning("Invocation listener never responded to: " +
+                    _invId);
+            }
+            super.finalize();
+        }
+
+        /** On the server, the id of the invocation method. */
+        protected transient String _invId; 
     }
 
     /**
@@ -118,6 +142,7 @@ public class InvocationMarshaller
         // documentation inherited from interface
         public void requestProcessed ()
         {
+            _invId = null;
             omgr.postEvent(new InvocationResponseEvent(
                                callerOid, requestId, REQUEST_PROCESSED,
                                null));
@@ -150,6 +175,7 @@ public class InvocationMarshaller
         // documentation inherited from interface
         public void requestProcessed (Object result)
         {
+            _invId = null;
             omgr.postEvent(new InvocationResponseEvent(
                                callerOid, requestId, REQUEST_PROCESSED,
                                new Object[] { result }));

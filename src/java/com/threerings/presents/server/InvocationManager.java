@@ -256,6 +256,10 @@ public class InvocationManager
 
         // dispatch the request
         try {
+            if (rlist != null) {
+                rlist.setInvocationId(StringUtil.shortClassName(disp) +
+                    ", methodId=" + methodId);
+            }
             disp.dispatchRequest(source, methodId, args);
 
         } catch (InvocationException ie) {
