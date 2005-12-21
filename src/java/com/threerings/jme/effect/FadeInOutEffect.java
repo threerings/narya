@@ -1,0 +1,102 @@
+//
+// $Id$
+//
+// Narya library - tools for developing networked games
+// Copyright (C) 2002-2005 Three Rings Design, Inc., All Rights Reserved
+// http://www.threerings.net/code/narya/
+//
+// This library is free software; you can redistribute it and/or modify it
+// under the terms of the GNU Lesser General Public License as published
+// by the Free Software Foundation; either version 2.1 of the License, or
+// (at your option) any later version.
+//
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
+//
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+
+package com.threerings.jme.effect;
+
+import com.jme.math.Vector3f;
+import com.jme.renderer.ColorRGBA;
+import com.jme.renderer.Renderer;
+import com.jme.scene.Geometry;
+import com.jme.scene.shape.Quad;
+import com.jme.scene.state.AlphaState;
+import com.jme.system.DisplaySystem;
+
+/**
+ * Fades the screen in to a solid color or out from a solid color.
+ */
+public class FadeInOutEffect extends Quad
+{
+    public FadeInOutEffect (ColorRGBA color, float startAlpha, float endAlpha,
+                            float duration, boolean overUI)
+    {
+        super("FadeInOut");
+
+        _color = new ColorRGBA(color.r, color.g, color.b, startAlpha);
+        _alpha = startAlpha;
+        _deltaAlpha = (endAlpha-startAlpha);
+        _duration = duration;
+
+        // we need to render in the ortho queue
+        setRenderQueueMode(Renderer.QUEUE_ORTHO);
+
+        // create a quad the size of the screen
+        DisplaySystem ds = DisplaySystem.getDisplaySystem();
+        float width = ds.getWidth(), height = ds.getHeight();
+        initialize(width, height);
+        setLocalTranslation(new Vector3f(width/2, height/2, overUI ? 1f : -1f));
+        setDefaultColor(_color);
+
+        AlphaState astate = ds.getRenderer().createAlphaState();
+        astate.setBlendEnabled(true);
+        astate.setSrcFunction(AlphaState.SB_SRC_ALPHA);
+        astate.setDstFunction(AlphaState.DB_ONE_MINUS_SRC_ALPHA);
+        astate.setEnabled(true);
+        setRenderState(astate);
+
+        updateRenderState();
+    }
+
+    /**
+     * Allows the fade to be paused.
+     */
+    public void setPaused (boolean paused)
+    {
+        _paused = paused;
+    }
+
+    // documentation inherited
+    public void updateGeometricState (float time, boolean initiator)
+    {
+        super.updateGeometricState(time, initiator);
+
+        if (!_paused && _elapsed < _duration) {
+            _elapsed += time;
+            float alpha = (_alpha + _deltaAlpha * _elapsed / _duration);
+            _color.a = Math.min(1f, Math.max(0f, alpha));
+
+            if (_elapsed >= _duration) {
+                fadeComplete();
+            }
+        }
+    }
+
+    /**
+     * Called (only once) when we have reached the end of our fade.
+     */
+    protected void fadeComplete ()
+    {
+    }
+
+    protected ColorRGBA _color;
+    protected float _alpha, _deltaAlpha;
+    protected float _duration, _elapsed;
+    protected boolean _paused;
+}
