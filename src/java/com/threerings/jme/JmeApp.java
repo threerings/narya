@@ -153,6 +153,14 @@ public class JmeApp
     }
 
     /**
+     * Returns true if we are displaying statistics, false if not.
+     */
+    public boolean showingStatistics ()
+    {
+        return (_stats != null);
+    }
+
+    /**
      * Starts up the main rendering and event processing loop. This method
      * will not return until the application is terminated with a call to
      * {@link #stop}.
