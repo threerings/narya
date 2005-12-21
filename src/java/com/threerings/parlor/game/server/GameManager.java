@@ -856,9 +856,7 @@ public class GameManager extends PlaceManager
             // let derived classes do some business
             playerGameDidEnd(pidx);
 
-            String message = MessageBundle.tcompose(
-                "m.player_game_over", getPlayerName(pidx));
-            systemMessage(GAME_MESSAGE_BUNDLE, message);
+            announcePlayerGameOver(pidx);
 
         } finally {
             _gameobj.commitTransaction();
@@ -873,6 +871,16 @@ public class GameManager extends PlaceManager
             // people in his/her room
             reportPlayerKnockedOut(pidx);
         }
+    }
+
+    /**
+     * Announce to everyone in the game that a player's game has ended.
+     */
+    protected void announcePlayerGameOver (int pidx)
+    {
+        String message = MessageBundle.tcompose(
+            "m.player_game_over", getPlayerName(pidx));
+        systemMessage(GAME_MESSAGE_BUNDLE, message);
     }
 
     /**
