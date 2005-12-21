@@ -129,18 +129,26 @@ public class JmeApp
             _root.updateGeometricState(0f, true);
             _root.updateRenderState();
 
-            // create and add our statistics display
-            if (displayStatistics()) {
-                _stats = new StatsDisplay(_display.getRenderer());
-                _stats.updateGeometricState(0f, true);
-                _stats.updateRenderState();
-            }
-
             return true;
 
         } catch (Throwable t) {
             reportInitFailure(t);
             return false;
+        }
+    }
+
+    /**
+     * Configures whether or not we display FPS and other statistics atop the
+     * display.
+     */
+    public void displayStatistics (boolean display)
+    {
+        if (display && (_stats == null)) {
+            _stats = new StatsDisplay(_display.getRenderer());
+            _stats.updateGeometricState(0f, true);
+            _stats.updateRenderState();
+        } else if (!display && (_stats != null)) {
+            _stats = null;
         }
     }
 
@@ -454,15 +462,6 @@ public class JmeApp
             _display.close();
         }
         System.exit(0);
-    }
-
-    /**
-     * If true we'll display some renderer statistics at the bottom of the
-     * screen.
-     */
-    protected boolean displayStatistics ()
-    {
-        return false;
     }
 
     /**
