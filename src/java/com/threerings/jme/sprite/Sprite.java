@@ -67,6 +67,23 @@ public class Sprite extends Node
         }
     }
 
+    /**
+     * Walks down the hierarchy provided setting the animation repeat type on
+     * any controllers found along the way.
+     */
+    public static void setAnimationRepeatType (Spatial spatial, int repeatType)
+    {
+        for (int ii = 0; ii < spatial.getControllers().size(); ii++) {
+            spatial.getController(ii).setRepeatType(repeatType);
+        }
+        if (spatial instanceof Node) {
+            Node node = (Node)spatial;
+            for (int ii = 0; ii < node.getQuantity(); ii++) {
+                setAnimationRepeatType(node.getChild(ii), repeatType);
+            }
+        }
+    }
+    
     public Sprite ()
     {
         super("");
@@ -157,13 +174,21 @@ public class Sprite extends Node
     }
 
     /**
-     * Configures the speed of all controllers in our model hierarchy.
+     * Configures the active state of all controllers in our model hierarchy.
      */
     public void setAnimationActive (boolean active)
     {
         setAnimationActive(this, active);
     }
 
+    /**
+     * Configures the repeat type of all controllers in our model hierarchy.
+     */
+    public void setAnimationRepeatType (int repeatType)
+    {
+        setAnimationRepeatType(this, repeatType);
+    }
+    
     /** Used to dispatch {@link PathObserver#pathCancelled}. */
     protected static class CancelledOp implements ObserverList.ObserverOp
     {
