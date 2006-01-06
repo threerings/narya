@@ -50,7 +50,7 @@ import com.threerings.jme.JmeApp;
 public class JabberApp extends JmeApp
 {
     /** Used to configure our user interface. */
-    public BStyleSheet stylesheet;
+    public static BStyleSheet stylesheet;
 
     // documentation inherited
     public boolean init ()
@@ -147,7 +147,7 @@ public class JabberApp extends JmeApp
 
         // load up the default BUI stylesheet
         try {
-            InputStream stin = getClass().getClassLoader().
+            InputStream stin = JabberApp.class.getClassLoader().
                 getResourceAsStream("rsrc/style.bss");
             stylesheet = new BStyleSheet(
                 new InputStreamReader(stin),
