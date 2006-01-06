@@ -4,7 +4,6 @@
 package com.threerings.jme.client;
 
 import com.jmex.bui.BLabel;
-import com.jmex.bui.BLookAndFeel;
 import com.jmex.bui.BWindow;
 import com.jmex.bui.layout.BorderLayout;
 
@@ -23,7 +22,7 @@ public class JabberView extends BWindow
 {
     public JabberView (CrowdContext ctx)
     {
-        super(BLookAndFeel.getDefaultLookAndFeel(), new BorderLayout());
+        super(JabberApp.stylesheet, new BorderLayout());
 
         _ctx = ctx;
         _jctx = (JmeContext)ctx;

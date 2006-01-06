@@ -21,6 +21,9 @@
 
 package com.threerings.jme.client;
 
+import java.io.InputStream;
+import java.io.InputStreamReader;
+
 import com.jme.bounding.BoundingBox;
 import com.jme.math.FastMath;
 import com.jme.math.Matrix3f;
@@ -29,6 +32,7 @@ import com.jme.renderer.ColorRGBA;
 import com.jme.scene.shape.Box;
 import com.jme.util.LoggingSystem;
 import com.jme.util.geom.BufferUtils;
+import com.jmex.bui.BStyleSheet;
 
 import com.threerings.util.Name;
 
@@ -45,6 +49,9 @@ import com.threerings.jme.JmeApp;
  */
 public class JabberApp extends JmeApp
 {
+    /** Used to configure our user interface. */
+    public BStyleSheet stylesheet;
+
     // documentation inherited
     public boolean init ()
     {
@@ -136,6 +143,18 @@ public class JabberApp extends JmeApp
             } catch (NumberFormatException nfe) {
                 Log.warning("Invalid port specification '" + args[1] + "'.");
             }
+        }
+
+        // load up the default BUI stylesheet
+        try {
+            InputStream stin = getClass().getClassLoader().
+                getResourceAsStream("rsrc/style.bss");
+            stylesheet = new BStyleSheet(
+                new InputStreamReader(stin),
+                new BStyleSheet.DefaultResourceProvider());
+        } catch (Exception e) {
+            e.printStackTrace(System.err);
+            System.exit(-1);
         }
 
         String username = (args.length > 2) ? args[2] : null;
