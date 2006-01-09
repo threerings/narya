@@ -24,6 +24,7 @@ package com.threerings.parlor.card.client;
 import java.awt.AlphaComposite;
 import java.awt.Composite;
 import java.awt.Graphics2D;
+import java.awt.geom.AffineTransform;
 
 import com.threerings.media.image.Mirage;
 import com.threerings.media.sprite.OrientableImageSprite;
@@ -160,6 +161,18 @@ public class CardSprite extends OrientableImageSprite
     {
         return _alphaComposite.getAlpha();
     }
+
+    /**
+     * Flip the card from its current displayed card to the specified card.
+     */
+    public void flip (Card newCard, long duration)
+    {
+        _flipStamp = 0;
+        _flipDuration = duration;
+        _flipCard = newCard;
+
+        _scaleFactor = 1.0;
+    }
     
     /**
      * Fades this sprite in over the specified duration after
@@ -234,6 +247,38 @@ public class CardSprite extends OrientableImageSprite
     public void tick (long tickStamp)
     {
         super.tick(tickStamp);
+
+        // Take care of any flipping we might be doing.
+        if (_flipDuration != -1) {
+            if (_flipStamp == 0) {
+                _flipStamp = tickStamp;
+            }
+
+            long diff = tickStamp - _flipStamp;
+
+            // Set the new scale while we're flipping
+            if (diff < _flipDuration/2) {
+                _scaleFactor = 1.0 - ((float)diff*2)/_flipDuration;
+            } else {
+                // Switch the image to the card we're flipping to.
+                if (_flipCard != null) {
+                    setCard(_flipCard);
+                    _flipCard = null;
+                }
+                _scaleFactor = ((float)diff*2)/_flipDuration - 1.0;
+            }
+
+            // If we're done, stop flipping.
+            if (_scaleFactor > 1.0) {
+                _scaleFactor = 1.0;
+                _flipDuration = -1;
+            }
+
+            // Make sure we flag our location as needing redrawing
+            if (_mgr != null) {
+                _mgr.getRegionManager().invalidateRegion(_bounds);
+            }
+        }
         
         if (_fadeInDuration != -1) {
             if (_path != null && (tickStamp-_pathStamp) <= _fadeInDuration) {
@@ -294,6 +339,14 @@ public class CardSprite extends OrientableImageSprite
     // Documentation inherited.
     public void paint (Graphics2D gfx)
     {
+        // If we are flipping the card, scale it horizontally.
+        AffineTransform otrans = gfx.getTransform();
+        if (_scaleFactor < 1.0) {
+            gfx.translate(getX() + getWidth()/2, 0);
+            gfx.scale(_scaleFactor, 1.0);
+            gfx.translate(-getX() - getWidth()/2, 0);
+        }
+
         if (_alphaComposite.getAlpha() < 1.0f) {
             Composite ocomp = gfx.getComposite();
             gfx.setComposite(_alphaComposite);
@@ -303,6 +356,8 @@ public class CardSprite extends OrientableImageSprite
         } else {
             super.paint(gfx);
         }
+
+        gfx.setTransform(otrans);
     }
     
     /**
@@ -343,6 +398,18 @@ public class CardSprite extends OrientableImageSprite
     /** The alpha composite. */
     protected AlphaComposite _alphaComposite = 
         AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1.0f);
+
+    /** The horizontal scale factor used while flipping the card. */
+    protected double _scaleFactor = 1.0;
+
+    /** If flipping, how long the current flip should take (otherwise -1). */
+    protected long _flipDuration;
+
+    /** The timestamp for when we started flipping the card. */
+    protected long _flipStamp;
+    
+    /** The card which will be revealed when we're done flipping. */
+    protected Card _flipCard;
     
     /** If fading in, the fade-in duration (otherwise -1). */
     protected long _fadeInDuration = -1;
