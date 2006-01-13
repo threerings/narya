@@ -29,8 +29,11 @@ import com.threerings.util.Name;
 
 import com.threerings.presents.dobj.DSet;
 
+import com.threerings.crowd.data.BodyObject;
+
 import com.threerings.parlor.data.ParlorCodes;
 import com.threerings.parlor.game.data.GameConfig;
+import com.threerings.parlor.game.data.PartyGameConfig;
 
 /**
  * This class represents a table that is being used to matchmake a game by
@@ -151,8 +154,8 @@ public class Table
      */
     public Name[] getPlayers ()
     {
-        if (occupants == null) {
-            return null;
+        if (isPartyGame()) {
+            return occupants;
         }
 
         // create and populate the players array
@@ -196,18 +199,39 @@ public class Table
     }
 
     /**
+     * Return true if the game is a party game.
+     */
+    public boolean isPartyGame ()
+    {
+        return (PartyGameConfig.NOT_PARTY_GAME != getPartyGameType());
+    }
+
+    /**
+     * Get the type of party game being played at this table, or
+     * PartyGameConfig.NOT_PARTY_GAME.
+     */
+    public byte getPartyGameType ()
+    {
+        if (config instanceof PartyGameConfig) {
+            return ((PartyGameConfig) config).getPartyGameType();
+
+        } else {
+            return PartyGameConfig.NOT_PARTY_GAME;
+        }
+    }
+
+    /**
      * Requests to seat the specified user at the specified position in
      * this table.
      *
      * @param position the position in which to seat the user.
-     * @param username the username of the user to be set.
-     * @param bodyOid the body object id of the user to be set.
+     * @param occupant the occupant to set.
      *
      * @return null if the user was successfully seated, a string error
      * code explaining the failure if the user was not able to be seated
      * at that position.
      */
-    public String setOccupant (int position, Name username, int bodyOid)
+    public String setOccupant (int position, BodyObject occupant)
     {
         // make sure the requested position is a valid one
         if (position >= tconfig.desiredPlayerCount || position < 0) {
@@ -220,9 +244,19 @@ public class Table
         }
 
         // otherwise all is well, stick 'em in
-        occupants[position] = username;
-        bodyOids[position] = bodyOid;
+        setOccupantPos(position, occupant);
         return null;
+    }
+
+    /**
+     * This method is used for party games, it does no bounds checking
+     * or verification of the player's ability to join, if you are unsure
+     * you should call 'setOccupant'.
+     */
+    public void setOccupantPos (int position, BodyObject occupant)
+    {
+        occupants[position] = occupant.getVisibleName();
+        bodyOids[position] = occupant.getOid();
     }
 
     /**
@@ -264,10 +298,10 @@ public class Table
     }
 
     /**
-     * Internal method used for clearing an occupant once we've located
-     * the right position.
+     * Called to clear an occupant at the specified position.
+     * Only call this method if you know what you're doing.
      */
-    protected void clearOccupantPos (int position)
+    public void clearOccupantPos (int position)
     {
         occupants[position] = null;
         bodyOids[position] = 0;
@@ -325,17 +359,17 @@ public class Table
         return tableId;
     }
 
-    /**
-     * Returns true if this table is equal to the supplied object (which
-     * must be a table with the same table id).
-     */
+    // documentation inherited
     public boolean equals (Object other)
     {
-        if (other != null && other instanceof Table) {
-            return ((Table)other).tableId.equals(tableId);
-        } else {
-            return false;
-        }
+        return (other instanceof Table) &&
+            tableId.equals(((Table) other).tableId);
+    }
+
+    // documentation inherited
+    public int hashCode ()
+    {
+        return tableId.intValue();
     }
 
     /**

@@ -23,17 +23,28 @@ package com.threerings.parlor.game.data;
 
 /**
  * Provides additional information for party games.
+ * A party game is a game in which the players are not set prior to starting,
+ * but players can come and go at will during the normal progression of
+ * the game.
  */
 public interface PartyGameConfig
 {
-    /**
-     * Returns true if this party game is being played in party game mode,
-     * false if it is not.
-     */
-    public boolean isPartyGame ();
+    /** Party game constant indicating that this game, while it does
+     * implement PartyGameConfig, is not currently being played in party
+     * mode. */
+    public static final byte NOT_PARTY_GAME = 0;
+
+    /** Party game constant indicating that we're in a party game in which
+     * players must sit at an available seat to play, otherwise they're
+     * an observer. */
+    public static final byte SEATED_PARTY_GAME = 1;
+
+    /** Party game constant indicating that everyone in the game place is
+     * a "player", meaning that they do not need to claim a seat to play. */
+    public static final byte FREE_FOR_ALL_PARTY_GAME = 2;
 
     /**
-     * Configures this game config as a party game or not.
+     * Get the type of party game being played.
      */
-    public void setPartyGame (boolean isPartyGame);
+    public byte getPartyGameType ();
 }

@@ -107,6 +107,16 @@ public class GameManager extends PlaceManager
     }
 
     /**
+     * Used to determine if this game is a party game.
+     */
+    public boolean isPartyGame ()
+    {
+        return (_gameconfig instanceof PartyGameConfig) &&
+            (((PartyGameConfig)_gameconfig).getPartyGameType() !=
+                PartyGameConfig.NOT_PARTY_GAME);
+    }
+
+    /**
      * Adds the given player to the game at the first available player
      * index.  This should only be called before the game is started, and
      * is most likely to be used to add players to party games.
@@ -1198,15 +1208,6 @@ public class GameManager extends PlaceManager
 
         protected int _pidx;
         protected GameAI _ai;
-    }
-
-    /**
-     * Used to determine if this game is a party game.
-     */
-    protected boolean isPartyGame ()
-    {
-        return ((_gameconfig instanceof PartyGameConfig) &&
-                ((PartyGameConfig)_gameconfig).isPartyGame());
     }
 
     /** A reference to our game config. */

@@ -309,8 +309,9 @@ public abstract class GameController extends PlaceController
      */
     protected boolean isPartyGame ()
     {
-        return ((_config instanceof PartyGameConfig) &&
-                ((PartyGameConfig)_config).isPartyGame());
+        return (_config instanceof PartyGameConfig) &&
+            (((PartyGameConfig)_config).getPartyGameType() !=
+                 PartyGameConfig.NOT_PARTY_GAME);
     }
 
     /** A reference to the active parlor context. */
