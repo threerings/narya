@@ -110,6 +110,20 @@ import com.threerings.util.unsafe.Unsafe;
 public abstract class FrameManager
 {
     /**
+     * Normally, the frame manager will repaint any component in a {@link
+     * JLayeredPane} layer (popups, overlays, etc.) that overlaps a frame
+     * participant on every tick because the frame participant <em>could</em>
+     * have changed underneath the overlay which would require that the overlay
+     * be repainted. If the application knows that the frame participant
+     * beneath the overlay will never change, it can have its overlay implement
+     * this interface and avoid the expense of forcibly fully repainting the
+     * overlay on every frame.
+     */
+    public static interface SafeLayerComponent
+    {
+    }
+
+    /**
      * Creates a frame manager that will use a {@link SystemMediaTimer} to
      * obtain timing information, which is available on every platform,
      * but returns inaccurate time stamps on many platforms.
@@ -601,6 +615,12 @@ public abstract class FrameManager
         Component[] comps = pane.getComponentsInLayer(layer.intValue());
         for (int ii = 0; ii < ccount; ii++) {
             Component comp = comps[ii];
+            if (!comp.isVisible() || comp instanceof SafeLayerComponent) {
+                continue;
+            }
+
+            // if this overlay does not intersect the component we just
+            // rendered, we don't need to repaint it
             _tbounds.setBounds(0, 0, comp.getWidth(), comp.getHeight());
             getRoot(comp, _tbounds);
             if (!_tbounds.intersects(bounds)) {
