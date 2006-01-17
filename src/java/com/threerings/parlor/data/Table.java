@@ -377,12 +377,24 @@ public class Table
      */
     public String toString ()
     {
-        return "[tableId=" + tableId +
-            ", lobbyOid=" + lobbyOid +
-            ", gameOid=" + gameOid +
-            ", occupants=" + StringUtil.toString(occupants) +
-            ", bodyOids=" + StringUtil.toString(bodyOids) +
-            ", config=" + config + "]";
+        StringBuffer buf = new StringBuffer();
+        buf.append(StringUtil.shortClassName(this));
+        buf.append(" [");
+        toString(buf);
+        buf.append("]");
+        return buf.toString();
+    }
+
+    /**
+     * Helper method for toString, ripe for overrideability.
+     */
+    protected void toString (StringBuffer buf)
+    {
+        buf.append("tableId=").append(tableId);
+        buf.append(", lobbyOid=").append(lobbyOid);
+        buf.append(", gameOid=").append(gameOid);
+        buf.append(", occupants=").append(StringUtil.toString(occupants));
+        buf.append(", config=").append(config);
     }
 
     /** A counter for assigning table ids. */
