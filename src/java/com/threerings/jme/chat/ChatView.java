@@ -69,12 +69,14 @@ public class ChatView extends BContainer
 
     public void willEnterPlace (PlaceObject plobj)
     {
+        _plobj = plobj;
         _chatdtr.addChatDisplay(this);
     }
 
     public void didLeavePlace (PlaceObject plobj)
     {
         _chatdtr.removeChatDisplay(this);
+        _plobj = null;
     }
 
     /**
@@ -128,49 +130,21 @@ public class ChatView extends BContainer
 
     protected boolean handleInput (String text)
     {
-        // if the message to send begins with /tell then parse it and
-        // generate a tell request rather than a speak request
-        if (text.startsWith("/tell")) {
-            StringTokenizer tok = new StringTokenizer(text);
-            // there should be at least three tokens: '/tell target word'
-            if (tok.countTokens() < 3) {
-                displayError("Usage: /tell username message");
-                return false;
-            }
-
-            // skip the /tell and grab the username
-            tok.nextToken();
-            String username = tok.nextToken();
-
-            // now strip off everything up to the username to get the
-            // message
-            int uidx = text.indexOf(username);
-            String message = text.substring(uidx + username.length()).trim();
-
-            // request to send this text as a tell message
-            _chatdtr.requestTell(new Name(username), message, null);
-
-        } else if (text.startsWith("/clear")) {
-            // clear the chat box
-            _chatdtr.clearDisplays();
-
-        } else if (text.startsWith("/")) {
-            displayError("Error: unknown slash command.");
-            return false;
-
-        } else if (text.length() == 0) {
+        if (text.length() == 0) {
             // no empty banter
             return false;
-
-        } else {
-            // request to send this text as a chat message
-            _chatdtr.requestSpeak(null, text, ChatCodes.DEFAULT_MODE);
         }
-
-        return true;
+        String msg = _chatdtr.requestChat(_plobj.speakService, text, true);
+        if (msg.equals(ChatCodes.SUCCESS)) {
+            return true;
+        } else {
+            _chatdtr.displayFeedback(null, msg);
+            return false;
+        }
     }
 
     protected ChatDirector _chatdtr;
+    protected PlaceObject _plobj;
     protected BTextArea _text;
     protected BTextField _input;
 }
