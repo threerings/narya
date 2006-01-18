@@ -238,6 +238,15 @@ public class GameObject extends PlaceObject
         return -1;
     }
 
+    /**
+     * Returns the type of party game being played or NOT_PARTY_GAME.
+     * {@link PartyGameConfig}.
+     */
+    public byte getPartyGameType ()
+    {
+        return PartyGameConfig.NOT_PARTY_GAME;
+    }
+
     // documentation inherited
     protected void which (StringBuffer buf)
     {
