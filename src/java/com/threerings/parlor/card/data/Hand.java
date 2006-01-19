@@ -77,4 +77,14 @@ public class Hand extends StreamableArrayList
         }
         return members;
     }
+
+    /**
+     * Get an array of the cards in this hand.
+     */
+    public Card[] getCards ()
+    {
+        Card[] cards = new Card[size()];
+        toArray(cards);
+        return cards;
+    }
 }
