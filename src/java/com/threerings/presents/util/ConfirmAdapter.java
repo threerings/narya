@@ -1,5 +1,5 @@
 //
-// $Id: ConfirmAdapter.java,v 1.2 2004/08/27 02:20:26 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -23,6 +23,7 @@ package com.threerings.presents.util;
 
 import com.samskivert.util.ResultListener;
 
+import com.threerings.presents.Log;
 import com.threerings.presents.client.InvocationService.ConfirmListener;
 import com.threerings.presents.data.InvocationCodes;
 import com.threerings.presents.server.InvocationException;
@@ -56,6 +57,7 @@ public class ConfirmAdapter implements ResultListener
         if (cause instanceof InvocationException) {
             _listener.requestFailed(cause.getMessage());
         } else {
+            Log.logStackTrace(cause);
             _listener.requestFailed(InvocationCodes.INTERNAL_ERROR);
         }
     }
