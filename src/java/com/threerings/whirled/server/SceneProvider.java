@@ -22,6 +22,7 @@
 package com.threerings.whirled.server;
 
 import com.threerings.presents.data.ClientObject;
+import com.threerings.presents.data.InvocationMarshaller;
 import com.threerings.presents.server.InvocationException;
 import com.threerings.presents.server.InvocationProvider;
 
@@ -73,6 +74,8 @@ public class SceneProvider
                     Log.info("Abandoning scene move, client gone " +
                              "[who=" + source.who()  +
                              ", dest=" + scmgr.where() + "].");
+                    ((InvocationMarshaller.ListenerMarshaller) listener).
+                        setNoResponse();
                     return;
                 }
                 finishMoveToRequest(source, scmgr, sceneVer, listener);
