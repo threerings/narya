@@ -79,6 +79,17 @@ public class InvocationMarshaller
             _invId = name;
         }
 
+        /**
+         * Indicates that this listener will not be responded-to, and that
+         * this is normal behavior.
+         */
+        public void setNoResponse ()
+        {
+            // we enact this by merely doing the same thing that we normally
+            // do during a response.
+            _invId = null;
+        }
+
         // documentation inherited from interface
         public void requestFailed (String cause)
         {
