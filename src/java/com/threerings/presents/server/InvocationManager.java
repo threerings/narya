@@ -280,6 +280,12 @@ public class InvocationManager
                         ", caller=" + source.who() + ", methId=" + methodId +
                         ", args=" + StringUtil.toString(args) + "].");
             Log.logStackTrace(t);
+
+            // avoid logging an error when the listener notices that it's
+            // been ignored.
+            if (rlist != null) {
+                rlist.setNoResponse();
+            }
         }
     }
 
