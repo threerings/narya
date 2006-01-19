@@ -26,6 +26,7 @@ import com.threerings.util.MessageManager;
 import com.threerings.util.Name;
 
 import com.threerings.presents.data.ClientObject;
+import com.threerings.presents.data.InvocationMarshaller;
 import com.threerings.presents.dobj.RootDObjectManager;
 import com.threerings.presents.server.InvocationException;
 import com.threerings.presents.server.InvocationProvider;
@@ -79,6 +80,7 @@ public class SpotProvider
             Log.info("Ignoring stale traverse portal request " +
                      "[caller=" + caller.who() + ", oSceneId=" + sceneId +
                      ", portalId=" + portalId + ", cSceneId=" + cSceneId + "].");
+            ((InvocationMarshaller.ListenerMarshaller) listener).setNoResponse();
             return;
         }
 
@@ -129,6 +131,8 @@ public class SpotProvider
                         Log.info("Abandoning portal traversal, client gone " +
                                  "[who=" + fsource.who()  +
                                  ", dest=" + scmgr.where() + "].");
+                        ((InvocationMarshaller.ListenerMarshaller) flistener).
+                            setNoResponse();
                         return;
                     }
 
