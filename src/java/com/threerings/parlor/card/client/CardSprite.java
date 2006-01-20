@@ -339,12 +339,16 @@ public class CardSprite extends OrientableImageSprite
     // Documentation inherited.
     public void paint (Graphics2D gfx)
     {
+        if (_scaleFactor <= 0) {
+            return;
+        }
         // If we are flipping the card, scale it horizontally.
         AffineTransform otrans = gfx.getTransform();
         if (_scaleFactor < 1.0) {
-            gfx.translate(getX() + getWidth()/2, 0);
+            int xtrans = getX() + getWidth()/2;
+            gfx.translate(xtrans, 0);
             gfx.scale(_scaleFactor, 1.0);
-            gfx.translate(-getX() - getWidth()/2, 0);
+            gfx.translate(-xtrans, 0);
         }
 
         if (_alphaComposite.getAlpha() < 1.0f) {
