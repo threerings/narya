@@ -360,6 +360,11 @@ public abstract class PuzzleController extends GameController
                 super.attributeChanged(event);
                 break;
             }
+        } else if (event.getName().equals(PuzzleObject.ROUND_ID)) {
+            // Need to clear out stale events.  If we don't, we could send
+            //  events that claim to be from the new round that are actually
+            //  from the old round.
+            _events.clear();
         }
     }
 
