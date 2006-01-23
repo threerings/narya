@@ -79,6 +79,7 @@ public class StreamableIntIntMap extends IntIntMap
         throws IOException, ClassNotFoundException
     {
         int ecount = in.readInt();
+        ensureCapacity(ecount);
         for (int ii = 0; ii < ecount; ii++) {
             int key = in.readInt();
             put(key, in.readInt());
