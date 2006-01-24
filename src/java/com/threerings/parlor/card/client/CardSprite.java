@@ -21,13 +21,11 @@
 
 package com.threerings.parlor.card.client;
 
-import java.awt.AlphaComposite;
-import java.awt.Composite;
 import java.awt.Graphics2D;
 import java.awt.geom.AffineTransform;
 
 import com.threerings.media.image.Mirage;
-import com.threerings.media.sprite.OrientableImageSprite;
+import com.threerings.media.sprite.FadableImageSprite;
 import com.threerings.media.util.Path;
 
 import com.threerings.parlor.card.data.Card;
@@ -35,7 +33,7 @@ import com.threerings.parlor.card.data.Card;
 /**
  * A sprite representing a playing card.
  */
-public class CardSprite extends OrientableImageSprite
+public class CardSprite extends FadableImageSprite
     implements Comparable
 {
     /**
@@ -50,10 +48,10 @@ public class CardSprite extends OrientableImageSprite
         _panel = panel;
         _card = card;
         _facingUp = true;
-        
+
         updateMirage();
     }
-    
+
     /**
      * Creates a new card sprite.
      *
@@ -66,10 +64,10 @@ public class CardSprite extends OrientableImageSprite
         _panel = panel;
         _card = card;
         _facingUp = facingUp;
-        
+
         updateMirage();
     }
-    
+
     /**
      * Sets the card to depict.
      *
@@ -78,10 +76,10 @@ public class CardSprite extends OrientableImageSprite
     public void setCard (Card card)
     {
         _card = card;
-        
+
         updateMirage();
     }
-    
+
     /**
      * Returns the card being depicted.
      *
@@ -89,9 +87,9 @@ public class CardSprite extends OrientableImageSprite
      */
     public Card getCard ()
     {
-        return _card; 
+        return _card;
     }
-    
+
     /**
      * Turns this card up or down.
      *
@@ -100,10 +98,10 @@ public class CardSprite extends OrientableImageSprite
     public void setFacingUp (boolean facingUp)
     {
         _facingUp = facingUp;
-        
+
         updateMirage();
     }
-    
+
     /**
      * Checks whether this card is facing up or down.
      *
@@ -113,7 +111,7 @@ public class CardSprite extends OrientableImageSprite
     {
         return _facingUp;
     }
-    
+
     /**
      * Sets whether or not the user can drag this card around the board.
      *
@@ -123,7 +121,7 @@ public class CardSprite extends OrientableImageSprite
     {
         _draggable = draggable;
     }
-    
+
     /**
      * Checks whether or not the user can drag this card.
      *
@@ -132,34 +130,6 @@ public class CardSprite extends OrientableImageSprite
     public boolean isDraggable ()
     {
         return _draggable;
-    }
-    
-    /**
-     * Sets the alpha value of this sprite.
-     */
-    public void setAlpha (float alpha)
-    {
-        if (alpha < 0.0f) {
-            alpha = 0.0f;
-            
-        } else if (alpha > 1.0f) {
-            alpha = 1.0f;
-        }
-        if (alpha != _alphaComposite.getAlpha()) {
-            _alphaComposite = AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 
-                alpha);
-            if (_mgr != null) {
-                _mgr.getRegionManager().invalidateRegion(_bounds);
-            }
-        }
-    }
-    
-    /**
-     * Returns the alpha value of this sprite.
-     */
-    public float getAlpha ()
-    {
-        return _alphaComposite.getAlpha();
     }
 
     /**
@@ -173,76 +143,7 @@ public class CardSprite extends OrientableImageSprite
 
         _scaleFactor = 1.0;
     }
-    
-    /**
-     * Fades this sprite in over the specified duration after
-     * waiting for the specified delay.
-     */
-    public void fadeIn (long delay, long duration)
-    {
-        setAlpha(0.0f);
-        
-        _fadeStamp = 0;
-        _fadeDelay = delay;
-        _fadeInDuration = duration;
-    }
-    
-    /**
-     * Puts this sprite on the specified path and fades it in over
-     * the specified duration.
-     *
-     * @param path the path to move along
-     * @param fadePortion the portion of time to spend fading in, from 0.0f (no time)
-     * to 1.0f (the entire time)
-     */
-    public void moveAndFadeIn (Path path, long pathDuration, float fadePortion)
-    {
-        move(path);
-        
-        setAlpha(0.0f);
-        
-        _fadeInDuration = (long)(pathDuration*fadePortion);
-    }
-    
-    /**
-     * Puts this sprite on the specified path and fades it out over
-     * the specified duration.
-     *
-     * @param path the path to move along
-     * @param pathDuration the duration of the path
-     * @param fadePortion the portion of time to spend fading out, from 0.0f (no time)
-     * to 1.0f (the entire time)
-     */
-    public void moveAndFadeOut (Path path, long pathDuration, float fadePortion)
-    {
-        move(path);
-        
-        setAlpha(1.0f);
-        
-        _pathDuration = pathDuration;
-        _fadeOutDuration = (long)(pathDuration*fadePortion);
-    }
-    
-    /**
-     * Puts this sprite on the specified path, fading it in over the specified
-     * duration at the beginning and fading it out at the end.
-     *
-     * @param path the path to move along
-     * @param pathDuration the duration of the path
-     * @param fadePortion the portion of time to spend fading in/out, from
-     * 0.0f (no time) to 1.0f (the entire time)
-     */
-    public void moveAndFadeInAndOut (Path path, long pathDuration,
-        float fadePortion)
-    {
-        move(path);
-        
-        setAlpha(0.0f);
-        
-        _pathDuration = pathDuration;
-        _fadeInDuration = _fadeOutDuration = (long)(pathDuration*fadePortion);
-    }
-    
+
     // Documentation inherited.
     public void tick (long tickStamp)
     {
@@ -279,63 +180,9 @@ public class CardSprite extends OrientableImageSprite
                 _mgr.getRegionManager().invalidateRegion(_bounds);
             }
         }
-        
-        if (_fadeInDuration != -1) {
-            if (_path != null && (tickStamp-_pathStamp) <= _fadeInDuration) {
-                // fading in while moving
-                float alpha = (float)(tickStamp-_pathStamp)/_fadeInDuration;
-                if (alpha >= 1.0f) {
-                    // fade-in complete
-                    setAlpha(1.0f);
-                    _fadeInDuration = -1;
-                    
-                } else {
-                    setAlpha(alpha);
-                }
-                
-            } else {
-                // fading in while stationary
-                if (_fadeStamp == 0) {
-                    // store the time at which fade started
-                    _fadeStamp = tickStamp;
-                }
-                if (tickStamp > _fadeStamp + _fadeDelay) {
-                    // initial delay has passed
-                    float alpha = (float)(tickStamp-_fadeStamp-_fadeDelay)/_fadeInDuration;
-                    if (alpha >= 1.0f) {
-                        // fade-in complete
-                        setAlpha(1.0f);
-                        _fadeInDuration = -1;
-                        
-                    } else {
-                        setAlpha(alpha);
-                    }
-                }
-            }
-            
-        } else if(_fadeOutDuration != -1 && _pathStamp+_pathDuration-tickStamp 
-            <= _fadeOutDuration) {
-            // fading out while moving
-            float alpha = (float)(_pathStamp+_pathDuration-tickStamp)/_fadeOutDuration;
-            setAlpha(alpha);
-        }
+
     }
-    
-    // Documentation inherited.
-    public void pathCompleted (long timestamp)
-    {
-        super.pathCompleted(timestamp);
-        
-        if (_fadeInDuration != -1) {
-            setAlpha(1.0f);
-            _fadeInDuration = -1;
-            
-        } else if(_fadeOutDuration != -1) {
-            setAlpha(0.0f);
-            _fadeOutDuration = -1;
-        }
-    }
-    
+
     // Documentation inherited.
     public void paint (Graphics2D gfx)
     {
@@ -351,19 +198,11 @@ public class CardSprite extends OrientableImageSprite
             gfx.translate(-xtrans, 0);
         }
 
-        if (_alphaComposite.getAlpha() < 1.0f) {
-            Composite ocomp = gfx.getComposite();
-            gfx.setComposite(_alphaComposite);
-            super.paint(gfx);
-            gfx.setComposite(ocomp);
-            
-        } else {
-            super.paint(gfx);
-        }
+        super.paint(gfx);
 
         gfx.setTransform(otrans);
     }
-    
+
     /**
      * Compares this to another card sprite based on their cards.
      */
@@ -372,12 +211,12 @@ public class CardSprite extends OrientableImageSprite
         CardSprite cs = (CardSprite)other;
         if (_card == null || cs._card == null) {
             return 0;
-        
+
         } else {
             return _card.compareTo(cs._card);
         }
     }
-    
+
     /**
      * Updates the mirage according to the current state.
      */
@@ -386,22 +225,18 @@ public class CardSprite extends OrientableImageSprite
         setMirage((_card != null && _facingUp ) ?
             _panel.getCardImage(_card) : _panel.getCardBackImage());
     }
-    
+
     /** The panel responsible for the sprite. */
     protected CardPanel _panel;
-    
+
     /** The depicted card. */
     protected Card _card;
-    
+
     /** Whether or not the card is facing up. */
     protected boolean _facingUp;
-    
+
     /** Whether or not the user can drag the card around the board. */
     protected boolean _draggable;
-    
-    /** The alpha composite. */
-    protected AlphaComposite _alphaComposite = 
-        AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1.0f);
 
     /** The horizontal scale factor used while flipping the card. */
     protected double _scaleFactor = 1.0;
@@ -411,22 +246,7 @@ public class CardSprite extends OrientableImageSprite
 
     /** The timestamp for when we started flipping the card. */
     protected long _flipStamp;
-    
+
     /** The card which will be revealed when we're done flipping. */
     protected Card _flipCard;
-    
-    /** If fading in, the fade-in duration (otherwise -1). */
-    protected long _fadeInDuration = -1;
-    
-    /** If fading in without moving, the fade-in delay. */
-    protected long _fadeDelay;
-    
-    /** The time at which fading started. */
-    protected long _fadeStamp = -1;
-    
-    /** If fading out, the fade-out duration (otherwise -1). */
-    protected long _fadeOutDuration = -1;
-    
-    /** If fading out, the path duration. */
-    protected long _pathDuration;
 }
