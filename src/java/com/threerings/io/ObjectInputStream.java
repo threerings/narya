@@ -160,6 +160,10 @@ public class ObjectInputStream extends DataInputStream
             // and return the newly read object
             return target;
 
+        } catch (OutOfMemoryError oome) {
+            throw (IOException)
+                new IOException("Malformed object data").initCause(oome);
+
         } finally {
             // clear out our current object references
             _current = null;
