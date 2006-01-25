@@ -29,16 +29,15 @@ public class GodViewHandler extends InputHandler
      * Creates the handler.
      *
      * @param cam The camera to move with this handler.
-     * @param api The API from which to create a KeyBindingManager.
      */
-    public GodViewHandler (CameraHandler camhand, String api)
+    public GodViewHandler (CameraHandler camhand)
     {
         _camhand = camhand;
-        setKeyBindings(api);
+        setKeyBindings();
         addActions();
     }
 
-    protected void setKeyBindings (String api)
+    protected void setKeyBindings ()
     {
         KeyBindingManager keyboard = KeyBindingManager.getKeyBindingManager();
 

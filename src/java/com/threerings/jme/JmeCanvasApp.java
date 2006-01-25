@@ -92,9 +92,15 @@ public class JmeCanvasApp extends JmeApp
         return EventQueue.isDispatchThread();
     }
 
-    /**
-     * Initializes our user interface bits.
-     */
+    // documentation inherited
+    protected DisplaySystem createDisplay ()
+    {
+        // we've already created our display earlier so just return it
+        _api = "LWJGL";
+        return _display;
+    }
+
+    // documentation inherited
     protected void initInterface ()
     {
         _iface = new Node("Interface");

@@ -94,22 +94,18 @@ public class JmeApp
     public boolean init ()
     {
         try {
-            // load up our renderer configuration
-            _properties = new PropertiesIO(getConfigPath("jme.cfg"));
-            readDisplayConfig();
-
-            // create an appropriate timer
-            _timer = Timer.getTimer(_properties.getRenderer());
-
-            // default to 60 fps
-            setTargetFrameRate(60);
-
             // initialize the rendering system
             initDisplay();
             if (!_display.isCreated()) {
                 throw new IllegalStateException(
                     "Failed to initialize display?");
             }
+
+            // create an appropriate timer
+            _timer = Timer.getTimer(_api);
+
+            // default to 60 fps
+            setTargetFrameRate(60);
 
             // initialize our main camera controls and user input handling
             initInput();
@@ -217,15 +213,15 @@ public class JmeApp
     }
 
     /**
-     * Reads in the contents of our display properties. Derivations may
-     * wish to override this and configure the display properties from
-     * some other source.
+     * Determines the display configuration and creates the display. This must
+     * fill in {@link #_api} as a side-effect.
      */
-    protected void readDisplayConfig ()
+    protected DisplaySystem createDisplay ()
     {
-        if (!_properties.load()) {
+        PropertiesIO props = new PropertiesIO(getConfigPath("jme.cfg"));
+        if (!props.load()) {
             LWJGLPropertiesDialog dialog =
-                new LWJGLPropertiesDialog(_properties, (String)null);
+                new LWJGLPropertiesDialog(props, (String)null);
             while (dialog.isVisible()) {
                 try {
                     Thread.sleep(5);
@@ -235,6 +231,12 @@ public class JmeApp
                 }
             }
         }
+        _api = props.getRenderer();
+        DisplaySystem display = DisplaySystem.getDisplaySystem(_api);
+        display.createWindow(props.getWidth(), props.getHeight(),
+                             props.getDepth(), props.getFreq(),
+                             props.getFullscreen());
+        return display;
     }
 
     /**
@@ -244,16 +246,8 @@ public class JmeApp
     protected void initDisplay ()
         throws JmeException
     {
-        // create the main display system (JmeCanvasApp creates the
-        // display and the window earlier and in a different way, so we
-        // need to avoid doing that here if it's already been done)
-        if (_display == null) {
-            _display = DisplaySystem.getDisplaySystem(_properties.getRenderer());
-            _display.createWindow(
-                _properties.getWidth(), _properties.getHeight(),
-                _properties.getDepth(), _properties.getFreq(),
-                _properties.getFullscreen());
-        }
+        // create the main display system
+        _display = createDisplay();
         _display.setVSyncEnabled(true);
 
         // create a camera
@@ -276,9 +270,6 @@ public class JmeApp
         // tell the renderer to keep track of rendering information (total
         // triangles drawn, etc.)
         _display.getRenderer().enableStatistics(true);
-
-//         // set our display title
-//         _display.setTitle("TBD");
     }
 
     /**
@@ -288,7 +279,7 @@ public class JmeApp
     protected void initInput ()
     {
         _camhand = createCameraHandler(_camera);
-        _input = createInputHandler(_camhand, _properties.getRenderer());
+        _input = createInputHandler(_camhand);
     }
 
     /**
@@ -304,7 +295,7 @@ public class JmeApp
      * Creates the input handler used to control our camera and manage non-UI
      * keyboard input.
      */
-    protected InputHandler createInputHandler (CameraHandler camhand, String api)
+    protected InputHandler createInputHandler (CameraHandler hand)
     {
         return new InputHandler();
     }
@@ -526,7 +517,7 @@ public class JmeApp
     protected Thread _dispatchThread;
     protected Queue _evqueue = new Queue();
 
-    protected PropertiesIO _properties;
+    protected String _api;
     protected DisplaySystem _display;
     protected Camera _camera;
     protected CameraHandler _camhand;
