@@ -65,6 +65,10 @@ public abstract class Animation extends AbstractMedia
     // documentation inherited
     public void setLocation (int x, int y)
     {
+        if (_bounds.x == x && _bounds.y == y) {
+            return; // no-op
+        }
+
         // start with our current bounds
         Rectangle dirty = new Rectangle(_bounds);
 

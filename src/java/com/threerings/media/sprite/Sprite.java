@@ -150,6 +150,10 @@ public abstract class Sprite extends AbstractMedia
     // documentation inherited
     public void setLocation (int x, int y)
     {
+        if (x == _ox && y == _oy) {
+            return; // no-op
+        }
+
         // start with our current bounds
         Rectangle dirty = new Rectangle(_bounds);
 
