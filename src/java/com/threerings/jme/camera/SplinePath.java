@@ -39,9 +39,12 @@ public class SplinePath extends CameraPath
      * @param tloc the target location
      * @param tdir the target direction
      * @param duration the duration of the path
+     * @param tension the tension parameter, which can range from zero to one:
+     * higher tension values create a more direct path with a sharper turn,
+     * lower values create a rounder path with a smoother turn
      */
     public SplinePath (CameraHandler camhand, Vector3f tloc,
-        Vector3f tdir, float duration)
+        Vector3f tdir, float duration, float tension)
     {
         super(camhand);
         
@@ -49,9 +52,9 @@ public class SplinePath extends CameraPath
         Camera cam = camhand.getCamera();
         _p0 = new Vector3f(cam.getLocation());
         _p1 = new Vector3f(tloc);
-        float pdist = _p0.distance(_p1);
-        _m0 = cam.getDirection().mult(pdist*0.5f);
-        _m1 = tdir.mult(pdist*0.5f);
+        float tscale = (1f - tension) * _p0.distance(_p1);
+        _m0 = cam.getDirection().mult(tscale);
+        _m1 = tdir.mult(tscale);
         
         _duration = duration;
     }
@@ -70,12 +73,11 @@ public class SplinePath extends CameraPath
             h11 = t3 - t2,
             h11p = 3*t2 - 2*t;
     
-        // take the derivative to find the direction and inst. speed
+        // take the derivative to find the direction
         _p0.mult(h00p, _dir);
         _dir.scaleAdd(h10p, _m0, _dir);
         _dir.scaleAdd(h01p, _p1, _dir);
         _dir.scaleAdd(h11p, _m1, _dir);
-        float inst = _dir.length();
         _dir.normalizeLocal();
         
         // evaluate the spline function to find the location
@@ -104,6 +106,6 @@ public class SplinePath extends CameraPath
     Vector3f _loc = new Vector3f(), _left = new Vector3f(),
         _up = new Vector3f(), _dir = new Vector3f();
     
-    /** The elapsed time and speed parameters. */
+    /** The elapsed time and total duration. */
     float _elapsed, _duration;
 }
