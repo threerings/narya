@@ -510,7 +510,7 @@ public class StageSceneManager extends SpotSceneManager
 
         // if we couldn't expand in any direction, it's no go
         if (rect == null) {
-            Log.info("Couldn't expand cluster " + cl + ".");
+//            Log.info("Couldn't expand cluster " + cl + ".");
             return false;
         }
 
