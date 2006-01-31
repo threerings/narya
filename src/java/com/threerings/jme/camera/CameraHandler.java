@@ -38,13 +38,24 @@ public class CameraHandler
      */
     public CameraHandler (Camera camera)
     {
-        camera.setDirection(new Vector3f(0, 0, -1));
-        camera.setLeft(new Vector3f(-1, 0, 0));
-        camera.setUp(new Vector3f(0, 1, 0));
-        camera.update();
         _camera = camera;
+        resetAxes();
     }
 
+    /**
+     * Resets the camera orientation to its initial state.
+     */
+    public void resetAxes ()
+    {
+        _camera.getDirection().set(0, 0, -1);
+        _camera.getLeft().set(-1, 0, 0);
+        _camera.getUp().set(0, 1, 0);
+        _camera.update(); 
+        
+        _rxdir.set(1, 0, 0);
+        _rydir.set(0, 1, 0);
+    }
+    
     /**
      * Configures limits on the camera tilt.
      */
