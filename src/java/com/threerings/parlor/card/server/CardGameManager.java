@@ -110,7 +110,9 @@ public class CardGameManager extends GameManager
             if (!isAI(playerIndex)) {
                 ClientObject clobj = (ClientObject)
                     PresentsServer.omgr.getObject(_playerOids[playerIndex]);
-                CardGameSender.sendHand(clobj, _cardgameobj.getOid(), hand);
+                if (clobj != null) {
+                    CardGameSender.sendHand(clobj, _cardgameobj.getOid(), hand);
+                }
             }
             return hand;
         }
