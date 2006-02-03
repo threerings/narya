@@ -21,11 +21,11 @@ public class CardGameSender extends InvocationSender
      * CardGameReceiver#receivedHand} on a client.
      */
     public static void sendHand (
-        ClientObject target, Hand arg1)
+        ClientObject target, int arg1, Hand arg2)
     {
         sendNotification(
             target, CardGameDecoder.RECEIVER_CODE, CardGameDecoder.RECEIVED_HAND,
-            new Object[] { arg1 });
+            new Object[] { new Integer(arg1), arg2 });
     }
 
     /**

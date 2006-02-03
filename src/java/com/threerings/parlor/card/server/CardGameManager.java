@@ -108,9 +108,9 @@ public class CardGameManager extends GameManager
         } else {
             Hand hand = deck.dealHand(size);
             if (!isAI(playerIndex)) {
-                CardGameSender.sendHand(
-                    (ClientObject)PresentsServer.omgr.getObject(
-                        _playerOids[playerIndex]), hand);
+                ClientObject clobj = (ClientObject)
+                    PresentsServer.omgr.getObject(_playerOids[playerIndex]);
+                CardGameSender.sendHand(clobj, _cardgameobj.getOid(), hand);
             }
             return hand;
         }
@@ -130,8 +130,8 @@ public class CardGameManager extends GameManager
     {
         if (deck.size() < size * _playerCount) {
             return null;
-        }
-        else {
+
+        } else {
             Hand[] hands = new Hand[_playerCount];
             
             for (int i=0;i<_playerCount;i++) {

@@ -59,6 +59,16 @@ public abstract class CardGameController extends GameController
     // Documentation inherited.
     public void turnDidChange (Name turnHolder)
     {}
+
+    /**
+     * Called by our sender to notify us of a received hand.
+     */
+    public final void receivedHand (int oid, Hand hand)
+    {
+        if (oid == _gobj.getOid()) {
+            receivedHand(hand);
+        }
+    }
     
     /**
      * Called when the server deals the client a new hand of cards.  Default

@@ -53,7 +53,7 @@ public class CardGameDecoder extends InvocationDecoder
         switch (methodId) {
         case RECEIVED_HAND:
             ((CardGameReceiver)receiver).receivedHand(
-                (Hand)args[0]
+                ((Integer)args[0]).intValue(), (Hand)args[1]
             );
             return;
 

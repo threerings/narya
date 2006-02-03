@@ -35,9 +35,10 @@ public interface CardGameReceiver extends InvocationReceiver
     /**
      * Dispatched to the client when it has received a hand of cards.
      *
+     * @param oid the oid of the game for which this hand applies
      * @param hand the received hand
      */
-    public void receivedHand (Hand hand);
+    public void receivedHand (int oid, Hand hand);
     
     /**
      * Dispatched to the client when it has received a set of cards
