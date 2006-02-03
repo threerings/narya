@@ -1,5 +1,5 @@
 //
-// $Id: TileSetBundle.java,v 1.16 2004/08/27 02:12:43 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -121,7 +121,7 @@ public class TileSetBundle extends HashIntMap
         Iterator entries = entrySet().iterator();
         while (entries.hasNext()) {
             Entry entry = (Entry)entries.next();
-            out.writeInt(((Integer)entry.getKey()).intValue());
+            out.writeInt(entry.getIntKey());
             out.writeObject(entry.getValue());
         }
     }        
