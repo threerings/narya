@@ -36,8 +36,11 @@ public abstract class CameraPath
          * path was set before this path completed).
          *
          * @param path the path that was completed.
+         *
+         * @return true if the observer should remain in the list, false if it
+         * should be removed following this notification.
          */
-        public void pathCompleted (CameraPath path);
+        public boolean pathCompleted (CameraPath path);
     }
 
     /**

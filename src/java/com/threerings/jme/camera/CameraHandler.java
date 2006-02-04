@@ -120,6 +120,22 @@ public class CameraHandler
     }
 
     /**
+     * Adds a camera path observer.
+     */
+    public void addCameraObserver (CameraPath.Observer camobs)
+    {
+        _campathobs.add(camobs);
+    }
+
+    /**
+     * Removes a camera path observer.
+     */
+    public void removeCameraObserver (CameraPath.Observer camobs)
+    {
+        _campathobs.remove(camobs);
+    }
+
+    /**
      * Starts the camera moving along a path which will be updated every tick
      * until it is complete.
      */
@@ -328,8 +344,7 @@ public class CameraHandler
             _path = path;
         }
         public boolean apply (Object observer) {
-            ((CameraPath.Observer)observer).pathCompleted(_path);
-            return true;
+            return ((CameraPath.Observer)observer).pathCompleted(_path);
         }
         protected CameraPath _path;
     }
