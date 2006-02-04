@@ -27,6 +27,8 @@ import com.jme.math.Plane;
 import com.jme.math.Vector3f;
 import com.jme.renderer.Camera;
 
+import com.samskivert.util.ObserverList;
+
 /**
  * Provides various useful mechanisms for manipulating the camera.
  */
@@ -125,6 +127,7 @@ public class CameraHandler
     {
         if (_campath != null) {
             _campath.abort();
+            _campathobs.apply(new CompletedOp(_campath));
         }
         _campath = path;
     }
@@ -146,6 +149,7 @@ public class CameraHandler
     {
         if (_campath != null) {
             if (_campath.tick(frameTime)) {
+                _campathobs.apply(new CompletedOp(_campath));
                 _campath = null;
             }
         }
@@ -317,8 +321,24 @@ public class CameraHandler
         }
     }
 
+    /** Used to dispatch {@link CameraPath.Observer#pathCompleted}. */
+    protected static class CompletedOp implements ObserverList.ObserverOp
+    {
+        public CompletedOp (CameraPath path) {
+            _path = path;
+        }
+        public boolean apply (Object observer) {
+            ((CameraPath.Observer)observer).pathCompleted(_path);
+            return true;
+        }
+        protected CameraPath _path;
+    }
+
     protected Camera _camera;
     protected CameraPath _campath;
+    protected ObserverList _campathobs =
+        new ObserverList(ObserverList.SAFE_IN_ORDER_NOTIFY);
+
     protected Matrix3f _rotm = new Matrix3f();
     protected Vector3f _temp = new Vector3f();
 

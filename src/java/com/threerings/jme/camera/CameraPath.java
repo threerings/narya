@@ -28,6 +28,18 @@ import com.jme.renderer.Camera;
  */
 public abstract class CameraPath
 {
+    /** Used to inform observers when a camera path is completed or aborted. */
+    public interface Observer
+    {
+        /**
+         * Called when this path is finished (potentially early because another
+         * path was set before this path completed).
+         *
+         * @param path the path that was completed.
+         */
+        public void pathCompleted (CameraPath path);
+    }
+
     /**
      * This is called on every frame to allow the path to adjust the position
      * of the camera.
