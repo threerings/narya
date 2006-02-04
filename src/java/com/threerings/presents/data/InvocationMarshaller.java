@@ -238,6 +238,17 @@ public class InvocationMarshaller
     }
 
     /**
+     * A convenience method to indicate that the listener is not going
+     * to be responded-to, and that this is ok.
+     */
+    public static void setNoResponse (InvocationListener listener)
+    {
+        if (listener instanceof ListenerMarshaller) {
+            ((ListenerMarshaller) listener).setNoResponse();
+        }
+    }
+
+    /**
      * Called by generated invocation marshaller code; packages up and
      * sends the specified invocation service request.
      */

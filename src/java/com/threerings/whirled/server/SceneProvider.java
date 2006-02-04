@@ -74,8 +74,7 @@ public class SceneProvider
                     Log.info("Abandoning scene move, client gone " +
                              "[who=" + source.who()  +
                              ", dest=" + scmgr.where() + "].");
-                    ((InvocationMarshaller.ListenerMarshaller) listener).
-                        setNoResponse();
+                    InvocationMarshaller.setNoResponse(listener);
                     return;
                 }
                 finishMoveToRequest(source, scmgr, sceneVer, listener);

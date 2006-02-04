@@ -80,7 +80,7 @@ public class SpotProvider
             Log.info("Ignoring stale traverse portal request " +
                      "[caller=" + caller.who() + ", oSceneId=" + sceneId +
                      ", portalId=" + portalId + ", cSceneId=" + cSceneId + "].");
-            ((InvocationMarshaller.ListenerMarshaller) listener).setNoResponse();
+            InvocationMarshaller.setNoResponse(listener);
             return;
         }
 
@@ -131,8 +131,7 @@ public class SpotProvider
                         Log.info("Abandoning portal traversal, client gone " +
                                  "[who=" + fsource.who()  +
                                  ", dest=" + scmgr.where() + "].");
-                        ((InvocationMarshaller.ListenerMarshaller) flistener).
-                            setNoResponse();
+                        InvocationMarshaller.setNoResponse(flistener);
                         return;
                     }
 
