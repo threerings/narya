@@ -251,14 +251,14 @@ public class JmeApp
         _display.setVSyncEnabled(true);
 
         // create a camera
-        float width = _display.getWidth(), height = _display.getHeight();
-        _camera = _display.getRenderer().createCamera((int)width, (int)height);
+        int width = _display.getWidth(), height = _display.getHeight();
+        _camera = _display.getRenderer().createCamera(width, height);
 
         // start with a black background
         _display.getRenderer().setBackgroundColor(ColorRGBA.black);
 
         // set up the camera
-        _camera.setFrustumPerspective(45.0f, width / height, 1, 10000);
+        _camera.setFrustumPerspective(45.0f, width/(float)height, 1, 10000);
         Vector3f loc = new Vector3f(0.0f, 0.0f, 25.0f);
         Vector3f left = new Vector3f(-1.0f, 0.0f, 0.0f);
         Vector3f up = new Vector3f(0.0f, 1.0f, 0.0f);
