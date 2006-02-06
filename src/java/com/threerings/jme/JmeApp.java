@@ -193,6 +193,15 @@ public class JmeApp
     }
 
     /**
+     * Returns the duration (in seconds) between the previous frame and the
+     * current frame.
+     */
+    public float getFrameTime ()
+    {
+        return _frameTime;
+    }
+
+    /**
      * Instructs the application to stop the main loop, cleanup and exit.
      */
     public void stop ()
@@ -408,11 +417,11 @@ public class JmeApp
         _timer.update();
 
         // run all of the controllers attached to nodes
-        float timePerFrame = _timer.getTimePerFrame();
-        _root.updateGeometricState(timePerFrame, true);
+        _frameTime = _timer.getTimePerFrame();
+        _root.updateGeometricState(_frameTime, true);
 
         // update the camera handler
-        _camhand.update(timePerFrame);
+        _camhand.update(_frameTime);
 
         // update our stats display if we have one
         if (_stats != null) {
@@ -516,6 +525,7 @@ public class JmeApp
     protected Timer _timer;
     protected Thread _dispatchThread;
     protected Queue _evqueue = new Queue();
+    protected float _frameTime;
 
     protected String _api;
     protected DisplaySystem _display;
