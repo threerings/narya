@@ -60,7 +60,8 @@ public class FadeInOutEffect extends Quad
         DisplaySystem ds = DisplaySystem.getDisplaySystem();
         float width = ds.getWidth(), height = ds.getHeight();
         initialize(width, height);
-        setLocalTranslation(new Vector3f(width/2, height/2, overUI ? 1f : -1f));
+        setLocalTranslation(new Vector3f(width/2, height/2, 0f));
+        setZOrder(overUI ? -1 : 1);
         setDefaultColor(_color);
 
         AlphaState astate = ds.getRenderer().createAlphaState();
