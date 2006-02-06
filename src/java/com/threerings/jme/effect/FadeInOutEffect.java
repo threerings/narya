@@ -29,6 +29,9 @@ import com.jme.scene.shape.Quad;
 import com.jme.scene.state.AlphaState;
 import com.jme.system.DisplaySystem;
 
+import com.threerings.jme.util.LinearTimeFunction;
+import com.threerings.jme.util.TimeFunction;
+
 /**
  * Fades the screen in from a solid color or out to a solid color.
  */
@@ -37,12 +40,18 @@ public class FadeInOutEffect extends Quad
     public FadeInOutEffect (ColorRGBA color, float startAlpha, float endAlpha,
                             float duration, boolean overUI)
     {
+        this(color, new LinearTimeFunction(startAlpha, endAlpha, duration),
+             overUI);
+    }
+
+    public FadeInOutEffect (ColorRGBA color, TimeFunction alphaFunc,
+                            boolean overUI)
+    {
         super("FadeInOut");
 
-        _color = new ColorRGBA(color.r, color.g, color.b, startAlpha);
-        _alpha = startAlpha;
-        _deltaAlpha = (endAlpha-startAlpha);
-        _duration = duration;
+        _color = new ColorRGBA(
+            color.r, color.g, color.b, alphaFunc.getValue(0));
+        _alphaFunc = alphaFunc;
 
         // we need to render in the ortho queue
         setRenderQueueMode(Renderer.QUEUE_ORTHO);
@@ -76,15 +85,14 @@ public class FadeInOutEffect extends Quad
     public void updateGeometricState (float time, boolean initiator)
     {
         super.updateGeometricState(time, initiator);
+        if (_paused) {
+            return;
+        }
 
-        if (!_paused && _elapsed < _duration) {
-            _elapsed += time;
-            float alpha = (_alpha + _deltaAlpha * _elapsed / _duration);
-            _color.a = Math.min(1f, Math.max(0f, alpha));
-
-            if (_elapsed >= _duration) {
-                fadeComplete();
-            }
+        float alpha = _alphaFunc.getValue(time);
+        _color.a = Math.min(1f, Math.max(0f, alpha));
+        if (_alphaFunc.isComplete()) {
+            fadeComplete();
         }
     }
 
@@ -96,7 +104,6 @@ public class FadeInOutEffect extends Quad
     }
 
     protected ColorRGBA _color;
-    protected float _alpha, _deltaAlpha;
-    protected float _duration, _elapsed;
+    protected TimeFunction _alphaFunc;
     protected boolean _paused;
 }
