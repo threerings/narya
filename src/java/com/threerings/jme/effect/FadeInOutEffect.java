@@ -25,6 +25,7 @@ import com.jme.math.Vector3f;
 import com.jme.renderer.ColorRGBA;
 import com.jme.renderer.Renderer;
 import com.jme.scene.Geometry;
+import com.jme.scene.Node;
 import com.jme.scene.shape.Quad;
 import com.jme.scene.state.AlphaState;
 import com.jme.system.DisplaySystem;
@@ -33,9 +34,10 @@ import com.threerings.jme.util.LinearTimeFunction;
 import com.threerings.jme.util.TimeFunction;
 
 /**
- * Fades the screen in from a solid color or out to a solid color.
+ * Fades a supplied quad (or one that covers the screen) in from a solid color
+ * or out to a solid color.
  */
-public class FadeInOutEffect extends Quad
+public class FadeInOutEffect extends Node
 {
     public FadeInOutEffect (ColorRGBA color, float startAlpha, float endAlpha,
                             float duration, boolean overUI)
@@ -47,23 +49,27 @@ public class FadeInOutEffect extends Quad
     public FadeInOutEffect (ColorRGBA color, TimeFunction alphaFunc,
                             boolean overUI)
     {
+        this(null, color, alphaFunc, overUI);
+        setQuad(createCurtain());
+    }
+
+    public FadeInOutEffect (Quad quad, ColorRGBA color, TimeFunction alphaFunc,
+                            boolean overUI)
+    {
         super("FadeInOut");
 
         _color = new ColorRGBA(
             color.r, color.g, color.b, alphaFunc.getValue(0));
         _alphaFunc = alphaFunc;
 
-        // we need to render in the ortho queue
+        if (quad != null) {
+            setQuad(quad);
+        }
+
         setRenderQueueMode(Renderer.QUEUE_ORTHO);
-
-        // create a quad the size of the screen
-        DisplaySystem ds = DisplaySystem.getDisplaySystem();
-        float width = ds.getWidth(), height = ds.getHeight();
-        initialize(width, height);
-        setLocalTranslation(new Vector3f(width/2, height/2, 0f));
         setZOrder(overUI ? -1 : 1);
-        setDefaultColor(_color);
 
+        DisplaySystem ds = DisplaySystem.getDisplaySystem();
         AlphaState astate = ds.getRenderer().createAlphaState();
         astate.setBlendEnabled(true);
         astate.setSrcFunction(AlphaState.SB_SRC_ALPHA);
@@ -75,11 +81,28 @@ public class FadeInOutEffect extends Quad
     }
 
     /**
+     * Configures the quad that will be faded in or out.
+     */
+    public void setQuad (Quad quad)
+    {
+        attachChild(quad);
+        quad.setDefaultColor(_color);
+    }
+
+    /**
      * Allows the fade to be paused.
      */
     public void setPaused (boolean paused)
     {
         _paused = paused;
+    }
+
+    /**
+     * Indicates whether or not the fade is paused.
+     */
+    public boolean isPaused ()
+    {
+        return _paused;
     }
 
     // documentation inherited
@@ -102,6 +125,19 @@ public class FadeInOutEffect extends Quad
      */
     protected void fadeComplete ()
     {
+    }
+
+    /**
+     * Creates a quad that covers the entire screen for full-screen fades.
+     */
+    protected Quad createCurtain ()
+    {
+        // create a quad the size of the screen
+        DisplaySystem ds = DisplaySystem.getDisplaySystem();
+        float width = ds.getWidth(), height = ds.getHeight();
+        Quad curtain = new Quad("curtain", width, height);
+        curtain.setLocalTranslation(new Vector3f(width/2, height/2, 0f));
+        return curtain;
     }
 
     protected ColorRGBA _color;
