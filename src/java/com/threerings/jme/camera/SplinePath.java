@@ -97,7 +97,6 @@ public class SplinePath extends CameraPath
         
         // update the camera's location and orientation
         cam.setFrame(_loc, _left, _up, _dir);
-        cam.onFrameChange();
         
         return _elapsed >= _duration;
     }
