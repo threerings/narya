@@ -38,13 +38,14 @@ public class SplinePath extends CameraPath
      *
      * @param tloc the target location
      * @param tdir the target direction
+     * @param axis the heading axis (typically {@link Vector3f#UNIT_Z})
      * @param duration the duration of the path
      * @param tension the tension parameter, which can range from zero to one:
      * higher tension values create a more direct path with a sharper turn,
      * lower values create a rounder path with a smoother turn
      */
     public SplinePath (CameraHandler camhand, Vector3f tloc,
-        Vector3f tdir, float duration, float tension)
+        Vector3f tdir, Vector3f axis, float duration, float tension)
     {
         super(camhand);
         
@@ -55,7 +56,8 @@ public class SplinePath extends CameraPath
         float tscale = (1f - tension) * _p0.distance(_p1);
         _m0 = cam.getDirection().mult(tscale);
         _m1 = tdir.mult(tscale);
-        
+
+        _axis = axis;        
         _duration = duration;
     }
     
@@ -86,21 +88,22 @@ public class SplinePath extends CameraPath
         _loc.scaleAdd(h01, _p1, _loc);
         _loc.scaleAdd(h11, _m1, _loc);
         
-        // compute the left and up vectors using the camera's current
-        // up vector
+        // compute the left and up vectors using the direction and
+        // axis vectors
         Camera cam = _camhand.getCamera();
-        cam.getUp().cross(_dir, _left);
+        _axis.cross(_dir, _left);
         _left.normalizeLocal();
         _dir.cross(_left, _up);
         
         // update the camera's location and orientation
         cam.setFrame(_loc, _left, _up, _dir);
+        cam.onFrameChange();
         
         return _elapsed >= _duration;
     }
  
     /** The parameters of the spline. */
-    Vector3f _p0, _m0, _p1, _m1;
+    Vector3f _p0, _m0, _p1, _m1, _axis;
     
     /** Working vectors. */
     Vector3f _loc = new Vector3f(), _left = new Vector3f(),
