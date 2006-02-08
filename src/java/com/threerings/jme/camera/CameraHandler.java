@@ -358,10 +358,10 @@ public class CameraHandler
     protected Vector3f _temp = new Vector3f();
 
     protected boolean _boundViaFrustum;
-    protected float _minX = Float.MIN_VALUE, _maxX = Float.MAX_VALUE;
-    protected float _minY = Float.MIN_VALUE, _maxY = Float.MAX_VALUE;
-    protected float _minZ = Float.MIN_VALUE, _maxZ = Float.MAX_VALUE;
-    protected float _minTilt = Float.MIN_VALUE, _maxTilt = Float.MAX_VALUE;
+    protected float _minX = -Float.MAX_VALUE, _maxX = Float.MAX_VALUE;
+    protected float _minY = -Float.MAX_VALUE, _maxY = Float.MAX_VALUE;
+    protected float _minZ = -Float.MAX_VALUE, _maxZ = Float.MAX_VALUE;
+    protected float _minTilt = -Float.MAX_VALUE, _maxTilt = Float.MAX_VALUE;
 
     protected Vector3f _rxdir = new Vector3f(1, 0, 0);
     protected Vector3f _rydir = new Vector3f(0, 1, 0);
