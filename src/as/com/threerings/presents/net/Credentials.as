@@ -13,13 +13,13 @@ public class Credentials
 
     // documentation inherited from interface Streamable
     public function writeObject (out :ObjectOutputStream) :void
-        throws IOError
+        //throws IOError
     {
     }
 
     // documentation inherited from interface Streamable
     public function readObject (in :ObjectInputStream) :void
-        throws IOError
+        //throws IOError
     {
     }
 
