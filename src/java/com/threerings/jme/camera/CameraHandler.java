@@ -158,6 +158,16 @@ public class CameraHandler
     }
 
     /**
+     * Skips immediately to the end of the current camera path.
+     */
+    public void skipPath ()
+    {
+        // fake an update far enough into the future to trick the camera path
+        // into thinking it's done
+        update(100);
+    }
+
+    /**
      * This is called by the {@link JmeApp} on every frame to allow the handler
      * to update the camera as necessary.
      */
