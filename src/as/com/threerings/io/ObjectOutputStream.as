@@ -33,6 +33,12 @@ public class ObjectOutputStream
             // create a class mapping if we've not got one
             if (cmap === undefined) {
                 var streamer :Streamer = Streamer.getStreamer(cname);
+                if (streamer === undefined) {
+                    // TODO
+                    trace("OMG, cannot stream ", cname);
+                    return;
+                }
+
                 cmap = new ClassMapping(_nextCode++, cname, streamer);
                 _classMap[cname] = cmap;
 

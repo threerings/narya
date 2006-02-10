@@ -1,0 +1,35 @@
+package com.threerings.io.streamers {
+
+import com.threerings.io.ObjectInputStream;
+import com.threerings.io.ObjectOutputStream;
+import com.threerings.io.Streamer;
+
+/**
+ * A Streamer for int objects.
+ */
+public class IntStreamer extends Streamer
+{
+    public function IntStreamer ()
+    {
+        super(int);
+    }
+
+    public override function createObject (ins :ObjectInputStream) :*
+    {
+        return ins.readInt();
+    }
+
+    public override function writeObject (obj :*, out :ObjectOutputStream,
+            useWriter :Boolean) :void
+    {
+        var i :int = (obj as int);
+        out.writeInt(i);
+    }
+
+    public override function readObject (obj :*, ins :ObjectInputStream,
+            useReader :Boolean) :void
+    {
+        // nothing here, the int is fully read in createObject()
+    }
+}
+}

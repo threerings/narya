@@ -1,9 +1,18 @@
 package com.threerings.io {
 
+import flash.util.ByteArray;
+
 import com.threerings.util.SimpleMap;
+
+import com.threerings.io.streamers.ArrayStreamer;
+import com.threerings.io.streamers.ByteArrayStreamer;
+import com.threerings.io.streamers.IntStreamer;
+import com.threerings.io.streamers.NumberStreamer;
+import com.threerings.io.streamers.StringStreamer;
 
 public class Streamer
 {
+    /*
     public static function getStreamer (className :String) :Streamer
         //throws IOError
     {
@@ -18,6 +27,58 @@ public class Streamer
         }
 
         return streamer;
+    }
+    */
+
+    public static function getStreamer (obj :*) :Streamer
+    {
+        if (_streamerMap == null) {
+            createStreamers();
+        }
+
+        if (obj is Streamable) {
+            return null;
+
+        } else if (obj is String) {
+            return STRING_STREAMER;
+
+        } else if (obj is int) {
+            return INT_STREAMER;
+
+        } else if (obj is Number) {
+            return NUMBER_STREAMER;
+
+        } else if (obj is Array) {
+            return ARRAY_STREAMER;
+
+        } else if (obj is ByteArray) {
+            return BYTE_ARRAY_STREAMER;
+
+        } else {
+            return undefined;
+        }
+    }
+
+    public static function getStreamerByJavaName (jname :String) :Streamer
+    {
+        if (jname === "java.lang.String") {
+            return STRING_STREAMER;
+
+        } else if (jname === "java.lang.Integer") {
+            return INT_STREAMER;
+
+        } else if (jname === "java.lang.Double") {
+            return NUMBER_STREAMER;
+
+        } else if (jname === "[Ljava.lang.Object") {
+            return ARRAY_STREAMER;
+
+        } else if (jname === "[B") {
+            return BYTE_ARRAY_STREAMER;
+
+        } else {
+            return null;
+        }
     }
 
     /** This should be a protected constructor. */
@@ -86,12 +147,18 @@ public class Streamer
     protected static function createStreamers () :void
     {
         _streamerMap = new SimpleMap();
-
-        // TODO: fill in with the basic streamers
     }
 
     protected var _targ :Class;
 
     protected static var _streamerMap :SimpleMap;
+
+
+    protected static const STRING_STREAMER :Streamer = new StringStreamer();
+    protected static const BYTE_ARRAY_STREAMER :Streamer =
+        new ByteArrayStreamer();
+    protected static const ARRAY_STREAMER :Streamer = new ArrayStreamer();
+    protected static const INT_STREAMER :Streamer = new IntStreamer();
+    protected static const NUMBER_STREAMER :Streamer = new NumberStreamer();
 }
 }
