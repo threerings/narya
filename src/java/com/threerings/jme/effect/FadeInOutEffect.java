@@ -122,9 +122,11 @@ public class FadeInOutEffect extends Node
 
     /**
      * Called (only once) when we have reached the end of our fade.
+     * Automatically detaches this effect from the hierarchy.
      */
     protected void fadeComplete ()
     {
+        getParent().detachChild(this);
     }
 
     /**
