@@ -10,9 +10,20 @@ import com.threerings.util.SimpleMap;
 
 public class ObjectInputStream
 {
-    public function ObjectInputStream (targ:IDataInput)
+    public function ObjectInputStream (source :IDataInput = null)
     {
-        _targ = targ;
+        if (source == null) {
+            source = new ByteArray();
+        }
+        _source = source;
+    }
+
+    /**
+     * Set a new source from which to read our data.
+     */
+    public function setSource (source :IDataInput)
+    {
+        _source = source;
     }
 
     public function readObject () :*
@@ -104,50 +115,50 @@ public class ObjectInputStream
     public function readBoolean () :Boolean
         //throws IOError
     {
-        return _targ.readBoolean();
+        return _source.readBoolean();
     }
 
     public function readByte () :int
         //throws IOError
     {
-        return _targ.readByte();
+        return _source.readByte();
     }
 
     public function readBytes (bytes :ByteArray, offset :uint = 0,
             length :uint = 0) :void
         //throws IOError
     {
-        _targ.readBytes(bytes, offset, length);
+        _source.readBytes(bytes, offset, length);
     }
 
     public function readDouble () :Number
         //throws IOError
     {
-        return _targ.readDouble();
+        return _source.readDouble();
     }
 
     public function readFloat () :Number
         //throws IOError
     {
-        return _targ.readFloat();
+        return _source.readFloat();
     }
 
     public function readInt () :int
         //throws IOError
     {
-        return _targ.readInt();
+        return _source.readInt();
     }
 
     public function readShort () :int
         //throws IOError
     {
-        return _targ.readShort();
+        return _source.readShort();
     }
 
     public function readUTF () :String
         //throws IOError
     {
-        return _targ.readUTF();
+        return _source.readUTF();
     }
 
     /**
@@ -160,7 +171,7 @@ public class ObjectInputStream
     }
 
     /** The target DataInput that we route input from. */
-    protected var _targ :IDataInput;
+    protected var _source :IDataInput;
 
     /** The object currently being read from the stream. */
     protected var _current :*;

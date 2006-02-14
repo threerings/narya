@@ -1,5 +1,7 @@
 package com.threerings.presents.net {
 
+import com.threerings.io.ObjectInputStream;
+import com.threerings.io.ObjectOutputStream;
 import com.threerings.io.Streamable;
 
 public class DownstreamMessage
@@ -13,7 +15,8 @@ public class DownstreamMessage
     // documentation inherited from interface Streamable
     public function writeObject (out :ObjectOutputStream) :void
     {
-        out.writeShort(messageId);
+        trace("This is client code: Downstream messages shouldn't be written");
+        //out.writeShort(messageId);
     }
 
     // documentation inherited from interface Streamable

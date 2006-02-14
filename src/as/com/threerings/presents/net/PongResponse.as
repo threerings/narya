@@ -28,11 +28,6 @@ public class PongResponse extends DownstreamMessage
         return _unpackStamp;
     }
 
-    public function writeObject (out :ObjectOutputStream)
-    {
-        trace("write a pong on the client??");
-    }
-
     public function readObject (ins :ObjectInputStream)
     {
         _unpackStamp = new Date().getTime();

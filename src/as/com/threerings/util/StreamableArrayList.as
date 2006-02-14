@@ -1,36 +1,30 @@
-package com.threerings.presents.dobj {
+package com.threerings.util {
 
-import flash.events.EventDispatcher;
+import mx.collections.ArrayCollection;
 
 import com.threerings.io.ObjectInputStream;
 import com.threerings.io.ObjectOutputStream;
 import com.threerings.io.Streamable;
 
-public class DObject extends EventDispatcher
+public class StreamableArrayList extends ArrayCollection
     implements Streamable
 {
-    public function getOid ():int
-    {
-        return _oid;
-    }
-
-    public function postEvent (DEvent event) :void
-    {
-
-    }
-
     // documentation inherited from interface Streamable
     public function writeObject (out :ObjectOutputStream) :void
     {
-        out.writeInt(_oid);
+        out.writeInt(source.length);
+        for (var ii :int = 0; ii < source.length; ii++) {
+            out.writeObject(source[ii]);
+        }
     }
 
     // documentation inherited from interface Streamable
     public function readObject (ins :ObjectInputStream) :void
     {
-        _oid = ins.readInt();
+        var ecount :int = ins.readInt();
+        for (var ii :int = 0; ii < ecount; ii++) {
+            source[ii] = ins.readObject();
+        }
     }
-
-    protected var _oid :int;
 }
 }

@@ -26,12 +26,6 @@ public class PingRequest extends UpstreamMessage
         super.writeObject(out);
     }
 
-    // documentation inherited
-    public function readObject (ins :ObjectInputStream)
-    {
-        trace("read PingRequest on the client?");
-    }
-
     /** A time stamp obtained when we serialize this object. */
     protected var _packStamp :Number;
 }

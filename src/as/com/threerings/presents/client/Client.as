@@ -30,14 +30,49 @@ public class Client extends EventDispatcher
         _port = port;
     }
 
+    public function getHostname () :String
+    {
+        return _hostname;
+    }
+
+    public function getPort () :int
+    {
+        return _port;
+    }
+
+    public function getCredentials () :Credentials
+    {
+        return _creds;
+    }
+
     public function setCredentials (creds :Credentials) :void
     {
         _creds = creds;
     }
 
+    public function getVersion () :String
+    {
+        return _version;
+    }
+
+    public function setVersion (version :String)
+    {
+        _version = version;
+    }
+
+    public function getAuthResponseData () :AuthResponseData
+    {
+        return _authData;
+    }
+
     public function getDObjectManager () :DObjectManager
     {
         return _omgr;
+    }
+
+    public function getClientOid () :int
+    {
+        return _cloid;
     }
 
     public function getClientObject () :ClientObject
@@ -48,6 +83,24 @@ public class Client extends EventDispatcher
     public function getInvocationDirector () :InvocationDirector
     {
         return _invdir;
+    }
+
+    public function getService (clazz :Class) :InvocationService
+    {
+        if (_bstrap == null) {
+            return null;
+        }
+
+        // TODO
+    }
+
+    public function requireService (clazz :Class) :InvocationService
+    {
+        var isvc :InvocationService = getService(clazz);
+        if (isvc == null) {
+            throw new Error(clazz + " isn't available. I can't bear to go on.");
+        }
+        return isvc;
     }
 
     public function getBootstrapData () :BootstrapData
@@ -76,9 +129,11 @@ public class Client extends EventDispatcher
         _comm = new Communicator(this);
         _comm.logon();
 
-        _tickInterval = new Timer(5000);
-        _tickInterval.addEventListener(TimerEvent.TIMER, tick);
-        _tickInterval.start();
+        if (_tickInterval == null) {
+            _tickInterval = new Timer(5000);
+            _tickInterval.addEventListener(TimerEvent.TIMER, tick);
+            _tickInterval.start();
+        }
         return true;
     }
 
@@ -126,6 +181,22 @@ public class Client extends EventDispatcher
         _invdir.init(omgr, _cloid, this);
     }
 
+    /**
+     * Called every five seconds; ensures that we ping the server if we
+     * haven't communicated in a long while.
+     */
+    protected function tick (event :TimerEvent) :void
+    {
+        if (_comm == null) {
+            return;
+        }
+
+        var now :Number = new Date().getTime();
+        if (now - _comm.getLastWrite() > PingRequest.PING_INTERVAL) {
+            _comm.postMessage(new PingRequest());
+        }
+    }
+
     protected function gotClientObject (clobj :ClientObject) :void
     {
         _clobj = clobj;
@@ -145,20 +216,31 @@ public class Client extends EventDispatcher
         notifyObservers(ClientEvent.CLIENT_OBJECT_CHANGED);
     }
 
-    /**
-     * Called every five seconds; ensures that we ping the server if we
-     * haven't communicated in a long while.
-     */
-    protected function tick (event :TimerEvent) :void
+    protected function cleanup (logonError :Error) :void
     {
-        if (_comm == null) {
-            return;
-        }
+        // clear out our references
+        _comm = null;
+        _omgr = null;
+        _clobj = null;
+        _cloid = -1;
 
-        var now :Number = new Date().getTime();
-        if (now - _comm.getLastWrite() > PingRequest.PING_INTERVAL) {
-            _comm.postMessage(new PingRequest());
+        // and let our invocation director know we're logged off
+        _invdir.cleanup();
+
+        // if this was due to a logon error, we can notify our listeners
+        // now that we're cleaned up: they may want to retry logon on
+        // another port, or something
+        if (logonError != null) {
+            notifyObservers(ClientEvent.CLIENT_FAILED_TO_LOGON, logonError);
         }
+    }
+
+    /**
+     * Called by the omgr when we receive a pong packet.
+     */
+    protected function gotPong (pong :PongResponse) :void
+    {
+        // TODO: compute time delta bowl-shit
     }
 
     /**

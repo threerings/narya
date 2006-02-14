@@ -29,7 +29,8 @@ public class UpstreamMessage
     // documentation inherited from interface Streamable
     public function readObject (ins :ObjectInputStream) :void
     {
-        messageId = ins.readShort();
+        trace("This is client code: Upstream messages shouldn't be read");
+        //messageId = ins.readShort();
     }
 
     /**
