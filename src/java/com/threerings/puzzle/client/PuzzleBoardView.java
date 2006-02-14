@@ -38,6 +38,7 @@ import com.samskivert.util.StringUtil;
 import com.threerings.media.VirtualMediaPanel;
 import com.threerings.media.animation.Animation;
 import com.threerings.media.animation.AnimationAdapter;
+import com.threerings.media.animation.AnimationArranger;
 import com.threerings.media.image.Mirage;
 import com.threerings.media.sprite.Sprite;
 
@@ -292,17 +293,11 @@ public abstract class PuzzleBoardView extends VirtualMediaPanel
      */
     public void trackAvoidAnimation (Animation anim)
     {
-        // reposition the animation as appropriate
-        Rectangle abounds = new Rectangle(anim.getBounds());
-        ArrayList avoidables = (ArrayList)_avoidAnims.clone();
-        if (SwingUtil.positionRect(abounds, _vbounds, avoidables)) {
-            anim.setLocation(abounds.x, abounds.y);
+        // lazy init the arranger
+        if (_avoidArranger == null) {
+            _avoidArranger = new AnimationArranger();
         }
-
-        // add the animation to the list of avoidables
-        _avoidAnims.add(anim);
-        // keep an eye on it so that we can remove it when it's finished
-        anim.addAnimationObserver(_avoidAnimObs);
+        _avoidArranger.positionAvoidAnimation(anim, _vbounds);
     }
 
     // documentation inherited
@@ -393,8 +388,8 @@ public abstract class PuzzleBoardView extends VirtualMediaPanel
     /** The action sprites on the board. */
     protected ArrayList _actionSprites = new ArrayList();
 
-    /** The animations that other animations may wish to avoid. */
-    protected ArrayList _avoidAnims = new ArrayList();
+    /** Prevents certain animations from overlapping others. */
+    protected AnimationArranger _avoidArranger;
 
     /** Our background image. */
     protected Mirage _background;
@@ -409,15 +404,6 @@ public abstract class PuzzleBoardView extends VirtualMediaPanel
     protected AnimationAdapter _actionAnimObs = new AnimationAdapter() {
         public void animationCompleted (Animation anim, long when) {
             animationFinished(anim);
-        }
-    };
-
-    /** Automatically removes avoid animations when they're done. */
-    protected AnimationAdapter _avoidAnimObs = new AnimationAdapter() {
-        public void animationCompleted (Animation anim, long when) {
-            if (!_avoidAnims.remove(anim)) {
-                Log.warning("Couldn't remove avoid animation?! " + anim + ".");
-            }
         }
     };
 
