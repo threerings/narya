@@ -196,9 +196,21 @@ public class SpotSceneDirector extends BasicDirector
     {
         // refuse if there's a pending location change or if we're already
         // at the specified location
-        if (loc.equivalent(_location) || (_pendingLoc != null)) {
+        if (loc.equivalent(_location)) {
             Log.info("Not going to " + loc + "; we're at " + _location +
                      " and we're headed to " + _pendingLoc + ".");
+            if (listener != null) {
+                listener.requestFailed(new Exception(ALREADY_THERE));
+            }
+            return;
+        }
+
+        if (_pendingLoc != null) {
+            Log.info("Not going to " + loc + "; we're at " + _location +
+                " and we're headed to " + _pendingLoc + ".");
+            if (listener != null) {
+                listener.requestFailed(new Exception(MOVE_IN_PROGRESS));
+            }
             return;
         }
 
@@ -206,6 +218,9 @@ public class SpotSceneDirector extends BasicDirector
         if (scene == null) {
             Log.warning("Requested to change locations, but we're not " +
                         "currently in any scene [loc=" + loc + "].");
+            if (listener != null) {
+                listener.requestFailed(new Exception(NO_SUCH_PLACE));
+            }
             return;
         }
 
@@ -247,6 +262,9 @@ public class SpotSceneDirector extends BasicDirector
         if (scene == null) {
             Log.warning("Requested to join cluster, but we're not " +
                         "currently in any scene [froid=" + froid + "].");
+            if (listener != null) {
+                listener.requestFailed(new Exception(NO_SUCH_PLACE));
+            }
             return;
         }
 
