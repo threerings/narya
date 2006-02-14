@@ -28,6 +28,7 @@ import com.threerings.presents.client.BasicDirector;
 import com.threerings.presents.client.Client;
 import com.threerings.presents.client.InvocationService.ConfirmListener;
 import com.threerings.presents.data.ClientObject;
+import com.threerings.presents.server.InvocationException;
 import com.threerings.presents.dobj.AttributeChangeListener;
 import com.threerings.presents.dobj.AttributeChangedEvent;
 import com.threerings.presents.dobj.DObject;
@@ -200,7 +201,7 @@ public class SpotSceneDirector extends BasicDirector
             Log.info("Not going to " + loc + "; we're at " + _location +
                      " and we're headed to " + _pendingLoc + ".");
             if (listener != null) {
-                listener.requestFailed(new Exception(ALREADY_THERE));
+                listener.requestFailed(new InvocationException(ALREADY_THERE));
             }
             return;
         }
@@ -209,7 +210,8 @@ public class SpotSceneDirector extends BasicDirector
             Log.info("Not going to " + loc + "; we're at " + _location +
                 " and we're headed to " + _pendingLoc + ".");
             if (listener != null) {
-                listener.requestFailed(new Exception(MOVE_IN_PROGRESS));
+                listener.requestFailed(
+                    new InvocationException(MOVE_IN_PROGRESS));
             }
             return;
         }
@@ -219,7 +221,7 @@ public class SpotSceneDirector extends BasicDirector
             Log.warning("Requested to change locations, but we're not " +
                         "currently in any scene [loc=" + loc + "].");
             if (listener != null) {
-                listener.requestFailed(new Exception(NO_SUCH_PLACE));
+                listener.requestFailed(new InvocationException(NO_SUCH_PLACE));
             }
             return;
         }
@@ -241,7 +243,7 @@ public class SpotSceneDirector extends BasicDirector
             public void requestFailed (String reason) {
                 _pendingLoc = null;
                 if (listener != null) {
-                    listener.requestFailed(new Exception(reason));
+                    listener.requestFailed(new InvocationException(reason));
                 }
             }
         };
