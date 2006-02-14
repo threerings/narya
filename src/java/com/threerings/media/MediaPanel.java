@@ -117,6 +117,15 @@ public class MediaPanel extends JComponent
     }
 
     /**
+     * Get the bounds of the viewport, in media coordinates. For the base
+     * MediaPanel, this will always be (0, 0, width, height).
+     */
+    public Rectangle getViewBounds ()
+    {
+        return new Rectangle(getWidth(), getHeight());
+    }
+
+    /**
      * Returns a reference to the animation manager used by this media
      * panel.
      */
