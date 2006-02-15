@@ -62,20 +62,19 @@ public class FadeInOutEffect extends Node
             color.r, color.g, color.b, alphaFunc.getValue(0));
         _alphaFunc = alphaFunc;
 
+        DisplaySystem ds = DisplaySystem.getDisplaySystem();
+        _astate = ds.getRenderer().createAlphaState();
+        _astate.setBlendEnabled(true);
+        _astate.setSrcFunction(AlphaState.SB_SRC_ALPHA);
+        _astate.setDstFunction(AlphaState.DB_ONE_MINUS_SRC_ALPHA);
+        _astate.setEnabled(true);
+
         if (quad != null) {
             setQuad(quad);
         }
 
         setRenderQueueMode(Renderer.QUEUE_ORTHO);
         setZOrder(overUI ? -1 : 1);
-
-        DisplaySystem ds = DisplaySystem.getDisplaySystem();
-        AlphaState astate = ds.getRenderer().createAlphaState();
-        astate.setBlendEnabled(true);
-        astate.setSrcFunction(AlphaState.SB_SRC_ALPHA);
-        astate.setDstFunction(AlphaState.DB_ONE_MINUS_SRC_ALPHA);
-        astate.setEnabled(true);
-        setRenderState(astate);
 
         updateRenderState();
     }
@@ -87,6 +86,7 @@ public class FadeInOutEffect extends Node
     {
         attachChild(quad);
         quad.setDefaultColor(_color);
+        quad.setRenderState(_astate);
     }
 
     /**
@@ -137,12 +137,13 @@ public class FadeInOutEffect extends Node
         // create a quad the size of the screen
         DisplaySystem ds = DisplaySystem.getDisplaySystem();
         float width = ds.getWidth(), height = ds.getHeight();
-        Quad curtain = new Quad("curtain", width, height);
+        Quad curtain = new Quad("curtain" + hashCode(), width, height);
         curtain.setLocalTranslation(new Vector3f(width/2, height/2, 0f));
         return curtain;
     }
 
     protected ColorRGBA _color;
+    protected AlphaState _astate;
     protected TimeFunction _alphaFunc;
     protected boolean _paused;
 }

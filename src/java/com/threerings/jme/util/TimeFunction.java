@@ -76,6 +76,12 @@ public abstract class TimeFunction
         return _elapsed >= _duration;
     }
 
+    /** Generates a string representation of this instance. */
+    public String toString ()
+    {
+        return _start + " to " + _end + ", " + _elapsed + " of " + _duration;
+    }
+
     /**
      * This must be implemented by our derived class to compute our value given
      * the currently stored {@link #_elapsed} time.
