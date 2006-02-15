@@ -1,5 +1,5 @@
 //
-// $Id: ObjectOutputStream.java,v 1.3 2004/08/27 02:12:36 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -81,47 +81,37 @@ public class ObjectOutputStream extends DataOutputStream
             _classmap = new HashMap();
         }
 
-        try {
-            // otherwise, look up the class mapping record
-            Class sclass = object.getClass();
-            ClassMapping cmap = (ClassMapping)_classmap.get(sclass);
-            _current = object;
+        // otherwise, look up the class mapping record
+        Class sclass = object.getClass();
+        ClassMapping cmap = (ClassMapping)_classmap.get(sclass);
 
-            // create a class mapping for this class if we've not got one
-            if (cmap == null) {
-                // create a streamer instance and assign a code to this class
-                Streamer streamer = Streamer.getStreamer(sclass);
-                // we specifically do not inline the getStreamer() call
-                // into the ClassMapping constructor because we want to be
-                // sure not to call _nextCode++ if getStreamer() throws an
-                // exception
-                cmap = new ClassMapping(_nextCode++, sclass, streamer);
-                _classmap.put(sclass, cmap);
+        // create a class mapping for this class if we've not got one
+        if (cmap == null) {
+            // create a streamer instance and assign a code to this class
+            Streamer streamer = Streamer.getStreamer(sclass);
+            // we specifically do not inline the getStreamer() call
+            // into the ClassMapping constructor because we want to be
+            // sure not to call _nextCode++ if getStreamer() throws an
+            // exception
+            cmap = new ClassMapping(_nextCode++, sclass, streamer);
+            _classmap.put(sclass, cmap);
 
-                // make sure we didn't blow past our maximum class count
-                if (_nextCode <= 0) {
-                    throw new RuntimeException("Too many unique classes " +
-                                               "written to ObjectOutputStream");
-                }
-
-                // writing a negative class code indicates that the class
-                // name will follow
-                writeShort(-cmap.code);
-                writeUTF(sclass.getName());
-
-            } else {
-                writeShort(cmap.code);
+            // make sure we didn't blow past our maximum class count
+            if (_nextCode <= 0) {
+                throw new RuntimeException("Too many unique classes " +
+                                           "written to ObjectOutputStream");
             }
 
-            // now write the instance data
-            _streamer = cmap.streamer;
-            _streamer.writeObject(object, this, true);
+            // writing a negative class code indicates that the class
+            // name will follow
+            writeShort(-cmap.code);
+            writeUTF(sclass.getName());
 
-        } finally {
-            // clear out our current object references
-            _current = null;
-            _streamer = null;
+        } else {
+            writeShort(cmap.code);
         }
+
+        writeBareObject(object, cmap.streamer);
     }
 
     /**
@@ -137,16 +127,21 @@ public class ObjectOutputStream extends DataOutputStream
     public void writeBareObject (Object object)
         throws IOException
     {
-        try {
-            // get the streamer for objects of this type
-            _streamer = Streamer.getStreamer(object.getClass());
-            _current = object;
+        writeBareObject(object, Streamer.getStreamer(object.getClass()));
+    }
 
-            // now write the instance data
-            _streamer.writeObject(object, this, true);
+    /**
+     * Write a {@link Streamable} instance without associated class metadata.
+     */
+    protected void writeBareObject (Object obj, Streamer streamer)
+        throws IOException
+    {
+        _current = obj;
+        _streamer = streamer;
+        try {
+            _streamer.writeObject(obj, this, true);
 
         } finally {
-            // clear out our current object references
             _current = null;
             _streamer = null;
         }

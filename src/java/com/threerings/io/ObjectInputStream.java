@@ -150,24 +150,13 @@ public class ObjectInputStream extends DataInputStream
             }
 
             // create an instance of the appropriate object
-            _streamer = cmap.streamer;
-            Object target = _streamer.createObject(this);
-            _current = target;
-
-            // now read the instance data
-            _streamer.readObject(target, this, true);
-
-            // and return the newly read object
+            Object target = cmap.streamer.createObject(this);
+            readBareObject(target, cmap.streamer);
             return target;
 
         } catch (OutOfMemoryError oome) {
             throw (IOException)
                 new IOException("Malformed object data").initCause(oome);
-
-        } finally {
-            // clear out our current object references
-            _current = null;
-            _streamer = null;
         }
     }
 
@@ -181,12 +170,19 @@ public class ObjectInputStream extends DataInputStream
     public void readBareObject (Object object)
         throws IOException, ClassNotFoundException
     {
-        try {
-            // obtain the streamer for objects of this class
-            _streamer = Streamer.getStreamer(object.getClass());
-            _current = object;
+        readBareObject(object, Streamer.getStreamer(object.getClass()));
+    }
 
-            // now read the instance data
+    /**
+     * Reads an object from the input stream that was previously written
+     * with {@link ObjectOutputStream#writeBareObject}.
+     */
+    protected void readBareObject (Object object, Streamer streamer)
+        throws IOException, ClassNotFoundException
+    {
+        _current = object;
+        _streamer = streamer;
+        try {
             _streamer.readObject(object, this, true);
 
         } finally {
