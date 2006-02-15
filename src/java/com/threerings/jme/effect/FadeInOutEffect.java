@@ -75,8 +75,6 @@ public class FadeInOutEffect extends Node
 
         setRenderQueueMode(Renderer.QUEUE_ORTHO);
         setZOrder(overUI ? -1 : 1);
-
-        updateRenderState();
     }
 
     /**
@@ -87,6 +85,7 @@ public class FadeInOutEffect extends Node
         attachChild(quad);
         quad.setDefaultColor(_color);
         quad.setRenderState(_astate);
+        quad.updateRenderState();
     }
 
     /**
