@@ -13,7 +13,7 @@ public class ByteArrayStreamer extends Streamer
 {
     public function ByteArrayStreamer ()
     {
-        super(ByteArray);
+        super(ByteArray, "[B"); // yes, that's the Java class for a byte[].
     }
 
     public override function createObject (ins :ObjectInputStream) :*
@@ -23,16 +23,14 @@ public class ByteArrayStreamer extends Streamer
         return bytes;
     }
 
-    public override function writeObject (obj :*, out :ObjectOutputStream,
-            useWriter :Boolean) :void
+    public override function writeObject (obj :*, out :ObjectOutputStream) :void
     {
         var bytes :ByteArray = (obj as ByteArray);
         out.writeInt(bytes.length);
         out.writeBytes(bytes);
     }
 
-    public override function readObject (obj :*, ins :ObjectInputStream,
-            useReader :Boolean) :void
+    public override function readObject (obj :*, ins :ObjectInputStream) :void
     {
         var bytes :ByteArray = (obj as ByteArray);
         ins.readBytes(bytes, 0, bytes.length);

@@ -51,3 +51,10 @@ Notes
 - constructors do not defaultly call super()- be sure to do it explicitely.
   Maybe we should get in the habit of doing it in Java for consistency and
   explicitness.
+
+- I'm a little shaky still about how I'm going to handle arrays. In
+  ActionScript all arrays (except ByteArray) are the same type: Array.
+  If class A is extended by B and C, the server could pass around an array of
+  A, filled with B and C elements. I would have no way on the client to
+  inspect an array like that and know to tell the server that it's an A[].
+  Punting completely on Arrays for now.

@@ -21,6 +21,7 @@ public class Communicator
     {
         // create the socket and set up listeners
         _socket = new Socket();
+        _socket.endian = Endian.BIG_ENDIAN;
         _socket.addEventListener(Event.CONNECT, socketOpened);
         _socket.addEventListener(IOErrorEvent.IO_ERROR, socketError);
         _socket.addEventListener(Event.CLOSE, socketClosed);

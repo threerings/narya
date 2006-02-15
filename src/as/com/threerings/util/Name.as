@@ -30,7 +30,7 @@ public class Name extends Object
         return Name.isBlank(this);
     }
 
-    public /*override*/ function toString () :String
+    public override function toString () :String
     {
         return _name;
     }
@@ -65,8 +65,6 @@ public class Name extends Object
             out.writeUTF(_name);
         }
         */
-
-
     }
 
     // documentation inherited from interface Streamable

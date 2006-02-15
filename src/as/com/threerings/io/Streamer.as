@@ -32,87 +32,76 @@ public class Streamer
 
     public static function getStreamer (obj :*) :Streamer
     {
-        if (_streamerMap == null) {
+        if (obj is Streamable) {
+            return null;
+        }
+
+        if (_streamers == null) {
             createStreamers();
         }
 
-        if (obj is Streamable) {
-            return null;
-
-        } else if (obj is String) {
-            return STRING_STREAMER;
-
-        } else if (obj is int) {
-            return INT_STREAMER;
-
-        } else if (obj is Number) {
-            return NUMBER_STREAMER;
-
-        } else if (obj is Array) {
-            return ARRAY_STREAMER;
-
-        } else if (obj is ByteArray) {
-            return BYTE_ARRAY_STREAMER;
-
-        } else {
-            return undefined;
+        var s :Streamer;
+        for (var ii :int = 0; ii < _streamers.lenght; ii++) {
+            s = (_streamers[ii] as Streamer);
+            if (s.isStreamerFor(obj)) {
+                return s;
+            }
         }
+
+        return undefined;
     }
 
     public static function getStreamerByJavaName (jname :String) :Streamer
     {
-        if (jname === "java.lang.String") {
-            return STRING_STREAMER;
-
-        } else if (jname === "java.lang.Integer") {
-            return INT_STREAMER;
-
-        } else if (jname === "java.lang.Double") {
-            return NUMBER_STREAMER;
-
-        } else if (jname === "[Ljava.lang.Object") {
-            return ARRAY_STREAMER;
-
-        } else if (jname === "[B") {
-            return BYTE_ARRAY_STREAMER;
-
-        } else {
-            return null;
+        if (_streamers == null) {
+            createStreamers();
         }
+
+        var s :Streamer;
+        for (var ii :int = 0; ii < _streamers.length; ii++) {
+            s = (_streamers[ii] as Streamer);
+            if (s.getJavaClassName() === jname) {
+                return s;
+            }
+        }
+
+        return null;
     }
 
     /** This should be a protected constructor. */
-    public function Streamer (targ :Class)
+    public function Streamer (targ :Class, jname :String)
         //throws IOError
     {
         _targ = targ;
+        _jname = jname;
+    }
+
+    public function isStreamerFor (obj :*) :Boolean
+    {
+        return (obj is _targ); // scripting langs are weird
     }
 
     /**
      * Return the String to use to identify the class that we're streaming.
      */
-    // TODO
-    public function getClassName () :String
+    public function getJavaClassName () :String
     {
-        return "TODO: javaname";
+        return _jname;
     }
 
-    public function writeObject (obj :*, out :ObjectOutputStream,
-            useWriter :Boolean) :void
+    public function writeObject (obj :*, out :ObjectOutputStream) :void
         //throws IOError
     {
-        // TODO: check use of isProtoTypeOf, it's unclear if it's
-        // going to do what we want
-        if (useWriter && obj.isPrototypeOf(Streamable)) {
-            obj.writeObject(out);
-            return;
+        trace("TODO");
+
+        if (obj is Array) {
+            trace("Arrays not yet done. Crap!");
+            /**
+            var arr :Array = (obj as Array); // not strictly necessary
+            var length :int = arr.length;
+            out.writeInt(length);
+            */
         }
-
-        // TODO: cope with arrays
-
-        // write out the fields... this is bogus because
-        // we just want to call the streamer method
-        obj.writeObject(out);
     }
 
     public function createObject (ins :ObjectInputStream) :*
@@ -122,22 +111,10 @@ public class Streamer
         return new _targ();
     }
 
-    public function readObject (obj :*, ins :ObjectInputStream,
-            useReader :Boolean) :void
+    public function readObject (obj :*, ins :ObjectInputStream) :void
         //throws IOError
     {
-        // TODO: check use of isProtoTypeOf, it's unclear if it's
-        // going to do what we want
-        if (useReader && obj.isPrototypeOf(Streamable)) {
-            obj.readObject(ins);
-            return;
-        }
-
-        // TODO: cope with arrays
-
-        // read in the fields... this is bogus because we just
-        // want to call the streamer method
-        obj.readObject(ins);
+        trace("TODO");
     }
 
     /**
@@ -146,19 +123,23 @@ public class Streamer
      */
     protected static function createStreamers () :void
     {
-        _streamerMap = new SimpleMap();
+        _streamers = new Array();
+
+        // add our default streamers
+        _streamers.push(
+            new StringStreamer(),
+            new IntStreamer(),
+            new NumberStreamer(),
+            new ArrayStreamer(),
+            new ByteArrayStreamer()
+        );
     }
 
     protected var _targ :Class;
 
-    protected static var _streamerMap :SimpleMap;
+    protected var _jname :String;
 
-
-    protected static const STRING_STREAMER :Streamer = new StringStreamer();
-    protected static const BYTE_ARRAY_STREAMER :Streamer =
-        new ByteArrayStreamer();
-    protected static const ARRAY_STREAMER :Streamer = new ArrayStreamer();
-    protected static const INT_STREAMER :Streamer = new IntStreamer();
-    protected static const NUMBER_STREAMER :Streamer = new NumberStreamer();
+    /** Just a list of our standard streamers. */
+    protected static var _streamers :Array;
 }
 }

@@ -7,7 +7,6 @@ import com.threerings.util.ClassUtil;
 import com.threerings.util.SimpleMap;
 
 public class ObjectOutputStream
-//    implements IDataOutput
 {
     public function ObjectOutputStream (targ :IDataOutput)
     {
@@ -23,57 +22,55 @@ public class ObjectOutputStream
             return;
         }
 
-        try {
-            var cname :String = ClassUtil.getClassName(obj);
+        var cname :String = ClassUtil.getClassName(obj);
+        // look up the class mapping record
+        var cmap :ClassMapping = _classMap[cname];
 
-            // look up the class mapping record
-            var cmap :ClassMapping = _classMap[cname];
-            _current = obj;
-
-            // create a class mapping if we've not got one
-            if (cmap === undefined) {
-                var streamer :Streamer = Streamer.getStreamer(cname);
-                if (streamer === undefined) {
-                    // TODO
-                    trace("OMG, cannot stream ", cname);
-                    return;
-                }
-
-                cmap = new ClassMapping(_nextCode++, cname, streamer);
-                _classMap[cname] = cmap;
-
-                // TODO: if _nextCode blows short, log an error
-
-                writeShort(-cmap.code);
-                writeUTF(cname);
-
-            } else {
-                writeShort(cmap.code);
+        // create a class mapping if we've not got one
+        if (cmap === undefined) {
+            var streamer :Streamer = Streamer.getStreamer(obj);
+            if (streamer === undefined) {
+                // TODO
+                trace("OMG, cannot stream ", cname);
+                return;
             }
 
-            // now write the instance data
-            _streamer = cmap.streamer;
-            _streamer.writeObject(obj, this, true);
+            cmap = new ClassMapping(_nextCode++, cname, streamer);
+            _classMap[cname] = cmap;
 
-        } finally {
-            _current = null;
-            _streamer = null;
+            // TODO: if _nextCode blows short, log an error
+
+            writeShort(-cmap.code);
+            writeUTF((streamer == null) ? cname : streamer.getJavaClassName());
+
+        } else {
+            writeShort(cmap.code);
         }
+
+        writeBareObjectImpl(obj, cmap.streamer);
     }
 
     public function writeBareObject (obj :*) :void
         //throws IOError
     {
+        writeBareObjectImpl(obj, Streamer.getStreamer(obj));
+    }
+
+    protected function writeBareObjectImpl (obj :*, streamer :Streamer)
+    {
+        // if it's Streamable, it goes straight through
+        if (streamer == null) {
+            var sable :Streamable = (obj as Streamable);
+            sable.writeObject(this);
+            return;
+        }
+
+        // otherwise, stream it!
+        _current = obj;
+        _streamer = streamer;
         try {
-            // get the streamer for objects of this type
-            _streamer = Streamer.getStreamer(ClassUtil.getClassName(obj));
-            _current = obj;
-
-            // now write the instance data
-            _streamer.writeObject(obj, this, true);
-
+            _streamer.writeObject(obj, this);
         } finally {
-            // clear out our current object references
             _current = null;
             _streamer = null;
         }
@@ -147,7 +144,7 @@ public class ObjectOutputStream
     public function writeShort (value :int) :void
         //throws IOError
     {
-        _targ.writeInt(value);
+        _targ.writeShort(value);
     }
 
     public function writeUTF (value :String) :void

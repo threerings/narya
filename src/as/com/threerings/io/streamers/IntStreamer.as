@@ -11,7 +11,7 @@ public class IntStreamer extends Streamer
 {
     public function IntStreamer ()
     {
-        super(int);
+        super(int, "java.lang.Integer");
     }
 
     public override function createObject (ins :ObjectInputStream) :*
@@ -19,15 +19,13 @@ public class IntStreamer extends Streamer
         return ins.readInt();
     }
 
-    public override function writeObject (obj :*, out :ObjectOutputStream,
-            useWriter :Boolean) :void
+    public override function writeObject (obj :*, out :ObjectOutputStream) :void
     {
         var i :int = (obj as int);
         out.writeInt(i);
     }
 
-    public override function readObject (obj :*, ins :ObjectInputStream,
-            useReader :Boolean) :void
+    public override function readObject (obj :*, ins :ObjectInputStream) :void
     {
         // nothing here, the int is fully read in createObject()
     }

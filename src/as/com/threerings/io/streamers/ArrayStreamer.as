@@ -11,7 +11,7 @@ public class ArrayStreamer extends Streamer
 {
     public function ArrayStreamer ()
     {
-        super(Array);
+        super(Array, "[Ljava.lang.Object");
     }
 
     public override function createObject (ins :ObjectInputStream) :*
@@ -19,8 +19,7 @@ public class ArrayStreamer extends Streamer
         return new Array(ins.readInt());
     }
 
-    public override function writeObject (obj :*, out :ObjectOutputStream,
-            useWriter :Boolean) :void
+    public override function writeObject (obj :*, out :ObjectOutputStream) :void
     {
         var arr :Array = (obj as Array);
         out.writeInt(arr.length);
@@ -29,8 +28,7 @@ public class ArrayStreamer extends Streamer
         }
     }
 
-    public override function readObject (obj :*, ins :ObjectInputStream,
-            useReader :Boolean) :void
+    public override function readObject (obj :*, ins :ObjectInputStream) :void
     {
         var arr :Array = (obj as Array);
         for (var ii :int = 0; ii < arr.length; ii++) {

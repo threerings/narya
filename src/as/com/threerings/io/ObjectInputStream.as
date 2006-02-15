@@ -29,8 +29,6 @@ public class ObjectInputStream
     public function readObject () :*
         //throws IOError
     {
-        var cmap :ClassMapping;
-
         try {
             // read in the class code for this instance
             var code :int = readShort();
@@ -38,16 +36,19 @@ public class ObjectInputStream
             // a zero code indicates a null value
             if (code == 0) {
                 return null;
+            }
+
+            var cmap :ClassMapping;
 
             // if the code is negative, that means we've never seen it
             // before and class metadata follows
-            } else if (code < 0) {
+            if (code < 0) {
                 // first swap the code into positive land
                 code *= -1;
 
                 // read in the class metadata
                 var cname :String = readUTF();
-                var streamer :Streamer = Streamer.getStreamer(cname);
+                var streamer :Streamer = Streamer.getStreamerByJavaName(cname);
 
                 cmap = new ClassMapping(code, cname, streamer);
                 _classMap[code] = cmap;
@@ -60,34 +61,41 @@ public class ObjectInputStream
                 }
             }
 
-            // create an instance of the appropriate object
-            _streamer = cmap.streamer;
-            var target :* = _streamer.createObject(this);
-            _current = target;
+            var target :*;
+            if (cmap.streamer === null) {
+                var clazz :Class = flash.util.getClassByName(cmap.cname);
+                target = new clazz();
 
-            // now read the instance data
-            _streamer.readObject(target, this, true);
-
-            // and return the newly read object
+            } else {
+                target = cmap.streamer.createObject(this);
+            }
+            readBareObjectImpl(target, cmap.streamer);
             return target;
 
-        } finally {
-            // clear out our current object references
-            _current = null;
-            _streamer = null;
+        } catch (MemoryError me) {
+            throw new IOError("out of memory" + me.message);
         }
     }
 
     public function readBareObject (obj :*) :void
         //throws IOError
     {
-        try {
-            // obtain the streamer for the objects of this class
-            _streamer = Streamer.getStreamer(ClassUtil.getClassName(obj));
-            _current = obj;
+        readBareObjectImpl(obj, Streamer.getStreamer(obj));
+    }
 
-            // now read the instance data
-            _streamer.readObject(obj, this, true);
+    protected function readBareObjectImpl (obj :*, streamer :Streamer) :void
+    {
+        // streamable objects
+        if (streamer == null) {
+            var sable :Streamable = (obj as Streamable);
+            sable.readObject(this);
+            return;
+        }
+
+        _current = obj;
+        _streamer = steamer;
+        try {
+            _streamer.readObject(obj, this);
 
         } finally {
             // clear out our current object references
@@ -125,9 +133,15 @@ public class ObjectInputStream
     }
 
     public function readBytes (bytes :ByteArray, offset :uint = 0,
-            length :uint = 0) :void
+            length :uint = undefined) :void
         //throws IOError
     {
+        // IDataInput reads all available bytes if a length is not passed
+        // in. Protect against an easy error to make by using the length of
+        // the array
+        if (length === undefined) {
+            length = bytes.length;
+        }
         _source.readBytes(bytes, offset, length);
     }
 
@@ -180,6 +194,6 @@ public class ObjectInputStream
     protected var _streamer :Streamer;
 
     /** A map of short class code to ClassMapping info. */
-    protected var _classMap :SimpleMap = new SimpleMap();
+    protected var _classMap :Array = new Array();
 }
 }
