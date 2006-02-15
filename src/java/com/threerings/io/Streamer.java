@@ -29,6 +29,8 @@ import java.lang.reflect.Modifier;
 
 import java.security.AccessController;
 import java.security.PrivilegedAction;
+import java.security.PrivilegedExceptionAction;
+import java.security.PrivilegedActionException;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -100,19 +102,19 @@ public class Streamer
 
             // create our streamer in a privileged block so that it can
             // introspect on the to be streamed class
-            Object res = AccessController.doPrivileged(new PrivilegedAction() {
-                public Object run () {
-                    try {
-                        return new Streamer(target);
-                    } catch (IOException ioe) {
-                        return ioe;
-                    }
-                }
-            });
-            if (res instanceof IOException) {
-                throw (IOException)res;
+            try {
+                stream = (Streamer) AccessController.doPrivileged(
+                    new PrivilegedExceptionAction() {
+                        public Object run ()
+                            throws IOException
+                        {
+                            return new Streamer(target);
+                        }
+                    });
+            } catch (PrivilegedActionException pae) {
+                throw (IOException) pae.getCause();
             }
-            _streamers.put(target, stream = (Streamer)res);
+            _streamers.put(target, stream);
         }
         return stream;
     }
