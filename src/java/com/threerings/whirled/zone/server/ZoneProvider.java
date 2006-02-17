@@ -22,6 +22,7 @@
 package com.threerings.whirled.zone.server;
 
 import com.threerings.presents.data.ClientObject;
+import com.threerings.presents.data.InvocationMarshaller;
 import com.threerings.presents.server.InvocationException;
 import com.threerings.presents.server.InvocationProvider;
 
@@ -158,6 +159,8 @@ public class ZoneProvider
                     Log.info("Abandoning zone move, client gone " +
                              "[who=" + fsource.who()  +
                              ", dest=" + scmgr.where() + "].");
+                    // No one to respond to, just mark that we're okay with it.
+                    InvocationMarshaller.setNoResponse(flistener);
                     return;
                 }
                 finishMoveTo(fsource, fsum, scmgr, fsceneVer, flistener);
