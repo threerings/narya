@@ -63,7 +63,7 @@ public class ObjectInputStream
 
             var target :*;
             if (cmap.streamer === null) {
-                var clazz :Class = flash.util.getClassByName(cmap.cname);
+                var clazz :Class = flash.util.getClassByName(cmap.classname);
                 target = new clazz();
 
             } else {
@@ -87,8 +87,7 @@ public class ObjectInputStream
     {
         // streamable objects
         if (streamer == null) {
-            var sable :Streamable = (obj as Streamable);
-            sable.readObject(this);
+            obj.readObject(this); // obj is a Streamable.
             return;
         }
 
@@ -117,7 +116,7 @@ public class ObjectInputStream
     public function defaultReadObject () :void
         //throws IOError
     {
-        _streamer.readObject(_current, this, false);
+        _streamer.readObject(_current, this);
     }
 
     public function readBoolean () :Boolean

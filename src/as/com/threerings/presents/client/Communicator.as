@@ -109,8 +109,12 @@ public class Communicator
     protected function inputFrameReceived (event :FrameAvailableEvent) :void
     {
         // convert the frame data into a message from the server
-        _inStream.setSource(event.getFrameData());
+        var frameData :ByteArray = event.getFrameData();
+        _inStream.setSource(frameData);
         var msg :DownstreamMessage = _inStream.readObject();
+        if (frameData.bytesAvailable > 0) {
+            trace("OMG, we didn't fully read the frame. Surely there's a bug");
+        }
 
         if (_omgr != null) {
             // if we're logged on, then just do the normal thing
@@ -119,7 +123,7 @@ public class Communicator
         }
 
         // Otherwise, this would be the AuthResponse to our logon attempt.
-        var rsp :AuthResponse = (msg as AuthResponse); // TODO: as correct?
+        var rsp :AuthResponse = (msg as AuthResponse);
         var data :AuthResponseData = rsp.getData();
         if (data.code !== AuthResponseData.SUCCESS) {
             shutdown(new Error(data.code));

@@ -29,6 +29,7 @@ public class ObjectOutputStream
         // create a class mapping if we've not got one
         if (cmap === undefined) {
             var streamer :Streamer = Streamer.getStreamer(obj);
+            // streamer may be null to indicate a Streamable object
             if (streamer === undefined) {
                 // TODO
                 trace("OMG, cannot stream ", cname);
@@ -60,8 +61,7 @@ public class ObjectOutputStream
     {
         // if it's Streamable, it goes straight through
         if (streamer == null) {
-            var sable :Streamable = (obj as Streamable);
-            sable.writeObject(this);
+            obj.writeObject(this); // obj is a Streamable
             return;
         }
 
@@ -101,7 +101,7 @@ public class ObjectOutputStream
         }
 
         // write the instance data
-        _streamer.writeObject(_current, this, false)
+        _streamer.writeObject(_current, this);
     }
 
     public function writeBoolean (value :Boolean) :void

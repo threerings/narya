@@ -11,6 +11,8 @@ Design decisions
 - I am embracing flash's event distribution model because it saved me a bunch
   of work.
 
+- We could use the setter methods on DObject properties to generate dobj
+  events, but so far I haven't gone there.
 
 
 Notes

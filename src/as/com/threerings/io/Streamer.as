@@ -40,11 +40,9 @@ public class Streamer
             createStreamers();
         }
 
-        var s :Streamer;
         for (var ii :int = 0; ii < _streamers.lenght; ii++) {
-            s = (_streamers[ii] as Streamer);
-            if (s.isStreamerFor(obj)) {
-                return s;
+            if (_streamers[ii].isStreamerFor(obj)) {
+                return _streamers[ii];
             }
         }
 
@@ -57,11 +55,9 @@ public class Streamer
             createStreamers();
         }
 
-        var s :Streamer;
         for (var ii :int = 0; ii < _streamers.length; ii++) {
-            s = (_streamers[ii] as Streamer);
-            if (s.getJavaClassName() === jname) {
-                return s;
+            if (_streamers[ii].getJavaClassName() === jname) {
+                return _streamers[ii];
             }
         }
 
