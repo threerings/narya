@@ -19,7 +19,13 @@
 // License along with this library; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 
-package com.threerings.presents.dobj;
+package com.threerings.presents.dobj {
+
+import flash.util.StringBuilder;
+
+import com.threerings.io.ObjectInputStream;
+import com.threerings.io.ObjectOutputStream;
+
 
 /**
  * An object removed event is dispatched when an object is removed from an
@@ -42,24 +48,16 @@ public class ObjectRemovedEvent extends NamedEvent
      * remove the specified oid.
      * @param oid the oid to remove from the oid list attribute.
      */
-    public ObjectRemovedEvent (int targetOid, String name, int oid)
+    public function ObjectRemovedEvent (targetOid :int, name :String, oid :int)
     {
         super(targetOid, name);
         _oid = oid;
     }
 
     /**
-     * Constructs a blank instance of this event in preparation for
-     * unserialization from the network.
-     */
-    public ObjectRemovedEvent ()
-    {
-    }
-
-    /**
      * Returns the oid that has been removed.
      */
-    public int getOid ()
+    public function getOid () :int
     {
         return _oid;
     }
@@ -67,29 +65,42 @@ public class ObjectRemovedEvent extends NamedEvent
     /**
      * Applies this event to the object.
      */
-    public boolean applyToObject (DObject target)
-        throws ObjectAccessException
+    public override function applyToObject (target :DObject) :Boolean
+        //throws ObjectAccessException
     {
-        OidList list = (OidList)target.getAttribute(_name);
+        var list :OidList = (target[_name] as OidList);
         list.remove(_oid);
         return true;
     }
 
     // documentation inherited
-    protected void notifyListener (Object listener)
+    protected override function notifyListener (listener :*) :void
     {
         if (listener is OidListListener) {
-            ((OidListListener)listener).objectRemoved(this);
+            listener.objectRemoved(this);
         }
     }
 
+    public override function writeObject (out :ObjectOutputStream) :void
+    {
+        super.writeObject(out);
+        out.writeInt(_oid);
+    }
+
+    public override function readObject (ins :ObjectInputStream) :void
+    {
+        super.readObject(ins);
+        _oid = ins.readInt();
+    }
+
     // documentation inherited
-    protected void toString (StringBuffer buf)
+    protected override function toString (buf :StringBuilder) :void
     {
         buf.append("OBJREM:");
         super.toString(buf);
-        buf.append(", oid=").append(_oid);
+        buf.append(", oid=", _oid);
     }
 
-    protected int _oid;
+    protected var _oid :int;
+}
 }

@@ -103,6 +103,9 @@ public class ObjectInputStream
         }
     }
 
+    // TODO: of course this DOESN'T ACTUALLY WORK, because the actual object
+    // to read could be a subclass of the specified class
+    // TODO
     public function readField (clazz :Class) :*
         //throws IOError
     {

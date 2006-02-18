@@ -60,3 +60,16 @@ Notes
   A, filled with B and C elements. I would have no way on the client to
   inspect an array like that and know to tell the server that it's an A[].
   Punting completely on Arrays for now.
+
+- The RENDER Event is dispatched prior to each rendering, it's
+  basically like tick(): it gives anything that cares a chance to update    
+  prior to being painted. It doesn't specify what the hell to listen on for
+  this event, but since all DisplayObjects are event dispatchers then
+  listening on any display object (including the stage) should work...
+
+  But, the damn thing doesn't get dispatched if there will be no render,    
+  even if the code is still running- like when the flash player window is   
+  minimized or obscured. Lovely.
+
+  I will play around with trying to just use a Timer with a 1ms interval,
+  and see if the frequency is limited to the actual framerate.
