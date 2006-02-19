@@ -90,13 +90,13 @@ public class EntryRemovedEvent extends NamedEvent
     public override function writeObject (out :ObjectOutputStream) :void
     {
         super.writeObject(out);
-        out.writeField(_key);
+        out.writeObject(_key);
     }
 
     public override function readObject (ins :ObjectInputStream) :void
     {
         super.readObject(ins);
-        _key = ins.readField(Comparable);
+        _key = ins.readObject();
     }
 
     protected var _key :Comparable;

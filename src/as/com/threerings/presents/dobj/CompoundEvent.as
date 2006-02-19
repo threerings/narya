@@ -158,13 +158,13 @@ public class CompoundEvent extends DEvent
     public override function writeObject (out :ObjectOutputStream) :void
     {
         super.writeObject(out);
-        out.writeField(_events);
+        out.writeObject(_events);
     }
 
     public override function readObject (ins :ObjectInputStream) :void
     {
         super.readObject(ins);
-        _events = ins.readField(StreamableArrayList);
+        _events = ins.readObject();
     }
 
     /** The object manager that we'll post ourselves to when we're

@@ -76,6 +76,8 @@ public class ObjectOutputStream
         }
     }
 
+    // TODO: this is equivalent to marshalling a field for which there
+    // is a basic streamer. Work needs doing here.
     public function writeField (val :*) :void
         //throws IOError
     {

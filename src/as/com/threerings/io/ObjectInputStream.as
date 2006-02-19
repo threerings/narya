@@ -103,9 +103,8 @@ public class ObjectInputStream
         }
     }
 
-    // TODO: of course this DOESN'T ACTUALLY WORK, because the actual object
-    // to read could be a subclass of the specified class
-    // TODO
+    // TODO: this is the equivalent of marshalling something for which
+    // we have a basic streamer. Fill out with all the java types
     public function readField (clazz :Class) :*
         //throws IOError
     {

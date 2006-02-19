@@ -13,7 +13,7 @@ public class AuthResponse extends DownstreamMessage
     public function readObject (ins :ObjectInputStream) :void
     {
         super.readObject(ins);
-        _data = ins.readField(AuthResponseData);
+        _data = ins.readObject();
     }
 
     protected var _data :AuthResponseData;

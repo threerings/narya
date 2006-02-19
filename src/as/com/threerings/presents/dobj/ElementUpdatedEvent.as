@@ -81,7 +81,7 @@ public class ElementUpdatedEvent extends NamedEvent
     public override function writeObject (out :ObjectOutputStream) :void
     {
         super.writeObject(out);
-        out.writeField(_value);
+        out.writeObject(_value);
         out.writeInt(_index);
     }
 
@@ -89,7 +89,7 @@ public class ElementUpdatedEvent extends NamedEvent
     public override function readObject (ins :ObjectInputStream) :void
     {
         super.readObject(ins);
-        _value = ins.readField(Object);
+        _value = ins.readObjct();
         _index = ins.readInt();
     }
 

@@ -49,35 +49,14 @@ public class Name extends Object
     public function writeObject (out :ObjectOutputStream) :void
         //throws IOError
     {
-        /*
-        // TODO: oh shit, this is wrong. We need to write a boolean out
-        // indicating whether the object that follows is null or not
-        out.writeBareObject(_name);
-        */
-
         out.writeField(_name);
-
-        // we need a way of doing the following automatically:
-        /*
-        var b :Boolean = (_name != null);
-        out.writeBoolean(b);
-        if (b) {
-            out.writeUTF(_name);
-        }
-        */
     }
 
     // documentation inherited from interface Streamable
     public function readObject (ins :ObjectInputStream) :void
         //throws IOError
     {
-        // TODO: oh shit, this is wrong
         _name = ins.readField(String);
-
-        /*
-        var b :Boolean = in.readBoolean();
-        _name = b ? in.readUTF() : null;
-        */
     }
 
     protected function normalize (txt :String) :String

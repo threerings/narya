@@ -22,7 +22,7 @@ public class AuthRequest extends UpstreamMessage
     {
         super.writeObject(out);
 
-        out.writeField(_creds);
+        out.writeObject(_creds);
         out.writeField(_version);
     }
 
@@ -30,7 +30,7 @@ public class AuthRequest extends UpstreamMessage
     public function readObject (ins :ObjectInputStream) :void
     {
         super.readObject(ins);
-        _creds = ins.readField(Credentials);
+        _creds = ins.readObject();
         _version = ins.readField(String);
     }
 

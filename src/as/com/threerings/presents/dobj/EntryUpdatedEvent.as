@@ -89,13 +89,13 @@ public class EntryUpdatedEvent extends NamedEvent
     public override function writeObject (out :ObjectOutputStream) :void
     {
         super.writeObject(out);
-        out.writeField(_entry);
+        out.writeObject(_entry);
     }
 
     public override function readObject (ins :ObjectInputStream) :void
     {
         super.readObject(ins);
-        _entry = ins.readField(DSetEntry);
+        _entry = ins.readObject();
     }
 
     protected var _entry :DSetEntry;
