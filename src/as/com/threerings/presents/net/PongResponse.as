@@ -28,7 +28,7 @@ public class PongResponse extends DownstreamMessage
         return _unpackStamp;
     }
 
-    public function readObject (ins :ObjectInputStream)
+    public override function readObject (ins :ObjectInputStream)
     {
         _unpackStamp = new Date().getTime();
         super.readObject(ins);

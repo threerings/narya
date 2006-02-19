@@ -15,12 +15,14 @@ public class Credentials
     public function writeObject (out :ObjectOutputStream) :void
         //throws IOError
     {
+    	out.writeObject(_username);
     }
 
     // documentation inherited from interface Streamable
-    public function readObject (in :ObjectInputStream) :void
+    public function readObject (ins :ObjectInputStream) :void
         //throws IOError
     {
+    	_username = ins.readObject();
     }
 
     /** The username. */

@@ -15,14 +15,14 @@ public class AuthResponseData extends DObject
     public var code :String;
 
     // documentation inherited
-    public function writeObject (out :ObjectOutputStream) :void
+    public override function writeObject (out :ObjectOutputStream) :void
     {
         super.writeObject(out);
         out.writeField(code);
     }
 
     // documentation inherited
-    public function readObject (ins :ObjectInputStream) :void
+    public override function readObject (ins :ObjectInputStream) :void
     {
         super.readObject(ins);
         code = ins.readField(String);

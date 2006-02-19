@@ -69,7 +69,7 @@ public class DObject // extends EventDispatcher
         postEvent(new MessageEvent(_oid, name, args));
     }
 
-    public function postEvent (DEvent event) :void
+    public function postEvent (event :DEvent) :void
     {
         // TODO: transactons?
         if (_omgr != null) {

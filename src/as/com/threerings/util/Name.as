@@ -30,7 +30,7 @@ public class Name extends Object
         return Name.isBlank(this);
     }
 
-    public override function toString () :String
+    public function toString () :String
     {
         return _name;
     }

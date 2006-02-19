@@ -72,7 +72,7 @@ public class ObjectInputStream
             readBareObjectImpl(target, cmap.streamer);
             return target;
 
-        } catch (MemoryError me) {
+        } catch (me :MemoryError) {
             throw new IOError("out of memory" + me.message);
         }
     }
