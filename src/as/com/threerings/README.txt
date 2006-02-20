@@ -50,9 +50,16 @@ Notes
   what happens if it proceeds to define a class like
   com.threerings.presents.client.Client?
 
-- constructors do not defaultly call super()- be sure to do it explicitely.
+- <strike>constructors do not defaultly call super()- be sure to do it explicitely.
   Maybe we should get in the habit of doing it in Java for consistency and
-  explicitness.
+  explicitness.</strike>
+  CORRECTION: super() is called implicitely, just as in Java.
+
+- It's annoying how there can be only one constructor: if you have classA
+  that has a 1-arg constructor and it is extended by classB, then the implicit
+  super() is inserted, but this results in runtime error because the classA
+  constructor is not being passed an arg. You'd think this would be caught
+  at compile time...
 
 - I'm a little shaky still about how I'm going to handle arrays. In
   ActionScript all arrays (except ByteArray) are the same type: Array.
