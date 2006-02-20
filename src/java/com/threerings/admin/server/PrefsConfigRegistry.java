@@ -34,7 +34,7 @@ public class PrefsConfigRegistry extends ConfigRegistry
     // documentation inherited
     protected ObjectRecord createObjectRecord (String path, DObject object)
     {
-        return null;
+        return new PrefsObjectRecord(path, object);
     }
 
     protected class PrefsObjectRecord extends ObjectRecord
