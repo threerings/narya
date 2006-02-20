@@ -205,7 +205,6 @@
       <fileset dir="${classes.dir}" includes="com/threerings/presents/**"/>
       <fileset dir="${classes.dir}" includes="com/threerings/crowd/**"/>
       <fileset dir="${classes.dir}" includes="com/threerings/admin/**"/>
-      <fileset dir="src/sql" includes="admin/*.sql"/>
       <fileset dir="${classes.dir}" includes="rsrc/config/presents/**"/>
       <fileset dir="${classes.dir}" includes="rsrc/config/crowd/**"/>
     </jar>

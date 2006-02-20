@@ -90,17 +90,20 @@ public class ConfigRepository extends JORARepository
     protected void migrateSchema (Connection conn, DatabaseLiaison liaison)
         throws SQLException, PersistenceException
     {
-        if (!JDBCUtil.tableExists(conn, "CONFIG")) {
-            Log.info("Creating admin.config schema...");
-            JDBCUtil.loadSchema(conn, "admin/config.sql");
-        }
+        JDBCUtil.createTableIfMissing(conn, "CONFIG", new String[] {
+            "OBJECT VARCHAR(255) NOT NULL",
+            "FIELD VARCHAR(255) NOT NULL",
+            "VALUE TEXT NOT NULL",
+            "PRIMARY KEY (OBJECT, FIELD)",
+        });
     }
 
     // documentation inherited
     protected void createTables (Session session)
     {
 	_ctable = new Table(
-            ConfigDatum.class.getName(), "CONFIG", session, "OBJECT", true);
+            ConfigDatum.class.getName(), "CONFIG", session,
+            new String[] { "OBJECT", "FIELD" }, true);
     }
 
     protected Table _ctable;

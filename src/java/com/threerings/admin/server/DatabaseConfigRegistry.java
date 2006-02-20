@@ -56,7 +56,7 @@ public class DatabaseConfigRegistry extends ConfigRegistry
     // documentation inherited
     protected ObjectRecord createObjectRecord (String path, DObject object)
     {
-        return null;
+        return new DatabaseObjectRecord(path, object);
     }
 
     protected class DatabaseObjectRecord extends ObjectRecord
