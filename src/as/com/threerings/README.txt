@@ -88,3 +88,18 @@ Notes
 - 'protected' doesn't mean the same thing in ActionScript: it means that
   ONLY subclasses can access a field/method, other classes in the same
   package cannot access it.
+
+Java            Class Package Subclass World
+  private       Y     N       N        N
+  <default>     Y     Y       N        N
+  protected     Y     Y       Y        N
+  public        Y     Y       Y        Y
+
+Actionscript  
+  private       Y     N       N        N
+  protected     Y     Y       N        N
+  internal      Y     Y       Y        N  (but not a subclass in a diff pkg!)
+  public        Y     Y       Y        Y
+
+  SO: if you want a method to be accessable to a subclass in a different
+  package, it must be public!
