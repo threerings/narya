@@ -92,12 +92,8 @@ public class DatabaseConfigRegistry extends ConfigRegistry
 
         protected boolean getValue (String field, boolean defval) {
             String value = (String)_data.get(field);
-            try {
-                if (value != null) {
-                    return Boolean.parseBoolean(value);
-                }
-            } catch (Exception e) {
-                // ignore bogus values and return the default
+            if (value != null) {
+                return "true".equalsIgnoreCase(value);
             }
             return defval;
         }
