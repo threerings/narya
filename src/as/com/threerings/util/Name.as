@@ -56,7 +56,7 @@ public class Name extends Object
     public function readObject (ins :ObjectInputStream) :void
         //throws IOError
     {
-        _name = ins.readField(String);
+        _name = (ins.readField(String) as String);
     }
 
     protected function normalize (txt :String) :String

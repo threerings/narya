@@ -20,7 +20,7 @@ public class PingRequest extends UpstreamMessage
     }
 
     // documentation inherited
-    public override function writeObject (out :ObjectOutputStream)
+    public override function writeObject (out :ObjectOutputStream) :void
     {
         _packStamp = new Date().getTime();
         super.writeObject(out);

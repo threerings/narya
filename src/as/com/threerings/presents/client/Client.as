@@ -99,6 +99,7 @@ public class Client extends EventDispatcher
         }
 
         // TODO
+        return null;
     }
 
     public function requireService (clazz :Class) :InvocationService

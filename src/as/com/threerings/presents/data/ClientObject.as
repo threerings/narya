@@ -56,7 +56,7 @@ public class ClientObject extends DObject
     public override function readObject (ins :ObjectInputStream) :void
     {
         super.readObject(ins);
-        receivers = ins.readObject();
+        receivers = (ins.readObject() as DSet);
     }
 }
 }

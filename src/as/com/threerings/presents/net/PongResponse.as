@@ -28,13 +28,13 @@ public class PongResponse extends DownstreamMessage
         return _unpackStamp;
     }
 
-    public override function readObject (ins :ObjectInputStream)
+    public override function readObject (ins :ObjectInputStream) :void
     {
         _unpackStamp = new Date().getTime();
         super.readObject(ins);
 
         // TODO: Figure out how we're really going to cope with longs
-        _packStamp = new long();
+        _packStamp = new long(0);
         _packStamp.readObject(ins);
 
         _processDelay = ins.readInt();

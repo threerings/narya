@@ -32,7 +32,7 @@ public class Streamer
     }
     */
 
-    public static function getStreamer (obj :*) :Streamer
+    public static function getStreamer (obj :Object) :Streamer
     {
         if (obj is Streamable) {
             return null;
@@ -74,7 +74,7 @@ public class Streamer
         _jname = jname;
     }
 
-    public function isStreamerFor (obj :*) :Boolean
+    public function isStreamerFor (obj :Object) :Boolean
     {
         return (obj is _targ); // scripting langs are weird
     }
@@ -87,7 +87,7 @@ public class Streamer
         return _jname;
     }
 
-    public function writeObject (obj :*, out :ObjectOutputStream) :void
+    public function writeObject (obj :Object, out :ObjectOutputStream) :void
         //throws IOError
     {
         trace("TODO");
@@ -102,14 +102,14 @@ public class Streamer
         }
     }
 
-    public function createObject (ins :ObjectInputStream) :*
+    public function createObject (ins :ObjectInputStream) :Object
         //throws IOError
     {
         // actionscript is so fucked up
         return new _targ();
     }
 
-    public function readObject (obj :*, ins :ObjectInputStream) :void
+    public function readObject (obj :Object, ins :ObjectInputStream) :void
         //throws IOError
     {
         trace("TODO");

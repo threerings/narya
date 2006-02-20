@@ -15,7 +15,7 @@ public class ObjectOutputStream
         _targ = targ;
     }
 
-    public function writeObject (obj :*) :void
+    public function writeObject (obj :Object) :void
         //throws IOError
     {
         // if the object to be written is null (or undefined) write a zero
@@ -53,13 +53,13 @@ public class ObjectOutputStream
         writeBareObjectImpl(obj, cmap.streamer);
     }
 
-    public function writeBareObject (obj :*) :void
+    public function writeBareObject (obj :Object) :void
         //throws IOError
     {
         writeBareObjectImpl(obj, Streamer.getStreamer(obj));
     }
 
-    protected function writeBareObjectImpl (obj :*, streamer :Streamer)
+    protected function writeBareObjectImpl (obj :Object, streamer :Streamer)
     {
         // if it's Streamable, it goes straight through
         if (streamer == null) {
@@ -80,7 +80,7 @@ public class ObjectOutputStream
 
     // TODO: this is equivalent to marshalling a field for which there
     // is a basic streamer. Work needs doing here.
-    public function writeField (val :*) :void
+    public function writeField (val :Object) :void
         //throws IOError
     {
         var b :Boolean = (val != null);
@@ -165,7 +165,7 @@ public class ObjectOutputStream
     /**
      * Used by a Streamer that is writing an array of Streamable instances.
      */
-    protected function setCurrent (streamer :Streamer, current :*)
+    protected function setCurrent (streamer :Streamer, current :Object)
     {
         _streamer = streamer;
         _current = current;
@@ -178,7 +178,7 @@ public class ObjectOutputStream
     protected var _nextCode :int = 1;
 
     /** The object currently being written out. */
-    protected var _current :*;
+    protected var _current :Object;
 
     /** The streamer being used currently. */
     protected var _streamer :Streamer;

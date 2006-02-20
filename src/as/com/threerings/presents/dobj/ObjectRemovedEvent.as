@@ -74,7 +74,7 @@ public class ObjectRemovedEvent extends NamedEvent
     }
 
     // documentation inherited
-    protected override function notifyListener (listener :*) :void
+    internal override function notifyListener (listener :Object) :void
     {
         if (listener is OidListListener) {
             listener.objectRemoved(this);

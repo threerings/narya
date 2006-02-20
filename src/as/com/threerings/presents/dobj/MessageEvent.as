@@ -61,7 +61,7 @@ public class MessageEvent extends NamedEvent
     }
 
     // documentation inherited
-    protected override function notifyListener (listener :*) :void
+    internal override function notifyListener (listener :Object) :void
     {
         if (listener is MessageListener) {
             listener.messageReceived(this);

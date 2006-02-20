@@ -32,9 +32,10 @@ public class DEvent
      * return true here and short-circuit the normal proxy event dispatch
      * mechanism.
      */
-    public function applyToObject (target :DObject) :void
+    public function applyToObject (target :DObject) :Boolean
     {
         trace("TODO: abstract methods?");
+        return false;
     }
 
     /**
@@ -44,7 +45,7 @@ public class DEvent
      * AttributeChangedEvent} will notify listeners that implement {@link
      * AttributeChangeListener}.
      */
-    protected function notifyListener (listener :*) :void
+    internal function notifyListener (listener :Object) :void
     {
         // the default is to do nothing
     }

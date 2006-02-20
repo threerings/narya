@@ -31,7 +31,8 @@ public class ElementUpdatedEvent extends NamedEvent
      * @param index the index in the array of the updated element.
      */
     public function ElementUpdatedEvent (
-        targetOid :int, name :String, value :*, oldValue :*, index :int)
+        targetOid :int, name :String, value :Object, oldValue :Object,
+        index :int)
     {
         super(targetOid, name);
         _value = value;
@@ -42,7 +43,7 @@ public class ElementUpdatedEvent extends NamedEvent
     /**
      * Returns the new value of the element.
      */
-    public function getValue () :*
+    public function getValue () :Object
     {
         return _value;
     }
@@ -51,7 +52,7 @@ public class ElementUpdatedEvent extends NamedEvent
      * Returns the value of the element prior to the application of this
      * event.
      */
-    public function getOldValue () :*
+    public function getOldValue () :Object
     {
         return _oldValue;
     }
@@ -89,12 +90,12 @@ public class ElementUpdatedEvent extends NamedEvent
     public override function readObject (ins :ObjectInputStream) :void
     {
         super.readObject(ins);
-        _value = ins.readObjct();
+        _value = ins.readObject();
         _index = ins.readInt();
     }
 
     // documentation inherited
-    protected override function notifyListener (listener :*) :void
+    internal override function notifyListener (listener :Object) :void
     {
         if (listener is ElementUpdateListener) {
             listener.elementUpdated(this);
@@ -110,8 +111,8 @@ public class ElementUpdatedEvent extends NamedEvent
         buf.append(", index=", _index);
     }
 
-    protected var _value :*;
+    protected var _value :Object;
     protected var _index :int;
-    protected var _oldValue :* = UNSET_OLD_ENTRY;
+    protected var _oldValue :Object = UNSET_OLD_ENTRY;
 }
 }

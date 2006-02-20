@@ -47,7 +47,7 @@ public class NamedEvent extends DEvent
     public override function readObject (ins :ObjectInputStream) :void
     {
         super.readObject(ins);
-        _name = ins.readField(String);
+        _name = (ins.readField(String) as String);
     }
 
     /** The name of the event. */

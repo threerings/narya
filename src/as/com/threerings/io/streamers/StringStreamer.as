@@ -14,18 +14,20 @@ public class StringStreamer extends Streamer
         super(String, "java.lang.String");
     }
 
-    public override function createObject (ins :ObjectInputStream) :*
+    public override function createObject (ins :ObjectInputStream) :Object
     {
         return ins.readUTF();
     }
 
-    public override function writeObject (obj :*, out :ObjectOutputStream) :void
+    public override function writeObject (obj :Object, out :ObjectOutputStream)
+            :void
     {
         var s :String = (obj as String);
         out.writeUTF(s);
     }
 
-    public override function readObject (obj :*, ins :ObjectInputStream) :void
+    public override function readObject (obj :Object, ins :ObjectInputStream)
+            :void
     {
         // nothing here, the String is fully read in createObject()
     }

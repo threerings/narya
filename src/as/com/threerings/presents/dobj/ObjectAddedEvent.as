@@ -42,7 +42,7 @@ public class ObjectAddedEvent extends NamedEvent
     /**
      * Applies this event to the object.
      */
-    public override function applyToObject (target :DObject) :void
+    public override function applyToObject (target :DObject) :Boolean
         //throws ObjectAccessException
     {
         var list :OidList = target[_name];
@@ -51,7 +51,7 @@ public class ObjectAddedEvent extends NamedEvent
     }
 
     // documentation inherited
-    protected override function notifyListener (listener :*) :void
+    internal override function notifyListener (listener :Object) :void
     {
         if (listener is OidListListener) {
             listener.objectAdded(this);

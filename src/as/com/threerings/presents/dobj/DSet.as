@@ -158,7 +158,7 @@ public class DSet
      * @return true if the entry was added, false if it was already in
      * the set.
      */
-    protected function add (elem :DSetEntry) :Boolean
+    internal function add (elem :DSetEntry) :Boolean
     {
         if (contains(elem)) {
             trace("Refusing to add duplicate entry [set=" + this +
@@ -179,7 +179,7 @@ public class DSet
      * @return true if the entry was removed, false if it was not in the
      * set.
      */
-    protected function remove (elem :DSetEntry) :Boolean
+    internal function remove (elem :DSetEntry) :Boolean
     {
         return (null != removeKey(elem.getKey()));
     }
@@ -193,7 +193,7 @@ public class DSet
      * @return the old matching entry if found and removed, null if not
      * found.
      */
-    protected function removeKey (key :Comparable) :DSetEntry
+    internal function removeKey (key :Comparable) :DSetEntry
     {
         // o(n) for now
         // TODO
@@ -217,7 +217,7 @@ public class DSet
      * @return the old entry that was replaced, or null if it was not
      * found (in which case nothing is updated).
      */
-    protected function update (elem :DSetEntry) :DSetEntry
+    internal function update (elem :DSetEntry) :DSetEntry
     {
         var key :Comparable = elem.getKey();
         for (var ii :int = 0; ii < _entries.length; ii++) {
@@ -250,7 +250,7 @@ public class DSet
     // documentation inherited from interface Streamable
     public function readObject (ins :ObjectInputStream) :void
     {
-        _entries = ins.readField(Array);
+        _entries = (ins.readObject() as Array);
         _entries.length = ins.readInt(); // then read the length and limit it
     }
 

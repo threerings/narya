@@ -66,7 +66,7 @@ public class EntryRemovedEvent extends NamedEvent
             if (_oldEntry == null) {
                 // complain if there was actually nothing there
                 trace("No matching entry to remove [key=" + _key +
-                            ", set=" + set + "].");
+                            ", set=" + dset + "].");
                 return false;
             }
         }
@@ -74,7 +74,7 @@ public class EntryRemovedEvent extends NamedEvent
     }
 
     // documentation inherited
-    protected override function notifyListener (listener :*) :void
+    internal override function notifyListener (listener :Object) :void
     {
         if (listener is SetListener) {
             listener.entryRemoved(this);
@@ -82,7 +82,7 @@ public class EntryRemovedEvent extends NamedEvent
     }
 
     // documentation inherited
-    protected override function toStringBuf (buf :StringBuilder)
+    protected override function toStringBuf (buf :StringBuilder) :void
     {
         buf.append("ELREM:");
         super.toStringBuf(buf);
@@ -98,7 +98,7 @@ public class EntryRemovedEvent extends NamedEvent
     public override function readObject (ins :ObjectInputStream) :void
     {
         super.readObject(ins);
-        _key = ins.readObject();
+        _key = (ins.readObject() as Comparable);
     }
 
     protected var _key :Comparable;

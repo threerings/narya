@@ -24,6 +24,29 @@ public class DObject // extends EventDispatcher
         return _omgr;
     }
 
+    public function addSubscriber (sub :Subscriber) :void
+    {
+        if (!_subscribers.contains(sub)) {
+            _subscribers.addItem(sub);
+        }
+    }
+
+    public function removeSubscriber (sub :Subscriber) :void
+    {
+        var dex :int = _subscribers.getItemIndex(sub);
+        if (dex != -1) {
+            _subscribers.removeItemAt(dex);
+            if (_subscribers.length == 0) {
+                _omgr.removedLastSubscriber(this, _deathWish);
+            }
+        }
+    }
+
+    public function setDestroyOnLastSubscriberRemoved (deathWish :Boolean) :void
+    {
+        _deathWish = deathWish;
+    }
+
     public function addListener (listener :ChangeListener) :void
     {
         if (_listeners == null) {
@@ -53,7 +76,7 @@ public class DObject // extends EventDispatcher
         }
 
         for (var ii :int = 0; ii < _listeners.length; ii++) {
-            var listener :* = _listeners.getItemAt(ii);
+            var listener :Object = _listeners.getItemAt(ii);
             try {
                 event.notifyListener(listener);
 
@@ -83,6 +106,31 @@ public class DObject // extends EventDispatcher
         }
     }
 
+    public function startTransaction () :void
+    {
+        // TODO
+    }
+
+    public function commitTransaction () :void
+    {
+        // TODO
+    }
+
+    public function inTransaction () :Boolean
+    {
+        return false; // TODO
+    }
+
+    public function cancelTransaction () :void
+    {
+        // TODO
+    }
+
+    internal function clearTransaction () :void
+    {
+        // TODO
+    }
+
     public function isActive () :Boolean
     {
         return (_omgr != null);
@@ -106,7 +154,7 @@ public class DObject // extends EventDispatcher
      * called.
      */
     protected function requestAttributeChange (
-            name :String, value :*, oldValue :*) :void
+            name :String, value :Object, oldValue :Object) :void
     {
         postEvent(new AttributeChangedEvent(_oid, name, value, oldValue));
     }
@@ -116,7 +164,7 @@ public class DObject // extends EventDispatcher
      * called.
      */
     protected function requestElementUpdate (
-            name :String, index :int, value :*, oldValue :*) :void
+            name :String, index :int, value :Object, oldValue :Object) :void
     {
         // dispatch an attribute changed event
         postEvent(new ElementUpdatedEvent(_oid, name, value, oldValue, index));
@@ -186,5 +234,9 @@ public class DObject // extends EventDispatcher
 
     /** Our event listeners. */
     protected var _listeners :ArrayCollection;
+
+    protected var _subscribers :ArrayCollection;
+
+    protected var _deathWish :Boolean = false;
 }
 }

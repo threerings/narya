@@ -14,18 +14,20 @@ public class NumberStreamer extends Streamer
         super(Number, "java.lang.Double");
     }
 
-    public override function createObject (ins :ObjectInputStream) :*
+    public override function createObject (ins :ObjectInputStream) :Object
     {
         return ins.readDouble();
     }
 
-    public override function writeObject (obj :*, out :ObjectOutputStream) :void
+    public override function writeObject (obj :Object, out :ObjectOutputStream)
+            :void
     {
         var n :Number = (obj as Number);
         out.writeDouble(n);
     }
 
-    public override function readObject (obj :*, ins :ObjectInputStream) :void
+    public override function readObject (obj :Object, ins :ObjectInputStream)
+            :void
     {
         // nothing here, the Number is fully read in createObject()
     }

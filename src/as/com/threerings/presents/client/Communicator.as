@@ -106,7 +106,7 @@ public class Communicator
     /**
      * Returns the time at which we last sent a packet to the server.
      */
-    protected function getLastWrite () :Number
+    internal function getLastWrite () :Number
     {
         return _lastWrite;
     }
@@ -114,7 +114,7 @@ public class Communicator
     /**
      * Makes a note of the time at which we last communicated with the server.
      */
-    protected function updateWriteStamp () :void
+    internal function updateWriteStamp () :void
     {
         _lastWrite = new Date().getTime();
     }
@@ -128,7 +128,8 @@ public class Communicator
         // convert the frame data into a message from the server
         var frameData :ByteArray = event.getFrameData();
         _inStream.setSource(frameData);
-        var msg :DownstreamMessage = _inStream.readObject();
+        var msg :DownstreamMessage =
+            (_inStream.readObject() as DownstreamMessage);
         if (frameData.bytesAvailable > 0) {
             trace("OMG, we didn't fully read the frame. Surely there's a bug");
         }

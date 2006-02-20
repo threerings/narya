@@ -40,7 +40,7 @@ public class ObjectResponse extends DownstreamMessage
     public override function readObject (ins :ObjectInputStream) :void
     {
         super.readObject(ins);
-        _dobj = ins.readObject();
+        _dobj = (ins.readObject() as DObject);
     }
 
     /** The object which is associated with this response. */

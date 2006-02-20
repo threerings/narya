@@ -92,7 +92,7 @@ public class CompoundEvent extends DEvent
         case 0: // nothing doing
             break;
         case 1: // no point in being compound
-            _omgr.postEvent(_events.getItemAt(0));
+            _omgr.postEvent(_events.getItemAt(0) as DEvent);
             break;
         default: // now we're talking
             _omgr.postEvent(this);
@@ -152,7 +152,7 @@ public class CompoundEvent extends DEvent
     public override function readObject (ins :ObjectInputStream) :void
     {
         super.readObject(ins);
-        _events = ins.readObject();
+        _events = (ins.readObject() as StreamableArrayList);
     }
 
     /** The object manager that we'll post ourselves to when we're

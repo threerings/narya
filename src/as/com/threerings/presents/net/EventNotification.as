@@ -40,7 +40,7 @@ public class EventNotification extends DownstreamMessage
     public override function readObject (ins :ObjectInputStream) :void
     {
         super.readObject(ins);
-        _event = ins.readObject();
+        _event = (ins.readObject() as DEvent);
     }
 
     /** The event which we are forwarding. */

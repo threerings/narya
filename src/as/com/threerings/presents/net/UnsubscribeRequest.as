@@ -47,7 +47,7 @@ public class UnsubscribeRequest extends UpstreamMessage
         return "[type=UNSUB, msgid=" + messageId + ", oid=" + _oid + "]";
     }
 
-    public function writeObject (out :ObjectOutputStream) :void
+    public override function writeObject (out :ObjectOutputStream) :void
     {
         super.writeObject(out);
         out.writeInt(_oid);

@@ -44,6 +44,8 @@ import com.threerings.presents.net.FailureResponse;
 import com.threerings.presents.net.ForwardEventRequest;
 import com.threerings.presents.net.ObjectResponse;
 import com.threerings.presents.net.PongResponse;
+import com.threerings.presents.net.SubscribeRequest;
+import com.threerings.presents.net.UnsubscribeRequest;
 import com.threerings.presents.net.UnsubscribeResponse;
 
 /**
@@ -241,7 +243,7 @@ public class ClientDObjectMgr
             var events :IList = (event as CompoundEvent).getEvents();
             var ecount :int = events.length;
             for (var ii :int = 0; ii < ecount; ii++) {
-                dispatchEvent(events.getItemAt(ii));
+                dispatchEvent(events.getItemAt(ii) as DEvent);
             }
             return;
         }
@@ -275,7 +277,7 @@ public class ClientDObjectMgr
                 target.notifyListeners(event);
             }
 
-        } catch (e :Exception) {
+        } catch (e :Error) {
             trace("Failure processing event [event=" + event +
                 ", target=" + target + "].");
             //Log.logStackTrace(e);
@@ -304,7 +306,7 @@ public class ClientDObjectMgr
             return;
         }
 
-        for (var ii :int  = 0; ii < req.targets.length; ii++) {
+        for (var ii :int = 0; ii < req.targets.length; ii++) {
             var target :Subscriber = req.targets[ii];
             // add them as a subscriber
             obj.addSubscriber(target);
@@ -415,7 +417,7 @@ public class ClientDObjectMgr
     protected function flushObjects () :void
     {
         var now :Number = new Date().getTime();
-        for (var oid :int in _flushes) {
+        for (var oid :String in _flushes) {
             var rec :FlushRecord = _flushes[oid];
             if (rec.expire <= now) {
                 _flushes[oid] = undefined;
@@ -469,7 +471,8 @@ class ObjectAction
     public var subscribe :Boolean;
 
     public function ObjectAction (
-            oid :int, target :com.threerings.presents.dobj.Subscriber, subscribe :Boolean)
+            oid :int, target :com.threerings.presents.dobj.Subscriber,
+            subscribe :Boolean)
     {
         this.oid = oid;
         this.target = target;
@@ -492,7 +495,8 @@ class PendingRequest
         this.oid = oid;
     }
 
-    public function addTarget (target :com.threerings.presents.dobj.Subscriber) :void
+    public function addTarget (
+            target :com.threerings.presents.dobj.Subscriber) :void
     {
         targets.push(target);
     }
@@ -507,7 +511,8 @@ class FlushRecord
     /** The time at which we flush it. */
     public var expire :Number;
 
-    public function FlushRecord (obj :com.threerings.presents.dobj.DObject, expire :Number)
+    public function FlushRecord (
+            obj :com.threerings.presents.dobj.DObject, expire :Number)
     {
         this.obj = obj;
         this.expire = expire;

@@ -54,7 +54,7 @@ public class EntryAddedEvent extends NamedEvent
     }
 
     // documentation inherited
-    protected override function notifyListener (listener :*) :void
+    internal override function notifyListener (listener :Object) :void
     {
         if (listener is SetListener) {
             listener.entryAdded(this);
@@ -62,7 +62,7 @@ public class EntryAddedEvent extends NamedEvent
     }
 
     // documentation inherited
-    protected override function toStringBuf (buf :StringBuilder)
+    protected override function toStringBuf (buf :StringBuilder) :void
     {
         buf.append("ELADD:");
         super.toStringBuf(buf);
@@ -78,7 +78,7 @@ public class EntryAddedEvent extends NamedEvent
     public override function readObject (ins :ObjectInputStream) :void
     {
         super.readObject(ins);
-        _entry = ins.readObject();
+        _entry = (ins.readObject() as DSetEntry);
     }
 
     protected var _entry :DSetEntry;

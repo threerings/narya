@@ -25,7 +25,7 @@ public class AuthResponseData extends DObject
     public override function readObject (ins :ObjectInputStream) :void
     {
         super.readObject(ins);
-        code = ins.readField(String);
+        code = (ins.readField(String) as String);
     }
 }
 }

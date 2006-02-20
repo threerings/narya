@@ -34,7 +34,7 @@ public class BootstrapData
     public function readObject (ins :ObjectInputStream) :void
     {
         clientOid = ins.readInt();
-        services = ins.readObject();
+        services = (ins.readObject() as StreamableArrayList);
     }
 }
 }

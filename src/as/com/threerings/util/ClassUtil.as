@@ -2,12 +2,12 @@ package com.threerings.util {
 
 public class ClassUtil
 {
-    public static function getClassName (obj :*) :String
+    public static function getClassName (obj :Object) :String
     {
         return flash.util.getQualifiedClassName(obj).replace("::", ".");
     }
 
-    public static function getClass (obj :*) :Class
+    public static function getClass (obj :Object) :Class
     {
         return flash.util.getClassByName(getClassName(obj));
     }

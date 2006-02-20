@@ -42,7 +42,7 @@ public class SubscribeRequest extends UpstreamMessage
         return _oid;
     }
 
-    public override function toString () :String
+    public function toString () :String
     {
         return "[type=SUB, msgid=" + messageId + ", oid=" + _oid + "]";
     }

@@ -1,6 +1,7 @@
 package com.threerings.presents.dobj {
 
 import flash.util.trace;
+import flash.util.StringBuilder;
 
 import com.threerings.io.Streamable;
 

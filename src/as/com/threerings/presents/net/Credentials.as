@@ -22,7 +22,7 @@ public class Credentials
     public function readObject (ins :ObjectInputStream) :void
         //throws IOError
     {
-    	_username = ins.readObject();
+    	_username = (ins.readObject() as Name);
     }
 
     /** The username. */

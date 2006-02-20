@@ -73,7 +73,7 @@ public class EntryUpdatedEvent extends NamedEvent
     }
 
     // documentation inherited
-    protected override function notifyListener (listener :*) :void
+    internal override function notifyListener (listener :Object) :void
     {
         if (listener is SetListener) {
             listener.entryUpdated(this);
@@ -97,7 +97,7 @@ public class EntryUpdatedEvent extends NamedEvent
     public override function readObject (ins :ObjectInputStream) :void
     {
         super.readObject(ins);
-        _entry = ins.readObject();
+        _entry = (ins.readObject() as DSetEntry);
     }
 
     protected var _entry :DSetEntry;

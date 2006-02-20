@@ -53,7 +53,7 @@ public class ObjectDestroyedEvent extends DEvent
     }
 
     // documentation inherited
-    protected override function notifyListener (listener :Object) :void
+    internal override function notifyListener (listener :Object) :void
     {
         if (listener is ObjectDeathListener) {
             listener.objectDestroyed(this);

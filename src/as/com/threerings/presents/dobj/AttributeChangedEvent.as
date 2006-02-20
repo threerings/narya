@@ -14,7 +14,7 @@ public class AttributeChangedEvent extends NamedEvent
     /**
      * Returns the new value of the attribute.
      */
-    public function getValue () :*
+    public function getValue () :Object
     {
         return _value;
     }
@@ -23,7 +23,7 @@ public class AttributeChangedEvent extends NamedEvent
      * Returns the value of the attribute prior to the application of this
      * event.
      */
-    public function getOldValue () :*
+    public function getOldValue () :Object
     {
         return _oldValue;
     }
@@ -60,7 +60,7 @@ public class AttributeChangedEvent extends NamedEvent
      * used).
      */
     public function AttributeChangedEvent (
-            targetOid :int, name :String, value :*, oldValue :*)
+            targetOid :int, name :String, value :Object, oldValue :Object)
     {
         super(targetOid, name);
         _value = value;
@@ -68,7 +68,7 @@ public class AttributeChangedEvent extends NamedEvent
     }
 
     // documentation inherited
-    protected override function notifyListener (listener :*) :void
+    internal override function notifyListener (listener :Object) :void
     {
         if (listener is AttributeChangeListener) {
             listener.attributeChanged(this);
@@ -83,7 +83,7 @@ public class AttributeChangedEvent extends NamedEvent
         buf.append(", value=", _value);
     }
 
-    protected var _value :*;
-    protected var _oldValue :* = UNSET_OLD_ENTRY;
+    protected var _value :Object;
+    protected var _oldValue :Object = UNSET_OLD_ENTRY;
 }
 }

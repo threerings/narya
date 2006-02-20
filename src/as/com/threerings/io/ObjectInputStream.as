@@ -26,7 +26,7 @@ public class ObjectInputStream
         _source = source;
     }
 
-    public function readObject () :*
+    public function readObject () :Object
         //throws IOError
     {
         try {
@@ -61,7 +61,7 @@ public class ObjectInputStream
                 }
             }
 
-            var target :*;
+            var target :Object;
             if (cmap.streamer === null) {
                 var clazz :Class = flash.util.getClassByName(cmap.classname);
                 target = new clazz();
@@ -75,15 +75,16 @@ public class ObjectInputStream
         } catch (me :MemoryError) {
             throw new IOError("out of memory" + me.message);
         }
+        return null; // not reached: compiler dumb
     }
 
-    public function readBareObject (obj :*) :void
+    public function readBareObject (obj :Object) :void
         //throws IOError
     {
         readBareObjectImpl(obj, Streamer.getStreamer(obj));
     }
 
-    protected function readBareObjectImpl (obj :*, streamer :Streamer) :void
+    protected function readBareObjectImpl (obj :Object, streamer :Streamer) :void
     {
         // streamable objects
         if (streamer == null) {
@@ -105,11 +106,11 @@ public class ObjectInputStream
 
     // TODO: this is the equivalent of marshalling something for which
     // we have a basic streamer. Fill out with all the java types
-    public function readField (clazz :Class) :*
+    public function readField (clazz :Class) :Object
         //throws IOError
     {
         if (readBoolean()) {
-            var obj :* = new clazz();
+            var obj :Object = new clazz();
             return readBareObject(obj);
         }
         return null;
@@ -179,7 +180,7 @@ public class ObjectInputStream
     /**
      * Used by a Streamer that is reading an array of Streamable instances.
      */
-    protected function setCurrent (streamer :Streamer, current :*)
+    protected function setCurrent (streamer :Streamer, current :Object)
     {
         _streamer = streamer;
         _current = current;
@@ -189,7 +190,7 @@ public class ObjectInputStream
     protected var _source :IDataInput;
 
     /** The object currently being read from the stream. */
-    protected var _current :*;
+    protected var _current :Object;
 
     /** The stramer being used currently. */
     protected var _streamer :Streamer;
