@@ -51,63 +51,28 @@ import com.threerings.admin.Log;
 import com.threerings.presents.dobj.ObjectAccessException;
 
 /**
- * Provides a registry of configuration distributed objects. Using
- * distributed object to store runtime configuration data can be
- * exceptionally useful in that clients (with admin privileges) can view
- * and update the running server's configuration parameters on the fly.
- *
- * <p> Users of the service are responsible for creating their own
- * configuration objects which are then registered via this class. The
- * config object registry then performs a few functions:
- *
- * <ul>
- * <li> It populates the config object with values from the persistent
- * configuration information (see {@link Config} for more information on
- * how that works).
- * <li> It mirrors object updates out to the persistent configuration
- * repository.
- * <li> It makes the set of registered objects available for inspection
- * and modification via the admin client interface.
- * </ul>
- *
- * <p> Users of this service will want to use {@link AccessController}s on
- * their configuration distributed objects to prevent non-administrators
- * from subscribing to or modifying the objects.
+ * Implements the {@link ConfigRegistry} using the Java preferences system as a
+ * persistent store for the configuration information (see {@link Config} for
+ * more information on how that works).
  */
-public class ConfObjRegistry
+public class PrefsConfigRegistry extends ConfigRegistry
 {
-    /**
-     * Registers the supplied configuration object with the system.
-     *
-     * @param key a string that identifies this object. These are
-     * generally hierarchical in nature (of the form
-     * <code>system.subsystem</code>), for example:
-     * <code>yohoho.crew</code>.
-     * @param path The the path in the persistent configuration repository
-     * (see {@link Config} for more info).
-     * @param object the object to be registered.
-     */
-    public static void registerObject (String key, String path, DObject object)
+    // documentation inherited
+    public void registerObject (String key, String path, DObject object)
     {
         // create a new config record for this object
         _configs.put(key, new ConfObjRecord(path, object));
     }
 
-    /**
-     * Returns the config object mapped to the specified key, or null if
-     * none exists for that key.
-     */
-    public static DObject getObject (String key)
+    // documentation inherited
+    public DObject getObject (String key)
     {
         ConfObjRecord record = (ConfObjRecord)_configs.get(key);
         return (record == null) ? null : record.confObj;
     }
 
-    /**
-     * Returns an array containing the keys of all registered
-     * configuration objects.
-     */
-    public static String[] getKeys ()
+    // documentation inherited
+    public String[] getKeys ()
     {
         String[] keys = new String[_configs.size()];
         Iterator iter = _configs.keySet().iterator();
@@ -118,8 +83,7 @@ public class ConfObjRegistry
     }
 
     /**
-     * Contains all necessary info for a configuration object
-     * registration.
+     * Contains all necessary info for a configuration object registration.
      */
     protected static class ConfObjRecord
         implements AttributeChangeListener, SetListener
@@ -132,8 +96,8 @@ public class ConfObjRegistry
             this.config = new Config(path);
             this.confObj = confObj;
 
-            // read in the initial configuration settings from the
-            // persistent configuration repository
+            // read in the initial configuration settings from the persistent
+            // configuration repository
             Class cclass = confObj.getClass();
             try {
                 Field[] fields = cclass.getFields();
@@ -261,7 +225,6 @@ public class ConfObjRegistry
                     field.set(confObj, config.getValue(key, defval));
 
                 } else if (Streamable.class.isAssignableFrom(type)) {
-
                     // don't freak out if the conf is blank.
                     String value = config.getValue(key, "");
                     if (StringUtil.isBlank(value)) {
@@ -370,5 +333,5 @@ public class ConfObjRegistry
     }
 
     /** A mapping from identifying key to config object. */
-    protected static HashMap _configs = new HashMap();
+    protected HashMap _configs = new HashMap();
 }

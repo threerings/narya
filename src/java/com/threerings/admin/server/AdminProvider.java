@@ -1,5 +1,5 @@
 //
-// $Id: AdminProvider.java,v 1.4 2004/08/27 02:12:24 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -38,10 +38,10 @@ public class AdminProvider implements InvocationProvider
      * manager to handle admin services. This must be called by any server
      * that wishes to make use of the admin services.
      */
-    public static void init (InvocationManager invmgr)
+    public static void init (InvocationManager invmgr, ConfigRegistry registry)
     {
         invmgr.registerDispatcher(
-            new AdminDispatcher(new AdminProvider()), true);
+            new AdminDispatcher(new AdminProvider(registry)), true);
     }
 
     /**
@@ -51,16 +51,23 @@ public class AdminProvider implements InvocationProvider
         ClientObject caller, AdminService.ConfigInfoListener listener)
     {
         // we don't have to validate the request because the user can't do
-        // anything with the keys or oids unless they're an admin (we put
-        // the burden of doing that checking on the creator of the config
-        // object because we would otherwise need some mechanism to
-        // determine whether a user is an admin and we don't want to force
-        // some primitive system on the service user)
-        String[] keys = ConfObjRegistry.getKeys();
+        // anything with the keys or oids unless they're an admin (we put the
+        // burden of doing that checking on the creator of the config object
+        // because we would otherwise need some mechanism to determine whether
+        // a user is an admin and we don't want to force some primitive system
+        // on the service user)
+        String[] keys = _registry.getKeys();
         int[] oids = new int[keys.length];
         for (int ii = 0; ii < keys.length; ii++) {
-            oids[ii] = ConfObjRegistry.getObject(keys[ii]).getOid();
+            oids[ii] = _registry.getObject(keys[ii]).getOid();
         }
         listener.gotConfigInfo(keys, oids);
     }
+
+    protected AdminProvider (ConfigRegistry registry)
+    {
+        _registry = registry;
+    }
+
+    protected ConfigRegistry _registry;
 }
