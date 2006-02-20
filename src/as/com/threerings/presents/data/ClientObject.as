@@ -1,5 +1,5 @@
 //
-// $Id: ForwardEventRequest.java 3099 2004-08-27 02:21:06Z mdb $
+// $Id: ClientObject.java 3300 2005-01-08 22:05:00Z ray $
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -19,49 +19,44 @@
 // License along with this library; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 
-package com.threerings.presents.net {
+package com.threerings.presents.data {
 
-import com.threerings.presents.dobj.DEvent;
+import com.threerings.presents.dobj.DObject;
+import com.threerings.presents.dobj.DSet;
 
 import com.threerings.io.ObjectInputStream;
 import com.threerings.io.ObjectOutputStream;
 
-public class ForwardEventRequest extends UpstreamMessage
+/**
+ * Every client in the system has an associated client object to which
+ * only they subscribe. The client object can be used to deliver messages
+ * solely to a particular client as well as to publish client-specific
+ * data.
+ */
+public class ClientObject extends DObject
 {
-    /**
-     * Constructs a forward event request for the supplied event.
-     */
-    public function ForwardEventRequest (event :DEvent)
-    {
-        _event = event;
-    }
+    /** Used to publish all invocation service receivers registered on
+     * this client. */
+    public var receivers :DSet;
 
     /**
-     * Returns the event that we wish to have forwarded.
+     * Returns a short string identifying this client.
      */
-    public function getEvent () :DEvent
+    public function who () :String
     {
-        return _event;
+        return "(" + getOid() + ")";
     }
 
     public override function writeObject (out :ObjectOutputStream) :void
     {
         super.writeObject(out);
-        out.writeObject(_event);
+        out.writeObject(receivers);
     }
-
+                            
     public override function readObject (ins :ObjectInputStream) :void
     {
         super.readObject(ins);
-        _event = ins.readObject();
+        receivers = ins.readObject();
     }
-
-    public function toString () :String
-    {
-        return "[type=FWD, evt=" + _event + "]";
-    }
-
-    /** The event which we are forwarding. */
-    protected var _event :DEvent;
 }
 }

@@ -1,5 +1,7 @@
 package com.threerings.presents.dobj {
 
+import flash.util.trace;
+
 import flash.util.StringBuilder;
 
 import com.threerings.io.ObjectInputStream;
@@ -63,7 +65,7 @@ public class EntryUpdatedEvent extends NamedEvent
             if (_oldEntry == null) {
                 // complain if we didn't update anything
                 trace("No matching entry to update [entry=" + this +
-                            ", set=" + set + "].");
+                            ", set=" + dset + "].");
                 return false;
             }
         }
@@ -79,10 +81,10 @@ public class EntryUpdatedEvent extends NamedEvent
     }
 
     // documentation inherited
-    protected override function toString (buf :StringBuilder) :void
+    protected override function toStringBuf (buf :StringBuilder) :void
     {
         buf.append("ELUPD:");
-        super.toString(buf);
+        super.toStringBuf(buf);
         buf.append(", entry=", _entry);
     }
 

@@ -92,7 +92,7 @@ public class ObjectInputStream
         }
 
         _current = obj;
-        _streamer = steamer;
+        _streamer = streamer;
         try {
             _streamer.readObject(obj, this);
 
@@ -134,13 +134,13 @@ public class ObjectInputStream
     }
 
     public function readBytes (bytes :ByteArray, offset :uint = 0,
-            length :uint = undefined) :void
+            length :uint = 0) :void
         //throws IOError
     {
         // IDataInput reads all available bytes if a length is not passed
         // in. Protect against an easy error to make by using the length of
         // the array
-        if (length === undefined) {
+        if (length === 0) {
             length = bytes.length;
         }
         _source.readBytes(bytes, offset, length);

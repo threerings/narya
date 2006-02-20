@@ -1,10 +1,13 @@
 package com.threerings.presents.dobj {
 
 import flash.util.StringBuilder;
+import flash.util.trace;
 
 import com.threerings.io.ObjectInputStream;
 import com.threerings.io.ObjectOutputStream;
 import com.threerings.io.Streamable;
+
+import  com.threerings.util.Comparable;
 
 
 /**
@@ -230,9 +233,9 @@ public class DSet
     /**
      * Generates a string representation of this set instance.
      */
-    public override function toString () :String
+    public function toString () :String
     {
-        StringBuilder buf = new StringBuilder("(");
+        var buf :StringBuilder = new StringBuilder("(");
         buf.append(_entries.toString());
         buf.append(")");
         return buf.toString();

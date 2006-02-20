@@ -41,7 +41,7 @@ public class CompoundEvent extends DEvent
     /**
      * Constructs a compound event and prepares it for operation.
      */
-    public CompoundEvent (target :DObject, omgr :DObjectManager)
+    public function CompoundEvent (target :DObject, omgr :DObjectManager)
     {
         super(target.getOid());
 
@@ -113,18 +113,6 @@ public class CompoundEvent extends DEvent
     }
 
     /**
-     * We need to propagate our source oid to our constituent events.
-     */
-    public override function setSourceOid (sourceOid :int) :void
-    {
-        super.setSourceOid(sourceOid);
-
-        for (var ii :int = 0; ii < _events.length; ii++) {
-            _events.getItemAt(ii).setSourceOid(sourceOid);
-        }
-    }
-
-    /**
      * Nothing to apply here.
      */
     public override function applyToObject (target :DObject) :Boolean
@@ -145,10 +133,10 @@ public class CompoundEvent extends DEvent
     }
 
     // documentation inherited
-    protected override function toString (buf :StringBuilder) :void
+    protected override function toStringBuf (buf :StringBuilder) :void
     {
         buf.append("COMPOUND:");
-        super.toString(buf);
+        super.toStringBuf(buf);
 
         for (var ii :int = 0; ii < _events.length; ii++) {
             buf.append(", ", _events.getItemAt(ii));

@@ -1,6 +1,7 @@
 package com.threerings.presents.dobj {
 
 import flash.util.StringBuilder;
+import flash.util.trace;
 
 import com.threerings.io.ObjectInputStream;
 import com.threerings.io.ObjectOutputStream;
@@ -61,10 +62,10 @@ public class EntryAddedEvent extends NamedEvent
     }
 
     // documentation inherited
-    protected override function toString (StringBuilder buf)
+    protected override function toStringBuf (buf :StringBuilder)
     {
         buf.append("ELADD:");
-        super.toString(buf);
+        super.toStringBuf(buf);
         buf.append(", entry=", _entry);
     }
 

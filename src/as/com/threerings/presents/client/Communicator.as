@@ -1,5 +1,10 @@
 package com.threerings.presents.client {
 
+import flash.util.trace;
+
+import flash.events.Event;
+import flash.events.IOErrorEvent;
+
 import flash.net.Socket;
 
 import flash.util.ByteArray;
@@ -9,6 +14,13 @@ import com.threerings.io.FrameAvailableEvent;
 import com.threerings.io.FrameReader;
 import com.threerings.io.ObjectInputStream;
 import com.threerings.io.ObjectOutputStream;
+
+import com.threerings.presents.net.AuthRequest;
+import com.threerings.presents.net.AuthResponse;
+import com.threerings.presents.net.AuthResponseData;
+import com.threerings.presents.net.DownstreamMessage;
+import com.threerings.presents.net.LogoffRequest;
+import com.threerings.presents.net.UpstreamMessage;
 
 public class Communicator
 {
@@ -48,6 +60,11 @@ public class Communicator
         sendMessage(new LogoffRequest());
 
         shutdown(null);
+    }
+
+    public function postMessage (msg :UpstreamMessage) :void
+    {
+        sendMessage(msg); // send it now: we have no out queue (TODO?)
     }
 
     protected function shutdown (logonError :Error) :void
@@ -132,7 +149,7 @@ public class Communicator
 
         // logon success
         _omgr = new ClientDObjectMgr(this, _client);
-        _client._authData = data;
+        _client.setAuthResponseData(data);
     }
 
     /**
@@ -160,17 +177,18 @@ public class Communicator
      */
     protected function socketClosed (event :Event) :void
     {
-        _client.notifyObserver(ClientEvent.CLIENT_CONNECTION_FAILED);
+        _client.notifyObservers(ClientEvent.CLIENT_CONNECTION_FAILED);
         shutdown(null);
     }
 
     protected var _client :Client;
-    protected var _omgr :ClientDObjectManager;
+    protected var _omgr :ClientDObjectMgr;
 
     protected var _outBuffer :ByteArray;
     protected var _outStream :ObjectOutputStream;
 
     protected var _inStream :ObjectInputStream;
+    protected var _frameReader :FrameReader;
 
     protected var _socket :Socket;
 

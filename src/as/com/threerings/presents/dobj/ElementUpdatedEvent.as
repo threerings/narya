@@ -30,7 +30,7 @@ public class ElementUpdatedEvent extends NamedEvent
      * used).
      * @param index the index in the array of the updated element.
      */
-    public ElementUpdatedEvent (
+    public function ElementUpdatedEvent (
         targetOid :int, name :String, value :*, oldValue :*, index :int)
     {
         super(targetOid, name);
@@ -102,10 +102,10 @@ public class ElementUpdatedEvent extends NamedEvent
     }
 
     // documentation inherited
-    protected override function toString (buf :StringBuilder) :void
+    protected override function toStringBuf (buf :StringBuilder) :void
     {
         buf.append("UPDATE:");
-        super.toString(buf);
+        super.toStringBuf(buf);
         buf.append(", value=", _value);
         buf.append(", index=", _index);
     }

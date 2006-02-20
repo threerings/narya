@@ -59,7 +59,7 @@ public class AttributeChangedEvent extends NamedEvent
      * primitive types, the reflection-defined object-alternative is
      * used).
      */
-    protected function AttributeChangedEvent (
+    public function AttributeChangedEvent (
             targetOid :int, name :String, value :*, oldValue :*)
     {
         super(targetOid, name);
@@ -76,10 +76,10 @@ public class AttributeChangedEvent extends NamedEvent
     }
 
     // documentation inherited
-    protected override function toString (buf :StringBuilder) :void
+    protected override function toStringBuf (buf :StringBuilder) :void
     {
         buf.append("CHANGE:");
-        super.toString(buf);
+        super.toStringBuf(buf);
         buf.append(", value=", _value);
     }
 

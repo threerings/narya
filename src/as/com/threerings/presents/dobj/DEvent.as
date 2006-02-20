@@ -1,19 +1,18 @@
 package com.threerings.presents.dobj {
 
 import flash.util.StringBuilder;
+import flash.util.trace;
 
 import com.threerings.io.ObjectInputStream;
 import com.threerings.io.ObjectOutputStream;
 import com.threerings.io.Streamable;
 
+import com.threerings.util.Comparable;
+
 public class DEvent
     implements Streamable
 {
-    public function DEvent ()
-    {
-    }
-
-    public function DEvent (int targetOid)
+    public function DEvent (targetOid :int)
     {
         _toid = targetOid;
     }
@@ -50,18 +49,6 @@ public class DEvent
         // the default is to do nothing
     }
 
-    /**
-     * Constructs and returns a string representation of this event.
-     */
-    public override function toString () :String
-    {
-        StringBuilder buf = new StringBuilder();
-        buf.append("[");
-        toString(buf);
-        buf.append("]");
-        return buf.toString();
-    }
-
     // documentation inherited from interface Streamable
     public function writeObject (out :ObjectOutputStream) :void
     {
@@ -75,11 +62,23 @@ public class DEvent
     }
 
     /**
+     * Constructs and returns a string representation of this event.
+     */
+    public function toString () :String
+    {
+        var buf :StringBuilder = new StringBuilder();
+        buf.append("[");
+        toStringBuf(buf);
+        buf.append("]");
+        return buf.toString();
+    }
+
+    /**
      * This should be overridden by derived classes (which should be sure
      * to call <code>super.toString()</code>) to append the derived class
      * specific event information to the string buffer.
      */
-    protected function toString (buf :StringBuilder) :void
+    protected function toStringBuf (buf :StringBuilder) :void
     {
         buf.append("targetOid=", _toid);
     }
@@ -91,18 +90,18 @@ public class DEvent
 }
 }
 
-class DummyEntry implements DSetEntry
+class DummyEntry implements com.threerings.presents.dobj.DSetEntry
 {
-    public function getKey () :Comparable
+    public function getKey () :com.threerings.util.Comparable
     {
         return null;
     }
 
-    public function writeObject (out :ObjectOutputStream) :void
+    public function writeObject (out :com.threerings.io.ObjectOutputStream) :void
     {
     }
 
-    public function readObject (ins :ObjectInputStream) :void
+    public function readObject (ins :com.threerings.io.ObjectInputStream) :void
     {
     }
 }

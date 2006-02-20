@@ -80,3 +80,11 @@ Notes
 
   I will play around with trying to just use a Timer with a 1ms interval,
   and see if the frequency is limited to the actual framerate.
+
+- All methods must be marked with the 'override' keyword if they override
+  a method in their parent, except for toString(), even though it's defined
+  for Object. Ya got me...
+
+- 'protected' doesn't mean the same thing in ActionScript: it means that
+  ONLY subclasses can access a field/method, other classes in the same
+  package cannot access it.

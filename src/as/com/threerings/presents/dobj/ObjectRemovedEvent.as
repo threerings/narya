@@ -94,10 +94,10 @@ public class ObjectRemovedEvent extends NamedEvent
     }
 
     // documentation inherited
-    protected override function toString (buf :StringBuilder) :void
+    protected override function toStringBuf (buf :StringBuilder) :void
     {
         buf.append("OBJREM:");
-        super.toString(buf);
+        super.toStringBuf(buf);
         buf.append(", oid=", _oid);
     }
 

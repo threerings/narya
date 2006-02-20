@@ -1,5 +1,7 @@
 package com.threerings.presents.client {
 
+import flash.util.trace;
+
 import flash.events.EventDispatcher;
 import flash.events.TimerEvent;
 import flash.util.Timer;
@@ -63,6 +65,11 @@ public class Client extends EventDispatcher
     public function getAuthResponseData () :AuthResponseData
     {
         return _authData;
+    }
+
+    public function setAuthResponseData (data :AuthResponseData) :void
+    {
+        _authData = data;
     }
 
     public function getDObjectManager () :DObjectManager
@@ -216,7 +223,7 @@ public class Client extends EventDispatcher
         notifyObservers(ClientEvent.CLIENT_OBJECT_CHANGED);
     }
 
-    protected function cleanup (logonError :Error) :void
+    internal function cleanup (logonError :Error) :void
     {
         // clear out our references
         _comm = null;
@@ -238,7 +245,7 @@ public class Client extends EventDispatcher
     /**
      * Called by the omgr when we receive a pong packet.
      */
-    protected function gotPong (pong :PongResponse) :void
+    public function gotPong (pong :PongResponse) :void
     {
         // TODO: compute time delta bowl-shit
     }
@@ -247,7 +254,7 @@ public class Client extends EventDispatcher
      * Convenience method to dispatch a client event to any listeners
      * and return the result of dispatchEvent.
      */
-    protected function notifyObservers (evtCode :String, cause :Error = null)
+    public function notifyObservers (evtCode :String, cause :Error = null)
             :Boolean
     {
         return dispatchEvent(new ClientEvent(evtCode, this, cause));

@@ -18,7 +18,7 @@ public class NamedEvent extends DEvent
      * @param targetOid the object id of the object in question.
      * @param name the name associated with this event.
      */
-    public NamedEvent (targetOid :int, name :String)
+    public function NamedEvent (targetOid :int, name :String)
     {
         super(targetOid);
         _name = name;
@@ -32,9 +32,9 @@ public class NamedEvent extends DEvent
         return _name;
     }
 
-    protected override function toString (buf :StringBuilder) :void
+    protected override function toStringBuf (buf :StringBuilder) :void
     {
-        super.toString(buf);
+        super.toStringBuf(buf);
         buf.append(", name=", _name);
     }
 

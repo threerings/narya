@@ -55,9 +55,9 @@ public class UsernamePasswordCreds extends Credentials
     }
 
     // documentation inherited
-    protected override function toString (buf :StringBuilder)
+    protected override function toStringBuf (buf :StringBuilder)
     {
-        super.toString(buf);
+        super.toStringBuf(buf);
         buf.append(", password=", _password);
     }
 

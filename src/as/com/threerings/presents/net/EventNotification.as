@@ -32,7 +32,7 @@ public class EventNotification extends DownstreamMessage
         return _event;
     }
 
-    public override function toString () :String
+    public function toString () :String
     {
         return "[type=EVT, evt=" + _event + "]";
     }

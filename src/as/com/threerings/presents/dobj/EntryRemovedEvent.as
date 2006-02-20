@@ -1,10 +1,12 @@
 package com.threerings.presents.dobj {
 
 import flash.util.StringBuilder;
+import flash.util.trace;
     
 import com.threerings.io.ObjectInputStream;
 import com.threerings.io.ObjectOutputStream;
 
+import com.threerings.util.Comparable;
 
 /**
  * An entry removed event is dispatched when an entry is removed from a
@@ -80,10 +82,10 @@ public class EntryRemovedEvent extends NamedEvent
     }
 
     // documentation inherited
-    protected override function toString (buf :StringBuilder)
+    protected override function toStringBuf (buf :StringBuilder)
     {
         buf.append("ELREM:");
-        super.toString(buf);
+        super.toStringBuf(buf);
         buf.append(", key=", _key);
     }
 

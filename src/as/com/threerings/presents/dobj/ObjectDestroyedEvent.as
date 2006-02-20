@@ -19,7 +19,9 @@
 // License along with this library; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 
-package com.threerings.presents.dobj;
+package com.threerings.presents.dobj {
+
+import flash.util.StringBuilder;
 
 /**
  * An object destroyed event is dispatched when an object has been removed
@@ -36,22 +38,14 @@ public class ObjectDestroyedEvent extends DEvent
      *
      * @param targetOid the object id of the object that will be destroyed.
      */
-    public ObjectDestroyedEvent (int targetOid)
+    public function ObjectDestroyedEvent (targetOid :int)
     {
         super(targetOid);
     }
 
-    /**
-     * Constructs a blank instance of this event in preparation for
-     * unserialization from the network.
-     */
-    public ObjectDestroyedEvent ()
-    {
-    }
-
     // documentation inherited
-    public boolean applyToObject (DObject target)
-        throws ObjectAccessException
+    public override function applyToObject (target :DObject) :Boolean
+        //throws ObjectAccessException
     {
         // nothing to do in preparation for destruction, the omgr will
         // have to recognize this type of event and do the right thing
@@ -59,17 +53,18 @@ public class ObjectDestroyedEvent extends DEvent
     }
 
     // documentation inherited
-    protected void notifyListener (Object listener)
+    protected override function notifyListener (listener :Object) :void
     {
-        if (listener instanceof ObjectDeathListener) {
-            ((ObjectDeathListener)listener).objectDestroyed(this);
+        if (listener is ObjectDeathListener) {
+            listener.objectDestroyed(this);
         }
     }
 
     // documentation inherited
-    protected void toString (StringBuffer buf)
+    protected override function toStringBuf (buf :StringBuilder) :void
     {
         buf.append("DESTROY:");
-        super.toString(buf);
+        super.toStringBuf(buf);
     }
+}
 }

@@ -1,6 +1,10 @@
 package com.threerings.presents.client {
 
+import flash.util.trace;
+
 import com.threerings.presents.dobj.DObjectManager;
+
+import com.threerings.presents.data.ClientObject;
 
 public class InvocationDirector
 {

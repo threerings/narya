@@ -24,12 +24,27 @@ package com.threerings.presents.client {
 import flash.events.TimerEvent;
 import flash.util.Timer;
 
+import flash.util.trace;
+
 import mx.collections.IList;
 
+import com.threerings.util.ClassUtil;
 import com.threerings.util.SimpleMap;
 
+import com.threerings.presents.dobj.DEvent;
 import com.threerings.presents.dobj.DObject;
 import com.threerings.presents.dobj.DObjectManager;
+import com.threerings.presents.dobj.ObjectDestroyedEvent;
+import com.threerings.presents.dobj.Subscriber;
+
+import com.threerings.presents.net.BootstrapNotification;
+import com.threerings.presents.net.EventNotification;
+import com.threerings.presents.net.DownstreamMessage;
+import com.threerings.presents.net.FailureResponse;
+import com.threerings.presents.net.ForwardEventRequest;
+import com.threerings.presents.net.ObjectResponse;
+import com.threerings.presents.net.PongResponse;
+import com.threerings.presents.net.UnsubscribeResponse;
 
 /**
  * The client distributed object manager manages a set of proxy objects
@@ -202,7 +217,7 @@ public class ClientDObjectMgr
             notifyFailure(oid);
 
         } else if (obj is PongResponse) {
-            _client.gotPong(obj);
+            _client.gotPong(obj as PongResponse);
 
         } else if (obj is ObjectAction) {
             var act :ObjectAction = (obj as ObjectAction);
@@ -223,7 +238,7 @@ public class ClientDObjectMgr
         // if this is a compound event, we need to process its contained
         // events in order
         if (event is CompoundEvent) {
-            var events :IList = event.getEvents();
+            var events :IList = (event as CompoundEvent).getEvents();
             var ecount :int = events.length;
             for (var ii :int = 0; ii < ecount; ii++) {
                 dispatchEvent(events.getItemAt(ii));
@@ -404,7 +419,7 @@ public class ClientDObjectMgr
             var rec :FlushRecord = _flushes[oid];
             if (rec.expire <= now) {
                 _flushes[oid] = undefined;
-                flushObject(rec.object);
+                flushObject(rec.obj);
             }
         }
     }
@@ -436,7 +451,7 @@ public class ClientDObjectMgr
 
     /** Flushes objects every now and again. */
     protected var _flushInterval :Timer;
-    protected var _flushInterval :Timer;
+    protected var _actionInterval :Timer;
 
     /** Flush expired objects every 30 seconds. */
     protected static const FLUSH_INTERVAL :Number = 30 * 1000;
@@ -447,27 +462,27 @@ public class ClientDObjectMgr
  * The object action is used to queue up a subscribe or unsubscribe
  * request.
  */
-protected class ObjectAction
+class ObjectAction
 {
     public var oid :int;
-    public var target :Subscriber;
+    public var target :com.threerings.presents.dobj.Subscriber;
     public var subscribe :Boolean;
 
     public function ObjectAction (
-            oid :int, target :Subscriber, subscribe :Boolean)
+            oid :int, target :com.threerings.presents.dobj.Subscriber, subscribe :Boolean)
     {
         this.oid = oid;
         this.target = target;
         this.subscribe = subscribe;
     }
 
-    public override function toString () :String
+    public function toString () :String
     {
         return "oid=" + oid + ", target=" + target + ", subscribe=" + subscribe;
     }
 }
 
-protected class PendingRequest
+class PendingRequest
 {
     public var oid :int;
     public var targets :Array = new Array();
@@ -477,24 +492,24 @@ protected class PendingRequest
         this.oid = oid;
     }
 
-    public function addTarget (target :Subscriber) :void
+    public function addTarget (target :com.threerings.presents.dobj.Subscriber) :void
     {
         targets.push(target);
     }
 }
 
 /** Used to manage pending object flushes. */
-protected class FlushRecord
+class FlushRecord
 {
     /** The object to be flushed. */
-    public var obj :DObject;
+    public var obj :com.threerings.presents.dobj.DObject;
 
     /** The time at which we flush it. */
     public var expire :Number;
 
-    public function FlushRecord (obj :DObject, expire :Number)
+    public function FlushRecord (obj :com.threerings.presents.dobj.DObject, expire :Number)
     {
-        this.object = object;
+        this.obj = obj;
         this.expire = expire;
     }
 }

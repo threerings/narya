@@ -41,6 +41,6 @@ public class FailureResponse extends DownstreamMessage
         _oid = ins.readInt();
     }
 
-    protected int _oid;
+    protected var _oid :int;
 }
 }

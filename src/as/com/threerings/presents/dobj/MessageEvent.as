@@ -69,10 +69,10 @@ public class MessageEvent extends NamedEvent
     }
 
     // documentation inherited
-    protected override function toString (buf :StringBuilder) :void
+    protected override function toStringBuf (buf :StringBuilder) :void
     {
         buf.append("MSG:");
-        super.toString(buf);
+        super.toStringBuf(buf);
         buf.append(", args=", _args);
     }
 

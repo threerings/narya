@@ -1,5 +1,7 @@
 package com.threerings.presents.dobj {
 
+import flash.util.trace;
+
 import com.threerings.io.Streamable;
 
 import com.threerings.io.ObjectInputStream;
@@ -27,7 +29,7 @@ public class OidList
      */
     public function size () :int
     {
-        return _size;
+        return _oids.length;
     }
 
     /**
@@ -40,19 +42,14 @@ public class OidList
     public function add (oid :int) :Boolean
     {
         // check for existence
-        for (int i = 0; i < _size; i++) {
-            if (_oids[i] == oid) {
+        for (var ii :int = 0; ii < _oids.length; ii++) {
+            if (_oids[ii] == oid) {
                 return false;
             }
         }
 
-        // make room if necessary
-        if (_size+1 >= _oids.length) {
-            expand();
-        }
-
         // add the oid
-        _oids[_size++] = oid;
+        _oids[_oids.length] = oid;
         return true;
     }
 
@@ -62,13 +59,13 @@ public class OidList
      * @return true if the oid was in the list and was removed, false
      * otherwise.
      */
-    public boolean remove (int oid)
+    public function remove (oid :int) :Boolean
     {
         // scan for the oid in question
-        for (int i = 0; i < _size; i++) {
-            if (_oids[i] == oid) {
+        for (var ii :int = 0; ii < _oids.length; ii++) {
+            if (_oids[ii] == oid) {
                 // shift the rest of the list back one
-                System.arraycopy(_oids, i+1, _oids, i, --_size-i);
+                _oids.splice(ii, 1);
                 return true;
             }
         }
@@ -79,10 +76,10 @@ public class OidList
     /**
      * Returns true if the specified oid is in the list, false if not.
      */
-    public boolean contains (int oid)
+    public function contains (oid :int) :Boolean
     {
-        for (int i = 0; i < _size; i++) {
-            if (_oids[i] == oid) {
+        for (var ii :int = 0; ii < _oids.length; ii++) {
+            if (_oids[ii] == oid) {
                 return true;
             }
         }
@@ -118,9 +115,9 @@ public class OidList
     }
 
 
-    public override function toString () :String
+    public function toString () :String
     {
-        StringBuilder buf = new StringBuilder();
+        var buf :StringBuilder = new StringBuilder();
         buf.append("{");
         buf.append(_oids.toString());
         buf.append("}");

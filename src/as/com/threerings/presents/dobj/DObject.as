@@ -1,8 +1,11 @@
 package com.threerings.presents.dobj {
 
 import flash.events.EventDispatcher;
+import flash.util.trace;
 
 import mx.collections.ArrayCollection;
+
+import com.threerings.util.Comparable;
 
 import com.threerings.io.ObjectInputStream;
 import com.threerings.io.ObjectOutputStream;
@@ -140,7 +143,7 @@ public class DObject // extends EventDispatcher
     /**
      * Calls by derived instances when a set adder method was called.
      */
-    protected function requestEntryAdd (name :String, entry :DSet.Entry) :void
+    protected function requestEntryAdd (name :String, entry :DSetEntry) :void
     {
         // dispatch an entry added event
         postEvent(new EntryAddedEvent(_oid, name, entry, false));
@@ -158,7 +161,7 @@ public class DObject // extends EventDispatcher
     /**
      * Calls by derived instances when a set updater method was called.
      */
-    protected function requestEntryUpdate (name :String, entry :DSet.Entry)
+    protected function requestEntryUpdate (name :String, entry :DSetEntry)
     {
         // dispatch an entry updated event
         postEvent(new EntryUpdatedEvent(_oid, name, entry, null));

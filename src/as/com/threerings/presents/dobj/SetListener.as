@@ -19,7 +19,7 @@
 // License along with this library; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 
-package com.threerings.presents.dobj;
+package com.threerings.presents.dobj {
 
 /**
  * Implemented by entites which wish to hear about changes that occur to
@@ -36,7 +36,7 @@ public interface SetListener extends ChangeListener
      *
      * @param event The event that was dispatched on the object.
      */
-    public void entryAdded (EntryAddedEvent event);
+    function entryAdded (event :EntryAddedEvent) :void;
 
     /**
      * Called when an entry updated event has been dispatched on an
@@ -45,7 +45,7 @@ public interface SetListener extends ChangeListener
      *
      * @param event The event that was dispatched on the object.
      */
-    public void entryUpdated (EntryUpdatedEvent event);
+    function entryUpdated (event :EntryUpdatedEvent) :void;
 
     /**
      * Called when an entry removed event has been dispatched on an
@@ -54,5 +54,6 @@ public interface SetListener extends ChangeListener
      *
      * @param event The event that was dispatched on the object.
      */
-    public void entryRemoved (EntryRemovedEvent event);
+    function entryRemoved (event :EntryRemovedEvent) :void;
+}
 }
