@@ -65,13 +65,17 @@ public class VirtualRangeModel
             value = MathUtil.bound(x, _hrange.getValue(), hmax - vb.width);
             _hrange.setRangeProperties(value, vb.width, x, hmax, false);
         } else {
-            _hrange.setRangeProperties(0, vb.width, 0, vb.width, false);
+            // Let's center it and lock it down.
+            int newx = x - (vb.width - width)/2;
+            _hrange.setRangeProperties(newx, 0, newx, newx, false);
         }
         if (height > vb.height) {
             value = MathUtil.bound(y, _vrange.getValue(), vmax - vb.height);
             _vrange.setRangeProperties(value, vb.height, y, vmax, false);
         } else {
-            _vrange.setRangeProperties(0, vb.height, 0, vb.height, false);
+            // Let's center it and lock it down.
+            int newy = y - (vb.height - height)/2;
+            _vrange.setRangeProperties(newy, 0, newy, newy, false);
         }
     }
 
