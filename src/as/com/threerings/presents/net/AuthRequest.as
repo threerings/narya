@@ -24,6 +24,7 @@ public class AuthRequest extends UpstreamMessage
     public override function readObject (ins :ObjectInputStream) :void
     {
         super.readObject(ins);
+
         _creds = (ins.readObject() as Credentials);
         _version = (ins.readField(String) as String);
     }

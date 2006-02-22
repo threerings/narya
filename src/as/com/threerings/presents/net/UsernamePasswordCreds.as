@@ -21,10 +21,12 @@
 
 package com.threerings.presents.net {
 
+import flash.util.StringBuilder;
+
 import com.threerings.util.Name;
 
-import com.threerrings.io.ObjectInputStream;
-import com.threerrings.io.ObjectOutputStream;
+import com.threerings.io.ObjectInputStream;
+import com.threerings.io.ObjectOutputStream;
 
 public class UsernamePasswordCreds extends Credentials
 {
@@ -51,11 +53,11 @@ public class UsernamePasswordCreds extends Credentials
     public override function readObject (ins :ObjectInputStream) :void
     {
         super.readObject(ins);
-        _password = ins.readField(String);
+        _password = (ins.readField(String) as String);
     }
 
     // documentation inherited
-    protected override function toStringBuf (buf :StringBuilder)
+    internal override function toStringBuf (buf :StringBuilder) :void
     {
         super.toStringBuf(buf);
         buf.append(", password=", _password);

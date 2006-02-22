@@ -1,7 +1,12 @@
 package com.threerings.presents.net {
 
-import com.threerings.io.*;
+import flash.util.StringBuilder;
+
 import com.threerings.util.Name;
+
+import com.threerings.io.ObjectInputStream;
+import com.threerings.io.ObjectOutputStream;
+import com.threerings.io.Streamable;
 
 public class Credentials
     implements Streamable
@@ -23,6 +28,19 @@ public class Credentials
         //throws IOError
     {
     	_username = (ins.readObject() as Name);
+    }
+
+    public function toString () :String
+    {
+        var buf :StringBuilder = new StringBuilder("[");
+        toStringBuf(buf);
+        buf.append("]");
+        return buf.toString();
+    }
+
+    internal function toStringBuf (buf :StringBuilder) :void
+    {
+        buf.append("username=", _username);
     }
 
     /** The username. */
