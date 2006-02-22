@@ -6,7 +6,7 @@ import com.threerings.io.ObjectInputStream;
 import com.threerings.io.ObjectOutputStream;
 import com.threerings.io.Streamable;
 
-public class DownstreamMessage
+public /* abstract */ class DownstreamMessage
     implements Streamable
 {
     /** The message id of the upstream message with which this downstream

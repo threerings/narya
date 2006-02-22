@@ -9,7 +9,7 @@ import com.threerings.io.Streamable;
 
 import com.threerings.util.Comparable;
 
-public class DEvent
+public /* abstract */ class DEvent
     implements Streamable
 {
     public function DEvent (targetOid :int)

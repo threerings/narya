@@ -8,7 +8,7 @@ import com.threerings.io.ObjectInputStream;
 import com.threerings.io.ObjectOutputStream;
 import com.threerings.io.Streamable;
 
-public class Credentials
+public /* abstract */ class Credentials
     implements Streamable
 {
     public function Credentials (username :Name)

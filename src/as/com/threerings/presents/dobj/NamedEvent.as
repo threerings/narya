@@ -9,7 +9,7 @@ import com.threerings.io.ObjectOutputStream;
  * A common parent class for all events that are associated with a name
  * (in some cases a field name, in other cases just an identifying name).
  */
-public class NamedEvent extends DEvent
+public /* abstract */ class NamedEvent extends DEvent
 {
     /**
      * Constructs a new named event for the specified target object with

@@ -10,6 +10,8 @@ import flash.net.Socket;
 import flash.util.ByteArray;
 import flash.util.Endian;
 
+import com.threerings.util.Util;
+
 import com.threerings.io.FrameAvailableEvent;
 import com.threerings.io.FrameReader;
 import com.threerings.io.ObjectInputStream;
@@ -89,6 +91,8 @@ public class Communicator
     {
         // write the message (ends up in _outBuffer)
         _outStream.writeObject(msg);
+
+        trace("outBuffer: " + Util.bytesToString(_outBuffer));
 
         // frame it by writing the length, then the bytes
         _socket.writeInt(_outBuffer.length);

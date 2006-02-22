@@ -8,7 +8,7 @@ import com.threerings.io.ObjectOutputStream;
 
 import com.threerings.util.JavaConstants;
 
-public class UpstreamMessage
+public /* abstract */ class UpstreamMessage
     implements Streamable
 {
     /** This is a unique (within the context of a reasonable period

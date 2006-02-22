@@ -76,7 +76,7 @@ public class ClientDObjectMgr
         _flushInterval.addEventListener(TimerEvent.TIMER, flushObjects);
         _flushInterval.start();
 
-        _actionInterval = new Timer(1); //TODO!
+        _actionInterval = new Timer(500); //TODO!
         _actionInterval.addEventListener(TimerEvent.TIMER, processNextAction);
         _actionInterval.start();
     }
