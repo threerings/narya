@@ -103,3 +103,11 @@ Actionscript
 
   SO: if you want a method to be accessable to a subclass in a different
   package, it must be public!
+
+- Beware of integer math:
+
+  var i :int = 3;
+  var o :Object = someArray[i / 2];
+  // o is now undefined, because we accessed array element "1.5".
+  // I think arrays are just hashes, so probably you could store
+  // values at element 1.5 if you desired...
