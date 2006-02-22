@@ -175,8 +175,9 @@ public class CameraHandler
     {
         if (_campath != null) {
             if (_campath.tick(frameTime)) {
-                _campathobs.apply(new CompletedOp(_campath));
+                CameraPath opath = _campath;
                 _campath = null;
+                _campathobs.apply(new CompletedOp(opath));
             }
         }
     }
