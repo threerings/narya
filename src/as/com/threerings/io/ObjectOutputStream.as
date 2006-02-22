@@ -29,7 +29,7 @@ public class ObjectOutputStream
         var cmap :ClassMapping = _classMap[cname];
 
         // create a class mapping if we've not got one
-        if (cmap === undefined) {
+        if (cmap == null) {
             var streamer :Streamer = Streamer.getStreamer(obj);
             // streamer may be null to indicate a Streamable object
             if (streamer === undefined) {

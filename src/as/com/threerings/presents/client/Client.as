@@ -292,7 +292,7 @@ public class Client extends EventDispatcher
     protected var _bstrap :BootstrapData;
 
     /** Manages invocation services. */
-    protected var _invdir :InvocationDirector;
+    protected var _invdir :InvocationDirector = new InvocationDirector();
 
     /** Ticks. */
     protected var _tickInterval :Timer;

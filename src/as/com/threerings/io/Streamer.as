@@ -42,7 +42,7 @@ public class Streamer
             createStreamers();
         }
 
-        for (var ii :int = 0; ii < _streamers.lenght; ii++) {
+        for (var ii :int = 0; ii < _streamers.length; ii++) {
             if (_streamers[ii].isStreamerFor(obj)) {
                 return _streamers[ii];
             }
