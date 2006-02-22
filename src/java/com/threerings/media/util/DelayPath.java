@@ -22,15 +22,42 @@
 package com.threerings.media.util;
 
 import java.awt.Graphics2D;
+import java.awt.Point;
 
 /**
  * A convenience path that waits a specified amount of time.
  */
 public class DelayPath extends TimedPath
 {
+    /**
+     * Cause the current path to remain unchanged for the duration.
+     */
     public DelayPath (long duration)
     {
+        this(null, duration);
+    }
+
+    /**
+     * Move to the sprite to the supplied location then wait for the duration.
+     */
+    public DelayPath (int x, int y, long duration)
+    {
+        this(new Point(x, y), duration);
+    }
+
+    /**
+     * Move to the sprite to the supplied location then wait for the duration.
+     */
+    public DelayPath (Point source, long duration)
+    {
         super(duration);
+        _source = source;
+    }
+
+    // documentation inherited
+    public void init (Pathable pable, long timestamp)
+    {
+        super.init(pable, timestamp);
     }
 
     // documentation inherited
@@ -42,8 +69,23 @@ public class DelayPath extends TimedPath
     public boolean tick (Pathable pable, long tickstamp)
     {
         if (tickstamp >= _startStamp + _duration) {
+            if (_source != null) {
+                pable.setLocation(_source.x, _source.y);
+            }
             pable.pathCompleted(tickstamp);
+            return (_source != null);
         }
+
+        // If necessary, move the sprite to the supplied location
+        if (_source != null && (pable.getX() != _source.x ||
+                                pable.getY() != _source.y)) {
+            pable.setLocation(_source.x, _source.y);
+            return true;
+        }
+
         return false;
     }
+
+    /** Source point. */
+    protected Point _source;
 }

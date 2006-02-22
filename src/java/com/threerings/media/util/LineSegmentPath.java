@@ -196,14 +196,14 @@ public class LineSegmentPath
                 pable.setLocation(node.loc.x, node.loc.y);
             }
             // and let the pathable know that we're done
-	    pable.pathCompleted(timestamp);
-	    return;
-	}
+            pable.pathCompleted(timestamp);
+            return;
+        }
 
         // and an enumeration of the path nodes
         _niter = _nodes.iterator();
 
-	// pretend like we were previously heading to our starting position
+        // pretend like we were previously heading to our starting position
         _dest = getNextNode();
 
         // begin traversing the path
