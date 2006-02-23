@@ -92,10 +92,12 @@ public class Communicator
         // write the message (ends up in _outBuffer)
         _outStream.writeObject(msg);
 
-        trace("outBuffer: " + Util.bytesToString(_outBuffer));
+        //trace("outBuffer: " + Util.bytesToString(_outBuffer));
 
-        // frame it by writing the length, then the bytes
-        _socket.writeInt(_outBuffer.length);
+        // Frame it by writing the length, then the bytes.
+        // We add 4 to the length, because the length is of the entire frame
+        // including the 4 bytes used to encode the length!
+        _socket.writeInt(_outBuffer.length + 4);
         _socket.writeBytes(_outBuffer);
         _socket.flush();
 
