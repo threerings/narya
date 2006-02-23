@@ -175,7 +175,7 @@ public abstract class ConfigRegistry
         public void attributeChanged (AttributeChangedEvent event)
         {
             // mirror this configuration update to the persistent config
-            String key = StringUtil.unStudlyName(event.getName());
+            String key = event.getName().toLowerCase();
             Object value = event.getValue();
             if (value instanceof Boolean) {
                 setValue(key, ((Boolean)value).booleanValue());
@@ -212,7 +212,7 @@ public abstract class ConfigRegistry
          * its corresponding value in the associated config repository. */
         protected void initField (Field field)
         {
-            String key = StringUtil.unStudlyName(field.getName());
+            String key = StringUtil.unStudlyName(field.getName()).toLowerCase();
             Class type = field.getType();
 
             try {
@@ -294,7 +294,7 @@ public abstract class ConfigRegistry
          */
         protected void serializeAttribute (String attributeName)
         {
-            String key = StringUtil.unStudlyName(attributeName);
+            String key = StringUtil.unStudlyName(attributeName).toLowerCase();
             Object value;
             try {
                 value = object.getAttribute(attributeName);
