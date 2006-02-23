@@ -175,7 +175,7 @@ public abstract class ConfigRegistry
         public void attributeChanged (AttributeChangedEvent event)
         {
             // mirror this configuration update to the persistent config
-            String key = event.getName().toLowerCase();
+            String key = nameToKey(event.getName());
             Object value = event.getValue();
             if (value instanceof Boolean) {
                 setValue(key, ((Boolean)value).booleanValue());
@@ -212,7 +212,7 @@ public abstract class ConfigRegistry
          * its corresponding value in the associated config repository. */
         protected void initField (Field field)
         {
-            String key = StringUtil.unStudlyName(field.getName()).toLowerCase();
+            String key = nameToKey(field.getName());
             Class type = field.getType();
 
             try {
@@ -289,12 +289,21 @@ public abstract class ConfigRegistry
         }
 
         /**
+         * Converts a config object field name (someConfigMember) to a
+         * configuration key (some_config_member).
+         */
+        protected String nameToKey (String attributeName)
+        {
+            return StringUtil.unStudlyName(attributeName).toLowerCase();
+        }
+
+        /**
          * Get the specified attribute from the configuration object, and
          * serialize it.
          */
         protected void serializeAttribute (String attributeName)
         {
-            String key = StringUtil.unStudlyName(attributeName).toLowerCase();
+            String key = nameToKey(attributeName);
             Object value;
             try {
                 value = object.getAttribute(attributeName);
