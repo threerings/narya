@@ -133,6 +133,8 @@ public class Communicator
     {
         // convert the frame data into a message from the server
         var frameData :ByteArray = event.getFrameData();
+        //trace("length of in frame: " + frameData.length);
+        //trace("inBuffer: " + Util.bytesToString(frameData));
         _inStream.setSource(frameData);
         var msg :DownstreamMessage =
             (_inStream.readObject() as DownstreamMessage);

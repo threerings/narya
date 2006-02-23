@@ -33,7 +33,12 @@ public class FrameReader extends EventDispatcher
                 // all at once
                 return;
             }
-            _length = _socket.readInt();
+            // the length specified is the length of the entire frame,
+            // including the length of the bytes used to encode the length.
+            // (I think this is pretty silly).
+            // So for our purposes we subtract 4 bytes so we know how much
+            // more data is in the frame.
+            _length = _socket.readInt() - HEADER_SIZE;
             _curData = new ByteArray();
             _curData.endian = Endian.BIG_ENDIAN;
         }

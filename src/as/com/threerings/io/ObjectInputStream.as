@@ -84,7 +84,7 @@ public class ObjectInputStream
         readBareObjectImpl(obj, Streamer.getStreamer(obj));
     }
 
-    protected function readBareObjectImpl (obj :Object, streamer :Streamer) :void
+    internal function readBareObjectImpl (obj :Object, streamer :Streamer) :void
     {
         // streamable objects
         if (streamer == null) {
@@ -110,8 +110,10 @@ public class ObjectInputStream
         //throws IOError
     {
         if (readBoolean()) {
-            var obj :Object = new clazz();
-            return readBareObject(obj);
+            var streamer :Streamer = Streamer.getStreamerByClass(clazz);
+            var obj :Object = streamer.createObject(this);
+            streamer.readObject(obj, this);
+            return obj;
         }
         return null;
     }

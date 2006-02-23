@@ -14,37 +14,30 @@ import com.threerings.io.streamers.StringStreamer;
 
 public class Streamer
 {
-    /*
-    public static function getStreamer (className :String) :Streamer
-        //throws IOError
-    {
-        if (_streamerMap == null) {
-            createStreamers();
-        }
-
-        var streamer :Streamer = _streamerMap[className];
-        if (streamer == null) {
-            streamer = new Streamer(className);
-            _streamerMap[className] = streamer;
-        }
-
-        return streamer;
-    }
-    */
-
     public static function getStreamer (obj :Object) :Streamer
     {
         if (obj is Streamable) {
             return null;
         }
 
-        if (_streamers == null) {
-            createStreamers();
+        initStreamers();
+
+        for each (var streamer :Streamer in _streamers) {
+            if (streamer.isStreamerFor(obj)) {
+                return streamer;
+            }
         }
 
-        for (var ii :int = 0; ii < _streamers.length; ii++) {
-            if (_streamers[ii].isStreamerFor(obj)) {
-                return _streamers[ii];
+        return undefined;
+    }
+
+    public static function getStreamerByClass (clazz :Class) :Streamer
+    {
+        initStreamers();
+
+        for each (var streamer :Streamer in _streamers) {
+            if (streamer._targ == clazz) {
+                return streamer;
             }
         }
 
@@ -53,13 +46,11 @@ public class Streamer
 
     public static function getStreamerByJavaName (jname :String) :Streamer
     {
-        if (_streamers == null) {
-            createStreamers();
-        }
+        initStreamers();
 
-        for (var ii :int = 0; ii < _streamers.length; ii++) {
-            if (_streamers[ii].getJavaClassName() === jname) {
-                return _streamers[ii];
+        for each (var streamer :Streamer in _streamers) {
+            if (streamer.getJavaClassName() === jname) {
+                return streamer;
             }
         }
 
@@ -116,21 +107,21 @@ public class Streamer
     }
 
     /**
-     * Creates our streamers table map and registers streamers for
-     * basic types.
+     * Initialize our streamers. This cannot simply be done statically
+     * because we cannot instantiate a subclass when this class is still
+     * being created. Fucking actionscript.
      */
-    protected static function createStreamers () :void
+    private static function initStreamers () :void
     {
-        _streamers = new Array();
-
-        // add our default streamers
-        _streamers.push(
-            new StringStreamer(),
-            new IntStreamer(),
-            new NumberStreamer(),
-            new ArrayStreamer(),
-            new ByteArrayStreamer()
-        );
+        if (_streamers == null) {
+            _streamers = [
+                new StringStreamer(),
+                new IntStreamer(),
+                new NumberStreamer(),
+                new ArrayStreamer(),
+                new ByteArrayStreamer()
+            ];
+        }
     }
 
     protected var _targ :Class;
