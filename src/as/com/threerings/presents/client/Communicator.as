@@ -1,7 +1,5 @@
 package com.threerings.presents.client {
 
-import flash.util.trace;
-
 import flash.events.Event;
 import flash.events.IOErrorEvent;
 
@@ -16,6 +14,8 @@ import com.threerings.io.FrameAvailableEvent;
 import com.threerings.io.FrameReader;
 import com.threerings.io.ObjectInputStream;
 import com.threerings.io.ObjectOutputStream;
+
+import com.threerings.presents.Log;
 
 import com.threerings.presents.net.AuthRequest;
 import com.threerings.presents.net.AuthResponse;
@@ -75,7 +75,7 @@ public class Communicator
             try {
                 _socket.close();
             } catch (err :Error) {
-                trace("Error closing failed socket: " + err);
+                Log.warning("Error closing failed socket [error=" + err + "].");
             }
             _socket = null;
             _outStream = null;
@@ -92,7 +92,7 @@ public class Communicator
         // write the message (ends up in _outBuffer)
         _outStream.writeObject(msg);
 
-        //trace("outBuffer: " + Util.bytesToString(_outBuffer));
+        //Log.debug("outBuffer: " + Util.bytesToString(_outBuffer));
 
         // Frame it by writing the length, then the bytes.
         // We add 4 to the length, because the length is of the entire frame
@@ -133,13 +133,15 @@ public class Communicator
     {
         // convert the frame data into a message from the server
         var frameData :ByteArray = event.getFrameData();
-        //trace("length of in frame: " + frameData.length);
-        //trace("inBuffer: " + Util.bytesToString(frameData));
+        //Log.debug("length of in frame: " + frameData.length);
+        //Log.debug("inBuffer: " + Util.bytesToString(frameData));
         _inStream.setSource(frameData);
         var msg :DownstreamMessage =
             (_inStream.readObject() as DownstreamMessage);
         if (frameData.bytesAvailable > 0) {
-            trace("OMG, we didn't fully read the frame. Surely there's a bug");
+            Log.warning("Beans! We didn't fully read a frame, surely there's " +
+                "a bug in some streaming code. " +
+                "[bytesLeftOver=" + frameData.bytesAvailable + "].");
         }
 
         if (_omgr != null) {
@@ -177,7 +179,7 @@ public class Communicator
      */
     protected function socketError (event :IOErrorEvent) :void
     {
-        trace("socketError: " + event);
+        Log.warning("socket error: " + event);
         shutdown(new Error("socket closed unexpectedly."));
     }
 

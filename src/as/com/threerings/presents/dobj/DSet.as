@@ -1,14 +1,14 @@
 package com.threerings.presents.dobj {
 
 import flash.util.StringBuilder;
-import flash.util.trace;
 
 import com.threerings.io.ObjectInputStream;
 import com.threerings.io.ObjectOutputStream;
 import com.threerings.io.Streamable;
 
-import  com.threerings.util.Comparable;
+import com.threerings.util.Comparable;
 
+import com.threerings.presents.Log;
 
 /**
  * The distributed set class provides a means by which an unordered set of
@@ -161,7 +161,7 @@ public class DSet
     internal function add (elem :DSetEntry) :Boolean
     {
         if (contains(elem)) {
-            trace("Refusing to add duplicate entry [set=" + this +
+            Log.warning("Refusing to add duplicate entry [set=" + this +
                   ", entry=" + elem + "].");
             return false;
         }
@@ -244,7 +244,7 @@ public class DSet
     // documentation inherited from interface Streamable
     public function writeObject (out :ObjectOutputStream) :void
     {
-        trace("TODO");
+        Log.warning("TODO!");
     }
 
     // documentation inherited from interface Streamable

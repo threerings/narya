@@ -1,12 +1,13 @@
 package com.threerings.presents.dobj {
 
 import flash.util.StringBuilder;
-import flash.util.trace;
     
 import com.threerings.io.ObjectInputStream;
 import com.threerings.io.ObjectOutputStream;
 
 import com.threerings.util.Comparable;
+
+import com.threerings.presents.Log;
 
 /**
  * An entry removed event is dispatched when an entry is removed from a
@@ -65,8 +66,8 @@ public class EntryRemovedEvent extends NamedEvent
             _oldEntry = dset.removeKey(_key);
             if (_oldEntry == null) {
                 // complain if there was actually nothing there
-                trace("No matching entry to remove [key=" + _key +
-                            ", set=" + dset + "].");
+                Log.warning("No matching entry to remove [key=" + _key +
+                    ", set=" + dset + "].");
                 return false;
             }
         }

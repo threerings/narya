@@ -1,7 +1,5 @@
 package com.threerings.presents.client {
 
-import flash.util.trace;
-
 import flash.events.EventDispatcher;
 import flash.events.TimerEvent;
 import flash.util.Timer;
@@ -15,6 +13,8 @@ import com.threerings.presents.net.BootstrapData;
 import com.threerings.presents.net.Credentials;
 import com.threerings.presents.net.PingRequest;
 import com.threerings.presents.net.PongResponse;
+
+import com.threerings.presents.Log;
 
 public class Client extends EventDispatcher
 {
@@ -159,7 +159,7 @@ public class Client extends EventDispatcher
     public function logoff (abortable :Boolean) :Boolean
     {
         if (_comm == null) {
-            trace("Ignoring request to log off: not logged on.");
+            Log.warning("Ignoring request to log off: not logged on.");
             return true;
         }
 
@@ -180,7 +180,7 @@ public class Client extends EventDispatcher
     public function gotBootstrap (data :BootstrapData, omgr :DObjectManager)
             :void
     {
-        trace("Got bootstrap " + data + ".");
+        Log.debug("Got bootstrap " + data + ".");
 
         _bstrap = data;
         _omgr = omgr;

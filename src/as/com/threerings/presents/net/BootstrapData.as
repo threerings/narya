@@ -1,12 +1,12 @@
 package com.threerings.presents.net {
 
-import flash.util.trace;
-
 import com.threerings.io.ObjectInputStream;
 import com.threerings.io.ObjectOutputStream;
 import com.threerings.io.Streamable;
 
 import com.threerings.util.StreamableArrayList;
+
+import com.threerings.presents.Log;
 
 /**
  * A BoostrapData object is communicated back to the client
@@ -26,7 +26,7 @@ public class BootstrapData
     // documentation inherited from interface Streamable
     public function writeObject (out :ObjectOutputStream) :void
     {
-        trace("This is client code: BootstrapData shouldn't be written");
+        Log.warning("This is client code: BootstrapData shouldn't be written");
         //out.writeShort(messageId);
     }
 

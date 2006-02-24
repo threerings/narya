@@ -1,10 +1,11 @@
 package com.threerings.presents.dobj {
 
 import flash.util.StringBuilder;
-import flash.util.trace;
 
 import com.threerings.io.ObjectInputStream;
 import com.threerings.io.ObjectOutputStream;
+
+import com.threerings.presents.Log;
 
 /**
  * An entry added event is dispatched when an entry is added to a {@link
@@ -48,7 +49,7 @@ public class EntryAddedEvent extends NamedEvent
     {
         var added :Boolean = target[_name].add(_entry);
         if (!added) {
-            trace("Duplicate entry found [event=" + this + "].");
+            Log.warning("Duplicate entry found [event=" + this + "].");
         }
         return true;
     }

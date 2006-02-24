@@ -1,17 +1,17 @@
 package com.threerings.presents.client {
 
-import flash.util.trace;
-
 import com.threerings.presents.dobj.DObjectManager;
 
 import com.threerings.presents.data.ClientObject;
+
+import com.threerings.presents.Log;
 
 public class InvocationDirector
 {
     public function init (omgr :DObjectManager, cloid :int, client :Client) :void
     {
         if (_clobj != null) {
-            trace("Zoiks, client object around during invmgr init!");
+            Log.warning("Zoiks, client object around during invmgr init!");
             cleanup();
         }
 

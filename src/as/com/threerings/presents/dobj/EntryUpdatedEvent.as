@@ -1,11 +1,11 @@
 package com.threerings.presents.dobj {
 
-import flash.util.trace;
-
 import flash.util.StringBuilder;
 
 import com.threerings.io.ObjectInputStream;
 import com.threerings.io.ObjectOutputStream;
+
+import com.threerings.presents.Log;
 
 /**
  * An entry updated event is dispatched when an entry of a {@link DSet} is
@@ -64,7 +64,7 @@ public class EntryUpdatedEvent extends NamedEvent
             _oldEntry = dset.update(_entry);
             if (_oldEntry == null) {
                 // complain if we didn't update anything
-                trace("No matching entry to update [entry=" + this +
+                Log.warning("No matching entry to update [entry=" + this +
                             ", set=" + dset + "].");
                 return false;
             }

@@ -1,15 +1,19 @@
 package com.threerings.presents.dobj {
 
 import flash.events.EventDispatcher;
-import flash.util.trace;
+
+import flash.util.StringBuilder;
 
 import mx.collections.ArrayCollection;
 
+import com.threerings.util.ClassUtil;
 import com.threerings.util.Comparable;
 
 import com.threerings.io.ObjectInputStream;
 import com.threerings.io.ObjectOutputStream;
 import com.threerings.io.Streamable;
+
+import com.threerings.presents.Log;
 
 public class DObject // extends EventDispatcher
     implements Streamable
@@ -53,7 +57,9 @@ public class DObject // extends EventDispatcher
             _listeners = new ArrayCollection();
 
         } else if (_listeners.contains(listener)) {
-            trace("Refusing repeat listener registration");
+            Log.warning("Refusing repeat listener registration " +
+                "[dobj=" + which() + ", list=" + listener + "].");
+            Log.logStackTrace(new Error());
             return;
         }
         _listeners.addItem(listener);
@@ -84,8 +90,9 @@ public class DObject // extends EventDispatcher
                     listener.eventReceived(event);
                 }
             } catch (e :Error) {
-                trace("Listener choked during notification");
-                trace(e.getStackTrace());
+                Log.warning("Listener choked during notification " +
+                    "[list=" + listener + ", event=" + event + "].");
+                Log.logStackTrace(e);
             }
         }
     }
@@ -102,8 +109,46 @@ public class DObject // extends EventDispatcher
             _omgr.postEvent(event);
 
         } else {
-            trace("Unable to post event, object has no omgr");
+            Log.warning("Unable to post event, object has no omgr " +
+                "[oid=" + getOid() + ", class=" + ClassUtil.getClassName(this) +
+                ", event=" + event + "].");
+            
         }
+    }
+
+    /**
+     * Generates a concise string representation of this object.
+     */
+    public function which () :String
+    {
+        var buf :StringBuilder = new StringBuilder();
+        whichBuf(buf);
+        return buf.toString();
+    }
+
+    /**
+     * Used to briefly describe this distributed object.
+     */
+    public function whichBuf (buf :StringBuilder) :void
+    {
+        buf.append(ClassUtil.shortClassName(this), ":", _oid);
+    }
+
+    // documentation inherited
+    public function toString () :String
+    {
+        var buf :StringBuilder = new StringBuilder("[");
+        toStringBuf(buf);
+        buf.append("]");
+        return buf.toString();
+    }
+
+    /**
+     * Generates a string representation of this object.
+     */
+    public function toStringBuf (buf :StringBuilder) :void
+    {
+        buf.append("oid=", _oid);
     }
 
     public function startTransaction () :void

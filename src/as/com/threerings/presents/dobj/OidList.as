@@ -1,12 +1,13 @@
 package com.threerings.presents.dobj {
 
-import flash.util.trace;
 import flash.util.StringBuilder;
 
 import com.threerings.io.Streamable;
 
 import com.threerings.io.ObjectInputStream;
 import com.threerings.io.ObjectOutputStream;
+
+import com.threerings.presents.Log;
 
 /**
  * An oid list is used to store lists of object ids. The list will not
@@ -100,7 +101,7 @@ public class OidList
     // documentation inherited from interface Streamable
     public function writeObject (out :ObjectOutputStream) :void
     {
-        trace("Not implemented");
+        Log.warning("TODO: Not implemented: " + this);
     }
 
     // documentation inherited from interface Streamable

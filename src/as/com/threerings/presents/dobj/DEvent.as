@@ -1,13 +1,14 @@
 package com.threerings.presents.dobj {
 
 import flash.util.StringBuilder;
-import flash.util.trace;
 
 import com.threerings.io.ObjectInputStream;
 import com.threerings.io.ObjectOutputStream;
 import com.threerings.io.Streamable;
 
 import com.threerings.util.Comparable;
+
+import com.threerings.presents.Log;
 
 public /* abstract */ class DEvent
     implements Streamable
@@ -34,7 +35,8 @@ public /* abstract */ class DEvent
      */
     public function applyToObject (target :DObject) :Boolean
     {
-        trace("TODO: abstract methods?");
+        // TODO
+        Log.warning("DEvent.applyToTarget is really an abstract method.");
         return false;
     }
 

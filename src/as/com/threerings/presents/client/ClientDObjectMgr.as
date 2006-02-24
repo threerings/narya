@@ -24,8 +24,6 @@ package com.threerings.presents.client {
 import flash.events.TimerEvent;
 import flash.util.Timer;
 
-import flash.util.trace;
-
 import mx.collections.IList;
 
 import com.threerings.util.ClassUtil;
@@ -47,6 +45,8 @@ import com.threerings.presents.net.PongResponse;
 import com.threerings.presents.net.SubscribeRequest;
 import com.threerings.presents.net.UnsubscribeRequest;
 import com.threerings.presents.net.UnsubscribeResponse;
+
+import com.threerings.presents.Log;
 
 /**
  * The client distributed object manager manages a set of proxy objects
@@ -209,7 +209,7 @@ public class ClientDObjectMgr
         } else if (obj is UnsubscribeResponse) {
             var oid :int = obj.getOid();
             if (_dead[oid] == null) {
-                trace("Received unsub ACK from unknown object " +
+                Log.warning("Received unsub ACK from unknown object " +
                             "[oid=" + oid + "].");
             }
             _dead[oid] = undefined;
@@ -253,8 +253,8 @@ public class ClientDObjectMgr
         var target :DObject = _ocache[toid];
         if (target == null) {
             if (_dead[toid] === undefined) {
-                trace("Unable to dispatch event on non-proxied " +
-                      "object [event=" + event + "].");
+                Log.warning("Unable to dispatch event on non-proxied " +
+                    "object [event=" + event + "].");
             }
             return;
         }
@@ -278,9 +278,9 @@ public class ClientDObjectMgr
             }
 
         } catch (e :Error) {
-            trace("Failure processing event [event=" + event +
+            Log.warning("Failure processing event [event=" + event +
                 ", target=" + target + "].");
-            //Log.logStackTrace(e);
+            Log.logStackTrace(e);
         }
     }
 
@@ -301,8 +301,8 @@ public class ClientDObjectMgr
         var req :PendingRequest = _penders[oid];
         _penders[oid] = undefined;
         if (req == null) {
-            trace("Got object, but no one cares?! " +
-                  "[oid=" + oid + ", obj=" + obj + "].");
+            Log.warning("Got object, but no one cares?! " +
+                "[oid=" + oid + ", obj=" + obj + "].");
             return;
         }
 
@@ -325,7 +325,7 @@ public class ClientDObjectMgr
         var req :PendingRequest = _penders[oid];
         _penders[oid] = undefined;
         if (req == null) {
-            trace("Failed to get object, but no one cares?! " +
+            Log.warning("Failed to get object, but no one cares?! " +
                         "[oid=" + oid + "].");
             return;
         }
@@ -386,7 +386,7 @@ public class ClientDObjectMgr
             dobj.removeSubscriber(target);
 
         } else {
-            trace("Requested to remove subscriber from " +
+            Log.info("Requested to remove subscriber from " +
                      "non-proxied object [oid=" + oid +
                      ", sub=" + target + "].");
         }

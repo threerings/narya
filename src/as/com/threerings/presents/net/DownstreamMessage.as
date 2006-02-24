@@ -1,10 +1,10 @@
 package com.threerings.presents.net {
 
-import flash.util.trace;
-
 import com.threerings.io.ObjectInputStream;
 import com.threerings.io.ObjectOutputStream;
 import com.threerings.io.Streamable;
+
+import com.threerings.presents.Log;
 
 public /* abstract */ class DownstreamMessage
     implements Streamable
@@ -17,7 +17,8 @@ public /* abstract */ class DownstreamMessage
     // documentation inherited from interface Streamable
     public function writeObject (out :ObjectOutputStream) :void
     {
-        trace("This is client code: Downstream messages shouldn't be written");
+        Log.warning("This is client code: Downstream messages shouldn't " +
+            "be written");
         //out.writeShort(messageId);
     }
 
