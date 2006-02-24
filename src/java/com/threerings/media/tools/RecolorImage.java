@@ -65,6 +65,7 @@ import com.samskivert.util.Interator;
 import com.threerings.media.image.ColorPository;
 import com.threerings.media.image.Colorization;
 import com.threerings.media.image.ImageUtil;
+import com.threerings.media.image.tools.xml.ColorPositoryParser;
 
 /**
  * Tests the image recoloring code.
@@ -320,8 +321,14 @@ public class RecolorImage extends JPanel
     public void setColorizeFile (File path)
     {
         try {
-            _colRepo =
-                ColorPository.loadColorPository(new FileInputStream(path));
+            if (path.getName().endsWith("xml")) {
+                ColorPositoryParser parser = new ColorPositoryParser();
+                _colRepo =
+                    (ColorPository)(parser.parseConfig(path));
+            } else {
+                _colRepo =
+                    ColorPository.loadColorPository(new FileInputStream(path));
+            }
 
             _classList.removeAllItems();
             Iterator iter = _colRepo.enumerateClasses();
