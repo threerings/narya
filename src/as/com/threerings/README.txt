@@ -14,6 +14,18 @@ Design decisions
 - We could use the setter methods on DObject properties to generate dobj
   events, but so far I haven't gone there.
 
+- We need a realistic HashMap implementation. Using Object properties
+  (a-la my SimpleMap) is not going to cut it because keys must always
+  be Strings and there's no way to *really* remove a value from an Object
+  (you can set the property to null, but now the property is forever defined:
+  the key is not cleared)
+
+  mx.utils.UIDUtil.getUID() can be used to generate a (huge) unique String
+  for any object for use as a key or something.
+
+  It might be worth waiting, I think it's very probable that Adobe will
+  add in a Hashtable class to the standard libraries...
+
 
 Notes
 -----
@@ -111,3 +123,8 @@ Actionscript
   // o is now undefined, because we accessed array element "1.5".
   // I think arrays are just hashes, so probably you could store
   // values at element 1.5 if you desired...
+
+- Similarly, methods in String take Number arguments (wha?) when for character
+  index positions. Totally nonsensical.
+
+- Hey! Array has two constructors! How can I do that?
