@@ -201,7 +201,8 @@ public class SpotSceneDirector extends BasicDirector
             Log.info("Not going to " + loc + "; we're at " + _location +
                      " and we're headed to " + _pendingLoc + ".");
             if (listener != null) {
-                listener.requestFailed(new InvocationException(ALREADY_THERE));
+                // This isn't really a failure, it's just a no-op.
+                listener.requestCompleted(_location);
             }
             return;
         }
@@ -210,8 +211,8 @@ public class SpotSceneDirector extends BasicDirector
             Log.info("Not going to " + loc + "; we're at " + _location +
                 " and we're headed to " + _pendingLoc + ".");
             if (listener != null) {
-                listener.requestFailed(
-                    new InvocationException(MOVE_IN_PROGRESS));
+                // Already moving, best thing to do is ignore it.
+                listener.requestCompleted(_pendingLoc);
             }
             return;
         }
@@ -221,7 +222,8 @@ public class SpotSceneDirector extends BasicDirector
             Log.warning("Requested to change locations, but we're not " +
                         "currently in any scene [loc=" + loc + "].");
             if (listener != null) {
-                listener.requestFailed(new InvocationException(NO_SUCH_PLACE));
+                listener.requestFailed(
+                    new InvocationException("m.cant_get_there"));
             }
             return;
         }
@@ -265,7 +267,7 @@ public class SpotSceneDirector extends BasicDirector
             Log.warning("Requested to join cluster, but we're not " +
                         "currently in any scene [froid=" + froid + "].");
             if (listener != null) {
-                listener.requestFailed(new Exception(NO_SUCH_PLACE));
+                listener.requestFailed(new Exception("m.cant_get_there"));
             }
             return;
         }
