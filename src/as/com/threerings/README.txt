@@ -26,6 +26,18 @@ Design decisions
   It might be worth waiting, I think it's very probable that Adobe will
   add in a Hashtable class to the standard libraries...
 
+- Since we cannot do streaming via reflection like we do in Java, each
+  Streamable class needs to define its own readObject/writeObject methods.
+  At one point we thought that maybe we could just write the class
+  and have a script examine the class definition and automatically generate
+  those two methods, but I don't think that's going to save us much.
+  Variables cannot be marked as transient, and we often have to change the
+  type locally: actionscript has Number and int which correspond to
+  float/double and int/short/byte when we stream to the server. So we'd have
+  to do a bunch of crazy comment annotations on each variable to be streamed
+  in any class and at that point we may as well just write the streamable
+  methods, IMO.
+
 
 Notes
 -----
@@ -116,7 +128,7 @@ Actionscript
   SO: if you want a method to be accessable to a subclass in a different
   package, it must be public!
 
-- Beware of integer math:
+- Beware of non-existant integer math:
 
   var i :int = 3;
   var o :Object = someArray[i / 2];
@@ -128,3 +140,7 @@ Actionscript
   index positions. Totally nonsensical.
 
 - Hey! Array has two constructors! How can I do that?
+  - Probably they have one constructor with varargs, and it simply checks
+  to see if there is only 1 arg and if it's an int, and then does something
+  different. Although, we can't really be sure, because these classes are
+  magic and special and don't have a corresponding .as file we can check out.
