@@ -69,6 +69,11 @@ Notes
   which of course is the exact opposite of what is desired. This may
   not be the case, I haven't played with it much yet.
 
+  What especially sucks is that any imports must be repeated down below
+  for the helper class, including importing the class defined just above.
+  Again, it's unclear to me whether those imports are now globally scoped
+  and will spill over onto other files... What a giant pain.
+
 - Similarly, I'm unclear about sandboxes. If a user-created .swf is playing
   inside ours, I don't know if it can interact with our classes, and if so,
   what happens if it proceeds to define a class like
