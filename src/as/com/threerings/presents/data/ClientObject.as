@@ -21,6 +21,8 @@
 
 package com.threerings.presents.data {
 
+import mx.utils.ObjectUtil;
+
 import com.threerings.presents.dobj.DObject;
 import com.threerings.presents.dobj.DSet;
 
@@ -35,6 +37,11 @@ import com.threerings.io.ObjectOutputStream;
  */
 public class ClientObject extends DObject
 {
+    // AUTO-GENERATED: FIELDS START
+    /** The field name of the <code>receivers</code> field. */
+    public static const RECEIVERS :String = "receivers";
+    // AUTO-GENERATED: FIELDS END
+
     /** Used to publish all invocation service receivers registered on
      * this client. */
     public var receivers :DSet;
@@ -58,5 +65,14 @@ public class ClientObject extends DObject
         super.readObject(ins);
         receivers = (ins.readObject() as DSet);
     }
+
+    // AUTO-GENERATED: METHODS START
+    public function setReceivers (value :DSet) :void
+    {
+        requestAttributeChange(RECEIVERS, value, this.receivers);
+        this.receivers = (value == null) ? null
+                                         : (ObjectUtil.copy(value) as DSet);
+    }
+    // AUTO-GENERATED: METHODS END
 }
 }

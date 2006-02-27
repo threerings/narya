@@ -205,13 +205,13 @@ public class Client extends EventDispatcher
         }
     }
 
-    protected function gotClientObject (clobj :ClientObject) :void
+    internal function gotClientObject (clobj :ClientObject) :void
     {
         _clobj = clobj;
         notifyObservers(ClientEvent.CLIENT_DID_LOGON);
     }
 
-    protected function getClientObjectFailed (cause :Error) :void
+    internal function getClientObjectFailed (cause :Error) :void
     {
         notifyObservers(ClientEvent.CLIENT_FAILED_TO_LOGON, cause);
     }
