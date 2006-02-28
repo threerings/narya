@@ -38,7 +38,7 @@ public class BrowserUtil
      *
      * @param url the URL to display in an external browser.
      * @param listener a listener to be notified if we failed to launch the
-     * browser.
+     * browser. <em>Note:</em> it will not be notified of success.
      */
     public static void browseURL (URL url, ResultListener listener)
     {
@@ -50,7 +50,7 @@ public class BrowserUtil
      *
      * @param url the URL to display in an external browser.
      * @param listener a listener to be notified if we failed to launch the
-     * browser.
+     * browser. <em>Note:</em> it will not be notified of success.
      * @param genagent the path to the browser to execute on non-Windows,
      * non-MacOS.
      */
@@ -92,7 +92,7 @@ public class BrowserUtil
 
     protected static class BrowserTracker extends Thread
     {
-        public BrowserTracker(Process process, URL url, ResultListener rl) {
+        public BrowserTracker (Process process, URL url, ResultListener rl) {
             super("BrowserLaunchWaiter");
             setDaemon(true);
             _process = process;
