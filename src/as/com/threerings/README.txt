@@ -114,9 +114,8 @@ Notes
   a method in their parent, except for toString(), even though it's defined
   for Object. Ya got me...
 
-- 'protected' doesn't mean the same thing in ActionScript: it means that
-  ONLY subclasses can access a field/method, other classes in the same
-  package cannot access it.
+- 'protected' means something slightly different from java: other classes
+   in the same package cannot access protected members, only subclasses may:
 
 Java            Class Package Subclass World
   private       Y     N       N        N
@@ -124,14 +123,12 @@ Java            Class Package Subclass World
   protected     Y     Y       Y        N
   public        Y     Y       Y        Y
 
-Actionscript  
+ActionScript  
   private       Y     N       N        N
-  protected     Y     Y       N        N
-  internal      Y     Y       Y        N  (but not a subclass in a diff pkg!)
+  internal      Y     Y       N        N
+  protected     Y     N       Y        N
   public        Y     Y       Y        Y
 
-  SO: if you want a method to be accessable to a subclass in a different
-  package, it must be public!
 
 - Beware of non-existant integer math:
 
