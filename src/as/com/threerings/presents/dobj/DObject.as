@@ -7,7 +7,6 @@ import flash.util.StringBuilder;
 import mx.collections.ArrayCollection;
 
 import com.threerings.util.ClassUtil;
-import com.threerings.util.Comparable;
 
 import com.threerings.io.ObjectInputStream;
 import com.threerings.io.ObjectOutputStream;
@@ -245,7 +244,7 @@ public class DObject // extends EventDispatcher
     /**
      * Calls by derived instances when a set remover method was called.
      */
-    protected function requestEntryRemove (name :String, key :Comparable) :void
+    protected function requestEntryRemove (name :String, key :Object) :void
     {
         // dispatch an entry removed event
         postEvent(new EntryRemovedEvent(_oid, name, key, null));

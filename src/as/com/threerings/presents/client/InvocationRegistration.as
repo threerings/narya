@@ -31,11 +31,9 @@ public class InvocationRegistration
     }
 
     // documentation inherited from interface DSetEntry
-    public function getKey () :Comparable
+    public function getKey () :Object
     {
-        return null; // TODO receiverCode;
-        // TODO: maybe we drop the concept of Comparable and just
-        // use any old objects: screw performance
+        return receiverCode;
     }
 
     // documentation inherited

@@ -95,7 +95,7 @@ public /* abstract */ class DEvent
 
 class DummyEntry implements com.threerings.presents.dobj.DSetEntry
 {
-    public function getKey () :com.threerings.util.Comparable
+    public function getKey () :Object
     {
         return null;
     }

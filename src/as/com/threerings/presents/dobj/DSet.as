@@ -2,11 +2,13 @@ package com.threerings.presents.dobj {
 
 import flash.util.StringBuilder;
 
+import mx.collections.IViewCursor;
+
+import com.threerings.util.Equalable;
+
 import com.threerings.io.ObjectInputStream;
 import com.threerings.io.ObjectOutputStream;
 import com.threerings.io.Streamable;
-
-import com.threerings.util.Comparable;
 
 import com.threerings.presents.Log;
 
@@ -54,7 +56,7 @@ public class DSet
      * Returns true if an entry in the set has a key that
      * <code>equals()</code> the supplied key. Returns false otherwise.
      */
-    public function containsKey (key :Comparable) :Boolean
+    public function containsKey (key :Object) :Boolean
     {
         return getByKey(key) != null;
     }
@@ -64,13 +66,11 @@ public class DSet
      * the specified key or null if no entry could be found that matches
      * the key.
      */
-    public function getByKey (key :Comparable) :DSetEntry
+    public function getByKey (key :Object) :DSetEntry
     {
         // o(n) for now
-        // TODO
-        for (var ii :int = 0; ii < _entries.length; ii++) {
-            var entry :DSetEntry = _entries[ii];
-            if (key.compareTo(entry.getKey()) == 0) {
+        for each (var entry :DSetEntry in _entries) {
+            if (isSameKey(key, entry.getKey())) {
                 return entry;
             }
         }
@@ -82,22 +82,12 @@ public class DSet
      * support modification (nor iteration while modifications are being
      * made to the set). It should not be kept around as it can quickly
      * become out of date.
-     *
-     * @deprecated
      */
-//    public Iterator entries ()
-//    {
-//        return iterator();
-//    }
+    public function getCursor () :IViewCursor
+    {
+        return null; // jesus, what a pain in the ass to make our
+        // own IViewCursor since we can't have inner classes
 
-    /**
-     * Returns an iterator over the entries of this set. It does not
-     * support modification (nor iteration while modifications are being
-     * made to the set). It should not be kept around as it can quickly
-     * become out of date.
-     */
-//    public Iterator iterator ()
-//    {
 //        // the crazy sanity checks
 //        if (_size < 0 ||_size > _entries.length ||
 //            (_size > 0 && _entries[_size-1] == null)) {
@@ -134,7 +124,7 @@ public class DSet
 //            protected int _ssize = _size;
 //            protected int _expectedModCount = _modCount;
 //        };
-//    }
+    }
 
     /**
      * Copies the elements of this distributed set into the supplied
@@ -193,13 +183,12 @@ public class DSet
      * @return the old matching entry if found and removed, null if not
      * found.
      */
-    internal function removeKey (key :Comparable) :DSetEntry
+    internal function removeKey (key :Object) :DSetEntry
     {
         // o(n) for now
-        // TODO
         for (var ii :int = 0; ii < _entries.length; ii++) {
             var entry :DSetEntry = _entries[ii];
-            if (key.compareTo(entry.getKey()) == 0) {
+            if (isSameKey(key, entry.getKey())) {
                 _entries.splice(ii, 1);
                 return entry;
             }
@@ -219,15 +208,25 @@ public class DSet
      */
     internal function update (elem :DSetEntry) :DSetEntry
     {
-        var key :Comparable = elem.getKey();
+        var key :Object = elem.getKey();
         for (var ii :int = 0; ii < _entries.length; ii++) {
             var entry :DSetEntry = _entries[ii];
-            if (key.compareTo(entry.getKey()) == 0) {
+            if (isSameKey(key, entry.getKey())) {
                 _entries[ii] = elem;
-                return entry;
+                return entry; // return the old entry
             }
         }
         return null;
+    }
+
+    /**
+     * Internal function to determine whether a key matches the key for
+     * an existing entry.
+     */
+    private function isSameKey (key :Object, otherKey :Object) :Boolean
+    {
+        return (key is Equalable) ? (key as Equalable).equals(otherKey)
+                                  : (key === otherKey);
     }
 
     /**
@@ -244,7 +243,8 @@ public class DSet
     // documentation inherited from interface Streamable
     public function writeObject (out :ObjectOutputStream) :void
     {
-        Log.warning("TODO!");
+        out.writeObject(_entries);
+        out.writeInt(_entries.length);
     }
 
     // documentation inherited from interface Streamable
@@ -256,23 +256,5 @@ public class DSet
 
     /** The entries of the set (in a sparse array). */
     protected var _entries :Array;
-
-//    /** Used to check for concurrent modification. */
-//    protected transient int _modCount;
-//
-//    /** The default capacity of a set instance. */
-//    protected static final int INITIAL_CAPACITY = 2;
-//
-//    /** Used for lookups and to keep the set contents sorted on
-//     * insertions. */
-//    protected static Comparator ENTRY_COMP = new Comparator() {
-//        public int compare (Object o1, Object o2) {
-//            Comparable c1 = (o1 instanceof Entry) ?
-//                ((Entry)o1).getKey() : (Comparable)o1;
-//            Comparable c2 = (o2 instanceof Entry) ?
-//                ((Entry)o2).getKey() : (Comparable)o2;
-//            return c1.compareTo(c2);
-//        }
-//    };
 }
 }
