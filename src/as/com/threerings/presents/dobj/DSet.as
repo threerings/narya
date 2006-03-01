@@ -4,6 +4,8 @@ import flash.util.StringBuilder;
 
 import mx.collections.IViewCursor;
 
+import mx.utils.ObjectUtil;
+
 import com.threerings.util.Equalable;
 
 import com.threerings.io.ObjectInputStream;
@@ -150,7 +152,14 @@ public class DSet
      */
     internal function add (elem :DSetEntry) :Boolean
     {
-        if (contains(elem)) {
+        if (_entries.length == 0) {
+            // there is nothing in the map yet, check the key validity
+            var key :Object = elem.getKey();
+            if (!(key is Equalable) && !ObjectUtil.isSimple(key)) {
+                throw new Error("Element key is not 'simple' or Equalable");
+            }
+
+        } else if (contains(elem)) {
             Log.warning("Refusing to add duplicate entry [set=" + this +
                   ", entry=" + elem + "].");
             return false;
@@ -225,8 +234,15 @@ public class DSet
      */
     private function isSameKey (key :Object, otherKey :Object) :Boolean
     {
-        return (key is Equalable) ? (key as Equalable).equals(otherKey)
-                                  : (key === otherKey);
+        if (ObjectUtil.isSimple(key)) {
+            return (key === otherKey);
+
+        } else if (key is Equalable) {
+            return (key as Equalable).equals(otherKey);
+
+        } else {
+            throw new Error("Element key is neither simple or Equalabe");
+        }
     }
 
     /**
