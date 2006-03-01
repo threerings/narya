@@ -91,8 +91,8 @@ public class ConfigRepository extends JORARepository
         throws SQLException, PersistenceException
     {
         JDBCUtil.createTableIfMissing(conn, "CONFIG", new String[] {
-            "OBJECT VARCHAR(255) NOT NULL",
-            "FIELD VARCHAR(255) NOT NULL",
+            "OBJECT VARCHAR(128) NOT NULL",
+            "FIELD VARCHAR(64) NOT NULL",
             "VALUE TEXT NOT NULL",
             "PRIMARY KEY (OBJECT, FIELD)",
         });
