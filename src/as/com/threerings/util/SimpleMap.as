@@ -6,6 +6,13 @@ package com.threerings.util {
  */
 public dynamic class SimpleMap extends Object
 {
-    // nada
+    public function remove (key :Object) :Object
+    {
+        // I'm not sure this really works
+        var skey :String = key.toString();
+        var value :Object = this[skey];
+        this[skey] = undefined;
+        return value;
+    }
 }
 }

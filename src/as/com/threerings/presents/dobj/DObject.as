@@ -83,7 +83,7 @@ public class DObject // extends EventDispatcher
         for (var ii :int = 0; ii < _listeners.length; ii++) {
             var listener :Object = _listeners.getItemAt(ii);
             try {
-                event.notifyListener(listener);
+                event.friendNotifyListener(listener);
 
                 if (listener is EventListener) {
                     listener.eventReceived(event);

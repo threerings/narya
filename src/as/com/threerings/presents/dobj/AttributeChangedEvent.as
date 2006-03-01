@@ -68,7 +68,7 @@ public class AttributeChangedEvent extends NamedEvent
     }
 
     // documentation inherited
-    internal override function notifyListener (listener :Object) :void
+    protected override function notifyListener (listener :Object) :void
     {
         if (listener is AttributeChangeListener) {
             listener.attributeChanged(this);

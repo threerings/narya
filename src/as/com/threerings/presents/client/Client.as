@@ -4,6 +4,8 @@ import flash.events.EventDispatcher;
 import flash.events.TimerEvent;
 import flash.util.Timer;
 
+import com.threerings.util.TypedArray;
+
 import com.threerings.presents.data.ClientObject;
 
 import com.threerings.presents.dobj.DObjectManager;
@@ -296,5 +298,7 @@ public class Client extends EventDispatcher
 
     /** Ticks. */
     protected var _tickInterval :Timer;
+
+    protected var _stringArray :TypedArray = new TypedArray(String);
 }
 }

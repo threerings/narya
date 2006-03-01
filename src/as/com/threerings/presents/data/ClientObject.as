@@ -67,6 +67,21 @@ public class ClientObject extends DObject
     }
 
     // AUTO-GENERATED: METHODS START
+    public function addToReceivers (elem :DSetEntry) :void
+    {
+        requestEntryAdd(RECEIVERS, elem);
+    }
+
+    public function removeFromReceivers (key :Object) :void
+    {
+        requestEntryRemove(RECEIVERS, key);
+    }
+
+    public function updateReceivers (elem :DSetEntry) :void
+    {
+        requestEntryUpdate(RECEIVERS, elem);
+    }
+
     public function setReceivers (value :DSet) :void
     {
         requestAttributeChange(RECEIVERS, value, this.receivers);
