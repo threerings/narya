@@ -42,6 +42,10 @@ public class ClientObject extends DObject
     public static const RECEIVERS :String = "receivers";
     // AUTO-GENERATED: FIELDS END
 
+    /** The name of a message event delivered to the client when they
+     * switch usernames (and therefore user objects). */
+    public static const CLOBJ_CHANGED :String = "!clobj_changed!";
+
     /** Used to publish all invocation service receivers registered on
      * this client. */
     public var receivers :DSet;

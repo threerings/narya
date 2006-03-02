@@ -12,6 +12,7 @@ import com.threerings.presents.dobj.DObject;
 import com.threerings.presents.dobj.DObjectManager;
 import com.threerings.presents.dobj.DSet;
 import com.threerings.presents.dobj.EventListener;
+import com.threerings.presents.dobj.InvocationNotificationEvent;
 import com.threerings.presents.dobj.InvocationRequestEvent;
 import com.threerings.presents.dobj.ObjectAccessError;
 import com.threerings.presents.dobj.Subscriber;
@@ -159,7 +160,132 @@ public class InvocationDirector
     // documentation inherited from interface EventListener
     public function eventReceived (event :DEvent) :void
     {
-        // TODO
+        if (event is InvocationResponseEvent) {
+            var ire :InvocationResponseEvent =
+                (event as InvocationResponseEvent);
+            handleInvocationResponse(ire.getRequestId(), ire.getMethodId(),
+                ire.getArgs());
+
+        } else if (event is InvocationNotificationEvent) {
+            var ine :InvocationNotificationEvent =
+                (event as InvocationNotificationEvent);
+            handleInvocationNotification(ine.getReceiverId(), ine.getMethodId(),
+                ine.getArgs());
+
+        } else if (event is MessageEvent) {
+            var me :MessageEvent = (event as MessageEvent);
+            if (me.getName() === ClientObject.CLOBJ_CHANGED) {
+                handleClientObjectChanged(me.getArgs()[0]);
+            }
+        }
+    }
+
+    /**
+     * Dispatches an invocation response.
+     */
+    protected function handleInvocationResponse 
+            (reqId :int, methodId :int, args :Array) :void
+    {
+        var listener :ListenerMarshaller = 
+            (_listeners.remove(reqId) as ListenerMarshaller); 
+        if (listener == null) {
+            Log.warning("Received invocation response for which we have " +
+                        "no registered listener [reqId=" + reqId +
+                        ", methId=" + methodId +
+                        ", args=" + args + "]. " +
+                        "It is possble that this listener was flushed " +
+                        "because the response did not arrive within " +
+                        LISTENER_MAX_AGE + " milliseconds.");
+            return;
+        }
+
+//         Log.info("Dispatching invocation response " +
+//                  "[listener=" + listener + ", methId=" + methodId +
+//                  ", args=" + StringUtil.toString(args) + "].");
+
+        // dispatch the response
+        try {
+            listener.dispatchResponse(methodId, args);
+        } catch (e :Error) {
+            Log.warning("Invocation response listener choked " +
+                        "[listener=" + listener + ", methId=" + methodId +
+                        ", args=" + args + "].");
+            Log.logStackTrace(e);
+        }
+
+        // flush expired listeners periodically
+        var now :Number = new Date().getTime();
+        if (now - _lastFlushTime > LISTENER_FLUSH_INTERVAL) {
+            _lastFlushTime = now;
+            flushListeners(now);
+        }
+    }
+
+    /**
+     * Dispatches an invocation notification.
+     */
+    protected function handleInvocationNotification (
+        receiverId :int, methodId :int, args :Array) :void
+    {
+        // look up the decoder registered for this receiver
+        var decoder :InvocationDecoder =
+            (_receivers[receiverId] as InvocationDecoder);
+        if (decoder == null) {
+            Log.warning("Received notification for which we have no " +
+                        "registered receiver [recvId=" + receiverId +
+                        ", methodId=" + methodId +
+                        ", args=" + args + "].");
+            return;
+        }
+
+//         Log.info("Dispatching invocation notification " +
+//                  "[receiver=" + decoder.receiver + ", methodId=" + methodId +
+//                  ", args=" + StringUtil.toString(args) + "].");
+
+        try {
+            decoder.dispatchNotification(methodId, args);
+        } catch (e :Error) {
+            Log.warning("Invocation notification receiver choked " +
+                        "[receiver=" + decoder.receiver +
+                        ", methId=" + methodId +
+                        ", args=" + args + "].");
+            Log.logStackTrace(e);
+        }
+    }
+
+    /**
+     * Flushes listener mappings that are older than {@link
+     * #LISTENER_MAX_AGE} milliseconds. An alternative to flushing
+     * listeners that did not explicitly receive a response within our
+     * expiry time period is to have the server's proxy listener send a
+     * message to the client when it is finalized. We then know that no
+     * server entity will subsequently use that proxy listener to send a
+     * response to the client. This involves more network traffic and
+     * complexity than seems necessary and if a user of the system does
+     * respond after their listener has been flushed, an informative
+     * warning will be logged. (Famous last words.)
+     */
+    protected function flushListeners (now :Number) :void
+    {
+        var then :Number = now - LISTENER_MAX_AGE;
+        for (var skey :String in _listeners) {
+            var lm :ListenerMarshaller =
+                (_listeners[skey] as ListenerMarshaller);
+            if (lm.mapStamp < then) {
+                _listeners.clear(skey);
+            }
+        }
+    }
+
+    /**
+     * Called when the server has informed us that our previous client
+     * object is going the way of the Dodo because we're changing screen
+     * names. We subscribe to the new object and report to the client once
+     * we've got our hands on it.
+     */
+    protected function handleClientObjectChanged (newCloid :int) :void
+    {
+        // TODO: or fuck it?
     }
 
     /**
@@ -229,6 +355,15 @@ public class InvocationDirector
     /** All registered receivers are maintained in a list so that we can
      * assign receiver ids to them when we go online. */
     internal var _reclist :ListCollectionView = new ListCollectionView();
+
+    /** The last time we flushed our listeners. */
+    protected var _lastFlushTime :Number;
+
+    /** The minimum interval between listener flush attempts. */
+    protected const LISTENER_FLUSH_INTERVAL :int = 15000;
+
+    /** Listener mappings older than 90 seconds are reaped. */
+    protected const LISTENER_MAX_AGE :int = 90 * 1000;
 }
 }
 
