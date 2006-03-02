@@ -99,6 +99,14 @@ public class CameraHandler
     }
 
     /**
+     * Enables or disables the current set of limits.
+     */
+    public void setLimitsEnabled (boolean enabled)
+    {
+        _limitsEnabled = enabled;
+    }
+    
+    /**
      * Sets the camera zoom level to a value between zero (zoomed in maximally)
      * and 1 (zoomed out maximally). Zoom limits must have already been set up
      * via a call to {@link #setZoomLimits}.
@@ -301,6 +309,9 @@ public class CameraHandler
 
     protected Vector3f bound (Vector3f loc)
     {
+        if (!_limitsEnabled) {
+            return loc;
+        }
         if (_boundViaFrustum) {
             bound(_camera.getFrustumLeft(), _camera.getFrustumTop(), loc);
             bound(_camera.getFrustumLeft(), _camera.getFrustumBottom(), loc);
@@ -368,7 +379,7 @@ public class CameraHandler
     protected Matrix3f _rotm = new Matrix3f();
     protected Vector3f _temp = new Vector3f();
 
-    protected boolean _boundViaFrustum;
+    protected boolean _boundViaFrustum, _limitsEnabled = true;
     protected float _minX = -Float.MAX_VALUE, _maxX = Float.MAX_VALUE;
     protected float _minY = -Float.MAX_VALUE, _maxY = Float.MAX_VALUE;
     protected float _minZ = -Float.MAX_VALUE, _maxZ = Float.MAX_VALUE;
