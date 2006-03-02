@@ -298,8 +298,7 @@ public class ClientDObjectMgr
         _ocache[oid] = obj;
 
         // let the penders know that the object is available
-        var req :PendingRequest = _penders[oid];
-        _penders[oid] = undefined;
+        var req :PendingRequest = (_penders.remove(oid) as PendingRequest);
         if (req == null) {
             Log.warning("Got object, but no one cares?! " +
                 "[oid=" + oid + ", obj=" + obj + "].");
@@ -368,7 +367,7 @@ public class ClientDObjectMgr
         // otherwise we need to create a new request
         req = new PendingRequest(oid);
         req.addTarget(target);
-        _penders.put(oid, req);
+        _penders[oid] = req;
         // Log.info("Registering pending request [oid=" + oid + "].");
 
         // and issue a request to get things rolling

@@ -95,9 +95,9 @@ public class Client extends EventDispatcher
     public function getService (clazz :Class) :InvocationService
     {
         if (_bstrap != null) {
-            for each (var service :InvocationService in _bstrap.services) {
-                if (service is clazz) {
-                    return service;
+            for each (var isvc :InvocationService in _bstrap.services.source) {
+                if (isvc is clazz) {
+                    return isvc;
                 }
             }
         }
@@ -190,6 +190,8 @@ public class Client extends EventDispatcher
         _cloid = data.clientOid;
 
         _invdir.init(omgr, _cloid, this);
+
+        Log.debug("TimeBaseService: " + requireService(TimeBaseService));
     }
 
     /**
