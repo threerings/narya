@@ -177,13 +177,20 @@ ActionScript
 
 
 - Pitfall! This is perfectly legal:
-  var b :int = 3;
-  var b :String = "three"; // the first b is now lost, with no warning
+     var b :int = 3;
+     var b :int = 4;
+
+  This will generate a compile warning:
+     var b :int = 3;
+     var b :String = "three";
+  It generates the warning on assigning 3 to b, because it has looked
+  into the future and decided that b is a String, even though it's an
+  int on that line.
 
   And:
 
   var b :int = 3;
-  for (var ii:int = 0; ii < 3; ii++) {
-      var b :String = "three";
+  for (var ii:int = 0; ii < b; ii++) {
+      var b :Number = "3.3";
   }
-  trace(b); // prints "three" !!
+  trace(b); // prints "3.3", even though we've left the loop
