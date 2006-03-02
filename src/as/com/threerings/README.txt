@@ -191,6 +191,6 @@ ActionScript
 
   var b :int = 3;
   for (var ii:int = 0; ii < b; ii++) {
-      var b :Number = "3.3";
+      var b :Number = 3.3;
   }
   trace(b); // prints "3.3", even though we've left the loop
