@@ -74,6 +74,13 @@ Notes
   Again, it's unclear to me whether those imports are now globally scoped
   and will spill over onto other files... What a giant pain.
 
+  ***Update: it turns out that the primary class in a file may be declared
+  with internal accessibility. So HelperClass could live in its own file
+  and access 'internal' methods on the main class. That is probably
+  preferable to having them in the same file but having to re-import anyway
+  and accessing only public properties of the main class from the helper.
+
+
 - Similarly, I'm unclear about sandboxes. If a user-created .swf is playing
   inside ours, I don't know if it can interact with our classes, and if so,
   what happens if it proceeds to define a class like
@@ -146,3 +153,37 @@ ActionScript
   to see if there is only 1 arg and if it's an int, and then does something
   different. Although, we can't really be sure, because these classes are
   magic and special and don't have a corresponding .as file we can check out.
+
+- I've been casting using 'as':
+     var s :String = (someObject as String);
+
+  But I've learned that there's another way that didn't seem to be listed
+  anywhere in the language reference but is more like what we'll want:
+     var s :String = String(someObject);
+
+  The difference is that the first one tries to coerce the value to be
+  of the specified type, and if it fails returns null. The second is
+  more like a cast in Java, in that if it fails it generates an Error at
+  runtime.
+
+  Note that if the types are coercable, each one will succeed in the same way:
+     var o :Object = 2.5; // create a Number object
+     var x :int = (o as int);
+     var y :int = int(o);
+     // both of these work and turn the Number 2.5 into int 2.
+
+  Perhaps we'll want a util method that always generates an error if the
+  object's type is not identical or a subclass of the casted-to type.
+
+
+- Pitfall! This is perfectly legal:
+  var b :int = 3;
+  var b :String = "three"; // the first b is now lost, with no warning
+
+  And:
+
+  var b :int = 3;
+  for (var ii:int = 0; ii < 3; ii++) {
+      var b :String = "three";
+  }
+  trace(b); // prints "three" !!
