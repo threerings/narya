@@ -23,6 +23,8 @@ package com.threerings.presents.data {
 
 import com.threerings.util.ClassUtil;
 
+import com.threerings.io.ObjectInputStream;
+import com.threerings.io.ObjectOutputStream;
 import com.threerings.io.Streamable;
 
 import com.threerings.presents.Log;

@@ -17,7 +17,7 @@ public class ListenerMarshaller
     implements Streamable, InvocationListener
 {
     /** The method id used to dispatch a requestFailed response. */
-    public const REQUEST_FAILED_RSPID :int = 0;
+    public static const REQUEST_FAILED_RSPID :int = 0;
 
     /** The oid of the invocation service requester. */
     public var callerOid :int;
