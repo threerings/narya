@@ -308,7 +308,7 @@ public class InvocationDirector
      * Called by the ClientSubscriber helper class when the client object
      * has been returned by the server.
      */
-    public function gotClientObject (clobj :ClientObject) :void
+    internal function gotClientObject (clobj :ClientObject) :void
     {
         clobj.addListener(this);
         clobj.setReceivers(new DSet());
@@ -321,8 +321,8 @@ public class InvocationDirector
     /**
      * Called by the ClientSubscriber helper class when it fails.
      */
-    public function gotClientObjectFailed (oid :int, cause :ObjectAccessError)
-            :void
+    internal function gotClientObjectFailed (
+            oid :int, cause :ObjectAccessError) :void
     {
         Log.warning("Invocation director unable to subscribe to " +
             "client object [cloid=" + oid + ", cause=" + cause + "]!");
@@ -365,31 +365,4 @@ public class InvocationDirector
     /** Listener mappings older than 90 seconds are reaped. */
     protected const LISTENER_MAX_AGE :int = 90 * 1000;
 }
-}
-
-import com.threerings.presents.client.InvocationDirector;
-import com.threerings.presents.data.ClientObject;
-import com.threerings.presents.dobj.DObject;
-import com.threerings.presents.dobj.ObjectAccessError;
-import com.threerings.presents.dobj.Subscriber;
-import com.threerings.presents.Log;
-
-class ClientSubscriber implements Subscriber
-{
-    public function ClientSubscriber (invdir :InvocationDirector)
-    {
-        _invdir = invdir;
-    }
-
-    public function objectAvailable (obj :DObject) :void
-    {
-        _invdir.gotClientObject(obj as ClientObject);
-    }
-
-    public function requestFailed (oid :int, cause :ObjectAccessError) :void
-    {
-        _invdir.gotClientObjectFailed(oid, cause);
-    }
-
-    protected var _invdir :InvocationDirector;
 }

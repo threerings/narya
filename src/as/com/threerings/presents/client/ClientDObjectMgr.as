@@ -459,6 +459,9 @@ public class ClientDObjectMgr
 }
 }
 
+import com.threerings.presents.dobj.DObject;
+import com.threerings.presents.dobj.Subscriber;
+
 /**
  * The object action is used to queue up a subscribe or unsubscribe
  * request.
@@ -466,12 +469,11 @@ public class ClientDObjectMgr
 class ObjectAction
 {
     public var oid :int;
-    public var target :com.threerings.presents.dobj.Subscriber;
+    public var target :Subscriber;
     public var subscribe :Boolean;
 
     public function ObjectAction (
-            oid :int, target :com.threerings.presents.dobj.Subscriber,
-            subscribe :Boolean)
+            oid :int, target :Subscriber, subscribe :Boolean)
     {
         this.oid = oid;
         this.target = target;
@@ -494,8 +496,7 @@ class PendingRequest
         this.oid = oid;
     }
 
-    public function addTarget (
-            target :com.threerings.presents.dobj.Subscriber) :void
+    public function addTarget (target :Subscriber) :void
     {
         targets.push(target);
     }
@@ -505,13 +506,12 @@ class PendingRequest
 class FlushRecord
 {
     /** The object to be flushed. */
-    public var obj :com.threerings.presents.dobj.DObject;
+    public var obj :DObject;
 
     /** The time at which we flush it. */
     public var expire :Number;
 
-    public function FlushRecord (
-            obj :com.threerings.presents.dobj.DObject, expire :Number)
+    public function FlushRecord (obj :DObject, expire :Number)
     {
         this.obj = obj;
         this.expire = expire;
