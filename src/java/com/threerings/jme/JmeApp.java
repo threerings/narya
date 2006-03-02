@@ -417,7 +417,9 @@ public class JmeApp
         _timer.update();
 
         // run all of the controllers attached to nodes
-        _frameTime = _timer.getTimePerFrame();
+        _frameTime = (_lastTick == 0L) ? 0f : (float)(frameTick - _lastTick) /
+            _timer.getResolution();
+        _lastTick = frameTick;
         _root.updateGeometricState(_frameTime, true);
 
         // update the camera handler
@@ -525,6 +527,7 @@ public class JmeApp
     protected Timer _timer;
     protected Thread _dispatchThread;
     protected Queue _evqueue = new Queue();
+    protected long _lastTick;
     protected float _frameTime;
 
     protected String _api;
