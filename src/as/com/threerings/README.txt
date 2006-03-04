@@ -97,13 +97,6 @@ Notes
   constructor is not being passed an arg. You'd think this would be caught
   at compile time...
 
-- I'm a little shaky still about how I'm going to handle arrays. In
-  ActionScript all arrays (except ByteArray) are the same type: Array.
-  If class A is extended by B and C, the server could pass around an array of
-  A, filled with B and C elements. I would have no way on the client to
-  inspect an array like that and know to tell the server that it's an A[].
-  Punting completely on Arrays for now.
-
 - The RENDER Event is dispatched prior to each rendering, it's
   basically like tick(): it gives anything that cares a chance to update    
   prior to being painted. It doesn't specify what the hell to listen on for
@@ -119,7 +112,8 @@ Notes
 
 - All methods must be marked with the 'override' keyword if they override
   a method in their parent, except for toString(), even though it's defined
-  for Object. Ya got me...
+  for Object. Apparently those methods are 'magic' and are not really in
+  the base class. What an annoying inconsistency.
 
 - 'protected' means something slightly different from java: other classes
    in the same package cannot access protected members, only subclasses may:
@@ -145,7 +139,7 @@ ActionScript
   // I think arrays are just hashes, so probably you could store
   // values at element 1.5 if you desired...
 
-- Similarly, methods in String take Number arguments (wha?) when for character
+- Similarly, methods in String take Number arguments (wha?) for character
   index positions. Totally nonsensical.
 
 - Hey! Array has two constructors! How can I do that?
@@ -194,3 +188,15 @@ ActionScript
       var b :Number = 3.3;
   }
   trace(b); // prints "3.3", even though we've left the loop
+
+
+- AS3.0 allows for a bit of introspection, using the function
+  flash.util.describeType(). The only problem is that if you pass in a Class
+  then it always says that it's final (I guess it's the class's Class). It
+  will dump information identical to the information given about an instance
+  except that the dynamic/final information is lost. This is preventing
+  me from correctly streaming arrays, as we need to know if the class
+  is final. I can't just pass an instance in because it may be a pain
+  to construct, it may even be unconstructable if the type of the array
+  is an interface. The adobe forums are broken right now, but I'm going
+  to post a request for enhancement so that we can get this information.
