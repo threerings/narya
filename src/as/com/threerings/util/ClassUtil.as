@@ -1,5 +1,7 @@
 package com.threerings.util {
 
+import flash.util.describeType;
+
 public class ClassUtil
 {
     public static function getClassName (obj :Object) :String
@@ -25,6 +27,15 @@ public class ClassUtil
     public static function getClassByName (cname :String) :Class
     {
         return flash.util.getClassByName(cname);
+    }
+
+    public static function isFinal (type :Class) :Boolean
+    {
+        var attrs :XMLList = describeType(type).elements("type");
+
+        // FUCK!!! This information is lost in the Class introspection
+
+        return true; //TODO
     }
 }
 }

@@ -74,7 +74,7 @@ public class ObjectOutputStream
         writeBareObjectImpl(obj, Streamer.getStreamer(obj));
     }
 
-    protected function writeBareObjectImpl (obj :Object, streamer :Streamer)
+    public function writeBareObjectImpl (obj :Object, streamer :Streamer)
     {
         // if it's Streamable, it goes straight through
         if (streamer == null) {

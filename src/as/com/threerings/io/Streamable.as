@@ -1,5 +1,9 @@
 package com.threerings.io {
 
+/**
+ * Note: all Streamable instances should have a constructor that copes
+ * with no arguments.
+ */
 public interface Streamable
 {
     function writeObject (out :ObjectOutputStream) :void;

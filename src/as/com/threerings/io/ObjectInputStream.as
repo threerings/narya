@@ -100,7 +100,7 @@ public class ObjectInputStream
         readBareObjectImpl(obj, Streamer.getStreamer(obj));
     }
 
-    internal function readBareObjectImpl (obj :Object, streamer :Streamer) :void
+    public function readBareObjectImpl (obj :Object, streamer :Streamer) :void
     {
         // streamable objects
         if (streamer == null) {

@@ -36,7 +36,7 @@ public class Streamer
         initStreamers();
 
         for each (var streamer :Streamer in _streamers) {
-            if (streamer._targ == clazz) {
+            if (streamer._target == clazz) {
                 return streamer;
             }
         }
@@ -61,13 +61,13 @@ public class Streamer
     public function Streamer (targ :Class, jname :String)
         //throws IOError
     {
-        _targ = targ;
+        _target = targ;
         _jname = jname;
     }
 
     public function isStreamerFor (obj :Object) :Boolean
     {
-        return (obj is _targ); // scripting langs are weird
+        return (obj is _target); // scripting langs are weird
     }
 
     /**
@@ -97,7 +97,7 @@ public class Streamer
         //throws IOError
     {
         // actionscript is so fucked up
-        return new _targ();
+        return new _target();
     }
 
     public function readObject (obj :Object, ins :ObjectInputStream) :void
@@ -124,9 +124,13 @@ public class Streamer
         }
     }
 
-    protected var _targ :Class;
+    protected var _target :Class;
 
     protected var _jname :String;
+
+    /** If our target class is an array, this is a reference to a streamer
+     * that can stream our array elements, otherwise it is null. */
+    protected var _delegate :Streamer;
 
     /** Just a list of our standard streamers. */
     protected static var _streamers :Array;
