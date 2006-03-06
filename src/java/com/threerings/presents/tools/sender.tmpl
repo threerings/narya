@@ -16,7 +16,7 @@ public class ${name}Sender extends InvocationSender
      * ${name}Receiver#$m.method.name} on a client.
      */
     public static void $m.senderMethodName (
-        ClientObject target, $m.getArgList(false))
+        ClientObject target#if ($m.hasArgs()), #end$m.getArgList(false))
     {
         sendNotification(
             target, ${name}Decoder.RECEIVER_CODE, ${name}Decoder.$m.code,
