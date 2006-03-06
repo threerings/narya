@@ -16,7 +16,7 @@ public interface ${name}Provider extends InvocationProvider
     /**
      * Handles a {@link ${name}Service#$m.method.name} request.
      */
-    public void $m.method.name (ClientObject caller#if ($m.hasArgs()), #end$m.getArgList(true))#if ($m.listenerArgs.size() > 0)
+    public void $m.method.name (ClientObject caller#if ($m.hasArgs(true)), #end$m.getArgList(true))#if ($m.listenerArgs.size() > 0)
 
         throws InvocationException#end;
 #end

@@ -129,16 +129,16 @@ public abstract class InvocationTask extends Task
             }
         }
 
-        public String getArgList (boolean providerMode)
+        public String getArgList (boolean skipFirst)
         {
             StringBuffer buf = new StringBuffer();
             Class[] args = method.getParameterTypes();
-            for (int ii = providerMode ? 1 : 0; ii < args.length; ii++) {
+            for (int ii = skipFirst ? 1 : 0; ii < args.length; ii++) {
                 if (buf.length() > 0) {
                     buf.append(", ");
                 }
                 buf.append(GenUtil.simpleName(args[ii]));
-                buf.append(" arg").append(providerMode ? ii : ii+1);
+                buf.append(" arg").append(skipFirst ? ii : ii+1);
             }
             return buf.toString();
         }
@@ -156,9 +156,9 @@ public abstract class InvocationTask extends Task
             return buf.toString();
         }
 
-        public boolean hasArgs ()
+        public boolean hasArgs (boolean skipFirst)
         {
-            return (method.getParameterTypes().length > 1);
+            return (method.getParameterTypes().length > (skipFirst ? 1 : 0));
         }
 
         public int compareTo (Object other)

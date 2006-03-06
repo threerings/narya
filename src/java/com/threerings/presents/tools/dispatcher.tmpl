@@ -33,7 +33,7 @@ public class ${name}Dispatcher extends InvocationDispatcher
 #foreach ($m in $methods)
         case ${name}Marshaller.$m.code:
             ((${name}Provider)provider).${m.method.name}(
-                source#if ($m.hasArgs()),
+                source#if ($m.hasArgs(true)),
 #end
                 $m.getUnwrappedArgList(false)
             );
