@@ -40,12 +40,22 @@ public class ObjectActionHandler
 {
     /**
      * Returns true if we should allow this object action, false if we
-     * should not. This is used to completely hide actions that should not
-     * be visible without the proper privileges.
+     * should not.
      */
     public boolean actionAllowed (String action)
     {
         return true;
+    }
+
+    /**
+     * Returns true if we should display the text for the action.  By default
+     *  this returns whether the action is allowed or not, but can be
+     *  overridden by subclasses. This is used to completely hide actions that
+     *  should not be visible without the proper privileges.
+     */
+    public boolean isVisible (String action)
+    {
+        return actionAllowed(action);
     }
 
     /**

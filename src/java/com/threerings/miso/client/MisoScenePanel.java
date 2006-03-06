@@ -1040,7 +1040,7 @@ public class MisoScenePanel extends VirtualMediaPanel
             // if we have an object action handler, possibly let them veto
             // the display of this tooltip and action
             ObjectActionHandler oah = ObjectActionHandler.lookup(action);
-            if (oah != null && !oah.actionAllowed(action)) {
+            if (oah != null && !oah.isVisible(action)) {
                 continue;
             }
 
