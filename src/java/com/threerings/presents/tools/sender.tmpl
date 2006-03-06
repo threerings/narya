@@ -1,0 +1,27 @@
+package $package;
+
+#foreach ($import in $imports)
+import $import;
+#end
+
+/**
+ * Used to issue notifications to a {@link ${name}Receiver} instance on a
+ * client.
+ */
+public class ${name}Sender extends InvocationSender
+{
+#foreach ($m in $methods)
+    /**
+     * Issues a notification that will result in a call to {@link
+     * ${name}Receiver#$m.method.name} on a client.
+     */
+    public static void $m.senderMethodName (
+        ClientObject target, $m.getArgList(false))
+    {
+        sendNotification(
+            target, ${name}Decoder.RECEIVER_CODE, ${name}Decoder.$m.code,
+            new Object[] { $m.getWrappedArgList(false) });
+    }
+
+#end
+}

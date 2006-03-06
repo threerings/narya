@@ -71,17 +71,25 @@
     </service>
   </target>
 
-  <!-- generates sender and decoder classes for all invocation
-       receiver declarations -->
-  <target name="genreceiver">
-    <apply executable="bin/genreceiver" failonerror="true" parallel="true">
-      <arg value="--classpath"/>
-      <arg value="${classes.dir}"/>
-      <arg value="--sourcedir"/>
-      <arg value="src/java"/>
+  <!-- generates sender and decoder classes for all invocation -->
+  <!-- receiver declarations -->
+  <target name="genreceiver"> 
+    <taskdef name="receiver"
+             classname="com.threerings.presents.tools.GenReceiverTask"
+             classpathref="classpath"/>
+    <!-- make sure the receiver class files are all compiled -->
+    <javac srcdir="src/java" destdir="${classes.dir}"
+           debug="on" optimize="${build.optimize}" deprecation="on"
+           source="1.4" target="1.4">
+      <classpath refid="classpath"/>
+      <include name="**/*Receiver.java"/>
+      <exclude name="**/InvocationReceiver.java"/>
+    </javac>
+    <!-- now generate the associated files -->
+    <receiver header="lib/SOURCE_HEADER" classpathref="classpath">
       <fileset dir="src/java" includes="**/*Receiver.java"
         excludes="**/InvocationReceiver.java"/>
-    </apply>
+    </receiver>
   </target>
 
   <!-- checks the availability of certain libraries -->

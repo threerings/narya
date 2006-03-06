@@ -119,6 +119,16 @@ public abstract class InvocationTask extends Task
             return StringUtil.unStudlyName(method.getName()).toUpperCase();
         }
 
+        public String getSenderMethodName ()
+        {
+            String mname = method.getName();
+            if (mname.startsWith("received")) {
+                return "send" + mname.substring("received".length());
+            } else {
+                return mname;
+            }
+        }
+
         public String getArgList (boolean providerMode)
         {
             StringBuffer buf = new StringBuffer();
