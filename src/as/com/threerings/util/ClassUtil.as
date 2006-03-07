@@ -26,6 +26,7 @@ public class ClassUtil
 
     public static function getClassByName (cname :String) :Class
     {
+        // see also ApplicationDomain.currentDomain.getClass(cname)
         return flash.util.getClassByName(cname);
     }
 

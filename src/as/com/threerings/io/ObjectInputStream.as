@@ -28,14 +28,6 @@ public class ObjectInputStream
         _source = source;
     }
 
-    /**
-     * Add a translation that should be used when writing objects.
-     */
-    public function addTranslation (oldName :String, newName :String) :void
-    {
-        _translations[oldName] = newName;
-    }
-
     public function readObject () :Object
         //throws IOError
     {
@@ -57,13 +49,8 @@ public class ObjectInputStream
                 code *= -1;
 
                 // read in the class metadata
-                var cname :String = readUTF();
+                var cname :String = Translations.getFromServer(readUTF());
                 Log.debug("read cname: " + cname);
-                // if we have a translation, use it
-                var tname :String = _translations[cname];
-                if (tname != null) {
-                    cname = tname;
-                }
                 var streamer :Streamer = Streamer.getStreamerByJavaName(cname);
 
                 cmap = new ClassMapping(code, cname, streamer);
@@ -215,9 +202,5 @@ public class ObjectInputStream
 
     /** A map of short class code to ClassMapping info. */
     protected var _classMap :Array = new Array();
-
-    /** An collection of class name translations to use when unserializing
-     * objects. */
-    protected var _translations :SimpleMap = new SimpleMap();
 }
 }

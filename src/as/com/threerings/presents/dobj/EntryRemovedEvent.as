@@ -5,7 +5,6 @@ import flash.util.StringBuilder;
 import com.threerings.io.ObjectInputStream;
 import com.threerings.io.ObjectOutputStream;
 
-import com.threerings.util.Comparable;
 
 import com.threerings.presents.Log;
 
@@ -31,7 +30,7 @@ public class EntryRemovedEvent extends NamedEvent
      * @param oldEntry the previous value of the entry.
      */
     public function EntryRemovedEvent (
-            targetOid :int, name :String, key :Comparable, oldEntry :DSetEntry)
+            targetOid :int, name :String, key :Object, oldEntry :DSetEntry)
     {
         super(targetOid, name);
         _key = key;
@@ -41,7 +40,7 @@ public class EntryRemovedEvent extends NamedEvent
     /**
      * Returns the key that identifies the entry that has been removed.
      */
-    public function getKey () :Comparable
+    public function getKey () :Object
     {
         return _key;
     }
@@ -99,10 +98,10 @@ public class EntryRemovedEvent extends NamedEvent
     public override function readObject (ins :ObjectInputStream) :void
     {
         super.readObject(ins);
-        _key = (ins.readObject() as Comparable);
+        _key = ins.readObject();
     }
 
-    protected var _key :Comparable;
+    protected var _key :Object;
     protected var _oldEntry :DSetEntry = UNSET_OLD_ENTRY;
 }
 }

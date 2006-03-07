@@ -14,6 +14,7 @@ import com.threerings.io.FrameAvailableEvent;
 import com.threerings.io.FrameReader;
 import com.threerings.io.ObjectInputStream;
 import com.threerings.io.ObjectOutputStream;
+import com.threerings.io.Translations;
 
 import com.threerings.presents.Log;
 
@@ -57,9 +58,8 @@ public class Communicator
 
     private function addClassTranslations () :void
     {
-        _inStream.addTranslation("com.threerings.presents.dobj.DSet$Entry",
-            "com.threerings.presents.dobj.DSetEntry");
-        _outStream.addTranslation("com.threerings.presents.dobj.DSetEntry",
+        Translations.addTranslation(
+            "com.threerings.presents.dobj.DSetEntry",
             "com.threerings.presents.dobj.DSet$Entry");
     }
 
@@ -102,7 +102,7 @@ public class Communicator
         // write the message (ends up in _outBuffer)
         _outStream.writeObject(msg);
 
-        //Log.debug("outBuffer: " + Util.bytesToString(_outBuffer));
+        Log.debug("outBuffer: " + Util.bytesToString(_outBuffer));
 
         // Frame it by writing the length, then the bytes.
         // We add 4 to the length, because the length is of the entire frame

@@ -15,13 +15,41 @@ public class TestClient extends Client
         setServer("tasman.sea.earth.threerings.net", DEFAULT_SERVER_PORT);
         logon();
 
-        var a :Object = new HelperClass(this);
+        var g1 :String = null;
+        var g2 :String = String(g1);
+        Log.debug("foo: " + (g1 === g2));
 
-        Log.debug("instance: " + describeType(a).toXMLString());
-        Log.debug("class   : " + describeType(HelperClass).toXMLString());
+        var duckie :Duck = new Goose();
+        duckie.screw();
+
+        var arr :Array = new Array();
+        arr[0] = "Florp";
+        arr[1] = "Blanger";
+        arr[2] = "Swissbrat";
+
+        for (var key:* in arr) {
+            Log.debug("a key=" + key + " -> " +  arr[key]);
+        }
+        delete arr[1];
+        arr["1"] = "oinkenheimer";
+        for (var key:* in arr) {
+            Log.debug("a key=" + key + " -> " +  arr[key]);
+        }
+        Log.debug("length: " + arr.length);
+        Log.debug("arr[0]: " + arr[0]);
+        Log.debug("arr[1]: " + arr[1]);
+        Log.debug("arr[2]: " + arr[2]);
 
         /*
-        var b :Object = new PooperClass();
+        var a :Object = new OldClass();
+        var c :Class = OldClass;
+
+        Log.debug("instance: " + describeType(a).toXMLString());
+        Log.debug("class   : " + describeType(Pork).toXMLString());
+        */
+
+        /*
+        var b :Object = new OldClass();
         var c :Object = 2.4;
         var d :Object = new HooperClass(this);
 
@@ -74,6 +102,13 @@ public class TestClient extends Client
 import com.threerings.presents.Log;
 import com.threerings.presents.client.TestClient;
 
+dynamic class OldClass
+{
+    public function OldClass ()
+    {
+    }
+}
+
 class HelperClass
 {
     public function HelperClass (cli :TestClient)
@@ -111,12 +146,5 @@ final class HooperClass extends HelperClass
     public function porker () :void
     {
         // nada
-    }
-}
-
-class PooperClass
-{
-    public function PooperClass ()
-    {
     }
 }

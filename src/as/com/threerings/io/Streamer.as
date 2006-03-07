@@ -48,6 +48,10 @@ public class Streamer
     {
         initStreamers();
 
+        if (jname.charAt(0) === "[") {
+            // Oh ghod
+        }
+
         for each (var streamer :Streamer in _streamers) {
             if (streamer.getJavaClassName() === jname) {
                 return streamer;
@@ -86,7 +90,7 @@ public class Streamer
         if (obj is Array) {
             trace("Arrays not yet done. Crap!");
             /**
-            var arr :Array = (obj as Array); // not strictly necessary
+            var arr :Array = Array(obj); // not strictly necessary
             var length :int = arr.length;
             out.writeInt(length);
             */

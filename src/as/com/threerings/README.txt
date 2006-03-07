@@ -16,9 +16,10 @@ Design decisions
 
 - We need a realistic HashMap implementation. Using Object properties
   (a-la my SimpleMap) is not going to cut it because keys must always
-  be Strings and there's no way to *really* remove a value from an Object
-  (you can set the property to null, but now the property is forever defined:
-  the key is not cleared)
+  be Strings.<strike>and there's no way to *really* remove a value from
+  an Object (you can set the property to null, but now the property is
+  forever defined: the key is not cleared)</strike>
+  ***Update: the 'delete' operator removes properties.
 
   mx.utils.UIDUtil.getUID() can be used to generate a (huge) unique String
   for any object for use as a key or something.
@@ -81,10 +82,9 @@ Notes
   and accessing only public properties of the main class from the helper.
 
 
-- Similarly, I'm unclear about sandboxes. If a user-created .swf is playing
-  inside ours, I don't know if it can interact with our classes, and if so,
-  what happens if it proceeds to define a class like
-  com.threerings.presents.client.Client?
+- Sandboxing classes is done with ApplicationDomains. When we load a sub-swf
+  we'll want to put it into a different domain so that nothing malicious
+  can be done to our classes.
 
 - <strike>constructors do not defaultly call super()- be sure to do it explicitely.
   Maybe we should get in the habit of doing it in Java for consistency and
@@ -169,6 +169,14 @@ ActionScript
   Perhaps we'll want a util method that always generates an error if the
   object's type is not identical or a subclass of the casted-to type.
 
+  ***Update:
+     var o1 :String = null;
+     var o2 :String = String(o1); // ends up being "" or something
+
+     The 2nd kind of cast destroys null, at least for String. So fuck that,
+     I was trying to use it when pulling a value out of a hash, but if it
+     wasn't there it got booched.
+
 
 - Pitfall! This is perfectly legal:
      var b :int = 3;
@@ -198,5 +206,10 @@ ActionScript
   me from correctly streaming arrays, as we need to know if the class
   is final. I can't just pass an instance in because it may be a pain
   to construct, it may even be unconstructable if the type of the array
-  is an interface. The adobe forums are broken right now, but I'm going
-  to post a request for enhancement so that we can get this information.
+  is an interface. Posted as a request for enhancement on the AS3.0 forums.
+
+
+- Actionscript's property accessors are a cool feature, but beware hidden
+  performance issues: accessing a simple property of a variable
+  (like myArray.length) may actually be executing arbitrary code, possibly
+  creating many objects, each time.

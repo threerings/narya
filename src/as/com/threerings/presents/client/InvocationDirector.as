@@ -103,7 +103,7 @@ public class InvocationDirector
         var reg :InvocationRegistration = new InvocationRegistration(
             decoder.getReceiverCode(), nextReceiverId());
         _clobj.addToReceivers(reg);
-        _receivers[reg.receiverId] = decoder;
+        _receivers.put(reg.receiverId, decoder);
     }
 
     /**
@@ -139,7 +139,7 @@ public class InvocationDirector
 
                 // create a mapping for this marshaller so that we can
                 // properly dispatch responses sent to it
-                _listeners[lm.requestId] = lm;
+                _listeners.put(lm.requestId, lm);
             }
         }
 
@@ -187,7 +187,7 @@ public class InvocationDirector
             (reqId :int, methodId :int, args :Array) :void
     {
         var listener :ListenerMarshaller = 
-            (_listeners.remove(reqId) as ListenerMarshaller); 
+            (_listeners.remove(reqId) as ListenerMarshaller);
         if (listener == null) {
             Log.warning("Received invocation response for which we have " +
                         "no registered listener [reqId=" + reqId +
@@ -229,7 +229,7 @@ public class InvocationDirector
     {
         // look up the decoder registered for this receiver
         var decoder :InvocationDecoder =
-            (_receivers[receiverId] as InvocationDecoder);
+            (_receivers.get(receiverId) as InvocationDecoder);
         if (decoder == null) {
             Log.warning("Received notification for which we have no " +
                         "registered receiver [recvId=" + receiverId +
@@ -268,11 +268,11 @@ public class InvocationDirector
     protected function flushListeners (now :Number) :void
     {
         var then :Number = now - LISTENER_MAX_AGE;
-        for (var skey :String in _listeners) {
+        for (var skey :String in _listeners.keys()) {
             var lm :ListenerMarshaller =
-                (_listeners[skey] as ListenerMarshaller);
+                (_listeners.get(skey) as ListenerMarshaller);
             if (lm.mapStamp < then) {
-                _listeners.clear(skey);
+                _listeners.remove(skey);
             }
         }
     }

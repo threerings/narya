@@ -1,7 +1,5 @@
 package com.threerings.util {
 
-import flash.util.describeType;
-
 import mx.utils.ObjectUtil;
 
 import com.threerings.io.ArrayMask;
@@ -83,6 +81,7 @@ public dynamic class TypedArray extends Array
      * except gives it a clue as to how to stream to our server. */
     protected var _type :Class;
 
+    /** Whether or not the type of the array represents a final class. */
     protected var _final :Boolean;
 
     protected var _delegate :Streamer;

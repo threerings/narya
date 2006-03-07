@@ -15,15 +15,6 @@ public class ObjectOutputStream
         _targ = targ;
     }
 
-    /**
-     * Add a classname translation for rewriting the names of objects
-     * that we send to the server.
-     */
-    public function addTranslation (oldName :String, newName :String) :void
-    {
-        _translations[oldName] = newName;
-    }
-
     public function writeObject (obj :Object) :void
         //throws IOError
     {
@@ -35,7 +26,7 @@ public class ObjectOutputStream
 
         var cname :String = ClassUtil.getClassName(obj);
         // look up the class mapping record
-        var cmap :ClassMapping = _classMap[cname];
+        var cmap :ClassMapping = (_classMap.get(cname) as ClassMapping);
 
         // create a class mapping if we've not got one
         if (cmap == null) {
@@ -48,18 +39,13 @@ public class ObjectOutputStream
             }
 
             cmap = new ClassMapping(_nextCode++, cname, streamer);
-            _classMap[cname] = cmap;
+            _classMap.put(cname, cmap);
 
             // TODO: if _nextCode blows short, log an error
 
-            // see if there's a translation we should use
-            var tname :String = _translations[cname];
-            if (tname != null) {
-                cname = tname;
-            }
-
             writeShort(-cmap.code);
-            writeUTF((streamer == null) ? cname : streamer.getJavaClassName());
+            writeUTF((streamer == null) ? Translations.getToServer(cname)
+                                        : streamer.getJavaClassName());
 
         } else {
             writeShort(cmap.code);
@@ -200,8 +186,5 @@ public class ObjectOutputStream
 
     /** A map of classname to ClassMapping info. */
     protected var _classMap :SimpleMap = new SimpleMap();
-
-    /** A map of classname translations. */
-    protected var _translations :SimpleMap = new SimpleMap();
 }
 }

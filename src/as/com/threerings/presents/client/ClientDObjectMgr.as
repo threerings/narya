@@ -208,14 +208,13 @@ public class ClientDObjectMgr
 
         } else if (obj is UnsubscribeResponse) {
             var oid :int = obj.getOid();
-            if (_dead[oid] == null) {
+            if (_dead.remove(oid) == null) {
                 Log.warning("Received unsub ACK from unknown object " +
                             "[oid=" + oid + "].");
             }
-            _dead[oid] = undefined;
 
         } else if (obj is FailureResponse) {
-            var oid :int = obj.getOid();
+            var oid :int = (obj as FailureResponse).getOid();
             notifyFailure(oid);
 
         } else if (obj is PongResponse) {
@@ -250,9 +249,9 @@ public class ClientDObjectMgr
 
         // look up the object on which we're dispatching this event
         var toid :int = event.getTargetOid();
-        var target :DObject = _ocache[toid];
+        var target :DObject = (_ocache.get(toid) as DEvent);
         if (target == null) {
-            if (_dead[toid] === undefined) {
+            if (_dead.get(toid) == null) {
                 Log.warning("Unable to dispatch event on non-proxied " +
                     "object [event=" + event + "].");
             }
@@ -269,7 +268,7 @@ public class ClientDObjectMgr
 //                 Log.info("Pitching destroyed object " +
 //                          "[oid=" + toid + ", class=" +
 //                          StringUtil.shortClassName(target) + "].");
-                _ocache[toid] = undefined;
+                _ocache.remove(toid);
             }
 
             // have the object pass this event on to its listeners
@@ -295,7 +294,7 @@ public class ClientDObjectMgr
 
         var oid :int = obj.getOid();
         // stick the object into the proxy object table
-        _ocache[oid] = obj;
+        _ocache.put(oid, obj);
 
         // let the penders know that the object is available
         var req :PendingRequest = (_penders.remove(oid) as PendingRequest);
@@ -321,8 +320,7 @@ public class ClientDObjectMgr
     protected function notifyFailure (oid :int) :void
     {
         // let the penders know that the object is not available
-        var req :PendingRequest = _penders[oid];
-        _penders[oid] = undefined;
+        var req :PendingRequest = (_penders.remove(oid) as PendingRequest);
         if (req == null) {
             Log.warning("Failed to get object, but no one cares?! " +
                         "[oid=" + oid + "].");
@@ -345,10 +343,10 @@ public class ClientDObjectMgr
         // Log.info("doSubscribe: " + oid + ": " + target);
 
         // first see if we've already got the object in our table
-        var obj :DObject = _ocache[oid];
+        var obj :DObject = (_ocache.get(oid) as DObject);
         if (obj != null) {
             // clear the object out of the flush table if it's in there
-            _flushes[oid] = undefined;
+            _flushes.remove(oid);
             // add the subscriber and call them back straight away
             obj.addSubscriber(target);
             target.objectAvailable(obj);
@@ -356,7 +354,7 @@ public class ClientDObjectMgr
         }
 
         // see if we've already got an outstanding request for this object
-        var req :PendingRequest = _penders[oid];
+        var req :PendingRequest = (_penders.get(oid) as PendingRequest);
         if (req != null) {
             // add this subscriber to the list of subscribers to be
             // notified when the request is satisfied
@@ -367,7 +365,7 @@ public class ClientDObjectMgr
         // otherwise we need to create a new request
         req = new PendingRequest(oid);
         req.addTarget(target);
-        _penders[oid] = req;
+        _penders.put(oid, req);
         // Log.info("Registering pending request [oid=" + oid + "].");
 
         // and issue a request to get things rolling
@@ -380,7 +378,7 @@ public class ClientDObjectMgr
      */
     protected function doUnsubscribe (oid :int, target :Subscriber) :void
     {
-        var dobj :DObject = _ocache[oid];
+        var dobj :DObject = (_ocache.get(oid) as DObject);
         if (dobj != null) {
             dobj.removeSubscriber(target);
 
@@ -401,8 +399,8 @@ public class ClientDObjectMgr
         // have it around anymore; once our unsubscribe message is
         // processed, it'll be 86ed
         var ooid :int = obj.getOid();
-        _ocache[ooid] = undefined;
-        _dead[ooid] = obj;
+        _ocache.remove(ooid);
+        _dead.put(ooid, obj);
 
         // ship off an unsubscribe message to the server; we'll remove the
         // object from our table when we get the unsub ack
@@ -416,10 +414,10 @@ public class ClientDObjectMgr
     protected function flushObjects () :void
     {
         var now :Number = new Date().getTime();
-        for (var oid :String in _flushes) {
-            var rec :FlushRecord = _flushes[oid];
+        for (var oid :String in _flushes.keys()) {
+            var rec :FlushRecord = (_flushes.get(oid) as FlushRecord);
             if (rec.expire <= now) {
-                _flushes[oid] = undefined;
+                _flushes.remove(oid);
                 flushObject(rec.obj);
             }
         }
