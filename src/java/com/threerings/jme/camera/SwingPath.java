@@ -30,8 +30,8 @@ import com.threerings.jme.Log;
 
 /**
  * Swings the camera around a point of interest (which should be somewhere
- * along the camera's view vector). Also optionally zooms the camera in or out
- * (moves it along its view vector) in the process.
+ * along the camera's view vector). Also optionally pans the camera and/or
+ * zooms it in or out (moves it along its view vector) in the process.
  *
  * <p align="center"><img src="rotate_zoom.png">
  */
@@ -51,11 +51,11 @@ public class SwingPath extends CameraPath
     public SwingPath (CameraHandler camhand, Vector3f spot, Vector3f axis,
                       float angle, float angvel, float zoom)
     {
-        this(camhand, spot, axis, angle, angvel, null, 0f, zoom);
+        this(camhand, spot, axis, angle, angvel, null, 0f, null, zoom);
     }
     
     /**
-     * Creates a rotating, zooming path for the specified camera.
+     * Creates a rotating, panning, zooming path for the specified camera.
      *
      * @param spot the point of interest around which to swing the camera.
      * @param paxis the primary axis around which to rotate the camera.
@@ -67,12 +67,13 @@ public class SwingPath extends CameraPath
      * <code>null</code> for none
      * @param sangle the angle through which to rotate the camera about the
      * secondary axis
+     * @param pan the amount to pan the camera, or <code>null</code> for none
      * @param zoom the distance to zoom along the camera's view axis (negative
      * = in, positive = out).
      */
     public SwingPath (CameraHandler camhand, Vector3f spot, Vector3f paxis,
                       float pangle, float angvel, Vector3f saxis, float sangle,
-                      float zoom)
+                      Vector3f pan, float zoom)
     {
         super(camhand);
 
@@ -90,13 +91,18 @@ public class SwingPath extends CameraPath
             angvel = FastMath.PI;
         }
 
-        _spot = spot;
+        _spot = new Vector3f(spot);
         _paxis = paxis;
         _pangle = pangle;
         _pangvel = (pangle > 0) ? angvel : -1 * angvel;
         _saxis = (saxis == null) ? null : new Vector3f(saxis);
         _sangle = sangle;
         _sangvel = _sangle * _pangvel / _pangle;
+        _pan = pan;
+        if (_pan != null) {
+            _panvel = _pan.mult(_pangvel / _pangle);
+            _panned = new Vector3f();
+        }
         _zoom = zoom;
         _zoomvel = _zoom * _pangvel / _pangle;
 
@@ -113,7 +119,11 @@ public class SwingPath extends CameraPath
         _protated += deltaPAngle;
         _srotated += deltaSAngle;
         _zoomed += deltaZoom;
-
+        if (_pan != null) {
+            _panvel.mult(secondsSince, _deltaPan);
+            _panned.addLocal(_deltaPan);
+        }
+        
         // clamp our rotation at the target angle and determine whether or not
         // we're done
         boolean done = false;
@@ -122,26 +132,37 @@ public class SwingPath extends CameraPath
             deltaPAngle -= (_protated - _pangle);
             deltaSAngle -= (_srotated - _sangle);
             deltaZoom -= (_zoomed - _zoom);
+            if (_pan != null) {
+                _deltaPan.subtractLocal(_panned).addLocal(_pan);
+            }
             _protated = _pangle;
             _srotated = _sangle;
+            _panned = _pan;
             _zoomed = _zoom;
             done = true;
         }
 
-        // have the camera handler do the necessary rotating and zooming
+        // have the camera handler do the necessary rotating, panning, zooming
+        if (_pan != null) {
+            _camhand.setLocation(
+                _camhand.getCamera().getLocation().addLocal(_deltaPan));
+            _spot.addLocal(_deltaPan);
+        }
         _camhand.rotateCamera(_spot, _paxis, deltaPAngle, deltaZoom);
         if (_saxis != null) {
             _rot.fromAngleAxis(deltaPAngle, _paxis).multLocal(_saxis);
             _camhand.rotateCamera(_spot, _saxis, deltaSAngle, 0f);
         }
-            
+        
         return done;
     }
 
     protected Vector3f _spot, _paxis, _saxis;
     protected float _pangle, _pangvel, _protated;
     protected float _sangle, _sangvel, _srotated;
+    protected Vector3f _pan, _panvel, _panned;
     protected float _zoom, _zoomvel, _zoomed;
     
     protected Quaternion _rot = new Quaternion();
+    protected Vector3f _deltaPan = new Vector3f();
 }
