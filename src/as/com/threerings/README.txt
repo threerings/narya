@@ -213,3 +213,8 @@ ActionScript
   performance issues: accessing a simple property of a variable
   (like myArray.length) may actually be executing arbitrary code, possibly
   creating many objects, each time.
+
+- Classes without a constructor cannot be instantiated. This is a runtime
+  error (grraah!). There is a compiler option "-compiler.warn-no-constructor"
+  but it generates a flotilla of warnings from standard classes in the flash
+  library, so it's slightly useless.
