@@ -10,6 +10,7 @@ import com.threerings.io.streamers.ArrayStreamer;
 import com.threerings.io.streamers.ByteArrayStreamer;
 import com.threerings.io.streamers.IntStreamer;
 import com.threerings.io.streamers.NumberStreamer;
+import com.threerings.io.streamers.ObjectArrayStreamer;
 import com.threerings.io.streamers.StringStreamer;
 
 public class Streamer
@@ -28,12 +29,23 @@ public class Streamer
             }
         }
 
+        if (obj is TypedArray) {
+            var streamer :Streamer = new ArrayStreamer(
+                (obj as TypedArray).getJavaType());
+            _streamers.push(streamer);
+            return streamer;
+        }
+
         return undefined;
     }
 
     public static function getStreamerByClass (clazz :Class) :Streamer
     {
         initStreamers();
+
+        if (clazz === TypedArray) {
+            throw new Error("Broken, TODO");
+        }
 
         for each (var streamer :Streamer in _streamers) {
             if (streamer._target == clazz) {
@@ -48,14 +60,16 @@ public class Streamer
     {
         initStreamers();
 
-        if (jname.charAt(0) === "[") {
-            // Oh ghod
-        }
-
         for each (var streamer :Streamer in _streamers) {
             if (streamer.getJavaClassName() === jname) {
                 return streamer;
             }
+        }
+
+        if (jname.charAt(0) === "[") {
+            var streamer :Streamer = new ArrayStreamer(jname);
+            _streamers.push(streamer);
+            return streamer;
         }
 
         return null;
@@ -122,7 +136,7 @@ public class Streamer
                 new StringStreamer(),
                 new IntStreamer(),
                 new NumberStreamer(),
-                new ArrayStreamer(),
+                new ObjectArrayStreamer(),
                 new ByteArrayStreamer()
             ];
         }
@@ -131,10 +145,6 @@ public class Streamer
     protected var _target :Class;
 
     protected var _jname :String;
-
-    /** If our target class is an array, this is a reference to a streamer
-     * that can stream our array elements, otherwise it is null. */
-    protected var _delegate :Streamer;
 
     /** Just a list of our standard streamers. */
     protected static var _streamers :Array;

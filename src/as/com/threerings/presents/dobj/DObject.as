@@ -29,6 +29,9 @@ public class DObject // extends EventDispatcher
 
     public function addSubscriber (sub :Subscriber) :void
     {
+        if (_subscribers == null) {
+            _subscribers = new ArrayCollection();
+        }
         if (!_subscribers.contains(sub)) {
             _subscribers.addItem(sub);
         }
@@ -36,6 +39,9 @@ public class DObject // extends EventDispatcher
 
     public function removeSubscriber (sub :Subscriber) :void
     {
+        if (_subscribers == null) {
+            return;
+        }
         var dex :int = _subscribers.getItemIndex(sub);
         if (dex != -1) {
             _subscribers.removeItemAt(dex);

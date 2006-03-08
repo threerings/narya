@@ -24,7 +24,13 @@ public class ObjectOutputStream
             return;
         }
 
-        var cname :String = ClassUtil.getClassName(obj);
+        var cname :String;
+        if (obj is TypedArray) {
+            cname = (obj as TypedArray).getJavaType();
+
+        } else {
+            cname = ClassUtil.getClassName(obj);
+        }
         // look up the class mapping record
         var cmap :ClassMapping = (_classMap.get(cname) as ClassMapping);
 
@@ -166,7 +172,7 @@ public class ObjectOutputStream
     /**
      * Used by a Streamer that is writing an array of Streamable instances.
      */
-    protected function setCurrent (streamer :Streamer, current :Object)
+    internal function setCurrent (streamer :Streamer, current :Object)
     {
         _streamer = streamer;
         _current = current;

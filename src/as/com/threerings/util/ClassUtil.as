@@ -32,11 +32,13 @@ public class ClassUtil
 
     public static function isFinal (type :Class) :Boolean
     {
-        var attrs :XMLList = describeType(type).elements("type");
+        if (type === String) {
+            return true;
+        }
 
-        // FUCK!!! This information is lost in the Class introspection
-
-        return true; //TODO
+        // TODO: there's currently no way to determine final from the class
+        //var attrs :XMLList = describeType(type).elements("type");
+        return false;
     }
 }
 }

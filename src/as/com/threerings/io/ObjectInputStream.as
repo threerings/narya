@@ -57,7 +57,7 @@ public class ObjectInputStream
                 _classMap[code] = cmap;
 
             } else {
-                cmap = _classMap[code];
+                cmap = (_classMap[code] as ClassMapping);
                 if (null == cmap) {
                     throw new IOError("Read object for which we have no " +
                         "registered class metadata.");
@@ -107,13 +107,20 @@ public class ObjectInputStream
         }
     }
 
+    /**
+     * @param type either a String representing the java type,
+     *             or a Class object representing the actionscript type.
+     */
     // TODO: this is the equivalent of marshalling something for which
     // we have a basic streamer. Fill out with all the java types
-    public function readField (clazz :Class) :Object
+    public function readField (type :Object) :Object
         //throws IOError
     {
         if (readBoolean()) {
-            var streamer :Streamer = Streamer.getStreamerByClass(clazz);
+            var streamer :Streamer = (type is Class)
+                ? Streamer.getStreamerByClass(type as Class)
+                : Streamer.getStreamerByJavaName(type as String);
+
             var obj :Object = streamer.createObject(this);
             streamer.readObject(obj, this);
             return obj;
