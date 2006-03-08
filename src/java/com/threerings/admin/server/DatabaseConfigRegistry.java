@@ -35,7 +35,11 @@ import com.threerings.admin.server.persist.ConfigRepository;
 
 /**
  * Implements the {@link ConfigRegistry} using a JDBC database as a persistent
- * store for the configuration information.
+ * store for the configuration information. <em>Note:</em> config objects
+ * should only be created during server startup because they will result in
+ * synchronous requests to load up the initial configuration data from the
+ * database. This ensures that systems initialized after the config registry
+ * can safely make use of configuration information.
  */
 public class DatabaseConfigRegistry extends ConfigRegistry
 {
@@ -43,8 +47,9 @@ public class DatabaseConfigRegistry extends ConfigRegistry
      * Creates a configuration registry and prepares it for operation.
      *
      * @param conprov will provide access to our JDBC database.
-     * @param invoker this will be used to perform all database activity so as
-     * to avoid blocking the distributed object thread.
+     * @param invoker this will be used to perform all database activity
+     * (except first time initialization) so as to avoid blocking the
+     * distributed object thread.
      */
     public DatabaseConfigRegistry (ConnectionProvider conprov, Invoker invoker)
         throws PersistenceException
@@ -69,25 +74,22 @@ public class DatabaseConfigRegistry extends ConfigRegistry
 
         public void init ()
         {
-            // load up our persistent data and then allow the normal
-            // initialization process to take place
-            _invoker.postUnit(new Invoker.Unit() {
-                public boolean invoke () {
-                    try {
-                        _data = _repo.loadConfig(_path);
-                    } catch (PersistenceException pe) {
-                        Log.warning("Failed to load object configuration " +
-                                    "[path=" + _path + "].");
-                        Log.logStackTrace(pe);
-                        _data = new HashMap();
-                    }
-                    return true;
-                }
+            // load up our persistent data synchronously because we should be
+            // in the middle of server startup when it's OK to do database
+            // access on the main thread and we need to be completely
+            // initialized when we return from this call so that subsequent
+            // systems can predictably make use of the configuration
+            // information that we load
+            try {
+                _data = _repo.loadConfig(_path);
+            } catch (PersistenceException pe) {
+                Log.warning("Failed to load object configuration " +
+                            "[path=" + _path + "].");
+                Log.logStackTrace(pe);
+                _data = new HashMap();
+            }
 
-                public void handleResult () {
-                    DatabaseObjectRecord.super.init();
-                }
-            });
+            super.init();
         }
 
         protected boolean getValue (String field, boolean defval) {
