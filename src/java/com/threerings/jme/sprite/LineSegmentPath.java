@@ -59,7 +59,7 @@ public class LineSegmentPath extends Path
 
         // if we have surpassed the time for this segment, subtract the
         // segment time and move on to the next segment
-        if (_accum > _durations[_current]) {
+        while (_current < _durations.length && _accum > _durations[_current]) {
             _accum -= _durations[_current];
             advance();
         }
