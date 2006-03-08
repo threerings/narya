@@ -398,10 +398,11 @@ public class InvocationDirector
     protected void flushListeners (long now)
     {
         if (_listeners.size() > 0) {
+            long then = now - LISTENER_MAX_AGE;
             Iterator iter = _listeners.values().iterator();
             while (iter.hasNext()) {
                 ListenerMarshaller lm = (ListenerMarshaller)iter.next();
-                if (now - lm.mapStamp > LISTENER_MAX_AGE) {
+                if (then > lm.mapStamp) {
 //                     Log.info("Flushing marshaller " + lm + ".");
                     iter.remove();
                 }
