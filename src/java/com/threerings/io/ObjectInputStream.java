@@ -151,7 +151,7 @@ public class ObjectInputStream extends DataInputStream
 
             // create an instance of the appropriate object
             Object target = cmap.streamer.createObject(this);
-            readBareObject(target, cmap.streamer);
+            readBareObject(target, cmap.streamer, true);
             return target;
 
         } catch (OutOfMemoryError oome) {
@@ -170,20 +170,21 @@ public class ObjectInputStream extends DataInputStream
     public void readBareObject (Object object)
         throws IOException, ClassNotFoundException
     {
-        readBareObject(object, Streamer.getStreamer(object.getClass()));
+        readBareObject(object, Streamer.getStreamer(object.getClass()), true);
     }
 
     /**
      * Reads an object from the input stream that was previously written
      * with {@link ObjectOutputStream#writeBareObject}.
      */
-    protected void readBareObject (Object object, Streamer streamer)
+    protected void readBareObject (
+            Object object, Streamer streamer, boolean useReader)
         throws IOException, ClassNotFoundException
     {
         _current = object;
         _streamer = streamer;
         try {
-            _streamer.readObject(object, this, true);
+            _streamer.readObject(object, this, useReader);
 
         } finally {
             // clear out our current object references
@@ -219,16 +220,6 @@ public class ObjectInputStream extends DataInputStream
         return "[hash=" + hashCode() + ", mappings=" + _classmap.size() +
             ", current=" + StringUtil.safeToString(_current) +
             ", streamer=" + _streamer + "]";
-    }
-
-    /**
-     * Used by a {@link Streamer} that is reading an array of {@link
-     * Streamable} instances.
-     */
-    protected void setCurrent (Streamer streamer, Object current)
-    {
-        _streamer = streamer;
-        _current = current;
     }
 
     /** Used to map classes to numeric codes and the {@link Streamer}

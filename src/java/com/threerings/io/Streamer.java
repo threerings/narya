@@ -182,11 +182,9 @@ public class Streamer
                 // now write out the populated elements
                 for (int ii = 0; ii < length; ii++) {
                     Object element = Array.get(object, ii);
-                    if (element == null) {
-                        continue;
+                    if (element != null) {
+                        out.writeBareObject(element, _delegate, useWriter);
                     }
-                    out.setCurrent(_delegate, element);
-                    _delegate.writeObject(element, out, useWriter);
                 }
 
             } else {
@@ -326,13 +324,12 @@ public class Streamer
                 // elements to read
                 for (int ii = 0; ii < length; ii++) {
                     if (mask.isSet(ii)) {
-                        Object element = _delegate.createObject(in);
-                        in.setCurrent(_delegate, element);
                         if (ObjectInputStream.STREAM_DEBUG) {
                             Log.info(in.hashCode() +
                                      ": Reading fixed element '" + ii + "'.");
                         }
-                        _delegate.readObject(element, in, useReader);
+                        Object element = _delegate.createObject(in);
+                        in.readBareObject(element, _delegate, useReader);
                         Array.set(object, ii, element);
                     } else if (ObjectInputStream.STREAM_DEBUG) {
                         Log.info(in.hashCode() +

@@ -111,7 +111,7 @@ public class ObjectOutputStream extends DataOutputStream
             writeShort(cmap.code);
         }
 
-        writeBareObject(object, cmap.streamer);
+        writeBareObject(object, cmap.streamer, true);
     }
 
     /**
@@ -127,19 +127,20 @@ public class ObjectOutputStream extends DataOutputStream
     public void writeBareObject (Object object)
         throws IOException
     {
-        writeBareObject(object, Streamer.getStreamer(object.getClass()));
+        writeBareObject(object, Streamer.getStreamer(object.getClass()), true);
     }
 
     /**
      * Write a {@link Streamable} instance without associated class metadata.
      */
-    protected void writeBareObject (Object obj, Streamer streamer)
+    protected void writeBareObject (
+            Object obj, Streamer streamer, boolean useWriter)
         throws IOException
     {
         _current = obj;
         _streamer = streamer;
         try {
-            _streamer.writeObject(obj, this, true);
+            _streamer.writeObject(obj, this, useWriter);
 
         } finally {
             _current = null;
@@ -167,16 +168,6 @@ public class ObjectOutputStream extends DataOutputStream
 
         // write the instance data
         _streamer.writeObject(_current, this, false);
-    }
-
-    /**
-     * Used by a {@link Streamer} that is writing an array of {@link
-     * Streamable} instances.
-     */
-    protected void setCurrent (Streamer streamer, Object current)
-    {
-        _streamer = streamer;
-        _current = current;
     }
 
     /** Used to map classes to numeric codes and the {@link Streamer}
