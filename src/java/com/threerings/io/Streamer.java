@@ -56,17 +56,23 @@ public class Streamer
      */
     public synchronized static boolean isStreamable (Class target)
     {
-        // if we have a streamer registered for this class, then it's
-        // definitely streamable
-        if (_streamers.containsKey(target)) {
-            return true;
-        }
+        do {
+            // if we've got a streamer for it, it's good
+            if (_streamers.containsKey(target)) {
+                return true;
+            }
 
-        // return true if it is a streamable or already registered type,
-        // or an array of same
-        Class uclass = target.isArray() ? target.getComponentType() : target;
-        return (_streamers.containsKey(uclass) ||
-                Streamable.class.isAssignableFrom(uclass));
+            // if it's an array, check the component type
+            if (target.isArray()) {
+                target = target.getComponentType();
+                // and loop back around for another go
+            } else {
+                break;
+            }
+        } while (true);
+
+        // it'll be ok if the type (or component type) is Streamable
+        return Streamable.class.isAssignableFrom(target);
     }
 
     /**
