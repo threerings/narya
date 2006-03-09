@@ -16,7 +16,6 @@ public class ArrayStreamer extends Streamer
 {
     public function ArrayStreamer (jname :String)
     {
-        Log.debug("Created an array streamer for type: {" + jname + "}");
         super(TypedArray, jname);
 
         if (jname.charAt(1) === "[") {
