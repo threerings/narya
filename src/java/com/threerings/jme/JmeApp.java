@@ -56,22 +56,11 @@ import com.threerings.jme.camera.CameraHandler;
 /**
  * Defines a basic application framework providing integration with the
  * <a href="../presents/package.html">Presents</a> networking system and
- * targeting a fixed framerate.
+ * targeting the framerate of the display.
  */
 public class JmeApp
     implements RunQueue
 {
-    /**
-     * Configures the target frame rate in frames per second.
-     */
-    public void setTargetFrameRate (long framesPerSecond)
-    {
-        if (framesPerSecond <= 0) {
-            throw new IllegalArgumentException("FPS must be > 0.");
-        }
-        _targetFrameTicks = _timer.getResolution() / framesPerSecond;
-    }
-
     /**
      * Returns a context implementation that provides access to all the
      * necessary bits.
@@ -103,9 +92,6 @@ public class JmeApp
 
             // create an appropriate timer
             _timer = Timer.getTimer(_api);
-
-            // default to 60 fps
-            setTargetFrameRate(60);
 
             // initialize our main camera controls and user input handling
             initInput();
@@ -257,7 +243,6 @@ public class JmeApp
     {
         // create the main display system
         _display = createDisplay();
-        _display.setVSyncEnabled(true);
 
         // create a camera
         int width = _display.getWidth(), height = _display.getHeight();
@@ -388,23 +373,15 @@ public class JmeApp
      */
     protected void processEvents (long frameStart)
     {
-        // now process events or sleep until the next frame (assume zero
-        // frame duration to start to ensure that we always process at
-        // least one event per frame)
-        long frameDuration = 0L;
-        while (frameDuration < _targetFrameTicks) {
-            Runnable r = (Runnable)_evqueue.getNonBlocking();
-            if (r == null) {
-                try {
-                    Thread.sleep(1);
-                } catch (InterruptedException ie) {
-                    Log.warning("Ticker interrupted: " + ie);
-                }
-            } else {
-                r.run();
+        Runnable r;
+        int events = 0;
+        while ((r = (Runnable)_evqueue.getNonBlocking()) != null) {
+            r.run();
+            // only process at most two events per frame
+            if (++events > 1) {
+                break;
             }
-            frameDuration = _timer.getTime() - frameStart;
-        } 
+        }
     }
 
     /**
@@ -538,7 +515,6 @@ public class JmeApp
     protected InputHandler _input;
     protected BRootNode _rnode;
 
-    protected long _targetFrameTicks;
     protected boolean _finished;
     protected int _failures;
 
