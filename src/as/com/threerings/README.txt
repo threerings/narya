@@ -218,3 +218,17 @@ ActionScript
   error (grraah!). There is a compiler option "-compiler.warn-no-constructor"
   but it generates a flotilla of warnings from standard classes in the flash
   library, so it's slightly useless.
+  ***Update: What the heck. I noticed today that DSet has no constructor
+  and I've never had any trouble instantiating those. Why would not having
+  a constructor be an error for some classes and not others? Grraahh!
+
+- Static initializers can be emulated:
+  public class A
+  {
+      private static function staticInit () :void
+      {
+          // whatever
+      }
+
+      staticInit(); // will be placed inside the real static initializer
+  }

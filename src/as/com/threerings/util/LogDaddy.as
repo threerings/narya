@@ -19,22 +19,22 @@ public class LogDaddy
      */
     public static function getLogger (pkg :String) :ILogger
     {
-        if (_targ == null) {
-            // goddamn I wish we could just have static initializers
-            _targ = new TraceTarget();
-            _targ.filters = ["*"];
-            _targ.level = LogEventLevel.DEBUG;
-            mx.logging.Log.addTarget(_targ);
-            // we could do some stuff here: set up different targets
-            // with different log levels...
-        }
-
         return mx.logging.Log.getLogger(pkg);
     }
 
-    /** The logging target for all packages. Needed only because we
-     * cannot have static initializers, so we need to know in getLogger
-     * if we've set up the target yet or not. */
-    private static var _targ :TraceTarget;
+    /**
+     * Our static (class) initializer.
+     */
+    private static function staticInit () :void
+    {
+        var targ :TraceTarget = new TraceTarget();
+        targ.filters = ["*"];
+        targ.level = LogEventLevel.DEBUG;
+        mx.logging.Log.addTarget(targ);
+        // we could do some stuff here: set up different targets
+        // with different log levels...
+    }
+
+    staticInit(); // call our static initializer
 }
 }
