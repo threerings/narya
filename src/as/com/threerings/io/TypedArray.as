@@ -1,10 +1,15 @@
 package com.threerings.io {
 
+import com.threerings.presents.Log;
+
 public dynamic class TypedArray extends Array
 {
     public function TypedArray (jtype :String)
     {
         _jtype = jtype;
+        if (_jtype == "" || _jtype == null) {
+            Log.info("Created a typed array with bogus type {" + _jtype + "}");
+        }
     }
 
     public function getJavaType () :String

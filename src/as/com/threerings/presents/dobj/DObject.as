@@ -92,7 +92,7 @@ public class DObject // extends EventDispatcher
                 event.friendNotifyListener(listener);
 
                 if (listener is EventListener) {
-                    listener.eventReceived(event);
+                    (listener as EventListener).eventReceived(event);
                 }
             } catch (e :Error) {
                 Log.warning("Listener choked during notification " +
@@ -117,7 +117,6 @@ public class DObject // extends EventDispatcher
             Log.warning("Unable to post event, object has no omgr " +
                 "[oid=" + getOid() + ", class=" + ClassUtil.getClassName(this) +
                 ", event=" + event + "].");
-            
         }
     }
 

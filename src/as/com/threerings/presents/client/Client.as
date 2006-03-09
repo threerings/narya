@@ -253,7 +253,7 @@ public class Client extends EventDispatcher
      */
     public function gotPong (pong :PongResponse) :void
     {
-        // TODO: compute time delta bowl-shit
+        // TODO: compute time delta?
     }
 
     /**

@@ -11,6 +11,7 @@ import com.threerings.util.Equalable;
 import com.threerings.io.ObjectInputStream;
 import com.threerings.io.ObjectOutputStream;
 import com.threerings.io.Streamable;
+import com.threerings.io.TypedArray;
 
 import com.threerings.presents.Log;
 
@@ -241,7 +242,7 @@ public class DSet
             return (key as Equalable).equals(otherKey);
 
         } else {
-            throw new Error("Element key is neither simple or Equalabe");
+            throw new Error("Element key is neither simple or Equalable");
         }
     }
 
@@ -266,11 +267,12 @@ public class DSet
     // documentation inherited from interface Streamable
     public function readObject (ins :ObjectInputStream) :void
     {
-        _entries = (ins.readObject() as Array);
+        _entries = (ins.readObject() as TypedArray);
         _entries.length = ins.readInt(); // then read the length and limit it
     }
 
     /** The entries of the set (in a sparse array). */
-    protected var _entries :Array;
+    protected var _entries :TypedArray =
+        new TypedArray("[Lcom.threerings.presents.dobj.DSet$Entry;");
 }
 }

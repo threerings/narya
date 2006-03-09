@@ -102,7 +102,7 @@ public class Communicator
         // write the message (ends up in _outBuffer)
         _outStream.writeObject(msg);
 
-        Log.debug("outBuffer: " + Util.bytesToString(_outBuffer));
+//        Log.debug("outBuffer: " + Util.bytesToString(_outBuffer));
 
         // Frame it by writing the length, then the bytes.
         // We add 4 to the length, because the length is of the entire frame

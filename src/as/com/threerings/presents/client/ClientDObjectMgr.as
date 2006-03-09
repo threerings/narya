@@ -78,7 +78,7 @@ public class ClientDObjectMgr
 
         _actionInterval = new Timer(500); //TODO!
         _actionInterval.addEventListener(TimerEvent.TIMER, processNextAction);
-        _actionInterval.start();
+        //_actionInterval.start();
     }
 
     // documentation inherited from interface DObjectManager
@@ -117,6 +117,7 @@ public class ClientDObjectMgr
     {
         // queue up an action
         _actions.push(new ObjectAction(oid, target, subscribe));
+        _actionInterval.start();
     }
 
     // inherit documentation from the interface
@@ -180,6 +181,7 @@ public class ClientDObjectMgr
     {
         // append it to our queue
         _actions.push(msg);
+        _actionInterval.start();
     }
 
     /**
@@ -190,6 +192,7 @@ public class ClientDObjectMgr
     {
         // process the next event on our queue
         if (_actions.length == 0) {
+            _actionInterval.stop();
             return;
         }
 
@@ -411,7 +414,7 @@ public class ClientDObjectMgr
      * Called periodically to flush any objects that have been lingering
      * due to a previously enacted flush delay.
      */
-    protected function flushObjects () :void
+    protected function flushObjects (event :TimerEvent) :void
     {
         var now :Number = new Date().getTime();
         for (var oid :String in _flushes.keys()) {

@@ -16,6 +16,8 @@ public /* abstract */ class DEvent
     public function DEvent (targetOid :int)
     {
         _toid = targetOid;
+
+        //Log.debug("unset old = " + UNSET_OLD_ENTRY);
     }
 
     /**
@@ -126,18 +128,31 @@ public /* abstract */ class DEvent
 }
 }
 
-class DummyEntry implements com.threerings.presents.dobj.DSetEntry
+/*
+import com.threerings.presents.dobj.DSetEntry;
+
+import com.threerings.io.ObjectInputStream;
+import com.threerings.io.ObjectOutputStream;
+
+class DummyEntry implements DSetEntry
 {
+    public function DummyEntry ()
+    {
+    }
+
     public function getKey () :Object
     {
-        return null;
+        return null; // dummy
     }
 
-    public function writeObject (out :com.threerings.io.ObjectOutputStream) :void
+    public function writeObject (out :ObjectOutputStream) :void
     {
+        // dummy
     }
 
-    public function readObject (ins :com.threerings.io.ObjectInputStream) :void
+    public function readObject (ins :ObjectInputStream) :void
     {
+        // dummy
     }
 }
+*/

@@ -1,11 +1,13 @@
 package com.threerings.util {
 
+import com.threerings.util.Equalable;
+
 import com.threerings.io.ObjectInputStream;
 import com.threerings.io.ObjectOutputStream;
 import com.threerings.io.Streamable;
 
 public class Name extends Object
-    implements Streamable
+    implements Equalable, Streamable
 {
     public function Name (name :String = "")
     {
@@ -35,15 +37,12 @@ public class Name extends Object
         return _name;
     }
 
-    // TODO: needed? I'd think so. Maybe we need to create OOObject
-    // that all our classes can extend that define a reasonable
-    // equals().
-    public function equals (other :Name) :Boolean
+    // documentation inherited from interface Equalable
+    public function equals (other :Object) :Boolean
     {
-        return getNormal() === other.getNormal();
+        return (other is Name) &&
+            (getNormal() === (other as Name).getNormal());
     }
-
-    // TODO: comparable?
 
     // documentation inherited from interface Streamable
     public function writeObject (out :ObjectOutputStream) :void

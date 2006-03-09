@@ -17,7 +17,7 @@ public class TestClient extends Client
 
         var g1 :String = null;
         var g2 :String = String(g1);
-        Log.debug("foo: " + (g1 === g2));
+        Log.debug("foo: " + (g1 === g2) + ", *" + g2 + "*, " + g2.length);
 
         var duckie :Duck = new Goose();
         duckie.screw();
@@ -92,10 +92,6 @@ public class TestClient extends Client
     {
         var i :int = TimeBaseMarshaller.GET_TIME_OID;
     }
-
-    public function b () :void
-    {
-    }
 }
 }
 
@@ -114,7 +110,7 @@ class HelperClass
     public function HelperClass (cli :TestClient)
     {
         _cli = cli;
-        _cli.b();
+        //_cli.b();
     }
 
     public function hype () :void

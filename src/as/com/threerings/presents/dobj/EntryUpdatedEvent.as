@@ -59,7 +59,7 @@ public class EntryUpdatedEvent extends NamedEvent
     {
         // only apply the change if we haven't already
         if (_oldEntry == UNSET_OLD_ENTRY) {
-            var dset :DSet = target[_name];
+            var dset :DSet = (target[_name] as DSet);
             // fetch the previous value for interested callers
             _oldEntry = dset.update(_entry);
             if (_oldEntry == null) {

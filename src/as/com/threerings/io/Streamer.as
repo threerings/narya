@@ -99,16 +99,7 @@ public class Streamer
     public function writeObject (obj :Object, out :ObjectOutputStream) :void
         //throws IOError
     {
-        trace("TODO");
-
-        if (obj is Array) {
-            trace("Arrays not yet done. Crap!");
-            /**
-            var arr :Array = Array(obj); // not strictly necessary
-            var length :int = arr.length;
-            out.writeInt(length);
-            */
-        }
+        throw new Error("Abstract");
     }
 
     public function createObject (ins :ObjectInputStream) :Object
@@ -121,7 +112,7 @@ public class Streamer
     public function readObject (obj :Object, ins :ObjectInputStream) :void
         //throws IOError
     {
-        trace("TODO");
+        throw new Error("Abstract");
     }
 
     /**

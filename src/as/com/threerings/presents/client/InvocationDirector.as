@@ -114,7 +114,9 @@ public class InvocationDirector
     {
         _clobj.startTransaction();
         try {
-            for each (var decoder :InvocationDecoder in _reclist) {
+            for (var itr :IViewCursor = _reclist.getCursor(); itr.moveNext(); ) {
+                var decoder :InvocationDecoder =
+                    (itr.current as InvocationDecoder);
                 assignReceiverId(decoder);
             }
         } finally {

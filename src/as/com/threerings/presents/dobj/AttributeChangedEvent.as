@@ -2,6 +2,9 @@ package com.threerings.presents.dobj {
 
 import flash.util.StringBuilder;
 
+import com.threerings.io.ObjectInputStream;
+import com.threerings.io.ObjectOutputStream;
+
 /**
  * An attribute changed event is dispatched when a single attribute of a
  * distributed object has changed. It can also be constructed to request
@@ -60,7 +63,8 @@ public class AttributeChangedEvent extends NamedEvent
      * used).
      */
     public function AttributeChangedEvent (
-            targetOid :int, name :String, value :Object, oldValue :Object)
+            targetOid :int = 0, name :String = null, value :Object = null,
+            oldValue :Object = null)
     {
         super(targetOid, name);
         _value = value;
@@ -81,6 +85,18 @@ public class AttributeChangedEvent extends NamedEvent
         buf.append("CHANGE:");
         super.toStringBuf(buf);
         buf.append(", value=", _value);
+    }
+
+    public override function writeObject (out :ObjectOutputStream) :void
+    {
+        super.writeObject(out);
+        out.writeObject(_value);
+    }
+
+    public override function readObject (ins :ObjectInputStream) :void
+    {
+        super.readObject(ins);
+        _value = ins.readObject();
     }
 
     protected var _value :Object;
