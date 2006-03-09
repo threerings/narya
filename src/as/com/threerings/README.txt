@@ -214,13 +214,18 @@ ActionScript
   (like myArray.length) may actually be executing arbitrary code, possibly
   creating many objects, each time.
 
-- Classes without a constructor cannot be instantiated. This is a runtime
-  error (grraah!). There is a compiler option "-compiler.warn-no-constructor"
+- <strike>Classes without a constructor cannot be instantiated. This is a
+  runtime error (grraah!).</strike>
+  There is a compiler option "-compiler.warn-no-constructor"
   but it generates a flotilla of warnings from standard classes in the flash
   library, so it's slightly useless.
   ***Update: What the heck. I noticed today that DSet has no constructor
   and I've never had any trouble instantiating those. Why would not having
   a constructor be an error for some classes and not others? Grraahh!
+  ***Update: The language spec says that a default (no arg) constructor
+  is created implicitely if one is not defined. Probably when I got
+  the error that a class had no constructor it was some sort of compiler
+  bug.
 
 - Static initializers can be emulated:
   public class A
