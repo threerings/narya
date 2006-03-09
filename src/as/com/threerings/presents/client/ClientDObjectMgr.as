@@ -252,7 +252,7 @@ public class ClientDObjectMgr
 
         // look up the object on which we're dispatching this event
         var toid :int = event.getTargetOid();
-        var target :DObject = (_ocache.get(toid) as DEvent);
+        var target :DObject = (_ocache.get(toid) as DObject);
         if (target == null) {
             if (_dead.get(toid) == null) {
                 Log.warning("Unable to dispatch event on non-proxied " +
