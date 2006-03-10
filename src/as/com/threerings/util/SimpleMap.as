@@ -29,9 +29,12 @@ public class SimpleMap extends Object
     public function put (key :Object, value :Object) :Object
     {
         var skey :String = key.toString();
-        var oldValue :Object = _data[skey];
+        var oldValue :* = _data[skey];
         _data[skey] = value;
-        return oldValue;
+        if (oldValue === undefined) {
+            _size++;
+        }
+        return (oldValue as Object);
     }
 
     public function remove (key :Object) :Object
@@ -39,9 +42,17 @@ public class SimpleMap extends Object
         var skey :String = key.toString();
         var value :Object = _data[skey];
         delete _data[skey];
+        _size--;
         return value;
     }
 
-    private var _data :Object = new Object();
+    public function size () :int
+    {
+        return _size;
+    }
+
+    protected var _data :Object = new Object();
+
+    protected var _size :int = 0;
 }
 }

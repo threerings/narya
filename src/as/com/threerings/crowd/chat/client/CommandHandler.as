@@ -27,7 +27,7 @@ public /* abstract */ class CommandHandler
      */
     public function handleCommand (
             speakSvc :SpeakService, cmd :String, args :String, history :Array)
-            :void
+            :String
     {
         throw new Error("abstract");
     }

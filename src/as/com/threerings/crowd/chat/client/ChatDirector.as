@@ -82,7 +82,7 @@ import com.threerings.crowd.chat.data.UserSystemMessage;
  * messaging.
  */
 public class ChatDirector extends BasicDirector
-    implements ChatCodes, LocationObserver, MessageListener
+    implements LocationObserver, MessageListener
 {
     /**
      * Creates a chat director and initializes it with the supplied
@@ -94,7 +94,8 @@ public class ChatDirector extends BasicDirector
      * @param bundle the message bundle from which we obtain our
      * chat-related translation strings.
      */
-    public ChatDirector (CrowdContext ctx, MessageManager msgmgr, String bundle)
+    public function ChatDirector (
+            ctx :CrowdContext, msgmgr :MessageManager, bundle :String)
     {
         super(ctx);
 
@@ -111,7 +112,7 @@ public class ChatDirector extends BasicDirector
             Log.warning("Null bundle or message manager given to ChatDirector");
             return;
         }
-        MessageBundle msg = _msgmgr.getBundle(_bundle);
+        var msg :MessageBundle = _msgmgr.getBundle(_bundle);
         registerCommandHandler(msg, "help", new HelpHandler());
         registerCommandHandler(msg, "clear", new ClearHandler());
         registerCommandHandler(msg, "speak", new SpeakHandler());
@@ -728,7 +729,7 @@ public class ChatDirector extends BasicDirector
      * @return {@link ChatCodes#SUCCESS} if the message was delivered or a
      * string indicating why it failed.
      */
-    protected String deliverChat (
+    internal String deliverChat (
         SpeakService speakSvc, String message, byte mode)
     {
         // run the message through our mogrification process
@@ -1042,114 +1043,6 @@ public class ChatDirector extends BasicDirector
         }
 
         protected ChatMessage _message;
-    }
-
-    /** Implements <code>/help</code>. */
-    protected class HelpHandler extends CommandHandler
-    {
-        public String handleCommand (
-            SpeakService speakSvc, String command, String args, String[] history)
-        {
-            String hcmd = "";
-
-            // grab the command they want help on
-            if (!StringUtil.isBlank(args)) {
-                hcmd = args;
-                int sidx = args.indexOf(" ");
-                if (sidx != -1) {
-                    hcmd = args.substring(0, sidx);
-                }
-            }
-
-            // let the user give commands with or with the /
-            if (hcmd.startsWith("/")) {
-                hcmd = hcmd.substring(1);
-            }
-
-            // handle "/help help" and "/help someboguscommand"
-            HashMap possibleCommands = getCommandHandlers(hcmd);
-            if (hcmd.equals("help") || possibleCommands.isEmpty()) {
-                possibleCommands = getCommandHandlers("");
-                possibleCommands.remove("help"); // remove help from the list
-            }
-
-            // if there is only one possible command display its usage
-            switch (possibleCommands.size()) {
-            case 1:
-                Iterator itr = possibleCommands.keySet().iterator();
-                // this is a little funny, but we display the feeback
-                // message by hand and return SUCCESS so that the chat
-                // entry field doesn't think that we've failed and
-                // preserve our command text
-                displayFeedback(null, "m.usage_" + (String)itr.next());
-                return ChatCodes.SUCCESS;
-
-            default:
-                Object[] commands = possibleCommands.keySet().toArray();
-                Arrays.sort(commands);
-                String commandList = "";
-                for (int ii = 0; ii < commands.length; ii++) {
-                    commandList += " /" + commands[ii];
-                }
-                return MessageBundle.tcompose("m.usage_help", commandList);
-            }
-        }
-    }
-
-    /** Implements <code>/clear</code>. */
-    protected class ClearHandler extends CommandHandler
-    {
-        public String handleCommand (
-            SpeakService speakSvc, String command, String args, String[] history)
-        {
-            clearDisplays();
-            return ChatCodes.SUCCESS;
-        }
-    }
-
-    /** Implements <code>/speak</code>. */
-    protected class SpeakHandler extends CommandHandler
-    {
-        public String handleCommand (
-            SpeakService speakSvc, String command, String args, String[] history)
-        {
-            if (StringUtil.isBlank(args)) {
-                return "m.usage_speak";
-            }
-            // note the command to be stored in the history
-            history[0] = command + " ";
-            return requestChat(null, args, true);
-        }
-    }
-
-    /** Implements <code>/emote</code>. */
-    protected class EmoteHandler extends CommandHandler
-    {
-        public String handleCommand (
-            SpeakService speakSvc, String command, String args, String[] history)
-        {
-            if (StringUtil.isBlank(args)) {
-                return "m.usage_emote";
-            }
-            // note the command to be stored in the history
-            history[0] = command + " ";
-            return deliverChat(speakSvc, args, ChatCodes.EMOTE_MODE);
-        }
-    }
-
-    /** Implements <code>/think</code>. */
-    protected class ThinkHandler extends CommandHandler
-    {
-        public String handleCommand (
-            SpeakService speakSvc, String command, String args, String[] history)
-        {
-            if (StringUtil.isBlank(args)) {
-                return "m.usage_think";
-            }
-            // note the command to be stored in the history
-            history[0] = command + " ";
-            return deliverChat(speakSvc, args, ChatCodes.THINK_MODE);
-        }
     }
 
     /** Our active chat context. */
