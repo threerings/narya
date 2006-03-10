@@ -2,11 +2,11 @@ package com.threerings.presents.dobj {
 
 import flash.util.StringBuilder;
 
-import mx.collections.IViewCursor;
-
 import mx.utils.ObjectUtil;
 
 import com.threerings.util.Equalable;
+import com.threerings.util.Iterator;
+import com.threerings.util.ArrayIterator;
 
 import com.threerings.io.ObjectInputStream;
 import com.threerings.io.ObjectOutputStream;
@@ -86,47 +86,9 @@ public class DSet
      * made to the set). It should not be kept around as it can quickly
      * become out of date.
      */
-    public function getCursor () :IViewCursor
+    public function iterator () :Iterator
     {
-        return null; // jesus, what a pain in the ass to make our
-        // own IViewCursor since we can't have inner classes
-
-//        // the crazy sanity checks
-//        if (_size < 0 ||_size > _entries.length ||
-//            (_size > 0 && _entries[_size-1] == null)) {
-//            Log.warning("DSet in a bad way [size=" + _size +
-//                        ", entries=" + StringUtil.toString(_entries) + "].");
-//            Thread.dumpStack();
-//        }
-//
-//        return new Iterator() {
-//            public boolean hasNext () {
-//                checkComodification();
-//                return (_index < _size);
-//            }
-//            public Object next () {
-//                checkComodification();
-//                return _entries[_index++];
-//            }
-//            public void remove () {
-//                throw new UnsupportedOperationException();
-//            }
-//            protected void checkComodification () {
-//                if (_modCount != _expectedModCount) {
-//                    throw new ConcurrentModificationException();
-//                }
-//                if (_ssize != _size) {
-//                    Log.warning("Size changed during iteration " +
-//                                "[ssize=" + _ssize + ", nsize=" + _size +
-//                                ", entsries=" + StringUtil.toString(_entries) +
-//                                "].");
-//                    Thread.dumpStack();
-//                }
-//            }
-//            protected int _index = 0;
-//            protected int _ssize = _size;
-//            protected int _expectedModCount = _modCount;
-//        };
+        return new ArrayIterator(_entries);
     }
 
     /**

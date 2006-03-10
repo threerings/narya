@@ -5,6 +5,8 @@ import flash.util.describeType;
 import com.threerings.util.Name;
 import com.threerings.presents.Log;
 import com.threerings.presents.data.TimeBaseMarshaller;
+import com.threerings.presents.dobj.DSet;
+import com.threerings.presents.dobj.QSet;
 import com.threerings.presents.net.UsernamePasswordCreds;
 
 public class TestClient extends Client
@@ -16,11 +18,11 @@ public class TestClient extends Client
         logon();
 
         var g1 :String = null;
-        var g2 :String = String(g1);
-        Log.debug("foo: " + (g1 === g2) + ", *" + g2 + "*, " + g2.length);
+        var g2 :String = (com.threerings.util.Util.cast(g1, String) as String);
+        Log.debug("foo: " + (g1 === g2) + ", *" + g2 + "*, "); // + g2.length);
 
-        var duckie :Duck = new Goose();
-        duckie.screw();
+        var ob :Object = "this is a string";
+        Log.debug("part of an object: " + ob.substring(1));
 
         var arr :Array = new Array();
         arr[0] = "Florp";

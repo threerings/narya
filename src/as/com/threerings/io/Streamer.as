@@ -7,10 +7,13 @@ import flash.util.ByteArray;
 import com.threerings.util.SimpleMap;
 
 import com.threerings.io.streamers.ArrayStreamer;
+import com.threerings.io.streamers.ByteyStreamer;
 import com.threerings.io.streamers.ByteArrayStreamer;
-import com.threerings.io.streamers.IntStreamer;
+import com.threerings.io.streamers.FloatStreamer;
+import com.threerings.io.streamers.IntegerStreamer;
 import com.threerings.io.streamers.NumberStreamer;
 import com.threerings.io.streamers.ObjectArrayStreamer;
+import com.threerings.io.streamers.ShortStreamer;
 import com.threerings.io.streamers.StringStreamer;
 
 public class Streamer
@@ -125,10 +128,13 @@ public class Streamer
         if (_streamers == null) {
             _streamers = [
                 new StringStreamer(),
-                new IntStreamer(),
                 new NumberStreamer(),
                 new ObjectArrayStreamer(),
-                new ByteArrayStreamer()
+                new ByteArrayStreamer(),
+                new ByteStreamer(),
+                new ShortStreamer(),
+                new IntegerStreamer(),
+                new FloatStreamer()
             ];
         }
     }

@@ -15,6 +15,15 @@ public class Util
         return buf.toString();
     }
 
+    public static function cast (obj :Object, clazz :Class) :Object
+    {
+        if (obj == null || obj is clazz) {
+            return obj;
+        } else {
+            throw new Error("wah");
+        }
+    }
+
     private static const HEX :Array = new Array("0", "1", "2", "3", "4", "5",
             "6", "7", "8", "9", "a", "b", "c", "d", "e", "f");
 }

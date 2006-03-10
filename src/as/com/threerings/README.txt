@@ -1,6 +1,16 @@
 This document contains a couple of notes about some design decisions
 and some notes about flash that you may find useful.
 
+TODO
+----
+- Write code that processes a dobj class in java and outputs the
+  corresponding class in actionscript. This is sorta fucked because
+  we want to exclude things not applicable to client code, not because
+  we're trying to save every byte in the class definition, but because
+  some of those methods involve whole classes we don't need on the as client.
+- Write code that generates actionscript service, listener and marshaller
+  classes from a java Service class definition.
+
 
 Design decisions
 ----------------
