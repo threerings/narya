@@ -222,15 +222,19 @@ public class DSet
     // documentation inherited from interface Streamable
     public function writeObject (out :ObjectOutputStream) :void
     {
-        out.writeObject(_entries);
         out.writeInt(_entries.length);
+        for (var ii :int = 0; ii < _entries.length; ii++) {
+            out.writeObject(_entries[ii]);
+        }
     }
 
     // documentation inherited from interface Streamable
     public function readObject (ins :ObjectInputStream) :void
     {
-        _entries = (ins.readObject() as TypedArray);
-        _entries.length = ins.readInt(); // then read the length and limit it
+        _entries.length = ins.readInt();
+        for (var ii :int = 0; ii < _entries.length; ii++) {
+            _entries[ii] = ins.readObject();
+        }
     }
 
     /** The entries of the set (in a sparse array). */
