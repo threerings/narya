@@ -21,6 +21,8 @@
 
 package com.threerings.presents.dobj;
 
+import java.io.IOException;
+
 import java.util.Comparator;
 import java.util.ConcurrentModificationException;
 import java.util.Iterator;
@@ -28,6 +30,8 @@ import java.util.Iterator;
 import com.samskivert.util.ArrayUtil;
 import com.samskivert.util.StringUtil;
 
+import com.threerings.io.ObjectInputStream;
+import com.threerings.io.ObjectOutputStream;
 import com.threerings.io.Streamable;
 
 import com.threerings.presents.Log;
@@ -315,10 +319,22 @@ public class DSet
 
         // if we found it, remove it
         if (eidx >= 0) {
-            // shift the remaining elements down
+            // extract the old entry
             Entry oldEntry = _entries[eidx];
-            System.arraycopy(_entries, eidx+1, _entries, eidx, _size-eidx-1);
-            _entries[--_size] = null;
+            _size--;
+            if ((_entries.length > INITIAL_CAPACITY) &&
+                    (_size < _entries.length/8)) {
+                // if we're using less than 1/8 of our capacity, shrink by half
+                Entry[] newEnts = new Entry[_entries.length/2];
+                System.arraycopy(_entries, 0, newEnts, 0, eidx);
+                System.arraycopy(_entries, eidx+1, newEnts, eidx, _size-eidx);
+                _entries = newEnts;
+
+            } else {
+                // shift entries past the removed one downwards
+                System.arraycopy(_entries, eidx+1, _entries, eidx, _size-eidx);
+                _entries[_size] = null;
+            }
             _modCount++;
             return oldEntry;
 
@@ -387,6 +403,32 @@ public class DSet
         }
         buf.append(")");
         return buf.toString();
+    }
+
+    /** Custom writer method. @see Streamable. */
+    public void writeObject (ObjectOutputStream out)
+        throws IOException
+    {
+        out.writeInt(_size);
+        for (int ii = 0; ii < _size; ii++) {
+            out.writeObject(_entries[ii]);
+        }
+    }
+
+    /** Custom reader method. @see Streamable. */
+    public void readObject (ObjectInputStream in)
+        throws IOException, ClassNotFoundException
+    {
+        _size = in.readInt();
+        // ensure our capacity is a power of 2 (for consistency)
+        int capacity = INITIAL_CAPACITY;
+        while (capacity < _size) {
+            capacity <<= 1;
+        }
+        _entries = new Entry[capacity];
+        for (int ii = 0; ii < _size; ii++) {
+            _entries[ii] = (Entry) in.readObject();
+        }
     }
 
     /** The entries of the set (in a sparse array). */
