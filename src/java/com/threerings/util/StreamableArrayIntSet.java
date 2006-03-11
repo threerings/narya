@@ -1,5 +1,5 @@
 //
-// $Id: StreamableArrayIntSet.java,v 1.3 2004/08/27 02:20:36 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -60,7 +60,9 @@ public class StreamableArrayIntSet extends ArrayIntSet
         throws IOException
     {
         out.writeInt(_size);
-        out.writeObject(_values);
+        for (int ii = 0; ii < _size; ii++) {
+            out.writeInt(_values[ii]);
+        }
     }
 
     /**
@@ -70,6 +72,9 @@ public class StreamableArrayIntSet extends ArrayIntSet
         throws IOException, ClassNotFoundException
     {
         _size = in.readInt();
-        _values = (int[]) in.readObject();
+        _values = new int[Math.max(_size, DEFAULT_CAPACITY)];
+        for (int ii = 0; ii < _size; ii++) {
+            _values[ii] = in.readInt();
+        }
     }
 }
