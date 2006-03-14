@@ -60,12 +60,32 @@ public class WindowSlider extends Node
         _mode = mode;
         _window = window;
         _tfunc = new LinearTimeFunction(start, end, duration);
+
+        // skip two frames by default as that generally handles the normal
+        // window layout process
+        _skipTicks = 2;
+    }
+
+    /**
+     * Allows some number of ticks to be skipped to give the window that is
+     * being slid a chance to be layed out before we start keeping track of
+     * time. The layout may be expensive and cause the frame rate to drop for a
+     * frame or two, thus booching our smooth sliding onto the screen.
+     */
+    public void setSkipTicks (int skipTicks)
+    {
+        _skipTicks = skipTicks;
     }
 
     // documentation inherited
     public void updateGeometricState (float time, boolean initiator)
     {
         super.updateGeometricState(time, initiator);
+
+        // skip ticks as long as we need to
+        if (_skipTicks-- > 0) {
+            return;
+        }
 
         if (_mode % 2 == 1) {
             _window.setLocation((int)_tfunc.getValue(time), _window.getY());
@@ -87,7 +107,7 @@ public class WindowSlider extends Node
         getParent().detachChild(this);
     }
 
-    protected int _mode;
+    protected int _mode, _skipTicks;
     protected BWindow _window;
     protected TimeFunction _tfunc;
 }
