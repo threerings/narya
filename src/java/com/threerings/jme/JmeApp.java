@@ -304,6 +304,9 @@ public class JmeApp
         // set up a node for our geometry
         _geom = new Node("Geometry");
 
+        // make everything opaque by default
+        _geom.setRenderQueueMode(Renderer.QUEUE_OPAQUE);
+        
         // set up a zbuffer
         ZBufferState zbuf = _display.getRenderer().createZBufferState();
         zbuf.setEnabled(true);
