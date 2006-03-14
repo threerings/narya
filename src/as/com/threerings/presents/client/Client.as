@@ -26,6 +26,58 @@ public class Client extends EventDispatcher
         _creds = creds;
     }
 
+    /**
+     * Registers the supplied observer with this client. While registered
+     * the observer  will receive notifications of state changes within the
+     * client. The function will refuse to register an already registered
+     * observer.
+     *
+     * @see ClientObserver
+     * @see SessionObserver
+     */
+    public function addClientObserver (observer :SessionObserver) :void
+    {
+        addEventListener(ClientEvent.CLIENT_DID_LOGON,
+            observer.clientDidLogon);
+        addEventListener(ClientEvent.CLIENT_OBJECT_CHANGED,
+            observer.clientObjectDidChange);
+        addEventListener(ClientEvent.CLIENT_DID_LOGOFF,
+            observer.clientDidLogoff);
+        if (observer is ClientObserver) {
+            var cliObs :ClientObserver = (observer as ClientObserver);
+            addEventListener(ClientEvent.CLIENT_FAILED_TO_LOGON,
+                cliObs.clientFailedToLogon);
+            addEventListener(ClientEvent.CLIENT_CONNECTION_FAILED,
+                cliObs.clientConnectionFailed);
+            addEventListener(ClientEvent.CLIENT_WILL_LOGOFF,
+                cliObs.clientWillLogoff);
+        }
+    }
+
+    /**
+     * Unregisters the supplied observer. Upon return of this function,
+     * the observer will no longer receive notifications of state changes
+     * within the client.
+     */
+    public function removeClientObserver (observer :SessionObserver) :void
+    {
+        removeEventListener(ClientEvent.CLIENT_DID_LOGON,
+            observer.clientDidLogon);
+        removeEventListener(ClientEvent.CLIENT_OBJECT_CHANGED,
+            observer.clientObjectDidChange);
+        removeEventListener(ClientEvent.CLIENT_DID_LOGOFF,
+            observer.clientDidLogoff);
+        if (observer is ClientObserver) {
+            var cliObs :ClientObserver = (observer as ClientObserver);
+            removeEventListener(ClientEvent.CLIENT_FAILED_TO_LOGON,
+                cliObs.clientFailedToLogon);
+            removeEventListener(ClientEvent.CLIENT_CONNECTION_FAILED,
+                cliObs.clientConnectionFailed);
+            removeEventListener(ClientEvent.CLIENT_WILL_LOGOFF,
+                cliObs.clientWillLogoff);
+        }
+    }
+
     public function setServer (hostname :String, port :int) :void
     {
         _hostname = hostname;

@@ -20,6 +20,10 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 
 package com.threerings.crowd.chat.client {
+
+import mx.collections.ArrayCollection;
+
+
 // TODO: this class is in progress
 //
 //
@@ -107,17 +111,17 @@ public class ChatDirector extends BasicDirector
         // register ourselves as a location observer
         _ctx.getLocationDirector().addLocationObserver(this);
 
-        // register our default chat handlers
         if (_bundle == null || _msgmgr == null) {
             Log.warning("Null bundle or message manager given to ChatDirector");
             return;
         }
         var msg :MessageBundle = _msgmgr.getBundle(_bundle);
-        registerCommandHandler(msg, "help", new HelpHandler());
-        registerCommandHandler(msg, "clear", new ClearHandler());
-        registerCommandHandler(msg, "speak", new SpeakHandler());
-        registerCommandHandler(msg, "emote", new EmoteHandler());
-        registerCommandHandler(msg, "think", new ThinkHandler());
+        // register our default chat handlers
+        registerCommandHandler(msg, "help", new HelpHandler(this));
+        registerCommandHandler(msg, "clear", new ClearHandler(this));
+        registerCommandHandler(msg, "speak", new SpeakHandler(this));
+        registerCommandHandler(msg, "emote", new EmoteHandler(this));
+        registerCommandHandler(msg, "think", new ThinkHandler(this));
     }
 
     /**
@@ -125,18 +129,21 @@ public class ChatDirector extends BasicDirector
      * subsequently be notified of incoming chat messages as well as tell
      * responses.
      */
-    public void addChatDisplay (ChatDisplay display)
+    public function addChatDisplay (display :ChatDisplay) :void
     {
-        _displays.add(display);
+        _displays.addItem(display);
     }
 
     /**
      * Removes the specified chat display from the chat display list. The
      * display will no longer receive chat related notifications.
      */
-    public void removeChatDisplay (ChatDisplay display)
+    public function removeChatDisplay (display :ChatDisplay) :void
     {
-        _displays.remove(display);
+        var idx :int = _displays.getItemIndex(display);
+        if (idx != -1) {
+            _displays.removeItemAt(idx);
+        }
     }
 
     /**
@@ -144,45 +151,45 @@ public class ChatDirector extends BasicDirector
      * chat requests and receipts will be filtered with all filters
      * before they being sent or dispatched locally.
      */
-    public void addChatFilter (ChatFilter filter)
-    {
-        _filters.add(filter);
-    }
+//    public void addChatFilter (ChatFilter filter)
+//    {
+//        _filters.add(filter);
+//    }
 
     /**
      * Removes the specified chat validator from the list of chat validators.
      */
-    public void removeChatFilter (ChatFilter filter)
-    {
-        _filters.remove(filter);
-    }
+//    public void removeChatFilter (ChatFilter filter)
+//    {
+//        _filters.remove(filter);
+//    }
 
     /**
      * Adds an observer that watches the chatters list, and updates it
      * immediately.
      */
-    public void addChatterObserver (ChatterObserver co)
-    {
-        _chatterObservers.add(co);
-        co.chattersUpdated(_chatters.listIterator());
-    }
+//    public void addChatterObserver (ChatterObserver co)
+//    {
+//        _chatterObservers.add(co);
+//        co.chattersUpdated(_chatters.listIterator());
+//    }
 
     /**
      * Removes an observer from the list of chatter observers.
      */
-    public void removeChatterObserver (ChatterObserver co)
-    {
-        _chatterObservers.remove(co);
-    }
+//    public void removeChatterObserver (ChatterObserver co)
+//    {
+//        _chatterObservers.remove(co);
+//    }
 
     /**
      * Sets the validator that decides if a username is valid to be
      * added to the chatter list, or null if no such filtering is desired.
      */
-    public void setChatterValidator (ChatterValidator validator)
-    {
-        _chatterValidator = validator;
-    }
+//    public void setChatterValidator (ChatterValidator validator)
+//    {
+//        _chatterValidator = validator;
+//    }
 
     /**
      * Registers a chat command handler.
@@ -195,14 +202,14 @@ public class ChatDirector extends BasicDirector
      * as <code>/tell</code>).
      * @param handler the chat command handler itself.
      */
-    public void registerCommandHandler (
-        MessageBundle msg, String command, CommandHandler handler)
+    public function registerCommandHandler (
+            msg :MessageBundle, command :String, handler :CommandHandler) :void
     {
-        String key = "c." + command;
+        var key :String = "c." + command;
         if (msg.exists(key)) {
-            StringTokenizer st = new StringTokenizer(msg.get(key));
-            while (st.hasMoreTokens()) {
-                _handlers.put(st.nextToken(), handler);
+            var tokens :Array = msg.get(key).split(/\s+/);
+            for (var ii :int = 0; ii < tokens.length; ii++) {
+                _handlers.put(tokens[ii], handler);
             }
         } else {
             // fall back to just using the English command
@@ -213,39 +220,36 @@ public class ChatDirector extends BasicDirector
     /**
      * Return the current size of the history.
      */
-    public int getCommandHistorySize ()
+    public function getCommandHistorySize () :int
     {
-        return _history.size();
+        return _history.length;
     }
 
     /**
      * Get the chat history entry at the specified index,
      * with 0 being the oldest.
      */
-    public String getCommandHistory (int index)
+    public function getCommandHistory (index :int) :String
     {
-        return (String)_history.get(index);
+        return (_history[index] as String);
     }
 
     /**
      * Clear the chat command history.
      */
-    public void clearCommandHistory ()
+    public function clearCommandHistory () :void
     {
-        _history.clear();
+        _history.length = 0;
     }
 
     /**
      * Requests that all chat displays clear their contents.
      */
-    public void clearDisplays ()
+    public function clearDisplays () :void
     {
-        _displays.apply(new ObserverList.ObserverOp() {
-            public boolean apply (Object observer) {
-                ((ChatDisplay)observer).clear();
-                return true;
-            }
-        });
+        for (var ii :int = 0; ii < _displays.length; ii++) {
+            (_displays.getItemAt(ii) as ChatDisplay).clear();
+        }
     }
 
     /**
@@ -255,7 +259,7 @@ public class ChatDirector extends BasicDirector
      * Info messages are sent when something happens that was neither
      * directly triggered by the user, nor requires direct action.
      */
-    public void displayInfo (String bundle, String message)
+    public function displayInfo (bundle :String, message :String) :void
     {
         displaySystem(bundle, message, SystemMessage.INFO, PLACE_CHAT_TYPE);
     }
@@ -266,7 +270,8 @@ public class ChatDirector extends BasicDirector
      * Info messages are sent when something happens that was neither
      * directly triggered by the user, nor requires direct action.
      */
-    public void displayInfo (String bundle, String message, String localtype)
+    public function displayInfo (
+            bundle :String, message :String, localtype :String) :void
     {
         displaySystem(bundle, message, SystemMessage.INFO, localtype);
     }
@@ -278,7 +283,7 @@ public class ChatDirector extends BasicDirector
      * Feedback messages are sent in direct response to a user action,
      * usually to indicate success or failure of the user's action.
      */
-    public void displayFeedback (String bundle, String message)
+    public function displayFeedback (bundle :String, message :String) :void
     {
         displaySystem(
             bundle, message, SystemMessage.FEEDBACK, PLACE_CHAT_TYPE);
@@ -291,7 +296,7 @@ public class ChatDirector extends BasicDirector
      * Attention messages are sent when something requires user action
      * that did not result from direct action by the user.
      */
-    public void displayAttention (String bundle, String message)
+    public function displayAttention (bundle :String, message :String) :void
     {
         displaySystem(
             bundle, message, SystemMessage.ATTENTION, PLACE_CHAT_TYPE);
@@ -300,10 +305,11 @@ public class ChatDirector extends BasicDirector
     /**
      * Dispatches the provided message to our chat displays.
      */
-    public void dispatchMessage (ChatMessage message)
+    public function dispatchMessage (message :ChatMessage) :void
     {
-        _displayMessageOp.setMessage(message);
-        _displays.apply(_displayMessageOp);
+        for (var ii :int = 0; ii < _displays.length; ii++) {
+            (_displays.getItemAt(ii) as ChatDisplay).displayMessage(message);
+        }
     }
 
     /**
@@ -320,35 +326,33 @@ public class ChatDirector extends BasicDirector
      * and sent correctly, a translatable error string if there was some
      * problem.
      */
-    public String requestChat (
-        SpeakService speakSvc, String text, boolean record)
+    public function requestChat (
+            speakSvc :SpeakService, text :String, record :Boolean) :String
     {
-        if (text.startsWith("/")) {
+        if (text.indexOf("/") == 0) {
             // split the text up into a command and arguments
-            String command = text.substring(1).toLowerCase();
-            String[] hist = new String[1];
-            String args = "";
-            int sidx = text.indexOf(" ");
+            var command :String = text.substring(1).toLowerCase();
+            var hist :Array = new Array();
+            var args :String = "";
+            var sidx :int = text.indexOf(" ");
             if (sidx != -1) {
                 command = text.substring(1, sidx).toLowerCase();
-                args = text.substring(sidx+1).trim();
+                args = StringUtil.trim(text.substring(sidx+1));
             }
 
-            HashMap possibleCommands = getCommandHandlers(command);
+            var possibleCommands :SimpleMap = getCommandHandlers(command);
             switch (possibleCommands.size()) {
             case 0:
-                StringTokenizer tok = new StringTokenizer(text);
                 return MessageBundle.tcompose(
-                    "m.unknown_command", tok.nextToken());
+                    "m.unknown_command", text.split(/\s/)[0]);
 
             case 1:
-                Iterator itr = possibleCommands.entrySet().iterator();
-                Map.Entry entry = (Map.Entry) itr.next();
-                String cmdName = (String) entry.getKey();
-                CommandHandler cmd = (CommandHandler) entry.getValue();
-
-                String result = cmd.handleCommand(speakSvc, cmdName, args, hist);
-                if (!result.equals(ChatCodes.SUCCESS)) {
+                var cmdName :String = possibleCommands.keys()[0];
+                var cmd :CommandHandler =
+                    (possibleCommands.get(cmdName) as CommandHandler);
+                var result :String =
+                    cmd.handleCommand(speakSvc, cmdName, args, hist);
+                if (result != ChatCodes.SUCCESS) {
                     return result;
                 }
 
@@ -360,23 +364,18 @@ public class ChatDirector extends BasicDirector
                     // add it to the end
                     addToHistory(hist[0]);
                 }
-
                 return result;
 
             default:
-                String alternativeCommands = "";
-                itr = Collections.getSortedIterator(possibleCommands.keySet());
-                while (itr.hasNext()) {
-                    cmdName = (String)itr.next();
-                    alternativeCommands += " /" + cmdName;
-                }
+                var cmds :Array = possibleCommands.keys();
+                var alternativeCommands :String = "/" + cmds.join(", /");
                 return MessageBundle.tcompose(
                     "m.unspecific_command", alternativeCommands);
             }
         }
 
         // if not a command then just speak
-        String message = text.trim();
+        var message :String = StringUtil.trim(text);
         if (StringUtil.isBlank(message)) {
             // report silent failure for now
             return ChatCodes.SUCCESS;
@@ -399,8 +398,8 @@ public class ChatDirector extends BasicDirector
      * ChatDisplay} implementations that eventually display this speak
      * message.
      */
-    public void requestSpeak (
-        SpeakService speakService, String message, byte mode)
+    public function requestSpeak (
+            speakService :SpeakService, message :String, mode :int) :void
     {
         if (speakService == null) {
             if (_place == null) {
@@ -424,7 +423,7 @@ public class ChatDirector extends BasicDirector
      *
      * @param message the contents of the message.
      */
-    public void requestBroadcast (String message)
+    public function requestBroadcast (message :String) :void
     {
         message = filter(message, null, true);
         if (message == null) {
@@ -433,14 +432,15 @@ public class ChatDirector extends BasicDirector
             return;
         }
 
-        _cservice.broadcast(
-            _ctx.getClient(), message, new ChatService.InvocationListener() {
-                public void requestFailed (String reason) {
-                    reason = MessageBundle.compose(
-                        "m.broadcast_failed", reason);
-                    displayFeedback(_bundle, reason);
-                }
-            });
+        _cservice.broadcast(_ctx.getClient(), message,
+            new InvocationAdapter(broadcastFailed));
+    }
+
+    // Called above, when we fail to broadcast
+    private function broadcastFailed (reason :String) :void
+    {
+        reason = MessageBundle.compose("m.broadcast_failed", reason);
+        displayFeedback(_bundle, reason);
     }
 
     /**
@@ -453,11 +453,11 @@ public class ChatDirector extends BasicDirector
      * @param rl an optional result listener if you'd like to be notified
      * of success or failure.
      */
-    public void requestTell (final Name target, String msg,
-                             final ResultListener rl)
+    public function requestTell (
+            target :Name, msg :String, rl :ResultListener) :void
     {
         // make sure they can say what they want to say
-        final String message = filter(msg, target, true);
+        var message :String = filter(msg, target, true);
         if (message == null) {
             if (rl != null) {
                 rl.requestFailed(null);
@@ -468,50 +468,64 @@ public class ChatDirector extends BasicDirector
         // create a listener that will report success or failure
         ChatService.TellListener listener = new ChatService.TellListener() {
             public void tellSucceeded (long idletime, String awayMessage) {
-                success(xlate(_bundle, MessageBundle.tcompose(
-                                  "m.told_format", target, message)));
-
-                // if they have an away message, report that
-                if (awayMessage != null) {
-                    awayMessage = filter(awayMessage, target, false);
-                    if (awayMessage != null) {
-                        String msg = MessageBundle.tcompose(
-                            "m.recipient_afk", target, awayMessage);
-                        displayFeedback(_bundle, msg);
-                    }
-                }
-
-                // if they are idle, report that
-                if (idletime > 0L) {
-                    // adjust by the time it took them to become idle
-                    idletime += _ctx.getConfig().getValue(
-                        IDLE_TIME_KEY, DEFAULT_IDLE_TIME);
-                    String msg = MessageBundle.compose(
-                        "m.recipient_idle", MessageBundle.taint(target),
-                        TimeUtil.getTimeOrderString(idletime, TimeUtil.MINUTE));
-                    displayFeedback(_bundle, msg);
-                }
             }
 
             protected void success (String feedback) {
-                dispatchMessage(new TellFeedbackMessage(feedback));
-                addChatter(target);
-                if (rl != null) {
-                    rl.requestCompleted(target);
-                }
             }
 
             public void requestFailed (String reason) {
-                String msg = MessageBundle.compose(
-                    "m.tell_failed", MessageBundle.taint(target), reason);
-                displayFeedback(_bundle, msg);
-                if (rl != null) {
-                    rl.requestFailed(null);
-                }
             }
         };
 
-        _cservice.tell(_ctx.getClient(), target, message, listener);
+        _cservice.tell(_ctx.getClient(), target, message,
+            new TellAdapter(tellFailed, tellSucceeded, [target, message, rl]));
+    }
+
+    private function tellFailed (reason :String, args :Array) :void
+    {
+        var msg :String = MessageBundle.compose(
+            "m.tell_failed", MessageBundle.taint(args[0]), reason);
+        displayFeedback(_bundle, msg);
+        var rl:ResultListener = (args[2] as ResultListener);
+        if (rl != null) {
+            rl.requestFailed(null);
+        }
+    }
+
+    private function tellSucceeded (
+            idleTime :long, awayMessage :String, args :Array) :void
+    {
+        var target :Name = (args[0] as Target);
+        var message :String = (args[1] as String);
+        var rl:ResultListener = (args[2] as ResultListener);
+        var feedback :String = xlate(_bundle, MessageBundle.tcompose(
+            "m.told_format", target, message));
+        dispatchMessage(new TellFeedbackMessage(feedback));
+        addChatter(target);
+        if (rl != null) {
+            rl.requestCompleted(target);
+        }
+
+        // if they have an away message, report that
+        if (awayMessage != null) {
+            awayMessage = filter(awayMessage, target, false);
+            if (awayMessage != null) {
+                var msg :String = MessageBundle.tcompose(
+                    "m.recipient_afk", target, awayMessage);
+                displayFeedback(_bundle, msg);
+            }
+        }
+
+        // if they are idle, report that
+        if (idletime > 0) {
+            // adjust by the time it took them to become idle
+            idletime += _ctx.getConfig().getValue(
+                IDLE_TIME_KEY, DEFAULT_IDLE_TIME);
+            var msg :String = MessageBundle.compose(
+                "m.recipient_idle", MessageBundle.taint(target),
+                TimeUtil.getTimeOrderString(idletime, TimeUtil.MINUTE));
+            displayFeedback(_bundle, msg);
+        }
     }
 
     /**
@@ -560,11 +574,14 @@ public class ChatDirector extends BasicDirector
     /**
      * Run a message through all the currently registered filters.
      */
-    public String filter (String msg, Name otherUser, boolean outgoing)
+    public function filter (
+            msg :String, otherUser :Name, outgoing :Boolean) :String
     {
-        _filterMessageOp.setMessage(msg, otherUser, outgoing);
-        _filters.apply(_filterMessageOp);
-        return _filterMessageOp.getMessage();
+        // TODO
+        return msg;
+//        _filterMessageOp.setMessage(msg, otherUser, outgoing);
+//        _filters.apply(_filterMessageOp);
+//        return _filterMessageOp.getMessage();
     }
 
     /**
@@ -1046,64 +1063,60 @@ public class ChatDirector extends BasicDirector
     }
 
     /** Our active chat context. */
-    protected CrowdContext _ctx;
+    protected var _ctx :CrowdContext;
 
     /** Provides access to chat-related server-side services. */
-    protected ChatService _cservice;
+    protected var _cservice :ChatService;
 
     /** The message manager. */
-    protected MessageManager _msgmgr;
+    protected var _msgmgr :MessageManager;
 
     /** The bundle to use for our own internal messages. */
-    protected String _bundle;
+    protected var _bundle :String;
 
     /** The place object that we currently occupy. */
-    protected PlaceObject _place;
+    protected var _place :PlaceObject;
 
     /** The client object that we're listening to for tells. */
-    protected ClientObject _clobj;
+    protected var _clobj :ClientObject;
 
     /** A list of registered chat displays. */
-    protected ObserverList _displays =
-        new ObserverList(ObserverList.FAST_UNSAFE_NOTIFY);
+    protected var _displays :ArrayCollection = new ArrayCollection();
 
     /** A list of registered chat filters. */
-    protected ObserverList _filters =
-        new ObserverList(ObserverList.FAST_UNSAFE_NOTIFY);
+//    protected ObserverList _filters =
+//        new ObserverList(ObserverList.FAST_UNSAFE_NOTIFY);
 
     /** A mapping from auxiliary chat objects to the types under which
      * they are registered. */
-    protected HashIntMap _auxes = new HashIntMap();
+    protected var _auxes :SimpleMap = new SimpleMap();
 
-    /** Validator of who may be added to the chatters list. */
-    protected ChatterValidator _chatterValidator;
-
-    /** Usernames of users we've recently chatted with. */
-    protected LinkedList _chatters = new LinkedList();
-
-    /** Observers that are watching our chatters list. */
-    protected ObserverList _chatterObservers =
-        new ObserverList(ObserverList.FAST_UNSAFE_NOTIFY);
+//    /** Validator of who may be added to the chatters list. */
+//    protected var _chatterValidator :ChatterValidator;
+//
+//    /** Usernames of users we've recently chatted with. */
+//    protected var _chatters :LinkedList = new LinkedList();
+//
+//    /** Observers that are watching our chatters list. */
+//    protected ObserverList _chatterObservers =
+//        new ObserverList(ObserverList.FAST_UNSAFE_NOTIFY);
 
     /** Registered chat command handlers. */
-    protected static HashMap _handlers = new HashMap();
+    protected static const _handlers :SimpleMap = new SimpleMap();
 
     /** A history of chat commands. */
-    protected static ArrayList _history = new ArrayList();
+    protected static const _history :Array = new Array();
 
     /** Used by {@link #nextRequestId}. */
-    protected int _requestId;
+    protected var _requestId :int;
 
-    /** Operation used to filter chat messages. */
-    protected FilterMessageOp _filterMessageOp = new FilterMessageOp();
-
-    /** Operation used to display chat messages. */
-    protected DisplayMessageOp _displayMessageOp = new DisplayMessageOp();
+//    /** Operation used to filter chat messages. */
+//    protected FilterMessageOp _filterMessageOp = new FilterMessageOp();
 
     /** The maximum number of chatter usernames to track. */
-    protected static final int MAX_CHATTERS = 6;
+    protected static const MAX_CHATTERS :int = 6;
 
     /** The maximum number of commands to keep in the chat history. */
-    protected static final int MAX_COMMAND_HISTORY = 10;
+    protected static const MAX_COMMAND_HISTORY :int = 10;
 }
 }

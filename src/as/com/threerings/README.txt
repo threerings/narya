@@ -247,3 +247,6 @@ ActionScript
 
       staticInit(); // will be placed inside the real static initializer
   }
+
+- Unlike in Java, most operators are overloaded for strings:
+      if (str1 > str2) {  // compares asciibetically

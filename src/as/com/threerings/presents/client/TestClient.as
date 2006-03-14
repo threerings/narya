@@ -2,6 +2,8 @@ package com.threerings.presents.client {
 
 import flash.util.describeType;
 
+import mx.collections.ArrayCollection;
+
 import com.threerings.util.Name;
 import com.threerings.presents.Log;
 import com.threerings.presents.data.TimeBaseMarshaller;
@@ -41,6 +43,26 @@ public class TestClient extends Client
         Log.debug("arr[0]: " + arr[0]);
         Log.debug("arr[1]: " + arr[1]);
         Log.debug("arr[2]: " + arr[2]);
+        //testFunc(2);
+
+        var bob :Person = new Person("Bob");
+        var jim :Person = new Person("Jim");
+        var bob2 :Person = new Person("Bob");
+        bob.callPrintName(jim.printName);
+
+        Log.debug("bob == jim: " + (bob == jim));
+        Log.debug("bob === jim: " + (bob === jim));
+        Log.debug("bob == bob2: " + (bob == bob2));
+        Log.debug("bob === bob2: " + (bob === bob2));
+        Log.debug("bob == bob: " + (bob == bob));
+        Log.debug("bob === bob: " + (bob === bob));
+
+        var list :ArrayCollection = new ArrayCollection();
+        list.addItem(bob);
+        Log.debug("jim's indeX: " + list.getItemIndex(jim));
+        Log.debug("bob2's indeX: " + list.getItemIndex(bob2));
+
+
 
         /*
         var a :Object = new OldClass();
@@ -94,11 +116,44 @@ public class TestClient extends Client
     {
         var i :int = TimeBaseMarshaller.GET_TIME_OID;
     }
+
+    public function testFunc (one :int, two :int = 0) :void
+    {
+        Log.debug("this: " + ", args: " + arguments.length +
+            ": " + arguments);
+    }
+
+    prototype var _foo :String;
 }
 }
 
 import com.threerings.presents.Log;
 import com.threerings.presents.client.TestClient;
+
+class Person
+{
+    public function Person (name :String)
+    {
+        _name = name;
+    }
+
+    public function printName () :void
+    {
+        Log.debug("printName called on " + _name + "! (this=" + this + ")");
+    }
+
+    public function callPrintName (funcy :Function) :void
+    {
+        funcy();
+    }
+
+    public function toString () :String
+    {
+        return "Person[" + _name + "]";
+    }
+
+    protected var _name :String;
+}
 
 dynamic class OldClass
 {
