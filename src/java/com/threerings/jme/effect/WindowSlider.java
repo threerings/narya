@@ -60,10 +60,6 @@ public class WindowSlider extends Node
         _mode = mode;
         _window = window;
         _tfunc = new LinearTimeFunction(start, end, duration);
-
-        // skip two frames by default as that generally handles the normal
-        // window layout process
-        _skipTicks = 2;
     }
 
     /**
@@ -107,7 +103,11 @@ public class WindowSlider extends Node
         getParent().detachChild(this);
     }
 
-    protected int _mode, _skipTicks;
+    protected int _mode;
     protected BWindow _window;
     protected TimeFunction _tfunc;
+
+    // skip two frames by default as that generally handles the normal window
+    // layout process
+    protected int _skipTicks = 2;
 }
