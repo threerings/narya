@@ -250,3 +250,32 @@ ActionScript
 
 - Unlike in Java, most operators are overloaded for strings:
       if (str1 > str2) {  // compares asciibetically
+
+- It's pissing me off that some classes magically can use array dereferencing
+  ([]) to do magical things, but there is no clear indication of which classes
+  support it and which don't: you just have to scan through the class
+  documentation. Array itself is dynamic, supposedly they needed to do that
+  to store things in it, but it shouldn't be used as a dynamic class. Some
+  of the collection-type classes also support []ing as does the arguments
+  class. Those aren't dynamic though: they're just magical, and as far
+  as I can tell there's no way to grant this magic to my own classes.
+  I'd feel better about it if there were some marker interface implemented
+  by all classes that can be []'d.
+
+- Functions may be declared anywhere, and it seems that they have visibility
+  to any variables around them at that point, as if they were an inner class
+  and the variables were final:
+
+  var list :ArrayCollection = new ArrayCollection();
+  list.addItem(foo);
+
+  var funcy :Function = function (i :int) :void {
+     Log.debug("I can see " + list[0]);
+  };
+  _savedFunc = funcy;
+
+  Then _savedFunc can be called at any later date and it can access list[0]
+  just fine.
+
+  This just might save our butts from insane class proliferation with service
+  listeners.
