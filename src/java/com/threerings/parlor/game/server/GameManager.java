@@ -579,7 +579,8 @@ public class GameManager extends PlaceManager
     {
         // first resign the player from the game
         int pidx = IntListUtil.indexOf(_playerOids, bodyOid);
-        if (pidx != -1 && _gameobj.isInPlay() && _gameobj.isActivePlayer(pidx)) {
+        if (pidx != -1 && _gameobj.isInPlay() &&
+            _gameobj.isActivePlayer(pidx)) {
             // end the player's game if they bail on an in-progress game
             endPlayerGame(pidx);
         }
