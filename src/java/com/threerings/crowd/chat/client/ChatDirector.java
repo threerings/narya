@@ -1026,14 +1026,6 @@ public class ChatDirector extends BasicDirector
         return (type == null) ? PLACE_CHAT_TYPE : type;
     }
 
-    /**
-     * Used to assign unique ids to all speak requests.
-     */
-    protected synchronized int nextRequestId ()
-    {
-        return _requestId++;
-    }
-
     // documentation inherited from interface
     protected void fetchServices (Client client)
     {
@@ -1244,9 +1236,6 @@ public class ChatDirector extends BasicDirector
 
     /** A history of chat commands. */
     protected static ArrayList _history = new ArrayList();
-
-    /** Used by {@link #nextRequestId}. */
-    protected int _requestId;
 
     /** Operation used to filter chat messages. */
     protected FilterMessageOp _filterMessageOp = new FilterMessageOp();
