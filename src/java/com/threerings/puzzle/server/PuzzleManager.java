@@ -130,7 +130,7 @@ public abstract class PuzzleManager extends GameManager
     {
         if (_puzobj.summaries != null) {
             for (int ii = 0; ii < _puzobj.summaries.length; ii++) {
-                if (!isAI(ii)) {
+                if (!isAI(ii) || summarizeAIBoard()) {
                     updateBoardSummary(ii);
                 }
             }
@@ -158,6 +158,14 @@ public abstract class PuzzleManager extends GameManager
 
         // force a status update
         updateStatus();
+    }
+
+    /**
+     * Override to have board summaries for AIs automatically generated.
+     */
+    protected boolean summarizeAIBoard ()
+    {
+        return false;
     }
 
     // documentation inherited
