@@ -64,6 +64,18 @@ public class ObjectOutputStream extends DataOutputStream
     }
 
     /**
+     * Configures this object output stream with a mapping from a classname
+     * to a streamed name.
+     */
+    public void addTranslation (String className, String streamedName)
+    {
+        if (_translations == null) {
+            _translations = new HashMap();
+        }
+        _translations.put(className, streamedName);
+    }
+
+    /**
      * Writes a {@link Streamable} instance or one of the support object
      * types to the output stream.
      */
@@ -105,7 +117,14 @@ public class ObjectOutputStream extends DataOutputStream
             // writing a negative class code indicates that the class
             // name will follow
             writeShort(-cmap.code);
-            writeUTF(sclass.getName());
+            String cname = sclass.getName();
+            if (_translations != null) {
+                String tname = (String) _translations.get(cname);
+                if (tname != null) {
+                    cname = tname;
+                }
+            }
+            writeUTF(cname);
 
         } else {
             writeShort(cmap.code);
@@ -182,4 +201,8 @@ public class ObjectOutputStream extends DataOutputStream
 
     /** The streamer being used currently. */
     protected Streamer _streamer;
+
+    /** An optional set of class name translations to use when serializing
+     * objects. */
+    protected HashMap _translations;
 }
