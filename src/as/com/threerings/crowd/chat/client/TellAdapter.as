@@ -7,17 +7,16 @@ import com.threerings.presents.client.InvocationAdapter;
 public class TellAdapter extends InvocationAdapter
     implements TellListener
 {
-    public function TellAdapter (
-            failedFunc :Function, successFunc :Function, args :Array = null)
+    public function TellAdapter (failedFunc :Function, successFunc :Function)
     {
-        super(failedFunc, args);
+        super(failedFunc);
         _successFunc = successFunc;
     }
 
     // documentation inherited from interface TellListener
-    public function tellSucceeded (idleTime :long, awayMsg :String)
+    public function tellSucceeded (idleTime :long, awayMsg :String) :void
     {
-        _successFunc(idleTime, awayMsg, args);
+        _successFunc(idleTime, awayMsg);
     }
 
     /** The method to call on success. */

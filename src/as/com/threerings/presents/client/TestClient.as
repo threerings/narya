@@ -11,6 +11,11 @@ import com.threerings.presents.dobj.DSet;
 import com.threerings.presents.dobj.QSet;
 import com.threerings.presents.net.UsernamePasswordCreds;
 
+import com.threerings.presents.dobj.DObjectManager;
+
+import com.threerings.presents.net.BootstrapData;
+
+
 public class TestClient extends Client
 {
     public function TestClient ()
@@ -61,7 +66,18 @@ public class TestClient extends Client
         list.addItem(bob);
         Log.debug("jim's indeX: " + list.getItemIndex(jim));
         Log.debug("bob2's indeX: " + list.getItemIndex(bob2));
+        Log.debug("function: " + describeType(testFunc).toXMLString());
+        Log.debug("func length: " + testFunc.length);
+        Log.debug("funcToString: " + testFunc);
+        Log.debug("interfaces: " + describeType(Bint));
 
+        var funcy :Function = function (i :int) :void {
+            Log.debug("i is " + i);
+            Log.debug("first list item is " + list[0]);
+        }
+
+        _savedFunc = funcy;
+        _listy = list;
 
 
         /*
@@ -109,6 +125,13 @@ public class TestClient extends Client
         //var ta3 :TypedArray = new TypedArray(Pork);
     }
 
+    public override function gotBootstrap (
+            data :BootstrapData, omgr :DObjectManager) :void
+    {
+        _listy.addItemAt("new item 0", 0);
+        super.gotBootstrap(data, omgr);
+        _savedFunc(3);
+    }
 
     // If a class isn't used anywhere, it won't get added to the .swf.
     // Here, I hack.
@@ -117,18 +140,29 @@ public class TestClient extends Client
         var i :int = TimeBaseMarshaller.GET_TIME_OID;
     }
 
-    public function testFunc (one :int, two :int = 0) :void
+    public function testFunc (one :int, two :int = 0, three :int = -1) :void
     {
         Log.debug("this: " + ", args: " + arguments.length +
             ": " + arguments);
     }
 
     prototype var _foo :String;
+
+    protected var _savedFunc :Function;
+    protected var _listy :ArrayCollection;
 }
 }
 
 import com.threerings.presents.Log;
 import com.threerings.presents.client.TestClient;
+
+interface Aint {
+    function foo () :void;
+}
+
+interface Bint extends Aint {
+    function bar () :void;
+}
 
 class Person
 {

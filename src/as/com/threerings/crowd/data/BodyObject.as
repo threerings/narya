@@ -145,7 +145,7 @@ public class BodyObject extends ClientObject
      */
     public function setUsername (value :Name) :void
     {
-        Name ovalue = this.username;
+        var ovalue :Name = this.username;
         requestAttributeChange(
             USERNAME, value, ovalue);
         this.username = value;
@@ -161,7 +161,7 @@ public class BodyObject extends ClientObject
      */
     public function setLocation (value :int) :void
     {
-        int ovalue = this.location;
+        var ovalue :int = this.location;
         requestAttributeChange(
             LOCATION, value, ovalue);
         this.location = value;

@@ -35,6 +35,15 @@ public class InvocationDirector
         _omgr = omgr;
         _client = client;
 
+        var subby :Object = new Object();
+        subby.objectAvailable = function (obj :DObject) :void {
+            gotClientObject(obj as ClientObject);
+        }
+        subby.requestFailed = function (
+                oid :int, cause :ObjectAccessError) :void {
+            gotClientObjectFailed(oid, cause);
+        }
+
         _omgr.subscribeToObject(cloid, new ClientSubscriber(this));
     }
 

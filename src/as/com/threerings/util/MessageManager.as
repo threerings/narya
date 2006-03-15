@@ -127,7 +127,7 @@ public class MessageManager
 //            } else {
                 rbundle = ResourceBundle.getBundle(fqpath, _locale);
 //            }
-        } catch (MissingResourceException mre) {
+        } catch (mre :Error) {
             Log.warning("Unable to resolve resource bundle " +
                         "[path=" + fqpath + ", locale=" + _locale + "].");
         }
@@ -136,7 +136,7 @@ public class MessageManager
         // interpret that as a derivation of MessageBundle to instantiate
         // for handling that class
         if (rbundle != null) {
-            String mbclass = null;
+            var mbclass :String = null;
             try {
                 mbclass = rbundle.getString(MBUNDLE_CLASS_KEY);
                 if (!StringUtil.isBlank(mbclass)) {
@@ -144,10 +144,10 @@ public class MessageManager
                         Class.forName(mbclass).newInstance();
                 }
 
-            } catch (MissingResourceException mre) {
+            } catch (mre :Error) {
                 // nothing to worry about
 
-            } catch (Throwable t) {
+            } catch (t :Error) {
                 Log.warning("Failure instantiating custom message bundle " +
                             "[mbclass=" + mbclass + ", error=" + t + "].");
             }

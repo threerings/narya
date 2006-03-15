@@ -156,7 +156,7 @@ public class PlaceObject extends DObject
     public function setOccupantInfo (value :DSet) :void
     {
         requestAttributeChange(OCCUPANT_INFO, value, this.occupantInfo);
-        this.occupantInfo = (value == null) ? null : (DSet)value.clone();
+        this.occupantInfo = (value == null) ? null : value;
     }
 
     /**

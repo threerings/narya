@@ -60,7 +60,7 @@ public class OccupantInfo
     public static const DISCONNECTED :int = 2;
 
     /** Maps status codes to human readable strings. */
-    public static const X_STATUS :Array = { "active", "idle", "discon" };
+    public static const X_STATUS :Array = [ "active", "idle", "discon" ];
 
     /** The body object id of this occupant (and our entry key). */
     public var bodyOid :Integer;

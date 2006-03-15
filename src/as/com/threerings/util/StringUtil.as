@@ -12,19 +12,7 @@ public class StringUtil
      */
     public static function trim (str :String) :String
     {
-        while (str.search(/\s/) == 0) {
-            str = str.substring(1);
-        }
-        do {
-            var endstr :String = str.substring(str.length - 1);
-            if (endstr.search(/\s/) != -1) {
-                str = str.substring(0, str.length - 1);
-            } else {
-                break;
-            }
-        } while (true);
-
-        return str;
+        return mx.utils.StringUtil.trim(str);
     }
 }
 }

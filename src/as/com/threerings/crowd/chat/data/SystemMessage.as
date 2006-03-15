@@ -21,6 +21,9 @@
 
 package com.threerings.crowd.chat.data {
 
+import com.threerings.io.ObjectInputStream;
+import com.threerings.io.ObjectOutputStream;
+
 /**
  * A ChatMessage that represents a message that came from the server
  * and did not result from direct user action.

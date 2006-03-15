@@ -38,7 +38,7 @@ public class BasicDirector
      * context that it can use to register itself with the necessary
      * entities.
      */
-    protected function BasicDirector (ctx :PresentsContext)
+    public function BasicDirector (ctx :PresentsContext)
     {
         // save context
         _ctx = ctx;

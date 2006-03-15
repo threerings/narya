@@ -33,13 +33,13 @@ public interface ChatDisplay
     /**
      * Called to clear the chat display.
      */
-    public function clear () :void;
+    function clear () :void;
 
     /**
      * Called to display a chat message.
      *
      * @see ChatMessage
      */ 
-    public function displayMessage (msg :ChatMessage) :void;
+    function displayMessage (msg :ChatMessage) :void;
 }
 }

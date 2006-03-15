@@ -19,7 +19,7 @@
 // License along with this library; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 
-package com.threerings.util;
+package com.threerings.util {
 
 /**
  * A message bundle provides an easy mechanism by which to obtain
@@ -55,14 +55,6 @@ public class MessageBundle
     }
 
     /**
-     * Get a String from the resource bundle, or null if there was an error.
-     */
-    protected function getResourceString (key :String) :String
-    {
-        return getResourceString(key, true);
-    }
-
-    /**
      * Get a String from the resource bundle, or null if there was an
      * error.
      *
@@ -71,7 +63,7 @@ public class MessageBundle
      * if the resource didn't exist.
      */
     protected function getResourceString (
-            key :String, reportMissing :Boolean) :String
+            key :String, reportMissing :Boolean = true) :String
     {
     // TODO!!!
 //        try {
@@ -390,4 +382,5 @@ public class MessageBundle
     protected static const TAINT_CHAR :String = "~";
     protected static const QUAL_PREFIX :String = "%";
     protected static const QUAL_SEP :String = ":";
+}
 }
