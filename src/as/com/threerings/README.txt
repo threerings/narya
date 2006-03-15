@@ -279,3 +279,11 @@ ActionScript
 
   This just might save our butts from insane class proliferation with service
   listeners.
+
+- You can't use runtime constants as parameter initializers:
+
+  public const MAX_VALUE :int = 99;
+
+  // this is illegal because MAX_VALUE is not defined until the
+  // static initializer is run for this class. It's not around at compile time.
+  public function getCrap (minValue :int, maxValue :int = MAX_VALUE) :Crap
