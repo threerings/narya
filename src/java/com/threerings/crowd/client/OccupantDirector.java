@@ -108,19 +108,7 @@ public class OccupantDirector extends BasicDirector
      */
     public OccupantInfo getOccupantInfo (Name username)
     {
-        // make sure we're somewhere
-        if (_place == null) {
-            return null;
-        }
-
-        Iterator iter = _place.occupantInfo.iterator();
-        while (iter.hasNext()) {
-            OccupantInfo info = (OccupantInfo)iter.next();
-            if (info.username.equals(username)) {
-                return info;
-            }
-        }
-        return null;
+        return (_place == null) ? null : _place.getOccupantInfo(username);
     }
 
     // documentation inherited from interface
