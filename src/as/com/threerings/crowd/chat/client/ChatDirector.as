@@ -24,6 +24,7 @@ package com.threerings.crowd.chat.client {
 import mx.collections.ArrayCollection;
 
 import com.threerings.util.ArrayUtil;
+import com.threerings.util.ResultListener;
 import com.threerings.util.SimpleMap;
 
 import com.threerings.presents.client.BasicDirector;

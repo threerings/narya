@@ -146,6 +146,11 @@ public class TestClient extends Client
             ": " + arguments);
     }
 
+    public function crazyArgs (num :int = 0, str :String = "lol") :void
+    {
+        Log.debug("crazyArgs " + num + ", " + str);
+    }
+
     prototype var _foo :String;
 
     protected var _savedFunc :Function;

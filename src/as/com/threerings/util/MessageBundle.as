@@ -384,3 +384,8 @@ public class MessageBundle
     protected static const QUAL_SEP :String = ":";
 }
 }
+
+// TODO: figure out how this is all actually going to even work
+class ResourceBundle
+{
+}
