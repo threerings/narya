@@ -48,8 +48,7 @@ import com.threerings.crowd.util.CrowdContext;
  * before actually issuing the request.
  */
 public class LocationDirector extends BasicDirector
-    implements LocationCodes, Subscriber, LocationReceiver,
-               LocationService.MoveListener
+    implements Subscriber, LocationReceiver, MoveListener
 {
     /**
      * Used to recover from a moveTo request that was accepted but
@@ -235,7 +234,7 @@ public class LocationDirector extends BasicDirector
         // or keep it for later if we're still going
         if (rl != null) {
             if (vetoed) {
-                rl.requestFailed(new MoveVetoedException());
+                rl.requestFailed(new MoveVetoedError());
             } else {
                 _moveListener = rl;
             }
@@ -248,12 +247,12 @@ public class LocationDirector extends BasicDirector
      * Called to inform our controller that we may be leaving the current
      * place.
      */
-    protected void mayLeavePlace ()
+    protected function mayLeavePlace () :void
     {
         if (_controller != null) {
             try {
                 _controller.mayLeavePlace(_plobj);
-            } catch (Exception e) {
+            } catch (e :Error) {
                 Log.warning("Place controller choked in " +
                             "mayLeavePlace [plobj=" + _plobj + "].");
                 Log.logStackTrace(e);
@@ -271,7 +270,7 @@ public class LocationDirector extends BasicDirector
      * @param placeId the place oid of our new location.
      * @param config the configuration information for the new place.
      */
-    public void didMoveTo (int placeId, PlaceConfig config)
+    public function didMoveTo (placeId :int, config :PlaceConfig) :void
     {
         if (_moveListener != null) {
             _moveListener.requestCompleted(config);
@@ -291,20 +290,15 @@ public class LocationDirector extends BasicDirector
         _placeId = placeId;
 
         // check whether we should use a custom class loader
-        ClassLoader loader = getClassLoader(config);
-        if (loader != null) {
-            config.setClassLoader(loader);
-        }
-
-        Class cclass = config.getControllerClass();
+        cclass :Class = config.getControllerClass();
         try {
             // start up a new place controller to manage the new place
-            _controller = (PlaceController)cclass.newInstance();
+            _controller = (new cclass() as PlaceController);
             _controller.init(_cctx, config);
 
-        } catch (Exception e) {
+        } catch (e :Error) {
             Log.warning("Error creating or initializing place controller " +
-                        "[cclass=" + cclass.getName() +
+                        "[cclass=" + cclass +
                         ", config=" + config + "].");
             Log.logStackTrace(e);
         }
@@ -319,14 +313,14 @@ public class LocationDirector extends BasicDirector
      * location's place object, and clears out our internal place
      * information.
      */
-    public void didLeavePlace ()
+    public function didLeavePlace () :void
     {
         if (_plobj != null) {
             // let the old controller know that things are going away
             if (_controller != null) {
                 try {
                     _controller.didLeavePlace(_plobj);
-                } catch (Exception e) {
+                } catch (e :Error) {
                     Log.warning("Place controller choked in " +
                                 "didLeavePlace [plobj=" + _plobj + "].");
                     Log.logStackTrace(e);
@@ -353,10 +347,10 @@ public class LocationDirector extends BasicDirector
      * @param placeId the place oid to which we failed to move.
      * @param reason the reason code given for failure.
      */
-    public void failedToMoveTo (int placeId, String reason)
+    public function failedToMoveTo (placeId :int, reason :String) :void
     {
         if (_moveListener != null) {
-            _moveListener.requestFailed(new MoveFailedException(reason));
+            _moveListener.requestFailed(new MoveFailedError(reason));
             _moveListener = null;
         }
 
@@ -371,9 +365,9 @@ public class LocationDirector extends BasicDirector
      * Called to test and set a time stamp that we use to determine if a
      * pending moveTo request is stale.
      */
-    public boolean checkRepeatMove ()
+    public function checkRepeatMove () :Boolean
     {
-        long now = System.currentTimeMillis();
+        var now :Number = new Date().getTime();
         if (now - _lastRequestTime < STALE_REQUEST_DURATION) {
             return true;
 
@@ -384,32 +378,29 @@ public class LocationDirector extends BasicDirector
     }
 
     // documentation inherited from interface
-    public void clientDidLogon (Client client)
+    public override function clientDidLogon (event :ClientEvent) :void
     {
-        super.clientDidLogon(client);
+        super.clientDidLogon(event);
 
-        // subscribe to our body object
-        Subscriber sub = new Subscriber() {
-            public void objectAvailable (DObject object)
-            {
-                gotBodyObject((BodyObject)object);
-            }
-
-            public void requestFailed (int oid, ObjectAccessException cause)
-            {
-                Log.warning("Location director unable to fetch body " +
-                            "object; all has gone horribly wrong" +
-                            "[cause=" + cause + "].");
-            }
+        // TODO: Work out new anonyclass construct
+        var sub :Subscriber = new SubscriberProxy();
+        sub.objectAvailable = function (object :DObject) :void {
+            gotBodyObject(object as BodyObject);
         };
-        int cloid = client.getClientOid();
+        sub.requestFailed = function (oid :int, cause :ObjectAccessError) :void {
+            Log.warning("Location director unable to fetch body " +
+                        "object; all has gone horribly wrong" +
+                        "[cause=" + cause + "].");
+        };
+
+        var cloid :int = event.getClient().getClientOid();
         client.getDObjectManager().subscribeToObject(cloid, sub);
     }
 
-    // documentation inherited from interface
-    public void clientDidLogoff (Client client)
+    // documentation inherited
+    public override function clientDidLogoff (event :ClientEvent) :void
     {
-        super.clientDidLogoff(client);
+        super.clientDidLogoff(event);
 
         // clear ourselves out and inform observers of our departure
         mayLeavePlace();
@@ -422,26 +413,26 @@ public class LocationDirector extends BasicDirector
         // off in the middle of a change location request)
         _pendingPlaceId = -1;
         _previousPlaceId = -1;
-        _lastRequestTime = 0L;
+        _lastRequestTime = 0;
         _lservice = null;
     }
 
     // documentation inherited
-    protected void fetchServices (Client client)
+    protected override function fetchServices (client :Client) :void
     {
         // obtain our service handle
-        _lservice = (LocationService)
-            client.requireService(LocationService.class);
+        _lservice =
+            (client.requireService(LocationService) as LocationService);
     }
 
-    protected void gotBodyObject (BodyObject clobj)
+    protected function gotBodyObject (clobj :BodyObject) :void
     {
         // check to see if we are already in a location, in which case
         // we'll want to be going there straight away
     }
 
     // documentation inherited from interface
-    public void moveSucceeded (PlaceConfig config)
+    public function moveSucceeded (config :PlaceConfig) :void
     {
         // handle the successful move
         didMoveTo(_pendingPlaceId, config);
@@ -451,10 +442,10 @@ public class LocationDirector extends BasicDirector
     }
 
     // documentation inherited from interface
-    public void requestFailed (String reason)
+    public function requestFailed (reason :String) :void
     {
         // clear out our pending request oid
-        int placeId = _pendingPlaceId;
+        var placeId :int = _pendingPlaceId;
         _pendingPlaceId = -1;
 
         Log.info("moveTo failed [pid=" + placeId +
@@ -465,7 +456,7 @@ public class LocationDirector extends BasicDirector
     }
 
     // documentation inherited from interface
-    public void forcedMove (final int placeId)
+    public function forcedMove (placeId :int) :void
     {
         Log.info("Moving at request of server [placeId=" + placeId + "].");
 
@@ -483,16 +474,16 @@ public class LocationDirector extends BasicDirector
      * Called when we receive the place object to which we subscribed
      * after a successful moveTo request.
      */
-    public void objectAvailable (DObject object)
+    public function objectAvailable (object :DObject) :void
     {
         // yay, we have our new place object
-        _plobj = (PlaceObject)object;
+        _plobj = (object as PlaceObject);
 
         // let the place controller know that we're ready to roll
         if (_controller != null) {
             try {
                 _controller.willEnterPlace(_plobj);
-            } catch (Exception e) {
+            } catch (e :Error) {
                 Log.warning("Controller choked in willEnterPlace " +
                             "[place=" + _plobj + "].");
                 Log.logStackTrace(e);
@@ -509,7 +500,7 @@ public class LocationDirector extends BasicDirector
      * generally a bad scene and we do our best to recover by going back
      * to the previously known location.
      */
-    public void requestFailed (int oid, ObjectAccessException cause)
+    public function requestFailed (oid :int, cause :ObjectAccessError) :void
     {
         // aiya! we were unable to fetch our new place object; something
         // is badly wrong
@@ -517,7 +508,7 @@ public class LocationDirector extends BasicDirector
                     "[plid=" + oid + ", reason=" + cause + "].");
 
         // clear out our half initialized place info
-        int placeId = _placeId;
+        var placeId :int = _placeId;
         _placeId = -1;
 
         // let the kids know shit be fucked
@@ -566,58 +557,44 @@ public class LocationDirector extends BasicDirector
 //        }
 //    }
 
-    protected void notifyFailure (final int placeId, final String reason)
+    protected function notifyFailure (placeId :int, reason :String) :void
     {
-        _observers.apply(new ObserverOp() {
-            public boolean apply (Object obs) {
-                ((LocationObserver)obs).locationChangeFailed(placeId, reason);
-                return true;
-            }
+        _observers.apply(function (obs :Object) :Boolean {
+            (obs as LocationObserver).locationChangeFailed(placeId, reason);
+            return true;
         });
     }
 
-    /**
-     * By overriding this method, it is possible to customize the location
-     * director to cause it to load the classes associated with a
-     * particular place via a custom class loader. That loader may enforce
-     * restricted privileges or obtain the classes from some special
-     * source.
-     */
-    protected ClassLoader getClassLoader (PlaceConfig config)
-    {
-        return null;
-    }
-
     /** The context through which we access needed services. */
-    protected CrowdContext _cctx;
+    protected var _cctx :CrowdContext;
 
     /** Provides access to location services. */
-    protected LocationService _lservice;
+    protected var _lservice :LocationService;
 
     /** Our location observer list. */
-    protected ObserverList _observers =
+    protected var _observers :ObserverList =
         new ObserverList(ObserverList.SAFE_IN_ORDER_NOTIFY);
 
     /** The oid of the place we currently occupy. */
-    protected int _placeId = -1;
+    protected var _placeId :int = -1;
 
     /** The place object that we currently occupy. */
-    protected PlaceObject _plobj;
+    protected var _plobj :PlaceObject;
 
     /** The place controller in effect for our current place. */
-    protected PlaceController _controller;
+    protected var _controller :PlaceController;
 
     /**
      * The oid of the place for which we have an outstanding moveTo
      * request, or -1 if we have no outstanding request.
      */
-    protected int _pendingPlaceId = -1;
+    protected var _pendingPlaceId :int = -1;
 
     /** The oid of the place we previously occupied. */
-    protected int _previousPlaceId = -1;
+    protected var _previousPlaceId :int = -1;
 
     /** The last time we requested a move to. */
-    protected long _lastRequestTime;
+    protected var _lastRequestTime :Number;
 
     /** The entity that deals when we fail to subscribe to a place
      * object. */
@@ -625,18 +602,23 @@ public class LocationDirector extends BasicDirector
 
     /** A listener that wants to know if we succeeded or
      * how we failed to move.  */
-    protected ResultListener _moveListener;
+    protected var _moveListener :ResultListener;
 
     /** The operation used to inform observers that the location changed. */
-    protected ObserverOp _didChangeOp = new ObserverOp() {
-        public boolean apply (Object obs) {
-            ((LocationObserver)obs).locationDidChange(_plobj);
-            return true;
-        }
+    protected var _didChangeOp :Function = function (obs :Object) :Boolean
+    {
+        (obs as LocationObserver).locationDidChange(_plobj);
+        return true;
     };
 
     /** We require that a moveTo request be outstanding for one minute
      * before it is declared to be stale. */
-    protected static final long STALE_REQUEST_DURATION = 60L * 1000L;
+    protected static const STALE_REQUEST_DURATION :int = 60 * 1000;
 }
+}
+
+import com.threerings.presents.dobj.Subscriber;
+
+dynamic class SubscriberProxy implements Subscriber
+{
 }

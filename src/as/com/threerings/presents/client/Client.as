@@ -4,6 +4,8 @@ import flash.events.EventDispatcher;
 import flash.events.TimerEvent;
 import flash.util.Timer;
 
+import com.threerings.util.ObserverList;
+
 import com.threerings.presents.data.ClientObject;
 
 import com.threerings.presents.dobj.DObjectManager;
@@ -344,6 +346,10 @@ public class Client extends EventDispatcher
 
     /** The entity that manages our network communications. */
     protected var _comm :Communicator;
+
+    /** Our list of client observers. */
+    protected var _observers :ObserverList =
+        new ObserverList(ObserverList.SAFE_IN_ORDER_NOTIFY);
 
     /** General startup information provided by the server. */
     protected var _bstrap :BootstrapData;

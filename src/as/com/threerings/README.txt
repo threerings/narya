@@ -187,6 +187,14 @@ ActionScript
      I was trying to use it when pulling a value out of a hash, but if it
      wasn't there it got booched.
 
+  ***Update:
+     Just not casting is "implicit casting" and will result in a type error
+     at runtime. This may be what we want, but it's maddening that there's
+     no way to do it explicitely.
+
+     var o1 :String = someObject;
+     // checked at runtime, throws TypeError if failure
+
 
 - Pitfall! This is perfectly legal:
      var b :int = 3;
