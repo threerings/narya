@@ -167,6 +167,13 @@ public class SpotSceneManager extends SceneManager
                 Log.info("Pruning departed body from cluster [boid=" + bodyOid +
                          ", cluster=" + clrec + "].");
                 clrec.removeBody(bodyOid);
+                if (clrec.size() == 0) {
+                    // If we just removed the last body, destroy the cluster,
+                    //  need to use the iterator's removal so we don't
+                    //  hose ourselves.
+                    clrec.destroy(false);
+                    cliter.remove();
+                }
             }
         }
     }
@@ -364,6 +371,10 @@ public class SpotSceneManager extends SceneManager
         ClusterRecord clrec = getCluster(bodyOid);
         if (clrec != null) {
             clrec.removeBody(bodyOid);
+            // If that was the last person, destroy the cluster
+            if (clrec.size() == 0) {
+                clrec.destroy(true);
+            }
         }
     }
 
@@ -374,7 +385,7 @@ public class SpotSceneManager extends SceneManager
     {
         ClusteredBodyObject bobj = (ClusteredBodyObject)
             CrowdServer.omgr.getObject(bodyOid);
-        return (bobj == null) ? null : 
+        return (bobj == null) ? null :
             (ClusterRecord)_clusters.get(bobj.getClusterOid());
     }
 
@@ -528,10 +539,6 @@ public class SpotSceneManager extends SceneManager
 
 //             Log.debug("Removed " + bodyOid + " from "+ this + ".");
 
-            // if we've removed our last body; stick a fork in ourselves
-            if (size() == 0) {
-                destroy();
-            }
         }
 
         public ClusterObject getClusterObject ()
@@ -565,7 +572,7 @@ public class SpotSceneManager extends SceneManager
             // if we didn't manage to add our creating user when we first
             // started up, there's no point in our sticking around
             if (size() == 0) {
-                destroy();
+                destroy(true);
             }
         }
 
@@ -587,12 +594,17 @@ public class SpotSceneManager extends SceneManager
             return "[cluster=" + _cluster + ", size=" + size() + "]";
         }
 
-        protected void destroy ()
+        protected void destroy (boolean doRemoval)
         {
 //             Log.debug("Cluster empty, going away " +
 //                       "[cloid=" + _clobj.getOid() + "].");
             _ssobj.removeFromClusters(_cluster.getKey());
-            _clusters.remove(_clobj.getOid());
+
+            // If we've also been requested to remove ourself from the clusters
+            //  list, do that.
+            if (doRemoval) {
+                _clusters.remove(_clobj.getOid());
+            }
             CrowdServer.omgr.destroyObject(_clobj.getOid());
         }
 
