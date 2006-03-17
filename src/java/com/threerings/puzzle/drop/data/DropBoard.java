@@ -740,8 +740,7 @@ public class DropBoard extends Board
     public Object clone ()
     {
         DropBoard board = (DropBoard)super.clone();
-        board._board = new int[_board.length];
-        System.arraycopy(_board, 0, board._board, 0, _board.length);
+        board._board = (int[])_board.clone();
         return board;
     }
 
