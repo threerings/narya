@@ -195,6 +195,25 @@ ActionScript
      var o1 :String = someObject;
      // checked at runtime, throws TypeError if failure
 
+     Also, when the compiler is in strict mode it flags this code, so
+     we can't win.
+
+   I will sum up in a table:
+
+   * cast using "obj as Type"
+     + helps compile-time type checking
+     - turns non-castable objects into null rather than generating an exception
+   * casting using "Type(obj)"
+     + helps compile-time type checking
+     - will coerce primitive types between each other, the most annoying
+       problem being:
+       var o1 :Object = null;
+       var s1 :String = String(o1);
+       assert(s1 === "null");
+   * implicit casting ("var s :String = o")
+     + it will generate a proper TypeError at runtime
+     - no compile-time checking, strict compiler generates an error (!!!)
+     
 
 - Pitfall! This is perfectly legal:
      var b :int = 3;
