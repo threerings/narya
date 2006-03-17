@@ -1,6 +1,7 @@
 package com.threerings.crowd.chat.client {
 
 import com.threerings.util.MessageBundle;
+import com.threerings.util.SimpleMap;
 import com.threerings.util.StringUtil;
 
 import com.threerings.crowd.chat.data.ChatCodes;
@@ -29,7 +30,7 @@ public class HelpHandler extends CommandHandler
 
         // let the user give commands with or without the /
         if (hcmd.charAt(0) == "/") {
-            hcmd = hcm.substring(1);
+            hcmd = hcmd.substring(1);
         }
 
         // handle "/help help" and "/help boguscmd"

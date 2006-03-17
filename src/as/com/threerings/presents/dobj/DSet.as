@@ -61,7 +61,7 @@ public class DSet
      */
     public function containsKey (key :Object) :Boolean
     {
-        return getByKey(key) != null;
+        return get(key) != null;
     }
 
     /**
@@ -69,7 +69,7 @@ public class DSet
      * the specified key or null if no entry could be found that matches
      * the key.
      */
-    public function getByKey (key :Object) :DSetEntry
+    public function get (key :Object) :DSetEntry
     {
         // o(n) for now
         for each (var entry :DSetEntry in _entries) {

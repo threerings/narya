@@ -53,3 +53,4 @@ public interface LocationService extends InvocationService
      */
     function leavePlace (client :Client) :void;
 }
+}

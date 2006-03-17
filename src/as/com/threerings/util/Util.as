@@ -20,7 +20,7 @@ public class Util
         if (obj == null || obj is clazz) {
             return obj;
         } else {
-            throw new Error("wah");
+            throw new TypeError("value is not a " + clazz);
         }
     }
 

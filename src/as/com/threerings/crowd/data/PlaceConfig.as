@@ -47,7 +47,7 @@ public interface PlaceConfig extends Streamable
      * this place. The controller class must derive from {@link
      * PlaceController}.
      */
-    public function getControllerClass () :Class;
+    function getControllerClass () :Class;
 
     /**
      * Returns the name of the class that should be used to create a

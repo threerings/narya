@@ -314,3 +314,6 @@ ActionScript
   // this is illegal because MAX_VALUE is not defined until the
   // static initializer is run for this class. It's not around at compile time.
   public function getCrap (minValue :int, maxValue :int = MAX_VALUE) :Crap
+
+- Static constants are not inherited by subclasses. You can make them
+  prototype rather than static and they will be.

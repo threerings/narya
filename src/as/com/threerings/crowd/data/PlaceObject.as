@@ -120,7 +120,7 @@ public class PlaceObject extends DObject
      */
     public function addToOccupantInfo (elem :DSetEntry) :void
     {
-        requestEntryAdd(OCCUPANT_INFO, occupantInfo, elem);
+        requestEntryAdd(OCCUPANT_INFO, elem);
     }
 
     /**
@@ -130,7 +130,7 @@ public class PlaceObject extends DObject
      */
     public function removeFromOccupantInfo (key :Object) :void
     {
-        requestEntryRemove(OCCUPANT_INFO, occupantInfo, key);
+        requestEntryRemove(OCCUPANT_INFO, key);
     }
 
     /**
@@ -140,7 +140,7 @@ public class PlaceObject extends DObject
      */
     public function updateOccupantInfo (elem :DSetEntry) :void
     {
-        requestEntryUpdate(OCCUPANT_INFO, occupantInfo, elem);
+        requestEntryUpdate(OCCUPANT_INFO, elem);
     }
 
     /**

@@ -41,10 +41,15 @@ public class SystemMessage extends ChatMessage
     /** Attention level constant to indicate that some action is required. */
     public static const ATTENTION :int = 2;
 
-    //----
-
     /** The attention level of this message. */
     public var attentionLevel :int;
+
+    public function SystemMessage (
+            msg :String = null, bundle :String = null, attLevel :int = 0)
+    {
+        super(msg, bundle);
+        this.attentionLevel = attLevel;
+    }
 
     public override function readObject (ins :ObjectInputStream) :void
     {

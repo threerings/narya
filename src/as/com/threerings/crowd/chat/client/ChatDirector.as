@@ -29,6 +29,8 @@ import com.threerings.util.SimpleMap;
 
 import com.threerings.presents.client.BasicDirector;
 import com.threerings.presents.client.Client;
+import com.threerings.presents.client.ClientEvent;
+import com.threerings.presents.client.InvocationAdapter;
 import com.threerings.presents.data.ClientObject;
 import com.threerings.presents.dobj.DObject;
 import com.threerings.presents.dobj.MessageEvent;
@@ -249,7 +251,7 @@ public class ChatDirector extends BasicDirector
     public function displayFeedback (bundle :String, message :String) :void
     {
         displaySystem(
-            bundle, message, SystemMessage.FEEDBACK, PLACE_CHAT_TYPE);
+            bundle, message, SystemMessage.FEEDBACK, ChatCodes.PLACE_CHAT_TYPE);
     }
 
     /**
@@ -262,7 +264,7 @@ public class ChatDirector extends BasicDirector
     public function displayAttention (bundle :String, message :String) :void
     {
         displaySystem(
-            bundle, message, SystemMessage.ATTENTION, PLACE_CHAT_TYPE);
+            bundle, message, SystemMessage.ATTENTION, ChatCodes.PLACE_CHAT_TYPE);
     }
 
     /**
@@ -458,15 +460,15 @@ public class ChatDirector extends BasicDirector
             }
 
             // if they are idle, report that
-            if (idletime > 0) {
-                // adjust by the time it took them to become idle
-                idletime += _cctx.getConfig().getValue(
-                    IDLE_TIME_KEY, DEFAULT_IDLE_TIME);
-                var msg :String = MessageBundle.compose(
-                    "m.recipient_idle", MessageBundle.taint(target),
-                    TimeUtil.getTimeOrderString(idletime, TimeUtil.MINUTE));
-                displayFeedback(_bundle, msg);
-            }
+//            if (idletime > 0) {
+//                // adjust by the time it took them to become idle
+//                idletime += _cctx.getConfig().getValue(
+//                    IDLE_TIME_KEY, DEFAULT_IDLE_TIME);
+//                var msg :String = MessageBundle.compose(
+//                    "m.recipient_idle", MessageBundle.taint(target),
+//                    TimeUtil.getTimeOrderString(idletime, TimeUtil.MINUTE));
+//                displayFeedback(_bundle, msg);
+//            }
         };
 
         _cservice.tell(_cctx.getClient(), target, message,
@@ -622,32 +624,32 @@ public class ChatDirector extends BasicDirector
     }
 
     // documentation inherited
-    public override function clientDidLogon (client :Client) :void
+    public override function clientDidLogon (event :ClientEvent) :void
     {
-        super.clientDidLogon(client);
+        super.clientDidLogon(event);
 
         // listen on the client object for tells
-        addAuxiliarySource(_clobj = client.getClientObject(),
+        addAuxiliarySource(_clobj = event.getClient().getClientObject(),
             ChatCodes.USER_CHAT_TYPE);
     }
 
     // documentation inherited
-    public override function clientObjectDidChange (client :Client) :void
+    public override function clientObjectDidChange (event :ClientEvent) :void
     {
-        super.clientObjectDidChange(client);
+        super.clientObjectDidChange(event);
 
         // change what we're listening to for tells
         removeAuxiliarySource(_clobj);
-        addAuxiliarySource(_clobj = client.getClientObject(),
+        addAuxiliarySource(_clobj = event.getClient().getClientObject(),
             ChatCodes.USER_CHAT_TYPE);
 
         clearDisplays();
     }
 
     // documentation inherited
-    public override function clientDidLogoff (client :Client) :void
+    public override function clientDidLogoff (event :ClientEvent) :void
     {
-        super.clientDidLogoff(client);
+        super.clientDidLogoff(event);
 
         // stop listening to it for tells
         if (_clobj != null) {
@@ -702,7 +704,7 @@ public class ChatDirector extends BasicDirector
         // mogrification may result in something being turned into a slash
         // command, in which case we have to run everything through again
         // from the start
-        if (message.startsWith("/")) {
+        if (message.indexOf("/") == 0) {
             return requestChat(speakSvc, message, false);
         }
 
@@ -818,7 +820,7 @@ public class ChatDirector extends BasicDirector
     {
         var bundle :MessageBundle = _msgmgr.getBundle(_bundle);
         if (!bundle.exists(key)) {
-            return buf;
+            return text;
         }
         var repls :Array = bundle.get(key).split("#");
         // apply the replacements to each mogrification that matches
@@ -835,7 +837,7 @@ public class ChatDirector extends BasicDirector
      * specified command (i.e. the specified command is a prefix of their
      * registered command string).
      */
-    protected function getCommandHandlers (command :String) :SimpleMap
+    internal function getCommandHandlers (command :String) :SimpleMap
     {
         var matches :SimpleMap = new SimpleMap();
         var user :BodyObject =

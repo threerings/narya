@@ -88,8 +88,7 @@ public class InvocationDirector
         // if we're logged on, clear out any receiver id mapping
         if (_clobj != null) { 
             var rreg :InvocationRegistration =
-                (_clobj.receivers.getByKey(receiverCode)
-                    as InvocationRegistration);
+                (_clobj.receivers.get(receiverCode) as InvocationRegistration);
             if (rreg == null) {
                 Log.warning("Receiver unregistered for which we have no " +
                             "id to code mapping [code=" + receiverCode + "].");

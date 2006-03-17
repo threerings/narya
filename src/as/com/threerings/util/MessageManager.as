@@ -125,11 +125,11 @@ public class MessageManager
 //            if (_loader != null) {
 //                rbundle = ResourceBundle.getBundle(fqpath, _locale, _loader);
 //            } else {
-                rbundle = ResourceBundle.getBundle(fqpath, _locale);
+                rbundle = ResourceBundle.getBundle(fqpath);
 //            }
         } catch (mre :Error) {
             Log.warning("Unable to resolve resource bundle " +
-                        "[path=" + fqpath + ", locale=" + _locale + "].");
+                        "[path=" + fqpath + "].");
         }
 
         // if the resource bundle contains a special resource, we'll
@@ -140,8 +140,8 @@ public class MessageManager
             try {
                 mbclass = rbundle.getString(MBUNDLE_CLASS_KEY);
                 if (!StringUtil.isBlank(mbclass)) {
-                    bundle = (MessageBundle)
-                        Class.forName(mbclass).newInstance();
+                    var clazz :Class = ClassUtil.getClassByName(mbclass);
+                    bundle = new clazz();
                 }
 
             } catch (mre :Error) {
@@ -174,7 +174,7 @@ public class MessageManager
 //    protected var _locale :Locale;
 
     /** A custom class loader that we use to load resource bundles. */
-    protected var _loader :ClassLoader;
+//    protected var _loader :ClassLoader;
 
     /** A cache of instantiated message bundles. */
     protected var _cache :SimpleMap = new SimpleMap();
@@ -185,6 +185,6 @@ public class MessageManager
 
     /** A key that can contain the classname of a custom message bundle
      * class to be used to handle messages for a particular bundle. */
-//    protected static const MBUNDLE_CLASS_KEY :String = "msgbundle_class";
+    protected static const MBUNDLE_CLASS_KEY :String = "msgbundle_class";
 }
 }

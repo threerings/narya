@@ -1,5 +1,7 @@
 package com.threerings.crowd.chat.client {
 
+import com.threerings.crowd.chat.data.ChatCodes;
+
 public class ClearHandler extends CommandHandler
 {
     public function ClearHandler (chatdir :ChatDirector)

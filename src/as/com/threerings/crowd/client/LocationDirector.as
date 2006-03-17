@@ -21,13 +21,12 @@
 
 package com.threerings.crowd.client {
 
-//  TODO: class is in progress of conversion
-
 import com.threerings.util.ObserverList;
 import com.threerings.util.ResultListener;
 
 import com.threerings.presents.client.BasicDirector;
 import com.threerings.presents.client.Client;
+import com.threerings.presents.client.ClientEvent;
 
 import com.threerings.presents.dobj.DObject;
 import com.threerings.presents.dobj.ObjectAccessError;
@@ -48,7 +47,7 @@ import com.threerings.crowd.util.CrowdContext;
  * before actually issuing the request.
  */
 public class LocationDirector extends BasicDirector
-    implements Subscriber, LocationReceiver, MoveListener
+    implements Subscriber, LocationReceiver
 {
     /**
      * Used to recover from a moveTo request that was accepted but
@@ -164,9 +163,35 @@ public class LocationDirector extends BasicDirector
         // make a note of our pending place id
         _pendingPlaceId = placeId;
 
+        var listener :MoveListenerProxy = new MoveListenerProxy();
+
+        // documentation inherited from interface MoveListener
+        listener.moveSucceeded = function (config :PlaceConfig) :void
+        {
+            // handle the successful move
+            didMoveTo(_pendingPlaceId, config);
+
+            // and clear out the tracked pending oid
+            _pendingPlaceId = -1;
+        };
+
+        // documentation inherited from interface
+        listener.requestFailed = function (reason :String) :void
+        {
+            // clear out our pending request oid
+            var placeId :int = _pendingPlaceId;
+            _pendingPlaceId = -1;
+
+            Log.info("moveTo failed [pid=" + placeId +
+                     ", reason=" + reason + "].");
+
+            // let our observers know that something has gone horribly awry
+            notifyFailure(placeId, reason);
+        };
+
         // issue a moveTo request
         Log.info("Issuing moveTo(" + placeId + ").");
-        _lservice.moveTo(_cctx.getClient(), placeId, this);
+        _lservice.moveTo(_cctx.getClient(), placeId, listener);
         return true;
     }
 
@@ -290,7 +315,7 @@ public class LocationDirector extends BasicDirector
         _placeId = placeId;
 
         // check whether we should use a custom class loader
-        cclass :Class = config.getControllerClass();
+        var cclass :Class = config.getControllerClass();
         try {
             // start up a new place controller to manage the new place
             _controller = (new cclass() as PlaceController);
@@ -383,7 +408,7 @@ public class LocationDirector extends BasicDirector
         super.clientDidLogon(event);
 
         // TODO: Work out new anonyclass construct
-        var sub :Subscriber = new SubscriberProxy();
+        var sub :SubscriberProxy = new SubscriberProxy();
         sub.objectAvailable = function (object :DObject) :void {
             gotBodyObject(object as BodyObject);
         };
@@ -393,7 +418,8 @@ public class LocationDirector extends BasicDirector
                         "[cause=" + cause + "].");
         };
 
-        var cloid :int = event.getClient().getClientOid();
+        var client :Client = event.getClient();
+        var cloid :int = client.getClientOid();
         client.getDObjectManager().subscribeToObject(cloid, sub);
     }
 
@@ -432,30 +458,6 @@ public class LocationDirector extends BasicDirector
     }
 
     // documentation inherited from interface
-    public function moveSucceeded (config :PlaceConfig) :void
-    {
-        // handle the successful move
-        didMoveTo(_pendingPlaceId, config);
-
-        // and clear out the tracked pending oid
-        _pendingPlaceId = -1;
-    }
-
-    // documentation inherited from interface
-    public function requestFailed (reason :String) :void
-    {
-        // clear out our pending request oid
-        var placeId :int = _pendingPlaceId;
-        _pendingPlaceId = -1;
-
-        Log.info("moveTo failed [pid=" + placeId +
-                 ", reason=" + reason + "].");
-
-        // let our observers know that something has gone horribly awry
-        notifyFailure(placeId, reason);
-    }
-
-    // documentation inherited from interface
     public function forcedMove (placeId :int) :void
     {
         Log.info("Moving at request of server [placeId=" + placeId + "].");
@@ -470,10 +472,7 @@ public class LocationDirector extends BasicDirector
         }
     }
 
-    /**
-     * Called when we receive the place object to which we subscribed
-     * after a successful moveTo request.
-     */
+    // documentation inherited from interface Subscriber
     public function objectAvailable (object :DObject) :void
     {
         // yay, we have our new place object
@@ -494,12 +493,7 @@ public class LocationDirector extends BasicDirector
         _observers.apply(_didChangeOp);
     }
 
-    /**
-     * Called if we are unable to subscribe to the place object that was
-     * provided to us with our successful moveTo request. This is
-     * generally a bad scene and we do our best to recover by going back
-     * to the previously known location.
-     */
+    // documentation inherited from interface Subscriber
     public function requestFailed (oid :int, cause :ObjectAccessError) :void
     {
         // aiya! we were unable to fetch our new place object; something
@@ -520,17 +514,17 @@ public class LocationDirector extends BasicDirector
         // does whatever's necessary
 
         // try to return to our previous location
-        if (_failureHandler != null) {
-            _failureHandler.recoverFailedMove(placeId);
-
-        } else {
+//            if (_failureHandler != null) {
+//                _failureHandler.recoverFailedMove(placeId);
+//
+//            } else {
             // if we were previously somewhere (and that somewhere isn't
             // where we just tried to go), try going back to that happy
             // place
             if (_previousPlaceId != -1 && _previousPlaceId != placeId) {
                 moveTo(_previousPlaceId);
             }
-        }
+//            }
     }
 
     /**
@@ -618,7 +612,12 @@ public class LocationDirector extends BasicDirector
 }
 
 import com.threerings.presents.dobj.Subscriber;
+import com.threerings.crowd.client.MoveListener;
 
 dynamic class SubscriberProxy implements Subscriber
+{
+}
+
+dynamic class MoveListenerProxy implements MoveListener
 {
 }

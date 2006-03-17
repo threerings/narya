@@ -21,6 +21,8 @@
 
 package com.threerings.util {
 
+import flash.util.StringBuilder;
+
 /**
  * A message bundle provides an easy mechanism by which to obtain
  * translated message strings from a resource bundle. It uses the {@link
@@ -65,31 +67,29 @@ public class MessageBundle
     protected function getResourceString (
             key :String, reportMissing :Boolean = true) :String
     {
-    // TODO!!!
-//        try {
-//            if (_bundle != null) {
-//                return _bundle.getString(key);
-//            }
-//        } catch (MissingResourceException mre) {
-//            // fall through and try the parent
-//        }
-//
-//        // if we have a parent, try getting the string from them
-//        if (_parent != null) {
-//            String value = _parent.getResourceString(key, false);
-//            if (value != null) {
-//                return value;
-//            }
-//            // if we didn't find it in our parent, we want to fall
-//            // through and report missing appropriately
-//        }
-//
-//        if (reportMissing) {
-//            Log.warning("Missing translation message " +
-//                        "[bundle=" + _path + ", key=" + key + "].");
-//            Thread.dumpStack();
-//        }
-//
+        try {
+            if (_bundle != null) {
+                return _bundle.getString(key);
+            }
+        } catch (missingResource :Error) {
+            // fall through and try the parent
+        }
+
+        // if we have a parent, try getting the string from them
+        if (_parent != null) {
+            var value :String = _parent.getResourceString(key, false);
+            if (value != null) {
+                return value;
+            }
+            // if we didn't find it in our parent, we want to fall
+            // through and report missing appropriately
+        }
+
+        if (reportMissing) {
+            Log.warning("Missing translation message " +
+                        "[bundle=" + _path + ", key=" + key + "].");
+        }
+
         return null;
     }
 
@@ -128,7 +128,7 @@ public class MessageBundle
     {
         // if this string is tainted, we don't translate it, instead we
         // simply remove the taint character and return it to the caller
-        if (key.chatAt(0) === TAINT_CHAR) {
+        if (key.charAt(0) === TAINT_CHAR) {
             return key.substring(1);
         }
 
@@ -151,8 +151,8 @@ public class MessageBundle
         }
 
         return (msg != null) ?
-            MessageFormat.format(MessageUtil.escape(msg), args)
-            : (key + StringUtil.toString(args));
+            MessageFormat.format(escape(msg), args)
+            : (key + args);
     }
 
     /**
@@ -352,7 +352,7 @@ public class MessageBundle
 
         var buf :StringBuilder = new StringBuilder();
         for (var ii :int = 0; ii < val.length; ii++) {
-            var ch :String = value.charAt(0);
+            var ch :String = val.charAt(0);
             if (ch != "\\" || ii == val.length-1) {
                 buf.append(ch);
             } else {
@@ -385,7 +385,11 @@ public class MessageBundle
 }
 }
 
-// TODO: figure out how this is all actually going to even work
-class ResourceBundle
+// TODO: figure out what we're going to do here
+class MessageFormat
 {
+    public static function format (msg :String, ... rest) :String
+    {
+        return msg + rest; 
+    }
 }

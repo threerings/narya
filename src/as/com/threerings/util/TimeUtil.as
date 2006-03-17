@@ -51,7 +51,7 @@ public class TimeUtil
      * displayed, the minimum is 1.
      */
     public static function getTimeOrderString (
-        duration :long, minUnit :int, maxUnit :int = -1) :String
+        duration :Number, minUnit :int, maxUnit :int = -1) :String
     {
         // enforce sanity
         if (maxUnit == -1) {
@@ -78,7 +78,8 @@ public class TimeUtil
      * Get a translatable string specifying the duration, down to the
      * minimum granularity.
      */
-    public static function getTimeString (duration :long, minUnit :int) :String
+    public static function getTimeString (
+            duration :Number, minUnit :int) :String
     {
         // sanity
         minUnit = Math.min(minUnit, MAX_UNIT);
@@ -116,7 +117,7 @@ public class TimeUtil
         case MILLISECOND: return 1000;
         case SECOND: case MINUTE: return 60;
         case HOUR: return 24;
-        case DAY: return Integer.MAX_VALUE;
+        case DAY: return int.MAX_VALUE;
         default: return -1;
         }
     }

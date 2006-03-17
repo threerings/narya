@@ -21,7 +21,7 @@
 
 package com.threerings.crowd.chat.data {
 
-import com.samskivert.util.StringUtil;
+import com.threerings.util.ClassUtil;
 
 import com.threerings.io.ObjectInputStream;
 import com.threerings.io.ObjectOutputStream;
@@ -42,6 +42,12 @@ public /*abstract*/ class ChatMessage
     /** The client side 'localtype' of this chat, set to the type
      * registered with an auxiliary source in the ChatDirector. */
     public var localtype :String;
+
+    public function ChatMessage (msg :String = null, bundle :String = null)
+    {
+        this.message = msg;
+        this.bundle = bundle;
+    }
 
     /**
      * Once this message reaches the client, the information contained within
@@ -67,8 +73,8 @@ public /*abstract*/ class ChatMessage
     // documentation inherited from interface Streamable
     public function readObject (ins :ObjectInputStream) :void
     {
-        message = ins.readField(String);
-        bundle = ins.readField(String);
+        message = (ins.readField(String) as String);
+        bundle = (ins.readField(String) as String);
     }
 
     // documentation inherited from interface Streamable
