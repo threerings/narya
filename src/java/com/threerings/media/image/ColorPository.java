@@ -372,7 +372,7 @@ public class ColorPository implements Serializable
     /**
      * Looks up the requested color record.
      */
-    protected ColorRecord getColorRecord (int classId, int colorId)
+    public ColorRecord getColorRecord (int classId, int colorId)
     {
         ClassRecord record = (ClassRecord)_classes.get(classId);
         if (record == null) {
