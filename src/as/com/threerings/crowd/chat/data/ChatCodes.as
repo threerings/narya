@@ -33,6 +33,10 @@ import com.threerings.crowd.chat.client.SpeakService;
  */
 public class ChatCodes extends InvocationCodes
 {
+    // TODO: Fucking hell, this sucks balls. It'd be nice if we didn't
+    // have to do this, I tried making SUCCESS prototype const in InvCodes....
+    public static const SUCCESS :String = InvocationCodes.SUCCESS;
+
     /** The message identifier for a chat notification message. */
     public static const CHAT_NOTIFICATION :String = "chat";
 
