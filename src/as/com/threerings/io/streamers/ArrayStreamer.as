@@ -32,7 +32,7 @@ public class ArrayStreamer extends Streamer
                 _isFinal = ClassUtil.isFinal(_elementType);
 
             } else {
-                Log.warning("Other array types are currently not handled yet " +
+                com.threerings.presents.Log.warning("Other array types are currently not handled yet " +
                     "[jname=" + jname + "].");
                 throw new Error("Unimplemented bit");
             }

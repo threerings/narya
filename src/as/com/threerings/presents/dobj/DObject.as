@@ -62,9 +62,9 @@ public class DObject // extends EventDispatcher
             _listeners = new ArrayCollection();
 
         } else if (_listeners.contains(listener)) {
-            Log.warning("Refusing repeat listener registration " +
+            com.threerings.presents.Log.warning("Refusing repeat listener registration " +
                 "[dobj=" + which() + ", list=" + listener + "].");
-            Log.logStackTrace(new Error());
+            com.threerings.presents.Log.logStackTrace(new Error());
             return;
         }
         _listeners.addItem(listener);
@@ -95,9 +95,9 @@ public class DObject // extends EventDispatcher
                     (listener as EventListener).eventReceived(event);
                 }
             } catch (e :Error) {
-                Log.warning("Listener choked during notification " +
+                com.threerings.presents.Log.warning("Listener choked during notification " +
                     "[list=" + listener + ", event=" + event + "].");
-                Log.logStackTrace(e);
+                com.threerings.presents.Log.logStackTrace(e);
             }
         }
     }
@@ -114,7 +114,7 @@ public class DObject // extends EventDispatcher
             _omgr.postEvent(event);
 
         } else {
-            Log.warning("Unable to post event, object has no omgr " +
+            com.threerings.presents.Log.warning("Unable to post event, object has no omgr " +
                 "[oid=" + getOid() + ", class=" + ClassUtil.getClassName(this) +
                 ", event=" + event + "].");
         }

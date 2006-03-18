@@ -26,8 +26,7 @@ public class BootstrapData
     // documentation inherited from interface Streamable
     public function writeObject (out :ObjectOutputStream) :void
     {
-        Log.warning("This is client code: BootstrapData shouldn't be written");
-        //out.writeShort(messageId);
+        com.threerings.presents.Log.warning("This is client code: BootstrapData shouldn't be written");
     }
 
     // documentation inherited from interface Streamable

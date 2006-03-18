@@ -86,7 +86,7 @@ public class ChatDirector extends BasicDirector
         _cctx.getLocationDirector().addLocationObserver(this);
 
         if (_bundle == null || _msgmgr == null) {
-            Log.warning("Null bundle or message manager given to ChatDirector");
+            com.threerings.crowd.Log.warning("Null bundle or message manager given to ChatDirector");
             return;
         }
         var msg :MessageBundle = _msgmgr.getBundle(_bundle);
@@ -902,7 +902,7 @@ public class ChatDirector extends BasicDirector
         if (bundle != null && _msgmgr != null) {
             var msgb :MessageBundle = _msgmgr.getBundle(bundle);
             if (msgb == null) {
-                Log.warning(
+                com.threerings.crowd.Log.warning(
                     "No message bundle available to translate message " +
                     "[bundle=" + bundle + ", message=" + message + "].");
             } else {

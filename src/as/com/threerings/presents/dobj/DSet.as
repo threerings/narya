@@ -123,7 +123,7 @@ public class DSet
             }
 
         } else if (contains(elem)) {
-            Log.warning("Refusing to add duplicate entry [set=" + this +
+            com.threerings.presents.Log.warning("Refusing to add duplicate entry [set=" + this +
                   ", entry=" + elem + "].");
             return false;
         }
