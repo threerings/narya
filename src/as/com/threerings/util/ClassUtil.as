@@ -1,7 +1,5 @@
 package com.threerings.util {
 
-import flash.util.describeType;
-
 public class ClassUtil
 {
     public static function getClassName (obj :Object) :String
@@ -37,7 +35,7 @@ public class ClassUtil
         }
 
         // TODO: there's currently no way to determine final from the class
-        //var attrs :XMLList = describeType(type).elements("type");
+        //var attrs :XMLList = flash.util.describeType(type).elements("type");
         return false;
     }
 }
