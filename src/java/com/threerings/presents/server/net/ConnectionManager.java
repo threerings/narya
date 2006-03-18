@@ -353,7 +353,6 @@ public class ConnectionManager extends LoopingThread
                     if (oq.writeOverflowMessages(iterStamp)) {
                         // if they were all written, we can remove it
                         oqiter.remove();
-                        Log.info("Flushed overflow queue " + oq + ".");
                     }
 
                 } catch (IOException ioe) {
@@ -880,7 +879,6 @@ public class ConnectionManager extends LoopingThread
         public void handlePartialWrite (Connection conn, ByteBuffer msgbuf) {
             // if we couldn't write all the data for this message, we'll
             // need to establish an overflow queue
-            Log.info("Starting overflow queue for " + conn + ".");
             _oflowqs.put(conn, new OverflowQueue(conn, msgbuf));
         }
     };
