@@ -95,7 +95,7 @@ public class ConfigRepository extends JORARepository
             "FIELD VARCHAR(64) NOT NULL",
             "VALUE TEXT NOT NULL",
             "PRIMARY KEY (OBJECT, FIELD)",
-        });
+        }, "");
     }
 
     // documentation inherited
