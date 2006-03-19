@@ -21,6 +21,7 @@
 
 package com.threerings.util;
 
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
@@ -181,6 +182,14 @@ public class RandomUtil
             }
         }
         return (index >= values.length) ? null : values[index];
+    }
+
+    /**
+     * Picks a random object from the supplied {@link Collection}.
+     */
+    public static Object pickRandom (Collection values)
+    {
+        return pickRandom(values.iterator(), values.size());
     }
 
     /**
