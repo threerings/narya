@@ -560,10 +560,18 @@ public class ImageUtil
         }
 
         // fill in the dimensions
-        tbounds.x = minx;
-        tbounds.y = firstrow;
-        tbounds.width = maxx - minx + 1;
-        tbounds.height = lastrow - firstrow + 1;
+        if (firstrow != -1) {
+            tbounds.x = minx;
+            tbounds.y = firstrow;
+            tbounds.width = maxx - minx + 1;
+            tbounds.height = lastrow - firstrow + 1;
+        } else {
+            // Entirely blank image.  Return 1x1 blank image.
+            tbounds.x = 0;
+            tbounds.y = 0;
+            tbounds.width = 1;
+            tbounds.height = 1;
+        }
     }
 
     /**
