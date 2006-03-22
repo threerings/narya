@@ -1,7 +1,5 @@
 package com.threerings.util {
 
-import flash.util.Dictionary;
-
 /**
  * I will likely extend this out to be a fully-featured map.
  */
@@ -9,28 +7,30 @@ public class SimpleMap extends Object
 {
     public function clear () :void
     {
-        _data = new Dictionary();
+        _data = new Object();
         _size = 0;
     }
 
     public function get (key :Object) :Object
     {
-        return _data[key];
+        var skey :String = key.toString();
+        return _data[skey];
     }
 
     public function keys () :Array
     {
         var arr :Array = new Array();
-        for (var key :Object in _data) {
-            arr.push(key);
+        for (var skey :String in _data) {
+            arr.push(skey);
         }
         return arr;
     }
 
     public function put (key :Object, value :Object) :Object
     {
-        var oldValue :* = _data[key];
-        _data[key] = value;
+        var skey :String = key.toString();
+        var oldValue :* = _data[skey];
+        _data[skey] = value;
         if (oldValue === undefined) {
             _size++;
         }
@@ -39,12 +39,11 @@ public class SimpleMap extends Object
 
     public function remove (key :Object) :Object
     {
-        var value :* = _data[key];
-        if (value !== undefined) {
-            delete _data[key];
-            _size--;
-        }
-        return (value as Object);
+        var skey :String = key.toString();
+        var value :Object = _data[skey];
+        delete _data[skey];
+        _size--;
+        return value;
     }
 
     public function size () :int
@@ -52,7 +51,7 @@ public class SimpleMap extends Object
         return _size;
     }
 
-    protected var _data :Dictionary = new Dictionary();
+    protected var _data :Object = new Object();
 
     protected var _size :int = 0;
 }
