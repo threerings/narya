@@ -38,7 +38,7 @@ public class ObjectOutputStream
         if (cmap == null) {
             var streamer :Streamer = Streamer.getStreamer(obj);
             // streamer may be null to indicate a Streamable object
-            if (streamer === undefined) {
+            if (streamer == null) {
                 // TODO
                 trace("OMG, cannot stream ", cname);
                 return;
@@ -66,7 +66,7 @@ public class ObjectOutputStream
         writeBareObjectImpl(obj, Streamer.getStreamer(obj));
     }
 
-    public function writeBareObjectImpl (obj :Object, streamer :Streamer)
+    public function writeBareObjectImpl (obj :Object, streamer :Streamer) :void
     {
         // if it's Streamable, it goes straight through
         if (streamer == null) {
@@ -168,15 +168,6 @@ public class ObjectOutputStream
     // we skip them.
     //public function writeUnsignedInt (value :int) :void
     //public function writeUTFBytes (value :int) :void
-
-    /**
-     * Used by a Streamer that is writing an array of Streamable instances.
-     */
-    internal function setCurrent (streamer :Streamer, current :Object)
-    {
-        _streamer = streamer;
-        _current = current;
-    }
 
     /** The target DataOutput that we route things to. */
     protected var _targ :IDataOutput;

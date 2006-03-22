@@ -166,28 +166,28 @@ public class LocationDirector extends BasicDirector
         var listener :MoveListenerProxy = new MoveListenerProxy();
 
         // documentation inherited from interface MoveListener
-        listener.moveSucceeded = function (config :PlaceConfig) :void
-        {
-            // handle the successful move
-            didMoveTo(_pendingPlaceId, config);
-
-            // and clear out the tracked pending oid
-            _pendingPlaceId = -1;
-        };
+//        listener.moveSucceeded = function (config :PlaceConfig) :void
+//        {
+//            // handle the successful move
+//            didMoveTo(_pendingPlaceId, config);
+//
+//            // and clear out the tracked pending oid
+//            _pendingPlaceId = -1;
+//        };
 
         // documentation inherited from interface
-        listener.requestFailed = function (reason :String) :void
-        {
-            // clear out our pending request oid
-            var placeId :int = _pendingPlaceId;
-            _pendingPlaceId = -1;
-
-            Log.info("moveTo failed [pid=" + placeId +
-                     ", reason=" + reason + "].");
-
-            // let our observers know that something has gone horribly awry
-            notifyFailure(placeId, reason);
-        };
+//        listener.requestFailed = function (reason :String) :void
+//        {
+//            // clear out our pending request oid
+//            var placeId :int = _pendingPlaceId;
+//            _pendingPlaceId = -1;
+//
+//            Log.info("moveTo failed [pid=" + placeId +
+//                     ", reason=" + reason + "].");
+//
+//            // let our observers know that something has gone horribly awry
+//            notifyFailure(placeId, reason);
+//        };
 
         // issue a moveTo request
         Log.info("Issuing moveTo(" + placeId + ").");
@@ -408,7 +408,8 @@ public class LocationDirector extends BasicDirector
         super.clientDidLogon(event);
 
         // TODO: Work out new anonyclass construct
-        var sub :SubscriberProxy = new SubscriberProxy();
+//        var sub :SubscriberProxy = new SubscriberProxy();
+        var sub :Object = new Object();
         sub.objectAvailable = function (object :DObject) :void {
             gotBodyObject(object as BodyObject);
         };
@@ -417,10 +418,11 @@ public class LocationDirector extends BasicDirector
                         "object; all has gone horribly wrong" +
                         "[cause=" + cause + "].");
         };
+        sub.objectAvailable(null);
 
         var client :Client = event.getClient();
         var cloid :int = client.getClientOid();
-        client.getDObjectManager().subscribeToObject(cloid, sub);
+        client.getDObjectManager().subscribeToObject(cloid, null);
     }
 
     // documentation inherited
@@ -611,13 +613,29 @@ public class LocationDirector extends BasicDirector
 }
 }
 
+import com.threerings.presents.dobj.DObject;
+import com.threerings.presents.dobj.ObjectAccessError;
 import com.threerings.presents.dobj.Subscriber;
+
 import com.threerings.crowd.client.MoveListener;
+import com.threerings.crowd.data.PlaceConfig;
 
 dynamic class SubscriberProxy implements Subscriber
 {
+    public function objectAvailable (obj :DObject) :void
+    {
+    }
+    public function requestFailed (oid :int, cause :ObjectAccessError) :void
+    {
+    }
 }
 
 dynamic class MoveListenerProxy implements MoveListener
 {
+    public function moveSucceeded (config :PlaceConfig) :void
+    {
+    }
+    public function requestFailed (cause :String) :void
+    {
+    }
 }

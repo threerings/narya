@@ -1,5 +1,7 @@
 package com.threerings.util {
 
+import flash.util.*;
+
 public class ClassUtil
 {
     public static function getClassName (obj :Object) :String

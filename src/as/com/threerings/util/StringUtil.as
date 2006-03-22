@@ -1,5 +1,7 @@
 package com.threerings.util {
 
+import mx.utils.*;
+
 public class StringUtil
 {
     public static function isBlank (str :String) :Boolean

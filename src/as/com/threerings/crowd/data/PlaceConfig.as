@@ -40,14 +40,18 @@ import com.threerings.crowd.client.PlaceController;
  * #getControllerClass} and {@link #getManagerClassName}, returning the
  * appropriate place controller and manager class for that place.
  */
-public interface PlaceConfig extends Streamable
+public /*abstract*/ class PlaceConfig
+    implements Streamable
 {
     /**
      * Returns the class that should be used to create a controller for
      * this place. The controller class must derive from {@link
      * PlaceController}.
      */
-    function getControllerClass () :Class;
+    public function getControllerClass () :Class
+    {
+        return null;
+    }
 
     /**
      * Returns the name of the class that should be used to create a
@@ -60,5 +64,16 @@ public interface PlaceConfig extends Streamable
      * knowing that it is never used.
      */
 //    public function getManagerClassName () :String;
+
+    // documentation inherited from interface Streamable
+    public function writeObject (out :ObjectOutputStream) :void
+    {
+        // nothing needed
+    }
+
+    public function readObject (ins :ObjectInputStream) :void
+    {
+        // nothing needed
+    }
 }
 }

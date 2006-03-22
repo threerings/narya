@@ -105,7 +105,9 @@ public class ChatDirector extends BasicDirector
      */
     public function addChatDisplay (display :ChatDisplay) :void
     {
-        _displays.addItem(display);
+        if (-1 == _displays.getItemIndex(display)) {
+            _displays.addItem(display);
+        }
     }
 
     /**

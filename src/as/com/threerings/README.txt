@@ -317,3 +317,18 @@ ActionScript
 
 - Static constants are not inherited by subclasses. You can make them
   prototype rather than static and they will be.
+
+- anonymous class options:
+
+  - pass arrays of functions, with just a convention as to which function is
+    which (no compile-time type checking)
+  - pass objects with functions of the right names attached (no compile-time)
+  - make adapters, as necessary, for interfaces (bleah!) (Still no good
+    compile-time checking, except for the # of args)
+  - add code to verify the object's functions against describeType calls..
+    (would need to iterate on types because describeType only finds methods
+    in the terminal interface. Only # of args can be checked)
+
+- actionscript problems
+  - helper classes go outside the package
+  - each cast is broken in one way or another

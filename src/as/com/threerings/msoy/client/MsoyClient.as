@@ -21,7 +21,7 @@ public class MsoyClient extends Client
 {
     public function MsoyClient ()
     {
-        super(new UsernamePasswordCreds(new Name("Ray"), "fork-u-2"));
+        super(new UsernamePasswordCreds(new Name("guest"), "guest"));
 
         _ctx = new MsoyContext(this);
 

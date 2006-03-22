@@ -23,7 +23,7 @@ public class ObjectInputStream
     /**
      * Set a new source from which to read our data.
      */
-    public function setSource (source :IDataInput)
+    public function setSource (source :IDataInput) :void
     {
         _source = source;
     }
@@ -187,15 +187,6 @@ public class ObjectInputStream
         //throws IOError
     {
         return _source.readUTF();
-    }
-
-    /**
-     * Used by a Streamer that is reading an array of Streamable instances.
-     */
-    protected function setCurrent (streamer :Streamer, current :Object)
-    {
-        _streamer = streamer;
-        _current = current;
     }
 
     /** The target DataInput that we route input from. */

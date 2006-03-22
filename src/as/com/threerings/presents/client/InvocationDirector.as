@@ -93,9 +93,9 @@ public class InvocationDirector
                 Log.warning("Receiver unregistered for which we have no " +
                             "id to code mapping [code=" + receiverCode + "].");
             } else {
-                var decoder :Object = _receivers.remove(rreg.receiverId);
+                var odecoder :Object = _receivers.remove(rreg.receiverId);
 //                 Log.info("Cleared receiver " +
-//                          StringUtil.shortClassName(decoder) +
+//                          StringUtil.shortClassName(odecoder) +
 //                          " " + rreg + ".");
             }
             _clobj.removeFromReceivers(receiverCode);

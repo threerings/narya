@@ -359,5 +359,13 @@ public class Client extends EventDispatcher
 
     /** Ticks. */
     protected var _tickInterval :Timer;
+
+    // client observer constants
+    internal static const CLIENT_DID_LOGON :int = 0;
+    internal static const CLIENT_FAILED_TO_LOGON :int = 1;
+    internal static const CLIENT_OBJECT_CHANGED :int = 2;
+    internal static const CLIENT_CONNECTION_FAILED :int = 3;
+    internal static const CLIENT_WILL_LOGOFF :int = 4;
+    internal static const CLIENT_DID_LOGOFF :int = 5;
 }
 }
