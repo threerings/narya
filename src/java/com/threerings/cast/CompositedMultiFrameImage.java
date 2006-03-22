@@ -56,10 +56,10 @@ public class CompositedMultiFrameImage
         int fcount = sources[0].frames.getFrames(orient).getFrameCount();
         _images = new CompositedMirage[fcount];
         for (int ii = 0; ii < fcount; ii++) {
-            _images[ii] = new CompositedMirage(ii);
+            _images[ii] = createCompositedMirage(ii);
         }
     }
-
+    
     // documentation inherited
     public int getFrameCount () {
         return _images.length;
@@ -110,6 +110,14 @@ public class CompositedMultiFrameImage
         return size;
     }
 
+    /**
+     * Creates a composited image for the specified frame.
+     */
+    protected CompositedMirage createCompositedMirage (int index)
+    {
+        return new CompositedMirage(index);
+    }
+    
     // documentation inherited
     protected Mirage getFrame (int orient, int index)
     {
@@ -153,13 +161,7 @@ public class CompositedMultiFrameImage
                 TrimmedMultiFrameImage source =
                     _sources[ii].frames.getFrames(_orient);
                 source.getTrimmedBounds(index, tbounds);
-
-                // the first one defines our initial bounds
-                if (_bounds.width == 0 && _bounds.height == 0) {
-                    _bounds.setBounds(tbounds);
-                } else {
-                    _bounds.add(tbounds);
-                }
+                _bounds = combineBounds(_bounds, tbounds);
             }
 
             // compute our new origin
@@ -172,7 +174,7 @@ public class CompositedMultiFrameImage
             // render our volatile image for the first time
             createVolatileImage();
         }
-
+        
         public int getXOrigin ()
         {
             return _origin.x;
@@ -194,6 +196,20 @@ public class CompositedMultiFrameImage
                         _action, _orient));
         }
 
+        /**
+         * Combines the working bounds with a new set of bounds.
+         */
+        protected Rectangle combineBounds (Rectangle bounds, Rectangle tbounds)
+        {
+            // the first one defines our initial bounds
+            if (bounds.width == 0 && bounds.height == 0) {
+                bounds.setBounds(tbounds);
+            } else {
+                bounds.add(tbounds);
+            }
+            return bounds;
+        }
+        
         // documentation inherited
         protected int getTransparency ()
         {

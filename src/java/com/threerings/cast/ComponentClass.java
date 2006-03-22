@@ -117,6 +117,10 @@ public class ComponentClass implements Serializable
      * be null if a system does not use recolorable components. */
     public String[] colors;
 
+    /** The class name of the layer from which this component class obtains a
+     * mask to limit rendering to certain areas. */
+    public String mask;
+    
     /** Indicates the class name of the shadow layer to which this component
      * class contributes a shadow. */
     public String shadow;
@@ -216,6 +220,9 @@ public class ComponentClass implements Serializable
         buf.append(", pri=").append(renderPriority);
         if (colors != null) {
             buf.append(", colors=").append(StringUtil.toString(colors));
+        }
+        if (mask != null) {
+            buf.append(", mask=").append(mask);
         }
         if (shadowAlpha != 1.0f) {
             buf.append(", shadow=").append(shadowAlpha);

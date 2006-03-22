@@ -46,6 +46,15 @@ public class CompositedActionFrames
 
         public ActionFrames frames;
 
+        public ComponentFrames () {
+        }
+        
+        public ComponentFrames (
+            CharacterComponent ccomp, ActionFrames frames) {
+            this.ccomp = ccomp;
+            this.frames = frames;
+        }
+        
         public String toString () {
             return ccomp + ":" + frames;
         }

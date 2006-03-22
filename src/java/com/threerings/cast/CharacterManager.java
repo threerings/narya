@@ -256,7 +256,10 @@ public class CharacterManager
 
         // this will be used to construct any shadow layers
         HashMap shadows = null;
-
+        
+        // maps components by class name for masks
+        HashMap ccomps = new HashMap();
+        
         // create colorized versions of all of the source action frames
         ArrayList sources = new ArrayList(ccount);
         for (int ii = 0; ii < ccount; ii++) {
@@ -264,7 +267,8 @@ public class CharacterManager
             sources.add(cframes);
             CharacterComponent ccomp =
                 (cframes.ccomp = _crepo.getComponent(cids[ii]));
-
+            ccomps.put(ccomp.componentClass.name, ccomp);
+            
             // load up the main component images
             ActionFrames source = ccomp.getFrames(action, null);
             if (source == null) {
@@ -275,7 +279,7 @@ public class CharacterManager
             }
             cframes.frames = (zations == null || zations[ii] == null) ?
                 source : source.cloneColorized(zations[ii]);
-
+            
             // if this component has a shadow, make a note of it
             if (ccomp.componentClass.isShadowed()) {
                 if (shadows == null) {
@@ -291,6 +295,17 @@ public class CharacterManager
             }
         }
 
+        // add any necessary masks
+        for (int ii = 0; ii < ccount; ii++) {
+            ComponentFrames cframes = (ComponentFrames)sources.get(ii);
+            CharacterComponent mcomp = (CharacterComponent)ccomps.get(
+                cframes.ccomp.componentClass.mask);
+            if (mcomp != null) {
+                cframes.frames = compositeMask(action, cframes.ccomp,
+                    cframes.frames, mcomp);
+            }
+        }
+        
         // now create any necessary shadow layers
         if (shadows != null) {
             Iterator iter = shadows.entrySet().iterator();
@@ -312,6 +327,26 @@ public class CharacterManager
         return new CompositedActionFrames(_imgr, _frameCache, action, cfvec);
     }
 
+    protected ActionFrames compositeMask (
+        String action, CharacterComponent ccomp, ActionFrames cframes,
+        CharacterComponent mcomp)
+    {
+        ActionFrames mframes = mcomp.getFrames(action,
+            StandardActions.CROP_TYPE);
+        if (mframes == null) {
+            return cframes;
+        }
+        return new CompositedActionFrames(
+            _imgr, _frameCache, action, new ComponentFrames[] {
+                new ComponentFrames(ccomp, cframes),
+                new ComponentFrames(mcomp, mframes) }) {
+            protected CompositedMultiFrameImage createFrames (int orient) {
+                return new CompositedMaskedImage(
+                    _imgr, _sources, _action, orient);
+            }
+        };
+    }
+    
     protected ComponentFrames compositeShadow (
         String action, String sclass, ArrayList scomps)
     {
