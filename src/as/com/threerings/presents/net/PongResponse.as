@@ -1,6 +1,6 @@
 package com.threerings.presents.net {
 
-import com.threerings.util.long;
+import com.threerings.util.Long;
 
 import com.threerings.io.ObjectInputStream;
 import com.threerings.io.ObjectOutputStream;
@@ -13,7 +13,7 @@ public class PongResponse extends DownstreamMessage
         super();
     }
 
-    public function getPackStamp () :long
+    public function getPackStamp () :Long
     {
         return _packStamp;
     }
@@ -34,13 +34,13 @@ public class PongResponse extends DownstreamMessage
         super.readObject(ins);
 
         // TODO: Figure out how we're really going to cope with longs
-        _packStamp = new long(0);
-        _packStamp.readObject(ins);
+        _packStamp = new Long(0);
+        ins.readBareObject(_packStamp);
 
         _processDelay = ins.readInt();
     }
 
-    protected var _packStamp :long;
+    protected var _packStamp :Long;
 
     protected var _processDelay :int;
 

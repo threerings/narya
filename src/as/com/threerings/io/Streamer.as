@@ -11,6 +11,7 @@ import com.threerings.io.streamers.ByteyStreamer;
 import com.threerings.io.streamers.ByteArrayStreamer;
 import com.threerings.io.streamers.FloatStreamer;
 import com.threerings.io.streamers.IntegerStreamer;
+import com.threerings.io.streamers.LongStreamer;
 import com.threerings.io.streamers.NumberStreamer;
 import com.threerings.io.streamers.ObjectArrayStreamer;
 import com.threerings.io.streamers.ShortStreamer;
@@ -136,6 +137,7 @@ public class Streamer
                 new ByteStreamer(),
                 new ShortStreamer(),
                 new IntegerStreamer(),
+                new LongStreamer(),
                 new FloatStreamer()
             ];
         }

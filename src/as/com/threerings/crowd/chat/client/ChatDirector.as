@@ -36,6 +36,7 @@ import com.threerings.presents.dobj.DObject;
 import com.threerings.presents.dobj.MessageEvent;
 import com.threerings.presents.dobj.MessageListener;
 
+import com.threerings.util.Long;
 import com.threerings.util.MessageBundle;
 import com.threerings.util.MessageManager;
 import com.threerings.util.Name;
@@ -441,7 +442,7 @@ public class ChatDirector extends BasicDirector
             }
         };
         var success :Function = function (
-                idleTime :long, awayMessage :String) :void
+                idleTime :Long, awayMessage :String) :void
         {
             var feedback :String = xlate(_bundle, MessageBundle.tcompose(
                 "m.told_format", target, message));

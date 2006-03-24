@@ -1,6 +1,6 @@
 package com.threerings.crowd.chat.client {
 
-import com.threerings.util.long;
+import com.threerings.util.Long;
 
 import com.threerings.presents.client.InvocationAdapter;
 
@@ -14,7 +14,7 @@ public class TellAdapter extends InvocationAdapter
     }
 
     // documentation inherited from interface TellListener
-    public function tellSucceeded (idleTime :long, awayMsg :String) :void
+    public function tellSucceeded (idleTime :Long, awayMsg :String) :void
     {
         _successFunc(idleTime, awayMsg);
     }
