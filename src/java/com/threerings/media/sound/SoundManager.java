@@ -71,6 +71,9 @@ public class SoundManager
     /** A pan value indicating that a sound should play from the right only. */
     public static final float PAN_RIGHT = 1f;
 
+    /** A pan value indicating that a sound should play from center. */
+    public static final float PAN_CENTER = 0f;
+
     /**
      * Create instances of this for your application to differentiate
      * between different types of sounds.
