@@ -65,6 +65,12 @@ import com.threerings.media.MediaPrefs;
  */
 public class SoundManager
 {
+    /** A pan value indicating that a sound should play from the left only. */
+    public static final float PAN_LEFT = -1f;
+
+    /** A pan value indicating that a sound should play from the right only. */
+    public static final float PAN_RIGHT = 1f;
+
     /**
      * Create instances of this for your application to differentiate
      * between different types of sounds.
@@ -114,6 +120,17 @@ public class SoundManager
          * Get the volume of this sound.
          */
         public float getVolume ();
+
+        /**
+         * Set the pan value for the sound. Valid values are
+         * -1 for left-only, 0 is centered, all the way to +1 for right-only.
+         */
+        public void setPan (float pan);
+
+        /**
+         * Get the pan value of this sound.
+         */
+        public float getPan ();
     }
 
     /** The default sound type. */
@@ -257,12 +274,24 @@ public class SoundManager
     }
 
     /**
-     * Play the specified sound of as the specified type of sound, immediately.
+     * Play the specified sound as the specified type of sound, immediately.
      * Note that a sound need not be locked prior to playing.
      */
     public void play (SoundType type, String pkgPath, String key)
     {
-        play(type, pkgPath, key, 0);
+        play(type, pkgPath, key, 0, 0f);
+    }
+
+    /**
+     * Play the specified sound as the specified type of sound, immediately,
+     * with the specified pan value.
+     * Note that a sound need not be locked prior to playing.
+     *
+     * @param pan a value from -1f (all left) to +1f (all right).
+     */
+    public void play (SoundType type, String pkgPath, String key, float pan)
+    {
+        play(type, pkgPath, key, 0, pan);
     }
 
     /**
@@ -271,13 +300,24 @@ public class SoundManager
      */
     public void play (SoundType type, String pkgPath, String key, int delay)
     {
+        play(type, pkgPath, key, delay, 0f);
+    }
+
+    /**
+     * Play the specified sound after the specified delay.
+     * @param delay the delay in milliseconds.
+     * @param pan a value from -1f (all left) to +1f (all right).
+     */
+    public void play (
+            SoundType type, String pkgPath, String key, int delay, float pan)
+    {
         if (type == null) {
             type = DEFAULT; // let the lazy kids play too
         }
 
         if ((_clipVol != 0f) && isEnabled(type)) {
             final SoundKey skey = new SoundKey(PLAY, pkgPath, key, delay,
-                _clipVol);
+                _clipVol, pan);
             if (delay > 0) {
                 new Interval() {
                     public void expired () {
@@ -295,7 +335,7 @@ public class SoundManager
      */
     public Frob loop (SoundType type, String pkgPath, String key)
     {
-        SoundKey skey = new SoundKey(LOOP, pkgPath, key, 0, _clipVol);
+        SoundKey skey = new SoundKey(LOOP, pkgPath, key, 0, _clipVol, 0f);
         addToPlayQueue(skey);
         return skey; // it is a frob
     }
@@ -460,18 +500,24 @@ public class SoundManager
                 new DataLine.Info(SourceDataLine.class, format));
             line.open(format, LINEBUF_SIZE);
             float setVolume = 1;
+            float setPan = 0f;
             line.start();
             _soundSeemsToWork = true;
 
+            byte[] buffer = new byte[LINEBUF_SIZE];
             do {
                 // play the sound
-                byte[] buffer = new byte[LINEBUF_SIZE];
                 int count = 0;
                 while (key.running && count != -1) {
                     float vol = key.volume;
                     if (vol != setVolume) {
                         adjustVolume(line, vol);
                         setVolume = vol;
+                    }
+                    float pan = key.pan;
+                    if (pan != setPan) {
+                        adjustPan(line, pan);
+                        setPan = pan;
                     }
                     try {
                         count = stream.read(buffer, 0, buffer.length);
@@ -773,6 +819,20 @@ public class SoundManager
     }
 
     /**
+     * Set the pan value for the specified line.
+     */
+    protected static void adjustPan (Line line, float pan)
+    {
+        try {
+            FloatControl control =
+                (FloatControl) line.getControl(FloatControl.Type.PAN);
+            control.setValue(pan);
+        } catch (Exception e) {
+            Log.debug("Cannot set pan on line: " + e);
+        }
+    }
+
+    /**
      * A key for tracking sounds.
      */
     protected static class SoundKey
@@ -790,6 +850,9 @@ public class SoundManager
         public volatile boolean running = true;
 
         public volatile float volume;
+
+        /** The pan, or 0 to center the sound. */
+        public volatile float pan;
 
         /** The player thread, if it's playing us. */
         public Thread thread;
@@ -817,12 +880,13 @@ public class SoundManager
          * Constructor for a sound effect soundkey.
          */
         public SoundKey (byte cmd, String pkgPath, String key, int delay,
-                         float volume)
+                         float volume, float pan)
         {
             this(cmd, pkgPath, key);
 
             stamp = System.currentTimeMillis() + delay;
             this.volume = volume;
+            this.pan = pan;
         }
 
         // documentation inherited from interface Frob
@@ -846,6 +910,18 @@ public class SoundManager
         public float getVolume ()
         {
             return volume;
+        }
+
+        // documentation inherited from interface Frob
+        public void setPan (float pan)
+        {
+            pan = Math.max(-1f, Math.min(1f, pan));
+        }
+
+        // documentation inherited from interface Frob
+        public float getPan ()
+        {
+            return pan;
         }
 
         /**
