@@ -18,6 +18,8 @@ import com.threerings.io.streamers.StringStreamer;
 
 public class Streamer
 {
+    public static const BAD_STREAMER :Streamer = new Streamer(null, null);
+
     public static function getStreamer (obj :Object) :Streamer
     {
         if (obj is Streamable) {
@@ -39,7 +41,7 @@ public class Streamer
             return streamer;
         }
 
-        return undefined;
+        return BAD_STREAMER;
     }
 
     public static function getStreamerByClass (clazz :Class) :Streamer
@@ -56,7 +58,7 @@ public class Streamer
             }
         }
 
-        return undefined;
+        return BAD_STREAMER;
     }
 
     public static function getStreamerByJavaName (jname :String) :Streamer

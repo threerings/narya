@@ -38,9 +38,9 @@ public class ObjectOutputStream
         if (cmap == null) {
             var streamer :Streamer = Streamer.getStreamer(obj);
             // streamer may be null to indicate a Streamable object
-            if (streamer == null) {
+            if (streamer == Streamer.BAD_STREAMER) {
                 // TODO
-                trace("OMG, cannot stream ", cname);
+                Log.warning("OMG, cannot stream " + cname);
                 return;
             }
 

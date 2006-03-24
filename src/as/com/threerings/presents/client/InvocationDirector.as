@@ -1,7 +1,7 @@
 package com.threerings.presents.client {
 
 import mx.collections.IViewCursor;
-import mx.collections.ListCollectionView;
+import mx.collections.ArrayCollection;
 
 import com.threerings.util.SimpleMap;
 
@@ -34,15 +34,6 @@ public class InvocationDirector
 
         _omgr = omgr;
         _client = client;
-
-        var subby :Object = new Object();
-        subby.objectAvailable = function (obj :DObject) :void {
-            gotClientObject(obj as ClientObject);
-        }
-        subby.requestFailed = function (
-                oid :int, cause :ObjectAccessError) :void {
-            gotClientObjectFailed(oid, cause);
-        }
 
         _omgr.subscribeToObject(cloid, new ClientSubscriber(this));
     }
@@ -364,7 +355,7 @@ public class InvocationDirector
 
     /** All registered receivers are maintained in a list so that we can
      * assign receiver ids to them when we go online. */
-    internal var _reclist :ListCollectionView = new ListCollectionView();
+    internal var _reclist :ArrayCollection = new ArrayCollection();
 
     /** The last time we flushed our listeners. */
     protected var _lastFlushTime :Number;

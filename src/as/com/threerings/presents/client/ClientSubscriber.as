@@ -11,7 +11,7 @@ import com.threerings.presents.Log;
  * This class is used by the InvocationDirector to subscribe
  * to the client object.
  */
-internal class ClientSubscriber implements Subscriber
+public class ClientSubscriber implements Subscriber
 {
     public function ClientSubscriber (invdir :InvocationDirector)
     {

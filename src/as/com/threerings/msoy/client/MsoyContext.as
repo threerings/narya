@@ -22,6 +22,7 @@ public class MsoyContext
 
         // TODO: verify params to these constructors
         _msgmgr = new MessageManager("rsrc");
+        _locdir = new LocationDirector(this);
         _chatdir = new ChatDirector(this, _msgmgr, "general");
     }
 
@@ -40,7 +41,7 @@ public class MsoyContext
     // documentation inherited from interface CrowdContext
     public function getLocationDirector () :LocationDirector
     {
-        return null; // TODO
+        return _locdir;
     }
 
     // documentation inherited from interface CrowdContext
@@ -70,6 +71,8 @@ public class MsoyContext
     protected var _client :Client;
 
     protected var _msgmgr :MessageManager;
+
+    protected var _locdir :LocationDirector;
 
     protected var _chatdir :ChatDirector;
 }

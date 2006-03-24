@@ -52,6 +52,10 @@ public class ObjectInputStream
                 var cname :String = Translations.getFromServer(readUTF());
                 Log.debug("read cname: " + cname);
                 var streamer :Streamer = Streamer.getStreamerByJavaName(cname);
+                if (streamer == Streamer.BAD_STREAMER) {
+                    Log.warning("OMG, cannot stream" + cname);
+                    return null;
+                }
 
                 cmap = new ClassMapping(code, cname, streamer);
                 _classMap[code] = cmap;
