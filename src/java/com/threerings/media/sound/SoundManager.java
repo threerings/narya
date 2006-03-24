@@ -913,9 +913,9 @@ public class SoundManager
         }
 
         // documentation inherited from interface Frob
-        public void setPan (float pan)
+        public void setPan (float newPan)
         {
-            pan = Math.max(-1f, Math.min(1f, pan));
+            pan = Math.max(-1f, Math.min(1f, newPan));
         }
 
         // documentation inherited from interface Frob
