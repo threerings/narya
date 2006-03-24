@@ -885,8 +885,8 @@ public class SoundManager
             this(cmd, pkgPath, key);
 
             stamp = System.currentTimeMillis() + delay;
-            this.volume = volume;
-            this.pan = pan;
+            setVolume(volume);
+            setPan(pan);
         }
 
         // documentation inherited from interface Frob
