@@ -264,13 +264,15 @@ public class Client extends EventDispatcher
         }
     }
 
-    internal function gotClientObject (clobj :ClientObject) :void
+    // TODO: this should be 'internal' except for a fucking bug with AS3
+    public function gotClientObject (clobj :ClientObject) :void
     {
         _clobj = clobj;
         notifyObservers(ClientEvent.CLIENT_DID_LOGON);
     }
 
-    internal function getClientObjectFailed (cause :Error) :void
+    // TODO: this should be 'internal' except for a fucking bug with AS3
+    public function getClientObjectFailed (cause :Error) :void
     {
         notifyObservers(ClientEvent.CLIENT_FAILED_TO_LOGON, cause);
     }
