@@ -338,6 +338,9 @@ public class SoundManager
      */
     public Frob loop (SoundType type, String pkgPath, String key)
     {
+        if (!isEnabled(type)) {
+            return null;
+        }
         SoundKey skey = new SoundKey(LOOP, pkgPath, key, 0, _clipVol, 0f);
         addToPlayQueue(skey);
         return skey; // it is a frob
