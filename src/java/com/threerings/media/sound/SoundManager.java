@@ -338,10 +338,22 @@ public class SoundManager
      */
     public Frob loop (SoundType type, String pkgPath, String key)
     {
+        return loop(type, pkgPath, key, PAN_CENTER);
+    }
+
+    /**
+     * Loop the specified sound.
+     */
+    public Frob loop (SoundType type, String pkgPath, String key, float pan)
+    {
+        if (type == null) {
+            type = DEFAULT;
+        }
+
         if (!isEnabled(type)) {
             return null;
         }
-        SoundKey skey = new SoundKey(LOOP, pkgPath, key, 0, _clipVol, 0f);
+        SoundKey skey = new SoundKey(LOOP, pkgPath, key, 0, _clipVol, pan);
         addToPlayQueue(skey);
         return skey; // it is a frob
     }
