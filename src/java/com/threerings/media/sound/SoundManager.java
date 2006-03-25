@@ -282,7 +282,7 @@ public class SoundManager
      */
     public void play (SoundType type, String pkgPath, String key)
     {
-        play(type, pkgPath, key, 0, 0f);
+        play(type, pkgPath, key, 0, PAN_CENTER);
     }
 
     /**
@@ -303,7 +303,7 @@ public class SoundManager
      */
     public void play (SoundType type, String pkgPath, String key, int delay)
     {
-        play(type, pkgPath, key, delay, 0f);
+        play(type, pkgPath, key, delay, PAN_CENTER);
     }
 
     /**
@@ -518,7 +518,7 @@ public class SoundManager
                 new DataLine.Info(SourceDataLine.class, format));
             line.open(format, LINEBUF_SIZE);
             float setVolume = 1;
-            float setPan = 0f;
+            float setPan = PAN_CENTER;
             line.start();
             _soundSeemsToWork = true;
 
@@ -933,7 +933,7 @@ public class SoundManager
         // documentation inherited from interface Frob
         public void setPan (float newPan)
         {
-            pan = Math.max(-1f, Math.min(1f, newPan));
+            pan = Math.max(PAN_LEFT, Math.min(PAN_RIGHT, newPan));
         }
 
         // documentation inherited from interface Frob
