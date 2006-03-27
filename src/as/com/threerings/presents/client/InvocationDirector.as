@@ -16,6 +16,7 @@ import com.threerings.presents.dobj.InvocationNotificationEvent;
 import com.threerings.presents.dobj.InvocationRequestEvent;
 import com.threerings.presents.dobj.ObjectAccessError;
 import com.threerings.presents.dobj.Subscriber;
+import com.threerings.presents.dobj.SubscriberAdapter;
 
 import com.threerings.presents.data.ClientObject;
 
@@ -35,7 +36,8 @@ public class InvocationDirector
         _omgr = omgr;
         _client = client;
 
-        _omgr.subscribeToObject(cloid, new ClientSubscriber(this));
+        _omgr.subscribeToObject(cloid, new SubscriberAdapter(
+            this.gotClientObject, this.gotClientObjectFailed));
     }
 
     public function cleanup () :void
@@ -306,7 +308,7 @@ public class InvocationDirector
     }
 
     /**
-     * Called by the ClientSubscriber helper class when the client object
+     * Called by the ClientObject SubscriberAdapter when the client object
      * has been returned by the server.
      */
     internal function gotClientObject (clobj :ClientObject) :void
@@ -320,7 +322,7 @@ public class InvocationDirector
     }
 
     /**
-     * Called by the ClientSubscriber helper class when it fails.
+     * Called by the ClientObject SubscriberAdapter when it fails.
      */
     internal function gotClientObjectFailed (
             oid :int, cause :ObjectAccessError) :void

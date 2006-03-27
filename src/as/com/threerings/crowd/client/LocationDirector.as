@@ -31,6 +31,7 @@ import com.threerings.presents.client.ClientEvent;
 import com.threerings.presents.dobj.DObject;
 import com.threerings.presents.dobj.ObjectAccessError;
 import com.threerings.presents.dobj.Subscriber;
+import com.threerings.presents.dobj.SubscriberAdapter;
 
 import com.threerings.crowd.Log;
 import com.threerings.crowd.data.BodyObject;
@@ -163,35 +164,32 @@ public class LocationDirector extends BasicDirector
         // make a note of our pending place id
         _pendingPlaceId = placeId;
 
-        var listener :MoveListenerProxy = new MoveListenerProxy();
+        // documentation inherited from interface MoveListener
+        var success :Function = function (config :PlaceConfig) :void {
+            // handle the successful move
+            didMoveTo(_pendingPlaceId, config);
+
+            // and clear out the tracked pending oid
+            _pendingPlaceId = -1;
+        };
 
         // documentation inherited from interface MoveListener
-//        listener.moveSucceeded = function (config :PlaceConfig) :void
-//        {
-//            // handle the successful move
-//            didMoveTo(_pendingPlaceId, config);
-//
-//            // and clear out the tracked pending oid
-//            _pendingPlaceId = -1;
-//        };
+        var failure :Function = function (reason :String) :void {
+            // clear out our pending request oid
+            var placeId :int = _pendingPlaceId;
+            _pendingPlaceId = -1;
 
-        // documentation inherited from interface
-//        listener.requestFailed = function (reason :String) :void
-//        {
-//            // clear out our pending request oid
-//            var placeId :int = _pendingPlaceId;
-//            _pendingPlaceId = -1;
-//
-//            Log.info("moveTo failed [pid=" + placeId +
-//                     ", reason=" + reason + "].");
-//
-//            // let our observers know that something has gone horribly awry
-//            notifyFailure(placeId, reason);
-//        };
+            Log.info("moveTo failed [pid=" + placeId +
+                     ", reason=" + reason + "].");
+
+            // let our observers know that something has gone horribly awry
+            notifyFailure(placeId, reason);
+        };
 
         // issue a moveTo request
         Log.info("Issuing moveTo(" + placeId + ").");
-        _lservice.moveTo(_cctx.getClient(), placeId, listener);
+        _lservice.moveTo(_cctx.getClient(), placeId,
+            new MoveAdapter(success, failure));
         return true;
     }
 
@@ -407,22 +405,20 @@ public class LocationDirector extends BasicDirector
     {
         super.clientDidLogon(event);
 
-        // TODO: Work out new anonyclass construct
-//        var sub :SubscriberProxy = new SubscriberProxy();
-        var sub :Object = new Object();
-        sub.objectAvailable = function (object :DObject) :void {
+        var success :Function = function (object :DObject) :void {
             gotBodyObject(object as BodyObject);
         };
-        sub.requestFailed = function (oid :int, cause :ObjectAccessError) :void {
+        var failure :Function = function (
+                oid :int, cause :ObjectAccessError) :void {
             Log.warning("Location director unable to fetch body " +
                         "object; all has gone horribly wrong" +
                         "[cause=" + cause + "].");
         };
-        sub.objectAvailable(null);
 
         var client :Client = event.getClient();
         var cloid :int = client.getClientOid();
-        client.getDObjectManager().subscribeToObject(cloid, null);
+        client.getDObjectManager().subscribeToObject(cloid,
+            new SubscriberAdapter(success, failure));
     }
 
     // documentation inherited
@@ -611,31 +607,4 @@ public class LocationDirector extends BasicDirector
      * before it is declared to be stale. */
     protected static const STALE_REQUEST_DURATION :int = 60 * 1000;
 }
-}
-
-import com.threerings.presents.dobj.DObject;
-import com.threerings.presents.dobj.ObjectAccessError;
-import com.threerings.presents.dobj.Subscriber;
-
-import com.threerings.crowd.client.MoveListener;
-import com.threerings.crowd.data.PlaceConfig;
-
-dynamic class SubscriberProxy implements Subscriber
-{
-    public function objectAvailable (obj :DObject) :void
-    {
-    }
-    public function requestFailed (oid :int, cause :ObjectAccessError) :void
-    {
-    }
-}
-
-dynamic class MoveListenerProxy implements MoveListener
-{
-    public function moveSucceeded (config :PlaceConfig) :void
-    {
-    }
-    public function requestFailed (cause :String) :void
-    {
-    }
 }

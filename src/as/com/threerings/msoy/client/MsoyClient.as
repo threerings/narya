@@ -8,7 +8,7 @@ import com.threerings.util.Name;
 import com.threerings.presents.Log;
 import com.threerings.presents.client.Client;
 import com.threerings.presents.dobj.DSet;
-import com.threerings.presents.dobj.QSet;
+import com.threerings.presents.data.ClientObject;
 import com.threerings.presents.net.UsernamePasswordCreds;
 
 import com.threerings.presents.dobj.DObjectManager;

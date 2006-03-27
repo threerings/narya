@@ -328,7 +328,3 @@ ActionScript
   - add code to verify the object's functions against describeType calls..
     (would need to iterate on types because describeType only finds methods
     in the terminal interface. Only # of args can be checked)
-
-- actionscript problems
-  - helper classes go outside the package
-  - each cast is broken in one way or another
