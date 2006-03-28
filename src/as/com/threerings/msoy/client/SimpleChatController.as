@@ -1,7 +1,8 @@
 package com.threerings.msoy.client {
 
-import com.threerings.crowd.client.CrowdContext;
 import com.threerings.crowd.client.PlaceController;
+import com.threerings.crowd.client.PlaceView;
+import com.threerings.crowd.util.CrowdContext;
 
 public class SimpleChatController extends PlaceController
 {

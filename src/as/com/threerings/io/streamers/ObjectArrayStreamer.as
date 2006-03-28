@@ -30,6 +30,7 @@ public class ObjectArrayStreamer extends Streamer
             :void
     {
         var arr :Array = (obj as Array);
+        com.threerings.presents.Log.debug("array length: " + arr.length);
         out.writeInt(arr.length);
         for (var ii :int = 0; ii < arr.length; ii++) {
             out.writeObject(arr[ii]);

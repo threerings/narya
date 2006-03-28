@@ -109,7 +109,7 @@ public class InvocationRequestEvent extends DEvent
         super.writeObject(out);
         out.writeInt(_invCode);
         out.writeByte(_methodId);
-        out.writeObject(_args);
+        out.writeField(_args);
     }
 
     // documentation inherited from interface Streamable
@@ -118,7 +118,7 @@ public class InvocationRequestEvent extends DEvent
         super.readObject(ins);
         _invCode = ins.readInt();
         _methodId = ins.readByte();
-        _args = (ins.readObject() as Array);
+        _args = (ins.readField(Array) as Array);
     }
 
     /** The code identifying which invocation provider to which this

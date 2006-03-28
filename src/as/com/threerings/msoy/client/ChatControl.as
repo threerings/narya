@@ -1,11 +1,11 @@
 package com.threerings.msoy.client {
 
+import flash.events.Event;
+
 import mx.containers.HBox;
 
 import mx.controls.Button;
 import mx.controls.TextInput;
-
-import mx.events.FlexEvent;
 
 public class ChatControl extends HBox
 {
@@ -18,11 +18,13 @@ public class ChatControl extends HBox
         but.label = "Send"; // TODO: xlate
         addChild(but);
 
-        _txt.addEventListener(FlexEvent.ENTER, sendChat);
-        but.addEventListener(FlexEvent.BUTTON_DOWN, sendChat);
+        //_txt.addEventListener(FlexEvent.ENTER, sendChat);
+        //but.addEventListener(FlexEvent.BUTTON_DOWN, sendChat);
+        _txt.addEventListener("enter", sendChat);
+        but.addEventListener("buttonDown", sendChat);
     }
 
-    protected function sendChat (event :FlexEvent) :void
+    protected function sendChat (event :Event) :void
     {
         var message :String = _txt.text;
         _txt.text = "";

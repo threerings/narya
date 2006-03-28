@@ -1,9 +1,12 @@
 package com.threerings.msoy.client {
 
+import flash.events.Event;
+
 import mx.controls.TextArea;
 
 import com.threerings.crowd.chat.client.ChatDirector;
 import com.threerings.crowd.chat.client.ChatDisplay;
+import com.threerings.crowd.chat.data.ChatMessage;
 
 public class ChatTextArea extends TextArea
     implements ChatDisplay
@@ -36,7 +39,7 @@ public class ChatTextArea extends TextArea
      * Check to see if we should register or unregister ourselves as a
      * ChatDisplay.
      */
-    protected void checkVis (event :Event) :void
+    protected function checkVis (event :Event) :void
     {
         var chatdir :ChatDirector = _ctx.getChatDirector();
         if (this.visible) {

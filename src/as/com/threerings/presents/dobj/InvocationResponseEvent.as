@@ -45,7 +45,8 @@ public class InvocationResponseEvent extends DEvent
      * only values of valid distributed object types.
      */
     public function InvocationResponseEvent (
-        targetOid :int, requestId :int, methodId :int, args :Array)
+        targetOid :int = 0, requestId :int = 0, methodId :int = 0,
+        args :Array = null)
     {
         super(targetOid);
         _requestId = requestId;
@@ -109,7 +110,7 @@ public class InvocationResponseEvent extends DEvent
         super.writeObject(out);
         out.writeShort(_requestId);
         out.writeByte(_methodId);
-        out.writeObject(_args);
+        out.writeField(_args);
     }
 
     // documentation inherited
@@ -118,7 +119,7 @@ public class InvocationResponseEvent extends DEvent
         super.readObject(ins);
         _requestId = ins.readShort();
         _methodId = ins.readByte();
-        _args = (ins.readObject() as Array);
+        _args = (ins.readField(Array) as Array);
     }
 
     /** The id of the request with which this response is associated. */

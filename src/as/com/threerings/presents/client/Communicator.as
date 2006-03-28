@@ -61,6 +61,9 @@ public class Communicator
         Translations.addTranslation(
             "com.threerings.presents.dobj.DSetEntry",
             "com.threerings.presents.dobj.DSet$Entry");
+        Translations.addTranslation(
+            "com.threerings.crowd.data.MoveMarshaller",
+            "com.threerings.crowd.data.LocationMarshaller$MoveMarshaller");
     }
 
     public function logoff () :void
