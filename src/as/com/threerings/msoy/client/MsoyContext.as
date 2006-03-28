@@ -3,6 +3,8 @@ package com.threerings.msoy.client {
 import flash.display.DisplayObject;
 import flash.display.Stage;
 
+import mx.core.Application;
+
 import com.threerings.util.MessageManager;
 
 import com.threerings.presents.client.Client;
@@ -19,10 +21,10 @@ import com.threerings.crowd.chat.client.ChatDirector;
 public class MsoyContext
     implements CrowdContext
 {
-    public function MsoyContext (client :Client, stage :Stage)
+    public function MsoyContext (client :Client, app :Application)
     {
         _client = client;
-        _stage = stage;
+        _app = app;
 
         // TODO: verify params to these constructors
         _msgmgr = new MessageManager("rsrc");
@@ -63,22 +65,22 @@ public class MsoyContext
     // documentation inherited from interface CrowdContext
     public function setPlaceView (view :PlaceView) :void
     {
-        for (var ii :int = _stage.numChildren - 1; ii >= 0; ii--) {
-            _stage.removeChildAt(ii);
+        for (var ii :int = _app.numChildren - 1; ii >= 0; ii--) {
+            _app.removeChildAt(ii);
         }
 
-        _stage.addChild(view as DisplayObject);
+        _app.addChild(view as DisplayObject);
     }
 
     // documentation inherited from interface CrowdContext
     public function clearPlaceView (view :PlaceView) :void
     {
-        _stage.removeChild(view as DisplayObject);
+        _app.removeChild(view as DisplayObject);
     }
 
     protected var _client :Client;
 
-    protected var _stage :Stage;
+    protected var _app :Application;
 
     protected var _msgmgr :MessageManager;
 

@@ -50,9 +50,6 @@ public class ObjectOutputStream
             // TODO: if _nextCode blows short, log an error
 
             writeShort(-cmap.code);
-            Log.debug("wrote classname: " + 
-                ((streamer == null) ? Translations.getToServer(cname)
-                                        : streamer.getJavaClassName()));
             writeUTF((streamer == null) ? Translations.getToServer(cname)
                                         : streamer.getJavaClassName());
 

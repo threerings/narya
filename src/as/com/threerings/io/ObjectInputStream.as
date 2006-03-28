@@ -125,6 +125,10 @@ public class ObjectInputStream
                 ? Streamer.getStreamerByClass(type as Class)
                 : Streamer.getStreamerByJavaName(type as String);
 
+            if (streamer == Streamer.BAD_STREAMER) {
+                throw new Error("Cannot field stream " + type);
+            }
+
             var obj :Object = streamer.createObject(this);
             streamer.readObject(obj, this);
             return obj;

@@ -2,6 +2,8 @@ package com.threerings.msoy.client {
 
 import flash.display.Stage;
 
+import mx.core.Application;
+
 import com.threerings.util.Name;
 import com.threerings.presents.client.Client;
 import com.threerings.presents.dobj.DSet;
@@ -24,11 +26,11 @@ import com.threerings.msoy.data.SimpleChatConfig;
 
 public class MsoyClient extends Client
 {
-    public function MsoyClient (stage :Stage)
+    public function MsoyClient (app :Application)
     {
         super(new UsernamePasswordCreds(new Name("guest"), "guest"));
 
-        _ctx = new MsoyContext(this, stage);
+        _ctx = new MsoyContext(this, app);
 
         setServer("tasman.sea.earth.threerings.net", DEFAULT_SERVER_PORT);
         logon();

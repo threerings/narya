@@ -55,7 +55,6 @@ public class LocationMarshaller extends InvocationMarshaller
     // documentation inherited from interface
     public function moveTo (arg1 :Client, arg2 :int, arg3 :MoveListener) :void
     {
-        com.threerings.crowd.Log.debug("issuing moveTo: " + _invCode);
         var listener3 :MoveMarshaller = new MoveMarshaller();
         listener3.listener = arg3;
         sendRequest(arg1, MOVE_TO, [ new Integer(arg2), listener3 ]);

@@ -447,7 +447,6 @@ public class LocationDirector extends BasicDirector
         // obtain our service handle
         _lservice =
             (client.requireService(LocationService) as LocationService);
-        Log.info("location service: " + _lservice);
     }
 
     protected function gotBodyObject (clobj :BodyObject) :void

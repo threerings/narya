@@ -24,6 +24,9 @@ package com.threerings.crowd.data {
 import com.threerings.util.Iterator;
 import com.threerings.util.Name;
 
+import com.threerings.io.ObjectInputStream;
+import com.threerings.io.ObjectOutputStream;
+
 import com.threerings.presents.dobj.DObject;
 import com.threerings.presents.dobj.DSet;
 import com.threerings.presents.dobj.DSetEntry;
@@ -175,5 +178,24 @@ public class PlaceObject extends DObject
         this.speakService = value;
     }
     // AUTO-GENERATED: METHODS END
+
+    // documentation inherited
+    public override function writeObject (out :ObjectOutputStream) :void
+    {
+        super.writeObject(out);
+        out.writeObject(occupants);
+        out.writeObject(occupantInfo);
+        out.writeObject(speakService);
+    }
+
+    // documentation inherited
+    public override function readObject (ins :ObjectInputStream) :void
+    {
+        super.readObject(ins);
+        // TODO: this needs fixing!
+        occupants = (ins.readField(OidList) as OidList);
+        occupantInfo = (ins.readField(DSet) as DSet);
+        speakService = (ins.readField(SpeakMarshaller) as SpeakMarshaller);
+    }
 }
 }
