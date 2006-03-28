@@ -53,7 +53,7 @@ public class ObjectInputStream
                 Log.debug("read cname: " + cname);
                 var streamer :Streamer = Streamer.getStreamerByJavaName(cname);
                 if (streamer == Streamer.BAD_STREAMER) {
-                    Log.warning("OMG, cannot stream" + cname);
+                    Log.warning("OMG, cannot stream " + cname);
                     return null;
                 }
 
@@ -129,8 +129,23 @@ public class ObjectInputStream
                 throw new Error("Cannot field stream " + type);
             }
 
-            var obj :Object = streamer.createObject(this);
-            streamer.readObject(obj, this);
+            var obj :Object;
+            if (streamer != null) {
+                obj = streamer.createObject(this);
+
+            } else { 
+                // create the streamable object, either by class or name
+                var c :Class;
+                if (type is Class) {
+                    c = (type as Class);
+                } else {
+                    c = ClassUtil.getClassByName(
+                        Translations.getFromServer(type as String));
+                }
+                obj = new c();
+            }
+
+            readBareObjectImpl(obj, streamer);
             return obj;
         }
         return null;

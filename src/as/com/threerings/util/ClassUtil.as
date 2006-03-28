@@ -27,7 +27,7 @@ public class ClassUtil
     public static function getClassByName (cname :String) :Class
     {
         // see also ApplicationDomain.currentDomain.getClass(cname)
-        return flash.util.getClassByName(cname);
+        return flash.util.getClassByName(cname.replace("::", "."));
     }
 
     public static function isFinal (type :Class) :Boolean
@@ -38,6 +38,53 @@ public class ClassUtil
 
         // TODO: there's currently no way to determine final from the class
         //var attrs :XMLList = flash.util.describeType(type).elements("type");
+        return false;
+    }
+
+    /**
+     * Returns true if an object of type srcClass is a subclass of or
+     * implements the interface represented by the asClass paramter.
+     *
+     * <code>
+     * if (ClassUtil.isAssignableAs(Streamable, someClass)) {
+     *     var s :Streamable = (new someClass() as Streamable);
+     * </code>
+     */
+    public static function isAssignableAs (
+            asClass :Class, srcClass :Class) :Boolean
+    {
+        if (asClass == srcClass) {
+            return true;
+
+        // if not the same class and srcClass is Object, we're done
+        } else if (srcClass == Object) {
+            return false;
+        }
+
+        // ok, let's introspect on the class and see what we've got.
+        var typeInfo :XMLList =
+            flash.util.describeType(srcClass).child("factory");
+
+        // See which classes we extend.
+        var exts :XMLList = typeInfo.child("extends").attribute("type");
+        for each (var type :String in exts) {
+            //if (asClass == getClassByName(type)) {
+            // TEMP: recursing sometimes gets around a describeType bug
+            if (isAssignableAs(asClass, getClassByName(type))) {
+                return true;
+            }
+        }
+
+        // See which interfaces we implement.
+        var imps :XMLList = typeInfo.child("implements").attribute("type");
+        for each (var type :String in imps) {
+            //if (asClass == getClassByName(type)) {
+            // TEMP: recursing sometimes gets around a describeType bug
+            if (isAssignableAs(asClass, getClassByName(type))) {
+                return true;
+            }
+        }
+
         return false;
     }
 }

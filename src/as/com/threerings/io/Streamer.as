@@ -4,6 +4,7 @@ import flash.util.trace;
 
 import flash.util.ByteArray;
 
+import com.threerings.util.ClassUtil;
 import com.threerings.util.SimpleMap;
 
 import com.threerings.io.streamers.ArrayStreamer;
@@ -49,6 +50,10 @@ public class Streamer
     {
         initStreamers();
 
+        if (ClassUtil.isAssignableAs(Streamable, clazz)) {
+            return null; // Streamable
+        }
+
         if (clazz === TypedArray) {
             throw new Error("Broken, TODO");
         }
@@ -66,19 +71,33 @@ public class Streamer
     {
         initStreamers();
 
+        // see if we have a streamer for it
         for each (var streamer :Streamer in _streamers) {
             if (streamer.getJavaClassName() === jname) {
                 return streamer;
             }
         }
 
+        // see if it's an array that we unstream using an ArrayStreamer
         if (jname.charAt(0) === "[") {
             var streamer :Streamer = new ArrayStreamer(jname);
             _streamers.push(streamer);
             return streamer;
         }
 
-        return null;
+        // otherwise see if it represents a Streamable
+        var clazz :Class = ClassUtil.getClassByName(
+            Translations.getFromServer(jname));
+        if (ClassUtil.isAssignableAs(Streamable, clazz)) {
+            return null; // it's streamable
+        }
+
+        // TEMP: workaround for fucked-up bug!!! FUCK ACTIONSCRIPT!
+        if (clazz == StreamableArrayList) {
+            return null; // it's streamable, yes it is
+        }
+
+        return BAD_STREAMER;
     }
 
     /** This should be a protected constructor. */

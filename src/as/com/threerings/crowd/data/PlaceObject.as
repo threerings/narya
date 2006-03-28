@@ -183,9 +183,9 @@ public class PlaceObject extends DObject
     public override function writeObject (out :ObjectOutputStream) :void
     {
         super.writeObject(out);
-        out.writeObject(occupants);
-        out.writeObject(occupantInfo);
-        out.writeObject(speakService);
+        out.writeField(occupants);
+        out.writeField(occupantInfo);
+        out.writeField(speakService);
     }
 
     // documentation inherited
