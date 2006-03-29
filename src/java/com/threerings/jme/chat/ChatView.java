@@ -36,6 +36,7 @@ import com.threerings.util.Name;
 
 import com.threerings.crowd.chat.client.ChatDirector;
 import com.threerings.crowd.chat.client.ChatDisplay;
+import com.threerings.crowd.chat.client.SpeakService;
 import com.threerings.crowd.chat.data.ChatCodes;
 import com.threerings.crowd.chat.data.ChatMessage;
 import com.threerings.crowd.chat.data.SystemMessage;
@@ -69,14 +70,28 @@ public class ChatView extends BContainer
 
     public void willEnterPlace (PlaceObject plobj)
     {
-        _plobj = plobj;
-        _chatdtr.addChatDisplay(this);
+        setSpeakService(plobj.speakService);
     }
 
     public void didLeavePlace (PlaceObject plobj)
     {
-        _chatdtr.removeChatDisplay(this);
-        _plobj = null;
+        clearSpeakService();
+    }
+
+    public void setSpeakService (SpeakService spsvc)
+    {
+        if (spsvc != null) {
+            _spsvc = spsvc;
+            _chatdtr.addChatDisplay(this);
+        }
+    }
+
+    public void clearSpeakService ()
+    {
+        if (_spsvc != null) {
+            _chatdtr.removeChatDisplay(this);
+            _spsvc = null;
+        }
     }
 
     /**
@@ -113,6 +128,12 @@ public class ChatView extends BContainer
         }
     }
 
+    // documentation inherited
+    public void setEnabled (boolean enabled)
+    {
+        _input.setEnabled(enabled);
+    }
+
     protected void displayError (String message)
     {
         append(message + "\n", ColorRGBA.red);
@@ -134,7 +155,7 @@ public class ChatView extends BContainer
             // no empty banter
             return false;
         }
-        String msg = _chatdtr.requestChat(_plobj.speakService, text, true);
+        String msg = _chatdtr.requestChat(_spsvc, text, true);
         if (msg.equals(ChatCodes.SUCCESS)) {
             return true;
         } else {
@@ -144,7 +165,7 @@ public class ChatView extends BContainer
     }
 
     protected ChatDirector _chatdtr;
-    protected PlaceObject _plobj;
+    protected SpeakService _spsvc;
     protected BTextArea _text;
     protected BTextField _input;
 }
