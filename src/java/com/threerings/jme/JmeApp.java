@@ -396,14 +396,14 @@ public class JmeApp
         // recalculate the frame rate
         _timer.update();
 
+        // update the camera handler
+        _camhand.update(_frameTime);
+
         // run all of the controllers attached to nodes
         _frameTime = (_lastTick == 0L) ? 0f : (float)(frameTick - _lastTick) /
             _timer.getResolution();
         _lastTick = frameTick;
         _root.updateGeometricState(_frameTime, true);
-
-        // update the camera handler
-        _camhand.update(_frameTime);
 
         // update our stats display if we have one
         if (_stats != null) {
