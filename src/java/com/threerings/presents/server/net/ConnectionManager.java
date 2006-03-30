@@ -404,6 +404,12 @@ public class ConnectionManager extends LoopingThread
                 // connection with the new one
                 _handlers.put(selkey, rconn);
 
+                // transfer any overflow queue for that connection
+                Object oflowHandler = _oflowqs.remove(conn);
+                if (oflowHandler != null) {
+                    _oflowqs.put(rconn, oflowHandler);
+                }
+
                 // and let our observers know about our new connection
                 notifyObservers(CONNECTION_ESTABLISHED, rconn,
                                 conn.getAuthRequest(), conn.getAuthResponse());
