@@ -106,26 +106,37 @@ public class DeltaCalculator
             return 0L;
         }
 
-        if (true) {
-            // return the mean
-            long est = 0;
-            for (int ii=0; ii < _iter; ii++) {
-                est += _deltas[ii];
-            }
-            return (est / _iter);
+        // Return a median value as our estimate, rather than an average.
+        // Mdb writes:
+        // -----------
+        // I used the median because that was more likely to result in a
+        // sensible value.
+        //
+        // Assuming there are two kinds of packets, one that goes and comes
+        // back without delay and provides an accurate time value, and one
+        // that gets delayed somewhere on the way there or the way back and
+        // provides an inaccurate time value.
+        //
+        // If no packets are delayed, both algorithms should be fine. If one
+        // packet is delayed the median will select the middle, non-delayed
+        // packet, whereas the average will skew everything a bit because
+        // of the delayed packet. If two packets are delayed, the median
+        // will be more skewed than the average because it will benefit
+        // from the one accurate packet and if all three packets are delayed
+        // both algorithms will be (approximately) equally inaccurate.
+        //
+        // I believe the chances are most likely that zero or one packets
+        // will be delayed, so I chose the median rather than the average.
+        // -----------
 
-        } else {
-            // return the median value
+        // copy the deltas array so that we don't alter things before
+        // all pongs have arrived
+        long[] deltasCopy = new long[_iter];
+        System.arraycopy(_deltas, 0, deltasCopy, 0, _iter);
 
-            // copy the deltas array so that we don't alter things before
-            // all pongs have arrived
-            long[] deltasCopy = new long[_iter];
-            System.arraycopy(_deltas, 0, deltasCopy, 0, _iter);
-
-            // sort the estimates and return one from the middle
-            Arrays.sort(deltasCopy);
-            return deltasCopy[deltasCopy.length/2];
-        }
+        // sort the estimates and return one from the middle
+        Arrays.sort(deltasCopy);
+        return deltasCopy[deltasCopy.length/2];
     }
 
     /**
