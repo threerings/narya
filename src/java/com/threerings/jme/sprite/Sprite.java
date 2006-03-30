@@ -26,6 +26,8 @@ import com.jme.scene.Spatial;
 
 import com.samskivert.util.ObserverList;
 
+import com.threerings.jme.Log;
+
 /**
  * Represents a visual entity that one controls as a single unit. Sprites
  * can be made to follow paths which is one of their primary reasons for
@@ -156,6 +158,13 @@ public class Sprite extends Node
      */
     public void pathCompleted ()
     {
+        if (_path == null) {
+            Log.warning("pathCompleted() called on pathless sprite " +
+                        "(re-completed?) [sprite=" + this + "].");
+            Thread.dumpStack();
+            return;
+        }
+
         Path oldpath = _path;
         _path = null;
         removeController(oldpath);
