@@ -1,5 +1,5 @@
 //
-// $Id: DeltaCalculator.java,v 1.8 2004/10/22 01:19:55 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -46,6 +46,14 @@ public class DeltaCalculator
     }
 
     /**
+     * Should we send another ping?
+     */
+    public boolean shouldSendPing ()
+    {
+        return (_ping == null) && !isDone();
+    }
+
+    /**
      * Must be called when a ping message is sent to the server.
      */
     public void sentPing (PingRequest ping)
@@ -69,6 +77,7 @@ public class DeltaCalculator
         // make a note of when the ping message was sent and when the pong
         // response was received (both in client time)
         long send = _ping.getPackStamp(), recv = pong.getUnpackStamp();
+        _ping = null; // clear out the saved sent ping
 
         // make a note of when the pong response was sent (in server time)
         // and the processing delay incurred on the server
@@ -93,9 +102,30 @@ public class DeltaCalculator
      */
     public long getTimeDelta ()
     {
-        // sort the estimates and return one from the middle
-        Arrays.sort(_deltas);
-        return _deltas[_deltas.length/2];
+        if (_iter == 0) { // no responses yet
+            return 0L;
+        }
+
+        if (true) {
+            // return the mean
+            long est = 0;
+            for (int ii=0; ii < _iter; ii++) {
+                est += _deltas[ii];
+            }
+            return (est / _iter);
+
+        } else {
+            // return the median value
+
+            // copy the deltas array so that we don't alter things before
+            // all pongs have arrived
+            long[] deltasCopy = new long[_iter];
+            System.arraycopy(_deltas, 0, deltasCopy, 0, _iter);
+
+            // sort the estimates and return one from the middle
+            Arrays.sort(deltasCopy);
+            return deltasCopy[deltasCopy.length/2];
+        }
     }
 
     /**

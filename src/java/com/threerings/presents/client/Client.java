@@ -483,7 +483,7 @@ public class Client
             if (_dcalc.isDone()) {
                 Log.debug("Time offset from server: " + _serverDelta + "ms.");
                 _dcalc = null;
-            } else {
+            } else if (_dcalc.shouldSendPing()) {
                 // otherwise, send another ping
                 PingRequest req = new PingRequest();
                 _comm.postMessage(req);
@@ -621,17 +621,15 @@ public class Client
      */
     void gotPong (PongResponse pong)
     {
-        // if we're not calculating our client/server time delta, then we
-        // don't need to do anything with the pong
-        if (_dcalc == null) {
-            return;
+        // if we're not currently calculating our client/server delta, then
+        // we can throw away the pong
+        if (_dcalc != null) {
+            // we update the delta after every receipt so as to immediately
+            // obtain an estimate of the clock delta and then refine it as
+            // more packets come in
+            _dcalc.gotPong(pong);
+            _serverDelta = _dcalc.getTimeDelta();
         }
-
-        // we update the delta after every receipt so as to immediately
-        // obtain an estimate of the clock delta and then refine it as
-        // more packets come in
-        _dcalc.gotPong(pong);
-        _serverDelta = _dcalc.getTimeDelta();
     }
 
     /**
