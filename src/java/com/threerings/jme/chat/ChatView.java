@@ -110,6 +110,11 @@ public class ChatView extends BContainer
     // documentation inherited from interface ChatDisplay
     public void displayMessage (ChatMessage msg)
     {
+        // we may be restricted in the chat types we handle
+        if (!handlesType(msg.localtype)) {
+            return;
+        }
+
         if (msg instanceof UserMessage) {
             UserMessage umsg = (UserMessage) msg;
             if (umsg.localtype == ChatCodes.USER_CHAT_TYPE) {
@@ -147,6 +152,11 @@ public class ChatView extends BContainer
     protected void append (String text)
     {
         _text.appendText(text);
+    }
+
+    protected boolean handlesType (String localType)
+    {
+        return true;
     }
 
     protected boolean handleInput (String text)
