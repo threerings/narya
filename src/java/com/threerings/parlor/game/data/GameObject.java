@@ -151,8 +151,8 @@ public class GameObject extends PlaceObject
      */
     public boolean isActivePlayer (int pidx)
     {
-        return (isOccupiedPlayer(pidx) &&
-            (playerStatus == null || playerStatus[pidx] == PLAYER_IN_PLAY));
+        return isOccupiedPlayer(pidx) &&
+            (playerStatus == null || isActivePlayerStatus(playerStatus[pidx]));
     }
 
 
@@ -245,6 +245,16 @@ public class GameObject extends PlaceObject
     public byte getPartyGameType ()
     {
         return PartyGameConfig.NOT_PARTY_GAME;
+    }
+
+    /**
+     * Used by {@link #isActivePlayer} to determine if the supplied status is
+     * associated with an active player (one that has not resigned from the
+     * game and/or left the game room).
+     */
+    protected boolean isActivePlayerStatus (int playerStatus)
+    {
+        return playerStatus == PLAYER_IN_PLAY;
     }
 
     // documentation inherited
