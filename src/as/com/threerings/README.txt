@@ -328,3 +328,22 @@ ActionScript
   - add code to verify the object's functions against describeType calls..
     (would need to iterate on types because describeType only finds methods
     in the terminal interface. Only # of args can be checked)
+
+- Private constructors are not allowed, so the official line from Macromedia
+  on creating Singleton classes, I-shit-you-not, is to do this:
+
+package foo {
+
+public class Singleton
+{
+    public static const singleton :Singleton = new Singleton(new SecretClass());
+
+    public function Singleton (secret :SecretClass)
+    {
+    }
+}
+} // end: package
+
+public class SecretClass // inaccessible outside this file
+{
+}
