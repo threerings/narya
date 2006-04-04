@@ -226,6 +226,11 @@ public class ResourceManager
             }
         }
 
+        // check to see if we're in developer mode in which case we won't
+        // unpack our resources
+        _unpack = !"true".equalsIgnoreCase(
+            System.getProperty("no_unpack_resources"));
+
         // make sure there's a trailing slash
         if (!resourceDir.endsWith(File.separator)) {
             resourceDir += File.separator;
@@ -322,7 +327,7 @@ public class ResourceManager
     public boolean checkBundle (String path)
     {
         return new ResourceBundle(
-            getResourceFile(path), true, true).isUnpacked();
+            getResourceFile(path), true, _unpack).isUnpacked();
     }
 
     /**
@@ -336,7 +341,7 @@ public class ResourceManager
     public void resolveBundle (String path, final ResultListener listener)
     {
         final ResourceBundle bundle =
-            new ResourceBundle(getResourceFile(path), true, true);
+            new ResourceBundle(getResourceFile(path), true, _unpack);
         if (bundle.isUnpacked()) {
             if (bundle.sourceIsReady()) {
                 listener.requestCompleted(bundle);
@@ -563,7 +568,7 @@ public class ResourceManager
         while (tok.hasMoreTokens()) {
             String path = tok.nextToken().trim();
             ResourceBundle bundle =
-                new ResourceBundle(getResourceFile(path), true, true);
+                new ResourceBundle(getResourceFile(path), true, _unpack);
             set.add(bundle);
             if (bundle.isUnpacked() && bundle.sourceIsReady()) {
                 continue;
@@ -633,6 +638,9 @@ public class ResourceManager
     /** The prefix we prepend to resource paths before attempting to load
      * them from the classpath. */
     protected String _rootPath;
+
+    /** Whether or not to unpack our resource bundles. */
+    protected boolean _unpack;
 
     /** Our default resource set. */
     protected ResourceBundle[] _default = new ResourceBundle[0];
