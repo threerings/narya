@@ -176,6 +176,9 @@ public class ResourceManager
         _rootPath = resourceRoot;
         _loader = loader;
 
+        // get our resource directory from resource_dir if possible
+        initResourceDir(null);
+
         // set up a URL handler so that things can be loaded via urls
         // with the 'resource' protocol
         AccessController.doPrivileged(new PrivilegedAction() {
@@ -210,32 +213,15 @@ public class ResourceManager
         String resourceDir, String configPath, InitObserver initObs)
         throws IOException
     {
-        // if the resource directory wasn't provided, we try to figure it
-        // out for ourselves
-        if (resourceDir == null) {
-            try {
-                // first look for the explicit system property
-                resourceDir = System.getProperty("resource_dir");
-                // if that doesn't work, fall back to the current directory
-                if (resourceDir == null) {
-                    resourceDir = System.getProperty("user.dir");
-                }
-
-            } catch (SecurityException se) {
-                resourceDir = File.separator;
-            }
+        // reinitialize our resource dir if it was specified
+        if (resourceDir != null) {
+            initResourceDir(resourceDir);
         }
 
         // check to see if we're in developer mode in which case we won't
         // unpack our resources
         _unpack = !"true".equalsIgnoreCase(
             System.getProperty("no_unpack_resources"));
-
-        // make sure there's a trailing slash
-        if (!resourceDir.endsWith(File.separator)) {
-            resourceDir += File.separator;
-        }
-        _rdir = new File(resourceDir);
 
         // load up our configuration
         Properties config = new Properties();
@@ -553,6 +539,29 @@ public class ResourceManager
     public ResourceBundle[] getResourceSet (String name)
     {
         return (ResourceBundle[])_sets.get(name);
+    }
+
+    protected void initResourceDir (String resourceDir)
+    {
+        if (resourceDir == null) {
+            try {
+                // first look for the explicit system property
+                resourceDir = System.getProperty("resource_dir");
+                // if that doesn't work, fall back to the current directory
+                if (resourceDir == null) {
+                    resourceDir = System.getProperty("user.dir");
+                }
+
+            } catch (SecurityException se) {
+                resourceDir = File.separator;
+            }
+        }
+
+        // make sure there's a trailing slash
+        if (!resourceDir.endsWith(File.separator)) {
+            resourceDir += File.separator;
+        }
+        _rdir = new File(resourceDir);
     }
 
     /**
