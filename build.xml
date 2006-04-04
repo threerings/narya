@@ -287,6 +287,7 @@
          <exclude name="**/CVS"/>
          <exclude name="narya/bin/**"/>
          <exclude name="narya/tests/bin/**"/>
+         <exclude name="narya/tests/dist/**"/>
          <exclude name="narya/dist/**"/>
          <exclude name="narya/code/**"/>
          <exclude name="narya/narya-*.*"/>
