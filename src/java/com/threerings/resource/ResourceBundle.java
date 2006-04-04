@@ -28,11 +28,9 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
-import java.util.Enumeration;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
-import com.samskivert.io.StreamUtil;
 import com.samskivert.util.FileUtil;
 import com.samskivert.util.StringUtil;
 
@@ -131,57 +129,13 @@ public class ResourceBundle
                 FileUtil.recursiveClean(_cache);
             }
 
-            Enumeration entries = _jarSource.entries();
-            while (entries.hasMoreElements()) {
-                JarEntry entry = (JarEntry)entries.nextElement();
-                File efile = new File(_cache, entry.getName());
-
-                // if we're unpacking a normal jar file, it will have
-                // special path entries that allow us to create our
-                // directories first
-                if (entry.isDirectory()) {
-                    if (!efile.exists() && !efile.mkdir()) {
-                        Log.warning("Failed to create bundle entry path '" +
-                                    efile + "'.");
-                    }
-                    continue;
-                }
-
-                // but some do not, so we want to ensure that our
-                // directories exist prior to getting down and funky
-                File parent = new File(efile.getParent());
-                if (!parent.exists() && !parent.mkdirs()) {
-                    Log.warning("Failed to create bundle entry parent '" +
-                                parent + "'.");
-                    continue;
-                }
-
-                boolean failure = false;
-                BufferedOutputStream fout = null;
-                InputStream jin = null;
-                try {
-                    fout = new BufferedOutputStream(
-                        new FileOutputStream(efile));
-                    jin = _jarSource.getInputStream(entry);
-                    CopyUtils.copy(jin, fout);
-                } catch (Exception e) {
-                    Log.warning("Failure unpacking " + efile + ": " + e);
-                    failure = true;
-                } finally {
-                    StreamUtil.close(jin);
-                    StreamUtil.close(fout);
-                }
-
+            // unpack the jar file (this will close the jar when it's done)
+            if (!FileUtil.unpackJar(_jarSource, _cache)) {
                 // if something went awry, delete everything in the hopes
                 // that next time things will work
-                if (failure) {
-                    wipeBundle(true);
-                    return false;
-                }
+                wipeBundle(true);
+                return false;
             }
-
-            // close the jar file now that it's all unpacked
-            closeJar();
 
             // if everything unpacked smoothly, create our unpack stamp
             try {
