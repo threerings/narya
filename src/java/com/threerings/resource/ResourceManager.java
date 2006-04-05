@@ -297,9 +297,15 @@ public class ResourceManager
      * properly jimmied (assuming we always use /) and combined with the
      * resource directory to yield a {@link File} object that can be used
      * to access the resource.
+     *
+     * @return a file referencing the specified resource or null if the
+     * resource manager was never configured with a resource directory.
      */
     public File getResourceFile (String path)
     {
+        if (_rdir == null) {
+            return null;
+        }
         if (!"/".equals(File.separator)) {
             path = StringUtil.replace(path, "/", File.separator);
         }
@@ -312,8 +318,9 @@ public class ResourceManager
      */
     public boolean checkBundle (String path)
     {
-        return new ResourceBundle(
-            getResourceFile(path), true, _unpack).isUnpacked();
+        File bfile = getResourceFile(path);
+        return (bfile == null) ? false :
+            new ResourceBundle(bfile, true, _unpack).isUnpacked();
     }
 
     /**
@@ -326,8 +333,15 @@ public class ResourceManager
      */
     public void resolveBundle (String path, final ResultListener listener)
     {
-        final ResourceBundle bundle =
-            new ResourceBundle(getResourceFile(path), true, _unpack);
+        File bfile = getResourceFile(path);
+        if (bfile == null) {
+            String errmsg = "ResourceManager not configured with " +
+                "resource directory.";
+            listener.requestFailed(new IOException(errmsg));
+            return;
+        }
+
+        final ResourceBundle bundle = new ResourceBundle(bfile, true, _unpack);
         if (bundle.isUnpacked()) {
             if (bundle.sourceIsReady()) {
                 listener.requestCompleted(bundle);
@@ -394,7 +408,13 @@ public class ResourceManager
             }
         }
 
-        // if we didn't find anything, try the classloader
+        // fallback next to an unpacked resource file
+        File file = getResourceFile(path);
+        if (file != null && file.exists()) {
+            return new FileInputStream(file);
+        }
+
+        // if we still didn't find anything, try the classloader
         final String rpath = PathUtil.appendPath(_rootPath, path);
         in = (InputStream)AccessController.doPrivileged(new PrivilegedAction() {
             public Object run () {
@@ -432,7 +452,13 @@ public class ResourceManager
             }
         }
 
-        // if we didn't find anything, try the classloader
+        // fallback next to an unpacked resource file
+        File file = getResourceFile(path);
+        if (file != null && file.exists()) {
+            return new FileImageInputStream(file);
+        }
+
+        // if we still didn't find anything, try the classloader
         final String rpath = PathUtil.appendPath(_rootPath, path);
         InputStream in = (InputStream)
             AccessController.doPrivileged(new PrivilegedAction() {
@@ -543,18 +569,17 @@ public class ResourceManager
 
     protected void initResourceDir (String resourceDir)
     {
+        // if none was specified, check the resource_dir system property
         if (resourceDir == null) {
             try {
-                // first look for the explicit system property
                 resourceDir = System.getProperty("resource_dir");
-                // if that doesn't work, fall back to the current directory
-                if (resourceDir == null) {
-                    resourceDir = System.getProperty("user.dir");
-                }
-
             } catch (SecurityException se) {
-                resourceDir = File.separator;
             }
+        }
+
+        // if we found no resource directory, don't use one
+        if (resourceDir == null) {
+            return;
         }
 
         // make sure there's a trailing slash
