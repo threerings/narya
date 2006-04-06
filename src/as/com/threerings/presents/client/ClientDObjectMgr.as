@@ -207,7 +207,7 @@ public class ClientDObjectMgr
             dispatchEvent(evt);
 
         } else if (obj is ObjectResponse) {
-            registerObjectAndNotify(obj.getObject());
+            registerObjectAndNotify((obj as ObjectResponse).getObject());
 
         } else if (obj is UnsubscribeResponse) {
             var oid :int = obj.getOid();
@@ -306,9 +306,11 @@ public class ClientDObjectMgr
                 "[oid=" + oid + ", obj=" + obj + "].");
             return;
         }
+        Log.debug("Got object: pendReq=" + req);
 
         for (var ii :int = 0; ii < req.targets.length; ii++) {
-            var target :Subscriber = req.targets[ii];
+            var target :Subscriber = (req.targets[ii] as Subscriber);
+            Log.debug("Notifying subscriber: " + target);
             // add them as a subscriber
             obj.addSubscriber(target);
             // and let them know that the object is in

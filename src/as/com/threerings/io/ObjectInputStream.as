@@ -56,11 +56,14 @@ public class ObjectInputStream
                     Log.warning("OMG, cannot stream " + cname);
                     return null;
                 }
+                Log.debug("Got streamer (" + streamer + ")");
 
                 cmap = new ClassMapping(code, cname, streamer);
                 _classMap[code] = cmap;
+                Log.debug("Created mapping for (" + code + "): " + cname);
 
             } else {
+                Log.debug("Read known code: " + code);
                 cmap = (_classMap[code] as ClassMapping);
                 if (null == cmap) {
                     throw new IOError("Read object for which we have no " +
@@ -68,6 +71,7 @@ public class ObjectInputStream
                 }
             }
 
+            Log.debug("Creating object sleeve...");
             var target :Object;
             if (cmap.streamer === null) {
                 var clazz :Class = flash.util.getClassByName(cmap.classname);
@@ -76,7 +80,9 @@ public class ObjectInputStream
             } else {
                 target = cmap.streamer.createObject(this);
             }
+            Log.debug("Reading object...");
             readBareObjectImpl(target, cmap.streamer);
+            Log.debug("Read object: " + target);
             return target;
 
         } catch (me :MemoryError) {
@@ -95,7 +101,7 @@ public class ObjectInputStream
     {
         // streamable objects
         if (streamer == null) {
-            obj.readObject(this); // obj is a Streamable.
+            (obj as Streamable).readObject(this);
             return;
         }
 

@@ -72,6 +72,7 @@ public class Streamer
         initStreamers();
 
         // see if we have a streamer for it
+        Log.debug("getStreamer/existing");
         for each (var streamer :Streamer in _streamers) {
             if (streamer.getJavaClassName() === jname) {
                 return streamer;
@@ -79,6 +80,7 @@ public class Streamer
         }
 
         // see if it's an array that we unstream using an ArrayStreamer
+        Log.debug("getStreamer/array");
         if (jname.charAt(0) === "[") {
             var streamer :Streamer = new ArrayStreamer(jname);
             _streamers.push(streamer);
@@ -86,8 +88,10 @@ public class Streamer
         }
 
         // otherwise see if it represents a Streamable
+        Log.debug("getStreamer/Class:Streamable");
         var clazz :Class = ClassUtil.getClassByName(
             Translations.getFromServer(jname));
+        Log.debug("getStreamer/Class:Streamable2");
         if (ClassUtil.isAssignableAs(Streamable, clazz)) {
             return null; // it's streamable
         }

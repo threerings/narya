@@ -10,6 +10,8 @@ public class ArrayUtil
      */
     public static function indexOf (arr :Array, element :Object) :int
     {
+        // return mx.utils.ArrayUtil.getItemIndex(element, arr);
+        //
         for (var ii :int = 0; ii < arr.length; ii++) {
             if (arr[ii] === element) {
                 return ii;
