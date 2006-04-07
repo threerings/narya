@@ -69,6 +69,11 @@ public class DeltaCalculator
      */
     public boolean gotPong (PongResponse pong)
     {
+        if (_ping == null) {
+            // an errant pong that is likely being processed late after
+            // a new connection was opened.
+            return false;
+        }
         // don't freak out if they keep calling gotPong() after we're done
         if (_iter >= _deltas.length) {
             return true;
