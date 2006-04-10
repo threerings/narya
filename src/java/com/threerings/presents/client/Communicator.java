@@ -411,7 +411,7 @@ public class Communicator
 
             } catch (Exception e) {
                 Log.debug("Logon failed: " + e);
-                Log.logStackTrace(e);
+                // Log.logStackTrace(e);
                 // once we're shutdown we'll report this error
                 _logonError = e;
                 // terminate our communicator thread
