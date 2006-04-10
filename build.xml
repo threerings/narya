@@ -249,13 +249,31 @@
     </jar>
   </target>
 
+  <!-- various bits used by the retroweaver tasks -->
+  <taskdef name="weave" classpathref="classpath"
+           classname="com.rc.retroweaver.ant.RetroWeaverTask"/>
+  <property name="inpre" value="${deploy.dir}/${app.name}"/>
+  <property name="outpre" value="${deploy.dir}/retro/${app.name}"/>
+
+  <!-- a helper task for 'retro' -->
+  <target name="vweave">
+    <path id="retrocp">
+      <pathelement location="/usr/local/jdk1.4/jre/lib/rt.jar"/>
+      <fileset dir="lib" includes="**/*.jar"/>
+      <fileset dir="${deploy.dir}/retro" includes="*.jar"/>
+    </path>
+    <weave inputjar="${inpre}-${which}.jar" outputjar="${outpre}-${which}.jar"
+           failonerror="true">
+      <classpath refid="retrocp"/>
+    </weave>
+  </target>
+
   <!-- converts our 1.5 code to a 1.4 compatible format -->
   <target name="retro" depends="dist">
-    <taskdef name="weave" classpathref="classpath"
-             classname="com.rc.retroweaver.ant.RetroWeaverTask"/>
-    <property name="inpre" value="${deploy.dir}/${app.name}"/>
-    <property name="outpre" value="${deploy.dir}/retro/${app.name}"/>
     <mkdir dir="${deploy.dir}/retro"/>
+
+    <!-- we weave everything a first time without verification so that -->
+    <!-- interdependencies will resolve the second time -->
     <weave inputjar="${inpre}-base.jar" outputjar="${outpre}-base.jar"/>
     <weave inputjar="${inpre}-cast.jar" outputjar="${outpre}-cast.jar"/>
     <weave inputjar="${inpre}-distrib.jar" outputjar="${outpre}-distrib.jar"/>
@@ -266,6 +284,18 @@
     <weave inputjar="${inpre}-puzzle.jar" outputjar="${outpre}-puzzle.jar"/>
     <weave inputjar="${inpre}-stage.jar" outputjar="${outpre}-stage.jar"/>
     <weave inputjar="${inpre}-whirled.jar" outputjar="${outpre}-whirled.jar"/>
+
+    <!-- now weave again with the verifier to check for unweavable 1.5isms -->
+    <antcall target="vweave"><param name="which" value="base"/></antcall>
+    <antcall target="vweave"><param name="which" value="cast"/></antcall>
+    <antcall target="vweave"><param name="which" value="distrib"/></antcall>
+    <antcall target="vweave"><param name="which" value="micasa"/></antcall>
+    <antcall target="vweave"><param name="which" value="miso"/></antcall>
+    <antcall target="vweave"><param name="which" value="media"/></antcall>
+    <antcall target="vweave"><param name="which" value="parlor"/></antcall>
+    <antcall target="vweave"><param name="which" value="puzzle"/></antcall>
+    <antcall target="vweave"><param name="which" value="stage"/></antcall>
+    <antcall target="vweave"><param name="which" value="whirled"/></antcall>
   </target>
 
   <!-- generate a class hierarchy diagram -->
