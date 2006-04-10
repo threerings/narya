@@ -23,13 +23,12 @@
 
   <!-- generates additional methods for distributed object classes -->
   <target name="gendobj" depends="prepare"> 
-    <taskdef name="dobj"
-             classname="com.threerings.presents.tools.GenDObjectTask"
-             classpathref="classpath"/>
+    <taskdef name="dobj" classpathref="classpath"
+             classname="com.threerings.presents.tools.GenDObjectTask"/>
     <!-- make sure the dobject class files are all compiled -->
     <javac srcdir="src/java" destdir="${classes.dir}"
            debug="on" optimize="${build.optimize}" deprecation="on"
-           source="1.4" target="1.4">
+           source="1.5" target="1.5">
       <classpath refid="classpath"/>
       <include name="**/*Object.java"/>
     </javac>
@@ -42,13 +41,12 @@
   <!-- generates marshaller and dispatcher classes for all invocation -->
   <!-- service declarations -->
   <target name="genservice"> 
-    <taskdef name="service"
-             classname="com.threerings.presents.tools.GenServiceTask"
-             classpathref="classpath"/>
+    <taskdef name="service" classpathref="classpath"
+             classname="com.threerings.presents.tools.GenServiceTask"/>
     <!-- make sure the service class files are all compiled -->
     <javac srcdir="src/java" destdir="${classes.dir}"
            debug="on" optimize="${build.optimize}" deprecation="on"
-           source="1.4" target="1.4">
+           source="1.5" target="1.5">
       <classpath refid="classpath"/>
       <include name="**/*Service.java"/>
       <exclude name="**/InvocationService.java"/>
@@ -74,13 +72,12 @@
   <!-- generates sender and decoder classes for all invocation -->
   <!-- receiver declarations -->
   <target name="genreceiver"> 
-    <taskdef name="receiver"
-             classname="com.threerings.presents.tools.GenReceiverTask"
-             classpathref="classpath"/>
+    <taskdef name="receiver" classpathref="classpath"
+             classname="com.threerings.presents.tools.GenReceiverTask"/>
     <!-- make sure the receiver class files are all compiled -->
     <javac srcdir="src/java" destdir="${classes.dir}"
            debug="on" optimize="${build.optimize}" deprecation="on"
-           source="1.4" target="1.4">
+           source="1.5" target="1.5">
       <classpath refid="classpath"/>
       <include name="**/*Receiver.java"/>
       <exclude name="**/InvocationReceiver.java"/>
@@ -138,7 +135,7 @@
   <target name="compile" depends="check-available,prepare">
     <javac srcdir="src/java" destdir="${classes.dir}"
            debug="on" optimize="{$build.optimize}" deprecation="on"
-           source="1.4" target="1.4">
+           source="1.5" target="1.5">
       <classpath refid="classpath"/>
       <exclude name="com/threerings/jme/**" unless="build.jme"/>
       <exclude name="com/threerings/openal/**" unless="build.openal"/>
@@ -167,7 +164,7 @@
              additionalparam="-breakiterator"
              link="http://www.threerings.net/code/narya/narya/docs/api">
       <classpath refid="classpath"/>
-      <link href="http://java.sun.com/j2se/1.4/docs/api/"/>
+      <link href="http://java.sun.com/j2se/1.5/docs/api/"/>
       <!-- ant documentation is not available online, sorry kids -->
       <link href="file:///usr/share/doc/ant-doc/javadocs"/>
       <link href="http://samskivert.com/code/samskivert/samskivert/docs/api"/>
@@ -249,6 +246,25 @@
     <jar destfile="${deploy.dir}/${app.name}-openal.jar">
       <fileset dir="${classes.dir}" includes="com/threerings/openal/**"/>
     </jar>
+  </target>
+
+  <!-- converts our 1.5 code to a 1.4 compatible format -->
+  <target name="retro" depends="dist">
+    <taskdef name="weave" classpathref="classpath"
+             classname="com.rc.retroweaver.ant.RetroWeaverTask"/>
+    <property name="inpre" value="${deploy.dir}/${app.name}"/>
+    <property name="outpre" value="${deploy.dir}/retro/${app.name}"/>
+    <mkdir dir="${deploy.dir}/retro"/>
+    <weave inputjar="${inpre}-base.jar" outputjar="${outpre}-base.jar"/>
+    <weave inputjar="${inpre}-cast.jar" outputjar="${outpre}-cast.jar"/>
+    <weave inputjar="${inpre}-distrib.jar" outputjar="${outpre}-distrib.jar"/>
+    <weave inputjar="${inpre}-micasa.jar" outputjar="${outpre}-micasa.jar"/>
+    <weave inputjar="${inpre}-miso.jar" outputjar="${outpre}-miso.jar"/>
+    <weave inputjar="${inpre}-media.jar" outputjar="${outpre}-media.jar"/>
+    <weave inputjar="${inpre}-parlor.jar" outputjar="${outpre}-parlor.jar"/>
+    <weave inputjar="${inpre}-puzzle.jar" outputjar="${outpre}-puzzle.jar"/>
+    <weave inputjar="${inpre}-stage.jar" outputjar="${outpre}-stage.jar"/>
+    <weave inputjar="${inpre}-whirled.jar" outputjar="${outpre}-whirled.jar"/>
   </target>
 
   <!-- generate a class hierarchy diagram -->
