@@ -1,5 +1,5 @@
 //
-// $Id: StreamableHashMap.java,v 1.4 2004/08/27 02:20:36 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -36,7 +36,7 @@ import com.threerings.io.Streamable;
  *
  * @see Streamable
  */
-public class StreamableHashMap extends HashMap
+public class StreamableHashMap<K,V> extends HashMap<K,V>
     implements Streamable
 {
     /**
@@ -65,8 +65,8 @@ public class StreamableHashMap extends HashMap
     {
         int ecount = size();
         out.writeInt(ecount);
-        for (Iterator iter = entrySet().iterator(); iter.hasNext(); ) {
-            Map.Entry entry = (Map.Entry) iter.next();
+        for (Iterator<Map.Entry<K,V>> iter = entrySet().iterator(); iter.hasNext(); ) {
+            Map.Entry<K,V> entry = (Map.Entry<K,V>) iter.next();
             out.writeObject(entry.getKey());
             out.writeObject(entry.getValue());
         }
@@ -80,7 +80,7 @@ public class StreamableHashMap extends HashMap
     {
         int ecount = in.readInt();
         for (int ii = 0; ii < ecount; ii++) {
-            put(in.readObject(), in.readObject());
+            put((K)in.readObject(), (V)in.readObject());
         }
     }
 }
