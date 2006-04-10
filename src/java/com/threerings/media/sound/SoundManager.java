@@ -46,12 +46,12 @@ import javax.sound.sampled.UnsupportedAudioFileException;
 
 import org.apache.commons.io.IOUtils;
 
+import com.samskivert.swing.RuntimeAdjust;
 import com.samskivert.util.Config;
 import com.samskivert.util.ConfigUtil;
 import com.samskivert.util.Interval;
 import com.samskivert.util.LRUHashMap;
 import com.samskivert.util.Queue;
-import com.samskivert.util.RuntimeAdjust;
 import com.samskivert.util.StringUtil;
 
 import com.threerings.resource.ResourceManager;

@@ -26,8 +26,8 @@ import java.util.Iterator;
 
 import com.samskivert.swing.Controller;
 import com.samskivert.swing.ControllerProvider;
+import com.samskivert.swing.RuntimeAdjust;
 import com.samskivert.swing.util.SwingUtil;
-import com.samskivert.util.RuntimeAdjust;
 
 import com.samskivert.util.Tuple;
 import com.threerings.util.StreamableArrayList;

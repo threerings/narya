@@ -1,5 +1,5 @@
 //
-// $Id: SceneObject.java,v 1.12 2004/10/28 17:49:02 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -29,7 +29,7 @@ import java.awt.Point;
 import java.awt.Polygon;
 import java.awt.Rectangle;
 
-import com.samskivert.util.RuntimeAdjust;
+import com.samskivert.swing.RuntimeAdjust;
 import com.samskivert.util.StringUtil;
 
 import com.threerings.media.tile.NoSuchTileSetException;

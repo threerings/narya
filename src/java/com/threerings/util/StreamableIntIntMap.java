@@ -66,7 +66,7 @@ public class StreamableIntIntMap extends IntIntMap
         int ecount = size();
         out.writeInt(ecount);
         for (Iterator itr = entrySet().iterator(); itr.hasNext(); ) {
-            Entry entry = (Entry) itr.next();
+            IntIntEntry entry = (IntIntEntry) itr.next();
             out.writeInt(entry.getIntKey());
             out.writeInt(entry.getIntValue());
         }

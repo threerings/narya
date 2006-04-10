@@ -22,9 +22,9 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.util.List;
 
+import com.samskivert.swing.RuntimeAdjust;
 import com.samskivert.swing.util.SwingUtil;
 import com.samskivert.util.DebugChords;
-import com.samskivert.util.RuntimeAdjust;
 import com.samskivert.util.StringUtil;
 
 import com.threerings.util.KeyDispatcher;

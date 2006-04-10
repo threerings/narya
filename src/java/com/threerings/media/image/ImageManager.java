@@ -39,8 +39,8 @@ import java.util.Iterator;
 import javax.imageio.ImageIO;
 import javax.imageio.stream.ImageInputStream;
 
+import com.samskivert.swing.RuntimeAdjust;
 import com.samskivert.util.LRUHashMap;
-import com.samskivert.util.RuntimeAdjust;
 import com.samskivert.util.StringUtil;
 import com.samskivert.util.Throttle;
 import com.samskivert.util.Tuple;

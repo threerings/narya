@@ -25,9 +25,9 @@ import javax.swing.event.PopupMenuListener;
 
 import com.samskivert.swing.GroupLayout;
 import com.samskivert.swing.HGroupLayout;
-import com.samskivert.util.Collections;
 import com.samskivert.util.CollectionUtil;
-import com.samskivert.util.SortableArrayList;
+import com.samskivert.util.Collections;
+import com.samskivert.util.ComparableArrayList;
 
 import com.threerings.miso.data.ObjectInfo;
 import com.threerings.miso.data.SparseMisoSceneModel.ObjectVisitor;
@@ -81,7 +81,7 @@ public class SceneInfoPanel extends JPanel
         });
 
         // create a drop-down for selecting the scene type
-        SortableArrayList types = new SortableArrayList();
+        ComparableArrayList types = new ComparableArrayList();
         ctx.enumerateSceneTypes(types);
         types.sort();
         types.add(0, "");
@@ -219,7 +219,7 @@ public class SceneInfoPanel extends JPanel
             int pick = _scene.getDefaultColor(classRec.classId);
 
             ColorPository.ColorRecord[] colors = cpos.enumerateColors(cclass);
-            SortableArrayList list = new SortableArrayList();
+            ComparableArrayList list = new ComparableArrayList();
             for (int ii=0; ii < colors.length; ii++) {
                 list.insertSorted(colors[ii].name);
                 if (colors[ii].colorId == pick) {

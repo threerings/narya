@@ -1,5 +1,5 @@
 //
-// $Id: DSetEditor.java,v 1.10 2004/11/06 01:59:24 ray Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -36,8 +36,8 @@ import com.samskivert.swing.ObjectEditorTable;
 import com.samskivert.swing.event.CommandEvent;
 
 import com.samskivert.util.ClassUtil;
+import com.samskivert.util.ComparableArrayList;
 import com.samskivert.util.ListUtil;
-import com.samskivert.util.SortableArrayList;
 
 import com.threerings.media.SafeScrollPane;
 
@@ -205,7 +205,7 @@ public class DSetEditor extends JPanel
 
     protected void refreshData ()
     {
-        _keys = new SortableArrayList();
+        _keys = new ComparableArrayList();
         DSet.Entry[] entries =  new DSet.Entry[_set.size()];
         _set.toArray(entries);
         for (int ii=0; ii < entries.length; ii++) {
@@ -224,7 +224,7 @@ public class DSetEditor extends JPanel
     protected DSet _set;
 
     /** An array we use to track our entries' positions by key. */
-    protected SortableArrayList _keys;
+    protected ComparableArrayList _keys;
 
     /** The table used to edit. */
     protected ObjectEditorTable _table;

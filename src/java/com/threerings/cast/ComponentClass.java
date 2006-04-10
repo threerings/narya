@@ -25,7 +25,7 @@ import java.awt.Color;
 import java.io.Serializable;
 
 import com.samskivert.util.ArrayIntSet;
-import com.samskivert.util.SortableArrayList;
+import com.samskivert.util.ComparableArrayList;
 import com.samskivert.util.StringUtil;
 
 /**
@@ -166,7 +166,7 @@ public class ComponentClass implements Serializable
     public void addPriorityOverride (PriorityOverride override)
     {
         if (_overrides == null) {
-            _overrides = new SortableArrayList();
+            _overrides = new ComparableArrayList();
         }
         _overrides.insertSorted(override);
     }
@@ -233,7 +233,7 @@ public class ComponentClass implements Serializable
     }
 
     /** A list of render priority overrides. */
-    protected SortableArrayList _overrides;
+    protected ComparableArrayList _overrides;
 
     /** Increase this value when object's serialized state is impacted by
      * a class change (modification of fields, inheritance). */

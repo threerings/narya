@@ -30,9 +30,9 @@ import java.nio.channels.SocketChannel;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 
+import com.samskivert.swing.RuntimeAdjust;
 import com.samskivert.util.LoopingThread;
 import com.samskivert.util.Queue;
-import com.samskivert.util.RuntimeAdjust;
 import com.samskivert.util.StringUtil;
 
 import com.threerings.io.FramedInputStream;

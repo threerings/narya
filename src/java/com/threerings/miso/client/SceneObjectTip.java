@@ -1,5 +1,5 @@
 //
-// $Id: SceneObjectTip.java,v 1.6 2004/08/27 02:20:06 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -35,8 +35,8 @@ import javax.swing.UIManager;
 
 import com.samskivert.swing.Label;
 import com.samskivert.swing.LabelSausage;
+import com.samskivert.util.ComparableArrayList;
 import com.samskivert.util.StringUtil;
-import com.samskivert.util.SortableArrayList;
 
 /**
  * A lightweight tooltip used by the {@link MisoScenePanel}. The tip
@@ -192,7 +192,7 @@ public class SceneObjectTip extends LabelSausage
     }
 
     /** Contains a sorted list of layout registrations. */
-    protected static SortableArrayList _layouts = new SortableArrayList();
+    protected static ComparableArrayList _layouts = new ComparableArrayList();
 
     /** The number of pixels to pad around the icon. */
     protected static final int ICON_PAD = 4;

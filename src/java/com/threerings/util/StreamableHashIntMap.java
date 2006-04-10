@@ -65,8 +65,8 @@ public class StreamableHashIntMap extends HashIntMap
     {
         int ecount = size();
         out.writeInt(ecount);
-        for (Iterator iter = entrySet().iterator(); iter.hasNext(); ) {
-            HashIntMap.Entry entry = (HashIntMap.Entry) iter.next();
+        for (Iterator iter = intEntrySet().iterator(); iter.hasNext(); ) {
+            IntEntry entry = (IntEntry) iter.next();
             out.writeInt(entry.getIntKey());
             out.writeObject(entry.getValue());
         }

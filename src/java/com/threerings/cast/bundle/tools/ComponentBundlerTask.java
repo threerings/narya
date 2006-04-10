@@ -47,9 +47,9 @@ import java.util.zip.Deflater;
 import org.apache.commons.digester.Digester;
 
 import com.samskivert.io.PersistenceException;
+import com.samskivert.util.ComparableArrayList;
 import com.samskivert.util.FileUtil;
 import com.samskivert.util.HashIntMap;
-import com.samskivert.util.SortableArrayList;
 import com.samskivert.util.Tuple;
 
 import org.apache.tools.ant.BuildException;
@@ -530,7 +530,7 @@ public class ComponentBundlerTask extends Task
             bout.newLine();
 
             // write out the keys and values
-            SortableArrayList lines = new SortableArrayList();
+            ComparableArrayList lines = new ComparableArrayList();
             Iterator keys = keySet().iterator();
             while (keys.hasNext()) {
                 Tuple key = (Tuple)keys.next();

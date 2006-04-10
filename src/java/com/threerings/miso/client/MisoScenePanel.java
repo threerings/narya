@@ -53,9 +53,9 @@ import java.util.List;
 
 import com.samskivert.swing.Controller;
 import com.samskivert.swing.RadialMenu;
+import com.samskivert.swing.RuntimeAdjust;
 import com.samskivert.swing.event.CommandEvent;
 import com.samskivert.util.HashIntMap;
-import com.samskivert.util.RuntimeAdjust;
 import com.samskivert.util.StringUtil;
 
 import com.threerings.media.VirtualMediaPanel;

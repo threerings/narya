@@ -12,8 +12,8 @@ import java.awt.GraphicsEnvironment;
 import java.io.File;
 import java.io.IOException;
 
+import com.samskivert.swing.RuntimeAdjust;
 import com.samskivert.swing.util.SwingUtil;
-import com.samskivert.util.RuntimeAdjust;
 
 import com.threerings.resource.ResourceManager;
 import com.threerings.util.KeyDispatcher;

@@ -43,10 +43,10 @@ import java.util.ArrayList;
 
 import com.samskivert.swing.Controller;
 import com.samskivert.swing.Label;
+import com.samskivert.swing.RuntimeAdjust;
 import com.samskivert.swing.event.AncestorAdapter;
 import com.samskivert.swing.event.CommandEvent;
 import com.samskivert.util.IntListUtil;
-import com.samskivert.util.RuntimeAdjust;
 import com.samskivert.util.StringUtil;
 
 import com.threerings.media.timer.MediaTimer;

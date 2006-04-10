@@ -143,6 +143,7 @@
       <exclude name="**/ModPlayer.java"/>
       <exclude name="**/MidiPlayer.java"/>
       <exclude name="**/Mp3Player.java"/>
+      <!--<compilerarg value="-Xlint:unchecked"/>-->
     </javac>
   </target>
 

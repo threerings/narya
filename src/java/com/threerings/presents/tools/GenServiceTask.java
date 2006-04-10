@@ -18,7 +18,7 @@ import java.util.List;
 import org.apache.velocity.VelocityContext;
 
 import com.samskivert.util.CollectionUtil;
-import com.samskivert.util.SortableArrayList;
+import com.samskivert.util.ComparableArrayList;
 import com.samskivert.util.StringUtil;
 
 import com.threerings.presents.client.Client;
@@ -41,7 +41,7 @@ public class GenServiceTask extends InvocationTask
     {
         public Class listener;
 
-        public SortableArrayList methods = new SortableArrayList();
+        public ComparableArrayList methods = new ComparableArrayList();
 
         public ServiceListener (Class service, Class listener, HashMap imports)
         {
@@ -116,8 +116,8 @@ public class GenServiceTask extends InvocationTask
         }
 
         HashMap imports = new HashMap();
-        SortableArrayList methods = new SortableArrayList();
-        SortableArrayList listeners = new SortableArrayList();
+        ComparableArrayList methods = new ComparableArrayList();
+        ComparableArrayList listeners = new ComparableArrayList();
 
         // we need to import the service itself
         imports.put(importify(service.getName()), Boolean.TRUE);
@@ -165,7 +165,7 @@ public class GenServiceTask extends InvocationTask
         String mpackage = StringUtil.replace(spackage, ".client", ".data");
 
         // construct our imports list
-        SortableArrayList implist = new SortableArrayList();
+        ComparableArrayList implist = new ComparableArrayList();
         CollectionUtil.addAll(implist, imports);
         checkedAdd(implist, Client.class.getName());
         checkedAdd(implist, InvocationMarshaller.class.getName());
@@ -205,7 +205,7 @@ public class GenServiceTask extends InvocationTask
         String dpackage = StringUtil.replace(spackage, ".client", ".server");
 
         // construct our imports list
-        SortableArrayList implist = new SortableArrayList();
+        ComparableArrayList implist = new ComparableArrayList();
         CollectionUtil.addAll(implist, imports);
         checkedAdd(implist, ClientObject.class.getName());
         checkedAdd(implist, InvocationMarshaller.class.getName());
@@ -248,7 +248,7 @@ public class GenServiceTask extends InvocationTask
         String mpackage = StringUtil.replace(spackage, ".client", ".server");
 
         // construct our imports list
-        SortableArrayList implist = new SortableArrayList();
+        ComparableArrayList implist = new ComparableArrayList();
         CollectionUtil.addAll(implist, imports);
         checkedAdd(implist, ClientObject.class.getName());
         checkedAdd(implist, InvocationProvider.class.getName());

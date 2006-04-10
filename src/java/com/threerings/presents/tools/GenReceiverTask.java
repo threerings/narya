@@ -35,7 +35,7 @@ import java.util.List;
 import org.apache.velocity.VelocityContext;
 
 import com.samskivert.util.CollectionUtil;
-import com.samskivert.util.SortableArrayList;
+import com.samskivert.util.ComparableArrayList;
 import com.samskivert.util.StringUtil;
 
 import com.threerings.presents.client.InvocationDecoder;
@@ -69,7 +69,7 @@ public class GenReceiverTask extends InvocationTask
         }
 
         HashMap imports = new HashMap();
-        SortableArrayList methods = new SortableArrayList();
+        ComparableArrayList methods = new ComparableArrayList();
 
         // we need to import the receiver itself
         imports.put(importify(receiver.getName()), Boolean.TRUE);
@@ -101,7 +101,7 @@ public class GenReceiverTask extends InvocationTask
         String spackage = StringUtil.replace(rpackage, ".client", ".server");
 
         // construct our imports list
-        SortableArrayList implist = new SortableArrayList();
+        ComparableArrayList implist = new ComparableArrayList();
         CollectionUtil.addAll(implist, imports);
         checkedAdd(implist, ClientObject.class.getName());
         checkedAdd(implist, InvocationSender.class.getName());
@@ -140,7 +140,7 @@ public class GenReceiverTask extends InvocationTask
         String dname = StringUtil.replace(rname, "Receiver", "Decoder");
 
         // construct our imports list
-        SortableArrayList implist = new SortableArrayList();
+        ComparableArrayList implist = new ComparableArrayList();
         CollectionUtil.addAll(implist, imports);
         checkedAdd(implist, InvocationDecoder.class.getName());
         implist.sort();

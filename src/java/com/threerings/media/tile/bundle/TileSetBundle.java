@@ -118,9 +118,9 @@ public class TileSetBundle extends HashIntMap
     {
         out.writeInt(size());
 
-        Iterator entries = entrySet().iterator();
+        Iterator entries = intEntrySet().iterator();
         while (entries.hasNext()) {
-            Entry entry = (Entry)entries.next();
+            IntEntry entry = (IntEntry)entries.next();
             out.writeInt(entry.getIntKey());
             out.writeObject(entry.getValue());
         }

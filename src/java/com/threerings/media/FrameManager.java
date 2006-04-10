@@ -45,9 +45,9 @@ import javax.swing.RepaintManager;
 import javax.swing.event.AncestorEvent;
 import javax.swing.event.AncestorListener;
 
+import com.samskivert.swing.RuntimeAdjust;
 import com.samskivert.util.ListUtil;
 import com.samskivert.util.RunAnywhere;
-import com.samskivert.util.RuntimeAdjust;
 import com.samskivert.util.StringUtil;
 
 import com.threerings.media.timer.MediaTimer;

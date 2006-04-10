@@ -26,8 +26,8 @@ import javax.swing.JPanel;
 
 import com.samskivert.swing.Controller;
 import com.samskivert.swing.ControllerProvider;
+import com.samskivert.swing.RuntimeAdjust;
 import com.samskivert.swing.util.SwingUtil;
-import com.samskivert.util.RuntimeAdjust;
 
 import com.threerings.util.KeyTranslator;
 import com.threerings.util.RobotPlayer;
