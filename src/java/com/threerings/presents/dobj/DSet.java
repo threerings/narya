@@ -377,7 +377,8 @@ public class DSet
     {
         try {
             DSet nset = (DSet)super.clone();
-            nset._entries = (Entry[])_entries.clone();
+            nset._entries = new Entry[_entries.length];
+            System.arraycopy(_entries, 0, nset._entries, 0, _entries.length);
             nset._modCount = 0;
             return nset;
         } catch (CloneNotSupportedException cnse) {
