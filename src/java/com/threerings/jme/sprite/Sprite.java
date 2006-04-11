@@ -99,7 +99,8 @@ public class Sprite extends Node
     public void addObserver (SpriteObserver obs)
     {
         if (_observers == null) {
-            _observers = new ObserverList(ObserverList.SAFE_IN_ORDER_NOTIFY);
+            _observers = new ObserverList<SpriteObserver>(
+                ObserverList.SAFE_IN_ORDER_NOTIFY);
         }
         _observers.add(obs);
     }
@@ -199,14 +200,15 @@ public class Sprite extends Node
     }
     
     /** Used to dispatch {@link PathObserver#pathCancelled}. */
-    protected static class CancelledOp implements ObserverList.ObserverOp
+    protected static class CancelledOp
+        implements ObserverList.ObserverOp<SpriteObserver>
     {
         public CancelledOp (Sprite sprite, Path path) {
             _sprite = sprite;
             _path = path;
         }
 
-        public boolean apply (Object observer) {
+        public boolean apply (SpriteObserver observer) {
             if (observer instanceof PathObserver) {
                 ((PathObserver)observer).pathCancelled(_sprite, _path);
             }
@@ -218,14 +220,15 @@ public class Sprite extends Node
     }
 
     /** Used to dispatch {@link PathObserver#pathCompleted}. */
-    protected static class CompletedOp implements ObserverList.ObserverOp
+    protected static class CompletedOp
+        implements ObserverList.ObserverOp<SpriteObserver>
     {
         public CompletedOp (Sprite sprite, Path path) {
             _sprite = sprite;
             _path = path;
         }
 
-        public boolean apply (Object observer) {
+        public boolean apply (SpriteObserver observer) {
             if (observer instanceof PathObserver) {
                 ((PathObserver)observer).pathCompleted(_sprite, _path);
             }
@@ -236,6 +239,6 @@ public class Sprite extends Node
         protected Path _path;
     }
 
-    protected ObserverList _observers;
+    protected ObserverList<SpriteObserver> _observers;
     protected Path _path;
 }
