@@ -270,7 +270,7 @@ public class ChatDirector extends BasicDirector
      */
     public String getCommandHistory (int index)
     {
-        return (String)_history.get(index);
+        return _history.get(index);
     }
 
     /**
@@ -286,9 +286,9 @@ public class ChatDirector extends BasicDirector
      */
     public void clearDisplays ()
     {
-        _displays.apply(new ObserverList.ObserverOp() {
-            public boolean apply (Object observer) {
-                ((ChatDisplay)observer).clear();
+        _displays.apply(new ObserverList.ObserverOp<ChatDisplay>() {
+            public boolean apply (ChatDisplay observer) {
+                observer.clear();
                 return true;
             }
         });
@@ -380,7 +380,8 @@ public class ChatDirector extends BasicDirector
                 args = text.substring(sidx+1).trim();
             }
 
-            HashMap possibleCommands = getCommandHandlers(command);
+            HashMap<String,CommandHandler> possibleCommands =
+                getCommandHandlers(command);
             switch (possibleCommands.size()) {
             case 0:
                 StringTokenizer tok = new StringTokenizer(text);
@@ -388,12 +389,13 @@ public class ChatDirector extends BasicDirector
                     "m.unknown_command", tok.nextToken());
 
             case 1:
-                Iterator itr = possibleCommands.entrySet().iterator();
-                Map.Entry entry = (Map.Entry) itr.next();
-                String cmdName = (String) entry.getKey();
-                CommandHandler cmd = (CommandHandler) entry.getValue();
+                Map.Entry<String,CommandHandler> entry =
+                    possibleCommands.entrySet().iterator().next();
+                String cmdName = entry.getKey();
+                CommandHandler cmd = entry.getValue();
 
-                String result = cmd.handleCommand(speakSvc, cmdName, args, hist);
+                String result = cmd.handleCommand(
+                    speakSvc, cmdName, args, hist);
                 if (!result.equals(ChatCodes.SUCCESS)) {
                     return result;
                 }
@@ -411,10 +413,10 @@ public class ChatDirector extends BasicDirector
 
             default:
                 String alternativeCommands = "";
-                itr = Collections.getSortedIterator(possibleCommands.keySet());
+                Iterator<String> itr = Collections.getSortedIterator(
+                    possibleCommands.keySet());
                 while (itr.hasNext()) {
-                    cmdName = (String)itr.next();
-                    alternativeCommands += " /" + cmdName;
+                    alternativeCommands += " /" + itr.next();
                 }
                 return MessageBundle.tcompose(
                     "m.unspecific_command", alternativeCommands);
@@ -923,18 +925,17 @@ public class ChatDirector extends BasicDirector
      * specified command (i.e. the specified command is a prefix of their
      * registered command string).
      */
-    protected HashMap getCommandHandlers (String command)
+    protected HashMap<String,CommandHandler> getCommandHandlers (String command)
     {
-        HashMap matches = new HashMap();
+        HashMap<String,CommandHandler> matches =
+            new HashMap<String,CommandHandler>();
         BodyObject user = (BodyObject)_ctx.getClient().getClientObject();
-        Iterator itr = _handlers.entrySet().iterator();
-        while (itr.hasNext()) {
-            Map.Entry entry = (Map.Entry) itr.next();
-            String cmd = (String) entry.getKey();
+        for (Map.Entry<String,CommandHandler> entry : _handlers.entrySet()) {
+            String cmd = entry.getKey();
             if (!cmd.startsWith(command)) {
                 continue;
             }
-            CommandHandler handler = (CommandHandler)entry.getValue();
+            CommandHandler handler = entry.getValue();
             if (!handler.checkAccess(user)) {
                 continue;
             }
@@ -972,10 +973,9 @@ public class ChatDirector extends BasicDirector
      */
     protected void notifyChatterObservers ()
     {
-        _chatterObservers.apply(new ObserverList.ObserverOp() {
-            public boolean apply (Object observer) {
-                ((ChatterObserver)observer).chattersUpdated(
-                    _chatters.listIterator());
+        _chatterObservers.apply(new ObserverList.ObserverOp<ChatterObserver>() {
+            public boolean apply (ChatterObserver observer) {
+                observer.chattersUpdated(_chatters.listIterator());
                 return true;
             }
         });
@@ -1022,7 +1022,7 @@ public class ChatDirector extends BasicDirector
      */
     protected String getLocalType (int oid)
     {
-        String type = (String)_auxes.get(oid);
+        String type = _auxes.get(oid);
         return (type == null) ? PLACE_CHAT_TYPE : type;
     }
 
@@ -1037,7 +1037,8 @@ public class ChatDirector extends BasicDirector
      * An operation that checks with all chat filters to properly filter
      * a message prior to sending to the server or displaying.
      */
-    protected static class FilterMessageOp implements ObserverList.ObserverOp
+    protected static class FilterMessageOp
+        implements ObserverList.ObserverOp<ChatFilter>
     {
         public void setMessage (String msg, Name otherUser, boolean outgoing)
         {
@@ -1046,10 +1047,10 @@ public class ChatDirector extends BasicDirector
             _out = outgoing;
         }
 
-        public boolean apply (Object observer)
+        public boolean apply (ChatFilter observer)
         {
             if (_msg != null) {
-                _msg = ((ChatFilter) observer).filter(_msg, _otherUser, _out);
+                _msg = observer.filter(_msg, _otherUser, _out);
             }
             return true;
         }
@@ -1067,16 +1068,17 @@ public class ChatDirector extends BasicDirector
     /**
      * An observer op used to dispatch ChatMessages on the client.
      */
-    protected static class DisplayMessageOp implements ObserverList.ObserverOp
+    protected static class DisplayMessageOp
+        implements ObserverList.ObserverOp<ChatDisplay>
     {
         public void setMessage (ChatMessage message)
         {
             _message = message;
         }
 
-        public boolean apply (Object observer)
+        public boolean apply (ChatDisplay observer)
         {
-            ((ChatDisplay)observer).displayMessage(_message);
+            observer.displayMessage(_message);
             return true;
         }
 
@@ -1086,8 +1088,8 @@ public class ChatDirector extends BasicDirector
     /** Implements <code>/help</code>. */
     protected class HelpHandler extends CommandHandler
     {
-        public String handleCommand (
-            SpeakService speakSvc, String command, String args, String[] history)
+        public String handleCommand (SpeakService speakSvc, String command,
+                                     String args, String[] history)
         {
             String hcmd = "";
 
@@ -1106,7 +1108,8 @@ public class ChatDirector extends BasicDirector
             }
 
             // handle "/help help" and "/help someboguscommand"
-            HashMap possibleCommands = getCommandHandlers(hcmd);
+            HashMap<String,CommandHandler> possibleCommands =
+                getCommandHandlers(hcmd);
             if (hcmd.equals("help") || possibleCommands.isEmpty()) {
                 possibleCommands = getCommandHandlers("");
                 possibleCommands.remove("help"); // remove help from the list
@@ -1115,12 +1118,12 @@ public class ChatDirector extends BasicDirector
             // if there is only one possible command display its usage
             switch (possibleCommands.size()) {
             case 1:
-                Iterator itr = possibleCommands.keySet().iterator();
+                Iterator<String> itr = possibleCommands.keySet().iterator();
                 // this is a little funny, but we display the feeback
                 // message by hand and return SUCCESS so that the chat
                 // entry field doesn't think that we've failed and
                 // preserve our command text
-                displayFeedback(null, "m.usage_" + (String)itr.next());
+                displayFeedback(null, "m.usage_" + itr.next());
                 return ChatCodes.SUCCESS;
 
             default:
@@ -1138,8 +1141,8 @@ public class ChatDirector extends BasicDirector
     /** Implements <code>/clear</code>. */
     protected class ClearHandler extends CommandHandler
     {
-        public String handleCommand (
-            SpeakService speakSvc, String command, String args, String[] history)
+        public String handleCommand (SpeakService speakSvc, String command,
+                                     String args, String[] history)
         {
             clearDisplays();
             return ChatCodes.SUCCESS;
@@ -1149,8 +1152,8 @@ public class ChatDirector extends BasicDirector
     /** Implements <code>/speak</code>. */
     protected class SpeakHandler extends CommandHandler
     {
-        public String handleCommand (
-            SpeakService speakSvc, String command, String args, String[] history)
+        public String handleCommand (SpeakService speakSvc, String command,
+                                     String args, String[] history)
         {
             if (StringUtil.isBlank(args)) {
                 return "m.usage_speak";
@@ -1164,8 +1167,8 @@ public class ChatDirector extends BasicDirector
     /** Implements <code>/emote</code>. */
     protected class EmoteHandler extends CommandHandler
     {
-        public String handleCommand (
-            SpeakService speakSvc, String command, String args, String[] history)
+        public String handleCommand (SpeakService speakSvc, String command,
+                                     String args, String[] history)
         {
             if (StringUtil.isBlank(args)) {
                 return "m.usage_emote";
@@ -1179,8 +1182,8 @@ public class ChatDirector extends BasicDirector
     /** Implements <code>/think</code>. */
     protected class ThinkHandler extends CommandHandler
     {
-        public String handleCommand (
-            SpeakService speakSvc, String command, String args, String[] history)
+        public String handleCommand (SpeakService speakSvc, String command,
+                                     String args, String[] history)
         {
             if (StringUtil.isBlank(args)) {
                 return "m.usage_think";
@@ -1210,32 +1213,33 @@ public class ChatDirector extends BasicDirector
     protected ClientObject _clobj;
 
     /** A list of registered chat displays. */
-    protected ObserverList _displays =
-        new ObserverList(ObserverList.FAST_UNSAFE_NOTIFY);
+    protected ObserverList<ChatDisplay> _displays =
+        new ObserverList<ChatDisplay>(ObserverList.FAST_UNSAFE_NOTIFY);
 
     /** A list of registered chat filters. */
-    protected ObserverList _filters =
-        new ObserverList(ObserverList.FAST_UNSAFE_NOTIFY);
+    protected ObserverList<ChatFilter> _filters =
+        new ObserverList<ChatFilter>(ObserverList.FAST_UNSAFE_NOTIFY);
 
     /** A mapping from auxiliary chat objects to the types under which
      * they are registered. */
-    protected HashIntMap _auxes = new HashIntMap();
+    protected HashIntMap<String> _auxes = new HashIntMap<String>();
 
     /** Validator of who may be added to the chatters list. */
     protected ChatterValidator _chatterValidator;
 
     /** Usernames of users we've recently chatted with. */
-    protected LinkedList _chatters = new LinkedList();
+    protected LinkedList<Name> _chatters = new LinkedList<Name>();
 
     /** Observers that are watching our chatters list. */
-    protected ObserverList _chatterObservers =
-        new ObserverList(ObserverList.FAST_UNSAFE_NOTIFY);
+    protected ObserverList<ChatterObserver> _chatterObservers =
+        new ObserverList<ChatterObserver>(ObserverList.FAST_UNSAFE_NOTIFY);
 
     /** Registered chat command handlers. */
-    protected static HashMap _handlers = new HashMap();
+    protected static HashMap<String,CommandHandler> _handlers =
+        new HashMap<String,CommandHandler>();
 
     /** A history of chat commands. */
-    protected static ArrayList _history = new ArrayList();
+    protected static ArrayList<String> _history = new ArrayList<String>();
 
     /** Operation used to filter chat messages. */
     protected FilterMessageOp _filterMessageOp = new FilterMessageOp();
