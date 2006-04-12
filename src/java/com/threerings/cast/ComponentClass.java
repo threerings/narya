@@ -120,7 +120,7 @@ public class ComponentClass implements Serializable
     /** The class name of the layer from which this component class obtains a
      * mask to limit rendering to certain areas. */
     public String mask;
-    
+
     /** Indicates the class name of the shadow layer to which this component
      * class contributes a shadow. */
     public String shadow;

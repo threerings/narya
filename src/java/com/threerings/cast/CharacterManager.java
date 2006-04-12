@@ -352,8 +352,8 @@ public class CharacterManager
     {
         final ComponentClass cclass = _crepo.getComponentClass(sclass);
         if (cclass == null) {
-            Log.warning("Components reference non-existent shadow layer class " +
-                        "[sclass=" + sclass +
+            Log.warning("Components reference non-existent shadow layer " +
+                        "class [sclass=" + sclass +
                         ", scomps=" + StringUtil.toString(scomps) + "].");
             return null;
         }
@@ -369,9 +369,6 @@ public class CharacterManager
             source.frames = source.ccomp.getFrames(
                 action, StandardActions.SHADOW_TYPE);
             if (source.frames == null) {
-                Log.warning("Missing shadow frames for action " +
-                            "[action=" + action +
-                            ", comp=" + source.ccomp + "].");
                 // skip this shadow component
                 continue;
             }

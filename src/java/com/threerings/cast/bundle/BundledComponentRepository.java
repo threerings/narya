@@ -61,6 +61,7 @@ import com.threerings.cast.ComponentRepository;
 import com.threerings.cast.FrameProvider;
 import com.threerings.cast.Log;
 import com.threerings.cast.NoSuchComponentException;
+import com.threerings.cast.StandardActions;
 import com.threerings.cast.TrimmedMultiFrameImage;
 
 /**
@@ -342,6 +343,12 @@ public class BundledComponentRepository
                     aset = (TileSet)BundleUtil.loadObject(
                         _bundle, dpath, false);
                     _setcache.put(dpath, aset);
+                }
+
+                // if this is a shadow image, no need to freak out as they are
+                // optional
+                if (type.equals(StandardActions.SHADOW_TYPE)) {
+                    return null;
                 }
 
                 // if that failed too, we're hosed
