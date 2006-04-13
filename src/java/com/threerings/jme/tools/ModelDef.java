@@ -22,6 +22,7 @@
 package com.threerings.jme.tools;
 
 import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 
@@ -30,9 +31,13 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Properties;
 
+import com.jme.math.FastMath;
 import com.jme.scene.Spatial;
 import com.jme.util.geom.BufferUtils;
+
+import com.samskivert.util.PropertiesUtil;
 
 import com.threerings.jme.Log;
 import com.threerings.jme.model.BoneNode;
@@ -61,10 +66,10 @@ public class ModelDef
         public float[] scale;
         
         /** Returns a JME node for this definition. */
-        public Spatial getSpatial ()
+        public Spatial getSpatial (Properties props)
         {
             if (_spatial == null) {
-                _spatial = createSpatial();
+                _spatial = createSpatial(props);
                 setTransform();
             }
             return _spatial;
@@ -81,7 +86,7 @@ public class ModelDef
         }
         
         /** Creates a JME node for this definition. */
-        public abstract Spatial createSpatial ();
+        public abstract Spatial createSpatial (Properties props);
         
         /** Resolves any name references using the supplied map. */
         public void resolveReferences (HashMap<String, Spatial> nodes)
@@ -124,19 +129,25 @@ public class ModelDef
         }
         
         // documentation inherited
-        public Spatial createSpatial ()
+        public Spatial createSpatial (Properties props)
         {
-            return setBuffers(new ModelMesh(name));
+            return configure(new ModelMesh(name), props);
         }
         
-        /** Sets the mesh's geometry buffers and returns it. */
-        protected ModelMesh setBuffers (ModelMesh mmesh)
+        /** Configures the new mesh and returns it. */
+        protected ModelMesh configure (ModelMesh mmesh, Properties props)
         {
+            // configure using sub-properties
+            mmesh.configure(PropertiesUtil.getSubProperties(props, name, ""));
+            
+            // set the various buffers
             int vsize = vertices.size();
-            ByteBuffer vbbuf = ByteBuffer.allocateDirect(vsize*3*4),
-                nbbuf = ByteBuffer.allocateDirect(vsize*3*4),
-                tbbuf = tcoords ? ByteBuffer.allocateDirect(vsize*2*4) : null,
-                ibbuf = ByteBuffer.allocateDirect(indices.size()*4);
+            ByteOrder no = ByteOrder.nativeOrder();
+            ByteBuffer vbbuf = ByteBuffer.allocateDirect(vsize*3*4).order(no),
+                nbbuf = ByteBuffer.allocateDirect(vsize*3*4).order(no),
+                tbbuf = tcoords ?
+                    ByteBuffer.allocateDirect(vsize*2*4).order(no) : null,
+                ibbuf = ByteBuffer.allocateDirect(indices.size()*4).order(no);
             FloatBuffer vbuf = vbbuf.asFloatBuffer(),
                 nbuf = nbbuf.asFloatBuffer(),
                 tbuf = tcoords ? tbbuf.asFloatBuffer() : null;
@@ -156,9 +167,9 @@ public class ModelDef
     public static class SkinMeshDef extends TriMeshDef
     {
         // documentation inherited
-        public Spatial createSpatial ()
+        public Spatial createSpatial (Properties props)
         {
-            return setBuffers(new SkinMesh(name));
+            return configure(new SkinMesh(name), props);
         }
         
         @Override // documentation inherited
@@ -167,17 +178,17 @@ public class ModelDef
             super.resolveReferences(nodes);
             
             // divide the vertices up by weight groups
-            HashMap<HashSet<String>, WeightGroupDef> groups =
-                new HashMap<HashSet<String>, WeightGroupDef>();
+            HashMap<HashSet<BoneNode>, WeightGroupDef> groups =
+                new HashMap<HashSet<BoneNode>, WeightGroupDef>();
             for (int ii = 0, nn = vertices.size(); ii < nn; ii++) {
                 SkinVertex svertex = (SkinVertex)vertices.get(ii);
-                HashSet<String> bones = svertex.getBoneNames();
+                HashSet<BoneNode> bones = svertex.getBonesAndNormalize(nodes);
                 WeightGroupDef group = groups.get(bones);
                 if (group == null) {
                     groups.put(bones, group = new WeightGroupDef());
                 }
                 group.indices.add(ii);
-                for (String bone : bones) {
+                for (BoneNode bone : bones) {
                     group.weights.add(svertex.getWeight(bone));
                 }
             }
@@ -186,21 +197,12 @@ public class ModelDef
             SkinMesh.WeightGroup[] wgroups =
                 new SkinMesh.WeightGroup[groups.size()];
             int ii = 0;
-            for (Map.Entry<HashSet<String>, WeightGroupDef> entry :
+            for (Map.Entry<HashSet<BoneNode>, WeightGroupDef> entry :
                 groups.entrySet()) {
                 SkinMesh.WeightGroup wgroup = new SkinMesh.WeightGroup();
                 wgroup.indices = toArray(entry.getValue().indices);
-                wgroup.bones = new BoneNode[entry.getKey().size()];
-                int jj = 0;
-                for (String bone : entry.getKey()) {
-                    Spatial node = nodes.get(bone);
-                    if (!(node instanceof BoneNode)) {
-                        Log.warning("Missing or invalid bone reference " +
-                            "[mesh=" + name + ", bone=" + bone + "].");
-                        return;
-                    }
-                    wgroup.bones[jj++] = (BoneNode)node;
-                }
+                HashSet<BoneNode> bones = entry.getKey();
+                wgroup.bones = bones.toArray(new BoneNode[bones.size()]);
                 wgroup.weights = toArray(entry.getValue().weights);
                 wgroups[ii++] = wgroup;
             }
@@ -212,7 +214,7 @@ public class ModelDef
     public static class NodeDef extends SpatialDef
     {
         // documentation inherited
-        public Spatial createSpatial ()
+        public Spatial createSpatial (Properties props)
         {
             return new ModelNode(name);
         }
@@ -222,7 +224,7 @@ public class ModelDef
     public static class BoneNodeDef extends NodeDef
     {
         // documentation inherited
-        public Spatial createSpatial ()
+        public Spatial createSpatial (Properties props)
         {
             return new BoneNode(name);
         }
@@ -239,7 +241,17 @@ public class ModelDef
             FloatBuffer vbuf, FloatBuffer nbuf, FloatBuffer tbuf)
         {
             vbuf.put(location);
+            
+            // make sure the normal is normalized
+            float nlen = FastMath.sqrt(normal[0]*normal[0] +
+                normal[1]*normal[1] + normal[2]*normal[2]);
+            if (nlen != 1f) {
+                normal[0] /= nlen;
+                normal[1] /= nlen;
+                normal[2] /= nlen;
+            }
             nbuf.put(normal);
+            
             if (tbuf != null) {
                 tbuf.put(tcoords);
             }
@@ -262,24 +274,39 @@ public class ModelDef
         
         public void addBoneWeight (BoneWeight weight)
         {
-            boneWeights.add(weight);
-        }
-        
-        /** Returns the set of names of the bones influencing this vertex. */
-        public HashSet<String> getBoneNames ()
-        {
-            HashSet<String> names = new HashSet<String>();
-            for (BoneWeight bweight : boneWeights) {
-                names.add(bweight.bone);
+            if (weight.weight > 0f) {
+                boneWeights.add(weight);
             }
-            return names;
         }
         
-        /** Returns the weight of the named bone. */
-        public float getWeight (String bone)
+        /** Finds the bone nodes influencing this vertex and normalizes the
+         * weights. */
+        public HashSet<BoneNode> getBonesAndNormalize (
+            HashMap<String, Spatial> nodes)
         {
+            HashSet<BoneNode> bones = new HashSet<BoneNode>();
+            float totalWeight = 0f;
             for (BoneWeight bweight : boneWeights) {
-                if (bweight.bone.equals(bone)) {
+                Spatial node = nodes.get(bweight.bone);
+                if (node instanceof BoneNode) {
+                    bones.add((BoneNode)node);
+                    totalWeight += bweight.weight;
+                }
+            }
+            if (totalWeight > 0f && totalWeight < 1f) {
+                for (BoneWeight bweight : boneWeights) {
+                    bweight.weight /= totalWeight;
+                }
+            }
+            return bones;
+        }
+        
+        /** Returns the weight of the given bone. */
+        public float getWeight (BoneNode bone)
+        {
+            String name = bone.getName();
+            for (BoneWeight bweight : boneWeights) {
+                if (bweight.bone.equals(name)) {
                     return bweight.weight;
                 }
             }
@@ -318,14 +345,14 @@ public class ModelDef
     /**
      * Creates the model node defined herein.
      */
-    public Model createModel (String name)
+    public Model createModel (Properties props)
     {
-        Model model = new Model(name);
+        Model model = new Model(props.getProperty("name", "model"), props);
         
         // start by creating the spatials and mapping them to their names
         HashMap<String, Spatial> nodes = new HashMap<String, Spatial>();
         for (int ii = 0, nn = spatials.size(); ii < nn; ii++) {
-            Spatial spatial = spatials.get(ii).getSpatial();
+            Spatial spatial = spatials.get(ii).getSpatial(props);
             nodes.put(spatial.getName(), spatial);
         }
         
@@ -334,12 +361,12 @@ public class ModelDef
         for (int ii = 0, nn = spatials.size(); ii < nn; ii++) {
             SpatialDef sdef = spatials.get(ii);
             sdef.resolveReferences(nodes);
-            if (sdef.getSpatial().getParent() == null) {
-                model.attachChild(sdef.getSpatial());
+            if (sdef.getSpatial(props).getParent() == null) {
+                model.attachChild(sdef.getSpatial(props));
             }
         }
         
-        return model;    
+        return model;
     }
     
     /** Converts a boxed Integer list to an unboxed int array. */

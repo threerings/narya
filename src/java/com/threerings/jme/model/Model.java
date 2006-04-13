@@ -30,7 +30,11 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutput;
 import java.io.ObjectOutputStream;
 
+import java.nio.ByteOrder;
+import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
+
+import java.util.Properties;
 
 import com.threerings.jme.Log;
 
@@ -63,8 +67,10 @@ public class Model extends ModelNode
         FileChannel fc = fis.getChannel();
         if (map) {
             long pos = fc.position();
-            model.sliceBuffers(fc.map(FileChannel.MapMode.READ_ONLY,
-                pos, fc.size() - pos));
+            MappedByteBuffer buf = fc.map(FileChannel.MapMode.READ_ONLY,
+                pos, fc.size() - pos);
+            buf.order(ByteOrder.LITTLE_ENDIAN);
+            model.sliceBuffers(buf);
         } else {
             model.readBuffers(fc);
         }
@@ -82,9 +88,18 @@ public class Model extends ModelNode
     /**
      * Standard constructor.
      */
-    public Model (String name)
+    public Model (String name, Properties props)
     {
         super(name);
+        _props = props;
+    }
+    
+    /**
+     * Returns a reference to the properties of the model.
+     */
+    public Properties getProperties ()
+    {
+        return _props;
     }
     
     /**
@@ -109,14 +124,19 @@ public class Model extends ModelNode
         throws IOException
     {
         super.writeExternal(out);
+        out.writeObject(_props);
     }
     
     @Override // documentation inherited
     public void readExternal (ObjectInput in)
-        throws IOException
+        throws IOException, ClassNotFoundException
     {
         super.readExternal(in);
+        _props = (Properties)in.readObject();
     }
+    
+    /** The model properties. */
+    protected Properties _props;
     
     private static final long serialVersionUID = 1;
 }

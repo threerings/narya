@@ -28,6 +28,7 @@ import java.io.IOException;
 import java.io.ObjectOutputStream;
 
 import java.util.ArrayList;
+import java.util.Properties;
 
 import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.DirectoryScanner;
@@ -47,6 +48,42 @@ import com.threerings.jme.tools.xml.ModelParser;
  */
 public class CompileModelTask extends Task
 {
+    /**
+     * Loads the model described by the given properties file and compiles it
+     * to a <code>.dat</code> file in the same directory.
+     *
+     * @return the loaded model, or <code>null</code> if the compiled version
+     * is up-to-date
+     */
+    public static Model compileModel (File source)
+        throws Exception
+    {
+        String spath = source.toString();
+        int didx = spath.lastIndexOf('.');
+        String root = (didx == -1) ? spath : spath.substring(0, didx);
+        File content = new File(root + ".xml"),
+            target = new File(root + ".dat");
+        if (source.lastModified() < target.lastModified() &&
+            content.lastModified() < target.lastModified()) {
+            return null;
+        }
+        System.out.println("Compiling " + source.getParent() + "...");
+        
+        // load the model properties
+        Properties props = new Properties();
+        FileInputStream in = new FileInputStream(source);
+        props.load(in);
+        in.close();
+        
+        // load the model content
+        ModelDef mdef = _mparser.parseModel(content.toString());
+        Model model = mdef.createModel(props);
+        
+        // write and return the model
+        model.writeToFile(target);
+        return model;
+    }
+    
     public void addFileset (FileSet set)
     {
         _filesets.add(set);
@@ -62,45 +99,19 @@ public class CompileModelTask extends Task
             String[] srcFiles = ds.getIncludedFiles();
 
             for (int f = 0; f < srcFiles.length; f++) {
-                File cfile = new File(fromDir, srcFiles[f]);
-                String target = srcFiles[f];
-                int didx = target.lastIndexOf(".");
-                target = (didx == -1) ? target : target.substring(0, didx);
-                target += ".dat";
-                compileModel(cfile, new File(fromDir, target));
+                File source = new File(fromDir, srcFiles[f]);
+                try {
+                    compileModel(source);
+                } catch (Exception e) {
+                    System.err.println("Error compiling " + source + ": " + e);
+                }
             }
         }
     }
-    
-    protected void compileModel (File source, File target)
-    {
-        if (source.lastModified() < target.lastModified()) {
-            return;
-        }
-        System.out.println("Compiling " + source + "...");
-        
-        ModelDef mdef;
-        try {
-            mdef = _mparser.parseModel(source.toString());
-            
-        } catch (Exception e) {
-            System.err.println("Error parsing '" + source + "': " + e);
-            return;
-        }
-        
-        Model model = mdef.createModel("model");
-        try {
-            FileOutputStream fos = new FileOutputStream(target);
-            new ObjectOutputStream(fos).writeObject(model);
-            
-        } catch (IOException e) {
-            System.err.println("Error writing '" + target + "': " + e);
-        }
-    }
-    
+
     /** A list of filesets that contain XML models. */
     protected ArrayList<FileSet> _filesets = new ArrayList<FileSet>();
     
     /** A parser for the model definitions. */
-    protected ModelParser _mparser = new ModelParser();
+    protected static ModelParser _mparser = new ModelParser();
 }

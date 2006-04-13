@@ -243,6 +243,7 @@
     <jar destfile="${deploy.dir}/${app.name}-jme.jar">
       <fileset dir="${classes.dir}" includes="com/threerings/jme/**"/>
       <fileset dir="${classes.dir}" includes="rsrc/media/jme/**"/>
+      <fileset dir="${classes.dir}" includes="rsrc/i18n/jme/**"/>
     </jar>
     <jar destfile="${deploy.dir}/${app.name}-openal.jar">
       <fileset dir="${classes.dir}" includes="com/threerings/openal/**"/>

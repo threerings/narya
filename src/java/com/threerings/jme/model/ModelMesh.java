@@ -27,11 +27,16 @@ import java.io.ObjectInput;
 import java.io.ObjectOutput;
 
 import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
 
+import java.util.Properties;
+
+import com.jme.bounding.BoundingBox;
+import com.jme.bounding.BoundingSphere;
 import com.jme.math.Quaternion;
 import com.jme.math.Vector3f;
 import com.jme.scene.TriMesh;
@@ -49,6 +54,7 @@ public class ModelMesh extends TriMesh
      */
     public ModelMesh ()
     {
+        super("mesh");
     }
     
     /**
@@ -70,6 +76,15 @@ public class ModelMesh extends TriMesh
     }
     
     /**
+     * Configures this mesh based on the given (sub-)properties.
+     */
+    public void configure (Properties props)
+    {
+        _boundingType = "sphere".equals(props.getProperty("bound")) ?
+            SPHERE_BOUND : BOX_BOUND;
+    }
+    
+    /**
      * Sets the buffers as {@link ByteBuffer}s, because we can't create byte
      * views of non-byte buffers.
      */
@@ -88,6 +103,13 @@ public class ModelMesh extends TriMesh
         _colorByteBuffer = colors;
         _textureByteBuffer = textures;
         _indexByteBuffer = indices;
+        
+        if (_boundingType == BOX_BOUND) {
+            setModelBound(new BoundingBox());
+        } else { // _boundingType == SPHERE_BOUND
+            setModelBound(new BoundingSphere());
+        }
+        updateModelBound();
     }
     
     // documentation inherited
@@ -130,27 +152,23 @@ public class ModelMesh extends TriMesh
         out.writeInt(_colorBufferSize);
         out.writeInt(_textureBufferSize);
         out.writeInt(_indexBufferSize);
+        out.writeInt(_boundingType);
     }
     
     // documentation inherited from interface Externalizable
     public void readExternal (ObjectInput in)
-        throws IOException
+        throws IOException, ClassNotFoundException
     {
         setName(in.readUTF());
-        try {
-            setLocalTranslation((Vector3f)in.readObject());
-            setLocalRotation((Quaternion)in.readObject());
-            setLocalScale((Vector3f)in.readObject());
-            
-        } catch (ClassNotFoundException e) {
-            Log.warning("Encounted unknown class [mesh=" + getName() +
-                ", exception=" + e + "].");
-        }
+        setLocalTranslation((Vector3f)in.readObject());
+        setLocalRotation((Quaternion)in.readObject());
+        setLocalScale((Vector3f)in.readObject());
         _vertexBufferSize = in.readInt();
         _normalBufferSize = in.readInt();
         _colorBufferSize = in.readInt();
         _textureBufferSize = in.readInt();
         _indexBufferSize = in.readInt();
+        _boundingType = in.readInt();
     }
     
     // documentation inherited from interface ModelSpatial
@@ -159,23 +177,33 @@ public class ModelMesh extends TriMesh
     {
         if (_vertexBufferSize > 0) {
             _vertexByteBuffer.rewind();
+            convertOrder(_vertexByteBuffer, ByteOrder.LITTLE_ENDIAN);
             out.write(_vertexByteBuffer);
+            convertOrder(_vertexByteBuffer, ByteOrder.nativeOrder());
         }
         if (_normalBufferSize > 0) {
             _normalByteBuffer.rewind();
+            convertOrder(_normalByteBuffer, ByteOrder.LITTLE_ENDIAN);
             out.write(_normalByteBuffer);
+            convertOrder(_normalByteBuffer, ByteOrder.nativeOrder());
         }
         if (_colorBufferSize > 0) {
             _colorByteBuffer.rewind();
+            convertOrder(_colorByteBuffer, ByteOrder.LITTLE_ENDIAN);
             out.write(_colorByteBuffer);
+            convertOrder(_colorByteBuffer, ByteOrder.nativeOrder());
         }
         if (_textureBufferSize > 0) {
-            _indexByteBuffer.rewind();
-            out.write(_indexByteBuffer);
+            _textureByteBuffer.rewind();
+            convertOrder(_textureByteBuffer, ByteOrder.LITTLE_ENDIAN);
+            out.write(_textureByteBuffer);
+            convertOrder(_textureByteBuffer, ByteOrder.nativeOrder());
         }
         if (_indexBufferSize > 0) {
             _indexByteBuffer.rewind();
+            convertOrder(_indexByteBuffer, ByteOrder.LITTLE_ENDIAN);
             out.write(_indexByteBuffer);
+            convertOrder(_indexByteBuffer, ByteOrder.nativeOrder());
         }
     }
   
@@ -185,30 +213,36 @@ public class ModelMesh extends TriMesh
     {
         ByteBuffer vbbuf = null, nbbuf = null, cbbuf = null, tbbuf = null,
             ibbuf = null;
+        ByteOrder le = ByteOrder.LITTLE_ENDIAN;
         if (_vertexBufferSize > 0) {
-            vbbuf = ByteBuffer.allocateDirect(_vertexBufferSize*3*4);
+            vbbuf = ByteBuffer.allocateDirect(_vertexBufferSize*4).order(le);
             in.read(vbbuf);
             vbbuf.rewind();
+            convertOrder(vbbuf, ByteOrder.nativeOrder());
         }
         if (_normalBufferSize > 0) {
-            nbbuf = ByteBuffer.allocateDirect(_normalBufferSize*3*4);
+            nbbuf = ByteBuffer.allocateDirect(_normalBufferSize*4).order(le);
             in.read(nbbuf);
             nbbuf.rewind();
+            convertOrder(nbbuf, ByteOrder.nativeOrder());
         }
         if (_colorBufferSize > 0) {
-            cbbuf = ByteBuffer.allocateDirect(_colorBufferSize*4*4);
+            cbbuf = ByteBuffer.allocateDirect(_colorBufferSize*4).order(le);
             in.read(cbbuf);
             cbbuf.rewind();
+            convertOrder(cbbuf, ByteOrder.nativeOrder());
         }
         if (_textureBufferSize > 0) {
-            tbbuf = ByteBuffer.allocateDirect(_textureBufferSize*2*4);
+            tbbuf = ByteBuffer.allocateDirect(_textureBufferSize*4).order(le);
             in.read(tbbuf);
             tbbuf.rewind();
+            convertOrder(tbbuf, ByteOrder.nativeOrder());
         }
         if (_indexBufferSize > 0) {
-            ibbuf = ByteBuffer.allocateDirect(_indexBufferSize*4);
+            ibbuf = ByteBuffer.allocateDirect(_indexBufferSize*4).order(le);
             in.read(ibbuf);
             ibbuf.rewind();
+            convertOrder(ibbuf, ByteOrder.nativeOrder());
         }
         reconstruct(vbbuf, nbbuf, cbbuf, tbbuf, ibbuf);
     }
@@ -218,26 +252,27 @@ public class ModelMesh extends TriMesh
     {
         ByteBuffer vbbuf = null, nbbuf = null, cbbuf = null, tbbuf = null,
             ibbuf = null;
+        int total = 0;
         if (_vertexBufferSize > 0) {
-            int npos = map.position() + _vertexBufferSize*3*4;
+            int npos = map.position() + _vertexBufferSize*4;
             map.limit(npos);
             vbbuf = map.slice();
             map.position(npos);
         }
         if (_normalBufferSize > 0) {
-            int npos = map.position() + _normalBufferSize*3*4;
+            int npos = map.position() + _normalBufferSize*4;
             map.limit(npos);
             nbbuf = map.slice();
             map.position(npos);
         }
         if (_colorBufferSize > 0) {
-            int npos = map.position() + _colorBufferSize*4*4;
+            int npos = map.position() + _colorBufferSize*4;
             map.limit(npos);
             cbbuf = map.slice();
             map.position(npos);
         }
         if (_textureBufferSize > 0) {
-            int npos = map.position() + _textureBufferSize*2*4;
+            int npos = map.position() + _textureBufferSize*4;
             map.limit(npos);
             tbbuf = map.slice();
             map.position(npos);
@@ -251,6 +286,21 @@ public class ModelMesh extends TriMesh
         reconstruct(vbbuf, nbbuf, cbbuf, tbbuf, ibbuf);
     }
     
+    /**
+     * Imposes the specified order on the given buffer of 32 bit values.
+     */
+    protected void convertOrder (ByteBuffer buf, ByteOrder order)
+    {
+        if (buf.order() == order) {
+            return;
+        }
+        IntBuffer obuf = buf.asIntBuffer(),
+            nbuf = buf.order(order).asIntBuffer();
+        while (obuf.hasRemaining()) {
+            nbuf.put(obuf.get());
+        }
+    }
+    
     /** The sizes of the various buffers (zero for <code>null</code>). */
     protected int _vertexBufferSize, _normalBufferSize, _colorBufferSize,
         _textureBufferSize, _indexBufferSize;
@@ -258,6 +308,15 @@ public class ModelMesh extends TriMesh
     /** The backing byte buffers for the various buffers. */
     protected ByteBuffer _vertexByteBuffer, _normalByteBuffer,
         _colorByteBuffer, _textureByteBuffer, _indexByteBuffer;
+    
+    /** The type of bounding volume that this mesh should use. */
+    protected int _boundingType;
+    
+    /** Indicates that this mesh should use a bounding box. */
+    protected static final int BOX_BOUND = 0;
+    
+    /** Indicates that this mesh should use a bounding sphere. */
+    protected static final int SPHERE_BOUND = 1;
     
     private static final long serialVersionUID = 1;
 }

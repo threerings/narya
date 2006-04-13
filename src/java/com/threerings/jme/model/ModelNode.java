@@ -50,6 +50,7 @@ public class ModelNode extends Node
      */
     public ModelNode ()
     {
+        super("node");
     }
     
     /**
@@ -86,23 +87,18 @@ public class ModelNode extends Node
     
     // documentation inherited from interface Externalizable
     public void readExternal (ObjectInput in)
-        throws IOException
+        throws IOException, ClassNotFoundException
     {
         setName(in.readUTF());
-        try {
-            setLocalTranslation((Vector3f)in.readObject());
-            setLocalRotation((Quaternion)in.readObject());
-            setLocalScale((Vector3f)in.readObject());
-            ArrayList children = (ArrayList)in.readObject();
-            for (int ii = 0, nn = children.size(); ii < nn; ii++) {
-                attachChild((Spatial)children.get(ii));
-            }
-        } catch (ClassNotFoundException e) {
-            Log.warning("Encounted unknown class [node=" + getName() +
-                ", exception=" + e + "].");
+        setLocalTranslation((Vector3f)in.readObject());
+        setLocalRotation((Quaternion)in.readObject());
+        setLocalScale((Vector3f)in.readObject());
+        ArrayList children = (ArrayList)in.readObject();
+        for (int ii = 0, nn = children.size(); ii < nn; ii++) {
+            attachChild((Spatial)children.get(ii));
         }
     }
-
+     
     // documentation inherited from interface ModelSpatial
     public void writeBuffers (FileChannel out)
         throws IOException

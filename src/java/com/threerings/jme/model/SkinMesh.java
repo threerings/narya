@@ -21,7 +21,6 @@
 
 package com.threerings.jme.model;
 
-import java.io.Externalizable;
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
@@ -108,21 +107,19 @@ public class SkinMesh extends ModelMesh
     
     @Override // documentation inherited
     public void readExternal (ObjectInput in)
-        throws IOException
+        throws IOException, ClassNotFoundException
     {
         super.readExternal(in);
-        try {
-            _weightGroups = (WeightGroup[])in.readObject();
-        } catch (ClassNotFoundException e) {
-            Log.warning("Encounted unknown class [mesh=" + getName() +
-                ", exception=" + e + "].");
-        }
+        _weightGroups = (WeightGroup[])in.readObject();
     }
     
     @Override // documentation inherited
     public void updateWorldData (float time)
     {
         super.updateWorldData(time);
+        if (_weightGroups == null) {
+            return;
+        }
         
         // deform the mesh according to the positions of the bones
         for (int ii = 0; ii < _weightGroups.length; ii++) {

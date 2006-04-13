@@ -71,21 +71,23 @@ public class ModelParser
         _digester.addSetNext(bnode, "addSpatial",
             ModelDef.SpatialDef.class.getName());
         
-        String vertex = tmesh + "/vertex";
+        String vertex = tmesh + "/vertex", svertex = smesh + "/vertex";
         _digester.addObjectCreate(vertex, ModelDef.Vertex.class.getName());
-        _digester.addObjectCreate(smesh + "/vertex",
+        _digester.addObjectCreate(svertex,
             ModelDef.SkinVertex.class.getName());
-        _digester.addRule("*/vertex", new SetPropertyFieldsRule());
-        
+        _digester.addRule(vertex, new SetPropertyFieldsRule());
+        _digester.addRule(svertex, new SetPropertyFieldsRule());
+        _digester.addSetNext(vertex, "addVertex",
+            ModelDef.Vertex.class.getName());
+        _digester.addSetNext(svertex, "addVertex",
+            ModelDef.Vertex.class.getName());
+            
         String bweight = smesh + "/vertex/boneWeight";
         _digester.addObjectCreate(bweight,
             ModelDef.BoneWeight.class.getName());
         _digester.addRule(bweight, new SetPropertyFieldsRule());
         _digester.addSetNext(bweight, "addBoneWeight",
             ModelDef.BoneWeight.class.getName());
-        
-        _digester.addSetNext("*/vertex", "addVertex",
-            ModelDef.Vertex.class.getName());
     }
     
     /**

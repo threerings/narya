@@ -89,13 +89,13 @@ public class CameraHandler
     }
 
     /**
-     * Configures the minimum and maximum z-axis elevation allowed for the
+     * Configures the minimum and maximum zoom values allowed for the
      * camera.
      */
-    public void setZoomLimits (float minZ, float maxZ)
+    public void setZoomLimits (float minZoom, float maxZoom)
     {
-        _minZ = minZ;
-        _maxZ = maxZ;
+        _minZoom = minZoom;
+        _maxZoom = maxZoom;
     }
 
     /**
@@ -230,6 +230,12 @@ public class CameraHandler
     public void zoomCamera (float distance)
     {
         Vector3f loc = _camera.getLocation();
+        float dist = -1f * _ground.normal.dot(loc) /
+            _ground.normal.dot(_camera.getDirection()),
+            ndist = Math.min(Math.max(dist + distance, _minZoom), _maxZoom);
+        if ((distance = ndist - dist) == 0f) {
+            return;
+        }
         loc.subtractLocal(_camera.getDirection().mult(distance, _temp));
         setLocation(loc);
     }
@@ -247,6 +253,17 @@ public class CameraHandler
         // which we're going to orbit
         Vector3f direction = _camera.getLocation().subtract(spot);
 
+        // if we're rotating around the left vector, impose tilt limits
+        if (axis == _camera.getLeft()) {
+            float angle = FastMath.asin(_ground.normal.dot(direction) /
+                direction.length());
+            float nangle = Math.min(Math.max(angle + deltaAngle, _minTilt),
+                _maxTilt);
+            if ((deltaAngle = nangle - angle) == 0f) {
+                return;
+            }
+        }
+        
         // create a rotation matrix
         _rotm.fromAxisAngle(axis, deltaAngle);
 
@@ -383,6 +400,7 @@ public class CameraHandler
     protected float _minX = -Float.MAX_VALUE, _maxX = Float.MAX_VALUE;
     protected float _minY = -Float.MAX_VALUE, _maxY = Float.MAX_VALUE;
     protected float _minZ = -Float.MAX_VALUE, _maxZ = Float.MAX_VALUE;
+    protected float _minZoom = 0f, _maxZoom = Float.MAX_VALUE;
     protected float _minTilt = -Float.MAX_VALUE, _maxTilt = Float.MAX_VALUE;
 
     protected Vector3f _rxdir = new Vector3f(1, 0, 0);

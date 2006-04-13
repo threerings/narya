@@ -68,7 +68,7 @@ macroScript TRModelExporter category:"File" \
 			if mesh.numtverts > 0 do (
 				tvface = getTVFace mesh i
 			)
-			for i = 1 to 3 do (
+			for i = 1 to 3 do in coordsys local (
 				format "    <vertex" to:outFile
 				writePoint3Attr " location" (getVert mesh face[i]) outFile
 				writePoint3Attr " normal" (getNormal mesh face[i]) outFile
@@ -103,7 +103,7 @@ macroScript TRModelExporter category:"File" \
             ) else (
                 kind = "triMesh"
             )
-        ) else if isKindOf node BoneGeometry then (
+        ) else if node.boneEnable then (
             kind = "boneNode"
         ) else (
             kind = "node"
@@ -122,13 +122,14 @@ macroScript TRModelExporter category:"File" \
 		if isMesh then (
 		    format ">\n" to:outFile
 		    if isProperty node #skin do (
-		        modPanel.setCurrentObject node.skin node:node ui:true
+		        setCommandPanelTaskMode mode:#modify
+		        modPanel.setCurrentObject node.skin node:node
 		    )
 		    writeVertices node outFile
 		    format "  </%>\n\n" kind to:outFile
 		    
 		) else (
-		    format "\>\n\n" to:outFile
+		    format "/>\n\n" to:outFile
 		)
     )
     
