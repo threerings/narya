@@ -347,7 +347,7 @@ public class BundledComponentRepository
 
                 // if this is a shadow image, no need to freak out as they are
                 // optional
-                if (type.equals(StandardActions.SHADOW_TYPE)) {
+                if (type != null && type.equals(StandardActions.SHADOW_TYPE)) {
                     return null;
                 }
 
