@@ -37,10 +37,12 @@ import java.awt.event.WindowEvent;
 import java.io.File;
 import java.io.IOException;
 
+import java.util.HashMap;
 import java.util.logging.Level;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
+import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -52,6 +54,7 @@ import javax.swing.JPopupMenu;
 import javax.swing.KeyStroke;
 import javax.swing.filechooser.FileFilter;
 
+import com.jme.image.Texture;
 import com.jme.light.DirectionalLight;
 import com.jme.math.FastMath;
 import com.jme.math.Vector3f;
@@ -59,7 +62,9 @@ import com.jme.renderer.ColorRGBA;
 import com.jme.scene.Line;
 import com.jme.scene.state.LightState;
 import com.jme.scene.state.MaterialState;
+import com.jme.scene.state.TextureState;
 import com.jme.util.LoggingSystem;
+import com.jme.util.TextureManager;
 
 import com.samskivert.swing.GroupLayout;
 import com.samskivert.util.Config;
@@ -68,7 +73,9 @@ import com.threerings.util.MessageBundle;
 import com.threerings.util.MessageManager;
 
 import com.threerings.jme.JmeCanvasApp;
+import com.threerings.jme.Log;
 import com.threerings.jme.model.Model;
+import com.threerings.jme.model.TextureProvider;
 
 /**
  * A simple viewer application that allows users to examine models and their
@@ -104,6 +111,7 @@ public class ModelViewer extends JmeCanvasApp
         _frame.setJMenuBar(menu);
         
         JMenu file = new JMenu(_msg.get("m.file_menu"));
+        file.setMnemonic(KeyEvent.VK_F);
         menu.add(file);
         Action load = new AbstractAction(_msg.get("m.file_load")) {
             public void actionPerformed (ActionEvent e) {
@@ -126,11 +134,20 @@ public class ModelViewer extends JmeCanvasApp
             KeyStroke.getKeyStroke(KeyEvent.VK_Q, KeyEvent.CTRL_MASK));
         file.add(quit);
         
-        _frame.getContentPane().add(getCanvas(), BorderLayout.CENTER);
+        _amenu = new JMenu(_msg.get("m.anim_menu"));
+        _amenu.setMnemonic(KeyEvent.VK_A);
+        menu.add(_amenu);
+        _amenu.setVisible(false);
+        _stop = new AbstractAction(_msg.get("m.anim_stop")) {
+            public void actionPerformed (ActionEvent e) {
+                _model.stopAnimation();
+            }
+        };
+        _stop.putValue(Action.MNEMONIC_KEY, KeyEvent.VK_S);
+        _stop.putValue(Action.ACCELERATOR_KEY,
+            KeyStroke.getKeyStroke(KeyEvent.VK_S, KeyEvent.CTRL_MASK));
         
-        _controls = GroupLayout.makeVBox(GroupLayout.NONE, GroupLayout.TOP);
-        _controls.setPreferredSize(new Dimension(100, 100));
-        _frame.getContentPane().add(_controls, BorderLayout.EAST);
+        _frame.getContentPane().add(getCanvas(), BorderLayout.CENTER);
         
         _status = new JLabel(" ");
         _status.setHorizontalAlignment(JLabel.LEFT);
@@ -283,7 +300,7 @@ public class ModelViewer extends JmeCanvasApp
         _status.setText(_msg.get("m.compiling_model", file));
         Model model = CompileModelTask.compileModel(file);
         if (model != null) {
-            setModel(model);
+            setModel(model, file);
             return;
         }
         // if compileModel returned null, the .dat file is up-to-date
@@ -300,20 +317,65 @@ public class ModelViewer extends JmeCanvasApp
         throws IOException
     {
         _status.setText(_msg.get("m.loading_model", file));
-        setModel(Model.readFromFile(file, false));
+        setModel(Model.readFromFile(file, false), file);
     }
     
     /**
      * Sets the model once it's been loaded.
+     *
+     * @param file the file from which the model was loaded
      */
-    protected void setModel (Model model)
+    protected void setModel (Model model, File file)
     {
         if (_model != null) {
             _ctx.getGeometry().detachChild(_model);
         }
         _ctx.getGeometry().attachChild(_model = model);
         _model.setLocalScale(0.04f);
+        
+        // resolve the textures from the file's directory
+        final File dir = file.getParentFile();
+        _model.resolveTextures(new TextureProvider() {
+            public TextureState getTexture (String name) {
+                TextureState tstate = _tstates.get(name);
+                if (tstate == null) {
+                    File file = new File(dir, name);
+                    Texture tex = TextureManager.loadTexture(file.toString(),
+                        Texture.MM_LINEAR_LINEAR, Texture.FM_LINEAR);
+                    if (tex == null) {
+                        Log.warning("Couldn't find texture [path=" + file +
+                            "].");
+                        return null;
+                    }
+                    tstate = _ctx.getRenderer().createTextureState();
+                    tstate.setTexture(tex);
+                    _tstates.put(name, tstate);
+                }
+                return tstate;
+            }
+            protected HashMap<String, TextureState> _tstates =
+                new HashMap<String, TextureState>();
+        });
         _model.updateRenderState();
+        
+        // create buttons for the model's animations
+        String[] anims = _model.getAnimations();
+        _amenu.removeAll();
+        if (anims.length == 0) {
+            _amenu.setVisible(false);
+            return;
+        }
+        _amenu.setVisible(true);
+        for (int ii = 0; ii < anims.length; ii++) {
+            final String anim = anims[ii];
+            _amenu.add(new AbstractAction(anim) {
+                public void actionPerformed (ActionEvent e) {
+                    _model.startAnimation(anim);
+                }
+            });
+        }
+        _amenu.addSeparator();
+        _amenu.add(_stop);
     }
     
     /** The translation bundle. */
@@ -325,8 +387,11 @@ public class ModelViewer extends JmeCanvasApp
     /** The viewer frame. */
     protected JFrame _frame;
     
-    /** The control panel. */
-    protected JPanel _controls;
+    /** The animation menu. */
+    protected JMenu _amenu;
+    
+    /** The stop animation action. */
+    protected Action _stop;
     
     /** The status bar. */
     protected JLabel _status;

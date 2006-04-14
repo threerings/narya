@@ -39,7 +39,13 @@ import com.jme.bounding.BoundingBox;
 import com.jme.bounding.BoundingSphere;
 import com.jme.math.Quaternion;
 import com.jme.math.Vector3f;
+import com.jme.renderer.Renderer;
 import com.jme.scene.TriMesh;
+import com.jme.scene.state.AlphaState;
+import com.jme.scene.state.CullState;
+import com.jme.scene.state.TextureState;
+import com.jme.scene.state.ZBufferState;
+import com.jme.system.DisplaySystem;
 
 import com.threerings.jme.Log;
 
@@ -82,11 +88,15 @@ public class ModelMesh extends TriMesh
     {
         _boundingType = "sphere".equals(props.getProperty("bound")) ?
             SPHERE_BOUND : BOX_BOUND;
+        _texture = props.getProperty("texture");
+        _solid = !"false".equals(props.getProperty("solid"));
+        _transparent = "true".equals(props.getProperty("transparent"));
     }
     
     /**
      * Sets the buffers as {@link ByteBuffer}s, because we can't create byte
-     * views of non-byte buffers.
+     * views of non-byte buffers.  This method is where the model is
+     * initialized after loading.
      */
     public void reconstruct (
         ByteBuffer vertices, ByteBuffer normals, ByteBuffer colors,
@@ -104,12 +114,28 @@ public class ModelMesh extends TriMesh
         _textureByteBuffer = textures;
         _indexByteBuffer = indices;
         
+        // initialize the model if we're displaying
+        if (DisplaySystem.getDisplaySystem() == null) {
+            return;
+        }
         if (_boundingType == BOX_BOUND) {
             setModelBound(new BoundingBox());
         } else { // _boundingType == SPHERE_BOUND
             setModelBound(new BoundingSphere());
         }
         updateModelBound();
+        
+        if (_backCull == null) {
+            initSharedStates();
+        }
+        if (_solid) {
+            setRenderState(_backCull);
+        }
+        if (_transparent) {
+            setRenderQueueMode(Renderer.QUEUE_TRANSPARENT);
+            setRenderState(_blendAlpha);
+            setRenderState(_overlayZBuffer);
+        }
     }
     
     // documentation inherited
@@ -153,6 +179,9 @@ public class ModelMesh extends TriMesh
         out.writeInt(_textureBufferSize);
         out.writeInt(_indexBufferSize);
         out.writeInt(_boundingType);
+        out.writeObject(_texture);
+        out.writeBoolean(_solid);
+        out.writeBoolean(_transparent);
     }
     
     // documentation inherited from interface Externalizable
@@ -169,6 +198,20 @@ public class ModelMesh extends TriMesh
         _textureBufferSize = in.readInt();
         _indexBufferSize = in.readInt();
         _boundingType = in.readInt();
+        _texture = (String)in.readObject();
+        _solid = in.readBoolean();
+        _transparent = in.readBoolean();
+    }
+    
+    // documentation inherited from interface ModelSpatial
+    public void resolveTextures (TextureProvider tprov)
+    {
+        if (_texture != null) {
+            TextureState tstate = tprov.getTexture(_texture);
+            if (tstate != null) {
+                setRenderState(tstate);
+            }
+        }
     }
     
     // documentation inherited from interface ModelSpatial
@@ -289,7 +332,7 @@ public class ModelMesh extends TriMesh
     /**
      * Imposes the specified order on the given buffer of 32 bit values.
      */
-    protected void convertOrder (ByteBuffer buf, ByteOrder order)
+    protected static void convertOrder (ByteBuffer buf, ByteOrder order)
     {
         if (buf.order() == order) {
             return;
@@ -299,6 +342,22 @@ public class ModelMesh extends TriMesh
         while (obuf.hasRemaining()) {
             nbuf.put(obuf.get());
         }
+    }
+    
+    /**
+     * Initializes the states shared between all models.  Requires an active
+     * display.
+     */
+    protected static void initSharedStates ()
+    {
+        Renderer renderer = DisplaySystem.getDisplaySystem().getRenderer();
+        _backCull = renderer.createCullState();
+        _backCull.setCullMode(CullState.CS_BACK);
+        _blendAlpha = renderer.createAlphaState();
+        _blendAlpha.setBlendEnabled(true);
+        _overlayZBuffer = renderer.createZBufferState();
+        _overlayZBuffer.setFunction(ZBufferState.CF_LEQUAL);
+        _overlayZBuffer.setWritable(false);
     }
     
     /** The sizes of the various buffers (zero for <code>null</code>). */
@@ -311,6 +370,24 @@ public class ModelMesh extends TriMesh
     
     /** The type of bounding volume that this mesh should use. */
     protected int _boundingType;
+    
+    /** The name of this model's texture, or <code>null</code> for none. */
+    protected String _texture;
+    
+    /** Whether or not this mesh can enable back-face culling. */
+    protected boolean _solid;
+    
+    /** Whether or not this mesh must be rendered as transparent. */
+    protected boolean _transparent;
+    
+    /** The shared state for back-face culling. */
+    protected static CullState _backCull;
+    
+    /** The shared state for alpha blending. */
+    protected static AlphaState _blendAlpha;
+    
+    /** The shared state for checking, but not writing to, the z buffer. */
+    protected static ZBufferState _overlayZBuffer;
     
     /** Indicates that this mesh should use a bounding box. */
     protected static final int BOX_BOUND = 0;

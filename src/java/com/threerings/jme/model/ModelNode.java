@@ -98,7 +98,17 @@ public class ModelNode extends Node
             attachChild((Spatial)children.get(ii));
         }
     }
-     
+    
+    // documentation inherited from interface ModelSpatial
+    public void resolveTextures (TextureProvider tprov)
+    {
+        for (Object child : getChildren()) {
+            if (child instanceof ModelSpatial) {
+                ((ModelSpatial)child).resolveTextures(tprov);
+            }
+        }
+    }
+    
     // documentation inherited from interface ModelSpatial
     public void writeBuffers (FileChannel out)
         throws IOException

@@ -69,7 +69,7 @@ public class ModelDef
         public Spatial getSpatial (Properties props)
         {
             if (_spatial == null) {
-                _spatial = createSpatial(props);
+                _spatial = createSpatial(new NodeProperties(props, name));
                 setTransform();
             }
             return _spatial;
@@ -137,8 +137,8 @@ public class ModelDef
         /** Configures the new mesh and returns it. */
         protected ModelMesh configure (ModelMesh mmesh, Properties props)
         {
-            // configure using sub-properties
-            mmesh.configure(PropertiesUtil.getSubProperties(props, name, ""));
+            // configure using properties
+            mmesh.configure(props);
             
             // set the various buffers
             int vsize = vertices.size();
@@ -344,13 +344,15 @@ public class ModelDef
     
     /**
      * Creates the model node defined herein.
+     *
+     * @param props the properties of the model
+     * @param nodes a node map to populate
      */
-    public Model createModel (Properties props)
+    public Model createModel (Properties props, HashMap<String, Spatial> nodes)
     {
         Model model = new Model(props.getProperty("name", "model"), props);
         
         // start by creating the spatials and mapping them to their names
-        HashMap<String, Spatial> nodes = new HashMap<String, Spatial>();
         for (int ii = 0, nn = spatials.size(); ii < nn; ii++) {
             Spatial spatial = spatials.get(ii).getSpatial(props);
             nodes.put(spatial.getName(), spatial);
@@ -387,5 +389,35 @@ public class ModelDef
             array[ii] = list.get(ii);
         }
         return array;
+    }
+    
+    /** A wrapper for the model properties providing access to the properties
+     * of a node within the model. */
+    protected static class NodeProperties extends Properties
+    {
+        public NodeProperties (Properties mprops, String name)
+        {
+            _mprops = mprops;
+            _prefix = name + ".";
+        }
+        
+        @Override // documentation inherited
+        public String getProperty (String key)
+        {
+            return getProperty(key, null);
+        }
+        
+        @Override // documentation inherited
+        public String getProperty (String key, String defaultValue)
+        {
+            return _mprops.getProperty(_prefix + key,
+                _mprops.getProperty(key, defaultValue));
+        }
+        
+        /** The properties of the model. */
+        protected Properties _mprops;
+        
+        /** The node prefix. */
+        protected String _prefix;
     }
 }

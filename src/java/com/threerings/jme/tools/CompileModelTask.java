@@ -28,6 +28,7 @@ import java.io.IOException;
 import java.io.ObjectOutputStream;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Properties;
 
 import org.apache.tools.ant.BuildException;
@@ -35,11 +36,16 @@ import org.apache.tools.ant.DirectoryScanner;
 import org.apache.tools.ant.Task;
 import org.apache.tools.ant.types.FileSet;
 
+import com.jme.scene.Spatial;
+
+import com.samskivert.util.StringUtil;
+
 import com.threerings.jme.model.BoneNode;
 import com.threerings.jme.model.Model;
 import com.threerings.jme.model.ModelMesh;
 import com.threerings.jme.model.ModelNode;
 import com.threerings.jme.model.SkinMesh;
+import com.threerings.jme.tools.xml.AnimationParser;
 import com.threerings.jme.tools.xml.ModelParser;
 
 /**
@@ -63,21 +69,45 @@ public class CompileModelTask extends Task
         String root = (didx == -1) ? spath : spath.substring(0, didx);
         File content = new File(root + ".xml"),
             target = new File(root + ".dat");
-        if (source.lastModified() < target.lastModified() &&
-            content.lastModified() < target.lastModified()) {
-            return null;
+        boolean needsUpdate = false;
+        if (source.lastModified() >= target.lastModified() ||
+            content.lastModified() >= target.lastModified()) {
+            needsUpdate = true;
         }
-        System.out.println("Compiling " + source.getParent() + "...");
-        
+
         // load the model properties
         Properties props = new Properties();
         FileInputStream in = new FileInputStream(source);
         props.load(in);
         in.close();
         
+        // locate the animations, if any
+        String[] actions =
+            StringUtil.parseStringArray(props.getProperty("actions", ""));
+        File[] afiles = new File[actions.length];
+        File dir = source.getParentFile();
+        for (int ii = 0; ii < actions.length; ii++) {
+            afiles[ii] = new File(dir, actions[ii] + ".xml");
+            if (afiles[ii].lastModified() >= target.lastModified()) {
+                needsUpdate = true;
+            }
+        }
+        if (!needsUpdate) {
+            return null;
+        }
+        System.out.println("Compiling " + source.getParent() + "...");
+        
         // load the model content
         ModelDef mdef = _mparser.parseModel(content.toString());
-        Model model = mdef.createModel(props);
+        HashMap<String, Spatial> nodes = new HashMap<String, Spatial>();
+        Model model = mdef.createModel(props, nodes);
+        
+        // load the actions, if any
+        for (int ii = 0; ii < actions.length; ii++) {
+            System.out.println("  Adding " + afiles[ii] + "...");
+            AnimationDef adef = _aparser.parseAnimation(afiles[ii].toString());
+            model.addAnimation(actions[ii], adef.createAnimation(props, nodes));
+        }
         
         // write and return the model
         model.writeToFile(target);
@@ -114,4 +144,7 @@ public class CompileModelTask extends Task
     
     /** A parser for the model definitions. */
     protected static ModelParser _mparser = new ModelParser();
+    
+    /** A parser for the animation definitions. */
+    protected static AnimationParser _aparser = new AnimationParser();
 }

@@ -48,16 +48,17 @@ public class AnimationParser
             AnimationDef.class.getName());
         
         String frame = anim + "/frame";
-        _digester.addObjectCreate(frame, AnimationDef.Frame.class.getName());
+        _digester.addObjectCreate(frame,
+            AnimationDef.FrameDef.class.getName());
         _digester.addSetNext(frame, "addFrame",
-            AnimationDef.Frame.class.getName());
+            AnimationDef.FrameDef.class.getName());
         
         String xform = frame + "/transform";
         _digester.addObjectCreate(xform,
-            AnimationDef.Transform.class.getName());
+            AnimationDef.TransformDef.class.getName());
         _digester.addRule(xform, new SetPropertyFieldsRule());
         _digester.addSetNext(xform, "addTransform",
-            AnimationDef.Transform.class.getName());
+            AnimationDef.TransformDef.class.getName());
     }
     
     /**

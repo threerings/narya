@@ -21,6 +21,7 @@
 
 package com.threerings.jme.model;
 
+import java.io.Externalizable;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -29,12 +30,18 @@ import java.io.ObjectInput;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutput;
 import java.io.ObjectOutputStream;
+import java.io.Serializable;
 
 import java.nio.ByteOrder;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
 
+import java.util.HashMap;
 import java.util.Properties;
+
+import com.jme.math.Quaternion;
+import com.jme.math.Vector3f;
+import com.jme.scene.Spatial;
 
 import com.threerings.jme.Log;
 
@@ -43,6 +50,97 @@ import com.threerings.jme.Log;
  */
 public class Model extends ModelNode
 {
+    /** An animation for the model. */
+    public static class Animation
+        implements Serializable
+    {
+        /** The transformation targets of the animation. */
+        public Spatial[] transformTargets;
+        
+        /** The animation transforms (one transform per target per frame). */
+        public transient Transform[][] transforms;
+        
+        private void writeObject (ObjectOutputStream out)
+            throws IOException
+        {
+            out.defaultWriteObject();
+            out.writeInt(transforms.length);
+            for (int ii = 0; ii < transforms.length; ii++) {
+                for (int jj = 0; jj < transformTargets.length; jj++) {
+                    transforms[ii][jj].writeExternal(out);
+                }
+            }
+        }
+
+        private void readObject (ObjectInputStream in)
+            throws IOException, ClassNotFoundException
+        {
+            in.defaultReadObject();
+            transforms = new Transform[in.readInt()][transformTargets.length];
+            for (int ii = 0; ii < transforms.length; ii++) {
+                for (int jj = 0; jj < transformTargets.length; jj++) {
+                    transforms[ii][jj] = new Transform(new Vector3f(),
+                        new Quaternion(), new Vector3f());
+                    transforms[ii][jj].readExternal(in);
+                }
+            }
+        }
+        
+        private static final long serialVersionUID = 1;
+    }
+    
+    /** A frame element that manipulates the target's transform. */
+    public static final class Transform
+        implements Externalizable
+    {
+        public Transform (
+            Vector3f translation, Quaternion rotation, Vector3f scale)
+        {
+            _translation = translation;
+            _rotation = rotation;
+            _scale = scale;
+        }
+        
+        /**
+         * Blends between this transform and the next, applying the result to
+         * the given target.
+         *
+         * @param alpha the blend factor: 0.0 for entirely this frame, 1.0 for
+         * entirely the next
+         */
+        public void blend (Transform next, float alpha, Spatial target)
+        {
+            target.getLocalTranslation().interpolate(_translation,
+                next._translation, alpha);
+            target.getLocalRotation().slerp(_rotation, next._rotation, alpha);
+            target.getLocalScale().interpolate(_scale, next._scale, alpha);
+        }
+        
+        // documentation inherited from interface Externalizable
+        public void writeExternal (ObjectOutput out)
+            throws IOException
+        {
+            _translation.writeExternal(out);
+            _rotation.writeExternal(out);
+            _scale.writeExternal(out);
+        }
+        
+        // documentation inherited from interface Externalizable
+        public void readExternal (ObjectInput in)
+            throws IOException, ClassNotFoundException
+        {
+            _translation.readExternal(in);
+            _rotation.readExternal(in);
+            _scale.readExternal(in);
+        }
+
+        /** The transform at this frame. */
+        protected Vector3f _translation, _scale;
+        protected Quaternion _rotation;
+        
+        private static final long serialVersionUID = 1;
+    }
+    
     /**
      * Attempts to read a model from the specified file.
      *
@@ -103,6 +201,48 @@ public class Model extends ModelNode
     }
     
     /**
+     * Adds an animation to the model's library.
+     */
+    public void addAnimation (String name, Animation anim)
+    {
+        if (_anims == null) {
+            _anims = new HashMap<String, Animation>();
+        }
+        _anims.put(name, anim);
+    }
+    
+    /**
+     * Returns the names of the model's animations.
+     */
+    public String[] getAnimations ()
+    {
+        return (_anims == null) ? new String[0] :
+            _anims.keySet().toArray(new String[_anims.size()]);
+    }
+    
+    /**
+     * Starts the named animation.
+     */
+    public void startAnimation (String name)
+    {
+        _anim = _anims.get(name);
+        if (_anim == null) {
+            Log.warning("Requested unknown animation [name=" +
+                name + "].");
+            return;
+        }
+        _fidx = -1;
+    }
+    
+    /**
+     * Stops the currently running animation.
+     */
+    public void stopAnimation ()
+    {
+        _anim = null;
+    }
+    
+    /**
      * Writes this model out to a file.
      */
     public void writeToFile (File file)
@@ -125,6 +265,7 @@ public class Model extends ModelNode
     {
         super.writeExternal(out);
         out.writeObject(_props);
+        out.writeObject(_anims);
     }
     
     @Override // documentation inherited
@@ -133,10 +274,45 @@ public class Model extends ModelNode
     {
         super.readExternal(in);
         _props = (Properties)in.readObject();
+        _anims = (HashMap<String, Animation>)in.readObject();
+    }
+    
+    @Override // documentation inherited
+    public void updateWorldData (float time)
+    {
+        if (_anim != null) {
+            updateAnimation(time);
+        }
+        
+        // update children
+        super.updateWorldData(time);
+    }
+    
+    /**
+     * Updates the model's state according to the current animation.
+     */
+    protected void updateAnimation (float time)
+    {
+        
     }
     
     /** The model properties. */
     protected Properties _props;
+    
+    /** The model animations. */
+    protected HashMap<String, Animation> _anims;
+    
+    /** The currently running animation, or <code>null</code> for none. */
+    protected Animation _anim;
+    
+    /** The last frame index. */
+    protected int _fidx;
+    
+    /** The time corresponding to the last frame. */
+    protected float _ftime;
+    
+    /** Identifies a transform frame element. */
+    protected static final byte TRANSFORM_ELEMENT = 0;
     
     private static final long serialVersionUID = 1;
 }

@@ -21,36 +21,15 @@
 
 package com.threerings.jme.model;
 
-import java.io.Externalizable;
-import java.io.IOException;
-
-import java.nio.MappedByteBuffer;
-import java.nio.channels.FileChannel;
+import com.jme.scene.state.TextureState;
 
 /**
- * Contains method common to both {@link ModelNode}s and {@link ModelMesh}es.
+ * Provides a means for models to resolve their texture references.
  */
-public interface ModelSpatial
+public interface TextureProvider
 {
     /**
-     * Recursively resolves texture references using the given provider.
+     * Returns a texture state containing the named texture.
      */
-    public void resolveTextures (TextureProvider tprov);
-    
-    /**
-     * Recursively writes any data buffers to the output channel.
-     */    
-    public void writeBuffers (FileChannel out)
-        throws IOException;
-    
-    /**
-     * Recursively reads any data buffers from the input channel.
-     */
-    public void readBuffers (FileChannel in)
-        throws IOException;
-    
-    /**
-     * Recursively slices any data buffers from the buffer map.
-     */
-    public void sliceBuffers (MappedByteBuffer map);
+    public TextureState getTexture (String name);
 }
