@@ -34,7 +34,7 @@ import com.threerings.presents.dobj.OidList;
 
 import com.threerings.crowd.Log;
 import com.threerings.crowd.chat.data.SpeakMarshaller;
-import com.threerings.crowd.chat.data.SpeakObject;
+//import com.threerings.crowd.chat.data.SpeakObject;
 
 /**
  * A distributed object that contains information on a place that is
