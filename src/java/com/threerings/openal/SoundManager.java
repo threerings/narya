@@ -129,9 +129,12 @@ public class SoundManager
         }
 
         // configure our LRU map with a removal observer
-        _clips.setRemovalObserver(new LRUHashMap.RemovalObserver() {
-            public void removedFromMap (LRUHashMap map, Object item) {
-                ((ClipBuffer)item).dispose();
+        _clips.setRemovalObserver(
+            new LRUHashMap.RemovalObserver<Comparable,ClipBuffer>() {
+            public void removedFromMap (LRUHashMap<Comparable,ClipBuffer> map,
+                                        ClipBuffer item) {
+                Log.debug("Flushing " + item.getKey());
+                item.dispose();
             }
         });
 
@@ -152,10 +155,10 @@ public class SoundManager
     protected ClipBuffer getClip (ClipProvider provider, String path)
     {
         Comparable ckey = ClipBuffer.makeKey(provider, path);
-        ClipBuffer buffer = (ClipBuffer)_clips.get(ckey);
+        ClipBuffer buffer = _clips.get(ckey);
         if (buffer == null) {
             // check to see if this clip is currently loading
-            buffer = (ClipBuffer)_loading.get(ckey);
+            buffer = _loading.get(ckey);
             if (buffer == null) {
                 buffer = new ClipBuffer(this, provider, path);
                 _loading.put(ckey, buffer);
@@ -197,10 +200,12 @@ public class SoundManager
             while (true) {
                 final ClipBuffer buffer = (ClipBuffer)_toLoad.get();
                 try {
+                    Log.debug("Loading " + buffer.getKey() + ".");
                     final Clip clip = buffer.load();
                     _rqueue.postRunnable(new Runnable() {
                         public void run () {
                             Comparable ckey = buffer.getKey();
+                            Log.debug("Loaded " + ckey + ".");
                             _loading.remove(ckey);
                             if (buffer.bind(clip)) {
                                 _clips.put(ckey, buffer);
@@ -228,10 +233,12 @@ public class SoundManager
     protected RunQueue _rqueue;
 
     /** Contains a mapping of all currently-loading clips. */
-    protected HashMap _loading = new HashMap();
+    protected HashMap<Comparable,ClipBuffer> _loading =
+        new HashMap<Comparable,ClipBuffer>();
 
     /** Contains a mapping of all loaded clips. */
-    protected LRUHashMap _clips = new LRUHashMap(DEFAULT_CACHE_SIZE, _sizer);
+    protected LRUHashMap<Comparable,ClipBuffer> _clips =
+        new LRUHashMap<Comparable,ClipBuffer>(DEFAULT_CACHE_SIZE, _sizer);
 
     /** Contains a queue of clip buffers waiting to be loaded. */
     protected Queue _toLoad;
@@ -241,12 +248,13 @@ public class SoundManager
     protected static SoundManager _soundmgr;
 
     /** Used to compute the in-memory size of sound samples. */
-    protected static LRUHashMap.ItemSizer _sizer = new LRUHashMap.ItemSizer() {
-        public int computeSize (Object item) {
-            return ((ClipBuffer)item).getSize();
+    protected static LRUHashMap.ItemSizer<ClipBuffer> _sizer =
+        new LRUHashMap.ItemSizer<ClipBuffer>() {
+        public int computeSize (ClipBuffer item) {
+            return item.getSize();
         }
     };
 
     /** Default to a cache size of one megabyte. */
-    protected static final int DEFAULT_CACHE_SIZE = 1024 * 1024;
+    protected static final int DEFAULT_CACHE_SIZE = 8 * 1024 * 1024;
 }

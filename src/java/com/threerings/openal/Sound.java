@@ -32,6 +32,14 @@ import org.lwjgl.openal.AL10;
  */
 public class Sound
 {
+    /** Used to await notification of the starting of a sound which may be
+     * delayed in loading. */
+    public interface StartObserver
+    {
+        /** Called when the specified sound has started playing. */
+        public void soundStarted (Sound sound);
+    }
+
     /**
      * Returns the buffer of audio data associated with this sound.
      */
@@ -109,7 +117,7 @@ public class Sound
      */
     public boolean play (boolean allowDefer)
     {
-        return play(allowDefer, false);
+        return play(allowDefer, false, null);
     }
 
     /**
@@ -122,7 +130,18 @@ public class Sound
      */
     public boolean loop (boolean allowDefer)
     {
-        return play(allowDefer, true);
+        return play(allowDefer, true, null);
+    }
+
+    /**
+     * Plays this sound from the beginning, notifying the supplied observer
+     * when the audio starts.
+     *
+     * @param loop whether or not to loop the sampe until {@link #stop}ped.
+     */
+    public void play (StartObserver obs, boolean loop)
+    {
+        play(true, loop, obs);
     }
 
     /**
@@ -154,7 +173,8 @@ public class Sound
         _buffer = buffer;
     }
 
-    protected boolean play (boolean allowDefer, boolean loop)
+    protected boolean play (
+        boolean allowDefer, final boolean loop, final StartObserver obs)
     {
         // if we're not ready to go...
         if (!_buffer.isPlayable()) {
@@ -163,17 +183,27 @@ public class Sound
                 // resolved
                 _buffer.resolve(new ClipBuffer.Observer() {
                     public void clipLoaded (ClipBuffer buffer) {
-                        play(false);
+                        play(false, loop, obs);
                     }
                     public void clipFailed (ClipBuffer buffer) {
-                        // ugh. nothing to do here but be sad
+                        // well, let's pretend like the sound started so that
+                        // the observer isn't left hanging
+                        if (obs != null) {
+                            obs.soundStarted(Sound.this);
+                        }
                     }
                 });
-
+                return true;
             } else {
                 // sorry charlie...
                 return false;
             }
+        }
+
+        // let the observer know that (as far as they're concerned), we're
+        // started
+        if (obs != null) {
+            obs.soundStarted(this);
         }
 
         // if we do not already have a source, obtain one
