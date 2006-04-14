@@ -345,18 +345,16 @@ public class BundledComponentRepository
                     _setcache.put(dpath, aset);
                 }
 
-                // if this is a shadow image, no need to freak out as they are
-                // optional
-                if (StandardActions.SHADOW_TYPE.equals(type)) {
-                    return null;
-                }
-
                 // if that failed too, we're hosed
                 if (aset == null) {
-                    Log.warning("Unable to locate tileset for action '" +
-                                imgpath + "' " + component + ".");
-                    if (_wipeOnFailure) {
-                        _bundle.wipeBundle(false);
+                    // if this is a shadow image, no need to freak out as they
+                    // are optional
+                    if (!StandardActions.SHADOW_TYPE.equals(type)) {
+                        Log.warning("Unable to locate tileset for action '" +
+                                    imgpath + "' " + component + ".");
+                        if (_wipeOnFailure) {
+                            _bundle.wipeBundle(false);
+                        }
                     }
                     return null;
                 }
