@@ -375,6 +375,11 @@ public class CharacterManager
             sources.add(source);
         }
 
+        // if we ended up with no shadow, no problem!
+        if (sources.size() == 0) {
+            return null;
+        }
+
         // create custom action frames that use a special compositing
         // multi-frame image that does the necessary shadow magic
         ComponentFrames[] svec = (ComponentFrames[])
