@@ -48,7 +48,7 @@ public /*abstract*/ class PlaceConfig
      * this place. The controller class must derive from {@link
      * PlaceController}.
      */
-    public function getControllerClass () :Class
+    public function createController () :PlaceController
     {
         return null;
     }

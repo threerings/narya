@@ -313,18 +313,13 @@ public class LocationDirector extends BasicDirector
         _placeId = placeId;
 
         // check whether we should use a custom class loader
-        var cclass :Class = config.getControllerClass();
-        try {
-            // start up a new place controller to manage the new place
-            _controller = (new cclass() as PlaceController);
-            _controller.init(_cctx, config);
-
-        } catch (e :Error) {
-            Log.warning("Error creating or initializing place controller " +
-                        "[cclass=" + cclass +
-                        ", config=" + config + "].");
-            Log.logStackTrace(e);
+        _controller = config.createController();
+        if (_controller == null) {
+            Log.warning("Place config returned null controller " +
+                        "[config=" + config + "].");
+            return;
         }
+        _controller.init(_cctx, config);
 
         // subscribe to our new place object to complete the move
         _cctx.getDObjectManager().subscribeToObject(_placeId, this);
