@@ -50,7 +50,9 @@ macroScript TRAnimationExporter category:"File" \
     -- Writes a single animation frame
     fn writeFrame nodes outFile = (
         format "  <frame>\n" to:outFile
-        writeTransform node outFile
+        for node in nodes do (
+            writeTransform node outFile
+        )
 	    format "  </frame>\n\n" to:outFile
     )
     
