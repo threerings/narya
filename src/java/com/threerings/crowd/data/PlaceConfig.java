@@ -25,7 +25,7 @@ import com.samskivert.util.StringUtil;
 
 import com.threerings.io.SimpleStreamableObject;
 
-import com.threerings.crowd.client.LocationDirector;
+import com.threerings.crowd.Log;
 import com.threerings.crowd.client.PlaceController;
 
 /**
@@ -35,44 +35,60 @@ import com.threerings.crowd.client.PlaceController;
  * and place controller are provided with the place config object when the
  * place is created.
  *
- * <p> The place config object is also the mechanism used to instantiate
- * the appropriate place manager and controller. Every place must have an
+ * <p> The place config object is also the mechanism used to instantiate the
+ * appropriate place manager and controller. Every place must have an
  * associated place config derived class that overrides {@link
- * #getControllerClass} and {@link #getManagerClassName}, returning the
+ * #createController} and {@link #getManagerClassName}, returning the
  * appropriate place controller and manager class for that place.
  */
 public abstract class PlaceConfig extends SimpleStreamableObject
 {
     /**
+     * Returns the class that should be used to create a controller for this
+     * place. The controller class must derive from {@link PlaceController}.
+     *
+     * @deprecated Override {@link #createController} directly.
+     */
+    public Class getControllerClass ()
+    {
+        return null;
+    }
+
+    /**
      * Returns the class that should be used to create a controller for
      * this place. The controller class must derive from {@link
      * PlaceController}.
      */
-    public abstract Class getControllerClass ();
+    public PlaceController createController ()
+    {
+        Class cclass = getControllerClass();
+        if (cclass == null) {
+            throw new RuntimeException(
+                "PlaceConfig.createController() must be overridden.");
+        }
+
+        Log.warning("Providing backwards compatibility. PlaceConfig." +
+                    "createController() should be overridden directly.");
+        try {
+            return (PlaceController)cclass.newInstance();
+        } catch (Exception e) {
+            Log.warning("Failed to instantiate controller class '" +
+                        cclass + "'.");
+            Log.logStackTrace(e);
+            return null;
+        }
+    }
 
     /**
-     * Returns the name of the class that should be used to create a
-     * manager for this place. The manager class must derive from {@link
-     * com.threerings.crowd.server.PlaceManager}. <em>Note:</em> this
-     * method differs from {@link #getControllerClass} because we want to
-     * avoid compile time linkage of the place config object (which is
-     * used on the client) to server code. This allows a code optimizer
-     * (DashO Pro, for example) to remove the server code from the client,
-     * knowing that it is never used.
+     * Returns the name of the class that should be used to create a manager
+     * for this place. The manager class must derive from {@link
+     * com.threerings.crowd.server.PlaceManager}. <em>Note:</em> this method
+     * differs from {@link #createController} because we want to avoid compile
+     * time linkage of the place config object (which is used on the client) to
+     * server code. This allows a code optimizer (DashO Pro, for example) to
+     * remove the server code from the client, knowing that it is never used.
      */
     public abstract String getManagerClassName ();
-
-    /**
-     * The {@link LocationDirector} may be configured to use a custom
-     * class loader when loading the classes associated with a certain
-     * {@link PlaceConfig}, in this case this method will be called prior
-     * to a call to {@link #getControllerClass} to set {@link #_loader}
-     * which should then be used for any dynamic class loading.
-     */
-    public void setClassLoader (ClassLoader loader)
-    {
-        _loader = loader;
-    }
 
     // documentation inherited
     protected void toString (StringBuffer buf)
@@ -81,7 +97,4 @@ public abstract class PlaceConfig extends SimpleStreamableObject
         buf.append(", ");
         super.toString(buf);
     }
-
-    /** The class loader to use when dynamically loading controller classes. */
-    protected transient ClassLoader _loader = getClass().getClassLoader();
 }

@@ -3,6 +3,7 @@
 
 package com.threerings.stage.data;
 
+import com.threerings.crowd.client.PlaceController;
 import com.threerings.crowd.data.PlaceConfig;
 
 import com.threerings.stage.client.StageSceneController;
@@ -13,9 +14,9 @@ import com.threerings.stage.client.StageSceneController;
 public class StageSceneConfig extends PlaceConfig
 {
     // documentation inherited
-    public Class getControllerClass ()
+    public PlaceController createController ()
     {
-        return StageSceneController.class;
+        return new StageSceneController();
     }
 
     // documentation inherited

@@ -27,16 +27,17 @@ import javax.swing.JLabel;
 import java.util.Properties;
 import com.samskivert.util.StringUtil;
 
+import com.threerings.crowd.client.PlaceController;
 import com.threerings.crowd.data.PlaceConfig;
-import com.threerings.parlor.game.data.GameConfig;
 import com.threerings.micasa.util.MiCasaContext;
+import com.threerings.parlor.game.data.GameConfig;
 
 public class LobbyConfig extends PlaceConfig
 {
     // documentation inherited
-    public Class getControllerClass ()
+    public PlaceController createController ()
     {
-        return LobbyController.class;
+        return new LobbyController();
     }
 
     // documentation inherited
@@ -64,7 +65,7 @@ public class LobbyConfig extends PlaceConfig
     public GameConfig getGameConfig ()
         throws Exception
     {
-        return (GameConfig)_loader.loadClass(_gameConfigClass).newInstance();
+        return (GameConfig)Class.forName(_gameConfigClass).newInstance();
     }
 
     /**

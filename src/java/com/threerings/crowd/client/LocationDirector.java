@@ -291,24 +291,14 @@ public class LocationDirector extends BasicDirector
         // make a note that we're now mostly in the new location
         _placeId = placeId;
 
-        // check whether we should use a custom class loader
-        ClassLoader loader = getClassLoader(config);
-        if (loader != null) {
-            config.setClassLoader(loader);
+        // start up a new place controller to manage the new place
+        _controller = createController(config);
+        if (_controller == null) {
+            Log.warning("Place config returned null controller " +
+                        "[config=" + config + "].");
+            return;
         }
-
-        Class cclass = config.getControllerClass();
-        try {
-            // start up a new place controller to manage the new place
-            _controller = (PlaceController)cclass.newInstance();
-            _controller.init(_ctx, config);
-
-        } catch (Exception e) {
-            Log.warning("Error creating or initializing place controller " +
-                        "[cclass=" + cclass.getName() +
-                        ", config=" + config + "].");
-            Log.logStackTrace(e);
-        }
+        _controller.init(_ctx, config);
 
         // subscribe to our new place object to complete the move
         _ctx.getDObjectManager().subscribeToObject(_placeId, this);
@@ -578,15 +568,14 @@ public class LocationDirector extends BasicDirector
     }
 
     /**
-     * By overriding this method, it is possible to customize the location
-     * director to cause it to load the classes associated with a
-     * particular place via a custom class loader. That loader may enforce
-     * restricted privileges or obtain the classes from some special
-     * source.
+     * Called to create our place controller using the supplied place
+     * configuration. This lives in a separate method so that derived instances
+     * can do funny class loader business if necessary to load the place
+     * controller using a sandboxed class loader.
      */
-    protected ClassLoader getClassLoader (PlaceConfig config)
+    protected PlaceController createController (PlaceConfig config)
     {
-        return null;
+        return config.createController();
     }
 
     /** The context through which we access needed services. */

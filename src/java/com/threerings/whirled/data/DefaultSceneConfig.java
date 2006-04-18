@@ -1,5 +1,5 @@
 //
-// $Id: DefaultSceneConfig.java,v 1.2 2004/08/27 02:20:42 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -36,12 +36,6 @@ import com.threerings.whirled.client.SceneController;
  */
 public class DefaultSceneConfig extends PlaceConfig
 {
-    // documentation inherited
-    public Class getControllerClass ()
-    {
-        return SceneController.class;
-    }
-
     // documentation inherited
     public String getManagerClassName ()
     {

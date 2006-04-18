@@ -32,20 +32,19 @@ import com.threerings.parlor.game.client.GameConfigurator;
 
 /**
  * The game config class encapsulates the configuration information for a
- * particular type of game. The hierarchy of game config objects mimics
- * the hierarchy of game managers and controllers. Both the game manager
- * and game controller are provided with the game config object when the
- * game is created.
+ * particular type of game. The hierarchy of game config objects mimics the
+ * hierarchy of game managers and controllers. Both the game manager and game
+ * controller are provided with the game config object when the game is
+ * created.
  *
- * <p> The game config object is also the mechanism used to instantiate
- * the appropriate game manager and controller. Every game must have an
- * associated game config derived class that overrides {@link
- * #getControllerClass} and {@link #getManagerClassName}, returning the
- * appropriate game controller and manager class for that game. Thus the
- * entire chain of events that causes a particular game to be created is
- * the construction of the appropriate game config instance which is
- * provided to the server as part of an invitation or via some other
- * matchmaking mechanism.
+ * <p> The game config object is also the mechanism used to instantiate the
+ * appropriate game manager and controller. Every game must have an associated
+ * game config derived class that overrides {@link #createController} and
+ * {@link #getManagerClassName}, returning the appropriate game controller and
+ * manager class for that game. Thus the entire chain of events that causes a
+ * particular game to be created is the construction of the appropriate game
+ * config instance which is provided to the server as part of an invitation or
+ * via some other matchmaking mechanism.
  */
 public abstract class GameConfig extends PlaceConfig implements Cloneable
 {
