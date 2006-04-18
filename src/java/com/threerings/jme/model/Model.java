@@ -39,8 +39,11 @@ import java.nio.channels.FileChannel;
 import java.util.HashMap;
 import java.util.Properties;
 
+import com.samskivert.util.ObserverList;
+
 import com.jme.math.Quaternion;
 import com.jme.math.Vector3f;
+import com.jme.scene.Controller;
 import com.jme.scene.Spatial;
 
 import com.threerings.jme.Log;
@@ -50,10 +53,36 @@ import com.threerings.jme.Log;
  */
 public class Model extends ModelNode
 {
+    /** Lets listeners know when animations are completed (which only happens
+     * for non-repeating animations) or cancelled. */
+    public interface AnimationObserver
+    {
+        /**
+         * Called when a non-repeating animation has finished.
+         *
+         * @return true to remain on the observer list, false to remove self
+         */
+        public boolean animationCompleted (Model model, String anim);
+        
+        /**
+         * Called when an animation has been cancelled.
+         *
+         * @return true to remain on the observer list, false to remove self
+         */
+        public boolean animationCancelled (Model model, String anim);
+    }
+    
     /** An animation for the model. */
     public static class Animation
         implements Serializable
     {
+        /** The rate of the animation in frames per second. */
+        public int frameRate;
+        
+        /** The animation repeat type ({@link Controller#RT_CLAMP},
+         * {@link Controller#RT_CYCLE}, or {@link Controller#RT_WRAP}). */
+        public int repeatType;
+        
         /** The transformation targets of the animation. */
         public Spatial[] transformTargets;
         
@@ -173,6 +202,10 @@ public class Model extends ModelNode
             model.readBuffers(fc);
         }
         ois.close();
+        
+        // set the reference transforms before any animations are applied
+        model.setReferenceTransforms();
+        
         return model;
     }
     
@@ -225,13 +258,20 @@ public class Model extends ModelNode
      */
     public void startAnimation (String name)
     {
+        if (_anim != null) {
+            stopAnimation();
+        }
         _anim = _anims.get(name);
         if (_anim == null) {
             Log.warning("Requested unknown animation [name=" +
                 name + "].");
             return;
         }
-        _fidx = -1;
+        _animName = name;
+        _fidx = 0;
+        _nidx = 1;
+        _fdir = +1;
+        _elapsed = 0f;
     }
     
     /**
@@ -239,7 +279,44 @@ public class Model extends ModelNode
      */
     public void stopAnimation ()
     {
+        if (_anim == null) {
+            return;
+        }
         _anim = null;
+        _animObservers.apply(new AnimCancelledOp(_animName));
+    }
+    
+    /**
+     * Sets the animation speed, which acts as a multiplier for the frame rate
+     * of each animation.
+     */
+    public void setAnimationSpeed (float speed)
+    {
+        _animSpeed = speed;
+    }
+    
+    /**
+     * Returns the currently configured animation speed.
+     */
+    public float getAnimationSpeed ()
+    {
+        return _animSpeed;
+    }
+    
+    /**
+     * Adds an animation observer.
+     */
+    public void addAnimationObserver (AnimationObserver obs)
+    {
+        _animObservers.add(obs);
+    }
+    
+    /**
+     * Removes an animation observer.
+     */
+    public void removeAnimationObserver (AnimationObserver obs)
+    {
+        _animObservers.remove(obs);
     }
     
     /**
@@ -293,7 +370,49 @@ public class Model extends ModelNode
      */
     protected void updateAnimation (float time)
     {
+        // advance the frame counter if necessary
+        while (_elapsed > 1f) {
+            advanceFrameCounter();
+            _elapsed -= 1f;
+        }
         
+        // update the target transforms
+        Spatial[] targets = _anim.transformTargets;
+        Transform[] xforms = _anim.transforms[_fidx],
+            nxforms = _anim.transforms[_nidx];
+        for (int ii = 0; ii < targets.length; ii++) {
+            xforms[ii].blend(nxforms[ii], _elapsed, targets[ii]);
+        }
+        
+        // if the next index is the same as this one, we are finished
+        if (_fidx == _nidx) {
+            _anim = null;
+            _animObservers.apply(new AnimCompletedOp(_animName));
+            return;
+        }
+        
+        _elapsed += (time * _anim.frameRate * _animSpeed);
+    }
+    
+    /**
+     * Advances the frame counter by one frame.
+     */
+    protected void advanceFrameCounter ()
+    {
+        _fidx = _nidx;
+        int nframes = _anim.transforms.length;
+        if (_anim.repeatType == Controller.RT_CLAMP) {
+            _nidx = Math.min(_nidx + 1, nframes - 1);
+            
+        } else if (_anim.repeatType == Controller.RT_CYCLE) {
+            _nidx = (_nidx + 1) % nframes;
+            
+        } else { // _anim.repeatType == Controller.RT_WRAP
+            if ((_nidx + _fdir) < 0 || (_nidx + _fdir) >= nframes) {
+                _fdir *= -1; // reverse direction
+            }
+            _nidx += _fdir;
+        }
     }
     
     /** The model properties. */
@@ -305,14 +424,60 @@ public class Model extends ModelNode
     /** The currently running animation, or <code>null</code> for none. */
     protected Animation _anim;
     
-    /** The last frame index. */
-    protected int _fidx;
+    /** The name of the currently running animation, if any. */
+    protected String _animName;
     
-    /** The time corresponding to the last frame. */
-    protected float _ftime;
+    /** The current animation speed multiplier. */
+    protected float _animSpeed = 1f;
     
-    /** Identifies a transform frame element. */
-    protected static final byte TRANSFORM_ELEMENT = 0;
+    /** The index of the current and next frames. */
+    protected int _fidx, _nidx;
+    
+    /** The direction for wrapping animations (+1 forward, -1 backward). */
+    protected int _fdir;
+    
+    /** The frame portion elapsed since the start of the current frame. */
+    protected float _elapsed;
+    
+    /** Animation completion listeners. */
+    protected ObserverList<AnimationObserver> _animObservers =
+        new ObserverList<AnimationObserver>(ObserverList.FAST_UNSAFE_NOTIFY);
+    
+    /** Used to notify observers of animation completion. */
+    protected class AnimCompletedOp
+        implements ObserverList.ObserverOp<AnimationObserver>
+    {
+        public AnimCompletedOp (String name)
+        {
+            _name = name;
+        }
+        
+        public boolean apply (AnimationObserver obs)
+        {
+            return obs.animationCompleted(Model.this, _name);
+        }
+        
+        /** The name of the animation completed. */
+        protected String _name;
+    }
+    
+    /** Used to notify observers of animation cancellation. */
+    protected class AnimCancelledOp
+        implements ObserverList.ObserverOp<AnimationObserver>
+    {
+        public AnimCancelledOp (String name)
+        {
+            _name = name;
+        }
+        
+        public boolean apply (AnimationObserver obs)
+        {
+            return obs.animationCancelled(Model.this, _name);
+        }
+        
+        /** The name of the animation cancelled. */
+        protected String _name;
+    }
     
     private static final long serialVersionUID = 1;
 }

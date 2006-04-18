@@ -65,12 +65,6 @@ public class ModelParser
         _digester.addSetNext(node, "addSpatial",
             ModelDef.SpatialDef.class.getName());
         
-        String bnode = model + "/boneNode";
-        _digester.addObjectCreate(bnode, ModelDef.BoneNodeDef.class.getName());
-        _digester.addRule(bnode, new SetPropertyFieldsRule());
-        _digester.addSetNext(bnode, "addSpatial",
-            ModelDef.SpatialDef.class.getName());
-        
         String vertex = tmesh + "/vertex", svertex = smesh + "/vertex";
         _digester.addObjectCreate(vertex, ModelDef.Vertex.class.getName());
         _digester.addObjectCreate(svertex,

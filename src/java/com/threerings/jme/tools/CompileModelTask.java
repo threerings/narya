@@ -38,9 +38,9 @@ import org.apache.tools.ant.types.FileSet;
 
 import com.jme.scene.Spatial;
 
+import com.samskivert.util.PropertiesUtil;
 import com.samskivert.util.StringUtil;
 
-import com.threerings.jme.model.BoneNode;
 import com.threerings.jme.model.Model;
 import com.threerings.jme.model.ModelMesh;
 import com.threerings.jme.model.ModelNode;
@@ -82,12 +82,12 @@ public class CompileModelTask extends Task
         in.close();
         
         // locate the animations, if any
-        String[] actions =
-            StringUtil.parseStringArray(props.getProperty("actions", ""));
-        File[] afiles = new File[actions.length];
+        String[] anims =
+            StringUtil.parseStringArray(props.getProperty("animations", ""));
+        File[] afiles = new File[anims.length];
         File dir = source.getParentFile();
-        for (int ii = 0; ii < actions.length; ii++) {
-            afiles[ii] = new File(dir, actions[ii] + ".xml");
+        for (int ii = 0; ii < anims.length; ii++) {
+            afiles[ii] = new File(dir, anims[ii] + ".xml");
             if (afiles[ii].lastModified() >= target.lastModified()) {
                 needsUpdate = true;
             }
@@ -102,11 +102,12 @@ public class CompileModelTask extends Task
         HashMap<String, Spatial> nodes = new HashMap<String, Spatial>();
         Model model = mdef.createModel(props, nodes);
         
-        // load the actions, if any
-        for (int ii = 0; ii < actions.length; ii++) {
+        // load the animations, if any
+        for (int ii = 0; ii < anims.length; ii++) {
             System.out.println("  Adding " + afiles[ii] + "...");
             AnimationDef adef = _aparser.parseAnimation(afiles[ii].toString());
-            model.addAnimation(actions[ii], adef.createAnimation(props, nodes));
+            model.addAnimation(anims[ii], adef.createAnimation(
+                PropertiesUtil.getSubProperties(props, anims[ii]), nodes));
         }
         
         // write and return the model

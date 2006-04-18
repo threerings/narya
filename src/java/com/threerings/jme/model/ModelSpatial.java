@@ -27,11 +27,18 @@ import java.io.IOException;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
 
+import com.jme.math.Matrix4f;
+
 /**
  * Contains method common to both {@link ModelNode}s and {@link ModelMesh}es.
  */
 public interface ModelSpatial
 {
+    /**
+     * Recursively sets the reference transforms for any bones in the model.
+     */
+    public void setReferenceTransforms ();
+
     /**
      * Recursively resolves texture references using the given provider.
      */

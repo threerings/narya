@@ -103,22 +103,20 @@ macroScript TRModelExporter category:"File" \
             ) else (
                 kind = "triMesh"
             )
-        ) else if node.boneEnable then (
-            kind = "boneNode"
         ) else (
             kind = "node"
         )
         format "  <% name=\"%\"" kind node.name to:outFile
+        xform = node.transform
         if node.parent != undefined do (
+            xform = xform * (inverse node.parent.transform)
             format " parent=\"%\"" node.parent.name to:outFile
         )
-		in coordsys parent (
-			writePoint3Attr " translation" node.transform.translationPart \
-                outFile
-            writeQuatAttr " rotation" (inverse node.transform.rotationPart) \
-                outFile
-            writePoint3Attr " scale" node.transform.scalePart outFile
-		)
+		writePoint3Attr " translation" xform.translationPart \
+            outFile
+        writeQuatAttr " rotation" (inverse xform.rotationPart) \
+            outFile
+        writePoint3Attr " scale" xform.scalePart outFile
 		if isMesh then (
 		    format ">\n" to:outFile
 		    if isProperty node #skin do (
@@ -140,6 +138,7 @@ macroScript TRModelExporter category:"File" \
 		format "<?xml version=\"1.0\" standalone=\"yes\"?>\n\n" to:outFile
     	format "<model>\n\n" to:outFile
 	    local nodes
+	    oldsel = selection as array
     	if selection.count > 0 then (
         	nodes = selection
 	    ) else (
@@ -148,6 +147,7 @@ macroScript TRModelExporter category:"File" \
     	for node in nodes do (
             writeNode node outFile
 	    )
+	    select oldsel
 	    format "</model>\n" to:outFile
 	    close outFile
 	)

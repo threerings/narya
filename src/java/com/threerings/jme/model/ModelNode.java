@@ -32,6 +32,7 @@ import java.nio.channels.FileChannel;
 
 import java.util.ArrayList;
 
+import com.jme.math.Matrix4f;
 import com.jme.math.Quaternion;
 import com.jme.math.Vector3f;
 import com.jme.scene.Node;
@@ -62,15 +63,36 @@ public class ModelNode extends Node
     }
     
     /**
-     * Recursively sets the reference transforms for any {@link BoneNode}s in
-     * the model.
+     * Returns a reference to the model space transform of the node.
      */
+    public Matrix4f getModelTransform ()
+    {
+        return _modelTransform;
+    }
+    
+    // documentation inherited from interface ModelSpatial
     public void setReferenceTransforms ()
     {
+        updateWorldVectors();
         for (Object child : getChildren()) {
-            if (child instanceof ModelNode) {
-                ((ModelNode)child).setReferenceTransforms();
+            if (child instanceof ModelSpatial) {
+                ((ModelSpatial)child).setReferenceTransforms();
             }       
+        }
+    }
+    
+    @Override // documentation inherited
+    public void updateWorldVectors ()
+    {
+        super.updateWorldVectors();
+        if (parent instanceof ModelNode) {
+            setTransform(getLocalTranslation(), getLocalRotation(),
+                getLocalScale(), _localTransform);
+            ((ModelNode)parent).getModelTransform().mult(_localTransform,
+                _modelTransform);
+            
+        } else {
+            _modelTransform.loadIdentity();
         }
     }
     
@@ -141,5 +163,35 @@ public class ModelNode extends Node
         }
     }
     
+    /**
+     * Sets a matrix to the transform defined by the given translation,
+     * rotation, and scale values.
+     */
+    protected static Matrix4f setTransform (
+        Vector3f translation, Quaternion rotation, Vector3f scale,
+        Matrix4f result)
+    {
+        result.set(rotation);
+        result.setTranslation(translation);
+        
+        result.m00 *= scale.x;
+        result.m01 *= scale.y;
+        result.m02 *= scale.z;
+        
+        result.m10 *= scale.x;
+        result.m11 *= scale.y;
+        result.m12 *= scale.z;
+        
+        result.m20 *= scale.x;
+        result.m21 *= scale.y;
+        result.m22 *= scale.z;
+        
+        return result;
+    }
+    
+    /** The node's transform in local and model space. */
+    protected Matrix4f _localTransform = new Matrix4f(),
+        _modelTransform = new Matrix4f();
+
     private static final long serialVersionUID = 1;
 }

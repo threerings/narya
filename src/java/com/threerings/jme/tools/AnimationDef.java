@@ -28,6 +28,7 @@ import java.util.Properties;
 
 import com.jme.math.Quaternion;
 import com.jme.math.Vector3f;
+import com.jme.scene.Controller;
 import com.jme.scene.Spatial;
 
 import com.threerings.jme.Log;
@@ -38,6 +39,9 @@ import com.threerings.jme.model.Model;
  */
 public class AnimationDef
 {
+    /** The rate of the animation in frames per second. */
+    public int frameRate;
+    
     /** A single frame of the animation. */
     public static class FrameDef
     {
@@ -125,7 +129,7 @@ public class AnimationDef
      * Creates the "live" animation object that will be serialized with the
      * object.
      *
-     * @param props the model properties
+     * @param props the animation properties
      * @param nodes the nodes in the model, mapped by name
      */
     public Model.Animation createAnimation (
@@ -137,8 +141,19 @@ public class AnimationDef
             frames.get(ii).addTransformTargets(nodes, targets);
         }
         
-        // collect all transforms
+        // create and configure the animation
         Model.Animation anim = new Model.Animation();
+        anim.frameRate = frameRate;
+        String rtype = props.getProperty("repeat_type", "clamp");
+        if (rtype.equals("cycle")) {
+            anim.repeatType = Controller.RT_CYCLE;
+        } else if (rtype.equals("wrap")) {
+            anim.repeatType = Controller.RT_WRAP;
+        } else {
+            anim.repeatType = Controller.RT_CLAMP;
+        }
+        
+        // collect all transforms
         anim.transformTargets = targets.toArray(new Spatial[targets.size()]);
         anim.transforms = new Model.Transform[frames.size()][targets.size()];
         for (int ii = 0; ii < anim.transforms.length; ii++) {

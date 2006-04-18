@@ -37,18 +37,20 @@ macroScript TRAnimationExporter category:"File" \
     -- Writes a single node transform
     fn writeTransform node outFile = (
         format "    <transform name=\"%\"" node.name to:outFile
-        writePoint3Attr " translation" node.transform.translationPart outFile
-        writeQuatAttr " rotation" (inverse node.transform.rotationPart) outFile
-        writePoint3Attr " scale" node.transform.scalePart outFile
+        xform = node.transform
+        if node.parent != undefined do (
+            xform = xform * (inverse node.parent.transform)
+        )
+        writePoint3Attr " translation" xform.translationPart outFile
+        writeQuatAttr " rotation" (inverse xform.rotationPart) outFile
+        writePoint3Attr " scale" xform.scalePart outFile
         format "/>\n" to:outFile
     )
     
     -- Writes a single animation frame
     fn writeFrame nodes outFile = (
         format "  <frame>\n" to:outFile
-    	for node in nodes do in coordsys parent (
-            writeTransform node outFile
-    	)
+        writeTransform node outFile
 	    format "  </frame>\n\n" to:outFile
     )
     
@@ -57,7 +59,7 @@ macroScript TRAnimationExporter category:"File" \
 	(
 		outFile = createfile fileName
 		format "<?xml version=\"1.0\" standalone=\"yes\"?>\n\n" to:outFile
-    	format "<animation>\n\n" to:outFile
+    	format "<animation frameRate=\"%\">\n\n" frameRate to:outFile
 	    local nodes
     	if selection.count > 0 then (
         	nodes = selection

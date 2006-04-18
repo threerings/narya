@@ -44,6 +44,7 @@ public class AnimationParser
         // add the rules
         String anim = "animation";
         _digester.addObjectCreate(anim, AnimationDef.class.getName());
+        _digester.addRule(anim, new SetPropertyFieldsRule());
         _digester.addSetNext(anim, "setAnimation",
             AnimationDef.class.getName());
         

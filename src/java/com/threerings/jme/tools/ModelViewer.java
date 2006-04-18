@@ -25,6 +25,7 @@ import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -42,7 +43,10 @@ import java.util.logging.Level;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
+import javax.swing.BorderFactory;
+import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
+import javax.swing.JComboBox;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -51,7 +55,10 @@ import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
+import javax.swing.JSlider;
 import javax.swing.KeyStroke;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import javax.swing.filechooser.FileFilter;
 
 import com.jme.image.Texture;
@@ -67,6 +74,7 @@ import com.jme.util.LoggingSystem;
 import com.jme.util.TextureManager;
 
 import com.samskivert.swing.GroupLayout;
+import com.samskivert.swing.Spacer;
 import com.samskivert.util.Config;
 
 import com.threerings.util.MessageBundle;
@@ -134,24 +142,44 @@ public class ModelViewer extends JmeCanvasApp
             KeyStroke.getKeyStroke(KeyEvent.VK_Q, KeyEvent.CTRL_MASK));
         file.add(quit);
         
-        _amenu = new JMenu(_msg.get("m.anim_menu"));
-        _amenu.setMnemonic(KeyEvent.VK_A);
-        menu.add(_amenu);
-        _amenu.setVisible(false);
-        _stop = new AbstractAction(_msg.get("m.anim_stop")) {
-            public void actionPerformed (ActionEvent e) {
-                _model.stopAnimation();
-            }
-        };
-        _stop.putValue(Action.MNEMONIC_KEY, KeyEvent.VK_S);
-        _stop.putValue(Action.ACCELERATOR_KEY,
-            KeyStroke.getKeyStroke(KeyEvent.VK_S, KeyEvent.CTRL_MASK));
-        
         _frame.getContentPane().add(getCanvas(), BorderLayout.CENTER);
+        
+        JPanel bpanel = new JPanel(new BorderLayout());
+        _frame.getContentPane().add(bpanel, BorderLayout.SOUTH);
+        
+        _animctrls = new JPanel();
+        _animctrls.setBorder(BorderFactory.createEtchedBorder());
+        bpanel.add(_animctrls, BorderLayout.NORTH);
+        _animctrls.add(new JLabel(_msg.get("m.anim_select")));
+        _animctrls.add(_animbox = new JComboBox());
+        _animctrls.add(new JButton(
+            new AbstractAction(_msg.get("m.anim_start")) {
+                public void actionPerformed (ActionEvent e) {
+                    _model.startAnimation((String)_animbox.getSelectedItem());
+                    _animstop.setEnabled(true);
+                }
+            }));
+        _animctrls.add(_animstop = new JButton(
+            new AbstractAction(_msg.get("m.anim_stop")) {
+                public void actionPerformed (ActionEvent e) {
+                    _model.stopAnimation();
+                }
+            }));
+        _animstop.setEnabled(false);
+        _animctrls.add(new Spacer(50, 1));
+        _animctrls.add(new JLabel(_msg.get("m.anim_speed")));
+        _animctrls.add(_animspeed = new JSlider(-100, +100, 0));
+        _animspeed.addChangeListener(new ChangeListener() {
+            public void stateChanged (ChangeEvent e) {
+                updateAnimationSpeed();
+            }
+        });
+        _animctrls.setVisible(false);
         
         _status = new JLabel(" ");
         _status.setHorizontalAlignment(JLabel.LEFT);
-        _frame.getContentPane().add(_status, BorderLayout.SOUTH);
+        _status.setBorder(BorderFactory.createEtchedBorder());
+        bpanel.add(_status, BorderLayout.SOUTH);
         
         _frame.pack();
         _frame.setVisible(true);
@@ -300,6 +328,7 @@ public class ModelViewer extends JmeCanvasApp
         _status.setText(_msg.get("m.compiling_model", file));
         Model model = CompileModelTask.compileModel(file);
         if (model != null) {
+            model.setReferenceTransforms();
             setModel(model, file);
             return;
         }
@@ -331,7 +360,6 @@ public class ModelViewer extends JmeCanvasApp
             _ctx.getGeometry().detachChild(_model);
         }
         _ctx.getGeometry().attachChild(_model = model);
-        _model.setLocalScale(0.04f);
         
         // resolve the textures from the file's directory
         final File dir = file.getParentFile();
@@ -358,24 +386,26 @@ public class ModelViewer extends JmeCanvasApp
         });
         _model.updateRenderState();
         
-        // create buttons for the model's animations
+        // configure the animation panel
         String[] anims = _model.getAnimations();
-        _amenu.removeAll();
         if (anims.length == 0) {
-            _amenu.setVisible(false);
+            _animctrls.setVisible(false);
             return;
         }
-        _amenu.setVisible(true);
-        for (int ii = 0; ii < anims.length; ii++) {
-            final String anim = anims[ii];
-            _amenu.add(new AbstractAction(anim) {
-                public void actionPerformed (ActionEvent e) {
-                    _model.startAnimation(anim);
-                }
-            });
-        }
-        _amenu.addSeparator();
-        _amenu.add(_stop);
+        _model.addAnimationObserver(_animobs);
+        _animctrls.setVisible(true);
+        _animbox.setModel(new DefaultComboBoxModel(anims));
+        updateAnimationSpeed();
+    }
+    
+    /**
+     * Updates the model's animation speed based on the position of the
+     * animation speed slider.
+     */
+    protected void updateAnimationSpeed ()
+    {
+        _model.setAnimationSpeed(
+            FastMath.pow(2f, _animspeed.getValue() / 50f));
     }
     
     /** The translation bundle. */
@@ -387,11 +417,17 @@ public class ModelViewer extends JmeCanvasApp
     /** The viewer frame. */
     protected JFrame _frame;
     
-    /** The animation menu. */
-    protected JMenu _amenu;
+    /** The animation controls. */
+    protected JPanel _animctrls;
     
-    /** The stop animation action. */
-    protected Action _stop;
+    /** The animation selector. */
+    protected JComboBox _animbox;
+    
+    /** The "stop animation" button. */
+    protected JButton _animstop;
+    
+    /** The animation speed slider. */
+    protected JSlider _animspeed; 
     
     /** The status bar. */
     protected JLabel _status;
@@ -401,6 +437,19 @@ public class ModelViewer extends JmeCanvasApp
     
     /** The currently loaded model. */
     protected Model _model;
+    
+    /** Disables the stop button when animations stop. */
+    protected Model.AnimationObserver _animobs =
+        new Model.AnimationObserver() {
+        public boolean animationCompleted (Model model, String name) {
+            _animstop.setEnabled(false);
+            return true;
+        }
+        public boolean animationCancelled (Model model, String name) {
+            _animstop.setEnabled(false);
+            return true;
+        }
+    };
     
     /** Moves the camera using mouse input. */
     protected class MouseOrbiter extends MouseAdapter

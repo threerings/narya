@@ -40,7 +40,6 @@ import com.jme.util.geom.BufferUtils;
 import com.samskivert.util.PropertiesUtil;
 
 import com.threerings.jme.Log;
-import com.threerings.jme.model.BoneNode;
 import com.threerings.jme.model.Model;
 import com.threerings.jme.model.ModelMesh;
 import com.threerings.jme.model.ModelNode;
@@ -178,17 +177,17 @@ public class ModelDef
             super.resolveReferences(nodes);
             
             // divide the vertices up by weight groups
-            HashMap<HashSet<BoneNode>, WeightGroupDef> groups =
-                new HashMap<HashSet<BoneNode>, WeightGroupDef>();
+            HashMap<HashSet<ModelNode>, WeightGroupDef> groups =
+                new HashMap<HashSet<ModelNode>, WeightGroupDef>();
             for (int ii = 0, nn = vertices.size(); ii < nn; ii++) {
                 SkinVertex svertex = (SkinVertex)vertices.get(ii);
-                HashSet<BoneNode> bones = svertex.getBonesAndNormalize(nodes);
+                HashSet<ModelNode> bones = svertex.getBones(nodes);
                 WeightGroupDef group = groups.get(bones);
                 if (group == null) {
                     groups.put(bones, group = new WeightGroupDef());
                 }
                 group.indices.add(ii);
-                for (BoneNode bone : bones) {
+                for (ModelNode bone : bones) {
                     group.weights.add(svertex.getWeight(bone));
                 }
             }
@@ -197,12 +196,12 @@ public class ModelDef
             SkinMesh.WeightGroup[] wgroups =
                 new SkinMesh.WeightGroup[groups.size()];
             int ii = 0;
-            for (Map.Entry<HashSet<BoneNode>, WeightGroupDef> entry :
+            for (Map.Entry<HashSet<ModelNode>, WeightGroupDef> entry :
                 groups.entrySet()) {
                 SkinMesh.WeightGroup wgroup = new SkinMesh.WeightGroup();
                 wgroup.indices = toArray(entry.getValue().indices);
-                HashSet<BoneNode> bones = entry.getKey();
-                wgroup.bones = bones.toArray(new BoneNode[bones.size()]);
+                HashSet<ModelNode> bones = entry.getKey();
+                wgroup.bones = bones.toArray(new ModelNode[bones.size()]);
                 wgroup.weights = toArray(entry.getValue().weights);
                 wgroups[ii++] = wgroup;
             }
@@ -217,16 +216,6 @@ public class ModelDef
         public Spatial createSpatial (Properties props)
         {
             return new ModelNode(name);
-        }
-    }
-    
-    /** A bone that influences skinned meshes. */
-    public static class BoneNodeDef extends NodeDef
-    {
-        // documentation inherited
-        public Spatial createSpatial (Properties props)
-        {
-            return new BoneNode(name);
         }
     }
     
@@ -279,30 +268,21 @@ public class ModelDef
             }
         }
         
-        /** Finds the bone nodes influencing this vertex and normalizes the
-         * weights. */
-        public HashSet<BoneNode> getBonesAndNormalize (
-            HashMap<String, Spatial> nodes)
+        /** Finds the bone nodes influencing this vertex. */
+        public HashSet<ModelNode> getBones (HashMap<String, Spatial> nodes)
         {
-            HashSet<BoneNode> bones = new HashSet<BoneNode>();
-            float totalWeight = 0f;
+            HashSet<ModelNode> bones = new HashSet<ModelNode>();
             for (BoneWeight bweight : boneWeights) {
                 Spatial node = nodes.get(bweight.bone);
-                if (node instanceof BoneNode) {
-                    bones.add((BoneNode)node);
-                    totalWeight += bweight.weight;
-                }
-            }
-            if (totalWeight > 0f && totalWeight < 1f) {
-                for (BoneWeight bweight : boneWeights) {
-                    bweight.weight /= totalWeight;
+                if (node instanceof ModelNode) {
+                    bones.add((ModelNode)node);
                 }
             }
             return bones;
         }
         
         /** Returns the weight of the given bone. */
-        public float getWeight (BoneNode bone)
+        public float getWeight (ModelNode bone)
         {
             String name = bone.getName();
             for (BoneWeight bweight : boneWeights) {
@@ -339,7 +319,9 @@ public class ModelDef
     
     public void addSpatial (SpatialDef spatial)
     {
-        spatials.add(spatial);
+        // put nodes before meshes so that bones are updated before skin
+        spatials.add(spatial instanceof NodeDef ?  0 : spatials.size(),
+            spatial);
     }
     
     /**
@@ -351,6 +333,9 @@ public class ModelDef
     public Model createModel (Properties props, HashMap<String, Spatial> nodes)
     {
         Model model = new Model(props.getProperty("name", "model"), props);
+        
+        // set the overall scale
+        model.setLocalScale(Float.parseFloat(props.getProperty("scale", "1")));
         
         // start by creating the spatials and mapping them to their names
         for (int ii = 0, nn = spatials.size(); ii < nn; ii++) {

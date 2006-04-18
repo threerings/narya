@@ -72,16 +72,6 @@ public class ModelMesh extends TriMesh
     }
     
     /**
-     * Creates and populates a mesh.
-     */
-    public ModelMesh (
-        String name, FloatBuffer vertices, FloatBuffer normals,
-        FloatBuffer colors, FloatBuffer tcoords, IntBuffer indices)
-    {
-        super(name, vertices, normals, colors, tcoords, indices);
-    }
-    
-    /**
      * Configures this mesh based on the given (sub-)properties.
      */
     public void configure (Properties props)
@@ -138,7 +128,7 @@ public class ModelMesh extends TriMesh
         }
     }
     
-    // documentation inherited
+    @Override // documentation inherited
     public void reconstruct (
         FloatBuffer vertices, FloatBuffer normals, FloatBuffer colors,
         FloatBuffer textures, IntBuffer indices)
@@ -152,7 +142,7 @@ public class ModelMesh extends TriMesh
         _indexBufferSize = (indices == null) ? 0 : indices.capacity();
     }
     
-    // documentation inherited
+    @Override // documentation inherited
     public void reconstruct (
         FloatBuffer vertices, FloatBuffer normals, FloatBuffer colors,
         FloatBuffer textures)
@@ -201,6 +191,12 @@ public class ModelMesh extends TriMesh
         _texture = (String)in.readObject();
         _solid = in.readBoolean();
         _transparent = in.readBoolean();
+    }
+    
+    // documentation inherited from interface ModelSpatial
+    public void setReferenceTransforms ()
+    {
+        // no-op
     }
     
     // documentation inherited from interface ModelSpatial
