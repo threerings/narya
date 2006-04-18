@@ -35,6 +35,8 @@ import java.util.ArrayList;
 import com.jme.math.Matrix4f;
 import com.jme.math.Quaternion;
 import com.jme.math.Vector3f;
+import com.jme.renderer.CloneCreator;
+import com.jme.renderer.Renderer;
 import com.jme.scene.Node;
 import com.jme.scene.Spatial;
 
@@ -70,17 +72,6 @@ public class ModelNode extends Node
         return _modelTransform;
     }
     
-    // documentation inherited from interface ModelSpatial
-    public void setReferenceTransforms ()
-    {
-        updateWorldVectors();
-        for (Object child : getChildren()) {
-            if (child instanceof ModelSpatial) {
-                ((ModelSpatial)child).setReferenceTransforms();
-            }       
-        }
-    }
-    
     @Override // documentation inherited
     public void updateWorldVectors ()
     {
@@ -94,6 +85,19 @@ public class ModelNode extends Node
         } else {
             _modelTransform.loadIdentity();
         }
+    }
+    
+    @Override // documentation inherited
+    public Spatial putClone (Spatial store, CloneCreator properties)
+    {
+        ModelNode mstore;
+        if (store == null) {
+            mstore = new ModelNode(getName());
+        } else {
+            mstore = (ModelNode)store;
+        }
+        super.putClone(mstore, properties);
+        return mstore;
     }
     
     // documentation inherited from interface Externalizable
@@ -118,6 +122,29 @@ public class ModelNode extends Node
         ArrayList children = (ArrayList)in.readObject();
         for (int ii = 0, nn = children.size(); ii < nn; ii++) {
             attachChild((Spatial)children.get(ii));
+        }
+    }
+    
+    // documentation inherited from interface ModelSpatial
+    public void setReferenceTransforms ()
+    {
+        updateWorldVectors();
+        for (Object child : getChildren()) {
+            if (child instanceof ModelSpatial) {
+                ((ModelSpatial)child).setReferenceTransforms();
+            }       
+        }
+    }
+    
+    // documentation inherited from interface ModelSpatial
+    public void lockStaticMeshes (
+        Renderer renderer, boolean useVBOs, boolean useDisplayLists)
+    {
+        for (Object child : getChildren()) {
+            if (child instanceof ModelSpatial) {
+                ((ModelSpatial)child).lockStaticMeshes(renderer, useVBOs,
+                    useDisplayLists);
+            }
         }
     }
     

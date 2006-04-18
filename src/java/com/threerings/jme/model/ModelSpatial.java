@@ -27,7 +27,11 @@ import java.io.IOException;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
 
+import java.util.HashMap;
+
 import com.jme.math.Matrix4f;
+import com.jme.renderer.Renderer;
+import com.jme.scene.Spatial;
 
 /**
  * Contains method common to both {@link ModelNode}s and {@link ModelMesh}es.
@@ -39,6 +43,17 @@ public interface ModelSpatial
      */
     public void setReferenceTransforms ();
 
+    /**
+     * Recursively compiles any static meshes to vertex buffer objects (VBOs)
+     * or display lists.
+     *
+     * @param useVBOs if true, use VBOs if the graphics card supports them
+     * @param useDisplayLists if true and not using VBOs, compile static
+     * objects to display lists
+     */
+    public void lockStaticMeshes (
+        Renderer renderer, boolean useVBOs, boolean useDisplayLists);
+    
     /**
      * Recursively resolves texture references using the given provider.
      */

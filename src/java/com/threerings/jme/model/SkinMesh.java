@@ -30,8 +30,14 @@ import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 
+import java.util.HashMap;
+
 import com.jme.math.Matrix4f;
 import com.jme.math.Vector3f;
+import com.jme.renderer.CloneCreator;
+import com.jme.renderer.Renderer;
+import com.jme.scene.Spatial;
+import com.jme.scene.VBOInfo;
 import com.jme.util.geom.BufferUtils;
 
 import com.threerings.jme.Log;
@@ -59,6 +65,24 @@ public class SkinMesh extends ModelMesh
         
         /** The inverses of the bones' mesh space reference transforms. */
         public transient Matrix4f[] invRefTransforms;
+        
+        /**
+         * Rebinds this weight group for a prototype instance.
+         *
+         * @param pnodes a mapping from prototype nodes to instance nodes
+         */
+        public WeightGroup rebind (HashMap pnodes)
+        {
+            WeightGroup group = new WeightGroup();
+            group.indices = indices;
+            group.weights = weights;
+            group.invRefTransforms = invRefTransforms;
+            group.bones = new ModelNode[bones.length];
+            for (int ii = 0; ii < bones.length; ii++) {
+                group.bones[ii] = (ModelNode)pnodes.get(bones[ii]);
+            }
+            return group;
+        }
         
         private static final long serialVersionUID = 1;
     }
@@ -108,6 +132,32 @@ public class SkinMesh extends ModelMesh
     }
     
     @Override // documentation inherited
+    public Spatial putClone (Spatial store, CloneCreator properties)
+    {
+        SkinMesh mstore;
+        if (store == null) {
+            mstore = new SkinMesh(getName());
+        } else {
+            mstore = (SkinMesh)store;
+        }
+        properties.removeProperty("vertices");
+        properties.removeProperty("normals");
+        properties.removeProperty("displaylistid");
+        super.putClone(mstore, properties);
+        properties.addProperty("vertices");
+        properties.addProperty("normals");
+        properties.addProperty("displaylistid");
+        mstore._weightGroups = new WeightGroup[_weightGroups.length];
+        for (int ii = 0; ii < _weightGroups.length; ii++) {
+            mstore._weightGroups[ii] =
+                _weightGroups[ii].rebind(properties.originalToCopy);
+        }
+        mstore._ovbuf = _ovbuf;
+        mstore._onbuf = _onbuf;
+        return mstore;
+    }
+    
+    @Override // documentation inherited
     public void writeExternal (ObjectOutput out)
         throws IOException
     {
@@ -135,6 +185,20 @@ public class SkinMesh extends ModelMesh
                 group.invRefTransforms[jj] = _transform.mult(
                     group.bones[jj].getModelTransform()).invertLocal();
             }
+        }
+    }
+    
+    @Override // documentation inherited
+    public void lockStaticMeshes (
+        Renderer renderer, boolean useVBOs, boolean useDisplayLists)
+    {
+        // we can use VBOs for color, texture, and indices
+        if (useVBOs && renderer.supportsVBO()) {
+            VBOInfo vboinfo = new VBOInfo(false);
+            vboinfo.setVBOColorEnabled(true);
+            vboinfo.setVBOTextureEnabled(true);
+            vboinfo.setVBOIndexEnabled(true);
+            setVBOInfo(vboinfo);
         }
     }
     
@@ -197,9 +261,9 @@ public class SkinMesh extends ModelMesh
                     xform = _transforms[kk];
                     weight = weights[ww++];
                     _vertex.addLocal(
-                        xform.mult(_overtex, _tmp).mult(weight));
+                        xform.mult(_overtex, _tmp).multLocal(weight));
                     _normal.addLocal(
-                        xform.multAcross(_onormal, _tmp).mult(weight));
+                        xform.multAcross(_onormal, _tmp).multLocal(weight));
                 }
                 BufferUtils.setInBuffer(_vertex, vbuf, idx);
                 BufferUtils.setInBuffer(_normal, nbuf, idx);

@@ -39,8 +39,12 @@ import com.jme.bounding.BoundingBox;
 import com.jme.bounding.BoundingSphere;
 import com.jme.math.Quaternion;
 import com.jme.math.Vector3f;
+import com.jme.renderer.CloneCreator;
 import com.jme.renderer.Renderer;
+import com.jme.scene.SharedMesh;
+import com.jme.scene.Spatial;
 import com.jme.scene.TriMesh;
+import com.jme.scene.VBOInfo;
 import com.jme.scene.state.AlphaState;
 import com.jme.scene.state.CullState;
 import com.jme.scene.state.TextureState;
@@ -155,6 +159,26 @@ public class ModelMesh extends TriMesh
         _textureBufferSize = (textures == null) ? 0 : textures.capacity();
     }
 
+    @Override // documentation inherited
+    public Spatial putClone (Spatial store, CloneCreator properties)
+    {
+        ModelMesh mstore;
+        if (store == null) {
+            mstore = new ModelMesh(getName());
+        } else {
+            mstore = (ModelMesh)store;
+        }
+        super.putClone(mstore, properties);
+        if (properties.isSet("displaylistid")) {
+            mstore.batch.setDisplayListID(getDisplayListID());
+        }
+        if (properties.isSet("bound")) {
+            mstore.setModelBound(getModelBound());
+        }
+        mstore._texture = _texture;
+        return mstore;
+    }
+    
     // documentation inherited from interface Externalizable
     public void writeExternal (ObjectOutput out)
         throws IOException
@@ -197,6 +221,20 @@ public class ModelMesh extends TriMesh
     public void setReferenceTransforms ()
     {
         // no-op
+    }
+    
+    // documentation inherited from interface ModelSpatial
+    public void lockStaticMeshes (
+        Renderer renderer, boolean useVBOs, boolean useDisplayLists)
+    {
+        if (useVBOs && renderer.supportsVBO()) {
+            VBOInfo vboinfo = new VBOInfo(true);
+            vboinfo.setVBOIndexEnabled(true);
+            setVBOInfo(vboinfo);
+            
+        } else if (useDisplayLists) {
+            lockMeshes(renderer);
+        }
     }
     
     // documentation inherited from interface ModelSpatial

@@ -360,6 +360,7 @@ public class ModelViewer extends JmeCanvasApp
             _ctx.getGeometry().detachChild(_model);
         }
         _ctx.getGeometry().attachChild(_model = model);
+        _model.lockStaticMeshes(_ctx.getRenderer(), true, true);
         
         // resolve the textures from the file's directory
         final File dir = file.getParentFile();

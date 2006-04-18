@@ -43,6 +43,7 @@ import com.samskivert.util.ObserverList;
 
 import com.jme.math.Quaternion;
 import com.jme.math.Vector3f;
+import com.jme.renderer.CloneCreator;
 import com.jme.scene.Controller;
 import com.jme.scene.Spatial;
 
@@ -88,6 +89,25 @@ public class Model extends ModelNode
         
         /** The animation transforms (one transform per target per frame). */
         public transient Transform[][] transforms;
+        
+        /**
+         * Rebinds this animation for a prototype instance.
+         *
+         * @param pnodes a mapping from prototype nodes to instance nodes
+         */
+        public Animation rebind (HashMap pnodes)
+        {
+            Animation anim = new Animation();
+            anim.frameRate = frameRate;
+            anim.repeatType = repeatType;
+            anim.transforms = transforms;
+            anim.transformTargets = new Spatial[transformTargets.length];
+            for (int ii = 0; ii < transformTargets.length; ii++) {
+                anim.transformTargets[ii] =
+                    (Spatial)pnodes.get(transformTargets[ii]);
+            }
+            return anim;
+        }
         
         private void writeObject (ObjectOutputStream out)
             throws IOException
@@ -234,7 +254,8 @@ public class Model extends ModelNode
     }
     
     /**
-     * Adds an animation to the model's library.
+     * Adds an animation to the model's library.  This should only be called by
+     * the model compiler.
      */
     public void addAnimation (String name, Animation anim)
     {
@@ -249,6 +270,9 @@ public class Model extends ModelNode
      */
     public String[] getAnimations ()
     {
+        if (_prototype != null) {
+            return _prototype.getAnimations();
+        }
         return (_anims == null) ? new String[0] :
             _anims.keySet().toArray(new String[_anims.size()]);
     }
@@ -261,17 +285,21 @@ public class Model extends ModelNode
         if (_anim != null) {
             stopAnimation();
         }
-        _anim = _anims.get(name);
-        if (_anim == null) {
-            Log.warning("Requested unknown animation [name=" +
-                name + "].");
+        Animation anim = _anims.get(name);
+        if (anim != null) {
+            startAnimation(name, anim);
             return;
         }
-        _animName = name;
-        _fidx = 0;
-        _nidx = 1;
-        _fdir = +1;
-        _elapsed = 0f;
+        if (_prototype != null) {
+            Animation panim = _prototype._anims.get(name);
+            if (panim != null) {
+                _anims.put(name, anim = panim.rebind(_pnodes));
+                startAnimation(name, anim);
+                return;
+            }
+        }
+        Log.warning("Requested unknown animation [name=" +
+            name + "].");
     }
     
     /**
@@ -353,6 +381,55 @@ public class Model extends ModelNode
         _props = (Properties)in.readObject();
         _anims = (HashMap<String, Animation>)in.readObject();
     }
+
+    /**
+     * Creates and returns a new instance of this model.
+     */    
+    public Model createInstance ()
+    {
+        if (_prototype != null) {
+            return _prototype.createInstance();
+        }
+        if (_ccreator == null) {
+            // allow adding and removing properties at any time
+            _ccreator = new CloneCreator(this) {
+                public void addProperty (String name) {
+                    props.put(name, Boolean.TRUE);
+                }
+                public void removeProperty (String name) {
+                    props.remove(name);
+                }
+            };
+            _ccreator.addProperty("vertices");
+            _ccreator.addProperty("colors");
+            _ccreator.addProperty("normals");
+            _ccreator.addProperty("texcoords");
+            _ccreator.addProperty("vboinfo");
+            _ccreator.addProperty("indices");
+            _ccreator.addProperty("obbtree");
+            _ccreator.addProperty("displaylistid");
+            _ccreator.addProperty("bound");
+        }
+        return (Model)_ccreator.createCopy();
+    }
+
+    @Override // documentation inherited
+    public Spatial putClone (Spatial store, CloneCreator properties)
+    {
+        Model mstore;
+        if (store == null) {
+            mstore = new Model(getName(), _props);
+        } else {
+            mstore = (Model)store;
+        }
+        super.putClone(mstore, properties);
+        mstore._prototype = this;
+        if (_anims != null) {
+            mstore._anims = new HashMap<String, Animation>();
+        }
+        mstore._pnodes = properties.originalToCopy;
+        return mstore;
+    }
     
     @Override // documentation inherited
     public void updateWorldData (float time)
@@ -363,6 +440,19 @@ public class Model extends ModelNode
         
         // update children
         super.updateWorldData(time);
+    }
+
+    /**
+     * Starts the supplied animation.
+     */
+    protected void startAnimation (String name, Animation anim)
+    {
+        _anim = anim;
+        _animName = name;
+        _fidx = 0;
+        _nidx = 1;
+        _fdir = +1;
+        _elapsed = 0f;
     }
     
     /**
@@ -414,6 +504,18 @@ public class Model extends ModelNode
             _nidx += _fdir;
         }
     }
+    
+    /** A reference to the prototype, or <code>null</code> if this is a
+     * prototype. */
+    protected Model _prototype;
+    
+    /** For prototype models, a customized clone creator used to generate
+     * instances. */
+    protected CloneCreator _ccreator;
+    
+    /** For instances, maps prototype nodes to their corresponding instance
+     * nodes. */
+    protected HashMap _pnodes;
     
     /** The model properties. */
     protected Properties _props;

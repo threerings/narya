@@ -258,13 +258,20 @@ public class ModelDef
     /** A vertex influenced by a number of bones. */
     public static class SkinVertex extends Vertex
     {
-        /** The bones influencing the vertex. */
-        public ArrayList<BoneWeight> boneWeights = new ArrayList<BoneWeight>();
+        /** The bones influencing the vertex, mapped by name. */
+        public HashMap<String, BoneWeight> boneWeights =
+            new HashMap<String, BoneWeight>();
         
         public void addBoneWeight (BoneWeight weight)
         {
-            if (weight.weight > 0f) {
-                boneWeights.add(weight);
+            if (weight.weight == 0f) {
+                return;
+            }
+            BoneWeight bweight = boneWeights.get(weight.bone);
+            if (bweight != null) {
+                bweight.weight += weight.weight;
+            } else {
+                boneWeights.put(weight.bone, weight);
             }
         }
         
@@ -272,10 +279,13 @@ public class ModelDef
         public HashSet<ModelNode> getBones (HashMap<String, Spatial> nodes)
         {
             HashSet<ModelNode> bones = new HashSet<ModelNode>();
-            for (BoneWeight bweight : boneWeights) {
-                Spatial node = nodes.get(bweight.bone);
+            for (String bone : boneWeights.keySet()) {
+                Spatial node = nodes.get(bone);
                 if (node instanceof ModelNode) {
                     bones.add((ModelNode)node);
+                } else {
+                    Log.warning("Missing or invalid bone for bone weight " +
+                        "[bone=" + bone + "].");
                 }
             }
             return bones;
@@ -284,13 +294,8 @@ public class ModelDef
         /** Returns the weight of the given bone. */
         public float getWeight (ModelNode bone)
         {
-            String name = bone.getName();
-            for (BoneWeight bweight : boneWeights) {
-                if (bweight.bone.equals(name)) {
-                    return bweight.weight;
-                }
-            }
-            return 0f;
+            BoneWeight bweight = boneWeights.get(bone.getName());
+            return (bweight == null) ? 0f : bweight.weight;
         }
     }
     
