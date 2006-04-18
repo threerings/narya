@@ -70,7 +70,7 @@ public class EditorApp implements Runnable
             String dlog = localDataDir("editor.log");
             try {
                 PrintStream logOut = new PrintStream(
-                    new BufferedOutputStream(new FileOutputStream(dlog)));
+                    new BufferedOutputStream(new FileOutputStream(dlog)), true);
                 System.setOut(logOut);
                 System.setErr(logOut);
                 Log.info("Opened debug log '" + dlog + "'.");
