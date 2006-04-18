@@ -44,9 +44,7 @@ public /*abstract*/ class PlaceConfig
     implements Streamable
 {
     /**
-     * Returns the class that should be used to create a controller for
-     * this place. The controller class must derive from {@link
-     * PlaceController}.
+     * Create the controller that should be used for this place.
      */
     public function createController () :PlaceController
     {
