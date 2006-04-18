@@ -1,5 +1,5 @@
 //
-// $Id: UniformTileSet.java,v 1.16 2004/08/27 02:12:41 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -97,4 +97,7 @@ public class UniformTileSet extends TileSet
 
     /** The height (in pixels) of the tiles in this tileset. */
     protected int _height;
+
+    /** Our historic serialization version id. */
+    private static final long serialVersionUID = 3536616655149232917L;
 }
