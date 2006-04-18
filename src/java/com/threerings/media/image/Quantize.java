@@ -1,5 +1,5 @@
 //
-// $Id: Quantize.java,v 1.4 2004/08/27 02:12:38 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -40,6 +40,7 @@ package com.threerings.media.image;
  * - Made it work with image data with transparent pixels.
  * - Clarified documentation of the main method.
  * - Changed the 'QUICK' constant to false for better quantization.
+ * - Fixed an integer overflow that caused a bug quantizing large images.
  *
  * <p><p>
  *
@@ -465,10 +466,10 @@ public class Quantize {
          * characteristics for later averaging.
          */
         void reduction() {
-            int threshold = 1;
+            long threshold = 1;
             while (colors > max_colors) {
                 colors = 0;
-                threshold = root.reduce(threshold, Integer.MAX_VALUE);
+                threshold = root.reduce(threshold, Long.MAX_VALUE);
             }
         }
 
@@ -584,7 +585,7 @@ public class Quantize {
             int mid_blue;
 
             // the pixel count for this node and all children
-            int number_pixels;
+            long number_pixels;
             
             // the pixel count for this node
             int unique;
@@ -603,7 +604,7 @@ public class Quantize {
                 this.id = 0;
                 this.level = 0;
 
-                this.number_pixels = Integer.MAX_VALUE;
+                this.number_pixels = Long.MAX_VALUE;
             
                 this.mid_red   = (MAX_RGB + 1) >> 1;
                 this.mid_green = (MAX_RGB + 1) >> 1;
@@ -673,7 +674,7 @@ public class Quantize {
              *  - figure out the color with the fewest pixels
              *  - recalculate the total number of colors in the tree
              */
-            int reduce(int threshold, int next_threshold) {
+            long reduce(long threshold, long next_threshold) {
                 if (nchild != 0) {
                     for (int id = 0; id < 8; id++) {
                         if (child[id] != null) {
