@@ -221,10 +221,10 @@ public class Sound
         AL10.alSourcef(_sourceId, AL10.AL_PITCH, _pitch);
         AL10.alSourcef(_sourceId, AL10.AL_GAIN, _gain);
         if (_position != null) {
-            AL10.alSource (_sourceId, AL10.AL_POSITION, _position);
+            AL10.alSource(_sourceId, AL10.AL_POSITION, _position);
         }
         if (_velocity != null) {
-            AL10.alSource (_sourceId, AL10.AL_VELOCITY, _velocity);
+            AL10.alSource(_sourceId, AL10.AL_VELOCITY, _velocity);
         }
 
         // configure whether or not we should loop
