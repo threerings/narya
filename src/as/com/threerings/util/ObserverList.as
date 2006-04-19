@@ -28,7 +28,7 @@ public class ObserverList
      */
     public function add (observer :Object) :void
     {
-        if (ArrayUtil.indexOf(_list, observer) == -1) {
+        if (_list.indexOf(observer) == -1) {
             _list.push(observer);
         }
     }

@@ -6,21 +6,6 @@ package com.threerings.util {
 public class ArrayUtil
 {
     /**
-     * Return the first index of the specified element, or -1 if not present.
-     */
-    public static function indexOf (arr :Array, element :Object) :int
-    {
-        // return mx.utils.ArrayUtil.getItemIndex(element, arr);
-        //
-        for (var ii :int = 0; ii < arr.length; ii++) {
-            if (arr[ii] === element) {
-                return ii;
-            }
-        }
-        return -1;
-    }
-
-    /**
      * Remove the first instance of the specified element from the array.
      */
     public static function removeFirst (arr :Array, element :Object) :void
