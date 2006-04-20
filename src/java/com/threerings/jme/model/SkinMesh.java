@@ -269,6 +269,7 @@ public class SkinMesh extends ModelMesh
                 BufferUtils.setInBuffer(_normal, nbuf, idx);
             }
         }
+        updateModelBound();
     }
     
     /** The groups of vertices influenced by different sets of bones. */

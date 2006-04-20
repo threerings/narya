@@ -65,6 +65,26 @@ public class ModelNode extends Node
     }
     
     /**
+     * Recursively searches the scene graph rooted at this node for a
+     * node with the provided name.
+     */
+    public Spatial getDescendant (String name)
+    {
+        for (int ii = 0, nn = getQuantity(); ii < nn; ii++) {
+            Spatial child = getChild(ii);
+            if (child.getName().equals(name)) {
+                return child;
+            } else if (child instanceof ModelNode) {
+                child = ((ModelNode)child).getDescendant(name);
+                if (child != null) {
+                    return child;
+                }
+            }
+        }
+        return null;
+    }
+    
+    /**
      * Returns a reference to the model space transform of the node.
      */
     public Matrix4f getModelTransform ()
