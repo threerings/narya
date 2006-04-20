@@ -27,6 +27,8 @@ import com.samskivert.util.Queue;
 import com.samskivert.util.RunQueue;
 import com.samskivert.util.StringUtil;
 
+import org.lwjgl.opengl.Display;
+
 import com.jme.renderer.Camera;
 import com.jme.renderer.ColorRGBA;
 import com.jme.renderer.Renderer;
@@ -159,6 +161,10 @@ public class JmeApp
                 long frameStart = processFrame();
                 processEvents(frameStart);
                 _failures = 0;
+
+                // cap our frame rate at 60 if we're not visible and thus don't
+                // automatically cap due to being vsynced
+                Display.sync(60);
 
             } catch (Throwable t) {
                 Log.logStackTrace(t);
