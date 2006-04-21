@@ -923,6 +923,15 @@ public class ChatDirector extends BasicDirector
     }
 
     /**
+     * Check that after mogrification the message is not too long.
+     * @return an error message if it is too long, or null.
+     */
+    protected String checkLength (String msg)
+    {
+        return null; // everything's ok by default
+    }
+
+    /**
      * Returns a hashmap containing all command handlers that match the
      * specified command (i.e. the specified command is a prefix of their
      * registered command string).
@@ -1203,34 +1212,18 @@ public class ChatDirector extends BasicDirector
             SpeakService speakSvc, final String command, String args,
             String[] history)
         {
-            // there should be at least two arg tokens: '/tell target word'
-            StringTokenizer tok = new StringTokenizer(args);
-            if (tok.countTokens() < 2) {
+            if (StringUtil.isBlank(args)) {
                 return "m.usage_tell";
             }
 
-            // if the handle starts with a quote, keep tacking on words until
-            // we find the end quote
-            String handle = tok.nextToken();
-            if (handle.startsWith("\"")) {
-                while (!handle.endsWith("\"") && tok.hasMoreTokens()) {
-                    handle = handle + " " + tok.nextToken();
-                }
-                if (!handle.endsWith("\"")) {
-                    return "m.usage_tell";
-                }
-            }
+            final boolean useQuotes = args.startsWith("\"");
+            String[] bits = parseTell(args);
+            String handle = bits[0];
+            String message = bits[1];
 
-            // now strip off everything after the handle for the message
-            int uidx = args.indexOf(handle);
-            String message = args.substring(uidx + handle.length()).trim();
+            // validate that we didn't eat all the tokens making the handle
             if (StringUtil.isBlank(message)) {
                 return "m.usage_tell";
-            }
-
-            // strip the quotes off of the handle
-            if (handle.startsWith("\"")) {
-                handle = handle.substring(1, handle.length()-1);
             }
 
             // make sure we're not trying to tell something to ourselves
@@ -1239,28 +1232,42 @@ public class ChatDirector extends BasicDirector
                 return "m.talk_self";
             }
 
-            // clear out from the history any tells that are mistypes
-            for (Iterator iter = _history.iterator(); iter.hasNext(); ) {
-                String hist = (String) iter.next();
-                if (hist.startsWith("/" + command) &&
-                    (new StringTokenizer(hist).countTokens() > 2)) {
-                    iter.remove();
-                }
-            }
+            // and lets just give things an opportunity to sanitize the name
+            Name target = normalizeAsName(handle);
 
             // mogrify the chat
             message = mogrifyChat(message);
+            String err = checkLength(message);
+            if (err != null) {
+                return err;
+            }
+
+            // clear out from the history any tells that are mistypes
+            for (Iterator iter = _history.iterator(); iter.hasNext(); ) {
+                String hist = (String) iter.next();
+                if (hist.startsWith("/" + command)) {
+                    String harg = hist.substring(command.length() + 1).trim();
+                    // we blow away any historic tells that have msg content
+                    if (!StringUtil.isBlank(parseTell(harg)[1])) {
+                        iter.remove();
+                    }
+                }
+            }
 
             // store the full command in the history, even if it was mistyped
-            final String histEntry = command + " \"" + handle + "\" " + message;
+            final String histEntry = command + " " +
+                (useQuotes ? ("\"" + target + "\"") : target.toString()) +
+                " " + message;
             history[0] = histEntry;
 
             // request to send this text as a tell message
-            requestTell(new Name(handle), message, new ResultListener() {
+            requestTell(target, escapeMessage(message), new ResultListener() {
                 public void requestCompleted (Object result) {
                     // replace the full one in the history with just:
                     // /tell "<handle>"
-                    String newEntry = "/" + command + " \"" + result + "\" ";
+                    String newEntry = "/" + command + " " +
+                        (useQuotes ? ("\"" + result + "\"")
+                                   : String.valueOf(result)) + " ";
                     _history.remove(newEntry);
                     int dex = _history.lastIndexOf("/" + histEntry);
                     if (dex >= 0) {
@@ -1276,6 +1283,51 @@ public class ChatDirector extends BasicDirector
 
             return ChatCodes.SUCCESS;
         }
+
+        /**
+         * Parse the tell into two strings, handle and message. If either
+         * one is null then the parsing did not succeed.
+         */
+        protected String[] parseTell (String args)
+        {
+            String handle, message;
+            if (args.startsWith("\"")) {
+                int nextQuote = args.indexOf('"', 1);
+                if (nextQuote == -1 || nextQuote == 1) {
+                    handle = message = null; // bogus parsing
+
+                } else {
+                    handle = args.substring(1, nextQuote).trim();
+                    message = args.substring(nextQuote + 1).trim();
+                }
+
+            } else {
+                StringTokenizer st = new StringTokenizer(args);
+                handle = st.nextToken();
+                message = args.substring(handle.length() + 1).trim();
+            }
+
+            return new String[] { handle, message };
+        }
+
+        /**
+         * Turn the user-entered string into a Name object, doing
+         * any particular normalization we want to do along the way
+         * so that "/tell Bob" and "/tell BoB" don't both show up in history.
+         */
+        protected Name normalizeAsName (String handle)
+        {
+            return new Name(handle);
+        }
+
+        /**
+         * Escape or otherwise do any final processing on the message
+         * prior to sending it.
+         */
+        protected String escapeMessage (String msg)
+        {
+            return msg;
+        }
     }
 
     /** Implements <code>/broadcast</code>. */
@@ -1288,8 +1340,15 @@ public class ChatDirector extends BasicDirector
                 return "m.usage_broadcast";
             }
 
-            // mogrify and request to broadcast
-            requestBroadcast(mogrifyChat(args));
+            // mogrify and verify length
+            args = mogrifyChat(args);
+            String err = checkLength(args);
+            if (err != null) {
+                return err;
+            }
+            
+            // request the broadcast
+            requestBroadcast(args);
 
             // note the command to be stored in the history
             history[0] = command + " ";
