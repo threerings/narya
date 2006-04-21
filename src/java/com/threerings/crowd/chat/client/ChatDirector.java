@@ -1287,9 +1287,13 @@ public class ChatDirector extends BasicDirector
             if (StringUtil.isBlank(args)) {
                 return "m.usage_broadcast";
             }
+
+            // mogrify and request to broadcast
+            requestBroadcast(mogrifyChat(args));
+
             // note the command to be stored in the history
             history[0] = command + " ";
-            requestBroadcast(args);
+
             return ChatCodes.SUCCESS;
         }
 
