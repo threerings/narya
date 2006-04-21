@@ -156,7 +156,6 @@ public class ModelViewer extends JmeCanvasApp
             new AbstractAction(_msg.get("m.anim_start")) {
                 public void actionPerformed (ActionEvent e) {
                     _model.startAnimation((String)_animbox.getSelectedItem());
-                    _animstop.setEnabled(true);
                 }
             }));
         _animctrls.add(_animstop = new JButton(
@@ -328,7 +327,7 @@ public class ModelViewer extends JmeCanvasApp
         _status.setText(_msg.get("m.compiling_model", file));
         Model model = CompileModelTask.compileModel(file);
         if (model != null) {
-            model.setReferenceTransforms();
+            model.initPrototype();
             setModel(model, file);
             return;
         }
@@ -388,7 +387,7 @@ public class ModelViewer extends JmeCanvasApp
         _model.updateRenderState();
         
         // configure the animation panel
-        String[] anims = _model.getAnimations();
+        String[] anims = _model.getAnimationNames();
         if (anims.length == 0) {
             _animctrls.setVisible(false);
             return;
@@ -439,9 +438,13 @@ public class ModelViewer extends JmeCanvasApp
     /** The currently loaded model. */
     protected Model _model;
     
-    /** Disables the stop button when animations stop. */
+    /** Enables and disables the stop button when animations start and stop. */
     protected Model.AnimationObserver _animobs =
         new Model.AnimationObserver() {
+        public boolean animationStarted (Model model, String name) {
+            _animstop.setEnabled(true);
+            return true;
+        }
         public boolean animationCompleted (Model model, String name) {
             _animstop.setEnabled(false);
             return true;

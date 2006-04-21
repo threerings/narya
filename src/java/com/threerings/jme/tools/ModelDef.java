@@ -38,9 +38,11 @@ import com.jme.scene.Spatial;
 import com.jme.util.geom.BufferUtils;
 
 import com.samskivert.util.PropertiesUtil;
+import com.samskivert.util.StringUtil;
 
 import com.threerings.jme.Log;
 import com.threerings.jme.model.Model;
+import com.threerings.jme.model.ModelController;
 import com.threerings.jme.model.ModelMesh;
 import com.threerings.jme.model.ModelNode;
 import com.threerings.jme.model.SkinMesh;
@@ -358,7 +360,43 @@ public class ModelDef
             }
         }
         
+        // create any controllers listed
+        String[] controllers = StringUtil.parseStringArray(
+            props.getProperty("controllers", ""));
+        for (int ii = 0; ii < controllers.length; ii++) {
+            Spatial target = nodes.get(controllers[ii]);
+            if (target == null) {
+                Log.warning("Missing controller node [name=" +
+                    controllers[ii] + "].");
+                continue;
+            }
+            ModelController ctrl = createController(
+                PropertiesUtil.getSubProperties(props, controllers[ii]),
+                target);
+            if (ctrl != null) {
+                model.addController(ctrl);
+            }
+        }
+        
         return model;
+    }
+    
+    /** Creates, configures, and returns a model controller. */
+    protected ModelController createController (
+        Properties props, Spatial target)
+    {
+        // attempt to create an instance of the controller
+        ModelController ctrl;
+        String cname = props.getProperty("class", "");
+        try {
+            ctrl = (ModelController)Class.forName(cname).newInstance();
+        } catch (Exception e) {
+            Log.warning("Error instantiating controller [class=" + cname +
+                ", error=" + e + "].");
+            return null;
+        }
+        ctrl.configure(props, target);
+        return ctrl;
     }
     
     /** Converts a boxed Integer list to an unboxed int array. */

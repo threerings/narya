@@ -36,6 +36,7 @@ import java.nio.ByteOrder;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Properties;
 
@@ -45,6 +46,7 @@ import com.jme.math.Quaternion;
 import com.jme.math.Vector3f;
 import com.jme.renderer.CloneCreator;
 import com.jme.scene.Controller;
+import com.jme.scene.Node;
 import com.jme.scene.Spatial;
 
 import com.threerings.jme.Log;
@@ -58,6 +60,13 @@ public class Model extends ModelNode
      * for non-repeating animations) or cancelled. */
     public interface AnimationObserver
     {
+        /**
+         * Called when an animation has started.
+         *
+         * @return true to remain on the observer list, false to remove self
+         */
+        public boolean animationStarted (Model model, String anim);
+        
         /**
          * Called when a non-repeating animation has finished.
          *
@@ -89,6 +98,14 @@ public class Model extends ModelNode
         
         /** The animation transforms (one transform per target per frame). */
         public transient Transform[][] transforms;
+        
+        /**
+         * Returns this animation's duration in seconds.
+         */
+        public float getDuration ()
+        {
+            return (float)transforms.length / frameRate;
+        }
         
         /**
          * Rebinds this animation for a prototype instance.
@@ -223,8 +240,8 @@ public class Model extends ModelNode
         }
         ois.close();
         
-        // set the reference transforms before any animations are applied
-        model.setReferenceTransforms();
+        // initialize the model as a prototype
+        model.initPrototype();
         
         return model;
     }
@@ -254,6 +271,16 @@ public class Model extends ModelNode
     }
     
     /**
+     * Initializes this model as prototype.  Only necessary when the prototype
+     * was not loaded through {@link #readFromFile}.
+     */
+    public void initPrototype ()
+    {
+        setReferenceTransforms();
+        initInstance();
+    }
+    
+    /**
      * Adds an animation to the model's library.  This should only be called by
      * the model compiler.
      */
@@ -268,38 +295,65 @@ public class Model extends ModelNode
     /**
      * Returns the names of the model's animations.
      */
-    public String[] getAnimations ()
+    public String[] getAnimationNames ()
     {
         if (_prototype != null) {
-            return _prototype.getAnimations();
+            return _prototype.getAnimationNames();
         }
         return (_anims == null) ? new String[0] :
             _anims.keySet().toArray(new String[_anims.size()]);
     }
     
     /**
-     * Starts the named animation.
+     * Checks whether the unit has an animation with the given name.
      */
-    public void startAnimation (String name)
+    public boolean hasAnimation (String name)
     {
-        if (_anim != null) {
-            stopAnimation();
+        if (_prototype != null) {
+            return _prototype.hasAnimation(name);
         }
+        return (_anims == null) ? false : _anims.containsKey(name);
+    }
+    
+    /**
+     * Starts the named animation.
+     *
+     * @return a reference to the started animation
+     */
+    public Animation startAnimation (String name)
+    {
+        Animation anim = getAnimation(name);
+        if (anim == null) {
+            return null;
+        }
+        _anim = anim;
+        _animName = name;
+        _fidx = 0;
+        _nidx = 1;
+        _fdir = +1;
+        _elapsed = 0f;
+        _animObservers.apply(new AnimStartedOp(_animName));
+        return anim;
+    }
+    
+    /**
+     * Gets a reference to the animation with the given name.
+     */
+    public Animation getAnimation (String name)
+    {
         Animation anim = _anims.get(name);
         if (anim != null) {
-            startAnimation(name, anim);
-            return;
+            return anim;
         }
         if (_prototype != null) {
             Animation panim = _prototype._anims.get(name);
             if (panim != null) {
                 _anims.put(name, anim = panim.rebind(_pnodes));
-                startAnimation(name, anim);
-                return;
+                return anim;
             }
         }
-        Log.warning("Requested unknown animation [name=" +
-            name + "].");
+        Log.warning("Requested unknown animation [name=" + name + "].");
+        return null;
     }
     
     /**
@@ -348,6 +402,20 @@ public class Model extends ModelNode
     }
     
     /**
+     * Returns a reference to the node that contains this model's emissions
+     * (in world space, so the emissions do not move with the model).  This
+     * node is created and added when this method is first called.
+     */
+    public Node getEmissionNode ()
+    {
+        if (_emissionNode == null) {
+            attachChild(_emissionNode = new Node("emissions"));
+            _emissionNode.setTransformable(false);
+        }
+        return _emissionNode;
+    }
+    
+    /**
      * Writes this model out to a file.
      */
     public void writeToFile (File file)
@@ -371,6 +439,7 @@ public class Model extends ModelNode
         super.writeExternal(out);
         out.writeObject(_props);
         out.writeObject(_anims);
+        out.writeObject(getControllers());
     }
     
     @Override // documentation inherited
@@ -380,6 +449,10 @@ public class Model extends ModelNode
         super.readExternal(in);
         _props = (Properties)in.readObject();
         _anims = (HashMap<String, Animation>)in.readObject();
+        ArrayList controllers = (ArrayList)in.readObject();
+        for (Object ctrl : controllers) {
+            addController((Controller)ctrl);
+        }
     }
 
     /**
@@ -410,7 +483,9 @@ public class Model extends ModelNode
             _ccreator.addProperty("displaylistid");
             _ccreator.addProperty("bound");
         }
-        return (Model)_ccreator.createCopy();
+        Model instance = (Model)_ccreator.createCopy();
+        instance.initInstance();
+        return instance;
     }
 
     @Override // documentation inherited
@@ -441,18 +516,18 @@ public class Model extends ModelNode
         // update children
         super.updateWorldData(time);
     }
-
+    
     /**
-     * Starts the supplied animation.
+     * Initializes the per-instance state of this model.
      */
-    protected void startAnimation (String name, Animation anim)
+    protected void initInstance ()
     {
-        _anim = anim;
-        _animName = name;
-        _fidx = 0;
-        _nidx = 1;
-        _fdir = +1;
-        _elapsed = 0f;
+        // initialize the controllers
+        for (Object ctrl : getControllers()) {
+            if (ctrl instanceof ModelController) {
+                ((ModelController)ctrl).init(this);
+            }
+        }
     }
     
     /**
@@ -541,9 +616,30 @@ public class Model extends ModelNode
     /** The frame portion elapsed since the start of the current frame. */
     protected float _elapsed;
     
+    /** The child node that contains the model's emissions in world space. */
+    protected Node _emissionNode;
+    
     /** Animation completion listeners. */
     protected ObserverList<AnimationObserver> _animObservers =
         new ObserverList<AnimationObserver>(ObserverList.FAST_UNSAFE_NOTIFY);
+    
+    /** Used to notify observers of animation initiation. */
+    protected class AnimStartedOp
+        implements ObserverList.ObserverOp<AnimationObserver>
+    {
+        public AnimStartedOp (String name)
+        {
+            _name = name;
+        }
+        
+        public boolean apply (AnimationObserver obs)
+        {
+            return obs.animationStarted(Model.this, _name);
+        }
+        
+        /** The name of the animation started. */
+        protected String _name;
+    }
     
     /** Used to notify observers of animation completion. */
     protected class AnimCompletedOp
