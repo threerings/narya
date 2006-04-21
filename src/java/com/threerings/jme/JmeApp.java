@@ -159,12 +159,13 @@ public class JmeApp
     }
 
     /**
-     * Enables or disables the update/render part of the update/render/process
-     * events application loop.
+     * Enables or disables the update and render part of the
+     * update/render/process events application loop.
      */
-    public void setRenderingEnabled (boolean renderEnabled)
+    public void setEnabled (boolean update, boolean render)
     {
-        _renderEnabled = renderEnabled;
+        _updateEnabled = update;
+        _renderEnabled = render;
     }
 
     /**
@@ -405,8 +406,10 @@ public class JmeApp
     {
         // update our simulation and render a frame
         long frameStart = _timer.getTime();
-        if (_renderEnabled) {
+        if (_updateEnabled) {
             update(frameStart);
+        }
+        if (_renderEnabled) {
             render(frameStart);
             _display.getRenderer().displayBackBuffer();
         }
@@ -546,7 +549,7 @@ public class JmeApp
 
     protected long _ticksPerFrame;
     protected int _targetFPS;
-    protected boolean _renderEnabled = true;
+    protected boolean _updateEnabled = true, _renderEnabled = true;
     protected boolean _finished;
     protected int _failures;
 
