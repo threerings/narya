@@ -27,8 +27,6 @@ import com.samskivert.util.Queue;
 import com.samskivert.util.RunQueue;
 import com.samskivert.util.StringUtil;
 
-import org.lwjgl.opengl.Display;
-
 import com.jme.renderer.Camera;
 import com.jme.renderer.ColorRGBA;
 import com.jme.renderer.Renderer;
@@ -95,6 +93,9 @@ public class JmeApp
             // create an appropriate timer
             _timer = Timer.getTimer(_api);
 
+            // start with a target of 60 frames per second
+            setTargetFPS(60);
+
             // initialize our main camera controls and user input handling
             initInput();
 
@@ -145,6 +146,28 @@ public class JmeApp
     }
 
     /**
+     * Sets the target frames per second.
+     *
+     * @return the old target frames per second.
+     */
+    public int setTargetFPS (int targetFPS)
+    {
+        int oldTargetFPS = _targetFPS;
+        _targetFPS = targetFPS;
+        _ticksPerFrame =  _timer.getResolution() / _targetFPS;
+        return oldTargetFPS;
+    }
+
+    /**
+     * Enables or disables the update/render part of the update/render/process
+     * events application loop.
+     */
+    public void setRenderingEnabled (boolean renderEnabled)
+    {
+        _renderEnabled = renderEnabled;
+    }
+
+    /**
      * Starts up the main rendering and event processing loop. This method
      * will not return until the application is terminated with a call to
      * {@link #stop}.
@@ -158,13 +181,26 @@ public class JmeApp
         // enter the main rendering and event processing loop
         while (!_finished && !_display.isClosing()) {
             try {
+                // render the current frame
                 long frameStart = processFrame();
-                processEvents(frameStart);
-                _failures = 0;
 
-                // cap our frame rate at 60 if we're not visible and thus don't
-                // automatically cap due to being vsynced
-                Display.sync(60);
+                // and process events until it's time to render the next
+              PROCESS_EVENTS:
+                do {
+                    Runnable r = (Runnable)_evqueue.getNonBlocking();
+                    if (r != null) {
+                        r.run();
+                    }
+                    if (_timer.getTime() - frameStart >= _ticksPerFrame) {
+                        break PROCESS_EVENTS;
+                    } else {
+                        try {
+                            Thread.sleep(1);
+                        } catch (InterruptedException ie) {
+                        }
+                    }
+                } while (!_finished);
+                _failures = 0;
 
             } catch (Throwable t) {
                 Log.logStackTrace(t);
@@ -369,28 +405,12 @@ public class JmeApp
     {
         // update our simulation and render a frame
         long frameStart = _timer.getTime();
-        update(frameStart);
-        render(frameStart);
-
-        _display.getRenderer().displayBackBuffer();
-        return frameStart;
-    }
-
-    /**
-     * Processes as many events as possible until it is time to display
-     * the next frame.
-     */
-    protected void processEvents (long frameStart)
-    {
-        Runnable r;
-        int events = 0;
-        while ((r = (Runnable)_evqueue.getNonBlocking()) != null) {
-            r.run();
-            // only process at most two events per frame
-            if (++events > 1) {
-                break;
-            }
+        if (_renderEnabled) {
+            update(frameStart);
+            render(frameStart);
+            _display.getRenderer().displayBackBuffer();
         }
+        return frameStart;
     }
 
     /**
@@ -524,6 +544,9 @@ public class JmeApp
     protected InputHandler _input;
     protected BRootNode _rnode;
 
+    protected long _ticksPerFrame;
+    protected int _targetFPS;
+    protected boolean _renderEnabled = true;
     protected boolean _finished;
     protected int _failures;
 
