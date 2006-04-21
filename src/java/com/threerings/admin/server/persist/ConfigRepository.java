@@ -31,7 +31,6 @@ import com.samskivert.jdbc.ConnectionProvider;
 import com.samskivert.jdbc.DatabaseLiaison;
 import com.samskivert.jdbc.JDBCUtil;
 import com.samskivert.jdbc.JORARepository;
-import com.samskivert.jdbc.jora.Session;
 import com.samskivert.jdbc.jora.Table;
 
 import com.threerings.admin.Log;
@@ -99,10 +98,10 @@ public class ConfigRepository extends JORARepository
     }
 
     // documentation inherited
-    protected void createTables (Session session)
+    protected void createTables ()
     {
 	_ctable = new Table<ConfigDatum>(
-            ConfigDatum.class, "CONFIG", session,
+            ConfigDatum.class, "CONFIG",
             new String[] { "OBJECT", "FIELD" }, true);
     }
 
