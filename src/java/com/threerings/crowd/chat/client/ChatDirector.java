@@ -164,6 +164,8 @@ public class ChatDirector extends BasicDirector
         registerCommandHandler(msg, "speak", new SpeakHandler());
         registerCommandHandler(msg, "emote", new EmoteHandler());
         registerCommandHandler(msg, "think", new ThinkHandler());
+        registerCommandHandler(msg, "tell", new TellHandler());
+        registerCommandHandler(msg, "broadcast", new BroadcastHandler());
     }
 
     /**
@@ -1160,7 +1162,7 @@ public class ChatDirector extends BasicDirector
             }
             // note the command to be stored in the history
             history[0] = command + " ";
-            return requestChat(null, args, true);
+            return requestChat(speakSvc, args, true);
         }
     }
 
@@ -1214,9 +1216,9 @@ public class ChatDirector extends BasicDirector
                 while (!handle.endsWith("\"") && tok.hasMoreTokens()) {
                     handle = handle + " " + tok.nextToken();
                 }
-            }
-            if (!handle.endsWith("\"")) {
-                return "m.usage_tell";
+                if (!handle.endsWith("\"")) {
+                    return "m.usage_tell";
+                }
             }
 
             // now strip off everything after the handle for the message
@@ -1273,6 +1275,27 @@ public class ChatDirector extends BasicDirector
             });
 
             return ChatCodes.SUCCESS;
+        }
+    }
+
+    /** Implements <code>/broadcast</code>. */
+    protected class BroadcastHandler extends CommandHandler
+    {
+        public String handleCommand (SpeakService speakSvc, String command,
+                                     String args, String[] history)
+        {
+            if (StringUtil.isBlank(args)) {
+                return "m.usage_broadcast";
+            }
+            // note the command to be stored in the history
+            history[0] = command + " ";
+            requestBroadcast(args);
+            return ChatCodes.SUCCESS;
+        }
+
+        public boolean checkAccess (BodyObject user)
+        {
+            return user.checkAccess(ChatCodes.BROADCAST_ACCESS, null) == null;
         }
     }
 
