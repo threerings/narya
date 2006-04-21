@@ -1194,6 +1194,88 @@ public class ChatDirector extends BasicDirector
         }
     }
 
+    /** Implements <code>/tell</code>. */
+    protected class TellHandler extends CommandHandler
+    {
+        public String handleCommand (
+            SpeakService speakSvc, final String command, String args,
+            String[] history)
+        {
+            // there should be at least two arg tokens: '/tell target word'
+            StringTokenizer tok = new StringTokenizer(args);
+            if (tok.countTokens() < 2) {
+                return "m.usage_tell";
+            }
+
+            // if the handle starts with a quote, keep tacking on words until
+            // we find the end quote
+            String handle = tok.nextToken();
+            if (handle.startsWith("\"")) {
+                while (!handle.endsWith("\"") && tok.hasMoreTokens()) {
+                    handle = handle + " " + tok.nextToken();
+                }
+            }
+            if (!handle.endsWith("\"")) {
+                return "m.usage_tell";
+            }
+
+            // now strip off everything after the handle for the message
+            int uidx = args.indexOf(handle);
+            String message = args.substring(uidx + handle.length()).trim();
+            if (StringUtil.isBlank(message)) {
+                return "m.usage_tell";
+            }
+
+            // strip the quotes off of the handle
+            if (handle.startsWith("\"")) {
+                handle = handle.substring(1, handle.length()-1);
+            }
+
+            // make sure we're not trying to tell something to ourselves
+            BodyObject self = (BodyObject)_ctx.getClient().getClientObject();
+            if (handle.equalsIgnoreCase(self.getVisibleName().toString())) {
+                return "m.talk_self";
+            }
+
+            // clear out from the history any tells that are mistypes
+            for (Iterator iter = _history.iterator(); iter.hasNext(); ) {
+                String hist = (String) iter.next();
+                if (hist.startsWith("/" + command) &&
+                    (new StringTokenizer(hist).countTokens() > 2)) {
+                    iter.remove();
+                }
+            }
+
+            // mogrify the chat
+            message = mogrifyChat(message);
+
+            // store the full command in the history, even if it was mistyped
+            final String histEntry = command + " \"" + handle + "\" " + message;
+            history[0] = histEntry;
+
+            // request to send this text as a tell message
+            requestTell(new Name(handle), message, new ResultListener() {
+                public void requestCompleted (Object result) {
+                    // replace the full one in the history with just:
+                    // /tell "<handle>"
+                    String newEntry = "/" + command + " \"" + result + "\" ";
+                    _history.remove(newEntry);
+                    int dex = _history.lastIndexOf("/" + histEntry);
+                    if (dex >= 0) {
+                        _history.set(dex, newEntry);
+                    } else {
+                        _history.add(newEntry);
+                    }
+                }
+                public void requestFailed (Exception cause) {
+                    // do nothing
+                }
+            });
+
+            return ChatCodes.SUCCESS;
+        }
+    }
+
     /** Our active chat context. */
     protected CrowdContext _ctx;
 
