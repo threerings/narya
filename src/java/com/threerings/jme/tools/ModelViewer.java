@@ -77,6 +77,7 @@ import com.samskivert.swing.GroupLayout;
 import com.samskivert.swing.Spacer;
 import com.samskivert.util.Config;
 
+import com.threerings.resource.ResourceManager;
 import com.threerings.util.MessageBundle;
 import com.threerings.util.MessageManager;
 
@@ -107,6 +108,7 @@ public class ModelViewer extends JmeCanvasApp
     public ModelViewer (String path)
     {
         super(1024, 768);
+        _rsrcmgr = new ResourceManager("rsrc");
         _msg = new MessageManager("rsrc.i18n").getBundle("jme.viewer");
         _path = path;
         
@@ -367,7 +369,12 @@ public class ModelViewer extends JmeCanvasApp
             public TextureState getTexture (String name) {
                 TextureState tstate = _tstates.get(name);
                 if (tstate == null) {
-                    File file = new File(dir, name);
+                    File file;
+                    if (name.startsWith("/")) {
+                        file = _rsrcmgr.getResourceFile(name.substring(1));
+                    } else {
+                        file = new File(dir, name);
+                    }
                     Texture tex = TextureManager.loadTexture(file.toString(),
                         Texture.MM_LINEAR_LINEAR, Texture.FM_LINEAR);
                     if (tex == null) {
@@ -407,6 +414,9 @@ public class ModelViewer extends JmeCanvasApp
         _model.setAnimationSpeed(
             FastMath.pow(2f, _animspeed.getValue() / 50f));
     }
+    
+    /** The resource manager. */
+    protected ResourceManager _rsrcmgr;
     
     /** The translation bundle. */
     protected MessageBundle _msg;

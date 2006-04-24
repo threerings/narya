@@ -60,6 +60,13 @@ public abstract class ModelController extends Controller
     }
     
     /**
+     * Resolves any textures required by the controller.
+     */
+    public void resolveTextures (TextureProvider tprov)
+    {
+    }
+    
+    /**
      * Initializes this controller.
      */
     public void init (Model model)

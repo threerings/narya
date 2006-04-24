@@ -30,6 +30,10 @@ public interface TextureProvider
 {
     /**
      * Returns a texture state containing the named texture.
+     *
+     * @param name the name of the texture, which will be interpreted as an
+     * absolute resource path if it starts with a forward slash; otherwise,
+     * as a relative resource path
      */
     public TextureState getTexture (String name);
 }

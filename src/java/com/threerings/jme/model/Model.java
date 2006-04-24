@@ -455,6 +455,17 @@ public class Model extends ModelNode
         }
     }
 
+    @Override // documentation inherited
+    public void resolveTextures (TextureProvider tprov)
+    {
+        super.resolveTextures(tprov);
+        for (Object ctrl : getControllers()) {
+            if (ctrl instanceof ModelController) {
+                ((ModelController)ctrl).resolveTextures(tprov);
+            }
+        }
+    }
+    
     /**
      * Creates and returns a new instance of this model.
      */    
