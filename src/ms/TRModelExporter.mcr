@@ -123,6 +123,15 @@ macroScript TRModelExporter category:"File" \
             outFile
         writePoint3Attr " scale" xform.scalePart outFile
         if isMesh then (
+            format " solid=\"%\"" node.backFaceCull to:outFile
+            if node.material != undefined and
+                isKindOf node.material.diffuseMap BitmapTexture do (
+                format " texture=\"%\"" (filenameFromPath \
+                    node.material.diffuseMap.filename) to:outFile
+                format " transparent=\"%\"" \
+                    (node.material.diffuseMap.bitmap.hasAlpha or \
+                        node.material.opacityMap != undefined) to:outFile
+            )
             format ">\n" to:outFile
             if isProperty node #skin do (
                 setCommandPanelTaskMode mode:#modify

@@ -108,6 +108,15 @@ public class ModelDef
     /** A rigid triangle mesh. */
     public static class TriMeshDef extends SpatialDef
     {
+        /** Whether or not the mesh allows back face culling. */
+        public boolean solid;
+        
+        /** The texture of the mesh, if any. */
+        public String texture;
+        
+        /** Whether or not the mesh is (partially) transparent. */
+        public boolean transparent;
+        
         /** The vertices of the mesh. */
         public ArrayList<Vertex> vertices = new ArrayList<Vertex>();
         
@@ -139,7 +148,7 @@ public class ModelDef
         protected ModelMesh configure (ModelMesh mmesh, Properties props)
         {
             // configure using properties
-            mmesh.configure(props);
+            mmesh.configure(solid, texture, transparent, props);
             
             // set the various buffers
             int vsize = vertices.size();

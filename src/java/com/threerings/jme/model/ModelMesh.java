@@ -76,15 +76,21 @@ public class ModelMesh extends TriMesh
     }
     
     /**
-     * Configures this mesh based on the given (sub-)properties.
+     * Configures this mesh based on the given parameters and (sub-)properties.
+     *
+     * @param texture the texture specified in the model export, if any (can be
+     * overridden by a texture specified in the properties)
+     * @param solid whether or not the mesh allows back face culling
+     * @param transparent whether or not the mesh is (partially) transparent
      */
-    public void configure (Properties props)
+    public void configure (
+        boolean solid, String texture, boolean transparent, Properties props)
     {
         _boundingType = "sphere".equals(props.getProperty("bound")) ?
             SPHERE_BOUND : BOX_BOUND;
-        _texture = props.getProperty("texture");
-        _solid = !"false".equals(props.getProperty("solid"));
-        _transparent = "true".equals(props.getProperty("transparent"));
+        _texture = props.getProperty("texture", texture);
+        _solid = solid;
+        _transparent = transparent;
     }
     
     /**
