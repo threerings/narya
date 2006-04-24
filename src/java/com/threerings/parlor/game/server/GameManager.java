@@ -599,15 +599,11 @@ public class GameManager extends PlaceManager
 //         Log.info("Game room empty. Going away. " +
 //                  "[game=" + _gameobj.which() + "].");
 
-        // cancel the game if it was not already over
-        if (_gameobj.state != GameObject.GAME_OVER &&
-            _gameobj.state != GameObject.CANCELLED) {
-            _gameobj.setState(GameObject.CANCELLED);
+        // cancel the game; which will shut us down
+        if (!cancelGame()) {
+            // or shut down directly if the game is already over
+            shutdown();
         }
-
-        // shut down the place (which will destroy the game object and
-        // clean up after everything)
-        shutdown();
     }
 
     /**
@@ -665,19 +661,29 @@ public class GameManager extends PlaceManager
         // mark the no-show players; this will cause allPlayersReady() to
         // think that everyone has arrived, but still allow us to tell who
         // has not shown up in gameDidStart()
+        int humansHere = 0;
         for (int ii = 0; ii < _playerOids.length; ii++) {
             if (_playerOids[ii] == 0) {
                 _playerOids[ii] = -1;
+            } else if (!isAI(ii)) {
+                humansHere++;
             }
         }
 
-        // go ahead and start the game; gameDidStart() will take care of
-        // giving the boot to anyone who isn't around
-        Log.info("Forcing start of partial no-show game " +
-                 "[game=" + _gameobj.which() +
-                 ", players=" + StringUtil.toString(_gameobj.players) +
-                 ", poids=" + StringUtil.toString(_playerOids) + "].");
-        startGame();
+        if (humansHere == 0) {
+            // if there are no human players in the game, just cancel it
+            Log.info("Canceling no-show game [game=" + _gameobj.which() +
+                     ", players=" + StringUtil.toString(_playerOids) + "].");
+            cancelGame();
+
+        } else {
+            // go ahead and start the game; gameDidStart() will take care of
+            // giving the boot to anyone who isn't around
+            Log.info("Forcing start of partial no-show game " +
+                     "[game=" + _gameobj.which() +
+                     ", poids=" + StringUtil.toString(_playerOids) + "].");
+            startGame();
+        }
     }
 
     /**
@@ -775,13 +781,20 @@ public class GameManager extends PlaceManager
             gameDidStart();
             break;
 
-        case GameObject.CANCELLED:
-            // fall through to GAME_OVER case
-
         case GameObject.GAME_OVER:
             // call gameDidEnd() only if the game was previously in play
             if (oldState == GameObject.IN_PLAY) {
                 gameDidEnd();
+            }
+            break;
+
+        case GameObject.CANCELLED:
+            // let the manager do anything it cares to
+            gameWasCancelled();
+
+            // and shutdown if there's no one here
+            if (_plobj.occupants.size() == 0) {
+                shutdown();
             }
             break;
         }
@@ -963,6 +976,22 @@ public class GameManager extends PlaceManager
     }
 
     /**
+     * Sets the state of the game to {@link GameObject#CANCELLED}.
+     *
+     * @return true if the game was cancelled, false if it was already over or
+     * cancelled.
+     */
+    public boolean cancelGame ()
+    {
+        if (_gameobj.state != GameObject.GAME_OVER &&
+            _gameobj.state != GameObject.CANCELLED) {
+            _gameobj.setState(GameObject.CANCELLED);
+            return true;
+        }
+        return false;
+    }
+
+    /**
      * Assigns the final winning status for each player to their respect
      * player index in the supplied array.  This will be called by {@link
      * #endGame} when the game is over.  The default implementation marks
@@ -1029,6 +1058,23 @@ public class GameManager extends PlaceManager
         }
 
         // calculate ratings and all that...
+    }
+
+    /**
+     * Called to let the manager know that the game was cancelled (and may be
+     * about to be shutdown if there's no one in the room). In the base
+     * framework a game will only be canceled if no one shows up, so {@link
+     * #gameWillStart}, etc. will never have been called and thus {@link
+     * #gameWillEnd}, etc. will not be called. However, if a game chooses to
+     * cancel itself for whatever reason, no effort will be made to call {@link
+     * #endGame} and the game ending call backs so that game can override this
+     * method to do anything it needs. Note that {@link #didShutdown} will be
+     * called in every case and that's generally the best place to free
+     * resources so this method may not be needed.
+     */
+    protected void gameWasCancelled ()
+    {
+        // nothing to do by default
     }
 
     /**
