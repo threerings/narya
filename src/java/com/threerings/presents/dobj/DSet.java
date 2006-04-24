@@ -54,7 +54,7 @@ import com.threerings.presents.Log;
  * bandwidth. Lastly, the object returned by {@link Entry#getKey} must be
  * a {@link Streamable} type.
  */
-public class DSet
+public class DSet<E extends DSet.Entry>
     implements Streamable, Cloneable
 {
     /**
@@ -81,10 +81,10 @@ public class DSet
      * @param source an iterator from which we will initially populate the
      * set.
      */
-    public DSet (Iterator source)
+    public DSet (Iterator<E> source)
     {
         while (source.hasNext()) {
-            add((Entry)source.next());
+            add(source.next());
         }
     }
 
@@ -99,7 +99,7 @@ public class DSet
      * @param source an array from which we will initially populate the
      * set.
      */
-    public DSet (Entry[] source)
+    public DSet (E[] source)
     {
         for (int ii = 0; ii < source.length; ii++) {
             if (source[ii] != null) {
@@ -129,7 +129,7 @@ public class DSet
      * <code>equals()</code> the key returned by <code>getKey()</code> of
      * the supplied entry. Returns false otherwise.
      */
-    public boolean contains (Entry elem)
+    public boolean contains (E elem)
     {
         return containsKey(elem.getKey());
     }
@@ -148,13 +148,12 @@ public class DSet
      * the specified key or null if no entry could be found that matches
      * the key.
      */
-    public Entry get (Comparable key)
+    public E get (Comparable key)
     {
         // determine where we'll be adding the new element
         int eidx = ArrayUtil.binarySearch(
             _entries, 0, _size, key, ENTRY_COMP);
-
-        return (eidx < 0) ? null : _entries[eidx];
+        return (eidx < 0) ? null : (E)_entries[eidx];
     }
 
     /**
@@ -165,7 +164,7 @@ public class DSet
      *
      * @deprecated
      */
-    public Iterator entries ()
+    public Iterator<E> entries ()
     {
         return iterator();
     }
@@ -176,7 +175,7 @@ public class DSet
      * made to the set). It should not be kept around as it can quickly
      * become out of date.
      */
-    public Iterator iterator ()
+    public Iterator<E> iterator ()
     {
         // the crazy sanity checks
         if (_size < 0 ||_size > _entries.length ||
@@ -186,14 +185,14 @@ public class DSet
             Thread.dumpStack();
         }
 
-        return new Iterator() {
+        return new Iterator<E>() {
             public boolean hasNext () {
                 checkComodification();
                 return (_index < _size);
             }
-            public Object next () {
+            public E next () {
                 checkComodification();
-                return _entries[_index++];
+                return (E)_entries[_index++];
             }
             public void remove () {
                 throw new UnsupportedOperationException();
@@ -224,10 +223,10 @@ public class DSet
      * size to contain all of the elements of this set will be created and
      * returned.
      */
-    public Object[] toArray (Object[] array)
+    public E[] toArray (E[] array)
     {
         if (array == null) {
-            array = new Object[size()];
+            array = (E[])new Object[size()];
         }
         System.arraycopy(_entries, 0, array, 0, array.length);
         return array;
@@ -242,7 +241,7 @@ public class DSet
      * @return true if the entry was added, false if it was already in
      * the set.
      */
-    protected boolean add (Entry elem)
+    protected boolean add (E elem)
     {
         // determine where we'll be adding the new element
         int eidx = ArrayUtil.binarySearch(
@@ -297,7 +296,7 @@ public class DSet
      * @return true if the entry was removed, false if it was not in the
      * set.
      */
-    protected boolean remove (Entry elem)
+    protected boolean remove (E elem)
     {
         return (null != removeKey(elem.getKey()));
     }
@@ -311,7 +310,7 @@ public class DSet
      * @return the old matching entry if found and removed, null if not
      * found.
      */
-    protected Entry removeKey (Object key)
+    protected E removeKey (Comparable key)
     {
         // look up this entry's position in our set
         int eidx = ArrayUtil.binarySearch(
@@ -320,7 +319,7 @@ public class DSet
         // if we found it, remove it
         if (eidx >= 0) {
             // extract the old entry
-            Entry oldEntry = _entries[eidx];
+            E oldEntry = (E)_entries[eidx];
             _size--;
             if ((_entries.length > INITIAL_CAPACITY) &&
                     (_size < _entries.length/8)) {
@@ -353,7 +352,7 @@ public class DSet
      * @return the old entry that was replaced, or null if it was not
      * found (in which case nothing is updated).
      */
-    protected Entry update (Entry elem)
+    protected E update (E elem)
     {
         // look up this entry's position in our set
         int eidx = ArrayUtil.binarySearch(
@@ -361,7 +360,7 @@ public class DSet
 
         // if we found it, update it
         if (eidx >= 0) {
-            Entry oldEntry = _entries[eidx];
+            E oldEntry = (E)_entries[eidx];
             _entries[eidx] = elem;
             _modCount++;
             return oldEntry;
@@ -427,7 +426,7 @@ public class DSet
         }
         _entries = new Entry[capacity];
         for (int ii = 0; ii < _size; ii++) {
-            _entries[ii] = (Entry) in.readObject();
+            _entries[ii] = (E)in.readObject();
         }
     }
 
