@@ -55,7 +55,7 @@ import com.threerings.presents.Log;
  * a {@link Streamable} type.
  */
 public class DSet<E extends DSet.Entry>
-    implements Streamable, Cloneable
+    implements Iterable<E>, Streamable, Cloneable
 {
     /**
      * Entries of the set must implement this interface.
