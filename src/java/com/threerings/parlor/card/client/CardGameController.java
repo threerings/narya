@@ -25,6 +25,7 @@ import com.threerings.util.Name;
 
 import com.threerings.crowd.data.PlaceObject;
 
+import com.threerings.parlor.card.Log;
 import com.threerings.parlor.card.data.Card;
 import com.threerings.parlor.card.data.CardCodes;
 import com.threerings.parlor.card.data.Hand;
@@ -42,6 +43,13 @@ public abstract class CardGameController extends GameController
     public void willEnterPlace (PlaceObject plobj)
     {
         super.willEnterPlace(plobj);
+
+        if (_ctx.getClient().getClientObject().receivers.containsKey(
+                CardGameDecoder.RECEIVER_CODE)) {
+            Log.warning("Yuh oh, we already have a card game receiver " +
+                "registered and are trying for another...!");
+            Thread.dumpStack();
+        }
         
         _ctx.getClient().getInvocationDirector().registerReceiver(
             new CardGameDecoder(this));
@@ -51,7 +59,7 @@ public abstract class CardGameController extends GameController
     public void didLeavePlace (PlaceObject plobj)
     {
         super.didLeavePlace(plobj);
-        
+
         _ctx.getClient().getInvocationDirector().unregisterReceiver(
             CardGameDecoder.RECEIVER_CODE);
     }
