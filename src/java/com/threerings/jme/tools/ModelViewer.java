@@ -46,6 +46,7 @@ import javax.swing.Action;
 import javax.swing.BorderFactory;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
+import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JComboBox;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
@@ -66,12 +67,17 @@ import com.jme.light.DirectionalLight;
 import com.jme.math.FastMath;
 import com.jme.math.Vector3f;
 import com.jme.renderer.ColorRGBA;
+import com.jme.renderer.Renderer;
 import com.jme.scene.Line;
+import com.jme.scene.Node;
+import com.jme.scene.Spatial;
 import com.jme.scene.state.LightState;
 import com.jme.scene.state.MaterialState;
 import com.jme.scene.state.TextureState;
+import com.jme.scene.state.ZBufferState;
 import com.jme.util.LoggingSystem;
 import com.jme.util.TextureManager;
+import com.jme.util.geom.Debugger;
 
 import com.samskivert.swing.GroupLayout;
 import com.samskivert.swing.Spacer;
@@ -143,6 +149,27 @@ public class ModelViewer extends JmeCanvasApp
         quit.putValue(Action.ACCELERATOR_KEY,
             KeyStroke.getKeyStroke(KeyEvent.VK_Q, KeyEvent.CTRL_MASK));
         file.add(quit);
+        
+        JMenu view = new JMenu(_msg.get("m.view_menu"));
+        view.setMnemonic(KeyEvent.VK_V);
+        menu.add(view);
+        _pivots = new JCheckBoxMenuItem(_msg.get("m.view_pivots"));
+        _pivots.setMnemonic(KeyEvent.VK_P);
+        _pivots.setAccelerator(
+            KeyStroke.getKeyStroke(KeyEvent.VK_P, KeyEvent.CTRL_MASK));
+        view.add(_pivots);
+        
+        _bounds = new JCheckBoxMenuItem(_msg.get("m.view_bounds"));
+        _bounds.setMnemonic(KeyEvent.VK_B);
+        _bounds.setAccelerator(
+            KeyStroke.getKeyStroke(KeyEvent.VK_B, KeyEvent.CTRL_MASK));
+        view.add(_bounds);
+        
+        _normals = new JCheckBoxMenuItem(_msg.get("m.view_normals"));
+        _normals.setMnemonic(KeyEvent.VK_N);
+        _normals.setAccelerator(
+            KeyStroke.getKeyStroke(KeyEvent.VK_N, KeyEvent.CTRL_MASK));
+        view.add(_normals);
         
         _frame.getContentPane().add(getCanvas(), BorderLayout.CENTER);
         
@@ -250,6 +277,51 @@ public class ModelViewer extends JmeCanvasApp
         grid.setLightCombineMode(LightState.OFF);
         _ctx.getGeometry().attachChild(grid);
         grid.updateRenderState();
+        
+        // attach a dummy node to draw debugging views
+        _ctx.getGeometry().attachChild(new Node("debug") {
+            public void onDraw (Renderer r) {
+                if (_model == null) {
+                    return;
+                }
+                if (_pivots.getState()) {
+                    drawPivots(_model, r);
+                }
+                if (_bounds.getState()) {
+                    Debugger.drawBounds(_model, r);
+                }
+                if (_normals.getState()) {
+                    Debugger.drawNormals(_model, r, 5f, true);
+                }
+            }
+        });
+    }
+    
+    /**
+     * Draws the pivot axes of the given node and its children.
+     */
+    protected void drawPivots (Spatial spatial, Renderer r)
+    {
+        if (_axes == null) {
+            _axes = new Line("axes",
+                new Vector3f[] { Vector3f.ZERO, Vector3f.UNIT_X, Vector3f.ZERO,
+                    Vector3f.UNIT_Y, Vector3f.ZERO, Vector3f.UNIT_Z }, null,
+                new ColorRGBA[] { ColorRGBA.red, ColorRGBA.red,
+                    ColorRGBA.green, ColorRGBA.green, ColorRGBA.blue,
+                    ColorRGBA.blue }, null);
+            _axes.setRenderState(r.createZBufferState());
+        }
+        _axes.getRenderState(ZBufferState.RS_ZBUFFER).apply();
+        _axes.getWorldTranslation().set(spatial.getWorldTranslation());
+        _axes.getWorldRotation().set(spatial.getWorldRotation());
+        _axes.draw(r);
+        
+        if (spatial instanceof Node) {
+            Node node = (Node)spatial;
+            for (int ii = 0, nn = node.getQuantity(); ii < nn; ii++) {
+                drawPivots(node.getChild(ii), r);
+            }
+        }
     }
     
     @Override // documentation inherited
@@ -427,6 +499,9 @@ public class ModelViewer extends JmeCanvasApp
     /** The viewer frame. */
     protected JFrame _frame;
     
+    /** Debug view switches. */
+    protected JCheckBoxMenuItem _pivots, _bounds, _normals;
+    
     /** The animation controls. */
     protected JPanel _animctrls;
     
@@ -447,6 +522,9 @@ public class ModelViewer extends JmeCanvasApp
     
     /** The currently loaded model. */
     protected Model _model;
+    
+    /** Reused to draw pivot axes. */
+    protected Line _axes;
     
     /** Enables and disables the stop button when animations start and stop. */
     protected Model.AnimationObserver _animobs =
