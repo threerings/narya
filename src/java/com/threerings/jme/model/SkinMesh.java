@@ -263,13 +263,30 @@ public class SkinMesh extends ModelMesh
                     _vertex.addLocal(
                         xform.mult(_overtex, _tmp).multLocal(weight));
                     _normal.addLocal(
-                        xform.multAcross(_onormal, _tmp).multLocal(weight));
+                        multNormal(_onormal, xform, _tmp).multLocal(weight));
                 }
                 BufferUtils.setInBuffer(_vertex, vbuf, idx);
                 BufferUtils.setInBuffer(_normal, nbuf, idx);
             }
         }
         updateModelBound();
+    }
+    
+    /**
+     * Multiplies a normal vector by the 3x3 rotation submatrix of the given
+     * matrix.
+     *
+     * @param store the vector in which to store the result
+     * @return the result vector
+     */
+    protected static Vector3f multNormal (
+        Vector3f normal, Matrix4f matrix, Vector3f store)
+    {
+        float nx = normal.x, ny = normal.y, nz = normal.z;
+        store.x = nx * matrix.m00 + ny * matrix.m01 + nz * matrix.m02;
+        store.y = nx * matrix.m10 + ny * matrix.m11 + nz * matrix.m12;
+        store.z = nx * matrix.m20 + ny * matrix.m21 + nz * matrix.m22;
+        return store;
     }
     
     /** The groups of vertices influenced by different sets of bones. */
