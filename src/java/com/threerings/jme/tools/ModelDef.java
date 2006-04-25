@@ -108,6 +108,11 @@ public class ModelDef
     /** A rigid triangle mesh. */
     public static class TriMeshDef extends SpatialDef
     {
+        /** The geometry offset transform. */
+        public float[] offsetTranslation;
+        public float[] offsetRotation;
+        public float[] offsetScale;
+        
         /** Whether or not the mesh allows back face culling. */
         public boolean solid;
         
@@ -141,14 +146,38 @@ public class ModelDef
         // documentation inherited
         public Spatial createSpatial (Properties props)
         {
-            return configure(new ModelMesh(name), props);
+            _mesh = createMesh();
+            configureMesh(props);
+            ModelNode node = new ModelNode(name);
+            node.attachChild(_mesh);
+            return node;
         }
         
-        /** Configures the new mesh and returns it. */
-        protected ModelMesh configure (ModelMesh mmesh, Properties props)
+        /** Creates the mesh to attach to the node. */
+        protected ModelMesh createMesh ()
         {
+            return new ModelMesh("mesh");
+        }
+        
+        /** Configures the mesh. */
+        protected void configureMesh (Properties props)
+        {
+            // set the geometry offset
+            if (offsetTranslation != null) {
+                _mesh.getLocalTranslation().set(offsetTranslation[0],
+                    offsetTranslation[1], offsetTranslation[2]);
+            }
+            if (offsetRotation != null) {
+                _mesh.getLocalRotation().set(offsetRotation[0],
+                    offsetRotation[1], offsetRotation[2], offsetRotation[3]);
+            }
+            if (offsetScale != null) {
+                _mesh.getLocalScale().set(offsetScale[0], offsetScale[1],
+                    offsetScale[2]);
+            }
+            
             // configure using properties
-            mmesh.configure(solid, texture, transparent, props);
+            _mesh.configure(solid, texture, transparent, props);
             
             // set the various buffers
             int vsize = vertices.size();
@@ -168,18 +197,20 @@ public class ModelDef
             for (int ii = 0, nn = indices.size(); ii < nn; ii++) {
                 ibuf.put(indices.get(ii));
             }
-            mmesh.reconstruct(vbbuf, nbbuf, null, tbbuf, ibbuf);
-            return mmesh;
+            _mesh.reconstruct(vbbuf, nbbuf, null, tbbuf, ibbuf);
         }
+        
+        /** The mesh that contains the actual geometry. */
+        protected ModelMesh _mesh;
     }
     
     /** A triangle mesh that deforms according to bone positions. */
     public static class SkinMeshDef extends TriMeshDef
     {
-        // documentation inherited
-        public Spatial createSpatial (Properties props)
+        @Override // documentation inherited
+        protected ModelMesh createMesh ()
         {
-            return configure(new SkinMesh(name), props);
+            return new SkinMesh("mesh");
         }
         
         @Override // documentation inherited
@@ -216,7 +247,7 @@ public class ModelDef
                 wgroup.weights = toArray(entry.getValue().weights);
                 wgroups[ii++] = wgroup;
             }
-            ((SkinMesh)_spatial).setWeightGroups(wgroups);
+            ((SkinMesh)_mesh).setWeightGroups(wgroups);
         }
     }
     
@@ -253,7 +284,12 @@ public class ModelDef
             nbuf.put(normal);
             
             if (tbuf != null) {
-                tbuf.put(tcoords);
+                if (tcoords != null) {
+                    tbuf.put(tcoords);
+                } else {
+                    tbuf.put(0f);
+                    tbuf.put(0f);
+                }
             }
         }
         

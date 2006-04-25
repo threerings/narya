@@ -41,11 +41,6 @@ macroScript TRAnimationExporter category:"File" \
         if node.parent != undefined do (
             xform = xform * (inverse node.parent.transform)
         )
-        if isKindOf node Editable_Mesh do (
-            xform = preTranslate xform node.objectOffsetPos
-            xform = preRotate xform node.objectOffsetRot
-            xform = preScale xform node.objectOffsetScale
-        )
         writePoint3Attr " translation" xform.translationPart outFile
         writeQuatAttr " rotation" (inverse xform.rotationPart) outFile
         writePoint3Attr " scale" xform.scalePart outFile

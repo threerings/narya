@@ -112,17 +112,15 @@ macroScript TRModelExporter category:"File" \
             xform = xform * (inverse node.parent.transform)
             format " parent=\"%\"" node.parent.name to:outFile
         )
-        if isMesh do (
-            xform = preTranslate xform node.objectOffsetPos
-            xform = preRotate xform node.objectOffsetRot
-            xform = preScale xform node.objectOffsetScale
-        )
         writePoint3Attr " translation" xform.translationPart \
             outFile
         writeQuatAttr " rotation" (inverse xform.rotationPart) \
             outFile
         writePoint3Attr " scale" xform.scalePart outFile
         if isMesh then (
+            writePoint3Attr " offsetTranslation" node.objectOffsetPos outFile
+            writeQuatAttr " offsetRotation" node.objectOffsetRot outFile
+            writePoint3Attr " offsetScale" node.objectOffsetScale outFile
             format " solid=\"%\"" node.backFaceCull to:outFile
             if node.material != undefined and
                 isKindOf node.material.diffuseMap BitmapTexture do (
