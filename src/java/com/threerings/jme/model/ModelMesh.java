@@ -89,7 +89,8 @@ public class ModelMesh extends TriMesh
     {
         _boundingType = "sphere".equals(props.getProperty("bound")) ?
             SPHERE_BOUND : BOX_BOUND;
-        _texture = props.getProperty("texture", texture);
+        _texture = (texture == null) ? null :
+            props.getProperty(texture, texture);
         _solid = solid;
         _transparent = transparent;
     }

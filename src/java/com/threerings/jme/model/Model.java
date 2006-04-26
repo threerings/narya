@@ -582,10 +582,10 @@ public class Model extends ModelNode
         if (_anim.repeatType == Controller.RT_CLAMP) {
             _nidx = Math.min(_nidx + 1, nframes - 1);
             
-        } else if (_anim.repeatType == Controller.RT_CYCLE) {
+        } else if (_anim.repeatType == Controller.RT_WRAP) {
             _nidx = (_nidx + 1) % nframes;
             
-        } else { // _anim.repeatType == Controller.RT_WRAP
+        } else { // _anim.repeatType == Controller.RT_CYCLE
             if ((_nidx + _fdir) < 0 || (_nidx + _fdir) >= nframes) {
                 _fdir *= -1; // reverse direction
             }

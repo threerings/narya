@@ -452,6 +452,7 @@ public class ModelViewer extends JmeCanvasApp
                     }
                     Texture tex = TextureManager.loadTexture(file.toString(),
                         Texture.MM_LINEAR_LINEAR, Texture.FM_LINEAR);
+                    tex.setWrap(Texture.WM_WRAP_S_WRAP_T);
                     if (tex == null) {
                         Log.warning("Couldn't find texture [path=" + file +
                             "].");

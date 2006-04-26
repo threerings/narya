@@ -146,10 +146,12 @@ public class ModelDef
         // documentation inherited
         public Spatial createSpatial (Properties props)
         {
-            _mesh = createMesh();
-            configureMesh(props);
             ModelNode node = new ModelNode(name);
-            node.attachChild(_mesh);
+            if (indices.size() > 0) {
+                _mesh = createMesh();
+                configureMesh(props);
+                node.attachChild(_mesh);
+            }
             return node;
         }
         
@@ -227,6 +229,9 @@ public class ModelDef
         public void resolveReferences (HashMap<String, Spatial> nodes)
         {
             super.resolveReferences(nodes);
+            if (_mesh == null) {
+                return;
+            }
             
             // divide the vertices up by weight groups
             HashMap<HashSet<ModelNode>, WeightGroupDef> groups =

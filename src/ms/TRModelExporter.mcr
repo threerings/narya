@@ -96,7 +96,7 @@ macroScript TRModelExporter category:"File" \
     (
         local kind
         isMesh = false
-        if isKindOf node Editable_Mesh then (
+        if isKindOf node Editable_Mesh and not node.boneEnable then (
             isMesh = true
             if isProperty node #skin or isProperty node #physique then (
                 kind = "skinMesh"
