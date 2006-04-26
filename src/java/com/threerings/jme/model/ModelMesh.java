@@ -116,10 +116,6 @@ public class ModelMesh extends TriMesh
         _textureByteBuffer = textures;
         _indexByteBuffer = indices;
         
-        // initialize the model if we're displaying
-        if (DisplaySystem.getDisplaySystem() == null) {
-            return;
-        }
         if (_boundingType == BOX_BOUND) {
             setModelBound(new BoundingBox());
         } else { // _boundingType == SPHERE_BOUND
@@ -127,6 +123,10 @@ public class ModelMesh extends TriMesh
         }
         updateModelBound();
         
+        // initialize the model if we're displaying
+        if (DisplaySystem.getDisplaySystem() == null) {
+            return;
+        } 
         if (_backCull == null) {
             initSharedStates();
         }

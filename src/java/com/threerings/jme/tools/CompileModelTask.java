@@ -30,6 +30,7 @@ import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Properties;
+import java.util.logging.Level;
 
 import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.DirectoryScanner;
@@ -37,6 +38,7 @@ import org.apache.tools.ant.Task;
 import org.apache.tools.ant.types.FileSet;
 
 import com.jme.scene.Spatial;
+import com.jme.util.LoggingSystem;
 
 import com.samskivert.util.PropertiesUtil;
 import com.samskivert.util.StringUtil;
@@ -123,6 +125,8 @@ public class CompileModelTask extends Task
     public void execute ()
         throws BuildException
     {
+        LoggingSystem.getLoggingSystem().setLevel(Level.WARNING);
+        
         for (int ii = 0, nn = _filesets.size(); ii < nn; ii++) {
             FileSet fs = _filesets.get(ii);
             DirectoryScanner ds = fs.getDirectoryScanner(getProject());
