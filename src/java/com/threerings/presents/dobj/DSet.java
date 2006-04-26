@@ -153,7 +153,7 @@ public class DSet<E extends DSet.Entry>
         // determine where we'll be adding the new element
         int eidx = ArrayUtil.binarySearch(
             _entries, 0, _size, key, ENTRY_COMP);
-        return (eidx < 0) ? null : (E)_entries[eidx];
+        return (eidx < 0) ? null : _entries[eidx];
     }
 
     /**
@@ -164,6 +164,7 @@ public class DSet<E extends DSet.Entry>
      *
      * @deprecated
      */
+    @Deprecated
     public Iterator<E> entries ()
     {
         return iterator();
@@ -192,7 +193,7 @@ public class DSet<E extends DSet.Entry>
             }
             public E next () {
                 checkComodification();
-                return (E)_entries[_index++];
+                return _entries[_index++];
             }
             public void remove () {
                 throw new UnsupportedOperationException();
@@ -319,7 +320,7 @@ public class DSet<E extends DSet.Entry>
         // if we found it, remove it
         if (eidx >= 0) {
             // extract the old entry
-            E oldEntry = (E)_entries[eidx];
+            E oldEntry = _entries[eidx];
             _size--;
             if ((_entries.length > INITIAL_CAPACITY) &&
                     (_size < _entries.length/8)) {
@@ -360,7 +361,7 @@ public class DSet<E extends DSet.Entry>
 
         // if we found it, update it
         if (eidx >= 0) {
-            E oldEntry = (E)_entries[eidx];
+            E oldEntry = _entries[eidx];
             _entries[eidx] = elem;
             _modCount++;
             return oldEntry;
