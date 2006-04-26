@@ -50,7 +50,7 @@ macroScript TRAnimationExporter category:"File" \
     -- Writes a single animation frame
     fn writeFrame nodes outFile = (
         format "  <frame>\n" to:outFile
-        for node in nodes do (
+        for node in nodes do in coordsys world (
             writeTransform node outFile
         )
         format "  </frame>\n\n" to:outFile
@@ -68,7 +68,7 @@ macroScript TRAnimationExporter category:"File" \
         ) else (
             nodes = objects
         )
-        for i = animationRange.start to animationRange.end do at time i (
+        for t = animationRange.start to animationRange.end do at time t (
             writeFrame nodes outFile
         )
         format "</animation>\n" to:outFile

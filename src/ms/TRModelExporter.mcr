@@ -68,7 +68,7 @@ macroScript TRModelExporter category:"File" \
             if mesh.numtverts > 0 do (
                 tvface = getTVFace mesh i
             )
-            for i = 1 to 3 do in coordsys local (
+            for i = 1 to 3 do (
                 format "    <vertex" to:outFile
                 writePoint3Attr " location" (getVert mesh face[i]) outFile
                 writePoint3Attr " normal" (getNormal mesh face[i]) outFile
@@ -117,7 +117,7 @@ macroScript TRModelExporter category:"File" \
         writeQuatAttr " rotation" (inverse xform.rotationPart) \
             outFile
         writePoint3Attr " scale" xform.scalePart outFile
-        if isMesh then (
+        if isMesh then in coordsys local (
             writePoint3Attr " offsetTranslation" node.objectOffsetPos outFile
             writeQuatAttr " offsetRotation" node.objectOffsetRot outFile
             writePoint3Attr " offsetScale" node.objectOffsetScale outFile
@@ -156,7 +156,7 @@ macroScript TRModelExporter category:"File" \
         ) else (
             nodes = objects
         )
-        for node in nodes do (
+        for node in nodes do in coordsys world (
             writeNode node outFile
         )
         select oldsel

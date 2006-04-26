@@ -197,6 +197,9 @@ public class ModelViewer extends JmeCanvasApp
         _animctrls.add(new Spacer(50, 1));
         _animctrls.add(new JLabel(_msg.get("m.anim_speed")));
         _animctrls.add(_animspeed = new JSlider(-100, +100, 0));
+        _animspeed.setMajorTickSpacing(10);
+        _animspeed.setSnapToTicks(true);
+        _animspeed.setPaintTicks(true);
         _animspeed.addChangeListener(new ChangeListener() {
             public void stateChanged (ChangeEvent e) {
                 updateAnimationSpeed();
@@ -484,7 +487,7 @@ public class ModelViewer extends JmeCanvasApp
     protected void updateAnimationSpeed ()
     {
         _model.setAnimationSpeed(
-            FastMath.pow(2f, _animspeed.getValue() / 50f));
+            FastMath.pow(2f, _animspeed.getValue() / 25f));
     }
     
     /** The resource manager. */

@@ -55,7 +55,7 @@ public abstract class EmissionController extends ModelController
             BufferUtils.populateFromBuffer(result,
                 ((Geometry)_target).getNormalBuffer(), 0);
         } else {
-            result.set(0f, -1f, 0f);
+            result.set(0f, 0f, -1f);
         }
         _target.getWorldRotation().multLocal(result);
     }

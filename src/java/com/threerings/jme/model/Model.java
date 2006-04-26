@@ -520,6 +520,8 @@ public class Model extends ModelNode
     @Override // documentation inherited
     public void updateWorldData (float time)
     {
+        // slow evvvverything down by the animation speed
+        time *= _animSpeed;
         if (_anim != null) {
             updateAnimation(time);
         }
@@ -567,7 +569,7 @@ public class Model extends ModelNode
             return;
         }
         
-        _elapsed += (time * _anim.frameRate * _animSpeed);
+        _elapsed += (time * _anim.frameRate);
     }
     
     /**
