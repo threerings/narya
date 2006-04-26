@@ -226,7 +226,7 @@ public class DSet<E extends DSet.Entry>
     public E[] toArray (E[] array)
     {
         if (array == null) {
-            array = (E[])new Object[size()];
+            array = (E[])new Entry[size()];
         }
         System.arraycopy(_entries, 0, array, 0, array.length);
         return array;
@@ -268,7 +268,7 @@ public class DSet<E extends DSet.Entry>
             }
 
             // create a new array and copy our data into it
-            Entry[] elems = new Entry[elength*2];
+            E[] elems = (E[])new Entry[elength*2];
             System.arraycopy(_entries, 0, elems, 0, elength);
             _entries = elems;
         }
@@ -324,7 +324,7 @@ public class DSet<E extends DSet.Entry>
             if ((_entries.length > INITIAL_CAPACITY) &&
                     (_size < _entries.length/8)) {
                 // if we're using less than 1/8 of our capacity, shrink by half
-                Entry[] newEnts = new Entry[_entries.length/2];
+                E[] newEnts = (E[])new Entry[_entries.length/2];
                 System.arraycopy(_entries, 0, newEnts, 0, eidx);
                 System.arraycopy(_entries, eidx+1, newEnts, eidx, _size-eidx);
                 _entries = newEnts;
@@ -424,14 +424,14 @@ public class DSet<E extends DSet.Entry>
         while (capacity < _size) {
             capacity <<= 1;
         }
-        _entries = new Entry[capacity];
+        _entries = (E[])new Entry[capacity];
         for (int ii = 0; ii < _size; ii++) {
             _entries[ii] = (E)in.readObject();
         }
     }
 
     /** The entries of the set (in a sparse array). */
-    protected Entry[] _entries = new Entry[INITIAL_CAPACITY];
+    protected E[] _entries = (E[])new Entry[INITIAL_CAPACITY];
 
     /** The number of entries in this set. */
     protected int _size;
