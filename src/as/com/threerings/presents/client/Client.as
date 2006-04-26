@@ -1,7 +1,10 @@
 package com.threerings.presents.client {
 
+import flash.display.Stage;
+
 import flash.events.EventDispatcher;
 import flash.events.TimerEvent;
+
 import flash.util.Timer;
 
 import com.threerings.util.ObserverList;
@@ -23,9 +26,10 @@ public class Client extends EventDispatcher
     /** The default port on which the server listens for client connections. */
     public static const DEFAULT_SERVER_PORT :int = 47624;
 
-    public function Client (creds :Credentials)
+    public function Client (creds :Credentials, stage :Stage)
     {
         _creds = creds;
+        _stage = stage;
     }
 
     /**
@@ -84,6 +88,14 @@ public class Client extends EventDispatcher
     {
         _hostname = hostname;
         _port = port;
+    }
+
+    /**
+     * @return the Stage object we're living in.
+     */
+    public function getStage () :Stage
+    {
+        return _stage;
     }
 
     public function getHostname () :String
@@ -258,7 +270,7 @@ public class Client extends EventDispatcher
             return;
         }
 
-        var now :Number = new Date().getTime();
+        var now :uint = flash.util.getTimer();
         if (now - _comm.getLastWrite() > PingRequest.PING_INTERVAL) {
             _comm.postMessage(new PingRequest());
         }
@@ -324,6 +336,9 @@ public class Client extends EventDispatcher
 
     /** The credentials we used to authenticate with the server. */
     protected var _creds :Credentials;
+
+    /** The stage we're on, needed for creating the Communicator. */
+    protected var _stage :Stage;
 
     /** The version string reported to the server at auth time. */
     protected var _version :String = "";

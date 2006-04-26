@@ -23,14 +23,14 @@ public class PongResponse extends DownstreamMessage
         return _processDelay;
     }
 
-    public function getUnpackStamp () :Number
+    public function getUnpackStamp () :uint
     {
         return _unpackStamp;
     }
 
     public override function readObject (ins :ObjectInputStream) :void
     {
-        _unpackStamp = new Date().getTime();
+        _unpackStamp = flash.util.getTimer();
         super.readObject(ins);
 
         // TODO: Figure out how we're really going to cope with longs
@@ -44,6 +44,6 @@ public class PongResponse extends DownstreamMessage
 
     protected var _processDelay :int;
 
-    protected var _unpackStamp :Number;
+    protected var _unpackStamp :uint;
 }
 }

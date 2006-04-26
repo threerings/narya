@@ -76,9 +76,8 @@ public class ClientDObjectMgr
         _flushInterval.addEventListener(TimerEvent.TIMER, flushObjects);
         _flushInterval.start();
 
-        _actionInterval = new Timer(500); //TODO!
-        _actionInterval.addEventListener(TimerEvent.TIMER, processNextAction);
-        //_actionInterval.start();
+        client.getStage().addEventListener(
+            Event.ENTER_FRAME, processNextAction);
     }
 
     // documentation inherited from interface DObjectManager
@@ -117,7 +116,6 @@ public class ClientDObjectMgr
     {
         // queue up an action
         _actions.push(new ObjectAction(oid, target, subscribe));
-        _actionInterval.start();
     }
 
     // inherit documentation from the interface
@@ -181,22 +179,21 @@ public class ClientDObjectMgr
     {
         // append it to our queue
         _actions.push(msg);
-        _actionInterval.start();
     }
 
     /**
      * Invoked on the main client thread to process any newly arrived
      * messages that we have waiting in our queue.
      */
-    public function processNextAction (event :TimerEvent) :void
+    public function processNextAction () :void
     {
         // process the next event on our queue
         if (_actions.length == 0) {
-            _actionInterval.stop();
             return;
         }
 
         var obj :Object = _actions.shift();
+        Log.debug("processNextAction: " + obj);
         // do the proper thing depending on the object
         if (obj is BootstrapNotification) {
             _client.gotBootstrap(obj.getData(), this);
@@ -455,7 +452,6 @@ public class ClientDObjectMgr
 
     /** Flushes objects every now and again. */
     protected var _flushInterval :Timer;
-    protected var _actionInterval :Timer;
 
     /** Flush expired objects every 30 seconds. */
     protected static const FLUSH_INTERVAL :Number = 30 * 1000;

@@ -125,7 +125,7 @@ public class Communicator
     /**
      * Returns the time at which we last sent a packet to the server.
      */
-    internal function getLastWrite () :Number
+    internal function getLastWrite () :uint
     {
         return _lastWrite;
     }
@@ -135,7 +135,7 @@ public class Communicator
      */
     internal function updateWriteStamp () :void
     {
-        _lastWrite = new Date().getTime();
+        _lastWrite = flash.util.getTimer();
     }
 
     /**
@@ -216,6 +216,6 @@ public class Communicator
 
     protected var _socket :Socket;
 
-    protected var _lastWrite :Number;
+    protected var _lastWrite :uint;
 }
 }
