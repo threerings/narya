@@ -176,6 +176,13 @@ public class ModelDef
                     offsetScale[2]);
             }
             
+            // make sure texture is just a filename
+            int sidx = (texture == null) ? -1 :
+                Math.max(texture.lastIndexOf('/'), texture.lastIndexOf('\\'));
+            if (sidx != -1) {
+                texture = texture.substring(sidx + 1);
+            }
+            
             // configure using properties
             _mesh.configure(solid, texture, transparent, props);
             
@@ -198,6 +205,9 @@ public class ModelDef
                 ibuf.put(indices.get(ii));
             }
             _mesh.reconstruct(vbbuf, nbbuf, null, tbbuf, ibbuf);
+            
+            // set the mesh's origin to the center of its bounding box
+            _mesh.centerVertices();
         }
         
         /** The mesh that contains the actual geometry. */

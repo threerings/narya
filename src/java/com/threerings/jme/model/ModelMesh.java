@@ -50,6 +50,7 @@ import com.jme.scene.state.CullState;
 import com.jme.scene.state.TextureState;
 import com.jme.scene.state.ZBufferState;
 import com.jme.system.DisplaySystem;
+import com.jme.util.geom.BufferUtils;
 
 import com.threerings.jme.Log;
 
@@ -138,6 +139,22 @@ public class ModelMesh extends TriMesh
         }
     }
     
+    /**
+     * Adjusts the vertices and the transform of the mesh so that the mesh's
+     * position lies at the center of its bounding volume.
+     */
+    public void centerVertices ()
+    {
+        Vector3f offset = getLocalTranslation().subtract(
+            getModelBound().getCenter());
+        FloatBuffer vbuf = getVertexBuffer();
+        for (int ii = 0, nn = getVertexCount(); ii < nn; ii++) {
+            BufferUtils.addInBuffer(offset, vbuf, ii);
+        }
+        getLocalTranslation().subtractLocal(offset);
+        getModelBound().getCenter().zero();
+    }
+    
     @Override // documentation inherited
     public void reconstruct (
         FloatBuffer vertices, FloatBuffer normals, FloatBuffer colors,
@@ -164,7 +181,7 @@ public class ModelMesh extends TriMesh
         _colorBufferSize = (colors == null) ? 0 : colors.capacity();
         _textureBufferSize = (textures == null) ? 0 : textures.capacity();
     }
-
+    
     @Override // documentation inherited
     public Spatial putClone (Spatial store, CloneCreator properties)
     {

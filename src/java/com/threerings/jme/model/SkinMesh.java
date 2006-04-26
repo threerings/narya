@@ -132,6 +132,15 @@ public class SkinMesh extends ModelMesh
     }
     
     @Override // documentation inherited
+    public void centerVertices ()
+    {
+        super.centerVertices();
+        _ovbuf.rewind();
+        getVertexBuffer().rewind();
+        _ovbuf.put(getVertexBuffer());
+    }
+    
+    @Override // documentation inherited
     public Spatial putClone (Spatial store, CloneCreator properties)
     {
         SkinMesh mstore;
