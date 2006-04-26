@@ -1290,7 +1290,7 @@ public class ChatDirector extends BasicDirector
          */
         protected String[] parseTell (String args)
         {
-            String handle, message;
+            String handle, message = null;
             if (args.startsWith("\"")) {
                 int nextQuote = args.indexOf('"', 1);
                 if (nextQuote == -1 || nextQuote == 1) {
@@ -1304,7 +1304,9 @@ public class ChatDirector extends BasicDirector
             } else {
                 StringTokenizer st = new StringTokenizer(args);
                 handle = st.nextToken();
-                message = args.substring(handle.length() + 1).trim();
+                if (handle.length() < args.length()) {
+                    message = args.substring(handle.length() + 1).trim();
+                }
             }
 
             return new String[] { handle, message };
