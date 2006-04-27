@@ -384,10 +384,20 @@ public class JmeApp
         _iface = new Node("Interface");
         _root.attachChild(_iface);
 
-        _rnode = new PolledRootNode(_timer, _input);
+        // create our root node
+        _rnode = createRootNode();
         _iface.attachChild(_rnode);
+
         // we don't hide the cursor
         MouseInput.get().setCursorVisible(true);
+    }
+
+    /**
+     * Allows a customized root node to be created.
+     */
+    protected BRootNode createRootNode ()
+    {
+        return new PolledRootNode(_timer, _input);
     }
 
     /**
