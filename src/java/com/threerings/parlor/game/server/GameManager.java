@@ -599,8 +599,15 @@ public class GameManager extends PlaceManager
 //         Log.info("Game room empty. Going away. " +
 //                  "[game=" + _gameobj.which() + "].");
 
+        // If we're in play then move to game over
+        if (_gameobj.state != GameObject.PRE_GAME &&
+            _gameobj.state != GameObject.GAME_OVER &&
+            _gameobj.state != GameObject.CANCELLED) {
+            _gameobj.setState(GameObject.GAME_OVER);
+            shutdown();
+
         // cancel the game; which will shut us down
-        if (!cancelGame()) {
+        } else if (!cancelGame()) {
             // or shut down directly if the game is already over
             shutdown();
         }
