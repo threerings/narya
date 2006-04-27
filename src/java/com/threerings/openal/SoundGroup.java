@@ -62,7 +62,10 @@ public class SoundGroup
      */
     public void dispose ()
     {
-        AL10.alDeleteSources(_sourceIds);
+        if (_sourceIds != null) {
+            AL10.alDeleteSources(_sourceIds);
+            _sourceIds = null;
+        }
     }
 
     protected SoundGroup (
@@ -84,6 +87,7 @@ public class SoundGroup
         if (errno != AL10.AL_NO_ERROR) {
             Log.warning("Failed to create sources [cprov=" + provider +
                         ", sources=" + sources + ", errno=" + errno + "].");
+            _sourceIds = null;
             // we'll have no sources which means all requests to play
             // sounds will silently fail as if all sources were in use
 

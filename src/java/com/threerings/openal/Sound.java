@@ -176,6 +176,11 @@ public class Sound
     protected boolean play (
         boolean allowDefer, final boolean loop, final StartObserver obs)
     {
+        // if we were unable to get our buffer, fail immediately
+        if (_buffer == null) {
+            return false;
+        }
+
         // if we're not ready to go...
         if (!_buffer.isPlayable()) {
             if (allowDefer) {
