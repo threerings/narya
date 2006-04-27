@@ -1171,7 +1171,9 @@ public class ChatDirector extends BasicDirector
             }
             // note the command to be stored in the history
             history[0] = command + " ";
-            return requestChat(speakSvc, args, true);
+            // we do not propogate the speakSvc, because /speak means use
+            // the default channel..
+            return requestChat(null, args, true);
         }
     }
 
