@@ -21,6 +21,7 @@
 
 package com.threerings.presents.client {
 
+import flash.events.Event;
 import flash.events.TimerEvent;
 import flash.util.Timer;
 
@@ -185,7 +186,7 @@ public class ClientDObjectMgr
      * Invoked on the main client thread to process any newly arrived
      * messages that we have waiting in our queue.
      */
-    public function processNextAction () :void
+    public function processNextAction (event :Event) :void
     {
         // process the next event on our queue
         if (_actions.length == 0) {
