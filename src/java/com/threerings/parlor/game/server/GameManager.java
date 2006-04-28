@@ -677,7 +677,7 @@ public class GameManager extends PlaceManager
             }
         }
 
-        if (humansHere == 0) {
+        if ((humansHere == 0) && !startWithoutHumans()) {
             // if there are no human players in the game, just cancel it
             Log.info("Canceling no-show game [game=" + _gameobj.which() +
                      ", players=" + StringUtil.toString(_playerOids) + "].");
@@ -749,6 +749,15 @@ public class GameManager extends PlaceManager
 
         // when our events are applied, we'll call gameDidStart()
         return true;
+    }
+
+    /**
+     * @return true if we should start the game even without any humans.
+     *  Default implementation always returns false.
+     */
+    protected boolean startWithoutHumans ()
+    {
+        return false;
     }
 
     /**
