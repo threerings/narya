@@ -21,12 +21,15 @@
 
 package com.threerings.whirled.spot.tools.xml;
 
+import java.lang.reflect.Field;
+
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.AttributesImpl;
 
 import com.megginson.sax.DataWriter;
 import com.threerings.tools.xml.NestableWriter;
 
+import com.threerings.whirled.spot.Log;
 import com.threerings.whirled.spot.data.Location;
 import com.threerings.whirled.spot.data.SpotSceneModel;
 import com.threerings.whirled.spot.tools.EditablePortal;
@@ -81,12 +84,19 @@ public class SpotSceneWriter
     protected void addPortalLocationAttributes (
             Location portalLoc, AttributesImpl attrs)
     {
-        // we assume here that the Location is purely 2d. Subclasses
-        // may write out more information
-        attrs.addAttribute("", "x", "", "", String.valueOf(portalLoc.x));
-        attrs.addAttribute("", "y", "", "", String.valueOf(portalLoc.y));
-        attrs.addAttribute("", "orient", "", "",
-                           String.valueOf(portalLoc.orient));
+        // we just add all the visible fields of the location, but something
+        // more sophisticated could be done
+        Class clazz = portalLoc.getClass();
+        Field[] fields = clazz.getFields();
+        for (int ii=0; ii < fields.length; ii++) {
+            try {
+                attrs.addAttribute("", fields[ii].getName(), "", "",
+                    String.valueOf(fields[ii].get(portalLoc)));
+            } catch (IllegalAccessException iae) {
+                Log.warning("Unable to write portal field, skipping " +
+                    "[field=" + fields[ii].getName() + ", e=" + iae + "].");
+            }
+        }
     }
 
     /**
