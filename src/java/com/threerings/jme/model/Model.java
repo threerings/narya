@@ -233,10 +233,8 @@ public class Model extends ModelNode
         FileChannel fc = fis.getChannel();
         if (map) {
             long pos = fc.position();
-            MappedByteBuffer buf = fc.map(FileChannel.MapMode.READ_ONLY,
-                pos, fc.size() - pos);
-            buf.order(ByteOrder.LITTLE_ENDIAN);
-            model.sliceBuffers(buf);
+            model.sliceBuffers(fc.map(FileChannel.MapMode.READ_ONLY,
+                pos, fc.size() - pos));
         } else {
             model.readBuffers(fc);
         }
@@ -343,6 +341,9 @@ public class Model extends ModelNode
      */
     public Animation getAnimation (String name)
     {
+        if (_anims == null) {
+            return null;
+        }
         Animation anim = _anims.get(name);
         if (anim != null) {
             return anim;

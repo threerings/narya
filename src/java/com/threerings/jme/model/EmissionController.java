@@ -58,7 +58,7 @@ public abstract class EmissionController extends ModelController
      */
     protected void getEmitterLocation (Vector3f result)
     {
-        result.set(_target.getWorldBound().getCenter());
+        result.set(_target.getWorldTranslation());
     }
     
     /**

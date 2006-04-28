@@ -30,6 +30,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Properties;
 
@@ -90,11 +91,13 @@ public class ModelDef
         public abstract Spatial createSpatial (Properties props);
         
         /** Resolves any name references using the supplied map. */
-        public void resolveReferences (HashMap<String, Spatial> nodes)
+        public void resolveReferences (
+            HashMap<String, Spatial> nodes, HashSet<Spatial> referenced)
         {
             Spatial pnode = nodes.get(parent);
             if (pnode instanceof ModelNode) {
                 ((ModelNode)pnode).attachChild(_spatial);
+                
             } else if (parent != null) {
                 Log.warning("Missing or invalid parent node [spatial=" +
                     name + ", parent=" + parent + "].");
@@ -226,9 +229,10 @@ public class ModelDef
         }
         
         @Override // documentation inherited
-        public void resolveReferences (HashMap<String, Spatial> nodes)
+        public void resolveReferences (
+            HashMap<String, Spatial> nodes, HashSet<Spatial> referenced)
         {
-            super.resolveReferences(nodes);
+            super.resolveReferences(nodes, referenced);
             if (_mesh == null) {
                 return;
             }
@@ -258,6 +262,7 @@ public class ModelDef
                 SkinMesh.WeightGroup wgroup = new SkinMesh.WeightGroup();
                 wgroup.indices = toArray(entry.getValue().indices);
                 HashSet<ModelNode> bones = entry.getKey();
+                referenced.addAll(bones);
                 wgroup.bones = bones.toArray(new ModelNode[bones.size()]);
                 wgroup.weights = toArray(entry.getValue().weights);
                 wgroups[ii++] = wgroup;
@@ -403,9 +408,10 @@ public class ModelDef
         
         // then go through again, resolving any name references and attaching
         // root children
+        HashSet<Spatial> referenced = new HashSet<Spatial>();
         for (int ii = 0, nn = spatials.size(); ii < nn; ii++) {
             SpatialDef sdef = spatials.get(ii);
-            sdef.resolveReferences(nodes);
+            sdef.resolveReferences(nodes, referenced);
             if (sdef.getSpatial(props).getParent() == null) {
                 model.attachChild(sdef.getSpatial(props));
             }
@@ -429,6 +435,9 @@ public class ModelDef
             }
         }
         
+        // get rid of any nodes that serve no purpose
+        pruneUnusedNodes(model, referenced);
+        
         return model;
     }
     
@@ -448,6 +457,23 @@ public class ModelDef
         }
         ctrl.configure(props, target);
         return ctrl;
+    }
+    
+    /** Recursively removes any unused nodes. */
+    protected boolean pruneUnusedNodes (
+        ModelNode node, HashSet<Spatial> referenced)
+    {
+        boolean hasValidChildren = false;
+        for (Iterator it = node.getChildren().iterator(); it.hasNext(); ) {
+            Spatial child = (Spatial)it.next();
+            if (!(child instanceof ModelNode) ||
+                pruneUnusedNodes((ModelNode)child, referenced)) {
+                hasValidChildren = true;
+            } else {
+                it.remove();
+            }
+        }
+        return referenced.contains(node) || hasValidChildren;
     }
     
     /** Converts a boxed Integer list to an unboxed int array. */

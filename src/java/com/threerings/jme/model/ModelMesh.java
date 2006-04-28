@@ -128,25 +128,18 @@ public class ModelMesh extends TriMesh
         // initialize the model if we're displaying
         if (DisplaySystem.getDisplaySystem() == null) {
             return;
-        } 
+        }
         if (_backCull == null) {
             initSharedStates();
         }
         if (_solid) {
             setRenderState(_backCull);
-        } else {
-            setRenderState(_noCull);
         }
         if (_transparent) {
             setRenderQueueMode(Renderer.QUEUE_TRANSPARENT);
             setRenderState(_blendAlpha);
             setRenderState(_overlayZBuffer);
-        } else {
-            setRenderQueueMode(Renderer.QUEUE_OPAQUE);
-            setRenderState(_noAlpha);
-            setRenderState(_lequalZBuffer);
         }
-        setTextureCombineMode(TextureState.REPLACE);
     }
     
     /**
@@ -432,15 +425,11 @@ public class ModelMesh extends TriMesh
         Renderer renderer = DisplaySystem.getDisplaySystem().getRenderer();
         _backCull = renderer.createCullState();
         _backCull.setCullMode(CullState.CS_BACK);
-        _noCull = renderer.createCullState();
         _blendAlpha = renderer.createAlphaState();
         _blendAlpha.setBlendEnabled(true);
-        _noAlpha = renderer.createAlphaState();
         _overlayZBuffer = renderer.createZBufferState();
         _overlayZBuffer.setFunction(ZBufferState.CF_LEQUAL);
         _overlayZBuffer.setWritable(false);
-        _lequalZBuffer = renderer.createZBufferState();
-        _lequalZBuffer.setFunction(ZBufferState.CF_LEQUAL);
     }
     
     /** The sizes of the various buffers (zero for <code>null</code>). */
@@ -469,20 +458,11 @@ public class ModelMesh extends TriMesh
     /** The shared state for back face culling. */
     protected static CullState _backCull;
     
-    /** The shared state for no back face culling. */
-    protected static CullState _noCull;
-    
     /** The shared state for alpha blending. */
     protected static AlphaState _blendAlpha;
     
-    /** The shared state for no blending. */
-    protected static AlphaState _noAlpha;
-    
     /** The shared state for checking, but not writing to, the z buffer. */
     protected static ZBufferState _overlayZBuffer;
-    
-    /** The shared state for checking and writing to the z buffer. */
-    protected static ZBufferState _lequalZBuffer;
     
     /** Indicates that this mesh should use a bounding box. */
     protected static final int BOX_BOUND = 0;
