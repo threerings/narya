@@ -889,14 +889,14 @@ public class EditorScenePanel extends StageScenePanel
     {
         // get the portal's center coordinate
         Point spos = new Point();
-        MisoUtil.fullToScreen(_metrics, port.x, port.y, spos);
+        MisoUtil.fullToScreen(_metrics, port.loc.x, port.loc.y, spos);
         int cx = spos.x, cy = spos.y;
 
         // translate the origin to center on the portal
         gfx.translate(cx, cy);
 
         // rotate to reflect the portal orientation
-        double rot = (Math.PI / 4.0f) * port.orient;
+        double rot = (Math.PI / 4.0f) * port.loc.orient;
         gfx.rotate(rot);
 
         // draw the triangle

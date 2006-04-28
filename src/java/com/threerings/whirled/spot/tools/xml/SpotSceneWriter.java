@@ -1,5 +1,5 @@
 //
-// $Id: SpotSceneWriter.java,v 1.9 2004/08/27 02:20:48 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -27,6 +27,7 @@ import org.xml.sax.helpers.AttributesImpl;
 import com.megginson.sax.DataWriter;
 import com.threerings.tools.xml.NestableWriter;
 
+import com.threerings.whirled.spot.data.Location;
 import com.threerings.whirled.spot.data.SpotSceneModel;
 import com.threerings.whirled.spot.tools.EditablePortal;
 
@@ -56,7 +57,7 @@ public class SpotSceneWriter
     {
         if (model.defaultEntranceId != -1) {
             attrs.addAttribute("", "defaultEntranceId", "", "",
-                               Integer.toString(model.defaultEntranceId));
+                               String.valueOf(model.defaultEntranceId));
         }
     }
 
@@ -68,16 +69,24 @@ public class SpotSceneWriter
             EditablePortal port = (EditablePortal)model.portals[ii];
             AttributesImpl attrs = new AttributesImpl();
             attrs.addAttribute("", "portalId", "", "",
-                               Integer.toString(port.portalId));
-            attrs.addAttribute("", "x", "", "", Integer.toString(port.x));
-            attrs.addAttribute("", "y", "", "", Integer.toString(port.y));
-            attrs.addAttribute("", "orient", "", "",
-                               Integer.toString(port.orient));
+                               String.valueOf(port.portalId));
+            addPortalLocationAttributes(port.loc, attrs);
             maybeAddAttr(attrs, "name", port.name);
             maybeAddAttr(attrs, "targetSceneName", port.targetSceneName);
             maybeAddAttr(attrs, "targetPortalName", port.targetPortalName);
             writer.emptyElement("", "portal", "", attrs);
         }
+    }
+
+    protected void addPortalLocationAttributes (
+            Location portalLoc, AttributesImpl attrs)
+    {
+        // we assume here that the Location is purely 2d. Subclasses
+        // may write out more information
+        attrs.addAttribute("", "x", "", "", String.valueOf(portalLoc.x));
+        attrs.addAttribute("", "y", "", "", String.valueOf(portalLoc.y));
+        attrs.addAttribute("", "orient", "", "",
+                           String.valueOf(portalLoc.orient));
     }
 
     /**

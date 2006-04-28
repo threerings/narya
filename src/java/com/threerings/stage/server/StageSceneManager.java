@@ -307,8 +307,8 @@ public class StageSceneManager extends SpotSceneManager
         _plocs.clear();
         for (Iterator iter = _sscene.getPortals(); iter.hasNext(); ) {
             Portal port = (Portal)iter.next();
-            _plocs.add(new Point(MisoUtil.fullToTile(port.x),
-                                 MisoUtil.fullToTile(port.y)));
+            _plocs.add(new Point(MisoUtil.fullToTile(port.loc.x),
+                                 MisoUtil.fullToTile(port.loc.y)));
         }
     }
 

@@ -39,14 +39,10 @@ public class Portal extends SimpleStreamableObject
     /** This portal's unique identifier. */
     public short portalId;
 
-    /** This portal's x coordinate (interpreted by the display system). */
-    public int x;
-
-    /** This portal's y coordinate (interpreted by the display system). */
-    public int y;
-
-    /** This portal's y orientation (interpreted by the display system). */
-    public byte orient;
+    /** The location of the portal. Typically this is a base Location (2d)
+     * class, but different games could use a different subclass of
+     * Location. */
+    public Location loc;
 
     /** The scene identifier of the scene to which a body will exit when
      * they "use" this portal. */
@@ -62,7 +58,7 @@ public class Portal extends SimpleStreamableObject
      */
     public Location getLocation ()
     {
-        return new Location(x, y, orient);
+        return (Location) loc.clone();
     }
 
     /**
@@ -74,7 +70,9 @@ public class Portal extends SimpleStreamableObject
      */
     public Location getOppLocation ()
     {
-        return new Location(x, y, (byte)DirectionUtil.getOpposite(orient));
+        Location oppLoc = getLocation();
+        oppLoc.orient = (byte) DirectionUtil.getOpposite(oppLoc.orient);
+        return oppLoc;
     }
 
     /**
@@ -110,12 +108,6 @@ public class Portal extends SimpleStreamableObject
         } else {
             return false;
         }
-    }
-
-    /** {@link #toString} helper function. */
-    public String orientToString ()
-    {
-        return DirectionUtil.toShortString(orient);
     }
 
     /**

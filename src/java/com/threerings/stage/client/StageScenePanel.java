@@ -163,9 +163,9 @@ public class StageScenePanel extends MisoScenePanel
         _portobjs.clear();
         for (Iterator iter = _scene.getPortals(); iter.hasNext(); ) {
             Portal portal = (Portal) iter.next();
-            Point p = getScreenCoords(portal.x, portal.y);
-            int tx = MisoUtil.fullToTile(portal.x);
-            int ty = MisoUtil.fullToTile(portal.y);
+            Point p = getScreenCoords(portal.loc.x, portal.loc.y);
+            int tx = MisoUtil.fullToTile(portal.loc.x);
+            int ty = MisoUtil.fullToTile(portal.loc.y);
             Point ts = MisoUtil.tileToScreen(_metrics, tx, ty, new Point());
 
 //             Log.info("Added portal " + portal +
@@ -180,7 +180,7 @@ public class StageScenePanel extends MisoScenePanel
             ObjectTile tile = new PortalObjectTile(
                 ts.x + _metrics.tilehwid - p.x + (PORTAL_ICON_WIDTH / 2),
                 ts.y + _metrics.tilehei - p.y + (PORTAL_ICON_HEIGHT / 2));
-            tile.setImage(ots.getTileMirage(portal.orient));
+            tile.setImage(ots.getTileMirage(portal.loc.orient));
 
             _portobjs.add(new SceneObject(this, info, tile) {
                 public boolean setHovered (boolean hovered) {
@@ -482,7 +482,7 @@ public class StageScenePanel extends MisoScenePanel
         Iterator iter = _scene.getPortals();
         while (iter.hasNext()) {
             Portal portal = (Portal)iter.next();
-            if (portal.x == fullX && portal.y == fullY) {
+            if (portal.loc.x == fullX && portal.loc.y == fullY) {
                 return portal;
             }
         }
@@ -554,7 +554,7 @@ public class StageScenePanel extends MisoScenePanel
         Iterator iter = _scene.getPortals();
         while (iter.hasNext()) {
             Portal p = (Portal)iter.next();
-            if (p.x == loc.x && p.y == loc.y) {
+            if (loc.equals(p.loc)) {
                 return true;
             }
         }
