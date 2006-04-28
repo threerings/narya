@@ -1,5 +1,5 @@
 //
-// $Id: DObjectManager.java,v 1.13 2004/08/27 02:20:20 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -53,7 +53,8 @@ public interface DObjectManager
      * created and available, or if there was a problem creating the
      * object.
      */
-    public void createObject (Class dclass, Subscriber target);
+    public <T extends DObject> void createObject (
+        Class<T> dclass, Subscriber<T> target);
 
     /**
      * Requests that the specified subscriber be subscribed to the object
@@ -68,7 +69,8 @@ public interface DObjectManager
      * @see Subscriber#objectAvailable
      * @see Subscriber#requestFailed
      */
-    public void subscribeToObject (int oid, Subscriber target);
+    public <T extends DObject> void subscribeToObject (
+        int oid, Subscriber<T> target);
 
     /**
      * Requests that the specified subscriber be unsubscribed from the
@@ -78,7 +80,8 @@ public interface DObjectManager
      * unsubscription is desired.
      * @param target The subscriber to be unsubscribed.
      */
-    public void unsubscribeFromObject (int oid, Subscriber target);
+    public <T extends DObject> void unsubscribeFromObject (
+        int oid, Subscriber<T> target);
 
     /**
      * Requests that the specified object be destroyed. Once destroyed an

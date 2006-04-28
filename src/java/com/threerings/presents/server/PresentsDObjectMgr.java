@@ -117,31 +117,34 @@ public class PresentsDObjectMgr
     }
 
     // inherit documentation from the interface
-    public void createObject (Class dclass, Subscriber target)
+    public <T extends DObject> void createObject (
+        Class<T> dclass, Subscriber<T> target)
     {
         // queue up a create object event
-        postEvent(new CreateObjectEvent(dclass, target));
+        postEvent(new CreateObjectEvent<T>(dclass, target));
     }
 
     // inherit documentation from the interface
-    public void subscribeToObject (int oid, Subscriber target)
+    public <T extends DObject> void subscribeToObject (
+        int oid, Subscriber<T> target)
     {
         if (oid <= 0) {
             target.requestFailed(
                 oid, new ObjectAccessException("Invalid oid " + oid + "."));
         } else {
             // queue up an access object event
-            postEvent(new AccessObjectEvent(
+            postEvent(new AccessObjectEvent<T>(
                           oid, target, AccessObjectEvent.SUBSCRIBE));
         }
     }
 
     // inherit documentation from the interface
-    public void unsubscribeFromObject (int oid, Subscriber target)
+    public <T extends DObject> void unsubscribeFromObject (
+        int oid, Subscriber<T> target)
     {
         // queue up an access object event
-        postEvent(new AccessObjectEvent(oid, target,
-                                        AccessObjectEvent.UNSUBSCRIBE));
+        postEvent(new AccessObjectEvent<T>(
+                      oid, target, AccessObjectEvent.UNSUBSCRIBE));
     }
 
     // inherit documentation from the interface
@@ -316,7 +319,7 @@ public class PresentsDObjectMgr
             } else {
                 cname = StringUtil.shortClassName(unit);
             }
-            UnitProfile uprof = (UnitProfile)_profiles.get(cname);
+            UnitProfile uprof = _profiles.get(cname);
             if (uprof == null) {
                 _profiles.put(cname, uprof = new UnitProfile());
             }
@@ -399,7 +402,7 @@ public class PresentsDObjectMgr
         boolean notify = true; // assume always notify
         try {
             // do any internal management necessary based on this event
-            Method helper = (Method)_helpers.get(event.getClass());
+            Method helper = _helpers.get(event.getClass());
             if (helper != null) {
                 // invoke the helper method
                 Object rv = helper.invoke(this, new Object[] { event, target });
@@ -466,11 +469,8 @@ public class PresentsDObjectMgr
      */
     public void dumpUnitProfiles ()
     {
-        for (Iterator itr = _profiles.entrySet().iterator(); itr.hasNext(); ) {
-            Map.Entry entry = (Map.Entry) itr.next();
-            String cname = (String) entry.getKey();
-            UnitProfile uprof = (UnitProfile) entry.getValue();
-            Log.info("P: " + cname + " => " + uprof);
+        for (Map.Entry<String,UnitProfile> entry : _profiles.entrySet()) {
+            Log.info("P: " + entry.getKey() + " => " + entry.getValue());
         }
     }
 
@@ -495,7 +495,7 @@ public class PresentsDObjectMgr
         target.setManager(null);
 
         // deal with any remaining oid lists that reference this object
-        Reference[] refs = (Reference[])_refs.remove(oid);
+        Reference[] refs = _refs.remove(oid);
         if (refs != null) {
             for (int i = 0; i < refs.length; i++) {
                 // skip empty spots
@@ -564,7 +564,7 @@ public class PresentsDObjectMgr
         DObject reffer, String field, int reffedOid)
     {
         // look up the reference vector for the referenced object
-        Reference[] refs = (Reference[])_refs.get(reffedOid);
+        Reference[] refs = _refs.get(reffedOid);
         Reference ref = null;
 
         if (refs != null) {
@@ -617,7 +617,7 @@ public class PresentsDObjectMgr
         // get the reference vector for the referenced object. we use bare
         // arrays rather than something like an array list to conserve
         // memory. there will be many objects and references
-        Reference[] refs = (Reference[])_refs.get(oid);
+        Reference[] refs = _refs.get(oid);
         if (refs == null) {
             refs = new Reference[DEFREFVEC_SIZE];
             _refs.put(oid, refs);
@@ -669,7 +669,7 @@ public class PresentsDObjectMgr
 //                 ", roid=" + toid + "].");
 
         // get the reference vector for the referenced object
-        Reference[] refs = (Reference[])_refs.get(oid);
+        Reference[] refs = _refs.get(oid);
         if (refs == null) {
             // this can happen normally when an object is destroyed. it
             // will remove itself from the reference system and then
@@ -731,11 +731,9 @@ public class PresentsDObjectMgr
 
         report.append("- Unit profiles: ").append(_profiles.size());
         report.append("\n");
-        for (Iterator itr = _profiles.entrySet().iterator(); itr.hasNext(); ) {
-            Map.Entry entry = (Map.Entry) itr.next();
-            String cname = (String) entry.getKey();
-            UnitProfile uprof = (UnitProfile) entry.getValue();
-            report.append("  ").append(cname).append(" ").append(uprof);
+        for (Map.Entry<String,UnitProfile> entry : _profiles.entrySet()) {
+            report.append("  ").append(entry.getKey());
+            report.append(" ").append(entry.getValue());
             report.append("\n");
         }
     }
@@ -744,7 +742,8 @@ public class PresentsDObjectMgr
      * Calls {@link Subscriber#objectAvailable} and catches and logs any
      * exception thrown by the subscriber during the call.
      */
-    protected static void informObjectAvailable (Subscriber sub, DObject obj)
+    protected static <T extends DObject> void informObjectAvailable (
+        Subscriber<T> sub, T obj)
     {
         try {
             sub.objectAvailable(obj);
@@ -760,9 +759,9 @@ public class PresentsDObjectMgr
      * Used to create a distributed object and register it with the
      * system.
      */
-    protected class CreateObjectEvent extends DEvent
+    protected class CreateObjectEvent<T extends DObject> extends DEvent
     {
-        public CreateObjectEvent (Class clazz, Subscriber target)
+        public CreateObjectEvent (Class<T> clazz, Subscriber<T> target)
         {
             super(0); // target the fake object
             _class = clazz;
@@ -778,11 +777,11 @@ public class PresentsDObjectMgr
             throws ObjectAccessException
         {
             int oid = getNextOid();
-            DObject obj = null;
+            T obj = null;
 
             try {
                 // create a new instance of this object
-                obj = (DObject)_class.newInstance();
+                obj = _class.newInstance();
 
                 // initialize this object
                 obj.setOid(oid);
@@ -824,20 +823,20 @@ public class PresentsDObjectMgr
             return false;
         }
 
-        protected transient Class _class;
-        protected transient Subscriber _target;
+        protected transient Class<T> _class;
+        protected transient Subscriber<T> _target;
     }
 
     /**
      * Used to make an object available to a subscriber (with or without
      * the associated subscription).
      */
-    protected class AccessObjectEvent extends DEvent
+    protected class AccessObjectEvent<T extends DObject> extends DEvent
     {
         public static final int SUBSCRIBE = 0;
         public static final int UNSUBSCRIBE = 1;
 
-        public AccessObjectEvent (int oid, Subscriber target,
+        public AccessObjectEvent (int oid, Subscriber<T> target,
                                   int action)
         {
             super(0); // target the bogus object
@@ -855,7 +854,7 @@ public class PresentsDObjectMgr
             throws ObjectAccessException
         {
             // look up the target object
-            DObject obj = (DObject)_objects.get(_oid);
+            T obj = (T)_objects.get(_oid);
 
             // if we're unsubscribing, take care of that and get on out
             if (_action == UNSUBSCRIBE) {
@@ -890,7 +889,7 @@ public class PresentsDObjectMgr
         }
 
         protected int _oid;
-        protected Subscriber _target;
+        protected Subscriber<T> _target;
         protected int _action;
     }
 
@@ -986,7 +985,7 @@ public class PresentsDObjectMgr
     protected Queue _evqueue = new Queue();
 
     /** The managed distributed objects table. */
-    protected HashIntMap _objects = new HashIntMap();
+    protected HashIntMap<DObject> _objects = new HashIntMap<DObject>();
 
     /** Used to assign a unique oid to each distributed object. */
     protected int _nextOid = 0;
@@ -1000,7 +999,7 @@ public class PresentsDObjectMgr
     protected Throttle _fatalThrottle = new Throttle(30, 60*1000L);
 
     /** Used to track oid list references of distributed objects. */
-    protected HashIntMap _refs = new HashIntMap();
+    protected HashIntMap<Reference[]> _refs = new HashIntMap<Reference[]>();
 
     /** The default access controller to use when creating distributed
      * objects. */
@@ -1015,7 +1014,8 @@ public class PresentsDObjectMgr
     protected Perf _timer = Perf.getPerf();
 
     /** Used to profile our events and runnable units. */
-    protected HashMap _profiles = new HashMap();
+    protected HashMap<String,UnitProfile> _profiles =
+        new HashMap<String,UnitProfile>();
 
     /** Used to track runtime statistics. */
     protected Stats _recent = new Stats(), _current = _recent;
@@ -1036,6 +1036,7 @@ public class PresentsDObjectMgr
      * This table maps event classes to helper methods that perform some
      * additional processing for particular events.
      */
-    protected static HashMap _helpers = new HashMap();
+    protected static HashMap<Class,Method> _helpers =
+        new HashMap<Class,Method>();
     static { registerEventHelpers(); }
 }

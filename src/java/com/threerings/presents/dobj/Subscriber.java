@@ -1,5 +1,5 @@
 //
-// $Id: Subscriber.java,v 1.8 2004/08/27 02:20:20 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -38,7 +38,7 @@ package com.threerings.presents.dobj;
  * @see SetListener
  * @see OidListListener
  */
-public interface Subscriber
+public interface Subscriber<T extends DObject>
 {
     /**
      * Called when a subscription request has succeeded and the object is
@@ -49,7 +49,7 @@ public interface Subscriber
      *
      * @see DObjectManager#subscribeToObject
      */
-    public void objectAvailable (DObject object);
+    public void objectAvailable (T object);
 
     /**
      * Called when a subscription request has failed. The nature of the
