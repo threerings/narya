@@ -52,6 +52,8 @@ import com.jme.scene.state.ZBufferState;
 import com.jme.system.DisplaySystem;
 import com.jme.util.geom.BufferUtils;
 
+import com.samskivert.util.StringUtil;
+
 import com.threerings.jme.Log;
 
 /**
@@ -80,7 +82,7 @@ public class ModelMesh extends TriMesh
      * Configures this mesh based on the given parameters and (sub-)properties.
      *
      * @param texture the texture specified in the model export, if any (can be
-     * overridden by a texture specified in the properties)
+     * overridden by textures specified in the properties)
      * @param solid whether or not the mesh allows back face culling
      * @param transparent whether or not the mesh is (partially) transparent
      */
@@ -89,8 +91,8 @@ public class ModelMesh extends TriMesh
     {
         _boundingType = "sphere".equals(props.getProperty("bound")) ?
             SPHERE_BOUND : BOX_BOUND;
-        _texture = (texture == null) ? null :
-            props.getProperty(texture, texture);
+        _textures = (texture == null) ? null : StringUtil.parseStringArray(
+            props.getProperty(texture, texture));
         _solid = solid;
         _transparent = transparent;
     }
@@ -132,12 +134,19 @@ public class ModelMesh extends TriMesh
         }
         if (_solid) {
             setRenderState(_backCull);
+        } else {
+            setRenderState(_noCull);
         }
         if (_transparent) {
             setRenderQueueMode(Renderer.QUEUE_TRANSPARENT);
             setRenderState(_blendAlpha);
             setRenderState(_overlayZBuffer);
+        } else {
+            setRenderQueueMode(Renderer.QUEUE_OPAQUE);
+            setRenderState(_noAlpha);
+            setRenderState(_lequalZBuffer);
         }
+        setTextureCombineMode(TextureState.REPLACE);
     }
     
     /**
@@ -146,14 +155,12 @@ public class ModelMesh extends TriMesh
      */
     public void centerVertices ()
     {
-        Vector3f offset = getLocalTranslation().subtract(
-            getModelBound().getCenter());
-        FloatBuffer vbuf = getVertexBuffer();
-        for (int ii = 0, nn = getVertexCount(); ii < nn; ii++) {
-            BufferUtils.addInBuffer(offset, vbuf, ii);
+        Vector3f offset = getModelBound().getCenter().negate();
+        if (!offset.equals(Vector3f.ZERO)) {
+            getLocalTranslation().subtractLocal(offset);
+            getModelBound().getCenter().set(Vector3f.ZERO);
+            getBatch().translatePoints(offset);
         }
-        getLocalTranslation().subtractLocal(offset);
-        getModelBound().getCenter().zero();
     }
     
     @Override // documentation inherited
@@ -199,7 +206,17 @@ public class ModelMesh extends TriMesh
         if (properties.isSet("bound")) {
             mstore.setModelBound(getModelBound());
         }
-        mstore._texture = _texture;
+        if (_textures != null && _textures.length > 1 &&
+            properties instanceof Model.ModelCloneCreator) {
+            int tidx = ((Model.ModelCloneCreator)properties).random %
+                _textures.length;
+            mstore._textures = new String[] { _textures[tidx] };
+            mstore._tstates = new TextureState[] { _tstates[tidx] };
+            mstore.setRenderState(_tstates[tidx]);
+        } else {
+            mstore._textures = _textures;
+            mstore._tstates = _tstates;
+        }
         return mstore;
     }
     
@@ -217,7 +234,7 @@ public class ModelMesh extends TriMesh
         out.writeInt(_textureBufferSize);
         out.writeInt(_indexBufferSize);
         out.writeInt(_boundingType);
-        out.writeObject(_texture);
+        out.writeObject(_textures);
         out.writeBoolean(_solid);
         out.writeBoolean(_transparent);
     }
@@ -236,7 +253,7 @@ public class ModelMesh extends TriMesh
         _textureBufferSize = in.readInt();
         _indexBufferSize = in.readInt();
         _boundingType = in.readInt();
-        _texture = (String)in.readObject();
+        _textures = (String[])in.readObject();
         _solid = in.readBoolean();
         _transparent = in.readBoolean();
     }
@@ -264,11 +281,15 @@ public class ModelMesh extends TriMesh
     // documentation inherited from interface ModelSpatial
     public void resolveTextures (TextureProvider tprov)
     {
-        if (_texture != null) {
-            TextureState tstate = tprov.getTexture(_texture);
-            if (tstate != null) {
-                setRenderState(tstate);
-            }
+        if (_textures == null) {
+            return;
+        }
+        _tstates = new TextureState[_textures.length];
+        for (int ii = 0; ii < _textures.length; ii++) {
+            _tstates[ii] = tprov.getTexture(_textures[ii]);
+        }
+        if (_tstates[0] != null) {
+            setRenderState(_tstates[0]);
         }
     }
     
@@ -357,31 +378,31 @@ public class ModelMesh extends TriMesh
         if (_vertexBufferSize > 0) {
             int npos = map.position() + _vertexBufferSize*4;
             map.limit(npos);
-            vbbuf = map.slice();
+            vbbuf = map.slice().order(ByteOrder.LITTLE_ENDIAN);
             map.position(npos);
         }
         if (_normalBufferSize > 0) {
             int npos = map.position() + _normalBufferSize*4;
             map.limit(npos);
-            nbbuf = map.slice();
+            nbbuf = map.slice().order(ByteOrder.LITTLE_ENDIAN);
             map.position(npos);
         }
         if (_colorBufferSize > 0) {
             int npos = map.position() + _colorBufferSize*4;
             map.limit(npos);
-            cbbuf = map.slice();
+            cbbuf = map.slice().order(ByteOrder.LITTLE_ENDIAN);
             map.position(npos);
         }
         if (_textureBufferSize > 0) {
             int npos = map.position() + _textureBufferSize*4;
             map.limit(npos);
-            tbbuf = map.slice();
+            tbbuf = map.slice().order(ByteOrder.LITTLE_ENDIAN);
             map.position(npos);
         }
         if (_indexBufferSize > 0) {
             int npos = map.position() + _indexBufferSize*4;
             map.limit(npos);
-            ibbuf = map.slice();
+            ibbuf = map.slice().order(ByteOrder.LITTLE_ENDIAN);
             map.position(npos);
         }
         reconstruct(vbbuf, nbbuf, cbbuf, tbbuf, ibbuf);
@@ -411,11 +432,15 @@ public class ModelMesh extends TriMesh
         Renderer renderer = DisplaySystem.getDisplaySystem().getRenderer();
         _backCull = renderer.createCullState();
         _backCull.setCullMode(CullState.CS_BACK);
+        _noCull = renderer.createCullState();
         _blendAlpha = renderer.createAlphaState();
         _blendAlpha.setBlendEnabled(true);
+        _noAlpha = renderer.createAlphaState();
         _overlayZBuffer = renderer.createZBufferState();
         _overlayZBuffer.setFunction(ZBufferState.CF_LEQUAL);
         _overlayZBuffer.setWritable(false);
+        _lequalZBuffer = renderer.createZBufferState();
+        _lequalZBuffer.setFunction(ZBufferState.CF_LEQUAL);
     }
     
     /** The sizes of the various buffers (zero for <code>null</code>). */
@@ -429,8 +454,8 @@ public class ModelMesh extends TriMesh
     /** The type of bounding volume that this mesh should use. */
     protected int _boundingType;
     
-    /** The name of this model's texture, or <code>null</code> for none. */
-    protected String _texture;
+    /** The name of this model's textures, or <code>null</code> for none. */
+    protected String[] _textures;
     
     /** Whether or not this mesh can enable back-face culling. */
     protected boolean _solid;
@@ -438,14 +463,26 @@ public class ModelMesh extends TriMesh
     /** Whether or not this mesh must be rendered as transparent. */
     protected boolean _transparent;
     
-    /** The shared state for back-face culling. */
+    /** For prototype meshes, the resolved texture states. */
+    protected TextureState[] _tstates;
+    
+    /** The shared state for back face culling. */
     protected static CullState _backCull;
+    
+    /** The shared state for no back face culling. */
+    protected static CullState _noCull;
     
     /** The shared state for alpha blending. */
     protected static AlphaState _blendAlpha;
     
+    /** The shared state for no blending. */
+    protected static AlphaState _noAlpha;
+    
     /** The shared state for checking, but not writing to, the z buffer. */
     protected static ZBufferState _overlayZBuffer;
+    
+    /** The shared state for checking and writing to the z buffer. */
+    protected static ZBufferState _lequalZBuffer;
     
     /** Indicates that this mesh should use a bounding box. */
     protected static final int BOX_BOUND = 0;

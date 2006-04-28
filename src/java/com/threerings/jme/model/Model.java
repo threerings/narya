@@ -49,6 +49,8 @@ import com.jme.scene.Controller;
 import com.jme.scene.Node;
 import com.jme.scene.Spatial;
 
+import com.threerings.util.RandomUtil;
+
 import com.threerings.jme.Log;
 
 /**
@@ -475,24 +477,7 @@ public class Model extends ModelNode
             return _prototype.createInstance();
         }
         if (_ccreator == null) {
-            // allow adding and removing properties at any time
-            _ccreator = new CloneCreator(this) {
-                public void addProperty (String name) {
-                    props.put(name, Boolean.TRUE);
-                }
-                public void removeProperty (String name) {
-                    props.remove(name);
-                }
-            };
-            _ccreator.addProperty("vertices");
-            _ccreator.addProperty("colors");
-            _ccreator.addProperty("normals");
-            _ccreator.addProperty("texcoords");
-            _ccreator.addProperty("vboinfo");
-            _ccreator.addProperty("indices");
-            _ccreator.addProperty("obbtree");
-            _ccreator.addProperty("displaylistid");
-            _ccreator.addProperty("bound");
+            _ccreator = new ModelCloneCreator(this);
         }
         Model instance = (Model)_ccreator.createCopy();
         instance.initInstance();
@@ -599,7 +584,7 @@ public class Model extends ModelNode
     
     /** For prototype models, a customized clone creator used to generate
      * instances. */
-    protected CloneCreator _ccreator;
+    protected ModelCloneCreator _ccreator;
     
     /** For instances, maps prototype nodes to their corresponding instance
      * nodes. */
@@ -645,6 +630,7 @@ public class Model extends ModelNode
             _name = name;
         }
         
+        // documentation inherited from interface ObserverOp
         public boolean apply (AnimationObserver obs)
         {
             return obs.animationStarted(Model.this, _name);
@@ -663,6 +649,7 @@ public class Model extends ModelNode
             _name = name;
         }
         
+        // documentation inherited from interface ObserverOp
         public boolean apply (AnimationObserver obs)
         {
             return obs.animationCompleted(Model.this, _name);
@@ -681,6 +668,7 @@ public class Model extends ModelNode
             _name = name;
         }
         
+        // documentation inherited from interface ObserverOp
         public boolean apply (AnimationObserver obs)
         {
             return obs.animationCancelled(Model.this, _name);
@@ -688,6 +676,46 @@ public class Model extends ModelNode
         
         /** The name of the animation cancelled. */
         protected String _name;
+    }
+    
+    /** Customized clone creator for models. */
+    protected static class ModelCloneCreator extends CloneCreator
+    {
+        /** A shared seed used to select textures consistently. */
+        public int random;
+        
+        public ModelCloneCreator (Model toCopy)
+        {
+            super(toCopy);
+            addProperty("vertices");
+            addProperty("colors");
+            addProperty("normals");
+            addProperty("texcoords");
+            addProperty("vboinfo");
+            addProperty("indices");
+            addProperty("obbtree");
+            addProperty("displaylistid");
+            addProperty("bound");
+        }
+        
+        @Override // documentation inherited
+        public void addProperty (String name)
+        {
+            props.put(name, Boolean.TRUE);
+        }
+        
+        @Override // documentation inherited
+        public void removeProperty (String name)
+        {
+            props.remove(name);
+        }
+        
+        @Override // documentation inherited
+        public Spatial createCopy ()
+        {
+            random = RandomUtil.getInt(Integer.MAX_VALUE);
+            return super.createCopy();
+        }
     }
     
     private static final long serialVersionUID = 1;

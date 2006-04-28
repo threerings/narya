@@ -49,12 +49,7 @@ public abstract class ModelController extends Controller
      */
     public void configure (Properties props, Spatial target)
     {
-        if (target instanceof ModelNode) {
-            _target = ((ModelNode)target).getChild("mesh");
-        }
-        if (_target == null) {
-            _target = target;
-        }
+        _target = target;
         String[] anims = StringUtil.parseStringArray(
             props.getProperty("animations", ""));
         if (anims.length == 0) {
@@ -156,4 +151,6 @@ public abstract class ModelController extends Controller
             return true;
         }
     };
+    
+    private static final long serialVersionUID = 1;
 }

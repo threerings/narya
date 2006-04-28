@@ -123,4 +123,6 @@ public class Rotator extends ModelController
     
     /** A temporary quaternion. */
     protected Quaternion _rot = new Quaternion();
+    
+    private static final long serialVersionUID = 1;
 }

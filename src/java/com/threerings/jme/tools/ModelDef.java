@@ -287,15 +287,6 @@ public class ModelDef
             FloatBuffer vbuf, FloatBuffer nbuf, FloatBuffer tbuf)
         {
             vbuf.put(location);
-            
-            // make sure the normal is normalized
-            float nlen = FastMath.sqrt(normal[0]*normal[0] +
-                normal[1]*normal[1] + normal[2]*normal[2]);
-            if (nlen != 1f) {
-                normal[0] /= nlen;
-                normal[1] /= nlen;
-                normal[2] /= nlen;
-            }
             nbuf.put(normal);
             
             if (tbuf != null) {

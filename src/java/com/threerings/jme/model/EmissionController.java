@@ -21,6 +21,8 @@
 
 package com.threerings.jme.model;
 
+import java.util.Properties;
+
 import com.jme.math.Vector3f;
 import com.jme.scene.Geometry;
 import com.jme.scene.Spatial;
@@ -31,6 +33,19 @@ import com.jme.util.geom.BufferUtils;
  */
 public abstract class EmissionController extends ModelController
 {
+    @Override // documentation inherited
+    public void configure (Properties props, Spatial target)
+    {
+        // substitute underlying mesh for geometry targets
+        if (target instanceof ModelNode) {
+            Spatial mesh = ((ModelNode)target).getChild("mesh");
+            if (mesh != null) {
+                target = mesh;
+            }
+        }
+        super.configure(props, target);
+    }
+    
     @Override // documentation inherited
     public void init (Model model)
     {
@@ -59,4 +74,6 @@ public abstract class EmissionController extends ModelController
         }
         _target.getWorldRotation().multLocal(result);
     }
+    
+    private static final long serialVersionUID = 1;
 }

@@ -74,6 +74,7 @@ import com.jme.scene.Spatial;
 import com.jme.scene.state.LightState;
 import com.jme.scene.state.MaterialState;
 import com.jme.scene.state.TextureState;
+import com.jme.scene.state.WireframeState;
 import com.jme.scene.state.ZBufferState;
 import com.jme.util.LoggingSystem;
 import com.jme.util.TextureManager;
@@ -153,6 +154,18 @@ public class ModelViewer extends JmeCanvasApp
         JMenu view = new JMenu(_msg.get("m.view_menu"));
         view.setMnemonic(KeyEvent.VK_V);
         menu.add(view);
+        
+        Action wireframe = new AbstractAction(_msg.get("m.view_wireframe")) {
+            public void actionPerformed (ActionEvent e) {
+                _wfstate.setEnabled(!_wfstate.isEnabled());
+            }
+        };
+        wireframe.putValue(Action.MNEMONIC_KEY, KeyEvent.VK_W);
+        wireframe.putValue(Action.ACCELERATOR_KEY,
+            KeyStroke.getKeyStroke(KeyEvent.VK_W, KeyEvent.CTRL_MASK));
+        view.add(new JCheckBoxMenuItem(wireframe));
+        view.addSeparator();
+        
         _pivots = new JCheckBoxMenuItem(_msg.get("m.view_pivots"));
         _pivots.setMnemonic(KeyEvent.VK_P);
         _pivots.setAccelerator(
@@ -252,11 +265,14 @@ public class ModelViewer extends JmeCanvasApp
     {
         super.initRoot();
         
-        // set a default material
+        // set default states
         MaterialState mstate = _ctx.getRenderer().createMaterialState();
         mstate.getDiffuse().set(ColorRGBA.white);
         mstate.getAmbient().set(ColorRGBA.white);
         _ctx.getGeometry().setRenderState(mstate);
+        _ctx.getGeometry().setRenderState(
+            _wfstate = _ctx.getRenderer().createWireframeState());
+        _wfstate.setEnabled(false);
         
         // create a grid on the XY plane to provide some reference
         Vector3f[] points = new Vector3f[GRID_SIZE*2 + GRID_SIZE*2];
@@ -523,6 +539,9 @@ public class ModelViewer extends JmeCanvasApp
     
     /** The model file chooser. */
     protected JFileChooser _chooser;
+    
+    /** Used to toggle wireframe rendering. */
+    protected WireframeState _wfstate;
     
     /** The currently loaded model. */
     protected Model _model;
