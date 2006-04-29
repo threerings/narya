@@ -186,8 +186,10 @@ public class ModelMesh extends TriMesh
     @Override // documentation inherited
     public Spatial putClone (Spatial store, CloneCreator properties)
     {
-        ModelMesh mstore;
-        if (store == null) {
+        ModelMesh mstore = (ModelMesh)properties.originalToCopy.get(this);
+        if (mstore != null) {
+            return mstore;
+        } else if (store == null) {
             mstore = new ModelMesh(getName());
         } else {
             mstore = (ModelMesh)store;
@@ -211,6 +213,14 @@ public class ModelMesh extends TriMesh
             mstore._tstates = _tstates;
         }
         return mstore;
+    }
+    
+    @Override // documentation inherited
+    public void updateWorldVectors ()
+    {
+        if (!_transformLocked) {
+            super.updateWorldVectors();
+        }
     }
     
     // documentation inherited from interface Externalizable
@@ -402,6 +412,16 @@ public class ModelMesh extends TriMesh
     }
     
     /**
+     * Locks the transform and bounds of this mesh on the assumption that its
+     * position will not change.
+     */
+    protected void lockInstance ()
+    {
+        lockBounds();
+        _transformLocked = true;
+    }
+    
+    /**
      * Imposes the specified order on the given buffer of 32 bit values.
      */
     protected static void convertOrder (ByteBuffer buf, ByteOrder order)
@@ -454,6 +474,11 @@ public class ModelMesh extends TriMesh
     
     /** For prototype meshes, the resolved texture states. */
     protected TextureState[] _tstates;
+    
+    /** Whether or not the transform has been locked.  This operates in a
+     * slightly different way than JME's locking, in that it allows applying
+     * transformations to display lists. */
+    protected boolean _transformLocked;
     
     /** The shared state for back face culling. */
     protected static CullState _backCull;

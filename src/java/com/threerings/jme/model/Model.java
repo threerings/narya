@@ -38,13 +38,19 @@ import java.nio.channels.FileChannel;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Properties;
 
 import com.samskivert.util.ObserverList;
 
+import com.jme.bounding.BoundingVolume;
+import com.jme.math.FastMath;
+import com.jme.math.Matrix4f;
 import com.jme.math.Quaternion;
 import com.jme.math.Vector3f;
+import com.jme.renderer.Camera;
 import com.jme.renderer.CloneCreator;
+import com.jme.renderer.Renderer;
 import com.jme.scene.Controller;
 import com.jme.scene.Node;
 import com.jme.scene.Spatial;
@@ -277,6 +283,7 @@ public class Model extends ModelNode
     public void initPrototype ()
     {
         setReferenceTransforms();
+        cullInvisibleNodes();
         initInstance();
     }
     
@@ -318,13 +325,14 @@ public class Model extends ModelNode
     /**
      * Starts the named animation.
      *
-     * @return a reference to the started animation
+     * @return the duration of the started animation (for looping animations,
+     * the duration of one cycle), or -1 if the animation was not found
      */
-    public Animation startAnimation (String name)
+    public float startAnimation (String name)
     {
         Animation anim = getAnimation(name);
         if (anim == null) {
-            return null;
+            return -1f;
         }
         _anim = anim;
         _animName = name;
@@ -333,7 +341,7 @@ public class Model extends ModelNode
         _fdir = +1;
         _elapsed = 0f;
         _animObservers.apply(new AnimStartedOp(_animName));
-        return anim;
+        return anim.getDuration() / _animSpeed;
     }
     
     /**
@@ -485,11 +493,29 @@ public class Model extends ModelNode
         return instance;
     }
 
+    /**
+     * Locks the transforms and bounds of this model in the expectation that it
+     * will never be moved from its current position.
+     */
+    public void lockInstance ()
+    {
+        // collect the controller targets and lock recursively
+        HashSet<Spatial> targets = new HashSet<Spatial>();
+        for (Object ctrl : getControllers()) {
+            if (ctrl instanceof ModelController) {
+                targets.add(((ModelController)ctrl).getTarget());
+            }
+        }
+        lockInstance(targets);
+    }
+    
     @Override // documentation inherited
     public Spatial putClone (Spatial store, CloneCreator properties)
     {
-        Model mstore;
-        if (store == null) {
+        Model mstore = (Model)properties.originalToCopy.get(this);
+        if (mstore != null) {
+            return mstore;
+        } else if (store == null) {
             mstore = new Model(getName(), _props);
         } else {
             mstore = (Model)store;
@@ -499,21 +525,64 @@ public class Model extends ModelNode
         if (_anims != null) {
             mstore._anims = new HashMap<String, Animation>();
         }
-        mstore._pnodes = properties.originalToCopy;
+        mstore._pnodes = (HashMap)properties.originalToCopy.clone();
         return mstore;
     }
     
     @Override // documentation inherited
-    public void updateWorldData (float time)
+    public void updateGeometricState (float time, boolean initiator)
     {
+        // if we were not visible the last time we were rendered, don't do a
+        // full update; just update the world bound and wait until we come
+        // into view
+        boolean wasOutside = _outside;
+        _outside = isOutsideFrustum() && worldBound != null;
+        
         // slow evvvverything down by the animation speed
         time *= _animSpeed;
         if (_anim != null) {
             updateAnimation(time);
         }
         
-        // update children
-        super.updateWorldData(time);
+        // update controllers and children with accumulated time
+        _accum += time;
+        if (_outside) {
+            if (!wasOutside) {
+                updateModelBound();
+            }
+            updateWorldVectors();
+            worldBound = _modelBound.transform(getWorldRotation(),
+                getWorldTranslation(), getWorldScale(), worldBound);
+            
+        } else {
+            super.updateGeometricState(_accum, initiator);
+            _accum = 0f;
+        }
+    }
+    
+    @Override // documentation inherited
+    public void onDraw (Renderer r)
+    {
+        // if we switch from invisible to visible, we have to do a last-minute
+        // full update (which only works if our meshes are enqueued)
+        super.onDraw(r);
+        if (_outside && !isOutsideFrustum()) {
+            updateWorldData(0f);
+        }
+    }
+    
+    /**
+     * Determines whether this node was determined to be entirely outside the
+     * view frustum.
+     */
+    protected boolean isOutsideFrustum ()
+    {
+        for (Node node = this; node != null; node = node.getParent()) {
+            if (node.getLastFrustumIntersection() == Camera.OUTSIDE_FRUSTUM) {
+                return true;
+            }
+        }
+        return false;
     }
     
     /**
@@ -540,12 +609,14 @@ public class Model extends ModelNode
             _elapsed -= 1f;
         }
         
-        // update the target transforms
-        Spatial[] targets = _anim.transformTargets;
-        Transform[] xforms = _anim.transforms[_fidx],
-            nxforms = _anim.transforms[_nidx];
-        for (int ii = 0; ii < targets.length; ii++) {
-            xforms[ii].blend(nxforms[ii], _elapsed, targets[ii]);
+        // update the target transforms if not outside the view frustum
+        if (!_outside) {
+            Spatial[] targets = _anim.transformTargets;
+            Transform[] xforms = _anim.transforms[_fidx],
+                nxforms = _anim.transforms[_nidx];
+            for (int ii = 0; ii < targets.length; ii++) {
+                xforms[ii].blend(nxforms[ii], _elapsed, targets[ii]);
+            }
         }
         
         // if the next index is the same as this one, we are finished
@@ -577,6 +648,42 @@ public class Model extends ModelNode
             }
             _nidx += _fdir;
         }
+    }
+    
+    /**
+     * Sets the model bound based on the current world bound.
+     */
+    protected void updateModelBound ()
+    {
+        if (worldBound == null) {
+            return;
+        }
+        setTransform(getWorldTranslation(), getWorldRotation(),
+            getWorldScale(), _xform);
+        _xform.invertLocal();
+        _xform.toTranslationVector(_trans);
+        extractScale(_xform, _scale);
+        _xform.toRotationQuat(_rot);
+        _modelBound = worldBound.transform(_rot, _trans, _scale, _modelBound);
+    }
+    
+    /**
+     * Extracts the scale factor from the given transform and normalizes it.
+     */
+    protected static void extractScale (Matrix4f m, Vector3f scale)
+    {
+        scale.x = FastMath.sqrt(m.m00*m.m00 + m.m01*m.m01 + m.m02*m.m02);
+        m.m00 /= scale.x;
+        m.m01 /= scale.x;
+        m.m02 /= scale.x;
+        scale.y = FastMath.sqrt(m.m10*m.m10 + m.m11*m.m11 + m.m12*m.m12);
+        m.m10 /= scale.y;
+        m.m11 /= scale.y;
+        m.m12 /= scale.y;
+        scale.z = FastMath.sqrt(m.m20*m.m20 + m.m21*m.m21 + m.m22*m.m22);
+        m.m20 /= scale.z;
+        m.m21 /= scale.z;
+        m.m22 /= scale.z;
     }
     
     /** A reference to the prototype, or <code>null</code> if this is a
@@ -615,8 +722,22 @@ public class Model extends ModelNode
     /** The frame portion elapsed since the start of the current frame. */
     protected float _elapsed;
     
+    /** The amount of update time accumulated while outside of view frustum. */
+    protected float _accum;
+    
     /** The child node that contains the model's emissions in world space. */
     protected Node _emissionNode;
+    
+    /** The model space bounding volume. */
+    protected BoundingVolume _modelBound;
+    
+    /** Whether or not we were outside the frustum at the last update. */
+    protected boolean _outside;
+    
+    /** Temporary transform variables. */
+    protected Matrix4f _xform = new Matrix4f();
+    protected Vector3f _trans = new Vector3f(), _scale = new Vector3f();
+    protected Quaternion _rot = new Quaternion();
     
     /** Animation completion listeners. */
     protected ObserverList<AnimationObserver> _animObservers =

@@ -64,7 +64,7 @@ public class AnimationDef
                 if (target != null) {
                     targets.add(target);
                 } else {
-                    Log.warning("Missing animation target [name=" + name +
+                    Log.debug("Missing animation target [name=" + name +
                         "].");
                 }
             }

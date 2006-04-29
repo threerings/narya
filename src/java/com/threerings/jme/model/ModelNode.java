@@ -31,6 +31,7 @@ import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 
 import com.jme.math.Matrix4f;
 import com.jme.math.Quaternion;
@@ -93,6 +94,16 @@ public class ModelNode extends Node
     }
     
     @Override // documentation inherited
+    public void updateWorldData (float time)
+    {
+        // we use locked bounds as an indication that we can skip the update
+        // altogether
+        if ((lockedMode & LOCKED_BOUNDS) == 0) {
+            super.updateWorldData(time);
+        }
+    }
+    
+    @Override // documentation inherited
     public void updateWorldVectors ()
     {
         super.updateWorldVectors();
@@ -110,13 +121,16 @@ public class ModelNode extends Node
     @Override // documentation inherited
     public Spatial putClone (Spatial store, CloneCreator properties)
     {
-        ModelNode mstore;
-        if (store == null) {
+        ModelNode mstore = (ModelNode)properties.originalToCopy.get(this);
+        if (mstore != null) {
+            return mstore;
+        } else if (store == null) {
             mstore = new ModelNode(getName());
         } else {
             mstore = (ModelNode)store;
         }
         super.putClone(mstore, properties);
+        mstore.cullMode = cullMode;
         return mstore;
     }
     
@@ -207,6 +221,62 @@ public class ModelNode extends Node
             if (child instanceof ModelSpatial) {
                 ((ModelSpatial)child).sliceBuffers(map);
             }
+        }
+    }
+    
+    /**
+     * Sets the cull state of any nodes that do not contain geometric
+     * descendants to {@link CULL_ALWAYS} so that they don't waste
+     * rendering time.
+     *
+     * @return true if this node should be drawn, false if it contains
+     * no mesh descendants
+     */
+    protected boolean cullInvisibleNodes ()
+    {
+        boolean hasVisibleDescendants = false;
+        for (int ii = 0, nn = getQuantity(); ii < nn; ii++) {
+            Spatial child = getChild(ii);
+            if (!(child instanceof ModelNode) ||
+                ((ModelNode)child).cullInvisibleNodes()) {
+                hasVisibleDescendants = true;
+            }
+        }
+        setCullMode(hasVisibleDescendants ? CULL_INHERIT : CULL_ALWAYS);
+        return hasVisibleDescendants;
+    }
+    
+    /**
+     * Locks the transforms and bounds of this instance with the assumption
+     * that the position will never change.
+     *
+     * @param targets the targets of the model's controllers, which determine
+     * the subset of nodes that can be locked
+     * @return true if this node is a target or contains any targets, otherwise
+     * false
+     */
+    protected boolean lockInstance (HashSet<Spatial> targets)
+    {
+        updateWorldVectors();
+        lockedMode |= LOCKED_TRANSFORMS;
+        
+        boolean containsTargets = false;
+        for (int ii = 0, nn = getQuantity(); ii < nn; ii++) {
+            Spatial child = getChild(ii);
+            if (targets.contains(child) || (child instanceof ModelNode &&
+                ((ModelNode)child).lockInstance(targets))) {
+                containsTargets = true;
+                
+            } else if (child instanceof ModelMesh) {
+                ((ModelMesh)child).lockInstance();
+            }
+        }
+        if (containsTargets) {
+            return true;
+        } else {
+            updateWorldBound();
+            lockedMode |= LOCKED_BOUNDS;
+            return false;
         }
     }
     

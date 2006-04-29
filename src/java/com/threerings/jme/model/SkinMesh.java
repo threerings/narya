@@ -143,8 +143,10 @@ public class SkinMesh extends ModelMesh
     @Override // documentation inherited
     public Spatial putClone (Spatial store, CloneCreator properties)
     {
-        SkinMesh mstore;
-        if (store == null) {
+        SkinMesh mstore = (SkinMesh)properties.originalToCopy.get(this);
+        if (mstore != null) {
+            return mstore;
+        } else if (store == null) {
             mstore = new SkinMesh(getName());
         } else {
             mstore = (SkinMesh)store;

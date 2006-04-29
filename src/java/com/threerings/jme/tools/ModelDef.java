@@ -436,7 +436,7 @@ public class ModelDef
         }
         
         // get rid of any nodes that serve no purpose
-        pruneUnusedNodes(model, referenced);
+        pruneUnusedNodes(model, nodes, referenced);
         
         return model;
     }
@@ -461,16 +461,18 @@ public class ModelDef
     
     /** Recursively removes any unused nodes. */
     protected boolean pruneUnusedNodes (
-        ModelNode node, HashSet<Spatial> referenced)
+        ModelNode node, HashMap<String, Spatial> nodes,
+        HashSet<Spatial> referenced)
     {
         boolean hasValidChildren = false;
         for (Iterator it = node.getChildren().iterator(); it.hasNext(); ) {
             Spatial child = (Spatial)it.next();
             if (!(child instanceof ModelNode) ||
-                pruneUnusedNodes((ModelNode)child, referenced)) {
+                pruneUnusedNodes((ModelNode)child, nodes, referenced)) {
                 hasValidChildren = true;
             } else {
                 it.remove();
+                nodes.remove(child.getName());
             }
         }
         return referenced.contains(node) || hasValidChildren;

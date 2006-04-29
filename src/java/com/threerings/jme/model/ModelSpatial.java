@@ -27,8 +27,6 @@ import java.io.IOException;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
 
-import java.util.HashMap;
-
 import com.jme.math.Matrix4f;
 import com.jme.renderer.Renderer;
 import com.jme.scene.Spatial;

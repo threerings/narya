@@ -62,6 +62,7 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.filechooser.FileFilter;
 
+import com.jme.bounding.BoundingBox;
 import com.jme.image.Texture;
 import com.jme.light.DirectionalLight;
 import com.jme.math.FastMath;
@@ -294,6 +295,8 @@ public class ModelViewer extends JmeCanvasApp
         Line grid = new Line("grid", points, null, null, null);
         grid.getDefaultColor().set(0.25f, 0.25f, 0.25f, 1f);
         grid.setLightCombineMode(LightState.OFF);
+        grid.setModelBound(new BoundingBox());
+        grid.updateModelBound();
         _ctx.getGeometry().attachChild(grid);
         grid.updateRenderState();
         
@@ -453,6 +456,7 @@ public class ModelViewer extends JmeCanvasApp
         }
         _ctx.getGeometry().attachChild(_model = model);
         _model.lockStaticMeshes(_ctx.getRenderer(), true, true);
+        _model.getLocalTranslation().set(-20f, 0f, 0f);
         
         // resolve the textures from the file's directory
         final File dir = file.getParentFile();

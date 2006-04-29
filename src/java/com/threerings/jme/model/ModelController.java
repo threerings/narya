@@ -60,6 +60,14 @@ public abstract class ModelController extends Controller
     }
     
     /**
+     * Returns a reference to the controller's target.
+     */
+    public Spatial getTarget ()
+    {
+        return _target;
+    }
+    
+    /**
      * Resolves any textures required by the controller.
      */
     public void resolveTextures (TextureProvider tprov)
