@@ -33,6 +33,7 @@ import com.threerings.presents.data.ClientObject;
 import com.threerings.presents.server.InvocationManager;
 import com.threerings.presents.server.PresentsDObjectMgr;
 
+import com.threerings.presents.dobj.AccessController;
 import com.threerings.presents.dobj.DObject;
 import com.threerings.presents.dobj.DObjectManager;
 import com.threerings.presents.dobj.EntryAddedEvent;
@@ -265,6 +266,9 @@ public class PlaceManager
         // we'll need to hear about place object events
         plobj.addListener(this);
 
+        // configure this place's access controller
+        plobj.setAccessController(getAccessController());
+
         // let our derived classes do their thang
         didStartup();
 
@@ -279,6 +283,15 @@ public class PlaceManager
     protected boolean shouldCreateSpeakService ()
     {
         return true;
+    }
+
+    /**
+     * Creates an access controller for this place's distributed object, which
+     * by default is {@link CrowdObjectAccess#PLACE}.
+     */
+    protected AccessController getAccessController ()
+    {
+        return CrowdObjectAccess.PLACE;
     }
 
     /**
@@ -619,8 +632,8 @@ public class PlaceManager
     }
 
     // documentation inherited from interface
-    public boolean isValidSpeaker (DObject speakObj, ClientObject speaker,
-                                   byte mode)
+    public boolean isValidSpeaker (
+        DObject speakObj, ClientObject speaker, byte mode)
     {
         // only allow people in the room to speak
         return _plobj.occupants.contains(speaker.getOid());

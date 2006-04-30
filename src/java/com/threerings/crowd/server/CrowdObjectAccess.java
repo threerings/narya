@@ -21,6 +21,7 @@
 
 package com.threerings.crowd.server;
 
+import com.threerings.presents.data.ClientObject;
 import com.threerings.presents.dobj.AccessController;
 import com.threerings.presents.dobj.DEvent;
 import com.threerings.presents.dobj.DObject;
@@ -31,6 +32,7 @@ import com.threerings.presents.dobj.Subscriber;
 
 import com.threerings.crowd.Log;
 import com.threerings.crowd.data.BodyObject;
+import com.threerings.crowd.data.PlaceObject;
 
 /**
  * Defines the various object access controllers used by the Crowd server.
@@ -101,6 +103,30 @@ public class CrowdObjectAccess
                 return (event instanceof NamedEvent) &&
                     ((NamedEvent)event).getName().equals(BodyObject.RECEIVERS);
             }
+        }
+    };
+
+    /**
+     * Provides access control for place objects. The default behavior is to
+     * allow place occupants to subscribe to the place object and to use the
+     * {@link #DEFAULT} modification policy.
+     */
+    public static AccessController PLACE = new AccessController()
+    {
+        // documentation inherited from interface
+        public boolean allowSubscribe (DObject object, Subscriber sub)
+        {
+            if (sub instanceof CrowdClient) {
+                ClientObject co = ((CrowdClient)sub).getClientObject();
+                return ((PlaceObject)object).occupants.contains(co.getOid());
+            }
+            return true;
+        }
+
+        // documentation inherited from interface
+        public boolean allowDispatch (DObject object, DEvent event)
+        {
+            return DEFAULT.allowDispatch(object, event);
         }
     };
 }
