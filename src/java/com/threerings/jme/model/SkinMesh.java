@@ -23,6 +23,7 @@ package com.threerings.jme.model;
 
 import java.io.IOException;
 import java.io.ObjectInput;
+import java.io.ObjectInputStream;
 import java.io.ObjectOutput;
 import java.io.Serializable;
 
@@ -30,7 +31,9 @@ import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 
 import com.jme.bounding.BoundingVolume;
 import com.jme.math.Matrix4f;
@@ -53,38 +56,79 @@ public class SkinMesh extends ModelMesh
     public static class WeightGroup
         implements Serializable
     {
-        /** The indices of the affected vertices. */
-        public int[] indices;
+        /** The number of vertices in this weight group. */
+        public int vertexCount;
         
         /** The bones influencing this group. */
-        public ModelNode[] bones;
+        public Bone[] bones;
         
-        /** The array of interleaved weights (of length <code>indices.length *
-         * bones.length</code>): weights for first vertex, weights for second,
-         * etc. */
+        /** The array of interleaved weights (of length <code>vertexCount *
+         * boneIndices.length</code>): weights for first vertex, weights for
+         * second, etc. */
         public float[] weights;
-        
-        /** The inverses of the bones' mesh space reference transforms. */
-        public transient Matrix4f[] invRefTransforms;
-        
+
         /**
          * Rebinds this weight group for a prototype instance.
          *
-         * @param pnodes a mapping from prototype nodes to instance nodes
+         * @param bmap the mapping from prototype to instance bones
          */
-        public WeightGroup rebind (HashMap pnodes)
+        public WeightGroup rebind (HashMap<Bone, Bone> bmap)
         {
-            WeightGroup group = new WeightGroup();
-            group.indices = indices;
-            group.weights = weights;
-            group.invRefTransforms = invRefTransforms;
-            group.bones = new ModelNode[bones.length];
+            WeightGroup wgroup = new WeightGroup();
+            wgroup.vertexCount = vertexCount;
+            wgroup.bones = new Bone[bones.length];
             for (int ii = 0; ii < bones.length; ii++) {
-                group.bones[ii] = (ModelNode)pnodes.get(bones[ii]);
+                wgroup.bones[ii] = bmap.get(bones[ii]);
             }
-            return group;
+            wgroup.weights = weights;
+            return wgroup;
         }
         
+        private static final long serialVersionUID = 1;
+    }
+
+    /** Represents a bone that influences the mesh. */
+    public static class Bone
+        implements Serializable
+    {
+        /** The node that defines the bone's position. */
+        public ModelNode node;
+        
+        /** The inverse of the bone's model space reference transform. */
+        public transient Matrix4f invRefTransform;
+        
+        /** The bone's current transform in model space. */
+        public transient Matrix4f transform;
+        
+        public Bone (ModelNode node)
+        {
+            this.node = node;
+            transform = new Matrix4f();
+        }
+        
+        /**
+         * Rebinds this bone for a prototype instance.
+         *
+         * @param pnodes a mapping from prototype nodes to instance nodes
+         */
+        public Bone rebind (HashMap pnodes)
+        {
+            Bone bone = new Bone((ModelNode)pnodes.get(node));
+            bone.invRefTransform = invRefTransform;
+            bone.transform = new Matrix4f();
+            return bone;
+        }
+        
+        /**
+         * Initializes the bone's transient state.
+         */
+        private void readObject (ObjectInputStream in)
+            throws IOException, ClassNotFoundException
+        {
+            in.defaultReadObject();
+            transform = new Matrix4f();
+        }
+     
         private static final long serialVersionUID = 1;
     }
     
@@ -104,20 +148,19 @@ public class SkinMesh extends ModelMesh
     }
     
     /**
-     * Sets the weight groups that determine how vertices are affected by
-     * bones.
+     * Sets the array of weight groups that determine how bones affect
+     * each vertex.
      */
     public void setWeightGroups (WeightGroup[] weightGroups)
     {
         _weightGroups = weightGroups;
-    }
-    
-    /**
-     * Returns a reference to the array of weight groups.
-     */
-    public WeightGroup[] getWeightGroups ()
-    {
-        return _weightGroups;
+        
+        // compile a list of all referenced bones
+        HashSet<Bone> bones = new HashSet<Bone>();
+        for (WeightGroup group : weightGroups) {
+            Collections.addAll(bones, group.bones);
+        }
+        _bones = bones.toArray(new Bone[bones.size()]);
     }
     
     @Override // documentation inherited
@@ -127,18 +170,15 @@ public class SkinMesh extends ModelMesh
     {
         super.reconstruct(vertices, normals, colors, textures, indices);
         
-        // replace the vertex and normal buffers with working buffers
-        setVertexBuffer(BufferUtils.clone(_ovbuf = getVertexBuffer()));
-        setNormalBuffer(BufferUtils.clone(_onbuf = getNormalBuffer()));
+        // store the current buffers as the originals
+        storeOriginalBuffers();
     }
     
     @Override // documentation inherited
     public void centerVertices ()
     {
         super.centerVertices();
-        _ovbuf.rewind();
-        getVertexBuffer().rewind();
-        _ovbuf.put(getVertexBuffer());
+        storeOriginalBuffers();
     }
     
     @Override // documentation inherited
@@ -159,10 +199,15 @@ public class SkinMesh extends ModelMesh
         properties.addProperty("vertices");
         properties.addProperty("normals");
         properties.addProperty("displaylistid");
+        mstore._bones = new Bone[_bones.length];
+        HashMap<Bone, Bone> bmap = new HashMap<Bone, Bone>();
+        for (int ii = 0; ii < _bones.length; ii++) {
+            bmap.put(_bones[ii], mstore._bones[ii] =
+                _bones[ii].rebind(properties.originalToCopy));
+        }
         mstore._weightGroups = new WeightGroup[_weightGroups.length];
         for (int ii = 0; ii < _weightGroups.length; ii++) {
-            mstore._weightGroups[ii] =
-                _weightGroups[ii].rebind(properties.originalToCopy);
+            mstore._weightGroups[ii] = _weightGroups[ii].rebind(bmap);
         }
         mstore._ovbuf = _ovbuf;
         mstore._onbuf = _onbuf;
@@ -182,7 +227,7 @@ public class SkinMesh extends ModelMesh
         throws IOException, ClassNotFoundException
     {
         super.readExternal(in);
-        _weightGroups = (WeightGroup[])in.readObject();
+        setWeightGroups((WeightGroup[])in.readObject());
     }
     
     @Override // documentation inherited
@@ -198,13 +243,9 @@ public class SkinMesh extends ModelMesh
     {
         updateWorldVectors();
         _modelTransform.invert(_transform);
-        for (int ii = 0; ii < _weightGroups.length; ii++) {
-            WeightGroup group = _weightGroups[ii];
-            group.invRefTransforms = new Matrix4f[group.bones.length];
-            for (int jj = 0; jj < group.bones.length; jj++) {
-                group.invRefTransforms[jj] = _transform.mult(
-                    group.bones[jj].getModelTransform()).invertLocal();
-            }
+        for (Bone bone : _bones) {
+            bone.invRefTransform =
+                _transform.mult(bone.node.getModelTransform()).invert();
         }
     }
     
@@ -244,51 +285,64 @@ public class SkinMesh extends ModelMesh
         if (_weightGroups == null) {
             return;
         }
+        // update the bone transforms
         _modelTransform.invert(_transform);
+        for (Bone bone : _bones) {
+            _transform.mult(bone.node.getModelTransform(), bone.transform);
+            bone.transform.multLocal(bone.invRefTransform);
+        }
         
-        // deform the mesh according to the positions of the bones
-        ModelNode[] bones;
-        int idx;
-        int[] indices;
+        // deform the mesh according to the positions of the bones (this code
+        // is ugly as sin because it's optimized at a low level)
+        Bone[] bones;
+        int vertexCount;
         float[] weights;
-        Matrix4f xform;
-        Matrix4f[] invRefXforms;
-        float weight;
+        Matrix4f m;
+        float weight, ovx, ovy, ovz, onx, ony, onz, vx, vy, vz, nx, ny, nz;
         FloatBuffer vbuf = getVertexBuffer(), nbuf = getNormalBuffer();
-        for (int ii = 0; ii < _weightGroups.length; ii++) {
+        vbuf.rewind();
+        nbuf.rewind();
+        for (int ii = 0, bidx = 0; ii < _weightGroups.length; ii++) {
+            vertexCount = _weightGroups[ii].vertexCount;
             bones = _weightGroups[ii].bones;
-            invRefXforms = _weightGroups[ii].invRefTransforms;
-            if (_transforms == null || _transforms.length < bones.length) {
-                _transforms = new Matrix4f[bones.length];
-            }
-            for (int jj = 0; jj < bones.length; jj++) {
-                if (_transforms[jj] == null) {
-                    _transforms[jj] = new Matrix4f();
-                }
-                _transform.mult(bones[jj].getModelTransform(),
-                    _transforms[jj]);
-                _transforms[jj].multLocal(invRefXforms[jj]);
-            }
-            indices = _weightGroups[ii].indices;
             weights = _weightGroups[ii].weights;
-            for (int jj = 0, ww = 0; jj < indices.length; jj++) {
-                idx = indices[jj];
-                BufferUtils.populateFromBuffer(_overtex, _ovbuf, idx);
-                BufferUtils.populateFromBuffer(_onormal, _onbuf, idx);
-                _vertex.zero();
-                _normal.zero();
+            for (int jj = 0, ww = 0; jj < vertexCount; jj++) {
+                ovx = _ovbuf[bidx];
+                ovy = _ovbuf[bidx + 1];
+                ovz = _ovbuf[bidx + 2];
+                onx = _onbuf[bidx++];
+                ony = _onbuf[bidx++];
+                onz = _onbuf[bidx++];
+                vx = vy = vz = 0f;
+                nx = ny = nz = 0f;
                 for (int kk = 0; kk < bones.length; kk++) {
-                    xform = _transforms[kk];
+                    m = bones[kk].transform;
                     weight = weights[ww++];
-                    _vertex.addLocal(
-                        xform.mult(_overtex, _tmp).multLocal(weight));
-                    _normal.addLocal(
-                        multNormal(_onormal, xform, _tmp).multLocal(weight));
+                    
+                    vx += (ovx*m.m00 + ovy*m.m01 + ovz*m.m02 + m.m03) * weight;
+                    vy += (ovx*m.m10 + ovy*m.m11 + ovz*m.m12 + m.m13) * weight;
+                    vz += (ovx*m.m20 + ovy*m.m21 + ovz*m.m22 + m.m23) * weight;
+                    
+                    nx += (onx*m.m00 + ony*m.m01 + onz*m.m02) * weight;
+                    ny += (onx*m.m10 + ony*m.m11 + onz*m.m12) * weight;
+                    nz += (onx*m.m20 + ony*m.m21 + onz*m.m22) * weight;
                 }
-                BufferUtils.setInBuffer(_vertex, vbuf, idx);
-                BufferUtils.setInBuffer(_normal, nbuf, idx);
+                vbuf.put(vx); vbuf.put(vy); vbuf.put(vz);
+                nbuf.put(nx); nbuf.put(ny); nbuf.put(nz);
             }
         }
+    }
+    
+    /**
+     * Stores the current vertex and normal buffers for later deformation.
+     */
+    protected void storeOriginalBuffers ()
+    {
+        FloatBuffer vbuf = getVertexBuffer(), nbuf = getNormalBuffer();
+        vbuf.rewind();
+        nbuf.rewind();
+        FloatBuffer.wrap(_ovbuf = new float[vbuf.capacity()]).put(vbuf);
+        FloatBuffer.wrap(_onbuf = new float[nbuf.capacity()]).put(nbuf);
     }
     
     /**
@@ -311,20 +365,15 @@ public class SkinMesh extends ModelMesh
     /** The groups of vertices influenced by different sets of bones. */
     protected WeightGroup[] _weightGroups;
     
+    /** The bones referenced by the weight groups. */
+    protected Bone[] _bones;
+    
     /** The original (undeformed) vertex and normal buffers. */
-    protected FloatBuffer _ovbuf, _onbuf;
+    protected float[] _ovbuf, _onbuf;
 
     /** The node's transform in model space. */
     protected Matrix4f _modelTransform = new Matrix4f();
-    
-    /** A working array for transforms. */
-    protected Matrix4f[] _transforms;
 
-    /** Working vectors. */
-    protected Vector3f _overtex = new Vector3f(), _vertex = new Vector3f(),
-        _onormal = new Vector3f(), _normal = new Vector3f(),
-        _tmp = new Vector3f();
-    
     /** Working transform. */
     protected Matrix4f _transform = new Matrix4f();
     

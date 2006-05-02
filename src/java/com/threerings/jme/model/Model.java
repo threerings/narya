@@ -329,6 +329,7 @@ public class Model extends ModelNode
         for (int ii = 0; ii < anim.transformTargets.length; ii++) {
             oxforms[ii].apply(anim.transformTargets[ii]);
         }
+        updateWorldData(0f);
     }
     
     /**

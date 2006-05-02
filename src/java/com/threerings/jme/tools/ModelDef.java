@@ -28,11 +28,13 @@ import java.nio.IntBuffer;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 
 import com.jme.bounding.BoundingBox;
 import com.jme.bounding.BoundingSphere;
@@ -244,38 +246,72 @@ public class ModelDef
                 return;
             }
             
-            // divide the vertices up by weight groups
-            HashMap<HashSet<ModelNode>, WeightGroupDef> groups =
-                new HashMap<HashSet<ModelNode>, WeightGroupDef>();
-            for (int ii = 0, nn = vertices.size(); ii < nn; ii++) {
-                SkinVertex svertex = (SkinVertex)vertices.get(ii);
-                HashSet<ModelNode> bones = svertex.getBones(nodes);
-                WeightGroupDef group = groups.get(bones);
-                if (group == null) {
-                    groups.put(bones, group = new WeightGroupDef());
-                }
-                group.indices.add(ii);
-                for (ModelNode bone : bones) {
-                    group.weights.add(svertex.getWeight(bone));
-                }
-            }
-            
-            // resolve names and set in mesh
+            // create and set the final weight groups
             SkinMesh.WeightGroup[] wgroups =
-                new SkinMesh.WeightGroup[groups.size()];
+                new SkinMesh.WeightGroup[_groups.size()];
+            HashMap<String, SkinMesh.Bone> bones =
+                new HashMap<String, SkinMesh.Bone>();
             int ii = 0;
-            for (Map.Entry<HashSet<ModelNode>, WeightGroupDef> entry :
-                groups.entrySet()) {
+            for (Map.Entry<Set<String>, WeightGroupDef> entry :
+                _groups.entrySet()) {
                 SkinMesh.WeightGroup wgroup = new SkinMesh.WeightGroup();
-                wgroup.indices = toArray(entry.getValue().indices);
-                HashSet<ModelNode> bones = entry.getKey();
-                referenced.addAll(bones);
-                wgroup.bones = bones.toArray(new ModelNode[bones.size()]);
+                wgroup.vertexCount = entry.getValue().indices.size();
+                wgroup.bones = new SkinMesh.Bone[entry.getKey().size()];
+                int jj = 0;
+                for (String bname : entry.getKey()) {
+                    SkinMesh.Bone bone = bones.get(bname);
+                    if (bone == null) {
+                        Spatial node = nodes.get(bname);
+                        bones.put(bname,
+                            bone = new SkinMesh.Bone((ModelNode)node));
+                        referenced.add(node);
+                    }
+                    wgroup.bones[jj++] = bone;
+                }
                 wgroup.weights = toArray(entry.getValue().weights);
                 wgroups[ii++] = wgroup;
             }
             ((SkinMesh)_mesh).setWeightGroups(wgroups);
         }
+        
+        @Override // documentation inherited
+        protected void configureMesh (Properties props)
+        {
+            // divide the vertices up by weight groups
+            _groups = new HashMap<Set<String>, WeightGroupDef>();
+            for (int ii = 0, nn = vertices.size(); ii < nn; ii++) {
+                SkinVertex svertex = (SkinVertex)vertices.get(ii);
+                Set<String> bones = svertex.boneWeights.keySet();
+                WeightGroupDef group = _groups.get(bones);
+                if (group == null) {
+                    _groups.put(bones, group = new WeightGroupDef());
+                }
+                group.indices.add(ii);
+                for (String bone : bones) {
+                    group.weights.add(svertex.boneWeights.get(bone).weight);
+                }
+            }
+            
+            // reorder the vertices by group
+            ArrayList<Vertex> overts = vertices;
+            vertices = new ArrayList<Vertex>();
+            int[] imap = new int[overts.size()];
+            for (Map.Entry<Set<String>, WeightGroupDef> entry :
+                _groups.entrySet()) {
+                for (int idx : entry.getValue().indices) {
+                    imap[idx] = vertices.size();
+                    vertices.add(overts.get(idx));
+                }
+            }
+            for (int ii = 0, nn = indices.size(); ii < nn; ii++) {
+                indices.set(ii, imap[indices.get(ii)]);
+            }
+            
+            super.configureMesh(props);
+        }
+        
+        /** The intermediate weight groups, mapped by bone names. */
+        protected HashMap<Set<String>, WeightGroupDef> _groups;
     }
     
     /** A generic node. */
