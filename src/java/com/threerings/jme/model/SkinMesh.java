@@ -211,6 +211,8 @@ public class SkinMesh extends ModelMesh
         }
         mstore._ovbuf = _ovbuf;
         mstore._onbuf = _onbuf;
+        mstore._vbuf = new float[_vbuf.length];
+        mstore._nbuf = new float[_nbuf.length];
         return mstore;
     }
     
@@ -295,27 +297,24 @@ public class SkinMesh extends ModelMesh
         // deform the mesh according to the positions of the bones (this code
         // is ugly as sin because it's optimized at a low level)
         Bone[] bones;
-        int vertexCount;
+        int vertexCount, jj, kk, ww;
         float[] weights;
         Matrix4f m;
         float weight, ovx, ovy, ovz, onx, ony, onz, vx, vy, vz, nx, ny, nz;
-        FloatBuffer vbuf = getVertexBuffer(), nbuf = getNormalBuffer();
-        vbuf.rewind();
-        nbuf.rewind();
         for (int ii = 0, bidx = 0; ii < _weightGroups.length; ii++) {
             vertexCount = _weightGroups[ii].vertexCount;
             bones = _weightGroups[ii].bones;
             weights = _weightGroups[ii].weights;
-            for (int jj = 0, ww = 0; jj < vertexCount; jj++) {
+            for (jj = 0, ww = 0; jj < vertexCount; jj++) {
                 ovx = _ovbuf[bidx];
                 ovy = _ovbuf[bidx + 1];
                 ovz = _ovbuf[bidx + 2];
-                onx = _onbuf[bidx++];
-                ony = _onbuf[bidx++];
-                onz = _onbuf[bidx++];
+                onx = _onbuf[bidx];
+                ony = _onbuf[bidx + 1];
+                onz = _onbuf[bidx + 2];
                 vx = vy = vz = 0f;
                 nx = ny = nz = 0f;
-                for (int kk = 0; kk < bones.length; kk++) {
+                for (kk = 0; kk < bones.length; kk++) {
                     m = bones[kk].transform;
                     weight = weights[ww++];
                     
@@ -327,10 +326,21 @@ public class SkinMesh extends ModelMesh
                     ny += (onx*m.m10 + ony*m.m11 + onz*m.m12) * weight;
                     nz += (onx*m.m20 + ony*m.m21 + onz*m.m22) * weight;
                 }
-                vbuf.put(vx); vbuf.put(vy); vbuf.put(vz);
-                nbuf.put(nx); nbuf.put(ny); nbuf.put(nz);
+                _vbuf[bidx] = vx;
+                _vbuf[bidx + 1] = vy;
+                _vbuf[bidx + 2] = vz;
+                _nbuf[bidx++] = nx;
+                _nbuf[bidx++] = ny;
+                _nbuf[bidx++] = nz;
             }
         }
+        
+        // copy it from array to buffer
+        FloatBuffer vbuf = getVertexBuffer(), nbuf = getNormalBuffer();
+        vbuf.rewind();
+        vbuf.put(_vbuf);
+        nbuf.rewind();
+        nbuf.put(_nbuf);
     }
     
     /**
@@ -343,23 +353,8 @@ public class SkinMesh extends ModelMesh
         nbuf.rewind();
         FloatBuffer.wrap(_ovbuf = new float[vbuf.capacity()]).put(vbuf);
         FloatBuffer.wrap(_onbuf = new float[nbuf.capacity()]).put(nbuf);
-    }
-    
-    /**
-     * Multiplies a normal vector by the 3x3 rotation submatrix of the given
-     * matrix.
-     *
-     * @param store the vector in which to store the result
-     * @return the result vector
-     */
-    protected static Vector3f multNormal (
-        Vector3f normal, Matrix4f matrix, Vector3f store)
-    {
-        float nx = normal.x, ny = normal.y, nz = normal.z;
-        store.x = nx * matrix.m00 + ny * matrix.m01 + nz * matrix.m02;
-        store.y = nx * matrix.m10 + ny * matrix.m11 + nz * matrix.m12;
-        store.z = nx * matrix.m20 + ny * matrix.m21 + nz * matrix.m22;
-        return store;
+        _vbuf = new float[_ovbuf.length];
+        _nbuf = new float[_onbuf.length];
     }
     
     /** The groups of vertices influenced by different sets of bones. */
@@ -368,8 +363,9 @@ public class SkinMesh extends ModelMesh
     /** The bones referenced by the weight groups. */
     protected Bone[] _bones;
     
-    /** The original (undeformed) vertex and normal buffers. */
-    protected float[] _ovbuf, _onbuf;
+    /** The original (undeformed) vertex and normal buffers and the deformed
+     * versions. */
+    protected float[] _ovbuf, _onbuf, _vbuf, _nbuf;
 
     /** The node's transform in model space. */
     protected Matrix4f _modelTransform = new Matrix4f();
