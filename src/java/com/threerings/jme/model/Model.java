@@ -175,6 +175,13 @@ public class Model extends ModelNode
             _scale = scale;
         }
         
+        public void apply (Spatial target)
+        {
+            target.getLocalTranslation().set(_translation);
+            target.getLocalRotation().set(_rotation);
+            target.getLocalScale().set(_scale);
+        }
+        
         /**
          * Blends between this transform and the next, applying the result to
          * the given target.
@@ -297,6 +304,31 @@ public class Model extends ModelNode
             _anims = new HashMap<String, Animation>();
         }
         _anims.put(name, anim);
+        
+        // store the original transforms
+        Transform[] oxforms = new Transform[anim.transformTargets.length];
+        for (int ii = 0; ii < anim.transformTargets.length; ii++) {
+            Spatial target = anim.transformTargets[ii];
+            oxforms[ii] = new Transform(
+                new Vector3f(target.getLocalTranslation()),
+                new Quaternion(target.getLocalRotation()),
+                new Vector3f(target.getLocalScale()));
+        }
+        
+        // run through every frame of the animation, expanding the bounding
+        // volumes of any deformable meshes
+        for (int ii = 0; ii < anim.transforms.length; ii++) {
+            for (int jj = 0; jj < anim.transforms[ii].length; jj++) {
+                anim.transforms[ii][jj].apply(anim.transformTargets[jj]);
+            }
+            updateWorldData(0f);
+            expandModelBounds();
+        }
+        
+        // restore the original transforms
+        for (int ii = 0; ii < anim.transformTargets.length; ii++) {
+            oxforms[ii].apply(anim.transformTargets[ii]);
+        }
     }
     
     /**
@@ -447,7 +479,15 @@ public class Model extends ModelNode
     public void writeExternal (ObjectOutput out)
         throws IOException
     {
+        // don't serialize the emission node; it contains transient geometry
+        // created by controllers
+        if (_emissionNode != null) {
+            detachChild(_emissionNode);
+        }
         super.writeExternal(out);
+        if (_emissionNode != null) {
+            attachChild(_emissionNode);
+        }
         out.writeObject(_props);
         out.writeObject(_anims);
         out.writeObject(getControllers());

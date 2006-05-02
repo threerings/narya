@@ -34,6 +34,8 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Properties;
 
+import com.jme.bounding.BoundingBox;
+import com.jme.bounding.BoundingSphere;
 import com.jme.math.FastMath;
 import com.jme.scene.Spatial;
 import com.jme.util.geom.BufferUtils;
@@ -49,7 +51,8 @@ import com.threerings.jme.model.ModelNode;
 import com.threerings.jme.model.SkinMesh;
 
 /**
- * An intermediate representation for model nodes using in XML parsing.
+ * An intermediate representation for models used to store data parsed from
+ * XML and convert it into JME nodes.
  */
 public class ModelDef
 {
@@ -210,6 +213,10 @@ public class ModelDef
                 ibuf.put(indices.get(ii));
             }
             _mesh.reconstruct(vbbuf, nbbuf, null, tbbuf, ibbuf);
+            
+            _mesh.setModelBound("sphere".equals(props.getProperty("bound")) ?
+                new BoundingSphere() : new BoundingBox());
+            _mesh.updateModelBound();
             
             // set the mesh's origin to the center of its bounding box
             _mesh.centerVertices();

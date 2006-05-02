@@ -104,6 +104,16 @@ public class ModelNode extends Node
     }
     
     @Override // documentation inherited
+    public void updateWorldBound ()
+    {
+        // if the node is culled, there are no mesh descendants and thus no
+        // bounds
+        if (cullMode != CULL_ALWAYS) {
+            super.updateWorldBound();
+        }
+    }
+    
+    @Override // documentation inherited
     public void updateWorldVectors ()
     {
         super.updateWorldVectors();
@@ -156,6 +166,16 @@ public class ModelNode extends Node
         ArrayList children = (ArrayList)in.readObject();
         for (int ii = 0, nn = children.size(); ii < nn; ii++) {
             attachChild((Spatial)children.get(ii));
+        }
+    }
+    
+    // documentation inherited from interface ModelSpatial
+    public void expandModelBounds ()
+    {
+        for (Object child : getChildren()) {
+            if (child instanceof ModelSpatial) {
+                ((ModelSpatial)child).expandModelBounds();
+            }
         }
     }
     

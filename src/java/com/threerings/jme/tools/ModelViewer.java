@@ -423,7 +423,6 @@ public class ModelViewer extends JmeCanvasApp
         _status.setText(_msg.get("m.compiling_model", file));
         Model model = CompileModelTask.compileModel(file);
         if (model != null) {
-            model.initPrototype();
             setModel(model, file);
             return;
         }
@@ -456,7 +455,6 @@ public class ModelViewer extends JmeCanvasApp
         }
         _ctx.getGeometry().attachChild(_model = model);
         _model.lockStaticMeshes(_ctx.getRenderer(), true, true);
-        _model.getLocalTranslation().set(-20f, 0f, 0f);
         
         // resolve the textures from the file's directory
         final File dir = file.getParentFile();

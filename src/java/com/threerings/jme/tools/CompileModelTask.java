@@ -39,6 +39,7 @@ import org.apache.tools.ant.types.FileSet;
 
 import com.jme.scene.Spatial;
 import com.jme.util.LoggingSystem;
+import com.jmex.model.XMLparser.Converters.DummyDisplaySystem;
 
 import com.samskivert.util.PropertiesUtil;
 import com.samskivert.util.StringUtil;
@@ -103,6 +104,7 @@ public class CompileModelTask extends Task
         ModelDef mdef = _mparser.parseModel(content.toString());
         HashMap<String, Spatial> nodes = new HashMap<String, Spatial>();
         Model model = mdef.createModel(props, nodes);
+        model.initPrototype();
         
         // load the animations, if any
         for (int ii = 0; ii < anims.length; ii++) {
@@ -122,11 +124,16 @@ public class CompileModelTask extends Task
         _filesets.add(set);
     }
     
+    public void init () throws BuildException
+    {
+        // create a dummy display system
+        new DummyDisplaySystem();
+        LoggingSystem.getLogger().setLevel(Level.WARNING);
+    }
+    
     public void execute ()
         throws BuildException
     {
-        LoggingSystem.getLoggingSystem().setLevel(Level.WARNING);
-        
         for (int ii = 0, nn = _filesets.size(); ii < nn; ii++) {
             FileSet fs = _filesets.get(ii);
             DirectoryScanner ds = fs.getDirectoryScanner(getProject());

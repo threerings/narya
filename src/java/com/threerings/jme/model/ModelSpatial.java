@@ -37,6 +37,12 @@ import com.jme.scene.Spatial;
 public interface ModelSpatial
 {
     /**
+     * Recursively expands the model bounds of any deformable meshes so that
+     * they include the current vertex positions.
+     */
+    public void expandModelBounds ();
+    
+    /**
      * Recursively sets the reference transforms for any bones in the model.
      */
     public void setReferenceTransforms ();

@@ -32,6 +32,7 @@ import java.nio.IntBuffer;
 
 import java.util.HashMap;
 
+import com.jme.bounding.BoundingVolume;
 import com.jme.math.Matrix4f;
 import com.jme.math.Vector3f;
 import com.jme.renderer.CloneCreator;
@@ -185,6 +186,14 @@ public class SkinMesh extends ModelMesh
     }
     
     @Override // documentation inherited
+    public void expandModelBounds ()
+    {
+        BoundingVolume obound = (BoundingVolume)getModelBound().clone(null);
+        updateModelBound();
+        getModelBound().mergeLocal(obound);
+    }
+    
+    @Override // documentation inherited
     public void setReferenceTransforms ()
     {
         updateWorldVectors();
@@ -280,7 +289,6 @@ public class SkinMesh extends ModelMesh
                 BufferUtils.setInBuffer(_normal, nbuf, idx);
             }
         }
-        updateModelBound();
     }
     
     /**

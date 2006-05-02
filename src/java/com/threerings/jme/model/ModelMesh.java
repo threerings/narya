@@ -35,8 +35,7 @@ import java.nio.channels.FileChannel;
 
 import java.util.Properties;
 
-import com.jme.bounding.BoundingBox;
-import com.jme.bounding.BoundingSphere;
+import com.jme.bounding.BoundingVolume;
 import com.jme.math.Quaternion;
 import com.jme.math.Vector3f;
 import com.jme.renderer.CloneCreator;
@@ -89,8 +88,7 @@ public class ModelMesh extends TriMesh
     public void configure (
         boolean solid, String texture, boolean transparent, Properties props)
     {
-        _boundingType = "sphere".equals(props.getProperty("bound")) ?
-            SPHERE_BOUND : BOX_BOUND;
+        
         _textures = (texture == null) ? null : StringUtil.parseStringArray(
             props.getProperty(texture, texture));
         _solid = solid;
@@ -117,13 +115,6 @@ public class ModelMesh extends TriMesh
         _colorByteBuffer = colors;
         _textureByteBuffer = textures;
         _indexByteBuffer = indices;
-        
-        if (_boundingType == BOX_BOUND) {
-            setModelBound(new BoundingBox());
-        } else { // _boundingType == SPHERE_BOUND
-            setModelBound(new BoundingSphere());
-        }
-        updateModelBound();
         
         // initialize the model if we're displaying
         if (DisplaySystem.getDisplaySystem() == null) {
@@ -231,12 +222,12 @@ public class ModelMesh extends TriMesh
         out.writeObject(getLocalTranslation());
         out.writeObject(getLocalRotation());
         out.writeObject(getLocalScale());
+        out.writeObject(getModelBound());
         out.writeInt(_vertexBufferSize);
         out.writeInt(_normalBufferSize);
         out.writeInt(_colorBufferSize);
         out.writeInt(_textureBufferSize);
         out.writeInt(_indexBufferSize);
-        out.writeInt(_boundingType);
         out.writeObject(_textures);
         out.writeBoolean(_solid);
         out.writeBoolean(_transparent);
@@ -250,15 +241,21 @@ public class ModelMesh extends TriMesh
         setLocalTranslation((Vector3f)in.readObject());
         setLocalRotation((Quaternion)in.readObject());
         setLocalScale((Vector3f)in.readObject());
+        setModelBound((BoundingVolume)in.readObject());
         _vertexBufferSize = in.readInt();
         _normalBufferSize = in.readInt();
         _colorBufferSize = in.readInt();
         _textureBufferSize = in.readInt();
         _indexBufferSize = in.readInt();
-        _boundingType = in.readInt();
         _textures = (String[])in.readObject();
         _solid = in.readBoolean();
         _transparent = in.readBoolean();
+    }
+    
+    // documentation inherited from interface ModelSpatial
+    public void expandModelBounds ()
+    {
+        // no-op
     }
     
     // documentation inherited from interface ModelSpatial
@@ -488,12 +485,6 @@ public class ModelMesh extends TriMesh
     
     /** The shared state for checking, but not writing to, the z buffer. */
     protected static ZBufferState _overlayZBuffer;
-    
-    /** Indicates that this mesh should use a bounding box. */
-    protected static final int BOX_BOUND = 0;
-    
-    /** Indicates that this mesh should use a bounding sphere. */
-    protected static final int SPHERE_BOUND = 1;
     
     private static final long serialVersionUID = 1;
 }
