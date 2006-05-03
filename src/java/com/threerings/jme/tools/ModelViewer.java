@@ -438,7 +438,7 @@ public class ModelViewer extends JmeCanvasApp
         throws Exception
     {
         _status.setText(_msg.get("m.compiling_model", file));
-        Model model = CompileModelTask.compileModel(file);
+        Model model = CompileModel.compile(file);
         if (model != null) {
             setModel(model, file);
             return;
