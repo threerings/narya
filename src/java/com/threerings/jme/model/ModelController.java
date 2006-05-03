@@ -97,6 +97,7 @@ public abstract class ModelController extends Controller
             properties.originalToCopy.put(_target,
                 mstore._target = _target.putClone(null, properties));
         }
+        mstore._animations = _animations;
         return mstore;
     }
     
