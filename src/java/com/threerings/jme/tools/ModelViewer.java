@@ -106,6 +106,21 @@ public class ModelViewer extends JmeCanvasApp
 {
     public static void main (String[] args)
     {
+        // write standard output and error to a log file
+        if (System.getProperty("no_log_redir") == null) {
+            String dlog = "viewer.log";
+            try {
+                PrintStream logOut = new PrintStream(
+                    new FileOutputStream(dlog), true);
+                System.setOut(logOut);
+                System.setErr(logOut);
+
+            } catch (IOException ioe) {
+                Log.warning("Failed to open debug log [path=" + dlog +
+                            ", error=" + ioe + "].");
+            }
+        }
+        LoggingSystem.getLoggingSystem().setLevel(Level.WARNING);
         new ModelViewer(args.length > 0 ? args[0] : null);
     }
     
@@ -230,24 +245,7 @@ public class ModelViewer extends JmeCanvasApp
         
         _frame.pack();
         _frame.setVisible(true);
-        
-        // write standard output and error to a log file
-        if (System.getProperty("no_log_redir") == null) {
-            String dlog = "viewer.log";
-            try {
-                PrintStream logOut = new PrintStream(
-                    new FileOutputStream(dlog), true);
-                System.setOut(logOut);
-                System.setErr(logOut);
 
-            } catch (IOException ioe) {
-                Log.warning("Failed to open debug log [path=" + dlog +
-                            ", error=" + ioe + "].");
-            }
-        }
-        
-        LoggingSystem.getLoggingSystem().setLevel(Level.WARNING);
-        
         run();
     }
     
