@@ -61,6 +61,18 @@ public class SceneDirector extends BasicDirector
                SceneReceiver, SceneService.SceneMoveListener
 {
     /**
+     * Used to recover from a problem after a completed moveTo.
+     */
+    public static interface MoveHandler
+    {
+        /**
+         * Should instruct the client to move the last known working
+         * location (as well as clean up after the failed moveTo request).
+         */
+        public void recoverMoveTo (int sceneId);
+    }
+
+    /**
      * Creates a new scene director with the specified context.
      *
      * @param ctx the active client context.
@@ -372,6 +384,23 @@ public class SceneDirector extends BasicDirector
     }
 
     /**
+     * Sets the moveHandler for use in recoverFailedMove.
+     */
+    public void setMoveHandler (MoveHandler handler)
+    {
+        if (_moveHandler != null) {
+            Log.warning("Requested to set move handler, but we've " +
+                        "already got one. The conflicting entities will " +
+                        "likely need to perform more sophisticated " +
+                        "coordination to deal with failures. " +
+                        "[old=" + _moveHandler + ", new=" + handler + "].");
+
+        } else {
+            _moveHandler = handler;
+        }
+    }
+
+    /**
      * Called when something breaks down in the process of performing a
      * <code>moveTo</code> request.
      */
@@ -386,7 +415,15 @@ public class SceneDirector extends BasicDirector
         // if we were previously somewhere (and that somewhere isn't where
         // we just tried to go), try going back to that happy place
         if (_previousSceneId != -1 && _previousSceneId != sceneId) {
-            moveTo(_previousSceneId);
+            // if we have a move handler use that
+            if (_moveHandler != null) {
+                _moveHandler.recoverMoveTo(_previousSceneId);
+
+            } else {
+                Log.info("Recovering failed scene move [_previousSceneId=" +
+                        _previousSceneId + "].");
+                moveTo(_previousSceneId);
+            }
         }
     }
 
@@ -507,4 +544,7 @@ public class SceneDirector extends BasicDirector
 
     /** The id of the scene we previously occupied. */
     protected int _previousSceneId = -1;
+
+    /** Reference to our move handler. */
+    protected MoveHandler _moveHandler = null;
 }

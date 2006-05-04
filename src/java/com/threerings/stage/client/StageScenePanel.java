@@ -551,6 +551,9 @@ public class StageScenePanel extends MisoScenePanel
      */
     protected boolean isPortal (Location loc)
     {
+        if (_scene == null) {
+            return false;
+        }
         Iterator iter = _scene.getPortals();
         while (iter.hasNext()) {
             Portal p = (Portal)iter.next();

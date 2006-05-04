@@ -1,5 +1,5 @@
 //
-// $Id: ZoneDirector.java,v 1.16 2004/08/27 02:20:50 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -49,7 +49,8 @@ import com.threerings.whirled.zone.util.ZoneUtil;
  * generate an overview map or similar.
  */
 public class ZoneDirector extends BasicDirector
-    implements ZoneReceiver, ZoneService.ZoneMoveListener
+    implements ZoneReceiver, ZoneService.ZoneMoveListener,
+               SceneDirector.MoveHandler
 {
     /**
      * Constructs a zone director with the supplied context, and delegate
@@ -62,6 +63,7 @@ public class ZoneDirector extends BasicDirector
         super(ctx);
         _ctx = ctx;
         _scdir = scdir;
+        _scdir.setMoveHandler(this);
 
         // register for zone notifications
         _ctx.getClient().getInvocationDirector().registerReceiver(
@@ -165,6 +167,7 @@ public class ZoneDirector extends BasicDirector
         // clear out our business
         _zservice = null;
         _summary = null;
+        _previousZoneId = -1;
     }
 
     /**
@@ -174,6 +177,11 @@ public class ZoneDirector extends BasicDirector
     public void moveSucceeded (
         int placeId, PlaceConfig config, ZoneSummary summary)
     {
+        if (_summary != null) {
+            // keep track of our previous zone info
+            _previousZoneId = _summary.zoneId;
+        }
+        
         // keep track of the summary
         _summary = summary;
 
@@ -247,6 +255,20 @@ public class ZoneDirector extends BasicDirector
     }
 
     /**
+     * Called when something breaks down after successfully completely a
+     * <code>moveTo</code> request.
+     */
+    public void recoverMoveTo (int sceneId)
+    {
+        if (_previousZoneId != -1) {
+            moveTo(_previousZoneId, sceneId);
+
+        } else {
+            _scdir.moveTo(sceneId);
+        }
+    }
+
+    /**
      * Notifies observers of success or failure, depending on the type of
      * object provided as data.
      */
@@ -287,4 +309,7 @@ public class ZoneDirector extends BasicDirector
 
     /** Our zone observer list. */
     protected ArrayList _observers = new ArrayList();
+
+    /** Our previous zone id. */
+    protected int _previousZoneId = -1;
 }
