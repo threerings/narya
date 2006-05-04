@@ -420,8 +420,6 @@ public class SceneDirector extends BasicDirector
                 _moveHandler.recoverMoveTo(_previousSceneId);
 
             } else {
-                Log.info("Recovering failed scene move [_previousSceneId=" +
-                        _previousSceneId + "].");
                 moveTo(_previousSceneId);
             }
         }
