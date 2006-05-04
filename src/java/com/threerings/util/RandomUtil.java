@@ -153,7 +153,7 @@ public class RandomUtil
      * @return a randomly selected item or null if the array is null or of
      * length zero.
      */
-    public static Object pickRandom (Object[] values)
+    public static <T> T pickRandom (T[] values)
     {
         return (values == null || values.length == 0) ? null :
             values[getInt(values.length)];
@@ -170,7 +170,7 @@ public class RandomUtil
      * @return a randomly selected item or null if the array is null, of
      * length zero or contains only the skip item.
      */
-    public static Object pickRandom (Object[] values, Object skip)
+    public static <T> T pickRandom (T[] values, T skip)
     {
         if (values == null || values.length < 2) {
             return null;
@@ -187,7 +187,7 @@ public class RandomUtil
     /**
      * Picks a random object from the supplied {@link Collection}.
      */
-    public static Object pickRandom (Collection values)
+    public static <T> T pickRandom (Collection<T> values)
     {
         return pickRandom(values.iterator(), values.size());
     }
@@ -197,7 +197,7 @@ public class RandomUtil
      *
      * @return a randomly selected item.
      */
-    public static Object pickRandom (List values)
+    public static <T> T pickRandom (List<T> values)
     {
         int size = values.size();
         if (size == 0) {
@@ -214,7 +214,7 @@ public class RandomUtil
      *
      * @return a randomly selected item.
      */
-    public static Object pickRandom (List values, Object skip)
+    public static <T> T pickRandom (List<T> values, T skip)
     {
         return pickRandom(values, skip, rand);
     }
@@ -226,7 +226,7 @@ public class RandomUtil
      *
      * @return a randomly selected item.
      */
-    public static Object pickRandom (List values, Object skip, Random r)
+    public static <T> T pickRandom (List<T> values, T skip, Random r)
     {
         int size = values.size();
         if (size < 2) {
@@ -236,7 +236,7 @@ public class RandomUtil
 
         int pick = r.nextInt(size - 1);
         for (int ii = 0; ii < size; ii++) {
-            Object val = values.get(ii);
+            T val = values.get(ii);
             if ((val != skip) && (pick-- == 0)) {
                 return val;
             }
@@ -253,14 +253,14 @@ public class RandomUtil
      * @exception NoSuchElementException thrown if the iterator provides
      * fewer than <code>count</code> elements.
      */
-    public static Object pickRandom (Iterator iter, int count)
+    public static <T> T pickRandom (Iterator<T> iter, int count)
     {
         if (count < 1) {
             throw new IllegalArgumentException(
                 "Must have at least one element [count=" + count + "]");
         }
 
-        Object value = iter.next();
+        T value = iter.next();
         for (int ii = 0, ll = getInt(count); ii < ll; ii++) {
             value = iter.next();
         }
@@ -279,7 +279,7 @@ public class RandomUtil
      * @exception NoSuchElementException thrown if the iterator provides
      * fewer than <code>count</code> elements.
      */
-    public static Object pickRandom (Iterator iter, int count, Object skip)
+    public static <T> T pickRandom (Iterator<T> iter, int count, T skip)
     {
         if (count < 2) {
             throw new IllegalArgumentException(
@@ -287,7 +287,7 @@ public class RandomUtil
         }
 
         int index = getInt(count-1);
-        Object value = null;
+        T value = null;
         do {
             value = iter.next();
             if (value == skip) {
