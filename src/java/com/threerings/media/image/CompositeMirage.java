@@ -58,9 +58,13 @@ public class CompositeMirage implements Mirage
             BufferedImage.TYPE_INT_ARGB);
         Graphics2D gfx = img.createGraphics();
 
-        for (Mirage m : _mirages) {
-            BufferedImage snap = m.getSnapshot();
-            gfx.drawImage(snap, 0, 0, snap.getWidth(), snap.getHeight(), null);
+        try {
+            for (Mirage m : _mirages) {
+                BufferedImage snap = m.getSnapshot();
+                gfx.drawImage(snap, 0, 0, null);
+            }
+        } finally {
+            gfx.dispose();
         }
 
         return img;
