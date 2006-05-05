@@ -156,16 +156,23 @@ public class SoundManager
     {
         Comparable ckey = ClipBuffer.makeKey(provider, path);
         ClipBuffer buffer = _clips.get(ckey);
-        if (buffer == null) {
-            // check to see if this clip is currently loading
-            buffer = _loading.get(ckey);
+        try {
             if (buffer == null) {
-                buffer = new ClipBuffer(this, provider, path);
-                _loading.put(ckey, buffer);
+                // check to see if this clip is currently loading
+                buffer = _loading.get(ckey);
+                if (buffer == null) {
+                    buffer = new ClipBuffer(this, provider, path);
+                    _loading.put(ckey, buffer);
+                }
             }
+            buffer.resolve(null);
+            return buffer;
+
+        } catch (Throwable t) {
+            Log.warning("Failure resolving buffer [key=" + ckey + "].");
+            Log.logStackTrace(t);
+            return null;
         }
-        buffer.resolve(null);
-        return buffer;
     }
 
     /**

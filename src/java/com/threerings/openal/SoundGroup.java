@@ -48,11 +48,11 @@ public class SoundGroup
      */
     public Sound getSound (String path)
     {
+        ClipBuffer buffer = null;
         if (_manager.isInitialized()) {
-            return new Sound(this, _manager.getClip(_provider, path));
-        } else {
-            return new BlankSound();
+            buffer = _manager.getClip(_provider, path);
         }
+        return (buffer == null) ? new BlankSound() : new Sound(this, buffer);
     }
 
     /**
@@ -109,7 +109,7 @@ public class SoundGroup
         // start at the beginning of the list looking for an available
         // source
         for (int ii = 0, ll = _sources.size(); ii < ll; ii++) {
-            Source source = (Source)_sources.get(ii);
+            Source source = _sources.get(ii);
             if (source.holder == null || source.holder.reclaim()) {
                 // note this source's new holder
                 source.holder = acquirer;
@@ -133,5 +133,5 @@ public class SoundGroup
     protected ClipProvider _provider;
 
     protected IntBuffer _sourceIds;
-    protected ArrayList _sources = new ArrayList();
+    protected ArrayList<Source> _sources = new ArrayList<Source>();
 }
