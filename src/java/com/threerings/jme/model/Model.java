@@ -367,6 +367,9 @@ public class Model extends ModelNode
         if (anim == null) {
             return -1f;
         }
+        if (_anim != null) {
+            _animObservers.apply(new AnimCancelledOp(_animName));
+        }
         _anim = anim;
         _animName = name;
         _fidx = 0;
