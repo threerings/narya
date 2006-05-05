@@ -60,8 +60,7 @@ public class CompositeMirage implements Mirage
 
         try {
             for (Mirage m : _mirages) {
-                BufferedImage snap = m.getSnapshot();
-                gfx.drawImage(snap, 0, 0, null);
+                m.paint(gfx, 0, 0);
             }
         } finally {
             gfx.dispose();
