@@ -381,6 +381,14 @@ public class Model extends ModelNode
     }
     
     /**
+     * Fast-forwards the current animation by the given number of seconds.
+     */
+    public void fastForwardAnimation (float time)
+    {
+        updateAnimation(time);
+    }
+    
+    /**
      * Gets a reference to the animation with the given name.
      */
     public Animation getAnimation (String name)
@@ -522,16 +530,29 @@ public class Model extends ModelNode
     }
     
     /**
-     * Creates and returns a new instance of this model.
-     */    
+     * Creates and returns a new instance of this model's default
+     * variant.
+     */
     public Model createInstance ()
     {
+        return createInstance(null);
+    }
+    
+    /**
+     * Creates and returns a new instance of this model.
+     *
+     * @param variant the name of the variant desired, or <code>null</code>
+     * for the default variant
+     */    
+    public Model createInstance (String variant)
+    {
         if (_prototype != null) {
-            return _prototype.createInstance();
+            return _prototype.createInstance(variant);
         }
         if (_ccreator == null) {
             _ccreator = new ModelCloneCreator(this);
         }
+        _ccreator.variant = variant;
         Model instance = (Model)_ccreator.createCopy();
         instance.initInstance();
         return instance;
@@ -564,7 +585,14 @@ public class Model extends ModelNode
         } else {
             mstore = (Model)store;
         }
+        // don't clone the emission node, as it contains transient geometry
+        if (_emissionNode != null) {
+            detachChild(_emissionNode);
+        }
         super.putClone(mstore, properties);
+        if (_emissionNode != null) {
+            attachChild(_emissionNode);
+        }
         mstore._prototype = this;
         if (_anims != null) {
             mstore._anims = new HashMap<String, Animation>();
@@ -847,6 +875,9 @@ public class Model extends ModelNode
     /** Customized clone creator for models. */
     protected static class ModelCloneCreator extends CloneCreator
     {
+        /** The model variant desired, or <code>null</code> for the default. */
+        public String variant;
+        
         /** A shared seed used to select textures consistently. */
         public int random;
         

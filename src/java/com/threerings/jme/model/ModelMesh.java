@@ -88,7 +88,6 @@ public class ModelMesh extends TriMesh
     public void configure (
         boolean solid, String texture, boolean transparent, Properties props)
     {
-        
         _textures = (texture == null) ? null : StringUtil.parseStringArray(
             props.getProperty(texture, texture));
         _solid = solid;
