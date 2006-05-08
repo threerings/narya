@@ -132,9 +132,13 @@ public class SoundManager
         _clips.setRemovalObserver(
             new LRUHashMap.RemovalObserver<Comparable,ClipBuffer>() {
             public void removedFromMap (LRUHashMap<Comparable,ClipBuffer> map,
-                                        ClipBuffer item) {
-                Log.debug("Flushing " + item.getKey());
-                item.dispose();
+                                        final ClipBuffer item) {
+                _rqueue.postRunnable(new Runnable() {
+                    public void run () {
+                        Log.debug("Flushing " + item.getKey());
+                        item.dispose();
+                    }
+                });
             }
         });
 
