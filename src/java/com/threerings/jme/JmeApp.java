@@ -93,8 +93,8 @@ public class JmeApp
             // create an appropriate timer
             _timer = Timer.getTimer(_api);
 
-            // start with a target of 60 frames per second
-            setTargetFPS(60);
+            // start with the target FPS equal to the refresh rate
+            setTargetFPS(_display.getFrequency());
 
             // initialize our main camera controls and user input handling
             initInput();
