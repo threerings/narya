@@ -19,7 +19,7 @@ public class ImageUtil
     public static function createErrorImage (width :int, height :int) :Shape
     {
         var shape :Shape = new Shape();
-        shape.graphics.beginBitmapFill(createErrorBitmap(), null, true);
+        shape.graphics.beginBitmapFill(createErrorBitmap());
         shape.graphics.drawRect(0, 0, width, height);
         shape.graphics.endFill();
         return shape;
