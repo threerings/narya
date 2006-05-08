@@ -50,6 +50,7 @@ import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JComboBox;
+import javax.swing.JDialog;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -201,6 +202,21 @@ public class ModelViewer extends JmeCanvasApp
         _normals.setAccelerator(
             KeyStroke.getKeyStroke(KeyEvent.VK_N, KeyEvent.CTRL_MASK));
         view.add(_normals);
+        view.addSeparator();
+        
+        Action rlight = new AbstractAction(_msg.get("m.view_light")) {
+            public void actionPerformed (ActionEvent e) {
+                if (_rldialog == null) {
+                    _rldialog = new RotateLightDialog();
+                    _rldialog.pack();
+                }
+                _rldialog.setVisible(true);
+            }
+        };
+        rlight.putValue(Action.MNEMONIC_KEY, KeyEvent.VK_R);
+        rlight.putValue(Action.ACCELERATOR_KEY,
+            KeyStroke.getKeyStroke(KeyEvent.VK_R, KeyEvent.CTRL_MASK));
+        view.add(new JMenuItem(rlight));
         
         _frame.getContentPane().add(getCanvas(), BorderLayout.CENTER);
         
@@ -364,13 +380,13 @@ public class ModelViewer extends JmeCanvasApp
     @Override // documentation inherited
     protected void initLighting ()
     {
-        DirectionalLight dlight = new DirectionalLight();
-        dlight.setEnabled(true);
-        dlight.getDirection().set(-1f, 0f, -1f).normalizeLocal();
-        dlight.getAmbient().set(0.25f, 0.25f, 0.25f, 1f);
+        _dlight = new DirectionalLight();
+        _dlight.setEnabled(true);
+        _dlight.getDirection().set(-1f, 0f, -1f).normalizeLocal();
+        _dlight.getAmbient().set(0.25f, 0.25f, 0.25f, 1f);
         
         LightState lstate = _ctx.getRenderer().createLightState();
-        lstate.attach(dlight);
+        lstate.attach(_dlight);
         _ctx.getGeometry().setRenderState(lstate);
         _ctx.getGeometry().setLightCombineMode(LightState.REPLACE);
     }
@@ -557,6 +573,12 @@ public class ModelViewer extends JmeCanvasApp
     /** The model file chooser. */
     protected JFileChooser _chooser;
     
+    /** The light rotation dialog. */
+    protected RotateLightDialog _rldialog;
+    
+    /** The scene light. */
+    protected DirectionalLight _dlight;
+    
     /** Used to toggle wireframe rendering. */
     protected WireframeState _wfstate;
     
@@ -582,6 +604,59 @@ public class ModelViewer extends JmeCanvasApp
             return true;
         }
     };
+    
+    /** Allows users to move the directional light around. */
+    protected class RotateLightDialog extends JDialog
+        implements ChangeListener
+    {
+        public RotateLightDialog ()
+        {
+            super(_frame, _msg.get("m.rotate_light"), false);
+            
+            JPanel cpanel = GroupLayout.makeVBox();
+            getContentPane().add(cpanel, BorderLayout.CENTER);
+            
+            JPanel apanel = new JPanel();
+            apanel.add(new JLabel(_msg.get("m.azimuth")));
+            apanel.add(_azimuth = new JSlider(-180, +180, 0));
+            _azimuth.addChangeListener(this);
+            cpanel.add(apanel);
+            
+            JPanel epanel = new JPanel();
+            epanel.add(new JLabel(_msg.get("m.elevation")));
+            epanel.add(_elevation = new JSlider(-90, +90, 45));
+            _elevation.addChangeListener(this);
+            cpanel.add(epanel);
+            
+            JPanel bpanel = new JPanel();
+            bpanel.add(new JButton(new AbstractAction(_msg.get("m.close")) {
+                public void actionPerformed (ActionEvent e) {
+                    setVisible(false);
+                }
+            }));
+            getContentPane().add(bpanel, BorderLayout.SOUTH);
+        }
+        
+        // documentation inherited from interface ChangeListener
+        public void stateChanged (ChangeEvent e)
+        {
+            float az = _azimuth.getValue() * FastMath.DEG_TO_RAD,
+                el = _elevation.getValue() * FastMath.DEG_TO_RAD;
+            _dlight.getDirection().set(
+                -FastMath.cos(az) * FastMath.cos(el),
+                -FastMath.sin(az) * FastMath.cos(el),
+                -FastMath.sin(el));
+        }
+        
+        // documentation inherited from interface ActionListener
+        public void actionPerformed (ActionEvent e)
+        {
+            setVisible(false);
+        }
+        
+        /** Azimuth and elevation sliders. */
+        protected JSlider _azimuth, _elevation;
+    }
     
     /** Moves the camera using mouse input. */
     protected class MouseOrbiter extends MouseAdapter
