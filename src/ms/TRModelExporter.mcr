@@ -64,24 +64,31 @@ macroScript TRModelExporter category:"File" \
     (
         for i = 1 to mesh.numfaces do (
             face = getFace mesh i
+            normals = meshop.getFaceRNormals mesh i
             local tvface
             if mesh.numtverts > 0 do (
                 tvface = getTVFace mesh i
             )
-            for i = 1 to 3 do (
+            for j = 1 to 3 do (
                 format "    <vertex" to:outFile
-                writePoint3Attr " location" (getVert mesh face[i]) outFile
-                writePoint3Attr " normal" (getNormal mesh face[i]) outFile
+                writePoint3Attr " location" (getVert mesh face[j]) outFile
+				local normal
+				if normals[j] != undefined then (
+					normal = normals[j]
+				) else (
+					normal = getNormal mesh face[j]
+				)
+	            writePoint3Attr " normal" normal outFile
                 if tvface != undefined do (
-                    tvert = getTVert mesh tvface[i]
+                    tvert = getTVert mesh tvface[j]
                     format " tcoords=\"%, %\"" tvert[1] tvert[2] to:outFile
                 )
                 if isProperty mesh #skin or isProperty mesh #physique then (
                     format ">\n" to:outFile
                     if isProperty mesh #skin then (
-                        writeSkinBoneWeights mesh.skin face[i] outFile
+                        writeSkinBoneWeights mesh.skin face[j] outFile
                     ) else (
-                        writePhysiqueBoneWeights mesh face[i] outFile
+                        writePhysiqueBoneWeights mesh face[j] outFile
                     )
                     format "    </vertex>\n" to:outFile
                 ) else (
