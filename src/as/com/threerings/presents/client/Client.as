@@ -5,7 +5,7 @@ import flash.display.Stage;
 import flash.events.EventDispatcher;
 import flash.events.TimerEvent;
 
-import flash.util.Timer;
+import flash.utils.Timer;
 
 import com.threerings.util.ObserverList;
 
@@ -123,7 +123,7 @@ public class Client extends EventDispatcher
         return _version;
     }
 
-    public function setVersion (version :String)
+    public function setVersion (version :String) :void
     {
         _version = version;
     }
@@ -270,7 +270,7 @@ public class Client extends EventDispatcher
             return;
         }
 
-        var now :uint = flash.util.getTimer();
+        var now :uint = flash.utils.getTimer();
         if (now - _comm.getLastWrite() > PingRequest.PING_INTERVAL) {
             _comm.postMessage(new PingRequest());
         }

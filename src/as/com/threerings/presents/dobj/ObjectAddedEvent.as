@@ -1,9 +1,9 @@
 package com.threerings.presents.dobj {
 
-import flash.util.StringBuilder;
-
 import com.threerings.io.ObjectInputStream;
 import com.threerings.io.ObjectOutputStream;
+
+import com.threerings.util.StringBuilder;
 
 /**
  * An object added event is dispatched when an object is added to an

@@ -1,6 +1,6 @@
 package com.threerings.io {
 
-import flash.util.ByteArray;
+import flash.utils.ByteArray;
 
 public class ArrayMask
 {

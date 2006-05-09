@@ -21,7 +21,7 @@
 
 package com.threerings.presents.dobj {
 
-import flash.util.StringBuilder;
+import com.threerings.util.StringBuilder;
 
 /**
  * An object destroyed event is dispatched when an object has been removed

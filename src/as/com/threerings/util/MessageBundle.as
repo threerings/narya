@@ -21,8 +21,6 @@
 
 package com.threerings.util {
 
-import flash.util.StringBuilder;
-
 /**
  * A message bundle provides an easy mechanism by which to obtain
  * translated message strings from a resource bundle. It uses the {@link

@@ -1,6 +1,6 @@
 package com.threerings.io.streamers {
 
-import flash.util.ByteArray;
+import flash.utils.ByteArray;
 
 import com.threerings.io.ObjectInputStream;
 import com.threerings.io.ObjectOutputStream;

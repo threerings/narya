@@ -23,7 +23,7 @@ package com.threerings.presents.client {
 
 import flash.events.Event;
 import flash.events.TimerEvent;
-import flash.util.Timer;
+import flash.utils.Timer;
 
 import mx.collections.IList;
 

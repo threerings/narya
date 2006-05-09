@@ -1,5 +1,7 @@
 package com.threerings.presents.net {
 
+import flash.utils.getTimer;
+
 import com.threerings.io.ObjectOutputStream;
 
 public class PingRequest extends UpstreamMessage
@@ -22,7 +24,7 @@ public class PingRequest extends UpstreamMessage
     // documentation inherited
     public override function writeObject (out :ObjectOutputStream) :void
     {
-        _packStamp = flash.util.getTimer();
+        _packStamp = getTimer();
         super.writeObject(out);
     }
 

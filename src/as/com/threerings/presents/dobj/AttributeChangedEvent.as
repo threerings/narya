@@ -1,9 +1,9 @@
 package com.threerings.presents.dobj {
 
-import flash.util.StringBuilder;
-
 import com.threerings.io.ObjectInputStream;
 import com.threerings.io.ObjectOutputStream;
+
+import com.threerings.util.StringBuilder;
 
 /**
  * An attribute changed event is dispatched when a single attribute of a

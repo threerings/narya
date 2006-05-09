@@ -1,17 +1,19 @@
 package com.threerings.util {
 
-import flash.util.*;
+import flash.utils.describeType;
+import flash.utils.getQualifiedClassName;
+import flash.utils.getDefinitionByName;
 
 public class ClassUtil
 {
     public static function getClassName (obj :Object) :String
     {
-        return flash.util.getQualifiedClassName(obj).replace("::", ".");
+        return getQualifiedClassName(obj).replace("::", ".");
     }
 
     public static function shortClassName (obj :Object) :String
     {
-        var s :String = flash.util.getQualifiedClassName(obj);
+        var s :String = getQualifiedClassName(obj);
         var dex :int = s.lastIndexOf(".");
         if (dex != -1) {
             s = s.substring(dex);
@@ -21,13 +23,13 @@ public class ClassUtil
 
     public static function getClass (obj :Object) :Class
     {
-        return flash.util.getClassByName(getClassName(obj));
+        return getClassByName(getClassName(obj));
     }
 
     public static function getClassByName (cname :String) :Class
     {
         // see also ApplicationDomain.currentDomain.getClass(cname)
-        return flash.util.getClassByName(cname.replace("::", "."));
+        return (getDefinitionByName(cname.replace("::", ".")) as Class);
     }
 
     public static function isFinal (type :Class) :Boolean
@@ -37,7 +39,7 @@ public class ClassUtil
         }
 
         // TODO: there's currently no way to determine final from the class
-        //var attrs :XMLList = flash.util.describeType(type).elements("type");
+        //var attrs :XMLList = flash.utils.describeType(type).elements("type");
         return false;
     }
 
@@ -62,8 +64,7 @@ public class ClassUtil
         }
 
         // ok, let's introspect on the class and see what we've got.
-        var typeInfo :XMLList =
-            flash.util.describeType(srcClass).child("factory");
+        var typeInfo :XMLList = describeType(srcClass).child("factory");
 
         // See which classes we extend.
         var exts :XMLList = typeInfo.child("extends").attribute("type");

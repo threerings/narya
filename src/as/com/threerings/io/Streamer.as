@@ -1,14 +1,12 @@
 package com.threerings.io {
 
-import flash.util.trace;
-
-import flash.util.ByteArray;
+import flash.utils.ByteArray;
 
 import com.threerings.util.ClassUtil;
 import com.threerings.util.SimpleMap;
 
 import com.threerings.io.streamers.ArrayStreamer;
-import com.threerings.io.streamers.ByteyStreamer;
+import com.threerings.io.streamers.ByteStreamer;
 import com.threerings.io.streamers.ByteArrayStreamer;
 import com.threerings.io.streamers.FloatStreamer;
 import com.threerings.io.streamers.IntegerStreamer;

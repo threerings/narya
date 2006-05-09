@@ -1,5 +1,7 @@
 package com.threerings.presents.net {
 
+import flash.utils.getTimer;
+
 import com.threerings.util.Long;
 
 import com.threerings.io.ObjectInputStream;
@@ -30,7 +32,7 @@ public class PongResponse extends DownstreamMessage
 
     public override function readObject (ins :ObjectInputStream) :void
     {
-        _unpackStamp = flash.util.getTimer();
+        _unpackStamp = getTimer();
         super.readObject(ins);
 
         // TODO: Figure out how we're really going to cope with longs

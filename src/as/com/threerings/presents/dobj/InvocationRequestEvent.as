@@ -21,10 +21,10 @@
 
 package com.threerings.presents.dobj {
 
-import flash.util.StringBuilder;
-
 import com.threerings.io.ObjectInputStream;
 import com.threerings.io.ObjectOutputStream;
+
+import com.threerings.util.StringBuilder;
 
 /**
  * Used to dispatch an invocation request from the client to the server.

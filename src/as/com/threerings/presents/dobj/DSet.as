@@ -1,12 +1,11 @@
 package com.threerings.presents.dobj {
 
-import flash.util.StringBuilder;
-
 import mx.utils.ObjectUtil;
 
+import com.threerings.util.ArrayIterator;
 import com.threerings.util.Equalable;
 import com.threerings.util.Iterator;
-import com.threerings.util.ArrayIterator;
+import com.threerings.util.StringBuilder;
 
 import com.threerings.io.ObjectInputStream;
 import com.threerings.io.ObjectOutputStream;

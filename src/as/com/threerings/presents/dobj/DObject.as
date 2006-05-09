@@ -2,11 +2,10 @@ package com.threerings.presents.dobj {
 
 import flash.events.EventDispatcher;
 
-import flash.util.StringBuilder;
-
 import mx.collections.ArrayCollection;
 
 import com.threerings.util.ClassUtil;
+import com.threerings.util.StringBuilder;
 
 import com.threerings.io.ObjectInputStream;
 import com.threerings.io.ObjectOutputStream;
@@ -258,7 +257,7 @@ public class DObject // extends EventDispatcher
     /**
      * Calls by derived instances when a set updater method was called.
      */
-    protected function requestEntryUpdate (name :String, entry :DSetEntry)
+    protected function requestEntryUpdate (name :String, entry :DSetEntry) :void
     {
         // dispatch an entry updated event
         postEvent(new EntryUpdatedEvent(_oid, name, entry, null));

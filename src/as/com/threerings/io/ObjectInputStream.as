@@ -2,13 +2,13 @@ package com.threerings.io {
 
 import flash.errors.IOError;
 
-import flash.util.ByteArray;
-import flash.util.IDataInput;
+import flash.utils.ByteArray;
+import flash.utils.IDataInput;
 
 import com.threerings.util.ClassUtil;
 import com.threerings.util.SimpleMap;
 
-import com.threerings.presents.Log;
+//import com.threerings.presents.Log;
 
 public class ObjectInputStream
 {
@@ -74,7 +74,7 @@ public class ObjectInputStream
             Log.debug("Creating object sleeve...");
             var target :Object;
             if (cmap.streamer === null) {
-                var clazz :Class = flash.util.getClassByName(cmap.classname);
+                var clazz :Class = ClassUtil.getClassByName(cmap.classname);
                 target = new clazz();
 
             } else {

@@ -21,9 +21,8 @@
 
 package com.threerings.presents.net {
 
-import flash.util.StringBuilder;
-
 import com.threerings.util.Name;
+import com.threerings.util.StringBuilder;
 
 import com.threerings.io.ObjectInputStream;
 import com.threerings.io.ObjectOutputStream;

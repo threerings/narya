@@ -1,6 +1,6 @@
 package com.threerings.presents.client {
 
-import flash.util.describeType;
+import flash.utils.describeType;
 
 import mx.collections.ArrayCollection;
 

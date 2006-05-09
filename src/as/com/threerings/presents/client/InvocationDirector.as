@@ -70,7 +70,8 @@ public class InvocationDirector
     public function unregisterReceiver (receiverCode :String) :void
     {
         // remove the receiver from the list
-        for (var iter :IViewCursor = _reclist.getCursor(); iter.moveNext(); ) {
+        for (var iter :IViewCursor = _reclist.createCursor();
+                iter.moveNext(); ) {
             var decoder :InvocationDecoder =
                 (iter.current as InvocationDecoder);
             if (decoder.getReceiverCode() === receiverCode) {
@@ -115,7 +116,8 @@ public class InvocationDirector
     {
         _clobj.startTransaction();
         try {
-            for (var itr :IViewCursor = _reclist.getCursor(); itr.moveNext(); ) {
+            for (var itr :IViewCursor = _reclist.createCursor();
+                    itr.moveNext(); ) {
                 var decoder :InvocationDecoder =
                     (itr.current as InvocationDecoder);
                 assignReceiverId(decoder);

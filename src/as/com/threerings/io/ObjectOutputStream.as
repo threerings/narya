@@ -1,9 +1,7 @@
 package com.threerings.io {
 
-import flash.util.trace;
-
-import flash.util.ByteArray;
-import flash.util.IDataOutput;
+import flash.utils.ByteArray;
+import flash.utils.IDataOutput;
 
 import com.threerings.util.ClassUtil;
 import com.threerings.util.SimpleMap;

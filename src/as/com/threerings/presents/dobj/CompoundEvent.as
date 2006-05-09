@@ -21,14 +21,13 @@
 
 package com.threerings.presents.dobj {
 
-import flash.util.StringBuilder;
-
 import mx.collections.IList;
 
 import com.threerings.io.ObjectInputStream;
 import com.threerings.io.ObjectOutputStream;
 
 import com.threerings.util.StreamableArrayList;
+import com.threerings.util.StringBuilder;
 
 /**
  * Used to manage and submit groups of events on a collection of

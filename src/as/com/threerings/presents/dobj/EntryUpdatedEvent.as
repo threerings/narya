@@ -1,9 +1,9 @@
 package com.threerings.presents.dobj {
 
-import flash.util.StringBuilder;
-
 import com.threerings.io.ObjectInputStream;
 import com.threerings.io.ObjectOutputStream;
+
+import com.threerings.util.StringBuilder;
 
 import com.threerings.presents.Log;
 

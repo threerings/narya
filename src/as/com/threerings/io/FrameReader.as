@@ -5,8 +5,8 @@ import flash.events.ProgressEvent;
 
 import flash.net.Socket;
 
-import flash.util.ByteArray;
-import flash.util.Endian;
+import flash.utils.ByteArray;
+import flash.utils.Endian;
 
 import com.threerings.presents.Log;
 

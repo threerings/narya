@@ -24,7 +24,8 @@ public class InvocationRegistration
     public var receiverId :int;
 
     /** Creates and initializes a registration instance. */
-    public function Registration (receiverCode :String, receiverId :int)
+    public function InvocationRegistration (
+            receiverCode :String, receiverId :int)
     {
         this.receiverCode = receiverCode;
         this.receiverId = receiverId;

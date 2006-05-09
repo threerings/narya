@@ -1,7 +1,8 @@
 package com.threerings.util {
 
-import flash.util.ByteArray;
-import flash.util.StringBuilder;
+import flash.utils.ByteArray;
+
+import com.threerings.util.StringBuilder;
 
 public class Util
 {

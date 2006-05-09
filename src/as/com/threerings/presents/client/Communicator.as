@@ -5,8 +5,8 @@ import flash.events.IOErrorEvent;
 
 import flash.net.Socket;
 
-import flash.util.ByteArray;
-import flash.util.Endian;
+import flash.utils.ByteArray;
+import flash.utils.Endian;
 
 import com.threerings.util.Util;
 
@@ -135,7 +135,7 @@ public class Communicator
      */
     internal function updateWriteStamp () :void
     {
-        _lastWrite = flash.util.getTimer();
+        _lastWrite = flash.utils.getTimer();
     }
 
     /**
