@@ -67,21 +67,18 @@ public class ClassUtil
         var typeInfo :XMLList = describeType(srcClass).child("factory");
 
         // See which classes we extend.
-        var exts :XMLList = typeInfo.child("extends").attribute("type");
+        var exts :XMLList = typeInfo.child("extendsClass").attribute("type");
         for each (var type :String in exts) {
-            //if (asClass == getClassByName(type)) {
-            // TEMP: recursing sometimes gets around a describeType bug
-            if (isAssignableAs(asClass, getClassByName(type))) {
+            if (asClass == getClassByName(type)) {
                 return true;
             }
         }
 
         // See which interfaces we implement.
-        var imps :XMLList = typeInfo.child("implements").attribute("type");
+        var imps :XMLList = typeInfo.child("implementsInterface")
+            .attribute("type");
         for each (var type :String in imps) {
-            //if (asClass == getClassByName(type)) {
-            // TEMP: recursing sometimes gets around a describeType bug
-            if (isAssignableAs(asClass, getClassByName(type))) {
+            if (asClass == getClassByName(type)) {
                 return true;
             }
         }
