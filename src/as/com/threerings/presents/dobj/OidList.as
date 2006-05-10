@@ -4,6 +4,7 @@ import com.threerings.io.Streamable;
 
 import com.threerings.io.ObjectInputStream;
 import com.threerings.io.ObjectOutputStream;
+import com.threerings.io.TypedArray;
 
 import com.threerings.util.StringBuilder;
 
@@ -23,7 +24,7 @@ public class OidList
      */
     public function OidList ()
     {
-        _oids = new Array();
+        _oids = new TypedArray("[I");
     }
 
     /**
@@ -107,15 +108,8 @@ public class OidList
     // documentation inherited from interface Streamable
     public function readObject (ins :ObjectInputStream) :void
     {
-        // TODO: this is some custom shit. We need to work out array streaming
-        _oids = new Array();
-        var ecount :int = ins.readInt();
-        for (var ii :int = 0; ii < ecount; ii++) {
-            _oids.push(ins.readInt());
-        }
-        _oids.length = ins.readInt(); // then, limit the length to the size
+        _oids = (ins.readField("[I") as TypedArray);
     }
-
 
     public function toString () :String
     {
@@ -126,6 +120,6 @@ public class OidList
         return buf.toString();
     }
 
-    private var _oids :Array;
+    private var _oids :TypedArray;
 }
 }

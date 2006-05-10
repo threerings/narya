@@ -56,11 +56,11 @@ public class ObjectInputStream
                     Log.warning("OMG, cannot stream " + cname);
                     return null;
                 }
-                Log.debug("Got streamer (" + streamer + ")");
+//                Log.debug("Got streamer (" + streamer + ")");
 
                 cmap = new ClassMapping(code, cname, streamer);
                 _classMap[code] = cmap;
-                Log.debug("Created mapping for (" + code + "): " + cname);
+//                Log.debug("Created mapping for (" + code + "): " + cname);
 
             } else {
                 Log.debug("Read known code: " + code);

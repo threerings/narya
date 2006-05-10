@@ -18,24 +18,27 @@ public class ArrayStreamer extends Streamer
     {
         super(TypedArray, jname);
 
-        if (jname.charAt(1) === "[") {
+        var secondChar :String = jname.charAt(1);
+
+        if (secondChar === "[") {
             // if we're a multi-dimensional array then we need a delegate
             _delegate = Streamer.getStreamerByJavaName(jname.substring(1));
             _isFinal = true; // it just is
 
-        } else {
-            if (jname.charAt(1) === "L") {
-                // form is "[L<class>;"
-                var baseClass :String = jname.substring(2, jname.length - 1);
-                baseClass = Translations.getFromServer(baseClass);
-                _elementType = ClassUtil.getClassByName(baseClass);
-                _isFinal = ClassUtil.isFinal(_elementType);
+        } else if (secondChar === "L") {
+            // form is "[L<class>;"
+            var baseClass :String = jname.substring(2, jname.length - 1);
+            baseClass = Translations.getFromServer(baseClass);
+            _elementType = ClassUtil.getClassByName(baseClass);
+            _isFinal = ClassUtil.isFinal(_elementType);
 
-            } else {
-                com.threerings.presents.Log.warning("Other array types are currently not handled yet " +
-                    "[jname=" + jname + "].");
-                throw new Error("Unimplemented bit");
-            }
+        } else if (secondChar === "I") {
+            _elementType = int;
+
+        } else {
+            com.threerings.presents.Log.warning("Other array types are " +
+                "currently not handled yet [jname=" + jname + "].");
+            throw new Error("Unimplemented bit");
         }
     }
 
@@ -57,7 +60,12 @@ public class ArrayStreamer extends Streamer
     {
         var arr :Array = (obj as Array);
         out.writeInt(arr.length);
-        if (_isFinal) {
+        if (_elementType == int) {
+            for (var ii :int = 0; ii < arr.length; ii++) {
+                out.writeInt(arr[ii] as int);
+            }
+
+        } else if (_isFinal) {
             var mask :ArrayMask = new ArrayMask(arr.length);
             for (var ii :int = 0; ii < arr.length; ii++) {
                 if (arr[ii] != null) {
@@ -84,7 +92,12 @@ public class ArrayStreamer extends Streamer
             :void
     {
         var arr :Array = (obj as Array);
-        if (_isFinal) {
+        if (_elementType == int) {
+            for (var ii :int = 0; ii < arr.length; ii++) {
+                arr[ii] = ins.readInt();
+            }
+
+        } else if (_isFinal) {
             var mask :ArrayMask = new ArrayMask();
             mask.readFrom(ins);
             for (var ii :int = 0; ii < length; ii++) {

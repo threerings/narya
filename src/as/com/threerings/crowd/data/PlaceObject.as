@@ -183,9 +183,9 @@ public class PlaceObject extends DObject
     public override function writeObject (out :ObjectOutputStream) :void
     {
         super.writeObject(out);
-        out.writeField(occupants);
-        out.writeField(occupantInfo);
-        out.writeField(speakService);
+        out.writeObject(occupants);
+        out.writeObject(occupantInfo);
+        out.writeObject(speakService);
     }
 
     // documentation inherited
@@ -193,9 +193,9 @@ public class PlaceObject extends DObject
     {
         super.readObject(ins);
         // TODO: this needs fixing!
-        occupants = (ins.readField(OidList) as OidList);
-        occupantInfo = (ins.readField(DSet) as DSet);
-        speakService = (ins.readField(SpeakMarshaller) as SpeakMarshaller);
+        occupants = (ins.readObject() as OidList);
+        occupantInfo = (ins.readObject() as DSet);
+        speakService = (ins.readObject() as SpeakMarshaller);
     }
 }
 }
