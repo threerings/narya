@@ -64,7 +64,9 @@ public abstract class Stream
     public void setGain (float gain)
     {
         _gain = gain;
-        AL10.alSourcef(_sourceId, AL10.AL_GAIN, _gain);
+        if (_fadeMode == FadeMode.NONE) {
+            AL10.alSourcef(_sourceId, AL10.AL_GAIN, _gain);
+        }
     }
     
     /**
@@ -120,6 +122,33 @@ public abstract class Stream
     }
     
     /**
+     * Fades this stream in over the specified interval.  If the stream isn't
+     * playing, it will be started.
+     */
+    public void fadeIn (float interval)
+    {
+        if (_state != AL10.AL_PLAYING) {
+            play();
+        }
+        AL10.alSourcef(_sourceId, AL10.AL_GAIN, 0f);
+        _fadeMode = FadeMode.IN;
+        _fadeInterval = interval;
+        _fadeElapsed = 0f;
+    }
+    
+    /**
+     * Fades this stream out over the specified interval.
+     *
+     * @param dispose if true, dispose of the stream when done fading out
+     */
+    public void fadeOut (float interval, boolean dispose)
+    {
+        _fadeMode = dispose ? FadeMode.OUT_DISPOSE : FadeMode.OUT;
+        _fadeInterval = interval;
+        _fadeElapsed = 0f;
+    }
+    
+    /**
      * Releases the resources held by this stream and removes it from
      * the manager.
      */
@@ -151,9 +180,12 @@ public abstract class Stream
      */
     protected void update (float time)
     {
+        // update fade, which may stop playing
+        updateFade(time);
         if (_state != AL10.AL_PLAYING) {
             return;
         }
+        
         // find out how many buffers have been played
         int played = AL10.alGetSourcei(_sourceId, AL10.AL_BUFFERS_PROCESSED);
         if (played == 0) {
@@ -168,6 +200,27 @@ public abstract class Stream
         _nbuf.flip();
         AL10.alSourceUnqueueBuffers(_sourceId, _nbuf);
         queueBuffers(played);
+    }
+    
+    /**
+     * Updates the gain of the stream according to the fade state.
+     */
+    protected void updateFade (float time)
+    {
+        if (_fadeMode == FadeMode.NONE) {
+            return;
+        }
+        float alpha = Math.min((_fadeElapsed += time) / _fadeInterval, 1f);
+        AL10.alSourcef(_sourceId, AL10.AL_GAIN, _gain *
+            (_fadeMode == FadeMode.IN ? alpha : (1f - alpha)));
+        if (alpha == 1f) {
+            if (_fadeMode == FadeMode.OUT) {
+                stop();
+            } else if (_fadeMode == FadeMode.OUT_DISPOSE) {
+                dispose();
+            }
+            _fadeMode = FadeMode.NONE;
+        }
     }
     
     /**
@@ -249,10 +302,16 @@ public abstract class Stream
     protected int _qidx, _qlen;
     
     /** The pitch of the stream. */
-    protected float _pitch;
+    protected float _pitch = 1f;
     
     /** The gain of the stream. */
-    protected float _gain;
+    protected float _gain = 1f;
+    
+    /** The interval and elapsed time for fading. */
+    protected float _fadeInterval, _fadeElapsed;
+    
+    /** The type of fading being performed. */
+    protected FadeMode _fadeMode = FadeMode.NONE;
     
     /** The buffer used to store names. */
     protected IntBuffer _nbuf;
@@ -269,4 +328,7 @@ public abstract class Stream
     
     /** The number of buffers to use. */
     protected static final int NUM_BUFFERS = 4;
+    
+    /** Fading modes. */
+    protected enum FadeMode { NONE, IN, OUT, OUT_DISPOSE };
 }

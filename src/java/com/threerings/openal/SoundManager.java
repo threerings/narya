@@ -105,6 +105,14 @@ public class SoundManager
     }
 
     /**
+     * Returns a reference to the list of active streams.
+     */
+    public ArrayList<Stream> getStreams ()
+    {
+        return _streams;
+    }
+    
+    /**
      * Updates all of the streams controlled by the manager.  This should be
      * called once per frame by the application.
      *
