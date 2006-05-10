@@ -31,12 +31,14 @@ public class ObjectInputStream
     public function readObject () :Object
         //throws IOError
     {
+        var DEBUG_ID :String = "[" + (++_tempy) + "] ";
         try {
             // read in the class code for this instance
             var code :int = readShort();
 
             // a zero code indicates a null value
             if (code == 0) {
+                Log.debug(DEBUG_ID + "Read null");
                 return null;
             }
 
@@ -50,7 +52,7 @@ public class ObjectInputStream
 
                 // read in the class metadata
                 var cname :String = Translations.getFromServer(readUTF());
-                Log.debug("read cname: " + cname);
+//                Log.debug("read cname: " + cname);
                 var streamer :Streamer = Streamer.getStreamerByJavaName(cname);
                 if (streamer == Streamer.BAD_STREAMER) {
                     Log.warning("OMG, cannot stream " + cname);
@@ -60,10 +62,11 @@ public class ObjectInputStream
 
                 cmap = new ClassMapping(code, cname, streamer);
                 _classMap[code] = cmap;
-//                Log.debug("Created mapping for (" + code + "): " + cname);
+                Log.debug(DEBUG_ID +
+                    "Created mapping: (" + code + "): " + cname);
 
             } else {
-                Log.debug("Read known code: " + code);
+                Log.debug(DEBUG_ID + "Read known code: (" + code + ")");
                 cmap = (_classMap[code] as ClassMapping);
                 if (null == cmap) {
                     throw new IOError("Read object for which we have no " +
@@ -71,7 +74,7 @@ public class ObjectInputStream
                 }
             }
 
-            Log.debug("Creating object sleeve...");
+//            Log.debug("Creating object sleeve...");
             var target :Object;
             if (cmap.streamer === null) {
                 var clazz :Class = ClassUtil.getClassByName(cmap.classname);
@@ -80,9 +83,9 @@ public class ObjectInputStream
             } else {
                 target = cmap.streamer.createObject(this);
             }
-            Log.debug("Reading object...");
+            //Log.debug("Reading object...");
             readBareObjectImpl(target, cmap.streamer);
-            Log.debug("Read object: " + target);
+            Log.debug(DEBUG_ID + "Read object: " + target);
             return target;
 
         } catch (me :MemoryError) {
@@ -229,5 +232,10 @@ public class ObjectInputStream
 
     /** A map of short class code to ClassMapping info. */
     protected var _classMap :Array = new Array();
+
+
+
+
+    static var _tempy :int = 0;
 }
 }

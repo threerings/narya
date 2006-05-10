@@ -103,6 +103,7 @@ public class DObject // extends EventDispatcher
 
     public function postMessage (name :String, args :Array) :void
     {
+        trace("posting message: " + name + ", " + args);
         postEvent(new MessageEvent(_oid, name, args));
     }
 
@@ -242,7 +243,7 @@ public class DObject // extends EventDispatcher
     protected function requestEntryAdd (name :String, entry :DSetEntry) :void
     {
         // dispatch an entry added event
-        postEvent(new EntryAddedEvent(_oid, name, entry, false));
+        postEvent(new EntryAddedEvent(_oid, name, entry));
     }
 
     /**

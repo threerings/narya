@@ -27,7 +27,7 @@ public class EntryAddedEvent extends NamedEvent
      * @param entry the entry to add to the set attribute.
      */
     public function EntryAddedEvent (
-            targetOid :int, name :String, entry :DSetEntry)
+            targetOid :int = 0, name :String = null, entry :DSetEntry = null)
     {
         super(targetOid, name);
         _entry = entry;

@@ -28,11 +28,14 @@ public class EntryUpdatedEvent extends NamedEvent
      * @param oldEntry the previous value of the entry.
      */
     public function EntryUpdatedEvent (
-            targetOid :int, name :String, entry :DSetEntry, oldEntry :DSetEntry)
+            targetOid :int = 0, name :String = null, entry :DSetEntry = null,
+            oldEntry :DSetEntry = null)
     {
         super(targetOid, name);
         _entry = entry;
-        _oldEntry = oldEntry;
+        if (oldEntry != null) {
+            _oldEntry = oldEntry;
+        }
     }
 
     /**

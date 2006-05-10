@@ -29,11 +29,14 @@ public class EntryRemovedEvent extends NamedEvent
      * @param oldEntry the previous value of the entry.
      */
     public function EntryRemovedEvent (
-            targetOid :int, name :String, key :Object, oldEntry :DSetEntry)
+            targetOid :int = 0, name :String = null, key :Object = null,
+            oldEntry :DSetEntry = null)
     {
         super(targetOid, name);
         _key = key;
-        _oldEntry = oldEntry;
+        if (oldEntry != null) {
+            _oldEntry = oldEntry;
+        }
     }
 
     /**

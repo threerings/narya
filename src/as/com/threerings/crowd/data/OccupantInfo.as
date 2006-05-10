@@ -94,7 +94,7 @@ public class OccupantInfo
     // documentation inherited from superinterface Streamable
     public function readObject (ins :ObjectInputStream) :void
     {
-        bodyOid = (ins.readObject() as Integer);
+        bodyOid = (ins.readField(Integer) as Integer);
         username = (ins.readObject() as Name);
         status = ins.readByte();
     }

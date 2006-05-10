@@ -152,12 +152,6 @@ public class InvocationDirector
         var event :InvocationRequestEvent =
             new InvocationRequestEvent(invOid, invCode, methodId, args);
 
-        // because invocation directors are used on the server, we set the
-        // source oid here so that invocation requests are properly
-        // attributed to the right client object when created by
-        // server-side entities only sort of pretending to be a client
-        event.setSourceOid(_clobj.getOid());
-
         // now, dispatch the event
         _omgr.postEvent(event);
     }

@@ -2,6 +2,7 @@ package com.threerings.presents.dobj {
 
 import com.threerings.io.ObjectInputStream;
 import com.threerings.io.ObjectOutputStream;
+import com.threerings.io.TypedArray;
 
 import com.threerings.util.StringBuilder;
 
@@ -26,7 +27,8 @@ public class MessageEvent extends NamedEvent
      * @param args the arguments for this message. This array should
      * contain only values of valid distributed object types.
      */
-    public function MessageEvent (targetOid :int, name :String, args :Array)
+    public function MessageEvent (
+            targetOid :int = 0, name :String = null, args :Array = null)
     {
         super(targetOid, name);
         _args = args;
@@ -74,6 +76,20 @@ public class MessageEvent extends NamedEvent
         buf.append("MSG:");
         super.toStringBuf(buf);
         buf.append(", args=", _args);
+    }
+
+    // documentation inherited
+    public override function writeObject (out :ObjectOutputStream) :void
+    {
+        super.writeObject(out);
+        out.writeField(_args);
+    }
+
+    // documentation inherited
+    public override function readObject (ins :ObjectInputStream) :void
+    {
+        super.readObject(ins);
+        _args = (ins.readField(Array) as Array);
     }
 
     protected var _args :Array;

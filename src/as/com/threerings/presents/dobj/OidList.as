@@ -109,6 +109,7 @@ public class OidList
     public function readObject (ins :ObjectInputStream) :void
     {
         _oids = (ins.readField("[I") as TypedArray);
+        _oids.length = ins.readInt();
     }
 
     public function toString () :String
