@@ -8,6 +8,7 @@ commons-logging.jar
 jme-awt.jar
 jme-bui.jar
 jme-model.jar
+jme-sound.jar
 jme.jar
 junit-3.7.jar
 lwjgl.jar

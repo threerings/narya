@@ -22,6 +22,7 @@
 package com.threerings.openal;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.WeakHashMap;
 
@@ -103,6 +104,19 @@ public class SoundManager
         return new SoundGroup(this, provider, sources);
     }
 
+    /**
+     * Updates all of the streams controlled by the manager.  This should be
+     * called once per frame by the application.
+     *
+     * @param time the number of seconds elapsed since the last update
+     */
+    public void updateStreams (float time)
+    {
+        for (Stream stream : _streams) {
+            stream.update(time);
+        }
+    }
+    
     /**
      * Creates a sound manager and initializes the OpenAL sound subsystem.
      */
@@ -205,6 +219,24 @@ public class SoundManager
         });
     }
 
+    /**
+     * Adds a stream to the list maintained by the manager.  Called by streams
+     * when they are created.
+     */
+    protected void addStream (Stream stream)
+    {
+        _streams.add(stream);
+    }
+    
+    /**
+     * Removes a stream from the list maintained by the manager.  Called by
+     * streams when they are disposed.
+     */
+    protected void removeStream (Stream stream)
+    {
+        _streams.remove(stream);
+    }
+    
     /** The thread that loads up sound clips in the background. */
     protected Thread _loader = new Thread("SoundManager.Loader") {
         public void run () {
@@ -254,6 +286,9 @@ public class SoundManager
     /** Contains a queue of clip buffers waiting to be loaded. */
     protected Queue _toLoad;
 
+    /** The list of active streams. */
+    protected ArrayList<Stream> _streams = new ArrayList<Stream>();
+    
     /** The one and only sound manager, here for an exclusive performance
      * by special request. Available for all your sound playing needs. */
     protected static SoundManager _soundmgr;

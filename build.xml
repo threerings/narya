@@ -97,6 +97,8 @@
      classname="com.jme.scene.Node" classpathref="classpath"/>
     <available property="jme-bui.present"
      classname="com.jmex.bui.BWindow" classpathref="classpath"/>
+    <available property="jme-sound.present"
+     classname="com.jmex.sound.openAL.SoundSystem" classpathref="classpath"/>
     <condition property="build.jme">
       <and>
         <isset property="jme.present"/>
@@ -106,6 +108,7 @@
     <condition property="build.openal">
       <and>
         <isset property="lwjgl.present"/>
+        <isset property="jme-sound.present"/>
       </and>
     </condition>
   </target>
