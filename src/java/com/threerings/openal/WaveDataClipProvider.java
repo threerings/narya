@@ -23,8 +23,6 @@ package com.threerings.openal;
 
 import java.io.IOException;
 
-import java.nio.ByteBuffer;
-
 import org.lwjgl.util.WaveData;
 
 /**
@@ -35,7 +33,7 @@ public class WaveDataClipProvider implements ClipProvider
 {
     public Clip loadClip (String path) throws IOException
     {
-        WaveDataClip clip = new WaveDataClip();
+        Clip clip = new Clip();
         WaveData file = WaveData.create(path);
         if (file == null) {
             throw new IOException("Error loading " + path);

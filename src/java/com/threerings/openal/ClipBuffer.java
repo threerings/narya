@@ -194,15 +194,8 @@ public class ClipBuffer
      */
     protected boolean bind (Clip clip)
     {
-        try {
-            AL10.alBufferData(
-                _bufferId.get(0), clip.format, clip.getData(), clip.frequency);
-        } catch (IOException e) {
-            Log.warning("Error decoding clip [key=" + getKey() +
-                ", error=" + e + "].");
-            failed();
-            return false;
-        }
+        AL10.alBufferData(
+            _bufferId.get(0), clip.format, clip.data, clip.frequency);
         int errno = AL10.alGetError();
         if (errno != AL10.AL_NO_ERROR) {
             Log.warning("Failed to bind clip [key=" + getKey() +

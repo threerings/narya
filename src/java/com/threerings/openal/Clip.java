@@ -21,8 +21,6 @@
 
 package com.threerings.openal;
 
-import java.io.IOException;
-
 import java.nio.ByteBuffer;
 
 import org.lwjgl.openal.AL10;
@@ -30,7 +28,7 @@ import org.lwjgl.openal.AL10;
 /**
  * Contains data for a single sampled sound.
  */
-public abstract class Clip
+public class Clip
 {
     /** The OpenAL format of this clip: {@link AL10#AL_FORMAT_MONO8}, etc. */
     public int format;
@@ -38,9 +36,6 @@ public abstract class Clip
     /** The frequency of this clip in samples per second. */
     public int frequency;
 
-    /**
-     * Returns a buffer containing the clip's audio data.
-     */
-    public abstract ByteBuffer getData ()
-        throws IOException;
+    /** The audio data. */
+    public ByteBuffer data;
 }
