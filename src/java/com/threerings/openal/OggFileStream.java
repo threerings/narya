@@ -28,27 +28,40 @@ import java.io.InputStream;
 
 import java.nio.ByteBuffer;
 
+import java.util.ArrayList;
+
 import org.lwjgl.openal.AL10;
 
 import com.jmex.sound.openAL.objects.util.OggInputStream;
 
 /**
- * An audio stream read from an Ogg Vorbis file.
+ * An audio stream read from one or more Ogg Vorbis files.
  */
 public class OggFileStream extends Stream
 {
     /**
-     * Creates a new Ogg stream for the specified Ogg file.
+     * Creates a new Ogg stream for the specified file.
      *
      * @param loop whether or not to play the file in a continuous loop
+     * if there's nothing on the queue
      */
     public OggFileStream (SoundManager soundmgr, File file, boolean loop)
         throws IOException
     {
         super(soundmgr);
-        _file = file;
-        _istream = new OggInputStream(new FileInputStream(_file));
-        _loop = loop;
+        _file = new OggFile(file, loop);
+        _istream = new OggInputStream(new FileInputStream(file));
+    }
+    
+    /**
+     * Adds a file to the queue of files to play.
+     *
+     * @param loop if true, play this file in a loop if there's nothing else
+     * on the queue
+     */
+    public void queueFile (File file, boolean loop)
+    {
+        _queue.add(new OggFile(file, loop));
     }
     
     // documentation inherited
@@ -69,21 +82,40 @@ public class OggFileStream extends Stream
         throws IOException
     {
         int read = _istream.read(buf, buf.position(), buf.remaining());
-        while (buf.hasRemaining() && _loop) {
-            _istream = new OggInputStream(new FileInputStream(_file));
+        while (buf.hasRemaining() && (!_queue.isEmpty() || _file.loop)) {
+            if (!_queue.isEmpty()) {
+                _file = _queue.remove(0);
+            }
+            _istream = new OggInputStream(new FileInputStream(_file.file));
             read = Math.max(0, read);
             read += _istream.read(buf, buf.position(), buf.remaining());
         }
         return read;
     }
     
-    /** The Ogg file from which to read. */
-    protected File _file;
+    /** The file currently being played. */
+    protected OggFile _file;
     
-    /** The underlying Ogg input stream. */
+    /** The underlying Ogg input stream for the current file. */
     protected OggInputStream _istream;
     
-    /** Whether or not to loop back to the beginning of the file when we've
-     * reached the end. */
-    protected boolean _loop;
+    /** The queue of files to play after the current one. */
+    protected ArrayList<OggFile> _queue = new ArrayList<OggFile>();
+    
+    /** A file queued for play. */
+    protected class OggFile
+    {
+        /** The file to play. */
+        public File file;
+        
+        /** Whether or not to play the file in a loop when there's nothing
+         * in the queue. */
+        public boolean loop;
+        
+        public OggFile (File file, boolean loop)
+        {
+            this.file = file;
+            this.loop = loop;
+        }
+    }
 }
