@@ -19,7 +19,6 @@ public class ArrayStreamer extends Streamer
         super(TypedArray, jname);
 
         var secondChar :String = jname.charAt(1);
-
         if (secondChar === "[") {
             // if we're a multi-dimensional array then we need a delegate
             _delegate = Streamer.getStreamerByJavaName(jname.substring(1));
@@ -44,8 +43,27 @@ public class ArrayStreamer extends Streamer
 
     public override function isStreamerFor (obj :Object) :Boolean
     {
-        return (obj is TypedArray) &&
-            ((obj as TypedArray).getJavaType() === _jname);
+        if (_jname === "[Ljava.lang.Object;") {
+            // we fall back to streaming any array as Object
+            return (obj is Array);
+
+        } else {
+            return (obj is TypedArray) &&
+                ((obj as TypedArray).getJavaType() === _jname);
+        }
+    }
+
+    public override function isStreamerForClass (clazz :Class) :Boolean
+    {
+        if (_jname === "[Ljava.lang.Object;") {
+            return (clazz != TypedArray) &&
+                ClassUtil.isAssignableAs(Array, clazz);
+
+        } else {
+            return false; // TODO: we're kinda fucked for finding a streamer
+            // by class for TypedArrays here. The caller should be passing
+            // the java name.
+        }
     }
 
     public override function createObject (ins :ObjectInputStream) :Object

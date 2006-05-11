@@ -236,6 +236,6 @@ public class ObjectInputStream
 
 
 
-    static var _tempy :int = 0;
+    private static var _tempy :int = 0;
 }
 }

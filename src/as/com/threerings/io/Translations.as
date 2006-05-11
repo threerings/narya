@@ -32,5 +32,8 @@ public class Translations
 
     /** A mapping of java names to actionscript names. */
     protected static var _fromServer :SimpleMap = new SimpleMap();
+
+    // initialize some standard classes
+    addTranslation("Object", "java.lang.Object");
 }
 }

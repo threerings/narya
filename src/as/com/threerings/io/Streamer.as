@@ -57,7 +57,7 @@ public class Streamer
         }
 
         for each (var streamer :Streamer in _streamers) {
-            if (streamer._target == clazz) {
+            if (streamer.isStreamerForClass(clazz)) {
                 return streamer;
             }
         }
@@ -106,6 +106,11 @@ public class Streamer
         return (obj is _target); // scripting langs are weird
     }
 
+    public function isStreamerForClass (clazz :Class) :Boolean
+    {
+        return (clazz == _target);
+    }
+
     /**
      * Return the String to use to identify the class that we're streaming.
      */
@@ -143,8 +148,8 @@ public class Streamer
         if (_streamers == null) {
             _streamers = [
                 new StringStreamer(),
+                new ArrayStreamer("[Ljava.lang.Object;"),
                 new NumberStreamer(),
-                new ObjectArrayStreamer(),
                 new ByteArrayStreamer(),
                 new ByteStreamer(),
                 new ShortStreamer(),
