@@ -12,7 +12,6 @@ import com.threerings.io.streamers.FloatStreamer;
 import com.threerings.io.streamers.IntegerStreamer;
 import com.threerings.io.streamers.LongStreamer;
 import com.threerings.io.streamers.NumberStreamer;
-import com.threerings.io.streamers.ObjectArrayStreamer;
 import com.threerings.io.streamers.ShortStreamer;
 import com.threerings.io.streamers.StringStreamer;
 
