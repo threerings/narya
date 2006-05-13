@@ -43,9 +43,13 @@ public class GodViewHandler extends InputHandler
 
         // the key bindings for the pan actions
         keyboard.set("forward", KeyInput.KEY_W);
+        keyboard.set("arrow_forward", KeyInput.KEY_UP);
         keyboard.set("backward", KeyInput.KEY_S);
+        keyboard.set("arrow_backward", KeyInput.KEY_DOWN);
         keyboard.set("left", KeyInput.KEY_A);
+        keyboard.set("arrow_left", KeyInput.KEY_LEFT);
         keyboard.set("right", KeyInput.KEY_D);
+        keyboard.set("arrow_right", KeyInput.KEY_RIGHT);
 
         // the key bindings for the zoom actions
         keyboard.set("zoomIn", KeyInput.KEY_UP);
@@ -83,6 +87,7 @@ public class GodViewHandler extends InputHandler
         };
         forward.setSpeed(0.5f);
         addAction(forward, "forward", true);
+        addAction(forward, "arrow_forward", true);
 
         InputAction backward = new InputAction() {
             public void performAction (InputActionEvent evt) {
@@ -91,6 +96,7 @@ public class GodViewHandler extends InputHandler
         };
         backward.setSpeed(0.5f);
         addAction(backward, "backward", true);
+        addAction(backward, "arrow_backward", true);
 
         InputAction left = new InputAction() {
             public void performAction (InputActionEvent evt) {
@@ -99,6 +105,7 @@ public class GodViewHandler extends InputHandler
         };
         left.setSpeed(0.5f);
         addAction(left, "left", true);
+        addAction(left, "arrow_left", true);
 
         InputAction right = new InputAction() {
             public void performAction (InputActionEvent evt) {
@@ -107,6 +114,7 @@ public class GodViewHandler extends InputHandler
         };
         right.setSpeed(0.5f);
         addAction(right, "right", true);
+        addAction(right, "arrow_right", true);
     }
 
     /**
