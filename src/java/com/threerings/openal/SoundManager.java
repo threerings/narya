@@ -120,8 +120,10 @@ public class SoundManager
      */
     public void updateStreams (float time)
     {
-        for (Stream stream : _streams) {
-            stream.update(time);
+        // iterate backwards through the list so that streams can dispose of
+        // themselves during their update
+        for (int ii = _streams.size() - 1; ii >= 0; ii--) {
+            _streams.get(ii).update(time);
         }
     }
     
