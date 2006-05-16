@@ -46,22 +46,22 @@ public class Hashtable
         _hashFn = hashFn;
     }
 
+    // documentation inherited from interface Map
     public function clear () :void
     {
         _simpleData = null;
+        _simpleSize = 0;
         _entries = null;
-        _size = 0;
+        _entriesSize = 0;
     }
 
+    // documentation inherited from interface Map
     public function containsKey (key :Object) :Boolean
     {
         return (undefined !== get(key));
     }
 
-    /**
-     * Get the value stored in the map for the specified key, or
-     * <code>undefined</code> if there is no value for that key.
-     */
+    // documentation inherited from interface Map
     public function get (key :Object) :*
     {
         if (isSimple(key)) {
@@ -87,11 +87,13 @@ public class Hashtable
         }
     }
 
+    // documentation inherited from interface Map
     public function isEmpty () :Boolean
     {
-        return (_size == 0);
+        return (size() == 0);
     }
 
+    // documentation inherited from interface Map
     public function put (key :Object, value :Object) :*
     {
         if (isSimple(key)) {
@@ -102,7 +104,7 @@ public class Hashtable
             var oldValue :* = _simpleData[key];
             _simpleData[key] = value;
             if (oldValue === undefined) {
-                _size++;
+                _simpleSize++;
             }
             return oldValue;
         }
@@ -126,15 +128,16 @@ public class Hashtable
         }
 
         _entries[index] = new Entry(hash, hkey, value, firstEntry);
-        _size++;
+        _entriesSize++;
         // check to see if we should grow the map
-        if (_size > _entries.length * _loadFactor) {
+        if (_entriesSize > _entries.length * _loadFactor) {
             resize(2 * _entries.length);
         }
         // indicate that there was no value previously stored for the key
         return undefined;
     }
 
+    // documentation inherited from interface Map
     public function remove (key :Object) :*
     {
         if (isSimple(key)) {
@@ -144,7 +147,7 @@ public class Hashtable
 
             var oldValue :* = _simpleData[key];
             if (oldValue !== undefined) {
-                _size--;
+                _simpleSize--;
             }
             delete _simpleData[key];
             return oldValue;
@@ -168,10 +171,10 @@ public class Hashtable
                 } else {
                     prev.next = next;
                 }
-                _size--;
+                _entriesSize--;
                 // check to see if we should shrink the map
                 if ((_entries.length > DEFAULT_BUCKETS) &&
-                        (_size < _entries.length * _loadFactor * .125)) {
+                        (_entriesSize < _entries.length * _loadFactor * .125)) {
                     resize(Math.max(DEFAULT_BUCKETS, _entries.length / 2));
                 }
                 return e.value;
@@ -183,9 +186,10 @@ public class Hashtable
         return undefined; // never found
     }
 
+    // documentation inherited from interface Map
     public function size () :int
     {
-        return _size;
+        return _simpleSize + _entriesSize;
     }
 
     public function keys () :Array
@@ -241,6 +245,9 @@ public class Hashtable
         return vals;
     }
 
+    /**
+     * Return a Hashable that represents the key.
+     */
     protected function keyFor (key :Object) :Hashable
     {
         if (key is Hashable) {
@@ -255,16 +262,27 @@ public class Hashtable
         }
     }
 
+    /**
+     * Return an index for the specified hashcode.
+     */
     protected function indexFor (hash :int) :int
     {
-        return Math.abs(hash % _entries.length);
+        return Math.abs(hash) % _entries.length;
     }
 
+    /**
+     * Return true if the specified key may be used to store values in a
+     * Dictionary object.
+     */
     protected function isSimple (key :Object) :Boolean
     {
         return (key is String) || (key is Number) || (key is Boolean);
     }
 
+    /**
+     * Resize the entries with Hashable keys to optimize
+     * the memory/performance tradeoff.
+     */
     protected function resize (newSize :int) :void
     {
         var oldEntries :Array = _entries;
@@ -274,20 +292,21 @@ public class Hashtable
         // place all the old entries in the new map
         for (var ii :int = 0; ii < oldEntries.length; ii++) {
             var e :Entry = (oldEntries[ii] as Entry);
-            if (e != null) {
-                do {
-                    var next :Entry = e.next;
-                    var index :int = indexFor(e.hash);
-                    e.next = _entries[index];
-                    _entries[index] = e;
-                    e = next;
-                } while (e != null);
+            while (e != null) {
+                var next :Entry = e.next;
+                var index :int = indexFor(e.hash);
+                e.next = (_entries[index] as Entry);
+                _entries[index] = e;
+                e = next;
             }
         }
     }
 
-    /** The current number of key/value pairs stored in the map. */
-    protected var _size :int = 0;
+    /** The current number of key/value pairs stored in the Dictionary. */
+    protected var _simpleSize :int = 0;
+
+    /** The current number of key/value pairs stored in the _entries. */
+    protected var _entriesSize :int = 0;
 
     /** The load factor. */
     protected var _loadFactor :Number;
