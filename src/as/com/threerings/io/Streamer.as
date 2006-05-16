@@ -3,7 +3,6 @@ package com.threerings.io {
 import flash.utils.ByteArray;
 
 import com.threerings.util.ClassUtil;
-import com.threerings.util.SimpleMap;
 
 import com.threerings.io.streamers.ArrayStreamer;
 import com.threerings.io.streamers.ByteStreamer;
@@ -147,7 +146,7 @@ public class Streamer
         if (_streamers == null) {
             _streamers = [
                 new StringStreamer(),
-                new ArrayStreamer("[Ljava.lang.Object;"),
+                new ArrayStreamer(),
                 new NumberStreamer(),
                 new ByteArrayStreamer(),
                 new ByteStreamer(),

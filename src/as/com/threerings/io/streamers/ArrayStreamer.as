@@ -14,7 +14,7 @@ import com.threerings.presents.Log;
  */
 public class ArrayStreamer extends Streamer
 {
-    public function ArrayStreamer (jname :String)
+    public function ArrayStreamer (jname :String = "[Ljava.lang.Object;")
     {
         super(TypedArray, jname);
 

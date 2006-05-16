@@ -192,7 +192,6 @@ public class PlaceObject extends DObject
     public override function readObject (ins :ObjectInputStream) :void
     {
         super.readObject(ins);
-        // TODO: this needs fixing!
         occupants = (ins.readObject() as OidList);
         occupantInfo = (ins.readObject() as DSet);
         speakService = (ins.readObject() as SpeakMarshaller);
