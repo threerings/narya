@@ -17,6 +17,7 @@ public class HashMap
     public function clear () :void
     {
         _simpleData = null;
+        _entries = null;
         _size = 0;
     }
 
