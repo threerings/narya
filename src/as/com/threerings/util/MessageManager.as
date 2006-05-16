@@ -177,7 +177,7 @@ public class MessageManager
 //    protected var _loader :ClassLoader;
 
     /** A cache of instantiated message bundles. */
-    protected var _cache :SimpleMap = new SimpleMap();
+    protected var _cache :HashMap = new HashMap();
 
     /** Our top-level message bundle, from which others obtain messages if
      * they can't find them within themselves. */

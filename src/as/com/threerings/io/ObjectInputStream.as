@@ -6,9 +6,6 @@ import flash.utils.ByteArray;
 import flash.utils.IDataInput;
 
 import com.threerings.util.ClassUtil;
-import com.threerings.util.SimpleMap;
-
-//import com.threerings.presents.Log;
 
 public class ObjectInputStream
 {
@@ -232,7 +229,6 @@ public class ObjectInputStream
 
     /** A map of short class code to ClassMapping info. */
     protected var _classMap :Array = new Array();
-
 
 
 

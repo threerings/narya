@@ -4,7 +4,7 @@ import flash.utils.ByteArray;
 import flash.utils.IDataOutput;
 
 import com.threerings.util.ClassUtil;
-import com.threerings.util.SimpleMap;
+import com.threerings.util.HashMap;
 
 public class ObjectOutputStream
 {
@@ -180,6 +180,6 @@ public class ObjectOutputStream
     protected var _streamer :Streamer;
 
     /** A map of classname to ClassMapping info. */
-    protected var _classMap :SimpleMap = new SimpleMap();
+    protected var _classMap :HashMap = new HashMap();
 }
 }

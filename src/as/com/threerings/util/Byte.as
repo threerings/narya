@@ -18,5 +18,11 @@ public class Byte
     {
         return (other is Byte) && (value === (other as Byte).value);
     }
+
+    // documentation inherited
+    public function toString () :String
+    {
+        return "Byte(" + value + ")";
+    }
 }
 }

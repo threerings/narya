@@ -192,6 +192,7 @@ public class Hashtable
         return _simpleSize + _entriesSize;
     }
 
+    // documentation inherited from interface Map
     public function keys () :Array
     {
         var keys :Array = new Array();

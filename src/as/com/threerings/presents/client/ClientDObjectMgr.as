@@ -28,7 +28,7 @@ import flash.utils.Timer;
 import mx.collections.IList;
 
 import com.threerings.util.ClassUtil;
-import com.threerings.util.SimpleMap;
+import com.threerings.util.HashMap;
 
 import com.threerings.presents.dobj.DEvent;
 import com.threerings.presents.dobj.DObject;
@@ -437,19 +437,19 @@ public class ClientDObjectMgr
     protected var _actions :Array = new Array();
 
     /** All of the distributed objects that are active on this client. */
-    protected var _ocache :SimpleMap = new SimpleMap(); //HashIntMap();
+    protected var _ocache :HashMap = new HashMap();
 
     /** Objects that have been marked for death. */
-    protected var _dead :SimpleMap = new SimpleMap(); //HashIntMap();
+    protected var _dead :HashMap = new HashMap();
 
     /** Pending object subscriptions. */
-    protected var _penders :SimpleMap = new SimpleMap(); //HashIntMap();
+    protected var _penders :HashMap = new HashMap();
 
     /** A mapping from distributed object class to flush delay. */
-    protected var _delays :SimpleMap = new SimpleMap(); //HashMap();
+    protected var _delays :HashMap = new HashMap();
 
     /** A set of objects waiting to be flushed. */
-    protected var _flushes :SimpleMap = new SimpleMap(); //HashIntMap();
+    protected var _flushes :HashMap = new HashMap();
 
     /** Flushes objects every now and again. */
     protected var _flushInterval :Timer;

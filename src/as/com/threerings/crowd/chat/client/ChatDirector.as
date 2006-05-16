@@ -24,8 +24,9 @@ package com.threerings.crowd.chat.client {
 import mx.collections.ArrayCollection;
 
 import com.threerings.util.ArrayUtil;
+import com.threerings.util.HashMap;
+import com.threerings.util.Map;
 import com.threerings.util.ResultListener;
-import com.threerings.util.SimpleMap;
 
 import com.threerings.presents.client.BasicDirector;
 import com.threerings.presents.client.Client;
@@ -308,7 +309,7 @@ public class ChatDirector extends BasicDirector
                 args = StringUtil.trim(text.substring(sidx+1));
             }
 
-            var possibleCommands :SimpleMap = getCommandHandlers(command);
+            var possibleCommands :Map = getCommandHandlers(command);
             switch (possibleCommands.size()) {
             case 0:
                 return MessageBundle.tcompose(
@@ -840,9 +841,9 @@ public class ChatDirector extends BasicDirector
      * specified command (i.e. the specified command is a prefix of their
      * registered command string).
      */
-    internal function getCommandHandlers (command :String) :SimpleMap
+    internal function getCommandHandlers (command :String) :Map
     {
-        var matches :SimpleMap = new SimpleMap();
+        var matches :Map = new HashMap();
         var user :BodyObject =
             (_cctx.getClient().getClientObject() as BodyObject);
         var keys :Array = _handlers.keys();
@@ -977,7 +978,7 @@ public class ChatDirector extends BasicDirector
 
     /** A mapping from auxiliary chat objects to the types under which
      * they are registered. */
-    protected var _auxes :SimpleMap = new SimpleMap();
+    protected var _auxes :HashMap = new HashMap();
 
 //    /** Validator of who may be added to the chatters list. */
 //    protected var _chatterValidator :ChatterValidator;
@@ -990,7 +991,7 @@ public class ChatDirector extends BasicDirector
 //        new ObserverList(ObserverList.FAST_UNSAFE_NOTIFY);
 
     /** Registered chat command handlers. */
-    protected static const _handlers :SimpleMap = new SimpleMap();
+    protected static const _handlers :HashMap = new HashMap();
 
     /** A history of chat commands. */
     protected static const _history :Array = new Array();

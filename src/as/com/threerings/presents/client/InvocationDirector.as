@@ -3,7 +3,7 @@ package com.threerings.presents.client {
 import mx.collections.IViewCursor;
 import mx.collections.ArrayCollection;
 
-import com.threerings.util.SimpleMap;
+import com.threerings.util.HashMap;
 
 import com.threerings.presents.data.ListenerMarshaller;
 
@@ -346,10 +346,10 @@ public class InvocationDirector
 
     /** Used to keep track of invocation service listeners which will
      * receive responses from invocation service requests. */
-    protected var _listeners :SimpleMap = new SimpleMap();
+    protected var _listeners :HashMap = new HashMap();
 
     /** Used to keep track of invocation notification receivers. */
-    protected var _receivers :SimpleMap = new SimpleMap();
+    protected var _receivers :HashMap = new HashMap();
 
     /** All registered receivers are maintained in a list so that we can
      * assign receiver ids to them when we go online. */

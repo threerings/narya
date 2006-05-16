@@ -27,6 +27,11 @@ public interface Map
     function isEmpty () :Boolean;
 
     /**
+     * Return all the unique keys in this Map, in Array form.
+     */
+    function keys () :Array;
+
+    /**
      * Store a value in the map associated with the specified key.
      * Returns the previous value stored for that key, or undefined.
      */

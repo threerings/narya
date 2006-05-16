@@ -1,7 +1,7 @@
 package com.threerings.crowd.chat.client {
 
+import com.threerings.util.Map;
 import com.threerings.util.MessageBundle;
-import com.threerings.util.SimpleMap;
 import com.threerings.util.StringUtil;
 
 import com.threerings.crowd.chat.data.ChatCodes;
@@ -34,7 +34,7 @@ public class HelpHandler extends CommandHandler
         }
 
         // handle "/help help" and "/help boguscmd"
-        var possibleCmds :SimpleMap = _chatdir.getCommandHandlers(hcmd);
+        var possibleCmds :Map = _chatdir.getCommandHandlers(hcmd);
         if ((hcmd === "help") || (possibleCmds.size() == 0)) {
             possibleCmds = _chatdir.getCommandHandlers("");
             possibleCmds.remove("help"); // remove help from the list

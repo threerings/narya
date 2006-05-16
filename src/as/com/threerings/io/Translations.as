@@ -1,6 +1,6 @@
 package com.threerings.io {
 
-import com.threerings.util.SimpleMap;
+import com.threerings.util.HashMap;
 
 /**
  * Maintains a set of translations between actionscript class names
@@ -28,10 +28,10 @@ public class Translations
     }
 
     /** A mapping of actionscript names to java names. */
-    protected static var _toServer :SimpleMap = new SimpleMap();
+    protected static var _toServer :HashMap = new HashMap();
 
     /** A mapping of java names to actionscript names. */
-    protected static var _fromServer :SimpleMap = new SimpleMap();
+    protected static var _fromServer :HashMap = new HashMap();
 
     // initialize some standard classes
     addTranslation("Object", "java.lang.Object");
