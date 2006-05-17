@@ -122,6 +122,14 @@ public class SoundGroup
         return -1;
     }
 
+    /**
+     * Used to pass the base gain through to sound effects.
+     */
+    protected float getBaseGain ()
+    {
+        return _manager.getBaseGain();
+    }
+
     /** Used to track which sources are in use. */
     protected static class Source
     {

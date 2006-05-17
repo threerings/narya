@@ -94,6 +94,9 @@ public class Sound
      * corresponding to +6db amplification. This will not affect an
      * already playing sound but will take effect the next time it is
      * played.
+     *
+     * <p><em>Note:</em> this value is multiplied by the base gain configured
+     * in the sound manager.
      */
     public void setGain (float gain)
     {
@@ -224,7 +227,7 @@ public class Sound
 
         // configure the source with our ephemera
         AL10.alSourcef(_sourceId, AL10.AL_PITCH, _pitch);
-        AL10.alSourcef(_sourceId, AL10.AL_GAIN, _gain);
+        AL10.alSourcef(_sourceId, AL10.AL_GAIN, _gain * _group.getBaseGain());
         if (_position != null) {
             AL10.alSource(_sourceId, AL10.AL_POSITION, _position);
         }

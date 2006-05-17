@@ -89,6 +89,24 @@ public class SoundManager
     }
 
     /**
+     * Configures the base gain (which must be a value between 0 and 1.0) which
+     * is multiplied to the individual gain assigned to sound effects (but not
+     * music).
+     */
+    public void setBaseGain (float gain)
+    {
+        _baseGain = gain;
+    }
+
+    /**
+     * Returns the base gain used for sound effects (not music).
+     */
+    public float getBaseGain ()
+    {
+        return _baseGain;
+    }
+
+    /**
      * Creates an object that can be used to manage and play a group of
      * sounds. <em>Note:</em> the sound group <em>must</em> be disposed
      * when it is no longer needed via a call to {@link
@@ -126,7 +144,7 @@ public class SoundManager
             _streams.get(ii).update(time);
         }
     }
-    
+
     /**
      * Creates a sound manager and initializes the OpenAL sound subsystem.
      */
@@ -284,6 +302,10 @@ public class SoundManager
 
     /** Used to get back from the background thread to our "main" thread. */
     protected RunQueue _rqueue;
+
+    /** A base gain that is multiplied by the individual gain assigned to
+     * sounds. */
+    protected float _baseGain = 1;
 
     /** Contains a mapping of all currently-loading clips. */
     protected HashMap<Comparable,ClipBuffer> _loading =
