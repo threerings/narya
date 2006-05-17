@@ -130,17 +130,33 @@ public class PlacementConstraints
             }
         }
         
-        ObjectData[] removedData = new ObjectData[removed.length];
-        for (int i = 0; i < removed.length; i++) {
-            removedData[i] = (ObjectData)_objectData.get(removed[i]);
-            if (removedData[i] == null) {
-                Log.warning("Couldn't match object info up to data [info=" +
-                    removed[i] + "].");
-                return INTERNAL_ERROR;
-            }
+        ObjectData[] removedData = getObjectDataFromInfo(removed);
+        if (removedData == null) {
+            return INTERNAL_ERROR;
         }
         
         return allowModifyObjects(addedData, removedData);
+    }
+
+    /**
+     * Returns an ObjectData array that corresponds to the supplied
+     * ObjectInfo array.  Returns null on error.
+     */
+    protected ObjectData[] getObjectDataFromInfo (ObjectInfo[] info)
+    {
+        if (info == null) {
+            return null;
+        }
+        ObjectData[] data = new ObjectData[info.length];
+        for (int ii = 0; ii < info.length; ii++) {
+            data[ii] = (ObjectData)_objectData.get(info[ii]);
+            if (data[ii] == null) {
+                Log.warning("Couldn't match object info up to data [info=" +
+                        info[ii] + "].");
+                return null;
+            }
+        }
+        return data;
     }
     
     /**
