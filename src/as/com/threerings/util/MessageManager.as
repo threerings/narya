@@ -21,6 +21,11 @@
 
 package com.threerings.util {
 
+import mx.managers.ISystemManager;
+
+import mx.resources.Locale;
+import mx.resources.ResourceBundle;
+
 /**
  * The message manager provides a thin wrapper around Java's built-in
  * localization support, supporting a policy of dividing up localization
@@ -56,10 +61,14 @@ public class MessageManager
      * ResourceBundle#getBundle(String,Locale,ClassLoader)} for a more
      * detailed explanation of how resource bundle paths are resolved.
      */
-    public function MessageManager (resourcePrefix :String)
+    public function MessageManager (
+            resourcePrefix :String, sysMgr :ISystemManager)
     {
         // keep the prefix
         _prefix = resourcePrefix;
+
+        // use the default locale
+        _locale = Locale.getCurrent(sysMgr);
 
         // make sure the prefix ends with a dot
         if (_prefix.charAt(_prefix.length - 1) != ".") {
@@ -76,21 +85,21 @@ public class MessageManager
      * new SimpleDateFormat("EEEE", getLocale()) to get the name of a weekday
      * that matches the language being used for all other client translations.
      */
-//    public Locale getLocale ()
-//    {
-//        return _locale;
-//    }
+    public function getLocale () :Locale
+    {
+        return _locale;
+    }
 
     /**
      * Sets the locale to the specified locale. Subsequent message bundles
      * fetched via the message manager will use the new locale. The
      * message bundle cache will also be cleared.
      */
-//    public void setLocale (Locale locale)
-//    {
-//        _locale = locale;
-//        _cache.clear();
-//    }
+    public function setLocale (locale :Locale) :void
+    {
+        _locale = locale;
+        _cache.clear();
+    }
 
     /**
      * Allows a custom classloader to be configured for locating
@@ -125,7 +134,7 @@ public class MessageManager
 //            if (_loader != null) {
 //                rbundle = ResourceBundle.getBundle(fqpath, _locale, _loader);
 //            } else {
-                rbundle = ResourceBundle.getBundle(fqpath);
+                rbundle = ResourceBundle.getResourceBundle(fqpath);
 //            }
         } catch (mre :Error) {
             Log.warning("Unable to resolve resource bundle " +
@@ -171,7 +180,7 @@ public class MessageManager
     protected var _prefix :String;
 
     /** The locale for which we're obtaining message bundles. */
-//    protected var _locale :Locale;
+    protected var _locale :Locale;
 
     /** A custom class loader that we use to load resource bundles. */
 //    protected var _loader :ClassLoader;

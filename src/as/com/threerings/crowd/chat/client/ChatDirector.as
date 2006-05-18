@@ -186,8 +186,8 @@ public class ChatDirector extends BasicDirector
         var key :String = "c." + command;
         if (msg.exists(key)) {
             var tokens :Array = msg.get(key).split(/\s+/);
-            for (var ii :int = 0; ii < tokens.length; ii++) {
-                _handlers.put(tokens[ii], handler);
+            for each (var cmd :Object in tokens) {
+                _handlers.put(cmd, handler);
             }
         } else {
             // fall back to just using the English command
@@ -276,8 +276,8 @@ public class ChatDirector extends BasicDirector
      */
     public function dispatchMessage (message :ChatMessage) :void
     {
-        for (var ii :int = 0; ii < _displays.length; ii++) {
-            (_displays.getItemAt(ii) as ChatDisplay).displayMessage(message);
+        for each (var display :ChatDisplay in _displays) {
+            display.displayMessage(message);
         }
     }
 

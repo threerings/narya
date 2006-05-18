@@ -21,6 +21,8 @@
 
 package com.threerings.util {
 
+import mx.resources.ResourceBundle;
+
 /**
  * A message bundle provides an easy mechanism by which to obtain
  * translated message strings from a resource bundle. It uses the {@link

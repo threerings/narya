@@ -49,7 +49,7 @@ public class HelpHandler extends CommandHandler
             var cmds :Array = possibleCmds.keys();
             cmds.sort();
             var cmdList :String = "";
-            for (var skey :String in cmds) {
+            for each (var skey :String in cmds) {
                 cmdList += " /" +  skey;
             }
             return MessageBundle.tcompose("m.usage_help", cmdList);
