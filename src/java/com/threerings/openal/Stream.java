@@ -79,6 +79,14 @@ public abstract class Stream
     }
     
     /**
+     * Determines whether this stream is currently playing.
+     */
+    public boolean isPlaying ()
+    {
+        return _state == AL10.AL_PLAYING;
+    }
+    
+    /**
      * Starts playing this stream.
      */
     public void play ()
@@ -87,7 +95,7 @@ public abstract class Stream
             Log.warning("Tried to play stream already playing.");
             return;
         }
-        if (_state == -1) {
+        if (_state == AL10.AL_INITIAL) {
             _qidx = _qlen = 0;
             queueBuffers(NUM_BUFFERS);
         }
@@ -186,7 +194,7 @@ public abstract class Stream
             return;
         }
         
-        // find out how many buffers have been played
+        // find out how many buffers have been played and unqueue them
         int played = AL10.alGetSourcei(_sourceId, AL10.AL_BUFFERS_PROCESSED);
         if (played == 0) {
             return;
@@ -199,7 +207,16 @@ public abstract class Stream
         }
         _nbuf.flip();
         AL10.alSourceUnqueueBuffers(_sourceId, _nbuf);
+        
+        // enqueue up to the number of buffers played
         queueBuffers(played);
+        
+        // find out if we're still playing; if not and we have buffers queued,
+        // we must restart
+        _state = AL10.alGetSourcei(_sourceId, AL10.AL_SOURCE_STATE);
+        if (_qlen > 0 && _state != AL10.AL_PLAYING) {
+            play();
+        }
     }
     
     /**
@@ -319,9 +336,8 @@ public abstract class Stream
     /** The buffer used to store audio data temporarily. */
     protected ByteBuffer _abuf;
     
-    /** The OpenAL state of the stream (AL_STOPPED, AL_PLAYING, AL_PAUSED, or
-     * -1 if uninitialized). */
-    protected int _state = -1;
+    /** The OpenAL state of the stream. */
+    protected int _state = AL10.AL_INITIAL;
     
     /** The size of the buffers in bytes. */
     protected static final int BUFFER_SIZE = 131072;
