@@ -39,7 +39,9 @@ public class SoundGroup
      */
     public void preloadClip (String path)
     {
-        _manager.getClip(_provider, path);
+        if (_manager.isInitialized()) {
+            _manager.getClip(_provider, path);
+        }
     }
 
     /**
