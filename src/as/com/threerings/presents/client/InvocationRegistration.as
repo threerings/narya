@@ -6,7 +6,7 @@ import com.threerings.io.ObjectInputStream;
 import com.threerings.io.ObjectOutputStream;
 
 import com.threerings.presents.dobj.DSet;
-import com.threerings.presents.dobj.DSetEntry;
+import com.threerings.presents.dobj.DSet_Entry;
 
 /**
  * Used to maintain a registry of invocation receivers that can be
@@ -14,7 +14,7 @@ import com.threerings.presents.dobj.DSetEntry;
  * numbers.
  */
 public class InvocationRegistration
-    implements DSetEntry
+    implements DSet_Entry
 {
     /** The unique hash code associated with this invocation receiver class. */
     public var receiverCode :String;
@@ -31,7 +31,7 @@ public class InvocationRegistration
         this.receiverId = receiverId;
     }
 
-    // documentation inherited from interface DSetEntry
+    // documentation inherited from interface DSet_Entry
     public function getKey () :Object
     {
         return receiverCode;

@@ -4,7 +4,7 @@ import com.threerings.presents.data.ListenerMarshaller;
 
 import com.threerings.crowd.client.MoveListener
 
-public class MoveMarshaller extends ListenerMarshaller
+public class LocationMarshaller_MoveMarshaller extends ListenerMarshaller
 {
     /** The method id used to dispatch {@link #moveSucceeded}
      * responses. */

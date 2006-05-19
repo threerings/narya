@@ -27,7 +27,7 @@ public class EntryAddedEvent extends NamedEvent
      * @param entry the entry to add to the set attribute.
      */
     public function EntryAddedEvent (
-            targetOid :int = 0, name :String = null, entry :DSetEntry = null)
+            targetOid :int = 0, name :String = null, entry :DSet_Entry = null)
     {
         super(targetOid, name);
         _entry = entry;
@@ -36,7 +36,7 @@ public class EntryAddedEvent extends NamedEvent
     /**
      * Returns the entry that has been added.
      */
-    public function getEntry () :DSetEntry
+    public function getEntry () :DSet_Entry
     {
         return _entry;
     }
@@ -79,9 +79,9 @@ public class EntryAddedEvent extends NamedEvent
     public override function readObject (ins :ObjectInputStream) :void
     {
         super.readObject(ins);
-        _entry = (ins.readObject() as DSetEntry);
+        _entry = (ins.readObject() as DSet_Entry);
     }
 
-    protected var _entry :DSetEntry;
+    protected var _entry :DSet_Entry;
 }
 }

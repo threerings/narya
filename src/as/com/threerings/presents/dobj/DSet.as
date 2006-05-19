@@ -49,7 +49,7 @@ public class DSet
      * <code>equals()</code> the key returned by <code>getKey()</code> of
      * the supplied entry. Returns false otherwise.
      */
-    public function contains (elem :DSetEntry) :Boolean
+    public function contains (elem :DSet_Entry) :Boolean
     {
         return containsKey(elem.getKey());
     }
@@ -68,10 +68,10 @@ public class DSet
      * the specified key or null if no entry could be found that matches
      * the key.
      */
-    public function get (key :Object) :DSetEntry
+    public function get (key :Object) :DSet_Entry
     {
         // o(n) for now
-        for each (var entry :DSetEntry in _entries) {
+        for each (var entry :DSet_Entry in _entries) {
             if (isSameKey(key, entry.getKey())) {
                 return entry;
             }
@@ -112,7 +112,7 @@ public class DSet
      * @return true if the entry was added, false if it was already in
      * the set.
      */
-    internal function add (elem :DSetEntry) :Boolean
+    internal function add (elem :DSet_Entry) :Boolean
     {
         if (_entries.length == 0) {
             // there is nothing in the map yet, check the key validity
@@ -140,7 +140,7 @@ public class DSet
      * @return true if the entry was removed, false if it was not in the
      * set.
      */
-    internal function remove (elem :DSetEntry) :Boolean
+    internal function remove (elem :DSet_Entry) :Boolean
     {
         return (null != removeKey(elem.getKey()));
     }
@@ -154,11 +154,11 @@ public class DSet
      * @return the old matching entry if found and removed, null if not
      * found.
      */
-    internal function removeKey (key :Object) :DSetEntry
+    internal function removeKey (key :Object) :DSet_Entry
     {
         // o(n) for now
         for (var ii :int = 0; ii < _entries.length; ii++) {
-            var entry :DSetEntry = _entries[ii];
+            var entry :DSet_Entry = _entries[ii];
             if (isSameKey(key, entry.getKey())) {
                 _entries.splice(ii, 1);
                 return entry;
@@ -177,11 +177,11 @@ public class DSet
      * @return the old entry that was replaced, or null if it was not
      * found (in which case nothing is updated).
      */
-    internal function update (elem :DSetEntry) :DSetEntry
+    internal function update (elem :DSet_Entry) :DSet_Entry
     {
         var key :Object = elem.getKey();
         for (var ii :int = 0; ii < _entries.length; ii++) {
-            var entry :DSetEntry = _entries[ii];
+            var entry :DSet_Entry = _entries[ii];
             if (isSameKey(key, entry.getKey())) {
                 _entries[ii] = elem;
                 return entry; // return the old entry

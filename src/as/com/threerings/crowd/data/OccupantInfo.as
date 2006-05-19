@@ -24,7 +24,7 @@ package com.threerings.crowd.data {
 import com.threerings.util.Integer;
 import com.threerings.util.Name;
 
-import com.threerings.presents.dobj.DSetEntry;
+import com.threerings.presents.dobj.DSet_Entry;
 
 import com.threerings.crowd.data.BodyObject;
 
@@ -48,7 +48,7 @@ import com.threerings.io.ObjectOutputStream;
  * is requested.
  */
 public class OccupantInfo
-    implements DSetEntry
+    implements DSet_Entry
 {
     /** Constant value for {@link #status}. */
     public static const ACTIVE :int = 0;
@@ -77,7 +77,7 @@ public class OccupantInfo
         return bodyOid.value;
     }
 
-    // documentation inherited from interface DSetEntry
+    // documentation inherited from interface DSet_Entry
     public function getKey () :Object
     {
         return bodyOid;

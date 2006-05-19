@@ -30,7 +30,7 @@ public class EntryRemovedEvent extends NamedEvent
      */
     public function EntryRemovedEvent (
             targetOid :int = 0, name :String = null, key :Object = null,
-            oldEntry :DSetEntry = null)
+            oldEntry :DSet_Entry = null)
     {
         super(targetOid, name);
         _key = key;
@@ -50,7 +50,7 @@ public class EntryRemovedEvent extends NamedEvent
     /**
      * Returns the entry that was in the set prior to being updated.
      */
-    public function getOldEntry () :DSetEntry
+    public function getOldEntry () :DSet_Entry
     {
         return _oldEntry;
     }
@@ -104,6 +104,6 @@ public class EntryRemovedEvent extends NamedEvent
     }
 
     protected var _key :Object;
-    protected var _oldEntry :DSetEntry = UNSET_OLD_ENTRY;
+    protected var _oldEntry :DSet_Entry = UNSET_OLD_ENTRY;
 }
 }

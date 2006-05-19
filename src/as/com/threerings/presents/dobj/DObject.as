@@ -240,7 +240,7 @@ public class DObject // extends EventDispatcher
     /**
      * Calls by derived instances when a set adder method was called.
      */
-    protected function requestEntryAdd (name :String, entry :DSetEntry) :void
+    protected function requestEntryAdd (name :String, entry :DSet_Entry) :void
     {
         // dispatch an entry added event
         postEvent(new EntryAddedEvent(_oid, name, entry));
@@ -258,7 +258,7 @@ public class DObject // extends EventDispatcher
     /**
      * Calls by derived instances when a set updater method was called.
      */
-    protected function requestEntryUpdate (name :String, entry :DSetEntry) :void
+    protected function requestEntryUpdate (name :String, entry :DSet_Entry) :void
     {
         // dispatch an entry updated event
         postEvent(new EntryUpdatedEvent(_oid, name, entry, null));

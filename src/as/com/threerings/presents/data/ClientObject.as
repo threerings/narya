@@ -71,7 +71,7 @@ public class ClientObject extends DObject
     }
 
     // AUTO-GENERATED: METHODS START
-    public function addToReceivers (elem :DSetEntry) :void
+    public function addToReceivers (elem :DSet_Entry) :void
     {
         requestEntryAdd(RECEIVERS, elem);
     }
@@ -81,7 +81,7 @@ public class ClientObject extends DObject
         requestEntryRemove(RECEIVERS, key);
     }
 
-    public function updateReceivers (elem :DSetEntry) :void
+    public function updateReceivers (elem :DSet_Entry) :void
     {
         requestEntryUpdate(RECEIVERS, elem);
     }

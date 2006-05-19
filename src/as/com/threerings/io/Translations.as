@@ -11,13 +11,13 @@ public class Translations
     public static function getToServer (asName :String) :String
     {
         var javaName :String = (_toServer.get(asName) as String);
-        return (javaName == null) ? asName : javaName;
+        return (javaName == null) ? asName.replace("_", "$") : javaName;
     }
 
     public static function getFromServer (javaName :String) :String
     {
         var asName :String = (_fromServer.get(javaName) as String);
-        return (asName == null) ? javaName : asName;
+        return (asName == null) ? javaName.replace("$", "_") : asName;
     }
 
     public static function addTranslation (

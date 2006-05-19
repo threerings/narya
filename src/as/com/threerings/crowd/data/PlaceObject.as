@@ -29,7 +29,7 @@ import com.threerings.io.ObjectOutputStream;
 
 import com.threerings.presents.dobj.DObject;
 import com.threerings.presents.dobj.DSet;
-import com.threerings.presents.dobj.DSetEntry;
+import com.threerings.presents.dobj.DSet_Entry;
 import com.threerings.presents.dobj.OidList;
 
 import com.threerings.crowd.Log;
@@ -121,7 +121,7 @@ public class PlaceObject extends DObject
      * <code>occupantInfo</code> set. The set will not change until the event is
      * actually propagated through the system.
      */
-    public function addToOccupantInfo (elem :DSetEntry) :void
+    public function addToOccupantInfo (elem :DSet_Entry) :void
     {
         requestEntryAdd(OCCUPANT_INFO, elem);
     }
@@ -141,7 +141,7 @@ public class PlaceObject extends DObject
      * <code>occupantInfo</code> set. The set will not change until the event is
      * actually propagated through the system.
      */
-    public function updateOccupantInfo (elem :DSetEntry) :void
+    public function updateOccupantInfo (elem :DSet_Entry) :void
     {
         requestEntryUpdate(OCCUPANT_INFO, elem);
     }

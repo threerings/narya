@@ -51,19 +51,7 @@ public class Communicator
             inputFrameReceived);
         _inStream = new ObjectInputStream();
 
-        addClassTranslations();
-
         _socket.connect(_client.getHostname(), _client.getPort());
-    }
-
-    private function addClassTranslations () :void
-    {
-        Translations.addTranslation(
-            "com.threerings.presents.dobj.DSetEntry",
-            "com.threerings.presents.dobj.DSet$Entry");
-        Translations.addTranslation(
-            "com.threerings.crowd.data.MoveMarshaller",
-            "com.threerings.crowd.data.LocationMarshaller$MoveMarshaller");
     }
 
     public function logoff () :void

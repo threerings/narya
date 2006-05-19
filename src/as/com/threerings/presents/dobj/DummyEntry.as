@@ -4,13 +4,13 @@ import com.threerings.io.ObjectInputStream;
 import com.threerings.io.ObjectOutputStream;
 
 public class DummyEntry
-    implements DSetEntry
+    implements DSet_Entry
 {
     public function DummyEntry ()
     {
     }
 
-    // documentation inherited from interface DSetEntry
+    // documentation inherited from interface DSet_Entry
     public function getKey () :Object
     {
         return null; // dummy

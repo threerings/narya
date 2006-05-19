@@ -4,7 +4,7 @@ import com.threerings.util.Equalable;
 
 import com.threerings.io.Streamable;
 
-public interface DSetEntry extends Streamable
+public interface DSet_Entry extends Streamable
 {
     /**
      * Get the key used to identify this object. On the java side of things,

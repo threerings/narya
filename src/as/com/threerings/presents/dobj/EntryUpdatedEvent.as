@@ -28,8 +28,8 @@ public class EntryUpdatedEvent extends NamedEvent
      * @param oldEntry the previous value of the entry.
      */
     public function EntryUpdatedEvent (
-            targetOid :int = 0, name :String = null, entry :DSetEntry = null,
-            oldEntry :DSetEntry = null)
+            targetOid :int = 0, name :String = null, entry :DSet_Entry = null,
+            oldEntry :DSet_Entry = null)
     {
         super(targetOid, name);
         _entry = entry;
@@ -41,7 +41,7 @@ public class EntryUpdatedEvent extends NamedEvent
     /**
      * Returns the entry that has been updated.
      */
-    public function getEntry () :DSetEntry
+    public function getEntry () :DSet_Entry
     {
         return _entry;
     }
@@ -49,7 +49,7 @@ public class EntryUpdatedEvent extends NamedEvent
     /**
      * Returns the entry that was in the set prior to being updated.
      */
-    public function getOldEntry ():DSetEntry
+    public function getOldEntry ():DSet_Entry
     {
         return _oldEntry;
     }
@@ -100,10 +100,10 @@ public class EntryUpdatedEvent extends NamedEvent
     public override function readObject (ins :ObjectInputStream) :void
     {
         super.readObject(ins);
-        _entry = (ins.readObject() as DSetEntry);
+        _entry = (ins.readObject() as DSet_Entry);
     }
 
-    protected var _entry :DSetEntry;
-    protected var _oldEntry :DSetEntry = UNSET_OLD_ENTRY;
+    protected var _entry :DSet_Entry;
+    protected var _oldEntry :DSet_Entry = UNSET_OLD_ENTRY;
 }
 }

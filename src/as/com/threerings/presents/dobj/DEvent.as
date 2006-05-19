@@ -98,17 +98,17 @@ public /* abstract */ class DEvent
     /** The oid of the object that is the target of this event. */
     protected var _toid :int;
 
-    protected static const UNSET_OLD_ENTRY :DSetEntry = new DummyEntry();
+    protected static const UNSET_OLD_ENTRY :DSet_Entry = new DummyEntry();
 }
 }
 
 /*
-import com.threerings.presents.dobj.DSetEntry;
+import com.threerings.presents.dobj.DSet_Entry;
 
 import com.threerings.io.ObjectInputStream;
 import com.threerings.io.ObjectOutputStream;
 
-class DummyEntry implements DSetEntry
+class DummyEntry implements DSet_Entry
 {
     public function DummyEntry ()
     {
