@@ -26,10 +26,11 @@ import java.util.Arrays;
 import java.util.Iterator;
 
 import com.samskivert.util.ArrayIntSet;
-import com.samskivert.util.Interval;
 import com.samskivert.util.IntListUtil;
+import com.samskivert.util.Interval;
 import com.samskivert.util.RepeatCallTracker;
 import com.samskivert.util.StringUtil;
+import com.samskivert.util.Tuple;
 import com.threerings.util.Name;
 
 import com.threerings.presents.data.ClientObject;
@@ -444,10 +445,9 @@ public class GameManager extends PlaceManager
             ((_gameobj == null) || (_gameobj.state == GameObject.PRE_GAME))) {
             // queue up the message.
             if (_startmsgs == null) {
-                _startmsgs = new ArrayList();
+                _startmsgs = new ArrayList<Tuple<String,String>>();
             }
-            _startmsgs.add(msgbundle);
-            _startmsgs.add(msg);
+            _startmsgs.add(new Tuple<String,String>(msgbundle, msg));
             return;
         }
 
@@ -487,6 +487,9 @@ public class GameManager extends PlaceManager
 
         // stick the players into the game object
         _gameobj.setPlayers(_gameconfig.players);
+
+        // set up an initial player status array
+        _gameobj.setPlayerStatus(new int[getPlayerSlots()]);
 
         // save off the number of players so that we needn't repeatedly
         // iterate through the player name array server-side unnecessarily
@@ -599,11 +602,12 @@ public class GameManager extends PlaceManager
 //         Log.info("Game room empty. Going away. " +
 //                  "[game=" + _gameobj.which() + "].");
 
-        // If we're in play then move to game over
+        // if we're in play then move to game over
         if (_gameobj.state != GameObject.PRE_GAME &&
             _gameobj.state != GameObject.GAME_OVER &&
             _gameobj.state != GameObject.CANCELLED) {
             _gameobj.setState(GameObject.GAME_OVER);
+            // and shutdown directly
             shutdown();
 
         // cancel the game; which will shut us down
@@ -753,7 +757,7 @@ public class GameManager extends PlaceManager
 
     /**
      * @return true if we should start the game even without any humans.
-     *  Default implementation always returns false.
+     * Default implementation always returns false.
      */
     protected boolean startWithoutHumans ()
     {
@@ -769,9 +773,6 @@ public class GameManager extends PlaceManager
      */
     protected void gameWillStart ()
     {
-        // initialize the player status
-        _gameobj.setPlayerStatus(new int[getPlayerSlots()]);
-
         // increment the round identifier
         _gameobj.setRoundId(_gameobj.roundId + 1);
 
@@ -798,8 +799,14 @@ public class GameManager extends PlaceManager
             break;
 
         case GameObject.GAME_OVER:
-            // call gameDidEnd() only if the game was previously in play
-            if (oldState == GameObject.IN_PLAY) {
+            // we do some jiggery pokery to allow derived game objects to have
+            // different notions of what it means to be in play
+            _gameobj.state = oldState;
+            boolean wasInPlay = _gameobj.isInPlay();
+            _gameobj.state = state;
+
+            // now call gameDidEnd() only if the game was previously in play
+            if (wasInPlay) {
                 gameDidEnd();
             }
             break;
@@ -834,9 +841,9 @@ public class GameManager extends PlaceManager
 
         // inform the players of any pending messages.
         if (_startmsgs != null) {
-            for (Iterator iter = _startmsgs.iterator(); iter.hasNext(); ) {
-                systemMessage((String) iter.next(), // bundle
-                              (String) iter.next()); // message
+            for (Tuple<String,String> mtup : _startmsgs) {
+                systemMessage(mtup.left, // bundle
+                              mtup.right); // message
             }
             _startmsgs = null;
         }
@@ -905,7 +912,6 @@ public class GameManager extends PlaceManager
         // if it's time to end the game, then do so
         if (shouldEndGame()) {
             endGame();
-
         } else {
             // otherwise report that the player was knocked out to other
             // people in his/her room
@@ -962,9 +968,9 @@ public class GameManager extends PlaceManager
         }
         // END TEMP
 
-        if (_gameobj.state != GameObject.IN_PLAY) {
-            Log.debug("Refusing to end game that was not in play " +
-                      "[game=" + _gameobj.which() + "].");
+        if (!_gameobj.isInPlay()) {
+            Log.info("Refusing to end game that was not in play " +
+                     "[game=" + _gameobj.which() + "].");
             return;
         }
 
@@ -1153,6 +1159,9 @@ public class GameManager extends PlaceManager
      */
     protected void gameWillReset ()
     {
+        // reinitialize the player status
+        _gameobj.setPlayerStatus(new int[getPlayerSlots()]);
+
         // let our delegates do their business
         applyToDelegates(new DelegateOp() {
             public void apply (PlaceManagerDelegate delegate) {
@@ -1243,7 +1252,7 @@ public class GameManager extends PlaceManager
         long now = System.currentTimeMillis();
         int size = _managers.size();
         for (int ii = 0; ii < size; ii++) {
-            GameManager gmgr = (GameManager)_managers.get(ii);
+            GameManager gmgr = _managers.get(ii);
             try {
                 gmgr.tick(now);
             } catch (Exception e) {
@@ -1291,7 +1300,7 @@ public class GameManager extends PlaceManager
 
     /** If non-null, contains bundles and messages that should be sent as
      * system messages once the game has started. */
-    protected ArrayList _startmsgs;
+    protected ArrayList<Tuple<String,String>> _startmsgs;
 
     /** Our delegate operator to tick AIs. */
     protected TickAIDelegateOp _tickAIOp;
@@ -1304,7 +1313,8 @@ public class GameManager extends PlaceManager
     protected RepeatCallTracker _gameEndTracker = new RepeatCallTracker();
 
     /** A list of all currently active game managers. */
-    protected static ArrayList _managers = new ArrayList();
+    protected static ArrayList<GameManager> _managers =
+        new ArrayList<GameManager>();
 
     /** The interval for the game manager tick. */
     protected static Interval _tickInterval;
