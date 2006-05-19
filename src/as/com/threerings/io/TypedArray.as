@@ -1,7 +1,5 @@
 package com.threerings.io {
 
-import com.threerings.presents.Log;
-
 public dynamic class TypedArray extends Array
 {
     public function TypedArray (jtype :String)

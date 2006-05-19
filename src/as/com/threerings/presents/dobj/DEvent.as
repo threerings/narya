@@ -7,16 +7,12 @@ import com.threerings.io.Streamable;
 import com.threerings.util.Comparable;
 import com.threerings.util.StringBuilder;
 
-import com.threerings.presents.Log;
-
 public /* abstract */ class DEvent
     implements Streamable
 {
     public function DEvent (targetOid :int)
     {
         _toid = targetOid;
-
-        //Log.debug("unset old = " + UNSET_OLD_ENTRY);
     }
 
     /**
@@ -37,7 +33,8 @@ public /* abstract */ class DEvent
     public function applyToObject (target :DObject) :Boolean
     {
         // TODO
-        Log.warning("DEvent.applyToTarget is really an abstract method.");
+        Log.getLog(this).warning(
+            "DEvent.applyToTarget is really an abstract method.");
         return false;
     }
 

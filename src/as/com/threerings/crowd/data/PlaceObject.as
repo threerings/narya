@@ -32,7 +32,6 @@ import com.threerings.presents.dobj.DSet;
 import com.threerings.presents.dobj.DSet_Entry;
 import com.threerings.presents.dobj.OidList;
 
-import com.threerings.crowd.Log;
 import com.threerings.crowd.chat.data.SpeakMarshaller;
 //import com.threerings.crowd.chat.data.SpeakObject;
 

@@ -24,7 +24,6 @@ package com.threerings.crowd.data {
 import com.threerings.util.Byte;
 import com.threerings.util.Name;
 
-//import com.threerings.presents.Log;
 import com.threerings.presents.data.ClientObject;
 import com.threerings.presents.data.InvocationCodes;
 
@@ -131,13 +130,9 @@ public class BodyObject extends ClientObject
     {
         super.readObject(ins);
 
-        Log.debug("Reading username");
         username = (ins.readObject() as Name);
-        Log.debug("Reading location");
         location = ins.readInt();
-        Log.debug("Reading status");
         status = ins.readByte();
-        Log.debug("Reading awayMessage");
         awayMessage = (ins.readField(String) as String);
     }
 

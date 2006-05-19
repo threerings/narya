@@ -86,7 +86,7 @@ public class MessageBundle
         }
 
         if (reportMissing) {
-            Log.warning("Missing translation message " +
+            Log.getLog(this).warning("Missing translation message " +
                         "[bundle=" + _path + ", key=" + key + "].");
         }
 
@@ -146,7 +146,7 @@ public class MessageBundle
         // if the base key is not found, look to see if we should try to
         // convert our first argument to an Integer and try again
         if (msg == null) {
-            Log.warning("Missing translation message " +
+            Log.getLog(this).warning("Missing translation message " +
                         "[bundle=" + _path + ", key=" + key + "].");
         }
 

@@ -33,7 +33,6 @@ import com.threerings.presents.dobj.ObjectAccessError;
 import com.threerings.presents.dobj.Subscriber;
 import com.threerings.presents.dobj.SubscriberAdapter;
 
-import com.threerings.crowd.Log;
 import com.threerings.crowd.data.BodyObject;
 import com.threerings.crowd.data.LocationCodes;
 import com.threerings.crowd.data.PlaceConfig;
@@ -50,19 +49,7 @@ import com.threerings.crowd.util.CrowdContext;
 public class LocationDirector extends BasicDirector
     implements Subscriber, LocationReceiver
 {
-    /**
-     * Used to recover from a moveTo request that was accepted but
-     * resulted in a failed attempt to fetch the place object to which we
-     * were moving.
-     */
-//    public static interface FailureHandler
-//    {
-//        /**
-//         * Should instruct the client to move to the last known working
-//         * location (as well as clean up after the failed moveTo request).
-//         */
-//        public void recoverFailedMove (int placeId);
-//    }
+    private static const log :Log = Log.getLog(LocationDirector);
 
     /**
      * Constructs a location director which will configure itself for
@@ -128,7 +115,7 @@ public class LocationDirector extends BasicDirector
     {
         // make sure the placeId is valid
         if (placeId < 0) {
-            Log.warning("Refusing moveTo(): invalid placeId " + placeId + ".");
+            log.warning("Refusing moveTo(): invalid placeId " + placeId + ".");
             return false;
         }
 
@@ -149,13 +136,13 @@ public class LocationDirector extends BasicDirector
             // minute, go ahead and let this new one through in an attempt
             // to recover from dropped moveTo requests
             if (refuse) {
-                Log.warning("Refusing moveTo; We have a request outstanding " +
+                log.warning("Refusing moveTo; We have a request outstanding " +
                             "[ppid=" + _pendingPlaceId +
                             ", npid=" + placeId + "].");
                 return false;
 
             } else {
-                Log.warning("Overriding stale moveTo request " +
+                log.warning("Overriding stale moveTo request " +
                             "[ppid=" + _pendingPlaceId +
                             ", npid=" + placeId + "].");
             }
@@ -179,7 +166,7 @@ public class LocationDirector extends BasicDirector
             var placeId :int = _pendingPlaceId;
             _pendingPlaceId = -1;
 
-            Log.info("moveTo failed [pid=" + placeId +
+            log.info("moveTo failed [pid=" + placeId +
                      ", reason=" + reason + "].");
 
             // let our observers know that something has gone horribly awry
@@ -187,7 +174,7 @@ public class LocationDirector extends BasicDirector
         };
 
         // issue a moveTo request
-        Log.info("Issuing moveTo(" + placeId + ").");
+        log.info("Issuing moveTo(" + placeId + ").");
         _lservice.moveTo(_cctx.getClient(), placeId,
             new MoveAdapter(success, failure));
         return true;
@@ -276,9 +263,9 @@ public class LocationDirector extends BasicDirector
             try {
                 _controller.mayLeavePlace(_plobj);
             } catch (e :Error) {
-                Log.warning("Place controller choked in " +
+                log.warning("Place controller choked in " +
                             "mayLeavePlace [plobj=" + _plobj + "].");
-                Log.logStackTrace(e);
+                log.logStackTrace(e);
             }
         }
     }
@@ -315,7 +302,7 @@ public class LocationDirector extends BasicDirector
         // check whether we should use a custom class loader
         _controller = config.createController();
         if (_controller == null) {
-            Log.warning("Place config returned null controller " +
+            log.warning("Place config returned null controller " +
                         "[config=" + config + "].");
             return;
         }
@@ -339,9 +326,9 @@ public class LocationDirector extends BasicDirector
                 try {
                     _controller.didLeavePlace(_plobj);
                 } catch (e :Error) {
-                    Log.warning("Place controller choked in " +
+                    log.warning("Place controller choked in " +
                                 "didLeavePlace [plobj=" + _plobj + "].");
-                    Log.logStackTrace(e);
+                    log.logStackTrace(e);
                 }
                 _controller = null;
             }
@@ -405,7 +392,7 @@ public class LocationDirector extends BasicDirector
         };
         var failure :Function = function (
                 oid :int, cause :ObjectAccessError) :void {
-            Log.warning("Location director unable to fetch body " +
+            log.warning("Location director unable to fetch body " +
                         "object; all has gone horribly wrong" +
                         "[cause=" + cause + "].");
         };
@@ -453,7 +440,7 @@ public class LocationDirector extends BasicDirector
     // documentation inherited from interface
     public function forcedMove (placeId :int) :void
     {
-        Log.info("Moving at request of server [placeId=" + placeId + "].");
+        log.info("Moving at request of server [placeId=" + placeId + "].");
 
         if (movePending()) {
             // clear out our old place information
@@ -476,9 +463,9 @@ public class LocationDirector extends BasicDirector
             try {
                 _controller.willEnterPlace(_plobj);
             } catch (e :Error) {
-                Log.warning("Controller choked in willEnterPlace " +
+                log.warning("Controller choked in willEnterPlace " +
                             "[place=" + _plobj + "].");
-                Log.logStackTrace(e);
+                log.logStackTrace(e);
             }
         }
 
@@ -491,7 +478,7 @@ public class LocationDirector extends BasicDirector
     {
         // aiya! we were unable to fetch our new place object; something
         // is badly wrong
-        Log.warning("Aiya! Unable to fetch place object for new location " +
+        log.warning("Aiya! Unable to fetch place object for new location " +
                     "[plid=" + oid + ", reason=" + cause + "].");
 
         // clear out our half initialized place info
@@ -533,7 +520,7 @@ public class LocationDirector extends BasicDirector
 //    public void setFailureHandler (FailureHandler handler)
 //    {
 //        if (_failureHandler != null) {
-//            Log.warning("Requested to set failure handler, but we've " +
+//            log.warning("Requested to set failure handler, but we've " +
 //                        "already got one. The conflicting entities will " +
 //                        "likely need to perform more sophisticated " +
 //                        "coordination to deal with failures. " +

@@ -21,8 +21,6 @@
 
 package com.threerings.presents.client {
 
-import com.threerings.presents.Log;
-
 /**
  * Provides the basic functionality used to dispatch invocation
  * notification events.
@@ -47,9 +45,9 @@ public /* abstract */ class InvocationDecoder
      */
     public function dispatchNotification (methodId :int, args :Array) :void
     {
-        Log.warning("Requested to dispatch unknown method " +
-                    "[receiver=" + receiver + ", methodId=" + methodId +
-                    ", args=" + args + "].");
+        Log.getLog(this).warning("Requested to dispatch unknown method " +
+            "[receiver=" + receiver + ", methodId=" + methodId +
+            ", args=" + args + "].");
     }
 }
 }

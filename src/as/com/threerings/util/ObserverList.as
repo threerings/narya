@@ -64,7 +64,9 @@ public class ObserverList
                     remove(list[ii]);
                 }
             } catch (err :Error) {
-                Log.warning("ObserverOp choked during notification.");
+                var log :Log = Log.getLog(this);
+                log.warning("ObserverOp choked during notification.");
+                log.logStackTrace(err);
             }
         }
     }

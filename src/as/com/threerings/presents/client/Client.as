@@ -19,12 +19,12 @@ import com.threerings.presents.net.Credentials;
 import com.threerings.presents.net.PingRequest;
 import com.threerings.presents.net.PongResponse;
 
-import com.threerings.presents.Log;
-
 public class Client extends EventDispatcher
 {
     /** The default port on which the server listens for client connections. */
     public static const DEFAULT_SERVER_PORT :int = 47624;
+
+    private static const log :Log = Log.getLog(Client);
 
     public function Client (creds :Credentials, stage :Stage)
     {
@@ -228,7 +228,7 @@ public class Client extends EventDispatcher
     public function logoff (abortable :Boolean) :Boolean
     {
         if (_comm == null) {
-            Log.warning("Ignoring request to log off: not logged on.");
+            log.warning("Ignoring request to log off: not logged on.");
             return true;
         }
 
@@ -249,7 +249,7 @@ public class Client extends EventDispatcher
     public function gotBootstrap (data :BootstrapData, omgr :DObjectManager)
             :void
     {
-        Log.debug("Got bootstrap " + data + ".");
+        log.debug("Got bootstrap " + data + ".");
 
         _bstrap = data;
         _omgr = omgr;
@@ -257,7 +257,7 @@ public class Client extends EventDispatcher
 
         _invdir.init(omgr, _cloid, this);
 
-        Log.debug("TimeBaseService: " + requireService(TimeBaseService));
+        log.debug("TimeBaseService: " + requireService(TimeBaseService));
     }
 
     /**

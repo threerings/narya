@@ -8,8 +8,6 @@ import com.threerings.io.TypedArray;
 
 import com.threerings.util.StringBuilder;
 
-import com.threerings.presents.Log;
-
 /**
  * An oid list is used to store lists of object ids. The list will not
  * allow duplicate ids. This class is not synchronized, with the
@@ -102,7 +100,7 @@ public class OidList
     // documentation inherited from interface Streamable
     public function writeObject (out :ObjectOutputStream) :void
     {
-        Log.warning("TODO: Not implemented: " + this);
+        Log.getLog(this).warning("TODO: Not implemented: " + this);
     }
 
     // documentation inherited from interface Streamable

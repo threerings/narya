@@ -6,8 +6,6 @@ import com.threerings.io.Streamable;
 
 import com.threerings.util.StreamableArrayList;
 
-import com.threerings.presents.Log;
-
 /**
  * A BoostrapData object is communicated back to the client
  * after authentication has succeeded and after the server is fully
@@ -26,7 +24,8 @@ public class BootstrapData
     // documentation inherited from interface Streamable
     public function writeObject (out :ObjectOutputStream) :void
     {
-        com.threerings.presents.Log.warning("This is client code: BootstrapData shouldn't be written");
+        Log.getLog(this).warning(
+            "This is client code: BootstrapData shouldn't be written");
     }
 
     // documentation inherited from interface Streamable

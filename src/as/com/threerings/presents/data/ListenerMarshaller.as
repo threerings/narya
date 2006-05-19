@@ -11,8 +11,6 @@ import com.threerings.presents.client.InvocationListener;
 import com.threerings.presents.dobj.DObjectManager;
 import com.threerings.presents.dobj.InvocationResponseEvent;
 
-import com.threerings.presents.Log;
-
 public class ListenerMarshaller
     implements Streamable, InvocationListener
 {
@@ -55,10 +53,10 @@ public class ListenerMarshaller
             listener.requestFailed((args[0] as String));
 
         } else {
-            Log.warning("Requested to dispatch unknown invocation " +
-                        "response [listener=" + listener +
-                        ", methodId=" + methodId +
-                        ", args=" + args + "].");
+            Log.getLog(this).warning(
+                "Requested to dispatch unknown invocation response " + 
+                "[listener=" + listener + ", methodId=" + methodId +
+                ", args=" + args + "].");
         }
     }
 

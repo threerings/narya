@@ -1,7 +1,5 @@
 package com.threerings.presents.dobj {
 
-import com.threerings.presents.Log;
-
 public class SubscriberAdapter
     implements Subscriber
 {
@@ -14,7 +12,6 @@ public class SubscriberAdapter
     // documentation inherited from interface Subscriber
     public function objectAvailable (obj :DObject) :void
     {
-        Log.debug("calling success function: " + _success);
         _success(obj);
     }
 

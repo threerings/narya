@@ -16,8 +16,6 @@ import com.threerings.io.ObjectInputStream;
 import com.threerings.io.ObjectOutputStream;
 import com.threerings.io.Translations;
 
-import com.threerings.presents.Log;
-
 import com.threerings.presents.net.AuthRequest;
 import com.threerings.presents.net.AuthResponse;
 import com.threerings.presents.net.AuthResponseData;
@@ -76,7 +74,8 @@ public class Communicator
             try {
                 _socket.close();
             } catch (err :Error) {
-                Log.warning("Error closing failed socket [error=" + err + "].");
+                Log.getLog(this).warning(
+                    "Error closing failed socket [error=" + err + "].");
             }
             _socket = null;
             _outStream = null;
@@ -140,7 +139,8 @@ public class Communicator
         var msg :DownstreamMessage =
             (_inStream.readObject() as DownstreamMessage);
         if (frameData.bytesAvailable > 0) {
-            Log.warning("Beans! We didn't fully read a frame, surely there's " +
+            Log.getLog(this).warning(
+                "Beans! We didn't fully read a frame, surely there's " +
                 "a bug in some streaming code. " +
                 "[bytesLeftOver=" + frameData.bytesAvailable + "].");
         }
@@ -180,7 +180,7 @@ public class Communicator
      */
     protected function socketError (event :IOErrorEvent) :void
     {
-        Log.warning("socket error: " + event);
+        Log.getLog(this).warning("socket error: " + event);
         shutdown(new Error("socket closed unexpectedly."));
     }
 

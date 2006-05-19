@@ -47,8 +47,6 @@ import com.threerings.presents.net.SubscribeRequest;
 import com.threerings.presents.net.UnsubscribeRequest;
 import com.threerings.presents.net.UnsubscribeResponse;
 
-import com.threerings.presents.Log;
-
 /**
  * The client distributed object manager manages a set of proxy objects
  * which mirror the distributed objects maintained on the server.
@@ -59,6 +57,8 @@ import com.threerings.presents.Log;
 public class ClientDObjectMgr
     implements DObjectManager
 {
+    private static const log :Log = Log.getLog(ClientDObjectMgr);
+
     /**
      * Constructs a client distributed object manager.
      *
@@ -149,7 +149,7 @@ public class ClientDObjectMgr
                 long expire =  System.currentTimeMillis() +
                     ((Long)_delays.get(dclass)).longValue();
                 _flushes.put(obj.getOid(), new FlushRecord(obj, expire));
-//                 Log.info("Flushing " + obj.getOid() + " at " +
+//                 log.info("Flushing " + obj.getOid() + " at " +
 //                          new java.util.Date(expire));
                 return;
             }
@@ -194,14 +194,13 @@ public class ClientDObjectMgr
         }
 
         var obj :Object = _actions.shift();
-        Log.debug("processNextAction: " + obj);
         // do the proper thing depending on the object
         if (obj is BootstrapNotification) {
             _client.gotBootstrap(obj.getData(), this);
 
         } else if (obj is EventNotification) {
             var evt :DEvent = obj.getEvent();
-//                 Log.info("Dispatch event: " + evt);
+//                 log.info("Dispatch event: " + evt);
             dispatchEvent(evt);
 
         } else if (obj is ObjectResponse) {
@@ -210,7 +209,7 @@ public class ClientDObjectMgr
         } else if (obj is UnsubscribeResponse) {
             var oid :int = obj.getOid();
             if (_dead.remove(oid) == null) {
-                Log.warning("Received unsub ACK from unknown object " +
+                log.warning("Received unsub ACK from unknown object " +
                             "[oid=" + oid + "].");
             }
 
@@ -253,7 +252,7 @@ public class ClientDObjectMgr
         var target :DObject = (_ocache.get(toid) as DObject);
         if (target == null) {
             if (_dead.get(toid) == null) {
-                Log.warning("Unable to dispatch event on non-proxied " +
+                log.warning("Unable to dispatch event on non-proxied " +
                     "object [event=" + event + "].");
             }
             return;
@@ -266,7 +265,7 @@ public class ClientDObjectMgr
             // if this is an object destroyed event, we need to remove the
             // object from our object table
             if (event is ObjectDestroyedEvent) {
-//                 Log.info("Pitching destroyed object " +
+//                 log.info("Pitching destroyed object " +
 //                          "[oid=" + toid + ", class=" +
 //                          StringUtil.shortClassName(target) + "].");
                 _ocache.remove(toid);
@@ -278,9 +277,9 @@ public class ClientDObjectMgr
             }
 
         } catch (e :Error) {
-            Log.warning("Failure processing event [event=" + event +
+            log.warning("Failure processing event [event=" + event +
                 ", target=" + target + "].");
-            Log.logStackTrace(e);
+            log.logStackTrace(e);
         }
     }
 
@@ -300,15 +299,15 @@ public class ClientDObjectMgr
         // let the penders know that the object is available
         var req :PendingRequest = (_penders.remove(oid) as PendingRequest);
         if (req == null) {
-            Log.warning("Got object, but no one cares?! " +
+            log.warning("Got object, but no one cares?! " +
                 "[oid=" + oid + ", obj=" + obj + "].");
             return;
         }
-        Log.debug("Got object: pendReq=" + req);
+        log.debug("Got object: pendReq=" + req);
 
         for (var ii :int = 0; ii < req.targets.length; ii++) {
             var target :Subscriber = (req.targets[ii] as Subscriber);
-            Log.debug("Notifying subscriber: " + target);
+            log.debug("Notifying subscriber: " + target);
             // add them as a subscriber
             obj.addSubscriber(target);
             // and let them know that the object is in
@@ -325,7 +324,7 @@ public class ClientDObjectMgr
         // let the penders know that the object is not available
         var req :PendingRequest = (_penders.remove(oid) as PendingRequest);
         if (req == null) {
-            Log.warning("Failed to get object, but no one cares?! " +
+            log.warning("Failed to get object, but no one cares?! " +
                         "[oid=" + oid + "].");
             return;
         }
@@ -343,7 +342,7 @@ public class ClientDObjectMgr
      */
     protected function doSubscribe (oid :int, target :Subscriber) :void
     {
-        // Log.info("doSubscribe: " + oid + ": " + target);
+        // log.info("doSubscribe: " + oid + ": " + target);
 
         // first see if we've already got the object in our table
         var obj :DObject = (_ocache.get(oid) as DObject);
@@ -369,7 +368,7 @@ public class ClientDObjectMgr
         req = new PendingRequest(oid);
         req.addTarget(target);
         _penders.put(oid, req);
-        // Log.info("Registering pending request [oid=" + oid + "].");
+        // log.info("Registering pending request [oid=" + oid + "].");
 
         // and issue a request to get things rolling
         _comm.postMessage(new SubscribeRequest(oid));
@@ -386,7 +385,7 @@ public class ClientDObjectMgr
             dobj.removeSubscriber(target);
 
         } else {
-            Log.info("Requested to remove subscriber from " +
+            log.info("Requested to remove subscriber from " +
                      "non-proxied object [oid=" + oid +
                      ", sub=" + target + "].");
         }

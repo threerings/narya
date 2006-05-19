@@ -9,6 +9,8 @@ import com.threerings.util.ClassUtil;
 
 public class ObjectInputStream
 {
+    private static const log :Log = Log.getLog(ObjectInputStream);
+
     public function ObjectInputStream (source :IDataInput = null)
     {
         if (source == null) {
@@ -35,7 +37,7 @@ public class ObjectInputStream
 
             // a zero code indicates a null value
             if (code == 0) {
-                Log.debug(DEBUG_ID + "Read null");
+                log.debug(DEBUG_ID + "Read null");
                 return null;
             }
 
@@ -49,21 +51,21 @@ public class ObjectInputStream
 
                 // read in the class metadata
                 var cname :String = Translations.getFromServer(readUTF());
-//                Log.debug("read cname: " + cname);
+//                log.debug("read cname: " + cname);
                 var streamer :Streamer = Streamer.getStreamerByJavaName(cname);
                 if (streamer == Streamer.BAD_STREAMER) {
-                    Log.warning("OMG, cannot stream " + cname);
+                    log.warning("OMG, cannot stream " + cname);
                     return null;
                 }
-//                Log.debug("Got streamer (" + streamer + ")");
+//                log.debug("Got streamer (" + streamer + ")");
 
                 cmap = new ClassMapping(code, cname, streamer);
                 _classMap[code] = cmap;
-                Log.debug(DEBUG_ID +
+                log.debug(DEBUG_ID +
                     "Created mapping: (" + code + "): " + cname);
 
             } else {
-                Log.debug(DEBUG_ID + "Read known code: (" + code + ")");
+                log.debug(DEBUG_ID + "Read known code: (" + code + ")");
                 cmap = (_classMap[code] as ClassMapping);
                 if (null == cmap) {
                     throw new IOError("Read object for which we have no " +
@@ -71,7 +73,7 @@ public class ObjectInputStream
                 }
             }
 
-//            Log.debug("Creating object sleeve...");
+//            log.debug("Creating object sleeve...");
             var target :Object;
             if (cmap.streamer === null) {
                 var clazz :Class = ClassUtil.getClassByName(cmap.classname);
@@ -80,9 +82,9 @@ public class ObjectInputStream
             } else {
                 target = cmap.streamer.createObject(this);
             }
-            //Log.debug("Reading object...");
+            //log.debug("Reading object...");
             readBareObjectImpl(target, cmap.streamer);
-            Log.debug(DEBUG_ID + "Read object: " + target);
+            log.debug(DEBUG_ID + "Read object: " + target);
             return target;
 
         } catch (me :MemoryError) {

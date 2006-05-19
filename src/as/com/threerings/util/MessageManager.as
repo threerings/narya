@@ -137,8 +137,8 @@ public class MessageManager
                 rbundle = ResourceBundle.getResourceBundle(fqpath);
 //            }
         } catch (mre :Error) {
-            Log.warning("Unable to resolve resource bundle " +
-                        "[path=" + fqpath + "].");
+            Log.getLog(this).warning("Unable to resolve resource bundle " +
+                "[path=" + fqpath + "].");
         }
 
         // if the resource bundle contains a special resource, we'll
@@ -157,8 +157,8 @@ public class MessageManager
                 // nothing to worry about
 
             } catch (t :Error) {
-                Log.warning("Failure instantiating custom message bundle " +
-                            "[mbclass=" + mbclass + ", error=" + t + "].");
+                Log.getLog(this).warning("Failure instantiating custom message" +
+                    " bundle [mbclass=" + mbclass + ", error=" + t + "].");
             }
         }
 

@@ -8,8 +8,6 @@ import flash.net.Socket;
 import flash.utils.ByteArray;
 import flash.utils.Endian;
 
-import com.threerings.presents.Log;
-
 /**
  * Reads socket data until a complete frame is available.
  * This dispatches a FrameAvailableEvent.FRAME_AVAILABLE once a frame
@@ -28,7 +26,7 @@ public class FrameReader extends EventDispatcher
      */
     protected function socketHasData (event :ProgressEvent) :void
     {
-        Log.debug("socketHasData(" + _socket.bytesAvailable + ")");
+        Log.getLog(this).debug("socketHasData(" + _socket.bytesAvailable + ")");
         if (_curData == null) {
             if (_socket.bytesAvailable < HEADER_SIZE) {
                 // if there are less bytes available than a header, let's
@@ -54,7 +52,7 @@ public class FrameReader extends EventDispatcher
         if (_length === _curData.length) {
             // we have now read a complete frame, let us dispatch the data
             _curData.position = 0; // move the read pointer to the beginning
-            Log.debug("+ FrameAvailable");
+            Log.getLog(this).debug("+ FrameAvailable");
             dispatchEvent(new FrameAvailableEvent(_curData));
             _curData = null; // clear, so we know we need to first read length
 

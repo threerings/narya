@@ -5,8 +5,6 @@ import com.threerings.io.ObjectOutputStream;
 
 import com.threerings.util.StringBuilder;
 
-import com.threerings.presents.Log;
-
 /**
  * An entry updated event is dispatched when an entry of a {@link DSet} is
  * updated. It can also be constructed to request the update of an entry
@@ -67,8 +65,8 @@ public class EntryUpdatedEvent extends NamedEvent
             _oldEntry = dset.update(_entry);
             if (_oldEntry == null) {
                 // complain if we didn't update anything
-                Log.warning("No matching entry to update [entry=" + this +
-                            ", set=" + dset + "].");
+                Log.getLog(this).warning("No matching entry to update " +
+                    "[entry=" + this + ", set=" + dset + "].");
                 return false;
             }
         }

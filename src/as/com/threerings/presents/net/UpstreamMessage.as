@@ -6,8 +6,6 @@ import com.threerings.io.ObjectOutputStream;
 
 import com.threerings.util.JavaConstants;
 
-import com.threerings.presents.Log;
-
 public /* abstract */ class UpstreamMessage
     implements Streamable
 {
@@ -35,7 +33,8 @@ public /* abstract */ class UpstreamMessage
     // documentation inherited from interface Streamable
     public function readObject (ins :ObjectInputStream) :void
     {
-        Log.warning("This is client code: Upstream messages shouldn't be read");
+        Log.getLog(this).warning(
+            "This is client code: Upstream messages shouldn't be read");
         //messageId = ins.readShort();
     }
 

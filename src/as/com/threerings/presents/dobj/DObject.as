@@ -11,11 +11,11 @@ import com.threerings.io.ObjectInputStream;
 import com.threerings.io.ObjectOutputStream;
 import com.threerings.io.Streamable;
 
-import com.threerings.presents.Log;
-
 public class DObject // extends EventDispatcher
     implements Streamable
 {
+    private static const log :Log = Log.getLog(DObject);
+
     public function getOid ():int
     {
         return _oid;
@@ -61,9 +61,9 @@ public class DObject // extends EventDispatcher
             _listeners = new ArrayCollection();
 
         } else if (_listeners.contains(listener)) {
-            com.threerings.presents.Log.warning("Refusing repeat listener registration " +
+            log.warning("Refusing repeat listener registration " +
                 "[dobj=" + which() + ", list=" + listener + "].");
-            com.threerings.presents.Log.logStackTrace(new Error());
+            log.logStackTrace(new Error());
             return;
         }
         _listeners.addItem(listener);
@@ -94,9 +94,9 @@ public class DObject // extends EventDispatcher
                     (listener as EventListener).eventReceived(event);
                 }
             } catch (e :Error) {
-                com.threerings.presents.Log.warning("Listener choked during notification " +
+                log.warning("Listener choked during notification " +
                     "[list=" + listener + ", event=" + event + "].");
-                com.threerings.presents.Log.logStackTrace(e);
+                log.logStackTrace(e);
             }
         }
     }
@@ -114,7 +114,7 @@ public class DObject // extends EventDispatcher
             _omgr.postEvent(event);
 
         } else {
-            com.threerings.presents.Log.warning("Unable to post event, object has no omgr " +
+            log.warning("Unable to post event, object has no omgr " +
                 "[oid=" + getOid() + ", class=" + ClassUtil.getClassName(this) +
                 ", event=" + event + "].");
         }

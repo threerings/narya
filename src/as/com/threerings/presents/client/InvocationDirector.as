@@ -20,16 +20,16 @@ import com.threerings.presents.dobj.SubscriberAdapter;
 
 import com.threerings.presents.data.ClientObject;
 
-import com.threerings.presents.Log;
-
 public class InvocationDirector
     implements EventListener
 {
+    private static const log :Log = Log.getLog(InvocationDirector);
+
     public function init (omgr :DObjectManager, cloid :int, client :Client)
             :void
     {
         if (_clobj != null) {
-            Log.warning("Zoiks, client object around during invmgr init!");
+            log.warning("Zoiks, client object around during invmgr init!");
             cleanup();
         }
 
@@ -84,11 +84,11 @@ public class InvocationDirector
             var rreg :InvocationRegistration =
                 (_clobj.receivers.get(receiverCode) as InvocationRegistration);
             if (rreg == null) {
-                Log.warning("Receiver unregistered for which we have no " +
+                log.warning("Receiver unregistered for which we have no " +
                             "id to code mapping [code=" + receiverCode + "].");
             } else {
                 var odecoder :Object = _receivers.remove(rreg.receiverId);
-//                 Log.info("Cleared receiver " +
+//                 log.info("Cleared receiver " +
 //                          StringUtil.shortClassName(odecoder) +
 //                          " " + rreg + ".");
             }
@@ -188,7 +188,7 @@ public class InvocationDirector
         var listener :ListenerMarshaller = 
             (_listeners.remove(reqId) as ListenerMarshaller);
         if (listener == null) {
-            Log.warning("Received invocation response for which we have " +
+            log.warning("Received invocation response for which we have " +
                         "no registered listener [reqId=" + reqId +
                         ", methId=" + methodId +
                         ", args=" + args + "]. " +
@@ -198,7 +198,7 @@ public class InvocationDirector
             return;
         }
 
-//         Log.info("Dispatching invocation response " +
+//         log.info("Dispatching invocation response " +
 //                  "[listener=" + listener + ", methId=" + methodId +
 //                  ", args=" + StringUtil.toString(args) + "].");
 
@@ -206,10 +206,10 @@ public class InvocationDirector
         try {
             listener.dispatchResponse(methodId, args);
         } catch (e :Error) {
-            Log.warning("Invocation response listener choked " +
+            log.warning("Invocation response listener choked " +
                         "[listener=" + listener + ", methId=" + methodId +
                         ", args=" + args + "].");
-            Log.logStackTrace(e);
+            log.logStackTrace(e);
         }
 
         // flush expired listeners periodically
@@ -230,25 +230,25 @@ public class InvocationDirector
         var decoder :InvocationDecoder =
             (_receivers.get(receiverId) as InvocationDecoder);
         if (decoder == null) {
-            Log.warning("Received notification for which we have no " +
+            log.warning("Received notification for which we have no " +
                         "registered receiver [recvId=" + receiverId +
                         ", methodId=" + methodId +
                         ", args=" + args + "].");
             return;
         }
 
-//         Log.info("Dispatching invocation notification " +
+//         log.info("Dispatching invocation notification " +
 //                  "[receiver=" + decoder.receiver + ", methodId=" + methodId +
 //                  ", args=" + StringUtil.toString(args) + "].");
 
         try {
             decoder.dispatchNotification(methodId, args);
         } catch (e :Error) {
-            Log.warning("Invocation notification receiver choked " +
+            log.warning("Invocation notification receiver choked " +
                         "[receiver=" + decoder.receiver +
                         ", methId=" + methodId +
                         ", args=" + args + "].");
-            Log.logStackTrace(e);
+            log.logStackTrace(e);
         }
     }
 
@@ -323,7 +323,7 @@ public class InvocationDirector
     internal function gotClientObjectFailed (
             oid :int, cause :ObjectAccessError) :void
     {
-        Log.warning("Invocation director unable to subscribe to " +
+        log.warning("Invocation director unable to subscribe to " +
             "client object [cloid=" + oid + ", cause=" + cause + "]!");
         _client.getClientObjectFailed(cause);
     }

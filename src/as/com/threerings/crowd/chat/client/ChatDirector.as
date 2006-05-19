@@ -43,7 +43,6 @@ import com.threerings.util.MessageManager;
 import com.threerings.util.Name;
 import com.threerings.util.TimeUtil;
 
-import com.threerings.crowd.Log;
 import com.threerings.crowd.client.LocationObserver;
 import com.threerings.crowd.data.BodyObject;
 import com.threerings.crowd.data.PlaceObject;
@@ -88,7 +87,8 @@ public class ChatDirector extends BasicDirector
         _cctx.getLocationDirector().addLocationObserver(this);
 
         if (_bundle == null || _msgmgr == null) {
-            com.threerings.crowd.Log.warning("Null bundle or message manager given to ChatDirector");
+            Log.getLog(this).warning(
+                "Null bundle or message manager given to ChatDirector");
             return;
         }
         var msg :MessageBundle = _msgmgr.getBundle(_bundle);
@@ -906,7 +906,7 @@ public class ChatDirector extends BasicDirector
         if (bundle != null && _msgmgr != null) {
             var msgb :MessageBundle = _msgmgr.getBundle(bundle);
             if (msgb == null) {
-                com.threerings.crowd.Log.warning(
+                Log.getLog(this).warning(
                     "No message bundle available to translate message " +
                     "[bundle=" + bundle + ", message=" + message + "].");
             } else {

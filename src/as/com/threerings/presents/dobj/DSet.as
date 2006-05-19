@@ -12,8 +12,6 @@ import com.threerings.io.ObjectOutputStream;
 import com.threerings.io.Streamable;
 import com.threerings.io.TypedArray;
 
-import com.threerings.presents.Log;
-
 /**
  * The distributed set class provides a means by which an unordered set of
  * objects can be maintained as a distributed object field. Entries can be
@@ -122,8 +120,8 @@ public class DSet
             }
 
         } else if (contains(elem)) {
-            com.threerings.presents.Log.warning("Refusing to add duplicate entry [set=" + this +
-                  ", entry=" + elem + "].");
+            Log.getLog(this).warning("Refusing to add duplicate entry " +
+                "[set=" + this + ", entry=" + elem + "].");
             return false;
         }
 

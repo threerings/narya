@@ -5,8 +5,6 @@ import com.threerings.io.ObjectOutputStream;
 
 import com.threerings.util.StringBuilder;
 
-import com.threerings.presents.Log;
-
 /**
  * An entry removed event is dispatched when an entry is removed from a
  * {@link DSet} attribute of a distributed object. It can also be
@@ -67,8 +65,8 @@ public class EntryRemovedEvent extends NamedEvent
             _oldEntry = dset.removeKey(_key);
             if (_oldEntry == null) {
                 // complain if there was actually nothing there
-                Log.warning("No matching entry to remove [key=" + _key +
-                    ", set=" + dset + "].");
+                Log.getLog(this).warning("No matching entry to remove " +
+                    "[key=" + _key + ", set=" + dset + "].");
                 return false;
             }
         }

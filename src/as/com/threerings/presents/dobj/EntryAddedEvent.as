@@ -5,8 +5,6 @@ import com.threerings.io.ObjectOutputStream;
 
 import com.threerings.util.StringBuilder;
 
-import com.threerings.presents.Log;
-
 /**
  * An entry added event is dispatched when an entry is added to a {@link
  * DSet} attribute of a distributed entry. It can also be constructed to
@@ -49,7 +47,8 @@ public class EntryAddedEvent extends NamedEvent
     {
         var added :Boolean = target[_name].add(_entry);
         if (!added) {
-            Log.warning("Duplicate entry found [event=" + this + "].");
+            Log.getLog(this).warning(
+                "Duplicate entry found [event=" + this + "].");
         }
         return true;
     }

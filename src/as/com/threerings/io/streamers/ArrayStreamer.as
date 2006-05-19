@@ -7,8 +7,6 @@ import com.threerings.io.ObjectOutputStream;
 import com.threerings.io.Streamer;
 import com.threerings.io.TypedArray;
 
-import com.threerings.presents.Log;
-
 /**
  * A Streamer for Array objects.
  */
@@ -35,7 +33,7 @@ public class ArrayStreamer extends Streamer
             _elementType = int;
 
         } else {
-            com.threerings.presents.Log.warning("Other array types are " +
+            Log.getLog(this).warning("Other array types are " +
                 "currently not handled yet [jname=" + jname + "].");
             throw new Error("Unimplemented bit");
         }

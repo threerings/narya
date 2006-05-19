@@ -23,7 +23,6 @@ package com.threerings.crowd.client {
 
 import flash.display.DisplayObjectContainer;
 
-import com.threerings.crowd.Log;
 import com.threerings.crowd.data.PlaceObject;
 
 /**
@@ -72,9 +71,10 @@ public class PlaceViewUtil
             try {
                 (root as PlaceView)[funct](plobj);
             } catch (e :Error) {
-                Log.warning("Component choked on " + funct + "() " +
+                var log :Log = Log.getLog(PlaceViewUtil);
+                log.warning("Component choked on " + funct + "() " +
                             "[component=" + root + ", plobj=" + plobj + "].");
-                Log.logStackTrace(e);
+                log.logStackTrace(e);
             }
         }
 

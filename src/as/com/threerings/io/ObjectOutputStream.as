@@ -8,6 +8,8 @@ import com.threerings.util.HashMap;
 
 public class ObjectOutputStream
 {
+    private static const log :Log = Log.getLog(ObjectOutputStream);
+
     public function ObjectOutputStream (targ :IDataOutput)
     {
         _targ = targ;
@@ -38,7 +40,7 @@ public class ObjectOutputStream
             // streamer may be null to indicate a Streamable object
             if (streamer == Streamer.BAD_STREAMER) {
                 // TODO
-                Log.warning("OMG, cannot stream " + cname);
+                log.warning("OMG, cannot stream " + cname);
                 return;
             }
 
