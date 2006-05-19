@@ -434,9 +434,6 @@ public class SceneDirector extends BasicDirector
         // clear out our scene id info
         _sceneId = -1;
 
-        // release the old scene model
-        releaseSceneModel(_model);
-
         // clear out our references
         _model = null;
         _scene = null;
@@ -471,19 +468,6 @@ public class SceneDirector extends BasicDirector
         return model;
     }
 
-    /**
-     * Unloads a scene model that was previously loaded via {@link
-     * #loadSceneModel}. The model will probably continue to live in the
-     * cache for a while in case we quickly return to it.
-     */
-    protected void releaseSceneModel (SceneModel model)
-    {
-        // we're cool if we're called with null
-        if (model == null) {
-            return;
-        }
-    }
-
     // documentation inherited from interface
     public void clientDidLogoff (Client client)
     {
@@ -493,7 +477,7 @@ public class SceneDirector extends BasicDirector
         clearScene();
         _scache.clear();
         _pendingSceneId = -1;
-        releaseSceneModel(_pendingModel);
+        _pendingModel = null;
         _previousSceneId = -1;
         _sservice = null;
     }
