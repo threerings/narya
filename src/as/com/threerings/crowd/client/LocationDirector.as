@@ -494,17 +494,17 @@ public class LocationDirector extends BasicDirector
         // does whatever's necessary
 
         // try to return to our previous location
-//            if (_failureHandler != null) {
-//                _failureHandler.recoverFailedMove(placeId);
-//
-//            } else {
+        if (_failureHandler != null) {
+            _failureHandler.recoverFailedMove(placeId);
+
+        } else {
             // if we were previously somewhere (and that somewhere isn't
             // where we just tried to go), try going back to that happy
             // place
             if (_previousPlaceId != -1 && _previousPlaceId != placeId) {
                 moveTo(_previousPlaceId);
             }
-//            }
+        }
     }
 
     /**
@@ -517,19 +517,20 @@ public class LocationDirector extends BasicDirector
      * this interface whereby they can interject themseves into the
      * failure recovery process and do their own failure recovery.
      */
-//    public void setFailureHandler (FailureHandler handler)
-//    {
-//        if (_failureHandler != null) {
-//            log.warning("Requested to set failure handler, but we've " +
-//                        "already got one. The conflicting entities will " +
-//                        "likely need to perform more sophisticated " +
-//                        "coordination to deal with failures. " +
-//                        "[old=" + _failureHandler + ", new=" + handler + "].");
-//
-//        } else {
-//            _failureHandler = handler;
-//        }
-//    }
+    public function setFailureHandler (
+            handler :LocationDirector_FailureHandler) :void
+    {
+        if (_failureHandler != null) {
+            log.warning("Requested to set failure handler, but we've " +
+                        "already got one. The conflicting entities will " +
+                        "likely need to perform more sophisticated " +
+                        "coordination to deal with failures. " +
+                        "[old=" + _failureHandler + ", new=" + handler + "].");
+
+        } else {
+            _failureHandler = handler;
+        }
+    }
 
     protected function notifyFailure (placeId :int, reason :String) :void
     {
@@ -572,7 +573,7 @@ public class LocationDirector extends BasicDirector
 
     /** The entity that deals when we fail to subscribe to a place
      * object. */
-//    protected FailureHandler _failureHandler;
+    protected var _failureHandler :LocationDirector_FailureHandler;
 
     /** A listener that wants to know if we succeeded or
      * how we failed to move.  */

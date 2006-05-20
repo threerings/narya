@@ -81,8 +81,9 @@ public class InvocationDirector
 
         // if we're logged on, clear out any receiver id mapping
         if (_clobj != null) { 
-            var rreg :InvocationRegistration =
-                (_clobj.receivers.get(receiverCode) as InvocationRegistration);
+            var rreg :InvocationReceiver_Registration =
+                (_clobj.receivers.get(receiverCode) as
+                    InvocationReceiver_Registration);
             if (rreg == null) {
                 log.warning("Receiver unregistered for which we have no " +
                             "id to code mapping [code=" + receiverCode + "].");
@@ -102,8 +103,9 @@ public class InvocationDirector
      */
     internal function assignReceiverId (decoder :InvocationDecoder) :void
     {
-        var reg :InvocationRegistration = new InvocationRegistration(
-            decoder.getReceiverCode(), nextReceiverId());
+        var reg :InvocationReceiver_Registration =
+            new InvocationReceiver_Registration(decoder.getReceiverCode(),
+                nextReceiverId());
         _clobj.addToReceivers(reg);
         _receivers.put(reg.receiverId, decoder);
     }

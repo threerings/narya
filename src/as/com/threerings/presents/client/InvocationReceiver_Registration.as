@@ -13,7 +13,7 @@ import com.threerings.presents.dobj.DSet_Entry;
  * used to convert (large) hash codes into (small) registration
  * numbers.
  */
-public class InvocationRegistration
+public class InvocationReceiver_Registration
     implements DSet_Entry
 {
     /** The unique hash code associated with this invocation receiver class. */
@@ -24,8 +24,8 @@ public class InvocationRegistration
     public var receiverId :int;
 
     /** Creates and initializes a registration instance. */
-    public function InvocationRegistration (
-            receiverCode :String, receiverId :int)
+    public function InvocationReceiver_Registration (
+            receiverCode :String = null, receiverId :int = 0)
     {
         this.receiverCode = receiverCode;
         this.receiverId = receiverId;
