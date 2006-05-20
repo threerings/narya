@@ -161,6 +161,14 @@ public class JmeApp
     }
 
     /**
+     * Returns the frames per second averaged over the last 32 frames.
+     */
+    public float getRecentFrameRate ()
+    {
+        return _timer.getFrameRate();
+    }
+
+    /**
      * Enables or disables the update and render part of the
      * update/render/process events application loop.
      */
