@@ -40,9 +40,9 @@ public class Rejector extends PresentsServer
 
         _ports = StringUtil.parseIntArray(args[0]);
         _errmsg = args[1];
-        if (args.length > 1) {
-            String[] eargs = new String[args.length-1];
-            System.arraycopy(args, 1, eargs, 0, eargs.length);
+        if (args.length > 2) {
+            String[] eargs = new String[args.length-2];
+            System.arraycopy(args, 2, eargs, 0, eargs.length);
             _errmsg = MessageBundle.tcompose(_errmsg, eargs);
         }
 
