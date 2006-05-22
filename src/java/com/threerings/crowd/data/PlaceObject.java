@@ -70,7 +70,7 @@ public class PlaceObject extends DObject
      * step on one another even if they make rapid fire changes to a
      * user's occupant info.
      */
-    public DSet occupantInfo = new DSet();
+    public DSet<OccupantInfo> occupantInfo = new DSet<OccupantInfo>();
 
     /** Used to generate speak requests on this place object. */
     public SpeakMarshaller speakService;
