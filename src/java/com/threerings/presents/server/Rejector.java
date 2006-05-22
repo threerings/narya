@@ -3,6 +3,7 @@
 
 package com.threerings.presents.server;
 
+import com.samskivert.util.StringUtil;
 import com.threerings.util.MessageBundle;
 
 import com.threerings.presents.Log;
@@ -24,14 +25,21 @@ public class Rejector extends PresentsServer
         conmgr.setAuthenticator(new RejectingAuthenticator());
     }
 
+    // documentation inherited
+    protected int[] getListenPorts ()
+    {
+        return _ports;
+    }
+
     public static void main (String[] args)
     {
-        if (args.length < 1) {
-            System.err.println("Usage: Rejector error_msg [args]");
+        if (args.length < 2) {
+            System.err.println("Usage: Rejector ports error_msg [args]");
             System.exit(-1);
         }
 
-        _errmsg = args[0];
+        _ports = StringUtil.parseIntArray(args[0]);
+        _errmsg = args[1];
         if (args.length > 1) {
             String[] eargs = new String[args.length-1];
             System.arraycopy(args, 1, eargs, 0, eargs.length);
@@ -65,4 +73,5 @@ public class Rejector extends PresentsServer
     }
 
     protected static String _errmsg;
+    protected static int[] _ports;
 }
