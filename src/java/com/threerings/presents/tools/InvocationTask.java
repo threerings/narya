@@ -252,7 +252,6 @@ public abstract class InvocationTask extends Task
             throw new BuildException("Can't resolve InvocationListener", e);
         }
 
-        ArrayList files = new ArrayList();
         for (Iterator iter = _filesets.iterator(); iter.hasNext(); ) {
             FileSet fs = (FileSet)iter.next();
             DirectoryScanner ds = fs.getDirectoryScanner(getProject());
