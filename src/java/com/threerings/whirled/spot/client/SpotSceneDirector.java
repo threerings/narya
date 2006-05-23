@@ -28,7 +28,6 @@ import com.threerings.presents.client.BasicDirector;
 import com.threerings.presents.client.Client;
 import com.threerings.presents.client.InvocationService.ConfirmListener;
 import com.threerings.presents.data.ClientObject;
-import com.threerings.presents.server.InvocationException;
 import com.threerings.presents.dobj.AttributeChangeListener;
 import com.threerings.presents.dobj.AttributeChangedEvent;
 import com.threerings.presents.dobj.DObject;
@@ -222,8 +221,7 @@ public class SpotSceneDirector extends BasicDirector
             Log.warning("Requested to change locations, but we're not " +
                         "currently in any scene [loc=" + loc + "].");
             if (listener != null) {
-                listener.requestFailed(
-                    new InvocationException("m.cant_get_there"));
+                listener.requestFailed(new Exception("m.cant_get_there"));
             }
             return;
         }
@@ -245,7 +243,7 @@ public class SpotSceneDirector extends BasicDirector
             public void requestFailed (String reason) {
                 _pendingLoc = null;
                 if (listener != null) {
-                    listener.requestFailed(new InvocationException(reason));
+                    listener.requestFailed(new Exception(reason));
                 }
             }
         };
