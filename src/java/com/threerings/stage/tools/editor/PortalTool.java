@@ -17,6 +17,7 @@ import com.threerings.util.DirectionUtil;
 import com.threerings.whirled.spot.data.Location;
 import com.threerings.whirled.spot.tools.EditablePortal;
 
+import com.threerings.stage.data.StageLocation;
 import com.threerings.stage.data.StageScene;
 import com.threerings.stage.tools.editor.util.ExtrasPainter;
 
@@ -37,7 +38,7 @@ public class PortalTool extends MouseInputAdapter
 
         // configure the portal with these full coordinates
         _portal = new EditablePortal();
-        _portal.loc = new Location(p.x, p.y, (byte)DirectionCodes.NORTH);
+        _portal.loc = new StageLocation(p.x, p.y, (byte)DirectionCodes.NORTH);
 
         // we want to listen to drags and clicks
         _panel.addMouseListener(this);
@@ -99,8 +100,9 @@ public class PortalTool extends MouseInputAdapter
         }
 
         // if our orientation changed, repaint
-        if (norient != _portal.loc.orient) {
-            _portal.loc.orient = (byte)norient;
+        StageLocation loc = (StageLocation) _portal.loc;
+        if (norient != loc.orient) {
+            loc.orient = (byte)norient;
             _panel.repaint();
         }
     }
@@ -111,8 +113,8 @@ public class PortalTool extends MouseInputAdapter
     protected void savePortal ()
     {
         // try to come up with a reasonable name
-        String dirname =
-            DirectionUtil.toString(_portal.loc.orient).toLowerCase();
+        byte orient = ((StageLocation) _portal.loc).orient;
+        String dirname = DirectionUtil.toString(orient).toLowerCase();
         String name = dirname;
         for (int ii=1; portalNameExists(name); ii++) {
             name = dirname + ii;

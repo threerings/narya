@@ -21,33 +21,29 @@
 
 package com.threerings.whirled.spot.data;
 
+import com.threerings.io.SimpleStreamableObject;
+
 import com.threerings.presents.dobj.DSet;
 
 /**
  * Extends {@link Location} with the data and functionality needed to
  * represent a particular user's location in a scene.
  */
-public class SceneLocation extends Location
+public class SceneLocation extends SimpleStreamableObject
     implements DSet.Entry
 {
     /** The oid of the body that occupies this location. */
     public int bodyOid;
 
-    /**
-     * Creates a scene location with the specified information.
-     */
-    public SceneLocation (int x, int y, byte orient, int bodyOid)
-    {
-        super(x, y, orient);
-        this.bodyOid = bodyOid;
-    }
+    /** The actual location, which is interpreted by the display system. */
+    public Location loc;
 
     /**
      * Creates a scene location with the specified information.
      */
     public SceneLocation (Location loc, int bodyOid)
     {
-        super(loc.x, loc.y, loc.orient);
+        this.loc = loc;
         this.bodyOid = bodyOid;
     }
 
@@ -65,6 +61,26 @@ public class SceneLocation extends Location
             _key = new Integer(bodyOid);
         }
         return _key;
+    }
+
+    // documentation inherited
+    public boolean equals (Object other)
+    {
+        // TEMP
+        if (other instanceof Location) {
+            Thread.dumpStack(); // this will help us find logic errors,
+            // as a SceneLocation and a Location shouldn't be compared
+        }
+        // END: temp
+
+        return (other instanceof SceneLocation) &&
+            this.loc.equals(((SceneLocation) other).loc);
+    }
+
+    // documentation inherited
+    public int hashCode ()
+    {
+        return loc.hashCode();
     }
 
     /** Used for {@link #getKey}. */

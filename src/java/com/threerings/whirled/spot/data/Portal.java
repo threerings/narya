@@ -22,7 +22,6 @@
 package com.threerings.whirled.spot.data;
 
 import com.threerings.io.SimpleStreamableObject;
-import com.threerings.util.DirectionUtil;
 
 /**
  * Represents an exit to another scene. A body sprite would walk over to a
@@ -39,9 +38,8 @@ public class Portal extends SimpleStreamableObject
     /** This portal's unique identifier. */
     public short portalId;
 
-    /** The location of the portal. Typically this is a base Location (2d)
-     * class, but different games could use a different subclass of
-     * Location. */
+    /** The location of the portal.
+     * This field is present on client and server, it is streamed specially. */
     public Location loc;
 
     /** The scene identifier of the scene to which a body will exit when
@@ -70,9 +68,7 @@ public class Portal extends SimpleStreamableObject
      */
     public Location getOppLocation ()
     {
-        Location oppLoc = getLocation();
-        oppLoc.orient = (byte) DirectionUtil.getOpposite(oppLoc.orient);
-        return oppLoc;
+        return loc.getOpposite();
     }
 
     /**
@@ -102,12 +98,8 @@ public class Portal extends SimpleStreamableObject
      */
     public boolean equals (Object other)
     {
-        if (other instanceof Portal) {
-            Portal oport = (Portal)other;
-            return portalId == oport.portalId;
-        } else {
-            return false;
-        }
+        return (other instanceof Portal) &&
+            ((Portal) other).portalId == portalId;
     }
 
     /**

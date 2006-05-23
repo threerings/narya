@@ -31,6 +31,7 @@ import com.threerings.stage.client.StageScenePanel;
 import com.threerings.whirled.spot.data.Location;
 
 import com.threerings.stage.Log;
+import com.threerings.stage.data.StageLocation;
 import com.threerings.stage.data.StageScene;
 import com.threerings.stage.util.StageContext;
 
@@ -66,8 +67,8 @@ public class ViewerScenePanel extends StageScenePanel
         setScene(scene);
 
         // move all of our sprites to the default entrance
-        _defloc = defloc;
-        Point defpos = getScreenCoords(defloc.x, defloc.y);
+        _defloc = (StageLocation) defloc;
+        Point defpos = getScreenCoords(_defloc.x, _defloc.y);
         _sprite.setLocation(defpos.x, defpos.y);
 
         if (_decoys != null) {
@@ -220,7 +221,7 @@ public class ViewerScenePanel extends StageScenePanel
     protected static final int DEFAULT_NUM_DECOYS = 10;
 
     /** The current scene's default entrance. */
-    protected Location _defloc;
+    protected StageLocation _defloc;
 
     /** Provides character sprite data. */
     protected CharacterManager _charmgr;

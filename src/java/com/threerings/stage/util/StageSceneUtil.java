@@ -31,6 +31,7 @@ import com.threerings.whirled.spot.data.Location;
 import com.threerings.whirled.spot.data.SceneLocation;
 
 import com.threerings.stage.Log;
+import com.threerings.stage.data.StageLocation;
 import com.threerings.stage.data.StageMisoSceneModel;
 import com.threerings.stage.data.StageSceneModel;
 
@@ -51,7 +52,7 @@ public class StageSceneUtil
      * Does the necessary jiggery pokery to figure out where the specified
      * object's associated location is.
      */
-    public static Location locationForObject (
+    public static StageLocation locationForObject (
         TileManager tilemgr, ObjectInfo info)
     {
         return locationForObject(tilemgr, info.tileId, info.x, info.y);
@@ -67,7 +68,7 @@ public class StageSceneUtil
      * @param tx the object's x tile coordinate.
      * @param ty the object's y tile coordinate.
      */
-    public static Location locationForObject (
+    public static StageLocation locationForObject (
         TileManager tilemgr, int tileId, int tx, int ty)
     {
         try {
@@ -89,7 +90,8 @@ public class StageSceneUtil
 //                      ", sy=" + tset.getYSpot(tidx) +
 //                      ", lx=" + opos.x + ", ly=" + opos.y +
 //                      ", fg=" + _metrics.finegran + "].");
-            return new Location(opos.x, opos.y, (byte)tset.getSpotOrient(tidx));
+            return new StageLocation(opos.x, opos.y,
+                    (byte)tset.getSpotOrient(tidx));
 
         } catch (Exception e) {
             Log.warning("Unable to look up object tile for scene object " +
@@ -189,9 +191,9 @@ public class StageSceneUtil
     /**
      * Computes a list of the valid locations in this cluster.
      */
-    public static ArrayList getClusterLocs (Cluster cluster)
+    public static ArrayList<SceneLocation> getClusterLocs (Cluster cluster)
     {
-        ArrayList list = new ArrayList();
+        ArrayList<SceneLocation> list = new ArrayList<SceneLocation>();
 
         // convert our tile coordinates into a cartesian coordinate system
         // with units equal to one fine coordinate in size
@@ -204,9 +206,10 @@ public class StageSceneUtil
         // if it's a 1x1 cluster, return one location in the center of the
         // cluster
         if (cluster.width == 1) {
-            list.add(new SceneLocation(MisoUtil.toFull(cluster.x, 2),
-                                       MisoUtil.toFull(cluster.y, 2),
-                                       (byte)DirectionCodes.SOUTHWEST, 0));
+            StageLocation loc = new StageLocation(
+                MisoUtil.toFull(cluster.x, 2), MisoUtil.toFull(cluster.y, 2),
+                (byte)DirectionCodes.SOUTHWEST);
+            list.add(new SceneLocation(loc, 0));
             return list;
         }
 
@@ -233,7 +236,8 @@ public class StageSceneUtil
             sx = MisoUtil.toFull(tx, sx-(tx*_metrics.finegran));
             int ty = MathUtil.floorDiv(sy, _metrics.finegran);
             sy = MisoUtil.toFull(ty, sy-(ty*_metrics.finegran));
-            list.add(new SceneLocation(sx, sy, (byte)orient, 0));
+            StageLocation loc = new StageLocation(sx, sy, (byte) orient);
+            list.add(new SceneLocation(loc, 0));
         }
 
         return list;
@@ -279,7 +283,7 @@ public class StageSceneUtil
      *
      * @return the closest spot to the 
      */
-    public static Location findStandingSpot (
+    public static StageLocation findStandingSpot (
         Rectangle foot, int dist, AStarPathUtil.TraversalPred pred,
         Object traverser, final Point nearto, int orient)
     {
@@ -292,28 +296,36 @@ public class StageSceneUtil
             int xx1 = foot.x-dd, xx2 = foot.x+foot.width+dd-1;
 
             // get the corners
-            spots.add(new Location(xx1, yy1, (byte)DirectionCodes.SOUTHWEST));
-            spots.add(new Location(xx1, yy2, (byte)DirectionCodes.SOUTHEAST));
-            spots.add(new Location(xx2, yy1, (byte)DirectionCodes.NORTHWEST));
-            spots.add(new Location(xx2, yy2, (byte)DirectionCodes.NORTHEAST));
+            spots.add(
+                new StageLocation(xx1, yy1, (byte)DirectionCodes.SOUTHWEST));
+            spots.add(
+                new StageLocation(xx1, yy2, (byte)DirectionCodes.SOUTHEAST));
+            spots.add(
+                new StageLocation(xx2, yy1, (byte)DirectionCodes.NORTHWEST));
+            spots.add(
+                new StageLocation(xx2, yy2, (byte)DirectionCodes.NORTHEAST));
 
             // then the sides
             for (int xx = xx1+1; xx < xx2; xx++) {
-                spots.add(new Location(xx, yy1, (byte)DirectionCodes.WEST));
-                spots.add(new Location(xx, yy2, (byte)DirectionCodes.EAST));
+                spots.add(
+                    new StageLocation(xx, yy1, (byte)DirectionCodes.WEST));
+                spots.add(
+                    new StageLocation(xx, yy2, (byte)DirectionCodes.EAST));
             }
             for (int yy = yy1+1; yy < yy2; yy++) {
-                spots.add(new Location(xx1, yy, (byte)DirectionCodes.SOUTH));
-                spots.add(new Location(xx2, yy, (byte)DirectionCodes.NORTH));
+                spots.add(
+                    new StageLocation(xx1, yy, (byte)DirectionCodes.SOUTH));
+                spots.add(
+                    new StageLocation(xx2, yy, (byte)DirectionCodes.NORTH));
             }
 
             // sort them in order of closeness to the players current
             // coordinate
             spots.sort(new Comparator() {
                 public int compare (Object o1, Object o2) {
-                    return dist((Location)o1) - dist((Location)o2);
+                    return dist((StageLocation)o1) - dist((StageLocation)o2);
                 }
-                private final int dist (Location l) {
+                private final int dist (StageLocation l) {
                     return Math.round(100*MathUtil.distance(
                                           l.x, l.y, nearto.x, nearto.y));
                 }
@@ -322,7 +334,7 @@ public class StageSceneUtil
             // return the first spot that can be "traversed" which we're
             // taking to mean "stood upon"
             for (int ii = 0, ll = spots.size(); ii < ll; ii++) {
-                Location loc = (Location)spots.get(ii);
+                StageLocation loc = (StageLocation)spots.get(ii);
                 if (pred.canTraverse(traverser, loc.x, loc.y)) {
                     // convert to full coordinates
                     loc.x = MisoUtil.toFull(loc.x, 2);

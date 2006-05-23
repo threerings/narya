@@ -37,6 +37,7 @@ import com.threerings.stage.client.StageSceneService;
 import com.threerings.stage.data.DefaultColorUpdate;
 import com.threerings.stage.data.ModifyObjectsUpdate;
 import com.threerings.stage.data.StageCodes;
+import com.threerings.stage.data.StageLocation;
 import com.threerings.stage.data.StageMisoSceneModel;
 import com.threerings.stage.data.StageOccupantInfo;
 import com.threerings.stage.data.StageScene;
@@ -67,7 +68,7 @@ public class StageSceneManager extends SpotSceneManager
                 _tloc.y = MisoUtil.toFull(y, 2);
                 return mayStandAtLocation((BodyObject)traverser, _tloc);
             }
-            protected Location _tloc = new Location();
+            protected StageLocation _tloc = new StageLocation();
         };
     }
 
@@ -150,7 +151,7 @@ public class StageSceneManager extends SpotSceneManager
      * Called by NPPs to determine whether or not they can stand at the
      * specified location.
      */
-    public boolean mayStandAtLocation (BodyObject source, Location loc)
+    public boolean mayStandAtLocation (BodyObject source, StageLocation loc)
     {
         return validateLocation(source, loc, false);
     }
@@ -279,7 +280,8 @@ public class StageSceneManager extends SpotSceneManager
         super.updateLocation(source, loc);
 
         // keep a rectangle around for each un-clustered occupant
-        int tx = MisoUtil.fullToTile(loc.x), ty = MisoUtil.fullToTile(loc.y);
+        StageLocation sloc = (StageLocation) loc;
+        int tx = MisoUtil.fullToTile(sloc.x), ty = MisoUtil.fullToTile(sloc.y);
         _loners.put(source.getOid(), new Rectangle(tx, ty, 1, 1));
     }
 
@@ -307,8 +309,9 @@ public class StageSceneManager extends SpotSceneManager
         _plocs.clear();
         for (Iterator iter = _sscene.getPortals(); iter.hasNext(); ) {
             Portal port = (Portal)iter.next();
-            _plocs.add(new Point(MisoUtil.fullToTile(port.loc.x),
-                                 MisoUtil.fullToTile(port.loc.y)));
+            StageLocation loc = (StageLocation) port.loc;
+            _plocs.add(new Point(MisoUtil.fullToTile(loc.x),
+                                 MisoUtil.fullToTile(loc.y)));
         }
     }
 
@@ -316,7 +319,7 @@ public class StageSceneManager extends SpotSceneManager
      * Helper function for {@link #mayStandAtLocation} and {@link
      * #validateLocation(BodyObject,Location)}.
      */
-    protected boolean validateLocation (BodyObject source, Location loc,
+    protected boolean validateLocation (BodyObject source, StageLocation loc,
                                         boolean allowPortals)
     {
         int tx = MisoUtil.fullToTile(loc.x), ty = MisoUtil.fullToTile(loc.y);
@@ -335,14 +338,16 @@ public class StageSceneManager extends SpotSceneManager
         }
 
         // if they are already standing on this tile, allow it
-        Location cloc = (Location)
+        SceneLocation cloc = (SceneLocation)
             _ssobj.occupantLocs.get(new Integer(source.getOid()));
-        if (cloc != null &&
-            MisoUtil.fullToTile(cloc.x) == tx &&
-            MisoUtil.fullToTile(cloc.y) == ty) {
-//             Log.info("Allowing adjust [who=" + source.who () +
-//                      ", cloc=" + cloc + ", nloc=" + loc + "].");
-            return true;
+        if (cloc != null) {
+            StageLocation sloc = (StageLocation) cloc.loc;
+            if (MisoUtil.fullToTile(sloc.x) == tx &&
+                    MisoUtil.fullToTile(sloc.y) == ty) {
+//                Log.info("Allowing adjust [who=" + source.who () +
+//                    ", cloc=" + cloc + ", nloc=" + loc + "].");
+                return true;
+            }
         }
 
         // make sure they're not standing in a cluster footprint, an
@@ -393,9 +398,10 @@ public class StageSceneManager extends SpotSceneManager
         MisoSceneMetrics metrics = StageSceneUtil.getMetrics();
         SceneLocation loc = new SceneLocation(
             entry.getOppLocation(), body.getOid());
-        int tx = MisoUtil.fullToTile(loc.x),
-            ty = MisoUtil.fullToTile(loc.y);
-        int oidx = loc.orient/2;
+        StageLocation sloc = (StageLocation) loc.loc;
+        int tx = MisoUtil.fullToTile(sloc.x),
+            ty = MisoUtil.fullToTile(sloc.y);
+        int oidx = sloc.orient/2;
         int lidx = (oidx+3)%4; // rotate to the left
         int ridx = (oidx+1)%4; // rotate to the right
 
@@ -409,7 +415,7 @@ public class StageSceneManager extends SpotSceneManager
             ty += PORTAL_DY[oidx];
 
             // look in the center column
-            if (checkEntry(metrics, body, tx, ty, loc)) {
+            if (checkEntry(metrics, body, tx, ty, sloc)) {
                 break LOC_SEARCH;
             }
 
@@ -417,7 +423,7 @@ public class StageSceneManager extends SpotSceneManager
             for (int lx = tx, ly = ty, ff = 0; ff < fan; ff++) {
                 lx += PORTAL_DX[lidx];
                 ly += PORTAL_DY[lidx];
-                if (checkEntry(metrics, body, lx, ly, loc)) {
+                if (checkEntry(metrics, body, lx, ly, sloc)) {
                     break LOC_SEARCH;
                 }
             }
@@ -426,7 +432,7 @@ public class StageSceneManager extends SpotSceneManager
             for (int rx = tx, ry = ty, ff = 0; ff < fan; ff++) {
                 rx += PORTAL_DX[ridx];
                 ry += PORTAL_DY[ridx];
-                if (checkEntry(metrics, body, rx, ry, loc)) {
+                if (checkEntry(metrics, body, rx, ry, sloc)) {
                     break LOC_SEARCH;
                 }
             }
@@ -434,24 +440,25 @@ public class StageSceneManager extends SpotSceneManager
             // if this is our last pass and we didn't find anything,
             // revert back to the portal location
             if (fan == MAX_FAN-1) {
-                loc = new SceneLocation(
-                    entry.getOppLocation(), body.getOid());
+                sloc = (StageLocation) entry.getOppLocation();
             }
         }
 
-        tx = MisoUtil.fullToTile(loc.x);
-        ty = MisoUtil.fullToTile(loc.y);
+        tx = MisoUtil.fullToTile(sloc.x);
+        ty = MisoUtil.fullToTile(sloc.y);
         _loners.put(body.getOid(), new Rectangle(tx, ty, 1, 1));
+
+        loc.loc = sloc;
         return loc;
     }
 
     /** Helper function for {@link #computeEnteringLocation}. */
     protected boolean checkEntry (MisoSceneMetrics metrics, BodyObject body,
-                                  int tx, int ty, SceneLocation sloc)
+                                  int tx, int ty, StageLocation loc)
     {
-        sloc.x = MisoUtil.toFull(tx, metrics.finegran/2);
-        sloc.y = MisoUtil.toFull(ty, metrics.finegran/2);
-        return validateLocation(body, sloc, false);
+        loc.x = MisoUtil.toFull(tx, metrics.finegran/2);
+        loc.y = MisoUtil.toFull(ty, metrics.finegran/2);
+        return validateLocation(body, loc, false);
     }
 
     // documentation inherited
@@ -459,7 +466,7 @@ public class StageSceneManager extends SpotSceneManager
     {
         // TODO: make sure the user isn't warping to hell and gone (and if
         // they are, make sure they're an admin)
-        return validateLocation(source, loc, true);
+        return validateLocation(source, (StageLocation)loc, true);
     }
 
     // documentation inherited
@@ -653,14 +660,15 @@ public class StageSceneManager extends SpotSceneManager
             // if we're adding our first player, assign initial dimensions
             // to the cluster
             cl.width = 1; cl.height = 1;
-            Location loc = locationForBody(bodyOid);
+            SceneLocation loc = locationForBody(bodyOid);
             if (loc == null) {
                 Log.warning("Foreign body added to cluster [clrec=" + clrec +
                             ", body=" + body.who() + "].");
                 cl.x = 10; cl.y = 10;
             } else {
-                cl.x = MisoUtil.fullToTile(loc.x);
-                cl.y = MisoUtil.fullToTile(loc.y);
+                StageLocation sloc = (StageLocation) loc.loc;
+                cl.x = MisoUtil.fullToTile(sloc.x);
+                cl.y = MisoUtil.fullToTile(sloc.y);
             }
             // we'll do everything else when occupant two shows up
             return;
@@ -703,7 +711,7 @@ public class StageSceneManager extends SpotSceneManager
 //         Log.info("Maybe moving " + bodyOid + " from " + sloc +
 //                  " to " + cloc +
 //                  " (avail=" + StringUtil.toString(locs) + ").");
-        if (cloc != null && !cloc.equivalent(sloc)) {
+        if (cloc != null && !cloc.loc.equivalent(sloc.loc)) {
             cloc.bodyOid = bodyOid;
 //             Log.info("Moving " + bodyOid + " to " + cloc +
 //                      " for " + cl + ".");
@@ -771,14 +779,16 @@ public class StageSceneManager extends SpotSceneManager
      * supplied location.
      */
     protected static SceneLocation getClosestLoc (
-        ArrayList locs, SceneLocation loc)
+        ArrayList locs, SceneLocation optimalLocation)
     {
+        StageLocation loc = (StageLocation) optimalLocation.loc;
         SceneLocation cloc = null;
         float cdist = Integer.MAX_VALUE;
         int cidx = -1;
         for (int ii = 0, ll = locs.size(); ii < ll; ii++) {
             SceneLocation tloc = (SceneLocation)locs.get(ii);
-            float tdist = MathUtil.distance(loc.x, loc.y, tloc.x, tloc.y);
+            StageLocation sl = (StageLocation) tloc.loc;
+            float tdist = MathUtil.distance(loc.x, loc.y, sl.x, sl.y);
             if (tdist < cdist) {
                 cloc = tloc;
                 cdist = tdist;

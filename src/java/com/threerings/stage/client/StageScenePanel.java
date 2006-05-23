@@ -46,11 +46,14 @@ import com.threerings.crowd.client.PlaceView;
 import com.threerings.crowd.data.PlaceObject;
 
 import com.threerings.whirled.data.SceneUpdate;
+
 import com.threerings.whirled.spot.data.Cluster;
 import com.threerings.whirled.spot.data.Location;
 import com.threerings.whirled.spot.data.Portal;
+import com.threerings.whirled.spot.data.SceneLocation;
 
 import com.threerings.stage.Log;
+import com.threerings.stage.data.StageLocation;
 import com.threerings.stage.data.StageMisoSceneModel;
 import com.threerings.stage.data.StageScene;
 import com.threerings.stage.data.StageSceneModel;
@@ -67,10 +70,6 @@ public class StageScenePanel extends MisoScenePanel
     /** An action command generated when the user clicks on a location
      * within the scene. */
     public static final String LOCATION_CLICKED = "LocationClicked";
-
-    /** An action command generated when something besides the user wants
-     * us to move to a location.  */
-    public static final String LOCATION_REQUESTED = "LocationRequested";
 
     /** An action command generated when a cluster is clicked. */
     public static final String CLUSTER_CLICKED = "ClusterClicked";
@@ -163,9 +162,10 @@ public class StageScenePanel extends MisoScenePanel
         _portobjs.clear();
         for (Iterator iter = _scene.getPortals(); iter.hasNext(); ) {
             Portal portal = (Portal) iter.next();
-            Point p = getScreenCoords(portal.loc.x, portal.loc.y);
-            int tx = MisoUtil.fullToTile(portal.loc.x);
-            int ty = MisoUtil.fullToTile(portal.loc.y);
+            StageLocation loc = (StageLocation) portal.loc;
+            Point p = getScreenCoords(loc.x, loc.y);
+            int tx = MisoUtil.fullToTile(loc.x);
+            int ty = MisoUtil.fullToTile(loc.y);
             Point ts = MisoUtil.tileToScreen(_metrics, tx, ty, new Point());
 
 //             Log.info("Added portal " + portal +
@@ -180,7 +180,7 @@ public class StageScenePanel extends MisoScenePanel
             ObjectTile tile = new PortalObjectTile(
                 ts.x + _metrics.tilehwid - p.x + (PORTAL_ICON_WIDTH / 2),
                 ts.y + _metrics.tilehei - p.y + (PORTAL_ICON_HEIGHT / 2));
-            tile.setImage(ots.getTileMirage(portal.loc.orient));
+            tile.setImage(ots.getTileMirage(loc.orient));
 
             _portobjs.add(new SceneObject(this, info, tile) {
                 public boolean setHovered (boolean hovered) {
@@ -266,15 +266,14 @@ public class StageScenePanel extends MisoScenePanel
         // if the hover object is a cluster, we clicked it!
         if (event.getButton() == MouseEvent.BUTTON1) {
             if (hobject instanceof Cluster) {
-                int mx = event.getX(), my = event.getY();
-                Object actarg = new Tuple(hobject, new Point(mx, my));
+                Object actarg = new Tuple(hobject, event.getPoint());
                 Controller.postAction(this, CLUSTER_CLICKED, actarg);
             } else {
                 // post an action indicating that we've clicked on a location
                 Point lc = MisoUtil.screenToFull(
                     _metrics, event.getX(), event.getY(), new Point());
                 Controller.postAction(this, LOCATION_CLICKED,
-                                      new Location(lc.x, lc.y, (byte)0));
+                                      new StageLocation(lc.x, lc.y, (byte)0));
             }
             return true;
         }
@@ -304,10 +303,10 @@ public class StageScenePanel extends MisoScenePanel
     {
         // compute a screen rectangle that contains all possible "spots"
         // in this cluster
-        ArrayList spots = StageSceneUtil.getClusterLocs(cluster);
+        ArrayList<SceneLocation> spots = StageSceneUtil.getClusterLocs(cluster);
         Rectangle cbounds = null;
         for (int ii = 0, ll = spots.size(); ii < ll; ii++) {
-            Location loc = (Location)spots.get(ii);
+            StageLocation loc = ((StageLocation) spots.get(ii).loc);
             Point sp = getScreenCoords(loc.x, loc.y);
             if (cbounds == null) {
                 cbounds = new Rectangle(sp.x, sp.y, 0, 0);
@@ -482,7 +481,8 @@ public class StageScenePanel extends MisoScenePanel
         Iterator iter = _scene.getPortals();
         while (iter.hasNext()) {
             Portal portal = (Portal)iter.next();
-            if (portal.loc.x == fullX && portal.loc.y == fullY) {
+            StageLocation loc = (StageLocation) portal.loc;
+            if (loc.x == fullX && loc.y == fullY) {
                 return portal;
             }
         }

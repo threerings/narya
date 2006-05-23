@@ -11,6 +11,9 @@ import com.threerings.whirled.spot.tools.xml.SpotSceneRuleSet;
 import com.threerings.whirled.tools.xml.SceneParser;
 import com.threerings.whirled.tools.xml.SceneRuleSet;
 
+import com.threerings.whirled.spot.data.Location;
+
+import com.threerings.stage.data.StageLocation;
 import com.threerings.stage.data.StageSceneModel;
 
 /**
@@ -37,7 +40,11 @@ public class StageSceneParser extends SceneParser
         });
 
         // add rule sets for our aux scene models
-        registerAuxRuleSet(new SpotSceneRuleSet());
+        registerAuxRuleSet(new SpotSceneRuleSet() {
+            protected Location createLocation () {
+                return new StageLocation();
+            }
+        });
         registerAuxRuleSet(new StageMisoSceneRuleSet());
     }
 

@@ -43,7 +43,7 @@ import com.threerings.whirled.spot.tools.EditablePortal;
 /**
  * Used to parse a {@link SpotSceneModel} from XML.
  */
-public class SpotSceneRuleSet implements NestableRuleSet
+public abstract class SpotSceneRuleSet implements NestableRuleSet
 {
     // documentation inherited from interface
     public String getOuterElement ()
@@ -70,10 +70,7 @@ public class SpotSceneRuleSet implements NestableRuleSet
      * Create a new instance of the Location class that should be used
      * with Portals.
      */
-    protected Location createNewLocation ()
-    {
-        return new Location();
-    }
+    protected abstract Location createLocation ();
 
     /**
      * A rule used to create the portal but also initialize the Location
@@ -95,7 +92,7 @@ public class SpotSceneRuleSet implements NestableRuleSet
 
             // create the empty Location in the Portal
             Portal p = (Portal) digester.peek();
-            p.loc = _ruleset.createNewLocation();
+            p.loc = _ruleset.createLocation();
         }
 
         protected SpotSceneRuleSet _ruleset;

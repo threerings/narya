@@ -51,6 +51,7 @@ import com.threerings.miso.data.ObjectInfo;
 import com.threerings.miso.util.MisoUtil;
 
 import com.threerings.stage.client.StageScenePanel;
+import com.threerings.stage.data.StageLocation;
 import com.threerings.stage.data.StageMisoSceneModel;
 
 import com.threerings.stage.data.StageScene;
@@ -888,15 +889,16 @@ public class EditorScenePanel extends StageScenePanel
     protected void paintPortal (Graphics2D gfx, EditablePortal port)
     {
         // get the portal's center coordinate
+        StageLocation loc = (StageLocation) port.loc;
         Point spos = new Point();
-        MisoUtil.fullToScreen(_metrics, port.loc.x, port.loc.y, spos);
+        MisoUtil.fullToScreen(_metrics, loc.x, loc.y, spos);
         int cx = spos.x, cy = spos.y;
 
         // translate the origin to center on the portal
         gfx.translate(cx, cy);
 
         // rotate to reflect the portal orientation
-        double rot = (Math.PI / 4.0f) * port.loc.orient;
+        double rot = (Math.PI / 4.0f) * loc.orient;
         gfx.rotate(rot);
 
         // draw the triangle
