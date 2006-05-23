@@ -22,7 +22,17 @@ public class WindowSlider extends Node
     public static final int TO_TOP = 2;
     public static final int TO_RIGHT = 3;
 
-    public WindowSlider (BWindow window, int mode, float duration)
+    /**
+     * Creates a window slider with the specified mode and window that will
+     * slide the window either onto or off of the screen in the specified
+     * number of seconds.
+     *
+     * @param dx an offset applied to the starting or destination position
+     * along the x axis (starting for sliding off, destination for sliding on).
+     * @param dy an offset applied along the y axis.
+     */
+    public WindowSlider (BWindow window, int mode, float duration,
+                         int dx, int dy)
     {
         super("slider");
 
@@ -34,26 +44,26 @@ public class WindowSlider extends Node
         switch (mode) {
         case FROM_TOP:
             start = sheight+wheight;
-            end = (sheight-wheight)/2;
-            window.setLocation((swidth-wwidth)/2, start);
+            end = (sheight-wheight)/2 + dy;
+            window.setLocation((swidth-wwidth)/2 + dx, start);
             break;
 
         case FROM_RIGHT:
             start = swidth+wwidth;
-            end = (swidth-wwidth)/2;
-            window.setLocation(start, (sheight-wheight)/2);
+            end = (swidth-wwidth)/2 + dx;
+            window.setLocation(start, (sheight-wheight)/2 + dy);
             break;
 
         case TO_TOP:
-            start = (sheight-wheight)/2;
+            start = (sheight-wheight)/2 + dy;
             end = sheight+wheight;
-            window.setLocation((swidth-wwidth)/2, start);
+            window.setLocation((swidth-wwidth)/2 + dx, start);
             break;
 
         case TO_RIGHT:
-            start = (swidth-wwidth)/2;
+            start = (swidth-wwidth)/2 + dx;
             end = swidth+wwidth;
-            window.setLocation(start, (sheight-wheight)/2);
+            window.setLocation(start, (sheight-wheight)/2 + dy);
             break;
         }
 
@@ -83,11 +93,15 @@ public class WindowSlider extends Node
             return;
         }
 
+        int winx, winy;
         if (_mode % 2 == 1) {
-            _window.setLocation((int)_tfunc.getValue(time), _window.getY());
+            winx = (int)_tfunc.getValue(time);
+            winy = _window.getY();
         } else {
-            _window.setLocation(_window.getX(), (int)_tfunc.getValue(time));
+            winx = _window.getX();
+            winy = (int)_tfunc.getValue(time);
         }
+        _window.setLocation(winx, winy);
 
         if (_tfunc.isComplete()) {
             slideComplete();
