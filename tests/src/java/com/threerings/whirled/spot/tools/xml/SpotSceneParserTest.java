@@ -1,5 +1,5 @@
 //
-// $Id: SpotSceneParserTest.java,v 1.6 2004/08/27 02:21:06 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -27,7 +27,10 @@ import junit.framework.Test;
 import junit.framework.TestCase;
 
 import com.threerings.whirled.data.SceneModel;
+import com.threerings.whirled.spot.data.Location;
 import com.threerings.whirled.tools.xml.SceneParser;
+
+import com.threerings.stage.data.StageLocation;
 
 public class SpotSceneParserTest extends TestCase
 {
@@ -40,7 +43,11 @@ public class SpotSceneParserTest extends TestCase
     {
         try {
             SceneParser parser = new SceneParser("scene");
-            parser.registerAuxRuleSet(new SpotSceneRuleSet());
+            parser.registerAuxRuleSet(new SpotSceneRuleSet() {
+                protected Location createLocation () {
+                    return new StageLocation(); // breaks package, but ok
+                }
+            });
             String tspath = TestUtil.getResourcePath(TEST_SCENE_PATH);
             SceneModel scene = parser.parseScene(tspath);
             System.out.println("Parsed " + scene + ".");
