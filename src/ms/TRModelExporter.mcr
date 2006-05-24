@@ -156,8 +156,16 @@ macroScript TRModelExporter category:"File" \
         outFile = createfile fileName
         format "<?xml version=\"1.0\" standalone=\"yes\"?>\n\n" to:outFile
         format "<model>\n\n" to:outFile
-        for node in objects do in coordsys world (
+        objs = objects as array
+        sels = selection as array
+        if sels.count > 0 do (
+            objs = sels
+        )
+        for node in objs do in coordsys world (
             writeNode node outFile
+        )
+        if sels.count > 0 do (
+            select sels
         )
         format "</model>\n" to:outFile
         close outFile

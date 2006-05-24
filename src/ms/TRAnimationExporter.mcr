@@ -62,8 +62,16 @@ macroScript TRAnimationExporter category:"File" \
         outFile = createfile fileName
         format "<?xml version=\"1.0\" standalone=\"yes\"?>\n\n" to:outFile
         format "<animation frameRate=\"%\">\n\n" frameRate to:outFile
+        objs = objects as array
+        sels = selection as array
+        if sels.count > 0 do (
+            objs = sels
+        )
         for t = animationRange.start to animationRange.end do at time t (
-            writeFrame objects outFile
+            writeFrame objs outFile
+        )
+        if sels.count > 0 do (
+            select sels
         )
         format "</animation>\n" to:outFile
         close outFile
