@@ -221,8 +221,9 @@ public class Sound
                 return false;
             }
 
-            // bind our clip buffer to the source
+            // bind our clip buffer to the source and notify it
             AL10.alSourcei(_sourceId, AL10.AL_BUFFER, _buffer.getBufferId());
+            _buffer.sourceBound();
         }
 
         // configure the source with our ephemera
@@ -258,6 +259,7 @@ public class Sound
             AL10.alGetSourcei(_sourceId, AL10.AL_SOURCE_STATE) ==
             AL10.AL_STOPPED) {
             _sourceId = -1;
+            _buffer.sourceUnbound();
             return true;
         }
         return false;

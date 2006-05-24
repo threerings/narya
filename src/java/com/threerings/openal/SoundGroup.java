@@ -65,6 +65,14 @@ public class SoundGroup
     public void dispose ()
     {
         if (_sourceIds != null) {
+            // make sure any bound sources are released
+            for (Source source : _sources) {
+                if (source.holder != null) {
+                    source.holder.stop();
+                    source.holder.reclaim();
+                }
+            }
+            _sources.clear();
             AL10.alDeleteSources(_sourceIds);
             _sourceIds = null;
         }

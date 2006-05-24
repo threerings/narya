@@ -132,6 +132,13 @@ public class ClipBuffer
             return;
         }
 
+        // this shouldn't happen
+        if (_state == UNLOADING) {
+            Log.warning("Tried to resolve buffer in the process of " +
+                "unloading [key=" + getKey() + "].");
+            return;
+        }
+        
         // queue up the observer
         if (observer != null) {
             _observers.add(observer);
@@ -168,7 +175,14 @@ public class ClipBuffer
     public void dispose ()
     {
         if (_bufferId != null) {
-            // we've been given the boot, free up our buffer
+            // if there are sources bound to this buffer, we must wait
+            // for them to be unbound
+            if (_bound > 0) {
+                _state = UNLOADING;
+                return;
+            }
+            
+            // free up our buffer
             AL10.alDeleteBuffers(_bufferId);
             _bufferId = null;
             _state = UNLOADED;
@@ -238,6 +252,25 @@ public class ClipBuffer
         _observers.clear();
     }
 
+    /**
+     * Notifies the buffer that a source has been bound to it.
+     */ 
+    protected void sourceBound ()
+    {
+        _bound++;
+    }
+    
+    /**
+     * Notifies the buffer that a source has been unbound from it.
+     */
+    protected void sourceUnbound ()
+    {
+        // dispose of the buffer when the last source is unbound
+        if (--_bound == 0 && _state == UNLOADING) {
+            dispose();
+        }
+    }
+    
     protected SoundManager _manager;
     protected ClipProvider _provider;
     protected String _path;
@@ -246,8 +279,10 @@ public class ClipBuffer
     protected int _size;
     protected ObserverList _observers =
         new ObserverList(ObserverList.FAST_UNSAFE_NOTIFY);
+    protected int _bound;
 
     protected static final int UNLOADED = 0;
     protected static final int LOADING = 1;
     protected static final int LOADED = 2;
+    protected static final int UNLOADING = 3;
 }
