@@ -63,6 +63,7 @@ public class ZoneDecoder extends InvocationDecoder
 
         default:
             super.dispatchNotification(methodId, args);
+            return;
         }
     }
 }

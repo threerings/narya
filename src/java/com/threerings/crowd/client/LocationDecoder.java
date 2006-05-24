@@ -63,6 +63,7 @@ public class LocationDecoder extends InvocationDecoder
 
         default:
             super.dispatchNotification(methodId, args);
+            return;
         }
     }
 }

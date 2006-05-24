@@ -2,7 +2,7 @@
 // $Id$
 //
 // Narya library - tools for developing networked games
-// Copyright (C) 2002-2005 Three Rings Design, Inc., All Rights Reserved
+// Copyright (C) 2002-2006 Three Rings Design, Inc., All Rights Reserved
 // http://www.threerings.net/code/narya/
 //
 // This library is free software; you can redistribute it and/or modify it
@@ -44,7 +44,7 @@ public class TrickCardGameMarshaller extends InvocationMarshaller
     public void playCard (Client arg1, Card arg2, int arg3)
     {
         sendRequest(arg1, PLAY_CARD, new Object[] {
-            arg2, new Integer(arg3)
+            arg2, Integer.valueOf(arg3)
         });
     }
 
@@ -66,7 +66,7 @@ public class TrickCardGameMarshaller extends InvocationMarshaller
     public void sendCardsToPlayer (Client arg1, int arg2, Card[] arg3)
     {
         sendRequest(arg1, SEND_CARDS_TO_PLAYER, new Object[] {
-            new Integer(arg2), arg3
+            Integer.valueOf(arg2), arg3
         });
     }
 

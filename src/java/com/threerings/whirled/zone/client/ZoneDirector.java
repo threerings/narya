@@ -135,7 +135,7 @@ public class ZoneDirector extends BasicDirector
 
         // let our zone observers know that we're attempting to switch
         // zones
-        notifyObservers(new Integer(zoneId));
+        notifyObservers(Integer.valueOf(zoneId));
 
         // check the version of our cached copy of the scene to which
         // we're requesting to move; if we were unable to load it, assume

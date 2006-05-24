@@ -2,7 +2,7 @@
 // $Id$
 //
 // Narya library - tools for developing networked games
-// Copyright (C) 2002-2005 Three Rings Design, Inc., All Rights Reserved
+// Copyright (C) 2002-2006 Three Rings Design, Inc., All Rights Reserved
 // http://www.threerings.net/code/narya/
 //
 // This library is free software; you can redistribute it and/or modify it
@@ -54,7 +54,7 @@ public class ZoneMarshaller extends InvocationMarshaller
             _invId = null;
             omgr.postEvent(new InvocationResponseEvent(
                                callerOid, requestId, MOVE_SUCCEEDED,
-                               new Object[] { new Integer(arg1), arg2, arg3 }));
+                               new Object[] { Integer.valueOf(arg1), arg2, arg3 }));
         }
 
         /** The method id used to dispatch {@link #moveSucceededWithScene}
@@ -67,7 +67,7 @@ public class ZoneMarshaller extends InvocationMarshaller
             _invId = null;
             omgr.postEvent(new InvocationResponseEvent(
                                callerOid, requestId, MOVE_SUCCEEDED_WITH_SCENE,
-                               new Object[] { new Integer(arg1), arg2, arg3, arg4 }));
+                               new Object[] { Integer.valueOf(arg1), arg2, arg3, arg4 }));
         }
 
         /** The method id used to dispatch {@link #moveSucceededWithUpdates}
@@ -80,7 +80,7 @@ public class ZoneMarshaller extends InvocationMarshaller
             _invId = null;
             omgr.postEvent(new InvocationResponseEvent(
                                callerOid, requestId, MOVE_SUCCEEDED_WITH_UPDATES,
-                               new Object[] { new Integer(arg1), arg2, arg3, arg4 }));
+                               new Object[] { Integer.valueOf(arg1), arg2, arg3, arg4 }));
         }
 
         // documentation inherited
@@ -104,6 +104,7 @@ public class ZoneMarshaller extends InvocationMarshaller
 
             default:
                 super.dispatchResponse(methodId, args);
+                return;
             }
         }
     }
@@ -117,7 +118,7 @@ public class ZoneMarshaller extends InvocationMarshaller
         ZoneMarshaller.ZoneMoveMarshaller listener5 = new ZoneMarshaller.ZoneMoveMarshaller();
         listener5.listener = arg5;
         sendRequest(arg1, MOVE_TO, new Object[] {
-            new Integer(arg2), new Integer(arg3), new Integer(arg4), listener5
+            Integer.valueOf(arg2), Integer.valueOf(arg3), Integer.valueOf(arg4), listener5
         });
     }
 

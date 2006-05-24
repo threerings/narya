@@ -125,7 +125,7 @@ public class InvocationManager
             bootlist.add(marsh);
         }
 
-        _recentRegServices.put(new Integer(invCode),
+        _recentRegServices.put(Integer.valueOf(invCode),
                                marsh.getClass().getName());
 
 //        Log.info("Registered service [marsh=" + marsh + "].");
@@ -229,7 +229,7 @@ public class InvocationManager
                      "registration was already cleared [code=" + invCode +
                      ", methId=" + methodId +
                      ", args=" + StringUtil.toString(args) + ", marsh=" +
-                     _recentRegServices.get(new Integer(invCode)) + "].");
+                     _recentRegServices.get(Integer.valueOf(invCode)) + "].");
             return;
         }
 

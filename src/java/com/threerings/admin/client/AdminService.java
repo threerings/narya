@@ -1,5 +1,5 @@
 //
-// $Id: AdminService.java,v 1.4 2004/08/27 02:12:23 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved

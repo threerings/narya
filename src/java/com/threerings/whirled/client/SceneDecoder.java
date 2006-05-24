@@ -63,6 +63,7 @@ public class SceneDecoder extends InvocationDecoder
 
         default:
             super.dispatchNotification(methodId, args);
+            return;
         }
     }
 }

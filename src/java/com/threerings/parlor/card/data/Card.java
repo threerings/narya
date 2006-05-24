@@ -137,7 +137,7 @@ public class Card implements DSet.Entry, Comparable, CardCodes
     public Comparable getKey ()
     {
         if (_key == null) {
-            _key = new Byte(_value);
+            _key = Byte.valueOf(_value);
         }
         
         return _key;

@@ -95,6 +95,7 @@ public class ParlorDecoder extends InvocationDecoder
 
         default:
             super.dispatchNotification(methodId, args);
+            return;
         }
     }
 }

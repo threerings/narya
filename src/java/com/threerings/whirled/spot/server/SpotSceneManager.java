@@ -154,7 +154,7 @@ public class SpotSceneManager extends SceneManager
         super.bodyLeft(bodyOid);
 
         // clear out their location information
-        _ssobj.removeFromOccupantLocs(new Integer(bodyOid));
+        _ssobj.removeFromOccupantLocs(Integer.valueOf(bodyOid));
 
         // clear any cluster they may occupy
         removeFromCluster(bodyOid);
@@ -413,7 +413,7 @@ public class SpotSceneManager extends SceneManager
      */
     protected SceneLocation locationForBody (int bodyOid)
     {
-        return (SceneLocation)_ssobj.occupantLocs.get(new Integer(bodyOid));
+        return (SceneLocation)_ssobj.occupantLocs.get(Integer.valueOf(bodyOid));
     }
 
     /**

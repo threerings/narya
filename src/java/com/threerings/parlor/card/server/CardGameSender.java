@@ -43,7 +43,7 @@ public class CardGameSender extends InvocationSender
     {
         sendNotification(
             target, CardGameDecoder.RECEIVER_CODE, CardGameDecoder.CARDS_TRANSFERRED_BETWEEN_PLAYERS,
-            new Object[] { new Integer(arg1), new Integer(arg2), new Integer(arg3) });
+            new Object[] { Integer.valueOf(arg1), Integer.valueOf(arg2), Integer.valueOf(arg3) });
     }
 
     /**
@@ -55,7 +55,7 @@ public class CardGameSender extends InvocationSender
     {
         sendNotification(
             target, CardGameDecoder.RECEIVER_CODE, CardGameDecoder.RECEIVED_CARDS_FROM_PLAYER,
-            new Object[] { new Integer(arg1), arg2 });
+            new Object[] { Integer.valueOf(arg1), arg2 });
     }
 
     /**
@@ -67,7 +67,7 @@ public class CardGameSender extends InvocationSender
     {
         sendNotification(
             target, CardGameDecoder.RECEIVER_CODE, CardGameDecoder.RECEIVED_HAND,
-            new Object[] { new Integer(arg1), arg2 });
+            new Object[] { Integer.valueOf(arg1), arg2 });
     }
 
     /**
@@ -79,7 +79,7 @@ public class CardGameSender extends InvocationSender
     {
         sendNotification(
             target, CardGameDecoder.RECEIVER_CODE, CardGameDecoder.SENT_CARDS_TO_PLAYER,
-            new Object[] { new Integer(arg1), arg2 });
+            new Object[] { Integer.valueOf(arg1), arg2 });
     }
 
 }

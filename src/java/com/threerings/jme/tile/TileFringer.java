@@ -260,7 +260,7 @@ public class TileFringer
             } else if (weebits != 0) {
                 index = BITS_TO_INDEX[weebits];
                 if (index != -1) {
-                    indexes.add(new Integer(index));
+                    indexes.add(Integer.valueOf(index));
                 }
                 weebits = 0;
             }
@@ -268,7 +268,7 @@ public class TileFringer
         if (weebits != 0) {
             index = BITS_TO_INDEX[weebits];
             if (index != -1) {
-                indexes.add(new Integer(index));
+                indexes.add(Integer.valueOf(index));
             }
         }
 

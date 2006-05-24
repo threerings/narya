@@ -2,7 +2,7 @@
 // $Id$
 //
 // Narya library - tools for developing networked games
-// Copyright (C) 2002-2005 Three Rings Design, Inc., All Rights Reserved
+// Copyright (C) 2002-2006 Three Rings Design, Inc., All Rights Reserved
 // http://www.threerings.net/code/narya/
 //
 // This library is free software; you can redistribute it and/or modify it
@@ -49,7 +49,7 @@ public class SpotMarshaller extends InvocationMarshaller
         InvocationMarshaller.ConfirmMarshaller listener4 = new InvocationMarshaller.ConfirmMarshaller();
         listener4.listener = arg4;
         sendRequest(arg1, CHANGE_LOCATION, new Object[] {
-            new Integer(arg2), arg3, listener4
+            Integer.valueOf(arg2), arg3, listener4
         });
     }
 
@@ -60,7 +60,7 @@ public class SpotMarshaller extends InvocationMarshaller
     public void clusterSpeak (Client arg1, String arg2, byte arg3)
     {
         sendRequest(arg1, CLUSTER_SPEAK, new Object[] {
-            arg2, new Byte(arg3)
+            arg2, Byte.valueOf(arg3)
         });
     }
 
@@ -73,7 +73,7 @@ public class SpotMarshaller extends InvocationMarshaller
         InvocationMarshaller.ConfirmMarshaller listener3 = new InvocationMarshaller.ConfirmMarshaller();
         listener3.listener = arg3;
         sendRequest(arg1, JOIN_CLUSTER, new Object[] {
-            new Integer(arg2), listener3
+            Integer.valueOf(arg2), listener3
         });
     }
 
@@ -86,7 +86,7 @@ public class SpotMarshaller extends InvocationMarshaller
         SceneMarshaller.SceneMoveMarshaller listener5 = new SceneMarshaller.SceneMoveMarshaller();
         listener5.listener = arg5;
         sendRequest(arg1, TRAVERSE_PORTAL, new Object[] {
-            new Integer(arg2), new Integer(arg3), new Integer(arg4), listener5
+            Integer.valueOf(arg2), Integer.valueOf(arg3), Integer.valueOf(arg4), listener5
         });
     }
 

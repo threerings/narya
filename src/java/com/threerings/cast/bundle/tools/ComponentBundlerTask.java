@@ -504,7 +504,7 @@ public class ComponentBundlerTask extends Task
             Tuple key = new Tuple(cclass, cname);
             Integer cid = (Integer)get(key);
             if (cid == null) {
-                cid = new Integer(++_nextCID);
+                cid = Integer.valueOf(++_nextCID);
                 put(key, cid);
             }
             return cid.intValue();

@@ -74,7 +74,7 @@ public class OccupantInfo extends SimpleStreamableObject
      */
     public OccupantInfo (BodyObject body)
     {
-        bodyOid = new Integer(body.getOid());
+        bodyOid = Integer.valueOf(body.getOid());
         username = body.getVisibleName();
         status = body.status;
     }

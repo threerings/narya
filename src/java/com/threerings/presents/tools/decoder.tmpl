@@ -47,6 +47,7 @@ public class ${name}Decoder extends InvocationDecoder
 #end
         default:
             super.dispatchNotification(methodId, args);
+            return;
         }
     }
 }

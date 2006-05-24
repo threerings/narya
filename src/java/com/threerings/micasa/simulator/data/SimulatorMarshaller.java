@@ -2,7 +2,7 @@
 // $Id$
 //
 // Narya library - tools for developing networked games
-// Copyright (C) 2002-2005 Three Rings Design, Inc., All Rights Reserved
+// Copyright (C) 2002-2006 Three Rings Design, Inc., All Rights Reserved
 // http://www.threerings.net/code/narya/
 //
 // This library is free software; you can redistribute it and/or modify it
@@ -44,7 +44,7 @@ public class SimulatorMarshaller extends InvocationMarshaller
     public void createGame (Client arg1, GameConfig arg2, String arg3, int arg4)
     {
         sendRequest(arg1, CREATE_GAME, new Object[] {
-            arg2, arg3, new Integer(arg4)
+            arg2, arg3, Integer.valueOf(arg4)
         });
     }
 

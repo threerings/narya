@@ -81,7 +81,7 @@ public class BasicStreamers
         public Object createObject (ObjectInputStream in)
             throws IOException
         {
-            return new Boolean(in.readBoolean());
+            return Boolean.valueOf(in.readBoolean());
         }
 
         // documentation inherited
@@ -108,7 +108,7 @@ public class BasicStreamers
         public Object createObject (ObjectInputStream in)
             throws IOException
         {
-            return new Byte(in.readByte());
+            return Byte.valueOf(in.readByte());
         }
 
         // documentation inherited
@@ -135,7 +135,7 @@ public class BasicStreamers
         public Object createObject (ObjectInputStream in)
             throws IOException
         {
-            return new Short(in.readShort());
+            return Short.valueOf(in.readShort());
         }
 
         // documentation inherited
@@ -162,7 +162,7 @@ public class BasicStreamers
         public Object createObject (ObjectInputStream in)
             throws IOException
         {
-            return new Character(in.readChar());
+            return Character.valueOf(in.readChar());
         }
 
         // documentation inherited
@@ -189,7 +189,7 @@ public class BasicStreamers
         public Object createObject (ObjectInputStream in)
             throws IOException
         {
-            return new Integer(in.readInt());
+            return Integer.valueOf(in.readInt());
         }
 
         // documentation inherited
@@ -216,7 +216,7 @@ public class BasicStreamers
         public Object createObject (ObjectInputStream in)
             throws IOException
         {
-            return new Long(in.readLong());
+            return Long.valueOf(in.readLong());
         }
 
         // documentation inherited
@@ -243,7 +243,7 @@ public class BasicStreamers
         public Object createObject (ObjectInputStream in)
             throws IOException
         {
-            return new Float(in.readFloat());
+            return Float.valueOf(in.readFloat());
         }
 
         // documentation inherited
@@ -270,7 +270,7 @@ public class BasicStreamers
         public Object createObject (ObjectInputStream in)
             throws IOException
         {
-            return new Double(in.readDouble());
+            return Double.valueOf(in.readDouble());
         }
 
         // documentation inherited

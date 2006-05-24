@@ -446,7 +446,7 @@ public class PlaceManager
         // if their occupant info hasn't been removed (which may be the
         // case if they logged off rather than left via a MoveTo request),
         // we need to get it on out of here
-        Integer key = new Integer(bodyOid);
+        Integer key = Integer.valueOf(bodyOid);
         if (_plobj.occupantInfo.containsKey(key)) {
             _plobj.removeFromOccupantInfo(key);
         }

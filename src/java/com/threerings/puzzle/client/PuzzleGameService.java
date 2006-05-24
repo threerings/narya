@@ -1,5 +1,5 @@
 //
-// $Id: PuzzleGameService.java,v 1.3 2004/10/28 19:20:04 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved

@@ -208,7 +208,7 @@ public class PresentsClient
 
                 // let the client know that the rug has been yanked out
                 // from under their ass
-                Object[] args = new Object[] { new Integer(clobj.getOid()) };
+                Object[] args = new Object[] { Integer.valueOf(clobj.getOid()) };
                 _clobj.postMessage(ClientObject.CLOBJ_CHANGED, args);
 
                 // call down to any derived classes

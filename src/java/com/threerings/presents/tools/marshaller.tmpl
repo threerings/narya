@@ -47,6 +47,7 @@ public class ${name}Marshaller extends InvocationMarshaller
 #end
             default:
                 super.dispatchResponse(methodId, args);
+                return;
             }
         }
     }

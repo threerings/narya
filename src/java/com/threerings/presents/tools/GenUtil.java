@@ -69,21 +69,21 @@ public class GenUtil
     public static String boxArgument (Class clazz, String name)
     {
         if (clazz == Boolean.TYPE) {
-            return "new Boolean(" + name + ")";
+            return "Boolean.valueOf(" + name + ")";
         } else if (clazz == Byte.TYPE) {
-            return "new Byte(" + name + ")";
+            return "Byte.valueOf(" + name + ")";
         } else if (clazz == Character.TYPE) {
-            return "new Character(" + name + ")";
+            return "Character.valueOf(" + name + ")";
         } else if (clazz == Short.TYPE) {
-            return "new Short(" + name + ")";
+            return "Short.valueOf(" + name + ")";
         } else if (clazz == Integer.TYPE) {
-            return "new Integer(" + name + ")";
+            return "Integer.valueOf(" + name + ")";
         } else if (clazz == Long.TYPE) {
-            return "new Long(" + name + ")";
+            return "Long.valueOf(" + name + ")";
         } else if (clazz == Float.TYPE) {
-            return "new Float(" + name + ")";
+            return "Float.valueOf(" + name + ")";
         } else if (clazz == Double.TYPE) {
-            return "new Double(" + name + ")";
+            return "Double.valueOf(" + name + ")";
         } else {
             return name;
         }

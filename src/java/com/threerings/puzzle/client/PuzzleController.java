@@ -742,7 +742,7 @@ public abstract class PuzzleController extends GameController
             return;
         }
 
-        _events.add(new Integer(event));
+        _events.add(Integer.valueOf(event));
         if (isSyncingBoards()) {
             _states.add((board == null) ? null : board.clone());
             if (board == null) {

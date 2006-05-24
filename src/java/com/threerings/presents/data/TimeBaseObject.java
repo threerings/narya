@@ -141,7 +141,7 @@ public class TimeBaseObject extends DObject
     {
         long ovalue = this.evenBase;
         requestAttributeChange(
-            EVEN_BASE, new Long(value), new Long(ovalue));
+            EVEN_BASE, Long.valueOf(value), Long.valueOf(ovalue));
         this.evenBase = value;
     }
 
@@ -157,7 +157,7 @@ public class TimeBaseObject extends DObject
     {
         long ovalue = this.oddBase;
         requestAttributeChange(
-            ODD_BASE, new Long(value), new Long(ovalue));
+            ODD_BASE, Long.valueOf(value), Long.valueOf(ovalue));
         this.oddBase = value;
     }
     // AUTO-GENERATED: METHODS END

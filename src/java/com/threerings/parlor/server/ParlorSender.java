@@ -43,7 +43,7 @@ public class ParlorSender extends InvocationSender
     {
         sendNotification(
             target, ParlorDecoder.RECEIVER_CODE, ParlorDecoder.GAME_IS_READY,
-            new Object[] { new Integer(arg1) });
+            new Object[] { Integer.valueOf(arg1) });
     }
 
     /**
@@ -55,7 +55,7 @@ public class ParlorSender extends InvocationSender
     {
         sendNotification(
             target, ParlorDecoder.RECEIVER_CODE, ParlorDecoder.RECEIVED_INVITE,
-            new Object[] { new Integer(arg1), arg2, arg3 });
+            new Object[] { Integer.valueOf(arg1), arg2, arg3 });
     }
 
     /**
@@ -67,7 +67,7 @@ public class ParlorSender extends InvocationSender
     {
         sendNotification(
             target, ParlorDecoder.RECEIVER_CODE, ParlorDecoder.RECEIVED_INVITE_CANCELLATION,
-            new Object[] { new Integer(arg1) });
+            new Object[] { Integer.valueOf(arg1) });
     }
 
     /**
@@ -79,7 +79,7 @@ public class ParlorSender extends InvocationSender
     {
         sendNotification(
             target, ParlorDecoder.RECEIVER_CODE, ParlorDecoder.RECEIVED_INVITE_RESPONSE,
-            new Object[] { new Integer(arg1), new Integer(arg2), arg3 });
+            new Object[] { Integer.valueOf(arg1), Integer.valueOf(arg2), arg3 });
     }
 
 }

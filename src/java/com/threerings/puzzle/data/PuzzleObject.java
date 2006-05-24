@@ -88,7 +88,7 @@ public class PuzzleObject extends GameObject
     {
         int ovalue = this.difficulty;
         requestAttributeChange(
-            DIFFICULTY, new Integer(value), new Integer(ovalue));
+            DIFFICULTY, Integer.valueOf(value), Integer.valueOf(ovalue));
         this.difficulty = value;
     }
 
@@ -137,7 +137,7 @@ public class PuzzleObject extends GameObject
     {
         long ovalue = this.seed;
         requestAttributeChange(
-            SEED, new Long(value), new Long(ovalue));
+            SEED, Long.valueOf(value), Long.valueOf(ovalue));
         this.seed = value;
     }
     // AUTO-GENERATED: METHODS END

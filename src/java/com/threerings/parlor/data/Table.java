@@ -80,7 +80,7 @@ public class Table
     public Table (int lobbyOid, TableConfig tconfig, GameConfig config)
     {
         // assign a unique table id
-        tableId = new Integer(++_tableIdCounter);
+        tableId = Integer.valueOf(++_tableIdCounter);
 
         // keep track of our lobby oid
         this.lobbyOid = lobbyOid;

@@ -2,7 +2,7 @@
 // $Id$
 //
 // Narya library - tools for developing networked games
-// Copyright (C) 2002-2005 Three Rings Design, Inc., All Rights Reserved
+// Copyright (C) 2002-2006 Three Rings Design, Inc., All Rights Reserved
 // http://www.threerings.net/code/narya/
 //
 // This library is free software; you can redistribute it and/or modify it
@@ -43,7 +43,7 @@ public class SpeakMarshaller extends InvocationMarshaller
     public void speak (Client arg1, String arg2, byte arg3)
     {
         sendRequest(arg1, SPEAK, new Object[] {
-            arg2, new Byte(arg3)
+            arg2, Byte.valueOf(arg3)
         });
     }
 

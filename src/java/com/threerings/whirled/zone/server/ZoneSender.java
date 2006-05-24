@@ -41,7 +41,7 @@ public class ZoneSender extends InvocationSender
     {
         sendNotification(
             target, ZoneDecoder.RECEIVER_CODE, ZoneDecoder.FORCED_MOVE,
-            new Object[] { new Integer(arg1), new Integer(arg2) });
+            new Object[] { Integer.valueOf(arg1), Integer.valueOf(arg2) });
     }
 
 }

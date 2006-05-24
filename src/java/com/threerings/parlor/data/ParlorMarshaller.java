@@ -2,7 +2,7 @@
 // $Id$
 //
 // Narya library - tools for developing networked games
-// Copyright (C) 2002-2005 Three Rings Design, Inc., All Rights Reserved
+// Copyright (C) 2002-2006 Three Rings Design, Inc., All Rights Reserved
 // http://www.threerings.net/code/narya/
 //
 // This library is free software; you can redistribute it and/or modify it
@@ -54,7 +54,7 @@ public class ParlorMarshaller extends InvocationMarshaller
             _invId = null;
             omgr.postEvent(new InvocationResponseEvent(
                                callerOid, requestId, INVITE_RECEIVED,
-                               new Object[] { new Integer(arg1) }));
+                               new Object[] { Integer.valueOf(arg1) }));
         }
 
         // documentation inherited
@@ -68,6 +68,7 @@ public class ParlorMarshaller extends InvocationMarshaller
 
             default:
                 super.dispatchResponse(methodId, args);
+                return;
             }
         }
     }
@@ -86,7 +87,7 @@ public class ParlorMarshaller extends InvocationMarshaller
             _invId = null;
             omgr.postEvent(new InvocationResponseEvent(
                                callerOid, requestId, TABLE_CREATED,
-                               new Object[] { new Integer(arg1) }));
+                               new Object[] { Integer.valueOf(arg1) }));
         }
 
         // documentation inherited
@@ -100,6 +101,7 @@ public class ParlorMarshaller extends InvocationMarshaller
 
             default:
                 super.dispatchResponse(methodId, args);
+                return;
             }
         }
     }
@@ -113,7 +115,7 @@ public class ParlorMarshaller extends InvocationMarshaller
         ListenerMarshaller listener3 = new ListenerMarshaller();
         listener3.listener = arg3;
         sendRequest(arg1, CANCEL, new Object[] {
-            new Integer(arg2), listener3
+            Integer.valueOf(arg2), listener3
         });
     }
 
@@ -126,7 +128,7 @@ public class ParlorMarshaller extends InvocationMarshaller
         ParlorMarshaller.TableMarshaller listener5 = new ParlorMarshaller.TableMarshaller();
         listener5.listener = arg5;
         sendRequest(arg1, CREATE_TABLE, new Object[] {
-            new Integer(arg2), arg3, arg4, listener5
+            Integer.valueOf(arg2), arg3, arg4, listener5
         });
     }
 
@@ -152,7 +154,7 @@ public class ParlorMarshaller extends InvocationMarshaller
         ListenerMarshaller listener5 = new ListenerMarshaller();
         listener5.listener = arg5;
         sendRequest(arg1, JOIN_TABLE, new Object[] {
-            new Integer(arg2), new Integer(arg3), new Integer(arg4), listener5
+            Integer.valueOf(arg2), Integer.valueOf(arg3), Integer.valueOf(arg4), listener5
         });
     }
 
@@ -165,7 +167,7 @@ public class ParlorMarshaller extends InvocationMarshaller
         ListenerMarshaller listener4 = new ListenerMarshaller();
         listener4.listener = arg4;
         sendRequest(arg1, LEAVE_TABLE, new Object[] {
-            new Integer(arg2), new Integer(arg3), listener4
+            Integer.valueOf(arg2), Integer.valueOf(arg3), listener4
         });
     }
 
@@ -178,7 +180,7 @@ public class ParlorMarshaller extends InvocationMarshaller
         ListenerMarshaller listener5 = new ListenerMarshaller();
         listener5.listener = arg5;
         sendRequest(arg1, RESPOND, new Object[] {
-            new Integer(arg2), new Integer(arg3), arg4, listener5
+            Integer.valueOf(arg2), Integer.valueOf(arg3), arg4, listener5
         });
     }
 

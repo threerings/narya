@@ -156,7 +156,7 @@ public class ClientDObjectMgr
      */
     public void registerFlushDelay (Class objclass, long delay)
     {
-        _delays.put(objclass, new Long(delay));
+        _delays.put(objclass, Long.valueOf(delay));
     }
 
     /**
@@ -419,7 +419,7 @@ public class ClientDObjectMgr
      * The object action is used to queue up a subscribe or unsubscribe
      * request.
      */
-    protected class ObjectAction
+    protected static final class ObjectAction
     {
         public int oid;
         public Subscriber target;
@@ -438,7 +438,7 @@ public class ClientDObjectMgr
         }
     }
 
-    protected static class PendingRequest
+    protected static final class PendingRequest
     {
         public int oid;
         public ArrayList targets = new ArrayList();

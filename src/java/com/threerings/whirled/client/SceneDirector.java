@@ -341,7 +341,7 @@ public class SceneDirector extends BasicDirector
         }
 
         // update our scene cache
-        _scache.put(new Integer(model.sceneId), model);
+        _scache.put(Integer.valueOf(model.sceneId), model);
 
         // and pass through to the normal move succeeded handler
         moveSucceeded(placeId, config);
@@ -446,7 +446,7 @@ public class SceneDirector extends BasicDirector
     protected SceneModel loadSceneModel (int sceneId)
     {
         // first look in the model cache
-        Integer key = new Integer(sceneId);
+        Integer key = Integer.valueOf(sceneId);
         SceneModel model = (SceneModel)_scache.get(key);
 
         // load from the repository if it's not cached

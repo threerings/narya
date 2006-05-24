@@ -60,7 +60,7 @@ public class StageSceneObject extends SpotSceneObject
     {
         float ovalue = this.lightLevel;
         requestAttributeChange(
-            LIGHT_LEVEL, new Float(value), new Float(ovalue));
+            LIGHT_LEVEL, Float.valueOf(value), Float.valueOf(ovalue));
         this.lightLevel = value;
     }
 
@@ -76,7 +76,7 @@ public class StageSceneObject extends SpotSceneObject
     {
         int ovalue = this.lightShade;
         requestAttributeChange(
-            LIGHT_SHADE, new Integer(value), new Integer(ovalue));
+            LIGHT_SHADE, Integer.valueOf(value), Integer.valueOf(ovalue));
         this.lightShade = value;
     }
     // AUTO-GENERATED: METHODS END

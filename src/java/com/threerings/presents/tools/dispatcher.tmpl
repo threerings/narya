@@ -42,6 +42,7 @@ public class ${name}Dispatcher extends InvocationDispatcher
 #end
         default:
             super.dispatchRequest(source, methodId, args);
+            return;
         }
     }
 }

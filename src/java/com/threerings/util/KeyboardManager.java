@@ -539,7 +539,7 @@ public class KeyboardManager
 //                         // definitively check whether the key was released
 //                         long delay = _repeatDelay - deltaRelease;
 //                         _siid = IntervalManager.register(
-//                             this, delay, new Long(_lastPress), false);
+//                             this, delay, Long.valueOf(_lastPress), false);
 //                         if (KeyboardManager.DEBUG_INTERVAL) {
 //                             Log.info("Registered sub-interval " +
 //                                      "[id=" + _siid + "].");

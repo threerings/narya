@@ -1,5 +1,5 @@
 //
-// $Id: BuilderModel.java,v 1.6 2004/08/27 02:12:26 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -107,7 +107,7 @@ public class BuilderModel
      */
     public void setSelectedComponent (ComponentClass cclass, int cid)
     {
-        _selected.put(cclass, new Integer(cid));
+        _selected.put(cclass, Integer.valueOf(cid));
         notifyListeners(BuilderModelListener.COMPONENT_CHANGED);
     }
 

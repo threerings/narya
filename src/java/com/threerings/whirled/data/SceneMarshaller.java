@@ -2,7 +2,7 @@
 // $Id$
 //
 // Narya library - tools for developing networked games
-// Copyright (C) 2002-2005 Three Rings Design, Inc., All Rights Reserved
+// Copyright (C) 2002-2006 Three Rings Design, Inc., All Rights Reserved
 // http://www.threerings.net/code/narya/
 //
 // This library is free software; you can redistribute it and/or modify it
@@ -53,7 +53,7 @@ public class SceneMarshaller extends InvocationMarshaller
             _invId = null;
             omgr.postEvent(new InvocationResponseEvent(
                                callerOid, requestId, MOVE_SUCCEEDED,
-                               new Object[] { new Integer(arg1), arg2 }));
+                               new Object[] { Integer.valueOf(arg1), arg2 }));
         }
 
         /** The method id used to dispatch {@link #moveSucceededWithScene}
@@ -66,7 +66,7 @@ public class SceneMarshaller extends InvocationMarshaller
             _invId = null;
             omgr.postEvent(new InvocationResponseEvent(
                                callerOid, requestId, MOVE_SUCCEEDED_WITH_SCENE,
-                               new Object[] { new Integer(arg1), arg2, arg3 }));
+                               new Object[] { Integer.valueOf(arg1), arg2, arg3 }));
         }
 
         /** The method id used to dispatch {@link #moveSucceededWithUpdates}
@@ -79,7 +79,7 @@ public class SceneMarshaller extends InvocationMarshaller
             _invId = null;
             omgr.postEvent(new InvocationResponseEvent(
                                callerOid, requestId, MOVE_SUCCEEDED_WITH_UPDATES,
-                               new Object[] { new Integer(arg1), arg2, arg3 }));
+                               new Object[] { Integer.valueOf(arg1), arg2, arg3 }));
         }
 
         // documentation inherited
@@ -103,6 +103,7 @@ public class SceneMarshaller extends InvocationMarshaller
 
             default:
                 super.dispatchResponse(methodId, args);
+                return;
             }
         }
     }
@@ -116,7 +117,7 @@ public class SceneMarshaller extends InvocationMarshaller
         SceneMarshaller.SceneMoveMarshaller listener4 = new SceneMarshaller.SceneMoveMarshaller();
         listener4.listener = arg4;
         sendRequest(arg1, MOVE_TO, new Object[] {
-            new Integer(arg2), new Integer(arg3), listener4
+            Integer.valueOf(arg2), Integer.valueOf(arg3), listener4
         });
     }
 

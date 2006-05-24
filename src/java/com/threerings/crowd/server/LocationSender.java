@@ -41,7 +41,7 @@ public class LocationSender extends InvocationSender
     {
         sendNotification(
             target, LocationDecoder.RECEIVER_CODE, LocationDecoder.FORCED_MOVE,
-            new Object[] { new Integer(arg1) });
+            new Object[] { Integer.valueOf(arg1) });
     }
 
 }

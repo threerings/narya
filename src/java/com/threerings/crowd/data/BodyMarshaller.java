@@ -2,7 +2,7 @@
 // $Id$
 //
 // Narya library - tools for developing networked games
-// Copyright (C) 2002-2005 Three Rings Design, Inc., All Rights Reserved
+// Copyright (C) 2002-2006 Three Rings Design, Inc., All Rights Reserved
 // http://www.threerings.net/code/narya/
 //
 // This library is free software; you can redistribute it and/or modify it
@@ -43,7 +43,7 @@ public class BodyMarshaller extends InvocationMarshaller
     public void setIdle (Client arg1, boolean arg2)
     {
         sendRequest(arg1, SET_IDLE, new Object[] {
-            new Boolean(arg2)
+            Boolean.valueOf(arg2)
         });
     }
 

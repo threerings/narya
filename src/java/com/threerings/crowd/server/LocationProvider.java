@@ -194,7 +194,7 @@ public class LocationProvider
         try {
             PlaceObject pold = (PlaceObject)_omgr.getObject(oldloc);
             if (pold != null) {
-                Integer key = new Integer(bodoid);
+                Integer key = Integer.valueOf(bodoid);
                 pold.startTransaction();
                 try {
                     // remove their occupant info (which is keyed on oid)

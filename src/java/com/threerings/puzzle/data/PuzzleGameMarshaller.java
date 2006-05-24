@@ -2,7 +2,7 @@
 // $Id$
 //
 // Narya library - tools for developing networked games
-// Copyright (C) 2002-2005 Three Rings Design, Inc., All Rights Reserved
+// Copyright (C) 2002-2006 Three Rings Design, Inc., All Rights Reserved
 // http://www.threerings.net/code/narya/
 //
 // This library is free software; you can redistribute it and/or modify it
@@ -44,7 +44,7 @@ public class PuzzleGameMarshaller extends InvocationMarshaller
     public void updateProgress (Client arg1, int arg2, int[] arg3)
     {
         sendRequest(arg1, UPDATE_PROGRESS, new Object[] {
-            new Integer(arg2), arg3
+            Integer.valueOf(arg2), arg3
         });
     }
 
@@ -55,7 +55,7 @@ public class PuzzleGameMarshaller extends InvocationMarshaller
     public void updateProgressSync (Client arg1, int arg2, int[] arg3, Board[] arg4)
     {
         sendRequest(arg1, UPDATE_PROGRESS_SYNC, new Object[] {
-            new Integer(arg2), arg3, arg4
+            Integer.valueOf(arg2), arg3, arg4
         });
     }
 

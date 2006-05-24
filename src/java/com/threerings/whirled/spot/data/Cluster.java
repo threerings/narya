@@ -43,7 +43,7 @@ public class Cluster extends Rectangle
     public Comparable getKey ()
     {
         if (_key == null) {
-            _key = new Integer(clusterOid);
+            _key = Integer.valueOf(clusterOid);
         }
         return _key;
     }

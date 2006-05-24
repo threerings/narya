@@ -134,7 +134,7 @@ public class TestTileLoader implements TileSetIDBroker
     {
         Integer id = (Integer) _idmap.get(tileSetPath);
         if (null == id) {
-            id = new Integer(_fakeID--);
+            id = Integer.valueOf(_fakeID--);
             _idmap.put(tileSetPath, id);
         }
         return id.intValue();

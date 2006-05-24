@@ -294,7 +294,7 @@ public class GameObject extends PlaceObject
     {
         int ovalue = this.state;
         requestAttributeChange(
-            STATE, new Integer(value), new Integer(ovalue));
+            STATE, Integer.valueOf(value), Integer.valueOf(ovalue));
         this.state = value;
     }
 
@@ -310,7 +310,7 @@ public class GameObject extends PlaceObject
     {
         boolean ovalue = this.isRated;
         requestAttributeChange(
-            IS_RATED, new Boolean(value), new Boolean(ovalue));
+            IS_RATED, Boolean.valueOf(value), Boolean.valueOf(ovalue));
         this.isRated = value;
     }
 
@@ -326,7 +326,7 @@ public class GameObject extends PlaceObject
     {
         boolean ovalue = this.isPrivate;
         requestAttributeChange(
-            IS_PRIVATE, new Boolean(value), new Boolean(ovalue));
+            IS_PRIVATE, Boolean.valueOf(value), Boolean.valueOf(ovalue));
         this.isPrivate = value;
     }
 
@@ -392,7 +392,7 @@ public class GameObject extends PlaceObject
     {
         boolean ovalue = this.winners[index];
         requestElementUpdate(
-            WINNERS, index, new Boolean(value), new Boolean(ovalue));
+            WINNERS, index, Boolean.valueOf(value), Boolean.valueOf(ovalue));
         this.winners[index] = value;
     }
 
@@ -408,7 +408,7 @@ public class GameObject extends PlaceObject
     {
         int ovalue = this.roundId;
         requestAttributeChange(
-            ROUND_ID, new Integer(value), new Integer(ovalue));
+            ROUND_ID, Integer.valueOf(value), Integer.valueOf(ovalue));
         this.roundId = value;
     }
 
@@ -441,7 +441,7 @@ public class GameObject extends PlaceObject
     {
         int ovalue = this.playerStatus[index];
         requestElementUpdate(
-            PLAYER_STATUS, index, new Integer(value), new Integer(ovalue));
+            PLAYER_STATUS, index, Integer.valueOf(value), Integer.valueOf(ovalue));
         this.playerStatus[index] = value;
     }
     // AUTO-GENERATED: METHODS END

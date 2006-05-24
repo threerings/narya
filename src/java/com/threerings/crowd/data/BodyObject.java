@@ -175,7 +175,7 @@ public class BodyObject extends ClientObject
     {
         int ovalue = this.location;
         requestAttributeChange(
-            LOCATION, new Integer(value), new Integer(ovalue));
+            LOCATION, Integer.valueOf(value), Integer.valueOf(ovalue));
         this.location = value;
     }
 
@@ -191,7 +191,7 @@ public class BodyObject extends ClientObject
     {
         byte ovalue = this.status;
         requestAttributeChange(
-            STATUS, new Byte(value), new Byte(ovalue));
+            STATUS, Byte.valueOf(value), Byte.valueOf(ovalue));
         this.status = value;
     }
 

@@ -187,7 +187,7 @@ public class AutoFringer
         }
 
         // otherwise, it's a mask.. look for it in the cache..
-        Long maskkey = new Long((((long) baseset) << 32) +
+        Long maskkey = Long.valueOf((((long) baseset) << 32) +
                                 (fringeset << 16) + index);
         BufferedImage img = (BufferedImage)masks.get(maskkey);
         if (img == null) {
@@ -261,7 +261,7 @@ public class AutoFringer
             } else if (weebits != 0) {
                 index = BITS_TO_INDEX[weebits];
                 if (index != -1) {
-                    indexes.add(new Integer(index));
+                    indexes.add(Integer.valueOf(index));
                 }
                 weebits = 0;
             }
@@ -269,7 +269,7 @@ public class AutoFringer
         if (weebits != 0) {
             index = BITS_TO_INDEX[weebits];
             if (index != -1) {
-                indexes.add(new Integer(index));
+                indexes.add(Integer.valueOf(index));
             }
         }
 

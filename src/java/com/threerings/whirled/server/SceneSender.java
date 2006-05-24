@@ -41,7 +41,7 @@ public class SceneSender extends InvocationSender
     {
         sendNotification(
             target, SceneDecoder.RECEIVER_CODE, SceneDecoder.FORCED_MOVE,
-            new Object[] { new Integer(arg1) });
+            new Object[] { Integer.valueOf(arg1) });
     }
 
 }

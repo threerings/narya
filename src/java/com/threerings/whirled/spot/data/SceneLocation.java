@@ -58,7 +58,7 @@ public class SceneLocation extends SimpleStreamableObject
     public Comparable getKey ()
     {
         if (_key == null) {
-            _key = new Integer(bodyOid);
+            _key = Integer.valueOf(bodyOid);
         }
         return _key;
     }

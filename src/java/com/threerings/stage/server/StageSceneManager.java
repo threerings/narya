@@ -339,7 +339,7 @@ public class StageSceneManager extends SpotSceneManager
 
         // if they are already standing on this tile, allow it
         SceneLocation cloc = (SceneLocation)
-            _ssobj.occupantLocs.get(new Integer(source.getOid()));
+            _ssobj.occupantLocs.get(Integer.valueOf(source.getOid()));
         if (cloc != null) {
             StageLocation sloc = (StageLocation) cloc.loc;
             if (MisoUtil.fullToTile(sloc.x) == tx &&
@@ -697,7 +697,7 @@ public class StageSceneManager extends SpotSceneManager
     protected void positionBody (Cluster cl, int bodyOid, ArrayList locs)
     {
         SceneLocation sloc = (SceneLocation)
-            _ssobj.occupantLocs.get(new Integer(bodyOid));
+            _ssobj.occupantLocs.get(Integer.valueOf(bodyOid));
         if (sloc == null) {
             BodyObject user = (BodyObject)StageServer.omgr.getObject(bodyOid);
             String who = (user == null) ? ("" + bodyOid) : user.who();
@@ -761,7 +761,7 @@ public class StageSceneManager extends SpotSceneManager
         throws InvocationException
     {
         StageOccupantInfo info = (StageOccupantInfo)_ssobj.occupantInfo.get(
-            new Integer(target.getOid()));
+            Integer.valueOf(target.getOid()));
         if (info == null) {
             Log.warning("Have no occinfo for cluster target " +
                         "[where=" + where() + ", init=" + initiator.who() +
