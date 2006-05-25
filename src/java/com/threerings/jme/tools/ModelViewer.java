@@ -80,6 +80,7 @@ import com.jme.scene.state.MaterialState;
 import com.jme.scene.state.TextureState;
 import com.jme.scene.state.WireframeState;
 import com.jme.scene.state.ZBufferState;
+import com.jme.system.JmeException;
 import com.jme.util.LoggingSystem;
 import com.jme.util.TextureManager;
 import com.jme.util.geom.Debugger;
@@ -275,6 +276,14 @@ public class ModelViewer extends JmeCanvasApp
             loadModel(new File(_path));
         }
         return true;
+    }
+    
+    @Override // documentation inherited
+    protected void initDisplay ()
+        throws JmeException
+    {
+        super.initDisplay();
+        _ctx.getRenderer().setBackgroundColor(ColorRGBA.gray);
     }
     
     @Override // documentation inherited
