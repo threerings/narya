@@ -21,17 +21,15 @@
 
 package com.threerings.whirled.data {
 
+import com.threerings.util.Cloneable;
+
 import com.threerings.io.Streamable;
 
 /**
  * An interface that must be implemented by auxiliary scene models.
  */
-public interface AuxModel extends Streamable /*, Cloneable*/
+public interface AuxModel extends Streamable, Cloneable
 {
-    /**
-     * Creates a clone of this auxiliary model.
-     */
-    function clone () :Object;
-        //throws CloneNotSupportedException;
+    // no new methods
 }
 }

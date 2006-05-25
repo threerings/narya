@@ -8,13 +8,13 @@ public class ConfirmMarshaller extends ListenerMarshaller
     public static const REQUEST_PROCESSED :int = 1;
 
     // documetnation inherited from interfacc
-    public function requestProcessed ()
+    public function requestProcessed () :void
     {
         // TODO: server only?
     }
 
     // documetnation inherited
-    public function dispatchResponse (methodId :int, args :Array) :void
+    public override function dispatchResponse (methodId :int, args :Array) :void
     {
         switch (methodId) {
         case REQUEST_PROCESSED:

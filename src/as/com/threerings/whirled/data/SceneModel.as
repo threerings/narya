@@ -22,6 +22,7 @@
 package com.threerings.whirled.data {
 
 import com.threerings.util.ClassUtil;
+import com.threerings.util.Cloneable;
 
 import com.threerings.io.ObjectInputStream;
 import com.threerings.io.ObjectOutputStream;
@@ -38,7 +39,7 @@ import com.threerings.io.TypedArray;
  * server to the client.
  */
 public class SceneModel
-    implements Streamable /*, Cloneable */
+    implements Streamable, Cloneable
 {
     /** This scene's unique identifier. */
     public var sceneId :int;
@@ -64,7 +65,7 @@ public class SceneModel
         auxModels.push(auxModel);
     }
 
-    // documentation inherited
+    // documentation inherited from interface Cloneable
     public function clone () :Object
     {
         var clazz :Class = ClassUtil.getClass(this);

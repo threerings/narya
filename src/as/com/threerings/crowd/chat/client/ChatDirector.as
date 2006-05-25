@@ -325,6 +325,7 @@ public class ChatDirector extends BasicDirector
                     return result;
                 }
 
+                trace("Chatted: " + record + ", " + hist[0]);
                 if (record) {
                     // get the final history-ready command string
                     hist[0] = "/" + ((hist[0] == null) ? command : hist[0]);

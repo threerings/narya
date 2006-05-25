@@ -23,12 +23,13 @@ package com.threerings.whirled.spot.data {
 
 import com.threerings.io.Streamable;
 
+import com.threerings.util.Cloneable;
 import com.threerings.util.Hashable;
 
 /**
  * Contains information on a scene occupant's position and orientation.
  */
-public interface Location extends Streamable, Hashable
+public interface Location extends Cloneable, Streamable, Hashable
 {
     /**
      * Get a new Location instance that is equals() to this one but that
@@ -42,9 +43,10 @@ public interface Location extends Streamable, Hashable
      */
     function equivalent (other :Location) :Boolean;
 
-    /**
-     * Locations are cloneable.
-     */
-    function clone () :Object;
+    /** Two locations are equals by coordinates only. */
+    //function equals (other :Object) :Boolean;
+
+    /** The hashcode should be based on coordinates only. */
+    //function hashCode () :int;
 }
 }

@@ -189,6 +189,7 @@ public class Communicator
      */
     protected function socketClosed (event :Event) :void
     {
+        Log.getLog(this).warning("socket was closed: " + event);
         _client.notifyObservers(ClientEvent.CLIENT_CONNECTION_FAILED);
         shutdown(null);
     }

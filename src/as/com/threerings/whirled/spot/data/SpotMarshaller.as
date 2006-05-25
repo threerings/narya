@@ -21,6 +21,9 @@
 
 package com.threerings.whirled.spot.data {
 
+import com.threerings.util.Byte;
+import com.threerings.util.Integer;
+
 import com.threerings.presents.client.Client;
 import com.threerings.presents.client.InvocationService;
 import com.threerings.presents.client.ConfirmListener;
@@ -29,7 +32,7 @@ import com.threerings.presents.data.ConfirmMarshaller;
 import com.threerings.presents.dobj.InvocationResponseEvent;
 import com.threerings.whirled.client.SceneService;
 import com.threerings.whirled.client.SceneService_SceneMoveListener;
-import com.threerings.whirled.data.SceneMarshaller;
+import com.threerings.whirled.data.SceneMarshaller_SceneMoveMarshaller;
 import com.threerings.whirled.spot.client.SpotService;
 import com.threerings.whirled.spot.data.Location;
 
@@ -73,7 +76,7 @@ public class SpotMarshaller extends InvocationMarshaller
     // documentation inherited from interface
     public function joinCluster (arg1 :Client, arg2 :int, arg3 :ConfirmListener) :void
     {
-        var listener3 :ConfirmMarshaller listener3 = new ConfirmMarshaller();
+        var listener3 :ConfirmMarshaller = new ConfirmMarshaller();
         listener3.listener = arg3;
         sendRequest(arg1, JOIN_CLUSTER, [
             new Integer(arg2), listener3
