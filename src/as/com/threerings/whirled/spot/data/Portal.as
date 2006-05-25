@@ -21,6 +21,8 @@
 
 package com.threerings.whirled.spot.data {
 
+import com.threerings.util.Cloneable;
+
 import com.threerings.io.Streamable;
 import com.threerings.io.ObjectInputStream;
 import com.threerings.io.ObjectOutputStream;
@@ -37,7 +39,7 @@ import com.threerings.util.Hashable;
  * appear in that target scene.
  */
 public class Portal
-    implements Streamable, Hashable
+    implements Streamable, Hashable, Cloneable
 {
     /** This portal's unique identifier. */
     public var portalId :int;
@@ -104,9 +106,7 @@ public class Portal
         targetPortalId = ins.readShort();
     }
 
-    /**
-     * Creates a clone of this instance.
-     */
+    // documentation inherited from interface Cloneable
     public function clone () :Object
     {
         var p :Portal = new Portal();

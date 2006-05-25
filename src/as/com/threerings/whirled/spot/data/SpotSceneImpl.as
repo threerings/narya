@@ -21,6 +21,7 @@
 
 package com.threerings.whirled.spot.data {
 
+import com.threerings.util.ArrayIterator;
 import com.threerings.util.Iterator;
 import com.threerings.util.HashMap;
 
@@ -34,71 +35,67 @@ public class SpotSceneImpl
      * Creates an instance that will obtain data from the supplied spot
      * scene model.
      */
-    public function SpotSceneImpl (model :SpotSceneModel)
+    public function SpotSceneImpl (model :SpotSceneModel = null)
     {
-        _smodel = smodel;
-        readPortals();
+        if (model != null) {
+            _smodel = model;
+            readPortals();
+
+        } else {
+            _smodel = new SpotSceneModel();
+        }
     }
 
     protected function readPortals () :void
     {
         _portals.clear();
-        for (int ii = 0, ll = _smodel.portals.length; ii < ll; ii++) {
-            Portal port = _smodel.portals[ii];
+        for each (var port :Portal in _smodel.portals) {
             _portals.put(port.portalId, port);
         }
     }
 
-    /**
-     * Instantiates a blank scene implementation.
-     */
-    public SpotSceneImpl ()
+    // documentation inherited from interface
+    public function getPortal (portalId :int) :Portal
     {
-        _smodel = new SpotSceneModel();
+        return (_portals.get(portalId) as Portal);
     }
 
     // documentation inherited from interface
-    public Portal getPortal (int portalId)
-    {
-        return (Portal)_portals.get(portalId);
-    }
-
-    // documentation inherited from interface
-    public int getPortalCount ()
+    public function getPortalCount () :int
     {
         return _portals.size();
     }
 
     // documentation inherited from interface
-    public Iterator getPortals ()
+    public function getPortals () :Iterator
     {
-        return _portals.values().iterator();
+        return new ArrayIterator(_portals.values());
     }
 
     // documentation inherited from interface
-    public short getNextPortalId ()
+    public function getNextPortalId () :int
     {
         // compute a new portal id for our friend the portal
-        for (short ii = 1; ii < MAX_PORTAL_ID; ii++) {
+        for (var ii :int = 1; ii < MAX_PORTAL_ID; ii++) {
             if (!_portals.containsKey(ii)) {
                 return ii;
             }
         }
-        return (short)-1;
+        return -1;
     }
 
     // documentation inherited from interface
-    public Portal getDefaultEntrance ()
+    public function getDefaultEntrance () :Portal
     {
         return getPortal(_smodel.defaultEntranceId);
     }
 
     // documentation inherited from interface
-    public void addPortal (Portal portal)
+    public function addPortal (portal :Portal) :void
     {
         if (portal.portalId <= 0) {
-            Log.warning("Refusing to add zero-id portal " +
-                        "[scene=" + this + ", portal=" + portal + "].");
+            Log.getLog(this).warning("Refusing to add zero-id portal " +
+                "[scene=" + this + ", portal=" + portal + "].");
             return;
         }
 
@@ -110,7 +107,7 @@ public class SpotSceneImpl
     }
 
     // documentation inherited from interface
-    public void removePortal (Portal portal)
+    public function removePortal (portal :Portal) :void
     {
         // remove the portal from our mapping
         _portals.remove(portal.portalId);
@@ -122,13 +119,13 @@ public class SpotSceneImpl
     /**
      * Used when we're being parsed from an XML scene model.
      */
-    public void setDefaultEntranceId (int defaultEntranceId)
+    public function setDefaultEntranceId (defaultEntranceId :int) :void
     {
         _smodel.defaultEntranceId = defaultEntranceId;
     }
 
     // documentation inherited from interface
-    public void setDefaultEntrance (Portal portal)
+    public function setDefaultEntrance (portal :Portal) :void
     {
         _smodel.defaultEntranceId = (portal == null) ? -1 : portal.portalId;
     }
@@ -137,7 +134,7 @@ public class SpotSceneImpl
      * This should be called if a scene update was received that caused
      * our underlying scene model to change.
      */
-    public void updateReceived ()
+    public function updateReceived () :void
     {
         readPortals();
     }

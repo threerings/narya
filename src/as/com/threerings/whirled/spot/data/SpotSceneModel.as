@@ -21,9 +21,12 @@
 
 package com.threerings.whirled.spot.data {
 
+import com.threerings.util.ClassUtil;
+
 import com.threerings.io.Streamable;
 import com.threerings.io.ObjectInputStream;
 import com.threerings.io.ObjectOutputStream;
+import com.threerings.io.TypedArray;
 
 import com.threerings.whirled.data.AuxModel;
 import com.threerings.whirled.data.SceneModel;
@@ -38,7 +41,8 @@ public class SpotSceneModel
     implements Streamable, AuxModel
 {
     /** An array containing all portals in this scene. */
-    public var portals :TypedArray = new TypedArray(Portal);
+    public var portals :TypedArray =
+        new TypedArray(TypedArray.getJavaType(Portal));
 
     /** The portal id of the default entrance to this scene. If a body
      * enters the scene without coming from another scene, this is the
@@ -66,16 +70,14 @@ public class SpotSceneModel
         }
     }
 
-    // documentation inherited
-    public Object clone ()
-        throws CloneNotSupportedException
+    // documentation inherited from superinterface Cloneable
+    public function clone () :Object
     {
-        // TODO
-        SpotSceneModel model = (SpotSceneModel)super.clone();
-        // clone our portals individually
-        model.portals = new Portal[portals.length];
-        for (int ii = 0, ll = portals.length; ii < ll; ii++) {
-            model.portals[ii] = (Portal)portals[ii].clone();
+        var clazz :Class = ClassUtil.getClass(this);
+        var model :SpotSceneModel = new clazz();
+
+        for each (var portal :Portal in portals) {
+            model.portals.push(portal.clone());
         }
         return model;
     }
@@ -102,9 +104,9 @@ public class SpotSceneModel
      */
     public static function getSceneModel (model :SceneModel) :SpotSceneModel
     {
-        for (var ii :int = 0; ii < model.auxModels.length; ii++) {
-            if (model.auxModels[ii] is SpotSceneModel) {
-                return (model.auxModels[ii] as SpotSceneModel);
+        for each (var aux :AuxModel in model.auxModels) {
+            if (aux is SpotSceneModel) {
+                return (aux as SpotSceneModel);
             }
         }
         return null;
