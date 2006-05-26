@@ -2,7 +2,8 @@ package com.threerings.presents.data {
 
 import com.threerings.presents.client.ConfirmListener;
 
-public class ConfirmMarshaller extends ListenerMarshaller
+public class InvocationMarshaller_ConfirmMarshaller
+    extends InvocationMarshaller_ListenerMarshaller
     implements ConfirmListener
 {
     public static const REQUEST_PROCESSED :int = 1;

@@ -28,7 +28,7 @@ import com.threerings.presents.client.Client;
 import com.threerings.presents.client.InvocationService;
 import com.threerings.presents.client.ConfirmListener;
 import com.threerings.presents.data.InvocationMarshaller;
-import com.threerings.presents.data.ConfirmMarshaller;
+import com.threerings.presents.data.InvocationMarshaller_ConfirmMarshaller;
 import com.threerings.presents.dobj.InvocationResponseEvent;
 import com.threerings.whirled.client.SceneService;
 import com.threerings.whirled.client.SceneService_SceneMoveListener;
@@ -52,7 +52,7 @@ public class SpotMarshaller extends InvocationMarshaller
     // documentation inherited from interface
     public function changeLocation (arg1 :Client, arg2 :int, arg3 :Location, arg4 :ConfirmListener) :void
     {
-        var listener4 :ConfirmMarshaller = new ConfirmMarshaller();
+        var listener4 :InvocationMarshaller_ConfirmMarshaller = new InvocationMarshaller_ConfirmMarshaller();
         listener4.listener = arg4;
         sendRequest(arg1, CHANGE_LOCATION, [
             new Integer(arg2), arg3, listener4
@@ -76,7 +76,7 @@ public class SpotMarshaller extends InvocationMarshaller
     // documentation inherited from interface
     public function joinCluster (arg1 :Client, arg2 :int, arg3 :ConfirmListener) :void
     {
-        var listener3 :ConfirmMarshaller = new ConfirmMarshaller();
+        var listener3 :InvocationMarshaller_ConfirmMarshaller = new InvocationMarshaller_ConfirmMarshaller();
         listener3.listener = arg3;
         sendRequest(arg1, JOIN_CLUSTER, [
             new Integer(arg2), listener3

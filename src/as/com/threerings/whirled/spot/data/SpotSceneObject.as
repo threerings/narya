@@ -21,6 +21,9 @@
 
 package com.threerings.whirled.spot.data {
 
+import com.threerings.io.ObjectInputStream;
+import com.threerings.io.ObjectOutputStream;
+
 import com.threerings.presents.dobj.DSet;
 import com.threerings.whirled.data.SceneObject;
 
@@ -52,7 +55,7 @@ public class SpotSceneObject extends SceneObject
      */
     public function addToOccupantLocs (elem :DSet_Entry) :void
     {
-        requestEntryAdd(OCCUPANT_LOCS, occupantLocs, elem);
+        requestEntryAdd(OCCUPANT_LOCS, elem);
     }
 
     /**
@@ -62,7 +65,7 @@ public class SpotSceneObject extends SceneObject
      */
     public function removeFromOccupantLocs (key :Object) :void
     {
-        requestEntryRemove(OCCUPANT_LOCS, occupantLocs, key);
+        requestEntryRemove(OCCUPANT_LOCS, key);
     }
 
     /**
@@ -72,7 +75,7 @@ public class SpotSceneObject extends SceneObject
      */
     public function updateOccupantLocs (elem :DSet_Entry) :void
     {
-        requestEntryUpdate(OCCUPANT_LOCS, occupantLocs, elem);
+        requestEntryUpdate(OCCUPANT_LOCS, elem);
     }
 
     /**
@@ -98,7 +101,7 @@ public class SpotSceneObject extends SceneObject
      */
     public function addToClusters (elem :DSet_Entry) :void
     {
-        requestEntryAdd(CLUSTERS, clusters, elem);
+        requestEntryAdd(CLUSTERS, elem);
     }
 
     /**
@@ -108,7 +111,7 @@ public class SpotSceneObject extends SceneObject
      */
     public function removeFromClusters (key :Object) :void
     {
-        requestEntryRemove(CLUSTERS, clusters, key);
+        requestEntryRemove(CLUSTERS, key);
     }
 
     /**
@@ -118,7 +121,7 @@ public class SpotSceneObject extends SceneObject
      */
     public function updateClusters (elem :DSet_Entry) :void
     {
-        requestEntryUpdate(CLUSTERS, clusters, elem);
+        requestEntryUpdate(CLUSTERS, elem);
     }
 
     /**
@@ -137,5 +140,23 @@ public class SpotSceneObject extends SceneObject
         this.clusters = value;
     }
     // AUTO-GENERATED: METHODS END
+
+    // documentation inherited
+    public override function writeObject (out :ObjectOutputStream) :void
+    {
+        super.writeObject(out);
+
+        out.writeObject(occupantLocs);
+        out.writeObject(clusters);
+    }
+
+    // documentation inherited
+    public override function readObject (ins :ObjectInputStream) :void
+    {
+        super.readObject(ins);
+
+        occupantLocs = (ins.readObject() as DSet);
+        clusters = (ins.readObject() as DSet);
+    }
 }
 }

@@ -28,8 +28,16 @@ public class ClassUtil
 
     public static function getClassByName (cname :String) :Class
     {
-        // see also ApplicationDomain.currentDomain.getClass(cname)
-        return (getDefinitionByName(cname.replace("::", ".")) as Class);
+        try {
+            // see also ApplicationDomain.currentDomain.getClass(cname)
+            return (getDefinitionByName(cname.replace("::", ".")) as Class);
+
+        } catch (error :ReferenceError) {
+            var log :Log = Log.getLog(ClassUtil);
+            log.warning("Unknown class: " + cname);
+            log.logStackTrace(error);
+        }
+        return null; // error case
     }
 
     public static function isFinal (type :Class) :Boolean

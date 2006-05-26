@@ -2,11 +2,11 @@ package com.threerings.crowd.chat.data {
 
 import com.threerings.util.Long;
 
-import com.threerings.presents.data.ListenerMarshaller;
+import com.threerings.presents.data.InvocationMarshaller_ListenerMarshaller;
 
 import com.threerings.crowd.chat.client.TellListener;
 
-public class TellMarshaller extends ListenerMarshaller
+public class TellMarshaller extends InvocationMarshaller_ListenerMarshaller
 {
     /** The method id used to dispatch {@link #tellSucceeded}
      * responses. */

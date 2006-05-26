@@ -1,8 +1,10 @@
 package com.threerings.whirled.data {
 
+import com.threerings.util.Integer;
+
 import com.threerings.io.TypedArray;
 
-import com.threerings.presents.data.ListenerMarshaller;
+import com.threerings.presents.data.InvocationMarshaller_ListenerMarshaller;
 
 import com.threerings.crowd.data.PlaceConfig;
 
@@ -12,7 +14,7 @@ import com.threerings.whirled.client.SceneService_SceneMoveListener;
 import com.threerings.whirled.data.SceneModel;
 import com.threerings.whirled.data.SceneUpdate;
 
-public class SceneMarshaller_SceneMoveMarshaller extends ListenerMarshaller
+public class SceneMarshaller_SceneMoveMarshaller extends InvocationMarshaller_ListenerMarshaller
     implements SceneService_SceneMoveListener
 {
     /** The method id used to dispatch {@link #moveSucceeded}
@@ -24,7 +26,7 @@ public class SceneMarshaller_SceneMoveMarshaller extends ListenerMarshaller
     {
         omgr.postEvent(new InvocationResponseEvent(
                            callerOid, requestId, MOVE_SUCCEEDED,
-                           [ arg1, arg2 ]));
+                           [ new Integer(arg1), arg2 ]));
     }
 
     /** The method id used to dispatch {@link #moveSucceededWithScene}
@@ -36,7 +38,7 @@ public class SceneMarshaller_SceneMoveMarshaller extends ListenerMarshaller
     {
         omgr.postEvent(new InvocationResponseEvent(
                            callerOid, requestId, MOVE_SUCCEEDED_WITH_SCENE,
-                           [ arg1, arg2, arg3 ]));
+                           [ new Integer(arg1), arg2, arg3 ]));
     }
 
     /** The method id used to dispatch {@link #moveSucceededWithUpdates}
@@ -48,7 +50,7 @@ public class SceneMarshaller_SceneMoveMarshaller extends ListenerMarshaller
     {
         omgr.postEvent(new InvocationResponseEvent(
                            callerOid, requestId, MOVE_SUCCEEDED_WITH_UPDATES,
-                           [ arg1, arg2, arg3 ]));
+                           [ new Integer(arg1), arg2, arg3 ]));
     }
 
     // documentation inherited
@@ -57,17 +59,17 @@ public class SceneMarshaller_SceneMoveMarshaller extends ListenerMarshaller
         switch (methodId) {
         case MOVE_SUCCEEDED:
             (listener as SceneService_SceneMoveListener).moveSucceeded(
-                args[0] as int, args[1] as PlaceConfig);
+                (args[0] as Integer).value, args[1] as PlaceConfig);
             return;
 
         case MOVE_SUCCEEDED_WITH_SCENE:
             (listener as SceneService_SceneMoveListener).moveSucceededWithScene(
-                args[0] as int, args[1] as PlaceConfig, args[2] as SceneModel);
+                (args[0] as Integer).value, args[1] as PlaceConfig, args[2] as SceneModel);
             return;
 
         case MOVE_SUCCEEDED_WITH_UPDATES:
             (listener as SceneService_SceneMoveListener).moveSucceededWithUpdates(
-                args[0] as int, args[1] as PlaceConfig, args[2] as TypedArray);
+                (args[0] as Integer).value, args[1] as PlaceConfig, args[2] as TypedArray);
             return;
 
         default:

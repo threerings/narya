@@ -21,6 +21,8 @@
 
 package com.threerings.whirled.data {
 
+import com.threerings.util.Integer;
+
 import com.threerings.presents.client.Client;
 import com.threerings.presents.data.InvocationMarshaller;
 import com.threerings.whirled.client.SceneService;
@@ -44,7 +46,7 @@ public class SceneMarshaller extends InvocationMarshaller
     {
         var listener4 :SceneMarshaller_SceneMoveMarshaller = new SceneMarshaller_SceneMoveMarshaller();
         listener4.listener = arg4;
-        sendRequest(arg1, MOVE_TO, [ arg2, arg3, listener4 ]);
+        sendRequest(arg1, MOVE_TO, [ new Integer(arg2), new Integer(arg3), listener4 ]);
     }
 
 }

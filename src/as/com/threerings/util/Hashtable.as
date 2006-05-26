@@ -268,6 +268,7 @@ public class Hashtable
      */
     protected function indexFor (hash :int) :int
     {
+        // TODO: improve?
         return Math.abs(hash) % _entries.length;
     }
 

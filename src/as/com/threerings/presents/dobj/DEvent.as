@@ -10,7 +10,7 @@ import com.threerings.util.StringBuilder;
 public /* abstract */ class DEvent
     implements Streamable
 {
-    public function DEvent (targetOid :int)
+    public function DEvent (targetOid :int = 0)
     {
         _toid = targetOid;
     }

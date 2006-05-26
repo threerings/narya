@@ -1,10 +1,10 @@
 package com.threerings.crowd.data {
 
-import com.threerings.presents.data.ListenerMarshaller;
+import com.threerings.presents.data.InvocationMarshaller_ListenerMarshaller;
 
 import com.threerings.crowd.client.MoveListener
 
-public class LocationMarshaller_MoveMarshaller extends ListenerMarshaller
+public class LocationMarshaller_MoveMarshaller extends InvocationMarshaller_ListenerMarshaller
 {
     /** The method id used to dispatch {@link #moveSucceeded}
      * responses. */

@@ -15,6 +15,7 @@ public class ArrayStreamer extends Streamer
     public function ArrayStreamer (jname :String = "[Ljava.lang.Object;")
     {
         super(TypedArray, jname);
+        trace("got new ArrayStreamer for " + jname);
 
         var secondChar :String = jname.charAt(1);
         if (secondChar === "[") {
@@ -68,6 +69,7 @@ public class ArrayStreamer extends Streamer
     {
         var ta :TypedArray = new TypedArray(_jname);
         ta.length = ins.readInt();
+        trace("Read array length as: " + ta.length);
         return ta;
     }
 

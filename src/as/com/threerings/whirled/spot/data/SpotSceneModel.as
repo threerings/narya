@@ -85,14 +85,14 @@ public class SpotSceneModel
     // documentation inherited from interface Streamable
     public function writeObject (out :ObjectOutputStream) :void
     {
-        out.writeField(portals);
+        out.writeObject(portals);
         out.writeInt(defaultEntranceId);
     }
 
     // documentation inherited from interface Streamable
     public function readObject (ins :ObjectInputStream) :void
     {
-        portals = (ins.readField(TypedArray.getJavaType(Portal)) as TypedArray);
+        portals = (ins.readObject() as TypedArray);
         defaultEntranceId = ins.readInt();
     }
 

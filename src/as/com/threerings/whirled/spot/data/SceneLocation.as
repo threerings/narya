@@ -23,6 +23,9 @@ package com.threerings.whirled.spot.data {
 
 import com.threerings.util.Hashable;
 
+import com.threerings.io.ObjectInputStream;
+import com.threerings.io.ObjectOutputStream;
+
 import com.threerings.presents.dobj.DSet_Entry;
 
 /**
@@ -64,6 +67,20 @@ public class SceneLocation
     public function hashCode () :int
     {
         return loc.hashCode();
+    }
+
+    // documentation inherited from superinterface Streamable
+    public function writeObject (out :ObjectOutputStream) :void
+    {
+        out.writeInt(bodyOid);
+        out.writeObject(loc);
+    }
+
+    // documentation inherited from superinterface Streamable
+    public function readObject (ins :ObjectInputStream) :void
+    {
+        bodyOid = ins.readInt();
+        loc = (ins.readObject() as Location);
     }
 }
 }

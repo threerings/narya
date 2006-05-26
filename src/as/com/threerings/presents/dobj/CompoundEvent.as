@@ -40,8 +40,14 @@ public class CompoundEvent extends DEvent
     /**
      * Constructs a compound event and prepares it for operation.
      */
-    public function CompoundEvent (target :DObject, omgr :DObjectManager)
+    public function CompoundEvent (
+            target :DObject = null, omgr :DObjectManager = null)
     {
+        if (target == null) {
+            super();
+            return;
+        }
+
         super(target.getOid());
 
         // sanity check

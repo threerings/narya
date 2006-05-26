@@ -5,7 +5,7 @@ import mx.collections.ArrayCollection;
 
 import com.threerings.util.HashMap;
 
-import com.threerings.presents.data.ListenerMarshaller;
+import com.threerings.presents.data.InvocationMarshaller_ListenerMarshaller;
 
 import com.threerings.presents.dobj.DEvent;
 import com.threerings.presents.dobj.DObject;
@@ -138,8 +138,9 @@ public class InvocationDirector
     {
         // configure any invocation listener marshallers among the args
         for each (var arg :Object in args) {
-            if (arg is ListenerMarshaller) {
-                var lm :ListenerMarshaller = (arg as ListenerMarshaller);
+            if (arg is InvocationMarshaller_ListenerMarshaller) {
+                var lm :InvocationMarshaller_ListenerMarshaller =
+                    (arg as InvocationMarshaller_ListenerMarshaller);
                 lm.callerOid = _clobj.getOid();
                 lm.requestId = nextRequestId();
                 lm.mapStamp = new Date().getTime();
@@ -187,8 +188,8 @@ public class InvocationDirector
     protected function handleInvocationResponse 
             (reqId :int, methodId :int, args :Array) :void
     {
-        var listener :ListenerMarshaller = 
-            (_listeners.remove(reqId) as ListenerMarshaller);
+        var listener :InvocationMarshaller_ListenerMarshaller = 
+            (_listeners.remove(reqId) as InvocationMarshaller_ListenerMarshaller);
         if (listener == null) {
             log.warning("Received invocation response for which we have " +
                         "no registered listener [reqId=" + reqId +
@@ -270,8 +271,8 @@ public class InvocationDirector
     {
         var then :Number = now - LISTENER_MAX_AGE;
         for (var skey :String in _listeners.keys()) {
-            var lm :ListenerMarshaller =
-                (_listeners.get(skey) as ListenerMarshaller);
+            var lm :InvocationMarshaller_ListenerMarshaller =
+                (_listeners.get(skey) as InvocationMarshaller_ListenerMarshaller);
             if (lm.mapStamp < then) {
                 _listeners.remove(skey);
             }

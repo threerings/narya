@@ -63,7 +63,7 @@ public class OccupantInfo
     public static const X_STATUS :Array = [ "active", "idle", "discon" ];
 
     /** The body object id of this occupant (and our entry key). */
-    public var bodyOid :Integer;
+    public var bodyOid :int;
 
     /** The username of this occupant. */
     public var username :Name;
@@ -74,7 +74,7 @@ public class OccupantInfo
     /** Access to the body object id as an int. */
     public function getBodyOid () :int
     {
-        return bodyOid.value;
+        return bodyOid;
     }
 
     // documentation inherited from interface DSet_Entry
@@ -86,7 +86,7 @@ public class OccupantInfo
     // documentation inherited from superinterface Streamable
     public function writeObject (out :ObjectOutputStream) :void
     {
-        out.writeObject(bodyOid);
+        out.writeObject(new Integer(bodyOid));
         out.writeObject(username);
         out.writeByte(status);
     }
@@ -94,7 +94,7 @@ public class OccupantInfo
     // documentation inherited from superinterface Streamable
     public function readObject (ins :ObjectInputStream) :void
     {
-        bodyOid = (ins.readField(Integer) as Integer);
+        bodyOid = (ins.readField(Integer) as Integer).value;
         username = (ins.readObject() as Name);
         status = ins.readByte();
     }

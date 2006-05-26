@@ -11,7 +11,7 @@ import com.threerings.presents.client.InvocationListener;
 import com.threerings.presents.dobj.DObjectManager;
 import com.threerings.presents.dobj.InvocationResponseEvent;
 
-public class ListenerMarshaller
+public class InvocationMarshaller_ListenerMarshaller
     implements Streamable, InvocationListener
 {
     /** The method id used to dispatch a requestFailed response. */

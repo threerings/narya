@@ -83,17 +83,21 @@ public class SceneModel
         out.writeInt(sceneId);
         out.writeField(name);
         out.writeInt(version);
-        out.writeField(auxModels);
+        out.writeObject(auxModels);
     }
 
     // documentation inherited from interface Streamable
     public function readObject (ins :ObjectInputStream) :void
     {
+        trace("Reading sceneId");
         sceneId = ins.readInt();
+        trace("Reading name (sceneId=" + sceneId + ")");
         name = (ins.readField(String) as String);
+        trace("Reading version (name=" + name + ")");
         version = ins.readInt();
-        auxModels = (ins.readField("[Lcom.threerings.whirled.data.AuxModel;")
-                as TypedArray);
+        trace("Reading auxes (version=" + version + ")");
+        auxModels = (ins.readObject() as TypedArray);
+        trace("auxes=" + auxModels);
     }
 
     /**
