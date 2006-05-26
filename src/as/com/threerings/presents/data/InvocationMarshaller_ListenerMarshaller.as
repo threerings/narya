@@ -38,9 +38,9 @@ public class InvocationMarshaller_ListenerMarshaller
     // documentation inherited from interface
     public function requestFailed (cause :String) :void
     {
-        omgr.postEvent(new InvocationResponseEvent(
-                           callerOid, requestId, REQUEST_FAILED_RSPID,
-                           [ cause ]));
+//        omgr.postEvent(new InvocationResponseEvent(
+//                           callerOid, requestId, REQUEST_FAILED_RSPID,
+//                           [ cause ]));
     }
 
     /**

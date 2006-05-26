@@ -67,7 +67,7 @@ public class ChatMarshaller extends InvocationMarshaller
     // documentation inherited from interface
     public function tell (arg1 :Client, arg2 :Name, arg3 :String, arg4 :TellListener) :void
     {
-        var listener4 :TellMarshaller = new TellMarshaller();
+        var listener4 :ChatMarshaller_TellMarshaller = new ChatMarshaller_TellMarshaller();
         listener4.listener = arg4;
         sendRequest(arg1, TELL, [ arg2, arg3, listener4 ]);
     }

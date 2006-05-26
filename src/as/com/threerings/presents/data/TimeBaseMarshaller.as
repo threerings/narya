@@ -18,7 +18,7 @@ public class TimeBaseMarshaller extends InvocationMarshaller
     public function getTimeOid (
             arg1 :Client, arg2 :String, arg3 :GotTimeBaseListener) :void
     {
-        var listener3 :GotTimeBaseMarshaller = new GotTimeBaseMarshaller();
+        var listener3 :TimeBaseMarshaller_GotTimeBaseMarshaller = new TimeBaseMarshaller_GotTimeBaseMarshaller();
         listener3.listener = arg3;
         sendRequest(arg1, GET_TIME_OID, [arg2, listener3]);
     }

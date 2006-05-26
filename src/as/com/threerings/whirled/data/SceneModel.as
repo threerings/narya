@@ -89,15 +89,10 @@ public class SceneModel
     // documentation inherited from interface Streamable
     public function readObject (ins :ObjectInputStream) :void
     {
-        trace("Reading sceneId");
         sceneId = ins.readInt();
-        trace("Reading name (sceneId=" + sceneId + ")");
         name = (ins.readField(String) as String);
-        trace("Reading version (name=" + name + ")");
         version = ins.readInt();
-        trace("Reading auxes (version=" + version + ")");
         auxModels = (ins.readObject() as TypedArray);
-        trace("auxes=" + auxModels);
     }
 
     /**

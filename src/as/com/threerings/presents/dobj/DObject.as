@@ -103,7 +103,6 @@ public class DObject // extends EventDispatcher
 
     public function postMessage (name :String, args :Array) :void
     {
-        trace("posting message: " + name + ", " + args);
         postEvent(new MessageEvent(_oid, name, args));
     }
 

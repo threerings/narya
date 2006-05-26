@@ -6,7 +6,7 @@ import com.threerings.presents.data.InvocationMarshaller_ListenerMarshaller;
 
 import com.threerings.crowd.chat.client.TellListener;
 
-public class TellMarshaller extends InvocationMarshaller_ListenerMarshaller
+public class ChatMarshaller_TellMarshaller extends InvocationMarshaller_ListenerMarshaller
 {
     /** The method id used to dispatch {@link #tellSucceeded}
      * responses. */
