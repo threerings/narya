@@ -48,7 +48,8 @@ public class ObjectRemovedEvent extends NamedEvent
      * remove the specified oid.
      * @param oid the oid to remove from the oid list attribute.
      */
-    public function ObjectRemovedEvent (targetOid :int, name :String, oid :int)
+    public function ObjectRemovedEvent (
+            targetOid :int = 0, name :String = null, oid :int = 0)
     {
         super(targetOid, name);
         _oid = oid;
