@@ -3,6 +3,11 @@ package com.threerings.util {
 /**
  * Equivalent to java.lang.Integer.
  */
+// Unfortunately, I think this is necessary.
+// I was going to remove this class and just make the streaming stuff
+// autotranslate between int <--> java.lang.Integer and
+// Number <--> java.lang.Double. However, a Number object that refers
+// to an integer value is actually an int. Yes, it's totally fucked.
 public class Integer
     implements Equalable
 {
