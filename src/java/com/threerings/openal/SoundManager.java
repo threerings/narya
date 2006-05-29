@@ -248,6 +248,15 @@ public class SoundManager
     }
 
     /**
+     * Adds the supplied clip buffer back to the cache after it has been marked
+     * for disposal and subsequently re-requested.
+     */
+    protected void restoreClip (ClipBuffer buffer)
+    {
+        _clips.put(buffer.getKey(), buffer);
+    }
+    
+    /**
      * Adds a stream to the list maintained by the manager.  Called by streams
      * when they are created.
      */

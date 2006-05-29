@@ -258,8 +258,9 @@ public class Sound
         if (_sourceId != -1 &&
             AL10.alGetSourcei(_sourceId, AL10.AL_SOURCE_STATE) ==
             AL10.AL_STOPPED) {
-            _sourceId = -1;
+            AL10.alSourcei(_sourceId, AL10.AL_BUFFER, 0);
             _buffer.sourceUnbound();
+            _sourceId = -1;
             return true;
         }
         return false;

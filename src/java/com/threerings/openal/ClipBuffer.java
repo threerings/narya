@@ -124,6 +124,12 @@ public class ClipBuffer
      */
     public void resolve (Observer observer)
     {
+        // if we were waiting to unload, cancel that
+        if (_state == UNLOADING) {
+            _state = LOADED;
+            _manager.restoreClip(this);
+        }
+        
         // if we're already loaded, this is easy
         if (_state == LOADED) {
             if (observer != null) {
@@ -132,13 +138,6 @@ public class ClipBuffer
             return;
         }
 
-        // this shouldn't happen
-        if (_state == UNLOADING) {
-            Log.warning("Tried to resolve buffer in the process of " +
-                "unloading [key=" + getKey() + "].");
-            return;
-        }
-        
         // queue up the observer
         if (observer != null) {
             _observers.add(observer);
