@@ -1,5 +1,5 @@
 //
-// $Id: AuthCodes.java,v 1.3 2004/08/27 02:20:19 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -39,4 +39,8 @@ public interface AuthCodes
 
     /** A code indicating that the server is not available at the moment. */
     public static final String SERVER_UNAVAILABLE = "m.server_unavailable";
+
+    /** A code indicating that we failed to connect to the server on a port and
+     * are trying the next port in the list. */
+    public static final String TRYING_NEXT_PORT = "m.trying_next_port";
 }

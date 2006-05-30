@@ -27,10 +27,12 @@ import java.io.InterruptedIOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
 
+import java.net.ConnectException;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 
 import com.samskivert.swing.RuntimeAdjust;
+import com.samskivert.util.IntListUtil;
 import com.samskivert.util.LoopingThread;
 import com.samskivert.util.Queue;
 import com.samskivert.util.StringUtil;
@@ -41,6 +43,7 @@ import com.threerings.io.ObjectInputStream;
 import com.threerings.io.ObjectOutputStream;
 
 import com.threerings.presents.Log;
+import com.threerings.presents.data.AuthCodes;
 import com.threerings.presents.dobj.DObjectManager;
 import com.threerings.presents.net.AuthRequest;
 import com.threerings.presents.net.AuthResponse;
@@ -429,17 +432,34 @@ public class Communicator
 
             // look up the address of the target server
             InetAddress host = InetAddress.getByName(_client.getHostname());
-            int port = _client.getPort();
 
-            // establish a socket connection to said server
-            Log.debug("Connecting [host=" + host + ", port=" + port + "].");
-            InetSocketAddress addr = new InetSocketAddress(host, port);
-            try {
-                _channel = SocketChannel.open(addr);
-            } catch (IOException ioe) {
-                Log.warning("Error opening [addr=" + addr + "].");
-                throw ioe; // rethrow
+            // obtain the list of available ports on which to attempt our
+            // client connection and determine our preferred port
+            String pportKey = _client.getHostname() + ".preferred_port";
+            int[] ports = _client.getPorts();
+            int pport = PresentsPrefs.config.getValue(pportKey, ports[0]);
+            int ppidx = Math.max(0, IntListUtil.indexOf(ports, pport));
+
+            // try connecting on each of the ports in succession
+            for (int ii = 0; ii < ports.length; ii++) {
+                int port = ports[(ii+ppidx)%ports.length];
+                Log.info("Connecting [host=" + host + ", port=" + port + "].");
+                InetSocketAddress addr = new InetSocketAddress(host, port);
+                try {
+                    _channel = SocketChannel.open(addr);
+                    PresentsPrefs.config.setValue(pportKey, port);
+                    break;
+                } catch (IOException ioe) {
+                    if (ioe instanceof ConnectException && ii < ports.length) {
+                        _client.reportLogonTribulations(
+                            new LogonException(
+                                AuthCodes.TRYING_NEXT_PORT, true));
+                        continue; // try the next port
+                    }
+                    throw ioe;
+                }
             }
+
             _channel.configureBlocking(true);
 
             // our messages are framed (preceded by their length), so we

@@ -95,13 +95,13 @@ public class JabberApp extends JmeApp
         return true;
     }
 
-    public void run (String server, int port, String username, String password)
+    public void run (String server, String username, String password)
     {
         Client client = _client.getContext().getClient();
 
         // pass them on to the client
-        Log.info("Using [server=" + server + ", port=" + port + "].");
-        client.setServer(server, port);
+        Log.info("Using [server=" + server + ".");
+        client.setServer(server, Client.DEFAULT_SERVER_PORTS);
 
         // configure the client with some credentials and logon
         if (username != null && password != null) {
@@ -136,15 +136,6 @@ public class JabberApp extends JmeApp
             server = args[0];
         }
 
-        int port = Client.DEFAULT_SERVER_PORT;
-        if (args.length > 1) {
-            try {
-                port = Integer.parseInt(args[1]);
-            } catch (NumberFormatException nfe) {
-                Log.warning("Invalid port specification '" + args[1] + "'.");
-            }
-        }
-
         // load up the default BUI stylesheet
         try {
             InputStream stin = JabberApp.class.getClassLoader().
@@ -157,12 +148,12 @@ public class JabberApp extends JmeApp
             System.exit(-1);
         }
 
-        String username = (args.length > 2) ? args[2] : null;
-        String password = (args.length > 3) ? args[3] : null;
+        String username = (args.length > 1) ? args[1] : null;
+        String password = (args.length > 2) ? args[2] : null;
 
         JabberApp app = new JabberApp();
         app.init();
-        app.run(server, port, username, password);
+        app.run(server, username, password);
     }
 
     protected JabberClient _client;

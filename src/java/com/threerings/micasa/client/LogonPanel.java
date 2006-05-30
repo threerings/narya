@@ -205,7 +205,7 @@ public class LogonPanel extends JPanel
         String password = new String(_password.getPassword()).trim();
 
         String server = _ctx.getClient().getHostname();
-        int port = _ctx.getClient().getPort();
+        int port = _ctx.getClient().getPorts()[0];
         String msg = MessageBundle.tcompose("m.logging_on",
                                             server, String.valueOf(port));
         _status.append(_msgs.xlate(msg) + "\n");

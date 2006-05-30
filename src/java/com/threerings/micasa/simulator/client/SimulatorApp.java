@@ -113,26 +113,14 @@ public class SimulatorApp
     {
         // configure and display the main frame
         JFrame frame = _frame.getFrame();
-        // position everything and show the frame
         frame.setSize(800, 600);
         SwingUtil.centerWindow(frame);
         frame.setVisible(true);
 
         // start up the client
         Client client = _client.getParlorContext().getClient();
-
-        // obtain the port information from system properties
-        int port = Client.DEFAULT_SERVER_PORT;
-        String portstr = System.getProperty("port");
-        if (portstr != null) {
-            try {
-                port = Integer.parseInt(portstr);
-            } catch (NumberFormatException nfe) {
-                Log.warning("Invalid port specification '" + portstr + "'.");
-            }
-        }
-        Log.info("Connecting to localhost:" + port + ".");
-        client.setServer("localhost", port);
+        Log.info("Connecting to localhost.");
+        client.setServer("localhost", Client.DEFAULT_SERVER_PORTS);
 
         // we want to exit when we logged off or failed to log on
         client.addClientObserver(new ClientAdapter() {

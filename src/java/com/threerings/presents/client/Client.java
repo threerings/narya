@@ -42,9 +42,9 @@ import com.threerings.presents.net.PongResponse;
  */
 public class Client
 {
-    /** The default port on which the server listens for client
+    /** The default ports on which the server listens for client
      * connections. */
-    public static final int DEFAULT_SERVER_PORT = 47624;
+    public static final int[] DEFAULT_SERVER_PORTS = { 47624 };
 
     /**
      * Constructs a client object with the supplied credentials and
@@ -115,15 +115,15 @@ public class Client
     }
     
     /**
-     * Configures the client to communicate with the server on the
-     * supplied hostname/port combination.
+     * Configures the client to communicate with the server on the supplied
+     * hostname and set of ports (which will be tried in succession).
      *
      * @see #logon
      */
-    public void setServer (String hostname, int port)
+    public void setServer (String hostname, int[] ports)
     {
         _hostname = hostname;
-        _port = port;
+        _ports = ports;
     }
 
     /**
@@ -148,9 +148,9 @@ public class Client
      * Returns the port on which this client is currently configured to
      * connect to the server.
      */
-    public int getPort ()
+    public int[] getPorts ()
     {
-        return _port;
+        return _ports;
     }
 
     /**
@@ -520,6 +520,19 @@ public class Client
     }
 
     /**
+     * Called by the {@link Communicator} if it is experiencing trouble logging
+     * on but is still trying fallback strategies.
+     */
+    protected void reportLogonTribulations (final LogonException cause)
+    {
+        _runQueue.postRunnable(new Runnable() {
+            public void run () {
+                notifyObservers(CLIENT_FAILED_TO_LOGON, cause);
+            }
+        });
+    }
+
+    /**
      * Called by the invocation director when it successfully subscribes
      * to the client object immediately following logon.
      */
@@ -731,8 +744,8 @@ public class Client
     /** The game server host. */
     protected String _hostname;
 
-    /** The port on which we connect to the game server. */
-    protected int _port;
+    /** The ports on which we connect to the game server. */
+    protected int[] _ports;
 
     /** Our list of client observers. */
     protected ObserverList _observers =

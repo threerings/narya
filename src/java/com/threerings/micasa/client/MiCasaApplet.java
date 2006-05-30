@@ -1,5 +1,5 @@
 //
-// $Id: MiCasaApplet.java,v 1.9 2004/08/27 02:12:49 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -59,7 +59,7 @@ public class MiCasaApplet extends Applet
             Client client = _client.getContext().getClient();
 
             // indicate which server to which we should connect
-            client.setServer(server, Client.DEFAULT_SERVER_PORT);
+            client.setServer(server, Client.DEFAULT_SERVER_PORTS);
 
             // create and set our credentials
             client.setCredentials(

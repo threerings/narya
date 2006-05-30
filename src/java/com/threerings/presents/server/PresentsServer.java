@@ -153,7 +153,7 @@ public class PresentsServer
      */
     protected int[] getListenPorts ()
     {
-        return new int[] { Client.DEFAULT_SERVER_PORT };
+        return Client.DEFAULT_SERVER_PORTS;
     }
 
     /**

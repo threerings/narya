@@ -1,5 +1,5 @@
 //
-// $Id: MiCasaServer.java,v 1.9 2004/08/27 02:12:52 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -23,7 +23,6 @@ package com.threerings.micasa.server;
 
 import com.threerings.crowd.server.CrowdServer;
 import com.threerings.parlor.server.ParlorManager;
-import com.threerings.presents.client.Client;
 
 import com.threerings.micasa.Log;
 import com.threerings.micasa.lobby.LobbyRegistry;
@@ -59,20 +58,6 @@ public class MiCasaServer extends CrowdServer
         lobreg.init(invmgr);
 
         Log.info("MiCasa server initialized.");
-    }
-
-    /**
-     * Returns the port on which the connection manager will listen for
-     * client connections.
-     */
-    protected int getListenPort ()
-    {
-        int port = Client.DEFAULT_SERVER_PORT;
-        try {
-            port = Integer.parseInt(System.getProperty("port"));
-        } catch (Exception e) {
-        }
-        return port;
     }
 
     public static void main (String[] args)

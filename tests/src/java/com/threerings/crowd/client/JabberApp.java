@@ -50,8 +50,8 @@ public class JabberApp
         _client.init(_frame);
     }
 
-    public void run (String server, int port, String username, String password,
-        int roomId)
+    public void run (
+        String server, String username, String password, int roomId)
     {
         // position everything and show the frame
         _frame.setSize(800, 600);
@@ -62,8 +62,8 @@ public class JabberApp
         Client client = _client.getContext().getClient();
 
         // pass them on to the client
-        Log.info("Using [server=" + server + ", port=" + port + "].");
-        client.setServer(server, port);
+        Log.info("Using [server=" + server + "].");
+        client.setServer(server, Client.DEFAULT_SERVER_PORTS);
 
         // configure the client with some credentials and logon
         if (username != null && password != null) {
@@ -80,18 +80,8 @@ public class JabberApp
         if (args.length > 0) {
             server = args[0];
         }
-
-        int port = Client.DEFAULT_SERVER_PORT;
-        if (args.length > 1) {
-            try {
-                port = Integer.parseInt(args[1]);
-            } catch (NumberFormatException nfe) {
-                Log.warning("Invalid port specification '" + args[1] + "'.");
-            }
-        }
-
-        String username = (args.length > 2) ? args[2] : null;
-        String password = (args.length > 3) ? args[3] : null;
+        String username = (args.length > 1) ? args[1] : null;
+        String password = (args.length > 2) ? args[2] : null;
         int roomId = 2;
         if (args.length > 4) {
             try {
@@ -111,7 +101,7 @@ public class JabberApp
         }
 
         // and run it
-        app.run(server, port, username, password, roomId);
+        app.run(server, username, password, roomId);
     }
 
     protected JabberClient _client;

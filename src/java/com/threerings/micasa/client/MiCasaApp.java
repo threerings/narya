@@ -1,5 +1,5 @@
 //
-// $Id: MiCasaApp.java,v 1.15 2004/08/27 02:12:49 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -67,7 +67,7 @@ public class MiCasaApp
         _client.init(_frame);
     }
 
-    public void run (String server, int port, String username, String password)
+    public void run (String server, String username, String password)
     {
         // position everything and show the frame
         _frame.setSize(800, 600);
@@ -76,9 +76,8 @@ public class MiCasaApp
 
         Client client = _client.getContext().getClient();
 
-        // pass them on to the client
-        Log.info("Using [server=" + server + ", port=" + port + "].");
-        client.setServer(server, port);
+        Log.info("Using [server=" + server + ".");
+        client.setServer(server, Client.DEFAULT_SERVER_PORTS);
 
         // configure the client with some credentials and logon
         if (username != null && password != null) {
@@ -95,18 +94,8 @@ public class MiCasaApp
         if (args.length > 0) {
             server = args[0];
         }
-
-        int port = Client.DEFAULT_SERVER_PORT;
-        if (args.length > 1) {
-            try {
-                port = Integer.parseInt(args[1]);
-            } catch (NumberFormatException nfe) {
-                Log.warning("Invalid port specification '" + args[1] + "'.");
-            }
-        }
-
-        String username = (args.length > 2) ? args[2] : null;
-        String password = (args.length > 3) ? args[3] : null;
+        String username = (args.length > 1) ? args[1] : null;
+        String password = (args.length > 2) ? args[2] : null;
 
         MiCasaApp app = new MiCasaApp();
         try {
@@ -118,7 +107,7 @@ public class MiCasaApp
         }
 
         // and run it
-        app.run(server, port, username, password);
+        app.run(server, username, password);
     }
 
     protected MiCasaClient _client;
