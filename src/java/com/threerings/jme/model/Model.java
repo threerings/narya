@@ -911,7 +911,9 @@ public class Model extends ModelNode
         public Spatial createCopy ()
         {
             random = RandomUtil.getInt(Integer.MAX_VALUE);
-            return super.createCopy();
+            Spatial copy = super.createCopy();
+            originalToCopy.clear(); // make sure no references remain
+            return copy;
         }
     }
     
