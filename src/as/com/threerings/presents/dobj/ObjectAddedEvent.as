@@ -25,7 +25,8 @@ public class ObjectAddedEvent extends NamedEvent
      * the specified oid.
      * @param oid the oid to add to the oid list attribute.
      */
-    public function ObjectAddedEvent (targetOid :int, name :String, oid :int)
+    public function ObjectAddedEvent (
+            targetOid :int = 0, name :String = null, oid :int = 0)
     {
         super(targetOid, name);
         _oid = oid;
@@ -54,7 +55,7 @@ public class ObjectAddedEvent extends NamedEvent
     protected override function notifyListener (listener :Object) :void
     {
         if (listener is OidListListener) {
-            listener.objectAdded(this);
+            (listener as OidListListener).objectAdded(this);
         }
     }
 

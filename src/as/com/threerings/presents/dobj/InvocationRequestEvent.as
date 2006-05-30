@@ -45,7 +45,8 @@ public class InvocationRequestEvent extends DEvent
      * only values of valid distributed object types.
      */
     public function InvocationRequestEvent (
-        targetOid :int, invCode :int, methodId :int, args :Array)
+            targetOid :int = 0, invCode :int = 0, methodId :int = 0,
+            args :Array = null)
     {
         super(targetOid);
         _invCode = invCode;

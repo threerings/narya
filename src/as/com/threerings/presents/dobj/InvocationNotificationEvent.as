@@ -48,7 +48,8 @@ public class InvocationNotificationEvent extends DEvent
      * only values of valid distributed object types.
      */
     public function InvocationNotificationEvent (
-        targetOid :int, receiverId :int, methodId :int, args :Array)
+        targetOid :int = 0, receiverId :int = 0, methodId :int = 0,
+        args :Array = null)
     {
         super(targetOid);
         _receiverId = receiverId;

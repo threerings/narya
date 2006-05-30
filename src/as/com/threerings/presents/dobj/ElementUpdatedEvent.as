@@ -30,12 +30,14 @@ public class ElementUpdatedEvent extends NamedEvent
      * @param index the index in the array of the updated element.
      */
     public function ElementUpdatedEvent (
-        targetOid :int, name :String, value :Object, oldValue :Object,
-        index :int)
+            targetOid :int = 0, name :String = null, value :Object = null,
+            oldValue :Object = null, index :int = 0)
     {
         super(targetOid, name);
         _value = value;
-        _oldValue = oldValue;
+        if (oldValue != null) {
+            _oldValue = oldValue;
+        }
         _index = index;
     }
 

@@ -38,7 +38,7 @@ public class ObjectDestroyedEvent extends DEvent
      *
      * @param targetOid the object id of the object that will be destroyed.
      */
-    public function ObjectDestroyedEvent (targetOid :int)
+    public function ObjectDestroyedEvent (targetOid :int = 0)
     {
         super(targetOid);
     }
