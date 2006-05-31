@@ -129,5 +129,11 @@ public class Portal
     {
         return portalId;
     }
+
+    public function toString () :String
+    {
+        return "Portal[id=" + portalId + ", destScene=" + targetSceneId +
+            ", loc=" + loc + "].";
+    }
 }
 }
