@@ -21,6 +21,8 @@
 
 package com.threerings.crowd.client {
 
+import flash.events.IEventDispatcher;
+
 import com.threerings.crowd.data.PlaceObject;
 
 /**
@@ -56,7 +58,7 @@ import com.threerings.crowd.data.PlaceObject;
  * com.threerings.crowd.util.CrowdContext} derivative in use by
  * the client, but those are best supplied at construct time.
  */
-public interface PlaceView
+public interface PlaceView extends IEventDispatcher
 {
     /**
      * Called when the client has entered a place and is about to display
