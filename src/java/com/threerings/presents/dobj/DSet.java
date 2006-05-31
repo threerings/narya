@@ -227,7 +227,8 @@ public class DSet<E extends DSet.Entry>
     public E[] toArray (E[] array)
     {
         if (array == null) {
-            array = (E[])new Entry[size()];
+            @SuppressWarnings("unchecked") E[] copy = (E[])new Entry[size()];
+            array = copy;
         }
         System.arraycopy(_entries, 0, array, 0, array.length);
         return array;
@@ -269,7 +270,8 @@ public class DSet<E extends DSet.Entry>
             }
 
             // create a new array and copy our data into it
-            E[] elems = (E[])new Entry[elength*2];
+            @SuppressWarnings("unchecked") E[] elems =
+                (E[])new Entry[elength*2];
             System.arraycopy(_entries, 0, elems, 0, elength);
             _entries = elems;
         }
@@ -325,7 +327,8 @@ public class DSet<E extends DSet.Entry>
             if ((_entries.length > INITIAL_CAPACITY) &&
                     (_size < _entries.length/8)) {
                 // if we're using less than 1/8 of our capacity, shrink by half
-                E[] newEnts = (E[])new Entry[_entries.length/2];
+                @SuppressWarnings("unchecked") E[] newEnts =
+                    (E[])new Entry[_entries.length/2];
                 System.arraycopy(_entries, 0, newEnts, 0, eidx);
                 System.arraycopy(_entries, eidx+1, newEnts, eidx, _size-eidx);
                 _entries = newEnts;
@@ -371,19 +374,30 @@ public class DSet<E extends DSet.Entry>
     }
 
     /**
-     * Generates a shallow copy of this object.
+     * Generates a shallow copy of this object in a type safe manner.
      */
-    public Object clone ()
+    public DSet<E> typedClone ()
     {
         try {
-            DSet nset = (DSet)super.clone();
-            nset._entries = new Entry[_entries.length];
+            @SuppressWarnings("unchecked") DSet<E> nset =
+                (DSet<E>)super.clone();
+            @SuppressWarnings("unchecked") E[] copy =
+                (E[])new Entry[_entries.length];
+            nset._entries = copy;
             System.arraycopy(_entries, 0, nset._entries, 0, _entries.length);
             nset._modCount = 0;
             return nset;
         } catch (CloneNotSupportedException cnse) {
             throw new RuntimeException("WTF? " + cnse);
         }
+    }
+
+    /**
+     * Generates a shallow copy of this object.
+     */
+    public Object clone ()
+    {
+        return typedClone();
     }
 
     /**
@@ -425,14 +439,17 @@ public class DSet<E extends DSet.Entry>
         while (capacity < _size) {
             capacity <<= 1;
         }
-        _entries = (E[])new Entry[capacity];
+        @SuppressWarnings("unchecked") E[] entries = (E[])new Entry[capacity];
+        _entries = entries;
         for (int ii = 0; ii < _size; ii++) {
-            _entries[ii] = (E)in.readObject();
+            @SuppressWarnings("unchecked") E entry = (E)in.readObject();
+            _entries[ii] = entry;
         }
     }
 
     /** The entries of the set (in a sparse array). */
-    protected E[] _entries = (E[])new Entry[INITIAL_CAPACITY];
+    @SuppressWarnings("unchecked") protected E[] _entries =
+        (E[])new Entry[INITIAL_CAPACITY];
 
     /** The number of entries in this set. */
     protected int _size;
@@ -443,15 +460,15 @@ public class DSet<E extends DSet.Entry>
     /** The default capacity of a set instance. */
     protected static final int INITIAL_CAPACITY = 2;
 
-    /** Used for lookups and to keep the set contents sorted on
-     * insertions. */
-    protected static Comparator ENTRY_COMP = new Comparator() {
+    /** Used for lookups and to keep the set contents sorted on insertions. */
+    protected static Comparator<Object> ENTRY_COMP = new Comparator<Object>() {
         public int compare (Object o1, Object o2) {
             Comparable c1 = (o1 instanceof Entry) ?
-                ((Entry)o1).getKey() : (Comparable)o1;
+               ((Entry)o1).getKey() : (Comparable)o1;
             Comparable c2 = (o2 instanceof Entry) ?
-                ((Entry)o2).getKey() : (Comparable)o2;
-            return c1.compareTo(c2);
+               ((Entry)o2).getKey() : (Comparable)o2;
+            @SuppressWarnings("unchecked") int val = c1.compareTo(c2);
+            return val;
         }
     };
 }
