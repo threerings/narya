@@ -3,6 +3,7 @@ package com.threerings.presents.dobj {
 import com.threerings.io.ObjectInputStream;
 import com.threerings.io.ObjectOutputStream;
 
+import com.threerings.util.Integer;
 import com.threerings.util.StringBuilder;
 
 /**
@@ -44,7 +45,17 @@ public class AttributeChangedEvent extends NamedEvent
         if (_oldValue === UNSET_OLD_ENTRY) {
             _oldValue = target[_name]; // fucking wack-ass language
         }
-        target[_name] = _value;
+
+        // possibly convert the value
+        var v :Object = _value;
+        if (v is Integer) {
+            v = (v as Integer).value
+
+        } else {
+            // TODO: more!
+        }
+
+        target[_name] = v;
         return true;
     }
 
