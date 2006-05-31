@@ -35,7 +35,7 @@ import com.threerings.presents.server.InvocationException;
  * to the result listener, otherwise they will be provided with {@link
  * InvocationCodes#INTERNAL_ERROR}.
  */
-public class ResultAdapter implements ResultListener
+public class ResultAdapter<T> implements ResultListener<T>
 {
     /**
      * Creates an adapter with the supplied listener.
@@ -46,7 +46,7 @@ public class ResultAdapter implements ResultListener
     }
 
     // documentation inherited from interface
-    public void requestCompleted (Object result)
+    public void requestCompleted (T result)
     {
         _listener.requestProcessed(result);
     }
