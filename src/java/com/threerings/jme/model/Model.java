@@ -49,7 +49,6 @@ import com.jme.math.Matrix4f;
 import com.jme.math.Quaternion;
 import com.jme.math.Vector3f;
 import com.jme.renderer.Camera;
-import com.jme.renderer.CloneCreator;
 import com.jme.renderer.Renderer;
 import com.jme.scene.Controller;
 import com.jme.scene.Node;
@@ -220,6 +219,71 @@ public class Model extends ModelNode
         protected Quaternion _rotation;
         
         private static final long serialVersionUID = 1;
+    }
+    
+    /** Customized clone creator for models. */
+    public static class CloneCreator
+    {
+        /** A shared seed used to select textures consistently. */
+        public int random;
+        
+        /** Maps original objects to their copies. */
+        public HashMap originalToCopy = new HashMap();
+        
+        public CloneCreator (Model toCopy)
+        {
+            _toCopy = toCopy;
+            addProperty("vertices");
+            addProperty("colors");
+            addProperty("normals");
+            addProperty("texcoords");
+            addProperty("vboinfo");
+            addProperty("indices");
+            addProperty("obbtree");
+            addProperty("displaylistid");
+            addProperty("bound");
+        }
+        
+        /**
+         * Sets the named property.
+         */
+        public void addProperty (String name)
+        {
+            _properties.add(name);
+        }
+        
+        /**
+         * Clears the named property.
+         */
+        public void removeProperty (String name)
+        {
+            _properties.remove(name);
+        }
+        
+        /**
+         * Checks whether the named property has been set.
+         */
+        public boolean isSet (String name)
+        {
+            return _properties.contains(name);
+        }
+        
+        /**
+         * Creates a new copy of the target model.
+         */
+        public Model createCopy ()
+        {
+            random = RandomUtil.getInt(Integer.MAX_VALUE);
+            Model copy = (Model)_toCopy.putClone(null, this);
+            originalToCopy.clear(); // make sure no references remain
+            return copy;
+        }
+        
+        /** The model to copy. */
+        protected Model _toCopy;
+        
+        /** The set of added properties. */
+        protected HashSet<String> _properties = new HashSet<String>();
     }
     
     /**
@@ -464,8 +528,13 @@ public class Model extends ModelNode
     public Node getEmissionNode ()
     {
         if (_emissionNode == null) {
-            attachChild(_emissionNode = new Node("emissions"));
-            _emissionNode.setTransformable(false);
+            attachChild(_emissionNode = new Node("emissions") {
+                public void updateWorldVectors () {
+                    worldTranslation.set(localTranslation);
+                    worldRotation.set(localRotation);
+                    worldScale.set(localScale);
+                }
+            });
         }
         return _emissionNode;
     }
@@ -530,30 +599,17 @@ public class Model extends ModelNode
     }
     
     /**
-     * Creates and returns a new instance of this model's default
-     * variant.
-     */
+     * Creates and returns a new instance of this model.
+     */    
     public Model createInstance ()
     {
-        return createInstance(null);
-    }
-    
-    /**
-     * Creates and returns a new instance of this model.
-     *
-     * @param variant the name of the variant desired, or <code>null</code>
-     * for the default variant
-     */    
-    public Model createInstance (String variant)
-    {
         if (_prototype != null) {
-            return _prototype.createInstance(variant);
+            return _prototype.createInstance();
         }
         if (_ccreator == null) {
-            _ccreator = new ModelCloneCreator(this);
+            _ccreator = new CloneCreator(this);
         }
-        _ccreator.variant = variant;
-        Model instance = (Model)_ccreator.createCopy();
+        Model instance = _ccreator.createCopy();
         instance.initInstance();
         return instance;
     }
@@ -764,7 +820,7 @@ public class Model extends ModelNode
     
     /** For prototype models, a customized clone creator used to generate
      * instances. */
-    protected ModelCloneCreator _ccreator;
+    protected CloneCreator _ccreator;
     
     /** For instances, maps prototype nodes to their corresponding instance
      * nodes. */
@@ -872,50 +928,7 @@ public class Model extends ModelNode
         protected String _name;
     }
     
-    /** Customized clone creator for models. */
-    protected static class ModelCloneCreator extends CloneCreator
-    {
-        /** The model variant desired, or <code>null</code> for the default. */
-        public String variant;
-        
-        /** A shared seed used to select textures consistently. */
-        public int random;
-        
-        public ModelCloneCreator (Model toCopy)
-        {
-            super(toCopy);
-            addProperty("vertices");
-            addProperty("colors");
-            addProperty("normals");
-            addProperty("texcoords");
-            addProperty("vboinfo");
-            addProperty("indices");
-            addProperty("obbtree");
-            addProperty("displaylistid");
-            addProperty("bound");
-        }
-        
-        @Override // documentation inherited
-        public void addProperty (String name)
-        {
-            props.put(name, Boolean.TRUE);
-        }
-        
-        @Override // documentation inherited
-        public void removeProperty (String name)
-        {
-            props.remove(name);
-        }
-        
-        @Override // documentation inherited
-        public Spatial createCopy ()
-        {
-            random = RandomUtil.getInt(Integer.MAX_VALUE);
-            Spatial copy = super.createCopy();
-            originalToCopy.clear(); // make sure no references remain
-            return copy;
-        }
-    }
+    
     
     private static final long serialVersionUID = 1;
 }

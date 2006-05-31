@@ -30,7 +30,6 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Properties;
 
-import com.jme.renderer.CloneCreator;
 import com.jme.scene.Controller;
 import com.jme.scene.Node;
 import com.jme.scene.Spatial;
@@ -85,18 +84,21 @@ public abstract class ModelController extends Controller
         }
     }
     
-    @Override // documentation inherited
-    public Controller putClone (Controller store, CloneCreator properties)
+    /**
+     * Creates or populates and returns a clone of this object using the given
+     * clone properties.
+     *
+     * @param store an instance of this class to populate, or <code>null</code>
+     * to create a new instance
+     */
+    public Controller putClone (
+        Controller store, Model.CloneCreator properties)
     {
         if (store == null) {
             return null;
         }
         ModelController mstore = (ModelController)store;
-        mstore._target = (Spatial)properties.originalToCopy.get(_target);
-        if (mstore._target == null) {
-            properties.originalToCopy.put(_target,
-                mstore._target = _target.putClone(null, properties));
-        }
+        mstore._target = ((ModelSpatial)_target).putClone(null, properties);
         mstore._animations = _animations;
         return mstore;
     }

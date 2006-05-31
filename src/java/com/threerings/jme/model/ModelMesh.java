@@ -38,14 +38,16 @@ import java.util.Properties;
 import com.jme.bounding.BoundingVolume;
 import com.jme.math.Quaternion;
 import com.jme.math.Vector3f;
-import com.jme.renderer.CloneCreator;
 import com.jme.renderer.Renderer;
+import com.jme.scene.Controller;
 import com.jme.scene.SharedMesh;
 import com.jme.scene.Spatial;
 import com.jme.scene.TriMesh;
 import com.jme.scene.VBOInfo;
+import com.jme.scene.batch.TriangleBatch;
 import com.jme.scene.state.AlphaState;
 import com.jme.scene.state.CullState;
+import com.jme.scene.state.RenderState;
 import com.jme.scene.state.TextureState;
 import com.jme.scene.state.ZBufferState;
 import com.jme.system.DisplaySystem;
@@ -138,11 +140,11 @@ public class ModelMesh extends TriMesh
      */
     public void centerVertices ()
     {
-        Vector3f offset = getModelBound().getCenter().negate();
+        Vector3f offset = getBatch(0).getModelBound().getCenter().negate();
         if (!offset.equals(Vector3f.ZERO)) {
             getLocalTranslation().subtractLocal(offset);
-            getModelBound().getCenter().set(Vector3f.ZERO);
-            getBatch().translatePoints(offset);
+            getBatch(0).getModelBound().getCenter().set(Vector3f.ZERO);
+            getBatch(0).translatePoints(offset);
         }
     }
     
@@ -173,8 +175,8 @@ public class ModelMesh extends TriMesh
         _textureBufferSize = (textures == null) ? 0 : textures.capacity();
     }
     
-    @Override // documentation inherited
-    public Spatial putClone (Spatial store, CloneCreator properties)
+    // documentation inherited from interface ModelSpatial
+    public Spatial putClone (Spatial store, Model.CloneCreator properties)
     {
         ModelMesh mstore = (ModelMesh)properties.originalToCopy.get(this);
         if (mstore != null) {
@@ -184,17 +186,65 @@ public class ModelMesh extends TriMesh
         } else {
             mstore = (ModelMesh)store;
         }
-        super.putClone(mstore, properties);
+        properties.originalToCopy.put(this, mstore);
+        mstore.normalsMode = normalsMode;
+        mstore.cullMode = cullMode;
+        for (int ii = 0; ii < RenderState.RS_MAX_STATE; ii++) {
+            RenderState rstate = getRenderState(ii);
+            if (rstate != null) {
+                mstore.setRenderState(rstate);
+            }
+        }
+        mstore.renderQueueMode = renderQueueMode;
+        mstore.lockedMode = lockedMode;
+        mstore.lightCombineMode = lightCombineMode;
+        mstore.textureCombineMode = textureCombineMode;
+        mstore.name = name;
+        mstore.isCollidable = isCollidable;
+        mstore.localRotation.set(localRotation);
+        mstore.localTranslation.set(localTranslation);
+        mstore.localScale.set(localScale);
+        for (Object controller : getControllers()) {
+            if (controller instanceof ModelController) {
+                mstore.addController(
+                    ((ModelController)controller).putClone(null, properties));
+            }
+        }
+        TriangleBatch batch = (TriangleBatch)getBatch(0),
+            mbatch = (TriangleBatch)mstore.getBatch(0);
+        mbatch.setVertexBuffer(properties.isSet("vertices") ?
+            batch.getVertexBuffer() :
+                BufferUtils.clone(batch.getVertexBuffer()));
+        mbatch.setColorBuffer(properties.isSet("colors") ?
+            batch.getColorBuffer() :
+                BufferUtils.clone(batch.getColorBuffer()));
+        mbatch.setNormalBuffer(properties.isSet("normals") ?
+            batch.getNormalBuffer() :
+                BufferUtils.clone(batch.getNormalBuffer()));
+        FloatBuffer texcoords;
+        for (int ii = 0; (texcoords = batch.getTextureBuffer(ii)) != null;
+            ii++) {
+            mbatch.setTextureBuffer(properties.isSet("texcoords") ?
+                texcoords : BufferUtils.clone(texcoords), ii);
+        }
+        mbatch.setIndexBuffer(properties.isSet("indices") ?
+            batch.getIndexBuffer() :
+                BufferUtils.clone(batch.getIndexBuffer()));
+        if (properties.isSet("vboinfo")) {
+            mbatch.setVBOInfo(batch.getVBOInfo());
+        }
+        if (properties.isSet("obbtree")) {
+            mbatch.setCollisionTree(batch.getCollisionTree());
+        }
         if (properties.isSet("displaylistid")) {
-            mstore.batch.setDisplayListID(getDisplayListID());
+            mbatch.setDisplayListID(batch.getDisplayListID());
         }
-        if (properties.isSet("bound")) {
-            mstore.setModelBound(getModelBound());
+        if (batch.getModelBound() != null) {
+            mbatch.setModelBound(properties.isSet("bound") ?
+                batch.getModelBound() : batch.getModelBound().clone(null));
         }
-        if (_textures != null && _textures.length > 1 &&
-            properties instanceof Model.ModelCloneCreator) {
-            int tidx = ((Model.ModelCloneCreator)properties).random %
-                _textures.length;
+        if (_textures != null && _textures.length > 1) {
+            int tidx = properties.random % _textures.length;
             mstore._textures = new String[] { _textures[tidx] };
             mstore._tstates = new TextureState[] { _tstates[tidx] };
             mstore.setRenderState(_tstates[tidx]);
@@ -221,7 +271,7 @@ public class ModelMesh extends TriMesh
         out.writeObject(getLocalTranslation());
         out.writeObject(getLocalRotation());
         out.writeObject(getLocalScale());
-        out.writeObject(getModelBound());
+        out.writeObject(getBatch(0).getModelBound());
         out.writeInt(_vertexBufferSize);
         out.writeInt(_normalBufferSize);
         out.writeInt(_colorBufferSize);

@@ -68,7 +68,7 @@ public abstract class EmissionController extends ModelController
     {
         if (_target instanceof Geometry) {
             BufferUtils.populateFromBuffer(result,
-                ((Geometry)_target).getNormalBuffer(), 0);
+                ((Geometry)_target).getNormalBuffer(0), 0);
         } else {
             result.set(0f, 0f, -1f);
         }

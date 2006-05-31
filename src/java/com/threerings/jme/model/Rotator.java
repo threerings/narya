@@ -29,7 +29,6 @@ import java.util.Properties;
 
 import com.jme.math.Quaternion;
 import com.jme.math.Vector3f;
-import com.jme.renderer.CloneCreator;
 import com.jme.scene.Controller;
 import com.jme.scene.Spatial;
 
@@ -83,7 +82,8 @@ public class Rotator extends ModelController
     }
     
     @Override // documentation inherited
-    public Controller putClone (Controller store, CloneCreator properties)
+    public Controller putClone (
+        Controller store, Model.CloneCreator properties)
     {
         Rotator rstore;
         if (store == null) {

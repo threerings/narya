@@ -75,7 +75,7 @@ public class JabberApp extends JmeApp
         for (int i = 0; i < 24; i++) {
             colors[i] = ColorRGBA.randomColor();
         }
-        t.setColorBuffer(BufferUtils.createFloatBuffer(colors));
+        t.setColorBuffer(0, BufferUtils.createFloatBuffer(colors));
         _root.attachChild(t);
         _root.updateRenderState();
 
@@ -90,7 +90,7 @@ public class JabberApp extends JmeApp
         _camera.update();
 
         // speed up key input
-        _input.setKeySpeed(100f);
+        _input.setActionSpeed(100f);
 
         return true;
     }

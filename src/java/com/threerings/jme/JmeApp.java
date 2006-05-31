@@ -91,7 +91,7 @@ public class JmeApp
             }
 
             // create an appropriate timer
-            _timer = Timer.getTimer(_api);
+            _timer = Timer.getTimer();
 
             // start with the target FPS equal to the refresh rate (but
             // sometimes the refresh rate is reported as zero so don't let that

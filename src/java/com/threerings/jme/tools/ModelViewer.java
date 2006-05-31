@@ -333,7 +333,7 @@ public class ModelViewer extends JmeCanvasApp
             
         }
         Line grid = new Line("grid", points, null, null, null);
-        grid.getDefaultColor().set(0.25f, 0.25f, 0.25f, 1f);
+        grid.getBatch(0).getDefaultColor().set(0.25f, 0.25f, 0.25f, 1f);
         grid.setLightCombineMode(LightState.OFF);
         grid.setModelBound(new BoundingBox());
         grid.updateModelBound();

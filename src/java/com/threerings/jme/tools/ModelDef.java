@@ -508,13 +508,13 @@ public class ModelDef
         HashSet<Spatial> referenced)
     {
         boolean hasValidChildren = false;
-        for (Iterator it = node.getChildren().iterator(); it.hasNext(); ) {
-            Spatial child = (Spatial)it.next();
+        for (int ii = node.getQuantity() - 1; ii >= 0; ii--) {
+            Spatial child = node.getChild(ii);
             if (!(child instanceof ModelNode) ||
                 pruneUnusedNodes((ModelNode)child, nodes, referenced)) {
                 hasValidChildren = true;
             } else {
-                it.remove();
+                node.detachChildAt(ii);
                 nodes.remove(child.getName());
             }
         }

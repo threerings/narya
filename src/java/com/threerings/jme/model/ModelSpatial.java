@@ -64,6 +64,15 @@ public interface ModelSpatial
     public void resolveTextures (TextureProvider tprov);
     
     /**
+     * Creates or populates and returns a clone of this object using the given
+     * clone properties.
+     *
+     * @param store an instance of this class to populate, or <code>null</code>
+     * to create a new instance
+     */
+    public Spatial putClone (Spatial store, Model.CloneCreator properties);
+    
+    /**
      * Recursively writes any data buffers to the output channel.
      */    
     public void writeBuffers (FileChannel out)

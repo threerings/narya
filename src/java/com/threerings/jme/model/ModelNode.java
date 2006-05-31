@@ -36,10 +36,11 @@ import java.util.HashSet;
 import com.jme.math.Matrix4f;
 import com.jme.math.Quaternion;
 import com.jme.math.Vector3f;
-import com.jme.renderer.CloneCreator;
 import com.jme.renderer.Renderer;
+import com.jme.scene.Controller;
 import com.jme.scene.Node;
 import com.jme.scene.Spatial;
+import com.jme.scene.state.RenderState;
 
 import com.threerings.jme.Log;
 
@@ -128,8 +129,8 @@ public class ModelNode extends Node
         }
     }
     
-    @Override // documentation inherited
-    public Spatial putClone (Spatial store, CloneCreator properties)
+    // documentation inherited from interface ModelSpatial
+    public Spatial putClone (Spatial store, Model.CloneCreator properties)
     {
         ModelNode mstore = (ModelNode)properties.originalToCopy.get(this);
         if (mstore != null) {
@@ -139,8 +140,37 @@ public class ModelNode extends Node
         } else {
             mstore = (ModelNode)store;
         }
-        super.putClone(mstore, properties);
+        properties.originalToCopy.put(this, mstore);
+        mstore.normalsMode = normalsMode;
         mstore.cullMode = cullMode;
+        for (int ii = 0; ii < RenderState.RS_MAX_STATE; ii++) {
+            RenderState rstate = getRenderState(ii);
+            if (rstate != null) {
+                mstore.setRenderState(rstate);
+            }
+        }
+        mstore.renderQueueMode = renderQueueMode;
+        mstore.lockedMode = lockedMode;
+        mstore.lightCombineMode = lightCombineMode;
+        mstore.textureCombineMode = textureCombineMode;
+        mstore.name = name;
+        mstore.isCollidable = isCollidable;
+        mstore.localRotation.set(localRotation);
+        mstore.localTranslation.set(localTranslation);
+        mstore.localScale.set(localScale);
+        for (Object controller : getControllers()) {
+            if (controller instanceof ModelController) {
+                mstore.addController(
+                    ((ModelController)controller).putClone(null, properties));
+            }
+        }
+        for (int ii = 0, nn = getQuantity(); ii < nn; ii++) {
+            Spatial child = getChild(ii);
+            if (child instanceof ModelSpatial) {
+                mstore.attachChild(
+                    ((ModelSpatial)child).putClone(null, properties));
+            }
+        }
         return mstore;
     }
     
@@ -163,16 +193,19 @@ public class ModelNode extends Node
         setLocalTranslation((Vector3f)in.readObject());
         setLocalRotation((Quaternion)in.readObject());
         setLocalScale((Vector3f)in.readObject());
-        ArrayList children = (ArrayList)in.readObject();
-        for (int ii = 0, nn = children.size(); ii < nn; ii++) {
-            attachChild((Spatial)children.get(ii));
+        ArrayList<Spatial> children = (ArrayList<Spatial>)in.readObject();
+        if (children != null) {
+            for (Spatial child : children) {
+                attachChild(child);
+            }
         }
     }
     
     // documentation inherited from interface ModelSpatial
     public void expandModelBounds ()
     {
-        for (Object child : getChildren()) {
+        for (int ii = 0, nn = getQuantity(); ii < nn; ii++) {
+            Spatial child = getChild(ii);
             if (child instanceof ModelSpatial) {
                 ((ModelSpatial)child).expandModelBounds();
             }
@@ -183,10 +216,11 @@ public class ModelNode extends Node
     public void setReferenceTransforms ()
     {
         updateWorldVectors();
-        for (Object child : getChildren()) {
+        for (int ii = 0, nn = getQuantity(); ii < nn; ii++) {
+            Spatial child = getChild(ii);
             if (child instanceof ModelSpatial) {
                 ((ModelSpatial)child).setReferenceTransforms();
-            }       
+            }
         }
     }
     
@@ -194,7 +228,8 @@ public class ModelNode extends Node
     public void lockStaticMeshes (
         Renderer renderer, boolean useVBOs, boolean useDisplayLists)
     {
-        for (Object child : getChildren()) {
+        for (int ii = 0, nn = getQuantity(); ii < nn; ii++) {
+            Spatial child = getChild(ii);
             if (child instanceof ModelSpatial) {
                 ((ModelSpatial)child).lockStaticMeshes(renderer, useVBOs,
                     useDisplayLists);
@@ -205,7 +240,8 @@ public class ModelNode extends Node
     // documentation inherited from interface ModelSpatial
     public void resolveTextures (TextureProvider tprov)
     {
-        for (Object child : getChildren()) {
+        for (int ii = 0, nn = getQuantity(); ii < nn; ii++) {
+            Spatial child = getChild(ii);
             if (child instanceof ModelSpatial) {
                 ((ModelSpatial)child).resolveTextures(tprov);
             }
@@ -216,7 +252,8 @@ public class ModelNode extends Node
     public void writeBuffers (FileChannel out)
         throws IOException
     {
-        for (Object child : getChildren()) {
+        for (int ii = 0, nn = getQuantity(); ii < nn; ii++) {
+            Spatial child = getChild(ii);
             if (child instanceof ModelSpatial) {
                 ((ModelSpatial)child).writeBuffers(out);
             }
@@ -227,7 +264,8 @@ public class ModelNode extends Node
     public void readBuffers (FileChannel in)
         throws IOException
     {
-        for (Object child : getChildren()) {
+        for (int ii = 0, nn = getQuantity(); ii < nn; ii++) {
+            Spatial child = getChild(ii);
             if (child instanceof ModelSpatial) {
                 ((ModelSpatial)child).readBuffers(in);
             }
@@ -237,7 +275,8 @@ public class ModelNode extends Node
     // documentation inherited from interface ModelSpatial
     public void sliceBuffers (MappedByteBuffer map)
     {
-        for (Object child : getChildren()) {
+        for (int ii = 0, nn = getQuantity(); ii < nn; ii++) {
+            Spatial child = getChild(ii);
             if (child instanceof ModelSpatial) {
                 ((ModelSpatial)child).sliceBuffers(map);
             }

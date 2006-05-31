@@ -38,7 +38,6 @@ import java.util.HashSet;
 import com.jme.bounding.BoundingVolume;
 import com.jme.math.Matrix4f;
 import com.jme.math.Vector3f;
-import com.jme.renderer.CloneCreator;
 import com.jme.renderer.Renderer;
 import com.jme.scene.Spatial;
 import com.jme.scene.VBOInfo;
@@ -182,7 +181,7 @@ public class SkinMesh extends ModelMesh
     }
     
     @Override // documentation inherited
-    public Spatial putClone (Spatial store, CloneCreator properties)
+    public Spatial putClone (Spatial store, Model.CloneCreator properties)
     {
         SkinMesh mstore = (SkinMesh)properties.originalToCopy.get(this);
         if (mstore != null) {
@@ -235,9 +234,10 @@ public class SkinMesh extends ModelMesh
     @Override // documentation inherited
     public void expandModelBounds ()
     {
-        BoundingVolume obound = (BoundingVolume)getModelBound().clone(null);
+        BoundingVolume obound =
+            (BoundingVolume)getBatch(0).getModelBound().clone(null);
         updateModelBound();
-        getModelBound().mergeLocal(obound);
+        getBatch(0).getModelBound().mergeLocal(obound);
     }
     
     @Override // documentation inherited
@@ -336,7 +336,7 @@ public class SkinMesh extends ModelMesh
         }
         
         // copy it from array to buffer
-        FloatBuffer vbuf = getVertexBuffer(), nbuf = getNormalBuffer();
+        FloatBuffer vbuf = getVertexBuffer(0), nbuf = getNormalBuffer(0);
         vbuf.rewind();
         vbuf.put(_vbuf);
         nbuf.rewind();
@@ -348,7 +348,7 @@ public class SkinMesh extends ModelMesh
      */
     protected void storeOriginalBuffers ()
     {
-        FloatBuffer vbuf = getVertexBuffer(), nbuf = getNormalBuffer();
+        FloatBuffer vbuf = getVertexBuffer(0), nbuf = getNormalBuffer(0);
         vbuf.rewind();
         nbuf.rewind();
         FloatBuffer.wrap(_ovbuf = new float[vbuf.capacity()]).put(vbuf);
