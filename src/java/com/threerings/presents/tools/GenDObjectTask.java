@@ -256,11 +256,10 @@ public class GenDObjectTask extends Task
             // create our velocity context
             VelocityContext ctx = new VelocityContext();
             ctx.put("field", fname);
-            ctx.put("type", GenUtil.simpleName(ftype));
+            ctx.put("type", GenUtil.simpleName(f));
             ctx.put("wrapfield", GenUtil.boxArgument(ftype, "value"));
             ctx.put("wrapofield", GenUtil.boxArgument(ftype, "ovalue"));
-            ctx.put("clonefield",
-                    GenUtil.cloneArgument(_dsclass, ftype, "value"));
+            ctx.put("clonefield", GenUtil.cloneArgument(_dsclass, f, "value"));
             ctx.put("capfield", StringUtil.unStudlyName(fname).toUpperCase());
             ctx.put("upfield", StringUtils.capitalize(fname));
             if (ftype.isArray()) {

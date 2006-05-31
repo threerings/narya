@@ -26,6 +26,10 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 
+import java.lang.reflect.Field;
+import java.lang.reflect.GenericArrayType;
+import java.lang.reflect.ParameterizedType;
+
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -50,7 +54,35 @@ public class GenUtil
      * code using the class (no package prefix, arrays specified as
      * <code>type[]</code>).
      */
-    public static String simpleName (Class clazz)
+    public static String simpleName (Field field)
+    {
+        String cname;
+        Class<?> clazz = field.getType();
+        if (clazz.isArray()) {
+            if (field.getGenericType() instanceof GenericArrayType) {
+                GenericArrayType atype = (GenericArrayType)
+                    field.getGenericType();
+                cname = atype.getGenericComponentType().toString();
+            } else {
+                return simpleName(clazz.getComponentType()) + "[]";
+            }
+        } else if (field.getGenericType() instanceof ParameterizedType) {
+            cname = field.getGenericType().toString();
+        } else {
+            cname = clazz.getName();
+        }
+
+        Package pkg = clazz.getPackage();
+        int offset = (pkg == null) ? 0 : pkg.getName().length()+1;
+        return StringUtil.replace(cname.substring(offset), "$", ".");
+    }
+
+    /**
+     * Returns the name of the supplied class as it would likely appear in
+     * code using the class (no package prefix, arrays specified as
+     * <code>type[]</code>).
+     */
+    public static String simpleName (Class<?> clazz)
     {
         if (clazz.isArray()) {
             return simpleName(clazz.getComponentType()) + "[]";
@@ -66,7 +98,7 @@ public class GenUtil
      * "Boxes" the supplied argument, ie. turning an <code>int</code> into
      * an <code>Integer</code> object.
      */
-    public static String boxArgument (Class clazz, String name)
+    public static String boxArgument (Class<?> clazz, String name)
     {
         if (clazz == Boolean.TYPE) {
             return "Boolean.valueOf(" + name + ")";
@@ -93,7 +125,7 @@ public class GenUtil
      * "Unboxes" the supplied argument, ie. turning an
      * <code>Integer</code> object into an <code>int</code>.
      */
-    public static String unboxArgument (Class clazz, String name)
+    public static String unboxArgument (Class<?> clazz, String name)
     {
         if (clazz == Boolean.TYPE) {
             return "((Boolean)" + name + ").booleanValue()";
@@ -120,11 +152,14 @@ public class GenUtil
      * Potentially clones the supplied argument if it is the type that
      * needs such treatment.
      */
-    public static String cloneArgument (Class dsclazz, Class clazz, String name)
+    public static String cloneArgument (Class<?> dsclazz, Field f, String name)
     {
-        if (clazz.isArray() || dsclazz.isAssignableFrom(clazz)) {
+        Class<?> clazz = f.getType();
+        if (dsclazz.equals(clazz)) {
+            return "(" + name + " == null) ? null : " + name + ".typedClone()";
+        } else if (clazz.isArray() || dsclazz.isAssignableFrom(clazz)) {
             return "(" + name + " == null) ? null : " +
-                "(" + simpleName(clazz) + ")" + name + ".clone()";
+                "(" + simpleName(f) + ")" + name + ".clone()";
         } else {
             return name;
         }
