@@ -1,6 +1,7 @@
 package com.threerings.crowd.chat.client {
 
 import com.threerings.crowd.data.BodyObject;
+import com.threerings.crowd.util.CrowdContext;
 
 /**
  * Used to implement a slash command (e.g. <code>/who</code>).
@@ -26,8 +27,8 @@ public /* abstract */ class CommandHandler
      * ChatCodes#SUCCESS}.
      */
     public function handleCommand (
-            speakSvc :SpeakService, cmd :String, args :String, history :Array)
-            :String
+            ctx :CrowdContext, speakSvc :SpeakService,
+            cmd :String, args :String, history :Array) :String
     {
         throw new Error("abstract");
     }

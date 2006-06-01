@@ -93,11 +93,12 @@ public class ChatDirector extends BasicDirector
         }
         var msg :MessageBundle = _msgmgr.getBundle(_bundle);
         // register our default chat handlers
-        registerCommandHandler(msg, "help", new HelpHandler(this));
-        registerCommandHandler(msg, "clear", new ClearHandler(this));
-        registerCommandHandler(msg, "speak", new SpeakHandler(this));
-        registerCommandHandler(msg, "emote", new EmoteHandler(this));
-        registerCommandHandler(msg, "think", new ThinkHandler(this));
+        registerCommandHandler(msg, "help", new HelpHandler());
+        registerCommandHandler(msg, "clear", new ClearHandler());
+        registerCommandHandler(msg, "speak", new SpeakHandler());
+        registerCommandHandler(msg, "emote", new EmoteHandler());
+        registerCommandHandler(msg, "think", new ThinkHandler());
+        registerCommandHandler(msg, "tell", new TellHandler());
     }
 
     /**
@@ -320,7 +321,7 @@ public class ChatDirector extends BasicDirector
                 var cmd :CommandHandler =
                     (possibleCommands.get(cmdName) as CommandHandler);
                 var result :String =
-                    cmd.handleCommand(speakSvc, cmdName, args, hist);
+                    cmd.handleCommand(_cctx, speakSvc, cmdName, args, hist);
                 if (result != ChatCodes.SUCCESS) {
                     return result;
                 }
@@ -837,6 +838,15 @@ public class ChatDirector extends BasicDirector
     }
 
     /**
+     * Check that after mogrification the message is not too long.
+     * @return an error mesage if it is too long, or null.
+     */
+    internal function checkLength (msg :String) :String
+    {
+        return null; // TODO
+    }
+
+    /**
      * Returns a hashmap containing all command handlers that match the
      * specified command (i.e. the specified command is a prefix of their
      * registered command string).
@@ -858,6 +868,11 @@ public class ChatDirector extends BasicDirector
             }
         }
         return matches;
+    }
+
+    internal function accessHistory () :Array
+    {
+        return _history;
     }
 
     /**
