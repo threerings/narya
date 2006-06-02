@@ -37,7 +37,7 @@ public class ObjectInputStream
 
             // a zero code indicates a null value
             if (code == 0) {
-                log.debug(DEBUG_ID + "Read null");
+                if (DEBUG) log.debug(DEBUG_ID + "Read null");
                 return null;
             }
 
@@ -61,11 +61,12 @@ public class ObjectInputStream
 
                 cmap = new ClassMapping(code, cname, streamer);
                 _classMap[code] = cmap;
-                log.debug(DEBUG_ID +
+                if (DEBUG) log.debug(DEBUG_ID +
                     "Created mapping: (" + code + "): " + cname);
 
             } else {
-                log.debug(DEBUG_ID + "Read known code: (" + code + ")");
+                if (DEBUG) log.debug(
+                    DEBUG_ID + "Read known code: (" + code + ")");
                 cmap = (_classMap[code] as ClassMapping);
                 if (null == cmap) {
                     throw new IOError("Read object for which we have no " +
@@ -84,7 +85,7 @@ public class ObjectInputStream
             }
             //log.debug("Reading object...");
             readBareObjectImpl(target, cmap.streamer);
-            log.debug(DEBUG_ID + "Read object: " + target);
+            if (DEBUG) log.debug(DEBUG_ID + "Read object: " + target);
             return target;
 
         } catch (me :MemoryError) {
@@ -233,7 +234,7 @@ public class ObjectInputStream
     protected var _classMap :Array = new Array();
 
 
-
+    public static const DEBUG :Boolean = false;
     private static var _tempy :int = 0;
 }
 }
