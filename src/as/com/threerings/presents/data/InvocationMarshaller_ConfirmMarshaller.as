@@ -15,7 +15,7 @@ public class InvocationMarshaller_ConfirmMarshaller
     }
 
     // documetnation inherited
-    public override function dispatchResponse (methodId :int, args :Array) :void
+    override public function dispatchResponse (methodId :int, args :Array) :void
     {
         switch (methodId) {
         case REQUEST_PROCESSED:

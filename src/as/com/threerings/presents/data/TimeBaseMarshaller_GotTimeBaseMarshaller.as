@@ -17,7 +17,7 @@ public class TimeBaseMarshaller_GotTimeBaseMarshaller
 //            callerOid, requestId, GOT_TIME_OID, [ arg1 ]));
     }
 
-    public override function dispatchResponse (methodId :int, args :Array) :void
+    override public function dispatchResponse (methodId :int, args :Array) :void
     {
         switch (methodId) {
         case GOT_TIME_OID:

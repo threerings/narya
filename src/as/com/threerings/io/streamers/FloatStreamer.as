@@ -16,19 +16,19 @@ public class FloatStreamer extends Streamer
         super(Float, "java.lang.Float");
     }
 
-    public override function createObject (ins :ObjectInputStream) :Object
+    override public function createObject (ins :ObjectInputStream) :Object
     {
         return new Float(ins.readFloat());
     }
 
-    public override function writeObject (obj :Object, out :ObjectOutputStream)
+    override public function writeObject (obj :Object, out :ObjectOutputStream)
             :void
     {
         var float :Float = (obj as Float);
         out.writeFloat(float.value);
     }
 
-    public override function readObject (obj :Object, ins :ObjectInputStream)
+    override public function readObject (obj :Object, ins :ObjectInputStream)
             :void
     {
         // unneeded, done in createObject

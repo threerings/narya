@@ -9,7 +9,7 @@ import com.threerings.crowd.chat.data.ChatCodes;
 
 public class TellHandler extends CommandHandler
 {
-    public override function handleCommand (
+    override public function handleCommand (
             ctx :CrowdContext, speakSvc :SpeakService,
             cmd :String, args :String, history :Array) :String
     {

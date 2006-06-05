@@ -37,7 +37,7 @@ public class ObjectResponse extends DownstreamMessage
         return "[type=ORSP, msgid=" + messageId + ", obj=" + _dobj + "]";
     }
 
-    public override function readObject (ins :ObjectInputStream) :void
+    override public function readObject (ins :ObjectInputStream) :void
     {
         super.readObject(ins);
         _dobj = (ins.readObject() as DObject);

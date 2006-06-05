@@ -47,7 +47,7 @@ public class SubscribeRequest extends UpstreamMessage
         return "[type=SUB, msgid=" + messageId + ", oid=" + _oid + "]";
     }
 
-    public override function writeObject (out :ObjectOutputStream) :void
+    override public function writeObject (out :ObjectOutputStream) :void
     {
         super.writeObject(out);
         out.writeInt(_oid);

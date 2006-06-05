@@ -30,13 +30,13 @@ public class UserSystemMessage extends SystemMessage
         this.speaker = sender;
     }
 
-    public override function readObject (ins :ObjectInputStream) :void
+    override public function readObject (ins :ObjectInputStream) :void
     {
         super.readObject(ins);
         speaker = (ins.readObject() as Name);
     }
 
-    public override function writeObject (out :ObjectOutputStream) :void
+    override public function writeObject (out :ObjectOutputStream) :void
     {
         super.writeObject(out);
         out.writeObject(speaker);

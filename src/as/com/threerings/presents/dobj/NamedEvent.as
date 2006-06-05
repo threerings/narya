@@ -32,19 +32,19 @@ public /* abstract */ class NamedEvent extends DEvent
         return _name;
     }
 
-    protected override function toStringBuf (buf :StringBuilder) :void
+    override protected function toStringBuf (buf :StringBuilder) :void
     {
         super.toStringBuf(buf);
         buf.append(", name=", _name);
     }
 
-    public override function writeObject (out :ObjectOutputStream) :void
+    override public function writeObject (out :ObjectOutputStream) :void
     {
         super.writeObject(out);
         out.writeField(_name);
     }
 
-    public override function readObject (ins :ObjectInputStream) :void
+    override public function readObject (ins :ObjectInputStream) :void
     {
         super.readObject(ins);
         _name = (ins.readField(String) as String);

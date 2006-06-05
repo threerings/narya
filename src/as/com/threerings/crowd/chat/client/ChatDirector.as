@@ -629,7 +629,7 @@ public class ChatDirector extends BasicDirector
     }
 
     // documentation inherited
-    public override function clientDidLogon (event :ClientEvent) :void
+    override public function clientDidLogon (event :ClientEvent) :void
     {
         super.clientDidLogon(event);
 
@@ -639,7 +639,7 @@ public class ChatDirector extends BasicDirector
     }
 
     // documentation inherited
-    public override function clientObjectDidChange (event :ClientEvent) :void
+    override public function clientObjectDidChange (event :ClientEvent) :void
     {
         super.clientObjectDidChange(event);
 
@@ -652,7 +652,7 @@ public class ChatDirector extends BasicDirector
     }
 
     // documentation inherited
-    public override function clientDidLogoff (event :ClientEvent) :void
+    override public function clientDidLogoff (event :ClientEvent) :void
     {
         super.clientDidLogoff(event);
 
@@ -960,7 +960,7 @@ public class ChatDirector extends BasicDirector
     }
 
     // documentation inherited from interface
-    protected override function fetchServices (client :Client) :void
+    override protected function fetchServices (client :Client) :void
     {
         // get a handle on our chat service
         _cservice = (client.requireService(ChatService) as ChatService);

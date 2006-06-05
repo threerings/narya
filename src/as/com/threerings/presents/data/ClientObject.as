@@ -58,13 +58,13 @@ public class ClientObject extends DObject
         return "(" + getOid() + ")";
     }
 
-    public override function writeObject (out :ObjectOutputStream) :void
+    override public function writeObject (out :ObjectOutputStream) :void
     {
         super.writeObject(out);
         out.writeObject(receivers);
     }
                             
-    public override function readObject (ins :ObjectInputStream) :void
+    override public function readObject (ins :ObjectInputStream) :void
     {
         super.readObject(ins);
         receivers = (ins.readObject() as DSet);

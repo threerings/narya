@@ -179,7 +179,7 @@ public class PlaceObject extends DObject
     // AUTO-GENERATED: METHODS END
 
     // documentation inherited
-    public override function writeObject (out :ObjectOutputStream) :void
+    override public function writeObject (out :ObjectOutputStream) :void
     {
         super.writeObject(out);
         out.writeObject(occupants);
@@ -188,7 +188,7 @@ public class PlaceObject extends DObject
     }
 
     // documentation inherited
-    public override function readObject (ins :ObjectInputStream) :void
+    override public function readObject (ins :ObjectInputStream) :void
     {
         super.readObject(ins);
         occupants = (ins.readObject() as OidList);

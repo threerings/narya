@@ -42,7 +42,7 @@ public class EntryAddedEvent extends NamedEvent
     /**
      * Applies this event to the object.
      */
-    public override function applyToObject (target :DObject) :Boolean
+    override public function applyToObject (target :DObject) :Boolean
         //throws ObjectAccessException
     {
         var added :Boolean = target[_name].add(_entry);
@@ -54,7 +54,7 @@ public class EntryAddedEvent extends NamedEvent
     }
 
     // documentation inherited
-    protected override function notifyListener (listener :Object) :void
+    override protected function notifyListener (listener :Object) :void
     {
         if (listener is SetListener) {
             listener.entryAdded(this);
@@ -62,20 +62,20 @@ public class EntryAddedEvent extends NamedEvent
     }
 
     // documentation inherited
-    protected override function toStringBuf (buf :StringBuilder) :void
+    override protected function toStringBuf (buf :StringBuilder) :void
     {
         buf.append("ELADD:");
         super.toStringBuf(buf);
         buf.append(", entry=", _entry);
     }
 
-    public override function writeObject (out :ObjectOutputStream) :void
+    override public function writeObject (out :ObjectOutputStream) :void
     {
         super.writeObject(out);
         out.writeObject(_entry);
     }
 
-    public override function readObject (ins :ObjectInputStream) :void
+    override public function readObject (ins :ObjectInputStream) :void
     {
         super.readObject(ins);
         _entry = (ins.readObject() as DSet_Entry);

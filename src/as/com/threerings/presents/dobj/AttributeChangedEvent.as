@@ -35,7 +35,7 @@ public class AttributeChangedEvent extends NamedEvent
     /**
      * Applies this attribute change to the object.
      */
-    public override function applyToObject (target :DObject) :Boolean
+    override public function applyToObject (target :DObject) :Boolean
         //throws ObjectAccessException
     {
         // if we have no old value, that means we're not running on the
@@ -83,7 +83,7 @@ public class AttributeChangedEvent extends NamedEvent
     }
 
     // documentation inherited
-    protected override function notifyListener (listener :Object) :void
+    override protected function notifyListener (listener :Object) :void
     {
         if (listener is AttributeChangeListener) {
             listener.attributeChanged(this);
@@ -91,20 +91,20 @@ public class AttributeChangedEvent extends NamedEvent
     }
 
     // documentation inherited
-    protected override function toStringBuf (buf :StringBuilder) :void
+    override protected function toStringBuf (buf :StringBuilder) :void
     {
         buf.append("CHANGE:");
         super.toStringBuf(buf);
         buf.append(", value=", _value);
     }
 
-    public override function writeObject (out :ObjectOutputStream) :void
+    override public function writeObject (out :ObjectOutputStream) :void
     {
         super.writeObject(out);
         out.writeObject(_value);
     }
 
-    public override function readObject (ins :ObjectInputStream) :void
+    override public function readObject (ins :ObjectInputStream) :void
     {
         super.readObject(ins);
         _value = ins.readObject();

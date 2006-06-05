@@ -41,21 +41,21 @@ import com.threerings.whirled.util.WhirledContext;
 public /*abstract*/ class SceneController extends PlaceController
 {
     // documentation inherited
-    public override function init (ctx :CrowdContext, config :PlaceConfig) :void
+    override public function init (ctx :CrowdContext, config :PlaceConfig) :void
     {
         super.init(ctx, config);
         _wctx = WhirledContext(ctx);
     }
 
     // documentation inherited
-    public override function willEnterPlace (plobj :PlaceObject) :void
+    override public function willEnterPlace (plobj :PlaceObject) :void
     {
         super.willEnterPlace(plobj);
         plobj.addListener(_updateListener);
     }
 
     // documentation inherited
-    public override function didLeavePlace (plobj :PlaceObject) :void
+    override public function didLeavePlace (plobj :PlaceObject) :void
     {
         super.didLeavePlace(plobj);
         plobj.removeListener(_updateListener);

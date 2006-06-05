@@ -81,7 +81,7 @@ public class InvocationResponseEvent extends DEvent
     /**
      * Applies this attribute change to the object.
      */
-    public override function applyToObject (target :DObject) :Boolean
+    override public function applyToObject (target :DObject) :Boolean
         //throws ObjectAccessException
     {
         // nothing to do here
@@ -89,13 +89,13 @@ public class InvocationResponseEvent extends DEvent
     }
 
     // documentation inherited
-    protected override function notifyListener (listener :Object) :void
+    override protected function notifyListener (listener :Object) :void
     {
         // nothing to do here
     }
 
     // documentation inherited
-    protected override function toStringBuf (buf :StringBuilder) :void
+    override protected function toStringBuf (buf :StringBuilder) :void
     {
         buf.append("IRSP:");
         super.toStringBuf(buf);
@@ -105,7 +105,7 @@ public class InvocationResponseEvent extends DEvent
     }
 
     // documentation inherited
-    public override function writeObject (out :ObjectOutputStream) :void
+    override public function writeObject (out :ObjectOutputStream) :void
     {
         super.writeObject(out);
         out.writeShort(_requestId);
@@ -114,7 +114,7 @@ public class InvocationResponseEvent extends DEvent
     }
 
     // documentation inherited
-    public override function readObject (ins :ObjectInputStream) :void
+    override public function readObject (ins :ObjectInputStream) :void
     {
         super.readObject(ins);
         _requestId = ins.readShort();

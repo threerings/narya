@@ -51,13 +51,13 @@ public class SystemMessage extends ChatMessage
         this.attentionLevel = attLevel;
     }
 
-    public override function readObject (ins :ObjectInputStream) :void
+    override public function readObject (ins :ObjectInputStream) :void
     {
         super.readObject(ins);
         attentionLevel = ins.readByte();
     }
 
-    public override function writeObject (out :ObjectOutputStream) :void
+    override public function writeObject (out :ObjectOutputStream) :void
     {
         super.writeObject(out);
         out.writeByte(attentionLevel);

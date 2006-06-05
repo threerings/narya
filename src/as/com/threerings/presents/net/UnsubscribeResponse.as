@@ -40,7 +40,7 @@ public class UnsubscribeResponse extends DownstreamMessage
         return "[type=UNACK, msgid=" + messageId + ", oid=" + _oid + "]";
     }
 
-    public override function readObject (ins :ObjectInputStream) :void
+    override public function readObject (ins :ObjectInputStream) :void
     {
         super.readObject(ins);
         _oid = ins.readInt();

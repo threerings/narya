@@ -46,13 +46,13 @@ public class LocationDecoder extends InvocationDecoder
     }
 
     // documentation inherited
-    public override function getReceiverCode () :String
+    override public function getReceiverCode () :String
     {
         return RECEIVER_CODE;
     }
 
     // documentation inherited
-    public override function dispatchNotification (
+    override public function dispatchNotification (
             methodId :int, args :Array) :void
     {
         switch (methodId) {

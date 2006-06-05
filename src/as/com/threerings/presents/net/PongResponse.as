@@ -30,7 +30,7 @@ public class PongResponse extends DownstreamMessage
         return _unpackStamp;
     }
 
-    public override function readObject (ins :ObjectInputStream) :void
+    override public function readObject (ins :ObjectInputStream) :void
     {
         _unpackStamp = getTimer();
         super.readObject(ins);

@@ -111,7 +111,7 @@ public class OccupantDirector extends BasicDirector
     }
 
     // documentation inherited
-    public override function clientDidLogoff (event :ClientEvent) :void
+    override public function clientDidLogoff (event :ClientEvent) :void
     {
         super.clientDidLogoff(event);
         // clear things out

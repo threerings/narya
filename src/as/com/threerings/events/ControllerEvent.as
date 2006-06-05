@@ -17,12 +17,12 @@ public class ControllerEvent extends Event
         this.arg = arg;
     }
 
-    public override function clone () :Event
+    override public function clone () :Event
     {
         return new ControllerEvent(command, arg);
     }
 
-    public override function toString () :String
+    override public function toString () :String
     {
         return "ControllerEvent[" + command + " (" + arg + ")]";
     }

@@ -16,19 +16,19 @@ public class ShortStreamer extends Streamer
         super(Short, "java.lang.Short");
     }
 
-    public override function createObject (ins :ObjectInputStream) :Object
+    override public function createObject (ins :ObjectInputStream) :Object
     {
         return new Short(ins.readShort());
     }
 
-    public override function writeObject (obj :Object, out :ObjectOutputStream)
+    override public function writeObject (obj :Object, out :ObjectOutputStream)
             :void
     {
         var short :Short = (obj as Short);
         out.writeShort(short.value);
     }
 
-    public override function readObject (obj :Object, ins :ObjectInputStream)
+    override public function readObject (obj :Object, ins :ObjectInputStream)
             :void
     {
         // unneeded, done in createObject

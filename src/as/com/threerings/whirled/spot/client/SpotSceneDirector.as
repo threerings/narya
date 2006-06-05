@@ -344,7 +344,7 @@ public class SpotSceneDirector extends BasicDirector
     }
 
     // documentation inherited
-    public override function clientDidLogon (event :ClientEvent) :void
+    override public function clientDidLogon (event :ClientEvent) :void
     {
         super.clientDidLogon(event);
 
@@ -360,7 +360,7 @@ public class SpotSceneDirector extends BasicDirector
     }
 
     // documentation inherited
-    public override function clientObjectDidChange (event :ClientEvent) :void
+    override public function clientObjectDidChange (event :ClientEvent) :void
     {
         super.clientObjectDidChange(event);
 
@@ -371,7 +371,7 @@ public class SpotSceneDirector extends BasicDirector
     }
 
     // documentation inherited
-    public override function clientDidLogoff (event :ClientEvent) :void
+    override public function clientDidLogoff (event :ClientEvent) :void
     {
         super.clientDidLogoff(event);
 
@@ -387,7 +387,7 @@ public class SpotSceneDirector extends BasicDirector
     }
 
     // documentation inherited
-    protected override function fetchServices (client :Client) :void
+    override protected function fetchServices (client :Client) :void
     {
         _sservice = (client.requireService(SpotService) as SpotService);
     }

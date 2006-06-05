@@ -44,13 +44,13 @@ public class ForwardEventRequest extends UpstreamMessage
         return _event;
     }
 
-    public override function writeObject (out :ObjectOutputStream) :void
+    override public function writeObject (out :ObjectOutputStream) :void
     {
         super.writeObject(out);
         out.writeObject(_event);
     }
 
-    public override function readObject (ins :ObjectInputStream) :void
+    override public function readObject (ins :ObjectInputStream) :void
     {
         super.readObject(ins);
         _event = (ins.readObject() as DEvent);

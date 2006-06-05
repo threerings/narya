@@ -383,7 +383,7 @@ public class LocationDirector extends BasicDirector
     }
 
     // documentation inherited from interface
-    public override function clientDidLogon (event :ClientEvent) :void
+    override public function clientDidLogon (event :ClientEvent) :void
     {
         super.clientDidLogon(event);
 
@@ -404,7 +404,7 @@ public class LocationDirector extends BasicDirector
     }
 
     // documentation inherited
-    public override function clientDidLogoff (event :ClientEvent) :void
+    override public function clientDidLogoff (event :ClientEvent) :void
     {
         super.clientDidLogoff(event);
 
@@ -424,7 +424,7 @@ public class LocationDirector extends BasicDirector
     }
 
     // documentation inherited
-    protected override function fetchServices (client :Client) :void
+    override protected function fetchServices (client :Client) :void
     {
         // obtain our service handle
         _lservice =

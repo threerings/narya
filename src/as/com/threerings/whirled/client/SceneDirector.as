@@ -463,7 +463,7 @@ public class SceneDirector extends BasicDirector
     }
 
     // documentation inherited
-    public override function clientDidLogoff (event :ClientEvent) :void
+    override public function clientDidLogoff (event :ClientEvent) :void
     {
         super.clientDidLogoff(event);
 
@@ -477,7 +477,7 @@ public class SceneDirector extends BasicDirector
     }
 
     // documentation inherited
-    protected override function fetchServices (client :Client) :void
+    override protected function fetchServices (client :Client) :void
     {
         // get a handle on our scene service
         _sservice = (client.requireService(SceneService) as SceneService);

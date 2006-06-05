@@ -16,12 +16,12 @@ public class LongStreamer extends Streamer
         super(Long, "java.lang.Long");
     }
 
-    public override function createObject (ins :ObjectInputStream) :Object
+    override public function createObject (ins :ObjectInputStream) :Object
     {
         return new Long(0);
     }
 
-    public override function writeObject (obj :Object, out :ObjectOutputStream)
+    override public function writeObject (obj :Object, out :ObjectOutputStream)
             :void
     {
         var longy :Long = (obj as Long);
@@ -29,7 +29,7 @@ public class LongStreamer extends Streamer
         out.writeInt(longy.high);
     }
 
-    public override function readObject (obj :Object, ins :ObjectInputStream)
+    override public function readObject (obj :Object, ins :ObjectInputStream)
             :void
     {
         var longy :Long = (obj as Long);

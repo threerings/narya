@@ -66,7 +66,7 @@ public class ObjectRemovedEvent extends NamedEvent
     /**
      * Applies this event to the object.
      */
-    public override function applyToObject (target :DObject) :Boolean
+    override public function applyToObject (target :DObject) :Boolean
         //throws ObjectAccessException
     {
         var list :OidList = (target[_name] as OidList);
@@ -75,27 +75,27 @@ public class ObjectRemovedEvent extends NamedEvent
     }
 
     // documentation inherited
-    protected override function notifyListener (listener :Object) :void
+    override protected function notifyListener (listener :Object) :void
     {
         if (listener is OidListListener) {
             listener.objectRemoved(this);
         }
     }
 
-    public override function writeObject (out :ObjectOutputStream) :void
+    override public function writeObject (out :ObjectOutputStream) :void
     {
         super.writeObject(out);
         out.writeInt(_oid);
     }
 
-    public override function readObject (ins :ObjectInputStream) :void
+    override public function readObject (ins :ObjectInputStream) :void
     {
         super.readObject(ins);
         _oid = ins.readInt();
     }
 
     // documentation inherited
-    protected override function toStringBuf (buf :StringBuilder) :void
+    override protected function toStringBuf (buf :StringBuilder) :void
     {
         buf.append("OBJREM:");
         super.toStringBuf(buf);

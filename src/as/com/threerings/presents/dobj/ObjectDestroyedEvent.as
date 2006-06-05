@@ -44,7 +44,7 @@ public class ObjectDestroyedEvent extends DEvent
     }
 
     // documentation inherited
-    public override function applyToObject (target :DObject) :Boolean
+    override public function applyToObject (target :DObject) :Boolean
         //throws ObjectAccessException
     {
         // nothing to do in preparation for destruction, the omgr will
@@ -53,7 +53,7 @@ public class ObjectDestroyedEvent extends DEvent
     }
 
     // documentation inherited
-    protected override function notifyListener (listener :Object) :void
+    override protected function notifyListener (listener :Object) :void
     {
         if (listener is ObjectDeathListener) {
             listener.objectDestroyed(this);
@@ -61,7 +61,7 @@ public class ObjectDestroyedEvent extends DEvent
     }
 
     // documentation inherited
-    protected override function toStringBuf (buf :StringBuilder) :void
+    override protected function toStringBuf (buf :StringBuilder) :void
     {
         buf.append("DESTROY:");
         super.toStringBuf(buf);

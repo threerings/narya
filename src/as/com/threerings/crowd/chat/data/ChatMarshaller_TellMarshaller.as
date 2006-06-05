@@ -13,7 +13,7 @@ public class ChatMarshaller_TellMarshaller extends InvocationMarshaller_Listener
     public static const TELL_SUCCEEDED :int = 1;
 
     // documentation inherited
-    public override function dispatchResponse (methodId :int, args :Array) :void
+    override public function dispatchResponse (methodId :int, args :Array) :void
     {
         switch (methodId) {
         case TELL_SUCCEEDED:

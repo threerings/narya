@@ -55,7 +55,7 @@ public class MessageEvent extends NamedEvent
     /**
      * Applies this attribute change to the object.
      */
-    public override function applyToObject (target :DObject) :Boolean
+    override public function applyToObject (target :DObject) :Boolean
         //throws ObjectAccessException
     {
         // nothing to do here
@@ -63,7 +63,7 @@ public class MessageEvent extends NamedEvent
     }
 
     // documentation inherited
-    protected override function notifyListener (listener :Object) :void
+    override protected function notifyListener (listener :Object) :void
     {
         if (listener is MessageListener) {
             listener.messageReceived(this);
@@ -71,7 +71,7 @@ public class MessageEvent extends NamedEvent
     }
 
     // documentation inherited
-    protected override function toStringBuf (buf :StringBuilder) :void
+    override protected function toStringBuf (buf :StringBuilder) :void
     {
         buf.append("MSG:");
         super.toStringBuf(buf);
@@ -79,14 +79,14 @@ public class MessageEvent extends NamedEvent
     }
 
     // documentation inherited
-    public override function writeObject (out :ObjectOutputStream) :void
+    override public function writeObject (out :ObjectOutputStream) :void
     {
         super.writeObject(out);
         out.writeField(_args);
     }
 
     // documentation inherited
-    public override function readObject (ins :ObjectInputStream) :void
+    override public function readObject (ins :ObjectInputStream) :void
     {
         super.readObject(ins);
         _args = (ins.readField(Array) as Array);

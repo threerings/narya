@@ -142,7 +142,7 @@ public class SpotSceneObject extends SceneObject
     // AUTO-GENERATED: METHODS END
 
     // documentation inherited
-    public override function writeObject (out :ObjectOutputStream) :void
+    override public function writeObject (out :ObjectOutputStream) :void
     {
         super.writeObject(out);
 
@@ -151,7 +151,7 @@ public class SpotSceneObject extends SceneObject
     }
 
     // documentation inherited
-    public override function readObject (ins :ObjectInputStream) :void
+    override public function readObject (ins :ObjectInputStream) :void
     {
         super.readObject(ins);
 

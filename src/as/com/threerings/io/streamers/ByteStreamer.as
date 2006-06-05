@@ -16,19 +16,19 @@ public class ByteStreamer extends Streamer
         super(Byte, "java.lang.Byte");
     }
 
-    public override function createObject (ins :ObjectInputStream) :Object
+    override public function createObject (ins :ObjectInputStream) :Object
     {
         return new Byte(ins.readByte());
     }
 
-    public override function writeObject (obj :Object, out :ObjectOutputStream)
+    override public function writeObject (obj :Object, out :ObjectOutputStream)
             :void
     {
         var byte :Byte = (obj as Byte);
         out.writeByte(byte.value);
     }
 
-    public override function readObject (obj :Object, ins :ObjectInputStream)
+    override public function readObject (obj :Object, ins :ObjectInputStream)
             :void
     {
         // unneeded, done in createObject

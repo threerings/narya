@@ -16,19 +16,19 @@ public class IntegerStreamer extends Streamer
         super(Integer, "java.lang.Integer");
     }
 
-    public override function createObject (ins :ObjectInputStream) :Object
+    override public function createObject (ins :ObjectInputStream) :Object
     {
         return new Integer(ins.readInt());
     }
 
-    public override function writeObject (obj :Object, out :ObjectOutputStream)
+    override public function writeObject (obj :Object, out :ObjectOutputStream)
             :void
     {
         var inty :Integer = (obj as Integer);
         out.writeInt(inty.value);
     }
 
-    public override function readObject (obj :Object, ins :ObjectInputStream)
+    override public function readObject (obj :Object, ins :ObjectInputStream)
             :void
     {
         // unneeded, done in createObject

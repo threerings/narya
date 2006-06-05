@@ -35,7 +35,7 @@ public class FailureResponse extends DownstreamMessage
         return "[type=FAIL, msgid=" + messageId + ", oid=" + _oid + "]";
     }
 
-    public override function readObject (ins :ObjectInputStream) :void
+    override public function readObject (ins :ObjectInputStream) :void
     {
         super.readObject(ins);
         _oid = ins.readInt();

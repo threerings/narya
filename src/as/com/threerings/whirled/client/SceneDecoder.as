@@ -47,13 +47,13 @@ public class SceneDecoder extends InvocationDecoder
     }
 
     // documentation inherited
-    public override function getReceiverCode () :String
+    override public function getReceiverCode () :String
     {
         return RECEIVER_CODE;
     }
 
     // documentation inherited
-    public override function dispatchNotification (methodId :int, args :Array) :void
+    override public function dispatchNotification (methodId :int, args :Array) :void
     {
         switch (methodId) {
         case FORCED_MOVE:

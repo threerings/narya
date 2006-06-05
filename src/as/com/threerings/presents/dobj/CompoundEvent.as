@@ -120,7 +120,7 @@ public class CompoundEvent extends DEvent
     /**
      * Nothing to apply here.
      */
-    public override function applyToObject (target :DObject) :Boolean
+    override public function applyToObject (target :DObject) :Boolean
         //throws ObjectAccessException
     {
         return false;
@@ -138,7 +138,7 @@ public class CompoundEvent extends DEvent
     }
 
     // documentation inherited
-    protected override function toStringBuf (buf :StringBuilder) :void
+    override protected function toStringBuf (buf :StringBuilder) :void
     {
         buf.append("COMPOUND:");
         super.toStringBuf(buf);
@@ -148,13 +148,13 @@ public class CompoundEvent extends DEvent
         }
     }
 
-    public override function writeObject (out :ObjectOutputStream) :void
+    override public function writeObject (out :ObjectOutputStream) :void
     {
         super.writeObject(out);
         out.writeObject(_events);
     }
 
-    public override function readObject (ins :ObjectInputStream) :void
+    override public function readObject (ins :ObjectInputStream) :void
     {
         super.readObject(ins);
         _events = (ins.readObject() as StreamableArrayList);

@@ -39,7 +39,7 @@ public class ArrayStreamer extends Streamer
         }
     }
 
-    public override function isStreamerFor (obj :Object) :Boolean
+    override public function isStreamerFor (obj :Object) :Boolean
     {
         if (_jname === "[Ljava.lang.Object;") {
             // we fall back to streaming any array as Object
@@ -51,7 +51,7 @@ public class ArrayStreamer extends Streamer
         }
     }
 
-    public override function isStreamerForClass (clazz :Class) :Boolean
+    override public function isStreamerForClass (clazz :Class) :Boolean
     {
         if (_jname === "[Ljava.lang.Object;") {
             return (clazz != TypedArray) &&
@@ -64,14 +64,14 @@ public class ArrayStreamer extends Streamer
         }
     }
 
-    public override function createObject (ins :ObjectInputStream) :Object
+    override public function createObject (ins :ObjectInputStream) :Object
     {
         var ta :TypedArray = new TypedArray(_jname);
         ta.length = ins.readInt();
         return ta;
     }
 
-    public override function writeObject (obj :Object, out :ObjectOutputStream)
+    override public function writeObject (obj :Object, out :ObjectOutputStream)
             :void
     {
         var arr :Array = (obj as Array);
@@ -104,7 +104,7 @@ public class ArrayStreamer extends Streamer
         }
     }
 
-    public override function readObject (obj :Object, ins :ObjectInputStream)
+    override public function readObject (obj :Object, ins :ObjectInputStream)
             :void
     {
         var arr :Array = (obj as Array);

@@ -37,7 +37,7 @@ public class EventNotification extends DownstreamMessage
         return "[type=EVT, evt=" + _event + "]";
     }
 
-    public override function readObject (ins :ObjectInputStream) :void
+    override public function readObject (ins :ObjectInputStream) :void
     {
         super.readObject(ins);
         _event = (ins.readObject() as DEvent);

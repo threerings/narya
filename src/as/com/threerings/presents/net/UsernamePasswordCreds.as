@@ -43,20 +43,20 @@ public class UsernamePasswordCreds extends Credentials
         return _password;
     }
 
-    public override function writeObject (out :ObjectOutputStream) :void
+    override public function writeObject (out :ObjectOutputStream) :void
     {
         super.writeObject(out);
         out.writeField(_password);
     }
 
-    public override function readObject (ins :ObjectInputStream) :void
+    override public function readObject (ins :ObjectInputStream) :void
     {
         super.readObject(ins);
         _password = (ins.readField(String) as String);
     }
 
     // documentation inherited
-    internal override function toStringBuf (buf :StringBuilder) :void
+    override internal function toStringBuf (buf :StringBuilder) :void
     {
         super.toStringBuf(buf);
         buf.append(", password=", _password);

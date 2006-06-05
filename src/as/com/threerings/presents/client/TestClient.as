@@ -126,7 +126,7 @@ public class TestClient extends Client
         //var ta3 :TypedArray = new TypedArray(Pork);
     }
 
-    public override function gotBootstrap (
+    override public function gotBootstrap (
             data :BootstrapData, omgr :DObjectManager) :void
     {
         _listy.addItemAt("new item 0", 0);
@@ -231,7 +231,7 @@ final class HooperClass extends HelperClass
         super(cli);
     }
 
-    public override function hype () :void
+    override public function hype () :void
     {
         Log.getLog(this).debug("hooper hype");
     }
