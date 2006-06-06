@@ -63,6 +63,11 @@ import com.threerings.jme.Log;
  */
 public class Model extends ModelNode
 {
+    /** The supported types of animation in decreasing order of complexity. */ 
+    public enum AnimationMode {
+        SKIN, MORPH, FLIPBOOK
+    };
+    
     /** Lets listeners know when animations are completed (which only happens
      * for non-repeating animations) or cancelled. */
     public interface AnimationObserver
@@ -109,6 +114,9 @@ public class Model extends ModelNode
         /** Uniquely identifies this animation within the model. */
         public transient int animId;
         
+        /** For each frame, whether the frame has been stored in meshes. */
+        public transient boolean[] stored;
+        
         /**
          * Returns this animation's duration in seconds.
          */
@@ -134,7 +142,30 @@ public class Model extends ModelNode
                     (Spatial)pnodes.get(transformTargets[ii]);
             }
             anim.animId = animId;
+            anim.stored = stored;
             return anim;
+        }
+        
+        /**
+         * Applies the transforms for a frame of this animation.
+         */
+        public void applyFrame (int fidx)
+        {
+            Transform[] xforms = transforms[fidx];
+            for (int ii = 0; ii < transformTargets.length; ii++) {
+                xforms[ii].apply(transformTargets[ii]);
+            }
+        }
+        
+        /**
+         * Blends the transforms between two frames of this animation.
+         */
+        public void blendFrames (int fidx, int nidx, float alpha)
+        {
+            Transform[] xforms = transforms[fidx], nxforms = transforms[nidx];
+            for (int ii = 0; ii < transformTargets.length; ii++) {
+                xforms[ii].blend(nxforms[ii], alpha, transformTargets[ii]);
+            }
         }
         
         private void writeObject (ObjectOutputStream out)
@@ -357,11 +388,12 @@ public class Model extends ModelNode
      */
     public void initPrototype ()
     {
-        // assign identifiers to the animations
+        // initialize shared transient animation state
         if (_anims != null) {
             int nextId = 1;
             for (Animation anim : _anims.values()) {
                 anim.animId = nextId++;
+                anim.stored = new boolean[anim.transforms.length];
             }
         }
         setReferenceTransforms();
@@ -408,25 +440,21 @@ public class Model extends ModelNode
     }
     
     /**
-     * Sets the resolution at which to quantize animations over time.
-     * This should be set on the prototype before any animations are
-     * started or any instances are created.
-     *
-     * @param the temporal quantization rate in frames per second, or
-     * <code>0</code> to disable quantization
+     * Sets the animation mode to use for this model.  This should be set
+     * on the prototype before any animations are started or any instances
+     * are created.
      */
-    public void setAnimationResolution (float resolution)
+    public void setAnimationMode (AnimationMode mode)
     {
-        _animResolution = resolution;
+        _animMode = mode;
     }
     
     /**
-     * Returns the resolution at which animations are quantized over time,
-     * or <code>0</code> if quantization is disabled.
+     * Returns the animation mode configured for this model.
      */
-    public float getAnimationResolution ()
+    public AnimationMode getAnimationMode ()
     {
-        return _animResolution;
+        return _animMode;
     }
     
     /**
@@ -687,7 +715,7 @@ public class Model extends ModelNode
             mstore._anims = new HashMap<String, Animation>();
         }
         mstore._pnodes = (HashMap)properties.originalToCopy.clone();
-        mstore._animResolution = _animResolution;
+        mstore._animMode = _animMode;
         return mstore;
     }
     
@@ -765,9 +793,9 @@ public class Model extends ModelNode
      */
     protected void updateAnimation (float time)
     {
-        float res = (_animResolution == 0f) ?
-            0f : (_anim.frameRate / _animResolution);
-        if (_elapsed < res && _elapsed > 0f) {
+        // no need to update between frames for flipbook animation
+        if (_animMode == AnimationMode.FLIPBOOK && _elapsed > 0f &&
+            _elapsed < 1f) {
             _elapsed += (time * _anim.frameRate);
             return;
         }
@@ -777,23 +805,40 @@ public class Model extends ModelNode
             advanceFrameCounter();
             _elapsed -= 1f;
         }
-        float qelapsed = (res == 0f) ?
-            _elapsed : (res * (int)(_elapsed / res));
         
         // update the target transforms and animation frame if not outside the
         // view frustum
         if (!_outside) {
-            Spatial[] targets = _anim.transformTargets;
-            Transform[] xforms = _anim.transforms[_fidx],
-                nxforms = _anim.transforms[_nidx];
-            for (int ii = 0; ii < targets.length; ii++) {
-                xforms[ii].blend(nxforms[ii], qelapsed, targets[ii]);
-            }
-            
-            if (res != 0f) {
-                int frameId = (_anim.animId << 16) |
-                    (int)((_fidx + _elapsed)/res);
-                setAnimationFrame(frameId);
+            if (_animMode == AnimationMode.FLIPBOOK) {
+                int frameId = (_anim.animId << 16) | _fidx;
+                _anim.applyFrame(_fidx);
+                if (!_anim.stored[_fidx]) {
+                    storeMeshFrame(frameId, false);
+                    updateWorldData(0f);
+                    _anim.stored[_fidx] = true;
+                }
+                setMeshFrame(frameId);
+                
+            } else if (_animMode == AnimationMode.MORPH) {
+                int frameId1 = (_anim.animId << 16) | _fidx,
+                    frameId2 = (_anim.animId << 16) | _nidx;
+                if (!_anim.stored[_fidx]) {
+                    storeMeshFrame(frameId1, true);
+                    _anim.applyFrame(_fidx);
+                    updateWorldData(0f);
+                    _anim.stored[_fidx] = true;
+                }
+                if (!_anim.stored[_nidx]) {
+                    storeMeshFrame(frameId2, true);
+                    _anim.applyFrame(_nidx);
+                    updateWorldData(0f);
+                    _anim.stored[_nidx] = true;
+                }
+                _anim.blendFrames(_fidx, _nidx, _elapsed);
+                blendMeshFrames(frameId1, frameId2, _elapsed);
+                
+            } else { // _animMode == AnimationMode.SKIN
+                _anim.blendFrames(_fidx, _nidx, _elapsed);
             }
         }
         
@@ -872,8 +917,8 @@ public class Model extends ModelNode
      * instances. */
     protected CloneCreator _ccreator;
     
-    /** The resolution of the model's animations in frames per second. */
-    protected float _animResolution;
+    /** The animation mode to use for this model. */
+    protected AnimationMode _animMode;
     
     /** For instances, maps prototype nodes to their corresponding instance
      * nodes. */

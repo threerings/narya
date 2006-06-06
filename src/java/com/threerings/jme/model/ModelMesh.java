@@ -343,7 +343,19 @@ public class ModelMesh extends TriMesh
     }
     
     // documentation inherited from interface ModelSpatial
-    public void setAnimationFrame (int frameId)
+    public void storeMeshFrame (int frameId, boolean blend)
+    {
+        // no-op
+    }
+    
+    // documentation inherited from interface ModelSpatial
+    public void setMeshFrame (int frameId)
+    {
+        // no-op
+    }
+    
+    // documentation inherited from interface ModelSpatial
+    public void blendMeshFrames (int frameId1, int frameId2, float alpha)
     {
         // no-op
     }

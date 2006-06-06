@@ -46,6 +46,8 @@ import java.util.logging.Level;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.BorderFactory;
+import javax.swing.ButtonGroup;
+import javax.swing.ButtonModel;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
 import javax.swing.JCheckBoxMenuItem;
@@ -59,6 +61,7 @@ import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
+import javax.swing.JRadioButtonMenuItem;
 import javax.swing.JSlider;
 import javax.swing.KeyStroke;
 import javax.swing.event.ChangeEvent;
@@ -203,6 +206,38 @@ public class ModelViewer extends JmeCanvasApp
         _normals.setAccelerator(
             KeyStroke.getKeyStroke(KeyEvent.VK_N, KeyEvent.CTRL_MASK));
         view.add(_normals);
+        view.addSeparator();
+        
+        JMenu amode = new JMenu(_msg.get("m.animation_mode"));
+        final JRadioButtonMenuItem flipbook =
+            new JRadioButtonMenuItem(_msg.get("m.mode_flipbook")),
+            morph = new JRadioButtonMenuItem(_msg.get("m.mode_morph")),
+            skin = new JRadioButtonMenuItem(_msg.get("m.mode_skin"));
+        ButtonGroup mgroup = new ButtonGroup() {
+            public void setSelected (ButtonModel model, boolean b) {
+                super.setSelected(model, b);
+                if (b) {
+                    if (flipbook.isSelected()) {
+                        _animMode = Model.AnimationMode.FLIPBOOK;
+                    } else if (morph.isSelected()) {
+                        _animMode = Model.AnimationMode.MORPH;
+                    } else {
+                        _animMode = Model.AnimationMode.SKIN;
+                    }
+                    if (_loaded != null) {
+                        loadModel(_loaded); // reload
+                    }
+                }
+            }
+        };
+        mgroup.add(flipbook);
+        mgroup.add(morph);
+        mgroup.add(skin);
+        mgroup.setSelected(skin.getModel(), true);
+        amode.add(skin);
+        amode.add(morph);
+        amode.add(flipbook);
+        view.add(amode);
         view.addSeparator();
         
         Action rlight = new AbstractAction(_msg.get("m.view_light")) {
@@ -447,6 +482,7 @@ public class ModelViewer extends JmeCanvasApp
                 throw new Exception(_msg.get("m.invalid_type"));
             }
             _status.setText(_msg.get("m.loaded_model", fpath));
+            _loaded = file;
             
         } catch (Exception e) {
             e.printStackTrace();
@@ -494,6 +530,7 @@ public class ModelViewer extends JmeCanvasApp
             _ctx.getGeometry().detachChild(_model);
         }
         _ctx.getGeometry().attachChild(_model = model);
+        _model.setAnimationMode(_animMode);
         _model.lockStaticMeshes(_ctx.getRenderer(), true, true);
         
         // resolve the textures from the file's directory
@@ -558,6 +595,9 @@ public class ModelViewer extends JmeCanvasApp
     /** The path of the initial model to load. */
     protected String _path;
     
+    /** The last model successfully loaded. */
+    protected File _loaded;
+    
     /** The viewer frame. */
     protected JFrame _frame;
     
@@ -581,6 +621,9 @@ public class ModelViewer extends JmeCanvasApp
     
     /** The model file chooser. */
     protected JFileChooser _chooser;
+    
+    /** The desired animation mode. */
+    protected Model.AnimationMode _animMode;
     
     /** The light rotation dialog. */
     protected RotateLightDialog _rldialog;

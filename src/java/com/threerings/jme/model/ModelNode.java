@@ -249,12 +249,35 @@ public class ModelNode extends Node
     }
     
     // documentation inherited from interface ModelSpatial
-    public void setAnimationFrame (int frameId)
+    public void storeMeshFrame (int frameId, boolean blend)
     {
         for (int ii = 0, nn = getQuantity(); ii < nn; ii++) {
             Spatial child = getChild(ii);
             if (child instanceof ModelSpatial) {
-                ((ModelSpatial)child).setAnimationFrame(frameId);
+                ((ModelSpatial)child).storeMeshFrame(frameId, blend);
+            }
+        }
+    }
+    
+    // documentation inherited from interface ModelSpatial
+    public void setMeshFrame (int frameId)
+    {
+        for (int ii = 0, nn = getQuantity(); ii < nn; ii++) {
+            Spatial child = getChild(ii);
+            if (child instanceof ModelSpatial) {
+                ((ModelSpatial)child).setMeshFrame(frameId);
+            }
+        }
+    }
+    
+    // documentation inherited from interface ModelSpatial
+    public void blendMeshFrames (int frameId1, int frameId2, float alpha)
+    {
+        for (int ii = 0, nn = getQuantity(); ii < nn; ii++) {
+            Spatial child = getChild(ii);
+            if (child instanceof ModelSpatial) {
+                ((ModelSpatial)child).blendMeshFrames(
+                    frameId1, frameId2, alpha);
             }
         }
     }

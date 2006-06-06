@@ -64,15 +64,28 @@ public interface ModelSpatial
     public void resolveTextures (TextureProvider tprov);
     
     /**
-     * Recursively sets the quantized animation frame.  For skinned meshes,
-     * the first time the frame is set causes the current skin to be stored
-     * in a table shared by all instances.  At subsequent times, the stored
-     * skin is displayed.
+     * Recursively requests that the current state of all skinned meshes be
+     * stored as an animation frame on the next update.
      *
      * @param frameId the frame id, which uniquely identifies one frame of
      * one animation
+     * @param blend whether or not the stored frames will be retrieved by
+     * calls to {@link #blendAnimationFrames} as opposed to
+     * {@link #setAnimationFrames}
      */
-    public void setAnimationFrame (int frameId);
+    public void storeMeshFrame (int frameId, boolean blend);
+    
+    /**
+     * Recursively switches all skinned meshes to a stored animation frame for
+     * the next update.
+     */
+    public void setMeshFrame (int frameId);
+    
+    /**
+     * Recursively blends all skinned meshes between two stored animation
+     * frames for the next update.
+     */
+    public void blendMeshFrames (int frameId1, int frameId2, float alpha);
     
     /**
      * Creates or populates and returns a clone of this object using the given

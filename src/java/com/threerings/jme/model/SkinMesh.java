@@ -179,7 +179,7 @@ public class SkinMesh extends ModelMesh
         storeOriginalBuffers();
         
         // initialize the quantized frame table
-        _frames = new HashIntMap<TriangleBatch>();
+        _frames = new HashIntMap<Object>();
     }
     
     @Override // documentation inherited
@@ -278,10 +278,37 @@ public class SkinMesh extends ModelMesh
     }
     
     @Override // documentation inherited
-    public void setAnimationFrame (int frameId)
+    public void storeMeshFrame (int frameId, boolean blend)
     {
-        // switch to the specified frame id on next update
-        _updateFrameId = frameId;
+        _storeFrameId = frameId;
+        _storeBlend = blend;
+    }
+    
+    @Override // documentation inherited
+    public void setMeshFrame (int frameId)
+    {
+        TriangleBatch batch = getBatch(0),
+            tbatch = (TriangleBatch)_frames.get(frameId);
+        if (batch instanceof SharedBatch) {
+            ((SharedBatch)batch).setTarget(tbatch);
+        } else {
+            clearBatches();
+            addBatch(new SharedBatch(tbatch));
+            getBatch(0).updateRenderState();
+        }
+    }
+    
+    @Override // documentation inherited
+    public void blendMeshFrames (int frameId1, int frameId2, float alpha)
+    {
+        BlendFrame frame1 = (BlendFrame)_frames.get(frameId1),
+            frame2 = (BlendFrame)_frames.get(frameId2);
+        frame1.blend(frame2, alpha, _vbuf, _nbuf);
+        FloatBuffer vbuf = getVertexBuffer(0), nbuf = getNormalBuffer(0);
+        vbuf.rewind();
+        vbuf.put(_vbuf);
+        nbuf.rewind();
+        nbuf.put(_nbuf);
     }
     
     @Override // documentation inherited
@@ -303,54 +330,9 @@ public class SkinMesh extends ModelMesh
     public void updateWorldData (float time)
     {
         super.updateWorldData(time);
-        if (_weightGroups == null) {
+        if (_weightGroups == null || _storeFrameId == -1) {
             return;
         }
-        // determine if we are using/updating a quantized frame
-        TriangleBatch lockBatch = null;
-        if (_updateFrameId > 0) {
-            if (_currentFrameId == _updateFrameId) {
-                return;
-            }
-            TriangleBatch batch = getBatch(0),
-                tbatch = _frames.get(_updateFrameId);
-            boolean reskin = false;
-            if (tbatch == null) {
-                _frames.put(_updateFrameId, tbatch = new TriangleBatch());
-                tbatch.setParentGeom(DUMMY_MESH);
-                tbatch.setColorBuffer(batch.getColorBuffer());
-                tbatch.setTextureBuffer(batch.getTextureBuffer(0), 0);
-                tbatch.setIndexBuffer(batch.getIndexBuffer());
-                tbatch.setVertexBuffer(
-                    BufferUtils.createFloatBuffer(_ovbuf.length));
-                tbatch.setNormalBuffer(
-                    BufferUtils.createFloatBuffer(_onbuf.length));
-                VBOInfo ovboinfo = batch.getVBOInfo();
-                if (ovboinfo != null) {
-                    VBOInfo vboinfo = new VBOInfo(true);
-                    vboinfo.setVBOIndexEnabled(true);
-                    vboinfo.setVBOColorID(ovboinfo.getVBOColorID());
-                    vboinfo.setVBOTextureID(0, ovboinfo.getVBOTextureID(0));
-                    vboinfo.setVBOIndexID(ovboinfo.getVBOIndexID());
-                    tbatch.setVBOInfo(vboinfo);
-                } else if (_useDisplayLists) {
-                    lockBatch = tbatch;
-                }
-                reskin = true;
-            }
-            if (batch instanceof SharedBatch) {
-                ((SharedBatch)batch).setTarget(tbatch);
-            } else {
-                clearBatches();
-                addBatch(new SharedBatch(tbatch));
-                getBatch(0).updateRenderState();
-            }
-            _currentFrameId = _updateFrameId;
-            if (!reskin) {
-                return;
-            }
-        }
-        
         // update the bone transforms
         _modelTransform.invert(_transform);
         for (Bone bone : _bones) {
@@ -399,17 +381,49 @@ public class SkinMesh extends ModelMesh
             }
         }
         
-        // copy it from array to buffer
-        FloatBuffer vbuf = getVertexBuffer(0), nbuf = getNormalBuffer(0);
-        vbuf.rewind();
-        vbuf.put(_vbuf);
-        nbuf.rewind();
-        nbuf.put(_nbuf);
-        
-        // compile the target batch to a display list if requested
-        if (lockBatch != null) {
-            lockBatch.lockMeshes(
-                DisplaySystem.getDisplaySystem().getRenderer());
+        // if skinning in real time, copy the data from arrays to buffers;
+        // otherwise, store the mesh as an animation frame
+        if (_storeFrameId == 0) {
+            FloatBuffer vbuf = getVertexBuffer(0), nbuf = getNormalBuffer(0);
+            vbuf.rewind();
+            vbuf.put(_vbuf);
+            nbuf.rewind();
+            nbuf.put(_nbuf);
+        } else {
+            storeFrame();
+            _storeFrameId = -1;
+        }
+    }
+    
+    /**
+     * Stores the current frame data for later use.
+     */
+    protected void storeFrame ()
+    {
+        if (_storeBlend) {
+            _frames.put(_storeFrameId, new BlendFrame(
+                (float[])_vbuf.clone(), (float[])_nbuf.clone()));
+        } else {
+            TriangleBatch batch = getBatch(0), tbatch = new TriangleBatch();
+            tbatch.setParentGeom(DUMMY_MESH);
+            tbatch.setColorBuffer(batch.getColorBuffer());
+            tbatch.setTextureBuffer(batch.getTextureBuffer(0), 0);
+            tbatch.setIndexBuffer(batch.getIndexBuffer());
+            tbatch.setVertexBuffer(BufferUtils.createFloatBuffer(_vbuf));
+            tbatch.setNormalBuffer(BufferUtils.createFloatBuffer(_nbuf));
+            VBOInfo ovboinfo = batch.getVBOInfo();
+            if (ovboinfo != null) {
+                VBOInfo vboinfo = new VBOInfo(true);
+                vboinfo.setVBOIndexEnabled(true);
+                vboinfo.setVBOColorID(ovboinfo.getVBOColorID());
+                vboinfo.setVBOTextureID(0, ovboinfo.getVBOTextureID(0));
+                vboinfo.setVBOIndexID(ovboinfo.getVBOIndexID());
+                tbatch.setVBOInfo(vboinfo);
+            } else if (_useDisplayLists) {
+                tbatch.lockMeshes(
+                    DisplaySystem.getDisplaySystem().getRenderer());
+            }
+            _frames.put(_storeFrameId, tbatch);
         }
     }
     
@@ -427,9 +441,34 @@ public class SkinMesh extends ModelMesh
         _nbuf = new float[_onbuf.length];
     }
     
-    /** Pre-skinned meshes shared between all instances corresponding to
-     * frame ids from {@link #setAnimationFrame}. */
-    protected HashIntMap<TriangleBatch> _frames;
+    /** A stored frame used for linear blending. */
+    protected static class BlendFrame
+    {
+        /** The skinned vertex and normal values. */
+        public float[] vbuf, nbuf;
+        
+        public BlendFrame (float[] vbuf, float[] nbuf)
+        {
+            this.vbuf = vbuf;
+            this.nbuf = nbuf;
+        }
+        
+        public void blend (
+            BlendFrame next, float alpha, float[] rvbuf, float[] rnbuf)
+        {
+            float[] nvbuf = next.vbuf, nnbuf = next.nbuf;
+            float ialpha = 1f - alpha;
+            for (int ii = 0, nn = vbuf.length; ii < nn; ii++) {
+                rvbuf[ii] = vbuf[ii] * ialpha + nvbuf[ii] * alpha;
+                rnbuf[ii] = nbuf[ii] * ialpha + nnbuf[ii] * alpha;
+            }
+        }
+    } 
+    
+    /** Pre-skinned {@link TriangleBatch}es or {@link BlendFrame}s shared
+     * between all instances corresponding to frame ids from
+     * {@link #storeAnimationFrame}. */
+    protected HashIntMap<Object> _frames;
     
     /** Whether or to use display lists if VBOs are unavailable for quantized
      * meshes. */
@@ -445,8 +484,13 @@ public class SkinMesh extends ModelMesh
      * versions. */
     protected float[] _ovbuf, _onbuf, _vbuf, _nbuf;
 
-    /** The desired and current frame id, or -1 for continuous animation. */
-    protected int _updateFrameId = -1, _currentFrameId;
+    /** The frame id to store on the next update.  If 0, don't store any frame
+     * and skin the mesh as normal.  If -1, a frame has been stored and thus
+     * skinning should only take place when further frames are requested. */
+    protected int _storeFrameId;
+    
+    /** Whether or not the stored frame id will be used for blending. */
+    protected boolean _storeBlend;
     
     /** The node's transform in model space. */
     protected Matrix4f _modelTransform = new Matrix4f();
