@@ -106,6 +106,9 @@ public class Model extends ModelNode
         /** The animation transforms (one transform per target per frame). */
         public transient Transform[][] transforms;
         
+        /** Uniquely identifies this animation within the model. */
+        public transient int animId;
+        
         /**
          * Returns this animation's duration in seconds.
          */
@@ -130,6 +133,7 @@ public class Model extends ModelNode
                 anim.transformTargets[ii] =
                     (Spatial)pnodes.get(transformTargets[ii]);
             }
+            anim.animId = animId;
             return anim;
         }
         
@@ -353,6 +357,13 @@ public class Model extends ModelNode
      */
     public void initPrototype ()
     {
+        // assign identifiers to the animations
+        if (_anims != null) {
+            int nextId = 1;
+            for (Animation anim : _anims.values()) {
+                anim.animId = nextId++;
+            }
+        }
         setReferenceTransforms();
         cullInvisibleNodes();
         initInstance();
@@ -394,6 +405,28 @@ public class Model extends ModelNode
             oxforms[ii].apply(anim.transformTargets[ii]);
         }
         updateWorldData(0f);
+    }
+    
+    /**
+     * Sets the resolution at which to quantize animations over time.
+     * This should be set on the prototype before any animations are
+     * started or any instances are created.
+     *
+     * @param the temporal quantization rate in frames per second, or
+     * <code>0</code> to disable quantization
+     */
+    public void setAnimationResolution (float resolution)
+    {
+        _animResolution = resolution;
+    }
+    
+    /**
+     * Returns the resolution at which animations are quantized over time,
+     * or <code>0</code> if quantization is disabled.
+     */
+    public float getAnimationResolution ()
+    {
+        return _animResolution;
     }
     
     /**
@@ -654,6 +687,7 @@ public class Model extends ModelNode
             mstore._anims = new HashMap<String, Animation>();
         }
         mstore._pnodes = (HashMap)properties.originalToCopy.clone();
+        mstore._animResolution = _animResolution;
         return mstore;
     }
     
@@ -731,19 +765,35 @@ public class Model extends ModelNode
      */
     protected void updateAnimation (float time)
     {
+        float res = (_animResolution == 0f) ?
+            0f : (_anim.frameRate / _animResolution);
+        if (_elapsed < res && _elapsed > 0f) {
+            _elapsed += (time * _anim.frameRate);
+            return;
+        }
+        
         // advance the frame counter if necessary
         while (_elapsed > 1f) {
             advanceFrameCounter();
             _elapsed -= 1f;
         }
+        float qelapsed = (res == 0f) ?
+            _elapsed : (res * (int)(_elapsed / res));
         
-        // update the target transforms if not outside the view frustum
+        // update the target transforms and animation frame if not outside the
+        // view frustum
         if (!_outside) {
             Spatial[] targets = _anim.transformTargets;
             Transform[] xforms = _anim.transforms[_fidx],
                 nxforms = _anim.transforms[_nidx];
             for (int ii = 0; ii < targets.length; ii++) {
-                xforms[ii].blend(nxforms[ii], _elapsed, targets[ii]);
+                xforms[ii].blend(nxforms[ii], qelapsed, targets[ii]);
+            }
+            
+            if (res != 0f) {
+                int frameId = (_anim.animId << 16) |
+                    (int)((_fidx + _elapsed)/res);
+                setAnimationFrame(frameId);
             }
         }
         
@@ -821,6 +871,9 @@ public class Model extends ModelNode
     /** For prototype models, a customized clone creator used to generate
      * instances. */
     protected CloneCreator _ccreator;
+    
+    /** The resolution of the model's animations in frames per second. */
+    protected float _animResolution;
     
     /** For instances, maps prototype nodes to their corresponding instance
      * nodes. */
@@ -927,8 +980,6 @@ public class Model extends ModelNode
         /** The name of the animation cancelled. */
         protected String _name;
     }
-    
-    
-    
+
     private static final long serialVersionUID = 1;
 }

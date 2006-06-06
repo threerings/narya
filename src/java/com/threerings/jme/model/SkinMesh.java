@@ -40,8 +40,14 @@ import com.jme.math.Matrix4f;
 import com.jme.math.Vector3f;
 import com.jme.renderer.Renderer;
 import com.jme.scene.Spatial;
+import com.jme.scene.TriMesh;
 import com.jme.scene.VBOInfo;
+import com.jme.scene.batch.SharedBatch;
+import com.jme.scene.batch.TriangleBatch;
+import com.jme.system.DisplaySystem;
 import com.jme.util.geom.BufferUtils;
+
+import com.samskivert.util.HashIntMap;
 
 import com.threerings.jme.Log;
 
@@ -171,6 +177,9 @@ public class SkinMesh extends ModelMesh
         
         // store the current buffers as the originals
         storeOriginalBuffers();
+        
+        // initialize the quantized frame table
+        _frames = new HashIntMap<TriangleBatch>();
     }
     
     @Override // documentation inherited
@@ -198,6 +207,7 @@ public class SkinMesh extends ModelMesh
         properties.addProperty("vertices");
         properties.addProperty("normals");
         properties.addProperty("displaylistid");
+        mstore._frames = _frames;
         mstore._bones = new Bone[_bones.length];
         HashMap<Bone, Bone> bmap = new HashMap<Bone, Bone>();
         for (int ii = 0; ii < _bones.length; ii++) {
@@ -263,6 +273,14 @@ public class SkinMesh extends ModelMesh
             vboinfo.setVBOIndexEnabled(true);
             setVBOInfo(vboinfo);
         }
+        _useDisplayLists = useDisplayLists;
+    }
+    
+    @Override // documentation inherited
+    public void setAnimationFrame (int frameId)
+    {
+        // switch to the specified frame id on next update
+        _updateFrameId = frameId;
     }
     
     @Override // documentation inherited
@@ -287,6 +305,51 @@ public class SkinMesh extends ModelMesh
         if (_weightGroups == null) {
             return;
         }
+        // determine if we are using/updating a quantized frame
+        TriangleBatch lockBatch = null;
+        if (_updateFrameId > 0) {
+            if (_currentFrameId == _updateFrameId) {
+                return;
+            }
+            TriangleBatch batch = getBatch(0),
+                tbatch = _frames.get(_updateFrameId);
+            boolean reskin = false;
+            if (tbatch == null) {
+                _frames.put(_updateFrameId, tbatch = new TriangleBatch());
+                tbatch.setParentGeom(DUMMY_MESH);
+                tbatch.setColorBuffer(batch.getColorBuffer());
+                tbatch.setTextureBuffer(batch.getTextureBuffer(0), 0);
+                tbatch.setIndexBuffer(batch.getIndexBuffer());
+                tbatch.setVertexBuffer(
+                    BufferUtils.createFloatBuffer(_ovbuf.length));
+                tbatch.setNormalBuffer(
+                    BufferUtils.createFloatBuffer(_onbuf.length));
+                VBOInfo ovboinfo = batch.getVBOInfo();
+                if (ovboinfo != null) {
+                    VBOInfo vboinfo = new VBOInfo(true);
+                    vboinfo.setVBOIndexEnabled(true);
+                    vboinfo.setVBOColorID(ovboinfo.getVBOColorID());
+                    vboinfo.setVBOTextureID(0, ovboinfo.getVBOTextureID(0));
+                    vboinfo.setVBOIndexID(ovboinfo.getVBOIndexID());
+                    tbatch.setVBOInfo(vboinfo);
+                } else if (_useDisplayLists) {
+                    lockBatch = tbatch;
+                }
+                reskin = true;
+            }
+            if (batch instanceof SharedBatch) {
+                ((SharedBatch)batch).setTarget(tbatch);
+            } else {
+                clearBatches();
+                addBatch(new SharedBatch(tbatch));
+                getBatch(0).updateRenderState();
+            }
+            _currentFrameId = _updateFrameId;
+            if (!reskin) {
+                return;
+            }
+        }
+        
         // update the bone transforms
         _modelTransform.invert(_transform);
         for (Bone bone : _bones) {
@@ -341,6 +404,12 @@ public class SkinMesh extends ModelMesh
         vbuf.put(_vbuf);
         nbuf.rewind();
         nbuf.put(_nbuf);
+        
+        // compile the target batch to a display list if requested
+        if (lockBatch != null) {
+            lockBatch.lockMeshes(
+                DisplaySystem.getDisplaySystem().getRenderer());
+        }
     }
     
     /**
@@ -357,6 +426,10 @@ public class SkinMesh extends ModelMesh
         _nbuf = new float[_onbuf.length];
     }
     
+    /** Pre-skinned meshes shared between all instances corresponding to
+     * frame ids from {@link #setAnimationFrame}. */
+    protected HashIntMap<TriangleBatch> _frames;
+    
     /** The groups of vertices influenced by different sets of bones. */
     protected WeightGroup[] _weightGroups;
     
@@ -367,11 +440,21 @@ public class SkinMesh extends ModelMesh
      * versions. */
     protected float[] _ovbuf, _onbuf, _vbuf, _nbuf;
 
+    /** The desired and current frame id, or -1 for continuous animation. */
+    protected int _updateFrameId = -1, _currentFrameId;
+    
+    /** Whether or to use display lists if VBOs are unavailable for quantized
+     * meshes. */
+    protected boolean _useDisplayLists;
+    
     /** The node's transform in model space. */
     protected Matrix4f _modelTransform = new Matrix4f();
 
     /** Working transform. */
     protected Matrix4f _transform = new Matrix4f();
+    
+    /** A dummy mesh that simply hold transformation values. */
+    protected static final TriMesh DUMMY_MESH = new TriMesh();
     
     private static final long serialVersionUID = 1;
 }

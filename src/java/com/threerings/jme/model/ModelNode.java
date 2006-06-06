@@ -249,6 +249,17 @@ public class ModelNode extends Node
     }
     
     // documentation inherited from interface ModelSpatial
+    public void setAnimationFrame (int frameId)
+    {
+        for (int ii = 0, nn = getQuantity(); ii < nn; ii++) {
+            Spatial child = getChild(ii);
+            if (child instanceof ModelSpatial) {
+                ((ModelSpatial)child).setAnimationFrame(frameId);
+            }
+        }
+    }
+    
+    // documentation inherited from interface ModelSpatial
     public void writeBuffers (FileChannel out)
         throws IOException
     {

@@ -343,6 +343,12 @@ public class ModelMesh extends TriMesh
     }
     
     // documentation inherited from interface ModelSpatial
+    public void setAnimationFrame (int frameId)
+    {
+        // no-op
+    }
+    
+    // documentation inherited from interface ModelSpatial
     public void writeBuffers (FileChannel out)
         throws IOException
     {
