@@ -688,12 +688,13 @@ public class GameManager extends PlaceManager
             cancelGame();
 
         } else {
-            // go ahead and start the game; gameDidStart() will take care of
-            // giving the boot to anyone who isn't around
+            // go ahead and report that everyone is ready (which will start the
+            // game); gameDidStart() will take care of giving the boot to
+            // anyone who isn't around
             Log.info("Forcing start of partial no-show game " +
                      "[game=" + _gameobj.which() +
                      ", poids=" + StringUtil.toString(_playerOids) + "].");
-            startGame();
+            playersAllHere();
         }
     }
 
