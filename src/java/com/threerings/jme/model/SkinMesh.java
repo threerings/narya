@@ -208,6 +208,7 @@ public class SkinMesh extends ModelMesh
         properties.addProperty("normals");
         properties.addProperty("displaylistid");
         mstore._frames = _frames;
+        mstore._useDisplayLists = _useDisplayLists;
         mstore._bones = new Bone[_bones.length];
         HashMap<Bone, Bone> bmap = new HashMap<Bone, Bone>();
         for (int ii = 0; ii < _bones.length; ii++) {
@@ -430,6 +431,10 @@ public class SkinMesh extends ModelMesh
      * frame ids from {@link #setAnimationFrame}. */
     protected HashIntMap<TriangleBatch> _frames;
     
+    /** Whether or to use display lists if VBOs are unavailable for quantized
+     * meshes. */
+    protected boolean _useDisplayLists;
+    
     /** The groups of vertices influenced by different sets of bones. */
     protected WeightGroup[] _weightGroups;
     
@@ -442,10 +447,6 @@ public class SkinMesh extends ModelMesh
 
     /** The desired and current frame id, or -1 for continuous animation. */
     protected int _updateFrameId = -1, _currentFrameId;
-    
-    /** Whether or to use display lists if VBOs are unavailable for quantized
-     * meshes. */
-    protected boolean _useDisplayLists;
     
     /** The node's transform in model space. */
     protected Matrix4f _modelTransform = new Matrix4f();
