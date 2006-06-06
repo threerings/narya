@@ -123,7 +123,7 @@ public class PresentsServer
         conmgr.setAuthenticator(new DummyAuthenticator());
 
         // create our client manager
-        clmgr = new ClientManager(conmgr);
+        clmgr = createClientManager(conmgr);
 
         // create our invocation manager
         invmgr = new InvocationManager(omgr);
@@ -137,6 +137,14 @@ public class PresentsServer
                 generateReport(System.currentTimeMillis());
             }
         }.schedule(REPORT_INTERVAL, true);
+    }
+
+    /**
+     * Creates the client manager to be used on this server.
+     */
+    protected ClientManager createClientManager (ConnectionManager conmgr)
+    {
+        return new ClientManager(conmgr);
     }
 
     /**
