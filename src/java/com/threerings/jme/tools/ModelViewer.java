@@ -77,6 +77,7 @@ import com.jme.math.Vector3f;
 import com.jme.renderer.Camera;
 import com.jme.renderer.ColorRGBA;
 import com.jme.renderer.Renderer;
+import com.jme.scene.Controller;
 import com.jme.scene.Line;
 import com.jme.scene.Node;
 import com.jme.scene.Spatial;
@@ -93,6 +94,7 @@ import com.jme.util.geom.Debugger;
 import com.samskivert.swing.GroupLayout;
 import com.samskivert.swing.Spacer;
 import com.samskivert.util.Config;
+import com.samskivert.util.StringUtil;
 
 import com.threerings.resource.ResourceManager;
 import com.threerings.util.MessageBundle;
@@ -280,7 +282,23 @@ public class ModelViewer extends JmeCanvasApp
         _animctrls.add(new JButton(
             new AbstractAction(_msg.get("m.anim_start")) {
                 public void actionPerformed (ActionEvent e) {
-                    _model.startAnimation((String)_animbox.getSelectedItem());
+                    String anim = (String)_animbox.getSelectedItem();
+                    if (_model.hasAnimation(anim)) {
+                        _model.startAnimation(anim);
+                    } else { // it's a sequence
+                        if (_sequence != null) {
+                            _sequence = null;
+                            _model.stopAnimation();
+                        }
+                        _sequence = StringUtil.parseStringArray(
+                            _model.getProperties().getProperty(
+                                anim + ".animations", ""));
+                        if (_sequence.length == 0) {
+                            _sequence = null;
+                        } else {
+                            _model.startAnimation(_sequence[_seqidx = 0]);
+                        }
+                    }
                 }
             }));
         _animctrls.add(_animstop = new JButton(
@@ -601,8 +619,16 @@ public class ModelViewer extends JmeCanvasApp
         }
         _model.addAnimationObserver(_animobs);
         _animctrls.setVisible(true);
-        _animbox.setModel(new DefaultComboBoxModel(anims));
+        DefaultComboBoxModel abmodel = new DefaultComboBoxModel(anims);
+        _animbox.setModel(abmodel);
         updateAnimationSpeed();
+        
+        // if there are any sequences, add those as well
+        String[] seqs = StringUtil.parseStringArray(
+            _model.getProperties().getProperty("sequences", ""));
+        for (String seq : seqs) {
+            abmodel.addElement(seq);
+        }
     }
     
     /**
@@ -669,6 +695,12 @@ public class ModelViewer extends JmeCanvasApp
     /** Reused to draw pivot axes. */
     protected Line _axes;
     
+    /** The current animation sequence, if any. */
+    protected String[] _sequence;
+    
+    /** The current index in the animation sequence. */
+    protected int _seqidx;
+    
     /** Enables and disables the stop button when animations start and stop. */
     protected Model.AnimationObserver _animobs =
         new Model.AnimationObserver() {
@@ -677,11 +709,22 @@ public class ModelViewer extends JmeCanvasApp
             return true;
         }
         public boolean animationCompleted (Model model, String name) {
-            _animstop.setEnabled(false);
+            if (_sequence != null && ++_seqidx < _sequence.length) {
+                _model.startAnimation(_sequence[_seqidx]);
+            } else {
+                _animstop.setEnabled(false);
+                _sequence = null;
+            }
             return true;
         }
         public boolean animationCancelled (Model model, String name) {
-            _animstop.setEnabled(false);
+            if (_sequence != null && ++_seqidx < _sequence.length &&
+                _model.getAnimation(name).repeatType != Controller.RT_CLAMP) {
+                _model.startAnimation(_sequence[_seqidx]);
+            } else {
+                _animstop.setEnabled(false);
+                _sequence = null;
+            }
             return true;
         }
     };
