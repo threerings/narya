@@ -406,9 +406,15 @@ public class ModelViewer extends JmeCanvasApp
                 new ColorRGBA[] { ColorRGBA.red, ColorRGBA.red,
                     ColorRGBA.green, ColorRGBA.green, ColorRGBA.blue,
                     ColorRGBA.blue }, null);
+            _axes.setRenderQueueMode(Renderer.QUEUE_SKIP);
             _axes.setRenderState(r.createZBufferState());
+            LightState lstate = r.createLightState();
+            lstate.setEnabled(false);
+            _axes.setRenderState(lstate);
+            _axes.updateRenderState();
         }
         _axes.getRenderState(ZBufferState.RS_ZBUFFER).apply();
+        _axes.getRenderState(LightState.RS_LIGHT).apply();
         _axes.getWorldTranslation().set(spatial.getWorldTranslation());
         _axes.getWorldRotation().set(spatial.getWorldRotation());
         _axes.draw(r);
