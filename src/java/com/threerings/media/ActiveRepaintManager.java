@@ -24,7 +24,6 @@ package com.threerings.media;
 import java.applet.Applet;
 
 import java.awt.Component;
-import java.awt.Frame;
 import java.awt.Graphics2D;
 import java.awt.Graphics;
 import java.awt.Image;
@@ -53,17 +52,17 @@ import com.samskivert.util.StringUtil;
  *
  * @see FrameManager
  */
-public class FrameRepaintManager extends RepaintManager
+public class ActiveRepaintManager extends RepaintManager
 {
     /**
-     * Components that are rooted in this frame will be rendered into the
-     * offscreen buffer managed by the frame manager. Other components
-     * will be rendered into separate offscreen buffers and repainted in
-     * the normal Swing manner.
+     * Components that are rooted in this component (which must be a {@link
+     * Window} or an {@link Applet}) will be rendered into the offscreen buffer
+     * managed by the frame manager. Other components will be rendered into
+     * separate offscreen buffers and repainted in the normal Swing manner.
      */
-    public FrameRepaintManager (Frame frame)
+    public ActiveRepaintManager (Component root)
     {
-        _rootFrame = frame;
+        _root = root;
     }
 
     // documentation inherited
@@ -393,7 +392,7 @@ public class FrameRepaintManager extends RepaintManager
 
             // if this component is rooted in our frame, repaint it into
             // the supplied graphics instance
-            if (root == _rootFrame) {
+            if (root == _root) {
                 if (DEBUG) {
                     Log.info("Repainting [comp=" + toString(comp) +
                              StringUtil.toString(_cbounds) +
@@ -478,8 +477,8 @@ public class FrameRepaintManager extends RepaintManager
         }
     }
 
-    /** The managed frame. */
-    protected Frame _rootFrame;
+    /** The root of our interface. */
+    protected Component _root;
 
     /** A list of invalid components. */
     protected Object[] _invalid;

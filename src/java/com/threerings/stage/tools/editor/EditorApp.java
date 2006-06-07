@@ -89,7 +89,7 @@ public class EditorApp implements Runnable
 	_frame = createEditorFrame();
 
         // create our frame manager
-        _framemgr = FrameManager.newInstance(_frame);
+        _framemgr = FrameManager.newInstance(_frame, _frame);
 
 	// create our myriad managers, repositories, etc.
         _rmgr = new ResourceManager("rsrc");

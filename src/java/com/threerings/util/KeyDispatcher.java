@@ -22,7 +22,7 @@
 package com.threerings.util;
 
 import java.awt.Component;
-import java.awt.Frame;
+import java.awt.Window;
 import java.awt.KeyEventDispatcher;
 import java.awt.KeyboardFocusManager;
 
@@ -61,14 +61,14 @@ public class KeyDispatcher
     /**
      * Constructs a key dispatcher.
      */
-    public KeyDispatcher (Frame frame)
+    public KeyDispatcher (Window window)
     {
         // save things off
-        _frame = frame;
+        _window = window;
 
-        // listen to window events on our main frame so that we can
-        // release keys when the mouse leaves the frame
-        _frame.addWindowFocusListener(this);
+        // listen to window events on our main window so that we can release
+        // keys when the mouse leaves the window
+        _window.addWindowFocusListener(this);
 
         // monitor key events from the central dispatch mechanism
         KeyboardFocusManager.getCurrentKeyboardFocusManager().
@@ -76,19 +76,17 @@ public class KeyDispatcher
     }
 
     /**
-     * Shuts down the key dispatcher.  We currently have no plans to ever
-     * shut this little guy down, and so we leave the following dead code
-     * here, commented forevermore.
+     * Shuts down the key dispatcher.
      */
-//     public void shutdown ()
-//     {
-//         // cease monitoring key events
-//         KeyboardFocusManager.getCurrentKeyboardFocusManager().
-//             removeKeyEventDispatcher(this);
+    public void shutdown ()
+    {
+        // cease monitoring key events
+        KeyboardFocusManager.getCurrentKeyboardFocusManager().
+            removeKeyEventDispatcher(this);
 
-//         // cease observing our frame
-//         _frame.removeWindowFocusListener(this);
-//     }
+        // cease observing our window
+        _window.removeWindowFocusListener(this);
+    }
 
     /**
      * Makes the specified component the new grabber of key typed events
@@ -121,7 +119,7 @@ public class KeyDispatcher
 
         // update the current chat grabbing component
         _curChatGrabber = _chatGrabbers.isEmpty() ? null :
-            (JTextComponent) _chatGrabbers.getLast();
+            _chatGrabbers.getLast();
     }
 
     /**
@@ -149,7 +147,7 @@ public class KeyDispatcher
         case KeyEvent.KEY_TYPED:
             // dispatch to all the global listeners
             for (int ii = 0; ii < lsize; ii++) {
-                ((KeyListener) _listeners.get(ii)).keyTyped(e);
+                _listeners.get(ii).keyTyped(e);
             }
 
             // see if a chat grabber needs to grab it
@@ -172,7 +170,7 @@ public class KeyDispatcher
         case KeyEvent.KEY_PRESSED:
             if (lsize > 0) {
                 for (int ii = 0; ii < lsize; ii++) {
-                    ((KeyListener) _listeners.get(ii)).keyPressed(e);
+                    _listeners.get(ii).keyPressed(e);
                 }
                 // remember the key event..
                 _downKeys.put(e.getKeyCode(), e);
@@ -227,15 +225,13 @@ public class KeyDispatcher
         // un-press any keys that were left down
         if (!_downKeys.isEmpty()) {
             long now = System.currentTimeMillis();
-            for (Iterator iter = _downKeys.elements(); iter.hasNext(); ) {
-                KeyEvent down = (KeyEvent) iter.next();
+            for (KeyEvent down : _downKeys.values()) {
                 KeyEvent up = new KeyEvent(
                     down.getComponent(), KeyEvent.KEY_RELEASED, now,
                     down.getModifiers(), down.getKeyCode(), down.getKeyChar(),
                     down.getKeyLocation());
-
                 for (int ii = 0, nn = _listeners.size(); ii < nn; ii++) {
-                    ((KeyListener) _listeners.get(ii)).keyReleased(up);
+                    _listeners.get(ii).keyReleased(up);
                 }
             }
             _downKeys.clear();
@@ -260,19 +256,20 @@ public class KeyDispatcher
         removeChatGrabber((JTextComponent) ae.getComponent());
     }
 
-    /** The main frame for which we're observing key events. */
-    protected Frame _frame;
+    /** The main window for which we're observing key events. */
+    protected Window _window;
 
     /** The current most-recently pushed component that wants to grab
      * alphanumeric key presses. */
     protected JTextComponent _curChatGrabber;
 
     /** The stack of grabbers. */
-    protected LinkedList _chatGrabbers = new LinkedList();
+    protected LinkedList<JTextComponent> _chatGrabbers =
+        new LinkedList<JTextComponent>();
 
     /** Global key listeners. */
-    protected ArrayList _listeners = new ArrayList();
+    protected ArrayList<KeyListener> _listeners = new ArrayList<KeyListener>();
 
     /** Keys that are currently held down. */
-    protected HashIntMap _downKeys = new HashIntMap();
+    protected HashIntMap<KeyEvent> _downKeys = new HashIntMap<KeyEvent>();
 }

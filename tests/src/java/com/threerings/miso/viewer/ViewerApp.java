@@ -81,7 +81,7 @@ public class ViewerApp
 
         // create the window
 	_frame = new ViewerFrame(gc);
-        _framemgr = FrameManager.newInstance(_frame);
+        _framemgr = FrameManager.newInstance(_frame, _frame);
 
         // we don't need to configure anything
         ResourceManager rmgr = new ResourceManager("rsrc");

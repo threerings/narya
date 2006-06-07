@@ -1,5 +1,5 @@
 //
-// $Id: PathViz.java,v 1.5 2004/08/27 02:21:00 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -74,7 +74,7 @@ public class PathViz extends MediaPanel
     public static void main (String[] args)
     {
         ManagedJFrame frame = new ManagedJFrame("Path viz");
-        FrameManager fmgr = FrameManager.newInstance(frame);
+        FrameManager fmgr = FrameManager.newInstance(frame, frame);
 
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setContentPane(new PathViz(fmgr));

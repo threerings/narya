@@ -76,7 +76,7 @@ public class ViewerApp
         _mesgmgr = new MessageManager("rsrc.i18n");
 
 	_frame = new ViewerFrame(gc);
-        _framemgr = FrameManager.newInstance(_frame);
+        _framemgr = FrameManager.newInstance(_frame, _frame);
 
 	StageContext ctx = new ContextImpl();
         _frame.init(ctx, new CharacterManager(_imgr, _crepo));

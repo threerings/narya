@@ -39,9 +39,10 @@ import java.awt.event.WindowListener;
 
 import java.awt.EventQueue;
 
-import javax.swing.JFrame;
 import javax.swing.JLayeredPane;
 import javax.swing.RepaintManager;
+import javax.swing.JRootPane;
+import javax.swing.RootPaneContainer;
 import javax.swing.event.AncestorEvent;
 import javax.swing.event.AncestorListener;
 
@@ -56,35 +57,33 @@ import com.threerings.media.util.TrailingAverage;
 import com.threerings.util.unsafe.Unsafe;
 
 /**
- * Provides a central point from which the computation for each "frame" or
- * tick can be dispatched. This assumed that the application structures
- * its activity around the rendering of each frame, which is a common
- * architecture for games. The animation and sprite support provided by
- * other classes in this package are structured for use in an application
- * that uses a frame manager to tick everything once per frame.
+ * Provides a central point from which the computation for each "frame" or tick
+ * can be dispatched. This assumed that the application structures its activity
+ * around the rendering of each frame, which is a common architecture for
+ * games. The animation and sprite support provided by other classes in this
+ * package are structured for use in an application that uses a frame manager
+ * to tick everything once per frame.
  *
- * <p> The frame manager goes through a simple two part procedure every
- * frame:
+ * <p> The frame manager goes through a simple two part procedure every frame:
  *
  * <ul>
  * <li> Ticking all of the frame participants: in {@link
- * FrameParticipant#tick}, any processing that need be performed during
- * this frame should be performed. Care should be taken not to execute
- * code that will take unduly long, instead such processing should be
- * broken up so that it can be performed in small pieces every frame (or
- * performed on a separate thread with the results safely communicated
- * back to the frame participants for incorporation into the rendering
- * loop).
+ * FrameParticipant#tick}, any processing that need be performed during this
+ * frame should be performed. Care should be taken not to execute code that
+ * will take unduly long, instead such processing should be broken up so that
+ * it can be performed in small pieces every frame (or performed on a separate
+ * thread with the results safely communicated back to the frame participants
+ * for incorporation into the rendering loop).
  *
- * <li> Painting the user interface hierarchy: the top-level component
- * (the frame) is painted (via a call to {@link JFrame#paint}) into a flip
- * buffer (if supported, an off-screen buffer if not). Updates that were
- * computed during the tick should be rendered in this call to paint. The
- * paint call will propagate down to all components in the UI hierarchy,
- * some of which may be {@link FrameParticipant}s and will have prepared
- * themselves for their upcoming painting in the previous call to {@link
- * FrameParticipant#tick}. When the call to paint completes, the flip
- * buffer is flipped and the process starts all over again.  </ul>
+ * <li> Painting the user interface hierarchy: the top-level component (the
+ * frame) is painted (via a call to {@link JRootPane#paint}) into a flip buffer
+ * (if supported, an off-screen buffer if not). Updates that were computed
+ * during the tick should be rendered in this call to paint. The paint call
+ * will propagate down to all components in the UI hierarchy, some of which may
+ * be {@link FrameParticipant}s and will have prepared themselves for their
+ * upcoming painting in the previous call to {@link
+ * FrameParticipant#tick}. When the call to paint completes, the flip buffer is
+ * flipped and the process starts all over again.  </ul>
  *
  * <p> The ticking and rendering takes place on the AWT thread so as to
  * avoid the need for complicated coordination between AWT event handler
@@ -125,12 +124,13 @@ public abstract class FrameManager
 
     /**
      * Creates a frame manager that will use a {@link SystemMediaTimer} to
-     * obtain timing information, which is available on every platform,
-     * but returns inaccurate time stamps on many platforms.
+     * obtain timing information, which is available on every platform, but
+     * returns inaccurate time stamps on many platforms.
      *
-     * @see #newInstance(JFrame, MediaTimer)
+     * @see #newInstance(Window, RootPaneContainer, MediaTimer)
      */
-    public static FrameManager newInstance (JFrame frame)
+    public static FrameManager newInstance (
+        Window window, RootPaneContainer root)
     {
         // first try creating a PerfTimer which is the best if we're using
         // JDK1.4.2
@@ -142,7 +142,7 @@ public abstract class FrameManager
                      "System.currentTimeMillis() based timer.");
             timer = new SystemMediaTimer();
         }
-        return newInstance(frame, timer);
+        return newInstance(window, root, timer);
     }
 
     /**
@@ -154,7 +154,8 @@ public abstract class FrameManager
      *
      * @see GraphicsDevice#setFullScreenWindow
      */
-    public static FrameManager newInstance (JFrame frame, MediaTimer timer)
+    public static FrameManager newInstance (
+        Window window, RootPaneContainer root, MediaTimer timer)
     {
         FrameManager fmgr;
         if (_useFlip.getValue()) {
@@ -164,23 +165,25 @@ public abstract class FrameManager
             Log.info("Creating back frame manager.");
             fmgr = new BackFrameManager();
         }
-        fmgr.init(frame, timer);
+        fmgr.init(window, root, timer);
         return fmgr;
     }
 
     /**
      * Initializes this frame manager and prepares it for operation.
      */
-    protected void init (JFrame frame, MediaTimer timer)
+    protected void init (
+        Window window, RootPaneContainer root, MediaTimer timer)
     {
-        _frame = frame;
-        if (frame instanceof ManagedJFrame) {
-            ((ManagedJFrame)_frame).init(this);
+        _window = window;
+        _root = root;
+        if (window instanceof ManagedJFrame) {
+            ((ManagedJFrame)window).init(this);
         }
         _timer = timer;
 
         // set up our custom repaint manager
-        _remgr = new FrameRepaintManager(_frame);
+        _remgr = new ActiveRepaintManager(_window);
         RepaintManager.setCurrentManager(_remgr);
 
         // turn off double buffering for the whole business because we
@@ -199,7 +202,7 @@ public abstract class FrameManager
     protected void addTestListeners ()
     {
         // add a test window listener
-        _frame.addWindowListener(new WindowListener() {
+        _window.addWindowListener(new WindowListener() {
             public void windowActivated (WindowEvent e) {
                 Log.info("Window activated [evt=" + e + "].");
             }
@@ -230,7 +233,7 @@ public abstract class FrameManager
         });
 
         // add a component listener
-        _frame.addComponentListener(new ComponentListener() {
+        _window.addComponentListener(new ComponentListener() {
             public void componentHidden (ComponentEvent e) {
                 Log.info("Window component hidden [evt=" + e + "].");
             }
@@ -249,7 +252,7 @@ public abstract class FrameManager
         });
 
         // add test ancestor focus listener
-        _frame.getRootPane().addAncestorListener(
+        _root.getRootPane().addAncestorListener(
             new AncestorListener() {
                 public void ancestorAdded (AncestorEvent e) {
                     Log.info("Root pane ancestor added [e=" + e + "].");
@@ -326,14 +329,6 @@ public abstract class FrameManager
     public void removeFrameParticipant (FrameParticipant participant)
     {
         ListUtil.clearRef(_participants, participant);
-    }
-
-    /**
-     * Returns the frame being managed.
-     */
-    public JFrame getFrame ()
-    {
-        return _frame;
     }
 
     /**
@@ -419,8 +414,8 @@ public abstract class FrameManager
         }
         // if our frame is not showing (or is impossibly sized), don't try
         // rendering anything
-        if (_frame.isShowing() &&
-            _frame.getWidth() > 0 && _frame.getHeight() > 0) {
+        if (_window.isShowing() &&
+            _window.getWidth() > 0 && _window.getHeight() > 0) {
             // tick our participants
             tickParticipants(tickStamp);
             paint = _timer.getElapsedMicros();
@@ -488,7 +483,7 @@ public abstract class FrameManager
     /**
      * Called once per frame to invoke {@link Component#paint} on all of
      * our frame participants' components and all dirty components managed
-     * by our {@link FrameRepaintManager}.
+     * by our {@link ActiveRepaintManager}.
      */
     protected abstract void paint (long tickStamp);
 
@@ -774,14 +769,17 @@ public abstract class FrameManager
         protected long _lastTick;
     };
 
-    /** The frame into which we do our rendering. */
-    protected JFrame _frame;
+    /** The window into which we do our rendering. */
+    protected Window _window;
+
+    /** Provides access to our Swing bits. */
+    protected RootPaneContainer _root;
 
     /** Used to obtain timing measurements. */
     protected MediaTimer _timer;
 
     /** Our custom repaint manager. */
-    protected FrameRepaintManager _remgr;
+    protected ActiveRepaintManager _remgr;
 
     /** The number of milliseconds per frame (14 by default, which gives
      * an fps of ~71). */

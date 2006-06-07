@@ -88,7 +88,7 @@ public class ScrollingTestApp
 	_frame = new ScrollingFrame(gc);
 
         // set up our frame manager
-        _framemgr = FrameManager.newInstance(_frame);
+        _framemgr = FrameManager.newInstance(_frame, _frame);
 
         // we don't need to configure anything
         ResourceManager rmgr = new ResourceManager("rsrc");

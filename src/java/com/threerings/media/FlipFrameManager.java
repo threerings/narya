@@ -1,5 +1,5 @@
 //
-// $Id: FlipFrameManager.java,v 1.6 2004/08/27 02:12:37 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -43,13 +43,13 @@ public class FlipFrameManager extends FrameManager
                 new ImageCapabilities(true), new ImageCapabilities(true),
                 BufferCapabilities.FlipContents.COPIED);
             try {
-                _frame.createBufferStrategy(2, cap);
+                _window.createBufferStrategy(2, cap);
             } catch (AWTException ae) {
                 Log.warning("Failed creating flip bufstrat: " + ae + ".");
                 // fall back to one without custom capabilities
-                _frame.createBufferStrategy(2);
+                _window.createBufferStrategy(2);
             }
-            _bufstrat = _frame.getBufferStrategy();
+            _bufstrat = _window.getBufferStrategy();
         }
 
         // start out assuming we can do an incremental render
@@ -65,8 +65,8 @@ public class FlipFrameManager extends FrameManager
                     Log.info("Doing non-incremental render; contents lost " +
                              "[lost=" + _bufstrat.contentsLost() +
                              ", rest=" + _bufstrat.contentsRestored() + "].");
-                    _frame.getRootPane().revalidate();
-                    _frame.getRootPane().repaint();
+                    _root.getRootPane().revalidate();
+                    _root.getRootPane().repaint();
                 }
 
                 // request to paint our participants and components and bail

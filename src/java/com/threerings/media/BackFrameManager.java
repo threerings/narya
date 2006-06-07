@@ -1,5 +1,5 @@
 //
-// $Id: BackFrameManager.java,v 1.8 2004/08/27 02:12:37 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -39,11 +39,11 @@ public class BackFrameManager extends FrameManager
         boolean incremental = true;
 
         do {
-            GraphicsConfiguration gc = _frame.getGraphicsConfiguration();
+            GraphicsConfiguration gc = _window.getGraphicsConfiguration();
 
             // create our off-screen buffer if necessary
-            if (_backimg == null || _backimg.getWidth() != _frame.getWidth() ||
-                _backimg.getHeight() != _frame.getHeight()) {
+            if (_backimg == null || _backimg.getWidth() != _window.getWidth() ||
+                _backimg.getHeight() != _window.getHeight()) {
                 createBackBuffer(gc);
             }
 
@@ -73,8 +73,8 @@ public class BackFrameManager extends FrameManager
 
             // dirty everything if we're not incrementally rendering
             if (!incremental) {
-                _frame.getRootPane().revalidate();
-                _frame.getRootPane().repaint();
+                _root.getRootPane().revalidate();
+                _root.getRootPane().repaint();
             }
 
             if (!paint(_bgfx)) {
@@ -84,7 +84,7 @@ public class BackFrameManager extends FrameManager
             // we cache our frame's graphics object so that we can avoid
             // instantiating a new one on every tick
             if (_fgfx == null) {
-                _fgfx = (Graphics2D)_frame.getGraphics();
+                _fgfx = (Graphics2D)_window.getGraphics();
             }
             _fgfx.drawImage(_backimg, 0, 0, null);
 
@@ -120,7 +120,7 @@ public class BackFrameManager extends FrameManager
         }
 
         // create the offscreen buffer
-        int width = _frame.getWidth(), height = _frame.getHeight();
+        int width = _window.getWidth(), height = _window.getHeight();
         _backimg = gc.createCompatibleVolatileImage(width, height);
 
         // fill the back buffer with white
