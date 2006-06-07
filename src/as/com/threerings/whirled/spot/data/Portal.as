@@ -21,6 +21,7 @@
 
 package com.threerings.whirled.spot.data {
 
+import com.threerings.util.ClassUtil;
 import com.threerings.util.Cloneable;
 
 import com.threerings.io.Streamable;
@@ -109,7 +110,8 @@ public class Portal
     // documentation inherited from interface Cloneable
     public function clone () :Object
     {
-        var p :Portal = new Portal();
+        var clazz :Class = ClassUtil.getClass(this);
+        var p :Portal = new clazz();
         p.portalId = portalId;
         p.loc = loc;
         p.targetSceneId = targetSceneId;
