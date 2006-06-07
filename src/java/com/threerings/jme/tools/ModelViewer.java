@@ -69,10 +69,12 @@ import javax.swing.event.ChangeListener;
 import javax.swing.filechooser.FileFilter;
 
 import com.jme.bounding.BoundingBox;
+import com.jme.bounding.BoundingVolume;
 import com.jme.image.Texture;
 import com.jme.light.DirectionalLight;
 import com.jme.math.FastMath;
 import com.jme.math.Vector3f;
+import com.jme.renderer.Camera;
 import com.jme.renderer.ColorRGBA;
 import com.jme.renderer.Renderer;
 import com.jme.scene.Line;
@@ -98,6 +100,7 @@ import com.threerings.util.MessageManager;
 
 import com.threerings.jme.JmeCanvasApp;
 import com.threerings.jme.Log;
+import com.threerings.jme.camera.CameraHandler;
 import com.threerings.jme.model.Model;
 import com.threerings.jme.model.TextureProvider;
 
@@ -254,6 +257,16 @@ public class ModelViewer extends JmeCanvasApp
             KeyStroke.getKeyStroke(KeyEvent.VK_R, KeyEvent.CTRL_MASK));
         view.add(new JMenuItem(rlight));
         
+        Action rcamera = new AbstractAction(_msg.get("m.view_recenter")) {
+            public void actionPerformed (ActionEvent e) {
+                ((OrbitCameraHandler)_camhand).recenter();
+            }
+        };
+        rcamera.putValue(Action.MNEMONIC_KEY, KeyEvent.VK_C);
+        rcamera.putValue(Action.ACCELERATOR_KEY,
+            KeyStroke.getKeyStroke(KeyEvent.VK_C, KeyEvent.CTRL_MASK));
+        view.add(new JMenuItem(rcamera));
+        
         _frame.getContentPane().add(getCanvas(), BorderLayout.CENTER);
         
         JPanel bpanel = new JPanel(new BorderLayout());
@@ -334,6 +347,12 @@ public class ModelViewer extends JmeCanvasApp
         _canvas.addMouseListener(orbiter);
         _canvas.addMouseMotionListener(orbiter);
         _canvas.addMouseWheelListener(orbiter);
+    }
+    
+    @Override // documentation inherited
+    protected CameraHandler createCameraHandler (Camera camera)
+    {
+        return new OrbitCameraHandler(camera);
     }
     
     @Override // documentation inherited
@@ -570,6 +589,10 @@ public class ModelViewer extends JmeCanvasApp
         });
         _model.updateRenderState();
         
+        // recenter the camera
+        _model.updateGeometricState(0f, true);
+        ((OrbitCameraHandler)_camhand).recenter();
+        
         // configure the animation panel
         String[] anims = _model.getAnimationNames();
         if (anims.length == 0) {
@@ -736,11 +759,14 @@ public class ModelViewer extends JmeCanvasApp
         {
             int dx = e.getX() - _mloc.x, dy = e.getY() - _mloc.y;
             _mloc.setLocation(e.getX(), e.getY());
-            if ((e.getModifiers() & MouseEvent.BUTTON1_MASK) != 0) {
+            int mods = e.getModifiers();
+            if ((mods & MouseEvent.BUTTON1_MASK) != 0) {
                 _camhand.tiltCamera(dy * FastMath.PI / 1000);
                 _camhand.orbitCamera(-dx * FastMath.PI / 1000);
+            } else if ((mods & MouseEvent.BUTTON2_MASK) != 0) {
+                _camhand.zoomCamera(dy/8f);
             } else {
-                _camhand.zoomCamera(dy);
+                _camhand.panCamera(-dx/8f, dy/8f);
             }
         }
         
@@ -752,6 +778,54 @@ public class ModelViewer extends JmeCanvasApp
         
         /** The last recorded position of the mouse cursor. */
         protected Point _mloc = new Point();
+    }
+    
+    /** A camera handler that pans in directions orthogonal to the camera
+     * direction. */
+    protected class OrbitCameraHandler extends CameraHandler
+    {
+        public OrbitCameraHandler (Camera camera)
+        {
+            super(camera);
+            _gpoint = super.getGroundPoint();
+        }
+        
+        @Override // documentation inherited
+        public void panCamera (float x, float y) {
+            Vector3f offset = _camera.getLeft().mult(-x).addLocal(
+                _camera.getUp().mult(y));
+            getGroundPoint().addLocal(offset);
+            _camera.getLocation().addLocal(offset);
+            _camera.onFrameChange();
+        }
+        
+        @Override // documentation inherited
+        public Vector3f getGroundPoint ()
+        {
+            return _gpoint;
+        }
+        
+        /**
+         * Resets the ground point to the center of the grid or, if there is
+         * one, the center of the model.
+         */
+        public void recenter ()
+        {
+            Vector3f target = new Vector3f();
+            if (_model != null) {
+                BoundingVolume bound = (BoundingVolume)_model.getWorldBound();
+                if (bound != null) {
+                    bound.getCenter(target);
+                }
+            }
+            Vector3f offset = target.subtract(_gpoint);
+            _camera.getLocation().addLocal(offset);
+            _camera.onFrameChange();
+            _gpoint.set(target);
+        }
+        
+        /** The point at which the camera is looking. */
+        protected Vector3f _gpoint;
     }
     
     /** The app configuration. */

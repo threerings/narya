@@ -230,8 +230,7 @@ public class CameraHandler
     public void zoomCamera (float distance)
     {
         Vector3f loc = _camera.getLocation();
-        float dist = -1f * _ground.normal.dot(loc) /
-            _ground.normal.dot(_camera.getDirection()),
+        float dist = getGroundPoint().distance(loc),
             ndist = Math.min(Math.max(dist + distance, _minZoom), _maxZoom);
         if ((distance = ndist - dist) == 0f) {
             return;
