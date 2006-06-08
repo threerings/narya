@@ -286,7 +286,7 @@ public class ModelViewer extends JmeCanvasApp
                     if (_model.hasAnimation(anim)) {
                         _model.startAnimation(anim);
                     } else { // it's a sequence
-                        if (_sequence != null) {
+                        if (_model.getAnimation() != null) {
                             _sequence = null;
                             _model.stopAnimation();
                         }
@@ -385,6 +385,7 @@ public class ModelViewer extends JmeCanvasApp
         _ctx.getGeometry().setRenderState(mstate);
         _ctx.getGeometry().setRenderState(
             _wfstate = _ctx.getRenderer().createWireframeState());
+        _ctx.getGeometry().setNormalsMode(Spatial.NM_GL_NORMALIZE_PROVIDED);
         _wfstate.setEnabled(false);
         
         // create a grid on the XY plane to provide some reference

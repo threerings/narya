@@ -209,6 +209,7 @@ public class SkinMesh extends ModelMesh
         properties.addProperty("displaylistid");
         mstore._frames = _frames;
         mstore._useDisplayLists = _useDisplayLists;
+        mstore._invRefTransform = _invRefTransform;
         mstore._bones = new Bone[_bones.length];
         HashMap<Bone, Bone> bmap = new HashMap<Bone, Bone>();
         for (int ii = 0; ii < _bones.length; ii++) {
@@ -254,11 +255,18 @@ public class SkinMesh extends ModelMesh
     @Override // documentation inherited
     public void setReferenceTransforms ()
     {
-        updateWorldVectors();
-        _modelTransform.invert(_transform);
+        _invRefTransform = new Matrix4f();
+        if (parent instanceof ModelNode) {
+            Matrix4f transform = new Matrix4f();
+            ModelNode.setTransform(getLocalTranslation(), getLocalRotation(),
+                getLocalScale(), transform);
+            ((ModelNode)parent).getModelTransform().mult(transform,
+                _invRefTransform);
+            _invRefTransform.invertLocal();
+        }
         for (Bone bone : _bones) {
             bone.invRefTransform =
-                _transform.mult(bone.node.getModelTransform()).invert();
+                _invRefTransform.mult(bone.node.getModelTransform()).invert();
         }
     }
     
@@ -312,21 +320,6 @@ public class SkinMesh extends ModelMesh
     }
     
     @Override // documentation inherited
-    public void updateWorldVectors ()
-    {
-        super.updateWorldVectors();
-        if (parent instanceof ModelNode) {
-            ModelNode.setTransform(getLocalTranslation(), getLocalRotation(),
-                getLocalScale(), _transform);
-            ((ModelNode)parent).getModelTransform().mult(_transform,
-                _modelTransform);
-            
-        } else {
-            _modelTransform.loadIdentity();
-        }
-    }
-    
-    @Override // documentation inherited
     public void updateWorldData (float time)
     {
         super.updateWorldData(time);
@@ -334,9 +327,9 @@ public class SkinMesh extends ModelMesh
             return;
         }
         // update the bone transforms
-        _modelTransform.invert(_transform);
         for (Bone bone : _bones) {
-            _transform.mult(bone.node.getModelTransform(), bone.transform);
+            _invRefTransform.mult(bone.node.getModelTransform(),
+                bone.transform);
             bone.transform.multLocal(bone.invRefTransform);
         }
         
@@ -474,6 +467,9 @@ public class SkinMesh extends ModelMesh
      * meshes. */
     protected boolean _useDisplayLists;
     
+    /** The inverse of the model space reference transform. */
+    protected Matrix4f _invRefTransform;
+    
     /** The groups of vertices influenced by different sets of bones. */
     protected WeightGroup[] _weightGroups;
     
@@ -491,12 +487,6 @@ public class SkinMesh extends ModelMesh
     
     /** Whether or not the stored frame id will be used for blending. */
     protected boolean _storeBlend;
-    
-    /** The node's transform in model space. */
-    protected Matrix4f _modelTransform = new Matrix4f();
-
-    /** Working transform. */
-    protected Matrix4f _transform = new Matrix4f();
     
     /** A dummy mesh that simply hold transformation values. */
     protected static final TriMesh DUMMY_MESH = new TriMesh();

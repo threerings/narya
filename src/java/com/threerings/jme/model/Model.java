@@ -537,6 +537,15 @@ public class Model extends ModelNode
     }
     
     /**
+     * Returns a reference to the currently running animation, or
+     * <code>null</code> if no animation is running.
+     */
+    public Animation getAnimation ()
+    {
+        return _anim;
+    }
+    
+    /**
      * Stops the currently running animation.
      */
     public void stopAnimation ()
