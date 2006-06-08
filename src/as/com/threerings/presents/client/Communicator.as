@@ -80,14 +80,14 @@ public class Communicator
 
         var host :String = _client.getHostname();
         var pportKey :String = host + ".preferred_port";
-        // TODO: extract preferred port from saved prefs
-        var pport :int = /** TODO Prefs.getValue(pportKey, **/ (ports[0] as int);
+        var pport :int =
+            (PresentsPrefs.config.getValue(pportKey, ports[0]) as int);
         var ppidx :int = Math.max(0, ports.indexOf(pport));
         var port :int = (ports[(_portIdx + ppidx) % ports.length] as int);
 
         if (logonWasSuccessful) {
             _portIdx = -1; // indicate that we're no longer trying new ports
-            // TODO: Prefs.setValue(pportKey, port);
+            PresentsPrefs.config.setValue(pportKey, port);
 
         } else {
             Log.getLog(this).info(
@@ -238,7 +238,6 @@ public class Communicator
      */
     protected function socketError (event :IOErrorEvent) :void
     {
-        _socket.close();
         // if we're trying ports, try the next one.
         if (_portIdx != -1) {
             _portIdx++;
