@@ -1,5 +1,7 @@
 package com.threerings.presents.client {
 
+import flash.errors.IOError;
+
 import flash.events.Event;
 import flash.events.IOErrorEvent;
 
@@ -16,6 +18,7 @@ import com.threerings.io.ObjectInputStream;
 import com.threerings.io.ObjectOutputStream;
 import com.threerings.io.Translations;
 
+import com.threerings.presents.data.AuthCodes;
 import com.threerings.presents.net.AuthRequest;
 import com.threerings.presents.net.AuthResponse;
 import com.threerings.presents.net.AuthResponseData;
@@ -32,24 +35,77 @@ public class Communicator
 
     public function logon () :void
     {
-        // create the socket and set up listeners
-        _socket = new Socket();
-        _socket.endian = Endian.BIG_ENDIAN;
-        _socket.addEventListener(Event.CONNECT, socketOpened);
-        _socket.addEventListener(IOErrorEvent.IO_ERROR, socketError);
-        _socket.addEventListener(Event.CLOSE, socketClosed);
-
         // create our input/output business
         _outBuffer = new ByteArray();
         _outBuffer.endian = Endian.BIG_ENDIAN;
         _outStream = new ObjectOutputStream(_outBuffer);
 
-        _frameReader = new FrameReader(_socket);
-        _frameReader.addEventListener(FrameAvailableEvent.FRAME_AVAILABLE,
-            inputFrameReceived);
         _inStream = new ObjectInputStream();
 
-        _socket.connect(_client.getHostname(), _client.getPort());
+        _portIdx = 0;
+        logonToPort();
+    }
+
+    /**
+     * This method is strangely named, and it does two things which is
+     * bad style. Either log on to the next port, or save that the port
+     * we just logged on to was a good one.
+     */
+    protected function logonToPort (logonWasSuccessful :Boolean = false) :Boolean
+    {
+        var ports :Array = _client.getPorts();
+
+        if (!logonWasSuccessful) {
+            if (_portIdx >= ports.length) {
+                return false;
+            }
+            if (_portIdx != 0) {
+                _client.reportLogonTribulations(
+                    new LogonError(AuthCodes.TRYING_NEXT_PORT, true));
+
+                removeListeners();
+            }
+
+            // create the socket and set up listeners
+            _socket = new Socket();
+            _socket.endian = Endian.BIG_ENDIAN;
+            _socket.addEventListener(Event.CONNECT, socketOpened);
+            _socket.addEventListener(IOErrorEvent.IO_ERROR, socketError);
+            _socket.addEventListener(Event.CLOSE, socketClosed);
+
+            _frameReader = new FrameReader(_socket);
+            _frameReader.addEventListener(FrameAvailableEvent.FRAME_AVAILABLE,
+                inputFrameReceived);
+        }
+
+        var host :String = _client.getHostname();
+        var pportKey :String = host + ".preferred_port";
+        // TODO: extract preferred port from saved prefs
+        var pport :int = /** TODO Prefs.getValue(pportKey, **/ (ports[0] as int);
+        var ppidx :int = Math.max(0, ports.indexOf(pport));
+        var port :int = (ports[(_portIdx + ppidx) % ports.length] as int);
+
+        if (logonWasSuccessful) {
+            _portIdx = -1; // indicate that we're no longer trying new ports
+            // TODO: Prefs.setValue(pportKey, port);
+
+        } else {
+            Log.getLog(this).info(
+                "Connecting [host=" + host + ", port=" + port + "].");
+            _socket.connect(host, port);
+        }
+
+        return true;
+    }
+
+    protected function removeListeners () :void
+    {
+        _socket.removeEventListener(Event.CONNECT, socketOpened);
+        _socket.removeEventListener(IOErrorEvent.IO_ERROR, socketError);
+        _socket.removeEventListener(Event.CLOSE, socketClosed);
+
+        _frameReader.removeEventListener(FrameAvailableEvent.FRAME_AVAILABLE,
+            inputFrameReceived);
     }
 
     public function logoff () :void
@@ -77,6 +133,7 @@ public class Communicator
                 Log.getLog(this).warning(
                     "Error closing failed socket [error=" + err + "].");
             }
+            removeListeners();
             _socket = null;
             _outStream = null;
             _inStream = null;
@@ -169,6 +226,7 @@ public class Communicator
      */
     protected function socketOpened (event :Event) :void
     {
+        logonToPort(true);
         // well that's great! let's logon
         var req :AuthRequest = new AuthRequest(_client.getCredentials(),
             _client.getVersion());
@@ -180,6 +238,16 @@ public class Communicator
      */
     protected function socketError (event :IOErrorEvent) :void
     {
+        _socket.close();
+        // if we're trying ports, try the next one.
+        if (_portIdx != -1) {
+            _portIdx++;
+            if (logonToPort()) {
+                return;
+            }
+        }
+
+        // total failure
         Log.getLog(this).warning("socket error: " + event);
         shutdown(new Error("socket closed unexpectedly."));
     }
@@ -206,5 +274,8 @@ public class Communicator
     protected var _socket :Socket;
 
     protected var _lastWrite :uint;
+
+    /** The current port we'll try to connect to. */
+    protected var _portIdx :int = -1;
 }
 }

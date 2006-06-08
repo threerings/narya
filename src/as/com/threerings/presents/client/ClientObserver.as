@@ -53,6 +53,14 @@ public interface ClientObserver extends SessionObserver
      * Called if anything fails during the logon attempt. This could be a
      * network failure, authentication failure or otherwise. The exception
      * provided will indicate the cause of the failure.
+     *
+     * @param cause an exception indicating the cause of the logon failure.
+     * <em>Note:</em> this may be a {@link LogonError} and if so, the
+     * caller <em>must</em> check {@link LogonException#isStillInProgress} to
+     * find out if the logon process has totally failed or if we are simply
+     * reporting intermediate status (we might be falling back to an
+     * alternative port or delaying our auto-retry attempt due to server
+     * overload).
      */
     function clientFailedToLogon (event :ClientEvent) :void;
 

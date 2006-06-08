@@ -22,7 +22,7 @@ import com.threerings.presents.net.PongResponse;
 public class Client extends EventDispatcher
 {
     /** The default port on which the server listens for client connections. */
-    public static const DEFAULT_SERVER_PORT :int = 47624;
+    public static const DEFAULT_SERVER_PORTS :Array = [ 47624 ];
 
     private static const log :Log = Log.getLog(Client);
 
@@ -84,10 +84,10 @@ public class Client extends EventDispatcher
         }
     }
 
-    public function setServer (hostname :String, port :int) :void
+    public function setServer (hostname :String, ports :Array) :void
     {
         _hostname = hostname;
-        _port = port;
+        _ports = ports;
     }
 
     /**
@@ -103,9 +103,12 @@ public class Client extends EventDispatcher
         return _hostname;
     }
 
-    public function getPort () :int
+    /**
+     * Returns the ports on which this client is configured to connect.
+     */
+    public function getPorts () :Array
     {
-        return _port;
+        return _ports;
     }
 
     public function getCredentials () :Credentials
@@ -276,6 +279,15 @@ public class Client extends EventDispatcher
         }
     }
 
+    /**
+     * Called by the {@link Communicator} if it is experiencing trouble logging
+     * on but is still trying fallback strategies.
+     */
+    internal function reportLogonTribulations (cause :LogonError) :void
+    {
+        notifyObservers(ClientEvent.CLIENT_FAILED_TO_LOGON, cause);
+    }
+
     // TODO: this should be 'internal' except for a fucking bug with AS3
     public function gotClientObject (clobj :ClientObject) :void
     {
@@ -359,7 +371,7 @@ public class Client extends EventDispatcher
     protected var _hostname :String;
 
     /** The port on which we connect to the game server. */
-    protected var _port :int;
+    protected var _ports :Array; /* of int */
 
     /** The entity that manages our network communications. */
     protected var _comm :Communicator;
