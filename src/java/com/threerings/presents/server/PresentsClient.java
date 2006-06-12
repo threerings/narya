@@ -387,17 +387,14 @@ public class PresentsClient
         }
 
         // we need to get onto the distributed object thread so that we
-        // can finalize the resumption of the session. we do so by
-        // posting a special event
-        DEvent event = new DEvent(0) {
-            public boolean applyToObject (DObject target) {
+        // can finalize the resumption of the session.
+        PresentsServer.omgr.postRunnable(new Runnable() {
+            public void run () {
                 // now that we're on the dobjmgr thread we can resume our
                 // session resumption
                 finishResumeSession();
-                return false;
             }
-        };
-        PresentsServer.omgr.postEvent(event);
+        });
     }
 
     /**
