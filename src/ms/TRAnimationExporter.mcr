@@ -85,12 +85,12 @@ macroScript TRAnimationExporter category:"File" \
     persistent global xmlAnimFileName
     local fileName
     if (xmlAnimFileName == undefined) then (
-        fileName = maxFilePath + (getFilenameFile maxFileName) + ".xml"
+        fileName = maxFilePath + (getFilenameFile maxFileName) + ".mxml"
     ) else (
         fileName = xmlAnimFileName
     )
     fileName = getSaveFileName caption:"Select File to Export" \
-        filename:fileName types:"XML Animations (*.XML)|*.xml|All|*.*"
+        filename:fileName types:"XML Animations (*.MXML)|*.mxml|All|*.*"
     if fileName != undefined do (
         xmlAnimFileName = fileName
         writeAnimation fileName

@@ -109,7 +109,7 @@ import com.threerings.jme.model.TextureProvider;
 /**
  * A simple viewer application that allows users to examine models and their
  * animations by loading them from their uncompiled <code>.properties</code> /
- * <code>.xml</code> representations or their compiled <code>.dat</code>
+ * <code>.mxml</code> representations or their compiled <code>.dat</code>
  * representations.
  */
 public class ModelViewer extends JmeCanvasApp

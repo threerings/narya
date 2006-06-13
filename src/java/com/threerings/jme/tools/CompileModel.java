@@ -65,7 +65,7 @@ public class CompileModel
         String spath = source.toString();
         int didx = spath.lastIndexOf('.');
         String root = (didx == -1) ? spath : spath.substring(0, didx);
-        File content = new File(root + ".xml"),
+        File content = new File(root + ".mxml"),
             target = new File(root + ".dat");
         boolean needsUpdate = false;
         if (source.lastModified() >= target.lastModified() ||
@@ -85,7 +85,7 @@ public class CompileModel
         File[] afiles = new File[anims.length];
         File dir = source.getParentFile();
         for (int ii = 0; ii < anims.length; ii++) {
-            afiles[ii] = new File(dir, anims[ii] + ".xml");
+            afiles[ii] = new File(dir, anims[ii] + ".mxml");
             if (afiles[ii].lastModified() >= target.lastModified()) {
                 needsUpdate = true;
             }

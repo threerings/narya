@@ -179,12 +179,12 @@ macroScript TRModelExporter category:"File" \
     persistent global xmlModelFileName
     local fileName
     if (xmlModelFileName == undefined) then (
-        fileName = maxFilePath + (getFilenameFile maxFileName) + ".xml"
+        fileName = maxFilePath + (getFilenameFile maxFileName) + ".mxml"
     ) else (
         fileName = xmlModelFileName
     )
     fileName = getSaveFileName caption:"Select File to Export" \
-        filename:fileName types:"XML Models (*.XML)|*.xml|All|*.*"
+        filename:fileName types:"XML Models (*.MXML)|*.mxml|All|*.*"
     if fileName != undefined do (
         xmlModelFileName = fileName
         writeModel fileName
