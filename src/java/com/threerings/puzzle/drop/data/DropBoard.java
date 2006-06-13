@@ -592,7 +592,7 @@ public class DropBoard extends Board
         }
 
 	for (int y = 0; y < _bhei; y++) {
-	    StringBuffer buf = new StringBuffer();
+	    StringBuilder buf = new StringBuilder();
 	    for (int x = 0; x < _bwid; x++) {
                 int piece = getPiece(x, y);
                 String str = formatPiece(piece);
@@ -611,7 +611,7 @@ public class DropBoard extends Board
     /** Returns a string representation of this instance. */
     public String toString ()
     {
-        StringBuffer buf = new StringBuffer();
+        StringBuilder buf = new StringBuilder();
         buf.append("[wid=").append(_bwid);
         buf.append(", hei=").append(_bhei);
         return buf.append("]").toString();

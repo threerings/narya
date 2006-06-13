@@ -1,5 +1,5 @@
 //
-// $Id: Tile.java,v 1.29 2004/08/27 02:12:41 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -146,7 +146,7 @@ public class Tile // implements Cloneable
      */
     public String toString ()
     {
-	StringBuffer buf = new StringBuffer("[");
+	StringBuilder buf = new StringBuilder("[");
         toString(buf);
 	return buf.append("]").toString();
     }
@@ -156,7 +156,7 @@ public class Tile // implements Cloneable
      * to call <code>super.toString()</code>) to append the derived class
      * specific tile information to the string buffer.
      */
-    protected void toString (StringBuffer buf)
+    protected void toString (StringBuilder buf)
     {
         buf.append(_mirage.getWidth()).append("x");
         buf.append(_mirage.getHeight());

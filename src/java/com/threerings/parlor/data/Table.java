@@ -377,7 +377,7 @@ public class Table
      */
     public String toString ()
     {
-        StringBuffer buf = new StringBuffer();
+        StringBuilder buf = new StringBuilder();
         buf.append(StringUtil.shortClassName(this));
         buf.append(" [");
         toString(buf);
@@ -388,7 +388,7 @@ public class Table
     /**
      * Helper method for toString, ripe for overrideability.
      */
-    protected void toString (StringBuffer buf)
+    protected void toString (StringBuilder buf)
     {
         buf.append("tableId=").append(tableId);
         buf.append(", lobbyOid=").append(lobbyOid);

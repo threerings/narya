@@ -173,7 +173,7 @@ public class SceneManager extends PlaceManager
     }
 
     // documentation inherited
-    protected void toString (StringBuffer buf)
+    protected void toString (StringBuilder buf)
     {
         super.toString(buf);
         buf.append(", scene=").append(_scene);

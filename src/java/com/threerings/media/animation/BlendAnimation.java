@@ -1,5 +1,5 @@
 //
-// $Id: BlendAnimation.java,v 1.1 2004/09/18 22:58:39 mdb Exp $
+// $Id$
 
 package com.threerings.media.animation;
 

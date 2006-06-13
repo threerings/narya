@@ -1,5 +1,5 @@
 //
-// $Id: DEvent.java,v 1.15 2004/08/27 02:20:20 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -121,7 +121,7 @@ public abstract class DEvent implements Streamable
      */
     public String toString ()
     {
-        StringBuffer buf = new StringBuffer();
+        StringBuilder buf = new StringBuilder();
         buf.append("[");
         toString(buf);
         buf.append("]");
@@ -133,7 +133,7 @@ public abstract class DEvent implements Streamable
      * to call <code>super.toString()</code>) to append the derived class
      * specific event information to the string buffer.
      */
-    protected void toString (StringBuffer buf)
+    protected void toString (StringBuilder buf)
     {
         buf.append("targetOid=").append(_toid);
         buf.append(", sourceOid=").append(_soid);

@@ -725,7 +725,7 @@ public class PresentsDObjectMgr
     }
 
     // documentation inherited from interface PresentsServer.Reporter
-    public void appendReport (StringBuffer report, long now, long sinceLast)
+    public void appendReport (StringBuilder report, long now, long sinceLast)
     {
         report.append("* presents.PresentsDObjectMgr:\n");
 

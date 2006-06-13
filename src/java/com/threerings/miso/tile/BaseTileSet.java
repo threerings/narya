@@ -1,5 +1,5 @@
 //
-// $Id: BaseTileSet.java,v 1.14 2004/08/27 02:20:07 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -66,7 +66,7 @@ public class BaseTileSet extends SwissArmyTileSet
     }
 
     // documentation inherited
-    protected void toString (StringBuffer buf)
+    protected void toString (StringBuilder buf)
     {
         super.toString(buf);
 	buf.append(", passable=").append(StringUtil.toString(_passable));

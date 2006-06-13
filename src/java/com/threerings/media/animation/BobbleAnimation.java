@@ -91,7 +91,7 @@ public class BobbleAnimation extends Animation
     }
 
     // documentation inherited
-    protected void toString (StringBuffer buf)
+    protected void toString (StringBuilder buf)
     {
         super.toString(buf);
 

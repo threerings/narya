@@ -1,5 +1,5 @@
 //
-// $Id: PieceGroupAnimation.java,v 1.3 2004/09/20 22:17:54 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved

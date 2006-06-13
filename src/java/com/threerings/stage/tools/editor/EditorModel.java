@@ -222,7 +222,7 @@ public class EditorModel
      */
     public String toString ()
     {
-        StringBuffer buf = new StringBuffer();
+        StringBuilder buf = new StringBuilder();
         buf.append("[set=").append(_tileSet);
         buf.append(", tid=").append(_tileIndex);
         buf.append(", lnum=").append(_lnum);

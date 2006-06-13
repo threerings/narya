@@ -1,5 +1,5 @@
 //
-// $Id: TimedPath.java,v 1.5 2004/08/27 02:12:47 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -76,7 +76,7 @@ public abstract class TimedPath implements Path
      */
     public String toString ()
     {
-        StringBuffer buf = new StringBuffer("[");
+        StringBuilder buf = new StringBuilder("[");
         toString(buf);
         return buf.append("]").toString();
     }
@@ -85,7 +85,7 @@ public abstract class TimedPath implements Path
      * An extensible method for generating a string representation of this
      * instance.
      */
-    protected void toString (StringBuffer buf)
+    protected void toString (StringBuilder buf)
     {
         buf.append("duration=").append(_duration).append("ms");
     }

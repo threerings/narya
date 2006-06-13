@@ -172,7 +172,7 @@ public class AttributeChangedEvent extends NamedEvent
     }
 
     // documentation inherited
-    protected void toString (StringBuffer buf)
+    protected void toString (StringBuilder buf)
     {
         buf.append("CHANGE:");
         super.toString(buf);

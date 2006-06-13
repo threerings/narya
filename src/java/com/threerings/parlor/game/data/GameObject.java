@@ -258,7 +258,7 @@ public class GameObject extends PlaceObject
     }
 
     // documentation inherited
-    protected void which (StringBuffer buf)
+    protected void which (StringBuilder buf)
     {
         super.which(buf);
         StringUtil.toString(buf, players);

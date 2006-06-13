@@ -1,5 +1,5 @@
 //
-// $Id: MultiFrameImage.java,v 1.5 2004/08/27 02:12:47 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved

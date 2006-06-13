@@ -63,7 +63,7 @@ public class PresentsServer
          * generated a report.
          */
         public void appendReport (
-            StringBuffer buffer, long now, long sinceLast);
+            StringBuilder buffer, long now, long sinceLast);
     }
 
     /** Implementers of this interface will be notified when the server is
@@ -208,7 +208,7 @@ public class PresentsServer
     {
         long sinceLast = now - _lastReportStamp;
         long uptime = now - _serverStartTime;
-        StringBuffer report = new StringBuffer("State of server report:\n");
+        StringBuilder report = new StringBuilder("State of server report:\n");
 
         report.append("- Uptime: ");
         report.append(StringUtil.intervalToString(uptime)).append(", ");

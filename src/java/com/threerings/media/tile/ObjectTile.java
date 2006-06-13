@@ -193,7 +193,7 @@ public class ObjectTile extends Tile
     }
     
     // documentation inherited
-    public void toString (StringBuffer buf)
+    public void toString (StringBuilder buf)
     {
         super.toString(buf);
         buf.append(", base=").append(StringUtil.toString(_base));

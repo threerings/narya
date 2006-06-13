@@ -80,7 +80,7 @@ public class LobbyConfig extends PlaceConfig
     }
 
     // documentation inherited
-    protected void toString (StringBuffer buf)
+    protected void toString (StringBuilder buf)
     {
         super.toString(buf);
         if (buf.length() > 1) {

@@ -1,5 +1,5 @@
 //
-// $Id: CachedVolatileMirage.java,v 1.5 2004/08/27 02:12:38 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -87,7 +87,7 @@ public class CachedVolatileMirage extends VolatileMirage
     }
 
     // documentation inherited
-    protected void toString (StringBuffer buf)
+    protected void toString (StringBuilder buf)
     {
         super.toString(buf);
         buf.append(", key=").append(_source);

@@ -229,7 +229,7 @@ public abstract class AbstractMedia
      */
     public String toString ()
     {
-        StringBuffer buf = new StringBuffer();
+        StringBuilder buf = new StringBuilder();
         buf.append(StringUtil.shortClassName(this));
         buf.append("[");
         toString(buf);
@@ -308,7 +308,7 @@ public abstract class AbstractMedia
      * to call <code>super.toString()</code>) to append the derived class
      * specific information to the string buffer.
      */
-    protected void toString (StringBuffer buf)
+    protected void toString (StringBuilder buf)
     {
         buf.append("bounds=").append(StringUtil.toString(_bounds));
         buf.append(", renderOrder=").append(_renderOrder);

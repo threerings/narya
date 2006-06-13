@@ -85,7 +85,7 @@ public class UniformTileSet extends TileSet
     }
 
     // documentation inherited
-    protected void toString (StringBuffer buf)
+    protected void toString (StringBuilder buf)
     {
         super.toString(buf);
 	buf.append(", width=").append(_width);

@@ -192,7 +192,7 @@ public class MediaPanel extends JComponent
     }
 
     // documentation inherited from interface
-    public void getPerformanceStatus (StringBuffer buf)
+    public void getPerformanceStatus (StringBuilder buf)
     {
     }
 
@@ -310,7 +310,7 @@ public class MediaPanel extends JComponent
                 _perfRect = new Rectangle(5, 5, 0, 0);
             }
 
-            StringBuffer perf = new StringBuffer();
+            StringBuilder perf = new StringBuilder();
             perf.append("[FPS: ");
             perf.append(_framemgr.getPerfTicks()).append("/");
             perf.append(_framemgr.getPerfTries());

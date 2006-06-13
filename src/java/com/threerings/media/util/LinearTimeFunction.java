@@ -1,5 +1,5 @@
 //
-// $Id: LinearTimeFunction.java,v 1.1 2004/09/18 22:57:08 mdb Exp $
+// $Id$
 
 package com.threerings.media.util;
 

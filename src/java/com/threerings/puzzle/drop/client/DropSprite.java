@@ -1,5 +1,5 @@
 //
-// $Id: DropSprite.java,v 1.4 2004/10/21 02:54:44 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -449,7 +449,7 @@ public class DropSprite extends Sprite
     }
 
     // documentation inherited
-    public void toString (StringBuffer buf)
+    public void toString (StringBuilder buf)
     {
         super.toString(buf);
         buf.append(", orient=").append(DirectionUtil.toShortString(_orient));

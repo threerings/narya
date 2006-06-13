@@ -1,5 +1,5 @@
 //
-// $Id: ObjectSet.java,v 1.4 2004/08/27 02:20:10 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -137,7 +137,7 @@ public class ObjectSet
      */
     public String toString ()
     {
-        StringBuffer buf = new StringBuffer("[");
+        StringBuilder buf = new StringBuilder("[");
         for (int ii = 0; ii < _size; ii++) {
             if (ii > 0) {
                 buf.append(", ");

@@ -880,7 +880,7 @@ public class ChatDirector extends BasicDirector
         Pattern p = Pattern.compile("([^\\.][\\.\\?\\!](\\s)+\\p{Ll})");
         Matcher m = p.matcher(buf);
         if (m.find()) {
-            buf = new StringBuffer();
+            buf = new StringBuilder();
             m.appendReplacement(buf, m.group().toUpperCase());
             while (m.find()) {
                 m.appendReplacement(buf, m.group().toUpperCase());

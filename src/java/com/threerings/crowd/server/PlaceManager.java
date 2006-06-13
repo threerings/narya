@@ -644,11 +644,11 @@ public class PlaceManager
      * that makes it easier for derived classes to add to the string
      * representation.
      *
-     * @see #toString(StringBuffer)
+     * @see #toString(StringBuilder)
      */
     public String toString ()
     {
-        StringBuffer buf = new StringBuffer();
+        StringBuilder buf = new StringBuilder();
         buf.append("[");
         toString(buf);
         buf.append("]");
@@ -660,7 +660,7 @@ public class PlaceManager
      * class. Override this (being sure to call super) and append your
      * info to the buffer.
      */
-    protected void toString (StringBuffer buf)
+    protected void toString (StringBuilder buf)
     {
         buf.append("place=").append(_plobj);
         buf.append(", config=").append(_config);

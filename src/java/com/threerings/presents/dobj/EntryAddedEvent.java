@@ -101,7 +101,7 @@ public class EntryAddedEvent extends NamedEvent
     }
 
     // documentation inherited
-    protected void toString (StringBuffer buf)
+    protected void toString (StringBuilder buf)
     {
         buf.append("ELADD:");
         super.toString(buf);

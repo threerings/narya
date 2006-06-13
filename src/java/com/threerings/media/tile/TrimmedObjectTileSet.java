@@ -160,7 +160,7 @@ public class TrimmedObjectTileSet extends TileSet
     }
 
     // documentation inherited
-    protected void toString (StringBuffer buf)
+    protected void toString (StringBuilder buf)
     {
         super.toString(buf);
 	buf.append(", ometrics=").append(StringUtil.toString(_ometrics));

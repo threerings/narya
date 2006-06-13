@@ -202,7 +202,7 @@ public class ConnectionManager extends LoopingThread
     }
 
     // documentation inherited from interface PresentsServer.Reporter
-    public void appendReport (StringBuffer report, long now, long sinceLast)
+    public void appendReport (StringBuilder report, long now, long sinceLast)
     {
         long bytesIn, bytesOut, msgsIn, msgsOut;
         synchronized (this) {

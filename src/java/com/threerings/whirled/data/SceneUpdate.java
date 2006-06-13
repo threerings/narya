@@ -173,7 +173,7 @@ public class SceneUpdate
      */
     public String toString ()
     {
-        StringBuffer buf = new StringBuffer("[");
+        StringBuilder buf = new StringBuilder("[");
         toString(buf);
         return buf.append("]").toString();
     }
@@ -182,7 +182,7 @@ public class SceneUpdate
      * An extensible mechanism for generating a string representation of
      * this instance.
      */
-    protected void toString (StringBuffer buf)
+    protected void toString (StringBuilder buf)
     {
         buf.append("sceneId=").append(_targetId);
         buf.append(", version=").append(_targetVersion);

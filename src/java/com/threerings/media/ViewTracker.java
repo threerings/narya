@@ -1,5 +1,5 @@
 //
-// $Id: ViewTracker.java,v 1.1 2004/11/11 23:52:43 mdb Exp $
+// $Id$
 
 package com.threerings.media;
 

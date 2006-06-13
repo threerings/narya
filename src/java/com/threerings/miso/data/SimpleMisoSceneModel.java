@@ -1,5 +1,5 @@
 //
-// $Id: SimpleMisoSceneModel.java,v 1.8 2004/10/23 17:36:32 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved

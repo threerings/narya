@@ -208,7 +208,7 @@ public class Card implements DSet.Entry, Comparable, CardCodes
             return "BJ";
         }
         else {
-            StringBuffer sb = new StringBuffer();
+            StringBuilder sb = new StringBuilder();
             
             if (number >= 2 && number <= 9) {
                 sb.append(Integer.toString(number));

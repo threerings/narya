@@ -405,7 +405,7 @@ public class DSet<E extends DSet.Entry>
      */
     public String toString ()
     {
-        StringBuffer buf = new StringBuffer("(");
+        StringBuilder buf = new StringBuilder("(");
         String prefix = "";
         for (int i = 0; i < _entries.length; i++) {
             Entry elem = _entries[i];

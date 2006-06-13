@@ -210,7 +210,7 @@ public class DirtyItemList
      */
     protected static String toString (DirtyItem a)
     {
-        StringBuffer buf = new StringBuffer("[");
+        StringBuilder buf = new StringBuilder("[");
         toString(buf, a);
         return buf.append("]").toString();
     }
@@ -221,7 +221,7 @@ public class DirtyItemList
      */
     protected static String toString (DirtyItem a, DirtyItem b)
     {
-        StringBuffer buf = new StringBuffer("[");
+        StringBuilder buf = new StringBuilder("[");
         toString(buf, a);
         toString(buf, b);
         return buf.append("]").toString();
@@ -233,7 +233,7 @@ public class DirtyItemList
      */
     protected static String toString (SortableArrayList items)
     {
-        StringBuffer buf = new StringBuffer();
+        StringBuilder buf = new StringBuilder();
         buf.append("[");
         for (int ii = 0; ii < items.size(); ii++) {
             DirtyItem item = (DirtyItem)items.get(ii);
@@ -246,7 +246,7 @@ public class DirtyItemList
     }
 
     /** Helper function for {@link #toString(DirtyItem)}. */
-    protected static void toString (StringBuffer buf, DirtyItem item)
+    protected static void toString (StringBuilder buf, DirtyItem item)
     {
         buf.append("(o:+").append(item.ox).append("+").append(item.oy);
         buf.append(" p:").append(item.getRenderPriority()).append(")");
@@ -362,7 +362,7 @@ public class DirtyItemList
          */
         public String toString ()
         {
-            StringBuffer buf = new StringBuffer();
+            StringBuilder buf = new StringBuilder();
             buf.append("[obj=").append(obj);
             buf.append(", ox=").append(ox);
             buf.append(", oy=").append(oy);

@@ -69,7 +69,7 @@ public class PresentsInvoker extends Invoker
     }
 
     // documentation inherited from interface
-    public void appendReport (StringBuffer buffer, long now, long sinceLast)
+    public void appendReport (StringBuilder buffer, long now, long sinceLast)
     {
         buffer.append("* presents.util.Invoker:\n");
         buffer.append("- Units executed: ").append(_unitsRun).append("\n");

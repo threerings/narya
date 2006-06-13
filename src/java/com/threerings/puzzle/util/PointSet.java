@@ -1,5 +1,5 @@
 //
-// $Id: PointSet.java,v 1.2 2004/08/27 02:20:33 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -168,7 +168,7 @@ public class PointSet
      */
     public String toString ()
     {
-	StringBuffer buf = new StringBuffer();
+	StringBuilder buf = new StringBuilder();
 	buf.append("[");
 	Iterator iter = iterator();
 	Point val;

@@ -390,7 +390,7 @@ public abstract class Sprite extends AbstractMedia
     }
 
     // documentation inherited
-    protected void toString (StringBuffer buf)
+    protected void toString (StringBuilder buf)
     {
         super.toString(buf);
         buf.append(", ox=").append(_ox);

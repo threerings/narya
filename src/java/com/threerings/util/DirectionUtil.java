@@ -93,7 +93,7 @@ public class DirectionUtil implements DirectionCodes
      */
     public static String toString (int[] directions)
     {
-        StringBuffer buf = new StringBuffer("{");
+        StringBuilder buf = new StringBuilder("{");
         for (int i = 0; i < directions.length; i++) {
             if (i > 0) {
                 buf.append(", ");

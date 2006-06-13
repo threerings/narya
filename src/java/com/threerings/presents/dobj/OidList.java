@@ -1,5 +1,5 @@
 //
-// $Id: OidList.java,v 1.7 2004/08/27 02:20:20 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -129,7 +129,7 @@ public class OidList implements Streamable
 
     public String toString ()
     {
-        StringBuffer buf = new StringBuffer();
+        StringBuilder buf = new StringBuilder();
         buf.append("{");
         for (int i = 0; i < _size; i++) {
             if (i > 0) {

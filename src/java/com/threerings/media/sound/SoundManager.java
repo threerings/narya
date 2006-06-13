@@ -187,7 +187,7 @@ public class SoundManager
      */
     public String summarizeState ()
     {
-        StringBuffer buf = new StringBuffer();
+        StringBuilder buf = new StringBuilder();
         buf.append("clipVol=").append(_clipVol);
         buf.append(", disabled=[");
         int ii = 0;

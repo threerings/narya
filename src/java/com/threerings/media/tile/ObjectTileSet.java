@@ -201,7 +201,7 @@ public class ObjectTileSet extends SwissArmyTileSet
     }
 
     // documentation inherited
-    protected void toString (StringBuffer buf)
+    protected void toString (StringBuilder buf)
     {
         super.toString(buf);
 	buf.append(", owidths=").append(StringUtil.toString(_owidths));

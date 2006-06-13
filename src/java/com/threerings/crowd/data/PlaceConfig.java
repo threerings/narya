@@ -89,7 +89,7 @@ public abstract class PlaceConfig extends SimpleStreamableObject
     public abstract String getManagerClassName ();
 
     // documentation inherited
-    protected void toString (StringBuffer buf)
+    protected void toString (StringBuilder buf)
     {
         buf.append("type=").append(StringUtil.shortClassName(this));
         buf.append(", ");

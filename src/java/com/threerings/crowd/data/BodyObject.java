@@ -138,7 +138,7 @@ public class BodyObject extends ClientObject
     // documentation inherited
     public String who ()
     {
-        StringBuffer buf = new StringBuffer(username.toString());
+        StringBuilder buf = new StringBuilder(username.toString());
         buf.append(" (").append(getOid());
         if (status != OccupantInfo.ACTIVE) {
             buf.append(" ").append(OccupantInfo.X_STATUS[status]);

@@ -835,7 +835,7 @@ public class PresentsClient
      */
     public String toString ()
     {
-        StringBuffer buf = new StringBuffer("[");
+        StringBuilder buf = new StringBuilder("[");
         toString(buf);
         return buf.append("]").toString();
     }
@@ -843,7 +843,7 @@ public class PresentsClient
     /**
      * Derived classes override this to augment stringification.
      */
-    protected void toString (StringBuffer buf)
+    protected void toString (StringBuilder buf)
     {
         buf.append("username=").append(_username);
         buf.append(", conn=").append(_conn);

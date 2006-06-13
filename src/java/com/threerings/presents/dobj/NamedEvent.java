@@ -56,7 +56,7 @@ public abstract class NamedEvent extends DEvent
         return _name;
     }
 
-    protected void toString (StringBuffer buf)
+    protected void toString (StringBuilder buf)
     {
         super.toString(buf);
         buf.append(", name=").append(_name);

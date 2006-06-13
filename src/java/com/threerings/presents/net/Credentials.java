@@ -87,7 +87,7 @@ public abstract class Credentials implements Streamable
      */
     public String toString ()
     {
-        StringBuffer buf = new StringBuffer("[");
+        StringBuilder buf = new StringBuilder("[");
         toString(buf);
         return buf.append("]").toString();
     }
@@ -96,7 +96,7 @@ public abstract class Credentials implements Streamable
      * An easily extensible method via which derived classes can add to
      * {@link #toString()}'s output.
      */
-    protected void toString (StringBuffer buf)
+    protected void toString (StringBuilder buf)
     {
         buf.append("username=").append(_username);
     }

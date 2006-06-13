@@ -628,7 +628,7 @@ public class DObject
      */
     public String which ()
     {
-        StringBuffer buf = new StringBuffer();
+        StringBuilder buf = new StringBuilder();
         which(buf);
         return buf.toString();
     }
@@ -636,7 +636,7 @@ public class DObject
     /**
      * Used to briefly describe this distributed object.
      */
-    protected void which (StringBuffer buf)
+    protected void which (StringBuilder buf)
     {
         buf.append(StringUtil.shortClassName(this));
         buf.append(":").append(_oid);
@@ -647,7 +647,7 @@ public class DObject
      */
     public String toString ()
     {
-        StringBuffer buf = new StringBuffer();
+        StringBuilder buf = new StringBuilder();
         toString(buf);
         return buf.append("]").toString();
     }
@@ -655,7 +655,7 @@ public class DObject
     /**
      * Generates a string representation of this object.
      */
-    protected void toString (StringBuffer buf)
+    protected void toString (StringBuilder buf)
     {
         StringUtil.fieldsToString(buf, this, "\n");
         if (buf.length() > 0) {

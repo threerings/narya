@@ -120,7 +120,7 @@ public class LinePath extends TimedPath
     }
 
     // documentation inherited
-    protected void toString (StringBuffer buf)
+    protected void toString (StringBuilder buf)
     {
         super.toString(buf);
         buf.append(", src=").append(StringUtil.toString(_source));

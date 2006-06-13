@@ -1,5 +1,5 @@
 //
-// $Id: PathNode.java,v 1.8 2004/08/27 02:12:47 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -52,7 +52,7 @@ public class PathNode
      */
     public String toString ()
     {
-        StringBuffer buf = new StringBuffer();
+        StringBuilder buf = new StringBuilder();
         buf.append("[");
         toString(buf);
         return buf.append("]").toString();
@@ -63,7 +63,7 @@ public class PathNode
      * to call <code>super.toString()</code>) to append the derived class
      * specific path node information to the string buffer.
      */
-    public void toString (StringBuffer buf)
+    public void toString (StringBuilder buf)
     {
         buf.append("x=").append(loc.x);
         buf.append(", y=").append(loc.y);

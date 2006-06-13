@@ -1,5 +1,5 @@
 //
-// $Id: PieceDropper.java,v 1.4 2004/08/29 06:50:47 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved

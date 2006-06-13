@@ -35,7 +35,7 @@ public class SimpleStreamableObject implements Streamable
      */
     public String toString ()
     {
-        StringBuffer buf = new StringBuffer("[");
+        StringBuilder buf = new StringBuilder("[");
         toString(buf);
         return buf.append("]").toString();
     }
@@ -44,7 +44,7 @@ public class SimpleStreamableObject implements Streamable
      * Handles the toString-ification of all public members. Derived
      * classes can override and include non-public members if desired.
      */
-    protected void toString (StringBuffer buf)
+    protected void toString (StringBuilder buf)
     {
         StringUtil.fieldsToString(buf, this);
     }

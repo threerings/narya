@@ -105,7 +105,7 @@ public class EntryRemovedEvent extends NamedEvent
     }
 
     // documentation inherited
-    protected void toString (StringBuffer buf)
+    protected void toString (StringBuilder buf)
     {
         buf.append("ELREM:");
         super.toString(buf);

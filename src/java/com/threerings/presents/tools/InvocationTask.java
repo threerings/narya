@@ -131,7 +131,7 @@ public abstract class InvocationTask extends Task
 
         public String getArgList (boolean skipFirst)
         {
-            StringBuffer buf = new StringBuffer();
+            StringBuilder buf = new StringBuilder();
             Class[] args = method.getParameterTypes();
             for (int ii = skipFirst ? 1 : 0; ii < args.length; ii++) {
                 if (buf.length() > 0) {
@@ -145,7 +145,7 @@ public abstract class InvocationTask extends Task
 
         public String getWrappedArgList (boolean skipFirst)
         {
-            StringBuffer buf = new StringBuffer();
+            StringBuilder buf = new StringBuilder();
             Class[] args = method.getParameterTypes();
             for (int ii = (skipFirst ? 1 : 0); ii < args.length; ii++) {
                 if (buf.length() > 0) {
@@ -168,7 +168,7 @@ public abstract class InvocationTask extends Task
 
         public String getUnwrappedArgList (boolean listenerMode)
         {
-            StringBuffer buf = new StringBuffer();
+            StringBuilder buf = new StringBuilder();
             Class[] args = method.getParameterTypes();
             for (int ii = (listenerMode ? 0 : 1); ii < args.length; ii++) {
                 if (buf.length() > 0) {

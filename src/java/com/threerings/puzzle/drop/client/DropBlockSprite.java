@@ -1,5 +1,5 @@
 //
-// $Id: DropBlockSprite.java,v 1.4 2004/08/27 02:20:29 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -169,7 +169,7 @@ public class DropBlockSprite extends DropSprite
     }
 
     // documentation inherited
-    public void toString (StringBuffer buf)
+    public void toString (StringBuilder buf)
     {
 	super.toString(buf);
 	buf.append(", erow=").append(_erow);

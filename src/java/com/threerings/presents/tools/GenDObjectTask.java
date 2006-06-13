@@ -246,8 +246,8 @@ public class GenDObjectTask extends Task
         }
 
         // generate our fields section and our methods section
-        StringBuffer fsection = new StringBuffer();
-        StringBuffer msection = new StringBuffer();
+        StringBuilder fsection = new StringBuilder();
+        StringBuilder msection = new StringBuilder();
         for (int ii = 0; ii < flist.size(); ii++) {
             Field f = (Field)flist.get(ii);
             Class ftype = f.getType();

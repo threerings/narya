@@ -1,5 +1,5 @@
 //
-// $Id: InvocationNotificationEvent.java,v 1.3 2004/08/27 02:20:20 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -102,7 +102,7 @@ public class InvocationNotificationEvent extends DEvent
     }
 
     // documentation inherited
-    protected void toString (StringBuffer buf)
+    protected void toString (StringBuilder buf)
     {
         buf.append("INOT:");
         super.toString(buf);

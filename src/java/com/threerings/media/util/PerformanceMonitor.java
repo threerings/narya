@@ -1,5 +1,5 @@
 //
-// $Id: PerformanceMonitor.java,v 1.6 2004/08/27 02:12:47 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -189,7 +189,7 @@ class PerformanceAction
 
     public String toString ()
     {
-        StringBuffer buf = new StringBuffer();
+        StringBuilder buf = new StringBuilder();
         buf.append("[obs=").append(_obs);
         buf.append(", name=").append(_name);
         buf.append(", delta=").append(_delta);

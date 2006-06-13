@@ -172,7 +172,7 @@ public abstract class VolatileMirage implements Mirage
      */
     public String toString ()
     {
-        StringBuffer buf = new StringBuffer("[");
+        StringBuilder buf = new StringBuilder("[");
         toString(buf);
         return buf.append("]").toString();
     }
@@ -180,7 +180,7 @@ public abstract class VolatileMirage implements Mirage
     /**
      * Generates a string representation of this instance.
      */
-    protected void toString (StringBuffer buf)
+    protected void toString (StringBuilder buf)
     {
         buf.append("bounds=").append(StringUtil.toString(_bounds));
     }

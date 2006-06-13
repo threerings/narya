@@ -377,7 +377,7 @@ public abstract class TileSet
      */
     public String toString ()
     {
-	StringBuffer buf = new StringBuffer("[");
+	StringBuilder buf = new StringBuilder("[");
         toString(buf);
 	return buf.append("]").toString();
     }
@@ -419,7 +419,7 @@ public abstract class TileSet
      * <code>super.toString(buf)</code> and then appending additional
      * information to the buffer.
      */
-    protected void toString (StringBuffer buf)
+    protected void toString (StringBuilder buf)
     {
         buf.append("name=").append(_name);
 	buf.append(", path=").append(_imagePath);

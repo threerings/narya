@@ -215,7 +215,7 @@ public class ComponentClass implements Serializable
      */
     public String toString ()
     {
-        StringBuffer buf = new StringBuffer("[");
+        StringBuilder buf = new StringBuilder("[");
         buf.append("name=").append(name);
         buf.append(", pri=").append(renderPriority);
         if (colors != null) {

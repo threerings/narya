@@ -66,7 +66,7 @@ public class MusicManager
      */
     public String summarizeState ()
     {
-        StringBuffer buf = new StringBuffer();
+        StringBuilder buf = new StringBuilder();
         buf.append("musicVol=").append(_musicVol);
         return buf.append("]").toString();
     }
