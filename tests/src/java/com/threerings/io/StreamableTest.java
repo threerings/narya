@@ -1,5 +1,5 @@
 //
-// $Id: StreamableTest.java,v 1.2 2004/08/27 02:20:57 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -87,7 +87,7 @@ public class StreamableTest extends TestCase
             _fizzle = in.readInt();
         }
 
-        protected void toString (StringBuffer buf)
+        protected void toString (StringBuilder buf)
         {
             super.toString(buf);
             buf.append(", fizzle=").append(_fizzle);

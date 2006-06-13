@@ -49,7 +49,7 @@ public class TestConfig extends GameConfig
         return "com.threerings.parlor.test.TestManager";
     }
 
-    protected void toString (StringBuffer buf)
+    protected void toString (StringBuilder buf)
     {
         super.toString(buf);
         buf.append(", foozle=").append(foozle);
