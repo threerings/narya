@@ -75,8 +75,8 @@ public class StatsDisplay extends Node
     }
 
     protected Text _text;
-    protected StringBuilder _stats = new StringBuilder();
-    protected StringBuilder _temp = new StringBuilder();
+    protected StringBuffer _stats = new StringBuffer();
+    protected StringBuffer _temp = new StringBuffer();
 
     protected static final String DEFAULT_JME_FONT =
         "rsrc/media/jme/defaultfont.tga";
