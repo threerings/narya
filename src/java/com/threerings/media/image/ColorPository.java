@@ -33,12 +33,12 @@ import java.io.Serializable;
 import java.text.ParseException;
 
 import com.samskivert.util.HashIntMap;
+import com.samskivert.util.RandomUtil;
 import com.samskivert.util.StringUtil;
 
 import com.threerings.media.Log;
 import com.threerings.resource.ResourceManager;
 import com.threerings.util.CompiledConfig;
-import com.threerings.util.RandomUtil;
 
 /**
  * A repository of image recoloration information. It was called the

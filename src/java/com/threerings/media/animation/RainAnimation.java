@@ -1,5 +1,5 @@
 //
-// $Id: RainAnimation.java,v 1.6 2004/08/27 02:12:38 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -25,7 +25,7 @@ import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
 
-import com.threerings.util.RandomUtil;
+import com.samskivert.util.RandomUtil;
 
 /**
  * An animation that displays raindrops spattering across an image.

@@ -52,10 +52,10 @@ import com.samskivert.util.ConfigUtil;
 import com.samskivert.util.Interval;
 import com.samskivert.util.LRUHashMap;
 import com.samskivert.util.Queue;
+import com.samskivert.util.RandomUtil;
 import com.samskivert.util.StringUtil;
 
 import com.threerings.resource.ResourceManager;
-import com.threerings.util.RandomUtil;
 
 import com.threerings.media.Log;
 import com.threerings.media.MediaPrefs;

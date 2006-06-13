@@ -27,8 +27,7 @@ import java.util.ArrayList;
 import com.samskivert.swing.Controller;
 import com.samskivert.util.CollectionUtil;
 import com.samskivert.util.Interval;
-
-import com.threerings.util.RandomUtil;
+import com.samskivert.util.RandomUtil;
 
 /**
  * The robot player is a computer player with truly rudimentary artificial

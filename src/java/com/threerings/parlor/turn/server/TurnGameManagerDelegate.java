@@ -21,8 +21,8 @@
 
 package com.threerings.parlor.turn.server;
 
+import com.samskivert.util.RandomUtil;
 import com.threerings.util.Name;
-import com.threerings.util.RandomUtil;
 
 import com.threerings.crowd.data.PlaceObject;
 

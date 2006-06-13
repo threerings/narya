@@ -1,5 +1,5 @@
 //
-// $Id: ExplodeAnimation.java,v 1.16 2004/08/27 02:12:38 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -28,8 +28,8 @@ import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.Shape;
 
+import com.samskivert.util.RandomUtil;
 import com.samskivert.util.StringUtil;
-import com.threerings.util.RandomUtil;
 
 import com.threerings.media.image.Mirage;
 

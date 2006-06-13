@@ -25,7 +25,7 @@ import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.event.MouseEvent;
 
-import com.threerings.util.RandomUtil;
+import com.samskivert.util.RandomUtil;
 
 import com.threerings.cast.CharacterDescriptor;
 import com.threerings.cast.CharacterManager;

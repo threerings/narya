@@ -1,5 +1,5 @@
 //
-// $Id: BobbleAnimation.java,v 1.8 2004/08/27 02:12:38 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -24,8 +24,8 @@ package com.threerings.media.animation;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
 
+import com.samskivert.util.RandomUtil;
 import com.threerings.media.image.Mirage;
-import com.threerings.util.RandomUtil;
 
 /**
  * An animation that bobbles an image around within a specific horizontal

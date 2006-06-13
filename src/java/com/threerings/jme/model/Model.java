@@ -41,8 +41,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Properties;
 
-import com.samskivert.util.ObserverList;
-
 import com.jme.bounding.BoundingVolume;
 import com.jme.math.FastMath;
 import com.jme.math.Matrix4f;
@@ -54,7 +52,8 @@ import com.jme.scene.Controller;
 import com.jme.scene.Node;
 import com.jme.scene.Spatial;
 
-import com.threerings.util.RandomUtil;
+import com.samskivert.util.ObserverList;
+import com.samskivert.util.RandomUtil;
 
 import com.threerings.jme.Log;
 

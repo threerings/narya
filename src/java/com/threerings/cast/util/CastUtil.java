@@ -1,5 +1,5 @@
 //
-// $Id: CastUtil.java,v 1.11 2004/08/27 02:12:29 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -25,7 +25,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 
 import com.samskivert.util.CollectionUtil;
-import com.threerings.util.RandomUtil;
+import com.samskivert.util.RandomUtil;
 
 import com.threerings.cast.CharacterDescriptor;
 import com.threerings.cast.ComponentClass;

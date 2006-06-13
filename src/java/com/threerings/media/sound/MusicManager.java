@@ -25,9 +25,8 @@ import java.util.Iterator;
 import java.util.LinkedList;
 
 import com.samskivert.util.Config;
+import com.samskivert.util.RandomUtil;
 import com.samskivert.util.RunQueue;
-
-import com.threerings.util.RandomUtil;
 
 import com.threerings.media.Log;
 

@@ -21,7 +21,7 @@
 
 package com.threerings.media.util;
 
-import com.threerings.util.RandomUtil;
+import com.samskivert.util.RandomUtil;
 
 /**
  * Bobble a Pathable smoothly.

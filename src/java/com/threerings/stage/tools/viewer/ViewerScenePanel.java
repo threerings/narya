@@ -10,10 +10,10 @@ import java.awt.Rectangle;
 import java.awt.event.MouseEvent;
 
 import com.samskivert.swing.Controller;
+import com.samskivert.util.RandomUtil;
 
 import com.threerings.media.util.PerformanceMonitor;
 import com.threerings.media.util.PerformanceObserver;
-import com.threerings.util.RandomUtil;
 
 import com.threerings.cast.CharacterDescriptor;
 import com.threerings.cast.CharacterManager;

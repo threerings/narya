@@ -25,6 +25,7 @@ import java.util.Arrays;
 
 import com.samskivert.util.IntListUtil;
 import com.samskivert.util.Interval;
+import com.samskivert.util.RandomUtil;
 import com.samskivert.util.StringUtil;
 
 import com.threerings.presents.data.ClientObject;
@@ -39,7 +40,6 @@ import com.threerings.parlor.game.server.GameManager;
 
 import com.threerings.util.MessageBundle;
 import com.threerings.util.Name;
-import com.threerings.util.RandomUtil;
 
 import com.threerings.puzzle.Log;
 import com.threerings.puzzle.data.Board;

@@ -26,10 +26,10 @@ import java.util.Arrays;
 
 import com.samskivert.util.ArrayUtil;
 import com.samskivert.util.Interval;
+import com.samskivert.util.RandomUtil;
 import com.samskivert.util.StringUtil;
 
 import com.threerings.util.Name;
-import com.threerings.util.RandomUtil;
 
 import com.threerings.presents.data.ClientObject;
 import com.threerings.presents.dobj.DObject;

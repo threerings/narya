@@ -32,9 +32,9 @@ import javax.swing.event.ChangeListener;
 import com.samskivert.swing.Controller;
 import com.samskivert.swing.TGraphics2D;
 import com.samskivert.swing.util.SwingUtil;
+import com.samskivert.util.RandomUtil;
 import com.samskivert.util.StringUtil;
 import com.threerings.util.DirectionCodes;
-import com.threerings.util.RandomUtil;
 
 import com.threerings.media.tile.ObjectTile;
 import com.threerings.media.tile.Tile;

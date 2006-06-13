@@ -24,7 +24,7 @@ package com.threerings.media.util;
 import java.awt.Color;
 import java.awt.Graphics2D;
 
-import com.threerings.util.RandomUtil;
+import com.samskivert.util.RandomUtil;
 
 import com.threerings.media.Log;
 
