@@ -195,6 +195,8 @@ public /*abstract*/ class PlaceController /*extends Controller*/
      */
     public function handleAction (cmd :String, arg :Object) :Boolean
     {
+        Log.getLog(this).warning("Unhandled controller command [cmd=" + cmd +
+            ", arg=" + arg + "].");
         return false; // by default, no action is handled
     }
 
