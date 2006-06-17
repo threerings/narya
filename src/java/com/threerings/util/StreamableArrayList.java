@@ -34,7 +34,7 @@ import com.threerings.io.Streamable;
  *
  * @see Streamable
  */
-public class StreamableArrayList extends ArrayList
+public class StreamableArrayList<E> extends ArrayList<E>
     implements Streamable
 {
     /**
@@ -59,7 +59,7 @@ public class StreamableArrayList extends ArrayList
         int ecount = in.readInt();
         ensureCapacity(ecount);
         for (int ii = 0; ii < ecount; ii++) {
-            add(in.readObject());
+            add((E)in.readObject());
         }
     }
 }
