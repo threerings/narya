@@ -71,8 +71,6 @@ public class CrowdServer extends PresentsServer
 
         // initialize the chat services
         ChatProvider.init(invmgr, omgr);
-
-        Log.info("Crowd server initialized.");
     }
 
     /**
