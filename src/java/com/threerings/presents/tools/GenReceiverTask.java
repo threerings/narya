@@ -122,7 +122,7 @@ public class GenReceiverTask extends InvocationTask
             // determine the path to our sender file
             String mpath = source.getPath();
             mpath = StringUtil.replace(mpath, "Receiver", "Sender");
-            mpath = StringUtil.replace(mpath, "/client/", "/server/");
+            mpath = replacePath(mpath, "/client/", "/server/");
 
             writeFile(mpath, sw.toString());
 

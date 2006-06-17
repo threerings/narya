@@ -186,7 +186,7 @@ public class GenServiceTask extends InvocationTask
             // determine the path to our marshaller file
             String mpath = source.getPath();
             mpath = StringUtil.replace(mpath, "Service", "Marshaller");
-            mpath = StringUtil.replace(mpath, "/client/", "/data/");
+            mpath = replacePath(mpath, "/client/", "/data/");
 
             writeFile(mpath, sw.toString());
 
@@ -229,7 +229,7 @@ public class GenServiceTask extends InvocationTask
             // determine the path to our marshaller file
             String mpath = source.getPath();
             mpath = StringUtil.replace(mpath, "Service", "Dispatcher");
-            mpath = StringUtil.replace(mpath, "/client/", "/server/");
+            mpath = replacePath(mpath, "/client/", "/server/");
 
             writeFile(mpath, sw.toString());
 
@@ -269,7 +269,7 @@ public class GenServiceTask extends InvocationTask
             // determine the path to our provider file
             String mpath = source.getPath();
             mpath = StringUtil.replace(mpath, "Service", "Provider");
-            mpath = StringUtil.replace(mpath, "/client/", "/server/");
+            mpath = replacePath(mpath, "/client/", "/server/");
 
             writeFile(mpath, sw.toString());
 

@@ -315,6 +315,14 @@ public abstract class InvocationTask extends Task
         return (didx == -1) ? name : name.substring(0, didx);
     }
 
+    protected static String replacePath (
+        String source, String oldstr, String newstr)
+    {
+        return StringUtil.replace(source,
+                                  oldstr.replace('/', File.separatorChar),
+                                  newstr.replace('/', File.separatorChar));
+    }
+
     /** A list of filesets that contain tile images. */
     protected ArrayList _filesets = new ArrayList();
 
