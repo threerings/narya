@@ -769,6 +769,21 @@ public class Model extends ModelNode
         }
     }
     
+    @Override // documentation inherited
+    public void updateModelBound ()
+    {
+        if (worldBound == null) {
+            return;
+        }
+        setTransform(getWorldTranslation(), getWorldRotation(),
+            getWorldScale(), _xform);
+        _xform.invertLocal();
+        _xform.toTranslationVector(_trans);
+        extractScale(_xform, _scale);
+        _xform.toRotationQuat(_rot);
+        _modelBound = worldBound.transform(_rot, _trans, _scale, _modelBound);
+    }
+    
     /**
      * Determines whether this node was determined to be entirely outside the
      * view frustum.
@@ -879,23 +894,6 @@ public class Model extends ModelNode
             }
             _nidx += _fdir;
         }
-    }
-    
-    /**
-     * Sets the model bound based on the current world bound.
-     */
-    protected void updateModelBound ()
-    {
-        if (worldBound == null) {
-            return;
-        }
-        setTransform(getWorldTranslation(), getWorldRotation(),
-            getWorldScale(), _xform);
-        _xform.invertLocal();
-        _xform.toTranslationVector(_trans);
-        extractScale(_xform, _scale);
-        _xform.toRotationQuat(_rot);
-        _modelBound = worldBound.transform(_rot, _trans, _scale, _modelBound);
     }
     
     /**
