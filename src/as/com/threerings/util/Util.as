@@ -16,6 +16,15 @@ public class Util
         return buf.toString();
     }
 
+    public static function toHex (value :uint) :String
+    {
+        var buf :StringBuilder = new StringBuilder("0x");
+        for (var ii :int = 7; ii >= 0; ii--) {
+            buf.append(HEX[(value >> (ii * 4)) & 0xF]);
+        }
+        return buf.toString();
+    }
+
     public static function cast (obj :Object, clazz :Class) :Object
     {
         if (obj == null || obj is clazz) {
