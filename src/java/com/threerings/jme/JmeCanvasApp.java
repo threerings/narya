@@ -22,9 +22,12 @@
 package com.threerings.jme;
 
 import java.awt.Canvas;
+import java.awt.Graphics;
 import java.awt.EventQueue;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
+
+import org.lwjgl.LWJGLException;
 
 import com.jme.renderer.Renderer;
 import com.jme.renderer.lwjgl.LWJGLRenderer;
@@ -32,6 +35,7 @@ import com.jme.scene.Node;
 import com.jme.system.DisplaySystem;
 import com.jmex.awt.JMECanvas;
 import com.jmex.awt.JMECanvasImplementor;
+import com.jmex.awt.lwjgl.LWJGLCanvas;
 
 import com.jmex.bui.CanvasRootNode;
 
@@ -44,7 +48,15 @@ public class JmeCanvasApp extends JmeApp
     public JmeCanvasApp (int width, int height)
     {
         _display = DisplaySystem.getDisplaySystem("LWJGL");
-        _canvas = _display.createCanvas(width, height);
+        
+        // create a throwaway canvas so that the display system knows it's
+        // created, then create our custom canvas
+        _display.createCanvas(width, height);
+        try {
+            _canvas = createCanvas();
+        } catch (LWJGLException e) {
+            Log.warning("Failed to create LWJGL canvas [error=" + e + "].");
+        }
         ((JMECanvas)_canvas).setImplementor(_winimp);
         _canvas.setBounds(0, 0, width, height);
         _canvas.addComponentListener(new ComponentAdapter() {
@@ -91,7 +103,28 @@ public class JmeCanvasApp extends JmeApp
     {
         return EventQueue.isDispatchThread();
     }
-
+    
+    /**
+     * Creates and returns the LWJGL canvas instance.
+     */
+    protected Canvas createCanvas ()
+        throws LWJGLException
+    {
+        // LWJGL's canvas releases the context after painting.  we make it
+        // current again, because we want it valid when we process events.
+        return new LWJGLCanvas() {
+            public void update (Graphics g) {
+                super.update(g);
+                try {
+                    makeCurrent();
+                } catch (LWJGLException e) {
+                    Log.warning("Failed to make context current [error=" +
+                        e + "].");
+                }
+            }
+        };
+    }
+    
     // documentation inherited
     protected DisplaySystem createDisplay ()
     {

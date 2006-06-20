@@ -89,7 +89,9 @@ import com.jme.scene.state.ZBufferState;
 import com.jme.system.JmeException;
 import com.jme.util.LoggingSystem;
 import com.jme.util.TextureManager;
+import com.jme.util.export.binary.BinaryImporter;
 import com.jme.util.geom.Debugger;
+import com.jmex.effects.particles.ParticleMesh;
 
 import com.samskivert.swing.GroupLayout;
 import com.samskivert.swing.Spacer;
@@ -167,6 +169,16 @@ public class ModelViewer extends JmeCanvasApp
         load.putValue(Action.ACCELERATOR_KEY,
             KeyStroke.getKeyStroke(KeyEvent.VK_L, KeyEvent.CTRL_MASK));
         file.add(load);
+        
+        Action importAction = new AbstractAction(_msg.get("m.file_import")) {
+            public void actionPerformed (ActionEvent e) {
+                showImportDialog();
+            }
+        };
+        importAction.putValue(Action.MNEMONIC_KEY, KeyEvent.VK_I);
+        importAction.putValue(Action.ACCELERATOR_KEY,
+            KeyStroke.getKeyStroke(KeyEvent.VK_I, KeyEvent.CTRL_MASK));
+        file.add(importAction);
         
         file.addSeparator();
         Action quit = new AbstractAction(_msg.get("m.file_quit")) {
@@ -492,7 +504,7 @@ public class ModelViewer extends JmeCanvasApp
                     if (file.isDirectory()) {
                         return true;
                     }
-                    String path = file.toString();
+                    String path = file.toString().toLowerCase();
                     return path.endsWith(".properties") ||
                         path.endsWith(".dat");
                 }
@@ -633,6 +645,54 @@ public class ModelViewer extends JmeCanvasApp
     }
     
     /**
+     * Shows the import particle system dialog.
+     */
+    protected void showImportDialog ()
+    {
+        if (_ichooser == null) {
+            _ichooser = new JFileChooser();
+            _ichooser.setDialogTitle(_msg.get("m.import_title"));
+            _ichooser.setFileFilter(new FileFilter() {
+                public boolean accept (File file) {
+                    if (file.isDirectory()) {
+                        return true;
+                    }
+                    String path = file.toString().toLowerCase();
+                    return path.endsWith(".jme");
+                }
+                public String getDescription () {
+                    return _msg.get("m.import_filter");
+                }
+            });
+            File dir = new File(_config.getValue("import_dir", "."));
+            if (dir.exists()) {
+                _ichooser.setCurrentDirectory(dir);
+            }
+        }
+        if (_ichooser.showOpenDialog(_frame) == JFileChooser.APPROVE_OPTION) {
+            importFile(_ichooser.getSelectedFile());
+        }
+        _config.setValue("import_dir",
+            _ichooser.getCurrentDirectory().toString());
+    }
+    
+    /**
+     * Attempts to import the specified file as a JME binary scene.
+     */
+    protected void importFile (File file)
+    {
+        try {
+            new ImportDialog(file,
+                (Spatial)BinaryImporter.getInstance().load(
+                    file)).setVisible(true);
+                
+        } catch (Exception e) {
+            e.printStackTrace();
+            _status.setText(_msg.get("m.load_error", file, e));
+        }
+    }
+    
+    /**
      * Updates the model's animation speed based on the position of the
      * animation speed slider.
      */
@@ -677,6 +737,9 @@ public class ModelViewer extends JmeCanvasApp
     
     /** The model file chooser. */
     protected JFileChooser _chooser;
+    
+    /** The import file chooser. */
+    protected JFileChooser _ichooser;
     
     /** The desired animation mode. */
     protected Model.AnimationMode _animMode;
@@ -730,6 +793,84 @@ public class ModelViewer extends JmeCanvasApp
         }
     };
     
+    /** Allows users to manipulate an imported JME file. */
+    protected class ImportDialog extends JDialog
+        implements ChangeListener
+    {
+        public ImportDialog (File file, Spatial spatial)
+        {
+            super(_frame, _msg.get("m.import", file), false);
+            _spatial = spatial;
+            
+            // rotate from y-up to z-up and set initial scale
+            _spatial.getLocalRotation().fromAngleNormalAxis(FastMath.HALF_PI,
+                Vector3f.UNIT_X);
+            _spatial.setLocalScale(0.025f);
+            
+            JPanel cpanel = GroupLayout.makeVBox();
+            getContentPane().add(cpanel, BorderLayout.CENTER);
+            
+            JPanel spanel = new JPanel();
+            spanel.add(new JLabel(_msg.get("m.scale")));
+            spanel.add(_scale = new JSlider(0, 1000, 250));
+            _scale.addChangeListener(this);
+            cpanel.add(spanel);
+            
+            JPanel bpanel = new JPanel();
+            bpanel.add(new JButton(new AbstractAction(
+                _msg.get("m.respawn_particles")) {
+                public void actionPerformed (ActionEvent e) {
+                    forceRespawn(_spatial);   
+                }
+            }));
+            bpanel.add(new JButton(new AbstractAction(_msg.get("m.close")) {
+                public void actionPerformed (ActionEvent e) {
+                    setVisible(false);
+                }
+            }));
+            getContentPane().add(bpanel, BorderLayout.SOUTH);
+            pack();
+        }
+        
+        // documentation inherited from interface ChangeListener
+        public void stateChanged (ChangeEvent e)
+        {
+            _spatial.setLocalScale(_scale.getValue() * 0.0001f);
+        }
+        
+        @Override // documentation inherited
+        public void setVisible (boolean visible)
+        {
+            super.setVisible(visible);
+            if (visible && _spatial.getParent() == null) {
+                _ctx.getGeometry().attachChild(_spatial);
+            } else if (!visible && _spatial.getParent() != null) {
+                _ctx.getGeometry().detachChild(_spatial);
+            }
+        }
+        
+        /**
+         * Recursively forces all particles to respawn.
+         */
+        protected void forceRespawn (Spatial spatial)
+        {
+            if (spatial instanceof ParticleMesh) {
+                ((ParticleMesh)spatial).forceRespawn();
+            } else if (spatial instanceof Node) {
+                Node node = (Node)spatial;
+                for (int ii = 0, nn = node.getQuantity(); ii < nn; ii++) {
+                    forceRespawn(node.getChild(ii));
+                }
+            }
+        }
+        
+        /** The imported scene. */
+        protected Spatial _spatial;
+        
+        /** The scale slider. */
+        protected JSlider _scale;
+    }
+    
     /** Allows users to move the directional light around. */
     protected class RotateLightDialog extends JDialog
         implements ChangeListener
@@ -771,12 +912,6 @@ public class ModelViewer extends JmeCanvasApp
                 -FastMath.cos(az) * FastMath.cos(el),
                 -FastMath.sin(az) * FastMath.cos(el),
                 -FastMath.sin(el));
-        }
-        
-        // documentation inherited from interface ActionListener
-        public void actionPerformed (ActionEvent e)
-        {
-            setVisible(false);
         }
         
         /** Azimuth and elevation sliders. */

@@ -6,6 +6,7 @@ commons-io.jar
 commons-lang.jar
 commons-logging.jar
 jme-awt.jar
+jme-effects.jar
 jme-bui.jar
 jme-model.jar
 jme-sound.jar
