@@ -235,6 +235,14 @@ public class DSet<E extends DSet.Entry>
     }
 
     /**
+     * @deprecated use {@link #toArray(E[])}.
+     */
+    public Object[] toArray (Object[] array)
+    {
+        return toArray((E[])array);
+    }
+
+    /**
      * Adds the specified entry to the set. This should not be called
      * directly, instead the associated <code>addTo{Set}()</code> method
      * should be called on the distributed object that contains the set in
