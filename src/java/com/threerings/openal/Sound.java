@@ -36,7 +36,10 @@ public class Sound
      * delayed in loading. */
     public interface StartObserver
     {
-        /** Called when the specified sound has started playing. */
+        /** Called when the specified sound has started playing.  If 
+         * sound is null then the sound failed to play but soundStarted
+         * was called anyway to perform whatever actions were waiting
+         * on the sound. */
         public void soundStarted (Sound sound);
     }
 
@@ -181,6 +184,9 @@ public class Sound
     {
         // if we were unable to get our buffer, fail immediately
         if (_buffer == null) {
+            if (obs != null) {
+                obs.soundStarted(null);
+            }
             return false;
         }
 
@@ -204,6 +210,9 @@ public class Sound
                 return true;
             } else {
                 // sorry charlie...
+                if (obs != null) {
+                    obs.soundStarted(null);
+                }
                 return false;
             }
         }
