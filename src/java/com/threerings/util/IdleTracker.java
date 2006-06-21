@@ -118,8 +118,8 @@ public abstract class IdleTracker
         _lastEvent = getTimeStamp();
 
         // idle-in if appropriate
-        if (_state != State.ACTIVE) {
-            _state = State.ACTIVE;
+        if (_state != ACTIVE) {
+            _state = ACTIVE;
             idledIn();
         }
     }
@@ -138,7 +138,7 @@ public abstract class IdleTracker
             // check whether they've idled out
             if (now >= (_lastEvent + _toIdleTime)) {
                 Log.info("User idle for " + (now-_lastEvent) + "ms.");
-                _state = State.IDLE;
+                _state = IDLE;
                 idledOut();
             }
             break;
@@ -148,15 +148,15 @@ public abstract class IdleTracker
             if (now >= (_lastEvent + _toIdleTime + _toAbandonTime)) {
                 Log.info("User idle for " + (now-_lastEvent) + "ms. " +
                          "Abandoning ship.");
-                _state = State.ABANDONED;
+                _state = ABANDONED;
                 abandonedShip();
             }
             break;
         }
     }
 
-    /** The user's current state. */
-    protected static enum State { ACTIVE, IDLE, ABANDONED };
+//     /** The user's current state. */
+//     protected static enum State { ACTIVE, IDLE, ABANDONED };
 
     /** The duration after which we declare the user to be idle. */
     protected long _toIdleTime;
@@ -169,5 +169,9 @@ public abstract class IdleTracker
     protected long _lastEvent;
 
     /** Whether the user is currently active, idle or abandoned. */
-    protected State _state = State.ACTIVE;
+    protected int _state = ACTIVE;
+
+    protected static final int ACTIVE = 0;
+    protected static final int IDLE = 1;
+    protected static final int ABANDONED = 2;
 }
