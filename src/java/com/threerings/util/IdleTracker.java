@@ -64,19 +64,22 @@ public abstract class IdleTracker
             }
         }, eventMask);
 
-        // and tie into the keyboard manager as well
-        keymgr.registerKeyObserver(new KeyboardManager.KeyObserver() {
-            public void handleKeyEvent (int id, int keyCode, long timestamp) {
-                handleUserActivity();
-            }
-        });
+        // and tie into the keyboard manager if one is provided
+        if (keymgr != null) {
+            keymgr.registerKeyObserver(new KeyboardManager.KeyObserver() {
+                public void handleKeyEvent (
+                    int id, int keyCode, long timestamp) {
+                    handleUserActivity();
+                }
+            });
+        }
 
         // register an interval to periodically check our last activity time
         new Interval(rqueue) {
             public void expired () {
                 checkIdle();
             }
-        }.schedule(IDLE_INTERVAL, true);
+        }.schedule(_toIdleTime/3, true);
     }
 
     /**
@@ -166,8 +169,5 @@ public abstract class IdleTracker
     protected long _lastEvent;
 
     /** Whether the user is currently active, idle or abandoned. */
-    protected State _state;
-
-    /** The delay in milliseconds between checks for user idle. */
-    protected static final long IDLE_INTERVAL = 60L * 1000L;
+    protected State _state = State.ACTIVE;
 }
