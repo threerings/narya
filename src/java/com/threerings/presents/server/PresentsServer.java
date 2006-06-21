@@ -120,7 +120,7 @@ public class PresentsServer
 
         // create our connection manager
         conmgr = new ConnectionManager(getListenPorts());
-        conmgr.setAuthenticator(new DummyAuthenticator());
+        conmgr.setAuthenticator(createAuthenticator());
 
         // create our client manager
         clmgr = createClientManager(conmgr);
@@ -137,6 +137,14 @@ public class PresentsServer
                 generateReport(System.currentTimeMillis());
             }
         }.schedule(REPORT_INTERVAL, true);
+    }
+
+    /**
+     * Creates the client Authenticator to be used on this server.
+     */
+    protected Authenticator createAuthenticator ()
+    {
+        return new DummyAuthenticator();
     }
 
     /**
