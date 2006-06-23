@@ -38,7 +38,7 @@ import java.util.HashMap;
 
 import com.samskivert.util.ClassUtil;
 
-import com.threerings.presents.Log;
+import static com.threerings.NaryaLog.log;
 
 /**
  * Handles the streaming of {@link Streamable} instances as well as a set
@@ -102,7 +102,7 @@ public class Streamer
 
             // create a streamer for this class and cache it
             if (ObjectInputStream.STREAM_DEBUG) {
-                Log.info("Creating a streamer for '" + target.getName() + "'.");
+                log.info("Creating a streamer for '" + target.getName() + "'.");
             }
 
             // create our streamer in a privileged block so that it can
@@ -140,7 +140,7 @@ public class Streamer
         if (useWriter && _writer != null) {
             try {
                 if (ObjectInputStream.STREAM_DEBUG) {
-                    Log.info("Writing with writer " +
+                    log.info("Writing with writer " +
                              "[class=" + _target.getName() + "].");
                 }
                 _writer.invoke(object, new Object[] { out });
@@ -149,7 +149,6 @@ public class Streamer
                 if (t instanceof InvocationTargetException) {
                     t = ((InvocationTargetException)t).getTargetException();
                 }
-                Log.logStackTrace(t);
                 if (t instanceof IOException) {
                     throw (IOException)t;
                 }
@@ -212,12 +211,11 @@ public class Streamer
             }
             try {
                 if (ObjectInputStream.STREAM_DEBUG) {
-                    Log.info("Writing field [class=" + _target.getName() +
+                    log.info("Writing field [class=" + _target.getName() +
                              ", field=" + field.getName() + "].");
                 }
                 fm.writeField(field, object, out);
             } catch (Exception e) {
-                Log.logStackTrace(e);
                 String errmsg = "Failure writing streamable field " +
                     "[class=" + _target.getName() +
                     ", field=" + field.getName() + "]";
@@ -242,14 +240,14 @@ public class Streamer
             if (_target.isArray()) {
                 int length = in.readInt();
                 if (ObjectInputStream.STREAM_DEBUG) {
-                    Log.info(in.hashCode() + ": Creating array '" +
+                    log.info(in.hashCode() + ": Creating array '" +
                              _target.getComponentType().getName() +
                              "[" + length + "]'.");
                 }
                 return Array.newInstance(_target.getComponentType(), length);
             } else {
                 if (ObjectInputStream.STREAM_DEBUG) {
-                    Log.info(in.hashCode() + ": Creating object '" +
+                    log.info(in.hashCode() + ": Creating object '" +
                              _target.getName() + "'.");
                 }
                 return _target.newInstance();
@@ -284,7 +282,7 @@ public class Streamer
         if (useReader && _reader != null) {
             try {
                 if (ObjectInputStream.STREAM_DEBUG) {
-                    Log.info(in.hashCode() + ": Reading with reader '" +
+                    log.info(in.hashCode() + ": Reading with reader '" +
                              _target.getName() + "." +
                              _reader.getName() + "()'.");
                 }
@@ -294,7 +292,6 @@ public class Streamer
                 if (t instanceof InvocationTargetException) {
                     t = ((InvocationTargetException)t).getTargetException();
                 }
-                Log.logStackTrace(t);
                 if (t instanceof IOException) {
                     throw (IOException)t;
                 }
@@ -306,7 +303,7 @@ public class Streamer
         }
 
         if (ObjectInputStream.STREAM_DEBUG) {
-            Log.info(in.hashCode() + ": Reading '" + _target.getName() + "'.");
+            log.info(in.hashCode() + ": Reading '" + _target.getName() + "'.");
         }
 
         // if we're reading in an array, do some special business
@@ -325,14 +322,14 @@ public class Streamer
                 for (int ii = 0; ii < length; ii++) {
                     if (mask.isSet(ii)) {
                         if (ObjectInputStream.STREAM_DEBUG) {
-                            Log.info(in.hashCode() +
+                            log.info(in.hashCode() +
                                      ": Reading fixed element '" + ii + "'.");
                         }
                         Object element = _delegate.createObject(in);
                         in.readBareObject(element, _delegate, useReader);
                         Array.set(object, ii, element);
                     } else if (ObjectInputStream.STREAM_DEBUG) {
-                        Log.info(in.hashCode() +
+                        log.info(in.hashCode() +
                                  ": Skipping null element '" + ii + "'.");
                     }
                 }
@@ -341,7 +338,7 @@ public class Streamer
                 // otherwise we had to write each object out individually
                 for (int ii = 0; ii < length; ii++) {
                     if (ObjectInputStream.STREAM_DEBUG) {
-                        Log.info(in.hashCode() +
+                        log.info(in.hashCode() +
                                  ": Reading free element '" + ii + "'.");
                     }
                     Array.set(object, ii, in.readObject());
@@ -364,7 +361,7 @@ public class Streamer
             }
             try {
                 if (ObjectInputStream.STREAM_DEBUG) {
-                    Log.info(in.hashCode() +
+                    log.info(in.hashCode() +
                              ": Reading field '" + field.getName() + "'.");
                 }
                 // gracefully deal with objects that have had new fields
@@ -372,12 +369,11 @@ public class Streamer
                 if (in.available() > 0) {
                     fm.readField(field, object, in);
                 } else {
-                    Log.info("Streamed instance missing field (probably " +
+                    log.info("Streamed instance missing field (probably " +
                              "newly added) [class=" + _target.getName() +
                              ", field=" + field.getName() + "].");
                 }
             } catch (Exception e) {
-                Log.logStackTrace(e);
                 String errmsg = "Failure reading streamable field " +
                     "[class=" + _target.getName() +
                     ", field=" + field.getName() + "]";
@@ -386,7 +382,7 @@ public class Streamer
         }
 
         if (ObjectInputStream.STREAM_DEBUG) {
-            Log.info(in.hashCode() + ": Read object '" + object + "'.");
+            log.info(in.hashCode() + ": Read object '" + object + "'.");
         }
     }
 
@@ -440,7 +436,7 @@ public class Streamer
         for (int ii = 0; ii < fcount; ii++) {
             _marshallers[ii] = FieldMarshaller.getFieldMarshaller(_fields[ii]);
             if (ObjectInputStream.STREAM_DEBUG) {
-                Log.info("Using " + _marshallers[ii] + " for " +
+                log.info("Using " + _marshallers[ii] + " for " +
                          _target.getName() + "." + _fields[ii].getName() + ".");
             }
         }

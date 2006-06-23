@@ -158,9 +158,9 @@
   <target name="dist" depends="prepare,compile,ncompile,tests">
     <!-- build our various jar files -->
     <jar destfile="${deploy.dir}/${app.name}-base.jar">
+      <fileset dir="${classes.dir}" includes="com/threerings/NaryaLog**"/>
       <fileset dir="${classes.dir}" includes="com/threerings/io/**"/>
       <fileset dir="${classes.dir}" includes="com/threerings/util/**"/>
-      <fileset dir="${classes.dir}" includes="com/threerings/tools/**"/>
     </jar>
     <jar destfile="${deploy.dir}/${app.name}-distrib.jar">
       <fileset dir="${classes.dir}" includes="com/threerings/presents/**"/>

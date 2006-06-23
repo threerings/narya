@@ -29,7 +29,7 @@ import java.util.HashMap;
 import com.samskivert.util.HashIntMap;
 import com.samskivert.util.StringUtil;
 
-import com.threerings.presents.Log;
+import static com.threerings.NaryaLog.log;
 
 /**
  * Used to read {@link Streamable} objects from an {@link InputStream}.
@@ -92,7 +92,7 @@ public class ObjectInputStream extends DataInputStream
             // a zero code indicates a null value
             if (code == 0) {
                 if (STREAM_DEBUG) {
-                    Log.info(hashCode() + ": Read null.");
+                    log.info(hashCode() + ": Read null.");
                 }
                 return null;
 
@@ -117,7 +117,7 @@ public class ObjectInputStream extends DataInputStream
                 Class sclass = Class.forName(cname, true, _loader);
                 Streamer streamer = Streamer.getStreamer(sclass);
                 if (STREAM_DEBUG) {
-                    Log.info(hashCode() + ": New class '" + cname + "'.");
+                    log.info(hashCode() + ": New class '" + cname + "'.");
                 }
 
                 // sanity check
@@ -137,10 +137,10 @@ public class ObjectInputStream extends DataInputStream
                 // sanity check
                 if (cmap == null) {
                     // this will help with debugging
-                    Log.warning("Internal stream error, no class metadata " +
+                    log.warning("Internal stream error, no class metadata " +
                                 "[code=" + code + ", ois=" + this + "].");
                     Thread.dumpStack();
-                    Log.warning("ObjectInputStream mappings " +
+                    log.warning("ObjectInputStream mappings " +
                                 StringUtil.toString(_classmap.entrySet()) +
                                 ".");
                     String errmsg = "Read object code for which we " +

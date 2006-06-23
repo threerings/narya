@@ -182,7 +182,7 @@ public class ObjectOutputStream extends DataOutputStream
                 "defaultWriteObject() called illegally.");
         }
 
-//         Log.info("Writing default [cmap=" + _streamer +
+//         log.info("Writing default [cmap=" + _streamer +
 //                  ", current=" + _current + "].");
 
         // write the instance data
