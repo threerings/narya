@@ -89,14 +89,10 @@
   <target name="prepare">
     <mkdir dir="${deploy.dir}"/>
     <mkdir dir="${classes.dir}"/>
-    <mkdir dir="${classes.dir}/rsrc"/>
     <mkdir dir="${javadoc.home}"/>
     <copy todir="${classes.dir}">
       <fileset dir="src/java" includes="**/*.properties"/>
       <fileset dir="src/java" includes="**/*.tmpl"/>
-    </copy>
-    <copy todir="${classes.dir}/rsrc">
-      <fileset dir="rsrc" includes="**/*" excludes="**/bundles/**"/>
     </copy>
   </target>
 
@@ -170,8 +166,6 @@
       <fileset dir="${classes.dir}" includes="com/threerings/presents/**"/>
       <fileset dir="${classes.dir}" includes="com/threerings/crowd/**"/>
       <fileset dir="${classes.dir}" includes="com/threerings/admin/**"/>
-      <fileset dir="${classes.dir}" includes="rsrc/config/presents/**"/>
-      <fileset dir="${classes.dir}" includes="rsrc/config/crowd/**"/>
     </jar>
     <jar destfile="${deploy.dir}/${app.name}-tests.jar">
       <fileset dir="tests/${classes.dir}" includes="com/threerings/**"/>
