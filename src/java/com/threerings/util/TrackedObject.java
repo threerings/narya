@@ -27,6 +27,8 @@ import java.util.Map;
 
 import com.samskivert.util.Tuple;
 
+import static com.threerings.NaryaLog.log;
+
 /**
  * Used to perform rudimentary memory profiling on large, running systems
  * where it is impractical to operate a real profiler. Instances of {@link
@@ -75,7 +77,7 @@ public class TrackedObject
             if (count != null) {
                 count[0]--;
             } else {
-                Log.warning("Finalized TrackedObject missing counter! " +
+                log.warning("Finalized TrackedObject missing counter! " +
                             "[class=" + clazz + "].");
             }
         }

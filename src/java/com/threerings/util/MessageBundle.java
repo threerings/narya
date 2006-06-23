@@ -28,6 +28,8 @@ import java.util.ResourceBundle;
 import com.samskivert.text.MessageUtil;
 import com.samskivert.util.StringUtil;
 
+import static com.threerings.NaryaLog.log;
+
 /**
  * A message bundle provides an easy mechanism by which to obtain
  * translated message strings from a resource bundle. It uses the {@link
@@ -116,7 +118,7 @@ public class MessageBundle
         }
 
         if (reportMissing) {
-            Log.warning("Missing translation message " +
+            log.warning("Missing translation message " +
                         "[bundle=" + _path + ", key=" + key + "].");
             Thread.dumpStack();
         }
@@ -235,14 +237,14 @@ public class MessageBundle
                     args = newargs;
                     msg = getResourceString(key + getSuffix(args));
                 } catch (Exception e) {
-                    Log.warning("Failure doing automatic plural handling " +
+                    log.warning("Failure doing automatic plural handling " +
                                 "[bundle=" + _path + ", key=" + key +
                                 ", args=" + StringUtil.toString(args) +
                                 ", error=" + e + "].");
                 }
 
             } else {
-                Log.warning("Missing translation message " +
+                log.warning("Missing translation message " +
                             "[bundle=" + _path + ", key=" + key + "].");
                 Thread.dumpStack();
             }

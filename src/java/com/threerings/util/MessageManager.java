@@ -28,6 +28,8 @@ import java.util.ResourceBundle;
 
 import com.samskivert.util.StringUtil;
 
+import static com.threerings.NaryaLog.log;
+
 /**
  * The message manager provides a thin wrapper around Java's built-in
  * localization support, supporting a policy of dividing up localization
@@ -70,7 +72,7 @@ public class MessageManager
 
         // use the default locale
         _locale = Locale.getDefault();
-        Log.info("Using locale: " + _locale + ".");
+        log.info("Using locale: " + _locale + ".");
 
         // make sure the prefix ends with a dot
         if (!_prefix.endsWith(".")) {
@@ -139,7 +141,7 @@ public class MessageManager
                 rbundle = ResourceBundle.getBundle(fqpath, _locale);
             }
         } catch (MissingResourceException mre) {
-            Log.warning("Unable to resolve resource bundle " +
+            log.warning("Unable to resolve resource bundle " +
                         "[path=" + fqpath + ", locale=" + _locale + "].");
         }
 
@@ -159,7 +161,7 @@ public class MessageManager
                 // nothing to worry about
 
             } catch (Throwable t) {
-                Log.warning("Failure instantiating custom message bundle " +
+                log.warning("Failure instantiating custom message bundle " +
                             "[mbclass=" + mbclass + ", error=" + t + "].");
             }
         }

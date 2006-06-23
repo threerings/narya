@@ -23,7 +23,8 @@ package com.threerings.util.signal;
 
 import com.samskivert.util.HashIntMap;
 import com.samskivert.util.ObserverList;
-import com.threerings.util.Log;
+
+import static com.threerings.NaryaLog.log;
 
 /**
  * Uses native code to catch Unix signals and invoke callbacks on a
@@ -173,7 +174,7 @@ public class SignalManager
         if (_haveLibrary && _sigdis == null) {
             _sigdis = new Thread() {
                 public void run () {
-                    Log.info("Dispatching signals...");
+                    log.info("Dispatching signals...");
                     dispatchSignals();
                 }
             };
@@ -190,7 +191,7 @@ public class SignalManager
     {
         ObserverList list = (ObserverList)_handlers.get(signal);
         if (list == null || !list.contains(handler)) {
-            Log.warning("Requested to remove non-registered handler " +
+            log.warning("Requested to remove non-registered handler " +
                         "[signal=" + signal + ", handler=" + handler + "].");
             return;
         }
@@ -273,7 +274,7 @@ public class SignalManager
             System.loadLibrary("signal");
             _haveLibrary = true;
         } catch (Throwable t) {
-            Log.info("Could not load libsignal.so; signal handling disabled.");
+            log.info("Could not load libsignal.so; signal handling disabled.");
         }
     }
 }
