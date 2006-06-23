@@ -29,6 +29,7 @@ import java.lang.reflect.Field;
 import java.util.BitSet;
 
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.table.AbstractTableModel;
 
@@ -38,8 +39,6 @@ import com.samskivert.swing.event.CommandEvent;
 import com.samskivert.util.ClassUtil;
 import com.samskivert.util.ComparableArrayList;
 import com.samskivert.util.ListUtil;
-
-import com.threerings.media.SafeScrollPane;
 
 import com.threerings.presents.Log;
 import com.threerings.presents.dobj.AttributeChangeListener;
@@ -109,7 +108,7 @@ public class DSetEditor extends JPanel
 
         _table = new ObjectEditorTable(entryClass, editableFields, interp);
 
-        add(new SafeScrollPane(_table), BorderLayout.CENTER);
+        add(new JScrollPane(_table), BorderLayout.CENTER);
     }
 
     /**

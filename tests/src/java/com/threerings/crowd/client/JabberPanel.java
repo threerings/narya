@@ -9,8 +9,8 @@ import javax.swing.JPanel;
 import com.threerings.crowd.data.PlaceObject;
 import com.threerings.crowd.util.CrowdContext;
 
-import com.threerings.micasa.client.ChatPanel;
-import com.threerings.micasa.client.OccupantList;
+// import com.threerings.micasa.client.ChatPanel;
+// import com.threerings.micasa.client.OccupantList;
 
 /**
  * Displays a simple chat view.
@@ -22,8 +22,8 @@ public class JabberPanel extends JPanel
     {
         _ctx = ctx;
         setLayout(new BorderLayout());
-        add(new ChatPanel(ctx), BorderLayout.CENTER);
-        add(new OccupantList(ctx), BorderLayout.EAST);
+//         add(new ChatPanel(ctx), BorderLayout.CENTER);
+//         add(new OccupantList(ctx), BorderLayout.EAST);
     }
 
     // documentation inherited from interface PlaceView

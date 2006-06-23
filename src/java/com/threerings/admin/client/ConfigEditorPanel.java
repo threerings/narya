@@ -23,11 +23,11 @@ package com.threerings.admin.client;
 
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 
 import com.samskivert.swing.VGroupLayout;
 
-import com.threerings.media.SafeScrollPane;
 import com.threerings.presents.util.PresentsContext;
 
 import com.threerings.admin.Log;
@@ -84,7 +84,7 @@ public class ConfigEditorPanel extends JPanel
         // when we're hidden, we want to clear out our subscriptions
         int ccount = _oeditors.getComponentCount();
         for (int ii = 0; ii < ccount; ii++) {
-            SafeScrollPane scrolly = (SafeScrollPane)_oeditors.getComponent(ii);
+            JScrollPane scrolly = (JScrollPane)_oeditors.getComponent(ii);
             ObjectEditorPanel opanel = (ObjectEditorPanel)
                 scrolly.getViewport().getView();
             opanel.cleanup();
@@ -101,7 +101,7 @@ public class ConfigEditorPanel extends JPanel
         for (int ii = 0; ii < keys.length; ii++) {
             ObjectEditorPanel panel =
                 new ObjectEditorPanel(_ctx, keys[ii], oids[ii]);
-            SafeScrollPane scrolly = new SafeScrollPane(panel);
+            JScrollPane scrolly = new JScrollPane(panel);
             _oeditors.addTab(keys[ii], scrolly);
             if (keys[ii].equals(_defaultPane)) {
                 _oeditors.setSelectedComponent(scrolly);

@@ -61,11 +61,7 @@
       <providerless service="LocationService"/>
       <providerless service="BodyService"/>
       <providerless service="SimulatorService"/>
-      <providerless service="ParlorService"/>
       <providerless service="TimeBaseService"/>
-      <providerless service="SpotService"/>
-      <providerless service="ZoneService"/>
-      <providerless service="SceneService"/>
     </service>
   </target>
 
@@ -87,30 +83,6 @@
       <fileset dir="src/java" includes="**/*Receiver.java"
         excludes="**/InvocationReceiver.java"/>
     </receiver>
-  </target>
-
-  <!-- checks the availability of certain libraries -->
-  <target name="check-available">
-    <available property="lwjgl.present"
-     classname="org.lwjgl.LWJGLException" classpathref="classpath"/>
-    <available property="jme.present"
-     classname="com.jme.scene.Node" classpathref="classpath"/>
-    <available property="jme-bui.present"
-     classname="com.jmex.bui.BWindow" classpathref="classpath"/>
-    <available property="jme-sound.present"
-     classname="com.jmex.sound.openAL.SoundSystem" classpathref="classpath"/>
-    <condition property="build.jme">
-      <and>
-        <isset property="jme.present"/>
-        <isset property="jme-bui.present"/>
-      </and>
-    </condition>
-    <condition property="build.openal">
-      <and>
-        <isset property="lwjgl.present"/>
-        <isset property="jme-sound.present"/>
-      </and>
-    </condition>
   </target>
 
   <!-- prepares the application directories -->
@@ -135,17 +107,11 @@
   </target>
 
   <!-- build the java class files -->
-  <target name="compile" depends="check-available,prepare">
+  <target name="compile" depends="prepare">
     <javac srcdir="src/java" destdir="${classes.dir}"
            debug="on" optimize="{$build.optimize}" deprecation="on"
            source="1.5" target="1.5">
       <classpath refid="classpath"/>
-      <exclude name="com/threerings/jme/**" unless="build.jme"/>
-      <exclude name="com/threerings/openal/**" unless="build.openal"/>
-      <exclude name="**/OggPlayer.java"/>
-      <exclude name="**/ModPlayer.java"/>
-      <exclude name="**/MidiPlayer.java"/>
-      <exclude name="**/Mp3Player.java"/>
       <!--<compilerarg value="-Xlint:unchecked"/>-->
     </javac>
   </target>
@@ -154,10 +120,6 @@
   <target name="ncompile" depends="prepare">
     <echo message="Doing native compilation on ${os.name}..."/>
     <exec dir="src/java/com/threerings/util/signal/${os.name}" 
-     executable="make"><arg line="install"/></exec>
-    <exec os="Linux" dir="src/java/com/threerings/util/keybd/Linux" 
-     executable="make"><arg line="install"/></exec>
-    <exec dir="src/java/com/threerings/util/unsafe/${os.name}" 
      executable="make"><arg line="install"/></exec>
   </target>
 
@@ -172,15 +134,14 @@
       <!-- ant documentation is not available online, sorry kids -->
       <link href="file:///usr/share/doc/ant-doc/javadocs"/>
       <link href="http://samskivert.com/code/samskivert/samskivert/docs/api"/>
-      <link href="http://www.jmonkeyengine.com/doc"/>
     </javadoc>
     <copy todir="${javadoc.home}">
       <fileset dir="src/java" includes="**/*.png"/>
     </copy>
   </target>
 
-  <!-- builds the javadocs and stuffs them in a directory where they won't
-       be blown away when we do "clean" next time -->
+  <!-- builds the javadocs and stuffs them in a directory where they -->
+  <!-- won't be blown away when we do "clean" next time -->
   <target name="savedoc" depends="javadoc">
     <delete dir="${savedoc.dir}/api"/>
     <copy todir="${savedoc.dir}/api">
@@ -203,12 +164,7 @@
     <jar destfile="${deploy.dir}/${app.name}-base.jar">
       <fileset dir="${classes.dir}" includes="com/threerings/io/**"/>
       <fileset dir="${classes.dir}" includes="com/threerings/util/**"/>
-      <fileset dir="${classes.dir}" includes="com/threerings/resource/**"/>
       <fileset dir="${classes.dir}" includes="com/threerings/tools/**"/>
-    </jar>
-    <jar destfile="${deploy.dir}/${app.name}-media.jar">
-      <fileset dir="${classes.dir}" includes="com/threerings/geom/**"/>
-      <fileset dir="${classes.dir}" includes="com/threerings/media/**"/>
     </jar>
     <jar destfile="${deploy.dir}/${app.name}-distrib.jar">
       <fileset dir="${classes.dir}" includes="com/threerings/presents/**"/>
@@ -217,39 +173,8 @@
       <fileset dir="${classes.dir}" includes="rsrc/config/presents/**"/>
       <fileset dir="${classes.dir}" includes="rsrc/config/crowd/**"/>
     </jar>
-    <jar destfile="${deploy.dir}/${app.name}-parlor.jar">
-      <fileset dir="${classes.dir}" includes="com/threerings/parlor/**"/>
-    </jar>
-    <jar destfile="${deploy.dir}/${app.name}-puzzle.jar">
-      <fileset dir="${classes.dir}" includes="com/threerings/puzzle/**"/>
-    </jar>
-    <jar destfile="${deploy.dir}/${app.name}-micasa.jar">
-      <fileset dir="${classes.dir}" includes="com/threerings/micasa/**"/>
-      <fileset dir="${classes.dir}" includes="rsrc/config/micasa/**"/>
-      <fileset dir="${classes.dir}" includes="rsrc/i18n/micasa*"/>
-    </jar>
-    <jar destfile="${deploy.dir}/${app.name}-whirled.jar">
-      <fileset dir="${classes.dir}" includes="com/threerings/whirled/**"/>
-      <fileset dir="${classes.dir}" includes="rsrc/config/whirled/**"/>
-    </jar>
-    <jar destfile="${deploy.dir}/${app.name}-miso.jar">
-      <fileset dir="${classes.dir}" includes="com/threerings/miso/**"/>
-      <fileset dir="${classes.dir}" includes="rsrc/config/miso/**"/>
-    </jar>
-    <jar destfile="${deploy.dir}/${app.name}-cast.jar">
-      <fileset dir="${classes.dir}" includes="com/threerings/cast/**"/>
-    </jar>
-    <jar destfile="${deploy.dir}/${app.name}-stage.jar">
-      <fileset dir="${classes.dir}" includes="com/threerings/stage/**"/>
-      <fileset dir="${classes.dir}" includes="rsrc/media/stage/**"/>
-    </jar>
-    <jar destfile="${deploy.dir}/${app.name}-jme.jar">
-      <fileset dir="${classes.dir}" includes="com/threerings/jme/**"/>
-      <fileset dir="${classes.dir}" includes="rsrc/media/jme/**"/>
-      <fileset dir="${classes.dir}" includes="rsrc/i18n/jme/**"/>
-    </jar>
-    <jar destfile="${deploy.dir}/${app.name}-openal.jar">
-      <fileset dir="${classes.dir}" includes="com/threerings/openal/**"/>
+    <jar destfile="${deploy.dir}/${app.name}-tests.jar">
+      <fileset dir="tests/${classes.dir}" includes="com/threerings/**"/>
     </jar>
   </target>
 
@@ -279,27 +204,11 @@
     <!-- we weave everything a first time without verification so that -->
     <!-- interdependencies will resolve the second time -->
     <weave inputjar="${inpre}-base.jar" outputjar="${outpre}-base.jar"/>
-    <weave inputjar="${inpre}-cast.jar" outputjar="${outpre}-cast.jar"/>
     <weave inputjar="${inpre}-distrib.jar" outputjar="${outpre}-distrib.jar"/>
-    <weave inputjar="${inpre}-micasa.jar" outputjar="${outpre}-micasa.jar"/>
-    <weave inputjar="${inpre}-miso.jar" outputjar="${outpre}-miso.jar"/>
-    <weave inputjar="${inpre}-media.jar" outputjar="${outpre}-media.jar"/>
-    <weave inputjar="${inpre}-parlor.jar" outputjar="${outpre}-parlor.jar"/>
-    <weave inputjar="${inpre}-puzzle.jar" outputjar="${outpre}-puzzle.jar"/>
-    <weave inputjar="${inpre}-stage.jar" outputjar="${outpre}-stage.jar"/>
-    <weave inputjar="${inpre}-whirled.jar" outputjar="${outpre}-whirled.jar"/>
 
     <!-- now weave again with the verifier to check for unweavable 1.5isms -->
     <antcall target="vweave"><param name="which" value="base"/></antcall>
-    <antcall target="vweave"><param name="which" value="cast"/></antcall>
     <antcall target="vweave"><param name="which" value="distrib"/></antcall>
-    <antcall target="vweave"><param name="which" value="micasa"/></antcall>
-    <antcall target="vweave"><param name="which" value="miso"/></antcall>
-    <antcall target="vweave"><param name="which" value="media"/></antcall>
-    <antcall target="vweave"><param name="which" value="parlor"/></antcall>
-    <antcall target="vweave"><param name="which" value="puzzle"/></antcall>
-    <antcall target="vweave"><param name="which" value="stage"/></antcall>
-    <antcall target="vweave"><param name="which" value="whirled"/></antcall>
   </target>
 
   <!-- generate a class hierarchy diagram -->

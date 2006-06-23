@@ -235,7 +235,7 @@ public class DSet<E extends DSet.Entry>
     }
 
     /**
-     * @deprecated use {@link #toArray(E[])}.
+     * @deprecated use {@link #toArray(Entry[])}.
      */
     public Object[] toArray (Object[] array)
     {

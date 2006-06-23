@@ -24,8 +24,6 @@ package com.threerings.whirled.zone.data;
 import com.samskivert.util.StringUtil;
 
 import com.threerings.io.Streamable;
-import com.threerings.util.DirectionCodes;
-import com.threerings.util.DirectionUtil;
 
 /**
  * The scene summary class is used to provide info about the connected
@@ -45,8 +43,7 @@ public class SceneSummary implements Streamable
      * portals. */
     public int[] neighbors;
 
-    /** The compass directions in which each of the neighbors lay. The
-     * direction constants are as defined in {@link DirectionCodes}. */
+    /** The directions in which each of the neighbors lay. */
     public int[] neighborDirs;
 
     /**
@@ -56,6 +53,6 @@ public class SceneSummary implements Streamable
     {
         return "[sceneId=" + sceneId + ", name=" + name +
             ", neighbors=" + StringUtil.toString(neighbors) +
-            ", neighborDirs=" + DirectionUtil.toString(neighborDirs) + "]";
+            ", neighborDirs=" + StringUtil.toString(neighborDirs) + "]";
     }
 }
