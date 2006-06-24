@@ -8,6 +8,11 @@ public class Byte
 {
     public var value :int;
 
+    public static function valueOf (val :int) :Byte
+    {
+        return new Byte(val);
+    }
+
     public function Byte (value :int)
     {
         this.value = value;

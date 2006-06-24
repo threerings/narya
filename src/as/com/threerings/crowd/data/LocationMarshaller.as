@@ -57,7 +57,7 @@ public class LocationMarshaller extends InvocationMarshaller
     {
         var listener3 :LocationMarshaller_MoveMarshaller = new LocationMarshaller_MoveMarshaller();
         listener3.listener = arg3;
-        sendRequest(arg1, MOVE_TO, [ new Integer(arg2), listener3 ]);
+        sendRequest(arg1, MOVE_TO, [ Integer.valueOf(arg2), listener3 ]);
     }
 }
 }

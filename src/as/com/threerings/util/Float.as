@@ -8,6 +8,11 @@ public class Float
 {
     public var value :Number;
 
+    public static function valueOf (val :Number) :Float
+    {
+        return new Float(val);
+    }
+
     public function Float (value :Number)
     {
         this.value = value;

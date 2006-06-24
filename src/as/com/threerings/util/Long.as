@@ -9,6 +9,11 @@ public class Long
     public var high :int;
     public var low :int;
 
+    public static function valueOf (low :int, high :int = 0) :Long
+    {
+        return new Long(low, high);
+    }
+
     public function Long (low :int, high :int = 0)
     {
         this.low = low;

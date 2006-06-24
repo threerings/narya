@@ -44,7 +44,7 @@ public class SpeakMarshaller extends InvocationMarshaller
     // documentation inherited from interface
     public function speak (arg1 :Client, arg2 :String, arg3 :int) :void
     {
-        sendRequest(arg1, SPEAK, [ arg2, new Byte(arg3) ]);
+        sendRequest(arg1, SPEAK, [ arg2, Byte.valueOf(arg3) ]);
     }
 }
 }

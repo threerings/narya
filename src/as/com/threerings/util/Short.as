@@ -8,6 +8,11 @@ public class Short
 {
     public var value :int;
 
+    public static function valueOf (val :int) :Short
+    {
+        return new Short(val);
+    }
+
     public function Short (value :int)
     {
         this.value = value;

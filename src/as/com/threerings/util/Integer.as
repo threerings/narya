@@ -13,6 +13,11 @@ public class Integer
 {
     public var value :int;
 
+    public static function valueOf (val :int) :Integer
+    {
+        return new Integer(val);
+    }
+
     public function Integer (value :int)
     {
         this.value = value;

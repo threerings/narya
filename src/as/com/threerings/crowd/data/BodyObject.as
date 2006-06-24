@@ -181,7 +181,7 @@ public class BodyObject extends ClientObject
     {
         var ovalue :int = this.status;
         requestAttributeChange(
-            STATUS, new Byte(value), new Byte(ovalue));
+            STATUS, Byte.valueOf(value), Byte.valueOf(ovalue));
         this.status = value;
     }
 
