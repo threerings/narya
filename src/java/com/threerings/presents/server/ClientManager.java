@@ -386,7 +386,8 @@ public class ClientManager
     }
 
     // documentation inherited from interface PresentsServer.Reporter
-    public void appendReport (StringBuilder report, long now, long sinceLast)
+    public void appendReport (
+        StringBuilder report, long now, long sinceLast, boolean reset)
     {
         report.append("* presents.ClientManager:\n");
         report.append("- Sessions: ");

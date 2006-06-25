@@ -202,14 +202,21 @@ public class ConnectionManager extends LoopingThread
     }
 
     // documentation inherited from interface PresentsServer.Reporter
-    public void appendReport (StringBuilder report, long now, long sinceLast)
+    public void appendReport (
+        StringBuilder report, long now, long sinceLast, boolean reset)
     {
         long bytesIn, bytesOut, msgsIn, msgsOut;
         synchronized (this) {
-            bytesIn = _bytesIn; _bytesIn = 0L;
-            bytesOut = _bytesOut; _bytesOut = 0L;
-            msgsIn = _msgsIn; _msgsIn = 0;
-            msgsOut = _msgsOut; _msgsOut = 0;
+            bytesIn = _bytesIn;
+            bytesOut = _bytesOut;
+            msgsIn = _msgsIn;
+            msgsOut = _msgsOut;
+            if (reset) {
+                _bytesIn = 0L;
+                _bytesOut = 0L;
+                _msgsIn = 0;
+                _msgsOut = 0;
+            }
         }
 
         report.append("* presents.net.ConnectionManager:\n");
