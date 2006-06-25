@@ -205,7 +205,7 @@ public class PresentsServer
 
         case SignalManager.SIGUSR1:
             // generate a system status report
-            Log.info(generateReport(System.currentTimeMillis(), false));
+            Log.info(generateReport());
             break;
 
         default:
@@ -227,9 +227,18 @@ public class PresentsServer
     }
 
     /**
+     * Generates a report for all system services registered as a {@link
+     * Reporter}.
+     */
+    public static String generateReport ()
+    {
+        return generateReport(System.currentTimeMillis(), false);
+    }
+
+    /**
      * Generates and logs a "state of server" report.
      */
-    protected String generateReport (long now, boolean reset)
+    protected static String generateReport (long now, boolean reset)
     {
         long sinceLast = now - _lastReportStamp;
         long uptime = now - _serverStartTime;
@@ -384,10 +393,10 @@ public class PresentsServer
     }
 
     /** The time at which the server was started. */
-    protected long _serverStartTime = System.currentTimeMillis();
+    protected static long _serverStartTime = System.currentTimeMillis();
 
     /** The last time at which {@link #generateReport} was run. */
-    protected long _lastReportStamp = _serverStartTime;
+    protected static long _lastReportStamp = _serverStartTime;
 
     /** Used to generate "state of server" reports. */
     protected static ArrayList _reporters = new ArrayList();
