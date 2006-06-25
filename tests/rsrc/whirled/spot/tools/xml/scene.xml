@@ -1,9 +1,0 @@
-<?xml version="1.0"?>
-
-<!-- test spot scene parser -->
-<scene name="Test Scene" version="42" defaultEntranceId="3">
-  <portal portalId="1" x="1" y="25" orient="3" name="East portal"
-    targetSceneName="East scene" targetPortalName="West portal"/>
-  <portal portalId="2" x="25" y="1" orient="5" name="North portal"
-    targetSceneName="North scene" targetPortalName="South portal"/>
-</scene>
