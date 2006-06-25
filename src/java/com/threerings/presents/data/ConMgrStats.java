@@ -58,14 +58,14 @@ public class ConMgrStats extends SimpleStreamableObject
     /** Creates our historical arrays. */
     public void init ()
     {
-        authQueueSize = new int[60];
-        deathQueueSize = new int[60];
-        outQueueSize = new int[60];
-        overQueueSize = new int[60];
-        bytesIn = new int[60];
-        bytesOut = new int[60];
-        msgsIn = new int[60];
-        msgsOut = new int[60];
+        authQueueSize = new int[SLOTS];
+        deathQueueSize = new int[SLOTS];
+        outQueueSize = new int[SLOTS];
+        overQueueSize = new int[SLOTS];
+        bytesIn = new int[SLOTS];
+        bytesOut = new int[SLOTS];
+        msgsIn = new int[SLOTS];
+        msgsOut = new int[SLOTS];
     }
 
     /** Advances the currently accumulating bucket and clears its
@@ -82,4 +82,14 @@ public class ConMgrStats extends SimpleStreamableObject
         msgsIn[current] = 0;
         msgsOut[current] = 0;
     }
+
+    /**
+     * Returns the index of the most recently accumulated stats slot.
+     */
+    public int mostRecent ()
+    {
+        return (current + SLOTS - 1) % SLOTS;
+    }
+
+    protected static final int SLOTS = 60;
 }
