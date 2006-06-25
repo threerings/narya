@@ -21,12 +21,12 @@
 
 package com.threerings.presents.data;
 
-import com.threerings.io.Streamable;
+import com.threerings.io.SimpleStreamableObject;
 
 /**
  * Used to track and report stats on the connection manager.
  */
-public class ConMgrStats implements Streamable
+public class ConMgrStats extends SimpleStreamableObject
 {
     /** The current index into the history arrays. */
     public int current;
