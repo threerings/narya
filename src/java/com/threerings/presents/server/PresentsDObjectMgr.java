@@ -58,10 +58,10 @@ import com.threerings.presents.dobj.*;
 public class PresentsDObjectMgr
     implements RootDObjectManager, RunQueue, PresentsServer.Reporter
 {
-    /** Contains operational statistics that are tracked by the
-     * distributed object manager for a particular period of time (e.g. 5
-     * minutes). The snapshot for the most recently completed period can
-     * be requested via {@link #getStats()}. . */
+    /** Contains operational statistics that are tracked by the distributed
+     * object manager between {@link PresentsServer#Reporter} intervals. The
+     * snapshot for the most recently completed period can be requested via
+     * {@link #getStats()}. . */
     public static class Stats
     {
         /** The largest size of the distributed object queue during the
@@ -256,19 +256,6 @@ public class PresentsDObjectMgr
             _current.maxQueueSize = queueSize;
         }
 
-        // report and reset our largest queue size once every 5 minutes
-        long startMillis = start * 1000 / freq;
-        if (_nextStatsSnapshot < startMillis) {
-            _recent = _current;
-            _current = new Stats();
-            if (_nextStatsSnapshot != 0L) {
-                _current.maxQueueSize = queueSize;
-                _nextStatsSnapshot += STATS_SNAPSHOT_INTERVAL;
-            } else {
-                _nextStatsSnapshot = startMillis + STATS_SNAPSHOT_INTERVAL;
-            }
-        }
-
         try {
             if (unit instanceof Runnable) {
                 // if this is a runnable, it's just an executable unit
@@ -296,13 +283,13 @@ public class PresentsDObjectMgr
 
         // report excessively long units
         if (elapsed > 500000) {
-            Log.warning("Long dobj unit [unit=" + StringUtil.safeToString(unit) +
+            Log.warning("Long dobj unit [u=" + StringUtil.safeToString(unit) +
                         " (" + StringUtil.shortClassName(unit) + ")" +
                         ", time=" + (elapsed/1000) + "ms].");
         }
 
         // periodically sample and record the time spent processing a unit
-        if (_eventCount % UNIT_PROFILING_INTERVAL == 0) {
+        if (UNIT_PROF_ENABLED && _eventCount % UNIT_PROF_INTERVAL == 0) {
             String cname;
             // do some jiggery pokery to get more fine grained profiling
             // details on certain "popular" unit types
@@ -728,14 +715,27 @@ public class PresentsDObjectMgr
     public void appendReport (StringBuilder report, long now, long sinceLast)
     {
         report.append("* presents.PresentsDObjectMgr:\n");
-
-        report.append("- Unit profiles: ").append(_profiles.size());
+        int queueSize = _evqueue.size();
+        report.append("- Queue size: ").append(queueSize).append("\n");
+        report.append("- Max queue size: ").append(_current.maxQueueSize);
         report.append("\n");
-        for (Map.Entry<String,UnitProfile> entry : _profiles.entrySet()) {
-            report.append("  ").append(entry.getKey());
-            report.append(" ").append(entry.getValue());
+        report.append("- Units executed: ").append(_current.eventCount);
+        report.append("\n");
+
+        if (UNIT_PROF_ENABLED) {
+            report.append("- Unit profiles: ").append(_profiles.size());
             report.append("\n");
+            for (Map.Entry<String,UnitProfile> entry : _profiles.entrySet()) {
+                report.append("  ").append(entry.getKey());
+                report.append(" ").append(entry.getValue());
+                report.append("\n");
+            }
         }
+
+        // roll over stats
+        _recent = _current;
+        _current = new Stats();
+        _current.maxQueueSize = queueSize;
     }
 
     /**
@@ -1020,17 +1020,14 @@ public class PresentsDObjectMgr
     /** Used to track runtime statistics. */
     protected Stats _recent = new Stats(), _current = _recent;
 
-    /** The time at which we last took a snapshot of our stats. */
-    protected long _nextStatsSnapshot;
+    /** Whether or not unit profiling is enabled. */
+    protected static final boolean UNIT_PROF_ENABLED = false;
 
     /** The frequency with which we take a profiling sample. */
-    protected static final int UNIT_PROFILING_INTERVAL = 100;
+    protected static final int UNIT_PROF_INTERVAL = 100;
 
     /** The default size of an oid list refs vector. */
     protected static final int DEFREFVEC_SIZE = 4;
-
-    /** The frequency with which we roll over our runtime stats. */
-    protected static final long STATS_SNAPSHOT_INTERVAL = 5 * 60 * 1000L;
 
     /**
      * This table maps event classes to helper methods that perform some

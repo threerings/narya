@@ -23,8 +23,6 @@ package com.threerings.presents.server;
 
 import java.util.Iterator;
 
-import com.samskivert.util.AuditLogger;
-import com.samskivert.util.Histogram;
 import com.samskivert.util.Invoker;
 import com.samskivert.util.StringUtil;
 
@@ -51,15 +49,6 @@ public class PresentsInvoker extends Invoker
     }
 
     /**
-     * Configures this manager with a log to which runtime statistics will
-     * be recorded.
-     */
-    public void setStatsLog (AuditLogger logger)
-    {
-        _statslog = logger;
-    }
-
-    /**
      * Will do a sophisticated shutdown of both itself and the DObjectManager
      * thread.
      */
@@ -69,20 +58,33 @@ public class PresentsInvoker extends Invoker
     }
 
     // documentation inherited from interface
-    public void appendReport (StringBuilder buffer, long now, long sinceLast)
+    public void appendReport (StringBuilder buf, long now, long sinceLast)
     {
-        buffer.append("* presents.util.Invoker:\n");
-        buffer.append("- Units executed: ").append(_unitsRun).append("\n");
-        _unitsRun = 0;
-        for (Iterator iter = _tracker.keySet().iterator(); iter.hasNext(); ) {
-            Object key = iter.next();
-            UnitProfile profile = (UnitProfile)_tracker.get(key);
-            if (key instanceof Class) {
-                key = StringUtil.shortClassName((Class)key);
+        buf.append("* presents.util.Invoker:\n");
+        int qsize = _queue.size();
+        buf.append("- Queue size: ").append(qsize).append("\n");
+        synchronized (this) {
+            buf.append("- Max queue size: ").append(_maxQueueSize).append("\n");
+            buf.append("- Units executed: ").append(_unitsRun).append("\n");
+            _maxQueueSize = qsize;
+            _unitsRun = 0;
+            if (_currentUnit != null) {
+                String uname = StringUtil.safeToString(_currentUnit);
+                buf.append("- Current unit: ").append(uname).append(" ");
+                buf.append(now-_currentUnitStart).append("ms\n");
             }
-            buffer.append("  ").append(key).append(" ");
-            buffer.append(profile).append("\n");
-            profile.clear();
+        }
+
+        if (PresentsDObjectMgr.UNIT_PROF_ENABLED) {
+            for (Object key : _tracker.keySet()) {
+                UnitProfile profile = (UnitProfile)_tracker.get(key);
+                if (key instanceof Class) {
+                    key = StringUtil.shortClassName((Class)key);
+                }
+                buf.append("  ").append(key).append(" ");
+                buf.append(profile).append("\n");
+                profile.clear();
+            }
         }
     }
 
@@ -91,26 +93,28 @@ public class PresentsInvoker extends Invoker
     {
         super.willInvokeUnit(unit, start);
 
-        if (_statslog != null) {
+        int queueSize = _queue.size();
+        synchronized (this) {
             // keep track of the largest queue size we've seen
-            int queueSize = _queue.size();
             if (queueSize > _maxQueueSize) {
                 _maxQueueSize = queueSize;
             }
 
-            // report and reset our largest queue size once every 5 minutes
-            if (_nextQueueReport < start) {
-                if (_nextQueueReport != 0L) {
-                    _statslog.log("max_invoker_queue_size " + _maxQueueSize);
-                    _maxQueueSize = queueSize;
-                    _nextQueueReport +=
-                        PresentsDObjectMgr.STATS_SNAPSHOT_INTERVAL;
+            // note the currently invoking unit
+            _currentUnit = unit;
+            _currentUnitStart = start;
+        }
+    }
 
-                } else {
-                    _nextQueueReport =
-                        start + PresentsDObjectMgr.STATS_SNAPSHOT_INTERVAL;
-                }
-            }
+    // documentation inherited
+    protected void didInvokeUnit (Unit unit, long start)
+    {
+        super.didInvokeUnit(unit, start);
+
+        synchronized (this) {
+            // clear out our currently invoking unit
+            _currentUnit = null;
+            _currentUnitStart = 0L;
         }
     }
 
@@ -164,7 +168,7 @@ public class PresentsInvoker extends Invoker
                 // because of passes
                 if (_passCount >= MAX_PASSES) {
                     Log.warning("Shutdown Unit passed 50 times without " +
-                        "finishing, shutting down harshly.");
+                                "finishing, shutting down harshly.");
                 }
                 doShutdown();
             }
@@ -177,7 +181,7 @@ public class PresentsInvoker extends Invoker
         {
             if (_loopCount > MAX_LOOPS) {
                 Log.warning("Shutdown Unit looped on one thread 10000 times " +
-                    "without finishing, shutting down harshly.");
+                            "without finishing, shutting down harshly.");
                 doShutdown();
                 return true;
             }
@@ -217,12 +221,12 @@ public class PresentsInvoker extends Invoker
     /** The distributed object manager with which we interoperate. */
     protected PresentsDObjectMgr _omgr;
 
-    /** Used to report runtime statistics. */
-    protected AuditLogger _statslog;
-
-    /** The largest queue size in the past minute. */
+    /** The largest queue size since our last report. */
     protected long _maxQueueSize;
 
-    /** The time at which we last reported our max queue size. */
-    protected long _nextQueueReport;
+    /** Records the currently invoking unit. */
+    protected Object _currentUnit;
+
+    /** The time at which our current unit started. */
+    protected long _currentUnitStart;
 }

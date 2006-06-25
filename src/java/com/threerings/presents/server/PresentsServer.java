@@ -105,8 +105,9 @@ public class PresentsServer
                  ", jvm=" + si.jvmToString() +
                  ", mem=" + si.memoryToString() + "].");
 
-        // register a ctrl-c handler
+        // register SIGINT (ctrl-c) and a SIGUSER1 handlers
         SignalManager.registerSignalHandler(SignalManager.SIGINT, this);
+        SignalManager.registerSignalHandler(SignalManager.SIGUSR1, this);
 
         // create our list of shutdowners
         _downers = new ObserverList(ObserverList.SAFE_IN_ORDER_NOTIFY);
@@ -134,7 +135,7 @@ public class PresentsServer
         // queue up an interval which will generate reports
         new Interval(omgr) {
             public void expired () {
-                generateReport(System.currentTimeMillis());
+                logReport(generateReport(System.currentTimeMillis()));
             }
         }.schedule(REPORT_INTERVAL, true);
     }
@@ -193,9 +194,23 @@ public class PresentsServer
     // documentation inherited from interface
     public boolean signalReceived (int signo)
     {
-        // this is called when we receive a ctrl-c
-        Log.info("Shutdown initiated by received signal (" + signo + ")");
-        queueShutdown();
+        switch (signo) {
+        case SignalManager.SIGINT:
+            // this is called when we receive a ctrl-c
+            Log.info("Shutdown initiated by received signal (" + signo + ")");
+            queueShutdown();
+            break;
+
+        case SignalManager.SIGUSR1:
+            // generate a system status report
+            Log.info(generateReport(System.currentTimeMillis()));
+            break;
+
+        default:
+            Log.warning("Received unknown signal [signo=" + signo + "].");
+            break;
+        }
+
         return true;
     }
 
@@ -212,16 +227,16 @@ public class PresentsServer
     /**
      * Generates and logs a "state of server" report.
      */
-    protected void generateReport (long now)
+    protected String generateReport (long now)
     {
         long sinceLast = now - _lastReportStamp;
         long uptime = now - _serverStartTime;
         StringBuilder report = new StringBuilder("State of server report:\n");
 
         report.append("- Uptime: ");
-        report.append(StringUtil.intervalToString(uptime)).append(", ");
-        report.append(StringUtil.intervalToString(sinceLast));
-        report.append(" since last report\n");
+        report.append(StringUtil.intervalToString(uptime)).append("\n");
+        report.append("- Report period: ");
+        report.append(StringUtil.intervalToString(sinceLast)).append("\n");
 
         // report on the state of memory
         Runtime rt = Runtime.getRuntime();
@@ -258,13 +273,13 @@ public class PresentsServer
         }
 
         _lastReportStamp = now;
-        logReport(report.toString());
+        return report.toString();
     }
 
     /**
-     * Logs the state of the server report via the default logging
-     * mechanism. Derived classes may wish to log the state of the server
-     * report via a different means.
+     * Logs the state of the server report via the default logging mechanism.
+     * Derived classes may wish to log the state of the server report via a
+     * different means.
      */
     protected void logReport (String report)
     {
