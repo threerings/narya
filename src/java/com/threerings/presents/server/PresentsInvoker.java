@@ -58,7 +58,8 @@ public class PresentsInvoker extends Invoker
     }
 
     // documentation inherited from interface
-    public void appendReport (StringBuilder buf, long now, long sinceLast)
+    public void appendReport (
+        StringBuilder buf, long now, long sinceLast, boolean reset)
     {
         buf.append("* presents.util.Invoker:\n");
         int qsize = _queue.size();
@@ -66,12 +67,14 @@ public class PresentsInvoker extends Invoker
         synchronized (this) {
             buf.append("- Max queue size: ").append(_maxQueueSize).append("\n");
             buf.append("- Units executed: ").append(_unitsRun).append("\n");
-            _maxQueueSize = qsize;
-            _unitsRun = 0;
             if (_currentUnit != null) {
                 String uname = StringUtil.safeToString(_currentUnit);
                 buf.append("- Current unit: ").append(uname).append(" ");
                 buf.append(now-_currentUnitStart).append("ms\n");
+            }
+            if (reset) {
+                _maxQueueSize = qsize;
+                _unitsRun = 0;
             }
         }
 
@@ -83,7 +86,9 @@ public class PresentsInvoker extends Invoker
                 }
                 buf.append("  ").append(key).append(" ");
                 buf.append(profile).append("\n");
-                profile.clear();
+                if (reset) {
+                    profile.clear();
+                }
             }
         }
     }

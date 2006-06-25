@@ -61,9 +61,11 @@ public class PresentsServer
          * epoch millis.
          * @param sinceLast number of milliseconds since the last time we
          * generated a report.
+         * @param reset if true, all accumulating stats should be reset, if
+         * false they should be allowed to continue to accumulate.
          */
         public void appendReport (
-            StringBuilder buffer, long now, long sinceLast);
+            StringBuilder buffer, long now, long sinceLast, boolean reset);
     }
 
     /** Implementers of this interface will be notified when the server is
@@ -135,7 +137,7 @@ public class PresentsServer
         // queue up an interval which will generate reports
         new Interval(omgr) {
             public void expired () {
-                logReport(generateReport(System.currentTimeMillis()));
+                logReport(generateReport(System.currentTimeMillis(), true));
             }
         }.schedule(REPORT_INTERVAL, true);
     }
@@ -203,7 +205,7 @@ public class PresentsServer
 
         case SignalManager.SIGUSR1:
             // generate a system status report
-            Log.info(generateReport(System.currentTimeMillis()));
+            Log.info(generateReport(System.currentTimeMillis(), false));
             break;
 
         default:
@@ -227,7 +229,7 @@ public class PresentsServer
     /**
      * Generates and logs a "state of server" report.
      */
-    protected String generateReport (long now)
+    protected String generateReport (long now, boolean reset)
     {
         long sinceLast = now - _lastReportStamp;
         long uptime = now - _serverStartTime;
@@ -249,7 +251,7 @@ public class PresentsServer
         for (int ii = 0; ii < _reporters.size(); ii++) {
             Reporter rptr = (Reporter)_reporters.get(ii);
             try {
-                rptr.appendReport(report, now, sinceLast);
+                rptr.appendReport(report, now, sinceLast, reset);
             } catch (Throwable t) {
                 Log.warning("Reporter choked [rptr=" + rptr + "].");
                 Log.logStackTrace(t);
@@ -272,7 +274,11 @@ public class PresentsServer
             report.delete(blen-1, blen);
         }
 
-        _lastReportStamp = now;
+        // only reset the last report time if this is a periodic report
+        if (reset) {
+            _lastReportStamp = now;
+        }
+
         return report.toString();
     }
 

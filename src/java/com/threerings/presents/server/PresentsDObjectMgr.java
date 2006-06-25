@@ -712,7 +712,8 @@ public class PresentsDObjectMgr
     }
 
     // documentation inherited from interface PresentsServer.Reporter
-    public void appendReport (StringBuilder report, long now, long sinceLast)
+    public void appendReport (
+        StringBuilder report, long now, long sinceLast, boolean reset)
     {
         report.append("* presents.PresentsDObjectMgr:\n");
         int queueSize = _evqueue.size();
@@ -733,9 +734,11 @@ public class PresentsDObjectMgr
         }
 
         // roll over stats
-        _recent = _current;
-        _current = new Stats();
-        _current.maxQueueSize = queueSize;
+        if (reset) {
+            _recent = _current;
+            _current = new Stats();
+            _current.maxQueueSize = queueSize;
+        }
     }
 
     /**
