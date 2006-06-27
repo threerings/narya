@@ -23,6 +23,7 @@ package com.threerings.presents.server.net;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.nio.channels.Channel;
 import java.nio.channels.SelectableChannel;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
@@ -99,7 +100,7 @@ public class ConnectionManager extends LoopingThread
      * anything on those methods that will conflict with activities on the
      * dobjmgr thread, etc.
      */
-    public void setStartupListener (ResultListener rl)
+    public void setStartupListener (ResultListener<Object> rl)
     {
         _startlist = rl;
     }
@@ -149,9 +150,7 @@ public class ConnectionManager extends LoopingThread
         _stats.deathQueueSize[_stats.current] = _deathq.size();
         _stats.outQueueSize[_stats.current] = _outq.size();
         if (_oflowqs.size() > 0) {
-            Iterator oqiter = _oflowqs.values().iterator();
-            while (oqiter.hasNext()) {
-                OverflowQueue oq = (OverflowQueue)oqiter.next();
+            for (OverflowQueue oq : _oflowqs.values()) {
                 _stats.overQueueSize[_stats.current] += oq.size();
             }
         }
@@ -242,9 +241,7 @@ public class ConnectionManager extends LoopingThread
         int code, Connection conn, Object arg1, Object arg2)
     {
         synchronized (_observers) {
-            for (int i = 0; i < _observers.size(); i++) {
-                ConnectionObserver obs =
-                    (ConnectionObserver)_observers.get(i);
+            for (ConnectionObserver obs : _observers) {
                 switch (code) {
                 case CONNECTION_ESTABLISHED:
                     obs.connectionEstablished(conn, (AuthRequest)arg1,
@@ -272,29 +269,14 @@ public class ConnectionManager extends LoopingThread
         for (int ii = 0; ii < _ports.length; ii++) {
             try {
                 // create a listening socket and add it to the select set
-                final ServerSocketChannel listener = ServerSocketChannel.open();
+                ServerSocketChannel listener = ServerSocketChannel.open();
                 listener.configureBlocking(false);
 
                 InetSocketAddress isa = new InetSocketAddress(_ports[ii]);
                 listener.socket().bind(isa);
-                Log.info("Server listening on " + isa + ".");
-
-                // register this listening socket and map its select key
-                // to a net event handler that will accept new connections
-                SelectionKey lkey =
-                    listener.register(_selector, SelectionKey.OP_ACCEPT);
-                _handlers.put(lkey, new NetEventHandler() {
-                    public int handleEvent (long when) {
-                        acceptConnection(listener);
-                        // there's no easy way to measure bytes read when
-                        // accepting a connection, so we claim nothing
-                        return 0;
-                    }
-                    public boolean checkIdle (long now) {
-                        return false; // we're never idle
-                    }
-                });
+                registerChannel(listener);
                 successes++;
+                Log.info("Server listening on " + isa + ".");
 
             } catch (IOException ioe) {
                 Log.warning("Failure listening to socket on " +
@@ -303,6 +285,34 @@ public class ConnectionManager extends LoopingThread
                 _failure = ioe;
             }
         }
+
+        // NOTE: this is not currently working; it works but for whatever
+        // inscrutable reason the inherited channel claims to be readable
+        // immediately every time through the select() loop which causes the
+        // server to consume 100% of the CPU repeatedly ignoring the inherited
+        // channel (except when an actual connection comes in in which case it
+        // does the right thing)
+
+//         // now look to see if we were passed a socket inetd style by a
+//         // privileged parent process
+//         try {
+//             Channel inherited = System.inheritedChannel();
+//             if (inherited instanceof ServerSocketChannel) {
+//                 ServerSocketChannel listener = (ServerSocketChannel)inherited;
+//                 listener.configureBlocking(false);
+//                 registerChannel(listener);
+//                 successes++;
+//                 Log.info("Server listening on " +
+//                          listener.socket().getInetAddress() + ":" +
+//                          listener.socket().getLocalPort() + ".");
+
+//             } else if (inherited != null) {
+//                 Log.warning("Inherited non-server-socket channel " +
+//                             inherited + ".");
+//             }
+//         } catch (IOException ioe) {
+//             Log.warning("Failed to check for inherited channel.");
+//         }
 
         // if we failed to listen on at least one port, give up the ghost
         if (successes == 0) {
@@ -319,6 +329,26 @@ public class ConnectionManager extends LoopingThread
         if (_startlist != null) {
             _startlist.requestCompleted(null);
         }
+    }
+
+    /** Helper function for {@link #willStart}. */
+    protected void registerChannel (final ServerSocketChannel listener)
+        throws IOException
+    {
+        // register this listening socket and map its select key to a net event
+        // handler that will accept new connections
+        SelectionKey sk = listener.register(_selector, SelectionKey.OP_ACCEPT);
+        _handlers.put(sk, new NetEventHandler() {
+            public int handleEvent (long when) {
+                acceptConnection(listener);
+                // there's no easy way to measure bytes read when accepting a
+                // connection, so we claim nothing
+                return 0;
+            }
+            public boolean checkIdle (long now) {
+                return false; // we're never idle
+            }
+        });
     }
 
     /**
@@ -340,21 +370,18 @@ public class ConnectionManager extends LoopingThread
         }
 
         // close connections that have had no network traffic for too long
-        Iterator hiter = _handlers.values().iterator();
-        while (hiter.hasNext()) {
-            NetEventHandler handler = (NetEventHandler)hiter.next();
+        for (NetEventHandler handler : _handlers.values()) {
             if (handler.checkIdle(iterStamp)) {
-                // this will queue the connection up for closure on our
-                // next tick
+                // this will queue the connection for closure on our next tick
                 closeConnection((Connection)handler);
             }
         }
 
         // attempt to send any messages waiting on the overflow queues
         if (_oflowqs.size() > 0) {
-            Iterator oqiter = _oflowqs.values().iterator();
+            Iterator<OverflowQueue> oqiter = _oflowqs.values().iterator();
             while (oqiter.hasNext()) {
-                OverflowQueue oq = (OverflowQueue)oqiter.next();
+                OverflowQueue oq = oqiter.next();
                 try {
                     // try writing the messages in this overflow queue
                     if (oq.writeOverflowMessages(iterStamp)) {
@@ -376,7 +403,7 @@ public class ConnectionManager extends LoopingThread
             // if an overflow queue exists for this client, go ahead and
             // slap the message on there because we can't send it until
             // all other messages in their queue have gone out
-            OverflowQueue oqueue = (OverflowQueue)_oflowqs.get(conn);
+            OverflowQueue oqueue = _oflowqs.get(conn);
             if (oqueue != null) {
                 int size = oqueue.size();
                 if ((size > 500) && (size % 50 == 0)) {
@@ -412,7 +439,7 @@ public class ConnectionManager extends LoopingThread
                 _handlers.put(selkey, rconn);
 
                 // transfer any overflow queue for that connection
-                Object oflowHandler = _oflowqs.remove(conn);
+                OverflowQueue oflowHandler = _oflowqs.remove(conn);
                 if (oflowHandler != null) {
                     _oflowqs.put(rconn, oflowHandler);
                 }
@@ -428,7 +455,7 @@ public class ConnectionManager extends LoopingThread
             }
         }
 
-        Set ready = null;
+        Set<SelectionKey> ready = null;
         try {
             // check for incoming network events
 //             Log.debug("Selecting from " +
@@ -472,12 +499,10 @@ public class ConnectionManager extends LoopingThread
 
         // process those events
 //         Log.info("Ready set " + StringUtil.toString(ready) + ".");
-        Iterator siter = ready.iterator();
-        while (siter.hasNext()) {
-            SelectionKey selkey = (SelectionKey)siter.next();
+        for (SelectionKey selkey : ready) {
             NetEventHandler handler = null;
             try {
-                handler = (NetEventHandler)_handlers.get(selkey);
+                handler = _handlers.get(selkey);
                 if (handler == null) {
                     Log.warning("Received network event but have no " +
                                 "registered handler [selkey=" + selkey + "].");
@@ -664,7 +689,8 @@ public class ConnectionManager extends LoopingThread
             return;
 
         } catch (IOException ioe) {
-            Log.warning("Failure accepting new connection: " + ioe);
+//             Log.warning("Failure accepting new connection: " + ioe);
+//             ioe.printStackTrace(System.err);
         }
 
         // make sure we don't leak a socket if something went awry
@@ -856,13 +882,14 @@ public class ConnectionManager extends LoopingThread
     protected int[] _ports;
     protected Authenticator _author;
     protected Selector _selector;
-    protected ResultListener _startlist;
+    protected ResultListener<Object> _startlist;
 
     /** Counts consecutive runtime errors in select(). */
     protected int _runtimeExceptionCount;
 
     /** Maps selection keys to network event handlers. */
-    protected HashMap _handlers = new HashMap();
+    protected HashMap<SelectionKey,NetEventHandler> _handlers =
+        new HashMap<SelectionKey,NetEventHandler>();
 
     protected Queue _deathq = new Queue();
     protected Queue _authq = new Queue();
@@ -871,9 +898,11 @@ public class ConnectionManager extends LoopingThread
     protected FramingOutputStream _framer;
     protected ByteBuffer _outbuf = ByteBuffer.allocateDirect(64 * 1024);
 
-    protected HashMap _oflowqs = new HashMap();
+    protected HashMap<Connection,OverflowQueue> _oflowqs =
+        new HashMap<Connection,OverflowQueue>();
 
-    protected ArrayList _observers = new ArrayList();
+    protected ArrayList<ConnectionObserver> _observers =
+        new ArrayList<ConnectionObserver>();
 
     /** Bytes in and out in the last reporting period. */
     protected long _bytesIn, _bytesOut;
