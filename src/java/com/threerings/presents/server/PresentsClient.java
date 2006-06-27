@@ -512,7 +512,7 @@ public class PresentsClient
      */
     public synchronized void unmapSubscrip (int oid)
     {
-        DObject object = (DObject)_subscrips.remove(oid);
+        DObject object = _subscrips.remove(oid);
         if (object != null) {
             object.removeSubscriber(this);
         } else {
@@ -527,8 +527,7 @@ public class PresentsClient
      */
     protected void clearSubscrips (boolean verbose)
     {
-        for (Iterator itr = _subscrips.elements(); itr.hasNext(); ) {
-            DObject object = (DObject)itr.next();
+        for (DObject object : _subscrips.values()) {
             if (verbose) {
                 Log.info("Clearing subscription [client=" + this +
                          ", obj=" + object.getOid() + "].");
@@ -751,8 +750,7 @@ public class PresentsClient
 
         // we dispatch to a message dispatcher that is specialized for the
         // particular class of message that we received
-        MessageDispatcher disp = (MessageDispatcher)
-            _disps.get(message.getClass());
+        MessageDispatcher disp = _disps.get(message.getClass());
         if (disp == null) {
             Log.warning("No dispatcher for message [msg=" + message + "].");
             return;
@@ -957,7 +955,7 @@ public class PresentsClient
     protected Name _username;
     protected Connection _conn;
     protected ClientObject _clobj;
-    protected HashIntMap _subscrips = new HashIntMap();
+    protected HashIntMap<DObject> _subscrips = new HashIntMap<DObject>();
     protected ClassLoader _loader;
 
     /** The time at which this client started their session. */
@@ -981,7 +979,8 @@ public class PresentsClient
     protected int _messagesDropped;
 
     /** A mapping of message dispatchers. */
-    protected static HashMap _disps = new HashMap();
+    protected static HashMap<Class<?>,MessageDispatcher> _disps =
+        new HashMap<Class<?>,MessageDispatcher>();
 
     /** The amount of time after disconnection a user is allowed before
      * their session is forcibly ended. */

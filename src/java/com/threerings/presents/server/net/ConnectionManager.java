@@ -396,9 +396,11 @@ public class ConnectionManager extends LoopingThread
         }
 
         // send any messages that are waiting on the outgoing queue
-        Tuple tup;
-        while ((tup = (Tuple)_outq.getNonBlocking()) != null) {
-            Connection conn = (Connection)tup.left;
+        Object obj;
+        while ((obj = _outq.getNonBlocking()) != null) {
+            @SuppressWarnings("unchecked") Tuple<Connection,byte[]> tup =
+                (Tuple<Connection,byte[]>)obj;
+            Connection conn = tup.left;
 
             // if an overflow queue exists for this client, go ahead and
             // slap the message on there because we can't send it until
@@ -416,7 +418,7 @@ public class ConnectionManager extends LoopingThread
             }
 
             // otherwise write the message out to the client directly
-            writeMessage(conn, (byte[])tup.right, _oflowHandler);
+            writeMessage(conn, tup.right, _oflowHandler);
         }
 
         // check for connections that have completed authentication
@@ -735,7 +737,7 @@ public class ConnectionManager extends LoopingThread
 //                          data.length + " bytes.");
 
                 // and slap both on the queue
-                _outq.append(new Tuple(conn, data));
+                _outq.append(new Tuple<Connection,byte[]>(conn, data));
 
             } catch (Exception e) {
                 Log.warning("Failure flattening message [conn=" + conn +
@@ -791,7 +793,7 @@ public class ConnectionManager extends LoopingThread
      * higher levels so that further messages are not queued up for the
      * unresponsive client.
      */
-    protected class OverflowQueue extends ArrayList
+    protected class OverflowQueue extends ArrayList<byte[]>
         implements PartialWriteHandler
     {
         /** The connection for which we're managing overflow. */
@@ -841,7 +843,7 @@ public class ConnectionManager extends LoopingThread
             }
 
             while (size() > 0) {
-                byte[] data = (byte[])remove(0);
+                byte[] data = remove(0);
                 // if any of these messages are partially written, we have
                 // to stop and wait for the next tick
                 _msgs++;

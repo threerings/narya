@@ -295,9 +295,9 @@ public class SpeakProvider
      * Returns a list of {@link ChatMessage} objects to which this user
      * has been privy in the recent past.
      */
-    public static ArrayList getChatHistory (Name username)
+    public static ArrayList<ChatMessage> getChatHistory (Name username)
     {
-        ArrayList history = getHistoryList(username);
+        ArrayList<ChatMessage> history = getHistoryList(username);
         pruneHistory(System.currentTimeMillis(), history);
         return history;
     }
@@ -323,7 +323,7 @@ public class SpeakProvider
         }
 
         // add the message to this user's chat history
-        ArrayList history = getHistoryList(username);
+        ArrayList<ChatMessage> history = getHistoryList(username);
         history.add(msg);
 
         // if the history is big enough, potentially prune it (we always
@@ -342,11 +342,11 @@ public class SpeakProvider
     /**
      * Returns this user's chat history, creating one if necessary.
      */
-    protected static ArrayList getHistoryList (Name username)
+    protected static ArrayList<ChatMessage> getHistoryList (Name username)
     {
-        ArrayList history = (ArrayList)_histories.get(username);
+        ArrayList<ChatMessage> history = _histories.get(username);
         if (history == null) {
-            _histories.put(username, history = new ArrayList());
+            _histories.put(username, history = new ArrayList<ChatMessage>());
         }
         return history;
     }
@@ -354,11 +354,12 @@ public class SpeakProvider
     /**
      * Prunes all messages from this history which are expired.
      */
-    protected static void pruneHistory (long now, ArrayList history)
+    protected static void pruneHistory (
+        long now, ArrayList<ChatMessage> history)
     {
         int prunepos = 0;
         for (int ll = history.size(); prunepos < ll; prunepos++) {
-            ChatMessage msg = (ChatMessage)history.get(prunepos);
+            ChatMessage msg = history.get(prunepos);
             if (now - msg.timestamp < HISTORY_EXPIRATION) {
                 break; // stop when we get to the first valid message
             }
@@ -384,15 +385,16 @@ public class SpeakProvider
     }
 
     /** Used to notify our {@link MessageObserver}s. */
-    protected static class MessageObserverOp implements ObserverList.ObserverOp
+    protected static class MessageObserverOp
+        implements ObserverList.ObserverOp<MessageObserver>
     {
         public void init (Name hearer, UserMessage message) {
             _hearer = hearer;
             _message = message;
         }
 
-        public boolean apply (Object observer) {
-            ((MessageObserver)observer).messageDelivered(_hearer, _message);
+        public boolean apply (MessageObserver observer) {
+            observer.messageDelivered(_hearer, _message);
             return true;
         }
 
@@ -407,14 +409,15 @@ public class SpeakProvider
     protected SpeakerValidator _validator;
     
     /** Recent chat history for the server. */
-    protected static HashMap _histories = new HashMap();
+    protected static HashMap<Name,ArrayList<ChatMessage>> _histories =
+        new HashMap<Name,ArrayList<ChatMessage>>();
 
     /** Used to note the recipients of a chat message. */
     protected static MessageMapper _messageMapper = new MessageMapper();
 
     /** A list of {@link MessageObserver}s. */
-    protected static ObserverList _messageObs = new ObserverList(
-        ObserverList.FAST_UNSAFE_NOTIFY);
+    protected static ObserverList<MessageObserver> _messageObs =
+        new ObserverList<MessageObserver>(ObserverList.FAST_UNSAFE_NOTIFY);
 
     /** Used to notify our {@link MessageObserver}s. */
     protected static MessageObserverOp _messageOp = new MessageObserverOp();

@@ -40,7 +40,7 @@ import com.threerings.presents.dobj.Subscriber;
  * appropriately.
  */
 public class ClientResolver extends Invoker.Unit
-    implements Subscriber
+    implements Subscriber<ClientObject>
 {
     /**
      * Initiailizes this instance.
@@ -70,11 +70,11 @@ public class ClientResolver extends Invoker.Unit
     }
 
     // documentation inherited
-    public void objectAvailable (DObject object)
+    public void objectAvailable (ClientObject object)
     {
         // we've got our object, so shunt ourselves over to the invoker
         // thread to perform database loading
-        _clobj = (ClientObject)object;
+        _clobj = object;
         PresentsServer.invoker.postUnit(this);
 
         // we no longer need to be a subscriber of the object now that it
@@ -121,10 +121,8 @@ public class ClientResolver extends Invoker.Unit
             PresentsServer.clmgr.mapClientObject(_username, _clobj);
 
             // and let the listeners in on the secret as well
-            int lcount = _listeners.size();
-            for (int i = 0; i < lcount; i++) {
-                ClientResolutionListener crl = (ClientResolutionListener)
-                    _listeners.get(i);
+            for (int ii = 0, ll = _listeners.size(); ii < ll; ii++) {
+                ClientResolutionListener crl = _listeners.get(ii);
                 try {
                     // add a reference for each listener
                     _clobj.reference();
@@ -173,10 +171,8 @@ public class ClientResolver extends Invoker.Unit
      */
     protected void reportFailure (Exception cause)
     {
-        int lcount = _listeners.size();
-        for (int i = 0; i < lcount; i++) {
-            ClientResolutionListener crl = (ClientResolutionListener)
-                _listeners.get(i);
+        for (int ii = 0, ll = _listeners.size(); ii < ll; ii++) {
+            ClientResolutionListener crl = _listeners.get(ii);
             try {
                 crl.resolutionFailed(_username, cause);
             } catch (Exception e) {
@@ -193,7 +189,8 @@ public class ClientResolver extends Invoker.Unit
     protected Name _username;
 
     /** The entities to notify of success or failure. */
-    protected ArrayList _listeners = new ArrayList();
+    protected ArrayList<ClientResolutionListener> _listeners =
+        new ArrayList<ClientResolutionListener>();
 
     /** The resolving client object. */
     protected ClientObject _clobj;

@@ -649,7 +649,7 @@ public class Client
      * Used to notify client observers of events.
      */
     protected class Notifier
-        implements ObserverList.ObserverOp
+        implements ObserverList.ObserverOp<SessionObserver>
     {
         public Notifier (int code, Exception cause)
         {
@@ -663,9 +663,8 @@ public class Client
             return _rejected;
         }
 
-        public boolean apply (Object observer)
+        public boolean apply (SessionObserver obs)
         {
-            SessionObserver obs = (SessionObserver)observer;
             switch (_code) {
             case CLIENT_DID_LOGON:
                 obs.clientDidLogon(Client.this);
@@ -748,8 +747,8 @@ public class Client
     protected int[] _ports;
 
     /** Our list of client observers. */
-    protected ObserverList _observers =
-        new ObserverList(ObserverList.SAFE_IN_ORDER_NOTIFY);
+    protected ObserverList<SessionObserver> _observers =
+        new ObserverList<SessionObserver>(ObserverList.SAFE_IN_ORDER_NOTIFY);
 
     /** The entity that manages our network communications. */
     protected Communicator _comm;

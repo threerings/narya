@@ -29,7 +29,7 @@ package com.threerings.presents.dobj;
  *
  * @see DObject#addListener
  */
-public interface ProxySubscriber extends Subscriber
+public interface ProxySubscriber extends Subscriber<DObject>
 {
     /**
      * Called when any event has been dispatched on an object.
