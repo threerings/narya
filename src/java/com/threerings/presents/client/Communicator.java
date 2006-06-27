@@ -396,6 +396,24 @@ public class Communicator
     }
 
     /**
+     * Cancels our preferred port saving interval. This method is called from
+     * the communication reader thread and the interval thread and must thus be
+     * synchronized.
+     */
+    protected synchronized boolean clearPPI (boolean cancel)
+    {
+        if (_prefPortInterval != null) {
+            if (cancel) {
+                _prefPortInterval.cancel();
+                _prefPortInterval.failed();
+            }
+            _prefPortInterval = null;
+            return true;
+        }
+        return false;
+    }
+
+    /**
      * The reader encapsulates the authentication and message reading
      * process. It calls back to the <code>Communicator</code> class to do
      * things, but the general flow of the reader thread is encapsulated
@@ -449,9 +467,12 @@ public class Communicator
                 InetSocketAddress addr = new InetSocketAddress(host, port);
                 try {
                     _channel = SocketChannel.open(addr);
-                    _prefPortInterval =
-                        new PrefPortInterval(port, nextPort, pportKey);
-                    _prefPortInterval.schedule(PREF_PORT_DELAY);
+                    synchronized (Communicator.this) {
+                        clearPPI(true);
+                        _prefPortInterval =
+                            new PrefPortInterval(pportKey, port, nextPort);
+                        _prefPortInterval.schedule(PREF_PORT_DELAY);
+                    }
                     break;
                 } catch (IOException ioe) {
                     if (ioe instanceof ConnectException && ii < ports.length) {
@@ -549,11 +570,8 @@ public class Communicator
         protected void didShutdown ()
         {
             // If we haven't recorded a preferred port yet, instead do the
-            //  failure action since we didn't stay connected long enough.
-            if (_prefPortInterval != null) {
-                _prefPortInterval.cancel();
-                _prefPortInterval.failed();
-            }
+            // failure action since we didn't stay connected long enough.
+            clearPPI(true);
 
             // let the communicator know when we finally go away
             readerDidExit();
@@ -624,24 +642,26 @@ public class Communicator
     {
     }
 
+    /** Used to save our preferred port once we know our connection is not
+     * going to be unceremoniously closed by Windows Connection Sharing. */
     protected class PrefPortInterval extends Interval
     {
-        public PrefPortInterval (int thisPort, int nextPort, String key)
+        public PrefPortInterval (String key, int thisPort, int nextPort)
         {
             super();
+            _key = key;
             _thisPort = thisPort;
             _nextPort = nextPort;
-            _key = key;
         }
 
         public void expired () {
-            PresentsPrefs.config.setValue(_key, _thisPort);
-            _prefPortInterval = null;
+            if (clearPPI(false)) {
+                PresentsPrefs.config.setValue(_key, _thisPort);
+            }
         }
 
         public void failed () {
             PresentsPrefs.config.setValue(_key, _nextPort);
-            _prefPortInterval = null;
         }
 
         protected String _key;
