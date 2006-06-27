@@ -33,6 +33,7 @@ import java.net.InetSocketAddress;
 
 import com.samskivert.swing.RuntimeAdjust;
 import com.samskivert.util.IntListUtil;
+import com.samskivert.util.Interval;
 import com.samskivert.util.LoopingThread;
 import com.samskivert.util.Queue;
 import com.samskivert.util.StringUtil;
@@ -443,11 +444,14 @@ public class Communicator
             // try connecting on each of the ports in succession
             for (int ii = 0; ii < ports.length; ii++) {
                 int port = ports[(ii+ppidx)%ports.length];
+                int nextPort = ports[(ii+ppidx+1)%ports.length];
                 Log.info("Connecting [host=" + host + ", port=" + port + "].");
                 InetSocketAddress addr = new InetSocketAddress(host, port);
                 try {
                     _channel = SocketChannel.open(addr);
-                    PresentsPrefs.config.setValue(pportKey, port);
+                    _prefPortInterval =
+                        new PrefPortInterval(port, nextPort, pportKey);
+                    _prefPortInterval.schedule(PREF_PORT_DELAY);
                     break;
                 } catch (IOException ioe) {
                     if (ioe instanceof ConnectException && ii < ports.length) {
@@ -486,7 +490,7 @@ public class Communicator
             AuthResponse rsp = (AuthResponse)receiveMessage();
             AuthResponseData data = rsp.getData();
             Log.debug("Got auth response: " + data);
-            
+
             // if the auth request failed, we want to let the communicator
             // know by throwing a logon exception
             if (!data.code.equals(AuthResponseData.SUCCESS)) {
@@ -544,6 +548,13 @@ public class Communicator
 
         protected void didShutdown ()
         {
+            // If we haven't recorded a preferred port yet, instead do the
+            //  failure action since we didn't stay connected long enough.
+            if (_prefPortInterval != null) {
+                _prefPortInterval.cancel();
+                _prefPortInterval.failed();
+            }
+
             // let the communicator know when we finally go away
             readerDidExit();
         }
@@ -613,6 +624,31 @@ public class Communicator
     {
     }
 
+    protected class PrefPortInterval extends Interval
+    {
+        public PrefPortInterval (int thisPort, int nextPort, String key)
+        {
+            super();
+            _thisPort = thisPort;
+            _nextPort = nextPort;
+            _key = key;
+        }
+
+        public void expired () {
+            PresentsPrefs.config.setValue(_key, _thisPort);
+            _prefPortInterval = null;
+        }
+
+        public void failed () {
+            PresentsPrefs.config.setValue(_key, _nextPort);
+            _prefPortInterval = null;
+        }
+
+        protected String _key;
+        protected int _thisPort;
+        protected int _nextPort;
+    }
+
     protected Client _client;
     protected Reader _reader;
     protected Writer _writer;
@@ -633,6 +669,13 @@ public class Communicator
 
     protected ClientDObjectMgr _omgr;
     protected ClassLoader _loader;
+
+    /** We use this interval to record the preferred port if it stays connected
+     * long enough. */
+    protected PrefPortInterval _prefPortInterval;
+
+    /** Time a port must remain connected before we mark it as preferred. */
+    protected static long PREF_PORT_DELAY = 5000L;
 
     /** Used to control low-level message logging. */
     protected static RuntimeAdjust.BooleanAdjust _logMessages =
