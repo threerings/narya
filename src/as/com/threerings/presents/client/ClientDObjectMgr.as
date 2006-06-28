@@ -30,9 +30,11 @@ import mx.collections.IList;
 import com.threerings.util.ClassUtil;
 import com.threerings.util.HashMap;
 
+import com.threerings.presents.dobj.CompoundEvent;
 import com.threerings.presents.dobj.DEvent;
 import com.threerings.presents.dobj.DObject;
 import com.threerings.presents.dobj.DObjectManager;
+import com.threerings.presents.dobj.ObjectAccessError;
 import com.threerings.presents.dobj.ObjectDestroyedEvent;
 import com.threerings.presents.dobj.Subscriber;
 
@@ -214,8 +216,8 @@ public class ClientDObjectMgr
             }
 
         } else if (obj is FailureResponse) {
-            var oid :int = (obj as FailureResponse).getOid();
-            notifyFailure(oid);
+            var foid :int = (obj as FailureResponse).getOid();
+            notifyFailure(foid);
 
         } else if (obj is PongResponse) {
             _client.gotPong(obj as PongResponse);

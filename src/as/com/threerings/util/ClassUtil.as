@@ -76,7 +76,8 @@ public class ClassUtil
 
         // See which classes we extend.
         var exts :XMLList = typeInfo.child("extendsClass").attribute("type");
-        for each (var type :String in exts) {
+        var type :String;
+        for each (type in exts) {
             if (asClass == getClassByName(type)) {
                 return true;
             }
@@ -85,7 +86,7 @@ public class ClassUtil
         // See which interfaces we implement.
         var imps :XMLList = typeInfo.child("implementsInterface")
             .attribute("type");
-        for each (var type :String in imps) {
+        for each (type in imps) {
             if (asClass == getClassByName(type)) {
                 return true;
             }

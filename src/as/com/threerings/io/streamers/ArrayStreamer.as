@@ -2,9 +2,11 @@ package com.threerings.io.streamers {
 
 import com.threerings.util.ClassUtil;
 
+import com.threerings.io.ArrayMask;
 import com.threerings.io.ObjectInputStream;
 import com.threerings.io.ObjectOutputStream;
 import com.threerings.io.Streamer;
+import com.threerings.io.Translations;
 import com.threerings.io.TypedArray;
 
 /**
@@ -75,22 +77,23 @@ public class ArrayStreamer extends Streamer
             :void
     {
         var arr :Array = (obj as Array);
+        var ii :int;
         out.writeInt(arr.length);
         if (_elementType == int) {
-            for (var ii :int = 0; ii < arr.length; ii++) {
+            for (ii = 0; ii < arr.length; ii++) {
                 out.writeInt(arr[ii] as int);
             }
 
         } else if (_isFinal) {
             var mask :ArrayMask = new ArrayMask(arr.length);
-            for (var ii :int = 0; ii < arr.length; ii++) {
+            for (ii = 0; ii < arr.length; ii++) {
                 if (arr[ii] != null) {
                     mask.setBit(ii);
                 }
             }
             mask.writeTo(out);
             // now write the populated elements
-            for (var ii :int = 0; ii < arr.length; ii++) {
+            for (ii = 0; ii < arr.length; ii++) {
                 var element :Object = arr[ii];
                 if (element != null) {
                     out.writeBareObjectImpl(element, _delegate);
@@ -98,7 +101,7 @@ public class ArrayStreamer extends Streamer
             }
 
         } else {
-            for (var ii :int = 0; ii < arr.length; ii++) {
+            for (ii = 0; ii < arr.length; ii++) {
                 out.writeObject(arr[ii]);
             }
         }
@@ -108,15 +111,16 @@ public class ArrayStreamer extends Streamer
             :void
     {
         var arr :Array = (obj as Array);
+        var ii :int;
         if (_elementType == int) {
-            for (var ii :int = 0; ii < arr.length; ii++) {
+            for (ii = 0; ii < arr.length; ii++) {
                 arr[ii] = ins.readInt();
             }
 
         } else if (_isFinal) {
             var mask :ArrayMask = new ArrayMask();
             mask.readFrom(ins);
-            for (var ii :int = 0; ii < length; ii++) {
+            for (ii = 0; ii < length; ii++) {
                 if (mask.isSet(ii)) {
                     var target :Object;
                     if (_delegate == null) {
@@ -130,7 +134,7 @@ public class ArrayStreamer extends Streamer
             } 
 
         } else {
-            for (var ii :int = 0; ii < arr.length; ii++) {
+            for (ii = 0; ii < arr.length; ii++) {
                 arr[ii] = ins.readObject();
             } 
         }

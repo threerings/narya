@@ -96,12 +96,13 @@ public class Hashtable
     // documentation inherited from interface Map
     public function put (key :Object, value :Object) :*
     {
+        var oldValue :*;
         if (isSimple(key)) {
             if (_simpleData == null) {
                 _simpleData = new Dictionary();
             }
 
-            var oldValue :* = _simpleData[key];
+            oldValue = _simpleData[key];
             _simpleData[key] = value;
             if (oldValue === undefined) {
                 _simpleSize++;
@@ -121,7 +122,7 @@ public class Hashtable
         var firstEntry :Entry = (_entries[index] as Entry);
         for (var e :Entry = firstEntry; e != null; e = e.next) {
             if (e.hash == hash && e.key.equals(hkey)) {
-                var oldValue :* = e.value;
+                oldValue = e.value;
                 e.value = value;
                 return oldValue; // size did not change
             }

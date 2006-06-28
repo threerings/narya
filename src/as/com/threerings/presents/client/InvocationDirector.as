@@ -14,6 +14,8 @@ import com.threerings.presents.dobj.DSet;
 import com.threerings.presents.dobj.EventListener;
 import com.threerings.presents.dobj.InvocationNotificationEvent;
 import com.threerings.presents.dobj.InvocationRequestEvent;
+import com.threerings.presents.dobj.InvocationResponseEvent;
+import com.threerings.presents.dobj.MessageEvent;
 import com.threerings.presents.dobj.ObjectAccessError;
 import com.threerings.presents.dobj.Subscriber;
 import com.threerings.presents.dobj.SubscriberAdapter;

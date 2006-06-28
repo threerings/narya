@@ -25,6 +25,7 @@ import mx.utils.ObjectUtil;
 
 import com.threerings.presents.dobj.DObject;
 import com.threerings.presents.dobj.DSet;
+import com.threerings.presents.dobj.DSet_Entry;
 
 import com.threerings.io.ObjectInputStream;
 import com.threerings.io.ObjectOutputStream;

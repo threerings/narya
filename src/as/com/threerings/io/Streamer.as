@@ -26,15 +26,15 @@ public class Streamer
 
         initStreamers();
 
-        for each (var streamer :Streamer in _streamers) {
+        var streamer :Streamer;
+        for each (streamer in _streamers) {
             if (streamer.isStreamerFor(obj)) {
                 return streamer;
             }
         }
 
         if (obj is TypedArray) {
-            var streamer :Streamer = new ArrayStreamer(
-                (obj as TypedArray).getJavaType());
+            streamer = new ArrayStreamer((obj as TypedArray).getJavaType());
             _streamers.push(streamer);
             return streamer;
         }
@@ -68,7 +68,8 @@ public class Streamer
         initStreamers();
 
         // see if we have a streamer for it
-        for each (var streamer :Streamer in _streamers) {
+        var streamer :Streamer;
+        for each (streamer in _streamers) {
             if (streamer.getJavaClassName() === jname) {
                 return streamer;
             }
@@ -76,7 +77,7 @@ public class Streamer
 
         // see if it's an array that we unstream using an ArrayStreamer
         if (jname.charAt(0) === "[") {
-            var streamer :Streamer = new ArrayStreamer(jname);
+            streamer = new ArrayStreamer(jname);
             _streamers.push(streamer);
             return streamer;
         }

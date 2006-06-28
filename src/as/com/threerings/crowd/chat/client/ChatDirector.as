@@ -27,6 +27,7 @@ import com.threerings.util.ArrayUtil;
 import com.threerings.util.HashMap;
 import com.threerings.util.Map;
 import com.threerings.util.ResultListener;
+import com.threerings.util.StringUtil;
 
 import com.threerings.presents.client.BasicDirector;
 import com.threerings.presents.client.Client;

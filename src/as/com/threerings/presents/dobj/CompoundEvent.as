@@ -43,22 +43,19 @@ public class CompoundEvent extends DEvent
     public function CompoundEvent (
             target :DObject = null, omgr :DObjectManager = null)
     {
-        if (target == null) {
-            super();
-            return;
+        super((target == null) ? 0 : target.getOid());
+
+        if (target != null) {
+            // sanity check
+            if (omgr == null) {
+                throw new ArgumentError(
+                    "Must receive non-null object manager reference");
+            }
+
+            _omgr = omgr;
+            _target = target;
+            _events = new StreamableArrayList();
         }
-
-        super(target.getOid());
-
-        // sanity check
-        if (omgr == null) {
-            throw new ArgumentError(
-                "Must receive non-null object manager reference");
-        }
-
-        _omgr = omgr;
-        _target = target;
-        _events = new StreamableArrayList();
     }
 
     /**
