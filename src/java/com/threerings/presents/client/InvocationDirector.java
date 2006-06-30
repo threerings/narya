@@ -75,10 +75,8 @@ public class InvocationDirector
         _client = client;
 
         // add ourselves as a subscriber to the client object
-        _omgr.subscribeToObject(cloid, new Subscriber() {
-            public void objectAvailable (DObject object) {
-                ClientObject clobj = (ClientObject)object;
-
+        _omgr.subscribeToObject(cloid, new Subscriber<ClientObject>() {
+            public void objectAvailable (ClientObject clobj) {
                 // add ourselves as an event listener
                 clobj.addListener(InvocationDirector.this);
 
@@ -144,8 +142,9 @@ public class InvocationDirector
     public void unregisterReceiver (String receiverCode)
     {
         // remove the receiver from the list
-        for (Iterator iter = _reclist.iterator(); iter.hasNext(); ) {
-            InvocationDecoder decoder = (InvocationDecoder)iter.next();
+        for (Iterator<InvocationDecoder> iter = _reclist.iterator();
+             iter.hasNext(); ) {
+            InvocationDecoder decoder = iter.next();
             if (decoder.getReceiverCode().equals(receiverCode)) {
                 iter.remove();
             }
@@ -193,8 +192,8 @@ public class InvocationDirector
         // pack all the set add events into a single transaction
         _clobj.startTransaction();
         try {
-            for (Iterator iter = _reclist.iterator(); iter.hasNext(); ) {
-                assignReceiverId((InvocationDecoder)iter.next());
+            for (InvocationDecoder decoder : _reclist) {
+                assignReceiverId(decoder);
             }
         } finally {
             _clobj.commitTransaction();
@@ -272,8 +271,7 @@ public class InvocationDirector
         int reqId, int methodId, Object[] args)
     {
         // look up the invocation marshaller registered for that response
-        ListenerMarshaller listener = (ListenerMarshaller)
-            _listeners.remove(reqId);
+        ListenerMarshaller listener = _listeners.remove(reqId);
         if (listener == null) {
             Log.warning("Received invocation response for which we have " +
                         "no registered listener [reqId=" + reqId +
@@ -314,8 +312,7 @@ public class InvocationDirector
         int receiverId, int methodId, Object[] args)
     {
         // look up the decoder registered for this receiver
-        InvocationDecoder decoder = (InvocationDecoder)
-            _receivers.get(receiverId);
+        InvocationDecoder decoder = _receivers.get(receiverId);
         if (decoder == null) {
             Log.warning("Received notification for which we have no " +
                         "registered receiver [recvId=" + receiverId +
@@ -348,13 +345,13 @@ public class InvocationDirector
     protected void handleClientObjectChanged (int newCloid)
     {
         // subscribe to the new client object
-        _omgr.subscribeToObject(newCloid, new Subscriber() {
-            public void objectAvailable (DObject object) {
+        _omgr.subscribeToObject(newCloid, new Subscriber<ClientObject>() {
+            public void objectAvailable (ClientObject clobj) {
                 // grab a reference to our old receiver registrations
                 DSet receivers = _clobj.receivers;
 
                 // replace the client object
-                _clobj = (ClientObject)object;
+                _clobj = clobj;
 
                 // add ourselves as an event listener
                 _clobj.addListener(InvocationDirector.this);
@@ -399,9 +396,9 @@ public class InvocationDirector
     {
         if (_listeners.size() > 0) {
             long then = now - LISTENER_MAX_AGE;
-            Iterator iter = _listeners.values().iterator();
+            Iterator<ListenerMarshaller> iter = _listeners.values().iterator();
             while (iter.hasNext()) {
-                ListenerMarshaller lm = (ListenerMarshaller)iter.next();
+                ListenerMarshaller lm = iter.next();
                 if (then > lm.mapStamp) {
 //                     Log.info("Flushing marshaller " + lm + ".");
                     iter.remove();
@@ -444,14 +441,17 @@ public class InvocationDirector
 
     /** Used to keep track of invocation service listeners which will
      * receive responses from invocation service requests. */
-    protected HashIntMap _listeners = new HashIntMap();
+    protected HashIntMap<ListenerMarshaller> _listeners =
+        new HashIntMap<ListenerMarshaller>();
 
     /** Used to keep track of invocation notification receivers. */
-    protected HashIntMap _receivers = new HashIntMap();
+    protected HashIntMap<InvocationDecoder> _receivers =
+        new HashIntMap<InvocationDecoder>();
 
     /** All registered receivers are maintained in a list so that we can
      * assign receiver ids to them when we go online. */
-    protected ArrayList _reclist = new ArrayList();
+    protected ArrayList<InvocationDecoder> _reclist =
+        new ArrayList<InvocationDecoder>();
 
     /** The last time we flushed our listeners. */
     protected long _lastFlushTime;
