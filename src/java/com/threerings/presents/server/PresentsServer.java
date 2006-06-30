@@ -107,9 +107,9 @@ public class PresentsServer
                  ", jvm=" + si.jvmToString() +
                  ", mem=" + si.memoryToString() + "].");
 
-        // register SIGINT (ctrl-c) and a SIGUSER1 handlers
+        // register SIGINT (ctrl-c) and a SIGHUP handlers
         SignalManager.registerSignalHandler(SignalManager.SIGINT, this);
-        SignalManager.registerSignalHandler(SignalManager.SIGUSR1, this);
+        SignalManager.registerSignalHandler(SignalManager.SIGHUP, this);
 
         // create our list of shutdowners
         _downers = new ObserverList(ObserverList.SAFE_IN_ORDER_NOTIFY);
