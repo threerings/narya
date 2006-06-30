@@ -203,7 +203,7 @@ public class PresentsServer
             queueShutdown();
             break;
 
-        case SignalManager.SIGUSR1:
+        case SignalManager.SIGHUP:
             // generate a system status report
             Log.info(generateReport());
             break;
