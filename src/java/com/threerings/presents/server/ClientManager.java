@@ -138,6 +138,22 @@ public class ClientManager
     }
 
     /**
+     * Returns the number of client sessions (some may be disconnected).
+     */
+    public int getClientCount ()
+    {
+        return _usermap.size();
+    }
+
+    /**
+     * Returns the number of connected clients.
+     */
+    public int getConnectionCount ()
+    {
+        return _conmap.size();
+    }
+
+    /**
      * Enumerates all active client objects.
      */
     public Iterator enumerateClientObjects ()
@@ -334,22 +350,6 @@ public class ClientManager
             Log.info("Closed unmapped connection '" + conn + "'. " +
                      "Client probably not yet authenticated.");
         }
-    }
-
-    /**
-     * Returns the number of client sessions (some may be disconnected).
-     */
-    public int getClientCount ()
-    {
-        return _usermap.size();
-    }
-
-    /**
-     * Returns the number of connected clients.
-     */
-    public int getConnectionCount ()
-    {
-        return _conmap.size();
     }
 
     // documentation inherited from interface PresentsServer.Reporter
