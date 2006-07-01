@@ -26,7 +26,11 @@ import java.util.Iterator;
 import com.threerings.util.Name;
 
 import com.threerings.presents.dobj.RootDObjectManager;
+import com.threerings.presents.net.AuthRequest;
+import com.threerings.presents.server.ClientFactory;
+import com.threerings.presents.server.ClientResolver;
 import com.threerings.presents.server.InvocationManager;
+import com.threerings.presents.server.PresentsClient;
 import com.threerings.presents.server.PresentsServer;
 
 import com.threerings.crowd.Log;
@@ -51,11 +55,15 @@ public class CrowdServer extends PresentsServer
         // do the presents server initialization
         super.init();
 
-        // configure the client manager to use our client
-        clmgr.setClientClass(CrowdClient.class);
-
-        // configure the client manager to use our resolver
-        clmgr.setClientResolverClass(CrowdClientResolver.class);
+        // configure the client manager to use our bits
+        clmgr.setClientFactory(new ClientFactory() {
+            public PresentsClient createClient (AuthRequest areq) {
+                return new CrowdClient();
+            }
+            public ClientResolver createClientResolver (Name username) {
+                return new CrowdClientResolver();
+            }
+        });
 
         // configure the dobject manager with our access controller
         omgr.setDefaultAccessController(CrowdObjectAccess.DEFAULT);

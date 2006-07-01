@@ -475,7 +475,8 @@ public class Communicator
                     }
                     break;
                 } catch (IOException ioe) {
-                    if (ioe instanceof ConnectException && ii < ports.length) {
+                    if (ioe instanceof ConnectException &&
+                        ii < (ports.length-1)) {
                         _client.reportLogonTribulations(
                             new LogonException(
                                 AuthCodes.TRYING_NEXT_PORT, true));

@@ -112,41 +112,21 @@ public class ClientManager
     }
 
     /**
-     * Instructs the client manager to construct instances of this derived
-     * class of {@link PresentsClient} to managed newly accepted client
-     * connections.
+     * Configures the client manager with a factory for creating {@link
+     * PresentsClient} and {@link ClientResolver} classes for authenticated
+     * client connections.
      */
-    public void setClientClass (Class clientClass)
+    public void setClientFactory (ClientFactory factory)
     {
-        // sanity check
-        if (!PresentsClient.class.isAssignableFrom(clientClass)) {
-            Log.warning("Requested to use client class that does not " +
-                        "derive from PresentsClient " +
-                        "[class=" + clientClass.getName() + "].");
-            return;
-        }
-
-        // make a note of it
-        _clientClass = clientClass;
+        _factory = factory;
     }
 
     /**
-     * Instructs the client to use instances of this {@link
-     * ClientResolver} derived class when resolving clients in preparation
-     * for starting a client session.
+     * Returns the {@link ClientFactory} currently in use.
      */
-    public void setClientResolverClass (Class clrClass)
+    public ClientFactory getClientFactory ()
     {
-        // sanity check
-        if (!ClientResolver.class.isAssignableFrom(clrClass)) {
-            Log.warning("Requested to use client resolver class that does " +
-                        "not derive from ClientResolver " +
-                        "[class=" + clrClass.getName() + "].");
-
-        } else {
-            // make a note of it
-            _clrClass = clrClass;
-        }
+        return _factory;
     }
 
     /**
@@ -172,7 +152,7 @@ public class ClientManager
      */
     public PresentsClient getClient (Name authUsername)
     {
-        return (PresentsClient)_usermap.get(authUsername);
+        return _usermap.get(authUsername);
     }
 
     /**
@@ -182,7 +162,7 @@ public class ClientManager
      */
     public ClientObject getClientObject (Name username)
     {
-        return (ClientObject)_objmap.get(username);
+        return _objmap.get(username);
     }
 
     /**
@@ -207,7 +187,7 @@ public class ClientManager
         Name username, final ClientResolutionListener listener)
     {
         // look to see if the client object is already resolved
-        ClientObject clobj = (ClientObject)_objmap.get(username);
+        ClientObject clobj = _objmap.get(username);
         if (clobj != null) {
             clobj.reference();
             listener.clientResolved(username, clobj);
@@ -215,7 +195,7 @@ public class ClientManager
         }
 
         // look to see if it's currently being resolved
-        ClientResolver clr = (ClientResolver)_penders.get(username);
+        ClientResolver clr = _penders.get(username);
         if (clr != null) {
             // throw this guy onto the bandwagon
             clr.addResolutionListener(listener);
@@ -225,7 +205,7 @@ public class ClientManager
         try {
             // create a client resolver instance which will create our
             // client object, populate it and notify the listeners
-            clr = (ClientResolver)_clrClass.newInstance();
+            clr = _factory.createClientResolver(username);
             clr.init(username);
             clr.addResolutionListener(new ClientResolutionListener() {
                 public void clientResolved (Name username, ClientObject clobj) {
@@ -270,7 +250,7 @@ public class ClientManager
      */
     public void releaseClientObject (Name username)
     {
-        ClientObject clobj = (ClientObject)_objmap.get(username);
+        ClientObject clobj = _objmap.get(username);
         if (clobj == null) {
             Log.warning("Requested to release unmapped client object " +
                         "[username=" + username + "].");
@@ -312,19 +292,11 @@ public class ClientManager
             Log.info("Session initiated [username=" + username +
                      ", conn=" + conn + "].");
             // create a new client and stick'em in the table
-            try {
-                // create a client and start up its session
-                client = (PresentsClient)_clientClass.newInstance();
-                client.startSession(this, creds, conn, rsp.authdata);
+            client = _factory.createClient(req);
+            client.startSession(this, creds, conn, rsp.authdata);
 
-                // map their client instance
-                _usermap.put(username, client);
-
-            } catch (Exception e) {
-                Log.warning("Failed to instantiate client instance to " +
-                            "manage new client connection '" + conn + "'.");
-                Log.logStackTrace(e);
-            }
+            // map their client instance
+            _usermap.put(username, client);
         }
 
         // map this connection to this client
@@ -336,7 +308,7 @@ public class ClientManager
         Connection conn, IOException fault)
     {
         // remove the client from the connection map
-        PresentsClient client = (PresentsClient)_conmap.remove(conn);
+        PresentsClient client = _conmap.remove(conn);
         if (client != null) {
             Log.info("Unmapped failed client [client=" + client +
                      ", conn=" + conn + ", fault=" + fault + "].");
@@ -356,7 +328,7 @@ public class ClientManager
     public synchronized void connectionClosed (Connection conn)
     {
         // remove the client from the connection map
-        PresentsClient client = (PresentsClient)_conmap.remove(conn);
+        PresentsClient client = _conmap.remove(conn);
         if (client != null) {
             Log.debug("Unmapped client [client=" + client +
                       ", conn=" + conn + "].");
@@ -405,8 +377,7 @@ public class ClientManager
     {
         // remove the client from the username map
         Credentials creds = client.getCredentials();
-        PresentsClient rc = (PresentsClient)
-            _usermap.remove(creds.getUsername());
+        PresentsClient rc = _usermap.remove(creds.getUsername());
 
         // sanity check just because we can
         if (rc == null) {
@@ -426,26 +397,23 @@ public class ClientManager
      */
     protected void flushClients ()
     {
-        ArrayList victims = null;
+        ArrayList<PresentsClient> victims = null;
         long now = System.currentTimeMillis();
 
         // first build a list of our victims (we can't flush clients
         // directly while iterating due to risk of a
         // ConcurrentModificationException)
-        Iterator iter = _usermap.values().iterator();
-        while (iter.hasNext()) {
-            PresentsClient client = (PresentsClient)iter.next();
+        for (PresentsClient client : _usermap.values()) {
             if (client.checkExpired(now)) {
                 if (victims == null) {
-                    victims = new ArrayList();
+                    victims = new ArrayList<PresentsClient>();
                 }
                 victims.add(client);
             }
         }
 
         if (victims != null) {
-            for (int ii = 0; ii < victims.size(); ii++) {
-                PresentsClient client = (PresentsClient)victims.get(ii);
+            for (PresentsClient client : victims) {
                 try {
                     Log.info("Client expired, ending session " +
                         "[client=" + client +
@@ -495,25 +463,23 @@ public class ClientManager
     }
 
     /** A mapping from auth username to client instances. */
-    protected HashMap _usermap = new HashMap();
+    protected HashMap<Name,PresentsClient> _usermap =
+        new HashMap<Name,PresentsClient>();
 
     /** A mapping from connections to client instances. */
-    protected HashMap _conmap = new HashMap();
+    protected HashMap<Connection,PresentsClient> _conmap =
+        new HashMap<Connection,PresentsClient>();
 
     /** A mapping from usernames to client object instances. */
-    protected HashMap _objmap = new HashMap();
+    protected HashMap<Name,ClientObject> _objmap =
+        new HashMap<Name,ClientObject>();
 
     /** A mapping of pending client resolvers. */
-    protected HashMap _penders = new HashMap();
-
-    /** A set containing the usernames of all locked clients. */
-    protected HashSet _locks = new HashSet();
+    protected HashMap<Name,ClientResolver> _penders =
+        new HashMap<Name,ClientResolver>();
 
     /** The client class in use. */
-    protected Class _clientClass = PresentsClient.class;
-
-    /** The client resolver class in use. */
-    protected Class _clrClass = ClientResolver.class;
+    protected ClientFactory _factory = ClientFactory.DEFAULT;
 
     /** A count of how many client objects are currently being resolved. */
     protected int _outstandingResolutions;

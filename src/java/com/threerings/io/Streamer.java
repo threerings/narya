@@ -92,7 +92,7 @@ public class Streamer
             createStreamers();
         }
 
-        Streamer stream = (Streamer)_streamers.get(target);
+        Streamer stream = _streamers.get(target);
         if (stream == null) {
             // make sure this is a streamable class
             if (!isStreamable(target)) {
@@ -108,11 +108,9 @@ public class Streamer
             // create our streamer in a privileged block so that it can
             // introspect on the to be streamed class
             try {
-                stream = (Streamer) AccessController.doPrivileged(
-                    new PrivilegedExceptionAction() {
-                        public Object run ()
-                            throws IOException
-                        {
+                stream = AccessController.doPrivileged(
+                    new PrivilegedExceptionAction<Streamer>() {
+                        public Streamer run () throws IOException {
                             return new Streamer(target);
                         }
                     });
@@ -376,7 +374,8 @@ public class Streamer
             } catch (Exception e) {
                 String errmsg = "Failure reading streamable field " +
                     "[class=" + _target.getName() +
-                    ", field=" + field.getName() + "]";
+                    ", field=" + field.getName() +
+                    ", error=" + e.getMessage() + "]";
                 throw (IOException) new IOException(errmsg).initCause(e);
             }
         }
@@ -460,7 +459,7 @@ public class Streamer
      */
     protected static void createStreamers ()
     {
-        _streamers = new HashMap();
+        _streamers = new HashMap<Class,Streamer>();
 
         // register all of the basic streamers
         int bscount = BasicStreamers.BSTREAMER_TYPES.length;
@@ -495,7 +494,7 @@ public class Streamer
 
     /** Contains the mapping from class names to configured streamer
      * instances. */
-    protected static HashMap _streamers;
+    protected static HashMap<Class,Streamer> _streamers;
 
     /** The name of the custom reader method. */
     protected static final String READER_METHOD_NAME = "readObject";

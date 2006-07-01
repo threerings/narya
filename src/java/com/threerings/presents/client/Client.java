@@ -343,6 +343,16 @@ public class Client
     }
 
     /**
+     * Returns true if we are in active communication (we may not yet be logged
+     * on, but we could be trying to log on).
+     */
+    public synchronized boolean isActive ()
+    {
+        // if we have a communicator, we're doing something
+        return (_comm != null);
+    }
+
+    /**
      * Returns true if we are logged on, false if we're not.
      */
     public synchronized boolean isLoggedOn ()
