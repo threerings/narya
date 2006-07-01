@@ -51,8 +51,8 @@ import com.threerings.presents.server.net.*;
  * boot for application-defined reasons).
  */
 public class ClientManager
-    implements ConnectionObserver, PresentsServer.Reporter,
-               PresentsServer.Shutdowner
+    implements ConnectionObserver, ClientResolutionListener,
+               PresentsServer.Reporter, PresentsServer.Shutdowner
 {
     /**
      * Used by {@link #applyToClient}.
@@ -134,7 +134,7 @@ public class ClientManager
      */
     public int getOutstandingResolutionCount ()
     {
-        return _outstandingResolutions;
+        return _penders.size();
     }
 
     /**
@@ -207,40 +207,18 @@ public class ClientManager
             // client object, populate it and notify the listeners
             clr = _factory.createClientResolver(username);
             clr.init(username);
-            clr.addResolutionListener(new ClientResolutionListener() {
-                public void clientResolved (Name username, ClientObject clobj) {
-                    listener.clientResolved(username, clobj);
-                    _outstandingResolutions--;
-                }
-                public void resolutionFailed (Name username, Exception cause) {
-                    listener.resolutionFailed(username, cause);
-                    _outstandingResolutions--;
-                }
-            });
+            clr.addResolutionListener(this);
+            clr.addResolutionListener(listener);
+            _penders.put(username, clr);
 
-            // request that the appropriate client object be created by
-            // the dobject manager which starts the whole business off
+            // request that the appropriate client object be created by the
+            // dobject manager which starts the whole business off
             PresentsServer.omgr.createObject(clr.getClientObjectClass(), clr);
-            _outstandingResolutions++;
 
         } catch (Exception e) {
             // let the listener know that we're hosed
             listener.resolutionFailed(username, e);
         }
-    }
-
-    /**
-     * Called by the {@link ClientResolver} once a client object has been
-     * resolved.
-     */
-    protected synchronized void mapClientObject (
-        Name username, ClientObject clobj)
-    {
-        // stuff the object into the mapping table
-        _objmap.put(username, clobj);
-
-        // and remove the resolution listener
-        _penders.remove(username);
     }
 
     /**
@@ -271,6 +249,23 @@ public class ClientManager
 
         // and destroy the object itself
         PresentsServer.omgr.destroyObject(clobj.getOid());
+    }
+
+    // documentation inherited from interface ClientResolutionListener
+    public synchronized void clientResolved (Name username, ClientObject clobj)
+    {
+        // stuff the object into the mapping table
+        _objmap.put(username, clobj);
+
+        // and remove the resolution listener
+        _penders.remove(username);
+    }
+
+    // documentation inherited from interface ClientResolutionListener
+    public synchronized void resolutionFailed (Name username, Exception reason)
+    {
+        // clear out their pending record
+        _penders.remove(username);
     }
 
     // documentation inherited
@@ -480,9 +475,6 @@ public class ClientManager
 
     /** The client class in use. */
     protected ClientFactory _factory = ClientFactory.DEFAULT;
-
-    /** A count of how many client objects are currently being resolved. */
-    protected int _outstandingResolutions;
 
     /** The frequency with which we check for expired clients. */
     protected static final long CLIENT_FLUSH_INTERVAL = 60 * 1000L;

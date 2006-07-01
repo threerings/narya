@@ -105,21 +105,17 @@ public class ClientResolver extends Invoker.Unit
     // documentation inherited
     public void handleResult ()
     {
-        // if we failed in invoke() report it here
-        if (_failure != null) {
-            // destroy the dangling user object
-            PresentsServer.omgr.destroyObject(_clobj.getOid());
+        // if we haven't failed, finish resolution on the dobj thread
+        if (_failure == null) {
+            try {
+                finishResolution(_clobj);
+            } catch (Exception e) {
+                _failure = e;
+            }
+        }
 
-            // let our listener know that we're hosed
-            reportFailure(_failure);
-
-        } else {
-            // otherwise, do more resolution goodness on the dobj thread
-            finishResolution(_clobj);
-
-            // let the client manager know that we're all clear
-            PresentsServer.clmgr.mapClientObject(_username, _clobj);
-
+        // if we still haven't failed, then we're good to go
+        if (_failure == null) {
             // and let the listeners in on the secret as well
             for (int ii = 0, ll = _listeners.size(); ii < ll; ii++) {
                 ClientResolutionListener crl = _listeners.get(ii);
@@ -134,6 +130,13 @@ public class ClientResolver extends Invoker.Unit
                     Log.logStackTrace(e);
                 }
             }
+
+        } else {
+            // destroy the dangling user object
+            PresentsServer.omgr.destroyObject(_clobj.getOid());
+
+            // let our listener know that we're hosed
+            reportFailure(_failure);
         }
     }
 
