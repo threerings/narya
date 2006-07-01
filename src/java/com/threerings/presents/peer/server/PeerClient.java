@@ -21,11 +21,53 @@
 
 package com.threerings.presents.peer.server;
 
+import com.threerings.presents.net.BootstrapData;
 import com.threerings.presents.server.PresentsClient;
 
+import com.threerings.presents.peer.net.PeerBootstrapData;
+
 /**
- * Manages a peer server connection.
+ * Manages a peer connection.
  */
 public class PeerClient extends PresentsClient
 {
+    /**
+     * Creates a peer client and provides it with a reference to the peer
+     * manager. This is only done by the {@link PeerClientFactory}.
+     */
+    protected PeerClient (PeerManager peermgr)
+    {
+        _peermgr = peermgr;
+    }
+
+    /**
+     * Derived client classes can override this member to create derived
+     * bootstrap data classes that contain extra bootstrap information, if
+     * desired.
+     */
+    protected BootstrapData createBootstrapData ()
+    {
+        return new PeerBootstrapData();
+    }
+
+    /**
+     * Derived client classes can override this member to populate the
+     * bootstrap data with additional information. They should be sure to
+     * call <code>super.populateBootstrapData</code> before doing their
+     * own populating, however.
+     *
+     * <p><em>Note:</em> This function will be called on the dobjmgr
+     * thread which means that object manipulations are OK, but client
+     * instance manipulations must be done carefully.
+     */
+    protected void populateBootstrapData (BootstrapData data)
+    {
+        super.populateBootstrapData(data);
+
+        // tell our peer about our node object so they can wire up
+        PeerBootstrapData pdata = (PeerBootstrapData)data;
+        pdata.nodeOid = _peermgr.getNodeObject().getOid();
+    }
+
+    protected PeerManager _peermgr;
 }

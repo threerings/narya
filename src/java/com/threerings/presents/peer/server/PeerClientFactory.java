@@ -36,8 +36,9 @@ import com.threerings.presents.peer.net.PeerCreds;
  */
 public class PeerClientFactory implements ClientFactory
 {
-    public PeerClientFactory (ClientFactory delegate)
+    public PeerClientFactory (PeerManager peermgr, ClientFactory delegate)
     {
+        _peermgr = peermgr;
         _delegate = delegate;
     }
 
@@ -45,7 +46,7 @@ public class PeerClientFactory implements ClientFactory
     public PresentsClient createClient (AuthRequest areq)
     {
         if (areq.getCredentials() instanceof PeerCreds) {
-            return new PeerClient();
+            return new PeerClient(_peermgr);
         } else {
             return _delegate.createClient(areq);
         }
@@ -61,5 +62,6 @@ public class PeerClientFactory implements ClientFactory
         }
     }
 
+    protected PeerManager _peermgr;
     protected ClientFactory _delegate;
 }

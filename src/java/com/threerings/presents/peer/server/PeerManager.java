@@ -33,8 +33,12 @@ import com.samskivert.util.Invoker;
 
 import com.threerings.presents.client.Client;
 import com.threerings.presents.client.ClientObserver;
+import com.threerings.presents.dobj.ObjectAccessException;
+import com.threerings.presents.dobj.Subscriber;
 import com.threerings.presents.server.PresentsServer;
 
+import com.threerings.presents.peer.data.NodeObject;
+import com.threerings.presents.peer.net.PeerBootstrapData;
 import com.threerings.presents.peer.net.PeerCreds;
 import com.threerings.presents.peer.server.persist.NodeRecord;
 import com.threerings.presents.peer.server.persist.NodeRepository;
@@ -51,7 +55,29 @@ public class PeerManager
 {
     /**
      * Creates a peer manager which will create a {@link NodeRepository} which
-     * is used to publish our existence and discover the other nodes.
+     * will be used to publish our existence and discover the other nodes.
+     */
+    public PeerManager (ConnectionProvider conprov, Invoker invoker)
+        throws PersistenceException
+    {
+        _invoker = invoker;
+        _noderepo = new NodeRepository(conprov);
+    }
+
+    /**
+     * Returns the distributed object that represents this node to its peers.
+     */
+    public NodeObject getNodeObject ()
+    {
+        return _nodeobj;
+    }
+
+    /**
+     * Initializes this peer manager and initiates the process of connecting to
+     * its peer nodes. This will also reconfigure the ConnectionManager and
+     * ClientManager with peer related bits, so this should not be called until
+     * <em>after</em> the main server has set up its client factory and
+     * authenticator.
      *
      * @param nodeName this node's unique name.
      * @param sharedSecret a shared secret used to allow the peers to
@@ -62,46 +88,32 @@ public class PeerManager
      * @param invoker we will perform all database operations on the supplied
      * invoker thread.
      */
-    public PeerManager (
-        String nodeName, String sharedSecret, String hostName, int port,
-        ConnectionProvider conprov, Invoker invoker)
-        throws PersistenceException
+    public void init (String nodeName, String sharedSecret,
+                      String hostName, int port)
     {
         _nodeName = nodeName;
         _hostName = hostName;
         _port = port;
         _sharedSecret = sharedSecret;
-        _invoker = invoker;
-        _noderepo = new NodeRepository(conprov);
-    }
 
-    /**
-     * Instructs the node manager to load up information about its other nodes
-     * and attempt to establish connections with those nodes.
-     */
-    public void init ()
-    {
-        // first register ourselves with the node table
-        _invoker.postUnit(new Invoker.Unit() {
-            public boolean invoke () {
-                NodeRecord record = new NodeRecord(_nodeName, _hostName, _port);
-                try {
-                    _noderepo.updateNode(record);
-                } catch (PersistenceException pe) {
-                    log.warning("Failed to register node record " +
-                                "[rec=" + record + ", error=" + pe + "].");
-                }
-                return false;
+        // wire ourselves into the server
+        PresentsServer.conmgr.setAuthenticator(
+            new PeerAuthenticator(
+                this, PresentsServer.conmgr.getAuthenticator()));
+        PresentsServer.clmgr.setClientFactory(
+            new PeerClientFactory(
+                this, PresentsServer.clmgr.getClientFactory()));
+
+        // create our node object
+        Class<NodeObject> clazz = (Class<NodeObject>)getNodeObjectClass();
+        PresentsServer.omgr.createObject(clazz, new Subscriber<NodeObject>() {
+            public void objectAvailable (NodeObject object) {
+                finishInit(object);
+            }
+            public void requestFailed (int oid, ObjectAccessException cause) {
+                log.warning("Failed to create NodeObject: " + cause + ".");
             }
         });
-
-        // then start our peer refresh interval (this need not use a runqueue
-        // as all it will do is post an invoker unit)
-        new Interval() {
-            public void expired () {
-                refreshPeers();
-            }
-        }.schedule(5000L, 60*1000L);
     }
 
     /**
@@ -124,6 +136,37 @@ public class PeerManager
     {
         return PeerCreds.createPassword(
             creds.getNodeName(), _sharedSecret).equals(creds.getPassword());
+    }
+
+    /**
+     * Called once our node object is available.
+     */
+    protected void finishInit (NodeObject nodeobj)
+    {
+        // keep a handle on our node object
+        _nodeobj = nodeobj;
+
+        // register ourselves with the node table
+        _invoker.postUnit(new Invoker.Unit() {
+            public boolean invoke () {
+                NodeRecord record = new NodeRecord(_nodeName, _hostName, _port);
+                try {
+                    _noderepo.updateNode(record);
+                } catch (PersistenceException pe) {
+                    log.warning("Failed to register node record " +
+                                "[rec=" + record + ", error=" + pe + "].");
+                }
+                return false;
+            }
+        });
+
+        // and start our peer refresh interval (this need not use a runqueue as
+        // all it will do is post an invoker unit)
+        new Interval() {
+            public void expired () {
+                refreshPeers();
+            }
+        }.schedule(5000L, 60*1000L);
     }
 
     /**
@@ -175,11 +218,22 @@ public class PeerManager
     }
 
     /**
+     * Returns the class we use when creating our {@link NodeObject}.
+     */
+    protected Class<? extends NodeObject> getNodeObjectClass ()
+    {
+        return NodeObject.class;
+    }
+
+    /**
      * Contains all runtime information for one of our peer nodes.
      */
     protected class PeerNode
-        implements ClientObserver
+        implements ClientObserver, Subscriber<NodeObject>
     {
+        /** This peer's node object. */
+        public NodeObject nodeobj;
+
         public PeerNode (NodeRecord record)
         {
             _record = record;
@@ -242,11 +296,17 @@ public class PeerManager
         public void clientDidLogon (Client client)
         {
             log.info("Connected to peer " + _record + ".");
+
+            // subscribe to this peer's node object
+            PeerBootstrapData pdata = (PeerBootstrapData)
+                client.getBootstrapData();
+            client.getDObjectManager().subscribeToObject(pdata.nodeOid, this);
         }
 
         // documentation inherited from interface ClientObserver
         public void clientObjectDidChange (Client client)
         {
+            // nothing doing
         }
 
         // documentation inherited from interface ClientObserver
@@ -258,6 +318,21 @@ public class PeerManager
         // documentation inherited from interface ClientObserver
         public void clientDidLogoff (Client client)
         {
+            // TODO: clean things up?
+        }
+
+        // documentation inherited from interface Subscriber
+        public void objectAvailable (NodeObject object)
+        {
+            nodeobj = object;
+            // TODO: stuff!
+        }
+
+        // documentation inherited from interface Subscriber
+        public void requestFailed (int oid, ObjectAccessException cause)
+        {
+            log.warning("Failed to subscribe to peer's node object " +
+                        "[peer=" + _record + ", cause=" + cause + "].");
         }
 
         protected NodeRecord _record;
@@ -269,5 +344,6 @@ public class PeerManager
     protected int _port;
     protected Invoker _invoker;
     protected NodeRepository _noderepo;
+    protected NodeObject _nodeobj;
     protected HashMap<String,PeerNode> _peers = new HashMap<String,PeerNode>();
 }
