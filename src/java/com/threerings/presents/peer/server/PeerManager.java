@@ -105,7 +105,8 @@ public class PeerManager
                 this, PresentsServer.clmgr.getClientFactory()));
 
         // create our node object
-        Class<NodeObject> clazz = (Class<NodeObject>)getNodeObjectClass();
+        @SuppressWarnings("unchecked") Class<NodeObject> clazz =
+            (Class<NodeObject>)getNodeObjectClass();
         PresentsServer.omgr.createObject(clazz, new Subscriber<NodeObject>() {
             public void objectAvailable (NodeObject object) {
                 finishInit(object);
