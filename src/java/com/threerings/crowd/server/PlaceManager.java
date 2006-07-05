@@ -121,7 +121,7 @@ public class PlaceManager
      */
     public OccupantInfo getOccupantInfo (int bodyOid)
     {
-        return (OccupantInfo)_occInfo.get(bodyOid);
+        return _occInfo.get(bodyOid);
     }
 
     /**
@@ -173,7 +173,7 @@ public class PlaceManager
      *
      * @see PlaceRegistry#createPlace
      */
-    protected Class getPlaceObjectClass ()
+    protected Class<? extends PlaceObject> getPlaceObjectClass ()
     {
         return PlaceObject.class;
     }
@@ -217,7 +217,7 @@ public class PlaceManager
     public void addDelegate (PlaceManagerDelegate delegate)
     {
         if (_delegates == null) {
-            _delegates = new ArrayList();
+            _delegates = new ArrayList<PlaceManagerDelegate>();
         }
         _delegates.add(delegate);
     }
@@ -551,7 +551,7 @@ public class PlaceManager
     {
         // create our handler map if necessary
         if (_msghandlers == null) {
-            _msghandlers = new HashMap();
+            _msghandlers = new HashMap<String,MessageHandler>();
         }
         _msghandlers.put(name, handler);
     }
@@ -565,7 +565,7 @@ public class PlaceManager
     {
         MessageHandler handler = null;
         if (_msghandlers != null) {
-            handler = (MessageHandler)_msghandlers.get(event.getName());
+            handler = _msghandlers.get(event.getName());
         }
         if (handler != null) {
             handler.handleEvent(event, this);
@@ -682,7 +682,7 @@ public class PlaceManager
         if (_delegates != null) {
             int dcount = _delegates.size();
             for (int i = 0; i < dcount; i++) {
-                op.apply((PlaceManagerDelegate)_delegates.get(i));
+                op.apply(_delegates.get(i));
             }
         }
     }
@@ -704,13 +704,14 @@ public class PlaceManager
     protected PlaceConfig _config;
 
     /** Message handlers are used to process message events. */
-    protected HashMap _msghandlers;
+    protected HashMap<String,MessageHandler> _msghandlers;
 
     /** A list of the delegates in use by this manager. */
-    protected ArrayList _delegates;
+    protected ArrayList<PlaceManagerDelegate> _delegates;
 
     /** Used to keep a canonical copy of the occupant info records. */
-    protected HashIntMap _occInfo = new HashIntMap();
+    protected HashIntMap<OccupantInfo> _occInfo =
+        new HashIntMap<OccupantInfo>();
 
     /** The interval currently registered to shut this place
      * down after a certain period of idility, or null if no

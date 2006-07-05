@@ -222,7 +222,7 @@ public abstract class PlaceController extends Controller
     protected void addDelegate (PlaceControllerDelegate delegate)
     {
         if (_delegates == null) {
-            _delegates = new ArrayList();
+            _delegates = new ArrayList<PlaceControllerDelegate>();
         }
         _delegates.add(delegate);
     }
@@ -243,7 +243,7 @@ public abstract class PlaceController extends Controller
         if (_delegates != null) {
             int dcount = _delegates.size();
             for (int i = 0; i < dcount; i++) {
-                op.apply((PlaceControllerDelegate)_delegates.get(i));
+                op.apply(_delegates.get(i));
             }
         }
     }
@@ -252,13 +252,12 @@ public abstract class PlaceController extends Controller
      * Applies the supplied operation to the registered delegates that
      * derive from the specified class.
      */
-    protected void applyToDelegates (Class dclass, DelegateOp op)
+    protected void applyToDelegates (Class<?> dclass, DelegateOp op)
     {
         if (_delegates != null) {
             int dcount = _delegates.size();
             for (int i = 0; i < dcount; i++) {
-                PlaceControllerDelegate delegate =
-                    (PlaceControllerDelegate)_delegates.get(i);
+                PlaceControllerDelegate delegate = _delegates.get(i);
                 if (dclass.isAssignableFrom(delegate.getClass())) {
                     op.apply(delegate);
                 }
@@ -280,5 +279,5 @@ public abstract class PlaceController extends Controller
     protected PlaceView _view;
 
     /** A list of the delegates in use by this controller. */
-    protected ArrayList _delegates;
+    protected ArrayList<PlaceControllerDelegate> _delegates;
 }

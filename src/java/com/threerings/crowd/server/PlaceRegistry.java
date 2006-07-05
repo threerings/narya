@@ -45,7 +45,7 @@ import com.threerings.crowd.data.PlaceObject;
  * places.
  */
 public class PlaceRegistry
-    implements Subscriber
+    implements Subscriber<PlaceObject>
 {
     /**
      * Used to receive a callback when the place object associated with a
@@ -156,10 +156,13 @@ public class PlaceRegistry
         // stick the manager on the creation queue because we know
         // we'll get our calls to objectAvailable()/requestFailed() in
         // the order that we call createObject()
-        _createq.append(new Tuple(pmgr, observer));
+        _createq.append(
+            new Tuple<PlaceManager,CreationObserver>(pmgr, observer));
 
         // and request to create the place object
-        _omgr.createObject(pmgr.getPlaceObjectClass(), this);
+        @SuppressWarnings("unchecked") Class<PlaceObject> pclass =
+            (Class<PlaceObject>)pmgr.getPlaceObjectClass();
+        _omgr.createObject(pclass, this);
 
         return pmgr;
     }
@@ -170,7 +173,7 @@ public class PlaceRegistry
      */
     public PlaceManager getPlaceManager (int placeOid)
     {
-        return (PlaceManager)_pmgrs.get(placeOid);
+        return _pmgrs.get(placeOid);
     }
 
     /**
@@ -178,18 +181,18 @@ public class PlaceRegistry
      * should only be accessed on the dobjmgr thread and shouldn't be kept
      * around across event dispatches.
      */
-    public Iterator enumeratePlaces ()
+    public Iterator<PlaceObject> enumeratePlaces ()
     {
-        final Iterator itr = _pmgrs.elements();
-        return new Iterator() {
+        final Iterator<PlaceManager> itr = _pmgrs.values().iterator();
+        return new Iterator<PlaceObject>() {
             public boolean hasNext ()
             {
                 return itr.hasNext();
             }
 
-            public Object next ()
+            public PlaceObject next ()
             {
-                PlaceManager plmgr = (PlaceManager)itr.next();
+                PlaceManager plmgr = itr.next();
                 return (plmgr == null) ? null : plmgr.getPlaceObject();
             }
 
@@ -205,33 +208,25 @@ public class PlaceRegistry
      * This should only be accessed on the dobjmgr thread and shouldn't be
      * kept around across event dispatches.
      */
-    public Iterator enumeratePlaceManagers ()
+    public Iterator<PlaceManager> enumeratePlaceManagers ()
     {
-        return _pmgrs.elements();
+        return _pmgrs.values().iterator();
     }
 
     // documentation inherited
-    public void objectAvailable (DObject object)
+    public void objectAvailable (PlaceObject plobj)
     {
         // pop the next place manager off of the queue and let it know
         // that everything went swimmingly
-        Tuple tuple = (Tuple)_createq.getNonBlocking();
+        Tuple<PlaceManager,CreationObserver> tuple = _createq.getNonBlocking();
         if (tuple == null) {
             Log.warning("Place created but no manager queued up to hear " +
-                        "about it!? [pobj=" + object + "].");
+                        "about it!? [pobj=" + plobj + "].");
             return;
         }
 
-        // make sure it's the right kind of object
-        if (!(object instanceof PlaceObject)) {
-            Log.warning("Place registry notified of the creation of " +
-                        "non-place object!? [obj=" + object + "].");
-            return;
-        }
-
-        PlaceManager pmgr = (PlaceManager)tuple.left;
-        CreationObserver observer = (CreationObserver)tuple.right;
-        PlaceObject plobj = (PlaceObject)object;
+        PlaceManager pmgr = tuple.left;
+        CreationObserver observer = tuple.right;
 
         // stick the manager into our table
         _pmgrs.put(plobj.getOid(), pmgr);
@@ -240,7 +235,7 @@ public class PlaceRegistry
         try {
             pmgr.startup(plobj);
         } catch (Exception e) {
-            Log.warning("Error starting place manager [obj=" + object +
+            Log.warning("Error starting place manager [obj=" + plobj +
                 ", pmgr=" + pmgr + "].");
             Log.logStackTrace(e);
         }
@@ -252,8 +247,8 @@ public class PlaceRegistry
                 observer.placeCreated(plobj, pmgr);
             } catch (Exception e) {
                 Log.warning("Error informing CreationObserver of place " +
-                    "[obj=" + object + ", pmgr=" + pmgr + ", obs=" + observer +
-                    "].");
+                            "[obj=" + plobj + ", pmgr=" + pmgr +
+                            ", obs=" + observer + "].");
                 Log.logStackTrace(e);
             }
         }
@@ -264,14 +259,14 @@ public class PlaceRegistry
     {
         // pop a place manager off the queue since it is queued up to
         // manage the failed place object
-        PlaceManager pmgr = (PlaceManager)_createq.getNonBlocking();
-        if (pmgr == null) {
+        Tuple<PlaceManager,CreationObserver> tuple = _createq.getNonBlocking();
+        if (tuple == null) {
             Log.warning("Place creation failed but no manager queued " +
                         "up to hear about it!? [cause=" + cause + "].");
             return;
         }
 
-        Log.warning("Failed to create place object [mgr=" + pmgr +
+        Log.warning("Failed to create place object [mgr=" + tuple.left +
                     ", cause=" + cause + "].");
     }
 
@@ -300,8 +295,9 @@ public class PlaceRegistry
     protected RootDObjectManager _omgr;
 
     /** A queue of place managers waiting for their place objects. */
-    protected Queue _createq = new Queue();
+    protected Queue<Tuple<PlaceManager,CreationObserver>> _createq =
+        new Queue<Tuple<PlaceManager,CreationObserver>>();
 
     /** A mapping from place object id to place manager. */
-    protected HashIntMap _pmgrs = new HashIntMap();
+    protected HashIntMap<PlaceManager> _pmgrs = new HashIntMap<PlaceManager>();
 }

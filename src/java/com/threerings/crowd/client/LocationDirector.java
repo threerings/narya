@@ -47,7 +47,7 @@ import com.threerings.crowd.util.CrowdContext;
  * before actually issuing the request.
  */
 public class LocationDirector extends BasicDirector
-    implements LocationCodes, Subscriber, LocationReceiver,
+    implements LocationCodes, Subscriber<PlaceObject>, LocationReceiver,
                LocationService.MoveListener
 {
     /**
@@ -217,13 +217,12 @@ public class LocationDirector extends BasicDirector
      * @return true if everyone is happy with the move, false if it was
      * vetoed by one of the location observers.
      */
-    public boolean mayMoveTo (final int placeId, ResultListener rl)
+    public boolean mayMoveTo (final int placeId, ResultListener<Object> rl)
     {
         final boolean[] vetoed = new boolean[1];
-        _observers.apply(new ObserverOp() {
-            public boolean apply (Object obs) {
-                LocationObserver lobs = (LocationObserver)obs;
-                vetoed[0] = (vetoed[0] || !lobs.locationMayChange(placeId));
+        _observers.apply(new ObserverOp<LocationObserver>() {
+            public boolean apply (LocationObserver obs) {
+                vetoed[0] = (vetoed[0] || !obs.locationMayChange(placeId));
                 return true;
             }
         });
@@ -380,10 +379,10 @@ public class LocationDirector extends BasicDirector
         super.clientDidLogon(client);
 
         // subscribe to our body object
-        Subscriber sub = new Subscriber() {
-            public void objectAvailable (DObject object)
+        Subscriber<BodyObject> sub = new Subscriber<BodyObject>() {
+            public void objectAvailable (BodyObject object)
             {
-                gotBodyObject((BodyObject)object);
+                gotBodyObject(object);
             }
 
             public void requestFailed (int oid, ObjectAccessException cause)
@@ -474,10 +473,10 @@ public class LocationDirector extends BasicDirector
      * Called when we receive the place object to which we subscribed
      * after a successful moveTo request.
      */
-    public void objectAvailable (DObject object)
+    public void objectAvailable (PlaceObject object)
     {
         // yay, we have our new place object
-        _plobj = (PlaceObject)object;
+        _plobj = object;
 
         // let the place controller know that we're ready to roll
         if (_controller != null) {
@@ -559,9 +558,9 @@ public class LocationDirector extends BasicDirector
 
     protected void notifyFailure (final int placeId, final String reason)
     {
-        _observers.apply(new ObserverOp() {
-            public boolean apply (Object obs) {
-                ((LocationObserver)obs).locationChangeFailed(placeId, reason);
+        _observers.apply(new ObserverOp<LocationObserver>() {
+            public boolean apply (LocationObserver obs) {
+                obs.locationChangeFailed(placeId, reason);
                 return true;
             }
         });
@@ -585,8 +584,8 @@ public class LocationDirector extends BasicDirector
     protected LocationService _lservice;
 
     /** Our location observer list. */
-    protected ObserverList _observers =
-        new ObserverList(ObserverList.SAFE_IN_ORDER_NOTIFY);
+    protected ObserverList<LocationObserver> _observers =
+        new ObserverList<LocationObserver>(ObserverList.SAFE_IN_ORDER_NOTIFY);
 
     /** The oid of the place we currently occupy. */
     protected int _placeId = -1;
@@ -615,12 +614,13 @@ public class LocationDirector extends BasicDirector
 
     /** A listener that wants to know if we succeeded or
      * how we failed to move.  */
-    protected ResultListener _moveListener;
+    protected ResultListener<Object> _moveListener;
 
     /** The operation used to inform observers that the location changed. */
-    protected ObserverOp _didChangeOp = new ObserverOp() {
-        public boolean apply (Object obs) {
-            ((LocationObserver)obs).locationDidChange(_plobj);
+    protected ObserverOp<LocationObserver> _didChangeOp =
+        new ObserverOp<LocationObserver>() {
+        public boolean apply (LocationObserver obs) {
+            obs.locationDidChange(_plobj);
             return true;
         }
     };

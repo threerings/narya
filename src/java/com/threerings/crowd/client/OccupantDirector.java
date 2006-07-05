@@ -161,9 +161,9 @@ public class OccupantDirector extends BasicDirector
 
         // now let the occupant observers know what's up
         final OccupantInfo info = (OccupantInfo)event.getEntry();
-        _observers.apply(new ObserverList.ObserverOp() {
-            public boolean apply (Object observer) {
-                ((OccupantObserver)observer).occupantEntered(info);
+        _observers.apply(new ObserverList.ObserverOp<OccupantObserver>() {
+            public boolean apply (OccupantObserver observer) {
+                observer.occupantEntered(info);
                 return true;
             }
         });
@@ -182,9 +182,9 @@ public class OccupantDirector extends BasicDirector
         // now let the occupant observers know what's up
         final OccupantInfo info = (OccupantInfo) event.getEntry();
         final OccupantInfo oinfo = (OccupantInfo) event.getOldEntry();
-        _observers.apply(new ObserverList.ObserverOp() {
-            public boolean apply (Object observer) {
-                ((OccupantObserver)observer).occupantUpdated(oinfo, info);
+        _observers.apply(new ObserverList.ObserverOp<OccupantObserver>() {
+            public boolean apply (OccupantObserver observer) {
+                observer.occupantUpdated(oinfo, info);
                 return true;
             }
         });
@@ -202,17 +202,17 @@ public class OccupantDirector extends BasicDirector
 
         // let the occupant observers know what's up
         final OccupantInfo oinfo = (OccupantInfo) event.getOldEntry();
-        _observers.apply(new ObserverList.ObserverOp() {
-            public boolean apply (Object observer) {
-                ((OccupantObserver)observer).occupantLeft(oinfo);
+        _observers.apply(new ObserverList.ObserverOp<OccupantObserver>() {
+            public boolean apply (OccupantObserver observer) {
+                observer.occupantLeft(oinfo);
                 return true;
             }
         });
     }
 
     /** The occupant observers to keep abreast of occupant antics. */
-    protected ObserverList _observers =
-        new ObserverList(ObserverList.SAFE_IN_ORDER_NOTIFY);
+    protected ObserverList<OccupantObserver> _observers =
+        new ObserverList<OccupantObserver>(ObserverList.SAFE_IN_ORDER_NOTIFY);
 
     /** The user's current location. */
     protected PlaceObject _place;

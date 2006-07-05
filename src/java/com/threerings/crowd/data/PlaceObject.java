@@ -141,7 +141,7 @@ public class PlaceObject extends DObject
      * <code>occupantInfo</code> set. The set will not change until the event is
      * actually propagated through the system.
      */
-    public void addToOccupantInfo (DSet.Entry elem)
+    public void addToOccupantInfo (OccupantInfo elem)
     {
         requestEntryAdd(OCCUPANT_INFO, occupantInfo, elem);
     }
@@ -161,7 +161,7 @@ public class PlaceObject extends DObject
      * <code>occupantInfo</code> set. The set will not change until the event is
      * actually propagated through the system.
      */
-    public void updateOccupantInfo (DSet.Entry elem)
+    public void updateOccupantInfo (OccupantInfo elem)
     {
         requestEntryUpdate(OCCUPANT_INFO, occupantInfo, elem);
     }

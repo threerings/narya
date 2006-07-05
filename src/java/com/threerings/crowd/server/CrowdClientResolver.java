@@ -32,7 +32,7 @@ import com.threerings.crowd.data.BodyObject;
 public class CrowdClientResolver extends ClientResolver
 {
     // documentation inherited
-    public Class getClientObjectClass ()
+    public Class<? extends ClientObject> getClientObjectClass ()
     {
         return BodyObject.class;
     }

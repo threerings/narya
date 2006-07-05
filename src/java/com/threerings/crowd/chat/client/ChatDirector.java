@@ -504,7 +504,7 @@ public class ChatDirector extends BasicDirector
      * of success or failure.
      */
     public void requestTell (final Name target, String msg,
-                             final ResultListener rl)
+                             final ResultListener<Name> rl)
     {
         // make sure they can say what they want to say
         final String message = filter(msg, target, true);
@@ -1263,13 +1263,14 @@ public class ChatDirector extends BasicDirector
             history[0] = histEntry;
 
             // request to send this text as a tell message
-            requestTell(target, escapeMessage(message), new ResultListener() {
-                public void requestCompleted (Object result) {
+            requestTell(target, escapeMessage(message),
+                        new ResultListener<Name>() {
+                public void requestCompleted (Name target) {
                     // replace the full one in the history with just:
                     // /tell "<handle>"
                     String newEntry = "/" + command + " " +
-                        (useQuotes ? ("\"" + result + "\"")
-                                   : String.valueOf(result)) + " ";
+                        (useQuotes ? ("\"" + target + "\"")
+                                   : String.valueOf(target)) + " ";
                     _history.remove(newEntry);
                     int dex = _history.lastIndexOf("/" + histEntry);
                     if (dex >= 0) {

@@ -150,7 +150,7 @@ public class MuteDirector extends BasicDirector
      */
     public Name[] getMuted ()
     {
-        return (Name[]) _mutelist.toArray(new Name[_mutelist.size()]);
+        return _mutelist.toArray(new Name[_mutelist.size()]);
     }
 
     // documentation inherited from interface ChatFilter
@@ -175,9 +175,9 @@ public class MuteDirector extends BasicDirector
      */
     protected void notifyObservers (final Name username, final boolean muted)
     {
-        _observers.apply(new ObserverList.ObserverOp() {
-            public boolean apply (Object observer) {
-                ((MuteObserver)observer).muteChanged(username, muted);
+        _observers.apply(new ObserverList.ObserverOp<MuteObserver>() {
+            public boolean apply (MuteObserver observer) {
+                observer.muteChanged(username, muted);
                 return true;
             }
         });
@@ -187,9 +187,9 @@ public class MuteDirector extends BasicDirector
     protected ChatDirector _chatdir;
 
     /** The mutelist. */
-    protected HashSet _mutelist = new HashSet();
+    protected HashSet<Name> _mutelist = new HashSet<Name>();
 
     /** List of mutelist observers. */
-    protected ObserverList _observers =
-        new ObserverList(ObserverList.FAST_UNSAFE_NOTIFY);
+    protected ObserverList<MuteObserver> _observers =
+        new ObserverList<MuteObserver>(ObserverList.FAST_UNSAFE_NOTIFY);
 }
