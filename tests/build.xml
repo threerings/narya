@@ -106,10 +106,11 @@
   <!-- build the java class files -->
   <target name="compile" depends="check-available,prepare">
     <javac srcdir="${src.dir}" destdir="${classes.dir}"
-      debug="on" optimize="off" deprecation="off">
+      debug="on" optimize="off" deprecation="on">
       <classpath refid="classpath"/>
       <exclude name="com/threerings/jme/**" unless="build.jme"/>
       <exclude name="com/threerings/openal/**" unless="build.openal"/>
+      <compilerarg value="-Xlint:unchecked"/>
     </javac>
   </target>
 

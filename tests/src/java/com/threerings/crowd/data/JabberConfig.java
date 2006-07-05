@@ -4,6 +4,7 @@
 package com.threerings.crowd.data;
 
 import com.threerings.crowd.client.JabberController;
+import com.threerings.crowd.client.PlaceController;
 import com.threerings.crowd.data.PlaceConfig;
 
 /**
@@ -12,9 +13,9 @@ import com.threerings.crowd.data.PlaceConfig;
 public class JabberConfig extends PlaceConfig
 {
     // documentation inherited
-    public Class getControllerClass ()
+    public PlaceController createController ()
     {
-        return JabberController.class;
+        return new JabberController();
     }
 
     // documentation inherited

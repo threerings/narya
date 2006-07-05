@@ -32,26 +32,25 @@ import com.threerings.presents.dobj.*;
  * Tests that the dobjmgr will not allow a destroyed object to be added to
  * an oid list.
  */
-public class DestroyedRefTest
-    extends TestCase
-    implements Subscriber, EventListener
+public class DestroyedRefTest extends TestCase
+    implements Subscriber<TestObject>, EventListener
 {
     public DestroyedRefTest ()
     {
         super(DestroyedRefTest.class.getName());
     }
 
-    public void objectAvailable (DObject object)
+    public void objectAvailable (TestObject object)
     {
         // add ourselves as an event listener
         object.addListener(this);
 
         // keep references to our test objects
         if (_objone == null) {
-            _objone = (TestObject)object;
+            _objone = object;
 
         } else {
-            _objtwo = (TestObject)object;
+            _objtwo = object;
 
             // add object one to object two twice in a row to make sure
             // repeated adds don't result in the object being listed twice

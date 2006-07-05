@@ -30,27 +30,25 @@ import com.threerings.presents.dobj.*;
 /**
  * Tests the oid list reference tracking code.
  */
-public class RefTest
-    extends TestCase
-    implements Subscriber, EventListener
+public class RefTest extends TestCase
+    implements Subscriber<TestObject>, EventListener
 {
     public RefTest ()
     {
         super(RefTest.class.getName());
     }
 
-    public void objectAvailable (DObject object)
+    public void objectAvailable (TestObject object)
     {
         // add ourselves as an event listener to our subscribed object
         object.addListener(this);
 
         // keep references to our test objects
         if (_objone == null) {
-            _objone = (TestObject)object;
+            _objone = object;
 
         } else {
-            _objtwo = (TestObject)object;
-
+            _objtwo = object;
             // now that we have both objects, set up the references
             _objone.addToList(_objtwo.getOid());
             _objtwo.addToList(_objone.getOid());

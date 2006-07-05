@@ -31,38 +31,37 @@ import com.threerings.presents.dobj.*;
  * A simple test case for the dobjmgr.
  */
 public class DOMTest extends TestCase
-    implements Subscriber, AttributeChangeListener, ElementUpdateListener
+    implements Subscriber<TestObject>, AttributeChangeListener,
+               ElementUpdateListener
 {
     public DOMTest ()
     {
         super(DOMTest.class.getName());
     }
 
-    public void objectAvailable (DObject object)
+    public void objectAvailable (TestObject object)
     {
         // add ourselves as a listener
-        object.addListener(this);
-
-        TestObject to = (TestObject)object;
-        _test = to;
+        _test = object;
+        _test.addListener(this);
 
         // test transactions
-        to.startTransaction();
-        to.setFoo(99);
-        to.setBar("hoopie");
-        to.commitTransaction();
+        _test.startTransaction();
+        _test.setFoo(99);
+        _test.setBar("hoopie");
+        _test.commitTransaction();
 
         // set some elements
-        to.setIntsAt(15, 3);
-        to.setIntsAt(5, 2);
-        to.setIntsAt(1, 0);
-        to.setStringsAt("Hello", 0);
-        to.setStringsAt("Goodbye", 1);
-        to.setStringsAt(null, 1);
+        _test.setIntsAt(15, 3);
+        _test.setIntsAt(5, 2);
+        _test.setIntsAt(1, 0);
+        _test.setStringsAt("Hello", 0);
+        _test.setStringsAt("Goodbye", 1);
+        _test.setStringsAt(null, 1);
 
         // now set some values straight up
-        to.setFoo(25);
-        to.setBar("howdy");
+        _test.setFoo(25);
+        _test.setBar("howdy");
     }
 
     public void requestFailed (int oid, ObjectAccessException cause)

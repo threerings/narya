@@ -67,7 +67,7 @@ public class TestClient
 
         // loop over our queue, running the runnables
         while (true) {
-            Runnable run = (Runnable)_queue.get();
+            Runnable run = _queue.get();
             run.run();
         }
     }
@@ -184,5 +184,5 @@ public class TestClient
     protected ChatDirector _chatdir;
 
     protected Thread _main;
-    protected Queue _queue = new Queue();
+    protected Queue<Runnable> _queue = new Queue<Runnable>();
 }

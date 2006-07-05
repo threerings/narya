@@ -35,7 +35,7 @@ import com.threerings.presents.net.*;
  * A standalone test client.
  */
 public class TestClient
-    implements RunQueue, SessionObserver, Subscriber, EventListener,
+    implements RunQueue, SessionObserver, Subscriber<TestObject>, EventListener,
                TestService.TestFuncListener, TestService.TestOidListener,
                TestReceiver
 {
@@ -61,7 +61,7 @@ public class TestClient
 
         // loop over our queue, running the runnables
         while (true) {
-            Runnable run = (Runnable)_queue.get();
+            Runnable run = _queue.get();
             run.run();
         }
     }
@@ -91,11 +91,11 @@ public class TestClient
         System.exit(0);
     }
 
-    public void objectAvailable (DObject object)
+    public void objectAvailable (TestObject object)
     {
         object.addListener(this);
         Log.info("Object available: " + object);
-        ((TestObject)object).setBar("lawl!");
+        object.setBar("lawl!");
     }
 
     public void requestFailed (int oid, ObjectAccessException cause)
@@ -161,6 +161,6 @@ public class TestClient
     }
 
     protected Thread _main;
-    protected Queue _queue = new Queue();
+    protected Queue<Runnable> _queue = new Queue<Runnable>();
     protected Client _client;
 }

@@ -1,5 +1,5 @@
 //
-// $Id: DSetTest.java,v 1.2 2004/08/27 02:21:04 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -58,14 +58,14 @@ public class DSetTest extends TestCase
 
     public void runTest ()
     {
-        ArrayList seed = new ArrayList();
+        ArrayList<TestEntry> seed = new ArrayList<TestEntry>();
         seed.add(new TestEntry(15));
         seed.add(new TestEntry(7));
         seed.add(new TestEntry(3));
         seed.add(new TestEntry(29));
         seed.add(new TestEntry(32));
 
-        DSet set = new DSet(seed.iterator());
+        DSet<TestEntry> set = new DSet<TestEntry>(seed.iterator());
         System.out.println(set.add(new TestEntry(15)) + ": " + set);
         System.out.println(set.add(new TestEntry(9)) + ": " + set);
         System.out.println(set.remove(new TestEntry(32)) + ": " + set);
