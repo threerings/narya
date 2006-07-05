@@ -196,7 +196,7 @@ public class PresentsDObjectMgr
      */
     public DObject getObject (int oid)
     {
-        return (DObject)_objects.get(oid);
+        return _objects.get(oid);
     }
 
     /**
@@ -324,7 +324,7 @@ public class PresentsDObjectMgr
         int ecount = events.size();
 
         // look up the target object
-        DObject target = (DObject)_objects.get(event.getTargetOid());
+        DObject target = _objects.get(event.getTargetOid());
         if (target == null) {
             Log.debug("Compound event target no longer exists " +
                       "[event=" + event + "].");
@@ -357,7 +357,7 @@ public class PresentsDObjectMgr
     protected void processEvent (DEvent event)
     {
         // look up the target object
-        DObject target = (DObject)_objects.get(event.getTargetOid());
+        DObject target = _objects.get(event.getTargetOid());
         if (target == null) {
             Log.debug("Event target no longer exists " +
                       "[event=" + event + "].");
@@ -491,7 +491,7 @@ public class PresentsDObjectMgr
                 }
 
                 Reference ref = refs[i];
-                DObject reffer = (DObject)_objects.get(ref.reffingOid);
+                DObject reffer = _objects.get(ref.reffingOid);
 
                 // ensure that the referencing object is still around
                 if (reffer != null) {
@@ -857,7 +857,7 @@ public class PresentsDObjectMgr
             throws ObjectAccessException
         {
             // look up the target object
-            T obj = (T)_objects.get(_oid);
+            @SuppressWarnings("unchecked") T obj = (T)_objects.get(_oid);
 
             // if we're unsubscribing, take care of that and get on out
             if (_action == UNSUBSCRIBE) {
@@ -985,7 +985,7 @@ public class PresentsDObjectMgr
     protected boolean _running = true;
 
     /** The event queue via which all events are processed. */
-    protected Queue _evqueue = new Queue();
+    protected Queue<Object> _evqueue = new Queue<Object>();
 
     /** The managed distributed objects table. */
     protected HashIntMap<DObject> _objects = new HashIntMap<DObject>();

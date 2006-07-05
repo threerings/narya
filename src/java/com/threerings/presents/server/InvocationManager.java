@@ -65,11 +65,12 @@ import com.threerings.presents.dobj.Subscriber;
  * the client.
  */
 public class InvocationManager
-    implements Subscriber, EventListener
+    implements Subscriber<DObject>, EventListener
 {
     /** The list of services that are to be provided to clients at boot
      * time. Don't mess with this list! */
-    public StreamableArrayList bootlist = new StreamableArrayList();
+    public StreamableArrayList<InvocationMarshaller> bootlist =
+        new StreamableArrayList<InvocationMarshaller>();
 
     /**
      * Constructs an invocation manager which will use the supplied
@@ -174,8 +175,7 @@ public class InvocationManager
 
         // let any early registered marshallers know about our invoid
         while (_lateInitQueue.size() > 0) {
-            InvocationMarshaller marsh = (InvocationMarshaller)
-                _lateInitQueue.remove(0);
+            InvocationMarshaller marsh = _lateInitQueue.remove(0);
             marsh.setInvocationOid(_invoid);
         }
 
@@ -222,8 +222,7 @@ public class InvocationManager
         }
 
         // look up the dispatcher
-        InvocationDispatcher disp = (InvocationDispatcher)
-            _dispatchers.get(invCode);
+        InvocationDispatcher disp = _dispatchers.get(invCode);
         if (disp == null) {
             Log.info("Received invocation request but dispatcher " +
                      "registration was already cleared [code=" + invCode +
@@ -298,8 +297,8 @@ public class InvocationManager
     }
 
     // debugging action...
-    protected static final LRUHashMap _recentRegServices =
-        new LRUHashMap(10000);
+    protected static final LRUHashMap<Integer,String> _recentRegServices =
+        new LRUHashMap<Integer,String>(10000);
 
     /** The distributed object manager with which we're working. */
     protected RootDObjectManager _omgr;
@@ -312,12 +311,14 @@ public class InvocationManager
     protected int _invCode;
 
     /** A table of invocation dispatchers each mapped by a unique code. */
-    protected HashIntMap _dispatchers = new HashIntMap();
+    protected HashIntMap<InvocationDispatcher> _dispatchers =
+        new HashIntMap<InvocationDispatcher>();
 
     /** Used to keep track of marshallers registered before we had our
      * invocation object so that we can fill their invocation id in
      * belatedly. */
-    protected ArrayList _lateInitQueue = new ArrayList();
+    protected ArrayList<InvocationMarshaller> _lateInitQueue =
+        new ArrayList<InvocationMarshaller>();
 
     /** The text that is appended to the procedure name when automatically
      * generating a failure response. */

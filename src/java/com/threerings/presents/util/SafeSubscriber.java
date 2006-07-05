@@ -35,14 +35,14 @@ import com.threerings.presents.dobj.Subscriber;
  * complete before the subscriber decides they no longer wish to be
  * subscribed.
  */
-public class SafeSubscriber
-    implements Subscriber
+public class SafeSubscriber<T extends DObject>
+    implements Subscriber<T>
 {
     /**
      * Creates a safe subscriber for the specified distributed object
      * which will interact with the specified subscriber.
      */
-    public SafeSubscriber (int oid, Subscriber subscriber)
+    public SafeSubscriber (int oid, Subscriber<T> subscriber)
     {
         // make sure they're not fucking us around
         if (oid <= 0) {
@@ -157,7 +157,7 @@ public class SafeSubscriber
     }
 
     // documentation inherited from interface
-    public void objectAvailable (DObject object)
+    public void objectAvailable (T object)
     {
         // make sure life is not too cruel
         if (_object != null) {
@@ -224,8 +224,8 @@ public class SafeSubscriber
     }
 
     protected int _oid;
-    protected Subscriber _subscriber;
-    protected DObject _object;
+    protected Subscriber<T> _subscriber;
+    protected T _object;
     protected boolean _active;
     protected boolean _pending;
 }

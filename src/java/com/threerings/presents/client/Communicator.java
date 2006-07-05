@@ -597,7 +597,7 @@ public class Communicator
         protected void iterate ()
         {
             // fetch the next message from the queue
-            UpstreamMessage msg = (UpstreamMessage)_msgq.get();
+            UpstreamMessage msg = _msgq.get();
 
             // if this is a termination message, we're being
             // requested to exit, so we want to bail now rather
@@ -675,7 +675,7 @@ public class Communicator
     protected Writer _writer;
 
     protected SocketChannel _channel;
-    protected Queue _msgq = new Queue();
+    protected Queue<UpstreamMessage> _msgq = new Queue<UpstreamMessage>();
 
     protected long _lastWrite;
     protected Exception _logonError;

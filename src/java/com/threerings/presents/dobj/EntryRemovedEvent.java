@@ -31,7 +31,7 @@ import com.threerings.presents.Log;
  *
  * @see DObjectManager#postEvent
  */
-public class EntryRemovedEvent extends NamedEvent
+public class EntryRemovedEvent<T extends DSet.Entry> extends NamedEvent
 {
     /**
      * Constructs a new entry removed event on the specified target object
@@ -45,7 +45,7 @@ public class EntryRemovedEvent extends NamedEvent
      * @param oldEntry the previous value of the entry.
      */
     public EntryRemovedEvent (int targetOid, String name, Comparable key,
-                              DSet.Entry oldEntry)
+                              T oldEntry)
     {
         super(targetOid, name);
         _key = key;
@@ -65,13 +65,13 @@ public class EntryRemovedEvent extends NamedEvent
      */
     public Comparable getKey ()
     {
-        return (Comparable)_key;
+        return _key;
     }
 
     /**
      * Returns the entry that was in the set prior to being updated.
      */
-    public DSet.Entry getOldEntry ()
+    public T getOldEntry ()
     {
         return _oldEntry;
     }
@@ -83,7 +83,7 @@ public class EntryRemovedEvent extends NamedEvent
         throws ObjectAccessException
     {
         if (_oldEntry == UNSET_OLD_ENTRY) {
-            DSet set = (DSet)target.getAttribute(_name);
+            DSet<T> set = target.getSet(_name);
             // remove, fetch the previous value for interested callers
             _oldEntry = set.removeKey(_key);
             if (_oldEntry == null) {
@@ -113,5 +113,6 @@ public class EntryRemovedEvent extends NamedEvent
     }
 
     protected Comparable _key;
-    protected transient DSet.Entry _oldEntry = UNSET_OLD_ENTRY;
+    @SuppressWarnings("unchecked")
+    protected transient T _oldEntry = (T)UNSET_OLD_ENTRY;
 }

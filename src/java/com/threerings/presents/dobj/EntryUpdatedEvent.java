@@ -32,7 +32,7 @@ import com.threerings.presents.Log;
  *
  * @see DObjectManager#postEvent
  */
-public class EntryUpdatedEvent extends NamedEvent
+public class EntryUpdatedEvent<T extends DSet.Entry> extends NamedEvent
 {
     /**
      * Constructs a new entry updated event on the specified target object
@@ -45,8 +45,7 @@ public class EntryUpdatedEvent extends NamedEvent
      * @param entry the entry to update.
      * @param oldEntry the previous value of the entry.
      */
-    public EntryUpdatedEvent (int targetOid, String name, DSet.Entry entry,
-                              DSet.Entry oldEntry)
+    public EntryUpdatedEvent (int targetOid, String name, T entry, T oldEntry)
     {
         super(targetOid, name);
         _entry = entry;
@@ -64,7 +63,7 @@ public class EntryUpdatedEvent extends NamedEvent
     /**
      * Returns the entry that has been updated.
      */
-    public DSet.Entry getEntry ()
+    public T getEntry ()
     {
         return _entry;
     }
@@ -72,7 +71,7 @@ public class EntryUpdatedEvent extends NamedEvent
     /**
      * Returns the entry that was in the set prior to being updated.
      */
-    public DSet.Entry getOldEntry ()
+    public T getOldEntry ()
     {
         return _oldEntry;
     }
@@ -85,7 +84,7 @@ public class EntryUpdatedEvent extends NamedEvent
     {
         // only apply the change if we haven't already
         if (_oldEntry == UNSET_OLD_ENTRY) {
-            DSet set = (DSet)target.getAttribute(_name);
+            DSet<T> set = target.getSet(_name);
             // fetch the previous value for interested callers
             _oldEntry = set.update(_entry);
             if (_oldEntry == null) {
@@ -115,6 +114,7 @@ public class EntryUpdatedEvent extends NamedEvent
         StringUtil.toString(buf, _entry);
     }
 
-    protected DSet.Entry _entry;
-    protected transient DSet.Entry _oldEntry = UNSET_OLD_ENTRY;
+    protected T _entry;
+    @SuppressWarnings("unchecked")
+    protected transient T _oldEntry = (T)UNSET_OLD_ENTRY;
 }

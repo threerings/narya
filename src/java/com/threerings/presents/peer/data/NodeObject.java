@@ -43,7 +43,7 @@ public class NodeObject extends DObject
      * <code>clients</code> set. The set will not change until the event is
      * actually propagated through the system.
      */
-    public void addToClients (DSet.Entry elem)
+    public void addToClients (ClientInfo elem)
     {
         requestEntryAdd(CLIENTS, clients, elem);
     }
@@ -63,7 +63,7 @@ public class NodeObject extends DObject
      * <code>clients</code> set. The set will not change until the event is
      * actually propagated through the system.
      */
-    public void updateClients (DSet.Entry elem)
+    public void updateClients (ClientInfo elem)
     {
         requestEntryUpdate(CLIENTS, clients, elem);
     }

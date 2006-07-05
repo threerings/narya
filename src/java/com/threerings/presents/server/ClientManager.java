@@ -229,7 +229,9 @@ public class ClientManager
 
             // request that the appropriate client object be created by the
             // dobject manager which starts the whole business off
-            PresentsServer.omgr.createObject(clr.getClientObjectClass(), clr);
+            @SuppressWarnings("unchecked") Class<ClientObject> cclass =
+                (Class<ClientObject>)clr.getClientObjectClass();
+            PresentsServer.omgr.createObject(cclass, clr);
 
         } catch (Exception e) {
             // let the listener know that we're hosed

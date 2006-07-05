@@ -81,7 +81,7 @@ public class InvocationDirector
                 clobj.addListener(InvocationDirector.this);
 
                 // clear out our previous registrations
-                clobj.setReceivers(new DSet());
+                clobj.setReceivers(new DSet<Registration>());
 
                 // keep a handle on this bad boy
                 _clobj = clobj;
@@ -348,7 +348,7 @@ public class InvocationDirector
         _omgr.subscribeToObject(newCloid, new Subscriber<ClientObject>() {
             public void objectAvailable (ClientObject clobj) {
                 // grab a reference to our old receiver registrations
-                DSet receivers = _clobj.receivers;
+                DSet<Registration> receivers = _clobj.receivers;
 
                 // replace the client object
                 _clobj = clobj;
@@ -359,10 +359,9 @@ public class InvocationDirector
                 // reregister our receivers
                 _clobj.startTransaction();
                 try {
-                    _clobj.setReceivers(new DSet());
-                    Iterator iter = receivers.iterator();
-                    while (iter.hasNext()) {
-                        _clobj.addToReceivers((Registration)iter.next());
+                    _clobj.setReceivers(new DSet<Registration>());
+                    for (Registration reg : receivers) {
+                        _clobj.addToReceivers(reg);
                     }
                 } finally {
                     _clobj.commitTransaction();

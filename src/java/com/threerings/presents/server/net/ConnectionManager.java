@@ -194,7 +194,7 @@ public class ConnectionManager extends LoopingThread
      * Called by the authenticator to indicate that a connection was
      * successfully authenticated.
      */
-    public void connectionDidAuthenticate (Connection conn)
+    public void connectionDidAuthenticate (AuthingConnection conn)
     {
         // slap this sucker onto the authenticated connections queue
         _authq.append(conn);
@@ -360,7 +360,7 @@ public class ConnectionManager extends LoopingThread
 
         // close any connections that have been queued up to die
         Connection dconn;
-        while ((dconn = (Connection)_deathq.getNonBlocking()) != null) {
+        while ((dconn = _deathq.getNonBlocking()) != null) {
             // it's possible that we caught an EOF trying to read from
             // this connection even after it was queued up for death, so
             // let's avoid trying to close it twice
@@ -396,10 +396,8 @@ public class ConnectionManager extends LoopingThread
         }
 
         // send any messages that are waiting on the outgoing queue
-        Object obj;
-        while ((obj = _outq.getNonBlocking()) != null) {
-            @SuppressWarnings("unchecked") Tuple<Connection,byte[]> tup =
-                (Tuple<Connection,byte[]>)obj;
+        Tuple<Connection,byte[]> tup;
+        while ((tup = _outq.getNonBlocking()) != null) {
             Connection conn = tup.left;
 
             // if an overflow queue exists for this client, go ahead and
@@ -423,7 +421,7 @@ public class ConnectionManager extends LoopingThread
 
         // check for connections that have completed authentication
         AuthingConnection conn;
-        while ((conn = (AuthingConnection)_authq.getNonBlocking()) != null) {
+        while ((conn = _authq.getNonBlocking()) != null) {
             try {
                 // construct a new running connection to handle this
                 // connections network traffic from here on out
@@ -893,10 +891,11 @@ public class ConnectionManager extends LoopingThread
     protected HashMap<SelectionKey,NetEventHandler> _handlers =
         new HashMap<SelectionKey,NetEventHandler>();
 
-    protected Queue _deathq = new Queue();
-    protected Queue _authq = new Queue();
+    protected Queue<Connection> _deathq = new Queue<Connection>();
+    protected Queue<AuthingConnection> _authq = new Queue<AuthingConnection>();
 
-    protected Queue _outq = new Queue();
+    protected Queue<Tuple<Connection,byte[]>> _outq =
+        new Queue<Tuple<Connection,byte[]>>();
     protected FramingOutputStream _framer;
     protected ByteBuffer _outbuf = ByteBuffer.allocateDirect(64 * 1024);
 

@@ -23,7 +23,8 @@ package com.threerings.presents.net;
 
 import com.threerings.presents.dobj.DObject;
 
-public class ObjectResponse extends DownstreamMessage
+public class ObjectResponse<T extends DObject>
+    extends DownstreamMessage
 {
     /**
      * Zero argument constructor used when unserializing an instance.
@@ -36,12 +37,12 @@ public class ObjectResponse extends DownstreamMessage
     /**
      * Constructs an object response with the supplied distributed object.
      */
-    public ObjectResponse (DObject dobj)
+    public ObjectResponse (T dobj)
     {
         _dobj = dobj;
     }
 
-    public DObject getObject ()
+    public T getObject ()
     {
         return _dobj;
     }
@@ -52,5 +53,5 @@ public class ObjectResponse extends DownstreamMessage
     }
 
     /** The object which is associated with this response. */
-    protected DObject _dobj;
+    protected T _dobj;
 }

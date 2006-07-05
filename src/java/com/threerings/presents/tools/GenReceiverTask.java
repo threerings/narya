@@ -68,8 +68,9 @@ public class GenReceiverTask extends InvocationTask
             return;
         }
 
-        HashMap imports = new HashMap();
-        ComparableArrayList methods = new ComparableArrayList();
+        HashMap<String,Boolean> imports = new HashMap<String,Boolean>();
+        ComparableArrayList<ServiceMethod> methods =
+            new ComparableArrayList<ServiceMethod>();
 
         // we need to import the receiver itself
         imports.put(importify(receiver.getName()), Boolean.TRUE);
@@ -94,14 +95,14 @@ public class GenReceiverTask extends InvocationTask
     }
 
     protected void generateSender (File source, String rname, String rpackage,
-                                   List methods, Iterator imports)
+                                   List methods, Iterator<String> imports)
     {
         String name = StringUtil.replace(rname, "Receiver", "");
         String sname = StringUtil.replace(rname, "Receiver", "Sender");
         String spackage = StringUtil.replace(rpackage, ".client", ".server");
 
         // construct our imports list
-        ComparableArrayList implist = new ComparableArrayList();
+        ComparableArrayList<String> implist = new ComparableArrayList<String>();
         CollectionUtil.addAll(implist, imports);
         checkedAdd(implist, ClientObject.class.getName());
         checkedAdd(implist, InvocationSender.class.getName());
@@ -134,13 +135,13 @@ public class GenReceiverTask extends InvocationTask
 
     protected void generateDecoder (
         File source, String rname, String rpackage, List methods,
-        Iterator imports)
+        Iterator<String> imports)
     {
         String name = StringUtil.replace(rname, "Receiver", "");
         String dname = StringUtil.replace(rname, "Receiver", "Decoder");
 
         // construct our imports list
-        ComparableArrayList implist = new ComparableArrayList();
+        ComparableArrayList<String> implist = new ComparableArrayList<String>();
         CollectionUtil.addAll(implist, imports);
         checkedAdd(implist, InvocationDecoder.class.getName());
         implist.sort();

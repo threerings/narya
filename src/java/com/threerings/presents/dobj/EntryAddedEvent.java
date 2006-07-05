@@ -32,7 +32,7 @@ import com.threerings.presents.Log;
  *
  * @see DObjectManager#postEvent
  */
-public class EntryAddedEvent extends NamedEvent
+public class EntryAddedEvent<T extends DSet.Entry> extends NamedEvent
 {
     /**
      * Constructs a new entry added event on the specified target object
@@ -44,7 +44,7 @@ public class EntryAddedEvent extends NamedEvent
      * entry.
      * @param entry the entry to add to the set attribute.
      */
-    public EntryAddedEvent (int targetOid, String name, DSet.Entry entry)
+    public EntryAddedEvent (int targetOid, String name, T entry)
     {
         this(targetOid, name, entry, false);
     }
@@ -53,7 +53,7 @@ public class EntryAddedEvent extends NamedEvent
      * Used when the distributed object already added the entry before
      * generating the event.
      */
-    public EntryAddedEvent (int targetOid, String name, DSet.Entry entry,
+    public EntryAddedEvent (int targetOid, String name, T entry,
                             boolean alreadyApplied)
     {
         super(targetOid, name);
@@ -72,7 +72,7 @@ public class EntryAddedEvent extends NamedEvent
     /**
      * Returns the entry that has been added.
      */
-    public DSet.Entry getEntry ()
+    public T getEntry ()
     {
         return _entry;
     }
@@ -84,7 +84,7 @@ public class EntryAddedEvent extends NamedEvent
         throws ObjectAccessException
     {
         if (!_alreadyApplied) {
-            boolean added = ((DSet)target.getAttribute(_name)).add(_entry);
+            boolean added = target.getSet(_name).add(_entry);
             if (!added) {
                 Log.warning("Duplicate entry found [event=" + this + "].");
             }
@@ -109,7 +109,7 @@ public class EntryAddedEvent extends NamedEvent
         StringUtil.toString(buf, _entry);
     }
 
-    protected DSet.Entry _entry;
+    protected T _entry;
 
     /** Used when this event is generated on the authoritative server
      * where object changes are made immediately. This lets us know not to

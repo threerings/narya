@@ -32,6 +32,7 @@ import com.samskivert.util.DebugChords;
 import com.samskivert.util.HashIntMap;
 import com.samskivert.util.Queue;
 import com.samskivert.util.StringUtil;
+import com.samskivert.util.IntMap;
 import com.samskivert.util.Interval;
 
 import com.threerings.presents.Log;
@@ -82,14 +83,16 @@ public class ClientDObjectMgr
     }
 
     // inherit documentation from the interface
-    public void createObject (Class dclass, Subscriber target)
+    public <T extends DObject> void createObject (
+        Class<T> dclass, Subscriber<T> target)
     {
         // not presently supported
         throw new RuntimeException("createObject() not supported");
     }
 
     // inherit documentation from the interface
-    public void subscribeToObject (int oid, Subscriber target)
+    public <T extends DObject> void subscribeToObject (
+        int oid, Subscriber<T> target)
     {
         if (oid <= 0) {
             target.requestFailed(
@@ -100,15 +103,17 @@ public class ClientDObjectMgr
     }
 
     // inherit documentation from the interface
-    public void unsubscribeFromObject (int oid, Subscriber target)
+    public <T extends DObject> void unsubscribeFromObject (
+        int oid, Subscriber<T> target)
     {
         queueAction(oid, target, false);
     }
 
-    protected void queueAction (int oid, Subscriber target, boolean subscribe)
+    protected <T extends DObject> void queueAction (
+        int oid, Subscriber<T> target, boolean subscribe)
     {
         // queue up an action
-        _actions.append(new ObjectAction(oid, target, subscribe));
+        _actions.append(new ObjectAction<T>(oid, target, subscribe));
         // and queue up the omgr to get invoked on the invoker thread
         _client.getRunQueue().postRunnable(this);
     }
@@ -130,14 +135,13 @@ public class ClientDObjectMgr
     // inherit documentation from the interface
     public void removedLastSubscriber (DObject obj, boolean deathWish)
     {
-        // if this object has a registered flush delay, don't can it just
-        // yet, just slip it onto the flush queue
-        Class oclass = obj.getClass();
-        for (Iterator iter = _delays.keySet().iterator(); iter.hasNext(); ) {
-            Class dclass = (Class)iter.next();
+        // if this object has a registered flush delay, don't can it just yet,
+        // just slip it onto the flush queue
+        Class<?> oclass = obj.getClass();
+        for (Class<?> dclass : _delays.keySet()) {
             if (dclass.isAssignableFrom(oclass)) {
                 long expire =  System.currentTimeMillis() +
-                    ((Long)_delays.get(dclass)).longValue();
+                    _delays.get(dclass).longValue();
                 _flushes.put(obj.getOid(), new FlushRecord(obj, expire));
 //                 Log.info("Flushing " + obj.getOid() + " at " +
 //                          new java.util.Date(expire));
@@ -154,7 +158,7 @@ public class ClientDObjectMgr
      *
      * @see Client#registerFlushDelay
      */
-    public void registerFlushDelay (Class objclass, long delay)
+    public void registerFlushDelay (Class<?> objclass, long delay)
     {
         _delays.put(objclass, Long.valueOf(delay));
     }
@@ -191,8 +195,8 @@ public class ClientDObjectMgr
 //                 Log.info("Dispatch event: " + evt);
                 dispatchEvent(evt);
 
-            } else if (obj instanceof ObjectResponse) {
-                registerObjectAndNotify(((ObjectResponse)obj).getObject());
+            } else if (obj instanceof ObjectResponse<?>) {
+                registerObjectAndNotify((ObjectResponse<?>)obj);
 
             } else if (obj instanceof UnsubscribeResponse) {
                 int oid = ((UnsubscribeResponse)obj).getOid();
@@ -208,10 +212,10 @@ public class ClientDObjectMgr
             } else if (obj instanceof PongResponse) {
                 _client.gotPong((PongResponse)obj);
 
-            } else if (obj instanceof ObjectAction) {
-                ObjectAction act = (ObjectAction)obj;
+            } else if (obj instanceof ObjectAction<?>) {
+                ObjectAction<?> act = (ObjectAction<?>)obj;
                 if (act.subscribe) {
-                    doSubscribe(act.oid, act.target);
+                    doSubscribe(act);
                 } else {
                     doUnsubscribe(act.oid, act.target);
                 }
@@ -228,17 +232,17 @@ public class ClientDObjectMgr
         // if this is a compound event, we need to process its contained
         // events in order
         if (event instanceof CompoundEvent) {
-            List events = ((CompoundEvent)event).getEvents();
+            List<DEvent> events = ((CompoundEvent)event).getEvents();
             int ecount = events.size();
             for (int i = 0; i < ecount; i++) {
-                dispatchEvent((DEvent)events.get(i));
+                dispatchEvent(events.get(i));
             }
             return;
         }
 
         // look up the object on which we're dispatching this event
         int toid = event.getTargetOid();
-        DObject target = (DObject)_ocache.get(toid);
+        DObject target = _ocache.get(toid);
         if (target == null) {
             if (!_dead.containsKey(toid)) {
                 Log.warning("Unable to dispatch event on non-proxied " +
@@ -276,16 +280,18 @@ public class ClientDObjectMgr
      * Registers this object in our proxy cache and notifies the
      * subscribers that were waiting for subscription to this object.
      */
-    protected void registerObjectAndNotify (DObject obj)
+    protected <T extends DObject> void registerObjectAndNotify (
+        ObjectResponse<T> orsp)
     {
         // let the object know that we'll be managing it
+        T obj = orsp.getObject();
         obj.setManager(this);
 
         // stick the object into the proxy object table
         _ocache.put(obj.getOid(), obj);
 
         // let the penders know that the object is available
-        PendingRequest req = (PendingRequest)_penders.remove(obj.getOid());
+        PendingRequest<?> req = _penders.remove(obj.getOid());
         if (req == null) {
             Log.warning("Got object, but no one cares?! " +
                         "[oid=" + obj.getOid() + ", obj=" + obj + "].");
@@ -293,7 +299,8 @@ public class ClientDObjectMgr
         }
 
         for (int i = 0; i < req.targets.size(); i++) {
-            Subscriber target = (Subscriber)req.targets.get(i);
+            @SuppressWarnings("unchecked") Subscriber<T> target =
+                (Subscriber<T>)req.targets.get(i);
             // add them as a subscriber
             obj.addSubscriber(target);
             // and let them know that the object is in
@@ -308,7 +315,7 @@ public class ClientDObjectMgr
     protected void notifyFailure (int oid)
     {
         // let the penders know that the object is not available
-        PendingRequest req = (PendingRequest)_penders.remove(oid);
+        PendingRequest<?> req = _penders.remove(oid);
         if (req == null) {
             Log.warning("Failed to get object, but no one cares?! " +
                         "[oid=" + oid + "].");
@@ -316,9 +323,8 @@ public class ClientDObjectMgr
         }
 
         for (int i = 0; i < req.targets.size(); i++) {
-            Subscriber target = (Subscriber)req.targets.get(i);
             // and let them know that the object is in
-            target.requestFailed(oid, null);
+            req.targets.get(i).requestFailed(oid, null);
         }
     }
 
@@ -326,12 +332,15 @@ public class ClientDObjectMgr
      * This is guaranteed to be invoked via the invoker and can safely do
      * main thread type things like call back to the subscriber.
      */
-    protected void doSubscribe (int oid, Subscriber target)
+    protected <T extends DObject> void doSubscribe (ObjectAction<T> action)
     {
         // Log.info("doSubscribe: " + oid + ": " + target);
 
+        int oid = action.oid;
+        Subscriber<T> target = action.target;
+
         // first see if we've already got the object in our table
-        DObject obj = (DObject)_ocache.get(oid);
+        @SuppressWarnings("unchecked") T obj = (T)_ocache.get(oid);
         if (obj != null) {
             // clear the object out of the flush table if it's in there
             if (_flushes.remove(oid) != null) {
@@ -344,7 +353,8 @@ public class ClientDObjectMgr
         }
 
         // see if we've already got an outstanding request for this object
-        PendingRequest req = (PendingRequest)_penders.get(oid);
+        @SuppressWarnings("unchecked") PendingRequest<T> req =
+            (PendingRequest<T>)_penders.get(oid);
         if (req != null) {
             // add this subscriber to the list of subscribers to be
             // notified when the request is satisfied
@@ -353,7 +363,7 @@ public class ClientDObjectMgr
         }
 
         // otherwise we need to create a new request
-        req = new PendingRequest(oid);
+        req = new PendingRequest<T>(oid);
         req.addTarget(target);
         _penders.put(oid, req);
         // Log.info("Registering pending request [oid=" + oid + "].");
@@ -368,7 +378,7 @@ public class ClientDObjectMgr
      */
     protected void doUnsubscribe (int oid, Subscriber target)
     {
-        DObject dobj = (DObject)_ocache.get(oid);
+        DObject dobj = _ocache.get(oid);
         if (dobj != null) {
             dobj.removeSubscriber(target);
 
@@ -404,9 +414,11 @@ public class ClientDObjectMgr
     protected void flushObjects ()
     {
         long now = System.currentTimeMillis();
-        for (Iterator iter = _flushes.keySet().iterator(); iter.hasNext(); ) {
-            int oid = ((Integer)iter.next()).intValue();
-            FlushRecord rec = (FlushRecord)_flushes.get(oid);
+        for (Iterator<IntMap.IntEntry<FlushRecord>> iter =
+                 _flushes.intEntrySet().iterator(); iter.hasNext(); ) {
+            IntMap.IntEntry<FlushRecord> entry = iter.next();
+            int oid = entry.getIntKey();
+            FlushRecord rec = entry.getValue();
             if (rec.expire <= now) {
                 iter.remove();
                 flushObject(rec.object);
@@ -419,13 +431,13 @@ public class ClientDObjectMgr
      * The object action is used to queue up a subscribe or unsubscribe
      * request.
      */
-    protected static final class ObjectAction
+    protected static final class ObjectAction<T extends DObject>
     {
         public int oid;
-        public Subscriber target;
+        public Subscriber<T> target;
         public boolean subscribe;
 
-        public ObjectAction (int oid, Subscriber target, boolean subscribe)
+        public ObjectAction (int oid, Subscriber<T> target, boolean subscribe)
         {
             this.oid = oid;
             this.target = target;
@@ -438,17 +450,18 @@ public class ClientDObjectMgr
         }
     }
 
-    protected static final class PendingRequest
+    protected static final class PendingRequest<T extends DObject>
     {
         public int oid;
-        public ArrayList targets = new ArrayList();
+        public ArrayList<Subscriber<T>> targets =
+            new ArrayList<Subscriber<T>>();
 
         public PendingRequest (int oid)
         {
             this.oid = oid;
         }
 
-        public void addTarget (Subscriber target)
+        public void addTarget (Subscriber<T> target)
         {
             targets.add(target);
         }
@@ -478,31 +491,30 @@ public class ClientDObjectMgr
     protected Client _client;
 
     /** Our primary dispatch queue. */
-    protected Queue _actions = new Queue();
+    protected Queue<Object> _actions = new Queue<Object>();
 
     /** All of the distributed objects that are active on this client. */
-    protected HashIntMap _ocache = new HashIntMap();
+    protected HashIntMap<DObject> _ocache = new HashIntMap<DObject>();
 
     /** Objects that have been marked for death. */
-    protected HashIntMap _dead = new HashIntMap();
+    protected HashIntMap<DObject> _dead = new HashIntMap<DObject>();
 
     /** Pending object subscriptions. */
-    protected HashIntMap _penders = new HashIntMap();
+    protected HashIntMap<PendingRequest<?>> _penders =
+        new HashIntMap<PendingRequest<?>>();
 
     /** A mapping from distributed object class to flush delay. */
-    protected HashMap _delays = new HashMap();
+    protected HashMap<Class<?>,Long> _delays = new HashMap<Class<?>,Long>();
 
     /** A set of objects waiting to be flushed. */
-    protected HashIntMap _flushes = new HashIntMap();
+    protected HashIntMap<FlushRecord> _flushes = new HashIntMap<FlushRecord>();
 
     /** A debug hook that allows the dumping of all objects in the object
      * table out to the log. */
     protected DebugChords.Hook DUMP_OTABLE_HOOK = new DebugChords.Hook() {
         public void invoke () {
             Log.info("Dumping " + _ocache.size() + " objects:");
-            Iterator iter = _ocache.values().iterator();
-            while (iter.hasNext()) {
-                DObject obj = (DObject)iter.next();
+            for (DObject obj : _ocache.values()) {
                 Log.info(obj.getClass().getName() + " " + obj);
             }
         }

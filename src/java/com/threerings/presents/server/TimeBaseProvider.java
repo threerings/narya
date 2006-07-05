@@ -69,10 +69,11 @@ public class TimeBaseProvider
      * base object is created or if the creation fails.
      */
     public static void createTimeBase (
-        final String timeBase, final ResultListener resl)
+        final String timeBase, final ResultListener<TimeBaseObject> resl)
     {
-        _omgr.createObject(TimeBaseObject.class, new Subscriber () {
-            public void objectAvailable (DObject object) {
+        _omgr.createObject(TimeBaseObject.class,
+                           new Subscriber<TimeBaseObject> () {
+            public void objectAvailable (TimeBaseObject object) {
                 // stuff it into our table
                 _timeBases.put(timeBase, object);
                 // and notify the listener
@@ -95,7 +96,7 @@ public class TimeBaseProvider
      */
     public static TimeBaseObject getTimeBase (String timeBase)
     {
-        return (TimeBaseObject)_timeBases.get(timeBase);
+        return _timeBases.get(timeBase);
     }
 
     /**
@@ -116,7 +117,8 @@ public class TimeBaseProvider
     }
 
     /** Used to keep track of our time base objects. */
-    protected static HashMap _timeBases = new HashMap();
+    protected static HashMap<String,TimeBaseObject> _timeBases =
+        new HashMap<String,TimeBaseObject>();
 
     /** The invocation manager with which we interoperate. */
     protected static InvocationManager _invmgr;

@@ -764,7 +764,7 @@ public class PresentsClient
     // documentation inherited from interface
     public void objectAvailable (DObject object)
     {
-        if (postMessage(new ObjectResponse(object))) {
+        if (postMessage(new ObjectResponse<DObject>(object))) {
             // make a note of this new subscription
             mapSubscrip(object);
         } else {

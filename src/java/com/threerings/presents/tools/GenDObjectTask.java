@@ -31,6 +31,8 @@ import java.io.StringWriter;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -109,9 +111,7 @@ public class GenDObjectTask extends Task
             throw new BuildException("Can't resolve InvocationListener", e);
         }
 
-        ArrayList files = new ArrayList();
-        for (Iterator iter = _filesets.iterator(); iter.hasNext(); ) {
-            FileSet fs = (FileSet)iter.next();
+        for (FileSet fs : _filesets) {
             DirectoryScanner ds = fs.getDirectoryScanner(getProject());
             File fromDir = fs.getDir(getProject());
             String[] srcFiles = ds.getIncludedFiles();
@@ -158,7 +158,7 @@ public class GenDObjectTask extends Task
         }
 
         // determine which fields we need to deal with
-        ArrayList flist = new ArrayList();
+        ArrayList<Field> flist = new ArrayList<Field>();
         Field[] fields = oclass.getDeclaredFields();
         for (int ii = 0; ii < fields.length; ii++) {
             Field f = fields[ii];
@@ -175,12 +175,12 @@ public class GenDObjectTask extends Task
         String[] lines = null;
         try {
             BufferedReader bin = new BufferedReader(new FileReader(source));
-            ArrayList llist = new ArrayList();
+            ArrayList<String> llist = new ArrayList<String>();
             String line = null;
             while ((line = bin.readLine()) != null) {
                 llist.add(line);
             }
-            lines = (String[])llist.toArray(new String[llist.size()]);
+            lines = llist.toArray(new String[llist.size()]);
             bin.close();
         } catch (IOException ioe) {
             System.err.println("Error reading '" + source + "': " + ioe);
@@ -249,8 +249,8 @@ public class GenDObjectTask extends Task
         StringBuilder fsection = new StringBuilder();
         StringBuilder msection = new StringBuilder();
         for (int ii = 0; ii < flist.size(); ii++) {
-            Field f = (Field)flist.get(ii);
-            Class ftype = f.getType();
+            Field f = flist.get(ii);
+            Class<?> ftype = f.getType();
             String fname = f.getName();
 
             // create our velocity context
@@ -262,11 +262,32 @@ public class GenDObjectTask extends Task
             ctx.put("clonefield", GenUtil.cloneArgument(_dsclass, f, "value"));
             ctx.put("capfield", StringUtil.unStudlyName(fname).toUpperCase());
             ctx.put("upfield", StringUtils.capitalize(fname));
+
+            // if this field is an array, we need its component types
             if (ftype.isArray()) {
-                Class etype = ftype.getComponentType();
+                Class<?> etype = ftype.getComponentType();
                 ctx.put("elemtype", GenUtil.simpleName(etype));
                 ctx.put("wrapelem", GenUtil.boxArgument(etype, "value"));
                 ctx.put("wrapoelem", GenUtil.boxArgument(etype, "ovalue"));
+            }
+
+            // if this field is a generic DSet, we need its bound type
+            if (_dsclass.isAssignableFrom(ftype)) {
+                Type t = f.getGenericType();
+                // we need to walk up the heirarchy until we get to the
+                // parameterized DSet
+                while (t instanceof Class<?>) {
+                    t = ((Class<?>)t).getGenericSuperclass();
+                }
+                if (t instanceof ParameterizedType) {
+                    ParameterizedType pt = (ParameterizedType)t;
+                    if (pt.getActualTypeArguments().length > 0) {
+                        ctx.put("etype", GenUtil.simpleName(
+                                    (Class<?>)pt.getActualTypeArguments()[0]));
+                    }
+                } else {
+                    ctx.put("etype", "DSet.Entry");
+                }
             }
 
             // now figure out which template to use
@@ -370,7 +391,7 @@ public class GenDObjectTask extends Task
     }
 
     /** A list of filesets that contain tile images. */
-    protected ArrayList _filesets = new ArrayList();
+    protected ArrayList<FileSet> _filesets = new ArrayList<FileSet>();
 
     /** Used to do our own classpath business. */
     protected ClassLoader _cloader;
@@ -380,15 +401,15 @@ public class GenDObjectTask extends Task
 
     /** {@link DObject} resolved with the proper classloader so that we
      * can compare it to loaded derived classes. */
-    protected Class _doclass;
+    protected Class<?> _doclass;
 
     /** {@link DSet} resolved with the proper classloader so that we can
      * compare it to loaded derived classes. */
-    protected Class _dsclass;
+    protected Class<?> _dsclass;
 
     /** {@link OidList} resolved with the proper classloader so that we
      * can compare it to loaded derived classes. */
-    protected Class _olclass;
+    protected Class<?> _olclass;
 
     /** Specifies the start of the path to our various templates. */
     protected static final String BASE_TMPL =

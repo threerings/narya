@@ -64,7 +64,7 @@ public class ClientResolver extends Invoker.Unit
      * Returns the {@link ClientObject} derived class that should be
      * created to kick off the resolution process.
      */
-    public Class getClientObjectClass ()
+    public Class<? extends ClientObject> getClientObjectClass ()
     {
         return ClientObject.class;
     }

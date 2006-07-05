@@ -127,7 +127,7 @@ public class DObject
 {
     public DObject ()
     {
-        _fields = (Field[])_ftable.get(getClass());
+        _fields = _ftable.get(getClass());
         if (_fields == null) {
             _fields = getClass().getFields();
             Arrays.sort(_fields, FIELD_COMP);
@@ -280,10 +280,12 @@ public class DObject
     /**
      * Get the DSet with the specified name.
      */
-    public final DSet getSet (String setName)
+    public final <T extends DSet.Entry> DSet<T> getSet (String setName)
     {
         try {
-            return (DSet) getField(setName).get(this);
+            @SuppressWarnings("unchecked") DSet<T> casted =
+                (DSet<T>)getField(setName).get(this);
+            return casted;
         } catch (Exception e) {
             throw new IllegalArgumentException("No such set: " + setName);
         }
@@ -292,7 +294,7 @@ public class DObject
     /**
      * Request to have the specified item added to the specified DSet.
      */
-    public void addToSet (String setName, DSet.Entry entry)
+    public <T extends DSet.Entry> void addToSet (String setName, T entry)
     {
         requestEntryAdd(setName, getSet(setName), entry);
     }
@@ -844,7 +846,8 @@ public class DObject
     /**
      * Calls by derived instances when a set adder method was called.
      */
-    protected void requestEntryAdd (String name, DSet set, DSet.Entry entry)
+    protected <T extends DSet.Entry> void requestEntryAdd (
+        String name, DSet<T> set, T entry)
     {
         // if we're on the authoritative server, we update the set immediately
         boolean alreadyApplied = false;
@@ -855,16 +858,17 @@ public class DObject
             alreadyApplied = true;
         }
         // dispatch an entry added event
-        postEvent(new EntryAddedEvent(_oid, name, entry, alreadyApplied));
+        postEvent(new EntryAddedEvent<T>(_oid, name, entry, alreadyApplied));
     }
 
     /**
      * Calls by derived instances when a set remover method was called.
      */
-    protected void requestEntryRemove (String name, DSet set, Comparable key)
+    protected <T extends DSet.Entry> void requestEntryRemove (
+        String name, DSet<T> set, Comparable key)
     {
         // if we're on the authoritative server, we update the set immediately
-        DSet.Entry oldEntry = null;
+        T oldEntry = null;
         if (_omgr != null && _omgr.isManager(this)) {
             oldEntry = set.removeKey(key);
             if (oldEntry == null) {
@@ -872,16 +876,17 @@ public class DObject
             }
         }
         // dispatch an entry removed event
-        postEvent(new EntryRemovedEvent(_oid, name, key, oldEntry));
+        postEvent(new EntryRemovedEvent<T>(_oid, name, key, oldEntry));
     }
 
     /**
      * Calls by derived instances when a set updater method was called.
      */
-    protected void requestEntryUpdate (String name, DSet set, DSet.Entry entry)
+    protected <T extends DSet.Entry> void requestEntryUpdate (
+        String name, DSet<T> set, T entry)
     {
         // if we're on the authoritative server, we update the set immediately
-        DSet.Entry oldEntry = null;
+        T oldEntry = null;
         if (_omgr != null && _omgr.isManager(this)) {
             oldEntry = set.update(entry);
             if (oldEntry == null) {
@@ -889,7 +894,7 @@ public class DObject
             }
         }
         // dispatch an entry updated event
-        postEvent(new EntryUpdatedEvent(_oid, name, entry, oldEntry));
+        postEvent(new EntryUpdatedEvent<T>(_oid, name, entry, oldEntry));
     }
 
     /**
@@ -955,12 +960,14 @@ public class DObject
 
     /** Maintains a mapping of sorted field arrays for each distributed
      * object class. */
-    protected static HashMap _ftable = new HashMap();
+    protected static HashMap<Class,Field[]> _ftable =
+        new HashMap<Class,Field[]>();
 
     /** Used to sort and search {@link #_fields}. */
-    protected static final Comparator FIELD_COMP = new Comparator() {
-        public int compare (Object o1, Object o2) {
-            return ((Field)o1).getName().compareTo(((Field)o2).getName());
+    protected static final Comparator<Field> FIELD_COMP =
+        new Comparator<Field>() {
+        public int compare (Field f1, Field f2) {
+            return f1.getName().compareTo(f2.getName());
         }
     };
 }

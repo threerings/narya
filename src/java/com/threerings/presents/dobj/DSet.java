@@ -239,7 +239,8 @@ public class DSet<E extends DSet.Entry>
      */
     public Object[] toArray (Object[] array)
     {
-        return toArray((E[])array);
+        @SuppressWarnings("unchecked") E[] casted = (E[])array;
+        return toArray(casted);
     }
 
     /**

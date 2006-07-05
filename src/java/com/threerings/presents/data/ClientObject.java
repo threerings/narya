@@ -21,6 +21,8 @@
 
 package com.threerings.presents.data;
 
+import com.threerings.presents.client.InvocationReceiver;
+
 import com.threerings.presents.dobj.DObject;
 import com.threerings.presents.dobj.DSet;
 
@@ -43,7 +45,8 @@ public class ClientObject extends DObject
 
     /** Used to publish all invocation service receivers registered on
      * this client. */
-    public DSet receivers = new DSet();
+    public DSet<InvocationReceiver.Registration> receivers =
+        new DSet<InvocationReceiver.Registration>();
 
     /**
      * Returns a short string identifying this client.
@@ -87,7 +90,7 @@ public class ClientObject extends DObject
      * <code>receivers</code> set. The set will not change until the event is
      * actually propagated through the system.
      */
-    public void addToReceivers (DSet.Entry elem)
+    public void addToReceivers (InvocationReceiver.Registration elem)
     {
         requestEntryAdd(RECEIVERS, receivers, elem);
     }
@@ -107,7 +110,7 @@ public class ClientObject extends DObject
      * <code>receivers</code> set. The set will not change until the event is
      * actually propagated through the system.
      */
-    public void updateReceivers (DSet.Entry elem)
+    public void updateReceivers (InvocationReceiver.Registration elem)
     {
         requestEntryUpdate(RECEIVERS, receivers, elem);
     }
@@ -122,7 +125,7 @@ public class ClientObject extends DObject
      * change. Proxied copies of this object (on clients) will apply the
      * value change when they received the attribute changed notification.
      */
-    public void setReceivers (DSet value)
+    public void setReceivers (DSet<com.threerings.presents.client.InvocationReceiver.Registration> value)
     {
         requestAttributeChange(RECEIVERS, value, this.receivers);
         this.receivers = (value == null) ? null : value.typedClone();

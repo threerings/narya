@@ -37,13 +37,15 @@ import com.threerings.presents.server.InvocationProvider;
 public class GenServiceTask extends InvocationTask
 {
     /** Used to keep track of custom InvocationListener derivations. */
-    public class ServiceListener implements Comparable
+    public class ServiceListener implements Comparable<ServiceListener>
     {
         public Class listener;
 
-        public ComparableArrayList methods = new ComparableArrayList();
+        public ComparableArrayList<ServiceMethod> methods =
+            new ComparableArrayList<ServiceMethod>();
 
-        public ServiceListener (Class service, Class listener, HashMap imports)
+        public ServiceListener (Class service, Class listener,
+                                HashMap<String,Boolean> imports)
         {
             this.listener = listener;
             Method[] methdecls = listener.getDeclaredMethods();
@@ -59,9 +61,9 @@ public class GenServiceTask extends InvocationTask
             methods.sort();
         }
 
-        public int compareTo (Object other)
+        public int compareTo (ServiceListener other)
         {
-            return getName().compareTo(((ServiceListener)other).getName());
+            return getName().compareTo(other.getName());
         }
 
         public boolean equals (Object other)
@@ -115,9 +117,11 @@ public class GenServiceTask extends InvocationTask
             return;
         }
 
-        HashMap imports = new HashMap();
-        ComparableArrayList methods = new ComparableArrayList();
-        ComparableArrayList listeners = new ComparableArrayList();
+        HashMap<String,Boolean> imports = new HashMap<String,Boolean>();
+        ComparableArrayList<ServiceMethod> methods =
+            new ComparableArrayList<ServiceMethod>();
+        ComparableArrayList<ServiceListener> listeners =
+            new ComparableArrayList<ServiceListener>();
 
         // we need to import the service itself
         imports.put(importify(service.getName()), Boolean.TRUE);
@@ -158,14 +162,14 @@ public class GenServiceTask extends InvocationTask
 
     protected void generateMarshaller (
         File source, String sname, String spackage, List methods,
-        List listeners, Iterator imports)
+        List listeners, Iterator<String> imports)
     {
         String name = StringUtil.replace(sname, "Service", "");
         String mname = StringUtil.replace(sname, "Service", "Marshaller");
         String mpackage = StringUtil.replace(spackage, ".client", ".data");
 
         // construct our imports list
-        ComparableArrayList implist = new ComparableArrayList();
+        ComparableArrayList<String> implist = new ComparableArrayList<String>();
         CollectionUtil.addAll(implist, imports);
         checkedAdd(implist, Client.class.getName());
         checkedAdd(implist, InvocationMarshaller.class.getName());
@@ -198,14 +202,14 @@ public class GenServiceTask extends InvocationTask
 
     protected void generateDispatcher (
         File source, String sname, String spackage, List methods,
-        Iterator imports)
+        Iterator<String> imports)
     {
         String name = StringUtil.replace(sname, "Service", "");
         String dname = StringUtil.replace(sname, "Service", "Dispatcher");
         String dpackage = StringUtil.replace(spackage, ".client", ".server");
 
         // construct our imports list
-        ComparableArrayList implist = new ComparableArrayList();
+        ComparableArrayList<String> implist = new ComparableArrayList<String>();
         CollectionUtil.addAll(implist, imports);
         checkedAdd(implist, ClientObject.class.getName());
         checkedAdd(implist, InvocationMarshaller.class.getName());
@@ -241,14 +245,14 @@ public class GenServiceTask extends InvocationTask
 
     protected void generateProvider (
         File source, String sname, String spackage, List methods,
-        List listeners, Iterator imports)
+        List listeners, Iterator<String> imports)
     {
         String name = StringUtil.replace(sname, "Service", "");
         String mname = StringUtil.replace(sname, "Service", "Provider");
         String mpackage = StringUtil.replace(spackage, ".client", ".server");
 
         // construct our imports list
-        ComparableArrayList implist = new ComparableArrayList();
+        ComparableArrayList<String> implist = new ComparableArrayList<String>();
         CollectionUtil.addAll(implist, imports);
         checkedAdd(implist, ClientObject.class.getName());
         checkedAdd(implist, InvocationProvider.class.getName());
@@ -280,7 +284,7 @@ public class GenServiceTask extends InvocationTask
     }
 
     /** Services for which we should not generate provider interfaces. */
-    protected HashSet _providerless = new HashSet();
+    protected HashSet<String> _providerless = new HashSet<String>();
 
     /** Specifies the path to the marshaller template. */
     protected static final String MARSHALLER_TMPL =

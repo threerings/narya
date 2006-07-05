@@ -112,7 +112,8 @@ public class PresentsServer
         SignalManager.registerSignalHandler(SignalManager.SIGHUP, this);
 
         // create our list of shutdowners
-        _downers = new ObserverList(ObserverList.SAFE_IN_ORDER_NOTIFY);
+        _downers = new ObserverList<Shutdowner>(
+            ObserverList.SAFE_IN_ORDER_NOTIFY);
 
         // create our distributed object manager
         omgr = createDObjectManager();
@@ -258,7 +259,7 @@ public class PresentsServer
         report.append(max/1024).append("k max\n");
 
         for (int ii = 0; ii < _reporters.size(); ii++) {
-            Reporter rptr = (Reporter)_reporters.get(ii);
+            Reporter rptr = _reporters.get(ii);
             try {
                 rptr.appendReport(report, now, sinceLast, reset);
             } catch (Throwable t) {
@@ -308,7 +309,7 @@ public class PresentsServer
      */
     public void shutdown ()
     {
-        ObserverList downers = _downers;
+        ObserverList<Shutdowner> downers = _downers;
         if (downers == null) {
             Log.warning("Refusing repeat shutdown request.");
             return;
@@ -322,9 +323,9 @@ public class PresentsServer
         }
 
         // shut down all shutdown participants
-        downers.apply(new ObserverList.ObserverOp() {
-            public boolean apply (Object observer) {
-                ((Shutdowner)observer).shutdown();
+        downers.apply(new ObserverList.ObserverOp<Shutdowner>() {
+            public boolean apply (Shutdowner downer) {
+                downer.shutdown();
                 return true;
             }
         });
@@ -399,10 +400,10 @@ public class PresentsServer
     protected static long _lastReportStamp = _serverStartTime;
 
     /** Used to generate "state of server" reports. */
-    protected static ArrayList _reporters = new ArrayList();
+    protected static ArrayList<Reporter> _reporters = new ArrayList<Reporter>();
 
     /** A list of shutdown participants. */
-    protected static ObserverList _downers;;
+    protected static ObserverList<Shutdowner> _downers;;
 
     /** The frequency with which we generate "state of server" reports. */
     protected static final long REPORT_INTERVAL = 15 * 60 * 1000L;

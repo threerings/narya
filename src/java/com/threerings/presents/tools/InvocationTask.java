@@ -46,7 +46,7 @@ public abstract class InvocationTask extends Task
 
         public Class listener;
 
-        public ListenerArgument (int index, Class listener)
+        public ListenerArgument (int index, Class<?> listener)
         {
             this.index = index+1;
             this.listener = listener;
@@ -65,21 +65,23 @@ public abstract class InvocationTask extends Task
     }
 
     /** Used to keep track of invocation service methods. */
-    public class ServiceMethod implements Comparable
+    public class ServiceMethod implements Comparable<ServiceMethod>
     {
         public Method method;
 
-        public ArrayList listenerArgs = new ArrayList();
+        public ArrayList<ListenerArgument> listenerArgs =
+            new ArrayList<ListenerArgument>();
 
-        public ServiceMethod (Class service, Method method, HashMap imports)
+        public ServiceMethod (Class<?> service, Method method,
+                              HashMap<String,Boolean> imports)
         {
             this.method = method;
 
             // we need to look through our arguments and note any needed
             // imports in the supplied table
-            Class[] args = method.getParameterTypes();
+            Class<?>[] args = method.getParameterTypes();
             for (int ii = 0; ii < args.length; ii++) {
-                Class arg = args[ii];
+                Class<?> arg = args[ii];
                 while (arg.isArray()) {
                     arg = arg.getComponentType();
                 }
@@ -132,7 +134,7 @@ public abstract class InvocationTask extends Task
         public String getArgList (boolean skipFirst)
         {
             StringBuilder buf = new StringBuilder();
-            Class[] args = method.getParameterTypes();
+            Class<?>[] args = method.getParameterTypes();
             for (int ii = skipFirst ? 1 : 0; ii < args.length; ii++) {
                 if (buf.length() > 0) {
                     buf.append(", ");
@@ -146,7 +148,7 @@ public abstract class InvocationTask extends Task
         public String getWrappedArgList (boolean skipFirst)
         {
             StringBuilder buf = new StringBuilder();
-            Class[] args = method.getParameterTypes();
+            Class<?>[] args = method.getParameterTypes();
             for (int ii = (skipFirst ? 1 : 0); ii < args.length; ii++) {
                 if (buf.length() > 0) {
                     buf.append(", ");
@@ -161,15 +163,15 @@ public abstract class InvocationTask extends Task
             return (method.getParameterTypes().length > (skipFirst ? 1 : 0));
         }
 
-        public int compareTo (Object other)
+        public int compareTo (ServiceMethod other)
         {
-            return getCode().compareTo(((ServiceMethod)other).getCode());
+            return getCode().compareTo(other.getCode());
         }
 
         public String getUnwrappedArgList (boolean listenerMode)
         {
             StringBuilder buf = new StringBuilder();
-            Class[] args = method.getParameterTypes();
+            Class<?>[] args = method.getParameterTypes();
             for (int ii = (listenerMode ? 0 : 1); ii < args.length; ii++) {
                 if (buf.length() > 0) {
                     buf.append(", ");
@@ -180,7 +182,7 @@ public abstract class InvocationTask extends Task
             return buf.toString();
         }
 
-        protected String boxArgument (Class clazz, int index)
+        protected String boxArgument (Class<?> clazz, int index)
         {
             if (_ilistener.isAssignableFrom(clazz)) {
                 return GenUtil.boxArgument(clazz,  "listener" + index);
@@ -190,7 +192,7 @@ public abstract class InvocationTask extends Task
         }
 
         protected String unboxArgument (
-            Class clazz, int index, boolean listenerMode)
+            Class<?> clazz, int index, boolean listenerMode)
         {
             if (listenerMode && _ilistener.isAssignableFrom(clazz)) {
                 return "listener" + index;
@@ -252,8 +254,7 @@ public abstract class InvocationTask extends Task
             throw new BuildException("Can't resolve InvocationListener", e);
         }
 
-        for (Iterator iter = _filesets.iterator(); iter.hasNext(); ) {
-            FileSet fs = (FileSet)iter.next();
+        for (FileSet fs : _filesets) {
             DirectoryScanner ds = fs.getDirectoryScanner(getProject());
             File fromDir = fs.getDir(getProject());
             String[] srcFiles = ds.getIncludedFiles();
@@ -302,7 +303,7 @@ public abstract class InvocationTask extends Task
         FileUtils.writeStringToFile(new File(path), data, "UTF-8");
     }
 
-    protected static void checkedAdd (List list, Object value)
+    protected static <T> void checkedAdd (List<T> list, T value)
     {
         if (!list.contains(value)) {
             list.add(value);
@@ -324,7 +325,7 @@ public abstract class InvocationTask extends Task
     }
 
     /** A list of filesets that contain tile images. */
-    protected ArrayList _filesets = new ArrayList();
+    protected ArrayList<FileSet> _filesets = new ArrayList<FileSet>();
 
     /** A header to put on all generated source files. */
     protected String _header;
@@ -337,5 +338,5 @@ public abstract class InvocationTask extends Task
 
     /** {@link InvocationListener} resolved with the proper classloader so
      * that we can compare it to loaded derived classes. */
-    protected Class _ilistener;
+    protected Class<?> _ilistener;
 }

@@ -44,7 +44,8 @@ public class ClassUtil
      * @return the method with the specified name or null if no method
      * with that name could be found.
      */
-    public static Method getMethod (String name, Object target, HashMap cache)
+    public static Method getMethod (
+        String name, Object target, HashMap<String,Method> cache)
     {
         Class tclass = target.getClass();
         String key = tclass.getName() + ":" + name;

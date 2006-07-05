@@ -56,7 +56,7 @@ public class CompoundEvent extends DEvent
 
         _omgr = omgr;
         _target = target;
-        _events = new StreamableArrayList();
+        _events = new StreamableArrayList<DEvent>();
     }
 
     /**
@@ -73,7 +73,7 @@ public class CompoundEvent extends DEvent
      * Returns the list of events contained within this compound event.
      * Don't mess with it.
      */
-    public List getEvents ()
+    public List<DEvent> getEvents ()
     {
         return _events;
     }
@@ -95,7 +95,7 @@ public class CompoundEvent extends DEvent
         case 0: // nothing doing
             break;
         case 1: // no point in being compound
-            _omgr.postEvent((DEvent)_events.get(0));
+            _omgr.postEvent(_events.get(0));
             break;
         default: // now we're talking
             _omgr.postEvent(this);
@@ -124,7 +124,7 @@ public class CompoundEvent extends DEvent
 
         int ecount = _events.size();
         for (int i = 0; i < ecount; i++) {
-            ((DEvent)_events.get(i)).setSourceOid(sourceOid);
+            _events.get(i).setSourceOid(sourceOid);
         }
     }
 
@@ -166,5 +166,5 @@ public class CompoundEvent extends DEvent
     protected transient DObject _target;
 
     /** A list of the events associated with this compound event. */
-    protected StreamableArrayList _events;
+    protected StreamableArrayList<DEvent> _events;
 }
