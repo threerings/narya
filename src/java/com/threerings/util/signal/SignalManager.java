@@ -160,9 +160,9 @@ public class SignalManager
     public synchronized static void registerSignalHandler (
         int signal, SignalHandler handler)
     {
-        ObserverList list =  (ObserverList)_handlers.get(signal);
+        ObserverList<SignalHandler> list = _handlers.get(signal);
         if (list == null) {
-            _handlers.put(signal, list = new ObserverList(
+            _handlers.put(signal, list = new ObserverList<SignalHandler>(
                               ObserverList.SAFE_IN_ORDER_NOTIFY));
             if (_haveLibrary) {
                 activateHandler(signal);
@@ -189,7 +189,7 @@ public class SignalManager
     public synchronized static void removeSignalHandler (
         int signal, SignalHandler handler)
     {
-        ObserverList list = (ObserverList)_handlers.get(signal);
+        ObserverList<SignalHandler> list = _handlers.get(signal);
         if (list == null || !list.contains(handler)) {
             log.warning("Requested to remove non-registered handler " +
                         "[signal=" + signal + ", handler=" + handler + "].");
@@ -215,11 +215,11 @@ public class SignalManager
                 _lastINTed = now;
             }
         }
-        ObserverList list = (ObserverList)_handlers.get(signal);
+        ObserverList<SignalHandler> list = _handlers.get(signal);
         if (list != null) {
-            list.apply(new ObserverList.ObserverOp() {
-                public boolean apply (Object obs) {
-                    return ((SignalHandler)obs).signalReceived(signal);
+            list.apply(new ObserverList.ObserverOp<SignalHandler>() {
+                public boolean apply (SignalHandler handler) {
+                    return handler.signalReceived(signal);
                 }
             });
         }
@@ -231,7 +231,7 @@ public class SignalManager
      */
     protected static void checkEmpty (int signal)
     {
-        ObserverList list = (ObserverList)_handlers.get(signal);
+        ObserverList<SignalHandler> list = _handlers.get(signal);
         if (list != null && list.size() == 0) {
             _handlers.remove(signal);
             if (_haveLibrary) {
@@ -257,7 +257,8 @@ public class SignalManager
     protected static native void dispatchSignals ();
 
     /** A mapping from signal number to a list of handlers. */
-    protected static HashIntMap _handlers = new HashIntMap();
+    protected static HashIntMap<ObserverList<SignalHandler>> _handlers =
+        new HashIntMap<ObserverList<SignalHandler>>();
 
     /** Our signal dispatcher thread. */
     protected static Thread _sigdis;

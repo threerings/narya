@@ -59,7 +59,8 @@ public class StreamableArrayList<E> extends ArrayList<E>
         int ecount = in.readInt();
         ensureCapacity(ecount);
         for (int ii = 0; ii < ecount; ii++) {
-            add((E)in.readObject());
+            @SuppressWarnings("unchecked") E elem = (E)in.readObject();
+            add(elem);
         }
     }
 }

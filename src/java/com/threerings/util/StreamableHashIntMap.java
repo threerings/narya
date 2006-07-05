@@ -36,7 +36,7 @@ import com.threerings.io.Streamable;
  *
  * @see Streamable
  */
-public class StreamableHashIntMap extends HashIntMap
+public class StreamableHashIntMap<V> extends HashIntMap<V>
     implements Streamable
 {
     /**
@@ -82,7 +82,8 @@ public class StreamableHashIntMap extends HashIntMap
         ensureCapacity(ecount);
         for (int ii = 0; ii < ecount; ii++) {
             int key = in.readInt();
-            put(key, in.readObject());
+            @SuppressWarnings("unchecked") V value = (V)in.readObject();
+            put(key, value);
         }
     }
 }

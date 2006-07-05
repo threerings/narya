@@ -94,7 +94,7 @@ public class TimeUtil
         minUnit = (byte) Math.min(minUnit, MAX_UNIT);
         duration = Math.abs(duration);
 
-        ArrayList list = new ArrayList();
+        ArrayList<String> list = new ArrayList<String>();
         int parts = 0; // how many parts are in the translation string?
         for (byte uu = MILLISECOND; uu <= MAX_UNIT; uu++) {
             int quantity = getQuantityPerUnit(uu);
@@ -110,7 +110,7 @@ public class TimeUtil
         }
 
         if (parts == 1) {
-            return (String) list.get(0);
+            return list.get(0);
         } else {
             return MessageBundle.compose("m.times_" + parts, list.toArray());
         }

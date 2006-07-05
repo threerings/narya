@@ -126,7 +126,7 @@ public class MessageManager
     public MessageBundle getBundle (String path)
     {
         // first look in the cache
-        MessageBundle bundle = (MessageBundle)_cache.get(path);
+        MessageBundle bundle = _cache.get(path);
         if (bundle != null) {
             return bundle;
         }
@@ -190,7 +190,8 @@ public class MessageManager
     protected ClassLoader _loader;
 
     /** A cache of instantiated message bundles. */
-    protected HashMap _cache = new HashMap();
+    protected HashMap<String,MessageBundle> _cache =
+        new HashMap<String,MessageBundle>();
 
     /** Our top-level message bundle, from which others obtain messages if
      * they can't find them within themselves. */

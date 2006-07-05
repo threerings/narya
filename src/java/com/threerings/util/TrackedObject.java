@@ -90,23 +90,23 @@ public class TrackedObject
      * instances and an <code>int[]</code> array that represent the number
      * of outstanding instance of all {@link TrackedObject}s in the VM.
      */
-    public static Tuple getSnapshot ()
+    public static Tuple<Class[],int[]> getSnapshot ()
     {
         Class[] classes = null;
         int[] counts = null;
         synchronized (_map) {
             classes = new Class[_map.size()];
             counts = new int[_map.size()];
-            Iterator iter = _map.entrySet().iterator();
-            for (int ii = 0; iter.hasNext(); ii++) {
-                Map.Entry entry = (Map.Entry)iter.next();
-                classes[ii] = (Class)entry.getKey();
-                counts[ii] = ((int[])entry.getValue())[0];
+            int idx = 0;
+            for (Map.Entry<Class,int[]> entry : _map.entrySet()) {
+                classes[idx] = entry.getKey();
+                counts[idx] = entry.getValue()[0];
+                idx++;
             }
         }
-        return new Tuple(classes, counts);
+        return new Tuple<Class[],int[]>(classes, counts);
     }
 
     /** Tracks a mapping from {@link Class} object to active count. */
-    protected static HashMap _map = new HashMap();
+    protected static HashMap<Class,int[]> _map = new HashMap<Class,int[]>();
 }

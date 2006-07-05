@@ -80,7 +80,9 @@ public class StreamableHashMap<K,V> extends HashMap<K,V>
     {
         int ecount = in.readInt();
         for (int ii = 0; ii < ecount; ii++) {
-            put((K)in.readObject(), (V)in.readObject());
+            @SuppressWarnings("unchecked") K key = (K)in.readObject();
+            @SuppressWarnings("unchecked") V value = (V)in.readObject();
+            put(key, value);
         }
     }
 }
