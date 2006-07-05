@@ -35,8 +35,11 @@ import com.threerings.presents.client.Client;
 import com.threerings.presents.client.ClientObserver;
 import com.threerings.presents.dobj.ObjectAccessException;
 import com.threerings.presents.dobj.Subscriber;
+import com.threerings.presents.server.ClientManager;
+import com.threerings.presents.server.PresentsClient;
 import com.threerings.presents.server.PresentsServer;
 
+import com.threerings.presents.peer.data.ClientInfo;
 import com.threerings.presents.peer.data.NodeObject;
 import com.threerings.presents.peer.net.PeerBootstrapData;
 import com.threerings.presents.peer.net.PeerCreds;
@@ -52,6 +55,7 @@ import static com.threerings.presents.Log.log;
  * communicate cross-node information.
  */
 public class PeerManager
+    implements ClientManager.ClientObserver
 {
     /**
      * Creates a peer manager which will create a {@link NodeRepository} which
@@ -124,6 +128,9 @@ public class PeerManager
      */
     public void shutdown ()
     {
+        // clear out our client observer registration
+        PresentsServer.clmgr.removeClientObserver(this);
+
         // TODO: clear our record from the node table
         for (PeerNode peer : _peers.values()) {
             peer.shutdown();
@@ -137,6 +144,43 @@ public class PeerManager
     {
         return PeerCreds.createPassword(
             creds.getNodeName(), _sharedSecret).equals(creds.getPassword());
+    }
+
+    // documentation inherited from interface ClientManager.ClientObserver
+    public void clientSessionDidStart (PresentsClient client)
+    {
+        // create and publish a ClientInfo record for this client
+        ClientInfo clinfo = createClientInfo();
+        initClientInfo(client, clinfo);
+
+        // sanity check
+        if (_nodeobj.clients.contains(clinfo)) {
+            log.warning("Received clientSessionDidStart() for already " +
+                        "registered client!? " +
+                        "[old=" + _nodeobj.clients.get(clinfo.getKey()) +
+                        ", new=" + clinfo + "].");
+            // go ahead and update the record
+            _nodeobj.updateClients(clinfo);
+        } else {
+            _nodeobj.addToClients(clinfo);
+        }
+    }
+
+    // documentation inherited from interface ClientManager.ClientObserver
+    public void clientSessionDidEnd (PresentsClient client)
+    {
+        // we create a new client info for this client so that we can support
+        // derived classes overriding the value we use for the DSet key
+        ClientInfo clinfo = createClientInfo();
+        initClientInfo(client, clinfo);
+
+        // sanity check
+        if (!_nodeobj.clients.containsKey(clinfo.getKey())) {
+            log.warning("Session ended for unregistered client " +
+                        "[info=" + clinfo + "].");
+        } else {
+            _nodeobj.removeFromClients(clinfo.getKey());
+        }
     }
 
     /**
@@ -160,6 +204,9 @@ public class PeerManager
                 return false;
             }
         });
+
+        // register ourselves as a client observer
+        PresentsServer.clmgr.addClientObserver(this);
 
         // and start our peer refresh interval (this need not use a runqueue as
         // all it will do is post an invoker unit)
@@ -227,6 +274,23 @@ public class PeerManager
     }
 
     /**
+     * Creates a {@link ClientInfo} record which will subsequently be
+     * initialized by a call to {@link #initClientInfo}.
+     */
+    protected ClientInfo createClientInfo ()
+    {
+        return new ClientInfo();
+    }
+
+    /**
+     * Initializes the supplied client info for the supplied client.
+     */
+    protected void initClientInfo (PresentsClient client, ClientInfo info)
+    {
+        info.username = client.getCredentials().getUsername();
+    }
+
+    /**
      * Contains all runtime information for one of our peer nodes.
      */
     protected class PeerNode
@@ -240,6 +304,11 @@ public class PeerManager
             _record = record;
             _client = new Client(null, PresentsServer.omgr);
             _client.addClientObserver(this);
+        }
+
+        public Client getClient ()
+        {
+            return _client;
         }
 
         public void refresh (NodeRecord record)

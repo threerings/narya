@@ -28,6 +28,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 
 import com.samskivert.util.Interval;
+import com.samskivert.util.ObserverList;
 import com.samskivert.util.StringUtil;
 
 import com.threerings.util.Name;
@@ -68,6 +69,25 @@ public class ClientManager
          * Called if the client resolution fails.
          */
         public void resolutionFailed (Exception e);
+    }
+
+    /**
+     * Used by entites that wish to track when clients initiate and end
+     * sessions on this server.
+     */
+    public static interface ClientObserver
+    {
+        /**
+         * Called when a client has authenticated and been resolved and has
+         * started their session.
+         */
+        public void clientSessionDidStart (PresentsClient client);
+
+        /**
+         * Called when a client has logged off or been forcibly logged off due
+         * to inactivity and has thus ended their session.
+         */
+        public void clientSessionDidEnd (PresentsClient client);
     }
 
     /**
@@ -159,6 +179,24 @@ public class ClientManager
     public Iterator enumerateClientObjects ()
     {
         return _objmap.values().iterator();
+    }
+
+    /**
+     * Registers an observer that will be notified when clients start and end
+     * their sessions.
+     */
+    public void addClientObserver (ClientObserver observer)
+    {
+        _clobservers.add(observer);
+    }
+
+    /**
+     * Removes an observer previously registered with {@link
+     * #addClientObserver}.
+     */
+    public void removeClientObserver (ClientObserver observer)
+    {
+        _clobservers.remove(observer);
     }
 
     /**
@@ -373,14 +411,30 @@ public class ClientManager
     }
 
     /**
+     * Called by the client instance when it has started its session. This is
+     * called from the dobjmgr thread.
+     */
+    protected void clientSessionDidStart (final PresentsClient client)
+    {
+        // let the observers know
+        _clobservers.apply(new ObserverList.ObserverOp<ClientObserver>() {
+            public boolean apply (ClientObserver observer) {
+                observer.clientSessionDidStart(client);
+                return true;
+            }
+        });
+    }
+
+    /**
      * Called by the client instance when the client requests a logoff.
      * This is called from the conmgr thread.
      */
-    synchronized void clientDidEndSession (PresentsClient client)
+    protected synchronized void clientSessionDidEnd (
+        final PresentsClient client)
     {
         // remove the client from the username map
-        Credentials creds = client.getCredentials();
-        PresentsClient rc = _usermap.remove(creds.getUsername());
+        PresentsClient rc = _usermap.remove(
+            client.getCredentials().getUsername());
 
         // sanity check just because we can
         if (rc == null) {
@@ -392,6 +446,20 @@ public class ClientManager
         } else {
             Log.info("Ending session " + client + ".");
         }
+
+        // queue up a unit on the dobjmgr thread to notify the client observers
+        // that the session is ended
+        PresentsServer.omgr.postRunnable(new Runnable() {
+            public void run () {
+                _clobservers.apply(
+                    new ObserverList.ObserverOp<ClientObserver>() {
+                    public boolean apply (ClientObserver observer) {
+                        observer.clientSessionDidEnd(client);
+                        return true;
+                    }
+                });
+            }
+        });
     }
 
     /**
@@ -483,6 +551,10 @@ public class ClientManager
 
     /** The client class in use. */
     protected ClientFactory _factory = ClientFactory.DEFAULT;
+
+    /** Tracks registered {@link ClientObserver}s. */
+    protected ObserverList<ClientObserver> _clobservers =
+        new ObserverList<ClientObserver>(ObserverList.SAFE_IN_ORDER_NOTIFY);
 
     /** The frequency with which we check for expired clients. */
     protected static final long CLIENT_FLUSH_INTERVAL = 60 * 1000L;

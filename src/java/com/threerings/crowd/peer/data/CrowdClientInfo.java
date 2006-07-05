@@ -32,4 +32,14 @@ public class CrowdClientInfo extends ClientInfo
 {
     /** The client's visible name, which is used for chatting. */
     public Name visibleName;
+
+    @Override // documentation inherited
+    public Comparable getKey ()
+    {
+        // the PeerManager works in such a way that we can override our client
+        // info key and things still work properly; all inter-server
+        // communication regarding users will be based on visible name so this
+        // makes lookups much more efficient
+        return visibleName;
+    }
 }

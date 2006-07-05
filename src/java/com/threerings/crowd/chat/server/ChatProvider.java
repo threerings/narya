@@ -65,13 +65,39 @@ public class ChatProvider
                               String message);
     }
 
+    /** Used to forward tells between servers in a multi-server setup. */
+    public static interface TellForwarder
+    {
+        /**
+         * Requests that the supplied tell message be delivered to the
+         * appropriate destination.
+         *
+         * @return true if the tell was delivered, false otherwise.
+         */
+        public boolean forwardTell (Name teller, Name target, String message,
+                                    TellListener listener);
+    }
+
     /**
      * Set the auto tell responder for the chat provider. Only one auto
-     * responder is allowed.
+     * responder is allowed. <em>Note:</em> this only works for same-server
+     * tells. If the tell is forwarded to another server, no auto-response
+     * opportunity is provided (because we never have both body objects in the
+     * same place).
      */
     public static void setTellAutoResponder (TellAutoResponder autoRespond)
     {
         _autoRespond = autoRespond;
+    }
+
+    /**
+     * Configures the tell forwarded for the chat provider. This is used by the
+     * Crowd peer services to forward tells between servers in a multi-server
+     * cluster.
+     */
+    public static void setTellForwarder (TellForwarder forwarder)
+    {
+        _tellForwarder = forwarder;
     }
 
     /**
@@ -114,36 +140,14 @@ public class ChatProvider
             throw new InvocationException(errmsg);
         }
 
-        // make sure the target user is online
-        BodyObject tobj = CrowdServer.lookupBody(target);
-        if (tobj == null) {
-            throw new InvocationException(USER_NOT_ONLINE);
-        }
+        // deliver the tell message to the target
+        deliverTell(source.getVisibleName(), target, message, listener);
 
-        if (tobj.status == OccupantInfo.DISCONNECTED) {
-            throw new InvocationException(MessageBundle.compose(
-                USER_DISCONNECTED, TimeUtil.getTimeOrderString(
-                System.currentTimeMillis() - tobj.statusTime,
-                TimeUtil.SECOND)));
-        }
-
-        // deliver a tell notification to the target player
-        sendTellMessage(tobj, source.getVisibleName(), null, message);
-
-        // let the teller know it went ok
-        long idle = 0L;
-        if (tobj.status == OccupantInfo.IDLE) {
-            idle = System.currentTimeMillis() - tobj.statusTime;
-        }
-        String awayMessage = null;
-        if (!StringUtil.isBlank(tobj.awayMessage)) {
-            awayMessage = tobj.awayMessage;
-        }
-        listener.tellSucceeded(idle, awayMessage);
-
-        // do the autoresponse if needed
-        if (_autoRespond != null) {
-            _autoRespond.sentTell(source, tobj, message);
+        // inform the auto-responder if needed
+        BodyObject targobj;
+        if (_autoRespond != null &&
+            (targobj = CrowdServer.lookupBody(target)) != null) {
+            _autoRespond.sentTell(source, targobj, message);
         }
     }
 
@@ -222,6 +226,49 @@ public class ChatProvider
     }
 
     /**
+     * Delivers a tell message from the specified teller to the specified
+     * target. It is assumed that the teller has already been permissions
+     * checked.
+     */
+    public static void deliverTell (Name teller, Name target, String message,
+                                    TellListener listener)
+        throws InvocationException
+    {
+        // make sure the target user is online
+        BodyObject tobj = CrowdServer.lookupBody(target);
+        if (tobj == null) {
+            // if we have a forwarder configured, try forwarding the tell
+            if (_tellForwarder != null &&
+                _tellForwarder.forwardTell(teller, target, message, listener)) {
+                return;
+            }
+            throw new InvocationException(USER_NOT_ONLINE);
+        }
+
+        if (tobj.status == OccupantInfo.DISCONNECTED) {
+            String errmsg = MessageBundle.compose(
+                USER_DISCONNECTED, TimeUtil.getTimeOrderString(
+                    System.currentTimeMillis() - tobj.statusTime,
+                    TimeUtil.SECOND));
+            throw new InvocationException(errmsg);
+        }
+
+        // deliver a tell notification to the target player
+        sendTellMessage(tobj, teller, null, message);
+
+        // let the teller know it went ok
+        long idle = 0L;
+        if (tobj.status == OccupantInfo.IDLE) {
+            idle = System.currentTimeMillis() - tobj.statusTime;
+        }
+        String awayMessage = null;
+        if (!StringUtil.isBlank(tobj.awayMessage)) {
+            awayMessage = tobj.awayMessage;
+        }
+        listener.tellSucceeded(idle, awayMessage);
+    }
+
+    /**
      * Delivers a tell notification to the specified target player,
      * originating with the specified speaker.
      *
@@ -249,8 +296,11 @@ public class ChatProvider
     /** The distributed object manager used by the chat services. */
     protected static DObjectManager _omgr;
 
-    /** Reference to our auto responder object. */
+    /** Generates auto-responses to tells. May be null. */
     protected static TellAutoResponder _autoRespond;
+
+    /** Forwards tells between servers. May be null. */
+    protected static TellForwarder _tellForwarder;
 
     /** An alternative object to which broadcasts should be sent. */
     protected static DObject _broadcastObject;

@@ -21,11 +21,12 @@
 
 package com.threerings.crowd.peer.client;
 
+import com.threerings.util.Name;
+
 import com.threerings.presents.client.Client;
 import com.threerings.presents.client.InvocationService;
 
 import com.threerings.crowd.chat.client.ChatService;
-import com.threerings.crowd.chat.data.ChatMessage;
 
 /**
  * Bridges certain Crowd services between peers in a cluster configuration.
@@ -33,8 +34,9 @@ import com.threerings.crowd.chat.data.ChatMessage;
 public interface CrowdPeerService extends InvocationService
 {
     /**
-     * Forwards a tell request to the server on which a user actually resides.
+     * Used to forward a tell request to the server on which the destination
+     * user actually occupies.
      */
-    public void deliverTell (
-        Client client, ChatMessage message, ChatService.TellListener listener);
+    public void deliverTell (Client client, Name teller, Name target,
+                             String message, ChatService.TellListener listener);
 }

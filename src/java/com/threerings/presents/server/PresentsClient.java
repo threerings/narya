@@ -340,6 +340,9 @@ public class PresentsClient
         // finish up our regular business
         sessionWillStart();
         sendBootstrap();
+
+        // let the client manager know that we're operational
+        _cmgr.clientSessionDidStart(this);
     }
 
     // documentation inherited from interface
@@ -449,7 +452,7 @@ public class PresentsClient
         }
 
         // let the client manager know that we're audi 5000
-        _cmgr.clientDidEndSession(this);
+        _cmgr.clientSessionDidEnd(this);
 
         // clear out the client object so that we know the session is over
         _clobj = null;

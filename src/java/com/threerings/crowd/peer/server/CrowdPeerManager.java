@@ -25,15 +25,31 @@ import com.samskivert.io.PersistenceException;
 import com.samskivert.jdbc.ConnectionProvider;
 import com.samskivert.util.Invoker;
 
+import com.threerings.util.Name;
+
+import com.threerings.presents.data.ClientObject;
+import com.threerings.presents.server.InvocationException;
+import com.threerings.presents.server.PresentsClient;
+
+import com.threerings.presents.peer.data.ClientInfo;
 import com.threerings.presents.peer.data.NodeObject;
 import com.threerings.presents.peer.server.PeerManager;
 
+import com.threerings.crowd.chat.client.ChatService;
+import com.threerings.crowd.chat.data.ChatMessage;
+import com.threerings.crowd.chat.server.ChatProvider;
+import com.threerings.crowd.data.BodyObject;
+import com.threerings.crowd.server.CrowdServer;
+
+import com.threerings.crowd.peer.data.CrowdClientInfo;
 import com.threerings.crowd.peer.data.CrowdNodeObject;
+import com.threerings.crowd.peer.data.CrowdPeerMarshaller;
 
 /**
  * Extends the standard peer manager and bridges certain Crowd services.
  */
 public class CrowdPeerManager extends PeerManager
+    implements CrowdPeerProvider, ChatProvider.TellForwarder
 {
     /**
      * Creates a peer manager that integrates Crowd services across a cluster
@@ -45,9 +61,81 @@ public class CrowdPeerManager extends PeerManager
         super(conprov, invoker);
     }
 
+    // documentation inherited from interface CrowdPeerProvider
+    public void deliverTell (ClientObject caller, Name teller, Name target,
+                             String message, ChatService.TellListener listener)
+        throws InvocationException
+    {
+        // the originating server has already permissions checked the teller,
+        // so we just forward the message as if it originated on this server
+        ChatProvider.deliverTell(teller, target, message, listener);
+    }
+
+    // documentation inherited from interface ChatProvider.TellForwarder
+    public boolean forwardTell (Name teller, Name target, String message,
+                                ChatService.TellListener listener)
+    {
+        // look through our peer objects to see if the target user is online on
+        // one of the other servers
+        for (PeerNode peer : _peers.values()) {
+            CrowdNodeObject cnobj = (CrowdNodeObject)peer.nodeobj;
+            CrowdClientInfo cinfo = (CrowdClientInfo)cnobj.clients.get(target);
+            if (cinfo != null) {
+                cnobj.crowdPeerService.deliverTell(
+                    peer.getClient(), teller, target, message, listener);
+                return true;
+            }
+        }
+        return false;
+    }
+
+    @Override // documentation inherited
+    public void shutdown ()
+    {
+        super.shutdown();
+
+        // unregister our invocation service
+        if (_nodeobj != null) {
+            CrowdServer.invmgr.clearDispatcher(
+                ((CrowdNodeObject)_nodeobj).crowdPeerService);
+        }
+
+        // clear our tell forwarder registration
+        ChatProvider.setTellForwarder(null);
+    }
+
+    @Override // documentation inherited
+    protected void finishInit (NodeObject nodeobj)
+    {
+        super.finishInit(nodeobj);
+
+        // register and initialize our invocation service
+        CrowdNodeObject cnobj = (CrowdNodeObject)nodeobj;
+        cnobj.setCrowdPeerService(
+            (CrowdPeerMarshaller)CrowdServer.invmgr.registerDispatcher(
+                new CrowdPeerDispatcher(this), false));
+
+        // register ourselves as a tell forwarder
+        ChatProvider.setTellForwarder(this);
+    }
+
     @Override // documentation inherited
     protected Class<? extends NodeObject> getNodeObjectClass ()
     {
         return CrowdNodeObject.class;
+    }
+
+    @Override // documentation inherited
+    protected ClientInfo createClientInfo ()
+    {
+        return new CrowdClientInfo();
+    }
+
+    @Override // documentation inherited
+    protected void initClientInfo (PresentsClient client, ClientInfo info)
+    {
+        super.initClientInfo(client, info);
+        ((CrowdClientInfo)info).visibleName =
+            ((BodyObject)client.getClientObject()).getVisibleName();
     }
 }

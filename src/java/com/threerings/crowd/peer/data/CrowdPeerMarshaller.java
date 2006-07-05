@@ -23,11 +23,11 @@ package com.threerings.crowd.peer.data;
 
 import com.threerings.crowd.chat.client.ChatService;
 import com.threerings.crowd.chat.data.ChatMarshaller;
-import com.threerings.crowd.chat.data.ChatMessage;
 import com.threerings.crowd.peer.client.CrowdPeerService;
 import com.threerings.presents.client.Client;
 import com.threerings.presents.data.InvocationMarshaller;
 import com.threerings.presents.dobj.InvocationResponseEvent;
+import com.threerings.util.Name;
 
 /**
  * Provides the implementation of the {@link CrowdPeerService} interface
@@ -43,12 +43,12 @@ public class CrowdPeerMarshaller extends InvocationMarshaller
     public static final int DELIVER_TELL = 1;
 
     // documentation inherited from interface
-    public void deliverTell (Client arg1, ChatMessage arg2, ChatService.TellListener arg3)
+    public void deliverTell (Client arg1, Name arg2, Name arg3, String arg4, ChatService.TellListener arg5)
     {
-        ChatMarshaller.TellMarshaller listener3 = new ChatMarshaller.TellMarshaller();
-        listener3.listener = arg3;
+        ChatMarshaller.TellMarshaller listener5 = new ChatMarshaller.TellMarshaller();
+        listener5.listener = arg5;
         sendRequest(arg1, DELIVER_TELL, new Object[] {
-            arg2, listener3
+            arg2, arg3, arg4, listener5
         });
     }
 
