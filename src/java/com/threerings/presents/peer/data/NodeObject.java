@@ -35,7 +35,7 @@ public class NodeObject extends DObject
     // AUTO-GENERATED: FIELDS END
 
     /** Contains information on all clients connected to this node. */
-    public DSet<ClientInfo> clients;
+    public DSet<ClientInfo> clients = new DSet<ClientInfo>();
 
     // AUTO-GENERATED: METHODS START
     /**

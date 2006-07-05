@@ -31,6 +31,8 @@ import com.samskivert.jdbc.ConnectionProvider;
 import com.samskivert.util.Interval;
 import com.samskivert.util.Invoker;
 
+import com.threerings.util.Name;
+
 import com.threerings.presents.client.Client;
 import com.threerings.presents.client.ClientObserver;
 import com.threerings.presents.dobj.ObjectAccessException;
@@ -149,6 +151,11 @@ public class PeerManager
     // documentation inherited from interface ClientManager.ClientObserver
     public void clientSessionDidStart (PresentsClient client)
     {
+        // if this is another peer, don't publish their info
+        if (client instanceof PeerClient) {
+            return;
+        }
+
         // create and publish a ClientInfo record for this client
         ClientInfo clinfo = createClientInfo();
         initClientInfo(client, clinfo);
@@ -169,18 +176,23 @@ public class PeerManager
     // documentation inherited from interface ClientManager.ClientObserver
     public void clientSessionDidEnd (PresentsClient client)
     {
-        // we create a new client info for this client so that we can support
-        // derived classes overriding the value we use for the DSet key
-        ClientInfo clinfo = createClientInfo();
-        initClientInfo(client, clinfo);
-
-        // sanity check
-        if (!_nodeobj.clients.containsKey(clinfo.getKey())) {
-            log.warning("Session ended for unregistered client " +
-                        "[info=" + clinfo + "].");
-        } else {
-            _nodeobj.removeFromClients(clinfo.getKey());
+        // if this is another peer, don't worry about it
+        if (client instanceof PeerClient) {
+            return;
         }
+
+        // we scan through the list instead of relying on ClientInfo.getKey()
+        // because we want derived classes to be able to override that for
+        // lookups that happen way more frequently than logging off
+        Name username = client.getCredentials().getUsername();
+        for (ClientInfo clinfo : _nodeobj.clients) {
+            if (clinfo.username.equals(username)) {
+                _nodeobj.removeFromClients(clinfo.getKey());
+                return;
+            }
+        }
+        log.warning("Session ended for unregistered client " +
+                    "[who=" + username + "].");
     }
 
     /**
