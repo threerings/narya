@@ -51,7 +51,7 @@ import com.threerings.admin.data.ConfigObject;
  * @see ConfigEditorPanel
  */
 public class ObjectEditorPanel extends ScrollablePanel
-    implements Subscriber
+    implements Subscriber<ConfigObject>
 {
     /**
      * Creates an object editor panel for the specified configuration
@@ -69,7 +69,7 @@ public class ObjectEditorPanel extends ScrollablePanel
 
         // we'll use this to safely subscribe to and unsubscribe from the
         // config object
-        _safesub = new SafeSubscriber(oid, this);
+        _safesub = new SafeSubscriber<ConfigObject>(oid, this);
         _safesub.subscribe(_ctx.getDObjectManager());
     }
 
@@ -94,10 +94,10 @@ public class ObjectEditorPanel extends ScrollablePanel
     }
 
     // documentation inherited from interface
-    public void objectAvailable (DObject object)
+    public void objectAvailable (ConfigObject object)
     {
         // keep this for later
-        _object = (ConfigObject)object;
+        _object = object;
 
         // create our field editors
         try {
@@ -125,6 +125,6 @@ public class ObjectEditorPanel extends ScrollablePanel
 
     protected PresentsContext _ctx;
     protected String _key;
-    protected SafeSubscriber _safesub;
+    protected SafeSubscriber<ConfigObject> _safesub;
     protected ConfigObject _object;
 }

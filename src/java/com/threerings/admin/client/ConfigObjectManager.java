@@ -17,7 +17,7 @@ import com.threerings.presents.dobj.Subscriber;
 public class ConfigObjectManager implements AdminService.ConfigInfoListener
 {
     public ConfigObjectManager(Client client) {
-        _serverconfig = new HashMap();
+        _serverconfig = new HashMap<String,ConfigObject>();
         _client = client;
         _client.addClientObserver(new SessionObserver() {
             // documentation inherited from interface SessionObserver
@@ -63,21 +63,21 @@ public class ConfigObjectManager implements AdminService.ConfigInfoListener
     
     // documentation inherited from interface AdminService.ConfigInfoListener
     public void requestFailed (String reason) {
-        Log.warning("Oh bugger, we didn't get the config data because " + reason);
+        Log.warning("Oh bugger, we didn't get the config data: " + reason);
     }
     
     /**
      * Returns the ConfigObject identified by the given key
      */
     public ConfigObject getServerConfig (String key) {
-        return (ConfigObject)_serverconfig.get(key);
+        return _serverconfig.get(key);
     }
     
     /**
      * This class takes care of the details of subscribing to and placing
      * an individual ConfigObject that the server knows about into a HashMap
      */
-    protected class ConfigObjectSubscriber implements Subscriber
+    protected class ConfigObjectSubscriber implements Subscriber<ConfigObject>
     {
         /**
          * This method requests that we place a subscription to the
@@ -91,8 +91,8 @@ public class ConfigObjectManager implements AdminService.ConfigInfoListener
         }
 
         // documentation inherited from interface Subscriber
-        public void objectAvailable (DObject object) {
-            _cobj = (ConfigObject)object;
+        public void objectAvailable (ConfigObject object) {
+            _cobj = object;
             _serverconfig.put(_key, _cobj);
         }
         
@@ -126,7 +126,7 @@ public class ConfigObjectManager implements AdminService.ConfigInfoListener
     protected ConfigObjectSubscriber[] _csubscribers;
     
     /** Our local copy of the server-side runtime configuration */
-    protected HashMap _serverconfig;
+    protected HashMap<String,ConfigObject> _serverconfig;
     
     /** Our distributed object manager */
     protected DObjectManager _dobjmgr;

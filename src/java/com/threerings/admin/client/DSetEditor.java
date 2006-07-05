@@ -124,7 +124,7 @@ public class DSetEditor extends JPanel
      */
     public DSet.Entry getSelectedEntry ()
     {
-        return (DSet.Entry) _table.getSelectedObject();
+        return (DSet.Entry)_table.getSelectedObject();
     }
 
     // documentation inherited
@@ -159,7 +159,9 @@ public class DSetEditor extends JPanel
     {
         if (event.getName().equals(_setName)) {
             DSet.Entry entry = event.getEntry();
-            int index = _keys.insertSorted(entry.getKey());
+            @SuppressWarnings("unchecked") Comparable<Object> key =
+                (Comparable<Object>)entry.getKey();
+            int index = _keys.insertSorted(key);
             _table.insertDatum(entry, index);
         }
     }
@@ -204,11 +206,13 @@ public class DSetEditor extends JPanel
 
     protected void refreshData ()
     {
-        _keys = new ComparableArrayList();
+        _keys = new ComparableArrayList<Comparable<Object>>();
         DSet.Entry[] entries =  new DSet.Entry[_set.size()];
         _set.toArray(entries);
-        for (int ii=0; ii < entries.length; ii++) {
-            _keys.insertSorted(entries[ii].getKey());
+        for (int ii = 0; ii < entries.length; ii++) {
+            @SuppressWarnings("unchecked") Comparable<Object> key =
+                (Comparable<Object>)entries[ii].getKey();
+            _keys.insertSorted(key);
         }
         _table.setData(entries); // this works because DSet itself is sorted
     }
@@ -220,10 +224,10 @@ public class DSetEditor extends JPanel
     protected String _setName;
 
     /** The set itself. */
-    protected DSet _set;
+    protected DSet<?> _set;
 
     /** An array we use to track our entries' positions by key. */
-    protected ComparableArrayList _keys;
+    protected ComparableArrayList<Comparable<Object>> _keys;
 
     /** The table used to edit. */
     protected ObjectEditorTable _table;

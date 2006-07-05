@@ -59,14 +59,14 @@ public class ConfigRepository extends JORARepository
      * @return a map containing field/value pairs for all stored configuration
      * data.
      */
-    public HashMap loadConfig (String object)
+    public HashMap<String,String> loadConfig (String object)
         throws PersistenceException
     {
-        ArrayList list = loadAll(
+        ArrayList<ConfigDatum> list = loadAll(
             _ctable, "where OBJECT = " + JDBCUtil.escape(object));
-        HashMap data = new HashMap();
+        HashMap<String,String> data = new HashMap<String,String>();
         for (int ii = 0, ll = list.size(); ii < ll; ii++) {
-            ConfigDatum datum = (ConfigDatum)list.get(ii);
+            ConfigDatum datum = list.get(ii);
             data.put(datum.field, datum.value);
         }
         return data;

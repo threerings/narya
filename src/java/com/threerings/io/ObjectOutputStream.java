@@ -70,7 +70,7 @@ public class ObjectOutputStream extends DataOutputStream
     public void addTranslation (String className, String streamedName)
     {
         if (_translations == null) {
-            _translations = new HashMap();
+            _translations = new HashMap<String,String>();
         }
         _translations.put(className, streamedName);
     }
@@ -90,12 +90,12 @@ public class ObjectOutputStream extends DataOutputStream
 
         // create our classmap if necessary
         if (_classmap == null) {
-            _classmap = new HashMap();
+            _classmap = new HashMap<Class,ClassMapping>();
         }
 
         // otherwise, look up the class mapping record
         Class sclass = object.getClass();
-        ClassMapping cmap = (ClassMapping)_classmap.get(sclass);
+        ClassMapping cmap = _classmap.get(sclass);
 
         // create a class mapping for this class if we've not got one
         if (cmap == null) {
@@ -119,7 +119,7 @@ public class ObjectOutputStream extends DataOutputStream
             writeShort(-cmap.code);
             String cname = sclass.getName();
             if (_translations != null) {
-                String tname = (String) _translations.get(cname);
+                String tname = _translations.get(cname);
                 if (tname != null) {
                     cname = tname;
                 }
@@ -191,7 +191,7 @@ public class ObjectOutputStream extends DataOutputStream
 
     /** Used to map classes to numeric codes and the {@link Streamer}
      * instance used to write them. */
-    protected HashMap _classmap;
+    protected HashMap<Class,ClassMapping> _classmap;
 
     /** A counter used to assign codes to streamed classes. */
     protected short _nextCode = 1;
@@ -204,5 +204,5 @@ public class ObjectOutputStream extends DataOutputStream
 
     /** An optional set of class name translations to use when serializing
      * objects. */
-    protected HashMap _translations;
+    protected HashMap<String,String> _translations;
 }

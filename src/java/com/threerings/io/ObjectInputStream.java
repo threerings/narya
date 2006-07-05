@@ -66,7 +66,7 @@ public class ObjectInputStream extends DataInputStream
     public void addTranslation (String oldname, String newname)
     {
         if (_translations == null) {
-            _translations = new HashMap();
+            _translations = new HashMap<String,String>();
         }
         _translations.put(oldname, newname);
     }
@@ -82,7 +82,7 @@ public class ObjectInputStream extends DataInputStream
 
         // create our classmap if necessary
         if (_classmap == null) {
-            _classmap = new HashIntMap();
+            _classmap = new HashIntMap<ClassMapping>();
         }
 
         try {
@@ -107,7 +107,7 @@ public class ObjectInputStream extends DataInputStream
                 // if we have a translation (used to cope when serialized
                 // classes are renamed) use it
                 if (_translations != null) {
-                    String tname = (String)_translations.get(cname);
+                    String tname = _translations.get(cname);
                     if (tname != null) {
                         cname = tname;
                     }
@@ -132,7 +132,7 @@ public class ObjectInputStream extends DataInputStream
                 _classmap.put(code, cmap);
 
             } else {
-                cmap = (ClassMapping)_classmap.get(code);
+                cmap = _classmap.get(code);
 
                 // sanity check
                 if (cmap == null) {
@@ -224,7 +224,7 @@ public class ObjectInputStream extends DataInputStream
 
     /** Used to map classes to numeric codes and the {@link Streamer}
      * instance used to write them. */
-    protected HashIntMap _classmap;
+    protected HashIntMap<ClassMapping> _classmap;
 
     /** The object currently being read from the stream. */
     protected Object _current;
@@ -237,7 +237,7 @@ public class ObjectInputStream extends DataInputStream
 
     /** An optional set of class name translations to use when
      * unserializing objects. */
-    protected HashMap _translations;
+    protected HashMap<String,String> _translations;
 
     /** Used to activate verbose debug logging. */
     protected static final boolean STREAM_DEBUG = false;

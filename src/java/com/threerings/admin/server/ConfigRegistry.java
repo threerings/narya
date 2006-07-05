@@ -98,7 +98,7 @@ public abstract class ConfigRegistry
      */
     public DObject getObject (String key)
     {
-        ObjectRecord record = (ObjectRecord)_configs.get(key);
+        ObjectRecord record = _configs.get(key);
         return (record == null) ? null : record.object;
     }
 
@@ -108,7 +108,7 @@ public abstract class ConfigRegistry
      */
     public String[] getKeys ()
     {
-        return (String[])_configs.keySet().toArray(new String[_configs.size()]);
+        return _configs.keySet().toArray(new String[_configs.size()]);
     }
 
     /**
@@ -365,7 +365,8 @@ public abstract class ConfigRegistry
     }
 
     /** A mapping from identifying key to config object. */
-    protected HashMap _configs = new HashMap();
+    protected HashMap<String,ObjectRecord> _configs =
+        new HashMap<String,ObjectRecord>();
 
     protected static final int[] INT_ARRAY_PROTO = new int[0];
     protected static final float[] FLOAT_ARRAY_PROTO = new float[0];

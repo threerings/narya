@@ -62,12 +62,12 @@ public abstract class FieldMarshaller
         }
 
         // if we have an exact match, use that
-        FieldMarshaller fm = (FieldMarshaller)_marshallers.get(ftype);
+        FieldMarshaller fm = _marshallers.get(ftype);
 
         // otherwise if the class is a streamable, use the streamable
         // marshaller
         if (fm == null && Streamer.isStreamable(ftype)) {
-            fm = (FieldMarshaller)_marshallers.get(Streamable.class);
+            fm = _marshallers.get(Streamable.class);
         }
 
         return fm;
@@ -124,7 +124,7 @@ public abstract class FieldMarshaller
     protected static void createMarshallers ()
     {
         // create our table
-        _marshallers = new HashMap();
+        _marshallers = new HashMap<Class,FieldMarshaller>();
 
         // create a generic marshaller for streamable instances
         FieldMarshaller gmarsh = new FieldMarshaller() {
@@ -270,5 +270,5 @@ public abstract class FieldMarshaller
 
     /** Contains a mapping from field type to field marshaller instance
      * for that type. */
-    protected static HashMap _marshallers;
+    protected static HashMap<Class,FieldMarshaller> _marshallers;
 }

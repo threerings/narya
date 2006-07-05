@@ -86,14 +86,14 @@ public class DatabaseConfigRegistry extends ConfigRegistry
                 Log.warning("Failed to load object configuration " +
                             "[path=" + _path + "].");
                 Log.logStackTrace(pe);
-                _data = new HashMap();
+                _data = new HashMap<String,String>();
             }
 
             super.init();
         }
 
         protected boolean getValue (String field, boolean defval) {
-            String value = (String)_data.get(field);
+            String value = _data.get(field);
             if (value != null) {
                 return "true".equalsIgnoreCase(value);
             }
@@ -101,7 +101,7 @@ public class DatabaseConfigRegistry extends ConfigRegistry
         }
 
         protected short getValue (String field, short defval) {
-            String value = (String)_data.get(field);
+            String value = _data.get(field);
             try {
                 if (value != null) {
                     return Short.parseShort(value);
@@ -113,7 +113,7 @@ public class DatabaseConfigRegistry extends ConfigRegistry
         }
 
         protected int getValue (String field, int defval) {
-            String value = (String)_data.get(field);
+            String value = _data.get(field);
             try {
                 if (value != null) {
                     return Integer.parseInt(value);
@@ -125,7 +125,7 @@ public class DatabaseConfigRegistry extends ConfigRegistry
         }
 
         protected long getValue (String field, long defval) {
-            String value = (String)_data.get(field);
+            String value = _data.get(field);
             try {
                 if (value != null) {
                     return Long.parseLong(value);
@@ -137,7 +137,7 @@ public class DatabaseConfigRegistry extends ConfigRegistry
         }
 
         protected float getValue (String field, float defval) {
-            String value = (String)_data.get(field);
+            String value = _data.get(field);
             try {
                 if (value != null) {
                     return Float.parseFloat(value);
@@ -149,12 +149,12 @@ public class DatabaseConfigRegistry extends ConfigRegistry
         }
 
         protected String getValue (String field, String defval) {
-            String value = (String)_data.get(field);
+            String value = _data.get(field);
             return (value == null) ? defval : value;
         }
 
         protected int[] getValue (String field, int[] defval) {
-            String value = (String)_data.get(field);
+            String value = _data.get(field);
             try {
                 if (value != null) {
                     int[] avalue = StringUtil.parseIntArray(value);
@@ -169,7 +169,7 @@ public class DatabaseConfigRegistry extends ConfigRegistry
         }
 
         protected float[] getValue (String field, float[] defval) {
-            String value = (String)_data.get(field);
+            String value = _data.get(field);
             try {
                 if (value != null) {
                     float[] avalue = StringUtil.parseFloatArray(value);
@@ -184,7 +184,7 @@ public class DatabaseConfigRegistry extends ConfigRegistry
         }
 
         protected long[] getValue (String field, long[] defval) {
-            String value = (String)_data.get(field);
+            String value = _data.get(field);
             try {
                 if (value != null) {
                     long[] avalue = StringUtil.parseLongArray(value);
@@ -199,7 +199,7 @@ public class DatabaseConfigRegistry extends ConfigRegistry
         }
 
         protected String[] getValue (String field, String[] defval) {
-            String value = (String)_data.get(field);
+            String value = _data.get(field);
             try {
                 if (value != null) {
                     return StringUtil.parseStringArray(value);
@@ -259,7 +259,7 @@ public class DatabaseConfigRegistry extends ConfigRegistry
         }
 
         protected String _path;
-        protected HashMap _data;
+        protected HashMap<String,String> _data;
     }
 
     protected ConfigRepository _repo;
