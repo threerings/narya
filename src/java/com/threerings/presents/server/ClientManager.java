@@ -272,6 +272,12 @@ public class ClientManager
     // documentation inherited from interface ClientResolutionListener
     public synchronized void clientResolved (Name username, ClientObject clobj)
     {
+        // because we added ourselves as a client resolution listener, the
+        // client object reference count was increased, but we're not a real
+        // resolver (who would have to call releaseClientObject() to release
+        // their reference), so we release our reference immediately
+        clobj.release();
+
         // stuff the object into the mapping table
         _objmap.put(username, clobj);
 
