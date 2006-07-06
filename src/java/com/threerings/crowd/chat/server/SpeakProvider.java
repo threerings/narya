@@ -188,7 +188,7 @@ public class SpeakProvider
     public static void sendSpeak (DObject speakObj, Name speaker,
                                   String bundle, String message, byte mode)
     {
-        sendMessage(speakObj, new UserMessage(message, bundle, speaker, mode));
+        sendMessage(speakObj, new UserMessage(speaker, bundle, message, mode));
     }
 
     /**

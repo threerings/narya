@@ -44,7 +44,7 @@ public class UserMessage extends ChatMessage
     /**
      * Construct a user message.
      */
-    public UserMessage (String message, String bundle, Name speaker, byte mode)
+    public UserMessage (Name speaker, String bundle, String message, byte mode)
     {
         super(message, bundle);
         this.speaker = speaker;
@@ -55,7 +55,7 @@ public class UserMessage extends ChatMessage
      * Constructs a user message for a player originated tell (which has no
      * bundle and is in the default mode).
      */
-    public UserMessage (String message, Name speaker)
+    public UserMessage (Name speaker, String message)
     {
         super(message, null);
         this.speaker = speaker;
