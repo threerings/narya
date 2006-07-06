@@ -23,6 +23,7 @@ package com.threerings.crowd.peer.server;
 
 import com.threerings.crowd.chat.client.ChatService;
 import com.threerings.crowd.chat.data.ChatMarshaller;
+import com.threerings.crowd.chat.data.UserMessage;
 import com.threerings.crowd.peer.client.CrowdPeerService;
 import com.threerings.crowd.peer.data.CrowdPeerMarshaller;
 import com.threerings.presents.client.Client;
@@ -61,7 +62,7 @@ public class CrowdPeerDispatcher extends InvocationDispatcher
         case CrowdPeerMarshaller.DELIVER_TELL:
             ((CrowdPeerProvider)provider).deliverTell(
                 source,
-                (Name)args[0], (Name)args[1], (String)args[2], (ChatService.TellListener)args[3]
+                (UserMessage)args[0], (Name)args[1], (ChatService.TellListener)args[2]
             );
             return;
 

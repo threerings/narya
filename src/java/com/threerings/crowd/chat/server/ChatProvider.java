@@ -74,30 +74,8 @@ public class ChatProvider
          *
          * @return true if the tell was delivered, false otherwise.
          */
-        public boolean forwardTell (Name teller, Name target, String message,
+        public boolean forwardTell (UserMessage message, Name target,
                                     TellListener listener);
-    }
-
-    /**
-     * Set the auto tell responder for the chat provider. Only one auto
-     * responder is allowed. <em>Note:</em> this only works for same-server
-     * tells. If the tell is forwarded to another server, no auto-response
-     * opportunity is provided (because we never have both body objects in the
-     * same place).
-     */
-    public static void setTellAutoResponder (TellAutoResponder autoRespond)
-    {
-        _autoRespond = autoRespond;
-    }
-
-    /**
-     * Configures the tell forwarded for the chat provider. This is used by the
-     * Crowd peer services to forward tells between servers in a multi-server
-     * cluster.
-     */
-    public static void setTellForwarder (TellForwarder forwarder)
-    {
-        _tellForwarder = forwarder;
     }
 
     /**
@@ -107,22 +85,41 @@ public class ChatProvider
      * @param object an object to send all broadcasts, or null to send to
      * each place object instead.
      */
-    public static void setAlternateBroadcastObject (DObject object)
+    public void setAlternateBroadcastObject (DObject object)
     {
         _broadcastObject = object;
+    }
+
+    /**
+     * Set the auto tell responder for the chat provider. Only one auto
+     * responder is allowed. <em>Note:</em> this only works for same-server
+     * tells. If the tell is forwarded to another server, no auto-response
+     * opportunity is provided (because we never have both body objects in the
+     * same place).
+     */
+    public void setTellAutoResponder (TellAutoResponder autoRespond)
+    {
+        _autoRespond = autoRespond;
+    }
+
+    /**
+     * Configures the tell forwarded for the chat provider. This is used by the
+     * Crowd peer services to forward tells between servers in a multi-server
+     * cluster.
+     */
+    public void setTellForwarder (TellForwarder forwarder)
+    {
+        _tellForwarder = forwarder;
     }
 
     /**
      * Initializes the chat services and registers a chat provider with
      * the invocation manager.
      */
-    public static void init (InvocationManager invmgr, DObjectManager omgr)
+    public void init (InvocationManager invmgr, DObjectManager omgr)
     {
-        _omgr = omgr;
-
         // register a chat provider with the invocation manager
-        invmgr.registerDispatcher(new ChatDispatcher(
-                                      new ChatProvider()), true);
+        invmgr.registerDispatcher(new ChatDispatcher(this), true);
     }
 
     /**
@@ -141,7 +138,7 @@ public class ChatProvider
         }
 
         // deliver the tell message to the target
-        deliverTell(source.getVisibleName(), target, message, listener);
+        deliverTell(createTellMessage(source, message), target, listener);
 
         // inform the auto-responder if needed
         BodyObject targobj;
@@ -164,8 +161,18 @@ public class ChatProvider
         if (errmsg != null) {
             throw new InvocationException(errmsg);
         }
-
         broadcast(body.getVisibleName(), null, message, false);
+    }
+
+    /**
+     * Processes a {@link ChatService#away} request.
+     */
+    public void away (ClientObject caller, String message)
+    {
+        BodyObject body = (BodyObject)caller;
+        // we modify this field via an invocation service request because
+        // a body object is not modifiable by the client
+        body.setAwayMessage(message);
     }
 
     /**
@@ -178,7 +185,7 @@ public class ChatProvider
      * @param attention if true, the message is sent as ATTENTION level,
      * otherwise as INFO. Ignored if from is non-null.
      */
-    public static void broadcast (Name from, String bundle, String msg,
+    public void broadcast (Name from, String bundle, String msg,
                                   boolean attention)
     {
         if (_broadcastObject != null) {
@@ -196,42 +203,12 @@ public class ChatProvider
     }
 
     /**
-     * Direct a broadcast to the specified object.
+     * Delivers a tell message to the specified target and notifies the
+     * supplied listener of the result. It is assumed that the teller has
+     * already been permissions checked.
      */
-    protected static void broadcastTo (DObject object,
-        Name from, String bundle, String msg, boolean attention)
-    {
-        if (from == null) {
-            if (attention) {
-                SpeakProvider.sendAttention(object, bundle, msg);
-            } else {
-                SpeakProvider.sendInfo(object, bundle, msg);
-            }
-
-        } else {
-            SpeakProvider.sendSpeak(object, from, bundle, msg,
-                                    BROADCAST_MODE);
-        }
-    }
-
-    /**
-     * Processes a {@link ChatService#away} request.
-     */
-    public void away (ClientObject caller, String message)
-    {
-        BodyObject body = (BodyObject)caller;
-        // we modify this field via an invocation service request because
-        // a body object is not modifiable by the client
-        body.setAwayMessage(message);
-    }
-
-    /**
-     * Delivers a tell message from the specified teller to the specified
-     * target. It is assumed that the teller has already been permissions
-     * checked.
-     */
-    public static void deliverTell (Name teller, Name target, String message,
-                                    TellListener listener)
+    public void deliverTell (UserMessage message, Name target,
+                             TellListener listener)
         throws InvocationException
     {
         // make sure the target user is online
@@ -239,7 +216,7 @@ public class ChatProvider
         if (tobj == null) {
             // if we have a forwarder configured, try forwarding the tell
             if (_tellForwarder != null &&
-                _tellForwarder.forwardTell(teller, target, message, listener)) {
+                _tellForwarder.forwardTell(message, target, listener)) {
                 return;
             }
             throw new InvocationException(USER_NOT_ONLINE);
@@ -254,7 +231,7 @@ public class ChatProvider
         }
 
         // deliver a tell notification to the target player
-        sendTellMessage(tobj, teller, null, message);
+        deliverTell(tobj, message);
 
         // let the teller know it went ok
         long idle = 0L;
@@ -269,39 +246,52 @@ public class ChatProvider
     }
 
     /**
-     * Delivers a tell notification to the specified target player,
-     * originating with the specified speaker.
-     *
-     * @param target the body object of the user that will receive the
-     * tell message.
-     * @param speaker the username of the user that generated the message
-     * (or some special speaker name for server messages).
-     * @param bundle the bundle identifier that will be used by the client
-     * to translate the message text (this would be null in all cases
-     * except where the message originated from some server entity that
-     * was "faking" a tell to a real player).
-     * @param message the text of the chat message.
+     * Delivers a tell notification to the specified target player. It is
+     * assumed that the message is coming from some server entity and need not
+     * be permissions checked or notified of the result.
      */
-    public static void sendTellMessage (
-        BodyObject target, Name speaker, String bundle, String message)
+    public void deliverTell (BodyObject target, UserMessage message)
     {
-        UserMessage msg = new UserMessage(
-            message, bundle, speaker, DEFAULT_MODE);
-        SpeakProvider.sendMessage(target, msg);
+        SpeakProvider.sendMessage(target, message);
 
         // note that the teller "heard" what they said
-        SpeakProvider.noteMessage(speaker, msg);
+        SpeakProvider.noteMessage(message.speaker, message);
     }
 
-    /** The distributed object manager used by the chat services. */
-    protected static DObjectManager _omgr;
+    /**
+     * Used to create a {@link UserMessage} for the supplied sender.
+     */
+    protected UserMessage createTellMessage (BodyObject source, String message)
+    {
+        return new UserMessage(
+            message, null, source.getVisibleName(), DEFAULT_MODE);
+    }
+
+    /**
+     * Direct a broadcast to the specified object.
+     */
+    protected void broadcastTo (DObject object, Name from, String bundle,
+                                String msg, boolean attention)
+    {
+        if (from == null) {
+            if (attention) {
+                SpeakProvider.sendAttention(object, bundle, msg);
+            } else {
+                SpeakProvider.sendInfo(object, bundle, msg);
+            }
+
+        } else {
+            SpeakProvider.sendSpeak(object, from, bundle, msg,
+                                    BROADCAST_MODE);
+        }
+    }
 
     /** Generates auto-responses to tells. May be null. */
-    protected static TellAutoResponder _autoRespond;
+    protected TellAutoResponder _autoRespond;
 
     /** Forwards tells between servers. May be null. */
-    protected static TellForwarder _tellForwarder;
+    protected TellForwarder _tellForwarder;
 
     /** An alternative object to which broadcasts should be sent. */
-    protected static DObject _broadcastObject;
+    protected DObject _broadcastObject;
 }

@@ -46,6 +46,9 @@ public class CrowdServer extends PresentsServer
     /** The place registry. */
     public static PlaceRegistry plreg;
 
+    /** Our chat provider. */
+    public static ChatProvider chatprov;
+
     /**
      * Initializes all of the server services and prepares for operation.
      */
@@ -78,7 +81,8 @@ public class CrowdServer extends PresentsServer
         BodyProvider.init(invmgr);
 
         // initialize the chat services
-        ChatProvider.init(invmgr, omgr);
+        chatprov = createChatProvider();
+        chatprov.init(invmgr, omgr);
     }
 
     /**
@@ -88,6 +92,15 @@ public class CrowdServer extends PresentsServer
         InvocationManager invmgr, RootDObjectManager omgr)
     {
         return new PlaceRegistry(invmgr, omgr);
+    }
+
+    /**
+     * Creates the {@link ChatProvider} we'll use to handle chat (or a
+     * derivation).
+     */
+    protected ChatProvider createChatProvider ()
+    {
+        return new ChatProvider();
     }
 
     /**

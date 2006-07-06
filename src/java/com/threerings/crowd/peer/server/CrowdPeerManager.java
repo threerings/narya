@@ -37,6 +37,7 @@ import com.threerings.presents.peer.server.PeerManager;
 
 import com.threerings.crowd.chat.client.ChatService;
 import com.threerings.crowd.chat.data.ChatMessage;
+import com.threerings.crowd.chat.data.UserMessage;
 import com.threerings.crowd.chat.server.ChatProvider;
 import com.threerings.crowd.data.BodyObject;
 import com.threerings.crowd.server.CrowdServer;
@@ -62,17 +63,16 @@ public class CrowdPeerManager extends PeerManager
     }
 
     // documentation inherited from interface CrowdPeerProvider
-    public void deliverTell (ClientObject caller, Name teller, Name target,
-                             String message, ChatService.TellListener listener)
+    public void deliverTell (ClientObject caller, UserMessage message,
+                             Name target, ChatService.TellListener listener)
         throws InvocationException
     {
-        // the originating server has already permissions checked the teller,
-        // so we just forward the message as if it originated on this server
-        ChatProvider.deliverTell(teller, target, message, listener);
+        // we just forward the message as if it originated on this server
+        CrowdServer.chatprov.deliverTell(message, target, listener);
     }
 
     // documentation inherited from interface ChatProvider.TellForwarder
-    public boolean forwardTell (Name teller, Name target, String message,
+    public boolean forwardTell (UserMessage message, Name target,
                                 ChatService.TellListener listener)
     {
         // look through our peer objects to see if the target user is online on
@@ -82,7 +82,7 @@ public class CrowdPeerManager extends PeerManager
             CrowdClientInfo cinfo = (CrowdClientInfo)cnobj.clients.get(target);
             if (cinfo != null) {
                 cnobj.crowdPeerService.deliverTell(
-                    peer.getClient(), teller, target, message, listener);
+                    peer.getClient(), message, target, listener);
                 return true;
             }
         }
@@ -101,7 +101,7 @@ public class CrowdPeerManager extends PeerManager
         }
 
         // clear our tell forwarder registration
-        ChatProvider.setTellForwarder(null);
+        CrowdServer.chatprov.setTellForwarder(null);
     }
 
     @Override // documentation inherited
@@ -116,7 +116,7 @@ public class CrowdPeerManager extends PeerManager
                 new CrowdPeerDispatcher(this), false));
 
         // register ourselves as a tell forwarder
-        ChatProvider.setTellForwarder(this);
+        CrowdServer.chatprov.setTellForwarder(this);
     }
 
     @Override // documentation inherited
