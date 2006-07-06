@@ -33,8 +33,11 @@ public class NodeRecord
     /** The unique name assigned to this node. */
     public String nodeName;
 
-    /** The DNS name of the server running this node. */
+    /** The DNS name used to connect to this node by other peers. */
     public String hostName;
+
+    /** The DNS name used to connect to this node by normal clients. */
+    public String publicHostName;
 
     /** The port on which to connect to this node. */
     public int port;
@@ -48,10 +51,12 @@ public class NodeRecord
     }
 
     /** Creates a record for the specified node. */
-    public NodeRecord (String nodeName, String hostName, int port)
+    public NodeRecord (String nodeName, String hostName, String publicHostName,
+                       int port)
     {
         this.nodeName = nodeName;
         this.hostName = hostName;
+        this.publicHostName = publicHostName;
         this.port = port;
     }
 

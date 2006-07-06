@@ -89,16 +89,21 @@ public class PeerManager
      * @param sharedSecret a shared secret used to allow the peers to
      * authenticate with one another.
      * @param hostName the DNS name of the server running this node.
+     * @param publicHostName if non-null, a separate public DNS hostname by
+     * which the node is to be known to normal clients (we may want inter-peer
+     * communication to take place over a different network than the
+     * communication between real clients and the various peer servers).
      * @param port the port on which other nodes should connect to us.
      * @param conprov used to obtain our JDBC connections.
      * @param invoker we will perform all database operations on the supplied
      * invoker thread.
      */
-    public void init (String nodeName, String sharedSecret,
-                      String hostName, int port)
+    public void init (String nodeName, String sharedSecret, String hostName,
+                      String publicHostName, int port)
     {
         _nodeName = nodeName;
         _hostName = hostName;
+        _publicHostName = (publicHostName == null) ? publicHostName : hostName;
         _port = port;
         _sharedSecret = sharedSecret;
 
@@ -206,7 +211,8 @@ public class PeerManager
         // register ourselves with the node table
         _invoker.postUnit(new Invoker.Unit() {
             public boolean invoke () {
-                NodeRecord record = new NodeRecord(_nodeName, _hostName, _port);
+                NodeRecord record = new NodeRecord(
+                    _nodeName, _hostName, _publicHostName, _port);
                 try {
                     _noderepo.updateNode(record);
                 } catch (PersistenceException pe) {
@@ -272,7 +278,7 @@ public class PeerManager
     {
         PeerNode peer = _peers.get(record.nodeName);
         if (peer == null) {
-            _peers.put(record.nodeName, peer = new PeerNode(record));
+            _peers.put(record.nodeName, peer = createPeerNode(record));
         }
         peer.refresh(record);
     }
@@ -300,6 +306,15 @@ public class PeerManager
     protected void initClientInfo (PresentsClient client, ClientInfo info)
     {
         info.username = client.getCredentials().getUsername();
+    }
+
+    /**
+     * Creates a {@link PeerNode} to manage our connection to the specified
+     * peer.
+     */
+    protected PeerNode createPeerNode (NodeRecord record)
+    {
+        return new PeerNode(record);
     }
 
     /**
@@ -422,7 +437,7 @@ public class PeerManager
         protected long _lastConnectStamp;
     }
 
-    protected String _nodeName, _hostName, _sharedSecret;
+    protected String _nodeName, _hostName, _publicHostName, _sharedSecret;
     protected int _port;
     protected Invoker _invoker;
     protected NodeRepository _noderepo;

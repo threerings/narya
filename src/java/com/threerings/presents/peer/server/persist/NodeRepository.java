@@ -80,10 +80,16 @@ public class NodeRepository extends JORARepository
         JDBCUtil.createTableIfMissing(conn, "NODES", new String[] {
             "NODE_NAME VARCHAR(64) NOT NULL",
             "HOST_NAME VARCHAR(64) NOT NULL",
+            "PUBLIC_HOST_NAME VARCHAR(64) NOT NULL",
             "PORT INTEGER NOT NULL",
             "LAST_UPDATED TIMESTAMP NOT NULL",
             "PRIMARY KEY (NODE_NAME)",
         }, "");
+
+        // TEMP: add our new column
+        JDBCUtil.addColumn(conn, "NODES", "PUBLIC_HOST_NAME",
+                           "VARCHAR(64) NOT NULL", "HOST_NAME");
+        // END TEMP
     }
 
     @Override // documentation inherited
