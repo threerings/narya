@@ -263,8 +263,7 @@ public class ChatProvider
      */
     protected UserMessage createTellMessage (BodyObject source, String message)
     {
-        return new UserMessage(
-            message, null, source.getVisibleName(), DEFAULT_MODE);
+        return new UserMessage(message, source.getVisibleName());
     }
 
     /**

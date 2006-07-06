@@ -50,4 +50,15 @@ public class UserMessage extends ChatMessage
         this.speaker = speaker;
         this.mode = mode;
     }
+
+    /**
+     * Constructs a user message for a player originated tell (which has no
+     * bundle and is in the default mode).
+     */
+    public UserMessage (String message, Name speaker)
+    {
+        super(message, null);
+        this.speaker = speaker;
+        this.mode = ChatCodes.DEFAULT_MODE;
+    }
 }
