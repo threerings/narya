@@ -632,6 +632,8 @@ public class Client
                 // changed like the server or port)
                 if (logonError != null) {
                     notifyObservers(CLIENT_FAILED_TO_LOGON, logonError);
+                } else {
+                    notifyObservers(CLIENT_DID_CLEAR, null);
                 }
             }
         });
@@ -710,6 +712,12 @@ public class Client
 
             case CLIENT_DID_LOGOFF:
                 obs.clientDidLogoff(Client.this);
+                break;
+
+            case CLIENT_DID_CLEAR:
+                if (obs instanceof ClientObserver) {
+                    ((ClientObserver)obs).clientDidClear(Client.this);
+                }
                 break;
 
             default:
@@ -797,4 +805,5 @@ public class Client
     static final int CLIENT_CONNECTION_FAILED = 3;
     static final int CLIENT_WILL_LOGOFF = 4;
     static final int CLIENT_DID_LOGOFF = 5;
+    static final int CLIENT_DID_CLEAR = 6;
 }

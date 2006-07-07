@@ -120,6 +120,10 @@ public class TestClient
         System.exit(0);
     }
 
+    public void clientDidClear (Client client)
+    {
+    }
+
     protected CrowdContext createContext ()
     {
         return new CrowdContextImpl();

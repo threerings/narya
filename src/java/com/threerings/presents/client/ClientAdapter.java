@@ -62,4 +62,9 @@ public class ClientAdapter implements ClientObserver
     public void clientDidLogoff (Client client)
     {
     }
+
+    // documentation inherited
+    public void clientDidClear (Client client)
+    {
+    }
 }

@@ -418,6 +418,12 @@ public class PeerManager
             // TODO: clean things up?
         }
 
+        // documentation inherited from interface ClientObserver
+        public void clientDidClear (Client client)
+        {
+            // nothing doing
+        }
+
         // documentation inherited from interface Subscriber
         public void objectAvailable (NodeObject object)
         {
