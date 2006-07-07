@@ -297,13 +297,7 @@ public class BasicStreamers
         public Object createObject (ObjectInputStream in)
             throws IOException
         {
-            try {
-                return in.readUTF();
-            } catch (java.io.EOFException eofe) {
-                // TODO: remove all this and just return in.readUTF();
-                System.err.println("Hack: read EOF as null.");
-                return null;
-            }
+            return in.readUTF();
         }
 
         // documentation inherited
