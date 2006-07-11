@@ -210,12 +210,7 @@ public class Hashtable
             for (var ii :int = _entries.length - 1; ii >= 0; ii--) {
                 for (var e :Entry = (_entries[ii] as Entry); e != null;
                         e = e.next) {
-                    if (e.key is KeyWrapper) {
-                        keys.push((e.key as KeyWrapper).key);
-
-                    } else {
-                        keys.push(e.key)
-                    }
+                    keys.push(e.getOriginalKey());
                 }
             }
         }
@@ -223,6 +218,7 @@ public class Hashtable
         return keys;
     }
 
+    // documentation inherited from interface Map
     public function values () :Array
     {
         var vals :Array = new Array();
@@ -245,6 +241,25 @@ public class Hashtable
         }
 
         return vals;
+    }
+
+    // documentation inherited from interface Map
+    public function forEach (fn :Function) :void
+    {
+        if (_simpleData != null) {
+            for (var key :Object in _simpleData) {
+                fn(key, _simpleData[key]);
+            }
+        }
+
+        if (_entries != null) {
+            for (var ii :int = _entries.length - 1; ii >= 0; ii--) {
+                for (var e :Entry = (_entries[ii] as Entry); e != null;
+                        e = e.next) {
+                    fn(e.getOriginalKey(), e.value);
+                }
+            }
+        }
     }
 
     /**
@@ -347,6 +362,17 @@ class Entry
         this.key = key;
         this.value = value;
         this.next = next;
+    }
+
+    /**
+     * Get the original key used to store this entry.
+     */
+    public function getOriginalKey () :Object
+    {
+        if (key is KeyWrapper) {
+            return (key as KeyWrapper).key;
+        }
+        return key;
     }
 }
 

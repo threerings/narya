@@ -22,6 +22,12 @@ public interface Map
     function get (key :Object) :*;
 
     /**
+     * Call the specified function, which accepts to args: key and value,
+     * for every mapping.
+     */
+    function forEach (fn :Function) :void;
+
+    /**
      * Returns true if this map contains no elements.
      */
     function isEmpty () :Boolean;
@@ -47,6 +53,11 @@ public interface Map
      * Return the current size of the map.
      */
     function size () :int;
+
+    /**
+     * Return all the values in this Map, in Array form.
+     */
+    function values () :Array;
 }
 
 }
