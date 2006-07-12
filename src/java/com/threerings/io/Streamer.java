@@ -35,8 +35,10 @@ import java.security.PrivilegedActionException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.logging.Level;
 
 import com.samskivert.util.ClassUtil;
+import com.samskivert.util.StringUtil;
 
 import static com.threerings.NaryaLog.log;
 
@@ -375,7 +377,7 @@ public class Streamer
                 String errmsg = "Failure reading streamable field " +
                     "[class=" + _target.getName() +
                     ", field=" + field.getName() +
-                    ", error=" + e.getMessage() + "]";
+                    ", error=" + StringUtil.getMessage(e) + "]";
                 throw (IOException) new IOException(errmsg).initCause(e);
             }
         }
