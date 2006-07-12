@@ -16,6 +16,9 @@ placed (or symlinked) here in the lib/ directory.
 * Retroweaver library:
   http://retroweaver.sourceforge.net/
 
+* JUnit library:
+  http://www.junit.org/
+
 Once the jar files are in place (regardless of what they are named), the build
 system will automatically include them in the compile-time classpath.
 
