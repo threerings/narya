@@ -21,6 +21,16 @@ public class ClassUtil
         return s.replace("::", ".");
     }
 
+    /**
+     * Return a new instance that is the same class as the specified
+     * object. The class must have a zero-arg constructor.
+     */
+    public static function newInstance (obj :Object) :Object
+    {
+        var clazz :Class = getClass(obj);
+        return new clazz();
+    }
+
     public static function getClass (obj :Object) :Class
     {
         return getClassByName(getClassName(obj));

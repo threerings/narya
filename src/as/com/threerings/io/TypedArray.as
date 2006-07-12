@@ -27,6 +27,15 @@ public dynamic class TypedArray extends Array
         return "[L" + cname + ";";
     }
 
+    /**
+     * A factory method to create a TypedArray for holding objects
+     * of the specified type.
+     */
+    public static function create (of :Class) :TypedArray
+    {
+        return new TypedArray(getJavaType(of));
+    }
+
     public function getJavaType () :String
     {
         return _jtype;

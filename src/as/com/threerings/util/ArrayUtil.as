@@ -38,7 +38,7 @@ public class ArrayUtil
         arr :Array, element :Object, firstOnly :Boolean) :void
     {
         for (var ii :int = 0; ii < arr.length; ii++) {
-            if (arr[ii] === element) {
+            if (Util.equals(arr[ii], element)) {
                 arr.splice(ii--, 1);
                 if (firstOnly) {
                     return;
