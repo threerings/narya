@@ -1,22 +1,23 @@
 Required external libraries
 ---------------------------
 
-The Narya code requires the following external Java libraries (JAR files)
-to be placed (or symlinked) here in the lib/ directory or in the shared
-library directory specified in the build.xml file (java.libraries).
+The Narya code requires the following external Java libraries (JAR files) to be
+placed (or symlinked) here in the lib/ directory.
 
 * The samskivert library:
   http://samskivert.com/code/samskivert/
 
-* Apache Commons libraries: collections, digester, io, and lang
+* Apache Commons libraries: io, and lang
   http://jakarta.apache.org/commons/
 
-* Megginson Technologies' XMLWriter 0.2 library:
-  http://www.megginson.com/Software/xml-writer-0.2.zip
+* Apache Velocity library:
+  http://jakarta.apache.org/velocity/
 
-Once the jar files are in place (regardless of what they are named), the
-build system will automatically include them in the compile-time
-classpath.
+* Retroweaver library:
+  http://retroweaver.sourceforge.net/
+
+Once the jar files are in place (regardless of what they are named), the build
+system will automatically include them in the compile-time classpath.
 
 --
-$Id: README,v 1.8 2004/08/27 18:38:55 mdb Exp $
+$Id$
