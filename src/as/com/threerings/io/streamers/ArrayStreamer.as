@@ -43,26 +43,26 @@ public class ArrayStreamer extends Streamer
 
     override public function isStreamerFor (obj :Object) :Boolean
     {
-        if (_jname === "[Ljava.lang.Object;") {
-            // we fall back to streaming any array as Object
-            return (obj is Array);
+        if (obj is TypedArray) {
+            // TypedArrays need the same element type
+            return ((obj as TypedArray).getJavaType() === _jname);
 
         } else {
-            return (obj is TypedArray) &&
-                ((obj as TypedArray).getJavaType() === _jname);
+            // any other array is streamed as Object[]
+            return (obj is Array) && (_jname === "[Ljava.lang.Object;");
         }
     }
 
     override public function isStreamerForClass (clazz :Class) :Boolean
     {
-        if (_jname === "[Ljava.lang.Object;") {
-            return (clazz != TypedArray) &&
-                ClassUtil.isAssignableAs(Array, clazz);
-
-        } else {
+        if (clazz == TypedArray) {
             return false; // TODO: we're kinda fucked for finding a streamer
             // by class for TypedArrays here. The caller should be passing
             // the java name.
+
+        } else {
+            return ClassUtil.isAssignableAs(Array, clazz) &&
+                (_jname === "[Ljava.lang.Object;");
         }
     }
 
