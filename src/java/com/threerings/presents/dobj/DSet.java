@@ -397,7 +397,7 @@ public class DSet<E extends DSet.Entry>
             nset._modCount = 0;
             return nset;
         } catch (CloneNotSupportedException cnse) {
-            throw new RuntimeException("WTF? " + cnse);
+            throw new RuntimeException(cnse);
         }
     }
 

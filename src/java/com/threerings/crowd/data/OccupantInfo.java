@@ -104,7 +104,7 @@ public class OccupantInfo extends SimpleStreamableObject
         try {
             return super.clone();
         } catch (CloneNotSupportedException cnse) {
-            throw new RuntimeException("WTF? " + cnse);
+            throw new RuntimeException(cnse);
         }
     }
 }
