@@ -1,10 +1,10 @@
 package com.threerings.presents.data {
 
-import com.threerings.presents.client.ConfirmListener;
+import com.threerings.presents.client.InvocationService_ConfirmListener;
 
 public class InvocationMarshaller_ConfirmMarshaller
     extends InvocationMarshaller_ListenerMarshaller
-    implements ConfirmListener
+    implements InvocationService_ConfirmListener
 {
     public static const REQUEST_PROCESSED :int = 1;
 
@@ -19,7 +19,7 @@ public class InvocationMarshaller_ConfirmMarshaller
     {
         switch (methodId) {
         case REQUEST_PROCESSED:
-            (listener as ConfirmListener).requestProcessed();
+            (listener as InvocationService_ConfirmListener).requestProcessed();
             return;
 
         default:

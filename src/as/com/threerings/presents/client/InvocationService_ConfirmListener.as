@@ -2,13 +2,14 @@ package com.threerings.presents.client {
 
 /**
  * Extends the {@link InvocationListener} with a basic success
- * callback that delivers a result object.
+ * callback.
  */
-public interface ResultListener extends InvocationListener
+public interface InvocationService_ConfirmListener
+    extends InvocationService_InvocationListener
 {
     /**
      * Indicates that the request was successfully processed.
      */
-    function requestProcessed (result :Object) :void;
+    function requestProcessed () :void;
 }
 }

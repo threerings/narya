@@ -24,8 +24,8 @@ package com.threerings.crowd.chat.client {
 import com.threerings.util.Name;
 
 import com.threerings.presents.client.Client;
-import com.threerings.presents.client.InvocationListener;
 import com.threerings.presents.client.InvocationService;
+import com.threerings.presents.client.InvocationService_InvocationListener;
 
 /**
  * The chat services provide a mechanism by which the client can broadcast
@@ -58,7 +58,7 @@ public interface ChatService extends InvocationService
      * @param listener the reference that will receive a failure response.
      */
     function broadcast (
-        client :Client, message :String, listener :InvocationListener) :void;
+        client :Client, message :String, listener :InvocationService_InvocationListener) :void;
 
     /**
      * Sets this client's away message. If the message is null or the

@@ -16,7 +16,7 @@ package com.threerings.presents.client {
  * }
  * </pre>
  */
-public interface InvocationListener
+public interface InvocationService_InvocationListener
 {
     /**
      * Called to report request failure. If the invocation services

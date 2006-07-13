@@ -1,7 +1,7 @@
 package com.threerings.presents.client {
 
 public class ConfirmAdapter
-    implements ConfirmListener
+    implements InvocationService_ConfirmListener
 {
     public function ConfirmAdapter (processed :Function, failed :Function)
     {

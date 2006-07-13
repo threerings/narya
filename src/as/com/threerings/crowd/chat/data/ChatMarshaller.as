@@ -25,7 +25,7 @@ import com.threerings.crowd.chat.client.ChatService;
 import com.threerings.crowd.chat.client.TellListener;
 import com.threerings.presents.client.Client;
 import com.threerings.presents.client.InvocationService;
-import com.threerings.presents.client.InvocationListener;
+import com.threerings.presents.client.InvocationService_InvocationListener;
 import com.threerings.presents.data.InvocationMarshaller;
 import com.threerings.presents.data.InvocationMarshaller_ListenerMarshaller;
 import com.threerings.presents.dobj.InvocationResponseEvent;
@@ -54,7 +54,7 @@ public class ChatMarshaller extends InvocationMarshaller
     public static const BROADCAST :int = 2;
 
     // documentation inherited from interface
-    public function broadcast (arg1 :Client, arg2 :String, arg3 :InvocationListener) :void
+    public function broadcast (arg1 :Client, arg2 :String, arg3 :InvocationService_InvocationListener) :void
     {
         var listener3 :InvocationMarshaller_ListenerMarshaller = new InvocationMarshaller_ListenerMarshaller();
         listener3.listener = arg3;

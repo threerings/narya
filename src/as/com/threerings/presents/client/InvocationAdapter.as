@@ -1,7 +1,7 @@
 package com.threerings.presents.client {
 
 public class InvocationAdapter
-    implements InvocationListener
+    implements InvocationService_InvocationListener
 {
     /**
      * Construct an InvocationAdapter that will call the specified

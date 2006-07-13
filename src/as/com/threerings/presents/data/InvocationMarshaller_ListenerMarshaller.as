@@ -6,13 +6,13 @@ import com.threerings.io.ObjectInputStream;
 import com.threerings.io.ObjectOutputStream;
 import com.threerings.io.Streamable;
 
-import com.threerings.presents.client.InvocationListener;
+import com.threerings.presents.client.InvocationService_InvocationListener;
 
 import com.threerings.presents.dobj.DObjectManager;
 import com.threerings.presents.dobj.InvocationResponseEvent;
 
 public class InvocationMarshaller_ListenerMarshaller
-    implements Streamable, InvocationListener
+    implements Streamable, InvocationService_InvocationListener
 {
     /** The method id used to dispatch a requestFailed response. */
     public static const REQUEST_FAILED_RSPID :int = 0;
@@ -25,7 +25,7 @@ public class InvocationMarshaller_ListenerMarshaller
 
     /** The actual invocation listener associated with this
      * marshalling listener. This is only valid on the client. */
-    public var listener :InvocationListener;
+    public var listener :InvocationService_InvocationListener;
 
     /** The time at which this listener marshaller was registered.
      * This is only valid on the client. */

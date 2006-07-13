@@ -28,8 +28,6 @@ import com.threerings.io.ObjectOutputStream;
 import com.threerings.io.Streamable;
 
 import com.threerings.presents.client.Client;
-import com.threerings.presents.client.ConfirmListener;
-import com.threerings.presents.client.ResultListener;
 import com.threerings.presents.client.InvocationService;
 
 import com.threerings.presents.dobj.DObjectManager;
