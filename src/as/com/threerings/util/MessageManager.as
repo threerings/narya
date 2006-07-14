@@ -61,19 +61,10 @@ public class MessageManager
      * ResourceBundle#getBundle(String,Locale,ClassLoader)} for a more
      * detailed explanation of how resource bundle paths are resolved.
      */
-    public function MessageManager (
-            resourcePrefix :String, sysMgr :ISystemManager)
+    public function MessageManager (sysMgr :ISystemManager)
     {
-        // keep the prefix
-        _prefix = resourcePrefix;
-
         // use the default locale
         _locale = Locale.getCurrent(sysMgr);
-
-        // make sure the prefix ends with a dot
-        if (_prefix.charAt(_prefix.length - 1) != ".") {
-            _prefix += ".";
-        }
 
         // load up the global bundle
         _global = getBundle(GLOBAL_BUNDLE);
@@ -102,15 +93,6 @@ public class MessageManager
     }
 
     /**
-     * Allows a custom classloader to be configured for locating
-     * translation resources.
-     */
-//    public void setClassLoader (ClassLoader loader)
-//    {
-//        _loader = loader;
-//    }
-
-    /**
      * Fetches the message bundle for the specified path. If no bundle can
      * be located with the specified path, a special bundle is returned
      * that returns the untranslated message identifiers instead of an
@@ -128,17 +110,12 @@ public class MessageManager
         }
 
         // if it's not cached, we'll need to resolve it
-        var fqpath :String = _prefix + path;
         var rbundle :ResourceBundle = null;
         try {
-//            if (_loader != null) {
-//                rbundle = ResourceBundle.getBundle(fqpath, _locale, _loader);
-//            } else {
-                rbundle = ResourceBundle.getResourceBundle(fqpath);
-//            }
+            rbundle = ResourceBundle.getResourceBundle(path);
         } catch (mre :Error) {
             Log.getLog(this).warning("Unable to resolve resource bundle " +
-                "[path=" + fqpath + "].");
+                "[path=" + path + "].");
         }
 
         // if the resource bundle contains a special resource, we'll
@@ -153,12 +130,10 @@ public class MessageManager
                     bundle = new clazz();
                 }
 
-            } catch (mre :Error) {
-                // nothing to worry about
-
             } catch (t :Error) {
-                Log.getLog(this).warning("Failure instantiating custom message" +
-                    " bundle [mbclass=" + mbclass + ", error=" + t + "].");
+                Log.getLog(this).warning(
+                    "Failure instantiating custom message bundle " +
+                    "[mbclass=" + mbclass + ", error=" + t + "].");
             }
         }
 
@@ -176,14 +151,8 @@ public class MessageManager
         return bundle;
     }
 
-    /** The prefix we prepend to resource paths prior to loading. */
-    protected var _prefix :String;
-
     /** The locale for which we're obtaining message bundles. */
     protected var _locale :Locale;
-
-    /** A custom class loader that we use to load resource bundles. */
-//    protected var _loader :ClassLoader;
 
     /** A cache of instantiated message bundles. */
     protected var _cache :HashMap = new HashMap();

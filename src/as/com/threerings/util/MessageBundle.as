@@ -23,6 +23,8 @@ package com.threerings.util {
 
 import mx.resources.ResourceBundle;
 
+import mx.utils.StringUtil;
+
 /**
  * A message bundle provides an easy mechanism by which to obtain
  * translated message strings from a resource bundle. It uses the {@link
@@ -77,6 +79,8 @@ public class MessageBundle
 
         // if we have a parent, try getting the string from them
         if (_parent != null) {
+            trace("Trying to retrieve " + key + " from parent bundle: " +
+                _parent);
             var value :String = _parent.getResourceString(key, false);
             if (value != null) {
                 return value;
@@ -148,11 +152,12 @@ public class MessageBundle
         if (msg == null) {
             Log.getLog(this).warning("Missing translation message " +
                         "[bundle=" + _path + ", key=" + key + "].");
+
+            // return something bogus
+            return (key + args);
         }
 
-        return (msg != null) ?
-            MessageFormat.format(escape(msg), args)
-            : (key + args);
+        return mx.utils.StringUtil.substitute(escape(msg), args);
     }
 
     /**
@@ -383,13 +388,4 @@ public class MessageBundle
     protected static const QUAL_PREFIX :String = "%";
     protected static const QUAL_SEP :String = ":";
 }
-}
-
-// TODO: figure out what we're going to do here
-class MessageFormat
-{
-    public static function format (msg :String, ... rest) :String
-    {
-        return msg + rest; 
-    }
 }
