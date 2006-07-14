@@ -79,8 +79,6 @@ public class MessageBundle
 
         // if we have a parent, try getting the string from them
         if (_parent != null) {
-            trace("Trying to retrieve " + key + " from parent bundle: " +
-                _parent);
             var value :String = _parent.getResourceString(key, false);
             if (value != null) {
                 return value;
