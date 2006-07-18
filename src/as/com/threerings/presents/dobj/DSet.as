@@ -98,7 +98,7 @@ public class DSet
      */
     public function toArray () :Array
     {
-        return _entries.concat(null); // makes a copy
+        return _entries.concat(); // makes a copy
     }
 
     /**
