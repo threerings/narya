@@ -21,6 +21,8 @@
 
 package com.threerings.crowd.client  {
 
+import com.threerings.util.Controller;
+
 import com.threerings.crowd.data.PlaceConfig;
 import com.threerings.crowd.data.PlaceObject;
 import com.threerings.crowd.util.CrowdContext;
@@ -33,7 +35,7 @@ import com.threerings.events.ControllerEvent;
  * constructed and requested to create and display the appopriate user
  * interface for that place.
  */
-public /*abstract*/ class PlaceController /*extends Controller*/
+public /*abstract*/ class PlaceController extends Controller
 {
     /**
      * Initializes this place controller with a reference to the context
@@ -121,8 +123,8 @@ public /*abstract*/ class PlaceController /*extends Controller*/
         _plobj = plobj;
 
         if (_view != null ) {
-            _view.addEventListener(
-                ControllerEvent.TYPE, handleControllerEvent);
+            // set it as our controlled panel
+            setControlledPanel(_view);
 
             // let the UI hierarchy know that we've got our place
             PlaceViewUtil.dispatchWillEnterPlace(_view, plobj);
@@ -175,40 +177,16 @@ public /*abstract*/ class PlaceController /*extends Controller*/
 //            }
 //        });
 
+        setControlledPanel(null);
+
         // let the UI hierarchy know that we're outta here
         if (_view != null ) {
-            _view.removeEventListener(
-                ControllerEvent.TYPE, handleControllerEvent);
             PlaceViewUtil.dispatchDidLeavePlace(_view, plobj);
             _ctx.clearPlaceView(_view);
             _view = null;
         }
 
         _plobj = null;
-    }
-
-    /**
-     * Handle the specified action that was generated somewhere in our
-     * view.
-     *
-     * @return true if the action has been handled, false otherwise.
-     */
-    public function handleAction (cmd :String, arg :Object) :Boolean
-    {
-        Log.getLog(this).warning("Unhandled controller command [cmd=" + cmd +
-            ", arg=" + arg + "].");
-        return false; // by default, no action is handled
-    }
-
-    /**
-     * A callback where we listen to ControllerEvents and unwrap
-     * them for easy handling.
-     */
-    private function handleControllerEvent (event :ControllerEvent) :void
-    {
-        if (handleAction(event.command, event.arg)) {
-            event.stopImmediatePropagation();
-        }
     }
 
     /**
