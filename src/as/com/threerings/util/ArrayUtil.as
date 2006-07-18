@@ -6,6 +6,25 @@ package com.threerings.util {
 public class ArrayUtil
 {
     /**
+     * Sort the specified array according to natural order- all elements
+     * must implement Comparable.
+     */
+    public static function sort (arr :Array) :void
+    {
+        // ensure every item is Comparable
+        if (!arr.every(function (item :*, index :int, array :Array) :Boolean 
+                {
+                    return (item is Comparable);
+                })) {
+            throw new Error("Not all elements are Comparable instances.");
+        }
+
+        arr.sort(function (obj1 :Object, obj2 :Object) :int {
+            return (obj1 as Comparable).compareTo(obj2);
+        });
+    }
+
+    /**
      * Remove the first instance of the specified element from the array.
      */
     public static function removeFirst (arr :Array, element :Object) :void
