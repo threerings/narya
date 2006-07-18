@@ -126,14 +126,17 @@ public class MessageManager
             try {
                 mbclass = rbundle.getString(MBUNDLE_CLASS_KEY);
                 if (!StringUtil.isBlank(mbclass)) {
-                    var clazz :Class = ClassUtil.getClassByName(mbclass);
-                    bundle = new clazz();
+                    try {
+                        var clazz :Class = ClassUtil.getClassByName(mbclass);
+                        bundle = new clazz();
+                    } catch (ee :Error) {
+                        Log.getLog(this).warning(
+                            "Failure instantiating custom message bundle " +
+                            "[mbclass=" + mbclass + ", error=" + ee + "].");
+                    }
                 }
-
-            } catch (t :Error) {
-                Log.getLog(this).warning(
-                    "Failure instantiating custom message bundle " +
-                    "[mbclass=" + mbclass + ", error=" + t + "].");
+            } catch (eee :Error) {
+                // nada
             }
         }
 
