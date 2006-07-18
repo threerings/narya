@@ -324,6 +324,13 @@ public class DSet<E extends DSet.Entry>
      */
     protected E removeKey (Comparable key)
     {
+        // don't fail, but generate a warning if we're passed a null key
+        if (key == null) {
+            Log.warning("Requested to remove null key.");
+            Thread.dumpStack();
+            return null;
+        }
+
         // look up this entry's position in our set
         int eidx = ArrayUtil.binarySearch(
             _entries, 0, _size, key, ENTRY_COMP);
