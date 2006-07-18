@@ -7,7 +7,7 @@ import com.threerings.io.ObjectOutputStream;
 import com.threerings.io.Streamable;
 
 public class Name extends Object
-    implements Hashable, Streamable
+    implements Comparable, Hashable, Streamable
 {
     public function Name (name :String = "")
     {
@@ -37,14 +37,14 @@ public class Name extends Object
         return _name;
     }
 
-    // documentation inherited from interface Hashable
+    // from interface Hashable
     public function equals (other :Object) :Boolean
     {
         return (other is Name) &&
             (getNormal() === (other as Name).getNormal());
     }
 
-    // documentation inherited from interface Hashable
+    // from interface Hashable
     public function hashCode () :int
     {
         var norm :String = getNormal();
@@ -55,14 +55,30 @@ public class Name extends Object
         return hash;
     }
 
-    // documentation inherited from interface Streamable
+    // from interface Comparable
+    public function compareTo (other :Object) :int
+    {
+        var thisNormal :String = getNormal();
+        var thatNormal :String = (other as Name).getNormal();
+        if (thisNormal == thatNormal) {
+            return 0;
+
+        } if (thisNormal < thatNormal) {
+            return -1;
+
+        }  else {
+            return 1;
+        }
+    }
+
+    // from interface Streamable
     public function writeObject (out :ObjectOutputStream) :void
         //throws IOError
     {
         out.writeField(_name);
     }
 
-    // documentation inherited from interface Streamable
+    // from interface Streamable
     public function readObject (ins :ObjectInputStream) :void
         //throws IOError
     {
