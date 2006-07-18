@@ -466,11 +466,11 @@ public class Communicator
                 Log.info("Connecting [host=" + host + ", port=" + port + "].");
                 InetSocketAddress addr = new InetSocketAddress(host, port);
                 try {
-                    _channel = SocketChannel.open(addr);
                     synchronized (Communicator.this) {
                         clearPPI(true);
                         _prefPortInterval =
                             new PrefPortInterval(pportKey, port, nextPort);
+                        _channel = SocketChannel.open(addr);
                         _prefPortInterval.schedule(PREF_PORT_DELAY);
                     }
                     break;
