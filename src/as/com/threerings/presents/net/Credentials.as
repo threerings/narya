@@ -37,7 +37,7 @@ public /* abstract */ class Credentials
         return buf.toString();
     }
 
-    internal function toStringBuf (buf :StringBuilder) :void
+    protected function toStringBuf (buf :StringBuilder) :void
     {
         buf.append("username=", _username);
     }
