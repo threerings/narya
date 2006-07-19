@@ -188,7 +188,12 @@ public abstract class RebootManager
     }
 
     /**
-     * Broadcasts a message to everyone on the server.
+     * Broadcasts a message to everyone on the server. The following
+     * messages will be broadcast:
+     * <ul><li> m.rebooting_now
+     *     <li> m.reboot_warning (minutes) (message or m.reboot_msg_standard)
+     *     <li> m.reboot_delayed
+     * </ul>
      */
     protected abstract void broadcast (String message);
 
