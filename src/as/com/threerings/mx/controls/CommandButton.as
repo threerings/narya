@@ -31,8 +31,14 @@ public class CommandButton extends Button
 
     override protected function clickHandler (event :MouseEvent) :void
     {
-        dispatchEvent(new ControllerEvent(_cmd, _arg));
-        event.stopImmediatePropagation();
+        super.clickHandler(event);
+
+        if (enabled) {
+            // stop the click event
+            event.stopImmediatePropagation();
+            // dispatch the command event
+            dispatchEvent(new ControllerEvent(_cmd, _arg));
+        }
     }
 
     /** The command to submit when clicked. */
