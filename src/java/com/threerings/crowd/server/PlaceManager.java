@@ -462,11 +462,20 @@ public class PlaceManager
         });
 
         // if that leaves us with zero occupants, maybe do something
-        if (_plobj.occupants.size() == 0) {
+        if (shouldDeclareEmpty()) {
             placeBecameEmpty();
         }
     }
 
+    /**
+     * Returns whether the location should be marked as empty and potentially
+     *  shutdown.
+     */
+    protected boolean shouldDeclareEmpty ()
+    {
+        return (_plobj.occupants.size() == 0);
+    }
+    
     /**
      * Called when a body's occupant info is updated.
      */
