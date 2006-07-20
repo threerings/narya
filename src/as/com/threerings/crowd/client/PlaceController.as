@@ -27,8 +27,6 @@ import com.threerings.crowd.data.PlaceConfig;
 import com.threerings.crowd.data.PlaceObject;
 import com.threerings.crowd.util.CrowdContext;
 
-import com.threerings.events.ControllerEvent;
-
 /**
  * Controls the user interface that is used to display a place. When the
  * client moves to a new place, the appropriate place controller is

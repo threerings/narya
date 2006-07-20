@@ -3,7 +3,7 @@ package com.threerings.util {
 import flash.ui.ContextMenuItem;
 import flash.events.ContextMenuEvent;
 
-import com.threerings.events.ControllerEvent;
+import com.threerings.mx.events.CommandEvent;
 
 /**
  */
@@ -21,7 +21,7 @@ public class MenuUtil
             new ContextMenuItem(caption, separatorBefore, enabled, visible);
         item.addEventListener(ContextMenuEvent.MENU_ITEM_SELECT,
             function (event :ContextMenuEvent) :void {
-                event.mouseTarget.dispatchEvent(new ControllerEvent(cmd, arg));
+                event.mouseTarget.dispatchEvent(new CommandEvent(cmd, arg));
             });
         return item;
     }

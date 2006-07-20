@@ -1,16 +1,16 @@
-package com.threerings.events {
+package com.threerings.mx.events {
 
 import flash.events.Event;
 
-public class ControllerEvent extends Event
+public class CommandEvent extends Event
 {
     /** The event type for all controller events. */
-    public static const TYPE :String = "controller";
+    public static const TYPE :String = "commandEvt";
 
     public var command :String;
     public var arg :Object;
 
-    public function ControllerEvent (command :String, arg :Object = null)
+    public function CommandEvent (command :String, arg :Object = null)
     {
         super(TYPE, true);
         this.command = command;
@@ -19,12 +19,12 @@ public class ControllerEvent extends Event
 
     override public function clone () :Event
     {
-        return new ControllerEvent(command, arg);
+        return new CommandEvent(command, arg);
     }
 
     override public function toString () :String
     {
-        return "ControllerEvent[" + command + " (" + arg + ")]";
+        return "CommandEvent[" + command + " (" + arg + ")]";
     }
 }
 }

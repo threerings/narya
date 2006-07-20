@@ -4,7 +4,7 @@ import flash.events.MouseEvent;
 
 import mx.controls.Button;
 
-import com.threerings.events.ControllerEvent;
+import com.threerings.mx.events.CommandEvent;
 
 /**
  * A command button simply dispatches a Controller command (with an optional
@@ -37,7 +37,7 @@ public class CommandButton extends Button
             // stop the click event
             event.stopImmediatePropagation();
             // dispatch the command event
-            dispatchEvent(new ControllerEvent(_cmd, _arg));
+            dispatchEvent(new CommandEvent(_cmd, _arg));
         }
     }
 
