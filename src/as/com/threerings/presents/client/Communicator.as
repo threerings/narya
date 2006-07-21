@@ -126,6 +126,8 @@ public class Communicator
 
     protected function shutdown (logonError :Error) :void
     {
+        _client.notifyObservers(ClientEvent.CLIENT_DID_LOGOFF, null);
+
         if (_socket != null)  {
             try {
                 _socket.close();
@@ -146,6 +148,12 @@ public class Communicator
 
     protected function sendMessage (msg :UpstreamMessage) :void
     {
+        if (_outStream == null) {
+            Log.getLog(this).warning(
+                "No socket, dropping msg [msg=" + msg + "].");
+            return;
+        }
+
         // write the message (ends up in _outBuffer)
         _outStream.writeObject(msg);
 
@@ -258,7 +266,7 @@ public class Communicator
     {
         Log.getLog(this).warning("socket was closed: " + event);
         _client.notifyObservers(ClientEvent.CLIENT_CONNECTION_FAILED);
-        shutdown(null);
+        logoff();
     }
 
     protected var _client :Client;

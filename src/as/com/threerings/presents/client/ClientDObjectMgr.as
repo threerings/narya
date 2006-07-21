@@ -190,6 +190,13 @@ public class ClientDObjectMgr
      */
     public function processNextAction (event :Event) :void
     {
+        while (_actions.length > 0) {
+            doNextAction();
+        }
+    }
+
+    protected function doNextAction () :void
+    {
         // process the next event on our queue
         if (_actions.length == 0) {
             return;
