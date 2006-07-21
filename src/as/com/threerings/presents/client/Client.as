@@ -57,6 +57,8 @@ public class Client extends EventDispatcher
                 cliObs.clientConnectionFailed);
             addEventListener(ClientEvent.CLIENT_WILL_LOGOFF,
                 cliObs.clientWillLogoff);
+            addEventListener(ClientEvent.CLIENT_DID_CLEAR,
+                cliObs.clientDidClear);
         }
     }
 
@@ -81,6 +83,8 @@ public class Client extends EventDispatcher
                 cliObs.clientConnectionFailed);
             removeEventListener(ClientEvent.CLIENT_WILL_LOGOFF,
                 cliObs.clientWillLogoff);
+            removeEventListener(ClientEvent.CLIENT_DID_CLEAR,
+                cliObs.clientDidClear);
         }
     }
 
@@ -325,6 +329,8 @@ public class Client extends EventDispatcher
         // another port, or something
         if (logonError != null) {
             notifyObservers(ClientEvent.CLIENT_FAILED_TO_LOGON, logonError);
+        } else {
+            notifyObservers(ClientEvent.CLIENT_DID_CLEAR, null);
         }
     }
 

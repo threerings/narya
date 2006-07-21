@@ -12,6 +12,7 @@ public class ClientEvent extends Event
      * preventDefault() on this event. */
     public static const CLIENT_WILL_LOGOFF :String = "clientWillLogoff";
     public static const CLIENT_DID_LOGOFF :String = "clientDidLogoff";
+    public static const CLIENT_DID_CLEAR :String = "clientDidClear";
 
     public function ClientEvent (type :String, client :Client,
             cause :Error = null)
@@ -29,6 +30,11 @@ public class ClientEvent extends Event
     public function getCause () :Error
     {
         return _cause;
+    }
+
+    override public function clone () :Event
+    {
+        return new ClientEvent(type, _client, _cause);
     }
 
     /** The client that generated this client event. */

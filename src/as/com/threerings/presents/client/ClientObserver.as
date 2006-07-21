@@ -76,5 +76,14 @@ public interface ClientObserver extends SessionObserver
      * calls event.preventDefault() then it will abort the logoff request.
      */
     function clientWillLogoff (event :ClientEvent) :void;
+
+    /**
+     * Called after the client is completely logged off from a successful
+     * session and is ready to reconnect to a new server if desired. This will
+     * only be called after an active session was terminated, not after a logon
+     * attempt failed as that failure will be reported by {@link
+     * #clientFailedToLogon}.
+     */
+    function clientDidClear (event :ClientEvent) :void;
 }
 }
