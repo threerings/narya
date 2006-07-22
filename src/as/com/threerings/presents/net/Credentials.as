@@ -15,6 +15,16 @@ public /* abstract */ class Credentials
         _username = username;
     }
 
+    public function getUsername () :Name
+    {
+        return _username;
+    }
+
+    public function setUsername (name :Name) :void
+    {
+        _username = name;
+    }
+
     // documentation inherited from interface Streamable
     public function writeObject (out :ObjectOutputStream) :void
         //throws IOError
