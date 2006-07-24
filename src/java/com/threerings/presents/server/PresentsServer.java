@@ -357,6 +357,14 @@ public class PresentsServer
         _downers.add(downer);
     }
 
+    /**
+     * Unregisters the shutdowner from hearing when the server is shutdown.
+     */
+    public static void unregisterShutdowner (Shutdowner downer)
+    {
+        _downers.add(downer);
+    }
+
     public static void main (String[] args)
     {
         Log.info("Presents server starting...");
