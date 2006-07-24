@@ -362,7 +362,7 @@ public class PresentsServer
      */
     public static void unregisterShutdowner (Shutdowner downer)
     {
-        _downers.add(downer);
+        _downers.remove(downer);
     }
 
     public static void main (String[] args)
