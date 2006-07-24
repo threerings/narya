@@ -71,7 +71,7 @@ public class Config
         var listener :Function = function (evt :NetStatusEvent) :void {
                 // TODO: as of beta3 there is a bug where the status
                 // is always "SharedObject.Flush.Failed", even on success
-                //trace("================[" + evt.info.code + "]");
+                trace("================[" + evt.info.code + "]");
                 if ("SharedObject.Flush.Success" == evt.info.code) {
                     rl.requestCompleted(thisConfig);
                 } else {

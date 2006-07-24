@@ -3,8 +3,8 @@ package com.threerings.presents.dobj {
 import com.threerings.io.ObjectInputStream;
 import com.threerings.io.ObjectOutputStream;
 
-import com.threerings.util.Integer;
 import com.threerings.util.StringBuilder;
+import com.threerings.util.Wrapped;
 
 /**
  * An entry removed event is dispatched when an entry is removed from a
@@ -101,9 +101,8 @@ public class EntryRemovedEvent extends NamedEvent
         super.readObject(ins);
         _key = ins.readObject();
 
-        // TODO: for now...
-        if (_key is Integer) {
-            _key = (_key as Integer).value;
+        if (_key is Wrapped) {
+            _key = (_key as Wrapped).unwrap();
         }
     }
 

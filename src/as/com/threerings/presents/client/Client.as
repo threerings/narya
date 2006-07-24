@@ -292,19 +292,29 @@ public class Client extends EventDispatcher
         notifyObservers(ClientEvent.CLIENT_FAILED_TO_LOGON, cause);
     }
 
-    // TODO: this should be 'internal' except for a fucking bug with AS3
+    /**
+     * Called by the invocation director when it successfully subscribes
+     * to the client object immediately following logon.
+     */
     public function gotClientObject (clobj :ClientObject) :void
     {
         _clobj = clobj;
         notifyObservers(ClientEvent.CLIENT_DID_LOGON);
     }
 
-    // TODO: this should be 'internal' except for a fucking bug with AS3
+    /**
+     * Called by the invocation director if it fails to subscribe to the
+     * client object after logon.
+     */
     public function getClientObjectFailed (cause :Error) :void
     {
         notifyObservers(ClientEvent.CLIENT_FAILED_TO_LOGON, cause);
     }
 
+    /**
+     * Called by the invocation director when it discovers that the client
+     * object has changed.
+     */
     protected function clientObjectDidChange (clobj :ClientObject) :void
     {
         _clobj = clobj;

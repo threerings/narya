@@ -4,7 +4,7 @@ package com.threerings.util {
  * Equivalent to java.lang.Float.
  */
 public class Float
-    implements Equalable
+    implements Equalable, Wrapped
 {
     public var value :Number;
 
@@ -18,10 +18,16 @@ public class Float
         this.value = value;
     }
 
-    // documentation inherited from interface Equalable
+    // from Equalable
     public function equals (other :Object) :Boolean
     {
         return (other is Float) && (value === (other as Float).value);
+    }
+
+    // from Wrapped
+    public function unwrap () :Object
+    {
+        return value;
     }
 }
 }

@@ -3,8 +3,8 @@ package com.threerings.presents.dobj {
 import com.threerings.io.ObjectInputStream;
 import com.threerings.io.ObjectOutputStream;
 
-import com.threerings.util.Integer;
 import com.threerings.util.StringBuilder;
+import com.threerings.util.Wrapped;
 
 /**
  * An attribute changed event is dispatched when a single attribute of a
@@ -46,16 +46,7 @@ public class AttributeChangedEvent extends NamedEvent
             _oldValue = target[_name]; // fucking wack-ass language
         }
 
-        // possibly convert the value
-        var v :Object = _value;
-        if (v is Integer) {
-            v = (v as Integer).value
-
-        } else {
-            // TODO: more!
-        }
-
-        target[_name] = v;
+        target[_name] = _value;
         return true;
     }
 
@@ -108,6 +99,11 @@ public class AttributeChangedEvent extends NamedEvent
     {
         super.readObject(ins);
         _value = ins.readObject();
+
+        // possibly convert the value
+        if (_value is Wrapped) {
+            _value = (_value as Wrapped).unwrap();
+        }
     }
 
     protected var _value :Object;

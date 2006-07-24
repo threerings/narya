@@ -21,6 +21,8 @@
 
 package com.threerings.crowd.client {
 
+import flash.utils.getTimer; // function import
+
 import com.threerings.util.ObserverList;
 import com.threerings.util.ResultListener;
 
@@ -372,7 +374,7 @@ public class LocationDirector extends BasicDirector
      */
     public function checkRepeatMove () :Boolean
     {
-        var now :Number = new Date().getTime();
+        var now :Number = getTimer();
         if (now - _lastRequestTime < STALE_REQUEST_DURATION) {
             return true;
 

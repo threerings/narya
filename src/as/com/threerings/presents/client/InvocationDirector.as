@@ -1,5 +1,7 @@
 package com.threerings.presents.client {
 
+import flash.utils.getTimer; // function import
+
 import mx.collections.IViewCursor;
 import mx.collections.ArrayCollection;
 
@@ -145,7 +147,7 @@ public class InvocationDirector
                     (arg as InvocationMarshaller_ListenerMarshaller);
                 lm.callerOid = _clobj.getOid();
                 lm.requestId = nextRequestId();
-                lm.mapStamp = new Date().getTime();
+                lm.mapStamp = getTimer();
 
                 // create a mapping for this marshaller so that we can
                 // properly dispatch responses sent to it
@@ -218,7 +220,7 @@ public class InvocationDirector
         }
 
         // flush expired listeners periodically
-        var now :Number = new Date().getTime();
+        var now :Number = getTimer();
         if (now - _lastFlushTime > LISTENER_FLUSH_INTERVAL) {
             _lastFlushTime = now;
             flushListeners(now);
@@ -272,11 +274,12 @@ public class InvocationDirector
     protected function flushListeners (now :Number) :void
     {
         var then :Number = now - LISTENER_MAX_AGE;
-        for (var skey :String in _listeners.keys()) {
+        for each (var reqId :int in _listeners.keys()) {
             var lm :InvocationMarshaller_ListenerMarshaller =
-                (_listeners.get(skey) as InvocationMarshaller_ListenerMarshaller);
+                (_listeners.get(reqId) as
+                    InvocationMarshaller_ListenerMarshaller);
             if (lm.mapStamp < then) {
-                _listeners.remove(skey);
+                _listeners.remove(reqId);
             }
         }
     }

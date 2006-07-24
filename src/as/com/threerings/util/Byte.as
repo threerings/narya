@@ -4,7 +4,7 @@ package com.threerings.util {
  * Equivalent to java.lang.Byte.
  */
 public class Byte
-    implements Equalable
+    implements Equalable, Wrapped
 {
     public var value :int;
 
@@ -18,13 +18,19 @@ public class Byte
         this.value = value;
     }
 
-    // documentation inherited from interface Equalable
+    // from Equalable
     public function equals (other :Object) :Boolean
     {
         return (other is Byte) && (value === (other as Byte).value);
     }
 
-    // documentation inherited
+    // from Wrapped
+    public function unwrap () :Object
+    {
+        return value;
+    }
+
+    // override
     public function toString () :String
     {
         return "Byte(" + value + ")";

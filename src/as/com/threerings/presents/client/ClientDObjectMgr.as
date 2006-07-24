@@ -24,6 +24,7 @@ package com.threerings.presents.client {
 import flash.events.Event;
 import flash.events.TimerEvent;
 import flash.utils.Timer;
+import flash.utils.getTimer; // function import
 
 import mx.collections.IList;
 
@@ -141,22 +142,15 @@ public class ClientDObjectMgr
     {
         // if this object has a registered flush delay, don't can it just
         // yet, just slip it onto the flush queue
-        var oclass :Class = ClassUtil.getClass(obj);
-        /*
-        // TODO
-        // TODO
-        for (Iterator iter = _delays.keySet().iterator(); iter.hasNext(); ) {
-            Class dclass = (Class)iter.next();
-            if (dclass.isAssignableFrom(oclass)) {
-                long expire =  System.currentTimeMillis() +
-                    ((Long)_delays.get(dclass)).longValue();
+        for each (var dclass :Class in _delays.keys()) {
+            if (obj is dclass) {
+                var expire :Number = getTimer() + Number(_delays.get(dclass));
                 _flushes.put(obj.getOid(), new FlushRecord(obj, expire));
 //                 log.info("Flushing " + obj.getOid() + " at " +
 //                          new java.util.Date(expire));
                 return;
             }
         }
-        */
 
         // if we didn't find a delay registration, flush immediately
         flushObject(obj);
@@ -169,8 +163,7 @@ public class ClientDObjectMgr
      */
     public function registerFlushDelay (objclass :Class, delay :Number) :void
     {
-        // TODO
-        //_delays.put(objclass, new Long(delay));
+        _delays.put(objclass, delay);
     }
 
     /**
@@ -424,8 +417,8 @@ public class ClientDObjectMgr
      */
     protected function flushObjects (event :TimerEvent) :void
     {
-        var now :Number = new Date().getTime();
-        for (var oid :String in _flushes.keys()) {
+        var now :Number = getTimer();
+        for each (var oid :int in _flushes.keys()) {
             var rec :FlushRecord = (_flushes.get(oid) as FlushRecord);
             if (rec.expire <= now) {
                 _flushes.remove(oid);

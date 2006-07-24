@@ -4,6 +4,7 @@ import com.threerings.io.ObjectInputStream;
 import com.threerings.io.ObjectOutputStream;
 
 import com.threerings.util.StringBuilder;
+import com.threerings.util.Wrapped;
 
 /**
  * An element updated event is dispatched when an element of an array
@@ -93,6 +94,10 @@ public class ElementUpdatedEvent extends NamedEvent
         super.readObject(ins);
         _value = ins.readObject();
         _index = ins.readInt();
+
+        if (_value is Wrapped) {
+            _value = (_value as Wrapped).unwrap();
+        }
     }
 
     // documentation inherited

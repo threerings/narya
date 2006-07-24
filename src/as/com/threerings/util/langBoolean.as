@@ -8,7 +8,7 @@ import com.threerings.io.Streamable;
  * Equivalent to java.lang.Boolean.
  */
 public class langBoolean
-    implements Equalable, Streamable
+    implements Equalable, Streamable, Wrapped
 {
     public var value :Boolean;
 
@@ -39,6 +39,12 @@ public class langBoolean
     public function readObject (ins :ObjectInputStream) :void
     {
         value = ins.readBoolean();
+    }
+
+    // from Wrapped
+    public function unwrap () :Object
+    {
+        return value;
     }
 }
 }

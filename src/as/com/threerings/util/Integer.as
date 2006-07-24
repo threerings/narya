@@ -9,7 +9,7 @@ package com.threerings.util {
 // Number <--> java.lang.Double. However, a Number object that refers
 // to an integer value is actually an int. Yes, it's totally fucked.
 public class Integer
-    implements Equalable
+    implements Equalable, Wrapped
 {
     public var value :int;
 
@@ -23,10 +23,16 @@ public class Integer
         this.value = value;
     }
 
-    // documentation inherited from interface Equalable
+    // from Equalable
     public function equals (other :Object) :Boolean
     {
         return (other is Integer) && (value === (other as Integer).value);
+    }
+
+    // from Wrapped
+    public function unwrap () :Object
+    {
+        return value;
     }
 }
 }
