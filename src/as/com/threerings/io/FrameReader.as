@@ -26,6 +26,15 @@ public class FrameReader extends EventDispatcher
      */
     protected function socketHasData (event :ProgressEvent) :void
     {
+        try {
+            readAvailable();
+        } catch (e :Error) {
+            Log.getLog(this).warning("Error reading socket data [e=" + e + "].");
+        }
+    }
+
+    protected function readAvailable () :void
+    {
         if (ObjectInputStream.DEBUG) {
             Log.getLog(this).debug(
                 "socketHasData(" + _socket.bytesAvailable + ")");
@@ -64,7 +73,7 @@ public class FrameReader extends EventDispatcher
             // there's a good chance there's more on the socket, recurse
             // now to read it
             if (_socket.bytesAvailable >= HEADER_SIZE) {
-                socketHasData(event);
+                readAvailable();
             }
         }
     }
