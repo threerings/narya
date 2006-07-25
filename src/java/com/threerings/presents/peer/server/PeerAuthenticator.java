@@ -21,6 +21,10 @@
 
 package com.threerings.presents.peer.server;
 
+import com.samskivert.io.PersistenceException;
+
+import com.samskivert.util.Invoker;
+
 import com.threerings.presents.data.AuthCodes;
 
 import com.threerings.presents.net.AuthRequest;
@@ -49,26 +53,45 @@ public class PeerAuthenticator extends Authenticator
         _delegate = delegate;
     }
 
-    @Override // documentation inherited
+    @Override
     public void authenticateConnection (AuthingConnection conn)
     {
         // if this is a peer server, we check their credentials specially
         AuthRequest req = conn.getAuthRequest();
         if (req.getCredentials() instanceof PeerCreds) {
-            AuthResponse rsp = new AuthResponse(new AuthResponseData());
-            PeerCreds pcreds = (PeerCreds)req.getCredentials();
-            if (_peermgr.isAuthenticPeer(pcreds)) {
-                rsp.getData().code = AuthResponseData.SUCCESS;
-            } else {
-                log.warning("Received invalid peer auth request? " +
-                            "[creds=" + pcreds + "].");
-                rsp.getData().code = AuthCodes.SERVER_ERROR;
-            }
-            connectionWasAuthenticated(conn, rsp);
+            super.authenticateConnection(conn);
 
         } else {
             // otherwise pass the request on to our delegate
             _delegate.authenticateConnection(conn);
+        }
+    }
+
+    @Override
+    protected Invoker getInvoker ()
+    {
+        // The processing of peer authentication happens inline,
+        // but other authentication will use the _delegate which will
+        // probably use an Invoker.
+        return null;
+    }
+
+    // from abstract Authenticator
+    protected void processAuthentication (
+            AuthingConnection conn, AuthResponse rsp)
+        throws PersistenceException
+    {
+        // here, we are ONLY authenticating peers
+        AuthRequest req = conn.getAuthRequest();
+        PeerCreds pcreds = (PeerCreds) req.getCredentials();
+
+        if (_peermgr.isAuthenticPeer(pcreds)) {
+            rsp.getData().code = AuthResponseData.SUCCESS;
+
+        } else {
+            log.warning("Received invalid peer auth request? " +
+                        "[creds=" + pcreds + "].");
+            rsp.getData().code = AuthCodes.SERVER_ERROR;
         }
     }
 

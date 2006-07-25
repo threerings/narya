@@ -21,10 +21,15 @@
 
 package com.threerings.presents.server;
 
-import com.threerings.presents.Log;
+import com.samskivert.io.PersistenceException;
+
+import com.samskivert.util.Invoker;
+
 import com.threerings.presents.net.AuthResponse;
 import com.threerings.presents.net.AuthResponseData;
 import com.threerings.presents.server.net.AuthingConnection;
+
+import static com.threerings.presents.Log.log;
 
 /**
  * A simple authenticator implementation that simply accepts all
@@ -32,14 +37,18 @@ import com.threerings.presents.server.net.AuthingConnection;
  */
 public class DummyAuthenticator extends Authenticator
 {
-    /**
-     * Accept all authentication requests.
-     */
-    public void authenticateConnection (AuthingConnection conn)
+    @Override
+    protected Invoker getInvoker ()
     {
-        Log.info("Accepting request: " + conn.getAuthRequest());
-        AuthResponseData rdata = new AuthResponseData();
-        rdata.code = AuthResponseData.SUCCESS;
-        connectionWasAuthenticated(conn, new AuthResponse(rdata));
+        return null; // not needed
+    }
+
+    // from abstract Authenticator
+    protected void processAuthentication (
+            AuthingConnection conn, AuthResponse rsp)
+        throws PersistenceException
+    {
+        log.info("Accepting request: " + conn.getAuthRequest());
+        rsp.getData().code = AuthResponseData.SUCCESS;
     }
 }

@@ -3,13 +3,19 @@
 
 package com.threerings.presents.server;
 
+import java.util.logging.Level;
+
+import com.samskivert.io.PersistenceException;
+
+import com.samskivert.util.Invoker;
 import com.samskivert.util.StringUtil;
 import com.threerings.util.MessageBundle;
 
-import com.threerings.presents.Log;
 import com.threerings.presents.net.AuthResponse;
 import com.threerings.presents.net.AuthResponseData;
 import com.threerings.presents.server.net.AuthingConnection;
+
+import static com.threerings.presents.Log.log;
 
 /**
  * A simple server that does nothing more than spit out a canned error
@@ -51,8 +57,7 @@ public class Rejector extends PresentsServer
             server.init();
             server.run();
         } catch (Exception e) {
-            Log.warning("Unable to initialize server.");
-            Log.logStackTrace(e);
+            log.log(Level.WARNING, "Unable to initialize server.", e);
         }
     }
 
@@ -62,13 +67,19 @@ public class Rejector extends PresentsServer
      */
     protected class RejectingAuthenticator extends Authenticator
     {
-        /** Reject all authentication requests. */
-        public void authenticateConnection (AuthingConnection conn)
+        @Override
+        protected Invoker getInvoker ()
         {
-            Log.info("Rejecting request: " + conn.getAuthRequest());
-            AuthResponseData rdata = new AuthResponseData();
-            rdata.code = _errmsg;
-            connectionWasAuthenticated(conn, new AuthResponse(rdata));
+            return null;
+        }
+
+        // from abstract Authenticator
+        protected void processAuthentication (
+                AuthingConnection conn, AuthResponse rsp)
+            throws PersistenceException
+        {
+            log.info("Rejecting request: " + conn.getAuthRequest());
+            rsp.getData().code = _errmsg;
         }
     }
 
