@@ -10,10 +10,10 @@ public class NetUtil
      * having to worry about SecurityErrors in various conditions.
      */
     public static function navigateToURL (
-            url :String, newWindow :Boolean = false) :void
+            url :String, preferSameWindowOrTab :Boolean = true) :void
     {
         var ureq :URLRequest = new URLRequest(url);
-        if (!newWindow) {
+        if (preferSameWindowOrTab) {
             try {
                 flash.net.navigateToURL(ureq, "_self");
                 return;
