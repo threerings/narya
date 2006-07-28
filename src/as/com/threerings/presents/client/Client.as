@@ -7,6 +7,8 @@ import flash.events.TimerEvent;
 
 import flash.utils.Timer;
 
+import mx.core.Application;
+
 import com.threerings.util.ObserverList;
 
 import com.threerings.presents.data.ClientObject;
@@ -26,10 +28,10 @@ public class Client extends EventDispatcher
 
     private static const log :Log = Log.getLog(Client);
 
-    public function Client (creds :Credentials, stage :Stage)
+    public function Client (creds :Credentials, app :Application)
     {
         _creds = creds;
-        _stage = stage;
+        _app = app;
     }
 
     /**
@@ -94,12 +96,17 @@ public class Client extends EventDispatcher
         _ports = ports;
     }
 
+    public function callLater (fn :Function, args :Array = null) :void
+    {
+        _app.callLater(fn, args);
+    }
+
     /**
      * @return the Stage object we're living in.
      */
     public function getStage () :Stage
     {
-        return _stage;
+        return _app.stage;
     }
 
     public function getHostname () :String
@@ -365,8 +372,8 @@ public class Client extends EventDispatcher
     /** The credentials we used to authenticate with the server. */
     protected var _creds :Credentials;
 
-    /** The stage we're on, needed for creating the Communicator. */
-    protected var _stage :Stage;
+    /** The app we're in, needed for creating the Communicator. */
+    protected var _app :Application;
 
     /** The version string reported to the server at auth time. */
     protected var _version :String = "";

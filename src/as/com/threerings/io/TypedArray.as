@@ -1,8 +1,10 @@
 package com.threerings.io {
 
 import com.threerings.util.ClassUtil;
+import com.threerings.util.Cloneable;
 
 public dynamic class TypedArray extends Array
+    implements Cloneable
 {
     /**
      * Create a TypedArray
@@ -21,9 +23,18 @@ public dynamic class TypedArray extends Array
      */
     public static function getJavaType (of :Class) :String
     {
+        if (of === Boolean) {
+            return "[Z";
+
+        } else if (of === int) { // Number will be int if something like 3.0
+            return "[I";
+
+        } else if (of === Number) {
+            return "[D";
+        }
+
         var cname :String = Translations.getToServer(
             ClassUtil.getClassName(of));
-        // TODO: primitive types
         return "[L" + cname + ";";
     }
 
@@ -39,6 +50,17 @@ public dynamic class TypedArray extends Array
     public function getJavaType () :String
     {
         return _jtype;
+    }
+
+    // from Cloneable
+    public function clone () :Object
+    {
+        var clazz :Class = ClassUtil.getClass(this);
+        var copy :TypedArray = new clazz(_jtype);
+        for (var ii :int = length - 1; ii >= 0; ii--) {
+            copy[ii] = this[ii];
+        }
+        return copy;
     }
 
     /** The 'type' of this array, which doesn't really mean anything

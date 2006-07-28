@@ -1,7 +1,11 @@
 package com.threerings.util {
 
 /**
- * Contains methods that should be in Array, but aren't.
+ * Contains methods that should be in Array, but aren't. Additionally
+ * contains methods that understand the interfaces in this package.
+ * So, for example, removeFirst() understands Equalable and will remove
+ * an element that is equals() to the specified element, rather than just
+ * ===.
  */
 public class ArrayUtil
 {
@@ -22,6 +26,18 @@ public class ArrayUtil
         arr.sort(function (obj1 :Object, obj2 :Object) :int {
             return (obj1 as Comparable).compareTo(obj2);
         });
+    }
+
+    public static function indexOf (arr :Array, element :Object) :int
+    {
+        if (arr != null) {
+            for (var ii :int = 0; ii < arr.length; ii++) {
+                if (Util.equals(arr[ii], element)) {
+                    return ii;
+                }
+            }
+        }
+        return -1; // never found
     }
 
     /**
