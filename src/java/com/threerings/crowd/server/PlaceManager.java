@@ -452,7 +452,7 @@ public class PlaceManager
         }
 
         // clear out their canonical (local) occupant info record
-        _occInfo.remove(bodyOid);
+        OccupantInfo leaver = _occInfo.remove(bodyOid);
 
         // let our delegates know what's up
         applyToDelegates(new DelegateOp() {
@@ -462,7 +462,7 @@ public class PlaceManager
         });
 
         // if that leaves us with zero occupants, maybe do something
-        if (shouldDeclareEmpty()) {
+        if (shouldDeclareEmpty(leaver)) {
             placeBecameEmpty();
         }
     }
@@ -471,7 +471,7 @@ public class PlaceManager
      * Returns whether the location should be marked as empty and potentially
      *  shutdown.
      */
-    protected boolean shouldDeclareEmpty ()
+    protected boolean shouldDeclareEmpty (OccupantInfo leaver)
     {
         return (_plobj.occupants.size() == 0);
     }
@@ -514,9 +514,9 @@ public class PlaceManager
      */
     protected void checkShutdownInterval ()
     {
-        // queue up a shutdown interval
+        // queue up a shutdown interval, unless we've already got one.
         long idlePeriod = idleUnloadPeriod();
-        if (idlePeriod > 0L) {
+        if (idlePeriod > 0L && _shutdownInterval == null) {
             _shutdownInterval = new Interval((PresentsDObjectMgr)_omgr) {
                 public void expired () {
                     Log.debug("Unloading idle place '" + where () + "'.");
