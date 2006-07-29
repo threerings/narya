@@ -40,46 +40,61 @@ public class ArrayUtil
         return -1; // never found
     }
 
+    public static function contains (arr :Array, element :Object) :Boolean
+    {
+        return (indexOf(arr, element) != -1);
+    }
+
     /**
      * Remove the first instance of the specified element from the array.
+     *
+     * @return true if an element was removed, false otherwise.
      */
-    public static function removeFirst (arr :Array, element :Object) :void
+    public static function removeFirst (arr :Array, element :Object) :Boolean
     {
-        removeImpl(arr, element, true);
+        return removeImpl(arr, element, true);
     }
 
     /**
      * Remove the last instance of the specified element from the array.
+     *
+     * @return true if an element was removed, false otherwise.
      */
-    public static function removeLast (arr :Array, element :Object) :void
+    public static function removeLast (arr :Array, element :Object) :Boolean
     {
         arr.reverse();
-        removeFirst(arr, element);
+        var removed :Boolean = removeFirst(arr, element);
         arr.reverse();
+        return removed;
     }
 
     /**
      * Removes all instances of the specified element from the array.
+     *
+     * @return true if at least one element was removed, false otherwise.
      */
-    public static function removeAll (arr :Array, element :Object) :void
+    public static function removeAll (arr :Array, element :Object) :Boolean
     {
-        removeImpl(arr, element, false);
+        return removeImpl(arr, element, false);
     }
 
     /**
      * Implementation of remove methods.
      */
     private static function removeImpl (
-        arr :Array, element :Object, firstOnly :Boolean) :void
+        arr :Array, element :Object, firstOnly :Boolean) :Boolean
     {
+        var removed :Boolean = false;
         for (var ii :int = 0; ii < arr.length; ii++) {
             if (Util.equals(arr[ii], element)) {
                 arr.splice(ii--, 1);
                 if (firstOnly) {
-                    return;
+                    return true;
                 }
+                removed = true;
             }
         }
+        return removed;
     }
 }
 }

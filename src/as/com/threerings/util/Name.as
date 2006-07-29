@@ -47,12 +47,7 @@ public class Name extends Object
     // from interface Hashable
     public function hashCode () :int
     {
-        var norm :String = getNormal();
-        var hash :int = 0;
-        for (var ii :int = 0; ii < norm.length; ii++) {
-            hash = (hash << 1) ^ int(norm.charCodeAt(ii));
-        }
-        return hash;
+        return StringUtil.hashCode(getNormal());
     }
 
     // from interface Comparable

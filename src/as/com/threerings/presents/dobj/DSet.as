@@ -6,6 +6,7 @@ import com.threerings.util.ArrayIterator;
 import com.threerings.util.Equalable;
 import com.threerings.util.Iterator;
 import com.threerings.util.StringBuilder;
+import com.threerings.util.Util;
 
 import com.threerings.io.ObjectInputStream;
 import com.threerings.io.ObjectOutputStream;
@@ -70,7 +71,7 @@ public class DSet
     {
         // o(n) for now
         for each (var entry :DSet_Entry in _entries) {
-            if (isSameKey(key, entry.getKey())) {
+            if (Util.equals(key, entry.getKey())) {
                 return entry;
             }
         }
@@ -157,7 +158,7 @@ public class DSet
         // o(n) for now
         for (var ii :int = 0; ii < _entries.length; ii++) {
             var entry :DSet_Entry = _entries[ii];
-            if (isSameKey(key, entry.getKey())) {
+            if (Util.equals(key, entry.getKey())) {
                 _entries.splice(ii, 1);
                 return entry;
             }
@@ -180,29 +181,12 @@ public class DSet
         var key :Object = elem.getKey();
         for (var ii :int = 0; ii < _entries.length; ii++) {
             var entry :DSet_Entry = _entries[ii];
-            if (isSameKey(key, entry.getKey())) {
+            if (Util.equals(key, entry.getKey())) {
                 _entries[ii] = elem;
                 return entry; // return the old entry
             }
         }
         return null;
-    }
-
-    /**
-     * Internal function to determine whether a key matches the key for
-     * an existing entry.
-     */
-    private function isSameKey (key :Object, otherKey :Object) :Boolean
-    {
-        if (ObjectUtil.isSimple(key)) {
-            return (key === otherKey);
-
-        } else if (key is Equalable) {
-            return (key as Equalable).equals(otherKey);
-
-        } else {
-            throw new Error("Element key is neither simple or Equalable");
-        }
     }
 
     /**
@@ -235,7 +219,6 @@ public class DSet
     }
 
     /** The entries of the set (in a sparse array). */
-    protected var _entries :TypedArray =
-        new TypedArray("[Lcom.threerings.presents.dobj.DSet$Entry;");
+    protected var _entries :TypedArray = TypedArray.create(DSet_Entry);
 }
 }
