@@ -18,6 +18,9 @@ public class Name extends Object
     {
         if (_normal == null) {
             _normal = normalize(_name);
+            if (_normal === _name) {
+                _normal = _name;
+            }
         }
         return _normal;
     }
@@ -40,7 +43,7 @@ public class Name extends Object
     // from interface Hashable
     public function equals (other :Object) :Boolean
     {
-        return (other is Name) &&
+        return (ClassUtil.getClass(other) == Name) &&
             (getNormal() === (other as Name).getNormal());
     }
 

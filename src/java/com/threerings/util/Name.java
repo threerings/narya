@@ -60,6 +60,11 @@ public class Name extends SimpleStreamableObject
     {
         if (_normal == null) {
             _normal = normalize(_name);
+            // if _normal is an equals() String, ensure both point to the
+            // same string for efficiency
+            if (_normal.equals(_name)) {
+                _normal = _name;
+            }
         }
         return _normal;
     }
