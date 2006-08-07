@@ -22,6 +22,8 @@
 package com.threerings.util;
 
 import java.text.MessageFormat;
+import java.util.Collection;
+import java.util.Enumeration;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 
@@ -191,6 +193,28 @@ public class MessageBundle
 
         String msg = getResourceString(key);
         return (msg != null) ? msg : key;
+    }
+
+    /**
+     * Adds all messages whose key starts with the specified prefix to the
+     * supplied collection.
+     *
+     * @param includeParent if true, messages from our parent bundle (and its
+     * parent bundle, all the way up the chain will be included).
+     */
+    public void getAll (String prefix, Collection<String> messages,
+                        boolean includeParent)
+    {
+        Enumeration<String> iter = _bundle.getKeys();
+        while (iter.hasMoreElements()) {
+            String key = iter.nextElement();
+            if (key.startsWith(prefix)) {
+                messages.add(get(key));
+            }
+        }
+        if (includeParent && _parent != null) {
+            _parent.getAll(prefix, messages, includeParent);
+        }
     }
 
     /**
