@@ -40,6 +40,127 @@ import static com.threerings.NaryaLog.log;
 public class MessageBundle
 {
     /**
+     * Call this to "taint" any string that has been entered by an entity
+     * outside the application so that the translation code knows not to
+     * attempt to translate this string when doing recursive translations
+     * (see {@link #xlate}).
+     */
+    public static String taint (Object text)
+    {
+        return MessageUtil.taint(text);
+    }
+
+    /**
+     * Composes a message key with an array of arguments. The message can
+     * subsequently be translated in a single call using {@link #xlate}.
+     */
+    public static String compose (String key, Object[] args)
+    {
+        return MessageUtil.compose(key, args);
+    }
+
+    /**
+     * A convenience method for calling {@link #compose(String,Object[])}
+     * with a single argument.
+     */
+    public static String compose (String key, Object arg)
+    {
+        return compose(key, new Object[] { arg });
+    }
+
+    /**
+     * A convenience method for calling {@link #compose(String,Object[])}
+     * with two arguments.
+     */
+    public static String compose (String key, Object arg1, Object arg2)
+    {
+        return compose(key, new Object[] { arg1, arg2 });
+    }
+
+    /**
+     * A convenience method for calling {@link #compose(String,Object[])}
+     * with three arguments.
+     */
+    public static String compose (
+        String key, Object arg1, Object arg2, Object arg3)
+    {
+        return compose(key, new Object[] { arg1, arg2, arg3 });
+    }
+
+    /**
+     * A convenience method for calling {@link #compose(String,Object[])}
+     * with a single argument that will be automatically tainted (see
+     * {@link #taint}).
+     */
+    public static String tcompose (String key, Object arg)
+    {
+        return compose(key, new Object[] { taint(arg) });
+    }
+
+    /**
+     * A convenience method for calling {@link #compose(String,Object[])}
+     * with two arguments that will be automatically tainted (see {@link
+     * #taint}).
+     */
+    public static String tcompose (String key, Object arg1, Object arg2)
+    {
+        return compose(key, new Object[] { taint(arg1), taint(arg2) });
+    }
+
+    /**
+     * A convenience method for calling {@link #compose(String,Object[])}
+     * with three arguments that will be automatically tainted (see {@link
+     * #taint}).
+     */
+    public static String tcompose (
+        String key, Object arg1, Object arg2, Object arg3)
+    {
+        return compose(key, new Object[] {
+            taint(arg1), taint(arg2), taint(arg3) });
+    }
+
+    /**
+     * A convenience method for calling {@link #compose(String,Object[])}
+     * with an array of arguments that will be automatically tainted (see
+     * {@link #taint}).
+     */
+    public static String tcompose (String key, Object[] args)
+    {
+        return MessageUtil.tcompose(key, args);
+    }
+
+    /**
+     * Returns a fully qualified message key which, when translated by
+     * some other bundle, will know to resolve and utilize the supplied
+     * bundle to translate this particular key.
+     */
+    public static String qualify (String bundle, String key)
+    {
+        return MessageUtil.qualify(bundle, key);
+    }
+
+    /**
+     * Returns the bundle name from a fully qualified message key.
+     *
+     * @see #qualify
+     */
+    public static String getBundle (String qualifiedKey)
+    {
+        return MessageUtil.getBundle(qualifiedKey);
+    }
+
+    /**
+     * Returns the unqualified portion of the key from a fully qualified
+     * message key.
+     *
+     * @see #qualify
+     */
+    public static String getUnqualifiedKey (String qualifiedKey)
+    {
+        return MessageUtil.getUnqualifiedKey(qualifiedKey);
+    }
+
+    /**
      * Initializes the message bundle which will obtain localized messages
      * from the supplied resource bundle. The path is provided purely for
      * reporting purposes.
@@ -320,124 +441,11 @@ public class MessageBundle
     }
 
     /**
-     * Call this to "taint" any string that has been entered by an entity
-     * outside the application so that the translation code knows not to
-     * attempt to translate this string when doing recursive translations
-     * (see {@link #xlate}).
+     * Returns a string representation of this instance.
      */
-    public static String taint (Object text)
+    public String toString ()
     {
-        return MessageUtil.taint(text);
-    }
-
-    /**
-     * Composes a message key with an array of arguments. The message can
-     * subsequently be translated in a single call using {@link #xlate}.
-     */
-    public static String compose (String key, Object[] args)
-    {
-        return MessageUtil.compose(key, args);
-    }
-
-    /**
-     * A convenience method for calling {@link #compose(String,Object[])}
-     * with a single argument.
-     */
-    public static String compose (String key, Object arg)
-    {
-        return compose(key, new Object[] { arg });
-    }
-
-    /**
-     * A convenience method for calling {@link #compose(String,Object[])}
-     * with two arguments.
-     */
-    public static String compose (String key, Object arg1, Object arg2)
-    {
-        return compose(key, new Object[] { arg1, arg2 });
-    }
-
-    /**
-     * A convenience method for calling {@link #compose(String,Object[])}
-     * with three arguments.
-     */
-    public static String compose (
-        String key, Object arg1, Object arg2, Object arg3)
-    {
-        return compose(key, new Object[] { arg1, arg2, arg3 });
-    }
-
-    /**
-     * A convenience method for calling {@link #compose(String,Object[])}
-     * with a single argument that will be automatically tainted (see
-     * {@link #taint}).
-     */
-    public static String tcompose (String key, Object arg)
-    {
-        return compose(key, new Object[] { taint(arg) });
-    }
-
-    /**
-     * A convenience method for calling {@link #compose(String,Object[])}
-     * with two arguments that will be automatically tainted (see {@link
-     * #taint}).
-     */
-    public static String tcompose (String key, Object arg1, Object arg2)
-    {
-        return compose(key, new Object[] { taint(arg1), taint(arg2) });
-    }
-
-    /**
-     * A convenience method for calling {@link #compose(String,Object[])}
-     * with three arguments that will be automatically tainted (see {@link
-     * #taint}).
-     */
-    public static String tcompose (
-        String key, Object arg1, Object arg2, Object arg3)
-    {
-        return compose(key, new Object[] {
-            taint(arg1), taint(arg2), taint(arg3) });
-    }
-
-    /**
-     * A convenience method for calling {@link #compose(String,Object[])}
-     * with an array of arguments that will be automatically tainted (see
-     * {@link #taint}).
-     */
-    public static String tcompose (String key, Object[] args)
-    {
-        return MessageUtil.tcompose(key, args);
-    }
-
-    /**
-     * Returns a fully qualified message key which, when translated by
-     * some other bundle, will know to resolve and utilize the supplied
-     * bundle to translate this particular key.
-     */
-    public static String qualify (String bundle, String key)
-    {
-        return MessageUtil.qualify(bundle, key);
-    }
-
-    /**
-     * Returns the bundle name from a fully qualified message key.
-     *
-     * @see #qualify
-     */
-    public static String getBundle (String qualifiedKey)
-    {
-        return MessageUtil.getBundle(qualifiedKey);
-    }
-
-    /**
-     * Returns the unqualified portion of the key from a fully qualified
-     * message key.
-     *
-     * @see #qualify
-     */
-    public static String getUnqualifiedKey (String qualifiedKey)
-    {
-        return MessageUtil.getUnqualifiedKey(qualifiedKey);
+        return "[bundle=" + _bundle + ", path=" + _path + "]";
     }
 
     /** The message manager via whom we'll resolve fully qualified
