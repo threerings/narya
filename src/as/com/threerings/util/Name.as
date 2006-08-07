@@ -58,15 +58,7 @@ public class Name extends Object
     {
         var thisNormal :String = getNormal();
         var thatNormal :String = (other as Name).getNormal();
-        if (thisNormal == thatNormal) {
-            return 0;
-
-        } if (thisNormal < thatNormal) {
-            return -1;
-
-        }  else {
-            return 1;
-        }
+        return thisNormal.localeCompare(thatNormal);
     }
 
     // from interface Streamable
