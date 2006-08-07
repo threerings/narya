@@ -39,9 +39,11 @@ public class Controller
                 try {
                     fn(arg);
                 } catch (e :Error) {
-                    Log.getLog(this).warning("Error handling controller " +
+                    var log :Log = Log.getLog(this);
+                    log.warning("Error handling controller " +
                         "command [error=" + e + ", cmd=" + cmd +
                         ", arg=" + arg + "].");
+                    log.logStackTrace(e);
                 }
                 // we "handled" the event, even if it threw an error
                 return true;
