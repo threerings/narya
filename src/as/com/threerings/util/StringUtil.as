@@ -35,6 +35,15 @@ public class StringUtil
     }
 
     /**
+     * Does the specified string start with the specified substring.
+     */
+    public static function startsWith (str :String, substr :String) :Boolean
+    {
+        // just check once if it's at the beginning
+        return (str.lastIndexOf(substr, 0) == 0);
+    }
+
+    /**
      * Utility function that strips whitespace from the ends of a String.
      */
     public static function trim (str :String) :String
