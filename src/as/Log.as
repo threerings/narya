@@ -46,7 +46,8 @@ public class Log
      */
     public static function testing (... params) :void
     {
-        mx.logging.Log.getLogger("testing").debug.apply(params);
+        var log :ILogger = mx.logging.Log.getLogger("testing");
+        log.debug.apply(log, params);
     }
 
     /**
