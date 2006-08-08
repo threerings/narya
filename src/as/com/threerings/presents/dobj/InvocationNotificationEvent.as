@@ -23,6 +23,7 @@ package com.threerings.presents.dobj {
 
 import com.threerings.io.ObjectInputStream;
 import com.threerings.io.ObjectOutputStream;
+import com.threerings.io.TypedArray;
 
 import com.threerings.util.StringBuilder;
 
@@ -113,7 +114,7 @@ public class InvocationNotificationEvent extends DEvent
         super.writeObject(out);
         out.writeShort(_receiverId);
         out.writeByte(_methodId);
-        out.writeObject(_args);
+        out.writeField(_args);
     }
 
     // documentation inherited
@@ -122,7 +123,7 @@ public class InvocationNotificationEvent extends DEvent
         super.readObject(ins);
         _receiverId = ins.readShort();
         _methodId = ins.readByte();
-        _args = (ins.readObject() as Array);
+        _args = (ins.readField(Array) as Array);
     }
 
     /** Identifies the receiver to which this notification is being
