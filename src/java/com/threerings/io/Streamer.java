@@ -377,7 +377,7 @@ public class Streamer
                 String errmsg = "Failure reading streamable field " +
                     "[class=" + _target.getName() +
                     ", field=" + field.getName() +
-                    ", error=" + StringUtil.getMessage(e) + "]";
+                    ", error=" + e + "]";
                 throw (IOException) new IOException(errmsg).initCause(e);
             }
         }
