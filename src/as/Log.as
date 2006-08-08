@@ -44,9 +44,9 @@ public class Log
      * A convenience function for quickly and easily inserting printy
      * statements during application development.
      */
-    public static function testing (msg :String, ... params) :void
+    public static function testing (... params) :void
     {
-        mx.logging.Log.getLogger("testing").debug(msg, params);
+        mx.logging.Log.getLogger("testing").debug.apply(params);
     }
 
     /**
