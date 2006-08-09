@@ -34,6 +34,9 @@ public class ArrayStreamer extends Streamer
         } else if (secondChar === "I") {
             _elementType = int;
 
+        } else if (secondChar === "B") {
+            _elementType = Boolean;
+
         } else {
             Log.getLog(this).warning("Other array types are " +
                 "currently not handled yet [jname=" + jname + "].");
