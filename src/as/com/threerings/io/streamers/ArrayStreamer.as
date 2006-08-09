@@ -34,7 +34,7 @@ public class ArrayStreamer extends Streamer
         } else if (secondChar === "I") {
             _elementType = int;
 
-        } else if (secondChar === "B") {
+        } else if (secondChar === "Z") {
             _elementType = Boolean;
 
         } else {
