@@ -132,7 +132,7 @@ public class DObject // extends EventDispatcher
     /**
      * Used to briefly describe this distributed object.
      */
-    public function whichBuf (buf :StringBuilder) :void
+    protected function whichBuf (buf :StringBuilder) :void
     {
         buf.append(ClassUtil.shortClassName(this), ":", _oid);
     }
