@@ -61,4 +61,14 @@ public class UserMessage extends ChatMessage
         this.speaker = speaker;
         this.mode = ChatCodes.DEFAULT_MODE;
     }
+
+    /**
+     * Returns the name to display for the speaker.  Some types of messages
+     *  may wish to not use the canonical name for the speaker and should thus
+     *  override this function.
+     */
+    public Name getSpeakerDisplayName ()
+    {
+        return speaker;
+    }
 }

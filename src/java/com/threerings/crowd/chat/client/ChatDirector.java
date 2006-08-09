@@ -662,16 +662,19 @@ public class ChatDirector extends BasicDirector
             String message = msg.message;
             String autoResponse = null;
             Name speaker = null;
+            Name speakerDisplay = null;
             byte mode = (byte) -1;
 
             // figure out if the message was triggered by another user
             if (msg instanceof UserMessage) {
                 UserMessage umsg = (UserMessage)msg;
                 speaker = umsg.speaker;
+                speakerDisplay = umsg.getSpeakerDisplayName();
                 mode = umsg.mode;
 
             } else if (msg instanceof UserSystemMessage) {
-                speaker = ((UserSystemMessage) msg).speaker;
+                speaker = ((UserSystemMessage)msg).speaker;
+                speakerDisplay = speaker;
             }
 
             // if there was an originating speaker, see if we want to hear it
@@ -703,7 +706,7 @@ public class ChatDirector extends BasicDirector
             // if we auto-responded, report as much
             if (autoResponse != null) {
                 String amsg = MessageBundle.tcompose(
-                    "m.auto_responded", speaker, autoResponse);
+                    "m.auto_responded", speakerDisplay, autoResponse);
                 displayFeedback(_bundle, amsg);
             }
         }
@@ -1349,7 +1352,7 @@ public class ChatDirector extends BasicDirector
             if (err != null) {
                 return err;
             }
-            
+
             // request the broadcast
             requestBroadcast(args);
 
