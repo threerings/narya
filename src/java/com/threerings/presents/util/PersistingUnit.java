@@ -39,6 +39,13 @@ public abstract class PersistingUnit extends Invoker.Unit
 {
     public PersistingUnit (InvocationService.InvocationListener listener)
     {
+        this("UnknownPersistingUnit", listener);
+    }
+
+    public PersistingUnit (
+        String name, InvocationService.InvocationListener listener)
+    {
+        super(name);
         _listener = listener;
     }
 
