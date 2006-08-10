@@ -77,7 +77,7 @@ public class AttributeChangedEvent extends NamedEvent
     override protected function notifyListener (listener :Object) :void
     {
         if (listener is AttributeChangeListener) {
-            listener.attributeChanged(this);
+            (listener as AttributeChangeListener).attributeChanged(this);
         }
     }
 
