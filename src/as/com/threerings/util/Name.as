@@ -43,7 +43,9 @@ public class Name extends Object
     // from interface Hashable
     public function equals (other :Object) :Boolean
     {
-        return (ClassUtil.getClass(other) == Name) &&
+        return (other != null) &&
+            // this is a check to see if they are the same class
+            (other.constructor == Object(this).constructor) &&
             (getNormal() === (other as Name).getNormal());
     }
 
