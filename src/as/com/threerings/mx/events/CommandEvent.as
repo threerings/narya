@@ -39,7 +39,7 @@ public class CommandEvent extends Event
      */
     public function CommandEvent (command :String, arg :Object)
     {
-        super(TYPE, true);
+        super(TYPE, true, true);
         if (_blockConstructor) {
             throw new IllegalOperationError();
         }
