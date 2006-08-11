@@ -21,7 +21,9 @@
 
 package com.threerings.crowd.client {
 
-import flash.display.DisplayObjectContainer;
+import flash.display.DisplayObject;
+
+import mx.utils.DisplayUtil;
 
 import com.threerings.crowd.data.PlaceObject;
 
@@ -66,25 +68,23 @@ public class PlaceViewUtil
     private static function dispatch (
             root :Object, plobj :PlaceObject, funct :String) :void
     {
-        // dispatch the call on this component if it implements PlaceView
-        if (root is PlaceView) {
-            try {
-                (root as PlaceView)[funct](plobj);
-            } catch (e :Error) {
-                var log :Log = Log.getLog(PlaceViewUtil);
-                log.warning("Component choked on " + funct + "() " +
-                            "[component=" + root + ", plobj=" + plobj + "].");
-                log.logStackTrace(e);
-            }
+        if (!(root is DisplayObject)) {
+            return;
         }
 
-        // now traverse all of this component's children
-        if (root is DisplayObjectContainer) {
-            var cont :DisplayObjectContainer = (root as DisplayObjectContainer);
-            for (var ii :int = 0; ii < cont.numChildren; ii++) {
-                dispatch(cont.getChildAt(ii), plobj, funct);
-            }
-        }
+        DisplayUtil.walkDisplayObjects(root as DisplayObject,
+            function (disp :DisplayObject) :void {
+                if (disp is PlaceView) {
+                    try {
+                        (root as PlaceView)[funct](plobj);
+                    } catch (e :Error) {
+                        var log :Log = Log.getLog(PlaceViewUtil);
+                        log.warning("Component choked on " + funct + "() " +
+                            "[component=" + root + ", plobj=" + plobj + "].");
+                        log.logStackTrace(e);
+                    }
+                }
+            });
     }
 }
 }
