@@ -21,7 +21,7 @@ public class MenuUtil
             new ContextMenuItem(caption, separatorBefore, enabled, visible);
         item.addEventListener(ContextMenuEvent.MENU_ITEM_SELECT,
             function (event :ContextMenuEvent) :void {
-                event.mouseTarget.dispatchEvent(new CommandEvent(cmd, arg));
+                CommandEvent.dispatch(event.mouseTarget, cmd, arg);
             });
         return item;
     }

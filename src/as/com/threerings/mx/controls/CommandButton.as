@@ -37,7 +37,7 @@ public class CommandButton extends Button
             // stop the click event
             event.stopImmediatePropagation();
             // dispatch the command event
-            dispatchEvent(new CommandEvent(_cmd, _arg));
+            CommandEvent.dispatch(this, _cmd, _arg);
         }
     }
 

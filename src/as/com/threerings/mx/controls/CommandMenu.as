@@ -45,8 +45,9 @@ public class CommandMenu extends Menu
     {
         event.stopImmediatePropagation();
         var element :Array = (event.item as Array);
-        mx_internal::parentDisplayObject.dispatchEvent(
-            new CommandEvent(String(element[2]), element[3]));
+
+        CommandEvent.dispatch(mx_internal::parentDisplayObject,
+            String(element[2]), element[3]);
     }
 
     // our function for retrieving a label for a menu entry
