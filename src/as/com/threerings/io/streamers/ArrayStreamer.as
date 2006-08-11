@@ -87,6 +87,11 @@ public class ArrayStreamer extends Streamer
                 out.writeInt(arr[ii] as int);
             }
 
+        } else if (_elementType == Boolean) {
+            for (ii = 0; ii < arr.length; ii++) {
+                out.writeBoolean(arr[ii] as Boolean);
+            }
+
         } else if (_isFinal) {
             var mask :ArrayMask = new ArrayMask(arr.length);
             for (ii = 0; ii < arr.length; ii++) {
@@ -118,6 +123,11 @@ public class ArrayStreamer extends Streamer
         if (_elementType == int) {
             for (ii = 0; ii < arr.length; ii++) {
                 arr[ii] = ins.readInt();
+            }
+
+        } else if (_elementType == Boolean) {
+            for (ii = 0; ii < arr.length; ii++) {
+                arr[ii] = ins.readBoolean();
             }
 
         } else if (_isFinal) {
