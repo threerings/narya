@@ -31,9 +31,14 @@ public class ClassUtil
         return new clazz();
     }
 
+    public static function isSameClass (obj1 :Object, obj2 :Object) :Boolean
+    {
+        return (obj1.constructor == obj2.constructor);
+    }
+
     public static function getClass (obj :Object) :Class
     {
-        return getClassByName(getClassName(obj));
+        return Class(obj.constructor);
     }
 
     public static function getClassByName (cname :String) :Class

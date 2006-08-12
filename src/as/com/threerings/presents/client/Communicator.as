@@ -201,8 +201,16 @@ public class Communicator
         //Log.debug("length of in frame: " + frameData.length);
         //Log.debug("inBuffer: " + Util.bytesToString(frameData));
         _inStream.setSource(frameData);
-        var msg :DownstreamMessage =
-            (_inStream.readObject() as DownstreamMessage);
+        var msg :DownstreamMessage;
+        try {
+            msg = (_inStream.readObject() as DownstreamMessage);
+        } catch (e :Error) {
+            var log :Log = Log.getLog(this);
+            log.warning("Error processing downstream message: " + e);
+            log.logStackTrace(e);
+            return;
+        }
+
         if (frameData.bytesAvailable > 0) {
             Log.getLog(this).warning(
                 "Beans! We didn't fully read a frame, surely there's " +
