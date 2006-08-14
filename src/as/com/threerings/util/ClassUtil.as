@@ -62,7 +62,8 @@ public class ClassUtil
         }
 
         // TODO: there's currently no way to determine final from the class
-        //var attrs :XMLList = flash.utils.describeType(type).elements("type");
+        // I thought examining the prototype might do it, but no dice.
+        // Fuckers!
         return false;
     }
 
