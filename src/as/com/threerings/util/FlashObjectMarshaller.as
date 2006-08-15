@@ -13,6 +13,12 @@ public class FlashObjectMarshaller
 {
     public static function encode (obj :Object) :ByteArray
     {
+        if (obj == null) {
+            return null;
+        }
+
+        // TODO: Our own encoding, that takes into account
+        // the ApplicationDomain
         var bytes :ByteArray = new ByteArray();
         bytes.endian = Endian.BIG_ENDIAN;
         bytes.objectEncoding = ObjectEncoding.AMF3;
@@ -22,6 +28,12 @@ public class FlashObjectMarshaller
 
     public static function decode (bytes :ByteArray) :Object
     {
+        if (bytes == null) {
+            return null;
+        }
+
+        // TODO: Our own encoding, that takes into account
+        // the ApplicationDomain
         bytes.endian = Endian.BIG_ENDIAN;
         bytes.objectEncoding = ObjectEncoding.AMF3;
         return bytes.readObject();
