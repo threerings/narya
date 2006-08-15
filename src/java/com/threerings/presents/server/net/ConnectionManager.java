@@ -86,7 +86,7 @@ public class ConnectionManager extends LoopingThread
 
         // create our stats record
         _stats = new ConMgrStats();
-        _stats.init();
+        _lastStats = new ConMgrStats();
 
         // register as a "state of server" reporter
         PresentsServer.registerReporter(this);
@@ -137,25 +137,23 @@ public class ConnectionManager extends LoopingThread
     }
 
     /**
-     * Returns our current runtime statistics. When the stats are fetched
-     * the counters are rolled to the next bucket. 60 buckets are tracked.
-     * <em>Note:</em> don't call this method <em>too</em> frequently (more
-     * often than once every few seconds or so) as it has to total things
-     * up and run a number of synchronized methods.
+     * Returns our current runtime statistics. <em>Note:</em> don't call this
+     * method <em>too</em> frequently as it is synchronized and will contend
+     * with the network I/O thread.
      */
     public synchronized ConMgrStats getStats ()
     {
         // fill in our snapshot values
-        _stats.authQueueSize[_stats.current] = _authq.size();
-        _stats.deathQueueSize[_stats.current] = _deathq.size();
-        _stats.outQueueSize[_stats.current] = _outq.size();
+        _stats.authQueueSize = _authq.size();
+        _stats.deathQueueSize = _deathq.size();
+        _stats.outQueueSize = _outq.size();
         if (_oflowqs.size() > 0) {
+            _stats.overQueueSize = 0;
             for (OverflowQueue oq : _oflowqs.values()) {
-                _stats.overQueueSize[_stats.current] += oq.size();
+                _stats.overQueueSize += oq.size();
             }
         }
-        _stats.increment();
-        return _stats;
+        return (ConMgrStats)_stats.clone();
     }
 
     /**
@@ -204,21 +202,21 @@ public class ConnectionManager extends LoopingThread
     public void appendReport (
         StringBuilder report, long now, long sinceLast, boolean reset)
     {
-        long bytesIn, bytesOut, msgsIn, msgsOut;
-        synchronized (this) {
-            bytesIn = _bytesIn;
-            bytesOut = _bytesOut;
-            msgsIn = _msgsIn;
-            msgsOut = _msgsOut;
-            if (reset) {
-                _bytesIn = 0L;
-                _bytesOut = 0L;
-                _msgsIn = 0;
-                _msgsOut = 0;
-            }
+        ConMgrStats stats = getStats();
+        int connects = stats.connects - _lastStats.connects;
+        int disconnects = stats.disconnects - _lastStats.disconnects;
+        long bytesIn = stats.bytesIn - _lastStats.bytesIn;
+        long bytesOut = stats.bytesOut - _lastStats.bytesOut;
+        long msgsIn = stats.msgsIn - _lastStats.msgsIn;
+        long msgsOut = stats.msgsOut - _lastStats.msgsOut;
+        if (reset) {
+            _lastStats = stats;
         }
 
         report.append("* presents.net.ConnectionManager:\n");
+        report.append("- Network connections: ");
+        report.append(connects).append(" connects, ");
+        report.append(disconnects).append(" disconnects\n");
         report.append("- Network input: ");
         report.append(bytesIn).append(" bytes, ");
         report.append(msgsIn).append(" msgs, ");
@@ -520,12 +518,12 @@ public class ConnectionManager extends LoopingThread
                 if (got != 0) {
                     synchronized (this) {
                         _bytesIn += got;
-                        _stats.bytesIn[_stats.current] += got;
+                        _stats.bytesIn += got;
                         // we know that the handlers only report having
                         // read bytes when they have a whole message, so
                         // we can count thusly
                         _msgsIn++;
-                        _stats.msgsIn[_stats.current]++;
+                        _stats.msgsIn++;
                     }
                 }
 
@@ -621,8 +619,8 @@ public class ConnectionManager extends LoopingThread
     {
         _msgsOut += msgs;
         _bytesOut += bytes;
-        _stats.msgsOut[_stats.current] += msgs;
-        _stats.bytesOut[_stats.current] += bytes;
+        _stats.msgsOut += msgs;
+        _stats.bytesOut += bytes;
     }
 
     // documentation inherited
@@ -686,6 +684,9 @@ public class ConnectionManager extends LoopingThread
             SelectionKey selkey = selchan.register(
                 _selector, SelectionKey.OP_READ);
             _handlers.put(selkey, new AuthingConnection(this, selkey, channel));
+            synchronized (this) {
+                _stats.connects++;
+            }
             return;
 
         } catch (IOException ioe) {
@@ -754,6 +755,9 @@ public class ConnectionManager extends LoopingThread
         // removed from the Selector when the socket is closed)
         _handlers.remove(conn.getSelectionKey());
         _oflowqs.remove(conn);
+        synchronized (this) {
+            _stats.disconnects++;
+        }
 
         // let our observers know what's up
         notifyObservers(CONNECTION_FAILED, conn, ioe, null);
@@ -913,6 +917,9 @@ public class ConnectionManager extends LoopingThread
 
     /** Our current runtime stats. */
     protected ConMgrStats _stats;
+
+    /** A snapshot of our runtime stats as of our last report. */
+    protected ConMgrStats _lastStats;
 
     /** A runnable to execute when the connection manager thread exits. */
     protected volatile Runnable _onExit;

@@ -27,69 +27,49 @@ import com.threerings.io.SimpleStreamableObject;
  * Used to track and report stats on the connection manager.
  */
 public class ConMgrStats extends SimpleStreamableObject
+    implements Cloneable
 {
-    /** The current index into the history arrays. */
-    public int current;
+    /** The size of the queue of waiting to auth sockets. This is a snapshot at
+     * the time the stats are requested. */
+    public int authQueueSize;
 
-    /** The size of the queue of waiting to auth sockets. */
-    public int[] authQueueSize;
+    /** The size of the queue of waiting to die sockets. This is a snapshot at
+     * the time the stats are requested. */
+    public int deathQueueSize;
 
-    /** The size of the queue of waiting to die sockets. */
-    public int[] deathQueueSize;
+    /** The outgoing queue size. This is a snapshot at the time the stats are
+     * requested. */
+    public int outQueueSize;
 
-    /** The outgoing queue size. */
-    public int[] outQueueSize;
+    /** The overflow queue size. This is a snapshot at the time the stats are
+     * requested. */
+    public int overQueueSize;
 
-    /** The overflow queue size. */
-    public int[] overQueueSize;
+    /** The number of connection events since the server started up. */
+    public int connects;
 
-    /** The number of bytes read. */
-    public int[] bytesIn;
+    /** The number of disconnection events since the server started up. */
+    public int disconnects;
 
-    /** The number of bytes written. */
-    public int[] bytesOut;
+    /** The number of bytes read since the server started up. */
+    public long bytesIn;
 
-    /** The number of messages read. */
-    public int[] msgsIn;
+    /** The number of bytes written since the server started up. */
+    public long bytesOut;
 
-    /** The number of messages written. */
-    public int[] msgsOut;
+    /** The number of messages read since the server started up. */
+    public int msgsIn;
 
-    /** Creates our historical arrays. */
-    public void init ()
+    /** The number of messages written since the server started up. */
+    public int msgsOut;
+
+    @Override // from Objecet
+    public Object clone ()
     {
-        authQueueSize = new int[SLOTS];
-        deathQueueSize = new int[SLOTS];
-        outQueueSize = new int[SLOTS];
-        overQueueSize = new int[SLOTS];
-        bytesIn = new int[SLOTS];
-        bytesOut = new int[SLOTS];
-        msgsIn = new int[SLOTS];
-        msgsOut = new int[SLOTS];
+        try {
+            return super.clone();
+        } catch (CloneNotSupportedException cnse) {
+            throw new RuntimeException(cnse);
+        }
     }
-
-    /** Advances the currently accumulating bucket and clears its
-     * previous contents. */
-    public void increment ()
-    {
-        current = (current + 1) % authQueueSize.length;
-        authQueueSize[current] = 0;
-        deathQueueSize[current] = 0;
-        outQueueSize[current] = 0;
-        overQueueSize[current] = 0;
-        bytesIn[current] = 0;
-        bytesOut[current] = 0;
-        msgsIn[current] = 0;
-        msgsOut[current] = 0;
-    }
-
-    /**
-     * Returns the index of the most recently accumulated stats slot.
-     */
-    public int mostRecent ()
-    {
-        return (current + SLOTS - 1) % SLOTS;
-    }
-
-    protected static final int SLOTS = 60;
 }
