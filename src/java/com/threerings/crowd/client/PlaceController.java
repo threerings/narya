@@ -212,8 +212,8 @@ public abstract class PlaceController extends Controller
             }
         });
 
-        // if they didn't handly it, pass it off to the super class
-        return handled[0] ? true : super.handleAction(action);
+        // if they didn't handle it, pass it off to the super class
+        return handled[0] || super.handleAction(action);
     }
 
     /**
