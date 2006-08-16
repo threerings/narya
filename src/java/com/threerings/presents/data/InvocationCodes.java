@@ -30,12 +30,6 @@ package com.threerings.presents.data;
  */
 public interface InvocationCodes
 {
-    /**
-     * Generally used in responses that can either have the value success,
-     * or a string code explaining the reason for failure.
-     */
-    public static final String SUCCESS = "success";
-
     /** An error code returned to clients when a service cannot be
      * performed because of some internal server error that we couldn't
      * explain in any meaningful way (things like null pointer

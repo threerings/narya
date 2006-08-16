@@ -33,6 +33,10 @@ import com.threerings.crowd.chat.client.SpeakService;
  */
 public interface ChatCodes extends InvocationCodes
 {
+    /** A return value used by the ChatDirector and possibly other entities
+     * to indicate successful processing of chat. */
+    public static final String SUCCESS = "success";
+
     /** The message identifier for a chat notification message. */
     public static final String CHAT_NOTIFICATION = "chat";
 

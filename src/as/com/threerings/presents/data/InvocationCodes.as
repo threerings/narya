@@ -30,12 +30,6 @@ package com.threerings.presents.data {
  */
 public class InvocationCodes
 {
-    /**
-     * Generally used in responses that can either have the value success,
-     * or a string code explaining the reason for failure.
-     */
-    public static const SUCCESS :String = "success";
-
     /** An error code returned to clients when a service cannot be
      * performed because of some internal server error that we couldn't
      * explain in any meaningful way (things like null pointer
