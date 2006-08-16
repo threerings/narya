@@ -57,12 +57,10 @@ public /*abstract*/ class PlaceController extends Controller
         // create our user interface
         _view = createPlaceView(_ctx);
 
-//        // initialize our delegates
-//        applyToDelegates(new DelegateOp() {
-//            public void apply (PlaceControllerDelegate delegate) {
-//                delegate.init(_ctx, _config);
-//            }
-//        });
+        // initialize our delegates
+        applyToDelegates(function (del :PlaceControllerDelegate) :void {
+            del.init(_ctx, _config);
+        });
 
         // let the derived classes do any initialization stuff
         didInit();
@@ -130,12 +128,10 @@ public /*abstract*/ class PlaceController extends Controller
             _ctx.setPlaceView(_view);
         }
 
-//        // let our delegates know what's up 
-//        applyToDelegates(new DelegateOp() {
-//            public void apply (PlaceControllerDelegate delegate) {
-//                delegate.willEnterPlace(plobj);
-//            }
-//        });
+        // let our delegates know what's up 
+        applyToDelegates(function (del :PlaceControllerDelegate) :void {
+            del.willEnterPlace(plobj);
+        });
     }
 
     /**
@@ -151,12 +147,10 @@ public /*abstract*/ class PlaceController extends Controller
      */
     public function mayLeavePlace (plobj :PlaceObject) :void
     {
-//        // let our delegates know what's up 
-//        applyToDelegates(new DelegateOp() {
-//            public void apply (PlaceControllerDelegate delegate) {
-//                delegate.mayLeavePlace(plobj);
-//            }
-//        });
+        // let our delegates know what's up 
+        applyToDelegates(function (del :PlaceControllerDelegate) :void {
+            del.mayLeavePlace(plobj);
+        });
     }
 
     /**
@@ -168,12 +162,10 @@ public /*abstract*/ class PlaceController extends Controller
      */
     public function didLeavePlace (plobj :PlaceObject) :void
     {
-//        // let our delegates know what's up 
-//        applyToDelegates(new DelegateOp() {
-//            public void apply (PlaceControllerDelegate delegate) {
-//                delegate.didLeavePlace(plobj);
-//            }
-//        });
+        // let our delegates know what's up 
+        applyToDelegates(function (del :PlaceControllerDelegate) :void {
+            del.didLeavePlace(plobj);
+        });
 
         setControlledPanel(null);
 
@@ -192,71 +184,42 @@ public /*abstract*/ class PlaceController extends Controller
      * should be sure to call <code>super.handleAction</code> for events
      * they don't specifically handle.
      */
-//    public boolean handleAction (final ActionEvent action)
-//    {
-//        final boolean[] handled = new boolean[1];
-//
-//        // let our delegates have a crack at the action
-//        applyToDelegates(new DelegateOp() {
-//            public void apply (PlaceControllerDelegate delegate) {
-//                // we take advantage of short-circuiting here
-//                handled[0] = handled[0] || delegate.handleAction(action);
-//            }
-//        });
-//
-//        // if they didn't handly it, pass it off to the super class
-//        return handled[0] ? true : super.handleAction(action);
-//    }
+    override public function handleAction (cmd :String, arg :Object) :Boolean
+    {
+        var handled :Boolean = false;
+
+        // let our delegates have a crack at the action
+        applyToDelegates(function (del :PlaceControllerDelegate) :void {
+            // we take advantage of short-circuiting here
+            handled = handled || del.handleAction(cmd, arg);
+        });
+
+        // if they didn't handly it, pass it off to the super class
+        return handled || super.handleAction(cmd, arg);
+    }
 
     /**
      * Adds the supplied delegate to the list for this controller.
      */
-//    protected void addDelegate (PlaceControllerDelegate delegate)
-//    {
-//        if (_delegates == null) {
-//            _delegates = new ArrayList();
-//        }
-//        _delegates.add(delegate);
-//    }
-
-    /**
-     * Used to call methods in delegates.
-     */
-//    protected static interface DelegateOp
-//    {
-//        public void apply (PlaceControllerDelegate delegate);
-//    }
+    protected function addDelegate (delegate :PlaceControllerDelegate) :void
+    {
+        if (_delegates == null) {
+            _delegates = new Array();
+        }
+        _delegates.push(delegate);
+    }
 
     /**
      * Applies the supplied operation to the registered delegates.
      */
-//    protected void applyToDelegates (DelegateOp op)
-//    {
-//        if (_delegates != null) {
-//            int dcount = _delegates.size();
-//            for (int i = 0; i < dcount; i++) {
-//                op.apply((PlaceControllerDelegate)_delegates.get(i));
-//            }
-//        }
-//    }
-
-    /**
-     * Applies the supplied operation to the registered delegates that
-     * derive from the specified class.
-     */
-//    protected void applyToDelegates (Class dclass, DelegateOp op)
-//    {
-//        if (_delegates != null) {
-//            int dcount = _delegates.size();
-//            for (int i = 0; i < dcount; i++) {
-//                PlaceControllerDelegate delegate =
-//                    (PlaceControllerDelegate)_delegates.get(i);
-//                if (dclass.isAssignableFrom(delegate.getClass())) {
-//                    op.apply(delegate);
-//                }
-//            }
-//        }
-//    }
+    protected function applyToDelegates (visitor :Function) :void
+    {
+        if (_delegates != null) {
+            for (var ii :int = 0; ii < _delegates.length; ii++) {
+                visitor.call(this, _delegates[ii]);
+            }
+        }
+    }
 
     /** A reference to the active client context. */
     protected var _ctx :CrowdContext;
@@ -270,5 +233,8 @@ public /*abstract*/ class PlaceController extends Controller
 
     /** A reference to the root user interface component. */
     protected var _view :PlaceView;
+
+    /** A list of the delegates in use by this controller. */
+    protected var _delegates :Array;
 }
 }
