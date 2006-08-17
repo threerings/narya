@@ -2,6 +2,8 @@ package com.threerings.util {
 
 import flash.net.ObjectEncoding;
 
+import flash.system.ApplicationDomain;
+
 import flash.utils.ByteArray;
 import flash.utils.Endian;
 
@@ -32,7 +34,7 @@ public class FlashObjectMarshaller
             return null;
         }
 
-        // TODO: Our own encoding, that takes into account
+        // TODO: Our own decoding, that takes into account
         // the ApplicationDomain
         bytes.endian = Endian.BIG_ENDIAN;
         bytes.objectEncoding = ObjectEncoding.AMF3;
