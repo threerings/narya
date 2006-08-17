@@ -41,5 +41,7 @@
     public void set$upfield ($type value)
     {
         requestAttributeChange($capfield, value, this.$field);
-        this.$field = $clonefield;
+        @SuppressWarnings("unchecked") $type clone =
+            $clonefield;
+        this.$field = clone;
     }
