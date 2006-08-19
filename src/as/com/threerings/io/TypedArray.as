@@ -1,5 +1,7 @@
 package com.threerings.io {
 
+import flash.utils.ByteArray;
+
 import com.threerings.util.ClassUtil;
 import com.threerings.util.Cloneable;
 
@@ -31,6 +33,9 @@ public dynamic class TypedArray extends Array
 
         } else if (of === Number) {
             return "[D";
+
+        } else if (of === ByteArray) {
+            return "[[B";
         }
 
         var cname :String = Translations.getToServer(
