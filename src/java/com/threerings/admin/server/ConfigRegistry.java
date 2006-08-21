@@ -240,19 +240,19 @@ public abstract class ConfigRegistry
                     String defval = (String)field.get(object);
                     field.set(object, getValue(key, defval));
 
-                } else if (type.equals(INT_ARRAY_PROTO.getClass())) {
+                } else if (type.equals(int[].class)) {
                     int[] defval = (int[])field.get(object);
                     field.set(object, getValue(key, defval));
 
-                } else if (type.equals(FLOAT_ARRAY_PROTO.getClass())) {
+                } else if (type.equals(float[].class)) {
                     float[] defval = (float[])field.get(object);
                     field.set(object, getValue(key, defval));
 
-                } else if (type.equals(STRING_ARRAY_PROTO.getClass())) {
+                } else if (type.equals(String[].class)) {
                     String[] defval = (String[])field.get(object);
                     field.set(object, getValue(key, defval));
 
-                } else if (type.equals(LONG_ARRAY_PROTO.getClass())) {
+                } else if (type.equals(long[].class)) {
                     long[] defval = (long[])field.get(object);
                     field.set(object, getValue(key, defval));
 
@@ -367,9 +367,4 @@ public abstract class ConfigRegistry
     /** A mapping from identifying key to config object. */
     protected HashMap<String,ObjectRecord> _configs =
         new HashMap<String,ObjectRecord>();
-
-    protected static final int[] INT_ARRAY_PROTO = new int[0];
-    protected static final float[] FLOAT_ARRAY_PROTO = new float[0];
-    protected static final String[] STRING_ARRAY_PROTO = new String[0];
-    protected static final long[] LONG_ARRAY_PROTO = new long[0];
 }

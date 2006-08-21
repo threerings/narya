@@ -147,7 +147,7 @@ public abstract class FieldMarshaller
         // informatively if the user attempts to store non-Streamable
         // objects in that field
         _marshallers.put(Object.class, gmarsh);
-        _marshallers.put((new Object[0]).getClass(), gmarsh);
+        _marshallers.put(Object[].class, gmarsh);
 
         // create marshallers for the primitive types
         _marshallers.put(Boolean.TYPE, new FieldMarshaller() {

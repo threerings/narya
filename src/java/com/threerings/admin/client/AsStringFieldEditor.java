@@ -73,16 +73,16 @@ public class AsStringFieldEditor extends FieldEditor
         } else if (_field.getType().equals(String.class)) {
             return text;
 
-        } else if (_field.getType().equals(STRING_ARRAY_PROTO.getClass())) {
+        } else if (_field.getType().equals(String[].class)) {
             return StringUtil.parseStringArray(_value.getText());
 
-        } else if (_field.getType().equals(INT_ARRAY_PROTO.getClass())) {
+        } else if (_field.getType().equals(int[].class)) {
             return StringUtil.parseIntArray(_value.getText());
             
-        } else if (_field.getType().equals(FLOAT_ARRAY_PROTO.getClass())) {
+        } else if (_field.getType().equals(float[].class)) {
             return StringUtil.parseFloatArray(_value.getText());
 
-        } else if (_field.getType().equals(LONG_ARRAY_PROTO.getClass())) {
+        } else if (_field.getType().equals(long[].class)) {
             return StringUtil.parseLongArray(_value.getText());
             
         } else if (_field.getType().equals(Boolean.TYPE)) {
@@ -102,9 +102,4 @@ public class AsStringFieldEditor extends FieldEditor
     }
 
     protected JTextField _value;
-
-    protected static final String[] STRING_ARRAY_PROTO = new String[0];
-    protected static final int[] INT_ARRAY_PROTO = new int[0];
-    protected static final float[] FLOAT_ARRAY_PROTO = new float[0];
-    protected static final long[] LONG_ARRAY_PROTO = new long[0];
 }
