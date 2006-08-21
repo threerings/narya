@@ -6,7 +6,7 @@ public class ArrayMask
 {
     public function ArrayMask (length :int = 0)
     {
-        var mlength :int = length / 8;
+        var mlength :int = int(length / 8);
         if (length % 8 != 0) {
             mlength++;
         }
@@ -19,7 +19,7 @@ public class ArrayMask
      */
     public function setBit (index :int) :void
     {
-        _mask[index/8] |= (1 << (index % 8));
+        _mask[int(index/8)] |= (1 << (index % 8));
     }
 
     /**
@@ -27,7 +27,7 @@ public class ArrayMask
      */
     public function isSet (index :int) :Boolean
     {
-        return (_mask[index/8] & (1 << (index % 8))) != 0;
+        return (_mask[int(index/8)] & (1 << (index % 8))) != 0;
     }
 
     public function writeTo (out :ObjectOutputStream) :void
