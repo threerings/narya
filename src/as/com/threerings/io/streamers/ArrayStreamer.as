@@ -133,7 +133,7 @@ public class ArrayStreamer extends Streamer
         } else if (_isFinal) {
             var mask :ArrayMask = new ArrayMask();
             mask.readFrom(ins);
-            for (ii = 0; ii < length; ii++) {
+            for (ii = 0; ii < arr.length; ii++) {
                 if (mask.isSet(ii)) {
                     var target :Object;
                     if (_delegate == null) {
@@ -142,7 +142,7 @@ public class ArrayStreamer extends Streamer
                         target = _delegate.createObject(ins);
                     }
                     ins.readBareObjectImpl(target, _delegate);
-                    this[ii] = target;
+                    arr[ii] = target;
                 }
             } 
 
