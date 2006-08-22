@@ -16,16 +16,16 @@ import com.threerings.io.TypedArray;
 public class FlashObjectMarshaller
 {
     public static function encode (
-        obj :Object, keepArrays :Boolean = false) :Object
+        obj :Object, encodeArrayElements :Boolean = true) :Object
     {
         if (obj == null) {
             return null;
         }
-        if (!keepArrays && obj is Array) {
+        if (encodeArrayElements && obj is Array) {
             var src :Array = (obj as Array);
             var dest :TypedArray = TypedArray.create(ByteArray);
             for each (var o :Object in src) {
-                dest.push(encode(o, true));
+                dest.push(encode(o, false));
             }
             return dest;
         }

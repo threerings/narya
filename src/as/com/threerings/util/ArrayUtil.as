@@ -15,16 +15,8 @@ public class ArrayUtil
      */
     public static function sort (arr :Array) :void
     {
-        // ensure every item is Comparable
-        if (!arr.every(function (item :*, index :int, array :Array) :Boolean 
-                {
-                    return (item is Comparable);
-                })) {
-            throw new Error("Not all elements are Comparable instances.");
-        }
-
         arr.sort(function (obj1 :Object, obj2 :Object) :int {
-            return (obj1 as Comparable).compareTo(obj2);
+            return Comparable(obj1).compareTo(obj2);
         });
     }
 
