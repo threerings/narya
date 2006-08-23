@@ -24,13 +24,8 @@ package com.threerings.crowd.server;
 import java.util.Iterator;
 
 import com.samskivert.util.HashIntMap;
-import com.samskivert.util.Tuple;
-import com.samskivert.util.Queue;
 
-import com.threerings.presents.dobj.DObject;
-import com.threerings.presents.dobj.ObjectAccessException;
 import com.threerings.presents.dobj.RootDObjectManager;
-import com.threerings.presents.dobj.Subscriber;
 import com.threerings.presents.server.InvocationException;
 import com.threerings.presents.server.InvocationManager;
 
@@ -45,21 +40,11 @@ import com.threerings.crowd.data.PlaceObject;
  * places.
  */
 public class PlaceRegistry
-    implements Subscriber<PlaceObject>
 {
-    /**
-     * Used to receive a callback when the place object associated with a
-     * place manager (created via {@link PlaceRegistry#createPlace}) is
-     * created.
-     */
-    public static interface CreationObserver
+    /** Used in conjunction with {@link #createPlace}. */
+    public static interface PreStartupHook
     {
-        /**
-         * Called when the place object is created and after it is
-         * provided to the place manager that will be handling management
-         * of the place.
-         */
-        public void placeCreated (PlaceObject place, PlaceManager pmgr);
+        public void invoke (PlaceManager plmgr);
     }
 
     /** The location provider used by the place registry to provide
@@ -98,31 +83,39 @@ public class PlaceRegistry
     }
 
     /**
-     * Creates and registers a new place manager along with the place
-     * object to be managed. The registry takes care of tracking the
-     * creation of the object and informing the manager when it is
-     * created.
+     * Creates and registers a new place manager along with the place object to
+     * be managed. The registry takes care of tracking the creation of the
+     * object and informing the manager when it is created.
      *
-     * @param config the configuration object for the place to be
-     * created. The {@link PlaceManager} derived class that should be
-     * instantiated to manage the place will be determined from the config
-     * object.
-     * @param observer an observer that will be notified when the place
-     * object creation has completed (called after the place object is
-     * provided to the place manager).
+     * @param config the configuration object for the place to be created. The
+     * {@link PlaceManager} derived class that should be instantiated to manage
+     * the place will be determined from the config object.
      *
-     * @return a reference to the place manager that will manage the new
-     * place object.
+     * @return a reference to the place manager, which will have been
+     * configured with its place object and started up (via a call to {@link
+     * PlaceManager#startup}.
      *
-     * @exception InstantiationException thrown if an error occurs trying
-     * to instantiate and initialize the place manager.
+     * @exception InstantiationException thrown if an error occurs trying to
+     * instantiate and initialize the place manager.
      * @exception InvocationException thrown if the place manager returns
      * failure from the call to {@link PlaceManager#checkPermissions}. The
-     * error string returned by that call will be provided as in the
-     * exception.
+     * error string returned by that call will be provided as in the exception.
      */
-    public PlaceManager createPlace (
-        PlaceConfig config, CreationObserver observer)
+    public PlaceManager createPlace (PlaceConfig config)
+        throws InstantiationException, InvocationException
+    {
+        return createPlace(config, null);
+    }
+
+    /**
+     * Don't use this method, see {@link #createPlace(PlaceConfig)}..
+     *
+     * @param hook an optional pre-startup hook that allows a place manager to
+     * be configured prior to having {@link PlaceManager#startup} called. This
+     * mainly exists because it used to be possible to do such things. Try not
+     * to use this in new code.
+     */
+    public PlaceManager createPlace (PlaceConfig config, PreStartupHook hook)
         throws InstantiationException, InvocationException
     {
         PlaceManager pmgr = null;
@@ -153,16 +146,25 @@ public class PlaceRegistry
             throw new InvocationException(errmsg);
         }
 
-        // stick the manager on the creation queue because we know
-        // we'll get our calls to objectAvailable()/requestFailed() in
-        // the order that we call createObject()
-        _createq.append(
-            new Tuple<PlaceManager,CreationObserver>(pmgr, observer));
+        // and create and register the place object
+        PlaceObject plobj = pmgr.createPlaceObject();
+        _omgr.registerObject(plobj);
 
-        // and request to create the place object
-        @SuppressWarnings("unchecked") Class<PlaceObject> pclass =
-            (Class<PlaceObject>)pmgr.getPlaceObjectClass();
-        _omgr.createObject(pclass, this);
+        // stick the manager into our table
+        _pmgrs.put(plobj.getOid(), pmgr);
+
+        // start the place manager up with the newly created place object
+        try {
+            if (hook != null) {
+                hook.invoke(pmgr);
+            }
+
+            pmgr.startup(plobj);
+        } catch (Exception e) {
+            Log.warning("Error starting place manager [obj=" + plobj +
+                ", pmgr=" + pmgr + "].");
+            Log.logStackTrace(e);
+        }
 
         return pmgr;
     }
@@ -213,63 +215,6 @@ public class PlaceRegistry
         return _pmgrs.values().iterator();
     }
 
-    // documentation inherited
-    public void objectAvailable (PlaceObject plobj)
-    {
-        // pop the next place manager off of the queue and let it know
-        // that everything went swimmingly
-        Tuple<PlaceManager,CreationObserver> tuple = _createq.getNonBlocking();
-        if (tuple == null) {
-            Log.warning("Place created but no manager queued up to hear " +
-                        "about it!? [pobj=" + plobj + "].");
-            return;
-        }
-
-        PlaceManager pmgr = tuple.left;
-        CreationObserver observer = tuple.right;
-
-        // stick the manager into our table
-        _pmgrs.put(plobj.getOid(), pmgr);
-
-        // start the place manager up with the newly created place object
-        try {
-            pmgr.startup(plobj);
-        } catch (Exception e) {
-            Log.warning("Error starting place manager [obj=" + plobj +
-                ", pmgr=" + pmgr + "].");
-            Log.logStackTrace(e);
-        }
-
-        // inform the creation observer that the place object was created
-        // and provided to the manager
-        if (observer != null) {
-            try {
-                observer.placeCreated(plobj, pmgr);
-            } catch (Exception e) {
-                Log.warning("Error informing CreationObserver of place " +
-                            "[obj=" + plobj + ", pmgr=" + pmgr +
-                            ", obs=" + observer + "].");
-                Log.logStackTrace(e);
-            }
-        }
-    }
-
-    // documentation inherited
-    public void requestFailed (int oid, ObjectAccessException cause)
-    {
-        // pop a place manager off the queue since it is queued up to
-        // manage the failed place object
-        Tuple<PlaceManager,CreationObserver> tuple = _createq.getNonBlocking();
-        if (tuple == null) {
-            Log.warning("Place creation failed but no manager queued " +
-                        "up to hear about it!? [cause=" + cause + "].");
-            return;
-        }
-
-        Log.warning("Failed to create place object [mgr=" + tuple.left +
-                    ", cause=" + cause + "].");
-    }
-
     /**
      * Called by the place manager when it has been shut down.
      */
@@ -293,10 +238,6 @@ public class PlaceRegistry
 
     /** The distributed object manager with which we operate. */
     protected RootDObjectManager _omgr;
-
-    /** A queue of place managers waiting for their place objects. */
-    protected Queue<Tuple<PlaceManager,CreationObserver>> _createq =
-        new Queue<Tuple<PlaceManager,CreationObserver>>();
 
     /** A mapping from place object id to place manager. */
     protected HashIntMap<PlaceManager> _pmgrs = new HashIntMap<PlaceManager>();

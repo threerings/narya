@@ -105,24 +105,9 @@ public class CrowdPeerManager extends PeerManager
     }
 
     @Override // documentation inherited
-    protected void finishInit (NodeObject nodeobj)
+    protected NodeObject createNodeObject ()
     {
-        super.finishInit(nodeobj);
-
-        // register and initialize our invocation service
-        CrowdNodeObject cnobj = (CrowdNodeObject)nodeobj;
-        cnobj.setCrowdPeerService(
-            (CrowdPeerMarshaller)CrowdServer.invmgr.registerDispatcher(
-                new CrowdPeerDispatcher(this), false));
-
-        // register ourselves as a tell forwarder
-        CrowdServer.chatprov.setTellForwarder(this);
-    }
-
-    @Override // documentation inherited
-    protected Class<? extends NodeObject> getNodeObjectClass ()
-    {
-        return CrowdNodeObject.class;
+        return new CrowdNodeObject();
     }
 
     @Override // documentation inherited
@@ -137,5 +122,20 @@ public class CrowdPeerManager extends PeerManager
         super.initClientInfo(client, info);
         ((CrowdClientInfo)info).visibleName =
             ((BodyObject)client.getClientObject()).getVisibleName();
+    }
+
+    @Override // documentation inherited
+    protected void didInit ()
+    {
+        super.didInit();
+
+        // register and initialize our invocation service
+        CrowdNodeObject cnobj = (CrowdNodeObject)_nodeobj;
+        cnobj.setCrowdPeerService(
+            (CrowdPeerMarshaller)CrowdServer.invmgr.registerDispatcher(
+                new CrowdPeerDispatcher(this), false));
+
+        // register ourselves as a tell forwarder
+        CrowdServer.chatprov.setTellForwarder(this);
     }
 }

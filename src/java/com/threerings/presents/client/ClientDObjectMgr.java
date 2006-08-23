@@ -83,14 +83,6 @@ public class ClientDObjectMgr
     }
 
     // inherit documentation from the interface
-    public <T extends DObject> void createObject (
-        Class<T> dclass, Subscriber<T> target)
-    {
-        // not presently supported
-        throw new RuntimeException("createObject() not supported");
-    }
-
-    // inherit documentation from the interface
     public <T extends DObject> void subscribeToObject (
         int oid, Subscriber<T> target)
     {
@@ -123,13 +115,6 @@ public class ClientDObjectMgr
     {
         // send a forward event request to the server
         _comm.postMessage(new ForwardEventRequest(event));
-    }
-
-    // inherit documentation from the interface
-    public void destroyObject (int oid)
-    {
-        // forward an object destroyed event to the server
-        postEvent(new ObjectDestroyedEvent(oid));
     }
 
     // inherit documentation from the interface

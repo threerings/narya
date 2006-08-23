@@ -30,7 +30,6 @@ import com.threerings.presents.Log;
 import com.threerings.presents.data.ClientObject;
 import com.threerings.presents.dobj.DObject;
 import com.threerings.presents.dobj.ObjectAccessException;
-import com.threerings.presents.dobj.Subscriber;
 
 /**
  * Used to resolve client data when a user starts a session (or when some
@@ -40,7 +39,6 @@ import com.threerings.presents.dobj.Subscriber;
  * appropriately.
  */
 public class ClientResolver extends Invoker.Unit
-    implements Subscriber<ClientObject>
 {
     /**
      * Initiailizes this instance.
@@ -61,32 +59,24 @@ public class ClientResolver extends Invoker.Unit
     }
 
     /**
-     * Returns the {@link ClientObject} derived class that should be
-     * created to kick off the resolution process.
+     * Creates the {@link ClientObject} derived class that should be created to
+     * kick off the resolution process.
      */
-    public Class<? extends ClientObject> getClientObjectClass ()
+    public ClientObject createClientObject ()
     {
-        return ClientObject.class;
+        return new ClientObject();
     }
 
-    // documentation inherited
+    /**
+     * Called once our client object is registered with the distributed object
+     * system.
+     */
     public void objectAvailable (ClientObject object)
     {
-        // we've got our object, so shunt ourselves over to the invoker
-        // thread to perform database loading
+        // we've got our object, so shunt ourselves over to the invoker thread
+        // to perform database loading
         _clobj = object;
         PresentsServer.invoker.postUnit(this);
-
-        // we no longer need to be a subscriber of the object now that it
-        // has been created
-        _clobj.removeSubscriber(this);
-    }
-
-    // documentation inherited
-    public void requestFailed (int oid, ObjectAccessException cause)
-    {
-        // pass the buck
-        reportFailure(cause);
     }
 
     // documentation inherited

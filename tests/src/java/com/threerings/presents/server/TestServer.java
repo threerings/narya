@@ -38,16 +38,7 @@ public class TestServer extends PresentsServer
         invmgr.registerDispatcher(new TestDispatcher(new TestProvider()), true);
 
         // create a test object
-        Subscriber<TestObject> sub = new Subscriber<TestObject>() {
-            public void objectAvailable (TestObject object) {
-                testobj = object;
-            }
-            public void requestFailed (int oid, ObjectAccessException cause) {
-                Log.warning("Unable to create test object " +
-                            "[error=" + cause + "].");
-            }
-        };
-        omgr.createObject(TestObject.class, sub);
+        testobj = omgr.registerObject(new TestObject());
     }
 
     public static void main (String[] args)

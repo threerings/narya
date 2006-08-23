@@ -31,33 +31,16 @@ import com.threerings.presents.dobj.*;
  * Tests the oid list reference tracking code.
  */
 public class RefTest extends TestCase
-    implements Subscriber<TestObject>, EventListener
+    implements EventListener
 {
+    public static Test suite ()
+    {
+        return new RefTest();
+    }
+
     public RefTest ()
     {
         super(RefTest.class.getName());
-    }
-
-    public void objectAvailable (TestObject object)
-    {
-        // add ourselves as an event listener to our subscribed object
-        object.addListener(this);
-
-        // keep references to our test objects
-        if (_objone == null) {
-            _objone = object;
-
-        } else {
-            _objtwo = object;
-            // now that we have both objects, set up the references
-            _objone.addToList(_objtwo.getOid());
-            _objtwo.addToList(_objone.getOid());
-        }
-    }
-
-    public void requestFailed (int oid, ObjectAccessException cause)
-    {
-        fail("Ack. Unable to create object [cause=" + cause + "].");
     }
 
     public void eventReceived (DEvent event)
@@ -93,16 +76,17 @@ public class RefTest extends TestCase
     public void runTest ()
     {
         // create two test objects
-        _omgr.createObject(TestObject.class, this);
-        _omgr.createObject(TestObject.class, this);
+        _objone = _omgr.registerObject(new TestObject());
+        _objone.addListener(this);
+        _objtwo = _omgr.registerObject(new TestObject());
+        _objtwo.addListener(this);
+
+        // now that we have both objects, set up the references
+        _objone.addToList(_objtwo.getOid());
+        _objtwo.addToList(_objone.getOid());
 
         // and run the object manager
         _omgr.run();
-    }
-
-    public static Test suite ()
-    {
-        return new RefTest();
     }
 
     protected TestObject _objone;

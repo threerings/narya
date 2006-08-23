@@ -31,43 +31,11 @@ import com.threerings.presents.dobj.*;
  * A simple test case for the dobjmgr.
  */
 public class DOMTest extends TestCase
-    implements Subscriber<TestObject>, AttributeChangeListener,
-               ElementUpdateListener
+    implements AttributeChangeListener, ElementUpdateListener
 {
     public DOMTest ()
     {
         super(DOMTest.class.getName());
-    }
-
-    public void objectAvailable (TestObject object)
-    {
-        // add ourselves as a listener
-        _test = object;
-        _test.addListener(this);
-
-        // test transactions
-        _test.startTransaction();
-        _test.setFoo(99);
-        _test.setBar("hoopie");
-        _test.commitTransaction();
-
-        // set some elements
-        _test.setIntsAt(15, 3);
-        _test.setIntsAt(5, 2);
-        _test.setIntsAt(1, 0);
-        _test.setStringsAt("Hello", 0);
-        _test.setStringsAt("Goodbye", 1);
-        _test.setStringsAt(null, 1);
-
-        // now set some values straight up
-        _test.setFoo(25);
-        _test.setBar("howdy");
-    }
-
-    public void requestFailed (int oid, ObjectAccessException cause)
-    {
-        fail("Request failed: " + cause);
-        _omgr.harshShutdown();
     }
 
     public void attributeChanged (AttributeChangedEvent event)
@@ -91,11 +59,29 @@ public class DOMTest extends TestCase
 
     public void runTest ()
     {
-        // request that a new TestObject be created
-        _omgr.createObject(TestObject.class, this);
+        // request that a new TestObject be registered
+        _test = _omgr.registerObject(new TestObject());
 
-        // or for fun you can try this bogus create request
-        // _omgr.createObject(Integer.class, sub);
+        // add ourselves as a listener
+        _test.addListener(this);
+
+        // test transactions
+        _test.startTransaction();
+        _test.setFoo(99);
+        _test.setBar("hoopie");
+        _test.commitTransaction();
+
+        // set some elements
+        _test.setIntsAt(15, 3);
+        _test.setIntsAt(5, 2);
+        _test.setIntsAt(1, 0);
+        _test.setStringsAt("Hello", 0);
+        _test.setStringsAt("Goodbye", 1);
+        _test.setStringsAt(null, 1);
+
+        // now set some values straight up
+        _test.setFoo(25);
+        _test.setBar("howdy");
 
         // and run the object manager
         _omgr.run();

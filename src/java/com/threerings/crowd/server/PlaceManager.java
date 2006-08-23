@@ -161,17 +161,20 @@ public class PlaceManager
     }
 
     /**
-     * A place manager derived class is likely to have a corresponding
-     * derived class of {@link com.threerings.crowd.data.PlaceObject} that
-     * it will be managing.  Derived classes should override this method
-     * and return the class object for the place object derived class they
-     * desire to use. The place registry will use this method to create
-     * the proper place object during the place creation process.
-     *
-     * @return the class of the class, derived from {@link PlaceObject},
-     * that this manager wishes to manage.
-     *
-     * @see PlaceRegistry#createPlace
+     * Derived classes will generally override this method to create a custom
+     * {@link PlaceObject} derivation that contains extra information.
+     */
+    protected PlaceObject createPlaceObject ()
+    {
+        try {
+            return getPlaceObjectClass().newInstance();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    /**
+     * @deprecated Use {@link #createPlaceObject}.
      */
     protected Class<? extends PlaceObject> getPlaceObjectClass ()
     {

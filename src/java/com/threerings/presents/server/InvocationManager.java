@@ -21,8 +21,6 @@
 
 package com.threerings.presents.server;
 
-import java.util.ArrayList;
-
 import com.samskivert.util.HashIntMap;
 import com.samskivert.util.LRUHashMap;
 import com.samskivert.util.StringUtil;
@@ -41,7 +39,6 @@ import com.threerings.presents.dobj.EventListener;
 import com.threerings.presents.dobj.InvocationRequestEvent;
 import com.threerings.presents.dobj.ObjectAccessException;
 import com.threerings.presents.dobj.RootDObjectManager;
-import com.threerings.presents.dobj.Subscriber;
 
 /**
  * The invocation services provide client to server invocations (service
@@ -65,7 +62,7 @@ import com.threerings.presents.dobj.Subscriber;
  * the client.
  */
 public class InvocationManager
-    implements Subscriber<DObject>, EventListener
+    implements EventListener
 {
     /** The list of services that are to be provided to clients at boot
      * time. Don't mess with this list! */
@@ -83,9 +80,16 @@ public class InvocationManager
         _omgr = omgr;
 
         // create the object on which we'll listen for invocation requests
-        omgr.createObject(DObject.class, this);
+        DObject invobj = omgr.registerObject(new DObject());
+        invobj.addListener(this);
+        _invoid = invobj.getOid();
+
+//         Log.info("Created invocation service object [oid=" + _invoid + "].");
     }
 
+    /**
+     * Returns the object id of the invocation services object.
+     */
     public int getOid ()
     {
         return _invoid;
@@ -110,13 +114,6 @@ public class InvocationManager
         // create the marshaller and initialize it
         InvocationMarshaller marsh = dispatcher.createMarshaller();
         marsh.init(_invoid, invCode);
-
-        // if we haven't yet finished our own initialization, we need to
-        // throw this dispatcher on a queue so that we can fill in its
-        // invocation oid when we know what it should be
-        if (_invoid == -1) {
-            _lateInitQueue.add(marsh);
-        }
 
         // register the dispatcher
         _dispatchers.put(invCode, dispatcher);
@@ -163,32 +160,6 @@ public class InvocationManager
     {
         Object dispatcher = _dispatchers.get(invCode);
         return (dispatcher == null) ? null : dispatcher.getClass();
-    }
-
-    public void objectAvailable (DObject object)
-    {
-        // this must be our invocation object
-        _invoid = object.getOid();
-
-        // add ourselves as a message listener
-        object.addListener(this);
-
-        // let any early registered marshallers know about our invoid
-        while (_lateInitQueue.size() > 0) {
-            InvocationMarshaller marsh = _lateInitQueue.remove(0);
-            marsh.setInvocationOid(_invoid);
-        }
-
-//         Log.info("Created invocation service object [oid=" + _invoid + "].");
-    }
-
-    public void requestFailed (int oid, ObjectAccessException cause)
-    {
-        // if for some reason we were unable to create our invocation
-        // object, we'll end up here
-        Log.warning("Unable to create invocation object " +
-                    "[reason=" + cause + "].");
-        _invoid = -1;
     }
 
     // documentation inherited from interface
@@ -313,12 +284,6 @@ public class InvocationManager
     /** A table of invocation dispatchers each mapped by a unique code. */
     protected HashIntMap<InvocationDispatcher> _dispatchers =
         new HashIntMap<InvocationDispatcher>();
-
-    /** Used to keep track of marshallers registered before we had our
-     * invocation object so that we can fill their invocation id in
-     * belatedly. */
-    protected ArrayList<InvocationMarshaller> _lateInitQueue =
-        new ArrayList<InvocationMarshaller>();
 
     /** The text that is appended to the procedure name when automatically
      * generating a failure response. */

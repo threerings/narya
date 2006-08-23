@@ -40,23 +40,6 @@ public interface DObjectManager
     public boolean isManager (DObject object);
 
     /**
-     * Creates a distributed object instance of the supplied class and
-     * notifies the specified subscriber when it becomes available. This
-     * is the proper mechanism for constructing a new distributed object
-     * as it is the only way in which it can be properly registered with
-     * the dobj system.
-     *
-     * @param dclass The class object of the derived class of
-     * <code>DObject</code> (or <code>DObject.class</code> itself) that
-     * should be instantiated.
-     * @param target The subscriber to be notified when the object is
-     * created and available, or if there was a problem creating the
-     * object.
-     */
-    public <T extends DObject> void createObject (
-        Class<T> dclass, Subscriber<T> target);
-
-    /**
      * Requests that the specified subscriber be subscribed to the object
      * identified by the supplied object id. That subscriber will be
      * notified when the object is available or if the subscription
@@ -82,15 +65,6 @@ public interface DObjectManager
      */
     public <T extends DObject> void unsubscribeFromObject (
         int oid, Subscriber<T> target);
-
-    /**
-     * Requests that the specified object be destroyed. Once destroyed an
-     * object is removed from the runtime system and may no longer have
-     * events dispatched on it.
-     *
-     * @param oid The object id of the distributed object to be destroyed.
-     */
-    public void destroyObject (int oid);
 
     /**
      * Posts a distributed object event into the system. Instead of

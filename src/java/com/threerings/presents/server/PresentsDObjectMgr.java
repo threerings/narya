@@ -26,6 +26,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
 
 import sun.misc.Perf;
 
@@ -39,8 +40,9 @@ import com.samskivert.util.RunQueue;
 import com.samskivert.util.StringUtil;
 import com.samskivert.util.Throttle;
 
-import com.threerings.presents.Log;
 import com.threerings.presents.dobj.*;
+
+import static com.threerings.presents.Log.log;
 
 /**
  * The presents distributed object manager implements the {@link
@@ -109,22 +111,14 @@ public class PresentsDObjectMgr
         }
     }
 
-    // documentation inherited from interface
+    // from interface DObjectManager
     public boolean isManager (DObject object)
     {
         // we are always authoritative in the present implementation
         return true;
     }
 
-    // inherit documentation from the interface
-    public <T extends DObject> void createObject (
-        Class<T> dclass, Subscriber<T> target)
-    {
-        // queue up a create object event
-        postEvent(new CreateObjectEvent<T>(dclass, target));
-    }
-
-    // inherit documentation from the interface
+    // from interface DObjectManager
     public <T extends DObject> void subscribeToObject (
         int oid, Subscriber<T> target)
     {
@@ -138,7 +132,7 @@ public class PresentsDObjectMgr
         }
     }
 
-    // inherit documentation from the interface
+    // from interface DObjectManager
     public <T extends DObject> void unsubscribeFromObject (
         int oid, Subscriber<T> target)
     {
@@ -147,27 +141,45 @@ public class PresentsDObjectMgr
                       oid, target, AccessObjectEvent.UNSUBSCRIBE));
     }
 
-    // inherit documentation from the interface
-    public void destroyObject (int oid)
-    {
-        // queue up an object destroyed event
-        postEvent(new ObjectDestroyedEvent(oid));
-    }
-
-    // inherit documentation from the interface
+    // from interface DObjectManager
     public void postEvent (DEvent event)
     {
         // just append it to the queue
         _evqueue.append(event);
     }
 
-    // inherit documentation from the interface
+    // from interface DObjectManager
     public void removedLastSubscriber (DObject obj, boolean deathWish)
     {
         // destroy the object if it so desires
         if (deathWish) {
             destroyObject(obj.getOid());
         }
+    }
+
+    // from interface RootDObjectManager
+    public <T extends DObject> T registerObject (T object)
+    {
+        int oid = getNextOid();
+
+        // initialize this object
+        object.setOid(oid);
+        object.setManager(PresentsDObjectMgr.this);
+        object.setAccessController(_defaultController);
+
+        // insert it into the table
+        _objects.put(oid, object);
+
+//         log.info("Registered object [obj=" + object + "].");
+
+        return object;
+    }
+
+    // from interface RootDObjectManager
+    public void destroyObject (int oid)
+    {
+        // queue up an object destroyed event
+        postEvent(new ObjectDestroyedEvent(oid));
     }
 
     /**
@@ -186,13 +198,10 @@ public class PresentsDObjectMgr
     }
 
     /**
-     * Returns the object in the object table with the specified oid or
-     * null if no object has that oid. Be sure only to call this function
-     * from the dobjmgr thread and not to do anything funny with the
-     * object. If subscription is desired, use
-     * <code>subscribeToObject()</code>.
-     *
-     * @see #subscribeToObject
+     * Returns the object in the object table with the specified oid or null if
+     * no object has that oid. Be sure only to call this function from the
+     * dobjmgr thread and not to do anything funny with the object. If
+     * subscription is desired, use {@link #subscribeToObject}.
      */
     public DObject getObject (int oid)
     {
@@ -227,7 +236,7 @@ public class PresentsDObjectMgr
      */
     public void run ()
     {
-        Log.info("DOMGR running.");
+        log.info("DOMGR running.");
 
         // make a note of the thread that's processing events
         synchronized (this) {
@@ -239,7 +248,7 @@ public class PresentsDObjectMgr
             processUnit(_evqueue.get());
         }
 
-        Log.info("DOMGR exited.");
+        log.info("DOMGR exited.");
     }
 
     /**
@@ -270,8 +279,8 @@ public class PresentsDObjectMgr
             }
 
         } catch (Exception e) {
-            Log.warning("Execution unit failed [unit=" + unit + "].");
-            Log.logStackTrace(e);
+            log.log(Level.WARNING,
+                "Execution unit failed [unit=" + unit + "].", e);
 
         } catch (Error e) {
             handleFatalError(unit, e);
@@ -283,9 +292,9 @@ public class PresentsDObjectMgr
 
         // report excessively long units
         if (elapsed > 500000) {
-            Log.warning("Long dobj unit [u=" + StringUtil.safeToString(unit) +
-                        " (" + StringUtil.shortClassName(unit) + ")" +
-                        ", time=" + (elapsed/1000) + "ms].");
+            log.warning("Long dobj unit [u=" + StringUtil.safeToString(unit) +
+                " (" + StringUtil.shortClassName(unit) + ")" +
+                ", time=" + (elapsed/1000) + "ms].");
         }
 
         // periodically sample and record the time spent processing a unit
@@ -326,8 +335,8 @@ public class PresentsDObjectMgr
         // look up the target object
         DObject target = _objects.get(event.getTargetOid());
         if (target == null) {
-            Log.debug("Compound event target no longer exists " +
-                      "[event=" + event + "].");
+            log.fine("Compound event target no longer exists " +
+                "[event=" + event + "].");
             return;
         }
 
@@ -335,8 +344,8 @@ public class PresentsDObjectMgr
         for (int ii = 0; ii < ecount; ii++) {
             DEvent sevent = (DEvent)events.get(ii);
             if (!target.checkPermissions(sevent)) {
-                Log.warning("Event failed permissions check " +
-                            "[event=" + sevent + ", target=" + target + "].");
+                log.warning("Event failed permissions check " +
+                    "[event=" + sevent + ", target=" + target + "].");
                 return;
             }
         }
@@ -359,15 +368,14 @@ public class PresentsDObjectMgr
         // look up the target object
         DObject target = _objects.get(event.getTargetOid());
         if (target == null) {
-            Log.debug("Event target no longer exists " +
-                      "[event=" + event + "].");
+            log.fine("Event target no longer exists [event=" + event + "].");
             return;
         }
 
         // check the event's permissions
         if (!target.checkPermissions(event)) {
-            Log.warning("Event failed permissions check " +
-                        "[event=" + event + ", target=" + target + "].");
+            log.warning("Event failed permissions check " +
+                "[event=" + event + ", target=" + target + "].");
             return;
         }
 
@@ -410,9 +418,8 @@ public class PresentsDObjectMgr
             }
 
         } catch (Exception e) {
-            Log.warning("Failure processing event [event=" + event +
-                        ", target=" + target + "].");
-            Log.logStackTrace(e);
+            log.log(Level.WARNING, "Failure processing event [event=" + event +
+                ", target=" + target + "].", e);
 
         } catch (Error e) {
             handleFatalError(event, e);
@@ -433,8 +440,8 @@ public class PresentsDObjectMgr
         if (_fatalThrottle.throttleOp()) {
             throw error;
         }
-        Log.warning("Fatal error caused by '" + causer + "': " + error);
-        Log.logStackTrace(error);
+        log.log(Level.WARNING,
+            "Fatal error caused by '" + causer + "': " + error, error);
     }
 
     /**
@@ -457,7 +464,7 @@ public class PresentsDObjectMgr
     public void dumpUnitProfiles ()
     {
         for (Map.Entry<String,UnitProfile> entry : _profiles.entrySet()) {
-            Log.info("P: " + entry.getKey() + " => " + entry.getValue());
+            log.info("P: " + entry.getKey() + " => " + entry.getValue());
         }
     }
 
@@ -472,7 +479,7 @@ public class PresentsDObjectMgr
     {
         int oid = target.getOid();
 
-//        Log.info("Removing destroyed object from table " +
+//        log.info("Removing destroyed object from table " +
 //                 "[oid=" + oid + "].");
 
         // remove the object from the table
@@ -498,10 +505,10 @@ public class PresentsDObjectMgr
                     // post an object removed event to clear the reference
                     postEvent(new ObjectRemovedEvent(
                         ref.reffingOid, ref.field, oid));
-//                    Log.info("Forcing removal " + ref + ".");
+//                    log.info("Forcing removal " + ref + ".");
 
                 } else {
-                    Log.info("Dangling reference from inactive object " +
+                    log.info("Dangling reference from inactive object " +
                              ref + ".");
                 }
             }
@@ -534,7 +541,7 @@ public class PresentsDObjectMgr
                 }
 
             } catch (Exception e) {
-                Log.warning("Unable to clean up after oid list field " +
+                log.warning("Unable to clean up after oid list field " +
                             "[target=" + target + ", field=" + field + "].");
             }
         }
@@ -571,13 +578,13 @@ public class PresentsDObjectMgr
         // object which no longer exists; so we don't complain about non-
         // existent references if the referree is already destroyed
         if (ref == null && _objects.containsKey(reffedOid)) {
-            Log.warning("Requested to clear out non-existent reference " +
+            log.warning("Requested to clear out non-existent reference " +
                         "[refferOid=" + reffer.getOid() +
                         ", field=" + field +
                         ", reffedOid=" + reffedOid + "].");
 
 //        } else {
-//            Log.info("Cleared out reference " + ref + ".");
+//            log.info("Cleared out reference " + ref + ".");
         }
     }
 
@@ -595,7 +602,7 @@ public class PresentsDObjectMgr
 
         // ensure that the target object exists
         if (!_objects.containsKey(oid)) {
-            Log.info("Rejecting object added event of non-existent object " +
+            log.info("Rejecting object added event of non-existent object " +
                      "[refferOid=" + target.getOid() +
                      ", reffedOid=" + oid + "].");
             return false;
@@ -615,7 +622,7 @@ public class PresentsDObjectMgr
         int rpos = -1;
         for (int i = 0; i < refs.length; i++) {
             if (ref.equals(refs[i])) {
-                Log.warning("Ignoring request to track existing " +
+                log.warning("Ignoring request to track existing " +
                             "reference " + ref + ".");
                 return true;
             } else if (refs[i] == null && rpos == -1) {
@@ -634,7 +641,7 @@ public class PresentsDObjectMgr
         // finally add the reference
         refs[rpos] = ref;
 
-//        Log.info("Tracked reference " + ref + ".");
+//        log.info("Tracked reference " + ref + ".");
         return true;
     }
 
@@ -652,7 +659,7 @@ public class PresentsDObjectMgr
         int toid = target.getOid();
         int oid = ore.getOid();
 
-//        Log.info("Processing object removed [from=" + toid +
+//        log.info("Processing object removed [from=" + toid +
 //                 ", roid=" + toid + "].");
 
         // get the reference vector for the referenced object
@@ -663,7 +670,7 @@ public class PresentsDObjectMgr
             // generate object removed events for all of its referencees.
             // so we opt not to log anything in this case
 
-//            Log.info("Object removed without reference to track it " +
+//            log.info("Object removed without reference to track it " +
 //                     "[toid=" + toid + ", field=" + field +
 //                     ", oid=" + oid + "].");
             return true;
@@ -673,13 +680,13 @@ public class PresentsDObjectMgr
         for (int i = 0; i < refs.length; i++) {
             Reference ref = refs[i];
             if (ref != null && ref.equals(toid, field)) {
-//                Log.info("Removed reference " + refs[i] + ".");
+//                log.info("Removed reference " + refs[i] + ".");
                 refs[i] = null;
                 return true;
             }
         }
 
-        Log.warning("Unable to locate reference for removal " +
+        log.warning("Unable to locate reference for removal " +
                     "[reffingOid=" + toid + ", field=" + field +
                     ", reffedOid=" + oid + "].");
         return true;
@@ -711,7 +718,7 @@ public class PresentsDObjectMgr
         return _nextOid;
     }
 
-    // documentation inherited from interface PresentsServer.Reporter
+    // from interface PresentsServer.Reporter
     public void appendReport (
         StringBuilder report, long now, long sinceLast, boolean reset)
     {
@@ -751,83 +758,10 @@ public class PresentsDObjectMgr
         try {
             sub.objectAvailable(obj);
         } catch (Exception e) {
-            Log.warning("Subscriber choked during object available " +
-                        "[obj=" + StringUtil.safeToString(obj) +
-                        ", sub=" + sub + "].");
-            Log.logStackTrace(e);
+            log.log(Level.WARNING, "Subscriber choked during object " +
+                "available [obj=" + StringUtil.safeToString(obj) +
+                ", sub=" + sub + "].", e);
         }
-    }
-
-    /**
-     * Used to create a distributed object and register it with the
-     * system.
-     */
-    protected class CreateObjectEvent<T extends DObject> extends DEvent
-    {
-        public CreateObjectEvent (Class<T> clazz, Subscriber<T> target)
-        {
-            super(0); // target the fake object
-            _class = clazz;
-            _target = target;
-        }
-
-        public boolean isPrivate ()
-        {
-            return true;
-        }
-
-        public boolean applyToObject (DObject target)
-            throws ObjectAccessException
-        {
-            int oid = getNextOid();
-            T obj = null;
-
-            try {
-                // create a new instance of this object
-                obj = _class.newInstance();
-
-                // initialize this object
-                obj.setOid(oid);
-                obj.setManager(PresentsDObjectMgr.this);
-                obj.setAccessController(_defaultController);
-
-                // insert it into the table
-                _objects.put(oid, obj);
-
-//                  Log.info("Created object [obj=" + obj + "].");
-
-            } catch (Exception e) {
-                Log.warning("Object creation failure " +
-                            "[class=" + _class.getName() +
-                            ", error=" + e + "].");
-
-                // let the subscriber know shit be fucked
-                if (_target != null) {
-                    String errmsg = "Object instantiation failed";
-                    _target.requestFailed(
-                        oid, new ObjectAccessException(errmsg, e));
-                }
-
-                return false;
-            }
-
-            if (_target != null) {
-                // add the subscriber to this object's subscriber list
-                obj.addSubscriber(_target);
-
-                // let the target subscriber know that their object is
-                // available
-                informObjectAvailable(_target, obj);
-            }
-
-            // and return false to ensure that this event is not
-            // dispatched to the fake object's subscriber list (even
-            // though it's empty)
-            return false;
-        }
-
-        protected transient Class<T> _class;
-        protected transient Subscriber<T> _target;
     }
 
     /**
@@ -916,7 +850,7 @@ public class PresentsDObjectMgr
             _helpers.put(ObjectRemovedEvent.class, method);
 
         } catch (Exception e) {
-            Log.warning("Unable to register event helpers " +
+            log.warning("Unable to register event helpers " +
                         "[error=" + e + "].");
         }
     }

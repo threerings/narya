@@ -110,14 +110,8 @@ public class TestClient
     {
         Log.info("Got event [event=" + event + "].");
 
-        if (event instanceof AttributeChangedEvent) {
-            // request to destroy the object
-            _client.getDObjectManager().destroyObject(event.getTargetOid());
-
-        } else {
-            // request that we log off
-            _client.logoff(true);
-        }
+        // request that we log off
+        _client.logoff(true);
     }
 
     // documentation inherited from interface

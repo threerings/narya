@@ -31,10 +31,7 @@ import com.threerings.presents.data.ClientObject;
 import com.threerings.presents.data.TimeBaseCodes;
 import com.threerings.presents.data.TimeBaseObject;
 
-import com.threerings.presents.dobj.DObject;
-import com.threerings.presents.dobj.ObjectAccessException;
 import com.threerings.presents.dobj.RootDObjectManager;
-import com.threerings.presents.dobj.Subscriber;
 
 /**
  * Provides the server-side of the time base services. The time base
@@ -65,29 +62,14 @@ public class TimeBaseProvider
      * client and used to send delta times.
      *
      * @param timeBase the name of the time base to create.
-     * @param resl the result listener that will be informed when the time
-     * base object is created or if the creation fails.
+     *
+     * @return the created and registered time base object.
      */
-    public static void createTimeBase (
-        final String timeBase, final ResultListener<TimeBaseObject> resl)
+    public static TimeBaseObject createTimeBase (String timeBase)
     {
-        _omgr.createObject(TimeBaseObject.class,
-                           new Subscriber<TimeBaseObject> () {
-            public void objectAvailable (TimeBaseObject object) {
-                // stuff it into our table
-                _timeBases.put(timeBase, object);
-                // and notify the listener
-                resl.requestCompleted(object);
-            }
-
-            public void requestFailed (int oid, ObjectAccessException cause) {
-                Log.warning("Ack. Unable to create time base object " +
-                            "[timeBase=" + timeBase +
-                            ", cause=" + cause + "].");
-                // notify the listener that we're borked
-                resl.requestFailed(cause);
-            }
-        });
+        TimeBaseObject object = _omgr.registerObject(new TimeBaseObject());
+        _timeBases.put(timeBase, object);
+        return object;
     }
 
     /**

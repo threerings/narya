@@ -116,16 +116,36 @@ public class PeerManager
                 this, PresentsServer.clmgr.getClientFactory()));
 
         // create our node object
-        @SuppressWarnings("unchecked") Class<NodeObject> clazz =
-            (Class<NodeObject>)getNodeObjectClass();
-        PresentsServer.omgr.createObject(clazz, new Subscriber<NodeObject>() {
-            public void objectAvailable (NodeObject object) {
-                finishInit(object);
-            }
-            public void requestFailed (int oid, ObjectAccessException cause) {
-                log.warning("Failed to create NodeObject: " + cause + ".");
+        _nodeobj = PresentsServer.omgr.registerObject(createNodeObject());
+
+        // register ourselves with the node table
+        _invoker.postUnit(new Invoker.Unit() {
+            public boolean invoke () {
+                NodeRecord record = new NodeRecord(
+                    _nodeName, _hostName, _publicHostName, _port);
+                try {
+                    _noderepo.updateNode(record);
+                } catch (PersistenceException pe) {
+                    log.warning("Failed to register node record " +
+                                "[rec=" + record + ", error=" + pe + "].");
+                }
+                return false;
             }
         });
+
+        // register ourselves as a client observer
+        PresentsServer.clmgr.addClientObserver(this);
+
+        // and start our peer refresh interval (this need not use a runqueue as
+        // all it will do is post an invoker unit)
+        new Interval() {
+            public void expired () {
+                refreshPeers();
+            }
+        }.schedule(5000L, 60*1000L);
+
+        // give derived classes an easy way to get in on the init action
+        didInit();
     }
 
     /**
@@ -201,38 +221,10 @@ public class PeerManager
     }
 
     /**
-     * Called once our node object is available.
+     * Called after we have finished our initialization.
      */
-    protected void finishInit (NodeObject nodeobj)
+    protected void didInit ()
     {
-        // keep a handle on our node object
-        _nodeobj = nodeobj;
-
-        // register ourselves with the node table
-        _invoker.postUnit(new Invoker.Unit() {
-            public boolean invoke () {
-                NodeRecord record = new NodeRecord(
-                    _nodeName, _hostName, _publicHostName, _port);
-                try {
-                    _noderepo.updateNode(record);
-                } catch (PersistenceException pe) {
-                    log.warning("Failed to register node record " +
-                                "[rec=" + record + ", error=" + pe + "].");
-                }
-                return false;
-            }
-        });
-
-        // register ourselves as a client observer
-        PresentsServer.clmgr.addClientObserver(this);
-
-        // and start our peer refresh interval (this need not use a runqueue as
-        // all it will do is post an invoker unit)
-        new Interval() {
-            public void expired () {
-                refreshPeers();
-            }
-        }.schedule(5000L, 60*1000L);
     }
 
     /**
@@ -284,11 +276,12 @@ public class PeerManager
     }
 
     /**
-     * Returns the class we use when creating our {@link NodeObject}.
+     * Creates the appropriate derived class of {@link NodeObject} which will
+     * be registered with the distributed object system.
      */
-    protected Class<? extends NodeObject> getNodeObjectClass ()
+    protected NodeObject createNodeObject ()
     {
-        return NodeObject.class;
+        return new NodeObject();
     }
 
     /**

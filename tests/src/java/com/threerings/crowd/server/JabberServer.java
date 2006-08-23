@@ -20,13 +20,7 @@ public class JabberServer extends CrowdServer
         super.init();
 
         // create a single location
-        plreg.createPlace(
-            new JabberConfig(), new PlaceRegistry.CreationObserver() {
-            public void placeCreated (PlaceObject place, PlaceManager pmgr) {
-                Log.info("Created chat room " + pmgr.where() + ".");
-                _place = pmgr;
-            }
-        });
+        _pmgr = plreg.createPlace(new JabberConfig());
     }
 
     public static void main (String[] args)
@@ -41,5 +35,5 @@ public class JabberServer extends CrowdServer
         }
     }
 
-    protected PlaceManager _place;
+    protected PlaceManager _pmgr;
 }

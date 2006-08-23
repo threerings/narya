@@ -33,45 +33,16 @@ import com.threerings.presents.dobj.*;
  * an oid list.
  */
 public class DestroyedRefTest extends TestCase
-    implements Subscriber<TestObject>, EventListener
+    implements EventListener
 {
+    public static Test suite ()
+    {
+        return new DestroyedRefTest();
+    }
+
     public DestroyedRefTest ()
     {
         super(DestroyedRefTest.class.getName());
-    }
-
-    public void objectAvailable (TestObject object)
-    {
-        // add ourselves as an event listener
-        object.addListener(this);
-
-        // keep references to our test objects
-        if (_objone == null) {
-            _objone = object;
-
-        } else {
-            _objtwo = object;
-
-            // add object one to object two twice in a row to make sure
-            // repeated adds don't result in the object being listed twice
-            _objtwo.addToList(_objone.getOid());
-            Log.info("The following addToList() should be ignored.");
-            _objtwo.addToList(_objone.getOid());
-
-            // now that we have both objects, try to set up the reference.
-            // first we queue up a destroy event for object two, then we
-            // try to reference it on object one's oid list
-            _objtwo.destroy();
-            _objone.addToList(_objtwo.getOid());
-
-            // finally dispatch an event on which we can trigger our exit
-            _objone.setFoo(1);
-        }
-    }
-
-    public void requestFailed (int oid, ObjectAccessException cause)
-    {
-        fail("Ack. Unable to create object [cause=" + cause + "].");
     }
 
     public void eventReceived (DEvent event)
@@ -99,20 +70,31 @@ public class DestroyedRefTest extends TestCase
     public void runTest ()
     {
         // create two test objects
-        _omgr.createObject(TestObject.class, this);
-        _omgr.createObject(TestObject.class, this);
+        _objone = _omgr.registerObject(new TestObject());
+        _objone.addListener(this);
+        _objtwo = _omgr.registerObject(new TestObject());
+        _objtwo.addListener(this);
+
+        // add object one to object two twice in a row to make sure repeated
+        // adds don't result in the object being listed twice
+        _objtwo.addToList(_objone.getOid());
+        Log.info("The following addToList() should be ignored.");
+        _objtwo.addToList(_objone.getOid());
+
+        // now that we have both objects, try to set up the reference.  first
+        // we queue up a destroy event for object two, then we try to reference
+        // it on object one's oid list
+        _objtwo.destroy();
+        _objone.addToList(_objtwo.getOid());
+
+        // finally dispatch an event on which we can trigger our exit
+        _objone.setFoo(1);
 
         // and run the object manager
         _omgr.run();
     }
 
-    public static Test suite ()
-    {
-        return new DestroyedRefTest();
-    }
-
-    protected TestObject _objone;
-    protected TestObject _objtwo;
+    protected TestObject _objone, _objtwo;
 
     protected static PresentsDObjectMgr _omgr = new PresentsDObjectMgr();
 }

@@ -265,11 +265,10 @@ public class ClientManager
             clr.addResolutionListener(listener);
             _penders.put(username, clr);
 
-            // request that the appropriate client object be created by the
-            // dobject manager which starts the whole business off
-            @SuppressWarnings("unchecked") Class<ClientObject> cclass =
-                (Class<ClientObject>)clr.getClientObjectClass();
-            PresentsServer.omgr.createObject(cclass, clr);
+            // create and register our client object and give it back to the
+            // client resolver
+            clr.objectAvailable(
+                PresentsServer.omgr.registerObject(clr.createClientObject()));
 
         } catch (Exception e) {
             // let the listener know that we're hosed
