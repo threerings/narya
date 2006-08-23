@@ -15,9 +15,7 @@ public class ClassUtil
     {
         var s :String = getQualifiedClassName(obj);
         var dex :int = s.lastIndexOf(".");
-        if (dex != -1) {
-            s = s.substring(dex);
-        }
+        s = s.substring(dex + 1); // works even if dex is -1
         return s.replace("::", ".");
     }
 
