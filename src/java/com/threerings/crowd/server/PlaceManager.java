@@ -37,7 +37,7 @@ import com.threerings.presents.server.PresentsDObjectMgr;
 import com.threerings.presents.dobj.AccessController;
 import com.threerings.presents.dobj.DObject;
 import com.threerings.presents.dobj.DObjectManager;
-import com.threerings.presents.dobj.DynamicEventDispatcher;
+import com.threerings.presents.dobj.DynamicListener;
 import com.threerings.presents.dobj.EntryUpdatedEvent;
 import com.threerings.presents.dobj.MessageEvent;
 import com.threerings.presents.dobj.MessageListener;
@@ -87,7 +87,7 @@ public class PlaceManager
      * events are received.
      *
      * @deprecated Use dynamically bound methods instead. See {@link
-     * DynamicEventDispatcher}.
+     * DynamicListener}.
      */
     public static interface MessageHandler
     {
@@ -324,7 +324,7 @@ public class PlaceManager
      * @param handler the handler to be registered.
      *
      * @deprecated Use dynamically bound methods instead. See {@link
-     * DynamicEventDispatcher}.
+     * DynamicListener}.
      */
     public void registerMessageHandler (String name, MessageHandler handler)
     {
@@ -724,8 +724,6 @@ public class PlaceManager
      * interval is currently registered. */
     protected Interval _shutdownInterval;
 
-    /** We use this to do our method lookup magic when we receive message
-     * events. */
-    protected DynamicEventDispatcher _dispatcher =
-        new DynamicEventDispatcher(this);
+    /** Used to do method lookup magic when we receive message events. */
+    protected DynamicListener _dispatcher = new DynamicListener(this);
 }

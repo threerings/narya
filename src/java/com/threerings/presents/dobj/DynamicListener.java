@@ -34,13 +34,14 @@ import static com.threerings.presents.Log.log;
 /**
  * Maps distributed object events to methods using reflection.
  */
-public class DynamicEventDispatcher
+public class DynamicListener
     implements AttributeChangeListener, ElementUpdateListener, SetListener
 {
     /**
-     * Creates a dynamic event dispatcher on the supplied target.
+     * Creates a listener that dynamically dispatches events on the supplied
+     * target.
      */
-    public DynamicEventDispatcher (Object target)
+    public DynamicListener (Object target)
     {
         _target = target;
         _finder = new MethodFinder(target.getClass());
