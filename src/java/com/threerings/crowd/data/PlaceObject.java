@@ -54,6 +54,22 @@ public class PlaceObject extends DObject
     // AUTO-GENERATED: FIELDS END
 
     /**
+     * Exists solely to make calls into the manager look sensible:
+     * <pre>_plobj.manager.invoke("someMethod", args);</pre>
+     */
+    public class ManagerCaller
+    {
+        public void invoke (String method, Object ... args) {
+            postMessage(method, args);
+        }
+    }
+
+    /**
+     * Allows the client to call methods on the manager.
+     */
+    public transient ManagerCaller manager = new ManagerCaller();
+
+    /**
      * Tracks the oid of the body objects of all of the occupants of this
      * place.
      */

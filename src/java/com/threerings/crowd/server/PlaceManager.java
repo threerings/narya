@@ -24,6 +24,7 @@ package com.threerings.crowd.server;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.logging.Level;
 
 import com.samskivert.util.HashIntMap;
 import com.samskivert.util.Interval;
@@ -36,8 +37,7 @@ import com.threerings.presents.server.PresentsDObjectMgr;
 import com.threerings.presents.dobj.AccessController;
 import com.threerings.presents.dobj.DObject;
 import com.threerings.presents.dobj.DObjectManager;
-import com.threerings.presents.dobj.EntryAddedEvent;
-import com.threerings.presents.dobj.EntryRemovedEvent;
+import com.threerings.presents.dobj.DynamicEventDispatcher;
 import com.threerings.presents.dobj.EntryUpdatedEvent;
 import com.threerings.presents.dobj.MessageEvent;
 import com.threerings.presents.dobj.MessageListener;
@@ -46,7 +46,7 @@ import com.threerings.presents.dobj.ObjectDeathListener;
 import com.threerings.presents.dobj.ObjectDestroyedEvent;
 import com.threerings.presents.dobj.ObjectRemovedEvent;
 import com.threerings.presents.dobj.OidListListener;
-import com.threerings.presents.dobj.SetListener;
+import com.threerings.presents.dobj.SetAdapter;
 
 import com.threerings.crowd.Log;
 import com.threerings.crowd.data.BodyObject;
@@ -79,12 +79,15 @@ import com.threerings.crowd.chat.server.SpeakProvider;
  */
 public class PlaceManager
     implements MessageListener, OidListListener, ObjectDeathListener,
-               SetListener, SpeakProvider.SpeakerValidator
+               SpeakProvider.SpeakerValidator
 {
     /**
-     * An interface used to allow the registration of standard message
-     * handlers to be invoked by the place manager when particular types
-     * of message events are received.
+     * An interface used to allow the registration of standard message handlers
+     * to be invoked by the place manager when particular types of message
+     * events are received.
+     *
+     * @deprecated Use dynamically bound methods instead. See {@link
+     * DynamicEventDispatcher}.
      */
     public static interface MessageHandler
     {
@@ -161,27 +164,6 @@ public class PlaceManager
     }
 
     /**
-     * Derived classes will generally override this method to create a custom
-     * {@link PlaceObject} derivation that contains extra information.
-     */
-    protected PlaceObject createPlaceObject ()
-    {
-        try {
-            return getPlaceObjectClass().newInstance();
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    /**
-     * @deprecated Use {@link #createPlaceObject}.
-     */
-    protected Class<? extends PlaceObject> getPlaceObjectClass ()
-    {
-        return PlaceObject.class;
-    }
-
-    /**
      * Called by the place registry after creating this place manager.
      */
     public void init (
@@ -242,15 +224,6 @@ public class PlaceManager
     }
 
     /**
-     * Called if the permissions check failed, to give place managers a
-     * chance to do any cleanup that might be necessary due to their early
-     * initialization or permissions checking code.
-     */
-    protected void permissionsFailed ()
-    {
-    }
-
-    /**
      * Called by the place manager after the place object has been
      * successfully created.
      */
@@ -268,6 +241,7 @@ public class PlaceManager
 
         // we'll need to hear about place object events
         plobj.addListener(this);
+        plobj.addListener(_bodyUpdater);
 
         // configure this place's access controller
         plobj.setAccessController(getAccessController());
@@ -277,40 +251,6 @@ public class PlaceManager
 
         // since we start empty, we need to immediately assume shutdown
         checkShutdownInterval();
-    }
-
-    /**
-     * @return true if we should create a speaker service for our place object
-     * so that clients can use it to speak in this place.
-     */
-    protected boolean shouldCreateSpeakService ()
-    {
-        return true;
-    }
-
-    /**
-     * Creates an access controller for this place's distributed object, which
-     * by default is {@link CrowdObjectAccess#PLACE}.
-     */
-    protected AccessController getAccessController ()
-    {
-        return CrowdObjectAccess.PLACE;
-    }
-
-    /**
-     * Derived classes should override this (and be sure to call
-     * <code>super.didStartup()</code>) to perform any startup time
-     * initialization. The place object will be available by the time this
-     * method is executed.
-     */
-    protected void didStartup ()
-    {
-        // let our delegates know that we've started up
-        applyToDelegates(new DelegateOp() {
-            public void apply (PlaceManagerDelegate delegate) {
-                delegate.didStartup(_plobj);
-            }
-        });
     }
 
     /**
@@ -329,22 +269,6 @@ public class PlaceManager
 
         // make sure we don't have any shutdowner in the queue
         cancelShutdowner();
-    }
-
-    /**
-     * Called when this place has been destroyed and the place manager has
-     * shut down (via a call to {@link #shutdown}). Derived classes can
-     * override this method and perform any necessary shutdown time
-     * processing.
-     */
-    protected void didShutdown ()
-    {
-        // let our delegates know that we've shut down
-        applyToDelegates(new DelegateOp() {
-            public void apply (PlaceManagerDelegate delegate) {
-                delegate.didShutdown();
-            }
-        });
     }
 
     /**
@@ -392,6 +316,87 @@ public class PlaceManager
     }
 
     /**
+     * Registers a particular message handler instance to be used when
+     * processing message events with the specified name.
+     *
+     * @param name the message name of the message events that should be
+     * handled by this handler.
+     * @param handler the handler to be registered.
+     *
+     * @deprecated Use dynamically bound methods instead. See {@link
+     * DynamicEventDispatcher}.
+     */
+    public void registerMessageHandler (String name, MessageHandler handler)
+    {
+        // create our handler map if necessary
+        if (_msghandlers == null) {
+            _msghandlers = new HashMap<String,MessageHandler>();
+        }
+        _msghandlers.put(name, handler);
+    }
+
+    // from interface MessageListener
+    public void messageReceived (MessageEvent event)
+    {
+        MessageHandler handler = null;
+        if (_msghandlers != null) {
+            handler = _msghandlers.get(event.getName());
+        }
+        if (handler != null) {
+            handler.handleEvent(event, this);
+        }
+
+        // the first argument should be the client object of the caller or null
+        // if it is a server originated event
+        int srcoid = event.getSourceOid();
+        DObject source = (srcoid <= 0) ?
+            null : CrowdServer.omgr.getObject(srcoid);
+        Object[] args = event.getArgs(), nargs;
+        if (args == null) {
+            nargs = new Object[] { source };
+        } else {
+            nargs = new Object[args.length+1];
+            nargs[0] = source;
+            System.arraycopy(args, 0, nargs, 1, args.length);
+        }
+        _dispatcher.dispatchMethod(event.getName(), nargs);
+    }
+
+    // from interface OidListListener
+    public void objectAdded (ObjectAddedEvent event)
+    {
+        if (event.getName().equals(PlaceObject.OCCUPANTS)) {
+            bodyEntered(event.getOid());
+        }
+    }
+
+    // from interface OidListListener
+    public void objectRemoved (ObjectRemovedEvent event)
+    {
+        if (event.getName().equals(PlaceObject.OCCUPANTS)) {
+            bodyLeft(event.getOid());
+        }
+    }
+
+    // from interface ObjectDeathListener
+    public void objectDestroyed (ObjectDestroyedEvent event)
+    {
+        // unregister ourselves
+        _registry.unmapPlaceManager(this);
+
+        // let our derived classes and delegates shut themselves down
+        didShutdown();
+    }
+
+    // documentation inherited from interface
+    public boolean isValidSpeaker (
+        DObject speakObj, ClientObject speaker, byte mode)
+    {
+        // only allow people in the room to speak
+        return _plobj.occupants.contains(speaker.getOid());
+    }
+
+    /**
      * Returns a string that can be used in log messages to identify the
      * place as sensibly as possible to the developer who has to puzzle
      * over log output trying to figure out what's going on. Derived place
@@ -402,6 +407,102 @@ public class PlaceManager
     {
         return StringUtil.shortClassName(this) + ":" + (
             (_plobj != null) ? String.valueOf(_plobj.getOid()) : "-1");
+    }
+
+    /**
+     * Generates a string representation of this manager. Does so in a way
+     * that makes it easier for derived classes to add to the string
+     * representation.
+     *
+     * @see #toString(StringBuilder)
+     */
+    public String toString ()
+    {
+        StringBuilder buf = new StringBuilder();
+        buf.append("[");
+        toString(buf);
+        buf.append("]");
+        return buf.toString();
+    }
+
+    /**
+     * Derived classes will generally override this method to create a custom
+     * {@link PlaceObject} derivation that contains extra information.
+     */
+    protected PlaceObject createPlaceObject ()
+    {
+        try {
+            return getPlaceObjectClass().newInstance();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    /**
+     * @deprecated Use {@link #createPlaceObject}.
+     */
+    protected Class<? extends PlaceObject> getPlaceObjectClass ()
+    {
+        return PlaceObject.class;
+    }
+
+    /**
+     * Called if the permissions check failed, to give place managers a
+     * chance to do any cleanup that might be necessary due to their early
+     * initialization or permissions checking code.
+     */
+    protected void permissionsFailed ()
+    {
+    }
+
+    /**
+     * @return true if we should create a speaker service for our place object
+     * so that clients can use it to speak in this place.
+     */
+    protected boolean shouldCreateSpeakService ()
+    {
+        return true;
+    }
+
+    /**
+     * Creates an access controller for this place's distributed object, which
+     * by default is {@link CrowdObjectAccess#PLACE}.
+     */
+    protected AccessController getAccessController ()
+    {
+        return CrowdObjectAccess.PLACE;
+    }
+
+    /**
+     * Derived classes should override this (and be sure to call
+     * <code>super.didStartup()</code>) to perform any startup time
+     * initialization. The place object will be available by the time this
+     * method is executed.
+     */
+    protected void didStartup ()
+    {
+        // let our delegates know that we've started up
+        applyToDelegates(new DelegateOp() {
+            public void apply (PlaceManagerDelegate delegate) {
+                delegate.didStartup(_plobj);
+            }
+        });
+    }
+
+    /**
+     * Called when this place has been destroyed and the place manager has
+     * shut down (via a call to {@link #shutdown}). Derived classes can
+     * override this method and perform any necessary shutdown time
+     * processing.
+     */
+    protected void didShutdown ()
+    {
+        // let our delegates know that we've shut down
+        applyToDelegates(new DelegateOp() {
+            public void apply (PlaceManagerDelegate delegate) {
+                delegate.didShutdown();
+            }
+        });
     }
 
     /**
@@ -420,7 +521,7 @@ public class PlaceManager
      */
     protected void bodyEntered (final int bodyOid)
     {
-        if (Log.debug()) {
+        if (Log.log.getLevel() == Level.FINE) {
             Log.debug("Body entered [where=" + where() +
                       ", oid=" + bodyOid + "].");
         }
@@ -441,7 +542,7 @@ public class PlaceManager
      */
     protected void bodyLeft (final int bodyOid)
     {
-        if (Log.debug()) {
+        if (Log.log.getLevel() == Level.FINE) {
             Log.debug("Body left [where=" + where() +
                       ", oid=" + bodyOid + "].");
         }
@@ -552,122 +653,6 @@ public class PlaceManager
     }
 
     /**
-     * Registers a particular message handler instance to be used when
-     * processing message events with the specified name.
-     *
-     * @param name the message name of the message events that should be
-     * handled by this handler.
-     * @param handler the handler to be registered.
-     */
-    public void registerMessageHandler (String name, MessageHandler handler)
-    {
-        // create our handler map if necessary
-        if (_msghandlers == null) {
-            _msghandlers = new HashMap<String,MessageHandler>();
-        }
-        _msghandlers.put(name, handler);
-    }
-
-    /**
-     * Dispatches message events to registered message handlers. Derived
-     * classes should probably register message handlers rather than
-     * override this method directly.
-     */
-    public void messageReceived (MessageEvent event)
-    {
-        MessageHandler handler = null;
-        if (_msghandlers != null) {
-            handler = _msghandlers.get(event.getName());
-        }
-        if (handler != null) {
-            handler.handleEvent(event, this);
-        }
-    }
-
-    /**
-     * Handles occupant arrival into the place. Derived classes may need
-     * to override this method to handle other oid lists in their derived
-     * place objects. They should be sure to call
-     * <code>super.objectAdded</code> if the event is one they don't
-     * explicitly handle.
-     */
-    public void objectAdded (ObjectAddedEvent event)
-    {
-        if (event.getName().equals(PlaceObject.OCCUPANTS)) {
-            bodyEntered(event.getOid());
-        }
-    }
-
-    /**
-     * Handles occupant departure from the place. Derived classes may need
-     * to override this method to handle other oid lists in their derived
-     * place objects. They should be sure to call
-     * <code>super.objectRemoved</code> if the event is one they don't
-     * explicitly handle.
-     */
-    public void objectRemoved (ObjectRemovedEvent event)
-    {
-        if (event.getName().equals(PlaceObject.OCCUPANTS)) {
-            bodyLeft(event.getOid());
-        }
-    }
-
-    /**
-     * Handles place destruction. We shut ourselves down and ask the place
-     * registry to unmap us.
-     */
-    public void objectDestroyed (ObjectDestroyedEvent event)
-    {
-        // unregister ourselves
-        _registry.unmapPlaceManager(this);
-
-        // let our derived classes and delegates shut themselves down
-        didShutdown();
-    }
-
-    // documentation inherited from interface
-    public void entryAdded (EntryAddedEvent event)
-    {
-    }
-
-    // documentation inherited from interface
-    public void entryUpdated (EntryUpdatedEvent event)
-    {
-        if (event.getName().equals(PlaceObject.OCCUPANT_INFO)) {
-            bodyUpdated((OccupantInfo)event.getEntry());
-        }
-    }
-
-    // documentation inherited from interface
-    public void entryRemoved (EntryRemovedEvent event)
-    {
-    }
-
-    // documentation inherited from interface
-    public boolean isValidSpeaker (
-        DObject speakObj, ClientObject speaker, byte mode)
-    {
-        // only allow people in the room to speak
-        return _plobj.occupants.contains(speaker.getOid());
-    }
-
-    /**
-     * Generates a string representation of this manager. Does so in a way
-     * that makes it easier for derived classes to add to the string
-     * representation.
-     *
-     * @see #toString(StringBuilder)
-     */
-    public String toString ()
-    {
-        StringBuilder buf = new StringBuilder();
-        buf.append("[");
-        toString(buf);
-        buf.append("]");
-        return buf.toString();
-    }
-
-    /**
      * An extensible way to add to the string representation of this
      * class. Override this (being sure to call super) and append your
      * info to the buffer.
@@ -699,6 +684,15 @@ public class PlaceManager
         }
     }
 
+    /** Listens for occupant updates. */
+    protected SetAdapter _bodyUpdater = new SetAdapter() {
+        public void entryUpdated (EntryUpdatedEvent event) {
+            if (event.getName().equals(PlaceObject.OCCUPANT_INFO)) {
+                bodyUpdated((OccupantInfo)event.getEntry());
+            }
+        }
+    };
+
     /** A reference to the place registry with which we're registered. */
     protected PlaceRegistry _registry;
 
@@ -729,4 +723,9 @@ public class PlaceManager
      * down after a certain period of idility, or null if no
      * interval is currently registered. */
     protected Interval _shutdownInterval;
+
+    /** We use this to do our method lookup magic when we receive message
+     * events. */
+    protected DynamicEventDispatcher _dispatcher =
+        new DynamicEventDispatcher(this);
 }
