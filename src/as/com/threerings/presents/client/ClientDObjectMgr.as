@@ -92,13 +92,6 @@ public class ClientDObjectMgr
     }
 
     // inherit documentation from the interface DObjectManager
-    public function createObject (dclass :Class, target :Subscriber) :void
-    {
-        // not presently supported
-        throw new Error("createObject() not supported");
-    }
-
-    // inherit documentation from the interface DObjectManager
     public function subscribeToObject (oid :int, target :Subscriber) :void
     {
         if (oid <= 0) {
@@ -127,13 +120,6 @@ public class ClientDObjectMgr
     {
         // send a forward event request to the server
         _comm.postMessage(new ForwardEventRequest(event));
-    }
-
-    // inherit documentation from the interface
-    public function destroyObject (oid :int) :void
-    {
-        // forward an object destroyed event to the server
-        postEvent(new ObjectDestroyedEvent(oid));
     }
 
     // inherit documentation from the interface
