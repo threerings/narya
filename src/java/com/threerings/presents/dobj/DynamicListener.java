@@ -116,7 +116,7 @@ public class DynamicListener
         Class[] ptypes = new Class[arguments.length];
         for (int ii = 0; ii < arguments.length; ii++) {
             ptypes[ii] = arguments[ii] == null ?
-                Object.class : arguments[ii].getClass();
+                null : arguments[ii].getClass();
         }
         try {
             return _finder.findMethod(name, ptypes);
