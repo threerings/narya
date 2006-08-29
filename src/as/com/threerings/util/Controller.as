@@ -46,7 +46,18 @@ public class Controller
             var fn :Function = (this["handle" + cmd] as Function);
             if (fn != null) {
                 try {
-                    fn(arg);
+                    try {
+                        // try calling it with the arg
+                        fn(arg);
+                    } catch (ae :ArgumentError) {
+                        if (arg == null) {
+                            // try calling it without the arg
+                            fn();
+                        } else {
+                            throw ae;
+                        }
+                    }
+
                 } catch (e :Error) {
                     var log :Log = Log.getLog(this);
                     log.warning("Error handling controller " +
