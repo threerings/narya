@@ -36,8 +36,14 @@ public class CommandButton extends Button
         if (enabled) {
             // stop the click event
             event.stopImmediatePropagation();
+
             // dispatch the command event
-            CommandEvent.dispatch(this, _cmd, _arg);
+            // if the arg is null and we're a toggle button, dispatch our state
+            var arg :Object = _arg;
+            if (arg == null && toggle) {
+                arg = selected;
+            }
+            CommandEvent.dispatch(this, _cmd, arg);
         }
     }
 
