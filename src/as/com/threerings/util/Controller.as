@@ -42,34 +42,46 @@ public class Controller
     public function handleAction (cmd :String, arg :Object) :Boolean
     {
         // fall back to a method named the cmd
+        var fn :Function = null;
         try {
-            var fn :Function = (this["handle" + cmd] as Function);
-            if (fn != null) {
-                try {
-                    try {
-                        // try calling it with the arg
-                        fn(arg);
-                    } catch (ae :ArgumentError) {
-                        if (arg == null) {
-                            // try calling it without the arg
-                            fn();
-                        } else {
-                            throw ae;
-                        }
-                    }
-
-                } catch (e :Error) {
-                    var log :Log = Log.getLog(this);
-                    log.warning("Error handling controller " +
-                        "command [error=" + e + ", cmd=" + cmd +
-                        ", arg=" + arg + "].");
-                    log.logStackTrace(e);
-                }
-                // we "handled" the event, even if it threw an error
-                return true;
-            }
+            fn = (this[cmd] as Function);
         } catch (e :Error) {
-            // suppress, and fall through
+            // suppress
+            //Log.testing("Caught error finding '" + cmd + "()' [" + this + "]");
+        }
+        if (fn == null) {
+            // try the old style with "handle" prepended
+            try {
+                fn = (this["handle" + cmd] as Function);
+            } catch (e :Error) {
+                // suppress
+                //Log.testing("Caught error finding 'handle" + cmd + "()' [" +
+                //    this + "]");
+            }
+        }
+        if (fn != null) {
+            try {
+                try {
+                    // try calling it with the arg
+                    fn(arg);
+                } catch (ae :ArgumentError) {
+                    if (arg == null) {
+                        // try calling it without the arg
+                        fn();
+                    } else {
+                        throw ae;
+                    }
+                }
+
+            } catch (e :Error) {
+                var log :Log = Log.getLog(this);
+                log.warning("Error handling controller " +
+                    "command [error=" + e + ", cmd=" + cmd +
+                    ", arg=" + arg + "].");
+                log.logStackTrace(e);
+            }
+            // we "handled" the event, even if it threw an error
+            return true;
         }
 
         return false; // not handled
