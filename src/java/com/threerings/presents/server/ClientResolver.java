@@ -44,13 +44,10 @@ public class ClientResolver extends Invoker.Unit
      * Initiailizes this instance.
      *
      * @param username the username of the user to be resolved.
-     * @param authdata an object optionally placed into the
-     * AuthResponse.authdata field by the Authenticator.
      */
-    public void init (Name username, Object authdata)
+    public void init (Name username)
     {
         _username = username;
-        _authdata = authdata;
     }
 
     /**
@@ -183,10 +180,6 @@ public class ClientResolver extends Invoker.Unit
 
     /** The name of the user whose client object is being resolved. */
     protected Name _username;
-
-    /** An object placed into AuthResponse.authdata by the Authenticator,
-     * or null. */
-    protected Object _authdata;
 
     /** The entities to notify of success or failure. */
     protected ArrayList<ClientResolutionListener> _listeners =

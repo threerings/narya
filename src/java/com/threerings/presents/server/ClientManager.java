@@ -225,7 +225,7 @@ public class ClientManager
      */
     public void applyToClient (Name username, ClientOp clop)
     {
-        resolveClientObject(username, null, new ClientOpResolver(clop));
+        resolveClientObject(username, new ClientOpResolver(clop));
     }
 
     /**
@@ -238,7 +238,7 @@ public class ClientManager
      * when the caller is finished with the client object.
      */
     public synchronized void resolveClientObject (
-        Name username, Object authdata, final ClientResolutionListener listener)
+        Name username, final ClientResolutionListener listener)
     {
         // look to see if the client object is already resolved
         ClientObject clobj = _objmap.get(username);
@@ -260,7 +260,7 @@ public class ClientManager
             // create a client resolver instance which will create our
             // client object, populate it and notify the listeners
             clr = _factory.createClientResolver(username);
-            clr.init(username, authdata);
+            clr.init(username);
             clr.addResolutionListener(this);
             clr.addResolutionListener(listener);
             _penders.put(username, clr);
