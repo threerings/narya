@@ -266,7 +266,7 @@ public class PresentsClient
         };
 
         // resolve the new client object
-        _cmgr.resolveClientObject(username, clr);
+        _cmgr.resolveClientObject(username, _authdata, clr);
     }
 
     /**
@@ -312,7 +312,7 @@ public class PresentsClient
         assignStartingUsername();
 
         // resolve our client object before we get fully underway
-        cmgr.resolveClientObject(_username, this);
+        cmgr.resolveClientObject(_username, authdata, this);
 
         // make a note of our session start time
         _sessionStamp = System.currentTimeMillis();
