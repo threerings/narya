@@ -50,5 +50,23 @@ public class StringUtil
     {
         return mx.utils.StringUtil.trim(str);
     }
+
+    /**
+     * Truncate the specified String if it is longer than maxLength.
+     * The string will be truncated at a position such that it is
+     * maxLength chars long after the addition of the 'append' String.
+     *
+     * @param append a String to add to the truncated String only after
+     * truncation.
+     */
+    public static function truncate (
+        s :String, maxLength :int, append :String = "") :String
+    {
+        if ((s == null) || (s.length <= maxLength)) {
+            return s;
+        } else {
+            return s.substring(0, maxLength - append.length) + append;
+        }
+    }
 }
 }
