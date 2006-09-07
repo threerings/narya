@@ -25,6 +25,7 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.TimeZone;
 
 import com.samskivert.util.HashIntMap;
 import com.samskivert.util.Throttle;
@@ -39,6 +40,7 @@ import com.threerings.presents.dobj.DObject;
 import com.threerings.presents.dobj.ObjectAccessException;
 import com.threerings.presents.dobj.ProxySubscriber;
 
+import com.threerings.presents.net.AuthRequest;
 import com.threerings.presents.net.BootstrapData;
 import com.threerings.presents.net.BootstrapNotification;
 import com.threerings.presents.net.Credentials;
@@ -105,7 +107,15 @@ public class PresentsClient
      */
     public Credentials getCredentials ()
     {
-        return _creds;
+        return _areq.getCredentials();
+    }
+
+    /**
+     * Returns the time zone in which this client is operating.
+     */
+    public TimeZone getTimeZone ()
+    {
+        return _areq.getTimeZone();
     }
 
     /**
@@ -270,25 +280,6 @@ public class PresentsClient
     }
 
     /**
-     * Called when {@link #setUsername} has been called and the new client
-     * object is about to be applied to this client. The old client object
-     * will not yet have been destroyed, so any final events can be sent
-     * along prior to the new object being put into effect.
-     */
-    protected void clientObjectWillChange (
-        ClientObject oldClobj, ClientObject newClobj)
-    {
-    }
-
-    /**
-     * Called after the new client object has been committed to this
-     * client due to a call to {@link #setUsername}.
-     */
-    protected void clientObjectDidChange (ClientObject newClobj)
-    {
-    }
-
-    /**
      * Returns the client object that is associated with this client.
      */
     public ClientObject getClientObject ()
@@ -297,38 +288,89 @@ public class PresentsClient
     }
 
     /**
-     * Initializes this client instance with the specified username,
-     * connection instance and client object and begins a client session.
+     * Forcibly terminates a client's session. This must be called from
+     * the dobjmgr thread.
      */
-    protected void startSession (
-        ClientManager cmgr, Credentials creds, Connection conn, Object authdata)
+    public void endSession ()
     {
-        _cmgr = cmgr;
-        _creds = creds;
-        _authdata = authdata;
-        setConnection(conn);
+        // queue up a request for our connection to be closed (if we have
+        // a connection, that is)
+        Connection conn = getConnection();
+        if (conn != null) {
+            // go ahead and clear out our connection now to prevent
+            // funniness
+            setConnection(null);
+            // have the connection manager close our connection when it is
+            // next convenient
+            PresentsServer.conmgr.closeConnection(conn);
+        }
 
-        // obtain our starting username
-        assignStartingUsername();
+        // if we don't have a client object, we failed to resolve in the
+        // first place, in which case we have to cope as best we can
+        if (_clobj != null) {
+            // and clean up after ourselves
+            try {
+                sessionDidEnd();
+            } catch (Exception e) {
+                Log.warning("Choked in sessionDidEnd [client=" + this + "].");
+                Log.logStackTrace(e);
+            }
 
-        // resolve our client object before we get fully underway
-        cmgr.resolveClientObject(_username, this);
+            // release (and destroy) our client object
+            _cmgr.releaseClientObject(_username);
+        }
 
-        // make a note of our session start time
-        _sessionStamp = System.currentTimeMillis();
+        // let the client manager know that we're audi 5000
+        _cmgr.clientSessionDidEnd(this);
+
+        // clear out the client object so that we know the session is over
+        _clobj = null;
     }
 
     /**
-     * This is factored out to allow derived classes to use a different
-     * starting username than the one supplied in the user's credentials.
-     * Generally one only wants to munge the starting username if the user
-     * will subsequently choose a "screen name" and it is desirable to
-     * avoid collision between the authentication user namespace and the
-     * screen namespace.
+     * This is called when the server is shut down in the middle of a
+     * client session. In this circumstance, {@link #endSession} will
+     * <em>not</em> be called and so any persistent data that might
+     * normally be flushed at the end of a client's session should likely
+     * be flushed here.
      */
-    protected void assignStartingUsername ()
+    public void shutdown  ()
     {
-        _username = _creds.getUsername();
+        // if the client is connected, we need to fake the computation of
+        // their final connect time because we won't be closing their
+        // socket normally
+        if (getConnection() != null) {
+            long now = System.currentTimeMillis();
+            _connectTime += ((now - _networkStamp) / 1000);
+        }
+    }
+
+    /**
+     * Makes a note that this client is subscribed to this object so that
+     * we can clean up after ourselves if and when the client goes
+     * away. This is called by the client internals and needn't be called
+     * by code outside the client.
+     */
+    public synchronized void mapSubscrip (DObject object)
+    {
+        _subscrips.put(object.getOid(), object);
+    }
+
+    /**
+     * Makes a note that this client is no longer subscribed to this
+     * object. The subscription map is used to clean up after the client
+     * when it goes away. This is called by the client internals and
+     * needn't be called by code outside the client.
+     */
+    public synchronized void unmapSubscrip (int oid)
+    {
+        DObject object = _subscrips.remove(oid);
+        if (object != null) {
+            object.removeSubscriber(this);
+        } else {
+            Log.warning("Requested to unmap non-existent subscription " +
+                        "[oid=" + oid + "].");
+        }
     }
 
     // documentation inherited from interface
@@ -354,6 +396,123 @@ public class PresentsClient
 
         // end the session now to prevent danglage
         endSession();
+    }
+
+    // documentation inherited from interface
+    public void handleMessage (UpstreamMessage message)
+    {
+        _messagesIn++; // count 'em up!
+
+        // if the client has been getting crazy with the cheeze whiz,
+        // stick a fork in them; the first time through we end our
+        // session, subsequently _throttle is null and we just drop any
+        // messages that come in until we've fully shutdown
+        if (_throttle == null) {
+//             Log.info("Dropping message from force-quit client " +
+//                      "[conn=" + _conn +
+//                      ", msg=" + message + "].");
+            return;
+        } else if (_throttle.throttleOp(message.received)) {
+            Log.warning("Client sent more than 100 messages in 10 seconds, " +
+                        "forcing disconnect " + this + ".");
+            safeEndSession();
+            _throttle = null;
+        }
+
+        // we dispatch to a message dispatcher that is specialized for the
+        // particular class of message that we received
+        MessageDispatcher disp = _disps.get(message.getClass());
+        if (disp == null) {
+            Log.warning("No dispatcher for message [msg=" + message + "].");
+            return;
+        }
+
+        // otherwise pass the message on to the dispatcher
+        disp.dispatch(this, message);
+    }
+
+    // documentation inherited from interface
+    public void objectAvailable (DObject object)
+    {
+        if (postMessage(new ObjectResponse<DObject>(object))) {
+            // make a note of this new subscription
+            mapSubscrip(object);
+        } else {
+            // if we failed to send the object response, unsubscribe
+            object.removeSubscriber(this);
+        }
+    }
+
+    // documentation inherited from interface
+    public void requestFailed (int oid, ObjectAccessException cause)
+    {
+        postMessage(new FailureResponse(oid));
+    }
+
+    // documentation inherited from interface
+    public void eventReceived (DEvent event)
+    {
+        if (event instanceof PresentsDObjectMgr.AccessObjectEvent) {
+            Log.warning("Ignoring event that shouldn't be forwarded " +
+                        event + ".");
+            Thread.dumpStack();
+        } else {
+            postMessage(new EventNotification(event));
+        }
+    }
+
+    /**
+     * Called when {@link #setUsername} has been called and the new client
+     * object is about to be applied to this client. The old client object
+     * will not yet have been destroyed, so any final events can be sent
+     * along prior to the new object being put into effect.
+     */
+    protected void clientObjectWillChange (
+        ClientObject oldClobj, ClientObject newClobj)
+    {
+    }
+
+    /**
+     * Called after the new client object has been committed to this
+     * client due to a call to {@link #setUsername}.
+     */
+    protected void clientObjectDidChange (ClientObject newClobj)
+    {
+    }
+
+    /**
+     * Initializes this client instance with the specified username, connection
+     * instance and client object and begins a client session.
+     */
+    protected void startSession (
+        ClientManager cmgr, AuthRequest req, Connection conn, Object authdata)
+    {
+        _cmgr = cmgr;
+        _areq = req;
+        _authdata = authdata;
+        setConnection(conn);
+
+        // obtain our starting username
+        assignStartingUsername();
+
+        // resolve our client object before we get fully underway
+        cmgr.resolveClientObject(_username, this);
+
+        // make a note of our session start time
+        _sessionStamp = System.currentTimeMillis();
+    }
+
+    /**
+     * This is factored out to allow derived classes to use a different
+     * starting username than the one supplied in the user's credentials.
+     * Generally one only wants to munge the starting username if the user
+     * will subsequently choose a "screen name" and it is desirable to
+     * avoid collision between the authentication user namespace and the
+     * screen namespace.
+     */
+    protected void assignStartingUsername ()
+    {
+        _username = getCredentials().getUsername();
     }
 
     /**
@@ -419,46 +578,6 @@ public class PresentsClient
     }
 
     /**
-     * Forcibly terminates a client's session. This must be called from
-     * the dobjmgr thread.
-     */
-    public void endSession ()
-    {
-        // queue up a request for our connection to be closed (if we have
-        // a connection, that is)
-        Connection conn = getConnection();
-        if (conn != null) {
-            // go ahead and clear out our connection now to prevent
-            // funniness
-            setConnection(null);
-            // have the connection manager close our connection when it is
-            // next convenient
-            PresentsServer.conmgr.closeConnection(conn);
-        }
-
-        // if we don't have a client object, we failed to resolve in the
-        // first place, in which case we have to cope as best we can
-        if (_clobj != null) {
-            // and clean up after ourselves
-            try {
-                sessionDidEnd();
-            } catch (Exception e) {
-                Log.warning("Choked in sessionDidEnd [client=" + this + "].");
-                Log.logStackTrace(e);
-            }
-
-            // release (and destroy) our client object
-            _cmgr.releaseClientObject(_username);
-        }
-
-        // let the client manager know that we're audi 5000
-        _cmgr.clientSessionDidEnd(this);
-
-        // clear out the client object so that we know the session is over
-        _clobj = null;
-    }
-
-    /**
      * Queues up a runnable on the object manager thread where we can
      * safely end the session.
      */
@@ -477,52 +596,6 @@ public class PresentsClient
                 }
             }
         });
-    }
-
-    /**
-     * This is called when the server is shut down in the middle of a
-     * client session. In this circumstance, {@link #endSession} will
-     * <em>not</em> be called and so any persistent data that might
-     * normally be flushed at the end of a client's session should likely
-     * be flushed here.
-     */
-    public void shutdown  ()
-    {
-        // if the client is connected, we need to fake the computation of
-        // their final connect time because we won't be closing their
-        // socket normally
-        if (getConnection() != null) {
-            long now = System.currentTimeMillis();
-            _connectTime += ((now - _networkStamp) / 1000);
-        }
-    }
-
-    /**
-     * Makes a note that this client is subscribed to this object so that
-     * we can clean up after ourselves if and when the client goes
-     * away. This is called by the client internals and needn't be called
-     * by code outside the client.
-     */
-    public synchronized void mapSubscrip (DObject object)
-    {
-        _subscrips.put(object.getOid(), object);
-    }
-
-    /**
-     * Makes a note that this client is no longer subscribed to this
-     * object. The subscription map is used to clean up after the client
-     * when it goes away. This is called by the client internals and
-     * needn't be called by code outside the client.
-     */
-    public synchronized void unmapSubscrip (int oid)
-    {
-        DObject object = _subscrips.remove(oid);
-        if (object != null) {
-            object.removeSubscriber(this);
-        } else {
-            Log.warning("Requested to unmap non-existent subscription " +
-                        "[oid=" + oid + "].");
-        }
     }
 
     /**
@@ -731,69 +804,6 @@ public class PresentsClient
         return _conn;
     }
 
-    // documentation inherited from interface
-    public void handleMessage (UpstreamMessage message)
-    {
-        _messagesIn++; // count 'em up!
-
-        // if the client has been getting crazy with the cheeze whiz,
-        // stick a fork in them; the first time through we end our
-        // session, subsequently _throttle is null and we just drop any
-        // messages that come in until we've fully shutdown
-        if (_throttle == null) {
-//             Log.info("Dropping message from force-quit client " +
-//                      "[conn=" + _conn +
-//                      ", msg=" + message + "].");
-            return;
-        } else if (_throttle.throttleOp(message.received)) {
-            Log.warning("Client sent more than 100 messages in 10 seconds, " +
-                        "forcing disconnect " + this + ".");
-            safeEndSession();
-            _throttle = null;
-        }
-
-        // we dispatch to a message dispatcher that is specialized for the
-        // particular class of message that we received
-        MessageDispatcher disp = _disps.get(message.getClass());
-        if (disp == null) {
-            Log.warning("No dispatcher for message [msg=" + message + "].");
-            return;
-        }
-
-        // otherwise pass the message on to the dispatcher
-        disp.dispatch(this, message);
-    }
-
-    // documentation inherited from interface
-    public void objectAvailable (DObject object)
-    {
-        if (postMessage(new ObjectResponse<DObject>(object))) {
-            // make a note of this new subscription
-            mapSubscrip(object);
-        } else {
-            // if we failed to send the object response, unsubscribe
-            object.removeSubscriber(this);
-        }
-    }
-
-    // documentation inherited from interface
-    public void requestFailed (int oid, ObjectAccessException cause)
-    {
-        postMessage(new FailureResponse(oid));
-    }
-
-    // documentation inherited from interface
-    public void eventReceived (DEvent event)
-    {
-        if (event instanceof PresentsDObjectMgr.AccessObjectEvent) {
-            Log.warning("Ignoring event that shouldn't be forwarded " +
-                        event + ".");
-            Thread.dumpStack();
-        } else {
-            postMessage(new EventNotification(event));
-        }
-    }
-
     /** Callable from non-dobjmgr thread, this queues up a runnable on the
      * dobjmgr thread to post the supplied message to this client. */
     protected final void safePostMessage (final DownstreamMessage msg)
@@ -954,7 +964,7 @@ public class PresentsClient
     }
 
     protected ClientManager _cmgr;
-    protected Credentials _creds;
+    protected AuthRequest _areq;
     protected Object _authdata;
     protected Name _username;
     protected Connection _conn;

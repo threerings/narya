@@ -349,7 +349,7 @@ public class ClientManager
                      ", conn=" + conn + "].");
             // create a new client and stick'em in the table
             client = _factory.createClient(req);
-            client.startSession(this, creds, conn, rsp.authdata);
+            client.startSession(this, req, conn, rsp.authdata);
 
             // map their client instance
             _usermap.put(username, client);

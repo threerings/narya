@@ -21,6 +21,8 @@
 
 package com.threerings.presents.net;
 
+import java.util.TimeZone;
+
 public class AuthRequest extends UpstreamMessage
 {
     /**
@@ -39,6 +41,7 @@ public class AuthRequest extends UpstreamMessage
     {
         _creds = creds;
         _version = version;
+        _zone = TimeZone.getDefault().getID();
     }
 
     /**
@@ -59,6 +62,14 @@ public class AuthRequest extends UpstreamMessage
     }
 
     /**
+     * Returns the timezone in which this client is operating.
+     */
+    public TimeZone getTimeZone ()
+    {
+        return TimeZone.getTimeZone(_zone);
+    }
+
+    /**
      * Generates a string representation of this instance.
      */
     public String toString ()
@@ -72,4 +83,7 @@ public class AuthRequest extends UpstreamMessage
 
     /** The version information associated with the client code. */
     protected String _version;
+
+    /** The timezone in which this client is operating. */
+    protected String _zone;
 }
