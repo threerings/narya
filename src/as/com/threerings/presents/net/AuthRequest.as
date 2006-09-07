@@ -15,8 +15,6 @@ public class AuthRequest extends UpstreamMessage
         var minsOffset :int = -1 * new Date().getTimezoneOffset();
         var hoursFromUTC :int = Math.abs(minsOffset) / 60;
         var minsFromUTC :int = Math.abs(minsOffset) % 60;
-
-        minsFromUTC %= 60;
         _zone = "GMT" + ((minsOffset < 0) ? "-" : "+") +
             ((hoursFromUTC < 10) ? "0" : "") + hoursFromUTC + ":" +
             ((minsFromUTC < 10) ? "0" : "") + minsFromUTC;
