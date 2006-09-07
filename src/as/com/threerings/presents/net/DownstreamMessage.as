@@ -13,11 +13,9 @@ public /* abstract */ class DownstreamMessage
     public var messageId :int = -1;
 
     // documentation inherited from interface Streamable
-    public function writeObject (out :ObjectOutputStream) :void
+    public final function writeObject (out :ObjectOutputStream) :void
     {
-        Log.getLog(this).warning(
-            "This is client code: Downstream messages shouldn't be written");
-        //out.writeShort(messageId);
+        throw new Error(); // abstract: not needed
     }
 
     // documentation inherited from interface Streamable

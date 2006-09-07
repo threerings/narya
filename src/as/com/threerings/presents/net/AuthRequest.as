@@ -3,6 +3,8 @@ package com.threerings.presents.net {
 import com.threerings.io.ObjectInputStream;
 import com.threerings.io.ObjectOutputStream;
 
+import com.threerings.util.StringUtil;
+
 public class AuthRequest extends UpstreamMessage
 {
     public function AuthRequest (creds :Credentials, version :String)
@@ -16,8 +18,8 @@ public class AuthRequest extends UpstreamMessage
         var hoursFromUTC :int = Math.abs(minsOffset) / 60;
         var minsFromUTC :int = Math.abs(minsOffset) % 60;
         _zone = "GMT" + ((minsOffset < 0) ? "-" : "+") +
-            ((hoursFromUTC < 10) ? "0" : "") + hoursFromUTC + ":" +
-            ((minsFromUTC < 10) ? "0" : "") + minsFromUTC;
+            StringUtil.prepad(String(hoursFromUTC), 2, "0") + ":" +
+            StringUtil.prepad(String(minsFromUTC), 2, "0");
     }
 
     // documentation inherited
@@ -28,16 +30,6 @@ public class AuthRequest extends UpstreamMessage
         out.writeObject(_creds);
         out.writeField(_version);
         out.writeField(_zone);
-    }
-
-    // documentation inherited
-    override public function readObject (ins :ObjectInputStream) :void
-    {
-        super.readObject(ins);
-
-        _creds = (ins.readObject() as Credentials);
-        _version = (ins.readField(String) as String);
-        _zone = (ins.readField(String) as String);
     }
 
     protected var _creds :Credentials;

@@ -8,11 +8,10 @@ import com.threerings.io.Streamable;
 
 import com.threerings.presents.client.InvocationService_InvocationListener;
 
-import com.threerings.presents.dobj.DObjectManager;
 import com.threerings.presents.dobj.InvocationResponseEvent;
 
 public class InvocationMarshaller_ListenerMarshaller
-    implements Streamable, InvocationService_InvocationListener
+    implements Streamable
 {
     /** The method id used to dispatch a requestFailed response. */
     public static const REQUEST_FAILED_RSPID :int = 0;
@@ -30,18 +29,6 @@ public class InvocationMarshaller_ListenerMarshaller
     /** The time at which this listener marshaller was registered.
      * This is only valid on the client. */
     public var mapStamp :Number;
-
-    /** The distributed object manager to use when dispatching proxied
-     * responses. This is only valid on the server. */
-    public var omgr :DObjectManager;
-
-    // documentation inherited from interface
-    public function requestFailed (cause :String) :void
-    {
-//        omgr.postEvent(new InvocationResponseEvent(
-//                           callerOid, requestId, REQUEST_FAILED_RSPID,
-//                           [ cause ]));
-    }
 
     /**
      * Called to dispatch an invocation response to our target
@@ -77,10 +64,9 @@ public class InvocationMarshaller_ListenerMarshaller
     }
 
     // documentation inherited from interface Streamable
-    public function readObject (ins :ObjectInputStream) :void
+    public final function readObject (ins :ObjectInputStream) :void
     {
-        callerOid = ins.readInt();
-        requestId = ins.readShort();
+        throw new Error(); // abstract: not needed
     }
 }
 }

@@ -31,11 +31,9 @@ public /* abstract */ class UpstreamMessage
     }
 
     // documentation inherited from interface Streamable
-    public function readObject (ins :ObjectInputStream) :void
+    public final function readObject (ins :ObjectInputStream) :void
     {
-        Log.getLog(this).warning(
-            "This is client code: Upstream messages shouldn't be read");
-        //messageId = ins.readShort();
+        throw new Error(); // abstract: not needed
     }
 
     /**
