@@ -1,6 +1,7 @@
 package com.threerings.util {
 
 import flash.display.DisplayObject;
+import flash.display.DisplayObjectContainer;
 import flash.display.Loader;
 import flash.display.LoaderInfo;
 import flash.display.Shape;
@@ -28,6 +29,7 @@ import flash.system.SecurityDomain;
 
 import flash.net.URLRequest;
 
+import mx.core.ScrollPolicy;
 import mx.core.UIComponent;
 
 import mx.containers.Box;
@@ -59,6 +61,8 @@ public class MediaContainer extends Box
 
         mouseEnabled = false;
         mouseChildren = true;
+        verticalScrollPolicy = ScrollPolicy.OFF;
+        horizontalScrollPolicy = ScrollPolicy.OFF;
     }
 
     /**
@@ -226,6 +230,16 @@ public class MediaContainer extends Box
         _w = 0;
         _h = 0;
         _media = null;
+        width = NaN;
+        height = NaN;
+    }
+
+    override public function parentChanged (p :DisplayObjectContainer) :void
+    {
+        super.parentChanged(p);
+        if (p == null && _media != null) {
+            shutdown();
+        }
     }
 
     /**
