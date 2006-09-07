@@ -44,6 +44,32 @@ public class StringUtil
     }
 
     /**
+     * Append 0 or more copies of the padChar String to the input String
+     * until it is at least the specified length.
+     */
+    public static function pad (
+        str :String, length :int, padChar :String = " ") :String
+    {
+        while (str.length < length) {
+            str += padChar;
+        }
+        return str;
+    }
+
+    /**
+     * Prepend 0 or more copies of the padChar String to the input String
+     * until it is at least the specified length.
+     */
+    public static function prepad (
+        str :String, length :int, padChar :String = " ") :String
+    {
+        while (str.length < length) {
+            str = padChar + str;
+        }
+        return str;
+    }
+
+    /**
      * Utility function that strips whitespace from the ends of a String.
      */
     public static function trim (str :String) :String
