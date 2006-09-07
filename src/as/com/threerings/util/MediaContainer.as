@@ -116,15 +116,9 @@ public class MediaContainer extends Box
         info.addEventListener(ProgressEvent.PROGRESS, loadProgress);
 
         // create a mask to prevent the media from drawing out of bounds
-        if (maxContentWidth < int.MAX_VALUE  &&
+        if (maxContentWidth < int.MAX_VALUE &&
                 maxContentHeight < int.MAX_VALUE) {
-            var mask :Shape = new Shape();
-            mask.graphics.beginFill(0xFFFFFF);
-            mask.graphics.drawRect(0, 0, maxContentWidth, maxContentHeight);
-            mask.graphics.endFill();
-            // the mask must be added to the display list (which is wacky)
-            rawChildren.addChild(mask);
-            loader.mask = mask;
+            configureMask(maxContentWidth, maxContentHeight);
         }
 
         // start it loading, add it as a child
@@ -175,6 +169,12 @@ public class MediaContainer extends Box
     public function shutdown (completely :Boolean = true) :void
     {
         try {
+            // remove the mask
+            if (_media != null && _media.mask != null) {
+                rawChildren.removeChild(_media.mask);
+                _media.mask = null;
+            }
+
             if (_media is Loader) {
                 var loader :Loader = (_media as Loader);
                 // remove any listeners
@@ -188,10 +188,6 @@ public class MediaContainer extends Box
                 }
                 loader.unload();
 
-                // remove from hierarchy
-                if (loader.mask != null) {
-                    rawChildren.removeChild(loader.mask);
-                }
                 rawChildren.removeChild(loader);
 
             } else if (_media is VideoDisplay) {
@@ -412,6 +408,28 @@ public class MediaContainer extends Box
     protected function videoDidRewind (event :VideoEvent) :void
     {
         (_media as VideoDisplay).play();
+    }
+
+    /**
+     * Configure the mask for this object.
+     */
+    protected function configureMask (ww :int, hh :int) :void
+    {
+        var mask :Shape;
+        if (_media.mask != null) {
+            mask = (_media.mask as Shape);
+
+        } else {
+            mask = new Shape();
+            // the mask must be added to the display list (which is wacky)
+            rawChildren.addChild(mask);
+            _media.mask = mask;
+        }
+
+        mask.graphics.clear();
+        mask.graphics.beginFill(0xFFFFFF);
+        mask.graphics.drawRect(0, 0, ww, hh);
+        mask.graphics.endFill();
     }
 
     /**
