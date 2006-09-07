@@ -9,6 +9,17 @@ public class AuthRequest extends UpstreamMessage
     {
         _creds = creds;
         _version = version;
+
+        // magic up a timezone in the format "GMT+XX:XX"
+        // Of course, the sign returned from getTimezoneOffset() is wrong
+        var minsOffset :int = -1 * new Date().getTimezoneOffset();
+        var hoursFromUTC :int = Math.abs(minsOffset) / 60;
+        var minsFromUTC :int = Math.abs(minsOffset) % 60;
+
+        minsFromUTC %= 60;
+        _zone = "GMT" + ((minsOffset < 0) ? "-" : "+") +
+            ((hoursFromUTC < 10) ? "0" : "") + hoursFromUTC + ":" +
+            ((minsFromUTC < 10) ? "0" : "") + minsFromUTC;
     }
 
     // documentation inherited
@@ -18,6 +29,7 @@ public class AuthRequest extends UpstreamMessage
 
         out.writeObject(_creds);
         out.writeField(_version);
+        out.writeField(_zone);
     }
 
     // documentation inherited
@@ -27,9 +39,11 @@ public class AuthRequest extends UpstreamMessage
 
         _creds = (ins.readObject() as Credentials);
         _version = (ins.readField(String) as String);
+        _zone = (ins.readField(String) as String);
     }
 
     protected var _creds :Credentials;
     protected var _version :String;
+    protected var _zone :String;
 }
 }
