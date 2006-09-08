@@ -24,6 +24,8 @@ package com.threerings.io;
 import java.io.InputStream;
 import java.io.DataInputStream;
 import java.io.IOException;
+
+import java.util.ArrayList;
 import java.util.HashMap;
 
 import com.samskivert.util.HashIntMap;
@@ -82,7 +84,9 @@ public class ObjectInputStream extends DataInputStream
 
         // create our classmap if necessary
         if (_classmap == null) {
-            _classmap = new HashIntMap<ClassMapping>();
+            _classmap = new ArrayList<ClassMapping>();
+            // insert a zeroth element
+            _classmap.add(null);
         }
 
         try {
@@ -129,7 +133,7 @@ public class ObjectInputStream extends DataInputStream
                 }
 
                 cmap = new ClassMapping(code, sclass, streamer);
-                _classmap.put(code, cmap);
+                _classmap.add(code, cmap);
 
             } else {
                 cmap = _classmap.get(code);
@@ -141,7 +145,7 @@ public class ObjectInputStream extends DataInputStream
                                 "[code=" + code + ", ois=" + this + "].");
                     Thread.dumpStack();
                     log.warning("ObjectInputStream mappings " +
-                                StringUtil.toString(_classmap.entrySet()) +
+                                StringUtil.toString(_classmap) +
                                 ".");
                     String errmsg = "Read object code for which we " +
                         "have no registered class metadata [code=" + code + "]";
@@ -224,7 +228,7 @@ public class ObjectInputStream extends DataInputStream
 
     /** Used to map classes to numeric codes and the {@link Streamer}
      * instance used to write them. */
-    protected HashIntMap<ClassMapping> _classmap;
+    protected ArrayList<ClassMapping> _classmap;
 
     /** The object currently being read from the stream. */
     protected Object _current;
