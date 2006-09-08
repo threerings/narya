@@ -230,14 +230,6 @@ public class MediaContainer extends Box
         height = NaN;
     }
 
-    override public function parentChanged (p :DisplayObjectContainer) :void
-    {
-        super.parentChanged(p);
-        if (p == null && _media != null) {
-            shutdown();
-        }
-    }
-
     /**
      * Get the width of the content, bounded by the maximum.
      */
