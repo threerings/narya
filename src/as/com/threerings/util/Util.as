@@ -6,25 +6,6 @@ import com.threerings.util.StringBuilder;
 
 public class Util
 {
-    public static function bytesToString (bytes :ByteArray) :String
-    {
-        var buf :StringBuilder = new StringBuilder();
-        for (var ii :int = 0; ii < bytes.length; ii++) {
-            var b :int = bytes[ii];
-            buf.append(HEX[b >> 4], HEX[b & 0xF]);
-        }
-        return buf.toString();
-    }
-
-    public static function toHex (value :uint) :String
-    {
-        var buf :StringBuilder = new StringBuilder("0x");
-        for (var ii :int = 7; ii >= 0; ii--) {
-            buf.append(HEX[(value >> (ii * 4)) & 0xF]);
-        }
-        return buf.toString();
-    }
-
     /**
      * A nicer test for equals that works if the objects implement Equalable
      */
@@ -44,8 +25,5 @@ public class Util
             throw new TypeError("value is not a " + clazz);
         }
     }
-
-    private static const HEX :Array = new Array("0", "1", "2", "3", "4", "5",
-            "6", "7", "8", "9", "a", "b", "c", "d", "e", "f");
 }
 }

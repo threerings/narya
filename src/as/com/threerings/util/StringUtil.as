@@ -1,5 +1,7 @@
 package com.threerings.util {
 
+import flash.utils.ByteArray;
+
 import mx.utils.*;
 
 public class StringUtil
@@ -94,5 +96,49 @@ public class StringUtil
             return s.substring(0, maxLength - append.length) + append;
         }
     }
+
+    /**
+     * Generates a string from the supplied bytes that is the hex encoded
+     * representation of those byts. Returns the empty String for a
+     * <code>null</code> or empty byte array.
+     */
+    public static function hexlate (bytes :ByteArray) :String
+    {
+        var str :String = "";
+        if (bytes != null) {
+            for (var ii :int = 0; ii < bytes.length; ii++) {
+                var b :int = bytes[ii];
+                str += HEX[b >> 4] + HEX[b & 0xF];
+            }
+        }
+        return str;
+    }
+
+    /**
+     * Turn a hexlated String back into a ByteArray.
+     */
+    public static function unhexlate (hex :String) :ByteArray
+    {
+        if (hex == null || (hex.length % 2 != 0)) {
+            return null;
+        }
+
+        hex = hex.toLowerCase();
+        var data :ByteArray = new ByteArray();
+        for (var ii :int = 0; ii < hex.length; ii += 2) {
+            var value :int = HEX.indexOf(hex.charAt(ii)) << 4;
+            value += HEX.indexOf(hex.charAt(ii + 1));
+
+            // TODO: verify
+            // values over 127 are wrapped around, restoring negative bytes
+            data[ii / 2] = value;
+        }
+
+        return data;
+    }
+
+    /** Hexidecimal digits. */
+    protected static const HEX :Array = [ "0", "1", "2", "3", "4",
+        "5", "6", "7", "8", "9", "a", "b", "c", "d", "e", "f" ];
 }
 }

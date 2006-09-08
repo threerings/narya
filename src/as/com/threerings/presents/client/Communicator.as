@@ -10,7 +10,7 @@ import flash.net.Socket;
 import flash.utils.ByteArray;
 import flash.utils.Endian;
 
-import com.threerings.util.Util;
+import com.threerings.util.StringUtil;
 
 import com.threerings.io.FrameAvailableEvent;
 import com.threerings.io.FrameReader;
@@ -157,7 +157,7 @@ public class Communicator
         // write the message (ends up in _outBuffer)
         _outStream.writeObject(msg);
 
-//        Log.debug("outBuffer: " + Util.bytesToString(_outBuffer));
+//        Log.debug("outBuffer: " + StringUtil.unhexlate(_outBuffer));
 
         // Frame it by writing the length, then the bytes.
         // We add 4 to the length, because the length is of the entire frame
@@ -199,7 +199,7 @@ public class Communicator
         // convert the frame data into a message from the server
         var frameData :ByteArray = event.getFrameData();
         //Log.debug("length of in frame: " + frameData.length);
-        //Log.debug("inBuffer: " + Util.bytesToString(frameData));
+        //Log.debug("inBuffer: " + StringUtil.unhexlate(frameData));
         _inStream.setSource(frameData);
         var msg :DownstreamMessage;
         try {
