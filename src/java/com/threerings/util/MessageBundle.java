@@ -56,69 +56,18 @@ public class MessageBundle
      * Composes a message key with an array of arguments. The message can
      * subsequently be translated in a single call using {@link #xlate}.
      */
-    public static String compose (String key, Object[] args)
+    public static String compose (String key, Object... args)
     {
         return MessageUtil.compose(key, args);
     }
 
     /**
-     * A convenience method for calling {@link #compose(String,Object[])}
-     * with a single argument.
+     * Composes a message key with an array of arguments. The message can
+     * subsequently be translated in a single call using {@link #xlate}.
      */
-    public static String compose (String key, Object arg)
+    public static String compose (String key, String... args)
     {
-        return compose(key, new Object[] { arg });
-    }
-
-    /**
-     * A convenience method for calling {@link #compose(String,Object[])}
-     * with two arguments.
-     */
-    public static String compose (String key, Object arg1, Object arg2)
-    {
-        return compose(key, new Object[] { arg1, arg2 });
-    }
-
-    /**
-     * A convenience method for calling {@link #compose(String,Object[])}
-     * with three arguments.
-     */
-    public static String compose (
-        String key, Object arg1, Object arg2, Object arg3)
-    {
-        return compose(key, new Object[] { arg1, arg2, arg3 });
-    }
-
-    /**
-     * A convenience method for calling {@link #compose(String,Object[])}
-     * with a single argument that will be automatically tainted (see
-     * {@link #taint}).
-     */
-    public static String tcompose (String key, Object arg)
-    {
-        return compose(key, new Object[] { taint(arg) });
-    }
-
-    /**
-     * A convenience method for calling {@link #compose(String,Object[])}
-     * with two arguments that will be automatically tainted (see {@link
-     * #taint}).
-     */
-    public static String tcompose (String key, Object arg1, Object arg2)
-    {
-        return compose(key, new Object[] { taint(arg1), taint(arg2) });
-    }
-
-    /**
-     * A convenience method for calling {@link #compose(String,Object[])}
-     * with three arguments that will be automatically tainted (see {@link
-     * #taint}).
-     */
-    public static String tcompose (
-        String key, Object arg1, Object arg2, Object arg3)
-    {
-        return compose(key, new Object[] {
-            taint(arg1), taint(arg2), taint(arg3) });
+        return MessageUtil.compose(key, args);
     }
 
     /**
@@ -126,7 +75,17 @@ public class MessageBundle
      * with an array of arguments that will be automatically tainted (see
      * {@link #taint}).
      */
-    public static String tcompose (String key, Object[] args)
+    public static String tcompose (String key, Object... args)
+    {
+        return MessageUtil.tcompose(key, args);
+    }
+
+    /**
+     * A convenience method for calling {@link #compose(String,String[])}
+     * with an array of arguments that will be automatically tainted (see
+     * {@link #taint}).
+     */
+    public static String tcompose (String key, String... args)
     {
         return MessageUtil.tcompose(key, args);
     }
@@ -273,60 +232,6 @@ public class MessageBundle
 
     /**
      * Obtains the translation for the specified message key. The
-     * specified argument is substituted into the translated string.
-     *
-     * <p> See {@link #get(String,Object[])} for notes on handling
-     * plurals.
-     *
-     * <p> See {@link MessageFormat} for more information on how the
-     * substitution is performed. If a translation message does not exist
-     * for the specified key, an error is logged and the key itself (plus
-     * the argument) is returned so that the caller need not worry about
-     * handling a null response.
-     */
-    public String get (String key, Object arg1)
-    {
-        return get(key, new Object[] { arg1 });
-    }
-
-    /**
-     * Obtains the translation for the specified message key. The
-     * specified arguments are substituted into the translated string.
-     *
-     * <p> See {@link #get(String,Object[])} for notes on handling
-     * plurals.
-     *
-     * <p> See {@link MessageFormat} for more information on how the
-     * substitution is performed. If a translation message does not exist
-     * for the specified key, an error is logged and the key itself (plus
-     * the arguments) is returned so that the caller need not worry about
-     * handling a null response.
-     */
-    public String get (String key, Object arg1, Object arg2)
-    {
-        return get(key, new Object[] { arg1, arg2 });
-    }
-
-    /**
-     * Obtains the translation for the specified message key. The
-     * specified arguments are substituted into the translated string.
-     *
-     * <p> See {@link #get(String,Object[])} for notes on handling
-     * plurals.
-     *
-     * <p> See {@link MessageFormat} for more information on how the
-     * substitution is performed. If a translation message does not exist
-     * for the specified key, an error is logged and the key itself (plus
-     * the arguments) is returned so that the caller need not worry about
-     * handling a null response.
-     */
-    public String get (String key, Object arg1, Object arg2, Object arg3)
-    {
-        return get(key, new Object[] { arg1, arg2, arg3 });
-    }
-
-    /**
-     * Obtains the translation for the specified message key. The
      * specified arguments are substituted into the translated string.
      *
      * <p> If the first argument in the array is an {@link Integer}
@@ -356,7 +261,7 @@ public class MessageBundle
      * the arguments) is returned so that the caller need not worry about
      * handling a null response.
      */
-    public String get (String key, Object[] args)
+    public String get (String key, Object... args)
     {
         // if this is a qualified key, we need to pass the buck to the
         // appropriate message bundle
@@ -398,6 +303,15 @@ public class MessageBundle
         return (msg != null) ?
             MessageFormat.format(MessageUtil.escape(msg), args)
             : (key + StringUtil.toString(args));
+    }
+
+    /**
+     * Obtains the translation for the specified message key. The
+     * specified arguments are substituted into the translated string.
+     */
+    public String get (String key, String... args)
+    {
+        return get(key, (Object[]) args);
     }
 
     /**
@@ -460,7 +374,7 @@ public class MessageBundle
                     args[i] = xlate(MessageUtil.unescape(args[i]));
                 }
             }
-            return get(key, args);
+            return get(key, (Object[]) args);
         }
     }
 
