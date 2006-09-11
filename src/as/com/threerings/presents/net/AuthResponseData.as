@@ -14,12 +14,12 @@ public class AuthResponseData extends DObject
      * why the authentication failed. */
     public var code :String;
 
-    // documentation inherited
-    override public function writeObject (out :ObjectOutputStream) :void
-    {
-        super.writeObject(out);
-        out.writeField(code);
-    }
+//    // documentation inherited
+//    override public function writeObject (out :ObjectOutputStream) :void
+//    {
+//        super.writeObject(out);
+//        out.writeField(code);
+//    }
 
     // documentation inherited
     override public function readObject (ins :ObjectInputStream) :void

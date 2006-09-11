@@ -59,18 +59,6 @@ public class ClientObject extends DObject
         return "(" + getOid() + ")";
     }
 
-    override public function writeObject (out :ObjectOutputStream) :void
-    {
-        super.writeObject(out);
-        out.writeObject(receivers);
-    }
-                            
-    override public function readObject (ins :ObjectInputStream) :void
-    {
-        super.readObject(ins);
-        receivers = (ins.readObject() as DSet);
-    }
-
     // AUTO-GENERATED: METHODS START
     public function addToReceivers (elem :DSet_Entry) :void
     {
@@ -94,5 +82,17 @@ public class ClientObject extends DObject
                                          : (ObjectUtil.copy(value) as DSet);
     }
     // AUTO-GENERATED: METHODS END
+
+//    override public function writeObject (out :ObjectOutputStream) :void
+//    {
+//        super.writeObject(out);
+//        out.writeObject(receivers);
+//    }
+                            
+    override public function readObject (ins :ObjectInputStream) :void
+    {
+        super.readObject(ins);
+        receivers = (ins.readObject() as DSet);
+    }
 }
 }

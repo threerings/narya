@@ -264,9 +264,10 @@ public class DObject // extends EventDispatcher
     }
 
     // documentation inherited from interface Streamable
-    public function writeObject (out :ObjectOutputStream) :void
+    public final function writeObject (out :ObjectOutputStream) :void
     {
-        out.writeInt(_oid);
+        throw new Error();
+//        out.writeInt(_oid);
     }
 
     // documentation inherited from interface Streamable

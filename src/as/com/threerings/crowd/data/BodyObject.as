@@ -116,15 +116,81 @@ public class BodyObject extends ClientObject
         return username;
     }
 
-    override public function writeObject (out :ObjectOutputStream) :void
-    {
-        super.writeObject(out);
-
-        out.writeObject(username);
-        out.writeInt(location);
-        out.writeByte(status);
-        out.writeField(awayMessage);
-    }
+//    // AUTO-GENERATED: METHODS START
+//    /**
+//     * Requests that the <code>username</code> field be set to the
+//     * specified value. The local value will be updated immediately and an
+//     * event will be propagated through the system to notify all listeners
+//     * that the attribute did change. Proxied copies of this object (on
+//     * clients) will apply the value change when they received the
+//     * attribute changed notification.
+//     */
+//    public function setUsername (value :Name) :void
+//    {
+//        var ovalue :Name = this.username;
+//        requestAttributeChange(
+//            USERNAME, value, ovalue);
+//        this.username = value;
+//    }
+//
+//    /**
+//     * Requests that the <code>location</code> field be set to the
+//     * specified value. The local value will be updated immediately and an
+//     * event will be propagated through the system to notify all listeners
+//     * that the attribute did change. Proxied copies of this object (on
+//     * clients) will apply the value change when they received the
+//     * attribute changed notification.
+//     */
+//    public function setLocation (value :int) :void
+//    {
+//        var ovalue :int = this.location;
+//        requestAttributeChange(
+//            LOCATION, value, ovalue);
+//        this.location = value;
+//    }
+//
+//    /**
+//     * Requests that the <code>status</code> field be set to the
+//     * specified value. The local value will be updated immediately and an
+//     * event will be propagated through the system to notify all listeners
+//     * that the attribute did change. Proxied copies of this object (on
+//     * clients) will apply the value change when they received the
+//     * attribute changed notification.
+//     */
+//    public function setStatus (value :int) :void
+//    {
+//        var ovalue :int = this.status;
+//        requestAttributeChange(
+//            STATUS, Byte.valueOf(value), Byte.valueOf(ovalue));
+//        this.status = value;
+//    }
+//
+//    /**
+//     * Requests that the <code>awayMessage</code> field be set to the
+//     * specified value. The local value will be updated immediately and an
+//     * event will be propagated through the system to notify all listeners
+//     * that the attribute did change. Proxied copies of this object (on
+//     * clients) will apply the value change when they received the
+//     * attribute changed notification.
+//     */
+//    public function setAwayMessage (value :String) :void
+//    {
+//        var ovalue :String = this.awayMessage;
+//        requestAttributeChange(
+//            AWAY_MESSAGE, value, ovalue);
+//        this.awayMessage = value;
+//    }
+//    // AUTO-GENERATED: METHODS END
+//
+//    override public function writeObject (out :ObjectOutputStream) :void
+//    {
+//        super.writeObject(out);
+//
+//        out.writeObject(username);
+//        out.writeInt(location);
+//        out.writeByte(status);
+//        out.writeField(awayMessage);
+//    }
 
     override public function readObject (ins :ObjectInputStream) :void
     {
@@ -135,71 +201,5 @@ public class BodyObject extends ClientObject
         status = ins.readByte();
         awayMessage = (ins.readField(String) as String);
     }
-
-    // AUTO-GENERATED: METHODS START
-    /**
-     * Requests that the <code>username</code> field be set to the
-     * specified value. The local value will be updated immediately and an
-     * event will be propagated through the system to notify all listeners
-     * that the attribute did change. Proxied copies of this object (on
-     * clients) will apply the value change when they received the
-     * attribute changed notification.
-     */
-    public function setUsername (value :Name) :void
-    {
-        var ovalue :Name = this.username;
-        requestAttributeChange(
-            USERNAME, value, ovalue);
-        this.username = value;
-    }
-
-    /**
-     * Requests that the <code>location</code> field be set to the
-     * specified value. The local value will be updated immediately and an
-     * event will be propagated through the system to notify all listeners
-     * that the attribute did change. Proxied copies of this object (on
-     * clients) will apply the value change when they received the
-     * attribute changed notification.
-     */
-    public function setLocation (value :int) :void
-    {
-        var ovalue :int = this.location;
-        requestAttributeChange(
-            LOCATION, value, ovalue);
-        this.location = value;
-    }
-
-    /**
-     * Requests that the <code>status</code> field be set to the
-     * specified value. The local value will be updated immediately and an
-     * event will be propagated through the system to notify all listeners
-     * that the attribute did change. Proxied copies of this object (on
-     * clients) will apply the value change when they received the
-     * attribute changed notification.
-     */
-    public function setStatus (value :int) :void
-    {
-        var ovalue :int = this.status;
-        requestAttributeChange(
-            STATUS, Byte.valueOf(value), Byte.valueOf(ovalue));
-        this.status = value;
-    }
-
-    /**
-     * Requests that the <code>awayMessage</code> field be set to the
-     * specified value. The local value will be updated immediately and an
-     * event will be propagated through the system to notify all listeners
-     * that the attribute did change. Proxied copies of this object (on
-     * clients) will apply the value change when they received the
-     * attribute changed notification.
-     */
-    public function setAwayMessage (value :String) :void
-    {
-        var ovalue :String = this.awayMessage;
-        requestAttributeChange(
-            AWAY_MESSAGE, value, ovalue);
-        this.awayMessage = value;
-    }
-    // AUTO-GENERATED: METHODS END
 }
 }

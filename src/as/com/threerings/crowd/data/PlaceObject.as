@@ -94,98 +94,98 @@ public class PlaceObject extends DObject
         return null;
     }
 
-    // AUTO-GENERATED: METHODS START
-    /**
-     * Requests that <code>oid</code> be added to the <code>occupants</code>
-     * oid list. The list will not change until the event is actually
-     * propagated through the system.
-     */
-    public function addToOccupants (oid :int) :void
-    {
-        requestOidAdd(OCCUPANTS, oid);
-    }
-
-    /**
-     * Requests that <code>oid</code> be removed from the
-     * <code>occupants</code> oid list. The list will not change until the
-     * event is actually propagated through the system.
-     */
-    public function removeFromOccupants (oid :int) :void
-    {
-        requestOidRemove(OCCUPANTS, oid);
-    }
-
-    /**
-     * Requests that the specified entry be added to the
-     * <code>occupantInfo</code> set. The set will not change until the event is
-     * actually propagated through the system.
-     */
-    public function addToOccupantInfo (elem :DSet_Entry) :void
-    {
-        requestEntryAdd(OCCUPANT_INFO, elem);
-    }
-
-    /**
-     * Requests that the entry matching the supplied key be removed from
-     * the <code>occupantInfo</code> set. The set will not change until the
-     * event is actually propagated through the system.
-     */
-    public function removeFromOccupantInfo (key :Object) :void
-    {
-        requestEntryRemove(OCCUPANT_INFO, key);
-    }
-
-    /**
-     * Requests that the specified entry be updated in the
-     * <code>occupantInfo</code> set. The set will not change until the event is
-     * actually propagated through the system.
-     */
-    public function updateOccupantInfo (elem :DSet_Entry) :void
-    {
-        requestEntryUpdate(OCCUPANT_INFO, elem);
-    }
-
-    /**
-     * Requests that the <code>occupantInfo</code> field be set to the
-     * specified value. Generally one only adds, updates and removes
-     * entries of a distributed set, but certain situations call for a
-     * complete replacement of the set value. The local value will be
-     * updated immediately and an event will be propagated through the
-     * system to notify all listeners that the attribute did
-     * change. Proxied copies of this object (on clients) will apply the
-     * value change when they received the attribute changed notification.
-     */
-    public function setOccupantInfo (value :DSet) :void
-    {
-        requestAttributeChange(OCCUPANT_INFO, value, this.occupantInfo);
-        this.occupantInfo = (value == null) ? null : value;
-    }
-
-    /**
-     * Requests that the <code>speakService</code> field be set to the
-     * specified value. The local value will be updated immediately and an
-     * event will be propagated through the system to notify all listeners
-     * that the attribute did change. Proxied copies of this object (on
-     * clients) will apply the value change when they received the
-     * attribute changed notification.
-     */
-    public function setSpeakService (value :SpeakMarshaller) :void
-    {
-        var ovalue :SpeakMarshaller = this.speakService;
-        requestAttributeChange(
-            SPEAK_SERVICE, value, ovalue);
-        this.speakService = value;
-    }
-    // AUTO-GENERATED: METHODS END
-
-    // documentation inherited
-    override public function writeObject (out :ObjectOutputStream) :void
-    {
-        super.writeObject(out);
-        out.writeObject(occupants);
-        out.writeObject(occupantInfo);
-        out.writeObject(speakService);
-    }
+//    // AUTO-GENERATED: METHODS START
+//    /**
+//     * Requests that <code>oid</code> be added to the <code>occupants</code>
+//     * oid list. The list will not change until the event is actually
+//     * propagated through the system.
+//     */
+//    public function addToOccupants (oid :int) :void
+//    {
+//        requestOidAdd(OCCUPANTS, oid);
+//    }
+//
+//    /**
+//     * Requests that <code>oid</code> be removed from the
+//     * <code>occupants</code> oid list. The list will not change until the
+//     * event is actually propagated through the system.
+//     */
+//    public function removeFromOccupants (oid :int) :void
+//    {
+//        requestOidRemove(OCCUPANTS, oid);
+//    }
+//
+//    /**
+//     * Requests that the specified entry be added to the
+//     * <code>occupantInfo</code> set. The set will not change until the event is
+//     * actually propagated through the system.
+//     */
+//    public function addToOccupantInfo (elem :DSet_Entry) :void
+//    {
+//        requestEntryAdd(OCCUPANT_INFO, elem);
+//    }
+//
+//    /**
+//     * Requests that the entry matching the supplied key be removed from
+//     * the <code>occupantInfo</code> set. The set will not change until the
+//     * event is actually propagated through the system.
+//     */
+//    public function removeFromOccupantInfo (key :Object) :void
+//    {
+//        requestEntryRemove(OCCUPANT_INFO, key);
+//    }
+//
+//    /**
+//     * Requests that the specified entry be updated in the
+//     * <code>occupantInfo</code> set. The set will not change until the event is
+//     * actually propagated through the system.
+//     */
+//    public function updateOccupantInfo (elem :DSet_Entry) :void
+//    {
+//        requestEntryUpdate(OCCUPANT_INFO, elem);
+//    }
+//
+//    /**
+//     * Requests that the <code>occupantInfo</code> field be set to the
+//     * specified value. Generally one only adds, updates and removes
+//     * entries of a distributed set, but certain situations call for a
+//     * complete replacement of the set value. The local value will be
+//     * updated immediately and an event will be propagated through the
+//     * system to notify all listeners that the attribute did
+//     * change. Proxied copies of this object (on clients) will apply the
+//     * value change when they received the attribute changed notification.
+//     */
+//    public function setOccupantInfo (value :DSet) :void
+//    {
+//        requestAttributeChange(OCCUPANT_INFO, value, this.occupantInfo);
+//        this.occupantInfo = (value == null) ? null : value;
+//    }
+//
+//    /**
+//     * Requests that the <code>speakService</code> field be set to the
+//     * specified value. The local value will be updated immediately and an
+//     * event will be propagated through the system to notify all listeners
+//     * that the attribute did change. Proxied copies of this object (on
+//     * clients) will apply the value change when they received the
+//     * attribute changed notification.
+//     */
+//    public function setSpeakService (value :SpeakMarshaller) :void
+//    {
+//        var ovalue :SpeakMarshaller = this.speakService;
+//        requestAttributeChange(
+//            SPEAK_SERVICE, value, ovalue);
+//        this.speakService = value;
+//    }
+//    // AUTO-GENERATED: METHODS END
+//
+//    // documentation inherited
+//    override public function writeObject (out :ObjectOutputStream) :void
+//    {
+//        super.writeObject(out);
+//        out.writeObject(occupants);
+//        out.writeObject(occupantInfo);
+//        out.writeObject(speakService);
+//    }
 
     // documentation inherited
     override public function readObject (ins :ObjectInputStream) :void
