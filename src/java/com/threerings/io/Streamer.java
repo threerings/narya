@@ -110,7 +110,7 @@ public class Streamer
             createStreamers();
         }
 
-        Class target = getStreamerClass(object);
+        final Class target = getStreamerClass(object);
         Streamer stream = _streamers.get(target);
         if (stream == null) {
             // make sure this is a streamable class
@@ -127,11 +127,10 @@ public class Streamer
             // create our streamer in a privileged block so that it can
             // introspect on the to be streamed class
             try {
-                final Class ftarget = target;
                 stream = AccessController.doPrivileged(
                     new PrivilegedExceptionAction<Streamer>() {
                         public Streamer run () throws IOException {
-                            return new Streamer(ftarget);
+                            return new Streamer(target);
                         }
                     });
             } catch (PrivilegedActionException pae) {
