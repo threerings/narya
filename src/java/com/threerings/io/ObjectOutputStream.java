@@ -93,14 +93,16 @@ public class ObjectOutputStream extends DataOutputStream
             _classmap = new HashMap<Class,ClassMapping>();
         }
 
-        // otherwise, look up the class mapping record
-        Class sclass = object.getClass();
+        // otherwise, look up the class mapping record (if the target class is
+        // an enum, convert it from its potentially enum-value specific class
+        // to the main class for that enum)
+        Class sclass = Streamer.getStreamerClass(object);
         ClassMapping cmap = _classmap.get(sclass);
 
         // create a class mapping for this class if we've not got one
         if (cmap == null) {
             // create a streamer instance and assign a code to this class
-            Streamer streamer = Streamer.getStreamer(sclass);
+            Streamer streamer = Streamer.getStreamer(object);
             // we specifically do not inline the getStreamer() call
             // into the ClassMapping constructor because we want to be
             // sure not to call _nextCode++ if getStreamer() throws an
@@ -146,7 +148,7 @@ public class ObjectOutputStream extends DataOutputStream
     public void writeBareObject (Object object)
         throws IOException
     {
-        writeBareObject(object, Streamer.getStreamer(object.getClass()), true);
+        writeBareObject(object, Streamer.getStreamer(object), true);
     }
 
     /**

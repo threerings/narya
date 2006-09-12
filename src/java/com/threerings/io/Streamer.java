@@ -81,6 +81,18 @@ public class Streamer
     }
 
     /**
+     * Returns the class that should be used when streaming this object. In
+     * general that is the object's natural class, but for enum values, that
+     * might be its declaring class as enums use classes in a way that would
+     * otherwise pollute our id to class mapping space.
+     */
+    public static Class getStreamerClass (Object object)
+    {
+        return (object instanceof Enum) ?
+            ((Enum)object).getDeclaringClass() : object.getClass();
+    }
+
+    /**
      * Obtains a {@link Streamer} that can be used to read and write
      * objects of the specified target class. {@link Streamer} instances
      * are shared among all {@link ObjectInputStream}s and {@link
@@ -90,7 +102,7 @@ public class Streamer
      * does not implement {@link Streamable} and is not one of the basic
      * object types (@see {@link ObjectOutputStream}).
      */
-    public synchronized static Streamer getStreamer (Class target)
+    public synchronized static Streamer getStreamer (Object object)
         throws IOException
     {
         // if we have not yet initialized ourselves, do so now
@@ -98,12 +110,7 @@ public class Streamer
             createStreamers();
         }
 
-        // if the target class is an enum, convert it from its potentially
-        // enum-value specific class to the main class for that enum
-        if (target.isEnum()) {
-            target = target.getDeclaringClass();
-        }
-
+        Class target = getStreamerClass(object);
         Streamer stream = _streamers.get(target);
         if (stream == null) {
             // make sure this is a streamable class
