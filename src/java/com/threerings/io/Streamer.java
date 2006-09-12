@@ -90,12 +90,18 @@ public class Streamer
      * does not implement {@link Streamable} and is not one of the basic
      * object types (@see {@link ObjectOutputStream}).
      */
-    public synchronized static Streamer getStreamer (final Class target)
+    public synchronized static Streamer getStreamer (Class target)
         throws IOException
     {
         // if we have not yet initialized ourselves, do so now
         if (_streamers == null) {
             createStreamers();
+        }
+
+        // if the target class is an enum, convert it from its potentially
+        // enum-value specific class to the main class for that enum
+        if (target.isEnum()) {
+            target = target.getDeclaringClass();
         }
 
         Streamer stream = _streamers.get(target);
@@ -114,10 +120,11 @@ public class Streamer
             // create our streamer in a privileged block so that it can
             // introspect on the to be streamed class
             try {
+                final Class ftarget = target;
                 stream = AccessController.doPrivileged(
                     new PrivilegedExceptionAction<Streamer>() {
                         public Streamer run () throws IOException {
-                            return new Streamer(target);
+                            return new Streamer(ftarget);
                         }
                     });
             } catch (PrivilegedActionException pae) {
