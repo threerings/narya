@@ -98,11 +98,15 @@ public class Streamer
      * are shared among all {@link ObjectInputStream}s and {@link
      * ObjectOutputStream}s.
      *
+     * @param target the class that is desired to be streamed. This should be
+     * the result of a call to {@link #getStreamerClass} if the caller has an
+     * instance they wish to stream.
+     *
      * @throws IOException when a streamer is requested for an object that
      * does not implement {@link Streamable} and is not one of the basic
      * object types (@see {@link ObjectOutputStream}).
      */
-    public synchronized static Streamer getStreamer (Object object)
+    public synchronized static Streamer getStreamer (final Class target)
         throws IOException
     {
         // if we have not yet initialized ourselves, do so now
@@ -110,11 +114,11 @@ public class Streamer
             createStreamers();
         }
 
-        final Class target = getStreamerClass(object);
         Streamer stream = _streamers.get(target);
         if (stream == null) {
             // make sure this is a streamable class
             if (!isStreamable(target)) {
+                Thread.dumpStack();
                 throw new IOException("Requested to stream invalid class '" +
                                       target.getName() + "'");
             }
