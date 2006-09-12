@@ -64,15 +64,19 @@ public class Streamer
                 return true;
             }
 
-            // if it's an array, check the component type
-            if (target.isArray()) {
-                target = target.getComponentType();
-                // and loop back around for another check with the comp type...
+            // enums can be streamed
+            if (target.isEnum()) {
+                return true;
+            }
 
-            } else {
-                // it'll be ok if the type (or component type) is Streamable
+            // if it's not an array, it must be streamable
+            if (!target.isArray()) {
                 return Streamable.class.isAssignableFrom(target);
             }
+
+            // otherwise extract the component type and loop back around for
+            // another check...
+            target = target.getComponentType();
         }
     }
 
@@ -197,6 +201,14 @@ public class Streamer
             return;
         }
 
+        // if we're writing an enum; write its string value (to avoid future
+        // compatibility issues if someone serializes an enum to a file and
+        // then adds a value to the enum, changing the ordinal assignments)
+        if (_target.isEnum()) {
+            out.writeUTF(((Enum)object).name());
+            return;
+        }
+
         // otherwise simply write out the fields via our field marshallers
         int fcount = _fields.length;
         for (int ii = 0; ii < fcount; ii++) {
@@ -245,6 +257,16 @@ public class Streamer
                              "[" + length + "]'.");
                 }
                 return Array.newInstance(_target.getComponentType(), length);
+
+            } else if (_target.isEnum()) {
+                if (ObjectInputStream.STREAM_DEBUG) {
+                    log.info(in.hashCode() + ": Creating enum '" +
+                             _target.getName() + "'.");
+                }
+                @SuppressWarnings("unchecked") Object value = 
+                    Enum.valueOf(_target, in.readUTF());
+                return value;
+
             } else {
                 if (ObjectInputStream.STREAM_DEBUG) {
                     log.info(in.hashCode() + ": Creating object '" +
@@ -344,6 +366,11 @@ public class Streamer
                     Array.set(object, ii, in.readObject());
                 }
             }
+            return;
+        }
+
+        // an enum has no additional state
+        if (_target.isEnum()) {
             return;
         }
 
