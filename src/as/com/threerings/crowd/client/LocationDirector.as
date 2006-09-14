@@ -232,10 +232,9 @@ public class LocationDirector extends BasicDirector
     public function mayMoveTo (placeId :int, rl :ResultListener) :Boolean
     {
         var vetoed :Boolean = false;
-        _observers.apply(function (obs :Object) :Boolean {
+        _observers.apply(function (obs :Object) :void {
             var lobs :LocationObserver = (obs as LocationObserver);
             vetoed = vetoed || !lobs.locationMayChange(placeId);
-            return true;
         });
 
         // if we're actually going somewhere, let the controller know that
@@ -536,9 +535,8 @@ public class LocationDirector extends BasicDirector
 
     protected function notifyFailure (placeId :int, reason :String) :void
     {
-        _observers.apply(function (obs :Object) :Boolean {
+        _observers.apply(function (obs :Object) :void {
             (obs as LocationObserver).locationChangeFailed(placeId, reason);
-            return true;
         });
     }
 
@@ -582,10 +580,9 @@ public class LocationDirector extends BasicDirector
     protected var _moveListener :ResultListener;
 
     /** The operation used to inform observers that the location changed. */
-    protected var _didChangeOp :Function = function (obs :Object) :Boolean
+    protected var _didChangeOp :Function = function (obs :Object) :void
     {
         (obs as LocationObserver).locationDidChange(_plobj);
-        return true;
     };
 
     /** We require that a moveTo request be outstanding for one minute

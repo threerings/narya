@@ -400,8 +400,8 @@ public class Client extends EventDispatcher
     protected var _comm :Communicator;
 
     /** Our list of client observers. */
-    protected var _observers :ObserverList =
-        new ObserverList(ObserverList.SAFE_IN_ORDER_NOTIFY);
+//    protected var _observers :ObserverList =
+//        new ObserverList(ObserverList.SAFE_IN_ORDER_NOTIFY);
 
     /** General startup information provided by the server. */
     protected var _bstrap :BootstrapData;

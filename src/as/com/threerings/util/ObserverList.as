@@ -28,7 +28,7 @@ public class ObserverList
      */
     public function add (observer :Object) :void
     {
-        if (_list.indexOf(observer) == -1) {
+        if (!ArrayUtil.contains(_list, observer)) {
             _list.push(observer);
         }
     }
@@ -43,11 +43,9 @@ public class ObserverList
 
     /**
      * Apply some operation to all observers.
-     * The function to be passed in should expect one argument and return a
-     * Boolean.
-     * function (observer :Object) :Boolean.
-     * The function should return false if the observer should be removed
-     * from the list.
+     * The function to be passed in should expect one argument and either
+     * return void or a Boolean. If returning a Boolean, returning false
+     * indicates that the observer should be removed from the list.
      */
     public function apply (func :Function) :void
     {
@@ -58,8 +56,8 @@ public class ObserverList
         }
         for (var ii :int = list.length-1; ii >= 0; ii--) {
             try {
-                var result :Boolean = func(list[ii]);
-                if (!result) {
+                var result :* = func(list[ii]);
+                if (result !== undefined && !Boolean(result)) {
                     // remove it if directed to do so
                     remove(list[ii]);
                 }
