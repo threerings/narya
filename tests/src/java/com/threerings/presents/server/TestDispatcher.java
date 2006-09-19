@@ -1,8 +1,8 @@
 //
-// $Id: TestDispatcher.java,v 1.2 2004/08/27 02:21:04 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
-// Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
+// Copyright (C) 2002-2006 Three Rings Design, Inc., All Rights Reserved
 // http://www.threerings.net/code/narya/
 //
 // This library is free software; you can redistribute it and/or modify it
@@ -21,15 +21,13 @@
 
 package com.threerings.presents.server;
 
-import com.threerings.presents.client.Client;
 import com.threerings.presents.client.TestService;
-import com.threerings.presents.client.TestService.TestFuncListener;
-import com.threerings.presents.client.TestService.TestOidListener;
 import com.threerings.presents.data.ClientObject;
 import com.threerings.presents.data.InvocationMarshaller;
 import com.threerings.presents.data.TestMarshaller;
 import com.threerings.presents.server.InvocationDispatcher;
 import com.threerings.presents.server.InvocationException;
+import java.util.ArrayList;
 
 /**
  * Dispatches requests to the {@link TestProvider}.
@@ -51,28 +49,29 @@ public class TestDispatcher extends InvocationDispatcher
         return new TestMarshaller();
     }
 
-    // documentation inherited
+    @SuppressWarnings("unchecked") // documentation inherited
     public void dispatchRequest (
         ClientObject source, int methodId, Object[] args)
         throws InvocationException
     {
         switch (methodId) {
-        case TestMarshaller.TEST:
-            ((TestProvider)provider).test(
-                source,
-                (String)args[0], ((Integer)args[1]).intValue(), (TestFuncListener)args[2]
-            );
-            return;
-
         case TestMarshaller.GET_TEST_OID:
             ((TestProvider)provider).getTestOid(
                 source,
-                (TestOidListener)args[0]
+                (TestService.TestOidListener)args[0]
+            );
+            return;
+
+        case TestMarshaller.TEST:
+            ((TestProvider)provider).test(
+                source,
+                (String)args[0], ((Integer)args[1]).intValue(), (ArrayList<java.lang.Integer>)args[2], (TestService.TestFuncListener)args[3]
             );
             return;
 
         default:
             super.dispatchRequest(source, methodId, args);
+            return;
         }
     }
 }

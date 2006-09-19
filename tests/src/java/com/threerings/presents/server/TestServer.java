@@ -35,10 +35,14 @@ public class TestServer extends PresentsServer
         super.init();
 
         // register our test provider
-        invmgr.registerDispatcher(new TestDispatcher(new TestProvider()), true);
+        invmgr.registerDispatcher(new TestDispatcher(new TestManager()), true);
 
         // create a test object
         testobj = omgr.registerObject(new TestObject());
+        testobj.longs.add(System.currentTimeMillis());
+        long value = Integer.MAX_VALUE;
+        value++;
+        testobj.longs.add(value);
     }
 
     public static void main (String[] args)

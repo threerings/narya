@@ -21,6 +21,8 @@
 
 package com.threerings.presents.data;
 
+import java.util.ArrayList;
+
 import com.threerings.presents.dobj.*;
 
 /**
@@ -43,6 +45,9 @@ public class TestObject extends DObject
 
     /** The field name of the <code>list</code> field. */
     public static final String LIST = "list";
+
+    /** The field name of the <code>longs</code> field. */
+    public static final String LONGS = "longs";
     // AUTO-GENERATED: FIELDS END
 
     public int foo;
@@ -54,6 +59,8 @@ public class TestObject extends DObject
     public String[] strings = new String[5];
 
     public OidList list = new OidList();
+
+    public ArrayList<Long> longs = new ArrayList<Long>();
 
     // AUTO-GENERATED: METHODS START
     /**
@@ -68,7 +75,7 @@ public class TestObject extends DObject
     {
         int ovalue = this.foo;
         requestAttributeChange(
-            FOO, new Integer(value), new Integer(ovalue));
+            FOO, Integer.valueOf(value), Integer.valueOf(ovalue));
         this.foo = value;
     }
 
@@ -117,7 +124,7 @@ public class TestObject extends DObject
     {
         int ovalue = this.ints[index];
         requestElementUpdate(
-            INTS, index, new Integer(value), new Integer(ovalue));
+            INTS, index, Integer.valueOf(value), Integer.valueOf(ovalue));
         this.ints[index] = value;
     }
 
@@ -172,6 +179,22 @@ public class TestObject extends DObject
     public void removeFromList (int oid)
     {
         requestOidRemove(LIST, oid);
+    }
+
+    /**
+     * Requests that the <code>longs</code> field be set to the
+     * specified value. The local value will be updated immediately and an
+     * event will be propagated through the system to notify all listeners
+     * that the attribute did change. Proxied copies of this object (on
+     * clients) will apply the value change when they received the
+     * attribute changed notification.
+     */
+    public void setLongs (ArrayList<java.lang.Long> value)
+    {
+        ArrayList<java.lang.Long> ovalue = this.longs;
+        requestAttributeChange(
+            LONGS, value, ovalue);
+        this.longs = value;
     }
     // AUTO-GENERATED: METHODS END
 }

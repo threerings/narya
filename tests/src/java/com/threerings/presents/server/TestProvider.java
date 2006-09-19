@@ -1,8 +1,8 @@
 //
-// $Id: TestProvider.java,v 1.12 2004/08/27 02:21:04 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
-// Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
+// Copyright (C) 2002-2006 Three Rings Design, Inc., All Rights Reserved
 // http://www.threerings.net/code/narya/
 //
 // This library is free software; you can redistribute it and/or modify it
@@ -21,36 +21,26 @@
 
 package com.threerings.presents.server;
 
-import com.threerings.presents.Log;
 import com.threerings.presents.client.TestService;
-import com.threerings.presents.client.TestService.TestFuncListener;
-import com.threerings.presents.client.TestService.TestOidListener;
 import com.threerings.presents.data.ClientObject;
+import com.threerings.presents.server.InvocationException;
+import com.threerings.presents.server.InvocationProvider;
+import java.util.ArrayList;
 
 /**
- * A test of the invocation services.
+ * Defines the server-side of the {@link TestService}.
  */
-public class TestProvider implements InvocationProvider
+public interface TestProvider extends InvocationProvider
 {
-    public void test (
-        ClientObject caller, String one, int two, TestFuncListener listener)
-    {
-        Log.info("Test request [one=" + one + ", two=" + two + "].");
+    /**
+     * Handles a {@link TestService#getTestOid} request.
+     */
+    public void getTestOid (ClientObject caller, TestService.TestOidListener arg1)
+        throws InvocationException;
 
-        // issue a test notification just for kicks
-        TestSender.sendTest(caller, 1, "two");
-
-        // and issue a response to this invocation request
-        listener.testSucceeded(one, two);
-    }
-
-    public void getTestOid (ClientObject caller, TestOidListener listener)
-    {
-        Log.info("Handling get test oid [src=" + caller + "].");
-
-        // issue a test notification just for kicks
-        TestSender.sendTest(caller, 1, "two");
-
-        listener.gotTestOid(TestServer.testobj.getOid());
-    }
+    /**
+     * Handles a {@link TestService#test} request.
+     */
+    public void test (ClientObject caller, String arg1, int arg2, ArrayList<java.lang.Integer> arg3, TestService.TestFuncListener arg4)
+        throws InvocationException;
 }

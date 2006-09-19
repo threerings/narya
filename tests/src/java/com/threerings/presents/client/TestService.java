@@ -1,5 +1,5 @@
 //
-// $Id: TestService.java,v 1.7 2004/08/27 02:21:02 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -21,6 +21,8 @@
 
 package com.threerings.presents.client;
 
+import java.util.ArrayList;
+
 /**
  * A test of the invocation services.
  */
@@ -35,7 +37,8 @@ public interface TestService extends InvocationService
 
     /** Issues a test request. */
     public void test (
-        Client client, String one, int two, TestFuncListener listener);
+        Client client, String one, int two, ArrayList<Integer> three,
+        TestFuncListener listener);
 
     /** Used to dispatch responses to {@link #getTestOid} requests. */
     public static interface TestOidListener extends InvocationListener

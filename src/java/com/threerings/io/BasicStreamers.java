@@ -24,6 +24,9 @@ package com.threerings.io;
 import java.io.EOFException;
 import java.io.IOException;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Code to read and write basic object types (like arrays of primitives,
  * {@link Integer} instances, {@link Double} instances, etc.).
@@ -50,6 +53,8 @@ public class BasicStreamers
         float[].class,
         double[].class,
         Object[].class,
+        List.class,
+        ArrayList.class,
     };
 
     /** An array of instances of all of the basic streamers. */
@@ -72,6 +77,8 @@ public class BasicStreamers
         new FloatArrayStreamer(),
         new DoubleArrayStreamer(),
         new ObjectArrayStreamer(),
+        new ListStreamer(),
+        new ListStreamer(),
     };
 
     /** Streams {@link Boolean} instances. */
@@ -640,6 +647,44 @@ public class BasicStreamers
             int ecount = value.length;
             for (int ii = 0; ii < ecount; ii++) {
                 value[ii] = in.readObject();
+            }
+        }
+    }
+
+    /** Streams {@link List} instances. */
+    public static class ListStreamer extends Streamer
+    {
+        // documentation inherited
+        public Object createObject (ObjectInputStream in)
+            throws IOException
+        {
+            return new ArrayList();
+        }
+
+        // documentation inherited
+        public void writeObject (
+            Object object, ObjectOutputStream out, boolean useWriter)
+            throws IOException
+        {
+            List list = (List)object;
+            int ecount = list.size();
+            out.writeInt(ecount);
+            for (int ii = 0; ii < ecount; ii++) {
+                out.writeObject(list.get(ii));
+            }
+        }
+
+        // documentation inherited
+        public void readObject (
+            Object object, ObjectInputStream in, boolean useReader)
+            throws IOException, ClassNotFoundException
+        {
+            @SuppressWarnings("unchecked") ArrayList<Object> value =
+                (ArrayList<Object>)object;
+            int ecount = in.readInt();
+            value.ensureCapacity(ecount);
+            for (int ii = 0; ii < ecount; ii++) {
+                value.add(in.readObject());
             }
         }
     }

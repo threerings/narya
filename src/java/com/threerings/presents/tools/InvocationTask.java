@@ -8,6 +8,7 @@ import java.io.FileReader;
 import java.io.IOException;
 
 import java.lang.reflect.Method;
+import java.lang.reflect.Type;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -54,7 +55,7 @@ public abstract class InvocationTask extends Task
 
         public String getMarshaller ()
         {
-            String name = GenUtil.simpleName(listener);
+            String name = GenUtil.simpleName(listener, null);
             // handle ye olde special case
             if (name.equals("InvocationService.InvocationListener")) {
                 return "ListenerMarshaller";
@@ -106,7 +107,8 @@ public abstract class InvocationTask extends Task
                 // InvocationService listeners, we need to import its
                 // marshaller as well
                 if (_ilistener.isAssignableFrom(arg) &&
-                    !GenUtil.simpleName(arg).startsWith("InvocationService")) {
+                    !GenUtil.simpleName(
+                        arg, null).startsWith("InvocationService")) {
                     String mname = arg.getName();
                     mname = StringUtil.replace(mname, "Service", "Marshaller");
                     mname = StringUtil.replace(mname, "Listener", "Marshaller");
@@ -135,11 +137,12 @@ public abstract class InvocationTask extends Task
         {
             StringBuilder buf = new StringBuilder();
             Class<?>[] args = method.getParameterTypes();
+            Type[] ptypes = method.getGenericParameterTypes();
             for (int ii = skipFirst ? 1 : 0; ii < args.length; ii++) {
                 if (buf.length() > 0) {
                     buf.append(", ");
                 }
-                buf.append(GenUtil.simpleName(args[ii]));
+                buf.append(GenUtil.simpleName(args[ii], ptypes[ii]));
                 buf.append(" arg").append(skipFirst ? ii : ii+1);
             }
             return buf.toString();
@@ -172,12 +175,13 @@ public abstract class InvocationTask extends Task
         {
             StringBuilder buf = new StringBuilder();
             Class<?>[] args = method.getParameterTypes();
+            Type[] ptypes = method.getGenericParameterTypes();
             for (int ii = (listenerMode ? 0 : 1); ii < args.length; ii++) {
                 if (buf.length() > 0) {
                     buf.append(", ");
                 }
-                buf.append(unboxArgument(args[ii], listenerMode ? ii : ii-1,
-                                          listenerMode));
+                buf.append(unboxArgument(args[ii], ptypes[ii],
+                               listenerMode ? ii : ii-1, listenerMode));
             }
             return buf.toString();
         }
@@ -192,12 +196,13 @@ public abstract class InvocationTask extends Task
         }
 
         protected String unboxArgument (
-            Class<?> clazz, int index, boolean listenerMode)
+            Class<?> clazz, Type type, int index, boolean listenerMode)
         {
             if (listenerMode && _ilistener.isAssignableFrom(clazz)) {
                 return "listener" + index;
             } else {
-                return GenUtil.unboxArgument(clazz, "args[" + index + "]");
+                return GenUtil.unboxArgument(
+                    clazz, type, "args[" + index + "]");
             }
         }
     }

@@ -1,8 +1,8 @@
 //
-// $Id: TestMarshaller.java,v 1.2 2004/08/27 02:21:03 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
-// Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
+// Copyright (C) 2002-2006 Three Rings Design, Inc., All Rights Reserved
 // http://www.threerings.net/code/narya/
 //
 // This library is free software; you can redistribute it and/or modify it
@@ -23,10 +23,9 @@ package com.threerings.presents.data;
 
 import com.threerings.presents.client.Client;
 import com.threerings.presents.client.TestService;
-import com.threerings.presents.client.TestService.TestFuncListener;
-import com.threerings.presents.client.TestService.TestOidListener;
 import com.threerings.presents.data.InvocationMarshaller;
 import com.threerings.presents.dobj.InvocationResponseEvent;
+import java.util.ArrayList;
 
 /**
  * Provides the implementation of the {@link TestService} interface
@@ -44,14 +43,15 @@ public class TestMarshaller extends InvocationMarshaller
     {
         /** The method id used to dispatch {@link #testSucceeded}
          * responses. */
-        public static final int TEST_SUCCEEDED = 0;
+        public static final int TEST_SUCCEEDED = 1;
 
         // documentation inherited from interface
         public void testSucceeded (String arg1, int arg2)
         {
+            _invId = null;
             omgr.postEvent(new InvocationResponseEvent(
                                callerOid, requestId, TEST_SUCCEEDED,
-                               new Object[] { arg1, new Integer(arg2) }));
+                               new Object[] { arg1, Integer.valueOf(arg2) }));
         }
 
         // documentation inherited
@@ -65,6 +65,7 @@ public class TestMarshaller extends InvocationMarshaller
 
             default:
                 super.dispatchResponse(methodId, args);
+                return;
             }
         }
     }
@@ -75,14 +76,15 @@ public class TestMarshaller extends InvocationMarshaller
     {
         /** The method id used to dispatch {@link #gotTestOid}
          * responses. */
-        public static final int GOT_TEST_OID = 0;
+        public static final int GOT_TEST_OID = 1;
 
         // documentation inherited from interface
         public void gotTestOid (int arg1)
         {
+            _invId = null;
             omgr.postEvent(new InvocationResponseEvent(
                                callerOid, requestId, GOT_TEST_OID,
-                               new Object[] { new Integer(arg1) }));
+                               new Object[] { Integer.valueOf(arg1) }));
         }
 
         // documentation inherited
@@ -96,35 +98,35 @@ public class TestMarshaller extends InvocationMarshaller
 
             default:
                 super.dispatchResponse(methodId, args);
+                return;
             }
         }
     }
 
-    /** The method id used to dispatch {@link #test} requests. */
-    public static final int TEST = 1;
-
-    // documentation inherited from interface
-    public void test (Client arg1, String arg2, int arg3, TestFuncListener arg4)
-    {
-        TestFuncMarshaller listener4 = new TestFuncMarshaller();
-        listener4.listener = arg4;
-        sendRequest(arg1, TEST, new Object[] {
-            arg2, new Integer(arg3), listener4
-        });
-    }
-
     /** The method id used to dispatch {@link #getTestOid} requests. */
-    public static final int GET_TEST_OID = 2;
+    public static final int GET_TEST_OID = 1;
 
     // documentation inherited from interface
-    public void getTestOid (Client arg1, TestOidListener arg2)
+    public void getTestOid (Client arg1, TestService.TestOidListener arg2)
     {
-        TestOidMarshaller listener2 = new TestOidMarshaller();
+        TestMarshaller.TestOidMarshaller listener2 = new TestMarshaller.TestOidMarshaller();
         listener2.listener = arg2;
         sendRequest(arg1, GET_TEST_OID, new Object[] {
             listener2
         });
     }
 
-    // Class file generated on 14:28:55 08/12/02.
+    /** The method id used to dispatch {@link #test} requests. */
+    public static final int TEST = 2;
+
+    // documentation inherited from interface
+    public void test (Client arg1, String arg2, int arg3, ArrayList<java.lang.Integer> arg4, TestService.TestFuncListener arg5)
+    {
+        TestMarshaller.TestFuncMarshaller listener5 = new TestMarshaller.TestFuncMarshaller();
+        listener5.listener = arg5;
+        sendRequest(arg1, TEST, new Object[] {
+            arg2, Integer.valueOf(arg3), arg4, listener5
+        });
+    }
+
 }

@@ -28,8 +28,7 @@
              classpathref="classpath"/>
     <!-- make sure the dobject class files are all compiled -->
     <javac srcdir="src/java" destdir="${classes.dir}"
-           debug="on" optimize="${build.optimize}" deprecation="on"
-           source="1.4" target="1.4">
+           debug="on" deprecation="on" source="1.5" target="1.5">
       <classpath refid="classpath"/>
       <include name="**/*Object.java"/>
     </javac>
@@ -39,30 +38,39 @@
     </dobj>
   </target>
 
-  <!-- generates marshaller and dispatcher classes for all invocation
-       service declarations -->
-  <target name="genservice">
-    <apply executable="../bin/genservice" failonerror="true" parallel="true">
-      <arg value="--classpath"/>
-      <arg value="${classes.dir}:${narya.classes.dir}"/>
-      <arg value="--sourcedir"/>
-      <arg value="src/java"/>
-      <fileset dir="src/java" includes="**/*Service.java"
-        excludes="**/InvocationService.java"/>
-    </apply>
+  <!-- generates marshaller and dispatcher classes for all invocation -->
+  <!-- service declarations -->
+  <target name="genservice"> 
+    <taskdef name="service" classpathref="classpath"
+             classname="com.threerings.presents.tools.GenServiceTask"/>
+    <!-- make sure the service class files are all compiled -->
+    <javac srcdir="src/java" destdir="${classes.dir}" debug="on"
+           deprecation="on" source="1.5" target="1.5">
+      <classpath refid="classpath"/>
+      <include name="**/*Service.java"/>
+    </javac>
+    <!-- now generate the associated files -->
+    <service header="../lib/SOURCE_HEADER" classpathref="classpath">
+      <fileset dir="src/java" includes="**/*Service.java"/>
+    </service>
   </target>
 
-  <!-- generates sender and decoder classes for all invocation
-       receiver declarations -->
-  <target name="genreceiver">
-    <apply executable="../bin/genreceiver" failonerror="true" parallel="true">
-      <arg value="--classpath"/>
-      <arg value="${classes.dir}:${narya.classes.dir}"/>
-      <arg value="--sourcedir"/>
-      <arg value="src/java"/>
-      <fileset dir="src/java" includes="**/*Receiver.java"
-        excludes="**/InvocationReceiver.java"/>
-    </apply>
+  <!-- generates sender and decoder classes for all invocation -->
+  <!-- receiver declarations -->
+  <target name="genreceiver"> 
+    <taskdef name="receiver" classpathref="classpath"
+             classname="com.threerings.presents.tools.GenReceiverTask"/>
+    <!-- make sure the receiver class files are all compiled -->
+    <javac srcdir="src/java" destdir="${classes.dir}"
+           debug="on" deprecation="on" source="1.5" target="1.5">
+      <classpath refid="classpath"/>
+      <include name="**/*Receiver.java"/>
+      <exclude name="**/InvocationReceiver.java"/>
+    </javac>
+    <!-- now generate the associated files -->
+    <receiver header="../lib/SOURCE_HEADER" classpathref="classpath">
+      <fileset dir="src/java" includes="**/*Receiver.java"/>
+    </receiver>
   </target>
 
   <!-- prepares the application directories -->

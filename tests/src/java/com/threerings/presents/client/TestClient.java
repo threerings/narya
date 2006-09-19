@@ -21,6 +21,8 @@
 
 package com.threerings.presents.client;
 
+import java.util.ArrayList;
+
 import com.samskivert.util.Queue;
 import com.samskivert.util.RunQueue;
 
@@ -36,8 +38,7 @@ import com.threerings.presents.net.*;
  */
 public class TestClient
     implements RunQueue, SessionObserver, Subscriber<TestObject>, EventListener,
-               TestService.TestFuncListener, TestService.TestOidListener,
-               TestReceiver
+               TestService.TestOidListener, TestReceiver
 {
     public void setClient (Client client)
     {
@@ -71,12 +72,26 @@ public class TestClient
         Log.info("Client did logon [client=" + client + "].");
 
         // register ourselves as a test notification receiver
-        client.getInvocationDirector().registerReceiver(
-            new TestDecoder(this));
+        client.getInvocationDirector().registerReceiver(new TestDecoder(this));
 
-        // get the test object id
         TestService service = (TestService)
             client.requireService(TestService.class);
+
+        // send a test request
+        ArrayList<Integer> three = new ArrayList<Integer>();
+        three.add(3);
+        three.add(4);
+        three.add(5);
+        service.test(client, "one", 2, three, new TestService.TestFuncListener() {
+            public void testSucceeded (String one, int two) {
+                Log.info("Got test response [one=" + one + ", two=" + two + "].");
+            }
+            public void requestFailed (String reason) {
+                Log.info("Urk! Request failed [reason=" + reason + "].");
+            }
+        });
+
+        // get the test object id
         service.getTestOid(client, this);
     }
 
@@ -112,12 +127,6 @@ public class TestClient
 
         // request that we log off
         _client.logoff(true);
-    }
-
-    // documentation inherited from interface
-    public void testSucceeded (String one, int two)
-    {
-        Log.info("Got test response [one=" + one + ", two=" + two + "].");
     }
 
     // documentation inherited from interface

@@ -266,7 +266,7 @@ public class GenDObjectTask extends Task
             // if this field is an array, we need its component types
             if (ftype.isArray()) {
                 Class<?> etype = ftype.getComponentType();
-                ctx.put("elemtype", GenUtil.simpleName(etype));
+                ctx.put("elemtype", GenUtil.simpleName(etype, null));
                 ctx.put("wrapelem", GenUtil.boxArgument(etype, "value"));
                 ctx.put("wrapoelem", GenUtil.boxArgument(etype, "ovalue"));
             }
@@ -283,7 +283,8 @@ public class GenDObjectTask extends Task
                     ParameterizedType pt = (ParameterizedType)t;
                     if (pt.getActualTypeArguments().length > 0) {
                         ctx.put("etype", GenUtil.simpleName(
-                                    (Class<?>)pt.getActualTypeArguments()[0]));
+                                    (Class<?>)pt.getActualTypeArguments()[0],
+                                    null));
                     }
                 } else {
                     ctx.put("etype", "DSet.Entry");

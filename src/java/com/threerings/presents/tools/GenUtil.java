@@ -29,6 +29,7 @@ import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.GenericArrayType;
 import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -50,8 +51,8 @@ public class GenUtil
         Pattern.compile("^\\s*public\\s+(interface|class)\\s+(\\S+)(\\W|$)");
 
     /**
-     * Returns the name of the supplied class as it would likely appear in
-     * code using the class (no package prefix, arrays specified as
+     * Returns the name of the supplied class as it would likely appear in code
+     * using the class (no package prefix, arrays specified as
      * <code>type[]</code>).
      */
     public static String simpleName (Field field)
@@ -64,7 +65,8 @@ public class GenUtil
                     field.getGenericType();
                 cname = atype.getGenericComponentType().toString();
             } else {
-                return simpleName(clazz.getComponentType()) + "[]";
+                return simpleName(clazz.getComponentType(),
+                    field.getGenericType()) + "[]";
             }
         } else if (field.getGenericType() instanceof ParameterizedType) {
             cname = field.getGenericType().toString();
@@ -78,18 +80,22 @@ public class GenUtil
     }
 
     /**
-     * Returns the name of the supplied class as it would likely appear in
-     * code using the class (no package prefix, arrays specified as
+     * Returns the name of the supplied class as it would likely appear in code
+     * using the class (no package prefix, arrays specified as
      * <code>type[]</code>).
      */
-    public static String simpleName (Class<?> clazz)
+    public static String simpleName (Class<?> clazz, Type type)
     {
         if (clazz.isArray()) {
-            return simpleName(clazz.getComponentType()) + "[]";
+            return simpleName(clazz.getComponentType(), type) + "[]";
         } else {
+            String cname = clazz.getName();
+            if (type instanceof ParameterizedType) {
+                cname = type.toString();
+            }
             Package pkg = clazz.getPackage();
             int offset = (pkg == null) ? 0 : pkg.getName().length()+1;
-            String name = clazz.getName().substring(offset);
+            String name = cname.substring(offset);
             return StringUtil.replace(name, "$", ".");
         }
     }
@@ -122,10 +128,10 @@ public class GenUtil
     }
 
     /**
-     * "Unboxes" the supplied argument, ie. turning an
-     * <code>Integer</code> object into an <code>int</code>.
+     * "Unboxes" the supplied argument, ie. turning an <code>Integer</code>
+     * object into an <code>int</code>.
      */
-    public static String unboxArgument (Class<?> clazz, String name)
+    public static String unboxArgument (Class<?> clazz, Type type, String name)
     {
         if (clazz == Boolean.TYPE) {
             return "((Boolean)" + name + ").booleanValue()";
@@ -144,7 +150,7 @@ public class GenUtil
         } else if (clazz == Double.TYPE) {
             return "((Double)" + name + ").doubleValue()";
         } else {
-            return "(" + simpleName(clazz) + ")" + name + "";
+            return "(" + simpleName(clazz, type) + ")" + name + "";
         }
     }
 
