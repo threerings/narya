@@ -26,6 +26,7 @@ import java.io.IOException;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.RandomAccess;
 
 /**
  * Code to read and write basic object types (like arrays of primitives,
@@ -658,7 +659,13 @@ public class BasicStreamers
         public Object createObject (ObjectInputStream in)
             throws IOException
         {
-            return new ArrayList();
+            return new ArrayList(0); // minimally sized
+            // (We thought about using a ThreadLocal to assist here...
+            // we could read the length of the list here and construct
+            // the ArrayList with the right size, and then read the
+            // length out of the ThreadLocal down in readObject(). Instead,
+            // we simply create a 0-length list here, which generates
+            // minimal garbage when we ensureCapacity() down in readObject.)
         }
 
         // documentation inherited
@@ -669,8 +676,16 @@ public class BasicStreamers
             List list = (List)object;
             int ecount = list.size();
             out.writeInt(ecount);
-            for (int ii = 0; ii < ecount; ii++) {
-                out.writeObject(list.get(ii));
+            if (list instanceof RandomAccess) {
+                // if RandomAccess, it's faster and less garbagey this way
+                for (int ii = 0; ii < ecount; ii++) {
+                    out.writeObject(list.get(ii));
+                }
+            } else {
+                // if not RandomAccess, go ahead and make an Iterator...
+                for (Object o : list) {
+                    out.writeObject(o);
+                }
             }
         }
 
@@ -682,7 +697,7 @@ public class BasicStreamers
             @SuppressWarnings("unchecked") ArrayList<Object> value =
                 (ArrayList<Object>)object;
             int ecount = in.readInt();
-            value.ensureCapacity(ecount);
+            value.ensureCapacity(ecount); // resize the array once
             for (int ii = 0; ii < ecount; ii++) {
                 value.add(in.readObject());
             }
