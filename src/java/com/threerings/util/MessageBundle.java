@@ -53,6 +53,15 @@ public class MessageBundle
     }
 
     /**
+     * Composes a message key with a single argument. The message can
+     * subsequently be translated in a single call using {@link #xlate}.
+     */
+    public static String compose (String key, Object arg)
+    {
+        return MessageUtil.compose(key, new Object[] { arg });
+    }
+
+    /**
      * Composes a message key with an array of arguments. The message can
      * subsequently be translated in a single call using {@link #xlate}.
      */
@@ -68,6 +77,16 @@ public class MessageBundle
     public static String compose (String key, String... args)
     {
         return MessageUtil.compose(key, args);
+    }
+
+    /**
+     * A convenience method for calling {@link #compose(String,Object[])}
+     * with an array of arguments that will be automatically tainted (see
+     * {@link #taint}).
+     */
+    public static String tcompose (String key, Object arg)
+    {
+        return MessageUtil.tcompose(key, new Object[] { arg });
     }
 
     /**
