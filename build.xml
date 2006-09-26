@@ -177,13 +177,13 @@
   </target>
 
   <!-- various bits used by the retroweaver tasks -->
-  <taskdef name="weave" classpathref="classpath" onerror="report"
-           classname="com.rc.retroweaver.ant.RetroWeaverTask"/>
   <property name="inpre" value="${deploy.dir}/${app.name}"/>
   <property name="outpre" value="${deploy.dir}/retro/${app.name}"/>
 
   <!-- a helper task for 'retro' -->
   <target name="vweave">
+    <taskdef name="weave" classpathref="classpath"
+             classname="com.rc.retroweaver.ant.RetroWeaverTask"/>
     <path id="retrocp">
       <pathelement location="/usr/local/jdk1.4/jre/lib/rt.jar"/>
       <fileset dir="lib" includes="**/*.jar"/>
@@ -197,6 +197,8 @@
 
   <!-- converts our 1.5 code to a 1.4 compatible format -->
   <target name="retro" depends="dist">
+    <taskdef name="weave" classpathref="classpath"
+             classname="com.rc.retroweaver.ant.RetroWeaverTask"/>
     <mkdir dir="${deploy.dir}/retro"/>
 
     <!-- we weave everything a first time without verification so that -->
