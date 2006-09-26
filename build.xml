@@ -18,7 +18,7 @@
   <!-- declare our classpath business -->
   <path id="classpath">
     <pathelement location="${classes.dir}"/>
-    <fileset dir="lib" includes="**/*.jar"/>
+    <fileset dir="${deploy.dir}/lib" includes="**/*.jar"/>
   </path>
 
   <!-- generates additional methods for distributed object classes -->
@@ -88,11 +88,15 @@
   <!-- prepares the application directories -->
   <target name="prepare">
     <mkdir dir="${deploy.dir}"/>
+    <mkdir dir="${deploy.dir}/lib"/>
     <mkdir dir="${classes.dir}"/>
     <mkdir dir="${javadoc.home}"/>
     <copy todir="${classes.dir}">
       <fileset dir="src/java" includes="**/*.properties"/>
       <fileset dir="src/java" includes="**/*.tmpl"/>
+    </copy>
+    <copy todir="${deploy.dir}/lib">
+      <fileset dir="lib" includes="**/*.jar"/>
     </copy>
   </target>
 
@@ -173,7 +177,7 @@
   </target>
 
   <!-- various bits used by the retroweaver tasks -->
-  <taskdef name="weave" classpathref="classpath"
+  <taskdef name="weave" classpathref="classpath" onerror="report"
            classname="com.rc.retroweaver.ant.RetroWeaverTask"/>
   <property name="inpre" value="${deploy.dir}/${app.name}"/>
   <property name="outpre" value="${deploy.dir}/retro/${app.name}"/>

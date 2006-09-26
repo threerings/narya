@@ -18,7 +18,7 @@
   <path id="classpath">
     <pathelement location="${classes.dir}"/>
     <pathelement location="${narya.classes.dir}"/>
-    <fileset dir="../lib" includes="**/*.jar"/>
+    <fileset dir="../${deploy.dir}/lib" includes="**/*.jar"/>
   </path>
 
   <!-- generates additional methods for distributed object classes -->
