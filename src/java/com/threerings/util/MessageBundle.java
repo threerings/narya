@@ -84,19 +84,25 @@ public class MessageBundle
      * with an array of arguments that will be automatically tainted (see
      * {@link #taint}).
      */
+    public static String tcompose (String key, Object... args)
+    {
+        return MessageUtil.tcompose(key, args);
+    }
+
+    /**
+     * Required for backwards compatibility. Alas.
+     */
     public static String tcompose (String key, Object arg)
     {
         return MessageUtil.tcompose(key, new Object[] { arg });
     }
 
     /**
-     * A convenience method for calling {@link #compose(String,Object[])}
-     * with an array of arguments that will be automatically tainted (see
-     * {@link #taint}).
+     * Required for backwards compatibility. Alas.
      */
-    public static String tcompose (String key, Object... args)
+    public static String tcompose (String key, Object arg1, Object arg2)
     {
-        return MessageUtil.tcompose(key, args);
+        return MessageUtil.tcompose(key, new Object[] { arg1, arg2 });
     }
 
     /**
