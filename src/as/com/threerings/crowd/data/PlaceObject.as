@@ -55,6 +55,11 @@ public class PlaceObject extends DObject
     // AUTO-GENERATED: FIELDS END
 
     /**
+     * Allows the client to call methods on the manager.
+     */
+    public var manager :ManagerCaller;
+
+    /**
      * Tracks the oid of the body objects of all of the occupants of this
      * place.
      */
@@ -75,6 +80,16 @@ public class PlaceObject extends DObject
 
     /** Used to generate speak requests on this place object. */
     public var speakService :SpeakMarshaller;
+
+    /**
+     * We need a constructor here in actionscript to set up the
+     * ManagerCaller.
+     */
+    public function PlaceObject ()
+    {
+        super();
+        manager = new ManagerCaller(this);
+    }
 
     /**
      * Looks up a user's occupant info by name.
