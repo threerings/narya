@@ -213,6 +213,10 @@ public class ConnectionManager extends LoopingThread
             _lastStats = stats;
         }
 
+        // make sure we don't div0 if this method somehow gets called twice in
+        // the same millisecond
+        sinceLast = Math.max(sinceLast, 1L);
+
         report.append("* presents.net.ConnectionManager:\n");
         report.append("- Network connections: ");
         report.append(connects).append(" connects, ");
