@@ -19,6 +19,13 @@ public class ClassUtil
         return s.replace("::", ".");
     }
 
+    public static function tinyClassName (obj :Object) :String
+    {
+        var s :String = getClassName(obj);
+        var dex :int = s.lastIndexOf(".");
+        return s.substring(dex + 1); // works even if dex is -1
+    }
+
     /**
      * Return a new instance that is the same class as the specified
      * object. The class must have a zero-arg constructor.
