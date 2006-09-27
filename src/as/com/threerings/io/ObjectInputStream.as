@@ -66,13 +66,13 @@ public class ObjectInputStream
                     "Created mapping: (" + code + "): " + cname);
 
             } else {
-                if (DEBUG) log.debug(
-                    DEBUG_ID + "Read known code: (" + code + ")");
                 cmap = (_classMap[code] as ClassMapping);
                 if (null == cmap) {
                     throw new IOError("Read object for which we have no " +
-                        "registered class metadata.");
+                        "registered class metadata [code=" + code + "].");
                 }
+                if (DEBUG) log.debug(DEBUG_ID + "Read known code: (" +
+                    code + ": " + cmap.classname + ")");
             }
 
 //            log.debug("Creating object sleeve...");
