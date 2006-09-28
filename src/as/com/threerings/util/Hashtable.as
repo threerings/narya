@@ -78,7 +78,7 @@ public class Hashtable
         var e :Entry = (_entries[index] as Entry);
         while (true) {
             if (e == null) {
-                return null;
+                return undefined;
             }
             if (e.hash == hash && e.key.equals(hkey)) {
                 return e.value;
