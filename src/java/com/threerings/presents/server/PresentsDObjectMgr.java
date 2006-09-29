@@ -278,12 +278,12 @@ public class PresentsDObjectMgr
                 processEvent((DEvent)unit);
             }
 
-        } catch (Exception e) {
-            log.log(Level.WARNING,
-                "Execution unit failed [unit=" + unit + "].", e);
-
-        } catch (Error e) {
+        } catch (OutOfMemoryError e) {
             handleFatalError(unit, e);
+
+        } catch (Throwable t) {
+            log.log(Level.WARNING,
+                "Execution unit failed [unit=" + unit + "].", t);
         }
 
         // compute the elapsed time in microseconds
@@ -417,12 +417,12 @@ public class PresentsDObjectMgr
                 target.notifyListeners(event);
             }
 
-        } catch (Exception e) {
-            log.log(Level.WARNING, "Failure processing event [event=" + event +
-                ", target=" + target + "].", e);
-
-        } catch (Error e) {
+        } catch (OutOfMemoryError e) {
             handleFatalError(event, e);
+
+        } catch (Throwable t) {
+            log.log(Level.WARNING, "Failure processing event [event=" + event +
+                ", target=" + target + "].", t);
         }
 
         // track the number of events dispatched
