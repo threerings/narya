@@ -34,6 +34,8 @@ public interface Map
 
     /**
      * Return all the unique keys in this Map, in Array form.
+     * The Array is not a 'view': it can be modified without disturbing
+     * the Map from whence it came.
      */
     function keys () :Array;
 
@@ -56,6 +58,8 @@ public interface Map
 
     /**
      * Return all the values in this Map, in Array form.
+     * The Array is not a 'view': it can be modified without disturbing
+     * the Map from whence it came.
      */
     function values () :Array;
 }
