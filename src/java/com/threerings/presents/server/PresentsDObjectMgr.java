@@ -278,7 +278,7 @@ public class PresentsDObjectMgr
                 processEvent((DEvent)unit);
             }
 
-        } catch (OutOfMemoryError e) {
+        } catch (VirtualMachineError e) {
             handleFatalError(unit, e);
 
         } catch (Throwable t) {
@@ -417,7 +417,7 @@ public class PresentsDObjectMgr
                 target.notifyListeners(event);
             }
 
-        } catch (OutOfMemoryError e) {
+        } catch (VirtualMachineError e) {
             handleFatalError(event, e);
 
         } catch (Throwable t) {
