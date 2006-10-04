@@ -73,7 +73,10 @@ public class OccupantInfo extends SimpleStreamableObject
     /** The status of this occupant. */
     public var status :int = ACTIVE;
 
-    /** A blank constructor used for unserialization. */
+    /**
+     * Constructs an occupant info record, optionally obtaining data from the
+     * supplied BodyObject.
+     */
     public function OccupantInfo (body :BodyObject = null)
     {
         if (body != null) {
