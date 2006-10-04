@@ -4,7 +4,7 @@ public class StringBuilder
 {
     public function StringBuilder (... args)
     {
-        _array = args;
+        append.apply(this, args);
     }
 
     /**
@@ -28,6 +28,6 @@ public class StringBuilder
     }
 
     /** Our array in which we place all arguments. */
-    protected var _array :Array;
+    protected var _array :Array = [];
 }
 }
