@@ -232,7 +232,7 @@ public class GenUtil
         } else if (clazz == Double.TYPE) {
             return "(" + name + " as Double).value";
         } else {
-            return name + " as " + simpleASName(clazz);
+            return "(" + name + " as " + simpleASName(clazz) + ")";
         }
     }
 
