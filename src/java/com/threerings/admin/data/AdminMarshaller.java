@@ -36,7 +36,9 @@ import com.threerings.presents.dobj.InvocationResponseEvent;
 public class AdminMarshaller extends InvocationMarshaller
     implements AdminService
 {
-    // documentation inherited
+    /**
+     * Marshalls results to implementations of {@link ConfigInfoListener}.
+     */
     public static class ConfigInfoMarshaller extends ListenerMarshaller
         implements ConfigInfoListener
     {
@@ -44,7 +46,7 @@ public class AdminMarshaller extends InvocationMarshaller
          * responses. */
         public static final int GOT_CONFIG_INFO = 1;
 
-        // documentation inherited from interface
+        // from interface ConfigInfoMarshaller
         public void gotConfigInfo (String[] arg1, int[] arg2)
         {
             _invId = null;
@@ -53,7 +55,7 @@ public class AdminMarshaller extends InvocationMarshaller
                                new Object[] { arg1, arg2 }));
         }
 
-        // documentation inherited
+        @Override // from InvocationMarshaller
         public void dispatchResponse (int methodId, Object[] args)
         {
             switch (methodId) {
@@ -72,7 +74,7 @@ public class AdminMarshaller extends InvocationMarshaller
     /** The method id used to dispatch {@link #getConfigInfo} requests. */
     public static final int GET_CONFIG_INFO = 1;
 
-    // documentation inherited from interface
+    // from interface AdminService
     public void getConfigInfo (Client arg1, AdminService.ConfigInfoListener arg2)
     {
         AdminMarshaller.ConfigInfoMarshaller listener2 = new AdminMarshaller.ConfigInfoMarshaller();
@@ -81,5 +83,4 @@ public class AdminMarshaller extends InvocationMarshaller
             listener2
         });
     }
-
 }

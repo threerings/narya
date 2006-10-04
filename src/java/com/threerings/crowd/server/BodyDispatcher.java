@@ -43,13 +43,13 @@ public class BodyDispatcher extends InvocationDispatcher
         this.provider = provider;
     }
 
-    // documentation inherited
+    // from InvocationDispatcher
     public InvocationMarshaller createMarshaller ()
     {
         return new BodyMarshaller();
     }
 
-    // documentation inherited
+    @SuppressWarnings("unchecked") // from InvocationDispatcher
     public void dispatchRequest (
         ClientObject source, int methodId, Object[] args)
         throws InvocationException

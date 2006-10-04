@@ -39,12 +39,11 @@ public class BodyMarshaller extends InvocationMarshaller
     /** The method id used to dispatch {@link #setIdle} requests. */
     public static final int SET_IDLE = 1;
 
-    // documentation inherited from interface
+    // from interface BodyService
     public void setIdle (Client arg1, boolean arg2)
     {
         sendRequest(arg1, SET_IDLE, new Object[] {
             Boolean.valueOf(arg2)
         });
     }
-
 }

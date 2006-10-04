@@ -39,12 +39,11 @@ public class SpeakMarshaller extends InvocationMarshaller
     /** The method id used to dispatch {@link #speak} requests. */
     public static final int SPEAK = 1;
 
-    // documentation inherited from interface
+    // from interface SpeakService
     public void speak (Client arg1, String arg2, byte arg3)
     {
         sendRequest(arg1, SPEAK, new Object[] {
             arg2, Byte.valueOf(arg3)
         });
     }
-
 }

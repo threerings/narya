@@ -43,13 +43,13 @@ public class SpeakDispatcher extends InvocationDispatcher
         this.provider = provider;
     }
 
-    // documentation inherited
+    // from InvocationDispatcher
     public InvocationMarshaller createMarshaller ()
     {
         return new SpeakMarshaller();
     }
 
-    // documentation inherited
+    @SuppressWarnings("unchecked") // from InvocationDispatcher
     public void dispatchRequest (
         ClientObject source, int methodId, Object[] args)
         throws InvocationException

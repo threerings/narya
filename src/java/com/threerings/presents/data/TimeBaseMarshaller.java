@@ -36,7 +36,9 @@ import com.threerings.presents.dobj.InvocationResponseEvent;
 public class TimeBaseMarshaller extends InvocationMarshaller
     implements TimeBaseService
 {
-    // documentation inherited
+    /**
+     * Marshalls results to implementations of {@link GotTimeBaseListener}.
+     */
     public static class GotTimeBaseMarshaller extends ListenerMarshaller
         implements GotTimeBaseListener
     {
@@ -44,7 +46,7 @@ public class TimeBaseMarshaller extends InvocationMarshaller
          * responses. */
         public static final int GOT_TIME_OID = 1;
 
-        // documentation inherited from interface
+        // from interface GotTimeBaseMarshaller
         public void gotTimeOid (int arg1)
         {
             _invId = null;
@@ -53,7 +55,7 @@ public class TimeBaseMarshaller extends InvocationMarshaller
                                new Object[] { Integer.valueOf(arg1) }));
         }
 
-        // documentation inherited
+        @Override // from InvocationMarshaller
         public void dispatchResponse (int methodId, Object[] args)
         {
             switch (methodId) {
@@ -72,7 +74,7 @@ public class TimeBaseMarshaller extends InvocationMarshaller
     /** The method id used to dispatch {@link #getTimeOid} requests. */
     public static final int GET_TIME_OID = 1;
 
-    // documentation inherited from interface
+    // from interface TimeBaseService
     public void getTimeOid (Client arg1, String arg2, TimeBaseService.GotTimeBaseListener arg3)
     {
         TimeBaseMarshaller.GotTimeBaseMarshaller listener3 = new TimeBaseMarshaller.GotTimeBaseMarshaller();
@@ -81,5 +83,4 @@ public class TimeBaseMarshaller extends InvocationMarshaller
             arg2, listener3
         });
     }
-
 }

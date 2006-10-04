@@ -43,7 +43,7 @@ public class CrowdPeerMarshaller extends InvocationMarshaller
     /** The method id used to dispatch {@link #deliverTell} requests. */
     public static final int DELIVER_TELL = 1;
 
-    // documentation inherited from interface
+    // from interface CrowdPeerService
     public void deliverTell (Client arg1, UserMessage arg2, Name arg3, ChatService.TellListener arg4)
     {
         ChatMarshaller.TellMarshaller listener4 = new ChatMarshaller.TellMarshaller();
@@ -52,5 +52,4 @@ public class CrowdPeerMarshaller extends InvocationMarshaller
             arg2, arg3, listener4
         });
     }
-
 }

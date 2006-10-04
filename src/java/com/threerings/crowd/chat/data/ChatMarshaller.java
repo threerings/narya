@@ -38,7 +38,9 @@ import com.threerings.util.Name;
 public class ChatMarshaller extends InvocationMarshaller
     implements ChatService
 {
-    // documentation inherited
+    /**
+     * Marshalls results to implementations of {@link TellListener}.
+     */
     public static class TellMarshaller extends ListenerMarshaller
         implements TellListener
     {
@@ -46,7 +48,7 @@ public class ChatMarshaller extends InvocationMarshaller
          * responses. */
         public static final int TELL_SUCCEEDED = 1;
 
-        // documentation inherited from interface
+        // from interface TellMarshaller
         public void tellSucceeded (long arg1, String arg2)
         {
             _invId = null;
@@ -55,7 +57,7 @@ public class ChatMarshaller extends InvocationMarshaller
                                new Object[] { Long.valueOf(arg1), arg2 }));
         }
 
-        // documentation inherited
+        @Override // from InvocationMarshaller
         public void dispatchResponse (int methodId, Object[] args)
         {
             switch (methodId) {
@@ -74,7 +76,7 @@ public class ChatMarshaller extends InvocationMarshaller
     /** The method id used to dispatch {@link #away} requests. */
     public static final int AWAY = 1;
 
-    // documentation inherited from interface
+    // from interface ChatService
     public void away (Client arg1, String arg2)
     {
         sendRequest(arg1, AWAY, new Object[] {
@@ -85,7 +87,7 @@ public class ChatMarshaller extends InvocationMarshaller
     /** The method id used to dispatch {@link #broadcast} requests. */
     public static final int BROADCAST = 2;
 
-    // documentation inherited from interface
+    // from interface ChatService
     public void broadcast (Client arg1, String arg2, InvocationService.InvocationListener arg3)
     {
         ListenerMarshaller listener3 = new ListenerMarshaller();
@@ -98,7 +100,7 @@ public class ChatMarshaller extends InvocationMarshaller
     /** The method id used to dispatch {@link #tell} requests. */
     public static final int TELL = 3;
 
-    // documentation inherited from interface
+    // from interface ChatService
     public void tell (Client arg1, Name arg2, String arg3, ChatService.TellListener arg4)
     {
         ChatMarshaller.TellMarshaller listener4 = new ChatMarshaller.TellMarshaller();
@@ -107,5 +109,4 @@ public class ChatMarshaller extends InvocationMarshaller
             arg2, arg3, listener4
         });
     }
-
 }

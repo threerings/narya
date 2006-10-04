@@ -37,7 +37,9 @@ import com.threerings.presents.dobj.InvocationResponseEvent;
 public class LocationMarshaller extends InvocationMarshaller
     implements LocationService
 {
-    // documentation inherited
+    /**
+     * Marshalls results to implementations of {@link MoveListener}.
+     */
     public static class MoveMarshaller extends ListenerMarshaller
         implements MoveListener
     {
@@ -45,7 +47,7 @@ public class LocationMarshaller extends InvocationMarshaller
          * responses. */
         public static final int MOVE_SUCCEEDED = 1;
 
-        // documentation inherited from interface
+        // from interface MoveMarshaller
         public void moveSucceeded (PlaceConfig arg1)
         {
             _invId = null;
@@ -54,7 +56,7 @@ public class LocationMarshaller extends InvocationMarshaller
                                new Object[] { arg1 }));
         }
 
-        // documentation inherited
+        @Override // from InvocationMarshaller
         public void dispatchResponse (int methodId, Object[] args)
         {
             switch (methodId) {
@@ -73,7 +75,7 @@ public class LocationMarshaller extends InvocationMarshaller
     /** The method id used to dispatch {@link #leavePlace} requests. */
     public static final int LEAVE_PLACE = 1;
 
-    // documentation inherited from interface
+    // from interface LocationService
     public void leavePlace (Client arg1)
     {
         sendRequest(arg1, LEAVE_PLACE, new Object[] {
@@ -84,7 +86,7 @@ public class LocationMarshaller extends InvocationMarshaller
     /** The method id used to dispatch {@link #moveTo} requests. */
     public static final int MOVE_TO = 2;
 
-    // documentation inherited from interface
+    // from interface LocationService
     public void moveTo (Client arg1, int arg2, LocationService.MoveListener arg3)
     {
         LocationMarshaller.MoveMarshaller listener3 = new LocationMarshaller.MoveMarshaller();
@@ -93,5 +95,4 @@ public class LocationMarshaller extends InvocationMarshaller
             Integer.valueOf(arg2), listener3
         });
     }
-
 }
