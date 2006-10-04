@@ -45,7 +45,8 @@ public class GenServiceTask extends InvocationTask
             new ComparableArrayList<ServiceMethod>();
 
         public ServiceListener (Class service, Class listener,
-                                HashMap<String,Boolean> imports)
+                                HashMap<String,Boolean> imports,
+                                HashMap<String,Boolean> rawimports)
         {
             this.listener = listener;
             Method[] methdecls = listener.getDeclaredMethods();
@@ -56,7 +57,7 @@ public class GenServiceTask extends InvocationTask
                     !Modifier.isAbstract(m.getModifiers())) {
                     continue;
                 }
-                methods.add(new ServiceMethod(service, m, imports));
+                methods.add(new ServiceMethod(service, m, imports, rawimports));
             }
             methods.sort();
         }
@@ -126,6 +127,7 @@ public class GenServiceTask extends InvocationTask
         }
 
         HashMap<String,Boolean> imports = new HashMap<String,Boolean>();
+        HashMap<String,Boolean> rawimports = new HashMap<String,Boolean>();
         ComparableArrayList<ServiceMethod> methods =
             new ComparableArrayList<ServiceMethod>();
         ComparableArrayList<ServiceListener> listeners =
@@ -133,6 +135,7 @@ public class GenServiceTask extends InvocationTask
 
         // we need to import the service itself
         imports.put(importify(service.getName()), Boolean.TRUE);
+        rawimports.put(service.getName(), Boolean.TRUE);
 
         // look through and locate our service methods, also locating any
         // custom InvocationListener derivations along the way
@@ -151,16 +154,16 @@ public class GenServiceTask extends InvocationTask
                     GenUtil.simpleName(
                         args[aa], null).startsWith(sname + ".")) {
                     checkedAdd(listeners, new ServiceListener(
-                                   service, args[aa], imports));
+                                   service, args[aa], imports, rawimports));
                 }
             }
-            methods.add(new ServiceMethod(service, m, imports));
+            methods.add(new ServiceMethod(service, m, imports, rawimports));
         }
         listeners.sort();
         methods.sort();
 
         generateMarshaller(source, sname, spackage, methods, listeners,
-                           imports.keySet());
+                           imports.keySet(), rawimports.keySet());
         generateDispatcher(source, sname, spackage, methods,
                            imports.keySet());
         if (!_providerless.contains(sname)) {
@@ -171,7 +174,8 @@ public class GenServiceTask extends InvocationTask
 
     protected void generateMarshaller (
         File source, String sname, String spackage, List methods,
-        List<ServiceListener> listeners, Collection<String> imports)
+        List<ServiceListener> listeners, Collection<String> imports,
+        Collection<String> rawimports)
     {
         String name = StringUtil.replace(sname, "Service", "");
         String mname = StringUtil.replace(sname, "Service", "Marshaller");
@@ -213,15 +217,22 @@ public class GenServiceTask extends InvocationTask
             return;
         }
 
-        // add imports for our inner listener interfaces; because they are not
-        // real inner interfaces, we have to import them in addition to the
-        // services that (in Java) contained them
-        for (ServiceListener listener : listeners) {
-            checkedAdd(implist, listener.listener.getName().replace("$", "_"));
+        // convert the raw imports into ActionScript versions (inner-classes
+        // become Foo_Bar)
+        Collection<String> asimports = new ArrayList<String>();
+        for (String impy : rawimports) {
+            asimports.add(impy.replace("$", "_"));
         }
-        Class isil = InvocationService.InvocationListener.class;
-        checkedAdd(implist, isil.getName().replace("$", "_"));
+
+        // recreate our service imports using those
+        implist = new ComparableArrayList<String>();
+        implist.addAll(asimports);
+        checkedAdd(implist, Client.class.getName());
+        checkedAdd(implist, InvocationMarshaller.class.getName());
+        Class imlm = InvocationMarshaller.ListenerMarshaller.class;
+        checkedAdd(implist, imlm.getName().replace("$", "_"));
         implist.sort();
+        ctx.put("imports", implist);
 
         // now generate ActionScript versions of our marshaller
         try {
@@ -238,7 +249,6 @@ public class GenServiceTask extends InvocationTask
 
             // now generate ActionScript versions of our listener marshallers
             // because those have to be in separate files
-            Class imlm = InvocationMarshaller.ListenerMarshaller.class;
             for (ServiceListener listener : listeners) {
                 // recreate our imports with just what we need here
                 implist = new ComparableArrayList<String>();
@@ -267,9 +277,10 @@ public class GenServiceTask extends InvocationTask
         // then make some changes to the context and generate ActionScript
         // versions of the service interface itself
         implist = new ComparableArrayList<String>();
-        implist.addAll(imports);
+        implist.addAll(asimports);
         checkedAdd(implist, Client.class.getName());
         checkedAdd(implist, InvocationService.class.getName());
+        Class isil = InvocationService.InvocationListener.class;
         checkedAdd(implist, isil.getName().replace("$", "_"));
         implist.sort();
         ctx.put("imports", implist);
@@ -292,7 +303,7 @@ public class GenServiceTask extends InvocationTask
             for (ServiceListener listener : listeners) {
                 // recreate our imports with just what we need here
                 implist = new ComparableArrayList<String>();
-                implist.addAll(imports);
+                implist.addAll(asimports);
                 checkedAdd(implist, isil.getName().replace("$", "_"));
                 String lname = listener.listener.getName();
                 checkedAdd(implist, lname.replace("$", "_"));

@@ -60,13 +60,19 @@ public abstract class InvocationTask extends Task
             if (name.equals("InvocationService.InvocationListener")) {
                 return "ListenerMarshaller";
             }
-            name = StringUtil.replace(name, "Service", "Marshaller");
-            return StringUtil.replace(name, "Listener", "Marshaller");
+            name = name.replace("Service", "Marshaller");
+            return name.replace("Listener", "Marshaller");
         }
 
         public String getActionScriptMarshaller ()
         {
-            return getMarshaller().replace(".", "_");
+            // handle ye olde special case
+            String name = listener.getName();
+            if (name.endsWith("InvocationService$InvocationListener")) {
+                return "InvocationMarshaller_ListenerMarshaller";
+            } else {
+                return getMarshaller().replace(".", "_");
+            }
         }
     }
 
@@ -79,7 +85,8 @@ public abstract class InvocationTask extends Task
             new ArrayList<ListenerArgument>();
 
         public ServiceMethod (Class<?> service, Method method,
-                              HashMap<String,Boolean> imports)
+                              HashMap<String,Boolean> imports,
+                              HashMap<String,Boolean> rawimports)
         {
             this.method = method;
 
@@ -98,15 +105,22 @@ public abstract class InvocationTask extends Task
                     listenerArgs.add(new ListenerArgument(ii, arg));
                 }
 
-                // if it's not primitive, global or in our package, we
-                // should add an import statement for it
+                // if it's primitive or global we don't need an import
                 if (arg.isPrimitive() ||
-                    arg.getName().startsWith("java.lang") ||
-                    ObjectUtil.equals(
-                        arg.getPackage(), service.getPackage())) {
+                    arg.getName().startsWith("java.lang")) {
                     continue;
                 }
-                imports.put(importify(arg.getName()), Boolean.TRUE);
+
+                // if it's in our same package, we don't need a normal import
+                // but we may need a raw import
+                boolean samepkg =
+                    ObjectUtil.equals(arg.getPackage(), service.getPackage());
+                if (!samepkg) {
+                    imports.put(importify(arg.getName()), Boolean.TRUE);
+                }
+                if (rawimports != null) {
+                    rawimports.put(arg.getName(), Boolean.TRUE);
+                }
 
                 // if it's a listener and not one of the special
                 // InvocationService listeners, we need to import its
@@ -118,7 +132,12 @@ public abstract class InvocationTask extends Task
                     mname = StringUtil.replace(mname, "Service", "Marshaller");
                     mname = StringUtil.replace(mname, "Listener", "Marshaller");
                     mname = StringUtil.replace(mname, ".client.", ".data.");
-                    imports.put(importify(mname), Boolean.TRUE);
+                    if (!samepkg) {
+                        imports.put(importify(mname), Boolean.TRUE);
+                    }
+                    if (rawimports != null) {
+                        rawimports.put(mname, Boolean.TRUE);
+                    }
                 }
             }
         }

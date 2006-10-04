@@ -84,7 +84,7 @@ public class GenReceiverTask extends InvocationTask
                 !Modifier.isAbstract(m.getModifiers())) {
                 continue;
             }
-            methods.add(new ServiceMethod(receiver, m, imports));
+            methods.add(new ServiceMethod(receiver, m, imports, null));
         }
         methods.sort();
 
