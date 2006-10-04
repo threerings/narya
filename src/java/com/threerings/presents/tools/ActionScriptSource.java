@@ -160,7 +160,8 @@ public class ActionScriptSource
         builder.append(field.getName()).append(" :");
 
         // now convert the type to an ActionScript type
-        builder.append(toActionScriptType(field.getType()));
+        builder.append(toActionScriptType(field.getType(),
+                                          !Modifier.isStatic(mods)));
 
         builder.append(";");
 
@@ -195,7 +196,7 @@ public class ActionScriptSource
                 builder.append(", ");
             }
             builder.append("arg").append(idx);
-            builder.append(" :").append(toActionScriptType(ptype));
+            builder.append(" :").append(toActionScriptType(ptype, false));
             if (needsNoArg) {
                 builder.append(" = undef");
             }
@@ -237,19 +238,19 @@ public class ActionScriptSource
                 builder.append(", ");
             }
             builder.append("arg").append(idx);
-            builder.append(" :").append(toActionScriptType(ptype));
+            builder.append(" :").append(toActionScriptType(ptype, false));
         }
         builder.append(") :");
 
-        builder.append(toActionScriptType(method.getReturnType()));
+        builder.append(toActionScriptType(method.getReturnType(), false));
 
         return builder.toString();
     }
 
-    public static String toActionScriptType (Class type)
+    public static String toActionScriptType (Class type, boolean isField)
     {
         if (type.isArray()) {
-            return "TypedArray";
+            return isField ? "TypedArray" : "Array";
         }
 
         String tname = type.getName();
