@@ -149,12 +149,13 @@ public class ActionScriptSource
             builder.append("private ");
         }
 
-        // are we static const or variable?
+        // are we static?
         if (Modifier.isStatic(mods)) {
-            builder.append("static const ");
-        } else {
-            builder.append("var ");
+            builder.append("static ");
         }
+
+        // const or variable?
+        builder.append(Modifier.isFinal(mods) ? "const " : "var ");
 
         // next comes the name
         builder.append(field.getName()).append(" :");
@@ -300,9 +301,13 @@ public class ActionScriptSource
         // note our implemented interfaces
         ArrayList<String> ifaces = new ArrayList<String>();
         for (Class iclass : jclass.getInterfaces()) {
+            // we cannot use the FooCodes interface pattern in ActionScript so
+            // we just have to nix it
+            if (iclass.getName().endsWith("Codes")) {
+                continue;
+            }
             ifaces.add(toSimpleName(iclass.getName()));
         }
-        implementedInterfaces = ifaces.toArray(new String[ifaces.size()]);
 
         // convert the field members
         for (Field field : jclass.getDeclaredFields()) {
@@ -367,6 +372,14 @@ public class ActionScriptSource
                 mem.definition = decl;
             }
         }
+
+        // if we override hashCode() then add Hashable to our interfaces
+        if (getMember(publicMethods, "hashCode") != null) {
+            ifaces.add("Hashable");
+        }
+
+        // finally turn our implemented interfaces into an array
+        implementedInterfaces = ifaces.toArray(new String[ifaces.size()]);
     }
 
     public void absorbJava (File jsource)
