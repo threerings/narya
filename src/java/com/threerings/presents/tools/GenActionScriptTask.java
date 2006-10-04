@@ -94,37 +94,14 @@ public class GenActionScriptTask extends Task
     }
 
     /**
-     * Configures the classpath that we'll use to load classes.
-     */
-    public void setClasspathref (Reference pathref)
-    {
-        _cloader = ClasspathUtils.getClassLoaderForPath(getProject(), pathref);
-    }
-
-    /**
      * Performs the actual work of the task.
      */
     public void execute () throws BuildException
     {
-        if (_cloader == null) {
-            String errmsg = "This task requires a 'classpathref' attribute " +
-                "to be set to the project's classpath.";
-            throw new BuildException(errmsg);
-        }
-
         try {
             _velocity = VelocityUtil.createEngine();
         } catch (Exception e) {
             throw new BuildException("Failure initializing Velocity", e);
-        }
-
-        // resolve the Streamable class using our classloader
-        try {
-            _sclass = _cloader.loadClass(Streamable.class.getName());
-            _doclass = _cloader.loadClass(DObject.class.getName());
-            _imclass = _cloader.loadClass(InvocationMarshaller.class.getName());
-        } catch (Exception e) {
-            throw new BuildException("Can't resolve Streamable", e);
         }
 
         for (FileSet fs : _filesets) {
@@ -155,7 +132,11 @@ public class GenActionScriptTask extends Task
         }
 
         try {
-            processClass(source, _cloader.loadClass(name));
+            // in order for annotations to work, this task and all the classes
+            // it uses must be loaded from the same class loader as the classes
+            // on which we are going to introspect; this is non-ideal but
+            // unavoidable
+            processClass(source, getClass().getClassLoader().loadClass(name));
         } catch (ClassNotFoundException cnfe) {
             System.err.println(
                 "Failed to load " + name + ".\n" +
@@ -176,9 +157,9 @@ public class GenActionScriptTask extends Task
     {
         // make sure we implement Streamable but don't extend DObject or
         // InvocationMarshaller and that we're a class not an interface
-        if (!_sclass.isAssignableFrom(sclass) ||
-            _doclass.isAssignableFrom(sclass) ||
-            _imclass.isAssignableFrom(sclass) ||
+        if (!Streamable.class.isAssignableFrom(sclass) ||
+            DObject.class.isAssignableFrom(sclass) ||
+            InvocationMarshaller.class.isAssignableFrom(sclass) ||
             ((sclass.getModifiers() & Modifier.INTERFACE) != 0)) {
             // System.err.println("Skipping " + sclass.getName() + "...");
             return;
@@ -273,7 +254,7 @@ public class GenActionScriptTask extends Task
     protected boolean isStreamable (Class clazz)
     {
         for (Class iface : clazz.getInterfaces()) {
-            if (_sclass.equals(iface)) {
+            if (Streamable.class.equals(iface)) {
                 return true;
             }
         }
@@ -349,23 +330,8 @@ public class GenActionScriptTask extends Task
     /** The path to our ActionScript source files. */
     protected File _asroot;
 
-    /** Used to do our own classpath business. */
-    protected ClassLoader _cloader;
-
     /** Used to generate source files from templates. */
     protected VelocityEngine _velocity;
-
-    /** {@link Streamable} resolved with the proper classloader so that we can
-     * compare it to loaded derived classes. */
-    protected Class<?> _sclass;
-
-    /** {@link DObject} resolved with the proper classloader so that we
-     * can compare it to loaded derived classes. */
-    protected Class<?> _doclass;
-
-    /** {@link InvocationMarshaller} resolved with the proper classloader so
-     * that we can compare it to loaded derived classes. */
-    protected Class<?> _imclass;
 
     protected static final String READ_SIG =
         "public function readObject (ins :ObjectInputStream) :void";

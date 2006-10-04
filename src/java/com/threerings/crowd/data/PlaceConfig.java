@@ -24,6 +24,7 @@ package com.threerings.crowd.data;
 import com.samskivert.util.StringUtil;
 
 import com.threerings.io.SimpleStreamableObject;
+import com.threerings.util.ActionScript;
 
 import com.threerings.crowd.Log;
 import com.threerings.crowd.client.PlaceController;
@@ -89,6 +90,7 @@ public abstract class PlaceConfig extends SimpleStreamableObject
     public abstract String getManagerClassName ();
 
     // documentation inherited
+    @ActionScript(name="toStringBuilder")
     protected void toString (StringBuilder buf)
     {
         buf.append("type=").append(StringUtil.shortClassName(this));

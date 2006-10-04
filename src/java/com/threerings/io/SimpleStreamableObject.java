@@ -22,6 +22,7 @@
 package com.threerings.io;
 
 import com.samskivert.util.StringUtil;
+import com.threerings.util.ActionScript;
 
 /**
  * A simple serializable object implements the {@link Streamable}
@@ -44,6 +45,7 @@ public class SimpleStreamableObject implements Streamable
      * Handles the toString-ification of all public members. Derived
      * classes can override and include non-public members if desired.
      */
+    @ActionScript(name="toStringBuilder")
     protected void toString (StringBuilder buf)
     {
         StringUtil.fieldsToString(buf, this);

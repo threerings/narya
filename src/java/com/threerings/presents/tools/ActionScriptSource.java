@@ -37,6 +37,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.samskivert.util.StringUtil;
+import com.threerings.util.ActionScript;
 
 /**
  * Primitively parses an ActionScriptSource file, allows the addition and
@@ -135,7 +136,8 @@ public class ActionScriptSource
      * Creates and returns a declaration for a field equivalent to the supplied
      * Java field in ActionScript.
      */
-    public static String createActionScriptDeclaration (Field field)
+    public static String createActionScriptDeclaration (
+        String name, Field field)
     {
         int mods = field.getModifiers();
         StringBuilder builder = new StringBuilder();
@@ -158,7 +160,7 @@ public class ActionScriptSource
         builder.append(Modifier.isFinal(mods) ? "const " : "var ");
 
         // next comes the name
-        builder.append(field.getName()).append(" :");
+        builder.append(name).append(" :");
 
         // now convert the type to an ActionScript type
         builder.append(toActionScriptType(field.getType(),
@@ -207,7 +209,8 @@ public class ActionScriptSource
         return builder.toString();
     }
 
-    public static String createActionScriptDeclaration (Method method)
+    public static String createActionScriptDeclaration (
+        String name, Method method)
     {
         int mods = method.getModifiers();
         StringBuilder builder = new StringBuilder();
@@ -230,7 +233,7 @@ public class ActionScriptSource
         builder.append("function ");
 
         // next comes the name
-        builder.append(getName(method)).append(" (");
+        builder.append(name).append(" (");
 
         // now the parameters
         int idx = 0;
@@ -271,23 +274,6 @@ public class ActionScriptSource
         return toSimpleName(tname);
     }
 
-    protected static String getName (Method method)
-    {
-        // yay for the hackery; we can't overload methods in ActionScript so we
-        // do some crazy conversions based on signature to handle some of our
-        // common patterns
-        String name = method.getName();
-        Class<?>[] ptypes = method.getParameterTypes();
-
-        // toString(StringBuilder) -> toStringBuilder(StringBuilder)
-        if (name.equals("toString") && ptypes.length == 1 &&
-            ptypes[0].getName().equals("java.lang.StringBuilder")) {
-            return "toStringBuilder";
-        }
-
-        return name;
-    }
-
     public ActionScriptSource (Class jclass)
     {
         packageName = jclass.getPackage().getName();
@@ -319,8 +305,18 @@ public class ActionScriptSource
             } else {
                 list = Modifier.isPublic(mods) ? publicFields : protectedFields;
             }
-            list.add(new Member(field.getName(),
-                                createActionScriptDeclaration(field)));
+            String name = field.getName();
+            ActionScript asa = field.getAnnotation(ActionScript.class);
+            if (asa != null) {
+                if (asa.omit()) {
+                    continue;
+                }
+                if (!StringUtil.isBlank(asa.name())) {
+                    name = asa.name();
+                }
+            }
+            String decl = createActionScriptDeclaration(name, field);
+            list.add(new Member(name, decl));
         }
 
         // ActionScript only supports one constructor so we find the one with
@@ -329,6 +325,10 @@ public class ActionScriptSource
         Constructor mainctor = null;
         boolean needsNoArg = false;
         for (Constructor ctor : jclass.getConstructors()) {
+            ActionScript asa = ctor.getAnnotation(ActionScript.class);
+            if (asa != null && asa.omit()) {
+                continue;
+            }
             int params = ctor.getParameterTypes().length;
             if (mainctor == null ||
                 params > mainctor.getParameterTypes().length) {
@@ -359,10 +359,20 @@ public class ActionScriptSource
                     publicMethods : protectedMethods;
             }
 
+            String name = method.getName();
+            ActionScript asa = method.getAnnotation(ActionScript.class);
+            if (asa != null) {
+                if (asa.omit()) {
+                    continue;
+                }
+                if (!StringUtil.isBlank(asa.name())) {
+                    name = asa.name();
+                }
+            }
+
             // see if we already have a member for this method name
-            String name = getName(method);
-            String decl = createActionScriptDeclaration(method);
             Member mem = getMember(list, name);
+            String decl = createActionScriptDeclaration(name, method);
             if (mem == null) {
                 mem = new Member(name, decl);
                 mem.body = "    {\n        TODO: IMPLEMENT ME\n    }\n";
@@ -944,11 +954,13 @@ public class ActionScriptSource
 
     protected static Pattern ASFIELD = Pattern.compile(
         "\\s+(?:public|protected|private)" +
-        "(?:\\s+var|\\s+static\\s+const)?" +
+        "(?:\\s+static)?(?:\\s+var|\\s+const)?" +
         "\\s+([_a-zA-Z]\\w*)" + // variable name
         "\\s+(?::[a-zA-Z\\[\\]<>,]+)" + // type
         "(\\s+=.*|;)");
 
     protected static Pattern ASFUNCTION = Pattern.compile(
-        ".*(?:public|protected) function ([a-zA-Z]\\w*) \\(.*");
+        ".*(?:public|protected)" +
+        "(?:\\s+/\\*\\s*abstract\\s*\\*/)?" +
+        "\\s+function\\s+([a-zA-Z]\\w*) \\(.*");
 }
