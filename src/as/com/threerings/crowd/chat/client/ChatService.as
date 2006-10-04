@@ -1,8 +1,8 @@
 //
-// $Id: ChatService.java 3310 2005-01-24 23:08:21Z mdb $
+// $Id$
 //
 // Narya library - tools for developing networked games
-// Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
+// Copyright (C) 2002-2006 Three Rings Design, Inc., All Rights Reserved
 // http://www.threerings.net/code/narya/
 //
 // This library is free software; you can redistribute it and/or modify it
@@ -21,49 +21,26 @@
 
 package com.threerings.crowd.chat.client {
 
-import com.threerings.util.Name;
-
+import com.threerings.crowd.chat.client.ChatService;
+import com.threerings.crowd.chat.client.ChatService_TellListener;
+import com.threerings.crowd.chat.data.ChatMarshaller_TellMarshaller;
 import com.threerings.presents.client.Client;
 import com.threerings.presents.client.InvocationService;
 import com.threerings.presents.client.InvocationService_InvocationListener;
+import com.threerings.util.Name;
 
 /**
- * The chat services provide a mechanism by which the client can broadcast
- * chat messages to all clients that are subscribed to a particular place
- * object or directly to a particular client. These services should not be
- * used directly, but instead should be accessed via the {@link
- * ChatDirector}.
+ * An ActionScript version of the Java ChatService interface.
  */
 public interface ChatService extends InvocationService
 {
-    /**
-     * Requests that a tell message be delivered to the user with username
-     * equal to <code>target</code>.
-     *
-     * @param client a connected, operational client instance.
-     * @param target the username of the user to which the tell message
-     * should be delivered.
-     * @param message the contents of the message.
-     * @param listener the reference that will receive the tell response.
-     */
-    function tell (
-        client :Client, target :Name, message :String, listener :TellListener)
-        :void;
+    // from Java interface ChatService
+    function away (arg1 :Client, arg2 :String) :void;
 
-    /**
-     * Requests that a message be broadcast to all users in the system.
-     *
-     * @param client a connected, operational client instance.
-     * @param message the contents of the message.
-     * @param listener the reference that will receive a failure response.
-     */
-    function broadcast (
-        client :Client, message :String, listener :InvocationService_InvocationListener) :void;
+    // from Java interface ChatService
+    function broadcast (arg1 :Client, arg2 :String, arg3 :InvocationService_InvocationListener) :void;
 
-    /**
-     * Sets this client's away message. If the message is null or the
-     * empty string, the away message will be cleared.
-     */
-    function away (client :Client, message :String) :void;
+    // from Java interface ChatService
+    function tell (arg1 :Client, arg2 :Name, arg3 :String, arg4 :ChatService_TellListener) :void;
 }
 }

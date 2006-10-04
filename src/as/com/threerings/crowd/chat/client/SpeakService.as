@@ -1,8 +1,8 @@
 //
-// $Id: SpeakService.java 3098 2004-08-27 02:12:55Z mdb $
+// $Id$
 //
 // Narya library - tools for developing networked games
-// Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
+// Copyright (C) 2002-2006 Three Rings Design, Inc., All Rights Reserved
 // http://www.threerings.net/code/narya/
 //
 // This library is free software; you can redistribute it and/or modify it
@@ -21,26 +21,17 @@
 
 package com.threerings.crowd.chat.client {
 
+import com.threerings.crowd.chat.client.SpeakService;
 import com.threerings.presents.client.Client;
 import com.threerings.presents.client.InvocationService;
+import com.threerings.presents.client.InvocationService_InvocationListener;
 
 /**
- * Provides a means by which "speaking" can be allowed among subscribers
- * of a particular distributed object.
+ * An ActionScript version of the Java SpeakService interface.
  */
 public interface SpeakService extends InvocationService
 {
-    /**
-     * Issues a request to speak "on" the distributed object via which
-     * this speak service was provided.
-     *
-     * @param message the message to be spoken.
-     * @param mode the "mode" of the message. This is an opaque value that
-     * will be passed back down via the {@link ChatDirector} to the {@link
-     * ChatDisplay} implementations which can interpret it in an
-     * application specific manner. It's useful for differentiating
-     * between regular speech, emotes, etc.
-     */
-    function speak (client :Client, message :String, mode :int) :void;
+    // from Java interface SpeakService
+    function speak (arg1 :Client, arg2 :String, arg3 :int) :void;
 }
 }

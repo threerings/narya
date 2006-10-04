@@ -1,8 +1,8 @@
 //
-// $Id: ChatMarshaller.java 3793 2005-12-21 02:12:57Z ray $
+// $Id$
 //
 // Narya library - tools for developing networked games
-// Copyright (C) 2002-2005 Three Rings Design, Inc., All Rights Reserved
+// Copyright (C) 2002-2006 Three Rings Design, Inc., All Rights Reserved
 // http://www.threerings.net/code/narya/
 //
 // This library is free software; you can redistribute it and/or modify it
@@ -21,14 +21,15 @@
 
 package com.threerings.crowd.chat.data {
 
+import com.threerings.util.*; // for Float, Integer, etc.
+
 import com.threerings.crowd.chat.client.ChatService;
-import com.threerings.crowd.chat.client.TellListener;
+import com.threerings.crowd.chat.client.ChatService_TellListener;
+import com.threerings.crowd.chat.data.ChatMarshaller_TellMarshaller;
 import com.threerings.presents.client.Client;
-import com.threerings.presents.client.InvocationService;
 import com.threerings.presents.client.InvocationService_InvocationListener;
 import com.threerings.presents.data.InvocationMarshaller;
 import com.threerings.presents.data.InvocationMarshaller_ListenerMarshaller;
-import com.threerings.presents.dobj.InvocationResponseEvent;
 import com.threerings.util.Name;
 
 /**
@@ -44,33 +45,38 @@ public class ChatMarshaller extends InvocationMarshaller
     /** The method id used to dispatch {@link #away} requests. */
     public static const AWAY :int = 1;
 
-    // documentation inherited from interface
+    // from interface ChatService
     public function away (arg1 :Client, arg2 :String) :void
     {
-        sendRequest(arg1, AWAY, [ arg2 ]);
+        sendRequest(arg1, AWAY, [
+            arg2
+        ]);
     }
 
     /** The method id used to dispatch {@link #broadcast} requests. */
     public static const BROADCAST :int = 2;
 
-    // documentation inherited from interface
+    // from interface ChatService
     public function broadcast (arg1 :Client, arg2 :String, arg3 :InvocationService_InvocationListener) :void
     {
         var listener3 :InvocationMarshaller_ListenerMarshaller = new InvocationMarshaller_ListenerMarshaller();
         listener3.listener = arg3;
-        sendRequest(arg1, BROADCAST, [ arg2, listener3 ]);
+        sendRequest(arg1, BROADCAST, [
+            arg2, listener3
+        ]);
     }
 
     /** The method id used to dispatch {@link #tell} requests. */
     public static const TELL :int = 3;
 
-    // documentation inherited from interface
-    public function tell (arg1 :Client, arg2 :Name, arg3 :String, arg4 :TellListener) :void
+    // from interface ChatService
+    public function tell (arg1 :Client, arg2 :Name, arg3 :String, arg4 :ChatService_TellListener) :void
     {
         var listener4 :ChatMarshaller_TellMarshaller = new ChatMarshaller_TellMarshaller();
         listener4.listener = arg4;
-        sendRequest(arg1, TELL, [ arg2, arg3, listener4 ]);
+        sendRequest(arg1, TELL, [
+            arg2, arg3, listener4
+        ]);
     }
-
 }
 }

@@ -2,7 +2,7 @@
 // $Id$
 //
 // Narya library - tools for developing networked games
-// Copyright (C) 2002-2005 Three Rings Design, Inc., All Rights Reserved
+// Copyright (C) 2002-2006 Three Rings Design, Inc., All Rights Reserved
 // http://www.threerings.net/code/narya/
 //
 // This library is free software; you can redistribute it and/or modify it
@@ -21,10 +21,12 @@
 
 package com.threerings.crowd.data {
 
+import com.threerings.util.*; // for Float, Integer, etc.
+
 import com.threerings.crowd.client.BodyService;
 import com.threerings.presents.client.Client;
 import com.threerings.presents.data.InvocationMarshaller;
-import com.threerings.presents.dobj.InvocationResponseEvent;
+import com.threerings.presents.data.InvocationMarshaller_ListenerMarshaller;
 
 /**
  * Provides the implementation of the {@link BodyService} interface
@@ -39,11 +41,12 @@ public class BodyMarshaller extends InvocationMarshaller
     /** The method id used to dispatch {@link #setIdle} requests. */
     public static const SET_IDLE :int = 1;
 
-    // documentation inherited from interface
+    // from interface BodyService
     public function setIdle (arg1 :Client, arg2 :Boolean) :void
     {
-        sendRequest(arg1, SET_IDLE, [ arg2 ]);
+        sendRequest(arg1, SET_IDLE, [
+            langBoolean.valueOf(arg2)
+        ]);
     }
-
 }
 }

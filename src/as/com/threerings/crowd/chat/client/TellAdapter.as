@@ -5,7 +5,7 @@ import com.threerings.util.Long;
 import com.threerings.presents.client.InvocationAdapter;
 
 public class TellAdapter extends InvocationAdapter
-    implements TellListener
+    implements ChatService_TellListener
 {
     public function TellAdapter (failedFunc :Function, successFunc :Function)
     {

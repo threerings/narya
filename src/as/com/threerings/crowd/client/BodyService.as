@@ -1,8 +1,8 @@
 //
-// $Id: BodyService.java 3098 2004-08-27 02:12:55Z mdb $
+// $Id$
 //
 // Narya library - tools for developing networked games
-// Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
+// Copyright (C) 2002-2006 Three Rings Design, Inc., All Rights Reserved
 // http://www.threerings.net/code/narya/
 //
 // This library is free software; you can redistribute it and/or modify it
@@ -21,18 +21,17 @@
 
 package com.threerings.crowd.client {
 
+import com.threerings.crowd.client.BodyService;
 import com.threerings.presents.client.Client;
 import com.threerings.presents.client.InvocationService;
+import com.threerings.presents.client.InvocationService_InvocationListener;
 
 /**
- * The client side of the body-related invocation services.
+ * An ActionScript version of the Java BodyService interface.
  */
 public interface BodyService extends InvocationService
 {
-    /**
-     * Requests to set the idle state of the client to the specified
-     * value.
-     */
-    function setIdle (client :Client, idle :Boolean) :void;
+    // from Java interface BodyService
+    function setIdle (arg1 :Client, arg2 :Boolean) :void;
 }
 }

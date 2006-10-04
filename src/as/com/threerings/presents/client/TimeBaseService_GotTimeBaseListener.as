@@ -19,25 +19,23 @@
 // License along with this library; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 
-package com.threerings.crowd.client {
+package com.threerings.presents.client {
 
-import com.threerings.crowd.client.LocationService;
-import com.threerings.crowd.client.LocationService_MoveListener;
-import com.threerings.crowd.data.LocationMarshaller_MoveMarshaller;
-import com.threerings.crowd.data.PlaceConfig;
+import com.threerings.util.*; // for Float, Integer, etc.
+
 import com.threerings.presents.client.Client;
-import com.threerings.presents.client.InvocationService;
 import com.threerings.presents.client.InvocationService_InvocationListener;
+import com.threerings.presents.client.TimeBaseService;
+import com.threerings.presents.client.TimeBaseService_GotTimeBaseListener;
+import com.threerings.presents.data.TimeBaseMarshaller_GotTimeBaseMarshaller;
 
 /**
- * An ActionScript version of the Java LocationService interface.
+ * An ActionScript version of the Java TimeBaseService_GotTimeBaseListener interface.
  */
-public interface LocationService extends InvocationService
+public interface TimeBaseService_GotTimeBaseListener
+    extends InvocationService_InvocationListener
 {
-    // from Java interface LocationService
-    function leavePlace (arg1 :Client) :void;
-
-    // from Java interface LocationService
-    function moveTo (arg1 :Client, arg2 :int, arg3 :LocationService_MoveListener) :void;
+    // from Java TimeBaseService_GotTimeBaseListener
+    function gotTimeOid (arg1 :int) :void
 }
 }

@@ -19,25 +19,24 @@
 // License along with this library; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 
-package com.threerings.crowd.client {
+package com.threerings.crowd.chat.client {
 
-import com.threerings.crowd.client.LocationService;
-import com.threerings.crowd.client.LocationService_MoveListener;
-import com.threerings.crowd.data.LocationMarshaller_MoveMarshaller;
-import com.threerings.crowd.data.PlaceConfig;
+import com.threerings.util.*; // for Float, Integer, etc.
+
+import com.threerings.crowd.chat.client.ChatService;
+import com.threerings.crowd.chat.client.ChatService_TellListener;
+import com.threerings.crowd.chat.data.ChatMarshaller_TellMarshaller;
 import com.threerings.presents.client.Client;
-import com.threerings.presents.client.InvocationService;
 import com.threerings.presents.client.InvocationService_InvocationListener;
+import com.threerings.util.Name;
 
 /**
- * An ActionScript version of the Java LocationService interface.
+ * An ActionScript version of the Java ChatService_TellListener interface.
  */
-public interface LocationService extends InvocationService
+public interface ChatService_TellListener
+    extends InvocationService_InvocationListener
 {
-    // from Java interface LocationService
-    function leavePlace (arg1 :Client) :void;
-
-    // from Java interface LocationService
-    function moveTo (arg1 :Client, arg2 :int, arg3 :LocationService_MoveListener) :void;
+    // from Java ChatService_TellListener
+    function tellSucceeded (arg1 :Long, arg2 :String) :void
 }
 }

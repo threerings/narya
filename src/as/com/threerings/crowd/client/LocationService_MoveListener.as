@@ -21,23 +21,22 @@
 
 package com.threerings.crowd.client {
 
+import com.threerings.util.*; // for Float, Integer, etc.
+
 import com.threerings.crowd.client.LocationService;
 import com.threerings.crowd.client.LocationService_MoveListener;
 import com.threerings.crowd.data.LocationMarshaller_MoveMarshaller;
 import com.threerings.crowd.data.PlaceConfig;
 import com.threerings.presents.client.Client;
-import com.threerings.presents.client.InvocationService;
 import com.threerings.presents.client.InvocationService_InvocationListener;
 
 /**
- * An ActionScript version of the Java LocationService interface.
+ * An ActionScript version of the Java LocationService_MoveListener interface.
  */
-public interface LocationService extends InvocationService
+public interface LocationService_MoveListener
+    extends InvocationService_InvocationListener
 {
-    // from Java interface LocationService
-    function leavePlace (arg1 :Client) :void;
-
-    // from Java interface LocationService
-    function moveTo (arg1 :Client, arg2 :int, arg3 :LocationService_MoveListener) :void;
+    // from Java LocationService_MoveListener
+    function moveSucceeded (arg1 :PlaceConfig) :void
 }
 }

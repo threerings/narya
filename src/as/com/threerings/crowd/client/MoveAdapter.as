@@ -5,7 +5,7 @@ import com.threerings.presents.client.InvocationAdapter;
 import com.threerings.crowd.data.PlaceConfig;
 
 public class MoveAdapter extends InvocationAdapter
-    implements MoveListener
+    implements LocationService_MoveListener
 {
     public function MoveAdapter (success :Function, failure :Function)
     {

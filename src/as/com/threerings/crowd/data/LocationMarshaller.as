@@ -1,8 +1,8 @@
 //
-// $Id: LocationMarshaller.java 3793 2005-12-21 02:12:57Z ray $
+// $Id$
 //
 // Narya library - tools for developing networked games
-// Copyright (C) 2002-2005 Three Rings Design, Inc., All Rights Reserved
+// Copyright (C) 2002-2006 Three Rings Design, Inc., All Rights Reserved
 // http://www.threerings.net/code/narya/
 //
 // This library is free software; you can redistribute it and/or modify it
@@ -21,14 +21,15 @@
 
 package com.threerings.crowd.data {
 
-import com.threerings.util.Integer;
+import com.threerings.util.*; // for Float, Integer, etc.
 
 import com.threerings.crowd.client.LocationService;
-import com.threerings.crowd.client.MoveListener;
+import com.threerings.crowd.client.LocationService_MoveListener;
+import com.threerings.crowd.data.LocationMarshaller_MoveMarshaller;
 import com.threerings.crowd.data.PlaceConfig;
 import com.threerings.presents.client.Client;
 import com.threerings.presents.data.InvocationMarshaller;
-import com.threerings.presents.dobj.InvocationResponseEvent;
+import com.threerings.presents.data.InvocationMarshaller_ListenerMarshaller;
 
 /**
  * Provides the implementation of the {@link LocationService} interface
@@ -43,21 +44,25 @@ public class LocationMarshaller extends InvocationMarshaller
     /** The method id used to dispatch {@link #leavePlace} requests. */
     public static const LEAVE_PLACE :int = 1;
 
-    // documentation inherited from interface
+    // from interface LocationService
     public function leavePlace (arg1 :Client) :void
     {
-        sendRequest(arg1, LEAVE_PLACE, new Array());
+        sendRequest(arg1, LEAVE_PLACE, [
+            
+        ]);
     }
 
     /** The method id used to dispatch {@link #moveTo} requests. */
     public static const MOVE_TO :int = 2;
 
-    // documentation inherited from interface
-    public function moveTo (arg1 :Client, arg2 :int, arg3 :MoveListener) :void
+    // from interface LocationService
+    public function moveTo (arg1 :Client, arg2 :int, arg3 :LocationService_MoveListener) :void
     {
         var listener3 :LocationMarshaller_MoveMarshaller = new LocationMarshaller_MoveMarshaller();
         listener3.listener = arg3;
-        sendRequest(arg1, MOVE_TO, [ Integer.valueOf(arg2), listener3 ]);
+        sendRequest(arg1, MOVE_TO, [
+            Integer.valueOf(arg2), listener3
+        ]);
     }
 }
 }

@@ -1,8 +1,8 @@
 //
-// $Id: TimeBaseService.java 3099 2004-08-27 02:21:06Z mdb $
+// $Id$
 //
 // Narya library - tools for developing networked games
-// Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
+// Copyright (C) 2002-2006 Three Rings Design, Inc., All Rights Reserved
 // http://www.threerings.net/code/narya/
 //
 // This library is free software; you can redistribute it and/or modify it
@@ -23,17 +23,17 @@ package com.threerings.presents.client {
 
 import com.threerings.presents.client.Client;
 import com.threerings.presents.client.InvocationService;
+import com.threerings.presents.client.InvocationService_InvocationListener;
+import com.threerings.presents.client.TimeBaseService;
+import com.threerings.presents.client.TimeBaseService_GotTimeBaseListener;
+import com.threerings.presents.data.TimeBaseMarshaller_GotTimeBaseMarshaller;
 
 /**
- * Provides a means by which to obtain access to a time base object which
- * can be used to convert delta times into absolute times.
+ * An ActionScript version of the Java TimeBaseService interface.
  */
 public interface TimeBaseService extends InvocationService
 {
-    /**
-     * Requests the oid of the specified time base object be fetched.
-     */
-    function getTimeOid (
-        client :Client, timeBase :String, listener :GotTimeBaseListener) :void;
+    // from Java interface TimeBaseService
+    function getTimeOid (arg1 :Client, arg2 :String, arg3 :TimeBaseService_GotTimeBaseListener) :void;
 }
 }
