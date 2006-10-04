@@ -14,7 +14,7 @@ public class StringBuilder
     public function append (... args) :StringBuilder
     {
         while (args.length > 0) {
-            _array.push(args.shift());
+            _array.push(String(args.shift()));
         }
         return this;
     }
