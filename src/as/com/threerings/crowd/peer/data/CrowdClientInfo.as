@@ -1,8 +1,8 @@
 //
-// $Id: UserMessage.java 3098 2004-08-27 02:12:55Z mdb $
+// $Id$
 //
 // Narya library - tools for developing networked games
-// Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
+// Copyright (C) 2002-2006 Three Rings Design, Inc., All Rights Reserved
 // http://www.threerings.net/code/narya/
 //
 // This library is free software; you can redistribute it and/or modify it
@@ -19,60 +19,46 @@
 // License along with this library; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 
-package com.threerings.crowd.chat.data {
+package com.threerings.crowd.peer.data {
 
 import com.threerings.util.Name;
 
 import com.threerings.io.ObjectInputStream;
 import com.threerings.io.ObjectOutputStream;
 
+import com.threerings.presents.peer.data.ClientInfo;
+
 /**
- * A ChatMessage representing a message that came from another user.
+ * Extends the standard {@link ClientInfo} with Crowd bits.
  */
-public class UserMessage extends ChatMessage
+public class CrowdClientInfo extends ClientInfo
 {
-    /** The user that the message came from. */
-    public var speaker :Name;
+    /** The client's visible name, which is used for chatting. */
+    public var visibleName :Name;
 
-    /** The mode of the message. @see ChatCodes.DEFAULT_MODE */
-    public var mode :int;
-
-    /**
-     * Constructs a user message for a player originated tell (which has no
-     * bundle and is in the default mode).
-     */
-    public function UserMessage (speaker :Name = null, bundle :String = null,
-                                 message :String = null, mode :int = 0)
+    public function CrowdClientInfo ()
     {
-        super(message, bundle);
-        this.speaker = speaker;
-        this.mode = mode;
+        // nothing needed
     }
 
-    /**
-     * Returns the name to display for the speaker.  Some types of messages
-     *  may wish to not use the canonical name for the speaker and should thus
-     *  override this function.
-     */
-    public function getSpeakerDisplayName () :Name
+    // documentation inherited
+    override public function getKey () :Object
     {
-        return speaker;
+        return visibleName;
     }
 
     // from interface Streamable
     override public function readObject (ins :ObjectInputStream) :void
     {
         super.readObject(ins);
-        speaker = (ins.readObject() as Name);
-        mode = ins.readByte();
+        visibleName = (ins.readObject() as Name);
     }
 
     // from interface Streamable
     override public function writeObject (out :ObjectOutputStream) :void
     {
         super.writeObject(out);
-        out.writeObject(speaker);
-        out.writeByte(mode);
+        out.writeObject(visibleName);
     }
 }
 }

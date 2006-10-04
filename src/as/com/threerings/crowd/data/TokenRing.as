@@ -23,14 +23,13 @@ package com.threerings.crowd.data {
 
 import com.threerings.io.ObjectInputStream;
 import com.threerings.io.ObjectOutputStream;
-import com.threerings.io.Streamable;
+import com.threerings.io.SimpleStreamableObject;
 
 /**
  * Defines access control tokens that convey certain privileges to users
  * (see {@link BodyObject#checkAccess}).
  */
-public class TokenRing
-    implements Streamable
+public class TokenRing extends SimpleStreamableObject
 {
     /** Indicates that this user is an administrator and can do things
      * like broadcast, shutdown the server and whatnot. */
@@ -42,31 +41,6 @@ public class TokenRing
     public function TokenRing (tokens :int = 0)
     {
         _tokens = tokens;
-    }
-
-    /**
-     * Returns true if this token ring contains the specified token.
-     */
-    public function holdsToken (token :int) :Boolean
-    {
-        return (_tokens & token) != 0;
-    }
-
-    /**
-     * Convenience function for checking whether this ring holds the
-     * {@link #ADMIN} token.
-     */
-    public function isAdmin () :Boolean
-    {
-        return holdsToken(ADMIN);
-    }
-
-    /**
-     * Returns the bitmask that stores the various tokens.
-     */
-    public function getTokens () :int
-    {
-        return _tokens;
     }
 
     /**
@@ -83,6 +57,31 @@ public class TokenRing
     }
 
     /**
+     * Returns the bitmask that stores the various tokens.
+     */
+    public function getTokens () :int
+    {
+        return _tokens;
+    }
+
+    /**
+     * Convenience function for checking whether this ring holds the
+     * {@link #ADMIN} token.
+     */
+    public function isAdmin () :Boolean
+    {
+        return holdsToken(ADMIN);
+    }
+
+    /**
+     * Returns true if this token ring contains the specified token.
+     */
+    public function holdsToken (token :int) :Boolean
+    {
+        return (_tokens & token) != 0;
+    }
+
+    /**
      * Clears the specified token from this ring.
      */
     public function clearToken (token :int) :void
@@ -90,16 +89,18 @@ public class TokenRing
         _tokens &= ~token;
     }
 
-    // documentation inherited from interface Streamable
-    public function writeObject (out :ObjectOutputStream) :void
+    // from interface Streamable
+    override public function readObject (ins :ObjectInputStream) :void
     {
-        out.writeInt(_tokens);
+        super.readObject(ins);
+        _tokens = ins.readInt();
     }
 
-    // documentation inherited from interface Streamable
-    public function readObject (ins :ObjectInputStream) :void
+    // from interface Streamable
+    override public function writeObject (out :ObjectOutputStream) :void
     {
-        _tokens = ins.readInt();
+        super.writeObject(out);
+        out.writeInt(_tokens);
     }
 
     /** The tokens contained in this ring (composed together bitwise). */

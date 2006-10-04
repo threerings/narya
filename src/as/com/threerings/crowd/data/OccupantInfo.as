@@ -21,15 +21,17 @@
 
 package com.threerings.crowd.data {
 
+import com.threerings.util.Cloneable;
 import com.threerings.util.Integer;
 import com.threerings.util.Name;
+
+import com.threerings.io.ObjectInputStream;
+import com.threerings.io.ObjectOutputStream;
+import com.threerings.io.SimpleStreamableObject;
 
 import com.threerings.presents.dobj.DSet_Entry;
 
 import com.threerings.crowd.data.BodyObject;
-
-import com.threerings.io.ObjectInputStream;
-import com.threerings.io.ObjectOutputStream;
 
 /**
  * The occupant info object contains all of the information about an
@@ -47,8 +49,8 @@ import com.threerings.io.ObjectOutputStream;
  * responsible for adding the code to clone those attributes when a clone
  * is requested.
  */
-public class OccupantInfo
-    implements DSet_Entry
+public class OccupantInfo extends SimpleStreamableObject
+    implements DSet_Entry, Cloneable
 {
     /** Constant value for {@link #status}. */
     public static const ACTIVE :int = 0;
@@ -71,10 +73,28 @@ public class OccupantInfo
     /** The status of this occupant. */
     public var status :int = ACTIVE;
 
+    /** A blank constructor used for unserialization. */
+    public function OccupantInfo (body :BodyObject = null)
+    {
+        if (body != null) {
+            bodyOid = body.getOid();
+            username = body.getVisibleName();
+            status = body.status;
+        }
+    }
+
     /** Access to the body object id as an int. */
     public function getBodyOid () :int
     {
         return bodyOid;
+    }
+
+    /**
+     * Generates a cloned copy of this instance.
+     */
+    public function clone () :Object
+    {
+        throw new Error("Clone not implemented. Implement if you need it.");
     }
 
     // documentation inherited from interface DSet_Entry
@@ -83,20 +103,22 @@ public class OccupantInfo
         return bodyOid;
     }
 
-    // documentation inherited from superinterface Streamable
-    public function writeObject (out :ObjectOutputStream) :void
+    // from interface Streamable
+    override public function readObject (ins :ObjectInputStream) :void
     {
-        out.writeObject(new Integer(bodyOid));
-        out.writeObject(username);
-        out.writeByte(status);
-    }
-
-    // documentation inherited from superinterface Streamable
-    public function readObject (ins :ObjectInputStream) :void
-    {
+        super.readObject(ins);
         bodyOid = (ins.readField(Integer) as Integer).value;
         username = (ins.readObject() as Name);
         status = ins.readByte();
+    }
+
+    // from interface Streamable
+    override public function writeObject (out :ObjectOutputStream) :void
+    {
+        super.writeObject(out);
+        out.writeObject(new Integer(bodyOid));
+        out.writeObject(username);
+        out.writeByte(status);
     }
 }
 }

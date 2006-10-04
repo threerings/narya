@@ -21,9 +21,12 @@
 
 package com.threerings.crowd.data {
 
-import com.threerings.io.Streamable;
+import com.threerings.util.ClassUtil;
+import com.threerings.util.StringBuilder;
+
 import com.threerings.io.ObjectInputStream;
 import com.threerings.io.ObjectOutputStream;
+import com.threerings.io.SimpleStreamableObject;
 
 import com.threerings.crowd.client.PlaceController;
 
@@ -40,9 +43,24 @@ import com.threerings.crowd.client.PlaceController;
  * #getControllerClass} and {@link #getManagerClassName}, returning the
  * appropriate place controller and manager class for that place.
  */
-public /*abstract*/ class PlaceConfig
-    implements Streamable
+public /*abstract*/ class PlaceConfig extends SimpleStreamableObject
 {
+    public function PlaceConfig ()
+    {
+        // nothing needed
+    }
+
+    /**
+     * Returns the class that should be used to create a controller for this
+     * place. The controller class must derive from {@link PlaceController}.
+     *
+     * @deprecated Override {@link #createController} directly.
+     */
+    public function getControllerClass () :Class
+    {
+        return null;
+    }
+
     /**
      * Create the controller that should be used for this place.
      */
@@ -61,17 +79,17 @@ public /*abstract*/ class PlaceConfig
      * (DashO Pro, for example) to remove the server code from the client,
      * knowing that it is never used.
      */
-//    public function getManagerClassName () :String;
-
-    // documentation inherited from interface Streamable
-    public function writeObject (out :ObjectOutputStream) :void
+    public function getManagerClassName () :String
     {
-        // nothing needed
+        return null; // not used
     }
 
-    public function readObject (ins :ObjectInputStream) :void
+    // documentation inherited
+    override protected function toStringBuilder (buf :StringBuilder) :void
     {
-        // nothing needed
+        buf.append("type=").append(ClassUtil.shortClassName(this));
+        buf.append(", ");
+        super.toStringBuilder(buf);
     }
 }
 }

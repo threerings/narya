@@ -23,8 +23,8 @@ public class UserSystemMessage extends SystemMessage
      * Construct a UserSystemMessage.
      */
     public function UserSystemMessage (
-            sender :Name = null, message :String = null, bundle :String = null,
-            attLevel :int = 0)
+        sender :Name = null, message :String = null, bundle :String = null,
+        attLevel :int = 0)
     {
         super(message, bundle, attLevel);
         this.speaker = sender;
@@ -36,6 +36,7 @@ public class UserSystemMessage extends SystemMessage
         speaker = (ins.readObject() as Name);
     }
 
+    // from interface Streamable
     override public function writeObject (out :ObjectOutputStream) :void
     {
         super.writeObject(out);

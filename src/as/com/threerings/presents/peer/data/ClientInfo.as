@@ -1,8 +1,8 @@
 //
-// $Id: SystemMessage.java 3098 2004-08-27 02:12:55Z mdb $
+// $Id$
 //
 // Narya library - tools for developing networked games
-// Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
+// Copyright (C) 2002-2006 Three Rings Design, Inc., All Rights Reserved
 // http://www.threerings.net/code/narya/
 //
 // This library is free software; you can redistribute it and/or modify it
@@ -19,52 +19,48 @@
 // License along with this library; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 
-package com.threerings.crowd.chat.data {
+package com.threerings.presents.peer.data {
 
 import com.threerings.io.ObjectInputStream;
 import com.threerings.io.ObjectOutputStream;
+import com.threerings.io.SimpleStreamableObject;
+import com.threerings.util.Name;
+
+import com.threerings.presents.dobj.DSet;
+import com.threerings.presents.dobj.DSet_Entry;
 
 /**
- * A ChatMessage that represents a message that came from the server
- * and did not result from direct user action.
+ * Contains information on a particular client.
  */
-public class SystemMessage extends ChatMessage
+public class ClientInfo extends SimpleStreamableObject
+    implements DSet_Entry
 {
-    /** Attention level constant to indicate that this message is merely
-     * providing the user with information. */
-    public static const INFO :int = 0;
+    /** The username used by this client to authenticate. */
+    public var username :Name;
 
-    /** Attention level constant to indicate that this message is the
-     * result of a user action. */
-    public static const FEEDBACK :int = 1;
-
-    /** Attention level constant to indicate that some action is required. */
-    public static const ATTENTION :int = 2;
-
-    //----
-
-    /** The attention level of this message. */
-    public var attentionLevel :int;
-
-    public function SystemMessage (
-        msg :String = null, bundle :String = null, attLevel :int = 0)
+    public function ClientInfo ()
     {
-        super(msg, bundle);
-        this.attentionLevel = attLevel;
+        // nothing needed
+    }
+
+    // documentation inherited from interface DSet.Entry
+    public function getKey () :Object
+    {
+        return username;
     }
 
     // from interface Streamable
     override public function readObject (ins :ObjectInputStream) :void
     {
         super.readObject(ins);
-        attentionLevel = ins.readByte();
+        username = (ins.readObject() as Name);
     }
 
     // from interface Streamable
     override public function writeObject (out :ObjectOutputStream) :void
     {
         super.writeObject(out);
-        out.writeByte(attentionLevel);
+        out.writeObject(username);
     }
 }
 }
