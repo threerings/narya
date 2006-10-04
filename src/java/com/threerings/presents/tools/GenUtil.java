@@ -48,7 +48,8 @@ public class GenUtil
     /** A regular expression for matching the class or interface
      * declaration. */
     public static final Pattern NAME_PATTERN =
-        Pattern.compile("^\\s*public\\s+(interface|class)\\s+(\\S+)(\\W|$)");
+        Pattern.compile("^\\s*public\\s+(?:abstract\\s+)?" +
+                        "(interface|class)\\s+(\\S+)(\\W|$)");
 
     /**
      * Returns the name of the supplied class as it would likely appear in code
