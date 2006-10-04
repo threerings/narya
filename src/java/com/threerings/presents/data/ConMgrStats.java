@@ -63,7 +63,7 @@ public class ConMgrStats extends SimpleStreamableObject
     /** The number of messages written since the server started up. */
     public int msgsOut;
 
-    @Override // from Objecet
+    @Override // from Object
     public Object clone ()
     {
         try {
