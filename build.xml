@@ -85,6 +85,17 @@
     </receiver>
   </target>
 
+  <!-- generates ActionScript versions of our Streamable classes -->
+  <target name="genascript">
+    <taskdef name="genscript" classpathref="classpath"
+             classname="com.threerings.presents.tools.GenActionScriptTask"/>
+    <!-- now generate the associated files -->
+    <genscript header="lib/SOURCE_HEADER" asroot="src/as"
+              classpathref="classpath">
+      <fileset dir="src/java" includes="**/data/*.java"/>
+    </genscript>
+  </target>
+
   <!-- prepares the application directories -->
   <target name="prepare">
     <mkdir dir="${deploy.dir}"/>
