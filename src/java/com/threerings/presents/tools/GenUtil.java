@@ -102,6 +102,33 @@ public class GenUtil
     }
 
     /**
+     * Returns the name of the supplied class as it would appear in
+     * ActionScript code using the class (no package prefix, arrays specified
+     * as Array<code>Array</code>).
+     */
+    public static String simpleASName (Class<?> clazz)
+    {
+        if (clazz.isArray()) {
+            return "Array";
+        } else if (clazz == Boolean.TYPE) {
+            return "Boolean";
+        } else if (clazz == Byte.TYPE || clazz == Character.TYPE ||
+                   clazz == Short.TYPE || clazz == Integer.TYPE) {
+            return "int";
+        } else if (clazz == Long.TYPE) {
+            return "Long";
+        } else if (clazz == Float.TYPE || clazz == Double.TYPE) {
+            return "Number";
+        } else {
+            String cname = clazz.getName();
+            Package pkg = clazz.getPackage();
+            int offset = (pkg == null) ? 0 : pkg.getName().length()+1;
+            String name = cname.substring(offset);
+            return StringUtil.replace(name, "$", "_");
+        }
+    }
+
+    /**
      * "Boxes" the supplied argument, ie. turning an <code>int</code> into
      * an <code>Integer</code> object.
      */
@@ -152,6 +179,60 @@ public class GenUtil
             return "((Double)" + name + ").doubleValue()";
         } else {
             return "(" + simpleName(clazz, type) + ")" + name + "";
+        }
+    }
+
+    /**
+     * "Boxes" the supplied argument, ie. turning an <code>int</code> into
+     * an <code>Integer</code> object.
+     */
+    public static String boxASArgument (Class<?> clazz, String name)
+    {
+        if (clazz == Boolean.TYPE) {
+            return "langBoolean.valueOf(" + name + ")";
+        } else if (clazz == Byte.TYPE) {
+            return "Byte.valueOf(" + name + ")";
+        } else if (clazz == Character.TYPE) {
+            return "Character.valueOf(" + name + ")";
+        } else if (clazz == Short.TYPE) {
+            return "Short.valueOf(" + name + ")";
+        } else if (clazz == Integer.TYPE) {
+            return "Integer.valueOf(" + name + ")";
+        } else if (clazz == Long.TYPE) {
+            return name; // Long is left as is
+        } else if (clazz == Float.TYPE) {
+            return "Float.valueOf(" + name + ")";
+        } else if (clazz == Double.TYPE) {
+            return "Double.valueOf(" + name + ")";
+        } else {
+            return name;
+        }
+    }
+
+    /**
+     * "Unboxes" the supplied argument, ie. turning an <code>Integer</code>
+     * object into an <code>int</code>.
+     */
+    public static String unboxASArgument (Class<?> clazz, String name)
+    {
+        if (clazz == Boolean.TYPE) {
+            return "(" + name + " as langBoolean).value";
+        } else if (clazz == Byte.TYPE) {
+            return "(" + name + " as Byte).value";
+        } else if (clazz == Character.TYPE) {
+            return "(" + name + " as Character).value";
+        } else if (clazz == Short.TYPE) {
+            return "(" + name + " as Short).value";
+        } else if (clazz == Integer.TYPE) {
+            return "(" + name + " as Integer).value";
+        } else if (clazz == Long.TYPE) {
+            return "(" + name + " as Long)";
+        } else if (clazz == Float.TYPE) {
+            return "(" + name + " as Float).value";
+        } else if (clazz == Double.TYPE) {
+            return "(" + name + " as Double).value";
+        } else {
+            return name + " as " + simpleASName(clazz);
         }
     }
 

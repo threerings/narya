@@ -1,0 +1,37 @@
+package $package {
+
+import com.threerings.util.*; // for Float, Integer, etc.
+
+#foreach ($import in $imports)
+import $import;
+#end
+
+/**
+ * Marshalls instances of the ${name}Service_${listener.name}Marshaller interface.
+ */
+public class ${name}Marshaller_${listener.name}Marshaller
+    extends InvocationMarshaller_ListenerMarshaller
+{
+#foreach ($lm in $listener.methods)
+    /** The method id used to dispatch {@link #$lm.method.name} responses. */
+    public static const $lm.code :int = $velocityCount;
+
+#end
+    // from InvocationMarshaller_ListenerMarshaller
+    override public function dispatchResponse (methodId :int, args :Array) :void
+    {
+        switch (methodId) {
+#foreach ($lm in $listener.methods)
+        case $lm.code:
+            (listener as ${name}Service_${listener.name}Listener).${lm.method.name}(
+                ${lm.getASUnwrappedArgList(true)});
+            return;
+
+#end
+        default:
+            super.dispatchResponse(methodId, args);
+            return;
+        }
+    }
+}
+}

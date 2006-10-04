@@ -1,0 +1,39 @@
+package $package {
+
+import com.threerings.util.*; // for Float, Integer, etc.
+
+#foreach ($import in $imports)
+import $import;
+#end
+
+/**
+ * Provides the implementation of the {@link ${name}Service} interface
+ * that marshalls the arguments and delivers the request to the provider
+ * on the server. Also provides an implementation of the response listener
+ * interfaces that marshall the response arguments and deliver them back
+ * to the requesting client.
+ */
+public class ${name}Marshaller extends InvocationMarshaller
+    implements ${name}Service
+{
+#foreach ($m in $methods)
+#if ($velocityCount > 1)
+
+#end
+    /** The method id used to dispatch {@link #$m.method.name} requests. */
+    public static const $m.code :int = $velocityCount;
+
+    // from interface ${name}Service
+    public function $m.method.name ($m.getASArgList(false)) :void
+    {
+#foreach ($la in $m.listenerArgs)
+        var listener$la.index :$la.actionScriptMarshaller = new ${la.actionScriptMarshaller}();
+        listener${la.index}.listener = arg$la.index;
+#end
+        sendRequest(arg1, $m.code, [
+            $m.getASWrappedArgList(true)
+        ]);
+    }
+#end
+}
+}

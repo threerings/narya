@@ -63,6 +63,11 @@ public abstract class InvocationTask extends Task
             name = StringUtil.replace(name, "Service", "Marshaller");
             return StringUtil.replace(name, "Listener", "Marshaller");
         }
+
+        public String getActionScriptMarshaller ()
+        {
+            return getMarshaller().replace(".", "_");
+        }
     }
 
     /** Used to keep track of invocation service methods. */
@@ -106,9 +111,9 @@ public abstract class InvocationTask extends Task
                 // if it's a listener and not one of the special
                 // InvocationService listeners, we need to import its
                 // marshaller as well
+                String sname = GenUtil.simpleName(arg, null);
                 if (_ilistener.isAssignableFrom(arg) &&
-                    !GenUtil.simpleName(
-                        arg, null).startsWith("InvocationService")) {
+                    !sname.startsWith("InvocationService")) {
                     String mname = arg.getName();
                     mname = StringUtil.replace(mname, "Service", "Marshaller");
                     mname = StringUtil.replace(mname, "Listener", "Marshaller");
@@ -148,6 +153,20 @@ public abstract class InvocationTask extends Task
             return buf.toString();
         }
 
+        public String getASArgList (boolean skipFirst)
+        {
+            StringBuilder buf = new StringBuilder();
+            Class<?>[] args = method.getParameterTypes();
+            for (int ii = skipFirst ? 1 : 0; ii < args.length; ii++) {
+                if (buf.length() > 0) {
+                    buf.append(", ");
+                }
+                buf.append("arg").append(skipFirst ? ii : ii+1).append(" :");
+                buf.append(GenUtil.simpleASName(args[ii]));
+            }
+            return buf.toString();
+        }
+
         public String getWrappedArgList (boolean skipFirst)
         {
             StringBuilder buf = new StringBuilder();
@@ -157,6 +176,25 @@ public abstract class InvocationTask extends Task
                     buf.append(", ");
                 }
                 buf.append(boxArgument(args[ii], ii+1));
+            }
+            return buf.toString();
+        }
+
+        public String getASWrappedArgList (boolean skipFirst)
+        {
+            StringBuilder buf = new StringBuilder();
+            Class<?>[] args = method.getParameterTypes();
+            for (int ii = (skipFirst ? 1 : 0); ii < args.length; ii++) {
+                if (buf.length() > 0) {
+                    buf.append(", ");
+                }
+                String arg;
+                if (_ilistener.isAssignableFrom(args[ii])) {
+                    arg = GenUtil.boxASArgument(args[ii],  "listener" + (ii+1));
+                } else {
+                    arg = GenUtil.boxASArgument(args[ii],  "arg" + (ii+1));
+                }
+                buf.append(arg);
             }
             return buf.toString();
         }
@@ -182,6 +220,28 @@ public abstract class InvocationTask extends Task
                 }
                 buf.append(unboxArgument(args[ii], ptypes[ii],
                                listenerMode ? ii : ii-1, listenerMode));
+            }
+            return buf.toString();
+        }
+
+        public String getASUnwrappedArgList (boolean listenerMode)
+        {
+            StringBuilder buf = new StringBuilder();
+            Class<?>[] args = method.getParameterTypes();
+            Type[] ptypes = method.getGenericParameterTypes();
+            for (int ii = (listenerMode ? 0 : 1); ii < args.length; ii++) {
+                if (buf.length() > 0) {
+                    buf.append(", ");
+                }
+                String arg;
+                int argidx = listenerMode ? ii : ii-1;
+                if (listenerMode && _ilistener.isAssignableFrom(args[ii])) {
+                    arg = "listener" + argidx;
+                } else {
+                    arg = GenUtil.unboxASArgument(
+                        args[ii], "args[" + argidx + "]");
+                }
+                buf.append(arg);
             }
             return buf.toString();
         }

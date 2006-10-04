@@ -1,0 +1,23 @@
+package $package {
+
+import com.threerings.util.*; // for Float, Integer, etc.
+
+#foreach ($import in $imports)
+import $import;
+#end
+
+/**
+ * An ActionScript version of the Java ${name}Service_${listener.name}Listener interface.
+ */
+public interface ${name}Service_${listener.name}Listener
+    extends InvocationService_InvocationListener
+{
+#foreach ($lm in $listener.methods)
+#if ($velocityCount > 1)
+
+#end
+    // from Java ${name}Service_${listener.name}Listener
+    function $lm.method.name ($lm.getASArgList(false)) :void
+#end
+}
+}

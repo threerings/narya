@@ -10,6 +10,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -17,12 +18,11 @@ import java.util.List;
 
 import org.apache.velocity.VelocityContext;
 
-import com.samskivert.util.CollectionUtil;
 import com.samskivert.util.ComparableArrayList;
 import com.samskivert.util.StringUtil;
 
 import com.threerings.presents.client.Client;
-import com.threerings.presents.client.InvocationService.InvocationListener;
+import com.threerings.presents.client.InvocationService;
 import com.threerings.presents.data.ClientObject;
 import com.threerings.presents.data.InvocationMarshaller;
 import com.threerings.presents.dobj.InvocationResponseEvent;
@@ -91,6 +91,14 @@ public class GenServiceTask extends InvocationTask
         }
     }
 
+    /**
+     * Configures the path to our ActionScript source files.
+     */
+    public void setAsroot (File asroot)
+    {
+        _asroot = asroot;
+    }
+
     // documentation inherited
     public Providerless createProviderless ()
     {
@@ -152,18 +160,18 @@ public class GenServiceTask extends InvocationTask
         methods.sort();
 
         generateMarshaller(source, sname, spackage, methods, listeners,
-                           imports.keySet().iterator());
+                           imports.keySet());
         generateDispatcher(source, sname, spackage, methods,
-                           imports.keySet().iterator());
+                           imports.keySet());
         if (!_providerless.contains(sname)) {
             generateProvider(source, sname, spackage, methods, listeners,
-                             imports.keySet().iterator());
+                             imports.keySet());
         }
     }
 
     protected void generateMarshaller (
         File source, String sname, String spackage, List methods,
-        List listeners, Iterator<String> imports)
+        List<ServiceListener> listeners, Collection<String> imports)
     {
         String name = StringUtil.replace(sname, "Service", "");
         String mname = StringUtil.replace(sname, "Service", "Marshaller");
@@ -171,7 +179,7 @@ public class GenServiceTask extends InvocationTask
 
         // construct our imports list
         ComparableArrayList<String> implist = new ComparableArrayList<String>();
-        CollectionUtil.addAll(implist, imports);
+        implist.addAll(imports);
         checkedAdd(implist, Client.class.getName());
         checkedAdd(implist, InvocationMarshaller.class.getName());
         checkedAdd(implist, InvocationResponseEvent.class.getName());
@@ -184,16 +192,122 @@ public class GenServiceTask extends InvocationTask
         ctx.put("listeners", listeners);
         ctx.put("imports", implist);
 
+        // determine the path to our marshaller file
+        String mpath = source.getPath();
+        mpath = StringUtil.replace(mpath, "Service", "Marshaller");
+        mpath = replacePath(mpath, "/client/", "/data/");
+
         try {
             StringWriter sw = new StringWriter();
             _velocity.mergeTemplate(MARSHALLER_TMPL, "UTF-8", ctx, sw);
-
-            // determine the path to our marshaller file
-            String mpath = source.getPath();
-            mpath = StringUtil.replace(mpath, "Service", "Marshaller");
-            mpath = replacePath(mpath, "/client/", "/data/");
-
             writeFile(mpath, sw.toString());
+
+        } catch (Exception e) {
+            System.err.println("Failed processing template");
+            e.printStackTrace(System.err);
+        }
+
+        // if we're not configured with an ActionScript source root, don't
+        // generate the ActionScript versions
+        if (_asroot == null) {
+            return;
+        }
+
+        // add imports for our inner listener interfaces; because they are not
+        // real inner interfaces, we have to import them in addition to the
+        // services that (in Java) contained them
+        for (ServiceListener listener : listeners) {
+            checkedAdd(implist, listener.listener.getName().replace("$", "_"));
+        }
+        Class isil = InvocationService.InvocationListener.class;
+        checkedAdd(implist, isil.getName().replace("$", "_"));
+        implist.sort();
+
+        // now generate ActionScript versions of our marshaller
+        try {
+            // make sure our marshaller directory exists
+            String mppath = mpackage.replace('.', File.separatorChar);
+            new File(_asroot + File.separator + mppath).mkdirs();
+
+            // generate an ActionScript version of our marshaller
+            String ampath = _asroot + File.separator + mppath +
+                File.separator + mname + ".as";
+            StringWriter sw = new StringWriter();
+            _velocity.mergeTemplate(AS_MARSHALLER_TMPL, "UTF-8", ctx, sw);
+            writeFile(ampath, sw.toString());
+
+            // now generate ActionScript versions of our listener marshallers
+            // because those have to be in separate files
+            Class imlm = InvocationMarshaller.ListenerMarshaller.class;
+            for (ServiceListener listener : listeners) {
+                // recreate our imports with just what we need here
+                implist = new ComparableArrayList<String>();
+                implist.addAll(imports);
+                checkedAdd(implist, imlm.getName().replace("$", "_"));
+                String lname = listener.listener.getName();
+                checkedAdd(implist, lname.replace("$", "_"));
+                implist.sort();
+                ctx.put("imports", implist);
+
+                ctx.put("listener", listener);
+                sw = new StringWriter();
+                _velocity.mergeTemplate(
+                    AS_LISTENER_MARSHALLER_TMPL, "UTF-8", ctx, sw);
+                String aslpath = _asroot + File.separator + mppath +
+                    File.separator + mname + "_" +
+                    listener.getName() + "Marshaller.as";
+                writeFile(aslpath, sw.toString());
+            }
+
+        } catch (Exception e) {
+            System.err.println("Failed processing template");
+            e.printStackTrace(System.err);
+        }
+
+        // then make some changes to the context and generate ActionScript
+        // versions of the service interface itself
+        implist = new ComparableArrayList<String>();
+        implist.addAll(imports);
+        checkedAdd(implist, Client.class.getName());
+        checkedAdd(implist, InvocationService.class.getName());
+        checkedAdd(implist, isil.getName().replace("$", "_"));
+        implist.sort();
+        ctx.put("imports", implist);
+        ctx.put("package", spackage);
+
+        try {
+            // make sure our service directory exists
+            String sppath = spackage.replace('.', File.separatorChar);
+            new File(_asroot + File.separator + sppath).mkdirs();
+
+            // generate an ActionScript version of our service
+            String aspath = _asroot + File.separator + sppath +
+                File.separator + sname + ".as";
+            StringWriter sw = new StringWriter();
+            _velocity.mergeTemplate(AS_SERVICE_TMPL, "UTF-8", ctx, sw);
+            writeFile(aspath, sw.toString());
+
+            // also generate ActionScript versions of any inner listener
+            // interfaces because those have to be in separate files
+            for (ServiceListener listener : listeners) {
+                // recreate our imports with just what we need here
+                implist = new ComparableArrayList<String>();
+                implist.addAll(imports);
+                checkedAdd(implist, isil.getName().replace("$", "_"));
+                String lname = listener.listener.getName();
+                checkedAdd(implist, lname.replace("$", "_"));
+                implist.sort();
+                ctx.put("imports", implist);
+
+                ctx.put("listener", listener);
+                sw = new StringWriter();
+                _velocity.mergeTemplate(
+                    AS_LISTENER_SERVICE_TMPL, "UTF-8", ctx, sw);
+                String amlpath = _asroot + File.separator + sppath +
+                    File.separator + sname + "_" +
+                    listener.getName() + "Listener.as";
+                writeFile(amlpath, sw.toString());
+            }
 
         } catch (Exception e) {
             System.err.println("Failed processing template");
@@ -203,7 +317,7 @@ public class GenServiceTask extends InvocationTask
 
     protected void generateDispatcher (
         File source, String sname, String spackage, List methods,
-        Iterator<String> imports)
+        Collection<String> imports)
     {
         String name = StringUtil.replace(sname, "Service", "");
         String dname = StringUtil.replace(sname, "Service", "Dispatcher");
@@ -211,7 +325,7 @@ public class GenServiceTask extends InvocationTask
 
         // construct our imports list
         ComparableArrayList<String> implist = new ComparableArrayList<String>();
-        CollectionUtil.addAll(implist, imports);
+        implist.addAll(imports);
         checkedAdd(implist, ClientObject.class.getName());
         checkedAdd(implist, InvocationMarshaller.class.getName());
         checkedAdd(implist, InvocationDispatcher.class.getName());
@@ -246,7 +360,7 @@ public class GenServiceTask extends InvocationTask
 
     protected void generateProvider (
         File source, String sname, String spackage, List methods,
-        List listeners, Iterator<String> imports)
+        List listeners, Collection<String> imports)
     {
         String name = StringUtil.replace(sname, "Service", "");
         String mname = StringUtil.replace(sname, "Service", "Provider");
@@ -254,7 +368,7 @@ public class GenServiceTask extends InvocationTask
 
         // construct our imports list
         ComparableArrayList<String> implist = new ComparableArrayList<String>();
-        CollectionUtil.addAll(implist, imports);
+        implist.addAll(imports);
         checkedAdd(implist, ClientObject.class.getName());
         checkedAdd(implist, InvocationProvider.class.getName());
         checkedAdd(implist, InvocationException.class.getName());
@@ -284,6 +398,9 @@ public class GenServiceTask extends InvocationTask
         }
     }
 
+    /** The path to our ActionScript source files. */
+    protected File _asroot;
+
     /** Services for which we should not generate provider interfaces. */
     protected HashSet<String> _providerless = new HashSet<String>();
 
@@ -298,4 +415,20 @@ public class GenServiceTask extends InvocationTask
     /** Specifies the path to the provider template. */
     protected static final String PROVIDER_TMPL =
         "com/threerings/presents/tools/provider.tmpl";
+
+    /** Specifies the path to the ActionScript service template. */
+    protected static final String AS_SERVICE_TMPL =
+        "com/threerings/presents/tools/service_as.tmpl";
+
+    /** Specifies the path to the ActionScript listener service template. */
+    protected static final String AS_LISTENER_SERVICE_TMPL =
+        "com/threerings/presents/tools/service_listener_as.tmpl";
+
+    /** Specifies the path to the ActionScript marshaller template. */
+    protected static final String AS_MARSHALLER_TMPL =
+        "com/threerings/presents/tools/marshaller_as.tmpl";
+
+    /** Specifies the path to the ActionScript listener marshaller template. */
+    protected static final String AS_LISTENER_MARSHALLER_TMPL =
+        "com/threerings/presents/tools/marshaller_listener_as.tmpl";
 }

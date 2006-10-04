@@ -1,0 +1,20 @@
+package $package {
+
+#foreach ($import in $imports)
+import $import;
+#end
+
+/**
+ * An ActionScript version of the Java ${name}Service interface.
+ */
+public interface ${name}Service extends InvocationService
+{
+#foreach ($m in $methods)
+#if ($velocityCount > 1)
+
+#end
+    // from Java interface ${name}Service
+    function $m.method.name ($m.getASArgList(false)) :void;
+#end
+}
+}

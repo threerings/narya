@@ -15,7 +15,9 @@ public class ${name}Marshaller extends InvocationMarshaller
     implements ${name}Service
 {
 #foreach ($l in $listeners)
-    // documentation inherited
+    /**
+     * Marshalls results to implementations of {@link ${l.name}Listener}.
+     */
     public static class ${l.name}Marshaller extends ListenerMarshaller
         implements ${l.name}Listener
     {
@@ -24,7 +26,7 @@ public class ${name}Marshaller extends InvocationMarshaller
          * responses. */
         public static final int $lm.code = $velocityCount;
 
-        // documentation inherited from interface
+        // from interface ${l.name}Marshaller
         public void $lm.method.name ($lm.getArgList(false))
         {
             _invId = null;
@@ -34,7 +36,7 @@ public class ${name}Marshaller extends InvocationMarshaller
         }
 
 #end
-        // documentation inherited
+        @Override // from InvocationMarshaller
         public void dispatchResponse (int methodId, Object[] args)
         {
             switch (methodId) {
@@ -54,10 +56,13 @@ public class ${name}Marshaller extends InvocationMarshaller
 
 #end
 #foreach ($m in $methods)
+#if ($velocityCount > 1)
+
+#end
     /** The method id used to dispatch {@link #$m.method.name} requests. */
     public static final int $m.code = $velocityCount;
 
-    // documentation inherited from interface
+    // from interface ${name}Service
     public void $m.method.name ($m.getArgList(false))
     {
 #foreach ($la in $m.listenerArgs)
@@ -68,6 +73,5 @@ public class ${name}Marshaller extends InvocationMarshaller
             $m.getWrappedArgList(true)
         });
     }
-
 #end
 }
