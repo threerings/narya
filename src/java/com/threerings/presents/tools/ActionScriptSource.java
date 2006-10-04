@@ -249,7 +249,7 @@ public class ActionScriptSource
     public static String toActionScriptType (Class type)
     {
         if (type.isArray()) {
-            return "Array";
+            return "TypedArray";
         }
 
         String tname = type.getName();
