@@ -88,7 +88,7 @@ public class ActionScriptSource
             while (comment.startsWith("\n")) {
                 comment = comment.substring(1);
             }
-            this.comment = comment;
+            this.comment = StringUtil.isBlank(comment) ? "" : comment;
         }
 
         public void write (PrintWriter writer) {
@@ -411,6 +411,7 @@ public class ActionScriptSource
         Mode mode = Mode.PREAMBLE;
         Matcher m;
         int braceCount = 0;
+        boolean seenOpenBrace = false;
         StringBuilder accum = new StringBuilder();
         while ((line = bin.readLine()) != null) {
             line = line.replaceAll("\\s+$", "");
@@ -532,6 +533,7 @@ public class ActionScriptSource
 
                     // switch to METHODBODY to absorb the method
                     braceCount = (line.indexOf("{") == -1) ? 0 : 1;
+                    seenOpenBrace = (braceCount > 0);
                     mode = Mode.METHODBODY;
 
                 // see if we match a method declaration
@@ -578,6 +580,7 @@ public class ActionScriptSource
 
                     // switch to METHODBODY to absorb the method
                     braceCount = (line.indexOf("{") == -1) ? 0 : 1;
+                    seenOpenBrace = (braceCount > 0);
                     mode = Mode.METHODBODY;
 
                 } else {
@@ -600,12 +603,13 @@ public class ActionScriptSource
 
             case METHODBODY:
                 if (line.indexOf("{") != -1) {
+                    seenOpenBrace = true;
                     braceCount++;
                 }
                 if (line.indexOf("}") != -1) {
                     braceCount--;
                 }
-                if (braceCount == 0) {
+                if (seenOpenBrace && braceCount == 0) {
                     mode = Mode.CLASSBODY;
                 }
                 break;
@@ -635,6 +639,7 @@ public class ActionScriptSource
         Mode mode = Mode.PREAMBLE;
         Matcher m;
         int braceCount = 0;
+        boolean seenOpenBrace = false;
         StringBuilder accum = new StringBuilder();
         Member curmem = null;
         while ((line = bin.readLine()) != null) {
@@ -718,6 +723,7 @@ public class ActionScriptSource
 
                     // switch to METHODBODY to absorb the method
                     braceCount = (line.indexOf("{") == -1) ? 0 : 1;
+                    seenOpenBrace = (braceCount > 0);
                     mode = Mode.METHODBODY;
 
                 // see if we match a method declaration
@@ -728,34 +734,40 @@ public class ActionScriptSource
                         line = line + "\n" + slurpUntil(bin, ")", false);
                     }
 
+                    ArrayList<Member> list = publicMethods;
+                    boolean isProtected = (line.indexOf("protected ") != -1);
+                    boolean isStatic = (line.indexOf("static ") != -1);
+                    list = isProtected ?
+                        (isStatic ? protectedStaticMethods : protectedMethods) :
+                        (isStatic ? publicStaticMethods : publicMethods);
+
                     // extract the name, replace the declaration
                     String funcName = m.group(1);
-                    curmem = getMember(publicMethods, funcName);
-                    if (curmem == null) {
-                        curmem = getMember(protectedMethods, funcName);
-                    }
+                    curmem = getMember(list, funcName);
                     if (curmem == null) {
                         System.err.println(
                             "Have ActionScript method with no " +
                             "Java equivalent: " + funcName + "().");
-                    } else {
-                        // update the definition and comment with the
-                        // ActionScript versions (unless it's readObject or
-                        // writeObject in which case we want always to use the
-                        // generated versions)
-                        if (!funcName.equals("readObject") &&
-                            !funcName.equals("writeObject")) {
-                            curmem.definition = line.trim();
-                        }
-                        String ncomment = accum.toString();
-                        if (!StringUtil.isBlank(ncomment)) {
-                            curmem.setComment(ncomment);
-                        }
+                        curmem = new Member(funcName, "");
+                        list.add(curmem);
+                    }
+
+                    // update the definition and comment with the ActionScript
+                    // versions (unless it's readObject or writeObject in which
+                    // case we want always to use the generated versions)
+                    if (!funcName.equals("readObject") &&
+                        !funcName.equals("writeObject")) {
+                        curmem.definition = line.trim();
+                    }
+                    String ncomment = accum.toString();
+                    if (!StringUtil.isBlank(ncomment)) {
+                        curmem.setComment(ncomment);
                     }
                     accum.setLength(0);
 
                     // switch to METHODBODY to absorb the method
                     braceCount = (line.indexOf("{") == -1) ? 0 : 1;
+                    seenOpenBrace = (braceCount > 0);
                     mode = Mode.METHODBODY;
 
                 } else {
@@ -778,13 +790,14 @@ public class ActionScriptSource
 
             case METHODBODY:
                 if (line.indexOf("{") != -1) {
+                    seenOpenBrace = true;
                     braceCount++;
                 }
                 if (line.indexOf("}") != -1) {
                     braceCount--;
                 }
                 accum.append(line).append("\n");
-                if (braceCount == 0) {
+                if (seenOpenBrace && braceCount == 0) {
                     // update the method body of our currently matched member
                     if (curmem != null) {
                         curmem.body = accum.toString();
@@ -996,6 +1009,7 @@ public class ActionScriptSource
 
     protected static Pattern ASFUNCTION = Pattern.compile(
         ".*(?:public|protected)" +
+        "(?:\\s+static)?" +
         "(?:\\s+/\\*\\s*abstract\\s*\\*/)?" +
         "\\s+function\\s+([a-zA-Z]\\w*) \\(.*");
 
