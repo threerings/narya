@@ -126,13 +126,12 @@ public abstract class InvocationTask extends Task
                 // InvocationService listeners, we need to import its
                 // marshaller as well
                 String sname = GenUtil.simpleName(arg, null);
-                if (_ilistener.isAssignableFrom(arg) &&
-                    !sname.startsWith("InvocationService")) {
+                if (_ilistener.isAssignableFrom(arg)) {
                     String mname = arg.getName();
                     mname = StringUtil.replace(mname, "Service", "Marshaller");
                     mname = StringUtil.replace(mname, "Listener", "Marshaller");
                     mname = StringUtil.replace(mname, ".client.", ".data.");
-                    if (!samepkg) {
+                    if (!samepkg && !sname.startsWith("InvocationService")) {
                         imports.put(importify(mname), Boolean.TRUE);
                     }
                     if (rawimports != null) {
