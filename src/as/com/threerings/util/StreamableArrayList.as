@@ -39,18 +39,6 @@ public class StreamableArrayList extends ArrayCollection
         }
     }
 
-    /**
-     * Extracts and returns a sublist from this list.
-     */
-    public function subList (startIdx :int, endIdx :int) :ArrayCollection
-    {
-        var newlist :ArrayCollection = new ArrayCollection();
-        for (var ii :int = startIdx; ii <= endIdx; ii++) {
-            newlist.addItem(getItemAt(ii));
-        }
-        return newlist;
-    }
-
     // documentation inherited from interface Streamable
     public function writeObject (out :ObjectOutputStream) :void
     {
