@@ -61,9 +61,19 @@ public class ActionScriptSource
         }
 
         public void setInitialValue (String initValue) {
+            // if we're a typed array and we're being set to "new Something[0]"
+            // then convert that
+            if (definition.indexOf("TypedArray") != -1) {
+                Matcher m = ARRAYINIT.matcher(initValue);
+                if (m.matches()) {
+                    initValue = "TypedArray.create(" + m.group(1) + ")";
+                }
+            }
+
             // do not-very-smart array conversion
             initValue = initValue.replaceAll("\\{", "[");
             initValue = initValue.replaceAll("\\}", "]");
+
             // stick the initial value before the semicolon
             definition = definition.substring(0, definition.length()-1) +
                 " = " + initValue + ";";
@@ -988,4 +998,6 @@ public class ActionScriptSource
         ".*(?:public|protected)" +
         "(?:\\s+/\\*\\s*abstract\\s*\\*/)?" +
         "\\s+function\\s+([a-zA-Z]\\w*) \\(.*");
+
+    protected static Pattern ARRAYINIT = Pattern.compile("new (\\w+)\\[0\\]");
 }
