@@ -268,21 +268,22 @@ public class ActionScriptSource
             return isField ? "TypedArray" : "Array";
         }
 
-        String tname = type.getName();
-        if (tname.equals("java.lang.Integer") ||
-            tname.equals("byte")) {
+        if (Integer.class.equals(type) ||
+            Byte.TYPE.equals(type) ||
+            Short.TYPE.equals(type) ||
+            Character.TYPE.equals(type)) {
             return "int";
         }
 
-        if (tname.equals("long")) {
+        if (Long.TYPE.equals(type)) {
             return "Long";
         }
 
-        if (tname.equals("boolean")) {
+        if (Boolean.TYPE.equals(type)) {
             return "Boolean";
         }
 
-        return toSimpleName(tname);
+        return toSimpleName(type.getName());
     }
 
     public ActionScriptSource (Class jclass)
