@@ -515,6 +515,7 @@ public class ActionScriptSource
                     String name = m.group(1);
                     String comment = accum.toString();
                     accum.setLength(0);
+
                     // set the comment on the specified method
                     updateComment(publicConstructors, name, comment);
                     updateComment(protectedConstructors, name, comment);
@@ -541,6 +542,24 @@ public class ActionScriptSource
                     String name = m.group(1);
                     String comment = accum.toString();
                     accum.setLength(0);
+
+                    // look through the comment for an @ActionScript
+                    // annotation; oh the hackery
+                    if (comment.indexOf("@ActionScript") != -1) {
+                        StringBuilder combuf = new StringBuilder();
+                        for (String cline : StringUtil.split(comment, "\n")) {
+                            if ((m = JANNOTATION.matcher(cline)).matches()) {
+                                name = m.group(1);
+                            } else {
+                                if (combuf.length() > 0) {
+                                    combuf.append("\n");
+                                }
+                                combuf.append(cline);
+                            }
+                        }
+                        comment = combuf.toString();
+                    }
+
                     // set the comment on the specified method
                     updateComment(publicStaticMethods, name, comment);
                     updateComment(publicMethods, name, comment);
@@ -718,7 +737,10 @@ public class ActionScriptSource
                             !funcName.equals("writeObject")) {
                             curmem.definition = line.trim();
                         }
-                        curmem.setComment(accum.toString());
+                        String ncomment = accum.toString();
+                        if (!StringUtil.isBlank(ncomment)) {
+                            curmem.setComment(ncomment);
+                        }
                     }
                     accum.setLength(0);
 
@@ -951,6 +973,9 @@ public class ActionScriptSource
 
     protected static Pattern JMETHOD = Pattern.compile(
         "\\s+(?:public|protected|private).* ([a-zA-Z]\\w*) \\(.*");
+
+    protected static Pattern JANNOTATION = Pattern.compile(
+        ".*@ActionScript\\(name=\"(\\w+)\"\\).*");
 
     protected static Pattern ASFIELD = Pattern.compile(
         "\\s+(?:public|protected|private)" +
