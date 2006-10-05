@@ -54,6 +54,7 @@ public class ActionScriptSource
         public String comment = "";
         public String definition;
         public String body = "";
+        public boolean noreplace = false;
 
         public Member (String name, String definition) {
             this.name = name;
@@ -753,12 +754,8 @@ public class ActionScriptSource
                     }
 
                     // update the definition and comment with the ActionScript
-                    // versions (unless it's readObject or writeObject in which
-                    // case we want always to use the generated versions)
-                    if (!funcName.equals("readObject") &&
-                        !funcName.equals("writeObject")) {
-                        curmem.definition = line.trim();
-                    }
+                    // versions
+                    curmem.definition = line.trim();
                     String ncomment = accum.toString();
                     if (!StringUtil.isBlank(ncomment)) {
                         curmem.setComment(ncomment);
@@ -800,7 +797,10 @@ public class ActionScriptSource
                 if (seenOpenBrace && braceCount == 0) {
                     // update the method body of our currently matched member
                     if (curmem != null) {
-                        curmem.body = accum.toString();
+                        // don't overwrite the auto-generated methods
+                        if (!curmem.noreplace) {
+                            curmem.body = accum.toString();
+                        }
                         curmem = null;
                     } else {
                         System.err.println(

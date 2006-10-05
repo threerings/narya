@@ -195,6 +195,7 @@ public class GenActionScriptTask extends Task
         ActionScriptSource.Member member;
         member = new ActionScriptSource.Member(
             "readObject", (needSuper ? "override " : "") + READ_SIG);
+        member.noreplace = true;
         member.comment = "    // from interface Streamable\n";
         StringBuilder body = new StringBuilder("    {\n");
         if (needSuper) {
@@ -207,7 +208,7 @@ public class GenActionScriptTask extends Task
             }
             body.append("        ");
             body.append(field.getName()).append(" = ");
-            body.append(toReadObject(field.getType().getName()));
+            body.append(toReadObject(field.getType()));
             body.append(";\n");
             added++;
         }
@@ -218,6 +219,7 @@ public class GenActionScriptTask extends Task
 
         member = new ActionScriptSource.Member(
             "writeObject", (needSuper ? "override " : "") + WRITE_SIG);
+        member.noreplace = true;
         member.comment = "    // from interface Streamable\n";
         body = new StringBuilder("    {\n");
         if (needSuper) {
@@ -267,30 +269,35 @@ public class GenActionScriptTask extends Task
         return !Modifier.isStatic(mods) && !Modifier.isTransient(mods);
     }
 
-    protected String toReadObject (String type)
+    protected String toReadObject (Class type)
     {
-        if (type.equals("java.lang.String")) {
+        if (type.equals(String.class)) {
             return "(ins.readField(String) as String)";
 
-        } else if (type.equals("java.lang.Integer")) {
-            type = ActionScriptSource.toSimpleName(type);
-            return "(ins.readField(" + type + ") as " + type + ").value";
+        } else if (type.equals(Integer.class) ||
+                   type.equals(Short.class) ||
+                   type.equals(Byte.class)) {
+            String name = ActionScriptSource.toSimpleName(type.getName());
+            return "(ins.readField(" + name + ") as " + name + ").value";
 
-        } else if (type.equals("byte")) {
+        } else if (type.equals(Byte.TYPE)) {
             return "ins.readByte()";
 
-        } else if (type.equals("short")) {
+        } else if (type.equals(Short.TYPE)) {
             return "ins.readShort()";
 
-        } else if (type.equals("int")) {
+        } else if (type.equals(Integer.TYPE)) {
             return "ins.readInt()";
 
-        } else if (type.equals("long")) {
+        } else if (type.equals(Long.TYPE)) {
             return "new Long(ins.readInt(), ins.readInt())";
 
+        } else if (type.isArray()) {
+            return "(ins.readObject() as TypedArray)";
+
         } else {
-            type = ActionScriptSource.toSimpleName(type);
-            return "(ins.readObject() as " + type + ")";
+            return "(ins.readObject() as " +
+                ActionScriptSource.toSimpleName(type.getName()) + ")";
         }
     }
 
