@@ -134,7 +134,8 @@ public abstract class InvocationTask extends Task
                     if (!samepkg && !sname.startsWith("InvocationService")) {
                         imports.put(importify(mname), Boolean.TRUE);
                     }
-                    if (rawimports != null) {
+                    if (rawimports != null &&
+                        !sname.equals("InvocationService.InvocationListener")) {
                         rawimports.put(mname, Boolean.TRUE);
                     }
                 }
