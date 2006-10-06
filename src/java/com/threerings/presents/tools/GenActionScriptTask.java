@@ -280,6 +280,9 @@ public class GenActionScriptTask extends Task
             String name = ActionScriptSource.toSimpleName(type.getName());
             return "(ins.readField(" + name + ") as " + name + ").value";
 
+        } else if (type.equals(Boolean.TYPE)) {
+            return "ins.readBoolean()";
+
         } else if (type.equals(Byte.TYPE)) {
             return "ins.readByte()";
 
@@ -305,6 +308,9 @@ public class GenActionScriptTask extends Task
     {
         if (type.equals("java.lang.Integer")) {
             return "writeObject(new Integer(" + name + "))";
+
+        } else if (type.equals("boolean")) {
+            return "writeBoolean(" + name + ")";
 
         } else if (type.equals("byte")) {
             return "writeByte(" + name + ")";
