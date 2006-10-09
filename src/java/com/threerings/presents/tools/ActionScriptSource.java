@@ -334,9 +334,9 @@ public class ActionScriptSource
         // ActionScript only supports one constructor so we find the one with
         // the most arguments and we make a note whether or not we need a no
         // argument constructor which we create using default arguments
-        Constructor mainctor = null;
+        Constructor<ActionScript> mainctor = null;
         boolean needsNoArg = false;
-        for (Constructor ctor : jclass.getConstructors()) {
+        for (Constructor<ActionScript> ctor : jclass.getConstructors()) {
             ActionScript asa = ctor.getAnnotation(ActionScript.class);
             if (asa != null && asa.omit()) {
                 continue;
