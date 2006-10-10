@@ -169,8 +169,18 @@ public class ChatDirector extends BasicDirector
     }
 
     /**
-     * Adds the supplied chat display to the chat display list. It will
-     * subsequently be notified of incoming chat messages as well as tell
+     * Adds the supplied chat display to the front of the chat display list. It
+     * will subsequently be notified of incoming chat messages as well as tell
+     * responses.
+     */
+    public void pushChatDisplay (ChatDisplay display)
+    {
+        _displays.add(0, display);
+    }
+
+    /**
+     * Adds the supplied chat display to the end of the chat display list. It
+     * will subsequently be notified of incoming chat messages as well as tell
      * responses.
      */
     public void addChatDisplay (ChatDisplay display)
@@ -1088,15 +1098,19 @@ public class ChatDirector extends BasicDirector
         public void setMessage (ChatMessage message)
         {
             _message = message;
+            _displayed = false;
         }
 
         public boolean apply (ChatDisplay observer)
         {
-            observer.displayMessage(_message);
+            if (observer.displayMessage(_message, _displayed)) {
+                _displayed = true;
+            }
             return true;
         }
 
         protected ChatMessage _message;
+        protected boolean _displayed;
     }
 
     /** Implements <code>/help</code>. */
@@ -1388,11 +1402,11 @@ public class ChatDirector extends BasicDirector
 
     /** A list of registered chat displays. */
     protected ObserverList<ChatDisplay> _displays =
-        new ObserverList<ChatDisplay>(ObserverList.FAST_UNSAFE_NOTIFY);
+        new ObserverList<ChatDisplay>(ObserverList.SAFE_IN_ORDER_NOTIFY);
 
     /** A list of registered chat filters. */
     protected ObserverList<ChatFilter> _filters =
-        new ObserverList<ChatFilter>(ObserverList.FAST_UNSAFE_NOTIFY);
+        new ObserverList<ChatFilter>(ObserverList.SAFE_IN_ORDER_NOTIFY);
 
     /** A mapping from auxiliary chat objects to the types under which
      * they are registered. */
@@ -1406,7 +1420,7 @@ public class ChatDirector extends BasicDirector
 
     /** Observers that are watching our chatters list. */
     protected ObserverList<ChatterObserver> _chatterObservers =
-        new ObserverList<ChatterObserver>(ObserverList.FAST_UNSAFE_NOTIFY);
+        new ObserverList<ChatterObserver>(ObserverList.SAFE_IN_ORDER_NOTIFY);
 
     /** Registered chat command handlers. */
     protected static HashMap<String,CommandHandler> _handlers =

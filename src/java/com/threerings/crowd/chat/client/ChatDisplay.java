@@ -38,7 +38,10 @@ public interface ChatDisplay
     /**
      * Called to display a chat message.
      *
-     * @see ChatMessage
+     * @param alreadyDisplayed true if a previous chat display in the list has
+     * already displayed this message, false otherwise.
+     *
+     * @return true if the message was displayed, false if not.
      */ 
-    public void displayMessage (ChatMessage msg);
+    public boolean displayMessage (ChatMessage msg, boolean alreadyDisplayed);
 }
