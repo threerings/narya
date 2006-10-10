@@ -79,6 +79,9 @@ public class CrowdPeerManager extends PeerManager
         // one of the other servers
         for (PeerNode peer : _peers.values()) {
             CrowdNodeObject cnobj = (CrowdNodeObject)peer.nodeobj;
+            if (cnobj == null) {
+                continue;
+            }
             CrowdClientInfo cinfo = (CrowdClientInfo)cnobj.clients.get(target);
             if (cinfo != null) {
                 cnobj.crowdPeerService.deliverTell(
