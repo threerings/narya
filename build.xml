@@ -9,7 +9,6 @@
   <property name="app.name"       value="narya"/>
   <property name="deploy.dir"     value="dist"/>
   <property name="savedoc.dir"    value="docs"/>
-  <property name="lib.version"    value="1.0"/>
 
   <!-- derived properties -->  
   <property name="javadoc.home"   value="${deploy.dir}/docs"/>
@@ -254,35 +253,16 @@
     </viztool>
   </target>
 
-  <!-- creates a tarball and zipfile for source distribution -->
-  <target name="distrib">
+  <!-- creates a zipfile with our source distribution -->
+  <target name="snapshot">
      <echo message="You may want to stop and run 'ant savedoc' first."/>
-     <echo message="Building ${lib.version} tar.gz distribution..."/>
-     <tar destfile="narya-${lib.version}.tar.gz" compression="gzip">
-       <tarfileset dir=".." mode="0775" dirmode="0775">
-         <include name="narya/bin/**"/>
-         <include name="narya/tests/bin/**"/>
-         <exclude name="**/CVS"/>
-       </tarfileset>
-       <tarfileset dir=".." mode="0664" dirmode="0775">
-         <include name="narya/**"/>
-         <exclude name="**/CVS"/>
-         <exclude name="narya/bin/**"/>
-         <exclude name="narya/tests/bin/**"/>
-         <exclude name="narya/tests/dist/**"/>
-         <exclude name="narya/dist/**"/>
-         <exclude name="narya/code/**"/>
-         <exclude name="narya/narya-*.*"/>
-       </tarfileset>
-     </tar>
-     <echo message="Building ${lib.version} zip distribution..."/>
-     <zip destfile="narya-${lib.version}.zip">
+     <delete file="${app.name}-snapshot.zip"/>
+     <zip destfile="${app.name}-snapshot.zip">
        <fileset dir="..">
-         <include name="narya/**"/>
-         <exclude name="**/CVS"/>
-         <exclude name="narya/dist/**"/>
-         <exclude name="narya/code/**"/>
-         <exclude name="narya/narya-*.*"/>
+         <include name="${app.name}/**"/>
+         <exclude name="${app.name}/dist/**"/>
+         <exclude name="${app.name}/tests/dist/**"/>
+         <exclude name="${app.name}/${app.name}-*.zip"/>
        </fileset>
      </zip>
   </target>
