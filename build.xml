@@ -257,14 +257,20 @@
   <target name="snapshot">
      <echo message="You may want to stop and run 'ant savedoc' first."/>
      <delete file="${app.name}-snapshot.zip"/>
-     <zip destfile="${app.name}-snapshot.zip">
-       <fileset dir="..">
-         <include name="${app.name}/**"/>
-         <exclude name="${app.name}/dist/**"/>
-         <exclude name="${app.name}/tests/dist/**"/>
-         <exclude name="${app.name}/${app.name}-*.zip"/>
+     <mkdir dir="../snapshot/${app.name}"/>
+     <copy todir="../snapshot/${app.name}">
+       <fileset dir=".">
+         <include name="**"/>
+         <exclude name="dist/**"/>
+         <exclude name="tests/dist/**"/>
+         <exclude name="${app.name}-*.zip"/>
        </fileset>
-     </zip>
+     </copy>
+     <copy todir="../snapshot/${app.name}/lib">
+       <fileset dir="dist/lib" includes="*.jar"/>
+     </copy>
+     <zip destfile="${app.name}-snapshot.zip" basedir="../snapshot"/>
+     <delete dir="../snapshot"/>
   </target>
 
 </project>
