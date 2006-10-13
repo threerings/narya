@@ -15,6 +15,11 @@
   <property name="javadoc.home"   value="${deploy.dir}/docs"/>
   <property name="classes.dir"    value="${deploy.dir}/classes"/>
 
+  <!-- import some targets to enumerate library dependencies -->
+  <property name="projects.root" value="."/>
+  <property name="libs.dir" value="lib"/>
+  <import file="libs-incl.xml"/>
+
   <!-- declare our classpath business -->
   <path id="classpath">
     <pathelement location="${classes.dir}"/>
@@ -111,10 +116,16 @@
     </copy>
   </target>
 
-  <!-- cleans out the installed application -->
+  <!-- cleans out the intermediate build files -->
   <target name="clean">
-    <delete dir="${deploy.dir}"/>
+    <delete dir="${deploy.dir}/classes"/>
+    <delete dir="${deploy.dir}/docs"/>
     <ant dir="tests" target="clean"/>
+  </target>
+
+  <!-- wipes the entire build directory clean -->
+  <target name="distclean" depends="clean">
+    <delete dir="${deploy.dir}"/>
   </target>
 
   <!-- build the java class files -->
