@@ -111,8 +111,8 @@
       <fileset dir="src/java" includes="**/*.properties"/>
       <fileset dir="src/java" includes="**/*.tmpl"/>
     </copy>
-    <copy todir="${deploy.dir}/lib">
-      <fileset dir="lib" includes="**/*.jar"/>
+    <copy todir="${deploy.dir}/lib" flatten="true">
+      <fileset refid="${app.name}.libs"/>
     </copy>
   </target>
 
