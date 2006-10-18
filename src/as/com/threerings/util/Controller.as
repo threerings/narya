@@ -96,8 +96,7 @@ public class Controller
         if (handleAction(event.command, event.arg)) {
             // if we handle the event, stop it from moving outward to another
             // controller
-            event.preventDefault();
-            event.stopImmediatePropagation();
+            event.markAsHandled();
         }
     }
 

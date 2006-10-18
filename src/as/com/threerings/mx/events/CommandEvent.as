@@ -47,6 +47,16 @@ public class CommandEvent extends Event
         this.arg = arg;
     }
 
+    /**
+     * Mark this command as handled, stopping its propagation up the
+     * hierarchy.
+     */
+    public function markAsHandled () :void
+    {
+        preventDefault();
+        stopImmediatePropagation();
+    }
+
     override public function clone () :Event
     {
         return create(command, arg);
