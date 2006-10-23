@@ -66,6 +66,15 @@ public class MediaContainer extends Box
     }
 
     /**
+     * Get the media. If the media was loaded using a URL, this will
+     * likely be the Loader object holding the real media.
+     */
+    public function getMedia () :DisplayObject
+    {
+        return _media;
+    }
+
+    /**
      * Configure the media to display.
      */
     public function setMedia (url :String) :void
@@ -82,6 +91,32 @@ public class MediaContainer extends Box
         } else {
             setupSwfOrImage(url);
         }
+    }
+
+    /**
+     * Configure our media as an instance of the specified class.
+     */
+    public function setMediaClass (clazz :Class) :void
+    {
+        setMediaObject(new clazz() as DisplayObject);
+    }
+
+    /**
+     * Configure an already-instantiated DisplayObject as our media.
+     */
+    public function setMediaObject (disp :DisplayObject) :void
+    {
+        if (_media != null) {
+            shutdown(false);
+        }
+
+        if (disp is UIComponent) {
+            addChild(disp);
+        } else {
+            rawChildren.addChild(disp);
+        }
+        _media = disp;
+        updateContentDimensions(disp.width, disp.height);
     }
 
     /**
@@ -284,33 +319,10 @@ public class MediaContainer extends Box
      */
     protected function getContext (url :String) :LoaderContext
     {
-        /* Super unrestrictive */
-//        return null;
-
-        /* a little unrestrictive */
-//        return new LoaderContext(false, 
-//            ApplicationDomain.currentDomain,
-//            null);
-
-        /* more restrictive */
+        // We allow content to share but not overwrite our classes
         return new LoaderContext(false, 
             new ApplicationDomain(ApplicationDomain.currentDomain),
             null);
-
-        /*
-        var loadCtx :LoaderContext = (_loadCtx.get(url) as LoaderContext);
-        if (loadCtx == null) {
-            trace("Creating new loadctx for " + url);
-            loadCtx = new LoaderContext(
-                false,
-                //new ApplicationDomain(ApplicationDomain.currentDomain),
-                ApplicationDomain.currentDomain,
-                null
-                );
-            _loadCtx.put(url, loadCtx);
-        }
-        return loadCtx;
-        */
     }
 
     /**
@@ -389,6 +401,11 @@ public class MediaContainer extends Box
     {
         var info :LoaderInfo = (event.target as LoaderInfo);
         removeListeners(info);
+
+//        trace("Loading complete: " + info.url +
+//            ", childAllowsParent=" + info.childAllowsParent +
+//            ", parentAllowsChild=" + info.parentAllowsChild +
+//            ", sameDomain=" + info.sameDomain);
 
         updateContentDimensions(info.width, info.height);
         updateLoadingProgress(1, 1);
