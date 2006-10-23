@@ -26,6 +26,7 @@ import mx.collections.ArrayCollection;
 import com.threerings.util.ArrayUtil;
 import com.threerings.util.HashMap;
 import com.threerings.util.Map;
+import com.threerings.util.ObserverList;
 import com.threerings.util.ResultListener;
 import com.threerings.util.StringUtil;
 
@@ -103,15 +104,23 @@ public class ChatDirector extends BasicDirector
     }
 
     /**
+     * Adds the supplied chat display to the front of the chat display list. It
+     * will subsequently be notified of incoming chat messages as well as tell
+     * responses.
+     */
+    public function pushChatDisplay (display :ChatDisplay) :void
+    {
+        _displays.add(display, 0);
+    }
+
+    /**
      * Adds the supplied chat display to the chat display list. It will
      * subsequently be notified of incoming chat messages as well as tell
      * responses.
      */
     public function addChatDisplay (display :ChatDisplay) :void
     {
-        if (-1 == _displays.getItemIndex(display)) {
-            _displays.addItem(display);
-        }
+        _displays.add(display);
     }
 
     /**
@@ -120,10 +129,7 @@ public class ChatDirector extends BasicDirector
      */
     public function removeChatDisplay (display :ChatDisplay) :void
     {
-        var idx :int = _displays.getItemIndex(display);
-        if (idx != -1) {
-            _displays.removeItemAt(idx);
-        }
+        _displays.remove(display);
     }
 
     /**
@@ -227,9 +233,9 @@ public class ChatDirector extends BasicDirector
      */
     public function clearDisplays () :void
     {
-        for (var ii :int = 0; ii < _displays.length; ii++) {
-            (_displays.getItemAt(ii) as ChatDisplay).clear();
-        }
+        _displays.apply(function (disp :ChatDisplay) :void {
+            disp.clear();
+        });
     }
 
     /**
@@ -278,9 +284,12 @@ public class ChatDirector extends BasicDirector
      */
     public function dispatchMessage (message :ChatMessage) :void
     {
-        for each (var display :ChatDisplay in _displays) {
-            display.displayMessage(message);
-        }
+        var displayed :Boolean = false;
+        _displays.apply(function (disp :ChatDisplay) :void {
+            if (disp.displayMessage(message, displayed)) {
+                displayed = true;
+            }
+        });
     }
 
     /**
@@ -986,7 +995,7 @@ public class ChatDirector extends BasicDirector
     protected var _clobj :ClientObject;
 
     /** A list of registered chat displays. */
-    protected var _displays :ArrayCollection = new ArrayCollection();
+    protected var _displays :ObserverList = new ObserverList();
 
     /** A list of registered chat filters. */
 //    protected ObserverList _filters =

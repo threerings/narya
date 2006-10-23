@@ -25,12 +25,22 @@ public class ObserverList
 
     /**
      * Add an observer to this list.
+     *
+     * @param index the index at which to add the observer, or -1 for the end.
      */
-    public function add (observer :Object) :void
+    public function add (observer :Object, index :int = -1) :void
     {
         if (!ArrayUtil.contains(_list, observer)) {
-            _list.push(observer);
+            _list.splice(index, 0, observer); // -1 to splice means "end"
         }
+    }
+
+    /**
+     * Return the size of the list.
+     */
+    public function size () :int
+    {
+        return _list.length;
     }
 
     /**

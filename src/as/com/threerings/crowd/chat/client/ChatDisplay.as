@@ -39,7 +39,9 @@ public interface ChatDisplay
      * Called to display a chat message.
      *
      * @see ChatMessage
+     * @return true if the message was displayed here.
      */ 
-    function displayMessage (msg :ChatMessage) :void;
+    function displayMessage (
+        msg :ChatMessage, alreadyDisplayed :Boolean) :Boolean;
 }
 }

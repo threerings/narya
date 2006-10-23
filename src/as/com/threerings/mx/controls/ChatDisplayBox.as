@@ -37,7 +37,8 @@ public class ChatDisplayBox extends TextArea
     }
 
     // documentation inherited from interface ChatDisplay
-    public function displayMessage (msg :ChatMessage) :void
+    public function displayMessage (
+        msg :ChatMessage, alreadyDisplayed :Boolean) :Boolean
     {
         if (!_scrollBot) {
             _scrollBot = (verticalScrollPosition == maxVerticalScrollPosition);
@@ -49,6 +50,7 @@ public class ChatDisplayBox extends TextArea
                 (msg as UserMessage).speaker + "&gt;</font> ";
         }
         this.htmlText += msg.message;
+        return true;
     }
 
     override public function parentChanged (p :DisplayObjectContainer) :void
