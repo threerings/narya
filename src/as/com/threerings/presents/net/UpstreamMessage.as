@@ -4,7 +4,7 @@ import com.threerings.io.Streamable;
 import com.threerings.io.ObjectInputStream;
 import com.threerings.io.ObjectOutputStream;
 
-import com.threerings.util.JavaConstants;
+import com.threerings.util.Short;
 
 public /* abstract */ class UpstreamMessage
     implements Streamable
@@ -41,7 +41,7 @@ public /* abstract */ class UpstreamMessage
      */
     protected static function nextMessageId () :int
     {
-        _nextMessageId = (_nextMessageId + 1) % JavaConstants.SHORT_MAX_VALUE;
+        _nextMessageId = (_nextMessageId + 1) % Short.MAX_VALUE;
         return _nextMessageId;
     }
 

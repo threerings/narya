@@ -6,6 +6,13 @@ package com.threerings.util {
 public class Short
     implements Equalable, Wrapped
 {
+    /** The minimum possible short value. */
+    public static const MIN_VALUE :int = -Math.pow(2, 15);
+
+    /** The maximum possible short value. */
+    public static const MAX_VALUE :int = (Math.pow(2, 15) - 1);
+
+    /** The value of this short. */
     public var value :int;
 
     public static function valueOf (val :int) :Short
