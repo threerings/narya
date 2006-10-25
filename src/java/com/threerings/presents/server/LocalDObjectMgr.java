@@ -24,6 +24,9 @@ package com.threerings.presents.server;
 import java.awt.EventQueue;
 
 import com.threerings.presents.dobj.DEvent;
+import com.threerings.presents.dobj.DObject;
+import com.threerings.presents.dobj.DObjectManager;
+import com.threerings.presents.dobj.Subscriber;
 
 /**
  * A special version of the distributed object manager, modified to
@@ -33,6 +36,37 @@ import com.threerings.presents.dobj.DEvent;
  */
 public class LocalDObjectMgr extends PresentsDObjectMgr
 {
+    /**
+     * Creates a {@link DObjectManager} that posts directly to this local
+     * object manager, but first sets the source oid of all events to properly
+     * identify them with the supplied client oid. Normally this oid setting
+     * happens when an event is received on the server over the network, but in
+     * local mode we have to do it by hand.
+     */
+    public DObjectManager getClientDObjectMgr (final int clientOid)
+    {
+        return new DObjectManager() {
+            public boolean isManager (DObject object) {
+                return LocalDObjectMgr.this.isManager(object);
+            }
+            public <T extends DObject> void subscribeToObject (
+                int oid, Subscriber<T> target) {
+                LocalDObjectMgr.this.subscribeToObject(oid, target);
+            }
+            public <T extends DObject> void unsubscribeFromObject (
+                int oid, Subscriber<T> target) {
+                LocalDObjectMgr.this.unsubscribeFromObject(oid, target);
+            }
+            public void postEvent (DEvent event) {
+                event.setSourceOid(clientOid);
+                LocalDObjectMgr.this.postEvent(event);
+            }
+            public void removedLastSubscriber (DObject obj, boolean deathWish) {
+                LocalDObjectMgr.this.removedLastSubscriber(obj, deathWish);
+            }
+        };
+    }
+
     // documentation inherited
     public synchronized boolean isDispatchThread ()
     {
