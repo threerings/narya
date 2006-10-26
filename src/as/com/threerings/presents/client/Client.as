@@ -28,10 +28,9 @@ public class Client extends EventDispatcher
 
     private static const log :Log = Log.getLog(Client);
 
-    public function Client (creds :Credentials, app :Application)
+    public function Client (creds :Credentials)
     {
         _creds = creds;
-        _app = app;
     }
 
     /**
@@ -98,7 +97,7 @@ public class Client extends EventDispatcher
 
     public function callLater (fn :Function, args :Array = null) :void
     {
-        _app.callLater(fn, args);
+        Application.application.callLater(fn, args);
     }
 
     /**
@@ -106,7 +105,7 @@ public class Client extends EventDispatcher
      */
     public function getStage () :Stage
     {
-        return _app.stage;
+        return Application.application.stage;
     }
 
     public function getHostname () :String
@@ -371,9 +370,6 @@ public class Client extends EventDispatcher
 
     /** The credentials we used to authenticate with the server. */
     protected var _creds :Credentials;
-
-    /** The app we're in, needed for creating the Communicator. */
-    protected var _app :Application;
 
     /** The version string reported to the server at auth time. */
     protected var _version :String = "";
