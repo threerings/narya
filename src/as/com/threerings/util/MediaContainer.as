@@ -320,9 +320,9 @@ public class MediaContainer extends Box
     protected function getContext (url :String) :LoaderContext
     {
         // We allow content to share but not overwrite our classes
-        return new LoaderContext(false, 
+        return new LoaderContext(true, 
             new ApplicationDomain(ApplicationDomain.currentDomain),
-            null);
+            SecurityDomain.currentDomain);
     }
 
     /**
