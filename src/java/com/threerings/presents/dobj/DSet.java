@@ -237,6 +237,7 @@ public class DSet<E extends DSet.Entry>
     /**
      * @deprecated use {@link #toArray(Entry[])}.
      */
+    @Deprecated
     public Object[] toArray (Object[] array)
     {
         @SuppressWarnings("unchecked") E[] casted = (E[])array;

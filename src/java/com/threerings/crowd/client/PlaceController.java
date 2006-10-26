@@ -116,6 +116,7 @@ public abstract class PlaceController extends Controller
      *
      * @deprecated Use {@link #createPlaceView(CrowdContext)}.
      */
+    @Deprecated
     protected PlaceView createPlaceView ()
     {
         return null;

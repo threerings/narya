@@ -50,6 +50,7 @@ public abstract class PlaceConfig extends SimpleStreamableObject
      *
      * @deprecated Override {@link #createController} directly.
      */
+    @Deprecated
     public Class getControllerClass ()
     {
         return null;

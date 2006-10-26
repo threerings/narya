@@ -89,6 +89,7 @@ public class PlaceManager
      * @deprecated Use dynamically bound methods instead. See {@link
      * DynamicListener}.
      */
+    @Deprecated
     public static interface MessageHandler
     {
         /**
@@ -326,6 +327,7 @@ public class PlaceManager
      * @deprecated Use dynamically bound methods instead. See {@link
      * DynamicListener}.
      */
+    @Deprecated
     public void registerMessageHandler (String name, MessageHandler handler)
     {
         // create our handler map if necessary
@@ -441,6 +443,7 @@ public class PlaceManager
     /**
      * @deprecated Use {@link #createPlaceObject}.
      */
+    @Deprecated
     protected Class<? extends PlaceObject> getPlaceObjectClass ()
     {
         return PlaceObject.class;
