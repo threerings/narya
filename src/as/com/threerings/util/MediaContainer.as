@@ -180,8 +180,7 @@ public class MediaContainer extends Box
         if (h == -1) {
             h = 100;
         }
-        _media = ImageUtil.createErrorImage(w, h);
-        rawChildren.addChild(_media);
+        setMediaObject(ImageUtil.createErrorImage(w, h));
     }
 
     /**
@@ -261,8 +260,6 @@ public class MediaContainer extends Box
         _w = 0;
         _h = 0;
         _media = null;
-        width = NaN;
-        height = NaN;
     }
 
     /**
@@ -320,9 +317,12 @@ public class MediaContainer extends Box
     protected function getContext (url :String) :LoaderContext
     {
         // We allow content to share but not overwrite our classes
-        return new LoaderContext(true, 
-            new ApplicationDomain(ApplicationDomain.currentDomain),
-            SecurityDomain.currentDomain);
+//        return new LoaderContext(true, 
+//            new ApplicationDomain(ApplicationDomain.currentDomain),
+//            SecurityDomain.currentDomain);
+
+        // share nothing, trust nothing
+        return new LoaderContext(false, null, null);
     }
 
     /**
@@ -340,15 +340,6 @@ public class MediaContainer extends Box
      */
     protected function loadError (event :IOErrorEvent) :void
     {
-        var info :LoaderInfo = (event.target as LoaderInfo);
-        removeListeners(info);
-
-        var loader :Loader = (_media as Loader);
-        rawChildren.removeChild(loader);
-        if (loader.mask != null) {
-            rawChildren.removeChild(loader.mask);
-        }
-
         setupBrokenImage(-1, -1);
     }
 
@@ -447,9 +438,6 @@ public class MediaContainer extends Box
      */
     protected function updateContentDimensions (ww :int, hh :int) :void
     {
-        width = ww;
-        height = hh;
-
         // update our saved size, and possibly notify our container
         if (_w != ww || _h != hh) {
             _w = ww;
