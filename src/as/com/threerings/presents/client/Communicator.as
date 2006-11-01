@@ -121,7 +121,7 @@ public class Communicator
 
     public function postMessage (msg :UpstreamMessage) :void
     {
-        sendMessage(msg); // send it now: we have no out queue (TODO?)
+        sendMessage(msg); // send it now: we have no out queue
     }
 
     protected function shutdown (logonError :Error) :void

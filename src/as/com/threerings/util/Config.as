@@ -69,8 +69,10 @@ public class Config
         // otherwise we'll hear back in a sec
         var thisConfig :Config = this;
         var listener :Function = function (evt :NetStatusEvent) :void {
-                // TODO: as of beta3 there is a bug where the status
-                // is always "SharedObject.Flush.Failed", even on success
+                // TODO: There is a bug where the status is always
+                // "SharedObject.Flush.Failed", even on success, if the request
+                // was for a large enough storage that the player calls it
+                // "unlimited".
                 trace("================[" + evt.info.code + "]");
                 if ("SharedObject.Flush.Success" == evt.info.code) {
                     rl.requestCompleted(thisConfig);

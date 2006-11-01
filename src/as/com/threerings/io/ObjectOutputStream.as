@@ -5,6 +5,7 @@ import flash.utils.IDataOutput;
 
 import com.threerings.util.ClassUtil;
 import com.threerings.util.HashMap;
+import com.threerings.util.Short;
 
 public class ObjectOutputStream
 {
@@ -39,15 +40,16 @@ public class ObjectOutputStream
             var streamer :Streamer = Streamer.getStreamer(obj);
             // streamer may be null to indicate a Streamable object
             if (streamer == Streamer.BAD_STREAMER) {
-                // TODO
-                log.warning("OMG, cannot stream " + cname);
-                return;
+                throw new Error("Unable to stream " + cname);
             }
 
             cmap = new ClassMapping(_nextCode++, cname, streamer);
             _classMap.put(cname, cmap);
 
-            // TODO: if _nextCode blows short, log an error
+            if (_nextCode > Short.MAX_VALUE) {
+                throw new Error("Too many unique classes written to " +
+                    "ObjectOutputStream");
+            }
 
             writeShort(-cmap.code);
             writeUTF((streamer == null) ? Translations.getToServer(cname)
@@ -85,8 +87,10 @@ public class ObjectOutputStream
         }
     }
 
-    // TODO: this is equivalent to marshalling a field for which there
-    // is a basic streamer. Work needs doing here.
+    /**
+     * This is equivalent to marshalling a field for which there
+     * is a basic streamer.
+     */
     public function writeField (val :Object) :void
         //throws IOError
     {

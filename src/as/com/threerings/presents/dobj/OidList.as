@@ -86,7 +86,7 @@ public class OidList
     // documentation inherited from interface Streamable
     public function writeObject (out :ObjectOutputStream) :void
     {
-        Log.getLog(this).warning("TODO: Not implemented: " + this);
+        throw new Error();
     }
 
     // documentation inherited from interface Streamable

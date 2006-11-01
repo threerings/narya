@@ -32,10 +32,7 @@ public /* abstract */ class DEvent
      */
     public function applyToObject (target :DObject) :Boolean
     {
-        // TODO
-        Log.getLog(this).warning(
-            "DEvent.applyToTarget is really an abstract method.");
-        return false;
+        throw new Error("abstract");
     }
 
     /**
