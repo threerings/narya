@@ -103,7 +103,7 @@ public class PeerManager
     {
         _nodeName = nodeName;
         _hostName = hostName;
-        _publicHostName = (publicHostName == null) ? publicHostName : hostName;
+        _publicHostName = (publicHostName == null) ? hostName : publicHostName;
         _port = port;
         _sharedSecret = sharedSecret;
 
