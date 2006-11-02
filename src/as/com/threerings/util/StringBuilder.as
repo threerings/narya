@@ -13,8 +13,8 @@ public class StringBuilder
      */
     public function append (... args) :StringBuilder
     {
-        while (args.length > 0) {
-            _array.push(String(args.shift()));
+        for each (var o :Object in args) {
+            _buf += String(o);
         }
         return this;
     }
@@ -24,10 +24,13 @@ public class StringBuilder
      */
     public function toString () :String
     {
-        return _array.join("");
+        // it's ok, Strings are immutable
+        return _buf;
     }
 
-    /** Our array in which we place all arguments. */
-    protected var _array :Array = [];
+    /** The string upon which we build. Internally in AVM2, Strings have
+     * been designed with a prefix pointer so that concatination is
+     * really cheap. */
+    protected var _buf :String = "";
 }
 }
