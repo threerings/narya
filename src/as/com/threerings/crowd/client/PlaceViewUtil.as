@@ -23,7 +23,7 @@ package com.threerings.crowd.client {
 
 import flash.display.DisplayObject;
 
-import mx.utils.DisplayUtil;
+import com.threerings.util.DisplayUtil;
 
 import com.threerings.crowd.data.PlaceObject;
 
@@ -72,7 +72,7 @@ public class PlaceViewUtil
             return;
         }
 
-        DisplayUtil.walkDisplayObjects(root as DisplayObject,
+        DisplayUtil.applyToHierarchy(root as DisplayObject,
             function (disp :DisplayObject) :void {
                 if (disp is PlaceView) {
                     try {

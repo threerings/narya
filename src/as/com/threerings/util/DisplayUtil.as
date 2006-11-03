@@ -1,10 +1,45 @@
 package com.threerings.util {
 
+import flash.display.DisplayObject;
+import flash.display.DisplayObjectContainer;
+
 import flash.geom.Point;
 import flash.geom.Rectangle;
 
+import mx.core.IChildList;
+import mx.core.IRawChildrenContainer;
+
 public class DisplayUtil
 {
+    /**
+     * Call the specified function for the display object and all descendants.
+     *
+     * This is nearly exactly like mx.utils.DisplayUtil.walkDisplayObjects,
+     * except this method copes with security errors when examining a child.
+     */
+    public static function applyToHierarchy (
+        disp :DisplayObject, callbackFunction :Function) :void
+    {
+        callbackFunction(disp);
+
+        if (disp is DisplayObjectContainer) {
+            // a little type-unsafety so that we don't have to write two blocks
+            var o :Object = (disp is IRawChildrenContainer) ?
+                IRawChildrenContainer(disp).rawChildren : disp;
+            var nn :int = int(o.numChildren);
+            for (var ii :int = 0; ii < nn; ii++) {
+                try {
+                    disp = DisplayObject(o.getChildAt(ii));
+                } catch (err :SecurityError) {
+                    continue;
+                }
+                // and then we apply outside of the try/catch block so that
+                // we don't hide errors thrown by the callbackFunction.
+                applyToHierarchy(disp, callbackFunction);
+            }
+        }
+    }
+
     /**
      * Returns the most reasonable position for the specified rectangle to
      * be placed at so as to maximize its containment by the specified
