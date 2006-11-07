@@ -103,7 +103,7 @@ public class LocationProvider
         PlaceManager pmgr = _plreg.getPlaceManager(placeId);
         if (pmgr == null) {
             Log.info("Requested to move to non-existent place " +
-                     "[source=" + source + ", place=" + placeId + "].");
+                     "[who=" + source.who() + ", place=" + placeId + "].");
             throw new InvocationException(NO_SUCH_PLACE);
         }
 
