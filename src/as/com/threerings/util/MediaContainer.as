@@ -1,5 +1,6 @@
 package com.threerings.util {
 
+//import flash.display.Bitmap;
 import flash.display.DisplayObject;
 import flash.display.DisplayObjectContainer;
 import flash.display.Loader;
@@ -316,7 +317,7 @@ public class MediaContainer extends Box
      */
     protected function getContext (url :String) :LoaderContext
     {
-        // We allow content to share but not overwrite our classes
+//        // We allow content to share but not overwrite our classes
 //        return new LoaderContext(true, 
 //            new ApplicationDomain(ApplicationDomain.currentDomain),
 //            SecurityDomain.currentDomain);
@@ -400,6 +401,19 @@ public class MediaContainer extends Box
 
         updateContentDimensions(info.width, info.height);
         updateLoadingProgress(1, 1);
+
+//        // Bitmap smoothing
+//        if (_media is Loader) {
+//            var l :Loader = Loader(_media);
+//            try {
+//                if (l.content is Bitmap) {
+//                    Bitmap(l.content).smoothing = true;
+//                    trace("--- made bitmap smooth");
+//                }
+//            } catch (er :Error) {
+//                trace("--- error bitmap smooth");
+//            }
+//        }
     }
 
     /**
@@ -415,21 +429,21 @@ public class MediaContainer extends Box
      */
     protected function configureMask (ww :int, hh :int) :void
     {
-        var mask :Shape;
-        if (_media.mask != null) {
-            mask = (_media.mask as Shape);
-
-        } else {
-            mask = new Shape();
-            // the mask must be added to the display list (which is wacky)
-            rawChildren.addChild(mask);
-            _media.mask = mask;
-        }
-
-        mask.graphics.clear();
-        mask.graphics.beginFill(0xFFFFFF);
-        mask.graphics.drawRect(0, 0, ww, hh);
-        mask.graphics.endFill();
+//        var mask :Shape;
+//        if (_media.mask != null) {
+//            mask = (_media.mask as Shape);
+//
+//        } else {
+//            mask = new Shape();
+//            // the mask must be added to the display list (which is wacky)
+//            rawChildren.addChild(mask);
+//            _media.mask = mask;
+//        }
+//
+//        mask.graphics.clear();
+//        mask.graphics.beginFill(0xFFFFFF);
+//        mask.graphics.drawRect(0, 0, ww, hh);
+//        mask.graphics.endFill();
     }
 
     /**
