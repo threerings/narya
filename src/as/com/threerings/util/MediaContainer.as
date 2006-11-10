@@ -152,9 +152,9 @@ public class MediaContainer extends Box
         info.addEventListener(ProgressEvent.PROGRESS, loadProgress);
 
         // create a mask to prevent the media from drawing out of bounds
-        if (maxContentWidth < int.MAX_VALUE &&
-                maxContentHeight < int.MAX_VALUE) {
-            configureMask(maxContentWidth, maxContentHeight);
+        if (getMaxContentWidth() < int.MAX_VALUE &&
+                getMaxContentHeight() < int.MAX_VALUE) {
+            configureMask(getMaxContentWidth(), getMaxContentHeight());
         }
 
         // start it loading, add it as a child
@@ -266,23 +266,23 @@ public class MediaContainer extends Box
     /**
      * Get the width of the content, bounded by the maximum.
      */
-    public function get contentWidth () :int
+    public function getContentWidth () :int
     {
-        return Math.min(Math.abs(_w * getMediaScaleX()), maxContentWidth);
+        return Math.min(Math.abs(_w * getMediaScaleX()), getMaxContentWidth());
     }
 
     /**
      * Get the height of the content, bounded by the maximum.
      */
-    public function get contentHeight () :int
+    public function getContentHeight () :int
     {
-        return Math.min(Math.abs(_h * getMediaScaleY()), maxContentHeight);
+        return Math.min(Math.abs(_h * getMediaScaleY()), getMaxContentHeight());
     }
 
     /**
      * Get the maximum allowable width for our content.
      */
-    public function get maxContentWidth () :int
+    public function getMaxContentWidth () :int
     {
         return int.MAX_VALUE;
     }
@@ -290,7 +290,7 @@ public class MediaContainer extends Box
     /**
      * Get the maximum allowable height for our content.
      */
-    public function get maxContentHeight () :int
+    public function getMaxContentHeight () :int
     {
         return int.MAX_VALUE;
     }
@@ -429,21 +429,21 @@ public class MediaContainer extends Box
      */
     protected function configureMask (ww :int, hh :int) :void
     {
-//        var mask :Shape;
-//        if (_media.mask != null) {
-//            mask = (_media.mask as Shape);
-//
-//        } else {
-//            mask = new Shape();
-//            // the mask must be added to the display list (which is wacky)
-//            rawChildren.addChild(mask);
-//            _media.mask = mask;
-//        }
-//
-//        mask.graphics.clear();
-//        mask.graphics.beginFill(0xFFFFFF);
-//        mask.graphics.drawRect(0, 0, ww, hh);
-//        mask.graphics.endFill();
+        var mask :Shape;
+        if (_media.mask != null) {
+            mask = (_media.mask as Shape);
+
+        } else {
+            mask = new Shape();
+            // the mask must be added to the display list (which is wacky)
+            rawChildren.addChild(mask);
+            _media.mask = mask;
+        }
+
+        mask.graphics.clear();
+        mask.graphics.beginFill(0xFFFFFF);
+        mask.graphics.drawRect(0, 0, ww, hh);
+        mask.graphics.endFill();
     }
 
     /**
