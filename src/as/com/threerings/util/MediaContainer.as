@@ -317,13 +317,33 @@ public class MediaContainer extends Box
      */
     protected function getContext (url :String) :LoaderContext
     {
-//        // We allow content to share but not overwrite our classes
-//        return new LoaderContext(true, 
-//            new ApplicationDomain(ApplicationDomain.currentDomain),
-//            SecurityDomain.currentDomain);
+        if (isImage(url)) {
+            // load images into our domain so that we can view their pixels
+            return new LoaderContext(true, 
+                new ApplicationDomain(ApplicationDomain.currentDomain),
+                SecurityDomain.currentDomain);
 
-        // share nothing, trust nothing
-        return new LoaderContext(false, null, null);
+        } else {
+            // share nothing, trust nothing
+            return new LoaderContext(false, null, null);
+        }
+    }
+
+    /**
+     * Does the specified url represent an image?
+     */
+    protected function isImage (url :String) :Boolean
+    {
+        // look at the last 4 characters in the lowercased url
+        switch (url.toLowerCase().slice(-4)) {
+        case ".png":
+        case ".jpg":
+        case ".gif":
+            return true;
+
+        default:
+            return false;
+        }
     }
 
     /**
