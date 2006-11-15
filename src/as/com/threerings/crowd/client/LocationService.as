@@ -21,6 +21,7 @@
 
 package com.threerings.crowd.client {
 
+import flash.utils.ByteArray;
 import com.threerings.crowd.client.LocationService;
 import com.threerings.crowd.client.LocationService_MoveListener;
 import com.threerings.crowd.data.LocationMarshaller_MoveMarshaller;

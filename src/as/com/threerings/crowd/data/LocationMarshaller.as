@@ -21,6 +21,7 @@
 
 package com.threerings.crowd.data {
 
+import flash.utils.ByteArray;
 import com.threerings.util.*; // for Float, Integer, etc.
 
 import com.threerings.crowd.client.LocationService;

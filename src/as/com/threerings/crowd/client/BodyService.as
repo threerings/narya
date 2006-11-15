@@ -21,6 +21,7 @@
 
 package com.threerings.crowd.client {
 
+import flash.utils.ByteArray;
 import com.threerings.crowd.client.BodyService;
 import com.threerings.presents.client.Client;
 import com.threerings.presents.client.InvocationService;

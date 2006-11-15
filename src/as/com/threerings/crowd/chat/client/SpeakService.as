@@ -21,6 +21,7 @@
 
 package com.threerings.crowd.chat.client {
 
+import flash.utils.ByteArray;
 import com.threerings.crowd.chat.client.SpeakService;
 import com.threerings.presents.client.Client;
 import com.threerings.presents.client.InvocationService;

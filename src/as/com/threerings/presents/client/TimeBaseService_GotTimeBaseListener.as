@@ -21,6 +21,7 @@
 
 package com.threerings.presents.client {
 
+import flash.utils.ByteArray;
 import com.threerings.util.*; // for Float, Integer, etc.
 
 import com.threerings.presents.client.Client;
