@@ -265,6 +265,9 @@ public class ActionScriptSource
     public static String toActionScriptType (Class type, boolean isField)
     {
         if (type.isArray()) {
+            if (Byte.TYPE.equals(type.getComponentType())) {
+                return "ByteArray";
+            }
             return isField ? "TypedArray" : "Array";
         }
 

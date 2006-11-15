@@ -109,6 +109,9 @@ public class GenUtil
     public static String simpleASName (Class<?> clazz)
     {
         if (clazz.isArray()) {
+            if (Byte.TYPE.equals(clazz.getComponentType())) {
+                return "ByteArray";
+            }
             return "Array";
         } else if (clazz == Boolean.TYPE) {
             return "Boolean";

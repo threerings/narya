@@ -296,7 +296,12 @@ public class GenActionScriptTask extends Task
             return "new Long(ins.readInt(), ins.readInt())";
 
         } else if (type.isArray()) {
-            return "(ins.readObject() as TypedArray)";
+            if (Byte.TYPE.equals(type.getComponentType())) {
+                return "(ins.readObject() as ByteArray)";
+
+            } else {
+                return "(ins.readObject() as TypedArray)";
+            }
 
         } else {
             return "(ins.readObject() as " +
