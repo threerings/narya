@@ -1,14 +1,13 @@
 <?xml version="1.0"?>
 <!-- declares the libraries needed to build narya -->
 <project name="library-dependencies">
-  <fileset dir="${projects.root}" id="narya.libs">
-    <include name="${libs.dir}/commons-io.jar"/>
-    <include name="${libs.dir}/commons-lang.jar"/>
-    <include name="${libs.dir}/junit-3.7.jar"/>
-    <include name="${libs.dir}/retroweaver-all-1.2.2.jar"/>
-    <include name="${libs.dir}/velocity-1.5-dev.jar"/>
-    <include name="${libs.dir}/samskivert.jar"/>
-    <include name="${libs.dir}/commons-collections.jar"/>
-    <include name="${distlib.dir}/samskivert.jar"/>
+  <fileset dir="${libs.dir}" id="narya.libs">
+    <include name="commons-collections.jar"/>
+    <include name="commons-io.jar"/>
+    <include name="commons-lang.jar"/>
+    <include name="junit-3.7.jar"/>
+    <include name="retroweaver-all-1.2.2.jar"/>
+    <include name="samskivert.jar"/>
+    <include name="velocity-1.5-dev.jar"/>
   </fileset>
 </project>

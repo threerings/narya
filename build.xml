@@ -6,18 +6,12 @@
   <property file="build.properties"/>
 
   <!-- configuration parameters -->
-  <property name="app.name"       value="narya"/>
-  <property name="deploy.dir"     value="dist"/>
-  <property name="savedoc.dir"    value="docs"/>
-
-  <!-- derived properties -->  
-  <property name="javadoc.home"   value="${deploy.dir}/docs"/>
-  <property name="classes.dir"    value="${deploy.dir}/classes"/>
-
-  <!-- import some targets to enumerate library dependencies -->
-  <property name="projects.root" value="."/>
-  <property name="libs.dir"      value="lib"/>
-  <property name="distlib.dir"   value="lib"/>
+  <property name="app.name"     value="narya"/>
+  <property name="deploy.dir"   value="dist"/>
+  <property name="savedoc.dir"  value="docs"/>
+  <property name="javadoc.home" value="${deploy.dir}/docs"/>
+  <property name="classes.dir"  value="${deploy.dir}/classes"/>
+  <property name="libs.dir"     value="lib"/>
   <import file="libs-incl.xml"/>
 
   <!-- declare our classpath business -->
