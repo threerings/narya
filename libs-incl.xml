@@ -9,6 +9,6 @@
     <include name="${libs.dir}/velocity-1.5-dev.jar"/>
     <include name="${libs.dir}/samskivert.jar"/>
     <include name="${libs.dir}/commons-collections.jar"/>
-    <include name="${project.dir}/samskivert/dist/samskivert.jar"/>
+    <include name="${distlib.dir}/samskivert.jar"/>
   </fileset>
 </project>
