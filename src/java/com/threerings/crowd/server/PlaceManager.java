@@ -297,7 +297,7 @@ public class PlaceManager
     {
         try {
             // create a new occupant info instance
-            OccupantInfo info = body.createOccupantInfo();
+            OccupantInfo info = body.createOccupantInfo(_plobj);
 
             // insert the occupant info into our canonical table; this is done
             // in a method so that derived classes

@@ -124,7 +124,7 @@ public class BodyObject extends ClientObject
      * Creates a blank occupant info instance that will used to publish
      * information about the various bodies occupying a place.
      */
-    public OccupantInfo createOccupantInfo ()
+    public OccupantInfo createOccupantInfo (PlaceObject placeObject)
     {
         return new OccupantInfo(this);
     }
