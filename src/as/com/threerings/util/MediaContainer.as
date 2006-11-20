@@ -80,6 +80,11 @@ public class MediaContainer extends Box
      */
     public function setMedia (url :String) :void
     {
+        if (Util.equals(_url, url)) {
+            return; // no change
+        }
+        _url = url;
+
         // shutdown any previous media
         if (_media != null) {
             shutdown(false);
@@ -107,6 +112,7 @@ public class MediaContainer extends Box
      */
     public function setMediaObject (disp :DisplayObject) :void
     {
+        _url = null;
         if (_media != null) {
             shutdown(false);
         }
@@ -496,6 +502,9 @@ public class MediaContainer extends Box
     {
         // nada, by default
     }
+
+    /** The unaltered URL of the content we're displaying. */
+    protected var _url :String;
 
     /** The unscaled width of our content. */
     protected var _w :int;
