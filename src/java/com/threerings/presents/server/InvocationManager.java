@@ -146,6 +146,7 @@ public class InvocationManager
         if (_dispatchers.remove(marsh.getInvocationCode()) == null) {
             Log.warning("Requested to remove unregistered marshaller? " +
                         "[marsh=" + marsh + "].");
+            Thread.dumpStack();
         }
     }
 
