@@ -407,8 +407,8 @@ public class PlaceManager
      */
     public String where ()
     {
-        return StringUtil.shortClassName(this) + ":" + (
-            (_plobj != null) ? String.valueOf(_plobj.getOid()) : "-1");
+        return (_plobj == null) ?
+            StringUtil.shortClassName(this) + ":-1" : _plobj.which();
     }
 
     /**
