@@ -21,8 +21,6 @@
 
 package com.threerings.presents.data {
 
-import mx.utils.ObjectUtil;
-
 import com.threerings.presents.dobj.DObject;
 import com.threerings.presents.dobj.DSet;
 import com.threerings.presents.dobj.DSet_Entry;
@@ -79,7 +77,7 @@ public class ClientObject extends DObject
     {
         requestAttributeChange(RECEIVERS, value, this.receivers);
         this.receivers = (value == null) ? null
-                                         : (ObjectUtil.copy(value) as DSet);
+                                         : (value.clone() as DSet);
     }
     // AUTO-GENERATED: METHODS END
 

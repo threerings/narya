@@ -3,6 +3,7 @@ package com.threerings.presents.dobj {
 import mx.utils.ObjectUtil;
 
 import com.threerings.util.ArrayIterator;
+import com.threerings.util.Cloneable;
 import com.threerings.util.Equalable;
 import com.threerings.util.Iterator;
 import com.threerings.util.StringBuilder;
@@ -32,7 +33,7 @@ import com.threerings.io.TypedArray;
  * a {@link Streamable} type.
  */
 public class DSet
-    implements Streamable
+    implements Cloneable, Streamable
 {
     /**
      * Returns the number of entries in this set.
@@ -187,6 +188,16 @@ public class DSet
             }
         }
         return null;
+    }
+
+    // from interface Cloneable
+    public function clone () :Object
+    {
+        var other :DSet = new DSet();
+        for each (var val :DSet_Entry in _entries) {
+            other._entries.push(val);
+        }
+        return other;
     }
 
     /**
