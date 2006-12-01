@@ -106,6 +106,15 @@ public class MessageManager
     }
 
     /**
+     * Sets the appropriate resource prefix for where to find subsequent
+     *  message bundles.
+     */
+    public void setPrefix (String resourcePrefix)
+    {
+        _prefix = resourcePrefix;
+    }
+
+    /**
      * Allows a custom classloader to be configured for locating
      * translation resources.
      */
