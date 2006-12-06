@@ -76,15 +76,13 @@ public class Hashtable
         var hash :int = hkey.hashCode();
         var index :int = indexFor(hash);
         var e :Entry = (_entries[index] as Entry);
-        while (true) {
-            if (e == null) {
-                return undefined;
-            }
+        while (e != null) {
             if (e.hash == hash && e.key.equals(hkey)) {
                 return e.value;
             }
             e = e.next;
         }
+        return undefined;
     }
 
     // documentation inherited from interface Map
