@@ -2,8 +2,6 @@ package com.threerings.presents.dobj {
 
 import flash.events.EventDispatcher;
 
-import mx.collections.ArrayCollection;
-
 import com.threerings.util.ClassUtil;
 import com.threerings.util.StringBuilder;
 
@@ -29,10 +27,10 @@ public class DObject // extends EventDispatcher
     public function addSubscriber (sub :Subscriber) :void
     {
         if (_subscribers == null) {
-            _subscribers = new ArrayCollection();
+            _subscribers = [ ];
         }
-        if (!_subscribers.contains(sub)) {
-            _subscribers.addItem(sub);
+        if (_subscribers.indexOf(sub) == -1) {
+            _subscribers.push(sub);
         }
     }
 
@@ -41,9 +39,9 @@ public class DObject // extends EventDispatcher
         if (_subscribers == null) {
             return;
         }
-        var dex :int = _subscribers.getItemIndex(sub);
+        var dex :int = _subscribers.indexOf(sub);
         if (dex != -1) {
-            _subscribers.removeItemAt(dex);
+            _subscribers.splice(dex, 1);
             if (_subscribers.length == 0) {
                 _omgr.removedLastSubscriber(this, _deathWish);
             }
@@ -58,23 +56,23 @@ public class DObject // extends EventDispatcher
     public function addListener (listener :ChangeListener) :void
     {
         if (_listeners == null) {
-            _listeners = new ArrayCollection();
+            _listeners = [ ];
 
-        } else if (_listeners.contains(listener)) {
+        } else if (_listeners.indexOf(listener) != -1) {
             log.warning("Refusing repeat listener registration " +
                 "[dobj=" + which() + ", list=" + listener + "].");
             log.logStackTrace(new Error());
             return;
         }
-        _listeners.addItem(listener);
+        _listeners.push(listener);
     }
 
     public function removeListener (listener :ChangeListener) :void
     {
         if (_listeners != null) {
-            var dex :int = _listeners.getItemIndex(listener);
+            var dex :int = _listeners.indexOf(listener);
             if (dex != -1) {
-                _listeners.removeItemAt(dex);
+                _listeners.splice(dex, 1);
             }
         }
     }
@@ -85,8 +83,13 @@ public class DObject // extends EventDispatcher
             return;
         }
 
-        for (var ii :int = 0; ii < _listeners.length; ii++) {
-            var listener :Object = _listeners.getItemAt(ii);
+        var listenersCopy :Array = _listeners.concat();
+        for each (var listener :Object in listenersCopy) {
+            // make sure the listener is still a listener
+            // and hasn't been removed while dispatching to another listener..
+            if (_listeners.indexOf(listener) == -1) {
+                continue;
+            }
             try {
                 event.friendNotifyListener(listener);
 
@@ -282,9 +285,9 @@ public class DObject // extends EventDispatcher
     protected var _omgr :DObjectManager;
 
     /** Our event listeners. */
-    protected var _listeners :ArrayCollection;
+    protected var _listeners :Array;
 
-    protected var _subscribers :ArrayCollection;
+    protected var _subscribers :Array;
 
     protected var _deathWish :Boolean = false;
 }
