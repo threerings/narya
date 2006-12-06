@@ -52,8 +52,14 @@ public class StreamableArrayList extends ArrayCollection
     public function readObject (ins :ObjectInputStream) :void
     {
         var ecount :int = ins.readInt();
-        for (var ii :int = 0; ii < ecount; ii++) {
-            source[ii] = ins.readObject();
+        disableAutoUpdate();
+        removeAll();
+        try {
+            for (var ii :int = 0; ii < ecount; ii++) {
+                addItem(ins.readObject());
+            }
+        } finally {
+            enableAutoUpdate();
         }
     }
 }
