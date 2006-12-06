@@ -59,6 +59,15 @@ public class Log
     }
 
     /**
+     * A convenience function for quickly printing a stack trace
+     * to the log, useful for debugging.
+     */
+    public static function dumpStack () :void
+    {
+        testing(new Error("dumpStack").getStackTrace());
+    }
+
+    /**
      * @private
      */
     public function Log (dest :ILogger)
