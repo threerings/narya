@@ -70,7 +70,6 @@ public abstract class CurseFilter implements ChatFilter
             return msg;
         }
 
-        int numStops = _matchers.length;
         StringBuffer inbuf = new StringBuffer(msg);
         StringBuffer outbuf = new StringBuffer(msg.length());
         for (int ii=0, nn=_matchers.length; ii < nn; ii++) {
