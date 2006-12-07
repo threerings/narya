@@ -81,22 +81,24 @@ public /*abstract*/ class CurseFilter implements ChatFilter
                     return null;
 
                 case COMIC: default:
-                    replacement = String(_replacements[ii]).replace(
-                        /\ /g, comicChars(int(_comicLength[ii])));
+                    replacement = comicChars(int(_comicLength[ii]));
                     break;
 
                 case VERNACULAR:
-                    var vern :String = String(_vernacular[ii]);
-                    var firstChar :String = String(result[2]).charAt(0);
+                    replacement = String(_vernacular[ii]);
+                    // preserve the case of the first letter of the text
+                    // we're replacing
                     if (StringUtil.isUpperCase(String(result[2]))) {
-                        vern = vern.charAt(0).toUpperCase() + vern.substring(1);
+                        replacement = replacement.charAt(0).toUpperCase() +
+                            replacement.substring(1);
                     }
-                    replacement = String(_replacements[ii]).replace(
-                        /\ /g, vern);
                     break;
                 }
-                replacement = replacement.replace("$1", String(result[1]));
-                replacement = replacement.replace("$3", String(result[3]));
+
+                // sub in the replacement text, carrying over the pre/post
+                // matching groups
+                replacement = StringUtil.substitute(String(_replacements[ii]),
+                    String(result[1]), replacement, String(result[3]));
 
                 // do the replacement. Note the jimmying of lastIndex:
                 // abjectscript does not make this smooth!
@@ -130,27 +132,25 @@ public /*abstract*/ class CurseFilter implements ChatFilter
             }
 
             var curse :String = String(bits[0]);
-            var s :String = "";
-            var p :String = "";
+            var sub :String = "";
+            var patPre :String = "()";
+            var patPost :String = "";
             if (curse.charAt(0) == "*") {
                 curse = curse.substring(1);
-                p += "([a-zA-Z]*)";
-                s += "$1";
-            } else {
-                p += "()";
+                patPre = "([a-zA-Z]*)";
+                sub += "{0}";
             }
-            s += " ";
-            p += " ";
+            sub += "{1}";
             if (curse.charAt(curse.length - 1) == "*") {
                 curse = curse.substring(0, curse.length - 1);
-                p += "([a-zA-Z]*)";
-                s += "$3";
+                patPost = "([a-zA-Z]*)";
+                sub += "{2}";
             }
 
             var regexp :RegExp = new RegExp(
-                "\\b" + p.replace(" ", "(" + curse + ")") + "\\b", "gi");
+                "\\b" + patPre + "(" + curse + ")" + patPost + "\\b", "gi");
             _curseExps.push(regexp);
-            _replacements.push(s);
+            _replacements.push(sub);
 
             var slang :String = StringUtil.trim(String(bits[1]));
             slang = slang.replace(/_/g, " ");
