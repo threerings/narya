@@ -46,6 +46,26 @@ public class StringUtil
     }
 
     /**
+     * Return true iff the first character is a lower-case character.
+     */
+    public static function isLowerCase (str :String) :Boolean
+    {
+        var firstChar :String = str.charAt(0);
+        return (firstChar.toUpperCase() != firstChar) &&
+            (firstChar.toLowerCase() == firstChar);
+    }
+
+    /**
+     * Return true iff the first character is an upper-case character.
+     */
+    public static function isUpperCase (str :String) :Boolean
+    {
+        var firstChar :String = str.charAt(0);
+        return (firstChar.toUpperCase() == firstChar) &&
+            (firstChar.toLowerCase() != firstChar);
+    }
+
+    /**
      * Append 0 or more copies of the padChar String to the input String
      * until it is at least the specified length.
      */
