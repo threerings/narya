@@ -137,45 +137,54 @@ public class ChatDirector extends BasicDirector
      * chat requests and receipts will be filtered with all filters
      * before they being sent or dispatched locally.
      */
-//    public void addChatFilter (ChatFilter filter)
-//    {
-//        _filters.add(filter);
-//    }
+    public function addChatFilter (filter :ChatFilter) :void
+    {
+        _filters.add(filter);
+    }
 
     /**
      * Removes the specified chat validator from the list of chat validators.
      */
-//    public void removeChatFilter (ChatFilter filter)
-//    {
-//        _filters.remove(filter);
-//    }
+    public function removeChatFilter (filter :ChatFilter) :void
+    {
+        _filters.remove(filter);
+    }
 
     /**
      * Adds an observer that watches the chatters list, and updates it
      * immediately.
      */
-//    public void addChatterObserver (ChatterObserver co)
-//    {
-//        _chatterObservers.add(co);
-//        co.chattersUpdated(_chatters.listIterator());
-//    }
+    public function addChatterObserver (co :ChatterObserver) :void
+    {
+        _chatterObservers.add(co);
+        co.chattersUpdated(_chatters);
+    }
 
     /**
      * Removes an observer from the list of chatter observers.
      */
-//    public void removeChatterObserver (ChatterObserver co)
-//    {
-//        _chatterObservers.remove(co);
-//    }
+    public function removeChatterObserver (co :ChatterObserver) :void
+    {
+        _chatterObservers.remove(co);
+    }
 
     /**
      * Sets the validator that decides if a username is valid to be
      * added to the chatter list, or null if no such filtering is desired.
      */
-//    public void setChatterValidator (ChatterValidator validator)
-//    {
-//        _chatterValidator = validator;
-//    }
+    public function setChatterValidator (validator :ChatterValidator) :void
+    {
+        _chatterValidator = validator;
+    }
+
+    /**
+     * Get a list of the recent users with whom we've chatted. The most recent
+     * users will be listed first.
+     */
+    public function getChatters () :Array
+    {
+        return _chatters;
+    }
 
     /**
      * Registers a chat command handler.
@@ -537,13 +546,15 @@ public class ChatDirector extends BasicDirector
      * Run a message through all the currently registered filters.
      */
     public function filter (
-            msg :String, otherUser :Name, outgoing :Boolean) :String
+        msg :String, otherUser :Name, outgoing :Boolean) :String
     {
-        // TODO
+        // TODO: needs testing
+        _filters.apply(function (observer :ChatFilter) :void {
+            if (msg != null) {
+                msg = observer.filter(msg, otherUser, outgoing);
+            }
+        });
         return msg;
-//        _filterMessageOp.setMessage(msg, otherUser, outgoing);
-//        _filters.apply(_filterMessageOp);
-//        return _filterMessageOp.getMessage();
     }
 
     /**
@@ -676,9 +687,9 @@ public class ChatDirector extends BasicDirector
 
         clearDisplays();
 
-//        // clear out the list of people we've chatted with
-//        _chatters.clear();
-//        notifyChatterObservers();
+        // clear out the list of people we've chatted with
+        _chatters.length = 0;
+        notifyChatterObservers();
 
         // clear the _place
         locationDidChange(null);
@@ -890,38 +901,42 @@ public class ChatDirector extends BasicDirector
      */
     protected function addChatter (name :Name) :void
     {
-//        // check to see if the chatter validator approves..
-//        if ((_chatterValidator != null) &&
-//            (!_chatterValidator.isChatterValid(name))) {
-//            return;
-//        }
-//
-//        boolean wasthere = _chatters.remove(name);
-//        _chatters.addFirst(name);
-//
-//        if (!wasthere) {
-//            if (_chatters.size() > MAX_CHATTERS) {
-//                _chatters.removeLast();
-//            }
-//
-//            notifyChatterObservers();
-//        }
+        // check to see if the chatter validator approves..
+        if ((_chatterValidator != null) &&
+            (!_chatterValidator.isChatterValid(name))) {
+            return;
+        }
+
+        var wasThere :Boolean = ArrayUtil.removeAll(_chatters, name);
+        _chatters.unshift(name);
+
+        if (!wasThere) {
+            if (_chatters.length > MAX_CHATTERS) {
+                _chatters.length = MAX_CHATTERS; // truncate array
+            }
+
+            // we only notify on a change to the contents, not just reordering
+            notifyChatterObservers();
+        }
     }
 
     /**
      * Notifies all registered {@link ChatterObserver}s that the list of
      * chatters has changed.
      */
-//    protected void notifyChatterObservers ()
-//    {
-//        _chatterObservers.apply(new ObserverList.ObserverOp() {
-//            public boolean apply (Object observer) {
-//                ((ChatterObserver)observer).chattersUpdated(
-//                    _chatters.listIterator());
-//                return true;
-//            }
-//        });
-//    }
+    protected function notifyChatterObservers () :void
+    {
+        _chatterObservers.apply(chatterObserverNotify);
+    }
+
+    /**
+     * A function to be called by our _chatterObservers list to apply
+     * updates to each observer.
+     */
+    protected function chatterObserverNotify (obs :ChatterObserver) :void
+    {
+        obs.chattersUpdated(_chatters);
+    }
 
     /**
      * Translates the specified message using the specified bundle.
@@ -998,22 +1013,20 @@ public class ChatDirector extends BasicDirector
     protected var _displays :ObserverList = new ObserverList();
 
     /** A list of registered chat filters. */
-//    protected ObserverList _filters =
-//        new ObserverList(ObserverList.FAST_UNSAFE_NOTIFY);
+    protected var _filters :ObserverList = new ObserverList();
 
     /** A mapping from auxiliary chat objects to the types under which
      * they are registered. */
     protected var _auxes :HashMap = new HashMap();
 
-//    /** Validator of who may be added to the chatters list. */
-//    protected var _chatterValidator :ChatterValidator;
-//
-//    /** Usernames of users we've recently chatted with. */
-//    protected var _chatters :LinkedList = new LinkedList();
-//
-//    /** Observers that are watching our chatters list. */
-//    protected ObserverList _chatterObservers =
-//        new ObserverList(ObserverList.FAST_UNSAFE_NOTIFY);
+    /** Validator of who may be added to the chatters list. */
+    protected var _chatterValidator :ChatterValidator;
+
+    /** Usernames of users we've recently chatted with. */
+    protected var _chatters :Array = [];
+
+    /** Observers that are watching our chatters list. */
+    protected var _chatterObservers :ObserverList = new ObserverList();
 
     /** Registered chat command handlers. */
     protected static const _handlers :HashMap = new HashMap();
