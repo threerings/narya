@@ -92,6 +92,14 @@ public class StringUtil
     }
 
     /**
+     * Substitute "{n}" tokens for the corresponding passed-in arguments.
+     */
+    public static function substitute (str :String, ... args) :String
+    {
+        return mx.utils.StringUtil.substitute(str, args);
+    }
+
+    /**
      * Utility function that strips whitespace from the ends of a String.
      */
     public static function trim (str :String) :String

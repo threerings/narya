@@ -23,8 +23,6 @@ package com.threerings.util {
 
 import mx.resources.ResourceBundle;
 
-import mx.utils.StringUtil;
-
 /**
  * A message bundle provides an easy mechanism by which to obtain
  * translated message strings from a resource bundle. It uses the {@link
@@ -180,7 +178,7 @@ public class MessageBundle
             return (key + args);
         }
 
-        return mx.utils.StringUtil.substitute(msg, args);
+        return StringUtil.substitute(msg, args);
     }
 
     /**
