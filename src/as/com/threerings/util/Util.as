@@ -52,6 +52,16 @@ public class Util
         return false;
     }
 
+    /**
+     * If you call a varargs method by passing it an array, the array
+     * will end up being arg 1.
+     */
+    public static function unfuckVarargs (args :Array) :Array
+    {
+        return (args.length == 1 && (args[0] is Array)) ? (args[0] as Array)
+                                                        : args;
+    }
+
     public static function cast (obj :Object, clazz :Class) :Object
     {
         if (obj == null || obj is clazz) {

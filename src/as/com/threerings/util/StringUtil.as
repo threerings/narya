@@ -96,7 +96,10 @@ public class StringUtil
      */
     public static function substitute (str :String, ... args) :String
     {
-        return mx.utils.StringUtil.substitute(str, args);
+        // holy christ the varargs insanity
+        args = Util.unfuckVarargs(args);
+        args.unshift(str);
+        return mx.utils.StringUtil.substitute.apply(null, args);
     }
 
     /**
@@ -105,6 +108,23 @@ public class StringUtil
     public static function trim (str :String) :String
     {
         return mx.utils.StringUtil.trim(str);
+    }
+
+    public static function toString (obj :Object) :String
+    {
+        if (obj is Array) {
+            var arr :Array = (obj as Array);
+            var s :String = "Array(";
+            for (var ii :int = 0; ii < arr.length; ii++) {
+                if (ii > 0) {
+                    s += ", ";
+                }
+                s += (ii + ": " + toString(arr[ii]));
+            }
+            return s + ")";
+        }
+
+        return String(obj);
     }
 
     /**

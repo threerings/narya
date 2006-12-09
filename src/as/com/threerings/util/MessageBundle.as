@@ -157,6 +157,8 @@ public class MessageBundle
             return key.substring(1);
         }
 
+        args = Util.unfuckVarargs(args);
+
         // if this is a qualified key, we need to pass the buck to the
         // appropriate message bundle
         if (key.indexOf(QUAL_PREFIX) == 0) {
@@ -263,6 +265,8 @@ public class MessageBundle
      */
     public static function compose (key :String, ... args) :String
     {
+        args = Util.unfuckVarargs(args);
+
         var buf :StringBuilder = new StringBuilder();
         buf.append(key, "|");
         for (var ii :int = 0; ii < args.length; ii++) {
@@ -291,6 +295,8 @@ public class MessageBundle
      */
     public static function tcompose (key :String, ... args) :String
     {
+        args = Util.unfuckVarargs(args);
+
         for (var ii :int = 0; ii < args.length; ii++) {
             args[ii] = taint(args[ii]);
         }
