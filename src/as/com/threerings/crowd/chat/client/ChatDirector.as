@@ -187,6 +187,33 @@ public class ChatDirector extends BasicDirector
     }
 
     /**
+     * Adds a chatter to our list of recent chatters. This is normally done
+     * automatically by the ChatDirector, but may be called to also to
+     * forcibly add a chatter. The ChatterValidator will have to approve
+     * of the chatter.
+     */
+    public function addChatter (name :Name) :void
+    {
+        // check to see if the chatter validator approves..
+        if ((_chatterValidator != null) &&
+            (!_chatterValidator.isChatterValid(name))) {
+            return;
+        }
+
+        var wasThere :Boolean = ArrayUtil.removeAll(_chatters, name);
+        _chatters.unshift(name);
+
+        if (!wasThere) {
+            if (_chatters.length > MAX_CHATTERS) {
+                _chatters.length = MAX_CHATTERS; // truncate array
+            }
+
+            // we only notify on a change to the contents, not just reordering
+            notifyChatterObservers();
+        }
+    }
+
+    /**
      * Registers a chat command handler.
      *
      * @param msg the message bundle via which the slash command will be
@@ -894,30 +921,6 @@ public class ChatDirector extends BasicDirector
     internal function accessHistory () :Array
     {
         return _history;
-    }
-
-    /**
-     * Adds a chatter to our list of recent chatters.
-     */
-    protected function addChatter (name :Name) :void
-    {
-        // check to see if the chatter validator approves..
-        if ((_chatterValidator != null) &&
-            (!_chatterValidator.isChatterValid(name))) {
-            return;
-        }
-
-        var wasThere :Boolean = ArrayUtil.removeAll(_chatters, name);
-        _chatters.unshift(name);
-
-        if (!wasThere) {
-            if (_chatters.length > MAX_CHATTERS) {
-                _chatters.length = MAX_CHATTERS; // truncate array
-            }
-
-            // we only notify on a change to the contents, not just reordering
-            notifyChatterObservers();
-        }
     }
 
     /**
