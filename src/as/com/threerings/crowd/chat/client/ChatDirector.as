@@ -101,6 +101,7 @@ public class ChatDirector extends BasicDirector
         registerCommandHandler(msg, "emote", new EmoteHandler());
         registerCommandHandler(msg, "think", new ThinkHandler());
         registerCommandHandler(msg, "tell", new TellHandler());
+        registerCommandHandler(msg, "broadcast", new BroadcastHandler());
     }
 
     /**
