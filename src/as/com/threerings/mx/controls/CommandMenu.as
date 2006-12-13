@@ -60,7 +60,7 @@ public class CommandMenu extends Menu
      * Actually pop up the menu. This can be used instead of show().
      */
     public function popUp (
-        trigger :DisplayObject, popUpwards :Boolean = true) :void
+        trigger :DisplayObject, popUpwards :Boolean = false) :void
     {
         var r :Rectangle = trigger.getBounds(trigger.stage);
 
