@@ -21,6 +21,8 @@
 
 package com.threerings.crowd.chat.data {
 
+import flash.utils.getTimer; // function import
+
 import com.threerings.util.ClassUtil;
 import com.threerings.util.Long;
 
@@ -45,7 +47,7 @@ public /*abstract*/ class ChatMessage
     public var localtype :String;
 
     /** The client time that this message was created. */
-    public var timestamp :Long;
+    public var timestamp :int;
 
     public function ChatMessage (msg :String = null, bundle :String = null)
     {
@@ -62,7 +64,7 @@ public /*abstract*/ class ChatMessage
         message = msg;
         this.localtype = localtype;
         bundle = null;
-        //timestamp = System.currentTimeMillis();
+        timestamp = getTimer();
     }
 
     /**
