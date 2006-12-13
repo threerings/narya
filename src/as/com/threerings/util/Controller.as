@@ -11,13 +11,13 @@ public class Controller
      */
     protected function setControlledPanel (panel :IEventDispatcher) :void
     {
-        if (_panel != null) {
-            _panel.removeEventListener(
+        if (_controlledPanel != null) {
+            _controlledPanel.removeEventListener(
                 CommandEvent.TYPE, handleCommandEvent);
         }
-        _panel = panel;
-        if (_panel != null) {
-            _panel.addEventListener(
+        _controlledPanel = panel;
+        if (_controlledPanel != null) {
+            _controlledPanel.addEventListener(
                 CommandEvent.TYPE, handleCommandEvent);
         }
     }
@@ -28,7 +28,7 @@ public class Controller
      */
     public final function postAction (cmd :String, arg :Object = null) :void
     {
-        CommandEvent.dispatch(_panel, cmd, arg);
+        CommandEvent.dispatch(_controlledPanel, cmd, arg);
     }
 
     /**
@@ -101,6 +101,6 @@ public class Controller
     }
 
     /** The panel currently being controlled. */
-    private var _panel :IEventDispatcher; 
+    protected var _controlledPanel :IEventDispatcher; 
 }
 }
