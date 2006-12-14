@@ -414,7 +414,7 @@ public class LocationDirector extends BasicDirector
         didLeavePlace();
 
         // let our observers know that we're no longer in a location
-        _observers.apply(_didChangeOp);
+        _observers.apply(didChangeOp);
 
         // clear out everything else (it's possible that we were logged
         // off in the middle of a change location request)
@@ -471,7 +471,7 @@ public class LocationDirector extends BasicDirector
         }
 
         // let our observers know that all is well on the western front
-        _observers.apply(_didChangeOp);
+        _observers.apply(didChangeOp);
     }
 
     // documentation inherited from interface Subscriber
@@ -533,6 +533,14 @@ public class LocationDirector extends BasicDirector
         }
     }
 
+    /**
+     * The operation used to inform observers that the location changed.
+     */
+    protected function didChangeOp (obs :Object) :void
+    {
+        (obs as LocationObserver).locationDidChange(_plobj);
+    };
+
     protected function notifyFailure (placeId :int, reason :String) :void
     {
         _observers.apply(function (obs :Object) :void {
@@ -578,12 +586,6 @@ public class LocationDirector extends BasicDirector
     /** A listener that wants to know if we succeeded or
      * how we failed to move.  */
     protected var _moveListener :ResultListener;
-
-    /** The operation used to inform observers that the location changed. */
-    protected var _didChangeOp :Function = function (obs :Object) :void
-    {
-        (obs as LocationObserver).locationDidChange(_plobj);
-    };
 
     /** We require that a moveTo request be outstanding for one minute
      * before it is declared to be stale. */

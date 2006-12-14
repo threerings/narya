@@ -159,9 +159,8 @@ public class OccupantDirector extends BasicDirector
 
         // now let the occupant observers know what's up
         var info :OccupantInfo = (event.getEntry() as OccupantInfo);
-        _observers.apply(function (obj :Object) :Boolean {
+        _observers.apply(function (obj :Object) :void {
             (obj as OccupantObserver).occupantEntered(info);
-            return true;
         });
     }
 
@@ -176,9 +175,8 @@ public class OccupantDirector extends BasicDirector
         // now let the occupant observers know what's up
         var info :OccupantInfo = (event.getEntry() as OccupantInfo);
         var oinfo :OccupantInfo = (event.getOldEntry() as OccupantInfo);
-        _observers.apply(function (obj :Object) :Boolean {
+        _observers.apply(function (obj :Object) :void {
             (obj as OccupantObserver).occupantUpdated(oinfo, info);
-            return true;
         });
     }
 
@@ -192,9 +190,8 @@ public class OccupantDirector extends BasicDirector
 
         // let the occupant observers know what's up
         var oinfo :OccupantInfo = (event.getOldEntry() as OccupantInfo);
-        _observers.apply(function (obj :Object) :Boolean {
+        _observers.apply(function (obj :Object) :void {
             (obj as OccupantObserver).occupantLeft(oinfo);
-            return true;
         });
     }
 
