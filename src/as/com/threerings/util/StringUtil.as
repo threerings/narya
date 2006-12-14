@@ -146,6 +146,31 @@ public class StringUtil
     }
 
     /**
+     * Locate URLs in a string, return an array in which even elements
+     * are plain text, odd elements are urls (as Strings). Any even element
+     * may be an empty string.
+     */
+    public static function parseURLs (s :String) :Array
+    {
+        var array :Array = [];
+        while (true) {
+            var result :Object = URL_REGEXP.exec(s);
+            if (result == null) {
+                break;
+            }
+
+            var index :int = int(result.index);
+            var url :String = String(result[0]);
+            array.push(s.substring(0, index), url);
+            s = s.substring(index + url.length);
+        }
+
+        // just the string is left
+        array.push(s);
+        return array;
+    }
+
+    /**
      * Generates a string from the supplied bytes that is the hex encoded
      * representation of those byts. Returns the empty String for a
      * <code>null</code> or empty byte array.
@@ -188,5 +213,9 @@ public class StringUtil
     /** Hexidecimal digits. */
     protected static const HEX :Array = [ "0", "1", "2", "3", "4",
         "5", "6", "7", "8", "9", "a", "b", "c", "d", "e", "f" ];
+
+    /** A regular expression that finds URLs. */
+    protected static const URL_REGEXP :RegExp =
+        new RegExp("(http|https|ftp)://\\S+");
 }
 }
