@@ -114,6 +114,7 @@
   <target name="clean">
     <delete dir="${deploy.dir}/classes"/>
     <delete dir="${deploy.dir}/docs"/>
+    <delete failonerror="false"><fileset dir="${deploy.dir}" includes="*.jar"/></delete>
     <ant dir="tests" target="clean"/>
   </target>
 
