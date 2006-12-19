@@ -22,7 +22,7 @@ INSTALL_PATH=${ROOT}/dist/lib/`uname -m`-Darwin
 
 INCLUDES=-I.. -I/System/Library/Frameworks/JavaVM.framework/Headers
 LIBRARIES=
-TARGET=libsignal.dylib
+TARGET=libsignal.jnilib
 
 #
 # Target definitions
@@ -39,7 +39,7 @@ ${TARGET}: com_threerings_util_signal_SignalManager.c
 	    -o com_threerings_util_signal_SignalManager.o
 	@echo "Creating $@"
 	@${CC} -o ${TARGET} com_threerings_util_signal_SignalManager.o \
-	    ${LIBRARIES} ${LIBRARIES_PATH} -bundle
+	    ${LIBRARIES} ${LIBRARIES_PATH} -dynamiclib
 
 clean:
 	-${RM} -f *.o ${TARGET}
