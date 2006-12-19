@@ -112,6 +112,9 @@ public class MessageManager
     public void setPrefix (String resourcePrefix)
     {
         _prefix = resourcePrefix;
+
+        // Need to reget the global bundle at the new prefix location.
+        _global = getBundle(GLOBAL_BUNDLE);
     }
 
     /**
