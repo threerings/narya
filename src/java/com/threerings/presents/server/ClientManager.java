@@ -124,7 +124,7 @@ public class ClientManager
             try {
                 pc.shutdown();
             } catch (Exception e) {
-                Log.warning("Client choked in shutdonw() [client=" +
+                Log.warning("Client choked in shutdown() [client=" +
                             StringUtil.safeToString(pc) + "].");
                 Log.logStackTrace(e);
             }
