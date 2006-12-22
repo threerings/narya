@@ -84,6 +84,11 @@ public interface ChatCodes extends InvocationCodes
      * actually a server-wide broadcast. */
     public static final byte BROADCAST_MODE = 4;
 
+    /** String translations for the various chat modes. */
+    public static final String[] XLATE_MODES = {
+        "default", "think", "emote", "shout", "broadcast"
+    };
+
     /** An error code delivered when the user targeted for a tell
      * notification is not online. */
     public static final String USER_NOT_ONLINE = "m.user_not_online";
