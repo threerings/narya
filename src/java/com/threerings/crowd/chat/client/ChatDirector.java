@@ -63,16 +63,15 @@ import com.threerings.crowd.chat.data.UserMessage;
 import com.threerings.crowd.chat.data.UserSystemMessage;
 
 /**
- * The chat director is the client side coordinator of all chat related
- * services. It handles both place constrained chat as well as direct
- * messaging.
+ * The chat director is the client side coordinator of all chat related services. It handles both
+ * place constrained chat as well as direct messaging.
  */
 public class ChatDirector extends BasicDirector
     implements ChatCodes, LocationObserver, MessageListener
 {
     /**
-     * An interface to receive information about the {@link #MAX_CHATTERS}
-     * most recent users that we've been chatting with.
+     * An interface to receive information about the {@link #MAX_CHATTERS} most recent users that
+     * we've been chatting with.
      */
     public static interface ChatterObserver
     {
@@ -83,8 +82,8 @@ public class ChatDirector extends BasicDirector
     }
 
     /**
-     * An interface for those who would like to validate whether usernames
-     * may be added to the chatter list.
+     * An interface for those who would like to validate whether usernames may be added to the
+     * chatter list.
      */
     public static interface ChatterValidator
     {
@@ -102,28 +101,23 @@ public class ChatDirector extends BasicDirector
         /**
          * Handles the specified chat command.
          *
-         * @param speakSvc an optional SpeakService object representing
-         * the object to send the chat message on.
-         * @param command the slash command that was used to invoke this
-         * handler (e.g. <code>/tell</code>).
-         * @param args the arguments provided along with the command (e.g.
-         * <code>Bob hello</code>) or <code>null</code> if no arguments
-         * were supplied.
-         * @param history an in/out parameter that allows the command to
-         * modify the text that will be appended to the chat history. If
-         * this is set to null, nothing will be appended.
+         * @param speakSvc an optional SpeakService object representing the object to send the chat
+         * message on.
+         * @param command the slash command that was used to invoke this handler
+         * (e.g. <code>/tell</code>).
+         * @param args the arguments provided along with the command (e.g.  <code>Bob hello</code>)
+         * or <code>null</code> if no arguments were supplied.
+         * @param history an in/out parameter that allows the command to modify the text that will
+         * be appended to the chat history. If this is set to null, nothing will be appended.
          *
-         * @return an untranslated string that will be reported to the
-         * chat box to convey an error response to the user, or {@link
-         * ChatCodes#SUCCESS}.
+         * @return an untranslated string that will be reported to the chat box to convey an error
+         * response to the user, or {@link ChatCodes#SUCCESS}.
          */
-        public abstract String handleCommand (
-            SpeakService speakSvc, String command, String args,
-            String[] history);
+        public abstract String handleCommand (SpeakService speakSvc, String command, String args,
+                                              String[] history);
 
         /**
-         * Returns true if this user should have access to this chat
-         * command.
+         * Returns true if this user should have access to this chat command.
          */
         public boolean checkAccess (BodyObject user)
         {
@@ -132,14 +126,12 @@ public class ChatDirector extends BasicDirector
     }
 
     /**
-     * Creates a chat director and initializes it with the supplied
-     * context. The chat director will register itself as a location
-     * observer so that it can automatically process place constrained
-     * chat.
+     * Creates a chat director and initializes it with the supplied context. The chat director will
+     * register itself as a location observer so that it can automatically process place
+     * constrained chat.
      *
      * @param msgmgr the message manager via which we do our translations.
-     * @param bundle the message bundle from which we obtain our
-     * chat-related translation strings.
+     * @param bundle the message bundle from which we obtain our chat-related translation strings.
      */
     public ChatDirector (CrowdContext ctx, MessageManager msgmgr, String bundle)
     {
@@ -169,9 +161,8 @@ public class ChatDirector extends BasicDirector
     }
 
     /**
-     * Adds the supplied chat display to the front of the chat display list. It
-     * will subsequently be notified of incoming chat messages as well as tell
-     * responses.
+     * Adds the supplied chat display to the front of the chat display list. It will subsequently
+     * be notified of incoming chat messages as well as tell responses.
      */
     public void pushChatDisplay (ChatDisplay display)
     {
@@ -179,9 +170,8 @@ public class ChatDirector extends BasicDirector
     }
 
     /**
-     * Adds the supplied chat display to the end of the chat display list. It
-     * will subsequently be notified of incoming chat messages as well as tell
-     * responses.
+     * Adds the supplied chat display to the end of the chat display list. It will subsequently be
+     * notified of incoming chat messages as well as tell responses.
      */
     public void addChatDisplay (ChatDisplay display)
     {
@@ -189,8 +179,8 @@ public class ChatDirector extends BasicDirector
     }
 
     /**
-     * Removes the specified chat display from the chat display list. The
-     * display will no longer receive chat related notifications.
+     * Removes the specified chat display from the chat display list. The display will no longer
+     * receive chat related notifications.
      */
     public void removeChatDisplay (ChatDisplay display)
     {
@@ -198,9 +188,8 @@ public class ChatDirector extends BasicDirector
     }
 
     /**
-     * Adds the specified chat filter to the list of filters.  All
-     * chat requests and receipts will be filtered with all filters
-     * before they being sent or dispatched locally.
+     * Adds the specified chat filter to the list of filters.  All chat requests and receipts will
+     * be filtered with all filters before they being sent or dispatched locally.
      */
     public void addChatFilter (ChatFilter filter)
     {
@@ -216,8 +205,7 @@ public class ChatDirector extends BasicDirector
     }
 
     /**
-     * Adds an observer that watches the chatters list, and updates it
-     * immediately.
+     * Adds an observer that watches the chatters list, and updates it immediately.
      */
     public void addChatterObserver (ChatterObserver co)
     {
@@ -234,8 +222,8 @@ public class ChatDirector extends BasicDirector
     }
 
     /**
-     * Sets the validator that decides if a username is valid to be
-     * added to the chatter list, or null if no such filtering is desired.
+     * Sets the validator that decides if a username is valid to be added to the chatter list, or
+     * null if no such filtering is desired.
      */
     public void setChatterValidator (ChatterValidator validator)
     {
@@ -243,18 +231,27 @@ public class ChatDirector extends BasicDirector
     }
 
     /**
+     * Enables or disables the chat mogrifier. The mogrifier converts chat speak like LOL, WTF,
+     * etc. into phrases, words and can also transform them into emotes. The mogrifier is
+     * configured via the <code>x.mogrifies</code> and <code>x.transforms</code> translation
+     * properties.
+     */
+    public void setMogrifyChat (boolean mogrifyChat)
+    {
+        _mogrifyChat = mogrifyChat;
+    }
+
+    /**
      * Registers a chat command handler.
      *
-     * @param msg the message bundle via which the slash command will be
-     * translated (as <code>c.</code><i>command</i>). If no translation
-     * exists the command will be <code>/</code><i>command</i>.
-     * @param command the name of the command that will be used to invoke
-     * this handler (e.g. <code>tell</code> if the command will be invoked
-     * as <code>/tell</code>).
+     * @param msg the message bundle via which the slash command will be translated (as
+     * <code>c.</code><i>command</i>). If no translation exists the command will be
+     * <code>/</code><i>command</i>.
+     * @param command the name of the command that will be used to invoke this handler
+     * (e.g. <code>tell</code> if the command will be invoked as <code>/tell</code>).
      * @param handler the chat command handler itself.
      */
-    public void registerCommandHandler (
-        MessageBundle msg, String command, CommandHandler handler)
+    public void registerCommandHandler (MessageBundle msg, String command, CommandHandler handler)
     {
         String key = "c." + command;
         if (msg.exists(key)) {
@@ -277,8 +274,7 @@ public class ChatDirector extends BasicDirector
     }
 
     /**
-     * Get the chat history entry at the specified index,
-     * with 0 being the oldest.
+     * Get the chat history entry at the specified index, with 0 being the oldest.
      */
     public String getCommandHistory (int index)
     {
@@ -307,11 +303,11 @@ public class ChatDirector extends BasicDirector
     }
 
     /**
-     * Display a system INFO message as if it had come from the server.
-     * The localtype of the message will be PLACE_CHAT_TYPE.
+     * Display a system INFO message as if it had come from the server.  The localtype of the
+     * message will be PLACE_CHAT_TYPE.
      *
-     * Info messages are sent when something happens that was neither
-     * directly triggered by the user, nor requires direct action.
+     * Info messages are sent when something happens that was neither directly triggered by the
+     * user, nor requires direct action.
      */
     public void displayInfo (String bundle, String message)
     {
@@ -321,8 +317,8 @@ public class ChatDirector extends BasicDirector
     /**
      * Display a system INFO message as if it had come from the server.
      *
-     * Info messages are sent when something happens that was neither
-     * directly triggered by the user, nor requires direct action.
+     * Info messages are sent when something happens that was neither directly triggered by the
+     * user, nor requires direct action.
      */
     public void displayInfo (String bundle, String message, String localtype)
     {
@@ -330,29 +326,27 @@ public class ChatDirector extends BasicDirector
     }
 
     /**
-     * Display a system FEEDBACK message as if it had come from the server.
-     * The localtype of the message will be PLACE_CHAT_TYPE.
+     * Display a system FEEDBACK message as if it had come from the server.  The localtype of the
+     * message will be PLACE_CHAT_TYPE.
      *
-     * Feedback messages are sent in direct response to a user action,
-     * usually to indicate success or failure of the user's action.
+     * Feedback messages are sent in direct response to a user action, usually to indicate success
+     * or failure of the user's action.
      */
     public void displayFeedback (String bundle, String message)
     {
-        displaySystem(
-            bundle, message, SystemMessage.FEEDBACK, PLACE_CHAT_TYPE);
+        displaySystem(bundle, message, SystemMessage.FEEDBACK, PLACE_CHAT_TYPE);
     }
 
     /**
-     * Display a system ATTENTION message as if it had come from the server.
-     * The localtype of the message will be PLACE_CHAT_TYPE.
+     * Display a system ATTENTION message as if it had come from the server.  The localtype of the
+     * message will be PLACE_CHAT_TYPE.
      *
-     * Attention messages are sent when something requires user action
-     * that did not result from direct action by the user.
+     * Attention messages are sent when something requires user action that did not result from
+     * direct action by the user.
      */
     public void displayAttention (String bundle, String message)
     {
-        displaySystem(
-            bundle, message, SystemMessage.ATTENTION, PLACE_CHAT_TYPE);
+        displaySystem(bundle, message, SystemMessage.ATTENTION, PLACE_CHAT_TYPE);
     }
 
     /**
@@ -365,21 +359,18 @@ public class ChatDirector extends BasicDirector
     }
 
     /**
-     * Parses and delivers the supplied chat message. Slash command
-     * processing and mogrification are performed and the message is added
-     * to the chat history if appropriate.
+     * Parses and delivers the supplied chat message. Slash command processing and mogrification
+     * are performed and the message is added to the chat history if appropriate.
      *
-     * @param speakSvc the SpeakService representing the target dobj of
-     * the speak or null if we should speak in the "default" way.
+     * @param speakSvc the SpeakService representing the target dobj of the speak or null if we
+     * should speak in the "default" way.
      * @param text the text to be parsed and sent.
      * @param record if text is a command, should it be added to the history?
      *
-     * @return <code>ChatCodes#SUCCESS</code> if the message was parsed
-     * and sent correctly, a translatable error string if there was some
-     * problem.
+     * @return <code>ChatCodes#SUCCESS</code> if the message was parsed and sent correctly, a
+     * translatable error string if there was some problem.
      */
-    public String requestChat (
-        SpeakService speakSvc, String text, boolean record)
+    public String requestChat (SpeakService speakSvc, String text, boolean record)
     {
         if (text.startsWith("/")) {
             // split the text up into a command and arguments
@@ -392,13 +383,11 @@ public class ChatDirector extends BasicDirector
                 args = text.substring(sidx+1).trim();
             }
 
-            HashMap<String,CommandHandler> possibleCommands =
-                getCommandHandlers(command);
+            HashMap<String,CommandHandler> possibleCommands = getCommandHandlers(command);
             switch (possibleCommands.size()) {
             case 0:
                 StringTokenizer tok = new StringTokenizer(text);
-                return MessageBundle.tcompose(
-                    "m.unknown_command", tok.nextToken());
+                return MessageBundle.tcompose("m.unknown_command", tok.nextToken());
 
             case 1:
                 Map.Entry<String,CommandHandler> entry =
@@ -406,8 +395,7 @@ public class ChatDirector extends BasicDirector
                 String cmdName = entry.getKey();
                 CommandHandler cmd = entry.getValue();
 
-                String result = cmd.handleCommand(
-                    speakSvc, cmdName, args, hist);
+                String result = cmd.handleCommand(speakSvc, cmdName, args, hist);
                 if (!result.equals(ChatCodes.SUCCESS)) {
                     return result;
                 }
@@ -416,8 +404,7 @@ public class ChatDirector extends BasicDirector
                     // get the final history-ready command string
                     hist[0] = "/" + ((hist[0] == null) ? command : hist[0]);
 
-                    // remove from history if it was present and
-                    // add it to the end
+                    // remove from history if it was present and add it to the end
                     addToHistory(hist[0]);
                 }
 
@@ -425,13 +412,11 @@ public class ChatDirector extends BasicDirector
 
             default:
                 String alternativeCommands = "";
-                Iterator<String> itr = Collections.getSortedIterator(
-                    possibleCommands.keySet());
+                Iterator<String> itr = Collections.getSortedIterator(possibleCommands.keySet());
                 while (itr.hasNext()) {
                     alternativeCommands += " /" + itr.next();
                 }
-                return MessageBundle.tcompose(
-                    "m.unspecific_command", alternativeCommands);
+                return MessageBundle.tcompose("m.unspecific_command", alternativeCommands);
             }
         }
 
@@ -446,21 +431,18 @@ public class ChatDirector extends BasicDirector
     }
 
     /**
-     * Requests that a speak message with the specified mode be generated
-     * and delivered via the supplied speak service instance (which will
-     * be associated with a particular "speak object"). The message will
-     * first be validated by all registered {@link ChatFilter}s (and
+     * Requests that a speak message with the specified mode be generated and delivered via the
+     * supplied speak service instance (which will be associated with a particular "speak
+     * object"). The message will first be validated by all registered {@link ChatFilter}s (and
      * possibly vetoed) before being dispatched.
      *
-     * @param speakService the speak service to use when generating the
-     * speak request or null if we should speak in the current "place".
+     * @param speakService the speak service to use when generating the speak request or null if we
+     * should speak in the current "place".
      * @param message the contents of the speak message.
-     * @param mode a speech mode that will be interpreted by the {@link
-     * ChatDisplay} implementations that eventually display this speak
-     * message.
+     * @param mode a speech mode that will be interpreted by the {@link ChatDisplay}
+     * implementations that eventually display this speak message.
      */
-    public void requestSpeak (
-        SpeakService speakService, String message, byte mode)
+    public void requestSpeak (SpeakService speakService, String message, byte mode)
     {
         if (speakService == null) {
             if (_place == null) {
@@ -488,33 +470,25 @@ public class ChatDirector extends BasicDirector
     {
         message = filter(message, null, true);
         if (message == null) {
-            displayFeedback(_bundle,
-                MessageBundle.compose("m.broadcast_failed", "m.filtered"));
+            displayFeedback(_bundle, MessageBundle.compose("m.broadcast_failed", "m.filtered"));
             return;
         }
-
-        _cservice.broadcast(
-            _ctx.getClient(), message, new ChatService.InvocationListener() {
-                public void requestFailed (String reason) {
-                    reason = MessageBundle.compose(
-                        "m.broadcast_failed", reason);
-                    displayFeedback(_bundle, reason);
-                }
-            });
+        _cservice.broadcast(_ctx.getClient(), message, new ChatService.InvocationListener() {
+            public void requestFailed (String reason) {
+                reason = MessageBundle.compose("m.broadcast_failed", reason);
+                displayFeedback(_bundle, reason);
+            }
+        });
     }
 
     /**
-     * Requests that a tell message be delivered to the specified target
-     * user.
+     * Requests that a tell message be delivered to the specified target user.
      *
-     * @param target the username of the user to which the tell message
-     * should be delivered.
+     * @param target the username of the user to which the tell message should be delivered.
      * @param msg the contents of the tell message.
-     * @param rl an optional result listener if you'd like to be notified
-     * of success or failure.
+     * @param rl an optional result listener if you'd like to be notified of success or failure.
      */
-    public void requestTell (final Name target, String msg,
-                             final ResultListener<Name> rl)
+    public void requestTell (final Name target, String msg, final ResultListener<Name> rl)
     {
         // make sure they can say what they want to say
         final String message = filter(msg, target, true);
@@ -528,15 +502,13 @@ public class ChatDirector extends BasicDirector
         // create a listener that will report success or failure
         ChatService.TellListener listener = new ChatService.TellListener() {
             public void tellSucceeded (long idletime, String awayMessage) {
-                success(xlate(_bundle, MessageBundle.tcompose(
-                                  "m.told_format", target, message)));
+                success(xlate(_bundle, MessageBundle.tcompose("m.told_format", target, message)));
 
                 // if they have an away message, report that
                 if (awayMessage != null) {
                     awayMessage = filter(awayMessage, target, false);
                     if (awayMessage != null) {
-                        String msg = MessageBundle.tcompose(
-                            "m.recipient_afk", target, awayMessage);
+                        String msg = MessageBundle.tcompose("m.recipient_afk", target, awayMessage);
                         displayFeedback(_bundle, msg);
                     }
                 }
@@ -544,8 +516,7 @@ public class ChatDirector extends BasicDirector
                 // if they are idle, report that
                 if (idletime > 0L) {
                     // adjust by the time it took them to become idle
-                    idletime += _ctx.getConfig().getValue(
-                        IDLE_TIME_KEY, DEFAULT_IDLE_TIME);
+                    idletime += _ctx.getConfig().getValue(IDLE_TIME_KEY, DEFAULT_IDLE_TIME);
                     String msg = MessageBundle.compose(
                         "m.recipient_idle", MessageBundle.taint(target),
                         TimeUtil.getTimeOrderString(idletime, TimeUtil.MINUTE));
@@ -575,17 +546,15 @@ public class ChatDirector extends BasicDirector
     }
 
     /**
-     * Configures a message that will be automatically reported to anyone
-     * that sends a tell message to this client to indicate that we are
-     * busy or away from the keyboard.
+     * Configures a message that will be automatically reported to anyone that sends a tell message
+     * to this client to indicate that we are busy or away from the keyboard.
      */
     public void setAwayMessage (String message)
     {
         if (message != null) {
             message = filter(message, null, true);
             if (message == null) {
-                // they filtered away their own away message..
-                // change it to something
+                // they filtered away their own away message..  change it to something
                 message = "...";
             }
         }
@@ -594,13 +563,12 @@ public class ChatDirector extends BasicDirector
     }
 
     /**
-     * Adds an additional object via which chat messages may arrive. The
-     * chat director assumes the caller will be managing the subscription
-     * to this object and will remain subscribed to it for as long as it
-     * remains in effect as an auxiliary chat source.
+     * Adds an additional object via which chat messages may arrive. The chat director assumes the
+     * caller will be managing the subscription to this object and will remain subscribed to it for
+     * as long as it remains in effect as an auxiliary chat source.
      *
-     * @param localtype a type to be associated with all chat messages
-     * that arrive on the specified DObject.
+     * @param localtype a type to be associated with all chat messages that arrive on the specified
+     * DObject.
      */
     public void addAuxiliarySource (DObject source, String localtype)
     {
@@ -699,8 +667,7 @@ public class ChatDirector extends BasicDirector
                     addChatter(speaker);
 
                     // note whether or not we have an auto-response
-                    BodyObject self = (BodyObject)
-                        _ctx.getClient().getClientObject();
+                    BodyObject self = (BodyObject)_ctx.getClient().getClientObject();
                     if (!StringUtil.isBlank(self.awayMessage)) {
                         autoResponse = self.awayMessage;
                     }
@@ -770,43 +737,38 @@ public class ChatDirector extends BasicDirector
     }
 
     /**
-     * Called to determine whether we are permitted to post the supplied
-     * chat message. Derived classes may wish to throttle chat or restrict
-     * certain types in certain circumstances for whatever reason.
+     * Called to determine whether we are permitted to post the supplied chat message. Derived
+     * classes may wish to throttle chat or restrict certain types in certain circumstances for
+     * whatever reason.
      *
-     * @return null if the chat is permitted, SUCCESS if the chat is permitted
-     * and has already been dealt with, or a translatable string
-     * indicating the reason for rejection if not.
+     * @return null if the chat is permitted, SUCCESS if the chat is permitted and has already been
+     * dealt with, or a translatable string indicating the reason for rejection if not.
      */
-    protected String checkCanChat (
-        SpeakService speakSvc, String message, byte mode)
+    protected String checkCanChat (SpeakService speakSvc, String message, byte mode)
     {
         return null;
     }
 
     /**
-     * Delivers a plain chat message (not a slash command) on the
-     * specified speak service in the specified mode. The message will be
-     * mogrified and filtered prior to delivery.
+     * Delivers a plain chat message (not a slash command) on the specified speak service in the
+     * specified mode. The message will be mogrified and filtered prior to delivery.
      *
-     * @return {@link ChatCodes#SUCCESS} if the message was delivered or a
-     * string indicating why it failed.
+     * @return {@link ChatCodes#SUCCESS} if the message was delivered or a string indicating why it
+     * failed.
      */
-    protected String deliverChat (
-        SpeakService speakSvc, String message, byte mode)
+    protected String deliverChat (SpeakService speakSvc, String message, byte mode)
     {
         // run the message through our mogrification process
         message = mogrifyChat(message, true, mode != ChatCodes.EMOTE_MODE);
 
-        // mogrification may result in something being turned into a slash
-        // command, in which case we have to run everything through again
-        // from the start
+        // mogrification may result in something being turned into a slash command, in which case
+        // we have to run everything through again from the start
         if (message.startsWith("/")) {
             return requestChat(speakSvc, message, false);
         }
 
-        // make sure this client is not restricted from performing this
-        // chat message for some reason or other
+        // make sure this client is not restricted from performing this chat message for some
+        // reason or other
         String errmsg = checkCanChat(speakSvc, message, mode);
         if (errmsg != null) {
             return errmsg;
@@ -819,7 +781,7 @@ public class ChatDirector extends BasicDirector
     }
 
     /**
-     * Add the specified command to the history.
+     * Adds the specified command to the history.
      */
     protected void addToHistory (String cmd)
     {
@@ -836,13 +798,12 @@ public class ChatDirector extends BasicDirector
     }
 
     /**
-     * Mogrify common literary crutches into more appealing chat or
-     * commands.
+     * Mogrifies common literary crutches into more appealing chat or commands.
      *
-     * @param transformsAllowed if true, the chat may transformed into a
-     * different mode. (lol -> /emote laughs)
-     * @param capFirst if true, the first letter of the text is
-     * capitalized. This is not desired if the chat is already an emote.
+     * @param transformsAllowed if true, the chat may transformed into a different mode. (lol ->
+     * /emote laughs)
+     * @param capFirst if true, the first letter of the text is capitalized. This is not desired if
+     * the chat is already an emote.
      */
     protected String mogrifyChat (
         String text, boolean transformsAllowed, boolean capFirst)
@@ -876,12 +837,14 @@ public class ChatDirector extends BasicDirector
     protected StringBuffer mogrifyChat (
         StringBuffer buf, boolean transformsAllowed, boolean capFirst)
     {
-        // do the generic mogrifications and translations
-        buf = translatedReplacements("x.mogrifies", buf);
+        if (_mogrifyChat) {
+            // do the generic mogrifications and translations
+            buf = translatedReplacements("x.mogrifies", buf);
 
-        // perform themed expansions and transformations
-        if (transformsAllowed) {
-            buf = translatedReplacements("x.transforms", buf);
+            // perform themed expansions and transformations
+            if (transformsAllowed) {
+                buf = translatedReplacements("x.transforms", buf);
+            }
         }
 
         /*
@@ -906,8 +869,8 @@ public class ChatDirector extends BasicDirector
     }
 
     /**
-     * Do all the replacements (mogrifications) specified in the
-     * translation string specified by the key.
+     * Do all the replacements (mogrifications) specified in the translation string specified by
+     * the key.
      */
     protected StringBuffer translatedReplacements (String key, StringBuffer buf)
     {
@@ -920,8 +883,7 @@ public class ChatDirector extends BasicDirector
         while (st.hasMoreTokens()) {
             String pattern = st.nextToken();
             String replace = st.nextToken();
-            Matcher m = Pattern.compile(pattern, Pattern.CASE_INSENSITIVE).
-                matcher(buf);
+            Matcher m = Pattern.compile(pattern, Pattern.CASE_INSENSITIVE).matcher(buf);
             if (m.find()) {
                 buf = new StringBuffer();
                 m.appendReplacement(buf, replace);
@@ -945,14 +907,12 @@ public class ChatDirector extends BasicDirector
     }
 
     /**
-     * Returns a hashmap containing all command handlers that match the
-     * specified command (i.e. the specified command is a prefix of their
-     * registered command string).
+     * Returns a hashmap containing all command handlers that match the specified command (i.e. the
+     * specified command is a prefix of their registered command string).
      */
     protected HashMap<String,CommandHandler> getCommandHandlers (String command)
     {
-        HashMap<String,CommandHandler> matches =
-            new HashMap<String,CommandHandler>();
+        HashMap<String,CommandHandler> matches = new HashMap<String,CommandHandler>();
         BodyObject user = (BodyObject)_ctx.getClient().getClientObject();
         for (Map.Entry<String,CommandHandler> entry : _handlers.entrySet()) {
             String cmd = entry.getKey();
@@ -974,26 +934,22 @@ public class ChatDirector extends BasicDirector
     protected void addChatter (Name name)
     {
         // check to see if the chatter validator approves..
-        if ((_chatterValidator != null) &&
-            (!_chatterValidator.isChatterValid(name))) {
+        if ((_chatterValidator != null) && (!_chatterValidator.isChatterValid(name))) {
             return;
         }
 
         boolean wasthere = _chatters.remove(name);
         _chatters.addFirst(name);
-
         if (!wasthere) {
             if (_chatters.size() > MAX_CHATTERS) {
                 _chatters.removeLast();
             }
-
             notifyChatterObservers();
         }
     }
 
     /**
-     * Notifies all registered {@link ChatterObserver}s that the list of
-     * chatters has changed.
+     * Notifies all registered {@link ChatterObserver}s that the list of chatters has changed.
      */
     protected void notifyChatterObservers ()
     {
@@ -1013,9 +969,8 @@ public class ChatDirector extends BasicDirector
         if (bundle != null && _msgmgr != null) {
             MessageBundle msgb = _msgmgr.getBundle(bundle);
             if (msgb == null) {
-                Log.warning(
-                    "No message bundle available to translate message " +
-                    "[bundle=" + bundle + ", message=" + message + "].");
+                Log.warning("No message bundle available to translate message " +
+                            "[bundle=" + bundle + ", message=" + message + "].");
             } else {
                 message = msgb.xlate(message);
             }
@@ -1026,11 +981,9 @@ public class ChatDirector extends BasicDirector
     /**
      * Display the specified system message as if it had come from the server.
      */
-    protected void displaySystem (
-        String bundle, String message, byte attLevel, String localtype)
+    protected void displaySystem (String bundle, String message, byte attLevel, String localtype)
     {
-        // nothing should be untranslated, so pass the default bundle if need
-        // be.
+        // nothing should be untranslated, so pass the default bundle if need be.
         if (bundle == null) {
             bundle = _bundle;
         }
@@ -1041,8 +994,7 @@ public class ChatDirector extends BasicDirector
     }
 
     /**
-     * Looks up and returns the message type associated with the specified
-     * oid.
+     * Looks up and returns the message type associated with the specified oid.
      */
     protected String getLocalType (int oid)
     {
@@ -1058,8 +1010,8 @@ public class ChatDirector extends BasicDirector
     }
 
     /**
-     * An operation that checks with all chat filters to properly filter
-     * a message prior to sending to the server or displaying.
+     * An operation that checks with all chat filters to properly filter a message prior to sending
+     * to the server or displaying.
      */
     protected static class FilterMessageOp
         implements ObserverList.ObserverOp<ChatFilter>
@@ -1136,8 +1088,7 @@ public class ChatDirector extends BasicDirector
             }
 
             // handle "/help help" and "/help someboguscommand"
-            HashMap<String,CommandHandler> possibleCommands =
-                getCommandHandlers(hcmd);
+            HashMap<String,CommandHandler> possibleCommands = getCommandHandlers(hcmd);
             if (hcmd.equals("help") || possibleCommands.isEmpty()) {
                 possibleCommands = getCommandHandlers("");
                 possibleCommands.remove("help"); // remove help from the list
@@ -1147,9 +1098,8 @@ public class ChatDirector extends BasicDirector
             switch (possibleCommands.size()) {
             case 1:
                 Iterator<String> itr = possibleCommands.keySet().iterator();
-                // this is a little funny, but we display the feeback
-                // message by hand and return SUCCESS so that the chat
-                // entry field doesn't think that we've failed and
+                // this is a little funny, but we display the feeback message by hand and return
+                // SUCCESS so that the chat entry field doesn't think that we've failed and
                 // preserve our command text
                 displayFeedback(null, "m.usage_" + itr.next());
                 return ChatCodes.SUCCESS;
@@ -1227,9 +1177,8 @@ public class ChatDirector extends BasicDirector
     /** Implements <code>/tell</code>. */
     protected class TellHandler extends CommandHandler
     {
-        public String handleCommand (
-            SpeakService speakSvc, final String command, String args,
-            String[] history)
+        public String handleCommand (SpeakService speakSvc, final String command,
+                                     String args, String[] history)
         {
             if (StringUtil.isBlank(args)) {
                 return "m.usage_tell";
@@ -1275,19 +1224,15 @@ public class ChatDirector extends BasicDirector
 
             // store the full command in the history, even if it was mistyped
             final String histEntry = command + " " +
-                (useQuotes ? ("\"" + target + "\"") : target.toString()) +
-                " " + message;
+                (useQuotes ? ("\"" + target + "\"") : target.toString()) + " " + message;
             history[0] = histEntry;
 
             // request to send this text as a tell message
-            requestTell(target, escapeMessage(message),
-                        new ResultListener<Name>() {
+            requestTell(target, escapeMessage(message), new ResultListener<Name>() {
                 public void requestCompleted (Name target) {
-                    // replace the full one in the history with just:
-                    // /tell "<handle>"
+                    // replace the full one in the history with just: /tell "<handle>"
                     String newEntry = "/" + command + " " +
-                        (useQuotes ? ("\"" + target + "\"")
-                                   : String.valueOf(target)) + " ";
+                        (useQuotes ? ("\"" + target + "\"") : String.valueOf(target)) + " ";
                     _history.remove(newEntry);
                     int dex = _history.lastIndexOf("/" + histEntry);
                     if (dex >= 0) {
@@ -1305,8 +1250,8 @@ public class ChatDirector extends BasicDirector
         }
 
         /**
-         * Parse the tell into two strings, handle and message. If either
-         * one is null then the parsing did not succeed.
+         * Parse the tell into two strings, handle and message. If either one is null then the
+         * parsing did not succeed.
          */
         protected String[] parseTell (String args)
         {
@@ -1331,9 +1276,9 @@ public class ChatDirector extends BasicDirector
         }
 
         /**
-         * Turn the user-entered string into a Name object, doing
-         * any particular normalization we want to do along the way
-         * so that "/tell Bob" and "/tell BoB" don't both show up in history.
+         * Turn the user-entered string into a Name object, doing any particular normalization we
+         * want to do along the way so that "/tell Bob" and "/tell BoB" don't both show up in
+         * history.
          */
         protected Name normalizeAsName (String handle)
         {
@@ -1341,8 +1286,7 @@ public class ChatDirector extends BasicDirector
         }
 
         /**
-         * Escape or otherwise do any final processing on the message
-         * prior to sending it.
+         * Escape or otherwise do any final processing on the message prior to sending it.
          */
         protected String escapeMessage (String msg)
         {
@@ -1399,6 +1343,9 @@ public class ChatDirector extends BasicDirector
 
     /** The client object that we're listening to for tells. */
     protected ClientObject _clobj;
+
+    /** Whether or not to run chat through the mogrifier. */
+    protected boolean _mogrifyChat= true;
 
     /** A list of registered chat displays. */
     protected ObserverList<ChatDisplay> _displays =
