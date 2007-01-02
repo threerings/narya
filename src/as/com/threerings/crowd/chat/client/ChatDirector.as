@@ -493,9 +493,7 @@ public class ChatDirector extends BasicDirector
         var success :Function = function (
                 idleTime :Long, awayMessage :String) :void
         {
-            var feedback :String = xlate(_bundle, MessageBundle.tcompose(
-                "m.told_format", target, message));
-            dispatchMessage(new TellFeedbackMessage(feedback));
+            dispatchMessage(new TellFeedbackMessage(target, message));
             addChatter(target);
             if (rl != null) {
                 rl.requestCompleted(target);

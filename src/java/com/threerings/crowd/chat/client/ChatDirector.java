@@ -502,7 +502,7 @@ public class ChatDirector extends BasicDirector
         // create a listener that will report success or failure
         ChatService.TellListener listener = new ChatService.TellListener() {
             public void tellSucceeded (long idletime, String awayMessage) {
-                success(xlate(_bundle, MessageBundle.tcompose("m.told_format", target, message)));
+                success();
 
                 // if they have an away message, report that
                 if (awayMessage != null) {
@@ -524,8 +524,8 @@ public class ChatDirector extends BasicDirector
                 }
             }
 
-            protected void success (String feedback) {
-                dispatchMessage(new TellFeedbackMessage(feedback));
+            protected void success () {
+                dispatchMessage(new TellFeedbackMessage(target, message));
                 addChatter(target);
                 if (rl != null) {
                     rl.requestCompleted(target);

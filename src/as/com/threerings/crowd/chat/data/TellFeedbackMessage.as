@@ -21,17 +21,19 @@
 
 package com.threerings.crowd.chat.data {
 
+import com.threerings.util.Name;
+
 /**
  * A feedback message to indicate that a tell succeeded.
  */
-public class TellFeedbackMessage extends ChatMessage
+public class TellFeedbackMessage extends UserMessage
 {
     /**
      * A tell feedback message is only composed on the client.
      */
-    public function TellFeedbackMessage (message :String)
+    public function TellFeedbackMessage (target :Name, message :String)
     {
-        super(message, null);
+        super(target, null, message);
         setClientInfo(message, ChatCodes.PLACE_CHAT_TYPE);
     }
 }
