@@ -59,6 +59,21 @@ public class UserMessage extends ChatMessage
         return speaker;
     }
 
+    override public function getFormat () :String
+    {
+        switch (mode) {
+        case ChatCodes.THINK_MODE: return "m.think_format";
+        case ChatCodes.EMOTE_MODE: return "m.emote_format";
+        case ChatCodes.SHOUT_MODE: return "m.shout_format";
+        case ChatCodes.BROADCAST_MODE: return "m.broadcast_format";
+        }
+
+        if (ChatCodes.USER_CHAT_TYPE === localtype) {
+            return "m.tell_format";
+        }
+        return "m.speak_format";
+    }
+
     // from interface Streamable
     override public function readObject (ins :ObjectInputStream) :void
     {

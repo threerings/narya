@@ -73,6 +73,14 @@ public abstract class ChatMessage
     }
 
     /**
+     * Get the appropriate message format for this message.
+     */
+    public String getFormat ()
+    {
+        return null;
+    }
+
+    /**
      * Generates a string representation of this instance.
      */
     public String toString ()

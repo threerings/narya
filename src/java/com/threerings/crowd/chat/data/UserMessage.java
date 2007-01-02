@@ -71,4 +71,20 @@ public class UserMessage extends ChatMessage
     {
         return speaker;
     }
+
+    @Override
+    public String getFormat ()
+    {
+        switch (mode) {
+        case ChatCodes.THINK_MODE: return "m.think_format";
+        case ChatCodes.EMOTE_MODE: return "m.emote_format";
+        case ChatCodes.SHOUT_MODE: return "m.shout_format";
+        case ChatCodes.BROADCAST_MODE: return "m.broadcast_format";
+        }
+
+        if (ChatCodes.USER_CHAT_TYPE.equals(localtype)) {
+            return "m.tell_format";
+        }
+        return "m.speak_format";
+    }
 }

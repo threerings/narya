@@ -68,6 +68,14 @@ public /*abstract*/ class ChatMessage
     }
 
     /**
+     * Get the appropriate message format for this message.
+     */
+    public function getFormat () :String
+    {
+        return null;
+    }
+
+    /**
      * Generates a string representation of this instance.
      */
     public function toString () :String

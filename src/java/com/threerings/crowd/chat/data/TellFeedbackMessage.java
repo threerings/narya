@@ -36,4 +36,10 @@ public class TellFeedbackMessage extends UserMessage
         super(target, null, message, ChatCodes.DEFAULT_MODE);
         setClientInfo(message, ChatCodes.PLACE_CHAT_TYPE);
     }
+
+    @Override
+    public String getFormat ()
+    {
+        return "m.told_format";
+    }
 }

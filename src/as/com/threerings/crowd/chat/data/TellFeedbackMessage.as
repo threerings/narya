@@ -36,5 +36,10 @@ public class TellFeedbackMessage extends UserMessage
         super(target, null, message);
         setClientInfo(message, ChatCodes.PLACE_CHAT_TYPE);
     }
+
+    override public function getFormat () :String
+    {
+        return "m.told_format";
+    }
 }
 }
