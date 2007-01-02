@@ -1,6 +1,6 @@
 package com.threerings.mx.effects {
 
-import mx.effects.EffectInstance;
+import mx.effects.IEffectInstance;
 import mx.effects.Effect;
 
 public class FunctionEffect extends Effect
@@ -19,7 +19,7 @@ public class FunctionEffect extends Effect
     }
 
     // documentation inherited
-    override protected function initInstance (instance :EffectInstance) :void
+    override protected function initInstance (instance :IEffectInstance) :void
     {
         super.initInstance(instance);
 
