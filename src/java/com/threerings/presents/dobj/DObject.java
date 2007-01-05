@@ -566,7 +566,7 @@ public class DObject
     /**
      * Posts a message event on this distrubuted object.
      */
-    public void postMessage (String name, Object[] args)
+    public void postMessage (String name, Object... args)
     {
         postEvent(new MessageEvent(_oid, name, args));
     }
