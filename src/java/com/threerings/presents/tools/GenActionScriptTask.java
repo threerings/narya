@@ -295,6 +295,12 @@ public class GenActionScriptTask extends Task
         } else if (type.equals(Long.TYPE)) {
             return "new Long(ins.readInt(), ins.readInt())";
 
+        } else if (type.equals(Float.TYPE)) {
+            return "ins.readFloat()";
+
+        } else if (type.equals(Double.TYPE)) {
+            return "ins.readDouble()";
+
         } else if (type.isArray()) {
             if (Byte.TYPE.equals(type.getComponentType())) {
                 return "(ins.readObject() as ByteArray)";
@@ -330,6 +336,12 @@ public class GenActionScriptTask extends Task
             return "writeInt(" + name + " == null ? 0 : " + name + ".low);\n" +
                 "        out.writeInt(" +
                 name + " == null ? 0 : " + name + ".high)";
+
+        } else if (type.equals("float")) {
+            return "writeFloat(" + name + ")";
+
+        } else if (type.equals("double")) {
+            return "writeDouble(" + name + ")";
 
         } else if (type.equals("java.lang.String")) {
             return "writeField(" + name + ")";

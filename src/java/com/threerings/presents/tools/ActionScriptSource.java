@@ -278,6 +278,11 @@ public class ActionScriptSource
             return "int";
         }
 
+        if (Float.TYPE.equals(type) ||
+            Double.TYPE.equals(type)) {
+            return "Number";
+        }
+
         if (Long.TYPE.equals(type)) {
             return "Long";
         }
@@ -649,6 +654,7 @@ public class ActionScriptSource
         Member curmem = null;
         while ((line = bin.readLine()) != null) {
             line = line.replaceAll("\\s+$", "");
+            // System.err.println("  " + mode + " : " + line);
             switch (mode) {
             case PREAMBLE:
                 // look for the package declaration
@@ -667,6 +673,10 @@ public class ActionScriptSource
                     imports = accum.toString();
                     accum.setLength(0);
                     mode = Mode.CLASSCOMMENT;
+                } else if (line.startsWith("public ")) {
+                    imports = accum.toString();
+                    accum.setLength(0);
+                    mode = line.endsWith("{") ? Mode.CLASSBODY : Mode.CLASSDECL;
                 }
                 accum.append(line).append("\n");
                 break;
