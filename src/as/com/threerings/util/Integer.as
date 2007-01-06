@@ -34,5 +34,13 @@ public class Integer
     {
         return value;
     }
+
+    /**
+     * Compares to int values in an overflow safe manner.
+     */
+    public static function compare (val1 :int, val2 :int) :int
+    {
+        return (val1 > val2) ? 1 : (val1 == val2 ? 0 : -1);
+    }
 }
 }
