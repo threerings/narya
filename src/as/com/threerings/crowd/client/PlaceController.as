@@ -125,7 +125,7 @@ public /*abstract*/ class PlaceController extends Controller
             // let the UI hierarchy know that we've got our place
             PlaceViewUtil.dispatchWillEnterPlace(_view, plobj);
             // and display the user interface
-            _ctx.setPlaceView(_view);
+            setPlaceView();
         }
 
         // let our delegates know what's up 
@@ -172,7 +172,7 @@ public /*abstract*/ class PlaceController extends Controller
         // let the UI hierarchy know that we're outta here
         if (_view != null ) {
             PlaceViewUtil.dispatchDidLeavePlace(_view, plobj);
-            _ctx.clearPlaceView(_view);
+            clearPlaceView();
             _view = null;
         }
 
@@ -221,6 +221,23 @@ public /*abstract*/ class PlaceController extends Controller
         }
     }
 
+    /**
+     * Sets the place view.  By default, this simply calls {CrowdContext#setPlaceView},
+     * but subclasses can override the method to add the place view in some other way.
+     */
+    protected function setPlaceView () :void
+    {
+        _ctx.setPlaceView(_view);
+    }
+    
+    /**
+     * Clears out the place view.  By default, this calls {CrowdContext#clearPlaceView}.
+     */ 
+    protected function clearPlaceView () :void
+    {
+        _ctx.clearPlaceView(_view);
+    }
+    
     /** A reference to the active client context. */
     protected var _ctx :CrowdContext;
 
