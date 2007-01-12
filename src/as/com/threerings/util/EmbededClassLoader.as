@@ -1,6 +1,7 @@
 package com.threerings.util {
 
 import flash.display.Loader;
+import flash.display.LoaderInfo;
 import flash.errors.IllegalOperationError;
 import flash.events.Event;
 import flash.events.EventDispatcher;
@@ -12,12 +13,13 @@ import flash.system.LoaderContext;
 /**
  * Allows you to load an embeded SWF stored as a Byte Array then access any stored classes
  * within the SWF.
+ *
+ * An Event.COMPLETE will be dispatched upon the successful completion of a call to
+ * {@link load}.  IOErrorEvent.IO_ERROR will be dispatched if there's a problem reading the
+ * ByteArray.
  */
 public class EmbededClassLoader extends EventDispatcher 
 {
-    public static var SWF_LOADED :String = "swfLoaded";
-    public static var LOAD_ERROR :String = "loadError";
-
     public function EmbededClassLoader ()
     {
         _loader = new Loader();
@@ -44,38 +46,69 @@ public class EmbededClassLoader extends EventDispatcher
      */
     public function getClass (className :String) :Class
     {
-        if (_loader.contentLoaderInfo.bytesLoaded != _loader.contentLoaderInfo.bytesTotal) {
+        return getSymbol(className) as Class;
+    }
+
+    /**
+     * Retrieves a Function definition from the loaded swf.
+     *
+     * @throws IllegalOperationError when the swf has not completed loading or the class does
+     * not exist
+     */
+    public function getFunction (functionName :String) :Function
+    {
+        return getSymbol(functionName) as Function;
+    }
+
+    /**
+     * Retrieves a symbol definition from the loaded swf.
+     *
+     * @throws IllegalOperationError when the swf has not completed loading or the class does
+     * not exist
+     */
+    public function getSymbol (symbolName :String) :Object
+    {
+        if (!checkLoaded()) {
             throw new IllegalOperationError("SWF has not completed loading");
         }
         try {
-            return _loader.contentLoaderInfo.applicationDomain.getDefinition(className) as Class;
+            return _loader.contentLoaderInfo.applicationDomain.getDefinition(symbolName);
         } catch (e: Error) {
-            throw new IllegalOperationError(className + " definition not found");
+            throw new IllegalOperationError(symbolName + " definition not found");
         }
         return null;
     }
 
     /**
-     * Checks if a class exists in the library.
+     * Checks if a symbol exists in the library.
      *
      * @throws IllegalOperationError when the swf has not completed loading.
      */
-    public function isClass (className :String) :Boolean
+    public function isSymbol (className :String) :Boolean
     {
-        if (_loader.contentLoaderInfo.bytesLoaded != _loader.contentLoaderInfo.bytesTotal) {
+        if (!checkLoaded()) {
             throw new IllegalOperationError("SWF has not completed loading");
         }
         return _loader.contentLoaderInfo.applicationDomain.hasDefinition(className);
     }
 
-    protected function completeHandler (e :Event) :void
+    /**
+     * Returns true if we've completed loaded the swf.
+     */
+    protected function checkLoaded () :Boolean
     {
-        dispatchEvent(new Event(SWF_LOADED));
+        var loaderInfo :LoaderInfo = _loader.contentLoaderInfo;
+        return !(loaderInfo.bytesTotal == 0 || loaderInfo.bytesLoaded != loaderInfo.bytesTotal);
     }
 
-    protected function ioErrorHandler (E :Event) :void
+    protected function completeHandler (e :Event) :void
     {
-        dispatchEvent(new Event(LOAD_ERROR));
+        dispatchEvent(e);
+    }
+
+    protected function ioErrorHandler (e :Event) :void
+    {
+        dispatchEvent(e);
     }
 
     protected var _loader :Loader;
