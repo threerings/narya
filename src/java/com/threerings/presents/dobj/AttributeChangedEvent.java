@@ -62,6 +62,15 @@ public class AttributeChangedEvent extends NamedEvent
     }
 
     /**
+     * Returns the new value of the attribute as a byte. This will fail
+     * if the attribute in question is not a byte.
+     */
+    public byte getByteValue ()
+    {
+        return ((Byte)_value).byteValue();
+    }
+
+    /**
      * Returns the new value of the attribute as a short. This will fail
      * if the attribute in question is not a short.
      */
