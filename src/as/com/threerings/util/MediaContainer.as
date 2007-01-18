@@ -6,6 +6,7 @@ import flash.display.DisplayObjectContainer;
 import flash.display.Loader;
 import flash.display.LoaderInfo;
 import flash.display.Shape;
+import flash.display.Sprite;
 
 import flash.errors.IOError;
 
@@ -30,14 +31,6 @@ import flash.system.SecurityDomain;
 
 import flash.net.URLRequest;
 
-import mx.core.ScrollPolicy;
-import mx.core.UIComponent;
-
-import mx.containers.Box;
-import mx.controls.VideoDisplay;
-
-import mx.events.VideoEvent;
-
 import com.threerings.util.StringUtil;
 
 import com.threerings.media.image.ImageUtil;
@@ -46,7 +39,7 @@ import com.threerings.media.image.ImageUtil;
  * A wrapper class for all media that will be placed on the screen.
  * Subject to change.
  */
-public class MediaContainer extends Box
+public class MediaContainer extends Sprite
 {
     /** An event we dispatch when our size is known. */
     public static const SIZE_KNOWN :String = "mediaSizeKnown";
@@ -65,8 +58,6 @@ public class MediaContainer extends Box
 
         mouseEnabled = false;
         mouseChildren = true;
-        verticalScrollPolicy = ScrollPolicy.OFF;
-        horizontalScrollPolicy = ScrollPolicy.OFF;
     }
 
     /**
@@ -120,11 +111,7 @@ public class MediaContainer extends Box
             shutdown(false);
         }
 
-        if (disp is UIComponent) {
-            addChild(disp);
-        } else {
-            rawChildren.addChild(disp);
-        }
+        addChild(disp);
         _media = disp;
         updateContentDimensions(disp.width, disp.height);
     }
@@ -134,17 +121,17 @@ public class MediaContainer extends Box
      */
     protected function setupVideo (url :String) :void
     {
-        var vid :VideoDisplay = new VideoDisplay();
-        vid.autoPlay = false;
-        _media = vid;
-        addChild(vid);
-        vid.addEventListener(ProgressEvent.PROGRESS, loadVideoProgress);
-        vid.addEventListener(VideoEvent.READY, loadVideoReady);
-        vid.addEventListener(VideoEvent.REWIND, videoDidRewind);
-
-        // start it loading
-        vid.source = url;
-        vid.load();
+//        var vid :VideoDisplay = new VideoDisplay();
+//        vid.autoPlay = false;
+//        _media = vid;
+//        addChild(vid);
+//        vid.addEventListener(ProgressEvent.PROGRESS, loadVideoProgress);
+//        vid.addEventListener(VideoEvent.READY, loadVideoReady);
+//        vid.addEventListener(VideoEvent.REWIND, videoDidRewind);
+//
+//        // start it loading
+//        vid.source = url;
+//        vid.load();
     }
 
     /**
@@ -168,7 +155,7 @@ public class MediaContainer extends Box
 
         // start it loading, add it as a child
         loader.load(new URLRequest(url), getContext(url));
-        rawChildren.addChild(loader);
+        addChild(loader);
 
         try {
             updateContentDimensions(info.width, info.height);
@@ -215,7 +202,7 @@ public class MediaContainer extends Box
         try {
             // remove the mask
             if (_media != null && _media.mask != null) {
-                rawChildren.removeChild(_media.mask);
+                removeChild(_media.mask);
                 _media.mask = null;
             }
 
@@ -232,34 +219,30 @@ public class MediaContainer extends Box
                 }
                 loader.unload();
 
-                rawChildren.removeChild(loader);
+                removeChild(loader);
 
-            } else if (_media is VideoDisplay) {
-                var vid :VideoDisplay = (_media as VideoDisplay);
-                // remove any listeners
-                vid.removeEventListener(ProgressEvent.PROGRESS,
-                    loadVideoProgress);
-                vid.removeEventListener(VideoEvent.READY, loadVideoReady);
-                vid.removeEventListener(VideoEvent.REWIND, videoDidRewind);
-
-                // dispose of media
-                vid.pause();
-                try {
-                    vid.close();
-                } catch (ioe :IOError) {
-                    // ignore
-                }
-                vid.stop();
-
-                // remove from hierarchy
-                removeChild(vid);
+//            } else if (_media is VideoDisplay) {
+//                var vid :VideoDisplay = (_media as VideoDisplay);
+//                // remove any listeners
+//                vid.removeEventListener(ProgressEvent.PROGRESS,
+//                    loadVideoProgress);
+//                vid.removeEventListener(VideoEvent.READY, loadVideoReady);
+//                vid.removeEventListener(VideoEvent.REWIND, videoDidRewind);
+//
+//                // dispose of media
+//                vid.pause();
+//                try {
+//                    vid.close();
+//                } catch (ioe :IOError) {
+//                    // ignore
+//                }
+//                vid.stop();
+//
+//                // remove from hierarchy
+//                removeChild(vid);
 
             } else if (_media != null) {
-                if (_media is UIComponent) {
-                    removeChild(_media);
-                } else {
-                    rawChildren.removeChild(_media);
-                }
+                removeChild(_media);
             }
         } catch (ioe :IOError) {
             log.warning("Error shutting down media: " + ioe);
@@ -393,27 +376,27 @@ public class MediaContainer extends Box
      */
     protected function loadVideoProgress (event :ProgressEvent) :void
     {
-        var vid :VideoDisplay = (event.currentTarget as VideoDisplay);
-        updateContentDimensions(vid.videoWidth, vid.videoHeight);
-
-        updateLoadingProgress(vid.bytesLoaded, vid.bytesTotal);
+//        var vid :VideoDisplay = (event.currentTarget as VideoDisplay);
+//        updateContentDimensions(vid.videoWidth, vid.videoHeight);
+//
+//        updateLoadingProgress(vid.bytesLoaded, vid.bytesTotal);
     }
 
     /**
      * A callback to receive READY events for video.
      */
-    protected function loadVideoReady (event :VideoEvent) :void
-    {
-        var vid :VideoDisplay = (event.currentTarget as VideoDisplay);
-        updateContentDimensions(vid.videoWidth, vid.videoHeight);
-        updateLoadingProgress(1, 1);
-
-        vid.play();
-
-        // remove the two listeners
-        vid.removeEventListener(ProgressEvent.PROGRESS, loadVideoProgress);
-        vid.removeEventListener(VideoEvent.READY, loadVideoReady);
-    }
+//    protected function loadVideoReady (event :VideoEvent) :void
+//    {
+//        var vid :VideoDisplay = (event.currentTarget as VideoDisplay);
+//        updateContentDimensions(vid.videoWidth, vid.videoHeight);
+//        updateLoadingProgress(1, 1);
+//
+//        vid.play();
+//
+//        // remove the two listeners
+//        vid.removeEventListener(ProgressEvent.PROGRESS, loadVideoProgress);
+//        vid.removeEventListener(VideoEvent.READY, loadVideoReady);
+//    }
 
     /**
      * Callback function to receive COMPLETE events for swfs or images.
@@ -430,28 +413,15 @@ public class MediaContainer extends Box
 
         updateContentDimensions(info.width, info.height);
         updateLoadingProgress(1, 1);
-
-//        // Bitmap smoothing
-//        if (_media is Loader) {
-//            var l :Loader = Loader(_media);
-//            try {
-//                if (l.content is Bitmap) {
-//                    Bitmap(l.content).smoothing = true;
-//                    trace("--- made bitmap smooth");
-//                }
-//            } catch (er :Error) {
-//                trace("--- error bitmap smooth");
-//            }
-//        }
     }
 
     /**
      * Called when the video auto-rewinds.
      */
-    protected function videoDidRewind (event :VideoEvent) :void
-    {
-        (_media as VideoDisplay).play();
-    }
+//    protected function videoDidRewind (event :VideoEvent) :void
+//    {
+//        (_media as VideoDisplay).play();
+//    }
 
     /**
      * Configure the mask for this object.
@@ -465,7 +435,7 @@ public class MediaContainer extends Box
         } else {
             mask = new Shape();
             // the mask must be added to the display list (which is wacky)
-            rawChildren.addChild(mask);
+            addChild(mask);
             _media.mask = mask;
         }
 
