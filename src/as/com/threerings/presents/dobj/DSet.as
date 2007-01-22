@@ -1,7 +1,5 @@
 package com.threerings.presents.dobj {
 
-import mx.utils.ObjectUtil;
-
 import com.threerings.util.ArrayIterator;
 import com.threerings.util.Cloneable;
 import com.threerings.util.Equalable;
@@ -117,7 +115,7 @@ public class DSet
         if (_entries.length == 0) {
             // there is nothing in the map yet, check the key validity
             var key :Object = elem.getKey();
-            if (!(key is Equalable) && !ObjectUtil.isSimple(key)) {
+            if (!(key is Equalable) && !Util.isSimple(key)) {
                 throw new Error("Element key is not 'simple' or Equalable");
             }
 

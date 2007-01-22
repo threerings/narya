@@ -1,5 +1,7 @@
 package com.threerings.util {
 
+import flash.errors.IllegalOperationError;
+
 /**
  * Provides a generic iterator for an Array.
  * No co-modification checking is done.
@@ -25,7 +27,20 @@ public class ArrayIterator
     // documentation inherited from interface Iterator
     public function next () :Object
     {
+        _lastIndex = _index;
         return _arr[_index++];
+    }
+
+    // documentation inherited from interface Iterator
+    public function remove () :void
+    {
+        if (_lastIndex == -1) {
+            throw new IllegalOperationError();
+
+        } else {
+            _arr.splice(_lastIndex, 1);
+            _lastIndex = -1;
+        }
     }
 
     /** The array we're iterating over. */
@@ -33,5 +48,8 @@ public class ArrayIterator
 
     /** The current index. */
     protected var _index :int;
+
+    /** The last-removed index. */
+    protected var _lastIndex :int = -1;
 }
 }

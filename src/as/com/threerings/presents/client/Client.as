@@ -174,7 +174,7 @@ public class Client extends EventDispatcher
     public function getService (clazz :Class) :InvocationService
     {
         if (_bstrap != null) {
-            for each (var isvc :InvocationService in _bstrap.services.source) {
+            for each (var isvc :InvocationService in _bstrap.services.asArray()) {
                 if (isvc is clazz) {
                     return isvc;
                 }

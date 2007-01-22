@@ -2,10 +2,7 @@ package com.threerings.presents.client {
 
 import flash.utils.getTimer; // function import
 
-import mx.collections.IViewCursor;
-import mx.collections.ArrayCollection;
-
-import com.threerings.util.HashMap;
+import com.threerings.util.Hashtable;
 
 import com.threerings.presents.data.InvocationMarshaller_ListenerMarshaller;
 
@@ -60,7 +57,7 @@ public class InvocationDirector
      */
     public function registerReceiver (decoder :InvocationDecoder) :void
     {
-        _reclist.addItem(decoder);
+        _reclist.push(decoder);
 
         // if we're already online, assign a recevier id now
         if (_clobj != null) {
@@ -74,12 +71,11 @@ public class InvocationDirector
     public function unregisterReceiver (receiverCode :String) :void
     {
         // remove the receiver from the list
-        for (var iter :IViewCursor = _reclist.createCursor();
-                iter.moveNext(); ) {
+        for (var ii :int = _reclist.length - 1; ii >= 0; ii--) {
             var decoder :InvocationDecoder =
-                (iter.current as InvocationDecoder);
+                (_reclist[ii] as InvocationDecoder);
             if (decoder.getReceiverCode() === receiverCode) {
-                iter.remove();
+                _reclist.splice(ii, 1);
             }
         }
 
@@ -122,10 +118,7 @@ public class InvocationDirector
     {
         _clobj.startTransaction();
         try {
-            for (var itr :IViewCursor = _reclist.createCursor();
-                    itr.moveNext(); ) {
-                var decoder :InvocationDecoder =
-                    (itr.current as InvocationDecoder);
+            for each (var decoder :InvocationDecoder in _reclist) {
                 assignReceiverId(decoder);
             }
         } finally {
@@ -354,14 +347,14 @@ public class InvocationDirector
 
     /** Used to keep track of invocation service listeners which will
      * receive responses from invocation service requests. */
-    protected var _listeners :HashMap = new HashMap();
+    protected var _listeners :Hashtable = new Hashtable();
 
     /** Used to keep track of invocation notification receivers. */
-    protected var _receivers :HashMap = new HashMap();
+    protected var _receivers :Hashtable = new Hashtable();
 
     /** All registered receivers are maintained in a list so that we can
      * assign receiver ids to them when we go online. */
-    internal var _reclist :ArrayCollection = new ArrayCollection();
+    internal var _reclist :Array = [];
 
     /** The last time we flushed our listeners. */
     protected var _lastFlushTime :Number;

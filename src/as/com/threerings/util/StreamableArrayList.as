@@ -1,66 +1,157 @@
 package com.threerings.util {
 
-import mx.collections.ArrayCollection;
-
 import com.threerings.io.ObjectInputStream;
 import com.threerings.io.ObjectOutputStream;
 import com.threerings.io.Streamable;
 
-public class StreamableArrayList extends ArrayCollection
+public class StreamableArrayList
     implements Streamable
 {
-    /**
-     * Returns the index of the specified object in this collection, using
-     * Equalable.equals() if possible.
-     */
-    public function indexOf (object :Object) :int
+    public function StreamableArrayList (values :Array = null)
     {
-        return ArrayUtil.indexOf(source, object);
+        _array = (values == null) ? new Array() : values;
+    }
+
+    public function add (item :Object, index :int = -1) :Boolean
+    {
+        _array.splice(index, 0, item);
+        return true;
     }
 
     /**
-     * Removes the first instance of the supplied object from this array, using
-     * Equalable.equals() to determine equality. Returns the removed object if
-     * a match was found, null otherwise.
+     * Add all the elements in the other list.
+     *
+     * @param otherList may be another StreamableArrayList or an Array
      */
-    public function remove (object :Object) :Object
+    public function addAll (otherList :*, index :int = -1) :Boolean
     {
-        return ArrayUtil.removeFirst(source, object);
-    }
+        var other :Array = getArray(otherList);
 
-    /**
-     * Adds all of the elements of the supplied collection to the end of this
-     * list.
-     */
-    public function addAll (list :ArrayCollection) :void
-    {
-        for (var ii :int = 0; ii < list.length; ii++) {
-            addItem(list.getItemAt(ii));
+        // splice each element in at the index
+        for (var ii :int = other.length - 1; ii >= 0; ii--) {
+            _array.splice(index, 0, other[ii]);
         }
+        return (other.length > 0);
+    }
+
+    public function clear () :void
+    {
+        _array.length = 0;
+    }
+
+    public function contains (item :Object) :Boolean
+    {
+        return ArrayUtil.contains(_array, item);
+    }
+
+    public function get (index :int) :*
+    {
+        return _array[index];
+    }
+
+    public function indexOf (item :Object) :int
+    {
+        return ArrayUtil.indexOf(_array, item);
+    }
+
+    public function isEmpty () :Boolean
+    {
+        return (_array.length == 0);
+    }
+
+    public function iterator () :Iterator
+    {
+        return new ArrayIterator(_array);
+    }
+
+    public  function remove (item :Object) :Boolean
+    {
+        return ArrayUtil.removeFirst(_array, item);
+    }
+
+    public function removeAll (otherList :*) :Boolean
+    {
+        var other :Array = getArray(otherList);
+
+        var removed :Boolean = false;
+        for (var ii :int = other.length - 1; ii >= 0; ii--) {
+            if (remove(other[ii])) {
+                removed = true;
+            }
+        }
+        return removed;
+    }
+
+    public function removeAt (index :int) :Object
+    {
+        return _array.splice(index, 1)[0];
+    }
+
+    public function set (index :int, item :Object) :Object
+    {
+        var ret :Object = _array[index];
+        _array[index] = item;
+        return ret;
+    }
+
+    public function size () :int
+    {
+        return _array.length;
+    }
+
+    /**
+     * Return the actual array storage.
+     */
+    public function asArray () :Array
+    {
+        return _array;
+    }
+
+    /**
+     * Return a copy of the internal storage array.
+     */
+    public function toArray () :Array
+    {
+        return _array.concat();
     }
 
     // documentation inherited from interface Streamable
     public function writeObject (out :ObjectOutputStream) :void
     {
-        out.writeInt(source.length);
-        for (var ii :int = 0; ii < source.length; ii++) {
-            out.writeObject(source[ii]);
+        var len :int = _array.length;
+        out.writeInt(len);
+        for (var ii :int = 0; ii < len; ii++) {
+            out.writeObject(_array[ii]);
         }
     }
 
     // documentation inherited from interface Streamable
     public function readObject (ins :ObjectInputStream) :void
     {
-        var ecount :int = ins.readInt();
-        disableAutoUpdate();
-        removeAll();
-        try {
-            for (var ii :int = 0; ii < ecount; ii++) {
-                addItem(ins.readObject());
-            }
-        } finally {
-            enableAutoUpdate();
+        var len :int = ins.readInt();
+        _array.length = len; // truncate (or grow once)
+        for (var ii :int = 0; ii < len; ii++) {
+            _array[ii] = ins.readObject();
         }
     }
+
+    /**
+     * Return an array representing the argument.
+     */
+    protected function getArray (otherList :*) :Array
+    {
+        if (otherList is StreamableArrayList) {
+            return (otherList as StreamableArrayList).asArray();
+
+        } else if (otherList is Array) {
+            return (otherList as Array);
+
+        } else {
+            throw new ArgumentError();
+        }
+    }
+
+    /** Storage. */
+    protected var _array :Array;
 }
 }

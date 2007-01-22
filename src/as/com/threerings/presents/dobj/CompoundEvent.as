@@ -21,8 +21,6 @@
 
 package com.threerings.presents.dobj {
 
-import mx.collections.IList;
-
 import com.threerings.io.ObjectInputStream;
 import com.threerings.io.ObjectOutputStream;
 
@@ -65,16 +63,16 @@ public class CompoundEvent extends DEvent
      */
     public function postEvent (event :DEvent) :void
     {
-        _events.addItem(event);
+        _events.add(event);
     }
 
     /**
      * Returns the list of events contained within this compound event.
      * Don't mess with it.
      */
-    public function getEvents () :IList
+    public function getEvents () :Array
     {
-        return _events;
+        return _events.asArray();
     }
 
     /**
@@ -90,11 +88,11 @@ public class CompoundEvent extends DEvent
 
         // then post this event onto the queue (but only if we actually
         // accumulated some events)
-        switch (_events.length) {
+        switch (_events.size()) {
         case 0: // nothing doing
             break;
         case 1: // no point in being compound
-            _omgr.postEvent(_events.getItemAt(0) as DEvent);
+            _omgr.postEvent(_events.get(0) as DEvent);
             break;
         default: // now we're talking
             _omgr.postEvent(this);
@@ -111,7 +109,7 @@ public class CompoundEvent extends DEvent
         // clear our target
         clearTarget();
         // clear our event queue in case someone holds onto us
-        _events.removeAll();
+        _events.clear();
     }
 
     /**
@@ -140,8 +138,9 @@ public class CompoundEvent extends DEvent
         buf.append("COMPOUND:");
         super.toStringBuf(buf);
 
-        for (var ii :int = 0; ii < _events.length; ii++) {
-            buf.append(", ", _events.getItemAt(ii));
+        var nn :int = _events.size();
+        for (var ii :int = 0; ii < nn; ii++) {
+            buf.append(", ", _events.get(ii));
         }
     }
 

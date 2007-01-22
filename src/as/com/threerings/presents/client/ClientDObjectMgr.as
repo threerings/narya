@@ -26,8 +26,6 @@ import flash.events.TimerEvent;
 import flash.utils.Timer;
 import flash.utils.getTimer; // function import
 
-import mx.collections.IList;
-
 import com.threerings.util.ClassUtil;
 import com.threerings.util.HashMap;
 
@@ -227,10 +225,10 @@ public class ClientDObjectMgr
         // if this is a compound event, we need to process its contained
         // events in order
         if (event is CompoundEvent) {
-            var events :IList = (event as CompoundEvent).getEvents();
+            var events :Array = (event as CompoundEvent).getEvents();
             var ecount :int = events.length;
             for (var ii :int = 0; ii < ecount; ii++) {
-                dispatchEvent(events.getItemAt(ii) as DEvent);
+                dispatchEvent(events[ii] as DEvent);
             }
             return;
         }

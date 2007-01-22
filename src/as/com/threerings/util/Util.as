@@ -7,6 +7,26 @@ import com.threerings.util.StringBuilder;
 public class Util
 {
     /**
+     * Is the specified object 'simple': one of the basic built-in flash types.
+     */
+    public static function isSimple (obj :Object) :Boolean
+    {
+        var type :String = typeof(obj);
+        switch (type) {
+        case "number":
+        case "string":
+        case "boolean":
+            return true;
+
+        case "object":
+            return (obj is Date) || (obj is Array);
+
+        default:
+            return false;
+        }
+    }
+
+    /**
      * A nice utility method for testing equality in a better way.
      * If the objects are Equalable, then that will be tested. Arrays
      * and ByteArrays are also compared and are equal if they have

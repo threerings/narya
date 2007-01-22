@@ -18,6 +18,9 @@ public interface Iterator
      */
     function next () :Object;
 
-    // TODO: remove() ?
+    /**
+     * Remove the last returned element.
+     */
+    function remove () :void;
 }
 }

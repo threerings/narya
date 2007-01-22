@@ -20,6 +20,22 @@ public class ArrayUtil
         });
     }
 
+    /**
+     * Randomly shuffle the elements in the specified array.
+     */
+    public static function shuffle (arr :Array) :void
+    {
+        // starting from the end of the list, repeatedly swap the element in
+        // question with a random element previous to it up to and including
+        // itself
+        for (var ii :int = arr.length - 1; ii > 0; ii--) {
+            var idx :int = int(Math.random() * (ii + 1));
+            var tmp :Object = arr[idx];
+            arr[idx] = arr[ii];
+            arr[ii] = tmp;
+        }
+    }
+
     public static function indexOf (arr :Array, element :Object) :int
     {
         if (arr != null) {
