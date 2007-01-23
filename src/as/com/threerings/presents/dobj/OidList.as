@@ -78,7 +78,7 @@ public class OidList
      * Returns the object id at the specified index. This does no boundary
      * checking.
      */
-    public function getAt (index :int) :int
+    public function get (index :int) :int
     {
         return _oids[index];
     }
