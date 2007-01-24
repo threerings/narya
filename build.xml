@@ -253,9 +253,9 @@
   <!-- creates a zipfile with our source distribution -->
   <target name="snapshot">
      <echo message="You may want to stop and run 'ant savedoc' first."/>
-     <delete file="${app.name}-snapshot.zip"/>
-     <mkdir dir="../snapshot/${app.name}"/>
-     <copy todir="../snapshot/${app.name}">
+     <delete file="${deploy.dir}/${app.name}-snapshot.zip"/>
+     <mkdir dir="${deploy.dir}/snapshot/${app.name}"/>
+     <copy todir="${deploy.dir}/snapshot/${app.name}">
        <fileset dir=".">
          <include name="**"/>
          <exclude name="dist/**"/>
@@ -263,11 +263,11 @@
          <exclude name="${app.name}-*.zip"/>
        </fileset>
      </copy>
-     <copy todir="../snapshot/${app.name}/lib">
-       <fileset dir="dist/lib" includes="*.jar"/>
+     <copy todir="${deploy.dir}/snapshot/${app.name}/lib">
+       <fileset dir="${deploy.dir}/lib" includes="*.jar"/>
      </copy>
-     <zip destfile="${app.name}-snapshot.zip" basedir="../snapshot"/>
-     <delete dir="../snapshot"/>
+     <zip destfile="${deploy.dir}/${app.name}-snapshot.zip" basedir="${deploy.dir}/snapshot"/>
+     <delete dir="${deploy.dir}/snapshot"/>
   </target>
 
 </project>
