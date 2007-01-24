@@ -251,7 +251,7 @@
   </target>
 
   <!-- creates a zipfile with our source distribution -->
-  <target name="snapshot" depends="javadoc">
+  <target name="snapshot">
      <echo message="You may want to stop and run 'ant savedoc' first."/>
      <delete file="${deploy.dir}/${app.name}-snapshot.zip"/>
      <mkdir dir="${deploy.dir}/snapshot/${app.name}"/>
