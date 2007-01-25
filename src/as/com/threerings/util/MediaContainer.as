@@ -139,6 +139,8 @@ public class MediaContainer extends Sprite
      */
     protected function setupSwfOrImage (url :String) :void
     {
+        startedLoading();
+
         // create our loader and set up some event listeners
         var loader :Loader = new Loader();
         _media = loader;
@@ -353,6 +355,7 @@ public class MediaContainer extends Sprite
      */
     protected function loadError (event :IOErrorEvent) :void
     {
+        stoppedLoading();
         setupBrokenImage(-1, -1);
     }
 
@@ -413,6 +416,7 @@ public class MediaContainer extends Sprite
 
         updateContentDimensions(info.width, info.height);
         updateLoadingProgress(1, 1);
+        stoppedLoading();
     }
 
     /**
@@ -480,6 +484,24 @@ public class MediaContainer extends Sprite
             soFar :Number, total :Number) :void
     {
         // nada, by default
+    }
+
+    /**
+     * Called when we've started loading new media. Will not be called
+     * for new media that does not require loading.
+     */
+    protected function startedLoading () :void
+    {
+        // nada
+    }
+
+    /**
+     * Called when we've stopped loading, which may be as a result of
+     * completion, an error while loading, or early termination.
+     */
+    protected function stoppedLoading () :void
+    {
+        // nada
     }
 
     /** The unaltered URL of the content we're displaying. */
