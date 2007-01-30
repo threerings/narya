@@ -13,14 +13,20 @@ import flash.system.LoaderContext;
 /**
  * Allows you to load an embeded SWF stored as a Byte Array then access any stored classes
  * within the SWF.
+ * Embed your swf like:
+ * [Embed(source="foo.swf", mimeType="application/octet-stream"]
+ * Then, instantiate that class and pass it to load() as a ByteArray.
  *
  * An Event.COMPLETE will be dispatched upon the successful completion of a call to
  * {@link load}.  IOErrorEvent.IO_ERROR will be dispatched if there's a problem reading the
  * ByteArray.
+ *
+ * @deprecated Content packs are coming, and symbols can be embedded directly
+ * by using [Embed(source="foo.swf#somesymbol")]
  */
-public class EmbededClassLoader extends EventDispatcher 
+public class EmbeddedSwfLoader extends EventDispatcher 
 {
-    public function EmbededClassLoader ()
+    public function EmbeddedSwfLoader ()
     {
         _loader = new Loader();
         _loader.contentLoaderInfo.addEventListener(Event.COMPLETE, completeHandler);
