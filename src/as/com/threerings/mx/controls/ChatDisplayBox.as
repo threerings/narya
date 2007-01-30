@@ -13,9 +13,7 @@ import com.threerings.crowd.chat.data.UserMessage;
 import com.threerings.crowd.util.CrowdContext;
 
 /**
- * IMPORTANT NOTE: this class was written for testing things and does not
- * necessarily represent a valid starting point for writing the chat
- * widget we'll eventually need.
+ * A very simple chat display.
  */
 public class ChatDisplayBox extends TextArea
     implements ChatDisplay

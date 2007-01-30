@@ -16,6 +16,7 @@ import mx.styles.StyleManager;
 import com.threerings.util.HashMap;
 
 /**
+ * A better CursorManager.
  */
 public class CursorManager
 {
