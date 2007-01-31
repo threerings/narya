@@ -3,8 +3,6 @@ package com.threerings.util {
 import flash.ui.ContextMenuItem;
 import flash.events.ContextMenuEvent;
 
-import com.threerings.mx.events.CommandEvent;
-
 /**
  */
 public class MenuUtil

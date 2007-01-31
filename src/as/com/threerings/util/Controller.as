@@ -2,8 +2,6 @@ package com.threerings.util {
 
 import flash.events.IEventDispatcher;
 
-import com.threerings.mx.events.CommandEvent;
-
 public class Controller
 {
     /**
