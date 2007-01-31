@@ -171,18 +171,6 @@ public class StringUtil
     }
 
     /**
-     * Return a hex string representation of the specified value.
-     */
-    public static function toHexString (value :uint) :String
-    {
-        var str :String = "";
-        for (var x :int = 0; x < 8; x++) {
-            str = HEX[(value >> (x * 4)) & 0xF] + str;
-        }
-        return "0x" + str;
-    }
-
-    /**
      * Generates a string from the supplied bytes that is the hex encoded
      * representation of those byts. Returns the empty String for a
      * <code>null</code> or empty byte array.
