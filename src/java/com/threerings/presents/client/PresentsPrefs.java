@@ -21,7 +21,7 @@
 
 package com.threerings.presents.client;
 
-import com.samskivert.util.Config;
+import com.samskivert.util.PrefsConfig;
 
 /**
  * Provides access to runtime configuration parameters for this package
@@ -31,5 +31,5 @@ public class PresentsPrefs
 {
     /** Used to load our preferences from a properties file and map them
      * to the persistent Java preferences repository. */
-    public static Config config = new Config("rsrc/config/presents");
+    public static PrefsConfig config = new PrefsConfig("rsrc/config/presents");
 }

@@ -21,7 +21,7 @@
 
 package com.threerings.admin.server;
 
-import com.samskivert.util.Config;
+import com.samskivert.util.PrefsConfig;
 import com.threerings.presents.dobj.DObject;
 
 /**
@@ -39,12 +39,12 @@ public class PrefsConfigRegistry extends ConfigRegistry
 
     protected class PrefsObjectRecord extends ObjectRecord
     {
-        public Config config;
+        public PrefsConfig config;
 
         public PrefsObjectRecord (String path, DObject object)
         {
             super(object);
-            this.config = new Config(path);
+            this.config = new PrefsConfig(path);
         }
 
         protected boolean getValue (String field, boolean defval) {
