@@ -45,29 +45,24 @@ import com.threerings.presents.dobj.*;
 import static com.threerings.presents.Log.log;
 
 /**
- * The presents distributed object manager implements the {@link
- * DObjectManager} interface, providing an object manager that runs on the
- * server. By virtue of running on the server, it manages its objects
- * directly rather than managing proxies of objects which is what is done
- * on the client. Thus it simply queues up events and dispatches them to
- * listeners.
+ * The presents distributed object manager implements the {@link DObjectManager} interface,
+ * providing an object manager that runs on the server. By virtue of running on the server, it
+ * manages its objects directly rather than managing proxies of objects which is what is done on
+ * the client. Thus it simply queues up events and dispatches them to listeners.
  *
- * <p> The server object manager is meant to run on the main thread of the
- * server application and thus provides a method to be invoked by the
- * application main thread which won't return until the manager has been
- * requested to shut down.
+ * <p> The server object manager is meant to run on the main thread of the server application and
+ * thus provides a method to be invoked by the application main thread which won't return until the
+ * manager has been requested to shut down.
  */
 public class PresentsDObjectMgr
     implements RootDObjectManager, RunQueue, PresentsServer.Reporter
 {
-    /** Contains operational statistics that are tracked by the distributed
-     * object manager between {@link PresentsServer#Reporter} intervals. The
-     * snapshot for the most recently completed period can be requested via
-     * {@link #getStats()}. . */
+    /** Contains operational statistics that are tracked by the distributed object manager between
+     * {@link PresentsServer#Reporter} intervals. The snapshot for the most recently completed
+     * period can be requested via {@link #getStats()}. . */
     public static class Stats
     {
-        /** The largest size of the distributed object queue during the
-         * period. */
+        /** The largest size of the distributed object queue during the period. */
         public int maxQueueSize;
 
         /** The number of events dispatched during the period. */
@@ -79,8 +74,8 @@ public class PresentsDObjectMgr
      */
     public PresentsDObjectMgr ()
     {
-        // we create a dummy object to live as oid zero and we'll use that
-        // for some internal event trickery
+        // we create a dummy object to live as oid zero and we'll use that for some internal event
+        // trickery
         DObject dummy = new DObject();
         dummy.setOid(0);
         dummy.setManager(this);
@@ -91,18 +86,16 @@ public class PresentsDObjectMgr
     }
 
     /**
-     * Sets up an access controller that will be provided to any
-     * distributed objects created on the server. The controllers can
-     * subsequently be overridden if desired, but a default controller is
-     * useful for implementing basic access control policies.
+     * Sets up an access controller that will be provided to any distributed objects created on the
+     * server. The controllers can subsequently be overridden if desired, but a default controller
+     * is useful for implementing basic access control policies.
      */
     public void setDefaultAccessController (AccessController controller)
     {
         AccessController oldDefault = _defaultController;
         _defaultController = controller;
 
-        // switch all objects from the old default (null, usually)
-        // to the new default.
+        // switch all objects from the old default (null, usually) to the new default.
         for (Iterator itr = _objects.elements(); itr.hasNext(); ) {
             DObject obj = (DObject) itr.next();
             if (oldDefault == obj.getAccessController()) {
@@ -123,12 +116,10 @@ public class PresentsDObjectMgr
         int oid, Subscriber<T> target)
     {
         if (oid <= 0) {
-            target.requestFailed(
-                oid, new ObjectAccessException("Invalid oid " + oid + "."));
+            target.requestFailed(oid, new ObjectAccessException("Invalid oid " + oid + "."));
         } else {
             // queue up an access object event
-            postEvent(new AccessObjectEvent<T>(
-                          oid, target, AccessObjectEvent.SUBSCRIBE));
+            postEvent(new AccessObjectEvent<T>(oid, target, AccessObjectEvent.SUBSCRIBE));
         }
     }
 
@@ -137,8 +128,7 @@ public class PresentsDObjectMgr
         int oid, Subscriber<T> target)
     {
         // queue up an access object event
-        postEvent(new AccessObjectEvent<T>(
-                      oid, target, AccessObjectEvent.UNSUBSCRIBE));
+        postEvent(new AccessObjectEvent<T>(oid, target, AccessObjectEvent.UNSUBSCRIBE));
     }
 
     // from interface DObjectManager
@@ -183,11 +173,28 @@ public class PresentsDObjectMgr
     }
 
     /**
-     * Posts a self-contained unit of code that should be run on the
-     * distributed object manager thread at the next available
-     * opportunity. The code will be queued up with the rest of the events
-     * and invoked in turn. Like event processing code, the code should
-     * not take long to complete and should <em>definitely</em> not block.
+     * Returns the object in the object table with the specified oid or null if no object has that
+     * oid. Be sure only to call this function from the dobjmgr thread and not to do anything funny
+     * with the object. If subscription is desired, use {@link #subscribeToObject}.
+     */
+    public DObject getObject (int oid)
+    {
+        return _objects.get(oid);
+    }
+
+    /**
+     * Returns the runtime statistics for the most recently completed reporting period.
+     */
+    public Stats getStats ()
+    {
+        return _recent;
+    }
+
+    /**
+     * Posts a self-contained unit of code that should be run on the distributed object manager
+     * thread at the next available opportunity. The code will be queued up with the rest of the
+     * events and invoked in turn. Like event processing code, the code should not take long to
+     * complete and should <em>definitely</em> not block.
      *
      * From interface RunQueue
      */
@@ -198,30 +205,9 @@ public class PresentsDObjectMgr
     }
 
     /**
-     * Returns the object in the object table with the specified oid or null if
-     * no object has that oid. Be sure only to call this function from the
-     * dobjmgr thread and not to do anything funny with the object. If
-     * subscription is desired, use {@link #subscribeToObject}.
-     */
-    public DObject getObject (int oid)
-    {
-        return _objects.get(oid);
-    }
-
-    /**
-     * Returns the runtime statistics for the most recently completed
-     * reporting period.
-     */
-    public Stats getStats ()
-    {
-        return _recent;
-    }
-
-    /**
-     * Returns true if the thread invoking this method is the same thread
-     * that is doing distributed object event dispatch. Code that wishes
-     * to enforce that it is either always or never called on the event
-     * dispatch thread will want to make use of this method.
+     * Returns true if the thread invoking this method is the same thread that is doing distributed
+     * object event dispatch. Code that wishes to enforce that it is either always or never called
+     * on the event dispatch thread will want to make use of this method.
      *
      * From interface RunQueue
      */
@@ -231,8 +217,8 @@ public class PresentsDObjectMgr
     }
 
     /**
-     * Runs the dobjmgr event loop until it is requested to exit. This
-     * should be called from the main application thread.
+     * Runs the dobjmgr event loop until it is requested to exit. This should be called from the
+     * main application thread.
      */
     public void run ()
     {
@@ -267,8 +253,7 @@ public class PresentsDObjectMgr
 
         try {
             if (unit instanceof Runnable) {
-                // if this is a runnable, it's just an executable unit
-                // that should be invoked
+                // if this is a runnable, it's just an executable unit that should be invoked
                 ((Runnable)unit).run();
 
             } else if (unit instanceof CompoundEvent) {
@@ -293,25 +278,23 @@ public class PresentsDObjectMgr
         // report excessively long units
         if (elapsed > 500000) {
             log.warning("Long dobj unit [u=" + StringUtil.safeToString(unit) +
-                " (" + StringUtil.shortClassName(unit) + ")" +
-                ", time=" + (elapsed/1000) + "ms].");
+                        " (" + StringUtil.shortClassName(unit) + ")" +
+                        ", time=" + (elapsed/1000) + "ms].");
         }
 
         // periodically sample and record the time spent processing a unit
         if (UNIT_PROF_ENABLED && _eventCount % UNIT_PROF_INTERVAL == 0) {
             String cname;
-            // do some jiggery pokery to get more fine grained profiling
-            // details on certain "popular" unit types
+            // do some jiggery pokery to get more fine grained profiling details on certain
+            // "popular" unit types
             if (unit instanceof Interval.RunBuddy) {
                 Interval ival = ((Interval.RunBuddy)unit).getInterval();
                 cname = StringUtil.shortClassName(ival);
             } else if (unit instanceof InvocationRequestEvent) {
                 InvocationRequestEvent ire = (InvocationRequestEvent)unit;
-                Class c = PresentsServer.invmgr.getDispatcherClass(
-                    ire.getInvCode());
-                cname = (c == null)
-                    ? "dobj.InvocationRequestEvent:(no longer registered)"
-                    : StringUtil.shortClassName(c) + ":" + ire.getMethodId();
+                Class c = PresentsServer.invmgr.getDispatcherClass(ire.getInvCode());
+                cname = (c == null) ? "dobj.InvocationRequestEvent:(no longer registered)" :
+                    StringUtil.shortClassName(c) + ":" + ire.getMethodId();
             } else {
                 cname = StringUtil.shortClassName(unit);
             }
@@ -324,8 +307,7 @@ public class PresentsDObjectMgr
     }
 
     /**
-     * Performs the processing associated with a compound event, notifying
-     * listeners and the like.
+     * Performs the processing associated with a compound event, notifying listeners and the like.
      */
     protected void processCompoundEvent (CompoundEvent event)
     {
@@ -335,8 +317,7 @@ public class PresentsDObjectMgr
         // look up the target object
         DObject target = _objects.get(event.getTargetOid());
         if (target == null) {
-            log.fine("Compound event target no longer exists " +
-                "[event=" + event + "].");
+            log.fine("Compound event target no longer exists [event=" + event + "].");
             return;
         }
 
@@ -344,8 +325,8 @@ public class PresentsDObjectMgr
         for (int ii = 0; ii < ecount; ii++) {
             DEvent sevent = (DEvent)events.get(ii);
             if (!target.checkPermissions(sevent)) {
-                log.warning("Event failed permissions check " +
-                    "[event=" + sevent + ", target=" + target + "].");
+                log.warning("Event failed permissions check [event=" + sevent +
+                            ", target=" + target + "].");
                 return;
             }
         }
@@ -360,8 +341,7 @@ public class PresentsDObjectMgr
     }
 
     /**
-     * Performs the processing associated with an event, notifying
-     * listeners and the like.
+     * Performs the processing associated with an event, notifying listeners and the like.
      */
     protected void processEvent (DEvent event)
     {
@@ -374,8 +354,8 @@ public class PresentsDObjectMgr
 
         // check the event's permissions
         if (!target.checkPermissions(event)) {
-            log.warning("Event failed permissions check " +
-                "[event=" + event + ", target=" + target + "].");
+            log.warning("Event failed permissions check [event=" + event +
+                        ", target=" + target + "].");
             return;
         }
 
@@ -386,9 +366,8 @@ public class PresentsDObjectMgr
     }
 
     /**
-     * Dispatches an event after the target object has been resolved and
-     * the permissions have been checked. This is used by {@link
-     * #processEvent} and {@link #processCompoundEvent}.
+     * Dispatches an event after the target object has been resolved and the permissions have been
+     * checked. This is used by {@link #processEvent} and {@link #processCompoundEvent}.
      *
      * @return the value returned by {@link DEvent#applyToObject}.
      */
@@ -410,9 +389,8 @@ public class PresentsDObjectMgr
             // everything's good so far, apply the event to the object
             notify = event.applyToObject(target);
 
-            // if the event returns false from applyToObject, this
-            // means it's a silent event and we shouldn't notify the
-            // listeners
+            // if the event returns false from applyToObject, this means it's a silent event and we
+            // shouldn't notify the listeners
             if (notify) {
                 target.notifyListeners(event);
             }
@@ -422,7 +400,7 @@ public class PresentsDObjectMgr
 
         } catch (Throwable t) {
             log.log(Level.WARNING, "Failure processing event [event=" + event +
-                ", target=" + target + "].", t);
+                    ", target=" + target + "].", t);
         }
 
         // track the number of events dispatched
@@ -432,22 +410,21 @@ public class PresentsDObjectMgr
     }
 
     /**
-     * Attempts to recover from fatal errors but rethrows if things are
-     * freaking out too frequently.
+     * Attempts to recover from fatal errors but rethrows if things are freaking out too
+     * frequently.
      */
     protected void handleFatalError (Object causer, Error error)
     {
         if (_fatalThrottle.throttleOp()) {
             throw error;
         }
-        log.log(Level.WARNING,
-            "Fatal error caused by '" + causer + "': " + error, error);
+        log.log(Level.WARNING, "Fatal error caused by '" + causer + "': " + error, error);
     }
 
     /**
-     * Requests that the dobjmgr shut itself down soon- you may
-     * want to try using {@link Invoker#shutdown} which will make sure that
-     * both the Invoker and DObjectMgr are empty and then shut them both down.
+     * Requests that the dobjmgr shut itself down soon- you may want to try using {@link
+     * Invoker#shutdown} which will make sure that both the Invoker and DObjectMgr are empty and
+     * then shut them both down.
      */
     public void harshShutdown ()
     {
@@ -469,18 +446,16 @@ public class PresentsDObjectMgr
     }
 
     /**
-     * Called as a helper for <code>ObjectDestroyedEvent</code> events. It
-     * removes the object from the object table.
+     * Called as a helper for <code>ObjectDestroyedEvent</code> events. It removes the object from
+     * the object table.
      *
-     * @return true if the event should be dispatched, false if it should
-     * be aborted.
+     * @return true if the event should be dispatched, false if it should be aborted.
      */
     public boolean objectDestroyed (DEvent event, DObject target)
     {
         int oid = target.getOid();
 
-//        log.info("Removing destroyed object from table " +
-//                 "[oid=" + oid + "].");
+//         log.info("Removing destroyed object from table [oid=" + oid + "].");
 
         // remove the object from the table
         _objects.remove(oid);
@@ -503,20 +478,17 @@ public class PresentsDObjectMgr
                 // ensure that the referencing object is still around
                 if (reffer != null) {
                     // post an object removed event to clear the reference
-                    postEvent(new ObjectRemovedEvent(
-                        ref.reffingOid, ref.field, oid));
-//                    log.info("Forcing removal " + ref + ".");
+                    postEvent(new ObjectRemovedEvent(ref.reffingOid, ref.field, oid));
+//                     log.info("Forcing removal " + ref + ".");
 
                 } else {
-                    log.info("Dangling reference from inactive object " +
-                             ref + ".");
+                    log.info("Dangling reference from inactive object " + ref + ".");
                 }
             }
         }
 
-        // if this object has any oid list fields that are still
-        // referencing other objects, we need to clear out those
-        // references
+        // if this object has any oid list fields that are still referencing other objects, we need
+        // to clear out those references
         Class oclass = target.getClass();
         Field[] fields = oclass.getFields();
         for (int f = 0; f < fields.length; f++) {
@@ -524,8 +496,7 @@ public class PresentsDObjectMgr
 
             // ignore static and non-public fields
             int mods = field.getModifiers();
-            if ((mods & Modifier.STATIC) != 0 ||
-                (mods & Modifier.PUBLIC) == 0) {
+            if ((mods & Modifier.STATIC) != 0 || (mods & Modifier.PUBLIC) == 0) {
                 continue;
             }
 
@@ -541,8 +512,8 @@ public class PresentsDObjectMgr
                 }
 
             } catch (Exception e) {
-                log.warning("Unable to clean up after oid list field " +
-                            "[target=" + target + ", field=" + field + "].");
+                log.warning("Unable to clean up after oid list field [target=" + target +
+                            ", field=" + field + "].");
             }
         }
 
@@ -550,12 +521,10 @@ public class PresentsDObjectMgr
     }
 
     /**
-     * Called by <code>objectDestroyed</code>; clears out the tracking
-     * info for a reference by the supplied object to the specified oid
-     * via the specified field.
+     * Called by <code>objectDestroyed</code>; clears out the tracking info for a reference by the
+     * supplied object to the specified oid via the specified field.
      */
-    protected void clearReference (
-        DObject reffer, String field, int reffedOid)
+    protected void clearReference (DObject reffer, String field, int reffedOid)
     {
         // look up the reference vector for the referenced object
         Reference[] refs = _refs.get(reffedOid);
@@ -571,16 +540,14 @@ public class PresentsDObjectMgr
             }
         }
 
-        // if a referred object and referring object are both destroyed without
-        // allowing the referred object destruction to process the ObjectRemoved
-        // event which is auto-generated, the subsequent destruction of the
-        // referring object will attempt to clear the reference to the referred
-        // object which no longer exists; so we don't complain about non-
-        // existent references if the referree is already destroyed
+        // if a referred object and referring object are both destroyed without allowing the
+        // referred object destruction to process the ObjectRemoved event which is auto-generated,
+        // the subsequent destruction of the referring object will attempt to clear the reference
+        // to the referred object which no longer exists; so we don't complain about non- existent
+        // references if the referree is already destroyed
         if (ref == null && _objects.containsKey(reffedOid)) {
             log.warning("Requested to clear out non-existent reference " +
-                        "[refferOid=" + reffer.getOid() +
-                        ", field=" + field +
+                        "[refferOid=" + reffer.getOid() + ", field=" + field +
                         ", reffedOid=" + reffedOid + "].");
 
 //        } else {
@@ -589,11 +556,10 @@ public class PresentsDObjectMgr
     }
 
     /**
-     * Called as a helper for <code>ObjectAddedEvent</code> events. It
-     * updates the object/oid list tracking structures.
+     * Called as a helper for <code>ObjectAddedEvent</code> events. It updates the object/oid list
+     * tracking structures.
      *
-     * @return true if the event should be dispatched, false if it should
-     * be aborted.
+     * @return true if the event should be dispatched, false if it should be aborted.
      */
     public boolean objectAdded (DEvent event, DObject target)
     {
@@ -603,14 +569,13 @@ public class PresentsDObjectMgr
         // ensure that the target object exists
         if (!_objects.containsKey(oid)) {
             log.info("Rejecting object added event of non-existent object " +
-                     "[refferOid=" + target.getOid() +
-                     ", reffedOid=" + oid + "].");
+                     "[refferOid=" + target.getOid() + ", reffedOid=" + oid + "].");
             return false;
         }
 
-        // get the reference vector for the referenced object. we use bare
-        // arrays rather than something like an array list to conserve
-        // memory. there will be many objects and references
+        // get the reference vector for the referenced object. we use bare arrays rather than
+        // something like an array list to conserve memory. there will be many objects and
+        // references
         Reference[] refs = _refs.get(oid);
         if (refs == null) {
             refs = new Reference[DEFREFVEC_SIZE];
@@ -622,8 +587,7 @@ public class PresentsDObjectMgr
         int rpos = -1;
         for (int i = 0; i < refs.length; i++) {
             if (ref.equals(refs[i])) {
-                log.warning("Ignoring request to track existing " +
-                            "reference " + ref + ".");
+                log.warning("Ignoring request to track existing reference " + ref + ".");
                 return true;
             } else if (refs[i] == null && rpos == -1) {
                 rpos = i;
@@ -646,11 +610,10 @@ public class PresentsDObjectMgr
     }
 
     /**
-     * Called as a helper for <code>ObjectRemovedEvent</code> events. It
-     * updates the object/oid list tracking structures.
+     * Called as a helper for <code>ObjectRemovedEvent</code> events. It updates the object/oid
+     * list tracking structures.
      *
-     * @return true if the event should be dispatched, false if it should
-     * be aborted.
+     * @return true if the event should be dispatched, false if it should be aborted.
      */
     public boolean objectRemoved (DEvent event, DObject target)
     {
@@ -659,20 +622,17 @@ public class PresentsDObjectMgr
         int toid = target.getOid();
         int oid = ore.getOid();
 
-//        log.info("Processing object removed [from=" + toid +
-//                 ", roid=" + toid + "].");
+//        log.info("Processing object removed [from=" + toid + ", roid=" + toid + "].");
 
         // get the reference vector for the referenced object
         Reference[] refs = _refs.get(oid);
         if (refs == null) {
-            // this can happen normally when an object is destroyed. it
-            // will remove itself from the reference system and then
-            // generate object removed events for all of its referencees.
+            // this can happen normally when an object is destroyed. it will remove itself from the
+            // reference system and then generate object removed events for all of its referencees.
             // so we opt not to log anything in this case
 
-//            log.info("Object removed without reference to track it " +
-//                     "[toid=" + toid + ", field=" + field +
-//                     ", oid=" + oid + "].");
+//             log.info("Object removed without reference to track it [toid=" + toid +
+//                      ", field=" + field + ", oid=" + oid + "].");
             return true;
         }
 
@@ -686,15 +646,14 @@ public class PresentsDObjectMgr
             }
         }
 
-        log.warning("Unable to locate reference for removal " +
-                    "[reffingOid=" + toid + ", field=" + field +
-                    ", reffedOid=" + oid + "].");
+        log.warning("Unable to locate reference for removal [reffingOid=" + toid +
+                    ", field=" + field + ", reffedOid=" + oid + "].");
         return true;
     }
 
     /**
-     * Should not need to be called except by the invoker during shutdown
-     * to ensure that things are proceeding smoothly.
+     * Should not need to be called except by the invoker during shutdown to ensure that things are
+     * proceeding smoothly.
      */
     public boolean queueIsEmpty ()
     {
@@ -708,35 +667,28 @@ public class PresentsDObjectMgr
 
     protected int getNextOid ()
     {
-        // look for the next unused oid. in theory if we had two billion
-        // objects, this would loop infinitely, but the world would have
-        // come to an end long before we had two billion objects
+        // look for the next unused oid. in theory if we had two billion objects, this would loop
+        // infinitely, but the world will come to an end long before we have two billion objects
         do {
             _nextOid = (_nextOid + 1) % Integer.MAX_VALUE;
         } while (_objects.containsKey(_nextOid));
-
         return _nextOid;
     }
 
     // from interface PresentsServer.Reporter
-    public void appendReport (
-        StringBuilder report, long now, long sinceLast, boolean reset)
+    public void appendReport (StringBuilder report, long now, long sinceLast, boolean reset)
     {
         report.append("* presents.PresentsDObjectMgr:\n");
         int queueSize = _evqueue.size();
         report.append("- Queue size: ").append(queueSize).append("\n");
-        report.append("- Max queue size: ").append(_current.maxQueueSize);
-        report.append("\n");
-        report.append("- Units executed: ").append(_current.eventCount);
-        report.append("\n");
+        report.append("- Max queue size: ").append(_current.maxQueueSize).append("\n");
+        report.append("- Units executed: ").append(_current.eventCount).append("\n");
 
         if (UNIT_PROF_ENABLED) {
-            report.append("- Unit profiles: ").append(_profiles.size());
-            report.append("\n");
+            report.append("- Unit profiles: ").append(_profiles.size()).append("\n");
             for (Map.Entry<String,UnitProfile> entry : _profiles.entrySet()) {
                 report.append("  ").append(entry.getKey());
-                report.append(" ").append(entry.getValue());
-                report.append("\n");
+                report.append(" ").append(entry.getValue()).append("\n");
             }
         }
 
@@ -749,32 +701,29 @@ public class PresentsDObjectMgr
     }
 
     /**
-     * Calls {@link Subscriber#objectAvailable} and catches and logs any
-     * exception thrown by the subscriber during the call.
+     * Calls {@link Subscriber#objectAvailable} and catches and logs any exception thrown by the
+     * subscriber during the call.
      */
-    protected static <T extends DObject> void informObjectAvailable (
-        Subscriber<T> sub, T obj)
+    protected static <T extends DObject> void informObjectAvailable (Subscriber<T> sub, T obj)
     {
         try {
             sub.objectAvailable(obj);
         } catch (Exception e) {
-            log.log(Level.WARNING, "Subscriber choked during object " +
-                "available [obj=" + StringUtil.safeToString(obj) +
-                ", sub=" + sub + "].", e);
+            log.log(Level.WARNING, "Subscriber choked during object available " +
+                    "[obj=" + StringUtil.safeToString(obj) + ", sub=" + sub + "].", e);
         }
     }
 
     /**
-     * Used to make an object available to a subscriber (with or without
-     * the associated subscription).
+     * Used to make an object available to a subscriber (with or without the associated
+     * subscription).
      */
     protected class AccessObjectEvent<T extends DObject> extends DEvent
     {
         public static final int SUBSCRIBE = 0;
         public static final int UNSUBSCRIBE = 1;
 
-        public AccessObjectEvent (int oid, Subscriber<T> target,
-                                  int action)
+        public AccessObjectEvent (int oid, Subscriber<T> target, int action)
         {
             super(0); // target the bogus object
             _oid = oid;
@@ -820,8 +769,8 @@ public class PresentsDObjectMgr
             // let them know that things are groovy
             informObjectAvailable(_target, obj);
 
-            // return false to ensure that this event is not dispatched to
-            // the fake object's subscriber list (even though it's empty)
+            // return false to ensure that this event is not dispatched to the fake object's
+            // subscriber list (even though it's empty)
             return false;
         }
 
@@ -850,8 +799,7 @@ public class PresentsDObjectMgr
             _helpers.put(ObjectRemovedEvent.class, method);
 
         } catch (Exception e) {
-            log.warning("Unable to register event helpers " +
-                        "[error=" + e + "].");
+            log.warning("Unable to register event helpers [error=" + e + "].");
         }
     }
 
@@ -876,8 +824,7 @@ public class PresentsDObjectMgr
             if (other == null) {
                 return false;
             } else {
-                return (reffingOid == other.reffingOid &&
-                        field.equals(other.field));
+                return (reffingOid == other.reffingOid && field.equals(other.field));
             }
         }
 
@@ -893,8 +840,8 @@ public class PresentsDObjectMgr
         }
     }
 
-    /** Used to profile time spent invoking units and processing events if
-     * such profiling is enabled. */
+    /** Used to profile time spent invoking units and processing events if such profiling is
+     * enabled. */
     protected static class UnitProfile
     {
         public void record (long start, long elapsed)
@@ -906,8 +853,7 @@ public class PresentsDObjectMgr
         public String toString ()
         {
             int count = _histo.size();
-            return _totalElapsed + "us/" + count + " = " +
-                (_totalElapsed/count) + "us avg " +
+            return _totalElapsed + "us/" + count + " = " + (_totalElapsed/count) + "us avg " +
                 StringUtil.toString(_histo.getBuckets());
         }
 
@@ -930,29 +876,26 @@ public class PresentsDObjectMgr
     /** Used to track the number of events dispatched over time. */
     protected long _eventCount = 0;
 
-    /** Track fatal errors so that we can stick a fork in ourselves if
-     * things get too far out of hand. More than 30 fatal errors in the
-     * span of a minute and we throw in the towel. */
+    /** Track fatal errors so that we can stick a fork in ourselves if things get too far out of
+     * hand. More than 30 fatal errors in the span of a minute and we throw in the towel. */
     protected Throttle _fatalThrottle = new Throttle(30, 60*1000L);
 
     /** Used to track oid list references of distributed objects. */
     protected HashIntMap<Reference[]> _refs = new HashIntMap<Reference[]>();
 
-    /** The default access controller to use when creating distributed
-     * objects. */
+    /** The default access controller to use when creating distributed objects. */
     protected AccessController _defaultController;
 
-    /** We keep track of which thread is executing the event loop so that
-     * other services can enforce restrictions on code that should or
-     * should not be called from the event dispatch thread. */
+    /** We keep track of which thread is executing the event loop so that other services can
+     * enforce restrictions on code that should or should not be called from the event dispatch
+     * thread. */
     protected Thread _dobjThread;
 
     /** Used during unit profiling for timing values. */
     protected Perf _timer = Perf.getPerf();
 
     /** Used to profile our events and runnable units. */
-    protected HashMap<String,UnitProfile> _profiles =
-        new HashMap<String,UnitProfile>();
+    protected HashMap<String,UnitProfile> _profiles = new HashMap<String,UnitProfile>();
 
     /** Used to track runtime statistics. */
     protected Stats _recent = new Stats(), _current = _recent;
@@ -966,11 +909,8 @@ public class PresentsDObjectMgr
     /** The default size of an oid list refs vector. */
     protected static final int DEFREFVEC_SIZE = 4;
 
-    /**
-     * This table maps event classes to helper methods that perform some
-     * additional processing for particular events.
-     */
-    protected static HashMap<Class,Method> _helpers =
-        new HashMap<Class,Method>();
+    /** This table maps event classes to helper methods that perform some additional processing for
+     * particular events. */
+    protected static HashMap<Class,Method> _helpers = new HashMap<Class,Method>();
     static { registerEventHelpers(); }
 }
