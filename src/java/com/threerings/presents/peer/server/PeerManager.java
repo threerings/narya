@@ -51,17 +51,16 @@ import com.threerings.presents.peer.server.persist.NodeRepository;
 import static com.threerings.presents.Log.log;
 
 /**
- * Manages connections to the other nodes in a Presents server cluster. Each
- * server maintains a client connection to the other servers and subscribes to
- * the {@link NodeObject} of all peer servers and uses those objects to
- * communicate cross-node information.
+ * Manages connections to the other nodes in a Presents server cluster. Each server maintains a
+ * client connection to the other servers and subscribes to the {@link NodeObject} of all peer
+ * servers and uses those objects to communicate cross-node information.
  */
 public class PeerManager
     implements ClientManager.ClientObserver
 {
     /**
-     * Creates a peer manager which will create a {@link NodeRepository} which
-     * will be used to publish our existence and discover the other nodes.
+     * Creates a peer manager which will create a {@link NodeRepository} which will be used to
+     * publish our existence and discover the other nodes.
      */
     public PeerManager (ConnectionProvider conprov, Invoker invoker)
         throws PersistenceException
@@ -79,24 +78,21 @@ public class PeerManager
     }
 
     /**
-     * Initializes this peer manager and initiates the process of connecting to
-     * its peer nodes. This will also reconfigure the ConnectionManager and
-     * ClientManager with peer related bits, so this should not be called until
-     * <em>after</em> the main server has set up its client factory and
-     * authenticator.
+     * Initializes this peer manager and initiates the process of connecting to its peer
+     * nodes. This will also reconfigure the ConnectionManager and ClientManager with peer related
+     * bits, so this should not be called until <em>after</em> the main server has set up its
+     * client factory and authenticator.
      *
      * @param nodeName this node's unique name.
-     * @param sharedSecret a shared secret used to allow the peers to
-     * authenticate with one another.
+     * @param sharedSecret a shared secret used to allow the peers to authenticate with one
+     * another.
      * @param hostName the DNS name of the server running this node.
-     * @param publicHostName if non-null, a separate public DNS hostname by
-     * which the node is to be known to normal clients (we may want inter-peer
-     * communication to take place over a different network than the
-     * communication between real clients and the various peer servers).
+     * @param publicHostName if non-null, a separate public DNS hostname by which the node is to be
+     * known to normal clients (we may want inter-peer communication to take place over a different
+     * network than the communication between real clients and the various peer servers).
      * @param port the port on which other nodes should connect to us.
      * @param conprov used to obtain our JDBC connections.
-     * @param invoker we will perform all database operations on the supplied
-     * invoker thread.
+     * @param invoker we will perform all database operations on the supplied invoker thread.
      */
     public void init (String nodeName, String sharedSecret, String hostName,
                       String publicHostName, int port)
@@ -109,11 +105,9 @@ public class PeerManager
 
         // wire ourselves into the server
         PresentsServer.conmgr.setAuthenticator(
-            new PeerAuthenticator(
-                this, PresentsServer.conmgr.getAuthenticator()));
+            new PeerAuthenticator(this, PresentsServer.conmgr.getAuthenticator()));
         PresentsServer.clmgr.setClientFactory(
-            new PeerClientFactory(
-                this, PresentsServer.clmgr.getClientFactory()));
+            new PeerClientFactory(this, PresentsServer.clmgr.getClientFactory()));
 
         // create our node object
         _nodeobj = PresentsServer.omgr.registerObject(createNodeObject());
@@ -121,13 +115,12 @@ public class PeerManager
         // register ourselves with the node table
         _invoker.postUnit(new Invoker.Unit() {
             public boolean invoke () {
-                NodeRecord record = new NodeRecord(
-                    _nodeName, _hostName, _publicHostName, _port);
+                NodeRecord record = new NodeRecord(_nodeName, _hostName, _publicHostName, _port);
                 try {
                     _noderepo.updateNode(record);
                 } catch (PersistenceException pe) {
-                    log.warning("Failed to register node record " +
-                                "[rec=" + record + ", error=" + pe + "].");
+                    log.warning("Failed to register node record [rec=" + record +
+                                ", error=" + pe + "].");
                 }
                 return false;
             }
@@ -136,8 +129,8 @@ public class PeerManager
         // register ourselves as a client observer
         PresentsServer.clmgr.addClientObserver(this);
 
-        // and start our peer refresh interval (this need not use a runqueue as
-        // all it will do is post an invoker unit)
+        // and start our peer refresh interval (this need not use a runqueue as all it will do is
+        // post an invoker unit)
         new Interval() {
             public void expired () {
                 refreshPeers();
@@ -149,9 +142,8 @@ public class PeerManager
     }
 
     /**
-     * Call this when the server is shutting down to give this node a chance to
-     * cleanly logoff from its peers and remove its record from the nodes
-     * table.
+     * Call this when the server is shutting down to give this node a chance to cleanly logoff from
+     * its peers and remove its record from the nodes table.
      */
     public void shutdown ()
     {
@@ -169,8 +161,8 @@ public class PeerManager
      */
     public boolean isAuthenticPeer (PeerCreds creds)
     {
-        return PeerCreds.createPassword(
-            creds.getNodeName(), _sharedSecret).equals(creds.getPassword());
+        return PeerCreds.createPassword(creds.getNodeName(), _sharedSecret).equals(
+            creds.getPassword());
     }
 
     // documentation inherited from interface ClientManager.ClientObserver
@@ -187,10 +179,8 @@ public class PeerManager
 
         // sanity check
         if (_nodeobj.clients.contains(clinfo)) {
-            log.warning("Received clientSessionDidStart() for already " +
-                        "registered client!? " +
-                        "[old=" + _nodeobj.clients.get(clinfo.getKey()) +
-                        ", new=" + clinfo + "].");
+            log.warning("Received clientSessionDidStart() for already registered client!? " +
+                        "[old=" + _nodeobj.clients.get(clinfo.getKey()) + ", new=" + clinfo + "].");
             // go ahead and update the record
             _nodeobj.updateClients(clinfo);
         } else {
@@ -206,9 +196,9 @@ public class PeerManager
             return;
         }
 
-        // we scan through the list instead of relying on ClientInfo.getKey()
-        // because we want derived classes to be able to override that for
-        // lookups that happen way more frequently than logging off
+        // we scan through the list instead of relying on ClientInfo.getKey() because we want
+        // derived classes to be able to override that for lookups that happen way more frequently
+        // than logging off
         Name username = client.getCredentials().getUsername();
         for (ClientInfo clinfo : _nodeobj.clients) {
             if (clinfo.username.equals(username)) {
@@ -216,8 +206,7 @@ public class PeerManager
                 return;
             }
         }
-        log.warning("Session ended for unregistered client " +
-                    "[who=" + username + "].");
+        log.warning("Session ended for unregistered client [who=" + username + "].");
     }
 
     /**
@@ -228,8 +217,8 @@ public class PeerManager
     }
 
     /**
-     * Reloads the list of peer nodes from our table and refreshes each with a
-     * call to {@link #refreshPeer}.
+     * Reloads the list of peer nodes from our table and refreshes each with a call to {@link
+     * #refreshPeer}.
      */
     protected void refreshPeers ()
     {
@@ -253,8 +242,7 @@ public class PeerManager
                     try {
                         refreshPeer(record);
                     } catch (Exception e) {
-                        log.log(Level.WARNING, "Failure refreshing peer " +
-                                record + ".", e);
+                        log.log(Level.WARNING, "Failure refreshing peer " + record + ".", e);
                     }
                 }
             }
@@ -263,8 +251,8 @@ public class PeerManager
     }
 
     /**
-     * Ensures that we have a connection to the specified node if it has
-     * checked in since we last failed to connect.
+     * Ensures that we have a connection to the specified node if it has checked in since we last
+     * failed to connect.
      */
     protected void refreshPeer (NodeRecord record)
     {
@@ -276,8 +264,8 @@ public class PeerManager
     }
 
     /**
-     * Creates the appropriate derived class of {@link NodeObject} which will
-     * be registered with the distributed object system.
+     * Creates the appropriate derived class of {@link NodeObject} which will be registered with
+     * the distributed object system.
      */
     protected NodeObject createNodeObject ()
     {
@@ -285,8 +273,8 @@ public class PeerManager
     }
 
     /**
-     * Creates a {@link ClientInfo} record which will subsequently be
-     * initialized by a call to {@link #initClientInfo}.
+     * Creates a {@link ClientInfo} record which will subsequently be initialized by a call to
+     * {@link #initClientInfo}.
      */
     protected ClientInfo createClientInfo ()
     {
@@ -302,8 +290,7 @@ public class PeerManager
     }
 
     /**
-     * Creates a {@link PeerNode} to manage our connection to the specified
-     * peer.
+     * Creates a {@link PeerNode} to manage our connection to the specified peer.
      */
     protected PeerNode createPeerNode (NodeRecord record)
     {
@@ -333,8 +320,8 @@ public class PeerManager
 
         public void refresh (NodeRecord record)
         {
-            // if the hostname of this node changed, kill our existing client
-            // connection and connect anew
+            // if the hostname of this node changed, kill our existing client connection and
+            // connect anew
             if (!record.hostName.equals(_record.hostName) &&
                 _client.isActive()) {
                 _client.logoff(false);
@@ -345,8 +332,8 @@ public class PeerManager
                 return;
             }
 
-            // if our client hasn't updated its record since we last tried to
-            // logon, then just chill
+            // if our client hasn't updated its record since we last tried to logon, then just
+            // chill
             if (_lastConnectStamp > record.lastUpdated.getTime()) {
                 log.fine("Not reconnecting to stale client [record=" + _record +
                          ", lastTry=" + new Date(_lastConnectStamp) + "].");
@@ -354,8 +341,7 @@ public class PeerManager
             }
 
             // otherwise configure our client with the right bits and logon
-            _client.setCredentials(
-                new PeerCreds(_record.nodeName, _sharedSecret));
+            _client.setCredentials(new PeerCreds(_record.nodeName, _sharedSecret));
             _client.setServer(record.hostName, new int[] { _record.port });
             _client.logon();
             _lastConnectStamp = System.currentTimeMillis();
@@ -388,8 +374,7 @@ public class PeerManager
             log.info("Connected to peer " + _record + ".");
 
             // subscribe to this peer's node object
-            PeerBootstrapData pdata = (PeerBootstrapData)
-                client.getBootstrapData();
+            PeerBootstrapData pdata = (PeerBootstrapData)client.getBootstrapData();
             client.getDObjectManager().subscribeToObject(pdata.nodeOid, this);
         }
 
