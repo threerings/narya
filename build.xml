@@ -25,7 +25,7 @@
     <taskdef name="dobj" classpathref="classpath"
              classname="com.threerings.presents.tools.GenDObjectTask"/>
     <!-- make sure the dobject class files are all compiled -->
-    <javac srcdir="src/java" destdir="${classes.dir}"
+    <javac srcdir="src/java" destdir="${classes.dir}" includeAntRuntime="false"
            debug="on" optimize="${build.optimize}" deprecation="on"
            source="1.5" target="1.5">
       <classpath refid="classpath"/>
@@ -43,7 +43,7 @@
     <taskdef name="service" classpathref="classpath"
              classname="com.threerings.presents.tools.GenServiceTask"/>
     <!-- make sure the service class files are all compiled -->
-    <javac srcdir="src/java" destdir="${classes.dir}"
+    <javac srcdir="src/java" destdir="${classes.dir}" includeAntRuntime="false"
            debug="on" optimize="${build.optimize}" deprecation="on"
            source="1.5" target="1.5">
       <classpath refid="classpath"/>
@@ -71,7 +71,7 @@
     <taskdef name="receiver" classpathref="classpath"
              classname="com.threerings.presents.tools.GenReceiverTask"/>
     <!-- make sure the receiver class files are all compiled -->
-    <javac srcdir="src/java" destdir="${classes.dir}"
+    <javac srcdir="src/java" destdir="${classes.dir}" includeAntRuntime="false"
            debug="on" optimize="${build.optimize}" deprecation="on"
            source="1.5" target="1.5">
       <classpath refid="classpath"/>
@@ -125,7 +125,7 @@
 
   <!-- build the java class files -->
   <target name="compile" depends="prepare">
-    <javac srcdir="src/java" destdir="${classes.dir}"
+    <javac srcdir="src/java" destdir="${classes.dir}" includeAntRuntime="false"
            debug="on" optimize="{$build.optimize}" deprecation="on"
            source="1.5" target="1.5">
       <classpath refid="classpath"/>
