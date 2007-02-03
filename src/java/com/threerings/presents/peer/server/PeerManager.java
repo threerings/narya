@@ -30,11 +30,15 @@ import com.samskivert.io.PersistenceException;
 import com.samskivert.jdbc.ConnectionProvider;
 import com.samskivert.util.Interval;
 import com.samskivert.util.Invoker;
+import com.samskivert.util.ObserverList;
 
+import com.threerings.io.Streamable;
 import com.threerings.util.Name;
 
 import com.threerings.presents.client.Client;
 import com.threerings.presents.client.ClientObserver;
+import com.threerings.presents.dobj.AttributeChangedEvent;
+import com.threerings.presents.dobj.AttributeChangeListener;
 import com.threerings.presents.dobj.ObjectAccessException;
 import com.threerings.presents.dobj.Subscriber;
 import com.threerings.presents.server.ClientManager;
@@ -58,6 +62,18 @@ import static com.threerings.presents.Log.log;
 public class PeerManager
     implements ClientManager.ClientObserver
 {
+    /**
+     * Used by entities that wish to know when cached data has become stale due to a change on
+     * one of our peer servers.
+     */
+    public static interface StaleCacheObserver
+    {
+        /**
+         * Called when some possibly cached data has changed on one of our peer servers.
+         */
+        public void changedCacheData (Streamable data);
+    }
+
     /**
      * Creates a peer manager which will create a {@link NodeRepository} which will be used to
      * publish our existence and discover the other nodes.
@@ -210,6 +226,42 @@ public class PeerManager
     }
 
     /**
+     * Registers a stale cache observer.
+     */
+    public void addStaleCacheObserver (String cache, StaleCacheObserver observer)
+    {
+        ObserverList<StaleCacheObserver> list = _cacheobs.get(cache);
+        if (list == null) {
+            list = new ObserverList<StaleCacheObserver>(ObserverList.FAST_UNSAFE_NOTIFY);
+            _cacheobs.put(cache, list);
+        }
+        list.add(observer);
+    }
+
+    /**
+     * Removes a stale cache observer registration.
+     */
+    public void removeStaleCacheObserver (String cache, StaleCacheObserver observer)
+    {
+        ObserverList<StaleCacheObserver> list = _cacheobs.get(cache);
+        if (list == null) {
+            return;
+        }
+        list.remove(observer);
+        if (list.isEmpty()) {
+            _cacheobs.remove(cache);
+        }
+    }
+
+    /**
+     * Called when cached data has changed on the local server and needs to inform our peers.
+     */
+    public void broadcastStaleCacheData (String cache, Streamable data)
+    {
+        _nodeobj.setCacheData(new NodeObject.CacheData(cache, data));
+    }
+
+    /**
      * Called after we have finished our initialization.
      */
     protected void didInit ()
@@ -282,6 +334,25 @@ public class PeerManager
     }
 
     /**
+     * Called when possibly cached data has changed on one of our peer servers.
+     */
+    protected void changedCacheData (String cache, final Streamable data)
+    {
+        // see if we have any observers
+        ObserverList<StaleCacheObserver> list = _cacheobs.get(cache);
+        if (list == null) {
+            return;
+        }
+        // if so, notify them
+        list.apply(new ObserverList.ObserverOp<StaleCacheObserver>() {
+            public boolean apply (StaleCacheObserver observer) {
+                observer.changedCacheData(data);
+                return true;
+            }
+        });
+    }
+
+    /**
      * Initializes the supplied client info for the supplied client.
      */
     protected void initClientInfo (PresentsClient client, ClientInfo info)
@@ -301,7 +372,7 @@ public class PeerManager
      * Contains all runtime information for one of our peer nodes.
      */
     protected class PeerNode
-        implements ClientObserver, Subscriber<NodeObject>
+        implements ClientObserver, Subscriber<NodeObject>, AttributeChangeListener
     {
         /** This peer's node object. */
         public NodeObject nodeobj;
@@ -406,6 +477,7 @@ public class PeerManager
         public void objectAvailable (NodeObject object)
         {
             nodeobj = object;
+            nodeobj.addListener(this);
             // TODO: stuff!
         }
 
@@ -414,6 +486,15 @@ public class PeerManager
         {
             log.warning("Failed to subscribe to peer's node object " +
                         "[peer=" + _record + ", cause=" + cause + "].");
+        }
+
+        // documentation inherited from interface AttributeChangeListener
+        public void attributeChanged (AttributeChangedEvent event)
+        {
+            if (NodeObject.CACHE_DATA.equals(event.getName())) {
+                NodeObject.CacheData cd = (NodeObject.CacheData)event.getValue();
+                changedCacheData(cd.cache, cd.data);
+            }
         }
 
         protected NodeRecord _record;
@@ -427,4 +508,8 @@ public class PeerManager
     protected NodeRepository _noderepo;
     protected NodeObject _nodeobj;
     protected HashMap<String,PeerNode> _peers = new HashMap<String,PeerNode>();
+
+    /** Our stale cache observers. */
+    protected HashMap<String, ObserverList<StaleCacheObserver>> _cacheobs =
+        new HashMap<String, ObserverList<StaleCacheObserver>>();
 }

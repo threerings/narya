@@ -21,6 +21,8 @@
 
 package com.threerings.presents.peer.data;
 
+import com.threerings.io.Streamable;
+
 import com.threerings.presents.dobj.DObject;
 import com.threerings.presents.dobj.DSet;
 
@@ -29,13 +31,40 @@ import com.threerings.presents.dobj.DSet;
  */
 public class NodeObject extends DObject
 {
+    /** Used for informing peers of changes to persistent data. */
+    public static class CacheData implements Streamable
+    {
+        /** The cache that should be purged. */
+        public String cache;
+
+        /** The stale data in the cache. */
+        public Streamable data;
+
+        public CacheData () 
+        { 
+        }
+
+        public CacheData (String cache, Streamable data)
+        {
+            this.cache = cache;
+            this.data = data;
+        }
+
+    }
+
     // AUTO-GENERATED: FIELDS START
     /** The field name of the <code>clients</code> field. */
     public static final String CLIENTS = "clients";
+
+    /** The field name of the <code>cacheData</code> field. */
+    public static final String CACHE_DATA = "cacheData";
     // AUTO-GENERATED: FIELDS END
 
     /** Contains information on all clients connected to this node. */
     public DSet<ClientInfo> clients = new DSet<ClientInfo>();
+
+    /** A field we use to broadcast changes to possible cached data. */
+    public CacheData cacheData;
 
     // AUTO-GENERATED: METHODS START
     /**
@@ -84,6 +113,22 @@ public class NodeObject extends DObject
         @SuppressWarnings("unchecked") DSet<com.threerings.presents.peer.data.ClientInfo> clone =
             (value == null) ? null : value.typedClone();
         this.clients = clone;
+    }
+
+    /**
+     * Requests that the <code>cacheData</code> field be set to the
+     * specified value. The local value will be updated immediately and an
+     * event will be propagated through the system to notify all listeners
+     * that the attribute did change. Proxied copies of this object (on
+     * clients) will apply the value change when they received the
+     * attribute changed notification.
+     */
+    public void setCacheData (NodeObject.CacheData value)
+    {
+        NodeObject.CacheData ovalue = this.cacheData;
+        requestAttributeChange(
+            CACHE_DATA, value, ovalue);
+        this.cacheData = value;
     }
     // AUTO-GENERATED: METHODS END
 }
