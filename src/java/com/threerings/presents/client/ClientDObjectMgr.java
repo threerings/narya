@@ -223,6 +223,12 @@ public class ClientDObjectMgr
             return;
         }
 
+        // because we might be acting as a proxy between servers, we rewrite the event's target oid
+        // using the oid currently configured on the distributed object (we will have it mapped in
+        // our remote server's oid space, but it may have been remapped into the oid space of the
+        // local server)
+        event.setTargetOid(target.getOid());
+
         try {
             // apply the event to the object
             boolean notify = event.applyToObject(target);

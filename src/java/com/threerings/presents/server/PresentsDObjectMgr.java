@@ -104,6 +104,22 @@ public class PresentsDObjectMgr
         }
     }
 
+    /**
+     * Registers an object managed by another distributed object manager (probably on another
+     * server). The local server will assign the object a proxy oid, and any events that come in on
+     * this object will be rewritten from their proxy oid to their original id before forwarding on
+     * to the originating object manager.
+     */
+    public void registerProxyObject (DObject object, DObjectManager omgr)
+    {
+        int origObjectId = object.getOid();
+        // register the object locally which will reassign its oid and set us as its manager
+        registerObject(object);
+        // and note a proxy reference for the object which we'll use to forward events back to its
+        // originating manager after converting them back to the original oid
+        _proxies.put(origObjectId, new ProxyReference(object.getOid(), omgr));
+    }
+
     // from interface DObjectManager
     public boolean isManager (DObject object)
     {
@@ -112,8 +128,7 @@ public class PresentsDObjectMgr
     }
 
     // from interface DObjectManager
-    public <T extends DObject> void subscribeToObject (
-        int oid, Subscriber<T> target)
+    public <T extends DObject> void subscribeToObject (int oid, Subscriber<T> target)
     {
         if (oid <= 0) {
             target.requestFailed(oid, new ObjectAccessException("Invalid oid " + oid + "."));
@@ -124,8 +139,7 @@ public class PresentsDObjectMgr
     }
 
     // from interface DObjectManager
-    public <T extends DObject> void unsubscribeFromObject (
-        int oid, Subscriber<T> target)
+    public <T extends DObject> void unsubscribeFromObject (int oid, Subscriber<T> target)
     {
         // queue up an access object event
         postEvent(new AccessObjectEvent<T>(oid, target, AccessObjectEvent.UNSUBSCRIBE));
@@ -257,10 +271,38 @@ public class PresentsDObjectMgr
                 ((Runnable)unit).run();
 
             } else if (unit instanceof CompoundEvent) {
-                processCompoundEvent((CompoundEvent)unit);
+                CompoundEvent event = (CompoundEvent)unit;
+
+                // if this event is on a proxied object, forward it to the owning manager
+                ProxyReference proxy = _proxies.get(event.getTargetOid());
+                if (proxy != null) {
+                    // rewrite the oid into the originating manager's id space
+                    event.setTargetOid(proxy.origObjectId);
+                    List<DEvent> events = event.getEvents();
+                    for (int ii = 0, ll = events.size(); ii < ll; ii++) {
+                        events.get(ii).setTargetOid(proxy.origObjectId);
+                    }
+                    // then pass it on to the originating manager to handle
+                    proxy.origManager.postEvent(event);
+
+                } else {
+                    processCompoundEvent(event);
+                }
 
             } else {
-                processEvent((DEvent)unit);
+                DEvent event = (DEvent)unit;
+
+                // if this event is on a proxied object, forward it to the owning manager
+                ProxyReference proxy = _proxies.get(event.getTargetOid());
+                if (proxy != null) {
+                    // rewrite the oid into the originating manager's id space
+                    event.setTargetOid(proxy.origObjectId);
+                    // then pass it on to the originating manager to handle
+                    proxy.origManager.postEvent(event);
+
+                } else {
+                    processEvent(event);
+                }
             }
 
         } catch (VirtualMachineError e) {
@@ -861,6 +903,19 @@ public class PresentsDObjectMgr
         protected Histogram _histo = new Histogram(0, 20000, 10);
     }
 
+    /** Tracks necessary information on a proxy distributed object. */
+    protected static class ProxyReference
+    {
+        public int origObjectId;
+        public DObjectManager origManager;
+
+        public ProxyReference (int origObjectId, DObjectManager origManager)
+        {
+            this.origObjectId = origObjectId;
+            this.origManager = origManager;
+        }
+    }
+
     /** A flag indicating that the event dispatcher is still running. */
     protected boolean _running = true;
 
@@ -885,6 +940,9 @@ public class PresentsDObjectMgr
 
     /** The default access controller to use when creating distributed objects. */
     protected AccessController _defaultController;
+
+    /** Maintains proxy information for any proxied distributed objects. */
+    protected HashIntMap<ProxyReference> _proxies = new HashIntMap<ProxyReference>();
 
     /** We keep track of which thread is executing the event loop so that other services can
      * enforce restrictions on code that should or should not be called from the event dispatch
