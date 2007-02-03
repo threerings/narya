@@ -81,7 +81,9 @@ public class NodeObject extends DObject
     public void setClients (DSet<com.threerings.presents.peer.data.ClientInfo> value)
     {
         requestAttributeChange(CLIENTS, value, this.clients);
-        this.clients = (value == null) ? null : value.typedClone();
+        @SuppressWarnings("unchecked") DSet<com.threerings.presents.peer.data.ClientInfo> clone =
+            (value == null) ? null : value.typedClone();
+        this.clients = clone;
     }
     // AUTO-GENERATED: METHODS END
 }

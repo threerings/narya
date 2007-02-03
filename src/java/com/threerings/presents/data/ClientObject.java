@@ -128,7 +128,9 @@ public class ClientObject extends DObject
     public void setReceivers (DSet<com.threerings.presents.client.InvocationReceiver.Registration> value)
     {
         requestAttributeChange(RECEIVERS, value, this.receivers);
-        this.receivers = (value == null) ? null : value.typedClone();
+        @SuppressWarnings("unchecked") DSet<com.threerings.presents.client.InvocationReceiver.Registration> clone =
+            (value == null) ? null : value.typedClone();
+        this.receivers = clone;
     }
     // AUTO-GENERATED: METHODS END
 }

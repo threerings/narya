@@ -195,7 +195,9 @@ public class PlaceObject extends DObject
     public void setOccupantInfo (DSet<com.threerings.crowd.data.OccupantInfo> value)
     {
         requestAttributeChange(OCCUPANT_INFO, value, this.occupantInfo);
-        this.occupantInfo = (value == null) ? null : value.typedClone();
+        @SuppressWarnings("unchecked") DSet<com.threerings.crowd.data.OccupantInfo> clone =
+            (value == null) ? null : value.typedClone();
+        this.occupantInfo = clone;
     }
 
     /**
