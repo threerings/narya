@@ -24,13 +24,18 @@ package com.threerings.presents.peer.server;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.logging.Level;
 
 import com.samskivert.io.PersistenceException;
 import com.samskivert.jdbc.ConnectionProvider;
 import com.samskivert.util.Interval;
 import com.samskivert.util.Invoker;
+import com.samskivert.util.ObjectUtil;
 import com.samskivert.util.ObserverList;
+import com.samskivert.util.ResultListener;
+import com.samskivert.util.Tuple;
 
 import com.threerings.io.Streamable;
 import com.threerings.util.Name;
@@ -39,13 +44,19 @@ import com.threerings.presents.client.Client;
 import com.threerings.presents.client.ClientObserver;
 import com.threerings.presents.dobj.AttributeChangedEvent;
 import com.threerings.presents.dobj.AttributeChangeListener;
+import com.threerings.presents.dobj.EntryAddedEvent;
+import com.threerings.presents.dobj.EntryRemovedEvent;
+import com.threerings.presents.dobj.EntryUpdatedEvent;
 import com.threerings.presents.dobj.ObjectAccessException;
+import com.threerings.presents.dobj.SetAdapter;
 import com.threerings.presents.dobj.Subscriber;
 import com.threerings.presents.server.ClientManager;
+import com.threerings.presents.server.InvocationException;
 import com.threerings.presents.server.PresentsClient;
 import com.threerings.presents.server.PresentsServer;
 
 import com.threerings.presents.peer.data.ClientInfo;
+import com.threerings.presents.peer.data.Lock;
 import com.threerings.presents.peer.data.NodeObject;
 import com.threerings.presents.peer.net.PeerBootstrapData;
 import com.threerings.presents.peer.net.PeerCreds;
@@ -181,6 +192,113 @@ public class PeerManager
             creds.getPassword());
     }
 
+    /**
+     * Attempts to acquire the specified lock amongst our peers.  When the peers complete the
+     * process of resolution, the supplied listener will be notified with the name of the lock's
+     * owner, which will either be this or another node (if that node preempted this one).  If
+     * another node holds the lock, it will not release it before this node has a chance to make
+     * a request.
+     */
+    public void acquireLock (final Lock.Name name, final ResultListener<String> listener)
+    {
+        // wait for any resolution to end
+        queryLock(name, new ResultListener<String>() {
+            public void requestCompleted (String result) {
+                if (result == null) {
+                    // the lock is free; we will attempt to acquire it
+                    continueAcquiringLock(name, listener);
+                } else {
+                    // another node has acquired the lock
+                    listener.requestCompleted(result);
+                }
+            }
+            public void requestFailed (Exception cause) {
+                listener.requestFailed(cause);
+            }
+        });
+    }
+    
+    /**
+     * Attempts to release the specified lock.  The supplied listener will receive the lock's
+     * owner (<code>null</code> if the lock was successfully released, or the node's name if
+     * the release was cancelled using {@link #reacquireLock}).
+     */
+    public void releaseLock (final Lock.Name name, final ResultListener<String> listener)
+    {
+        // make sure we actually hold the lock
+        Tuple<Boolean, String> result = queryLock(name, false);
+        if (!result.left) {
+            log.warning("Attempted to release lock in process of resolution [name=" + name + "].");
+        } else if (!_nodeName.equals(result.right)) {
+            log.warning("Attempted to release lock not owned [name=" + name + ", owner=" +
+                result.right + "].");
+        }
+        
+        // announce our desire to drop the lock
+        _nodeobj.setReleasingLock(name);
+        
+        // wait for all peers to agree
+        new LockResolutionListener(name, true) {
+            public void lockResolved (String owner) {
+                if (_acquiringLocks.contains(name)) {
+                    queryLock(name, listener);
+                    return;
+                } else if (owner == null) {
+                    _nodeobj.removeFromLocks(name);
+                } else if (!owner.equals(_nodeName)) {
+                    log.warning("Someone acquired the lock before we were done releasing it?! " +
+                        "[name=" + name + ", owner=" + owner + "].");
+                }
+                listener.requestCompleted(owner);
+            }
+        }.add();
+    }
+    
+    /**
+     * Reacquires a lock for which we have called {@link #releaseLock}, but have not yet received
+     * a response.
+     */
+    public void reacquireLock (final Lock.Name name, final ResultListener<String> listener)
+    {
+        // broadcast our desire to reacquire
+        _nodeobj.setAcquiringLock(name);
+        
+        // remember the name
+        _acquiringLocks.add(name);
+        
+        // wait for resolution
+        new LockResolutionListener(name, false) {
+            public void lockResolved (String owner) {
+                _acquiringLocks.remove(name);
+                if (!_nodeName.equals(owner)) {
+                    log.warning("Failed to reacquire lock? [name=" + name + ", owner=" +
+                        owner + "].");
+                }
+                listener.requestCompleted(owner);
+            }
+        }.add();
+    }
+    
+    /**
+     * Attempts to determine the owner of the specified lock, if any.
+     *
+     * @param listener a listener to receive the name of the lock's owner (or <code>null</code>
+     * for none) once any necessary resolution has been performed
+     */
+    public void queryLock (Lock.Name name, final ResultListener<String> listener)
+    {
+        Tuple<Boolean, String> result = queryLock(name, false);
+        if (result.left) {
+            listener.requestCompleted(result.right);
+        } else {
+            new LockResolutionListener(name, false) {
+                public void lockResolved (String owner) {
+                    listener.requestCompleted(owner);
+                }
+            }.add();
+        }
+    }
+    
     // documentation inherited from interface ClientManager.ClientObserver
     public void clientSessionDidStart (PresentsClient client)
     {
@@ -369,6 +487,53 @@ public class PeerManager
     }
 
     /**
+     * Continues the process of acquiring a lock once it has been established that the lock is
+     * free for the taking.
+     */
+    protected void continueAcquiringLock (
+        final Lock.Name name, final ResultListener<String> listener)
+    {
+        // announce our desire for the lock
+        _nodeobj.setAcquiringLock(name);
+        
+        // remember the name
+        _acquiringLocks.add(name);
+        
+        // wait for all other nodes to resolve before adding ourself to seal the deal
+        new LockResolutionListener(name, true) {
+            public void lockResolved (String owner) {
+                _acquiringLocks.remove(name);
+                if (_nodeName.equals(owner)) {
+                    _nodeobj.addToLocks(new Lock(name, _nodeName));
+                }
+                listener.requestCompleted(owner);
+            }
+        }.add();
+    }
+    
+    /**
+     * Attempts to determine the owner of the specified lock, if any.
+     *
+     * @param peersOnly if true, only check the peers' locks (that is, exclude this node from
+     * the search)
+     * @return a tuple containing as its left value a boolean indicating whether the lock's
+     * state has been resolved.  If the value is <code>true</code>, the right value contains
+     * the lock's owner (or <code>null</code> if the lock is free)
+     */
+    protected Tuple<Boolean, String> queryLock (Lock.Name name, boolean peersOnly)
+    {
+        Iterator<PeerNode> it = _peers.values().iterator();
+        Lock lock = (peersOnly && it.hasNext()) ?
+            it.next().nodeobj.locks.get(name) : _nodeobj.locks.get(name);
+        while (it.hasNext()) {
+            if (!ObjectUtil.equals(lock, it.next().nodeobj.locks.get(name))) {
+                return new Tuple<Boolean, String>(false, null);
+            }
+        }
+        return new Tuple<Boolean, String>(true, (lock == null) ? null : lock.getOwner());
+    }
+    
+    /**
      * Contains all runtime information for one of our peer nodes.
      */
     protected class PeerNode
@@ -464,7 +629,7 @@ public class PeerManager
         // documentation inherited from interface ClientObserver
         public void clientDidLogoff (Client client)
         {
-            // TODO: clean things up?
+            nodeobj.removeListener(this);
         }
 
         // documentation inherited from interface ClientObserver
@@ -477,8 +642,9 @@ public class PeerManager
         public void objectAvailable (NodeObject object)
         {
             nodeobj = object;
+            
+            // listen for lock and cache updates
             nodeobj.addListener(this);
-            // TODO: stuff!
         }
 
         // documentation inherited from interface Subscriber
@@ -491,17 +657,113 @@ public class PeerManager
         // documentation inherited from interface AttributeChangeListener
         public void attributeChanged (AttributeChangedEvent event)
         {
-            if (NodeObject.CACHE_DATA.equals(event.getName())) {
-                NodeObject.CacheData cd = (NodeObject.CacheData)event.getValue();
-                changedCacheData(cd.cache, cd.data);
+            String name = event.getName();
+            if (name.equals(NodeObject.ACQUIRING_LOCK)) {
+                if (_acquiringLocks.contains(nodeobj.acquiringLock) &&
+                    _nodeName.compareTo(_record.nodeName) < 0) {
+                    return; // this node has priority
+                }
+                Lock olock = _nodeobj.locks.get(nodeobj.acquiringLock),
+                    nlock = new Lock(nodeobj.acquiringLock, _record.nodeName);
+                if (olock == null) {
+                    _nodeobj.addToLocks(nlock);
+                } else if (_record.nodeName.compareTo(olock.getOwner()) < 0) {
+                    _nodeobj.updateLocks(nlock);
+                }
+            } else if (name.equals(NodeObject.RELEASING_LOCK)) {
+                Lock lock = _nodeobj.locks.get(nodeobj.releasingLock);
+                if (lock != null && lock.getOwner().equals(_record.nodeName)) {
+                    _nodeobj.removeFromLocks(nodeobj.releasingLock);
+                } else {
+                    log.warning("Node attempting to release lock not held? [node=" +
+                        _record.nodeName + ", name=" + nodeobj.releasingLock + ", lock=" +
+                        lock + "].");
+                }
+            } else if (name.equals(NodeObject.CACHE_DATA)) {
+                changedCacheData(nodeobj.cacheData.cache, nodeobj.cacheData.data);
             }
         }
-
+        
         protected NodeRecord _record;
         protected Client _client;
         protected long _lastConnectStamp;
     }
 
+    /**
+     * Listens to all {@link NodeObject}s (possibly including our own) to determine when the lock
+     * state has been agreed upon.
+     */
+    protected abstract class LockResolutionListener extends SetAdapter
+    {
+        public LockResolutionListener (Lock.Name name, boolean peersOnly)
+        {
+            _name = name;
+            _peersOnly = peersOnly;
+        }
+        
+        public void add ()
+        {
+            for (PeerNode peer : _peers.values()) {
+                peer.nodeobj.addListener(this);
+            }
+            if (!_peersOnly) {
+                _nodeobj.addListener(this);
+            }
+        }
+        
+        @Override // documentation inherited
+        public void entryAdded (EntryAddedEvent event)
+        {
+            if (event.getName().equals(NodeObject.LOCKS)) {
+                checkLockResolved();
+            }
+        }
+        
+        @Override // documentation inherited
+        public void entryRemoved (EntryRemovedEvent event)
+        {
+            if (event.getName().equals(NodeObject.LOCKS)) {
+                checkLockResolved();
+            }
+        }
+        
+        @Override // documentation inherited
+        public void entryUpdated (EntryUpdatedEvent event)
+        {
+            if (event.getName().equals(NodeObject.LOCKS)) {
+                checkLockResolved();
+            }
+        }
+        
+        protected void checkLockResolved ()
+        {
+            Tuple<Boolean, String> result = queryLock(_name, _peersOnly);
+            if (!result.left) {
+                return;
+            }
+            
+            lockResolved(result.right);
+            
+            for (PeerNode peer : _peers.values()) {
+                peer.nodeobj.removeListener(this);
+            }
+            if (!_peersOnly) {
+                _nodeobj.removeListener(this);    
+            }
+        }
+        
+        /**
+         * Called when the owner of the lock has been agreed upon.
+         */
+        protected abstract void lockResolved (String owner);
+        
+        /** The name of the lock. */
+        protected Lock.Name _name;
+        
+        /** If true, wait for all nodes except this one to agree. */
+        protected boolean _peersOnly;
+    }
+    
     protected String _nodeName, _hostName, _publicHostName, _sharedSecret;
     protected int _port;
     protected Invoker _invoker;
@@ -512,4 +774,7 @@ public class PeerManager
     /** Our stale cache observers. */
     protected HashMap<String, ObserverList<StaleCacheObserver>> _cacheobs =
         new HashMap<String, ObserverList<StaleCacheObserver>>();
+    
+    /** Contains the names of any locks we are currently trying to acquire. */
+    protected HashSet<Lock.Name> _acquiringLocks = new HashSet<Lock.Name>();
 }
