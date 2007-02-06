@@ -2,14 +2,13 @@ package {
 
 import flash.utils.getQualifiedClassName;
 
-import mx.logging.ILogger;
-import mx.logging.LogEventLevel;
+//import mx.logging.ILogger;
+//import mx.logging.LogEventLevel;
 
-import mx.logging.targets.TraceTarget;
+//import mx.logging.targets.TraceTarget;
 
 /**
- * A simple logging mechanism built on top of the standard mx logging
- * facilities.
+ * A simple logging mechanism.
  *
  * This class need not be imported.
  *
@@ -45,7 +44,7 @@ public class Log
     {
         // let's just use the full classname
         var path :String = getQualifiedClassName(spec).replace("::", ".");
-        return new Log(mx.logging.Log.getLogger(path));
+        return new Log(path);
     }
 
     /**
@@ -54,7 +53,7 @@ public class Log
      */
     public static function testing (... params) :void
     {
-        var log :ILogger = mx.logging.Log.getLogger("testing");
+        var log :Log = new Log("testing");
         log.debug.apply(log, params);
     }
 
@@ -70,9 +69,9 @@ public class Log
     /**
      * @private
      */
-    public function Log (dest :ILogger)
+    public function Log (spec :String)
     {
-        _dest = dest;
+        _spec = spec;
     }
 
     /**
@@ -80,7 +79,7 @@ public class Log
      */
     public function debug (... messages) :void
     {
-        _dest.debug.apply(_dest, messages);
+        doLog("[debug]", messages);
     }
 
     /**
@@ -88,7 +87,7 @@ public class Log
      */
     public function info (... messages) :void
     {
-        _dest.info.apply(_dest, messages);
+        doLog("[INFO]", messages);
     }
 
     /**
@@ -96,7 +95,7 @@ public class Log
      */
     public function warning (... messages) :void
     {
-        _dest.warn.apply(_dest, messages);
+        doLog("[WARNING]", messages);
     }
 
     /**
@@ -104,26 +103,18 @@ public class Log
      */
     public function logStackTrace (error :Error) :void
     {
-        _dest.warn(error.getStackTrace());
+        warning(error.getStackTrace());
     }
 
-    /**
-     * Our static (class) initializer.
-     */
-    private static function staticInit () :void
+    protected function doLog (level :String, messages :Array) :void
     {
-        var targ :TraceTarget = new TraceTarget();
-        targ.includeCategory = targ.includeDate = targ.includeLevel =
-                targ.includeTime = true;
-        targ.filters = ["*"]; // TODO
-        targ.level = LogEventLevel.DEBUG;
-        mx.logging.Log.addTarget(targ);
+        // TODO: better Date formatting?
+        messages.unshift(new Date().toLocaleTimeString(), level, _spec);
+        trace.apply(null, messages);
     }
 
-    staticInit(); // call the static initializer
-
-    /** Our true destination. */
-    protected var _dest :ILogger;
+    /** Our log specification. */
+    protected var _spec :String;
 }
 
 }
