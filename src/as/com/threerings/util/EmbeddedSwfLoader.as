@@ -29,8 +29,8 @@ public class EmbeddedSwfLoader extends EventDispatcher
     public function EmbeddedSwfLoader ()
     {
         _loader = new Loader();
-        _loader.contentLoaderInfo.addEventListener(Event.COMPLETE, completeHandler);
-        _loader.contentLoaderInfo.addEventListener(IOErrorEvent.IO_ERROR, ioErrorHandler);
+        _loader.contentLoaderInfo.addEventListener(Event.COMPLETE, dispatchEvent);
+        _loader.contentLoaderInfo.addEventListener(IOErrorEvent.IO_ERROR, dispatchEvent);
     }
 
     /**
@@ -105,16 +105,6 @@ public class EmbeddedSwfLoader extends EventDispatcher
     {
         var loaderInfo :LoaderInfo = _loader.contentLoaderInfo;
         return !(loaderInfo.bytesTotal == 0 || loaderInfo.bytesLoaded != loaderInfo.bytesTotal);
-    }
-
-    protected function completeHandler (e :Event) :void
-    {
-        dispatchEvent(e);
-    }
-
-    protected function ioErrorHandler (e :Event) :void
-    {
-        dispatchEvent(e);
     }
 
     protected var _loader :Loader;
