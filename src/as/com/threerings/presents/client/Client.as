@@ -7,8 +7,7 @@ import flash.events.TimerEvent;
 
 import flash.utils.Timer;
 
-import mx.core.Application;
-
+import com.threerings.util.MethodQueue;
 import com.threerings.util.ObserverList;
 
 import com.threerings.presents.data.ClientObject;
@@ -28,9 +27,11 @@ public class Client extends EventDispatcher
 
     private static const log :Log = Log.getLog(Client);
 
-    public function Client (creds :Credentials)
+    public function Client (creds :Credentials, stage :Stage)
     {
         _creds = creds;
+        _stage = stage;
+        MethodQueue.setStage(stage);
     }
 
     /**
@@ -97,7 +98,7 @@ public class Client extends EventDispatcher
 
     public function callLater (fn :Function, args :Array = null) :void
     {
-        Application.application.callLater(fn, args);
+        MethodQueue.callLater(fn, args);
     }
 
     /**
@@ -105,7 +106,7 @@ public class Client extends EventDispatcher
      */
     public function getStage () :Stage
     {
-        return Application.application.stage;
+        return _stage;
     }
 
     public function getHostname () :String
@@ -370,6 +371,9 @@ public class Client extends EventDispatcher
 
     /** The credentials we used to authenticate with the server. */
     protected var _creds :Credentials;
+
+    /** The stage upon which our client runs. */
+    protected var _stage :Stage;
 
     /** The version string reported to the server at auth time. */
     protected var _version :String = "";

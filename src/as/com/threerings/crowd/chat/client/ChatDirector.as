@@ -21,8 +21,6 @@
 
 package com.threerings.crowd.chat.client {
 
-import mx.collections.ArrayCollection;
-
 import com.threerings.util.ArrayUtil;
 import com.threerings.util.Hashtable;
 import com.threerings.util.Map;
