@@ -110,16 +110,18 @@ public class Random
         return (mh << 16) | (ml & 0xffff);
     }
 
-    protected const N :int = 624;
-    protected const M :int = 397;
-    protected const UPPER_MASK :uint = 0x80000000;
-    protected const LOWER_MASK :uint = 0x7fffffff;
-    protected const MATRIX_A :uint   = 0x9908b0df;
     protected var x :Array;
     protected var p :int;
     protected var q :int;
     protected var r :int;
 
     protected static var seedUniquifier :uint = 2812526361;
+
+    protected static const N :int = 624;
+    protected static const M :int = 397;
+    protected static const UPPER_MASK :uint = 0x80000000;
+    protected static const LOWER_MASK :uint = 0x7fffffff;
+    protected static const MATRIX_A :uint   = 0x9908b0df;
+
 }
 }
