@@ -305,6 +305,11 @@ public class MediaContainer extends Sprite
         return 1;
     }
 
+    override public function toString () :String
+    {
+        return "MediaContainer[url=" + _url + "]";
+    }
+
     /**
      * Return the LoaderContext that should be used to load the media
      * at the specified url.
