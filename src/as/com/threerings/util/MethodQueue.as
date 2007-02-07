@@ -66,12 +66,14 @@ public class MethodQueue
 
         // safely call each function
         for each (var arr :Array in methods) {
+            var fn :Function = (arr[0] as Function);
+            var args :Array = (arr[1] as Array);
             try {
-                Function(arr[0]).apply(null, (arr[1] as Array));
+                fn.apply(null, args);
 
             } catch (e :Error) {
                 Log.getLog(MethodQueue).warning("Error calling deferred method " +
-                    "[e=" + e + ", fn=" + arr[0] + "].");
+                    "[e=" + e + ", fn=" + fn + ", args=" + args + "].");
             }
         }
 
