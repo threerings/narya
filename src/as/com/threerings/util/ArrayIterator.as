@@ -40,6 +40,7 @@ public class ArrayIterator
         } else {
             _arr.splice(_lastIndex, 1);
             _lastIndex = -1;
+            _index--; // since _lastIndex is always before _index
         }
     }
 
