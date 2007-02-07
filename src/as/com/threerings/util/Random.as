@@ -1,6 +1,14 @@
-package com.threerings.util {
+package com.threerings.util
+{
 
-// A simple psuedo random number generator that allows seeding.
+/**
+ * A seedable pseudorandom generator of the Mersenne Twister variety, with an extremely
+ * long period. Note that this is not a cryptographically sound generator.
+ * This implementation is based on one found at --
+ *    http://onegame.bona.jp/tips/mersennetwister.html
+ * An explanation of the algorithm can be found at --
+ *    http://en.wikipedia.org/wiki/Mersenne_twister
+ */
 public class Random
 {
     /**
@@ -14,6 +22,7 @@ public class Random
         if (seed == 0) {
             seed = uint(seedUniquifier++ + uint(Math.random() * 4294967295));
         }
+        x = new Array();
         setSeed(seed);
     }
 
@@ -23,7 +32,14 @@ public class Random
      */
     public function setSeed (seed :uint) :void
     {
-        seed = uint(seed ^ multiplier);
+        x[0] = seed;
+        for (var i :int = 1; i < N; i++) {
+            x[i] = imul(1812433253, x[i - 1] ^ (x[i - 1] >>> 30)) + i;
+            x[i] &= 0xffffffff;
+        }
+        p = 0;
+        q = 1;
+        r = M;
     }
 
     /**
@@ -39,6 +55,8 @@ public class Random
 
         if (n == 0) return int(next(32));
 
+        // Eyeball Sun's documenation of java.util.Random for an explanation
+        // of this while loop.
         var bits :int, val :int;
         do {
             bits = int(next(31));
@@ -60,18 +78,48 @@ public class Random
      */
     public function nextNumber () :Number
     {
-        return Number(next(32) / (1 << 32));
+        return next(32) / 4294967296;
     }
 
-    protected function next (bits :int) :uint
+    protected function next (bits: int) :uint
     {
-        seed = uint(seed * multiplier + addend)
-        return uint(seed >>> (32 - bits));
+        var y :uint = (x[p] & UPPER_MASK) | (x[q] & LOWER_MASK);
+        x[p] = x[r] ^ (y >>> 1) ^ ((y & 1) * MATRIX_A);
+        y = x[p];
+
+        if (++p == N) { p = 0; }
+        if (++q == N) { q = 0; }
+        if (++r == N) { r = 0; }
+
+        y ^= (y >>> 11);
+        y ^= (y << 7) & 0x9d2c5680;
+        y ^= (y << 15) & 0xefc60000;
+        y ^= (y >>> 18);
+
+        return y >>> (32 - bits);
     }
 
-    protected var seed :uint;
+    protected function imul (a: Number, b: Number): Number {
+        var al :Number = a & 0xffff;
+        var ah :Number = a >>> 16;
+        var bl :Number = b & 0xffff;
+        var bh :Number = b >>> 16;
+        var ml :Number = al * bl;
+        var mh :Number = ((((ml >>> 16) + al * bh) & 0xffff) + ah * bl) & 0xffff;
+
+        return (mh << 16) | (ml & 0xffff);
+    }
+
+    protected const N :int = 624;
+    protected const M :int = 397;
+    protected const UPPER_MASK :uint = 0x80000000;
+    protected const LOWER_MASK :uint = 0x7fffffff;
+    protected const MATRIX_A :uint   = 0x9908b0df;
+    protected var x :Array;
+    protected var p :int;
+    protected var q :int;
+    protected var r :int;
+
     protected static var seedUniquifier :uint = 2812526361;
-    protected static const multiplier :uint = 452871439;
-    protected static const addend :uint = 11;
 }
 }
