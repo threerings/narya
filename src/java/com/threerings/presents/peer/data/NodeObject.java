@@ -21,6 +21,9 @@
 
 package com.threerings.presents.peer.data;
 
+import com.samskivert.util.ObjectUtil;
+
+import com.threerings.io.SimpleStreamableObject;
 import com.threerings.io.Streamable;
 
 import com.threerings.presents.dobj.DObject;
@@ -32,6 +35,9 @@ import com.threerings.presents.dobj.DSet;
 public class NodeObject extends DObject
 {
     // AUTO-GENERATED: FIELDS START
+    /** The field name of the <code>peerService</code> field. */
+    public static final String PEER_SERVICE = "peerService";
+
     /** The field name of the <code>clients</code> field. */
     public static final String CLIENTS = "clients";
 
@@ -48,8 +54,60 @@ public class NodeObject extends DObject
     public static final String CACHE_DATA = "cacheData";
     // AUTO-GENERATED: FIELDS END
 
+    /** Identifies a locked resource. */
+    public static class Lock extends SimpleStreamableObject
+        implements Comparable, DSet.Entry
+    {
+        /** The resource type.  Only resources of the same type will have their ids compared. */
+        public String type;
+        
+        /** The resource identifier, which can be <code>null</code> for singleton resources. */
+        public Comparable id;
+        
+        public Lock ()
+        {
+        }
+        
+        public Lock (String type, Comparable id)
+        {
+            this.type = type;
+            this.id = id;
+        }
+        
+        // documentation inherited from interface Comparable
+        public int compareTo (Object other)
+        {
+            Lock olock = (Lock)other;
+            int v1 = type.compareTo(olock.type);
+            if (v1 != 0 || id == null) {
+                return v1;
+            }
+            @SuppressWarnings("unchecked") int v2 = id.compareTo(olock.id);
+            return v2;
+        }
+        
+        // documentation inherited from interface DSet.Entry
+        public Comparable getKey ()
+        {
+            return this;
+        }
+        
+        @Override // documentation inherited
+        public int hashCode ()
+        {
+            return type.hashCode() + (id == null ? 0 : id.hashCode());
+        }
+        
+        @Override // documentation inherited
+        public boolean equals (Object other)
+        {
+            Lock olock = (Lock)other;
+            return type.equals(olock.type) && ObjectUtil.equals(id, olock.id);
+        }
+    }
+    
     /** Used for informing peers of changes to persistent data. */
-    public static class CacheData implements Streamable
+    public static class CacheData extends SimpleStreamableObject
     {
         /** The cache that should be purged. */
         public String cache;
@@ -68,23 +126,41 @@ public class NodeObject extends DObject
         }
     }
 
+    /** The service used to make requests of the node. */
+    public PeerMarshaller peerService;
+    
     /** Contains information on all clients connected to this node. */
     public DSet<ClientInfo> clients = new DSet<ClientInfo>();
 
-    /** This node's view of the peer lock set.  A lock is acquired only when it has been added to
-     * all peers' sets, and is released only when it has been removed from all peers' sets. */
+    /** The set of locks held by this node. */
     public DSet<Lock> locks = new DSet<Lock>();
 
     /** Used to broadcast a node's desire to acquire a lock. */
-    public Lock.Name acquiringLock;
+    public Lock acquiringLock;
     
     /** Used to broadcast a node's desire to release a lock. */
-    public Lock.Name releasingLock;
+    public Lock releasingLock;
     
     /** A field we use to broadcast changes to possible cached data. */
     public CacheData cacheData;
 
     // AUTO-GENERATED: METHODS START
+    /**
+     * Requests that the <code>peerService</code> field be set to the
+     * specified value. The local value will be updated immediately and an
+     * event will be propagated through the system to notify all listeners
+     * that the attribute did change. Proxied copies of this object (on
+     * clients) will apply the value change when they received the
+     * attribute changed notification.
+     */
+    public void setPeerService (PeerMarshaller value)
+    {
+        PeerMarshaller ovalue = this.peerService;
+        requestAttributeChange(
+            PEER_SERVICE, value, ovalue);
+        this.peerService = value;
+    }
+
     /**
      * Requests that the specified entry be added to the
      * <code>clients</code> set. The set will not change until the event is
@@ -138,7 +214,7 @@ public class NodeObject extends DObject
      * <code>locks</code> set. The set will not change until the event is
      * actually propagated through the system.
      */
-    public void addToLocks (Lock elem)
+    public void addToLocks (NodeObject.Lock elem)
     {
         requestEntryAdd(LOCKS, locks, elem);
     }
@@ -158,7 +234,7 @@ public class NodeObject extends DObject
      * <code>locks</code> set. The set will not change until the event is
      * actually propagated through the system.
      */
-    public void updateLocks (Lock elem)
+    public void updateLocks (NodeObject.Lock elem)
     {
         requestEntryUpdate(LOCKS, locks, elem);
     }
@@ -173,10 +249,10 @@ public class NodeObject extends DObject
      * change. Proxied copies of this object (on clients) will apply the
      * value change when they received the attribute changed notification.
      */
-    public void setLocks (DSet<com.threerings.presents.peer.data.Lock> value)
+    public void setLocks (DSet<com.threerings.presents.peer.data.NodeObject.Lock> value)
     {
         requestAttributeChange(LOCKS, value, this.locks);
-        @SuppressWarnings("unchecked") DSet<com.threerings.presents.peer.data.Lock> clone =
+        @SuppressWarnings("unchecked") DSet<com.threerings.presents.peer.data.NodeObject.Lock> clone =
             (value == null) ? null : value.typedClone();
         this.locks = clone;
     }
@@ -189,9 +265,9 @@ public class NodeObject extends DObject
      * clients) will apply the value change when they received the
      * attribute changed notification.
      */
-    public void setAcquiringLock (Lock.Name value)
+    public void setAcquiringLock (NodeObject.Lock value)
     {
-        Lock.Name ovalue = this.acquiringLock;
+        NodeObject.Lock ovalue = this.acquiringLock;
         requestAttributeChange(
             ACQUIRING_LOCK, value, ovalue);
         this.acquiringLock = value;
@@ -205,9 +281,9 @@ public class NodeObject extends DObject
      * clients) will apply the value change when they received the
      * attribute changed notification.
      */
-    public void setReleasingLock (Lock.Name value)
+    public void setReleasingLock (NodeObject.Lock value)
     {
-        Lock.Name ovalue = this.releasingLock;
+        NodeObject.Lock ovalue = this.releasingLock;
         requestAttributeChange(
             RELEASING_LOCK, value, ovalue);
         this.releasingLock = value;
