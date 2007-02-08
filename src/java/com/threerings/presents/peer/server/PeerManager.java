@@ -43,8 +43,9 @@ import com.threerings.util.Name;
 import com.threerings.presents.client.Client;
 import com.threerings.presents.client.ClientObserver;
 import com.threerings.presents.data.ClientObject;
-import com.threerings.presents.dobj.AttributeChangedEvent;
 import com.threerings.presents.dobj.AttributeChangeListener;
+import com.threerings.presents.dobj.AttributeChangedEvent;
+import com.threerings.presents.dobj.DObject;
 import com.threerings.presents.dobj.EntryAddedEvent;
 import com.threerings.presents.dobj.EntryRemovedEvent;
 import com.threerings.presents.dobj.EntryUpdatedEvent;
@@ -161,7 +162,7 @@ public class PeerManager
         _nodeobj.setPeerService(
             (PeerMarshaller)PresentsServer.invmgr.registerDispatcher(
                 new PeerDispatcher(this), false));
-                
+
         // register ourselves as a client observer
         PresentsServer.clmgr.addClientObserver(this);
 
@@ -172,7 +173,7 @@ public class PeerManager
                 refreshPeers();
             }
         }.schedule(5000L, 60*1000L);
-        
+
         // give derived classes an easy way to get in on the init action
         didInit();
     }
@@ -187,7 +188,7 @@ public class PeerManager
         if (_nodeobj != null) {
             PresentsServer.invmgr.clearDispatcher(_nodeobj.peerService);
         }
-        
+
         // clear out our client observer registration
         PresentsServer.clmgr.removeClientObserver(this);
 
@@ -207,15 +208,83 @@ public class PeerManager
     }
 
     /**
+     * Initiates a proxy on an object that is managed by the specified peer. The object will be
+     * proxied into this server's distributed object space and its local oid reported back to the
+     * supplied result listener.
+     *
+     * <p> Note that proxy requests <em>do not</em> stack like subscription requests. Only one
+     * entity must issue a request to proxy an object and that entity must be responsible for
+     * releasing the proxy when it knows that there are no longer any local subscribers to the
+     * object.
+     */
+    public <T extends DObject> void proxyRemoteObject (
+        String nodeName, int remoteOid, final ResultListener<Integer> listener)
+    {
+        final Client peer = getPeerClient(nodeName);
+        if (peer == null) {
+            String errmsg = "Have no connection to peer [node=" + nodeName + "].";
+            listener.requestFailed(new ObjectAccessException(errmsg));
+            return;
+        }
+
+        final Tuple<String,Integer> key = new Tuple<String,Integer>(nodeName, remoteOid);
+        if (_proxies.containsKey(key)) {
+            String errmsg = "Cannot proxy already proxied object [key=" + key + "].";
+            listener.requestFailed(new ObjectAccessException(errmsg));
+            return;
+        }
+
+        // issue a request to subscribe to the remote object
+        peer.getDObjectManager().subscribeToObject(remoteOid, new Subscriber<T>() {
+            public void objectAvailable (T object) {
+                // make a note of this proxy mapping
+                _proxies.put(key, new Tuple<Subscriber<?>,DObject>(this, object));
+                // map the object into our local oid space
+                PresentsServer.omgr.registerProxyObject(object, peer.getDObjectManager());
+                // then tell the caller about the (now remapped) oid
+                listener.requestCompleted(object.getOid());
+            }
+            public void requestFailed (int oid, ObjectAccessException cause) {
+                listener.requestFailed(cause);
+            }
+        });
+    }
+
+    /**
+     * Unsubscribes from and clears a proxied object. The caller must be sure that there are no
+     * remaining subscribers to the object on this local server.
+     */
+    public void unproxyRemoteObject (String nodeName, int remoteOid)
+    {
+        Tuple<String,Integer> key = new Tuple<String,Integer>(nodeName, remoteOid);
+        Tuple<Subscriber<?>,DObject> bits = _proxies.remove(key);
+        if (bits == null) {
+            log.warning("Requested to clear unknown proxy [key=" + key + "].");
+            return;
+        }
+
+        // clear out the local object manager's proxy mapping
+        PresentsServer.omgr.clearProxyObject(remoteOid, bits.right);
+
+        // now unsubscribe from the object on our peer
+        final Client peer = getPeerClient(nodeName);
+        if (peer == null) {
+            log.warning("Unable to unsubscribe from proxy, missing peer [key=" + key + "].");
+            return;
+        }
+        peer.getDObjectManager().unsubscribeFromObject(remoteOid, bits.left);
+    }
+
+    /**
      * Returns the client object representing the connection to the named peer, or
      * <code>null</code> if we are not currently connected to it.
      */
     public Client getPeerClient (String nodeName)
     {
         PeerNode peer = _peers.get(nodeName);
-        return (peer == null) ? null : peer.getClient(); 
+        return (peer == null) ? null : peer.getClient();
     }
-    
+
     /**
      * Acquires a lock on a resource shared amongst this node's peers.  If the lock
      * is successfully acquired, the supplied listener will receive this node's name.
@@ -238,7 +307,7 @@ public class PeerManager
             }
         });
     }
-    
+
     /**
      * Releases a lock.  This can be cancelled using {@link #reacquireLock}, in which case the
      * passed listener will receive this node's name as opposed to <code>null</code>, which
@@ -264,7 +333,7 @@ public class PeerManager
             }
         });
     }
-    
+
     /**
      * Reacquires a lock after a call to {@link #releaseLock} but before the result listener
      * supplied to that method has been notified with the result of the action.  The result
@@ -282,16 +351,16 @@ public class PeerManager
                 handler + "].");
             return;
         }
-        
+
         // perform an update to let other nodes know that we're reacquiring
         _nodeobj.updateLocks(lock);
-        
+
         // cancel the handler and report to any listeners
         _locks.remove(lock);
         handler.cancel();
         handler.listeners.requestCompleted(_nodeName);
     }
-    
+
     /**
      * Determines the owner of the specified lock, waiting for any resolution to complete before
      * notifying the supplied listener.
@@ -304,11 +373,11 @@ public class PeerManager
             handler.listeners.add(listener);
             return;
         }
-        
+
         // otherwise, return its present value
         listener.requestCompleted(queryLock(lock));
     }
-    
+
     /**
      * Finds the owner of the specified lock (if any) among this node and its peers.  This answer
      * is not definitive, as the lock may be in the process of resolving.
@@ -319,7 +388,7 @@ public class PeerManager
         if (_nodeobj.locks.contains(lock)) {
             return _nodeName;
         }
-        
+
         // then in our peers
         for (PeerNode peer : _peers.values()) {
             if (peer.nodeobj.locks.contains(lock)) {
@@ -328,7 +397,7 @@ public class PeerManager
         }
         return null;
     }
-    
+
     // documentation inherited from interface PeerProvider
     public void ratifyLockAction (ClientObject caller, Lock lock, boolean acquire)
     {
@@ -340,7 +409,7 @@ public class PeerManager
             // allowed another to take priority
         }
     }
-    
+
     // documentation inherited from interface ClientManager.ClientObserver
     public void clientSessionDidStart (PresentsClient client)
     {
@@ -637,7 +706,7 @@ public class PeerManager
         public void objectAvailable (NodeObject object)
         {
             nodeobj = object;
-            
+
             // listen for lock and cache updates
             nodeobj.addListener(this);
         }
@@ -675,7 +744,7 @@ public class PeerManager
                     handler.listeners.addAll(olisteners);
                 }
                 _locks.put(lock, handler);
-                
+
             } else if (name.equals(NodeObject.RELEASING_LOCK)) {
                 Lock lock = nodeobj.releasingLock;
                 LockHandler handler = _locks.get(lock);
@@ -685,12 +754,12 @@ public class PeerManager
                     log.warning("Received request to release resolving lock [node=" +
                         _record.nodeName + ", handler=" + handler + "].");
                 }
-                
+
             } else if (name.equals(NodeObject.CACHE_DATA)) {
                 changedCacheData(nodeobj.cacheData.cache, nodeobj.cacheData.data);
             }
         }
-        
+
         protected NodeRecord _record;
         protected Client _client;
         protected long _lastConnectStamp;
@@ -704,7 +773,7 @@ public class PeerManager
     {
         /** Listeners waiting for resolution. */
         public ResultListenerList<String> listeners = new ResultListenerList<String>();
-        
+
         /**
          * Creates a handler to acquire or release a lock for this node.
          */
@@ -713,17 +782,17 @@ public class PeerManager
             _lock = lock;
             _acquire = acquire;
             listeners.add(listener);
-            
+
             // signal our desire to acquire or release the lock
             if (acquire) {
                 _nodeobj.setAcquiringLock(lock);
             } else {
                 _nodeobj.setReleasingLock(lock);
             }
-            
+
             // find out exactly how many responses we need
             _remaining = _peers.size();
-            
+
             // schedule a timeout to act if something goes wrong
             (_timeout = new Interval(PresentsServer.omgr) {
                 public void expired () {
@@ -733,7 +802,7 @@ public class PeerManager
                 }
             }).schedule(LOCK_TIMEOUT);
         }
-        
+
         /**
          * Creates a handle that tracks another node's acquisition or release of a lock.
          */
@@ -742,24 +811,24 @@ public class PeerManager
             _peer = peer;
             _lock = lock;
             _acquire = acquire;
-            
+
             // ratify the action
             peer.nodeobj.peerService.ratifyLockAction(peer.getClient(), lock, acquire);
-            
+
             // listen for the act to take place
             peer.nodeobj.addListener(this);
         }
-        
+
         public String getNodeName ()
         {
             return (_peer == null) ? _nodeName : _peer._record.nodeName;
         }
-        
+
         public boolean isAcquiring ()
         {
             return _acquire;
         }
-        
+
         public void ratify (boolean acquire)
         {
             if (_acquire == acquire && --_remaining == 0) {
@@ -767,7 +836,7 @@ public class PeerManager
                 activate();
             }
         }
-        
+
         public void cancel ()
         {
             if (_peer != null) {
@@ -776,7 +845,7 @@ public class PeerManager
                 _timeout.cancel();
             }
         }
-        
+
         // documentation inherited from interface SetListener
         public void entryAdded (EntryAddedEvent event)
         {
@@ -785,7 +854,7 @@ public class PeerManager
                 wasActivated(_peer._record.nodeName);
             }
         }
-        
+
         // documentation inherited from interface SetListener
         public void entryRemoved (EntryRemovedEvent event)
         {
@@ -794,7 +863,7 @@ public class PeerManager
                 wasActivated(null);
             }
         }
-        
+
         // documentation inherited from interface SetListener
         public void entryUpdated (EntryUpdatedEvent event)
         {
@@ -803,20 +872,20 @@ public class PeerManager
                 wasActivated(_peer._record.nodeName);
             }
         }
-        
+
         // documentation inherited from interface ObjectDeathListener
         public void objectDestroyed (ObjectDestroyedEvent event)
         {
             _locks.remove(_lock);
             listeners.requestCompleted(null);
         }
-        
+
         @Override // documentation inherited
         public String toString ()
         {
             return "[node=" + getNodeName() + ", lock=" + _lock + ", acquire=" + _acquire + "]";
         }
-        
+
         protected void activate ()
         {
             _locks.remove(_lock);
@@ -828,21 +897,21 @@ public class PeerManager
                 listeners.requestCompleted(null);
             }
         }
-        
+
         protected void wasActivated (String owner)
         {
             _peer.nodeobj.removeListener(this);
             _locks.remove(_lock);
             listeners.requestCompleted(owner);
         }
-        
+
         protected PeerNode _peer;
         protected Lock _lock;
         protected boolean _acquire;
         protected int _remaining;
         protected Interval _timeout;
     }
-    
+
     protected String _nodeName, _hostName, _publicHostName, _sharedSecret;
     protected int _port;
     protected Invoker _invoker;
@@ -850,13 +919,17 @@ public class PeerManager
     protected NodeObject _nodeobj;
     protected HashMap<String,PeerNode> _peers = new HashMap<String,PeerNode>();
 
+    /** Contains a mapping of proxied objects to subscriber instances. */
+    protected HashMap<Tuple<String,Integer>,Tuple<Subscriber<?>,DObject>> _proxies =
+        new HashMap<Tuple<String,Integer>,Tuple<Subscriber<?>,DObject>>();
+
     /** Our stale cache observers. */
     protected HashMap<String, ObserverList<StaleCacheObserver>> _cacheobs =
         new HashMap<String, ObserverList<StaleCacheObserver>>();
-    
+
     /** Locks in the process of resolution. */
     protected HashMap<Lock, LockHandler> _locks = new HashMap<Lock, LockHandler>();
-    
+
     /** We wait this long for peer ratification to complete before acquiring/releasing the lock. */
     protected static final long LOCK_TIMEOUT = 5000L;
 }

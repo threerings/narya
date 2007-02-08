@@ -120,6 +120,19 @@ public class PresentsDObjectMgr
         _proxies.put(origObjectId, new ProxyReference(object.getOid(), omgr));
     }
 
+    /**
+     * Clears a proxy object reference from our local distributed object space. This merely removes
+     * it from our internal tables, the caller is responsible for coordinating the deregistration
+     * of the object with the proxying client.
+     */
+    public void clearProxyObject (int origObjectId, DObject object)
+    {
+        if (_proxies.remove(origObjectId) == null) {
+            log.warning("Missing proxy mapping for cleared proxy [ooid=" + origObjectId + "].");
+        }
+        _objects.remove(object.getOid());
+    }
+
     // from interface DObjectManager
     public boolean isManager (DObject object)
     {
