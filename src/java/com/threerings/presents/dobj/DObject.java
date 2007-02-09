@@ -39,34 +39,28 @@ import com.threerings.util.TrackedObject;
 import com.threerings.presents.Log;
 
 /**
- * The distributed object forms the foundation of the Presents system. All
- * information shared among users of the system is done via distributed
- * objects. A distributed object has a set of listeners. These listeners
- * have access to the object or a proxy of the object and therefore have
+ * The distributed object forms the foundation of the Presents system. All information shared among
+ * users of the system is done via distributed objects. A distributed object has a set of
+ * listeners. These listeners have access to the object or a proxy of the object and therefore have
  * access to the data stored in the object's members at all times.
  *
- * <p> Additionally, an object as a set of subscribers. Subscribers manage
- * the lifespan of the object; while a subscriber is subscribed, the
- * listeners registered with an object will be notified of events. When
- * the subscriber unsubscribes, the object becomes non-live and the
- * listeners are no longer notified. <em>Note:</em> on the server, object
- * subscription is merely a formality as all objects remain live all the
- * time, so <em>do not</em> depend on event notifications ceasing when a
- * subscriber has relinquished its subscription. Always unregister all
+ * <p> Additionally, an object as a set of subscribers. Subscribers manage the lifespan of the
+ * object; while a subscriber is subscribed, the listeners registered with an object will be
+ * notified of events. When the subscriber unsubscribes, the object becomes non-live and the
+ * listeners are no longer notified. <em>Note:</em> on the server, object subscription is merely a
+ * formality as all objects remain live all the time, so <em>do not</em> depend on event
+ * notifications ceasing when a subscriber has relinquished its subscription. Always unregister all
  * listeners when they no longer need to hear from an object.
  *
- * <p> When there is any change to the the object's fields data, an event
- * is generated which is dispatched to all listeners of the object,
- * notifying them of that change and effecting that change to the copy of
- * the object maintained at each client. In this way, both a respository
- * of shared information and a mechanism for asynchronous notification are
- * made available as a fundamental application building blocks.
+ * <p> When there is any change to the the object's fields data, an event is generated which is
+ * dispatched to all listeners of the object, notifying them of that change and effecting that
+ * change to the copy of the object maintained at each client. In this way, both a respository of
+ * shared information and a mechanism for asynchronous notification are made available as a
+ * fundamental application building blocks.
  *
- * <p> To define what information is shared, an application creates a
- * distributed object declaration which is much like a class declaration
- * except that it is transformed into a proper derived class of
- * <code>DObject</code> by a script. A declaration looks something like
- * this:
+ * <p> To define what information is shared, an application creates a distributed object
+ * declaration which is much like a class declaration except that it is transformed into a proper
+ * derived class of <code>DObject</code> by a script. A declaration looks something like this:
  *
  * <pre>
  * public dclass RoomObject
@@ -108,11 +102,10 @@ import com.threerings.presents.Log;
  * }
  * </pre>
  *
- * These method calls on the actual distributed object will result in the
- * proper attribute change events being generated and dispatched.
+ * These method calls on the actual distributed object will result in the proper attribute change
+ * events being generated and dispatched.
  *
- * <p> Note that distributed object fields can be any of the following set
- * of primitive types:
+ * <p> Note that distributed object fields can be any of the following set of primitive types:
  *
  * <code><pre>
  * boolean, byte, short, int, long, float, double
@@ -136,8 +129,7 @@ public class DObject
     }
 
     /**
-     * Returns the object id of this object. All objects in the system
-     * have a unique object id.
+     * Returns the object id of this object. All objects in the system have a unique object id.
      */
     public int getOid ()
     {
@@ -145,9 +137,8 @@ public class DObject
     }
 
     /**
-     * Returns the dobject manager under the auspices of which this object
-     * operates. This could be <code>null</code> if the object is not
-     * active.
+     * Returns the dobject manager under the auspices of which this object operates. This could be
+     * <code>null</code> if the object is not active.
      */
     public DObjectManager getManager ()
     {
@@ -155,11 +146,10 @@ public class DObject
     }
 
     /**
-     * Don't call this function! Go through the distributed object manager
-     * instead to ensure that everything is done on the proper thread.
-     * This function can only safely be called directly when you know you
-     * are operating on the omgr thread (you are in the middle of a call
-     * to <code>objectAvailable</code> or to a listener callback).
+     * Don't call this function! Go through the distributed object manager instead to ensure that
+     * everything is done on the proper thread.  This function can only safely be called directly
+     * when you know you are operating on the omgr thread (you are in the middle of a call to
+     * <code>objectAvailable</code> or to a listener callback).
      *
      * @see DObjectManager#subscribeToObject
      */
@@ -173,28 +163,26 @@ public class DObject
             _scount++;
 
         } else {
-            Log.warning("Refusing subscriber that's already in the list " +
-                        "[dobj=" + which() + ", subscriber=" + sub + "]");
+            Log.warning("Refusing subscriber that's already in the list [dobj=" + which() +
+                        ", subscriber=" + sub + "]");
             Thread.dumpStack();
         }
     }
 
     /**
-     * Don't call this function! Go through the distributed object manager
-     * instead to ensure that everything is done on the proper thread.
-     * This function can only safely be called directly when you know you
-     * are operating on the omgr thread (you are in the middle of a call
-     * to <code>objectAvailable</code> or to a listener callback).
+     * Don't call this function! Go through the distributed object manager instead to ensure that
+     * everything is done on the proper thread.  This function can only safely be called directly
+     * when you know you are operating on the omgr thread (you are in the middle of a call to
+     * <code>objectAvailable</code> or to a listener callback).
      *
      * @see DObjectManager#unsubscribeFromObject
      */
     public void removeSubscriber (Subscriber sub)
     {
         if (ListUtil.clearRef(_subs, sub) != null) {
-            // if we removed something, check to see if we just removed
-            // the last subscriber from our list; we also want to be sure
-            // that we're still active otherwise there's no need to notify
-            // our objmgr because we don't have one
+            // if we removed something, check to see if we just removed the last subscriber from
+            // our list; we also want to be sure that we're still active otherwise there's no need
+            // to notify our objmgr because we don't have one
             if (--_scount == 0 && _omgr != null) {
                 _omgr.removedLastSubscriber(this, _deathWish);
             }
@@ -202,8 +190,8 @@ public class DObject
     }
 
     /**
-     * Instructs this object to request to have a fork stuck in it when
-     * its last subscriber is removed.
+     * Instructs this object to request to have a fork stuck in it when its last subscriber is
+     * removed.
      */
     public void setDestroyOnLastSubscriberRemoved (boolean deathWish)
     {
@@ -211,19 +199,16 @@ public class DObject
     }
 
     /**
-     * Adds an event listener to this object. The listener will be
-     * notified when any events are dispatched on this object that match
-     * their particular listener interface.
+     * Adds an event listener to this object. The listener will be notified when any events are
+     * dispatched on this object that match their particular listener interface.
      *
-     * <p> Note that the entity adding itself as a listener should have
-     * obtained the object reference by subscribing to it or should be
-     * acting on behalf of some other entity that subscribed to the
-     * object, <em>and</em> that it must be sure to remove itself from the
-     * listener list (via {@link #removeListener}) when it is done because
-     * unsubscribing from the object (done by whatever entity subscribed
-     * in the first place) is not guaranteed to result in the listeners
-     * added through that subscription being automatically removed (in
-     * most cases, they definitely will not be removed).
+     * <p> Note that the entity adding itself as a listener should have obtained the object
+     * reference by subscribing to it or should be acting on behalf of some other entity that
+     * subscribed to the object, <em>and</em> that it must be sure to remove itself from the
+     * listener list (via {@link #removeListener}) when it is done because unsubscribing from the
+     * object (done by whatever entity subscribed in the first place) is not guaranteed to result
+     * in the listeners added through that subscription being automatically removed (in most cases,
+     * they definitely will not be removed).
      *
      * @param listener the listener to be added.
      *
@@ -239,15 +224,15 @@ public class DObject
         if (els != null) {
             _listeners = els;
         } else {
-            Log.warning("Refusing repeat listener registration " +
-                        "[dobj=" + which() + ", list=" + listener + "]");
+            Log.warning("Refusing repeat listener registration [dobj=" + which() +
+                        ", list=" + listener + "]");
             Thread.dumpStack();
         }
     }
 
     /**
-     * Removes an event listener from this object. The listener will no
-     * longer be notified when events are dispatched on this object.
+     * Removes an event listener from this object. The listener will no longer be notified when
+     * events are dispatched on this object.
      *
      * @param listener the listener to be removed.
      */
@@ -257,11 +242,10 @@ public class DObject
     }
 
     /**
-     * Provides this object with an entity that can be used to validate
-     * subscription requests and events before they are processed. The
-     * access controller is handy for ensuring that clients are behaving
-     * as expected and for preventing impermissible modifications or event
-     * dispatches on a distributed object.
+     * Provides this object with an entity that can be used to validate subscription requests and
+     * events before they are processed. The access controller is handy for ensuring that clients
+     * are behaving as expected and for preventing impermissible modifications or event dispatches
+     * on a distributed object.
      */
     public void setAccessController (AccessController controller)
     {
@@ -269,8 +253,8 @@ public class DObject
     }        
 
     /**
-     * Returns a reference to the access controller in use by this object
-     * or null if none has been configured.
+     * Returns a reference to the access controller in use by this object or null if none has been
+     * configured.
      */
     public AccessController getAccessController ()
     {
@@ -283,8 +267,7 @@ public class DObject
     public final <T extends DSet.Entry> DSet<T> getSet (String setName)
     {
         try {
-            @SuppressWarnings("unchecked") DSet<T> casted =
-                (DSet<T>)getField(setName).get(this);
+            @SuppressWarnings("unchecked") DSet<T> casted = (DSet<T>)getField(setName).get(this);
             return casted;
         } catch (Exception e) {
             throw new IllegalArgumentException("No such set: " + setName);
@@ -316,32 +299,27 @@ public class DObject
     }
 
     /**
-     * At times, an entity on the server may need to ensure that events it
-     * has queued up have made it through the event queue and are applied
-     * to their respective objects before a service may safely be
-     * undertaken again. To make this possible, it can acquire a lock on a
-     * distributed object, generate the events in question and then
-     * release the lock (via a call to <code>releaseLock</code>) which
-     * will queue up a final event, the processing of which will release
-     * the lock. Thus the lock will not be released until all of the
-     * previously generated events have been processed.  If the service is
-     * invoked again before that lock is released, the associated call to
-     * <code>acquireLock</code> will fail and the code can respond
-     * accordingly. An object may have any number of outstanding locks as
-     * long as they each have a unique name.
+     * At times, an entity on the server may need to ensure that events it has queued up have made
+     * it through the event queue and are applied to their respective objects before a service may
+     * safely be undertaken again. To make this possible, it can acquire a lock on a distributed
+     * object, generate the events in question and then release the lock (via a call to
+     * <code>releaseLock</code>) which will queue up a final event, the processing of which will
+     * release the lock. Thus the lock will not be released until all of the previously generated
+     * events have been processed.  If the service is invoked again before that lock is released,
+     * the associated call to <code>acquireLock</code> will fail and the code can respond
+     * accordingly. An object may have any number of outstanding locks as long as they each have a
+     * unique name.
      *
      * @param name the name of the lock to acquire.
      *
-     * @return true if the lock was acquired, false if the lock was not
-     * acquired because it has not yet been released from a previous
-     * acquisition.
+     * @return true if the lock was acquired, false if the lock was not acquired because it has not
+     * yet been released from a previous acquisition.
      *
      * @see #releaseLock
      */
     public boolean acquireLock (String name)
     {
-        // check for the existence of the lock in the list and add it if
-        // it's not already there
+        // check for the existence of the lock in the list and add it if it's not already there
         Object[] list = ListUtil.testAndAdd(_locks, name);
         if (list == null) {
             // a null list means the object was already in the list
@@ -355,8 +333,7 @@ public class DObject
     }
 
     /**
-     * Queues up an event that when processed will release the lock of the
-     * specified name.
+     * Queues up an event that when processed will release the lock of the specified name.
      *
      * @see #acquireLock
      */
@@ -367,11 +344,9 @@ public class DObject
     }
 
     /**
-     * Don't call this function! It is called by a remove lock event when
-     * that event is processed and shouldn't be called at any other time.
-     * If you mean to release a lock that was acquired with
-     * <code>acquireLock</code> you should be using
-     * <code>releaseLock</code>.
+     * Don't call this function! It is called by a remove lock event when that event is processed
+     * and shouldn't be called at any other time.  If you mean to release a lock that was acquired
+     * with <code>acquireLock</code> you should be using <code>releaseLock</code>.
      *
      * @see #acquireLock
      * @see #releaseLock
@@ -381,15 +356,13 @@ public class DObject
         // clear the lock from the list
         if (ListUtil.clear(_locks, name) == null) {
             // complain if we didn't find the lock
-            Log.info("Unable to clear non-existent lock [lock=" + name +
-                     ", dobj=" + this + "].");
+            Log.info("Unable to clear non-existent lock [lock=" + name + ", dobj=" + this + "].");
         }
     }
 
     /**
-     * Requests that this distributed object be destroyed. It does so by
-     * queueing up an object destroyed event which the server will
-     * validate and process.
+     * Requests that this distributed object be destroyed. It does so by queueing up an object
+     * destroyed event which the server will validate and process.
      */
     public void destroy ()
     {
@@ -397,17 +370,14 @@ public class DObject
     }
 
     /**
-     * Checks to ensure that the specified subscriber has access to this
-     * object. This will be called before satisfying a subscription
-     * request. If an {@link AccessController} has been specified for this
-     * object, it will be used to determine whether or not to allow the
-     * subscription request. If no controller is set, the subscription
-     * will be allowed.
+     * Checks to ensure that the specified subscriber has access to this object. This will be
+     * called before satisfying a subscription request. If an {@link AccessController} has been
+     * specified for this object, it will be used to determine whether or not to allow the
+     * subscription request. If no controller is set, the subscription will be allowed.
      *
      * @param sub the subscriber that will subscribe to this object.
      *
-     * @return true if the subscriber has access to the object, false if
-     * they do not.
+     * @return true if the subscriber has access to the object, false if they do not.
      */
     public boolean checkPermissions (Subscriber sub)
     {
@@ -419,16 +389,15 @@ public class DObject
     }
 
     /**
-     * Checks to ensure that this event which is about to be processed,
-     * has the appropriate permissions. If an {@link AccessController} has
-     * been specified for this object, it will be used to determine
-     * whether or not to allow the even dispatch. If no controller is set,
-     * all events are allowed.
+     * Checks to ensure that this event which is about to be processed, has the appropriate
+     * permissions. If an {@link AccessController} has been specified for this object, it will be
+     * used to determine whether or not to allow the even dispatch. If no controller is set, all
+     * events are allowed.
      *
      * @param event the event that will be dispatched, object permitting.
      *
-     * @return true if the event is valid and should be dispatched, false
-     * if the event fails the permissions check and should be aborted.
+     * @return true if the event is valid and should be dispatched, false if the event fails the
+     * permissions check and should be aborted.
      */
     public boolean checkPermissions (DEvent event)
     {
@@ -440,9 +409,8 @@ public class DObject
     }
 
     /**
-     * Called by the distributed object manager after it has applied an
-     * event to this object. This dispatches an event notification to all
-     * of the listeners registered with this object.
+     * Called by the distributed object manager after it has applied an event to this object. This
+     * dispatches an event notification to all of the listeners registered with this object.
      *
      * @param event the event that was just applied.
      */
@@ -469,17 +437,16 @@ public class DObject
                 }
 
             } catch (Exception e) {
-                Log.warning("Listener choked during notification " +
-                            "[list=" + listener + ", event=" + event + "].");
+                Log.warning("Listener choked during notification [list=" + listener +
+                            ", event=" + event + "].");
                 Log.logStackTrace(e);
             }
         }
     }
 
     /**
-     * Called by the distributed object manager after it has applied an
-     * event to this object. This dispatches an event notification to all
-     * of the proxy listeners registered with this object.
+     * Called by the distributed object manager after it has applied an event to this object. This
+     * dispatches an event notification to all of the proxy listeners registered with this object.
      *
      * @param event the event that was just applied.
      */
@@ -496,18 +463,17 @@ public class DObject
                     ((ProxySubscriber)sub).eventReceived(event);
                 }
             } catch (Exception e) {
-                Log.warning("Proxy choked during notification " +
-                            "[sub=" + sub + ", event=" + event + "].");
+                Log.warning("Proxy choked during notification [sub=" + sub +
+                            ", event=" + event + "].");
                 Log.logStackTrace(e);
             }
         }
     }
 
     /**
-     * Requests that the specified attribute be changed to the specified
-     * value. Normally the generated setter methods should be used but in
-     * rare cases a caller may wish to update distributed fields in a
-     * generic manner.
+     * Requests that the specified attribute be changed to the specified value. Normally the
+     * generated setter methods should be used but in rare cases a caller may wish to update
+     * distributed fields in a generic manner.
      */
     public void changeAttribute (String name, Object value)
         throws ObjectAccessException
@@ -518,18 +484,16 @@ public class DObject
             f.set(this, value);
 
         } catch (Exception e) {
-            String errmsg = "changeAttribute() failure [name=" + name +
-                ", value=" + value +
+            String errmsg = "changeAttribute() failure [name=" + name + ", value=" + value +
                 ", vclass=" + value.getClass().getName() + "].";
             throw new ObjectAccessException(errmsg, e);
         }
     }
 
     /**
-     * Sets the named attribute to the specified value. This is only used
-     * by the internals of the event dispatch mechanism and should not be
-     * called directly by users. Use the generated attribute setter
-     * methods instead.
+     * Sets the named attribute to the specified value. This is only used by the internals of the
+     * event dispatch mechanism and should not be called directly by users. Use the generated
+     * attribute setter methods instead.
      */
     public void setAttribute (String name, Object value)
         throws ObjectAccessException
@@ -538,28 +502,24 @@ public class DObject
             getField(name).set(this, value);
 
         } catch (Exception e) {
-            String errmsg = "setAttribute() failure [name=" + name +
-                ", value=" + value +
+            String errmsg = "setAttribute() failure [name=" + name + ", value=" + value +
                 ", vclass=" + value.getClass().getName() + "].";
             throw new ObjectAccessException(errmsg, e);
         }
     }
 
     /**
-     * Looks up the named attribute and returns a reference to it. This
-     * should only be used by the internals of the event dispatch
-     * mechanism and should not be called directly by users. Use the
-     * generated attribute getter methods instead.
+     * Looks up the named attribute and returns a reference to it. This should only be used by the
+     * internals of the event dispatch mechanism and should not be called directly by users. Use
+     * the generated attribute getter methods instead.
      */
     public Object getAttribute (String name)
         throws ObjectAccessException
     {
         try {
             return getField(name).get(this);
-
         } catch (Exception e) {
-            String errmsg = "getAttribute() failure [name=" + name + "].";
-            throw new ObjectAccessException(errmsg, e);
+            throw new ObjectAccessException("getAttribute() failure [name=" + name + "].", e);
         }
     }
 
@@ -572,8 +532,8 @@ public class DObject
     }
 
     /**
-     * Posts the specified event either to our dobject manager or to the
-     * compound event for which we are currently transacting.
+     * Posts the specified event either to our dobject manager or to the compound event for which
+     * we are currently transacting.
      */
     public void postEvent (DEvent event)
     {
@@ -584,16 +544,14 @@ public class DObject
             _omgr.postEvent(event);
 
         } else {
-            Log.warning("Unable to post event, object has no omgr " +
-                        "[oid=" + getOid() + ", class=" + getClass().getName() +
-                        ", event=" + event + "].");
+            Log.info("Dropping event for non- or no longer managed object [oid=" + getOid() +
+                     ", class=" + getClass().getName() + ", event=" + event + "].");
         }
     }
 
     /**
-     * Returns true if this object is active and registered with the
-     * distributed object system. If an object is created via
-     * <code>DObjectManager.createObject</code> it will be active until
+     * Returns true if this object is active and registered with the distributed object system. If
+     * an object is created via <code>DObjectManager.createObject</code> it will be active until
      * such time as it is destroyed.
      */
     public final boolean isActive ()
@@ -602,10 +560,9 @@ public class DObject
     }
 
     /**
-     * Don't call this function! It initializes this distributed object
-     * with the supplied distributed object manager. This is called by the
-     * distributed object manager when an object is created and registered
-     * with the system.
+     * Don't call this function! It initializes this distributed object with the supplied
+     * distributed object manager. This is called by the distributed object manager when an object
+     * is created and registered with the system.
      *
      * @see DObjectManager#createObject
      */
@@ -615,8 +572,8 @@ public class DObject
     }
 
     /**
-     * Don't call this function. It is called by the distributed object
-     * manager when an object is created and registered with the system.
+     * Don't call this function. It is called by the distributed object manager when an object is
+     * created and registered with the system.
      *
      * @see DObjectManager#createObject
      */
@@ -668,80 +625,60 @@ public class DObject
     }
 
     /**
-     * Begins a transaction on this distributed object. In some
-     * situations, it is desirable to cause multiple changes to
-     * distributed object fields in one unified operation. Starting a
-     * transaction causes all subsequent field modifications to be stored
-     * in a single compound event which can then be committed, dispatching
-     * and applying all included events in a single group. Additionally,
-     * the events are dispatched over the network in a single unit which
-     * can significantly enhance network efficiency.
+     * Begins a transaction on this distributed object. In some situations, it is desirable to
+     * cause multiple changes to distributed object fields in one unified operation. Starting a
+     * transaction causes all subsequent field modifications to be stored in a single compound
+     * event which can then be committed, dispatching and applying all included events in a single
+     * group. Additionally, the events are dispatched over the network in a single unit which can
+     * significantly enhance network efficiency.
      *
-     * <p> When the transaction is complete, the caller must call {@link
-     * #commitTransaction} or {@link CompoundEvent#commit} to commit the
-     * transaction and release the object back to its normal
-     * non-transacting state. If the caller decides not to commit their
-     * transaction, they must call {@link #cancelTransaction} or {@link
-     * CompoundEvent#cancel} to cancel the transaction. Failure to do so
-     * will cause the pooch to be totally screwed.
+     * <p> When the transaction is complete, the caller must call {@link #commitTransaction} or
+     * {@link CompoundEvent#commit} to commit the transaction and release the object back to its
+     * normal non-transacting state. If the caller decides not to commit their transaction, they
+     * must call {@link #cancelTransaction} or {@link CompoundEvent#cancel} to cancel the
+     * transaction. Failure to do so will cause the pooch to be totally screwed.
      *
-     * <p> Note: like all other distributed object operations,
-     * transactions are not thread safe. It is expected that a single
-     * thread will handle all distributed object operations and that
-     * thread will begin and complete a transaction before giving up
-     * control to unknown code which might try to operate on the
-     * transacting distributed object.
+     * <p> Note: like all other distributed object operations, transactions are not thread safe. It
+     * is expected that a single thread will handle all distributed object operations and that
+     * thread will begin and complete a transaction before giving up control to unknown code which
+     * might try to operate on the transacting distributed object.
      *
-     * <p> Note also: if the object is already engaged in a transaction, a
-     * transaction participant count will be incremented to note that an
-     * additional call to {@link #commitTransaction} is required before
-     * the transaction should actually be committed. Thus <em>every</em>
-     * call to {@link #startTransaction} must be accompanied by a call to
-     * either {@link #commitTransaction} or {@link
-     * #cancelTransaction}. Additionally, if any transaction participant
-     * cancels the transaction, the entire transaction is cancelled for
-     * all participants, regardless of whether the other participants
-     * attempted to commit the transaction.
+     * <p> Note also: if the object is already engaged in a transaction, a transaction participant
+     * count will be incremented to note that an additional call to {@link #commitTransaction} is
+     * required before the transaction should actually be committed. Thus <em>every</em> call to
+     * {@link #startTransaction} must be accompanied by a call to either {@link #commitTransaction}
+     * or {@link #cancelTransaction}. Additionally, if any transaction participant cancels the
+     * transaction, the entire transaction is cancelled for all participants, regardless of whether
+     * the other participants attempted to commit the transaction.
      */
     public void startTransaction ()
     {
-        // sanity check
-        if (!isActive()) {
-            String errmsg = "Refusing to start transaction on inactive " +
-                "object [dobj=" + this + "]";
-            throw new IllegalArgumentException(errmsg);
-
-        } else if (_tevent != null) {
+        if (_tevent != null) {
             _tcount++;
-
         } else {
             _tevent = new CompoundEvent(this, _omgr);
         }
     }
 
     /**
-     * Commits the transaction in which this distributed object is
-     * involved.
+     * Commits the transaction in which this distributed object is involved.
      *
      * @see CompoundEvent#commit
      */
     public void commitTransaction ()
     {
         if (_tevent == null) {
-            String errmsg = "Cannot commit: not involved in a transaction " +
-                "[dobj=" + this + "]";
+            String errmsg = "Cannot commit: not involved in a transaction [dobj=" + this + "]";
             throw new IllegalStateException(errmsg);
         }
 
-        // if we are nested, we decrement our nesting count rather than
-        // committing the transaction
+        // if we are nested, we decrement our nesting count rather than committing the transaction
         if (_tcount > 0) {
             _tcount--;
 
         } else {
-            // we may actually be doing our final commit after someone
-            // already cancelled this transaction, so we need to perform
-            // the appropriate action at this point
+            // we may actually be doing our final commit after someone already cancelled this
+            // transaction, so we need to perform the appropriate action at this point
             if (_tcancelled) {
                 _tevent.cancel();
             } else {
@@ -751,8 +688,7 @@ public class DObject
     }        
 
     /**
-     * Returns true if this object is in the middle of a transaction or
-     * false if it is not.
+     * Returns true if this object is in the middle of a transaction or false if it is not.
      */
     public boolean inTransaction ()
     {
@@ -760,21 +696,19 @@ public class DObject
     }
 
     /**
-     * Cancels the transaction in which this distributed object is
-     * involved.
+     * Cancels the transaction in which this distributed object is involved.
      *
      * @see CompoundEvent#cancel
      */
     public void cancelTransaction ()
     {
         if (_tevent == null) {
-            String errmsg = "Cannot cancel: not involved in a transaction " +
-                "[dobj=" + this + "]";
+            String errmsg = "Cannot cancel: not involved in a transaction [dobj=" + this + "]";
             throw new IllegalStateException(errmsg);
         }
 
-        // if we're in a nested transaction, make a note that it is to be
-        // cancelled when all parties commit and decrement the nest count
+        // if we're in a nested transaction, make a note that it is to be cancelled when all
+        // parties commit and decrement the nest count
         if (_tcount > 0) {
             _tcancelled = true;
             _tcount--;
@@ -785,15 +719,13 @@ public class DObject
     }        
 
     /**
-     * Removes this object from participation in any transaction in which
-     * it might be taking part.
+     * Removes this object from participation in any transaction in which it might be taking part.
      */
     protected void clearTransaction ()
     {
         // sanity check
         if (_tcount != 0) {
-            Log.warning("Transaction cleared with non-zero nesting count " +
-                        "[dobj=" + this + "].");
+            Log.warning("Transaction cleared with non-zero nesting count [dobj=" + this + "].");
             _tcount = 0;
         }
 
@@ -803,22 +735,18 @@ public class DObject
     }
 
     /**
-     * Called by derived instances when an attribute setter method was
-     * called.
+     * Called by derived instances when an attribute setter method was called.
      */
-    protected void requestAttributeChange (
-        String name, Object value, Object oldValue)
+    protected void requestAttributeChange (String name, Object value, Object oldValue)
     {
         // dispatch an attribute changed event
         postEvent(new AttributeChangedEvent(_oid, name, value, oldValue));
     }
 
     /**
-     * Called by derived instances when an element updater method was
-     * called.
+     * Called by derived instances when an element updater method was called.
      */
-    protected void requestElementUpdate (
-        String name, int index, Object value, Object oldValue)
+    protected void requestElementUpdate (String name, int index, Object value, Object oldValue)
     {
         // dispatch an attribute changed event
         postEvent(new ElementUpdatedEvent(
@@ -846,8 +774,7 @@ public class DObject
     /**
      * Calls by derived instances when a set adder method was called.
      */
-    protected <T extends DSet.Entry> void requestEntryAdd (
-        String name, DSet<T> set, T entry)
+    protected <T extends DSet.Entry> void requestEntryAdd (String name, DSet<T> set, T entry)
     {
         // if we're on the authoritative server, we update the set immediately
         boolean alreadyApplied = false;
@@ -882,8 +809,7 @@ public class DObject
     /**
      * Calls by derived instances when a set updater method was called.
      */
-    protected <T extends DSet.Entry> void requestEntryUpdate (
-        String name, DSet<T> set, T entry)
+    protected <T extends DSet.Entry> void requestEntryUpdate (String name, DSet<T> set, T entry)
     {
         // if we're on the authoritative server, we update the set immediately
         T oldEntry = null;
@@ -898,8 +824,7 @@ public class DObject
     }
 
     /**
-     * Returns the {@link Field} with the specified name or null if there
-     * is none such.
+     * Returns the {@link Field} with the specified name or null if there is none such.
      */
     protected final Field getField (String name)
     {
@@ -928,8 +853,7 @@ public class DObject
     /** A reference to our object manager. */
     protected transient DObjectManager _omgr;
 
-    /** The entity that tells us if an event or subscription request
-     * should be allowed. */
+    /** The entity that tells us if an event or subscription request should be allowed. */
     protected transient AccessController _controller;
 
     /** A list of outstanding locks. */
@@ -944,8 +868,7 @@ public class DObject
     /** Our subscriber count. */
     protected transient int _scount;
 
-    /** The compound event associated with our transaction, if we're
-     * currently in a transaction. */
+    /** The compound event associated with our transaction, if we're currently in a transaction. */
     protected transient CompoundEvent _tevent;
 
     /** The nesting depth of our current transaction. */
@@ -954,18 +877,14 @@ public class DObject
     /** Whether or not our nested transaction has been cancelled. */
     protected transient boolean _tcancelled;
 
-    /** Indicates whether we want to be destroyed when our last subscriber
-     * is removed. */
+    /** Indicates whether we want to be destroyed when our last subscriber is removed. */
     protected transient boolean _deathWish = false;
 
-    /** Maintains a mapping of sorted field arrays for each distributed
-     * object class. */
-    protected static HashMap<Class,Field[]> _ftable =
-        new HashMap<Class,Field[]>();
+    /** Maintains a mapping of sorted field arrays for each distributed object class. */
+    protected static HashMap<Class,Field[]> _ftable = new HashMap<Class,Field[]>();
 
     /** Used to sort and search {@link #_fields}. */
-    protected static final Comparator<Field> FIELD_COMP =
-        new Comparator<Field>() {
+    protected static final Comparator<Field> FIELD_COMP = new Comparator<Field>() {
         public int compare (Field f1, Field f2) {
             return f1.getName().compareTo(f2.getName());
         }
