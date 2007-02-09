@@ -324,7 +324,7 @@ public class MediaContainer extends Sprite
 
         } else {
             // share nothing, trust nothing
-            return new LoaderContext(false, null, null);
+            return new LoaderContext(false, new ApplicationDomain(null), null);
         }
     }
 
