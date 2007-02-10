@@ -3,6 +3,7 @@ package com.threerings.presents.client {
 import flash.utils.getTimer; // function import
 
 import com.threerings.util.Hashtable;
+import com.threerings.util.Wrapped;
 
 import com.threerings.presents.data.InvocationMarshaller_ListenerMarshaller;
 
@@ -235,6 +236,14 @@ public class InvocationDirector
                         ", methodId=" + methodId +
                         ", args=" + args + "].");
             return;
+        }
+
+        if (args != null) {
+            for (var ii :int = 0; ii < args.length; ii++) {
+                if (args[ii] is Wrapped) {
+                    args[ii] = (args[ii] as Wrapped).unwrap();
+                }
+            }
         }
 
 //         log.info("Dispatching invocation notification " +
