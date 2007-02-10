@@ -85,7 +85,7 @@ public class DSet
      */
     public function iterator () :Iterator
     {
-        return new ArrayIterator(_entries);
+        return new ArrayIterator(_entries, false);
     }
 
     /**
