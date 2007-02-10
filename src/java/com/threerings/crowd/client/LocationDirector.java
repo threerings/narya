@@ -459,7 +459,7 @@ public class LocationDirector extends BasicDirector
     {
         Log.info("Moving at request of server [placeId=" + placeId + "].");
 
-        if (movePending()) {
+        if (!movePending()) {
             // clear out our old place information
             mayLeavePlace();
             didLeavePlace();
