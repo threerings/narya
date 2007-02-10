@@ -81,14 +81,5 @@ public class Util
         return (args.length == 1 && (args[0] is Array)) ? (args[0] as Array)
                                                         : args;
     }
-
-    public static function cast (obj :Object, clazz :Class) :Object
-    {
-        if (obj == null || obj is clazz) {
-            return obj;
-        } else {
-            throw new TypeError("value is not a " + clazz);
-        }
-    }
 }
 }
