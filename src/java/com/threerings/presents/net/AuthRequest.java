@@ -21,7 +21,6 @@
 
 package com.threerings.presents.net;
 
-import java.util.HashSet;
 import java.util.TimeZone;
 
 /**
@@ -40,12 +39,12 @@ public class AuthRequest extends UpstreamMessage
     /**
      * Constructs a auth request with the supplied credentials and client version information.
      */
-    public AuthRequest (Credentials creds, String version, HashSet<String> bootGroups)
+    public AuthRequest (Credentials creds, String version, String[] bootGroups)
     {
         _creds = creds;
         _version = version;
         _zone = TimeZone.getDefault().getID();
-        _bootGroups = bootGroups.toArray(new String[bootGroups.size()]);
+        _bootGroups = bootGroups;
     }
 
     /**

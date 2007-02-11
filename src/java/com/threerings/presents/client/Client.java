@@ -270,6 +270,14 @@ public class Client
     }
 
     /**
+     * Returns the set of bootstrap service groups needed by this client.
+     */
+    public String[] getBootGroups ()
+    {
+        return _bootGroups.toArray(new String[_bootGroups.size()]);
+    }
+
+    /**
      * Returns the first bootstrap service that could be located that implements the supplied
      * {@link InvocationService} derivation.  <code>null</code> is returned if no such service
      * could be found.

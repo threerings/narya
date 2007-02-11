@@ -479,7 +479,7 @@ public class Communicator
         {
             // construct an auth request and send it
             AuthRequest req = new AuthRequest(
-                _client.getCredentials(), _client.getVersion(), _client._bootGroups);
+                _client.getCredentials(), _client.getVersion(), _client.getBootGroups());
             sendMessage(req);
 
             // now wait for the auth response
