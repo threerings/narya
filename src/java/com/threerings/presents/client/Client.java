@@ -365,6 +365,9 @@ public class Client
             return false;
         }
 
+        // notify our observers
+        notifyObservers(CLIENT_WILL_LOGON, null);
+
         // otherwise create a new communicator instance and start it up.  this will initiate the
         // logon process
         _comm = new Communicator(this);
@@ -646,6 +649,10 @@ public class Client
         public boolean apply (SessionObserver obs)
         {
             switch (_code) {
+            case CLIENT_WILL_LOGON:
+                obs.clientWillLogon(Client.this);
+                break;
+
             case CLIENT_DID_LOGON:
                 obs.clientDidLogon(Client.this);
                 break;
@@ -766,11 +773,12 @@ public class Client
     protected static final long CLOCK_SYNC_INTERVAL = 600 * 1000L;
 
     // client observer codes
-    static final int CLIENT_DID_LOGON = 0;
-    static final int CLIENT_FAILED_TO_LOGON = 1;
-    static final int CLIENT_OBJECT_CHANGED = 2;
-    static final int CLIENT_CONNECTION_FAILED = 3;
-    static final int CLIENT_WILL_LOGOFF = 4;
-    static final int CLIENT_DID_LOGOFF = 5;
-    static final int CLIENT_DID_CLEAR = 6;
+    static final int CLIENT_WILL_LOGON = 0;
+    static final int CLIENT_DID_LOGON = 1;
+    static final int CLIENT_FAILED_TO_LOGON = 2;
+    static final int CLIENT_OBJECT_CHANGED = 3;
+    static final int CLIENT_CONNECTION_FAILED = 4;
+    static final int CLIENT_WILL_LOGOFF = 5;
+    static final int CLIENT_DID_LOGOFF = 6;
+    static final int CLIENT_DID_CLEAR = 7;
 }
