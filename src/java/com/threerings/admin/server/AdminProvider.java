@@ -26,36 +26,32 @@ import com.threerings.presents.server.InvocationManager;
 import com.threerings.presents.server.InvocationProvider;
 
 import com.threerings.admin.client.AdminService;
+import com.threerings.admin.data.AdminCodes;
 
 /**
- * Provides the server-side implementation of various administrator
- * services.
+ * Provides the server-side implementation of various administrator services.
  */
 public class AdminProvider implements InvocationProvider
 {
     /**
-     * Constructs an admin provider and registers it with the invocation
-     * manager to handle admin services. This must be called by any server
-     * that wishes to make use of the admin services.
+     * Constructs an admin provider and registers it with the invocation manager to handle admin
+     * services. This must be called by any server that wishes to make use of the admin services.
      */
     public static void init (InvocationManager invmgr, ConfigRegistry registry)
     {
         invmgr.registerDispatcher(
-            new AdminDispatcher(new AdminProvider(registry)), true);
+            new AdminDispatcher(new AdminProvider(registry)), AdminCodes.ADMIN_GROUP);
     }
 
     /**
      * Handles a request for the list of config objects.
      */
-    public void getConfigInfo (
-        ClientObject caller, AdminService.ConfigInfoListener listener)
+    public void getConfigInfo (ClientObject caller, AdminService.ConfigInfoListener listener)
     {
-        // we don't have to validate the request because the user can't do
-        // anything with the keys or oids unless they're an admin (we put the
-        // burden of doing that checking on the creator of the config object
-        // because we would otherwise need some mechanism to determine whether
-        // a user is an admin and we don't want to force some primitive system
-        // on the service user)
+        // we don't have to validate the request because the user can't do anything with the keys
+        // or oids unless they're an admin (we put the burden of doing that checking on the creator
+        // of the config object because we would otherwise need some mechanism to determine whether
+        // a user is an admin and we don't want to force some primitive system on the service user)
         String[] keys = _registry.getKeys();
         int[] oids = new int[keys.length];
         for (int ii = 0; ii < keys.length; ii++) {

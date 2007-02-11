@@ -29,6 +29,10 @@ package com.threerings.presents.data;
  */
 public interface InvocationCodes
 {
+    /** Defines a global invocation services group that can be used by clients and services that do
+     * not care to make a distinction between groups of invocation services. */
+    public static final String GLOBAL_GROUP = "presents";
+
     /** An error code returned to clients when a service cannot be performed because of some
      * internal server error that we couldn't explain in any meaningful way (things like null
      * pointer exceptions). */

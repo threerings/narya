@@ -99,8 +99,7 @@ public class CrowdPeerManager extends PeerManager
 
         // unregister our invocation service
         if (_nodeobj != null) {
-            CrowdServer.invmgr.clearDispatcher(
-                ((CrowdNodeObject)_nodeobj).crowdPeerService);
+            CrowdServer.invmgr.clearDispatcher(((CrowdNodeObject)_nodeobj).crowdPeerService);
         }
 
         // clear our tell forwarder registration
@@ -136,7 +135,7 @@ public class CrowdPeerManager extends PeerManager
         CrowdNodeObject cnobj = (CrowdNodeObject)_nodeobj;
         cnobj.setCrowdPeerService(
             (CrowdPeerMarshaller)CrowdServer.invmgr.registerDispatcher(
-                new CrowdPeerDispatcher(this), false));
+                new CrowdPeerDispatcher(this)));
 
         // register ourselves as a tell forwarder
         CrowdServer.chatprov.setTellForwarder(this);

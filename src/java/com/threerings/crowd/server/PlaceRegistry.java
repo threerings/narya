@@ -30,6 +30,7 @@ import com.threerings.presents.server.InvocationException;
 import com.threerings.presents.server.InvocationManager;
 
 import com.threerings.crowd.Log;
+import com.threerings.crowd.data.CrowdCodes;
 import com.threerings.crowd.data.PlaceConfig;
 import com.threerings.crowd.data.PlaceObject;
 
@@ -59,7 +60,7 @@ public class PlaceRegistry
     {
         // create and register our location provider
         locprov = new LocationProvider(invmgr, omgr, this);
-        invmgr.registerDispatcher(new LocationDispatcher(locprov), true);
+        invmgr.registerDispatcher(new LocationDispatcher(locprov), CrowdCodes.CROWD_GROUP);
 
         // we'll need these later
         _omgr = omgr;

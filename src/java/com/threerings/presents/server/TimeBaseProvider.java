@@ -34,17 +34,16 @@ import com.threerings.presents.data.TimeBaseObject;
 import com.threerings.presents.dobj.RootDObjectManager;
 
 /**
- * Provides the server-side of the time base services. The time base
- * services provide a means by which delta times can be sent over the
- * network which are expanded based on a shared base time into full time
- * stamps.
+ * Provides the server-side of the time base services. The time base services provide a means by
+ * which delta times can be sent over the network which are expanded based on a shared base time
+ * into full time stamps.
  */
 public class TimeBaseProvider
     implements InvocationProvider, TimeBaseCodes
 {
     /**
-     * Registers the time provider with the appropriate managers. Called
-     * by the presents server at startup.
+     * Registers the time provider with the appropriate managers. Called by the presents server at
+     * startup.
      */
     public static void init (InvocationManager invmgr, RootDObjectManager omgr)
     {
@@ -53,13 +52,12 @@ public class TimeBaseProvider
         _omgr = omgr;
 
         // register a provider instance
-        invmgr.registerDispatcher(
-            new TimeBaseDispatcher(new TimeBaseProvider()), true);
+        invmgr.registerDispatcher(new TimeBaseDispatcher(new TimeBaseProvider()), GLOBAL_GROUP);
     }
 
     /**
-     * Creates a time base object which can subsequently be fetched by the
-     * client and used to send delta times.
+     * Creates a time base object which can subsequently be fetched by the client and used to send
+     * delta times.
      *
      * @param timeBase the name of the time base to create.
      *
@@ -73,8 +71,8 @@ public class TimeBaseProvider
     }
 
     /**
-     * Returns the named timebase object, or null if no time base object
-     * has been created with that name.
+     * Returns the named timebase object, or null if no time base object has been created with that
+     * name.
      */
     public static TimeBaseObject getTimeBase (String timeBase)
     {
@@ -82,11 +80,9 @@ public class TimeBaseProvider
     }
 
     /**
-     * Processes a request from a client to fetch the oid of the specified
-     * time object.
+     * Processes a request from a client to fetch the oid of the specified time object.
      */
-    public void getTimeOid (
-        ClientObject source, String timeBase, GotTimeBaseListener listener)
+    public void getTimeOid (ClientObject source, String timeBase, GotTimeBaseListener listener)
         throws InvocationException
     {
         // look up the time base object in question

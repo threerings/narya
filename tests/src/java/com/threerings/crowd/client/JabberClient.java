@@ -101,6 +101,11 @@ public class JabberClient
     }
 
     // documentation inherited from interface SessionObserver
+    public void clientWillLogon (Client client)
+    {
+    }
+
+    // documentation inherited from interface SessionObserver
     public void clientDidLogon (Client client)
     {
         // enter the one and only chat room; giant hack warning: we know

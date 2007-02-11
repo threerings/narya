@@ -38,6 +38,7 @@ import com.threerings.presents.server.InvocationManager;
 import com.threerings.presents.server.InvocationProvider;
 
 import com.threerings.crowd.data.BodyObject;
+import com.threerings.crowd.data.CrowdCodes;
 import com.threerings.crowd.data.OccupantInfo;
 import com.threerings.crowd.data.PlaceObject;
 import com.threerings.crowd.server.CrowdServer;
@@ -58,32 +59,29 @@ public class ChatProvider
     public static interface TellAutoResponder
     {
         /**
-         * Called following the delivery of <code>message</code> from
-         * <code>teller</code> to <code>tellee</code>.
+         * Called following the delivery of <code>message</code> from <code>teller</code> to
+         * <code>tellee</code>.
          */
-        public void sentTell (BodyObject teller, BodyObject tellee,
-                              String message);
+        public void sentTell (BodyObject teller, BodyObject tellee, String message);
     }
 
     /** Used to forward tells between servers in a multi-server setup. */
     public static interface TellForwarder
     {
         /**
-         * Requests that the supplied tell message be delivered to the
-         * appropriate destination.
+         * Requests that the supplied tell message be delivered to the appropriate destination.
          *
          * @return true if the tell was delivered, false otherwise.
          */
-        public boolean forwardTell (UserMessage message, Name target,
-                                    TellListener listener);
+        public boolean forwardTell (UserMessage message, Name target, TellListener listener);
     }
 
     /**
-     * Set an object to which all broadcasts should be sent, rather
-     * than iterating over the place objects and sending to each of them.
+     * Set an object to which all broadcasts should be sent, rather than iterating over the place
+     * objects and sending to each of them.
      *
-     * @param object an object to send all broadcasts, or null to send to
-     * each place object instead.
+     * @param object an object to send all broadcasts, or null to send to each place object
+     * instead.
      */
     public void setAlternateBroadcastObject (DObject object)
     {
@@ -91,11 +89,10 @@ public class ChatProvider
     }
 
     /**
-     * Set the auto tell responder for the chat provider. Only one auto
-     * responder is allowed. <em>Note:</em> this only works for same-server
-     * tells. If the tell is forwarded to another server, no auto-response
-     * opportunity is provided (because we never have both body objects in the
-     * same place).
+     * Set the auto tell responder for the chat provider. Only one auto responder is allowed.
+     * <em>Note:</em> this only works for same-server tells. If the tell is forwarded to another
+     * server, no auto-response opportunity is provided (because we never have both body objects in
+     * the same place).
      */
     public void setTellAutoResponder (TellAutoResponder autoRespond)
     {
@@ -103,9 +100,8 @@ public class ChatProvider
     }
 
     /**
-     * Configures the tell forwarded for the chat provider. This is used by the
-     * Crowd peer services to forward tells between servers in a multi-server
-     * cluster.
+     * Configures the tell forwarded for the chat provider. This is used by the Crowd peer services
+     * to forward tells between servers in a multi-server cluster.
      */
     public void setTellForwarder (TellForwarder forwarder)
     {
@@ -113,21 +109,18 @@ public class ChatProvider
     }
 
     /**
-     * Initializes the chat services and registers a chat provider with
-     * the invocation manager.
+     * Initializes the chat services and registers a chat provider with the invocation manager.
      */
     public void init (InvocationManager invmgr, DObjectManager omgr)
     {
         // register a chat provider with the invocation manager
-        invmgr.registerDispatcher(new ChatDispatcher(this), true);
+        invmgr.registerDispatcher(new ChatDispatcher(this), CrowdCodes.CROWD_GROUP);
     }
 
     /**
-     * Processes a request from a client to deliver a tell message to
-     * another client.
+     * Processes a request from a client to deliver a tell message to another client.
      */
-    public void tell (ClientObject caller, Name target, String message,
-                      TellListener listener)
+    public void tell (ClientObject caller, Name target, String message, TellListener listener)
         throws InvocationException
     {
         // ensure that the caller has normal chat privileges
@@ -142,8 +135,7 @@ public class ChatProvider
 
         // inform the auto-responder if needed
         BodyObject targobj;
-        if (_autoRespond != null &&
-            (targobj = CrowdServer.lookupBody(target)) != null) {
+        if (_autoRespond != null && (targobj = CrowdServer.lookupBody(target)) != null) {
             _autoRespond.sentTell(source, targobj, message);
         }
     }
@@ -151,8 +143,7 @@ public class ChatProvider
     /**
      * Processes a {@link ChatService#broadcast} request.
      */
-    public void broadcast (ClientObject caller, String message,
-                           InvocationListener listener)
+    public void broadcast (ClientObject caller, String message, InvocationListener listener)
         throws InvocationException
     {
         // make sure the requesting user has broadcast privileges
@@ -170,20 +161,19 @@ public class ChatProvider
     public void away (ClientObject caller, String message)
     {
         BodyObject body = (BodyObject)caller;
-        // we modify this field via an invocation service request because
-        // a body object is not modifiable by the client
+        // we modify this field via an invocation service request because a body object is not
+        // modifiable by the client
         body.setAwayMessage(message);
     }
 
     /**
      * Broadcast the specified message to all places in the game.
      *
-     * @param from the user the broadcast is from, or null to send the message
-     * as a system message.
+     * @param from the user the broadcast is from, or null to send the message as a system message.
      * @param bundle the bundle, or null if the message needs no translation.
      * @param msg the content of the message to broadcast.
-     * @param attention if true, the message is sent as ATTENTION level,
-     * otherwise as INFO. Ignored if from is non-null.
+     * @param attention if true, the message is sent as ATTENTION level, otherwise as INFO. Ignored
+     * if from is non-null.
      */
     public void broadcast (Name from, String bundle, String msg,
                                   boolean attention)
@@ -203,12 +193,10 @@ public class ChatProvider
     }
 
     /**
-     * Delivers a tell message to the specified target and notifies the
-     * supplied listener of the result. It is assumed that the teller has
-     * already been permissions checked.
+     * Delivers a tell message to the specified target and notifies the supplied listener of the
+     * result. It is assumed that the teller has already been permissions checked.
      */
-    public void deliverTell (UserMessage message, Name target,
-                             TellListener listener)
+    public void deliverTell (UserMessage message, Name target, TellListener listener)
         throws InvocationException
     {
         // make sure the target user is online
@@ -225,8 +213,7 @@ public class ChatProvider
         if (tobj.status == OccupantInfo.DISCONNECTED) {
             String errmsg = MessageBundle.compose(
                 USER_DISCONNECTED, TimeUtil.getTimeOrderString(
-                    System.currentTimeMillis() - tobj.statusTime,
-                    TimeUtil.SECOND));
+                    System.currentTimeMillis() - tobj.statusTime, TimeUtil.SECOND));
             throw new InvocationException(errmsg);
         }
 
@@ -246,9 +233,9 @@ public class ChatProvider
     }
 
     /**
-     * Delivers a tell notification to the specified target player. It is
-     * assumed that the message is coming from some server entity and need not
-     * be permissions checked or notified of the result.
+     * Delivers a tell notification to the specified target player. It is assumed that the message
+     * is coming from some server entity and need not be permissions checked or notified of the
+     * result.
      */
     public void deliverTell (BodyObject target, UserMessage message)
     {
@@ -269,8 +256,8 @@ public class ChatProvider
     /**
      * Direct a broadcast to the specified object.
      */
-    protected void broadcastTo (DObject object, Name from, String bundle,
-                                String msg, boolean attention)
+    protected void broadcastTo (DObject object, Name from, String bundle, String msg,
+                                boolean attention)
     {
         if (from == null) {
             if (attention) {
@@ -280,8 +267,7 @@ public class ChatProvider
             }
 
         } else {
-            SpeakProvider.sendSpeak(object, from, bundle, msg,
-                                    BROADCAST_MODE);
+            SpeakProvider.sendSpeak(object, from, bundle, msg, BROADCAST_MODE);
         }
     }
 

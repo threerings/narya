@@ -31,6 +31,11 @@ package com.threerings.presents.client;
 public interface SessionObserver
 {
     /**
+     * Called immediately before a logon is attempted.
+     */
+    public void clientWillLogon (Client client);
+
+    /**
      * Called after the client successfully connected to and authenticated
      * with the server. The entire object system is up and running by the
      * time this method is called.

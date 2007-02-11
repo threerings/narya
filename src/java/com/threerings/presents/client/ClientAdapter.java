@@ -33,6 +33,11 @@ package com.threerings.presents.client;
 public class ClientAdapter implements ClientObserver
 {
     // documentation inherited
+    public void clientWillLogon (Client client)
+    {
+    }
+
+    // documentation inherited
     public void clientDidLogon (Client client)
     {
     }

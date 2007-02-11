@@ -28,6 +28,7 @@ import com.threerings.presents.server.InvocationProvider;
 
 import com.threerings.crowd.Log;
 import com.threerings.crowd.data.BodyObject;
+import com.threerings.crowd.data.CrowdCodes;
 import com.threerings.crowd.data.OccupantInfo;
 
 /**
@@ -54,7 +55,7 @@ public class BodyProvider
     public static void init (InvocationManager invmgr)
     {
         // register a provider instance
-        invmgr.registerDispatcher(new BodyDispatcher(new BodyProvider()), true);
+        invmgr.registerDispatcher(new BodyDispatcher(new BodyProvider()), CrowdCodes.CROWD_GROUP);
     }
 
     /**

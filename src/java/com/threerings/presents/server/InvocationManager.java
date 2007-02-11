@@ -62,9 +62,6 @@ import java.util.HashMap;
 public class InvocationManager
     implements EventListener
 {
-    /** Defines the name of the global bootstrap group. */
-    public static final String GLOBAL_BOOTSTRAP_GROUP = "global";
-
     /** A mapping from bootstrap group to lists of services that are to be provided to clients at
      * boot time. Don't mess with these lists! */
     public HashMap<String,StreamableArrayList<InvocationMarshaller>> bootlists =
@@ -100,13 +97,10 @@ public class InvocationManager
      * send requests to the provider for whom the dispatcher is proxying.
      *
      * @param dispatcher the dispatcher to be registered.
-     * @param bootstrap if true, the service instance will be added to the list of invocation
-     * service objects provided to the client in the bootstrap data.
      */
-    public InvocationMarshaller registerDispatcher (
-        InvocationDispatcher dispatcher, boolean bootstrap)
+    public InvocationMarshaller registerDispatcher (InvocationDispatcher dispatcher)
     {
-        return registerDispatcher(dispatcher, bootstrap ? GLOBAL_BOOTSTRAP_GROUP : null);
+        return registerDispatcher(dispatcher, null);
     }
 
     /**
@@ -140,8 +134,7 @@ public class InvocationManager
             list.add(marsh);
         }
 
-        _recentRegServices.put(Integer.valueOf(invCode),
-                               marsh.getClass().getName());
+        _recentRegServices.put(Integer.valueOf(invCode), marsh.getClass().getName());
 
 //        Log.info("Registered service [marsh=" + marsh + "].");
         return marsh;
@@ -292,8 +285,7 @@ public class InvocationManager
     /** The distributed object manager with which we're working. */
     protected RootDObjectManager _omgr;
 
-    /** The object id of the object on which we receive invocation service
-     * requests. */
+    /** The object id of the object on which we receive invocation service requests. */
     protected int _invoid = -1;
 
     /** Used to generate monotonically increasing provider ids. */
@@ -303,7 +295,7 @@ public class InvocationManager
     protected HashIntMap<InvocationDispatcher> _dispatchers =
         new HashIntMap<InvocationDispatcher>();
 
-    /** The text that is appended to the procedure name when automatically
-     * generating a failure response. */
+    /** The text that is appended to the procedure name when automatically generating a failure
+     * response. */
     protected static final String FAILED_SUFFIX = "Failed";
 }

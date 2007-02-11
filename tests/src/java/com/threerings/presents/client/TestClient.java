@@ -67,6 +67,11 @@ public class TestClient
         }
     }
 
+    public void clientWillLogon (Client client)
+    {
+        client.addServiceGroup("test");
+    }
+
     public void clientDidLogon (Client client)
     {
         Log.info("Client did logon [client=" + client + "].");

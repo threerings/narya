@@ -59,35 +59,28 @@ import com.threerings.crowd.chat.server.SpeakDispatcher;
 import com.threerings.crowd.chat.server.SpeakProvider;
 
 /**
- * The place manager is the server-side entity that handles all
- * place-related interaction. It subscribes to the place object and reacts
- * to message and other events. Behavior specific to a place (or class of
- * places) should live in the place manager. An intelligently constructed
- * hierarchy of place manager classes working in concert with invocation
- * services should provide the majority of the server-side functionality
- * of an application built on the Presents platform.
+ * The place manager is the server-side entity that handles all place-related interaction. It
+ * subscribes to the place object and reacts to message and other events. Behavior specific to a
+ * place (or class of places) should live in the place manager. An intelligently constructed
+ * hierarchy of place manager classes working in concert with invocation services should provide
+ * the majority of the server-side functionality of an application built on the Presents platform.
  *
- * <p> The base place manager class takes care of the necessary
- * interactions with the place registry to manage place registration. It
- * handles the place-related component of chatting. It also provides the
- * basis for place-based access control.
+ * <p> The base place manager class takes care of the necessary interactions with the place
+ * registry to manage place registration. It handles the place-related component of chatting. It
+ * also provides the basis for place-based access control.
  *
- * <p> A derived class is expected to handle initialization, cleanup and
- * operational functionality via the calldown functions {@link #didInit},
- * {@link #didStartup}, and {@link #didShutdown} as well as through event
- * listeners.
+ * <p> A derived class is expected to handle initialization, cleanup and operational functionality
+ * via the calldown functions {@link #didInit}, {@link #didStartup}, and {@link #didShutdown} as
+ * well as through event listeners.
  */
 public class PlaceManager
-    implements MessageListener, OidListListener, ObjectDeathListener,
-               SpeakProvider.SpeakerValidator
+    implements MessageListener, OidListListener, ObjectDeathListener, SpeakProvider.SpeakerValidator
 {
     /**
-     * An interface used to allow the registration of standard message handlers
-     * to be invoked by the place manager when particular types of message
-     * events are received.
+     * An interface used to allow the registration of standard message handlers to be invoked by
+     * the place manager when particular types of message events are received.
      *
-     * @deprecated Use dynamically bound methods instead. See {@link
-     * DynamicListener}.
+     * @deprecated Use dynamically bound methods instead. See {@link DynamicListener}.
      */
     @Deprecated
     public static interface MessageHandler
@@ -96,8 +89,7 @@ public class PlaceManager
          * Invokes this message handler on the supplied event.
          *
          * @param event the message event received.
-         * @param pmgr the place manager for which the message is being
-         * handled.
+         * @param pmgr the place manager for which the message is being handled.
          */
         public void handleEvent (MessageEvent event, PlaceManager pmgr);
     }
@@ -119,9 +111,8 @@ public class PlaceManager
     }
 
     /**
-     * Returns the occupant info record for the user with the specified
-     * body oid, if they are an occupant of this room. Returns null
-     * otherwise.
+     * Returns the occupant info record for the user with the specified body oid, if they are an
+     * occupant of this room. Returns null otherwise.
      */
     public OccupantInfo getOccupantInfo (int bodyOid)
     {
@@ -129,8 +120,7 @@ public class PlaceManager
     }
 
     /**
-     * Applies the supplied occupant operation to each occupant currently
-     * present in this place.
+     * Applies the supplied occupant operation to each occupant currently present in this place.
      */
     public void applyToOccupants (OccupantOp op)
     {
@@ -143,11 +133,10 @@ public class PlaceManager
     }
 
     /**
-     * Updates the occupant info for this room occupant. <em>Note:</em>
-     * This must be used rather than setting the occupant info directly to
-     * avoid possible complications due to rapid fire changes to a user's
-     * occupant info. The occupant info record supplied to this method
-     * must be one returned from {@link #getOccupantInfo}. For example:
+     * Updates the occupant info for this room occupant. <em>Note:</em> This must be used rather
+     * than setting the occupant info directly to avoid possible complications due to rapid fire
+     * changes to a user's occupant info. The occupant info record supplied to this method must be
+     * one returned from {@link #getOccupantInfo}. For example:
      *
      * <pre>
      * OccupantInfo info = _plmgr.getOccupantInfo(bodyOid);
@@ -159,17 +148,16 @@ public class PlaceManager
     {
         // update the canonical copy
         _occInfo.put(occInfo.getBodyOid(), occInfo);
-        // clone the canonical copy and send out an event updating the
-        // distributed set with that clone
+        // clone the canonical copy and send out an event updating the distributed set with that
+        // clone
         _plobj.updateOccupantInfo((OccupantInfo)occInfo.clone());
     }
 
     /**
      * Called by the place registry after creating this place manager.
      */
-    public void init (
-        PlaceRegistry registry, InvocationManager invmgr,
-        DObjectManager omgr, PlaceConfig config)
+    public void init (PlaceRegistry registry, InvocationManager invmgr,
+                      DObjectManager omgr, PlaceConfig config)
     {
         _registry = registry;
         _invmgr = invmgr;
@@ -181,11 +169,10 @@ public class PlaceManager
     }
 
     /**
-     * Called after this place manager has been initialized with its
-     * configuration information but before it has been started up with
-     * its place object reference. Derived classes can override this
-     * function and perform any basic initialization that they desire.
-     * They should of course be sure to call <code>super.didInit()</code>.
+     * Called after this place manager has been initialized with its configuration information but
+     * before it has been started up with its place object reference. Derived classes can override
+     * this function and perform any basic initialization that they desire.  They should of course
+     * be sure to call <code>super.didInit()</code>.
      */
     protected void didInit ()
     {
@@ -209,14 +196,12 @@ public class PlaceManager
     }
 
     /**
-     * Provides an opportunity for place managers to ratify the creation
-     * of a place based on whatever criterion they may require (based on
-     * information available to the manager at this post-init() but
-     * pre-startup() phase of initialization).
+     * Provides an opportunity for place managers to ratify the creation of a place based on
+     * whatever criterion they may require (based on information available to the manager at this
+     * post-init() but pre-startup() phase of initialization).
      *
-     * @return If a permissions check is to fail, the manager should
-     * return a translatable string explaining the failure.
-     * <code>null</code> should be returned if initialization is to be
+     * @return If a permissions check is to fail, the manager should return a translatable string
+     * explaining the failure.  <code>null</code> should be returned if initialization is to be
      * allowed to proceed.
      */
     public String checkPermissions ()
@@ -225,19 +210,18 @@ public class PlaceManager
     }
 
     /**
-     * Called by the place manager after the place object has been
-     * successfully created.
+     * Called by the place manager after the place object has been successfully created.
      */
     public void startup (PlaceObject plobj)
     {
         // keep track of this
         _plobj = plobj;
 
-        // we usually want to create and register a speaker service instance
-        // that clients can use to speak in this place
+        // we usually want to create and register a speaker service instance that clients can use
+        // to speak in this place
         if (shouldCreateSpeakService()) {
-            plobj.setSpeakService((SpeakMarshaller) _invmgr.registerDispatcher(
-                new SpeakDispatcher(new SpeakProvider(plobj, this)), false));
+            plobj.setSpeakService((SpeakMarshaller)_invmgr.registerDispatcher(
+                                      new SpeakDispatcher(new SpeakProvider(plobj, this))));
         }
 
         // we'll need to hear about place object events
@@ -255,8 +239,8 @@ public class PlaceManager
     }
 
     /**
-     * Causes the place object being managed by this place manager to be
-     * destroyed and the place manager to shut down.
+     * Causes the place object being managed by this place manager to be destroyed and the place
+     * manager to shut down.
      */
     public void shutdown ()
     {
@@ -273,12 +257,10 @@ public class PlaceManager
     }
 
     /**
-     * Provides an opportunity for the place manager to prevent bodies from
-     * entering.
+     * Provides an opportunity for the place manager to prevent bodies from entering.
      *
-     * @return <code>null</code> if the body can enter, otherwise a
-     * translatable message explaining the reason the body is blocked
-     * from entering
+     * @return <code>null</code> if the body can enter, otherwise a translatable message explaining
+     * the reason the body is blocked from entering
      */
     public String ratifyBodyEntry (BodyObject body)
     {
@@ -286,12 +268,11 @@ public class PlaceManager
     }
 
     /**
-     * Builds an {@link OccupantInfo} record for the specified body object and
-     * inserts it into our place object. This is called by the location
-     * services when a body enters a place. If a derived class wishes to
-     * perform custom actions when an occupant is being inserted into a room,
-     * they should override {@link #insertOccupantInfo}, if they want to react
-     * to a body having entered, they should override {@link #bodyEntered}.
+     * Builds an {@link OccupantInfo} record for the specified body object and inserts it into our
+     * place object. This is called by the location services when a body enters a place. If a
+     * derived class wishes to perform custom actions when an occupant is being inserted into a
+     * room, they should override {@link #insertOccupantInfo}, if they want to react to a body
+     * having entered, they should override {@link #bodyEntered}.
      */
     public OccupantInfo buildOccupantInfo (BodyObject body)
     {
@@ -299,8 +280,8 @@ public class PlaceManager
             // create a new occupant info instance
             OccupantInfo info = body.createOccupantInfo(_plobj);
 
-            // insert the occupant info into our canonical table; this is done
-            // in a method so that derived classes
+            // insert the occupant info into our canonical table; this is done in a method so that
+            // derived classes
             insertOccupantInfo(info, body);
 
             // clone the canonical copy and insert it into the DSet
@@ -309,23 +290,21 @@ public class PlaceManager
             return info;
 
         } catch (Exception e) {
-            Log.warning("Failure building occupant info " +
-                        "[where=" + where() + ", body=" + body + "].");
+            Log.warning("Failure building occupant info [where=" + where() +
+                        ", body=" + body + "].");
             Log.logStackTrace(e);
             return null;
         }
     }
 
     /**
-     * Registers a particular message handler instance to be used when
-     * processing message events with the specified name.
+     * Registers a particular message handler instance to be used when processing message events
+     * with the specified name.
      *
-     * @param name the message name of the message events that should be
-     * handled by this handler.
+     * @param name the message name of the message events that should be handled by this handler.
      * @param handler the handler to be registered.
      *
-     * @deprecated Use dynamically bound methods instead. See {@link
-     * DynamicListener}.
+     * @deprecated Use dynamically bound methods instead. See {@link DynamicListener}.
      */
     @Deprecated
     public void registerMessageHandler (String name, MessageHandler handler)
@@ -348,11 +327,10 @@ public class PlaceManager
             handler.handleEvent(event, this);
         }
 
-        // the first argument should be the client object of the caller or null
-        // if it is a server originated event
+        // the first argument should be the client object of the caller or null if it is a server
+        // originated event
         int srcoid = event.getSourceOid();
-        DObject source = (srcoid <= 0) ?
-            null : CrowdServer.omgr.getObject(srcoid);
+        DObject source = (srcoid <= 0) ? null : CrowdServer.omgr.getObject(srcoid);
         Object[] args = event.getArgs(), nargs;
         if (args == null) {
             nargs = new Object[] { source };
@@ -391,30 +369,26 @@ public class PlaceManager
     }
 
     // documentation inherited from interface
-    public boolean isValidSpeaker (
-        DObject speakObj, ClientObject speaker, byte mode)
+    public boolean isValidSpeaker (DObject speakObj, ClientObject speaker, byte mode)
     {
         // only allow people in the room to speak
         return _plobj.occupants.contains(speaker.getOid());
     }
 
     /**
-     * Returns a string that can be used in log messages to identify the
-     * place as sensibly as possible to the developer who has to puzzle
-     * over log output trying to figure out what's going on. Derived place
-     * managers can override this and augment the default value (which is
+     * Returns a string that can be used in log messages to identify the place as sensibly as
+     * possible to the developer who has to puzzle over log output trying to figure out what's
+     * going on. Derived place managers can override this and augment the default value (which is
      * simply the place object id) with useful identifying information.
      */
     public String where ()
     {
-        return (_plobj == null) ?
-            StringUtil.shortClassName(this) + ":-1" : _plobj.which();
+        return (_plobj == null) ? StringUtil.shortClassName(this) + ":-1" : _plobj.which();
     }
 
     /**
-     * Generates a string representation of this manager. Does so in a way
-     * that makes it easier for derived classes to add to the string
-     * representation.
+     * Generates a string representation of this manager. Does so in a way that makes it easier for
+     * derived classes to add to the string representation.
      *
      * @see #toString(StringBuilder)
      */
@@ -428,8 +402,8 @@ public class PlaceManager
     }
 
     /**
-     * Derived classes will generally override this method to create a custom
-     * {@link PlaceObject} derivation that contains extra information.
+     * Derived classes will generally override this method to create a custom {@link PlaceObject}
+     * derivation that contains extra information.
      */
     protected PlaceObject createPlaceObject ()
     {
@@ -450,17 +424,16 @@ public class PlaceManager
     }
 
     /**
-     * Called if the permissions check failed, to give place managers a
-     * chance to do any cleanup that might be necessary due to their early
-     * initialization or permissions checking code.
+     * Called if the permissions check failed, to give place managers a chance to do any cleanup
+     * that might be necessary due to their early initialization or permissions checking code.
      */
     protected void permissionsFailed ()
     {
     }
 
     /**
-     * @return true if we should create a speaker service for our place object
-     * so that clients can use it to speak in this place.
+     * @return true if we should create a speaker service for our place object so that clients can
+     * use it to speak in this place.
      */
     protected boolean shouldCreateSpeakService ()
     {
@@ -468,8 +441,8 @@ public class PlaceManager
     }
 
     /**
-     * Creates an access controller for this place's distributed object, which
-     * by default is {@link CrowdObjectAccess#PLACE}.
+     * Creates an access controller for this place's distributed object, which by default is {@link
+     * CrowdObjectAccess#PLACE}.
      */
     protected AccessController getAccessController ()
     {
@@ -477,10 +450,9 @@ public class PlaceManager
     }
 
     /**
-     * Derived classes should override this (and be sure to call
-     * <code>super.didStartup()</code>) to perform any startup time
-     * initialization. The place object will be available by the time this
-     * method is executed.
+     * Derived classes should override this (and be sure to call <code>super.didStartup()</code>)
+     * to perform any startup time initialization. The place object will be available by the time
+     * this method is executed.
      */
     protected void didStartup ()
     {
@@ -493,10 +465,9 @@ public class PlaceManager
     }
 
     /**
-     * Called when this place has been destroyed and the place manager has
-     * shut down (via a call to {@link #shutdown}). Derived classes can
-     * override this method and perform any necessary shutdown time
-     * processing.
+     * Called when this place has been destroyed and the place manager has shut down (via a call to
+     * {@link #shutdown}). Derived classes can override this method and perform any necessary
+     * shutdown time processing.
      */
     protected void didShutdown ()
     {
@@ -509,10 +480,9 @@ public class PlaceManager
     }
 
     /**
-     * Called when an occupant is being added to this place. This will be
-     * before the call to {@link #bodyEntered} and gives the derived class a
-     * chance to set up additional information about the occupant that might
-     * not be tracked in the occupant info.
+     * Called when an occupant is being added to this place. This will be before the call to {@link
+     * #bodyEntered} and gives the derived class a chance to set up additional information about
+     * the occupant that might not be tracked in the occupant info.
      */
     protected void insertOccupantInfo (OccupantInfo info, BodyObject body)
     {
@@ -525,8 +495,7 @@ public class PlaceManager
     protected void bodyEntered (final int bodyOid)
     {
         if (Log.log.getLevel() == Level.FINE) {
-            Log.debug("Body entered [where=" + where() +
-                      ", oid=" + bodyOid + "].");
+            Log.debug("Body entered [where=" + where() + ", oid=" + bodyOid + "].");
         }
 
         // let our delegates know what's up
@@ -546,13 +515,11 @@ public class PlaceManager
     protected void bodyLeft (final int bodyOid)
     {
         if (Log.log.getLevel() == Level.FINE) {
-            Log.debug("Body left [where=" + where() +
-                      ", oid=" + bodyOid + "].");
+            Log.debug("Body left [where=" + where() + ", oid=" + bodyOid + "].");
         }
 
-        // if their occupant info hasn't been removed (which may be the
-        // case if they logged off rather than left via a MoveTo request),
-        // we need to get it on out of here
+        // if their occupant info hasn't been removed (which may be the case if they logged off
+        // rather than left via a MoveTo request), we need to get it on out of here
         Integer key = Integer.valueOf(bodyOid);
         if (_plobj.occupantInfo.containsKey(key)) {
             _plobj.removeFromOccupantInfo(key);
@@ -575,8 +542,7 @@ public class PlaceManager
     }
 
     /**
-     * Returns whether the location should be marked as empty and potentially
-     *  shutdown.
+     * Returns whether the location should be marked as empty and potentially shutdown.
      */
     protected boolean shouldDeclareEmpty (OccupantInfo leaver)
     {
@@ -597,10 +563,9 @@ public class PlaceManager
     }
 
     /**
-     * Called when we transition from having bodies in the place to not
-     * having any bodies in the place. Some places may take this as a sign
-     * to pack it in, others may wish to stick around. In any case, they
-     * can override this method to do their thing.
+     * Called when we transition from having bodies in the place to not having any bodies in the
+     * place. Some places may take this as a sign to pack it in, others may wish to stick
+     * around. In any case, they can override this method to do their thing.
      */
     protected void placeBecameEmpty ()
     {
@@ -646,9 +611,9 @@ public class PlaceManager
     }
 
     /**
-     * Returns the period (in milliseconds) of emptiness after which this
-     * place manager will unload itself and shutdown. Returning
-     * <code>0</code> indicates that the place should never be shutdown.
+     * Returns the period (in milliseconds) of emptiness after which this place manager will unload
+     * itself and shutdown. Returning <code>0</code> indicates that the place should never be
+     * shutdown.
      */
     protected long idleUnloadPeriod ()
     {
@@ -656,9 +621,8 @@ public class PlaceManager
     }
 
     /**
-     * An extensible way to add to the string representation of this
-     * class. Override this (being sure to call super) and append your
-     * info to the buffer.
+     * An extensible way to add to the string representation of this class. Override this (being
+     * sure to call super) and append your info to the buffer.
      */
     protected void toString (StringBuilder buf)
     {
@@ -699,8 +663,7 @@ public class PlaceManager
     /** A reference to the place registry with which we're registered. */
     protected PlaceRegistry _registry;
 
-    /** The invocation manager with whom we register our game invocation
-     * services. */
+    /** The invocation manager with whom we register our game invocation services. */
     protected InvocationManager _invmgr;
 
     /** A distributed object manager for doing dobj stuff. */
@@ -719,12 +682,10 @@ public class PlaceManager
     protected ArrayList<PlaceManagerDelegate> _delegates;
 
     /** Used to keep a canonical copy of the occupant info records. */
-    protected HashIntMap<OccupantInfo> _occInfo =
-        new HashIntMap<OccupantInfo>();
+    protected HashIntMap<OccupantInfo> _occInfo = new HashIntMap<OccupantInfo>();
 
-    /** The interval currently registered to shut this place
-     * down after a certain period of idility, or null if no
-     * interval is currently registered. */
+    /** The interval currently registered to shut this place down after a certain period of
+     * idility, or null if no interval is currently registered. */
     protected Interval _shutdownInterval;
 
     /** Used to do method lookup magic when we receive message events. */

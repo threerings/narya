@@ -30,6 +30,7 @@ import com.samskivert.util.RunQueue;
 
 import com.threerings.presents.Log;
 import com.threerings.presents.data.ClientObject;
+import com.threerings.presents.data.InvocationCodes;
 import com.threerings.presents.dobj.DObjectManager;
 import com.threerings.presents.net.AuthResponseData;
 import com.threerings.presents.net.BootstrapData;
@@ -44,8 +45,7 @@ import com.threerings.presents.net.PongResponse;
  */
 public class Client
 {
-    /** The default ports on which the server listens for client
-     * connections. */
+    /** The default ports on which the server listens for client connections. */
     public static final int[] DEFAULT_SERVER_PORTS = { 47624 };
 
     /**
@@ -194,16 +194,6 @@ public class Client
     }
 
     /**
-     * Marks this client as interested in the specified bootstrap services group. Any services
-     * registered as bootstrap services with the supplied group name will be included in this
-     * clients bootstrap services set. This must be called before {@link #logon}.
-     */
-    public void addBootstrapGroup (String group)
-    {
-        _bootGroups.add(group);
-    }
-
-    /**
      * Returns the data associated with our authentication response. Users of the Presents system
      * may wish to communicate authentication related information to their client by extending and
      * augmenting {@link AuthResponseData}.
@@ -270,6 +260,16 @@ public class Client
     }
 
     /**
+     * Marks this client as interested in the specified bootstrap services group. Any services
+     * registered as bootstrap services with the supplied group name will be included in this
+     * clients bootstrap services set. This must be called before {@link #logon}.
+     */
+    public void addServiceGroup (String group)
+    {
+        _bootGroups.add(group);
+    }
+
+    /**
      * Returns the first bootstrap service that could be located that implements the supplied
      * {@link InvocationService} derivation.  <code>null</code> is returned if no such service
      * could be found.
@@ -281,8 +281,7 @@ public class Client
         }
         int scount = _bstrap.services.size();
         for (int ii = 0; ii < scount; ii++) {
-            InvocationService service = (InvocationService)
-                _bstrap.services.get(ii);
+            InvocationService service = (InvocationService)_bstrap.services.get(ii);
             if (sclass.isInstance(service)) {
                 return service;
             }
@@ -300,8 +299,7 @@ public class Client
         InvocationService isvc = getService(sclass);
         if (isvc == null) {
             throw new RuntimeException(
-                sclass.getName() + " isn't available. " +
-                "I can't bear to go on.");
+                sclass.getName() + " isn't available. I can't bear to go on.");
         }
         return isvc;
     }
@@ -744,7 +742,9 @@ public class Client
     protected BootstrapData _bstrap;
 
     /** The set of bootstrap service groups this client cares about. */
-    protected HashSet<String> _bootGroups = new HashSet<String>();
+    protected HashSet<String> _bootGroups = new HashSet<String>(); {
+        _bootGroups.add(InvocationCodes.GLOBAL_GROUP);
+    }
 
     /** Manages invocation services. */
     protected InvocationDirector _invdir = new InvocationDirector();

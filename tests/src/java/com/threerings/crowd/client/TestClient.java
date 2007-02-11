@@ -83,6 +83,10 @@ public class TestClient
         return _main == Thread.currentThread();
     }
 
+    public void clientWillLogon (Client client)
+    {
+    }
+
     public void clientDidLogon (Client client)
     {
         Log.info("Client did logon [client=" + client + "].");

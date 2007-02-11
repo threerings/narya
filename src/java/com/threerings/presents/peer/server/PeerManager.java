@@ -160,8 +160,7 @@ public class PeerManager
 
         // set the invocation service
         _nodeobj.setPeerService(
-            (PeerMarshaller)PresentsServer.invmgr.registerDispatcher(
-                new PeerDispatcher(this), false));
+            (PeerMarshaller)PresentsServer.invmgr.registerDispatcher(new PeerDispatcher(this)));
 
         // register ourselves as a client observer
         PresentsServer.clmgr.addClientObserver(this);
@@ -666,6 +665,12 @@ public class PeerManager
         {
             // we'll reconnect at most one minute later in refreshPeers()
             log.warning("Peer connection failed " + _record + ": " + cause);
+        }
+
+        // documentation inherited from interface ClientObserver
+        public void clientWillLogon (Client client)
+        {
+            // nothing doing
         }
 
         // documentation inherited from interface ClientObserver

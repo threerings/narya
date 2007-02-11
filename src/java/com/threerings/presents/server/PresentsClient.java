@@ -651,13 +651,9 @@ public class PresentsClient
 
         // fill in the list of bootstrap services
         data.services = new StreamableArrayList<InvocationMarshaller>();
-        StreamableArrayList<InvocationMarshaller> list = 
-            PresentsServer.invmgr.bootlists.get(InvocationManager.GLOBAL_BOOTSTRAP_GROUP);
-        if (list != null) {
-            data.services.addAll(list);
-        }
         for (String group : _areq.getBootGroups()) {
-            list = PresentsServer.invmgr.bootlists.get(group);
+            StreamableArrayList<InvocationMarshaller> list =
+                PresentsServer.invmgr.bootlists.get(group);
             if (list != null) {
                 data.services.addAll(list);
             }

@@ -34,6 +34,7 @@ import com.threerings.presents.dobj.Subscriber;
 
 import com.threerings.crowd.Log;
 import com.threerings.crowd.data.BodyObject;
+import com.threerings.crowd.data.CrowdCodes;
 import com.threerings.crowd.data.LocationCodes;
 import com.threerings.crowd.data.PlaceConfig;
 import com.threerings.crowd.data.PlaceObject;
@@ -416,12 +417,17 @@ public class LocationDirector extends BasicDirector
         _lservice = null;
     }
 
+    @Override // from BasicDirector
+    protected void registerServices (Client client)
+    {
+        client.addServiceGroup(CrowdCodes.CROWD_GROUP);
+    }
+
     // documentation inherited
     protected void fetchServices (Client client)
     {
         // obtain our service handle
-        _lservice = (LocationService)
-            client.requireService(LocationService.class);
+        _lservice = (LocationService)client.requireService(LocationService.class);
     }
 
     protected void gotBodyObject (BodyObject clobj)
