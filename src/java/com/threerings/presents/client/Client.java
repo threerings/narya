@@ -266,6 +266,9 @@ public class Client
      */
     public void addServiceGroup (String group)
     {
+        if (isLoggedOn()) {
+            throw new IllegalStateException("Service groups must be registered prior to logon.");
+        }
         _bootGroups.add(group);
     }
 
@@ -564,7 +567,7 @@ public class Client
         notifyObservers(CLIENT_OBJECT_CHANGED, null);
     }
 
-    boolean notifyObservers (int code, Exception cause)
+    protected boolean notifyObservers (int code, Exception cause)
     {
         final Notifier noty = new Notifier(code, cause);
         Runnable unit = new Runnable() {
@@ -575,10 +578,10 @@ public class Client
             }
         };
 
-        // we need to run immediately if this is WILL_LOGOFF or if we have no RunQueue (which
-        // currently only happens in some really obscure circumstances where we're using a Client
-        // instance on the server so that we can sort of pretend to be a real client)
-        if (code == CLIENT_WILL_LOGOFF || _runQueue == null) {
+        // we need to run immediately if this is WILL_LOGON, WILL_LOGOFF or if we have no RunQueue
+        // (which currently only happens in some really obscure circumstances where we're using a
+        // Client instance on the server so that we can sort of pretend to be a real client)
+        if (code == CLIENT_WILL_LOGON || code == CLIENT_WILL_LOGOFF || _runQueue == null) {
             unit.run();
             return noty.getRejected();
 
@@ -590,7 +593,7 @@ public class Client
         }
     }
 
-    synchronized void cleanup (final Exception logonError)
+    protected synchronized void cleanup (final Exception logonError)
     {
         // we know that prior to the call to this method, the observers were notified with
         // CLIENT_DID_LOGOFF; that may not have been invoked yet, so we don't want to clear out our
@@ -625,7 +628,7 @@ public class Client
      * Called when we receive a pong packet. We may be in the process of calculating the client/
      * server time differential, or we may have already done that at which point we ignore pongs.
      */
-    void gotPong (PongResponse pong)
+    protected void gotPong (PongResponse pong)
     {
         // if we're not currently calculating our delta, then we can throw away the pong
         if (_dcalc != null) {

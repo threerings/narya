@@ -40,7 +40,7 @@ public class BasicDirector
     {
         // save context
         _ctx = ctx;
-        
+
         // listen for session start and end
         Client client = ctx.getClient();
         client.addClientObserver(this);
@@ -48,6 +48,9 @@ public class BasicDirector
         // if we're already logged on, fire off a call to fetch services
         if (client.isLoggedOn()) {
             if (isAvailable()) {
+                // this is a sanity check: it will fail if this post-logon initialized director
+                // claims to need service groups (it must make that known prior to logon)
+                registerServices(client);
                 fetchServices(client);
             }
             clientObjectUpdated(client);
@@ -87,7 +90,7 @@ public class BasicDirector
     {
         _availableInStandalone = available;
     }
-    
+
     /**
      * Checks whether or not this director is available in standalone mode (defaults to false).
      */
@@ -95,7 +98,7 @@ public class BasicDirector
     {
         return _availableInStandalone;
     }
-    
+
     /**
      * Checks whether this director is available in the current mode.
      */
@@ -103,7 +106,7 @@ public class BasicDirector
     {
         return isAvailableInStandalone() || !_ctx.getClient().isStandalone();
     }
-    
+
     /**
      * If this director is not currently available, throws a {@link RuntimeException}.
      */
@@ -114,7 +117,7 @@ public class BasicDirector
                 " not available in standalone mode!");
         }
     }
-    
+
     /**
      * Called in three circumstances: when a director is created and we've already logged on; when
      * we first log on and when the client object changes after we've already logged on.
@@ -144,7 +147,7 @@ public class BasicDirector
 
     /** The application context. */
     protected PresentsContext _ctx;
-    
+
     /** Whether or not this director is available in standalone mode. */
     protected boolean _availableInStandalone;
 }
