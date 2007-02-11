@@ -21,8 +21,12 @@
 
 package com.threerings.presents.net;
 
+import java.util.HashSet;
 import java.util.TimeZone;
 
+/**
+ * Used to authenticate with the server.
+ */
 public class AuthRequest extends UpstreamMessage
 {
     /**
@@ -34,14 +38,14 @@ public class AuthRequest extends UpstreamMessage
     }
 
     /**
-     * Constructs a auth request with the supplied credentials and client
-     * version information.
+     * Constructs a auth request with the supplied credentials and client version information.
      */
-    public AuthRequest (Credentials creds, String version)
+    public AuthRequest (Credentials creds, String version, HashSet<String> bootGroups)
     {
         _creds = creds;
         _version = version;
         _zone = TimeZone.getDefault().getID();
+        _bootGroups = bootGroups.toArray(new String[bootGroups.size()]);
     }
 
     /**
@@ -53,8 +57,7 @@ public class AuthRequest extends UpstreamMessage
     }
 
     /**
-     * Returns a reference to the version information provided with this
-     * request.
+     * Returns a reference to the version information provided with this request.
      */
     public String getVersion ()
     {
@@ -67,6 +70,14 @@ public class AuthRequest extends UpstreamMessage
     public TimeZone getTimeZone ()
     {
         return TimeZone.getTimeZone(_zone);
+    }
+
+    /**
+     * Returns the set of bootstrap service groups in which this client is interested.
+     */
+    public String[] getBootGroups ()
+    {
+        return _bootGroups;
     }
 
     /**
@@ -86,4 +97,7 @@ public class AuthRequest extends UpstreamMessage
 
     /** The timezone in which this client is operating. */
     protected String _zone;
+
+    /** The set of bootstrap service groups this client is interested in. */
+    protected String[] _bootGroups;
 }

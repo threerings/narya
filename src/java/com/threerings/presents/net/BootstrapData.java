@@ -24,6 +24,8 @@ package com.threerings.presents.net;
 import com.threerings.io.SimpleStreamableObject;
 import com.threerings.util.StreamableArrayList;
 
+import com.threerings.presents.data.InvocationMarshaller;
+
 /**
  * A <code>BootstrapData</code> object is communicated back to the client
  * after authentication has succeeded and after the server is fully
@@ -36,5 +38,5 @@ public class BootstrapData extends SimpleStreamableObject
     public int clientOid;
 
     /** A list of handles to invocation services. */
-    public StreamableArrayList services;
+    public StreamableArrayList<InvocationMarshaller> services;
 }

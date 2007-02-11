@@ -40,40 +40,40 @@ import com.threerings.presents.dobj.InvocationRequestEvent;
 import com.threerings.presents.dobj.ObjectAccessException;
 import com.threerings.presents.dobj.RootDObjectManager;
 
+import java.util.HashMap;
+
 /**
- * The invocation services provide client to server invocations (service
- * requests) and server to client invocations (responses and
- * notifications). Via this mechanism, the client can make requests of the
- * server, be notified of its response and the server can asynchronously
- * invoke code on the client.
+ * The invocation services provide client to server invocations (service requests) and server to
+ * client invocations (responses and notifications). Via this mechanism, the client can make
+ * requests of the server, be notified of its response and the server can asynchronously invoke
+ * code on the client.
  *
- * <p> Invocations are like remote procedure calls in that they are named
- * and take arguments. All arguments must be {@link Streamable} objects,
- * primitive types, or String objects. All arguments are passed by value
- * (by serializing and unserializing the arguments); there is no special
- * facility provided for referencing non-local objects (it is assumed that
- * the distributed object facility will already be in use for any objects
- * that should be shared).
+ * <p> Invocations are like remote procedure calls in that they are named and take arguments. All
+ * arguments must be {@link Streamable} objects, primitive types, or String objects. All arguments
+ * are passed by value (by serializing and unserializing the arguments); there is no special
+ * facility provided for referencing non-local objects (it is assumed that the distributed object
+ * facility will already be in use for any objects that should be shared).
  *
- * <p> The server invocation manager listens for invocation requests from
- * the client and passes them on to the invocation provider registered for
- * the requested invocation module. It also provides a mechanism by which
- * responses and asynchronous notification invocations can be delivered to
- * the client.
+ * <p> The server invocation manager listens for invocation requests from the client and passes
+ * them on to the invocation provider registered for the requested invocation module. It also
+ * provides a mechanism by which responses and asynchronous notification invocations can be
+ * delivered to the client.
  */
 public class InvocationManager
     implements EventListener
 {
-    /** The list of services that are to be provided to clients at boot
-     * time. Don't mess with this list! */
-    public StreamableArrayList<InvocationMarshaller> bootlist =
-        new StreamableArrayList<InvocationMarshaller>();
+    /** Defines the name of the global bootstrap group. */
+    public static final String GLOBAL_BOOTSTRAP_GROUP = "global";
+
+    /** A mapping from bootstrap group to lists of services that are to be provided to clients at
+     * boot time. Don't mess with these lists! */
+    public HashMap<String,StreamableArrayList<InvocationMarshaller>> bootlists =
+        new HashMap<String,StreamableArrayList<InvocationMarshaller>>();
 
     /**
-     * Constructs an invocation manager which will use the supplied
-     * distributed object manager to operate its invocation
-     * services. Generally only one invocation manager should be
-     * operational in a particular system.
+     * Constructs an invocation manager which will use the supplied distributed object manager to
+     * operate its invocation services. Generally only one invocation manager should be operational
+     * in a particular system.
      */
     public InvocationManager (RootDObjectManager omgr)
     {
@@ -96,17 +96,30 @@ public class InvocationManager
     }
 
     /**
-     * Registers the supplied invocation dispatcher, returning a
-     * marshaller that can be used to send requests to the provider for
-     * whom the dispatcher is proxying.
+     * Registers the supplied invocation dispatcher, returning a marshaller that can be used to
+     * send requests to the provider for whom the dispatcher is proxying.
      *
      * @param dispatcher the dispatcher to be registered.
-     * @param bootstrap if true, the service instance will be added to the
-     * list of invocation service objects provided to the client in the
-     * bootstrap data.
+     * @param bootstrap if true, the service instance will be added to the list of invocation
+     * service objects provided to the client in the bootstrap data.
      */
     public InvocationMarshaller registerDispatcher (
         InvocationDispatcher dispatcher, boolean bootstrap)
+    {
+        return registerDispatcher(dispatcher, bootstrap ? GLOBAL_BOOTSTRAP_GROUP : null);
+    }
+
+    /**
+     * Registers the supplied invocation dispatcher, returning a marshaller that can be used to
+     * send requests to the provider for whom the dispatcher is proxying.
+     *
+     * @param dispatcher the dispatcher to be registered.
+     * @param group the bootstrap group in which this marshaller is to be registered, or null if it
+     * is not a bootstrap service. <em>Do not:</em> register a dispatcher with multiple boot
+     * groups. You must collect shared dispatchers into as fine grained a set of groups as
+     * necessary and have different types of clients specify the list of groups they need.
+     */
+    public InvocationMarshaller registerDispatcher (InvocationDispatcher dispatcher, String group)
     {
         // get the next invocation code
         int invCode = nextInvCode();
@@ -119,8 +132,12 @@ public class InvocationManager
         _dispatchers.put(invCode, dispatcher);
 
         // if it's a bootstrap service, slap it in the list
-        if (bootstrap) {
-            bootlist.add(marsh);
+        if (group != null) {
+            StreamableArrayList<InvocationMarshaller> list = bootlists.get(group);
+            if (list == null) {
+                bootlists.put(group, list = new StreamableArrayList<InvocationMarshaller>());
+            }
+            list.add(marsh);
         }
 
         _recentRegServices.put(Integer.valueOf(invCode),

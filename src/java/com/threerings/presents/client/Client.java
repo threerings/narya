@@ -21,6 +21,8 @@
 
 package com.threerings.presents.client;
 
+import java.util.HashSet;
+
 import com.samskivert.util.Interval;
 import com.samskivert.util.ObserverList;
 import com.samskivert.util.RunAnywhere;
@@ -36,9 +38,9 @@ import com.threerings.presents.net.PingRequest;
 import com.threerings.presents.net.PongResponse;
 
 /**
- * Through the client object, a connection to the system is established
- * and maintained. The client object maintains two separate threads (a
- * reader and a writer) by which all network traffic is managed.
+ * Through the client object, a connection to the system is established and maintained. The client
+ * object maintains two separate threads (a reader and a writer) by which all network traffic is
+ * managed.
  */
 public class Client
 {
@@ -47,22 +49,17 @@ public class Client
     public static final int[] DEFAULT_SERVER_PORTS = { 47624 };
 
     /**
-     * Constructs a client object with the supplied credentials and
-     * RunQueue. The creds will be used to authenticate with any server to
-     * which this client attempts to connect. The RunQueue is used to
-     * operate the distributed object event dispatch mechanism. To allow
-     * the dobj event dispatch to coexist with threads like the AWT
-     * thread, the client will request that the RunQueue queue up a
-     * runnable whenever there are distributed object events that need to
-     * be processed. The RunQueue can then queue that runnable up on the
-     * AWT thread if it is so inclined to make life simpler for the rest
-     * of the application.
+     * Constructs a client object with the supplied credentials and RunQueue. The creds will be
+     * used to authenticate with any server to which this client attempts to connect. The RunQueue
+     * is used to operate the distributed object event dispatch mechanism. To allow the dobj event
+     * dispatch to coexist with threads like the AWT thread, the client will request that the
+     * RunQueue queue up a runnable whenever there are distributed object events that need to be
+     * processed. The RunQueue can then queue that runnable up on the AWT thread if it is so
+     * inclined to make life simpler for the rest of the application.
      *
-     * @param creds the credentials to use when logging on to the server.
-     * These can be null, but <code>setCredentials</code> must then be
-     * called before any call to <code>logon</code>.
-     * @param runQueue a RunQueue that can be used to process incoming
-     * events.
+     * @param creds the credentials to use when logging on to the server.  These can be null, but
+     * <code>setCredentials</code> must then be called before any call to <code>logon</code>.
+     * @param runQueue a RunQueue that can be used to process incoming events.
      */
     public Client (Credentials creds, RunQueue runQueue)
     {
@@ -71,10 +68,9 @@ public class Client
     }
 
     /**
-     * Registers the supplied observer with this client. While registered
-     * the observer will receive notifications of state changes within the
-     * client. The function will refuse to register an already registered
-     * observer.
+     * Registers the supplied observer with this client. While registered the observer will receive
+     * notifications of state changes within the client. The function will refuse to register an
+     * already registered observer.
      *
      * @see ClientObserver
      * @see SessionObserver
@@ -87,9 +83,8 @@ public class Client
     }
 
     /**
-     * Unregisters the supplied observer. Upon return of this function,
-     * the observer will no longer receive notifications of state changes
-     * within the client.
+     * Unregisters the supplied observer. Upon return of this function, the observer will no longer
+     * receive notifications of state changes within the client.
      */
     public void removeClientObserver (SessionObserver observer)
     {
@@ -105,7 +100,7 @@ public class Client
     {
         _standalone = standalone;
     }
-    
+
     /**
      * Checks whether or not this client is operating in a standalone mode.
      */
@@ -113,10 +108,10 @@ public class Client
     {
         return _standalone;
     }
-    
+
     /**
-     * Configures the client to communicate with the server on the supplied
-     * hostname and set of ports (which will be tried in succession).
+     * Configures the client to communicate with the server on the supplied hostname and set of
+     * ports (which will be tried in succession).
      *
      * @see #logon
      */
@@ -127,8 +122,8 @@ public class Client
     }
 
     /**
-     * Returns the RunQueue in use by this client. This can be used to
-     * queue up event dispatching stints.
+     * Returns the RunQueue in use by this client. This can be used to queue up event dispatching
+     * stints.
      */
     public RunQueue getRunQueue ()
     {
@@ -136,8 +131,7 @@ public class Client
     }
 
     /**
-     * Returns the hostname of the server to which this client is
-     * currently configured to connect.
+     * Returns the hostname of the server to which this client is currently configured to connect.
      */
     public String getHostname ()
     {
@@ -145,8 +139,7 @@ public class Client
     }
 
     /**
-     * Returns the port on which this client is currently configured to
-     * connect to the server.
+     * Returns the port on which this client is currently configured to connect to the server.
      */
     public int[] getPorts ()
     {
@@ -154,8 +147,8 @@ public class Client
     }
 
     /**
-     * Returns the credentials with which this client is currently
-     * configured to connect to the server.
+     * Returns the credentials with which this client is currently configured to connect to the
+     * server.
      */
     public Credentials getCredentials ()
     {
@@ -163,9 +156,8 @@ public class Client
     }
 
     /**
-     * Sets the credentials that will be used by this client to
-     * authenticate with the server. This should be done before any call
-     * to <code>logon</code>.
+     * Sets the credentials that will be used by this client to authenticate with the server. This
+     * should be done before any call to <code>logon</code>.
      */
     public void setCredentials (Credentials creds)
     {
@@ -181,9 +173,8 @@ public class Client
     }
 
     /**
-     * Sets the version string reported to the server during
-     * authentication. Some server implementations may wish to refuse
-     * connections by old or invalid client versions.
+     * Sets the version string reported to the server during authentication. Some server
+     * implementations may wish to refuse connections by old or invalid client versions.
      */
     public void setVersion (String version)
     {
@@ -191,8 +182,8 @@ public class Client
     }
 
     /**
-     * Configures the client with a custom class loader which will be used
-     * when reading objects off of the network.
+     * Configures the client with a custom class loader which will be used when reading objects off
+     * of the network.
      */
     public void setClassLoader (ClassLoader loader)
     {
@@ -203,10 +194,19 @@ public class Client
     }
 
     /**
-     * Returns the data associated with our authentication response. Users
-     * of the Presents system may wish to communicate authentication
-     * related information to their client by extending and augmenting
-     * {@link AuthResponseData}.
+     * Marks this client as interested in the specified bootstrap services group. Any services
+     * registered as bootstrap services with the supplied group name will be included in this
+     * clients bootstrap services set. This must be called before {@link #logon}.
+     */
+    public void addBootstrapGroup (String group)
+    {
+        _bootGroups.add(group);
+    }
+
+    /**
+     * Returns the data associated with our authentication response. Users of the Presents system
+     * may wish to communicate authentication related information to their client by extending and
+     * augmenting {@link AuthResponseData}.
      */
     public AuthResponseData getAuthResponseData ()
     {
@@ -214,13 +214,11 @@ public class Client
     }
 
     /**
-     * Returns the distributed object manager associated with this
-     * session. This reference is only valid for the duration of the
-     * session and a new reference must be obtained if the client
+     * Returns the distributed object manager associated with this session. This reference is only
+     * valid for the duration of the session and a new reference must be obtained if the client
      * disconnects and reconnects to the server.
      *
-     * @return the dobjmgr in effect or null if we have no established
-     * connection to the server.
+     * @return the dobjmgr in effect or null if we have no established connection to the server.
      */
     public DObjectManager getDObjectManager ()
     {
@@ -228,17 +226,15 @@ public class Client
     }
 
     /**
-     * Instructs the distributed object manager associated with this
-     * client to allow objects of the specified class to linger around the
-     * specified number of milliseconds after their last subscriber has
-     * been removed before the client finally removes its object proxy and
-     * flushes the object. Normally, objects are flushed immediately
-     * following the removal of their last subscriber.
+     * Instructs the distributed object manager associated with this client to allow objects of the
+     * specified class to linger around the specified number of milliseconds after their last
+     * subscriber has been removed before the client finally removes its object proxy and flushes
+     * the object. Normally, objects are flushed immediately following the removal of their last
+     * subscriber.
      *
-     * <p><em>Note:</em> the delay will be applied to derived classes as
-     * well as exact matches. <em>Note also:</em> this method cannot be
-     * called until after the client has established a connection with the
-     * server and the distributed object manager is available.
+     * <p><em>Note:</em> the delay will be applied to derived classes as well as exact
+     * matches. <em>Note also:</em> this method cannot be called until after the client has
+     * established a connection with the server and the distributed object manager is available.
      */
     public void registerFlushDelay (Class objclass, long delay)
     {
@@ -247,8 +243,8 @@ public class Client
     }
 
     /**
-     * Returns the oid of the client object associated with this session.
-     * It is only valid for the duration of the session.
+     * Returns the oid of the client object associated with this session.  It is only valid for the
+     * duration of the session.
      */
     public int getClientOid ()
     {
@@ -256,8 +252,8 @@ public class Client
     }
 
     /**
-     * Returns a reference to the client object associated with this
-     * session. It is only valid for the duration of the session.
+     * Returns a reference to the client object associated with this session. It is only valid for
+     * the duration of the session.
      */
     public ClientObject getClientObject ()
     {
@@ -265,8 +261,8 @@ public class Client
     }
 
     /**
-     * Returns the invocation director associated with this session. This
-     * reference is only valid for the duration of the session.
+     * Returns the invocation director associated with this session. This reference is only valid
+     * for the duration of the session.
      */
     public InvocationDirector getInvocationDirector ()
     {
@@ -274,9 +270,9 @@ public class Client
     }
 
     /**
-     * Returns the first bootstrap service that could be located that
-     * implements the supplied {@link InvocationService} derivation.
-     * <code>null</code> is returned if no such service could be found.
+     * Returns the first bootstrap service that could be located that implements the supplied
+     * {@link InvocationService} derivation.  <code>null</code> is returned if no such service
+     * could be found.
      */
     public InvocationService getService (Class sclass)
     {
@@ -295,10 +291,9 @@ public class Client
     }
 
     /**
-     * Like {@link #getService} except that a {@link RuntimeException} is
-     * thrown if the service is not available. Useful to avoid redundant
-     * error checking when you know that the shit will hit the fan if a
-     * particular invocation service is not available.
+     * Like {@link #getService} except that a {@link RuntimeException} is thrown if the service is
+     * not available. Useful to avoid redundant error checking when you know that the shit will hit
+     * the fan if a particular invocation service is not available.
      */
     public InvocationService requireService (Class sclass)
     {
@@ -312,8 +307,7 @@ public class Client
     }
 
     /**
-     * Returns a reference to the bootstrap data provided to this client
-     * at logon time.
+     * Returns a reference to the bootstrap data provided to this client at logon time.
      */
     public BootstrapData getBootstrapData ()
     {
@@ -321,30 +315,28 @@ public class Client
     }
 
     /**
-     * Converts a server time stamp to a value comparable to client clock
-     * readings.
+     * Converts a server time stamp to a value comparable to client clock readings.
      */
     public long fromServerTime (long stamp)
     {
-        // when we calcuated our time delta, we did it such that: C - S =
-        // dT, thus to convert server to client time we do: C = S + dT
+        // when we calcuated our time delta, we did it such that: C - S = dT, thus to convert
+        // server to client time we do: C = S + dT
         return stamp + _serverDelta;
     }
 
     /**
-     * Converts a client clock reading to a value comparable to a server
-     * time stamp.
+     * Converts a client clock reading to a value comparable to a server time stamp.
      */
     public long toServerTime (long stamp)
     {
-        // when we calcuated our time delta, we did it such that: C - S =
-        // dT, thus to convert server to client time we do: S = C - dT
+        // when we calcuated our time delta, we did it such that: C - S = dT, thus to convert
+        // server to client time we do: S = C - dT
         return stamp - _serverDelta;
     }
 
     /**
-     * Returns true if we are in active communication (we may not yet be logged
-     * on, but we could be trying to log on).
+     * Returns true if we are in active communication (we may not yet be logged on, but we could be
+     * trying to log on).
      */
     public synchronized boolean isActive ()
     {
@@ -357,17 +349,16 @@ public class Client
      */
     public synchronized boolean isLoggedOn ()
     {
-        // we're not "logged on" until we're fully done with the
-        // procedure, meaning we have a client object reference
+        // we're not "logged on" until we're fully done with the procedure, meaning we have a
+        // client object reference
         return (_clobj != null);
     }
 
     /**
-     * Requests that this client connect and logon to the server with
-     * which it was previously configured.
+     * Requests that this client connect and logon to the server with which it was previously
+     * configured.
      *
-     * @return false if we're already logged on, true if a logon attempt
-     * was initiated.
+     * @return false if we're already logged on, true if a logon attempt was initiated.
      */
     public synchronized boolean logon ()
     {
@@ -376,14 +367,14 @@ public class Client
             return false;
         }
 
-        // otherwise create a new communicator instance and start it up.
-        // this will initiate the logon process
+        // otherwise create a new communicator instance and start it up.  this will initiate the
+        // logon process
         _comm = new Communicator(this);
         _comm.setClassLoader(_loader);
         _comm.logon();
 
-        // register an interval that we'll use to keep the clock synced
-        // and to send pings when appropriate
+        // register an interval that we'll use to keep the clock synced and to send pings when
+        // appropriate
         if (_tickInterval == null) {
             _tickInterval = new Interval() {
                 public void expired () {
@@ -397,28 +388,23 @@ public class Client
     }
 
     /**
-     * Requests that the client log off of the server to which it is
-     * connected.
+     * Requests that the client log off of the server to which it is connected.
      *
-     * @param abortable If true, the client will call
-     * <code>clientWillDisconnect</code> on all of the client observers
-     * and abort the logoff process if any of them return false. If false,
+     * @param abortable If true, the client will call <code>clientWillDisconnect</code> on all of
+     * the client observers and abort the logoff process if any of them return false. If false,
      * <code>clientWillDisconnect</code> will not be called at all.
      *
-     * @return true if the logoff succeeded, false if it failed due to a
-     * disagreeable observer.
+     * @return true if the logoff succeeded, false if it failed due to a disagreeable observer.
      */
     public boolean logoff (boolean abortable)
     {
         // if we have no communicator, we're not logged on anyway
         if (_comm == null) {
-            Log.warning("Ignoring request to logoff because we're not " +
-                        "logged on.");
+            Log.warning("Ignoring request to logoff because we're not logged on.");
             return true;
         }
 
-        // if the request is abortable, let's run it past the observers
-        // before we act upon it
+        // if the request is abortable, let's run it past the observers before we act upon it
         if (abortable && notifyObservers(CLIENT_WILL_LOGOFF, null)) {
             return false;
         }
@@ -427,29 +413,25 @@ public class Client
         _tickInterval.cancel();
         _tickInterval = null;
 
-        // ask the communicator to send a logoff message and disconnect
-        // from the server
+        // ask the communicator to send a logoff message and disconnect from the server
         _comm.logoff();
 
         return true;
     }
 
     /**
-     * For standalone mode, this notifies observers that the client has logged
-     * off and cleans up.
+     * For standalone mode, this notifies observers that the client has logged off and cleans up.
      */
     public void standaloneLogoff ()
     {
         notifyObservers(CLIENT_DID_LOGOFF, null);
         cleanup(null);
     }
-    
+
     /**
-     * Called by the {@link ClientDObjectMgr} when our bootstrap
-     * notification arrives. If the client and server are being run in
-     * "merged" mode in a single JVM, this is how the client is configured
-     * with the server's distributed object manager and provided with
-     * bootstrap data.
+     * Called by the {@link ClientDObjectMgr} when our bootstrap notification arrives. If the
+     * client and server are being run in "merged" mode in a single JVM, this is how the client is
+     * configured with the server's distributed object manager and provided with bootstrap data.
      */
     public void gotBootstrap (BootstrapData data, DObjectManager omgr)
     {
@@ -465,20 +447,18 @@ public class Client
         // initialize our invocation director
         _invdir.init(omgr, _cloid, this);
 
-        // send a few pings to the server to establish the clock offset
-        // between this client and server standard time
+        // send a few pings to the server to establish the clock offset between this client and
+        // server standard time
         establishClockDelta(System.currentTimeMillis());
 
-        // we can't quite call initialization completed at this point
-        // because we need for the invocation director to fully initialize
-        // (which requires a round trip to the server) before turning the
-        // client loose to do things like request invocation services
+        // we can't quite call initialization completed at this point because we need for the
+        // invocation director to fully initialize (which requires a round trip to the server)
+        // before turning the client loose to do things like request invocation services
     }
 
     /**
-     * Called every five seconds; ensures that we ping the server if we
-     * haven't communicated in a long while and periodically resyncs the
-     * client and server clock deltas.
+     * Called every five seconds; ensures that we ping the server if we haven't communicated in a
+     * long while and periodically resyncs the client and server clock deltas.
      */
     protected void tick ()
     {
@@ -501,8 +481,8 @@ public class Client
             }
 
         } else if (now - _comm.getLastWrite() > PingRequest.PING_INTERVAL) {
-            // if we haven't sent anything over the network in a while, we
-            // ping the server to let it know that we're still alive
+            // if we haven't sent anything over the network in a while, we ping the server to let
+            // it know that we're still alive
             _comm.postMessage(new PingRequest());
 
         } else if (now - _lastSync > CLOCK_SYNC_INTERVAL) {
@@ -512,10 +492,9 @@ public class Client
     }
 
     /**
-     * Called during initialization to initiate a sequence of ping/pong
-     * messages which will be used to determine (with "good enough"
-     * accuracy) the difference between the client clock and the server
-     * clock so that we can later interpret server timestamps.
+     * Called during initialization to initiate a sequence of ping/pong messages which will be used
+     * to determine (with "good enough" accuracy) the difference between the client clock and the
+     * server clock so that we can later interpret server timestamps.
      */
     protected void establishClockDelta (long now)
     {
@@ -530,8 +509,8 @@ public class Client
     }
 
     /**
-     * Called by the {@link Communicator} if it is experiencing trouble logging
-     * on but is still trying fallback strategies.
+     * Called by the {@link Communicator} if it is experiencing trouble logging on but is still
+     * trying fallback strategies.
      */
     protected void reportLogonTribulations (final LogonException cause)
     {
@@ -543,8 +522,8 @@ public class Client
     }
 
     /**
-     * Called by the invocation director when it successfully subscribes
-     * to the client object immediately following logon.
+     * Called by the invocation director when it successfully subscribes to the client object
+     * immediately following logon.
      */
     protected void gotClientObject (ClientObject clobj)
     {
@@ -556,8 +535,7 @@ public class Client
     }
 
     /**
-     * Called by the invocation director if it fails to subscribe to the
-     * client object after logon.
+     * Called by the invocation director if it fails to subscribe to the client object after logon.
      */
     protected void getClientObjectFailed (Exception cause)
     {
@@ -566,8 +544,7 @@ public class Client
     }
 
     /**
-     * Called by the invocation director when it discovers that the client
-     * object has changed.
+     * Called by the invocation director when it discovers that the client object has changed.
      */
     protected void clientObjectDidChange (ClientObject clobj)
     {
@@ -589,17 +566,16 @@ public class Client
             }
         };
 
-        // we need to run immediately if this is WILL_LOGOFF or if we have
-        // no RunQueue (which currently only happens in some really obscure
-        // circumstances where we're using a Client instance on the server
-        // so that we can sort of pretend to be a real client)
+        // we need to run immediately if this is WILL_LOGOFF or if we have no RunQueue (which
+        // currently only happens in some really obscure circumstances where we're using a Client
+        // instance on the server so that we can sort of pretend to be a real client)
         if (code == CLIENT_WILL_LOGOFF || _runQueue == null) {
             unit.run();
             return noty.getRejected();
 
         } else {
-            // otherwise we can queue this notification up with our
-            // RunQueue and ensure that it's run on the proper thread
+            // otherwise we can queue this notification up with our RunQueue and ensure that it's
+            // run on the proper thread
             _runQueue.postRunnable(unit);
             return false;
         }
@@ -607,12 +583,10 @@ public class Client
 
     synchronized void cleanup (final Exception logonError)
     {
-        // we know that prior to the call to this method, the observers
-        // were notified with CLIENT_DID_LOGOFF; that may not have been
-        // invoked yet, so we don't want to clear out our communicator
-        // reference immediately; instead we queue up a runnable unit to
-        // do so to ensure that it won't happen until CLIENT_DID_LOGOFF
-        // was dispatched
+        // we know that prior to the call to this method, the observers were notified with
+        // CLIENT_DID_LOGOFF; that may not have been invoked yet, so we don't want to clear out our
+        // communicator reference immediately; instead we queue up a runnable unit to do so to
+        // ensure that it won't happen until CLIENT_DID_LOGOFF was dispatched
         _runQueue.postRunnable(new Runnable() {
             public void run () {
                 // clear out our references
@@ -625,11 +599,10 @@ public class Client
                 // and let our invocation director know we're logged off
                 _invdir.cleanup();
 
-                // if we were cleaned up due to a failure to logon, we can
-                // report the logon error now that the communicator is
-                // cleaned up; this allows a logon failure listener to
-                // immediately try another logon (hopefully with something
-                // changed like the server or port)
+                // if we were cleaned up due to a failure to logon, we can report the logon error
+                // now that the communicator is cleaned up; this allows a logon failure listener to
+                // immediately try another logon (hopefully with something changed like the server
+                // or port)
                 if (logonError != null) {
                     notifyObservers(CLIENT_FAILED_TO_LOGON, logonError);
                 } else {
@@ -640,18 +613,15 @@ public class Client
     }
 
     /**
-     * Called when we receive a pong packet. We may be in the process of
-     * calculating the client/server time differential, or we may have
-     * already done that at which point we ignore pongs.
+     * Called when we receive a pong packet. We may be in the process of calculating the client/
+     * server time differential, or we may have already done that at which point we ignore pongs.
      */
     void gotPong (PongResponse pong)
     {
-        // if we're not currently calculating our client/server delta, then
-        // we can throw away the pong
+        // if we're not currently calculating our delta, then we can throw away the pong
         if (_dcalc != null) {
-            // we update the delta after every receipt so as to immediately
-            // obtain an estimate of the clock delta and then refine it as
-            // more packets come in
+            // we update the delta after every receipt so as to immediately obtain an estimate of
+            // the clock delta and then refine it as more packets come in
             _dcalc.gotPong(pong);
             _serverDelta = _dcalc.getTimeDelta();
         }
@@ -684,8 +654,7 @@ public class Client
 
             case CLIENT_FAILED_TO_LOGON:
                 if (obs instanceof ClientObserver) {
-                    ((ClientObserver)obs).clientFailedToLogon(
-                        Client.this, _cause);
+                    ((ClientObserver)obs).clientFailedToLogon(Client.this, _cause);
                 }
                 break;
 
@@ -697,8 +666,7 @@ public class Client
 
             case CLIENT_CONNECTION_FAILED:
                 if (obs instanceof ClientObserver) {
-                    ((ClientObserver)obs).clientConnectionFailed(
-                        Client.this, _cause);
+                    ((ClientObserver)obs).clientConnectionFailed(Client.this, _cause);
                 }
                 break;
 
@@ -721,8 +689,7 @@ public class Client
                 break;
 
             default:
-                throw new RuntimeException("Invalid code supplied to " +
-                                           "notifyObservers: " + _code);
+                throw new RuntimeException("Invalid code supplied to notifyObservers: " + _code);
             }
 
             return true;
@@ -739,8 +706,7 @@ public class Client
     /** The version string reported to the server at auth time. */
     protected String _version = "";
 
-    /** An entity that gives us the ability to process events on the main
-     * client thread. */
+    /** An entity that gives us the ability to process events on the main client thread. */
     protected RunQueue _runQueue;
 
     /** The distributed object manager we're using during this session. */
@@ -757,7 +723,7 @@ public class Client
 
     /** Whether or not this client is operating in a standalone mode. */
     protected boolean _standalone;
-    
+
     /** The game server host. */
     protected String _hostname;
 
@@ -771,22 +737,23 @@ public class Client
     /** The entity that manages our network communications. */
     protected Communicator _comm;
 
-    /** A custom class loader used to load objects that come in over the
-     * network. */
+    /** A custom class loader used to load objects that come in over the network. */
     protected ClassLoader _loader = getClass().getClassLoader();
 
     /** General startup information provided by the server. */
     protected BootstrapData _bstrap;
 
+    /** The set of bootstrap service groups this client cares about. */
+    protected HashSet<String> _bootGroups = new HashSet<String>();
+
     /** Manages invocation services. */
     protected InvocationDirector _invdir = new InvocationDirector();
 
-    /** The difference between the server clock and the client clock
-     * (estimated immediately after logging on). */
+    /** The difference between the server clock and the client clock (estimated immediately after
+     * logging on). */
     protected long _serverDelta;
 
-    /** Used when establishing our clock delta between the client and
-     * server. */
+    /** Used when establishing our clock delta between the client and server. */
     protected DeltaCalculator _dcalc;
 
     /** The last time at which we synced our clock with the server. */

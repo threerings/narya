@@ -54,9 +54,8 @@ import com.threerings.presents.net.LogoffRequest;
 import com.threerings.presents.net.UpstreamMessage;
 
 /**
- * The client performs all network I/O on separate threads (one for
- * reading and one for writing). The communicator class encapsulates that
- * functionality.
+ * The client performs all network I/O on separate threads (one for reading and one for
+ * writing). The communicator class encapsulates that functionality.
  *
  * <pre>
  * Logon synopsis:
@@ -79,8 +78,7 @@ import com.threerings.presents.net.UpstreamMessage;
 public class Communicator
 {
     /**
-     * Creates a new communicator instance which is associated with the
-     * supplied client.
+     * Creates a new communicator instance which is associated with the supplied client.
      */
     public Communicator (Client client)
     {
@@ -88,8 +86,7 @@ public class Communicator
     }
 
     /**
-     * Logs on to the server and initiates our full-duplex message
-     * exchange.
+     * Logs on to the server and initiates our full-duplex message exchange.
      */
     public void logon ()
     {
@@ -98,21 +95,19 @@ public class Communicator
             throw new RuntimeException("Communicator already started.");
         }
 
-        // start up the reader thread. it will connect to the server and
-        // start up the writer thread if everything went successfully
+        // start up the reader thread. it will connect to the server and start up the writer thread
+        // if everything went successfully
         _reader = new Reader();
         _reader.start();
     }
 
     /**
-     * Delivers a logoff notification to the server and shuts down the
-     * network connection. Also causes all communication threads to
-     * terminate.
+     * Delivers a logoff notification to the server and shuts down the network connection. Also
+     * causes all communication threads to terminate.
      */
     public synchronized void logoff ()
     {
-        // if our socket is already closed, we've already taken care of
-        // this business
+        // if our socket is already closed, we've already taken care of this business
         if (_channel == null) {
             return;
         }
@@ -122,27 +117,22 @@ public class Communicator
 
         // let our reader and writer know that it's time to go
         if (_reader != null) {
-            // if logoff() is being called by the client as part of a
-            // normal shutdown, this will cause the reader thread to be
-            // interrupted and shutdown gracefully. if logoff is being
-            // called by the reader thread as a result of a failed socket,
-            // it won't interrupt itself as it is already shutting down
-            // gracefully. if the JVM is buggy and calling interrupt() on
-            // a thread that is blocked on a socket doesn't wake it up,
-            // then when we close() the socket a bit further down, we have
-            // another chance that the reader thread will wake up; this
-            // time slightly less gracefully because it will think there's
-            // a network error when in fact we're just shutting down, but
-            // at least it will cleanly exit
+            // if logoff() is being called by the client as part of a normal shutdown, this will
+            // cause the reader thread to be interrupted and shutdown gracefully. if logoff is
+            // being called by the reader thread as a result of a failed socket, it won't interrupt
+            // itself as it is already shutting down gracefully. if the JVM is buggy and calling
+            // interrupt() on a thread that is blocked on a socket doesn't wake it up, then when we
+            // close() the socket a bit further down, we have another chance that the reader thread
+            // will wake up; this time slightly less gracefully because it will think there's a
+            // network error when in fact we're just shutting down, but at least it will cleanly
+            // exit
             _reader.shutdown();
         }
         if (_writer != null) {
-            // shutting down the writer thread is simpler because we can
-            // post a termination message on the queue and be sure that it
-            // will receive it. when the writer thread has delivered our
-            // logoff request and exited, we will complete the logoff
-            // process by closing our socket and invoking the
-            // clientDidLogoff callback
+            // shutting down the writer thread is simpler because we can post a termination message
+            // on the queue and be sure that it will receive it. when the writer thread has
+            // delivered our logoff request and exited, we will complete the logoff process by
+            // closing our socket and invoking the clientDidLogoff callback
             _writer.shutdown();
         }
     }
@@ -157,8 +147,8 @@ public class Communicator
     }
 
     /**
-     * Configures this communicator with a custom class loader to be used
-     * when reading and writing objects over the network.
+     * Configures this communicator with a custom class loader to be used when reading and writing
+     * objects over the network.
      */
     public void setClassLoader (ClassLoader loader)
     {
@@ -169,10 +159,9 @@ public class Communicator
     }
 
     /**
-     * Callback called by the reader when the authentication process
-     * completes successfully. Here we extract the bootstrap information
-     * for the client and start up the writer thread to manage the other
-     * half of our bi-directional message stream.
+     * Callback called by the reader when the authentication process completes successfully. Here
+     * we extract the bootstrap information for the client and start up the writer thread to manage
+     * the other half of our bi-directional message stream.
      */
     protected synchronized void logonSucceeded (AuthResponseData data)
     {
@@ -188,22 +177,21 @@ public class Communicator
         _writer = new Writer();
         _writer.start();
 
-        // fill the auth data into the client's local field so that it can
-        // be requested by external entities
+        // fill the auth data into the client's local field so that it can be requested by external
+        // entities
         _client._authData = data;
 
-        // wait for the bootstrap notification before we claim that we're
-        // actually logged on
+        // wait for the bootstrap notification before we claim that we're actually logged on
     }
 
     /**
-     * Callback called by the reader or writer thread when something goes
-     * awry with our socket connection to the server.
+     * Callback called by the reader or writer thread when something goes awry with our socket
+     * connection to the server.
      */
     protected synchronized void connectionFailed (IOException ioe)
     {
-        // make sure the socket isn't already closed down (meaning we've
-        // already dealt with the failed connection)
+        // make sure the socket isn't already closed down (meaning we've already dealt with the
+        // failed connection)
         if (_channel == null) {
             return;
         }
@@ -219,13 +207,12 @@ public class Communicator
     }
 
     /**
-     * Callback called by the reader if the server closes the other end of
-     * the connection.
+     * Callback called by the reader if the server closes the other end of the connection.
      */
     protected synchronized void connectionClosed ()
     {
-        // make sure the socket isn't already closed down (meaning we've
-        // already dealt with the closed connection)
+        // make sure the socket isn't already closed down (meaning we've already dealt with the
+        // closed connection)
         if (_channel == null) {
             return;
         }
@@ -244,8 +231,8 @@ public class Communicator
         _reader = null;
 
         if (_writer == null) {
-            // there's no writer during authentication, so we may be
-            // responsible for closing the socket channel
+            // there's no writer during authentication, so we may be responsible for closing the
+            // socket channel
             closeChannel();
 
             // let the client know when we finally go away
@@ -267,9 +254,8 @@ public class Communicator
         // let the client observers know that we're logged off
         _client.notifyObservers(Client.CLIENT_DID_LOGOFF, null);
 
-        // now that the writer thread has gone away, we can safely close
-        // our socket and let the client know that the logoff process has
-        // completed
+        // now that the writer thread has gone away, we can safely close our socket and let the
+        // client know that the logoff process has completed
         closeChannel();
 
         // let the client know when we finally go away
@@ -279,9 +265,8 @@ public class Communicator
     }
 
     /**
-     * Closes the socket channel that we have open to the server. Called
-     * by either {@link #readerDidExit} or {@link #writerDidExit}
-     * whichever is called last.
+     * Closes the socket channel that we have open to the server. Called by either {@link
+     * #readerDidExit} or {@link #writerDidExit} whichever is called last.
      */
     protected void closeChannel ()
     {
@@ -319,16 +304,13 @@ public class Communicator
         try {
             ByteBuffer buffer = _fout.frameAndReturnBuffer();
             if (buffer.limit() > 4096) {
-                String txt = StringUtil.truncate(
-                    String.valueOf(msg), 80, "...");
-                Log.info("Whoa, writin' a big one [msg=" + txt +
-                         ", size=" + buffer.limit() + "].");
+                String txt = StringUtil.truncate(String.valueOf(msg), 80, "...");
+                Log.info("Whoa, writin' a big one [msg=" + txt + ", size=" + buffer.limit() + "].");
             }
             int wrote = _channel.write(buffer);
             if (wrote != buffer.limit()) {
                 Log.warning("Aiya! Couldn't write entire message [msg=" + msg +
-                            ", size=" + buffer.limit() +
-                            ", wrote=" + wrote + "].");
+                            ", size=" + buffer.limit() + ", wrote=" + wrote + "].");
 //             } else {
 //                 Log.info("Wrote " + wrote + " bytes.");
             }
@@ -350,8 +332,7 @@ public class Communicator
     }
 
     /**
-     * Makes a note of the time at which we last communicated with the
-     * server.
+     * Makes a note of the time at which we last communicated with the server.
      */
     protected synchronized void updateWriteStamp ()
     {
@@ -359,17 +340,15 @@ public class Communicator
     }
 
     /**
-     * Reads a new message from the socket (blocking until a message has
-     * arrived).
+     * Reads a new message from the socket (blocking until a message has arrived).
      */
     protected DownstreamMessage receiveMessage ()
         throws IOException
     {
-        // read in the next message frame (readFrame() can return false
-        // meaning it only read part of the frame from the network, in
-        // which case we simply call it again because we can't do anything
-        // until it has a whole frame; it will throw an exception if it
-        // hits EOF or if something goes awry)
+        // read in the next message frame (readFrame() can return false meaning it only read part
+        // of the frame from the network, in which case we simply call it again because we can't do
+        // anything until it has a whole frame; it will throw an exception if it hits EOF or if
+        // something goes awry)
         while (!_fin.readFrame(_channel));
 
         try {
@@ -386,8 +365,8 @@ public class Communicator
     }
 
     /**
-     * Callback called by the reader thread when it has parsed a new
-     * message from the socket and wishes to have it processed.
+     * Callback called by the reader thread when it has parsed a new message from the socket and
+     * wishes to have it processed.
      */
     protected void processMessage (DownstreamMessage msg)
     {
@@ -396,9 +375,8 @@ public class Communicator
     }
 
     /**
-     * Cancels our preferred port saving interval. This method is called from
-     * the communication reader thread and the interval thread and must thus be
-     * synchronized.
+     * Cancels our preferred port saving interval. This method is called from the communication
+     * reader thread and the interval thread and must thus be synchronized.
      */
     protected synchronized boolean clearPPI (boolean cancel)
     {
@@ -414,10 +392,9 @@ public class Communicator
     }
 
     /**
-     * The reader encapsulates the authentication and message reading
-     * process. It calls back to the <code>Communicator</code> class to do
-     * things, but the general flow of the reader thread is encapsulated
-     * in this class.
+     * The reader encapsulates the authentication and message reading process. It calls back to the
+     * {@link Communicator} class to do things, but the general flow of the reader thread is
+     * encapsulated in this class.
      */
     protected class Reader extends LoopingThread
     {
@@ -452,8 +429,8 @@ public class Communicator
             // look up the address of the target server
             InetAddress host = InetAddress.getByName(_client.getHostname());
 
-            // obtain the list of available ports on which to attempt our
-            // client connection and determine our preferred port
+            // obtain the list of available ports on which to attempt our client connection and
+            // determine our preferred port
             String pportKey = _client.getHostname() + ".preferred_port";
             int[] ports = _client.getPorts();
             int pport = PresentsPrefs.config.getValue(pportKey, ports[0]);
@@ -468,18 +445,16 @@ public class Communicator
                 try {
                     synchronized (Communicator.this) {
                         clearPPI(true);
-                        _prefPortInterval =
-                            new PrefPortInterval(pportKey, port, nextPort);
+                        _prefPortInterval = new PrefPortInterval(pportKey, port, nextPort);
                         _channel = SocketChannel.open(addr);
                         _prefPortInterval.schedule(PREF_PORT_DELAY);
                     }
                     break;
+
                 } catch (IOException ioe) {
-                    if (ioe instanceof ConnectException &&
-                        ii < (ports.length-1)) {
+                    if (ioe instanceof ConnectException && ii < (ports.length-1)) {
                         _client.reportLogonTribulations(
-                            new LogonException(
-                                AuthCodes.TRYING_NEXT_PORT, true));
+                            new LogonException(AuthCodes.TRYING_NEXT_PORT, true));
                         continue; // try the next port
                     }
                     throw ioe;
@@ -488,8 +463,8 @@ public class Communicator
 
             _channel.configureBlocking(true);
 
-            // our messages are framed (preceded by their length), so we
-            // use these helper streams to manage the framing
+            // our messages are framed (preceded by their length), so we use these helper streams
+            // to manage the framing
             _fin = new FramedInputStream();
             _fout = new FramingOutputStream();
 
@@ -503,8 +478,8 @@ public class Communicator
             throws IOException, LogonException
         {
             // construct an auth request and send it
-            AuthRequest req = new AuthRequest(_client.getCredentials(),
-                                              _client.getVersion());
+            AuthRequest req = new AuthRequest(
+                _client.getCredentials(), _client.getVersion(), _client._bootGroups);
             sendMessage(req);
 
             // now wait for the auth response
@@ -513,8 +488,8 @@ public class Communicator
             AuthResponseData data = rsp.getData();
             Log.debug("Got auth response: " + data);
 
-            // if the auth request failed, we want to let the communicator
-            // know by throwing a logon exception
+            // if the auth request failed, we want to let the communicator know by throwing a logon
+            // exception
             if (!data.code.equals(AuthResponseData.SUCCESS)) {
                 throw new LogonException(data.code);
             }
@@ -523,9 +498,8 @@ public class Communicator
             logonSucceeded(data);
         }
 
-        // now that we're authenticated, we manage the reading
-        // half of things by continuously reading messages from
-        // the socket and processing them
+        // now that we're authenticated, we manage the reading half of things by continuously
+        // reading messages from the socket and processing them
         protected void iterate ()
         {
             DownstreamMessage msg = null;
@@ -538,14 +512,12 @@ public class Communicator
                 processMessage(msg);
 
             } catch (InterruptedIOException iioe) {
-                // somebody set up us the bomb! we've been interrupted
-                // which means that we're being shut down, so we just
-                // report it and return from iterate() like a good monkey
+                // somebody set up us the bomb! we've been interrupted which means that we're being
+                // shut down, so we just report it and return from iterate() like a good monkey
                 Log.debug("Reader thread woken up in time to die.");
 
             } catch (EOFException eofe) {
-                // let the communicator know that our connection was
-                // closed
+                // let the communicator know that our connection was closed
                 connectionClosed();
                 // and shut ourselves down
                 shutdown();
@@ -557,8 +529,7 @@ public class Communicator
                 shutdown();
 
             } catch (Exception e) {
-                Log.warning("Error processing message [msg=" + msg +
-                            ", error=" + e + "].");
+                Log.warning("Error processing message [msg=" + msg + ", error=" + e + "].");
             }
         }
 
@@ -570,8 +541,8 @@ public class Communicator
 
         protected void didShutdown ()
         {
-            // If we haven't recorded a preferred port yet, instead do the
-            // failure action since we didn't stay connected long enough.
+            // if we haven't recorded a preferred port yet, instead do the failure action since we
+            // didn't stay connected long enough
             clearPPI(true);
 
             // let the communicator know when we finally go away
@@ -580,17 +551,16 @@ public class Communicator
 
         protected void kick ()
         {
-            // we want to interrupt the reader thread as it may be blocked
-            // listening to the socket; this is only called if the reader
-            // thread doesn't shut itself down
+            // we want to interrupt the reader thread as it may be blocked listening to the socket;
+            // this is only called if the reader thread doesn't shut itself down
 //             interrupt();
         }
     }
 
     /**
-     * The writer encapsulates the message writing process. It calls back
-     * to the <code>Communicator</code> class to do things, but the
-     * general flow of the writer thread is encapsulated in this class.
+     * The writer encapsulates the message writing process. It calls back to the {@link
+     * Communicator} class to do things, but the general flow of the writer thread is encapsulated
+     * in this class.
      */
     protected class Writer extends LoopingThread
     {
@@ -599,9 +569,8 @@ public class Communicator
             // fetch the next message from the queue
             UpstreamMessage msg = _msgq.get();
 
-            // if this is a termination message, we're being
-            // requested to exit, so we want to bail now rather
-            // than continuing
+            // if this is a termination message, we're being requested to exit, so we want to bail
+            // now rather than continuing
             if (msg instanceof TerminationMessage) {
                 return;
             }
@@ -611,8 +580,7 @@ public class Communicator
                 sendMessage(msg);
 
             } catch (IOException ioe) {
-                // let the communicator know if we have any
-                // problems
+                // let the communicator know if we have any problems
                 connectionFailed(ioe);
                 // and bail
                 shutdown();
@@ -632,8 +600,8 @@ public class Communicator
 
         protected void kick ()
         {
-            // post a bogus message to the outgoing queue to ensure that
-            // the writer thread notices that it's time to go
+            // post a bogus message to the outgoing queue to ensure that the writer thread notices
+            // that it's time to go
             postMessage(new TerminationMessage());
         }
     }
@@ -643,12 +611,11 @@ public class Communicator
     {
     }
 
-    /** Used to save our preferred port once we know our connection is not
-     * going to be unceremoniously closed by Windows Connection Sharing. */
+    /** Used to save our preferred port once we know our connection is not going to be
+     * unceremoniously closed by Windows Connection Sharing. */
     protected class PrefPortInterval extends Interval
     {
-        public PrefPortInterval (String key, int thisPort, int nextPort)
-        {
+        public PrefPortInterval (String key, int thisPort, int nextPort) {
             super();
             _key = key;
             _thisPort = thisPort;
@@ -691,8 +658,7 @@ public class Communicator
     protected ClientDObjectMgr _omgr;
     protected ClassLoader _loader;
 
-    /** We use this interval to record the preferred port if it stays connected
-     * long enough. */
+    /** We use this interval to record the preferred port if it stays connected long enough. */
     protected PrefPortInterval _prefPortInterval;
 
     /** Time a port must remain connected before we mark it as preferred. */
@@ -700,8 +666,7 @@ public class Communicator
 
     /** Used to control low-level message logging. */
     protected static RuntimeAdjust.BooleanAdjust _logMessages =
-        new RuntimeAdjust.BooleanAdjust(
-            "Toggles whether or not all sent and received low-level " +
-            "network events are logged.", "narya.presents.log_events",
-            PresentsPrefs.config, false);
+        new RuntimeAdjust.BooleanAdjust("Toggles whether or not all sent and received low-level " +
+                                        "network events are logged.", "narya.presents.log_events",
+                                        PresentsPrefs.config, false);
 }
