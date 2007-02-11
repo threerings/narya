@@ -21,6 +21,8 @@
 
 package com.threerings.presents.server;
 
+import java.util.HashMap;
+
 import com.samskivert.util.HashIntMap;
 import com.samskivert.util.LRUHashMap;
 import com.samskivert.util.StringUtil;
@@ -39,8 +41,6 @@ import com.threerings.presents.dobj.EventListener;
 import com.threerings.presents.dobj.InvocationRequestEvent;
 import com.threerings.presents.dobj.ObjectAccessException;
 import com.threerings.presents.dobj.RootDObjectManager;
-
-import java.util.HashMap;
 
 /**
  * The invocation services provide client to server invocations (service requests) and server to
@@ -62,11 +62,6 @@ import java.util.HashMap;
 public class InvocationManager
     implements EventListener
 {
-    /** A mapping from bootstrap group to lists of services that are to be provided to clients at
-     * boot time. Don't mess with these lists! */
-    public HashMap<String,StreamableArrayList<InvocationMarshaller>> bootlists =
-        new HashMap<String,StreamableArrayList<InvocationMarshaller>>();
-
     /**
      * Constructs an invocation manager which will use the supplied distributed object manager to
      * operate its invocation services. Generally only one invocation manager should be operational
@@ -127,9 +122,9 @@ public class InvocationManager
 
         // if it's a bootstrap service, slap it in the list
         if (group != null) {
-            StreamableArrayList<InvocationMarshaller> list = bootlists.get(group);
+            StreamableArrayList<InvocationMarshaller> list = _bootlists.get(group);
             if (list == null) {
-                bootlists.put(group, list = new StreamableArrayList<InvocationMarshaller>());
+                _bootlists.put(group, list = new StreamableArrayList<InvocationMarshaller>());
             }
             list.add(marsh);
         }
@@ -158,6 +153,22 @@ public class InvocationManager
                         "[marsh=" + marsh + "].");
             Thread.dumpStack();
         }
+    }
+
+    /**
+     * Constructs a list of all bootstrap services registered in any of the supplied groups.
+     */
+    public StreamableArrayList<InvocationMarshaller> getBootstrapServices (String[] bootGroups)
+    {
+        StreamableArrayList<InvocationMarshaller> services =
+            new StreamableArrayList<InvocationMarshaller>();
+        for (String group : bootGroups) {
+            StreamableArrayList<InvocationMarshaller> list = _bootlists.get(group);
+            if (list != null) {
+                services.addAll(list);
+            }
+        }
+        return services;
     }
 
     /**
@@ -294,6 +305,11 @@ public class InvocationManager
     /** A table of invocation dispatchers each mapped by a unique code. */
     protected HashIntMap<InvocationDispatcher> _dispatchers =
         new HashIntMap<InvocationDispatcher>();
+
+    /** A mapping from bootstrap group to lists of services that are to be provided to clients at
+     * boot time. */
+    protected HashMap<String,StreamableArrayList<InvocationMarshaller>> _bootlists =
+        new HashMap<String,StreamableArrayList<InvocationMarshaller>>();
 
     /** The text that is appended to the procedure name when automatically generating a failure
      * response. */

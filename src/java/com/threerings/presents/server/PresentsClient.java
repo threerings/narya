@@ -650,14 +650,7 @@ public class PresentsClient
         data.clientOid = _clobj.getOid();
 
         // fill in the list of bootstrap services
-        data.services = new StreamableArrayList<InvocationMarshaller>();
-        for (String group : _areq.getBootGroups()) {
-            StreamableArrayList<InvocationMarshaller> list =
-                PresentsServer.invmgr.bootlists.get(group);
-            if (list != null) {
-                data.services.addAll(list);
-            }
-        }
+        data.services = PresentsServer.invmgr.getBootstrapServices(_areq.getBootGroups());
     }
 
     /**
