@@ -4,6 +4,7 @@ public class ClientAdapter
     implements ClientObserver
 {
     public function ClientAdapter (
+            clientWillLogon :Function = null,
             clientDidLogon :Function = null,
             clientObjectDidChange :Function = null,
             clientDidLogoff :Function = null,
@@ -12,6 +13,7 @@ public class ClientAdapter
             clientWillLogoff :Function = null,
             clientDidClear :Function = null)
     {
+        _clientWillLogon = clientWillLogon;
         _clientDidLogon = clientDidLogon;
         _clientObjectDidChange = clientObjectDidChange;
         _clientDidLogoff = clientDidLogoff;
@@ -19,6 +21,14 @@ public class ClientAdapter
         _clientConnectionFailed = clientConnectionFailed;
         _clientWillLogoff = clientWillLogoff;
         _clientDidClear = clientDidClear;
+    }
+
+    // from ClientObserver
+    public function clientWillLogon (event :ClientEvent) :void
+    {
+        if (_clientWillLogon != null) {
+            _clientWillLogon(event);
+        }
     }
 
     // from ClientObserver
@@ -77,6 +87,7 @@ public class ClientAdapter
         }
     }
 
+    protected var _clientWillLogon :Function;
     protected var _clientDidLogon :Function;
     protected var _clientObjectDidChange :Function;
     protected var _clientDidLogoff :Function;

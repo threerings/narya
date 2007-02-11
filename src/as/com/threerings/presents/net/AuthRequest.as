@@ -7,10 +7,11 @@ import com.threerings.util.StringUtil;
 
 public class AuthRequest extends UpstreamMessage
 {
-    public function AuthRequest (creds :Credentials, version :String)
+    public function AuthRequest (creds :Credentials, version :String, bootGroups :Array)
     {
         _creds = creds;
         _version = version;
+        _bootGroups = bootGroups;
 
         // magic up a timezone in the format "GMT+XX:XX"
         // Of course, the sign returned from getTimezoneOffset() is wrong
@@ -30,10 +31,12 @@ public class AuthRequest extends UpstreamMessage
         out.writeObject(_creds);
         out.writeField(_version);
         out.writeField(_zone);
+        out.writeField(_bootGroups);
     }
 
     protected var _creds :Credentials;
     protected var _version :String;
     protected var _zone :String;
+    protected var _bootGroups :Array;
 }
 }

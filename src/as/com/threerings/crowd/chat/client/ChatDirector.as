@@ -45,6 +45,7 @@ import com.threerings.util.TimeUtil;
 
 import com.threerings.crowd.client.LocationObserver;
 import com.threerings.crowd.data.BodyObject;
+import com.threerings.crowd.data.CrowdCodes;
 import com.threerings.crowd.data.PlaceObject;
 import com.threerings.crowd.util.CrowdContext;
 
@@ -984,7 +985,13 @@ public class ChatDirector extends BasicDirector
         return (typ == null) ? ChatCodes.PLACE_CHAT_TYPE : typ;
     }
 
-    // documentation inherited from interface
+    // from BasicDirector
+    override protected function registerServices (client :Client) :void
+    {
+        client.addServiceGroup(CrowdCodes.CROWD_GROUP);
+    }
+
+    // from BasicDirector
     override protected function fetchServices (client :Client) :void
     {
         // get a handle on our chat service

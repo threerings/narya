@@ -11,6 +11,7 @@ import com.threerings.util.MethodQueue;
 import com.threerings.util.ObserverList;
 
 import com.threerings.presents.data.ClientObject;
+import com.threerings.presents.data.InvocationCodes;
 
 import com.threerings.presents.dobj.DObjectManager;
 
@@ -35,32 +36,25 @@ public class Client extends EventDispatcher
     }
 
     /**
-     * Registers the supplied observer with this client. While registered
-     * the observer  will receive notifications of state changes within the
-     * client. The function will refuse to register an already registered
-     * observer.
+     * Registers the supplied observer with this client. While registered the observer will receive
+     * notifications of state changes within the client. The function will refuse to register an
+     * already registered observer.
      *
      * @see ClientObserver
      * @see SessionObserver
      */
     public function addClientObserver (observer :SessionObserver) :void
     {
-        addEventListener(ClientEvent.CLIENT_DID_LOGON,
-            observer.clientDidLogon);
-        addEventListener(ClientEvent.CLIENT_OBJECT_CHANGED,
-            observer.clientObjectDidChange);
-        addEventListener(ClientEvent.CLIENT_DID_LOGOFF,
-            observer.clientDidLogoff);
+        addEventListener(ClientEvent.CLIENT_WILL_LOGON, observer.clientWillLogon);
+        addEventListener(ClientEvent.CLIENT_DID_LOGON, observer.clientDidLogon);
+        addEventListener(ClientEvent.CLIENT_OBJECT_CHANGED, observer.clientObjectDidChange);
+        addEventListener(ClientEvent.CLIENT_DID_LOGOFF, observer.clientDidLogoff);
         if (observer is ClientObserver) {
             var cliObs :ClientObserver = (observer as ClientObserver);
-            addEventListener(ClientEvent.CLIENT_FAILED_TO_LOGON,
-                cliObs.clientFailedToLogon);
-            addEventListener(ClientEvent.CLIENT_CONNECTION_FAILED,
-                cliObs.clientConnectionFailed);
-            addEventListener(ClientEvent.CLIENT_WILL_LOGOFF,
-                cliObs.clientWillLogoff);
-            addEventListener(ClientEvent.CLIENT_DID_CLEAR,
-                cliObs.clientDidClear);
+            addEventListener(ClientEvent.CLIENT_FAILED_TO_LOGON, cliObs.clientFailedToLogon);
+            addEventListener(ClientEvent.CLIENT_CONNECTION_FAILED, cliObs.clientConnectionFailed);
+            addEventListener(ClientEvent.CLIENT_WILL_LOGOFF, cliObs.clientWillLogoff);
+            addEventListener(ClientEvent.CLIENT_DID_CLEAR, cliObs.clientDidClear);
         }
     }
 
@@ -71,22 +65,17 @@ public class Client extends EventDispatcher
      */
     public function removeClientObserver (observer :SessionObserver) :void
     {
-        removeEventListener(ClientEvent.CLIENT_DID_LOGON,
-            observer.clientDidLogon);
-        removeEventListener(ClientEvent.CLIENT_OBJECT_CHANGED,
-            observer.clientObjectDidChange);
-        removeEventListener(ClientEvent.CLIENT_DID_LOGOFF,
-            observer.clientDidLogoff);
+        removeEventListener(ClientEvent.CLIENT_WILL_LOGON, observer.clientWillLogon);
+        removeEventListener(ClientEvent.CLIENT_DID_LOGON, observer.clientDidLogon);
+        removeEventListener(ClientEvent.CLIENT_OBJECT_CHANGED, observer.clientObjectDidChange);
+        removeEventListener(ClientEvent.CLIENT_DID_LOGOFF, observer.clientDidLogoff);
         if (observer is ClientObserver) {
             var cliObs :ClientObserver = (observer as ClientObserver);
-            removeEventListener(ClientEvent.CLIENT_FAILED_TO_LOGON,
-                cliObs.clientFailedToLogon);
-            removeEventListener(ClientEvent.CLIENT_CONNECTION_FAILED,
-                cliObs.clientConnectionFailed);
-            removeEventListener(ClientEvent.CLIENT_WILL_LOGOFF,
-                cliObs.clientWillLogoff);
-            removeEventListener(ClientEvent.CLIENT_DID_CLEAR,
-                cliObs.clientDidClear);
+            removeEventListener(ClientEvent.CLIENT_FAILED_TO_LOGON, cliObs.clientFailedToLogon);
+            removeEventListener(
+                ClientEvent.CLIENT_CONNECTION_FAILED, cliObs.clientConnectionFailed);
+            removeEventListener(ClientEvent.CLIENT_WILL_LOGOFF, cliObs.clientWillLogoff);
+            removeEventListener(ClientEvent.CLIENT_DID_CLEAR, cliObs.clientDidClear);
         }
     }
 
@@ -172,6 +161,26 @@ public class Client extends EventDispatcher
         return _invdir;
     }
 
+    /**
+     * Returns the set of bootstrap service groups needed by this client.
+     */
+    public function getBootGroups () :Array
+    {
+        return _bootGroups;
+    }
+
+    /**
+     * Marks this client as interested in the specified bootstrap services group. Any services
+     * registered as bootstrap services with the supplied group name will be included in this
+     * clients bootstrap services set. This must be called before {@link #logon}.
+     */
+    public function addServiceGroup (group :String) :void
+    {
+        if (_bootGroups.indexOf(group) == -1) {
+            _bootGroups.concat(group);
+        }
+    }
+
     public function getService (clazz :Class) :InvocationService
     {
         if (_bstrap != null) {
@@ -205,8 +214,8 @@ public class Client extends EventDispatcher
     }
 
     /**
-     * Requests that this client connect and logon to the server with
-     * which it was previously configured.
+     * Requests that this client connect and logon to the server with which it was previously
+     * configured.
      *
      * @return false if we're already logged on.
      */
@@ -216,6 +225,8 @@ public class Client extends EventDispatcher
         if (_comm != null) {
             return false;
         }
+
+        notifyObservers(ClientEvent.CLIENT_WILL_LOGON);
 
         _comm = new Communicator(this);
         _comm.logon();
@@ -229,8 +240,7 @@ public class Client extends EventDispatcher
     }
 
     /**
-     * Requests that the client log off of the server to which it is
-     * connected.
+     * Requests that the client log off of the server to which it is connected.
      *
      * @param abortable if true, the client will call clientWillDisconnect
      * on allthe client observers and abort the logoff process if any of them
@@ -402,6 +412,9 @@ public class Client extends EventDispatcher
     /** Our list of client observers. */
 //    protected var _observers :ObserverList =
 //        new ObserverList(ObserverList.SAFE_IN_ORDER_NOTIFY);
+
+    /** The set of bootstrap service groups this client cares about. */
+    protected var _bootGroups :Array = new Array(InvocationCodes.GLOBAL_GROUP);
 
     /** General startup information provided by the server. */
     protected var _bstrap :BootstrapData;

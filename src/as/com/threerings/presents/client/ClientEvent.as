@@ -4,6 +4,7 @@ import flash.events.Event;
 
 public class ClientEvent extends Event
 {
+    public static const CLIENT_WILL_LOGON :String = "clientWillLogon";
     public static const CLIENT_DID_LOGON :String = "clientDidLogon";
     public static const CLIENT_FAILED_TO_LOGON :String = "clientFailedLogon";
     public static const CLIENT_OBJECT_CHANGED :String = "clobjChanged";

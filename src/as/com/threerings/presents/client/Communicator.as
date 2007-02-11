@@ -244,8 +244,8 @@ public class Communicator
     {
         logonToPort(true);
         // well that's great! let's logon
-        var req :AuthRequest = new AuthRequest(_client.getCredentials(),
-            _client.getVersion());
+        var req :AuthRequest = new AuthRequest(
+            _client.getCredentials(), _client.getVersion(), _client.getBootGroups());
         sendMessage(req);
     }
 

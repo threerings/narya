@@ -55,6 +55,13 @@ public class BasicDirector
     }
 
     // documentation inherited from interface SessionObserver
+    public function clientWillLogon (event :ClientEvent) :void
+    {
+        var client :Client = event.getClient();
+        registerServices(client);
+    }
+
+    // documentation inherited from interface SessionObserver
     public function clientDidLogon (event :ClientEvent) :void
     {
         var client :Client = event.getClient();
@@ -79,6 +86,15 @@ public class BasicDirector
      * changes after we've already logged on.
      */
     protected function clientObjectUpdated (client :Client) :void
+    {
+    }
+
+    /**
+     * If a director makes use of bootstrap invocation services which are part of a bootstrap
+     * service group, it should register interest in that group here with a call to {@link
+     * Client#addServiceGroup}.
+     */
+    protected function registerServices (client :Client) :void
     {
     }
 
