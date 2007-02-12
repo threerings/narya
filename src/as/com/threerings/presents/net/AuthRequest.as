@@ -2,6 +2,7 @@ package com.threerings.presents.net {
 
 import com.threerings.io.ObjectInputStream;
 import com.threerings.io.ObjectOutputStream;
+import com.threerings.io.TypedArray;
 
 import com.threerings.util.StringUtil;
 
@@ -11,7 +12,8 @@ public class AuthRequest extends UpstreamMessage
     {
         _creds = creds;
         _version = version;
-        _bootGroups = bootGroups;
+        _bootGroups = new TypedArray("[Ljava.lang.String;");
+        _bootGroups.concat(bootGroups);
 
         // magic up a timezone in the format "GMT+XX:XX"
         // Of course, the sign returned from getTimezoneOffset() is wrong
@@ -31,12 +33,12 @@ public class AuthRequest extends UpstreamMessage
         out.writeObject(_creds);
         out.writeField(_version);
         out.writeField(_zone);
-        out.writeField(_bootGroups);
+        out.writeObject(_bootGroups);
     }
 
     protected var _creds :Credentials;
     protected var _version :String;
     protected var _zone :String;
-    protected var _bootGroups :Array;
+    protected var _bootGroups :TypedArray;
 }
 }
