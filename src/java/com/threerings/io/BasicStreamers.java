@@ -93,16 +93,14 @@ public class BasicStreamers
         }
 
         // documentation inherited
-        public void writeObject (
-            Object object, ObjectOutputStream out, boolean useWriter)
+        public void writeObject (Object object, ObjectOutputStream out, boolean useWriter)
             throws IOException
         {
             out.writeBoolean(((Boolean)object).booleanValue());
         }
 
         // documentation inherited
-        public void readObject (
-            Object object, ObjectInputStream in, boolean useReader)
+        public void readObject (Object object, ObjectInputStream in, boolean useReader)
             throws IOException, ClassNotFoundException
         {
             // nothing to do here
@@ -120,16 +118,14 @@ public class BasicStreamers
         }
 
         // documentation inherited
-        public void writeObject (
-            Object object, ObjectOutputStream out, boolean useWriter)
+        public void writeObject (Object object, ObjectOutputStream out, boolean useWriter)
             throws IOException
         {
             out.writeByte(((Byte)object).byteValue());
         }
 
         // documentation inherited
-        public void readObject (
-            Object object, ObjectInputStream in, boolean useReader)
+        public void readObject (Object object, ObjectInputStream in, boolean useReader)
             throws IOException, ClassNotFoundException
         {
             // nothing to do here
@@ -147,16 +143,14 @@ public class BasicStreamers
         }
 
         // documentation inherited
-        public void writeObject (
-            Object object, ObjectOutputStream out, boolean useWriter)
+        public void writeObject (Object object, ObjectOutputStream out, boolean useWriter)
             throws IOException
         {
             out.writeShort(((Short)object).shortValue());
         }
 
         // documentation inherited
-        public void readObject (
-            Object object, ObjectInputStream in, boolean useReader)
+        public void readObject (Object object, ObjectInputStream in, boolean useReader)
             throws IOException, ClassNotFoundException
         {
             // nothing to do here
@@ -167,23 +161,20 @@ public class BasicStreamers
     public static class CharacterStreamer extends Streamer
     {
         // documentation inherited
-        public Object createObject (ObjectInputStream in)
-            throws IOException
+        public Object createObject (ObjectInputStream in)throws IOException
         {
             return Character.valueOf(in.readChar());
         }
 
         // documentation inherited
-        public void writeObject (
-            Object object, ObjectOutputStream out, boolean useWriter)
+        public void writeObject (Object object, ObjectOutputStream out, boolean useWriter)
             throws IOException
         {
             out.writeChar(((Character)object).charValue());
         }
 
         // documentation inherited
-        public void readObject (
-            Object object, ObjectInputStream in, boolean useReader)
+        public void readObject (Object object, ObjectInputStream in, boolean useReader)
             throws IOException, ClassNotFoundException
         {
             // nothing to do here
@@ -201,16 +192,14 @@ public class BasicStreamers
         }
 
         // documentation inherited
-        public void writeObject (
-            Object object, ObjectOutputStream out, boolean useWriter)
+        public void writeObject (Object object, ObjectOutputStream out, boolean useWriter)
             throws IOException
         {
             out.writeInt(((Integer)object).intValue());
         }
 
         // documentation inherited
-        public void readObject (
-            Object object, ObjectInputStream in, boolean useReader)
+        public void readObject (Object object, ObjectInputStream in, boolean useReader)
             throws IOException, ClassNotFoundException
         {
             // nothing to do here
@@ -228,16 +217,14 @@ public class BasicStreamers
         }
 
         // documentation inherited
-        public void writeObject (
-            Object object, ObjectOutputStream out, boolean useWriter)
+        public void writeObject (Object object, ObjectOutputStream out, boolean useWriter)
             throws IOException
         {
             out.writeLong(((Long)object).longValue());
         }
 
         // documentation inherited
-        public void readObject (
-            Object object, ObjectInputStream in, boolean useReader)
+        public void readObject (Object object, ObjectInputStream in, boolean useReader)
             throws IOException, ClassNotFoundException
         {
             // nothing to do here
@@ -255,16 +242,14 @@ public class BasicStreamers
         }
 
         // documentation inherited
-        public void writeObject (
-            Object object, ObjectOutputStream out, boolean useWriter)
+        public void writeObject (Object object, ObjectOutputStream out, boolean useWriter)
             throws IOException
         {
             out.writeFloat(((Float)object).floatValue());
         }
 
         // documentation inherited
-        public void readObject (
-            Object object, ObjectInputStream in, boolean useReader)
+        public void readObject (Object object, ObjectInputStream in, boolean useReader)
             throws IOException, ClassNotFoundException
         {
             // nothing to do here
@@ -282,16 +267,14 @@ public class BasicStreamers
         }
 
         // documentation inherited
-        public void writeObject (
-            Object object, ObjectOutputStream out, boolean useWriter)
+        public void writeObject (Object object, ObjectOutputStream out, boolean useWriter)
             throws IOException
         {
             out.writeDouble(((Double)object).doubleValue());
         }
 
         // documentation inherited
-        public void readObject (
-            Object object, ObjectInputStream in, boolean useReader)
+        public void readObject (Object object, ObjectInputStream in, boolean useReader)
             throws IOException, ClassNotFoundException
         {
             // nothing to do here
@@ -309,16 +292,14 @@ public class BasicStreamers
         }
 
         // documentation inherited
-        public void writeObject (
-            Object object, ObjectOutputStream out, boolean useWriter)
+        public void writeObject (Object object, ObjectOutputStream out, boolean useWriter)
             throws IOException
         {
             out.writeUTF((String)object);
         }
 
         // documentation inherited
-        public void readObject (
-            Object object, ObjectInputStream in, boolean useReader)
+        public void readObject (Object object, ObjectInputStream in, boolean useReader)
             throws IOException, ClassNotFoundException
         {
             // nothing to do here
@@ -336,8 +317,7 @@ public class BasicStreamers
         }
 
         // documentation inherited
-        public void writeObject (
-            Object object, ObjectOutputStream out, boolean useWriter)
+        public void writeObject (Object object, ObjectOutputStream out, boolean useWriter)
             throws IOException
         {
             boolean[] value = (boolean[])object;
@@ -349,8 +329,7 @@ public class BasicStreamers
         }
 
         // documentation inherited
-        public void readObject (
-            Object object, ObjectInputStream in, boolean useReader)
+        public void readObject (Object object, ObjectInputStream in, boolean useReader)
             throws IOException, ClassNotFoundException
         {
             boolean[] value = (boolean[])object;
@@ -372,8 +351,7 @@ public class BasicStreamers
         }
 
         // documentation inherited
-        public void writeObject (
-            Object object, ObjectOutputStream out, boolean useWriter)
+        public void writeObject (Object object, ObjectOutputStream out, boolean useWriter)
             throws IOException
         {
             byte[] value = (byte[])object;
@@ -383,8 +361,7 @@ public class BasicStreamers
         }
 
         // documentation inherited
-        public void readObject (
-            Object object, ObjectInputStream in, boolean useReader)
+        public void readObject (Object object, ObjectInputStream in, boolean useReader)
             throws IOException, ClassNotFoundException
         {
             byte[] value = (byte[])object;
@@ -411,8 +388,7 @@ public class BasicStreamers
         }
 
         // documentation inherited
-        public void writeObject (
-            Object object, ObjectOutputStream out, boolean useWriter)
+        public void writeObject (Object object, ObjectOutputStream out, boolean useWriter)
             throws IOException
         {
             short[] value = (short[])object;
@@ -424,8 +400,7 @@ public class BasicStreamers
         }
 
         // documentation inherited
-        public void readObject (
-            Object object, ObjectInputStream in, boolean useReader)
+        public void readObject (Object object, ObjectInputStream in, boolean useReader)
             throws IOException, ClassNotFoundException
         {
             short[] value = (short[])object;
@@ -447,8 +422,7 @@ public class BasicStreamers
         }
 
         // documentation inherited
-        public void writeObject (
-            Object object, ObjectOutputStream out, boolean useWriter)
+        public void writeObject (Object object, ObjectOutputStream out, boolean useWriter)
             throws IOException
         {
             char[] value = (char[])object;
@@ -460,8 +434,7 @@ public class BasicStreamers
         }
 
         // documentation inherited
-        public void readObject (
-            Object object, ObjectInputStream in, boolean useReader)
+        public void readObject (Object object, ObjectInputStream in, boolean useReader)
             throws IOException, ClassNotFoundException
         {
             char[] value = (char[])object;
@@ -483,8 +456,7 @@ public class BasicStreamers
         }
 
         // documentation inherited
-        public void writeObject (
-            Object object, ObjectOutputStream out, boolean useWriter)
+        public void writeObject (Object object, ObjectOutputStream out, boolean useWriter)
             throws IOException
         {
             int[] value = (int[])object;
@@ -496,8 +468,7 @@ public class BasicStreamers
         }
 
         // documentation inherited
-        public void readObject (
-            Object object, ObjectInputStream in, boolean useReader)
+        public void readObject (Object object, ObjectInputStream in, boolean useReader)
             throws IOException, ClassNotFoundException
         {
             int[] value = (int[])object;
@@ -519,8 +490,7 @@ public class BasicStreamers
         }
 
         // documentation inherited
-        public void writeObject (
-            Object object, ObjectOutputStream out, boolean useWriter)
+        public void writeObject (Object object, ObjectOutputStream out, boolean useWriter)
             throws IOException
         {
             long[] value = (long[])object;
@@ -532,8 +502,7 @@ public class BasicStreamers
         }
 
         // documentation inherited
-        public void readObject (
-            Object object, ObjectInputStream in, boolean useReader)
+        public void readObject (Object object, ObjectInputStream in, boolean useReader)
             throws IOException, ClassNotFoundException
         {
             long[] value = (long[])object;
@@ -555,8 +524,7 @@ public class BasicStreamers
         }
 
         // documentation inherited
-        public void writeObject (
-            Object object, ObjectOutputStream out, boolean useWriter)
+        public void writeObject (Object object, ObjectOutputStream out, boolean useWriter)
             throws IOException
         {
             float[] value = (float[])object;
@@ -568,8 +536,7 @@ public class BasicStreamers
         }
 
         // documentation inherited
-        public void readObject (
-            Object object, ObjectInputStream in, boolean useReader)
+        public void readObject (Object object, ObjectInputStream in, boolean useReader)
             throws IOException, ClassNotFoundException
         {
             float[] value = (float[])object;
@@ -591,8 +558,7 @@ public class BasicStreamers
         }
 
         // documentation inherited
-        public void writeObject (
-            Object object, ObjectOutputStream out, boolean useWriter)
+        public void writeObject (Object object, ObjectOutputStream out, boolean useWriter)
             throws IOException
         {
             double[] value = (double[])object;
@@ -604,8 +570,7 @@ public class BasicStreamers
         }
 
         // documentation inherited
-        public void readObject (
-            Object object, ObjectInputStream in, boolean useReader)
+        public void readObject (Object object, ObjectInputStream in, boolean useReader)
             throws IOException, ClassNotFoundException
         {
             double[] value = (double[])object;
@@ -627,8 +592,7 @@ public class BasicStreamers
         }
 
         // documentation inherited
-        public void writeObject (
-            Object object, ObjectOutputStream out, boolean useWriter)
+        public void writeObject (Object object, ObjectOutputStream out, boolean useWriter)
             throws IOException
         {
             Object[] value = (Object[])object;
@@ -640,8 +604,7 @@ public class BasicStreamers
         }
 
         // documentation inherited
-        public void readObject (
-            Object object, ObjectInputStream in, boolean useReader)
+        public void readObject (Object object, ObjectInputStream in, boolean useReader)
             throws IOException, ClassNotFoundException
         {
             Object[] value = (Object[])object;
@@ -660,17 +623,15 @@ public class BasicStreamers
             throws IOException
         {
             return new ArrayList(0); // minimally sized
-            // (We thought about using a ThreadLocal to assist here...
-            // we could read the length of the list here and construct
-            // the ArrayList with the right size, and then read the
-            // length out of the ThreadLocal down in readObject(). Instead,
-            // we simply create a 0-length list here, which generates
-            // minimal garbage when we ensureCapacity() down in readObject.)
+            // (We thought about using a ThreadLocal to assist here...  we could read the length of
+            // the list here and construct the ArrayList with the right size, and then read the
+            // length out of the ThreadLocal down in readObject(). Instead, we simply create a
+            // 0-length list here, which generates minimal garbage when we ensureCapacity() down in
+            // readObject.)
         }
 
         // documentation inherited
-        public void writeObject (
-            Object object, ObjectOutputStream out, boolean useWriter)
+        public void writeObject (Object object, ObjectOutputStream out, boolean useWriter)
             throws IOException
         {
             List list = (List)object;
@@ -690,12 +651,10 @@ public class BasicStreamers
         }
 
         // documentation inherited
-        public void readObject (
-            Object object, ObjectInputStream in, boolean useReader)
+        public void readObject (Object object, ObjectInputStream in, boolean useReader)
             throws IOException, ClassNotFoundException
         {
-            @SuppressWarnings("unchecked") ArrayList<Object> value =
-                (ArrayList<Object>)object;
+            @SuppressWarnings("unchecked") ArrayList<Object> value = (ArrayList<Object>)object;
             int ecount = in.readInt();
             value.ensureCapacity(ecount); // resize the array once
             for (int ii = 0; ii < ecount; ii++) {

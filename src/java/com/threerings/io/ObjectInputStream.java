@@ -141,16 +141,19 @@ public class ObjectInputStream extends DataInputStream
                 // sanity check
                 if (cmap == null) {
                     // this will help with debugging
-                    log.warning("Internal stream error, no class metadata " +
-                                "[code=" + code + ", ois=" + this + "].");
+                    log.warning("Internal stream error, no class metadata [code=" + code +
+                                ", ois=" + this + "].");
                     Thread.dumpStack();
-                    log.warning("ObjectInputStream mappings " +
-                                StringUtil.toString(_classmap) +
-                                ".");
+                    log.warning(
+                        "ObjectInputStream mappings " + StringUtil.toString(_classmap) + ".");
                     String errmsg = "Read object code for which we " +
                         "have no registered class metadata [code=" + code + "]";
                     throw new RuntimeException(errmsg);
                 }
+            }
+
+            if (STREAM_DEBUG) {
+                log.info(hashCode() + ": Reading with " + cmap.streamer + ".");
             }
 
             // create an instance of the appropriate object
@@ -159,8 +162,7 @@ public class ObjectInputStream extends DataInputStream
             return target;
 
         } catch (OutOfMemoryError oome) {
-            throw (IOException)
-                new IOException("Malformed object data").initCause(oome);
+            throw (IOException)new IOException("Malformed object data").initCause(oome);
         }
     }
 
