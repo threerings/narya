@@ -35,6 +35,7 @@ public class Translations
 
     // initialize some standard classes
     addTranslation("Object", "java.lang.Object");
+    addTranslation("String", "java.lang.String");
     addTranslation("com.threerings.util.langBoolean", "java.lang.Boolean");
     // handle lists
     _fromServer.put("java.util.List", "[Ljava.lang.Object;");

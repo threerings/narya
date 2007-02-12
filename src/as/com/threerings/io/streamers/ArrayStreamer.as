@@ -40,7 +40,7 @@ public class ArrayStreamer extends Streamer
         } else {
             Log.getLog(this).warning("Other array types are " +
                 "currently not handled yet [jname=" + jname + "].");
-            throw new Error("Unimplemented bit");
+            throw new Error("Don't know how to stream '" + jname + "' instances.");
         }
     }
 

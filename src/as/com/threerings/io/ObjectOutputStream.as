@@ -28,7 +28,6 @@ public class ObjectOutputStream
         var cname :String;
         if (obj is TypedArray) {
             cname = (obj as TypedArray).getJavaType();
-
         } else {
             cname = ClassUtil.getClassName(obj);
         }
@@ -47,8 +46,7 @@ public class ObjectOutputStream
             _classMap.put(cname, cmap);
 
             if (_nextCode > Short.MAX_VALUE) {
-                throw new Error("Too many unique classes written to " +
-                    "ObjectOutputStream");
+                throw new Error("Too many unique classes written to ObjectOutputStream");
             }
 
             writeShort(-cmap.code);
