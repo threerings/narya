@@ -219,21 +219,17 @@ public class GenUtil
     public static String unboxASArgument (Class<?> clazz, String name)
     {
         if (clazz == Boolean.TYPE) {
-            return "(" + name + " as langBoolean).value";
-        } else if (clazz == Byte.TYPE) {
-            return "(" + name + " as Byte).value";
-        } else if (clazz == Character.TYPE) {
-            return "(" + name + " as Character).value";
-        } else if (clazz == Short.TYPE) {
-            return "(" + name + " as Short).value";
-        } else if (clazz == Integer.TYPE) {
-            return "(" + name + " as Integer).value";
+            return "(" + name + " as Boolean)";
+        } else if (clazz == Byte.TYPE ||
+                   clazz == Character.TYPE ||
+                   clazz == Short.TYPE ||
+                   clazz == Integer.TYPE) {
+            return "(" + name + " as int)";
         } else if (clazz == Long.TYPE) {
             return "(" + name + " as Long)";
-        } else if (clazz == Float.TYPE) {
-            return "(" + name + " as Float).value";
-        } else if (clazz == Double.TYPE) {
-            return "(" + name + " as Double).value";
+        } else if (clazz == Float.TYPE ||
+                   clazz == Double.TYPE) {
+            return "(" + name + " as Number)";
         } else {
             return "(" + name + " as " + simpleASName(clazz) + ")";
         }
