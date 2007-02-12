@@ -43,7 +43,7 @@ public class TimeBaseMarshaller_GotTimeBaseMarshaller
         switch (methodId) {
         case GOT_TIME_OID:
             (listener as TimeBaseService_GotTimeBaseListener).gotTimeOid(
-                (args[0] as Integer).value);
+                (args[0] as int));
             return;
 
         default:
