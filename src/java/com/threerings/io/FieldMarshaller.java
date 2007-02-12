@@ -123,7 +123,6 @@ public abstract class FieldMarshaller
         FieldMarshaller gmarsh = new FieldMarshaller() {
             public void readField (Field field, Object target, ObjectInputStream in)
                 throws Exception {
-                System.err.println("Reading generic");
                 field.set(target, in.readObject());
             }
             public void writeField (Field field, Object source, ObjectOutputStream out)
