@@ -145,17 +145,19 @@ public class Streamer
     private static function initStreamers () :void
     {
         if (_streamers == null) {
-            _streamers = [
-                new StringStreamer(),
-                new ArrayStreamer(),
+            // Init like this so that _streamers is not null asap.
+            _streamers = [];
+            // We could add each one by one, so that any later streamers
+            // can find and use the earlier ones as delegates.
+            _streamers.push(new StringStreamer(),
                 new NumberStreamer(),
-                new ByteArrayStreamer(),
                 new ByteStreamer(),
                 new ShortStreamer(),
                 new IntegerStreamer(),
                 new LongStreamer(),
-                new FloatStreamer()
-            ];
+                new FloatStreamer(),
+                new ArrayStreamer(),
+                new ByteArrayStreamer());
         }
     }
 

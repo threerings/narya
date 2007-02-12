@@ -26,13 +26,11 @@ public class ArrayStreamer extends Streamer
 
         } else if (secondChar === "L") {
             // form is "[L<class>;"
-            var baseClass :String = jname.substring(2, jname.length - 1);
-            baseClass = Translations.getFromServer(baseClass);
-            _elementType = ClassUtil.getClassByName(baseClass);
+            var baseJClass :String = jname.substring(2, jname.length - 1);
+            _delegate = Streamer.getStreamerByJavaName(baseJClass);
+            _elementType = ClassUtil.getClassByName(
+                Translations.getFromServer(baseJClass));
             _isFinal = ClassUtil.isFinal(_elementType);
-            if (_elementType == String) {
-                _delegate = new StringStreamer();
-            }
 
         } else if (secondChar === "I") {
             _elementType = int;
