@@ -9,19 +9,8 @@ public dynamic class TypedArray extends Array
     implements Cloneable
 {
     /**
-     * Create a TypedArray
-     *
-     * @param jtype The java classname of this array, for example "[I" to
-     * represent an int[], or "[Ljava.lang.Object;" for Object[].
-     */
-    public function TypedArray (jtype :String)
-    {
-        _jtype = jtype;
-    }
-
-    /**
-     * Convenience method to get the java type of an array containing
-     * objects of the specified class.
+     * Convenience method to get the java type of an array containing objects of the specified
+     * class.
      */
     public static function getJavaType (of :Class) :String
     {
@@ -38,18 +27,27 @@ public dynamic class TypedArray extends Array
             return "[[B";
         }
 
-        var cname :String = Translations.getToServer(
-            ClassUtil.getClassName(of));
+        var cname :String = Translations.getToServer(ClassUtil.getClassName(of));
         return "[L" + cname + ";";
     }
 
     /**
-     * A factory method to create a TypedArray for holding objects
-     * of the specified type.
+     * A factory method to create a TypedArray for holding objects of the specified type.
      */
     public static function create (of :Class) :TypedArray
     {
         return new TypedArray(getJavaType(of));
+    }
+
+    /**
+     * Create a TypedArray
+     *
+     * @param jtype The java classname of this array, for example "[I" to represent an int[], or
+     * "[Ljava.lang.Object;" for Object[].
+     */
+    public function TypedArray (jtype :String)
+    {
+        _jtype = jtype;
     }
 
     public function getJavaType () :String
@@ -68,8 +66,8 @@ public dynamic class TypedArray extends Array
         return copy;
     }
 
-    /** The 'type' of this array, which doesn't really mean anything
-     * except gives it a clue as to how to stream to our server. */
+    /** The 'type' of this array, which doesn't really mean anything except gives it a clue as to
+     * how to stream to our server. */
     protected var _jtype :String;
 }
 }
