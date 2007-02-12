@@ -51,15 +51,16 @@ public class ObjectInputStream
                 code *= -1;
 
                 // read in the class metadata
-                var cname :String = Translations.getFromServer(readUTF());
-//                log.debug("read cname: " + cname);
-                var streamer :Streamer = Streamer.getStreamerByJavaName(cname);
+                var jname :String = readUTF();
+//                log.debug("read jname: " + jname);
+                var streamer :Streamer = Streamer.getStreamerByJavaName(jname);
                 if (streamer == Streamer.BAD_STREAMER) {
-                    log.warning("OMG, cannot stream " + cname);
+                    log.warning("OMG, cannot stream " + jname);
                     return null;
                 }
 //                log.debug("Got streamer (" + streamer + ")");
 
+                var cname :String = Translations.getFromServer(jname);
                 cmap = new ClassMapping(code, cname, streamer);
                 _classMap[code] = cmap;
                 if (DEBUG) log.debug(DEBUG_ID +
