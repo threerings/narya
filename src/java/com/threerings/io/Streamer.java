@@ -377,7 +377,6 @@ public class Streamer
                 // gracefully deal with objects that have had new fields added to their class
                 // definition
                 if (in.available() > 0) {
-                    log.info("Using "  + fm);
                     fm.readField(field, object, in);
                 } else {
                     log.info("Streamed instance missing field (probably newly added) " +
