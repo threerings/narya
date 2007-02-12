@@ -199,6 +199,8 @@ public class InvocationDirector
             return;
         }
 
+        unwrapArgs(args);
+
 //         log.info("Dispatching invocation response " +
 //                  "[listener=" + listener + ", methId=" + methodId +
 //                  ", args=" + StringUtil.toString(args) + "].");
@@ -238,13 +240,7 @@ public class InvocationDirector
             return;
         }
 
-        if (args != null) {
-            for (var ii :int = 0; ii < args.length; ii++) {
-                if (args[ii] is Wrapped) {
-                    args[ii] = (args[ii] as Wrapped).unwrap();
-                }
-            }
-        }
+        unwrapArgs(args);
 
 //         log.info("Dispatching invocation notification " +
 //                  "[receiver=" + decoder.receiver + ", methodId=" + methodId +
@@ -295,6 +291,21 @@ public class InvocationDirector
     protected function handleClientObjectChanged (newCloid :int) :void
     {
         // TODO: or fuck it?
+    }
+
+    /**
+     * Unwrap any arguments that have arrived from the server in wrapped
+     * types.
+     */
+    protected function unwrapArgs (args :Array) :void
+    {
+        if (args != null) {
+            for (var ii :int = 0; ii < args.length; ii++) {
+                if (args[ii] is Wrapped) {
+                    args[ii] = (args[ii] as Wrapped).unwrap();
+                }
+            }
+        }
     }
 
     /**

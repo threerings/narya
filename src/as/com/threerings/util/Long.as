@@ -4,7 +4,7 @@ package com.threerings.util {
  * Equivalent to java.lang.Long.
  */
 public class Long
-    implements Equalable, Wrapped
+    implements Equalable
 {
     public var high :int;
     public var low :int;
@@ -30,7 +30,7 @@ public class Long
         return (this.high == that.high) && (this.low == that.low);
     }
 
-    // from Wrapped
+    // from Wrapped, except that we don't implement Wrapped anymore
     public function unwrap () :Object
     {
         return low; // TODO
