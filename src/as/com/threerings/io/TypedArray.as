@@ -58,7 +58,7 @@ public dynamic class TypedArray extends Array
     public function addAll (other :Array) :void
     {
         for (var ii :int = 0; ii < other.length; ii++) {
-            this[ii] = other[ii];
+            push(other[ii]);
         }
     }
 
