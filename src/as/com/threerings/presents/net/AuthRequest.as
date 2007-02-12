@@ -15,7 +15,7 @@ public class AuthRequest extends UpstreamMessage
     {
         _creds = creds;
         _version = version;
-        _bootGroups = new TypedArray("[Ljava.lang.String;");
+        _bootGroups = TypedArray.create(String);
         _bootGroups.addAll(bootGroups);
 
         // magic up a timezone in the format "GMT+XX:XX"
