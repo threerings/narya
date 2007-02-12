@@ -50,6 +50,18 @@ public dynamic class TypedArray extends Array
         _jtype = jtype;
     }
 
+    /**
+     * Adds all of the elements of the supplied array to this typed array. The types of the
+     * elements of the target array must, of course, be of the type specified for this array
+     * otherwise badness will ensue.
+     */
+    public function addAll (other :Array) :void
+    {
+        for (var ii :int = 0; ii < other.length; ii++) {
+            this[ii] = other[ii];
+        }
+    }
+
     public function getJavaType () :String
     {
         return _jtype;

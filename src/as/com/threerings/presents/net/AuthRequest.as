@@ -1,3 +1,6 @@
+//
+// $Id$
+
 package com.threerings.presents.net {
 
 import com.threerings.io.ObjectInputStream;
@@ -13,7 +16,7 @@ public class AuthRequest extends UpstreamMessage
         _creds = creds;
         _version = version;
         _bootGroups = new TypedArray("[Ljava.lang.String;");
-        _bootGroups.concat(bootGroups);
+        _bootGroups.addAll(bootGroups);
 
         // magic up a timezone in the format "GMT+XX:XX"
         // Of course, the sign returned from getTimezoneOffset() is wrong

@@ -49,6 +49,9 @@ public class BasicDirector
 
         // if we're already logged on, fire off a call to fetch services
         if (client.isLoggedOn()) {
+            // this is a sanity check: it will fail if this post-logon initialized director claims
+            // to need service groups (it must make that known prior to logon)
+            registerServices(client);
             fetchServices(client);
             clientObjectUpdated(client);
         }

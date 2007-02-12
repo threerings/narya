@@ -1,3 +1,6 @@
+//
+// $Id$
+
 package com.threerings.presents.client {
 
 import flash.display.Stage;
@@ -59,9 +62,8 @@ public class Client extends EventDispatcher
     }
 
     /**
-     * Unregisters the supplied observer. Upon return of this function,
-     * the observer will no longer receive notifications of state changes
-     * within the client.
+     * Unregisters the supplied observer. Upon return of this function, the observer will no longer
+     * receive notifications of state changes within the client.
      */
     public function removeClientObserver (observer :SessionObserver) :void
     {
@@ -176,8 +178,11 @@ public class Client extends EventDispatcher
      */
     public function addServiceGroup (group :String) :void
     {
+        if (isLoggedOn()) {
+            throw new Error("Services must be registered prior to logon().");
+        }
         if (_bootGroups.indexOf(group) == -1) {
-            _bootGroups.concat(group);
+            _bootGroups.push(group);
         }
     }
 
@@ -226,28 +231,35 @@ public class Client extends EventDispatcher
             return false;
         }
 
+        // let our observers know that we're logging on (this will give directors a chance to
+        // register invocation service groups)
         notifyObservers(ClientEvent.CLIENT_WILL_LOGON);
 
+        // we need to wait for the CLIENT_WILL_LOGON to have been dispatched before we actually
+        // tell the communicator to logon, so we run this through the callLater pipeline
         _comm = new Communicator(this);
-        _comm.logon();
+        callLater(function () :void {
+            _comm.logon();
+        });
 
+        // it is safe, however, to start up our tick interval immediately
         if (_tickInterval == null) {
             _tickInterval = new Timer(5000);
             _tickInterval.addEventListener(TimerEvent.TIMER, tick);
             _tickInterval.start();
         }
+
         return true;
     }
 
     /**
      * Requests that the client log off of the server to which it is connected.
      *
-     * @param abortable if true, the client will call clientWillDisconnect
-     * on allthe client observers and abort the logoff process if any of them
-     * return false. If false, clientWillDisconnect will not be called.
+     * @param abortable if true, the client will call clientWillDisconnect on allthe client
+     * observers and abort the logoff process if any of them return false. If false,
+     * clientWillDisconnect will not be called.
      *
-     * @return true if the logoff succeeded, false if it failed due to a
-     * disagreeable observer.
+     * @return true if the logoff succeeded, false if it failed due to a disagreeable observer.
      */
     public function logoff (abortable :Boolean) :Boolean
     {
@@ -256,9 +268,8 @@ public class Client extends EventDispatcher
             return true;
         }
 
-        // if the request is abortable, let's run it past the observers.
-        // if any of them call preventDefault() then the logoff will be
-        // cancelled
+        // if the request is abortable, let's run it past the observers.  if any of them call
+        // preventDefault() then the logoff will be cancelled
         if (abortable && !notifyObservers(ClientEvent.CLIENT_WILL_LOGOFF)) {
             return false;
         }
@@ -285,8 +296,8 @@ public class Client extends EventDispatcher
     }
 
     /**
-     * Called every five seconds; ensures that we ping the server if we
-     * haven't communicated in a long while.
+     * Called every five seconds; ensures that we ping the server if we haven't communicated in a
+     * long while.
      */
     protected function tick (event :TimerEvent) :void
     {
@@ -301,8 +312,8 @@ public class Client extends EventDispatcher
     }
 
     /**
-     * Called by the {@link Communicator} if it is experiencing trouble logging
-     * on but is still trying fallback strategies.
+     * Called by the {@link Communicator} if it is experiencing trouble logging on but is still
+     * trying fallback strategies.
      */
     internal function reportLogonTribulations (cause :LogonError) :void
     {
@@ -310,8 +321,8 @@ public class Client extends EventDispatcher
     }
 
     /**
-     * Called by the invocation director when it successfully subscribes
-     * to the client object immediately following logon.
+     * Called by the invocation director when it successfully subscribes to the client object
+     * immediately following logon.
      */
     public function gotClientObject (clobj :ClientObject) :void
     {
@@ -320,8 +331,7 @@ public class Client extends EventDispatcher
     }
 
     /**
-     * Called by the invocation director if it fails to subscribe to the
-     * client object after logon.
+     * Called by the invocation director if it fails to subscribe to the client object after logon.
      */
     public function getClientObjectFailed (cause :Error) :void
     {
@@ -329,8 +339,7 @@ public class Client extends EventDispatcher
     }
 
     /**
-     * Called by the invocation director when it discovers that the client
-     * object has changed.
+     * Called by the invocation director when it discovers that the client object has changed.
      */
     protected function clientObjectDidChange (clobj :ClientObject) :void
     {
@@ -351,9 +360,8 @@ public class Client extends EventDispatcher
         // and let our invocation director know we're logged off
         _invdir.cleanup();
 
-        // if this was due to a logon error, we can notify our listeners
-        // now that we're cleaned up: they may want to retry logon on
-        // another port, or something
+        // if this was due to a logon error, we can notify our listeners now that we're cleaned up:
+        // they may want to retry logon on another port, or something
         if (logonError != null) {
             notifyObservers(ClientEvent.CLIENT_FAILED_TO_LOGON, logonError);
         } else {

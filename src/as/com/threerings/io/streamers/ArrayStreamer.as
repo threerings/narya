@@ -30,6 +30,9 @@ public class ArrayStreamer extends Streamer
             baseClass = Translations.getFromServer(baseClass);
             _elementType = ClassUtil.getClassByName(baseClass);
             _isFinal = ClassUtil.isFinal(_elementType);
+            if (_elementType == String) {
+                _delegate = new StringStreamer();
+            }
 
         } else if (secondChar === "I") {
             _elementType = int;
@@ -76,8 +79,7 @@ public class ArrayStreamer extends Streamer
         return ta;
     }
 
-    override public function writeObject (obj :Object, out :ObjectOutputStream)
-            :void
+    override public function writeObject (obj :Object, out :ObjectOutputStream) :void
     {
         var arr :Array = (obj as Array);
         var ii :int;
@@ -115,8 +117,7 @@ public class ArrayStreamer extends Streamer
         }
     }
 
-    override public function readObject (obj :Object, ins :ObjectInputStream)
-            :void
+    override public function readObject (obj :Object, ins :ObjectInputStream) :void
     {
         var arr :Array = (obj as Array);
         var ii :int;

@@ -1,3 +1,6 @@
+//
+// $Id$
+
 package com.threerings.io {
 
 import flash.utils.ByteArray;
@@ -86,8 +89,7 @@ public class ObjectOutputStream
     }
 
     /**
-     * This is equivalent to marshalling a field for which there
-     * is a basic streamer.
+     * This is equivalent to marshalling a field for which there is a basic streamer.
      */
     public function writeField (val :Object) :void
         //throws IOError
@@ -100,10 +102,9 @@ public class ObjectOutputStream
     }
 
     /**
-     * Uses the default streamable mechanism to write the contents of the
-     * object currently being streamed. This can only be called from
-     * within a <code>writeObject</code> implementation in a {@link
-     * Streamable} object.
+     * Uses the default streamable mechanism to write the contents of the object currently being
+     * streamed. This can only be called from within a <code>writeObject</code> implementation in a
+     * {@link Streamable} object.
      */
     public function defaultWriteObject () :void
         //throws IOError
@@ -166,8 +167,7 @@ public class ObjectOutputStream
         _targ.writeUTF(value);
     }
 
-    // these two are defined in IDataOutput, but have no java equivalent so
-    // we skip them.
+    // these two are defined in IDataOutput, but have no java equivalent so we skip them.
     //public function writeUnsignedInt (value :int) :void
     //public function writeUTFBytes (value :int) :void
 
