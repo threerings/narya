@@ -37,22 +37,18 @@ import com.threerings.io.Streamable;
 import com.threerings.presents.Log;
 
 /**
- * The distributed set class provides a means by which an unordered set of
- * objects can be maintained as a distributed object field. Entries can be
- * added to and removed from the set, requests for which will generate
- * events much like other distributed object fields.
+ * The distributed set class provides a means by which an unordered set of objects can be
+ * maintained as a distributed object field. Entries can be added to and removed from the set,
+ * requests for which will generate events much like other distributed object fields.
  *
- * <p> Classes that wish to act as set entries must implement the {@link
- * Entry} interface which extends {@link Streamable} and adds the
- * requirement that the object provide a key which will be used to
- * identify entry equality. Thus an entry is declared to be in a set of
- * the object returned by that entry's {@link Entry#getKey} method is
- * equal (using {@link Object#equals}) to the entry returned by the {@link
- * Entry#getKey} method of some other entry in the set. Additionally, in
- * the case of entry removal, only the key for the entry to be removed
- * will be transmitted with the removal event to save network
- * bandwidth. Lastly, the object returned by {@link Entry#getKey} must be
- * a {@link Streamable} type.
+ * <p> Classes that wish to act as set entries must implement the {@link Entry} interface which
+ * extends {@link Streamable} and adds the requirement that the object provide a key which will be
+ * used to identify entry equality. Thus an entry is declared to be in a set of the object returned
+ * by that entry's {@link Entry#getKey} method is equal (using {@link Object#equals}) to the entry
+ * returned by the {@link Entry#getKey} method of some other entry in the set. Additionally, in the
+ * case of entry removal, only the key for the entry to be removed will be transmitted with the
+ * removal event to save network bandwidth. Lastly, the object returned by {@link Entry#getKey}
+ * must be a {@link Streamable} type.
  */
 public class DSet<E extends DSet.Entry>
     implements Iterable<E>, Streamable, Cloneable
@@ -63,23 +59,36 @@ public class DSet<E extends DSet.Entry>
     public static interface Entry extends Streamable
     {
         /**
-         * Each entry provide an associated key which is used to determine
-         * its uniqueness in the set. See the {@link DSet} class
-         * documentation for further information.
+         * Each entry provide an associated key which is used to determine its uniqueness in the
+         * set. See the {@link DSet} class documentation for further information.
          */
         public Comparable getKey ();
     }
 
     /**
-     * Creates a distributed set and populates it with values from the
-     * supplied iterator. This should be done before the set is unleashed
-     * into the wild distributed object world because no associated entry
-     * added events will be generated. Additionally, this operation does
-     * not check for duplicates when adding entries, so one should be sure
-     * that the iterator contains only unique entries.
+     * Creates a distributed set and populates it with values from the supplied iterator. This
+     * should be done before the set is unleashed into the wild distributed object world because no
+     * associated entry added events will be generated. Additionally, this operation does not check
+     * for duplicates when adding entries, so one should be sure that the iterator contains only
+     * unique entries.
      *
-     * @param source an iterator from which we will initially populate the
-     * set.
+     * @param source an iterator from which we will initially populate the set.
+     */
+    public DSet (Iterable<E> source)
+    {
+        for (E e : source) {
+            add(e);
+        }
+    }
+
+    /**
+     * Creates a distributed set and populates it with values from the supplied iterator. This
+     * should be done before the set is unleashed into the wild distributed object world because no
+     * associated entry added events will be generated. Additionally, this operation does not check
+     * for duplicates when adding entries, so one should be sure that the iterator contains only
+     * unique entries.
+     *
+     * @param source an iterator from which we will initially populate the set.
      */
     public DSet (Iterator<E> source)
     {
@@ -89,15 +98,13 @@ public class DSet<E extends DSet.Entry>
     }
 
     /**
-     * Creates a distributed set and populates it with values from the
-     * supplied array. This should be done before the set is unleashed
-     * into the wild distributed object world because no associated entry
-     * added events will be generated. Additionally, this operation does
-     * not check for duplicates when adding entries, so one should be sure
-     * that the iterator contains only unique entries.
+     * Creates a distributed set and populates it with values from the supplied array. This should
+     * be done before the set is unleashed into the wild distributed object world because no
+     * associated entry added events will be generated. Additionally, this operation does not check
+     * for duplicates when adding entries, so one should be sure that the iterator contains only
+     * unique entries.
      *
-     * @param source an array from which we will initially populate the
-     * set.
+     * @param source an array from which we will initially populate the set.
      */
     public DSet (E[] source)
     {
@@ -124,10 +131,9 @@ public class DSet<E extends DSet.Entry>
     }
 
     /**
-     * Returns true if the set contains an entry whose
-     * <code>getKey()</code> method returns a key that
-     * <code>equals()</code> the key returned by <code>getKey()</code> of
-     * the supplied entry. Returns false otherwise.
+     * Returns true if the set contains an entry whose <code>getKey()</code> method returns a key
+     * that <code>equals()</code> the key returned by <code>getKey()</code> of the supplied
+     * entry. Returns false otherwise.
      */
     public boolean contains (E elem)
     {
@@ -135,8 +141,8 @@ public class DSet<E extends DSet.Entry>
     }
 
     /**
-     * Returns true if an entry in the set has a key that
-     * <code>equals()</code> the supplied key. Returns false otherwise.
+     * Returns true if an entry in the set has a key that <code>equals()</code> the supplied
+     * key. Returns false otherwise.
      */
     public boolean containsKey (Comparable key)
     {
@@ -144,23 +150,20 @@ public class DSet<E extends DSet.Entry>
     }
 
     /**
-     * Returns the entry that matches (<code>getKey().equals(key)</code>)
-     * the specified key or null if no entry could be found that matches
-     * the key.
+     * Returns the entry that matches (<code>getKey().equals(key)</code>) the specified key or null
+     * if no entry could be found that matches the key.
      */
     public E get (Comparable key)
     {
         // determine where we'll be adding the new element
-        int eidx = ArrayUtil.binarySearch(
-            _entries, 0, _size, key, ENTRY_COMP);
+        int eidx = ArrayUtil.binarySearch(_entries, 0, _size, key, ENTRY_COMP);
         return (eidx < 0) ? null : _entries[eidx];
     }
 
     /**
-     * Returns an iterator over the entries of this set. It does not
-     * support modification (nor iteration while modifications are being
-     * made to the set). It should not be kept around as it can quickly
-     * become out of date.
+     * Returns an iterator over the entries of this set. It does not support modification (nor
+     * iteration while modifications are being made to the set). It should not be kept around as it
+     * can quickly become out of date.
      *
      * @deprecated
      */
@@ -171,10 +174,9 @@ public class DSet<E extends DSet.Entry>
     }
 
     /**
-     * Returns an iterator over the entries of this set. It does not
-     * support modification (nor iteration while modifications are being
-     * made to the set). It should not be kept around as it can quickly
-     * become out of date.
+     * Returns an iterator over the entries of this set. It does not support modification (nor
+     * iteration while modifications are being made to the set). It should not be kept around as it
+     * can quickly become out of date.
      */
     public Iterator<E> iterator ()
     {
@@ -203,10 +205,9 @@ public class DSet<E extends DSet.Entry>
                     throw new ConcurrentModificationException();
                 }
                 if (_ssize != _size) {
-                    Log.warning("Size changed during iteration " +
-                                "[ssize=" + _ssize + ", nsize=" + _size +
-                                ", entsries=" + StringUtil.toString(_entries) +
-                                "].");
+                    Log.warning("Size changed during iteration [ssize=" + _ssize +
+                                ", nsize=" + _size +
+                                ", entsries=" + StringUtil.toString(_entries) + "].");
                     Thread.dumpStack();
                 }
             }
@@ -217,12 +218,10 @@ public class DSet<E extends DSet.Entry>
     }
 
     /**
-     * Copies the elements of this distributed set into the supplied
-     * array. If the array is not large enough to hold all of the
-     * elements, as many as fit into the array will be copied. If the
-     * <code>array</code> argument is null, an object array of sufficient
-     * size to contain all of the elements of this set will be created and
-     * returned.
+     * Copies the elements of this distributed set into the supplied array. If the array is not
+     * large enough to hold all of the elements, as many as fit into the array will be copied. If
+     * the <code>array</code> argument is null, an object array of sufficient size to contain all
+     * of the elements of this set will be created and returned.
      */
     public E[] toArray (E[] array)
     {
@@ -245,24 +244,20 @@ public class DSet<E extends DSet.Entry>
     }
 
     /**
-     * Adds the specified entry to the set. This should not be called
-     * directly, instead the associated <code>addTo{Set}()</code> method
-     * should be called on the distributed object that contains the set in
-     * question.
+     * Adds the specified entry to the set. This should not be called directly, instead the
+     * associated <code>addTo{Set}()</code> method should be called on the distributed object that
+     * contains the set in question.
      *
-     * @return true if the entry was added, false if it was already in
-     * the set.
+     * @return true if the entry was added, false if it was already in the set.
      */
     protected boolean add (E elem)
     {
         // determine where we'll be adding the new element
-        int eidx = ArrayUtil.binarySearch(
-            _entries, 0, _size, elem, ENTRY_COMP);
+        int eidx = ArrayUtil.binarySearch(_entries, 0, _size, elem, ENTRY_COMP);
 
         // if the element is already in the set, bail now
         if (eidx >= 0) {
-            Log.warning("Refusing to add duplicate entry [entry=" + elem +
-                        ", set=" + this + "].");
+            Log.warning("Refusing to add duplicate entry [entry=" + elem + ", set=" + this + "].");
             return false;
         }
 
@@ -274,20 +269,17 @@ public class DSet<E extends DSet.Entry>
         if (_size >= elength) {
             // sanity check
             if (elength > 2048) {
-                Log.warning("Requested to expand to questionably large size " +
-                            "[length=" + elength + "].");
+                Log.warning("Requested to expand to questionably large size [l=" + elength + "].");
                 Thread.dumpStack();
             }
 
             // create a new array and copy our data into it
-            @SuppressWarnings("unchecked") E[] elems =
-                (E[])new Entry[elength*2];
+            @SuppressWarnings("unchecked") E[] elems = (E[])new Entry[elength*2];
             System.arraycopy(_entries, 0, elems, 0, elength);
             _entries = elems;
         }
 
-        // if the entry doesn't go at the end, shift the elements down to
-        // accomodate it
+        // if the entry doesn't go at the end, shift the elements down to accomodate it
         if (eidx < _size) {
             System.arraycopy(_entries, eidx, _entries, eidx+1, _size-eidx);
         }
@@ -301,13 +293,11 @@ public class DSet<E extends DSet.Entry>
     }
 
     /**
-     * Removes the specified entry from the set. This should not be called
-     * directly, instead the associated <code>removeFrom{Set}()</code>
-     * method should be called on the distributed object that contains the
-     * set in question.
+     * Removes the specified entry from the set. This should not be called directly, instead the
+     * associated <code>removeFrom{Set}()</code> method should be called on the distributed object
+     * that contains the set in question.
      *
-     * @return true if the entry was removed, false if it was not in the
-     * set.
+     * @return true if the entry was removed, false if it was not in the set.
      */
     protected boolean remove (E elem)
     {
@@ -315,13 +305,11 @@ public class DSet<E extends DSet.Entry>
     }
 
     /**
-     * Removes from the set the entry whose key matches the supplied
-     * key. This should not be called directly, instead the associated
-     * <code>removeFrom{Set}()</code> method should be called on the
-     * distributed object that contains the set in question.
+     * Removes from the set the entry whose key matches the supplied key. This should not be called
+     * directly, instead the associated <code>removeFrom{Set}()</code> method should be called on
+     * the distributed object that contains the set in question.
      *
-     * @return the old matching entry if found and removed, null if not
-     * found.
+     * @return the old matching entry if found and removed, null if not found.
      */
     protected E removeKey (Comparable key)
     {
@@ -333,19 +321,16 @@ public class DSet<E extends DSet.Entry>
         }
 
         // look up this entry's position in our set
-        int eidx = ArrayUtil.binarySearch(
-            _entries, 0, _size, key, ENTRY_COMP);
+        int eidx = ArrayUtil.binarySearch(_entries, 0, _size, key, ENTRY_COMP);
 
         // if we found it, remove it
         if (eidx >= 0) {
             // extract the old entry
             E oldEntry = _entries[eidx];
             _size--;
-            if ((_entries.length > INITIAL_CAPACITY) &&
-                    (_size < _entries.length/8)) {
+            if ((_entries.length > INITIAL_CAPACITY) && (_size < _entries.length/8)) {
                 // if we're using less than 1/8 of our capacity, shrink by half
-                @SuppressWarnings("unchecked") E[] newEnts =
-                    (E[])new Entry[_entries.length/2];
+                @SuppressWarnings("unchecked") E[] newEnts = (E[])new Entry[_entries.length/2];
                 System.arraycopy(_entries, 0, newEnts, 0, eidx);
                 System.arraycopy(_entries, eidx+1, newEnts, eidx, _size-eidx);
                 _entries = newEnts;
@@ -364,20 +349,18 @@ public class DSet<E extends DSet.Entry>
     }
 
     /**
-     * Updates the specified entry by locating an entry whose key matches
-     * the key of the supplied entry and overwriting it. This should not
-     * be called directly, instead the associated
-     * <code>update{Set}()</code> method should be called on the
-     * distributed object that contains the set in question.
+     * Updates the specified entry by locating an entry whose key matches the key of the supplied
+     * entry and overwriting it. This should not be called directly, instead the associated
+     * <code>update{Set}()</code> method should be called on the distributed object that contains
+     * the set in question.
      *
-     * @return the old entry that was replaced, or null if it was not
-     * found (in which case nothing is updated).
+     * @return the old entry that was replaced, or null if it was not found (in which case nothing
+     * is updated).
      */
     protected E update (E elem)
     {
         // look up this entry's position in our set
-        int eidx = ArrayUtil.binarySearch(
-            _entries, 0, _size, elem, ENTRY_COMP);
+        int eidx = ArrayUtil.binarySearch(_entries, 0, _size, elem, ENTRY_COMP);
 
         // if we found it, update it
         if (eidx >= 0) {
@@ -396,10 +379,8 @@ public class DSet<E extends DSet.Entry>
     public DSet<E> typedClone ()
     {
         try {
-            @SuppressWarnings("unchecked") DSet<E> nset =
-                (DSet<E>)super.clone();
-            @SuppressWarnings("unchecked") E[] copy =
-                (E[])new Entry[_entries.length];
+            @SuppressWarnings("unchecked") DSet<E> nset = (DSet<E>)super.clone();
+            @SuppressWarnings("unchecked") E[] copy = (E[])new Entry[_entries.length];
             nset._entries = copy;
             System.arraycopy(_entries, 0, nset._entries, 0, _entries.length);
             nset._modCount = 0;
@@ -465,8 +446,7 @@ public class DSet<E extends DSet.Entry>
     }
 
     /** The entries of the set (in a sparse array). */
-    @SuppressWarnings("unchecked") protected E[] _entries =
-        (E[])new Entry[INITIAL_CAPACITY];
+    @SuppressWarnings("unchecked") protected E[] _entries = (E[])new Entry[INITIAL_CAPACITY];
 
     /** The number of entries in this set. */
     protected int _size;
@@ -480,10 +460,8 @@ public class DSet<E extends DSet.Entry>
     /** Used for lookups and to keep the set contents sorted on insertions. */
     protected static Comparator<Object> ENTRY_COMP = new Comparator<Object>() {
         public int compare (Object o1, Object o2) {
-            Comparable c1 = (o1 instanceof Entry) ?
-               ((Entry)o1).getKey() : (Comparable)o1;
-            Comparable c2 = (o2 instanceof Entry) ?
-               ((Entry)o2).getKey() : (Comparable)o2;
+            Comparable c1 = (o1 instanceof Entry) ? ((Entry)o1).getKey() : (Comparable)o1;
+            Comparable c2 = (o2 instanceof Entry) ? ((Entry)o2).getKey() : (Comparable)o2;
             @SuppressWarnings("unchecked") int val = c1.compareTo(c2);
             return val;
         }
