@@ -149,5 +149,5 @@ public class BasicDirector
     protected PresentsContext _ctx;
 
     /** Whether or not this director is available in standalone mode. */
-    protected boolean _availableInStandalone;
+    protected boolean _availableInStandalone = true;
 }
