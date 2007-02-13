@@ -94,14 +94,6 @@ public class Client
     }
 
     /**
-     * Sets whether or not this client is operating in standalone mode.
-     */
-    public void setStandalone (boolean standalone)
-    {
-        _standalone = standalone;
-    }
-
-    /**
      * Checks whether or not this client is operating in a standalone mode.
      */
     public boolean isStandalone ()
@@ -432,12 +424,35 @@ public class Client
     }
 
     /**
+     * Prepares the client for a standalone mode logon. Returns the set of bootstrap service groups
+     * that should be supplied to the invocation manager to create our fake bootstrap record.
+     */
+    public String[] prepareStandaloneLogon ()
+    {
+        _standalone = true;
+        notifyObservers(CLIENT_WILL_LOGON, null);
+        return getBootGroups();
+    }
+
+    /**
+     * Logs this client on in standalone mode with the faked bootstrap data and shared local
+     * distributed object manager.
+     */
+    public void standaloneLogon (BootstrapData data, DObjectManager omgr)
+    {
+        if (!_standalone) {
+            throw new IllegalStateException("Must call prepareStandaloneLogon() first.");
+        }
+        gotBootstrap(data, omgr);
+    }
+
+    /**
      * For standalone mode, this notifies observers that the client has logged off and cleans up.
      */
     public void standaloneLogoff ()
     {
         notifyObservers(CLIENT_DID_LOGOFF, null);
-        cleanup(null);
+        cleanup(null); // this will set _standalone to false
     }
 
     /**
@@ -445,7 +460,7 @@ public class Client
      * client and server are being run in "merged" mode in a single JVM, this is how the client is
      * configured with the server's distributed object manager and provided with bootstrap data.
      */
-    public void gotBootstrap (BootstrapData data, DObjectManager omgr)
+    protected void gotBootstrap (BootstrapData data, DObjectManager omgr)
     {
         Log.debug("Got bootstrap " + data + ".");
 
