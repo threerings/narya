@@ -176,7 +176,7 @@ public class ClientManager
     /**
      * Enumerates all active client objects.
      */
-    public Iterator enumerateClientObjects ()
+    public Iterator<ClientObject> enumerateClientObjects ()
     {
         return _objmap.values().iterator();
     }
