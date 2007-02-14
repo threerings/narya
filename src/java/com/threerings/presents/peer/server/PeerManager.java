@@ -296,7 +296,12 @@ public class PeerManager
         queryLock(lock, new ResultListener<String>() {
             public void requestCompleted (String result) {
                 if (result == null) {
-                    _locks.put(lock, new LockHandler(lock, true, listener));
+                    if (_nodeobj.getSubscriberCount() == 0) {
+                        _nodeobj.addToLocks(lock);
+                        listener.requestCompleted(_nodeName);
+                    } else {
+                        _locks.put(lock, new LockHandler(lock, true, listener));
+                    }
                 } else {
                     listener.requestCompleted(result);
                 }
@@ -318,7 +323,12 @@ public class PeerManager
         queryLock(lock, new ResultListener<String>() {
             public void requestCompleted (String result) {
                 if (_nodeName.equals(result)) {
-                    _locks.put(lock, new LockHandler(lock, false, listener));
+                    if (_nodeobj.getSubscriberCount() == 0) {
+                        _nodeobj.removeFromLocks(lock);
+                        listener.requestCompleted(null);
+                    } else {
+                        _locks.put(lock, new LockHandler(lock, false, listener));
+                    }
                 } else {
                     if (result != null) {
                         log.warning("Tried to release lock held by another peer [lock=" +
@@ -796,7 +806,7 @@ public class PeerManager
             }
 
             // find out exactly how many responses we need
-            _remaining = _peers.size();
+            _remaining = _nodeobj.getSubscriberCount();
 
             // schedule a timeout to act if something goes wrong
             (_timeout = new Interval(PresentsServer.omgr) {

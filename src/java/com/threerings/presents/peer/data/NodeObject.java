@@ -60,20 +60,20 @@ public class NodeObject extends DObject
     {
         /** The resource type.  Only resources of the same type will have their ids compared. */
         public String type;
-        
+
         /** The resource identifier, which can be <code>null</code> for singleton resources. */
         public Comparable id;
-        
+
         public Lock ()
         {
         }
-        
+
         public Lock (String type, Comparable id)
         {
             this.type = type;
             this.id = id;
         }
-        
+
         // documentation inherited from interface Comparable
         public int compareTo (Object other)
         {
@@ -85,19 +85,19 @@ public class NodeObject extends DObject
             @SuppressWarnings("unchecked") int v2 = id.compareTo(olock.id);
             return v2;
         }
-        
+
         // documentation inherited from interface DSet.Entry
         public Comparable getKey ()
         {
             return this;
         }
-        
+
         @Override // documentation inherited
         public int hashCode ()
         {
             return type.hashCode() + (id == null ? 0 : id.hashCode());
         }
-        
+
         @Override // documentation inherited
         public boolean equals (Object other)
         {
@@ -105,7 +105,7 @@ public class NodeObject extends DObject
             return type.equals(olock.type) && ObjectUtil.equals(id, olock.id);
         }
     }
-    
+
     /** Used for informing peers of changes to persistent data. */
     public static class CacheData extends SimpleStreamableObject
     {
@@ -115,8 +115,8 @@ public class NodeObject extends DObject
         /** The stale data in the cache. */
         public Streamable data;
 
-        public CacheData () 
-        { 
+        public CacheData ()
+        {
         }
 
         public CacheData (String cache, Streamable data)
@@ -128,7 +128,7 @@ public class NodeObject extends DObject
 
     /** The service used to make requests of the node. */
     public PeerMarshaller peerService;
-    
+
     /** Contains information on all clients connected to this node. */
     public DSet<ClientInfo> clients = new DSet<ClientInfo>();
 
@@ -137,12 +137,20 @@ public class NodeObject extends DObject
 
     /** Used to broadcast a node's desire to acquire a lock. */
     public Lock acquiringLock;
-    
+
     /** Used to broadcast a node's desire to release a lock. */
     public Lock releasingLock;
-    
+
     /** A field we use to broadcast changes to possible cached data. */
     public CacheData cacheData;
+
+    /**
+     * Returns the number of subscribers to this node.
+     */
+    public int getSubscriberCount ()
+    {
+        return _scount;
+    }
 
     // AUTO-GENERATED: METHODS START
     /**
