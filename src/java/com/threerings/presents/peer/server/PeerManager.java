@@ -446,7 +446,6 @@ public class PeerManager
     {
         // if this is another peer, don't worry about it
         if (client instanceof PeerClient) {
-
             return;
         }
 
@@ -997,7 +996,6 @@ public class PeerManager
         protected Lock _lock;
         protected boolean _acquire;
         protected ArrayIntSet _remoids;
-        protected int _remaining;
         protected Interval _timeout;
     }
 
