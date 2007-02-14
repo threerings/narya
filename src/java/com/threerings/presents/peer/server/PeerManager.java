@@ -29,6 +29,7 @@ import java.util.logging.Level;
 
 import com.samskivert.io.PersistenceException;
 import com.samskivert.jdbc.ConnectionProvider;
+import com.samskivert.util.ArrayIntSet;
 import com.samskivert.util.Interval;
 import com.samskivert.util.Invoker;
 import com.samskivert.util.ObjectUtil;
@@ -50,8 +51,6 @@ import com.threerings.presents.dobj.EntryAddedEvent;
 import com.threerings.presents.dobj.EntryRemovedEvent;
 import com.threerings.presents.dobj.EntryUpdatedEvent;
 import com.threerings.presents.dobj.ObjectAccessException;
-import com.threerings.presents.dobj.ObjectDeathListener;
-import com.threerings.presents.dobj.ObjectDestroyedEvent;
 import com.threerings.presents.dobj.SetListener;
 import com.threerings.presents.dobj.Subscriber;
 import com.threerings.presents.server.ClientManager;
@@ -296,7 +295,7 @@ public class PeerManager
         queryLock(lock, new ResultListener<String>() {
             public void requestCompleted (String result) {
                 if (result == null) {
-                    if (_nodeobj.getSubscriberCount() == 0) {
+                    if (_suboids.isEmpty()) {
                         _nodeobj.addToLocks(lock);
                         listener.requestCompleted(_nodeName);
                     } else {
@@ -323,7 +322,7 @@ public class PeerManager
         queryLock(lock, new ResultListener<String>() {
             public void requestCompleted (String result) {
                 if (_nodeName.equals(result)) {
-                    if (_nodeobj.getSubscriberCount() == 0) {
+                    if (_suboids.isEmpty()) {
                         _nodeobj.removeFromLocks(lock);
                         listener.requestCompleted(null);
                     } else {
@@ -412,7 +411,7 @@ public class PeerManager
     {
         LockHandler handler = _locks.get(lock);
         if (handler != null && handler.getNodeName().equals(_nodeName)) {
-            handler.ratify(acquire);
+            handler.ratify(caller, acquire);
         } else {
             // this is not an error condition, as we may have cancelled the handler or
             // allowed another to take priority
@@ -447,6 +446,7 @@ public class PeerManager
     {
         // if this is another peer, don't worry about it
         if (client instanceof PeerClient) {
+
             return;
         }
 
@@ -461,6 +461,27 @@ public class PeerManager
             }
         }
         log.warning("Session ended for unregistered client [who=" + username + "].");
+    }
+
+    /**
+     * Called by {@link PeerClient}s when clients subscribe to the {@link NodeObject}.
+     */
+    public void clientSubscribedToNode (int cloid)
+    {
+        _suboids.add(cloid);
+    }
+
+    /**
+     * Called by {@link PeerClient}s when clients unsubscribe from the {@link NodeObject}.
+     */
+    public void clientUnsubscribedFromNode (int cloid)
+    {
+        _suboids.remove(cloid);
+        for (LockHandler handler : _locks.values()) {
+            if (handler.getNodeName().equals(_nodeName)) {
+                handler.clientUnsubscribed(cloid);
+            }
+        }
     }
 
     /**
@@ -708,7 +729,11 @@ public class PeerManager
         // documentation inherited from interface ClientObserver
         public void clientDidLogoff (Client client)
         {
-            nodeobj.removeListener(this);
+            for (LockHandler handler : _locks.values()) {
+                if (handler.getNodeName().equals(_record.nodeName)) {
+                    handler.clientDidLogoff();
+                }
+            }
         }
 
         // documentation inherited from interface ClientObserver
@@ -784,7 +809,7 @@ public class PeerManager
      * Handles a lock in a state of resolution.
      */
     protected class LockHandler
-        implements SetListener, ObjectDeathListener
+        implements SetListener
     {
         /** Listeners waiting for resolution. */
         public ResultListenerList<String> listeners = new ResultListenerList<String>();
@@ -805,8 +830,9 @@ public class PeerManager
                 _nodeobj.setReleasingLock(lock);
             }
 
-            // find out exactly how many responses we need
-            _remaining = _nodeobj.getSubscriberCount();
+            // take a snapshot of the set of subscriber client oids;
+            // we will act when all of them ratify
+            _remoids = (ArrayIntSet)_suboids.clone();
 
             // schedule a timeout to act if something goes wrong
             (_timeout = new Interval(PresentsServer.omgr) {
@@ -834,24 +860,61 @@ public class PeerManager
             peer.nodeobj.addListener(this);
         }
 
+        /**
+         * Returns the name of the node waiting to perform the action.
+         */
         public String getNodeName ()
         {
             return (_peer == null) ? _nodeName : _peer._record.nodeName;
         }
 
+        /**
+         * Checks whether we are acquiring as opposed to releasing a lock.
+         */
         public boolean isAcquiring ()
         {
             return _acquire;
         }
 
-        public void ratify (boolean acquire)
+        /**
+         * Signals that one of the remote nodes has ratified the pending action.
+         */
+        public void ratify (ClientObject caller, boolean acquire)
         {
-            if (_acquire == acquire && --_remaining == 0) {
-                _timeout.cancel();
-                activate();
+            if (acquire != _acquire) {
+                return;
+            }
+            if (!_remoids.remove(caller.getOid())) {
+                log.warning("Received unexpected ratification [handler=" + this +
+                    ", who=" + caller.who() + "].");
+            }
+            maybeActivate();
+        }
+
+        /**
+         * Called when a client has unsubscribed from this node (which is waiting for
+         * ratification).
+         */
+        public void clientUnsubscribed (int cloid)
+        {
+            // unsubscription is implicit ratification
+            if (_remoids.remove(cloid)) {
+                maybeActivate();
             }
         }
 
+        /**
+         * Called when the connection to the controlling node has been broken.
+         */
+        public void clientDidLogoff ()
+        {
+            _locks.remove(_lock);
+            listeners.requestCompleted(null);
+        }
+
+        /**
+         * Cancels this handler, as another one will be taking its place.
+         */
         public void cancel ()
         {
             if (_peer != null) {
@@ -888,19 +951,26 @@ public class PeerManager
             }
         }
 
-        // documentation inherited from interface ObjectDeathListener
-        public void objectDestroyed (ObjectDestroyedEvent event)
-        {
-            _locks.remove(_lock);
-            listeners.requestCompleted(null);
-        }
-
         @Override // documentation inherited
         public String toString ()
         {
             return "[node=" + getNodeName() + ", lock=" + _lock + ", acquire=" + _acquire + "]";
         }
 
+        /**
+         * Performs the action if all remote nodes have ratified.
+         */
+        protected void maybeActivate ()
+        {
+            if (_remoids.isEmpty()) {
+                _timeout.cancel();
+                activate();
+            }
+        }
+
+        /**
+         * Performs the configured action.
+         */
         protected void activate ()
         {
             _locks.remove(_lock);
@@ -913,6 +983,9 @@ public class PeerManager
             }
         }
 
+        /**
+         * Called when the remote node has performed its action.
+         */
         protected void wasActivated (String owner)
         {
             _peer.nodeobj.removeListener(this);
@@ -923,6 +996,7 @@ public class PeerManager
         protected PeerNode _peer;
         protected Lock _lock;
         protected boolean _acquire;
+        protected ArrayIntSet _remoids;
         protected int _remaining;
         protected Interval _timeout;
     }
@@ -933,6 +1007,9 @@ public class PeerManager
     protected NodeRepository _noderepo;
     protected NodeObject _nodeobj;
     protected HashMap<String,PeerNode> _peers = new HashMap<String,PeerNode>();
+
+    /** The client oids of all peers subscribed to the node object. */
+    protected ArrayIntSet _suboids = new ArrayIntSet();
 
     /** Contains a mapping of proxied objects to subscriber instances. */
     protected HashMap<Tuple<String,Integer>,Tuple<Subscriber<?>,DObject>> _proxies =

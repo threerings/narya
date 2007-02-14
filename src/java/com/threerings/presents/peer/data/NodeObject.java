@@ -144,14 +144,6 @@ public class NodeObject extends DObject
     /** A field we use to broadcast changes to possible cached data. */
     public CacheData cacheData;
 
-    /**
-     * Returns the number of subscribers to this node.
-     */
-    public int getSubscriberCount ()
-    {
-        return _scount;
-    }
-
     // AUTO-GENERATED: METHODS START
     /**
      * Requests that the <code>peerService</code> field be set to the
