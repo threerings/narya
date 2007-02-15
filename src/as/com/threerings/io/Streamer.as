@@ -66,6 +66,10 @@ public class Streamer
     public static function getStreamerByJavaName (jname :String) :Streamer
     {
         initStreamers();
+        // unstream lists as simple arrays
+        if (jname == "java.util.List" || jname == "java.util.ArrayList") {
+            jname = "[Ljava.lang.Object;";
+        }
 
         // see if we have a streamer for it
         var streamer :Streamer;
