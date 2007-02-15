@@ -25,6 +25,9 @@ import flash.geom.Point;
 
 import flash.media.Video;
 
+import flash.text.TextField;
+import flash.text.TextFieldAutoSize;
+
 import flash.system.ApplicationDomain;
 import flash.system.LoaderContext;
 import flash.system.SecurityDomain;
@@ -121,6 +124,15 @@ public class MediaContainer extends Sprite
      */
     protected function setupVideo (url :String) :void
     {
+        // TODO: re-implement video without flex
+        var tf :TextField = new TextField();
+        tf.autoSize = TextFieldAutoSize.LEFT;
+        tf.text = "Video is temporarily disabled";
+        tf.background = true;
+        tf.selectable = false;
+        tf.width = tf.textWidth + 5;
+        setMediaObject(tf);
+
 //        var vid :VideoDisplay = new VideoDisplay();
 //        vid.autoPlay = false;
 //        _media = vid;
