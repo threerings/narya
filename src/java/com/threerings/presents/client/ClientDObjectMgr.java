@@ -233,6 +233,9 @@ public class ClientDObjectMgr
             // apply the event to the object
             boolean notify = event.applyToObject(target);
 
+            // forward to any proxies
+            target.notifyProxies(event);
+
             // if this is an object destroyed event, we need to remove the object from our table
             if (event instanceof ObjectDestroyedEvent) {
 //                 Log.info("Pitching destroyed object [oid=" + toid +

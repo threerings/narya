@@ -399,7 +399,7 @@ public class PeerManager
 
         // then in our peers
         for (PeerNode peer : _peers.values()) {
-            if (peer.nodeobj.locks.contains(lock)) {
+            if (peer.nodeobj != null && peer.nodeobj.locks.contains(lock)) {
                 return peer._record.nodeName;
             }
         }
@@ -670,7 +670,7 @@ public class PeerManager
             }
 
             // otherwise configure our client with the right bits and logon
-            _client.setCredentials(new PeerCreds(_record.nodeName, _sharedSecret));
+            _client.setCredentials(new PeerCreds(_nodeName, _sharedSecret));
             _client.setServer(record.hostName, new int[] { _record.port });
             _client.logon();
             _lastConnectStamp = System.currentTimeMillis();
