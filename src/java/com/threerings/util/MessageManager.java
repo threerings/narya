@@ -72,7 +72,7 @@ public class MessageManager
 
         // use the default locale
         _locale = Locale.getDefault();
-        log.debug("Using locale: " + _locale + ".");
+        log.fine("Using locale: " + _locale + ".");
 
         // make sure the prefix ends with a dot
         if (!_prefix.endsWith(".")) {
