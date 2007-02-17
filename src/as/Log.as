@@ -7,6 +7,8 @@ import flash.utils.getQualifiedClassName;
 
 //import mx.logging.targets.TraceTarget;
 
+import com.threerings.util.LogTarget;
+
 /**
  * A simple logging mechanism.
  *
@@ -67,6 +69,25 @@ public class Log
     }
 
     /**
+     * Add a logging target.
+     */
+    public static function addTarget (target :LogTarget) :void
+    {
+        _targets.push(target);
+    }
+
+    /**
+     * Remove a logging target.
+     */
+    public static function removeTarget (target :LogTarget) :void
+    {
+        var dex :int = _targets.indexOf(target);
+        if (dex != -1) {
+            _targets.splice(dex, 1);
+        }
+    }
+
+    /**
      * @private
      */
     public function Log (spec :String)
@@ -111,10 +132,20 @@ public class Log
         // TODO: better Date formatting?
         messages.unshift(new Date().toLocaleTimeString(), level, _spec);
         trace.apply(null, messages);
+
+        // possibly also dispatch to any other log targets.
+        if (_targets.length > 0) {
+            var asOne :String = messages.join(" ");
+            for each (var target :LogTarget in _targets) {
+                target.log(asOne);
+            }
+        }
     }
 
     /** Our log specification. */
     protected var _spec :String;
+
+    protected static var _targets :Array = [];
 }
 
 }
