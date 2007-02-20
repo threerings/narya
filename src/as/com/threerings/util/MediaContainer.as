@@ -317,6 +317,14 @@ public class MediaContainer extends Sprite
         return 1;
     }
 
+    /**
+     * Called by MediaWrapper as notification that its size has changed.
+     */
+    public function containerDimensionsUpdated (newWidth :Number, newHeight :Number) :void
+    {
+        // do nothing in base MediaContainer 
+    }
+
     override public function toString () :String
     {
         return "MediaContainer[url=" + _url + "]";
