@@ -1,12 +1,17 @@
 package com.threerings.util {
 
+import flash.display.DisplayObject;
 import flash.display.Loader;
 import flash.display.LoaderInfo;
+
 import flash.errors.IllegalOperationError;
+
 import flash.events.Event;
 import flash.events.EventDispatcher;
 import flash.events.IOErrorEvent;
+
 import flash.utils.ByteArray;
+
 import flash.system.ApplicationDomain;
 import flash.system.LoaderContext;
 
@@ -45,6 +50,15 @@ public class EmbeddedSwfLoader extends EventDispatcher
     }
 
     /**
+     * Get the top-level display object defined in the loaded SWF.
+     */
+    public function getContent () :DisplayObject
+    {
+        checkLoaded();
+        return _loader.content;
+    }
+
+    /**
      * Retrieves a class definition from the loaded swf.
      *
      * @throws IllegalOperationError when the swf has not completed loading or the class does
@@ -74,9 +88,7 @@ public class EmbeddedSwfLoader extends EventDispatcher
      */
     public function getSymbol (symbolName :String) :Object
     {
-        if (!checkLoaded()) {
-            throw new IllegalOperationError("SWF has not completed loading");
-        }
+        checkLoaded();
         try {
             return _loader.contentLoaderInfo.applicationDomain.getDefinition(symbolName);
         } catch (e: Error) {
@@ -92,19 +104,20 @@ public class EmbeddedSwfLoader extends EventDispatcher
      */
     public function isSymbol (className :String) :Boolean
     {
-        if (!checkLoaded()) {
-            throw new IllegalOperationError("SWF has not completed loading");
-        }
+        checkLoaded();
         return _loader.contentLoaderInfo.applicationDomain.hasDefinition(className);
     }
 
     /**
-     * Returns true if we've completed loaded the swf.
+     * Validate that the load operation is complete.
      */
-    protected function checkLoaded () :Boolean
+    protected function checkLoaded () :void
     {
         var loaderInfo :LoaderInfo = _loader.contentLoaderInfo;
-        return !(loaderInfo.bytesTotal == 0 || loaderInfo.bytesLoaded != loaderInfo.bytesTotal);
+        if (loaderInfo.bytesTotal == 0 || loaderInfo.bytesLoaded != loaderInfo.bytesTotal) {
+
+            throw new IllegalOperationError("SWF has not completed loading");
+        }
     }
 
     protected var _loader :Loader;
