@@ -34,9 +34,7 @@ public class FPSDisplay extends TextField
         // the difference between 1 frame)
         var frames :Number = _frameStamps.length - 1;
 
-        if (frames > 0) {
-            this.text = String(frames / seconds);
-        }
+        this.text = String(frames / seconds);
     }
 
     /** Timestamps of past ENTER_FRAME events. */
