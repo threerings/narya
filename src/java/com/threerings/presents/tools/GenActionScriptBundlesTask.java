@@ -75,17 +75,30 @@ public class GenActionScriptBundlesTask extends Task
         out.println("{");
         out.println("    override protected function getContent () :Object");
         out.println("    {");
-        out.println("        var data :Array = [");
-        for (Map.Entry entry : props.entrySet()) {
-            String key = saveConvert((String) entry.getKey());
-            String val = saveConvert((String) entry.getValue());
-            out.println("            \"" + key + "\", \"" + val + "\",");
+        if (true) {
+            // create an array with all the values, then populate in a loop
+            out.println("        var data :Array = [");
+            for (Map.Entry entry : props.entrySet()) {
+                String key = saveConvert((String) entry.getKey());
+                String val = saveConvert((String) entry.getValue());
+                out.println("            \"" + key + "\", \"" + val + "\",");
+            }
+            out.println("            null];");
+            out.println("        var o :Object = new Object();");
+            out.println("        for (var ii :int = 0; ii < data.length; ii += 2) {");
+            out.println("            o[data[ii]] = data[ii + 1];");
+            out.println("        }");
+
+        } else {
+            // alternate impl: just set each value directly. For non-trivial
+            // resource bundles, this generates a larger class after compilation
+            out.println("        var o :Object = new Object();");
+            for (Map.Entry entry : props.entrySet()) {
+                String key = saveConvert((String) entry.getKey());
+                String val = saveConvert((String) entry.getValue());
+                out.println("        o[\"" + key + "\"] = \"" + val + "\";");
+            }
         }
-        out.println("            null];");
-        out.println("        var o :Object = new Object();");
-        out.println("        for (var ii :int = 0; ii < data.length; ii += 2) {");
-        out.println("            o[data[ii]] = data[ii + 1];");
-        out.println("        }");
         out.println("        return o;");
         out.println("   }");
         out.println("}}");
