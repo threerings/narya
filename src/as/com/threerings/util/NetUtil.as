@@ -9,7 +9,7 @@ public class NetUtil
      * Convenience method to load a web page in the browser window without
      * having to worry about SecurityErrors in various conditions.
      *
-     * @return true if the url was unable to be loaded.
+     * @return true if the url was able to be loaded.
      */
     public static function navigateToURL (
             url :String, preferSameWindowOrTab :Boolean = true) :Boolean
