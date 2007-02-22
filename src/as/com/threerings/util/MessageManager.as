@@ -21,10 +21,9 @@
 
 package com.threerings.util {
 
-import mx.managers.ISystemManager;
-
-import mx.resources.Locale;
-import mx.resources.ResourceBundle;
+//import mx.managers.ISystemManager;
+//
+//import mx.resources.Locale;
 
 /**
  * The message manager provides a thin wrapper around Java's built-in
@@ -61,36 +60,36 @@ public class MessageManager
      * ResourceBundle#getBundle(String,Locale,ClassLoader)} for a more
      * detailed explanation of how resource bundle paths are resolved.
      */
-    public function MessageManager (sysMgr :ISystemManager)
+    public function MessageManager ()
     {
-        // use the default locale
-        _locale = Locale.getCurrent(sysMgr);
+//        // use the default locale
+//        _locale = Locale.getCurrent(sysMgr);
 
         // load up the global bundle
         _global = getBundle(GLOBAL_BUNDLE);
     }
 
-    /**
-     * Get the locale that is being used to translate messages.
-     * This may be useful if using standard translations, for example
-     * new SimpleDateFormat("EEEE", getLocale()) to get the name of a weekday
-     * that matches the language being used for all other client translations.
-     */
-    public function getLocale () :Locale
-    {
-        return _locale;
-    }
-
-    /**
-     * Sets the locale to the specified locale. Subsequent message bundles
-     * fetched via the message manager will use the new locale. The
-     * message bundle cache will also be cleared.
-     */
-    public function setLocale (locale :Locale) :void
-    {
-        _locale = locale;
-        _cache.clear();
-    }
+//    /**
+//     * Get the locale that is being used to translate messages.
+//     * This may be useful if using standard translations, for example
+//     * new SimpleDateFormat("EEEE", getLocale()) to get the name of a weekday
+//     * that matches the language being used for all other client translations.
+//     */
+//    public function getLocale () :Locale
+//    {
+//        return _locale;
+//    }
+//
+//    /**
+//     * Sets the locale to the specified locale. Subsequent message bundles
+//     * fetched via the message manager will use the new locale. The
+//     * message bundle cache will also be cleared.
+//     */
+//    public function setLocale (locale :Locale) :void
+//    {
+//        _locale = locale;
+//        _cache.clear();
+//    }
 
     /**
      * Fetches the message bundle for the specified path. If no bundle can
@@ -154,8 +153,8 @@ public class MessageManager
         return bundle;
     }
 
-    /** The locale for which we're obtaining message bundles. */
-    protected var _locale :Locale;
+//    /** The locale for which we're obtaining message bundles. */
+//    protected var _locale :Locale;
 
     /** A cache of instantiated message bundles. */
     protected var _cache :HashMap = new HashMap();
