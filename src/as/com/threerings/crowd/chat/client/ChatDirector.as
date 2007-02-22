@@ -22,7 +22,7 @@
 package com.threerings.crowd.chat.client {
 
 import com.threerings.util.ArrayUtil;
-import com.threerings.util.Hashtable;
+import com.threerings.util.HashMap;
 import com.threerings.util.Map;
 import com.threerings.util.ObserverList;
 import com.threerings.util.ResultListener;
@@ -899,7 +899,7 @@ public class ChatDirector extends BasicDirector
      */
     internal function getCommandHandlers (command :String) :Map
     {
-        var matches :Map = new Hashtable();
+        var matches :Map = new HashMap();
         var user :BodyObject =
             (_cctx.getClient().getClientObject() as BodyObject);
         var keys :Array = _handlers.keys();
@@ -1024,7 +1024,7 @@ public class ChatDirector extends BasicDirector
 
     /** A mapping from auxiliary chat objects to the types under which
      * they are registered. */
-    protected var _auxes :Hashtable = new Hashtable();
+    protected var _auxes :HashMap = new HashMap();
 
     /** Validator of who may be added to the chatters list. */
     protected var _chatterValidator :ChatterValidator;
@@ -1036,7 +1036,7 @@ public class ChatDirector extends BasicDirector
     protected var _chatterObservers :ObserverList = new ObserverList();
 
     /** Registered chat command handlers. */
-    protected static const _handlers :Hashtable = new Hashtable();
+    protected static const _handlers :HashMap = new HashMap();
 
     /** A history of chat commands. */
     protected static const _history :Array = new Array();
