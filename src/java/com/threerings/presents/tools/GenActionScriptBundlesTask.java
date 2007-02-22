@@ -24,6 +24,9 @@ import org.apache.tools.ant.util.ClasspathUtils;
 
 /**
  * Generates our own ResourceBundle classes.
+ *
+ * NOTE: This is not used. We are just using the standard ResourceBundles
+ * after all.
  */
 public class GenActionScriptBundlesTask extends Task
 {
