@@ -25,6 +25,8 @@ package com.threerings.util {
 //
 //import mx.resources.Locale;
 
+import mx.resources.ResourceBundle;
+
 /**
  * The message manager provides a thin wrapper around Java's built-in
  * localization support, supporting a policy of dividing up localization
