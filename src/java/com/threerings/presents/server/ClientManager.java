@@ -342,7 +342,7 @@ public class ClientManager
         if (client != null) {
             Log.info("Resuming session [username=" + username +
                      ", conn=" + conn + "].");
-            client.resumeSession(conn);
+            client.resumeSession(req, conn);
 
         } else {
             Log.info("Session initiated [username=" + username +

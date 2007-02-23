@@ -487,7 +487,7 @@ public class PresentsClient
      * Called by the client manager when a new connection arrives that authenticates as this
      * already established client. This must only be called from the congmr thread.
      */
-    protected void resumeSession (Connection conn)
+    protected void resumeSession (AuthRequest req, Connection conn)
     {
         // check to see if we've already got a connection object, in which case it's probably stale
         Connection oldconn = getConnection();
@@ -496,6 +496,9 @@ public class PresentsClient
             // close the old connection (which results in everything being properly unregistered)
             oldconn.close();
         }
+
+        // note our new auth request (so that we can deliver the proper bootstrap services)
+        _areq = req;
 
         // start using the new connection
         setConnection(conn);
