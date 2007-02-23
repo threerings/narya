@@ -69,6 +69,14 @@ public class PresentsDObjectMgr
         public int eventCount;
     }
 
+    /** Post instances of these if you know you're going to tie up the distributed object thread
+     * for a long time and don't want a spurious warning. <em>Note:</em> this should only be done
+     * during server initialization. Tying up the distributed object thread for long periods of
+     * time during normal operation is a very bad idea. */
+    public static interface LongRunnable extends Runnable
+    {
+    }
+
     /**
      * Creates the dobjmgr and prepares it for operation.
      */
@@ -331,7 +339,7 @@ public class PresentsDObjectMgr
         elapsed = elapsed * 1000000 / freq;
 
         // report excessively long units
-        if (elapsed > 500000) {
+        if (elapsed > 500000 && !(unit instanceof LongRunnable)) {
             log.warning("Long dobj unit [u=" + StringUtil.safeToString(unit) +
                         " (" + StringUtil.shortClassName(unit) + ")" +
                         ", time=" + (elapsed/1000) + "ms].");
