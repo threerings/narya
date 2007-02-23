@@ -50,15 +50,6 @@ public class CrowdClient extends PresentsClient
     }
 
     // documentation inherited
-    protected void sessionWillStart ()
-    {
-        super.sessionWillStart();
-
-        // configure a specific access controller for the client object
-        _clobj.setAccessController(CrowdObjectAccess.USER);
-    }
-
-    // documentation inherited
     protected void sessionWillResume ()
     {
         super.sessionWillResume();

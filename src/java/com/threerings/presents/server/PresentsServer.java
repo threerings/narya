@@ -32,6 +32,7 @@ import com.threerings.util.signal.SignalManager;
 
 import com.threerings.presents.Log;
 import com.threerings.presents.client.Client;
+import com.threerings.presents.dobj.AccessController;
 import com.threerings.presents.server.net.ConnectionManager;
 
 /**
@@ -118,6 +119,9 @@ public class PresentsServer
         // create our distributed object manager
         omgr = createDObjectManager();
 
+        // configure the dobject manager with our access controller
+        omgr.setDefaultAccessController(createDefaultObjectAccessController());
+
         // create and start up our invoker
         invoker = new PresentsInvoker(omgr);
         invoker.start();
@@ -165,6 +169,15 @@ public class PresentsServer
     protected PresentsDObjectMgr createDObjectManager ()
     {
         return new PresentsDObjectMgr();
+    }
+
+    /**
+     * Defines the default object access policy for all {@link DObject} instances. The default
+     * default policy is to allow all subscribers but reject all modifications by the client.
+     */
+    protected AccessController createDefaultObjectAccessController ()
+    {
+        return PresentsObjectAccess.DEFAULT;
     }
 
     /**

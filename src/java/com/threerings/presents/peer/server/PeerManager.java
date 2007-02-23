@@ -21,6 +21,7 @@
 
 package com.threerings.presents.peer.server;
 
+import java.net.ConnectException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -686,8 +687,12 @@ public class PeerManager
         // documentation inherited from interface ClientObserver
         public void clientFailedToLogon (Client client, Exception cause)
         {
-            // we'll reconnect at most one minute later in refreshPeers()
-            log.warning("Peer logon attempt failed " + _record + ": " + cause);
+            if (cause instanceof ConnectException) {
+                // we'll reconnect at most one minute later in refreshPeers()
+                log.info("Peer not online " + _record + ": " + cause.getMessage());
+            } else {
+                log.warning("Peer logon attempt failed " + _record + ": " + cause);
+            }
         }
 
         // documentation inherited from interface ClientObserver

@@ -25,13 +25,9 @@ import com.threerings.presents.data.ClientObject;
 import com.threerings.presents.dobj.AccessController;
 import com.threerings.presents.dobj.DEvent;
 import com.threerings.presents.dobj.DObject;
-import com.threerings.presents.dobj.InvocationRequestEvent;
-import com.threerings.presents.dobj.MessageEvent;
-import com.threerings.presents.dobj.NamedEvent;
 import com.threerings.presents.dobj.Subscriber;
+import com.threerings.presents.server.PresentsObjectAccess;
 
-import com.threerings.crowd.Log;
-import com.threerings.crowd.data.BodyObject;
 import com.threerings.crowd.data.PlaceObject;
 
 /**
@@ -40,76 +36,9 @@ import com.threerings.crowd.data.PlaceObject;
 public class CrowdObjectAccess
 {
     /**
-     * Our default access controller. Disallows modification of any object
-     * but allows anyone to subscribe.
-     */
-    public static AccessController DEFAULT = new AccessController()
-    {
-        // documentation inherited from interface
-        public boolean allowSubscribe (DObject object, Subscriber subscriber)
-        {
-            // allow anyone to subscribe
-            return true;
-        }
-
-        // documentation inherited from interface
-        public boolean allowDispatch (DObject object, DEvent event)
-        {
-            // if the event came from the server, it's cool
-            if (event.getSourceOid() == -1) {
-                return true;
-
-            } else {
-                // if it came from the client, it better be a
-                // non-modification event
-                return (event instanceof MessageEvent ||
-                        event instanceof InvocationRequestEvent);
-            }
-        }
-    };
-
-    /**
-     * Provides access control for user objects.
-     */
-    public static AccessController USER = new AccessController()
-    {
-        // documentation inherited from interface
-        public boolean allowSubscribe (DObject object, Subscriber sub)
-        {
-            boolean allowed = true;
-            // if the subscriber is a client, ensure that they are this
-            // same user
-            if (sub instanceof CrowdClient) {
-                String cluser = ((CrowdClient)sub).getUsername().toString();
-                String obuser = ((BodyObject)object).username.toString();
-                allowed = obuser.equalsIgnoreCase(cluser);
-                if (!allowed) {
-                    Log.warning("Refusing BodyObject subscription request " +
-                                "[owner=" + obuser + ", sub=" + sub + "].");
-                }
-            }
-            return allowed;
-        }
-
-        // documentation inherited from interface
-        public boolean allowDispatch (DObject object, DEvent event)
-        {
-            // if the event came from the server, it's cool
-            if (event.getSourceOid() == -1) {
-                return true;
-
-            } else {
-                // the client is only allowed to modify the RECEIVERS field
-                return (event instanceof NamedEvent) &&
-                    ((NamedEvent)event).getName().equals(BodyObject.RECEIVERS);
-            }
-        }
-    };
-
-    /**
-     * Provides access control for place objects. The default behavior is to
-     * allow place occupants to subscribe to the place object and to use the
-     * {@link #DEFAULT} modification policy.
+     * Provides access control for place objects. The default behavior is to allow place occupants
+     * to subscribe to the place object and to use the {@link PresentsObjectAccess#DEFAULT}
+     * modification policy.
      */
     public static AccessController PLACE = new AccessController()
     {
@@ -126,7 +55,7 @@ public class CrowdObjectAccess
         // documentation inherited from interface
         public boolean allowDispatch (DObject object, DEvent event)
         {
-            return DEFAULT.allowDispatch(object, event);
+            return PresentsObjectAccess.DEFAULT.allowDispatch(object, event);
         }
     };
 }
