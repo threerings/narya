@@ -1,8 +1,8 @@
 //
-// $Id: PeerClient.java 4509 2007-01-24 00:22:07Z dhoover $
+// $Id$
 //
 // Narya library - tools for developing networked games
-// Copyright (C) 2002-2006 Three Rings Design, Inc., All Rights Reserved
+// Copyright (C) 2002-2007 Three Rings Design, Inc., All Rights Reserved
 // http://www.threerings.net/code/narya/
 //
 // This library is free software; you can redistribute it and/or modify it

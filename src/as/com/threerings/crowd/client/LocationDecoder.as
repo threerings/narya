@@ -1,8 +1,8 @@
 //
-// $Id: LocationDecoder.java 3914 2006-03-06 21:51:59Z mdb $
+// $Id$
 //
 // Narya library - tools for developing networked games
-// Copyright (C) 2002-2006 Three Rings Design, Inc., All Rights Reserved
+// Copyright (C) 2002-2007 Three Rings Design, Inc., All Rights Reserved
 // http://www.threerings.net/code/narya/
 //
 // This library is free software; you can redistribute it and/or modify it
