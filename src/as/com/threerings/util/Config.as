@@ -22,11 +22,12 @@
 package com.threerings.util {
 
 import flash.events.NetStatusEvent;
+import flash.events.EventDispatcher;
 
 import flash.net.SharedObject;
 import flash.net.SharedObjectFlushStatus;
 
-public class Config
+public class Config extends EventDispatcher
 {
     /**
      * Constructs a new config object which will obtain configuration
@@ -53,6 +54,9 @@ public class Config
     {
         _so.data[name] = value;
         _so.flush(); // flushing is not strictly necessary
+
+        // dispatch an event corresponding
+        dispatchEvent(new ConfigValueSetEvent(name, value));
     }
 
     /**
