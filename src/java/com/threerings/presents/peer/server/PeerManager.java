@@ -680,6 +680,7 @@ public class PeerManager
         public void shutdown ()
         {
             if (_client.isActive()) {
+                log.info("Logging off of peer " + _record + ".");
                 _client.logoff(false);
             }
         }
