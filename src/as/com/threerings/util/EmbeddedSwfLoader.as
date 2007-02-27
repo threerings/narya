@@ -59,6 +59,18 @@ public class EmbeddedSwfLoader extends EventDispatcher
         _loader.contentLoaderInfo.addEventListener(IOErrorEvent.IO_ERROR, dispatchEvent);
     }
 
+// This doesn't work. We cannot write parameters to the contentLoaderInfo.
+// So: there is no way to pass parameters to content loaded using loadBytes,
+// and there's no way to pass parameters to any other content without
+// destroying caching (because you must append them to the url). Stupid flash.
+//    /**
+//     * Set a parameter accessible to the loaded content.
+//     */
+//    public function setParameter (name :String, val :String) :void
+//    {
+//        _loader.contentLoaderInfo.parameters[name] = val;
+//    }
+
     /**
      * Load the SWF from a Byte Array.  A CLASS_LOADED event will be dispatched on successful 
      * completion of the load.  If any errors occur, a LOAD_ERROR event will be dispatched.
