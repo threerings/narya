@@ -22,8 +22,9 @@
 package com.threerings.crowd.client {
 
 import flash.display.DisplayObject;
+import flash.display.DisplayObjectContainer;
 
-import com.threerings.util.DisplayUtil;
+import mx.core.IRawChildrenContainer; // a simple interface from flex
 
 import com.threerings.crowd.data.PlaceObject;
 
@@ -72,19 +73,36 @@ public class PlaceViewUtil
             return;
         }
 
-        DisplayUtil.applyToHierarchy(root as DisplayObject,
-            function (disp :DisplayObject) :void {
-                if (disp is PlaceView) {
-                    try {
-                        (root as PlaceView)[funct](plobj);
-                    } catch (e :Error) {
-                        var log :Log = Log.getLog(PlaceViewUtil);
-                        log.warning("Component choked on " + funct + "() " +
-                            "[component=" + root + ", plobj=" + plobj + "].");
-                        log.logStackTrace(e);
-                    }
+        // much of the code in here is adapted from
+        // com.threerings.flash.DisplayUtil, which we cannot access because
+        // it's in the nenya package. So sad, too bad.
+
+        if (root is PlaceView) {
+            try {
+                (root as PlaceView)[funct](plobj);
+            } catch (e :Error) {
+                var log :Log = Log.getLog(PlaceViewUtil);
+                log.warning("Component choked on " + funct + "() " +
+                    "[component=" + root + ", plobj=" + plobj + "].");
+                log.logStackTrace(e);
+            }
+        }
+
+        if (root is DisplayObjectContainer) {
+            // a little type-unsafety so that we don't have to write two blocks
+            var o :Object= (root is IRawChildrenContainer) ? 
+                IRawChildrenContainer(root).rawChildren : root;
+            var nn :int = int(o.numChildren);
+            for (var ii :int = 0; ii < nn; ii++) {
+                try {
+                    root = o.getChildAt(ii);
+                } catch (err :SecurityError) {
+                    // don't try dispatching to children we cannot access!
+                    continue;
                 }
-            });
+                dispatch(root, plobj, funct);
+            }
+        }
     }
 }
 }
