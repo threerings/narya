@@ -123,11 +123,16 @@ public class VideoDisplayer extends Sprite
 
     protected function handleRollOut (event :MouseEvent) :void
     {
-        removeChild(_pauser);
+        if (_pauser.parent) {
+            removeChild(_pauser);
+        }
     }
 
     protected function handleClick (event :MouseEvent) :void
     {
+        // the buck stops here!
+        event.stopImmediatePropagation();
+
         if (_paused) {
             _netStream.resume();
             _paused = false;
