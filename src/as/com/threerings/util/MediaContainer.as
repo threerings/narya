@@ -44,8 +44,6 @@ import flash.events.TextEvent;
 
 import flash.geom.Point;
 
-import flash.media.Video;
-
 import flash.text.TextField;
 import flash.text.TextFieldAutoSize;
 
@@ -145,26 +143,12 @@ public class MediaContainer extends Sprite
      */
     protected function setupVideo (url :String) :void
     {
-        // TODO: re-implement video without flex
-        var tf :TextField = new TextField();
-        tf.autoSize = TextFieldAutoSize.LEFT;
-        tf.text = "Video is temporarily disabled";
-        tf.background = true;
-        tf.selectable = false;
-        tf.width = tf.textWidth + 5;
-        setMediaObject(tf);
-
-//        var vid :VideoDisplay = new VideoDisplay();
-//        vid.autoPlay = false;
-//        _media = vid;
-//        addChild(vid);
-//        vid.addEventListener(ProgressEvent.PROGRESS, loadVideoProgress);
-//        vid.addEventListener(VideoEvent.READY, loadVideoReady);
-//        vid.addEventListener(VideoEvent.REWIND, videoDidRewind);
-//
-//        // start it loading
-//        vid.source = url;
-//        vid.load();
+        var vid :VideoDisplayer = new VideoDisplayer();
+        vid.addEventListener(VideoDisplayer.SIZE_KNOWN, handleVideoSizeKnown);
+        vid.addEventListener(VideoDisplayer.VIDEO_ERROR, handleVideoError);
+        _media = vid;
+        addChild(vid);
+        vid.setup(url);
     }
 
     /**
@@ -256,25 +240,12 @@ public class MediaContainer extends Sprite
 
                 removeChild(loader);
 
-//            } else if (_media is VideoDisplay) {
-//                var vid :VideoDisplay = (_media as VideoDisplay);
-//                // remove any listeners
-//                vid.removeEventListener(ProgressEvent.PROGRESS,
-//                    loadVideoProgress);
-//                vid.removeEventListener(VideoEvent.READY, loadVideoReady);
-//                vid.removeEventListener(VideoEvent.REWIND, videoDidRewind);
-//
-//                // dispose of media
-//                vid.pause();
-//                try {
-//                    vid.close();
-//                } catch (ioe :IOError) {
-//                    // ignore
-//                }
-//                vid.stop();
-//
-//                // remove from hierarchy
-//                removeChild(vid);
+            } else if (_media is VideoDisplayer) {
+                var vid :VideoDisplayer = (_media as VideoDisplayer);
+                vid.removeEventListener(VideoDisplayer.SIZE_KNOWN, handleVideoSizeKnown);
+                vid.removeEventListener(VideoDisplayer.VIDEO_ERROR, handleVideoError);
+                vid.shutdown();
+                removeChild(vid);
 
             } else if (_media != null) {
                 removeChild(_media);
@@ -421,31 +392,24 @@ public class MediaContainer extends Sprite
     }
 
     /**
-     * A callback to receive PROGRESS events on the video.
+     * Handles video size known.
      */
-    protected function loadVideoProgress (event :ProgressEvent) :void
+    protected function handleVideoSizeKnown (event :ValueEvent) :void
     {
-//        var vid :VideoDisplay = (event.currentTarget as VideoDisplay);
-//        updateContentDimensions(vid.videoWidth, vid.videoHeight);
-//
-//        updateLoadingProgress(vid.bytesLoaded, vid.bytesTotal);
+        var args :Array = (event.value as Array);
+        updateContentDimensions(int(args[0]), int(args[1]));
+        trace("Video size is now known: " + _w + ", " + _h);
     }
 
     /**
-     * A callback to receive READY events for video.
+     * Handles an error loading a video.
      */
-//    protected function loadVideoReady (event :VideoEvent) :void
-//    {
-//        var vid :VideoDisplay = (event.currentTarget as VideoDisplay);
-//        updateContentDimensions(vid.videoWidth, vid.videoHeight);
-//        updateLoadingProgress(1, 1);
-//
-//        vid.play();
-//
-//        // remove the two listeners
-//        vid.removeEventListener(ProgressEvent.PROGRESS, loadVideoProgress);
-//        vid.removeEventListener(VideoEvent.READY, loadVideoReady);
-//    }
+    protected function handleVideoError (event :ValueEvent) :void
+    {
+        trace("Video load error: " + event.value);
+        stoppedLoading();
+        setupBrokenImage(-1, -1);
+    }
 
     /**
      * Callback function to receive COMPLETE events for swfs or images.
@@ -464,14 +428,6 @@ public class MediaContainer extends Sprite
         updateLoadingProgress(1, 1);
         stoppedLoading();
     }
-
-    /**
-     * Called when the video auto-rewinds.
-     */
-//    protected function videoDidRewind (event :VideoEvent) :void
-//    {
-//        (_media as VideoDisplay).play();
-//    }
 
     /**
      * Configure the mask for this object.
