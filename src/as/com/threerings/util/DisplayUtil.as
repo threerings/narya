@@ -103,7 +103,10 @@ public class DisplayUtil
         // keep track of area that doesn't generate new possibles
         var dead :Array = new Array();
 
-        while (possibles.length > 0) {
+        // Note: labeled breaks and continues are supposed to be legal,
+        // but they throw wacky runtime exceptions for me. So instead
+        // I'm throwing a boolean and using that to continue the while
+        /* CHECKPOSSIBLES: */ while (possibles.length > 0) {
             try {
                 var p :Point = (possibles.shift() as Point);
                 r.x = p.x;
@@ -117,6 +120,7 @@ public class DisplayUtil
                 // and not over a dead area
                 for each (var deadRect :Rectangle in dead) {
                     if (deadRect.intersects(r)) {
+                        //continue CHECKPOSSIBLES;
                         throw true; // continue outer loop
                     }
                 }
@@ -140,6 +144,7 @@ public class DisplayUtil
 
                         // re-sort the list
                         possibles.sort(pointSorter);
+                        //continue CHECKPOSSIBLES;
                         throw true; // continue outer loop
                     }
                 }
