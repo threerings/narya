@@ -63,7 +63,8 @@ import com.threerings.media.image.ImageUtil;
  */
 public class MediaContainer extends Sprite
 {
-    /** An event we dispatch when our size is known. */
+    /** A ValueEvent we dispatch when our size is known.
+     * Value: [ width, height ]. */
     public static const SIZE_KNOWN :String = "mediaSizeKnown";
 
     /** A log instance that can be shared by sprites. */
@@ -461,13 +462,9 @@ public class MediaContainer extends Sprite
         if (_w != ww || _h != hh) {
             _w = ww;
             _h = hh;
-            // TODO: I think that I'll want to create a subclass of the
-            // basic media container which does things that are usefulish
-            // but separate from MsoySprite. SIZE_KNOWN is one of those
-            // things that should probably be moved. Maybe BaseMediaContainer
-            // and MediaContainer? FancyMediaContainer?
-            dispatchEvent(new Event(SIZE_KNOWN));
             contentDimensionsUpdated();
+            // dispatch an event to any listeners
+            dispatchEvent(new ValueEvent(SIZE_KNOWN, [ ww, hh ]));
         }
     }
 
