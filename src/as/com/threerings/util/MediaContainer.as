@@ -399,7 +399,6 @@ public class MediaContainer extends Sprite
     {
         var args :Array = (event.value as Array);
         updateContentDimensions(int(args[0]), int(args[1]));
-        trace("Video size is now known: " + _w + ", " + _h);
     }
 
     /**
@@ -407,7 +406,7 @@ public class MediaContainer extends Sprite
      */
     protected function handleVideoError (event :ValueEvent) :void
     {
-        trace("Video load error: " + event.value);
+        log.warning("Error loading video [cause=" + event.value + "].");
         stoppedLoading();
         setupBrokenImage(-1, -1);
     }
