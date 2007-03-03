@@ -52,8 +52,9 @@ import flash.system.LoaderContext;
  */
 public class EmbeddedSwfLoader extends EventDispatcher 
 {
-    public function EmbeddedSwfLoader ()
+    public function EmbeddedSwfLoader (useSubDomain :Boolean = false)
     {
+        _useSubDomain = useSubDomain;
         _loader = new Loader();
         _loader.contentLoaderInfo.addEventListener(Event.COMPLETE, dispatchEvent);
         _loader.contentLoaderInfo.addEventListener(IOErrorEvent.IO_ERROR, dispatchEvent);
@@ -78,7 +79,9 @@ public class EmbeddedSwfLoader extends EventDispatcher
     public function load (byteArray :ByteArray) :void
     {
         var context :LoaderContext = new LoaderContext();
-        context.applicationDomain = ApplicationDomain.currentDomain;
+        context.applicationDomain = _useSubDomain ? 
+            new ApplicationDomain(ApplicationDomain.currentDomain) : 
+            ApplicationDomain.currentDomain;
         _loader.loadBytes(byteArray, context);
     }
 
@@ -154,5 +157,6 @@ public class EmbeddedSwfLoader extends EventDispatcher
     }
 
     protected var _loader :Loader;
+    protected var _useSubDomain :Boolean;
 }
 }
