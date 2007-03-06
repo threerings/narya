@@ -49,11 +49,22 @@ public class TokenRing extends SimpleStreamableObject
     }
 
     /**
-     * Returns true if this token ring contains the specified token.
+     * Returns true if this token ring contains the specified token or tokens,
+     * exactly.
+     * For example, if you pass in the OR of two or more tokens,
+     * then the ring must contain all of those tokens.
      */
     public boolean holdsToken (int token)
     {
-        return (_tokens & token) != 0;
+        return (_tokens & token) == token;
+    }
+
+    /**
+     * Returns true if this token ring contains any one of the specified tokens.
+     */
+    public boolean holdsAnyToken (int tokens)
+    {
+        return (_tokens & tokens) != 0;
     }
 
     /**
