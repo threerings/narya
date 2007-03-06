@@ -81,7 +81,7 @@ public class TokenRing extends SimpleStreamableObject
      */
     public function holdsToken (token :int) :Boolean
     {
-        return (_token & token) == token;
+        return (_tokens & token) == token;
     }
 
     /**
