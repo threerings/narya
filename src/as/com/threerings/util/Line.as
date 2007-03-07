@@ -42,16 +42,21 @@ public class Line
         this.stop = stop;
     }
 
+    public function isIntersected (line :Line) :Boolean 
+    {
+        return getIntersectionType(line) != DOES_NOT_INTERSECT;
+    }
+
     /**
-     * Tests if the given line intersects this line.  If thats all you need to know, testing for
-     * intersects() != DOES_NOT_INTERSECT is enough.  This method rotates both lines so that the 
-     * start point is on the left.  If the lines do intersect, it then returns INTERSECTION_NORTH
-     * if the end point of <code>line</code> is north of this line, INTERSECTION_SOUTH otherwise.
+     * Tests if the given line intersects this line. This method rotates both lines so that the 
+     * start point of this line is on the left, at (0, 0).  If the lines do intersect, it then 
+     * returns INTERSECTION_NORTH if the end point of <code>line</code> is north of this line, 
+     * INTERSECTION_SOUTH otherwise.
      * 
      * Intersections are inclusive.  If one or both points lands on this line, interects will not
      * return DOES_NOT_INTERSECT.
      */
-    public function intersects (line :Line) :int 
+    public function getIntersectionType (line :Line) :int 
     {
         // rotate so that this line is horizontal, with the start on the left, at (0, 0)
         var trans :Matrix = new Matrix();
