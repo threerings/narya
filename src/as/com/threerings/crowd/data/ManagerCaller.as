@@ -31,7 +31,7 @@ public class ManagerCaller
     /**
      * Called to call a method on the manager.
      */
-    public function invoke (method :String, args :Array = null) :void
+    public function invoke (method :String, ... args) :void
     {
         _plobj.postMessage(method, args);
     }
