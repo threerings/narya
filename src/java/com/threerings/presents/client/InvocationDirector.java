@@ -52,15 +52,14 @@ public class InvocationDirector
     implements EventListener
 {
     /**
-     * Initializes the invocation director. This is called when the client
-     * establishes a connection with the server.
+     * Initializes the invocation director. This is called when the client establishes a connection
+     * with the server.
      *
-     * @param omgr the distributed object manager via which the invocation
-     * manager will send and receive events.
-     * @param cloid the oid of the object on which invocation
-     * notifications as well as invocation responses will be received.
-     * @param client a reference to the client for whom we're doing our
-     * business.
+     * @param omgr the distributed object manager via which the invocation manager will send and
+     * receive events.
+     * @param cloid the oid of the object on which invocation notifications as well as invocation
+     * responses will be received.
+     * @param client a reference to the client for whom we're doing our business.
      */
     public void init (DObjectManager omgr, final int cloid, Client client)
     {
@@ -89,25 +88,23 @@ public class InvocationDirector
                 // assign a mapping to already registered receivers
                 assignReceiverIds();
 
-                // let the client know that we're ready to go now that
-                // we've got our subscription to the client object
+                // let the client know that we're ready to go now that we've got our subscription
+                // to the client object
                 _client.gotClientObject(_clobj);
             }
 
             public void requestFailed (int oid, ObjectAccessException cause) {
-                // aiya! we were unable to subscribe to the client object.
-                // we're hosed, hosed, hosed
-                Log.warning("Invocation director unable to subscribe to " +
-                            "client object [cloid=" + cloid +
-                            ", cause=" + cause + "]!");
+                // aiya! we were unable to subscribe to the client object.  we're hosed!
+                Log.warning("Invocation director unable to subscribe to client object " +
+                            "[cloid=" + cloid + ", cause=" + cause + "]!");
                 _client.getClientObjectFailed(cause);
             }
         });
     }
 
     /**
-     * Clears out our session information. This is called when the client
-     * ends its session with the server.
+     * Clears out our session information. This is called when the client ends its session with the
+     * server.
      */
     public void cleanup ()
     {
@@ -122,8 +119,7 @@ public class InvocationDirector
     }
 
     /**
-     * Registers an invocation notification receiver by way of its
-     * notification event decoder.
+     * Registers an invocation notification receiver by way of its notification event decoder.
      */
     public void registerReceiver (InvocationDecoder decoder)
     {
@@ -142,8 +138,7 @@ public class InvocationDirector
     public void unregisterReceiver (String receiverCode)
     {
         // remove the receiver from the list
-        for (Iterator<InvocationDecoder> iter = _reclist.iterator();
-             iter.hasNext(); ) {
+        for (Iterator<InvocationDecoder> iter = _reclist.iterator(); iter.hasNext(); ) {
             InvocationDecoder decoder = iter.next();
             if (decoder.getReceiverCode().equals(receiverCode)) {
                 iter.remove();
@@ -152,15 +147,13 @@ public class InvocationDirector
 
         // if we're logged on, clear out any receiver id mapping
         if (_clobj != null) {
-            Registration rreg = (Registration)
-                _clobj.receivers.get(receiverCode);
+            Registration rreg = (Registration)_clobj.receivers.get(receiverCode);
             if (rreg == null) {
-                Log.warning("Receiver unregistered for which we have no " +
-                            "id to code mapping [code=" + receiverCode + "].");
+                Log.warning("Receiver unregistered for which we have no id to code mapping " +
+                            "[code=" + receiverCode + "].");
             } else {
                 Object decoder = _receivers.remove(rreg.receiverId);
-//                 Log.info("Cleared receiver " +
-//                          StringUtil.shortClassName(decoder) +
+//                 Log.info("Cleared receiver " + StringUtil.shortClassName(decoder) +
 //                          " " + rreg + ".");
             }
             _clobj.removeFromReceivers(receiverCode);
@@ -168,24 +161,21 @@ public class InvocationDirector
     }
 
     /**
-     * Assigns a receiver id to this decoder and publishes it in the
-     * {@link ClientObject#receivers} field.
+     * Assigns a receiver id to this decoder and publishes it in the {@link ClientObject#receivers}
+     * field.
      */
     protected void assignReceiverId (InvocationDecoder decoder)
     {
-        Registration reg = new Registration(
-            decoder.getReceiverCode(), nextReceiverId());
+        Registration reg = new Registration(decoder.getReceiverCode(), nextReceiverId());
         // stick the mapping into the client object
         _clobj.addToReceivers(reg);
         // and map the receiver in our receivers table
         _receivers.put(reg.receiverId, decoder);
-//         Log.info("Registered receiver " +
-//                  StringUtil.shortClassName(decoder) + " " + reg + ".");
+//         Log.info("Registered receiver " + StringUtil.shortClassName(decoder) + " " + reg + ".");
     }
 
     /**
-     * Called when we log on; generates mappings for all receivers
-     * registered prior to logon.
+     * Called when we log on; generates mappings for all receivers registered prior to logon.
      */
     protected void assignReceiverIds ()
     {
@@ -201,14 +191,18 @@ public class InvocationDirector
     }
 
     /**
-     * Requests that the specified invocation request be packaged up and
-     * sent to the supplied invocation oid.
+     * Requests that the specified invocation request be packaged up and sent to the supplied
+     * invocation oid.
      */
-    public void sendRequest (
-        int invOid, int invCode, int methodId, Object[] args)
+    public void sendRequest (int invOid, int invCode, int methodId, Object[] args)
     {
-        // configure any invocation listener marshallers among the
-        // arguments
+        if (_clobj == null) {
+            Log.warning("Dropping invocation request on shutdown director [code=" + invCode +
+                        ", methodId=" + methodId + "].");
+            return;
+        }
+
+        // configure any invocation listener marshallers among the arguments
         int acount = args.length;
         for (int ii = 0; ii < acount; ii++) {
             Object arg = args[ii];
@@ -217,19 +211,17 @@ public class InvocationDirector
                 lm.callerOid = _clobj.getOid();
                 lm.requestId = nextRequestId();
                 lm.mapStamp = System.currentTimeMillis();
-                // create a mapping for this marshaller so that we can
-                // properly dispatch responses sent to it
+                // create a mapping for this marshaller so that we can properly dispatch responses
+                // sent to it
                 _listeners.put(lm.requestId, lm);
             }
         }
 
         // create an invocation request event
-        InvocationRequestEvent event =
-            new InvocationRequestEvent(invOid, invCode, methodId, args);
+        InvocationRequestEvent event = new InvocationRequestEvent(invOid, invCode, methodId, args);
 
-        // because invocation directors are used on the server, we set the
-        // source oid here so that invocation requests are properly
-        // attributed to the right client object when created by
+        // because invocation directors are used on the server, we set the source oid here so that
+        // invocation requests are properly attributed to the right client object when created by
         // server-side entities only sort of pretending to be a client
         event.setSourceOid(_clobj.getOid());
 
@@ -246,20 +238,16 @@ public class InvocationDirector
     {
         if (event instanceof InvocationResponseEvent) {
             InvocationResponseEvent ire = (InvocationResponseEvent)event;
-            handleInvocationResponse(
-                ire.getRequestId(), ire.getMethodId(), ire.getArgs());
+            handleInvocationResponse(ire.getRequestId(), ire.getMethodId(), ire.getArgs());
 
         } else if (event instanceof InvocationNotificationEvent) {
-            InvocationNotificationEvent ine =
-                (InvocationNotificationEvent)event;
-            handleInvocationNotification(
-                ine.getReceiverId(), ine.getMethodId(), ine.getArgs());
+            InvocationNotificationEvent ine = (InvocationNotificationEvent)event;
+            handleInvocationNotification(ine.getReceiverId(), ine.getMethodId(), ine.getArgs());
 
         } else if (event instanceof MessageEvent) {
             MessageEvent mevt = (MessageEvent)event;
             if (mevt.getName().equals(ClientObject.CLOBJ_CHANGED)) {
-                handleClientObjectChanged(
-                    ((Integer)mevt.getArgs()[0]).intValue());
+                handleClientObjectChanged(((Integer)mevt.getArgs()[0]).intValue());
             }
         }
     }
@@ -267,33 +255,28 @@ public class InvocationDirector
     /**
      * Dispatches an invocation response.
      */
-    protected void handleInvocationResponse (
-        int reqId, int methodId, Object[] args)
+    protected void handleInvocationResponse (int reqId, int methodId, Object[] args)
     {
         // look up the invocation marshaller registered for that response
         ListenerMarshaller listener = _listeners.remove(reqId);
         if (listener == null) {
-            Log.warning("Received invocation response for which we have " +
-                        "no registered listener [reqId=" + reqId +
-                        ", methId=" + methodId +
-                        ", args=" + StringUtil.toString(args) + "]. " +
-                        "It is possble that this listener was flushed " +
-                        "because the response did not arrive within " +
+            Log.warning("Received invocation response for which we have no registered listener " +
+                        "[reqId=" + reqId + ", methId=" + methodId + ", args=" +
+                        StringUtil.toString(args) + "]. It is possble that this listener was " +
+                        "flushed because the response did not arrive within " +
                         LISTENER_MAX_AGE + " milliseconds.");
             return;
         }
 
-//         Log.info("Dispatching invocation response " +
-//                  "[listener=" + listener + ", methId=" + methodId +
-//                  ", args=" + StringUtil.toString(args) + "].");
+//         Log.info("Dispatching invocation response [listener=" + listener +
+//                  ", methId=" + methodId + ", args=" + StringUtil.toString(args) + "].");
 
         // dispatch the response
         try {
             listener.dispatchResponse(methodId, args);
         } catch (Throwable t) {
-            Log.warning("Invocation response listener choked " +
-                        "[listener=" + listener + ", methId=" + methodId +
-                        ", args=" + StringUtil.toString(args) + "].");
+            Log.warning("Invocation response listener choked [listener=" + listener +
+                        ", methId=" + methodId + ", args=" + StringUtil.toString(args) + "].");
             Log.logStackTrace(t);
         }
 
@@ -308,39 +291,33 @@ public class InvocationDirector
     /**
      * Dispatches an invocation notification.
      */
-    protected void handleInvocationNotification (
-        int receiverId, int methodId, Object[] args)
+    protected void handleInvocationNotification (int receiverId, int methodId, Object[] args)
     {
         // look up the decoder registered for this receiver
         InvocationDecoder decoder = _receivers.get(receiverId);
         if (decoder == null) {
-            Log.warning("Received notification for which we have no " +
-                        "registered receiver [recvId=" + receiverId +
-                        ", methodId=" + methodId +
+            Log.warning("Received notification for which we have no registered receiver " +
+                        "[recvId=" + receiverId + ", methodId=" + methodId +
                         ", args=" + StringUtil.toString(args) + "].");
             return;
         }
 
-//         Log.info("Dispatching invocation notification " +
-//                  "[receiver=" + decoder.receiver + ", methodId=" + methodId +
-//                  ", args=" + StringUtil.toString(args) + "].");
+//         Log.info("Dispatching invocation notification [receiver=" + decoder.receiver +
+//                  ", methodId=" + methodId + ", args=" + StringUtil.toString(args) + "].");
 
         try {
             decoder.dispatchNotification(methodId, args);
         } catch (Throwable t) {
-            Log.warning("Invocation notification receiver choked " +
-                        "[receiver=" + decoder.receiver +
-                        ", methId=" + methodId +
-                        ", args=" + StringUtil.toString(args) + "].");
+            Log.warning("Invocation notification receiver choked [receiver=" + decoder.receiver +
+                        ", methId=" + methodId + ", args=" + StringUtil.toString(args) + "].");
             Log.logStackTrace(t);
         }
     }
 
     /**
-     * Called when the server has informed us that our previous client
-     * object is going the way of the Dodo because we're changing screen
-     * names. We subscribe to the new object and report to the client once
-     * we've got our hands on it.
+     * Called when the server has informed us that our previous client object is going the way of
+     * the Dodo because we're changing screen names. We subscribe to the new object and report to
+     * the client once we've got our hands on it.
      */
     protected void handleClientObjectChanged (int newCloid)
     {
@@ -372,24 +349,20 @@ public class InvocationDirector
             }
 
             public void requestFailed (int oid, ObjectAccessException cause) {
-                Log.warning("Aiya! Unable to subscribe to changed " +
-                            "client object [cloid=" + oid +
+                Log.warning("Aiya! Unable to subscribe to changed client object [cloid=" + oid +
                             ", cause=" + cause + "].");
             }
         });
     }
 
     /**
-     * Flushes listener mappings that are older than {@link
-     * #LISTENER_MAX_AGE} milliseconds. An alternative to flushing
-     * listeners that did not explicitly receive a response within our
-     * expiry time period is to have the server's proxy listener send a
-     * message to the client when it is finalized. We then know that no
-     * server entity will subsequently use that proxy listener to send a
-     * response to the client. This involves more network traffic and
-     * complexity than seems necessary and if a user of the system does
-     * respond after their listener has been flushed, an informative
-     * warning will be logged. (Famous last words.)
+     * Flushes listener mappings that are older than {@link #LISTENER_MAX_AGE} milliseconds. An
+     * alternative to flushing listeners that did not explicitly receive a response within our
+     * expiry time period is to have the server's proxy listener send a message to the client when
+     * it is finalized. We then know that no server entity will subsequently use that proxy
+     * listener to send a response to the client. This involves more network traffic and complexity
+     * than seems necessary and if a user of the system does respond after their listener has been
+     * flushed, an informative warning will be logged. (Famous last words.)
      */
     protected void flushListeners (long now)
     {
@@ -428,8 +401,7 @@ public class InvocationDirector
     /** The client for whom we're working. */
     protected Client _client;
 
-    /** Our client object; invocation responses and notifications are
-     * received on this object. */
+    /** Our client object; invocation responses and notifications are received on this object. */
     protected ClientObject _clobj;
 
     /** Used to generate monotonically increasing request ids. */
@@ -438,19 +410,16 @@ public class InvocationDirector
     /** Used to generate monotonically increasing receiver ids. */
     protected short _receiverId;
 
-    /** Used to keep track of invocation service listeners which will
-     * receive responses from invocation service requests. */
-    protected HashIntMap<ListenerMarshaller> _listeners =
-        new HashIntMap<ListenerMarshaller>();
+    /** Used to keep track of invocation service listeners which will receive responses from
+     * invocation service requests. */
+    protected HashIntMap<ListenerMarshaller> _listeners = new HashIntMap<ListenerMarshaller>();
 
     /** Used to keep track of invocation notification receivers. */
-    protected HashIntMap<InvocationDecoder> _receivers =
-        new HashIntMap<InvocationDecoder>();
+    protected HashIntMap<InvocationDecoder> _receivers = new HashIntMap<InvocationDecoder>();
 
-    /** All registered receivers are maintained in a list so that we can
-     * assign receiver ids to them when we go online. */
-    protected ArrayList<InvocationDecoder> _reclist =
-        new ArrayList<InvocationDecoder>();
+    /** All registered receivers are maintained in a list so that we can assign receiver ids to
+     * them when we go online. */
+    protected ArrayList<InvocationDecoder> _reclist = new ArrayList<InvocationDecoder>();
 
     /** The last time we flushed our listeners. */
     protected long _lastFlushTime;
