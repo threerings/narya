@@ -192,6 +192,16 @@ public class BodyObject extends ClientObject
 //        out.writeField(awayMessage);
 //    }
 
+    override public function who () :String
+    {
+        var who :String = username.toString() + " (" + getOid();
+        if (status != OccupantInfo.ACTIVE) {
+            who += (" " + OccupantInfo.X_STATUS[status]);
+        }
+        who += ")";
+        return who;
+    }
+
     override public function readObject (ins :ObjectInputStream) :void
     {
         super.readObject(ins);
