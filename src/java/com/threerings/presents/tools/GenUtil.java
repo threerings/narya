@@ -39,7 +39,7 @@ import com.samskivert.util.StringUtil;
 /**
  * Utility methods used by our various source code generating tasks.
  */
-public class GenUtil
+public class GenUtil extends com.samskivert.util.GenUtil
 {
     /** A regular expression for matching the package declaration. */
     public static final Pattern PACKAGE_PATTERN =
@@ -50,56 +50,6 @@ public class GenUtil
     public static final Pattern NAME_PATTERN =
         Pattern.compile("^\\s*public\\s+(?:abstract\\s+)?" +
                         "(interface|class)\\s+(\\S+)(\\W|$)");
-
-    /**
-     * Returns the name of the supplied class as it would likely appear in code
-     * using the class (no package prefix, arrays specified as
-     * <code>type[]</code>).
-     */
-    public static String simpleName (Field field)
-    {
-        String cname;
-        Class<?> clazz = field.getType();
-        if (clazz.isArray()) {
-            if (field.getGenericType() instanceof GenericArrayType) {
-                GenericArrayType atype = (GenericArrayType)
-                    field.getGenericType();
-                cname = atype.getGenericComponentType().toString();
-            } else {
-                return simpleName(clazz.getComponentType(),
-                    field.getGenericType()) + "[]";
-            }
-        } else if (field.getGenericType() instanceof ParameterizedType) {
-            cname = field.getGenericType().toString();
-        } else {
-            cname = clazz.getName();
-        }
-
-        Package pkg = clazz.getPackage();
-        int offset = (pkg == null) ? 0 : pkg.getName().length()+1;
-        return StringUtil.replace(cname.substring(offset), "$", ".");
-    }
-
-    /**
-     * Returns the name of the supplied class as it would likely appear in code
-     * using the class (no package prefix, arrays specified as
-     * <code>type[]</code>).
-     */
-    public static String simpleName (Class<?> clazz, Type type)
-    {
-        if (clazz.isArray()) {
-            return simpleName(clazz.getComponentType(), type) + "[]";
-        } else {
-            String cname = clazz.getName();
-            if (type instanceof ParameterizedType) {
-                cname = type.toString();
-            }
-            Package pkg = clazz.getPackage();
-            int offset = (pkg == null) ? 0 : pkg.getName().length()+1;
-            String name = cname.substring(offset);
-            return StringUtil.replace(name, "$", ".");
-        }
-    }
 
     /**
      * Returns the name of the supplied class as it would appear in
