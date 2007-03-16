@@ -35,16 +35,36 @@ public class CommandEvent extends Event
      * Use this method to dispatch CommandEvents.
      */
     public static function dispatch (
-            disp :IEventDispatcher, cmd :String, arg :Object = null) :void
+            disp :IEventDispatcher, cmdOrFn :Object, arg :Object = null) :void
     {
-        // Create the event
-        var event :CommandEvent = create(cmd, arg);
+        if (cmdOrFn is Function) {
+            var fn :Function = (cmdOrFn as Function);
+            var args :Array = (arg as Array);
+            if (args == null && arg != null) {
+                args = [ arg ];
+            }
+            try {
+                fn.apply(null, args);
+            } catch (err :Error) {
+                var log :Log = Log.getLog(CommandEvent);
+                log.warning("Unable to call command callback, stack trace follows.");
+                log.logStackTrace(err);
+            }
 
-        // Dispatch it. A return value of true means that the event was
-        // never cancelled, so we complain.
-        if (disp == null || disp.dispatchEvent(event)) {
-            Log.getLog(CommandEvent).warning("Unhandled controller command " +
-                "[cmd=" + cmd + ", arg=" + arg + "].");
+        } else if (cmdOrFn is String) {
+            var cmd :String = String(cmdOrFn);
+            // Create the event to dispatch
+            var event :CommandEvent = create(cmd, arg);
+
+            // Dispatch it. A return value of true means that the event was
+            // never cancelled, so we complain.
+            if (disp == null || disp.dispatchEvent(event)) {
+                Log.getLog(CommandEvent).warning("Unhandled controller command " +
+                    "[cmd=" + cmd + ", arg=" + arg + "].");
+            }
+
+        } else {
+            throw new ArgumentError("Argument 'cmdOrFn' must be a command (String) or a Function");
         }
     }
 
