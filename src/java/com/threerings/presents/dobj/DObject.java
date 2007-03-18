@@ -780,6 +780,7 @@ public class DObject
         boolean alreadyApplied = false;
         if (_omgr != null && _omgr.isManager(this)) {
             if (!set.add(entry)) {
+                // DSet will have logged a warning
                 Thread.dumpStack();
             }
             alreadyApplied = true;
@@ -799,6 +800,7 @@ public class DObject
         if (_omgr != null && _omgr.isManager(this)) {
             oldEntry = set.removeKey(key);
             if (oldEntry == null) {
+                Log.warning("Requested to remove non-element [set=" + name + ", key=" + key + "].");
                 Thread.dumpStack();
             }
         }
