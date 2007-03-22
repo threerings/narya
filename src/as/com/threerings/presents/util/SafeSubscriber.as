@@ -118,6 +118,7 @@ public class SafeSubscriber implements Subscriber
                 return;
             }
             log.warning("Inactive safesub asked to unsubscribe " + this + ".");
+            Log.dumpStack();
         }
 
         // note that we no longer desire to be subscribed
@@ -128,6 +129,7 @@ public class SafeSubscriber implements Subscriber
             if (_object != null) {
                 log.warning("Incroyable! A safesub has an object and is " +
                             "pending!? " + this + ".");
+                Log.dumpStack();
             } else {
                 // nothing to do but wait for the subscription to complete
                 // at which point we'll pitch the object post-haste
@@ -139,6 +141,7 @@ public class SafeSubscriber implements Subscriber
         if (_object == null) {
             log.warning("Zut alors! A safesub _was_ active and not " +
                         "pending yet has no object!? " + this + ".");
+            Log.dumpStack();
             // nothing to do since we're apparently already unsubscribed
             return;
         }
