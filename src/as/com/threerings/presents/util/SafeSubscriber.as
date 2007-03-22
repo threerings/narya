@@ -23,7 +23,7 @@ package com.threerings.presents.util {
 
 import com.threerings.presents.dobj.DObject;
 import com.threerings.presents.dobj.DObjectManager;
-import com.threerings.presents.dobj.ObjectAccessException;
+import com.threerings.presents.dobj.ObjectAccessError;
 import com.threerings.presents.dobj.Subscriber;
 
 /**
@@ -34,7 +34,7 @@ import com.threerings.presents.dobj.Subscriber;
  */
 public class SafeSubscriber implements Subscriber
 {
-    private static const log :log = log.getlog(SafeSubscriber);
+    private static const log :Log = Log.getLog(SafeSubscriber);
     /**
      * Creates a safe subscriber for the specified distributed object
      * which will interact with the specified subscriber.
@@ -118,7 +118,6 @@ public class SafeSubscriber implements Subscriber
                 return;
             }
             log.warning("Inactive safesub asked to unsubscribe " + this + ".");
-            Thread.dumpStack();
         }
 
         // note that we no longer desire to be subscribed
@@ -129,7 +128,6 @@ public class SafeSubscriber implements Subscriber
             if (_object != null) {
                 log.warning("Incroyable! A safesub has an object and is " +
                             "pending!? " + this + ".");
-                Thread.dumpStack();
             } else {
                 // nothing to do but wait for the subscription to complete
                 // at which point we'll pitch the object post-haste
@@ -141,7 +139,6 @@ public class SafeSubscriber implements Subscriber
         if (_object == null) {
             log.warning("Zut alors! A safesub _was_ active and not " +
                         "pending yet has no object!? " + this + ".");
-            Thread.dumpStack();
             // nothing to do since we're apparently already unsubscribed
             return;
         }
@@ -210,7 +207,7 @@ public class SafeSubscriber implements Subscriber
     /**
      * Returns a string representation of this instance.
      */
-    public function toString () :void
+    public function toString () :String
     {
         return "[oid=" + _oid + ", active=" + _active + ", pending=" + _pending + ", ]";
     }
