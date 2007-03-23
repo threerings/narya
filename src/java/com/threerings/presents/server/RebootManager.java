@@ -236,9 +236,14 @@ public abstract class RebootManager
             broadcast("m.rebooting_now");
 
             // wait 1 second, then do it
-            new Interval(PresentsServer.omgr) {
+            new Interval() { // Note: This interval does not run on the dobj thread
                 public void expired () {
-                    _server.shutdown();
+                    // ...but we then post a LongRunnable...
+                    PresentsServer.omgr.postRunnable(new PresentsDObjectMgr.LongRunnable() {
+                        public void run () {
+                            _server.shutdown();
+                        }
+                    });
                 }
             }.schedule(1000);
             return;
