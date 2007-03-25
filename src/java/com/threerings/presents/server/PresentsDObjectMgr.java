@@ -331,7 +331,7 @@ public class PresentsDObjectMgr
 
         } catch (Throwable t) {
             log.log(Level.WARNING,
-                "Execution unit failed [unit=" + unit + "].", t);
+                    "Execution unit failed [unit=" + StringUtil.safeToString(unit) + "].", t);
         }
 
         // compute the elapsed time in microseconds
