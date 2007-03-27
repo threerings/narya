@@ -45,7 +45,7 @@ public class LocalDObjectMgr extends PresentsDObjectMgr
      */
     public DObjectManager getClientDObjectMgr (final int clientOid)
     {
-        clomgr = new DObjectManager() {
+        return new DObjectManager() {
             public boolean isManager (DObject object) {
                 return LocalDObjectMgr.this.isManager(object);
             }
@@ -65,7 +65,6 @@ public class LocalDObjectMgr extends PresentsDObjectMgr
                 LocalDObjectMgr.this.removedLastSubscriber(obj, deathWish);
             }
         };
-        return clomgr;
     }
 
     // documentation inherited
@@ -93,6 +92,4 @@ public class LocalDObjectMgr extends PresentsDObjectMgr
         // accounting data
         EventQueue.invokeLater(unit);
     }
-
-    public static DObjectManager clomgr = null;
 }

@@ -26,11 +26,8 @@ import java.util.Iterator;
 import com.threerings.util.Name;
 
 import com.threerings.presents.dobj.DObject;
-import com.threerings.presents.dobj.DObjectManager;
 import com.threerings.presents.dobj.DSet;
-import com.threerings.presents.dobj.MessageEvent;
 import com.threerings.presents.dobj.OidList;
-import com.threerings.presents.server.LocalDObjectMgr;
 
 import com.threerings.crowd.Log;
 import com.threerings.crowd.chat.data.SpeakMarshaller;
@@ -57,33 +54,14 @@ public class PlaceObject extends DObject
     // AUTO-GENERATED: FIELDS END
 
     /**
-     * Exists solely to make calls into the client's DObjManager look sensible:
+     * Exists solely to make calls into the manager look sensible:
      * <pre>_plobj.manager.invoke("someMethod", args);</pre>
      */
     public class ManagerCaller
     {
-
-        public ManagerCaller ()
-        {
-            // Avoid NPE boochery if we're in singleplayer mode in yohoho:
-            // It turns out that GameController posts events directly to the queue
-            // of the DObjectManager of the GameObject, which is in this case the
-            // DObjectManager instead of the ClientDObjectMgr, so the sourceOid is
-            // unchanged, leading to the nasty problem of caller being null as the
-            // message was not actually received from any connected outside client.
-            DObjectManager clomgr = LocalDObjectMgr.clomgr;
-            if (clomgr != null) {
-                _mgr = clomgr;
-            } else {
-                _mgr = PlaceObject.this.getManager();
-            }
-        }
-
         public void invoke (String method, Object ... args) {
-            _mgr.postEvent(new MessageEvent(_oid, method, args));
+            postMessage(method, args);
         }
-
-        protected DObjectManager _mgr;
     }
 
     /**
