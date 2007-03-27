@@ -37,6 +37,7 @@ import com.threerings.presents.net.BootstrapData;
 import com.threerings.presents.net.Credentials;
 import com.threerings.presents.net.PingRequest;
 import com.threerings.presents.net.PongResponse;
+import com.threerings.presents.server.LocalDObjectMgr;
 
 /**
  * Through the client object, a connection to the system is established and maintained. The client
@@ -619,6 +620,7 @@ public class Client
                 // clear out our references
                 _comm = null;
                 _omgr = null;
+                LocalDObjectMgr.clomgr = null;
                 _clobj = null;
                 _cloid = -1;
                 _standalone = false;
