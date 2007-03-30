@@ -285,6 +285,7 @@ public class Communicator
 
         // total failure
         Log.getLog(this).warning("socket error: " + event);
+        Log.dumpStack();
         shutdown(new Error("socket closed unexpectedly."));
     }
 
