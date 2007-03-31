@@ -100,7 +100,7 @@ public class AuthRequest extends UpstreamMessage
     {
         try {
             in.defaultReadObject();
-        } catch (EOFException eofe) {
+        } catch (IOException ioe) {
             // if we fail here because the client is old, leave ourselves with a partially
             // initialized set of credentials, which the server will generally cope with by telling
             // the client it is out of date
