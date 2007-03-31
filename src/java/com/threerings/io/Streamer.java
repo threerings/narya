@@ -383,7 +383,6 @@ public class Streamer
                              "[class=" + _target.getName() + ", field=" + field.getName() + "].");
                 }
             } catch (Exception e) {
-                e.printStackTrace(System.err);
                 String errmsg = "Failure reading streamable field [class=" + _target.getName() +
                     ", field=" + field.getName() + ", error=" + e + "]";
                 throw (IOException) new IOException(errmsg).initCause(e);
