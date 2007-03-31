@@ -21,7 +21,11 @@
 
 package com.threerings.presents.net;
 
+import java.io.EOFException;
+import java.io.IOException;
 import java.util.TimeZone;
+
+import com.threerings.io.ObjectInputStream;
 
 /**
  * Used to authenticate with the server.
@@ -86,6 +90,21 @@ public class AuthRequest extends UpstreamMessage
     {
         return "[type=AREQ, msgid=" + messageId + ", creds=" + _creds +
             ", version=" + _version + "]";
+    }
+
+    /**
+     * Reads our custom streamable fields.
+     */
+    public void readObject (ObjectInputStream in)
+        throws IOException, ClassNotFoundException
+    {
+        try {
+            in.defaultReadObject();
+        } catch (EOFException eofe) {
+            // if we fail here because the client is old, leave ourselves with a partially
+            // initialized set of credentials, which the server will generally cope with by telling
+            // the client it is out of date
+        }
     }
 
     /** The credentials associated with this auth request. */
