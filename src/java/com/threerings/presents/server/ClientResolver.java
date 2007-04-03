@@ -32,10 +32,9 @@ import com.threerings.presents.dobj.DObject;
 import com.threerings.presents.dobj.ObjectAccessException;
 
 /**
- * Used to resolve client data when a user starts a session (or when some
- * other entity needs access to a client object). Implementations will
- * want to extend this class and override {@link #resolveClientData},
- * making the necessary database calls and populating the client object
+ * Used to resolve client data when a user starts a session (or when some other entity needs access
+ * to a client object). Implementations will want to extend this class and override {@link
+ * #resolveClientData}, making the necessary database calls and populating the client object
  * appropriately.
  */
 public class ClientResolver extends Invoker.Unit
@@ -59,8 +58,8 @@ public class ClientResolver extends Invoker.Unit
     }
 
     /**
-     * Creates the {@link ClientObject} derived class that should be created to
-     * kick off the resolution process.
+     * Creates the {@link ClientObject} derived class that should be created to kick off the
+     * resolution process.
      */
     public ClientObject createClientObject ()
     {
@@ -68,13 +67,12 @@ public class ClientResolver extends Invoker.Unit
     }
 
     /**
-     * Called once our client object is registered with the distributed object
-     * system.
+     * Called once our client object is registered with the distributed object system.
      */
     public void objectAvailable (ClientObject object)
     {
-        // we've got our object, so shunt ourselves over to the invoker thread
-        // to perform database loading
+        // we've got our object, so shunt ourselves over to the invoker thread to perform database
+        // loading
         _clobj = object;
         PresentsServer.invoker.postUnit(this);
     }
@@ -114,9 +112,7 @@ public class ClientResolver extends Invoker.Unit
                     _clobj.reference();
                     crl.clientResolved(_username, _clobj);
                 } catch (Exception e) {
-                    Log.warning("Client resolution listener choked during " +
-                                "resolution notification [crl=" + crl +
-                                ", clobj=" + _clobj + "].");
+                    Log.warning("Client resolution listener choked in clientResolved() " + crl);
                     Log.logStackTrace(e);
                 }
             }
@@ -137,11 +133,10 @@ public class ClientResolver extends Invoker.Unit
     }
 
     /**
-     * This method is called on the invoker thread which means that it can
-     * do things like blocking database requests and generally whatever is
-     * necessary to load up all the client data that is desired by the
-     * implentation system. Any exceptions that are thrown will be caught
-     * and reported as a failure to the client resolution listener.
+     * This method is called on the invoker thread which means that it can do things like blocking
+     * database requests and generally whatever is necessary to load up all the client data that is
+     * desired by the implentation system. Any exceptions that are thrown will be caught and
+     * reported as a failure to the client resolution listener.
      */
     protected void resolveClientData (ClientObject clobj)
         throws Exception
@@ -150,9 +145,8 @@ public class ClientResolver extends Invoker.Unit
     }
 
     /**
-     * This method is called on the dobj thread after resolveClientData
-     * returns normally, it should finish populating the client object
-     * with any data that is NOT loaded from a database.
+     * This method is called on the dobj thread after resolveClientData returns normally, it should
+     * finish populating the client object with any data that is NOT loaded from a database.
      */
     protected void finishResolution (ClientObject clobj)
     {
@@ -169,10 +163,8 @@ public class ClientResolver extends Invoker.Unit
             try {
                 crl.resolutionFailed(_username, cause);
             } catch (Exception e) {
-                Log.warning("Client resolution listener choked during " +
-                            "failure notification [crl=" + crl +
-                            ", username=" + _username +
-                            ", cause=" + cause + "].");
+                Log.warning("Client resolution listener choked in resolutionFailed() [crl=" + crl +
+                            ", username=" + _username + ", cause=" + cause + "].");
                 Log.logStackTrace(e);
             }
         }
