@@ -284,14 +284,9 @@ public class Communicator
         }
 
         // total failure
-        Log.getLog(this).warning("socket error: " + event);
+        Log.getLog(this).warning("socket error: " + event + ", target=" + event.target);
         Log.dumpStack();
-        if (_socket.connected) {
-            Log.getLog(this).info("Things seem ok. Ignoring.");
-
-        } else {
-            shutdown(new Error("socket closed unexpectedly."));
-        }
+        shutdown(new Error("socket closed unexpectedly."));
     }
 
     /**
