@@ -724,8 +724,10 @@ public class ConnectionManager extends LoopingThread
             Thread.dumpStack();
 
         } else {
-            // flatten this message using the connection's output stream
             try {
+                _framer.resetFrame();
+
+                // flatten this message using the connection's output stream
                 ObjectOutputStream oout = conn.getObjectOutputStream(_framer);
                 oout.writeObject(msg);
                 oout.flush();
@@ -734,10 +736,8 @@ public class ConnectionManager extends LoopingThread
                 ByteBuffer buffer = _framer.frameAndReturnBuffer();
                 byte[] data = new byte[buffer.limit()];
                 buffer.get(data);
-                _framer.resetFrame();
 
-//                 Log.info("Flattened " + msg + " into " +
-//                          data.length + " bytes.");
+//                 Log.info("Flattened " + msg + " into " + data.length + " bytes.");
 
                 // and slap both on the queue
                 _outq.append(new Tuple<Connection,byte[]>(conn, data));
