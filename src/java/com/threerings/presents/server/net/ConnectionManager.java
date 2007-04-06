@@ -54,18 +54,17 @@ import com.threerings.presents.server.Authenticator;
 import com.threerings.presents.server.PresentsServer;
 
 /**
- * The connection manager manages the socket on which connections are
- * received. It creates connection objects to manage each individual
- * connection, but those connection objects interact closely with the
- * connection manager because network I/O is done via a poll()-like
- * mechanism rather than via threads.
+ * The connection manager manages the socket on which connections are received. It creates
+ * connection objects to manage each individual connection, but those connection objects interact
+ * closely with the connection manager because network I/O is done via a poll()-like mechanism
+ * rather than via threads.
  */
 public class ConnectionManager extends LoopingThread
     implements PresentsServer.Reporter
 {
     /**
-     * Constructs and initialized a connection manager (binding the socket
-     * on which it will listen for client connections).
+     * Constructs and initialized a connection manager (binding the socket on which it will listen
+     * for client connections).
      */
     public ConnectionManager (int port)
         throws IOException
@@ -74,9 +73,8 @@ public class ConnectionManager extends LoopingThread
     }
 
     /**
-     * Constructs and initialized a connection manager (binding socket on
-     * which it will listen for client connections to each of the
-     * specified ports).
+     * Constructs and initialized a connection manager (binding socket on which it will listen for
+     * client connections to each of the specified ports).
      */
     public ConnectionManager (int[] ports)
         throws IOException
@@ -93,12 +91,10 @@ public class ConnectionManager extends LoopingThread
     }
 
     /**
-     * Configures the connection manager with an entity that will be
-     * informed of the success or failure of the connection manager
-     * initialization process. <em>Note:</em> the callback methods will be
-     * called on the connection manager thread, so be careful not to do
-     * anything on those methods that will conflict with activities on the
-     * dobjmgr thread, etc.
+     * Configures the connection manager with an entity that will be informed of the success or
+     * failure of the connection manager initialization process. <em>Note:</em> the callback
+     * methods will be called on the connection manager thread, so be careful not to do anything on
+     * those methods that will conflict with activities on the dobjmgr thread, etc.
      */
     public void setStartupListener (ResultListener<Object> rl)
     {
@@ -106,8 +102,8 @@ public class ConnectionManager extends LoopingThread
     }
 
     /**
-     * Specifies the authenticator that should be used by the connection
-     * manager to authenticate logon requests.
+     * Specifies the authenticator that should be used by the connection manager to authenticate
+     * logon requests.
      */
     public void setAuthenticator (Authenticator author)
     {
@@ -125,11 +121,10 @@ public class ConnectionManager extends LoopingThread
     }
 
     /**
-     * Instructs us to execute the specified runnable when the connection
-     * manager thread exits. <em>Note:</em> this will be executed on the
-     * connection manager thread, so don't do anything dangerous. Only one
-     * action may be specified and it may be cleared by calling this
-     * method with null.
+     * Instructs us to execute the specified runnable when the connection manager thread exits.
+     * <em>Note:</em> this will be executed on the connection manager thread, so don't do anything
+     * dangerous. Only one action may be specified and it may be cleared by calling this method
+     * with null.
      */
     public void setShutdownAction (Runnable onExit)
     {
@@ -137,9 +132,8 @@ public class ConnectionManager extends LoopingThread
     }
 
     /**
-     * Returns our current runtime statistics. <em>Note:</em> don't call this
-     * method <em>too</em> frequently as it is synchronized and will contend
-     * with the network I/O thread.
+     * Returns our current runtime statistics. <em>Note:</em> don't call this method <em>too</em>
+     * frequently as it is synchronized and will contend with the network I/O thread.
      */
     public synchronized ConMgrStats getStats ()
     {
@@ -157,9 +151,8 @@ public class ConnectionManager extends LoopingThread
     }
 
     /**
-     * Adds the specified connection observer to the observers list.
-     * Connection observers will be notified of connection-related
-     * events. An observer will not be added to the list twice.
+     * Adds the specified connection observer to the observers list.  Connection observers will be
+     * notified of connection-related events. An observer will not be added to the list twice.
      *
      * @see ConnectionObserver
      */
@@ -189,8 +182,7 @@ public class ConnectionManager extends LoopingThread
     }
 
     /**
-     * Called by the authenticator to indicate that a connection was
-     * successfully authenticated.
+     * Called by the authenticator to indicate that a connection was successfully authenticated.
      */
     public void connectionDidAuthenticate (AuthingConnection conn)
     {
@@ -236,8 +228,7 @@ public class ConnectionManager extends LoopingThread
     }
 
     /**
-     * Notifies the connection observers of a connection event. Used
-     * internally.
+     * Notifies the connection observers of a connection event. Used internally.
      */
     protected void notifyObservers (
         int code, Connection conn, Object arg1, Object arg2)
@@ -246,8 +237,7 @@ public class ConnectionManager extends LoopingThread
             for (ConnectionObserver obs : _observers) {
                 switch (code) {
                 case CONNECTION_ESTABLISHED:
-                    obs.connectionEstablished(conn, (AuthRequest)arg1,
-                                              (AuthResponse)arg2);
+                    obs.connectionEstablished(conn, (AuthRequest)arg1, (AuthResponse)arg2);
                     break;
                 case CONNECTION_FAILED:
                     obs.connectionFailed(conn, (IOException)arg1);
@@ -256,8 +246,7 @@ public class ConnectionManager extends LoopingThread
                     obs.connectionClosed(conn);
                     break;
                 default:
-                    throw new RuntimeException("Invalid code supplied to " +
-                                               "notifyObservers: " + code);
+                    throw new RuntimeException("Invalid code supplied to notifyObservers: " + code);
                 }
             }
         }
@@ -281,19 +270,17 @@ public class ConnectionManager extends LoopingThread
                 Log.info("Server listening on " + isa + ".");
 
             } catch (IOException ioe) {
-                Log.warning("Failure listening to socket on " +
-                            "port '" +_ports[ii] + "'.");
+                Log.warning("Failure listening to socket on port '" +_ports[ii] + "'.");
                 Log.logStackTrace(ioe);
                 _failure = ioe;
             }
         }
 
-        // NOTE: this is not currently working; it works but for whatever
-        // inscrutable reason the inherited channel claims to be readable
-        // immediately every time through the select() loop which causes the
-        // server to consume 100% of the CPU repeatedly ignoring the inherited
-        // channel (except when an actual connection comes in in which case it
-        // does the right thing)
+        // NOTE: this is not currently working; it works but for whatever inscrutable reason the
+        // inherited channel claims to be readable immediately every time through the select() loop
+        // which causes the server to consume 100% of the CPU repeatedly ignoring the inherited
+        // channel (except when an actual connection comes in in which case it does the right
+        // thing)
 
 //         // now look to see if we were passed a socket inetd style by a
 //         // privileged parent process
@@ -337,14 +324,14 @@ public class ConnectionManager extends LoopingThread
     protected void registerChannel (final ServerSocketChannel listener)
         throws IOException
     {
-        // register this listening socket and map its select key to a net event
-        // handler that will accept new connections
+        // register this listening socket and map its select key to a net event handler that will
+        // accept new connections
         SelectionKey sk = listener.register(_selector, SelectionKey.OP_ACCEPT);
         _handlers.put(sk, new NetEventHandler() {
             public int handleEvent (long when) {
                 acceptConnection(listener);
-                // there's no easy way to measure bytes read when accepting a
-                // connection, so we claim nothing
+                // there's no easy way to measure bytes read when accepting a connection, so we
+                // claim nothing
                 return 0;
             }
             public boolean checkIdle (long now) {
@@ -363,9 +350,8 @@ public class ConnectionManager extends LoopingThread
         // close any connections that have been queued up to die
         Connection dconn;
         while ((dconn = _deathq.getNonBlocking()) != null) {
-            // it's possible that we caught an EOF trying to read from
-            // this connection even after it was queued up for death, so
-            // let's avoid trying to close it twice
+            // it's possible that we caught an EOF trying to read from this connection even after
+            // it was queued up for death, so let's avoid trying to close it twice
             if (!dconn.isClosed()) {
                 dconn.close();
             }
@@ -402,15 +388,13 @@ public class ConnectionManager extends LoopingThread
         while ((tup = _outq.getNonBlocking()) != null) {
             Connection conn = tup.left;
 
-            // if an overflow queue exists for this client, go ahead and
-            // slap the message on there because we can't send it until
-            // all other messages in their queue have gone out
+            // if an overflow queue exists for this client, go ahead and slap the message on there
+            // because we can't send it until all other messages in their queue have gone out
             OverflowQueue oqueue = _oflowqs.get(conn);
             if (oqueue != null) {
                 int size = oqueue.size();
                 if ((size > 500) && (size % 50 == 0)) {
-                    Log.warning("Aiya, big overflow queue for " + conn +
-                                " [size=" + size +
+                    Log.warning("Aiya, big overflow queue for " + conn + " [size=" + size +
                                 ", adding=" + tup.right + "].");
                 }
                 oqueue.add(tup.right);
@@ -425,19 +409,17 @@ public class ConnectionManager extends LoopingThread
         AuthingConnection conn;
         while ((conn = _authq.getNonBlocking()) != null) {
             try {
-                // construct a new running connection to handle this
-                // connections network traffic from here on out
+                // construct a new running connection to handle this connections network traffic
+                // from here on out
                 SelectionKey selkey = conn.getSelectionKey();
                 RunningConnection rconn = new RunningConnection(
                     this, selkey, conn.getChannel(), iterStamp);
 
-                // we need to keep using the same object input and output
-                // streams from the beginning of the session because they
-                // have contextual state that needs to be preserved
+                // we need to keep using the same object input and output streams from the
+                // beginning of the session because they have context that needs to be preserved
                 rconn.inheritStreams(conn);
 
-                // replace the mapping in the handlers table from the old
-                // connection with the new one
+                // replace the mapping in the handlers table from the old conn with the new one
                 _handlers.put(selkey, rconn);
 
                 // transfer any overflow queue for that connection
@@ -451,8 +433,7 @@ public class ConnectionManager extends LoopingThread
                                 conn.getAuthRequest(), conn.getAuthResponse());
 
             } catch (IOException ioe) {
-                Log.warning("Failure upgrading authing connection to " +
-                            "running connection.");
+                Log.warning("Failure upgrading authing connection to running connection.");
                 Log.logStackTrace(ioe);
             }
         }
@@ -460,8 +441,7 @@ public class ConnectionManager extends LoopingThread
         Set<SelectionKey> ready = null;
         try {
             // check for incoming network events
-//             Log.debug("Selecting from " +
-//                       StringUtil.toString(_selector.keys()) + " (" +
+//             Log.debug("Selecting from " + StringUtil.toString(_selector.keys()) + " (" +
 //                       SELECT_LOOP_TIME + ").");
             int ecount = _selector.select(SELECT_LOOP_TIME);
             ready = _selector.selectedKeys();
@@ -469,9 +449,8 @@ public class ConnectionManager extends LoopingThread
                 if (ready.size() == 0) {
                     return;
                 } else {
-                    Log.warning("select() returned no selected sockets, " +
-                                "but there are " + ready.size() +
-                                " in the ready set.");
+                    Log.warning("select() returned no selected sockets, but there are " +
+                                ready.size() + " in the ready set.");
                 }
             }
 
@@ -484,10 +463,9 @@ public class ConnectionManager extends LoopingThread
             return;
 
         } catch (RuntimeException re) {
-            // this block of code deals with a bug in the _selector that
-            // we observed on 2005-05-02, instead of looping indefinitely
-            // after things go pear-shaped, shut us down in an orderly
-            // fashion
+            // this block of code deals with a bug in the _selector that we observed on 2005-05-02,
+            // instead of looping indefinitely after things go pear-shaped, shut us down in an
+            // orderly fashion
             Log.warning("Failure select()ing [re=" + re + "].");
             Log.logStackTrace(re);
             if (_runtimeExceptionCount++ >= 20) {
@@ -506,26 +484,23 @@ public class ConnectionManager extends LoopingThread
             try {
                 handler = _handlers.get(selkey);
                 if (handler == null) {
-                    Log.warning("Received network event but have no " +
-                                "registered handler [selkey=" + selkey + "].");
-                    // request that this key be removed from our selection
-                    // set, which normally happens automatically but for
-                    // some reason didn't
+                    Log.warning("Received network event but have no registered handler " +
+                                "[selkey=" + selkey + "].");
+                    // request that this key be removed from our selection set, which normally
+                    // happens automatically but for some reason didn't
                     selkey.cancel();
                     continue;
                 }
 
-//                 Log.info("Got event [selkey=" + selkey +
-//                          ", handler=" + handler + "].");
+//                 Log.info("Got event [selkey=" + selkey + ", handler=" + handler + "].");
 
                 int got = handler.handleEvent(iterStamp);
                 if (got != 0) {
                     synchronized (this) {
                         _bytesIn += got;
                         _stats.bytesIn += got;
-                        // we know that the handlers only report having
-                        // read bytes when they have a whole message, so
-                        // we can count thusly
+                        // we know that the handlers only report having read bytes when they have a
+                        // whole message, so we can count thusly
                         _msgsIn++;
                         _stats.msgsIn++;
                     }
@@ -545,29 +520,25 @@ public class ConnectionManager extends LoopingThread
     }
 
     /**
-     * Writes a message out to a connection, passing the buck to the
-     * partial write handler if the entire message could not be written.
+     * Writes a message out to a connection, passing the buck to the partial write handler if the
+     * entire message could not be written.
      *
-     * @return true if the message was fully written, false if it was
-     * partially written (in which case the partial message handler will
-     * have been invoked).
+     * @return true if the message was fully written, false if it was partially written (in which
+     * case the partial message handler will have been invoked).
      */
-    protected boolean writeMessage (
-        Connection conn, byte[] data, PartialWriteHandler pwh)
+    protected boolean writeMessage (Connection conn, byte[] data, PartialWriteHandler pwh)
     {
-        // if the connection to which this message is destined is closed,
-        // drop the message and move along quietly; this is perfectly
-        // legal, a user can logoff whenever they like, even if we still
-        // have things to tell them; such is life in a fully asynchronous
-        // distributed system
+        // if the connection to which this message is destined is closed, drop the message and move
+        // along quietly; this is perfectly legal, a user can logoff whenever they like, even if we
+        // still have things to tell them; such is life in a fully asynchronous distributed system
         if (conn.isClosed()) {
             return true;
         }
 
         // sanity check the message size
         if (data.length > 1024 * 1024) {
-            Log.warning("Refusing to write absurdly large message " +
-                        "[conn=" + conn + ", size=" + data.length + "].");
+            Log.warning("Refusing to write absurdly large message [conn=" + conn +
+                        ", size=" + data.length + "].");
             return true;
         }
 
@@ -581,8 +552,7 @@ public class ConnectionManager extends LoopingThread
 
         boolean fully = true;
         try {
-//             Log.info("Writing " + data.length + " byte message to " +
-//                      conn + ".");
+//             Log.info("Writing " + data.length + " byte message to " + conn + ".");
 
             // first copy the data into our "direct" output buffer
             _outbuf.put(data);
@@ -594,10 +564,9 @@ public class ConnectionManager extends LoopingThread
 
             if (_outbuf.remaining() > 0) {
                 fully = false;
-//                     Log.info("Partial write [conn=" + conn +
-//                              ", msg=" + StringUtil.shortClassName(outmsg) +
-//                              ", wrote=" + wrote +
-//                              ", size=" + buffer.limit() + "].");
+//                 Log.info("Partial write [conn=" + conn +
+//                          ", msg=" + StringUtil.shortClassName(outmsg) + ", wrote=" + wrote +
+//                          ", size=" + buffer.limit() + "].");
                 pwh.handlePartialWrite(conn, _outbuf);
 
 //                 } else if (wrote > 10000) {
@@ -617,8 +586,7 @@ public class ConnectionManager extends LoopingThread
         return fully;
     }
 
-    /** Called by {@link #writeMessage} and friends when they write data
-     * over the network. */
+    /** Called by {@link #writeMessage} and friends when they write data over the network. */
     protected final synchronized void noteWrite (int msgs, int bytes)
     {
         _msgsOut += msgs;
@@ -648,8 +616,8 @@ public class ConnectionManager extends LoopingThread
     }
 
     /**
-     * Called by our net event handler when a new connection is ready to
-     * be accepted on our listening socket.
+     * Called by our net event handler when a new connection is ready to be accepted on our
+     * listening socket.
      */
     protected void acceptConnection (ServerSocketChannel listener)
     {
@@ -658,20 +626,18 @@ public class ConnectionManager extends LoopingThread
         try {
             channel = listener.accept();
             if (channel == null) {
-                // in theory this shouldn't happen because we got an
-                // ACCEPT_READY event, but better safe than sorry
+                // in theory this shouldn't happen because we got an ACCEPT_READY event, but better
+                // safe than sorry
                 Log.info("Psych! Got ACCEPT_READY, but no connection.");
                 return;
             }
 
             if (!(channel instanceof SelectableChannel)) {
                 try {
-                    Log.warning("Provided with un-selectable socket as " +
-                                "result of accept(), can't cope " +
-                                "[channel=" + channel + "].");
+                    Log.warning("Provided with un-selectable socket as result of accept(), can't " +
+                                "cope [channel=" + channel + "].");
                 } catch (Error err) {
-                    Log.warning("Un-selectable channel also couldn't " +
-                        "be printed.");
+                    Log.warning("Un-selectable channel also couldn't be printed.");
                 }
                 // stick a fork in the socket
                 channel.socket().close();
@@ -680,13 +646,11 @@ public class ConnectionManager extends LoopingThread
 
 //             Log.debug("Accepted connection " + channel + ".");
 
-            // create a new authing connection object to manage the
-            // authentication of this client connection and register it
-            // with our selection set
+            // create a new authing connection object to manage the authentication of this client
+            // connection and register it with our selection set
             SelectableChannel selchan = (SelectableChannel)channel;
             selchan.configureBlocking(false);
-            SelectionKey selkey = selchan.register(
-                _selector, SelectionKey.OP_READ);
+            SelectionKey selkey = selchan.register(_selector, SelectionKey.OP_READ);
             _handlers.put(selkey, new AuthingConnection(this, selkey, channel));
             synchronized (this) {
                 _stats.connects++;
@@ -709,44 +673,49 @@ public class ConnectionManager extends LoopingThread
     }
 
     /**
-     * Called by a connection when it has a downstream message that needs
-     * to be delivered. <em>Note:</em> this method is called as a result
-     * of a call to {@link Connection#postMessage} which happens when
-     * forwarding an event to a client and at the completion of
-     * authentication, both of which <em>should</em> happen only on the
-     * distributed object thread.
+     * Called by a connection when it has a downstream message that needs to be delivered.
+     * <em>Note:</em> this method is called as a result of a call to {@link Connection#postMessage}
+     * which happens when forwarding an event to a client and at the completion of authentication,
+     * both of which <em>must</em> happen only on the distributed object thread.
      */
     void postMessage (Connection conn, DownstreamMessage msg)
     {
         // sanity check
         if (conn == null || msg == null) {
-            Log.warning("Bogosity.");
+            Log.warning("postMessage() bogosity [conn=" + conn + ", msg=" + msg + "].");
             Thread.dumpStack();
+            return;
+        }
 
-        } else {
-            try {
-                _framer.resetFrame();
+        // more sanity check; messages must only be posted from the dobjmgr thread
+        if (!PresentsServer.omgr.isDispatchThread()) {
+            Log.warning("Message posted on non-distributed object thread [conn=" + conn +
+                        ", msg=" + msg + "].");
+            Thread.dumpStack();
+            // let it through though as we don't want to break things unnecessarily
+        }
 
-                // flatten this message using the connection's output stream
-                ObjectOutputStream oout = conn.getObjectOutputStream(_framer);
-                oout.writeObject(msg);
-                oout.flush();
+        try {
+            _framer.resetFrame();
 
-                // now extract that data into a byte array
-                ByteBuffer buffer = _framer.frameAndReturnBuffer();
-                byte[] data = new byte[buffer.limit()];
-                buffer.get(data);
+            // flatten this message using the connection's output stream
+            ObjectOutputStream oout = conn.getObjectOutputStream(_framer);
+            oout.writeObject(msg);
+            oout.flush();
 
-//                 Log.info("Flattened " + msg + " into " + data.length + " bytes.");
+            // now extract that data into a byte array
+            ByteBuffer buffer = _framer.frameAndReturnBuffer();
+            byte[] data = new byte[buffer.limit()];
+            buffer.get(data);
 
-                // and slap both on the queue
-                _outq.append(new Tuple<Connection,byte[]>(conn, data));
+//             Log.info("Flattened " + msg + " into " + data.length + " bytes.");
 
-            } catch (Exception e) {
-                Log.warning("Failure flattening message [conn=" + conn +
-                            ", msg=" + msg + "]. Dropping.");
-                Log.logStackTrace(e);
-            }
+            // and slap both on the queue
+            _outq.append(new Tuple<Connection,byte[]>(conn, data));
+
+        } catch (Exception e) {
+            Log.warning("Failure flattening message [conn=" + conn + ", msg=" + msg + "].");
+            Log.logStackTrace(e);
         }
     }
 
@@ -755,8 +724,8 @@ public class ConnectionManager extends LoopingThread
      */
     void connectionFailed (Connection conn, IOException ioe)
     {
-        // remove this connection from our mapping (it is automatically
-        // removed from the Selector when the socket is closed)
+        // remove this connection from our mapping (it is automatically removed from the Selector
+        // when the socket is closed)
         _handlers.remove(conn.getSelectionKey());
         _oflowqs.remove(conn);
         synchronized (this) {
@@ -772,8 +741,8 @@ public class ConnectionManager extends LoopingThread
      */
     void connectionClosed (Connection conn)
     {
-        // remove this connection from our mapping (it is automatically
-        // removed from the Selector when the socket is closed)
+        // remove this connection from our mapping (it is automatically removed from the Selector
+        // when the socket is closed)
         _handlers.remove(conn.getSelectionKey());
         _oflowqs.remove(conn);
 
@@ -788,16 +757,13 @@ public class ConnectionManager extends LoopingThread
     }
 
     /**
-     * Used to handle messages for a client whose network buffer has
-     * filled up because their outgoing network buffer has filled up. This
-     * can happen if the client receives many messages in rapid succession
-     * or if they receive very large messages or if they become
-     * unresponsive and stop acknowledging network packets sent by the
-     * server. We want to accomodate the first to circumstances and
-     * recognize the third as quickly as possible so that we can
-     * disconnect the client and propagate that information up to the
-     * higher levels so that further messages are not queued up for the
-     * unresponsive client.
+     * Used to handle messages for a client whose network buffer has filled up because their
+     * outgoing network buffer has filled up. This can happen if the client receives many messages
+     * in rapid succession or if they receive very large messages or if they become unresponsive
+     * and stop acknowledging network packets sent by the server. We want to accomodate the first
+     * to circumstances and recognize the third as quickly as possible so that we can disconnect
+     * the client and propagate that information up to the higher levels so that further messages
+     * are not queued up for the unresponsive client.
      */
     protected class OverflowQueue extends ArrayList<byte[]>
         implements PartialWriteHandler
@@ -806,8 +772,8 @@ public class ConnectionManager extends LoopingThread
         public Connection conn;
 
         /**
-         * Creates a new overflow queue for the supplied connection and
-         * with the supplied initial partial message.
+         * Creates a new overflow queue for the supplied connection and with the supplied initial
+         * partial message.
          */
         public OverflowQueue (Connection conn, ByteBuffer message)
         {
@@ -817,16 +783,14 @@ public class ConnectionManager extends LoopingThread
         }
 
         /**
-         * Called each time through the {@link ConnectionManager#iterate}
-         * loop, this attempts to send any remaining partial message and
-         * all subsequent messages in the overflow queue.
+         * Called each time through the {@link ConnectionManager#iterate} loop, this attempts to
+         * send any remaining partial message and all subsequent messages in the overflow queue.
          *
-         * @return true if all messages in this queue were successfully
-         * sent, false if there remains data to be sent on the next loop.
+         * @return true if all messages in this queue were successfully sent, false if there
+         * remains data to be sent on the next loop.
          *
-         * @throws IOException if an error occurs writing data to the
-         * connection or if we have been unable to write any data to the
-         * connection for ten seconds.
+         * @throws IOException if an error occurs writing data to the connection or if we have been
+         * unable to write any data to the connection for ten seconds.
          */
         public boolean writeOverflowMessages (long iterStamp)
             throws IOException
@@ -841,8 +805,7 @@ public class ConnectionManager extends LoopingThread
                     _partial = null;
                     _partials++;
                 } else {
-//                     Log.info("Still going [conn=" + conn +
-//                              ", wrote=" + wrote +
+//                     Log.info("Still going [conn=" + conn + ", wrote=" + wrote +
 //                              ", remain=" + _partial.remaining() + "].");
                     return false;
                 }
@@ -850,8 +813,8 @@ public class ConnectionManager extends LoopingThread
 
             while (size() > 0) {
                 byte[] data = remove(0);
-                // if any of these messages are partially written, we have
-                // to stop and wait for the next tick
+                // if any of these messages are partially written, we have to stop and wait for the
+                // next tick
                 _msgs++;
                 if (!writeMessage(conn, data, this)) {
                     return false;
@@ -875,12 +838,10 @@ public class ConnectionManager extends LoopingThread
          */
         public String toString ()
         {
-            return "[conn=" + conn + ", partials=" + _partials +
-                ", msgs=" + _msgs + "]";
+            return "[conn=" + conn + ", partials=" + _partials + ", msgs=" + _msgs + "]";
         }
 
-        /** The remains of a message that was only partially written on
-         * its first attempt. */
+        /** The remains of a message that was only partially written on its first attempt. */
         protected ByteBuffer _partial;
 
         /** A couple of counters. */
@@ -902,16 +863,13 @@ public class ConnectionManager extends LoopingThread
     protected Queue<Connection> _deathq = new Queue<Connection>();
     protected Queue<AuthingConnection> _authq = new Queue<AuthingConnection>();
 
-    protected Queue<Tuple<Connection,byte[]>> _outq =
-        new Queue<Tuple<Connection,byte[]>>();
+    protected Queue<Tuple<Connection,byte[]>> _outq = new Queue<Tuple<Connection,byte[]>>();
     protected FramingOutputStream _framer;
     protected ByteBuffer _outbuf = ByteBuffer.allocateDirect(64 * 1024);
 
-    protected HashMap<Connection,OverflowQueue> _oflowqs =
-        new HashMap<Connection,OverflowQueue>();
+    protected HashMap<Connection,OverflowQueue> _oflowqs = new HashMap<Connection,OverflowQueue>();
 
-    protected ArrayList<ConnectionObserver> _observers =
-        new ArrayList<ConnectionObserver>();
+    protected ArrayList<ConnectionObserver> _observers = new ArrayList<ConnectionObserver>();
 
     /** Bytes in and out in the last reporting period. */
     protected long _bytesIn, _bytesOut;
@@ -931,19 +889,16 @@ public class ConnectionManager extends LoopingThread
     /** Used to create an overflow queue on the first partial write. */
     protected PartialWriteHandler _oflowHandler = new PartialWriteHandler() {
         public void handlePartialWrite (Connection conn, ByteBuffer msgbuf) {
-            // if we couldn't write all the data for this message, we'll
-            // need to establish an overflow queue
+            // if we couldn't write all the data for this message, we'll need to establish an
+            // overflow queue
             _oflowqs.put(conn, new OverflowQueue(conn, msgbuf));
         }
     };
 
-    /**
-     * How long we wait for network events before checking our running
-     * flag to see if we should still be running. We don't want to loop
-     * too tightly, but we need to make sure we don't sit around listening
-     * for incoming network events too long when there are outgoing
-     * messages in the queue.
-     */
+    /** How long we wait for network events before checking our running flag to see if we should
+     * still be running. We don't want to loop too tightly, but we need to make sure we don't sit
+     * around listening for incoming network events too long when there are outgoing messages in
+     * the queue. */
     protected static final int SELECT_LOOP_TIME = 100;
 
     // codes for notifyObservers()
