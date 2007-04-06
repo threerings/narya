@@ -46,6 +46,7 @@ import com.threerings.presents.dobj.ObjectDeathListener;
 import com.threerings.presents.dobj.ObjectDestroyedEvent;
 import com.threerings.presents.dobj.ObjectRemovedEvent;
 import com.threerings.presents.dobj.OidListListener;
+import com.threerings.presents.dobj.ServerMessageEvent;
 import com.threerings.presents.dobj.SetAdapter;
 
 import com.threerings.crowd.Log;
@@ -319,27 +320,30 @@ public class PlaceManager
     // from interface MessageListener
     public void messageReceived (MessageEvent event)
     {
-        MessageHandler handler = null;
         if (_msghandlers != null) {
-            handler = _msghandlers.get(event.getName());
-        }
-        if (handler != null) {
-            handler.handleEvent(event, this);
+            MessageHandler handler = _msghandlers.get(event.getName());
+            if (handler != null) {
+                handler.handleEvent(event, this);
+            }
         }
 
-        // the first argument should be the client object of the caller or null if it is a server
-        // originated event
-        int srcoid = event.getSourceOid();
-        DObject source = (srcoid <= 0) ? null : CrowdServer.omgr.getObject(srcoid);
-        Object[] args = event.getArgs(), nargs;
-        if (args == null) {
-            nargs = new Object[] { source };
-        } else {
-            nargs = new Object[args.length+1];
-            nargs[0] = source;
-            System.arraycopy(args, 0, nargs, 1, args.length);
+        // If the message is directed at us, see if it's a request for
+        // a method invocation
+        if (event instanceof ServerMessageEvent) {
+            // the first argument should be the client object of the caller or null if it is
+            // a server-originated event
+            int srcoid = event.getSourceOid();
+            DObject source = (srcoid <= 0) ? null : CrowdServer.omgr.getObject(srcoid);
+            Object[] args = event.getArgs(), nargs;
+            if (args == null) {
+                nargs = new Object[] { source };
+            } else {
+                nargs = new Object[args.length+1];
+                nargs[0] = source;
+                System.arraycopy(args, 0, nargs, 1, args.length);
+            }
+            _dispatcher.dispatchMethod(event.getName(), nargs);
         }
-        _dispatcher.dispatchMethod(event.getName(), nargs);
     }
 
     // from interface OidListListener
