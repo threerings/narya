@@ -329,7 +329,7 @@ public class PlaceManager
 
         // If the message is directed at us, see if it's a request for
         // a method invocation
-        if (event instanceof ServerMessageEvent) {
+        if (event.isPrivate()) { // aka if (event instanceof ServerMessageEvent)
             // the first argument should be the client object of the caller or null if it is
             // a server-originated event
             int srcoid = event.getSourceOid();
