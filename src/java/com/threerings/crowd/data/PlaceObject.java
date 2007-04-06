@@ -28,6 +28,7 @@ import com.threerings.util.Name;
 import com.threerings.presents.dobj.DObject;
 import com.threerings.presents.dobj.DSet;
 import com.threerings.presents.dobj.OidList;
+import com.threerings.presents.dobj.ServerMessageEvent;
 
 import com.threerings.crowd.Log;
 import com.threerings.crowd.chat.data.SpeakMarshaller;
@@ -60,7 +61,7 @@ public class PlaceObject extends DObject
     public class ManagerCaller
     {
         public void invoke (String method, Object ... args) {
-            postMessage(method, args);
+            postEvent(new ServerMessageEvent(_oid, method, args));
         }
     }
 

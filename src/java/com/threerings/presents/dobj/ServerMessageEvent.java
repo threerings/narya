@@ -19,26 +19,42 @@
 // License along with this library; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 
-package com.threerings.crowd.data {
+package com.threerings.presents.dobj;
 
-import com.threerings.presents.dobj.ServerMessageEvent;
+import com.samskivert.util.StringUtil;
 
-public class ManagerCaller
+/**
+ * A message event that only goes to the server. If generated on the server then it never leaves
+ * the server.
+ */
+public class ServerMessageEvent extends MessageEvent
 {
-    public function ManagerCaller (plobj :PlaceObject)
+    /**
+     * Constructs a new message event on the specified target object with
+     * the supplied name and arguments.
+     *
+     * @param targetOid the object id of the object whose attribute has
+     * changed.
+     * @param name the name of the message event.
+     * @param args the arguments for this message. This array should
+     * contain only values of valid distributed object types.
+     */
+    public ServerMessageEvent (int targetOid, String name, Object[] args)
     {
-        _plobj = plobj;
+        super(targetOid, name, args);
     }
 
     /**
-     * Called to call a method on the manager.
+     * Suitable for unserialization.
      */
-    public function invoke (method :String, ... args) :void
+    public ServerMessageEvent ()
     {
-        _plobj.postEvent(new ServerMessageEvent(_plobj.getOid(), method, args));
     }
 
-    /** The place object we're thingy-ing for. */
-    protected var _plobj :PlaceObject;
-}
+    @Override
+    public boolean isPrivate ()
+    {
+        // this is what makes us server-only
+        return true;
+    }
 }
