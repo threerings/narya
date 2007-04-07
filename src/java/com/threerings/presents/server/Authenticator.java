@@ -39,16 +39,15 @@ import com.threerings.presents.server.net.ConnectionManager;
 import static com.threerings.presents.Log.log;
 
 /**
- * The authenticator is a pluggable component of the authentication
- * framework. The base class handles the basic mechanics of authentication
- * and a system would extend the base authenticator and add code that does
- * the actual client authentication.
+ * The authenticator is a pluggable component of the authentication framework. The base class
+ * handles the basic mechanics of authentication and a system would extend the base authenticator
+ * and add code that does the actual client authentication.
  */
 public abstract class Authenticator
 {
     /**
-     * Called by the connection manager to give us a reference to it for
-     * reporting authenticated connections.
+     * Called by the connection manager to give us a reference to it for reporting authenticated
+     * connections.
      */
     public void setConnectionManager (ConnectionManager conmgr)
     {
@@ -56,8 +55,8 @@ public abstract class Authenticator
     }
 
     /**
-     * Called by the connection management code when an authenticating
-     * connection has received its authentication request from the client.
+     * Called by the connection management code when an authenticating connection has received its
+     * authentication request from the client.
      */
     public void authenticateConnection (final AuthingConnection conn)
     {
@@ -69,26 +68,23 @@ public abstract class Authenticator
             public boolean invoke() {
                 try {
                     processAuthentication(conn, rsp);
-
                 } catch (Exception e) { // Persistence or Runtime
-                    log.log(Level.WARNING, "Error authenticating user " +
-                        "[areq=" + req + "].", e);
+                    log.log(Level.WARNING, "Error authenticating user [areq=" + req + "].", e);
                     rdata.code = AuthCodes.SERVER_ERROR;
                 }
                 return true;
             }
 
             public void handleResult () {
-                // stuff a reference to the auth response into the
-                // connection so that we have access to it later in the
-                // authentication process
+                // stuff a reference to the auth response into the connection so that we have
+                // access to it later in the authentication process
                 conn.setAuthResponse(rsp);
 
                 // send the response back to the client
                 conn.postMessage(rsp);
 
-                // if the authentication request was granted, let the
-                // connection manager know that we just authed
+                // if the authentication request was granted, let the connection manager know that
+                // we just authed
                 if (AuthResponseData.SUCCESS.equals(rdata.code)) {
                     _conmgr.connectionDidAuthenticate(conn);
                 }
@@ -96,26 +92,18 @@ public abstract class Authenticator
         };
 
         Invoker invoker = getInvoker();
-        if (invoker != null) {
-            invoker.postUnit(unit);
-
+        if (invoker == null) {
+            log.warning("Received authentication request before server initialization completed! " +
+                        "Authenticator has no invoker. [req=" + req + "].");
         } else {
-            // just process it here
-            try {
-                unit.invoke();
-                unit.handleResult();
-
-            } catch (Exception e) {
-                log.log(Level.WARNING, "Error authenticating user " +
-                    "[areq=" + req + "].", e);
-            }
+            invoker.postUnit(unit);
         }
     }
 
     /**
-     * Return the invoker on which to process the authentication, or null
-     * if the authentication should occur on the calling thread. The default
-     * implementation returns PresentsServer.invoker.
+     * Return the invoker on which to process the authentication, or null if the authentication
+     * should occur on the calling thread. The default implementation returns
+     * PresentsServer.invoker.
      */
     protected Invoker getInvoker ()
     {
@@ -123,8 +111,7 @@ public abstract class Authenticator
     }
 
     /**
-     * Create a new AuthResponseData instance to use for authenticating
-     * a connection.
+     * Create a new AuthResponseData instance to use for authenticating a connection.
      */
     protected AuthResponseData createResponseData ()
     {
@@ -132,17 +119,14 @@ public abstract class Authenticator
     }
 
     /**
-     * Process the authentication for the specified connection.
-     * This method may do database operations if and only if getInvoker()
-     * returns non-null. The method may return after it has stuffed a valid
-     * response code in rsp.getData().code.
+     * Process the authentication for the specified connection. The method may return after it has
+     * stuffed a valid response code in rsp.getData().code.
      *
      * @param conn The client connection.
-     * @param rsp The response to the client, which will already contain
-     *            an AuthResponseData created by createResponseDatA().
+     * @param rsp The response to the client, which will already contain an AuthResponseData
+     * created by createResponseDatA().
      */
-    protected abstract void processAuthentication (
-            AuthingConnection conn, AuthResponse rsp)
+    protected abstract void processAuthentication (AuthingConnection conn, AuthResponse rsp)
         throws PersistenceException;
 
     /** The connection manager with which we're working. */
