@@ -64,7 +64,7 @@ public abstract class Authenticator
         final AuthResponseData rdata = createResponseData();
         final AuthResponse rsp = new AuthResponse(rdata);
 
-        Invoker.Unit unit = new Invoker.Unit("auth:" + req.getCredentials()) {
+        getInvoker().postUnit(new Invoker.Unit("auth:" + req.getCredentials()) {
             public boolean invoke() {
                 try {
                     processAuthentication(conn, rsp);
@@ -89,21 +89,12 @@ public abstract class Authenticator
                     _conmgr.connectionDidAuthenticate(conn);
                 }
             }
-        };
-
-        Invoker invoker = getInvoker();
-        if (invoker == null) {
-            log.warning("Received authentication request before server initialization completed! " +
-                        "Authenticator has no invoker. [req=" + req + "].");
-        } else {
-            invoker.postUnit(unit);
-        }
+        });
     }
 
     /**
-     * Return the invoker on which to process the authentication, or null if the authentication
-     * should occur on the calling thread. The default implementation returns
-     * PresentsServer.invoker.
+     * Return the invoker on which to process the authentication. The default implementation
+     * returns PresentsServer.invoker.
      */
     protected Invoker getInvoker ()
     {
@@ -124,7 +115,7 @@ public abstract class Authenticator
      *
      * @param conn The client connection.
      * @param rsp The response to the client, which will already contain an AuthResponseData
-     * created by createResponseDatA().
+     * created by {@link #createResponseData}.
      */
     protected abstract void processAuthentication (AuthingConnection conn, AuthResponse rsp)
         throws PersistenceException;
