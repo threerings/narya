@@ -690,7 +690,7 @@ public class ConnectionManager extends LoopingThread
         // more sanity check; messages must only be posted from the dobjmgr thread
         if (!PresentsServer.omgr.isDispatchThread()) {
             Log.warning("Message posted on non-distributed object thread [conn=" + conn +
-                        ", msg=" + msg + "].");
+                        ", msg=" + msg + ", thread=" + Thread.currentThread() + "].");
             Thread.dumpStack();
             // let it through though as we don't want to break things unnecessarily
         }
