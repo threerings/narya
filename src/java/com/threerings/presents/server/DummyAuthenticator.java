@@ -32,20 +32,12 @@ import com.threerings.presents.server.net.AuthingConnection;
 import static com.threerings.presents.Log.log;
 
 /**
- * A simple authenticator implementation that simply accepts all
- * authentication requests.
+ * A simple authenticator implementation that simply accepts all authentication requests.
  */
 public class DummyAuthenticator extends Authenticator
 {
-    @Override
-    protected Invoker getInvoker ()
-    {
-        return null; // not needed
-    }
-
     // from abstract Authenticator
-    protected void processAuthentication (
-            AuthingConnection conn, AuthResponse rsp)
+    protected void processAuthentication (AuthingConnection conn, AuthResponse rsp)
         throws PersistenceException
     {
         log.info("Accepting request: " + conn.getAuthRequest());

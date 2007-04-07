@@ -36,8 +36,8 @@ import com.threerings.presents.server.net.AuthingConnection;
 import static com.threerings.presents.Log.log;
 
 /**
- * A simple server that does nothing more than spit out a canned error
- * response to everyone who logs in.
+ * A simple server that does nothing more than spit out a canned error response to everyone who
+ * logs in.
  */
 public class Rejector extends PresentsServer
 {
@@ -80,20 +80,12 @@ public class Rejector extends PresentsServer
     }
 
     /**
-     * An authenticator implementation that refuses all authentication
-     * requests.
+     * An authenticator implementation that refuses all authentication requests.
      */
     protected class RejectingAuthenticator extends Authenticator
     {
-        @Override
-        protected Invoker getInvoker ()
-        {
-            return null;
-        }
-
         // from abstract Authenticator
-        protected void processAuthentication (
-                AuthingConnection conn, AuthResponse rsp)
+        protected void processAuthentication (AuthingConnection conn, AuthResponse rsp)
             throws PersistenceException
         {
             log.info("Rejecting request: " + conn.getAuthRequest());

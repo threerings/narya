@@ -38,14 +38,14 @@ import com.threerings.presents.peer.net.PeerCreds;
 import static com.threerings.presents.Log.log;
 
 /**
- * Handles authentication of peer servers and passes non-peer authentication
- * requests through to a normal authenticator.
+ * Handles authentication of peer servers and passes non-peer authentication requests through to a
+ * normal authenticator.
  */
 public class PeerAuthenticator extends Authenticator
 {
     /**
-     * Creates an authenticator that will handle peer authentications and pass
-     * non-peer authentications through to the supplied delegate.
+     * Creates an authenticator that will handle peer authentications and pass non-peer
+     * authentications through to the supplied delegate.
      */
     public PeerAuthenticator (PeerManager nodemgr, Authenticator delegate)
     {
@@ -67,18 +67,8 @@ public class PeerAuthenticator extends Authenticator
         }
     }
 
-    @Override
-    protected Invoker getInvoker ()
-    {
-        // The processing of peer authentication happens inline,
-        // but other authentication will use the _delegate which will
-        // probably use an Invoker.
-        return null;
-    }
-
     // from abstract Authenticator
-    protected void processAuthentication (
-            AuthingConnection conn, AuthResponse rsp)
+    protected void processAuthentication (AuthingConnection conn, AuthResponse rsp)
         throws PersistenceException
     {
         // here, we are ONLY authenticating peers
@@ -89,8 +79,7 @@ public class PeerAuthenticator extends Authenticator
             rsp.getData().code = AuthResponseData.SUCCESS;
 
         } else {
-            log.warning("Received invalid peer auth request? " +
-                        "[creds=" + pcreds + "].");
+            log.warning("Received invalid peer auth request? [creds=" + pcreds + "].");
             rsp.getData().code = AuthCodes.SERVER_ERROR;
         }
     }
