@@ -123,6 +123,9 @@ public class PresentsDObjectMgr
         int origObjectId = object.getOid();
         // register the object locally which will reassign its oid and set us as its manager
         registerObject(object);
+        // TEMP: log all proxied objects while we look into weirdness
+        log.info("Proxying " + origObjectId + " as " + object.getOid() +
+                 " [type=" + object.getClass().getName() + "].");
         // and note a proxy reference for the object which we'll use to forward events back to its
         // originating manager after converting them back to the original oid
         _proxies.put(origObjectId, new ProxyReference(object.getOid(), omgr));
