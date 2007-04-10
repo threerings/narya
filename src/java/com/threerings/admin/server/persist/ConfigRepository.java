@@ -23,6 +23,7 @@ package com.threerings.admin.server.persist;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -59,11 +60,12 @@ public class ConfigRepository extends JORARepository
      * @return a map containing field/value pairs for all stored configuration
      * data.
      */
-    public HashMap<String,String> loadConfig (String object)
+    public HashMap<String,String> loadConfig (String node, String object)
         throws PersistenceException
     {
         ArrayList<ConfigDatum> list = loadAll(
-            _ctable, "where OBJECT = " + JDBCUtil.escape(object));
+            _ctable, "where OBJECT = " + JDBCUtil.escape(object) +
+            " and NODE = " + JDBCUtil.escape(node));
         HashMap<String,String> data = new HashMap<String,String>();
         for (int ii = 0, ll = list.size(); ii < ll; ii++) {
             ConfigDatum datum = list.get(ii);
@@ -75,10 +77,11 @@ public class ConfigRepository extends JORARepository
     /**
      * Updates the specified configuration datum.
      */
-    public void updateConfig (String object, String field, String value)
+    public void updateConfig (String node, String object, String field, String value)
         throws PersistenceException
     {
         ConfigDatum datum = new ConfigDatum();
+        datum.node = node;
         datum.object = object;
         datum.field = field;
         datum.value = value;
@@ -90,11 +93,25 @@ public class ConfigRepository extends JORARepository
         throws SQLException, PersistenceException
     {
         JDBCUtil.createTableIfMissing(conn, "CONFIG", new String[] {
+            "NODE VARCHAR(64) NOT NULL",
             "OBJECT VARCHAR(128) NOT NULL",
             "FIELD VARCHAR(64) NOT NULL",
             "VALUE TEXT NOT NULL",
-            "PRIMARY KEY (OBJECT, FIELD)",
+            "PRIMARY KEY (NODE, OBJECT, FIELD)",
         }, "");
+
+        // TEMP: add NODE column
+        if (!JDBCUtil.tableContainsColumn(conn, "CONFIG", "NODE")) {
+            JDBCUtil.addColumn(conn, "CONFIG", "NODE", "VARCHAR(64) NOT NULL FIRST", null);
+            Statement stmt = conn.createStatement();
+            try {
+                stmt.executeUpdate(
+                    "alter table CONFIG drop PRIMARY KEY, add PRIMARY KEY (NODE, OBJECT, FIELD)");
+            } finally {
+                stmt.close();
+            }
+        }
+        // END TEMP
     }
 
     // documentation inherited
@@ -102,7 +119,7 @@ public class ConfigRepository extends JORARepository
     {
 	_ctable = new Table<ConfigDatum>(
             ConfigDatum.class, "CONFIG",
-            new String[] { "OBJECT", "FIELD" }, true);
+            new String[] { "NODE", "OBJECT", "FIELD" }, true);
     }
 
     protected Table<ConfigDatum> _ctable;

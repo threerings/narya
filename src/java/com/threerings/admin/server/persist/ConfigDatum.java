@@ -26,11 +26,12 @@ package com.threerings.admin.server.persist;
  */
 public class ConfigDatum
 {
+    public String node;
     public String object;
     public String field;
     public String value;
 
     public String toString () {
-        return object + "." + field + "=" + value + "]";
+        return node + "." + object + "." + field + "=" + value + "]";
     }
 }

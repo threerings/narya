@@ -54,8 +54,25 @@ public class DatabaseConfigRegistry extends ConfigRegistry
     public DatabaseConfigRegistry (ConnectionProvider conprov, Invoker invoker)
         throws PersistenceException
     {
+        this(conprov, invoker, "");
+    }
+
+    /**
+     * Creates a configuration registry and prepares it for operation.
+     *
+     * @param conprov will provide access to our JDBC database.
+     * @param invoker this will be used to perform all database activity
+     * (except first time initialization) so as to avoid blocking the
+     * distributed object thread.
+     * @param node if this config registry is accessed by multiple servers which
+     * wish to maintain seperate configs, then specificy a node for each server
+     */
+    public DatabaseConfigRegistry (ConnectionProvider conprov, Invoker invoker, String node)
+        throws PersistenceException
+    {
         _repo = new ConfigRepository(conprov);
         _invoker = invoker;
+        _node = StringUtil.isBlank(node) ? "" : node;
     }
 
     // documentation inherited
@@ -81,7 +98,7 @@ public class DatabaseConfigRegistry extends ConfigRegistry
             // systems can predictably make use of the configuration
             // information that we load
             try {
-                _data = _repo.loadConfig(_path);
+                _data = _repo.loadConfig(_node, _path);
             } catch (PersistenceException pe) {
                 Log.warning("Failed to load object configuration " +
                             "[path=" + _path + "].");
@@ -246,7 +263,7 @@ public class DatabaseConfigRegistry extends ConfigRegistry
             _invoker.postUnit(new Invoker.Unit() {
                 public boolean invoke () {
                     try {
-                        _repo.updateConfig(_path, field, value);
+                        _repo.updateConfig(_node, _path, field, value);
                     } catch (PersistenceException pe) {
                         Log.warning("Failed to update object configuration " +
                                     "[path=" + _path + ", field=" + field +
@@ -264,4 +281,5 @@ public class DatabaseConfigRegistry extends ConfigRegistry
 
     protected ConfigRepository _repo;
     protected Invoker _invoker;
+    protected String _node;
 }
