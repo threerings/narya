@@ -135,7 +135,7 @@ public class PresentsDObjectMgr
      */
     public void clearProxyObject (int origObjectId, DObject object)
     {
-        if (_proxies.remove(origObjectId) == null) {
+        if (_proxies.remove(object.getOid()) == null) {
             log.warning("Missing proxy mapping for cleared proxy [ooid=" + origObjectId + "].");
         }
         _objects.remove(object.getOid());
