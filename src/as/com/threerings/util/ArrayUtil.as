@@ -108,6 +108,26 @@ public class ArrayUtil
     }
 
     /**
+     * Do the two arrays contain elements that are all equals()?
+     */
+    public static function equals (ar1 :Array, ar2 :Array) :Boolean
+    {
+        if (ar1 === ar2) {
+            return true;
+
+        } else if (ar1 == null || ar2 == null || ar1.length != ar2.length) {
+            return false;
+        }
+
+        for (var jj :int = 0; jj < ar1.length; jj++) {
+            if (!Util.equals(ar1[jj], ar2[jj])) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /**
      * Implementation of remove methods.
      */
     private static function removeImpl (

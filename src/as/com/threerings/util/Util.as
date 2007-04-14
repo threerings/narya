@@ -64,17 +64,7 @@ public class Util
             return (obj1 as Equalable).equals(obj2);
 
         } else if ((obj1 is Array) && (obj2 is Array)) {
-            var ar1 :Array = (obj1 as Array);
-            var ar2 :Array = (obj2 as Array);
-            if (ar1.length != ar2.length) {
-                return false;
-            }
-            for (var jj :int = 0; jj < ar1.length; jj++) {
-                if (!equals(ar1[jj], ar2[jj])) {
-                    return false;
-                }
-            }
-            return true;
+            return ArrayUtil.equals(obj1 as Array, obj2 as Array);
 
         } else if ((obj1 is ByteArray) && (obj2 is ByteArray)) {
             var ba1 :ByteArray = (obj1 as ByteArray);
