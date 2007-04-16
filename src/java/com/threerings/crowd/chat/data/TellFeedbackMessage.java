@@ -38,6 +38,14 @@ public class TellFeedbackMessage extends UserMessage
         _failure = failure;
     }
 
+    /**
+     * Returns true if this is a failure feedback, false if it is successful tell feedback.
+     */
+    public boolean isFailure ()
+    {
+        return _failure;
+    }
+
     @Override
     public String getFormat ()
     {

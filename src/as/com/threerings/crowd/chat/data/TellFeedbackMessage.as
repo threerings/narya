@@ -38,6 +38,14 @@ public class TellFeedbackMessage extends UserMessage
         _failed = failed;
     }
 
+    /**
+     * Returns true if this is a failure feedback, false if it is successful tell feedback.
+     */
+    public function isFailure () :Boolean
+    {
+        return _failed;
+    }
+
     override public function getFormat () :String
     {
         return _failed ? null : "m.told_format";
