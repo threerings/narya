@@ -57,25 +57,21 @@ import com.threerings.crowd.chat.data.UserMessage;
 import com.threerings.crowd.chat.data.UserSystemMessage;
 
 /**
- * The chat director is the client side coordinator of all chat related
- * services. It handles both place constrained chat as well as direct
- * messaging.
+ * The chat director is the client side coordinator of all chat related services. It handles both
+ * place constrained chat as well as direct messaging.
  */
 public class ChatDirector extends BasicDirector
     implements LocationObserver, MessageListener
 {
     /**
-     * Creates a chat director and initializes it with the supplied
-     * context. The chat director will register itself as a location
-     * observer so that it can automatically process place constrained
-     * chat.
+     * Creates a chat director and initializes it with the supplied context. The chat director will
+     * register itself as a location observer so that it can automatically process place
+     * constrained chat.
      *
      * @param msgmgr the message manager via which we do our translations.
-     * @param bundle the message bundle from which we obtain our
-     * chat-related translation strings.
+     * @param bundle the message bundle from which we obtain our chat-related translation strings.
      */
-    public function ChatDirector (
-            ctx :CrowdContext, msgmgr :MessageManager, bundle :String)
+    public function ChatDirector (ctx :CrowdContext, msgmgr :MessageManager, bundle :String)
     {
         super(ctx);
 
@@ -88,8 +84,7 @@ public class ChatDirector extends BasicDirector
         _cctx.getLocationDirector().addLocationObserver(this);
 
         if (_bundle == null || _msgmgr == null) {
-            Log.getLog(this).warning(
-                "Null bundle or message manager given to ChatDirector");
+            Log.getLog(this).warning("Null bundle or message manager given to ChatDirector");
             return;
         }
         var msg :MessageBundle = _msgmgr.getBundle(_bundle);
@@ -104,9 +99,8 @@ public class ChatDirector extends BasicDirector
     }
 
     /**
-     * Adds the supplied chat display to the front of the chat display list. It
-     * will subsequently be notified of incoming chat messages as well as tell
-     * responses.
+     * Adds the supplied chat display to the front of the chat display list. It will subsequently
+     * be notified of incoming chat messages as well as tell responses.
      */
     public function pushChatDisplay (display :ChatDisplay) :void
     {
@@ -114,9 +108,8 @@ public class ChatDirector extends BasicDirector
     }
 
     /**
-     * Adds the supplied chat display to the chat display list. It will
-     * subsequently be notified of incoming chat messages as well as tell
-     * responses.
+     * Adds the supplied chat display to the chat display list. It will subsequently be notified of
+     * incoming chat messages as well as tell responses.
      */
     public function addChatDisplay (display :ChatDisplay) :void
     {
@@ -124,8 +117,8 @@ public class ChatDirector extends BasicDirector
     }
 
     /**
-     * Removes the specified chat display from the chat display list. The
-     * display will no longer receive chat related notifications.
+     * Removes the specified chat display from the chat display list. The display will no longer
+     * receive chat related notifications.
      */
     public function removeChatDisplay (display :ChatDisplay) :void
     {
@@ -133,9 +126,8 @@ public class ChatDirector extends BasicDirector
     }
 
     /**
-     * Adds the specified chat filter to the list of filters.  All
-     * chat requests and receipts will be filtered with all filters
-     * before they being sent or dispatched locally.
+     * Adds the specified chat filter to the list of filters.  All chat requests and receipts will
+     * be filtered with all filters before they being sent or dispatched locally.
      */
     public function addChatFilter (filter :ChatFilter) :void
     {
@@ -151,8 +143,7 @@ public class ChatDirector extends BasicDirector
     }
 
     /**
-     * Adds an observer that watches the chatters list, and updates it
-     * immediately.
+     * Adds an observer that watches the chatters list, and updates it immediately.
      */
     public function addChatterObserver (co :ChatterObserver) :void
     {
@@ -169,8 +160,8 @@ public class ChatDirector extends BasicDirector
     }
 
     /**
-     * Sets the validator that decides if a username is valid to be
-     * added to the chatter list, or null if no such filtering is desired.
+     * Sets the validator that decides if a username is valid to be added to the chatter list, or
+     * null if no such filtering is desired.
      */
     public function setChatterValidator (validator :ChatterValidator) :void
     {
@@ -178,8 +169,8 @@ public class ChatDirector extends BasicDirector
     }
 
     /**
-     * Get a list of the recent users with whom we've chatted. The most recent
-     * users will be listed first.
+     * Get a list of the recent users with whom we've chatted. The most recent users will be listed
+     * first.
      */
     public function getChatters () :Array
     {
@@ -187,16 +178,14 @@ public class ChatDirector extends BasicDirector
     }
 
     /**
-     * Adds a chatter to our list of recent chatters. This is normally done
-     * automatically by the ChatDirector, but may be called to also to
-     * forcibly add a chatter. The ChatterValidator will have to approve
-     * of the chatter.
+     * Adds a chatter to our list of recent chatters. This is normally done automatically by the
+     * ChatDirector, but may be called to also to forcibly add a chatter. The ChatterValidator will
+     * have to approve of the chatter.
      */
     public function addChatter (name :Name) :void
     {
         // check to see if the chatter validator approves..
-        if ((_chatterValidator != null) &&
-            (!_chatterValidator.isChatterValid(name))) {
+        if ((_chatterValidator != null) && (!_chatterValidator.isChatterValid(name))) {
             return;
         }
 
@@ -216,16 +205,15 @@ public class ChatDirector extends BasicDirector
     /**
      * Registers a chat command handler.
      *
-     * @param msg the message bundle via which the slash command will be
-     * translated (as <code>c.</code><i>command</i>). If no translation
-     * exists the command will be <code>/</code><i>command</i>.
-     * @param command the name of the command that will be used to invoke
-     * this handler (e.g. <code>tell</code> if the command will be invoked
-     * as <code>/tell</code>).
+     * @param msg the message bundle via which the slash command will be translated (as
+     * <code>c.</code><i>command</i>). If no translation exists the command will be
+     * <code>/</code><i>command</i>.
+     * @param command the name of the command that will be used to invoke this handler
+     * (e.g. <code>tell</code> if the command will be invoked as <code>/tell</code>).
      * @param handler the chat command handler itself.
      */
     public function registerCommandHandler (
-            msg :MessageBundle, command :String, handler :CommandHandler) :void
+        msg :MessageBundle, command :String, handler :CommandHandler) :void
     {
         var key :String = "c." + command;
         if (msg.exists(key)) {
@@ -248,8 +236,7 @@ public class ChatDirector extends BasicDirector
     }
 
     /**
-     * Get the chat history entry at the specified index,
-     * with 0 being the oldest.
+     * Get the chat history entry at the specified index, with 0 being the oldest.
      */
     public function getCommandHistory (index :int) :String
     {
@@ -277,11 +264,10 @@ public class ChatDirector extends BasicDirector
     /**
      * Display a system INFO message as if it had come from the server.
      *
-     * Info messages are sent when something happens that was neither
-     * directly triggered by the user, nor requires direct action.
+     * Info messages are sent when something happens that was neither directly triggered by the
+     * user, nor requires direct action.
      */
-    public function displayInfo (
-            bundle :String, message :String, localtype :String = null) :void
+    public function displayInfo (bundle :String, message :String, localtype :String = null) :void
     {
         if (localtype == null) {
             localtype = ChatCodes.PLACE_CHAT_TYPE;
@@ -290,29 +276,27 @@ public class ChatDirector extends BasicDirector
     }
 
     /**
-     * Display a system FEEDBACK message as if it had come from the server.
-     * The localtype of the message will be PLACE_CHAT_TYPE.
+     * Display a system FEEDBACK message as if it had come from the server.  The localtype of the
+     * message will be PLACE_CHAT_TYPE.
      *
-     * Feedback messages are sent in direct response to a user action,
-     * usually to indicate success or failure of the user's action.
+     * Feedback messages are sent in direct response to a user action, usually to indicate success
+     * or failure of the user's action.
      */
     public function displayFeedback (bundle :String, message :String) :void
     {
-        displaySystem(
-            bundle, message, SystemMessage.FEEDBACK, ChatCodes.PLACE_CHAT_TYPE);
+        displaySystem(bundle, message, SystemMessage.FEEDBACK, ChatCodes.PLACE_CHAT_TYPE);
     }
 
     /**
-     * Display a system ATTENTION message as if it had come from the server.
-     * The localtype of the message will be PLACE_CHAT_TYPE.
+     * Display a system ATTENTION message as if it had come from the server.  The localtype of the
+     * message will be PLACE_CHAT_TYPE.
      *
-     * Attention messages are sent when something requires user action
-     * that did not result from direct action by the user.
+     * Attention messages are sent when something requires user action that did not result from
+     * direct action by the user.
      */
     public function displayAttention (bundle :String, message :String) :void
     {
-        displaySystem(
-            bundle, message, SystemMessage.ATTENTION, ChatCodes.PLACE_CHAT_TYPE);
+        displaySystem(bundle, message, SystemMessage.ATTENTION, ChatCodes.PLACE_CHAT_TYPE);
     }
 
     /**
@@ -329,21 +313,18 @@ public class ChatDirector extends BasicDirector
     }
 
     /**
-     * Parses and delivers the supplied chat message. Slash command
-     * processing and mogrification are performed and the message is added
-     * to the chat history if appropriate.
+     * Parses and delivers the supplied chat message. Slash command processing and mogrification
+     * are performed and the message is added to the chat history if appropriate.
      *
-     * @param speakSvc the SpeakService representing the target dobj of
-     * the speak or null if we should speak in the "default" way.
+     * @param speakSvc the SpeakService representing the target dobj of the speak or null if we
+     * should speak in the "default" way.
      * @param text the text to be parsed and sent.
      * @param record if text is a command, should it be added to the history?
      *
-     * @return <code>ChatCodes#SUCCESS</code> if the message was parsed
-     * and sent correctly, a translatable error string if there was some
-     * problem.
+     * @return <code>ChatCodes#SUCCESS</code> if the message was parsed and sent correctly, a
+     * translatable error string if there was some problem.
      */
-    public function requestChat (
-            speakSvc :SpeakService, text :String, record :Boolean) :String
+    public function requestChat (speakSvc :SpeakService, text :String, record :Boolean) :String
     {
         if (text.indexOf("/") == 0) {
             // split the text up into a command and arguments
@@ -359,15 +340,12 @@ public class ChatDirector extends BasicDirector
             var possibleCommands :Map = getCommandHandlers(command);
             switch (possibleCommands.size()) {
             case 0:
-                return MessageBundle.tcompose(
-                    "m.unknown_command", text.split(/\s/)[0]);
+                return MessageBundle.tcompose("m.unknown_command", text.split(/\s/)[0]);
 
             case 1:
                 var cmdName :String = possibleCommands.keys()[0];
-                var cmd :CommandHandler =
-                    (possibleCommands.get(cmdName) as CommandHandler);
-                var result :String =
-                    cmd.handleCommand(_cctx, speakSvc, cmdName, args, hist);
+                var cmd :CommandHandler = (possibleCommands.get(cmdName) as CommandHandler);
+                var result :String = cmd.handleCommand(_cctx, speakSvc, cmdName, args, hist);
                 if (result != ChatCodes.SUCCESS) {
                     return result;
                 }
@@ -376,8 +354,7 @@ public class ChatDirector extends BasicDirector
                     // get the final history-ready command string
                     hist[0] = "/" + ((hist[0] == null) ? command : hist[0]);
 
-                    // remove from history if it was present and
-                    // add it to the end
+                    // remove from history if it was present and add it to the end
                     addToHistory(hist[0]);
                 }
                 return result;
@@ -385,37 +362,32 @@ public class ChatDirector extends BasicDirector
             default:
                 var cmds :Array = possibleCommands.keys();
                 var alternativeCommands :String = "/" + cmds.join(", /");
-                return MessageBundle.tcompose(
-                    "m.unspecific_command", alternativeCommands);
+                return MessageBundle.tcompose("m.unspecific_command", alternativeCommands);
             }
         }
 
         // if not a command then just speak
         var message :String = StringUtil.trim(text);
         if (StringUtil.isBlank(message)) {
-            // report silent failure for now
-            return ChatCodes.SUCCESS;
+            return ChatCodes.SUCCESS; // report silent failure for now
         }
 
         return deliverChat(speakSvc, message, ChatCodes.DEFAULT_MODE);
     }
 
     /**
-     * Requests that a speak message with the specified mode be generated
-     * and delivered via the supplied speak service instance (which will
-     * be associated with a particular "speak object"). The message will
-     * first be validated by all registered {@link ChatFilter}s (and
-     * possibly vetoed) before being dispatched.
+     * Requests that a speak message with the specified mode be generated and delivered via the
+     * supplied speak service instance (which will be associated with a particular "speak object").
+     * The message will first be validated by all registered {@link ChatFilter}s (and possibly
+     * vetoed) before being dispatched.
      *
-     * @param speakService the speak service to use when generating the
-     * speak request or null if we should speak in the current "place".
+     * @param speakService the speak service to use when generating the speak request or null if we
+     * should speak in the current "place".
      * @param message the contents of the speak message.
-     * @param mode a speech mode that will be interpreted by the {@link
-     * ChatDisplay} implementations that eventually display this speak
-     * message.
+     * @param mode a speech mode that will be interpreted by the {@link ChatDisplay}
+     * implementations that eventually display this speak message.
      */
-    public function requestSpeak (
-            speakService :SpeakService, message :String, mode :int) :void
+    public function requestSpeak (speakService :SpeakService, message :String, mode :int) :void
     {
         if (speakService == null) {
             if (_place == null) {
@@ -443,33 +415,25 @@ public class ChatDirector extends BasicDirector
     {
         message = filter(message, null, true);
         if (message == null) {
-            displayFeedback(_bundle,
-                MessageBundle.compose("m.broadcast_failed", "m.filtered"));
+            displayFeedback(_bundle, MessageBundle.compose("m.broadcast_failed", "m.filtered"));
             return;
         }
 
-        var failure :Function = function (reason :String) :void
-        {
+        var failure :Function = function (reason :String) :void {
             reason = MessageBundle.compose("m.broadcast_failed", reason);
             displayFeedback(_bundle, reason);
         };
-
-        _cservice.broadcast(_cctx.getClient(), message,
-            new InvocationAdapter(failure));
+        _cservice.broadcast(_cctx.getClient(), message, new InvocationAdapter(failure));
     }
 
     /**
-     * Requests that a tell message be delivered to the specified target
-     * user.
+     * Requests that a tell message be delivered to the specified target user.
      *
-     * @param target the username of the user to which the tell message
-     * should be delivered.
+     * @param target the username of the user to which the tell message should be delivered.
      * @param msg the contents of the tell message.
-     * @param rl an optional result listener if you'd like to be notified
-     * of success or failure.
+     * @param rl an optional result listener if you'd like to be notified of success or failure.
      */
-    public function requestTell (
-            target :Name, msg :String, rl :ResultListener) :void
+    public function requestTell (target :Name, msg :String, rl :ResultListener) :void
     {
         // make sure they can say what they want to say
         var message :String = filter(msg, target, true);
@@ -480,8 +444,7 @@ public class ChatDirector extends BasicDirector
             return;
         }
 
-        var failure :Function = function (reason :String) :void
-        {
+        var failure :Function = function (reason :String) :void {
             var msg :String = MessageBundle.compose(
                 "m.tell_failed", MessageBundle.taint(target), reason);
             displayFeedback(_bundle, msg);
@@ -489,9 +452,7 @@ public class ChatDirector extends BasicDirector
                 rl.requestFailed(null);
             }
         };
-        var success :Function = function (
-                idleTime :Long, awayMessage :String) :void
-        {
+        var success :Function = function (idleTime :Long, awayMessage :String) :void {
             dispatchMessage(new TellFeedbackMessage(target, message));
             addChatter(target);
             if (rl != null) {
@@ -519,23 +480,19 @@ public class ChatDirector extends BasicDirector
 //                displayFeedback(_bundle, msg);
 //            }
         };
-
-        _cservice.tell(_cctx.getClient(), target, message,
-            new TellAdapter(failure, success));
+        _cservice.tell(_cctx.getClient(), target, message, new TellAdapter(failure, success));
     }
 
     /**
-     * Configures a message that will be automatically reported to anyone
-     * that sends a tell message to this client to indicate that we are
-     * busy or away from the keyboard.
+     * Configures a message that will be automatically reported to anyone that sends a tell message
+     * to this client to indicate that we are busy or away from the keyboard.
      */
     public function setAwayMessage (message :String) :void
     {
         if (message != null) {
             message = filter(message, null, true);
             if (message == null) {
-                // they filtered away their own away message..
-                // change it to something
+                // they filtered away their own away message..  change it to something
                 message = "...";
             }
         }
@@ -544,13 +501,12 @@ public class ChatDirector extends BasicDirector
     }
 
     /**
-     * Adds an additional object via which chat messages may arrive. The
-     * chat director assumes the caller will be managing the subscription
-     * to this object and will remain subscribed to it for as long as it
-     * remains in effect as an auxiliary chat source.
+     * Adds an additional object via which chat messages may arrive. The chat director assumes the
+     * caller will be managing the subscription to this object and will remain subscribed to it for
+     * as long as it remains in effect as an auxiliary chat source.
      *
-     * @param localtype a type to be associated with all chat messages
-     * that arrive on the specified DObject.
+     * @param localtype a type to be associated with all chat messages that arrive on the specified
+     * DObject.
      */
     public function addAuxiliarySource (source :DObject, localtype :String) :void
     {
@@ -570,8 +526,7 @@ public class ChatDirector extends BasicDirector
     /**
      * Run a message through all the currently registered filters.
      */
-    public function filter (
-        msg :String, otherUser :Name, outgoing :Boolean) :String
+    public function filter (msg :String, otherUser :Name, outgoing :Boolean) :String
     {
         // TODO: needs testing
         _filters.apply(function (observer :ChatFilter) :void {
@@ -645,14 +600,12 @@ public class ChatDirector extends BasicDirector
                     return;
                 }
 
-                if (ChatCodes.USER_CHAT_TYPE == localtype &&
-                        mode == ChatCodes.DEFAULT_MODE) {
+                if (ChatCodes.USER_CHAT_TYPE == localtype && mode == ChatCodes.DEFAULT_MODE) {
                     // if it was a tell, add the speaker as a chatter
                     addChatter(speaker);
 
                     // note whether or not we have an auto-response
-                    var self :BodyObject =
-                        (_cctx.getClient().getClientObject() as BodyObject);
+                    var self :BodyObject = (_cctx.getClient().getClientObject() as BodyObject);
                     if (!StringUtil.isBlank(self.awayMessage)) {
                         autoResponse = self.awayMessage;
                     }
@@ -680,8 +633,7 @@ public class ChatDirector extends BasicDirector
         super.clientDidLogon(event);
 
         // listen on the client object for tells
-        addAuxiliarySource(_clobj = event.getClient().getClientObject(),
-            ChatCodes.USER_CHAT_TYPE);
+        addAuxiliarySource(_clobj = event.getClient().getClientObject(), ChatCodes.USER_CHAT_TYPE);
     }
 
     // documentation inherited
@@ -691,8 +643,7 @@ public class ChatDirector extends BasicDirector
 
         // change what we're listening to for tells
         removeAuxiliarySource(_clobj);
-        addAuxiliarySource(_clobj = event.getClient().getClientObject(),
-            ChatCodes.USER_CHAT_TYPE);
+        addAuxiliarySource(_clobj = event.getClient().getClientObject(), ChatCodes.USER_CHAT_TYPE);
 
         clearDisplays();
     }
@@ -724,43 +675,38 @@ public class ChatDirector extends BasicDirector
     }
 
     /**
-     * Called to determine whether we are permitted to post the supplied
-     * chat message. Derived classes may wish to throttle chat or restrict
-     * certain types in certain circumstances for whatever reason.
+     * Called to determine whether we are permitted to post the supplied chat message. Derived
+     * classes may wish to throttle chat or restrict certain types in certain circumstances for
+     * whatever reason.
      *
-     * @return null if the chat is permitted, SUCCESS if the chat is permitted
-     * and has already been dealt with, or a translatable string
-     * indicating the reason for rejection if not.
+     * @return null if the chat is permitted, SUCCESS if the chat is permitted and has already been
+     * dealt with, or a translatable string indicating the reason for rejection if not.
      */
-    protected function checkCanChat (
-        speakSvc :SpeakService , message :String, mode :int) :String
+    protected function checkCanChat (speakSvc :SpeakService , message :String, mode :int) :String
     {
         return null;
     }
 
     /**
-     * Delivers a plain chat message (not a slash command) on the
-     * specified speak service in the specified mode. The message will be
-     * mogrified and filtered prior to delivery.
+     * Delivers a plain chat message (not a slash command) on the specified speak service in the
+     * specified mode. The message will be mogrified and filtered prior to delivery.
      *
-     * @return {@link ChatCodes#SUCCESS} if the message was delivered or a
-     * string indicating why it failed.
+     * @return {@link ChatCodes#SUCCESS} if the message was delivered or a string indicating why it
+     * failed.
      */
-    internal function deliverChat (
-        speakSvc :SpeakService, message :String, mode :int) :String
+    internal function deliverChat (speakSvc :SpeakService, message :String, mode :int) :String
     {
         // run the message through our mogrification process
         message = mogrifyChatImpl(message, true, mode != ChatCodes.EMOTE_MODE);
 
-        // mogrification may result in something being turned into a slash
-        // command, in which case we have to run everything through again
-        // from the start
+        // mogrification may result in something being turned into a slash command, in which case
+        // we have to run everything through again from the start
         if (message.indexOf("/") == 0) {
             return requestChat(speakSvc, message, false);
         }
 
-        // make sure this client is not restricted from performing this
-        // chat message for some reason or other
+        // make sure this client is not restricted from performing this chat message for some
+        // reason or other
         var errmsg :String = checkCanChat(speakSvc, message, mode);
         if (errmsg != null) {
             return errmsg;
@@ -790,13 +736,12 @@ public class ChatDirector extends BasicDirector
     }
 
     /**
-     * Mogrify common literary crutches into more appealing chat or
-     * commands.
+     * Mogrify common literary crutches into more appealing chat or commands.
      *
-     * @param transformsAllowed if true, the chat may transformed into a
-     * different mode. (lol -> /emote laughs)
-     * @param capFirst if true, the first letter of the text is
-     * capitalized. This is not desired if the chat is already an emote.
+     * @param transformsAllowed if true, the chat may transformed into a different mode. (lol ->
+     * /emote laughs)
+     * @param capFirst if true, the first letter of the text is capitalized. This is not desired if
+     * the chat is already an emote.
      */
     protected function mogrifyChatImpl (
         text :String, transformsAllowed :Boolean, capFirst :Boolean) :String
@@ -811,9 +756,8 @@ public class ChatDirector extends BasicDirector
             var caps :int = 0;
             for (var ii :int = 0; ii < tlen; ii++) {
                 var ch :String = text.charAt(ii);
-                // do a fucked-up test to see if it's uppercase
-                // make sure the uppercase version is the same as the orig
-                // and the lowercase version is different
+                // do a fucked-up test to see if it's uppercase make sure the uppercase version is
+                // the same as the orig and the lowercase version is different
                 var chU :String = ch.toUpperCase();
                 if (ch == chU && chU != ch.toLowerCase()) {
                     caps++;
@@ -831,7 +775,7 @@ public class ChatDirector extends BasicDirector
 
     /** Helper function for {@link #mogrifyChat}. */
     protected function mogrifyChatText (
-            text :String, transformsAllowed :Boolean, capFirst :Boolean) :String
+        text :String, transformsAllowed :Boolean, capFirst :Boolean) :String
     {
         // do the generic mogrifications and translations
         text = translatedReplacements("x.mogrifies", text);
@@ -863,11 +807,10 @@ public class ChatDirector extends BasicDirector
     }
 
     /**
-     * Do all the replacements (mogrifications) specified in the
-     * translation string specified by the key.
+     * Do all the replacements (mogrifications) specified in the translation string specified by
+     * the key.
      */
-    protected function translatedReplacements (
-            key :String, text :String) :String
+    protected function translatedReplacements (key :String, text :String) :String
     {
         var bundle :MessageBundle = _msgmgr.getBundle(_bundle);
         if (!bundle.exists(key)) {
@@ -893,15 +836,13 @@ public class ChatDirector extends BasicDirector
     }
 
     /**
-     * Returns a hashmap containing all command handlers that match the
-     * specified command (i.e. the specified command is a prefix of their
-     * registered command string).
+     * Returns a hashmap containing all command handlers that match the specified command (i.e. the
+     * specified command is a prefix of their registered command string).
      */
     internal function getCommandHandlers (command :String) :Map
     {
         var matches :Map = new HashMap();
-        var user :BodyObject =
-            (_cctx.getClient().getClientObject() as BodyObject);
+        var user :BodyObject = (_cctx.getClient().getClientObject() as BodyObject);
         var keys :Array = _handlers.keys();
         for (var ii :int = 0; ii < keys.length; ii++) {
             var cmd :String = (keys[ii] as String);
@@ -922,8 +863,7 @@ public class ChatDirector extends BasicDirector
     }
 
     /**
-     * Notifies all registered {@link ChatterObserver}s that the list of
-     * chatters has changed.
+     * Notifies all registered {@link ChatterObserver}s that the list of chatters has changed.
      */
     protected function notifyChatterObservers () :void
     {
@@ -931,8 +871,7 @@ public class ChatDirector extends BasicDirector
     }
 
     /**
-     * A function to be called by our _chatterObservers list to apply
-     * updates to each observer.
+     * A function to be called by our _chatterObservers list to apply updates to each observer.
      */
     protected function chatterObserverNotify (obs :ChatterObserver) :void
     {
@@ -947,9 +886,8 @@ public class ChatDirector extends BasicDirector
         if (bundle != null && _msgmgr != null) {
             var msgb :MessageBundle = _msgmgr.getBundle(bundle);
             if (msgb == null) {
-                Log.getLog(this).warning(
-                    "No message bundle available to translate message " +
-                    "[bundle=" + bundle + ", message=" + message + "].");
+                Log.getLog(this).warning("No message bundle available to translate message " +
+                                         "[bundle=" + bundle + ", message=" + message + "].");
             } else {
                 message = msgb.xlate(message);
             }
@@ -961,11 +899,9 @@ public class ChatDirector extends BasicDirector
      * Display the specified system message as if it had come from the server.
      */
     protected function displaySystem (
-            bundle :String, message :String, attLevel :int,
-            localtype :String) :void
+        bundle :String, message :String, attLevel :int, localtype :String) :void
     {
-        // nothing should be untranslated, so pass the default bundle if need
-        // be.
+        // nothing should be untranslated, so pass the default bundle if need be.
         if (bundle == null) {
             bundle = _bundle;
         }
@@ -976,8 +912,7 @@ public class ChatDirector extends BasicDirector
     }
 
     /**
-     * Looks up and returns the message type associated with the specified
-     * oid.
+     * Looks up and returns the message type associated with the specified oid.
      */
     protected function getLocalType (oid :int) :String
     {
@@ -1022,8 +957,7 @@ public class ChatDirector extends BasicDirector
     /** A list of registered chat filters. */
     protected var _filters :ObserverList = new ObserverList();
 
-    /** A mapping from auxiliary chat objects to the types under which
-     * they are registered. */
+    /** A mapping from auxiliary chat objects to the types under which they are registered. */
     protected var _auxes :HashMap = new HashMap();
 
     /** Validator of who may be added to the chatters list. */
