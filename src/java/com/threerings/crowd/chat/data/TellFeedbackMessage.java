@@ -31,15 +31,18 @@ public class TellFeedbackMessage extends UserMessage
     /**
      * A tell feedback message is only composed on the client.
      */
-    public TellFeedbackMessage (Name target, String message)
+    public TellFeedbackMessage (Name target, String message, boolean failure)
     {
         super(target, null, message, ChatCodes.DEFAULT_MODE);
         setClientInfo(message, ChatCodes.PLACE_CHAT_TYPE);
+        _failure = failure;
     }
 
     @Override
     public String getFormat ()
     {
-        return "m.told_format";
+        return _failure ? null : "m.told_format";
     }
+
+    protected boolean _failure;
 }

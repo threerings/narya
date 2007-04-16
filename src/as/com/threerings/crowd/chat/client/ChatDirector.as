@@ -447,7 +447,7 @@ public class ChatDirector extends BasicDirector
         var failure :Function = function (reason :String) :void {
             var msg :String = MessageBundle.compose(
                 "m.tell_failed", MessageBundle.taint(target), reason);
-            displayFeedback(_bundle, msg);
+            dispatchMessage(new TellFeedbackMessage(target, xlate(_bundle, msg), true));
             if (rl != null) {
                 rl.requestFailed(null);
             }

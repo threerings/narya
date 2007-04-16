@@ -31,15 +31,18 @@ public class TellFeedbackMessage extends UserMessage
     /**
      * A tell feedback message is only composed on the client.
      */
-    public function TellFeedbackMessage (target :Name, message :String)
+    public function TellFeedbackMessage (target :Name, message :String, failed :Boolean = false)
     {
         super(target, null, message);
         setClientInfo(message, ChatCodes.PLACE_CHAT_TYPE);
+        _failed = failed;
     }
 
     override public function getFormat () :String
     {
-        return "m.told_format";
+        return _failed ? null : "m.told_format";
     }
+
+    protected var _failed :Boolean;
 }
 }

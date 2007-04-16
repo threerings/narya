@@ -526,7 +526,7 @@ public class ChatDirector extends BasicDirector
             }
 
             protected void success () {
-                dispatchMessage(new TellFeedbackMessage(target, message));
+                dispatchMessage(new TellFeedbackMessage(target, message, false));
                 addChatter(target);
                 if (rl != null) {
                     rl.requestCompleted(target);
@@ -536,7 +536,7 @@ public class ChatDirector extends BasicDirector
             public void requestFailed (String reason) {
                 String msg = MessageBundle.compose(
                     "m.tell_failed", MessageBundle.taint(target), reason);
-                displayFeedback(_bundle, msg);
+                dispatchMessage(new TellFeedbackMessage(target, xlate(_bundle, msg), true));
                 if (rl != null) {
                     rl.requestFailed(null);
                 }
