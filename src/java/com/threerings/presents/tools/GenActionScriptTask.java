@@ -231,8 +231,7 @@ public class GenActionScriptTask extends Task
                 continue;
             }
             body.append("        out.");
-            body.append(
-                toWriteObject(field.getType().getName(), field.getName()));
+            body.append(toWriteObject(field.getType(), field.getName()));
             body.append(";\n");
             added++;
         }
@@ -315,35 +314,36 @@ public class GenActionScriptTask extends Task
         }
     }
 
-    protected String toWriteObject (String type, String name)
+    protected String toWriteObject (Class type, String name)
     {
-        if (type.equals("java.lang.Integer")) {
+        if (type.equals(Integer.class)) {
             return "writeObject(new Integer(" + name + "))";
 
-        } else if (type.equals("boolean")) {
+        } else if (type.equals(Boolean.TYPE)) {
             return "writeBoolean(" + name + ")";
 
-        } else if (type.equals("byte")) {
+        } else if (type.equals(Byte.TYPE)) {
             return "writeByte(" + name + ")";
 
-        } else if (type.equals("short")) {
+        } else if (type.equals(Short.TYPE)) {
             return "writeShort(" + name + ")";
 
-        } else if (type.equals("int")) {
+        } else if (type.equals(Integer.TYPE)) {
             return "writeInt(" + name + ")";
 
-        } else if (type.equals("long")) {
+        } else if (type.equals(Long.TYPE)) {
             return "writeInt(" + name + " == null ? 0 : " + name + ".low);\n" +
                 "        out.writeInt(" +
                 name + " == null ? 0 : " + name + ".high)";
 
-        } else if (type.equals("float")) {
+        } else if (type.equals(Float.TYPE)) {
             return "writeFloat(" + name + ")";
 
-        } else if (type.equals("double")) {
+        } else if (type.equals(Double.TYPE)) {
             return "writeDouble(" + name + ")";
 
-        } else if (type.equals("java.lang.String")) {
+        } else if (type.equals(String.class) ||
+                   (type.isArray() && Byte.TYPE.equals(type.getComponentType()))) {
             return "writeField(" + name + ")";
 
         } else {
