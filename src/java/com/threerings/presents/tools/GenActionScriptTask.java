@@ -303,7 +303,7 @@ public class GenActionScriptTask extends Task
 
         } else if (type.isArray()) {
             if (Byte.TYPE.equals(type.getComponentType())) {
-                return "(ins.readObject() as ByteArray)";
+                return "(ins.readField() as ByteArray)";
 
             } else {
                 return "(ins.readObject() as TypedArray)";
