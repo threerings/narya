@@ -307,8 +307,8 @@ public class ActionScriptSource
         // note our implemented interfaces
         ArrayList<String> ifaces = new ArrayList<String>();
         for (Class iclass : jclass.getInterfaces()) {
-            // we cannot use the FooCodes interface pattern in ActionScript so
-            // we just have to nix it
+            // we cannot use the FooCodes interface pattern in ActionScript so we just have to nix
+            // it
             if (iclass.getName().endsWith("Codes")) {
                 continue;
             }
@@ -339,9 +339,9 @@ public class ActionScriptSource
             list.add(new Member(name, decl));
         }
 
-        // ActionScript only supports one constructor so we find the one with
-        // the most arguments and we make a note whether or not we need a no
-        // argument constructor which we create using default arguments
+        // ActionScript only supports one constructor so we find the one with the most arguments
+        // and we make a note whether or not we need a no argument constructor which we create
+        // using default arguments
         Constructor<?> mainctor = null;
         boolean needsNoArg = false;
         for (Constructor<?> ctor : jclass.getConstructors()) {
@@ -537,9 +537,12 @@ public class ActionScriptSource
                     String comment = accum.toString();
                     accum.setLength(0);
 
-                    // set the comment on the specified method
-                    updateComment(publicConstructors, name, comment);
-                    updateComment(protectedConstructors, name, comment);
+                    // the only annotation that makes sense on a constructor is "omit"
+                    if (comment.indexOf("@ActionScript") == -1) {
+                        // set the comment on the specified method
+                        updateComment(publicConstructors, name, comment);
+                        updateComment(protectedConstructors, name, comment);
+                    }
 
                     // switch to METHODBODY to absorb the method
                     braceCount = (line.indexOf("{") == -1) ? 0 : 1;
@@ -565,8 +568,7 @@ public class ActionScriptSource
                     String comment = accum.toString();
                     accum.setLength(0);
 
-                    // look through the comment for an @ActionScript
-                    // annotation; oh the hackery
+                    // look through the comment for an @ActionScript annotation; oh the hackery
                     if (comment.indexOf("@ActionScript") != -1) {
                         StringBuilder combuf = new StringBuilder();
                         for (String cline : StringUtil.split(comment, "\n")) {
@@ -601,12 +603,11 @@ public class ActionScriptSource
                         tline.startsWith("*")) {
                         accum.append(line).append("\n");
 
-                    } else if (tline.equals("}")) {
+                    } else if (line.startsWith("}")) {
                         mode = Mode.POSTCLASS;
 
                     } else {
-                        System.err.println("J: Non-comment encountered " +
-                                           "between members: " + line);
+                        System.err.println("J: Non-comment encountered between members: " + line);
                     }
                 }
                 break;
@@ -793,8 +794,7 @@ public class ActionScriptSource
                         mode = Mode.POSTCLASS;
 
                     } else {
-                        System.err.println("AS: Non-comment encountered " +
-                                           "between members: " + line);
+                        System.err.println("AS: Non-comment encountered between members: " + line);
                     }
                 }
                 break;

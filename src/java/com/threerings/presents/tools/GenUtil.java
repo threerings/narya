@@ -42,19 +42,15 @@ import com.samskivert.util.StringUtil;
 public class GenUtil extends com.samskivert.util.GenUtil
 {
     /** A regular expression for matching the package declaration. */
-    public static final Pattern PACKAGE_PATTERN =
-        Pattern.compile("^\\s*package\\s+(\\S+)\\W");
+    public static final Pattern PACKAGE_PATTERN = Pattern.compile("^\\s*package\\s+(\\S+)\\W");
 
-    /** A regular expression for matching the class or interface
-     * declaration. */
+    /** A regular expression for matching the class or interface declaration. */
     public static final Pattern NAME_PATTERN =
-        Pattern.compile("^\\s*public\\s+(?:abstract\\s+)?" +
-                        "(interface|class)\\s+(\\S+)(\\W|$)");
+        Pattern.compile("^\\s*public\\s+(?:abstract\\s+)?(interface|class|enum)\\s+(\\S+)(\\W|$)");
 
     /**
-     * Returns the name of the supplied class as it would appear in
-     * ActionScript code using the class (no package prefix, arrays specified
-     * as Array<code>Array</code>).
+     * Returns the name of the supplied class as it would appear in ActionScript code using the
+     * class (no package prefix, arrays specified as Array<code>Array</code>).
      */
     public static String simpleASName (Class<?> clazz)
     {
@@ -82,8 +78,8 @@ public class GenUtil extends com.samskivert.util.GenUtil
     }
 
     /**
-     * "Boxes" the supplied argument, ie. turning an <code>int</code> into
-     * an <code>Integer</code> object.
+     * "Boxes" the supplied argument, ie. turning an <code>int</code> into an <code>Integer</code>
+     * object.
      */
     public static String boxArgument (Class<?> clazz, String name)
     {
@@ -109,8 +105,8 @@ public class GenUtil extends com.samskivert.util.GenUtil
     }
 
     /**
-     * "Unboxes" the supplied argument, ie. turning an <code>Integer</code>
-     * object into an <code>int</code>.
+     * "Unboxes" the supplied argument, ie. turning an <code>Integer</code> object into an
+     * <code>int</code>.
      */
     public static String unboxArgument (Class<?> clazz, Type type, String name)
     {
@@ -136,8 +132,8 @@ public class GenUtil extends com.samskivert.util.GenUtil
     }
 
     /**
-     * "Boxes" the supplied argument, ie. turning an <code>int</code> into
-     * an <code>Integer</code> object.
+     * "Boxes" the supplied argument, ie. turning an <code>int</code> into an <code>Integer</code>
+     * object.
      */
     public static String boxASArgument (Class<?> clazz, String name)
     {
@@ -163,8 +159,8 @@ public class GenUtil extends com.samskivert.util.GenUtil
     }
 
     /**
-     * "Unboxes" the supplied argument, ie. turning an <code>Integer</code>
-     * object into an <code>int</code>.
+     * "Unboxes" the supplied argument, ie. turning an <code>Integer</code> object into an
+     * <code>int</code>.
      */
     public static String unboxASArgument (Class<?> clazz, String name)
     {
@@ -186,8 +182,7 @@ public class GenUtil extends com.samskivert.util.GenUtil
     }
 
     /**
-     * Potentially clones the supplied argument if it is the type that
-     * needs such treatment.
+     * Potentially clones the supplied argument if it is the type that needs such treatment.
      */
     public static String cloneArgument (Class<?> dsclazz, Field f, String name)
     {
@@ -203,8 +198,8 @@ public class GenUtil extends com.samskivert.util.GenUtil
     }
 
     /**
-     * Reads in the supplied source file and locates the package and class
-     * or interface name and returns a fully qualified class name.
+     * Reads in the supplied source file and locates the package and class or interface name and
+     * returns a fully qualified class name.
      */
     public static String readClassName (File source)
         throws IOException

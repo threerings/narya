@@ -52,19 +52,19 @@ import com.samskivert.util.StringUtil;
 import com.samskivert.velocity.VelocityUtil;
 
 import com.threerings.io.Streamable;
+import com.threerings.util.ActionScript;
+
 import com.threerings.presents.data.InvocationMarshaller;
 import com.threerings.presents.dobj.DObject;
 
 /**
- * Generates ActionScript versions of {@link Streamable} classes and provides
- * routines used by the {@link GenDObjectTask} to create ActionScript versions
- * of distributed objects.
+ * Generates ActionScript versions of {@link Streamable} classes and provides routines used by the
+ * {@link GenDObjectTask} to create ActionScript versions of distributed objects.
  */
 public class GenActionScriptTask extends Task
 {
     /**
-     * Adds a nested &lt;fileset&gt; element which enumerates streamable source
-     * files.
+     * Adds a nested &lt;fileset&gt; element which enumerates streamable source files.
      */
     public void addFileset (FileSet set)
     {
@@ -80,16 +80,14 @@ public class GenActionScriptTask extends Task
     }
 
     /**
-     * Configures us with a header file that we'll prepend to all
-     * generated source files.
+     * Configures us with a header file that we'll prepend to all generated source files.
      */
     public void setHeader (File header)
     {
         try {
             _header = IOUtils.toString(new FileReader(header));
         } catch (IOException ioe) {
-            System.err.println("Unabled to load header '" + header + ": " +
-                               ioe.getMessage());
+            System.err.println("Unabled to load header '" + header + ": " + ioe.getMessage());
         }
     }
 
@@ -126,24 +124,19 @@ public class GenActionScriptTask extends Task
         try {
             name = GenUtil.readClassName(source);
         } catch (Exception e) {
-            System.err.println(
-                "Failed to parse " + source + ": " + e.getMessage());
+            System.err.println("Failed to parse " + source + ": " + e.getMessage());
             return;
         }
 
         try {
-            // in order for annotations to work, this task and all the classes
-            // it uses must be loaded from the same class loader as the classes
-            // on which we are going to introspect; this is non-ideal but
-            // unavoidable
+            // in order for annotations to work, this task and all the classes it uses must be
+            // loaded from the same class loader as the classes on which we are going to
+            // introspect; this is non-ideal but unavoidable
             processClass(source, getClass().getClassLoader().loadClass(name));
         } catch (ClassNotFoundException cnfe) {
-            System.err.println(
-                "Failed to load " + name + ".\n" +
-                "Missing class: " + cnfe.getMessage());
-            System.err.println(
-                "Be sure to set the 'classpathref' attribute to a classpath\n" +
-                "that contains your projects invocation service classes.");
+            System.err.println("Failed to load " + name + ".\nMissing class: " + cnfe.getMessage());
+            System.err.println("Be sure to set the 'classpathref' attribute to a classpath\n" +
+                               "that contains your projects invocation service classes.");
         } catch (Exception e) {
             e.printStackTrace(System.err);
         }
@@ -152,15 +145,22 @@ public class GenActionScriptTask extends Task
     /**
      * Processes a resolved Streamable class instance.
      */
-    protected void processClass (File source, Class sclass)
+    protected void processClass (File source, Class<?> sclass)
         throws IOException
     {
-        // make sure we implement Streamable but don't extend DObject or
-        // InvocationMarshaller and that we're a class not an interface
+        // make sure we implement Streamable but don't extend DObject or InvocationMarshaller and
+        // that we're a class not an interface
         if (!Streamable.class.isAssignableFrom(sclass) ||
             DObject.class.isAssignableFrom(sclass) ||
             InvocationMarshaller.class.isAssignableFrom(sclass) ||
             ((sclass.getModifiers() & Modifier.INTERFACE) != 0)) {
+            // System.err.println("Skipping " + sclass.getName() + "...");
+            return;
+        }
+
+        // if we have an ActionScript(omit=true) annotation, skip this class
+        ActionScript asa = sclass.getAnnotation(ActionScript.class);
+        if (asa != null && asa.omit()) {
             // System.err.println("Skipping " + sclass.getName() + "...");
             return;
         }
