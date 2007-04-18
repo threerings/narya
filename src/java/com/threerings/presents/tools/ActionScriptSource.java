@@ -702,8 +702,7 @@ public class ActionScriptSource
             case CLASSBODY:
                 // see if we match a field declaration
                 if ((m = ASFIELD.matcher(line)).matches()) {
-                    // if this line does not contain a semicolon, keep sucking
-                    // up lines until it does
+                    // if this line does not contain a semicolon, keep reading until it does
                     if (line.indexOf(";") == -1) {
                         line = slurpUntil(bin, line, ";", false);
                     }
@@ -717,8 +716,7 @@ public class ActionScriptSource
 
                 // see if we match a constructor declaration
                 } else if (line.indexOf("public function " + className) != -1) {
-                    // if this line does not contain a close paren, keep
-                    // sucking up lines until it does
+                    // if this line does not contain a close paren, keep reading until it does
                     if (line.indexOf(")") == -1) {
                         line = slurpUntil(bin, line, ")", false);
                     }
@@ -743,8 +741,7 @@ public class ActionScriptSource
 
                 // see if we match a method declaration
                 } else if ((m = ASFUNCTION.matcher(line)).matches()) {
-                    // if this line does not contain a close paren, keep
-                    // sucking up lines until it does
+                    // if this line does not contain a close paren, keep reading until it does
                     if (line.indexOf(")") == -1) {
                         line = slurpUntil(bin, line, ")", false);
                     }
