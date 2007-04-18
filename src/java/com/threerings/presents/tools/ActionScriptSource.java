@@ -82,11 +82,8 @@ public class ActionScriptSource
 
         public void setComment (String comment) {
             if (comment.indexOf("@Override") != -1) {
-                if (comment.trim().startsWith("//")) {
-                    // handle // @Override // comment
-                    comment = comment.replaceFirst("// ?", "");
-                }
                 comment = comment.replaceAll("@Override ?", "");
+                comment = comment.replaceFirst("// //", "//"); // handle // @Override // comment
                 definition = "override " + definition;
             }
             // trim blank lines from start
