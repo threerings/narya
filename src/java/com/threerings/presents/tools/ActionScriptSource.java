@@ -82,7 +82,11 @@ public class ActionScriptSource
 
         public void setComment (String comment) {
             if (comment.indexOf("@Override") != -1) {
-                comment = comment.replaceAll("@Override\\s?", "");
+                if (comment.trim().startsWith("//")) {
+                    // handle // @Override // comment
+                    comment = comment.replaceFirst("// ?", "");
+                }
+                comment = comment.replaceAll("@Override ?", "");
                 definition = "override " + definition;
             }
             // trim blank lines from start
@@ -307,9 +311,12 @@ public class ActionScriptSource
         // note our implemented interfaces
         ArrayList<String> ifaces = new ArrayList<String>();
         for (Class iclass : jclass.getInterfaces()) {
-            // we cannot use the FooCodes interface pattern in ActionScript so we just have to nix
-            // it
+            // we cannot use the FooCodes interface pattern in ActionScript so we just nix it
             if (iclass.getName().endsWith("Codes")) {
+                continue;
+            }
+            // we also nix Serializable and IsSerializable (hackity hack)
+            if (iclass.getName().endsWith("Serializable")) {
                 continue;
             }
             ifaces.add(toSimpleName(iclass.getName()));
@@ -470,15 +477,13 @@ public class ActionScriptSource
             case CLASSBODY:
                 // see if we match a field declaration
                 if ((m = JFIELD.matcher(line)).matches()) {
-                    // if this line does not end on a semicolon, keep sucking
-                    // up lines until it does
+                    // if this line does not end on a semicolon, keep reading until it does
                     if (line.indexOf(";") == -1) {
-                        line = line + slurpUntil(bin, ";", true);
+                        line = slurpUntil(bin, line, ";", true);
                         // now rematch it all on one line
                         m = JFIELD.matcher(line);
                         if (!m.matches()) {
-                            System.err.println(
-                                "J: Pants, no longer match field: " + line);
+                            System.err.println("J: Pants, no longer match field: " + line);
                             continue;
                         }
                     }
@@ -499,10 +504,7 @@ public class ActionScriptSource
                         mem = updateComment(protectedConstants, name, comment);
                     }
                     if (mem == null) {
-                        System.err.println("J: Matched field for which we " +
-                                           "have no bytecode version: " + name +
-                                           ": " + line);
-                        continue;
+                        continue; // it was omitted, so skip it
                     }
 
                     // extract and clean up any default value
@@ -520,15 +522,13 @@ public class ActionScriptSource
 
                 // see if we match a constructor declaration
                 } else if ((m = JCONSTRUCTOR.matcher(line)).matches()) {
-                    // if this line does not contain a close paren, keep
-                    // sucking up lines until it does
+                    // if this line does not contain a close paren, keep reading until it does
                     if (line.indexOf(")") == -1) {
-                        line = line + slurpUntil(bin, ")", true);
+                        line = slurpUntil(bin, line, ")", true);
                         // now rematch it all on one line
                         m = JCONSTRUCTOR.matcher(line);
                         if (!m.matches()) {
-                            System.err.println(
-                                "J: Pants, no longer match ctor: " + line);
+                            System.err.println("J: Pants, no longer match ctor: " + line);
                             continue;
                         }
                     }
@@ -551,10 +551,9 @@ public class ActionScriptSource
 
                 // see if we match a method declaration
                 } else if ((m = JMETHOD.matcher(line)).matches()) {
-                    // if this line does not contain a close paren, keep
-                    // sucking up lines until it does
+                    // if this line does not contain a close paren, keep reading until it does
                     if (line.indexOf(")") == -1) {
-                        line = line + slurpUntil(bin, ")", true);
+                        line = slurpUntil(bin, line, ")", true);
                         // now rematch it all on one line
                         m = JMETHOD.matcher(line);
                         if (!m.matches()) {
@@ -706,7 +705,7 @@ public class ActionScriptSource
                     // if this line does not contain a semicolon, keep sucking
                     // up lines until it does
                     if (line.indexOf(";") == -1) {
-                        line = line + "\n" + slurpUntil(bin, ";", false);
+                        line = slurpUntil(bin, line, ";", false);
                     }
 
                     String fieldName = m.group(1);
@@ -721,7 +720,7 @@ public class ActionScriptSource
                     // if this line does not contain a close paren, keep
                     // sucking up lines until it does
                     if (line.indexOf(")") == -1) {
-                        line = line + "\n" + slurpUntil(bin, ")", false);
+                        line = slurpUntil(bin, line, ")", false);
                     }
 
                     // look up the public constructor
@@ -747,7 +746,7 @@ public class ActionScriptSource
                     // if this line does not contain a close paren, keep
                     // sucking up lines until it does
                     if (line.indexOf(")") == -1) {
-                        line = line + "\n" + slurpUntil(bin, ")", false);
+                        line = slurpUntil(bin, line, ")", false);
                     }
 
                     ArrayList<Member> list = publicMethods;
@@ -968,22 +967,38 @@ public class ActionScriptSource
         return builder.toString();
     }
 
-    protected String slurpUntil (BufferedReader reader, String token,
+    protected String slurpUntil (BufferedReader reader, String text, String token,
                                  boolean stripNewlines)
         throws IOException
     {
-        String text = "", line;
+        int braces = countChars(text, '{') - countChars(text, '}');
+        String line;
         while ((line = reader.readLine()) != null) {
+            braces += countChars(line, '{');
+            braces -= countChars(line, '}');
+            if (braces < 0) {
+                System.err.println(
+                    "Too many close braces? [text=" + text + ", line=" + line + "].");
+            }
             line = line.replaceAll("\\s+$", "");
-            text += line;
             if (!stripNewlines) {
                 text += "\n";
             }
-            if (line.indexOf(token) != -1) {
+            text += line;
+            if (braces <= 0 && line.indexOf(token) != -1) {
                 break;
             }
         }
         return text;
+    }
+
+    protected int countChars (String text, char target)
+    {
+        int idx = -1, count = 0;
+        while ((idx = text.indexOf(target, idx+1)) != -1) {
+            count++;
+        }
+        return count;
     }
 
     protected boolean writeBlank (boolean writtenAnything, PrintWriter writer)
