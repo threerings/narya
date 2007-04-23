@@ -156,7 +156,7 @@ public class DSet<E extends DSet.Entry>
     public E get (Comparable key)
     {
         // determine where we'll be adding the new element
-        int eidx = ArrayUtil.binarySearch(_entries, 0, _size, key, ENTRY_COMP);
+        int eidx = ArrayUtil.binarySearch(_entries, 0, _size, new KeyWrapper(key), ENTRY_COMP);
         return (eidx < 0) ? null : _entries[eidx];
     }
 
@@ -321,7 +321,7 @@ public class DSet<E extends DSet.Entry>
         }
 
         // look up this entry's position in our set
-        int eidx = ArrayUtil.binarySearch(_entries, 0, _size, key, ENTRY_COMP);
+        int eidx = ArrayUtil.binarySearch(_entries, 0, _size, new KeyWrapper(key), ENTRY_COMP);
 
         // if we found it, remove it
         if (eidx >= 0) {
@@ -445,6 +445,17 @@ public class DSet<E extends DSet.Entry>
         }
     }
 
+    protected static class KeyWrapper implements DSet.Entry
+    {
+        public KeyWrapper (Comparable key) {
+            _key = key;
+        }
+        public Comparable getKey () {
+            return _key;
+        }
+        protected Comparable _key;
+    }
+
     /** The entries of the set (in a sparse array). */
     @SuppressWarnings("unchecked") protected E[] _entries = (E[])new Entry[INITIAL_CAPACITY];
 
@@ -458,11 +469,9 @@ public class DSet<E extends DSet.Entry>
     protected static final int INITIAL_CAPACITY = 2;
 
     /** Used for lookups and to keep the set contents sorted on insertions. */
-    protected static Comparator<Object> ENTRY_COMP = new Comparator<Object>() {
-        public int compare (Object o1, Object o2) {
-            Comparable c1 = (o1 instanceof Entry) ? ((Entry)o1).getKey() : (Comparable)o1;
-            Comparable c2 = (o2 instanceof Entry) ? ((Entry)o2).getKey() : (Comparable)o2;
-            @SuppressWarnings("unchecked") int val = c1.compareTo(c2);
+    protected static Comparator<Entry> ENTRY_COMP = new Comparator<Entry>() {
+        public int compare (Entry e1, Entry e2) {
+            @SuppressWarnings("unchecked") int val = e1.getKey().compareTo(e2.getKey());
             return val;
         }
     };
