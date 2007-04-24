@@ -60,6 +60,12 @@ public class NodeRecord
         this.port = port;
     }
 
+    /** Used for queries. */
+    public NodeRecord (String nodeName)
+    {
+        this.nodeName = nodeName;
+    }
+
     /**
      * Generates a string representation of this instance.
      */

@@ -91,6 +91,18 @@ public class PeerManager
     }
 
     /**
+     * Used by entities that wish to know when this peer has been forced into immediately releasing
+     * a lock.
+     */
+    public static interface DroppedLockObserver
+    {
+        /**
+         * Called when this node has been forced to drop a lock.
+         */
+        public void droppedLock (Lock lock);
+    }
+
+    /**
      * Creates a peer manager which will create a {@link NodeRepository} which will be used to
      * publish our existence and discover the other nodes.
      */
@@ -191,7 +203,20 @@ public class PeerManager
         // clear out our client observer registration
         PresentsServer.clmgr.removeClientObserver(this);
 
-        // TODO: clear our record from the node table
+        // clear our record from the node table
+        _invoker.postUnit(new Invoker.Unit() {
+            public boolean invoke () {
+                try {
+                    _noderepo.deleteNode(_nodeName);
+                } catch (PersistenceException pe) {
+                    log.warning("Failed to delete node record [nodeName=" + _nodeName +
+                                ", error=" + pe + "].");
+                }
+                return false;
+            }
+        });
+
+        // shut down the peers
         for (PeerNode peer : _peers.values()) {
             peer.shutdown();
         }
@@ -407,6 +432,22 @@ public class PeerManager
         return null;
     }
 
+    /**
+     * Adds an observer to notify when this peer has been forced to drop a lock immediately.
+     */
+    public void addDroppedLockObserver (DroppedLockObserver observer)
+    {
+        _dropobs.add(observer);
+    }
+
+    /**
+     * Removes a dropped lock observer from the list.
+     */
+    public void removeDroppedLockObserver (DroppedLockObserver observer)
+    {
+        _dropobs.remove(observer);
+    }
+
     // documentation inherited from interface PeerProvider
     public void ratifyLockAction (ClientObject caller, Lock lock, boolean acquire)
     {
@@ -612,6 +653,19 @@ public class PeerManager
     }
 
     /**
+     * Called when we have been forced to drop a lock.
+     */
+    protected void droppedLock (final Lock lock)
+    {
+        _dropobs.apply(new ObserverList.ObserverOp<DroppedLockObserver>() {
+            public boolean apply (DroppedLockObserver observer) {
+                observer.droppedLock(lock);
+                return true;
+            }
+        });
+    }
+
+    /**
      * Initializes the supplied client info for the supplied client.
      */
     protected void initClientInfo (PresentsClient client, ClientInfo info)
@@ -625,6 +679,15 @@ public class PeerManager
     protected PeerNode createPeerNode (NodeRecord record)
     {
         return new PeerNode(record);
+    }
+
+    /**
+     * Determines whether the first node named has priority over the second when resolving
+     * lock disputes.
+     */
+    protected static boolean hasPriority (String nodeName1, String nodeName2)
+    {
+        return nodeName1.compareTo(nodeName2) < 0;
     }
 
     /**
@@ -664,7 +727,7 @@ public class PeerManager
 
             // if our client hasn't updated its record since we last tried to logon, then just
             // chill
-            if (_lastConnectStamp > record.lastUpdated.getTime()) {
+            if ((_lastConnectStamp - record.lastUpdated.getTime()) > STALE_INTERVAL) {
                 log.fine("Not reconnecting to stale client [record=" + _record +
                          ", lastTry=" + new Date(_lastConnectStamp) + "].");
                 return;
@@ -739,6 +802,7 @@ public class PeerManager
                     handler.clientDidLogoff();
                 }
             }
+            nodeobj = null;
         }
 
         // documentation inherited from interface ClientObserver
@@ -751,6 +815,22 @@ public class PeerManager
         public void objectAvailable (NodeObject object)
         {
             nodeobj = object;
+
+            // check for lock conflicts
+            for (Lock lock : nodeobj.locks) {
+                LockHandler handler = _locks.get(lock);
+                if (handler != null) {
+                    log.warning("Client hijacked lock in process of resolution [handler=" +
+                        handler + ", node=" + _record.nodeName + "].");
+                    handler.clientHijackedLock(_record.nodeName);
+
+                } else if (_nodeobj.locks.contains(lock)) {
+                    log.warning("Client hijacked lock owned by this node [lock=" + lock +
+                        ", node=" + _record.nodeName + "].");
+                    _nodeobj.removeFromLocks(lock);
+                    droppedLock(lock);
+                }
+            }
 
             // listen for lock and cache updates
             nodeobj.addListener(this);
@@ -771,14 +851,14 @@ public class PeerManager
                 Lock lock = nodeobj.acquiringLock;
                 LockHandler handler = _locks.get(lock);
                 if (handler == null) {
+                    if (_nodeobj.locks.contains(lock)) {
+                        log.warning("Peer trying to acquire lock owned by this node [lock=" +
+                            lock + ", node=" + _record.nodeName + "].");
+                        return;
+                    }
                     handler = new LockHandler(this, lock, true);
                 } else {
-                    int val = handler.getNodeName().compareTo(_record.nodeName);
-                    if (val < 0) {
-                        return; // existing handler has priority
-                    } else if (val == 0) {
-                        log.warning("Received duplicate acquire request [handler=" +
-                            handler + "].");
+                    if (hasPriority(handler.getNodeName(), _record.nodeName)) {
                         return;
                     }
                     // this node has priority, so cancel the existing handler and take over
@@ -786,7 +866,7 @@ public class PeerManager
                     ResultListenerList<String> olisteners = handler.listeners;
                     handler.cancel();
                     handler = new LockHandler(this, lock, true);
-                    handler.listeners.addAll(olisteners);
+                    handler.listeners = olisteners;
                 }
                 _locks.put(lock, handler);
 
@@ -918,6 +998,17 @@ public class PeerManager
         }
 
         /**
+         * Called when a client hijacks the lock by having it in its node object when it
+         * connects.
+         */
+        public void clientHijackedLock (String nodeName)
+        {
+            cancel();
+            _locks.remove(_lock);
+            listeners.requestCompleted(nodeName);
+        }
+
+        /**
          * Cancels this handler, as another one will be taking its place.
          */
         public void cancel ()
@@ -1023,8 +1114,15 @@ public class PeerManager
     protected HashMap<String, ObserverList<StaleCacheObserver>> _cacheobs =
         new HashMap<String, ObserverList<StaleCacheObserver>>();
 
+    /** Listeners for dropped locks. */
+    protected ObserverList<DroppedLockObserver> _dropobs =
+        new ObserverList<DroppedLockObserver>(ObserverList.FAST_UNSAFE_NOTIFY);
+
     /** Locks in the process of resolution. */
     protected HashMap<Lock, LockHandler> _locks = new HashMap<Lock, LockHandler>();
+
+    /** The amount of time after which a node record can be considered out of date and invalid. */
+    protected static final long STALE_INTERVAL = 5L * 60L * 1000L;
 
     /** We wait this long for peer ratification to complete before acquiring/releasing the lock. */
     protected static final long LOCK_TIMEOUT = 5000L;

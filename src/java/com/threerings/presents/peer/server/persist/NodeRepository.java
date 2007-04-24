@@ -73,6 +73,15 @@ public class NodeRepository extends JORARepository
         store(_ntable, record);
     }
 
+    /**
+     * Deletes the identified node record.
+     */
+    public void deleteNode (String nodeName)
+        throws PersistenceException
+    {
+        delete(_ntable, new NodeRecord(nodeName));
+    }
+
     @Override // documentation inherited
     protected void migrateSchema (Connection conn, DatabaseLiaison liaison)
         throws SQLException, PersistenceException
