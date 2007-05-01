@@ -31,7 +31,10 @@ import com.threerings.util.ClassUtil;
 
 public class ObjectInputStream
 {
-    private static const log :Log = Log.getLog(ObjectInputStream);
+    /** Enables verbose object I/O debugging. */
+    public static const DEBUG :Boolean = false;
+
+    public static const log :Log = Log.getLog(ObjectInputStream);
 
     public function ObjectInputStream (source :IDataInput = null)
     {
@@ -52,7 +55,7 @@ public class ObjectInputStream
     public function readObject () :Object
         //throws IOError
     {
-        var DEBUG_ID :String = "[" + (++_tempy) + "] ";
+        var DEBUG_ID :String = "[" + (++_debugObjectCounter) + "] ";
         try {
             // read in the class code for this instance
             var code :int = readShort();
@@ -256,8 +259,6 @@ public class ObjectInputStream
     /** A map of short class code to ClassMapping info. */
     protected var _classMap :Array = new Array();
 
-
-    public static const DEBUG :Boolean = false;
-    private static var _tempy :int = 0;
+    private static var _debugObjectCounter :int = 0;
 }
 }
