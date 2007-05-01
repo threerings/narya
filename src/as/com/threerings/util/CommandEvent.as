@@ -39,16 +39,34 @@ public class CommandEvent extends Event
     {
         if (cmdOrFn is Function) {
             var fn :Function = (cmdOrFn as Function);
-            var args :Array = (arg as Array);
-            if (args == null && arg != null) {
+            // build our args array
+            var args :Array;
+            if (arg is Array) {
+                // if we were passed an array, treat it as the arg array.
+                // Note: if you want to pass a single array param, you've
+                // got to wrap it in another array, so sorry.
+                args = arg as Array;
+
+            } else {
                 args = [ arg ];
             }
             try {
                 fn.apply(null, args);
             } catch (err :Error) {
-                var log :Log = Log.getLog(CommandEvent);
-                log.warning("Unable to call command callback, stack trace follows.");
-                log.logStackTrace(err);
+                if (arg == null) {
+                    try {
+                        // try with no args
+                        fn();
+                        err = null; // on success, clear the error
+                    } catch (err2 :Error) {
+                        err = err2;
+                    }
+                }
+                if (err != null) {
+                    var log :Log = Log.getLog(CommandEvent);
+                    log.warning("Unable to call command callback, stack trace follows.");
+                    log.logStackTrace(err);
+                }
             }
 
         } else if (cmdOrFn is String) {
