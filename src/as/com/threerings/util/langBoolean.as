@@ -67,5 +67,11 @@ public class langBoolean
     {
         return value;
     }
+
+    // cannot use the override keyword on toString() because actionscript is stupid
+    public function toString () :String
+    {
+        return value.toString();
+    }
 }
 }
