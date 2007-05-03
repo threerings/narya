@@ -56,6 +56,12 @@ public class Integer
         return value;
     }
 
+    // cannot use the override keyword on toString() because actionscript is stupid
+    public function toString () :String
+    {
+        return value.toString();
+    }
+
     /**
      * Compares to int values in an overflow safe manner.
      */
