@@ -21,6 +21,10 @@
 
 package com.threerings.presents.data;
 
+import java.io.IOException;
+
+import com.threerings.io.ObjectInputStream;
+import com.threerings.io.ObjectOutputStream;
 import com.threerings.io.SimpleStreamableObject;
 
 /**
@@ -29,20 +33,18 @@ import com.threerings.io.SimpleStreamableObject;
 public class ConMgrStats extends SimpleStreamableObject
     implements Cloneable
 {
-    /** The size of the queue of waiting to auth sockets. This is a snapshot at
-     * the time the stats are requested. */
+    /** The size of the queue of waiting to auth sockets. This is a snapshot at the time the stats
+     * are requested. */
     public int authQueueSize;
 
-    /** The size of the queue of waiting to die sockets. This is a snapshot at
-     * the time the stats are requested. */
+    /** The size of the queue of waiting to die sockets. This is a snapshot at the time the stats
+     * are requested. */
     public int deathQueueSize;
 
-    /** The outgoing queue size. This is a snapshot at the time the stats are
-     * requested. */
+    /** The outgoing queue size. This is a snapshot at the time the stats are requested. */
     public int outQueueSize;
 
-    /** The overflow queue size. This is a snapshot at the time the stats are
-     * requested. */
+    /** The overflow queue size. This is a snapshot at the time the stats are requested. */
     public int overQueueSize;
 
     /** The number of connection events since the server started up. */
@@ -72,4 +74,38 @@ public class ConMgrStats extends SimpleStreamableObject
             throw new RuntimeException(cnse);
         }
     }
+
+    // AUTO-GENERATED: METHODS START
+    // from interface Streamable
+    public void readObject (ObjectInputStream ins)
+        throws IOException, ClassNotFoundException
+    {
+        authQueueSize = ins.readInt();
+        deathQueueSize = ins.readInt();
+        outQueueSize = ins.readInt();
+        overQueueSize = ins.readInt();
+        connects = ins.readInt();
+        disconnects = ins.readInt();
+        bytesIn = ins.readLong();
+        bytesOut = ins.readLong();
+        msgsIn = ins.readInt();
+        msgsOut = ins.readInt();
+    }
+
+    // from interface Streamable
+    public void writeObject (ObjectOutputStream out)
+        throws IOException
+    {
+        out.writeInt(authQueueSize);
+        out.writeInt(deathQueueSize);
+        out.writeInt(outQueueSize);
+        out.writeInt(overQueueSize);
+        out.writeInt(connects);
+        out.writeInt(disconnects);
+        out.writeLong(bytesIn);
+        out.writeLong(bytesOut);
+        out.writeInt(msgsIn);
+        out.writeInt(msgsOut);
+    }
+    // AUTO-GENERATED: METHODS END
 }

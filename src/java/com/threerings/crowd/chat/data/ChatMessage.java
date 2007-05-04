@@ -21,8 +21,12 @@
 
 package com.threerings.crowd.chat.data;
 
+import java.io.IOException;
+
 import com.samskivert.util.StringUtil;
 
+import com.threerings.io.ObjectInputStream;
+import com.threerings.io.ObjectOutputStream;
 import com.threerings.io.Streamable;
 
 /**
@@ -37,8 +41,8 @@ public abstract class ChatMessage
     /** The bundle to use when translating this message. */
     public String bundle;
 
-    /** The client side 'localtype' of this chat, set to the type
-     * registered with an auxiliary source in the ChatDirector. */
+    /** The client side 'localtype' of this chat, set to the type registered with an auxiliary
+     * source in the ChatDirector. */
     public transient String localtype;
 
     /** The client time that this message was created. */
@@ -61,8 +65,8 @@ public abstract class ChatMessage
     }
 
     /**
-     * Once this message reaches the client, the information contained within
-     * is changed around a bit.
+     * Once this message reaches the client, the information contained within is changed around a
+     * bit.
      */
     public void setClientInfo (String msg, String localtype)
     {
@@ -85,7 +89,24 @@ public abstract class ChatMessage
      */
     public String toString ()
     {
-        return StringUtil.shortClassName(this) +
-            StringUtil.fieldsToString(this);
+        return StringUtil.shortClassName(this) + StringUtil.fieldsToString(this);
     }
+
+    // AUTO-GENERATED: METHODS START
+    // from interface Streamable
+    public void readObject (ObjectInputStream ins)
+        throws IOException, ClassNotFoundException
+    {
+        message = ins.readUTF();
+        bundle = ins.readUTF();
+    }
+
+    // from interface Streamable
+    public void writeObject (ObjectOutputStream out)
+        throws IOException
+    {
+        out.writeUTF(message);
+        out.writeUTF(bundle);
+    }
+    // AUTO-GENERATED: METHODS END
 }

@@ -21,6 +21,10 @@
 
 package com.threerings.crowd.chat.data;
 
+import java.io.IOException;
+
+import com.threerings.io.ObjectInputStream;
+import com.threerings.io.ObjectOutputStream;
 import com.threerings.util.Name;
 
 /**
@@ -51,6 +55,24 @@ public class TellFeedbackMessage extends UserMessage
     {
         return _failure ? null : "m.told_format";
     }
+
+    // AUTO-GENERATED: METHODS START
+    // from interface Streamable
+    public void readObject (ObjectInputStream ins)
+        throws IOException, ClassNotFoundException
+    {
+        super.readObject(ins);
+        _failure = ins.readBoolean();
+    }
+
+    // from interface Streamable
+    public void writeObject (ObjectOutputStream out)
+        throws IOException
+    {
+        super.writeObject(out);
+        out.writeBoolean(_failure);
+    }
+    // AUTO-GENERATED: METHODS END
 
     protected boolean _failure;
 }

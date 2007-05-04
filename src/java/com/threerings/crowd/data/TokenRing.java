@@ -21,16 +21,20 @@
 
 package com.threerings.crowd.data;
 
+import java.io.IOException;
+
+import com.threerings.io.ObjectInputStream;
+import com.threerings.io.ObjectOutputStream;
 import com.threerings.io.SimpleStreamableObject;
 
 /**
- * Defines access control tokens that convey certain privileges to users
- * (see {@link BodyObject#checkAccess}).
+ * Defines access control tokens that convey certain privileges to users (see {@link
+ * BodyObject#checkAccess}).
  */
 public class TokenRing extends SimpleStreamableObject
 {
-    /** Indicates that this user is an administrator and can do things
-     * like broadcast, shutdown the server and whatnot. */
+    /** Indicates that this user is an administrator and can do things like broadcast, shutdown the
+     * server and whatnot. */
     public static final int ADMIN = (1 << 0);
 
     /**
@@ -49,10 +53,9 @@ public class TokenRing extends SimpleStreamableObject
     }
 
     /**
-     * Returns true if this token ring contains the specified token or tokens,
-     * exactly.
-     * For example, if you pass in the OR of two or more tokens,
-     * then the ring must contain all of those tokens.
+     * Returns true if this token ring contains the specified token or tokens, exactly.  For
+     * example, if you pass in the OR of two or more tokens, then the ring must contain all of
+     * those tokens.
      */
     public boolean holdsToken (int token)
     {
@@ -68,8 +71,7 @@ public class TokenRing extends SimpleStreamableObject
     }
 
     /**
-     * Convenience function for checking whether this ring holds the
-     * {@link #ADMIN} token.
+     * Convenience function for checking whether this ring holds the {@link #ADMIN} token.
      */
     public boolean isAdmin ()
     {
@@ -111,6 +113,22 @@ public class TokenRing extends SimpleStreamableObject
     {
         _tokens &= ~token;
     }
+
+    // AUTO-GENERATED: METHODS START
+    // from interface Streamable
+    public void readObject (ObjectInputStream ins)
+        throws IOException, ClassNotFoundException
+    {
+        _tokens = ins.readInt();
+    }
+
+    // from interface Streamable
+    public void writeObject (ObjectOutputStream out)
+        throws IOException
+    {
+        out.writeInt(_tokens);
+    }
+    // AUTO-GENERATED: METHODS END
 
     /** The tokens contained in this ring (composed together bitwise). */
     protected int _tokens;

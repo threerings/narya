@@ -21,8 +21,12 @@
 
 package com.threerings.presents.data;
 
+import java.io.IOException;
+
 import com.samskivert.util.StringUtil;
 
+import com.threerings.io.ObjectInputStream;
+import com.threerings.io.ObjectOutputStream;
 import com.threerings.io.Streamable;
 
 import com.threerings.presents.Log;
@@ -235,20 +239,38 @@ public class InvocationMarshaller
     }
 
     /**
+     * Generates a string representation of this instance.
+     */
+    public String toString ()
+    {
+        return "[invOid=" + _invOid + ", code=" + _invCode + ", type=" + getClass().getName() + "]";
+    }
+
+    // AUTO-GENERATED: METHODS START
+    // from interface Streamable
+    public void readObject (ObjectInputStream ins)
+        throws IOException, ClassNotFoundException
+    {
+        _invOid = ins.readInt();
+        _invCode = ins.readInt();
+    }
+
+    // from interface Streamable
+    public void writeObject (ObjectOutputStream out)
+        throws IOException
+    {
+        out.writeInt(_invOid);
+        out.writeInt(_invCode);
+    }
+    // AUTO-GENERATED: METHODS END
+
+    /**
      * Called by generated invocation marshaller code; packages up and sends the specified
      * invocation service request.
      */
     protected void sendRequest (Client client, int methodId, Object[] args)
     {
         client.getInvocationDirector().sendRequest(_invOid, _invCode, methodId, args);
-    }
-
-    /**
-     * Generates a string representation of this instance.
-     */
-    public String toString ()
-    {
-        return "[invOid=" + _invOid + ", code=" + _invCode + ", type=" + getClass().getName() + "]";
     }
 
     /** The oid of the invocation object, where invocation service requests are sent. */
