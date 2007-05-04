@@ -36,8 +36,8 @@ import com.threerings.presents.dobj.DObjectManager;
 import com.threerings.presents.dobj.InvocationResponseEvent;
 
 /**
- * Provides a base from which all invocation service marshallers extend.
- * Handles functionality common to all marshallers.
+ * Provides a base from which all invocation service marshallers extend.  Handles functionality
+ * common to all marshallers.
  */
 public class InvocationMarshaller
     implements Streamable, InvocationService
@@ -48,8 +48,7 @@ public class InvocationMarshaller
     public static class ListenerMarshaller
         implements Streamable, InvocationListener
     {
-        /** The method id used to dispatch a {@link #requestFailed}
-         * response. */
+        /** The method id used to dispatch a {@link #requestFailed} response. */
         public static final int REQUEST_FAILED_RSPID = 0;
 
         /** The oid of the invocation service requester. */
@@ -58,21 +57,21 @@ public class InvocationMarshaller
         /** The request id associated with this listener. */
         public short requestId;
 
-        /** The actual invocation listener associated with this
-         * marshalling listener. This is only valid on the client. */
+        /** The actual invocation listener associated with this marshalling listener. This is only
+         * valid on the client. */
         public transient InvocationListener listener;
 
-        /** The time at which this listener marshaller was registered.
-         * This is only valid on the client. */
+        /** The time at which this listener marshaller was registered.  This is only valid on the
+         * client. */
         public transient long mapStamp;
 
-        /** The distributed object manager to use when dispatching proxied
-         * responses. This is only valid on the server. */
+        /** The distributed object manager to use when dispatching proxied responses. This is only
+         * valid on the server. */
         public transient DObjectManager omgr;
 
         /**
-         * Set an identifier for the invocation that this listener
-         * is used for, so we can report it if we are never responded-to.
+         * Set an identifier for the invocation that this listener is used for, so we can report it
+         * if we are never responded-to.
          */
         public void setInvocationId (String name)
         {
@@ -80,13 +79,11 @@ public class InvocationMarshaller
         }
 
         /**
-         * Indicates that this listener will not be responded-to, and that
-         * this is normal behavior.
+         * Indicates that this listener will not be responded-to, and that this is normal behavior.
          */
         public void setNoResponse ()
         {
-            // we enact this by merely doing the same thing that we normally
-            // do during a response.
+            // we enact this by merely doing the same thing that we normally do during a response.
             _invId = null;
         }
 
@@ -95,13 +92,11 @@ public class InvocationMarshaller
         {
             _invId = null;
             omgr.postEvent(new InvocationResponseEvent(
-                               callerOid, requestId, REQUEST_FAILED_RSPID,
-                               new Object[] { cause }));
+                               callerOid, requestId, REQUEST_FAILED_RSPID, new Object[] { cause }));
         }
 
         /**
-         * Called to dispatch an invocation response to our target
-         * listener.
+         * Called to dispatch an invocation response to our target listener.
          */
         public void dispatchResponse (int methodId, Object[] args)
         {
@@ -109,9 +104,8 @@ public class InvocationMarshaller
                 listener.requestFailed((String)args[0]);
 
             } else {
-                Log.warning("Requested to dispatch unknown invocation " +
-                            "response [listener=" + listener +
-                            ", methodId=" + methodId +
+                Log.warning("Requested to dispatch unknown invocation response " +
+                            "[listener=" + listener + ", methodId=" + methodId +
                             ", args=" + StringUtil.toString(args) + "].");
             }
         }
@@ -130,8 +124,7 @@ public class InvocationMarshaller
             throws Throwable
         {
             if (_invId != null && getClass() != ListenerMarshaller.class) {
-                Log.warning("Invocation listener never responded to: " +
-                    _invId);
+                Log.warning("Invocation listener never responded to: " + _invId);
             }
             super.finalize();
         }
@@ -146,17 +139,15 @@ public class InvocationMarshaller
     public static class ConfirmMarshaller extends ListenerMarshaller
         implements ConfirmListener
     {
-        /** The method id used to dispatch {@link #requestProcessed}
-         * responses. */
+        /** The method id used to dispatch {@link #requestProcessed} responses. */
         public static final int REQUEST_PROCESSED = 1;
 
         // documentation inherited from interface
         public void requestProcessed ()
         {
             _invId = null;
-            omgr.postEvent(new InvocationResponseEvent(
-                               callerOid, requestId, REQUEST_PROCESSED,
-                               null));
+            omgr.postEvent(
+                new InvocationResponseEvent(callerOid, requestId, REQUEST_PROCESSED, null));
         }
 
         // documentation inherited
@@ -179,8 +170,7 @@ public class InvocationMarshaller
     public static class ResultMarshaller extends ListenerMarshaller
         implements ResultListener
     {
-        /** The method id used to dispatch {@link #requestProcessed}
-         * responses. */
+        /** The method id used to dispatch {@link #requestProcessed} responses. */
         public static final int REQUEST_PROCESSED = 1;
 
         // documentation inherited from interface
@@ -188,8 +178,7 @@ public class InvocationMarshaller
         {
             _invId = null;
             omgr.postEvent(new InvocationResponseEvent(
-                               callerOid, requestId, REQUEST_PROCESSED,
-                               new Object[] { result }));
+                               callerOid, requestId, REQUEST_PROCESSED, new Object[] { result }));
         }
 
         // documentation inherited
@@ -197,8 +186,7 @@ public class InvocationMarshaller
         {
             switch (methodId) {
             case REQUEST_PROCESSED:
-                ((ResultListener)listener).requestProcessed(
-                    args[0]);
+                ((ResultListener)listener).requestProcessed(args[0]);
                 return;
 
             default:
@@ -208,10 +196,9 @@ public class InvocationMarshaller
     }
 
     /**
-     * Initializes this invocation marshaller instance with the requisite
-     * information to allow it to operate in the wide world. This is
-     * called by the invocation manager when an invocation provider is
-     * registered and should not be called otherwise.
+     * Initializes this invocation marshaller instance with the requisite information to allow it
+     * to operate in the wide world. This is called by the invocation manager when an invocation
+     * provider is registered and should not be called otherwise.
      */
     public void init (int invOid, int invCode)
     {
@@ -220,9 +207,8 @@ public class InvocationMarshaller
     }
 
     /**
-     * Sets the invocation oid to which this marshaller should send its
-     * invocation service requests. This is called by the invocation
-     * manager in certain initialization circumstances.
+     * Sets the invocation oid to which this marshaller should send its invocation service
+     * requests. This is called by the invocation manager in certain initialization circumstances.
      */
     public void setInvocationOid (int invOid)
     {
@@ -238,8 +224,8 @@ public class InvocationMarshaller
     }
 
     /**
-     * A convenience method to indicate that the listener is not going
-     * to be responded-to, and that this is ok.
+     * A convenience method to indicate that the listener is not going to be responded-to, and that
+     * this is ok.
      */
     public static void setNoResponse (InvocationListener listener)
     {
@@ -249,13 +235,12 @@ public class InvocationMarshaller
     }
 
     /**
-     * Called by generated invocation marshaller code; packages up and
-     * sends the specified invocation service request.
+     * Called by generated invocation marshaller code; packages up and sends the specified
+     * invocation service request.
      */
     protected void sendRequest (Client client, int methodId, Object[] args)
     {
-        client.getInvocationDirector().sendRequest(
-            _invOid, _invCode, methodId, args);
+        client.getInvocationDirector().sendRequest(_invOid, _invCode, methodId, args);
     }
 
     /**
@@ -263,15 +248,13 @@ public class InvocationMarshaller
      */
     public String toString ()
     {
-        return "[invOid=" + _invOid + ", code=" + _invCode +
-            ", type=" + getClass().getName() + "]";
+        return "[invOid=" + _invOid + ", code=" + _invCode + ", type=" + getClass().getName() + "]";
     }
 
-    /** The oid of the invocation object, where invocation service
-     * requests are sent. */
+    /** The oid of the invocation object, where invocation service requests are sent. */
     protected int _invOid;
 
-    /** The invocation service code assigned to this service when it was
-     * registered on the server. */
+    /** The invocation service code assigned to this service when it was registered on the
+     * server. */
     protected int _invCode;
 }
