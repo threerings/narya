@@ -172,77 +172,12 @@ public class GenDObjectTask extends Task
         }
 
         // slurp our source file into newline separated strings
-        String[] lines = null;
+        SourceFile sfile = new SourceFile();
         try {
-            BufferedReader bin = new BufferedReader(new FileReader(source));
-            ArrayList<String> llist = new ArrayList<String>();
-            String line = null;
-            while ((line = bin.readLine()) != null) {
-                llist.add(line);
-            }
-            lines = llist.toArray(new String[llist.size()]);
-            bin.close();
+            sfile.readFrom(source);
         } catch (IOException ioe) {
             System.err.println("Error reading '" + source + "': " + ioe);
             return;
-        }
-
-        // now determine where to insert our static field declarations and
-        // our generated methods
-        int bstart = -1, bend = -1;
-        int nstart = -1, nend = -1;
-        int mstart = -1, mend = -1;
-        for (int ii = 0; ii < lines.length; ii++) {
-            String line = lines[ii].trim();
-
-            // look for the start of the class body
-            if (GenUtil.NAME_PATTERN.matcher(line).find()) {
-                if (line.endsWith("{")) {
-                    bstart = ii+1;
-                } else {
-                    // search down a few lines for the open brace
-                    for (int oo = 1; oo < 10; oo++) {
-                        if (get(lines, ii+oo).trim().endsWith("{")) {
-                            bstart = ii+oo+1;
-                            break;
-                        }
-                    }
-                }
-
-            // track the last } on a line by itself and we'll call that
-            // the end of the class body
-            } else if (line.equals("}")) {
-                bend = ii;
-
-            // look for our field and method markers
-            } else if (line.equals(FIELDS_START)) {
-                nstart = ii;
-            } else if (line.equals(FIELDS_END)) {
-                nend = ii+1;
-            } else if (line.equals(METHODS_START)) {
-                mstart = ii;
-            } else if (line.equals(METHODS_END)) {
-                mend = ii+1;
-            }
-        }
-
-        // sanity check the markers
-        if (check(source, "fields start", nstart, "fields end", nend) ||
-            check(source, "fields end", nend, "fields start", nstart) ||
-            check(source, "methods start", mstart, "methods end", mend) ||
-            check(source, "methods end", mend, "methods start", mstart)) {
-            return;
-        }
-
-        // we have no previous markers then stuff the fields at the top of
-        // the class body and the methods at the bottom
-        if (nstart == -1) {
-            nstart = bstart;
-            nend = bstart;
-        }
-        if (mstart == -1) {
-            mstart = bend;
-            mend = bend;
         }
 
         // generate our fields section and our methods section
@@ -322,73 +257,10 @@ public class GenDObjectTask extends Task
 
         // now bolt everything back together into a class declaration
         try {
-            BufferedWriter bout = new BufferedWriter(new FileWriter(source));
-            for (int ii = 0; ii < nstart; ii++) {
-                writeln(bout, lines[ii]);
-            }
-            if (fsection.length() > 0) {
-                String prev = get(lines, nstart-1);
-                if (!StringUtil.isBlank(prev) && !prev.equals("{")) {
-                    bout.newLine();
-                }
-                writeln(bout, "    " + FIELDS_START);
-                bout.write(fsection.toString());
-                writeln(bout, "    " + FIELDS_END);
-                if (!StringUtil.isBlank(get(lines, nend))) {
-                    bout.newLine();
-                }
-            }
-            for (int ii = nend; ii < mstart; ii++) {
-                writeln(bout, lines[ii]);
-            }
-
-            if (msection.length() > 0) {
-                if (!StringUtil.isBlank(get(lines, mstart-1))) {
-                    bout.newLine();
-                }
-                writeln(bout, "    " + METHODS_START);
-                bout.write(msection.toString());
-                writeln(bout, "    " + METHODS_END);
-                String next = get(lines, mend);
-                if (!StringUtil.isBlank(next) && !next.equals("}")) {
-                    bout.newLine();
-                }
-            }
-            for (int ii = mend; ii < lines.length; ii++) {
-                writeln(bout, lines[ii]);
-            }
-            bout.close();
+            sfile.writeTo(source, fsection.toString(), msection.toString());
         } catch (IOException ioe) {
-            System.err.println("Error writing to '" + source + "': " + ioe);
+            System.err.println("Error writing '" + source + "': " + ioe);
         }
-    }
-
-    /** Safely gets the <code>index</code>th line, returning the empty
-     * string if we exceed the length of the array. */
-    protected String get (String[] lines, int index)
-    {
-        return (index < lines.length) ? lines[index] : "";
-    }
-
-    /** Helper function for sanity checking marker existence. */
-    protected boolean check (File source, String mname, int mline,
-                             String fname, int fline)
-    {
-        if (mline == -1 && fline != -1) {
-            System.err.println("Found " + fname + " marker (at line " +
-                               (fline+1) + ") but no " + mname +
-                               " marker in '" + source + "'.");
-            return true;
-        }
-        return false;
-    }
-
-    /** Helper function for writing a string and a newline to a writer. */
-    protected void writeln (BufferedWriter bout, String line)
-        throws IOException
-    {
-        bout.write(line);
-        bout.newLine();
     }
 
     /** A list of filesets that contain tile images. */
@@ -418,11 +290,4 @@ public class GenDObjectTask extends Task
 
     /** Specifies the path to the name code template. */
     protected static final String NAME_TMPL = BASE_TMPL + "name.tmpl";
-
-    // markers
-    protected static final String MARKER = "// AUTO-GENERATED: ";
-    protected static final String FIELDS_START = MARKER + "FIELDS START";
-    protected static final String FIELDS_END = MARKER + "FIELDS END";
-    protected static final String METHODS_START = MARKER + "METHODS START";
-    protected static final String METHODS_END = MARKER + "METHODS END";
 }
