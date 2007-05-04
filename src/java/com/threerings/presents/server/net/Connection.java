@@ -28,6 +28,8 @@ import java.net.InetAddress;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.SocketChannel;
 
+import com.samskivert.util.StringUtil;
+
 import com.threerings.io.FramedInputStream;
 import com.threerings.io.FramingOutputStream;
 import com.threerings.io.ObjectInputStream;
@@ -39,27 +41,22 @@ import com.threerings.presents.net.PingRequest;
 import com.threerings.presents.net.UpstreamMessage;
 
 /**
- * The base connection class implements the net event handler interface
- * and processes raw incoming network data into a stream of parsed
- * <code>UpstreamMessage</code> objects. It also provides the means to
- * send messages to the client and facilities for checking delinquency.
+ * The base connection class implements the net event handler interface and processes raw incoming
+ * network data into a stream of parsed <code>UpstreamMessage</code> objects. It also provides the
+ * means to send messages to the client and facilities for checking delinquency.
  */
 public abstract class Connection implements NetEventHandler
 {
     /**
-     * Constructs a connection object that is associated with the supplied
-     * socket.
+     * Constructs a connection object that is associated with the supplied socket.
      *
-     * @param cmgr The connection manager with which this connection is
-     * associated.
-     * @param selkey the key used by the NIO code to track this
-     * connection.
-     * @param channel The socket channel from which we'll be reading
-     * messages.
+     * @param cmgr The connection manager with which this connection is associated.
+     * @param selkey the key used by the NIO code to track this connection.
+     * @param channel The socket channel from which we'll be reading messages.
      * @param createStamp The time at which this connection was created.
      */
-    public Connection (ConnectionManager cmgr, SelectionKey selkey,
-                       SocketChannel channel, long createStamp)
+    public Connection (ConnectionManager cmgr, SelectionKey selkey, SocketChannel channel,
+                       long createStamp)
         throws IOException
     {
         _cmgr = cmgr;
@@ -69,9 +66,8 @@ public abstract class Connection implements NetEventHandler
     }
 
     /**
-     * Instructs the connection to pass parsed messages on to this handler
-     * for processing. This should be done before the connection is turned
-     * loose to process messages.
+     * Instructs the connection to pass parsed messages on to this handler for processing. This
+     * should be done before the connection is turned loose to process messages.
      */
     public void setMessageHandler (MessageHandler handler)
     {
@@ -98,8 +94,7 @@ public abstract class Connection implements NetEventHandler
     }
 
     /**
-     * Returns the non-blocking socket object used to construct this
-     * connection.
+     * Returns the non-blocking socket object used to construct this connection.
      */
     public SocketChannel getChannel ()
     {
@@ -107,8 +102,8 @@ public abstract class Connection implements NetEventHandler
     }
 
     /**
-     * Returns the address associated with this connection or null if it
-     * has no underlying socket channel.
+     * Returns the address associated with this connection or null if it has no underlying socket
+     * channel.
      */
     public InetAddress getInetAddress ()
     {
@@ -124,8 +119,8 @@ public abstract class Connection implements NetEventHandler
     }
 
     /**
-     * Closes this connection and unregisters it from the connection
-     * manager. This should only be called from the conmgr thread.
+     * Closes this connection and unregisters it from the connection manager. This should only be
+     * called from the conmgr thread.
      */
     public void close ()
     {
@@ -144,9 +139,8 @@ public abstract class Connection implements NetEventHandler
     }
 
     /**
-     * Called when there is a failure reading or writing on this
-     * connection. We notify the connection manager and close ourselves
-     * down.
+     * Called when there is a failure reading or writing on this connection. We notify the
+     * connection manager and close ourselves down.
      */
     public void handleFailure (IOException ioe)
     {
@@ -165,8 +159,8 @@ public abstract class Connection implements NetEventHandler
     }
 
     /**
-     * Returns the object input stream associated with this connection.
-     * This should only be used by the connection manager.
+     * Returns the object input stream associated with this connection.  This should only be used
+     * by the connection manager.
      */
     protected ObjectInputStream getObjectInputStream ()
     {
@@ -174,10 +168,9 @@ public abstract class Connection implements NetEventHandler
     }
 
     /**
-     * Instructs this connection to inherit its streams from the supplied
-     * connection object. This is called by the connection manager when
-     * the time comes to pass streams from the authing connection to the
-     * running connection.
+     * Instructs this connection to inherit its streams from the supplied connection object. This
+     * is called by the connection manager when the time comes to pass streams from the authing
+     * connection to the running connection.
      */
     protected void inheritStreams (Connection other)
     {
@@ -190,16 +183,13 @@ public abstract class Connection implements NetEventHandler
     }
 
     /**
-     * Returns the object output stream associated with this connection
-     * (creating it if necessary). This should only be used by the
-     * connection manager.
+     * Returns the object output stream associated with this connection (creating it if
+     * necessary). This should only be used by the connection manager.
      */
-    protected ObjectOutputStream getObjectOutputStream (
-        FramingOutputStream fout)
+    protected ObjectOutputStream getObjectOutputStream (FramingOutputStream fout)
     {
-        // we're lazy about creating our output stream because we may be
-        // inheriting it from our authing connection and we don't want to
-        // unnecessarily create it in that case
+        // we're lazy about creating our output stream because we may be inheriting it from our
+        // authing connection and we don't want to unnecessarily create it in that case
         if (_oout == null) {
             _oout = new ObjectOutputStream(fout);
         }
@@ -207,8 +197,8 @@ public abstract class Connection implements NetEventHandler
     }
 
     /**
-     * Sets the object output stream used by this connection. This should
-     * only be called by the connection manager.
+     * Sets the object output stream used by this connection. This should only be called by the
+     * connection manager.
      */
     protected void setObjectOutputStream (ObjectOutputStream oout)
     {
@@ -216,26 +206,25 @@ public abstract class Connection implements NetEventHandler
     }
 
     /**
-     * Closes the socket associated with this connection. This happens
-     * when we receive EOF, are requested to close down or when our
-     * connection fails.
+     * Closes the socket associated with this connection. This happens when we receive EOF, are
+     * requested to close down or when our connection fails.
      */
     protected void closeSocket ()
     {
-        if (_channel != null) {
-            Log.debug("Closing channel " + this + ".");
-
-            try {
-                _channel.close();
-            } catch (IOException ioe) {
-                Log.warning("Error closing connection [conn=" + this +
-                            ", error=" + ioe + "].");
-            }
-
-            // clear out our references to prevent repeat closings
-            _selkey = null;
-            _channel = null;
+        if (_channel == null) {
+            return;
         }
+
+        Log.debug("Closing channel " + this + ".");
+        try {
+            _channel.close();
+        } catch (IOException ioe) {
+            Log.warning("Error closing connection [conn=" + this + ", error=" + ioe + "].");
+        }
+
+        // clear out our references to prevent repeat closings
+        _selkey = null;
+        _channel = null;
     }
 
     /**
@@ -248,9 +237,8 @@ public abstract class Connection implements NetEventHandler
 
         int bytesIn = 0;
         try {
-            // we're lazy about creating our input streams because we may
-            // be inheriting them from our authing connection and we don't
-            // want to unnecessarily create them in that case
+            // we're lazy about creating our input streams because we may be inheriting them from
+            // our authing connection and we don't want to unnecessarily create them in that case
             if (_fin == null) {
                 _fin = new FramedInputStream();
                 _oin = new ObjectInputStream(_fin);
@@ -259,12 +247,11 @@ public abstract class Connection implements NetEventHandler
                 }
             }
 
-            // there may be more than one frame in the buffer, so we keep
-            // reading them until we run out of data
+            // there may be more than one frame in the buffer, so we keep reading them until we run
+            // out of data
             while (_fin.readFrame(_channel)) {
-                // make a note of how many bytes are in this frame
-                // (including the frame length bytes which aren't reported
-                // in available())
+                // make a note of how many bytes are in this frame (including the frame length
+                // bytes which aren't reported in available())
                 bytesIn = _fin.available() + 4;
                 // parse the message and pass it on
                 UpstreamMessage msg = (UpstreamMessage)_oin.readObject();
@@ -278,30 +265,18 @@ public abstract class Connection implements NetEventHandler
             close();
 
         } catch (ClassNotFoundException cnfe) {
-            try {
-                Log.warning("Error reading message from socket " +
-                            "[channel=" + _channel + ", error=" + cnfe + "].");
-            } catch (Error err) {
-                Log.warning("Error reading message from socket " +
-                    "and error printing channel [error=" + cnfe + "].");
-            }
+            Log.warning("Error reading message from socket [channel=" +
+                        StringUtil.safeToString(_channel) + ", error=" + cnfe + "].");
             // deal with the failure
-            handleFailure((IOException) new IOException(
-                "Unable to decode incoming message.").initCause(cnfe));
+            String errmsg = "Unable to decode incoming message.";
+            handleFailure((IOException) new IOException(errmsg).initCause(cnfe));
 
         } catch (IOException ioe) {
-            // don't log a warning for the ever-popular "the client
-            // dropped the connection" failure
+            // don't log a warning for the ever-popular "the client dropped the connection" failure
             String msg = ioe.getMessage();
             if (msg == null || msg.indexOf("reset by peer") == -1) {
-                try {
-                    Log.warning("Error reading message from socket " +
-                                "[channel=" + _channel +
-                                ", error=" + ioe + "].");
-                } catch (Error err) {
-                    Log.warning("Error reading message from socket " +
-                        "and error printing channel [error=" + ioe + "].");
-                }
+                Log.warning("Error reading message from socket [channel=" +
+                            StringUtil.safeToString(_channel) + ", error=" + ioe + "].");
             }
             // deal with the failure
             handleFailure(ioe);
@@ -326,9 +301,8 @@ public abstract class Connection implements NetEventHandler
     }
 
     /**
-     * Posts a downstream message for delivery to this connection. The
-     * message will be delivered by the conmgr thread as soon as it gets
-     * to it.
+     * Posts a downstream message for delivery to this connection. The message will be delivered by
+     * the conmgr thread as soon as it gets to it.
      */
     public void postMessage (DownstreamMessage msg)
     {
@@ -349,8 +323,7 @@ public abstract class Connection implements NetEventHandler
     protected MessageHandler _handler;
     protected ClassLoader _loader;
 
-    /** The number of milliseconds beyond the ping interval that we allow
-     * a client's network connection to be idle before we forcibly
-     * disconnect them. */
+    /** The number of milliseconds beyond the ping interval that we allow a client's network
+     * connection to be idle before we forcibly disconnect them. */
     protected static final long LATENCY_GRACE = 30 * 1000L;
 }

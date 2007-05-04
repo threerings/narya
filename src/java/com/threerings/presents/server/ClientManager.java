@@ -26,6 +26,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.logging.Level;
 
 import com.samskivert.util.Interval;
 import com.samskivert.util.ObserverList;
@@ -33,12 +34,13 @@ import com.samskivert.util.StringUtil;
 
 import com.threerings.util.Name;
 
-import com.threerings.presents.Log;
 import com.threerings.presents.data.ClientObject;
 import com.threerings.presents.net.AuthRequest;
 import com.threerings.presents.net.AuthResponse;
 import com.threerings.presents.net.Credentials;
 import com.threerings.presents.server.net.*;
+
+import static com.threerings.presents.Log.log;
 
 /**
  * The client manager is responsible for managing the clients (surprise, surprise) which are
@@ -110,17 +112,17 @@ public class ClientManager
     // documentation inherited from interface
     public void shutdown ()
     {
-        Log.info("Client manager shutting down [ccount=" + _usermap.size() + "].");
+        log.info("Client manager shutting down [ccount=" + _usermap.size() + "].");
 
         // inform all of our clients that they are being shut down
-        for (Iterator iter = _usermap.values().iterator(); iter.hasNext(); ) {
-            PresentsClient pc = (PresentsClient)iter.next();
-            try {
-                pc.shutdown();
-            } catch (Exception e) {
-                Log.warning(
-                    "Client choked in shutdown() [client=" + StringUtil.safeToString(pc) + "].");
-                Log.logStackTrace(e);
+        synchronized (_usermap) {
+            for (PresentsClient pc : _usermap.values()) {
+                try {
+                    pc.shutdown();
+                } catch (Exception e) {
+                    log.log(Level.WARNING, "Client choked in shutdown() [client=" +
+                            StringUtil.safeToString(pc) + "].", e);
+                }
             }
         }
     }
@@ -155,7 +157,9 @@ public class ClientManager
      */
     public int getClientCount ()
     {
-        return _usermap.size();
+        synchronized (_usermap) {
+            return _usermap.size();
+        }
     }
 
     /**
@@ -196,7 +200,9 @@ public class ClientManager
      */
     public PresentsClient getClient (Name authUsername)
     {
-        return _usermap.get(authUsername);
+        synchronized (_usermap) {
+            return _usermap.get(authUsername);
+        }
     }
 
     /**
@@ -269,7 +275,7 @@ public class ClientManager
     {
         ClientObject clobj = _objmap.get(username);
         if (clobj == null) {
-            Log.warning("Requested to release unmapped client object [username=" + username + "].");
+            log.warning("Requested to release unmapped client object [username=" + username + "].");
             Thread.dumpStack();
             return;
         }
@@ -279,7 +285,7 @@ public class ClientManager
             return;
         }
 
-        Log.debug("Destroying client " + clobj.who() + ".");
+        log.fine("Destroying client " + clobj.who() + ".");
 
         // we're all clear to go; remove the mapping
         _objmap.remove(username);
@@ -311,7 +317,7 @@ public class ClientManager
         _penders.remove(username);
     }
 
-    // documentation inherited
+    // from interface ConnectionObserver
     public synchronized void connectionEstablished (
         Connection conn, AuthRequest req, AuthResponse rsp)
     {
@@ -322,30 +328,32 @@ public class ClientManager
         PresentsClient client = getClient(username);
 
         if (client != null) {
-            Log.info("Resuming session [username=" + username + ", conn=" + conn + "].");
+            log.info("Resuming session [username=" + username + ", conn=" + conn + "].");
             client.resumeSession(req, conn);
 
         } else {
-            Log.info("Session initiated [username=" + username + ", conn=" + conn + "].");
+            log.info("Session initiated [username=" + username + ", conn=" + conn + "].");
             // create a new client and stick'em in the table
             client = _factory.createClient(req);
             client.startSession(this, req, conn, rsp.authdata);
 
             // map their client instance
-            _usermap.put(username, client);
+            synchronized (_usermap) {
+                _usermap.put(username, client);
+            }
         }
 
         // map this connection to this client
         _conmap.put(conn, client);
     }
 
-    // documentation inherited
+    // from interface ConnectionObserver
     public synchronized void connectionFailed (Connection conn, IOException fault)
     {
         // remove the client from the connection map
         PresentsClient client = _conmap.remove(conn);
         if (client != null) {
-            Log.info("Unmapped failed client [client=" + client + ", conn=" + conn +
+            log.info("Unmapped failed client [client=" + client + ", conn=" + conn +
                      ", fault=" + fault + "].");
             // let the client know the connection went away
             client.wasUnmapped();
@@ -353,23 +361,23 @@ public class ClientManager
             client.connectionFailed(fault);
 
         } else if (!(conn instanceof AuthingConnection)) {
-            Log.info("Unmapped connection failed? [conn=" + conn + ", fault=" + fault + "].");
+            log.info("Unmapped connection failed? [conn=" + conn + ", fault=" + fault + "].");
             Thread.dumpStack();
         }
     }
 
-    // documentation inherited
+    // from interface ConnectionObserver
     public synchronized void connectionClosed (Connection conn)
     {
         // remove the client from the connection map
         PresentsClient client = _conmap.remove(conn);
         if (client != null) {
-            Log.debug("Unmapped client [client=" + client + ", conn=" + conn + "].");
+            log.fine("Unmapped client [client=" + client + ", conn=" + conn + "].");
             // let the client know the connection went away
             client.wasUnmapped();
 
         } else {
-            Log.info("Closed unmapped connection '" + conn + "'. " +
+            log.info("Closed unmapped connection '" + conn + "'. " +
                      "Client probably not yet authenticated.");
         }
     }
@@ -379,7 +387,9 @@ public class ClientManager
     {
         report.append("* presents.ClientManager:\n");
         report.append("- Sessions: ");
-        report.append(_usermap.size()).append(" total, ");
+        synchronized (_usermap) {
+            report.append(_usermap.size()).append(" total, ");
+        }
         report.append(_conmap.size()).append(" connected, ");
         report.append(_penders.size()).append(" pending\n");
         report.append("- Mapped users: ").append(_objmap.size()).append("\n");
@@ -407,17 +417,20 @@ public class ClientManager
     protected void clientSessionDidEnd (final PresentsClient client)
     {
         // remove the client from the username map
-        PresentsClient rc = _usermap.remove(client.getCredentials().getUsername());
+        PresentsClient rc;
+        synchronized (_usermap) {
+            rc = _usermap.remove(client.getCredentials().getUsername());
+        }
 
         // sanity check just because we can
         if (rc == null) {
-            Log.warning("Unregistered client ended session " + client + ".");
+            log.warning("Unregistered client ended session " + client + ".");
             Thread.dumpStack();
         } else if (rc != client) {
-            Log.warning("Different clients with same username!? " +
+            log.warning("Different clients with same username!? " +
                         "[c1=" + rc + ", c2=" + client + "].");
         } else {
-            Log.info("Ending session " + client + ".");
+            log.info("Ending session " + client + ".");
         }
 
         // notify the observers that the session is ended
@@ -435,30 +448,26 @@ public class ClientManager
      */
     protected void flushClients ()
     {
-        ArrayList<PresentsClient> victims = null;
+        ArrayList<PresentsClient> victims = new ArrayList<PresentsClient>();
         long now = System.currentTimeMillis();
 
-        // first build a list of our victims (we can't flush clients directly while iterating due
-        // to risk of a ConcurrentModificationException)
-        for (PresentsClient client : _usermap.values()) {
-            if (client.checkExpired(now)) {
-                if (victims == null) {
-                    victims = new ArrayList<PresentsClient>();
+        // first build a list of our victims
+        synchronized (_usermap) {
+            for (PresentsClient client : _usermap.values()) {
+                if (client.checkExpired(now)) {
+                    victims.add(client);
                 }
-                victims.add(client);
             }
         }
 
-        if (victims != null) {
-            for (PresentsClient client : victims) {
-                try {
-                    Log.info("Client expired, ending session [client=" + client +
-                             ", dtime=" + (now-client.getNetworkStamp()) + "ms].");
-                    client.endSession();
-                } catch (Exception e) {
-                    Log.warning("Choke while flushing client [victim=" + client + "].");
-                    Log.logStackTrace(e);
-                }
+        // now end their sessions
+        for (PresentsClient client : victims) {
+            try {
+                log.info("Client expired, ending session [client=" + client +
+                         ", dtime=" + (now-client.getNetworkStamp()) + "ms].");
+                client.endSession();
+            } catch (Exception e) {
+                log.log(Level.WARNING, "Choke while flushing client [victim=" + client + "].", e);
             }
         }
     }
@@ -476,8 +485,8 @@ public class ClientManager
                 _clop.apply(clobj);
 
             } catch (Exception e) {
-                Log.warning("Client op failed [username=" + username + ", clop=" + _clop + "].");
-                Log.logStackTrace(e);
+                log.log(Level.WARNING, "Client op failed [username=" + username +
+                        ", clop=" + _clop + "].", e);
 
             } finally {
                 releaseClientObject(username);

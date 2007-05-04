@@ -30,8 +30,7 @@ import java.util.logging.Logger;
 public class Log
 {
     /** We dispatch our log messages through this logger. */
-    public static Logger log =
-        Logger.getLogger("com.threerings.narya.presents");
+    public static Logger log = Logger.getLogger("com.threerings.narya.presents");
 
     /** Convenience function. */
     public static void debug (String message)
