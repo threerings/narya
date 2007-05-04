@@ -21,10 +21,6 @@
 
 package com.threerings.crowd.data;
 
-import java.io.IOException;
-
-import com.threerings.io.ObjectInputStream;
-import com.threerings.io.ObjectOutputStream;
 import com.threerings.io.SimpleStreamableObject;
 
 /**
@@ -113,22 +109,6 @@ public class TokenRing extends SimpleStreamableObject
     {
         _tokens &= ~token;
     }
-
-    // AUTO-GENERATED: METHODS START
-    // from interface Streamable
-    public void readObject (ObjectInputStream ins)
-        throws IOException, ClassNotFoundException
-    {
-        _tokens = ins.readInt();
-    }
-
-    // from interface Streamable
-    public void writeObject (ObjectOutputStream out)
-        throws IOException
-    {
-        out.writeInt(_tokens);
-    }
-    // AUTO-GENERATED: METHODS END
 
     /** The tokens contained in this ring (composed together bitwise). */
     protected int _tokens;

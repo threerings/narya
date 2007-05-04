@@ -21,10 +21,6 @@
 
 package com.threerings.presents.data;
 
-import java.io.IOException;
-
-import com.threerings.io.ObjectInputStream;
-import com.threerings.io.ObjectOutputStream;
 import com.threerings.io.SimpleStreamableObject;
 
 /**
@@ -74,38 +70,4 @@ public class ConMgrStats extends SimpleStreamableObject
             throw new RuntimeException(cnse);
         }
     }
-
-    // AUTO-GENERATED: METHODS START
-    // from interface Streamable
-    public void readObject (ObjectInputStream ins)
-        throws IOException, ClassNotFoundException
-    {
-        authQueueSize = ins.readInt();
-        deathQueueSize = ins.readInt();
-        outQueueSize = ins.readInt();
-        overQueueSize = ins.readInt();
-        connects = ins.readInt();
-        disconnects = ins.readInt();
-        bytesIn = ins.readLong();
-        bytesOut = ins.readLong();
-        msgsIn = ins.readInt();
-        msgsOut = ins.readInt();
-    }
-
-    // from interface Streamable
-    public void writeObject (ObjectOutputStream out)
-        throws IOException
-    {
-        out.writeInt(authQueueSize);
-        out.writeInt(deathQueueSize);
-        out.writeInt(outQueueSize);
-        out.writeInt(overQueueSize);
-        out.writeInt(connects);
-        out.writeInt(disconnects);
-        out.writeLong(bytesIn);
-        out.writeLong(bytesOut);
-        out.writeInt(msgsIn);
-        out.writeInt(msgsOut);
-    }
-    // AUTO-GENERATED: METHODS END
 }

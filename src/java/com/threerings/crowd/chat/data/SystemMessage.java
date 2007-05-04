@@ -21,11 +21,6 @@
 
 package com.threerings.crowd.chat.data;
 
-import java.io.IOException;
-
-import com.threerings.io.ObjectInputStream;
-import com.threerings.io.ObjectOutputStream;
-
 /**
  * A ChatMessage that represents a message that came from the server and did not result from direct
  * user action.
@@ -58,22 +53,4 @@ public class SystemMessage extends ChatMessage
         super(message, bundle);
         this.attentionLevel = attentionLevel;
     }
-
-    // AUTO-GENERATED: METHODS START
-    // from interface Streamable
-    public void readObject (ObjectInputStream ins)
-        throws IOException, ClassNotFoundException
-    {
-        super.readObject(ins);
-        attentionLevel = ins.readByte();
-    }
-
-    // from interface Streamable
-    public void writeObject (ObjectOutputStream out)
-        throws IOException
-    {
-        super.writeObject(out);
-        out.writeByte(attentionLevel);
-    }
-    // AUTO-GENERATED: METHODS END
 }

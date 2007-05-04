@@ -21,10 +21,6 @@
 
 package com.threerings.crowd.data;
 
-import java.io.IOException;
-
-import com.threerings.io.ObjectInputStream;
-import com.threerings.io.ObjectOutputStream;
 import com.threerings.io.SimpleStreamableObject;
 import com.threerings.util.Name;
 
@@ -107,24 +103,4 @@ public class OccupantInfo extends SimpleStreamableObject
             throw new RuntimeException(cnse);
         }
     }
-
-    // AUTO-GENERATED: METHODS START
-    // from interface Streamable
-    public void readObject (ObjectInputStream ins)
-        throws IOException, ClassNotFoundException
-    {
-        bodyOid = ins.readInt();
-        username = (Name)ins.readObject();
-        status = ins.readByte();
-    }
-
-    // from interface Streamable
-    public void writeObject (ObjectOutputStream out)
-        throws IOException
-    {
-        out.writeInt(bodyOid);
-        out.writeObject(username);
-        out.writeByte(status);
-    }
-    // AUTO-GENERATED: METHODS END
 }

@@ -21,12 +21,8 @@
 
 package com.threerings.presents.data;
 
-import java.io.IOException;
-
 import com.samskivert.util.StringUtil;
 
-import com.threerings.io.ObjectInputStream;
-import com.threerings.io.ObjectOutputStream;
 import com.threerings.io.Streamable;
 
 import com.threerings.presents.Log;
@@ -245,24 +241,6 @@ public class InvocationMarshaller
     {
         return "[invOid=" + _invOid + ", code=" + _invCode + ", type=" + getClass().getName() + "]";
     }
-
-    // AUTO-GENERATED: METHODS START
-    // from interface Streamable
-    public void readObject (ObjectInputStream ins)
-        throws IOException, ClassNotFoundException
-    {
-        _invOid = ins.readInt();
-        _invCode = ins.readInt();
-    }
-
-    // from interface Streamable
-    public void writeObject (ObjectOutputStream out)
-        throws IOException
-    {
-        out.writeInt(_invOid);
-        out.writeInt(_invCode);
-    }
-    // AUTO-GENERATED: METHODS END
 
     /**
      * Called by generated invocation marshaller code; packages up and sends the specified

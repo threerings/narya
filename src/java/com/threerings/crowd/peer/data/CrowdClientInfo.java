@@ -21,10 +21,6 @@
 
 package com.threerings.crowd.peer.data;
 
-import java.io.IOException;
-
-import com.threerings.io.ObjectInputStream;
-import com.threerings.io.ObjectOutputStream;
 import com.threerings.util.Name;
 
 import com.threerings.presents.peer.data.ClientInfo;
@@ -46,20 +42,4 @@ public class CrowdClientInfo extends ClientInfo
         // makes lookups much more efficient
         return visibleName;
     }
-
-    // AUTO-GENERATED: METHODS START
-    // from interface Streamable
-    public void readObject (ObjectInputStream ins)
-        throws IOException, ClassNotFoundException
-    {
-        visibleName = (Name)ins.readObject();
-    }
-
-    // from interface Streamable
-    public void writeObject (ObjectOutputStream out)
-        throws IOException
-    {
-        out.writeObject(visibleName);
-    }
-    // AUTO-GENERATED: METHODS END
 }

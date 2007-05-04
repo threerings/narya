@@ -21,10 +21,6 @@
 
 package com.threerings.presents.peer.data;
 
-import java.io.IOException;
-
-import com.threerings.io.ObjectInputStream;
-import com.threerings.io.ObjectOutputStream;
 import com.threerings.io.SimpleStreamableObject;
 import com.threerings.util.Name;
 
@@ -44,20 +40,4 @@ public class ClientInfo extends SimpleStreamableObject
     {
         return username;
     }
-
-    // AUTO-GENERATED: METHODS START
-    // from interface Streamable
-    public void readObject (ObjectInputStream ins)
-        throws IOException, ClassNotFoundException
-    {
-        username = (Name)ins.readObject();
-    }
-
-    // from interface Streamable
-    public void writeObject (ObjectOutputStream out)
-        throws IOException
-    {
-        out.writeObject(username);
-    }
-    // AUTO-GENERATED: METHODS END
 }

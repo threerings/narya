@@ -21,12 +21,8 @@
 
 package com.threerings.crowd.chat.data;
 
-import java.io.IOException;
-
 import com.samskivert.util.StringUtil;
 
-import com.threerings.io.ObjectInputStream;
-import com.threerings.io.ObjectOutputStream;
 import com.threerings.io.Streamable;
 
 /**
@@ -91,22 +87,4 @@ public abstract class ChatMessage
     {
         return StringUtil.shortClassName(this) + StringUtil.fieldsToString(this);
     }
-
-    // AUTO-GENERATED: METHODS START
-    // from interface Streamable
-    public void readObject (ObjectInputStream ins)
-        throws IOException, ClassNotFoundException
-    {
-        message = ins.readUTF();
-        bundle = ins.readUTF();
-    }
-
-    // from interface Streamable
-    public void writeObject (ObjectOutputStream out)
-        throws IOException
-    {
-        out.writeUTF(message);
-        out.writeUTF(bundle);
-    }
-    // AUTO-GENERATED: METHODS END
 }

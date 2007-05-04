@@ -21,10 +21,6 @@
 
 package com.threerings.crowd.chat.data;
 
-import java.io.IOException;
-
-import com.threerings.io.ObjectInputStream;
-import com.threerings.io.ObjectOutputStream;
 import com.threerings.util.Name;
 
 /**
@@ -57,22 +53,4 @@ public class UserSystemMessage extends SystemMessage
         super(message, bundle, attentionLevel);
         this.speaker = sender;
     }
-
-    // AUTO-GENERATED: METHODS START
-    // from interface Streamable
-    public void readObject (ObjectInputStream ins)
-        throws IOException, ClassNotFoundException
-    {
-        super.readObject(ins);
-        speaker = (Name)ins.readObject();
-    }
-
-    // from interface Streamable
-    public void writeObject (ObjectOutputStream out)
-        throws IOException
-    {
-        super.writeObject(out);
-        out.writeObject(speaker);
-    }
-    // AUTO-GENERATED: METHODS END
 }
