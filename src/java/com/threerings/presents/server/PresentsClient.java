@@ -346,7 +346,7 @@ public class PresentsClient
         }
     }
 
-    // documentation inherited from interface
+    // from interface ClientResolutionListener
     public void clientResolved (Name username, ClientObject clobj)
     {
         // we'll be keeping this bad boy
@@ -360,7 +360,7 @@ public class PresentsClient
         _cmgr.clientSessionDidStart(this);
     }
 
-    // documentation inherited from interface
+    // from interface ClientResolutionListener
     public void resolutionFailed (Name username, Exception reason)
     {
         // urk; nothing to do but complain and get the f**k out of dodge
@@ -371,7 +371,7 @@ public class PresentsClient
         endSession();
     }
 
-    // documentation inherited from interface
+    // from interface MessageHandler
     public void handleMessage (UpstreamMessage message)
     {
         _messagesIn++; // count 'em up!
@@ -403,7 +403,7 @@ public class PresentsClient
         disp.dispatch(this, message);
     }
 
-    // documentation inherited from interface
+    // from interface ProxySubscriber
     public void objectAvailable (DObject object)
     {
         if (postMessage(new ObjectResponse<DObject>(object))) {
@@ -415,13 +415,13 @@ public class PresentsClient
         }
     }
 
-    // documentation inherited from interface
+    // from interface ProxySubscriber
     public void requestFailed (int oid, ObjectAccessException cause)
     {
         postMessage(new FailureResponse(oid));
     }
 
-    // documentation inherited from interface
+    // from interface ProxySubscriber
     public void eventReceived (DEvent event)
     {
         if (event instanceof PresentsDObjectMgr.AccessObjectEvent) {
