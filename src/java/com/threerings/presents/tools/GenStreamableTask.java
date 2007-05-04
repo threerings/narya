@@ -149,19 +149,34 @@ public class GenStreamableTask extends Task
         readbuf.append(READ_CLOSE);
         writebuf.append(WRITE_CLOSE);
 
-        System.err.println("Converting " + sclass.getName() + "...");
-
         SourceFile sfile = new SourceFile();
         try {
             sfile.readFrom(source);
-            // don't overwrite an existing readObject() or writeObject()
-            String readsec =
-                sfile.containsString("public void readObject") ? "" : readbuf.toString();
-            String writesec =
-                sfile.containsString("public void writeObject") ? "" : writebuf.toString();
-            sfile.writeTo(source, readsec, writesec);
         } catch (IOException ioe) {
-            System.err.println("Error processing " + source + ": " + ioe);
+            System.err.println("Error reading " + source + ": " + ioe);
+        }
+
+        // don't overwrite an existing readObject() or writeObject()
+        StringBuffer methods = new StringBuffer();
+        if (!sfile.containsString("public void readObject")) {
+            methods.append(readbuf);
+        }
+        if (!sfile.containsString("public void writeObject")) {
+            if (methods.length() > 0) {
+                methods.append("\n");
+            }
+            methods.append(writebuf);
+        }
+        if (methods.length() == 0) {
+            return; // nothing to do
+        }
+
+        System.err.println("Converting " + sclass.getName() + "...");
+
+        try {
+            sfile.writeTo(source, null, methods.toString());
+        } catch (IOException ioe) {
+            System.err.println("Error writing " + source + ": " + ioe);
         }
     }
 
