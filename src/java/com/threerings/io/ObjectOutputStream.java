@@ -27,8 +27,8 @@ import java.io.IOException;
 import java.util.HashMap;
 
 /**
- * Used to write {@link Streamable} objects to an {@link OutputStream}.
- * Other common object types are supported as well:
+ * Used to write {@link Streamable} objects to an {@link OutputStream}.  Other common object types
+ * are supported as well:
  *
  * <pre>
  * Boolean
@@ -55,8 +55,7 @@ import java.util.HashMap;
 public class ObjectOutputStream extends DataOutputStream
 {
     /**
-     * Constructs an object output stream which will write its data to the
-     * supplied target stream.
+     * Constructs an object output stream which will write its data to the supplied target stream.
      */
     public ObjectOutputStream (OutputStream target)
     {
@@ -64,8 +63,7 @@ public class ObjectOutputStream extends DataOutputStream
     }
 
     /**
-     * Configures this object output stream with a mapping from a classname
-     * to a streamed name.
+     * Configures this object output stream with a mapping from a classname to a streamed name.
      */
     public void addTranslation (String className, String streamedName)
     {
@@ -76,8 +74,8 @@ public class ObjectOutputStream extends DataOutputStream
     }
 
     /**
-     * Writes a {@link Streamable} instance or one of the support object
-     * types to the output stream.
+     * Writes a {@link Streamable} instance or one of the support object types to the output
+     * stream.
      */
     public void writeObject (Object object)
         throws IOException
@@ -101,21 +99,18 @@ public class ObjectOutputStream extends DataOutputStream
         if (cmap == null) {
             // create a streamer instance and assign a code to this class
             Streamer streamer = Streamer.getStreamer(sclass);
-            // we specifically do not inline the getStreamer() call
-            // into the ClassMapping constructor because we want to be
-            // sure not to call _nextCode++ if getStreamer() throws an
-            // exception
+            // we specifically do not inline the getStreamer() call into the ClassMapping
+            // constructor because we want to be sure not to call _nextCode++ if getStreamer()
+            // throws an exception
             cmap = new ClassMapping(_nextCode++, sclass, streamer);
             _classmap.put(sclass, cmap);
 
             // make sure we didn't blow past our maximum class count
             if (_nextCode <= 0) {
-                throw new RuntimeException("Too many unique classes " +
-                                           "written to ObjectOutputStream");
+                throw new RuntimeException("Too many unique classes written to ObjectOutputStream");
             }
 
-            // writing a negative class code indicates that the class
-            // name will follow
+            // writing a negative class code indicates that the class name will follow
             writeShort(-cmap.code);
             String cname = sclass.getName();
             if (_translations != null) {
@@ -134,34 +129,29 @@ public class ObjectOutputStream extends DataOutputStream
     }
 
     /**
-     * Writes a {@link Streamable} instance or one of the support object
-     * types <em>without associated class metadata</em> to the output
-     * stream. The caller is responsible for knowing the exact class of
-     * the written object, creating an instance of such and calling {@link
+     * Writes a {@link Streamable} instance or one of the support object types <em>without
+     * associated class metadata</em> to the output stream. The caller is responsible for knowing
+     * the exact class of the written object, creating an instance of such and calling {@link
      * ObjectInputStream#readBareObject} to read its data from the stream.
      *
-     * @param object the object to be written. It cannot be
-     * <code>null</code>.
+     * @param object the object to be written. It cannot be <code>null</code>.
      */
     public void writeBareObject (Object object)
         throws IOException
     {
-        writeBareObject(object, Streamer.getStreamer(
-                            Streamer.getStreamerClass(object)), true);
+        writeBareObject(object, Streamer.getStreamer(Streamer.getStreamerClass(object)), true);
     }
 
     /**
      * Write a {@link Streamable} instance without associated class metadata.
      */
-    protected void writeBareObject (
-            Object obj, Streamer streamer, boolean useWriter)
+    protected void writeBareObject (Object obj, Streamer streamer, boolean useWriter)
         throws IOException
     {
         _current = obj;
         _streamer = streamer;
         try {
             _streamer.writeObject(obj, this, useWriter);
-
         } finally {
             _current = null;
             _streamer = null;
@@ -169,29 +159,26 @@ public class ObjectOutputStream extends DataOutputStream
     }
 
     /**
-     * Uses the default streamable mechanism to write the contents of the
-     * object currently being streamed. This can only be called from
-     * within a <code>writeObject</code> implementation in a {@link
-     * Streamable} object.
+     * Uses the default streamable mechanism to write the contents of the object currently being
+     * streamed. This can only be called from within a <code>writeObject</code> implementation in a
+     * {@link Streamable} object.
      */
     public void defaultWriteObject ()
         throws IOException
     {
         // sanity check
         if (_current == null) {
-            throw new RuntimeException(
-                "defaultWriteObject() called illegally.");
+            throw new RuntimeException("defaultWriteObject() called illegally.");
         }
 
-//         log.info("Writing default [cmap=" + _streamer +
-//                  ", current=" + _current + "].");
+//         log.info("Writing default [cmap=" + _streamer + ", current=" + _current + "].");
 
         // write the instance data
         _streamer.writeObject(_current, this, false);
     }
 
-    /** Used to map classes to numeric codes and the {@link Streamer}
-     * instance used to write them. */
+    /** Used to map classes to numeric codes and the {@link Streamer} instance used to write
+     * them. */
     protected HashMap<Class,ClassMapping> _classmap;
 
     /** A counter used to assign codes to streamed classes. */
@@ -203,7 +190,6 @@ public class ObjectOutputStream extends DataOutputStream
     /** The streamer being used currently. */
     protected Streamer _streamer;
 
-    /** An optional set of class name translations to use when serializing
-     * objects. */
+    /** An optional set of class name translations to use when serializing objects. */
     protected HashMap<String,String> _translations;
 }

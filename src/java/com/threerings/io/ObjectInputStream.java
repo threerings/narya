@@ -34,17 +34,15 @@ import com.samskivert.util.StringUtil;
 import static com.threerings.NaryaLog.log;
 
 /**
- * Used to read {@link Streamable} objects from an {@link InputStream}.
- * Other common object types are supported as well (@see {@link
- * ObjectOutputStream}).
+ * Used to read {@link Streamable} objects from an {@link InputStream}.  Other common object types
+ * are supported as well (@see {@link ObjectOutputStream}).
  *
  * @see Streamable
  */
 public class ObjectInputStream extends DataInputStream
 {
     /**
-     * Constructs an object input stream which will read its data from the
-     * supplied source stream.
+     * Constructs an object input stream which will read its data from the supplied source stream.
      */
     public ObjectInputStream (InputStream source)
     {
@@ -52,8 +50,7 @@ public class ObjectInputStream extends DataInputStream
     }
 
     /**
-     * Customizes the class loader used to instnatiate objects read from
-     * the input stream.
+     * Customizes the class loader used to instnatiate objects read from the input stream.
      */
     public void setClassLoader (ClassLoader loader)
     {
@@ -61,9 +58,9 @@ public class ObjectInputStream extends DataInputStream
     }
 
     /**
-     * Configures this object input stream with a mapping from an old
-     * class name to a new one. Serialized instances of the old class name
-     * will use the new class name when unserializing.
+     * Configures this object input stream with a mapping from an old class name to a new
+     * one. Serialized instances of the old class name will use the new class name when
+     * unserializing.
      */
     public void addTranslation (String oldname, String newname)
     {
@@ -74,8 +71,8 @@ public class ObjectInputStream extends DataInputStream
     }
 
     /**
-     * Reads a {@link Streamable} instance or one of the supported object
-     * types from the input stream.
+     * Reads a {@link Streamable} instance or one of the supported object types from the input
+     * stream.
      */
     public Object readObject ()
         throws IOException, ClassNotFoundException
@@ -100,16 +97,16 @@ public class ObjectInputStream extends DataInputStream
                 }
                 return null;
 
-            // if the code is negative, that means that we've never
-            // seen it before and class metadata follows
+            // if the code is negative, that means that we've never seen it before and class
+            // metadata follows
             } else if (code < 0) {
                 // first swap the code into positive-land
                 code *= -1;
 
                 // read in the class metadata
                 String cname = readUTF();
-                // if we have a translation (used to cope when serialized
-                // classes are renamed) use it
+                // if we have a translation (used to cope when serialized classes are renamed) use
+                // it
                 if (_translations != null) {
                     String tname = _translations.get(cname);
                     if (tname != null) {
@@ -126,9 +123,8 @@ public class ObjectInputStream extends DataInputStream
 
                 // sanity check
                 if (streamer == null) {
-                    String errmsg = "Aiya! Unable to create streamer for " +
-                        "newly seen class [code=" + code +
-                        ", class=" + cname + "]";
+                    String errmsg = "Aiya! Unable to create streamer for newly seen class " +
+                        "[code=" + code + ", class=" + cname + "]";
                     throw new RuntimeException(errmsg);
                 }
 
@@ -146,8 +142,8 @@ public class ObjectInputStream extends DataInputStream
                     Thread.dumpStack();
                     log.warning(
                         "ObjectInputStream mappings " + StringUtil.toString(_classmap) + ".");
-                    String errmsg = "Read object code for which we " +
-                        "have no registered class metadata [code=" + code + "]";
+                    String errmsg = "Read object code for which we have no registered class " +
+                        "metadata [code=" + code + "]";
                     throw new RuntimeException(errmsg);
                 }
             }
@@ -167,11 +163,11 @@ public class ObjectInputStream extends DataInputStream
     }
 
     /**
-     * Reads an object from the input stream that was previously written
-     * with {@link ObjectOutputStream#writeBareObject}.
+     * Reads an object from the input stream that was previously written with {@link
+     * ObjectOutputStream#writeBareObject}.
      *
-     * @param object the object to be populated from data on the stream.
-     * It cannot be <code>null</code>.
+     * @param object the object to be populated from data on the stream.  It cannot be
+     * <code>null</code>.
      */
     public void readBareObject (Object object)
         throws IOException, ClassNotFoundException
@@ -180,18 +176,16 @@ public class ObjectInputStream extends DataInputStream
     }
 
     /**
-     * Reads an object from the input stream that was previously written
-     * with {@link ObjectOutputStream#writeBareObject}.
+     * Reads an object from the input stream that was previously written with {@link
+     * ObjectOutputStream#writeBareObject}.
      */
-    protected void readBareObject (
-            Object object, Streamer streamer, boolean useReader)
+    protected void readBareObject (Object object, Streamer streamer, boolean useReader)
         throws IOException, ClassNotFoundException
     {
         _current = object;
         _streamer = streamer;
         try {
             _streamer.readObject(object, this, useReader);
-
         } finally {
             // clear out our current object references
             _current = null;
@@ -200,18 +194,16 @@ public class ObjectInputStream extends DataInputStream
     }
 
     /**
-     * Reads the fields of the specified {@link Streamable} instance from
-     * the input stream using the default object streaming mechanisms (a
-     * call is not made to <code>readObject()</code>, even if such a
-     * method exists).
+     * Reads the fields of the specified {@link Streamable} instance from the input stream using
+     * the default object streaming mechanisms (a call is not made to <code>readObject()</code>,
+     * even if such a method exists).
      */
     public void defaultReadObject ()
         throws IOException, ClassNotFoundException
     {
         // sanity check
         if (_current == null) {
-            throw new RuntimeException(
-                "defaultReadObject() called illegally.");
+            throw new RuntimeException("defaultReadObject() called illegally.");
         }
 
         // read the instance data
@@ -224,12 +216,11 @@ public class ObjectInputStream extends DataInputStream
     public String toString ()
     {
         return "[hash=" + hashCode() + ", mappings=" + _classmap.size() +
-            ", current=" + StringUtil.safeToString(_current) +
-            ", streamer=" + _streamer + "]";
+            ", current=" + StringUtil.safeToString(_current) + ", streamer=" + _streamer + "]";
     }
 
-    /** Used to map classes to numeric codes and the {@link Streamer}
-     * instance used to write them. */
+    /** Used to map classes to numeric codes and the {@link Streamer} instance used to write
+     * them. */
     protected ArrayList<ClassMapping> _classmap;
 
     /** The object currently being read from the stream. */
@@ -241,8 +232,7 @@ public class ObjectInputStream extends DataInputStream
     /** The class loader we use to instantiate objects. */
     protected ClassLoader _loader = getClass().getClassLoader();
 
-    /** An optional set of class name translations to use when
-     * unserializing objects. */
+    /** An optional set of class name translations to use when unserializing objects. */
     protected HashMap<String,String> _translations;
 
     /** Used to activate verbose debug logging. */
