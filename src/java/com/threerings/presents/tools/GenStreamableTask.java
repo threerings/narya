@@ -34,6 +34,7 @@ import org.apache.tools.ant.DirectoryScanner;
 import org.apache.tools.ant.Task;
 import org.apache.tools.ant.types.FileSet;
 
+import com.threerings.io.SimpleStreamableObject;
 import com.threerings.io.Streamable;
 
 import com.threerings.presents.data.InvocationMarshaller;
@@ -119,7 +120,7 @@ public class GenStreamableTask extends Task
         // see if our parent also implements Streamable
         Class supster = sclass.getSuperclass();
         do {
-            if (isStreamable(supster)) {
+            if (isStreamableClass(supster)) {
                 readbuf.append("        super.readObject(ins);\n");
                 writebuf.append("        super.writeObject(out);\n");
                 break;
@@ -180,11 +181,11 @@ public class GenStreamableTask extends Task
         }
     }
 
-    protected boolean isStreamable (Class clazz)
+    protected boolean isStreamableClass (Class clazz)
     {
         for (Class iface : clazz.getInterfaces()) {
             if (Streamable.class.equals(iface)) {
-                return true;
+                return !SimpleStreamableObject.class.equals(clazz);
             }
         }
         return false;
