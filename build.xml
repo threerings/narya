@@ -106,16 +106,6 @@
     </genscript>
   </target>
 
-  <!-- checks the availability of certain libraries -->
-  <target name="check-available" depends="prepare">
-    <available property="javassist.present"
-     classname="javassist.ClassPool" classpathref="classpath"/>
-    <echo message="Have Javassist: ${javassist.present}"/>
-    <condition property="build.instrument">
-      <isset property="javassist.present"/>
-    </condition>
-  </target>
-
   <!-- prepares the application directories -->
   <target name="prepare">
     <mkdir dir="${deploy.dir}"/>
@@ -145,11 +135,10 @@
   </target>
 
   <!-- build the java class files -->
-  <target name="compile" depends="prepare,check-available">
+  <target name="compile" depends="prepare">
     <javac srcdir="src/java" destdir="${classes.dir}" includeAntRuntime="false"
            debug="on" optimize="{$build.optimize}" deprecation="on"
            source="1.5" target="1.5">
-      <exclude name="**/InstrumentStreamableTask*" unless="build.instrument"/>
       <classpath refid="classpath"/>
       <compilerarg value="-Xlint"/>
       <compilerarg value="-Xlint:-serial"/>
@@ -195,8 +184,7 @@
   </target>
 
   <!-- a target for rebuilding everything -->
-  <target name="all"
-          depends="clean,prepare,compile,ncompile,javadoc,tests,dist"/>
+  <target name="all" depends="clean,prepare,compile,ncompile,javadoc,tests,dist"/>
 
   <!-- builds our distribution files (war and jar) -->
   <target name="dist" depends="prepare,compile,procstream,ncompile,tests">
