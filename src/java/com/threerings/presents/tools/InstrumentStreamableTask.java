@@ -45,6 +45,7 @@ import org.apache.tools.ant.types.FileSet;
 import org.apache.tools.ant.types.Path;
 
 import com.samskivert.io.StreamUtil;
+import com.threerings.io.FieldMarshaller;
 import com.threerings.io.Streamable;
 
 /**
@@ -154,8 +155,6 @@ public class InstrumentStreamableTask extends Task
     protected void processStreamable (File source, CtClass clazz)
         throws NotFoundException
     {
-        // System.err.println("Processing " + clazz.getName() + "...");
-
         ArrayList<CtField> fields = new ArrayList<CtField>();
         for (CtField field : clazz.getDeclaredFields()) {
             int modifiers = field.getModifiers();
@@ -173,13 +172,13 @@ public class InstrumentStreamableTask extends Task
 
         int added = 0;
         for (CtField field : fields) {
-            String rname = "readField_" + field.getName();
+            String rname = FieldMarshaller.getReaderMethodName(field.getName());
             if (!methods.contains(rname)) {
                 String reader =
                     "public void " + rname + " (com.threerings.io.ObjectInputStream ins) {\n" +
                     "    " + field.getName() + " = " + getFieldReader(field) + ";\n" +
                     "}";
-                // System.err.println("Adding reader " + clazz.getName() + "." + rname);
+                // System.out.println("Adding reader " + clazz.getName() + "." + rname);
                 try {
                     clazz.addMethod(CtNewMethod.make(reader, clazz));
                     added++;
@@ -189,9 +188,10 @@ public class InstrumentStreamableTask extends Task
                     System.err.println(reader);
                 }
             }
-            String wname = "writeField_" + field.getName();
+
+            String wname = FieldMarshaller.getWriterMethodName(field.getName());
             if (!methods.contains(wname)) {
-                // System.err.println("Adding writer " + clazz.getName() + "." + wname);
+                // System.out.println("Adding writer " + clazz.getName() + "." + wname);
                 String writer =
                     "public void " + wname + " (com.threerings.io.ObjectOutputStream out) {\n" +
                     "    out." + getFieldWriter(field) + ";\n" +
@@ -209,6 +209,7 @@ public class InstrumentStreamableTask extends Task
 
         if (added > 0) {
             try {
+                System.out.println("Instrumented '" + clazz.getName() + "'.");
                 clazz.writeFile(_outdir.getPath());
             } catch (Exception e) {
                 System.err.println("Failed to write instrumented class [class=" + clazz +

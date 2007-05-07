@@ -22,8 +22,12 @@
 package com.threerings.io;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+
 import java.util.Date;
 import java.util.HashMap;
+
+import static com.threerings.NaryaLog.log;
 
 /**
  * Used to read and write a single field of a {@link Streamable} instance.
@@ -53,6 +57,25 @@ public abstract class FieldMarshaller
             createMarshallers();
         }
 
+        // first look to see if this field has custom reader/writer methods
+        Method reader = null, writer = null;
+        try {
+            reader = field.getDeclaringClass().getMethod(
+                getReaderMethodName(field.getName()), READER_ARGS);
+            writer = field.getDeclaringClass().getMethod(
+                getWriterMethodName(field.getName()), WRITER_ARGS);
+            return new MethodFieldMarshaller(reader, writer);
+        } catch (NoSuchMethodException nsme) {
+            // no problem
+        }
+        if ((reader != null || writer != null) && (reader == null || writer == null)) {
+            log.warning("Class contains one but not both custom field reader and writer " +
+                        "[class=" + field.getDeclaringClass().getName() +
+                        ", field=" + field.getName() + ", reader=" + reader +
+                        ", writer=" + writer + "].");
+            // fall through to using reflection on the fields...
+        }
+
         Class ftype = field.getType();
         if (ftype.isInterface()) {
             // if the class is a pure interface, use Object.
@@ -68,6 +91,24 @@ public abstract class FieldMarshaller
         }
 
         return fm;
+    }
+
+    /**
+     * Returns the name of the custom reader method which will be used if it exists to stream a
+     * field with the supplied name.
+     */
+    public static final String getReaderMethodName (String field)
+    {
+        return "readField_" + field;
+    }
+
+    /**
+     * Returns the name of the custom writer method which will be used if it exists to stream a
+     * field with the supplied name.
+     */
+    public static final String getWriterMethodName (String field)
+    {
+        return "writeField_" + field;
     }
 
     /**
@@ -108,6 +149,34 @@ public abstract class FieldMarshaller
 
         /** The streamer we use to read and write our field. */
         protected Streamer _streamer;
+    }
+
+    /**
+     * Uses custom reader and writer methods to read and write a field.
+     */
+    protected static class MethodFieldMarshaller extends FieldMarshaller
+    {
+        public MethodFieldMarshaller (Method reader, Method writer)
+        {
+            _reader = reader;
+            _writer = writer;
+        }
+
+        // documentation inherited
+        public void readField (Field field, Object target, ObjectInputStream in)
+            throws Exception
+        {
+            _reader.invoke(target, in);
+        }
+
+        // documentation inherited
+        public void writeField (Field field, Object source, ObjectOutputStream out)
+            throws Exception
+        {
+            _writer.invoke(source, out);
+        }
+
+        protected Method _reader, _writer;
     }
 
     /**
@@ -240,4 +309,10 @@ public abstract class FieldMarshaller
 
     /** Contains a mapping from field type to field marshaller instance for that type. */
     protected static HashMap<Class,FieldMarshaller> _marshallers;
+
+    /** Defines the signature to a custom field reader method. */
+    protected static final Class[] READER_ARGS = { ObjectInputStream.class };
+
+    /** Defines the signature to a custom field writer method. */
+    protected static final Class[] WRITER_ARGS = { ObjectOutputStream.class };
 }
