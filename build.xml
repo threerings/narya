@@ -88,9 +88,12 @@
   <!-- generates readObject()/writeObject() for Stremable classes -->
   <target name="genstream">
     <taskdef name="genstream" classpathref="classpath"
-             classname="com.threerings.presents.tools.GenStreamableTask"/>
+             classname="com.threerings.presents.tools.InstrumentStreamableTask"/>
     <!-- now generate the associated files -->
-    <genstream><fileset dir="src/java" includes="**/data/*.java"/></genstream>
+    <genstream outdir="${classes.dir}">
+      <path refid="classpath"/>
+      <fileset dir="${classes.dir}" includes="**/data/*.class"/>
+    </genstream>
   </target>
 
   <!-- generates ActionScript versions of our Streamable classes -->
