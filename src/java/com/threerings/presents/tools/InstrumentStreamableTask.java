@@ -239,7 +239,7 @@ public class InstrumentStreamableTask extends Task
         } else if (type.equals(CtClass.doubleType) || type.getName().equals("java.lang.Double")) {
             return "ins.readDouble()";
         } else {
-            return "(" + type.getSimpleName() + ")ins.readObject()";
+            return "(" + type.getName() + ")ins.readObject()";
         }
     }
 
