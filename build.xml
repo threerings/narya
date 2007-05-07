@@ -85,15 +85,15 @@
     </receiver>
   </target>
 
-  <!-- generates readObject()/writeObject() for Stremable classes -->
-  <target name="genstream">
-    <taskdef name="genstream" classpathref="classpath"
+  <!-- adds readField and writeField methods to Stremable classes -->
+  <target name="procstream">
+    <taskdef name="instream" classpathref="classpath"
              classname="com.threerings.presents.tools.InstrumentStreamableTask"/>
-    <!-- now generate the associated files -->
-    <genstream outdir="${classes.dir}">
+    <!-- now instrument the associated files -->
+    <instream outdir="${classes.dir}">
       <path refid="classpath"/>
       <fileset dir="${classes.dir}" includes="**/data/*.class"/>
-    </genstream>
+    </instream>
   </target>
 
   <!-- generates ActionScript versions of our Streamable classes -->
@@ -104,6 +104,16 @@
     <genscript header="lib/SOURCE_HEADER" asroot="src/as">
       <fileset dir="src/java" includes="**/data/*.java"/>
     </genscript>
+  </target>
+
+  <!-- checks the availability of certain libraries -->
+  <target name="check-available" depends="prepare">
+    <available property="javassist.present"
+     classname="javassist.ClassPool" classpathref="classpath"/>
+    <echo message="Have Javassist: ${javassist.present}"/>
+    <condition property="build.instrument">
+      <isset property="javassist.present"/>
+    </condition>
   </target>
 
   <!-- prepares the application directories -->
@@ -135,10 +145,11 @@
   </target>
 
   <!-- build the java class files -->
-  <target name="compile" depends="prepare">
+  <target name="compile" depends="prepare,check-available">
     <javac srcdir="src/java" destdir="${classes.dir}" includeAntRuntime="false"
            debug="on" optimize="{$build.optimize}" deprecation="on"
            source="1.5" target="1.5">
+      <exclude name="**/InstrumentStreamableTask*" unless="build.instrument"/>
       <classpath refid="classpath"/>
       <compilerarg value="-Xlint"/>
       <compilerarg value="-Xlint:-serial"/>
@@ -188,7 +199,7 @@
           depends="clean,prepare,compile,ncompile,javadoc,tests,dist"/>
 
   <!-- builds our distribution files (war and jar) -->
-  <target name="dist" depends="prepare,compile,ncompile,tests">
+  <target name="dist" depends="prepare,compile,procstream,ncompile,tests">
     <!-- build our various jar files -->
     <jar destfile="${deploy.dir}/${app.name}-base.jar">
       <fileset dir="${classes.dir}" includes="com/threerings/NaryaLog**"/>
