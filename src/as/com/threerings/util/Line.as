@@ -42,9 +42,25 @@ public class Line implements Equalable
         this.stop = stop;
     }
 
+    /**
+     * Get the length of this line.
+     */
+    public function getLength () :Number
+    {
+        return Point.distance(start, stop);
+    }
+
     public function isIntersected (line :Line) :Boolean 
     {
         return getIntersectionType(line) != DOES_NOT_INTERSECT;
+    }
+
+    /**
+     * Return the point at which the other line intersects us.
+     */
+    public function getIntersectionPoint (line :Line) :Point
+    {
+        return getIntersection(line, true) as Point;
     }
 
     /**
@@ -58,6 +74,28 @@ public class Line implements Equalable
      */
     public function getIntersectionType (line :Line) :int 
     {
+        return getIntersection(line, false) as int;
+    }
+
+    // from interface Equalable
+    public function equals (o :Object) :Boolean
+    {
+        var other :Line = o as Line; // or null if not a line
+        if (other == null) {
+            return false;
+        }
+
+        // both end points must be the same, in the same order
+        return start.equals(other.start) && stop.equals(other.stop);
+    }
+
+    /**
+     * Internal method that calculates whether the other line intersects
+     * and returns either the intersected point or merely the intersection
+     * type.
+     */
+    protected function getIntersection (line :Line, returnPoint :Boolean) :*
+    {
         // rotate so that this line is horizontal, with the start on the left, at (0, 0)
         var trans :Matrix = new Matrix();
         trans.translate(-start.x, -start.y);
@@ -65,50 +103,33 @@ public class Line implements Equalable
         var thisLineStop :Point = trans.transformPoint(stop);
         var thatLineStart :Point = trans.transformPoint(line.start);
         var thatLineStop :Point = trans.transformPoint(line.stop);
+        var interp :Point;
+        var type :int;
+
         if (thatLineStart.y >= 0 && thatLineStop.y <= 0) {
-            var interp :Point = Point.interpolate(thatLineStart, thatLineStop, thatLineStop.y / 
+            interp = Point.interpolate(thatLineStart, thatLineStop, thatLineStop.y / 
                 (thatLineStop.y + (-thatLineStart.y)));
-            if (interp.x >= 0 && interp.x <= thisLineStop.x) {
-                return INTERSECTION_NORTH;
-            } else {
-                return DOES_NOT_INTERSECT;
-            }
+            type = INTERSECTION_NORTH;
+
         } else if (thatLineStart.y <= 0 && thatLineStop.y >= 0) {
             interp = Point.interpolate(thatLineStop, thatLineStart, thatLineStart.y / 
                 (thatLineStart.y + (-thatLineStop.y)));
-            if (interp.x >= 0 && interp.x <= thisLineStop.x) {
-                return INTERSECTION_SOUTH;
+            type = INTERSECTION_SOUTH;
+        }
+
+        // see if we have a potential hit...
+        if (interp != null && interp.x >= 0 && interp.x <= thisLineStop.x) {
+            if (returnPoint) {
+                // transform the intersection point back into "real" coordinates
+                trans.invert();
+                return trans.transformPoint(interp);
+
             } else {
-                return DOES_NOT_INTERSECT;
-            }
-        } else {
-            return DOES_NOT_INTERSECT;
-        }
-    }
-
-    // from interface Equalable
-    public function equals (o :Object) :Boolean
-    {
-        var other :Line = o as Line;
-        if (other == null) {
-            return false;
-        }
-
-        if (start == null || other.start == null) {
-            if (start != other.start) {
-                // not both null
-                return false;
-            }
-        }
-        if (stop == null || other.stop == null) {
-            if (stop != other.stop) {
-                // not both null
-                return false;
+                return type
             }
         }
 
-        return (start == null || start.equals(other.start)) && 
-               (stop == null || stop.equals(other.stop));
+        return returnPoint ? null : DOES_NOT_INTERSECT;
     }
 }
 }
