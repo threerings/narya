@@ -254,7 +254,8 @@ public class InstrumentStreamableTask extends Task
             }
         }
 
-        return readWrap(field, name + " = (" + type.getName() + ")ins.readObject();");
+        // no need to wrap streamable instances
+        return (name + " = (" + type.getName() + ")ins.readObject();");
     }
 
     protected String getFieldWriter (CtField field)
@@ -302,7 +303,8 @@ public class InstrumentStreamableTask extends Task
             }
         }
 
-        return writeWrap(field, "out.writeObject(" + name + ");");
+        // no need to wrap streamable instances
+        return "out.writeObject(" + name + ");";
     }
 
     protected String readWrap (CtField field, String body)
