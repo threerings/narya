@@ -27,7 +27,7 @@ import flash.geom.Matrix;
 /**
  * Merely a typed container for two Points.
  */
-public class Line
+public class Line implements Equalable
 {
     public static const INTERSECTION_NORTH :int = 1;
     public static const INTERSECTION_SOUTH :int = 2;
@@ -84,6 +84,31 @@ public class Line
         } else {
             return DOES_NOT_INTERSECT;
         }
+    }
+
+    // from interface Equalable
+    public function equals (o :Object) :Boolean
+    {
+        var other :Line = o as Line;
+        if (other == null) {
+            return false;
+        }
+
+        if (start == null || other.start == null) {
+            if (start != other.start) {
+                // not both null
+                return false;
+            }
+        }
+        if (stop == null || other.stop == null) {
+            if (stop != other.stop) {
+                // not both null
+                return false;
+            }
+        }
+
+        return (start == null || start.equals(other.start)) && 
+               (stop == null || stop.equals(other.stop));
     }
 }
 }
