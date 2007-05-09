@@ -45,6 +45,7 @@ import org.apache.tools.ant.types.FileSet;
 import org.apache.tools.ant.types.Path;
 
 import com.samskivert.io.StreamUtil;
+import com.threerings.io.BasicStreamers;
 import com.threerings.io.FieldMarshaller;
 import com.threerings.io.Streamable;
 
@@ -94,6 +95,13 @@ public class InstrumentStreamableTask extends Task
             }
         }
 
+        // instantiate streamable
+        try {
+            _streamable = _pool.get(Streamable.class.getName());
+        } catch (Exception e) {
+            throw new BuildException("Unable to load " + Streamable.class.getName() + ": " + e);
+        }
+
         // now process the files
         for (FileSet fs : _filesets) {
             DirectoryScanner ds = fs.getDirectoryScanner(getProject());
@@ -122,31 +130,13 @@ public class InstrumentStreamableTask extends Task
         }
 
         try {
-            if (isStreamable(clazz)) {
+            if (clazz.subtypeOf(_streamable)) {
                 processStreamable(source, clazz);
             }
         } catch (NotFoundException nfe) {
             System.err.println("Error processing class [class=" + clazz.getName() +
                                ", error=" + nfe + "].");
         }
-    }
-
-    /**
-     * Returns true if the supplied class or any of its parents implements {@link Streamable}.
-     */
-    protected boolean isStreamable (CtClass clazz)
-        throws NotFoundException
-    {
-        if (clazz == null) {
-            return false;
-        }
-
-        for (CtClass iface : clazz.getInterfaces()) {
-            if (iface.getName().equals(Streamable.class.getName())) {
-                return true;
-            }
-        }
-        return isStreamable(clazz.getSuperclass());
     }
 
     /**
@@ -176,9 +166,10 @@ public class InstrumentStreamableTask extends Task
             if (!methods.contains(rname)) {
                 String reader =
                     "public void " + rname + " (com.threerings.io.ObjectInputStream ins) {\n" +
-                    "    " + field.getName() + " = " + getFieldReader(field) + ";\n" +
+                    // "    throws java.io.IOException, java.lang.ClassNotFoundException\n" +
+                    "    " + getFieldReader(field) + "\n" +
                     "}";
-                // System.out.println("Adding reader " + clazz.getName() + "." + rname);
+                // System.out.println("Adding reader " + clazz.getName() + ":\n" + reader);
                 try {
                     clazz.addMethod(CtNewMethod.make(reader, clazz));
                     added++;
@@ -191,11 +182,12 @@ public class InstrumentStreamableTask extends Task
 
             String wname = FieldMarshaller.getWriterMethodName(field.getName());
             if (!methods.contains(wname)) {
-                // System.out.println("Adding writer " + clazz.getName() + "." + wname);
                 String writer =
                     "public void " + wname + " (com.threerings.io.ObjectOutputStream out) {\n" +
-                    "    out." + getFieldWriter(field) + ";\n" +
+                    // "    throws java.io.IOException\n" +
+                    "    " + getFieldWriter(field) + "\n" +
                     "}";
+                // System.out.println("Adding writer " + clazz.getName() + ":\n" + writer);
                 try {
                     clazz.addMethod(CtNewMethod.make(writer, clazz));
                     added++;
@@ -222,25 +214,47 @@ public class InstrumentStreamableTask extends Task
         throws NotFoundException
     {
         CtClass type = field.getType();
+        String name = field.getName();
         if (type.getName().equals("java.lang.String")) {
-            return "ins.readUTF()";
+            return readWrap(field, name + " = ins.readUTF();");
         } else if (type.equals(CtClass.booleanType) || type.getName().equals("java.lang.Boolean")) {
-            return "ins.readBoolean()";
+            return readWrap(field, name + " = ins.readBoolean();");
         } else if (type.equals(CtClass.byteType) || type.getName().equals("java.lang.Byte")) {
-            return "ins.readByte()";
+            return readWrap(field, name + " = ins.readByte();");
         } else if (type.equals(CtClass.shortType) || type.getName().equals("java.lang.Short")) {
-            return "ins.readShort()";
+            return readWrap(field, name + " = ins.readShort();");
         } else if (type.equals(CtClass.intType) || type.getName().equals("java.lang.Integer")) {
-            return "ins.readInt()";
+            return readWrap(field, name + " = ins.readInt();");
         } else if (type.equals(CtClass.longType) || type.getName().equals("java.lang.Long")) {
-            return "ins.readLong()";
+            return readWrap(field, name + " = ins.readLong();");
         } else if (type.equals(CtClass.floatType) || type.getName().equals("java.lang.Float")) {
-            return "ins.readFloat()";
+            return readWrap(field, name + " = ins.readFloat();");
         } else if (type.equals(CtClass.doubleType) || type.getName().equals("java.lang.Double")) {
-            return "ins.readDouble()";
-        } else {
-            return "(" + type.getName() + ")ins.readObject()";
+            return readWrap(field, name + " = ins.readDouble();");
         }
+
+        if (type.isArray()) {
+            CtClass ctype = type.getComponentType();
+            if (ctype.equals(CtClass.booleanType)) {
+                return readWrap(field, name + " = " + BSNAME + ".readBooleanArray(ins);");
+            } else if (ctype.equals(CtClass.byteType)) {
+                return readWrap(field, name + " = " + BSNAME + ".readByteArray(ins);");
+            } else if (ctype.equals(CtClass.shortType)) {
+                return readWrap(field, name + " = " + BSNAME + ".readShortArray(ins);");
+            } else if (ctype.equals(CtClass.intType)) {
+                return readWrap(field, name + " = " + BSNAME + ".readIntArray(ins);");
+            } else if (ctype.equals(CtClass.longType)) {
+                return readWrap(field, name + " = " + BSNAME + ".readLongArray(ins);");
+            } else if (ctype.equals(CtClass.floatType)) {
+                return readWrap(field, name + " = " + BSNAME + ".readFloat(ins);");
+            } else if (ctype.equals(CtClass.doubleType)) {
+                return readWrap(field, name + " = " + BSNAME + ".readDoubleArray(ins);");
+            } else if (ctype.getName().equals("java.lang.Object")) {
+                return readWrap(field, name + " = " + BSNAME + ".readObjectArray(ins);");
+            }
+        }
+
+        return readWrap(field, name + " = (" + type.getName() + ")ins.readObject();");
     }
 
     protected String getFieldWriter (CtField field)
@@ -248,24 +262,75 @@ public class InstrumentStreamableTask extends Task
     {
         CtClass type = field.getType();
         String name = field.getName();
+
         if (type.equals(CtClass.booleanType) || type.getName().equals("java.lang.Boolean")) {
-            return "writeBoolean(" + name + ")";
+            return writeWrap(field, "out.writeBoolean(" + name + ");");
         } else if (type.equals(CtClass.byteType) || type.getName().equals("java.lang.Byte")) {
-            return "writeByte(" + name + ")";
+            return writeWrap(field, "out.writeByte(" + name + ");");
         } else if (type.equals(CtClass.shortType) || type.getName().equals("java.lang.Short")) {
-            return "writeShort(" + name + ")";
+            return writeWrap(field, "out.writeShort(" + name + ");");
         } else if (type.equals(CtClass.intType) || type.getName().equals("java.lang.Integer")) {
-            return "writeInt(" + name + ")";
+            return writeWrap(field, "out.writeInt(" + name + ");");
         } else if (type.equals(CtClass.longType) || type.getName().equals("java.lang.Long")) {
-            return "writeLong(" + name + ")";
+            return writeWrap(field, "out.writeLong(" + name + ");");
         } else if (type.equals(CtClass.floatType) || type.getName().equals("java.lang.Float")) {
-            return "writeFloat(" + name + ")";
+            return writeWrap(field, "out.writeFloat(" + name + ");");
         } else if (type.equals(CtClass.doubleType) || type.getName().equals("java.lang.Double")) {
-            return "writeDouble(" + name + ")";
+            return writeWrap(field, "out.writeDouble(" + name + ");");
         } else if (type.getName().equals("java.lang.String")) {
-            return "writeUTF(" + name + ")";
+            return writeWrap(field, "out.writeUTF(" + name + ");");
+        }
+
+        if (type.isArray()) {
+            CtClass ctype = type.getComponentType();
+            if (ctype.equals(CtClass.booleanType)) {
+                return writeWrap(field, BSNAME + ".writeBooleanArray(out, " + name + ");");
+            } else if (ctype.equals(CtClass.byteType)) {
+                return writeWrap(field, BSNAME + ".writeByteArray(out, " + name + ");");
+            } else if (ctype.equals(CtClass.shortType)) {
+                return writeWrap(field, BSNAME + ".writeShortArray(out, " + name + ");");
+            } else if (ctype.equals(CtClass.intType)) {
+                return writeWrap(field, BSNAME + ".writeIntArray(out, " + name + ");");
+            } else if (ctype.equals(CtClass.longType)) {
+                return writeWrap(field, BSNAME + ".writeLongArray(out, " + name + ");");
+            } else if (ctype.equals(CtClass.floatType)) {
+                return writeWrap(field, BSNAME + ".writeFloat(out, " + name + ");");
+            } else if (ctype.equals(CtClass.doubleType)) {
+                return writeWrap(field, BSNAME + ".writeDoubleArray(out, " + name + ");");
+            } else if (ctype.getName().equals("java.lang.Object")) {
+                return writeWrap(field, BSNAME + ".writeObjectArray(out, " + name + ");");
+            }
+        }
+
+        return writeWrap(field, "out.writeObject(" + name + ");");
+    }
+
+    protected String readWrap (CtField field, String body)
+        throws NotFoundException
+    {
+        if (field.getType().isPrimitive()) {
+            return body;
         } else {
-            return "writeObject(" + name + ")";
+            return "if (ins.readBoolean()) {\n" + 
+                "        " + body + "\n" +
+                "    } else {\n" +
+                "        " + field.getName() + " = null;\n" +
+                "    }";
+        }
+    }
+
+    protected String writeWrap (CtField field, String body)
+        throws NotFoundException
+    {
+        if (field.getType().isPrimitive()) {
+            return body;
+        } else {
+            return "if (" + field.getName() + " == null) {\n" +
+                "        out.writeBoolean(false);\n" +
+                "    } else {\n" +
+                "        out.writeBoolean(true);\n" +
+                "        " + body + "\n" +
+                "    }";
         }
     }
 
@@ -280,4 +345,9 @@ public class InstrumentStreamableTask extends Task
 
     /** Used to instrument class files. */
     protected ClassPool _pool = ClassPool.getDefault();
+
+    /** Used to determine which classes implement {@link Streamable}. */
+    protected CtClass _streamable;
+
+    protected static final String BSNAME = BasicStreamers.class.getName();
 }

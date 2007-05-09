@@ -29,8 +29,8 @@ import java.util.List;
 import java.util.RandomAccess;
 
 /**
- * Code to read and write basic object types (like arrays of primitives,
- * {@link Integer} instances, {@link Double} instances, etc.).
+ * Code to read and write basic object types (like arrays of primitives, {@link Integer} instances,
+ * {@link Double} instances, etc.).
  */
 public class BasicStreamers
 {
@@ -83,7 +83,7 @@ public class BasicStreamers
     };
 
     /** Streams {@link Boolean} instances. */
-    public static class BooleanStreamer extends Streamer
+    public static class BooleanStreamer extends BasicStreamer
     {
         // documentation inherited
         public Object createObject (ObjectInputStream in)
@@ -98,17 +98,10 @@ public class BasicStreamers
         {
             out.writeBoolean(((Boolean)object).booleanValue());
         }
-
-        // documentation inherited
-        public void readObject (Object object, ObjectInputStream in, boolean useReader)
-            throws IOException, ClassNotFoundException
-        {
-            // nothing to do here
-        }
     }
 
     /** Streams {@link Byte} instances. */
-    public static class ByteStreamer extends Streamer
+    public static class ByteStreamer extends BasicStreamer
     {
         // documentation inherited
         public Object createObject (ObjectInputStream in)
@@ -123,17 +116,10 @@ public class BasicStreamers
         {
             out.writeByte(((Byte)object).byteValue());
         }
-
-        // documentation inherited
-        public void readObject (Object object, ObjectInputStream in, boolean useReader)
-            throws IOException, ClassNotFoundException
-        {
-            // nothing to do here
-        }
     }
 
     /** Streams {@link Short} instances. */
-    public static class ShortStreamer extends Streamer
+    public static class ShortStreamer extends BasicStreamer
     {
         // documentation inherited
         public Object createObject (ObjectInputStream in)
@@ -148,17 +134,10 @@ public class BasicStreamers
         {
             out.writeShort(((Short)object).shortValue());
         }
-
-        // documentation inherited
-        public void readObject (Object object, ObjectInputStream in, boolean useReader)
-            throws IOException, ClassNotFoundException
-        {
-            // nothing to do here
-        }
     }
 
     /** Streams {@link Character} instances. */
-    public static class CharacterStreamer extends Streamer
+    public static class CharacterStreamer extends BasicStreamer
     {
         // documentation inherited
         public Object createObject (ObjectInputStream in)throws IOException
@@ -172,17 +151,10 @@ public class BasicStreamers
         {
             out.writeChar(((Character)object).charValue());
         }
-
-        // documentation inherited
-        public void readObject (Object object, ObjectInputStream in, boolean useReader)
-            throws IOException, ClassNotFoundException
-        {
-            // nothing to do here
-        }
     }
 
     /** Streams {@link Integer} instances. */
-    public static class IntegerStreamer extends Streamer
+    public static class IntegerStreamer extends BasicStreamer
     {
         // documentation inherited
         public Object createObject (ObjectInputStream in)
@@ -197,17 +169,10 @@ public class BasicStreamers
         {
             out.writeInt(((Integer)object).intValue());
         }
-
-        // documentation inherited
-        public void readObject (Object object, ObjectInputStream in, boolean useReader)
-            throws IOException, ClassNotFoundException
-        {
-            // nothing to do here
-        }
     }
 
     /** Streams {@link Long} instances. */
-    public static class LongStreamer extends Streamer
+    public static class LongStreamer extends BasicStreamer
     {
         // documentation inherited
         public Object createObject (ObjectInputStream in)
@@ -222,17 +187,10 @@ public class BasicStreamers
         {
             out.writeLong(((Long)object).longValue());
         }
-
-        // documentation inherited
-        public void readObject (Object object, ObjectInputStream in, boolean useReader)
-            throws IOException, ClassNotFoundException
-        {
-            // nothing to do here
-        }
     }
 
     /** Streams {@link Float} instances. */
-    public static class FloatStreamer extends Streamer
+    public static class FloatStreamer extends BasicStreamer
     {
         // documentation inherited
         public Object createObject (ObjectInputStream in)
@@ -247,17 +205,10 @@ public class BasicStreamers
         {
             out.writeFloat(((Float)object).floatValue());
         }
-
-        // documentation inherited
-        public void readObject (Object object, ObjectInputStream in, boolean useReader)
-            throws IOException, ClassNotFoundException
-        {
-            // nothing to do here
-        }
     }
 
     /** Streams {@link Double} instances. */
-    public static class DoubleStreamer extends Streamer
+    public static class DoubleStreamer extends BasicStreamer
     {
         // documentation inherited
         public Object createObject (ObjectInputStream in)
@@ -272,17 +223,10 @@ public class BasicStreamers
         {
             out.writeDouble(((Double)object).doubleValue());
         }
-
-        // documentation inherited
-        public void readObject (Object object, ObjectInputStream in, boolean useReader)
-            throws IOException, ClassNotFoundException
-        {
-            // nothing to do here
-        }
     }
 
     /** Streams {@link String} instances. */
-    public static class StringStreamer extends Streamer
+    public static class StringStreamer extends BasicStreamer
     {
         // documentation inherited
         public Object createObject (ObjectInputStream in)
@@ -297,8 +241,191 @@ public class BasicStreamers
         {
             out.writeUTF((String)object);
         }
+    }
+
+    /** Streams arrays of booleans. */
+    public static class BooleanArrayStreamer extends BasicStreamer
+    {
+        // documentation inherited
+        public Object createObject (ObjectInputStream in)
+            throws IOException
+        {
+            return readBooleanArray(in);
+        }
 
         // documentation inherited
+        public void writeObject (Object object, ObjectOutputStream out, boolean useWriter)
+            throws IOException
+        {
+            writeBooleanArray(out, (boolean[])object);
+        }
+    }
+
+    /** Streams arrays of bytes. */
+    public static class ByteArrayStreamer extends BasicStreamer
+    {
+        // documentation inherited
+        public Object createObject (ObjectInputStream in)
+            throws IOException
+        {
+            return readByteArray(in);
+        }
+
+        // documentation inherited
+        public void writeObject (Object object, ObjectOutputStream out, boolean useWriter)
+            throws IOException
+        {
+            writeByteArray(out, (byte[])object);
+        }
+    }
+
+    /** Streams arrays of shorts. */
+    public static class ShortArrayStreamer extends BasicStreamer
+    {
+        // documentation inherited
+        public Object createObject (ObjectInputStream in)
+            throws IOException
+        {
+            return readShortArray(in);
+        }
+
+        // documentation inherited
+        public void writeObject (Object object, ObjectOutputStream out, boolean useWriter)
+            throws IOException
+        {
+            writeShortArray(out, (short[])object);
+        }
+    }
+
+    /** Streams arrays of chars. */
+    public static class CharArrayStreamer extends BasicStreamer
+    {
+        // documentation inherited
+        public Object createObject (ObjectInputStream in)
+            throws IOException
+        {
+            return readCharArray(in);
+        }
+
+        // documentation inherited
+        public void writeObject (Object object, ObjectOutputStream out, boolean useWriter)
+            throws IOException
+        {
+            writeCharArray(out, (char[])object);
+        }
+    }
+
+    /** Streams arrays of ints. */
+    public static class IntArrayStreamer extends BasicStreamer
+    {
+        // documentation inherited
+        public Object createObject (ObjectInputStream in)
+            throws IOException
+        {
+            return readIntArray(in);
+        }
+
+        // documentation inherited
+        public void writeObject (Object object, ObjectOutputStream out, boolean useWriter)
+            throws IOException
+        {
+            writeIntArray(out, (int[])object);
+        }
+    }
+
+    /** Streams arrays of longs. */
+    public static class LongArrayStreamer extends BasicStreamer
+    {
+        // documentation inherited
+        public Object createObject (ObjectInputStream in)
+            throws IOException
+        {
+            return readLongArray(in);
+        }
+
+        // documentation inherited
+        public void writeObject (Object object, ObjectOutputStream out, boolean useWriter)
+            throws IOException
+        {
+            writeLongArray(out, (long[])object);
+        }
+    }
+
+    /** Streams arrays of floats. */
+    public static class FloatArrayStreamer extends BasicStreamer
+    {
+        // documentation inherited
+        public Object createObject (ObjectInputStream in)
+            throws IOException
+        {
+            return readFloatArray(in);
+        }
+
+        // documentation inherited
+        public void writeObject (Object object, ObjectOutputStream out, boolean useWriter)
+            throws IOException
+        {
+            writeFloatArray(out, (float[])object);
+        }
+    }
+
+    /** Streams arrays of doubles. */
+    public static class DoubleArrayStreamer extends BasicStreamer
+    {
+        // documentation inherited
+        public Object createObject (ObjectInputStream in)
+            throws IOException
+        {
+            return readDoubleArray(in);
+        }
+
+        // documentation inherited
+        public void writeObject (Object object, ObjectOutputStream out, boolean useWriter)
+            throws IOException
+        {
+            writeDoubleArray(out, (double[])object);
+        }
+    }
+
+    /** Streams arrays of Object instances. */
+    public static class ObjectArrayStreamer extends BasicStreamer
+    {
+        // documentation inherited
+        public Object createObject (ObjectInputStream in)
+            throws IOException, ClassNotFoundException
+        {
+            return readObjectArray(in);
+        }
+
+        // documentation inherited
+        public void writeObject (Object object, ObjectOutputStream out, boolean useWriter)
+            throws IOException
+        {
+            writeObjectArray(out, (Object[])object);
+        }
+    }
+
+    /** Streams {@link List} instances. */
+    public static class ListStreamer extends BasicStreamer
+    {
+        // documentation inherited
+        public Object createObject (ObjectInputStream in)
+            throws IOException, ClassNotFoundException
+        {
+            return readList(in);
+        }
+
+        // documentation inherited
+        public void writeObject (Object object, ObjectOutputStream out, boolean useWriter)
+            throws IOException
+        {
+            writeList(out, (List)object);
+        }
+    }
+
+    /** Streams {@link String} instances. */
+    public static class BasicStreamer extends Streamer
+    {
         public void readObject (Object object, ObjectInputStream in, boolean useReader)
             throws IOException, ClassNotFoundException
         {
@@ -306,359 +433,223 @@ public class BasicStreamers
         }
     }
 
-    /** Streams arrays of booleans. */
-    public static class BooleanArrayStreamer extends Streamer
+    public static boolean[] readBooleanArray (ObjectInputStream ins)
+        throws IOException
     {
-        // documentation inherited
-        public Object createObject (ObjectInputStream in)
-            throws IOException
-        {
-            return new boolean[in.readInt()];
+        boolean[] value = new boolean[ins.readInt()];
+        int ecount = value.length;
+        for (int ii = 0; ii < ecount; ii++) {
+            value[ii] = ins.readBoolean();
         }
-
-        // documentation inherited
-        public void writeObject (Object object, ObjectOutputStream out, boolean useWriter)
-            throws IOException
-        {
-            boolean[] value = (boolean[])object;
-            int ecount = value.length;
-            out.writeInt(ecount);
-            for (int ii = 0; ii < ecount; ii++) {
-                out.writeBoolean(value[ii]);
-            }
-        }
-
-        // documentation inherited
-        public void readObject (Object object, ObjectInputStream in, boolean useReader)
-            throws IOException, ClassNotFoundException
-        {
-            boolean[] value = (boolean[])object;
-            int ecount = value.length;
-            for (int ii = 0; ii < ecount; ii++) {
-                value[ii] = in.readBoolean();
-            }
-        }
+        return value;
     }
 
-    /** Streams arrays of bytes. */
-    public static class ByteArrayStreamer extends Streamer
+    public static byte[] readByteArray (ObjectInputStream ins)
+        throws IOException
     {
-        // documentation inherited
-        public Object createObject (ObjectInputStream in)
-            throws IOException
-        {
-            return new byte[in.readInt()];
-        }
-
-        // documentation inherited
-        public void writeObject (Object object, ObjectOutputStream out, boolean useWriter)
-            throws IOException
-        {
-            byte[] value = (byte[])object;
-            int ecount = value.length;
-            out.writeInt(ecount);
-            out.write(value);
-        }
-
-        // documentation inherited
-        public void readObject (Object object, ObjectInputStream in, boolean useReader)
-            throws IOException, ClassNotFoundException
-        {
-            byte[] value = (byte[])object;
-            int remain = value.length, offset = 0, read;
-            while (remain > 0) {
-                if ((read = in.read(value, offset, remain)) > 0) {
-                    remain -= read;
-                    offset += read;
-                } else {
-                    throw new EOFException();
-                }
-            }
-        }
-    }
-
-    /** Streams arrays of shorts. */
-    public static class ShortArrayStreamer extends Streamer
-    {
-        // documentation inherited
-        public Object createObject (ObjectInputStream in)
-            throws IOException
-        {
-            return new short[in.readInt()];
-        }
-
-        // documentation inherited
-        public void writeObject (Object object, ObjectOutputStream out, boolean useWriter)
-            throws IOException
-        {
-            short[] value = (short[])object;
-            int ecount = value.length;
-            out.writeInt(ecount);
-            for (int ii = 0; ii < ecount; ii++) {
-                out.writeShort(value[ii]);
-            }
-        }
-
-        // documentation inherited
-        public void readObject (Object object, ObjectInputStream in, boolean useReader)
-            throws IOException, ClassNotFoundException
-        {
-            short[] value = (short[])object;
-            int ecount = value.length;
-            for (int ii = 0; ii < ecount; ii++) {
-                value[ii] = in.readShort();
-            }
-        }
-    }
-
-    /** Streams arrays of chars. */
-    public static class CharArrayStreamer extends Streamer
-    {
-        // documentation inherited
-        public Object createObject (ObjectInputStream in)
-            throws IOException
-        {
-            return new char[in.readInt()];
-        }
-
-        // documentation inherited
-        public void writeObject (Object object, ObjectOutputStream out, boolean useWriter)
-            throws IOException
-        {
-            char[] value = (char[])object;
-            int ecount = value.length;
-            out.writeInt(ecount);
-            for (int ii = 0; ii < ecount; ii++) {
-                out.writeChar(value[ii]);
-            }
-        }
-
-        // documentation inherited
-        public void readObject (Object object, ObjectInputStream in, boolean useReader)
-            throws IOException, ClassNotFoundException
-        {
-            char[] value = (char[])object;
-            int ecount = value.length;
-            for (int ii = 0; ii < ecount; ii++) {
-                value[ii] = in.readChar();
-            }
-        }
-    }
-
-    /** Streams arrays of ints. */
-    public static class IntArrayStreamer extends Streamer
-    {
-        // documentation inherited
-        public Object createObject (ObjectInputStream in)
-            throws IOException
-        {
-            return new int[in.readInt()];
-        }
-
-        // documentation inherited
-        public void writeObject (Object object, ObjectOutputStream out, boolean useWriter)
-            throws IOException
-        {
-            int[] value = (int[])object;
-            int ecount = value.length;
-            out.writeInt(ecount);
-            for (int ii = 0; ii < ecount; ii++) {
-                out.writeInt(value[ii]);
-            }
-        }
-
-        // documentation inherited
-        public void readObject (Object object, ObjectInputStream in, boolean useReader)
-            throws IOException, ClassNotFoundException
-        {
-            int[] value = (int[])object;
-            int ecount = value.length;
-            for (int ii = 0; ii < ecount; ii++) {
-                value[ii] = in.readInt();
-            }
-        }
-    }
-
-    /** Streams arrays of longs. */
-    public static class LongArrayStreamer extends Streamer
-    {
-        // documentation inherited
-        public Object createObject (ObjectInputStream in)
-            throws IOException
-        {
-            return new long[in.readInt()];
-        }
-
-        // documentation inherited
-        public void writeObject (Object object, ObjectOutputStream out, boolean useWriter)
-            throws IOException
-        {
-            long[] value = (long[])object;
-            int ecount = value.length;
-            out.writeInt(ecount);
-            for (int ii = 0; ii < ecount; ii++) {
-                out.writeLong(value[ii]);
-            }
-        }
-
-        // documentation inherited
-        public void readObject (Object object, ObjectInputStream in, boolean useReader)
-            throws IOException, ClassNotFoundException
-        {
-            long[] value = (long[])object;
-            int ecount = value.length;
-            for (int ii = 0; ii < ecount; ii++) {
-                value[ii] = in.readLong();
-            }
-        }
-    }
-
-    /** Streams arrays of floats. */
-    public static class FloatArrayStreamer extends Streamer
-    {
-        // documentation inherited
-        public Object createObject (ObjectInputStream in)
-            throws IOException
-        {
-            return new float[in.readInt()];
-        }
-
-        // documentation inherited
-        public void writeObject (Object object, ObjectOutputStream out, boolean useWriter)
-            throws IOException
-        {
-            float[] value = (float[])object;
-            int ecount = value.length;
-            out.writeInt(ecount);
-            for (int ii = 0; ii < ecount; ii++) {
-                out.writeFloat(value[ii]);
-            }
-        }
-
-        // documentation inherited
-        public void readObject (Object object, ObjectInputStream in, boolean useReader)
-            throws IOException, ClassNotFoundException
-        {
-            float[] value = (float[])object;
-            int ecount = value.length;
-            for (int ii = 0; ii < ecount; ii++) {
-                value[ii] = in.readFloat();
-            }
-        }
-    }
-
-    /** Streams arrays of doubles. */
-    public static class DoubleArrayStreamer extends Streamer
-    {
-        // documentation inherited
-        public Object createObject (ObjectInputStream in)
-            throws IOException
-        {
-            return new double[in.readInt()];
-        }
-
-        // documentation inherited
-        public void writeObject (Object object, ObjectOutputStream out, boolean useWriter)
-            throws IOException
-        {
-            double[] value = (double[])object;
-            int ecount = value.length;
-            out.writeInt(ecount);
-            for (int ii = 0; ii < ecount; ii++) {
-                out.writeDouble(value[ii]);
-            }
-        }
-
-        // documentation inherited
-        public void readObject (Object object, ObjectInputStream in, boolean useReader)
-            throws IOException, ClassNotFoundException
-        {
-            double[] value = (double[])object;
-            int ecount = value.length;
-            for (int ii = 0; ii < ecount; ii++) {
-                value[ii] = in.readDouble();
-            }
-        }
-    }
-
-    /** Streams arrays of Object instances. */
-    public static class ObjectArrayStreamer extends Streamer
-    {
-        // documentation inherited
-        public Object createObject (ObjectInputStream in)
-            throws IOException
-        {
-            return new Object[in.readInt()];
-        }
-
-        // documentation inherited
-        public void writeObject (Object object, ObjectOutputStream out, boolean useWriter)
-            throws IOException
-        {
-            Object[] value = (Object[])object;
-            int ecount = value.length;
-            out.writeInt(ecount);
-            for (int ii = 0; ii < ecount; ii++) {
-                out.writeObject(value[ii]);
-            }
-        }
-
-        // documentation inherited
-        public void readObject (Object object, ObjectInputStream in, boolean useReader)
-            throws IOException, ClassNotFoundException
-        {
-            Object[] value = (Object[])object;
-            int ecount = value.length;
-            for (int ii = 0; ii < ecount; ii++) {
-                value[ii] = in.readObject();
-            }
-        }
-    }
-
-    /** Streams {@link List} instances. */
-    public static class ListStreamer extends Streamer
-    {
-        // documentation inherited
-        public Object createObject (ObjectInputStream in)
-            throws IOException
-        {
-            return new ArrayList(0); // minimally sized
-            // (We thought about using a ThreadLocal to assist here...  we could read the length of
-            // the list here and construct the ArrayList with the right size, and then read the
-            // length out of the ThreadLocal down in readObject(). Instead, we simply create a
-            // 0-length list here, which generates minimal garbage when we ensureCapacity() down in
-            // readObject.)
-        }
-
-        // documentation inherited
-        public void writeObject (Object object, ObjectOutputStream out, boolean useWriter)
-            throws IOException
-        {
-            List list = (List)object;
-            int ecount = list.size();
-            out.writeInt(ecount);
-            if (list instanceof RandomAccess) {
-                // if RandomAccess, it's faster and less garbagey this way
-                for (int ii = 0; ii < ecount; ii++) {
-                    out.writeObject(list.get(ii));
-                }
+        byte[] value = new byte[ins.readInt()];
+        int remain = value.length, offset = 0, read;
+        while (remain > 0) {
+            if ((read = ins.read(value, offset, remain)) > 0) {
+                remain -= read;
+                offset += read;
             } else {
-                // if not RandomAccess, go ahead and make an Iterator...
-                for (Object o : list) {
-                    out.writeObject(o);
-                }
+                throw new EOFException();
             }
         }
+        return value;
+    }
 
-        // documentation inherited
-        public void readObject (Object object, ObjectInputStream in, boolean useReader)
-            throws IOException, ClassNotFoundException
-        {
-            @SuppressWarnings("unchecked") ArrayList<Object> value = (ArrayList<Object>)object;
-            int ecount = in.readInt();
-            value.ensureCapacity(ecount); // resize the array once
+    public static short[] readShortArray (ObjectInputStream ins)
+        throws IOException
+    {
+        short[] value = new short[ins.readInt()];
+        int ecount = value.length;
+        for (int ii = 0; ii < ecount; ii++) {
+            value[ii] = ins.readShort();
+        }
+        return value;
+    }
+
+    public static char[] readCharArray (ObjectInputStream ins)
+        throws IOException
+    {
+        char[] value = new char[ins.readInt()];
+        int ecount = value.length;
+        for (int ii = 0; ii < ecount; ii++) {
+            value[ii] = ins.readChar();
+        }
+        return value;
+    }
+
+    public static int[] readIntArray (ObjectInputStream ins)
+        throws IOException
+    {
+        int[] value = new int[ins.readInt()];
+        int ecount = value.length;
+        for (int ii = 0; ii < ecount; ii++) {
+            value[ii] = ins.readInt();
+        }
+        return value;
+    }
+
+    public static long[] readLongArray (ObjectInputStream ins)
+        throws IOException
+    {
+        long[] value = new long[ins.readInt()];
+        int ecount = value.length;
+        for (int ii = 0; ii < ecount; ii++) {
+            value[ii] = ins.readLong();
+        }
+        return value;
+    }
+
+    public static float[] readFloatArray (ObjectInputStream ins)
+        throws IOException
+    {
+        float[] value = new float[ins.readInt()];
+        int ecount = value.length;
+        for (int ii = 0; ii < ecount; ii++) {
+            value[ii] = ins.readFloat();
+        }
+        return value;
+    }
+
+    public static double[] readDoubleArray (ObjectInputStream ins)
+        throws IOException
+    {
+        double[] value = new double[ins.readInt()];
+        int ecount = value.length;
+        for (int ii = 0; ii < ecount; ii++) {
+            value[ii] = ins.readDouble();
+        }
+        return value;
+    }
+
+    public static Object[] readObjectArray (ObjectInputStream ins)
+        throws IOException, ClassNotFoundException
+    {
+        Object[] value = new Object[ins.readInt()];
+        int ecount = value.length;
+        for (int ii = 0; ii < ecount; ii++) {
+            value[ii] = ins.readObject();
+        }
+        return value;
+    }
+
+    public static ArrayList readList (ObjectInputStream ins)
+        throws IOException, ClassNotFoundException
+    {
+        int ecount = ins.readInt();
+        ArrayList<Object> list = new ArrayList<Object>(ecount);
+        for (int ii = 0; ii < ecount; ii++) {
+            list.add(ins.readObject());
+        }
+        return list;
+    }
+
+    public static void writeBooleanArray (ObjectOutputStream out, boolean[] value)
+        throws IOException
+    {
+        int ecount = value.length;
+        out.writeInt(ecount);
+        for (int ii = 0; ii < ecount; ii++) {
+            out.writeBoolean(value[ii]);
+        }
+    }
+
+    public static void writeByteArray (ObjectOutputStream out, byte[] value)
+        throws IOException
+    {
+        int ecount = value.length;
+        out.writeInt(ecount);
+        out.write(value);
+    }
+
+    public static void writeCharArray (ObjectOutputStream out, char[] value)
+        throws IOException
+    {
+        int ecount = value.length;
+        out.writeInt(ecount);
+        for (int ii = 0; ii < ecount; ii++) {
+            out.writeChar(value[ii]);
+        }
+    }
+
+    public static void writeShortArray (ObjectOutputStream out, short[] value)
+        throws IOException
+    {
+        int ecount = value.length;
+        out.writeInt(ecount);
+        for (int ii = 0; ii < ecount; ii++) {
+            out.writeShort(value[ii]);
+        }
+    }
+
+    public static void writeIntArray (ObjectOutputStream out, int[] value)
+        throws IOException
+    {
+        int ecount = value.length;
+        out.writeInt(ecount);
+        for (int ii = 0; ii < ecount; ii++) {
+            out.writeInt(value[ii]);
+        }
+    }
+
+    public static void writeLongArray (ObjectOutputStream out, long[] value)
+        throws IOException
+    {
+        int ecount = value.length;
+        out.writeInt(ecount);
+        for (int ii = 0; ii < ecount; ii++) {
+            out.writeLong(value[ii]);
+        }
+    }
+
+    public static void writeFloatArray (ObjectOutputStream out, float[] value)
+        throws IOException
+    {
+        int ecount = value.length;
+        out.writeInt(ecount);
+        for (int ii = 0; ii < ecount; ii++) {
+            out.writeFloat(value[ii]);
+        }
+    }
+
+    public static void writeDoubleArray (ObjectOutputStream out, double[] value)
+        throws IOException
+    {
+        int ecount = value.length;
+        out.writeInt(ecount);
+        for (int ii = 0; ii < ecount; ii++) {
+            out.writeDouble(value[ii]);
+        }
+    }
+
+    public static void writeObjectArray (ObjectOutputStream out, Object[] value)
+        throws IOException
+    {
+        int ecount = value.length;
+        out.writeInt(ecount);
+        for (int ii = 0; ii < ecount; ii++) {
+            out.writeObject(value[ii]);
+        }
+    }
+
+    public static void writeList (ObjectOutputStream out, List value)
+        throws IOException
+    {
+        int ecount = value.size();
+        out.writeInt(ecount);
+        if (value instanceof RandomAccess) {
+            // if RandomAccess, it's faster and less garbagey this way
             for (int ii = 0; ii < ecount; ii++) {
-                value.add(in.readObject());
+                out.writeObject(value.get(ii));
+            }
+        } else {
+            // if not RandomAccess, go ahead and make an Iterator...
+            for (Object o : value) {
+                out.writeObject(o);
             }
         }
     }

@@ -245,7 +245,7 @@ public class Streamer
      * array must be read before creating the array).
      */
     public Object createObject (ObjectInputStream in)
-        throws IOException
+        throws IOException, ClassNotFoundException
     {
         try {
             // if our target class is an array type, read in the element count and create an array
@@ -435,6 +435,18 @@ public class Streamer
             return;
         }
 
+        // look up the reader and writer methods
+        try {
+            _reader = target.getMethod(READER_METHOD_NAME, READER_ARGS);
+        } catch (NoSuchMethodException nsme) {
+            // nothing to worry about, we just don't have one
+        }
+        try {
+            _writer = target.getMethod(WRITER_METHOD_NAME, WRITER_ARGS);
+        } catch (NoSuchMethodException nsme) {
+            // nothing to worry about, we just don't have one
+        }
+
         // reflect on all the object's fields
         _fields = ClassUtil.getFields(target);
         int fcount = _fields.length;
@@ -447,18 +459,6 @@ public class Streamer
                 log.info("Using " + _marshallers[ii] + " for " + _target.getName() + "." +
                          _fields[ii].getName() + ".");
             }
-        }
-
-        // look up the reader and writer methods
-        try {
-            _reader = target.getMethod(READER_METHOD_NAME, READER_ARGS);
-        } catch (NoSuchMethodException nsme) {
-            // nothing to worry about, we just don't have one
-        }
-        try {
-            _writer = target.getMethod(WRITER_METHOD_NAME, WRITER_ARGS);
-        } catch (NoSuchMethodException nsme) {
-            // nothing to worry about, we just don't have one
         }
     }
 

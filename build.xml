@@ -92,7 +92,10 @@
     <!-- now instrument the associated files -->
     <instream outdir="${classes.dir}">
       <path refid="classpath"/>
-      <fileset dir="${classes.dir}" includes="**/*.class"/>
+      <fileset dir="${classes.dir}" includes="**/data/*.class"/>
+      <fileset dir="${classes.dir}" includes="**/net/*.class"/>
+      <fileset dir="${classes.dir}" includes="**/dobj/*.class"/>
+      <fileset dir="${classes.dir}" includes="**/util/*.class"/>
     </instream>
   </target>
 

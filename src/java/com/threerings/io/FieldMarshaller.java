@@ -57,24 +57,24 @@ public abstract class FieldMarshaller
             createMarshallers();
         }
 
-//         // first look to see if this field has custom reader/writer methods
-//         Method reader = null, writer = null;
-//         try {
-//             reader = field.getDeclaringClass().getMethod(
-//                 getReaderMethodName(field.getName()), READER_ARGS);
-//             writer = field.getDeclaringClass().getMethod(
-//                 getWriterMethodName(field.getName()), WRITER_ARGS);
-//             return new MethodFieldMarshaller(reader, writer);
-//         } catch (NoSuchMethodException nsme) {
-//             // no problem
-//         }
-//         if ((reader != null || writer != null) && (reader == null || writer == null)) {
-//             log.warning("Class contains one but not both custom field reader and writer " +
-//                         "[class=" + field.getDeclaringClass().getName() +
-//                         ", field=" + field.getName() + ", reader=" + reader +
-//                         ", writer=" + writer + "].");
-//             // fall through to using reflection on the fields...
-//         }
+        // first look to see if this field has custom reader/writer methods
+        Method reader = null, writer = null;
+        try {
+            reader = field.getDeclaringClass().getMethod(
+                getReaderMethodName(field.getName()), READER_ARGS);
+            writer = field.getDeclaringClass().getMethod(
+                getWriterMethodName(field.getName()), WRITER_ARGS);
+            return new MethodFieldMarshaller(reader, writer);
+        } catch (NoSuchMethodException nsme) {
+            // no problem
+        }
+        if ((reader != null || writer != null) && (reader == null || writer == null)) {
+            log.warning("Class contains one but not both custom field reader and writer " +
+                        "[class=" + field.getDeclaringClass().getName() +
+                        ", field=" + field.getName() + ", reader=" + reader +
+                        ", writer=" + writer + "].");
+            // fall through to using reflection on the fields...
+        }
 
         Class ftype = field.getType();
         if (ftype.isInterface()) {
