@@ -70,6 +70,10 @@ public class ObjectOutputStream
                 throw new Error("Too many unique classes written to ObjectOutputStream");
             }
 
+            if (ObjectInputStream.DEBUG) {
+                log.debug("Assigning class code [code=" + cmap.code + ", class=" + cname + "].");
+            }
+
             writeShort(-cmap.code);
             writeUTF((streamer == null) ? Translations.getToServer(cname)
                                         : streamer.getJavaClassName());

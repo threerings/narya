@@ -26,29 +26,12 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.HashMap;
 
+import static com.threerings.NaryaLog.log;
+
 /**
  * Used to write {@link Streamable} objects to an {@link OutputStream}.  Other common object types
- * are supported as well:
- *
- * <pre>
- * Boolean
- * Byte
- * Character
- * Short
- * Integer
- * Long
- * Float
- * Double
- * boolean[]
- * byte[]
- * char[]
- * short[]
- * int[]
- * long[]
- * float[]
- * double[]
- * Object[]
- * </pre>
+ * are supported as well: <code>Boolean, Byte, Character, Short, Integer, Long, Float, Double,
+ * boolean[], byte[], char[], short[], int[], long[], float[], double[], Object[]</code>.
  *
  * @see Streamable
  */
@@ -102,6 +85,10 @@ public class ObjectOutputStream extends DataOutputStream
             // we specifically do not inline the getStreamer() call into the ClassMapping
             // constructor because we want to be sure not to call _nextCode++ if getStreamer()
             // throws an exception
+            if (ObjectInputStream.STREAM_DEBUG) {
+                log.info(hashCode() + ": Creating class mapping [code=" + _nextCode +
+                         ", class=" + sclass.getName() + "].");
+            }
             cmap = new ClassMapping(_nextCode++, sclass, streamer);
             _classmap.put(sclass, cmap);
 

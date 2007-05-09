@@ -87,8 +87,7 @@ public class ObjectInputStream
                 var cname :String = Translations.getFromServer(jname);
                 cmap = new ClassMapping(code, cname, streamer);
                 _classMap[code] = cmap;
-                if (DEBUG) log.debug(DEBUG_ID +
-                    "Created mapping: (" + code + "): " + cname);
+                if (DEBUG) log.debug(DEBUG_ID + "Created mapping: (" + code + "): " + cname);
 
             } else {
                 cmap = (_classMap[code] as ClassMapping);
@@ -96,8 +95,9 @@ public class ObjectInputStream
                     throw new IOError("Read object for which we have no " +
                         "registered class metadata [code=" + code + "].");
                 }
-                if (DEBUG) log.debug(DEBUG_ID + "Read known code: (" +
-                    code + ": " + cmap.classname + ")");
+                if (DEBUG) {
+                    log.debug(DEBUG_ID + "Read known code: (" + code + ": " + cmap.classname + ")");
+                }
             }
 
 //            log.debug("Creating object sleeve...");

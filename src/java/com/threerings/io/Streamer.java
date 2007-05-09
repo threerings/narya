@@ -372,7 +372,8 @@ public class Streamer
             }
             try {
                 if (ObjectInputStream.STREAM_DEBUG) {
-                    log.info(in.hashCode() + ": Reading field '" + field.getName() + "'.");
+                    log.info(in.hashCode() + ": Reading field '" + field.getName() + "' " +
+                             "with " + fm + ".");
                 }
                 // gracefully deal with objects that have had new fields added to their class
                 // definition
