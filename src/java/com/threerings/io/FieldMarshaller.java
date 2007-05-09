@@ -23,6 +23,7 @@ package com.threerings.io;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.lang.reflect.ReflectPermission;
 
 import java.util.Date;
 import java.util.HashMap;
@@ -57,23 +58,25 @@ public abstract class FieldMarshaller
             createMarshallers();
         }
 
-        // first look to see if this field has custom reader/writer methods
-        Method reader = null, writer = null;
-        try {
-            reader = field.getDeclaringClass().getMethod(
-                getReaderMethodName(field.getName()), READER_ARGS);
-            writer = field.getDeclaringClass().getMethod(
-                getWriterMethodName(field.getName()), WRITER_ARGS);
-            return new MethodFieldMarshaller(reader, writer);
-        } catch (NoSuchMethodException nsme) {
-            // no problem
-        }
-        if ((reader != null || writer != null) && (reader == null || writer == null)) {
-            log.warning("Class contains one but not both custom field reader and writer " +
-                        "[class=" + field.getDeclaringClass().getName() +
-                        ", field=" + field.getName() + ", reader=" + reader +
-                        ", writer=" + writer + "].");
-            // fall through to using reflection on the fields...
+        // if necessary (we're running in a sandbox), look for custom field accessors
+        if (useFieldAccessors()) {
+            Method reader = null, writer = null;
+            try {
+                reader = field.getDeclaringClass().getMethod(
+                    getReaderMethodName(field.getName()), READER_ARGS);
+                writer = field.getDeclaringClass().getMethod(
+                    getWriterMethodName(field.getName()), WRITER_ARGS);
+                return new MethodFieldMarshaller(reader, writer);
+            } catch (NoSuchMethodException nsme) {
+                // no problem
+            }
+            if ((reader != null || writer != null) && (reader == null || writer == null)) {
+                log.warning("Class contains one but not both custom field reader and writer " +
+                            "[class=" + field.getDeclaringClass().getName() +
+                            ", field=" + field.getName() + ", reader=" + reader +
+                            ", writer=" + writer + "].");
+                // fall through to using reflection on the fields...
+            }
         }
 
         Class ftype = field.getType();
@@ -109,6 +112,23 @@ public abstract class FieldMarshaller
     public static final String getWriterMethodName (String field)
     {
         return "writeField_" + field;
+    }
+
+    /**
+     * Returns true if we should use the generated field marshaller methods that allow us to work
+     * around our inability to read and write protected and private fields of a {@link Streamable}.
+     */
+    protected static boolean useFieldAccessors ()
+    {
+        try {
+            SecurityManager security = System.getSecurityManager();
+            if (security != null) {
+                security.checkPermission(new ReflectPermission("suppressAccessChecks"));
+            }
+            return false;
+        } catch (SecurityException se) {
+            return true;
+        }
     }
 
     /**
@@ -157,7 +177,7 @@ public abstract class FieldMarshaller
     }
 
     /**
-     * Uses custom reader and writer methods to read and write a field.
+     * Uses custom accessor methods to read and write a field.
      */
     protected static class MethodFieldMarshaller extends FieldMarshaller
     {
