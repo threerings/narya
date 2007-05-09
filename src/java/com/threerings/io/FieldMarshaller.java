@@ -57,6 +57,8 @@ public abstract class FieldMarshaller
             createMarshallers();
         }
 
+        if (false) { // TEMP DISABLE
+
         // first look to see if this field has custom reader/writer methods
         Method reader = null, writer = null;
         try {
@@ -75,6 +77,8 @@ public abstract class FieldMarshaller
                         ", writer=" + writer + "].");
             // fall through to using reflection on the fields...
         }
+
+        } // END TEMP DISABLE
 
         Class ftype = field.getType();
         if (ftype.isInterface()) {
