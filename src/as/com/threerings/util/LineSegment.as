@@ -27,7 +27,7 @@ import flash.geom.Matrix;
 /**
  * Merely a typed container for two Points.
  */
-public class Line implements Equalable
+public class LineSegment implements Equalable
 {
     public static const INTERSECTION_NORTH :int = 1;
     public static const INTERSECTION_SOUTH :int = 2;
@@ -36,7 +36,7 @@ public class Line implements Equalable
     public var start :Point;
     public var stop :Point;
 
-    public function Line (start :Point, stop :Point)
+    public function LineSegment (start :Point, stop :Point)
     {
         this.start = start;
         this.stop = stop;
@@ -50,7 +50,7 @@ public class Line implements Equalable
         return Point.distance(start, stop);
     }
 
-    public function isIntersected (line :Line) :Boolean 
+    public function isIntersected (line :LineSegment) :Boolean 
     {
         return getIntersectionType(line) != DOES_NOT_INTERSECT;
     }
@@ -58,7 +58,7 @@ public class Line implements Equalable
     /**
      * Return the point at which the other line intersects us.
      */
-    public function getIntersectionPoint (line :Line) :Point
+    public function getIntersectionPoint (line :LineSegment) :Point
     {
         return getIntersection(line, true) as Point;
     }
@@ -72,7 +72,7 @@ public class Line implements Equalable
      * Intersections are inclusive.  If one or both points lands on this line, interects will not
      * return DOES_NOT_INTERSECT.
      */
-    public function getIntersectionType (line :Line) :int 
+    public function getIntersectionType (line :LineSegment) :int 
     {
         return getIntersection(line, false) as int;
     }
@@ -80,7 +80,7 @@ public class Line implements Equalable
     // from interface Equalable
     public function equals (o :Object) :Boolean
     {
-        var other :Line = o as Line; // or null if not a line
+        var other :LineSegment = o as LineSegment; // or null if not a line
         if (other == null) {
             return false;
         }
@@ -94,7 +94,7 @@ public class Line implements Equalable
      * and returns either the intersected point or merely the intersection
      * type.
      */
-    protected function getIntersection (line :Line, returnPoint :Boolean) :*
+    protected function getIntersection (line :LineSegment, returnPoint :Boolean) :*
     {
         // rotate so that this line is horizontal, with the start on the left, at (0, 0)
         var trans :Matrix = new Matrix();
