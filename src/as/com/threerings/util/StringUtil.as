@@ -237,6 +237,7 @@ public class StringUtil
 
     /** A regular expression that finds URLs. */
     protected static const URL_REGEXP :RegExp =
-        new RegExp("(http|https|ftp)://\\S+", "i");
+        // recognize some standard protocols, plus 'command', which we use internally
+        new RegExp("(http|https|ftp|command)://\\S+", "i");
 }
 }
