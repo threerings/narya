@@ -27,10 +27,9 @@ import com.samskivert.util.ObserverList;
 import static com.threerings.NaryaLog.log;
 
 /**
- * Uses native code to catch Unix signals and invoke callbacks on a
- * separate signal handler thread. If the native library cannot be loaded,
- * signal handlers will be allowed to be registered but will never be
- * called.
+ * Uses native code to catch Unix signals and invoke callbacks on a separate signal handler thread.
+ * If the native library cannot be loaded, signal handlers will be allowed to be registered but
+ * will never be called.
  */
 public class SignalManager
 {
@@ -139,17 +138,17 @@ public class SignalManager
         /**
          * Called when the specified signal is received.
          *
-         * @return true if the signal handler should remain registered,
-         * false if it should be removed.
+         * @return true if the signal handler should remain registered, false if it should be
+         * removed.
          */
         public boolean signalReceived (int signal);
     }
 
     /**
-     * Returns true if signal dispatching services are available, false if
-     * we could not load our native library.
+     * Returns true if signal dispatching services are available, false if we could not load our
+     * native library.
      */
-    public boolean servicesAvailable ()
+    public static boolean servicesAvailable ()
     {
         return _haveLibrary;
     }
@@ -157,8 +156,7 @@ public class SignalManager
     /**
      * Registers a signal handler for the specified signal.
      */
-    public synchronized static void registerSignalHandler (
-        int signal, SignalHandler handler)
+    public synchronized static void registerSignalHandler (int signal, SignalHandler handler)
     {
         ObserverList<SignalHandler> list = _handlers.get(signal);
         if (list == null) {
@@ -186,13 +184,12 @@ public class SignalManager
     /**
      * Removes the registration for the specified signal handler.
      */
-    public synchronized static void removeSignalHandler (
-        int signal, SignalHandler handler)
+    public synchronized static void removeSignalHandler (int signal, SignalHandler handler)
     {
         ObserverList<SignalHandler> list = _handlers.get(signal);
         if (list == null || !list.contains(handler)) {
-            log.warning("Requested to remove non-registered handler " +
-                        "[signal=" + signal + ", handler=" + handler + "].");
+            log.warning("Requested to remove non-registered handler [signal=" + signal +
+                        ", handler=" + handler + "].");
             return;
         }
         list.remove(handler);
@@ -204,9 +201,8 @@ public class SignalManager
      */
     protected synchronized static void signalReceived (final int signal)
     {
-        // this is hack, but we seem to get a call to our signal handler
-        // for each thread if the user presses ctrl-c in the terminal, so
-        // we "collapse" those into one call back
+        // this is hack, but we seem to get a call to our signal handler for each thread if the
+        // user presses ctrl-c in the terminal, so we "collapse" those into one call back
         long now = System.currentTimeMillis();
         if (signal == SIGINT) {
             if (now - _lastINTed < 10) {
@@ -251,8 +247,7 @@ public class SignalManager
     protected static native void deactivateHandler (int signal);
 
     /**
-     * Consigns a Java thread to the task of dispatching signal handler
-     * callbacks.
+     * Consigns a Java thread to the task of dispatching signal handler callbacks.
      */
     protected static native void dispatchSignals ();
 
@@ -266,8 +261,8 @@ public class SignalManager
     /** Set to true if we successfully load our native library. */
     protected static boolean _haveLibrary;
 
-    /** Used to collapse bogus multiple delivery of SIGINT when the user
-     * pressed ctrl-c in the console. */
+    /** Used to collapse bogus multiple delivery of SIGINT when the user pressed ctrl-c in the
+     * console. */
     protected static long _lastINTed = 0L;
 
     static {
