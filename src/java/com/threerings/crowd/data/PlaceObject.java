@@ -26,6 +26,7 @@ import java.util.Iterator;
 import com.threerings.util.Name;
 
 import com.threerings.presents.dobj.DObject;
+import com.threerings.presents.dobj.DObjectManager;
 import com.threerings.presents.dobj.DSet;
 import com.threerings.presents.dobj.OidList;
 import com.threerings.presents.dobj.ServerMessageEvent;
@@ -35,10 +36,9 @@ import com.threerings.crowd.chat.data.SpeakMarshaller;
 import com.threerings.crowd.chat.data.SpeakObject;
 
 /**
- * A distributed object that contains information on a place that is
- * occupied by bodies. This place might be a chat room, a game room, an
- * island in a massively multiplayer piratical universe, anything that has
- * occupants that might want to chat with one another.
+ * A distributed object that contains information on a place that is occupied by bodies. This place
+ * might be a chat room, a game room, an island in a massively multiplayer piratical universe,
+ * anything that has occupants that might want to chat with one another.
  */
 public class PlaceObject extends DObject
     implements SpeakObject
@@ -55,37 +55,42 @@ public class PlaceObject extends DObject
     // AUTO-GENERATED: FIELDS END
 
     /**
-     * Exists solely to make calls into the manager look sensible:
+     * Exists to make calls into the manager look sensible:
+     *
      * <pre>_plobj.manager.invoke("someMethod", args);</pre>
+     *
+     * and to route events through the right distributed object manager if we are running in
+     * standalone/single-player mode where both client and server are running in the same VM.
      */
     public class ManagerCaller
     {
         public void invoke (String method, Object ... args) {
-            postEvent(new ServerMessageEvent(_oid, method, args));
+            _omgr.postEvent(new ServerMessageEvent(_oid, method, args));
         }
+        protected ManagerCaller (DObjectManager omgr) {
+            _omgr = omgr;
+        }
+        protected DObjectManager _omgr;
     }
 
     /**
      * Allows the client to call methods on the manager.
      */
-    public transient ManagerCaller manager = new ManagerCaller();
+    public transient ManagerCaller manager;
 
     /**
-     * Tracks the oid of the body objects of all of the occupants of this
-     * place.
+     * Tracks the oid of the body objects of all of the occupants of this place.
      */
     public OidList occupants = new OidList();
 
     /**
-     * Contains an info record (of type {@link OccupantInfo}) for each
-     * occupant that contains information about that occupant that needs
-     * to be known by everyone in the place. <em>Note:</em> Don't obtain
-     * occupant info records directly from this set when on the server,
+     * Contains an info record (of type {@link OccupantInfo}) for each occupant that contains
+     * information about that occupant that needs to be known by everyone in the place.
+     * <em>Note:</em> Don't obtain occupant info records directly from this set when on the server,
      * use <code>PlaceManager.getOccupantInfo()</code> instead (along with
-     * <code>PlaceManager.updateOccupantInfo()</code>) because it does
-     * some special processing to ensure that readers and updaters don't
-     * step on one another even if they make rapid fire changes to a
-     * user's occupant info.
+     * <code>PlaceManager.updateOccupantInfo()</code>) because it does some special processing to
+     * ensure that readers and updaters don't step on one another even if they make rapid fire
+     * changes to a user's occupant info.
      */
     public DSet<OccupantInfo> occupantInfo = new DSet<OccupantInfo>();
 
@@ -93,8 +98,16 @@ public class PlaceObject extends DObject
     public SpeakMarshaller speakService;
 
     /**
-     * Used to indicate whether broadcast chat messages should be dispatched
-     * on this place object.
+     * Called on the client when the location director receives this place object to configure our
+     * manager caller using the client's distributed object manager.
+     */
+    public void initManagerCaller (DObjectManager omgr)
+    {
+        manager = new ManagerCaller(omgr);
+    }
+
+    /**
+     * Used to indicate whether broadcast chat messages should be dispatched on this place object.
      */
     public boolean shouldBroadcast ()
     {
@@ -104,8 +117,8 @@ public class PlaceObject extends DObject
     /**
      * Looks up a user's occupant info by name.
      *
-     * @return the occupant info record for the named user or null if no
-     * user in the room has that username.
+     * @return the occupant info record for the named user or null if no user in the room has that
+     * username.
      */
     public OccupantInfo getOccupantInfo (Name username)
     {
