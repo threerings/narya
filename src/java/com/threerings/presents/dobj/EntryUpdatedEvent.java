@@ -26,22 +26,19 @@ import com.samskivert.util.StringUtil;
 import com.threerings.presents.Log;
 
 /**
- * An entry updated event is dispatched when an entry of a {@link DSet} is
- * updated. It can also be constructed to request the update of an entry
- * and posted to the dobjmgr.
+ * An entry updated event is dispatched when an entry of a {@link DSet} is updated. It can also be
+ * constructed to request the update of an entry and posted to the dobjmgr.
  *
  * @see DObjectManager#postEvent
  */
 public class EntryUpdatedEvent<T extends DSet.Entry> extends NamedEvent
 {
     /**
-     * Constructs a new entry updated event on the specified target object
-     * for the specified set name and with the supplied updated entry.
+     * Constructs a new entry updated event on the specified target object for the specified set
+     * name and with the supplied updated entry.
      *
-     * @param targetOid the object id of the object to whose set we will
-     * add an entry.
-     * @param name the name of the attribute in which to update the
-     * specified entry.
+     * @param targetOid the object id of the object to whose set we will add an entry.
+     * @param name the name of the attribute in which to update the specified entry.
      * @param entry the entry to update.
      * @param oldEntry the previous value of the entry.
      */
@@ -53,8 +50,8 @@ public class EntryUpdatedEvent<T extends DSet.Entry> extends NamedEvent
     }
 
     /**
-     * Constructs a blank instance of this event in preparation for
-     * unserialization from the network.
+     * Constructs a blank instance of this event in preparation for unserialization from the
+     * network.
      */
     public EntryUpdatedEvent ()
     {
@@ -89,8 +86,7 @@ public class EntryUpdatedEvent<T extends DSet.Entry> extends NamedEvent
             _oldEntry = set.update(_entry);
             if (_oldEntry == null) {
                 // complain if we didn't update anything
-                Log.warning("No matching entry to update [entry=" + this +
-                            ", set=" + set + "].");
+                Log.warning("No matching entry to update [entry=" + this + ", set=" + set + "].");
                 return false;
             }
         }
@@ -115,6 +111,7 @@ public class EntryUpdatedEvent<T extends DSet.Entry> extends NamedEvent
     }
 
     protected T _entry;
+
     @SuppressWarnings("unchecked")
     protected transient T _oldEntry = (T)UNSET_OLD_ENTRY;
 }

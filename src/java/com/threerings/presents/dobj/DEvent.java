@@ -71,8 +71,8 @@ public abstract class DEvent implements Streamable
      * @exception ObjectAccessException thrown if there is any problem applying the event to the
      * object (invalid attribute, etc.).
      *
-     * @return true if the object manager should go on to notify the object's subscribers of this
-     * event, false if the event should be treated silently and the subscribers should not be
+     * @return true if the object manager should go on to notify the object's listeners of this
+     * event, false if the event should be treated silently and the listeners should not be
      * notified.
      */
     public abstract boolean applyToObject (DObject target)

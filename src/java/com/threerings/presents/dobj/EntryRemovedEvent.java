@@ -24,28 +24,24 @@ package com.threerings.presents.dobj;
 import com.threerings.presents.Log;
 
 /**
- * An entry removed event is dispatched when an entry is removed from a
- * {@link DSet} attribute of a distributed object. It can also be
- * constructed to request the removal of an entry from a set and posted to
- * the dobjmgr.
+ * An entry removed event is dispatched when an entry is removed from a {@link DSet} attribute of a
+ * distributed object. It can also be constructed to request the removal of an entry from a set and
+ * posted to the dobjmgr.
  *
  * @see DObjectManager#postEvent
  */
 public class EntryRemovedEvent<T extends DSet.Entry> extends NamedEvent
 {
     /**
-     * Constructs a new entry removed event on the specified target object
-     * with the supplied set attribute name and entry key to remove.
+     * Constructs a new entry removed event on the specified target object with the supplied set
+     * attribute name and entry key to remove.
      *
-     * @param targetOid the object id of the object from whose set we will
-     * remove an entry.
-     * @param name the name of the attribute from which to remove the
-     * specified entry.
+     * @param targetOid the object id of the object from whose set we will remove an entry.
+     * @param name the name of the attribute from which to remove the specified entry.
      * @param key the entry key that identifies the entry to remove.
      * @param oldEntry the previous value of the entry.
      */
-    public EntryRemovedEvent (int targetOid, String name, Comparable key,
-                              T oldEntry)
+    public EntryRemovedEvent (int targetOid, String name, Comparable key, T oldEntry)
     {
         super(targetOid, name);
         _key = key;
@@ -53,8 +49,8 @@ public class EntryRemovedEvent<T extends DSet.Entry> extends NamedEvent
     }
 
     /**
-     * Constructs a blank instance of this event in preparation for
-     * unserialization from the network.
+     * Constructs a blank instance of this event in preparation for unserialization from the
+     * network.
      */
     public EntryRemovedEvent ()
     {
@@ -88,8 +84,7 @@ public class EntryRemovedEvent<T extends DSet.Entry> extends NamedEvent
             _oldEntry = set.removeKey(_key);
             if (_oldEntry == null) {
                 // complain if there was actually nothing there
-                Log.warning("No matching entry to remove [key=" + _key +
-                            ", set=" + set + "].");
+                Log.warning("No matching entry to remove [key=" + _key + ", set=" + set + "].");
                 return false;
             }
         }
@@ -113,6 +108,7 @@ public class EntryRemovedEvent<T extends DSet.Entry> extends NamedEvent
     }
 
     protected Comparable _key;
+
     @SuppressWarnings("unchecked")
     protected transient T _oldEntry = (T)UNSET_OLD_ENTRY;
 }

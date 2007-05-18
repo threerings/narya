@@ -26,22 +26,20 @@ import com.samskivert.util.StringUtil;
 import com.threerings.presents.Log;
 
 /**
- * An entry added event is dispatched when an entry is added to a {@link
- * DSet} attribute of a distributed entry. It can also be constructed to
- * request the addition of an entry to a set and posted to the dobjmgr.
+ * An entry added event is dispatched when an entry is added to a {@link DSet} attribute of a
+ * distributed entry. It can also be constructed to request the addition of an entry to a set and
+ * posted to the dobjmgr.
  *
  * @see DObjectManager#postEvent
  */
 public class EntryAddedEvent<T extends DSet.Entry> extends NamedEvent
 {
     /**
-     * Constructs a new entry added event on the specified target object
-     * with the supplied set attribute name and entry to add.
+     * Constructs a new entry added event on the specified target object with the supplied set
+     * attribute name and entry to add.
      *
-     * @param targetOid the object id of the object to whose set we will
-     * add an entry.
-     * @param name the name of the attribute to which to add the specified
-     * entry.
+     * @param targetOid the object id of the object to whose set we will add an entry.
+     * @param name the name of the attribute to which to add the specified entry.
      * @param entry the entry to add to the set attribute.
      */
     public EntryAddedEvent (int targetOid, String name, T entry)
@@ -50,11 +48,9 @@ public class EntryAddedEvent<T extends DSet.Entry> extends NamedEvent
     }
 
     /**
-     * Used when the distributed object already added the entry before
-     * generating the event.
+     * Used when the distributed object already added the entry before generating the event.
      */
-    public EntryAddedEvent (int targetOid, String name, T entry,
-                            boolean alreadyApplied)
+    public EntryAddedEvent (int targetOid, String name, T entry, boolean alreadyApplied)
     {
         super(targetOid, name);
         _entry = entry;
@@ -62,8 +58,8 @@ public class EntryAddedEvent<T extends DSet.Entry> extends NamedEvent
     }
 
     /**
-     * Constructs a blank instance of this event in preparation for
-     * unserialization from the network.
+     * Constructs a blank instance of this event in preparation for unserialization from the
+     * network.
      */
     public EntryAddedEvent ()
     {
@@ -86,7 +82,31 @@ public class EntryAddedEvent<T extends DSet.Entry> extends NamedEvent
         if (!_alreadyApplied) {
             boolean added = target.getSet(_name).add(_entry);
             if (!added) {
-                Log.warning("Duplicate entry found [event=" + this + "].");
+                // If this entry is already in the set, then don't notify our listeners of the
+                // event add, because nothing was actually added; the DSet will have already
+                // complained; this happens occasionally due to a race condition between client
+                // object subscription and set addition, for example, the follow sequence of events
+                // can take place:
+                //
+                // 1. SUBSCRIBE arrives from client, AccessObjectEvent posted;
+                //
+                // 2. addToSet() called on server, value immediately added to set and
+                // EntryAddedEvent is posted;
+                //
+                // 3. AccessObjectEvent processed; client is added to proxy subscriber list,
+                // DObject serialized and sent to client; client receives object which already has
+                // the entry in the set;
+                //
+                // 4. EntryAddedEvent processed, client is a subscriber so it is forwarded along;
+                // when it arrives at the client, we find ourselves in this situation.
+                //
+                // Fixing this would require either a) giving up immediate adding to the DSet when
+                // an event is posted, but we add/update immediately because it makes our lives
+                // *vastly* simpler in a thousand other cases, or b) doing some magic in the DSet
+                // where the server "sees" the new entry added, but if the DSet is serialized
+                // before the EntryAddedEvent comes through to "commit" that entry it is not
+                // included. This is probably a good idea and maybe we'll do it sometime.
+                return false;
             }
         }
         return true;
@@ -111,8 +131,7 @@ public class EntryAddedEvent<T extends DSet.Entry> extends NamedEvent
 
     protected T _entry;
 
-    /** Used when this event is generated on the authoritative server
-     * where object changes are made immediately. This lets us know not to
-     * apply ourselves when we're actually dispatched. */
+    /** Used when this event is generated on the authoritative server where object changes are made
+     * immediately. This lets us know not to apply ourselves when we're actually dispatched. */
     protected transient boolean _alreadyApplied;
 }
