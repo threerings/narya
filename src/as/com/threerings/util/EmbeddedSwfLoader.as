@@ -40,7 +40,7 @@ import flash.system.LoaderContext;
  * Allows you to load an embeded SWF stored as a Byte Array then access any stored classes
  * within the SWF.
  * Embed your swf like:
- * [Embed(source="foo.swf", mimeType="application/octet-stream"]
+ * [Embed(source="foo.swf", mimeType="application/octet-stream")]
  * Then, instantiate that class and pass it to load() as a ByteArray.
  *
  * An Event.COMPLETE will be dispatched upon the successful completion of a call to
