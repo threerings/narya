@@ -27,41 +27,37 @@ import java.lang.reflect.Field;
 import com.samskivert.util.StringUtil;
 
 /**
- * An element updated event is dispatched when an element of an array
- * field in a distributed object is updated. It can also be constructed to
- * request the update of an entry and posted to the dobjmgr.
+ * An element updated event is dispatched when an element of an array field in a distributed object
+ * is updated. It can also be constructed to request the update of an entry and posted to the
+ * dobjmgr.
  *
  * @see DObjectManager#postEvent
  */
 public class ElementUpdatedEvent extends NamedEvent
 {
     /**
-     * Constructs a new element updated event on the specified target
-     * object with the supplied attribute name, element and index.
+     * Constructs a new element updated event on the specified target object with the supplied
+     * attribute name, element and index.
      *
-     * @param targetOid the object id of the object whose attribute has
-     * changed.
-     * @param name the name of the attribute (data member) for which an
-     * element has changed.
-     * @param value the new value of the element (in the case of primitive
-     * types, the reflection-defined object-alternative is used).
-     * @param oldValue the previous value of the element (in the case of
-     * primitive types, the reflection-defined object-alternative is
-     * used).
+     * @param targetOid the object id of the object whose attribute has changed.
+     * @param name the name of the attribute (data member) for which an element has changed.
+     * @param value the new value of the element (in the case of primitive types, the
+     * reflection-defined object-alternative is used).
+     * @param oldValue the previous value of the element (in the case of primitive types, the
+     * reflection-defined object-alternative is used).
      * @param index the index in the array of the updated element.
      */
-    public ElementUpdatedEvent (
-        int targetOid, String name, Object value, Object oldValue, int index)
+    public ElementUpdatedEvent (int targetOid, String name, Object value, Object ovalue, int index)
     {
         super(targetOid, name);
         _value = value;
-        _oldValue = oldValue;
+        _oldValue = ovalue;
         _index = index;
     }
 
     /**
-     * Constructs a blank instance of this event in preparation for
-     * unserialization from the network.
+     * Constructs a blank instance of this event in preparation for unserialization from the
+     * network.
      */
     public ElementUpdatedEvent ()
     {
@@ -76,8 +72,7 @@ public class ElementUpdatedEvent extends NamedEvent
     }
 
     /**
-     * Returns the value of the element prior to the application of this
-     * event.
+     * Returns the value of the element prior to the application of this event.
      */
     public Object getOldValue ()
     {
@@ -93,8 +88,8 @@ public class ElementUpdatedEvent extends NamedEvent
     }
 
     /**
-     * Returns the new value of the element as a short. This will fail if
-     * the element in question is not a short.
+     * Returns the new value of the element as a short. This will fail if the element in question
+     * is not a short.
      */
     public short getShortValue ()
     {
@@ -102,8 +97,8 @@ public class ElementUpdatedEvent extends NamedEvent
     }
 
     /**
-     * Returns the new value of the element as an int. This will fail if
-     * the element in question is not an int.
+     * Returns the new value of the element as an int. This will fail if the element in question is
+     * not an int.
      */
     public int getIntValue ()
     {
@@ -111,8 +106,8 @@ public class ElementUpdatedEvent extends NamedEvent
     }
 
     /**
-     * Returns the new value of the element as a long. This will fail if
-     * the element in question is not a long.
+     * Returns the new value of the element as a long. This will fail if the element in question is
+     * not a long.
      */
     public long getLongValue ()
     {
@@ -120,8 +115,8 @@ public class ElementUpdatedEvent extends NamedEvent
     }
 
     /**
-     * Returns the new value of the element as a float. This will fail if
-     * the element in question is not a float.
+     * Returns the new value of the element as a float. This will fail if the element in question
+     * is not a float.
      */
     public float getFloatValue ()
     {
@@ -129,47 +124,50 @@ public class ElementUpdatedEvent extends NamedEvent
     }
 
     /**
-     * Returns the new value of the element as a double. This will fail if
-     * the element in question is not a double.
+     * Returns the new value of the element as a double. This will fail if the element in question
+     * is not a double.
      */
     public double getDoubleValue ()
     {
         return ((Double)_value).doubleValue();
     }
 
-    /**
-     * Applies this element update to the object.
-     */
+    @Override // from DEvent
+    public boolean alreadyApplied ()
+    {
+        return (_oldValue == UNSET_OLD_VALUE);
+    }
+
+    @Override // from DEvent
     public boolean applyToObject (DObject target)
         throws ObjectAccessException
     {
-        try {
-            // fetch the array field from the object
-            Field field = target.getClass().getField(_name);
-            Class ftype = field.getType();
+        if (!alreadyApplied()) {
+            try {
+                // fetch the array field from the object
+                Field field = target.getClass().getField(_name);
+                Class ftype = field.getType();
 
-            // sanity check
-            if (!ftype.isArray()) {
-                String msg = "Requested to set element on non-array field.";
-                throw new Exception(msg);
-            }
+                // sanity check
+                if (!ftype.isArray()) {
+                    String msg = "Requested to set element on non-array field.";
+                    throw new Exception(msg);
+                }
 
-            // grab the previous value to provide to interested parties
-            if (_oldValue == UNSET_OLD_VALUE) {
+                // grab the previous value to provide to interested parties
                 _oldValue = Array.get(field.get(target), _index);
+
+                // we don't do any magical expansion or any funny business; the array should be big
+                // enough to contain the value being updated or we'll throw an
+                // ArrayIndexOutOfBoundsException
+                Array.set(field.get(target), _index, _value);
+
+            } catch (Exception e) {
+                String msg = "Error updating element [field=" + _name + ", index=" + _index + "]";
+                throw new ObjectAccessException(msg, e);
             }
-
-            // we don't do any magical expansion or any funny business;
-            // the array should be big enough to contain the value being
-            // updated or we'll throw an ArrayIndexOutOfBoundsException
-            Array.set(field.get(target), _index, _value);
-            return true;
-
-        } catch (Exception e) {
-            String msg = "Error updating element [field=" + _name +
-                ", index=" + _index + "]";
-            throw new ObjectAccessException(msg, e);
         }
+        return true;
     }
 
     // documentation inherited

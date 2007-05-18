@@ -94,6 +94,17 @@ public class PresentsDObjectMgr
     }
 
     /**
+     * Returns the id to be assigned to the next event posted to the event queue.
+     *
+     * @param increment if true, the event id will be incremented so that the caller can "claim"
+     * the returned event id.
+     */
+    public synchronized long getNextEventId (boolean increment)
+    {
+        return increment ? _nextEventId++ : _nextEventId;
+    }
+
+    /**
      * Sets up an access controller that will be provided to any distributed objects created on the
      * server. The controllers can subsequently be overridden if desired, but a default controller
      * is useful for implementing basic access control policies.
@@ -169,7 +180,8 @@ public class PresentsDObjectMgr
     // from interface DObjectManager
     public void postEvent (DEvent event)
     {
-        // just append it to the queue
+        // assign the event's id and append it to the queue
+        event.eventId = getNextEventId(true);
         _evqueue.append(event);
     }
 
@@ -972,6 +984,9 @@ public class PresentsDObjectMgr
 
     /** Used during unit profiling for timing values. */
     protected Perf _timer = Perf.getPerf();
+
+    /** A monotonically increasing counter used to assign an id to all dispatched events. */
+    protected long _nextEventId = 1;
 
     /** Used to profile our events and runnable units. */
     protected HashMap<String,UnitProfile> _profiles = new HashMap<String,UnitProfile>();

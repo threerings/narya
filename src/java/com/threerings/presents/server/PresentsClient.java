@@ -76,7 +76,7 @@ import com.threerings.presents.server.net.MessageHandler;
  * from the conmgr thread and therefore also need not be synchronized.
  */
 public class PresentsClient
-    implements ProxySubscriber, MessageHandler, ClientResolutionListener
+    implements MessageHandler, ClientResolutionListener
 {
     /** Used by {@link #setUsername} to report success or failure. */
     public static interface UserChangeListener
@@ -321,31 +321,6 @@ public class PresentsClient
         }
     }
 
-    /**
-     * Makes a note that this client is subscribed to this object so that we can clean up after
-     * ourselves if and when the client goes away. This is called by the client internals and
-     * needn't be called by code outside the client.
-     */
-    public synchronized void mapSubscrip (DObject object)
-    {
-        _subscrips.put(object.getOid(), object);
-    }
-
-    /**
-     * Makes a note that this client is no longer subscribed to this object. The subscription map
-     * is used to clean up after the client when it goes away. This is called by the client
-     * internals and needn't be called by code outside the client.
-     */
-    public synchronized void unmapSubscrip (int oid)
-    {
-        DObject object = _subscrips.remove(oid);
-        if (object != null) {
-            object.removeSubscriber(this);
-        } else {
-            Log.warning("Requested to unmap non-existent subscription [oid=" + oid + "].");
-        }
-    }
-
     // from interface ClientResolutionListener
     public void clientResolved (Name username, ClientObject clobj)
     {
@@ -401,35 +376,6 @@ public class PresentsClient
 
         // otherwise pass the message on to the dispatcher
         disp.dispatch(this, message);
-    }
-
-    // from interface ProxySubscriber
-    public void objectAvailable (DObject object)
-    {
-        if (postMessage(new ObjectResponse<DObject>(object))) {
-            // make a note of this new subscription
-            mapSubscrip(object);
-        } else {
-            // if we failed to send the object response, unsubscribe
-            object.removeSubscriber(this);
-        }
-    }
-
-    // from interface ProxySubscriber
-    public void requestFailed (int oid, ObjectAccessException cause)
-    {
-        postMessage(new FailureResponse(oid));
-    }
-
-    // from interface ProxySubscriber
-    public void eventReceived (DEvent event)
-    {
-        if (event instanceof PresentsDObjectMgr.AccessObjectEvent) {
-            Log.warning("Ignoring event that shouldn't be forwarded " + event + ".");
-            Thread.dumpStack();
-        } else {
-            postMessage(new EventNotification(event));
-        }
     }
 
     /**
@@ -557,17 +503,34 @@ public class PresentsClient
     }
 
     /**
+     * Makes a note that this client is no longer subscribed to this object. The subscription map
+     * is used to clean up after the client when it goes away.
+     */
+    protected synchronized void unmapSubscrip (int oid)
+    {
+        ClientProxy rec;
+        synchronized (_subscrips) {
+            rec = _subscrips.remove(oid);
+        }
+        if (rec != null) {
+            rec.unsubscribe();
+        } else {
+            Log.warning("Requested to unmap non-existent subscription [oid=" + oid + "].");
+        }
+    }
+
+    /**
      * Clears out the tracked client subscriptions. Called when the client goes away and shouldn't
      * be called otherwise.
      */
     protected void clearSubscrips (boolean verbose)
     {
-        for (DObject object : _subscrips.values()) {
+        for (ClientProxy rec : _subscrips.values()) {
             if (verbose) {
                 Log.info("Clearing subscription [client=" + this +
-                         ", obj=" + object.getOid() + "].");
+                         ", obj=" + rec.object.getOid() + "].");
             }
-            object.removeSubscriber(this);
+            rec.unsubscribe();
         }
         _subscrips.clear();
     }
@@ -613,6 +576,20 @@ public class PresentsClient
         // clear out our subscriptions so that we don't get a complaint about inability to forward
         // the object destroyed event we're about to generate
         clearSubscrips(false);
+    }
+
+    /**
+     * Called to inform derived classes when the client has subscribed to a distributed object.
+     */
+    protected void subscribedToObject (DObject object)
+    {
+    }
+
+    /**
+     * Called to inform derived classes when the client has unsubscribed from a distributed object.
+     */
+    protected void unsubscribedFromObject (DObject object)
+    {
     }
 
     /**
@@ -804,6 +781,72 @@ public class PresentsClient
     }
 
     /**
+     * Creates a properly initialized inner-class proxy subscriber.
+     */
+    protected ClientProxy createProxySubscriber ()
+    {
+        return new ClientProxy();
+    }
+
+    /** Used to track information about an object subscription. */
+    protected class ClientProxy implements ProxySubscriber
+    {
+        public DObject object;
+
+        public void unsubscribe ()
+        {
+            object.removeSubscriber(this);
+            unsubscribedFromObject(object);
+        }
+
+        // from interface ProxySubscriber
+        public void objectAvailable (DObject object)
+        {
+            if (postMessage(new ObjectResponse<DObject>(object))) {
+                _firstEventId = PresentsServer.omgr.getNextEventId(false);
+                this.object = object;
+                synchronized (_subscrips) {
+                    // make a note of this new subscription
+                    _subscrips.put(object.getOid(), this);
+                }
+                subscribedToObject(object);
+
+            } else {
+                // if we failed to send the object response, unsubscribe
+                object.removeSubscriber(this);
+            }
+        }
+
+        // from interface ProxySubscriber
+        public void requestFailed (int oid, ObjectAccessException cause)
+        {
+            postMessage(new FailureResponse(oid));
+        }
+
+        // from interface ProxySubscriber
+        public void eventReceived (DEvent event)
+        {
+            if (event instanceof PresentsDObjectMgr.AccessObjectEvent) {
+                Log.warning("Ignoring event that shouldn't be forwarded " + event + ".");
+                Thread.dumpStack();
+                return;
+            }
+
+            // if this message was posted before we received this object and has already been
+            // applied, then this event has already been applied to this object and we should not
+            // forward it, it is equivalent to all the events applied to the object before we
+            // became a subscriber
+            if (event.eventId < _firstEventId) {
+                return;
+            }
+
+            postMessage(new EventNotification(event));
+        }
+
+        protected long _firstEventId;
+    }
+
+    /**
      * Message dispatchers are used to dispatch each different type of upstream message. We can
      * look the dispatcher up in a table and invoke it through an overloaded member which is faster
      * (so we think) than doing a bunch of instanceofs.
@@ -827,7 +870,7 @@ public class PresentsClient
 //             Log.info("Subscribing [client=" + client + ", oid=" + req.getOid() + "].");
 
             // forward the subscribe request to the omgr for processing
-            PresentsServer.omgr.subscribeToObject(req.getOid(), client);
+            PresentsServer.omgr.subscribeToObject(req.getOid(), client.createProxySubscriber());
         }
     }
 
@@ -842,9 +885,7 @@ public class PresentsClient
             int oid = req.getOid();
 //             Log.info("Unsubscribing " + client + " [oid=" + oid + "].");
 
-            // forward the unsubscribe request to the omgr for processing
-            PresentsServer.omgr.unsubscribeFromObject(oid, client);
-            // update our subscription tracking table
+            // unsubscribe from the object and clear out our proxy
             client.unmapSubscrip(oid);
 
             // post a response to the client letting them know that we will no longer send them
@@ -904,7 +945,7 @@ public class PresentsClient
     protected Name _username;
     protected Connection _conn;
     protected ClientObject _clobj;
-    protected HashIntMap<DObject> _subscrips = new HashIntMap<DObject>();
+    protected HashIntMap<ClientProxy> _subscrips = new HashIntMap<ClientProxy>();
     protected ClassLoader _loader;
 
     /** The time at which this client started their session. */

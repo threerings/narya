@@ -73,39 +73,19 @@ public class EntryAddedEvent<T extends DSet.Entry> extends NamedEvent
         return _entry;
     }
 
-    /**
-     * Applies this event to the object.
-     */
+    @Override // from DEvent
+    public boolean alreadyApplied ()
+    {
+        return _alreadyApplied;
+    }
+
+    @Override // from DEvent
     public boolean applyToObject (DObject target)
         throws ObjectAccessException
     {
         if (!_alreadyApplied) {
             if (!target.getSet(_name).add(_entry)) {
-                // If this entry is already in the set, then don't notify our listeners of the
-                // event add, because nothing was actually added; the DSet will have already
-                // complained; this happens occasionally due to a race condition between client
-                // object subscription and set addition, for example, the follow sequence of events
-                // can take place:
-                //
-                // 1. SUBSCRIBE arrives from client, AccessObjectEvent posted;
-                //
-                // 2. addToSet() called on server, value immediately added to set and
-                // EntryAddedEvent is posted;
-                //
-                // 3. AccessObjectEvent processed; client is added to proxy subscriber list,
-                // DObject serialized and sent to client; client receives object which already has
-                // the entry in the set;
-                //
-                // 4. EntryAddedEvent processed, client is a subscriber so it is forwarded along;
-                // when it arrives at the client, we find ourselves in this situation.
-                //
-                // Fixing this would require either a) giving up immediate adding to the DSet when
-                // an event is posted, but we add/update immediately because it makes our lives
-                // *vastly* simpler in a thousand other cases, or b) doing some magic in the DSet
-                // where the server "sees" the new entry added, but if the DSet is serialized
-                // before the EntryAddedEvent comes through to "commit" that entry it is not
-                // included. This is probably a good idea and maybe we'll do it sometime.
-                return false;
+                return false; // DSet will have already complained
             }
         }
         return true;

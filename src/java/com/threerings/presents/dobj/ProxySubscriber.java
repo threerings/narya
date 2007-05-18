@@ -22,10 +22,9 @@
 package com.threerings.presents.dobj;
 
 /**
- * Defines a special kind of subscriber that proxies events for a
- * subordinate distributed object manager. All events dispatched on
- * objects with which this subscriber is registered are passed along to
- * the subscriber for delivery to its subordinate manager.
+ * Defines a special kind of subscriber that proxies events for a subordinate distributed object
+ * manager. All events dispatched on objects with which this subscriber is registered are passed
+ * along to the subscriber for delivery to its subordinate manager.
  *
  * @see DObject#addListener
  */

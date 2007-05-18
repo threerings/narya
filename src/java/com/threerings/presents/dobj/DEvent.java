@@ -30,6 +30,10 @@ import com.threerings.io.Streamable;
  */
 public abstract class DEvent implements Streamable
 {
+    /** This event's "number". Every event dispatched by the server is numbered in monotonically
+     * increasing fashion when the event is posted to the event dispatch queue. */
+    public transient long eventId;
+
     /**
      * A zero argument constructor for unserialization from yon network.
      */
@@ -59,6 +63,16 @@ public abstract class DEvent implements Streamable
      * event dispatch mechanism.
      */
     public boolean isPrivate ()
+    {
+        return false;
+    }
+
+    /**
+     * If this event applies itself immediately to the distributed object on the server and then
+     * NOOPs later when {@link #applyToObject} is called, it should return true from this method.
+     * If it will modify the object during its {@link #applyToObject} call, it should return false.
+     */
+    public boolean alreadyApplied ()
     {
         return false;
     }

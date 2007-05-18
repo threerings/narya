@@ -72,13 +72,17 @@ public class EntryRemovedEvent<T extends DSet.Entry> extends NamedEvent
         return _oldEntry;
     }
 
-    /**
-     * Applies this event to the object.
-     */
+    @Override // from DEvent
+    public boolean alreadyApplied ()
+    {
+        return (_oldEntry != UNSET_OLD_ENTRY);
+    }
+
+    @Override // from DEvent
     public boolean applyToObject (DObject target)
         throws ObjectAccessException
     {
-        if (_oldEntry == UNSET_OLD_ENTRY) {
+        if (!alreadyApplied()) {
             DSet<T> set = target.getSet(_name);
             // remove, fetch the previous value for interested callers
             _oldEntry = set.removeKey(_key);

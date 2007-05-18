@@ -33,24 +33,6 @@ import com.threerings.presents.peer.net.PeerBootstrapData;
  */
 public class PeerClient extends PresentsClient
 {
-    @Override // documentation inherited
-    public synchronized void mapSubscrip (DObject object)
-    {
-        super.mapSubscrip(object);
-        if (object instanceof NodeObject) {
-            _peermgr.clientSubscribedToNode(_cloid);
-        }
-    }
-
-    @Override // documentation inherited
-    public synchronized void unmapSubscrip (int oid)
-    {
-        if (_subscrips.get(oid) instanceof NodeObject) {
-            _peermgr.clientUnsubscribedFromNode(_cloid);
-        }
-        super.unmapSubscrip(oid);
-    }
-
     /**
      * Creates a peer client and provides it with a reference to the peer
      * manager. This is only done by the {@link PeerClientFactory}.
@@ -98,16 +80,22 @@ public class PeerClient extends PresentsClient
         _cloid = _clobj.getOid();
     }
 
-    @Override // documentation inherited
-    protected void clearSubscrips (boolean verbose)
+    @Override // from PresentsClient
+    protected void subscribedToObject (DObject object)
     {
-        for (DObject object : _subscrips.values()) {
-            if (object instanceof NodeObject) {
-                _peermgr.clientUnsubscribedFromNode(_cloid);
-                break;
-            }
+        super.subscribedToObject(object);
+        if (object instanceof NodeObject) {
+            _peermgr.clientSubscribedToNode(_cloid);
         }
-        super.clearSubscrips(verbose);
+    }
+
+    @Override // from PresentsClient
+    protected void unsubscribedFromObject (DObject object)
+    {
+        super.unsubscribedFromObject(object);
+        if (object instanceof NodeObject) {
+            _peermgr.clientUnsubscribedFromNode(_cloid);
+        }
     }
 
     protected PeerManager _peermgr;

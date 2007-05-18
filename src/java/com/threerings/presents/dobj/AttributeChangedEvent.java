@@ -28,17 +28,17 @@ import java.util.HashMap;
 import com.samskivert.util.StringUtil;
 
 /**
- * An attribute changed event is dispatched when a single attribute of a
- * distributed object has changed. It can also be constructed to request
- * an attribute change on an object and posted to the dobjmgr.
+ * An attribute changed event is dispatched when a single attribute of a distributed object has
+ * changed. It can also be constructed to request an attribute change on an object and posted to
+ * the dobjmgr.
  *
  * @see DObjectManager#postEvent
  */
 public class AttributeChangedEvent extends NamedEvent
 {
     /**
-     * Constructs a blank instance of this event in preparation for
-     * unserialization from the network.
+     * Constructs a blank instance of this event in preparation for unserialization from the
+     * network.
      */
     public AttributeChangedEvent ()
     {
@@ -53,8 +53,7 @@ public class AttributeChangedEvent extends NamedEvent
     }
 
     /**
-     * Returns the value of the attribute prior to the application of this
-     * event.
+     * Returns the value of the attribute prior to the application of this event.
      */
     public Object getOldValue ()
     {
@@ -62,8 +61,8 @@ public class AttributeChangedEvent extends NamedEvent
     }
 
     /**
-     * Returns the new value of the attribute as a byte. This will fail
-     * if the attribute in question is not a byte.
+     * Returns the new value of the attribute as a byte. This will fail if the attribute in
+     * question is not a byte.
      */
     public byte getByteValue ()
     {
@@ -71,8 +70,8 @@ public class AttributeChangedEvent extends NamedEvent
     }
 
     /**
-     * Returns the new value of the attribute as a short. This will fail
-     * if the attribute in question is not a short.
+     * Returns the new value of the attribute as a short. This will fail if the attribute in
+     * question is not a short.
      */
     public short getShortValue ()
     {
@@ -80,8 +79,8 @@ public class AttributeChangedEvent extends NamedEvent
     }
 
     /**
-     * Returns the new value of the attribute as an int. This will fail if
-     * the attribute in question is not an int.
+     * Returns the new value of the attribute as an int. This will fail if the attribute in
+     * question is not an int.
      */
     public int getIntValue ()
     {
@@ -89,8 +88,8 @@ public class AttributeChangedEvent extends NamedEvent
     }
 
     /**
-     * Returns the new value of the attribute as a long. This will fail if
-     * the attribute in question is not a long.
+     * Returns the new value of the attribute as a long. This will fail if the attribute in
+     * question is not a long.
      */
     public long getLongValue ()
     {
@@ -98,8 +97,8 @@ public class AttributeChangedEvent extends NamedEvent
     }
 
     /**
-     * Returns the new value of the attribute as a float. This will fail
-     * if the attribute in question is not a float.
+     * Returns the new value of the attribute as a float. This will fail if the attribute in
+     * question is not a float.
      */
     public float getFloatValue ()
     {
@@ -107,37 +106,38 @@ public class AttributeChangedEvent extends NamedEvent
     }
 
     /**
-     * Returns the new value of the attribute as a double. This will fail
-     * if the attribute in question is not a double.
+     * Returns the new value of the attribute as a double. This will fail if the attribute in
+     * question is not a double.
      */
     public double getDoubleValue ()
     {
         return ((Double)_value).doubleValue();
     }
 
-    /**
-     * Applies this attribute change to the object.
-     */
+    @Override // from DEvent
+    public boolean alreadyApplied ()
+    {
+        // if we have an old value, that means we're running on the master server and we have
+        // already applied this attribute change to the object
+        return (_oldValue != UNSET_OLD_VALUE);
+    }
+
+    @Override // from DEvent
     public boolean applyToObject (DObject target)
         throws ObjectAccessException
     {
-        // if we have no old value, that means we're not running on the
-        // master server and we have not already applied this attribute
-        // change to the object, so we must grab the previous value and
-        // actually apply the attribute change
-        if (_oldValue == UNSET_OLD_VALUE) {
+        // if we're not already applied, grab the previous value and apply the attribute change
+        if (!alreadyApplied()) {
             _oldValue = target.getAttribute(_name);
             Object value = _value;
             if (value != null) {
                 Class vclass = value.getClass();
                 if (vclass.isPrimitive()) {
-                    // do nothing; we check this to avoid the more
-                    // expensive isAssignableFrom check on primitives
-                    // which are far and away the most common case
+                    // do nothing; we check this to avoid the more expensive isAssignableFrom check
+                    // on primitives which are far and away the most common case
                 } else if (vclass.isArray()) {
                     int length = Array.getLength(value);
-                    Object clone = Array.newInstance(
-                        vclass.getComponentType(), length);
+                    Object clone = Array.newInstance(vclass.getComponentType(), length);
                     System.arraycopy(value, 0, clone, 0, length);
                     value = clone;
                 } else if (DSet.class.isAssignableFrom(vclass)) {
@@ -151,21 +151,16 @@ public class AttributeChangedEvent extends NamedEvent
     }
 
     /**
-     * Constructs a new attribute changed event on the specified target
-     * object with the supplied attribute name and value. <em>Do not
-     * construct these objects by hand.</em> Use {@link
+     * Constructs a new attribute changed event on the specified target object with the supplied
+     * attribute name and value. <em>Do not construct these objects by hand.</em> Use {@link
      * DObject#changeAttribute} instead.
      *
-     * @param targetOid the object id of the object whose attribute has
-     * changed.
-     * @param name the name of the attribute (data member) that has
-     * changed.
-     * @param value the new value of the attribute (in the case of
-     * primitive types, the reflection-defined object-alternative is
-     * used).
+     * @param targetOid the object id of the object whose attribute has changed.
+     * @param name the name of the attribute (data member) that has changed.
+     * @param value the new value of the attribute (in the case of primitive types, the
+     * reflection-defined object-alternative is used).
      */
-    protected AttributeChangedEvent (
-        int targetOid, String name, Object value, Object oldValue)
+    protected AttributeChangedEvent (int targetOid, String name, Object value, Object oldValue)
     {
         super(targetOid, name);
         _value = value;

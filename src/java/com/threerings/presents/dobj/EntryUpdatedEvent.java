@@ -73,14 +73,18 @@ public class EntryUpdatedEvent<T extends DSet.Entry> extends NamedEvent
         return _oldEntry;
     }
 
-    /**
-     * Applies this event to the object.
-     */
+    @Override // from DEvent
+    public boolean alreadyApplied ()
+    {
+        return (_oldEntry != UNSET_OLD_ENTRY);
+    }
+
+    @Override // from DEvent
     public boolean applyToObject (DObject target)
         throws ObjectAccessException
     {
         // only apply the change if we haven't already
-        if (_oldEntry == UNSET_OLD_ENTRY) {
+        if (!alreadyApplied()) {
             DSet<T> set = target.getSet(_name);
             // fetch the previous value for interested callers
             _oldEntry = set.update(_entry);
