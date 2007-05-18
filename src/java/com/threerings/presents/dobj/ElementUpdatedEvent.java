@@ -135,7 +135,7 @@ public class ElementUpdatedEvent extends NamedEvent
     @Override // from DEvent
     public boolean alreadyApplied ()
     {
-        return (_oldValue == UNSET_OLD_VALUE);
+        return (_oldValue != UNSET_OLD_VALUE);
     }
 
     @Override // from DEvent
