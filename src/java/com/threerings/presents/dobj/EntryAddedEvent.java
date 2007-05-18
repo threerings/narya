@@ -80,8 +80,7 @@ public class EntryAddedEvent<T extends DSet.Entry> extends NamedEvent
         throws ObjectAccessException
     {
         if (!_alreadyApplied) {
-            boolean added = target.getSet(_name).add(_entry);
-            if (!added) {
+            if (!target.getSet(_name).add(_entry)) {
                 // If this entry is already in the set, then don't notify our listeners of the
                 // event add, because nothing was actually added; the DSet will have already
                 // complained; this happens occasionally due to a race condition between client
