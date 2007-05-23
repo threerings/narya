@@ -22,16 +22,18 @@
 package com.threerings.presents.server;
 
 import java.util.ArrayList;
+import java.util.logging.Level;
 
 import com.samskivert.util.Interval;
 import com.samskivert.util.ObserverList;
 import com.samskivert.util.StringUtil;
 import com.samskivert.util.SystemInfo;
 
-import com.threerings.presents.Log;
 import com.threerings.presents.client.Client;
 import com.threerings.presents.dobj.AccessController;
 import com.threerings.presents.server.net.ConnectionManager;
+
+import static com.threerings.presents.Log.log;
 
 /**
  * The presents server provides a central point of access to the various facilities that make up
@@ -92,7 +94,7 @@ public class PresentsServer
     {
         // output general system information
         SystemInfo si = new SystemInfo();
-        Log.info("Starting up server [os=" + si.osToString() + ", jvm=" + si.jvmToString() +
+        log.info("Starting up server [os=" + si.osToString() + ", jvm=" + si.jvmToString() +
                  ", mem=" + si.memoryToString() + "].");
 
         // register SIGINT (ctrl-c) and a SIGHUP handlers
@@ -242,8 +244,7 @@ public class PresentsServer
             try {
                 rptr.appendReport(report, now, sinceLast, reset);
             } catch (Throwable t) {
-                Log.warning("Reporter choked [rptr=" + rptr + "].");
-                Log.logStackTrace(t);
+                log.log(Level.WARNING, "Reporter choked [rptr=" + rptr + "].", t);
             }
         }
 
@@ -277,7 +278,7 @@ public class PresentsServer
      */
     protected void logReport (String report)
     {
-        Log.info(report);
+        log.info(report);
     }
 
     /**
@@ -288,7 +289,7 @@ public class PresentsServer
     {
         ObserverList<Shutdowner> downers = _downers;
         if (downers == null) {
-            Log.warning("Refusing repeat shutdown request.");
+            log.warning("Refusing repeat shutdown request.");
             return;
         }
         _downers = null;
@@ -343,7 +344,7 @@ public class PresentsServer
 
     public static void main (String[] args)
     {
-        Log.info("Presents server starting...");
+        log.info("Presents server starting...");
 
         PresentsServer server = new PresentsServer();
         try {
@@ -354,14 +355,12 @@ public class PresentsServer
             String testmod = System.getProperty("test_module");
             if (testmod != null) {
                 try {
-                    Log.info("Invoking test module [mod=" + testmod + "].");
+                    log.info("Invoking test module [mod=" + testmod + "].");
                     Class tmclass = Class.forName(testmod);
                     Runnable trun = (Runnable)tmclass.newInstance();
                     trun.run();
                 } catch (Exception e) {
-                    Log.warning("Unable to invoke test module " +
-                                "[mod=" + testmod + "].");
-                    Log.logStackTrace(e);
+                    log.log(Level.WARNING, "Unable to invoke test module '" + testmod + "'.", e);
                 }
             }
 
@@ -370,8 +369,7 @@ public class PresentsServer
             server.run();
 
         } catch (Exception e) {
-            Log.warning("Unable to initialize server.");
-            Log.logStackTrace(e);
+            log.log(Level.WARNING, "Unable to initialize server.", e);
             System.exit(-1);
         }
     }
