@@ -814,7 +814,7 @@ public class ChatDirector extends BasicDirector
             return text;
 
         // check to make sure there aren't too many caps
-        } else if (tlen > 7) {
+        } else if (tlen > 7 && suppressTooManyCaps()) {
             // count caps
             int caps = 0;
             for (int ii=0; ii < tlen; ii++) {
@@ -896,6 +896,14 @@ public class ChatDirector extends BasicDirector
             }
         }
         return buf;
+    }
+
+    /**
+     * Return true if we should lowercase messages containing more than half upper-case characters.
+     */
+    protected boolean suppressTooManyCaps ()
+    {
+        return true;
     }
 
     /**

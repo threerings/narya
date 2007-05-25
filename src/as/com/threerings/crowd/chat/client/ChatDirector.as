@@ -751,7 +751,7 @@ public class ChatDirector extends BasicDirector
             return text;
 
         // check to make sure there aren't too many caps
-        } else if (tlen > 7) {
+        } else if (tlen > 7 && suppressTooManyCaps()) {
             // count caps
             var caps :int = 0;
             for (var ii :int = 0; ii < tlen; ii++) {
@@ -824,6 +824,14 @@ public class ChatDirector extends BasicDirector
             text = text.replace(pattern, replace);
         }
         return text;
+    }
+
+    /**
+     * Return true if we should lowercase messages containing more than half upper-case characters.
+     */
+    protected function suppressTooManyCaps () :Boolean
+    {
+        return true;
     }
 
     /**
