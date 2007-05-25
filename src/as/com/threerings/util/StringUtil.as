@@ -87,6 +87,60 @@ public class StringUtil
     }
 
     /**
+     * Parse an integer more anally than the built-in parseInt() function,
+     * throwing an ArgumentError if there are any invalid characters.
+     *
+     * The built-in parseInt() will ignore trailing non-integer characters.
+     *
+     * @param str The string to parse.
+     * @param radix The radix to use, from 2 to 16. If not specified the radix will be 10,
+     *        unless the String begins with "0x" in which case it will be 16,
+     *        or the String begins with "0" in which case it will be 8.
+     */
+    public static function parseInteger (str :String, radix :uint = 0) :int
+    {
+        if (str == null) {
+            throw new ArgumentError("Cannot parseInt(null)");
+        }
+
+        if (radix == 0) {
+            if (startsWith(str, "0x")) {
+                str = str.substring(2);
+                radix = 16;
+
+            } else if (startsWith(str, "0")) {
+                str = str.substring(1);
+                radix = 8;
+
+            } else {
+                radix = 10;
+            }
+
+        } else if (radix == 16 && startsWith(str, "0x")) {
+            str = str.substring(2);
+
+        } else if (radix < 2 || radix > 16) {
+            throw new ArgumentError("Radix out of range: " + radix);
+        }
+
+        // now verify that str only contains valid chars for the radix
+        for (var ii :int = 0; ii < str.length; ii++) {
+            var dex :int = HEX.indexOf(str.charAt(ii).toLowerCase());
+            if (dex == -1 || dex >= radix) {
+                throw new ArgumentError("Invalid characters in String parseInt='" + arguments[0] +
+                    "', radix=" + radix);
+            }
+        }
+
+        var result :Number = parseInt(str, radix);
+        if (isNaN(result)) {
+            // this shouldn't happen..
+            throw new ArgumentError("Could not parseInt=" + arguments[0]);
+        }
+        return int(result);
+    }
+
+    /**
      * Append 0 or more copies of the padChar String to the input String
      * until it is at least the specified length.
      */
