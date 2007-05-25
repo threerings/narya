@@ -371,7 +371,7 @@ public class MessageBundle
 
         var buf :StringBuilder = new StringBuilder();
         for (var ii :int = 0; ii < val.length; ii++) {
-            var ch :String = val.charAt(0);
+            var ch :String = val.charAt(ii);
             if (ch != "\\" || ii == val.length-1) {
                 buf.append(ch);
             } else {
