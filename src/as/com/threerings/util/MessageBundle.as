@@ -176,11 +176,8 @@ public class MessageBundle
             if (getResourceString(key + ".n", false) != null) {
                 // try converting the first arg to an int
                 try {
-                    var n :Number = parseInt(args[0]);
-                    if (!isNaN(n)) {
-                        args[0] = n;
-                        msg = getResourceString(key + getSuffix(args), false);
-                    }
+                    args[0] = StringUtil.parseInteger(args[0]);
+                    msg = getResourceString(key + getSuffix(args), false);
                 } catch (err :Error) {
                     // fall through...
                 }
