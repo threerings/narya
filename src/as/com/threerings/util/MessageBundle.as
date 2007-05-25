@@ -173,11 +173,26 @@ public class MessageBundle
         // if the base key is not found, look to see if we should try to
         // convert our first argument to an Integer and try again
         if (msg == null) {
-            Log.getLog(this).warning("Missing translation message " +
-                        "[bundle=" + _path + ", key=" + key + "].");
+            if (getResourceString(key + ".n", false) != null) {
+                // try converting the first arg to an int
+                try {
+                    var n :Number = parseInt(args[0]);
+                    if (!isNaN(n)) {
+                        args[0] = n;
+                        msg = getResourceString(key + getSuffix(args), false);
+                    }
+                } catch (err :Error) {
+                    // fall through...
+                }
+            }
+            // if the msg is still null, we have a problem
+            if (msg == null) {
+                Log.getLog(this).warning("Missing translation message " +
+                            "[bundle=" + _path + ", key=" + key + "].");
 
-            // return something bogus
-            return (key + args);
+                // return something bogus
+                return (key + args);
+            }
         }
 
         return StringUtil.substitute(msg, args);
