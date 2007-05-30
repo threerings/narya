@@ -160,7 +160,7 @@
     <javadoc sourcepath="src/java" packagenames="com.threerings.*"
              destdir="${javadoc.home}" stylesheetfile="docs/stylesheet.css"
              additionalparam="-breakiterator"
-             link="http://www.threerings.net/code/narya/narya/docs/api">
+             link="http://www.threerings.net/code/narya/docs/api">
       <classpath refid="classpath"/>
       <link href="http://java.sun.com/j2se/1.5/docs/api/"/>
       <!-- ant documentation is not available online, sorry kids -->
