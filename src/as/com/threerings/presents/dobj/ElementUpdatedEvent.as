@@ -56,11 +56,13 @@ public class ElementUpdatedEvent extends NamedEvent
             oldValue :Object = null, index :int = 0)
     {
         super(targetOid, name);
-        _value = value;
-        if (oldValue != null) {
+
+        // only init these values if they were specified
+        if (arguments.length > 0) {
+            _value = value;
             _oldValue = oldValue;
+            _index = index;
         }
-        _index = index;
     }
 
     /**

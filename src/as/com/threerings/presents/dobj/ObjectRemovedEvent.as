@@ -52,7 +52,11 @@ public class ObjectRemovedEvent extends NamedEvent
             targetOid :int = 0, name :String = null, oid :int = 0)
     {
         super(targetOid, name);
-        _oid = oid;
+
+        // only init these values if they were specified
+        if (arguments.length > 0) {
+            _oid = oid;
+        }
     }
 
     /**

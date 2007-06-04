@@ -51,8 +51,10 @@ public class EntryUpdatedEvent extends NamedEvent
             oldEntry :DSet_Entry = null)
     {
         super(targetOid, name);
-        _entry = entry;
-        if (oldEntry != null) {
+
+        // only init these values if they were specified
+        if (arguments.length > 0) {
+            _entry = entry;
             _oldEntry = oldEntry;
         }
     }

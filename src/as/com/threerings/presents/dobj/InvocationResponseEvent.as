@@ -49,9 +49,13 @@ public class InvocationResponseEvent extends DEvent
             args :Array = null)
     {
         super(targetOid);
-        _requestId = requestId;
-        _methodId = methodId;
-        _args = args;
+
+        // only init these values if they were specified
+        if (arguments.length > 0) {
+            _requestId = requestId;
+            _methodId = methodId;
+            _args = args;
+        }
     }
 
     /**

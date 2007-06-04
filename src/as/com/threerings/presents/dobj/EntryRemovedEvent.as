@@ -53,8 +53,10 @@ public class EntryRemovedEvent extends NamedEvent
             oldEntry :DSet_Entry = null)
     {
         super(targetOid, name);
-        _key = key;
-        if (oldEntry != null) {
+
+        // only init these values if they were specified
+        if (arguments.length > 0) {
+            _key = key;
             _oldEntry = oldEntry;
         }
     }

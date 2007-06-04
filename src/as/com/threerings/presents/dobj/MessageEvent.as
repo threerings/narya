@@ -53,7 +53,11 @@ public class MessageEvent extends NamedEvent
             targetOid :int = 0, name :String = null, args :Array = null)
     {
         super(targetOid, name);
-        _args = args;
+
+        // only init these values if they were specified
+        if (arguments.length > 0) {
+            _args = args;
+        }
     }
 
     /**

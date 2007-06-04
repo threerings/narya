@@ -104,6 +104,14 @@ public class OidList
         return _oids[index];
     }
 
+    /**
+     * Return a new array containing all the oids in this list.
+     */
+    public function toArray () :Array
+    {
+        return _oids.concat();
+    }
+
     // documentation inherited from interface Streamable
     public function writeObject (out :ObjectOutputStream) :void
     {

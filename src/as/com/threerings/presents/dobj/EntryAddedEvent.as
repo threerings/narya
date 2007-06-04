@@ -49,7 +49,11 @@ public class EntryAddedEvent extends NamedEvent
             targetOid :int = 0, name :String = null, entry :DSet_Entry = null)
     {
         super(targetOid, name);
-        _entry = entry;
+
+        // only init these values if they were specified
+        if (arguments.length > 0) {
+            _entry = entry;
+        }
     }
 
     /**

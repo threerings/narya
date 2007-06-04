@@ -90,8 +90,12 @@ public class AttributeChangedEvent extends NamedEvent
             oldValue :Object = null)
     {
         super(targetOid, name);
-        _value = value;
-        _oldValue = oldValue;
+
+        // only init these values if they were specified
+        if (arguments.length > 0) {
+            _value = value;
+            _oldValue = oldValue;
+        }
     }
 
     // documentation inherited

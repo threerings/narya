@@ -53,9 +53,13 @@ public class InvocationNotificationEvent extends DEvent
         args :Array = null)
     {
         super(targetOid);
-        _receiverId = receiverId;
-        _methodId = methodId;
-        _args = args;
+
+        // only init these values if they were specified
+        if (arguments.length > 0) {
+            _receiverId = receiverId;
+            _methodId = methodId;
+            _args = args;
+        }
     }
 
     /**
