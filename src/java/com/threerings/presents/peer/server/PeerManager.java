@@ -704,8 +704,8 @@ public class PeerManager
         {
             _record = record;
             _client = new Client(null, PresentsServer.omgr) {
-                protected void adjustForProxy (DObject target, DEvent event) {
-                    super.adjustForProxy(target, event);
+                protected void convertFromRemote (DObject target, DEvent event) {
+                    super.convertFromRemote(target, event);
                     // rewrite the event's target oid using the oid currently configured on the
                     // distributed object (we will have it mapped in our remote server's oid space,
                     // but it may have been remapped into the oid space of the local server)

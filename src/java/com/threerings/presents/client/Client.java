@@ -489,7 +489,7 @@ public class Client
      * If this client is being used to proxy events from another server, this method can be
      * overridden to adjust the event in any way needed prior to dispatching the event.
      */
-    protected void adjustForProxy (DObject target, DEvent event)
+    protected void convertFromRemote (DObject target, DEvent event)
     {
         // nothing by default
     }

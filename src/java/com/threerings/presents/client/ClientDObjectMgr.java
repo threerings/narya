@@ -213,9 +213,9 @@ public class ClientDObjectMgr
             return;
         }
 
-        // because we might be acting as a proxy between servers, we may need to fiddle with this
-        // event before we dispatch it
-        _client.adjustForProxy(target, event);
+        // because we might be acting as a proxy for a remote server, we may need to fiddle with
+        // this event before we dispatch it
+        _client.convertFromRemote(target, event);
 
         // if this is a compound event, we need to process its contained events in order
         if (event instanceof CompoundEvent) {
