@@ -24,6 +24,8 @@ package com.threerings.presents.server;
 import sun.misc.Signal;
 import sun.misc.SignalHandler;
 
+import com.samskivert.util.RunAnywhere;
+
 import static com.threerings.presents.Log.log;
 
 /**
@@ -50,7 +52,9 @@ public class SunSignalHandler extends AbstractSignalHandler
         // we don't track and call the chained handlers for INT and HUP because those exit the JVM
         // which we do not want to do
         Signal.handle(new Signal("INT"), this);
-        Signal.handle(new Signal("HUP"), this);
+        if (!RunAnywhere.isWindows()) {
+            Signal.handle(new Signal("HUP"), this);
+        }
         return true;
     }
 }
