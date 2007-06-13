@@ -23,6 +23,7 @@ package com.threerings.presents.peer.server.persist;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 
 import com.samskivert.io.PersistenceException;
@@ -38,15 +39,14 @@ import com.samskivert.jdbc.jora.Table;
  */
 public class NodeRepository extends JORARepository
 {
-    /** The database identifier used when establishing a database connection.
-     * This value being <code>nodedb</code>. */
+    /** The database identifier used when establishing a database connection.  This value being
+     * <code>nodedb</code>. */
     public static final String NODE_DB_IDENT = "nodedb";
 
     /**
      * Constructs a new repository with the specified connection provider.
      *
-     * @param conprov the connection provider via which we will obtain our
-     * database connection.
+     * @param conprov the connection provider via which we will obtain our database connection.
      */
     public NodeRepository (ConnectionProvider conprov)
         throws PersistenceException
@@ -64,13 +64,26 @@ public class NodeRepository extends JORARepository
     }
 
     /**
-     * Updates the supplied node record, inserting it into the database if
-     * necessary.
+     * Updates the supplied node record, inserting it into the database if necessary.
      */
     public void updateNode (NodeRecord record)
         throws PersistenceException
     {
+        record.lastUpdated = new Timestamp(System.currentTimeMillis());
         store(_ntable, record);
+    }
+
+    /**
+     * Updates {@link NodeRecord#lastUpdated} for the specified node, indicating that the node is
+     * alive and well.
+     */
+    public void heartbeatNode (String nodeName)
+        throws PersistenceException
+    {
+        NodeRecord record = new NodeRecord();
+        record.nodeName = nodeName;
+        record.lastUpdated = new Timestamp(System.currentTimeMillis());
+        updateField(_ntable, record, "lastUpdated");
     }
 
     /**
@@ -104,8 +117,7 @@ public class NodeRepository extends JORARepository
     @Override // documentation inherited
     protected void createTables ()
     {
-	_ntable = new Table<NodeRecord>(
-            NodeRecord.class, "NODES", "NODE_NAME", true);
+	_ntable = new Table<NodeRecord>(NodeRecord.class, "NODES", "NODE_NAME", true);
     }
 
     protected Table<NodeRecord> _ntable;

@@ -579,6 +579,9 @@ public class PeerManager
         _invoker.postUnit(new Invoker.Unit() {
             public boolean invoke () {
                 try {
+                    // let the world know that we're alive
+                    _noderepo.heartbeatNode(_nodeName);
+                    // then load up all the peer records
                     _nodes = _noderepo.loadNodes();
                     return true;
                 } catch (PersistenceException pe) {

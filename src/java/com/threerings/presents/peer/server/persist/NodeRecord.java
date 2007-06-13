@@ -51,8 +51,7 @@ public class NodeRecord
     }
 
     /** Creates a record for the specified node. */
-    public NodeRecord (String nodeName, String hostName, String publicHostName,
-                       int port)
+    public NodeRecord (String nodeName, String hostName, String publicHostName, int port)
     {
         this.nodeName = nodeName;
         this.hostName = hostName;
