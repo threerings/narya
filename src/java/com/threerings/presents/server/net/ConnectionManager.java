@@ -37,13 +37,12 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Set;
+import java.util.logging.Level;
 
 import com.samskivert.util.*;
 
 import com.threerings.io.FramingOutputStream;
 import com.threerings.io.ObjectOutputStream;
-
-import com.threerings.presents.Log;
 
 import com.threerings.presents.data.ConMgrStats;
 import com.threerings.presents.net.AuthRequest;
@@ -52,6 +51,8 @@ import com.threerings.presents.net.DownstreamMessage;
 
 import com.threerings.presents.server.Authenticator;
 import com.threerings.presents.server.PresentsServer;
+
+import static com.threerings.presents.Log.log;
 
 /**
  * The connection manager manages the socket on which connections are received. It creates
@@ -260,18 +261,18 @@ public class ConnectionManager extends LoopingThread
         for (int ii = 0; ii < _ports.length; ii++) {
             try {
                 // create a listening socket and add it to the select set
-                ServerSocketChannel listener = ServerSocketChannel.open();
-                listener.configureBlocking(false);
+                _ssocket = ServerSocketChannel.open();
+                _ssocket.configureBlocking(false);
 
                 InetSocketAddress isa = new InetSocketAddress(_ports[ii]);
-                listener.socket().bind(isa);
-                registerChannel(listener);
+                _ssocket.socket().bind(isa);
+                registerChannel(_ssocket);
                 successes++;
-                Log.info("Server listening on " + isa + ".");
+                log.info("Server listening on " + isa + ".");
 
             } catch (IOException ioe) {
-                Log.warning("Failure listening to socket on port '" +_ports[ii] + "'.");
-                Log.logStackTrace(ioe);
+                log.log(Level.WARNING, "Failure listening to socket on port '" +
+                        _ports[ii] + "'.", ioe);
                 _failure = ioe;
             }
         }
@@ -287,20 +288,19 @@ public class ConnectionManager extends LoopingThread
 //         try {
 //             Channel inherited = System.inheritedChannel();
 //             if (inherited instanceof ServerSocketChannel) {
-//                 ServerSocketChannel listener = (ServerSocketChannel)inherited;
-//                 listener.configureBlocking(false);
-//                 registerChannel(listener);
+//                 _ssocket = (ServerSocketChannel)inherited;
+//                 _ssocket.configureBlocking(false);
+//                 registerChannel(_ssocket);
 //                 successes++;
-//                 Log.info("Server listening on " +
-//                          listener.socket().getInetAddress() + ":" +
-//                          listener.socket().getLocalPort() + ".");
+//                 log.info("Server listening on " +
+//                          _ssocket.socket().getInetAddress() + ":" +
+//                          _ssocket.socket().getLocalPort() + ".");
 
 //             } else if (inherited != null) {
-//                 Log.warning("Inherited non-server-socket channel " +
-//                             inherited + ".");
+//                 log.warning("Inherited non-server-socket channel " + inherited + ".");
 //             }
 //         } catch (IOException ioe) {
-//             Log.warning("Failed to check for inherited channel.");
+//             log.warning("Failed to check for inherited channel.");
 //         }
 
         // if we failed to listen on at least one port, give up the ghost
@@ -394,7 +394,7 @@ public class ConnectionManager extends LoopingThread
             if (oqueue != null) {
                 int size = oqueue.size();
                 if ((size > 500) && (size % 50 == 0)) {
-                    Log.warning("Aiya, big overflow queue for " + conn + " [size=" + size +
+                    log.warning("Aiya, big overflow queue for " + conn + " [size=" + size +
                                 ", adding=" + tup.right + "].");
                 }
                 oqueue.add(tup.right);
@@ -433,15 +433,14 @@ public class ConnectionManager extends LoopingThread
                                 conn.getAuthRequest(), conn.getAuthResponse());
 
             } catch (IOException ioe) {
-                Log.warning("Failure upgrading authing connection to running connection.");
-                Log.logStackTrace(ioe);
+                log.log(Level.WARNING, "Failure upgrading authing connection to running.", ioe);
             }
         }
 
         Set<SelectionKey> ready = null;
         try {
             // check for incoming network events
-//             Log.debug("Selecting from " + StringUtil.toString(_selector.keys()) + " (" +
+//             log.fine("Selecting from " + StringUtil.toString(_selector.keys()) + " (" +
 //                       SELECT_LOOP_TIME + ").");
             int ecount = _selector.select(SELECT_LOOP_TIME);
             ready = _selector.selectedKeys();
@@ -449,16 +448,17 @@ public class ConnectionManager extends LoopingThread
                 if (ready.size() == 0) {
                     return;
                 } else {
-                    Log.warning("select() returned no selected sockets, but there are " +
+                    log.warning("select() returned no selected sockets, but there are " +
                                 ready.size() + " in the ready set.");
                 }
             }
 
         } catch (IOException ioe) {
-            Log.warning("Failure select()ing [ioe=" + ioe + "].");
             if ("Invalid argument".equals(ioe.getMessage())) {
                 // what is this, anyway?
-                Log.logStackTrace(ioe);
+                log.log(Level.WARNING, "Failure select()ing.", ioe);
+            } else {
+                log.warning("Failure select()ing [ioe=" + ioe + "].");
             }
             return;
 
@@ -466,10 +466,9 @@ public class ConnectionManager extends LoopingThread
             // this block of code deals with a bug in the _selector that we observed on 2005-05-02,
             // instead of looping indefinitely after things go pear-shaped, shut us down in an
             // orderly fashion
-            Log.warning("Failure select()ing [re=" + re + "].");
-            Log.logStackTrace(re);
+            log.log(Level.WARNING, "Failure select()ing.", re);
             if (_runtimeExceptionCount++ >= 20) {
-                Log.warning("Too many errors, bailing.");
+                log.warning("Too many errors, bailing.");
                 shutdown();
             }
             return;
@@ -478,13 +477,13 @@ public class ConnectionManager extends LoopingThread
         _runtimeExceptionCount = 0;
 
         // process those events
-//         Log.info("Ready set " + StringUtil.toString(ready) + ".");
+//         log.info("Ready set " + StringUtil.toString(ready) + ".");
         for (SelectionKey selkey : ready) {
             NetEventHandler handler = null;
             try {
                 handler = _handlers.get(selkey);
                 if (handler == null) {
-                    Log.warning("Received network event but have no registered handler " +
+                    log.warning("Received network event but have no registered handler " +
                                 "[selkey=" + selkey + "].");
                     // request that this key be removed from our selection set, which normally
                     // happens automatically but for some reason didn't
@@ -492,7 +491,7 @@ public class ConnectionManager extends LoopingThread
                     continue;
                 }
 
-//                 Log.info("Got event [selkey=" + selkey + ", handler=" + handler + "].");
+//                 log.info("Got event [selkey=" + selkey + ", handler=" + handler + "].");
 
                 int got = handler.handleEvent(iterStamp);
                 if (got != 0) {
@@ -507,8 +506,7 @@ public class ConnectionManager extends LoopingThread
                 }
 
             } catch (Exception e) {
-                Log.warning("Error processing network data: " + handler + ".");
-                Log.logStackTrace(e);
+                log.log(Level.WARNING, "Error processing network data: " + handler + ".", e);
 
                 // if you freak out here, you go straight in the can
                 if (handler != null && handler instanceof Connection) {
@@ -537,7 +535,7 @@ public class ConnectionManager extends LoopingThread
 
         // sanity check the message size
         if (data.length > 1024 * 1024) {
-            Log.warning("Refusing to write absurdly large message [conn=" + conn +
+            log.warning("Refusing to write absurdly large message [conn=" + conn +
                         ", size=" + data.length + "].");
             return true;
         }
@@ -546,13 +544,13 @@ public class ConnectionManager extends LoopingThread
         if (data.length > _outbuf.capacity()) {
             // increase the buffer size in large increments
             int ncapacity = Math.max(_outbuf.capacity() << 1, data.length);
-            Log.info("Expanding output buffer size [nsize=" + ncapacity + "].");
+            log.info("Expanding output buffer size [nsize=" + ncapacity + "].");
             _outbuf = ByteBuffer.allocateDirect(ncapacity);
 	}
 
         boolean fully = true;
         try {
-//             Log.info("Writing " + data.length + " byte message to " + conn + ".");
+//             log.info("Writing " + data.length + " byte message to " + conn + ".");
 
             // first copy the data into our "direct" output buffer
             _outbuf.put(data);
@@ -564,13 +562,13 @@ public class ConnectionManager extends LoopingThread
 
             if (_outbuf.remaining() > 0) {
                 fully = false;
-//                 Log.info("Partial write [conn=" + conn +
+//                 log.info("Partial write [conn=" + conn +
 //                          ", msg=" + StringUtil.shortClassName(outmsg) + ", wrote=" + wrote +
 //                          ", size=" + buffer.limit() + "].");
                 pwh.handlePartialWrite(conn, _outbuf);
 
 //                 } else if (wrote > 10000) {
-//                     Log.info("Big write [conn=" + conn +
+//                     log.info("Big write [conn=" + conn +
 //                              ", msg=" + StringUtil.shortClassName(outmsg) +
 //                              ", wrote=" + wrote + "].");
             }
@@ -599,19 +597,26 @@ public class ConnectionManager extends LoopingThread
     protected void handleIterateFailure (Exception e)
     {
         // log the exception
-        Log.warning("ConnectionManager.iterate() uncaught exception.");
-        Log.logStackTrace(e);
+        log.log(Level.WARNING, "ConnectionManager.iterate() uncaught exception.", e);
     }
 
     // documentation inherited
     protected void didShutdown ()
     {
+        // unbind our listening socket
+        try {
+            _ssocket.socket().close();
+        } catch (IOException ioe) {
+            log.log(Level.WARNING, "Failed to close listening socket.", ioe);
+        }
+
+        // run our on-exit handler if we have one
         Runnable onExit = _onExit;
         if (onExit != null) {
-            Log.info("Connection Manager thread exited (running onExit).");
+            log.info("Connection Manager thread exited (running onExit).");
             onExit.run();
         } else {
-            Log.info("Connection Manager thread exited.");
+            log.info("Connection Manager thread exited.");
         }
     }
 
@@ -628,23 +633,23 @@ public class ConnectionManager extends LoopingThread
             if (channel == null) {
                 // in theory this shouldn't happen because we got an ACCEPT_READY event, but better
                 // safe than sorry
-                Log.info("Psych! Got ACCEPT_READY, but no connection.");
+                log.info("Psych! Got ACCEPT_READY, but no connection.");
                 return;
             }
 
             if (!(channel instanceof SelectableChannel)) {
                 try {
-                    Log.warning("Provided with un-selectable socket as result of accept(), can't " +
+                    log.warning("Provided with un-selectable socket as result of accept(), can't " +
                                 "cope [channel=" + channel + "].");
                 } catch (Error err) {
-                    Log.warning("Un-selectable channel also couldn't be printed.");
+                    log.warning("Un-selectable channel also couldn't be printed.");
                 }
                 // stick a fork in the socket
                 channel.socket().close();
                 return;
             }
 
-//             Log.debug("Accepted connection " + channel + ".");
+//             log.fine("Accepted connection " + channel + ".");
 
             // create a new authing connection object to manage the authentication of this client
             // connection and register it with our selection set
@@ -658,8 +663,8 @@ public class ConnectionManager extends LoopingThread
             return;
 
         } catch (IOException ioe) {
-//             Log.warning("Failure accepting new connection: " + ioe);
-//             ioe.printStackTrace(System.err);
+            // no need to complain this happens in the normal course of events
+//             log.log(Level.WARNING, "Failure accepting new connection.", ioe);
         }
 
         // make sure we don't leak a socket if something went awry
@@ -667,7 +672,7 @@ public class ConnectionManager extends LoopingThread
             try {
                 channel.socket().close();
             } catch (IOException ioe) {
-                Log.warning("Failed closing aborted connection: " + ioe);
+                log.warning("Failed closing aborted connection: " + ioe);
             }
         }
     }
@@ -682,14 +687,14 @@ public class ConnectionManager extends LoopingThread
     {
         // sanity check
         if (conn == null || msg == null) {
-            Log.warning("postMessage() bogosity [conn=" + conn + ", msg=" + msg + "].");
+            log.warning("postMessage() bogosity [conn=" + conn + ", msg=" + msg + "].");
             Thread.dumpStack();
             return;
         }
 
         // more sanity check; messages must only be posted from the dobjmgr thread
         if (!PresentsServer.omgr.isDispatchThread()) {
-            Log.warning("Message posted on non-distributed object thread [conn=" + conn +
+            log.warning("Message posted on non-distributed object thread [conn=" + conn +
                         ", msg=" + msg + ", thread=" + Thread.currentThread() + "].");
             Thread.dumpStack();
             // let it through though as we don't want to break things unnecessarily
@@ -708,14 +713,14 @@ public class ConnectionManager extends LoopingThread
             byte[] data = new byte[buffer.limit()];
             buffer.get(data);
 
-//             Log.info("Flattened " + msg + " into " + data.length + " bytes.");
+//             log.info("Flattened " + msg + " into " + data.length + " bytes.");
 
             // and slap both on the queue
             _outq.append(new Tuple<Connection,byte[]>(conn, data));
 
         } catch (Exception e) {
-            Log.warning("Failure flattening message [conn=" + conn + ", msg=" + msg + "].");
-            Log.logStackTrace(e);
+            log.log(Level.WARNING, "Failure flattening message [conn=" + conn +
+                    ", msg=" + msg + "].", e);
         }
     }
 
@@ -805,7 +810,7 @@ public class ConnectionManager extends LoopingThread
                     _partial = null;
                     _partials++;
                 } else {
-//                     Log.info("Still going [conn=" + conn + ", wrote=" + wrote +
+//                     log.info("Still going [conn=" + conn + ", wrote=" + wrote +
 //                              ", remain=" + _partial.remaining() + "].");
                     return false;
                 }
@@ -851,6 +856,7 @@ public class ConnectionManager extends LoopingThread
     protected int[] _ports;
     protected Authenticator _author;
     protected Selector _selector;
+    protected ServerSocketChannel _ssocket;
     protected ResultListener<Object> _startlist;
 
     /** Counts consecutive runtime errors in select(). */
