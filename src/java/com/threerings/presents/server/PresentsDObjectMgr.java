@@ -303,25 +303,6 @@ public class PresentsDObjectMgr
                 // if this is a runnable, it's just an executable unit that should be invoked
                 ((Runnable)unit).run();
 
-            } else if (unit instanceof CompoundEvent) {
-                CompoundEvent event = (CompoundEvent)unit;
-
-                // if this event is on a proxied object, forward it to the owning manager
-                ProxyReference proxy = _proxies.get(event.getTargetOid());
-                if (proxy != null) {
-                    // rewrite the oid into the originating manager's id space
-                    event.setTargetOid(proxy.origObjectId);
-                    List<DEvent> events = event.getEvents();
-                    for (int ii = 0, ll = events.size(); ii < ll; ii++) {
-                        events.get(ii).setTargetOid(proxy.origObjectId);
-                    }
-                    // then pass it on to the originating manager to handle
-                    proxy.origManager.postEvent(event);
-
-                } else {
-                    processCompoundEvent(event);
-                }
-
             } else {
                 DEvent event = (DEvent)unit;
 
@@ -332,6 +313,9 @@ public class PresentsDObjectMgr
                     event.setTargetOid(proxy.origObjectId);
                     // then pass it on to the originating manager to handle
                     proxy.origManager.postEvent(event);
+
+                } else if (event instanceof CompoundEvent) {
+                    processCompoundEvent((CompoundEvent)event);
 
                 } else {
                     processEvent(event);

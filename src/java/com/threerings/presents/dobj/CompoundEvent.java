@@ -115,25 +115,35 @@ public class CompoundEvent extends DEvent
         _events.clear();
     }
 
-    /**
-     * We need to propagate our source oid to our constituent events.
-     */
+    @Override // from DEvent
     public void setSourceOid (int sourceOid)
     {
         super.setSourceOid(sourceOid);
 
+        // we need to propagate our source oid to our constituent events
         int ecount = _events.size();
         for (int i = 0; i < ecount; i++) {
             _events.get(i).setSourceOid(sourceOid);
         }
     }
 
-    /**
-     * Nothing to apply here.
-     */
+    @Override // from DEvent
+    public void setTargetOid (int targetOid)
+    {
+        super.setTargetOid(targetOid);
+
+        // we need to propagate our target oid to our constituent events
+        int ecount = _events.size();
+        for (int i = 0; i < ecount; i++) {
+            _events.get(i).setTargetOid(targetOid);
+        }
+    }
+
+    @Override // from DEvent
     public boolean applyToObject (DObject target)
         throws ObjectAccessException
     {
+        // nothing to apply here
         return false;
     }
 
