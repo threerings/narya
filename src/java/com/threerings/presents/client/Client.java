@@ -31,6 +31,8 @@ import com.samskivert.util.RunQueue;
 import com.threerings.presents.Log;
 import com.threerings.presents.data.ClientObject;
 import com.threerings.presents.data.InvocationCodes;
+import com.threerings.presents.dobj.DEvent;
+import com.threerings.presents.dobj.DObject;
 import com.threerings.presents.dobj.DObjectManager;
 import com.threerings.presents.net.AuthResponseData;
 import com.threerings.presents.net.BootstrapData;
@@ -481,6 +483,15 @@ public class Client
         // we can't quite call initialization completed at this point because we need for the
         // invocation director to fully initialize (which requires a round trip to the server)
         // before turning the client loose to do things like request invocation services
+    }
+
+    /**
+     * If this client is being used to proxy events from another server, this method can be
+     * overridden to adjust the event in any way needed prior to dispatching the event.
+     */
+    protected void adjustForProxy (DObject target, DEvent event)
+    {
+        // nothing by default
     }
 
     /**

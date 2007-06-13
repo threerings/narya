@@ -47,6 +47,7 @@ import com.threerings.presents.client.ClientObserver;
 import com.threerings.presents.data.ClientObject;
 import com.threerings.presents.dobj.AttributeChangeListener;
 import com.threerings.presents.dobj.AttributeChangedEvent;
+import com.threerings.presents.dobj.DEvent;
 import com.threerings.presents.dobj.DObject;
 import com.threerings.presents.dobj.EntryAddedEvent;
 import com.threerings.presents.dobj.EntryRemovedEvent;
@@ -702,7 +703,18 @@ public class PeerManager
         public PeerNode (NodeRecord record)
         {
             _record = record;
-            _client = new Client(null, PresentsServer.omgr);
+            _client = new Client(null, PresentsServer.omgr) {
+                protected void adjustForProxy (DObject target, DEvent event) {
+                    super.adjustForProxy(target, event);
+                    // rewrite the event's target oid using the oid currently configured on the
+                    // distributed object (we will have it mapped in our remote server's oid space,
+                    // but it may have been remapped into the oid space of the local server)
+                    event.setTargetOid(target.getOid());
+                    // assign an eventId to this event so that our stale event detection code can
+                    // properly deal with it
+                    event.eventId = PresentsServer.omgr.getNextEventId(true);
+                }
+            };
             _client.addClientObserver(this);
         }
 

@@ -159,7 +159,7 @@ public class ClientDObjectMgr
             } else if (obj instanceof EventNotification) {
                 DEvent evt = ((EventNotification)obj).getEvent();
 //                 Log.info("Dispatch event: " + evt);
-                dispatchEvent(evt);
+                dispatchEvent(evt, true);
 
             } else if (obj instanceof ObjectResponse<?>) {
                 registerObjectAndNotify((ObjectResponse<?>)obj);
@@ -201,18 +201,8 @@ public class ClientDObjectMgr
      * Called when a new event arrives from the server that should be dispatched to subscribers
      * here on the client.
      */
-    protected void dispatchEvent (DEvent event)
+    protected void dispatchEvent (DEvent event, boolean notifyProxies)
     {
-        // if this is a compound event, we need to process its contained events in order
-        if (event instanceof CompoundEvent) {
-            List<DEvent> events = ((CompoundEvent)event).getEvents();
-            int ecount = events.size();
-            for (int i = 0; i < ecount; i++) {
-                dispatchEvent(events.get(i));
-            }
-            return;
-        }
-
         // look up the object on which we're dispatching this event
         int toid = event.getTargetOid();
         DObject target = _ocache.get(toid);
@@ -223,18 +213,32 @@ public class ClientDObjectMgr
             return;
         }
 
-        // because we might be acting as a proxy between servers, we rewrite the event's target oid
-        // using the oid currently configured on the distributed object (we will have it mapped in
-        // our remote server's oid space, but it may have been remapped into the oid space of the
-        // local server)
-        event.setTargetOid(target.getOid());
+        // because we might be acting as a proxy between servers, we may need to fiddle with this
+        // event before we dispatch it
+        _client.adjustForProxy(target, event);
+
+        // if this is a compound event, we need to process its contained events in order
+        if (event instanceof CompoundEvent) {
+            // notify our proxy subscribers in one fell swoop
+            target.notifyProxies(event);
+
+            // now break the event up and dispatch each event individually
+            List<DEvent> events = ((CompoundEvent)event).getEvents();
+            int ecount = events.size();
+            for (int i = 0; i < ecount; i++) {
+                dispatchEvent(events.get(i), false);
+            }
+            return;
+        }
 
         try {
             // apply the event to the object
             boolean notify = event.applyToObject(target);
 
-            // forward to any proxies
-            target.notifyProxies(event);
+            // forward to any proxies (or not if we're dispatching part of a compound event)
+            if (notifyProxies) {
+                target.notifyProxies(event);
+            }
 
             // if this is an object destroyed event, we need to remove the object from our table
             if (event instanceof ObjectDestroyedEvent) {
