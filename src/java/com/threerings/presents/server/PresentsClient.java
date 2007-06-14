@@ -904,8 +904,15 @@ public class PresentsClient
             ForwardEventRequest req = (ForwardEventRequest)msg;
             DEvent fevt = req.getEvent();
 
+            // freak not out if a message arrives from a client just after their session ended
+            ClientObject clobj = client.getClientObject();
+            if (clobj == null) {
+                Log.info("Dropping event that arrived after client disconnected " + fevt + ".");
+                return;
+            }
+
             // fill in the proper source oid
-            fevt.setSourceOid(client.getClientObject().getOid());
+            fevt.setSourceOid(clobj.getOid());
 
 //             Log.info("Forwarding event [client=" + client + ", event=" + fevt + "].");
 
