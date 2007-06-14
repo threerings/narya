@@ -246,6 +246,35 @@ public class StringUtil
     }
 
     /**
+     * Turn the specified byte array, containing only ascii characters, into a String.
+     */
+    public static function fromBytes (bytes :ByteArray) :String
+    {
+        var s :String = "";
+        if (bytes != null) {
+            for (var ii :int = 0; ii < bytes.length; ii++) {
+                s += String.fromCharCode(bytes[ii]);
+            }
+        }
+        return s;
+    }
+
+    /**
+     * Turn the specified String, containing only ascii characters, into a ByteArray.
+     */
+    public static function toBytes (s :String) :ByteArray
+    {
+        if (s == null) {
+            return null;
+        }
+        var ba :ByteArray = new ByteArray();
+        for (var ii :int = 0; ii < s.length; ii++) {
+            ba[ii] = int(s.charCodeAt(ii)) & 0xFF;
+        }
+        return ba;
+    }
+
+    /**
      * Generates a string from the supplied bytes that is the hex encoded
      * representation of those byts. Returns the empty String for a
      * <code>null</code> or empty byte array.
