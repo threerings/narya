@@ -1,5 +1,5 @@
 //
-// $Id: GenStremableTask.java 4672 2007-04-18 16:40:57Z mdb $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2007 Three Rings Design, Inc., All Rights Reserved
