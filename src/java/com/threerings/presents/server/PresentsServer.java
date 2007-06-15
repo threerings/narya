@@ -87,6 +87,57 @@ public class PresentsServer
     public static PresentsInvoker invoker;
 
     /**
+     * Registers an entity that will be notified when the server is shutting down.
+     */
+    public static void registerShutdowner (Shutdowner downer)
+    {
+        _downers.add(downer);
+    }
+
+    /**
+     * Unregisters the shutdowner from hearing when the server is shutdown.
+     */
+    public static void unregisterShutdowner (Shutdowner downer)
+    {
+        _downers.remove(downer);
+    }
+
+    /**
+     * The default entry point for the server.
+     */
+    public static void main (String[] args)
+    {
+        log.info("Presents server starting...");
+
+        PresentsServer server = new PresentsServer();
+        try {
+            // initialize the server
+            server.init();
+
+            // check to see if we should load and invoke a test module before running the server
+            String testmod = System.getProperty("test_module");
+            if (testmod != null) {
+                try {
+                    log.info("Invoking test module [mod=" + testmod + "].");
+                    Class tmclass = Class.forName(testmod);
+                    Runnable trun = (Runnable)tmclass.newInstance();
+                    trun.run();
+                } catch (Exception e) {
+                    log.log(Level.WARNING, "Unable to invoke test module '" + testmod + "'.", e);
+                }
+            }
+
+            // start the server to running (this method call won't return until the server is shut
+            // down)
+            server.run();
+
+        } catch (Exception e) {
+            log.log(Level.WARNING, "Unable to initialize server.", e);
+            System.exit(-1);
+        }
+    }
+
+    /**
      * Initializes all of the server services and prepares for operation.
      */
     public void init ()
@@ -118,7 +169,11 @@ public class PresentsServer
         omgr.setDefaultAccessController(createDefaultObjectAccessController());
 
         // create and start up our invoker
-        invoker = new PresentsInvoker(omgr);
+        invoker = new PresentsInvoker(omgr) {
+            protected void didShutdown () {
+                invokerDidShutdown();
+            }
+        };
         invoker.start();
 
         // create our connection manager
@@ -327,51 +382,13 @@ public class PresentsServer
     }
 
     /**
-     * Registers an entity that will be notified when the server is shutting down.
+     * Called once the invoker and distributed object manager have both completed processing all
+     * remaining events and are fully shutdown. <em>Note:</em> this is called as the last act of
+     * the invoker <em>on the invoker thread</em>. In theory no other (important) threads are
+     * running, so thread safety should not be an issue, but be careful!
      */
-    public static void registerShutdowner (Shutdowner downer)
+    protected void invokerDidShutdown ()
     {
-        _downers.add(downer);
-    }
-
-    /**
-     * Unregisters the shutdowner from hearing when the server is shutdown.
-     */
-    public static void unregisterShutdowner (Shutdowner downer)
-    {
-        _downers.remove(downer);
-    }
-
-    public static void main (String[] args)
-    {
-        log.info("Presents server starting...");
-
-        PresentsServer server = new PresentsServer();
-        try {
-            // initialize the server
-            server.init();
-
-            // check to see if we should load and invoke a test module before running the server
-            String testmod = System.getProperty("test_module");
-            if (testmod != null) {
-                try {
-                    log.info("Invoking test module [mod=" + testmod + "].");
-                    Class tmclass = Class.forName(testmod);
-                    Runnable trun = (Runnable)tmclass.newInstance();
-                    trun.run();
-                } catch (Exception e) {
-                    log.log(Level.WARNING, "Unable to invoke test module '" + testmod + "'.", e);
-                }
-            }
-
-            // start the server to running (this method call won't return until the server is shut
-            // down)
-            server.run();
-
-        } catch (Exception e) {
-            log.log(Level.WARNING, "Unable to initialize server.", e);
-            System.exit(-1);
-        }
     }
 
     /** The time at which the server was started. */
