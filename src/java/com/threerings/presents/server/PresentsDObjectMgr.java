@@ -137,6 +137,9 @@ public class PresentsDObjectMgr
         // and note a proxy reference for the object which we'll use to forward events back to its
         // originating manager after converting them back to the original oid
         _proxies.put(object.getOid(), new ProxyReference(origObjectId, omgr));
+        // TEMP: report what we're doing as we're seeing funny business
+        log.info("Registered proxy object [type=" + object.getClass().getName() +
+                 ", remoid=" + origObjectId + ", locoid=" + object.getOid() + "].");
     }
 
     /**
@@ -150,6 +153,9 @@ public class PresentsDObjectMgr
             log.warning("Missing proxy mapping for cleared proxy [ooid=" + origObjectId + "].");
         }
         _objects.remove(object.getOid());
+        // TEMP: report what we're doing as we're seeing funny business
+        log.info("Clearing proxy object [type=" + object.getClass().getName() +
+                 ", remoid=" + origObjectId + ", locoid=" + object.getOid() + "].");
     }
 
     // from interface DObjectManager
