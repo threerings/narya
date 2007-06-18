@@ -21,6 +21,8 @@
 
 package com.threerings.presents.dobj {
 
+import flash.errors.IllegalOperationError;
+
 import flash.events.EventDispatcher;
 
 import com.threerings.util.ClassUtil;
@@ -125,15 +127,24 @@ public class DObject // extends EventDispatcher
         }
     }
 
+    /**
+     * Posts a message event on this distrubuted object.
+     */
     public function postMessage (name :String, args :Array) :void
     {
         postEvent(new MessageEvent(_oid, name, args));
     }
 
+    /**
+     * Posts the specified event either to our dobject manager or to the compound event for which
+     * we are currently transacting.
+     */
     public function postEvent (event :DEvent) :void
     {
-        // TODO: transactons?
-        if (_omgr != null) {
+        if (_tevent != null) {
+            _tevent.postEvent(event);
+
+        } else if (_omgr != null) {
             _omgr.postEvent(event);
 
         } else {
@@ -178,32 +189,122 @@ public class DObject // extends EventDispatcher
         buf.append("oid=", _oid);
     }
 
+    /**
+     * Begins a transaction on this distributed object. In some situations, it is desirable to
+     * cause multiple changes to distributed object fields in one unified operation. Starting a
+     * transaction causes all subsequent field modifications to be stored in a single compound
+     * event which can then be committed, dispatching and applying all included events in a single
+     * group. Additionally, the events are dispatched over the network in a single unit which can
+     * significantly enhance network efficiency.
+     *
+     * <p> When the transaction is complete, the caller must call {@link #commitTransaction} or
+     * {@link CompoundEvent#commit} to commit the transaction and release the object back to its
+     * normal non-transacting state. If the caller decides not to commit their transaction, they
+     * must call {@link #cancelTransaction} or {@link CompoundEvent#cancel} to cancel the
+     * transaction. Failure to do so will cause the pooch to be totally screwed.
+     *
+     * <p> Note: like all other distributed object operations, transactions are not thread safe. It
+     * is expected that a single thread will handle all distributed object operations and that
+     * thread will begin and complete a transaction before giving up control to unknown code which
+     * might try to operate on the transacting distributed object.
+     *
+     * <p> Note also: if the object is already engaged in a transaction, a transaction participant
+     * count will be incremented to note that an additional call to {@link #commitTransaction} is
+     * required before the transaction should actually be committed. Thus <em>every</em> call to
+     * {@link #startTransaction} must be accompanied by a call to either {@link #commitTransaction}
+     * or {@link #cancelTransaction}. Additionally, if any transaction participant cancels the
+     * transaction, the entire transaction is cancelled for all participants, regardless of whether
+     * the other participants attempted to commit the transaction.
+     */
     public function startTransaction () :void
     {
-        // TODO
+        if (_tevent != null) {
+            _tcount++;
+        } else {
+            _tevent = new CompoundEvent(this, _omgr);
+        }
     }
 
+    /** 
+     * Commits the transaction in which this distributed object is involved.
+     *      
+     * @see CompoundEvent#commit
+     */ 
     public function commitTransaction () :void
     {
-        // TODO
+        if (_tevent == null) {
+            throw new IllegalOperationError("Cannot commit: not involved in a transaction " +
+                "[dobj=" + this + "]");
+        }
+
+        // if we are nested, we decrement our nesting count rather than committing the transaction
+        if (_tcount > 0) {
+            _tcount--;
+
+        } else {
+            // we may actually be doing our final commit after someone already cancelled this
+            // transaction, so we need to perform the appropriate action at this point
+            if (_tcancelled) {
+                _tevent.cancel();
+            } else {
+                _tevent.commit();
+            }
+        }
     }
 
+    /**
+     * Returns true if this object is in the middle of a transaction or false if it is not.
+     */
     public function inTransaction () :Boolean
     {
-        return false; // TODO
+        return (_tevent != null);
     }
 
+    /**
+     * Cancels the transaction in which this distributed object is involved.
+     *
+     * @see CompoundEvent#cancel
+     */
     public function cancelTransaction () :void
     {
-        // TODO
+        if (_tevent == null) {
+            throw new IllegalOperationError("Cannot cancel: not involved in a transaction " +
+                "[dobj=" + this + "]");
+        }
+
+        // if we're in a nested transaction, make a note that it is to be cancelled when all
+        // parties commit and decrement the nest count
+        if (_tcount > 0) {
+            _tcancelled = true;
+            _tcount--;
+
+        } else {
+            _tevent.cancel();
+        }
     }
 
+    /**
+     * Removes this object from participation in any transaction in which it might be taking part.
+     */
     internal function clearTransaction () :void
     {
-        // TODO
+        // sanity check
+        if (_tcount != 0) {
+            log.warning("Transaction cleared with non-zero nesting count [dobj=" + this + "].");
+            _tcount = 0;
+        }
+
+        // clear our transaction state
+        _tevent = null;
+        _tcancelled = false;
     }
 
-    public function isActive () :Boolean
+    /**
+     * Returns true if this object is active and registered with the distributed object system. If
+     * an object is created via <code>DObjectManager.createObject</code> it will be active until
+     * such time as it is destroyed.
+     */
+    public final function isActive () :Boolean
     {
         return (_omgr != null);
     }
@@ -310,6 +411,16 @@ public class DObject // extends EventDispatcher
 
     protected var _subscribers :Array;
 
+    /** The compound event associated with our transaction, if we're currently in a transaction. */
+    protected var _tevent :CompoundEvent;
+
+    /** The nesting depth of our current transaction. */
+    protected var _tcount :int;
+
+    /** Whether or not our nested transaction has been cancelled. */
+    protected var _tcancelled :Boolean;
+
+    /** Indicates whether we want to be destroyed when our last subscriber is removed. */
     protected var _deathWish :Boolean = false;
 }
 }
