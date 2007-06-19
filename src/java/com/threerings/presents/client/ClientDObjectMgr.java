@@ -157,9 +157,7 @@ public class ClientDObjectMgr
                 _client.gotBootstrap(data, this);
 
             } else if (obj instanceof EventNotification) {
-                DEvent evt = ((EventNotification)obj).getEvent();
-//                 Log.info("Dispatch event: " + evt);
-                dispatchEvent(evt);
+                dispatchEvent(((EventNotification)obj).getEvent());
 
             } else if (obj instanceof ObjectResponse<?>) {
                 registerObjectAndNotify((ObjectResponse<?>)obj);
@@ -203,6 +201,8 @@ public class ClientDObjectMgr
      */
     protected void dispatchEvent (DEvent event)
     {
+//         Log.info("Dispatching event: " + evt);
+
         // look up the object on which we're dispatching this event
         int remoteOid = event.getTargetOid();
         DObject target = _ocache.get(remoteOid);
