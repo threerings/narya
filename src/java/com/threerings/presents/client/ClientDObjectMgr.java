@@ -159,7 +159,7 @@ public class ClientDObjectMgr
             } else if (obj instanceof EventNotification) {
                 DEvent evt = ((EventNotification)obj).getEvent();
 //                 Log.info("Dispatch event: " + evt);
-                dispatchEvent(evt, true);
+                dispatchEvent(evt);
 
             } else if (obj instanceof ObjectResponse<?>) {
                 registerObjectAndNotify((ObjectResponse<?>)obj);
@@ -201,13 +201,13 @@ public class ClientDObjectMgr
      * Called when a new event arrives from the server that should be dispatched to subscribers
      * here on the client.
      */
-    protected void dispatchEvent (DEvent event, boolean notifyProxies)
+    protected void dispatchEvent (DEvent event)
     {
         // look up the object on which we're dispatching this event
-        int toid = event.getTargetOid();
-        DObject target = _ocache.get(toid);
+        int remoteOid = event.getTargetOid();
+        DObject target = _ocache.get(remoteOid);
         if (target == null) {
-            if (!_dead.containsKey(toid)) {
+            if (!_dead.containsKey(remoteOid)) {
                 Log.warning("Unable to dispatch event on non-proxied object " + event + ".");
             }
             return;
@@ -222,29 +222,40 @@ public class ClientDObjectMgr
             // notify our proxy subscribers in one fell swoop
             target.notifyProxies(event);
 
-            // now break the event up and dispatch each event individually
+            // now break the event up and dispatch each event to listeners individually
             List<DEvent> events = ((CompoundEvent)event).getEvents();
             int ecount = events.size();
-            for (int i = 0; i < ecount; i++) {
-                dispatchEvent(events.get(i), false);
+            for (int ii = 0; ii < ecount; ii++) {
+                dispatchEvent(remoteOid, target, events.get(ii));
             }
-            return;
-        }
 
+        } else {
+            // forward to any proxies (or not if we're dispatching part of a compound event)
+            target.notifyProxies(event);
+
+            // and dispatch the event to regular listeners
+            dispatchEvent(remoteOid, target, event);
+        }
+    }
+
+    /**
+     * Dispatches an event on an already resolved target object.
+     *
+     * @param remoteOid is specified explicitly because we will have already translated the event's
+     * target oid into our local object managers oid space if we're acting on behalf of the peer
+     * manager.
+     */
+    protected void dispatchEvent (int remoteOid, DObject target, DEvent event)
+    {
         try {
             // apply the event to the object
             boolean notify = event.applyToObject(target);
 
-            // forward to any proxies (or not if we're dispatching part of a compound event)
-            if (notifyProxies) {
-                target.notifyProxies(event);
-            }
-
             // if this is an object destroyed event, we need to remove the object from our table
             if (event instanceof ObjectDestroyedEvent) {
-//                 Log.info("Pitching destroyed object [oid=" + toid +
+//                 Log.info("Pitching destroyed object [oid=" + remoteOid +
 //                          ", class=" + StringUtil.shortClassName(target) + "].");
-                _ocache.remove(toid);
+                _ocache.remove(remoteOid);
             }
 
             // have the object pass this event on to its listeners
