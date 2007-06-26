@@ -40,7 +40,7 @@ public class RandomUtil
     @Deprecated
     public static int getInt (int high)
     {
-	return com.samskivert.util.RandomUtil.getInt(high);
+        return com.samskivert.util.RandomUtil.getInt(high);
     }
 
     /**
@@ -49,7 +49,7 @@ public class RandomUtil
     @Deprecated
     public static int getInt (int high, int low)
     {
-	return com.samskivert.util.RandomUtil.getInt(high, low);
+        return com.samskivert.util.RandomUtil.getInt(high, low);
     }
 
     /**
@@ -58,7 +58,7 @@ public class RandomUtil
     @Deprecated
     public static float getFloat (float high)
     {
-	return com.samskivert.util.RandomUtil.getFloat(high);
+        return com.samskivert.util.RandomUtil.getFloat(high);
     }
 
     /**
@@ -67,7 +67,7 @@ public class RandomUtil
     @Deprecated
     public static int getWeightedIndex (int[] weights)
     {
-	return com.samskivert.util.RandomUtil.getWeightedIndex(weights);
+        return com.samskivert.util.RandomUtil.getWeightedIndex(weights);
     }
 
     /**
@@ -76,7 +76,7 @@ public class RandomUtil
     @Deprecated
     public static int getWeightedIndex (float[] weights)
     {
-	return com.samskivert.util.RandomUtil.getWeightedIndex(weights);
+        return com.samskivert.util.RandomUtil.getWeightedIndex(weights);
     }
 
     /**
@@ -85,7 +85,7 @@ public class RandomUtil
     @Deprecated
     public static <T> T pickRandom (T[] values)
     {
-	return com.samskivert.util.RandomUtil.pickRandom(values);
+        return com.samskivert.util.RandomUtil.pickRandom(values);
     }
 
     /**
@@ -94,7 +94,7 @@ public class RandomUtil
     @Deprecated
     public static <T> T pickRandom (T[] values, T skip)
     {
-	return com.samskivert.util.RandomUtil.pickRandom(values, skip);
+        return com.samskivert.util.RandomUtil.pickRandom(values, skip);
     }
 
     /**
@@ -103,7 +103,7 @@ public class RandomUtil
     @Deprecated
     public static <T> T pickRandom (Collection<T> values)
     {
-	return com.samskivert.util.RandomUtil.pickRandom(values);
+        return com.samskivert.util.RandomUtil.pickRandom(values);
     }
 
     /**
@@ -112,7 +112,7 @@ public class RandomUtil
     @Deprecated
     public static <T> T pickRandom (List<T> values)
     {
-	return com.samskivert.util.RandomUtil.pickRandom(values);
+        return com.samskivert.util.RandomUtil.pickRandom(values);
     }
 
     /**
@@ -121,7 +121,7 @@ public class RandomUtil
     @Deprecated
     public static <T> T pickRandom (List<T> values, T skip)
     {
-	return com.samskivert.util.RandomUtil.pickRandom(values, skip);
+        return com.samskivert.util.RandomUtil.pickRandom(values, skip);
     }
 
     /**
@@ -130,7 +130,7 @@ public class RandomUtil
     @Deprecated
     public static <T> T pickRandom (List<T> values, T skip, Random r)
     {
-	return com.samskivert.util.RandomUtil.pickRandom(values, skip, r);
+        return com.samskivert.util.RandomUtil.pickRandom(values, skip, r);
     }
 
     /**
@@ -139,7 +139,7 @@ public class RandomUtil
     @Deprecated
     public static <T> T pickRandom (Iterator<T> iter, int count)
     {
-	return com.samskivert.util.RandomUtil.pickRandom(iter, count);
+        return com.samskivert.util.RandomUtil.pickRandom(iter, count);
     }
 
     /**
@@ -148,6 +148,6 @@ public class RandomUtil
     @Deprecated
     public static <T> T pickRandom (Iterator<T> iter, int count, T skip)
     {
-	return com.samskivert.util.RandomUtil.pickRandom(iter, count, skip);
+        return com.samskivert.util.RandomUtil.pickRandom(iter, count, skip);
     }
 }

@@ -117,7 +117,7 @@ public class ConfigRepository extends JORARepository
     // documentation inherited
     protected void createTables ()
     {
-	_ctable = new Table<ConfigDatum>(
+        _ctable = new Table<ConfigDatum>(
             ConfigDatum.class, "CONFIG",
             new String[] { "NODE", "OBJECT", "FIELD" }, true);
     }

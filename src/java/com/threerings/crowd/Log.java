@@ -36,24 +36,24 @@ public class Log
     /** Convenience function. */
     public static void debug (String message)
     {
-	log.fine(message);
+        log.fine(message);
     }
 
     /** Convenience function. */
     public static void info (String message)
     {
-	log.info(message);
+        log.info(message);
     }
 
     /** Convenience function. */
     public static void warning (String message)
     {
-	log.warning(message);
+        log.warning(message);
     }
 
     /** Convenience function. */
     public static void logStackTrace (Throwable t)
     {
-	log.log(Level.WARNING, t.getMessage(), t);
+        log.log(Level.WARNING, t.getMessage(), t);
     }
 }

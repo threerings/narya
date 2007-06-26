@@ -830,20 +830,20 @@ public class DObject
      */
     protected final Field getField (String name)
     {
-	int low = 0, high = _fields.length-1;
-	while (low <= high) {
-	    int mid = (low + high) >> 1;
-	    Field midVal = _fields[mid];
-	    int cmp = midVal.getName().compareTo(name);
-	    if (cmp < 0) {
-		low = mid + 1;
-	    } else if (cmp > 0) {
-		high = mid - 1;
-	    } else {
-		return midVal; // key found
+        int low = 0, high = _fields.length-1;
+        while (low <= high) {
+            int mid = (low + high) >> 1;
+            Field midVal = _fields[mid];
+            int cmp = midVal.getName().compareTo(name);
+            if (cmp < 0) {
+                low = mid + 1;
+            } else if (cmp > 0) {
+                high = mid - 1;
+            } else {
+                return midVal; // key found
             }
-	}
-	return null; // key not found.
+        }
+        return null; // key not found.
     }
 
     /** Our object id. */

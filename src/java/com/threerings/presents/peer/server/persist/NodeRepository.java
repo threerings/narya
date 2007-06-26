@@ -117,7 +117,7 @@ public class NodeRepository extends JORARepository
     @Override // documentation inherited
     protected void createTables ()
     {
-	_ntable = new Table<NodeRecord>(NodeRecord.class, "NODES", "NODE_NAME", true);
+        _ntable = new Table<NodeRecord>(NodeRecord.class, "NODES", "NODE_NAME", true);
     }
 
     protected Table<NodeRecord> _ntable;

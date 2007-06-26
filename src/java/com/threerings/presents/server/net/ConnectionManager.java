@@ -546,7 +546,7 @@ public class ConnectionManager extends LoopingThread
             int ncapacity = Math.max(_outbuf.capacity() << 1, data.length);
             log.info("Expanding output buffer size [nsize=" + ncapacity + "].");
             _outbuf = ByteBuffer.allocateDirect(ncapacity);
-	}
+        }
 
         boolean fully = true;
         try {

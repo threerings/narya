@@ -74,12 +74,12 @@ public class FramingOutputStream extends OutputStream
     public void write (byte[] b, int off, int len)
     {
         // sanity check the arguments
-	if ((off < 0) || (off > b.length) || (len < 0) ||
+        if ((off < 0) || (off > b.length) || (len < 0) ||
             ((off + len) > b.length) || ((off + len) < 0)) {
-	    throw new IndexOutOfBoundsException();
-	} else if (len == 0) {
-	    return;
-	}
+            throw new IndexOutOfBoundsException();
+        } else if (len == 0) {
+            return;
+        }
 
         try {
             _buffer.put(b, off, len);
@@ -96,13 +96,13 @@ public class FramingOutputStream extends OutputStream
     {
         int ocapacity = _buffer.capacity();
         int ncapacity = _buffer.position() + needed;
-	if (ncapacity > ocapacity) {
+        if (ncapacity > ocapacity) {
             // increase the buffer size in large increments
             ncapacity = Math.max(ocapacity << 1, ncapacity);
             ByteBuffer newbuf = ByteBuffer.allocate(ncapacity);
             newbuf.put((ByteBuffer)_buffer.flip());
-	    _buffer = newbuf;
-	}
+            _buffer = newbuf;
+        }
     }
 
     /**
@@ -119,9 +119,9 @@ public class FramingOutputStream extends OutputStream
         // buffer so that all the data is available
         int count = _buffer.limit();
         _buffer.put((byte)((count >>> 24) & 0xFF));
-	_buffer.put((byte)((count >>> 16) & 0xFF));
-	_buffer.put((byte)((count >>>  8) & 0xFF));
-	_buffer.put((byte)((count >>>  0) & 0xFF));
+        _buffer.put((byte)((count >>> 16) & 0xFF));
+        _buffer.put((byte)((count >>>  8) & 0xFF));
+        _buffer.put((byte)((count >>>  0) & 0xFF));
         _buffer.rewind();
 
         return _buffer;

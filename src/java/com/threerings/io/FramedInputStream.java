@@ -266,7 +266,7 @@ public class FramedInputStream extends InputStream
      */
     public int available ()
     {
-	return _buffer.remaining();
+        return _buffer.remaining();
     }
 
     /**
@@ -275,7 +275,7 @@ public class FramedInputStream extends InputStream
      */
     public boolean markSupported ()
     {
-	return false;
+        return false;
     }
 
     /**
