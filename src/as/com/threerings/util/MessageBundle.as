@@ -48,6 +48,14 @@ public class MessageBundle
     }
 
     /**
+     * Get the path to this bundle.
+     */
+    public function getPath () :String
+    {
+        return _path;
+    }
+
+    /**
      * Returns true if we have a translation mapping for the supplied key,
      * false if not.
      */
