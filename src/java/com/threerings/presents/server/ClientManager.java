@@ -231,13 +231,19 @@ public class ClientManager
      * {@link #releaseClientObject} when the caller is finished with the client object.
      */
     public synchronized void resolveClientObject (
-        Name username, final ClientResolutionListener listener)
+        final Name username, final ClientResolutionListener listener)
     {
         // look to see if the client object is already resolved
-        ClientObject clobj = _objmap.get(username);
+        final ClientObject clobj = _objmap.get(username);
         if (clobj != null) {
-            clobj.reference();
-            listener.clientResolved(username, clobj);
+            // report that the client is resolved on the dobjmgr thread to provide equivalent
+            // behavior to the case where we actually have to do the resolution
+            PresentsServer.omgr.postRunnable(new Runnable() {
+                public void run () {
+                    clobj.reference();
+                    listener.clientResolved(username, clobj);
+                }
+            });
             return;
         }
 
