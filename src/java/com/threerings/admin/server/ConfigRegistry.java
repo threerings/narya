@@ -27,6 +27,8 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.HashMap;
 
+import javax.swing.JEditorPane;
+
 import com.samskivert.io.ByteArrayOutInputStream;
 import com.samskivert.util.StringUtil;
 
@@ -39,6 +41,8 @@ import com.threerings.presents.dobj.AttributeChangeListener;
 import com.threerings.presents.dobj.AttributeChangedEvent;
 import com.threerings.presents.dobj.DObject;
 import com.threerings.presents.dobj.DSet;
+import com.threerings.presents.dobj.ElementUpdateListener;
+import com.threerings.presents.dobj.ElementUpdatedEvent;
 import com.threerings.presents.dobj.EntryAddedEvent;
 import com.threerings.presents.dobj.EntryRemovedEvent;
 import com.threerings.presents.dobj.EntryUpdatedEvent;
@@ -122,7 +126,7 @@ public abstract class ConfigRegistry
      * Contains all necessary info for a configuration object registration.
      */
     protected abstract class ObjectRecord
-        implements AttributeChangeListener, SetListener
+        implements AttributeChangeListener, SetListener, ElementUpdateListener
     {
         public DObject object;
 
@@ -171,12 +175,34 @@ public abstract class ConfigRegistry
         {
             serializeAttribute(event.getName());
         }
-
+        
+        public void elementUpdated (ElementUpdatedEvent event)
+        {
+            Object value;
+            try {
+                value = object.getAttribute(event.getName());
+            } catch (ObjectAccessException oae) {
+                Log.warning("Exception getting field [name=" + event.getName() + "exception=" +
+                    oae + "].");
+                return;
+            }
+            updateValue(event.getName(), value);
+        }
+        
         public void attributeChanged (AttributeChangedEvent event)
         {
             // mirror this configuration update to the persistent config
-            String key = nameToKey(event.getName());
             Object value = event.getValue();
+            if (value instanceof DSet) {
+                serializeAttribute(event.getName());
+            } else {
+                updateValue(event.getName(), value);
+            }
+        }
+
+        protected void updateValue (String name, Object value)
+        {
+            String key = nameToKey(name);
             if (value instanceof Boolean) {
                 setValue(key, ((Boolean)value).booleanValue());
             } else if (value instanceof Short) {
@@ -197,8 +223,6 @@ public abstract class ConfigRegistry
                 setValue(key, (String[])value);
             } else if (value instanceof long[]) {
                 setValue(key, (long[]) value);
-            } else if (value instanceof DSet) {
-                serializeAttribute(event.getName());
             } else {
                 Log.info("Unable to flush config object change " +
                          "[cobj=" + object.getClass().getName() +
