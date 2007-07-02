@@ -23,6 +23,8 @@ package com.threerings.util {
 
 import flash.utils.ByteArray;
 
+import flash.utils.describeType; // function import
+
 import mx.utils.*;
 
 public class StringUtil
@@ -200,6 +202,34 @@ public class StringUtil
         }
 
         return String(obj);
+    }
+
+    /**
+     * Return a string containing all the public fields of the object
+     */
+    public static function fieldsToString (buf :StringBuilder, obj :Object) :void
+    {
+        var desc :XML = describeType(obj);
+        var appended :Boolean = false;
+        for each (var varName :String in desc..variable.@name) {
+            if (appended) {
+                buf.append(", ");
+            }
+            buf.append(varName, "=", obj[varName]);
+            appended = true;
+        }
+    }
+
+    /**
+     * Return a pretty basic toString of the supplied Object.
+     */
+    public static function simpleToString (obj :Object) :String
+    {
+        var buf :StringBuilder = new StringBuilder("[");
+        buf.append(ClassUtil.tinyClassName(obj));
+        buf.append("(");
+        fieldsToString(buf, obj);
+        return buf.append(")]").toString();
     }
 
     /**

@@ -21,7 +21,9 @@
 
 package com.threerings.io {
 
+import com.threerings.util.ClassUtil;
 import com.threerings.util.StringBuilder;
+import com.threerings.util.StringUtil;
 
 /**
  * A simple serializable object implements the {@link Streamable}
@@ -48,8 +50,9 @@ public class SimpleStreamableObject implements Streamable
     public function toString () :String
     {
         var buf :StringBuilder = new StringBuilder("[");
+        buf.append(ClassUtil.tinyClassName(this)).append("(");
         toStringBuilder(buf);
-        return buf.append("]").toString();
+        return buf.append(")]").toString();
     }
 
     /**
@@ -58,7 +61,7 @@ public class SimpleStreamableObject implements Streamable
      */
     protected function toStringBuilder (buf :StringBuilder): void
     {
-        // TODO: StringUtil.fieldsToString(buf, this);
+        StringUtil.fieldsToString(buf, this);
     }
 }
 }
