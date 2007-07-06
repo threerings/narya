@@ -187,7 +187,7 @@ public class StringUtil
         return mx.utils.StringUtil.trim(str);
     }
 
-    public static function toString (obj :Object) :String
+    public static function toString (obj :*) :String
     {
         if (obj is Array) {
             var arr :Array = (obj as Array);
