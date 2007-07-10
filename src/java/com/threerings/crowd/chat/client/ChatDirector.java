@@ -353,10 +353,10 @@ public class ChatDirector extends BasicDirector
     /**
      * Dispatches the provided message to our chat displays.
      */
-    public void dispatchMessage (ChatMessage message)
+    public void dispatchMessage (ChatMessage message, String localType)
     {
-        _displayMessageOp.setMessage(message);
-        _displays.apply(_displayMessageOp);
+        message.setClientInfo(xlate(message.bundle, message.message), localType);
+        dispatchPreparedMessage(message);
     }
 
     /**
@@ -526,7 +526,7 @@ public class ChatDirector extends BasicDirector
             }
 
             protected void success () {
-                dispatchMessage(new TellFeedbackMessage(target, message, false));
+                dispatchMessage(new TellFeedbackMessage(target, message, false), ChatCodes.PLACE_CHAT_TYPE);
                 addChatter(target);
                 if (rl != null) {
                     rl.requestCompleted(target);
@@ -536,7 +536,9 @@ public class ChatDirector extends BasicDirector
             public void requestFailed (String reason) {
                 String msg = MessageBundle.compose(
                     "m.tell_failed", MessageBundle.taint(target), reason);
-                dispatchMessage(new TellFeedbackMessage(target, xlate(_bundle, msg), true));
+                TellFeedbackMessage tfm = new TellFeedbackMessage(target, msg, true);
+                tfm.bundle = _bundle;
+                dispatchMessage(tfm, ChatCodes.PLACE_CHAT_TYPE);
                 if (rl != null) {
                     rl.requestFailed(null);
                 }
@@ -638,7 +640,6 @@ public class ChatDirector extends BasicDirector
         if (CHAT_NOTIFICATION.equals(event.getName())) {
             ChatMessage msg = (ChatMessage) event.getArgs()[0];
             String localtype = getLocalType(event.getTargetOid());
-            String message = msg.message;
             String autoResponse = null;
             Name speaker = null;
             Name speakerDisplay = null;
@@ -658,7 +659,7 @@ public class ChatDirector extends BasicDirector
 
             // if there was an originating speaker, see if we want to hear it
             if (speaker != null) {
-                if ((message = filter(message, speaker, false)) == null) {
+                if ((msg.message = filter(msg.message, speaker, false)) == null) {
                     return;
                 }
 
@@ -675,11 +676,8 @@ public class ChatDirector extends BasicDirector
                 }
             }
 
-            // initialize the client-specific fields of the message
-            msg.setClientInfo(xlate(msg.bundle, message), localtype);
-
             // and send it off!
-            dispatchMessage(msg);
+            dispatchMessage(msg, localtype);
 
             // if we auto-responded, report as much
             if (autoResponse != null) {
@@ -735,6 +733,15 @@ public class ChatDirector extends BasicDirector
 
         // clear our service
         _cservice = null;
+    }
+
+    /**
+     * Dispatch a message to chat displays once it is fully prepared with the clientinfo.
+     */
+    protected void dispatchPreparedMessage (ChatMessage message)
+    {
+        _displayMessageOp.setMessage(message);
+        _displays.apply(_displayMessageOp);
     }
 
     /**
@@ -996,10 +1003,8 @@ public class ChatDirector extends BasicDirector
         if (bundle == null) {
             bundle = _bundle;
         }
-        SystemMessage msg = new SystemMessage();
-        msg.attentionLevel = attLevel;
-        msg.setClientInfo(xlate(bundle, message), localtype);
-        dispatchMessage(msg);
+        SystemMessage msg = new SystemMessage(message, bundle, attLevel);
+        dispatchMessage(msg, localtype);
     }
 
     /**

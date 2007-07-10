@@ -302,14 +302,10 @@ public class ChatDirector extends BasicDirector
     /**
      * Dispatches the provided message to our chat displays.
      */
-    public function dispatchMessage (message :ChatMessage) :void
+    public function dispatchMessage (message :ChatMessage, localType :String) :void
     {
-        var displayed :Boolean = false;
-        _displays.apply(function (disp :ChatDisplay) :void {
-            if (disp.displayMessage(message, displayed)) {
-                displayed = true;
-            }
-        });
+        message.setClientInfo(xlate(message.bundle, message.message), localType);
+        dispatchPreparedMessage(message);
     }
 
     /**
@@ -447,13 +443,15 @@ public class ChatDirector extends BasicDirector
         var failure :Function = function (reason :String) :void {
             var msg :String = MessageBundle.compose(
                 "m.tell_failed", MessageBundle.taint(target), reason);
-            dispatchMessage(new TellFeedbackMessage(target, xlate(_bundle, msg), true));
+            var tfm :TellFeedbackMessage = new TellFeedbackMessage(target, msg, true);
+            tfm.bundle = _bundle;
+            dispatchMessage(tfm, ChatCodes.PLACE_CHAT_TYPE);
             if (rl != null) {
                 rl.requestFailed(null);
             }
         };
         var success :Function = function (idleTime :Long, awayMessage :String) :void {
-            dispatchMessage(new TellFeedbackMessage(target, message));
+            dispatchMessage(new TellFeedbackMessage(target, message), ChatCodes.PLACE_CHAT_TYPE);
             addChatter(target);
             if (rl != null) {
                 rl.requestCompleted(target);
@@ -579,7 +577,6 @@ public class ChatDirector extends BasicDirector
         if (ChatCodes.CHAT_NOTIFICATION === event.getName()) {
             var msg :ChatMessage = (event.getArgs()[0] as ChatMessage);
             var localtype :String = getLocalType(event.getTargetOid());
-            var message :String = msg.message;
             var autoResponse :String = null;
             var speaker :Name = null;
             var mode :int = -1;
@@ -596,7 +593,7 @@ public class ChatDirector extends BasicDirector
 
             // if there was an originating speaker, see if we want to hear it
             if (speaker != null) {
-                if ((message = filter(message, speaker, false)) == null) {
+                if ((msg.message = filter(msg.message, speaker, false)) == null) {
                     return;
                 }
 
@@ -612,11 +609,8 @@ public class ChatDirector extends BasicDirector
                 }
             }
 
-            // initialize the client-specific fields of the message
-            msg.setClientInfo(xlate(msg.bundle, message), localtype);
-
             // and send it off!
-            dispatchMessage(msg);
+            dispatchMessage(msg, localtype);
 
             // if we auto-responded, report as much
             if (autoResponse != null) {
@@ -672,6 +666,19 @@ public class ChatDirector extends BasicDirector
 
         // clear our service
         _cservice = null;
+    }
+
+    /**
+     * Dispatch a message to chat displays once it is fully prepared with the clientinfo.
+     */
+    protected function dispatchPreparedMessage (message :ChatMessage) :void
+    {
+        var displayed :Boolean = false;
+        _displays.apply(function (disp :ChatDisplay) :void {
+            if (disp.displayMessage(message, displayed)) {
+                displayed = true;
+            }
+        });
     }
 
     /**
@@ -913,10 +920,8 @@ public class ChatDirector extends BasicDirector
         if (bundle == null) {
             bundle = _bundle;
         }
-        var msg :SystemMessage = new SystemMessage();
-        msg.attentionLevel = attLevel;
-        msg.setClientInfo(xlate(bundle, message), localtype);
-        dispatchMessage(msg);
+        var msg :SystemMessage = new SystemMessage(message, bundle, attLevel);
+        dispatchMessage(msg, localtype);
     }
 
     /**

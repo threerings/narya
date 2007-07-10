@@ -34,7 +34,6 @@ public class TellFeedbackMessage extends UserMessage
     public TellFeedbackMessage (Name target, String message, boolean failure)
     {
         super(target, null, message, ChatCodes.DEFAULT_MODE);
-        setClientInfo(message, ChatCodes.PLACE_CHAT_TYPE);
         _failure = failure;
     }
 

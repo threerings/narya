@@ -34,7 +34,6 @@ public class TellFeedbackMessage extends UserMessage
     public function TellFeedbackMessage (target :Name, message :String, failed :Boolean = false)
     {
         super(target, null, message);
-        setClientInfo(message, ChatCodes.PLACE_CHAT_TYPE);
         _failed = failed;
     }
 
