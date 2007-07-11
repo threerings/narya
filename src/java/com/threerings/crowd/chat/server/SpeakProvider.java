@@ -336,9 +336,7 @@ public class SpeakProvider
             msg.timestamp = System.currentTimeMillis();
         }
 
-        for (int ii = 0; ii < usernames.length; ii ++ ) {
-            Name username = usernames[ii];
-
+        for (Name username : usernames) {
             // add the message to this user's chat history
             ArrayList<ChatMessage> history = getHistoryList(username);
             history.add(msg);
