@@ -12,6 +12,7 @@
   <property name="javadoc.home" value="${deploy.dir}/docs"/>
   <property name="classes.dir"  value="${deploy.dir}/classes"/>
   <property name="libs.dir"     value="lib"/>
+  <import file="etc/depends-incl.xml"/>
   <import file="etc/libs-incl.xml"/>
 
   <!-- declare our classpath business -->
@@ -19,6 +20,22 @@
     <pathelement location="${classes.dir}"/>
     <fileset dir="${deploy.dir}/lib" includes="**/*.jar"/>
   </path>
+
+  <!-- generates fields for persistent record classes -->
+  <target name="genrecord" depends="prepare">
+    <taskdef name="grecord" classname="com.samskivert.jdbc.depot.tools.GenRecordTask"
+             classpathref="classpath"/>
+    <!-- make sure the record class files are all compiled -->
+    <javac srcdir="src/java" destdir="${classes.dir}"
+           debug="on" optimize="${build.optimize}" deprecation="on">
+      <classpath refid="classpath"/>
+      <include name="**/*Record.java"/>
+    </javac>
+    <!-- now update the source files -->
+    <grecord classpathref="classpath">
+      <fileset dir="src/java" includes="**/*Record.java"/>
+    </grecord>
+  </target>
 
   <!-- generates additional methods for distributed object classes -->
   <target name="gendobj" depends="prepare"> 
@@ -138,11 +155,12 @@
   </target>
 
   <!-- build the java class files -->
-  <target name="compile" depends="prepare">
+  <target name="compile" depends="check-available,prepare">
     <javac srcdir="src/java" destdir="${classes.dir}" includeAntRuntime="false"
            debug="on" optimize="{$build.optimize}" deprecation="on"
            source="1.5" target="1.5">
       <classpath refid="classpath"/>
+      <exclude name="com/threerings/parlor/rating/server/**" unless="depot.present"/>
       <compilerarg value="-Xlint"/>
       <compilerarg value="-Xlint:-serial"/>
     </javac>
