@@ -139,10 +139,8 @@ public class BodyObject extends ClientObject
     public String who ()
     {
         StringBuilder buf = new StringBuilder(username.toString());
-        buf.append(" (").append(getOid());
-        if (status != OccupantInfo.ACTIVE) {
-            buf.append(" ").append(OccupantInfo.X_STATUS[status]);
-        }
+        buf.append(" (");
+        addWhoData(buf);
         return buf.append(")").toString();
     }
 
@@ -211,6 +209,17 @@ public class BodyObject extends ClientObject
         this.awayMessage = value;
     }
     // AUTO-GENERATED: METHODS END
+
+    /**
+     * Allows derived classes to add data to the who details.
+     */
+    protected void addWhoData (StringBuilder buf)
+    {
+        buf.append(getOid());
+        if (status != OccupantInfo.ACTIVE) {
+            buf.append(" ").append(OccupantInfo.X_STATUS[status]);
+        }
+    }
 
     /** The default (no tokens) access control. */
     protected static final TokenRing EMPTY_TOKENS = new TokenRing();
