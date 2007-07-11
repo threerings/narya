@@ -64,8 +64,7 @@ public class SpeakProvider
          * via the speak provider with which this validator was
          * registered.
          */
-        public boolean isValidSpeaker (DObject speakObj, ClientObject speaker,
-                                       byte mode);
+        public boolean isValidSpeaker (DObject speakObj, ClientObject speaker, byte mode);
     }
 
     /**
@@ -206,8 +205,7 @@ public class SpeakProvider
      * client.
      * @param message the text of the message.
      */
-    public static void sendInfo (
-        DObject speakObj, String bundle, String message)
+    public static void sendInfo (DObject speakObj, String bundle, String message)
     {
         sendSystem(speakObj, bundle, message, SystemMessage.INFO);
     }
@@ -227,8 +225,7 @@ public class SpeakProvider
      * client.
      * @param message the text of the message.
      */
-    public static void sendFeedback (
-        DObject speakObj, String bundle, String message)
+    public static void sendFeedback (DObject speakObj, String bundle, String message)
     {
         sendSystem(speakObj, bundle, message, SystemMessage.FEEDBACK);
     }
@@ -248,8 +245,7 @@ public class SpeakProvider
      * client.
      * @param message the text of the message.
      */
-    public static void sendAttention (
-        DObject speakObj, String bundle, String message)
+    public static void sendAttention (DObject speakObj, String bundle, String message)
     {
         sendSystem(speakObj, bundle, message, SystemMessage.ATTENTION);
     }
@@ -277,8 +273,7 @@ public class SpeakProvider
         // post the message to the relevant object
         speakObj.postMessage(CHAT_NOTIFICATION, new Object[] { msg });
 
-        // if this is a user message; add it to the heard history of all
-        // users that can "hear" it
+        // if this is a user message; add it to the heard history of all users that can "hear" it
         if (!(msg instanceof UserMessage)) {
             return;
         } else if (speakObj instanceof SpeakObject) {
@@ -322,21 +317,39 @@ public class SpeakProvider
             msg.timestamp = System.currentTimeMillis();
         }
 
-        // add the message to this user's chat history
-        ArrayList<ChatMessage> history = getHistoryList(username);
-        history.add(msg);
-
-        // if the history is big enough, potentially prune it (we always
-        // prune when asked for the history, so this is just to balance
-        // memory usage with CPU expense)
-        if (history.size() > 15) {
-            pruneHistory(msg.timestamp, history);
-        }
+        recordToChatHistory(msg, username);
         // Log.info("Noted that " + username + " heard " + msg + ".");
 
         // notify any message observers
         _messageOp.init(username, msg);
         _messageObs.apply(_messageOp);
+    }
+
+    /**
+     * Records the specified message to the specified users' chat histories.
+     * If {@link ChatMessage#timestamp} is not already filled in, it will be.
+     */
+    public static void recordToChatHistory (UserMessage msg, Name... usernames)
+    {
+        // fill in the message's time stamp if necessary
+        if (msg.timestamp == 0L) {
+            msg.timestamp = System.currentTimeMillis();
+        }
+
+        for (int ii = 0; ii < usernames.length; ii ++ ) {
+            Name username = usernames[ii];
+
+            // add the message to this user's chat history
+            ArrayList<ChatMessage> history = getHistoryList(username);
+            history.add(msg);
+
+            // if the history is big enough, potentially prune it (we always
+            // prune when asked for the history, so this is just to balance
+            // memory usage with CPU expense)
+            if (history.size() > 15) {
+                pruneHistory(msg.timestamp, history);
+            }
+        }
     }
 
     /**
@@ -354,8 +367,7 @@ public class SpeakProvider
     /**
      * Prunes all messages from this history which are expired.
      */
-    protected static void pruneHistory (
-        long now, ArrayList<ChatMessage> history)
+    protected static void pruneHistory (long now, ArrayList<ChatMessage> history)
     {
         int prunepos = 0;
         for (int ll = history.size(); prunepos < ll; prunepos++) {
