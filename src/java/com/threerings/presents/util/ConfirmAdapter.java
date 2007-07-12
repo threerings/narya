@@ -33,7 +33,7 @@ import com.threerings.presents.server.InvocationException;
  * an instance fo {@link InvocationException} the message will be passed on to the confirm
  * listener, otherwise they will be provided with {@link InvocationCodes#INTERNAL_ERROR}.
  */
-public class ConfirmAdapter implements ResultListener
+public class ConfirmAdapter implements ResultListener<Void>
 {
     /**
      * Creates an adapter with the supplied listener.
@@ -44,7 +44,7 @@ public class ConfirmAdapter implements ResultListener
     }
 
     // documentation inherited from interface
-    public void requestCompleted (Object result)
+    public void requestCompleted (Void result)
     {
         _listener.requestProcessed();
     }
