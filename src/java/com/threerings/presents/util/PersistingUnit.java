@@ -29,11 +29,10 @@ import com.threerings.presents.client.InvocationService;
 import com.threerings.presents.data.InvocationCodes;
 
 /**
- * Simplifies a common pattern which is to post an {@link Invoker} unit which
- * does some database operation and then calls back to an {@link
- * InvocationService.InvocationListener} of some sort. If the database operation
- * fails, the error will be logged and the result listener will be replied to
- * with {@link InvocationCodes#INTERNAL_ERROR}.
+ * Simplifies a common pattern which is to post an {@link Invoker} unit which does some database
+ * operation and then calls back to an {@link InvocationService.InvocationListener} of some
+ * sort. If the database operation fails, the error will be logged and the result listener will be
+ * replied to with {@link InvocationCodes#INTERNAL_ERROR}.
  */
 public abstract class PersistingUnit extends Invoker.Unit
 {
@@ -50,9 +49,8 @@ public abstract class PersistingUnit extends Invoker.Unit
     }
 
     /**
-     * This method is where the unit performs its persistent actions. Any
-     * persistence exception will be caught and logged along with the output
-     * from {@link #getFailureMessage}, if any.
+     * This method is where the unit performs its persistent actions. Any persistence exception
+     * will be caught and logged along with the output from {@link #getFailureMessage}, if any.
      */
     public abstract void invokePersistent ()
         throws PersistenceException;
@@ -65,8 +63,8 @@ public abstract class PersistingUnit extends Invoker.Unit
     }
 
     /**
-     * Handles the failure case by logging the error and reporting an internal
-     * error to the listener.
+     * Handles the failure case by logging the error and reporting an internal error to the
+     * listener.
      */
     public void handleFailure (PersistenceException error)
     {
@@ -76,8 +74,8 @@ public abstract class PersistingUnit extends Invoker.Unit
     }
 
     /**
-     * Provides a custom failure message in the event that the persistent
-     * action fails. This will be logged along with the exception.
+     * Provides a custom failure message in the event that the persistent action fails. This will
+     * be logged along with the exception.
      */
     public String getFailureMessage ()
     {

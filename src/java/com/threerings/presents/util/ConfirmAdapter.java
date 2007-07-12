@@ -29,11 +29,9 @@ import com.threerings.presents.data.InvocationCodes;
 import com.threerings.presents.server.InvocationException;
 
 /**
- * Adapts the response from a {@link ResultListener} to a {@link
- * ConfirmListener} if the failure is an instance fo {@link
- * InvocationException} the message will be passed on to the confirm
- * listener, otherwise they will be provided with {@link
- * InvocationCodes#INTERNAL_ERROR}.
+ * Adapts the response from a {@link ResultListener} to a {@link ConfirmListener} if the failure is
+ * an instance fo {@link InvocationException} the message will be passed on to the confirm
+ * listener, otherwise they will be provided with {@link InvocationCodes#INTERNAL_ERROR}.
  */
 public class ConfirmAdapter implements ResultListener
 {
