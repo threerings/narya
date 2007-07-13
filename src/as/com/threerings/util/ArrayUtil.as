@@ -57,6 +57,23 @@ public class ArrayUtil
         }
     }
 
+    /**
+     * Returns the index of the first item in the array for which the predicate function
+     * returns true, or -1 if no such item was found. The predicate function should be of type:
+     *   function (element :*) :Boolean { }
+     */
+    public static function indexIf (arr :Array, predicate :Function) :int
+    {
+        if (arr != null) {
+            for (var ii :int = 0; ii < arr.length; ii++) {
+                if (predicate(arr[ii])) {
+                    return ii;
+                }
+            }
+        }
+        return -1; // never found
+    }
+
     public static function indexOf (arr :Array, element :Object) :int
     {
         if (arr != null) {
