@@ -21,44 +21,20 @@
 
 package com.threerings.presents.util;
 
-import com.samskivert.util.ResultListener;
-
-import com.threerings.presents.Log;
-import com.threerings.presents.client.InvocationService.ConfirmListener;
-import com.threerings.presents.data.InvocationCodes;
-import com.threerings.presents.server.InvocationException;
+import com.threerings.presents.client.InvocationService;
 
 /**
  * Adapts the response from a {@link ResultListener} to a {@link ConfirmListener} if the failure is
  * an instance fo {@link InvocationException} the message will be passed on to the confirm
  * listener, otherwise they will be provided with {@link InvocationCodes#INTERNAL_ERROR}.
  */
-public class ConfirmAdapter implements ResultListener<Void>
+public class ConfirmAdapter extends IgnoreConfirmAdapter<Void>
 {
     /**
      * Creates an adapter with the supplied listener.
      */
-    public ConfirmAdapter (ConfirmListener listener)
+    public ConfirmAdapter (InvocationService.ConfirmListener listener)
     {
-        _listener = listener;
+        super(listener);
     }
-
-    // documentation inherited from interface
-    public void requestCompleted (Void result)
-    {
-        _listener.requestProcessed();
-    }
-
-    // documentation inherited from interface
-    public void requestFailed (Exception cause)
-    {
-        if (cause instanceof InvocationException) {
-            _listener.requestFailed(cause.getMessage());
-        } else {
-            Log.logStackTrace(cause);
-            _listener.requestFailed(InvocationCodes.INTERNAL_ERROR);
-        }
-    }
-
-    protected ConfirmListener _listener;
 }
