@@ -22,9 +22,8 @@
 package com.threerings.presents.client;
 
 /**
- * A session observer is registered with the client instance to be
- * notified when the client establishes and ends their session with the
- * server.
+ * A session observer is registered with the client instance to be notified when the client
+ * establishes and ends their session with the server.
  *
  * @see ClientObserver
  */
@@ -36,23 +35,20 @@ public interface SessionObserver
     public void clientWillLogon (Client client);
 
     /**
-     * Called after the client successfully connected to and authenticated
-     * with the server. The entire object system is up and running by the
-     * time this method is called.
+     * Called after the client successfully connected to and authenticated with the server. The
+     * entire object system is up and running by the time this method is called.
      */
     public void clientDidLogon (Client client);
 
     /**
-     * For systems that allow switching screen names after logon, this
-     * method is called whenever a screen name change takes place to
-     * report that the client object has been replaced to potential
-     * client-side subscribers.
+     * For systems that allow switching screen names after logon, this method is called whenever a
+     * screen name change takes place to report that the client object has been replaced to
+     * potential client-side subscribers.
      */
     public void clientObjectDidChange (Client client);
 
     /**
-     * Called after the client has been logged off of the server and has
-     * disconnected.
+     * Called after the client has been logged off of the server and has disconnected.
      */
     public void clientDidLogoff (Client client);
 }
