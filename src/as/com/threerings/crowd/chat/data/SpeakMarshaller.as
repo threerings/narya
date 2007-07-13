@@ -23,6 +23,7 @@ package com.threerings.crowd.chat.data {
 
 import flash.utils.ByteArray;
 import com.threerings.util.*; // for Float, Integer, etc.
+import com.threerings.io.TypedArray;
 
 import com.threerings.crowd.chat.client.SpeakService;
 import com.threerings.presents.client.Client;

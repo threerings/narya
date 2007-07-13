@@ -22,6 +22,7 @@
 package com.threerings.presents.client {
 
 import flash.utils.ByteArray;
+import com.threerings.io.TypedArray;
 import com.threerings.presents.client.Client;
 import com.threerings.presents.client.InvocationService;
 import com.threerings.presents.client.InvocationService_InvocationListener;
