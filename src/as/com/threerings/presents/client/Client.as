@@ -31,6 +31,7 @@ import flash.utils.Timer;
 import com.threerings.util.MethodQueue;
 import com.threerings.util.ObserverList;
 
+import com.threerings.presents.client.InvocationService_ConfirmListener;
 import com.threerings.presents.data.ClientObject;
 import com.threerings.presents.data.InvocationCodes;
 
@@ -271,6 +272,27 @@ public class Client extends EventDispatcher
     }
 
     /**
+     * Transitions a logged on client from its current server to the specified new server.
+     * Currently this simply logs the client off of its current server (if it is logged on) and
+     * logs it onto the new server, but in the future we may aim to do something fancier.
+     *
+     * <p> If we fail to connect to the new server, the client <em>will not</em> be automatically
+     * reconnected to the old server. It will be in a logged off state. However, it will be
+     * reconfigured with the hostname and ports of the old server so that the caller can notify the
+     * user of the failure and then simply call {@link #logon} to attempt to reconnect to the old
+     * server.
+     *
+     * @param observer an observer that will be notified when we have successfully logged onto the
+     * other server, or if the move failed.
+     */
+    public function moveToServer (hostname :String, ports :Array,
+                                  obs :InvocationService_ConfirmListener) :void
+    {
+        // the server switcher will take care of everything for us
+        new ServerSwitcher(this, hostname, ports, obs).switchServers();
+    }
+
+    /**
      * Requests that the client log off of the server to which it is connected.
      *
      * @param abortable if true, the client will call clientWillDisconnect on allthe client
@@ -299,8 +321,7 @@ public class Client extends EventDispatcher
         return true;
     }
 
-    public function gotBootstrap (data :BootstrapData, omgr :DObjectManager)
-            :void
+    public function gotBootstrap (data :BootstrapData, omgr :DObjectManager) :void
     {
         log.debug("Got bootstrap " + data + ".");
 

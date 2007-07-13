@@ -27,8 +27,9 @@ import com.samskivert.util.Interval;
 import com.samskivert.util.ObserverList;
 import com.samskivert.util.RunAnywhere;
 import com.samskivert.util.RunQueue;
+import com.samskivert.util.StringUtil;
 
-import com.threerings.presents.Log;
+import com.threerings.presents.data.AuthCodes;
 import com.threerings.presents.data.ClientObject;
 import com.threerings.presents.data.InvocationCodes;
 import com.threerings.presents.dobj.DEvent;
@@ -39,6 +40,8 @@ import com.threerings.presents.net.BootstrapData;
 import com.threerings.presents.net.Credentials;
 import com.threerings.presents.net.PingRequest;
 import com.threerings.presents.net.PongResponse;
+
+import static com.threerings.presents.Log.log;
 
 /**
  * Through the client object, a connection to the system is established and maintained. The client
@@ -108,6 +111,7 @@ public class Client
      * ports (which will be tried in succession).
      *
      * @see #logon
+     * @see #moveToServer
      */
     public void setServer (String hostname, int[] ports)
     {
@@ -394,6 +398,26 @@ public class Client
     }
 
     /**
+     * Transitions a logged on client from its current server to the specified new server.
+     * Currently this simply logs the client off of its current server (if it is logged on) and
+     * logs it onto the new server, but in the future we may aim to do something fancier.
+     *
+     * <p> If we fail to connect to the new server, the client <em>will not</em> be automatically
+     * reconnected to the old server. It will be in a logged off state. However, it will be
+     * reconfigured with the hostname and ports of the old server so that the caller can notify the
+     * user of the failure and then simply call {@link #logon} to attempt to reconnect to the old
+     * server.
+     *
+     * @param observer an observer that will be notified when we have successfully logged onto the
+     * other server, or if the move failed.
+     */
+    public void moveToServer (String hostname, int[] ports, InvocationService.ConfirmListener obs)
+    {
+        // the server switcher will take care of everything for us
+        new ServerSwitcher(hostname, ports, obs).switchServers();
+    }
+
+    /**
      * Requests that the client log off of the server to which it is connected.
      *
      * @param abortable If true, the client will call <code>clientWillDisconnect</code> on all of
@@ -406,7 +430,7 @@ public class Client
     {
         // if we have no communicator, we're not logged on anyway
         if (_comm == null) {
-            Log.warning("Ignoring request to logoff because we're not logged on.");
+            log.warning("Ignoring request to logoff because we're not logged on.");
             return true;
         }
 
@@ -464,7 +488,7 @@ public class Client
      */
     protected void gotBootstrap (BootstrapData data, DObjectManager omgr)
     {
-        Log.debug("Got bootstrap " + data + ".");
+        log.fine("Got bootstrap " + data + ".");
 
         // keep these around for interested parties
         _bstrap = data;
@@ -509,7 +533,7 @@ public class Client
         if (_dcalc != null) {
             // if our current calculator is done, clear it out
             if (_dcalc.isDone()) {
-                Log.debug("Time offset from server: " + _serverDelta + "ms.");
+                log.fine("Time offset from server: " + _serverDelta + "ms.");
                 _dcalc = null;
             } else if (_dcalc.shouldSendPing()) {
                 // otherwise, send another ping
@@ -740,6 +764,71 @@ public class Client
         protected int _code;
         protected Exception _cause;
         protected boolean _rejected;
+    }
+
+    /** Handles the process of switching between servers. See {@link #moveToServer}. */
+    protected class ServerSwitcher extends ClientAdapter
+    {
+        public ServerSwitcher (String hostname, int[] ports, InvocationService.ConfirmListener obs)
+        {
+            _hostname = hostname;
+            _ports = ports;
+            _observer = obs;
+        }
+
+        public void switchServers ()
+        {
+            addClientObserver(this);
+            if (!isLoggedOn()) {
+                // if we're not logged on right now, just do the switch immediately
+                clientDidClear(Client.this);
+
+            } else {
+                // note our current connection information so that we can restore it if our logon
+                // attempt fails
+                _oldHostname = Client.this._hostname;
+                _oldPorts = Client.this._ports;
+
+                // otherwise logoff and wait for all of our callbacks to clear
+                logoff(true);
+            }
+        }
+
+        public void clientDidClear (Client client)
+        {
+            // configure the client to point to the new server and logon
+            setServer(_hostname, _ports);
+
+            if (!logon()) {
+                log.warning("logon() failed during server switch? [hostname=" + _hostname +
+                            ", ports=" + StringUtil.toString(_ports) + "].");
+                clientFailedToLogon(Client.this, new Exception("logon() failed?"));
+            }
+        }
+
+        public void clientDidLogon (Client client)
+        {
+            removeClientObserver(this);
+            if (_observer != null) {
+                _observer.requestProcessed();
+            }
+        }
+
+        public void clientFailedToLogon (Client client, Exception cause)
+        {
+            removeClientObserver(this);
+            if (_oldHostname != null) { // restore our previous server and ports
+                setServer(_oldHostname, _oldPorts);
+            }
+            if (_observer != null) {
+                _observer.requestFailed((cause instanceof LogonException) ?
+                                        cause.getMessage() : AuthCodes.SERVER_ERROR);
+            }
+        }
+
+        protected String _hostname, _oldHostname;
+        protected int[] _ports, _oldPorts;
+        protected InvocationService.ConfirmListener _observer;
     }
 
     /** The credentials we used to authenticate with the server. */
