@@ -1,5 +1,5 @@
 //
-// $Id: StreamableTuple.java 4736 2007-06-14 18:19:38Z dhoover $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2007 Three Rings Design, Inc., All Rights Reserved
