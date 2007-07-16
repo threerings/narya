@@ -56,7 +56,7 @@ public class NodeObject extends DObject
 
     /** Identifies a locked resource. */
     public static class Lock extends SimpleStreamableObject
-        implements Comparable, DSet.Entry
+        implements Comparable<Lock>, DSet.Entry
     {
         /** The resource type.  Only resources of the same type will have their ids compared. */
         public String type;
@@ -75,9 +75,8 @@ public class NodeObject extends DObject
         }
 
         // documentation inherited from interface Comparable
-        public int compareTo (Object other)
+        public int compareTo (Lock olock)
         {
-            Lock olock = (Lock)other;
             int v1 = type.compareTo(olock.type);
             if (v1 != 0 || id == null) {
                 return v1;
