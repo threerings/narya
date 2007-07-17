@@ -97,6 +97,12 @@ public class PeerManager
         public void droppedLock (NodeObject.Lock lock);
     }
 
+    /** Used by {@link #lookupNodeDatum}. */
+    public static interface Lookup<T>
+    {
+        public T lookup (NodeObject nodeobj);
+    }
+
     /**
      * Creates a peer manager which will create a {@link NodeRepository} which will be used to
      * publish our existence and discover the other nodes.
@@ -214,6 +220,29 @@ public class PeerManager
         for (PeerNode peer : _peers.values()) {
             peer.shutdown();
         }
+    }
+
+    /**
+     * Locates a datum from among the set of peer {@link NodeObject}s. Objects are searched in
+     * arbitrary order and the first non-null value returned by the supplied lookup operation is
+     * returned to the caller. Null if all lookup operations returned null.
+     */
+    public <T> T lookupNodeDatum (Lookup<T> op)
+    {
+        T value = op.lookup(_nodeobj);
+        if (value != null) {
+            return value;
+        }
+        for (PeerNode peer : _peers.values()) {
+            if (peer.nodeobj == null) {
+                continue;
+            }
+            value = op.lookup(peer.nodeobj);
+            if (value != null) {
+                return value;
+            }
+        }
+        return value;
     }
 
     /**
