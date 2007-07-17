@@ -24,6 +24,7 @@ package com.threerings.presents.peer.server;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.logging.Level;
 
 import com.samskivert.io.PersistenceException;
@@ -607,7 +608,7 @@ public class PeerManager
                     }
                 }
             }
-            protected ArrayList<NodeRecord> _nodes;
+            protected List<NodeRecord> _nodes;
         });
     }
 
