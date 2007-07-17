@@ -34,6 +34,7 @@ import com.threerings.presents.server.PresentsClient;
 import com.threerings.presents.peer.data.ClientInfo;
 import com.threerings.presents.peer.data.NodeObject;
 import com.threerings.presents.peer.server.PeerManager;
+import com.threerings.presents.peer.server.PeerNode;
 
 import com.threerings.crowd.chat.client.ChatService;
 import com.threerings.crowd.chat.data.ChatMessage;
