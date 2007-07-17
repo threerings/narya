@@ -525,7 +525,7 @@ public class PeerManager
     public void clientUnsubscribedFromNode (int cloid)
     {
         _suboids.remove(cloid);
-        for (LockHandler handler : _locks.values()) {
+        for (LockHandler handler : _locks.values().toArray(new LockHandler[_locks.size()])) {
             if (handler.getNodeName().equals(_nodeName)) {
                 handler.clientUnsubscribed(cloid);
             }
@@ -742,7 +742,7 @@ public class PeerManager
     protected void peerDidLogoff (PeerNode peer)
     {
         // clear any locks held by that peer
-        for (LockHandler handler : _locks.values()) {
+        for (LockHandler handler : _locks.values().toArray(new LockHandler[_locks.size()])) {
             if (handler.getNodeName().equals(peer.getNodeName())) {
                 handler.clientDidLogoff();
             }
