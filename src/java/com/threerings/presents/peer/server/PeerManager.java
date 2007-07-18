@@ -223,6 +223,19 @@ public class PeerManager
     }
 
     /**
+     * Locates the client with the specified name. Returns null if the client is not logged onto
+     * any peer.
+     */
+    public ClientInfo locateClient (final Name key)
+    {
+        return lookupNodeDatum(new Lookup<ClientInfo>() {
+            public ClientInfo lookup (NodeObject nodeobj) {
+                return nodeobj.clients.get(key);
+            }
+        });
+    }
+
+    /**
      * Locates a datum from among the set of peer {@link NodeObject}s. Objects are searched in
      * arbitrary order and the first non-null value returned by the supplied lookup operation is
      * returned to the caller. Null if all lookup operations returned null.
