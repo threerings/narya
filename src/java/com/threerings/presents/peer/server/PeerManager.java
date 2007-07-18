@@ -546,7 +546,7 @@ public class PeerManager
         Name username = client.getCredentials().getUsername();
         for (ClientInfo clinfo : _nodeobj.clients) {
             if (clinfo.username.equals(username)) {
-                _nodeobj.removeFromClients(clinfo.getKey());
+                clearClientInfo(client, clinfo);
                 return;
             }
         }
@@ -739,6 +739,14 @@ public class PeerManager
     protected void initClientInfo (PresentsClient client, ClientInfo info)
     {
         info.username = client.getCredentials().getUsername();
+    }
+
+    /**
+     * Called when a client ends their session to clear their information from our node object.
+     */
+    protected void clearClientInfo (PresentsClient client, ClientInfo info)
+    {
+        _nodeobj.removeFromClients(info.getKey());
     }
 
     /**
