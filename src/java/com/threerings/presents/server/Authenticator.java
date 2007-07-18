@@ -64,7 +64,7 @@ public abstract class Authenticator
         final AuthResponseData rdata = createResponseData();
         final AuthResponse rsp = new AuthResponse(rdata);
 
-        getInvoker().postUnit(new Invoker.Unit("auth:" + req.getCredentials()) {
+        getInvoker().postUnit(new Invoker.Unit("authenticateConnection") {
             public boolean invoke() {
                 try {
                     processAuthentication(conn, rsp);
