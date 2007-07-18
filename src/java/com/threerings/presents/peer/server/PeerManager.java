@@ -158,7 +158,7 @@ public class PeerManager
         // register ourselves with the node table
         final NodeRecord record = new NodeRecord(
             _nodeName, hostName, (publicHostName == null) ? hostName : publicHostName, port);
-        _invoker.postUnit(new Invoker.Unit() {
+        _invoker.postUnit(new Invoker.Unit("registerNode") {
             public boolean invoke () {
                 try {
                     _noderepo.updateNode(record);
@@ -204,7 +204,7 @@ public class PeerManager
         PresentsServer.clmgr.removeClientObserver(this);
 
         // clear our record from the node table
-        _invoker.postUnit(new Invoker.Unit() {
+        _invoker.postUnit(new Invoker.Unit("deleteNode") {
             public boolean invoke () {
                 try {
                     _noderepo.deleteNode(_nodeName);
@@ -624,7 +624,7 @@ public class PeerManager
     protected void refreshPeers ()
     {
         // load up information on our nodes
-        _invoker.postUnit(new Invoker.Unit() {
+        _invoker.postUnit(new Invoker.Unit("refreshPeers") {
             public boolean invoke () {
                 try {
                     // let the world know that we're alive
