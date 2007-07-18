@@ -103,6 +103,12 @@ public class PeerManager
         public T lookup (NodeObject nodeobj);
     }
 
+    /** Used by {@link #applyToNodes}. */
+    public static interface Operation
+    {
+        public void apply (NodeObject nodeobj);
+    }
+
     /**
      * Creates a peer manager which will create a {@link NodeRepository} which will be used to
      * publish our existence and discover the other nodes.
@@ -256,6 +262,21 @@ public class PeerManager
             }
         }
         return value;
+    }
+
+    /**
+     * Applies the supplied operation to all {@link NodeObject}s. The operation should not modify
+     * the objects unless you really know what you're doing. more likely it will summarize
+     * information contained therein.
+     */
+    public void applyToNodes (Operation op)
+    {
+        op.apply(_nodeobj);
+        for (PeerNode peer : _peers.values()) {
+            if (peer.nodeobj != null) {
+                op.apply(peer.nodeobj);
+            }
+        }
     }
 
     /**
