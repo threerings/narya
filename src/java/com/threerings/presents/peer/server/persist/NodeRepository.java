@@ -21,18 +21,23 @@
 
 package com.threerings.presents.peer.server.persist;
 
+import java.sql.Connection;
+import java.sql.SQLException;
 import java.sql.Timestamp;
-import java.util.List;
+import java.util.ArrayList;
 
 import com.samskivert.io.PersistenceException;
+
 import com.samskivert.jdbc.ConnectionProvider;
-import com.samskivert.jdbc.depot.DepotRepository;
-import com.samskivert.jdbc.depot.PersistenceContext;
+import com.samskivert.jdbc.DatabaseLiaison;
+import com.samskivert.jdbc.JDBCUtil;
+import com.samskivert.jdbc.JORARepository;
+import com.samskivert.jdbc.jora.Table;
 
 /**
  * Used to share information on active nodes in a Presents server cluster.
  */
-public class NodeRepository extends DepotRepository
+public class NodeRepository extends JORARepository
 {
     /** The database identifier used when establishing a database connection.  This value being
      * <code>nodedb</code>. */
@@ -46,16 +51,16 @@ public class NodeRepository extends DepotRepository
     public NodeRepository (ConnectionProvider conprov)
         throws PersistenceException
     {
-        super(new PersistenceContext(NODE_DB_IDENT, conprov));
+        super(conprov, NODE_DB_IDENT);
     }
 
     /**
      * Returns a list of all nodes registered in the repository.
      */
-    public List<NodeRecord> loadNodes ()
+    public ArrayList<NodeRecord> loadNodes ()
         throws PersistenceException
     {
-        return findAll(NodeRecord.class);
+        return loadAll(_ntable, "");
     }
 
     /**
@@ -65,7 +70,7 @@ public class NodeRepository extends DepotRepository
         throws PersistenceException
     {
         record.lastUpdated = new Timestamp(System.currentTimeMillis());
-        store(record);
+        store(_ntable, record);
     }
 
     /**
@@ -75,9 +80,10 @@ public class NodeRepository extends DepotRepository
     public void heartbeatNode (String nodeName)
         throws PersistenceException
     {
-        updatePartial(NodeRecord.class, nodeName, new Object[] {
-            NodeRecord.LAST_UPDATED, new Timestamp(System.currentTimeMillis())
-        });
+        NodeRecord record = new NodeRecord();
+        record.nodeName = nodeName;
+        record.lastUpdated = new Timestamp(System.currentTimeMillis());
+        updateField(_ntable, record, "lastUpdated");
     }
 
     /**
@@ -86,6 +92,33 @@ public class NodeRepository extends DepotRepository
     public void deleteNode (String nodeName)
         throws PersistenceException
     {
-        delete(NodeRecord.class, nodeName);
+        delete(_ntable, new NodeRecord(nodeName));
     }
+
+    @Override // documentation inherited
+    protected void migrateSchema (Connection conn, DatabaseLiaison liaison)
+        throws SQLException, PersistenceException
+    {
+        JDBCUtil.createTableIfMissing(conn, "NODES", new String[] {
+            "NODE_NAME VARCHAR(64) NOT NULL",
+            "HOST_NAME VARCHAR(64) NOT NULL",
+            "PUBLIC_HOST_NAME VARCHAR(64) NOT NULL",
+            "PORT INTEGER NOT NULL",
+            "LAST_UPDATED TIMESTAMP NOT NULL",
+            "PRIMARY KEY (NODE_NAME)",
+        }, "");
+
+        // TEMP: add our new column
+        JDBCUtil.addColumn(conn, "NODES", "PUBLIC_HOST_NAME",
+                           "VARCHAR(64) NOT NULL", "HOST_NAME");
+        // END TEMP
+    }
+
+    @Override // documentation inherited
+    protected void createTables ()
+    {
+        _ntable = new Table<NodeRecord>(NodeRecord.class, "NODES", "NODE_NAME", true);
+    }
+
+    protected Table<NodeRecord> _ntable;
 }

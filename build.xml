@@ -161,8 +161,6 @@
            source="1.5" target="1.5">
       <classpath refid="classpath"/>
       <exclude name="com/threerings/parlor/rating/server/**" unless="depot.present"/>
-      <exclude name="com/threerings/presents/peer/**" unless="depot.present"/>
-      <exclude name="com/threerings/crowd/peer/**" unless="depot.present"/>
       <compilerarg value="-Xlint"/>
       <compilerarg value="-Xlint:-serial"/>
     </javac>
