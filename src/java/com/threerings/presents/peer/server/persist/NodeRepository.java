@@ -21,23 +21,18 @@
 
 package com.threerings.presents.peer.server.persist;
 
-import java.sql.Connection;
-import java.sql.SQLException;
 import java.sql.Timestamp;
-import java.util.ArrayList;
+import java.util.List;
 
 import com.samskivert.io.PersistenceException;
-
 import com.samskivert.jdbc.ConnectionProvider;
-import com.samskivert.jdbc.DatabaseLiaison;
-import com.samskivert.jdbc.JDBCUtil;
-import com.samskivert.jdbc.JORARepository;
-import com.samskivert.jdbc.jora.Table;
+import com.samskivert.jdbc.depot.DepotRepository;
+import com.samskivert.jdbc.depot.PersistenceContext;
 
 /**
  * Used to share information on active nodes in a Presents server cluster.
  */
-public class NodeRepository extends JORARepository
+public class NodeRepository extends DepotRepository
 {
     /** The database identifier used when establishing a database connection.  This value being
      * <code>nodedb</code>. */
@@ -51,16 +46,16 @@ public class NodeRepository extends JORARepository
     public NodeRepository (ConnectionProvider conprov)
         throws PersistenceException
     {
-        super(conprov, NODE_DB_IDENT);
+        super(new PersistenceContext(NODE_DB_IDENT, conprov));
     }
 
     /**
      * Returns a list of all nodes registered in the repository.
      */
-    public ArrayList<NodeRecord> loadNodes ()
+    public List<NodeRecord> loadNodes ()
         throws PersistenceException
     {
-        return loadAll(_ntable, "");
+        return findAll(NodeRecord.class);
     }
 
     /**
@@ -70,7 +65,7 @@ public class NodeRepository extends JORARepository
         throws PersistenceException
     {
         record.lastUpdated = new Timestamp(System.currentTimeMillis());
-        store(_ntable, record);
+        store(record);
     }
 
     /**
@@ -80,10 +75,9 @@ public class NodeRepository extends JORARepository
     public void heartbeatNode (String nodeName)
         throws PersistenceException
     {
-        NodeRecord record = new NodeRecord();
-        record.nodeName = nodeName;
-        record.lastUpdated = new Timestamp(System.currentTimeMillis());
-        updateField(_ntable, record, "lastUpdated");
+        updatePartial(NodeRecord.class, nodeName, new Object[] {
+            NodeRecord.LAST_UPDATED, new Timestamp(System.currentTimeMillis())
+        });
     }
 
     /**
@@ -92,33 +86,6 @@ public class NodeRepository extends JORARepository
     public void deleteNode (String nodeName)
         throws PersistenceException
     {
-        delete(_ntable, new NodeRecord(nodeName));
+        delete(NodeRecord.class, nodeName);
     }
-
-    @Override // documentation inherited
-    protected void migrateSchema (Connection conn, DatabaseLiaison liaison)
-        throws SQLException, PersistenceException
-    {
-        JDBCUtil.createTableIfMissing(conn, "NODES", new String[] {
-            "NODE_NAME VARCHAR(64) NOT NULL",
-            "HOST_NAME VARCHAR(64) NOT NULL",
-            "PUBLIC_HOST_NAME VARCHAR(64) NOT NULL",
-            "PORT INTEGER NOT NULL",
-            "LAST_UPDATED TIMESTAMP NOT NULL",
-            "PRIMARY KEY (NODE_NAME)",
-        }, "");
-
-        // TEMP: add our new column
-        JDBCUtil.addColumn(conn, "NODES", "PUBLIC_HOST_NAME",
-                           "VARCHAR(64) NOT NULL", "HOST_NAME");
-        // END TEMP
-    }
-
-    @Override // documentation inherited
-    protected void createTables ()
-    {
-        _ntable = new Table<NodeRecord>(NodeRecord.class, "NODES", "NODE_NAME", true);
-    }
-
-    protected Table<NodeRecord> _ntable;
 }
