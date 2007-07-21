@@ -33,8 +33,7 @@ import com.threerings.io.ObjectOutputStream;
  */
 public class UserSystemMessage extends SystemMessage
 {
-    /** The "speaker" of this message, the user that triggered that this
-     * message be sent to us. */
+    /** The "speaker" of this message, the user that triggered that this message be sent to us. */
     public var speaker :Name;
 
     /**
@@ -48,6 +47,7 @@ public class UserSystemMessage extends SystemMessage
         this.speaker = sender;
     }
 
+    // from interface Streamable
     override public function readObject (ins :ObjectInputStream) :void
     {
         super.readObject(ins);

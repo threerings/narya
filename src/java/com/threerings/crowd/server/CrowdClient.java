@@ -31,8 +31,7 @@ import com.threerings.crowd.data.OccupantInfo;
 import com.threerings.crowd.server.CrowdServer;
 
 /**
- * The crowd client extends the presents client with crowd-specific client
- * handling.
+ * The crowd client extends the presents client with crowd-specific client handling.
  */
 public class CrowdClient extends PresentsClient
 {
@@ -44,8 +43,7 @@ public class CrowdClient extends PresentsClient
         if (_clobj != null) {
             // note that the user is disconnected
             BodyObject bobj = (BodyObject)_clobj;
-            BodyProvider.updateOccupantStatus(
-                bobj, bobj.location, OccupantInfo.DISCONNECTED);
+            BodyProvider.updateOccupantStatus(bobj, bobj.location, OccupantInfo.DISCONNECTED);
         }
     }
 
@@ -57,12 +55,10 @@ public class CrowdClient extends PresentsClient
         if (_clobj != null) {
             // note that the user's active once more
             BodyObject bobj = (BodyObject)_clobj;
-            BodyProvider.updateOccupantStatus(
-                bobj, bobj.location, OccupantInfo.ACTIVE);
+            BodyProvider.updateOccupantStatus(bobj, bobj.location, OccupantInfo.ACTIVE);
 
         } else {
-            Log.warning("Session resumed but we have no client object!? " +
-                        "[client=" + this + "].");
+            Log.warning("Session resumed but we have no client object!? [client=" + this + "].");
         }
     }
 
@@ -73,13 +69,12 @@ public class CrowdClient extends PresentsClient
 
         BodyObject body = (BodyObject)_clobj;
 
-        // clear out our location so that anyone listening for such things
-        // will know that we've left
+        // clear out our location so that anyone listening will know that we've left
         clearLocation(body);
 
-        // reset our status in case this object remains around until they
-        // start their next session (which could happen very soon)
-        BodyProvider.updateOccupantStatus(body, -1, OccupantInfo.ACTIVE);
+        // reset our status in case this object remains around until they start their next session
+        // (which could happen very soon)
+        BodyProvider.updateOccupantStatus(body, null, OccupantInfo.ACTIVE);
 
         // clear our chat history
         if (body != null) {
@@ -88,11 +83,10 @@ public class CrowdClient extends PresentsClient
     }
 
     /**
-     * When the user ends their session, this method is called to clear
-     * out any location they might occupy. The default implementation
-     * takes care of standard crowd location occupancy, but users of other
-     * services may which to override this method and clear the user out
-     * of a scene, zone or other location-derived occupancy.
+     * When the user ends their session, this method is called to clear out any location they might
+     * occupy. The default implementation takes care of standard crowd location occupancy, but
+     * users of other services may which to override this method and clear the user out of a scene,
+     * zone or other location-derived occupancy.
      */
     protected void clearLocation (BodyObject bobj)
     {

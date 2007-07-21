@@ -31,14 +31,14 @@ import com.threerings.presents.server.InvocationManager;
 
 import com.threerings.crowd.Log;
 import com.threerings.crowd.data.CrowdCodes;
+import com.threerings.crowd.data.Place;
 import com.threerings.crowd.data.PlaceConfig;
 import com.threerings.crowd.data.PlaceObject;
 
 /**
- * The place registry keeps track of all of the active places in the
- * server. It should be used to create new places and it will take care of
- * instantiating and initializing a place manager to manage newly created
- * places.
+ * The place registry keeps track of all of the active places in the server. It should be used to
+ * create new places and it will take care of instantiating and initializing a place manager to
+ * manage newly created places.
  */
 public class PlaceRegistry
 {
@@ -48,13 +48,13 @@ public class PlaceRegistry
         public void invoke (PlaceManager plmgr);
     }
 
-    /** The location provider used by the place registry to provide
-     * location-related invocation services. */
+    /** The location provider used by the place registry to provide location-related invocation
+     * services. */
     public LocationProvider locprov;
 
     /**
-     * Creates and initializes the place registry; called by the server
-     * during its initialization phase.
+     * Creates and initializes the place registry. This is called by the server during its
+     * initialization phase.
      */
     public PlaceRegistry (InvocationManager invmgr, RootDObjectManager omgr)
     {
@@ -68,15 +68,12 @@ public class PlaceRegistry
     }
 
     /**
-     * By overriding this method, it is possible to customize the place
-     * registry to cause it to load the classes associated with a
-     * particular place via a custom class loader. That loader may enforce
-     * restricted privileges or obtain the classes from some special
-     * source.
+     * By overriding this method, it is possible to customize the place registry to cause it to
+     * load the classes associated with a particular place via a custom class loader. That loader
+     * may enforce restricted privileges or obtain the classes from some special source.
      *
-     * @return the class loader to use when instantiating the {@link
-     * PlaceManager} associated with the supplied {@link
-     * PlaceConfig}. This method <em>must not</em> return null.
+     * @return the class loader to use when instantiating the {@link PlaceManager} associated with
+     * the supplied {@link PlaceConfig}. This method <em>must not</em> return null.
      */
     public ClassLoader getClassLoader (PlaceConfig config)
     {
@@ -84,23 +81,22 @@ public class PlaceRegistry
     }
 
     /**
-     * Creates and registers a new place manager along with the place object to
-     * be managed. The registry takes care of tracking the creation of the
-     * object and informing the manager when it is created.
+     * Creates and registers a new place manager along with the place object to be managed. The
+     * registry takes care of tracking the creation of the object and informing the manager when it
+     * is created.
      *
-     * @param config the configuration object for the place to be created. The
-     * {@link PlaceManager} derived class that should be instantiated to manage
-     * the place will be determined from the config object.
+     * @param config the configuration object for the place to be created. The {@link PlaceManager}
+     * derived class that should be instantiated to manage the place will be determined from the
+     * config object.
      *
-     * @return a reference to the place manager, which will have been
-     * configured with its place object and started up (via a call to {@link
-     * PlaceManager#startup}.
+     * @return a reference to the place manager, which will have been configured with its place
+     * object and started up (via a call to {@link PlaceManager#startup}.
      *
-     * @exception InstantiationException thrown if an error occurs trying to
-     * instantiate and initialize the place manager.
-     * @exception InvocationException thrown if the place manager returns
-     * failure from the call to {@link PlaceManager#checkPermissions}. The
-     * error string returned by that call will be provided as in the exception.
+     * @exception InstantiationException thrown if an error occurs trying to instantiate and
+     * initialize the place manager.
+     * @exception InvocationException thrown if the place manager returns failure from the call to
+     * {@link PlaceManager#checkPermissions}. The error string returned by that call will be
+     * provided as in the exception.
      */
     public PlaceManager createPlace (PlaceConfig config)
         throws InstantiationException, InvocationException
@@ -109,12 +105,11 @@ public class PlaceRegistry
     }
 
     /**
-     * Don't use this method, see {@link #createPlace(PlaceConfig)}..
+     * Don't use this method, see {@link #createPlace(PlaceConfig)}.
      *
-     * @param hook an optional pre-startup hook that allows a place manager to
-     * be configured prior to having {@link PlaceManager#startup} called. This
-     * mainly exists because it used to be possible to do such things. Try not
-     * to use this in new code.
+     * @param hook an optional pre-startup hook that allows a place manager to be configured prior
+     * to having {@link PlaceManager#startup} called. This mainly exists because it used to be
+     * possible to do such things. Try not to use this in new code.
      */
     public PlaceManager createPlace (PlaceConfig config, PreStartupHook hook)
         throws InstantiationException, InvocationException
@@ -124,8 +119,7 @@ public class PlaceRegistry
 
         try {
             // load up the manager class
-            Class pmgrClass = Class.forName(
-                config.getManagerClassName(), true, loader);
+            Class pmgrClass = Class.forName(config.getManagerClassName(), true, loader);
             // create a place manager for this place
             pmgr = (PlaceManager)pmgrClass.newInstance();
             // let the pmgr know about us and its configuration
@@ -137,12 +131,11 @@ public class PlaceRegistry
                 "Error creating place manager [config=" + config + "].");
         }
 
-        // give the manager an opportunity to abort the whole process
-        // if it fails any permissions checks
+        // give the manager an opportunity to abort the whole process if it fails any permissions
+        // checks
         String errmsg = pmgr.checkPermissions();
         if (errmsg != null) {
-            // give the place manager a chance to clean up after its early
-            // initialization process
+            // give the place manager a chance to clean up after its early initialization process
             pmgr.permissionsFailed();
             throw new InvocationException(errmsg);
         }
@@ -159,11 +152,9 @@ public class PlaceRegistry
             if (hook != null) {
                 hook.invoke(pmgr);
             }
-
             pmgr.startup(plobj);
         } catch (Exception e) {
-            Log.warning("Error starting place manager [obj=" + plobj +
-                ", pmgr=" + pmgr + "].");
+            Log.warning("Error starting place manager [obj=" + plobj + ", pmgr=" + pmgr + "].");
             Log.logStackTrace(e);
         }
 
@@ -171,8 +162,8 @@ public class PlaceRegistry
     }
 
     /**
-     * Returns the place manager associated with the specified place
-     * object id or null if no such place exists.
+     * Returns the place manager associated with the specified place object id or null if no such
+     * place exists.
      */
     public PlaceManager getPlaceManager (int placeOid)
     {
@@ -180,36 +171,29 @@ public class PlaceRegistry
     }
 
     /**
-     * Returns an enumeration of all of the registered place objects. This
-     * should only be accessed on the dobjmgr thread and shouldn't be kept
-     * around across event dispatches.
+     * Returns an enumeration of all of the registered place objects. This should only be accessed
+     * on the dobjmgr thread and shouldn't be kept around across event dispatches.
      */
     public Iterator<PlaceObject> enumeratePlaces ()
     {
         final Iterator<PlaceManager> itr = _pmgrs.values().iterator();
         return new Iterator<PlaceObject>() {
-            public boolean hasNext ()
-            {
+            public boolean hasNext (){
                 return itr.hasNext();
             }
-
-            public PlaceObject next ()
-            {
+            public PlaceObject next () {
                 PlaceManager plmgr = itr.next();
                 return (plmgr == null) ? null : plmgr.getPlaceObject();
             }
-
-            public void remove ()
-            {
+            public void remove () {
                 throw new UnsupportedOperationException();
             }
         };
     }
 
     /**
-     * Returns an enumeration of all of the registered place managers.
-     * This should only be accessed on the dobjmgr thread and shouldn't be
-     * kept around across event dispatches.
+     * Returns an enumeration of all of the registered place managers.  This should only be
+     * accessed on the dobjmgr thread and shouldn't be kept around across event dispatches.
      */
     public Iterator<PlaceManager> enumeratePlaceManagers ()
     {
@@ -224,12 +208,10 @@ public class PlaceRegistry
         int ploid = pmgr.getPlaceObject().getOid();
         // remove it from the table
         if (_pmgrs.remove(ploid) == null) {
-            Log.warning("Requested to unmap unmapped place manager " +
-                        "[pmgr=" + pmgr + "].");
+            Log.warning("Requested to unmap unmapped place manager [pmgr=" + pmgr + "].");
 
 //         } else {
-//             Log.info("Unmapped place manager " +
-//                      "[class=" + pmgr.getClass().getName() +
+//             Log.info("Unmapped place manager [class=" + pmgr.getClass().getName() +
 //                      ", ploid=" + ploid + "].");
         }
     }

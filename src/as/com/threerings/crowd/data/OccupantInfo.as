@@ -118,11 +118,10 @@ public class OccupantInfo extends SimpleStreamableObject
     // from interface Streamable
     override public function writeObject (out :ObjectOutputStream) :void
     {
-        throw new Error();
-//        super.writeObject(out);
-//        out.writeObject(new Integer(bodyOid));
-//        out.writeObject(username);
-//        out.writeByte(status);
+        super.writeObject(out);
+        out.writeObject(new Integer(bodyOid));
+        out.writeObject(username);
+        out.writeByte(status);
     }
 }
 }

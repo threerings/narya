@@ -34,6 +34,7 @@ import com.threerings.crowd.Log;
 import com.threerings.crowd.client.LocationService;
 import com.threerings.crowd.data.BodyObject;
 import com.threerings.crowd.data.LocationCodes;
+import com.threerings.crowd.data.Place;
 import com.threerings.crowd.data.PlaceConfig;
 import com.threerings.crowd.data.PlaceObject;
 import com.threerings.crowd.server.CrowdServer;
@@ -59,14 +60,14 @@ public class LocationProvider
      * Requests that this client's body be moved to the specified location.
      *
      * @param caller the client object of the client that invoked this remotely callable method.
-     * @param placeId the object id of the place object to which the body should be moved.
+     * @param place the oid of the place to which the body should be moved.
      * @param listener the listener that will be informed of success or failure.
      */
-    public void moveTo (ClientObject caller, int placeId, LocationService.MoveListener listener)
+    public void moveTo (ClientObject caller, int placeOid, LocationService.MoveListener listener)
         throws InvocationException
     {
         // do the move and send the response
-        listener.moveSucceeded(moveTo((BodyObject)caller, placeId));
+        listener.moveSucceeded(moveTo((BodyObject)caller, placeOid));
     }
 
     /**
@@ -80,31 +81,32 @@ public class LocationProvider
 
     /**
      * Moves the specified body from whatever location they currently occupy to the location
-     * identified by the supplied place id.
+     * identified by the supplied place oid.
      *
      * @return the config object for the new location.
      *
      * @exception ServiceFaildException thrown if the move was not successful for some reason
      * (which will be communicated as an error code in the exception's message data).
      */
-    public PlaceConfig moveTo (BodyObject source, int placeId)
+    public PlaceConfig moveTo (BodyObject source, int placeOid)
         throws InvocationException
     {
         int bodoid = source.getOid();
 
         // make sure the place in question actually exists
-        PlaceManager pmgr = _plreg.getPlaceManager(placeId);
+        PlaceManager pmgr = _plreg.getPlaceManager(placeOid);
         if (pmgr == null) {
             Log.info("Requested to move to non-existent place [who=" + source.who() +
-                     ", place=" + placeId + "].");
+                     ", placeOid=" + placeOid + "].");
             throw new InvocationException(NO_SUCH_PLACE);
         }
 
         // if they're already in the location they're asking to move to, just give them the config
         // because we don't need to update anything in distributed object world
-        if (source.location == placeId) {
+        Place place = pmgr.getLocation();
+        if (place.equals(source.location)) {
             Log.debug("Going along with client request to move to where they already are " +
-                      "[source=" + source.who() + ", placeId=" + placeId + "].");
+                      "[source=" + source.who() + ", place=" + place + "].");
             return pmgr.getConfig();
         }
 
@@ -127,11 +129,11 @@ public class LocationProvider
         }
 
         try {
-            PlaceObject place = pmgr.getPlaceObject();
+            PlaceObject plobj = pmgr.getPlaceObject();
 
             // the doubly nested try catch is to prevent failure if one or the other of the
             // transactions fails to start
-            place.startTransaction();
+            plobj.startTransaction();
             try {
                 source.startTransaction();
                 try {
@@ -142,16 +144,16 @@ public class LocationProvider
                     pmgr.buildOccupantInfo(source);
 
                     // set the body's new location
-                    source.setLocation(place.getOid());
+                    source.setLocation(place);
 
                     // add the body oid to the place object's occupant list
-                    place.addToOccupants(bodoid);
+                    plobj.addToOccupants(bodoid);
 
                 } finally {
                     source.commitTransaction();
                 }
             } finally {
-                place.commitTransaction();
+                plobj.commitTransaction();
             }
 
         } finally {
@@ -168,17 +170,17 @@ public class LocationProvider
      */
     public void leaveOccupiedPlace (BodyObject source)
     {
-        int oldloc = source.location;
+        Place oldloc = source.location;
         int bodoid = source.getOid();
 
         // nothing to do if they weren't previously in some location
-        if (oldloc == -1) {
+        if (oldloc == null) {
             return;
         }
 
         // remove them from the occupant list
         try {
-            PlaceObject pold = (PlaceObject)_omgr.getObject(oldloc);
+            PlaceObject pold = (PlaceObject)_omgr.getObject(oldloc.placeOid);
             if (pold != null) {
                 Integer key = Integer.valueOf(bodoid);
                 pold.startTransaction();
@@ -194,16 +196,16 @@ public class LocationProvider
 
             } else {
                 Log.info("Body's prior location no longer around? [boid=" + bodoid +
-                         ", poid=" + oldloc + "].");
+                         ", place=" + oldloc + "].");
             }
 
         } catch (ClassCastException cce) {
             Log.warning("Body claims to occupy non-PlaceObject!? [boid=" + bodoid +
-                        ", poid=" + oldloc + ", error=" + cce + "].");
+                        ", place=" + oldloc + ", error=" + cce + "].");
         }
 
-        // clear out their location oid
-        source.setLocation(-1);
+        // clear out their location
+        source.setLocation(null);
     }
 
     /**
@@ -214,13 +216,13 @@ public class LocationProvider
      * or not they are cooperating.  If they choose to ignore the forced move request, they will
      * remain in limbo, unable to do much of anything.
      */
-    public void moveBody (BodyObject source, int placeId)
+    public void moveBody (BodyObject source, Place place)
     {
         // first remove them from their old place
         leaveOccupiedPlace(source);
 
         // then send a forced move notification
-        LocationSender.forcedMove(source, placeId);
+        LocationSender.forcedMove(source, place.placeOid);
     }
 
     /** The invocation manager with which we interoperate. */

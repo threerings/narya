@@ -30,8 +30,7 @@ import com.threerings.crowd.chat.data.ChatCodes;
 import com.threerings.crowd.chat.data.SpeakObject;
 
 /**
- * The basic user object class for Crowd users. Bodies have a username, a
- * location and a status.
+ * The basic user object class for Crowd users. Bodies have a username, a location and a status.
  */
 public class BodyObject extends ClientObject
     implements SpeakObject
@@ -51,17 +50,17 @@ public class BodyObject extends ClientObject
     // AUTO-GENERATED: FIELDS END
 
     /**
-     * The username associated with this body object. This should not be used
-     * directly; in general {@link #getVisibleName} should be used unless you
-     * specifically know that you want the username.
+     * The username associated with this body object. This should not be used directly; in general
+     * {@link #getVisibleName} should be used unless you specifically know that you want the
+     * username.
      */
     public Name username;
 
     /**
-     * The oid of the place currently occupied by this body or -1 if they
-     * currently occupy no place.
+     * Identifies the place currently occupied by this body. null if they currently occupy no
+     * place.
      */
-    public int location = -1;
+    public Place location;
 
     /**
      * The user's current status ({@link OccupantInfo#ACTIVE}, etc.).
@@ -69,27 +68,33 @@ public class BodyObject extends ClientObject
     public byte status;
 
     /**
-     * The time at which the {@link #status} field was last updated. This
-     * is only available on the server.
+     * The time at which the {@link #status} field was last updated. This is only available on the
+     * server.
      */
     public transient long statusTime;
 
     /**
-     * If non-null, this contains a message to be auto-replied whenever
-     * another user delivers a tell message to this user.
+     * If non-null, this contains a message to be auto-replied whenever another user delivers a
+     * tell message to this user.
      */
     public String awayMessage;
 
     /**
-     * Checks whether or not this user has access to the specified
-     * feature. Currently used by the chat system to regulate access to
-     * chat broadcasts but also forms the basis of an extensible
+     * Returns the oid of the place occupied by this body or -1 if we occupy no place.
+     */
+    public int getPlaceOid ()
+    {
+        return (location == null) ? -1 : location.placeOid;
+    }
+
+    /**
+     * Checks whether or not this user has access to the specified feature. Currently used by the
+     * chat system to regulate access to chat broadcasts but also forms the basis of an extensible
      * fine-grained permissions system.
      *
-     * @return null if the user has access, a fully-qualified translatable
-     * message string indicating the reason for denial of access (or just
-     * {@link InvocationCodes#ACCESS_DENIED} if you don't want to be
-     * specific).
+     * @return null if the user has access, a fully-qualified translatable message string
+     * indicating the reason for denial of access (or just {@link InvocationCodes#ACCESS_DENIED} if
+     * you don't want to be specific).
      */
     public String checkAccess (String feature, Object context)
     {
@@ -112,8 +117,8 @@ public class BodyObject extends ClientObject
     }
 
     /**
-     * Returns the name that should be displayed to other users and used for
-     * the chat system. The default is to use {@link #username}.
+     * Returns the name that should be displayed to other users and used for the chat system. The
+     * default is to use {@link #username}.
      */
     public Name getVisibleName ()
     {
@@ -121,8 +126,8 @@ public class BodyObject extends ClientObject
     }
 
     /**
-     * Creates a blank occupant info instance that will used to publish
-     * information about the various bodies occupying a place.
+     * Creates a blank occupant info instance that will used to publish information about the
+     * various bodies occupying a place.
      */
     public OccupantInfo createOccupantInfo (PlaceObject placeObject)
     {
@@ -169,11 +174,11 @@ public class BodyObject extends ClientObject
      * clients) will apply the value change when they received the
      * attribute changed notification.
      */
-    public void setLocation (int value)
+    public void setLocation (Place value)
     {
-        int ovalue = this.location;
+        Place ovalue = this.location;
         requestAttributeChange(
-            LOCATION, Integer.valueOf(value), Integer.valueOf(ovalue));
+            LOCATION, value, ovalue);
         this.location = value;
     }
 

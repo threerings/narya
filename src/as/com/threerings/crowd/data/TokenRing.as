@@ -31,8 +31,8 @@ import com.threerings.io.SimpleStreamableObject;
  */
 public class TokenRing extends SimpleStreamableObject
 {
-    /** Indicates that this user is an administrator and can do things
-     * like broadcast, shutdown the server and whatnot. */
+    /** Indicates that this user is an administrator and can do things like broadcast, shutdown the
+     * server and whatnot. */
     public static const ADMIN :int = (1 << 0);
 
     /**

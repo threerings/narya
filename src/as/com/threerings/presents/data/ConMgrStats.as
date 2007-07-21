@@ -34,20 +34,18 @@ import com.threerings.util.Long;
 public class ConMgrStats extends SimpleStreamableObject
     implements Cloneable
 {
-    /** The size of the queue of waiting to auth sockets. This is a snapshot at
-     * the time the stats are requested. */
+    /** The size of the queue of waiting to auth sockets. This is a snapshot at the time the stats
+     * are requested. */
     public var authQueueSize :int;
 
-    /** The size of the queue of waiting to die sockets. This is a snapshot at
-     * the time the stats are requested. */
+    /** The size of the queue of waiting to die sockets. This is a snapshot at the time the stats
+     * are requested. */
     public var deathQueueSize :int;
 
-    /** The outgoing queue size. This is a snapshot at the time the stats are
-     * requested. */
+    /** The outgoing queue size. This is a snapshot at the time the stats are requested. */
     public var outQueueSize :int;
 
-    /** The overflow queue size. This is a snapshot at the time the stats are
-     * requested. */
+    /** The overflow queue size. This is a snapshot at the time the stats are requested. */
     public var overQueueSize :int;
 
     /** The number of connection events since the server started up. */

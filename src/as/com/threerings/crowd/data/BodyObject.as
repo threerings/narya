@@ -33,8 +33,7 @@ import com.threerings.io.ObjectInputStream;
 import com.threerings.io.ObjectOutputStream;
 
 /**
- * The basic user object class for Crowd users. Bodies have a username, a
- * location and a status.
+ * The basic user object class for Crowd users. Bodies have a username, a location and a status.
  */
 public class BodyObject extends ClientObject
 {
@@ -53,17 +52,17 @@ public class BodyObject extends ClientObject
     // AUTO-GENERATED: FIELDS END
 
     /**
-     * The username associated with this body object. This should not be used
-     * directly; in general {@link #getVisibleName} should be used unless you
-     * specifically know that you want the username.
+     * The username associated with this body object. This should not be used directly; in general
+     * {@link #getVisibleName} should be used unless you specifically know that you want the
+     * username.
      */
     public var username :Name;
 
     /**
-     * The oid of the place currently occupied by this body or -1 if they
-     * currently occupy no place.
+     * The oid of the place currently occupied by this body or -1 if they currently occupy no
+     * place.
      */
-    public var location :int = -1;
+    public var location :Place;
 
     /**
      * The user's current status ({@link OccupantInfo#ACTIVE}, etc.).
@@ -71,21 +70,19 @@ public class BodyObject extends ClientObject
     public var status :int;
 
     /**
-     * If non-null, this contains a message to be auto-replied whenever
-     * another user delivers a tell message to this user.
+     * If non-null, this contains a message to be auto-replied whenever another user delivers a
+     * tell message to this user.
      */
     public var awayMessage :String;
 
     /**
-     * Checks whether or not this user has access to the specified
-     * feature. Currently used by the chat system to regulate access to
-     * chat broadcasts but also forms the basis of an extensible
+     * Checks whether or not this user has access to the specified feature. Currently used by the
+     * chat system to regulate access to chat broadcasts but also forms the basis of an extensible
      * fine-grained permissions system.
      *
-     * @return null if the user has access, a fully-qualified translatable
-     * message string indicating the reason for denial of access (or just
-     * {@link InvocationCodes#ACCESS_DENIED} if you don't want to be
-     * specific).
+     * @return null if the user has access, a fully-qualified translatable message string
+     * indicating the reason for denial of access (or just {@link InvocationCodes#ACCESS_DENIED} if
+     * you don't want to be specific).
      */
     public function checkAccess (feature :String, context :Object) :String
     {
@@ -114,6 +111,14 @@ public class BodyObject extends ClientObject
     public function getVisibleName () :Name
     {
         return username;
+    }
+
+    /**
+     * Returns the oid of the place occupied by this body or -1 if we occupy no place.
+     */
+    public function getPlaceOid () :int
+    {
+        return (location == null) ? -1 : location.placeOid;
     }
 
 //    // AUTO-GENERATED: METHODS START
@@ -207,7 +212,7 @@ public class BodyObject extends ClientObject
         super.readObject(ins);
 
         username = (ins.readObject() as Name);
-        location = ins.readInt();
+        location = (ins.readObject() as Place);
         status = ins.readByte();
         awayMessage = (ins.readField(String) as String);
     }

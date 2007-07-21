@@ -30,18 +30,15 @@ import com.threerings.io.ObjectOutputStream;
  */
 public class SystemMessage extends ChatMessage
 {
-    /** Attention level constant to indicate that this message is merely
-     * providing the user with information. */
+    /** Attention level constant to indicate that this message is merely providing the user with
+     * information. */
     public static const INFO :int = 0;
 
-    /** Attention level constant to indicate that this message is the
-     * result of a user action. */
+    /** Attention level constant to indicate that this message is the result of a user action. */
     public static const FEEDBACK :int = 1;
 
     /** Attention level constant to indicate that some action is required. */
     public static const ATTENTION :int = 2;
-
-    //----
 
     /** The attention level of this message. */
     public var attentionLevel :int;

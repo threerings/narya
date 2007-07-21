@@ -30,6 +30,7 @@ import com.threerings.crowd.Log;
 import com.threerings.crowd.data.BodyObject;
 import com.threerings.crowd.data.CrowdCodes;
 import com.threerings.crowd.data.OccupantInfo;
+import com.threerings.crowd.data.Place;
 
 /**
  * Provides the server-side side of the body-related invocation services.
@@ -59,8 +60,7 @@ public class BodyProvider
     }
 
     /**
-     * Handles a request to set the idle state of a client to the
-     * specified value.
+     * Handles a request to set the idle state of a client to the specified value.
      */
     public void setIdle (ClientObject caller, boolean idle)
         throws InvocationException
@@ -72,26 +72,23 @@ public class BodyProvider
 
         // report NOOP attempts
         if (bobj.status == nstatus) {
-            throw new InvocationException(
-                (idle) ? "m.already_idle" : "m.already_active");
+            throw new InvocationException((idle) ? "m.already_idle" : "m.already_active");
         }
 
         // update their status!
-        Log.debug("Setting user idle state [user=" + bobj.username +
-                  ", status=" + nstatus + "].");
+        Log.debug("Setting user idle state [user=" + bobj.username + ", status=" + nstatus + "].");
         updateOccupantStatus(bobj, bobj.location, nstatus);
     }
 
     /**
-     * Locates the specified body's occupant info in the specified
-     * location, applies the supplied occuapnt info operation to it and
-     * then broadcasts the updated info (assuming the occop returned true
-     * indicating that an update was made).
+     * Locates the specified body's occupant info in the specified location, applies the supplied
+     * occuapnt info operation to it and then broadcasts the updated info (assuming the occop
+     * returned true indicating that an update was made).
      */
-    public static void updateOccupantInfo (BodyObject body, int locationId,
-                                           OccupantInfoOp occop)
+    public static void updateOccupantInfo (BodyObject body, Place location, OccupantInfoOp occop)
     {
-        PlaceManager pmgr = CrowdServer.plreg.getPlaceManager(locationId);
+        PlaceManager pmgr = (location == null) ? null :
+            CrowdServer.plreg.getPlaceManager(location.placeOid);
         if (pmgr == null) {
             return;
         }
@@ -103,11 +100,10 @@ public class BodyProvider
     }
 
     /**
-     * Updates the connection status for the given body object's occupant
-     * info in the specified location.
+     * Updates the connection status for the given body object's occupant info in the specified
+     * location.
      */
-    public static void updateOccupantStatus (
-        BodyObject body, int locationId, final byte status)
+    public static void updateOccupantStatus (BodyObject body, Place location, final byte status)
     {
         // no need to NOOP
         if (body.status != status) {
@@ -116,7 +112,7 @@ public class BodyProvider
             body.statusTime = System.currentTimeMillis();
         }
 
-        updateOccupantInfo(body, locationId, new OccupantInfoOp() {
+        updateOccupantInfo(body, location, new OccupantInfoOp() {
             public boolean update (OccupantInfo info) {
                 if (info.status != status) {
                     info.status = status;

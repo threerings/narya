@@ -52,6 +52,7 @@ import com.threerings.presents.dobj.SetAdapter;
 import com.threerings.crowd.Log;
 import com.threerings.crowd.data.BodyObject;
 import com.threerings.crowd.data.OccupantInfo;
+import com.threerings.crowd.data.Place;
 import com.threerings.crowd.data.PlaceConfig;
 import com.threerings.crowd.data.PlaceObject;
 
@@ -101,6 +102,14 @@ public class PlaceManager
     public PlaceConfig getConfig ()
     {
         return _config;
+    }
+
+    /**
+     * Returns a {@link Place} instance that identifies this place.
+     */
+    public Place getLocation ()
+    {
+        return new Place(_plobj.getOid());
     }
 
     /**

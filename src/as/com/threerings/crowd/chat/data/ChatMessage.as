@@ -24,7 +24,6 @@ package com.threerings.crowd.chat.data {
 import flash.utils.getTimer; // function import
 
 import com.threerings.util.ClassUtil;
-import com.threerings.util.Long;
 
 import com.threerings.io.ObjectInputStream;
 import com.threerings.io.ObjectOutputStream;
@@ -42,8 +41,8 @@ public /*abstract*/ class ChatMessage
     /** The bundle to use when translating this message. */
     public var bundle :String;
 
-    /** The client side 'localtype' of this chat, set to the type
-     * registered with an auxiliary source in the ChatDirector. */
+    /** The client side 'localtype' of this chat, set to the type registered with an auxiliary
+     * source in the ChatDirector. */
     public var localtype :String;
 
     /** The client time that this message was created. */
@@ -68,20 +67,20 @@ public /*abstract*/ class ChatMessage
     }
 
     /**
-     * Get the appropriate message format for this message.
-     */
-    public function getFormat () :String
-    {
-        return null;
-    }
-
-    /**
      * Generates a string representation of this instance.
      */
     public function toString () :String
     {
         return ClassUtil.shortClassName(this) +
             " [message=" + message + ", bundle=" + bundle + "]";
+    }
+
+    /**
+     * Get the appropriate message format for this message.
+     */
+    public function getFormat () :String
+    {
+        return null;
     }
 
     // from interface Streamable

@@ -19,53 +19,46 @@
 // License along with this library; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 
-package com.threerings.crowd.chat.data {
+package com.threerings.crowd.data {
 
 import com.threerings.io.ObjectInputStream;
 import com.threerings.io.ObjectOutputStream;
-import com.threerings.util.Name;
+import com.threerings.io.SimpleStreamableObject;
 
 /**
- * A feedback message to indicate that a tell succeeded.
+ * Contains information on the current place occupied by a body.
  */
-public class TellFeedbackMessage extends UserMessage
+public class Place extends SimpleStreamableObject
 {
-    /**
-     * A tell feedback message is only composed on the client.
-     */
-    public function TellFeedbackMessage (target :Name, message :String, failed :Boolean = false)
-    {
-        super(target, null, message);
-        _failure = failed;
-    }
+    /** The oid of this place's {@link PlaceObject}. */
+    public var placeOid :int;
 
     /**
-     * Returns true if this is a failure feedback, false if it is successful tell feedback.
+     * Creates a place with the supplied oid.
      */
-    public function isFailure () :Boolean
+    public function Place (placeOid :int = 0)
     {
-        return _failure;
+        this.placeOid = placeOid;
     }
 
-    override public function getFormat () :String
+    // from Object
+    public function equals (other :Object) :Boolean
     {
-        return _failure ? null : "m.told_format";
+        return (other is Place) && ((other as Place).placeOid == placeOid);
     }
 
     // from interface Streamable
     override public function readObject (ins :ObjectInputStream) :void
     {
         super.readObject(ins);
-        _failure = ins.readBoolean();
+        placeOid = ins.readInt();
     }
 
     // from interface Streamable
     override public function writeObject (out :ObjectOutputStream) :void
     {
         super.writeObject(out);
-        out.writeBoolean(_failure);
+        out.writeInt(placeOid);
     }
-
-    protected var _failure :Boolean;
 }
 }
