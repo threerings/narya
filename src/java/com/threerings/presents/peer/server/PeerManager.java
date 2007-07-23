@@ -110,6 +110,25 @@ public class PeerManager
     }
 
     /**
+     * Wraps an operation that needs a shared resource lock to be acquired before it can be
+     * performed, and released after it completes. Used by {@link #performWithLock}.
+     */
+    public static interface LockedOperation
+    {
+        /**
+         * Called when the resource lock was acquired successfully. The lock will be released
+         * immediately after this function call finishes. 
+         */
+        public void run ();
+
+        /**
+         * Called when the resource lock was not acquired successfully, with the name of the peer
+         * who is holding the lock (or null in case of a generic failure).
+         */
+        public void fail (String peerName);
+    }
+    
+    /**
      * Creates a peer manager which will create a {@link NodeRepository} which will be used to
      * publish our existence and discover the other nodes.
      */
@@ -500,6 +519,34 @@ public class PeerManager
             }
         }
         return null;
+    }
+
+    /**
+     * Tries to acquire the resource lock and, if successful, performs the operation and releases
+     * the lock; if unsuccessful, calls the operation's failure handler. Please note: the lock will
+     * be released immediately after the operation. 
+     */
+    public void performWithLock (final NodeObject.Lock lock, final LockedOperation operation)
+    {
+        acquireLock(lock, new ResultListener<String>() {
+            public void requestCompleted (String nodeName) {
+                if (getNodeObject().nodeName.equals(nodeName)) {
+                    // lock acquired successfully - perform the operation, and release the lock.
+                    operation.run();
+                    releaseLock(lock, new ResultListener.NOOP<String>());
+                } else {
+                    // some other peer beat us to it
+                    operation.fail(nodeName);
+                    if (nodeName == null) {
+                        log.warning("Lock acquired by null? [lock=" + lock + "].");
+                    }
+                }
+            }
+            public void requestFailed (Exception cause) {
+                log.log(Level.WARNING, "Lock acquisition failed [lock=" + lock + "].", cause);
+                operation.fail(null);
+            }
+        });
     }
 
     /**
