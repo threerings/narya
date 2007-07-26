@@ -26,7 +26,6 @@ import java.util.List;
 import java.util.Set;
 
 import com.samskivert.io.PersistenceException;
-import com.samskivert.jdbc.ConnectionProvider;
 import com.samskivert.jdbc.depot.DepotRepository;
 import com.samskivert.jdbc.depot.PersistenceContext;
 import com.samskivert.jdbc.depot.PersistentRecord;
@@ -36,21 +35,6 @@ import com.samskivert.jdbc.depot.PersistentRecord;
  */
 public class NodeRepository extends DepotRepository
 {
-    /** The database identifier used when establishing a database connection.  This value being
-     * <code>nodedb</code>. */
-    public static final String NODE_DB_IDENT = "nodedb";
-
-    /**
-     * Constructs a new repository with the specified connection provider.
-     *
-     * @param conprov the connection provider via which we will obtain our database connection.
-     */
-    public NodeRepository (ConnectionProvider conprov)
-        throws PersistenceException
-    {
-        this(new PersistenceContext(NODE_DB_IDENT, conprov));
-    }
-
     /**
      * Constructs a new repository with the specified persistence context.
      */

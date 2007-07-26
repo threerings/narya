@@ -24,7 +24,7 @@ package com.threerings.admin.server;
 import java.util.HashMap;
 
 import com.samskivert.io.PersistenceException;
-import com.samskivert.jdbc.ConnectionProvider;
+import com.samskivert.jdbc.depot.PersistenceContext;
 import com.samskivert.util.Invoker;
 import com.samskivert.util.StringUtil;
 
@@ -34,43 +34,40 @@ import com.threerings.admin.Log;
 import com.threerings.admin.server.persist.ConfigRepository;
 
 /**
- * Implements the {@link ConfigRegistry} using a JDBC database as a persistent
- * store for the configuration information. <em>Note:</em> config objects
- * should only be created during server startup because they will result in
- * synchronous requests to load up the initial configuration data from the
- * database. This ensures that systems initialized after the config registry
- * can safely make use of configuration information.
+ * Implements the {@link ConfigRegistry} using a JDBC database as a persistent store for the
+ * configuration information. <em>Note:</em> config objects should only be created during server
+ * startup because they will result in synchronous requests to load up the initial configuration
+ * data from the database. This ensures that systems initialized after the config registry can
+ * safely make use of configuration information.
  */
 public class DatabaseConfigRegistry extends ConfigRegistry
 {
     /**
      * Creates a configuration registry and prepares it for operation.
      *
-     * @param conprov will provide access to our JDBC database.
-     * @param invoker this will be used to perform all database activity
-     * (except first time initialization) so as to avoid blocking the
-     * distributed object thread.
+     * @param ctx will provide access to our database.
+     * @param invoker this will be used to perform all database activity (except first time
+     * initialization) so as to avoid blocking the distributed object thread.
      */
-    public DatabaseConfigRegistry (ConnectionProvider conprov, Invoker invoker)
+    public DatabaseConfigRegistry (PersistenceContext ctx, Invoker invoker)
         throws PersistenceException
     {
-        this(conprov, invoker, "");
+        this(ctx, invoker, "");
     }
 
     /**
      * Creates a configuration registry and prepares it for operation.
      *
-     * @param conprov will provide access to our JDBC database.
-     * @param invoker this will be used to perform all database activity
-     * (except first time initialization) so as to avoid blocking the
-     * distributed object thread.
-     * @param node if this config registry is accessed by multiple servers which
-     * wish to maintain seperate configs, then specificy a node for each server
+     * @param ctx will provide access to our database.
+     * @param invoker this will be used to perform all database activity (except first time
+     * initialization) so as to avoid blocking the distributed object thread.
+     * @param node if this config registry is accessed by multiple servers which wish to maintain
+     * seperate configs, then specificy a node for each server
      */
-    public DatabaseConfigRegistry (ConnectionProvider conprov, Invoker invoker, String node)
+    public DatabaseConfigRegistry (PersistenceContext ctx, Invoker invoker, String node)
         throws PersistenceException
     {
-        _repo = new ConfigRepository(conprov);
+        _repo = new ConfigRepository(ctx);
         _invoker = invoker;
         _node = StringUtil.isBlank(node) ? "" : node;
     }
@@ -91,17 +88,14 @@ public class DatabaseConfigRegistry extends ConfigRegistry
 
         public void init ()
         {
-            // load up our persistent data synchronously because we should be
-            // in the middle of server startup when it's OK to do database
-            // access on the main thread and we need to be completely
-            // initialized when we return from this call so that subsequent
-            // systems can predictably make use of the configuration
-            // information that we load
+            // load up our persistent data synchronously because we should be in the middle of
+            // server startup when it's OK to do database access on the main thread and we need to
+            // be completely initialized when we return from this call so that subsequent systems
+            // can predictably make use of the configuration information that we load
             try {
                 _data = _repo.loadConfig(_node, _path);
             } catch (PersistenceException pe) {
-                Log.warning("Failed to load object configuration " +
-                            "[path=" + _path + "].");
+                Log.warning("Failed to load object configuration [path=" + _path + "].");
                 Log.logStackTrace(pe);
                 _data = new HashMap<String,String>();
             }
@@ -265,9 +259,8 @@ public class DatabaseConfigRegistry extends ConfigRegistry
                     try {
                         _repo.updateConfig(_node, _path, field, value);
                     } catch (PersistenceException pe) {
-                        Log.warning("Failed to update object configuration " +
-                                    "[path=" + _path + ", field=" + field +
-                                    ", value=" + value + "].");
+                        Log.warning("Failed to update object configuration [path=" + _path +
+                                    ", field=" + field + ", value=" + value + "].");
                         Log.logStackTrace(pe);
                     }
                     return false;

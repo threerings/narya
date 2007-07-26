@@ -25,7 +25,6 @@ import java.util.HashMap;
 import java.util.Set;
 
 import com.samskivert.io.PersistenceException;
-import com.samskivert.jdbc.ConnectionProvider;
 import com.samskivert.jdbc.depot.DepotRepository;
 import com.samskivert.jdbc.depot.PersistenceContext;
 import com.samskivert.jdbc.depot.PersistentRecord;
@@ -36,18 +35,6 @@ import com.samskivert.jdbc.depot.clause.Where;
  */
 public class ConfigRepository extends DepotRepository
 {
-    /** The identifier used when establishing a database connection. */
-    public static final String CONFIG_DB_IDENT = "configdb";
-
-    /**
-     * Constructs a new config repository with the specified connection provider.
-     */
-    public ConfigRepository (ConnectionProvider conprov)
-        throws PersistenceException
-    {
-        this(new PersistenceContext(CONFIG_DB_IDENT, conprov));
-    }
-
     /**
      * Constructs a new config repository with the specified persistence context.
      */
@@ -59,8 +46,7 @@ public class ConfigRepository extends DepotRepository
     /**
      * Loads up the configuration data for the specified object.
      *
-     * @return a map containing field/value pairs for all stored configuration
-     * data.
+     * @return a map containing field/value pairs for all stored configuration data.
      */
     public HashMap<String,String> loadConfig (String node, String object)
         throws PersistenceException

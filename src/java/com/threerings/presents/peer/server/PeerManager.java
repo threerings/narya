@@ -28,7 +28,7 @@ import java.util.List;
 import java.util.logging.Level;
 
 import com.samskivert.io.PersistenceException;
-import com.samskivert.jdbc.ConnectionProvider;
+import com.samskivert.jdbc.depot.PersistenceContext;
 import com.samskivert.util.ArrayIntSet;
 import com.samskivert.util.ChainedResultListener;
 import com.samskivert.util.Interval;
@@ -132,11 +132,10 @@ public class PeerManager
      * Creates a peer manager which will create a {@link NodeRepository} which will be used to
      * publish our existence and discover the other nodes.
      */
-    public PeerManager (ConnectionProvider conprov, Invoker invoker)
-        throws PersistenceException
+    public PeerManager (PersistenceContext ctx, Invoker invoker)
     {
         _invoker = invoker;
-        _noderepo = new NodeRepository(conprov);
+        _noderepo = new NodeRepository(ctx);
     }
 
     /**

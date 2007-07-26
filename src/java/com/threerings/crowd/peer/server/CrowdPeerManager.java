@@ -21,8 +21,7 @@
 
 package com.threerings.crowd.peer.server;
 
-import com.samskivert.io.PersistenceException;
-import com.samskivert.jdbc.ConnectionProvider;
+import com.samskivert.jdbc.depot.PersistenceContext;
 import com.samskivert.util.Invoker;
 
 import com.threerings.util.Name;
@@ -57,10 +56,9 @@ public class CrowdPeerManager extends PeerManager
      * Creates a peer manager that integrates Crowd services across a cluster
      * of servers.
      */
-    public CrowdPeerManager (ConnectionProvider conprov, Invoker invoker)
-        throws PersistenceException
+    public CrowdPeerManager (PersistenceContext ctx, Invoker invoker)
     {
-        super(conprov, invoker);
+        super(ctx, invoker);
     }
 
     // documentation inherited from interface CrowdPeerProvider
