@@ -21,25 +21,20 @@
 
 package com.threerings.admin.server.persist;
 
-import java.sql.Connection;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Set;
 
 import com.samskivert.io.PersistenceException;
 import com.samskivert.jdbc.ConnectionProvider;
-import com.samskivert.jdbc.DatabaseLiaison;
-import com.samskivert.jdbc.JDBCUtil;
-import com.samskivert.jdbc.JORARepository;
-import com.samskivert.jdbc.jora.Table;
-
-import com.threerings.admin.Log;
+import com.samskivert.jdbc.depot.DepotRepository;
+import com.samskivert.jdbc.depot.PersistenceContext;
+import com.samskivert.jdbc.depot.PersistentRecord;
+import com.samskivert.jdbc.depot.clause.Where;
 
 /**
  * Stores configuration information in a database table.
  */
-public class ConfigRepository extends JORARepository
+public class ConfigRepository extends DepotRepository
 {
     /** The identifier used when establishing a database connection. */
     public static final String CONFIG_DB_IDENT = "configdb";
@@ -51,7 +46,7 @@ public class ConfigRepository extends JORARepository
     public ConfigRepository (ConnectionProvider conprov)
         throws PersistenceException
     {
-        super(conprov, CONFIG_DB_IDENT);
+        super(new PersistenceContext(CONFIG_DB_IDENT, conprov));
     }
 
     /**
@@ -63,13 +58,10 @@ public class ConfigRepository extends JORARepository
     public HashMap<String,String> loadConfig (String node, String object)
         throws PersistenceException
     {
-        ArrayList<ConfigDatum> list = loadAll(
-            _ctable, "where OBJECT = " + JDBCUtil.escape(object) +
-            " and NODE = " + JDBCUtil.escape(node));
         HashMap<String,String> data = new HashMap<String,String>();
-        for (int ii = 0, ll = list.size(); ii < ll; ii++) {
-            ConfigDatum datum = list.get(ii);
-            data.put(datum.field, datum.value);
+        Where where = new Where(ConfigRecord.OBJECT_C, object, ConfigRecord.NODE_C, node);
+        for (ConfigRecord record : findAll(ConfigRecord.class, where)) {
+            data.put(record.field, record.value.toString());
         }
         return data;
     }
@@ -80,47 +72,12 @@ public class ConfigRepository extends JORARepository
     public void updateConfig (String node, String object, String field, String value)
         throws PersistenceException
     {
-        ConfigDatum datum = new ConfigDatum();
-        datum.node = node;
-        datum.object = object;
-        datum.field = field;
-        datum.value = value;
-        store(_ctable, datum);
+        store(new ConfigRecord(node, object, field, value));
     }
 
-    // documentation inherited
-    protected void migrateSchema (Connection conn, DatabaseLiaison liaison)
-        throws SQLException, PersistenceException
+    @Override // from DepotRepository
+    protected void getManagedRecords (Set<Class<? extends PersistentRecord>> classes)
     {
-        JDBCUtil.createTableIfMissing(conn, "CONFIG", new String[] {
-            "NODE VARCHAR(64) NOT NULL",
-            "OBJECT VARCHAR(128) NOT NULL",
-            "FIELD VARCHAR(64) NOT NULL",
-            "VALUE TEXT NOT NULL",
-            "PRIMARY KEY (NODE, OBJECT, FIELD)",
-        }, "");
-
-        // TEMP: add NODE column
-        if (!JDBCUtil.tableContainsColumn(conn, "CONFIG", "NODE")) {
-            JDBCUtil.addColumn(conn, "CONFIG", "NODE", "VARCHAR(64) NOT NULL FIRST", null);
-            Statement stmt = conn.createStatement();
-            try {
-                stmt.executeUpdate(
-                    "alter table CONFIG drop PRIMARY KEY, add PRIMARY KEY (NODE, OBJECT, FIELD)");
-            } finally {
-                stmt.close();
-            }
-        }
-        // END TEMP
+        classes.add(ConfigRecord.class);
     }
-
-    // documentation inherited
-    protected void createTables ()
-    {
-        _ctable = new Table<ConfigDatum>(
-            ConfigDatum.class, "CONFIG",
-            new String[] { "NODE", "OBJECT", "FIELD" }, true);
-    }
-
-    protected Table<ConfigDatum> _ctable;
 }
