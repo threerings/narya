@@ -3,11 +3,4 @@
 <!-- build configuration -->
 <project name="narya-checks" basedir=".">
 
-  <!-- checks the availability of certain libraries -->
-  <target name="check-available">
-    <available property="depot.present"
-     classname="com.samskivert.jdbc.depot.Query" classpathref="classpath"/>
-    <echo message="Have JDBC Depot: ${depot.present}"/>
-  </target>
-
 </project>

@@ -155,12 +155,11 @@
   </target>
 
   <!-- build the java class files -->
-  <target name="compile" depends="check-available,prepare">
+  <target name="compile" depends="prepare">
     <javac srcdir="src/java" destdir="${classes.dir}" includeAntRuntime="false"
            debug="on" optimize="{$build.optimize}" deprecation="on"
            source="1.5" target="1.5">
       <classpath refid="classpath"/>
-      <exclude name="com/threerings/parlor/rating/server/**" unless="depot.present"/>
       <compilerarg value="-Xlint"/>
       <compilerarg value="-Xlint:-serial"/>
     </javac>
