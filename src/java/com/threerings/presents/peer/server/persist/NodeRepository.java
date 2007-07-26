@@ -48,7 +48,15 @@ public class NodeRepository extends DepotRepository
     public NodeRepository (ConnectionProvider conprov)
         throws PersistenceException
     {
-        super(new PersistenceContext(NODE_DB_IDENT, conprov));
+        this(new PersistenceContext(NODE_DB_IDENT, conprov));
+    }
+
+    /**
+     * Constructs a new repository with the specified persistence context.
+     */
+    public NodeRepository (PersistenceContext ctx)
+    {
+        super(ctx);
     }
 
     /**

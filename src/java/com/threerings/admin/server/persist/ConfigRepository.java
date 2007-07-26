@@ -40,13 +40,20 @@ public class ConfigRepository extends DepotRepository
     public static final String CONFIG_DB_IDENT = "configdb";
 
     /**
-     * Constructs a new config repository with the specified connection
-     * provider.
+     * Constructs a new config repository with the specified connection provider.
      */
     public ConfigRepository (ConnectionProvider conprov)
         throws PersistenceException
     {
-        super(new PersistenceContext(CONFIG_DB_IDENT, conprov));
+        this(new PersistenceContext(CONFIG_DB_IDENT, conprov));
+    }
+
+    /**
+     * Constructs a new config repository with the specified persistence context.
+     */
+    public ConfigRepository (PersistenceContext ctx)
+    {
+        super(ctx);
     }
 
     /**
