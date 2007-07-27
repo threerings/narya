@@ -371,8 +371,9 @@ public class PeerManager
             return;
         }
 
-        // restore the object's omgr reference to our ClientDObjectMgr so that it can properly
-        // finish the unsubscription process
+        // restore the object's omgr reference to our ClientDObjectMgr and its oid back to the
+        // remote oid so that it can properly finish the unsubscription process
+        bits.right.setOid(remoteOid);
         bits.right.setManager(peer.getDObjectManager());
 
         // finally unsubscribe from the object on our peer
