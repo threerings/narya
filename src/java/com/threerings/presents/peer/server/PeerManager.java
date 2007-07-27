@@ -767,7 +767,7 @@ public class PeerManager
 
     protected LockHandler createLockHandler (PeerNode peer, NodeObject.Lock lock, boolean acquire)
     {
-        LockHandler handler = new LockHandler(peer, lock, true);
+        LockHandler handler = new LockHandler(peer, lock, acquire);
         _locks.put(lock, handler);
         return handler;
     }
