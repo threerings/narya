@@ -365,12 +365,17 @@ public class PeerManager
         // clear out the local object manager's proxy mapping
         PresentsServer.omgr.clearProxyObject(remoteOid, bits.right);
 
-        // now unsubscribe from the object on our peer
         final Client peer = getPeerClient(nodeName);
         if (peer == null) {
             log.warning("Unable to unsubscribe from proxy, missing peer [key=" + key + "].");
             return;
         }
+
+        // restore the object's omgr reference to our ClientDObjectMgr so that it can properly
+        // finish the unsubscription process
+        bits.right.setManager(peer.getDObjectManager());
+
+        // finally unsubscribe from the object on our peer
         peer.getDObjectManager().unsubscribeFromObject(remoteOid, bits.left);
     }
 
