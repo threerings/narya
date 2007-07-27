@@ -163,7 +163,7 @@ public class MessageManager
         if (rbundle != null) {
             String mbclass = null;
             try {
-                mbclass = rbundle.getString(MBUNDLE_CLASS_KEY);
+                mbclass = rbundle.getString(MBUNDLE_CLASS_KEY).trim();
                 if (!StringUtil.isBlank(mbclass)) {
                     bundle = (MessageBundle)
                         Class.forName(mbclass).newInstance();
