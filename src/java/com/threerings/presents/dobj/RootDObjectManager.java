@@ -21,34 +21,34 @@
 
 package com.threerings.presents.dobj;
 
+import com.samskivert.util.RunQueue;
+
 /**
- * The root distributed object manager extends the basic distributed
- * object manager interface with methods that can only be guaranteed to
- * work in the virtual machine that is hosting the distributed objects in
- * question. VMs that operate proxies of objects can only implement the
+ * The root distributed object manager extends the basic distributed object manager interface with
+ * methods that can only be guaranteed to work in the virtual machine that is hosting the
+ * distributed objects in question. VMs that operate proxies of objects can only implement the
  * basic distributed object manager interface.
  */
-public interface RootDObjectManager extends DObjectManager
+public interface RootDObjectManager extends DObjectManager, RunQueue
 {
     /**
-     * Looks up and returns the requested distributed object in the dobj
-     * table, returning null if no object exists with that oid.
+     * Looks up and returns the requested distributed object in the dobj table, returning null if
+     * no object exists with that oid.
      */
     public DObject getObject (int oid);
 
     /**
-     * Registers a distributed object instance of the supplied class with the
-     * system and assigns it an oid. When the call returns the object will be
-     * registered with the system and its oid will have been assigned.
+     * Registers a distributed object instance of the supplied class with the system and assigns it
+     * an oid. When the call returns the object will be registered with the system and its oid will
+     * have been assigned.
      *
      * @return the registered object for the caller's convenience.
      */
     public <T extends DObject> T registerObject (T object);
 
     /**
-     * Requests that the specified object be destroyed. Once destroyed an
-     * object is removed from the runtime system and may no longer have
-     * events dispatched on it.
+     * Requests that the specified object be destroyed. Once destroyed an object is removed from
+     * the runtime system and may no longer have events dispatched on it.
      *
      * @param oid The object id of the distributed object to be destroyed.
      */
