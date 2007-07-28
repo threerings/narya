@@ -141,16 +141,20 @@
   </target>
 
   <!-- cleans out the intermediate build files -->
-  <target name="clean">
+  <target name="clean" depends="common-clean">
     <delete dir="${deploy.dir}/classes"/>
     <delete dir="${deploy.dir}/docs"/>
     <delete failonerror="false"><fileset dir="${deploy.dir}" includes="*.jar"/></delete>
-    <ant dir="tests" target="clean"/>
   </target>
 
   <!-- wipes the entire build directory clean -->
-  <target name="distclean" depends="clean">
+  <target name="distclean" depends="common-clean">
     <delete dir="${deploy.dir}"/>
+  </target>
+
+  <!-- common clean tasks -->
+  <target name="common-clean">
+    <ant dir="tests" target="clean"/>
   </target>
 
   <!-- build the java class files -->
