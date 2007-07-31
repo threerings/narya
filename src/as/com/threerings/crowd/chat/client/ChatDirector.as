@@ -526,7 +526,6 @@ public class ChatDirector extends BasicDirector
      */
     public function filter (msg :String, otherUser :Name, outgoing :Boolean) :String
     {
-        // TODO: needs testing
         _filters.apply(function (observer :ChatFilter) :void {
             if (msg != null) {
                 msg = observer.filter(msg, otherUser, outgoing);
