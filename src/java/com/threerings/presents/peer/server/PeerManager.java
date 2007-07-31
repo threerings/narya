@@ -71,7 +71,7 @@ import static com.threerings.presents.Log.log;
  * servers and uses those objects to communicate cross-node information.
  */
 public class PeerManager
-    implements PeerProvider, ClientManager.ClientObserver
+    implements PeerProvider, ClientManager.ClientObserver, PresentsServer.Shutdowner
 {
     /**
      * Used by entities that wish to know when cached data has become stale due to a change on
@@ -117,7 +117,7 @@ public class PeerManager
     {
         /**
          * Called when the resource lock was acquired successfully. The lock will be released
-         * immediately after this function call finishes. 
+         * immediately after this function call finishes.
          */
         public void run ();
 
@@ -127,7 +127,7 @@ public class PeerManager
          */
         public void fail (String peerName);
     }
-    
+
     /**
      * Creates a peer manager which will create a {@link NodeRepository} which will be used to
      * publish our existence and discover the other nodes.
@@ -136,6 +136,7 @@ public class PeerManager
     {
         _invoker = invoker;
         _noderepo = new NodeRepository(ctx);
+        PresentsServer.registerShutdowner(this);
     }
 
     /**
@@ -211,39 +212,6 @@ public class PeerManager
 
         // give derived classes an easy way to get in on the init action
         didInit();
-    }
-
-    /**
-     * Call this when the server is shutting down to give this node a chance to cleanly logoff from
-     * its peers and remove its record from the nodes table.
-     */
-    public void shutdown ()
-    {
-        // clear out our invocation service
-        if (_nodeobj != null) {
-            PresentsServer.invmgr.clearDispatcher(_nodeobj.peerService);
-        }
-
-        // clear out our client observer registration
-        PresentsServer.clmgr.removeClientObserver(this);
-
-        // clear our record from the node table
-        _invoker.postUnit(new Invoker.Unit("deleteNode") {
-            public boolean invoke () {
-                try {
-                    _noderepo.deleteNode(_nodeName);
-                } catch (PersistenceException pe) {
-                    log.warning("Failed to delete node record [nodeName=" + _nodeName +
-                                ", error=" + pe + "].");
-                }
-                return false;
-            }
-        });
-
-        // shut down the peers
-        for (PeerNode peer : _peers.values()) {
-            peer.shutdown();
-        }
     }
 
     /**
@@ -529,7 +497,7 @@ public class PeerManager
     /**
      * Tries to acquire the resource lock and, if successful, performs the operation and releases
      * the lock; if unsuccessful, calls the operation's failure handler. Please note: the lock will
-     * be released immediately after the operation. 
+     * be released immediately after the operation.
      */
     public void performWithLock (final NodeObject.Lock lock, final LockedOperation operation)
     {
@@ -568,62 +536,6 @@ public class PeerManager
     public void removeDroppedLockObserver (DroppedLockObserver observer)
     {
         _dropobs.remove(observer);
-    }
-
-    // documentation inherited from interface PeerProvider
-    public void ratifyLockAction (ClientObject caller, NodeObject.Lock lock, boolean acquire)
-    {
-        LockHandler handler = _locks.get(lock);
-        if (handler != null && handler.getNodeName().equals(_nodeName)) {
-            handler.ratify(caller, acquire);
-        } else {
-            // this is not an error condition, as we may have cancelled the handler or
-            // allowed another to take priority
-        }
-    }
-
-    // documentation inherited from interface ClientManager.ClientObserver
-    public void clientSessionDidStart (PresentsClient client)
-    {
-        // if this is another peer, don't publish their info
-        if (client instanceof PeerClient) {
-            return;
-        }
-
-        // create and publish a ClientInfo record for this client
-        ClientInfo clinfo = createClientInfo();
-        initClientInfo(client, clinfo);
-
-        // sanity check
-        if (_nodeobj.clients.contains(clinfo)) {
-            log.warning("Received clientSessionDidStart() for already registered client!? " +
-                        "[old=" + _nodeobj.clients.get(clinfo.getKey()) + ", new=" + clinfo + "].");
-            // go ahead and update the record
-            _nodeobj.updateClients(clinfo);
-        } else {
-            _nodeobj.addToClients(clinfo);
-        }
-    }
-
-    // documentation inherited from interface ClientManager.ClientObserver
-    public void clientSessionDidEnd (PresentsClient client)
-    {
-        // if this is another peer, don't worry about it
-        if (client instanceof PeerClient) {
-            return;
-        }
-
-        // we scan through the list instead of relying on ClientInfo.getKey() because we want
-        // derived classes to be able to override that for lookups that happen way more frequently
-        // than logging off
-        Name username = client.getCredentials().getUsername();
-        for (ClientInfo clinfo : _nodeobj.clients) {
-            if (clinfo.username.equals(username)) {
-                clearClientInfo(client, clinfo);
-                return;
-            }
-        }
-        log.warning("Session ended for unregistered client [who=" + username + "].");
     }
 
     /**
@@ -681,6 +593,92 @@ public class PeerManager
     public void broadcastStaleCacheData (String cache, Streamable data)
     {
         _nodeobj.setCacheData(new NodeObject.CacheData(cache, data));
+    }
+
+    // from interface PresentsServer.Shutdowner
+    public void shutdown ()
+    {
+        // clear out our invocation service
+        if (_nodeobj != null) {
+            PresentsServer.invmgr.clearDispatcher(_nodeobj.peerService);
+        }
+
+        // clear out our client observer registration
+        PresentsServer.clmgr.removeClientObserver(this);
+
+        // clear our record from the node table
+        _invoker.postUnit(new Invoker.Unit("deleteNode") {
+            public boolean invoke () {
+                try {
+                    _noderepo.deleteNode(_nodeName);
+                } catch (PersistenceException pe) {
+                    log.warning("Failed to delete node record [nodeName=" + _nodeName +
+                                ", error=" + pe + "].");
+                }
+                return false;
+            }
+        });
+
+        // shut down the peers
+        for (PeerNode peer : _peers.values()) {
+            peer.shutdown();
+        }
+    }
+
+    // from interface PeerProvider
+    public void ratifyLockAction (ClientObject caller, NodeObject.Lock lock, boolean acquire)
+    {
+        LockHandler handler = _locks.get(lock);
+        if (handler != null && handler.getNodeName().equals(_nodeName)) {
+            handler.ratify(caller, acquire);
+        } else {
+            // this is not an error condition, as we may have cancelled the handler or
+            // allowed another to take priority
+        }
+    }
+
+    // from interface ClientManager.ClientObserver
+    public void clientSessionDidStart (PresentsClient client)
+    {
+        // if this is another peer, don't publish their info
+        if (client instanceof PeerClient) {
+            return;
+        }
+
+        // create and publish a ClientInfo record for this client
+        ClientInfo clinfo = createClientInfo();
+        initClientInfo(client, clinfo);
+
+        // sanity check
+        if (_nodeobj.clients.contains(clinfo)) {
+            log.warning("Received clientSessionDidStart() for already registered client!? " +
+                        "[old=" + _nodeobj.clients.get(clinfo.getKey()) + ", new=" + clinfo + "].");
+            // go ahead and update the record
+            _nodeobj.updateClients(clinfo);
+        } else {
+            _nodeobj.addToClients(clinfo);
+        }
+    }
+
+    // from interface ClientManager.ClientObserver
+    public void clientSessionDidEnd (PresentsClient client)
+    {
+        // if this is another peer, don't worry about it
+        if (client instanceof PeerClient) {
+            return;
+        }
+
+        // we scan through the list instead of relying on ClientInfo.getKey() because we want
+        // derived classes to be able to override that for lookups that happen way more frequently
+        // than logging off
+        Name username = client.getCredentials().getUsername();
+        for (ClientInfo clinfo : _nodeobj.clients) {
+            if (clinfo.username.equals(username)) {
+                clearClientInfo(client, clinfo);
+                return;
+            }
+        }
+        log.warning("Session ended for unregistered client [who=" + username + "].");
     }
 
     /**
