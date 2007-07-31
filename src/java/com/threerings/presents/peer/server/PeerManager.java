@@ -505,8 +505,11 @@ public class PeerManager
             public void requestCompleted (String nodeName) {
                 if (getNodeObject().nodeName.equals(nodeName)) {
                     // lock acquired successfully - perform the operation, and release the lock.
-                    operation.run();
-                    releaseLock(lock, new ResultListener.NOOP<String>());
+                    try {
+                        operation.run();
+                    } finally {
+                        releaseLock(lock, new ResultListener.NOOP<String>());
+                    }
                 } else {
                     // some other peer beat us to it
                     operation.fail(nodeName);
