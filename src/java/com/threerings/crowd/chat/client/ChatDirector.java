@@ -151,6 +151,14 @@ public class ChatDirector extends BasicDirector
             Log.warning("Null bundle or message manager given to ChatDirector");
             return;
         }
+        registerCommandHandlers();
+    }
+
+    /**
+     * Registers all the chat-command handlers.
+     */
+    protected void registerCommandHandlers ()
+    {
         MessageBundle msg = _msgmgr.getBundle(_bundle);
         registerCommandHandler(msg, "help", new HelpHandler());
         registerCommandHandler(msg, "clear", new ClearHandler());
