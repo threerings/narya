@@ -58,7 +58,7 @@ import com.threerings.crowd.data.PlaceObject;
 
 import com.threerings.crowd.chat.data.SpeakMarshaller;
 import com.threerings.crowd.chat.server.SpeakDispatcher;
-import com.threerings.crowd.chat.server.SpeakProvider;
+import com.threerings.crowd.chat.server.SpeakHandler;
 
 /**
  * The place manager is the server-side entity that handles all place-related interaction. It
@@ -76,7 +76,7 @@ import com.threerings.crowd.chat.server.SpeakProvider;
  * well as through event listeners.
  */
 public class PlaceManager
-    implements MessageListener, OidListListener, ObjectDeathListener, SpeakProvider.SpeakerValidator
+    implements MessageListener, OidListListener, ObjectDeathListener, SpeakHandler.SpeakerValidator
 {
     /**
      * An interface used to allow the registration of standard message handlers to be invoked by
@@ -231,7 +231,7 @@ public class PlaceManager
         // to speak in this place
         if (shouldCreateSpeakService()) {
             plobj.setSpeakService((SpeakMarshaller)_invmgr.registerDispatcher(
-                                      new SpeakDispatcher(new SpeakProvider(plobj, this))));
+                                      new SpeakDispatcher(new SpeakHandler(plobj, this))));
         }
 
         // we'll need to hear about place object events

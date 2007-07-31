@@ -25,7 +25,7 @@ import com.threerings.presents.dobj.AccessController;
 import com.threerings.presents.server.PresentsClient;
 
 import com.threerings.crowd.Log;
-import com.threerings.crowd.chat.server.SpeakProvider;
+import com.threerings.crowd.chat.server.SpeakUtil;
 import com.threerings.crowd.data.BodyObject;
 import com.threerings.crowd.data.OccupantInfo;
 import com.threerings.crowd.server.CrowdServer;
@@ -78,7 +78,7 @@ public class CrowdClient extends PresentsClient
 
         // clear our chat history
         if (body != null) {
-            SpeakProvider.clearHistory(body.getVisibleName());
+            SpeakUtil.clearHistory(body.getVisibleName());
         }
     }
 

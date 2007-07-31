@@ -67,17 +67,22 @@
       <exclude name="**/InvocationService.java"/>
     </javac>
     <!-- now generate the associated files -->
-    <service header="lib/SOURCE_HEADER" asroot="src/as"
-             classpathref="classpath">
-      <fileset dir="src/java" includes="**/*Service.java"
-        excludes="**/InvocationService.java"/>
-      <providerless service="AdminService"/>
+    <service header="lib/SOURCE_HEADER" asroot="src/as" classpathref="classpath">
+      <fileset dir="src/java" includes="**/*Service.java">
+        <exclude name="**/InvocationService.java"/>
+        <exclude name="**/peer/**"/>
+        <exclude name="**/admin/**"/>
+      </fileset>
       <providerless service="ChatService"/>
-      <providerless service="SpeakService"/>
       <providerless service="LocationService"/>
       <providerless service="BodyService"/>
       <providerless service="SimulatorService"/>
       <providerless service="TimeBaseService"/>
+    </service>
+    <service header="lib/SOURCE_HEADER" classpathref="classpath">
+      <fileset dir="src/java" includes="**/peer/**/*Service.java"/>
+      <fileset dir="src/java" includes="**/admin/**/*Service.java"/>
+      <providerless service="AdminService"/>
     </service>
   </target>
 

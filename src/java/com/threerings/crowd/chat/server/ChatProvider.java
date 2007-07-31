@@ -49,8 +49,7 @@ import com.threerings.crowd.chat.data.ChatCodes;
 import com.threerings.crowd.chat.data.UserMessage;
 
 /**
- * The chat provider handles the server side of the chat-related
- * invocation services.
+ * The chat provider handles the server side of the chat-related invocation services.
  */
 public class ChatProvider
     implements ChatCodes, InvocationProvider
@@ -239,10 +238,10 @@ public class ChatProvider
      */
     public void deliverTell (BodyObject target, UserMessage message)
     {
-        SpeakProvider.sendMessage(target, message);
+        SpeakUtil.sendMessage(target, message);
 
         // note that the teller "heard" what they said
-        SpeakProvider.noteMessage(message.speaker, message);
+        SpeakUtil.noteMessage(message.speaker, message);
     }
 
     /**
@@ -261,13 +260,13 @@ public class ChatProvider
     {
         if (from == null) {
             if (attention) {
-                SpeakProvider.sendAttention(object, bundle, msg);
+                SpeakUtil.sendAttention(object, bundle, msg);
             } else {
-                SpeakProvider.sendInfo(object, bundle, msg);
+                SpeakUtil.sendInfo(object, bundle, msg);
             }
 
         } else {
-            SpeakProvider.sendSpeak(object, from, bundle, msg, BROADCAST_MODE);
+            SpeakUtil.sendSpeak(object, from, bundle, msg, BROADCAST_MODE);
         }
     }
 
