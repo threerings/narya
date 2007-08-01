@@ -40,8 +40,8 @@ import com.samskivert.util.StringUtil;
 import com.threerings.util.ActionScript;
 
 /**
- * Primitively parses an ActionScriptSource file, allows the addition and
- * replacement of class members and handles writing out the file again.
+ * Primitively parses an ActionScriptSource file, allows the addition and replacement of class
+ * members and handles writing out the file again.
  */
 public class ActionScriptSource
 {
@@ -62,8 +62,7 @@ public class ActionScriptSource
         }
 
         public void setInitialValue (String initValue) {
-            // if we're a typed array and we're being set to "new Something[0]"
-            // then convert that
+            // if we're a typed array and we're being set to "new Something[0]" then convert that
             if (definition.indexOf("TypedArray") != -1) {
                 Matcher m = ARRAYINIT.matcher(initValue);
                 if (m.matches()) {
@@ -76,8 +75,7 @@ public class ActionScriptSource
             initValue = initValue.replaceAll("\\}", "]");
 
             // stick the initial value before the semicolon
-            definition = definition.substring(0, definition.length()-1) +
-                " = " + initValue + ";";
+            definition = definition.substring(0, definition.length()-1) + " = " + initValue + ";";
         }
 
         public void setComment (String comment) {
@@ -145,11 +143,10 @@ public class ActionScriptSource
     }
 
     /**
-     * Creates and returns a declaration for a field equivalent to the supplied
-     * Java field in ActionScript.
+     * Creates and returns a declaration for a field equivalent to the supplied Java field in
+     * ActionScript.
      */
-    public static String createActionScriptDeclaration (
-        String name, Field field)
+    public static String createActionScriptDeclaration (String name, Field field, ActionScript asa)
     {
         int mods = field.getModifiers();
         StringBuilder builder = new StringBuilder();
@@ -175,16 +172,18 @@ public class ActionScriptSource
         builder.append(name).append(" :");
 
         // now convert the type to an ActionScript type
-        builder.append(toActionScriptType(field.getType(),
-                                          !Modifier.isStatic(mods)));
+        if (asa != null && !StringUtil.isBlank(asa.type())) {
+            builder.append(asa.type());
+        } else {
+            builder.append(toActionScriptType(field.getType(), !Modifier.isStatic(mods)));
+        }
 
         builder.append(";");
 
         return builder.toString();
     }
 
-    public static String createActionScriptDeclaration (
-        Constructor ctor, boolean needsNoArg)
+    public static String createActionScriptDeclaration (Constructor ctor, boolean needsNoArg)
     {
         int mods = ctor.getModifiers();
         StringBuilder builder = new StringBuilder();
@@ -221,8 +220,7 @@ public class ActionScriptSource
         return builder.toString();
     }
 
-    public static String createActionScriptDeclaration (
-        String name, Method method)
+    public static String createActionScriptDeclaration (String name, Method method)
     {
         int mods = method.getModifiers();
         StringBuilder builder = new StringBuilder();
@@ -324,8 +322,7 @@ public class ActionScriptSource
             int mods = field.getModifiers();
             ArrayList<Member> list;
             if (Modifier.isStatic(mods)) {
-                list = Modifier.isPublic(mods) ?
-                    publicConstants : protectedConstants;
+                list = Modifier.isPublic(mods) ? publicConstants : protectedConstants;
             } else {
                 list = Modifier.isPublic(mods) ? publicFields : protectedFields;
             }
@@ -339,7 +336,7 @@ public class ActionScriptSource
                     name = asa.name();
                 }
             }
-            String decl = createActionScriptDeclaration(name, field);
+            String decl = createActionScriptDeclaration(name, field, asa);
             list.add(new Member(name, decl));
         }
 
@@ -363,11 +360,9 @@ public class ActionScriptSource
         if (mainctor != null) {
             int mods = mainctor.getModifiers();
             ArrayList<Member> list;
-            list = Modifier.isPublic(mods) ?
-                publicConstructors : protectedConstructors;
-            Member mem = new Member(
-                toSimpleName(mainctor.getName()),
-                createActionScriptDeclaration(mainctor, needsNoArg));
+            list = Modifier.isPublic(mods) ? publicConstructors : protectedConstructors;
+            Member mem = new Member(toSimpleName(mainctor.getName()),
+                                    createActionScriptDeclaration(mainctor, needsNoArg));
             mem.body = "    {\n        TODO: IMPLEMENT ME\n    }\n";
             list.add(mem);
         }
@@ -494,6 +489,20 @@ public class ActionScriptSource
                     String comment = accum.toString();
                     accum.setLength(0);
 
+                    // strip out any @ActionScript annotation
+                    if (comment.indexOf("@ActionScript") != -1) {
+                        StringBuilder combuf = new StringBuilder();
+                        for (String cline : StringUtil.split(comment, "\n")) {
+                            if (cline.indexOf("@ActionScript") == -1) {
+                                if (combuf.length() > 0) {
+                                    combuf.append("\n");
+                                }
+                                combuf.append(cline);
+                            }
+                        }
+                        comment = combuf.toString();
+                    }
+
                     // set the comment on the specified field
                     Member mem = updateComment(publicConstants, name, comment);
                     if (mem == null) {
@@ -573,7 +582,7 @@ public class ActionScriptSource
                     if (comment.indexOf("@ActionScript") != -1) {
                         StringBuilder combuf = new StringBuilder();
                         for (String cline : StringUtil.split(comment, "\n")) {
-                            if ((m = JANNOTATION.matcher(cline)).matches()) {
+                            if ((m = METHOD_ANNOTATION.matcher(cline)).matches()) {
                                 name = m.group(1);
                             } else {
                                 if (combuf.length() > 0) {
@@ -966,8 +975,7 @@ public class ActionScriptSource
         return builder.toString();
     }
 
-    protected String slurpUntil (BufferedReader reader, String text, String token,
-                                 boolean stripNewlines)
+    protected String slurpUntil (BufferedReader reader, String text, String token, boolean stripNL)
         throws IOException
     {
         int braces = countChars(text, '{') - countChars(text, '}');
@@ -980,7 +988,7 @@ public class ActionScriptSource
                     "Too many close braces? [text=" + text + ", line=" + line + "].");
             }
             line = line.replaceAll("\\s+$", "");
-            if (!stripNewlines) {
+            if (!stripNL) {
                 text += "\n";
             }
             text += line;
@@ -1025,7 +1033,7 @@ public class ActionScriptSource
     protected static Pattern JMETHOD = Pattern.compile(
         "\\s+(?:public|protected|private).* ([a-zA-Z]\\w*) \\(.*");
 
-    protected static Pattern JANNOTATION = Pattern.compile(
+    protected static Pattern METHOD_ANNOTATION = Pattern.compile(
         ".*@ActionScript\\(name=\"(\\w+)\"\\).*");
 
     protected static Pattern ASFIELD = Pattern.compile(

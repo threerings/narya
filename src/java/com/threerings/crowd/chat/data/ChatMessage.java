@@ -24,6 +24,7 @@ package com.threerings.crowd.chat.data;
 import com.samskivert.util.StringUtil;
 
 import com.threerings.io.Streamable;
+import com.threerings.util.ActionScript;
 
 /**
  * The abstract base class of all the client-side ChatMessage objects.
@@ -42,6 +43,7 @@ public abstract class ChatMessage
     public transient String localtype;
 
     /** The client time that this message was created. */
+    @ActionScript(type="int")
     public transient long timestamp;
 
     /**

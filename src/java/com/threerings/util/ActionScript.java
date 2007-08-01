@@ -35,14 +35,20 @@ import java.lang.annotation.ElementType;
 public @interface ActionScript
 {
     /**
-     * Indicates whether this field, method or class should be omitted from the
-     * ActionScript translation.
+     * Indicates whether this field, method or class should be omitted from the ActionScript
+     * translation.
      */
     boolean omit () default false;
 
     /**
-     * Indicates a custom name to be used for the ActionScript version of this
-     * field, method or class.
+     * Indicates a custom name to be used for the ActionScript version of this field, method or
+     * class.
      */
     String name () default "";
+
+    /**
+     * Indicates a custom type to be used for the ActionScript version of this field. Ignored if
+     * used on a method or class.
+     */
+    String type () default "";
 }
