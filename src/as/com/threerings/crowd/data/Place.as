@@ -24,11 +24,13 @@ package com.threerings.crowd.data {
 import com.threerings.io.ObjectInputStream;
 import com.threerings.io.ObjectOutputStream;
 import com.threerings.io.SimpleStreamableObject;
+import com.threerings.util.Hashable;
 
 /**
  * Contains information on the current place occupied by a body.
  */
 public class Place extends SimpleStreamableObject
+    implements Hashable
 {
     /** The oid of this place's {@link PlaceObject}. */
     public var placeOid :int;
@@ -39,6 +41,12 @@ public class Place extends SimpleStreamableObject
     public function Place (placeOid :int = 0)
     {
         this.placeOid = placeOid;
+    }
+
+    // from Object
+    override public function hashCode () :int
+    {
+        return placeOid;
     }
 
     // from Object
