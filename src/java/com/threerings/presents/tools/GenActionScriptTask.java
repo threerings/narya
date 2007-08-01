@@ -181,15 +181,7 @@ public class GenActionScriptTask extends Task
         assrc.absorbJava(source);
 
         // see if our parent also implements Streamable
-        boolean needSuper = false;
-        Class supster = sclass.getSuperclass();
-        do {
-            if (isStreamable(supster)) {
-                needSuper = true;
-                break;
-            }
-            supster = supster.getSuperclass();
-        } while (supster != null);
+        boolean needSuper = Streamable.class.isAssignableFrom(sclass.getSuperclass());
 
         // add readObject() and writeObject() definitions
         ActionScriptSource.Member member;
@@ -250,16 +242,6 @@ public class GenActionScriptTask extends Task
         // now write all that out to the target source file
         BufferedWriter out = new BufferedWriter(new FileWriter(asfile));
         assrc.write(new PrintWriter(out));
-    }
-
-    protected boolean isStreamable (Class clazz)
-    {
-        for (Class iface : clazz.getInterfaces()) {
-            if (Streamable.class.equals(iface)) {
-                return true;
-            }
-        }
-        return false;
     }
 
     protected boolean isStreamable (Field field)

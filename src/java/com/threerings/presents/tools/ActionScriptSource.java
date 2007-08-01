@@ -394,6 +394,11 @@ public class ActionScriptSource
                 }
             }
 
+            // if this is an auto-generated reader or writer method, skip it
+            if (name.startsWith("readField_") || name.startsWith("writeField_")) {
+                continue;
+            }
+
             // see if we already have a member for this method name
             Member mem = getMember(list, name);
             String decl = createActionScriptDeclaration(name, method);
