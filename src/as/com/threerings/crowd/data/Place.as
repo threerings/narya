@@ -44,7 +44,7 @@ public class Place extends SimpleStreamableObject
     }
 
     // from Object
-    override public function hashCode () :int
+    public function hashCode () :int
     {
         return placeOid;
     }
