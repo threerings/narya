@@ -28,19 +28,17 @@ import com.threerings.util.Name;
 import com.threerings.presents.net.UsernamePasswordCreds;
 
 /**
- * Used by peer servers in a cluster installation to authenticate with one
- * another.
+ * Used by peer servers in a cluster installation to authenticate with one another.
  */
 public class PeerCreds extends UsernamePasswordCreds
 {
-    /** A prefix prepended to the node name used as a peer's username to
-     * prevent the username from colliding with a normal authenticating user's
-     * username. We assume that colons are not allowed in a normal username. */
+    /** A prefix prepended to the node name used as a peer's username to prevent the username from
+     * colliding with a normal authenticating user's username. We assume that colons are not
+     * allowed in a normal username. */
     public static final String PEER_PREFIX = "peer:";
 
     /**
-     * Creates a unique password for the specified node using the supplied
-     * shared secret.
+     * Creates a unique password for the specified node using the supplied shared secret.
      */
     public static String createPassword (String nodeName, String sharedSecret)
     {
@@ -52,8 +50,7 @@ public class PeerCreds extends UsernamePasswordCreds
      */
     public PeerCreds (String nodeName, String sharedSecret)
     {
-        super(new Name(PEER_PREFIX + nodeName),
-              createPassword(nodeName, sharedSecret));
+        super(new Name(PEER_PREFIX + nodeName), createPassword(nodeName, sharedSecret));
     }
 
     /**
@@ -64,8 +61,8 @@ public class PeerCreds extends UsernamePasswordCreds
     }
 
     /**
-     * Returns the node name of this authenticating peer (which does not
-     * include the {@link #PEER_PREFIX}.
+     * Returns the node name of this authenticating peer (which does not include the {@link
+     * #PEER_PREFIX}.
      */
     public String getNodeName ()
     {
