@@ -323,7 +323,7 @@ public class Client extends EventDispatcher
 
     public function gotBootstrap (data :BootstrapData, omgr :DObjectManager) :void
     {
-        log.debug("Got bootstrap " + data + ".");
+        // log.debug("Got bootstrap " + data + ".");
 
         _bstrap = data;
         _omgr = omgr;
@@ -331,7 +331,7 @@ public class Client extends EventDispatcher
 
         _invdir.init(omgr, _cloid, this);
 
-        log.debug("TimeBaseService: " + requireService(TimeBaseService));
+        // log.debug("TimeBaseService: " + requireService(TimeBaseService));
     }
 
     /**

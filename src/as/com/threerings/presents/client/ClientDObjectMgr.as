@@ -289,11 +289,11 @@ public class ClientDObjectMgr
                 "[oid=" + oid + ", obj=" + obj + "].");
             return;
         }
-        log.debug("Got object: pendReq=" + req);
+        // log.debug("Got object: pendReq=" + req);
 
         for (var ii :int = 0; ii < req.targets.length; ii++) {
             var target :Subscriber = (req.targets[ii] as Subscriber);
-            log.debug("Notifying subscriber: " + target);
+            // log.debug("Notifying subscriber: " + target);
             // add them as a subscriber
             obj.addSubscriber(target);
             // and let them know that the object is in
