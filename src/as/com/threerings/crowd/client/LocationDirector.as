@@ -212,6 +212,10 @@ public class LocationDirector extends BasicDirector
 
         _lservice.leavePlace(_cctx.getClient());
         didLeavePlace();
+
+        // let our observers know that we're no longer in a location
+        _observers.apply(didChangeOp);
+
         return true;
     }
 
