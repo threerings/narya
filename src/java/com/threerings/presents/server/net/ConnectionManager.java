@@ -610,6 +610,11 @@ public class ConnectionManager extends LoopingThread
             log.log(Level.WARNING, "Failed to close listening socket.", ioe);
         }
 
+        // report if there's anything left on the outgoing message queue
+        if (_outq.size() > 0) {
+            log.warning("Connection Manager failed to deliver " + _outq.size() + " message(s).");
+        }
+
         // run our on-exit handler if we have one
         Runnable onExit = _onExit;
         if (onExit != null) {
