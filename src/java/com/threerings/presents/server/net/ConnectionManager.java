@@ -365,45 +365,8 @@ public class ConnectionManager extends LoopingThread
             }
         }
 
-        // attempt to send any messages waiting on the overflow queues
-        if (_oflowqs.size() > 0) {
-            Iterator<OverflowQueue> oqiter = _oflowqs.values().iterator();
-            while (oqiter.hasNext()) {
-                OverflowQueue oq = oqiter.next();
-                try {
-                    // try writing the messages in this overflow queue
-                    if (oq.writeOverflowMessages(iterStamp)) {
-                        // if they were all written, we can remove it
-                        oqiter.remove();
-                    }
-
-                } catch (IOException ioe) {
-                    oq.conn.handleFailure(ioe);
-                }
-            }
-        }
-
-        // send any messages that are waiting on the outgoing queue
-        Tuple<Connection,byte[]> tup;
-        while ((tup = _outq.getNonBlocking()) != null) {
-            Connection conn = tup.left;
-
-            // if an overflow queue exists for this client, go ahead and slap the message on there
-            // because we can't send it until all other messages in their queue have gone out
-            OverflowQueue oqueue = _oflowqs.get(conn);
-            if (oqueue != null) {
-                int size = oqueue.size();
-                if ((size > 500) && (size % 50 == 0)) {
-                    log.warning("Aiya, big overflow queue for " + conn + " [size=" + size +
-                                ", adding=" + tup.right + "].");
-                }
-                oqueue.add(tup.right);
-                continue;
-            }
-
-            // otherwise write the message out to the client directly
-            writeMessage(conn, tup.right, _oflowHandler);
-        }
+        // send any messages that are waiting on the outgoing overflow and message queues
+        sendOutgoingMessages(iterStamp);
 
         // check for connections that have completed authentication
         AuthingConnection conn;
@@ -518,6 +481,54 @@ public class ConnectionManager extends LoopingThread
     }
 
     /**
+     * Writes all queued overflow and normal messages to their respective sockets. Connections that
+     * already have established overflow queues will have their messages appended to their overflow
+     * queue instead so that they are delivered in the proper order.
+     */
+    protected void sendOutgoingMessages (long iterStamp)
+    {
+        // first attempt to send any messages waiting on the overflow queues
+        if (_oflowqs.size() > 0) {
+            Iterator<OverflowQueue> oqiter = _oflowqs.values().iterator();
+            while (oqiter.hasNext()) {
+                OverflowQueue oq = oqiter.next();
+                try {
+                    // try writing the messages in this overflow queue
+                    if (oq.writeOverflowMessages(iterStamp)) {
+                        // if they were all written, we can remove it
+                        oqiter.remove();
+                    }
+
+                } catch (IOException ioe) {
+                    oq.conn.handleFailure(ioe);
+                }
+            }
+        }
+
+        // then send any new messages
+        Tuple<Connection,byte[]> tup;
+        while ((tup = _outq.getNonBlocking()) != null) {
+            Connection conn = tup.left;
+
+            // if an overflow queue exists for this client, go ahead and slap the message on there
+            // because we can't send it until all other messages in their queue have gone out
+            OverflowQueue oqueue = _oflowqs.get(conn);
+            if (oqueue != null) {
+                int size = oqueue.size();
+                if ((size > 500) && (size % 50 == 0)) {
+                    log.warning("Aiya, big overflow queue for " + conn + " [size=" + size +
+                                ", adding=" + tup.right + "].");
+                }
+                oqueue.add(tup.right);
+                continue;
+            }
+
+            // otherwise write the message out to the client directly
+            writeMessage(conn, tup.right, _oflowHandler);
+        }
+    }
+
+    /**
      * Writes a message out to a connection, passing the buck to the partial write handler if the
      * entire message could not be written.
      *
@@ -603,6 +614,9 @@ public class ConnectionManager extends LoopingThread
     // documentation inherited
     protected void didShutdown ()
     {
+        // take one last crack at the outgoing message queue
+        sendOutgoingMessages(System.currentTimeMillis());
+
         // unbind our listening socket
         try {
             _ssocket.socket().close();

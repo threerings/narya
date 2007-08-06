@@ -349,12 +349,6 @@ public class PresentsServer
         }
         _downers = null;
 
-        // shut down the connection manager (this will cease all network activity but not actually
-        // close the connections)
-        if (conmgr.isRunning()) {
-            conmgr.shutdown();
-        }
-
         // shut down all shutdown participants
         downers.apply(new ObserverList.ObserverOp<Shutdowner>() {
             public boolean apply (Shutdowner downer) {
@@ -363,8 +357,13 @@ public class PresentsServer
             }
         });
 
-        // finally shut down the invoker and distributed object manager (The invoker does both for
-        // us.)
+        // shut down the connection manager (this will cease all network activity but not actually
+        // close the connections)
+        if (conmgr.isRunning()) {
+            conmgr.shutdown();
+        }
+
+        // finally shut down the invoker and dobj manager (The invoker does both for us.)
         invoker.shutdown();
     }
 
