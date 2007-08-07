@@ -80,9 +80,10 @@ public class NodeRepository extends DepotRepository
     public void deleteNode (String nodeName)
         throws PersistenceException
     {
+        // INDEX: Full primary key.
         delete(NodeRecord.class, nodeName);
     }
-    
+
     @Override // from DepotRepository
     protected void getManagedRecords (Set<Class<? extends PersistentRecord>> classes)
     {

@@ -67,11 +67,10 @@ public class ConfigRecord extends PersistentRecord
     @Column(name="NODE", length=64)
     public String node;
 
-    /** The code of the stat. */
     @Id
     @Column(name="OBJECT", length=128)
     public String object;
-    
+
     @Id
     @Column(name="FIELD", length=64)
     public String field;
