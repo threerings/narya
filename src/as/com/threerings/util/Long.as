@@ -21,40 +21,95 @@
 
 package com.threerings.util {
 
+import flash.utils.ByteArray;
+import flash.utils.Endian;
+
 /**
  * Equivalent to java.lang.Long.
  */
 public class Long
     implements Equalable
 {
-    public var high :int;
-    public var low :int;
+    public var bytes :ByteArray;
 
-    public static function valueOf (low :int, high :int = 0) :Long
+    public function Long ()
     {
-        return new Long(low, high);
+        bytes = new ByteArray();
+        bytes.endian = Endian.BIG_ENDIAN;
+        bytes.writeDouble(0);
+        bytes.position = 0;
     }
 
-    public function Long (low :int, high :int = 0)
+    /**
+     * Creates a new Long from the provided variable. Only integers in the [-2^63, 2^63) range
+     * can be converted; non-integer values in this range will be rounded, and values outside
+     * of the range will trigger an ArgumentError. Additionally, since Number is a
+     * double-precision floating point value, values outside of the [-2^52, 2^52) range
+     * will suffer loss of precision.
+     */
+    public static function fromNumber (value :Number = 0) :Long
     {
-        this.low = low;
-        this.high = high;
+        if (value < -9223372036854775808 || value >= 9223372036854775808 ||
+            isNaN(value) || !isFinite(value)) {
+            throw new ArgumentError("Out of range initialization value for Long: " + value);
+        }
+
+        var n :Number = Math.round(value);
+        var l :Long = new Long();
+        for (var ii :int = 7; ii >= 0; ii--) {
+            l.bytes[ii] = (n % 256);
+            n = Math.floor(n / 256);
+        }
+        return l;
+    }
+
+    /**
+     * Creates a new Number from this Long variable. Since Number is a double-precision
+     * floating point type, values outside the [-2^52, 2^52) range will lose precision.
+     */
+    public function toNumber () :Number
+    {
+        var n :Number = 0;
+        var positive :Boolean = ((bytes[0] & 0x80) == 0x00);
+        for (var ii :int = 0; ii < 8; ii++) {
+            // if the number is negative, complement each byte as it comes in, and fix up later
+            n = n * 256 + (positive ? bytes[ii] : (255 - bytes[ii]));
+        }
+        // now fix up negative numbers
+        if (! positive) {
+            n = -(n + 1);
+        }
+        return n;
+    }
+
+    public function toString () :String
+    {
+        var s :String = "Long [0x ";
+        for (var ii :int = 0; ii < 8; ii++) {
+            // my kingdom for a hex formatting routine!
+            if (ii != 0) { s += " "; }
+            if (bytes[ii] < 16) { s += "0"; }
+            s += int(bytes[ii]).toString(16);
+        }
+        s += "]";
+        return s;
     }
 
     // from Equalable
     public function equals (other :Object) :Boolean
     {
-        if (!(other is Long)) {
+        var that :Long = (other as Long);
+        if (that == null || this.bytes.length != 8 || that.bytes.length != 8) {
             return false;
         }
-        var that :Long = (other as Long);
-        return (this.high == that.high) && (this.low == that.low);
-    }
 
-    // from Wrapped, except that we don't implement Wrapped anymore
-    public function unwrap () :Object
-    {
-        return low; // TODO
+        // byte-wise comparison
+        for (var ii :int = 0; ii < 8; ii++) {
+            if (this.bytes[ii] != that.bytes[ii]) {
+                return false;
+            }
+        }
+        return true;
     }
 }
 }

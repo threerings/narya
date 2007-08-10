@@ -57,7 +57,7 @@ public class PongResponse extends DownstreamMessage
         super.readObject(ins);
 
         // TODO: Figure out how we're really going to cope with longs
-        _packStamp = new Long(0);
+        _packStamp = new Long();
         ins.readBareObject(_packStamp);
 
         _processDelay = ins.readInt();

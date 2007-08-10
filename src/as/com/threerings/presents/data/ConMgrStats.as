@@ -87,8 +87,8 @@ public class ConMgrStats extends SimpleStreamableObject
         overQueueSize = ins.readInt();
         connects = ins.readInt();
         disconnects = ins.readInt();
-        bytesIn = new Long(ins.readInt(), ins.readInt());
-        bytesOut = new Long(ins.readInt(), ins.readInt());
+        bytesIn = ins.readField(Long) as Long;
+        bytesOut = ins.readField(Long) as Long;
         msgsIn = ins.readInt();
         msgsOut = ins.readInt();
     }
@@ -103,10 +103,8 @@ public class ConMgrStats extends SimpleStreamableObject
         out.writeInt(overQueueSize);
         out.writeInt(connects);
         out.writeInt(disconnects);
-        out.writeInt(bytesIn == null ? 0 : bytesIn.low);
-        out.writeInt(bytesIn == null ? 0 : bytesIn.high);
-        out.writeInt(bytesOut == null ? 0 : bytesOut.low);
-        out.writeInt(bytesOut == null ? 0 : bytesOut.high);
+        out.writeField(bytesIn);
+        out.writeField(bytesOut);
         out.writeInt(msgsIn);
         out.writeInt(msgsOut);
     }
