@@ -576,50 +576,10 @@ public class ChatDirector extends BasicDirector
         if (ChatCodes.CHAT_NOTIFICATION === event.getName()) {
             var msg :ChatMessage = (event.getArgs()[0] as ChatMessage);
             var localtype :String = getLocalType(event.getTargetOid());
-            var autoResponse :String = null;
-            var speaker :Name = null;
-            var mode :int = -1;
-
-            // figure out if the message was triggered by another user
-            if (msg is UserMessage) {
-                var umsg :UserMessage = (msg as UserMessage);
-                speaker = umsg.speaker;
-                mode = umsg.mode;
-
-            } else if (msg is UserSystemMessage) {
-                speaker = (msg as UserSystemMessage).speaker;
-            }
-
-            // if there was an originating speaker, see if we want to hear it
-            if (speaker != null) {
-                if ((msg.message = filter(msg.message, speaker, false)) == null) {
-                    return;
-                }
-
-                if (ChatCodes.USER_CHAT_TYPE == localtype && mode == ChatCodes.DEFAULT_MODE) {
-                    // if it was a tell, add the speaker as a chatter
-                    addChatter(speaker);
-
-                    // note whether or not we have an auto-response
-                    var self :BodyObject = (_cctx.getClient().getClientObject() as BodyObject);
-                    if (!StringUtil.isBlank(self.awayMessage)) {
-                        autoResponse = self.awayMessage;
-                    }
-                }
-            }
-
-            // and send it off!
-            dispatchMessage(msg, localtype);
-
-            // if we auto-responded, report as much
-            if (autoResponse != null) {
-                var amsg :String = MessageBundle.tcompose(
-                    "m.auto_responded", speaker, autoResponse);
-                displayFeedback(_bundle, amsg);
-            }
+            processReceivedMessage(msg, localtype);
         }
     }
-
+        
     // documentation inherited
     override public function clientDidLogon (event :ClientEvent) :void
     {
@@ -665,6 +625,54 @@ public class ChatDirector extends BasicDirector
 
         // clear our service
         _cservice = null;
+    }
+
+    /**
+     * Processes and dispatches the specified chat message.
+     */
+    protected function processReceivedMessage (msg :ChatMessage, localtype :String) :void
+    {
+        var autoResponse :String = null;
+        var speaker :Name = null;
+        var mode :int = -1;
+
+        // figure out if the message was triggered by another user
+        if (msg is UserMessage) {
+            var umsg :UserMessage = (msg as UserMessage);
+            speaker = umsg.speaker;
+            mode = umsg.mode;
+
+        } else if (msg is UserSystemMessage) {
+            speaker = (msg as UserSystemMessage).speaker;
+        }
+
+        // if there was an originating speaker, see if we want to hear it
+        if (speaker != null) {
+            if ((msg.message = filter(msg.message, speaker, false)) == null) {
+                return;
+            }
+
+            if (ChatCodes.USER_CHAT_TYPE == localtype && mode == ChatCodes.DEFAULT_MODE) {
+                // if it was a tell, add the speaker as a chatter
+                addChatter(speaker);
+
+                // note whether or not we have an auto-response
+                var self :BodyObject = (_cctx.getClient().getClientObject() as BodyObject);
+                if (!StringUtil.isBlank(self.awayMessage)) {
+                    autoResponse = self.awayMessage;
+                }
+            }
+        }
+
+        // and send it off!
+        dispatchMessage(msg, localtype);
+
+        // if we auto-responded, report as much
+        if (autoResponse != null) {
+            var amsg :String = MessageBundle.tcompose(
+                "m.auto_responded", speaker, autoResponse);
+            displayFeedback(_bundle, amsg);
+        }
     }
 
     /**

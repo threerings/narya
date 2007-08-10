@@ -648,51 +648,7 @@ public class ChatDirector extends BasicDirector
         if (CHAT_NOTIFICATION.equals(event.getName())) {
             ChatMessage msg = (ChatMessage) event.getArgs()[0];
             String localtype = getLocalType(event.getTargetOid());
-            String autoResponse = null;
-            Name speaker = null;
-            Name speakerDisplay = null;
-            byte mode = (byte) -1;
-
-            // figure out if the message was triggered by another user
-            if (msg instanceof UserMessage) {
-                UserMessage umsg = (UserMessage)msg;
-                speaker = umsg.speaker;
-                speakerDisplay = umsg.getSpeakerDisplayName();
-                mode = umsg.mode;
-
-            } else if (msg instanceof UserSystemMessage) {
-                speaker = ((UserSystemMessage)msg).speaker;
-                speakerDisplay = speaker;
-            }
-
-            // if there was an originating speaker, see if we want to hear it
-            if (speaker != null) {
-                if ((msg.message = filter(msg.message, speaker, false)) == null) {
-                    return;
-                }
-
-                if (USER_CHAT_TYPE.equals(localtype) &&
-                    mode == ChatCodes.DEFAULT_MODE) {
-                    // if it was a tell, add the speaker as a chatter
-                    addChatter(speaker);
-
-                    // note whether or not we have an auto-response
-                    BodyObject self = (BodyObject)_ctx.getClient().getClientObject();
-                    if (!StringUtil.isBlank(self.awayMessage)) {
-                        autoResponse = self.awayMessage;
-                    }
-                }
-            }
-
-            // and send it off!
-            dispatchMessage(msg, localtype);
-
-            // if we auto-responded, report as much
-            if (autoResponse != null) {
-                String amsg = MessageBundle.tcompose(
-                    "m.auto_responded", speakerDisplay, autoResponse);
-                displayFeedback(_bundle, amsg);
-            }
+            processReceivedMessage(msg, localtype);
         }
     }
 
@@ -741,6 +697,58 @@ public class ChatDirector extends BasicDirector
 
         // clear our service
         _cservice = null;
+    }
+
+    /**
+     * Processes and dispatches the specified chat message.
+     */
+    protected void processReceivedMessage (ChatMessage msg, String localtype)
+    {
+        String autoResponse = null;
+        Name speaker = null;
+        Name speakerDisplay = null;
+        byte mode = (byte) -1;
+
+        // figure out if the message was triggered by another user
+        if (msg instanceof UserMessage) {
+            UserMessage umsg = (UserMessage)msg;
+            speaker = umsg.speaker;
+            speakerDisplay = umsg.getSpeakerDisplayName();
+            mode = umsg.mode;
+
+        } else if (msg instanceof UserSystemMessage) {
+            speaker = ((UserSystemMessage)msg).speaker;
+            speakerDisplay = speaker;
+        }
+
+        // if there was an originating speaker, see if we want to hear it
+        if (speaker != null) {
+            if ((msg.message = filter(msg.message, speaker, false)) == null) {
+                return;
+            }
+
+            if (USER_CHAT_TYPE.equals(localtype) &&
+                mode == ChatCodes.DEFAULT_MODE) {
+                // if it was a tell, add the speaker as a chatter
+                addChatter(speaker);
+
+                // note whether or not we have an auto-response
+                BodyObject self = (BodyObject)_ctx.getClient().getClientObject();
+                if (!StringUtil.isBlank(self.awayMessage)) {
+                    autoResponse = self.awayMessage;
+                }
+            }
+        }
+
+        // and send it off!
+        dispatchMessage(msg, localtype);
+
+        // if we auto-responded, report as much
+        if (autoResponse != null) {
+            String amsg = MessageBundle.tcompose(
+                "m.auto_responded", speakerDisplay, autoResponse);
+            displayFeedback(_bundle, amsg);
+        }
     }
 
     /**
