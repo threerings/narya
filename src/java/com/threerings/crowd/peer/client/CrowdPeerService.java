@@ -35,9 +35,15 @@ import com.threerings.crowd.chat.data.UserMessage;
 public interface CrowdPeerService extends InvocationService
 {
     /**
-     * Used to forward a tell request to the server on which the destination
-     * user actually occupies.
+     * Used to forward a tell request to the server on which the destination user actually
+     * occupies.
      */
     public void deliverTell (Client client, UserMessage message, Name target,
                              ChatService.TellListener listener);
+
+    /**
+     * Dispatches a broadcast message on this peer.
+     */
+    public void deliverBroadcast (
+        Client client, Name from, String bundle, String msg, boolean attention);
 }

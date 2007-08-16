@@ -59,6 +59,13 @@ public class CrowdPeerDispatcher extends InvocationDispatcher
         throws InvocationException
     {
         switch (methodId) {
+        case CrowdPeerMarshaller.DELIVER_BROADCAST:
+            ((CrowdPeerProvider)provider).deliverBroadcast(
+                source,
+                (Name)args[0], (String)args[1], (String)args[2], ((Boolean)args[3]).booleanValue()
+            );
+            return;
+
         case CrowdPeerMarshaller.DELIVER_TELL:
             ((CrowdPeerProvider)provider).deliverTell(
                 source,

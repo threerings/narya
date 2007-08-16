@@ -40,8 +40,19 @@ import com.threerings.util.Name;
 public class CrowdPeerMarshaller extends InvocationMarshaller
     implements CrowdPeerService
 {
+    /** The method id used to dispatch {@link #deliverBroadcast} requests. */
+    public static final int DELIVER_BROADCAST = 1;
+
+    // from interface CrowdPeerService
+    public void deliverBroadcast (Client arg1, Name arg2, String arg3, String arg4, boolean arg5)
+    {
+        sendRequest(arg1, DELIVER_BROADCAST, new Object[] {
+            arg2, arg3, arg4, Boolean.valueOf(arg5)
+        });
+    }
+
     /** The method id used to dispatch {@link #deliverTell} requests. */
-    public static final int DELIVER_TELL = 1;
+    public static final int DELIVER_TELL = 2;
 
     // from interface CrowdPeerService
     public void deliverTell (Client arg1, UserMessage arg2, Name arg3, ChatService.TellListener arg4)

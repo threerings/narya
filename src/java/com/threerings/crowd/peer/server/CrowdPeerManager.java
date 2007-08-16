@@ -47,9 +47,9 @@ import com.threerings.crowd.peer.data.CrowdPeerMarshaller;
  * Extends the standard peer manager and bridges certain Crowd services.
  */
 public class CrowdPeerManager extends PeerManager
-    implements CrowdPeerProvider, ChatProvider.TellForwarder
+    implements CrowdPeerProvider, ChatProvider.ChatForwarder
 {
-    // documentation inherited from interface CrowdPeerProvider
+    // from interface CrowdPeerProvider
     public void deliverTell (ClientObject caller, UserMessage message,
                              Name target, ChatService.TellListener listener)
         throws InvocationException
@@ -58,12 +58,19 @@ public class CrowdPeerManager extends PeerManager
         CrowdServer.chatprov.deliverTell(message, target, listener);
     }
 
-    // documentation inherited from interface ChatProvider.TellForwarder
+    // from interface CrowdPeerProvider
+    public void deliverBroadcast (ClientObject caller, Name from, String bundle, String msg,
+                                  boolean attention)
+    {
+        // deliver the broadcast locally on this server
+        CrowdServer.chatprov.broadcast(from, bundle, msg, attention, false);
+    }
+
+    // from interface ChatProvider.ChatForwarder
     public boolean forwardTell (UserMessage message, Name target,
                                 ChatService.TellListener listener)
     {
-        // look through our peer objects to see if the target user is online on
-        // one of the other servers
+        // look through our peers to see if the target user is online on one of them
         for (PeerNode peer : _peers.values()) {
             CrowdNodeObject cnobj = (CrowdNodeObject)peer.nodeobj;
             if (cnobj == null) {
@@ -71,12 +78,22 @@ public class CrowdPeerManager extends PeerManager
             }
             CrowdClientInfo cinfo = (CrowdClientInfo)cnobj.clients.get(target);
             if (cinfo != null) {
-                cnobj.crowdPeerService.deliverTell(
-                    peer.getClient(), message, target, listener);
+                cnobj.crowdPeerService.deliverTell(peer.getClient(), message, target, listener);
                 return true;
             }
         }
         return false;
+    }
+
+    // from interface ChatProvider.ChatForwarder
+    public void forwardBroadcast (Name from, String bundle, String msg, boolean attention)
+    {
+        for (PeerNode peer : _peers.values()) {
+            if (peer.nodeobj != null) {
+                ((CrowdNodeObject)peer.nodeobj).crowdPeerService.deliverBroadcast(
+                    peer.getClient(), from, bundle, msg, attention);
+            }
+        }
     }
 
     @Override // documentation inherited
@@ -89,8 +106,8 @@ public class CrowdPeerManager extends PeerManager
             CrowdServer.invmgr.clearDispatcher(((CrowdNodeObject)_nodeobj).crowdPeerService);
         }
 
-        // clear our tell forwarder registration
-        CrowdServer.chatprov.setTellForwarder(null);
+        // clear our chat forwarder registration
+        CrowdServer.chatprov.setChatForwarder(null);
     }
 
     @Override // documentation inherited
@@ -124,7 +141,7 @@ public class CrowdPeerManager extends PeerManager
             (CrowdPeerMarshaller)CrowdServer.invmgr.registerDispatcher(
                 new CrowdPeerDispatcher(this)));
 
-        // register ourselves as a tell forwarder
-        CrowdServer.chatprov.setTellForwarder(this);
+        // register ourselves as a chat forwarder
+        CrowdServer.chatprov.setChatForwarder(this);
     }
 }

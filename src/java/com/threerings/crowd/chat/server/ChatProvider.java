@@ -64,8 +64,8 @@ public class ChatProvider
         public void sentTell (BodyObject teller, BodyObject tellee, String message);
     }
 
-    /** Used to forward tells between servers in a multi-server setup. */
-    public static interface TellForwarder
+    /** Used to forward certain types of chat messages between servers in a multi-server setup. */
+    public static interface ChatForwarder
     {
         /**
          * Requests that the supplied tell message be delivered to the appropriate destination.
@@ -73,6 +73,11 @@ public class ChatProvider
          * @return true if the tell was delivered, false otherwise.
          */
         public boolean forwardTell (UserMessage message, Name target, TellListener listener);
+
+        /**
+         * Requests that the supplied broadcast message be delivered on other servers.
+         */
+        public void forwardBroadcast (Name from, String bundle, String msg, boolean attention);
     }
 
     /**
@@ -99,12 +104,12 @@ public class ChatProvider
     }
 
     /**
-     * Configures the tell forwarded for the chat provider. This is used by the Crowd peer services
-     * to forward tells between servers in a multi-server cluster.
+     * Configures the chat forwarder. This is used by the Crowd peer services to forward messages
+     * between servers in a multi-server cluster.
      */
-    public void setTellForwarder (TellForwarder forwarder)
+    public void setChatForwarder (ChatForwarder forwarder)
     {
-        _tellForwarder = forwarder;
+        _chatForwarder = forwarder;
     }
 
     /**
@@ -151,7 +156,7 @@ public class ChatProvider
         if (errmsg != null) {
             throw new InvocationException(errmsg);
         }
-        broadcast(body.getVisibleName(), null, message, false);
+        broadcast(body.getVisibleName(), null, message, false, true);
     }
 
     /**
@@ -166,16 +171,17 @@ public class ChatProvider
     }
 
     /**
-     * Broadcast the specified message to all places in the game.
+     * Broadcasts the specified message to all place objects in the system.
      *
      * @param from the user the broadcast is from, or null to send the message as a system message.
      * @param bundle the bundle, or null if the message needs no translation.
      * @param msg the content of the message to broadcast.
      * @param attention if true, the message is sent as ATTENTION level, otherwise as INFO. Ignored
      * if from is non-null.
+     * @param forward if true, forward this broadcast on to any registered chat forwarder, if
+     * false, deliver it only locally on this server.
      */
-    public void broadcast (Name from, String bundle, String msg,
-                                  boolean attention)
+    public void broadcast (Name from, String bundle, String msg, boolean attention, boolean forward)
     {
         if (_broadcastObject != null) {
             broadcastTo(_broadcastObject, from, bundle, msg, attention);
@@ -188,6 +194,10 @@ public class ChatProvider
                     broadcastTo(plobj, from, bundle, msg, attention);
                 }
             }
+        }
+
+        if (forward && _chatForwarder != null) {
+            _chatForwarder.forwardBroadcast(from, bundle, msg, attention);
         }
     }
 
@@ -202,8 +212,7 @@ public class ChatProvider
         BodyObject tobj = CrowdServer.lookupBody(target);
         if (tobj == null) {
             // if we have a forwarder configured, try forwarding the tell
-            if (_tellForwarder != null &&
-                _tellForwarder.forwardTell(message, target, listener)) {
+            if (_chatForwarder != null && _chatForwarder.forwardTell(message, target, listener)) {
                 return;
             }
             throw new InvocationException(USER_NOT_ONLINE);
@@ -273,8 +282,8 @@ public class ChatProvider
     /** Generates auto-responses to tells. May be null. */
     protected TellAutoResponder _autoRespond;
 
-    /** Forwards tells between servers. May be null. */
-    protected TellForwarder _tellForwarder;
+    /** Forwards chat between servers. May be null. */
+    protected ChatForwarder _chatForwarder;
 
     /** An alternative object to which broadcasts should be sent. */
     protected DObject _broadcastObject;
