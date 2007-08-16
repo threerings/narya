@@ -161,7 +161,7 @@ public abstract class ConfigRegistry
         {
             serializeAttribute(event.getName());
         }
-        
+
         public void elementUpdated (ElementUpdatedEvent event)
         {
             Object value;
@@ -174,7 +174,7 @@ public abstract class ConfigRegistry
             }
             updateValue(event.getName(), value);
         }
-        
+
         public void attributeChanged (AttributeChangedEvent event)
         {
             // mirror this configuration update to the persistent config
