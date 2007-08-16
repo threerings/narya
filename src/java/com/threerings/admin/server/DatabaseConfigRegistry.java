@@ -72,7 +72,7 @@ public class DatabaseConfigRegistry extends ConfigRegistry
         _node = StringUtil.isBlank(node) ? "" : node;
     }
 
-    // documentation inherited
+    @Override // from ConfigRegistry
     protected ObjectRecord createObjectRecord (String path, DObject object)
     {
         return new DatabaseObjectRecord(path, object);

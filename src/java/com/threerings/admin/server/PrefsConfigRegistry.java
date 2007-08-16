@@ -25,13 +25,12 @@ import com.samskivert.util.PrefsConfig;
 import com.threerings.presents.dobj.DObject;
 
 /**
- * Implements the {@link ConfigRegistry} using the Java preferences system as a
- * persistent store for the configuration information (see {@link Config} for
- * more information on how that works).
+ * Implements the {@link ConfigRegistry} using the Java preferences system as a persistent store
+ * for the configuration information (see {@link Config} for more information on how that works).
  */
 public class PrefsConfigRegistry extends ConfigRegistry
 {
-    // documentation inherited
+    @Override // from ConfigRegistry
     protected ObjectRecord createObjectRecord (String path, DObject object)
     {
         return new PrefsObjectRecord(path, object);

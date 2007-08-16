@@ -52,41 +52,33 @@ import com.threerings.presents.dobj.SetListener;
 import com.threerings.admin.Log;
 
 /**
- * Provides a registry of configuration distributed objects. Using distributed
- * object to store runtime configuration data can be exceptionally useful in
- * that clients (with admin privileges) can view and update the running
- * server's configuration parameters on the fly.
+ * Provides a registry of configuration distributed objects. Using distributed object to store
+ * runtime configuration data can be exceptionally useful in that clients (with admin privileges)
+ * can view and update the running server's configuration parameters on the fly.
  *
- * <p> Users of the service are responsible for creating their own
- * configuration objects which are then registered via this class. The config
- * object registry then performs a few functions:
+ * <p> Users of the service are responsible for creating their own configuration objects which are
+ * then registered via this class. The config object registry then performs a few functions:
  *
  * <ul>
-
- * <li> It populates the config object with values from the persistent
- * configuration information.
- * <li> It mirrors object updates out to the persistent configuration
- * repository.
- * <li> It makes the set of registered objects available for inspection and
- * modification via the admin client interface.
+ * <li> It populates the config object with values from the persistent configuration information.
+ * <li> It mirrors object updates out to the persistent configuration repository.
+ * <li> It makes the set of registered objects available for inspection and modification via the
+ * admin client interface.
  * </ul>
  *
- * <p> Users of this service will want to use {@link AccessController}s on
- * their configuration distributed objects to prevent non-administrators from
- * subscribing to or modifying the objects.
+ * <p> Users of this service will want to use {@link AccessController}s on their configuration
+ * distributed objects to prevent non-administrators from subscribing to or modifying the objects.
 */
 public abstract class ConfigRegistry
 {
     /**
      * Registers the supplied configuration object with the system.
      *
-     * @param key a string that identifies this object. These are generally
-     * hierarchical in nature (of the form <code>system.subsystem</code>), for
-     * example: <code>yohoho.crew</code>.
-     * @param path The the path in the persistent configuration repository.
-     * This may mean something to the underlying persistent store, for example
-     * in the preferences backed implementation it defines the path to the
-     * preferences node in the package hierarchy.
+     * @param key a string that identifies this object. These are generally hierarchical in nature
+     * (of the form <code>system.subsystem</code>), for example: <code>yohoho.crew</code>.
+     * @param path The the path in the persistent configuration repository.  This may mean
+     * something to the underlying persistent store, for example in the preferences backed
+     * implementation it defines the path to the preferences node in the package hierarchy.
      * @param object the object to be registered.
      */
     public void registerObject (String key, String path, DObject object)
@@ -97,8 +89,7 @@ public abstract class ConfigRegistry
     }
 
     /**
-     * Returns the config object mapped to the specified key, or null if none
-     * exists for that key.
+     * Returns the config object mapped to the specified key, or null if none exists for that key.
      */
     public DObject getObject (String key)
     {
@@ -107,8 +98,7 @@ public abstract class ConfigRegistry
     }
 
     /**
-     * Returns an array containing the keys of all registered configuration
-     * objects.
+     * Returns an array containing the keys of all registered configuration objects.
      */
     public String[] getKeys ()
     {
@@ -116,11 +106,9 @@ public abstract class ConfigRegistry
     }
 
     /**
-     * Creates an object record derivation that will handle the management of
-     * the specified object.
+     * Creates an object record derivation that will handle the management of the specified object.
      */
-    protected abstract ObjectRecord createObjectRecord (
-        String path, DObject object);
+    protected abstract ObjectRecord createObjectRecord (String path, DObject object);
 
     /**
      * Contains all necessary info for a configuration object registration.
@@ -137,15 +125,13 @@ public abstract class ConfigRegistry
 
         public void init ()
         {
-            // read in the initial configuration settings from the persistent
-            // configuration repository
+            // read in the initial configuration settings from the persistent config repository
             Class cclass = object.getClass();
             try {
                 Field[] fields = cclass.getFields();
                 for (int ii = 0; ii < fields.length; ii++) {
                     int mods = fields[ii].getModifiers();
-                    if ((mods & Modifier.STATIC) != 0 ||
-                        (mods & Modifier.PUBLIC) == 0 ||
+                    if ((mods & Modifier.STATIC) != 0 || (mods & Modifier.PUBLIC) == 0 ||
                         (mods & Modifier.TRANSIENT) != 0) {
                         continue;
                     }
@@ -156,8 +142,8 @@ public abstract class ConfigRegistry
                 object.addListener(this);
 
             } catch (SecurityException se) {
-                Log.warning("Unable to reflect on " + cclass.getName() + ": " +
-                            se + ". Refusing to monitor object.");
+                Log.warning("Unable to reflect on " + cclass.getName() + ": " + se + ". " +
+                            "Refusing to monitor object.");
             }
         }
 
@@ -182,8 +168,8 @@ public abstract class ConfigRegistry
             try {
                 value = object.getAttribute(event.getName());
             } catch (ObjectAccessException oae) {
-                Log.warning("Exception getting field [name=" + event.getName() + "exception=" +
-                    oae + "].");
+                Log.warning("Exception getting field [name=" + event.getName() +
+                            ", exception=" + oae + "].");
                 return;
             }
             updateValue(event.getName(), value);
@@ -224,16 +210,14 @@ public abstract class ConfigRegistry
             } else if (value instanceof long[]) {
                 setValue(key, (long[]) value);
             } else {
-                Log.info("Unable to flush config object change " +
-                         "[cobj=" + object.getClass().getName() +
-                         ", key=" + key +
-                         ", type=" + value.getClass().getName() +
+                Log.info("Unable to flush config obj change [cobj=" + object.getClass().getName() +
+                         ", key=" + key + ", type=" + value.getClass().getName() +
                          ", value=" + value + "].");
             }
         }
 
-        /** Initializes a single field of a config distributed object from
-         * its corresponding value in the associated config repository. */
+        /** Initializes a single field of a config distributed object from its corresponding value
+         * in the associated config repository. */
         protected void initField (Field field)
         {
             String key = nameToKey(field.getName());
@@ -288,33 +272,30 @@ public abstract class ConfigRegistry
                     }
 
                     try {
-                        ByteArrayInputStream bin = new ByteArrayInputStream(
-                            StringUtil.unhexlate(value));
+                        ByteArrayInputStream bin =
+                            new ByteArrayInputStream(StringUtil.unhexlate(value));
                         ObjectInputStream oin = new ObjectInputStream(bin);
                         field.set(object, oin.readObject());
                     } catch (Exception e) {
-                        Log.warning("Failure decoding config value [type=" +
-                                    type + ", field=" + field + ", exception=" +
-                                    e + "].");
+                        Log.warning("Failure decoding config value [type=" + type +
+                                    ", field=" + field + ", exception=" + e + "].");
                     }
 
                 } else {
                     Log.warning("Can't init field of unknown type " +
-                                "[cobj=" + object.getClass().getName() +
-                                ", key=" + key +
+                                "[cobj=" + object.getClass().getName() + ", key=" + key +
                                 ", type=" + type.getName() + "].");
                 }
 
             } catch (IllegalAccessException iae) {
-                Log.warning("Can't set field " +
-                            "[cobj=" + object.getClass().getName() +
+                Log.warning("Can't set field [cobj=" + object.getClass().getName() +
                             ", key=" + key + ", error=" + iae + "].");
             }
         }
 
         /**
-         * Converts a config object field name (someConfigMember) to a
-         * configuration key (some_config_member).
+         * Converts a config object field name (someConfigMember) to a configuration key
+         * (some_config_member).
          */
         protected String nameToKey (String attributeName)
         {
@@ -322,8 +303,7 @@ public abstract class ConfigRegistry
         }
 
         /**
-         * Get the specified attribute from the configuration object, and
-         * serialize it.
+         * Get the specified attribute from the configuration object, and serialize it.
          */
         protected void serializeAttribute (String attributeName)
         {
@@ -333,24 +313,21 @@ public abstract class ConfigRegistry
                 value = object.getAttribute(attributeName);
             } catch (ObjectAccessException oae) {
                 Log.warning("Exception getting field [name=" + attributeName +
-                            "exception=" + oae + "].");
+                            ", error=" + oae + "].");
                 return;
             }
 
             if (value instanceof Streamable) {
                 serialize(key, value);
             } else {
-                Log.info("Unable to flush config object change " +
-                         "[cobj=" + object.getClass().getName() +
-                         ", key=" + key +
-                         ", type=" + value.getClass().getName() +
+                Log.info("Unable to flush config obj change [cobj=" + object.getClass().getName() +
+                         ", key=" + key + ", type=" + value.getClass().getName() +
                          ", value=" + value + "].");
             }
         }
 
         /**
-         * Save the specified object as serialized data associated with
-         * the specified key.
+         * Save the specified object as serialized data associated with the specified key.
          */
         protected void serialize (String key, Object value)
         {
@@ -389,6 +366,5 @@ public abstract class ConfigRegistry
     }
 
     /** A mapping from identifying key to config object. */
-    protected HashMap<String,ObjectRecord> _configs =
-        new HashMap<String,ObjectRecord>();
+    protected HashMap<String,ObjectRecord> _configs = new HashMap<String,ObjectRecord>();
 }
