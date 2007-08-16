@@ -129,17 +129,6 @@ public class PeerManager
     }
 
     /**
-     * Creates a peer manager which will create a {@link NodeRepository} which will be used to
-     * publish our existence and discover the other nodes.
-     */
-    public PeerManager (PersistenceContext ctx, Invoker invoker)
-    {
-        _invoker = invoker;
-        _noderepo = new NodeRepository(ctx);
-        PresentsServer.registerShutdowner(this);
-    }
-
-    /**
      * Returns the distributed object that represents this node to its peers.
      */
     public NodeObject getNodeObject ()
@@ -153,6 +142,8 @@ public class PeerManager
      * bits, so this should not be called until <em>after</em> the main server has set up its
      * client factory and authenticator.
      *
+     * @param ctx used to communicate with the database.
+     * @param invoker we will perform all database operations on the supplied invoker thread.
      * @param nodeName this node's unique name.
      * @param sharedSecret a shared secret used to allow the peers to authenticate with one
      * another.
@@ -161,16 +152,17 @@ public class PeerManager
      * known to normal clients (we may want inter-peer communication to take place over a different
      * network than the communication between real clients and the various peer servers).
      * @param port the port on which other nodes should connect to us.
-     * @param conprov used to obtain our JDBC connections.
-     * @param invoker we will perform all database operations on the supplied invoker thread.
      */
-    public void init (String nodeName, String sharedSecret, String hostName,
-                      String publicHostName, int port)
+    public void init (PersistenceContext ctx, Invoker invoker, String nodeName,
+                      String sharedSecret, String hostName, String publicHostName, int port)
     {
+        _invoker = invoker;
+        _noderepo = new NodeRepository(ctx);
         _nodeName = nodeName;
         _sharedSecret = sharedSecret;
 
         // wire ourselves into the server
+        PresentsServer.registerShutdowner(this);
         PresentsServer.conmgr.setAuthenticator(
             new PeerAuthenticator(this, PresentsServer.conmgr.getAuthenticator()));
         PresentsServer.clmgr.setClientFactory(

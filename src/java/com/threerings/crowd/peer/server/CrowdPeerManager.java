@@ -21,9 +21,6 @@
 
 package com.threerings.crowd.peer.server;
 
-import com.samskivert.jdbc.depot.PersistenceContext;
-import com.samskivert.util.Invoker;
-
 import com.threerings.util.Name;
 
 import com.threerings.presents.data.ClientObject;
@@ -52,15 +49,6 @@ import com.threerings.crowd.peer.data.CrowdPeerMarshaller;
 public class CrowdPeerManager extends PeerManager
     implements CrowdPeerProvider, ChatProvider.TellForwarder
 {
-    /**
-     * Creates a peer manager that integrates Crowd services across a cluster
-     * of servers.
-     */
-    public CrowdPeerManager (PersistenceContext ctx, Invoker invoker)
-    {
-        super(ctx, invoker);
-    }
-
     // documentation inherited from interface CrowdPeerProvider
     public void deliverTell (ClientObject caller, UserMessage message,
                              Name target, ChatService.TellListener listener)

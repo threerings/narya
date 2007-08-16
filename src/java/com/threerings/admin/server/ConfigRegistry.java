@@ -147,21 +147,25 @@ public abstract class ConfigRegistry
             }
         }
 
+        // from SetListener
         public void entryAdded (EntryAddedEvent event)
         {
             serializeAttribute(event.getName());
         }
 
+        // from SetListener
         public void entryUpdated (EntryUpdatedEvent event)
         {
             serializeAttribute(event.getName());
         }
 
+        // from SetListener
         public void entryRemoved (EntryRemovedEvent event)
         {
             serializeAttribute(event.getName());
         }
 
+        // from ElementUpdateListener
         public void elementUpdated (ElementUpdatedEvent event)
         {
             Object value;
@@ -175,6 +179,7 @@ public abstract class ConfigRegistry
             updateValue(event.getName(), value);
         }
 
+        // from AttributeChangeListener
         public void attributeChanged (AttributeChangedEvent event)
         {
             // mirror this configuration update to the persistent config
@@ -216,8 +221,10 @@ public abstract class ConfigRegistry
             }
         }
 
-        /** Initializes a single field of a config distributed object from its corresponding value
-         * in the associated config repository. */
+        /**
+         * Initializes a single field of a config distributed object from its corresponding value
+         * in the associated config repository.
+         */
         protected void initField (Field field)
         {
             String key = nameToKey(field.getName());
@@ -294,15 +301,6 @@ public abstract class ConfigRegistry
         }
 
         /**
-         * Converts a config object field name (someConfigMember) to a configuration key
-         * (some_config_member).
-         */
-        protected String nameToKey (String attributeName)
-        {
-            return StringUtil.unStudlyName(attributeName).toLowerCase();
-        }
-
-        /**
          * Get the specified attribute from the configuration object, and serialize it.
          */
         protected void serializeAttribute (String attributeName)
@@ -318,7 +316,7 @@ public abstract class ConfigRegistry
             }
 
             if (value instanceof Streamable) {
-                serialize(key, value);
+                serialize(attributeName, key, value);
             } else {
                 Log.info("Unable to flush config obj change [cobj=" + object.getClass().getName() +
                          ", key=" + key + ", type=" + value.getClass().getName() +
@@ -329,7 +327,7 @@ public abstract class ConfigRegistry
         /**
          * Save the specified object as serialized data associated with the specified key.
          */
-        protected void serialize (String key, Object value)
+        protected void serialize (String name, String key, Object value)
         {
             ByteArrayOutInputStream out = new ByteArrayOutInputStream();
             ObjectOutputStream oout = new ObjectOutputStream(out);
@@ -340,6 +338,15 @@ public abstract class ConfigRegistry
             } catch (IOException ioe) {
                 Log.info("Error serializing value " + value);
             }
+        }
+
+        /**
+         * Converts a config object field name (someConfigMember) to a configuration key
+         * (some_config_member).
+         */
+        protected String nameToKey (String attributeName)
+        {
+            return StringUtil.unStudlyName(attributeName).toLowerCase();
         }
 
         protected abstract boolean getValue (String field, boolean defval);
