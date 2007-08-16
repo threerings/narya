@@ -52,7 +52,6 @@ public class ConfigRepository extends DepotRepository
         throws PersistenceException
     {
         HashMap<String,String> data = new HashMap<String,String>();
-        // INDEX: Left-most primary key fields.
         Where where = new Where(ConfigRecord.OBJECT_C, object, ConfigRecord.NODE_C, node);
         for (ConfigRecord record : findAll(ConfigRecord.class, where)) {
             data.put(record.field, record.value.toString());
