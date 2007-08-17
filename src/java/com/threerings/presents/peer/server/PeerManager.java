@@ -109,6 +109,12 @@ public class PeerManager
         public void apply (NodeObject nodeobj);
     }
 
+    /** Used by {@link #invokeOnNodes}. */
+    public static interface Function
+    {
+        public void invoke (Client client, NodeObject nodeobj);
+    }
+
     /**
      * Wraps an operation that needs a shared resource lock to be acquired before it can be
      * performed, and released after it completes. Used by {@link #performWithLock}.
@@ -253,6 +259,20 @@ public class PeerManager
         for (PeerNode peer : _peers.values()) {
             if (peer.nodeobj != null) {
                 op.apply(peer.nodeobj);
+            }
+        }
+    }
+
+    /**
+     * Invokes the supplied function on <em>all</em> node objects (except the local node). A caller
+     * that needs to call an invocation service method on a remote node should use this mechanism
+     * to locate the appropriate node (or nodes) and call the desired method.
+     */
+    public void invokeOnNodes (Function func)
+    {
+        for (PeerNode peer : _peers.values()) {
+            if (peer.nodeobj != null) {
+                func.invoke(peer.getClient(), peer.nodeobj);
             }
         }
     }
