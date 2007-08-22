@@ -32,12 +32,12 @@ public class FailureResponse extends DownstreamMessage
     }
 
     /**
-     * Constructs a failure response in response to a request for the
-     * specified oid.
+     * Constructs a failure response in response to a request for the specified oid.
      */
-    public FailureResponse (int oid)
+    public FailureResponse (int oid, String message)
     {
         _oid = oid;
+        _message = message;
     }
 
     public int getOid ()
@@ -45,10 +45,16 @@ public class FailureResponse extends DownstreamMessage
         return _oid;
     }
 
+    public String getMessage ()
+    {
+        return _message;
+    }
+
     public String toString ()
     {
-        return "[type=FAIL, msgid=" + messageId + ", oid=" + _oid + "]";
+        return "[type=FAIL, msgid=" + messageId + ", oid=" + _oid + ", msg=" + _message + "]";
     }
 
     protected int _oid;
+    protected String _message;
 }

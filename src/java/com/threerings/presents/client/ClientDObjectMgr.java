@@ -169,8 +169,7 @@ public class ClientDObjectMgr
                 }
 
             } else if (obj instanceof FailureResponse) {
-                int oid = ((FailureResponse)obj).getOid();
-                notifyFailure(oid);
+                notifyFailure(((FailureResponse)obj).getOid(), ((FailureResponse)obj).getMessage());
 
             } else if (obj instanceof PongResponse) {
                 _client.gotPong((PongResponse)obj);
@@ -303,7 +302,7 @@ public class ClientDObjectMgr
      * Notifies the subscribers that had requested this object (for subscription) that it is not
      * available.
      */
-    protected void notifyFailure (int oid)
+    protected void notifyFailure (int oid, String message)
     {
         // let the penders know that the object is not available
         PendingRequest<?> req = _penders.remove(oid);
@@ -313,8 +312,7 @@ public class ClientDObjectMgr
         }
 
         for (int i = 0; i < req.targets.size(); i++) {
-            // and let them know that the object is in
-            req.targets.get(i).requestFailed(oid, null);
+            req.targets.get(i).requestFailed(oid, new ObjectAccessException(message));
         }
     }
 

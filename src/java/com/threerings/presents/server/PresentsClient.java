@@ -820,7 +820,7 @@ public class PresentsClient
         // from interface ProxySubscriber
         public void requestFailed (int oid, ObjectAccessException cause)
         {
-            postMessage(new FailureResponse(oid));
+            postMessage(new FailureResponse(oid, cause.getMessage()));
         }
 
         // from interface ProxySubscriber

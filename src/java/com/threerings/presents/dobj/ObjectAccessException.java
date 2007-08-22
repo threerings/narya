@@ -30,8 +30,7 @@ package com.threerings.presents.dobj;
 public class ObjectAccessException extends Exception
 {
     /**
-     * Constructs a object access exception with the specified error
-     * message.
+     * Constructs a object access exception with the specified error message.
      */
     public ObjectAccessException (String message)
     {

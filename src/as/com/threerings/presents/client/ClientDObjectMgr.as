@@ -198,8 +198,7 @@ public class ClientDObjectMgr
             }
 
         } else if (obj is FailureResponse) {
-            var foid :int = (obj as FailureResponse).getOid();
-            notifyFailure(foid);
+            notifyFailure((obj as FailureResponse).getOid(), (obj as FailureResponse).getMessage());
 
         } else if (obj is PongResponse) {
             _client.gotPong(obj as PongResponse);
@@ -303,7 +302,7 @@ public class ClientDObjectMgr
      * Notifies the subscribers that had requested this object (for subscription) that it is not
      * available.
      */
-    protected function notifyFailure (oid :int) :void
+    protected function notifyFailure (oid :int, message :String) :void
     {
         // let the penders know that the object is not available
         var req :PendingRequest = (_penders.remove(oid) as PendingRequest);
@@ -315,7 +314,7 @@ public class ClientDObjectMgr
         for (var ii :int = 0; ii < req.targets.length; ii++) {
             var target :Subscriber = req.targets[ii];
             // and let them know that the object is in
-            target.requestFailed(oid, new ObjectAccessError("No such object " + oid + "."));
+            target.requestFailed(oid, new ObjectAccessError(message));
         }
     }
 
