@@ -93,8 +93,7 @@ public class ClientDObjectMgr
     public function subscribeToObject (oid :int, target :Subscriber) :void
     {
         if (oid <= 0) {
-            target.requestFailed(
-                oid, new ObjectAccessError("Invalid oid " + oid + "."));
+            target.requestFailed(oid, new ObjectAccessError("Invalid oid " + oid + "."));
         } else {
             queueAction(oid, target, true);
         }
@@ -186,7 +185,7 @@ public class ClientDObjectMgr
 
         } else if (obj is EventNotification) {
             var evt :DEvent = obj.getEvent();
-//                 log.info("Dispatch event: " + evt);
+//             log.info("Dispatch event: " + evt);
             dispatchEvent(evt);
 
         } else if (obj is ObjectResponse) {
@@ -195,8 +194,7 @@ public class ClientDObjectMgr
         } else if (obj is UnsubscribeResponse) {
             var oid :int = obj.getOid();
             if (_dead.remove(oid) == null) {
-                log.warning("Received unsub ACK from unknown object " +
-                            "[oid=" + oid + "].");
+                log.warning("Received unsub ACK from unknown object [oid=" + oid + "].");
             }
 
         } else if (obj is FailureResponse) {
@@ -302,23 +300,22 @@ public class ClientDObjectMgr
     }
 
     /**
-     * Notifies the subscribers that had requested this object (for
-     * subscription) that it is not available.
+     * Notifies the subscribers that had requested this object (for subscription) that it is not
+     * available.
      */
     protected function notifyFailure (oid :int) :void
     {
         // let the penders know that the object is not available
         var req :PendingRequest = (_penders.remove(oid) as PendingRequest);
         if (req == null) {
-            log.warning("Failed to get object, but no one cares?! " +
-                        "[oid=" + oid + "].");
+            log.warning("Failed to get object, but no one cares?! [oid=" + oid + "].");
             return;
         }
 
         for (var ii :int = 0; ii < req.targets.length; ii++) {
             var target :Subscriber = req.targets[ii];
             // and let them know that the object is in
-            target.requestFailed(oid, null);
+            target.requestFailed(oid, new ObjectAccessError("No such object " + oid + "."));
         }
     }
 
