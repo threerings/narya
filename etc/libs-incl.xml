@@ -7,7 +7,7 @@
     <include name="commons-io.jar"/>
     <include name="commons-lang.jar"/>
     <include name="javassist.jar"/>
-    <include name="junit-3.7.jar"/>
+    <include name="junit4.jar"/>
     <include name="retroweaver-all-1.2.2.jar"/>
     <include name="samskivert.jar"/>
     <include name="velocity-1.5-dev.jar"/>
