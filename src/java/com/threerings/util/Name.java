@@ -32,13 +32,22 @@ import com.threerings.io.SimpleStreamableObject;
  * everywhere they are compared.
  */
 public class Name extends SimpleStreamableObject
-    implements Comparable
+    implements Comparable<Name>
 {
     /** A blank name for use in situations where it is needed.
      * <em>Note:</em> because names are used in distributed applications
      * you cannot assume that a reference check against blank is
      * sufficient. You must use <code>BLANK.equals(targetName)</code>. */
     public static final Name BLANK = new Name("");
+
+    /**
+     * Returns true if this name is null or blank, false if it contains
+     * useful data. This works on derived classes as well.
+     */
+    public static boolean isBlank (Name name)
+    {
+        return (name == null || name.toString().equals(BLANK.toString()));
+    }
 
     /** Creates a blank instance for unserialization. */
     public Name ()
@@ -95,13 +104,13 @@ public class Name extends SimpleStreamableObject
         return _name;
     }
 
-    // documentation inherited
+    @Override // from Object
     public int hashCode ()
     {
         return getNormal().hashCode();
     }
 
-    // documentation inherited
+    @Override // from Object
     public boolean equals (Object other)
     {
         if (other != null) {
@@ -116,23 +125,10 @@ public class Name extends SimpleStreamableObject
         return false;
     }
 
-    // documentation inherited
-    public int compareTo (Object o)
+    // from interface Comparable<Name>
+    public int compareTo (Name other)
     {
-        if (o instanceof Name) {
-            return getNormal().compareTo(((Name)o).getNormal());
-        } else {
-            return getClass().getName().compareTo(o.getClass().getName());
-        }
-    }
-
-    /**
-     * Returns true if this name is null or blank, false if it contains
-     * useful data. This works on derived classes as well.
-     */
-    public static boolean isBlank (Name name)
-    {
-        return (name == null || name.toString().equals(BLANK.toString()));
+        return getNormal().compareTo(other.getNormal());
     }
 
     /**
