@@ -254,6 +254,10 @@ public class PlaceManager
      */
     public void shutdown ()
     {
+        // clear out our listenership
+        _plobj.removeListener(this);
+        _plobj.removeListener(_bodyUpdater);
+
         // destroy the object and everything will follow from that
         CrowdServer.omgr.destroyObject(_plobj.getOid());
 
