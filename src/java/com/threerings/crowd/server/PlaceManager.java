@@ -260,6 +260,7 @@ public class PlaceManager
         // clear out our services
         if (_plobj.speakService != null) {
             _invmgr.clearDispatcher(_plobj.speakService);
+            _plobj.speakService = null;
         }
 
         // make sure we don't have any shutdowner in the queue
