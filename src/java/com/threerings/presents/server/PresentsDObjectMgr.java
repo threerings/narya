@@ -168,12 +168,8 @@ public class PresentsDObjectMgr
     // from interface DObjectManager
     public <T extends DObject> void subscribeToObject (int oid, Subscriber<T> target)
     {
-        if (oid <= 0) {
-            target.requestFailed(oid, new ObjectAccessException("Invalid oid " + oid + "."));
-        } else {
-            // queue up an access object event
-            postEvent(new AccessObjectEvent<T>(oid, target, AccessObjectEvent.SUBSCRIBE));
-        }
+        // queue up an access object event
+        postEvent(new AccessObjectEvent<T>(oid, target, AccessObjectEvent.SUBSCRIBE));
     }
 
     // from interface DObjectManager
@@ -804,6 +800,13 @@ public class PresentsDObjectMgr
         public boolean applyToObject (DObject target)
             throws ObjectAccessException
         {
+            // sanity check; we do this check here rather than in subscribeToObject() to ensure
+            // that we always dispatch our response on the dobjmgr thread
+            if (_oid <= 0) {
+                _target.requestFailed(_oid, new ObjectAccessException("Invalid oid " + _oid + "."));
+                return false;
+            }
+
             // look up the target object
             @SuppressWarnings("unchecked") T obj = (T)_objects.get(_oid);
 
