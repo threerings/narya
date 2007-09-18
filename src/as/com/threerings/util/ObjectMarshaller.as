@@ -58,8 +58,8 @@ public class ObjectMarshaller
         if (encodeArrayElements && obj is Array) {
             var src :Array = (obj as Array);
             var dest :TypedArray = TypedArray.create(ByteArray);
-            for each (var o :Object in src) {
-                dest.push(encode(o, false));
+            for (var ii :int = 0; ii < src.length; ii++) {
+                dest.push(encode(src[ii], false));
             }
             return dest;
         }
@@ -93,8 +93,8 @@ public class ObjectMarshaller
         if (encoded is TypedArray) {
             var src :TypedArray = (encoded as TypedArray);
             var dest :Array = [];
-            for each (var b :ByteArray in src) {
-                dest.push(decode(b));
+            for (var ii :int = 0; ii < src.length; ii++) {
+                dest.push(decode(src[ii] as ByteArray));
             }
             return dest;
         }
