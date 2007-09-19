@@ -386,7 +386,7 @@ public class Client
         // register an interval that we'll use to keep the clock synced and to send pings when
         // appropriate
         if (_tickInterval == null) {
-            _tickInterval = new Interval() {
+            _tickInterval = new Interval(_runQueue) {
                 public void expired () {
                     tick();
                 }
@@ -725,9 +725,7 @@ public class Client
                 break;
 
             case CLIENT_OBJECT_CHANGED:
-                if (obs instanceof SessionObserver) {
-                    ((SessionObserver)obs).clientObjectDidChange(Client.this);
-                }
+                obs.clientObjectDidChange(Client.this);
                 break;
 
             case CLIENT_CONNECTION_FAILED:
