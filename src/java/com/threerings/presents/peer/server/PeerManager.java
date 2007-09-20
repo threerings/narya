@@ -179,14 +179,14 @@ public class PeerManager
         _nodeobj.setNodeName(nodeName);
 
         // register ourselves with the node table
-        final NodeRecord record = new NodeRecord(
+        _self = new NodeRecord(
             _nodeName, hostName, (publicHostName == null) ? hostName : publicHostName, port);
         _invoker.postUnit(new Invoker.Unit("registerNode") {
             public boolean invoke () {
                 try {
-                    _noderepo.updateNode(record);
+                    _noderepo.updateNode(_self);
                 } catch (PersistenceException pe) {
-                    log.warning("Failed to register node record [rec=" + record +
+                    log.warning("Failed to register node record [rec=" + _self +
                                 ", error=" + pe + "].");
                 }
                 return false;
@@ -376,6 +376,9 @@ public class PeerManager
      */
     public String getPeerPublicHostName (String nodeName)
     {
+        if (_nodeName.equals(nodeName)) {
+            return _self.publicHostName;
+        }
         PeerNode peer = _peers.get(nodeName);
         return (peer == null) ? null : peer.getPublicHostName();
     }
@@ -386,6 +389,9 @@ public class PeerManager
      */
     public int getPeerPort (String nodeName)
     {
+        if (_nodeName.equals(nodeName)) {
+            return _self.port;
+        }
         PeerNode peer = _peers.get(nodeName);
         return (peer == null) ? -1 : peer.getPort();
     }
@@ -1091,6 +1097,7 @@ public class PeerManager
     }
 
     protected String _nodeName, _sharedSecret;
+    protected NodeRecord _self;
     protected Invoker _invoker;
     protected NodeRepository _noderepo;
     protected NodeObject _nodeobj;
