@@ -390,6 +390,9 @@ public class Client
                 public void expired () {
                     tick();
                 }
+                public String toString () {
+                    return "Client.tickInterval";
+                }
             };
             _tickInterval.schedule(5000L, true);
         }
