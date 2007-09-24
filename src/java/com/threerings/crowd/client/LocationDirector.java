@@ -438,18 +438,23 @@ public class LocationDirector extends BasicDirector
     }
 
     // documentation inherited from interface
-    public void forcedMove (final int placeId)
+    public void forcedMove (int placeId)
     {
-        Log.info("Moving at request of server [placeId=" + placeId + "].");
-
-        if (!movePending()) {
-            // clear out our old place information
-            mayLeavePlace();
-            didLeavePlace();
-
-            // move to the new place
-            moveTo(placeId);
+        // if we're in the middle of a move, we can't abort it or we will screw everything up, so
+        // just finish up what we're doing and assume that the repeated move request was the
+        // spurious one as it would be in the case of lag causing rapid-fire repeat requests
+        if (movePending()) {
+            Log.info("Dropping forced move because we have a move pending " +
+                     "[pendId=" + _pendingPlaceId + ", reqId=" + placeId + "].");
+            return;
         }
+
+        Log.info("Moving at request of server [placeId=" + placeId + "].");
+        // clear out our old place information
+        mayLeavePlace();
+        didLeavePlace();
+        // move to the new place
+        moveTo(placeId);
     }
 
     /**
