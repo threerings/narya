@@ -742,6 +742,9 @@ public class PeerManager
                     }
                 }
             }
+            public long getLongThreshold () {
+                return 700L;
+            }
             protected List<NodeRecord> _nodes;
         });
     }
