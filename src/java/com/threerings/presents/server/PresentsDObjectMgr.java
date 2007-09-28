@@ -199,6 +199,12 @@ public class PresentsDObjectMgr
     // from interface RootDObjectManager
     public <T extends DObject> T registerObject (T object)
     {
+        if (_dobjThread != null && !isDispatchThread()) {
+            log.warning("Registering DObject on non-dobject thread: " +
+                "[class=" + object.getClass().getName() + "]");
+            Thread.dumpStack();
+        }
+
         int oid = getNextOid();
 
         // initialize this object
