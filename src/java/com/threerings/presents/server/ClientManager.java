@@ -264,10 +264,9 @@ public class ClientManager
             clr.addResolutionListener(listener);
             _penders.put(username, clr);
 
+            // create and register our client object and give it back to the client resolver; we
+            // need to do this on the dobjmgr thread since we're registering an object
             final ClientResolver fclr = clr;
-
-            // create and register our client object and give it back to the client resolver
-            //  We need to do this on the dobjmgr thread since we're registering an object.
             PresentsServer.omgr.postRunnable(new Runnable() {
                 public void run () {
                     fclr.objectAvailable(
