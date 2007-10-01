@@ -379,7 +379,7 @@ public class Client
 
         // otherwise create a new communicator instance and start it up.  this will initiate the
         // logon process
-        _comm = new Communicator(this);
+        _comm = createCommunicator();
         _comm.setClassLoader(_loader);
         _comm.logon();
 
@@ -491,7 +491,9 @@ public class Client
      */
     protected void gotBootstrap (BootstrapData data, DObjectManager omgr)
     {
-        log.fine("Got bootstrap " + data + ".");
+        if (debugLogMessages()) {
+            log.info("Got bootstrap " + data + ".");
+        }
 
         // keep these around for interested parties
         _bstrap = data;
@@ -522,6 +524,14 @@ public class Client
     }
 
     /**
+     * Creates the communicator that this client will use to send and receive messages.
+     */
+    protected Communicator createCommunicator ()
+    {
+        return new ClientCommunicator(this);
+    }
+
+    /**
      * Called every five seconds; ensures that we ping the server if we haven't communicated in a
      * long while and periodically resyncs the client and server clock deltas.
      */
@@ -536,7 +546,9 @@ public class Client
         if (_dcalc != null) {
             // if our current calculator is done, clear it out
             if (_dcalc.isDone()) {
-                log.fine("Time offset from server: " + _serverDelta + "ms.");
+                if (debugLogMessages()) {
+                    log.info("Time offset from server: " + _serverDelta + "ms.");
+                }
                 _dcalc = null;
             } else if (_dcalc.shouldSendPing()) {
                 // otherwise, send another ping
@@ -690,6 +702,17 @@ public class Client
             _dcalc.gotPong(pong);
             _serverDelta = _dcalc.getTimeDelta();
         }
+    }
+
+    /**
+     * Whether or not to log low-level debug messages. This is used by the communicator as well
+     * which may be running on the server as a peer client, so we want to avoid constructing log
+     * messages when we're not logging and thus need to use this pattern rather than just
+     * <code>log.fine</code>.
+     */
+    protected boolean debugLogMessages ()
+    {
+        return false;
     }
 
     /**
