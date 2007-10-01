@@ -26,8 +26,10 @@ import java.util.Date;
 
 import com.samskivert.util.ResultListenerList;
 
+import com.threerings.presents.client.BlockingCommunicator;
 import com.threerings.presents.client.Client;
 import com.threerings.presents.client.ClientObserver;
+import com.threerings.presents.client.Communicator;
 import com.threerings.presents.server.PresentsServer;
 
 import com.threerings.presents.dobj.AttributeChangeListener;
@@ -67,6 +69,11 @@ public class PeerNode
                 // assign an eventId to this event so that our stale event detection code can
                 // properly deal with it
                 event.eventId = PresentsServer.omgr.getNextEventId(true);
+            }
+            protected Communicator createCommunicator () {
+                // TODO: make a custom communicator that uses the ClientManager NIO system to do
+                // its I/O instead of using two threads and blocking socket I/O
+                return new BlockingCommunicator(this);
             }
         };
         _client.addClientObserver(this);
