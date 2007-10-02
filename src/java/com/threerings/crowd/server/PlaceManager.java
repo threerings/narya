@@ -97,6 +97,14 @@ public class PlaceManager
     }
 
     /**
+     * Used to call methods on this place manager's delegates.
+     */
+    public static interface DelegateOp
+    {
+        public void apply (PlaceManagerDelegate delegate);
+    }
+
+    /**
      * Returns a reference to our place configuration object.
      */
     public PlaceConfig getConfig ()
@@ -179,22 +187,6 @@ public class PlaceManager
     }
 
     /**
-     * Called after this place manager has been initialized with its configuration information but
-     * before it has been started up with its place object reference. Derived classes can override
-     * this function and perform any basic initialization that they desire.  They should of course
-     * be sure to call <code>super.didInit()</code>.
-     */
-    protected void didInit ()
-    {
-        // initialize our delegates
-        applyToDelegates(new DelegateOp() {
-            public void apply (PlaceManagerDelegate delegate) {
-                delegate.didInit(_config);
-            }
-        });
-    }
-
-    /**
      * Adds the supplied delegate to the list for this manager.
      */
     public void addDelegate (PlaceManagerDelegate delegate)
@@ -203,6 +195,19 @@ public class PlaceManager
             _delegates = new ArrayList<PlaceManagerDelegate>();
         }
         _delegates.add(delegate);
+    }
+
+    /**
+     * Applies the supplied operation to this manager's registered delegates.
+     */
+    public void applyToDelegates (DelegateOp op)
+    {
+        if (_delegates != null) {
+            int dcount = _delegates.size();
+            for (int i = 0; i < dcount; i++) {
+                op.apply(_delegates.get(i));
+            }
+        }
     }
 
     /**
@@ -438,6 +443,22 @@ public class PlaceManager
     }
 
     /**
+     * Called after this place manager has been initialized with its configuration information but
+     * before it has been started up with its place object reference. Derived classes can override
+     * this function and perform any basic initialization that they desire.  They should of course
+     * be sure to call <code>super.didInit()</code>.
+     */
+    protected void didInit ()
+    {
+        // initialize our delegates
+        applyToDelegates(new DelegateOp() {
+            public void apply (PlaceManagerDelegate delegate) {
+                delegate.didInit(_config);
+            }
+        });
+    }
+
+    /**
      * Called if the permissions check failed, to give place managers a chance to do any cleanup
      * that might be necessary due to their early initialization or permissions checking code.
      */
@@ -646,27 +667,6 @@ public class PlaceManager
     {
         buf.append("place=").append(_plobj);
         buf.append(", config=").append(_config);
-    }
-
-    /**
-     * Used to call methods in delegates.
-     */
-    protected static interface DelegateOp
-    {
-        public void apply (PlaceManagerDelegate delegate);
-    }
-
-    /**
-     * Applies the supplied operation to the registered delegates.
-     */
-    protected void applyToDelegates (DelegateOp op)
-    {
-        if (_delegates != null) {
-            int dcount = _delegates.size();
-            for (int i = 0; i < dcount; i++) {
-                op.apply(_delegates.get(i));
-            }
-        }
     }
 
     /** Listens for occupant updates. */
