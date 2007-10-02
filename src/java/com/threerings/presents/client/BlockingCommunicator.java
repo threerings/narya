@@ -559,7 +559,6 @@ public class BlockingCommunicator extends Communicator
     {
     }
 
-    protected Client _client;
     protected Reader _reader;
     protected Writer _writer;
 
