@@ -41,8 +41,7 @@ public abstract class PersistingUnit extends Invoker.Unit
         this("UnknownPersistingUnit", listener);
     }
 
-    public PersistingUnit (
-        String name, InvocationService.InvocationListener listener)
+    public PersistingUnit (String name, InvocationService.InvocationListener listener)
     {
         super(name);
         _listener = listener;
@@ -73,15 +72,7 @@ public abstract class PersistingUnit extends Invoker.Unit
         _listener.requestFailed(InvocationCodes.INTERNAL_ERROR);
     }
 
-    /**
-     * Provides a custom failure message in the event that the persistent action fails. This will
-     * be logged along with the exception.
-     */
-    public String getFailureMessage ()
-    {
-        return this + " failed.";
-    }
-
+    @Override // from Invoker.Unit
     public boolean invoke ()
     {
         try {
@@ -92,6 +83,7 @@ public abstract class PersistingUnit extends Invoker.Unit
         return true;
     }
 
+    @Override // from Invoker.Unit
     public void handleResult ()
     {
         if (_error != null) {
@@ -99,6 +91,15 @@ public abstract class PersistingUnit extends Invoker.Unit
         } else {
             handleSuccess();
         }
+    }
+
+    /**
+     * Provides a custom failure message in the event that the persistent action fails. This will
+     * be logged along with the exception.
+     */
+    protected String getFailureMessage ()
+    {
+        return this + " failed.";
     }
 
     protected InvocationService.InvocationListener _listener;
