@@ -159,11 +159,15 @@ public class GenActionScriptTask extends Task
         }
 
         // if we have an ActionScript(omit=true) annotation, skip this class
-        ActionScript asa = sclass.getAnnotation(ActionScript.class);
-        if (asa != null && asa.omit()) {
-            // System.err.println("Skipping " + sclass.getName() + "...");
-            return;
-        }
+        Class<?> cclass = sclass;
+        do {
+            ActionScript asa = cclass.getAnnotation(ActionScript.class);
+            if (asa != null && asa.omit()) {
+                // System.err.println("Skipping " + sclass.getName() + "...");
+                return;
+            }
+            cclass = cclass.getSuperclass();
+        } while (cclass != null);
 
         // determine the path to the corresponding action script source file
         String path = sclass.getPackage().getName();
@@ -261,6 +265,10 @@ public class GenActionScriptTask extends Task
             String name = ActionScriptSource.toSimpleName(type.getName());
             return "(ins.readField(" + name + ") as " + name + ").value";
 
+        } else if (type.equals(Long.class)) {
+            String name = ActionScriptSource.toSimpleName(type.getName());
+            return "(ins.readField(" + name + ") as " + name + ")";
+
         } else if (type.equals(Boolean.TYPE)) {
             return "ins.readBoolean()";
 
@@ -300,6 +308,9 @@ public class GenActionScriptTask extends Task
     {
         if (type.equals(Integer.class)) {
             return "writeObject(new Integer(" + name + "))";
+
+        } else if (type.equals(Long.class)) {
+            return "writeField(" + name + ")";
 
         } else if (type.equals(Boolean.TYPE)) {
             return "writeBoolean(" + name + ")";
