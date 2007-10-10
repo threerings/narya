@@ -238,9 +238,9 @@ public class ClientManager
         if (clobj != null) {
             // report that the client is resolved on the dobjmgr thread to provide equivalent
             // behavior to the case where we actually have to do the resolution
+            clobj.reference();
             PresentsServer.omgr.postRunnable(new Runnable() {
                 public void run () {
-                    clobj.reference();
                     listener.clientResolved(username, clobj);
                 }
             });
