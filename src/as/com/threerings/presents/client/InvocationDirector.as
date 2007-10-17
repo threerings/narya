@@ -94,8 +94,7 @@ public class InvocationDirector
     {
         // remove the receiver from the list
         for (var ii :int = _reclist.length - 1; ii >= 0; ii--) {
-            var decoder :InvocationDecoder =
-                (_reclist[ii] as InvocationDecoder);
+            var decoder :InvocationDecoder = (_reclist[ii] as InvocationDecoder);
             if (decoder.getReceiverCode() === receiverCode) {
                 _reclist.splice(ii, 1);
             }
@@ -104,15 +103,13 @@ public class InvocationDirector
         // if we're logged on, clear out any receiver id mapping
         if (_clobj != null) { 
             var rreg :InvocationReceiver_Registration =
-                (_clobj.receivers.get(receiverCode) as
-                    InvocationReceiver_Registration);
+                (_clobj.receivers.get(receiverCode) as InvocationReceiver_Registration);
             if (rreg == null) {
-                log.warning("Receiver unregistered for which we have no " +
-                            "id to code mapping [code=" + receiverCode + "].");
+                log.warning("Receiver unregistered for which we have no id to code mapping " +
+                            "[code=" + receiverCode + "].");
             } else {
                 var odecoder :Object = _receivers.remove(rreg.receiverId);
-//                 log.info("Cleared receiver " +
-//                          StringUtil.shortClassName(odecoder) +
+//                 log.info("Cleared receiver " + StringUtil.shortClassName(odecoder) +
 //                          " " + rreg + ".");
             }
             _clobj.removeFromReceivers(receiverCode);
@@ -120,21 +117,19 @@ public class InvocationDirector
     }
 
     /**
-     * Assigns a receiver id to this decoder and publishes it in the
-     * {@link ClientObject#receivers} field.
+     * Assigns a receiver id to this decoder and publishes it in the {@link ClientObject#receivers}
+     * field.
      */
     internal function assignReceiverId (decoder :InvocationDecoder) :void
     {
         var reg :InvocationReceiver_Registration =
-            new InvocationReceiver_Registration(decoder.getReceiverCode(),
-                nextReceiverId());
+            new InvocationReceiver_Registration(decoder.getReceiverCode(), nextReceiverId());
         _clobj.addToReceivers(reg);
         _receivers.put(reg.receiverId, decoder);
     }
 
     /**
-     * Called when we log on; generates mappings for all receivers
-     * registered prior to logon.
+     * Called when we log on; generates mappings for all receivers registered prior to logon.
      */
     internal function assignReceiverIds () :void
     {
@@ -149,11 +144,10 @@ public class InvocationDirector
     }
 
     /**
-     * Requests that the specified invocation request be packaged up and
-     * sent to the supplied invocation oid.
+     * Requests that the specified invocation request be packaged up and sent to the supplied
+     * invocation oid.
      */
-    public function sendRequest (
-            invOid :int, invCode :int, methodId :int, args :Array) :void
+    public function sendRequest (invOid :int, invCode :int, methodId :int, args :Array) :void
     {
         // configure any invocation listener marshallers among the args
         for each (var arg :Object in args) {
@@ -164,34 +158,26 @@ public class InvocationDirector
                 lm.requestId = nextRequestId();
                 lm.mapStamp = getTimer();
 
-                // create a mapping for this marshaller so that we can
-                // properly dispatch responses sent to it
+                // create a mapping for this marshaller so that we can properly dispatch responses
+                // sent to it
                 _listeners.put(lm.requestId, lm);
             }
         }
 
-        // create an invocation request event
-        var event :InvocationRequestEvent =
-            new InvocationRequestEvent(invOid, invCode, methodId, args);
-
-        // now, dispatch the event
-        _omgr.postEvent(event);
+        // create an invocation request event and dispatch it
+        _omgr.postEvent(new InvocationRequestEvent(invOid, invCode, methodId, args));
     }
 
     // documentation inherited from interface EventListener
     public function eventReceived (event :DEvent) :void
     {
         if (event is InvocationResponseEvent) {
-            var ire :InvocationResponseEvent =
-                (event as InvocationResponseEvent);
-            handleInvocationResponse(ire.getRequestId(), ire.getMethodId(),
-                ire.getArgs());
+            var ire :InvocationResponseEvent = (event as InvocationResponseEvent);
+            handleInvocationResponse(ire.getRequestId(), ire.getMethodId(), ire.getArgs());
 
         } else if (event is InvocationNotificationEvent) {
-            var ine :InvocationNotificationEvent =
-                (event as InvocationNotificationEvent);
-            handleInvocationNotification(ine.getReceiverId(), ine.getMethodId(),
-                ine.getArgs());
+            var ine :InvocationNotificationEvent = (event as InvocationNotificationEvent);
+            handleInvocationNotification(ine.getReceiverId(), ine.getMethodId(), ine.getArgs());
 
         } else if (event is MessageEvent) {
             var me :MessageEvent = (event as MessageEvent);
@@ -204,35 +190,29 @@ public class InvocationDirector
     /**
      * Dispatches an invocation response.
      */
-    protected function handleInvocationResponse 
-            (reqId :int, methodId :int, args :Array) :void
+    protected function handleInvocationResponse (reqId :int, methodId :int, args :Array) :void
     {
         var listener :InvocationMarshaller_ListenerMarshaller = 
             (_listeners.remove(reqId) as InvocationMarshaller_ListenerMarshaller);
         if (listener == null) {
-            log.warning("Received invocation response for which we have " +
-                        "no registered listener [reqId=" + reqId +
-                        ", methId=" + methodId +
-                        ", args=" + args + "]. " +
-                        "It is possble that this listener was flushed " +
-                        "because the response did not arrive within " +
-                        LISTENER_MAX_AGE + " milliseconds.");
+            log.warning("Received invocation response for which we have no registered listener " +
+                        "[reqId=" + reqId + ", methId=" + methodId + ", args=" + args + "]. " +
+                        "It is possble that this listener was flushed because the response did " +
+                        "not arrive within " + LISTENER_MAX_AGE + " milliseconds.");
             return;
         }
 
         unwrapArgs(args);
 
-//         log.info("Dispatching invocation response " +
-//                  "[listener=" + listener + ", methId=" + methodId +
-//                  ", args=" + StringUtil.toString(args) + "].");
+//         log.info("Dispatching invocation response [listener=" + listener +
+//                  ", methId=" + methodId + ", args=" + StringUtil.toString(args) + "].");
 
         // dispatch the response
         try {
             listener.dispatchResponse(methodId, args);
         } catch (e :Error) {
-            log.warning("Invocation response listener choked " +
-                        "[listener=" + listener + ", methId=" + methodId +
-                        ", args=" + args + "].");
+            log.warning("Invocation response listener choked [listener=" + listener +
+                        ", methId=" + methodId + ", args=" + args + "].");
             log.logStackTrace(e);
         }
 
@@ -251,52 +231,43 @@ public class InvocationDirector
         receiverId :int, methodId :int, args :Array) :void
     {
         // look up the decoder registered for this receiver
-        var decoder :InvocationDecoder =
-            (_receivers.get(receiverId) as InvocationDecoder);
+        var decoder :InvocationDecoder = (_receivers.get(receiverId) as InvocationDecoder);
         if (decoder == null) {
-            log.warning("Received notification for which we have no " +
-                        "registered receiver [recvId=" + receiverId +
-                        ", methodId=" + methodId +
+            log.warning("Received notification for which we have no registered receiver " +
+                        "[recvId=" + receiverId + ", methodId=" + methodId +
                         ", args=" + args + "].");
             return;
         }
 
         unwrapArgs(args);
 
-//         log.info("Dispatching invocation notification " +
-//                  "[receiver=" + decoder.receiver + ", methodId=" + methodId +
-//                  ", args=" + StringUtil.toString(args) + "].");
+//         log.info("Dispatching invocation notification [receiver=" + decoder.receiver +
+//                  ", methodId=" + methodId + ", args=" + StringUtil.toString(args) + "].");
 
         try {
             decoder.dispatchNotification(methodId, args);
         } catch (e :Error) {
-            log.warning("Invocation notification receiver choked " +
-                        "[receiver=" + decoder.receiver +
-                        ", methId=" + methodId +
-                        ", args=" + args + "].");
+            log.warning("Invocation notification receiver choked [receiver=" + decoder.receiver +
+                        ", methId=" + methodId + ", args=" + args + "].");
             log.logStackTrace(e);
         }
     }
 
     /**
-     * Flushes listener mappings that are older than {@link
-     * #LISTENER_MAX_AGE} milliseconds. An alternative to flushing
-     * listeners that did not explicitly receive a response within our
-     * expiry time period is to have the server's proxy listener send a
-     * message to the client when it is finalized. We then know that no
-     * server entity will subsequently use that proxy listener to send a
-     * response to the client. This involves more network traffic and
-     * complexity than seems necessary and if a user of the system does
-     * respond after their listener has been flushed, an informative
-     * warning will be logged. (Famous last words.)
+     * Flushes listener mappings that are older than {@link #LISTENER_MAX_AGE} milliseconds. An
+     * alternative to flushing listeners that did not explicitly receive a response within our
+     * expiry time period is to have the server's proxy listener send a message to the client when
+     * it is finalized. We then know that no server entity will subsequently use that proxy
+     * listener to send a response to the client. This involves more network traffic and complexity
+     * than seems necessary and if a user of the system does respond after their listener has been
+     * flushed, an informative warning will be logged. (Famous last words.)
      */
     protected function flushListeners (now :Number) :void
     {
         var then :Number = now - LISTENER_MAX_AGE;
         for each (var reqId :int in _listeners.keys()) {
             var lm :InvocationMarshaller_ListenerMarshaller =
-                (_listeners.get(reqId) as
-                    InvocationMarshaller_ListenerMarshaller);
+                (_listeners.get(reqId) as InvocationMarshaller_ListenerMarshaller);
             if (lm.mapStamp < then) {
                 _listeners.remove(reqId);
             }
@@ -304,10 +275,9 @@ public class InvocationDirector
     }
 
     /**
-     * Called when the server has informed us that our previous client
-     * object is going the way of the Dodo because we're changing screen
-     * names. We subscribe to the new object and report to the client once
-     * we've got our hands on it.
+     * Called when the server has informed us that our previous client object is going the way of
+     * the Dodo because we're changing screen names. We subscribe to the new object and report to
+     * the client once we've got our hands on it.
      */
     protected function handleClientObjectChanged (newCloid :int) :void
     {
@@ -315,8 +285,7 @@ public class InvocationDirector
     }
 
     /**
-     * Unwrap any arguments that have arrived from the server in wrapped
-     * types.
+     * Unwrap any arguments that have arrived from the server in wrapped types.
      */
     protected function unwrapArgs (args :Array) :void
     {
@@ -346,8 +315,8 @@ public class InvocationDirector
     }
 
     /**
-     * Called by the ClientObject SubscriberAdapter when the client object
-     * has been returned by the server.
+     * Called by the ClientObject SubscriberAdapter when the client object has been returned by the
+     * server.
      */
     internal function gotClientObject (clobj :ClientObject) :void
     {
@@ -355,18 +324,16 @@ public class InvocationDirector
         clobj.setReceivers(new DSet());
         _clobj = clobj;
         assignReceiverIds();
-
         _client.gotClientObject(clobj);
     }
 
     /**
      * Called by the ClientObject SubscriberAdapter when it fails.
      */
-    internal function gotClientObjectFailed (
-            oid :int, cause :ObjectAccessError) :void
+    internal function gotClientObjectFailed (oid :int, cause :ObjectAccessError) :void
     {
-        log.warning("Invocation director unable to subscribe to " +
-            "client object [cloid=" + oid + ", cause=" + cause + "]!");
+        log.warning("Invocation director unable to subscribe to client object [cloid=" + oid +
+                    ", cause=" + cause + "]!");
         _client.getClientObjectFailed(cause);
     }
 
@@ -376,8 +343,7 @@ public class InvocationDirector
     /** The client for whom we're working. */
     internal var _client :Client;
 
-    /** Our client object; invocation responses and notifications are
-     * received on this object. */
+    /** Our client object; invocation responses and notifications are received on this object. */
     internal var _clobj :ClientObject;
 
     /** Used to generate monotonically increasing request ids. */
@@ -386,15 +352,15 @@ public class InvocationDirector
     /** Used to generate monotonically increasing receiver ids. */
     protected var _receiverId :int;
 
-    /** Used to keep track of invocation service listeners which will
-     * receive responses from invocation service requests. */
+    /** Used to keep track of invocation service listeners which will receive responses from
+     * invocation service requests. */
     protected var _listeners :HashMap = new HashMap();
 
     /** Used to keep track of invocation notification receivers. */
     protected var _receivers :HashMap = new HashMap();
 
-    /** All registered receivers are maintained in a list so that we can
-     * assign receiver ids to them when we go online. */
+    /** All registered receivers are maintained in a list so that we can assign receiver ids to
+     * them when we go online. */
     internal var _reclist :Array = [];
 
     /** The last time we flushed our listeners. */
