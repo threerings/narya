@@ -28,8 +28,8 @@ import com.threerings.util.StreamableArrayList;
 import com.threerings.util.StringBuilder;
 
 /**
- * Used to manage and submit groups of events on a collection of
- * distributed objects in a single transaction.
+ * Used to manage and submit groups of events on a collection of distributed objects in a single
+ * transaction.
  *
  * @see DObject#startTransaction
  */
@@ -38,28 +38,18 @@ public class CompoundEvent extends DEvent
     /**
      * Constructs a compound event and prepares it for operation.
      */
-    public function CompoundEvent (
-            target :DObject = null, omgr :DObjectManager = null)
+    public function CompoundEvent (targetOid :int = 0)
     {
-        super((target == null) ? 0 : target.getOid());
+        super(targetOid);
 
-        if (target != null) {
-            // sanity check
-            if (omgr == null) {
-                throw new ArgumentError(
-                    "Must receive non-null object manager reference");
-            }
-
-            _omgr = omgr;
-            _target = target;
+        if (targetOid != 0) {
             _events = new StreamableArrayList();
         }
     }
 
     /**
-     * Posts an event to this transaction. The event will be delivered as
-     * part of the entire transaction if it is committed or discarded if
-     * the transaction is cancelled.
+     * Posts an event to this transaction. The event will be delivered as part of the entire
+     * transaction if it is committed or discarded if the transaction is cancelled.
      */
     public function postEvent (event :DEvent) :void
     {
@@ -67,8 +57,7 @@ public class CompoundEvent extends DEvent
     }
 
     /**
-     * Returns the list of events contained within this compound event.
-     * Don't mess with it.
+     * Returns the list of events contained within this compound event.  Don't mess with it.
      */
     public function getEvents () :Array
     {
@@ -76,63 +65,31 @@ public class CompoundEvent extends DEvent
     }
 
     /**
-     * Commits this transaction by posting this event to the distributed
-     * object event queue. All participating dobjects will have their
-     * transaction references cleared and will go back to normal
-     * operation.
+     * Commits this transaction by posting this event to the distributed object event queue.
      */
-    public function commit () :void
+    public function commit (omgr :DObjectManager) :void
     {
-        // first clear our target
-        clearTarget();
-
-        // then post this event onto the queue (but only if we actually
-        // accumulated some events)
+        // post this event onto the queue (but only if we actually accumulated some events)
         switch (_events.size()) {
         case 0: // nothing doing
             break;
         case 1: // no point in being compound
-            _omgr.postEvent(_events.get(0) as DEvent);
+            omgr.postEvent(_events.get(0) as DEvent);
             break;
         default: // now we're talking
-            _omgr.postEvent(this);
+            omgr.postEvent(this);
             break;
         }
     }
 
-    /**
-     * Cancels this transaction. All events posted to this transaction
-     * will be discarded.
-     */
-    public function cancel () :void
-    {
-        // clear our target
-        clearTarget();
-        // clear our event queue in case someone holds onto us
-        _events.clear();
-    }
-
-    /**
-     * Nothing to apply here.
-     */
+    // from DObject
     override public function applyToObject (target :DObject) :Boolean
-        //throws ObjectAccessException
+        // throws ObjectAccessException
     {
         return false;
     }
 
-    /**
-     * Calls out to our target object, clearing its transaction reference.
-     */
-    protected function clearTarget () :void
-    {
-        if (_target != null) {
-            _target.clearTransaction();
-            _target = null;
-        }
-    }
-
-    // documentation inherited
+    // from DObject
     override protected function toStringBuf (buf :StringBuilder) :void
     {
         buf.append("COMPOUND:");
@@ -144,24 +101,19 @@ public class CompoundEvent extends DEvent
         }
     }
 
+    // from DObject
     override public function writeObject (out :ObjectOutputStream) :void
     {
         super.writeObject(out);
         out.writeObject(_events);
     }
 
+    // from DObject
     override public function readObject (ins :ObjectInputStream) :void
     {
         super.readObject(ins);
         _events = (ins.readObject() as StreamableArrayList);
     }
-
-    /** The object manager that we'll post ourselves to when we're
-     * committed. */
-    protected var _omgr :DObjectManager;
-
-    /** The object for which we're managing a transaction. */
-    protected var _target :DObject;
 
     /** A list of the events associated with this compound event. */
     protected var _events :StreamableArrayList;

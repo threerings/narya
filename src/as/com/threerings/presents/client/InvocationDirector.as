@@ -21,6 +21,7 @@
 
 package com.threerings.presents.client {
 
+import flash.errors.IllegalOperationError;
 import flash.utils.getTimer; // function import
 
 import com.threerings.util.HashMap;
@@ -28,6 +29,7 @@ import com.threerings.util.Wrapped;
 
 import com.threerings.presents.data.InvocationMarshaller_ListenerMarshaller;
 
+import com.threerings.presents.dobj.CompoundEvent;
 import com.threerings.presents.dobj.DEvent;
 import com.threerings.presents.dobj.DObject;
 import com.threerings.presents.dobj.DObjectManager;
@@ -48,8 +50,7 @@ public class InvocationDirector
 {
     private static const log :Log = Log.getLog(InvocationDirector);
 
-    public function init (omgr :DObjectManager, cloid :int, client :Client)
-            :void
+    public function init (omgr :DObjectManager, cloid :int, client :Client) :void
     {
         if (_clobj != null) {
             log.warning("Zoiks, client object around during invmgr init!");
@@ -74,8 +75,7 @@ public class InvocationDirector
     }
 
     /**
-     * Registers an invocation notification receiver by way of its
-     * notification event decoder.
+     * Registers an invocation notification receiver by way of its notification event decoder.
      */
     public function registerReceiver (decoder :InvocationDecoder) :void
     {
@@ -144,6 +144,36 @@ public class InvocationDirector
     }
 
     /**
+     * Starts a transaction that allows multiple invocation service requests to be batched into a
+     * single message and sent to the server all at once.
+     *
+     * <p> When the transaction is complete, the caller must call {@link #commitTransaction} to
+     * cause the requests to be sent. Failure to do so will render the entire invocation services
+     * non-functional.
+     */
+    public function startTransaction () :void
+    {
+        // just increment our transaction nesting count, sendRequest will handle everything else
+        _tcount++;
+    }
+
+    /**
+     * Commits a transaction started with {@link #startTransaction}.
+     */
+    public function commitTransaction () :void
+    {
+        if (_tcount <= 0) {
+            throw new IllegalOperationError("Cannot commit: not involved in a transaction");
+        }
+        if (--_tcount == 0) {
+            for each (var event :CompoundEvent in _tevents) {
+                event.commit(_omgr);
+            }
+            _tevents = [];
+        }
+    }
+
+    /**
      * Requests that the specified invocation request be packaged up and sent to the supplied
      * invocation oid.
      */
@@ -165,7 +195,17 @@ public class InvocationDirector
         }
 
         // create an invocation request event and dispatch it
-        _omgr.postEvent(new InvocationRequestEvent(invOid, invCode, methodId, args));
+        var req :InvocationRequestEvent =
+            new InvocationRequestEvent(invOid, invCode, methodId, args);
+        if (_tcount > 0) {
+            var event :CompoundEvent = _tevents[invOid];
+            if (event == null) {
+                _tevents[invOid] = (event = new CompoundEvent(invOid));
+            }
+            event.postEvent(req);
+        } else {
+            _omgr.postEvent(req);
+        }
     }
 
     // documentation inherited from interface EventListener
@@ -358,6 +398,12 @@ public class InvocationDirector
 
     /** Used to keep track of invocation notification receivers. */
     protected var _receivers :HashMap = new HashMap();
+
+    /** A count of how deeply nested we are in transaction land. */
+    protected var _tcount :int;
+
+    /** An event used to accumulate service request events when in a transaction. */
+    protected var _tevents :Array = [];
 
     /** All registered receivers are maintained in a list so that we can assign receiver ids to
      * them when we go online. */

@@ -197,11 +197,11 @@ public class DObject // extends EventDispatcher
      * group. Additionally, the events are dispatched over the network in a single unit which can
      * significantly enhance network efficiency.
      *
-     * <p> When the transaction is complete, the caller must call {@link #commitTransaction} or
-     * {@link CompoundEvent#commit} to commit the transaction and release the object back to its
-     * normal non-transacting state. If the caller decides not to commit their transaction, they
-     * must call {@link #cancelTransaction} or {@link CompoundEvent#cancel} to cancel the
-     * transaction. Failure to do so will cause the pooch to be totally screwed.
+     * <p> When the transaction is complete, the caller must call {@link #commitTransaction} to
+     * commit the transaction and release the object back to its normal non-transacting state. If
+     * the caller decides not to commit their transaction, they must call {@link
+     * #cancelTransaction} to cancel the transaction. Failure to do so will cause the pooch to be
+     * totally screwed.
      *
      * <p> Note: like all other distributed object operations, transactions are not thread safe. It
      * is expected that a single thread will handle all distributed object operations and that
@@ -221,20 +221,18 @@ public class DObject // extends EventDispatcher
         if (_tevent != null) {
             _tcount++;
         } else {
-            _tevent = new CompoundEvent(this, _omgr);
+            _tevent = new CompoundEvent(getOid());
         }
     }
 
     /** 
      * Commits the transaction in which this distributed object is involved.
-     *      
-     * @see CompoundEvent#commit
      */ 
     public function commitTransaction () :void
     {
         if (_tevent == null) {
-            throw new IllegalOperationError("Cannot commit: not involved in a transaction " +
-                "[dobj=" + this + "]");
+            throw new IllegalOperationError(
+                "Cannot commit: not involved in a transaction [dobj=" + this + "]");
         }
 
         // if we are nested, we decrement our nesting count rather than committing the transaction
@@ -244,11 +242,10 @@ public class DObject // extends EventDispatcher
         } else {
             // we may actually be doing our final commit after someone already cancelled this
             // transaction, so we need to perform the appropriate action at this point
-            if (_tcancelled) {
-                _tevent.cancel();
-            } else {
-                _tevent.commit();
+            if (!_tcancelled) {
+                _tevent.commit(_omgr);
             }
+            clearTransaction();
         }
     }
 
@@ -262,14 +259,12 @@ public class DObject // extends EventDispatcher
 
     /**
      * Cancels the transaction in which this distributed object is involved.
-     *
-     * @see CompoundEvent#cancel
      */
     public function cancelTransaction () :void
     {
         if (_tevent == null) {
-            throw new IllegalOperationError("Cannot cancel: not involved in a transaction " +
-                "[dobj=" + this + "]");
+            throw new IllegalOperationError(
+                "Cannot cancel: not involved in a transaction [dobj=" + this + "]");
         }
 
         // if we're in a nested transaction, make a note that it is to be cancelled when all
@@ -279,7 +274,7 @@ public class DObject // extends EventDispatcher
             _tcount--;
 
         } else {
-            _tevent.cancel();
+            clearTransaction();
         }
     }
 
@@ -310,10 +305,9 @@ public class DObject // extends EventDispatcher
     }
 
     /**
-     * Don't call this function! It initializes this distributed object
-     * with the supplied distributed object manager. This is called by the
-     * distributed object manager when an object is created and registered
-     * with the system.
+     * Don't call this function! It initializes this distributed object with the supplied
+     * distributed object manager. This is called by the distributed object manager when an object
+     * is created and registered with the system.
      *
      * @see DObjectManager#createObject
      */
@@ -323,21 +317,18 @@ public class DObject // extends EventDispatcher
     }
 
     /**
-     * Called by derived instances when an attribute setter method was
-     * called.
+     * Called by derived instances when an attribute setter method was called.
      */
-    protected function requestAttributeChange (
-            name :String, value :Object, oldValue :Object) :void
+    protected function requestAttributeChange (name :String, value :Object, oldValue :Object) :void
     {
         postEvent(new AttributeChangedEvent(_oid, name, value, oldValue));
     }
 
     /**
-     * Called by derived instances when an element updater method was
-     * called.
+     * Called by derived instances when an element updater method was called.
      */
     protected function requestElementUpdate (
-            name :String, index :int, value :Object, oldValue :Object) :void
+        name :String, index :int, value :Object, oldValue :Object) :void
     {
         // dispatch an attribute changed event
         postEvent(new ElementUpdatedEvent(_oid, name, value, oldValue, index));
@@ -401,6 +392,7 @@ public class DObject // extends EventDispatcher
         _oid = ins.readInt();
     }
 
+    /** Our unique identifier. */
     protected var _oid :int;
 
     /** A reference to our object manager. */
@@ -409,6 +401,7 @@ public class DObject // extends EventDispatcher
     /** Our event listeners. */
     protected var _listeners :Array;
 
+    /** A list of all subscribers to this object. */
     protected var _subscribers :Array;
 
     /** The compound event associated with our transaction, if we're currently in a transaction. */
