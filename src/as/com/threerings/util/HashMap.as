@@ -313,7 +313,7 @@ public class HashMap
      */
     protected function isSimple (key :Object) :Boolean
     {
-        return (key is String) || (key is Number) || (key is Boolean);
+        return (key == null) || (key is String) || (key is Number) || (key is Boolean);
     }
 
     /**
