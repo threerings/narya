@@ -632,7 +632,12 @@ public class PresentsClient
         data.clientOid = _clobj.getOid();
 
         // fill in the list of bootstrap services
-        data.services = PresentsServer.invmgr.getBootstrapServices(_areq.getBootGroups());
+        if (_areq.getBootGroups() == null) {
+            Log.warning("Client provided no invocation service boot groups? " + this);
+            data.services = new StreamableArrayList<InvocationMarshaller>();
+        } else {
+            data.services = PresentsServer.invmgr.getBootstrapServices(_areq.getBootGroups());
+        }
     }
 
     /**
