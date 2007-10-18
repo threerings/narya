@@ -35,7 +35,7 @@ public class StreamableArrayList
 
     public function add (item :Object, index :int = -1) :Boolean
     {
-        _array.splice(index, 0, item);
+        _array.splice((index == -1) ? _array.length : index, 0, item);
         return true;
     }
 
@@ -48,10 +48,8 @@ public class StreamableArrayList
     {
         var other :Array = getArray(otherList);
 
-        // splice each element in at the index
-        for (var ii :int = other.length - 1; ii >= 0; ii--) {
-            _array.splice(index, 0, other[ii]);
-        }
+        // splice the array in at the index
+        _array.splice((index == -1) ? _array.length : index, 0, other);
         return (other.length > 0);
     }
 
