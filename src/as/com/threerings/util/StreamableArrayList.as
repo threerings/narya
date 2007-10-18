@@ -33,9 +33,9 @@ public class StreamableArrayList
         _array = (values == null) ? new Array() : values;
     }
 
-    public function add (item :Object, index :int = -1) :Boolean
+    public function add (item :Object, index :int = int.MAX_VALUE) :Boolean
     {
-        _array.splice((index == -1) ? _array.length : index, 0, item);
+        _array.splice(Math.min(_array.length, index), 0, item);
         return true;
     }
 
@@ -44,12 +44,12 @@ public class StreamableArrayList
      *
      * @param otherList may be another StreamableArrayList or an Array
      */
-    public function addAll (otherList :*, index :int = -1) :Boolean
+    public function addAll (otherList :*, index :int = int.MAX_VALUE) :Boolean
     {
         var other :Array = getArray(otherList);
 
         // splice the array in at the index
-        _array.splice((index == -1) ? _array.length : index, 0, other);
+        _array.splice(Math.min(_array.length, index), 0, other);
         return (other.length > 0);
     }
 
