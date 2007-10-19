@@ -193,7 +193,9 @@ public class GenUtil extends com.samskivert.util.GenUtil
         Class<?> clazz = f.getType();
         if (dsclazz.equals(clazz)) {
             return "(" + name + " == null) ? null : " + name + ".typedClone()";
-        } else if (clazz.isArray() || dsclazz.isAssignableFrom(clazz)) {
+        } else if (clazz.isArray()) {
+            return "(" + name + " == null) ? null : " + name + ".clone()";
+        } else if (dsclazz.isAssignableFrom(clazz)) {
             return "(" + name + " == null) ? null : " +
                 "(" + simpleName(f) + ")" + name + ".clone()";
         } else {
