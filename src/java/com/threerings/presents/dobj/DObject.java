@@ -592,6 +592,31 @@ public class DObject
         return buf.toString();
     }
 
+    @Override // from Object
+    public String toString ()
+    {
+        StringBuilder buf = new StringBuilder();
+        toString(buf);
+        return buf.append("]").toString();
+    }
+
+    @Override // from Object
+    public int hashCode ()
+    {
+        return _oid;
+    }
+
+    @Override // from Object
+    public boolean equals (Object other)
+    {
+        if (other == null) {
+            return false;
+        } else if (!getClass().equals(other.getClass())) {
+            return false;
+        }
+        return _oid == ((DObject)other).getOid();
+    }
+
     /**
      * Used to briefly describe this distributed object.
      */
@@ -599,16 +624,6 @@ public class DObject
     {
         buf.append(StringUtil.shortClassName(this));
         buf.append(":").append(_oid);
-    }
-
-    /**
-     * Generates a string representation of this object.
-     */
-    public String toString ()
-    {
-        StringBuilder buf = new StringBuilder();
-        toString(buf);
-        return buf.append("]").toString();
     }
 
     /**
