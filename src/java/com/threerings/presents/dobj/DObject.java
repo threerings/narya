@@ -600,23 +600,6 @@ public class DObject
         return buf.append("]").toString();
     }
 
-    @Override // from Object
-    public int hashCode ()
-    {
-        return _oid;
-    }
-
-    @Override // from Object
-    public boolean equals (Object other)
-    {
-        if (other == null) {
-            return false;
-        } else if (!getClass().equals(other.getClass())) {
-            return false;
-        }
-        return _oid == ((DObject)other).getOid();
-    }
-
     /**
      * Used to briefly describe this distributed object.
      */
