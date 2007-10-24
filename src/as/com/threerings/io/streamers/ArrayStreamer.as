@@ -105,12 +105,12 @@ public class ArrayStreamer extends Streamer
         out.writeInt(arr.length);
         if (_elementType == int) {
             for (ii = 0; ii < arr.length; ii++) {
-                out.writeInt(arr[ii] as int);
+                out.writeInt(int(arr[ii]));
             }
 
         } else if (_elementType == Boolean) {
             for (ii = 0; ii < arr.length; ii++) {
-                out.writeBoolean(arr[ii] as Boolean);
+                out.writeBoolean(Boolean(arr[ii]));
             }
 
         } else if (_isFinal) {
