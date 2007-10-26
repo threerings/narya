@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" output="dist/classes" path="src/java"/>
+	<classpathentry kind="src" path="tests/src/java"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/samskivert"/>
+	<classpathentry exported="true" kind="var" path="EXT_LIBS_DIR/commons-lang.jar"/>
+	<classpathentry kind="var" path="EXT_LIBS_DIR/javassist.jar"/>
+	<classpathentry kind="output" path="tests/dist/classes"/>
+</classpath>
