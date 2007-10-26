@@ -153,7 +153,7 @@ public class PresentsServer
         try {
             registered = new SunSignalHandler().init(this);
         } catch (Throwable t) {
-            t.printStackTrace(System.err);
+            log.warning("Unable to register Sun signal handlers [error=" + t + "].");
         }
         if (!registered) {
             new NativeSignalHandler().init(this);
