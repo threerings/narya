@@ -37,7 +37,7 @@ public class OccupantAdapter
     // from interface OccupantObserver
     public function occupantEntered (info :OccupantInfo) :void
     {
-        if (_entered) {
+        if (_entered != null) {
             _entered(info);
         }
     }
@@ -45,7 +45,7 @@ public class OccupantAdapter
     // from interface OccupantObserver
     public function occupantLeft (info :OccupantInfo) :void
     {
-        if (_left) {
+        if (_left != null) {
             _left(info);
         }
     }
@@ -53,7 +53,7 @@ public class OccupantAdapter
     // from interface OccupantObserver
     public function occupantUpdated (oldinfo :OccupantInfo, newinfo :OccupantInfo) :void
     {
-        if (_updated) {
+        if (_updated != null) {
             _updated(oldinfo, newinfo);
         }
     }
