@@ -25,8 +25,8 @@
     <taskdef name="grecord" classname="com.samskivert.jdbc.depot.tools.GenRecordTask"
              classpathref="classpath"/>
     <!-- make sure the record class files are all compiled -->
-    <javac srcdir="src/java" destdir="${classes.dir}"
-           debug="on" optimize="${build.optimize}" deprecation="on">
+    <javac srcdir="src/java" destdir="${classes.dir}" debug="on" optimize="${build.optimize}"
+           deprecation="on" source="1.5" target="1.5">
       <classpath refid="classpath"/>
       <include name="**/*Record.java"/>
     </javac>
@@ -41,9 +41,8 @@
     <taskdef name="dobj" classpathref="classpath"
              classname="com.threerings.presents.tools.GenDObjectTask"/>
     <!-- make sure the dobject class files are all compiled -->
-    <javac srcdir="src/java" destdir="${classes.dir}" includeAntRuntime="false"
-           debug="on" optimize="${build.optimize}" deprecation="on"
-           source="1.5" target="1.5">
+    <javac srcdir="src/java" destdir="${classes.dir}" includeAntRuntime="false" debug="on"
+           optimize="${build.optimize}" deprecation="on" source="1.5" target="1.5">
       <classpath refid="classpath"/>
       <include name="**/*Object.java"/>
     </javac>
@@ -59,9 +58,8 @@
     <taskdef name="service" classpathref="classpath"
              classname="com.threerings.presents.tools.GenServiceTask"/>
     <!-- make sure the service class files are all compiled -->
-    <javac srcdir="src/java" destdir="${classes.dir}" includeAntRuntime="false"
-           debug="on" optimize="${build.optimize}" deprecation="on"
-           source="1.5" target="1.5">
+    <javac srcdir="src/java" destdir="${classes.dir}" includeAntRuntime="false" debug="on"
+           optimize="${build.optimize}" deprecation="on" source="1.5" target="1.5">
       <classpath refid="classpath"/>
       <include name="**/*Service.java"/>
       <exclude name="**/InvocationService.java"/>
@@ -93,8 +91,7 @@
              classname="com.threerings.presents.tools.GenReceiverTask"/>
     <!-- make sure the receiver class files are all compiled -->
     <javac srcdir="src/java" destdir="${classes.dir}" includeAntRuntime="false"
-           debug="on" optimize="${build.optimize}" deprecation="on"
-           source="1.5" target="1.5">
+           debug="on" optimize="${build.optimize}" deprecation="on" source="1.5" target="1.5">
       <classpath refid="classpath"/>
       <include name="**/*Receiver.java"/>
       <exclude name="**/InvocationReceiver.java"/>
@@ -164,8 +161,7 @@
   <!-- build the java class files -->
   <target name="compile" depends="prepare">
     <javac srcdir="src/java" destdir="${classes.dir}" includeAntRuntime="false"
-           debug="on" optimize="{$build.optimize}" deprecation="on"
-           source="1.5" target="1.5">
+           debug="on" optimize="{$build.optimize}" deprecation="on" source="1.5" target="1.5">
       <classpath refid="classpath"/>
       <compilerarg value="-Xlint"/>
       <compilerarg value="-Xlint:-serial"/>
