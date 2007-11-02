@@ -21,24 +21,28 @@
 
 package com.threerings.crowd.client;
 
+import java.util.logging.Level;
+
 import com.samskivert.util.ObserverList;
 import com.samskivert.util.ObserverList.ObserverOp;
 import com.samskivert.util.ResultListener;
 
 import com.threerings.presents.client.BasicDirector;
 import com.threerings.presents.client.Client;
+import com.threerings.presents.util.SafeSubscriber;
 
 import com.threerings.presents.dobj.DObject;
 import com.threerings.presents.dobj.ObjectAccessException;
 import com.threerings.presents.dobj.Subscriber;
 
-import com.threerings.crowd.Log;
 import com.threerings.crowd.data.BodyObject;
 import com.threerings.crowd.data.CrowdCodes;
 import com.threerings.crowd.data.LocationCodes;
 import com.threerings.crowd.data.PlaceConfig;
 import com.threerings.crowd.data.PlaceObject;
 import com.threerings.crowd.util.CrowdContext;
+
+import static com.threerings.crowd.Log.log;
 
 /**
  * The location director provides a means by which entities on the client can request to move from
@@ -47,8 +51,7 @@ import com.threerings.crowd.util.CrowdContext;
  * actually issuing the request.
  */
 public class LocationDirector extends BasicDirector
-    implements LocationCodes, Subscriber<PlaceObject>, LocationReceiver,
-               LocationService.MoveListener
+    implements LocationCodes, LocationReceiver, LocationService.MoveListener
 {
     /**
      * Used to recover from a moveTo request that was accepted but resulted in a failed attempt to
@@ -123,7 +126,7 @@ public class LocationDirector extends BasicDirector
     {
         // make sure the placeId is valid
         if (placeId < 0) {
-            Log.warning("Refusing moveTo(): invalid placeId " + placeId + ".");
+            log.warning("Refusing moveTo(): invalid placeId " + placeId + ".");
             return false;
         }
 
@@ -141,12 +144,12 @@ public class LocationDirector extends BasicDirector
             // if the pending request has been outstanding more than a minute, go ahead and let
             // this new one through in an attempt to recover from dropped moveTo requests
             if (refuse) {
-                Log.warning("Refusing moveTo; We have a request outstanding " +
+                log.warning("Refusing moveTo; We have a request outstanding " +
                             "[ppid=" + _pendingPlaceId + ", npid=" + placeId + "].");
                 return false;
 
             } else {
-                Log.warning("Overriding stale moveTo request [ppid=" + _pendingPlaceId +
+                log.warning("Overriding stale moveTo request [ppid=" + _pendingPlaceId +
                             ", npid=" + placeId + "].");
             }
         }
@@ -155,7 +158,7 @@ public class LocationDirector extends BasicDirector
         _pendingPlaceId = placeId;
 
         // issue a moveTo request
-        Log.info("Issuing moveTo(" + placeId + ").");
+        log.info("Issuing moveTo(" + placeId + ").");
         _lservice.moveTo(_ctx.getClient(), placeId, this);
         return true;
     }
@@ -244,8 +247,8 @@ public class LocationDirector extends BasicDirector
             try {
                 _controller.mayLeavePlace(_plobj);
             } catch (Exception e) {
-                Log.warning("Place controller choked in mayLeavePlace [plobj=" + _plobj + "].");
-                Log.logStackTrace(e);
+                log.log(Level.WARNING, "Place controller choked in mayLeavePlace " +
+                        "[plobj=" + _plobj + "].", e);
             }
         }
     }
@@ -279,15 +282,36 @@ public class LocationDirector extends BasicDirector
         _placeId = placeId;
 
         // start up a new place controller to manage the new place
-        _controller = createController(config);
-        if (_controller == null) {
-            Log.warning("Place config returned null controller [config=" + config + "].");
-            return;
-        }
-        _controller.init(_ctx, config);
+        try {
+            _controller = createController(config);
+            if (_controller == null) {
+                log.warning("Place config returned null controller [config=" + config + "].");
+                return;
+            }
+            _controller.init(_ctx, config);
 
-        // subscribe to our new place object to complete the move
-        _ctx.getDObjectManager().subscribeToObject(_placeId, this);
+            // subscribe to our new place object to complete the move
+            _subber = new SafeSubscriber<PlaceObject>(_placeId, new Subscriber<PlaceObject>() {
+                public void objectAvailable (PlaceObject object) {
+                    gotPlaceObject(object);
+                }
+                public void requestFailed (int oid, ObjectAccessException cause) {
+                    // aiya! we were unable to fetch our new place object; something is badly wrong
+                    log.warning("Aiya! Unable to fetch place object for new location [plid=" + oid +
+                                ", reason=" + cause + "].");
+                    // clear out our half initialized place info
+                    int placeId = _placeId;
+                    _placeId = -1;
+                    // let the kids know shit be fucked
+                    handleFailure(placeId, "m.unable_to_fetch_place_object");
+                }
+            });
+            _subber.subscribe(_ctx.getDObjectManager());
+
+        } catch (Exception e) {
+            log.log(Level.WARNING, "Failed to create place controller [config=" + config + "].", e);
+            handleFailure(_placeId, LocationCodes.E_INTERNAL_ERROR);
+        }
     }
 
     /**
@@ -297,25 +321,26 @@ public class LocationDirector extends BasicDirector
      */
     public void didLeavePlace ()
     {
-        if (_plobj != null) {
-            // let the old controller know that things are going away
-            if (_controller != null) {
-                try {
-                    _controller.didLeavePlace(_plobj);
-                } catch (Exception e) {
-                    Log.warning("Place controller choked in didLeavePlace [plobj=" + _plobj + "].");
-                    Log.logStackTrace(e);
-                }
-                _controller = null;
-            }
-
-            // unsubscribe from our old place object
-            _ctx.getDObjectManager().unsubscribeFromObject(_plobj.getOid(), this);
-            _plobj = null;
-
-            // and clear out the associated place id
-            _placeId = -1;
+        // unsubscribe from our old place object
+        if (_subber != null) {
+            _subber.unsubscribe(_ctx.getDObjectManager());
+            _subber = null;
         }
+
+        // let the old controller know that things are going away
+        if (_plobj != null && _controller != null) {
+            try {
+                _controller.didLeavePlace(_plobj);
+            } catch (Exception e) {
+                log.log(Level.WARNING, "Place controller choked in didLeavePlace " +
+                        "[plobj=" + _plobj + "].", e);
+            }
+        }
+
+        // and clear out other bits
+        _plobj = null;
+        _controller = null;
+        _placeId = -1;
     }
 
     /**
@@ -337,7 +362,7 @@ public class LocationDirector extends BasicDirector
         _lastRequestTime = 0;
 
         // let our observers know what's up
-        notifyFailure(placeId, reason);
+        handleFailure(placeId, reason);
     }
 
     /**
@@ -367,7 +392,7 @@ public class LocationDirector extends BasicDirector
                 gotBodyObject(object);
             }
             public void requestFailed (int oid, ObjectAccessException cause) {
-                Log.warning("Location director unable to fetch body object; all has gone " +
+                log.warning("Location director unable to fetch body object; all has gone " +
                             "horribly wrong [cause=" + cause + "].");
             }
         };
@@ -408,6 +433,28 @@ public class LocationDirector extends BasicDirector
         _lservice = (LocationService)client.requireService(LocationService.class);
     }
 
+    protected void gotPlaceObject (PlaceObject object)
+    {
+        // yay, we have our new place object
+        _plobj = object;
+
+        // fill in our manager caller
+        _plobj.initManagerCaller(_ctx.getClient().getDObjectManager());
+
+        // let the place controller know that we're ready to roll
+        if (_controller != null) {
+            try {
+                _controller.willEnterPlace(_plobj);
+            } catch (Exception e) {
+                log.log(Level.WARNING, "Controller choked in willEnterPlace " +
+                        "[place=" + _plobj + "].", e);
+            }
+        }
+
+        // let our observers know that all is well on the western front
+        _observers.apply(_didChangeOp);
+    }
+
     protected void gotBodyObject (BodyObject clobj)
     {
         // TODO? check to see if we are already in a location, in which case we'll want to be going
@@ -431,10 +478,10 @@ public class LocationDirector extends BasicDirector
         int placeId = _pendingPlaceId;
         _pendingPlaceId = -1;
 
-        Log.info("moveTo failed [pid=" + placeId + ", reason=" + reason + "].");
+        log.info("moveTo failed [pid=" + placeId + ", reason=" + reason + "].");
 
         // let our observers know that something has gone horribly awry
-        notifyFailure(placeId, reason);
+        handleFailure(placeId, reason);
     }
 
     // documentation inherited from interface
@@ -444,12 +491,12 @@ public class LocationDirector extends BasicDirector
         // just finish up what we're doing and assume that the repeated move request was the
         // spurious one as it would be in the case of lag causing rapid-fire repeat requests
         if (movePending()) {
-            Log.info("Dropping forced move because we have a move pending " +
+            log.info("Dropping forced move because we have a move pending " +
                      "[pendId=" + _pendingPlaceId + ", reqId=" + placeId + "].");
             return;
         }
 
-        Log.info("Moving at request of server [placeId=" + placeId + "].");
+        log.info("Moving at request of server [placeId=" + placeId + "].");
         // clear out our old place information
         mayLeavePlace();
         didLeavePlace();
@@ -458,48 +505,34 @@ public class LocationDirector extends BasicDirector
     }
 
     /**
-     * Called when we receive the place object to which we subscribed after a successful moveTo
-     * request.
+     * Sets the failure handler which will recover from place object fetching failures. In the
+     * event that we are unable to fetch our place object after making a successful moveTo request,
+     * we attempt to rectify the failure by moving back to the last known working location. Because
+     * entites that cooperate with the location director may need to become involved in this
+     * failure recovery, we provide this interface whereby they can interject themseves into the
+     * failure recovery process and do their own failure recovery.
      */
-    public void objectAvailable (PlaceObject object)
+    public void setFailureHandler (FailureHandler handler)
     {
-        // yay, we have our new place object
-        _plobj = object;
+        if (_failureHandler != null) {
+            log.warning("Requested to set failure handler, but we've already got one. The " +
+                        "conflicting entities will likely need to perform more sophisticated " +
+                        "coordination to deal with failures. [old=" + _failureHandler +
+                        ", new=" + handler + "].");
 
-        // fill in our manager caller
-        _plobj.initManagerCaller(_ctx.getClient().getDObjectManager());
-
-        // let the place controller know that we're ready to roll
-        if (_controller != null) {
-            try {
-                _controller.willEnterPlace(_plobj);
-            } catch (Exception e) {
-                Log.warning("Controller choked in willEnterPlace [place=" + _plobj + "].");
-                Log.logStackTrace(e);
-            }
+        } else {
+            _failureHandler = handler;
         }
-
-        // let our observers know that all is well on the western front
-        _observers.apply(_didChangeOp);
     }
 
-    /**
-     * Called if we are unable to subscribe to the place object that was provided to us with our
-     * successful moveTo request. This is generally a bad scene and we do our best to recover by
-     * going back to the previously known location.
-     */
-    public void requestFailed (int oid, ObjectAccessException cause)
+    protected void handleFailure (final int placeId, final String reason)
     {
-        // aiya! we were unable to fetch our new place object; something is badly wrong
-        Log.warning("Aiya! Unable to fetch place object for new location [plid=" + oid +
-                    ", reason=" + cause + "].");
-
-        // clear out our half initialized place info
-        int placeId = _placeId;
-        _placeId = -1;
-
-        // let the kids know shit be fucked
-        notifyFailure(placeId, "m.unable_to_fetch_place_object");
+        _observers.apply(new ObserverOp<LocationObserver>() {
+            public boolean apply (LocationObserver obs) {
+                obs.locationChangeFailed(placeId, reason);
+                return true;
+            }
+        });
 
         // we need to sort out what to do about the half-initialized place controller. presently we
         // punt and hope that calling didLeavePlace() without ever having called willEnterPlace()
@@ -516,37 +549,6 @@ public class LocationDirector extends BasicDirector
                 moveTo(_previousPlaceId);
             }
         }
-    }
-
-    /**
-     * Sets the failure handler which will recover from place object fetching failures. In the
-     * event that we are unable to fetch our place object after making a successful moveTo request,
-     * we attempt to rectify the failure by moving back to the last known working location. Because
-     * entites that cooperate with the location director may need to become involved in this
-     * failure recovery, we provide this interface whereby they can interject themseves into the
-     * failure recovery process and do their own failure recovery.
-     */
-    public void setFailureHandler (FailureHandler handler)
-    {
-        if (_failureHandler != null) {
-            Log.warning("Requested to set failure handler, but we've already got one. The " +
-                        "conflicting entities will likely need to perform more sophisticated " +
-                        "coordination to deal with failures. [old=" + _failureHandler +
-                        ", new=" + handler + "].");
-
-        } else {
-            _failureHandler = handler;
-        }
-    }
-
-    protected void notifyFailure (final int placeId, final String reason)
-    {
-        _observers.apply(new ObserverOp<LocationObserver>() {
-            public boolean apply (LocationObserver obs) {
-                obs.locationChangeFailed(placeId, reason);
-                return true;
-            }
-        });
     }
 
     /**
@@ -568,6 +570,9 @@ public class LocationDirector extends BasicDirector
     /** Our location observer list. */
     protected ObserverList<LocationObserver> _observers = new ObserverList<LocationObserver>(
         ObserverList.SAFE_IN_ORDER_NOTIFY);
+
+    /** Used to subscribe to our place object. */
+    protected SafeSubscriber<PlaceObject> _subber;
 
     /** The oid of the place we currently occupy. */
     protected int _placeId = -1;
