@@ -156,6 +156,10 @@
   <!-- common clean tasks -->
   <target name="common-clean">
     <ant dir="tests" target="clean"/>
+    <!-- clean the native libraries -->
+    <exec dir="src/java/com/threerings/util/signal/${os.name}" executable="make">
+       <arg line="clean"/>
+    </exec>
   </target>
 
   <!-- build the java class files -->
@@ -171,8 +175,9 @@
   <!-- build the native libraries -->
   <target name="ncompile" depends="prepare">
     <echo level="info" message="Doing native compilation on ${os.name}..."/>
-    <exec dir="src/java/com/threerings/util/signal/${os.name}" 
-     executable="make"><arg line="install"/></exec>
+    <exec dir="src/java/com/threerings/util/signal/${os.name}" executable="make">
+       <arg line="install"/>
+    </exec>
   </target>
 
   <!-- build the javadoc documentation -->
