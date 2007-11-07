@@ -156,10 +156,6 @@
   <!-- common clean tasks -->
   <target name="common-clean">
     <ant dir="tests" target="clean"/>
-    <!-- clean the native libraries -->
-    <exec dir="src/java/com/threerings/util/signal/${os.name}" executable="make">
-       <arg line="clean"/>
-    </exec>
   </target>
 
   <!-- build the java class files -->
