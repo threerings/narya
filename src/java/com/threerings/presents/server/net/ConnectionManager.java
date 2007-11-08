@@ -656,18 +656,6 @@ public class ConnectionManager extends LoopingThread
                 return;
             }
 
-            if (!(channel instanceof SelectableChannel)) {
-                try {
-                    log.warning("Provided with un-selectable socket as result of accept(), can't " +
-                                "cope [channel=" + channel + "].");
-                } catch (Error err) {
-                    log.warning("Un-selectable channel also couldn't be printed.");
-                }
-                // stick a fork in the socket
-                channel.socket().close();
-                return;
-            }
-
 //             log.fine("Accepted connection " + channel + ".");
 
             // create a new authing connection object to manage the authentication of this client
