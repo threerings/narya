@@ -22,6 +22,7 @@
 package com.threerings.crowd.server;
 
 import java.util.Iterator;
+import java.util.List;
 
 import com.samskivert.util.HashIntMap;
 
@@ -81,6 +82,17 @@ public class PlaceRegistry
     }
 
     /**
+     * Creates and registers a new place manager with no delegates.
+     *
+     * @see #createPlace(PlaceConfig,List<PlaceManagerDelegate>)
+     */
+    public PlaceManager createPlace (PlaceConfig config)
+        throws InstantiationException, InvocationException
+    {
+        return createPlace(config, null, null);
+    }
+
+    /**
      * Creates and registers a new place manager along with the place object to be managed. The
      * registry takes care of tracking the creation of the object and informing the manager when it
      * is created.
@@ -88,6 +100,8 @@ public class PlaceRegistry
      * @param config the configuration object for the place to be created. The {@link PlaceManager}
      * derived class that should be instantiated to manage the place will be determined from the
      * config object.
+     * @param delegates a list of {@link PlaceManagerDelegate} instances to be registered with the
+     * manager prior to it being initialized and started up.
      *
      * @return a reference to the place manager, which will have been configured with its place
      * object and started up (via a call to {@link PlaceManager#startup}.
@@ -98,10 +112,10 @@ public class PlaceRegistry
      * {@link PlaceManager#checkPermissions}. The error string returned by that call will be
      * provided as in the exception.
      */
-    public PlaceManager createPlace (PlaceConfig config)
+    public PlaceManager createPlace (PlaceConfig config, List<PlaceManagerDelegate> delegates)
         throws InstantiationException, InvocationException
     {
-        return createPlace(config, null);
+        return createPlace(config, delegates, null);
     }
 
     /**
@@ -114,51 +128,7 @@ public class PlaceRegistry
     public PlaceManager createPlace (PlaceConfig config, PreStartupHook hook)
         throws InstantiationException, InvocationException
     {
-        PlaceManager pmgr = null;
-        ClassLoader loader = getClassLoader(config);
-
-        try {
-            // load up the manager class
-            Class pmgrClass = Class.forName(config.getManagerClassName(), true, loader);
-            // create a place manager for this place
-            pmgr = (PlaceManager)pmgrClass.newInstance();
-            // let the pmgr know about us and its configuration
-            pmgr.init(this, _invmgr, _omgr, config);
-
-        } catch (Exception e) {
-            Log.logStackTrace(e);
-            throw new InstantiationException(
-                "Error creating place manager [config=" + config + "].");
-        }
-
-        // give the manager an opportunity to abort the whole process if it fails any permissions
-        // checks
-        String errmsg = pmgr.checkPermissions();
-        if (errmsg != null) {
-            // give the place manager a chance to clean up after its early initialization process
-            pmgr.permissionsFailed();
-            throw new InvocationException(errmsg);
-        }
-
-        // and create and register the place object
-        PlaceObject plobj = pmgr.createPlaceObject();
-        _omgr.registerObject(plobj);
-
-        // stick the manager into our table
-        _pmgrs.put(plobj.getOid(), pmgr);
-
-        // start the place manager up with the newly created place object
-        try {
-            if (hook != null) {
-                hook.invoke(pmgr);
-            }
-            pmgr.startup(plobj);
-        } catch (Exception e) {
-            Log.warning("Error starting place manager [obj=" + plobj + ", pmgr=" + pmgr + "].");
-            Log.logStackTrace(e);
-        }
-
-        return pmgr;
+        return createPlace(config, null, hook);
     }
 
     /**
@@ -198,6 +168,69 @@ public class PlaceRegistry
     public Iterator<PlaceManager> enumeratePlaceManagers ()
     {
         return _pmgrs.values().iterator();
+    }
+
+    /**
+     * Creates a place manager using the supplied config, adds the supplied list of delegates, runs
+     * the supplied pre-startup hook and finally returns it.
+     */
+    protected PlaceManager createPlace (PlaceConfig config, List<PlaceManagerDelegate> delegates,
+                                        PreStartupHook hook)
+        throws InstantiationException, InvocationException
+    {
+        PlaceManager pmgr = null;
+        ClassLoader loader = getClassLoader(config);
+
+        try {
+            // create a place manager using the class supplied in the place config
+            pmgr = (PlaceManager)Class.forName(
+                config.getManagerClassName(), true, loader).newInstance();
+
+            // if we have delegates, add them
+            if (delegates != null) {
+                for (PlaceManagerDelegate delegate : delegates) {
+                    pmgr.addDelegate(delegate);
+                }
+            }
+
+            // let the pmgr know about us and its configuration
+            pmgr.init(this, _invmgr, _omgr, config);
+
+        } catch (Exception e) {
+            Log.logStackTrace(e);
+            throw new InstantiationException(
+                "Error creating place manager [config=" + config + "].");
+        }
+
+        // give the manager an opportunity to abort the whole process if it fails any permissions
+        // checks
+        String errmsg = pmgr.checkPermissions();
+        if (errmsg != null) {
+            // give the place manager a chance to clean up after its early initialization process
+            pmgr.permissionsFailed();
+            throw new InvocationException(errmsg);
+        }
+
+        // and create and register the place object
+        PlaceObject plobj = pmgr.createPlaceObject();
+        _omgr.registerObject(plobj);
+
+        // stick the manager into our table
+        _pmgrs.put(plobj.getOid(), pmgr);
+
+        // start the place manager up with the newly created place object
+        try {
+            if (hook != null) {
+                hook.invoke(pmgr);
+            }
+            pmgr.startup(plobj);
+
+        } catch (Exception e) {
+            Log.warning("Error starting place manager [obj=" + plobj + ", pmgr=" + pmgr + "].");
+            Log.logStackTrace(e);
+        }
+
+        return pmgr;
     }
 
     /**
