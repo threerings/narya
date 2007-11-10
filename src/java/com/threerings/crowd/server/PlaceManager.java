@@ -194,6 +194,7 @@ public class PlaceManager
         if (_delegates == null) {
             _delegates = new ArrayList<PlaceManagerDelegate>();
         }
+        delegate.setPlaceManager(this);
         _delegates.add(delegate);
     }
 
