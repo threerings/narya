@@ -367,6 +367,7 @@ public class ActionScriptSource
             list.add(mem);
         }
 
+      METHODS:
         for (Method method : jclass.getDeclaredMethods()) {
             int mods = method.getModifiers();
             ArrayList<Member> list;
@@ -379,15 +380,28 @@ public class ActionScriptSource
             }
 
             String name = method.getName();
-            ActionScript asa = method.getAnnotation(ActionScript.class);
-            if (asa != null) {
-                if (asa.omit()) {
-                    continue;
+
+            // we have to scan our parent classes for annotations because we may be overriding this
+            // method and we want to "inherit" annotations
+            Class<?> cclass = jclass;
+            do {
+                try {
+                    Method cmethod = cclass.getMethod(name, method.getParameterTypes());
+                    ActionScript asa = cmethod.getAnnotation(ActionScript.class);
+                    if (asa != null) {
+                        if (asa.omit()) {
+                            continue METHODS;
+                        }
+                        if (!StringUtil.isBlank(asa.name())) {
+                            name = asa.name();
+                        }
+                    }
+                } catch (NoSuchMethodException nsme) {
+                    // thanks Java for insisting on using exceptions for a potentially expected
+                    // code path; fall through and try the superclass
                 }
-                if (!StringUtil.isBlank(asa.name())) {
-                    name = asa.name();
-                }
-            }
+                cclass = cclass.getSuperclass();
+            } while (cclass != null);
 
             // if this is an auto-generated reader or writer method, skip it
             if (name.startsWith("readField_") || name.startsWith("writeField_")) {
