@@ -21,12 +21,16 @@
 
 package com.threerings.presents.peer.server;
 
+import com.samskivert.util.Throttle;
+
 import com.threerings.presents.dobj.DObject;
 import com.threerings.presents.net.BootstrapData;
 import com.threerings.presents.server.PresentsClient;
 
 import com.threerings.presents.peer.data.NodeObject;
 import com.threerings.presents.peer.net.PeerBootstrapData;
+
+import static com.threerings.presents.Log.log;
 
 /**
  * Manages a peer connection.
@@ -98,6 +102,24 @@ public class PeerClient extends PresentsClient
         }
     }
 
+    @Override // from PresentsClient
+    protected Throttle createIncomingMessageThrottle ()
+    {
+        // more than 100 messages per second and we complain about it
+        return new Throttle(100, 1000L);
+    }
+
+    @Override // from PresentsClient
+    protected void handleThrottleExceeded ()
+    {
+        long now = System.currentTimeMillis();
+        if (now > _nextThrottleWarning) {
+            log.warning("Peer sent more than 100 messages in one second " + this + ".");
+            _nextThrottleWarning = now + 5000L; // don't warn more than once every 5 seconds
+        }
+    }
+
     protected PeerManager _peermgr;
     protected int _cloid;
+    protected long _nextThrottleWarning;
 }

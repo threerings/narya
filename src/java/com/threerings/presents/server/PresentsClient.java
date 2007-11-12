@@ -360,10 +360,7 @@ public class PresentsClient
             return;
 
         } else if (_throttle.throttleOp(message.received)) {
-            Log.warning("Client sent more than 100 messages in 10 seconds, forcing " +
-                        "disconnect " + this + ".");
-            safeEndSession();
-            _throttle = null;
+            handleThrottleExceeded();
         }
 
         // we dispatch to a message dispatcher that is specialized for the particular class of
@@ -500,6 +497,25 @@ public class PresentsClient
                 }
             }
         });
+    }
+
+    /**
+     * Creates our incoming messaeg throttle.
+     */
+    protected Throttle createIncomingMessageThrottle ()
+    {
+        // more than 100 messages in 10 seconds and you're audi like 5000
+        return new Throttle(100, 10 * 1000L);
+    }
+
+    /**
+     * Called when a client exceeds their allotted incoming messages per second throttle.
+     */
+    protected void handleThrottleExceeded ()
+    {
+        Log.warning("Client sent more than 100 messages in 10 seconds, disconnecting " + this + ".");
+        safeEndSession();
+        _throttle = null;
     }
 
     /**
@@ -970,9 +986,8 @@ public class PresentsClient
      * session. */
     protected int _connectTime;
 
-    /** Prevent the client from sending too many messages too frequently.  100 messages in 10
-     * seconds and you're audi like 5000. */
-    protected Throttle _throttle = new Throttle(100, 10 * 1000L);
+    /** Prevent the client from sending too many messages too frequently. */
+    protected Throttle _throttle = createIncomingMessageThrottle();
 
     // keep these for kicks and giggles
     protected int _messagesIn;
