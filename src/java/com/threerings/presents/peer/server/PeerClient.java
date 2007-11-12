@@ -113,7 +113,7 @@ public class PeerClient extends PresentsClient
     protected void handleThrottleExceeded ()
     {
         long now = System.currentTimeMillis();
-        if (now > _nextThrottleWarning) {
+        if (now >= _nextThrottleWarning) {
             log.warning("Peer sent more than 100 messages in one second " + this + ".");
             _nextThrottleWarning = now + 5000L; // don't warn more than once every 5 seconds
         }
