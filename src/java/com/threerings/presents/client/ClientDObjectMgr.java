@@ -185,6 +185,20 @@ public class ClientDObjectMgr
         }
     }
 
+    /**
+     * Called when the client is cleaned up due to having disconnected from the server.
+     */
+    public void cleanup ()
+    {
+        // tell any pending object subscribers that they're not getting their bits
+        for (PendingRequest<?> req : _penders.values()) {
+            for (Subscriber<?> sub : req.targets) {
+                sub.requestFailed(req.oid, new ObjectAccessException("Client connection closed"));
+            }
+        }
+        _penders.clear();
+    }
+
     protected <T extends DObject> void queueAction (
         int oid, Subscriber<T> target, boolean subscribe)
     {

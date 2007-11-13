@@ -666,6 +666,11 @@ public class Client
         // ensure that it won't happen until CLIENT_DID_LOGOFF was dispatched
         _runQueue.postRunnable(new Runnable() {
             public void run () {
+                // tell the object manager that we're no longer connected to the server
+                if (_omgr instanceof ClientDObjectMgr) {
+                    ((ClientDObjectMgr)_omgr).cleanup();
+                }
+
                 // clear out our references
                 _comm = null;
                 _omgr = null;
