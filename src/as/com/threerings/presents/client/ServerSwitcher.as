@@ -21,6 +21,7 @@
 
 package com.threerings.presents.client {
 
+import com.threerings.util.Log;
 import com.threerings.util.StringUtil;
 
 import com.threerings.presents.data.AuthCodes;

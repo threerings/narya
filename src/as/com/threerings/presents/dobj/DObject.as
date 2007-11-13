@@ -26,6 +26,7 @@ import flash.errors.IllegalOperationError;
 import flash.events.EventDispatcher;
 
 import com.threerings.util.ClassUtil;
+import com.threerings.util.Log;
 import com.threerings.util.StringBuilder;
 
 import com.threerings.io.ObjectInputStream;

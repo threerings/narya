@@ -22,6 +22,7 @@
 package com.threerings.presents.data {
 
 import com.threerings.util.ClassUtil;
+import com.threerings.util.Log;
 
 import com.threerings.io.ObjectInputStream;
 import com.threerings.io.ObjectOutputStream;

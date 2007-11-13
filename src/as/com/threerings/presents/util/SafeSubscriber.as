@@ -21,6 +21,8 @@
 
 package com.threerings.presents.util {
 
+import com.threerings.util.Log;
+
 import com.threerings.presents.dobj.DObject;
 import com.threerings.presents.dobj.DObjectManager;
 import com.threerings.presents.dobj.ObjectAccessError;

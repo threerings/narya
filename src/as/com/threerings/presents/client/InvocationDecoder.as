@@ -21,6 +21,8 @@
 
 package com.threerings.presents.client {
 
+import com.threerings.util.Log;
+
 /**
  * Provides the basic functionality used to dispatch invocation
  * notification events.

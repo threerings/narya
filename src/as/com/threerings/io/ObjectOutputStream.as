@@ -26,6 +26,7 @@ import flash.utils.IDataOutput;
 
 import com.threerings.util.ClassUtil;
 import com.threerings.util.HashMap;
+import com.threerings.util.Log;
 import com.threerings.util.Short;
 
 public class ObjectOutputStream

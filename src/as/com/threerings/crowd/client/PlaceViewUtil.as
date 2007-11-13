@@ -26,6 +26,8 @@ import flash.display.DisplayObjectContainer;
 
 import mx.core.IRawChildrenContainer; // a simple interface from flex
 
+import com.threerings.util.Log;
+
 import com.threerings.crowd.data.PlaceObject;
 
 /**

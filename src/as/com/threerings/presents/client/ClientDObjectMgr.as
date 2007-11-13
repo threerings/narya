@@ -28,6 +28,7 @@ import flash.utils.getTimer; // function import
 
 import com.threerings.util.ClassUtil;
 import com.threerings.util.HashMap;
+import com.threerings.util.Log;
 
 import com.threerings.presents.dobj.CompoundEvent;
 import com.threerings.presents.dobj.DEvent;

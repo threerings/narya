@@ -28,6 +28,7 @@ import flash.events.TimerEvent;
 
 import flash.utils.Timer;
 
+import com.threerings.util.Log;
 import com.threerings.util.MethodQueue;
 import com.threerings.util.ObserverList;
 

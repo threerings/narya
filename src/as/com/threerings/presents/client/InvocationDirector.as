@@ -25,6 +25,7 @@ import flash.errors.IllegalOperationError;
 import flash.utils.getTimer; // function import
 
 import com.threerings.util.HashMap;
+import com.threerings.util.Log;
 import com.threerings.util.Wrapped;
 
 import com.threerings.presents.data.InvocationMarshaller_ListenerMarshaller;

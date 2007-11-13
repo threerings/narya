@@ -24,6 +24,7 @@ package com.threerings.crowd.client {
 import flash.utils.getTimer; // function import
 
 import com.threerings.util.ObserverList;
+import com.threerings.util.Log;
 import com.threerings.util.ResultListener;
 
 import com.threerings.presents.client.BasicDirector;

@@ -23,6 +23,7 @@ package com.threerings.crowd.chat.client {
 
 import com.threerings.util.ArrayUtil;
 import com.threerings.util.HashMap;
+import com.threerings.util.Log;
 import com.threerings.util.Map;
 import com.threerings.util.ObserverList;
 import com.threerings.util.ResultListener;

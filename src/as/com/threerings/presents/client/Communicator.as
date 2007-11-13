@@ -31,6 +31,7 @@ import flash.net.Socket;
 import flash.utils.ByteArray;
 import flash.utils.Endian;
 
+import com.threerings.util.Log;
 import com.threerings.util.StringUtil;
 
 import com.threerings.io.FrameAvailableEvent;

@@ -28,6 +28,7 @@ import flash.utils.ByteArray;
 import flash.utils.IDataInput;
 
 import com.threerings.util.ClassUtil;
+import com.threerings.util.Log;
 
 public class ObjectInputStream
 {

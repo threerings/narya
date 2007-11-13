@@ -22,9 +22,7 @@
 package com.threerings.util {
 
 /**
- * A very simple Logging interface.
- * Used with the top-level class QUOTE in this package ENDQUOTE...
- * (it's actually up above 'com', so it never needs importing...)
+ * A very simple Logging interface used by Log.
  */
 public interface LogTarget
 {

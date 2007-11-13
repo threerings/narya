@@ -22,6 +22,7 @@
 package com.threerings.io.streamers {
 
 import com.threerings.util.ClassUtil;
+import com.threerings.util.Log;
 
 import com.threerings.io.ArrayMask;
 import com.threerings.io.ObjectInputStream;

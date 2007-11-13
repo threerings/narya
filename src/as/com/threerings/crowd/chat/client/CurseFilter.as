@@ -21,6 +21,7 @@
 
 package com.threerings.crowd.chat.client {
 
+import com.threerings.util.Log;
 import com.threerings.util.Name;
 import com.threerings.util.StringUtil;
 

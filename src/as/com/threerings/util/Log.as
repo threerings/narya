@@ -19,21 +19,12 @@
 // License along with this library; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 
-package {
+package com.threerings.util {
 
 import flash.utils.getQualifiedClassName;
 
-//import mx.logging.ILogger;
-//import mx.logging.LogEventLevel;
-
-//import mx.logging.targets.TraceTarget;
-
-import com.threerings.util.LogTarget;
-
 /**
  * A simple logging mechanism.
- *
- * This class need not be imported.
  *
  * Typical usage for creating a Log to be used by the entire class would be:
  * public class MyClass
@@ -49,14 +40,6 @@ import com.threerings.util.LogTarget;
  *              ....
  */
 public class Log
-// TODO: We should really change the name of this class.
-// The reason for this is that when we load a client .swf we load it into
-// a child ApplicationDomain so that it can share and interoperate with
-// a few of our classes. Any classes we define will block classes of the
-// same name being used by client swfs, as they'll instead instantiate
-// our versions. Normally this isn't a problem because our classnames are
-// things like com.threerings.io.Streamable, but this class is just "Log".
-// So: we should fix this up.
 {
     /**
      * Retrieve a Log for the specififed class.

@@ -29,6 +29,8 @@ import flash.net.Socket;
 import flash.utils.ByteArray;
 import flash.utils.Endian;
 
+import com.threerings.util.Log;
+
 /**
  * Reads socket data until a complete frame is available.
  * This dispatches a FrameAvailableEvent.FRAME_AVAILABLE once a frame
