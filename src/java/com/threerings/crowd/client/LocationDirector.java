@@ -51,7 +51,7 @@ import static com.threerings.crowd.Log.log;
  * actually issuing the request.
  */
 public class LocationDirector extends BasicDirector
-    implements LocationCodes, LocationReceiver, LocationService.MoveListener
+    implements LocationCodes, LocationReceiver
 {
     /**
      * Used to recover from a moveTo request that was accepted but resulted in a failed attempt to
@@ -159,7 +159,22 @@ public class LocationDirector extends BasicDirector
 
         // issue a moveTo request
         log.info("Issuing moveTo(" + placeId + ").");
-        _lservice.moveTo(_ctx.getClient(), placeId, this);
+        _lservice.moveTo(_ctx.getClient(), placeId, new LocationService.MoveListener() {
+            public void moveSucceeded (PlaceConfig config) {
+                // handle the successful move
+                didMoveTo(_pendingPlaceId, config);
+                // and clear out the tracked pending oid
+                _pendingPlaceId = -1;
+            }
+            public void requestFailed (String reason) {
+                // clear out our pending request oid
+                int placeId = _pendingPlaceId;
+                _pendingPlaceId = -1;
+                log.info("moveTo failed [pid=" + placeId + ", reason=" + reason + "].");
+                // let our observers know that something has gone horribly awry
+                handleFailure(placeId, reason);
+            }
+        });
         return true;
     }
 
@@ -462,29 +477,6 @@ public class LocationDirector extends BasicDirector
     }
 
     // documentation inherited from interface
-    public void moveSucceeded (PlaceConfig config)
-    {
-        // handle the successful move
-        didMoveTo(_pendingPlaceId, config);
-
-        // and clear out the tracked pending oid
-        _pendingPlaceId = -1;
-    }
-
-    // documentation inherited from interface
-    public void requestFailed (String reason)
-    {
-        // clear out our pending request oid
-        int placeId = _pendingPlaceId;
-        _pendingPlaceId = -1;
-
-        log.info("moveTo failed [pid=" + placeId + ", reason=" + reason + "].");
-
-        // let our observers know that something has gone horribly awry
-        handleFailure(placeId, reason);
-    }
-
-    // documentation inherited from interface
     public void forcedMove (int placeId)
     {
         // if we're in the middle of a move, we can't abort it or we will screw everything up, so
@@ -534,21 +526,18 @@ public class LocationDirector extends BasicDirector
             }
         });
 
-        // we need to sort out what to do about the half-initialized place controller. presently we
-        // punt and hope that calling didLeavePlace() without ever having called willEnterPlace()
-        // does whatever's necessary
-
         // try to return to our previous location
         if (_failureHandler != null) {
             _failureHandler.recoverFailedMove(placeId);
 
-        } else {
+        } else if (_placeId <= 0) {
             // if we were previously somewhere (and that somewhere isn't where we just tried to
             // go), try going back to that happy place
             if (_previousPlaceId != -1 && _previousPlaceId != placeId) {
                 moveTo(_previousPlaceId);
             }
-        }
+
+        } // else we're currently somewhere, so just stay there
     }
 
     /**
