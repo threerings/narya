@@ -144,7 +144,7 @@ public abstract class RebootManager
         long now = System.currentTimeMillis();
         for (int ii = WARNINGS.length - 1; ii >= 0; ii--) {
             long warnTime = WARNINGS[ii] * 60 * 1000;
-            if (now + warnTime > _nextReboot) {
+            if (now + warnTime >= _nextReboot) {
                 doWarning(ii);
                 return;
             }
