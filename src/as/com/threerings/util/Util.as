@@ -84,19 +84,6 @@ public class Util
     }
 
     /**
-     * Compute a hash code for a string. This is pretty expensive, so only compute
-     * it once if that's at all an option. This is the JDK algorithm...
-     */
-    public static function hashCode (str :String) :int
-    {
-        var h :int = 0;
-        for (var i :int = str.length-1; i >= 0; i--) {
-            h = int(int(31*h) + str.charCodeAt(i));
-        }
-        return h;
-    }
-
-    /**
      * If you call a varargs method by passing it an array, the array
      * will end up being arg 1.
      */
