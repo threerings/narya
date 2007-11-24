@@ -97,8 +97,7 @@ public class OccupantDirector extends BasicDirector
     public OccupantInfo getOccupantInfo (int bodyOid)
     {
         // make sure we're somewhere
-        return (_place == null) ? null :
-            (OccupantInfo)_place.occupantInfo.get(Integer.valueOf(bodyOid));
+        return (_place == null) ? null : _place.occupantInfo.get(Integer.valueOf(bodyOid));
     }
 
     /**

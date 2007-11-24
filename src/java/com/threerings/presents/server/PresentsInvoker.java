@@ -80,7 +80,7 @@ public class PresentsInvoker extends Invoker
 
         if (PresentsDObjectMgr.UNIT_PROF_ENABLED) {
             for (Object key : _tracker.keySet()) {
-                UnitProfile profile = (UnitProfile)_tracker.get(key);
+                UnitProfile profile = _tracker.get(key);
                 if (key instanceof Class) {
                     key = StringUtil.shortClassName((Class)key);
                 }

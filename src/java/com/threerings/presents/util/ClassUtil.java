@@ -47,7 +47,7 @@ public class ClassUtil
     {
         Class tclass = target.getClass();
         String key = tclass.getName() + ":" + name;
-        Method method = (Method)cache.get(key);
+        Method method = cache.get(key);
 
         if (method == null) {
             method = findMethod(tclass, name);

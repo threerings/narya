@@ -59,7 +59,7 @@ public class TrackedObject
     {
         Class clazz = getClass();
         synchronized (_map) {
-            int[] count = (int[])_map.get(clazz);
+            int[] count = _map.get(clazz);
             if (count == null) {
                 _map.put(clazz, count = new int[1]);
             }
@@ -73,7 +73,7 @@ public class TrackedObject
     {
         Class clazz = getClass();
         synchronized (_map) {
-            int[] count = (int[])_map.get(clazz);
+            int[] count = _map.get(clazz);
             if (count != null) {
                 count[0]--;
             } else {

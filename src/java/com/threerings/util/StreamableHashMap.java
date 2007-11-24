@@ -66,7 +66,7 @@ public class StreamableHashMap<K,V> extends HashMap<K,V>
         int ecount = size();
         out.writeInt(ecount);
         for (Iterator<Map.Entry<K,V>> iter = entrySet().iterator(); iter.hasNext(); ) {
-            Map.Entry<K,V> entry = (Map.Entry<K,V>) iter.next();
+            Map.Entry<K,V> entry = iter.next();
             out.writeObject(entry.getKey());
             out.writeObject(entry.getValue());
         }

@@ -416,7 +416,7 @@ public class Streamer
     /**
      * Constructs a streamer for the specified target class.
      */
-    protected Streamer (Class target)
+    protected Streamer (Class<?> target)
         throws IOException
     {
         // keep a handle on the class

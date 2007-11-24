@@ -28,8 +28,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 
-import sun.misc.Perf;
-
 import com.samskivert.util.AuditLogger;
 import com.samskivert.util.HashIntMap;
 import com.samskivert.util.Histogram;
@@ -297,8 +295,7 @@ public class PresentsDObjectMgr
      */
     protected void processUnit (Object unit)
     {
-        long start = _timer.highResCounter();
-        long freq = _timer.highResFrequency();
+        long start = System.nanoTime();
 
         // keep track of the largest queue size we've seen
         int queueSize = _evqueue.size();
@@ -339,8 +336,7 @@ public class PresentsDObjectMgr
         }
 
         // compute the elapsed time in microseconds
-        long elapsed = _timer.highResCounter() - start;
-        elapsed = elapsed * 1000000 / freq;
+        long elapsed = (System.nanoTime() - start)/1000;
 
         // report excessively long units
         if (elapsed > 500000 && !(unit instanceof LongRunnable)) {
@@ -859,17 +855,16 @@ public class PresentsDObjectMgr
     protected static void registerEventHelpers ()
     {
         Class[] ptypes = new Class[] { DEvent.class, DObject.class };
-        Class omgrcl = PresentsDObjectMgr.class;
         Method method;
 
         try {
-            method = omgrcl.getMethod("objectDestroyed", ptypes);
+            method = PresentsDObjectMgr.class.getMethod("objectDestroyed", ptypes);
             _helpers.put(ObjectDestroyedEvent.class, method);
 
-            method = omgrcl.getMethod("objectAdded", ptypes);
+            method = PresentsDObjectMgr.class.getMethod("objectAdded", ptypes);
             _helpers.put(ObjectAddedEvent.class, method);
 
-            method = omgrcl.getMethod("objectRemoved", ptypes);
+            method = PresentsDObjectMgr.class.getMethod("objectRemoved", ptypes);
             _helpers.put(ObjectRemovedEvent.class, method);
 
         } catch (Exception e) {
@@ -980,9 +975,6 @@ public class PresentsDObjectMgr
      * enforce restrictions on code that should or should not be called from the event dispatch
      * thread. */
     protected Thread _dobjThread;
-
-    /** Used during unit profiling for timing values. */
-    protected Perf _timer = Perf.getPerf();
 
     /** A monotonically increasing counter used to assign an id to all dispatched events. */
     protected long _nextEventId = 1;
