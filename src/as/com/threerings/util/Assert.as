@@ -43,7 +43,7 @@ public class Assert
     public static var dumpStack :Boolean = true;
     
     /** Asserts that the value is equal to null. */
-    public static function isNull (value :*, message :String = null) :void
+    public static function isNull (value :Object, message :String = null) :void
     {
         if (_debug && ! (value == null)) {
             fail(message);
@@ -51,7 +51,7 @@ public class Assert
     }
 
     /** Asserts that the value is not equal to null. */
-    public static function isNotNull (value :*, message :String = null) :void
+    public static function isNotNull (value :Object, message :String = null) :void
     {
         if (_debug && ! (value != null)) {
             fail(message);
