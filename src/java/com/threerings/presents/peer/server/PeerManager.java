@@ -146,16 +146,19 @@ public class PeerManager
      *
      * <p><b>Note well</b>: the action you provide is serialized and sent to the server to which
      * the member is currently connection. This means you MUST NOT instantiate a NodeAction
-     * anonymously and make reference to other classes because those implicit references will cause
-     * the referenced classes to be included in the anonymous inner class's serialization closure.
-     * Instead use the provided varargs constructor to pass along any information you need which
-     * will be serialized and sent to the destination server. This means that said arguments must
-     * of course be {@link Serializable}.
+     * anonymously because that will maintain an implicit non-transient reference to its containing
+     * class which will then also be serialized (assuming it is even serializable).
+     *
+     * <p> Instead extend this class with a non-inner class and use {@link #init} to pass along any
+     * information you need which will be serialized and sent to the destination server. Said
+     * arguments must of course be {@link Serializable}.
      */
     public static abstract class NodeAction implements Serializable
     {
-        public NodeAction (Serializable ... arguments) {
+        /** Provides this node action with its arguments. Returns this. */
+        public NodeAction init (Serializable ... arguments) {
             _arguments = arguments;
+            return this;
         }
 
         /** Returns true if this action should be executed on the specified node. This will be
