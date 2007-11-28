@@ -36,4 +36,9 @@ public interface PeerService extends InvocationService
      * lock.
      */
     public void ratifyLockAction (Client client, Lock lock, boolean acquire);
+
+    /**
+     * Requests that the specified action be invoked on this server.
+     */
+    public void invokeAction (Client client, byte[] serializedAction);
 }

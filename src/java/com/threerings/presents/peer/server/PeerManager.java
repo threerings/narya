@@ -21,6 +21,12 @@
 
 package com.threerings.presents.peer.server;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -37,6 +43,7 @@ import com.samskivert.util.ObjectUtil;
 import com.samskivert.util.ObserverList;
 import com.samskivert.util.ResultListener;
 import com.samskivert.util.ResultListenerList;
+import com.samskivert.util.StringUtil;
 import com.samskivert.util.Tuple;
 
 import com.threerings.io.Streamable;
@@ -135,6 +142,43 @@ public class PeerManager
     }
 
     /**
+     * Encapsulates code that is meant to be executed one or more servers.
+     *
+     * <p><b>Note well</b>: the action you provide is serialized and sent to the server to which
+     * the member is currently connection. This means you MUST NOT instantiate a NodeAction
+     * anonymously and make reference to other classes because those implicit references will cause
+     * the referenced classes to be included in the anonymous inner class's serialization closure.
+     * Instead use the provided varargs constructor to pass along any information you need which
+     * will be serialized and sent to the destination server. This means that said arguments must
+     * of course be {@link Serializable}.
+     */
+    public static abstract class NodeAction implements Serializable
+    {
+        public NodeAction (Serializable ... arguments) {
+            _arguments = arguments;
+        }
+
+        /** Returns true if this action should be executed on the specified node. This will be
+         * called on the originating server to decide whether or not to deliver the action to the
+         * server in question. */
+        public abstract boolean isApplicable (NodeObject nodeobj);
+
+        /** Invokes the action on the target server. */
+        public void invoke () {
+            try {
+                execute(_arguments);
+            } catch (Throwable t) {
+                log.log(Level.WARNING, getClass().getName() + " failed " +
+                        StringUtil.safeToString(_arguments) + ".");
+            }
+        }
+
+        protected abstract void execute (Object[] arguments);
+
+        protected Object[] _arguments;
+    }
+
+    /**
      * Returns the distributed object that represents this node to its peers.
      */
     public NodeObject getNodeObject ()
@@ -213,6 +257,15 @@ public class PeerManager
     }
 
     /**
+     * Returns true if the supplied peer credentials match our shared secret.
+     */
+    public boolean isAuthenticPeer (PeerCreds creds)
+    {
+        return PeerCreds.createPassword(creds.getNodeName(), _sharedSecret).equals(
+            creds.getPassword());
+    }
+
+    /**
      * Locates the client with the specified name. Returns null if the client is not logged onto
      * any peer.
      */
@@ -278,12 +331,45 @@ public class PeerManager
     }
 
     /**
-     * Returns true if the supplied peer credentials match our shared secret.
+     * Invokes the supplied action on this and any other server that it indicates is appropriate.
+     * The action will be executed on the distributed object thread, but this method does not need
+     * to be called from the distributed object thread.
      */
-    public boolean isAuthenticPeer (PeerCreds creds)
+    public void invokeNodeAction (final NodeAction action)
     {
-        return PeerCreds.createPassword(creds.getNodeName(), _sharedSecret).equals(
-            creds.getPassword());
+        // if we're not on the dobjmgr thread, get there
+        if (!PresentsServer.omgr.isDispatchThread()) {
+            PresentsServer.omgr.postRunnable(new Runnable() {
+                public void run () {
+                    invokeNodeAction(action);
+                }
+            });
+            return;
+        }
+
+        // first serialize the action to make sure we can
+        byte[] actionBytes;
+        try {
+            ByteArrayOutputStream bout = new ByteArrayOutputStream();
+            ObjectOutputStream oout = new ObjectOutputStream(bout);
+            oout.writeObject(action);
+            actionBytes = bout.toByteArray();
+        } catch (Exception e) {
+            log.log(Level.WARNING, "Failed to serialize node action [action=" + action + "].", e);
+            return;
+        }
+
+        // invoke the action on our local server if appropriate
+        if (action.isApplicable(_nodeobj)) {
+            action.invoke();
+        }
+
+        // now send it to any remote node that is also appropriate
+        for (PeerNode peer : _peers.values()) {
+            if (peer.nodeobj != null && action.isApplicable(peer.nodeobj)) {
+                peer.nodeobj.peerService.invokeAction(peer.getClient(), actionBytes);
+            }
+        }
     }
 
     /**
@@ -655,6 +741,21 @@ public class PeerManager
         } else {
             // this is not an error condition, as we may have cancelled the handler or
             // allowed another to take priority
+        }
+    }
+
+    // from interface PeerProvider
+    public void invokeAction (ClientObject caller, byte[] serializedAction)
+    {
+        NodeAction action = null;
+        try {
+            ObjectInputStream oin =
+                new ObjectInputStream(new ByteArrayInputStream(serializedAction));
+            action = (NodeAction)oin.readObject();
+            action.invoke();
+        } catch (Exception e) {
+            log.log(Level.WARNING, "Failed to execute node action [from=" + caller.who() +
+                    ", action=" + action + ", serializedSize=" + serializedAction.length + "].");
         }
     }
 

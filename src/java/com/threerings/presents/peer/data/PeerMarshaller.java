@@ -37,8 +37,19 @@ import com.threerings.presents.peer.data.NodeObject;
 public class PeerMarshaller extends InvocationMarshaller
     implements PeerService
 {
+    /** The method id used to dispatch {@link #invokeAction} requests. */
+    public static final int INVOKE_ACTION = 1;
+
+    // from interface PeerService
+    public void invokeAction (Client arg1, byte[] arg2)
+    {
+        sendRequest(arg1, INVOKE_ACTION, new Object[] {
+            arg2
+        });
+    }
+
     /** The method id used to dispatch {@link #ratifyLockAction} requests. */
-    public static final int RATIFY_LOCK_ACTION = 1;
+    public static final int RATIFY_LOCK_ACTION = 2;
 
     // from interface PeerService
     public void ratifyLockAction (Client arg1, NodeObject.Lock arg2, boolean arg3)

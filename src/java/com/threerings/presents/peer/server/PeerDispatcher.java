@@ -44,18 +44,26 @@ public class PeerDispatcher extends InvocationDispatcher
         this.provider = provider;
     }
 
-    // from InvocationDispatcher
+    @Override // documentation inherited
     public InvocationMarshaller createMarshaller ()
     {
         return new PeerMarshaller();
     }
 
-    @SuppressWarnings("unchecked") // from InvocationDispatcher
+    @SuppressWarnings("unchecked")
+    @Override // documentation inherited
     public void dispatchRequest (
         ClientObject source, int methodId, Object[] args)
         throws InvocationException
     {
         switch (methodId) {
+        case PeerMarshaller.INVOKE_ACTION:
+            ((PeerProvider)provider).invokeAction(
+                source,
+                (byte[])args[0]
+            );
+            return;
+
         case PeerMarshaller.RATIFY_LOCK_ACTION:
             ((PeerProvider)provider).ratifyLockAction(
                 source,
