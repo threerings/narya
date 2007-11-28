@@ -148,19 +148,9 @@ public class PeerManager
      * the member is currently connection. This means you MUST NOT instantiate a NodeAction
      * anonymously because that will maintain an implicit non-transient reference to its containing
      * class which will then also be serialized (assuming it is even serializable).
-     *
-     * <p> Instead extend this class with a non-inner class and use {@link #init} to pass along any
-     * information you need which will be serialized and sent to the destination server. Said
-     * arguments must of course be {@link Serializable}.
      */
     public static abstract class NodeAction implements Serializable
     {
-        /** Provides this node action with its arguments. Returns this. */
-        public NodeAction init (Serializable ... arguments) {
-            _arguments = arguments;
-            return this;
-        }
-
         /** Returns true if this action should be executed on the specified node. This will be
          * called on the originating server to decide whether or not to deliver the action to the
          * server in question. */
@@ -169,16 +159,13 @@ public class PeerManager
         /** Invokes the action on the target server. */
         public void invoke () {
             try {
-                execute(_arguments);
+                execute();
             } catch (Throwable t) {
-                log.log(Level.WARNING, getClass().getName() + " failed " +
-                        StringUtil.safeToString(_arguments) + ".");
+                log.log(Level.WARNING, getClass().getName() + " failed.");
             }
         }
 
-        protected abstract void execute (Object[] arguments);
-
-        protected Object[] _arguments;
+        protected abstract void execute ();
     }
 
     /**
