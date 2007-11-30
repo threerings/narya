@@ -145,19 +145,6 @@ public class ArrayUtil
     }
 
     /**
-     * Inserts the element into the array at the given index, increasing the index on all 
-     * remaining elements by one.  This function modifies the array passed in, rather than creating
-     * a new one.
-     */
-    public static function insert (arr :Array, index :int, element :Object) :void
-    {
-        for (var ii :int = arr.length; ii > index; ii--) {
-            arr[ii] = arr[ii - 1];
-        }
-        arr[index] = element;
-    }
-
-    /**
      * Implementation of remove methods.
      */
     private static function removeImpl (
