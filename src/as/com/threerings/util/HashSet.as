@@ -22,7 +22,7 @@
 package com.threerings.util {
 
 public class HashSet
-   implements ISet
+   implements Set
 {
     /**
      * Construct a HashSet
