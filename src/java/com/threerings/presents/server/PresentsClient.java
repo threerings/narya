@@ -26,6 +26,7 @@ import java.net.InetAddress;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.TimeZone;
+import java.util.logging.Level;
 
 import com.samskivert.util.HashIntMap;
 import com.samskivert.util.ResultListener;
@@ -33,7 +34,6 @@ import com.samskivert.util.Throttle;
 import com.threerings.util.Name;
 import com.threerings.util.StreamableArrayList;
 
-import com.threerings.presents.Log;
 import com.threerings.presents.data.ClientObject;
 import com.threerings.presents.data.InvocationMarshaller;
 
@@ -63,6 +63,8 @@ import com.threerings.presents.net.UnsubscribeResponse;
 
 import com.threerings.presents.server.net.Connection;
 import com.threerings.presents.server.net.MessageHandler;
+
+import static com.threerings.presents.Log.log;
 
 /**
  * Represents a client session in the server. It is associated with a connection instance (while
@@ -193,7 +195,7 @@ public class PresentsClient
                 // if they old client object is gone by now, they ended their session while we were
                 // switching, so freak out
                 if (_clobj == null) {
-                    Log.warning("Client disappeared before we could complete the switch to a " +
+                    log.warning("Client disappeared before we could complete the switch to a " +
                                 "new client object [ousername=" + _username +
                                 ", nusername=" + username + "].");
                     _cmgr.releaseClientObject(username);
@@ -246,9 +248,8 @@ public class PresentsClient
             }
 
             public void resolutionFailed (Name username, Exception reason) {
-                Log.warning("Unable to resolve new client object [oldname=" + _username +
-                            ", newname=" + username + ", reason=" + reason + "].");
-                Log.logStackTrace(reason);
+                log.log(Level.WARNING, "Unable to resolve new client object [oldname=" + _username +
+                        ", newname=" + username + ", reason=" + reason + "].", reason);
 
                 // let our listener know we're hosed
                 if (ucl != null) {
@@ -290,8 +291,7 @@ public class PresentsClient
             try {
                 sessionDidEnd();
             } catch (Exception e) {
-                Log.warning("Choked in sessionDidEnd [client=" + this + "].");
-                Log.logStackTrace(e);
+                log.log(Level.WARNING, "Choked in sessionDidEnd " + this + ".", e);
             }
 
             // release (and destroy) our client object
@@ -324,6 +324,13 @@ public class PresentsClient
     // from interface ClientResolutionListener
     public void clientResolved (Name username, ClientObject clobj)
     {
+        // if our connection was closed while we were resolving our client object, then just
+        // abandon ship
+        if (getConnection() == null) {
+            log.info("Session ended before client object could be resolved: " + this + ".");
+            return;
+        }
+
         // we'll be keeping this bad boy
         _clobj = clobj;
 
@@ -339,8 +346,7 @@ public class PresentsClient
     public void resolutionFailed (Name username, Exception reason)
     {
         // urk; nothing to do but complain and get the f**k out of dodge
-        Log.warning("Unable to resolve client [username=" + username + "].");
-        Log.logStackTrace(reason);
+        log.log(Level.WARNING, "Unable to resolve client [username=" + username + "].", reason);
 
         // end the session now to prevent danglage
         endSession();
@@ -355,7 +361,7 @@ public class PresentsClient
         // first time through we end our session, subsequently _throttle is null and we just drop
         // any messages that come in until we've fully shutdown
         if (_throttle == null) {
-//             Log.info("Dropping message from force-quit client [conn=" + _conn +
+//             log.info("Dropping message from force-quit client [conn=" + _conn +
 //                      ", msg=" + message + "].");
             return;
 
@@ -367,7 +373,7 @@ public class PresentsClient
         // message that we received
         MessageDispatcher disp = _disps.get(message.getClass());
         if (disp == null) {
-            Log.warning("No dispatcher for message [msg=" + message + "].");
+            log.warning("No dispatcher for message [msg=" + message + "].");
             return;
         }
 
@@ -435,7 +441,7 @@ public class PresentsClient
         // check to see if we've already got a connection object, in which case it's probably stale
         Connection oldconn = getConnection();
         if (oldconn != null && !oldconn.isClosed()) {
-            Log.info("Closing stale connection [old=" + oldconn + ", new=" + conn + "].");
+            log.info("Closing stale connection [old=" + oldconn + ", new=" + conn + "].");
             // close the old connection (which results in everything being properly unregistered)
             oldconn.close();
         }
@@ -452,8 +458,8 @@ public class PresentsClient
         // and let the original session establishment code take care of initializing this resumed
         // session
         if (_clobj == null) {
-            Log.warning("Rapid-fire reconnect caused us to arrive in resumeSession() before the " +
-                        "original session resolved its client object? " + this + ".");
+            log.info("Rapid-fire reconnect caused us to arrive in resumeSession() before the " +
+                     "original session resolved its client object: " + this + ".");
             return;
         }
 
@@ -472,13 +478,20 @@ public class PresentsClient
      */
     protected void finishResumeSession ()
     {
+        // if we have no client object for whatever reason; we're hosed, shut ourselves down
+        if (_clobj == null) {
+            log.info("Missing client object for resuming session. Killing session.");
+            endSession();
+            return;
+        }
+
         // let derived classes do any session resuming
         sessionWillResume();
 
         // send off a bootstrap notification immediately as we've already got our client object
         sendBootstrap();
 
-        Log.info("Session resumed " + this + ".");
+        log.info("Session resumed " + this + ".");
     }
 
     /**
@@ -488,13 +501,7 @@ public class PresentsClient
     {
         PresentsServer.omgr.postRunnable(new Runnable() {
             public void run () {
-                if (getClientObject() == null) {
-                    // refuse to end the session unless the client is fully resolved
-                    Log.warning("Refusing logoff from still-resolving client " + this + ".");
-                } else {
-                    // end the session in a civilized manner
-                    endSession();
-                }
+                endSession();
             }
         });
     }
@@ -513,7 +520,7 @@ public class PresentsClient
      */
     protected void handleThrottleExceeded ()
     {
-        Log.warning("Client sent more than 100 messages in 10 seconds, disconnecting " + this + ".");
+        log.warning("Client sent more than 100 messages in 10 seconds, disconnecting " + this + ".");
         safeEndSession();
         _throttle = null;
     }
@@ -531,7 +538,7 @@ public class PresentsClient
         if (rec != null) {
             rec.unsubscribe();
         } else {
-            Log.warning("Requested to unmap non-existent subscription [oid=" + oid + "].");
+            log.warning("Requested to unmap non-existent subscription [oid=" + oid + "].");
         }
     }
 
@@ -543,7 +550,7 @@ public class PresentsClient
     {
         for (ClientProxy rec : _subscrips.values()) {
             if (verbose) {
-                Log.info("Clearing subscription [client=" + this +
+                log.info("Clearing subscription [client=" + this +
                          ", obj=" + rec.object.getOid() + "].");
             }
             rec.unsubscribe();
@@ -615,7 +622,7 @@ public class PresentsClient
      */
     protected void sendBootstrap ()
     {
-//         Log.info("Sending bootstrap " + this + ".");
+//         log.info("Sending bootstrap " + this + ".");
 
         // create and populate our bootstrap data
         BootstrapData data = createBootstrapData();
@@ -649,7 +656,7 @@ public class PresentsClient
 
         // fill in the list of bootstrap services
         if (_areq.getBootGroups() == null) {
-            Log.warning("Client provided no invocation service boot groups? " + this);
+            log.warning("Client provided no invocation service boot groups? " + this);
             data.services = new StreamableArrayList<InvocationMarshaller>();
         } else {
             data.services = PresentsServer.invmgr.getBootstrapServices(_areq.getBootGroups());
@@ -766,13 +773,13 @@ public class PresentsClient
         // don't log dropped messages unless we're dropping a lot of them (meaning something is
         // still queueing messages up for this dead client even though it shouldn't be)
         if (++_messagesDropped % 50 == 0) {
-            Log.warning("Dropping many messages? [client=" + this +
+            log.warning("Dropping many messages? [client=" + this +
                         ", count=" + _messagesDropped + "].");
         }
 
         // make darned sure we don't have any remaining subscriptions
         if (_subscrips.size() > 0) {
-//             Log.warning("Clearing stale subscriptions [client=" + this +
+//             log.warning("Clearing stale subscriptions [client=" + this +
 //                         ", subscrips=" + _subscrips.size() + "].");
             clearSubscrips(_messagesDropped > 10);
         }
@@ -848,7 +855,7 @@ public class PresentsClient
         public void eventReceived (DEvent event)
         {
             if (event instanceof PresentsDObjectMgr.AccessObjectEvent) {
-                Log.warning("Ignoring event that shouldn't be forwarded " + event + ".");
+                log.warning("Ignoring event that shouldn't be forwarded " + event + ".");
                 Thread.dumpStack();
                 return;
             }
@@ -888,7 +895,7 @@ public class PresentsClient
         public void dispatch (PresentsClient client, UpstreamMessage msg)
         {
             SubscribeRequest req = (SubscribeRequest)msg;
-//             Log.info("Subscribing [client=" + client + ", oid=" + req.getOid() + "].");
+//             log.info("Subscribing [client=" + client + ", oid=" + req.getOid() + "].");
 
             // forward the subscribe request to the omgr for processing
             PresentsServer.omgr.subscribeToObject(req.getOid(), client.createProxySubscriber());
@@ -904,7 +911,7 @@ public class PresentsClient
         {
             UnsubscribeRequest req = (UnsubscribeRequest)msg;
             int oid = req.getOid();
-//             Log.info("Unsubscribing " + client + " [oid=" + oid + "].");
+//             log.info("Unsubscribing " + client + " [oid=" + oid + "].");
 
             // unsubscribe from the object and clear out our proxy
             client.unmapSubscrip(oid);
@@ -928,14 +935,14 @@ public class PresentsClient
             // freak not out if a message arrives from a client just after their session ended
             ClientObject clobj = client.getClientObject();
             if (clobj == null) {
-                Log.info("Dropping event that arrived after client disconnected " + fevt + ".");
+                log.info("Dropping event that arrived after client disconnected " + fevt + ".");
                 return;
             }
 
             // fill in the proper source oid
             fevt.setSourceOid(clobj.getOid());
 
-//             Log.info("Forwarding event [client=" + client + ", event=" + fevt + "].");
+//             log.info("Forwarding event [client=" + client + ", event=" + fevt + "].");
 
             // forward the event to the omgr for processing
             PresentsServer.omgr.postEvent(fevt);
@@ -962,7 +969,7 @@ public class PresentsClient
     {
         public void dispatch (final PresentsClient client, UpstreamMessage msg)
         {
-            Log.debug("Client requested logoff " + client + ".");
+            log.fine("Client requested logoff " + client + ".");
             client.safeEndSession();
         }
     }

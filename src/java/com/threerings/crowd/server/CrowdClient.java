@@ -24,7 +24,6 @@ package com.threerings.crowd.server;
 import com.threerings.presents.dobj.AccessController;
 import com.threerings.presents.server.PresentsClient;
 
-import com.threerings.crowd.Log;
 import com.threerings.crowd.chat.server.SpeakUtil;
 import com.threerings.crowd.data.BodyObject;
 import com.threerings.crowd.data.OccupantInfo;
@@ -52,14 +51,9 @@ public class CrowdClient extends PresentsClient
     {
         super.sessionWillResume();
 
-        if (_clobj != null) {
-            // note that the user's active once more
-            BodyObject bobj = (BodyObject)_clobj;
-            BodyProvider.updateOccupantStatus(bobj, bobj.location, OccupantInfo.ACTIVE);
-
-        } else {
-            Log.warning("Session resumed but we have no client object!? [client=" + this + "].");
-        }
+        // note that the user's active once more
+        BodyObject bobj = (BodyObject)_clobj;
+        BodyProvider.updateOccupantStatus(bobj, bobj.location, OccupantInfo.ACTIVE);
     }
 
     // documentation inherited
