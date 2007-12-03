@@ -1,5 +1,5 @@
 //
-// $Id: StreamableHashMap.java 4602 2007-02-24 00:39:27Z mdb $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2007 Three Rings Design, Inc., All Rights Reserved

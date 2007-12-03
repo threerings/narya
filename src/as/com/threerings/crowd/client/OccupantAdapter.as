@@ -1,5 +1,5 @@
 //
-// $Id: LocationAdapter.as 4652 2007-04-07 00:25:28Z dhoover $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2007 Three Rings Design, Inc., All Rights Reserved
