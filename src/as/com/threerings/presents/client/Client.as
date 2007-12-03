@@ -184,6 +184,17 @@ public class Client extends EventDispatcher
     }
 
     /**
+     * Returns true if we're in the process of switching servers, false if we're not. This will
+     * only return true following the call to {@link #switchServers}, through the did logoff
+     * notification and the did clear notification. During the did logon notification for the new
+     * server or logon failure for same, we will not show as switching.
+     */
+    public function isSwitchingServers () :Boolean
+    {
+        return _switcher != null;
+    }
+
+    /**
      * Returns the set of bootstrap service groups needed by this client.
      */
     public function getBootGroups () :Array
@@ -290,7 +301,8 @@ public class Client extends EventDispatcher
                                   obs :InvocationService_ConfirmListener) :void
     {
         // the server switcher will take care of everything for us
-        new ServerSwitcher(this, hostname, ports, obs).switchServers();
+        _switcher = new ServerSwitcher(this, hostname, ports, obs);
+        _switcher.switchServers();
     }
 
     /**
@@ -407,6 +419,9 @@ public class Client extends EventDispatcher
         } else {
             notifyObservers(ClientEvent.CLIENT_DID_CLEAR, null);
         }
+
+        // clear out any server switcher reference
+        _switcher = null;
     }
 
     /**
@@ -472,6 +487,10 @@ public class Client extends EventDispatcher
 
     /** Ticks. */
     protected var _tickInterval :Timer;
+
+    /** Used to temporarily track our server switcher so that we can tell when we're logging off
+     * whether or not we're switching servers or actually ending our session. */
+    protected var _switcher :ServerSwitcher;
 
     // client observer constants
     /*
