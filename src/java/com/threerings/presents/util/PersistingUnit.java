@@ -100,6 +100,24 @@ public abstract class PersistingUnit extends Invoker.Unit
     }
 
     /**
+     * If the listener is known to be a ConfirmListener, this will cast it and report that the
+     * request was processed.
+     */
+    protected void reportRequestProcessed ()
+    {
+        ((InvocationService.ConfirmListener)_listener).requestProcessed();
+    }
+
+    /**
+     * If the listener is known to be a ResultListener, this will cast it and report that the
+     * request was processed.
+     */
+    protected void reportRequestProcessed (Object result )
+    {
+        ((InvocationService.ResultListener)_listener).requestProcessed(result);
+    }
+
+    /**
      * Provides a custom failure message in the event that the persistent action fails. This will
      * be logged along with the exception.
      */
