@@ -1,5 +1,5 @@
 //
-// $Id: Set.as 4848 2007-10-18 23:55:26Z tim $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2007 Three Rings Design, Inc., All Rights Reserved
