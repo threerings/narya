@@ -21,12 +21,15 @@
 
 package com.threerings.presents.util;
 
-import com.samskivert.io.PersistenceException;
+import java.util.logging.Level;
+
 import com.samskivert.util.Invoker;
 
-import com.threerings.presents.Log;
 import com.threerings.presents.client.InvocationService;
 import com.threerings.presents.data.InvocationCodes;
+import com.threerings.presents.server.InvocationException;
+
+import static com.threerings.presents.Log.log;
 
 /**
  * Simplifies a common pattern which is to post an {@link Invoker} unit which does some database
@@ -52,7 +55,7 @@ public abstract class PersistingUnit extends Invoker.Unit
      * will be caught and logged along with the output from {@link #getFailureMessage}, if any.
      */
     public abstract void invokePersistent ()
-        throws PersistenceException;
+        throws Exception;
 
     /**
      * Handles the success case, which by default is to do nothing.
@@ -65,11 +68,14 @@ public abstract class PersistingUnit extends Invoker.Unit
      * Handles the failure case by logging the error and reporting an internal error to the
      * listener.
      */
-    public void handleFailure (PersistenceException error)
+    public void handleFailure (Exception error)
     {
-        Log.warning(getFailureMessage());
-        Log.logStackTrace(error);
-        _listener.requestFailed(InvocationCodes.INTERNAL_ERROR);
+        if (error instanceof InvocationException) {
+            _listener.requestFailed(error.getMessage());
+        } else {
+            log.log(Level.WARNING, getFailureMessage(), error);
+            _listener.requestFailed(InvocationCodes.INTERNAL_ERROR);
+        }
     }
 
     @Override // from Invoker.Unit
@@ -77,7 +83,7 @@ public abstract class PersistingUnit extends Invoker.Unit
     {
         try {
             invokePersistent();
-        } catch (PersistenceException pe) {
+        } catch (Exception pe) {
             _error = pe;
         }
         return true;
@@ -103,5 +109,5 @@ public abstract class PersistingUnit extends Invoker.Unit
     }
 
     protected InvocationService.InvocationListener _listener;
-    protected PersistenceException _error;
+    protected Exception _error;
 }
