@@ -27,11 +27,17 @@ import flash.utils.getDefinitionByName;
 
 public class ClassUtil
 {
+    /**
+     * Get the full class name, e.g. "com.threerings.util.ClassUtil".
+     */
     public static function getClassName (obj :Object) :String
     {
         return getQualifiedClassName(obj).replace("::", ".");
     }
 
+    /**
+     * Get the class name with the last part of the package, e.g. "util.ClassUtil".
+     */
     public static function shortClassName (obj :Object) :String
     {
         var s :String = getQualifiedClassName(obj);
@@ -40,6 +46,9 @@ public class ClassUtil
         return s.replace("::", ".");
     }
 
+    /**
+     * Get just the class name, e.g. "ClassUtil".
+     */
     public static function tinyClassName (obj :Object) :String
     {
         var s :String = getClassName(obj);
