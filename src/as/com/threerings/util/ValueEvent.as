@@ -39,15 +39,16 @@ public class ValueEvent extends Event
     /**
      * Construct the value event.
      */
-    public function ValueEvent (type :String, value :Object)
+    public function ValueEvent (
+        type :String, value :Object, bubbles :Boolean = false, cancelable :Boolean = false)
     {
-        super(type);
+        super(type, bubbles, cancelable);
         _value = value;
     }
 
     override public function clone () :Event
     {
-        return new ValueEvent(type, _value);
+        return new ValueEvent(type, _value, bubbles, cancelable);
     }
 
     /** The value. */
