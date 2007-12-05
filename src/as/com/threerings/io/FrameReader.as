@@ -82,7 +82,11 @@ public class FrameReader extends EventDispatcher
         // read bytes: either as much as possible or up to the end of the frame
         var toRead :int = Math.min(_length - _curData.length,
             _socket.bytesAvailable);
-        _socket.readBytes(_curData, _curData.length, toRead);
+        // Just in case, if the amount needed is 0, don't do anything!
+        // Passing 0 causes it to read *all available bytes*.
+        if (toRead != 0) {
+            _socket.readBytes(_curData, _curData.length, toRead);
+        }
 
         if (_length === _curData.length) {
             // we have now read a complete frame, let us dispatch the data
