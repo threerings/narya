@@ -205,6 +205,10 @@ public class ObjectInputStream
         return _source.readByte();
     }
 
+    /**
+     * Read bytes into the byte array. If length is not specified, then
+     * enough bytes to fill the array (from the offset) are read.
+     */
     public function readBytes (bytes :ByteArray, offset :uint = 0,
             length :int = -1) :void
         //throws IOError
