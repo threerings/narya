@@ -206,16 +206,18 @@ public class ObjectInputStream
     }
 
     public function readBytes (bytes :ByteArray, offset :uint = 0,
-            length :uint = 0) :void
+            length :int = -1) :void
         //throws IOError
     {
-        // IDataInput reads all available bytes if a length is not passed
-        // in. Protect against an easy error to make by using the length of
-        // the array
-        if (length === 0) {
-            length = bytes.length;
+        // if no length specified then fill the ByteArray
+        if (length == -1) {
+            length = bytes.length - offset;
         }
-        _source.readBytes(bytes, offset, length);
+        // And, if we really want to read 0 bytes then just don't do anything, because an
+        // IDataInput will read *all available bytes* when the specified length is 0.
+        if (length > 0) {
+            _source.readBytes(bytes, offset, length);
+        }
     }
 
     public function readDouble () :Number
