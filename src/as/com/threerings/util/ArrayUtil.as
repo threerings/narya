@@ -43,14 +43,20 @@ public class ArrayUtil
 
     /**
      * Randomly shuffle the elements in the specified array.
+     *
+     * @param rando a random number generator to use, or null if you don't care.
      */
-    public static function shuffle (arr :Array) :void
+    public static function shuffle (arr :Array, rando :Random = null) :void
     {
+        var randFunc :Function = (rando != null) ? rando.nextInt :
+            function (n :int) :int {
+                return int(Math.random() * n);
+            };
         // starting from the end of the list, repeatedly swap the element in
         // question with a random element previous to it up to and including
         // itself
         for (var ii :int = arr.length - 1; ii > 0; ii--) {
-            var idx :int = int(Math.random() * (ii + 1));
+            var idx :int = randFunc(ii + 1);
             var tmp :Object = arr[idx];
             arr[idx] = arr[ii];
             arr[ii] = tmp;
