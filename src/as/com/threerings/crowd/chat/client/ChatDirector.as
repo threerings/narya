@@ -144,6 +144,18 @@ public class ChatDirector extends BasicDirector
     }
 
     /**
+     * Get all registered chat Filters.
+     */
+    public function getChatFilters () :Array
+    {
+        var filters :Array = [];
+        _filters.apply(function (observer :ChatFilter) :void {
+            filters.push(observer);
+        });
+        return filters;
+    }
+
+    /**
      * Adds an observer that watches the chatters list, and updates it immediately.
      */
     public function addChatterObserver (co :ChatterObserver) :void
