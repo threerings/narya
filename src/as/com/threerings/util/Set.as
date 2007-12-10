@@ -49,7 +49,9 @@ public interface Set
 
     /**
      * Returns all elements in the set in an Array.
-     * Modifying the returned Array will not modify the set.
+     *
+     * <p>Note: this interface does not specify whether modifying the returned Array will modify
+     * the underlying set; the decision is up to implementation. 
      */
     function toArray () :Array;
 }
