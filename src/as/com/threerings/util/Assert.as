@@ -45,7 +45,7 @@ public class Assert
     /** Asserts that the value is equal to null. */
     public static function isNull (value :Object, message :String = null) :void
     {
-        if (_debug && ! (value == null)) {
+        if (_debug && (value != null)) {
             fail(message);
         }
     }
@@ -53,7 +53,7 @@ public class Assert
     /** Asserts that the value is not equal to null. */
     public static function isNotNull (value :Object, message :String = null) :void
     {
-        if (_debug && ! (value != null)) {
+        if (_debug && (value == null)) {
             fail(message);
         }
     }
