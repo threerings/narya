@@ -23,10 +23,41 @@ package com.threerings.util {
 
 import flash.utils.ByteArray;
 
-import com.threerings.util.StringBuilder;
-
 public class Util
 {
+    /**
+     * Initialize the target object with values present in the initProps object and the defaults
+     * object. Neither initProps nor defaults will be modified.
+     * @throws ReferenceError if a property cannot be set on the target object.
+     *
+     * @param target any object or class instance.
+     * @param initProps a plain Object hash containing names and properties to set on the target
+     *                  object.
+     * @param defaults a plain Object hash containing names and properties to set on the target
+     *                 object, only if the same property name does not exist in initProps.
+     * @param maskProps a plain Object hash containing names of properties to omit setting
+     *                  from the initProps object. This allows you to add custom properties to
+     *                  initProps without having to modify the value from your callers.
+     */
+    public static function init (
+        target :Object, initProps :Object, defaults :Object = null, maskProps :Object = null) :void
+    {
+        var prop :String;
+        for (prop in initProps) {
+            if (maskProps == null || !(prop in maskProps)) {
+                target[prop] = initProps[prop];
+            }
+        }
+
+        if (defaults != null) {
+            for (prop in defaults) {
+                if (!(prop in initProps)) {
+                    target[prop] = defaults[prop];
+                }
+            }
+        }
+    }
+
     /**
      * Is the specified object 'simple': one of the basic built-in flash types.
      */
