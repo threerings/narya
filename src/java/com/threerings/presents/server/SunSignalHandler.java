@@ -21,10 +21,8 @@
 
 package com.threerings.presents.server;
 
-import sun.misc.Signal;
-import sun.misc.SignalHandler;
-
 import com.samskivert.util.RunAnywhere;
+import com.samskivert.util.SignalUtil;
 
 import static com.threerings.presents.Log.log;
 
@@ -32,28 +30,20 @@ import static com.threerings.presents.Log.log;
  * Handles signals using Sun's undocumented Signal class.
  */
 public class SunSignalHandler extends AbstractSignalHandler
-    implements SignalHandler
 {
-    // from interface SignalHandler
-    public void handle (Signal sig)
-    {
-        SignalHandler chain = null;
-        if (sig.getName().equals("INT")) {
-            intReceived();
-        } else if (sig.getName().equals("HUP")) {
-            hupReceived();
-        } else {
-            log.warning("Received unknown signal '" + sig.getName() + "'.");
-        }
-    }
-
     protected boolean registerHandlers ()
     {
-        // we don't track and call the chained handlers for INT and HUP because those exit the JVM
-        // which we do not want to do
-        Signal.handle(new Signal("INT"), this);
+        SignalUtil.register(SignalUtil.Number.INT, new SignalUtil.Handler() {
+            public void signalReceived (SignalUtil.Number sig) {
+                intReceived();
+            }
+        });
         if (!RunAnywhere.isWindows()) {
-            Signal.handle(new Signal("HUP"), this);
+            SignalUtil.register(SignalUtil.Number.HUP, new SignalUtil.Handler() {
+                public void signalReceived (SignalUtil.Number sig) {
+                    hupReceived();
+                }
+            });
         }
         return true;
     }
