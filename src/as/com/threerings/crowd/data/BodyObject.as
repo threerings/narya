@@ -201,7 +201,7 @@ public class BodyObject extends ClientObject
     {
         var who :String = username.toString() + " (" + getOid();
         if (status != OccupantInfo.ACTIVE) {
-            who += (" " + OccupantInfo.X_STATUS[status]);
+            who += (" " + getStatusTranslation());
         }
         who += ")";
         return who;
@@ -215,6 +215,15 @@ public class BodyObject extends ClientObject
         location = (ins.readObject() as Place);
         status = ins.readByte();
         awayMessage = (ins.readField(String) as String);
+    }
+
+    /**
+     * Get a translation suffix for this occupant's status.
+     * Can be overridden to translate nonstandard statuses.
+     */
+    protected function getStatusTranslation () :String
+    {
+        return OccupantInfo.X_STATUS[status];
     }
 }
 }

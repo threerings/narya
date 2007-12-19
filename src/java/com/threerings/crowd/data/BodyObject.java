@@ -222,8 +222,17 @@ public class BodyObject extends ClientObject
     {
         buf.append(getOid());
         if (status != OccupantInfo.ACTIVE) {
-            buf.append(" ").append(OccupantInfo.X_STATUS[status]);
+            buf.append(" ").append(getStatusTranslation());
         }
+    }
+
+    /**
+     * Get a translation suffix for this occupant's status.
+     * Can be overridden to translate nonstandard statuses.
+     */
+    protected String getStatusTranslation ()
+    {
+        return OccupantInfo.X_STATUS[status];
     }
 
     /** The default (no tokens) access control. */
