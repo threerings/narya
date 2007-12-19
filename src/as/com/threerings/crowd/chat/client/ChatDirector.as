@@ -481,15 +481,16 @@ public class ChatDirector extends BasicDirector
             }
 
             // if they are idle, report that
-//            if (idletime > 0) {
-//                // adjust by the time it took them to become idle
-//                idletime += _cctx.getConfig().getValue(
-//                    IDLE_TIME_KEY, DEFAULT_IDLE_TIME);
-//                var msg :String = MessageBundle.compose(
-//                    "m.recipient_idle", MessageBundle.taint(target),
-//                    TimeUtil.getTimeOrderString(idletime, TimeUtil.MINUTE));
-//                displayFeedback(_bundle, msg);
-//            }
+            var idle :Number = idleTime.toNumber();
+            if (idle > 0) {
+                // adjust by the time it took them to become idle
+                // TODO: implement
+                //idle += _cctx.getConfig().getValue(IDLE_TIME_KEY, DEFAULT_IDLE_TIME);
+                var rmsg :String = MessageBundle.compose(
+                    "m.recipient_idle", MessageBundle.taint(target),
+                    TimeUtil.getTimeOrderString(idle, TimeUtil.MINUTE));
+                displayFeedback(_bundle, rmsg);
+            }
         };
         _cservice.tell(_cctx.getClient(), target, message, new TellAdapter(failure, success));
     }
