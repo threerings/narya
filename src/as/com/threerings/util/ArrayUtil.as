@@ -32,12 +32,20 @@ public class ArrayUtil
 {
     /**
      * Sort the specified array according to natural order- all elements
-     * must implement Comparable.
+     * must implement Comparable or be null.
      */
     public static function sort (arr :Array) :void
     {
         arr.sort(function (obj1 :Object, obj2 :Object) :int {
-            return Comparable(obj1).compareTo(obj2);
+            if (obj1 == obj2) { // same object or both null
+                return 0;
+            } else if (obj1 == null) {
+                return -1;
+            } else if (obj2 == null) {
+                return 1;
+            } else {
+                return Comparable(obj1).compareTo(obj2);
+            }
         });
     }
 

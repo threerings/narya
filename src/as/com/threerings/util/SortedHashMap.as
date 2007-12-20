@@ -88,6 +88,9 @@ public class SortedHashMap extends HashMap
     protected function validateKey (key :Object) :void
         // throws ArgumentError
     {
+        if (key == null) {
+            return;
+        }
         switch (_keyType) {
         case COMPARABLE_KEYS:
             if (key is Comparable) {
