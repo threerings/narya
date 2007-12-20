@@ -159,9 +159,6 @@ public class PresentsServer
             new NativeSignalHandler().init(this);
         }
 
-        // create our list of shutdowners
-        _downers = new ObserverList<Shutdowner>(ObserverList.SAFE_IN_ORDER_NOTIFY);
-
         // create our distributed object manager
         omgr = createDObjectManager();
 
@@ -400,7 +397,8 @@ public class PresentsServer
     protected static ArrayList<Reporter> _reporters = new ArrayList<Reporter>();
 
     /** A list of shutdown participants. */
-    protected static ObserverList<Shutdowner> _downers;;
+    protected static ObserverList<Shutdowner> _downers =
+        new ObserverList<Shutdowner>(ObserverList.SAFE_IN_ORDER_NOTIFY);
 
     /** The frequency with which we generate "state of server" reports. */
     protected static final long REPORT_INTERVAL = 15 * 60 * 1000L;
