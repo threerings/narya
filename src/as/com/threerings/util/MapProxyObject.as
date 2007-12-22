@@ -41,24 +41,27 @@ public class MapProxyObject extends Proxy
         _map = source;
     }
 
-    // from Object (but does not require 'override')
-    public function hasOwnProperty (name :String) :Boolean
-    {
-        return _map.containsKey(name);
-    }
-
-    // from Object (but does not require 'override')
-    public function propertyIsEnumerable (name :String) :Boolean
-    {
-        return _map.containsKey(name);
-    }
-
-    // from Object (but does not require 'override')
-    public function setPropertyIsEnumerable (name :String, isEnum :Boolean = true) :void
-    {
-        // no-op
-        // (Alternatively, we could keep a dictionary of keys that we ignore for enumeration...)
-    }
+// The following are not strictly necessary and are freaking out asdoc, so I'll
+// comment them out for now.
+//
+//    // from Object (but does not require 'override')
+//    public function hasOwnProperty (name :String) :Boolean
+//    {
+//        return _map.containsKey(name);
+//    }
+//
+//    // from Object (but does not require 'override')
+//    public function propertyIsEnumerable (name :String) :Boolean
+//    {
+//        return _map.containsKey(name);
+//    }
+//
+//    // from Object (but does not require 'override')
+//    public function setPropertyIsEnumerable (name :String, isEnum :Boolean = true) :void
+//    {
+//        // no-op
+//        // (Alternatively, we could keep a dictionary of keys that we ignore for enumeration...)
+//    }
 
     /**
      * Handle value = proxy[key].
