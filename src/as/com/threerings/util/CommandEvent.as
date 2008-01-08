@@ -29,7 +29,7 @@ import flash.events.IEventDispatcher;
 public class CommandEvent extends Event
 {
     /** The event type for all controller events. */
-    public static const TYPE :String = "commandEvt";
+    public static const COMMAND :String = "commandEvt";
 
     /**
      * Use this method to dispatch CommandEvents.
@@ -98,7 +98,7 @@ public class CommandEvent extends Event
      */
     public function CommandEvent (command :String, arg :Object)
     {
-        super(TYPE, true, true);
+        super(COMMAND, true, true);
         if (_blockConstructor) {
             throw new IllegalOperationError();
         }

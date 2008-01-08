@@ -24,12 +24,12 @@ package com.threerings.util {
 import flash.events.Event;
 
 /**
- * Dispatched whenever a config value is changed.
+ * Dispatched whenever a Config value is changed.
  */
 public class ConfigValueSetEvent extends Event
 {
     /** The type of a ConfigValueSetEvent. */
-    public static const TYPE :String = "ConfigValSet";
+    public static const CONFIG_VALUE_SET :String = "ConfigValSet";
 
     /** The name of the config value set. */
     public var name :String;
@@ -41,7 +41,7 @@ public class ConfigValueSetEvent extends Event
      */
     public function ConfigValueSetEvent (name :String, value :Object)
     {
-        super(TYPE);
+        super(CONFIG_VALUE_SET);
 
         this.name = name;
         this.value = value;

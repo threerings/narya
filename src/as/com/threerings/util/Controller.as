@@ -32,12 +32,12 @@ public class Controller
     {
         if (_controlledPanel != null) {
             _controlledPanel.removeEventListener(
-                CommandEvent.TYPE, handleCommandEvent);
+                CommandEvent.COMMAND, handleCommandEvent);
         }
         _controlledPanel = panel;
         if (_controlledPanel != null) {
             _controlledPanel.addEventListener(
-                CommandEvent.TYPE, handleCommandEvent);
+                CommandEvent.COMMAND, handleCommandEvent);
         }
     }
 

@@ -27,6 +27,13 @@ import flash.events.EventDispatcher;
 import flash.net.SharedObject;
 import flash.net.SharedObjectFlushStatus;
 
+/**
+ * Dispatched when this Config object has a value set on it.
+ *
+ * @eventType com.threerings.util.ConfigValueSetEvent.CONFIG_VALUE_SET
+ */
+[Event(name="ConfigValSet", type="com.threerings.util.ConfigValueSetEvent")]
+
 public class Config extends EventDispatcher
 {
     /**
