@@ -324,15 +324,17 @@ public class PresentsClient
     // from interface ClientResolutionListener
     public void clientResolved (Name username, ClientObject clobj)
     {
+        // we'll be keeping this bad boy
+        _clobj = clobj;
+        
         // if our connection was closed while we were resolving our client object, then just
         // abandon ship
         if (getConnection() == null) {
             log.info("Session ended before client object could be resolved: " + this + ".");
+            endSession();
             return;
         }
 
-        // we'll be keeping this bad boy
-        _clobj = clobj;
 
         // finish up our regular business
         sessionWillStart();
