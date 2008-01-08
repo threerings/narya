@@ -169,7 +169,8 @@
   </target>
 
   <!-- build the native libraries -->
-  <target name="ninstall" depends="prepare">
+  <condition property="isunix"><os family="unix"/></condition>
+  <target name="ninstall" depends="prepare" if="isunix">
     <echo level="info" message="Doing native compilation on ${os.name}..."/>
     <exec dir="src/java/com/threerings/util/signal/${os.name}" executable="make">
        <arg line="install"/>
