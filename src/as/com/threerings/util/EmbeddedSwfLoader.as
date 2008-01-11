@@ -37,27 +37,77 @@ import flash.system.ApplicationDomain;
 import flash.system.LoaderContext;
 
 /**
- * Allows you to load an embeded SWF stored as a Byte Array then access any stored classes
+ * Allows you to load an embeded SWF stored as a ByteArray then access any stored classes
  * within the SWF.
- * Embed your swf like:
- * [Embed(source="foo.swf", mimeType="application/octet-stream")]
- * Then, instantiate that class and pass it to load() as a ByteArray.
- *
+ * 
  * An Event.COMPLETE will be dispatched upon the successful completion of a call to
- * {@link load}.  IOErrorEvent.IO_ERROR will be dispatched if there's a problem reading the
+ * <code>load</code>.  IOErrorEvent.IO_ERROR will be dispatched if there's a problem reading the
  * ByteArray.
+ *
+ * Embed your swf like this (take note of the mimeType!):
+ * <code><pre>
+ * [Embed(source="foo.swf", mimeType="application/octet-stream")]
+ * private static const FOO_RESOURCE :Class;
+ * </pre></code>
+ *
+ * Then:
+ *
+ * <code><pre>
+ * var loader :EmbeddedSwfLoader = new EmbeddedSwfLoader();
+ * loader.addEventListener(Event.COMPLETE, handleComplete);
+ * loader.addEventListener(IOErrorEvent.IO_ERROR, handleFailure);
+ * loader.load(FOO_RESOURCE);
+ *
+ * ...
+ * function handleComplete (event :Event) :void
+ * {
+ *     var myMovie = loader.getContent();
+ * ...
+ * </pre></code>
  *
  * @deprecated Content packs are coming, and symbols can be embedded directly
  * by using [Embed(source="foo.swf#somesymbol")]
  */
 public class EmbeddedSwfLoader extends EventDispatcher 
 {
+    /**
+     * Create an EmbeddedSwfLoader, good for loading one SWF from a ByteArray.
+     *
+     * @param useSubDomain if true, load the SWF and all its classes and symbols into a
+     *  child ApplicationDomain. This means that they would be not normally reachable by the rest
+     *  of your code after they're loaded, you would only be able to access the contents using
+     *  this EmbeddedSwfLoader. This also means that those classes or symbols won't interfere
+     *  with others loaded with the same name, and the classes can be garbage collected when
+     *  no longer in use.
+     */
     public function EmbeddedSwfLoader (useSubDomain :Boolean = false)
     {
         _useSubDomain = useSubDomain;
         _loader = new Loader();
         _loader.contentLoaderInfo.addEventListener(Event.COMPLETE, dispatchEvent);
         _loader.contentLoaderInfo.addEventListener(IOErrorEvent.IO_ERROR, dispatchEvent);
+    }
+
+    /**
+     * Load the SWF from a ByteArray. A COMPLETE event will be dispatched on successful 
+     * completion of the load. If any errors occur, a IO_ERROR event will be dispatched.
+     *
+     * @throws TypeError The parameter must be a ByteArray, or a Class that becomes one. If AS
+     * had overloading, this wouldn't be necessary, we could catch these problems at compile time.
+     *
+     * @param byteArrayOrClass a flash.utils.ByteArray or a Class object that becomes one.
+     */
+    public function load (byteArrayOrClass :Object) :void
+    {
+        var byteArray :ByteArray = ByteArray( // this cast may throw a TypeError
+            (byteArrayOrClass is Class) ? new (byteArrayOrClass as Class)() // voila!
+                                        : byteArrayOrClass); // and wa-la!
+
+        var context :LoaderContext = new LoaderContext();
+        context.applicationDomain = _useSubDomain ? 
+            new ApplicationDomain(ApplicationDomain.currentDomain) : 
+            ApplicationDomain.currentDomain;
+        _loader.loadBytes(byteArray, context);
     }
 
 // This doesn't work. We cannot write parameters to the contentLoaderInfo.
@@ -73,20 +123,9 @@ public class EmbeddedSwfLoader extends EventDispatcher
 //    }
 
     /**
-     * Load the SWF from a Byte Array.  A CLASS_LOADED event will be dispatched on successful 
-     * completion of the load.  If any errors occur, a LOAD_ERROR event will be dispatched.
-     */
-    public function load (byteArray :ByteArray) :void
-    {
-        var context :LoaderContext = new LoaderContext();
-        context.applicationDomain = _useSubDomain ? 
-            new ApplicationDomain(ApplicationDomain.currentDomain) : 
-            ApplicationDomain.currentDomain;
-        _loader.loadBytes(byteArray, context);
-    }
-
-    /**
      * Get the top-level display object defined in the loaded SWF.
+     *
+     * @throws IllegalOperationError if the SWF is not yet completely loaded.
      */
     public function getContent () :DisplayObject
     {
@@ -97,8 +136,8 @@ public class EmbeddedSwfLoader extends EventDispatcher
     /**
      * Retrieves a class definition from the loaded swf.
      *
-     * @throws IllegalOperationError when the swf has not completed loading or the class does
-     * not exist
+     * @throws flash.errors.IllegalOperationError when the swf has not completed loading
+     * or the class does not exist.
      */
     public function getClass (className :String) :Class
     {
@@ -108,8 +147,8 @@ public class EmbeddedSwfLoader extends EventDispatcher
     /**
      * Retrieves a Function definition from the loaded swf.
      *
-     * @throws IllegalOperationError when the swf has not completed loading or the class does
-     * not exist
+     * @throws flash.errors.IllegalOperationError when the swf has not completed loading
+     * or the function does not exist.
      */
     public function getFunction (functionName :String) :Function
     {
@@ -119,8 +158,8 @@ public class EmbeddedSwfLoader extends EventDispatcher
     /**
      * Retrieves a symbol definition from the loaded swf.
      *
-     * @throws IllegalOperationError when the swf has not completed loading or the class does
-     * not exist
+     * @throws flash.errors.IllegalOperationError when the swf has not completed loading
+     * or the symbol does not exist.
      */
     public function getSymbol (symbolName :String) :Object
     {
@@ -136,7 +175,7 @@ public class EmbeddedSwfLoader extends EventDispatcher
     /**
      * Checks if a symbol exists in the library.
      *
-     * @throws IllegalOperationError when the swf has not completed loading.
+     * @throws flash.errors.IllegalOperationError when the swf has not completed loading.
      */
     public function isSymbol (className :String) :Boolean
     {
@@ -151,8 +190,7 @@ public class EmbeddedSwfLoader extends EventDispatcher
     {
         var loaderInfo :LoaderInfo = _loader.contentLoaderInfo;
         if (loaderInfo.bytesTotal == 0 || loaderInfo.bytesLoaded != loaderInfo.bytesTotal) {
-
-            throw new IllegalOperationError("SWF has not completed loading");
+            throw new IllegalOperationError("SWF has not completed loading.");
         }
     }
 
