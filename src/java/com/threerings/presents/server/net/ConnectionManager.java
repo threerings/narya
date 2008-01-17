@@ -660,7 +660,7 @@ public class ConnectionManager extends LoopingThread
 
             // create a new authing connection object to manage the authentication of this client
             // connection and register it with our selection set
-            SelectableChannel selchan = (SelectableChannel)channel;
+            SelectableChannel selchan = channel;
             selchan.configureBlocking(false);
             SelectionKey selkey = selchan.register(_selector, SelectionKey.OP_READ);
             _handlers.put(selkey, new AuthingConnection(this, selkey, channel));

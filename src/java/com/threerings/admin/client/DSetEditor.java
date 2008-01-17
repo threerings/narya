@@ -159,8 +159,7 @@ public class DSetEditor extends JPanel
     {
         if (event.getName().equals(_setName)) {
             DSet.Entry entry = event.getEntry();
-            @SuppressWarnings("unchecked") Comparable<Object> key =
-                (Comparable<Object>)entry.getKey();
+            @SuppressWarnings("unchecked") Comparable<Object> key = entry.getKey();
             int index = _keys.insertSorted(key);
             _table.insertDatum(entry, index);
         }
@@ -210,8 +209,7 @@ public class DSetEditor extends JPanel
         DSet.Entry[] entries =  new DSet.Entry[_set.size()];
         _set.toArray(entries);
         for (int ii = 0; ii < entries.length; ii++) {
-            @SuppressWarnings("unchecked") Comparable<Object> key =
-                (Comparable<Object>)entries[ii].getKey();
+            @SuppressWarnings("unchecked") Comparable<Object> key = entries[ii].getKey();
             _keys.insertSorted(key);
         }
         _table.setData(entries); // this works because DSet itself is sorted

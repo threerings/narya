@@ -290,7 +290,7 @@ public class Client
         }
         int scount = _bstrap.services.size();
         for (int ii = 0; ii < scount; ii++) {
-            InvocationService service = (InvocationService)_bstrap.services.get(ii);
+            InvocationService service = _bstrap.services.get(ii);
             if (sclass.isInstance(service)) {
                 return service;
             }
