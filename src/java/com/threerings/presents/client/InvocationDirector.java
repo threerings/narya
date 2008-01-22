@@ -262,7 +262,7 @@ public class InvocationDirector
         if (listener == null) {
             Log.warning("Received invocation response for which we have no registered listener " +
                         "[reqId=" + reqId + ", methId=" + methodId + ", args=" +
-                        StringUtil.toString(args) + "]. It is possble that this listener was " +
+                        StringUtil.toString(args) + "]. It is possible that this listener was " +
                         "flushed because the response did not arrive within " +
                         LISTENER_MAX_AGE + " milliseconds.");
             return;

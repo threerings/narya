@@ -238,7 +238,7 @@ public class InvocationDirector
         if (listener == null) {
             log.warning("Received invocation response for which we have no registered listener " +
                         "[reqId=" + reqId + ", methId=" + methodId + ", args=" + args + "]. " +
-                        "It is possble that this listener was flushed because the response did " +
+                        "It is possible that this listener was flushed because the response did " +
                         "not arrive within " + LISTENER_MAX_AGE + " milliseconds.");
             return;
         }
