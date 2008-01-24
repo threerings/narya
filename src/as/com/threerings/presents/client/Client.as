@@ -55,7 +55,6 @@ public class Client extends EventDispatcher
     {
         _creds = creds;
         _stage = stage;
-        MethodQueue.setStage(stage);
     }
 
     /**
@@ -269,9 +268,7 @@ public class Client extends EventDispatcher
         // we need to wait for the CLIENT_WILL_LOGON to have been dispatched before we actually
         // tell the communicator to logon, so we run this through the callLater pipeline
         _comm = new Communicator(this);
-        callLater(function () :void {
-            _comm.logon();
-        });
+        callLater(_comm.logon);
 
         // it is safe, however, to start up our tick interval immediately
         if (_tickInterval == null) {
