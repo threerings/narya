@@ -22,6 +22,7 @@
 package com.threerings.util {
 
 import flash.system.Capabilities;
+import flash.system.System;
 
 /**
  * Simple implementation of assertion checks for debug environments.
@@ -80,6 +81,14 @@ public class Assert
         _log.warning("Failure" + ((message != null) ? (": " + message) : ""));
         if (dumpStack) {
             _log.warning(new Error("dumpStack").getStackTrace());
+        }
+
+        // try to exit, but don't booch if we're running in an older player
+        var o :Object = System;
+        try {
+            o["exit"](1); // call System.exit(1);
+        } catch (err :SecurityError) {
+            // probably not allowed
         }
     }        
 
