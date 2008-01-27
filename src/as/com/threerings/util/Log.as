@@ -133,8 +133,7 @@ public class Log
 
     protected function doLog (level :String, messages :Array) :void
     {
-        // TODO: better Date formatting?
-        messages.unshift(new Date().toLocaleTimeString(), level, _spec);
+        messages.unshift(getTimeStamp(), level, _spec);
         trace.apply(null, messages);
 
         // possibly also dispatch to any other log targets.
@@ -144,6 +143,21 @@ public class Log
                 target.log(asOne);
             }
         }
+    }
+
+    protected function getTimeStamp () :String
+    {
+        var d :Date = new Date();
+        // return d.toLocaleTimeString();
+
+        // format it like the date format in our java logs
+        return d.fullYear + "/" +
+            StringUtil.prepad(String(d.month + 1), 2, "0") + "/" +
+            StringUtil.prepad(String(d.date), 2, "0") + " " +
+            StringUtil.prepad(String(d.hours), 2, "0") + ":" +
+            StringUtil.prepad(String(d.minutes), 2, "0") + ":" +
+            StringUtil.prepad(String(d.seconds), 2, "0") + ":" +
+            StringUtil.prepad(String(d.milliseconds), 3, "0");
     }
 
     /** Our log specification. */
