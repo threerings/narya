@@ -56,7 +56,7 @@ public abstract class AbstractSignalHandler
      */
     protected void hupReceived ()
     {
-        log.info(_server.generateReport());
+        log.info(PresentsServer.generateReport());
     }
 
     protected PresentsServer _server;
