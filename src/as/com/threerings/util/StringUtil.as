@@ -172,16 +172,31 @@ public class StringUtil
 
     public static function toString (obj :*) :String
     {
+        // TODO: this should be able to detect circular references
+
+        var s :String;
         if (obj is Array) {
             var arr :Array = (obj as Array);
-            var s :String = "Array(";
+            s = "";
             for (var ii :int = 0; ii < arr.length; ii++) {
                 if (ii > 0) {
                     s += ", ";
                 }
                 s += (ii + ": " + toString(arr[ii]));
             }
-            return s + ")";
+            return "Array(" + s + ")";
+        }
+
+        // TODO: maybe do this for any dynamic object?
+        if (obj != null && obj.constructor == Object) {
+            s = "";
+            for (var prop :String in obj) {
+                if (s.length > 0) {
+                    s += ", ";
+                }
+                s += prop + "=>" + toString(obj[prop]);
+            }
+            return "Object(" + s + ")";
         }
 
         return String(obj);
