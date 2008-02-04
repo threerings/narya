@@ -26,7 +26,7 @@ package com.threerings.util {
  * contains methods that understand the interfaces in this package.
  * So, for example, removeFirst() understands Equalable and will remove
  * an element that is equals() to the specified element, rather than just
- * ===.
+ * === (strictly equals) to the specified element.
  */
 public class ArrayUtil
 {
@@ -75,6 +75,8 @@ public class ArrayUtil
      * Returns the index of the first item in the array for which the predicate function
      * returns true, or -1 if no such item was found. The predicate function should be of type:
      *   function (element :*) :Boolean { }
+     *
+     * @return the zero-based index of the matching element, or -1 if none found.
      */
     public static function indexIf (arr :Array, predicate :Function) :int
     {
@@ -88,6 +90,14 @@ public class ArrayUtil
         return -1; // never found
     }
 
+    /**
+     * Returns the first index of the supplied element in the array. Note that if the element
+     * implements Equalable, an element that is equals() will have its index returned, instead
+     * of requiring the search element to be === (strictly equal) to an element in the array
+     * like Array.indexOf().
+     *
+     * @return the zero-based index of the matching element, or -1 if none found.
+     */
     public static function indexOf (arr :Array, element :Object) :int
     {
         if (arr != null) {
@@ -100,6 +110,10 @@ public class ArrayUtil
         return -1; // never found
     }
 
+    /**
+     * @return true if the specified element, or one that is Equalable.equals() to it, is
+     * contained in the array.
+     */
     public static function contains (arr :Array, element :Object) :Boolean
     {
         return (indexOf(arr, element) != -1);
