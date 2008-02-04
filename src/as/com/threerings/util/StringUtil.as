@@ -25,8 +25,6 @@ import flash.utils.ByteArray;
 
 import flash.utils.describeType; // function import
 
-import mx.utils.*;
-
 public class StringUtil
 {
     /**
@@ -156,10 +154,15 @@ public class StringUtil
      */
     public static function substitute (str :String, ... args) :String
     {
-        // holy christ the varargs insanity
+        // if someone passed an array as arg 1, fix it
         args = Util.unfuckVarargs(args);
-        args.unshift(str);
-        return mx.utils.StringUtil.substitute.apply(null, args);
+        var len :int = args.length;
+        // TODO: FIXME: this might be wrong, if your {0} replacement has a {1} in it, then
+        // that'll get replaced next iteration.
+        for (var ii : int = 0; ii < len; ii++) {
+            str = str.replace(new RegExp("\\{" + ii + "\\}", "g"), args[ii]);
+        }
+        return str;
     }
 
     /**
@@ -167,7 +170,37 @@ public class StringUtil
      */
     public static function trim (str :String) :String
     {
-        return mx.utils.StringUtil.trim(str);
+        var startIdx :int = 0;
+        var endIdx :int = str.length - 1;
+        while (isWhitespace(str.charAt(startIdx))) {
+            startIdx++;
+        }
+        while (endIdx > startIdx && isWhitespace(str.charAt(endIdx))) {
+            endIdx--;
+        }
+        if (endIdx >= startIdx) {
+            return str.slice(startIdx, endIdx + 1);
+        } else {
+            return "";
+        }
+    }
+
+    /**
+     * @return true if the specified String is == to a single whitespace character.
+     */
+    public static function isWhitespace (character :String) :Boolean
+    {
+        switch (character) {
+        case " ":
+        case "\t":
+        case "\r":
+        case "\n":
+        case "\f":
+            return true;
+
+        default:
+            return false;
+        }
     }
 
     public static function toString (obj :*) :String
