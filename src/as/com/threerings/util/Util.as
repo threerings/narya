@@ -85,7 +85,8 @@ public class Util
      * this method will protect other code from being broken by you.
      *
      * @param value the value to parse into XML.
-     * @param settings an Object containing your desired non-standard XML parsing settings.
+     * @param settings an Object containing your desired XML settings, or null (or omitted) to
+     * use the default settings.
      * @see XML#setSettings()
      */
     public static function newXML (value :Object, settings :Object = null) :XML
@@ -103,7 +104,8 @@ public class Util
      * broken by you.
      *
      * @param xml the xml value to Stringify.
-     * @param settings an Object containing 
+     * @param settings an Object containing your desired XML settings, or null (or omitted) to
+     * use the default settings.
      * @see XML#toString()
      * @see XML#setSettings()
      */
@@ -122,7 +124,8 @@ public class Util
      * broken by you.
      *
      * @param xml the xml value to Stringify.
-     * @param settings an Object containing 
+     * @param settings an Object containing your desired XML settings, or null (or omitted) to
+     * use the default settings.
      * @see XML#toXMLString()
      * @see XML#setSettings()
      */
@@ -138,7 +141,8 @@ public class Util
      * restores the XML settings to their previous values.
      *
      * @param fn a function to be called with no arguments.
-     * @param settings any custom XML settings, or null to use the defaults.
+     * @param settings an Object containing your desired XML settings, or null (or omitted) to
+     * use the default settings.
      *
      * @return the return value of your function, if any.
      * @see XML#setSettings()
@@ -148,7 +152,7 @@ public class Util
     {
         var oldSettings :Object = XML.settings();
         try {
-            XML.setSettings(settings);
+            XML.setSettings(settings); // setting to null resets to all the defaults
             return fn();
         } finally {
             XML.setSettings(oldSettings);
