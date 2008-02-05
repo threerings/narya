@@ -98,7 +98,7 @@ public class ParameterUtil
         );
         loader.addEventListener(Event.COMPLETE,
             function (event :Event) :void  {
-                var data :XML = XML(loader.data);
+                var data :XML = Util.newXML(loader.data);
                 var params :Object = {};
                 for each (var param :XML in data..param) {
                     params[param.@name] = String(param.@value);

@@ -43,6 +43,9 @@ public class StringUtil
         return code;
     }
 
+    /**
+     * Is the specified string null or does it contain only whitespace?
+     */
     public static function isBlank (str :String) :Boolean
     {
         return (str == null) || (str.search("\\S") == -1);
@@ -203,8 +206,15 @@ public class StringUtil
         }
     }
 
+    /**
+     * Nicely format the specified object into a String.
+     */
     public static function toString (obj :*) :String
     {
+        if (obj == null) { // checks null or undefined
+            return String(obj);
+        }
+
         // TODO: this should be able to detect circular references
 
         var s :String;
@@ -218,10 +228,9 @@ public class StringUtil
                 s += (ii + ": " + toString(arr[ii]));
             }
             return "Array(" + s + ")";
-        }
 
-        // TODO: maybe do this for any dynamic object?
-        if (obj != null && obj.constructor == Object) {
+        } else if (obj.constructor == Object) {
+            // TODO: maybe do this for any dynamic object? (would have to use describeType)
             s = "";
             for (var prop :String in obj) {
                 if (s.length > 0) {
@@ -230,6 +239,9 @@ public class StringUtil
                 s += prop + "=>" + toString(obj[prop]);
             }
             return "Object(" + s + ")";
+
+        } else if (obj is XML) {
+            return Util.XMLtoXMLString(obj as XML);
         }
 
         return String(obj);
