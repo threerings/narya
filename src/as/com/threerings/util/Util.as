@@ -79,6 +79,83 @@ public class Util
     }
 
     /**
+     * Parse the 'value' object into XML safely. This is equivalent to <code>new XML(value)</code>
+     * but offers protection from other code that may have changing the default settings
+     * used for parsing XML. Also, if you would like to use non-standard parsing settings
+     * this method will protect other code from being broken by you.
+     *
+     * @param value the value to parse into XML.
+     * @param settings an Object containing your desired non-standard XML parsing settings.
+     * @see XML#setSettings()
+     */
+    public static function newXML (value :Object, settings :Object = null) :XML
+    {
+        return safeXMLOp(function () :* {
+            return new XML(value);
+        }, settings) as XML;
+    }
+
+    /**
+     * Call toString() on the specified XML object safely. This is equivalent to
+     * <code>xml.toString()</code> but offers protection from other code that may have changed
+     * the default settings used for stringing XML. Also, if you would like to use the
+     * non-standard printing settings this method will protect other code from being
+     * broken by you.
+     *
+     * @param xml the xml value to Stringify.
+     * @param settings an Object containing 
+     * @see XML#toString()
+     * @see XML#setSettings()
+     */
+    public static function XMLtoString (xml :XML, settings :Object = null) :String
+    {
+        return safeXMLOp(function () :* {
+            return xml.toString();
+        }, settings) as String;
+    }
+
+    /**
+     * Call toXMLString() on the specified XML object safely. This is equivalent to
+     * <code>xml.toXMLString()</code> but offers protection from other code that may have changed
+     * the default settings used for stringing XML. Also, if you would like to use the
+     * non-standard printing settings this method will protect other code from being
+     * broken by you.
+     *
+     * @param xml the xml value to Stringify.
+     * @param settings an Object containing 
+     * @see XML#toXMLString()
+     * @see XML#setSettings()
+     */
+    public static function XMLtoXMLString (xml :XML, settings :Object = null) :String
+    {
+        return safeXMLOp(function () :* {
+            return xml.toXMLString();
+        }, settings) as String;
+    }
+
+    /**
+     * Perform an operation on XML that takes place using the specified settings, and
+     * restores the XML settings to their previous values.
+     *
+     * @param fn a function to be called with no arguments.
+     * @param settings any custom XML settings, or null to use the defaults.
+     *
+     * @return the return value of your function, if any.
+     * @see XML#setSettings()
+     * @see XML#settings()
+     */
+    public static function safeXMLOp (fn :Function, settings :Object = null) :*
+    {
+        var oldSettings :Object = XML.settings();
+        try {
+            XML.setSettings(settings);
+            return fn();
+        } finally {
+            XML.setSettings(oldSettings);
+        }
+    }
+
+    /**
      * A nice utility method for testing equality in a better way.
      * If the objects are Equalable, then that will be tested. Arrays
      * and ByteArrays are also compared and are equal if they have
