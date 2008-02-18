@@ -6,7 +6,7 @@
   <property file="build.properties"/>
 
   <!-- configuration parameters -->
-  <property name="app.name"     value="narya"/>
+  <property name="lib.name"     value="narya"/>
   <property name="deploy.dir"   value="dist"/>
   <property name="savedoc.dir"  value="docs"/>
   <property name="javadoc.home" value="${deploy.dir}/docs"/>
@@ -52,8 +52,7 @@
     </dobj>
   </target>
 
-  <!-- generates marshaller and dispatcher classes for all invocation -->
-  <!-- service declarations -->
+  <!-- generates marshaller and dispatcher classes for all invocation service declarations -->
   <target name="genservice"> 
     <taskdef name="service" classpathref="classpath"
              classname="com.threerings.presents.tools.GenServiceTask"/>
@@ -84,8 +83,7 @@
     </service>
   </target>
 
-  <!-- generates sender and decoder classes for all invocation -->
-  <!-- receiver declarations -->
+  <!-- generates sender and decoder classes for all invocation receiver declarations -->
   <target name="genreceiver"> 
     <taskdef name="receiver" classpathref="classpath"
              classname="com.threerings.presents.tools.GenReceiverTask"/>
@@ -137,7 +135,7 @@
       <fileset dir="src/java" includes="**/*.tmpl"/>
     </copy>
     <copy todir="${deploy.dir}/lib" flatten="true">
-      <fileset refid="${app.name}.libs"/>
+      <fileset refid="${lib.name}.libs"/>
     </copy>
   </target>
 
@@ -146,6 +144,7 @@
     <delete dir="${deploy.dir}/classes"/>
     <delete dir="${deploy.dir}/docs"/>
     <delete failonerror="false"><fileset dir="${deploy.dir}" includes="*.jar"/></delete>
+    <delete failonerror="false"><fileset dir="${deploy.dir}" includes="*.swc"/></delete>
   </target>
 
   <!-- wipes the entire build directory clean -->
@@ -166,6 +165,36 @@
       <compilerarg value="-Xlint"/>
       <compilerarg value="-Xlint:-serial"/>
     </javac>
+  </target>
+
+  <!-- checks whether our Flash library needs building -->
+  <target name="checkaslib">
+    <condition property="no_build_aslib"><or>
+      <not><available file="${flexsdk.dir}/lib/compc.jar"/></not>
+      <uptodate targetfile="${deploy.dir}/${lib.name}.swc">
+        <srcfiles dir="src/as" includes="**/*.as"/>
+      </uptodate>
+    </or></condition>
+  </target>
+
+  <!-- builds our Flash library -->
+  <target name="aslib" unless="no_build_aslib" depends="checkaslib">
+    <copy file="etc/aslib-config.xml.in" tofile="${deploy.dir}/aslib-config.xml">
+      <filterset>
+        <filter token="flex_sdk_dir" value="${flexsdk.dir}"/>
+        <filter token="lib_name_dir" value="${lib.name}"/>
+      </filterset>
+    </copy>
+    <java jar="${flexsdk.dir}/lib/compc.jar" fork="true" failonerror="true">
+      <arg value="-load-config"/>
+      <arg value="${deploy.dir}/aslib-config.xml"/>
+      <arg value="-compiler.optimize"/>
+      <arg value="-compiler.source-path=src/as/"/>
+      <arg value="-include-sources=src/as/"/>
+      <arg value="-output"/>
+      <arg value="${deploy.dir}/${lib.name}.swc"/>
+    </java>
+    <delete file="${deploy.dir}/aslib-config.xml"/>
   </target>
 
   <!-- build the native libraries -->
@@ -209,29 +238,29 @@
   </target>
 
   <!-- a target for rebuilding everything -->
-  <target name="all" depends="clean,prepare,compile,ninstall,javadoc,tests,dist"/>
+  <target name="all" depends="clean,prepare,compile,aslib,ninstall,javadoc,tests,dist"/>
 
   <!-- builds our distribution files (war and jar) -->
-  <target name="dist" depends="prepare,compile,procstream,ninstall,tests">
+  <target name="dist" depends="prepare,compile,procstream,aslib,ninstall,tests">
     <!-- build our various jar files -->
-    <jar destfile="${deploy.dir}/${app.name}-base.jar">
+    <jar destfile="${deploy.dir}/${lib.name}-base.jar">
       <fileset dir="${classes.dir}" includes="com/threerings/NaryaLog**"/>
       <fileset dir="${classes.dir}" includes="com/threerings/io/**"/>
       <fileset dir="${classes.dir}" includes="com/threerings/util/**"/>
     </jar>
-    <jar destfile="${deploy.dir}/${app.name}-distrib.jar">
+    <jar destfile="${deploy.dir}/${lib.name}-distrib.jar">
       <fileset dir="${classes.dir}" includes="com/threerings/presents/**"/>
       <fileset dir="${classes.dir}" includes="com/threerings/crowd/**"/>
       <fileset dir="${classes.dir}" includes="com/threerings/admin/**"/>
     </jar>
-    <jar destfile="${deploy.dir}/${app.name}-tests.jar">
+    <jar destfile="${deploy.dir}/${lib.name}-tests.jar">
       <fileset dir="tests/${classes.dir}" includes="com/threerings/**"/>
     </jar>
   </target>
 
   <!-- various bits used by the retroweaver tasks -->
-  <property name="inpre" value="${deploy.dir}/${app.name}"/>
-  <property name="outpre" value="${deploy.dir}/retro/${app.name}"/>
+  <property name="inpre" value="${deploy.dir}/${lib.name}"/>
+  <property name="outpre" value="${deploy.dir}/retro/${lib.name}"/>
 
   <!-- a helper task for 'retro' -->
   <target name="vweave">
@@ -288,23 +317,23 @@
   <!-- creates a zipfile with our source distribution -->
   <target name="snapshot">
      <echo message="You may want to stop and run 'ant savedoc' first."/>
-     <delete file="${deploy.dir}/${app.name}-snapshot.zip"/>
-     <mkdir dir="${deploy.dir}/snapshot/${app.name}"/>
-     <copy todir="${deploy.dir}/snapshot/${app.name}">
+     <delete file="${deploy.dir}/${lib.name}-snapshot.zip"/>
+     <mkdir dir="${deploy.dir}/snapshot/${lib.name}"/>
+     <copy todir="${deploy.dir}/snapshot/${lib.name}">
        <fileset dir=".">
          <include name="**"/>
          <exclude name="dist/**"/>
          <exclude name="tests/dist/**"/>
-         <exclude name="${app.name}-*.zip"/>
+         <exclude name="${lib.name}-*.zip"/>
        </fileset>
      </copy>
-     <copy todir="${deploy.dir}/snapshot/${app.name}/lib">
+     <copy todir="${deploy.dir}/snapshot/${lib.name}/lib">
        <fileset dir="${deploy.dir}/lib" includes="*.jar"/>
      </copy>
-     <copy todir="${deploy.dir}/snapshot/${app.name}/docs/api">
+     <copy todir="${deploy.dir}/snapshot/${lib.name}/docs/api">
        <fileset dir="${deploy.dir}/docs" includes="**"/>
      </copy>
-     <zip destfile="${deploy.dir}/${app.name}-snapshot.zip" basedir="${deploy.dir}/snapshot"/>
+     <zip destfile="${deploy.dir}/${lib.name}-snapshot.zip" basedir="${deploy.dir}/snapshot"/>
      <delete dir="${deploy.dir}/snapshot"/>
   </target>
 
