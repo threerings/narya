@@ -171,7 +171,7 @@
   <target name="checkaslib">
     <condition property="no_build_aslib"><or>
       <not><available file="${flexsdk.dir}/lib/compc.jar"/></not>
-      <uptodate targetfile="${deploy.dir}/${lib.name}.swc">
+      <uptodate targetfile="${deploy.dir}/${lib.name}lib.swc">
         <srcfiles dir="src/as" includes="**/*.as"/>
       </uptodate>
     </or></condition>
@@ -192,7 +192,7 @@
       <arg value="-compiler.source-path=src/as/"/>
       <arg value="-include-sources=src/as/"/>
       <arg value="-output"/>
-      <arg value="${deploy.dir}/${lib.name}.swc"/>
+      <arg value="${deploy.dir}/${lib.name}lib.swc"/>
     </java>
     <delete file="${deploy.dir}/aslib-config.xml"/>
   </target>
