@@ -36,17 +36,7 @@ public class ArrayUtil
      */
     public static function sort (arr :Array) :void
     {
-        arr.sort(function (obj1 :Object, obj2 :Object) :int {
-            if (obj1 == obj2) { // same object or both null
-                return 0;
-            } else if (obj1 == null) {
-                return -1;
-            } else if (obj2 == null) {
-                return 1;
-            } else {
-                return Comparable(obj1).compareTo(obj2);
-            }
-        });
+        arr.sort(Comparators.COMPARABLE);
     }
 
     /**
