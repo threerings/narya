@@ -25,22 +25,22 @@ package com.threerings.presents.dobj;
  * Implements the methods in SetListener so that you don't have to
  * implement the ones you don't want to.
  */
-public class SetAdapter implements SetListener
+public class SetAdapter<T extends DSet.Entry> implements SetListener<T>
 {
     // documentation inherited from interface SetListener
-    public void entryAdded (EntryAddedEvent event)
+    public void entryAdded (EntryAddedEvent<T> event)
     {
         // override to provide functionality
     }
 
     // documentation inherited from interface SetListener
-    public void entryUpdated (EntryUpdatedEvent event)
+    public void entryUpdated (EntryUpdatedEvent<T> event)
     {
         // override to provide functionality
     }
 
     // documentation inherited from interface SetListener
-    public void entryRemoved (EntryRemovedEvent event)
+    public void entryRemoved (EntryRemovedEvent<T> event)
     {
         // override to provide functionality
     }

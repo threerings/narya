@@ -22,12 +22,12 @@
 package com.threerings.presents.dobj;
 
 /**
- * Implemented by entites which wish to hear about changes that occur to
+ * Implemented by entities which wish to hear about changes that occur to
  * set attributes of a particular distributed object.
  *
  * @see DObject#addListener
  */
-public interface SetListener extends ChangeListener
+public interface SetListener<T extends DSet.Entry> extends ChangeListener
 {
     /**
      * Called when an entry added event has been dispatched on an
@@ -36,7 +36,7 @@ public interface SetListener extends ChangeListener
      *
      * @param event The event that was dispatched on the object.
      */
-    public void entryAdded (EntryAddedEvent event);
+    public void entryAdded (EntryAddedEvent<T> event);
 
     /**
      * Called when an entry updated event has been dispatched on an
@@ -45,7 +45,7 @@ public interface SetListener extends ChangeListener
      *
      * @param event The event that was dispatched on the object.
      */
-    public void entryUpdated (EntryUpdatedEvent event);
+    public void entryUpdated (EntryUpdatedEvent<T> event);
 
     /**
      * Called when an entry removed event has been dispatched on an
@@ -54,5 +54,5 @@ public interface SetListener extends ChangeListener
      *
      * @param event The event that was dispatched on the object.
      */
-    public void entryRemoved (EntryRemovedEvent event);
+    public void entryRemoved (EntryRemovedEvent<T> event);
 }
