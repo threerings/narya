@@ -183,7 +183,7 @@ public class RingBuffer
     public function every (callback :Function, thisObject :* = null) :Boolean
     {
         for (var i :int = 0; i < _length; ++i) {
-            if (!callback.apply(thisObject, this.at(i))) {
+            if (!callback.call(thisObject, this.at(i))) {
                 return false;
             }
         }
@@ -197,7 +197,7 @@ public class RingBuffer
     public function forEach (callback :Function, thisObject :* = null) :void
     {
         for (var i :int = 0; i < _length; ++i) {
-            callback.apply(thisObject, this.at(i));
+            callback.call(thisObject, this.at(i));
         }
     }
     
