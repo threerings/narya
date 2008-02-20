@@ -171,6 +171,51 @@ public class RingBuffer
             return _array[index];
         }
     }
+    
+    /**
+     * Executes a test function on each item in the ring buffer
+     * until an item is reached that returns false for the specified
+     * function.
+     * 
+     * Returns a Boolean value of true if all items in the buffer return
+     * true for the specified function; otherwise, false.
+     */
+    public function every (callback :Function, thisObject :* = null) :Boolean
+    {
+        for (var i :int = 0; i < _length; ++i) {
+            if (!callback.apply(thisObject, this.at(i))) {
+                return false;
+            }
+        }
+        
+        return true;
+    }
+    
+    /**
+     * Executes a function on each item in the ring buffer.
+     */ 
+    public function forEach (callback :Function, thisObject :* = null) :void
+    {
+        for (var i :int = 0; i < _length; ++i) {
+            callback.apply(thisObject, this.at(i));
+        }
+    }
+    
+    /**
+     * Searches for an item in the ring buffer by using strict equality
+     * (===) and returns the index position of the item, or -1
+     * if the item is not found.
+     */
+    public function indexOf (searchElement :*, fromIndex :int = 0) :int
+    {
+        for (var i :int = 0; i < _length; ++i) {
+            if (this.at(i) === searchElement) {
+                return i;
+            }
+        }
+        
+        return -1;
+    }
 
     protected var _array :Array = new Array();
     protected var _capacity :uint;
