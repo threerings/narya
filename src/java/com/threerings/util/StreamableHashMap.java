@@ -22,7 +22,6 @@
 package com.threerings.util;
 
 import java.io.IOException;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.HashMap;
 
@@ -65,8 +64,7 @@ public class StreamableHashMap<K,V> extends HashMap<K,V>
     {
         int ecount = size();
         out.writeInt(ecount);
-        for (Iterator<Map.Entry<K,V>> iter = entrySet().iterator(); iter.hasNext(); ) {
-            Map.Entry<K,V> entry = iter.next();
+        for (Map.Entry<K,V> entry : entrySet()) {
             out.writeObject(entry.getKey());
             out.writeObject(entry.getValue());
         }
