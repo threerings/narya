@@ -161,7 +161,7 @@ public class ObjectMarshaller
         }
 
         // check sub-properties (of arrays and objects)
-        for each (var arrValue :Object in (value as Array)) {
+        for each (var arrValue :Object in value) {
             var s :String = getValidationError(arrValue);
             if (s != null) {
                 return s;
