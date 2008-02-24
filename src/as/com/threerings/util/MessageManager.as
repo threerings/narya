@@ -62,34 +62,9 @@ public class MessageManager
      */
     public function MessageManager ()
     {
-        // use the default locale
-        _locale = ResourceManager.getInstance().getLocales()[0];
-
         // load up the global bundle
         _global = getBundle(GLOBAL_BUNDLE);
     }
-
-//    /**
-//     * Get the locale that is being used to translate messages.
-//     * This may be useful if using standard translations, for example
-//     * new SimpleDateFormat("EEEE", getLocale()) to get the name of a weekday
-//     * that matches the language being used for all other client translations.
-//     */
-//    public function getLocale () :Locale
-//    {
-//        return _locale;
-//    }
-//
-//    /**
-//     * Sets the locale to the specified locale. Subsequent message bundles
-//     * fetched via the message manager will use the new locale. The
-//     * message bundle cache will also be cleared.
-//     */
-//    public function setLocale (locale :Locale) :void
-//    {
-//        _locale = locale;
-//        _cache.clear();
-//    }
 
     /**
      * Fetches the message bundle for the specified path. If no bundle can
@@ -108,27 +83,18 @@ public class MessageManager
             return bundle;
         }
 
-        // if it's not cached, we'll need to resolve it
-        var rbundle :IResourceBundle =
-            ResourceManager.getInstance().getResourceBundle(_locale, path);
-
-        // if the resource bundle contains a special resource, we'll
-        // interpret that as a derivation of MessageBundle to instantiate
-        // for handling that class
-        if (rbundle != null) {
-            var mbclass :Object = rbundle.content[MBUNDLE_CLASS_KEY];
-            if (mbclass != null) {
-                try {
-                    var clazz :Class = ClassUtil.getClassByName(String(mbclass));
-                    bundle = new clazz();
-                } catch (ee :Error) {
-                    Log.getLog(this).warning(
-                        "Failure instantiating custom message bundle " +
-                        "[mbclass=" + mbclass + ", error=" + ee + "].");
-                }
+        // see if we should use a custom class for the bundle
+        var mbclass :String = ResourceManager.getInstance().getString(path, MBUNDLE_CLASS_KEY);
+        if (mbclass != null) {
+            try {
+                var clazz :Class = ClassUtil.getClassByName(String(mbclass));
+                bundle = new clazz();
+            } catch (ee :Error) {
+                Log.getLog(this).warning(
+                    "Failure instantiating custom message bundle " +
+                    "[mbclass=" + mbclass + ", error=" + ee + "].");
             }
         }
-
         // if there was no custom class, or we failed to instantiate the
         // custom class, use a standard message bundle
         if (bundle == null) {
@@ -138,7 +104,7 @@ public class MessageManager
         // initialize our message bundle, cache it and return it (if we
         // couldn't resolve the bundle, the message bundle will cope with
         // it's null resource bundle)
-        bundle.init(this, path, rbundle, _global);
+        bundle.init(this, path, _global);
         _cache.put(path, bundle);
         return bundle;
     }

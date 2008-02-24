@@ -22,6 +22,8 @@
 package com.threerings.util {
 
 import mx.resources.IResourceBundle;
+import mx.resources.ResourceManager;
+import mx.resources.IResourceManager;
 
 /**
  * A message bundle provides an easy mechanism by which to obtain
@@ -37,13 +39,10 @@ public class MessageBundle
      * from the supplied resource bundle. The path is provided purely for
      * reporting purposes.
      */
-    public function init (
-            msgmgr :MessageManager, path :String, bundle :IResourceBundle,
-            parent :MessageBundle) :void
+    public function init (msgmgr :MessageManager, path :String, parent :MessageBundle) :void
     {
         _msgmgr = msgmgr;
         _path = path;
-        _bundle = bundle;
         _parent = parent;
     }
 
@@ -65,24 +64,53 @@ public class MessageBundle
     }
 
     /**
-     * Adds all messages whose key starts with the specified prefix to the
-     * supplied array.
+     * Get all the messages that begin with the specified prefix.
      *
      * @param includeParent if true, messages from our parent bundle (and its
      * parent bundle, all the way up the chain will be included).
      */
-    public function getAll (
-        prefix :String, messages :Array, includeParent :Boolean = true) :void
+    public function getAll (prefix :String, includeParent :Boolean = true) :Array
     {
-        for (var key :String in _bundle.content) {
-            if (StringUtil.startsWith(key, prefix)) {
-                messages.push(get(key));
+        var messages :Array = []
+        for each (var value :Object in getAllMapped(prefix, includeParent)) {
+            messages.push(value);
+        }
+        return messages;
+    }
+
+    /**
+     * Get all the messages and their keys that begin with the specified prefix.
+     */
+    public function getAllMapped (prefix :String, includeParent :Boolean = true) :Object
+    {
+        var mgr :IResourceManager = ResourceManager.getInstance();
+
+        // search all locales, using the first one first, but including any
+        // non-overridden keys from backing locales
+        var messages :Object = {};
+        var key :String;
+        for each (var locale :String in mgr.getLocales()) {
+            var bundle :IResourceBundle = mgr.getResourceBundle(locale, _path);
+            if (bundle != null) {
+                for (key in bundle.content) {
+                    // preserve the message found in an earlier locale
+                    if (StringUtil.startsWith(key, prefix) && !(key in messages)) {
+                        messages[key] = bundle.content[key];
+                    }
+                }
             }
         }
 
         if (includeParent && _parent != null) {
-            _parent.getAll(prefix, messages, includeParent);
+            // don't let parent messages overwrite any we've found
+            var parentMap :Object = _parent.getAllMapped(prefix, includeParent);
+            for (key in parentMap) {
+                if (!(key in messages)) {
+                    messages[key] = parentMap[key];
+                }
+            }
         }
+        return messages;
     }
 
     /**
@@ -93,32 +121,24 @@ public class MessageBundle
      * @param reportMissing whether or not the method should log an error
      * if the resource didn't exist.
      */
-    protected function getResourceString (
-            key :String, reportMissing :Boolean = true) :String
+    protected function getResourceString (key :String, reportMissing :Boolean = true) :String
     {
-        if (_bundle != null) {
-            var val :Object = _bundle.content[key];
-            if (val != null) {
-                return String(val);
-            }
-        }
+        var value :String = ResourceManager.getInstance().getString(_path, key);
 
-        // if we have a parent, try getting the string from them
-        if (_parent != null) {
-            var value :String = _parent.getResourceString(key, false);
-            if (value != null) {
-                return value;
+        if (value == null) {
+            // if we have a parent, try getting the string from them
+            if (_parent != null) {
+                value = _parent.getResourceString(key, false);
             }
             // if we didn't find it in our parent, we want to fall
             // through and report missing appropriately
+            if (value == null && reportMissing) {
+                Log.getLog(this).warning("Missing translation message " +
+                    "[bundle=" + _path + ", key=" + key + "].");
+            }
         }
 
-        if (reportMissing) {
-            Log.getLog(this).warning("Missing translation message " +
-                        "[bundle=" + _path + ", key=" + key + "].");
-        }
-
-        return null;
+        return value;
     }
 
     /**
@@ -406,9 +426,6 @@ public class MessageBundle
     /** The path that identifies the resource bundle we are using to
      * obtain our messages. */
     protected var _path :String;
-
-    /** The resource bundle from which we obtain our messages. */
-    protected var _bundle :IResourceBundle;
 
     /** Our parent bundle if we're not the global bundle. */
     protected var _parent :MessageBundle;
