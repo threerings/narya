@@ -21,7 +21,7 @@
 
 package com.threerings.util {
 
-import mx.resources.ResourceBundle;
+import mx.resources.IResourceBundle;
 
 /**
  * A message bundle provides an easy mechanism by which to obtain
@@ -38,7 +38,7 @@ public class MessageBundle
      * reporting purposes.
      */
     public function init (
-            msgmgr :MessageManager, path :String, bundle :ResourceBundle,
+            msgmgr :MessageManager, path :String, bundle :IResourceBundle,
             parent :MessageBundle) :void
     {
         _msgmgr = msgmgr;
@@ -100,12 +100,11 @@ public class MessageBundle
     protected function getResourceString (
             key :String, reportMissing :Boolean = true) :String
     {
-        try {
-            if (_bundle != null) {
-                return _bundle.getString(key);
+        if (_bundle != null) {
+            var val :Object = _bundle.content[key];
+            if (val != null) {
+                return String(val);
             }
-        } catch (missingResource :Error) {
-            // fall through and try the parent
         }
 
         // if we have a parent, try getting the string from them
@@ -413,7 +412,7 @@ public class MessageBundle
     protected var _path :String;
 
     /** The resource bundle from which we obtain our messages. */
-    protected var _bundle :ResourceBundle;
+    protected var _bundle :IResourceBundle;
 
     /** Our parent bundle if we're not the global bundle. */
     protected var _parent :MessageBundle;

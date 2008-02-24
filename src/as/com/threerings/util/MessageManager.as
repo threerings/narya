@@ -21,11 +21,9 @@
 
 package com.threerings.util {
 
-//import mx.managers.ISystemManager;
-//
-//import mx.resources.Locale;
-
-import mx.resources.ResourceBundle;
+import mx.resources.IResourceBundle;
+import mx.resources.Locale;
+import mx.resources.ResourceManager;
 
 /**
  * The message manager provides a thin wrapper around Java's built-in
@@ -64,8 +62,8 @@ public class MessageManager
      */
     public function MessageManager ()
     {
-//        // use the default locale
-//        _locale = Locale.getCurrent(sysMgr);
+        // use the default locale
+        _locale = ResourceManager.getInstance().getLocales()[0];
 
         // load up the global bundle
         _global = getBundle(GLOBAL_BUNDLE);
@@ -111,33 +109,23 @@ public class MessageManager
         }
 
         // if it's not cached, we'll need to resolve it
-        var rbundle :ResourceBundle = null;
-        try {
-            rbundle = ResourceBundle.getResourceBundle(path);
-        } catch (mre :Error) {
-            Log.getLog(this).warning("Unable to resolve resource bundle " +
-                "[path=" + path + "].");
-        }
+        var rbundle :IResourceBundle =
+            ResourceManager.getInstance().getResourceBundle(_locale, path);
 
         // if the resource bundle contains a special resource, we'll
         // interpret that as a derivation of MessageBundle to instantiate
         // for handling that class
         if (rbundle != null) {
-            var mbclass :String = null;
-            try {
-                mbclass = rbundle.getString(MBUNDLE_CLASS_KEY);
-                if (!StringUtil.isBlank(mbclass)) {
-                    try {
-                        var clazz :Class = ClassUtil.getClassByName(mbclass);
-                        bundle = new clazz();
-                    } catch (ee :Error) {
-                        Log.getLog(this).warning(
-                            "Failure instantiating custom message bundle " +
-                            "[mbclass=" + mbclass + ", error=" + ee + "].");
-                    }
+            var mbclass :Object = rbundle.content[MBUNDLE_CLASS_KEY];
+            if (mbclass != null) {
+                try {
+                    var clazz :Class = ClassUtil.getClassByName(String(mbclass));
+                    bundle = new clazz();
+                } catch (ee :Error) {
+                    Log.getLog(this).warning(
+                        "Failure instantiating custom message bundle " +
+                        "[mbclass=" + mbclass + ", error=" + ee + "].");
                 }
-            } catch (eee :Error) {
-                // nada
             }
         }
 
@@ -155,8 +143,8 @@ public class MessageManager
         return bundle;
     }
 
-//    /** The locale for which we're obtaining message bundles. */
-//    protected var _locale :Locale;
+    /** The locale for which we're obtaining message bundles. */
+    protected var _locale :String;
 
     /** A cache of instantiated message bundles. */
     protected var _cache :HashMap = new HashMap();
