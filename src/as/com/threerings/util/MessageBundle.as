@@ -71,23 +71,19 @@ public class MessageBundle
      * @param includeParent if true, messages from our parent bundle (and its
      * parent bundle, all the way up the chain will be included).
      */
-   /* COMMENTED OUT: pending proper implementation (and need)
-   public function getAll (
-            prefix :String, messages :Array, includeParent :Boolean = true) :void
+    public function getAll (
+        prefix :String, messages :Array, includeParent :Boolean = true) :void
     {
-        var key :String;
-        // TODO: possibly patch ResourceBundle to have getKeys()
-        //for (key in _bundle.getKeys()) {
-        //    if (StringUtil.startsWith(key, prefix)) {
-        //        messages.push(get(key));
-        //    }
-        //}
+        for (var key :String in _bundle.content) {
+            if (StringUtil.startsWith(key, prefix)) {
+                messages.push(get(key));
+            }
+        }
 
         if (includeParent && _parent != null) {
             _parent.getAll(prefix, messages, includeParent);
         }
     }
-    */
 
     /**
      * Get a String from the resource bundle, or null if there was an
