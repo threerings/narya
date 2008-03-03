@@ -118,11 +118,11 @@ public interface InvocationService
      * Extends the {@link InvocationListener} with a basic success
      * callback that delivers a result object.
      */
-    public static interface ResultListener<T> extends InvocationListener
+    public static interface ResultListener extends InvocationListener
     {
         /**
          * Indicates that the request was successfully processed.
          */
-        public void requestProcessed (T result);
+        public void requestProcessed (Object result);
     }
 }
