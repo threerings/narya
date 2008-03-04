@@ -43,6 +43,9 @@
       <!-- compiler.external-library-path: list of SWC files or directories to compile against but to omit from linking-->
       <external-library-path>
          <path-element>@flex_sdk_dir@/frameworks/libs/player/playerglobal.swc</path-element>
+         <path-element>@flex_sdk_dir@/frameworks/libs</path-element>
+         <path-element>@flex_sdk_dir@/frameworks/libs/player</path-element>
+         <path-element>@flex_sdk_dir@/frameworks/locale/{locale}</path-element>
       </external-library-path>
       <fonts>
          <!-- compiler.fonts.advanced-anti-aliasing: enables advanced anti-aliasing for embedded fonts, which provides greater clarity for small fonts.-->
@@ -104,9 +107,6 @@
       <keep-generated-actionscript>false</keep-generated-actionscript>
       <!-- compiler.library-path: list of SWC files or directories that contain SWC files-->
       <library-path>
-         <path-element>@flex_sdk_dir@/frameworks/libs</path-element>
-         <path-element>@flex_sdk_dir@/frameworks/libs/player</path-element>
-         <path-element>@flex_sdk_dir@/frameworks/locale/{locale}</path-element>
       </library-path>
       <!-- compiler.locale: specifies the locale for internationalization-->
       <locale>
