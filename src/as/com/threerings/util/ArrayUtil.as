@@ -31,6 +31,15 @@ package com.threerings.util {
 public class ArrayUtil
 {
     /**
+     * Creates a shallow copy of the array.
+     * @TODO: add support for copy ranges and deep copies?
+     */
+    public static function copyOf (arr :Array) :Array
+    {
+        return arr.slice();
+    }
+    
+    /**
      * Sort the specified array according to natural order- all elements
      * must implement Comparable or be null.
      */
