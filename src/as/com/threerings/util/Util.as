@@ -23,6 +23,8 @@ package com.threerings.util {
 
 import flash.utils.ByteArray;
 
+import flash.utils.describeType; // function import
+
 public class Util
 {
     /**
@@ -56,6 +58,14 @@ public class Util
                 }
             }
         }
+    }
+
+    /**
+     * Returns true if the specified object is just a regular old associative hash.
+     */
+    public static function isPlainObject (obj :Object) :Boolean
+    {
+        return (obj != null) && ("Object" == describeType(obj).@name.toString());
     }
 
     /**

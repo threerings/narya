@@ -229,7 +229,7 @@ public class StringUtil
             }
             return "Array(" + s + ")";
 
-        } else if (obj.constructor == Object) {
+        } else if (Util.isPlainObject(obj)) {
             // TODO: maybe do this for any dynamic object? (would have to use describeType)
             s = "";
             for (var prop :String in obj) {
