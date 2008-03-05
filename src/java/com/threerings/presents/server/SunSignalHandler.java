@@ -33,6 +33,11 @@ public class SunSignalHandler extends AbstractSignalHandler
 {
     protected boolean registerHandlers ()
     {
+        SignalUtil.register(SignalUtil.Number.TERM, new SignalUtil.Handler() {
+            public void signalReceived (SignalUtil.Number sig) {
+                termReceived();
+            }
+        });
         SignalUtil.register(SignalUtil.Number.INT, new SignalUtil.Handler() {
             public void signalReceived (SignalUtil.Number sig) {
                 intReceived();

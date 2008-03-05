@@ -148,7 +148,7 @@ public class PresentsServer
         log.info("Starting up server [os=" + si.osToString() + ", jvm=" + si.jvmToString() +
                  ", mem=" + si.memoryToString() + "].");
 
-        // register SIGINT (ctrl-c) and a SIGHUP handlers
+        // register SIGTERM, SIGINT (ctrl-c) and a SIGHUP handlers
         boolean registered = false;
         try {
             registered = new SunSignalHandler().init(this);

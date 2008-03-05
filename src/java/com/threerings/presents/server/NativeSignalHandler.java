@@ -35,6 +35,9 @@ public class NativeSignalHandler extends AbstractSignalHandler
     public boolean signalReceived (int signo)
     {
         switch (signo) {
+        case SignalManager.SIGTERM:
+            termReceived();
+            break;
         case SignalManager.SIGINT:
             intReceived();
             break;
@@ -53,6 +56,7 @@ public class NativeSignalHandler extends AbstractSignalHandler
         if (!SignalManager.servicesAvailable()) {
             return false;
         }
+        SignalManager.registerSignalHandler(SignalManager.SIGTERM, this);
         SignalManager.registerSignalHandler(SignalManager.SIGINT, this);
         SignalManager.registerSignalHandler(SignalManager.SIGHUP, this);
         return true;

@@ -43,6 +43,15 @@ public abstract class AbstractSignalHandler
     protected abstract boolean registerHandlers ();
 
     /**
+     * Implementations should call this method when a SIGTERM is received.
+     */
+    protected void termReceived ()
+    {
+        log.info("Shutdown initiated by TERM signal.");
+        _server.queueShutdown();
+    }
+
+    /**
      * Implementations should call this method when a SIGINT is received.
      */
     protected void intReceived ()
