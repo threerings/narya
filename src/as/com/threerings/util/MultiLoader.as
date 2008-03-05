@@ -28,8 +28,26 @@ import flash.utils.Dictionary;
 public class MultiLoader
 {
     /**
-     * Super-convenient function! Load multiple sources and have the DisplayObjects returned.
+     * Load one or more sources and return DisplayObjects.
      *
+     * @param sources an Array, Dictionary, or Object containing sources as values, or a single
+     * source value. The sources may be Strings (representing urls), URLRequests, ByteArrays,
+     * or a Class that can be instantiated to become a URLRequest or ByteArray. Note that
+     * the format of your sources Object dictates the format of the return Object.
+     * @param completeCallback the function to call when complete. The signature should be:
+     * <code>function (value :Object) :void</code>. Note that the structure of the return Object
+     * is dictated by the sources parameter. If you pass in an Array, you get your results
+     * in an Array. If you use a Dictionary or Object, the results will be returned as the same,
+     * with the same keys used in sources now pointing to the results. If your sources parameter
+     * was just a single source (like a String) then the result will just be a single result,
+     * like a DisplayObject. Each result will be a DisplayObject or an Error
+     * describing the problem.
+     * @param forEach if true, each value or error will be returned as soon as possible. The values
+     * or errors will be returned directly to the completeCallback. Any keys are lost, so you
+     * probably only want to use this with an Array sources.
+     * @param appDom the ApplicationDomain in which to load the contents, or null to specify
+     * that it should load in a child of the current ApplicationDomain.
+     * 
      * @example
      * <listing version="3.0">
      * MultiLoader.getContents(EMBED_CONSTANT, addChild);
@@ -74,7 +92,7 @@ public class MultiLoader
     }
 
     /**
-     * Exactly like getContents() only it returns the Loader objects.
+     * Exactly like getContents() only it returns the Loader objects rather than their contents.
      * @see getContents()
      */
     public static function getLoaders (
@@ -113,12 +131,13 @@ public class MultiLoader
      * Coordinate loading some asynchronous objects.
      *
      * @param sources An Array, Dictionary, or Object of sources, or just a single source.
-     * @param generatorFunciton a function to call to generate the loaders
-     * @param completeCallack the function to call when complete
+     * @param generatorFunciton a function to call to generate the loaders.
+     * @param completeCallack the function to call when complete.
      * @param forEach whether to call the completeCallback for each source, or all-at-once at
-     * the end. If forEach is used, keys will never be return
-     * @param errorTypes an Array of event types that will be dispatched on error
-     * @param completeType, the event complete type.
+     * the end. If forEach is used, keys will never be returned.
+     * @param errorTypes an Array of event types that will be dispatched by the loader.
+     * If unspecifed, all the normal error event types are used.
+     * @param completeType, the event complete type. If unspecifed @default Event.COMPLETE.
      */
     public function MultiLoader (
         sources :Object, generatorFn :Function, completeCallback :Function,
@@ -144,7 +163,6 @@ public class MultiLoader
         } else {
             _result = new Object();
             if (!Util.isPlainObject(sources)) {
-                trace("Sources is not a plain object: " + sources);
                 // stash the singleton source
                 sources = { singleton_key: sources };
             }
@@ -206,7 +224,6 @@ public class MultiLoader
 
     /**
      * Utility method used in this class.
-     *
      */
     protected static function processProperty (
         retval :Object, testClass :Class, prop :String) :Object
