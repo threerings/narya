@@ -64,9 +64,6 @@ import flash.system.LoaderContext;
  *     var myMovie = loader.getContent();
  * ...
  * </pre></code>
- *
- * @deprecated Content packs are coming, and symbols can be embedded directly
- * by using [Embed(source="foo.swf#somesymbol")]
  */
 [Deprecated(replacement="com.threerings.util.MultiLoader")]
 public class EmbeddedSwfLoader extends EventDispatcher 
