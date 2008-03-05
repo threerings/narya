@@ -49,6 +49,20 @@ public class ClientCommunicator extends BlockingCommunicator
         super(client);
     }
 
+    /**
+     * Sets our preferred connection port via our preferences mechanism.
+     */
+    protected void setPrefPort (String key, int port) {
+        PresentsPrefs.config.setValue(key, port);
+    }
+    
+    /**
+     * Gets our preferred connection port via our preferences mechanism.
+     */
+    protected int getPrefPort (String key, int defaultPort) {
+        return PresentsPrefs.config.getValue(key, defaultPort);
+    }
+    
     @Override // from BlockingCommunicator
     protected void openChannel (InetAddress host)
         throws IOException
@@ -57,7 +71,7 @@ public class ClientCommunicator extends BlockingCommunicator
         // determine our preferred port
         String pportKey = _client.getHostname() + ".preferred_port";
         int[] ports = _client.getPorts();
-        int pport = PresentsPrefs.config.getValue(pportKey, ports[0]);
+        int pport = getPrefPort(pportKey, ports[0]);
         int ppidx = Math.max(0, IntListUtil.indexOf(ports, pport));
 
         // try connecting on each of the ports in succession
@@ -131,12 +145,12 @@ public class ClientCommunicator extends BlockingCommunicator
 
         public void expired () {
             if (clearPPI(false)) {
-                PresentsPrefs.config.setValue(_key, _thisPort);
+                setPrefPort(_key, _thisPort);
             }
         }
 
         public void failed () {
-            PresentsPrefs.config.setValue(_key, _nextPort);
+            setPrefPort(_key, _nextPort);
         }
 
         protected String _key;
