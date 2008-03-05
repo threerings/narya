@@ -32,7 +32,8 @@ public class ArrayUtil
 {
     /**
      * Creates a shallow copy of the array.
-     * @TODO: add support for copy ranges and deep copies?
+     *
+     * @internal TODO: add support for copy ranges and deep copies?
      */
     public static function copyOf (arr :Array) :Array
     {
