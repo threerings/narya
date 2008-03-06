@@ -501,7 +501,7 @@ public class BlockingCommunicator extends Communicator
         {
             // we want to interrupt the reader thread as it may be blocked listening to the socket;
             // this is only called if the reader thread doesn't shut itself down
-//             interrupt();
+            interrupt();
         }
     }
 
