@@ -48,17 +48,18 @@ public class MultiLoader
      * @param appDom the ApplicationDomain in which to load the contents, or null to specify
      * that it should load in a child of the current ApplicationDomain.
      * 
-     * @example
+     * @example Load one embed, add it as a child.
      * <listing version="3.0">
      * MultiLoader.getContents(EMBED_CONSTANT, addChild);
      * </listing>
      *
-     * @example
+     * @example Load 3 embeds, add them as children.
      * <listing version="3.0">
      * MultiLoader.getContents([EMBED1, EMBED2, EMBED3], addChild, true);
      * </listing>
      *
-     * @example
+     * @example Load multiple URLs, have the contents returned to the result function one at
+     * a time.
      * <listing version="3.0">
      * function handleComplete (result :Object) :void {
      *    // process a result here. Result may be a DisplayObject or an Error.
@@ -72,7 +73,7 @@ public class MultiLoader
      * MultiLoader.getContents(obj, handleComplete, true);
      * </listing>
      * 
-     * @example
+     * @example Load 3 embeds, wait to handle them until they're all loaded.
      * <listing version="3.0">
      * function handleComplete (results :Array) :void {
      *     // process results here
@@ -93,6 +94,24 @@ public class MultiLoader
 
     /**
      * Exactly like getContents() only it returns the Loader objects rather than their contents.
+     *
+     * @example Advanced usage: Loading classes.
+     * <listing version="3.0">
+     * // A holder for new classes, created as a child of the system domain.
+     * var appDom :ApplicationDomain = new ApplicationDomain(null);
+     * <br/>
+     * function handleComplete (results :Object) :void {
+     *     // now we can retrieve classes
+     *     var clazz :Class = appDom.getDefinition("com.package.SomeClass") as Class;
+     * }
+     * <br/>
+     * // load all the classes contained in the specified sources
+     * MultiLoader.getLoaders([EMBED, "http://site.com/pack.swf"], handleComplete, false, appDom);
+     * <br/>
+     * [Embed(source="resource.swf", mimeType="application/octet-stream")]
+     * private static const EMBED :Class;
+     * </listing>
+     *
      * @see getContents()
      */
     public static function getLoaders (
