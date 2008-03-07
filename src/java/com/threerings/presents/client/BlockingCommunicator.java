@@ -25,6 +25,8 @@ import java.io.EOFException;
 import java.io.IOException;
 import java.io.InterruptedIOException;
 import java.nio.ByteBuffer;
+import java.nio.channels.ClosedByInterruptException;
+import java.nio.channels.ClosedChannelException;
 import java.nio.channels.SocketChannel;
 
 import java.net.ConnectException;
@@ -300,14 +302,21 @@ public class BlockingCommunicator extends Communicator
                 String txt = StringUtil.truncate(String.valueOf(msg), 80, "...");
                 Log.info("Whoa, writin' a big one [msg=" + txt + ", size=" + buffer.limit() + "].");
             }
-            int wrote = _channel.write(buffer);
-            if (wrote != buffer.limit()) {
-                Log.warning("Aiya! Couldn't write entire message [msg=" + msg +
-                            ", size=" + buffer.limit() + ", wrote=" + wrote + "].");
-//             } else {
-//                 Log.info("Wrote " + wrote + " bytes.");
-            }
 
+            try {
+                int wrote = _channel.write(buffer);
+                if (wrote != buffer.limit()) {
+                    Log.warning("Aiya! Couldn't write entire message [msg=" + msg +
+                                ", size=" + buffer.limit() + ", wrote=" + wrote + "].");
+//                  } else {
+//                     Log.info("Wrote " + wrote + " bytes.");
+                }
+            } catch (ClosedChannelException cce) {
+                // If we weren't expecting it, throw it on.
+                if (!_interrupted) {
+                    throw cce;
+                }
+            }
         } finally {
             _fout.resetFrame();
         }
@@ -462,6 +471,10 @@ public class BlockingCommunicator extends Communicator
 
                 // process the message
                 processMessage(msg);
+            } catch (ClosedByInterruptException cbie) {
+                // somebody set up us the bomb! we've been interrupted which means that we're being
+                // shut down, so we just report it and return from iterate() like a good monkey
+                Log.debug("Reader thread woken up in time to die.");
 
             } catch (InterruptedIOException iioe) {
                 // somebody set up us the bomb! we've been interrupted which means that we're being
@@ -501,11 +514,11 @@ public class BlockingCommunicator extends Communicator
         {
             // we want to interrupt the reader thread as it may be blocked listening to the socket;
             // this is only called if the reader thread doesn't shut itself down
-            
-            // While it would be nice to be able to handle wacky cases requiring reader-side
-            // shutdown, doing so causes consternation on the other end's writer which suddenly
-            // loses its connection.  So, we rely on the writer side to take us down.
-            // interrupt();
+
+            // Note that we're the ones in control of the interruption, and then do it to get our
+            //  reader out of waiting for the rest of a readFrame if necessary.
+            _interrupted = true;
+            interrupt();
         }
     }
 
@@ -582,4 +595,7 @@ public class BlockingCommunicator extends Communicator
 
     protected ClientDObjectMgr _omgr;
     protected ClassLoader _loader;
+
+    /** Whether or not we have interrupted our reader. */
+    protected boolean _interrupted;
 }
