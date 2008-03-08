@@ -313,8 +313,9 @@ public class StringUtil
             s = s.substring(index + url.length);
         }
 
-        // just the string is left
-        array.push(s);
+        if (s != "" || array.length == 0) { // avoid putting an empty string on the end
+            array.push(s);
+        }
         return array;
     }
 
