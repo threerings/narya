@@ -479,29 +479,19 @@ public class BlockingCommunicator extends Communicator
                 // somebody set up us the bomb! we've been interrupted which means that we're being
                 // shut down, so we just report it and return from iterate() like a good monkey
                 Log.debug("Reader thread woken up in time to die.");
-                // TEMP
-                Log.info("Blocking Communicator: Caught a ClosedByInterruptException: " + cbie); 
 
             } catch (InterruptedIOException iioe) {
                 // somebody set up us the bomb! we've been interrupted which means that we're being
                 // shut down, so we just report it and return from iterate() like a good monkey
                 Log.debug("Reader thread woken up in time to die.");
 
-                // TEMP
-                Log.info("Blocking Communicator: Caught a InterruptedIOException: " + iioe);
-                
             } catch (EOFException eofe) {
-                // TEMP
-                Log.info("Blocking Communicator: Caught an EOFException: " + eofe);
-                
                 // let the communicator know that our connection was closed
                 connectionClosed();
                 // and shut ourselves down
                 shutdown();
 
             } catch (IOException ioe) {
-                // TEMP
-                Log.info("Blocking Communicator: Caught an IOException: " + ioe);
                 // let the communicator know that our connection failed
                 connectionFailed(ioe);
                 // and shut ourselves down
@@ -532,10 +522,7 @@ public class BlockingCommunicator extends Communicator
             // Note that we're the ones in control of the interruption, and then do it to get our
             //  reader out of waiting for the rest of a readFrame if necessary.
             _interrupted = true;
-            Log.info("BlockingCommunicator: about to call interrupt");
             interrupt();
-            // TEMP
-            Log.info("BlockingCommunicator: called interrupt");
         }
     }
 
