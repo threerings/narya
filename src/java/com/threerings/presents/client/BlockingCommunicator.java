@@ -391,6 +391,10 @@ public class BlockingCommunicator extends Communicator
      */
     protected class Reader extends LoopingThread
     {
+        public Reader ()
+        {
+        }
+        
         protected void willStart ()
         {
             // first we connect and authenticate with the server
