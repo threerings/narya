@@ -154,13 +154,16 @@ public class MultiLoader
      * @param completeCallack the function to call when complete.
      * @param forEach whether to call the completeCallback for each source, or all-at-once at
      * the end. If forEach is used, keys will never be returned.
+     * @param isCompleteCheckFn a function to attempt to call on the dispatcher to see if
+     * it's already complete after generation.
      * @param errorTypes an Array of event types that will be dispatched by the loader.
      * If unspecifed, all the normal error event types are used.
      * @param completeType, the event complete type. If unspecifed @default Event.COMPLETE.
      */
     public function MultiLoader (
         sources :Object, generatorFn :Function, completeCallback :Function,
-        forEach :Boolean = false, errorTypes :Array = null, completeType :String = null)
+        forEach :Boolean = false, isCompleteCheckFn :String = null,
+        errorTypes :Array = null, completeType :String = null)
     {
         if (errorTypes == null) {
             errorTypes = [ ErrorEvent.ERROR, AsyncErrorEvent.ASYNC_ERROR,
@@ -173,6 +176,7 @@ public class MultiLoader
         _complete = completeCallback;
         _forEach = forEach;
 
+        var endCheckKey :* = null;
         if (sources is Array) {
             _result = new Array();
 
@@ -184,6 +188,7 @@ public class MultiLoader
             if (!Util.isPlainObject(sources)) {
                 // stash the singleton source
                 sources = { singleton_key: sources };
+                endCheckKey = "singleton_key";
             }
         }
 
@@ -198,12 +203,14 @@ public class MultiLoader
             }
             _result[key] = val;
             if (val is IEventDispatcher) {
-                var ed :IEventDispatcher = IEventDispatcher(val);
-                _remaining++;
-                _targetsToKeys[ed] = key;
-                ed.addEventListener(completeType, handleComplete);
-                for each (var type :String in errorTypes) {
-                    ed.addEventListener(type, handleError);
+                if (isCompleteCheckFn == null || !val[isCompleteCheckFn]()) {
+                    var ed :IEventDispatcher = IEventDispatcher(val);
+                    _remaining++;
+                    _targetsToKeys[ed] = key;
+                    ed.addEventListener(completeType, handleComplete);
+                    for each (var type :String in errorTypes) {
+                        ed.addEventListener(type, handleError);
+                    }
                 }
             } else if (_forEach) {
                 checkReport(key);
@@ -211,7 +218,7 @@ public class MultiLoader
         }
 
         if (!_forEach) {
-            checkReport(null);
+            checkReport(endCheckKey);
         }
     }
 
