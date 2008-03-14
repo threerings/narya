@@ -244,7 +244,8 @@ public class MultiLoader
         try {
             _complete(thisResult);
         } catch (err :Error) {
-            trace("MultiLoader: Could not call completeCallback: " + err);
+            trace("MultiLoader: Error calling completeCallback [result=" + thisResult + "].");
+            trace("Cause: " + err.getStackTrace());
         }
     }
 
