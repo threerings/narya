@@ -29,6 +29,7 @@ import flash.geom.Rectangle;
 import flash.system.ApplicationDomain;
 
 import flash.utils.ByteArray;
+import flash.utils.Dictionary;
 import flash.utils.Endian;
 import flash.utils.IExternalizable;
 import flash.utils.getQualifiedSuperclassName; // function import
@@ -145,6 +146,20 @@ public class ObjectMarshaller
                 return "Custom array subclasses are not supported";
             }
             // then, continue on with the sub-properties check (below)
+
+        } else if (value is Dictionary) {
+            if (ClassUtil.getClassName(value) != "flash.utils.Dictionary") {
+                return "Custom Dictionary subclasses are not supported";
+            }
+            // check all the keys
+            for (var key :* in value) {
+                var se :String = getValidationError(key);
+                if (se != null) {
+                    return se;
+                }
+            }
+            // then, continue on with sub-property check (below)
+
 
         } else {
             var type :String = typeof(value);
