@@ -23,6 +23,9 @@ package com.threerings.util {
 
 import flash.net.ObjectEncoding;
 
+import flash.geom.Point;
+import flash.geom.Rectangle;
+
 import flash.system.ApplicationDomain;
 
 import flash.utils.ByteArray;
@@ -148,16 +151,13 @@ public class ObjectMarshaller
             if (type == "number" || type == "string" || type == "boolean" ) {
                 return null; // kosher!
             }
-            if (value is ByteArray) {
+            if (-1 != VALID_CLASSES.indexOf(ClassUtil.getClass(value))) {
                 return null; // kosher
             }
-            var clazz :Class = ClassUtil.getClass(value);
-            var clazzparentname :String = getQualifiedSuperclassName(clazz);
-            var rootclass :Boolean = (clazzparentname == null);
-            if (! rootclass) {
+            if (!Util.isPlainObject(value)) {
                 return "Non-simple properties may not be set.";
             }
-            // fall through and verify the object's sub-properties
+            // fall through and verify the plain object's sub-properties
         }
 
         // check sub-properties (of arrays and objects)
@@ -170,5 +170,8 @@ public class ObjectMarshaller
 
         return null; // it all checks out!
     }
+
+    /** Non-simple classes that we allow, as long as they are not subclassed. */
+    protected static const VALID_CLASSES :Array = [ ByteArray, Point, Rectangle ];
 }
 }
