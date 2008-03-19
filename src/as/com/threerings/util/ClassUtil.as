@@ -68,12 +68,12 @@ public class ClassUtil
 
     public static function isSameClass (obj1 :Object, obj2 :Object) :Boolean
     {
-        return (obj1.constructor == obj2.constructor);
+        return (getClass(obj1) == getClass(obj2));
     }
 
     public static function getClass (obj :Object) :Class
     {
-        return Class(obj.constructor);
+        return getClassByName(getQualifiedClassName(obj));
     }
 
     public static function getClassByName (cname :String) :Class
