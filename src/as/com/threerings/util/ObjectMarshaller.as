@@ -166,7 +166,7 @@ public class ObjectMarshaller
             if (type == "number" || type == "string" || type == "boolean" ) {
                 return null; // kosher!
             }
-            if (-1 != VALID_CLASSES.indexOf(ClassUtil.getClassName(value))) {
+            if (-1 != VALID_CLASSES.indexOf(ClassUtil.getClass(value))) {
                 return null; // kosher
             }
             if (!Util.isPlainObject(value)) {
@@ -187,8 +187,6 @@ public class ObjectMarshaller
     }
 
     /** Non-simple classes that we allow, as long as they are not subclassed. */
-    protected static const VALID_CLASSES :Array = [
-        "flash.utils.ByteArray", "flash.geom.Point", "flash.geom.Rectangle"
-    ];
+    protected static const VALID_CLASSES :Array = [ ByteArray, Point, Rectangle ];
 }
 }
