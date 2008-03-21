@@ -752,8 +752,7 @@ public class PeerManager
     // from interface ClientManager.ClientObserver
     public void clientSessionDidStart (PresentsClient client)
     {
-        // if this is another peer, don't publish their info
-        if (client instanceof PeerClient) {
+        if (ignoreClient(client)) {
             return;
         }
 
@@ -775,8 +774,7 @@ public class PeerManager
     // from interface ClientManager.ClientObserver
     public void clientSessionDidEnd (PresentsClient client)
     {
-        // if this is another peer, don't worry about it
-        if (client instanceof PeerClient) {
+        if (ignoreClient(client)) {
             return;
         }
 
@@ -851,6 +849,18 @@ public class PeerManager
             _peers.put(record.nodeName, peer = createPeerNode(record));
         }
         peer.refresh(record);
+    }
+
+    /**
+     * Returns true if we should ignore the supplied client, false if we should let our other peers
+     * know that this client is authenticated with this server. <em>Note:</em> this is called at
+     * the beginning and end of the client session, so this method should return the same value
+     * both times.
+     */
+    protected boolean ignoreClient (PresentsClient client)
+    {
+        // if this is another peer, don't publish their info
+        return (client instanceof PeerClient);
     }
 
     /**
