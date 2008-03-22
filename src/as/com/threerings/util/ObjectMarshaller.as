@@ -21,6 +21,7 @@
 
 package com.threerings.util {
 
+import flash.net.registerClassAlias; // function import
 import flash.net.ObjectEncoding;
 
 import flash.geom.Point;
@@ -32,7 +33,6 @@ import flash.utils.ByteArray;
 import flash.utils.Dictionary;
 import flash.utils.Endian;
 import flash.utils.IExternalizable;
-import flash.utils.getQualifiedSuperclassName; // function import
 
 import com.threerings.io.TypedArray;
 
@@ -185,6 +185,16 @@ public class ObjectMarshaller
 
         return null; // it all checks out!
     }
+
+    /**
+     * Our static initializer.
+     */
+    private static function staticInit () :void
+    {
+        registerClassAlias("Point", Point);
+        registerClassAlias("Rectangle", Rectangle);
+    }
+    staticInit();
 
     /** Non-simple classes that we allow, as long as they are not subclassed. */
     protected static const VALID_CLASSES :Array = [ ByteArray, Point, Rectangle ];
