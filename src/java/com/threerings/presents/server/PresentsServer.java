@@ -187,11 +187,12 @@ public class PresentsServer
         TimeBaseProvider.init(invmgr, omgr);
 
         // queue up an interval which will generate reports
-        new Interval(omgr) {
+        _reportInterval = new Interval(omgr) {
             public void expired () {
                 logReport(generateReport(System.currentTimeMillis(), true));
             }
-        }.schedule(REPORT_INTERVAL, true);
+        };
+        _reportInterval.schedule(REPORT_INTERVAL, true);
     }
 
     /**
@@ -386,6 +387,9 @@ public class PresentsServer
     protected void invokerDidShutdown ()
     {
     }
+    
+    /** Our interval that generates "state of server" reports. */
+    protected Interval _reportInterval;
 
     /** The time at which the server was started. */
     protected static long _serverStartTime = System.currentTimeMillis();
