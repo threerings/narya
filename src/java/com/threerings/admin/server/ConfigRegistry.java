@@ -67,6 +67,26 @@ import com.threerings.presents.dobj.SetListener;
 */
 public abstract class ConfigRegistry
 {
+
+    /**
+     * Creates a ConfigRegistry that isn't transitioning.
+     */
+    public ConfigRegistry ()
+    {
+        this(false);
+    }
+
+    /**
+     * Creates a ConfigRegistry.
+     * 
+     * @param transitioning if true, serialized Streamable instances stored in the registry will
+     * be written back out immediately to allow them to be transitioned to new class names.
+     */
+    public ConfigRegistry (boolean transitioning)
+    {
+        _transitioning = transitioning;
+    }
+
     /**
      * Registers the supplied configuration object with the system.
      *
@@ -286,7 +306,13 @@ public abstract class ConfigRegistry
                         ByteArrayInputStream bin =
                             new ByteArrayInputStream(StringUtil.unhexlate(value));
                         ObjectInputStream oin = createObjectInputStream(bin);
-                        field.set(object, oin.readObject());
+                        Object deserializedValue = oin.readObject();
+                        field.set(object, deserializedValue);
+                        if (_transitioning) {
+                            // Use serialize rather than serializeAttribute so we don't get 
+                            // ObjectAccessExceptions
+                            serialize(key, nameToKey(key), deserializedValue);
+                        }
                     } catch (Exception e) {
                         Log.warning("Failure decoding config value [type=" + type +
                                     ", field=" + field + ", exception=" + e + "].");
@@ -378,4 +404,7 @@ public abstract class ConfigRegistry
 
     /** A mapping from identifying key to config object. */
     protected HashMap<String,ObjectRecord> _configs = new HashMap<String,ObjectRecord>();
+    
+    /** If we need to transition serialized Streamables to a new class format in init.. */
+    protected boolean _transitioning;
 }

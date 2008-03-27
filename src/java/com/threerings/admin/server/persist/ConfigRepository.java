@@ -46,21 +46,15 @@ public class ConfigRepository extends DepotRepository
     /**
      * Loads up the configuration data for the specified object.
      * 
-     * @param transitioning - if true, the read in value will be written out again immediately to
-     * transition the stored data to a new format
-     * 
      * @return a map containing field/value pairs for all stored configuration data.
      */
-    public HashMap<String,String> loadConfig (String node, String object, boolean transitioning)
+    public HashMap<String,String> loadConfig (String node, String object)
         throws PersistenceException
     {
         HashMap<String, String> data = new HashMap<String, String>();
         Where where = new Where(ConfigRecord.OBJECT_C, object, ConfigRecord.NODE_C, node);
         for (ConfigRecord record : findAll(ConfigRecord.class, where)) {
             data.put(record.field, record.value);
-            if (transitioning) {
-                updateConfig(node, object, record.field, record.value);
-            }
         }
         return data;
     }
@@ -79,6 +73,4 @@ public class ConfigRepository extends DepotRepository
     {
         classes.add(ConfigRecord.class);
     }
-    
-    protected boolean _transitioning;
 }

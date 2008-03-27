@@ -99,10 +99,10 @@ public class DatabaseConfigRegistry extends ConfigRegistry
             boolean transitioning)
         throws PersistenceException
     {
+        super(transitioning);
         _repo = new ConfigRepository(ctx);
         _invoker = invoker;
         _node = StringUtil.isBlank(node) ? "" : node;
-        _transitioning = transitioning;
     }
 
     @Override // from ConfigRegistry
@@ -119,6 +119,7 @@ public class DatabaseConfigRegistry extends ConfigRegistry
             _path = path;
         }
 
+        @Override
         public void init ()
         {
             // load up our persistent data synchronously because we should be in the middle of
@@ -126,7 +127,7 @@ public class DatabaseConfigRegistry extends ConfigRegistry
             // be completely initialized when we return from this call so that subsequent systems
             // can predictably make use of the configuration information that we load
             try {
-                _data = _repo.loadConfig(_node, _path, _transitioning);
+                _data = _repo.loadConfig(_node, _path);
             } catch (PersistenceException pe) {
                 Log.warning("Failed to load object configuration [path=" + _path + "].");
                 Log.logStackTrace(pe);
@@ -305,7 +306,6 @@ public class DatabaseConfigRegistry extends ConfigRegistry
         protected HashMap<String,String> _data;
     }
 
-    protected boolean _transitioning;
     protected ConfigRepository _repo;
     protected Invoker _invoker;
     protected String _node;
