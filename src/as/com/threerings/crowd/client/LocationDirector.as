@@ -211,11 +211,14 @@ public class LocationDirector extends BasicDirector
             return false;
         }
 
-        _lservice.leavePlace(_cctx.getClient());
-        didLeavePlace();
+        // if we're not actually in a place, then no need to do anything
+        if (_placeId < 0) {
+            _lservice.leavePlace(_cctx.getClient());
+            didLeavePlace();
 
-        // let our observers know that we're no longer in a location
-        _observers.apply(didChangeOp);
+            // let our observers know that we're no longer in a location
+            _observers.apply(didChangeOp);
+        }
 
         return true;
     }
