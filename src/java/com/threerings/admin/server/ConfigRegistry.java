@@ -23,19 +23,17 @@ package com.threerings.admin.server;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.HashMap;
 
-import javax.swing.JEditorPane;
-
 import com.samskivert.io.ByteArrayOutInputStream;
 import com.samskivert.util.StringUtil;
-
+import com.threerings.admin.Log;
 import com.threerings.io.ObjectInputStream;
 import com.threerings.io.ObjectOutputStream;
 import com.threerings.io.Streamable;
-
 import com.threerings.presents.dobj.AccessController;
 import com.threerings.presents.dobj.AttributeChangeListener;
 import com.threerings.presents.dobj.AttributeChangedEvent;
@@ -48,8 +46,6 @@ import com.threerings.presents.dobj.EntryRemovedEvent;
 import com.threerings.presents.dobj.EntryUpdatedEvent;
 import com.threerings.presents.dobj.ObjectAccessException;
 import com.threerings.presents.dobj.SetListener;
-
-import com.threerings.admin.Log;
 
 /**
  * Provides a registry of configuration distributed objects. Using distributed object to store
@@ -109,6 +105,14 @@ public abstract class ConfigRegistry
      * Creates an object record derivation that will handle the management of the specified object.
      */
     protected abstract ObjectRecord createObjectRecord (String path, DObject object);
+
+    /**
+     * Create an ObjectInputStream to read serialized config entries.
+     */
+    protected ObjectInputStream createObjectInputStream (InputStream bin)
+    {
+        return new ObjectInputStream(bin);
+    }
 
     /**
      * Contains all necessary info for a configuration object registration.
@@ -281,7 +285,7 @@ public abstract class ConfigRegistry
                     try {
                         ByteArrayInputStream bin =
                             new ByteArrayInputStream(StringUtil.unhexlate(value));
-                        ObjectInputStream oin = new ObjectInputStream(bin);
+                        ObjectInputStream oin = createObjectInputStream(bin);
                         field.set(object, oin.readObject());
                     } catch (Exception e) {
                         Log.warning("Failure decoding config value [type=" + type +

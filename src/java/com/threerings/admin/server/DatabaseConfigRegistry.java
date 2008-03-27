@@ -52,7 +52,21 @@ public class DatabaseConfigRegistry extends ConfigRegistry
     public DatabaseConfigRegistry (PersistenceContext ctx, Invoker invoker)
         throws PersistenceException
     {
-        this(ctx, invoker, "");
+        this(ctx, invoker, false);
+    }
+    
+    /**
+     * Creates a configuration registry and prepares it for operation.
+     * 
+     * @param ctx will provide access to our database.
+     * @param invoker this will be used to perform all database activity (except first time
+     * initialization) so as to avoid blocking the distributed object thread.
+     * @param transitioning if the values in the database need to be transitioned to a new format
+     */
+    public DatabaseConfigRegistry (PersistenceContext ctx, Invoker invoker, boolean transitioning)
+        throws PersistenceException
+    {
+        this(ctx, invoker, "", transitioning);
     }
 
     /**
@@ -62,14 +76,33 @@ public class DatabaseConfigRegistry extends ConfigRegistry
      * @param invoker this will be used to perform all database activity (except first time
      * initialization) so as to avoid blocking the distributed object thread.
      * @param node if this config registry is accessed by multiple servers which wish to maintain
-     * seperate configs, then specificy a node for each server
+     * separate configs, then specify a node for each server
      */
     public DatabaseConfigRegistry (PersistenceContext ctx, Invoker invoker, String node)
+        throws PersistenceException
+    {
+        this(ctx, invoker, node, false);
+    }
+
+
+    /**
+     * Creates a configuration registry and prepares it for operation.
+     *
+     * @param ctx will provide access to our database.
+     * @param invoker this will be used to perform all database activity (except first time
+     * initialization) so as to avoid blocking the distributed object thread.
+     * @param node if this config registry is accessed by multiple servers which wish to maintain
+     * separate configs, then specify a node for each server
+     * @param transitioning if the values in the database need to be transitioned to a new format
+     */
+    public DatabaseConfigRegistry (PersistenceContext ctx, Invoker invoker, String node,
+            boolean transitioning)
         throws PersistenceException
     {
         _repo = new ConfigRepository(ctx);
         _invoker = invoker;
         _node = StringUtil.isBlank(node) ? "" : node;
+        _transitioning = transitioning;
     }
 
     @Override // from ConfigRegistry
@@ -93,7 +126,7 @@ public class DatabaseConfigRegistry extends ConfigRegistry
             // be completely initialized when we return from this call so that subsequent systems
             // can predictably make use of the configuration information that we load
             try {
-                _data = _repo.loadConfig(_node, _path);
+                _data = _repo.loadConfig(_node, _path, _transitioning);
             } catch (PersistenceException pe) {
                 Log.warning("Failed to load object configuration [path=" + _path + "].");
                 Log.logStackTrace(pe);
@@ -272,6 +305,7 @@ public class DatabaseConfigRegistry extends ConfigRegistry
         protected HashMap<String,String> _data;
     }
 
+    protected boolean _transitioning;
     protected ConfigRepository _repo;
     protected Invoker _invoker;
     protected String _node;
