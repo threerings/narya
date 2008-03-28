@@ -212,7 +212,7 @@ public class LocationDirector extends BasicDirector
         }
 
         // if we're not actually in a place, then no need to do anything
-        if (_placeId < 0) {
+        if (_placeId > 0) {
             _lservice.leavePlace(_cctx.getClient());
             didLeavePlace();
 
