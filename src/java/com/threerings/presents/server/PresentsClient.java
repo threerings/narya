@@ -805,7 +805,7 @@ public class PresentsClient
     {
         buf.append("username=").append(_username);
         buf.append(", conn=").append(_conn);
-        buf.append(", cloid=").append((_clobj == null) ? -1 : _clobj.getOid());
+        buf.append(", who=").append(_username);
         buf.append(", in=").append(_messagesIn);
         buf.append(", out=").append(_messagesOut);
     }
