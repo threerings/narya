@@ -191,9 +191,9 @@ public class ObjectMarshaller
      */
     private static function staticInit () :void
     {
-        registerClassAlias("Point", Point);
-        registerClassAlias("Rectangle", Rectangle);
-        registerClassAlias("Dictionary", Dictionary);
+        registerClassAlias("P", Point);
+        registerClassAlias("R", Rectangle);
+        registerClassAlias("D", Dictionary);
     }
     staticInit();
 
