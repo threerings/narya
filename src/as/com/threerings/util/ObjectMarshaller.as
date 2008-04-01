@@ -193,6 +193,7 @@ public class ObjectMarshaller
     {
         registerClassAlias("Point", Point);
         registerClassAlias("Rectangle", Rectangle);
+        registerClassAlias("Dictionary", Dictionary);
     }
     staticInit();
 
