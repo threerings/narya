@@ -39,7 +39,7 @@ public class ArrayUtil
     {
         return arr.slice();
     }
-    
+
     /**
      * Sort the specified array according to natural order- all elements
      * must implement Comparable or be null.
@@ -47,6 +47,34 @@ public class ArrayUtil
     public static function sort (arr :Array) :void
     {
         arr.sort(Comparators.COMPARABLE);
+    }
+
+    /**
+     * Perform a stable sort on the specified array.
+     * @param comp a function that takes two objects in the array and returns -1 if the first
+     * object should appear before the second in the container, 1 if it should appear after,
+     * and 0 if the order does not matter.
+     */
+    public static function stableSort (arr :Array, comp :Function) :void
+    {
+        // insertion sort implementation
+
+        var n :int = arr.length;
+        for (var i :int = 1; i < n; ++i) {
+            var val :* = arr[i];
+            var j :int = i - 1;
+            while (j >= 0) {
+                var compVal :* = arr[j];
+                if (comp(val, compVal) < 0) {
+                    break;
+                }
+
+                arr[j + 1] = compVal;
+                --j;
+            }
+
+            arr[j + 1] = val;
+        }
     }
 
     /**
