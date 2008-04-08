@@ -68,7 +68,7 @@ public class ArrayUtil
             var jj :int = ii - 1;
             for (; jj >= 0; jj--) {
                 var compVal :* = arr[jj];
-                if (comp(val, compVal) < 0) {
+                if (comp(val, compVal) >= 0) {
                     break;
                 }
                 arr[jj + 1] = compVal;
