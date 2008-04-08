@@ -53,27 +53,27 @@ public class ArrayUtil
      * Perform a stable sort on the specified array.
      * @param comp a function that takes two objects in the array and returns -1 if the first
      * object should appear before the second in the container, 1 if it should appear after,
-     * and 0 if the order does not matter.
+     * and 0 if the order does not matter. If omitted, Comparators.COMPARABLE is used and
+     * the array elements should be Comparable objects.
      */
-    public static function stableSort (arr :Array, comp :Function) :void
+    public static function stableSort (arr :Array, comp :Function = null) :void
     {
+        if (comp == null) {
+            comp = Comparators.COMPARABLE;
+        }
         // insertion sort implementation
-
-        var n :int = arr.length;
-        for (var i :int = 1; i < n; ++i) {
-            var val :* = arr[i];
-            var j :int = i - 1;
-            while (j >= 0) {
-                var compVal :* = arr[j];
+        var nn :int = arr.length;
+        for (var ii :int = 1; ii < nn; ii++) {
+            var val :* = arr[ii];
+            var jj :int = ii - 1;
+            for (; jj >= 0; jj--) {
+                var compVal :* = arr[jj];
                 if (comp(val, compVal) < 0) {
                     break;
                 }
-
-                arr[j + 1] = compVal;
-                --j;
+                arr[jj + 1] = compVal;
             }
-
-            arr[j + 1] = val;
+            arr[jj + 1] = val;
         }
     }
 
