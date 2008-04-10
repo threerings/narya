@@ -283,7 +283,7 @@ public class Client
      * {@link InvocationService} derivation.  <code>null</code> is returned if no such service
      * could be found.
      */
-    public InvocationService getService (Class sclass)
+    public <T> T getService (Class<T> sclass)
     {
         if (_bstrap == null) {
             return null;
@@ -292,7 +292,8 @@ public class Client
         for (int ii = 0; ii < scount; ii++) {
             InvocationService service = _bstrap.services.get(ii);
             if (sclass.isInstance(service)) {
-                return service;
+                @SuppressWarnings("unchecked") T asSclass = (T)service;
+                return asSclass;
             }
         }
         return null;
@@ -303,9 +304,9 @@ public class Client
      * not available. Useful to avoid redundant error checking when you know that the shit will hit
      * the fan if a particular invocation service is not available.
      */
-    public InvocationService requireService (Class sclass)
+    public <T> T requireService (Class<T> sclass)
     {
-        InvocationService isvc = getService(sclass);
+        T isvc = getService(sclass);
         if (isvc == null) {
             throw new RuntimeException(
                 sclass.getName() + " isn't available. I can't bear to go on.");
