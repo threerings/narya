@@ -441,8 +441,11 @@ public class ChatDirector extends BasicDirector
      * @param target the username of the user to which the tell message should be delivered.
      * @param msg the contents of the tell message.
      * @param rl an optional result listener if you'd like to be notified of success or failure.
+     * @param feedbackLocaltype this local type will be used for both TellFeedbackMessages, and 
+     *                          regular feedback that is dispatched for away/idle messages.
      */
-    public function requestTell (target :Name, msg :String, rl :ResultListener) :void
+    public function requestTell (target :Name, msg :String, rl :ResultListener, 
+        feedbackLocaltype :String = ChatCodes.PLACE_CHAT_TYPE) :void
     {
         // make sure they can say what they want to say
         var message :String = filter(msg, target, true);
@@ -458,13 +461,13 @@ public class ChatDirector extends BasicDirector
                 "m.tell_failed", MessageBundle.taint(target), reason);
             var tfm :TellFeedbackMessage = new TellFeedbackMessage(target, msg, true);
             tfm.bundle = _bundle;
-            dispatchMessage(tfm, ChatCodes.PLACE_CHAT_TYPE);
+            dispatchMessage(tfm, feedbackLocaltype);
             if (rl != null) {
                 rl.requestFailed(null);
             }
         };
         var success :Function = function (idleTime :Long, awayMessage :String) :void {
-            dispatchMessage(new TellFeedbackMessage(target, message), ChatCodes.PLACE_CHAT_TYPE);
+            dispatchMessage(new TellFeedbackMessage(target, message), feedbackLocaltype);
             addChatter(target);
             if (rl != null) {
                 rl.requestCompleted(target);
@@ -476,7 +479,7 @@ public class ChatDirector extends BasicDirector
                 if (awayMessage != null) {
                     var msg :String = MessageBundle.tcompose(
                         "m.recipient_afk", target, awayMessage);
-                    displayFeedback(_bundle, msg);
+                    displaySystem(_bundle, msg, SystemMessage.FEEDBACK, feedbackLocaltype);
                 }
             }
 
@@ -489,7 +492,7 @@ public class ChatDirector extends BasicDirector
                 var rmsg :String = MessageBundle.compose(
                     "m.recipient_idle", MessageBundle.taint(target),
                     TimeUtil.getTimeOrderString(idle, TimeUtil.MINUTE));
-                displayFeedback(_bundle, rmsg);
+                displaySystem(_bundle, rmsg, SystemMessage.FEEDBACK, feedbackLocaltype);
             }
         };
         _cservice.tell(_cctx.getClient(), target, message, new TellAdapter(failure, success));
