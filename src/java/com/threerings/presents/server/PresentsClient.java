@@ -24,7 +24,6 @@ package com.threerings.presents.server;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.TimeZone;
 import java.util.logging.Level;
 
@@ -204,10 +203,6 @@ public class PresentsClient
                     return;
                 }
 
-                // let the client know that the rug has been yanked out from under their ass
-                Object[] args = new Object[] { Integer.valueOf(clobj.getOid()) };
-                _clobj.postMessage(ClientObject.CLOBJ_CHANGED, args);
-
                 // call down to any derived classes
                 clientObjectWillChange(_clobj, clobj);
 
@@ -231,6 +226,10 @@ public class PresentsClient
              */
             protected void finishResolved (Name username, ClientObject clobj)
             {
+                // let the client know that the rug has been yanked out from under their ass
+                Object[] args = new Object[] { Integer.valueOf(clobj.getOid()) };
+                _clobj.postMessage(ClientObject.CLOBJ_CHANGED, args);
+
                 // release our old client object; this will destroy it
                 _cmgr.releaseClientObject(_username);
 
