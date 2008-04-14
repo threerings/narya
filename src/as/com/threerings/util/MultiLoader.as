@@ -202,15 +202,14 @@ public class MultiLoader
                 val = err;
             }
             _result[key] = val;
-            if (val is IEventDispatcher) {
-                if (isCompleteCheckFn == null || !val[isCompleteCheckFn]()) {
-                    var ed :IEventDispatcher = IEventDispatcher(val);
-                    _remaining++;
-                    _targetsToKeys[ed] = key;
-                    ed.addEventListener(completeType, handleComplete);
-                    for each (var type :String in errorTypes) {
-                        ed.addEventListener(type, handleError);
-                    }
+            if ((val is IEventDispatcher) &&
+                    (isCompleteCheckFn == null || !val[isCompleteCheckFn]())) {
+                var ed :IEventDispatcher = IEventDispatcher(val);
+                _remaining++;
+                _targetsToKeys[ed] = key;
+                ed.addEventListener(completeType, handleComplete);
+                for each (var type :String in errorTypes) {
+                    ed.addEventListener(type, handleError);
                 }
             } else if (_forEach) {
                 checkReport(key);
