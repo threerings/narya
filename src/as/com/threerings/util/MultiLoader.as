@@ -219,6 +219,11 @@ public class MultiLoader
         if (!_forEach) {
             checkReport(endCheckKey);
         }
+
+        // if we're not done at this point, keep a reference to this loader
+        if (_remaining > 0) {
+            _activeMultiLoaders[this] = true;
+        }
     }
 
     protected function handleError (event :ErrorEvent) :void
@@ -245,6 +250,19 @@ public class MultiLoader
         } catch (err :Error) {
             trace("MultiLoader: Error calling completeCallback [result=" + thisResult + "].");
             trace("Cause: " + err.getStackTrace());
+        }
+
+        if (_forEach) {
+            delete _result[key]; // free the loaded object to assist gc
+        }
+
+        // If we're all done, remove the static reference to this loader.
+        // Note that this could be called in for-each mode if we haven't yet started to load
+        // something asynchronously but have come across an Error or an already-completed load.
+        // That's ok, as this will just end up deleting a reference that doesn't exist, and if
+        // necessary the reference will still be added at the end of the constructor.
+        if (_remaining == 0) {
+            delete _activeMultiLoaders[this];
         }
     }
 
@@ -277,5 +295,6 @@ public class MultiLoader
 
     protected var _remaining :int = 0;
 
+    protected static const _activeMultiLoaders :Dictionary = new Dictionary();
 }
 }
