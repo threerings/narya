@@ -234,13 +234,8 @@ public class PeerManager
         // register ourselves as a client observer
         PresentsServer.clmgr.addClientObserver(this);
 
-        // and start our peer refresh interval (this need not use a runqueue as all it will do is
-        // post an invoker unit)
-        new Interval() {
-            public void expired () {
-                refreshPeers();
-            }
-        }.schedule(5000L, 60*1000L);
+        // and start our peer refresh interval
+        _peerRefresher.schedule(5000L, 60*1000L);
 
         // give derived classes an easy way to get in on the init action
         didInit();
@@ -699,6 +694,9 @@ public class PeerManager
         if (_nodeobj != null) {
             PresentsServer.invmgr.clearDispatcher(_nodeobj.peerService);
         }
+
+        // stop our peer refresher interval
+        _peerRefresher.cancel();
 
         // clear out our client observer registration
         PresentsServer.clmgr.removeClientObserver(this);
@@ -1206,6 +1204,13 @@ public class PeerManager
     protected NodeRepository _noderepo;
     protected NodeObject _nodeobj;
     protected HashMap<String,PeerNode> _peers = new HashMap<String,PeerNode>();
+
+    // (this need not use a runqueue as all it will do is post an invoker unit)
+    protected Interval _peerRefresher = new Interval() {
+        public void expired () {
+            refreshPeers();
+        }
+    };
 
     /** The client oids of all peers subscribed to the node object. */
     protected ArrayIntSet _suboids = new ArrayIntSet();
