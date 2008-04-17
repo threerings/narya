@@ -119,6 +119,19 @@ public class ArrayUtil
     }
 
     /**
+     * Returns the first item in the array for which the predicate function returns true, or
+     * -1 if no such item was found. The predicate function should be of type:
+     *   function (element :*) :Boolean { }
+     *
+     * @return the matching element, or null if no matching element was found
+     */
+    public static function findIf (arr :Array, predicate :Function) :*
+    {
+        var index :int = (arr != null ? indexIf(arr, predicate) : -1);
+        return (index >= 0 ? arr[index] : null);
+    }
+
+    /**
      * Returns the first index of the supplied element in the array. Note that if the element
      * implements Equalable, an element that is equals() will have its index returned, instead
      * of requiring the search element to be === (strictly equal) to an element in the array
