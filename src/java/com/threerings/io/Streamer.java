@@ -422,6 +422,13 @@ public class Streamer
         // keep a handle on the class
         _target = target;
 
+        // if this is a non-anonymous inner class, freak out because we cannot stream those
+        if (_target.isLocalClass() || _target.isAnonymousClass() ||
+            (_target.isMemberClass() && !Modifier.isStatic(_target.getModifiers()))) {
+            throw new IllegalArgumentException(
+                "Cannot stream non-static inner class: " + _target.getName());
+        }
+
         // if our target class is an array, we want to get a handle on a streamer delegate that
         // we'll use to stream our elements
         if (_target.isArray()) {
