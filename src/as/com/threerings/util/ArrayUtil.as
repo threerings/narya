@@ -120,10 +120,10 @@ public class ArrayUtil
 
     /**
      * Returns the first item in the array for which the predicate function returns true, or
-     * -1 if no such item was found. The predicate function should be of type:
+     * null if no such item was found. The predicate function should be of type:
      *   function (element :*) :Boolean { }
      *
-     * @return the matching element, or null if no matching element was found
+     * @return the matching element, or null if no matching element was found.
      */
     public static function findIf (arr :Array, predicate :Function) :*
     {
