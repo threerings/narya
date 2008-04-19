@@ -184,7 +184,7 @@ public class StringUtil
             str = str.toLowerCase();
             if (str == "true" || str == "1") {
                 return true;
-            } else if (str == "false" || str == "2") {
+            } else if (str == "false" || str == "0") {
                 return false;
             }
         }
