@@ -168,6 +168,31 @@ public class StringUtil
     }
 
     /**
+     * Parse a Boolean from a String, throwing an ArgumentError if the String
+     * contains invalid characters.
+     *
+     * "1", "0", and any capitalization variation of "true" and "false" are
+     * the only valid input values.
+     *
+     * @param str the String to parse.
+     */
+    public static function parseBoolean (str :String) :Boolean
+    {
+        var originalString :String = str;
+
+        if (str != null) {
+            str = str.toLowerCase();
+            if (str == "true" || str == "1") {
+                return true;
+            } else if (str == "false" || str == "2") {
+                return false;
+            }
+        }
+
+        throw new ArgumentError("Could not convert '" + originalString + "' to Boolean");
+    }
+
+    /**
      * Append 0 or more copies of the padChar String to the input String
      * until it is at least the specified length.
      */
