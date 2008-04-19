@@ -22,7 +22,6 @@
 package com.threerings.util {
 
 import flash.utils.ByteArray;
-
 import flash.utils.describeType; // function import
 
 public class StringUtil
@@ -124,6 +123,48 @@ public class StringUtil
                 "].");
         }
         return uint(result);
+    }
+
+    /**
+     * Parse a Number from a String, throwing an ArgumentError if there are any
+     * invalid characters.
+     *
+     * 1.5, 2e-3, -Infinity, Infinity, and NaN are all valid Strings.
+     *
+     * @param str the String to parse.
+     */
+    public static function parseNumber (str :String) :Number
+    {
+        var originalString :String = str;
+
+        if (str == null) {
+            throw new ArgumentError("Cannot parseNumber(null)");
+        }
+
+        // deal with a few special cases
+        if (str == "Infinity") {
+            return Infinity;
+        } else if (str == "-Infinity") {
+            return -Infinity;
+        } else if (str == "NaN") {
+            return NaN;
+        }
+
+        // validate all characters before the "e"
+        str = validateDecimal(str, true, true);
+
+        // validate all characters after the "e"
+        if (null != str && str.charAt(0) == "e") {
+            str = str.substring(1);
+            validateDecimal(str, false, false);
+        }
+
+        if (null == str) {
+            throw new ArgumentError("Could not convert '" + originalString + "' to Number");
+        }
+
+        // let Flash do the actual conversion
+        return parseFloat(originalString);
     }
 
     /**
@@ -389,6 +430,49 @@ public class StringUtil
     }
 
     /**
+     * Internal helper function for parseNumber.
+     */
+    protected static function validateDecimal (str :String, allowDot :Boolean, allowTrailingE :Boolean) :String
+    {
+        // skip the leading minus
+        if (str.charAt(0) == "-") {
+            str = str.substring(1);
+        }
+
+        // validate that the characters in the string are all integers,
+        // with at most one '.'
+        var seenDot :Boolean;
+        var seenDigit :Boolean;
+        while (str.length > 0) {
+            var char :String = str.charAt(0);
+            if (char == ".") {
+                if (!allowDot || seenDot) {
+                    return null;
+                }
+                seenDot = true;
+            } else if (char == "e") {
+                if (!allowTrailingE) {
+                    return null;
+                }
+                break;
+            } else if (DECIMAL.indexOf(char) >= 0) {
+                seenDigit = true;
+            } else {
+                return null;
+            }
+
+            str = str.substring(1);
+        }
+
+        // ensure we've seen at least one digit so far
+        if (!seenDigit) {
+            return null;
+        }
+
+        return str;
+    }
+
+    /**
      * Internal helper function for parseInteger and parseUnsignedInteger.
      */
     protected static function parseInt0 (str :String, radix :uint, allowNegative :Boolean) :Number
@@ -445,6 +529,10 @@ public class StringUtil
     /** Hexidecimal digits. */
     protected static const HEX :Array = [ "0", "1", "2", "3", "4",
         "5", "6", "7", "8", "9", "a", "b", "c", "d", "e", "f" ];
+
+    /** Decimal digits. */
+    protected static const DECIMAL :Array = [ "0", "1", "2", "3", "4",
+        "5", "6", "7", "8", "9" ];
 
     /** A regular expression that finds URLs. */
     protected static const URL_REGEXP :RegExp =
