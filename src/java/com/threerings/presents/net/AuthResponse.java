@@ -58,6 +58,14 @@ public class AuthResponse extends DownstreamMessage
         return _data;
     }
 
+    /**
+     * Replaces this response's auth data.
+     */
+    public void setData (AuthResponseData data)
+    {
+        _data = data;
+    }
+
     public String toString ()
     {
         return "[type=ARSP, msgid=" + messageId + ", data=" + _data + "]";
