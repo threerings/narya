@@ -116,32 +116,3 @@ public /* abstract */ class DEvent
     protected static const UNSET_OLD_ENTRY :DSet_Entry = new DummyEntry();
 }
 }
-
-/*
-import com.threerings.presents.dobj.DSet_Entry;
-
-import com.threerings.io.ObjectInputStream;
-import com.threerings.io.ObjectOutputStream;
-
-class DummyEntry implements DSet_Entry
-{
-    public function DummyEntry ()
-    {
-    }
-
-    public function getKey () :Object
-    {
-        return null; // dummy
-    }
-
-    public function writeObject (out :ObjectOutputStream) :void
-    {
-        // dummy
-    }
-
-    public function readObject (ins :ObjectInputStream) :void
-    {
-        // dummy
-    }
-}
-*/
