@@ -427,8 +427,8 @@ public class Streamer
         try {
             isInner = (_target.getDeclaringClass() != null);
         } catch (Throwable t) {
-            log.info("Failure checking innerness of class [class=" + _target.getName() +
-                     ", error=" + t + "].");
+            log.warning("Failure checking innerness of class [class=" + _target.getName() +
+                        ", error=" + t + "].");
         }
         if (isInner && !isStatic) {
             throw new IllegalArgumentException(
