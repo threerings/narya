@@ -181,19 +181,19 @@ public class ClientDObjectMgr
 
         var obj :Object = _actions.shift();
         // do the proper thing depending on the object
-        if (obj is BootstrapNotification) {
-            _client.gotBootstrap(obj.getData(), this);
-
-        } else if (obj is EventNotification) {
-            var evt :DEvent = obj.getEvent();
+        if (obj is EventNotification) {
+            var evt :DEvent = (obj as EventNotification).getEvent();
 //             log.info("Dispatch event: " + evt);
             dispatchEvent(evt);
+
+        } else if (obj is BootstrapNotification) {
+            _client.gotBootstrap((obj as BootstrapNotification).getData(), this);
 
         } else if (obj is ObjectResponse) {
             registerObjectAndNotify((obj as ObjectResponse).getObject());
 
         } else if (obj is UnsubscribeResponse) {
-            var oid :int = obj.getOid();
+            var oid :int = (obj as UnsubscribeResponse).getOid();
             if (_dead.remove(oid) == null) {
                 log.warning("Received unsub ACK from unknown object [oid=" + oid + "].");
             }
