@@ -24,6 +24,7 @@ package com.threerings.util;
 import java.io.IOException;
 import java.util.AbstractSet;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.ConcurrentModificationException;
 import java.util.EnumSet;
 import java.util.Iterator;
@@ -41,6 +42,97 @@ import com.threerings.io.Streamable;
 public class StreamableEnumSet<E extends Enum<E>> extends AbstractSet<E>
     implements Cloneable, Streamable
 {
+    /**
+     * Creates an empty set of the specified type.
+     */
+    public static <E extends Enum<E>> StreamableEnumSet<E> noneOf (Class<E> elementType)
+    {
+        return new StreamableEnumSet<E>(elementType);
+    }
+
+    /**
+     * Creates a set containing all elements of the specified type.
+     */
+    public static <E extends Enum<E>> StreamableEnumSet<E> allOf (Class<E> elementType)
+    {
+        StreamableEnumSet<E> set = new StreamableEnumSet<E>(elementType);
+        for (E constant : elementType.getEnumConstants()) {
+            set.add(constant);
+        }
+        return set;
+    }
+
+    /**
+     * Creates a set containing all elements in the collection provided (which must have at least
+     * one element, unless it is a <code>StreamableEnumSet</code>).
+     */
+    public static <E extends Enum<E>> StreamableEnumSet<E> copyOf (Collection<E> s)
+    {
+        if (s instanceof StreamableEnumSet) {
+            @SuppressWarnings("unchecked") StreamableEnumSet<E> set = (StreamableEnumSet<E>)s;
+            return copyOf(set);
+        }
+        if (s.isEmpty()) {
+            throw new IllegalArgumentException("Collection must have at least one element.");
+        }
+        StreamableEnumSet<E> set = new StreamableEnumSet<E>(
+            s.iterator().next().getDeclaringClass());
+        set.addAll(s);
+        return set;
+    }
+
+    /**
+     * Creates a set containing all elements in the set provided.
+     */
+    public static <E extends Enum<E>> StreamableEnumSet<E> copyOf (StreamableEnumSet<E> s)
+    {
+        @SuppressWarnings("unchecked") StreamableEnumSet<E> set =
+            (StreamableEnumSet<E>)s.clone();
+        return set;
+    }
+
+    /**
+     * Creates a set containing all elements <em>not</em> in the set provided.
+     */
+    public static <E extends Enum<E>> StreamableEnumSet<E> complementOf (StreamableEnumSet<E> s)
+    {
+        Class<E> elementType = s._elementType;
+        StreamableEnumSet<E> set = new StreamableEnumSet<E>(elementType);
+        for (E constant : elementType.getEnumConstants()) {
+            if (!s.contains(constant)) {
+                set.add(constant);
+            }
+        }
+        return set;
+    }
+
+    /**
+     * Creates a set consisting of the specified elements.
+     */
+    public static <E extends Enum<E>> StreamableEnumSet<E> of (E first, E... rest)
+    {
+        StreamableEnumSet<E> set = new StreamableEnumSet<E>(first.getDeclaringClass());
+        set.add(first);
+        for (E e : rest) {
+            set.add(e);
+        }
+        return set;
+    }
+
+    /**
+     * Creates a set that includes all enum constants in the specified (inclusive) range.
+     */
+    public static <E extends Enum<E>> StreamableEnumSet<E> range (E from, E to)
+    {
+        Class<E> elementType = from.getDeclaringClass();
+        StreamableEnumSet<E> set = new StreamableEnumSet<E>(elementType);
+        E[] constants = elementType.getEnumConstants();
+        for (int ii = from.ordinal(), last = to.ordinal(); ii <= last; ii++) {
+            set.add(constants[ii]);
+        }
+        return set;
+    }
+
     /**
      * Creates a new, empty enum set for storing elements of the specified class.
      */
@@ -190,7 +282,11 @@ public class StreamableEnumSet<E extends Enum<E>> extends AbstractSet<E>
         }
         initContents();
         in.read(_contents);
-        updateSize();
+
+        // count set bits to initialize size
+        for (byte b : _contents) {
+            _size += Integer.bitCount(b & 0xFF);
+        }
     }
 
     /**
@@ -210,17 +306,6 @@ public class StreamableEnumSet<E extends Enum<E>> extends AbstractSet<E>
     {
         int constants = _elementType.getEnumConstants().length;
         _contents = new byte[(constants >> 3) + ((constants & 0x07) == 0 ? 0 : 1)];
-    }
-
-    /**
-     * Computes the size from the contents.
-     */
-    protected void updateSize ()
-    {
-        _size = 0;
-        for (byte b : _contents) {
-            _size += Integer.bitCount(b & 0xFF);
-        }
     }
 
     /** The element type. */
