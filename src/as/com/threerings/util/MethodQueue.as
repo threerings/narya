@@ -21,9 +21,9 @@
 
 package com.threerings.util {
 
-import flash.display.Sprite;
+import flash.events.TimerEvent;
 
-import flash.events.Event;
+import flash.utils.Timer;
 
 /**
  * A simple mechanism for queueing functions to be called on the next frame.
@@ -37,15 +37,13 @@ public class MethodQueue
     public static function callLater (fn :Function, args :Array = null) :void
     {
         _methodQueue.push([fn, args]);
-        if (!_d.hasEventListener(Event.ENTER_FRAME)) {
-            _d.addEventListener(Event.ENTER_FRAME, handleEnterFrame);
-        }
+        _t.start(); // starts the timer if it's not already running
     }
 
     /**
-     * Handle a frame event: call any queued functions.
+     * Handle a timer event: call any queued functions.
      */
-    protected static function handleEnterFrame (event :Event) :void
+    protected static function handleTimer (event :TimerEvent) :void
     {
         // swap out the working set
         var methods :Array = _methodQueue;
@@ -65,16 +63,19 @@ public class MethodQueue
         }
 
         // If no new functions were added while we were calling the current set,
-        // then remove the listener.
+        // then stop firing
         if (_methodQueue.length == 0) {
-            _d.removeEventListener(Event.ENTER_FRAME, handleEnterFrame);
+            _t.stop();
         }
     }
 
-    /** A display object on which we listen for ENTER_FRAME. */
-    protected static var _d :Sprite = new Sprite();
+    /** A timer that will fire as quickly as possible. */
+    protected static var _t :Timer = new Timer(1);
 
     /** The currently queued functions. */
     protected static var _methodQueue :Array = [];
+
+    // a bit of static initialization
+    _t.addEventListener(TimerEvent.TIMER, handleTimer);
 }
 }
