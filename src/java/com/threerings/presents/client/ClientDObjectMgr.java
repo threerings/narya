@@ -152,12 +152,12 @@ public class ClientDObjectMgr
         Object obj;
         if ((obj = _actions.getNonBlocking()) != null) {
             // do the proper thing depending on the object
-            if (obj instanceof BootstrapNotification) {
+            if (obj instanceof EventNotification) {
+                dispatchEvent(((EventNotification)obj).getEvent());
+
+            } else if (obj instanceof BootstrapNotification) {
                 BootstrapData data = ((BootstrapNotification)obj).getData();
                 _client.gotBootstrap(data, this);
-
-            } else if (obj instanceof EventNotification) {
-                dispatchEvent(((EventNotification)obj).getEvent());
 
             } else if (obj instanceof ObjectResponse<?>) {
                 registerObjectAndNotify((ObjectResponse<?>)obj);
