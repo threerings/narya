@@ -78,9 +78,6 @@ public class ClientDObjectMgr
         _flushInterval = new Timer(FLUSH_INTERVAL);
         _flushInterval.addEventListener(TimerEvent.TIMER, flushObjects);
         _flushInterval.start();
-
-        client.getStage().addEventListener(
-            Event.ENTER_FRAME, processNextAction);
     }
 
     // documentation inherited from interface DObjectManager
@@ -96,21 +93,14 @@ public class ClientDObjectMgr
         if (oid <= 0) {
             target.requestFailed(oid, new ObjectAccessError("Invalid oid " + oid + "."));
         } else {
-            queueAction(oid, target, true);
+            doSubscribe(oid, target);
         }
     }
 
     // inherit documentation from the interface DObjectManager
     public function unsubscribeFromObject (oid :int, target :Subscriber) :void
     {
-        queueAction(oid, target, false);
-    }
-
-    protected function queueAction (
-            oid :int, target :Subscriber, subscribe :Boolean) :void
-    {
-        // queue up an action
-        _actions.push(new ObjectAction(oid, target, subscribe));
+        doUnsubscribe(oid, target);
     }
 
     // inherit documentation from the interface
@@ -157,60 +147,29 @@ public class ClientDObjectMgr
      */
     public function processMessage (msg :DownstreamMessage) :void
     {
-        // append it to our queue
-        _actions.push(msg);
-    }
-
-    /**
-     * Invoked on the main client thread to process any newly arrived
-     * messages that we have waiting in our queue.
-     */
-    public function processNextAction (event :Event) :void
-    {
-        while (_actions.length > 0) {
-            doNextAction();
-        }
-    }
-
-    protected function doNextAction () :void
-    {
-        // process the next event on our queue
-        if (_actions.length == 0) {
-            return;
-        }
-
-        var obj :Object = _actions.shift();
         // do the proper thing depending on the object
-        if (obj is EventNotification) {
-            var evt :DEvent = (obj as EventNotification).getEvent();
+        if (msg is EventNotification) {
+            var evt :DEvent = (msg as EventNotification).getEvent();
 //             log.info("Dispatch event: " + evt);
             dispatchEvent(evt);
 
-        } else if (obj is BootstrapNotification) {
-            _client.gotBootstrap((obj as BootstrapNotification).getData(), this);
+        } else if (msg is BootstrapNotification) {
+            _client.gotBootstrap((msg as BootstrapNotification).getData(), this);
 
-        } else if (obj is ObjectResponse) {
-            registerObjectAndNotify((obj as ObjectResponse).getObject());
+        } else if (msg is ObjectResponse) {
+            registerObjectAndNotify((msg as ObjectResponse).getObject());
 
-        } else if (obj is UnsubscribeResponse) {
-            var oid :int = (obj as UnsubscribeResponse).getOid();
+        } else if (msg is UnsubscribeResponse) {
+            var oid :int = (msg as UnsubscribeResponse).getOid();
             if (_dead.remove(oid) == null) {
                 log.warning("Received unsub ACK from unknown object [oid=" + oid + "].");
             }
 
-        } else if (obj is FailureResponse) {
-            notifyFailure((obj as FailureResponse).getOid(), (obj as FailureResponse).getMessage());
+        } else if (msg is FailureResponse) {
+            notifyFailure((msg as FailureResponse).getOid(), (msg as FailureResponse).getMessage());
 
-        } else if (obj is PongResponse) {
-            _client.gotPong(obj as PongResponse);
-
-        } else if (obj is ObjectAction) {
-            var act :ObjectAction = (obj as ObjectAction);
-            if (act.subscribe) {
-                doSubscribe(act.oid, act.target);
-            } else {
-                doUnsubscribe(act.oid, act.target);
-            }
+        } else if (msg is PongResponse) {
+            _client.gotPong(msg as PongResponse);
         }
     }
 
@@ -443,30 +402,6 @@ public class ClientDObjectMgr
 
 import com.threerings.presents.dobj.DObject;
 import com.threerings.presents.dobj.Subscriber;
-
-/**
- * The object action is used to queue up a subscribe or unsubscribe
- * request.
- */
-class ObjectAction
-{
-    public var oid :int;
-    public var target :Subscriber;
-    public var subscribe :Boolean;
-
-    public function ObjectAction (
-            oid :int, target :Subscriber, subscribe :Boolean)
-    {
-        this.oid = oid;
-        this.target = target;
-        this.subscribe = subscribe;
-    }
-
-    public function toString () :String
-    {
-        return "oid=" + oid + ", target=" + target + ", subscribe=" + subscribe;
-    }
-}
 
 class PendingRequest
 {
