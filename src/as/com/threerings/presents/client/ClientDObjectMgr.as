@@ -374,9 +374,6 @@ public class ClientDObjectMgr
     /** A reference to our client instance. */
     protected var _client :Client;
 
-    /** Our primary dispatch queue. */
-    protected var _actions :Array = new Array();
-
     /** All of the distributed objects that are active on this client. */
     protected var _ocache :HashMap = new HashMap();
 
