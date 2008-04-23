@@ -51,7 +51,7 @@ public class ConfigObjectManager implements AdminService.ConfigInfoListener
             }
             public void clientDidLogon (Client client) {
                 _dobjmgr = _client.getDObjectManager();
-                _service = (AdminService)client.requireService(AdminService.class);
+                _service = client.requireService(AdminService.class);
                 getConfigInfo();
             }
             public void clientDidLogoff (Client client) {

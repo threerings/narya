@@ -445,7 +445,7 @@ public class LocationDirector extends BasicDirector
     protected void fetchServices (Client client)
     {
         // obtain our service handle
-        _lservice = (LocationService)client.requireService(LocationService.class);
+        _lservice = client.requireService(LocationService.class);
     }
 
     protected void gotPlaceObject (PlaceObject object)

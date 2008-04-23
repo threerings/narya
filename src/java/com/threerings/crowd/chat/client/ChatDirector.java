@@ -1042,7 +1042,7 @@ public class ChatDirector extends BasicDirector
     protected void fetchServices (Client client)
     {
         // get a handle on our chat service
-        _cservice = (ChatService)client.requireService(ChatService.class);
+        _cservice = client.requireService(ChatService.class);
     }
 
     /**

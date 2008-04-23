@@ -71,8 +71,7 @@ public class ConfigEditorPanel extends JPanel
 
         // ship off a getConfigInfo request to find out what config
         // objects are available for editing
-        AdminService service = (AdminService)
-            _ctx.getClient().requireService(AdminService.class);
+        AdminService service = _ctx.getClient().requireService(AdminService.class);
         service.getConfigInfo(_ctx.getClient(), this);
     }
 
