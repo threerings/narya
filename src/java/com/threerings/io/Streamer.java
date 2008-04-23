@@ -423,20 +423,22 @@ public class Streamer
         _target = target;
 
         // if this is a non-anonymous inner class, freak out because we cannot stream those
+        boolean isLocal = false, isAnon = false, isNSMember = false;
+        // but don't freak out if we can't find out if this is a non-anonymous inner class;
+        // production code running on old VMs should be left to do its thing
         try {
-            if (_target.isLocalClass() || _target.isAnonymousClass() ||
-                (_target.isMemberClass() && !Modifier.isStatic(_target.getModifiers()))) {
-                throw new IllegalArgumentException(
-                    "Cannot stream non-static inner class: " + _target.getName());
-            }
-        } catch (InternalError ie) {
-            // The checks on the class's localness are capable of throwing these.  If we do, let's
-            //  give better errors than the ones the JVM is willing to give.
-            log.warning("Internal error in checking localness of class: " +
-                "[class=" + _target.getName() + "]");
-            throw ie;
+            isLocal = _target.isLocalClass();
+            isAnon = _target.isAnonymousClass();
+            isNSMember = _target.isMemberClass() && !Modifier.isStatic(_target.getModifiers());
+        } catch (Throwable t) {
+            log.info("Failure checking non-anonymous-innerness of class " +
+                     "[class=" + _target.getName() + ", error=" + t + "].");
         }
-        
+        if (isLocal || isAnon || isNSMember) {
+            throw new IllegalArgumentException(
+                "Cannot stream non-static inner class: " + _target.getName());
+        }
+
         // if our target class is an array, we want to get a handle on a streamer delegate that
         // we'll use to stream our elements
         if (_target.isArray()) {
