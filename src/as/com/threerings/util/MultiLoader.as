@@ -143,15 +143,16 @@ public class MultiLoader
             completeCallback(processProperty(retval, LoaderInfo, "loader"));
         };
 
-        new MultiLoader(sources, generator, complete, forEach);
+        new MultiLoader(sources, complete, generator, forEach);
     }
 
     /**
      * Coordinate loading some asynchronous objects.
      *
      * @param sources An Array, Dictionary, or Object of sources, or just a single source.
-     * @param generatorFunciton a function to call to generate the loaders.
      * @param completeCallack the function to call when complete.
+     * @param generatorFunciton a function to call to generate the IEventDispatchers, or
+     * null if the source values are already ready to go.
      * @param forEach whether to call the completeCallback for each source, or all-at-once at
      * the end. If forEach is used, keys will never be returned.
      * @param isCompleteCheckFn a function to attempt to call on the dispatcher to see if
@@ -161,7 +162,7 @@ public class MultiLoader
      * @param completeType, the event complete type. If unspecifed @default Event.COMPLETE.
      */
     public function MultiLoader (
-        sources :Object, generatorFn :Function, completeCallback :Function,
+        sources :Object, completeCallback :Function, generatorFn :Function = null,
         forEach :Boolean = false, isCompleteCheckFn :String = null,
         errorTypes :Array = null, completeType :String = null)
     {
@@ -193,13 +194,14 @@ public class MultiLoader
         }
 
         for (var key :* in sources) {
-            var sourceVal :Object = sources[key];
-            var val :Object;
-            try {
-                val = (sourceVal is Array) ? generatorFn.apply(null, sourceVal as Array)
-                                           : generatorFn(sourceVal);
-            } catch (err :Error) {
-                val = err;
+            var val :Object = sources[key];
+            if (generatorFn != null) {
+                try {
+                    val = (val is Array) ? generatorFn.apply(null, val as Array)
+                                         : generatorFn(val);
+                } catch (err :Error) {
+                    val = err;
+                }
             }
             _result[key] = val;
             if ((val is IEventDispatcher) &&
