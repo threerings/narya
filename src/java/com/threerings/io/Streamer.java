@@ -422,19 +422,15 @@ public class Streamer
         // keep a handle on the class
         _target = target;
 
-        // if this is a non-anonymous inner class, freak out because we cannot stream those
-        boolean isLocal = false, isAnon = false, isNSMember = false;
-        // but don't freak out if we can't find out if this is a non-anonymous inner class;
-        // production code running on old VMs should be left to do its thing
+        // if this is a non-static inner class, freak out because we cannot stream those
+        boolean isInner = false, isStatic = Modifier.isStatic(_target.getModifiers());
         try {
-            isLocal = _target.isLocalClass();
-            isAnon = _target.isAnonymousClass();
-            isNSMember = _target.isMemberClass() && !Modifier.isStatic(_target.getModifiers());
+            isInner = (_target.getDeclaringClass() != null);
         } catch (Throwable t) {
-            log.info("Failure checking non-anonymous-innerness of class " +
-                     "[class=" + _target.getName() + ", error=" + t + "].");
+            log.info("Failure checking innerness of class [class=" + _target.getName() +
+                     ", error=" + t + "].");
         }
-        if (isLocal || isAnon || isNSMember) {
+        if (isInner && !isStatic) {
             throw new IllegalArgumentException(
                 "Cannot stream non-static inner class: " + _target.getName());
         }
