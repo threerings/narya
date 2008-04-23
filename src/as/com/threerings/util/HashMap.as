@@ -50,7 +50,7 @@ public class HashMap
      *                     implement Hashable. The signature should be
      *                     "function (obj) :*", where the return type is
      *                     numeric or String. Two objects that are equals
-     *                     according to the specified equalsFn *must*
+     *                     according to the specified equalsFn <b>must</b>
      *                     generate equal values when passed to the hashFn.
      */
     public function HashMap (
@@ -67,7 +67,7 @@ public class HashMap
         _hashFn = hashFn;
     }
 
-    // documentation inherited from interface Map
+    /** @inheritDoc */
     public function clear () :void
     {
         _simpleData = null;
@@ -76,13 +76,13 @@ public class HashMap
         _entriesSize = 0;
     }
 
-    // documentation inherited from interface Map
+    /** @inheritDoc */
     public function containsKey (key :Object) :Boolean
     {
         return (undefined !== get(key));
     }
 
-    // documentation inherited from interface Map
+    /** @inheritDoc */
     public function get (key :Object) :*
     {
         if (isSimple(key)) {
@@ -106,13 +106,13 @@ public class HashMap
         return undefined;
     }
 
-    // documentation inherited from interface Map
+    /** @inheritDoc */
     public function isEmpty () :Boolean
     {
         return (size() == 0);
     }
 
-    // documentation inherited from interface Map
+    /** @inheritDoc */
     public function put (key :Object, value :Object) :*
     {
         var oldValue :*;
@@ -157,7 +157,7 @@ public class HashMap
         return undefined;
     }
 
-    // documentation inherited from interface Map
+    /** @inheritDoc */
     public function remove (key :Object) :*
     {
         if (isSimple(key)) {
@@ -206,13 +206,13 @@ public class HashMap
         return undefined; // never found
     }
 
-    // documentation inherited from interface Map
+    /** @inheritDoc */
     public function size () :int
     {
         return _simpleSize + _entriesSize;
     }
 
-    // documentation inherited from interface Map
+    /** @inheritDoc */
     public function keys () :Array
     {
         var keys :Array = new Array();
@@ -237,7 +237,7 @@ public class HashMap
         return keys;
     }
 
-    // documentation inherited from interface Map
+    /** @inheritDoc */
     public function values () :Array
     {
         var vals :Array = new Array();
@@ -262,7 +262,7 @@ public class HashMap
         return vals;
     }
 
-    // documentation inherited from interface Map
+    /** @inheritDoc */
     public function forEach (fn :Function) :void
     {
         if (_simpleData != null) {
@@ -283,6 +283,7 @@ public class HashMap
 
     /**
      * Return a Hashable that represents the key.
+     * @private
      */
     protected function keyFor (key :Object) :Hashable
     {
@@ -300,6 +301,7 @@ public class HashMap
 
     /**
      * Return an index for the specified hashcode.
+     * @private
      */
     protected function indexFor (hash :int) :int
     {
@@ -310,6 +312,7 @@ public class HashMap
     /**
      * Return true if the specified key may be used to store values in a
      * Dictionary object.
+     * @private
      */
     protected function isSimple (key :Object) :Boolean
     {
@@ -319,6 +322,7 @@ public class HashMap
     /**
      * Resize the entries with Hashable keys to optimize
      * the memory/performance tradeoff.
+     * @private
      */
     protected function resize (newSize :int) :void
     {
@@ -339,28 +343,28 @@ public class HashMap
         }
     }
 
-    /** The current number of key/value pairs stored in the Dictionary. */
+    /** The current number of key/value pairs stored in the Dictionary. @private */
     protected var _simpleSize :int = 0;
 
-    /** The current number of key/value pairs stored in the _entries. */
+    /** The current number of key/value pairs stored in the _entries. @private */
     protected var _entriesSize :int = 0;
 
-    /** The load factor. */
+    /** The load factor. @private */
     protected var _loadFactor :Number;
 
-    /** If non-null, contains simple key/value pairs. */
+    /** If non-null, contains simple key/value pairs. @private */
     protected var _simpleData :Dictionary
 
-    /** If non-null, contains Hashable keys and their values. */
+    /** If non-null, contains Hashable keys and their values. @private */
     protected var _entries :Array;
 
-    /** The hashing function to use for non-Hashable complex keys. */
+    /** The hashing function to use for non-Hashable complex keys. @private */
     protected var _hashFn :Function;
 
-    /** The equality function to use for non-Hashable complex keys. */
+    /** The equality function to use for non-Hashable complex keys. @private */
     protected var _equalsFn :Function;
 
-    /** The default size for the bucketed hashmap. */
+    /** The default size for the bucketed hashmap. @private */
     protected static const DEFAULT_BUCKETS :int = 16;
 }
 
