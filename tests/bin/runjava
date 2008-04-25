@@ -16,27 +16,6 @@ my $root = join("/", @parts);
 $realroot = $root;
 $root = "$root/..";
 
-# make sure JAVA_HOME is set
-my $jhome = $ENV{"JAVA_HOME"};
-if (!defined $jhome) {
-    warn "$0: Error: No JAVA_HOME specified!\n";
-    warn "\n";
-    warn "You must set your JAVA_HOME environment variable to the\n";
-    warn "the absolute path of your JDK installation. For example:\n";
-    warn "\n";
-    warn " % JAVA_HOME=/usr/local/jdk1.2\n";
-    warn " % export JAVA_HOME\n";
-    die "\n";
-}
-
-# make sure it's set to a directory
-if (! -d $jhome) {
-    die "$0: Can't find a java interpreter in '$jhome'.\n";
-}
-
-my $java = "$jhome/bin/java";
-my $jlib = "$jhome/lib/classes.zip";
-
 # determine our machine architecture
 my $ostype = `uname -s`;
 my $machtype = `uname -m`;
@@ -59,7 +38,7 @@ my $classpath = "-classpath $root/tests/dist/classes:$root/dist/classes";
 
 # add zip and jar files from our lib/ directory and the global Java
 # libraries directory
-my @dirs = ( "$root/lib", $ENV{"JAVA_LIBS"} );
+my @dirs = ( "$root/dist/lib", $ENV{"JAVA_LIBS"} );
 foreach $dir (@dirs) {
     next unless (defined $dir);
     if (opendir(DIR, $dir)) {
@@ -73,7 +52,7 @@ foreach $dir (@dirs) {
 }
 
 # finally add the standard classes
-$classpath = "$classpath:$jlib";
+$classpath = "$classpath";
 
 # specify our server root (this is for server code)
 my $rootarg = "-Dresource_dir=$realroot/rsrc -Dtest_dir=$realroot";
@@ -103,6 +82,6 @@ for ($i = 0; $i < @ARGV; $i++) {
 # log the pid file if requested to do so
 print `echo $$ > $pid_file` if (defined $pid_file);
 
-my $cmd = "$java -mx256M $classpath $rootarg " . join(" ", @ARGV);
+my $cmd = "java -mx256M $classpath $rootarg " . join(" ", @ARGV);
 # print "$cmd\n";
 exec($cmd);
