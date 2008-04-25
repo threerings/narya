@@ -77,20 +77,20 @@ public class BureauRegistry
         // TODO: schedule a shutdown event for the bureau if this is the last agent
     }
 
-    @Override // inherited documentation
+    // from BureauProvider
     public void bureauInitialized (ClientObject client, String bureauId)
     {
         // TODO: create pending agents
         // TODO: synchronization
     }
 
-    @Override // inherited documentation
+    // from BureauProvider
     public void agentCreated (ClientObject client, int agentId)
     {
         // TODO: remove from pending
     }
 
-    @Override // inherited documentation
+    // from BureauProvider
     public void agentDestroyed (ClientObject caller, int arg1)
     {
         // TODO: remove from pending destroyed

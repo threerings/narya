@@ -21,12 +21,12 @@ public class BureauDirector extends BasicDirector
             registerReceiver(new BureauDecoder(this));
     }
 
-    @Override // inherited documentation
+    // from BureauReceiver
     public void createAgent (ClientObject client, int agentId)
     {
     }
 
-    @Override // inherited documentation
+    // from BureauReceiver
     public void destroyAgent (ClientObject client, int agentId)
     {
     }
