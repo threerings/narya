@@ -37,11 +37,11 @@ public class BureauSender extends InvocationSender
      * BureauReceiver#createAgent} on a client.
      */
     public static void createAgent (
-        ClientObject target, ClientObject arg1, int arg2)
+        ClientObject target, int arg1)
     {
         sendNotification(
             target, BureauDecoder.RECEIVER_CODE, BureauDecoder.CREATE_AGENT,
-            new Object[] { arg1, Integer.valueOf(arg2) });
+            new Object[] { Integer.valueOf(arg1) });
     }
 
     /**
@@ -49,11 +49,11 @@ public class BureauSender extends InvocationSender
      * BureauReceiver#destroyAgent} on a client.
      */
     public static void destroyAgent (
-        ClientObject target, ClientObject arg1, int arg2)
+        ClientObject target, int arg1)
     {
         sendNotification(
             target, BureauDecoder.RECEIVER_CODE, BureauDecoder.DESTROY_AGENT,
-            new Object[] { arg1, Integer.valueOf(arg2) });
+            new Object[] { Integer.valueOf(arg1) });
     }
 
 }

@@ -36,7 +36,7 @@ public interface BureauReceiver extends InvocationReceiver
      * @param client the client receiving the request
      * @param agentId the id of the <code>AgentObject</code> that needs an <code>Agent</code>
      */
-    void createAgent (ClientObject client, int agentId);
+    void createAgent (int agentId);
 
     /**
      * Destroys a previously created agent. Implementors should destroy the agent that was created 
@@ -46,5 +46,5 @@ public interface BureauReceiver extends InvocationReceiver
      * @param agentId the id of the <code>AgentObject</code> whose <code>Agent</code> 
      * should be destroyed
      */
-    void destroyAgent (ClientObject client, int agentId);
+    void destroyAgent (int agentId);
 }

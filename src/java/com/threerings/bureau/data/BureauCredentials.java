@@ -2,7 +2,7 @@
 // $Id$
 //
 // Narya library - tools for developing networked games
-// Copyright (C) 2002-2008 Three Rings Design, Inc., All Rights Reserved
+// Copyright (C) 2002-2007 Three Rings Design, Inc., All Rights Reserved
 // http://www.threerings.net/code/narya/
 //
 // This library is free software; you can redistribute it and/or modify it
@@ -19,17 +19,20 @@
 // License along with this library; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 
-package com.threerings.bureau.client;
+package com.threerings.bureau.data;
 
-import com.threerings.bureau.data.AgentObject;
+import com.threerings.presents.net.Credentials;
+import com.threerings.util.Name;
 
-/**
- * Represents an agent running within a bureau client.
- */
-public class Agent
+public class BureauCredentials extends Credentials
 {
     /**
-     * The shared agent object.
-     */
-    public AgentObject agentObject;
+     * The token to pass to the server when logging in. This is usually just passed to the bureau 
+     * on the command line to guard against outside connections being established. */
+    public String sessionToken;
+
+    public BureauCredentials ()
+    {
+        super(new Name("$$$BUREAU$$$"));
+    }
 }

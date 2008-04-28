@@ -23,7 +23,6 @@ package com.threerings.bureau.client;
 
 import com.threerings.bureau.client.BureauReceiver;
 import com.threerings.presents.client.InvocationDecoder;
-import com.threerings.presents.data.ClientObject;
 
 /**
  * Dispatches calls to a {@link BureauReceiver} instance.
@@ -62,13 +61,13 @@ public class BureauDecoder extends InvocationDecoder
         switch (methodId) {
         case CREATE_AGENT:
             ((BureauReceiver)receiver).createAgent(
-                (ClientObject)args[0], ((Integer)args[1]).intValue()
+                ((Integer)args[0]).intValue()
             );
             return;
 
         case DESTROY_AGENT:
             ((BureauReceiver)receiver).destroyAgent(
-                (ClientObject)args[0], ((Integer)args[1]).intValue()
+                ((Integer)args[0]).intValue()
             );
             return;
 

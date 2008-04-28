@@ -29,16 +29,25 @@ public class AgentObject extends DObject
     /** The field name of the <code>bureauId</code> field. */
     public static final String BUREAU_ID = "bureauId";
 
+    /** The field name of the <code>bureauType</code> field. */
+    public static final String BUREAU_TYPE = "bureauType";
+
     /** The field name of the <code>agentCode</code> field. */
     public static final String AGENT_CODE = "agentCode";
-
-    /** The field name of the <code>startConfirmed</code> field. */
-    public static final String START_CONFIRMED = "startConfirmed";
     // AUTO-GENERATED: FIELDS END
 
+    /** The id of the bureau the agent is running in. This is normally a unique id corresponding
+     *  to the game or item that requires some server-side processing. */
     public String bureauId;
+
+    /** The type of bureau that the agent is running in. This is normally derived from the kind
+     *  of media that the game or item has specified for its code and determines the method of
+     *  launching the bureau when the first agent is requested. */
+    public String bureauType;
+
+    /** The location of the code for the agent. This could be a URL to an action script file or
+     *  some other description that the bureau can use to load and execute the agent's code. */
     public String agentCode;
-    public boolean startConfirmed;
 
     // AUTO-GENERATED: METHODS START
     /**
@@ -58,6 +67,22 @@ public class AgentObject extends DObject
     }
 
     /**
+     * Requests that the <code>bureauType</code> field be set to the
+     * specified value. The local value will be updated immediately and an
+     * event will be propagated through the system to notify all listeners
+     * that the attribute did change. Proxied copies of this object (on
+     * clients) will apply the value change when they received the
+     * attribute changed notification.
+     */
+    public void setBureauType (String value)
+    {
+        String ovalue = this.bureauType;
+        requestAttributeChange(
+            BUREAU_TYPE, value, ovalue);
+        this.bureauType = value;
+    }
+
+    /**
      * Requests that the <code>agentCode</code> field be set to the
      * specified value. The local value will be updated immediately and an
      * event will be propagated through the system to notify all listeners
@@ -71,22 +96,6 @@ public class AgentObject extends DObject
         requestAttributeChange(
             AGENT_CODE, value, ovalue);
         this.agentCode = value;
-    }
-
-    /**
-     * Requests that the <code>startConfirmed</code> field be set to the
-     * specified value. The local value will be updated immediately and an
-     * event will be propagated through the system to notify all listeners
-     * that the attribute did change. Proxied copies of this object (on
-     * clients) will apply the value change when they received the
-     * attribute changed notification.
-     */
-    public void setStartConfirmed (boolean value)
-    {
-        boolean ovalue = this.startConfirmed;
-        requestAttributeChange(
-            START_CONFIRMED, Boolean.valueOf(value), Boolean.valueOf(ovalue));
-        this.startConfirmed = value;
     }
     // AUTO-GENERATED: METHODS END
 }
