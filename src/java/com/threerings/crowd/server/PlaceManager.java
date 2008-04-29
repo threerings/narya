@@ -24,16 +24,24 @@ package com.threerings.crowd.server;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.logging.Level;
 
 import com.samskivert.util.HashIntMap;
 import com.samskivert.util.Interval;
+import com.samskivert.util.MethodFinder;
 import com.samskivert.util.StringUtil;
 
+import com.threerings.crowd.Log;
+import com.threerings.crowd.chat.data.SpeakMarshaller;
+import com.threerings.crowd.chat.server.SpeakDispatcher;
+import com.threerings.crowd.chat.server.SpeakHandler;
+import com.threerings.crowd.data.BodyObject;
+import com.threerings.crowd.data.OccupantInfo;
+import com.threerings.crowd.data.Place;
+import com.threerings.crowd.data.PlaceConfig;
+import com.threerings.crowd.data.PlaceObject;
 import com.threerings.presents.data.ClientObject;
-import com.threerings.presents.server.InvocationManager;
-import com.threerings.presents.server.PresentsDObjectMgr;
-
 import com.threerings.presents.dobj.AccessController;
 import com.threerings.presents.dobj.DObject;
 import com.threerings.presents.dobj.DObjectManager;
@@ -46,19 +54,9 @@ import com.threerings.presents.dobj.ObjectDeathListener;
 import com.threerings.presents.dobj.ObjectDestroyedEvent;
 import com.threerings.presents.dobj.ObjectRemovedEvent;
 import com.threerings.presents.dobj.OidListListener;
-import com.threerings.presents.dobj.ServerMessageEvent;
 import com.threerings.presents.dobj.SetAdapter;
-
-import com.threerings.crowd.Log;
-import com.threerings.crowd.data.BodyObject;
-import com.threerings.crowd.data.OccupantInfo;
-import com.threerings.crowd.data.Place;
-import com.threerings.crowd.data.PlaceConfig;
-import com.threerings.crowd.data.PlaceObject;
-
-import com.threerings.crowd.chat.data.SpeakMarshaller;
-import com.threerings.crowd.chat.server.SpeakDispatcher;
-import com.threerings.crowd.chat.server.SpeakHandler;
+import com.threerings.presents.server.InvocationManager;
+import com.threerings.presents.server.PresentsDObjectMgr;
 
 /**
  * The place manager is the server-side entity that handles all place-related interaction. It
@@ -78,6 +76,7 @@ import com.threerings.crowd.chat.server.SpeakHandler;
 public class PlaceManager
     implements MessageListener, OidListListener, ObjectDeathListener, SpeakHandler.SpeakerValidator
 {
+    
     /**
      * An interface used to allow the registration of standard message handlers to be invoked by
      * the place manager when particular types of message events are received.
@@ -357,6 +356,14 @@ public class PlaceManager
                 nargs = new Object[args.length+1];
                 nargs[0] = source;
                 System.arraycopy(args, 0, nargs, 1, args.length);
+            }
+            
+            // Lazily create our dispatcher now that it's actually getting a message
+            if (_dispatcher == null) {
+                if (!_dispatcherFinders.containsKey(getClass())) {
+                    _dispatcherFinders.put(getClass(), new MethodFinder(getClass()));
+                }
+                _dispatcher = new DynamicListener(this, _dispatcherFinders.get(getClass()));
             }
             _dispatcher.dispatchMethod(event.getName(), nargs);
         }
@@ -707,6 +714,14 @@ public class PlaceManager
      * idility, or null if no interval is currently registered. */
     protected Interval _shutdownInterval;
 
+    /**
+     * Maps from a PlaceManager subclass to a MethodFinder for it. When there are many many
+     * instances of a PlaceManager in existence, having a MethodFinder instance for each gets
+     * quite expensive.
+     */ 
+    protected static Map<Class<?>, MethodFinder> _dispatcherFinders =
+        new HashMap<Class<?>, MethodFinder>();
+
     /** Used to do method lookup magic when we receive message events. */
-    protected DynamicListener _dispatcher = new DynamicListener(this);
+    protected DynamicListener _dispatcher;
 }

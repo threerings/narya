@@ -43,8 +43,17 @@ public class DynamicListener
      */
     public DynamicListener (Object target)
     {
+        this(target, new MethodFinder(target.getClass()));
+    }
+    
+    /**
+     * Creates a listener that dynamically dispatches events on the supplied
+     * target using the methods in finder.
+     */
+    public DynamicListener (Object target, MethodFinder finder)
+    {
         _target = target;
-        _finder = new MethodFinder(target.getClass());
+        _finder = finder;
     }
 
     // from interface AttributeChangeListener
