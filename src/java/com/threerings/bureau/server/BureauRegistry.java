@@ -23,9 +23,6 @@ package com.threerings.bureau.server;
 
 import java.util.Map;
 import java.util.Set;
-import java.util.HashMap;
-import java.util.HashSet;
-
 import com.threerings.bureau.data.AgentObject;
 import com.threerings.bureau.data.BureauCodes;
 import com.threerings.presents.data.ClientObject;
@@ -35,7 +32,8 @@ import com.threerings.presents.dobj.ObjectDestroyedEvent;
 import com.threerings.presents.server.InvocationManager;
 import com.samskivert.util.StringUtil;
 import com.samskivert.util.ProcessLogger;
-
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 import com.threerings.bureau.Log;
 
 /** 
@@ -251,7 +249,7 @@ public class BureauRegistry
             ", launching pending agents");
 
         // find all pending agents
-        Set<AgentObject> pending = new HashSet<AgentObject>();
+        Set<AgentObject> pending = Sets.newHashSet();
 
         for (Map.Entry<AgentObject, Integer> entry : 
             bureau.agentStates.entrySet()) {
@@ -480,8 +478,7 @@ public class BureauRegistry
         ClientObject clientObj;
 
         // The states of the various agents allocated to this bureau
-        Map<AgentObject, Integer> agentStates = 
-            new HashMap<AgentObject, Integer>();
+        Map<AgentObject, Integer> agentStates = Maps.newHashMap();
 
         boolean ready ()
         {
@@ -515,16 +512,9 @@ public class BureauRegistry
         }
     }
 
-    // More readable generic map creation
-    // TODO: add to library or use existing
-    protected static <K, V> HashMap<K, V> hashMap ()
-    {
-        return new HashMap<K, V>();
-    }
-
     protected String _serverNameAndPort;
     protected InvocationManager _invmgr;
     protected RootDObjectManager _omgr;
-    protected Map<String, CommandGenerator> _generators = hashMap();
-    protected Map<String, Bureau> _bureaus = hashMap();
+    protected Map<String, CommandGenerator> _generators = Maps.newHashMap();
+    protected Map<String, Bureau> _bureaus = Maps.newHashMap();
 }
