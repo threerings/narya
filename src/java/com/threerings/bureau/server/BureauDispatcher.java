@@ -63,6 +63,13 @@ public class BureauDispatcher extends InvocationDispatcher
             );
             return;
 
+        case BureauMarshaller.AGENT_CREATION_FAILED:
+            ((BureauProvider)provider).agentCreationFailed(
+                source,
+                ((Integer)args[0]).intValue()
+            );
+            return;
+
         case BureauMarshaller.AGENT_DESTROYED:
             ((BureauProvider)provider).agentDestroyed(
                 source,

@@ -38,6 +38,11 @@ public interface BureauProvider extends InvocationProvider
     public void agentCreated (ClientObject caller, int arg1);
 
     /**
+     * Handles a {@link BureauService#agentCreationFailed} request.
+     */
+    public void agentCreationFailed (ClientObject caller, int arg1);
+
+    /**
      * Handles a {@link BureauService#agentDestroyed} request.
      */
     public void agentDestroyed (ClientObject caller, int arg1);

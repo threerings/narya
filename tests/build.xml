@@ -179,4 +179,24 @@
       </batchtest>
     </junit>
   </target>
+
+  <target name="bureau-runserver" depends="compile"
+    description="Run the bureau test server.">
+    <java fork="true" classname="com.threerings.bureau.server.TestServer">
+      <classpath refid="classpath"/>
+    </java>
+  </target>
+
+  <!-- NOTE: this target is launched by the bureau-runserver target, modelling the way bureaus  -->
+  <!-- work. As such it is not currently useful on its own -->
+  <target name="bureau-runclient" depends="compile"
+    description="Run the bureau test client.">
+    <java fork="true" classname="com.threerings.bureau.client.TestClient">
+      <classpath refid="classpath"/>
+      <sysproperty key="serverName" value="${serverName}"/>
+      <sysproperty key="serverPort" value="${serverPort}"/>
+      <sysproperty key="token" value="${token}"/>
+      <sysproperty key="bureauId" value="${bureauId}"/>
+    </java>
+  </target>
 </project>

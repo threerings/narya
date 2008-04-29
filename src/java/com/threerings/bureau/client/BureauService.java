@@ -37,10 +37,16 @@ public interface BureauService extends InvocationService
     void bureauInitialized (Client client, String bureauId);
 
     /**
-     * Notify the server that a previosuly requested agent is not created and ready to use.
+     * Notify the server that a previosuly requested agent is now created and ready to use.
      * @see BureauReceiver#createAgent
      */
     void agentCreated (Client client, int agentId);
+
+    /**
+     * Notify the server that a previosuly requested agent could not be created.
+     * @see BureauReceiver#createAgent
+     */
+    void agentCreationFailed (Client client, int agentId);
 
     /**
      * Notify the server that an agent is no longer running. Normally called in response

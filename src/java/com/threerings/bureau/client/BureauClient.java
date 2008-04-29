@@ -32,7 +32,7 @@ import com.samskivert.util.Config;
 /** 
  * Represents a client embedded in a bureau.
  */
-public class BureauClient extends Client
+public abstract class BureauClient extends Client
 {
     /**
      * Creates a new client.
@@ -45,13 +45,15 @@ public class BureauClient extends Client
 
         _bureauId = bureauId;
 
-        BureauCredentials creds = new BureauCredentials();
+        BureauCredentials creds = new BureauCredentials(_bureauId);
         creds.sessionToken = token;
         _creds = creds;
 
         _ctx = createContext();
-        _director = new BureauDirector(_ctx);
+        _director = createDirector();
     }
+
+    protected abstract BureauDirector createDirector ();
 
     protected BureauContext createContext ()
     {

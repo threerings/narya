@@ -47,8 +47,19 @@ public class BureauMarshaller extends InvocationMarshaller
         });
     }
 
+    /** The method id used to dispatch {@link #agentCreationFailed} requests. */
+    public static final int AGENT_CREATION_FAILED = 2;
+
+    // from interface BureauService
+    public void agentCreationFailed (Client arg1, int arg2)
+    {
+        sendRequest(arg1, AGENT_CREATION_FAILED, new Object[] {
+            Integer.valueOf(arg2)
+        });
+    }
+
     /** The method id used to dispatch {@link #agentDestroyed} requests. */
-    public static final int AGENT_DESTROYED = 2;
+    public static final int AGENT_DESTROYED = 3;
 
     // from interface BureauService
     public void agentDestroyed (Client arg1, int arg2)
@@ -59,7 +70,7 @@ public class BureauMarshaller extends InvocationMarshaller
     }
 
     /** The method id used to dispatch {@link #bureauInitialized} requests. */
-    public static final int BUREAU_INITIALIZED = 3;
+    public static final int BUREAU_INITIALIZED = 4;
 
     // from interface BureauService
     public void bureauInitialized (Client arg1, String arg2)

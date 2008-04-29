@@ -24,15 +24,35 @@ package com.threerings.bureau.data;
 import com.threerings.presents.net.Credentials;
 import com.threerings.util.Name;
 
+/**
+ * Extends the basic credentials to provide bureau-specific fields.
+ */
 public class BureauCredentials extends Credentials
 {
     /**
      * The token to pass to the server when logging in. This is usually just passed to the bureau 
-     * on the command line to guard against outside connections being established. */
+     * on the command line to guard against outside connections being established.
+     */
     public String sessionToken;
 
+    /**
+     * Creates an empty credentials for streaming. Should not be used directly.
+     */
     public BureauCredentials ()
     {
-        super(new Name("$$$BUREAU$$$"));
+    }
+
+    /**
+     * Creates new credentials for a specific bureau.
+     */
+    public BureauCredentials (String bureauId)
+    {
+        super(new Name("@@bureau:" + bureauId + "@@"));
+    }
+
+    // inherit documentation - from Object
+    public String toString ()
+    {
+        return super.toString() + ", token=" + sessionToken;
     }
 }
