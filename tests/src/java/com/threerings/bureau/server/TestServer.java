@@ -74,7 +74,7 @@ public class TestServer extends PresentsServer
         throws Exception
     {
         super.init();
-        breg = new BureauRegistry("localhost:47624", invmgr, omgr);
+        breg = new BureauRegistry("localhost:47624", invmgr, omgr, invoker);
 
         breg.setCommandGenerator("test", new BureauRegistry.CommandGenerator() {
             public String[] createCommand (

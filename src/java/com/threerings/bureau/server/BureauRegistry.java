@@ -31,6 +31,7 @@ import com.threerings.presents.dobj.ObjectDeathListener;
 import com.threerings.presents.dobj.ObjectDestroyedEvent;
 import com.threerings.presents.server.InvocationManager;
 import com.samskivert.util.StringUtil;
+import com.samskivert.util.Invoker;
 import com.samskivert.util.ProcessLogger;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
@@ -71,11 +72,13 @@ public class BureauRegistry
     public BureauRegistry (
         String serverNameAndPort, 
         InvocationManager invmgr, 
-        RootDObjectManager omgr)
+        RootDObjectManager omgr,
+        Invoker invoker)
     {
         _serverNameAndPort = serverNameAndPort;
         _invmgr = invmgr;
         _omgr = omgr;
+        _invoker = invoker;
 
         BureauProvider provider = new BureauProvider () {
             public void bureauInitialized (ClientObject client, String bureauId) {
@@ -118,7 +121,7 @@ public class BureauRegistry
     /** 
      * Starts a new agent using the data in the given object, creating a new bureau if necessary.
      */
-    public synchronized void startAgent (AgentObject agent)
+    public void startAgent (AgentObject agent)
     {
         Bureau bureau = _bureaus.get(agent.bureauId);
         if (bureau != null && bureau.ready()) {
@@ -152,26 +155,14 @@ public class BureauRegistry
             bureau = new Bureau();
             bureau.bureauId = agent.bureauId;
 
-            try {
-                // kick off the bureau's process
-                ProcessBuilder builder = new ProcessBuilder(
-                    generator.createCommand(
-                        _serverNameAndPort, agent.bureauId, ""));
+            // schedule the bureau to be kicked off
+            bureau.builder = new ProcessBuilder(
+                generator.createCommand(
+                    _serverNameAndPort, agent.bureauId, ""));
 
-                builder.redirectErrorStream(true);
-                bureau.process = builder.start();
-
-                // log the output of the process and prefix with bureau id
-                ProcessLogger.copyMergedOutput(
-                    Log.log, bureau.bureauId, bureau.process);
-            }
-            catch (Exception e) {
-                Log.warning("Could not launch process for bureau " + 
-                    StringUtil.toString(agent));
-                Log.logStackTrace(e);
-
-                return;
-            }
+            bureau.builder.redirectErrorStream(true);
+            
+            _invoker.postUnit(new Launcher(bureau));
 
             _bureaus.put(agent.bureauId, bureau);
         }
@@ -185,7 +176,7 @@ public class BureauRegistry
     /** 
      * Destroys a previously started agent using the data in the given object.
      */
-    public synchronized void destroyAgent (AgentObject agent)
+    public void destroyAgent (AgentObject agent)
     {
         FoundAgent found = resolve(null, agent.getOid(), "destroyAgent");
 
@@ -228,7 +219,7 @@ public class BureauRegistry
      * Callback for when the bureau client acknowledges starting up. Starts all pending agents and 
      * causes subsequent agent start requests to be sent directly to the bureau.
      */
-    protected synchronized void bureauInitialized (ClientObject client, String bureauId)
+    protected void bureauInitialized (ClientObject client, String bureauId)
     {
         final Bureau bureau = _bureaus.get(bureauId);
         if (bureau == null) {
@@ -272,7 +263,7 @@ public class BureauRegistry
     /**
      * Callback for when the bureau client acknowledges the creation of an agent.
      */
-    protected synchronized void agentCreated (ClientObject client, int agentId)
+    protected void agentCreated (ClientObject client, int agentId)
     {
         FoundAgent found = resolve(client, agentId, "agentCreated");
         if (found == null) {
@@ -304,7 +295,7 @@ public class BureauRegistry
     /**
      * Callback for when the bureau client acknowledges the creation of an agent.
      */
-    protected synchronized void agentCreationFailed (ClientObject client, int agentId)
+    protected void agentCreationFailed (ClientObject client, int agentId)
     {
         FoundAgent found = resolve(client, agentId, "agentCreationFailed");
         if (found == null) {
@@ -335,7 +326,7 @@ public class BureauRegistry
     /**
      * Callback for when the bureau client acknowledges the destruction of an agent.
      */
-    protected synchronized void agentDestroyed (ClientObject client, int agentId)
+    protected void agentDestroyed (ClientObject client, int agentId)
     {
         FoundAgent found = resolve(client, agentId, "agentDestroyed");
         if (found == null) {
@@ -363,7 +354,7 @@ public class BureauRegistry
     /** 
      * Callback for when a client is destroyed.
      */
-    protected synchronized void clientDestroyed (Bureau bureau)
+    protected void clientDestroyed (Bureau bureau)
     {
         // clean up any agents attached to this bureau
         for (AgentObject agent : bureau.agentStates.keySet()) {
@@ -420,6 +411,46 @@ public class BureauRegistry
         return new FoundAgent(bureau, agent, bureau.agentStates.get(agent));
     }
 
+    /**
+     * Invoker unit to launch a bureau's process, then assign the result on the main thread.
+     */
+    protected static class Launcher extends Invoker.Unit
+    {
+        Launcher (Bureau bureau)
+        {
+            super("Launcher for " + bureau + 
+                StringUtil.toString(bureau.builder.command()));
+            _bureau = bureau;
+        }
+
+        public boolean invoke ()
+        {
+            try {
+                _result = _bureau.builder.start();
+
+                // log the output of the process and prefix with bureau id
+                ProcessLogger.copyMergedOutput(
+                    Log.log, _bureau.bureauId, _result);
+            }
+            catch (Exception e) {
+                Log.warning("Could not launch process for bureau " + 
+                    StringUtil.toString(_bureau));
+                Log.logStackTrace(e);
+            }
+
+            return true;
+        }
+        
+        public void handleResult ()
+        {
+            _bureau.process = _result;
+            _bureau.builder = null;
+        }
+
+        protected Bureau _bureau;
+        protected Process _result;
+    }
+
     // Models the results of searching for an agent
     protected static class FoundAgent
     {
@@ -466,8 +497,11 @@ public class BureauRegistry
 
         // }
 
-        // Should be non-null once the bureau is kicked off
+        // non-null once the bureau is kicked off
         Process process;
+
+        // non-null once the bureau is scheduled but not yet kicked off
+        ProcessBuilder builder;
 
         // The bureau's key in the map of bureaus. All requests for this bureau
         // with this id should be associated with one instance
@@ -528,6 +562,7 @@ public class BureauRegistry
     protected String _serverNameAndPort;
     protected InvocationManager _invmgr;
     protected RootDObjectManager _omgr;
+    protected Invoker _invoker;
     protected Map<String, CommandGenerator> _generators = Maps.newHashMap();
     protected Map<String, Bureau> _bureaus = Maps.newHashMap();
 }
