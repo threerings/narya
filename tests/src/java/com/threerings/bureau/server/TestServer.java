@@ -21,23 +21,34 @@
 
 package com.threerings.bureau.server;
 
-import com.threerings.bureau.Log;
 import com.threerings.bureau.data.AgentObject;
 import com.threerings.presents.server.PresentsServer;
 import com.samskivert.util.OneLineLogFormatter;
 import com.samskivert.util.StringUtil;
-
+import com.google.common.collect.Lists;
 import java.io.File;
+import java.util.List;
+import java.util.Random;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Extends a presents server to include a bureau registry.
  */
 public class TestServer extends PresentsServer
 {
+    /** We dispatch our log messages through this logger. */
+    public static Logger log = Logger.getLogger(TestServer.class.getName());
+
     /**
      * The bureau registry for the server. Will be null until <code>init</code> is called.
      */
     public static BureauRegistry breg;
+
+    public static void logStackTrace (Throwable t)
+    {
+        log.log(Level.WARNING, t.getMessage(), t);
+    }
 
     /**
      * Creates a new server and runs it.
@@ -50,21 +61,11 @@ public class TestServer extends PresentsServer
         final TestServer server = new TestServer();
         try {
             server.init();
-
-            // request a new agent
-            // TODO: more tests here - create a thread that posts different kinds of requests
-            // and somehow monitors results from client
-            server.omgr.postRunnable(new Runnable() { 
-                public void run () {
-                    server.createTestAgent();
-                }
-            });
-
             server.run();
 
         } catch (Exception e) {
-            Log.warning("Unable to initialize server.");
-            Log.logStackTrace(e);
+            log.warning("Unable to initialize server.");
+            logStackTrace(e);
         }
     }
 
@@ -92,16 +93,5 @@ public class TestServer extends PresentsServer
                 return cmd;
             }
         });
-    }
-
-    /**
-     * Requests that the bureau client create an agent.
-     */
-    protected void createTestAgent ()
-    {
-        AgentObject obj = new AgentObject();
-        obj.bureauType = "test";
-        obj.bureauId = "test";
-        breg.startAgent(obj);
     }
 }

@@ -49,8 +49,12 @@ public abstract class BureauDirector extends BasicDirector
             }
         };
 
-        _subscriber = new SafeSubscriber<AgentObject>(agentId, delegator);
-        _subscriber.subscribe(_ctx.getDObjectManager());
+        Log.info("Subscribing to object " + agentId);
+
+        SafeSubscriber<AgentObject> subscriber = 
+            new SafeSubscriber<AgentObject>(agentId, delegator);
+        _subscribers.put(agentId, subscriber);
+        subscriber.subscribe(_ctx.getDObjectManager());
     }
 
     /**
@@ -62,6 +66,7 @@ public abstract class BureauDirector extends BasicDirector
         agent = _agents.remove(agentId);
 
         if (agent == null) {
+            Log.warning("Lost an agent, id " + agentId);
         }
         else {
             try {
@@ -71,7 +76,13 @@ public abstract class BureauDirector extends BasicDirector
                 Log.warning("Stopping an agent caused an exception");
                 Log.logStackTrace(t);
             }
-            _subscriber.unsubscribe(_ctx.getDObjectManager());
+            SafeSubscriber<AgentObject> subscriber = _subscribers.remove(agentId);
+            if (subscriber == null) {
+                Log.warning("Lost a subscriber for agent " + agent);
+            }
+            else {
+                subscriber.unsubscribe(_ctx.getDObjectManager());
+            }
             _bureauService.agentDestroyed(_ctx.getClient(), agentId);
         }
     }
@@ -82,6 +93,9 @@ public abstract class BureauDirector extends BasicDirector
     protected synchronized void objectAvailable (AgentObject agentObject)
     {
         int oid = agentObject.getOid();
+
+        Log.info("Object " + oid + " now available");
+
         Agent agent;
         try {
             agent = createAgent(agentObject);
@@ -151,5 +165,6 @@ public abstract class BureauDirector extends BasicDirector
     protected BureauContext _ctx;
     protected BureauService _bureauService;
     protected IntMap<Agent> _agents = IntMaps.newHashIntMap();
-    protected SafeSubscriber<AgentObject> _subscriber;
+    protected IntMap<SafeSubscriber<AgentObject>> _subscribers = 
+        IntMaps.newHashIntMap();
 }

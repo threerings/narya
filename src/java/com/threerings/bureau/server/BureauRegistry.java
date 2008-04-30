@@ -123,12 +123,12 @@ public class BureauRegistry
         Bureau bureau = _bureaus.get(agent.bureauId);
         if (bureau != null && bureau.ready()) {
 
+            _omgr.registerObject(agent);
+
             Log.info("Bureau ready, sending createAgent " + 
                 StringUtil.toString(agent));
 
             BureauSender.createAgent(bureau.clientObj, agent.getOid());
-            // !TODO: is this the right place to register the object?
-            _omgr.registerObject(agent);
             bureau.agentStates.put(agent, Bureau.STARTED);
 
             bureau.summarize();
@@ -193,7 +193,7 @@ public class BureauRegistry
             return;
         }
 
-        Log.warning("Destroying agent " + StringUtil.toString(agent));
+        Log.info("Destroying agent " + StringUtil.toString(agent));
 
         // transition the agent to a new state and perform the effect of the transition
         switch (found.state) {
@@ -480,35 +480,48 @@ public class BureauRegistry
         // The states of the various agents allocated to this bureau
         Map<AgentObject, Integer> agentStates = Maps.newHashMap();
 
+        public String toString ()
+        {
+            StringBuilder builder = new StringBuilder();
+            builder.append("[Bureau id=").append(bureauId).append(", client=");
+            if (clientObj == null) {
+                builder.append("null");
+            }
+            else {
+                builder.append(clientObj.getOid());
+            }
+            builder.append(", process=").append(process);
+            builder.append(", totalAgents=").append(agentStates.size());
+            agentSummary(builder.append(", ")).append("]");
+            return builder.toString();
+        }
+
         boolean ready ()
         {
             return clientObj != null;
         }
 
-        int countInState (int state)
+        StringBuilder agentSummary (StringBuilder str)
         {
-            Integer state1 = state;
-            if (!agentStates.containsValue(state1)) {
-                return 0;
+            int counts[] = {0, 0, 0, 0, 0};
+            for (Map.Entry<AgentObject, Integer> me : agentStates.entrySet()) {
+                counts[me.getValue()]++;
             }
 
-            int count = 0;
-            for (Map.Entry<AgentObject, Integer> me : agentStates.entrySet()) {
-                if (me.getValue() == state1) {
-                    ++count;
-                }
-            }
-            return count;
+            str.append(counts[PENDING]).append(" pending, ").
+                append(counts[STARTED]).append(" started, ").
+                append(counts[RUNNING]).append(" running, ").
+                append(counts[DESTROYED]).append(" destroyed, ").
+                append(counts[STILL_BORN]).append(" still born");
+            return str;
         }
 
         void summarize ()
         {
-            Log.info("Bureau " + bureauId + " [" + 
-                countInState(PENDING) + " pending, " +
-                countInState(STARTED) + " started, " +
-                countInState(RUNNING) + " running, " +
-                countInState(DESTROYED) + " destroyed, " +
-                countInState(STILL_BORN) + " still born]");
+            StringBuilder str = new StringBuilder();
+            str.append("Bureau ").append(bureauId).append(" [");
+            agentSummary(str).append("]");
+            Log.info(str.toString());
         }
     }
 

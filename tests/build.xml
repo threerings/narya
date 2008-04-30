@@ -187,6 +187,21 @@
     </java>
   </target>
 
+
+  <target name="bureau-testregistry" depends="compile"
+    description="Run the bureau test server and tests the registry.">
+    <java fork="true" classname="com.threerings.bureau.server.RegistryTester">
+      <classpath refid="classpath"/>
+      <sysproperty key="maxAgents" value="500"/>
+      <sysproperty key="numBureaus" value="5"/>
+      <sysproperty key="maxOps" value="5"/>
+      <sysproperty key="createChance" value="70"/>
+      <sysproperty key="minDelay" value="500"/>
+      <sysproperty key="maxDelay" value="1500"/>
+      <sysproperty key="seed" value="0"/>
+    </java>
+  </target>
+
   <!-- NOTE: this target is launched by the bureau-runserver target, modelling the way bureaus  -->
   <!-- work. As such it is not currently useful on its own -->
   <target name="bureau-runclient" depends="compile"
