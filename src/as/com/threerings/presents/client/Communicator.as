@@ -102,14 +102,12 @@ public class Communicator
 
         var host :String = _client.getHostname();
         var pportKey :String = host + ".preferred_port";
-        var pport :int =
-            (PresentsPrefs.config.getValue(pportKey, ports[0]) as int);
+        var pport :int = ports[0];
         var ppidx :int = Math.max(0, ports.indexOf(pport));
         var port :int = (ports[(_portIdx + ppidx) % ports.length] as int);
 
         if (logonWasSuccessful) {
             _portIdx = -1; // indicate that we're no longer trying new ports
-            PresentsPrefs.config.setValue(pportKey, port);
 
         } else {
             Log.getLog(this).info(
