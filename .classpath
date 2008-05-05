@@ -6,5 +6,6 @@
 	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/samskivert"/>
 	<classpathentry exported="true" kind="var" path="EXT_LIBS_DIR/commons-lang.jar"/>
 	<classpathentry kind="var" path="EXT_LIBS_DIR/javassist.jar"/>
+	<classpathentry exported="true" kind="var" path="EXT_LIBS_DIR/google-collect.jar"/>
 	<classpathentry kind="output" path="tests/dist/classes"/>
 </classpath>
