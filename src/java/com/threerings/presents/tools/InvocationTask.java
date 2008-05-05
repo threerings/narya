@@ -30,7 +30,6 @@ import java.lang.reflect.Type;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 
 import org.apache.commons.io.FileUtils;
@@ -46,7 +45,6 @@ import org.apache.tools.ant.util.ClasspathUtils;
 import org.apache.velocity.app.VelocityEngine;
 
 import com.samskivert.util.ObjectUtil;
-import com.samskivert.util.SortableArrayList;
 import com.samskivert.util.StringUtil;
 import com.samskivert.velocity.VelocityUtil;
 
@@ -94,7 +92,8 @@ public abstract class InvocationTask extends Task
         }
     }
 
-    /** Used to keep track of invocation service methods. */
+    /** Used to keep track of invocation service methods (or listener 
+     *  methods). */
     public class ServiceMethod implements Comparable<ServiceMethod>
     {
         public Method method;
@@ -104,14 +103,16 @@ public abstract class InvocationTask extends Task
 
         public ServiceMethod (Class<?> service, Method method,
                               HashMap<String,Boolean> imports,
-                              HashMap<String,Boolean> rawimports)
+                              HashMap<String,Boolean> rawimports,
+                              int ignoreArguments,
+                              boolean importMarshallerListeners)
         {
             this.method = method;
 
             // we need to look through our arguments and note any needed
             // imports in the supplied table
             Class<?>[] args = method.getParameterTypes();
-            for (int ii = 0; ii < args.length; ii++) {
+            for (int ii = ignoreArguments; ii < args.length; ii++) {
                 Class<?> arg = args[ii];
                 while (arg.isArray()) {
                     arg = arg.getComponentType();
@@ -144,7 +145,8 @@ public abstract class InvocationTask extends Task
                 // InvocationService listeners, we need to import its
                 // marshaller as well
                 String sname = GenUtil.simpleName(arg, null);
-                if (_ilistener.isAssignableFrom(arg)) {
+                if (importMarshallerListeners && 
+                	_ilistener.isAssignableFrom(arg)) {
                     String mname = arg.getName();
                     mname = StringUtil.replace(mname, "Service", "Marshaller");
                     mname = StringUtil.replace(mname, "Listener", "Marshaller");
@@ -265,7 +267,6 @@ public abstract class InvocationTask extends Task
         {
             StringBuilder buf = new StringBuilder();
             Class<?>[] args = method.getParameterTypes();
-            Type[] ptypes = method.getGenericParameterTypes();
             for (int ii = (listenerMode ? 0 : 1); ii < args.length; ii++) {
                 if (buf.length() > 0) {
                     buf.append(", ");
@@ -325,6 +326,14 @@ public abstract class InvocationTask extends Task
             System.err.println("Unabled to load header '" + header + ": " +
                                ioe.getMessage());
         }
+    }
+
+    /**
+     * Configures to output extra information when generating code.
+     */
+    public void setVerbose (boolean verbose)
+    {
+    	_verbose = verbose;
     }
 
     /** Configures our classpath which we'll use to load service classes. */
@@ -432,6 +441,9 @@ public abstract class InvocationTask extends Task
     /** A header to put on all generated source files. */
     protected String _header;
 
+    /** Show extra output if set. */
+    protected boolean _verbose;
+    
     /** Used to do our own classpath business. */
     protected ClassLoader _cloader;
 

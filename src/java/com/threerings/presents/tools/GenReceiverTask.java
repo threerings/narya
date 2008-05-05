@@ -27,7 +27,6 @@ import java.io.StringWriter;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -84,7 +83,7 @@ public class GenReceiverTask extends InvocationTask
                 !Modifier.isAbstract(m.getModifiers())) {
                 continue;
             }
-            methods.add(new ServiceMethod(receiver, m, imports, null));
+            methods.add(new ServiceMethod(receiver, m, imports, null, 0, true));
         }
         methods.sort();
 
@@ -98,7 +97,6 @@ public class GenReceiverTask extends InvocationTask
                                    List methods, Iterator<String> imports)
     {
         String name = StringUtil.replace(rname, "Receiver", "");
-        String sname = StringUtil.replace(rname, "Receiver", "Sender");
         String spackage = StringUtil.replace(rpackage, ".client", ".server");
 
         // construct our imports list
@@ -138,7 +136,6 @@ public class GenReceiverTask extends InvocationTask
         Iterator<String> imports)
     {
         String name = StringUtil.replace(rname, "Receiver", "");
-        String dname = StringUtil.replace(rname, "Receiver", "Decoder");
 
         // construct our imports list
         ComparableArrayList<String> implist = new ComparableArrayList<String>();

@@ -31,8 +31,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
 
 import org.apache.velocity.VelocityContext;
 
@@ -64,7 +62,8 @@ public class GenServiceTask extends InvocationTask
 
         public ServiceListener (Class service, Class listener,
                                 HashMap<String,Boolean> imports,
-                                HashMap<String,Boolean> rawimports)
+                                HashMap<String,Boolean> rawimports,
+                                boolean importArguments)
         {
             this.listener = listener;
             Method[] methdecls = listener.getDeclaredMethods();
@@ -75,7 +74,17 @@ public class GenServiceTask extends InvocationTask
                     !Modifier.isAbstract(m.getModifiers())) {
                     continue;
                 }
-                methods.add(new ServiceMethod(service, m, imports, rawimports));
+                if (_verbose) {
+                	System.out.println("Adding " + m + ", imports are " + 
+                		StringUtil.toString(imports.keySet()));
+                }
+                methods.add(new ServiceMethod(
+                	service, m, imports, rawimports, importArguments ? 0 : 999,
+                	true));
+                if (_verbose) {
+                	System.out.println("Added " + m + ", imports are " + 
+                		StringUtil.toString(imports.keySet()));
+                }
             }
             methods.sort();
         }
@@ -128,90 +137,54 @@ public class GenServiceTask extends InvocationTask
     protected void processService (File source, Class service)
     {
         System.out.println("Processing " + service.getName() + "...");
-        String sname = service.getName();
-        String spackage = "";
-        int didx = sname.lastIndexOf(".");
-        if (didx != -1) {
-            spackage = sname.substring(0, didx);
-            sname = sname.substring(didx+1);
-        }
-
+        
         // verify that the service class name is as we expect it to be
-        if (!sname.endsWith("Service")) {
-            System.err.println("Cannot process '" + sname + "':");
+        if (!service.getName().endsWith("Service")) {
+            System.err.println("Cannot process '" + service.getName() + "':");
             System.err.println(
                 "Service classes must be named SomethingService.");
             return;
         }
 
-        HashMap<String,Boolean> imports = new HashMap<String,Boolean>();
-        HashMap<String,Boolean> rawimports = new HashMap<String,Boolean>();
-        ComparableArrayList<ServiceMethod> methods =
-            new ComparableArrayList<ServiceMethod>();
-        ComparableArrayList<ServiceListener> listeners =
-            new ComparableArrayList<ServiceListener>();
-
-        // we need to import the service itself
-        imports.put(importify(service.getName()), Boolean.TRUE);
-        rawimports.put(service.getName(), Boolean.TRUE);
-
-        // look through and locate our service methods, also locating any
-        // custom InvocationListener derivations along the way
-        Method[] methdecls = service.getDeclaredMethods();
-        for (int ii = 0; ii < methdecls.length; ii++) {
-            Method m = methdecls[ii];
-            // service interface methods must be public and abstract
-            if (!Modifier.isPublic(m.getModifiers()) &&
-                !Modifier.isAbstract(m.getModifiers())) {
-                continue;
-            }
-            // check this method for custom listener declarations
-            Class[] args = m.getParameterTypes();
-            for (int aa = 0; aa < args.length; aa++) {
-                if (_ilistener.isAssignableFrom(args[aa]) &&
-                    GenUtil.simpleName(
-                        args[aa], null).startsWith(sname + ".")) {
-                    checkedAdd(listeners, new ServiceListener(
-                                   service, args[aa], imports, rawimports));
-                }
-            }
-            methods.add(new ServiceMethod(service, m, imports, rawimports));
-        }
-        listeners.sort();
-        methods.sort();
-
-        generateMarshaller(source, sname, spackage, methods, listeners,
-                           imports.keySet(), rawimports.keySet());
-        generateDispatcher(source, sname, spackage, methods,
-                           imports.keySet());
-        if (!_providerless.contains(sname)) {
-            generateProvider(source, sname, spackage, methods, listeners,
-                             imports.keySet());
+        generateMarshaller(source, service);
+        generateDispatcher(source, service);
+        if (!_providerless.contains(service.getSimpleName())) {
+            generateProvider(source, service);
         }
     }
 
-    protected void generateMarshaller (
-        File source, String sname, String spackage, List methods,
-        List<ServiceListener> listeners, Collection<String> imports,
-        Collection<String> rawimports)
+    protected void generateMarshaller (File source, Class service)
     {
+        if (_verbose) {
+        	System.out.println("Generating marshaller");
+        }
+
+        ServiceDescription sdesc = new ServiceDescription(service, true, true);
+
+        // Marshallers always require the service
+        sdesc.addServiceImport();
+
+        String sname = sdesc.sname;
         String name = StringUtil.replace(sname, "Service", "");
         String mname = StringUtil.replace(sname, "Service", "Marshaller");
-        String mpackage = StringUtil.replace(spackage, ".client", ".data");
+        String mpackage = StringUtil.replace(
+        	sdesc.spackage, ".client", ".data");
 
         // construct our imports list
         ComparableArrayList<String> implist = new ComparableArrayList<String>();
-        implist.addAll(imports);
+        implist.addAll(sdesc.imports.keySet());
         checkedAdd(implist, Client.class.getName());
         checkedAdd(implist, InvocationMarshaller.class.getName());
-        checkedAdd(implist, InvocationResponseEvent.class.getName());
+        if (sdesc.listeners.size() > 0) {
+        	checkedAdd(implist, InvocationResponseEvent.class.getName());
+        }
         implist.sort();
 
         VelocityContext ctx = new VelocityContext();
         ctx.put("name", name);
         ctx.put("package", mpackage);
-        ctx.put("methods", methods);
-        ctx.put("listeners", listeners);
+        ctx.put("methods", sdesc.methods);
+        ctx.put("listeners", sdesc.listeners);
         ctx.put("imports", implist);
 
         // determine the path to our marshaller file
@@ -238,7 +211,7 @@ public class GenServiceTask extends InvocationTask
         // convert the raw imports into ActionScript versions (inner-classes
         // become Foo_Bar)
         Collection<String> asimports = new ArrayList<String>();
-        for (String impy : rawimports) {
+        for (String impy : sdesc.rawimports.keySet()) {
             asimports.add(impy.replace("$", "_"));
         }
 
@@ -267,10 +240,10 @@ public class GenServiceTask extends InvocationTask
 
             // now generate ActionScript versions of our listener marshallers
             // because those have to be in separate files
-            for (ServiceListener listener : listeners) {
+            for (ServiceListener listener : sdesc.listeners) {
                 // recreate our imports with just what we need here
                 implist = new ComparableArrayList<String>();
-                implist.addAll(imports);
+                implist.addAll(sdesc.imports.keySet());
                 checkedAdd(implist, imlm.getName().replace("$", "_"));
                 String lname = listener.listener.getName();
                 checkedAdd(implist, lname.replace("$", "_"));
@@ -302,11 +275,11 @@ public class GenServiceTask extends InvocationTask
         checkedAdd(implist, isil.getName().replace("$", "_"));
         implist.sort();
         ctx.put("imports", implist);
-        ctx.put("package", spackage);
+        ctx.put("package", sdesc.spackage);
 
         try {
             // make sure our service directory exists
-            String sppath = spackage.replace('.', File.separatorChar);
+            String sppath = sdesc.spackage.replace('.', File.separatorChar);
             new File(_asroot + File.separator + sppath).mkdirs();
 
             // generate an ActionScript version of our service
@@ -318,7 +291,7 @@ public class GenServiceTask extends InvocationTask
 
             // also generate ActionScript versions of any inner listener
             // interfaces because those have to be in separate files
-            for (ServiceListener listener : listeners) {
+            for (ServiceListener listener : sdesc.listeners) {
                 // recreate our imports with just what we need here
                 implist = new ComparableArrayList<String>();
                 implist.addAll(asimports);
@@ -344,30 +317,40 @@ public class GenServiceTask extends InvocationTask
         }
     }
 
-    protected void generateDispatcher (
-        File source, String sname, String spackage, List methods,
-        Collection<String> imports)
+    protected void generateDispatcher (File source, Class service)
     {
-        String name = StringUtil.replace(sname, "Service", "");
-        String dname = StringUtil.replace(sname, "Service", "Dispatcher");
-        String dpackage = StringUtil.replace(spackage, ".client", ".server");
+        if (_verbose) {
+        	System.out.println("Generating dispatcher");
+        }
+
+        ServiceDescription sdesc = new ServiceDescription(service, false, false);
+
+        // If any listeners are to be used in dispatches, we need to import the service
+        if (sdesc.listeners.size() > 0) {
+        	sdesc.addServiceImport();
+        }
+
+        String name = StringUtil.replace(sdesc.sname, "Service", "");
+        String dpackage = StringUtil.replace(
+        	sdesc.spackage, ".client", ".server");
 
         // construct our imports list
         ComparableArrayList<String> implist = new ComparableArrayList<String>();
-        implist.addAll(imports);
+        implist.addAll(sdesc.imports.keySet());
         checkedAdd(implist, ClientObject.class.getName());
         checkedAdd(implist, InvocationMarshaller.class.getName());
         checkedAdd(implist, InvocationDispatcher.class.getName());
         checkedAdd(implist, InvocationException.class.getName());
-        String mname = StringUtil.replace(sname, "Service", "Marshaller");
-        String mpackage = StringUtil.replace(spackage, ".client", ".data");
+        String mname = StringUtil.replace(sdesc.sname, "Service", "Marshaller");
+        String mpackage = StringUtil.replace(
+        	sdesc.spackage, ".client", ".data");
         checkedAdd(implist, mpackage + "." + mname);
         implist.sort();
 
         VelocityContext ctx = new VelocityContext();
         ctx.put("name", name);
         ctx.put("package", dpackage);
-        ctx.put("methods", methods);
+        ctx.put("methods", sdesc.methods);
         ctx.put("imports", implist);
 
         try {
@@ -387,27 +370,33 @@ public class GenServiceTask extends InvocationTask
         }
     }
 
-    protected void generateProvider (
-        File source, String sname, String spackage, List methods,
-        List listeners, Collection<String> imports)
+    protected void generateProvider (File source, Class service)
     {
-        String name = StringUtil.replace(sname, "Service", "");
-        String mname = StringUtil.replace(sname, "Service", "Provider");
-        String mpackage = StringUtil.replace(spackage, ".client", ".server");
+        if (_verbose) {
+        	System.out.println("Generating provider");
+        }
+        
+        ServiceDescription sdesc = new ServiceDescription(service, false, false);
+
+        String name = StringUtil.replace(sdesc.sname, "Service", "");
+        String mpackage = StringUtil.replace(
+        	sdesc.spackage, ".client", ".server");
 
         // construct our imports list
         ComparableArrayList<String> implist = new ComparableArrayList<String>();
-        implist.addAll(imports);
+        implist.addAll(sdesc.imports.keySet());
         checkedAdd(implist, ClientObject.class.getName());
         checkedAdd(implist, InvocationProvider.class.getName());
-        checkedAdd(implist, InvocationException.class.getName());
+        if (sdesc.hasAnyListenerArgs()) {
+        	checkedAdd(implist, InvocationException.class.getName());
+        }
         implist.sort();
 
         VelocityContext ctx = new VelocityContext();
         ctx.put("name", name);
         ctx.put("package", mpackage);
-        ctx.put("methods", methods);
-        ctx.put("listeners", listeners);
+        ctx.put("methods", sdesc.methods);
+        ctx.put("listeners", sdesc.listeners);
         ctx.put("imports", implist);
 
         try {
@@ -427,6 +416,82 @@ public class GenServiceTask extends InvocationTask
         }
     }
 
+    // rolls up everything needed for the generate* methods
+    protected class ServiceDescription
+    {
+    	ServiceDescription (
+    		Class service, 
+    		boolean importServiceMethodsFirstArgument,
+    		boolean importListenerArguments)
+    	{
+    		this.service = service;
+    		sname = service.getSimpleName();
+    		spackage = service.getPackage().getName();
+
+            // look through and locate our service methods, also locating any
+            // custom InvocationListener derivations along the way
+            Method[] methdecls = service.getDeclaredMethods();
+            for (int ii = 0; ii < methdecls.length; ii++) {
+                Method m = methdecls[ii];
+                // service interface methods must be public and abstract
+                if (!Modifier.isPublic(m.getModifiers()) &&
+                    !Modifier.isAbstract(m.getModifiers())) {
+                    continue;
+                }
+                // check this method for custom listener declarations
+                Class[] args = m.getParameterTypes();
+                for (int aa = 0; aa < args.length; aa++) {
+                    if (_ilistener.isAssignableFrom(args[aa]) &&
+                        GenUtil.simpleName(
+                            args[aa], null).startsWith(sname + ".")) {
+                        checkedAdd(listeners, new ServiceListener(
+                                       service, args[aa], imports, rawimports, 
+                                       importListenerArguments));
+                    }
+                }
+                if (_verbose) {
+                	System.out.println("Adding " + m + ", imports are " + 
+                		StringUtil.toString(imports.keySet()));
+                }
+                methods.add(new ServiceMethod(service, m, imports, rawimports, 
+                		importServiceMethodsFirstArgument ? 0 : 1,
+                		importListenerArguments));
+                if (_verbose) {
+                	System.out.println("Added " + m + ", imports are " + 
+                		StringUtil.toString(imports.keySet()));
+                }
+            }
+            listeners.sort();
+            methods.sort();
+    	}
+    	
+    	boolean hasAnyListenerArgs ()
+    	{
+    		for (ServiceMethod sm : methods) {
+    			if (!sm.listenerArgs.isEmpty()) {
+    				return true;
+    			}
+    		}
+    		return false;
+    	}
+    	
+    	void addServiceImport ()
+    	{
+    		imports.put(importify(service.getName()), Boolean.TRUE);
+    		rawimports.put(service.getName(), Boolean.TRUE);
+    	}
+
+    	Class service;
+    	String sname;
+        String spackage;
+        HashMap<String,Boolean> imports = new HashMap<String,Boolean>();
+        HashMap<String,Boolean> rawimports = new HashMap<String,Boolean>();
+        ComparableArrayList<ServiceMethod> methods =
+            new ComparableArrayList<ServiceMethod>();
+        ComparableArrayList<ServiceListener> listeners =
+            new ComparableArrayList<ServiceListener>();
+    }
+    
     /** The path to our ActionScript source files. */
     protected File _asroot;
 
