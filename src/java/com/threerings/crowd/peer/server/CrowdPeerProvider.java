@@ -2,7 +2,7 @@
 // $Id$
 //
 // Narya library - tools for developing networked games
-// Copyright (C) 2002-2007 Three Rings Design, Inc., All Rights Reserved
+// Copyright (C) 2002-2008 Three Rings Design, Inc., All Rights Reserved
 // http://www.threerings.net/code/narya/
 //
 // This library is free software; you can redistribute it and/or modify it
@@ -22,10 +22,7 @@
 package com.threerings.crowd.peer.server;
 
 import com.threerings.crowd.chat.client.ChatService;
-import com.threerings.crowd.chat.data.ChatMarshaller;
 import com.threerings.crowd.chat.data.UserMessage;
-import com.threerings.crowd.peer.client.CrowdPeerService;
-import com.threerings.presents.client.Client;
 import com.threerings.presents.data.ClientObject;
 import com.threerings.presents.server.InvocationException;
 import com.threerings.presents.server.InvocationProvider;

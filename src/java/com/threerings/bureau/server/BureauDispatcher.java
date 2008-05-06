@@ -21,9 +21,7 @@
 
 package com.threerings.bureau.server;
 
-import com.threerings.bureau.client.BureauService;
 import com.threerings.bureau.data.BureauMarshaller;
-import com.threerings.presents.client.Client;
 import com.threerings.presents.data.ClientObject;
 import com.threerings.presents.data.InvocationMarshaller;
 import com.threerings.presents.server.InvocationDispatcher;
