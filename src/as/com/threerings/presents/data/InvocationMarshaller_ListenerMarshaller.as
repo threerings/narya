@@ -30,8 +30,6 @@ import com.threerings.io.Streamable;
 
 import com.threerings.presents.client.InvocationService_InvocationListener;
 
-import com.threerings.presents.dobj.InvocationResponseEvent;
-
 public class InvocationMarshaller_ListenerMarshaller
     implements Streamable
 {
