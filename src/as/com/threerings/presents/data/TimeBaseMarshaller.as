@@ -21,16 +21,10 @@
 
 package com.threerings.presents.data {
 
-import flash.utils.ByteArray;
-import com.threerings.util.*; // for Float, Integer, etc.
-import com.threerings.io.TypedArray;
-
 import com.threerings.presents.client.Client;
 import com.threerings.presents.client.TimeBaseService;
 import com.threerings.presents.client.TimeBaseService_GotTimeBaseListener;
 import com.threerings.presents.data.InvocationMarshaller;
-import com.threerings.presents.data.InvocationMarshaller_ListenerMarshaller;
-import com.threerings.presents.data.TimeBaseMarshaller_GotTimeBaseMarshaller;
 
 /**
  * Provides the implementation of the {@link TimeBaseService} interface

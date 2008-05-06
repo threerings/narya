@@ -21,15 +21,9 @@
 
 package com.threerings.crowd.client {
 
-import flash.utils.ByteArray;
-import com.threerings.io.TypedArray;
-import com.threerings.crowd.client.LocationService;
 import com.threerings.crowd.client.LocationService_MoveListener;
-import com.threerings.crowd.data.LocationMarshaller_MoveMarshaller;
-import com.threerings.crowd.data.PlaceConfig;
 import com.threerings.presents.client.Client;
 import com.threerings.presents.client.InvocationService;
-import com.threerings.presents.client.InvocationService_InvocationListener;
 
 /**
  * An ActionScript version of the Java LocationService interface.

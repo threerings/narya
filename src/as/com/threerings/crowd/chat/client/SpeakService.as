@@ -21,12 +21,8 @@
 
 package com.threerings.crowd.chat.client {
 
-import flash.utils.ByteArray;
-import com.threerings.io.TypedArray;
-import com.threerings.crowd.chat.client.SpeakService;
 import com.threerings.presents.client.Client;
 import com.threerings.presents.client.InvocationService;
-import com.threerings.presents.client.InvocationService_InvocationListener;
 
 /**
  * An ActionScript version of the Java SpeakService interface.

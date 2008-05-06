@@ -22,6 +22,7 @@
 package com.threerings.crowd.data;
 
 import com.threerings.crowd.client.LocationService;
+import com.threerings.crowd.data.LocationMarshaller;
 import com.threerings.crowd.data.PlaceConfig;
 import com.threerings.presents.client.Client;
 import com.threerings.presents.data.InvocationMarshaller;

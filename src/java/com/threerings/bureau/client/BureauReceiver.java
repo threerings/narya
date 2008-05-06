@@ -22,7 +22,6 @@
 package com.threerings.bureau.client;
 
 import com.threerings.presents.client.InvocationReceiver;
-import com.threerings.presents.data.ClientObject;
 
 /**
  * Hooks for controlling a previously launched bureau client.
