@@ -27,9 +27,6 @@ import java.io.StringWriter;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
 import java.util.HashSet;
 
 import org.apache.velocity.VelocityContext;
@@ -59,11 +56,11 @@ public class GenServiceTask extends InvocationTask
 
         public ComparableArrayList<ServiceMethod> methods =
             new ComparableArrayList<ServiceMethod>();
+        
+        /** Contains all imports required for the parameters of the methods in this listener. */
+        public ImportSet imports = new ImportSet();
 
-        public ServiceListener (Class service, Class listener,
-                                HashMap<String,Boolean> imports,
-                                HashMap<String,Boolean> rawimports,
-                                boolean importArguments)
+        public ServiceListener (Class service, Class listener)
         {
             this.listener = listener;
             Method[] methdecls = listener.getDeclaredMethods();
@@ -75,15 +72,13 @@ public class GenServiceTask extends InvocationTask
                     continue;
                 }
                 if (_verbose) {
-                	System.out.println("Adding " + m + ", imports are " + 
-                		StringUtil.toString(imports.keySet()));
+                    System.out.println("Adding " + m + ", imports are " + 
+                        StringUtil.toString(imports));
                 }
-                methods.add(new ServiceMethod(
-                	service, m, imports, rawimports, importArguments ? 0 : 999,
-                	true));
+                methods.add(new ServiceMethod(m, imports));
                 if (_verbose) {
-                	System.out.println("Added " + m + ", imports are " + 
-                		StringUtil.toString(imports.keySet()));
+                    System.out.println("Added " + m + ", imports are " + 
+                        StringUtil.toString(imports));
                 }
             }
             methods.sort();
@@ -146,46 +141,59 @@ public class GenServiceTask extends InvocationTask
             return;
         }
 
-        generateMarshaller(source, service);
-        generateDispatcher(source, service);
+        ServiceDescription desc = new ServiceDescription(service);
+        generateMarshaller(source, desc);
+        generateDispatcher(source, desc);
         if (!_providerless.contains(service.getSimpleName())) {
-            generateProvider(source, service);
+            generateProvider(source, desc);
         }
     }
 
-    protected void generateMarshaller (File source, Class service)
+    protected void generateMarshaller (File source, ServiceDescription sdesc)
     {
         if (_verbose) {
-        	System.out.println("Generating marshaller");
+            System.out.println("Generating marshaller");
         }
-
-        ServiceDescription sdesc = new ServiceDescription(service, true, true);
-
-        // Marshallers always require the service
-        sdesc.addServiceImport();
 
         String sname = sdesc.sname;
         String name = StringUtil.replace(sname, "Service", "");
         String mname = StringUtil.replace(sname, "Service", "Marshaller");
         String mpackage = StringUtil.replace(
-        	sdesc.spackage, ".client", ".data");
+            sdesc.spackage, ".client", ".data");
 
-        // construct our imports list
-        ComparableArrayList<String> implist = new ComparableArrayList<String>();
-        implist.addAll(sdesc.imports.keySet());
-        checkedAdd(implist, Client.class.getName());
-        checkedAdd(implist, InvocationMarshaller.class.getName());
+        // ----------- Part I - java marshaller
+        
+        // start with all imports (service methods and listener methods)
+        ImportSet imports = sdesc.constructAllImports();
+
+        // import things marshaller will always need
+        imports.add(sdesc.service);
+        imports.add(Client.class);
+        imports.add(InvocationMarshaller.class);
+
+        // if any listeners are to be present, they need the response event
         if (sdesc.listeners.size() > 0) {
-        	checkedAdd(implist, InvocationResponseEvent.class.getName());
+            imports.add(InvocationResponseEvent.class);
         }
-        implist.sort();
+        
+        // get rid of java.lang stuff and primitives
+        imports.removeGlobals();
+        
+        // for each listener type, also import the corresponding marshaller
+        imports.duplicateAndMunge("Listener", 
+            "Service", "Marshaller",
+            "Listener", "Marshaller",
+            ".client.", ".data.");
+
+        // import the parent class of Foo$Bar
+        imports.swapInnerClassesForParents();
 
         VelocityContext ctx = new VelocityContext();
         ctx.put("name", name);
         ctx.put("package", mpackage);
         ctx.put("methods", sdesc.methods);
         ctx.put("listeners", sdesc.listeners);
-        ctx.put("imports", implist);
+        ctx.put("imports", imports.toList());
 
         // determine the path to our marshaller file
         String mpath = source.getPath();
@@ -208,22 +216,35 @@ public class GenServiceTask extends InvocationTask
             return;
         }
 
-        // convert the raw imports into ActionScript versions (inner-classes
-        // become Foo_Bar)
-        Collection<String> asimports = new ArrayList<String>();
-        for (String impy : sdesc.rawimports.keySet()) {
-            asimports.add(impy.replace("$", "_"));
-        }
+        // ----------- Part II - as marshaller
 
-        // recreate our service imports using those
-        implist = new ComparableArrayList<String>();
-        implist.addAll(asimports);
-        checkedAdd(implist, Client.class.getName());
-        checkedAdd(implist, InvocationMarshaller.class.getName());
-        Class imlm = InvocationMarshaller.ListenerMarshaller.class;
-        checkedAdd(implist, imlm.getName().replace("$", "_"));
-        implist.sort();
-        ctx.put("imports", implist);
+        // start with the service method imports
+        imports = sdesc.imports.clone();
+        
+        // add some things that marshallers just need
+        imports.add(sdesc.service);
+        imports.add(Client.class);
+        imports.add(InvocationMarshaller.class);
+        
+        // replace inner classes with action script equivalents
+        imports.translateInnerClasses();
+        
+        // replace primitive types with OOO types (required for unboxing)
+        imports.replace("byte", "com.threerings.util.Byte");
+        imports.replace("int", "com.threerings.util.Integer");
+        imports.replace("boolean", "com.threerings.util.langBoolean");
+        
+        // ye olde special case - any method that uses a default listener
+        // causes the need for the default listener marshaller
+        imports.duplicateAndMunge("InvocationService_InvocationListener",
+            "InvocationService_InvocationListener",
+            "InvocationMarshaller_ListenerMarshaller",
+            ".client.", ".data.");
+
+        // get rid of java.lang stuff and any remaining primitives
+        imports.removeGlobals();
+
+        ctx.put("imports", imports.toList());
 
         // now generate ActionScript versions of our marshaller
         try {
@@ -238,18 +259,32 @@ public class GenServiceTask extends InvocationTask
             _velocity.mergeTemplate(AS_MARSHALLER_TMPL, "UTF-8", ctx, sw);
             writeFile(ampath, sw.toString());
 
+            // ----------- Part III - as listener marshallers
+
+            Class imlm = InvocationMarshaller.ListenerMarshaller.class;
+
             // now generate ActionScript versions of our listener marshallers
             // because those have to be in separate files
             for (ServiceListener listener : sdesc.listeners) {
-                // recreate our imports with just what we need here
-                implist = new ComparableArrayList<String>();
-                implist.addAll(sdesc.imports.keySet());
-                checkedAdd(implist, imlm.getName().replace("$", "_"));
-                String lname = listener.listener.getName();
-                checkedAdd(implist, lname.replace("$", "_"));
-                implist.sort();
-                ctx.put("imports", implist);
 
+                // start imports with just those used by listener methods
+                imports = listener.imports.clone();
+                
+                // always need the super class and the listener class
+                imports.add(imlm);
+                imports.add(listener.listener);
+                
+                // replace '$' with '_' for action script naming convention
+                imports.translateInnerClasses();
+                
+                // convert primitive java types to ooo util types
+                // TODO: will future listener marshallers need more primitives?
+                imports.replace("long", "com.threerings.util.Long");
+
+                // get rid of remaining primitives and java.lang types
+                imports.removeGlobals();
+                
+                ctx.put("imports", imports.toList());
                 ctx.put("listener", listener);
                 sw = new StringWriter();
                 _velocity.mergeTemplate(
@@ -265,16 +300,25 @@ public class GenServiceTask extends InvocationTask
             e.printStackTrace(System.err);
         }
 
+        // ----------- Part IV - as service
+
         // then make some changes to the context and generate ActionScript
         // versions of the service interface itself
-        implist = new ComparableArrayList<String>();
-        implist.addAll(asimports);
-        checkedAdd(implist, Client.class.getName());
-        checkedAdd(implist, InvocationService.class.getName());
-        Class isil = InvocationService.InvocationListener.class;
-        checkedAdd(implist, isil.getName().replace("$", "_"));
-        implist.sort();
-        ctx.put("imports", implist);
+
+        // start with the service methods' imports
+        imports = sdesc.imports.clone();
+
+        // add some things required by action script
+        imports.add(Client.class);
+        imports.add(InvocationService.class);
+
+        // get rid of primitives and java.lang classes
+        imports.removeGlobals();
+        
+        // change imports of Foo$Bar to Foo_Bar
+        imports.translateInnerClasses();
+
+        ctx.put("imports", imports.toList());
         ctx.put("package", sdesc.spackage);
 
         try {
@@ -289,19 +333,34 @@ public class GenServiceTask extends InvocationTask
             _velocity.mergeTemplate(AS_SERVICE_TMPL, "UTF-8", ctx, sw);
             writeFile(aspath, sw.toString());
 
+            // ----------- Part V - as service listeners
+
+            Class isil = InvocationService.InvocationListener.class;
+
             // also generate ActionScript versions of any inner listener
             // interfaces because those have to be in separate files
             for (ServiceListener listener : sdesc.listeners) {
-                // recreate our imports with just what we need here
-                implist = new ComparableArrayList<String>();
-                implist.addAll(asimports);
-                checkedAdd(implist, isil.getName().replace("$", "_"));
-                String lname = listener.listener.getName();
-                checkedAdd(implist, lname.replace("$", "_"));
-                implist.sort();
-                ctx.put("imports", implist);
 
+                // start with just the imports needed by listener methods
+                imports = listener.imports.clone();
+                
+                // add things needed by all listeners
+                imports.add(isil);
+                imports.add(listener.listener);
+                
+                // change Foo$Bar to Foo_Bar
+                imports.translateInnerClasses();
+                
+                // convert java primitive types to ooo util types 
+                // TODO: will future listeners need more primitives?
+                imports.replace("long", "com.threerings.util.Long");
+                
+                // get rid of remaining primitives and java.lang types
+                imports.removeGlobals();
+                
+                ctx.put("imports", imports.toList());
                 ctx.put("listener", listener);
+
                 sw = new StringWriter();
                 _velocity.mergeTemplate(
                     AS_LISTENER_SERVICE_TMPL, "UTF-8", ctx, sw);
@@ -317,41 +376,49 @@ public class GenServiceTask extends InvocationTask
         }
     }
 
-    protected void generateDispatcher (File source, Class service)
+    protected void generateDispatcher (File source, ServiceDescription sdesc)
     {
         if (_verbose) {
-        	System.out.println("Generating dispatcher");
-        }
-
-        ServiceDescription sdesc = new ServiceDescription(service, false, false);
-
-        // If any listeners are to be used in dispatches, we need to import the service
-        if (sdesc.listeners.size() > 0) {
-        	sdesc.addServiceImport();
+            System.out.println("Generating dispatcher");
         }
 
         String name = StringUtil.replace(sdesc.sname, "Service", "");
         String dpackage = StringUtil.replace(
-        	sdesc.spackage, ".client", ".server");
+            sdesc.spackage, ".client", ".server");
 
-        // construct our imports list
-        ComparableArrayList<String> implist = new ComparableArrayList<String>();
-        implist.addAll(sdesc.imports.keySet());
-        checkedAdd(implist, ClientObject.class.getName());
-        checkedAdd(implist, InvocationMarshaller.class.getName());
-        checkedAdd(implist, InvocationDispatcher.class.getName());
-        checkedAdd(implist, InvocationException.class.getName());
-        String mname = StringUtil.replace(sdesc.sname, "Service", "Marshaller");
-        String mpackage = StringUtil.replace(
-        	sdesc.spackage, ".client", ".data");
-        checkedAdd(implist, mpackage + "." + mname);
-        implist.sort();
+        // start with the imports required by service methods
+        ImportSet imports = sdesc.imports.clone();
+
+        // If any listeners are to be used in dispatches, we need to import the service
+        if (sdesc.listeners.size() > 0) {
+            imports.add(sdesc.service);
+        }
+
+        // swap Client for ClientObject
+        imports.add(ClientObject.class);
+        imports.remove(Client.class);
+        
+        // add some classes required for all dispatchers
+        imports.add(InvocationMarshaller.class);
+        imports.add(InvocationDispatcher.class);
+        imports.add(InvocationException.class);
+        
+        // get rid of primitives and java.lang types
+        imports.removeGlobals();
+
+        // import the Marshaller corresponding to the service
+        imports.addMunged(sdesc.service, 
+            "Service", "Marshaller",
+            ".client.", ".data.");
+
+        // import Foo instead of Foo$Bar
+        imports.swapInnerClassesForParents();
 
         VelocityContext ctx = new VelocityContext();
         ctx.put("name", name);
         ctx.put("package", dpackage);
         ctx.put("methods", sdesc.methods);
-        ctx.put("imports", implist);
+        ctx.put("imports", imports.toList());
 
         try {
             StringWriter sw = new StringWriter();
@@ -370,34 +437,43 @@ public class GenServiceTask extends InvocationTask
         }
     }
 
-    protected void generateProvider (File source, Class service)
+    protected void generateProvider (File source, ServiceDescription sdesc)
     {
         if (_verbose) {
-        	System.out.println("Generating provider");
+            System.out.println("Generating provider");
         }
         
-        ServiceDescription sdesc = new ServiceDescription(service, false, false);
-
         String name = StringUtil.replace(sdesc.sname, "Service", "");
         String mpackage = StringUtil.replace(
-        	sdesc.spackage, ".client", ".server");
+            sdesc.spackage, ".client", ".server");
 
-        // construct our imports list
-        ComparableArrayList<String> implist = new ComparableArrayList<String>();
-        implist.addAll(sdesc.imports.keySet());
-        checkedAdd(implist, ClientObject.class.getName());
-        checkedAdd(implist, InvocationProvider.class.getName());
+        // start with imports required by service methods
+        ImportSet imports = sdesc.imports.clone();
+
+        // swap Client for ClientObject
+        imports.add(ClientObject.class);
+        imports.remove(Client.class);
+        
+        // import superclass
+        imports.add(InvocationProvider.class);
+        
+        // any method that takes a listener may throw this 
         if (sdesc.hasAnyListenerArgs()) {
-        	checkedAdd(implist, InvocationException.class.getName());
+            imports.add(InvocationException.class);
         }
-        implist.sort();
+        
+        // get rid of primitives and java.lang types
+        imports.removeGlobals();
+        
+        // import Foo instead of Foo$Bar
+        imports.swapInnerClassesForParents();
 
         VelocityContext ctx = new VelocityContext();
         ctx.put("name", name);
         ctx.put("package", mpackage);
         ctx.put("methods", sdesc.methods);
         ctx.put("listeners", sdesc.listeners);
-        ctx.put("imports", implist);
+        ctx.put("imports", imports.toList());
 
         try {
             StringWriter sw = new StringWriter();
@@ -419,14 +495,11 @@ public class GenServiceTask extends InvocationTask
     // rolls up everything needed for the generate* methods
     protected class ServiceDescription
     {
-    	ServiceDescription (
-    		Class service, 
-    		boolean importServiceMethodsFirstArgument,
-    		boolean importListenerArguments)
-    	{
-    		this.service = service;
-    		sname = service.getSimpleName();
-    		spackage = service.getPackage().getName();
+        ServiceDescription (Class service)
+        {
+            this.service = service;
+            sname = service.getSimpleName();
+            spackage = service.getPackage().getName();
 
             // look through and locate our service methods, also locating any
             // custom InvocationListener derivations along the way
@@ -445,47 +518,52 @@ public class GenServiceTask extends InvocationTask
                         GenUtil.simpleName(
                             args[aa], null).startsWith(sname + ".")) {
                         checkedAdd(listeners, new ServiceListener(
-                                       service, args[aa], imports, rawimports, 
-                                       importListenerArguments));
+                                       service, args[aa]));
                     }
                 }
                 if (_verbose) {
-                	System.out.println("Adding " + m + ", imports are " + 
-                		StringUtil.toString(imports.keySet()));
+                    System.out.println("Adding " + m + ", imports are " + 
+                        StringUtil.toString(imports));
                 }
-                methods.add(new ServiceMethod(service, m, imports, rawimports, 
-                		importServiceMethodsFirstArgument ? 0 : 1,
-                		importListenerArguments));
+                methods.add(new ServiceMethod(m, imports));
                 if (_verbose) {
-                	System.out.println("Added " + m + ", imports are " + 
-                		StringUtil.toString(imports.keySet()));
+                    System.out.println("Added " + m + ", imports are " + 
+                        StringUtil.toString(imports));
                 }
             }
             listeners.sort();
             methods.sort();
-    	}
-    	
-    	boolean hasAnyListenerArgs ()
-    	{
-    		for (ServiceMethod sm : methods) {
-    			if (!sm.listenerArgs.isEmpty()) {
-    				return true;
-    			}
-    		}
-    		return false;
-    	}
-    	
-    	void addServiceImport ()
-    	{
-    		imports.put(importify(service.getName()), Boolean.TRUE);
-    		rawimports.put(service.getName(), Boolean.TRUE);
-    	}
+        }
+        
+        /**
+         * Checks if any of the service method arguments are listener types.
+         */
+        boolean hasAnyListenerArgs ()
+        {
+            for (ServiceMethod sm : methods) {
+                if (!sm.listenerArgs.isEmpty()) {
+                    return true;
+                }
+            }
+            return false;
+        }
 
-    	Class service;
-    	String sname;
+        /**
+         * Constructs a union of the imports of the service methods and all listener methods.
+         */
+        ImportSet constructAllImports ()
+        {
+            ImportSet allimports = imports.clone();
+            for (ServiceListener listener : listeners) {
+                allimports.addAll(listener.imports);
+            }
+            return allimports;
+        }
+
+        Class service;
+        String sname;
         String spackage;
-        HashMap<String,Boolean> imports = new HashMap<String,Boolean>();
-        HashMap<String,Boolean> rawimports = new HashMap<String,Boolean>();
+        ImportSet imports = new ImportSet();
         ComparableArrayList<ServiceMethod> methods =
             new ComparableArrayList<ServiceMethod>();
         ComparableArrayList<ServiceListener> listeners =

@@ -27,7 +27,6 @@ import java.io.StringWriter;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 
@@ -67,12 +66,12 @@ public class GenReceiverTask extends InvocationTask
             return;
         }
 
-        HashMap<String,Boolean> imports = new HashMap<String,Boolean>();
+        ImportSet imports = new ImportSet();
         ComparableArrayList<ServiceMethod> methods =
             new ComparableArrayList<ServiceMethod>();
 
         // we need to import the receiver itself
-        imports.put(importify(receiver.getName()), Boolean.TRUE);
+        imports.add(receiver);
 
         // look through and locate our receiver methods
         Method[] methdecls = receiver.getDeclaredMethods();
@@ -83,14 +82,14 @@ public class GenReceiverTask extends InvocationTask
                 !Modifier.isAbstract(m.getModifiers())) {
                 continue;
             }
-            methods.add(new ServiceMethod(receiver, m, imports, null, 0, true));
+            methods.add(new ServiceMethod(m, imports));
         }
         methods.sort();
 
         generateSender(source, rname, rpackage, methods,
-                       imports.keySet().iterator());
+                       imports.toList().iterator());
         generateDecoder(source, rname, rpackage, methods,
-                        imports.keySet().iterator());
+                        imports.toList().iterator());
     }
 
     protected void generateSender (File source, String rname, String rpackage,

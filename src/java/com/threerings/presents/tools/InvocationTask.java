@@ -29,7 +29,6 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
 import org.apache.commons.io.FileUtils;
@@ -44,7 +43,6 @@ import org.apache.tools.ant.util.ClasspathUtils;
 
 import org.apache.velocity.app.VelocityEngine;
 
-import com.samskivert.util.ObjectUtil;
 import com.samskivert.util.StringUtil;
 import com.samskivert.velocity.VelocityUtil;
 
@@ -92,8 +90,8 @@ public abstract class InvocationTask extends Task
         }
     }
 
-    /** Used to keep track of invocation service methods (or listener 
-     *  methods). */
+    /** Used to keep track of invocation service methods or listener 
+     *  methods. */
     public class ServiceMethod implements Comparable<ServiceMethod>
     {
         public Method method;
@@ -101,18 +99,19 @@ public abstract class InvocationTask extends Task
         public ArrayList<ListenerArgument> listenerArgs =
             new ArrayList<ListenerArgument>();
 
-        public ServiceMethod (Class<?> service, Method method,
-                              HashMap<String,Boolean> imports,
-                              HashMap<String,Boolean> rawimports,
-                              int ignoreArguments,
-                              boolean importMarshallerListeners)
+        /**
+         * Creates a new service method.
+         * @param method the method to inspect 
+         * @param imports will be filled with the types required by the method
+         */
+        public ServiceMethod (Method method, ImportSet imports)
         {
             this.method = method;
-
+            
             // we need to look through our arguments and note any needed
             // imports in the supplied table
             Class<?>[] args = method.getParameterTypes();
-            for (int ii = ignoreArguments; ii < args.length; ii++) {
+            for (int ii = 0; ii < args.length; ii++) {
                 Class<?> arg = args[ii];
                 while (arg.isArray()) {
                     arg = arg.getComponentType();
@@ -124,41 +123,7 @@ public abstract class InvocationTask extends Task
                     listenerArgs.add(new ListenerArgument(ii, arg));
                 }
 
-                // if it's primitive or global we don't need an import
-                if (arg.isPrimitive() ||
-                    arg.getName().startsWith("java.lang")) {
-                    continue;
-                }
-
-                // if it's in our same package, we don't need a normal import
-                // but we may need a raw import
-                boolean samepkg =
-                    ObjectUtil.equals(arg.getPackage(), service.getPackage());
-                if (!samepkg) {
-                    imports.put(importify(arg.getName()), Boolean.TRUE);
-                }
-                if (rawimports != null) {
-                    rawimports.put(arg.getName(), Boolean.TRUE);
-                }
-
-                // if it's a listener and not one of the special
-                // InvocationService listeners, we need to import its
-                // marshaller as well
-                String sname = GenUtil.simpleName(arg, null);
-                if (importMarshallerListeners && 
-                	_ilistener.isAssignableFrom(arg)) {
-                    String mname = arg.getName();
-                    mname = StringUtil.replace(mname, "Service", "Marshaller");
-                    mname = StringUtil.replace(mname, "Listener", "Marshaller");
-                    mname = StringUtil.replace(mname, ".client.", ".data.");
-                    if (!samepkg && !sname.startsWith("InvocationService")) {
-                        imports.put(importify(mname), Boolean.TRUE);
-                    }
-                    if (rawimports != null &&
-                        !sname.equals("InvocationService.InvocationListener")) {
-                        rawimports.put(mname, Boolean.TRUE);
-                    }
-                }
+                imports.add(arg);
             }
         }
 
@@ -333,7 +298,7 @@ public abstract class InvocationTask extends Task
      */
     public void setVerbose (boolean verbose)
     {
-    	_verbose = verbose;
+        _verbose = verbose;
     }
 
     /** Configures our classpath which we'll use to load service classes. */
@@ -408,6 +373,9 @@ public abstract class InvocationTask extends Task
     protected void writeFile (String path, String data)
         throws IOException
     {
+        if (_verbose) {
+            System.out.println("Writing file " + path);
+        }
         if (_header != null) {
             data = _header + data;
         }
@@ -419,12 +387,6 @@ public abstract class InvocationTask extends Task
         if (!list.contains(value)) {
             list.add(value);
         }
-    }
-
-    protected static String importify (String name)
-    {
-        int didx = name.indexOf("$");
-        return (didx == -1) ? name : name.substring(0, didx);
     }
 
     protected static String replacePath (
