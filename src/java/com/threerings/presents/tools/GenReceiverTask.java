@@ -85,6 +85,9 @@ public class GenReceiverTask extends InvocationTask
             methods.add(new ServiceMethod(m, imports));
         }
         methods.sort();
+        
+        // get rid of primitives and java.lang types
+        imports.removeGlobals();
 
         generateSender(source, rname, rpackage, methods,
                        imports.toList().iterator());
