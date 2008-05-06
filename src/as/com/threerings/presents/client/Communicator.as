@@ -32,13 +32,11 @@ import flash.utils.ByteArray;
 import flash.utils.Endian;
 
 import com.threerings.util.Log;
-import com.threerings.util.StringUtil;
 
 import com.threerings.io.FrameAvailableEvent;
 import com.threerings.io.FrameReader;
 import com.threerings.io.ObjectInputStream;
 import com.threerings.io.ObjectOutputStream;
-import com.threerings.io.Translations;
 
 import com.threerings.presents.data.AuthCodes;
 import com.threerings.presents.net.AuthRequest;

@@ -25,7 +25,6 @@ import com.threerings.io.ObjectInputStream;
 import com.threerings.io.ObjectOutputStream;
 import com.threerings.io.Streamable;
 
-import com.threerings.util.Comparable;
 import com.threerings.util.StringBuilder;
 
 public /* abstract */ class DEvent

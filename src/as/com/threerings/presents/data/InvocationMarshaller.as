@@ -31,7 +31,6 @@ import com.threerings.presents.client.Client;
 import com.threerings.presents.client.InvocationService;
 
 import com.threerings.presents.dobj.DObjectManager;
-import com.threerings.presents.dobj.InvocationResponseEvent;
 
 /**
  * Provides a base from which all invocation service marshallers extend.

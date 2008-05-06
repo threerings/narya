@@ -28,7 +28,6 @@ import com.threerings.presents.client.InvocationService;
 import com.threerings.presents.client.InvocationService_InvocationListener;
 import com.threerings.presents.client.TimeBaseService;
 import com.threerings.presents.client.TimeBaseService_GotTimeBaseListener;
-import com.threerings.presents.data.TimeBaseMarshaller_GotTimeBaseMarshaller;
 
 /**
  * An ActionScript version of the Java TimeBaseService interface.

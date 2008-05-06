@@ -21,8 +21,6 @@
 
 package com.threerings.presents.client {
 
-import com.threerings.presents.dobj.DSet;
-
 /**
  * Invocation notification receipt interfaces should be defined as
  * extending this interface. Actual notification receivers will implement
