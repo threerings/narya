@@ -22,8 +22,7 @@
 package com.threerings.util {
 
 import flash.utils.ByteArray;
-
-import flash.utils.describeType; // function import
+import flash.utils.getQualifiedClassName;
 
 public class Util
 {
@@ -65,7 +64,7 @@ public class Util
      */
     public static function isPlainObject (obj :Object) :Boolean
     {
-        return (obj != null) && ("Object" == describeType(obj).@name.toString());
+        return getQualifiedClassName(obj) == "Object";
     }
 
     /**
