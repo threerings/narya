@@ -158,7 +158,7 @@
       <!-- compiler.use-resource-bundle-metadata: determines whether resources bundles are included in the application.-->
       <use-resource-bundle-metadata>true</use-resource-bundle-metadata>
       <!-- compiler.verbose-stacktraces: save callstack information to the SWF for debugging-->
-      <verbose-stacktraces>false</verbose-stacktraces>
+      <verbose-stacktraces>true</verbose-stacktraces>
       <!-- compiler.warn-array-tostring-changes: Array.toString() format has changed.-->
       <warn-array-tostring-changes>false</warn-array-tostring-changes>
       <!-- compiler.warn-assignment-within-conditional: Assignment within conditional.-->
