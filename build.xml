@@ -20,7 +20,6 @@
     <fileset dir="${deploy.dir}/lib" includes="**/*.jar"/>
   </path>
 
-
   <!-- generates fields for persistent record classes -->
   <target name="genrecord" depends="prepare">
     <taskdef name="grecord" classname="com.samskivert.jdbc.depot.tools.GenRecordTask"
