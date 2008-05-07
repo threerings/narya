@@ -25,6 +25,8 @@ import flash.utils.describeType;
 import flash.utils.getQualifiedClassName;
 import flash.utils.getDefinitionByName;
 
+import com.threerings.util.env.Environment;
+
 public class ClassUtil
 {
     /**
@@ -111,39 +113,9 @@ public class ClassUtil
      *     var s :Streamable = (new someClass() as Streamable);
      * </code>
      */
-    public static function isAssignableAs (
-            asClass :Class, srcClass :Class) :Boolean
+    public static function isAssignableAs (asClass :Class, srcClass :Class) :Boolean
     {
-        if (asClass == srcClass) {
-            return true;
-
-        // if not the same class and srcClass is Object, we're done
-        } else if (srcClass == Object) {
-            return false;
-        }
-
-        // ok, let's introspect on the class and see what we've got.
-        var typeInfo :XMLList = describeType(srcClass).child("factory");
-
-        // See which classes we extend.
-        var exts :XMLList = typeInfo.child("extendsClass").attribute("type");
-        var type :String;
-        for each (type in exts) {
-            if (asClass == getClassByName(type)) {
-                return true;
-            }
-        }
-
-        // See which interfaces we implement.
-        var imps :XMLList = typeInfo.child("implementsInterface")
-            .attribute("type");
-        for each (type in imps) {
-            if (asClass == getClassByName(type)) {
-                return true;
-            }
-        }
-
-        return false;
+        return Environment.isAssignableAs(asClass, srcClass);
     }
 }
 }

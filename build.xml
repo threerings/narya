@@ -20,6 +20,7 @@
     <fileset dir="${deploy.dir}/lib" includes="**/*.jar"/>
   </path>
 
+
   <!-- generates fields for persistent record classes -->
   <target name="genrecord" depends="prepare">
     <taskdef name="grecord" classname="com.samskivert.jdbc.depot.tools.GenRecordTask"
@@ -171,9 +172,14 @@
   <target name="checkaslib">
     <condition property="no_build_aslib"><or>
       <not><available file="${flexsdk.dir}/lib/compc.jar"/></not>
-      <uptodate targetfile="${deploy.dir}/${lib.name}lib.swc">
-        <srcfiles dir="src/as" includes="**/*.as"/>
-      </uptodate>
+      <and>
+        <uptodate targetfile="${deploy.dir}/${lib.name}lib.swc">
+          <srcfiles dir="src/as" includes="**/*.as"/>
+        </uptodate>
+        <uptodate targetfile="${deploy.dir}/${lib.name}lib.abc">
+          <srcfiles dir="src/as" includes="**/*.as"/>
+        </uptodate>
+      </and>
     </or></condition>
   </target>
 
@@ -185,6 +191,9 @@
         <filter token="lib_name_dir" value="${lib.name}"/>
       </filterset>
     </copy>
+    <copy file="src/as/com/threerings/util/env/Environment.as-fp" 
+          tofile="src/as/com/threerings/util/env/Environment.as"/>
+
     <java jar="${flexsdk.dir}/lib/compc.jar" fork="true" failonerror="true">
       <arg value="-load-config"/>
       <arg value="${deploy.dir}/aslib-config.xml"/>
@@ -195,6 +204,32 @@
       <arg value="${deploy.dir}/${lib.name}lib.swc"/>
     </java>
     <delete file="${deploy.dir}/aslib-config.xml"/>
+
+    <copy file="src/as/com/threerings/util/env/Environment.as-tm"
+          tofile="src/as/com/threerings/util/env/Environment.as"/>
+    <loadfile property="ascfiles" srcFile="etc/asc-files.txt">
+      <filterchain>
+        <prefixlines prefix="src/as/"/>
+        <tokenfilter delimOutput=" "/>
+      </filterchain>
+    </loadfile>
+    <java classname="macromedia.asc.embedding.ScriptCompiler" fork="true" failonerror="true">
+      <classpath>
+        <fileset dir="lib" includes="asc.jar"/>
+      </classpath>
+      <arg value="-AS3"/>
+      <arg value="-strict"/>
+      <arg value="-import"/>
+      <arg value="lib/builtin.abc"/>
+      <arg value="-import"/>
+      <arg value="lib/thane.abc"/>
+      <arg value="-outdir"/>
+      <arg value="${deploy.dir}"/>
+      <arg value="-out"/>
+      <arg value="${lib.name}lib"/>
+      <arg line="${ascfiles}"/>
+    </java>
+    <delete file="src/as/com/threerings/util/env/Environment.as"/>
   </target>
 
   <!-- build the native libraries -->

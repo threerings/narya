@@ -22,7 +22,8 @@
 package com.threerings.util {
 
 import flash.utils.ByteArray;
-import flash.utils.describeType; // function import
+
+import com.threerings.util.env.Environment;
 
 public class StringUtil
 {
@@ -318,9 +319,8 @@ public class StringUtil
      */
     public static function fieldsToString (buf :StringBuilder, obj :Object) :void
     {
-        var desc :XML = describeType(obj);
         var appended :Boolean = false;
-        for each (var varName :String in desc..variable.@name) {
+        for each (var varName :String in Environment.enumerateFields(obj)) {
             if (appended) {
                 buf.append(", ");
             }
