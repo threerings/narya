@@ -22,6 +22,7 @@
 package com.threerings.util {
 
 import flash.utils.ByteArray;
+import flash.utils.Dictionary;
 
 import com.threerings.util.env.Environment;
 
@@ -276,13 +277,19 @@ public class StringUtil
     /**
      * Nicely format the specified object into a String.
      */
-    public static function toString (obj :*) :String
+    public static function toString (obj :*, refs :Dictionary = null) :String
     {
         if (obj == null) { // checks null or undefined
             return String(obj);
         }
 
-        // TODO: this should be able to detect circular references
+        if (refs == null) {
+            refs = new Dictionary();
+
+        } else if (refs[obj] !== undefined) {
+            return "[cyclic reference]";
+        }
+        refs[obj] = true;
 
         var s :String;
         if (obj is Array) {
@@ -292,7 +299,7 @@ public class StringUtil
                 if (ii > 0) {
                     s += ", ";
                 }
-                s += (ii + ": " + toString(arr[ii]));
+                s += (ii + ": " + toString(arr[ii], refs));
             }
             return "Array(" + s + ")";
 
@@ -303,7 +310,7 @@ public class StringUtil
                 if (s.length > 0) {
                     s += ", ";
                 }
-                s += prop + "=>" + toString(obj[prop]);
+                s += prop + "=>" + toString(obj[prop], refs);
             }
             return "Object(" + s + ")";
 
