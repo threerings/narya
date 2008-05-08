@@ -127,6 +127,22 @@ public class ImportSet
     }
     
     /**
+     * Remove all classes that are in the same package.
+     * @param pkg package to remove
+     */
+    public void removeSamePackage (String pkg)
+    {
+        Iterator<String> i = _imports.iterator();
+        while (i.hasNext()) {
+            String name = i.next();
+            if (name.startsWith(pkg) && 
+                name.indexOf('.', pkg.length() + 1) == -1) {
+                    i.remove();
+            }
+        }
+    }
+    
+    /**
      * Replaces inner class imports (those with a '$') with an import of the parent class.
      */
     public void swapInnerClassesForParents ()

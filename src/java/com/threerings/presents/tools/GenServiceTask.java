@@ -197,7 +197,7 @@ public class GenServiceTask extends InvocationTask
         imports.swapInnerClassesForParents();
         
         // remove imports in our own package
-        imports.removeAll(mpackage + ".*");
+        imports.removeSamePackage(mpackage);
 
         VelocityContext ctx = new VelocityContext();
         ctx.put("name", name);
@@ -274,7 +274,7 @@ public class GenServiceTask extends InvocationTask
         imports.removeArrays();
 
         // remove imports in our own package
-        imports.removeAll(mpackage + ".*");
+        imports.removeSamePackage(mpackage);
 
         ctx.put("imports", imports.toList());
 
@@ -316,7 +316,7 @@ public class GenServiceTask extends InvocationTask
                 imports.removeGlobals();
                 
                 // remove imports in our own package
-                imports.removeAll(mpackage + ".*");
+                imports.removeSamePackage(mpackage);
 
                 ctx.put("imports", imports.toList());
                 ctx.put("listener", listener);
@@ -364,7 +364,7 @@ public class GenServiceTask extends InvocationTask
         imports.translateInnerClasses();
 
         // remove imports in our own package
-        imports.removeAll(sdesc.spackage + ".*");
+        imports.removeSamePackage(sdesc.spackage);
 
         ctx.put("imports", imports.toList());
         ctx.put("package", sdesc.spackage);
@@ -406,7 +406,7 @@ public class GenServiceTask extends InvocationTask
                 imports.removeGlobals();
                 
                 // remove imports in our own package
-                imports.removeAll(sdesc.spackage + ".*");
+                imports.removeSamePackage(sdesc.spackage);
 
                 ctx.put("imports", imports.toList());
                 ctx.put("listener", listener);
@@ -468,7 +468,7 @@ public class GenServiceTask extends InvocationTask
         imports.swapInnerClassesForParents();
         
         // remove imports in our own package
-        imports.removeAll(dpackage + ".*");
+        imports.removeSamePackage(dpackage);
 
         VelocityContext ctx = new VelocityContext();
         ctx.put("name", name);
@@ -528,7 +528,7 @@ public class GenServiceTask extends InvocationTask
         imports.swapInnerClassesForParents();
 
         // remove imports in our own package
-        imports.removeAll(mpackage + ".*");
+        imports.removeSamePackage(mpackage);
 
         VelocityContext ctx = new VelocityContext();
         ctx.put("name", name);
