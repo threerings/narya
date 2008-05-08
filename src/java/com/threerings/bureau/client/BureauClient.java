@@ -22,7 +22,6 @@
 package com.threerings.bureau.client;
 
 import com.threerings.presents.client.Client;
-import com.threerings.presents.net.Credentials;
 import com.samskivert.util.RunQueue;
 import com.threerings.bureau.data.BureauCredentials;
 import com.threerings.bureau.util.BureauContext;

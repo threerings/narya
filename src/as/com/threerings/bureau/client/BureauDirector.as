@@ -1,57 +1,53 @@
-package com.threerings.bureau.client;
+package com.threerings.bureau.client {
 
 import com.threerings.presents.client.BasicDirector;
+import com.threerings.presents.data.ClientObject;
 import com.threerings.bureau.data.BureauCodes;
-import com.samskivert.util.IntMap;
-import com.samskivert.util.IntMaps;
 import com.threerings.bureau.data.AgentObject;
 import com.threerings.bureau.Log;
 import com.threerings.bureau.util.BureauContext;
 import com.threerings.presents.client.Client;
 import com.threerings.presents.dobj.Subscriber;
+import com.threerings.presents.dobj.SubscriberAdapter;
 import com.threerings.presents.util.SafeSubscriber;
-import com.threerings.presents.dobj.ObjectAccessException;
+import com.threerings.presents.dobj.ObjectAccessError;
+import com.threerings.util.HashMap;
+import com.threerings.presents.client.ClientEvent;
 
 /**
  * Allows the server to create and destroy agents on a client.
  * @see BureauRegistry
  */
-public abstract class BureauDirector extends BasicDirector
+public class BureauDirector extends BasicDirector
 {
     /**
      * Creates a new BureauDirector.
      */
-    public BureauDirector (BureauContext ctx)
+    public function BureauDirector (ctx :BureauContext)
     {
         super(ctx);
-        _ctx = ctx;
     }
 
-    @Override // from BasicDirector
-    public void clientDidLogon (Client client)
+    // from BasicDirector
+    public override function clientDidLogon (event :ClientEvent) :void
     {
-        super.clientDidLogon(client);
-        _bureauService.bureauInitialized(_ctx.getClient(), _ctx.getBureauId());
+        super.clientDidLogon(event);
+        var id :String = BureauContext(_ctx).getBureauId();
+        _bureauService.bureauInitialized(_ctx.getClient(), id);
     }
 
     /**
      * Creates a new agent when the server requests it.
      */
-    protected synchronized void createAgent (int agentId)
+    protected function createAgentFromId (agentId :int) :void
     {
-        Subscriber<AgentObject> delegator = new Subscriber<AgentObject>() {
-            public void objectAvailable (AgentObject agentObject) {
-                BureauDirector.this.objectAvailable(agentObject);
-            }
-            public void requestFailed (int oid, ObjectAccessException cause) {
-                BureauDirector.this.requestFailed(oid, cause);
-            }
-        };
+        var delegator :Subscriber = 
+            new SubscriberAdapter(objectAvailable, requestFailed);
 
         Log.info("Subscribing to object " + agentId);
 
-        SafeSubscriber<AgentObject> subscriber = 
-            new SafeSubscriber<AgentObject>(agentId, delegator);
+        var subscriber :SafeSubscriber = 
+            new SafeSubscriber(agentId, delegator);
         _subscribers.put(agentId, subscriber);
         subscriber.subscribe(_ctx.getDObjectManager());
     }
@@ -59,9 +55,9 @@ public abstract class BureauDirector extends BasicDirector
     /**
      * Destroys an agent at the server's request.
      */
-    protected synchronized void destroyAgent (int agentId)
+    protected function destroyAgent (agentId :int) :void
     {
-        Agent agent = null;
+        var agent :Agent = null;
         agent = _agents.remove(agentId);
 
         if (agent == null) {
@@ -71,11 +67,11 @@ public abstract class BureauDirector extends BasicDirector
             try {
                 agent.stop();
             }
-            catch (Throwable t) {
+            catch (e :Error) {
                 Log.warning("Stopping an agent caused an exception");
-                Log.logStackTrace(t);
+                Log.logStackTrace(e);
             }
-            SafeSubscriber<AgentObject> subscriber = _subscribers.remove(agentId);
+            var subscriber :SafeSubscriber = _subscribers.remove(agentId);
             if (subscriber == null) {
                 Log.warning("Lost a subscriber for agent " + agent);
             }
@@ -89,21 +85,21 @@ public abstract class BureauDirector extends BasicDirector
     /**
      * Callback for when the a request to subscribe to an object finishes and the object is available.
      */
-    protected synchronized void objectAvailable (AgentObject agentObject)
+    protected function objectAvailable (agentObject :AgentObject) :void
     {
-        int oid = agentObject.getOid();
+        var oid :int = agentObject.getOid();
 
         Log.info("Object " + oid + " now available");
 
-        Agent agent;
+        var agent :Agent;
         try {
             agent = createAgent(agentObject);
             agent.init(agentObject);
             agent.start();
         }
-        catch (Throwable t) {
+        catch (e :Error) {
             Log.warning("Could not create agent [obj=" + agentObject + "]");
-            Log.logStackTrace(t);
+            Log.logStackTrace(e);
             _bureauService.agentCreationFailed(_ctx.getClient(), oid);
             return;
         }
@@ -115,14 +111,14 @@ public abstract class BureauDirector extends BasicDirector
     /**
      * Callback for when the a request to subscribe to an object fails.
      */
-    protected synchronized void requestFailed (int oid, ObjectAccessException cause)
+    protected function requestFailed (oid :int, cause :ObjectAccessError) :void
     {
         Log.warning("Could not subscribe to agent [oid=" + oid + "]");
         Log.logStackTrace(cause);
     }
 
-    @Override // from BasicDirector
-    protected void registerServices (Client client)
+    // from BasicDirector
+    protected override function registerServices (client :Client) :void
     {
         super.registerServices(client);
 
@@ -131,25 +127,19 @@ public abstract class BureauDirector extends BasicDirector
 
         // Set up our decoder so we can receive method calls
         // from the server
-        BureauReceiver receiver = new BureauReceiver () {
-            public void createAgent (int agentId) {
-                BureauDirector.this.createAgent(agentId);
-            }
-            public void destroyAgent (int agentId) {
-                BureauDirector.this.destroyAgent(agentId);
-            }
-        };
+        var receiver :BureauReceiver = 
+            new ReceiverDelegator(createAgentFromId, destroyAgent);
 
         client.getInvocationDirector().
             registerReceiver(new BureauDecoder(receiver));
     }
 
-    @Override // from BasicDirector
-    protected void fetchServices (Client client)
+    // from BasicDirector
+    protected override function fetchServices (client :Client) :void
     {
         super.fetchServices(client);
 
-        _bureauService = client.getService(BureauService.class);
+        _bureauService = client.getService(BureauService) as BureauService;
     }
 
     /**
@@ -159,11 +149,38 @@ public abstract class BureauDirector extends BasicDirector
      * @param agentObj the distributed and object
      * @return a new Agent that will govern the distributed object
      */
-    protected abstract Agent createAgent (AgentObject agentObj);
+    protected function createAgent (agentObj :AgentObject) :Agent
+    {
+        throw new Error("Abstract function");
+    }
 
-    protected BureauContext _ctx;
-    protected BureauService _bureauService;
-    protected IntMap<Agent> _agents = IntMaps.newHashIntMap();
-    protected IntMap<SafeSubscriber<AgentObject>> _subscribers = 
-        IntMaps.newHashIntMap();
+    protected var _bureauService :BureauService;
+    protected var _agents :HashMap = new HashMap();
+    protected var _subscribers :HashMap = new HashMap();
 }
+}
+
+import com.threerings.bureau.client.BureauReceiver;
+
+class ReceiverDelegator implements BureauReceiver
+{
+    public function ReceiverDelegator (createFn :Function, destroyFn :Function)
+    {
+        _createFn = createFn;
+        _destroyFn = destroyFn;
+    }
+
+    public function createAgent (agentId :int) :void
+    {
+        _createFn(agentId);
+    }
+
+    public function destroyAgent (agentId :int) :void
+    {
+        _destroyFn(agentId);
+    }
+
+    protected var _createFn :Function;
+    protected var _destroyFn :Function;
+}
+

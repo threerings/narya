@@ -19,10 +19,13 @@
 // License along with this library; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 
-package com.threerings.bureau.data;
+package com.threerings.bureau.data {
 
 import com.threerings.presents.net.Credentials;
 import com.threerings.util.Name;
+import com.threerings.io.ObjectInputStream;
+import com.threerings.io.ObjectOutputStream;
+import com.threerings.util.StringBuilder;
 
 /**
  * Extends the basic credentials to provide bureau-specific fields.
@@ -30,36 +33,39 @@ import com.threerings.util.Name;
 public class BureauCredentials extends Credentials
 {
     /**
-     * The token to pass to the server when logging in. This is usually just passed to the bureau 
+     * The token to pass to the server when logging in. This is usually just passed to the bureau
      * on the command line to guard against outside connections being established.
      */
-    public String sessionToken;
-
-    /**
-     * Creates an empty credentials for streaming. Should not be used directly.
-     */
-    public BureauCredentials ()
-    {
-    }
+    public var sessionToken :String;
 
     /**
      * Creates new credentials for a specific bureau.
      */
-    public BureauCredentials (String bureauId)
+    public function BureauCredentials (token :String)
     {
-        super(new Name("@@bureau:" + bureauId + "@@"));
+        super(null);
+        sessionToken = token;
     }
 
-    @Override // inherit documentation
-    protected void toString (StringBuilder buf)
+    /** @inheritDoc */
+    override protected function toStringBuf (buf :StringBuilder) :void
     {
-        super.toString(buf);
+        super.toStringBuf(buf);
         buf.append(" token=").append(sessionToken);
     }
 
-    // inherit documentation - from Object
-    public String toString ()
+    // from interface Streamable
+    override public function readObject (ins :ObjectInputStream) :void
     {
-        return super.toString() + ", token=" + sessionToken;
+        super.readObject(ins);
+        sessionToken = (ins.readField(String) as String);
     }
+
+    // from interface Streamable
+    override public function writeObject (out :ObjectOutputStream) :void
+    {
+        super.writeObject(out);
+        out.writeField(sessionToken);
+    }
+}
 }
