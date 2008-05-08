@@ -22,7 +22,6 @@
 package com.threerings.admin.data;
 
 import com.threerings.admin.client.AdminService;
-import com.threerings.admin.data.AdminMarshaller;
 import com.threerings.presents.client.Client;
 import com.threerings.presents.data.InvocationMarshaller;
 import com.threerings.presents.dobj.InvocationResponseEvent;

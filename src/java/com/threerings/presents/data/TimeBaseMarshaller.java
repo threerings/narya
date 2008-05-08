@@ -23,8 +23,6 @@ package com.threerings.presents.data;
 
 import com.threerings.presents.client.Client;
 import com.threerings.presents.client.TimeBaseService;
-import com.threerings.presents.data.InvocationMarshaller;
-import com.threerings.presents.data.TimeBaseMarshaller;
 import com.threerings.presents.dobj.InvocationResponseEvent;
 
 /**

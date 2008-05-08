@@ -22,7 +22,6 @@
 package com.threerings.crowd.chat.data;
 
 import com.threerings.crowd.chat.client.ChatService;
-import com.threerings.crowd.chat.data.ChatMarshaller;
 import com.threerings.presents.client.Client;
 import com.threerings.presents.client.InvocationService;
 import com.threerings.presents.data.InvocationMarshaller;

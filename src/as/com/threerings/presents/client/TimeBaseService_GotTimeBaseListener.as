@@ -21,8 +21,6 @@
 
 package com.threerings.presents.client {
 
-import com.threerings.presents.client.InvocationService_InvocationListener;
-import com.threerings.presents.client.TimeBaseService_GotTimeBaseListener;
 
 /**
  * An ActionScript version of the Java TimeBaseService_GotTimeBaseListener interface.

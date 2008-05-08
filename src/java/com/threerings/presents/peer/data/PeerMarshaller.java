@@ -24,7 +24,6 @@ package com.threerings.presents.peer.data;
 import com.threerings.presents.client.Client;
 import com.threerings.presents.data.InvocationMarshaller;
 import com.threerings.presents.peer.client.PeerService;
-import com.threerings.presents.peer.data.NodeObject;
 
 /**
  * Provides the implementation of the {@link PeerService} interface

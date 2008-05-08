@@ -25,8 +25,6 @@ import com.threerings.presents.client.TimeBaseService;
 import com.threerings.presents.data.ClientObject;
 import com.threerings.presents.data.InvocationMarshaller;
 import com.threerings.presents.data.TimeBaseMarshaller;
-import com.threerings.presents.server.InvocationDispatcher;
-import com.threerings.presents.server.InvocationException;
 
 /**
  * Dispatches requests to the {@link TimeBaseProvider}.

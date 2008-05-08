@@ -22,7 +22,6 @@
 package com.threerings.presents.data {
 
 import com.threerings.presents.client.TimeBaseService_GotTimeBaseListener;
-import com.threerings.presents.data.InvocationMarshaller_ListenerMarshaller;
 
 /**
  * Marshalls instances of the TimeBaseService_GotTimeBaseMarshaller interface.

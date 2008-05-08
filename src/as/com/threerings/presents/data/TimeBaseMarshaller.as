@@ -24,7 +24,6 @@ package com.threerings.presents.data {
 import com.threerings.presents.client.Client;
 import com.threerings.presents.client.TimeBaseService;
 import com.threerings.presents.client.TimeBaseService_GotTimeBaseListener;
-import com.threerings.presents.data.InvocationMarshaller;
 
 /**
  * Provides the implementation of the {@link TimeBaseService} interface

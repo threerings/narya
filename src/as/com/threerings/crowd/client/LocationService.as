@@ -21,7 +21,6 @@
 
 package com.threerings.crowd.client {
 
-import com.threerings.crowd.client.LocationService_MoveListener;
 import com.threerings.presents.client.Client;
 import com.threerings.presents.client.InvocationService;
 
