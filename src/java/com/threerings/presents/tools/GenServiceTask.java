@@ -51,7 +51,6 @@ import com.threerings.presents.server.InvocationProvider;
  * and three rings utility types (e.g. float -> Float) to make the existing serivces work. It
  * should be possible to create a complete list of these conversions so that future services
  * can be generated without problems. 
- * TODO: when generating imports, remove imports of classes in the same pacakge.
  */
 public class GenServiceTask extends InvocationTask
 {
@@ -196,6 +195,9 @@ public class GenServiceTask extends InvocationTask
 
         // import the parent class of Foo$Bar
         imports.swapInnerClassesForParents();
+        
+        // remove imports in our own package
+        imports.removeAll(mpackage + ".*");
 
         VelocityContext ctx = new VelocityContext();
         ctx.put("name", name);
@@ -271,6 +273,9 @@ public class GenServiceTask extends InvocationTask
         // get rid of remaining arrays
         imports.removeArrays();
 
+        // remove imports in our own package
+        imports.removeAll(mpackage + ".*");
+
         ctx.put("imports", imports.toList());
 
         // now generate ActionScript versions of our marshaller
@@ -305,12 +310,14 @@ public class GenServiceTask extends InvocationTask
                 imports.translateInnerClasses();
                 
                 // convert primitive java types to ooo util types
-                // TODO: will future listener marshallers need more primitives?
                 imports.replace("long", "com.threerings.util.Long");
 
                 // get rid of remaining primitives and java.lang types
                 imports.removeGlobals();
                 
+                // remove imports in our own package
+                imports.removeAll(mpackage + ".*");
+
                 ctx.put("imports", imports.toList());
                 ctx.put("listener", listener);
                 sw = new StringWriter();
@@ -340,7 +347,6 @@ public class GenServiceTask extends InvocationTask
         imports.add(InvocationService.class);
 
         // allow primitive types in service methods
-        // TODO: are more primitive types needed?
         imports.replace("[B", "flash.utils.ByteArray");
         imports.replace("[I", "com.threerings.io.TypedArray");
 
@@ -356,6 +362,9 @@ public class GenServiceTask extends InvocationTask
 
         // change imports of Foo$Bar to Foo_Bar
         imports.translateInnerClasses();
+
+        // remove imports in our own package
+        imports.removeAll(sdesc.spackage + ".*");
 
         ctx.put("imports", imports.toList());
         ctx.put("package", sdesc.spackage);
@@ -391,12 +400,14 @@ public class GenServiceTask extends InvocationTask
                 imports.translateInnerClasses();
                 
                 // convert java primitive types to ooo util types 
-                // TODO: will future listeners need more primitives?
                 imports.replace("long", "com.threerings.util.Long");
                 
                 // get rid of remaining primitives and java.lang types
                 imports.removeGlobals();
                 
+                // remove imports in our own package
+                imports.removeAll(sdesc.spackage + ".*");
+
                 ctx.put("imports", imports.toList());
                 ctx.put("listener", listener);
 
@@ -455,6 +466,9 @@ public class GenServiceTask extends InvocationTask
 
         // import Foo instead of Foo$Bar
         imports.swapInnerClassesForParents();
+        
+        // remove imports in our own package
+        imports.removeAll(dpackage + ".*");
 
         VelocityContext ctx = new VelocityContext();
         ctx.put("name", name);
@@ -512,6 +526,9 @@ public class GenServiceTask extends InvocationTask
         
         // import Foo instead of Foo$Bar
         imports.swapInnerClassesForParents();
+
+        // remove imports in our own package
+        imports.removeAll(mpackage + ".*");
 
         VelocityContext ctx = new VelocityContext();
         ctx.put("name", name);
