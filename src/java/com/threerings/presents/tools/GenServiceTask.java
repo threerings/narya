@@ -46,6 +46,12 @@ import com.threerings.presents.server.InvocationProvider;
 /**
  * An Ant task for generating invocation service marshalling and
  * unmarshalling classes.
+ * TODO: when generating the imports for exported action script files, there are just enough 
+ * conversions of primitive types (e.g. float -> Number), array types (e.g. int[] -> TypedArray)
+ * and three rings utility types (e.g. float -> Float) to make the existing serivces work. It
+ * should be possible to create a complete list of these conversions so that future services
+ * can be generated without problems. 
+ * TODO: when generating imports, remove imports of classes in the same pacakge.
  */
 public class GenServiceTask extends InvocationTask
 {
@@ -179,8 +185,11 @@ public class GenServiceTask extends InvocationTask
         // get rid of java.lang stuff and primitives
         imports.removeGlobals();
         
+        // get rid of all arrays (they are automatic in java)
+        imports.removeArrays();
+        
         // for each listener type, also import the corresponding marshaller
-        imports.duplicateAndMunge("Listener", 
+        imports.duplicateAndMunge("*Listener", 
             "Service", "Marshaller",
             "Listener", "Marshaller",
             ".client.", ".data.");
@@ -233,16 +242,34 @@ public class GenServiceTask extends InvocationTask
         imports.replace("byte", "com.threerings.util.Byte");
         imports.replace("int", "com.threerings.util.Integer");
         imports.replace("boolean", "com.threerings.util.langBoolean");
-        
+        imports.replace("[B", "flash.utils.ByteArray");
+        imports.replace("float", "com.threerings.util.Float");
+        imports.replace("[I", "com.threerings.io.TypedArray");
+
         // ye olde special case - any method that uses a default listener
         // causes the need for the default listener marshaller
-        imports.duplicateAndMunge("InvocationService_InvocationListener",
+        imports.duplicateAndMunge("*.InvocationService_InvocationListener",
             "InvocationService_InvocationListener",
             "InvocationMarshaller_ListenerMarshaller",
             ".client.", ".data.");
 
+        // any use of a listener requires the listener marshaller
+        imports.pushOut("*.InvocationService_InvocationListener");
+        imports.duplicateAndMunge("*Listener",
+            "Service", "Marshaller",
+            "Listener", "Marshaller",
+            ".client.", ".data.");
+        imports.popIn();
+
         // get rid of java.lang stuff and any remaining primitives
         imports.removeGlobals();
+        
+        if (imports.removeAll("[L*") > 0) {
+            imports.add("com.threerings.io.TypedArray");
+        }
+
+        // get rid of remaining arrays
+        imports.removeArrays();
 
         ctx.put("imports", imports.toList());
 
@@ -312,9 +339,21 @@ public class GenServiceTask extends InvocationTask
         imports.add(Client.class);
         imports.add(InvocationService.class);
 
+        // allow primitive types in service methods
+        // TODO: are more primitive types needed?
+        imports.replace("[B", "flash.utils.ByteArray");
+        imports.replace("[I", "com.threerings.io.TypedArray");
+
+        if (imports.removeAll("[L*") > 0) {
+            imports.add("com.threerings.io.TypedArray");
+        }
+
         // get rid of primitives and java.lang classes
         imports.removeGlobals();
         
+        // get rid of remaining arrays
+        imports.removeArrays();
+
         // change imports of Foo$Bar to Foo_Bar
         imports.translateInnerClasses();
 
@@ -405,6 +444,9 @@ public class GenServiceTask extends InvocationTask
         
         // get rid of primitives and java.lang types
         imports.removeGlobals();
+        
+        // get rid of arrays
+        imports.removeArrays();
 
         // import the Marshaller corresponding to the service
         imports.addMunged(sdesc.service, 
@@ -464,6 +506,9 @@ public class GenServiceTask extends InvocationTask
         
         // get rid of primitives and java.lang types
         imports.removeGlobals();
+        
+        // get rid of arrays
+        imports.removeArrays();
         
         // import Foo instead of Foo$Bar
         imports.swapInnerClassesForParents();

@@ -1,8 +1,10 @@
 package com.threerings.presents.tools;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.regex.Pattern;
 
 import com.samskivert.util.ComparableArrayList;
 import com.samskivert.util.StringUtil;
@@ -15,6 +17,12 @@ import com.samskivert.util.StringUtil;
  * convenience for easily specifying multiple find/replace pairs. For example, to replace "Foo" 
  * with "Bar" and "123" with "ABC", a function can be called with the 4 arguments "Foo", "Bar", 
  * "123", "ABC" for the String... replace argument.
+ * 
+ * <p>A few methods also use a "pattern" string parameter that is used to match a class name. 
+ * This is a dumbed down regular expression (to avoid many \.) where "*" means .* and no other 
+ * characters have special meaning. The pattern is also implicitly enclosed with ^$ so that the 
+ * pattern must match the class name in its entirity. Callers will mostly use this to specify a
+ * prefix like "something*" or a suffix like "*something".
  */
 public class ImportSet
 {
@@ -33,7 +41,9 @@ public class ImportSet
      */
     public void add (String name)
     {
-        _imports.add(name);
+        if (name != null) {
+            _imports.add(name);
+        }
     }
 
     /**
@@ -88,6 +98,14 @@ public class ImportSet
     }
     
     /**
+     * Gets rid of array imports.
+     */
+    public int removeArrays ()
+    {
+        return removeAll("[*");
+    }
+    
+    /**
      * Replaces inner class imports (those with a '$') with an import of the parent class.
      */
     public void swapInnerClassesForParents ()
@@ -127,6 +145,40 @@ public class ImportSet
     }
 
     /**
+     * Temporarily remove one import matching the given pattern. The most recently pushed pattern
+     * can be re-added using <code>popIn</code>. If there is no match, a null value is pushed so
+     * that popIn can still be called.
+     * @param pattern to match
+     */
+    public void pushOut (String pattern)
+    {
+        Pattern pat = makePattern(pattern);
+        Iterator<String> i = _imports.iterator();
+        while (i.hasNext()) {
+            String imp = i.next();
+            if (pat.matcher(imp).matches()) {
+                i.remove();
+                _pushed.add(imp);
+                return;
+            }
+        }
+        _pushed.add(null);
+    }
+
+    /**
+     * Re-adds the most recently popped import to the set. If a null value was pushed, does 
+     * nothing.
+     * @throws IndexOutOfBoundsException if there is nothing to pop
+     */
+    public void popIn ()
+    {
+        String front = _pushed.remove(_pushed.size() - 1);
+        if (front != null) {
+            _imports.add(front);
+        }
+    }
+    
+    /**
      * Removes the name of a class from the imports.
      * @param clazz the class whose name should be removed
      */
@@ -136,7 +188,7 @@ public class ImportSet
     }
     
     /**
-     * Replaces any import exactly matching the 0th argument with the 1st argument and so on. 
+     * Replaces any import exactly each find string with the corresponding replace string. 
      * See the description above.
      * @param replace array of pairs for search/replace
      */
@@ -156,18 +208,40 @@ public class ImportSet
         }
         _imports.addAll(toAdd);
     }
+
+    /**
+     * Remove all imports matching the given pattern.
+     * @param pattern the dumbed down regex to match (see description above)
+     * @return the number of imports removed
+     */
+    public int removeAll (String pattern)
+    {
+        Pattern pat = makePattern(pattern);
+        int removed = 0;
+        Iterator<String> i = _imports.iterator();
+        while (i.hasNext()) {
+            String name = i.next();
+            if (pat.matcher(name).matches()) {
+                i.remove();
+                ++removed;
+            }
+        }
+        return removed;
+    }
     
     /**
-     * Adds a new munged import for each existing import that matches a suffix. The new entry is 
-     * a copy of the old entry but modified according to the "replace" pattern described above.
-     * @param suffix to filter the search for imports to duplicate 
-     * @param replace array of string pairs to search/replace on the duplicated import
+     * Adds a new munged import for each existing import that matches a pattern. The new entry is 
+     * a copy of the old entry but modified according to the given find/replace pairs (see 
+     * description above).
+     * @param pattern to qualify imports to duplicate 
+     * @param replace pairs to find/replace on the new import
      */
-    public void duplicateAndMunge (String suffix, String... replace)
+    public void duplicateAndMunge (String pattern, String... replace)
     {
+        Pattern pat = makePattern(pattern);
         HashSet<String> toMunge = new HashSet<String>();
         for (String name : _imports) {
-            if (name.endsWith(suffix)) {
+            if (pat.matcher(name).matches()) {
                 toMunge.add(name);
             }
         }
@@ -198,5 +272,40 @@ public class ImportSet
         return StringUtil.toString(_imports);
     }
 
+    /**
+     * Create a real regular expression from the dumbed down input.
+     * @param input the dumbed down wildcard expression
+     * @return the calculated regular expression
+     */
+    protected static Pattern makePattern (String input)
+    {
+        StringBuilder pattern = new StringBuilder();
+        pattern.append("^");
+
+        while (true)
+        {
+            String[] parts = _splitter.split(input, 2);
+            pattern.append(Pattern.quote(parts[0]));
+            if (parts.length == 1) {
+                break;
+            }
+            int length = parts[0].length();
+            String wildcard = input.substring(length, length + 1);
+            if (wildcard.equals("*")) {
+                pattern.append(".*");
+            }
+            else {
+                System.err.println("Bad wildcard " + wildcard);
+            }
+            input = parts[1];
+        }
+
+        pattern.append("$");
+        return Pattern.compile(pattern.toString());
+    }
+
     protected HashSet<String> _imports = new HashSet<String>();
+    protected List<String> _pushed = new ArrayList<String>();
+    
+    protected static Pattern _splitter = Pattern.compile("\\*");
 }

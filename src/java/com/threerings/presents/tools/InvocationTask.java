@@ -123,7 +123,7 @@ public abstract class InvocationTask extends Task
                     listenerArgs.add(new ListenerArgument(ii, arg));
                 }
 
-                imports.add(arg);
+                imports.add(args[ii]);
             }
         }
 
