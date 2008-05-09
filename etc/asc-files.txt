@@ -137,3 +137,16 @@ com/threerings/presents/net/UpstreamMessage.as
 com/threerings/presents/net/UsernamePasswordCreds.as
 com/threerings/presents/util/PresentsContext.as
 com/threerings/presents/util/SafeSubscriber.as
+com/threerings/bureau/client/BureauService.as
+com/threerings/bureau/client/BureauDirector.as
+com/threerings/bureau/client/BureauDecoder.as
+com/threerings/bureau/client/Agent.as
+com/threerings/bureau/client/BureauClient.as
+com/threerings/bureau/client/BureauReceiver.as
+com/threerings/bureau/data/AgentObject.as
+com/threerings/bureau/data/BureauMarshaller.as
+com/threerings/bureau/data/BureauCodes.as
+com/threerings/bureau/data/BureauClientObject.as
+com/threerings/bureau/data/BureauCredentials.as
+com/threerings/bureau/util/BureauContext.as
+com/threerings/bureau/Log.as
