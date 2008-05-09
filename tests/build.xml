@@ -99,6 +99,34 @@
     </javac>
   </target>
 
+  <!-- builds our Flash (abc) library -->
+  <target name="abclib">
+    <loadfile property="ascfiles" srcFile="etc/asc-files.txt">
+      <filterchain>
+        <prefixlines prefix="src/as/"/>
+        <tokenfilter delimOutput=" "/>
+      </filterchain>
+    </loadfile>
+    <java classname="macromedia.asc.embedding.ScriptCompiler" fork="true" failonerror="true">
+      <classpath>
+        <fileset dir="../lib" includes="asc.jar"/>
+      </classpath>
+      <arg value="-AS3"/>
+      <arg value="-strict"/>
+      <arg value="-import"/>
+      <arg value="../lib/builtin.abc"/>
+      <arg value="-import"/>
+      <arg value="../lib/thane.abc"/>
+      <arg value="-import"/>
+      <arg value="../dist/naryalib.abc"/>
+      <arg value="-outdir"/>
+      <arg value="${deploy.dir}"/>
+      <arg value="-out"/>
+      <arg value="testslib"/>
+      <arg line="${ascfiles}"/>
+    </java>
+  </target>
+
   <!-- test the component metadata bundling process -->
   <target name="cbundles" description="Build component bundles.">
     <!-- define our tasks -->
@@ -178,6 +206,38 @@
         </fileset>
       </batchtest>
     </junit>
+  </target>
+
+  <!-- builds the bureau thane test client -->
+  <target name="bureau-compile-thane-client" depends="abclib"
+	description="Compiles the thane client for testing the bureau library">
+    <java classname="macromedia.asc.embedding.ScriptCompiler" fork="true" failonerror="true">
+      <classpath>
+        <fileset dir="../lib" includes="asc.jar"/>
+      </classpath>
+      <arg value="-AS3"/>
+      <arg value="-strict"/>
+      <arg value="-import"/>
+      <arg value="../lib/builtin.abc"/>
+      <arg value="-import"/>
+      <arg value="../lib/thane.abc"/>
+      <arg value="-import"/>
+      <arg value="../dist/naryalib.abc"/>
+      <arg value="-import"/>
+      <arg value="dist/testslib.abc"/>
+      <arg value="-outdir"/>
+      <arg value="${deploy.dir}/thane/"/>
+      <arg value="-out"/>
+      <arg value="main-bureau-client"/>
+      <arg value="src/as/com/threerings/bureau/client/TestClientMain.as"/>
+    </java>
+  </target>
+
+  <!-- runs the thane test client -->
+  <target name="bureau-run-thane-client" depends="bureau-compile-thane-client"
+	description="Runs the thane client for testing the bureau library">
+    <!-- TODO: use a ${thane.path} property to launch the thane shell with 
+      -- dist/main-bureau-client.abc as input -->
   </target>
 
   <target name="bureau-runserver" depends="compile"
