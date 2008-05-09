@@ -211,7 +211,7 @@
   <!-- builds the bureau thane test client -->
   <target name="bureau-compile-thane-client" depends="abclib"
 	description="Compiles the thane client for testing the bureau library">
-    <java classname="macromedia.asc.embedding.ScriptCompiler" fork="true" failonerror="true">
+    <java classname="macromedia.asc.embedding.Main" fork="true" failonerror="true">
       <classpath>
         <fileset dir="../lib" includes="asc.jar"/>
       </classpath>
@@ -225,12 +225,9 @@
       <arg value="../dist/naryalib.abc"/>
       <arg value="-import"/>
       <arg value="dist/testslib.abc"/>
-      <arg value="-outdir"/>
-      <arg value="${deploy.dir}/thane/"/>
-      <arg value="-out"/>
-      <arg value="main-bureau-client"/>
       <arg value="src/as/com/threerings/bureau/client/TestClientMain.as"/>
     </java>
+    <move file="src/as/com/threerings/bureau/client/TestClientMain.abc" todir="dist"/>
   </target>
 
   <!-- runs the thane test client -->
