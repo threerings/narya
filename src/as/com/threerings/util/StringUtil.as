@@ -518,6 +518,12 @@ public class StringUtil
             str = str.substring(1);
         }
 
+        // handle this special case immediately, to prevent confusion about
+        // a leading 0 meaning "parse as octal"
+        if (str == "0") {
+            return 0;
+        }
+
         if (radix == 0) {
             if (startsWith(str, "0x")) {
                 str = str.substring(2);
