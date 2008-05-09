@@ -221,11 +221,11 @@
           tofile="src/as/com/threerings/util/env/Environment.as"/>
     <loadfile property="ascfiles" srcFile="etc/asc-files.txt">
       <filterchain>
-        <prefixlines prefix="src/as/"/>
+        <prefixlines prefix="-in src/as/"/>
         <tokenfilter delimOutput=" "/>
       </filterchain>
     </loadfile>
-    <java classname="macromedia.asc.embedding.ScriptCompiler" fork="true" failonerror="true">
+    <java classname="macromedia.asc.embedding.Main" fork="true" failonerror="true">
       <classpath>
         <fileset dir="lib" includes="asc.jar"/>
       </classpath>
@@ -235,12 +235,11 @@
       <arg value="lib/builtin.abc"/>
       <arg value="-import"/>
       <arg value="lib/thane.abc"/>
-      <arg value="-outdir"/>
-      <arg value="${deploy.dir}"/>
-      <arg value="-out"/>
-      <arg value="${lib.name}lib"/>
       <arg line="${ascfiles}"/>
+      <arg value="src/as/com/threerings/util/env/Environment.as"/>
     </java>
+    <move file="src/as/com/threerings/util/env/Environment.abc"
+          tofile="${deploy.dir}/${lib.name}lib.abc"/>
     <delete file="src/as/com/threerings/util/env/Environment.as"/>
   </target>
 

@@ -6,7 +6,6 @@ com/threerings/util/Cloneable.as
 com/threerings/util/Comparable.as
 com/threerings/util/Comparators.as
 com/threerings/util/Equalable.as
-com/threerings/util/env/Environment.as
 com/threerings/util/Float.as
 com/threerings/util/HashMap.as
 com/threerings/util/Hashable.as
@@ -48,6 +47,7 @@ com/threerings/io/streamers/ShortStreamer.as
 com/threerings/io/streamers/StringStreamer.as
 com/threerings/io/Translations.as
 com/threerings/io/TypedArray.as
+com/threerings/presents/client/InvocationAdapter.as
 com/threerings/presents/client/BasicDirector.as
 com/threerings/presents/client/Client.as
 com/threerings/presents/client/ClientAdapter.as
@@ -56,7 +56,6 @@ com/threerings/presents/client/ClientEvent.as
 com/threerings/presents/client/ClientObserver.as
 com/threerings/presents/client/Communicator.as
 com/threerings/presents/client/ConfirmAdapter.as
-com/threerings/presents/client/InvocationAdapter.as
 com/threerings/presents/client/InvocationDecoder.as
 com/threerings/presents/client/InvocationDirector.as
 com/threerings/presents/client/InvocationReceiver.as
@@ -71,13 +70,16 @@ com/threerings/presents/client/ServerSwitcher.as
 com/threerings/presents/client/SessionObserver.as
 com/threerings/presents/client/TimeBaseService.as
 com/threerings/presents/client/TimeBaseService_GotTimeBaseListener.as
+com/threerings/presents/dobj/DEvent.as
+com/threerings/presents/dobj/NamedEvent.as
+com/threerings/presents/dobj/DObject.as
 com/threerings/presents/data/AuthCodes.as
 com/threerings/presents/data/ClientObject.as
 com/threerings/presents/data/ConMgrStats.as
 com/threerings/presents/data/InvocationCodes.as
 com/threerings/presents/data/InvocationMarshaller.as
-com/threerings/presents/data/InvocationMarshaller_ConfirmMarshaller.as
 com/threerings/presents/data/InvocationMarshaller_ListenerMarshaller.as
+com/threerings/presents/data/InvocationMarshaller_ConfirmMarshaller.as
 com/threerings/presents/data/InvocationMarshaller_ResultMarshaller.as
 com/threerings/presents/data/TimeBaseMarshaller.as
 com/threerings/presents/data/TimeBaseMarshaller_GotTimeBaseMarshaller.as
@@ -85,12 +87,10 @@ com/threerings/presents/dobj/AttributeChangeListener.as
 com/threerings/presents/dobj/AttributeChangedEvent.as
 com/threerings/presents/dobj/ChangeListener.as
 com/threerings/presents/dobj/CompoundEvent.as
-com/threerings/presents/dobj/DEvent.as
-com/threerings/presents/dobj/DObject.as
 com/threerings/presents/dobj/DObjectManager.as
 com/threerings/presents/dobj/DSet.as
-com/threerings/presents/dobj/DSet_Entry.as
 com/threerings/presents/dobj/DummyEntry.as
+com/threerings/presents/dobj/DSet_Entry.as
 com/threerings/presents/dobj/ElementUpdateListener.as
 com/threerings/presents/dobj/ElementUpdatedEvent.as
 com/threerings/presents/dobj/EntryAddedEvent.as
@@ -103,7 +103,6 @@ com/threerings/presents/dobj/InvocationResponseEvent.as
 com/threerings/presents/dobj/MessageAdapter.as
 com/threerings/presents/dobj/MessageEvent.as
 com/threerings/presents/dobj/MessageListener.as
-com/threerings/presents/dobj/NamedEvent.as
 com/threerings/presents/dobj/ObjectAccessError.as
 com/threerings/presents/dobj/ObjectAddedEvent.as
 com/threerings/presents/dobj/ObjectDeathListener.as
@@ -116,13 +115,14 @@ com/threerings/presents/dobj/SetAdapter.as
 com/threerings/presents/dobj/SetListener.as
 com/threerings/presents/dobj/Subscriber.as
 com/threerings/presents/dobj/SubscriberAdapter.as
+com/threerings/presents/net/DownstreamMessage.as
+com/threerings/presents/net/UpstreamMessage.as
 com/threerings/presents/net/AuthRequest.as
 com/threerings/presents/net/AuthResponse.as
 com/threerings/presents/net/AuthResponseData.as
 com/threerings/presents/net/BootstrapData.as
 com/threerings/presents/net/BootstrapNotification.as
 com/threerings/presents/net/Credentials.as
-com/threerings/presents/net/DownstreamMessage.as
 com/threerings/presents/net/EventNotification.as
 com/threerings/presents/net/FailureResponse.as
 com/threerings/presents/net/ForwardEventRequest.as
@@ -133,7 +133,6 @@ com/threerings/presents/net/PongResponse.as
 com/threerings/presents/net/SubscribeRequest.as
 com/threerings/presents/net/UnsubscribeRequest.as
 com/threerings/presents/net/UnsubscribeResponse.as
-com/threerings/presents/net/UpstreamMessage.as
 com/threerings/presents/net/UsernamePasswordCreds.as
 com/threerings/presents/util/PresentsContext.as
 com/threerings/presents/util/SafeSubscriber.as
