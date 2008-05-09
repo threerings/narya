@@ -32,10 +32,6 @@ public /* abstract */ class DEvent
 {
     public function DEvent (targetOid :int = 0)
     {
-        // TODO: Remove when https://bugzilla.mozilla.org/show_bug.cgi?id=433103 is fixed
-        if (UNSET_OLD_ENTRY == null) {
-            UNSET_OLD_ENTRY = new DummyEntry();
-        }
         _toid = targetOid;
     }
 
@@ -115,6 +111,13 @@ public /* abstract */ class DEvent
 
     /** The oid of the object that is the target of this event. */
     protected var _toid :int;
+
+    // TODO: Remove when https://bugzilla.mozilla.org/show_bug.cgi?id=433103 is fixed
+    private static function staticInit () :void
+    {
+        UNSET_OLD_ENTRY = new DummyEntry();
+    }
+    staticInit();
 
     protected static var UNSET_OLD_ENTRY :DSet_Entry;
 }
