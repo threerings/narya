@@ -38,6 +38,7 @@ public class Environment
         if (obj != null) {
             return Domain.currentDomain.getVariables(obj);
         }
+        return new Array();
     }
 
     /**

@@ -174,9 +174,11 @@
       <and>
         <uptodate targetfile="${deploy.dir}/${lib.name}lib.swc">
           <srcfiles dir="src/as" includes="**/*.as"/>
+          <srcfiles dir="src/as" includes="**/Environment.as-fp"/>
         </uptodate>
         <uptodate targetfile="${deploy.dir}/${lib.name}lib.abc">
           <srcfiles dir="src/as" includes="**/*.as"/>
+          <srcfiles dir="src/as" includes="**/Environment.as-tm"/>
         </uptodate>
       </and>
     </or></condition>
@@ -203,6 +205,7 @@
       <arg value="${deploy.dir}/${lib.name}lib.swc"/>
     </java>
     <delete file="${deploy.dir}/aslib-config.xml"/>
+    <delete file="src/as/com/threerings/util/env/Environment.as"/>
 
     <copy file="src/as/com/threerings/util/env/Environment.as-tm"
           tofile="src/as/com/threerings/util/env/Environment.as"/>
