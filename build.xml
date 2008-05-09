@@ -179,6 +179,7 @@
         <uptodate targetfile="${deploy.dir}/${lib.name}lib.abc">
           <srcfiles dir="src/as" includes="**/*.as"/>
           <srcfiles dir="src/as" includes="**/Environment.as-tm"/>
+          <srcfiles dir="etc" includes="asc-files.txt"/>
         </uptodate>
       </and>
     </or></condition>
