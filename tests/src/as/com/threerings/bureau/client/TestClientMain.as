@@ -10,7 +10,7 @@
 import avmplus.System;
 
 for (var i :int = 0; i < System.argv.length; ++i) {
-    print("Argv[" + i + "] = " + System.argv[i]);
+    trace("Argv[" + i + "] = " + System.argv[i]);
 }
 
 /*
