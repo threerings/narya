@@ -176,11 +176,6 @@
           <srcfiles dir="src/as" includes="**/*.as"/>
           <srcfiles dir="src/as" includes="**/Environment.as-fp"/>
         </uptodate>
-        <uptodate targetfile="${deploy.dir}/${lib.name}lib.abc">
-          <srcfiles dir="src/as" includes="**/*.as"/>
-          <srcfiles dir="src/as" includes="**/Environment.as-tm"/>
-          <srcfiles dir="etc" includes="asc-files.txt"/>
-        </uptodate>
       </and>
     </or></condition>
   </target>
@@ -193,9 +188,8 @@
         <filter token="lib_name_dir" value="${lib.name}"/>
       </filterset>
     </copy>
-    <copy file="src/as/com/threerings/util/env/Environment.as-fp" 
+    <copy overwrite="true" file="src/as/com/threerings/util/env/Environment.as-fp"
           tofile="src/as/com/threerings/util/env/Environment.as"/>
-
     <java jar="${flexsdk.dir}/lib/compc.jar" fork="true" failonerror="true">
       <arg value="-load-config"/>
       <arg value="${deploy.dir}/aslib-config.xml"/>
@@ -207,8 +201,22 @@
     </java>
     <delete file="${deploy.dir}/aslib-config.xml"/>
     <delete file="src/as/com/threerings/util/env/Environment.as"/>
+  </target>
 
-    <copy file="src/as/com/threerings/util/env/Environment.as-tm"
+  <!-- checks whether our Flash library needs building -->
+  <target name="checkabclib">
+    <condition property="no_build_abclib">
+      <uptodate targetfile="${deploy.dir}/${lib.name}lib.abc">
+        <srcfiles dir="src/as" includes="**/*.as"/>
+        <srcfiles dir="src/as" includes="**/Environment.as-tm"/>
+        <srcfiles dir="etc" includes="asc-files.txt"/>
+      </uptodate>
+    </condition>
+  </target>
+
+  <!-- builds our Flash library -->
+  <target name="abclib" unless="no_build_abclib" depends="checkabclib">
+    <copy overwrite="true" file="src/as/com/threerings/util/env/Environment.as-tm"
           tofile="src/as/com/threerings/util/env/Environment.as"/>
     <loadfile property="ascfiles" srcFile="etc/asc-files.txt">
       <filterchain>
@@ -276,10 +284,10 @@
   </target>
 
   <!-- a target for rebuilding everything -->
-  <target name="all" depends="clean,prepare,compile,aslib,ninstall,javadoc,tests,dist"/>
+  <target name="all" depends="clean,prepare,compile,aslib,abclib,ninstall,javadoc,tests,dist"/>
 
   <!-- builds our distribution files (war and jar) -->
-  <target name="dist" depends="prepare,compile,procstream,aslib,ninstall,tests">
+  <target name="dist" depends="prepare,compile,procstream,aslib,abclib,ninstall,tests">
     <!-- build our various jar files -->
     <jar destfile="${deploy.dir}/${lib.name}-base.jar">
       <fileset dir="${classes.dir}" includes="com/threerings/NaryaLog**"/>
