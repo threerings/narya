@@ -21,26 +21,19 @@
 
 package com.threerings.crowd.server;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
+
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 
 import com.samskivert.util.HashIntMap;
 import com.samskivert.util.Interval;
 import com.samskivert.util.MethodFinder;
 import com.samskivert.util.StringUtil;
 
-import com.threerings.crowd.Log;
-import com.threerings.crowd.chat.data.SpeakMarshaller;
-import com.threerings.crowd.chat.server.SpeakDispatcher;
-import com.threerings.crowd.chat.server.SpeakHandler;
-import com.threerings.crowd.data.BodyObject;
-import com.threerings.crowd.data.OccupantInfo;
-import com.threerings.crowd.data.Place;
-import com.threerings.crowd.data.PlaceConfig;
-import com.threerings.crowd.data.PlaceObject;
 import com.threerings.presents.data.ClientObject;
 import com.threerings.presents.dobj.AccessController;
 import com.threerings.presents.dobj.DObject;
@@ -57,6 +50,17 @@ import com.threerings.presents.dobj.OidListListener;
 import com.threerings.presents.dobj.SetAdapter;
 import com.threerings.presents.server.InvocationManager;
 import com.threerings.presents.server.PresentsDObjectMgr;
+
+import com.threerings.crowd.Log;
+import com.threerings.crowd.data.BodyObject;
+import com.threerings.crowd.data.OccupantInfo;
+import com.threerings.crowd.data.Place;
+import com.threerings.crowd.data.PlaceConfig;
+import com.threerings.crowd.data.PlaceObject;
+
+import com.threerings.crowd.chat.data.SpeakMarshaller;
+import com.threerings.crowd.chat.server.SpeakDispatcher;
+import com.threerings.crowd.chat.server.SpeakHandler;
 
 /**
  * The place manager is the server-side entity that handles all place-related interaction. It
@@ -76,7 +80,6 @@ import com.threerings.presents.server.PresentsDObjectMgr;
 public class PlaceManager
     implements MessageListener, OidListListener, ObjectDeathListener, SpeakHandler.SpeakerValidator
 {
-    
     /**
      * An interface used to allow the registration of standard message handlers to be invoked by
      * the place manager when particular types of message events are received.
@@ -191,7 +194,7 @@ public class PlaceManager
     public void addDelegate (PlaceManagerDelegate delegate)
     {
         if (_delegates == null) {
-            _delegates = new ArrayList<PlaceManagerDelegate>();
+            _delegates = Lists.newArrayList();
         }
         delegate.setPlaceManager(this);
         _delegates.add(delegate);
@@ -327,7 +330,7 @@ public class PlaceManager
     {
         // create our handler map if necessary
         if (_msghandlers == null) {
-            _msghandlers = new HashMap<String,MessageHandler>();
+            _msghandlers = Maps.newHashMap();
         }
         _msghandlers.put(name, handler);
     }
@@ -342,8 +345,7 @@ public class PlaceManager
             }
         }
 
-        // If the message is directed at us, see if it's a request for
-        // a method invocation
+        // If the message is directed at us, see if it's a request for a method invocation
         if (event.isPrivate()) { // aka if (event instanceof ServerMessageEvent)
             // the first argument should be the client object of the caller or null if it is
             // a server-originated event
@@ -357,7 +359,7 @@ public class PlaceManager
                 nargs[0] = source;
                 System.arraycopy(args, 0, nargs, 1, args.length);
             }
-            
+
             // Lazily create our dispatcher now that it's actually getting a message
             if (_dispatcher == null) {
                 if (!_dispatcherFinders.containsKey(getClass())) {
@@ -595,7 +597,7 @@ public class PlaceManager
     {
         return (_plobj.occupants.size() == 0);
     }
-    
+
     /**
      * Called when a body's occupant info is updated.
      */
@@ -702,10 +704,10 @@ public class PlaceManager
     protected PlaceConfig _config;
 
     /** Message handlers are used to process message events. */
-    protected HashMap<String,MessageHandler> _msghandlers;
+    protected Map<String,MessageHandler> _msghandlers;
 
     /** A list of the delegates in use by this manager. */
-    protected ArrayList<PlaceManagerDelegate> _delegates;
+    protected List<PlaceManagerDelegate> _delegates;
 
     /** Used to keep a canonical copy of the occupant info records. */
     protected HashIntMap<OccupantInfo> _occInfo = new HashIntMap<OccupantInfo>();
@@ -714,14 +716,11 @@ public class PlaceManager
      * idility, or null if no interval is currently registered. */
     protected Interval _shutdownInterval;
 
-    /**
-     * Maps from a PlaceManager subclass to a MethodFinder for it. When there are many many
-     * instances of a PlaceManager in existence, having a MethodFinder instance for each gets
-     * quite expensive.
-     */ 
-    protected static Map<Class<?>, MethodFinder> _dispatcherFinders =
-        new HashMap<Class<?>, MethodFinder>();
-
     /** Used to do method lookup magic when we receive message events. */
     protected DynamicListener _dispatcher;
+
+    /** Maps from a PlaceManager subclass to a MethodFinder for it. When there are many many
+     * instances of a PlaceManager in existence, having a MethodFinder instance for each gets quite
+     * expensive. */
+    protected static Map<Class<?>, MethodFinder> _dispatcherFinders = Maps.newHashMap();
 }
