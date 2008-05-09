@@ -180,6 +180,25 @@ public class ImportSet
         
         addAll(inner);
     }
+    
+    /**
+     * Inserts imports for the non-primitive classes contained in all array imports.
+     */
+    public void translateClassArrays ()
+    {
+        ImportSet arrayTypes = new ImportSet();
+        Iterator<String> i = _imports.iterator();
+        while (i.hasNext()) {
+            String name = i.next();
+            int bracket = name.lastIndexOf('[');
+            if (bracket != -1 &&
+                name.charAt(bracket + 1) == 'L') {
+                arrayTypes.add(name.substring(bracket + 2, name.length() - 1));
+            }
+        }
+        
+        addAll(arrayTypes);
+    }
 
     /**
      * Temporarily remove one import matching the given pattern. The most recently pushed pattern

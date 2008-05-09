@@ -181,6 +181,9 @@ public class GenServiceTask extends InvocationTask
             imports.add(InvocationResponseEvent.class);
         }
         
+        // import classes contained in arrays
+        imports.translateClassArrays();
+        
         // get rid of java.lang stuff and primitives
         imports.removeGlobals();
         
@@ -453,6 +456,9 @@ public class GenServiceTask extends InvocationTask
         imports.add(InvocationDispatcher.class);
         imports.add(InvocationException.class);
         
+        // import classes contained in arrays
+        imports.translateClassArrays();
+        
         // get rid of primitives and java.lang types
         imports.removeGlobals();
         
@@ -517,6 +523,9 @@ public class GenServiceTask extends InvocationTask
         if (sdesc.hasAnyListenerArgs()) {
             imports.add(InvocationException.class);
         }
+        
+        // import classes contained in arrays
+        imports.translateClassArrays();
         
         // get rid of primitives and java.lang types
         imports.removeGlobals();
