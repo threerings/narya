@@ -237,7 +237,7 @@
   <target name="bureau-run-thane-client" depends="bureau-compile-thane-client"
 	description="Runs the thane client for testing the bureau library">
     <!-- TODO: use a ${thane.path} property to launch the thane shell with 
-      -- dist/main-bureau-client.abc as input -->
+      dist/main-bureau-client.abc as input -->
   </target>
 
   <target name="bureau-runserver" depends="compile"
