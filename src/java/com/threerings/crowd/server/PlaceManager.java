@@ -362,10 +362,13 @@ public class PlaceManager
 
             // Lazily create our dispatcher now that it's actually getting a message
             if (_dispatcher == null) {
-                if (!_dispatcherFinders.containsKey(getClass())) {
-                    _dispatcherFinders.put(getClass(), new MethodFinder(getClass()));
+                Class clazz = getClass();
+                MethodFinder finder = _dispatcherFinders.get(clazz);
+                if (finder == null) {
+                    finder = new MethodFinder(clazz);
+                    _dispatcherFinders.put(clazz, finder);
                 }
-                _dispatcher = new DynamicListener(this, _dispatcherFinders.get(getClass()));
+                _dispatcher = new DynamicListener(this, finder);
             }
             _dispatcher.dispatchMethod(event.getName(), nargs);
         }
