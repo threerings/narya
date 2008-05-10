@@ -23,7 +23,6 @@ package com.threerings.bureau.server;
 
 import com.samskivert.util.OneLineLogFormatter;
 import com.google.common.collect.Lists;
-import java.util.Collections;
 import com.threerings.bureau.data.AgentObject;
 import java.util.List;
 import java.util.Random;
@@ -87,10 +86,14 @@ public class RegistryTester
         _createChance = intProp("createChance", 70);
         _minDelay = intProp("minDelay", 500);
         _maxDelay = intProp("maxDelay", 2000);
+        _clientTarget = System.getProperty("clientTarget");
+        if (_clientTarget == null) {
+            _clientTarget = "bureau-runclient";
+        }
 
         // stop the tests when the server shuts down
         // TODO: this is not called on Ctrl-C, need a way to shut down gracefully
-        _server.registerShutdowner(new TestServer.Shutdowner() {
+        TestServer.registerShutdowner(new TestServer.Shutdowner() {
             public void shutdown () {
                 TestServer.log.info("Shutting down tests");
                 _stop = true;
@@ -103,6 +106,8 @@ public class RegistryTester
      */
     public void start ()
     {
+        TestServer.setClientTarget(_clientTarget);
+
         Thread thread = new Thread("Registry test thread") {
             public void run () {
                 TestServer.log.info(getName() + " started");
@@ -161,14 +166,14 @@ public class RegistryTester
             }
 
             // create or destroy some agents
-            _server.omgr.postRunnable(createOrDestroyAgents);
+            TestServer.omgr.postRunnable(createOrDestroyAgents);
         }
 
         // clean up
-        _server.omgr.postRunnable(new Runnable() {
+        TestServer.omgr.postRunnable(new Runnable() {
             public void run () {
                 for (AgentObject obj : _agents) {
-                    _server.breg.destroyAgent(obj);
+                    TestServer.breg.destroyAgent(obj);
                 }
             }
         });
@@ -184,7 +189,7 @@ public class RegistryTester
             (size != 0 && _rng1.nextInt(100) >= _createChance)) {
             AgentObject toRemove = _agents.remove(_rng1.nextInt(size));
             TestServer.log.info("Removing agent " + toRemove.getOid());
-            _server.breg.destroyAgent(toRemove);
+            TestServer.breg.destroyAgent(toRemove);
         }
         else {
             AgentObject added = create(_rng1.nextInt(_numBureaus) + 1);
@@ -201,7 +206,7 @@ public class RegistryTester
         AgentObject obj = new AgentObject();
         obj.bureauType = "test";
         obj.bureauId = "test-" + bureau;
-        _server.breg.startAgent(obj);
+        TestServer.breg.startAgent(obj);
         return obj;
     }
 
@@ -228,4 +233,7 @@ public class RegistryTester
 
     // maximum delay between batches of requests
     protected int _maxDelay;
+    
+    // ant target to use to kick off new bureaus
+    protected String _clientTarget;
 }

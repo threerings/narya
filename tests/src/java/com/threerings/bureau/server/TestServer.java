@@ -21,14 +21,8 @@
 
 package com.threerings.bureau.server;
 
-import com.threerings.bureau.data.AgentObject;
 import com.threerings.presents.server.PresentsServer;
 import com.samskivert.util.OneLineLogFormatter;
-import com.samskivert.util.StringUtil;
-import com.google.common.collect.Lists;
-import java.io.File;
-import java.util.List;
-import java.util.Random;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -61,6 +55,7 @@ public class TestServer extends PresentsServer
         final TestServer server = new TestServer();
         try {
             server.init();
+            setClientTarget("bureau-runclient");
             server.run();
 
         } catch (Exception e) {
@@ -75,8 +70,17 @@ public class TestServer extends PresentsServer
     {
         super.init();
         breg = new BureauRegistry("localhost:47624", invmgr, omgr, invoker);
-
-        breg.setCommandGenerator("test", new BureauRegistry.CommandGenerator() {
+    }
+    
+    static public void setClientTarget (String target)
+    {
+        breg.setCommandGenerator("test", antCommandGenerator(target));
+    }
+    
+    static public BureauRegistry.CommandGenerator antCommandGenerator (
+        final String target)
+    {
+        return new BureauRegistry.CommandGenerator() {
             public String[] createCommand (
                 String serverNameAndPort, 
                 String bureauId, 
@@ -88,10 +92,10 @@ public class TestServer extends PresentsServer
                     "-DserverPort=" + serverNameAndPort.substring(colon + 1),
                     "-DbureauId=" + bureauId,
                     "-Dtoken=" + token,
-                    "bureau-runclient"};
+                    target};
 
                 return cmd;
             }
-        });
+        };        
     }
 }
