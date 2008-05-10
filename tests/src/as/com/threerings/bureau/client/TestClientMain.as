@@ -8,21 +8,26 @@
  */
 
 import avmplus.System;
+import com.threerings.bureau.client.TestClient;
 
-for (var i :int = 0; i < System.argv.length; ++i) {
-    trace("Argv[" + i + "] = " + System.argv[i]);
+if (System.argv.length != 4) {
+    trace("Expected 4 arguments: (token) (bureauId) (server) (port)");
 }
 
-/*
+var token :String = System.argv[0];
+var bureauId :String = System.argv[1];
+var server :String = System.argv[2];
+var port :int = parseInt(System.argv[3]);
+
+trace("Token: " + token);
+trace("BureauId: " + bureauId);
+trace("Server: " + server);
+trace("Port: " + port);
+
 // create the client and log on
-var client :TestClient = new TestClient(
-    System.getProperty("token"), 
-    System.getProperty("bureauId"));
-client.setServer(
-    System.getProperty("serverName"), 
-    new int[] {Integer.parseInt(System.getProperty("serverPort"))});
+var client :TestClient = new TestClient(token, bureauId);
+client.setServer(server, [port]);
 client.logon();
 
 // run it
-client.run();
-*/
+//client.run();

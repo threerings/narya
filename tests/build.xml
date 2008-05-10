@@ -103,11 +103,11 @@
   <target name="abclib">
     <loadfile property="ascfiles" srcFile="etc/asc-files.txt">
       <filterchain>
-        <prefixlines prefix="src/as/"/>
+        <prefixlines prefix="-in src/as/"/>
         <tokenfilter delimOutput=" "/>
       </filterchain>
     </loadfile>
-    <java classname="macromedia.asc.embedding.ScriptCompiler" fork="true" failonerror="true">
+    <java classname="macromedia.asc.embedding.Main" fork="true" failonerror="true">
       <classpath>
         <fileset dir="../lib" includes="asc.jar"/>
       </classpath>
@@ -119,12 +119,11 @@
       <arg value="../lib/thane.abc"/>
       <arg value="-import"/>
       <arg value="../dist/naryalib.abc"/>
-      <arg value="-outdir"/>
-      <arg value="${deploy.dir}"/>
-      <arg value="-out"/>
-      <arg value="testslib"/>
       <arg line="${ascfiles}"/>
+      <arg value="src/as/Lib.as"/>
     </java>
+    <move file="src/as/Lib.abc"
+          tofile="${deploy.dir}/testslib.abc"/>
   </target>
 
   <!-- test the component metadata bundling process -->
@@ -230,13 +229,6 @@
     <move file="src/as/com/threerings/bureau/client/TestClientMain.abc" todir="dist"/>
   </target>
 
-  <!-- runs the thane test client -->
-  <target name="bureau-run-thane-client" depends="bureau-compile-thane-client"
-	description="Runs the thane client for testing the bureau library">
-    <!-- TODO: use a ${thane.path} property to launch the thane shell with 
-      dist/main-bureau-client.abc as input -->
-  </target>
-
   <target name="bureau-runserver" depends="compile"
     description="Run the bureau test server.">
     <java fork="true" classname="com.threerings.bureau.server.TestServer">
@@ -249,13 +241,14 @@
     description="Run the bureau test server and tests the registry.">
     <java fork="true" classname="com.threerings.bureau.server.RegistryTester">
       <classpath refid="classpath"/>
-      <sysproperty key="maxAgents" value="500"/>
-      <sysproperty key="numBureaus" value="5"/>
-      <sysproperty key="maxOps" value="5"/>
+      <sysproperty key="maxAgents" value="5"/>
+      <sysproperty key="numBureaus" value="1"/>
+      <sysproperty key="maxOps" value="1"/>
       <sysproperty key="createChance" value="70"/>
-      <sysproperty key="minDelay" value="500"/>
-      <sysproperty key="maxDelay" value="1500"/>
+      <sysproperty key="minDelay" value="3000"/>
+      <sysproperty key="maxDelay" value="3000"/>
       <sysproperty key="seed" value="0"/>
+      <sysproperty key="clientTarget" value="bureau-run-thane-client"/>
     </java>
   </target>
 
@@ -271,4 +264,21 @@
       <sysproperty key="bureauId" value="${bureauId}"/>
     </java>
   </target>
+
+  <!-- runs the thane test client -->
+  <target name="bureau-run-thane-client" depends="bureau-compile-thane-client"
+	description="Runs the thane client for testing the bureau library">
+    <exec executable="/export/thane/tamarin-central/objdir-debug/thane/avmthane">
+      <!--arg value="-Dverbose"/-->
+      <arg value="../dist/naryalib.abc"/>
+      <arg value="dist/testslib.abc"/>
+      <arg value="dist/TestClientMain.abc"/>
+      <arg value="--"/>
+      <arg value="${token}"/>
+      <arg value="${bureauId}"/>
+      <arg value="${serverName}"/>
+      <arg value="${port}"/>
+    </exec>
+  </target>
+
 </project>
