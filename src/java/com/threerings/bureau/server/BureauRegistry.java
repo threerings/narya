@@ -394,12 +394,6 @@ public class BureauRegistry
             return null;
         }
 
-        if (bureau.clientObj == null) {
-            Log.warning("Bureau not yet connected in " + resolver + 
-                " " + StringUtil.toString(agent));
-            return null;
-        }
-
         if (client != null && bureau.clientObj != client) {
             Log.warning("Masquerading request in " + resolver + 
                 " " + StringUtil.toString(agent) + 
