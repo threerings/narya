@@ -462,6 +462,42 @@ public class StringUtil
     }
 
     /**
+     * Return a hexadecimal representation of an unsigned int, potentially left-padded with
+     * zeroes to arrive at of precisely the requested width, e.g.
+     *       toHex(131, 4) -> "0083"
+     */
+    public static function toHex (n :uint, width :uint) :String
+    {
+        var result :String = "";
+        while (width > 0) {
+            result = HEX[n & 0x0f] + result;
+            n >>>= 4;
+            width --;
+        }
+        return result;
+    }
+
+    /**
+     * Create line-by-line hexadecimal output with a counter, much like the
+     * 'hexdump' Unix utility. For debugging purposes.
+     */
+    public static function hexdump (bytes :ByteArray) :String
+    {
+        var str :String = "";
+        for (var lineIx :int = 0; lineIx < bytes.length; lineIx += 16) {
+            str += toHex(lineIx, 4);
+            for (var byteIx :int = 0; byteIx < 16 && lineIx + byteIx < bytes.length; byteIx ++) {
+                var b :uint = bytes[lineIx + byteIx];
+                str += " " + HEX[b >> 4] + HEX[b & 0x0f];
+            }
+            str += "\n";
+        }
+        return str;
+        
+    }
+
+
+    /**
      * Internal helper function for parseNumber.
      */
     protected static function validateDecimal (str :String, allowDot :Boolean, allowTrailingE :Boolean) :String
