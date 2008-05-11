@@ -231,6 +231,7 @@
       </classpath>
       <arg value="-AS3"/>
       <arg value="-strict"/>
+      <arg value="-d"/>
       <arg value="-import"/>
       <arg value="lib/builtin.abc"/>
       <arg value="-import"/>
