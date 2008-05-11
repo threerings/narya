@@ -18,6 +18,7 @@ com/threerings/util/Map.as
 com/threerings/util/MethodQueue.as
 com/threerings/util/Name.as
 com/threerings/util/ObserverList.as
+com/threerings/util/ObjectMarshaller.as
 com/threerings/util/Random.as
 com/threerings/util/ResultListener.as
 com/threerings/util/Short.as
