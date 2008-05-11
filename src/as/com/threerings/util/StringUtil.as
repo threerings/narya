@@ -283,36 +283,38 @@ public class StringUtil
             return String(obj);
         }
 
-        if (refs == null) {
-            refs = new Dictionary();
+        if (obj is Array || Util.isPlainObject(obj)) {
+            if (refs == null) {
+                refs = new Dictionary();
 
-        } else if (refs[obj] !== undefined) {
-            return "[cyclic reference]";
-        }
-        refs[obj] = true;
-
-        var s :String;
-        if (obj is Array) {
-            var arr :Array = (obj as Array);
-            s = "";
-            for (var ii :int = 0; ii < arr.length; ii++) {
-                if (ii > 0) {
-                    s += ", ";
-                }
-                s += (ii + ": " + toString(arr[ii], refs));
+            } else if (refs[obj] !== undefined) {
+                return "[cyclic reference]";
             }
-            return "Array(" + s + ")";
+            refs[obj] = true;
 
-        } else if (Util.isPlainObject(obj)) {
-            // TODO: maybe do this for any dynamic object? (would have to use describeType)
-            s = "";
-            for (var prop :String in obj) {
-                if (s.length > 0) {
-                    s += ", ";
+            var s :String;
+            if (obj is Array) {
+                var arr :Array = (obj as Array);
+                s = "";
+                for (var ii :int = 0; ii < arr.length; ii++) {
+                    if (ii > 0) {
+                        s += ", ";
+                    }
+                    s += (ii + ": " + toString(arr[ii], refs));
                 }
-                s += prop + "=>" + toString(obj[prop], refs);
+                return "Array(" + s + ")";
+
+            } else {
+                // TODO: maybe do this for any dynamic object? (would have to use describeType)
+                s = "";
+                for (var prop :String in obj) {
+                    if (s.length > 0) {
+                        s += ", ";
+                    }
+                    s += prop + "=>" + toString(obj[prop], refs);
+                }
+                return "Object(" + s + ")";
             }
-            return "Object(" + s + ")";
 
         } else if (obj is XML) {
             return Util.XMLtoXMLString(obj as XML);
