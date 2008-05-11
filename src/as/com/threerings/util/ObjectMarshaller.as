@@ -27,8 +27,6 @@ import flash.net.ObjectEncoding;
 import flash.geom.Point;
 import flash.geom.Rectangle;
 
-import flash.system.ApplicationDomain;
-
 import flash.utils.ByteArray;
 import flash.utils.Dictionary;
 import flash.utils.Endian;
