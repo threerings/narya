@@ -22,7 +22,7 @@ var port :int = parseInt(System.argv[3]);
 trace("Token: " + token);
 trace("BureauId: " + bureauId);
 trace("Server: " + server);
-trace("Port: " + port);
+trace("Port: " + port + " (parsed from " + System.argv[3] + ")");
 
 // create the client and log on
 var client :TestClient = new TestClient(token, bureauId);
