@@ -99,8 +99,21 @@
     </javac>
   </target>
 
+  <!-- checks whether the abc library needs to be compiled -->
+  <target name="check-abclib">
+    <condition property="abclib_up_to_date">
+      <uptodate targetfile="${deploy.dir}/testslib.abc">
+        <srcfiles dir="../lib" includes="builtin.abc"/>
+        <srcfiles dir="../lib" includes="thane.abc"/>
+        <srcfiles dir="etc" includes="etc/asc-files.txt"/>
+        <srcfiles dir="src/as" includes="**/*.as"/>
+      </uptodate>
+    </condition>
+  </target>
+
   <!-- builds our Flash (abc) library -->
-  <target name="abclib">
+  <target name="abclib" unless="abclib_up_to_date" depends="check-abclib"
+    description="Build the abc library for tests classes">
     <loadfile property="ascfiles" srcFile="etc/asc-files.txt">
       <filterchain>
         <prefixlines prefix="-in src/as/"/>
@@ -207,8 +220,18 @@
     </junit>
   </target>
 
+  <!-- checks whether the bureau client needs to be compiled -->
+  <target name="bureau-check-thane-client">
+    <condition property="thane_client_up_to_date">
+      <uptodate targetfile="${deploy.dir}/TestClientMain.abc">
+        <srcfiles dir="dist" includes="testslib.abc"/>
+      </uptodate>
+    </condition>
+  </target>
+
   <!-- builds the bureau thane test client -->
-  <target name="bureau-compile-thane-client" depends="abclib"
+  <target name="bureau-compile-thane-client" 
+    unless="thane_client_up_to_date" depends="abclib,bureau-check-thane-client"
 	description="Compiles the thane client for testing the bureau library">
     <java classname="macromedia.asc.embedding.Main" fork="true" failonerror="true">
       <classpath>
@@ -241,12 +264,12 @@
     description="Run the bureau test server and tests the registry.">
     <java fork="true" classname="com.threerings.bureau.server.RegistryTester">
       <classpath refid="classpath"/>
-      <sysproperty key="maxAgents" value="5"/>
-      <sysproperty key="numBureaus" value="1"/>
-      <sysproperty key="maxOps" value="1"/>
+      <sysproperty key="maxAgents" value="10"/>
+      <sysproperty key="numBureaus" value="2"/>
+      <sysproperty key="maxOps" value="5"/>
       <sysproperty key="createChance" value="70"/>
       <sysproperty key="minDelay" value="3000"/>
-      <sysproperty key="maxDelay" value="3000"/>
+      <sysproperty key="maxDelay" value="5000"/>
       <sysproperty key="seed" value="0"/>
       <sysproperty key="clientTarget" value="bureau-run-thane-client"/>
     </java>
@@ -277,7 +300,7 @@
       <arg value="${token}"/>
       <arg value="${bureauId}"/>
       <arg value="${serverName}"/>
-      <arg value="${port}"/>
+      <arg value="${serverPort}"/>
     </exec>
   </target>
 
