@@ -24,7 +24,6 @@ package com.threerings.presents.server;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.logging.Level;
 
@@ -305,6 +304,23 @@ public class ClientManager
 
         // and destroy the object itself
         PresentsServer.omgr.destroyObject(clobj.getOid());
+    }
+
+    /**
+     * Renames a currently connected client from <code>oldname</code> to <code>newname</code>
+     * 
+     * @return true if the client was found and renamed.
+     */
+    protected boolean renameClientObject (Name oldname, Name newname)
+    {
+        ClientObject clobj = _objmap.remove(oldname);
+        if (clobj == null) {
+            log.warning("Requested to rename unmapped client object [username=" + oldname + "].");
+            Thread.dumpStack();
+            return false;
+        }
+        _objmap.put(newname, clobj);
+        return true;
     }
 
     // documentation inherited from interface ClientResolutionListener

@@ -262,6 +262,24 @@ public class PresentsClient
     }
 
     /**
+     * <em>Double Danger:</em> this method is not for general consumption. Like
+     * {@code #setUsername}, this changes the username of the client, but unlike setUsername, it
+     * does it in the existing client object. Care must be taken to ensure that any client or
+     * server code either doesn't map things based on username before this call, or that it's
+     * updated to reflect the change.
+     * 
+     * @return - true if the client was successfully renamed, false otherwise
+     */
+    public boolean updateUsername (Name username)
+    {
+        if (_cmgr.renameClientObject(_username, username)) {
+            _username = username;
+            return true;
+        }
+        return false;
+    }
+
+    /**
      * Returns the client object that is associated with this client.
      */
     public ClientObject getClientObject ()
