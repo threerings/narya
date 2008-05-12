@@ -149,7 +149,7 @@ public class BureauRegistry
             }
 
             Log.info("Creating new bureau " + 
-                StringUtil.toString(agent) + " " +
+                StringUtil.toString(agent.bureauId) + " " +
                 StringUtil.toString(generator));
 
             bureau = new Bureau();
@@ -170,6 +170,9 @@ public class BureauRegistry
         _omgr.registerObject(agent);
         bureau.agentStates.put(agent, Bureau.PENDING);
 
+        Log.info("Bureau not ready, pending agent " + 
+            StringUtil.toString(agent));
+        
         bureau.summarize();
     }
 
@@ -270,6 +273,8 @@ public class BureauRegistry
             return;
         }
 
+        Log.info("Agent creation confirmed " + StringUtil.toString(found.agent));
+
         switch (found.state) {
         case Bureau.STARTED:
             found.bureau.agentStates.put(found.agent, Bureau.RUNNING);
@@ -293,7 +298,7 @@ public class BureauRegistry
     }
 
     /**
-     * Callback for when the bureau client acknowledges the creation of an agent.
+     * Callback for when the bureau client acknowledges the failure to create an agent.
      */
     protected void agentCreationFailed (ClientObject client, int agentId)
     {
@@ -302,11 +307,10 @@ public class BureauRegistry
             return;
         }
 
+        Log.info("Agent creation failed " + StringUtil.toString(found.agent));
+
         switch (found.state) {
         case Bureau.STARTED:
-            found.bureau.agentStates.remove(found.agent);
-            break;
-
         case Bureau.STILL_BORN:
             found.bureau.agentStates.remove(found.agent);
             break;
@@ -333,6 +337,8 @@ public class BureauRegistry
             return;
         }
         
+        Log.info("Agent destruction confirmed " + StringUtil.toString(found.agent));
+
         switch (found.state) {
         case Bureau.DESTROYED:
             found.bureau.agentStates.remove(found.agent);
@@ -356,6 +362,9 @@ public class BureauRegistry
      */
     protected void clientDestroyed (Bureau bureau)
     {
+        Log.info("Client destroyed, destroying all agents " + 
+            StringUtil.toString(bureau));
+
         // clean up any agents attached to this bureau
         for (AgentObject agent : bureau.agentStates.keySet()) {
             _omgr.destroyObject(agent.getOid());
@@ -439,6 +448,8 @@ public class BureauRegistry
         {
             _bureau.process = _result;
             _bureau.builder = null;
+            Log.info("Bureau launched " + 
+                StringUtil.toString(_bureau));
         }
 
         protected Bureau _bureau;
