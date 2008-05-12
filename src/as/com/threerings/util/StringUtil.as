@@ -470,13 +470,7 @@ public class StringUtil
      */
     public static function toHex (n :uint, width :uint) :String
     {
-        var result :String = "";
-        while (width > 0) {
-            result = HEX[n & 0x0f] + result;
-            n >>>= 4;
-            width --;
-        }
-        return result;
+        return prepad(n.toString(16), width, "0");
     }
 
     /**
