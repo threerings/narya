@@ -32,26 +32,22 @@ public class NetUtil
      *
      * @return true if the url was able to be loaded.
      */
-    public static function navigateToURL (
-            url :String, preferSameWindowOrTab :Boolean = true) :Boolean
+    public static function navigateToURL (url :String, preferredWindow :String = "_self") :Boolean
     {
         var ureq :URLRequest = new URLRequest(url);
-        if (preferSameWindowOrTab) {
+        while (true) {
             try {
-                flash.net.navigateToURL(ureq, "_self");
+                flash.net.navigateToURL(ureq, preferredWindow);
                 return true;
             } catch (err :SecurityError) {
-                // ignore; fall back to using a blank window, below...
-            }
-        }
+                if (preferredWindow != null) {
+                    preferredWindow = null; // try again with no preferred window
 
-        // open in a blank window
-        try {
-            flash.net.navigateToURL(ureq);
-            return true;
-        } catch (err :SecurityError) {
-            Log.getLog(NetUtil).warning(
-                "Unable to navigate to URL [e=" + err + "].");
+                } else {
+                    Log.getLog(NetUtil).warning("Unable to navigate to URL [e=" + err + "].");
+                    break;
+                }
+            }
         }
 
         return false; // failure!
