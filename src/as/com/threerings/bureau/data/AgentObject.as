@@ -21,6 +21,7 @@
 
 package com.threerings.bureau.data {
 
+import com.threerings.io.ObjectInputStream;
 import com.threerings.presents.dobj.DObject;
 
 public class AgentObject extends DObject
@@ -98,5 +99,14 @@ public class AgentObject extends DObject
         this.agentCode = value;
     }
     // AUTO-GENERATED: METHODS END
+
+    // from interface Streamable
+    override public function readObject (ins :ObjectInputStream) :void
+    {
+        super.readObject(ins);
+        bureauId = ins.readField(String) as String;
+        bureauType = ins.readField(String) as String;
+        agentCode = ins.readField(String) as String;
+    }
 }
 }
