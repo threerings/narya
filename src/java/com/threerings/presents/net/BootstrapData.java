@@ -34,6 +34,9 @@ import com.threerings.presents.data.InvocationMarshaller;
  */
 public class BootstrapData extends SimpleStreamableObject
 {
+    /** The unique id of the client's connection (used to address datagrams). */
+    public int connectionId;
+
     /** The oid of this client's associated distributed object. */
     public int clientOid;
 

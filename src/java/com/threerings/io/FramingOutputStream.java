@@ -40,69 +40,23 @@ import java.nio.ByteBuffer;
  * to its internal buffer. It is intended to only be accessed from a
  * single thread.
  */
-public class FramingOutputStream extends OutputStream
+public class FramingOutputStream extends ByteBufferOutputStream
 {
     public FramingOutputStream ()
     {
-        _buffer = ByteBuffer.allocate(INITIAL_BUFFER_SIZE);
         _buffer.put(HEADER_PAD);
     }
 
-    /**
-     * Writes the specified byte to this framing output stream. 
-     *
-     * @param b the byte to be written.
-     */
-    public void write (int b)
+    @Override // documentation inherited
+    public ByteBuffer flip ()
     {
-        try {
-            _buffer.put((byte)b);
-        } catch (BufferOverflowException boe) {
-            expand(1);
-            _buffer.put((byte)b);
-        }
+        throw new UnsupportedOperationException("Use frameAndReturnBuffer() instead.");
     }
 
-    /**
-     * Writes <code>len</code> bytes from the specified byte array
-     * starting at offset <code>off</code> to this framing output stream.
-     *
-     * @param b the data.
-     * @param off the start offset in the data.
-     * @param len the number of bytes to write.
-     */
-    public void write (byte[] b, int off, int len)
+    @Override // documentation inherited
+    public void reset ()
     {
-        // sanity check the arguments
-        if ((off < 0) || (off > b.length) || (len < 0) ||
-            ((off + len) > b.length) || ((off + len) < 0)) {
-            throw new IndexOutOfBoundsException();
-        } else if (len == 0) {
-            return;
-        }
-
-        try {
-            _buffer.put(b, off, len);
-        } catch (BufferOverflowException boe) {
-            expand(len);
-            _buffer.put(b, off, len);
-        }
-    }
-
-    /**
-     * Expands our buffer to accomodate the specified capacity.
-     */
-    protected final void expand (int needed)
-    {
-        int ocapacity = _buffer.capacity();
-        int ncapacity = _buffer.position() + needed;
-        if (ncapacity > ocapacity) {
-            // increase the buffer size in large increments
-            ncapacity = Math.max(ocapacity << 1, ncapacity);
-            ByteBuffer newbuf = ByteBuffer.allocate(ncapacity);
-            newbuf.put((ByteBuffer)_buffer.flip());
-            _buffer = newbuf;
-        }
+        throw new UnsupportedOperationException("Use resetFrame() instead.");
     }
 
     /**
@@ -135,12 +89,6 @@ public class FramingOutputStream extends OutputStream
         _buffer.clear();
         _buffer.put(HEADER_PAD);
     }
-
-    /** The buffer in which we store our frame data. */
-    protected ByteBuffer _buffer;
-
-    /** The default initial size of the internal buffer. */
-    protected static final int INITIAL_BUFFER_SIZE = 32;
 
     /** We pad the beginning of our buffer so that we can write the frame
      * length when the time comes. */

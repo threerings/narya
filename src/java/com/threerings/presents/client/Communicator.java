@@ -48,6 +48,11 @@ public abstract class Communicator
     public abstract void logoff ();
 
     /**
+     * Notifies the communicator that the client has received its bootstrap data.
+     */
+    public abstract void gotBootstrap ();
+
+    /**
      * Queues up the specified message for delivery upstream.
      */
     public abstract void postMessage (UpstreamMessage msg);

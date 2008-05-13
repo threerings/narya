@@ -174,7 +174,7 @@ public class PresentsServer
         invoker.start();
 
         // create our connection manager
-        conmgr = new ConnectionManager(getListenPorts());
+        conmgr = new ConnectionManager(getListenPorts(), getDatagramPorts());
         conmgr.setAuthenticator(createAuthenticator());
 
         // create our client manager
@@ -234,6 +234,14 @@ public class PresentsServer
     protected int[] getListenPorts ()
     {
         return Client.DEFAULT_SERVER_PORTS;
+    }
+
+    /**
+     * Returns the ports on which the connection manager will listen for datagrams.
+     */
+    protected int[] getDatagramPorts ()
+    {
+        return Client.DEFAULT_DATAGRAM_PORTS;
     }
 
     /**
@@ -387,7 +395,7 @@ public class PresentsServer
     protected void invokerDidShutdown ()
     {
     }
-    
+
     /** Our interval that generates "state of server" reports. */
     protected Interval _reportInterval;
 

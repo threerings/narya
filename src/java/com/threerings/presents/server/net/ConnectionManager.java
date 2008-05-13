@@ -21,9 +21,11 @@
 
 package com.threerings.presents.server.net;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.Channel;
+import java.nio.channels.DatagramChannel;
 import java.nio.channels.SelectableChannel;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
@@ -44,10 +46,12 @@ import com.samskivert.util.*;
 import com.threerings.io.FramingOutputStream;
 import com.threerings.io.ObjectOutputStream;
 
+import com.threerings.presents.client.Client;
 import com.threerings.presents.data.ConMgrStats;
 import com.threerings.presents.net.AuthRequest;
 import com.threerings.presents.net.AuthResponse;
 import com.threerings.presents.net.DownstreamMessage;
+import com.threerings.presents.util.DatagramSequencer;
 
 import com.threerings.presents.server.Authenticator;
 import com.threerings.presents.server.PresentsServer;
@@ -80,7 +84,18 @@ public class ConnectionManager extends LoopingThread
     public ConnectionManager (int[] ports)
         throws IOException
     {
+        this(ports, new int[0]);
+    }
+
+    /**
+     * Constructs and initialized a connection manager (binding socket on which it will listen for
+     * client connections to each of the specified ports).
+     */
+    public ConnectionManager (int[] ports, int[] datagramPorts)
+        throws IOException
+    {
         _ports = ports;
+        _datagramPorts = datagramPorts;
         _selector = SelectorProvider.provider().openSelector();
 
         // create our stats record
@@ -311,8 +326,27 @@ public class ConnectionManager extends LoopingThread
             return;
         }
 
-        // we'll use this for sending messages to clients
+        // open up the datagram ports as well
+        for (int port : _datagramPorts) {
+            try {
+                // create a channel and add it to the select set
+                _datagramChannel = DatagramChannel.open();
+                _datagramChannel.configureBlocking(false);
+
+                InetSocketAddress isa = new InetSocketAddress(port);
+                _datagramChannel.socket().bind(isa);
+                registerChannel(_datagramChannel);
+                log.info("Server accepting datagrams on " + isa + ".");
+
+            } catch (IOException ioe) {
+                log.log(Level.WARNING, "Failure opening datagram channel on port '" +
+                    port + "'.", ioe);
+            }
+        }
+
+        // we'll use these for sending messages to clients
         _framer = new FramingOutputStream();
+        _flattener = new ByteArrayOutputStream();
 
         // notify our startup listener, if we have one
         if (_startlist != null) {
@@ -338,6 +372,30 @@ public class ConnectionManager extends LoopingThread
                 return false; // we're never idle
             }
         });
+    }
+
+    /** Helper function for {@link #willStart}. */
+    protected void registerChannel (final DatagramChannel listener)
+        throws IOException
+    {
+        SelectionKey sk = listener.register(_selector, SelectionKey.OP_READ);
+        _handlers.put(sk, new NetEventHandler() {
+            public int handleEvent (long when) {
+                return readDatagram(listener, when);
+            }
+            public boolean checkIdle (long now) {
+                return false; // we're never idle
+            }
+        });
+    }
+
+    /**
+     * Returns a reference to the output stream used to flatten messages into byte arrays.  Should
+     * only be called by {@link Connection}.
+     */
+    protected ByteArrayOutputStream getFlattener ()
+    {
+        return _flattener;
     }
 
     /**
@@ -384,6 +442,11 @@ public class ConnectionManager extends LoopingThread
 
                 // replace the mapping in the handlers table from the old conn with the new one
                 _handlers.put(selkey, rconn);
+
+                // add a mapping for the connection id and set the datagram secret
+                _connections.put(rconn.getConnectionId(), rconn);
+                rconn.setDatagramSecret(
+                    conn.getAuthRequest().getCredentials().getDatagramSecret());
 
                 // transfer any overflow queue for that connection
                 OverflowQueue oflowHandler = _oflowqs.remove(conn);
@@ -526,6 +589,11 @@ public class ConnectionManager extends LoopingThread
             // otherwise write the message out to the client directly
             writeMessage(conn, tup.right, _oflowHandler);
         }
+
+        // send any datagrams
+        while ((tup = _dataq.getNonBlocking()) != null) {
+            writeDatagram(tup.left, tup.right);
+        }
     }
 
     /**
@@ -595,6 +663,29 @@ public class ConnectionManager extends LoopingThread
         return fully;
     }
 
+    /**
+     * Sends a datagram to the specified connection.
+     *
+     * @return true if the datagram was sent, false if we failed to send for any reason.
+     */
+    protected boolean writeDatagram (Connection conn, byte[] data)
+    {
+        InetSocketAddress target = conn.getDatagramAddress();
+        if (target == null) {
+            log.warning("No address to send datagram [conn=" + conn + "].");
+            return false;
+        }
+
+        _databuf.clear();
+        _databuf.put(data).flip();
+        try {
+            return _datagramChannel.send(_databuf, target) > 0;
+        } catch (IOException ioe) {
+            log.log(Level.WARNING, "Failed to send datagram.", ioe);
+            return false;
+        }
+    }
+
     /** Called by {@link #writeMessage} and friends when they write data over the network. */
     protected final synchronized void noteWrite (int msgs, int bytes)
     {
@@ -622,6 +713,11 @@ public class ConnectionManager extends LoopingThread
             _ssocket.socket().close();
         } catch (IOException ioe) {
             log.log(Level.WARNING, "Failed to close listening socket.", ioe);
+        }
+
+        // and the datagram socket, if any
+        if (_datagramChannel != null) {
+            _datagramChannel.socket().close();
         }
 
         // report if there's anything left on the outgoing message queue
@@ -685,6 +781,51 @@ public class ConnectionManager extends LoopingThread
     }
 
     /**
+     * Called by our net event handler when a datagram is ready to be read from the channel.
+     *
+     * @return the size of the datagram.
+     */
+    protected int readDatagram (DatagramChannel listener, long when)
+    {
+        InetSocketAddress source;
+        _databuf.clear();
+        try {
+            source = (InetSocketAddress)listener.receive(_databuf);
+        } catch (IOException ioe) {
+            log.log(Level.WARNING, "Failure receiving datagram.", ioe);
+            return 0;
+        }
+
+        // make sure we actually read a packet
+        if (source == null) {
+            log.info("Psych! Got READ_READY, but no datagram.");
+            return 0;
+        }
+
+        // flip the buffer and record the size (which must be at least 14 to contain the connection
+        // id, authentication hash, and a class reference)
+        int size = _databuf.flip().remaining();
+        if (size < 14) {
+            log.warning("Received undersized datagram [source=" + source +
+                ", size=" + size + "].");
+            return 0;
+        }
+
+        // the first four bytes are the connection id
+        int connectionId = _databuf.getInt();
+        Connection conn = _connections.get(connectionId);
+        if (conn != null) {
+            conn.handleDatagram(source, _databuf, when);
+        } else {
+            log.warning("Received datagram for unknown connection [id=" + connectionId +
+                ", source=" + source + "].");
+        }
+
+        // return the size of the datagram
+        return size;
+    }
+
+    /**
      * Called by a connection when it has a downstream message that needs to be delivered.
      * <em>Note:</em> this method is called as a result of a call to {@link Connection#postMessage}
      * which happens when forwarding an event to a client and at the completion of authentication,
@@ -708,6 +849,12 @@ public class ConnectionManager extends LoopingThread
         }
 
         try {
+            // send it as a datagram if hinted and possible
+            if (msg.datagram && conn.getDatagramAddress() != null) {
+                postDatagram(conn, msg);
+                return;
+            }
+
             _framer.resetFrame();
 
             // flatten this message using the connection's output stream
@@ -732,13 +879,33 @@ public class ConnectionManager extends LoopingThread
     }
 
     /**
+     * Helper function for {@link #postMessage}; handles posting the message as a datagram.
+     */
+    void postDatagram (Connection conn, DownstreamMessage msg)
+        throws Exception
+    {
+        _flattener.reset();
+
+        // flatten the message using the connection's sequencer
+        DatagramSequencer sequencer = conn.getDatagramSequencer();
+        sequencer.writeDatagram(msg);
+
+        // extract as a byte array
+        byte[] data = _flattener.toByteArray();
+
+        // slap it on the queue
+        _dataq.append(new Tuple<Connection, byte[]>(conn, data));
+    }
+
+    /**
      * Called by a connection if it experiences a network failure.
      */
     void connectionFailed (Connection conn, IOException ioe)
     {
-        // remove this connection from our mapping (it is automatically removed from the Selector
+        // remove this connection from our mappings (it is automatically removed from the Selector
         // when the socket is closed)
         _handlers.remove(conn.getSelectionKey());
+        _connections.remove(conn.getConnectionId());
         _oflowqs.remove(conn);
         synchronized (this) {
             _stats.disconnects++;
@@ -753,9 +920,10 @@ public class ConnectionManager extends LoopingThread
      */
     void connectionClosed (Connection conn)
     {
-        // remove this connection from our mapping (it is automatically removed from the Selector
+        // remove this connection from our mappings (it is automatically removed from the Selector
         // when the socket is closed)
         _handlers.remove(conn.getSelectionKey());
+        _connections.remove(conn.getConnectionId());
         _oflowqs.remove(conn);
 
         // let our observers know what's up
@@ -860,10 +1028,11 @@ public class ConnectionManager extends LoopingThread
         protected int _msgs, _partials;
     }
 
-    protected int[] _ports;
+    protected int[] _ports, _datagramPorts;
     protected Authenticator _author;
     protected Selector _selector;
     protected ServerSocketChannel _ssocket;
+    protected DatagramChannel _datagramChannel;
     protected ResultListener<Object> _startlist;
 
     /** Counts consecutive runtime errors in select(). */
@@ -873,12 +1042,18 @@ public class ConnectionManager extends LoopingThread
     protected HashMap<SelectionKey,NetEventHandler> _handlers =
         new HashMap<SelectionKey,NetEventHandler>();
 
+    /** Connections mapped by identifier. */
+    protected HashIntMap<Connection> _connections = new HashIntMap<Connection>();
+
     protected Queue<Connection> _deathq = new Queue<Connection>();
     protected Queue<AuthingConnection> _authq = new Queue<AuthingConnection>();
 
     protected Queue<Tuple<Connection,byte[]>> _outq = new Queue<Tuple<Connection,byte[]>>();
+    protected Queue<Tuple<Connection,byte[]>> _dataq = new Queue<Tuple<Connection,byte[]>>();
     protected FramingOutputStream _framer;
+    protected ByteArrayOutputStream _flattener;
     protected ByteBuffer _outbuf = ByteBuffer.allocateDirect(64 * 1024);
+    protected ByteBuffer _databuf = ByteBuffer.allocateDirect(Client.MAX_DATAGRAM_SIZE);
 
     protected HashMap<Connection,OverflowQueue> _oflowqs = new HashMap<Connection,OverflowQueue>();
 

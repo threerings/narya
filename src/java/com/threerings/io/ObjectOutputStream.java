@@ -89,30 +89,64 @@ public class ObjectOutputStream extends DataOutputStream
                 log.info(hashCode() + ": Creating class mapping [code=" + _nextCode +
                          ", class=" + sclass.getName() + "].");
             }
-            cmap = new ClassMapping(_nextCode++, sclass, streamer);
+            cmap = createClassMapping(_nextCode++, sclass, streamer);
             _classmap.put(sclass, cmap);
 
             // make sure we didn't blow past our maximum class count
             if (_nextCode <= 0) {
                 throw new RuntimeException("Too many unique classes written to ObjectOutputStream");
             }
-
-            // writing a negative class code indicates that the class name will follow
-            writeShort(-cmap.code);
-            String cname = sclass.getName();
-            if (_translations != null) {
-                String tname = _translations.get(cname);
-                if (tname != null) {
-                    cname = tname;
-                }
-            }
-            writeUTF(cname);
+            writeNewClassMapping(cmap);
 
         } else {
-            writeShort(cmap.code);
+            writeExistingClassMapping(cmap);
         }
 
         writeBareObject(object, cmap.streamer, true);
+    }
+
+    /**
+     * Creates and returns a new class mapping.
+     */
+    protected ClassMapping createClassMapping (short code, Class sclass, Streamer streamer)
+    {
+        return new ClassMapping(code, sclass, streamer);
+    }
+
+    /**
+     * Writes a new class mapping to the stream.
+     */
+    protected void writeNewClassMapping (ClassMapping cmap)
+        throws IOException
+    {
+        // writing a negative class code indicates that the class name will follow
+        writeClassMapping(-cmap.code, cmap.sclass);
+    }
+
+    /**
+     * Writes an existing class mapping to the stream.
+     */
+    protected void writeExistingClassMapping (ClassMapping cmap)
+        throws IOException
+    {
+        writeShort(cmap.code);
+    }
+
+    /**
+     * Writes out the mapping for a class.
+     */
+    protected void writeClassMapping (int code, Class sclass)
+        throws IOException
+    {
+        writeShort(code);
+        String cname = sclass.getName();
+        if (_translations != null) {
+            String tname = _translations.get(cname);
+            if (tname != null) {
+                cname = tname;
+            }
+        }
+        writeUTF(cname);
     }
 
     /**

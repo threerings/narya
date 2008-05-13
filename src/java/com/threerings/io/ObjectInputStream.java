@@ -114,22 +114,8 @@ public class ObjectInputStream extends DataInputStream
                     }
                 }
 
-                // create a class mapping record, and cache it
-                Class sclass = Class.forName(cname, true, _loader);
-                Streamer streamer = Streamer.getStreamer(sclass);
-                if (STREAM_DEBUG) {
-                    log.info(hashCode() + ": New class '" + cname + "' [code=" + code + "].");
-                }
-
-                // sanity check
-                if (streamer == null) {
-                    String errmsg = "Aiya! Unable to create streamer for newly seen class " +
-                        "[code=" + code + ", class=" + cname + "]";
-                    throw new RuntimeException(errmsg);
-                }
-
-                cmap = new ClassMapping(code, sclass, streamer);
-                _classmap.add(code, cmap);
+                // create the class mapping
+                cmap = mapClass(code, cname);
 
             } else {
                 cmap = _classmap.get(code);
@@ -160,6 +146,41 @@ public class ObjectInputStream extends DataInputStream
         } catch (OutOfMemoryError oome) {
             throw (IOException)new IOException("Malformed object data").initCause(oome);
         }
+    }
+
+    /**
+     * Creates, adds, and returns the class mapping for the specified code and class name.
+     */
+    protected ClassMapping mapClass (short code, String cname)
+        throws IOException, ClassNotFoundException
+    {
+        // create a class mapping record, and cache it
+        ClassMapping cmap = createClassMapping(code, cname);
+        _classmap.add(code, cmap);
+        return cmap;
+    }
+
+    /**
+     * Creates and returns a class mapping for the specified code and class name.
+     */
+    protected ClassMapping createClassMapping (short code, String cname)
+        throws IOException, ClassNotFoundException
+    {
+        // resolve the class and streamer
+        Class sclass = Class.forName(cname, true, _loader);
+        Streamer streamer = Streamer.getStreamer(sclass);
+        if (STREAM_DEBUG) {
+            log.info(hashCode() + ": New class '" + cname + "' [code=" + code + "].");
+        }
+
+        // sanity check
+        if (streamer == null) {
+            String errmsg = "Aiya! Unable to create streamer for newly seen class " +
+                "[code=" + code + ", class=" + cname + "]";
+            throw new RuntimeException(errmsg);
+        }
+
+        return new ClassMapping(code, sclass, streamer);
     }
 
     /**

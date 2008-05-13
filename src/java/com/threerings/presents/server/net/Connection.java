@@ -25,20 +25,30 @@ import java.io.EOFException;
 import java.io.IOException;
 
 import java.net.InetAddress;
+import java.net.InetSocketAddress;
+import java.nio.ByteBuffer;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.SocketChannel;
 
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+
 import com.samskivert.util.StringUtil;
 
+import com.threerings.io.ByteBufferInputStream;
+import com.threerings.io.ByteBufferOutputStream;
 import com.threerings.io.FramedInputStream;
 import com.threerings.io.FramingOutputStream;
 import com.threerings.io.ObjectInputStream;
 import com.threerings.io.ObjectOutputStream;
+import com.threerings.io.UnreliableObjectInputStream;
+import com.threerings.io.UnreliableObjectOutputStream;
 
 import com.threerings.presents.Log;
 import com.threerings.presents.net.DownstreamMessage;
 import com.threerings.presents.net.PingRequest;
 import com.threerings.presents.net.UpstreamMessage;
+import com.threerings.presents.util.DatagramSequencer;
 
 /**
  * The base connection class implements the net event handler interface and processes raw incoming
@@ -63,6 +73,7 @@ public abstract class Connection implements NetEventHandler
         _selkey = selkey;
         _channel = channel;
         _lastEvent = createStamp;
+        _connectionId = ++_lastConnectionId;
     }
 
     /**
@@ -83,6 +94,14 @@ public abstract class Connection implements NetEventHandler
         if (_oin != null) {
             _oin.setClassLoader(loader);
         }
+    }
+
+    /**
+     * Returns the connection's unique identifier.
+     */
+    public int getConnectionId ()
+    {
+        return _connectionId;
     }
 
     /**
@@ -108,6 +127,27 @@ public abstract class Connection implements NetEventHandler
     public InetAddress getInetAddress ()
     {
         return (_channel == null) ? null : _channel.socket().getInetAddress();
+    }
+
+    /**
+     * Returns the address to which datagrams should be sent or null if no datagram address has
+     * been established.
+     */
+    public InetSocketAddress getDatagramAddress ()
+    {
+        return _datagramAddress;
+    }
+
+    /**
+     * Sets the secret string used to authenticate datagrams from the client.
+     */
+    public void setDatagramSecret (String secret)
+    {
+        try {
+            _datagramSecret = secret.getBytes("UTF-8");
+        } catch (Exception e) {
+            _datagramSecret = new byte[0]; // shouldn't happen
+        }
     }
 
     /**
@@ -206,6 +246,15 @@ public abstract class Connection implements NetEventHandler
     }
 
     /**
+     * Returns a reference to the connection's datagram sequencer.  This should only be called by
+     * the connection manager.
+     */
+    protected DatagramSequencer getDatagramSequencer ()
+    {
+        return _sequencer;
+    }
+
+    /**
      * Closes the socket associated with this connection. This happens when we receive EOF, are
      * requested to close down or when our connection fails.
      */
@@ -285,6 +334,59 @@ public abstract class Connection implements NetEventHandler
         return bytesIn;
     }
 
+    /**
+     * Processes a datagram sent to this connection.
+     */
+    public void handleDatagram (InetSocketAddress source, ByteBuffer buf, long when)
+    {
+        // lazily create our various bits and bobs
+        if (_digest == null) {
+            try {
+                _digest = MessageDigest.getInstance("MD5");
+            } catch (NoSuchAlgorithmException nsae) {
+                Log.warning("Missing MD5 algorithm.");
+                return;
+            }
+            ByteBufferInputStream bin = new ByteBufferInputStream(buf);
+            _sequencer = new DatagramSequencer(
+                new UnreliableObjectInputStream(bin),
+                new UnreliableObjectOutputStream(_cmgr.getFlattener()));
+        }
+
+        // verify the hash
+        buf.position(12);
+        _digest.update(buf);
+        byte[] hash = _digest.digest(_datagramSecret);
+        buf.position(4);
+        for (int ii = 0; ii < 8; ii++) {
+            if (hash[ii] != buf.get()) {
+                Log.warning("Datagram failed hash check [connectionId=" + _connectionId +
+                    ", source=" + source + "].");
+                return;
+            }
+        }
+
+        // update our target address
+        _datagramAddress = source;
+
+        // read the contents through the sequencer
+        try {
+            UpstreamMessage msg = (UpstreamMessage)_sequencer.readDatagram();
+            if (msg == null) {
+                return; // received out of order
+            }
+            msg.received = when;
+            msg.datagram = true;
+            _handler.handleMessage(msg);
+
+        } catch (ClassNotFoundException cnfe) {
+            Log.warning("Error reading datagram [error=" + cnfe + "].");
+
+        } catch (IOException ioe) {
+            Log.warning("Error reading datagram [error=" + ioe + "].");
+        }
+    }
+
     // documentation inherited from interface
     public boolean checkIdle (long now)
     {
@@ -316,12 +418,23 @@ public abstract class Connection implements NetEventHandler
 
     protected long _lastEvent;
 
+    protected int _connectionId;
+
     protected FramedInputStream _fin;
     protected ObjectInputStream _oin;
     protected ObjectOutputStream _oout;
 
+    protected InetSocketAddress _datagramAddress;
+    protected byte[] _datagramSecret;
+
+    protected MessageDigest _digest;
+    protected DatagramSequencer _sequencer;
+
     protected MessageHandler _handler;
     protected ClassLoader _loader;
+
+    /** The last connection id assigned. */
+    protected static int _lastConnectionId;
 
     /** The number of milliseconds beyond the ping interval that we allow a client's network
      * connection to be idle before we forcibly disconnect them. */

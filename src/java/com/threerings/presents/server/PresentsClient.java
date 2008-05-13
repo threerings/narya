@@ -343,7 +343,7 @@ public class PresentsClient
     {
         // we'll be keeping this bad boy
         _clobj = clobj;
-        
+
         // if our connection was closed while we were resolving our client object, then just
         // abandon ship
         if (getConnection() == null) {
@@ -670,7 +670,10 @@ public class PresentsClient
      */
     protected void populateBootstrapData (BootstrapData data)
     {
-        // give them the client object id
+        // give them the connection id
+        data.connectionId = _conn.getConnectionId();
+
+        // and the client object id
         data.clientOid = _clobj.getOid();
 
         // fill in the list of bootstrap services
@@ -977,7 +980,9 @@ public class PresentsClient
         {
             // send a pong response
             PingRequest req = (PingRequest)msg;
-            client.safePostMessage(new PongResponse(req.getUnpackStamp()));
+            PongResponse resp = new PongResponse(req.getUnpackStamp());
+            resp.datagram = req.datagram;
+            client.safePostMessage(resp);
         }
     }
 

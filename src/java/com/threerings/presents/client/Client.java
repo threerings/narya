@@ -53,6 +53,12 @@ public class Client
     /** The default ports on which the server listens for client connections. */
     public static final int[] DEFAULT_SERVER_PORTS = { 47624 };
 
+    /** The default ports on which the server listens for datagrams. */
+    public static final int[] DEFAULT_DATAGRAM_PORTS = { };
+
+    /** The maximum size of a datagram. */
+    public static final int MAX_DATAGRAM_SIZE = 1500;
+
     /**
      * Constructs a client object with the supplied credentials and RunQueue. The creds will be
      * used to authenticate with any server to which this client attempts to connect. The RunQueue
@@ -115,8 +121,21 @@ public class Client
      */
     public void setServer (String hostname, int[] ports)
     {
+        setServer(hostname, ports, new int[0]);
+    }
+
+    /**
+     * Configures the client to communicate with the server on the supplied hostname, set of
+     * ports (which will be tried in succession), and datagram ports.
+     *
+     * @see #logon
+     * @see #moveToServer
+     */
+    public void setServer (String hostname, int[] ports, int[] datagramPorts)
+    {
         _hostname = hostname;
         _ports = ports;
+        _datagramPorts = datagramPorts;
     }
 
     /**
@@ -142,6 +161,15 @@ public class Client
     public int[] getPorts ()
     {
         return _ports;
+    }
+
+    /**
+     * Returns the ports on the server to which the client can send datagrams.  Returns an empty
+     * array if datagrams are not supported.
+     */
+    public int[] getDatagramPorts ()
+    {
+        return _datagramPorts;
     }
 
     /**
@@ -228,6 +256,15 @@ public class Client
     {
         ClientDObjectMgr omgr = (ClientDObjectMgr)getDObjectManager();
         omgr.registerFlushDelay(objclass, delay);
+    }
+
+    /**
+     * Returns the unique id of the client's connection to the server.  It is only valid for the
+     * duration of the session.
+     */
+    public int getConnectionId ()
+    {
+        return _connectionId;
     }
 
     /**
@@ -417,8 +454,28 @@ public class Client
      */
     public void moveToServer (String hostname, int[] ports, InvocationService.ConfirmListener obs)
     {
+        moveToServer(hostname, ports, new int[0], obs);
+    }
+
+    /**
+     * Transitions a logged on client from its current server to the specified new server.
+     * Currently this simply logs the client off of its current server (if it is logged on) and
+     * logs it onto the new server, but in the future we may aim to do something fancier.
+     *
+     * <p> If we fail to connect to the new server, the client <em>will not</em> be automatically
+     * reconnected to the old server. It will be in a logged off state. However, it will be
+     * reconfigured with the hostname and ports of the old server so that the caller can notify the
+     * user of the failure and then simply call {@link #logon} to attempt to reconnect to the old
+     * server.
+     *
+     * @param observer an observer that will be notified when we have successfully logged onto the
+     * other server, or if the move failed.
+     */
+    public void moveToServer (
+        String hostname, int[] ports, int[] datagramPorts, InvocationService.ConfirmListener obs)
+    {
         // the server switcher will take care of everything for us
-        new ServerSwitcher(hostname, ports, obs).switchServers();
+        new ServerSwitcher(hostname, ports, datagramPorts, obs).switchServers();
     }
 
     /**
@@ -501,7 +558,11 @@ public class Client
         _omgr = omgr;
 
         // extract bootstrap information
+        _connectionId = data.connectionId;
         _cloid = data.clientOid;
+
+        // notify the communicator that we got our bootstrap data
+        _comm.gotBootstrap();
 
         // initialize our invocation director
         _invdir.init(omgr, _cloid, this);
@@ -676,7 +737,7 @@ public class Client
                 _comm = null;
                 _omgr = null;
                 _clobj = null;
-                _cloid = -1;
+                _connectionId = _cloid = -1;
                 _standalone = false;
 
                 // and let our invocation director know we're logged off
@@ -799,10 +860,19 @@ public class Client
     /** Handles the process of switching between servers. See {@link #moveToServer}. */
     protected class ServerSwitcher extends ClientAdapter
     {
-        public ServerSwitcher (String hostname, int[] ports, InvocationService.ConfirmListener obs)
+        public ServerSwitcher (
+            String hostname, int[] ports, InvocationService.ConfirmListener obs)
+        {
+            this(hostname, ports, new int[0], obs);
+        }
+
+        public ServerSwitcher (
+            String hostname, int[] ports, int[] datagramPorts,
+            InvocationService.ConfirmListener obs)
         {
             _hostname = hostname;
             _ports = ports;
+            _datagramPorts = datagramPorts;
             _observer = obs;
         }
 
@@ -818,6 +888,7 @@ public class Client
                 // attempt fails
                 _oldHostname = Client.this._hostname;
                 _oldPorts = Client.this._ports;
+                _oldDatagramPorts = Client.this._datagramPorts;
 
                 // otherwise logoff and wait for all of our callbacks to clear
                 logoff(true);
@@ -827,11 +898,12 @@ public class Client
         public void clientDidClear (Client client)
         {
             // configure the client to point to the new server and logon
-            setServer(_hostname, _ports);
+            setServer(_hostname, _ports, _datagramPorts);
 
             if (!logon()) {
                 log.warning("logon() failed during server switch? [hostname=" + _hostname +
-                            ", ports=" + StringUtil.toString(_ports) + "].");
+                            ", ports=" + StringUtil.toString(_ports) + ", datagramPorts=" +
+                            StringUtil.toString(_datagramPorts) + "].");
                 clientFailedToLogon(Client.this, new Exception("logon() failed?"));
             }
         }
@@ -848,7 +920,7 @@ public class Client
         {
             removeClientObserver(this);
             if (_oldHostname != null) { // restore our previous server and ports
-                setServer(_oldHostname, _oldPorts);
+                setServer(_oldHostname, _oldPorts, _oldDatagramPorts);
             }
             if (_observer != null) {
                 _observer.requestFailed((cause instanceof LogonException) ?
@@ -858,6 +930,7 @@ public class Client
 
         protected String _hostname, _oldHostname;
         protected int[] _ports, _oldPorts;
+        protected int[] _datagramPorts, _oldDatagramPorts;
         protected InvocationService.ConfirmListener _observer;
     }
 
@@ -876,6 +949,9 @@ public class Client
     /** The data associated with our authentication response. */
     protected AuthResponseData _authData;
 
+    /** The unique id of our connection. */
+    protected int _connectionId = -1;
+
     /** Our client distribted object id. */
     protected int _cloid = -1;
 
@@ -890,6 +966,9 @@ public class Client
 
     /** The ports on which we connect to the game server. */
     protected int[] _ports;
+
+    /** The server ports to which we can send datagrams. */
+    protected int[] _datagramPorts;
 
     /** Our list of client observers. */
     protected ObserverList<SessionObserver> _observers =

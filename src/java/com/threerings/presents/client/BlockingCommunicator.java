@@ -25,20 +25,31 @@ import java.io.EOFException;
 import java.io.IOException;
 import java.io.InterruptedIOException;
 import java.nio.ByteBuffer;
+import java.nio.channels.AsynchronousCloseException;
+import java.nio.channels.DatagramChannel;
+import java.nio.channels.SelectionKey;
+import java.nio.channels.Selector;
 import java.nio.channels.SocketChannel;
 
 import java.net.ConnectException;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+
 import com.samskivert.util.LoopingThread;
 import com.samskivert.util.Queue;
 import com.samskivert.util.StringUtil;
 
+import com.threerings.io.ByteBufferInputStream;
+import com.threerings.io.ByteBufferOutputStream;
 import com.threerings.io.FramedInputStream;
 import com.threerings.io.FramingOutputStream;
 import com.threerings.io.ObjectInputStream;
 import com.threerings.io.ObjectOutputStream;
+import com.threerings.io.UnreliableObjectInputStream;
+import com.threerings.io.UnreliableObjectOutputStream;
 
 import com.threerings.presents.Log;
 import com.threerings.presents.data.AuthCodes;
@@ -48,7 +59,10 @@ import com.threerings.presents.net.AuthResponse;
 import com.threerings.presents.net.AuthResponseData;
 import com.threerings.presents.net.DownstreamMessage;
 import com.threerings.presents.net.LogoffRequest;
+import com.threerings.presents.net.PingRequest;
+import com.threerings.presents.net.PongResponse;
 import com.threerings.presents.net.UpstreamMessage;
+import com.threerings.presents.util.DatagramSequencer;
 
 /**
  * The client performs all network I/O on separate threads (one for reading and one for
@@ -107,7 +121,7 @@ public class BlockingCommunicator extends Communicator
         // post a logoff message
         postMessage(new LogoffRequest());
 
-        // let our reader and writer know that it's time to go
+        // let our readers and writers know that it's time to go
         if (_reader != null) {
             // if logoff() is being called by the client as part of a normal shutdown, this will
             // cause the reader thread to be interrupted and shutdown gracefully. if logoff is
@@ -127,13 +141,33 @@ public class BlockingCommunicator extends Communicator
             // closing our socket and invoking the clientDidLogoff callback
             _writer.shutdown();
         }
+        if (_datagramWriter != null) {
+            _datagramWriter.shutdown();
+        }
+        if (_datagramReader != null) {
+            _datagramReader.shutdown();
+        }
+    }
+
+    @Override // from Communicator
+    public void gotBootstrap ()
+    {
+        // start the datagram writer thread, if applicable
+        if (_client.getDatagramPorts().length > 0) {
+            _datagramReader = new DatagramReader();
+            _datagramReader.start();
+        }
     }
 
     @Override // from Communicator
     public void postMessage (UpstreamMessage msg)
     {
-        // simply append the message to the queue
-        _msgq.append(msg);
+        // post as datagram if hinted and possible
+        if (msg.datagram && _datagramWriter != null) {
+            _dataq.append(msg);
+        } else {
+            _msgq.append(msg);
+        }
     }
 
     @Override // from Communicator
@@ -280,6 +314,62 @@ public class BlockingCommunicator extends Communicator
     }
 
     /**
+     * Callback called by the datagram reader thread when it goes away.
+     */
+    protected synchronized void datagramReaderDidExit ()
+    {
+        // clear out our reader reference
+        _datagramReader = null;
+
+        if (_datagramWriter == null) {
+            closeDatagramChannel();
+        }
+
+        Log.debug("Datagram reader thread exited.");
+    }
+
+    /**
+     * Callback called by the datagram writer thread when it goes away.
+     */
+    protected synchronized void datagramWriterDidExit ()
+    {
+        // clear out our writer reference
+        _datagramWriter = null;
+        Log.debug("Datagram writer thread exited.");
+
+        closeDatagramChannel();
+    }
+
+    /**
+     * Closes the datagram channel.
+     */
+    protected void closeDatagramChannel ()
+    {
+        if (_selector != null) {
+            try {
+                _selector.close();
+            } catch (IOException ioe) {
+                Log.warning("Error closing selector: " + ioe);
+            }
+            _selector = null;
+        }
+        if (_datagramChannel != null) {
+            Log.debug("Closing datagram socket channel.");
+
+            try {
+                _datagramChannel.close();
+            } catch (IOException ioe) {
+                Log.warning("Error closing datagram socket: " + ioe);
+            }
+            _datagramChannel = null;
+
+            // clear these out because they are probably large and in charge
+            _uout = null;
+            _sequencer = null;
+        }
+    }
+
+    /**
      * Writes the supplied message to the socket.
      */
     protected void sendMessage (UpstreamMessage msg)
@@ -317,6 +407,42 @@ public class BlockingCommunicator extends Communicator
     }
 
     /**
+     * Sends a datagram over the datagram socket.
+     */
+    protected void sendDatagram (UpstreamMessage msg)
+        throws IOException
+    {
+        // reset the stream and write our connection id and hash placeholder
+        _bout.reset();
+        _uout.writeInt(_client.getConnectionId());
+        _uout.writeLong(0L);
+
+        // write the datagram through the sequencer
+        _sequencer.writeDatagram(msg);
+
+        // flip the buffer and make sure it's not too long
+        ByteBuffer buf = _bout.flip();
+        int size = buf.remaining();
+        if (size > Client.MAX_DATAGRAM_SIZE) {
+            Log.warning("Dropping oversized datagram [size=" + size +
+                ", msg=" + msg + "].");
+            return;
+        }
+
+        // compute the hash
+        buf.position(12);
+        _digest.update(buf);
+        byte[] hash = _digest.digest(_secret);
+
+        // insert the first 64 bits of the hash
+        buf.position(4);
+        buf.put(hash, 0, 8).rewind();
+
+        // send the datagram
+        _datagramChannel.write(buf);
+    }
+
+    /**
      * Makes a note of the time at which we last communicated with the server.
      */
     protected synchronized void updateWriteStamp ()
@@ -346,6 +472,36 @@ public class BlockingCommunicator extends Communicator
         } catch (ClassNotFoundException cnfe) {
             throw (IOException) new IOException(
                 "Unable to decode incoming message.").initCause(cnfe);
+        }
+    }
+
+    /**
+     * Reads a datagram from the socket (blocking until a datagram has arrived).
+     */
+    protected DownstreamMessage receiveDatagram ()
+        throws IOException
+    {
+        // clear the buffer and read a datagram
+        _buf.clear();
+        if (_datagramChannel.read(_buf) <= 0) {
+            throw new IOException("No datagram available to read.");
+        }
+
+        // decode through the sequencer
+        try {
+            DownstreamMessage msg = (DownstreamMessage)_sequencer.readDatagram();
+            if (msg == null) {
+                return null; // received out of order
+            }
+            msg.datagram = true;
+            if (debugLogMessages()) {
+                Log.info("DATAGRAM " + msg);
+            }
+            return msg;
+
+        } catch (ClassNotFoundException cnfe) {
+            throw (IOException) new IOException(
+                "Unable to decode incoming datagram.").initCause(cnfe);
         }
     }
 
@@ -385,7 +541,7 @@ public class BlockingCommunicator extends Communicator
         public Reader ()
         {
         }
-        
+
         protected void willStart ()
         {
             // first we connect and authenticate with the server
@@ -505,7 +661,7 @@ public class BlockingCommunicator extends Communicator
         {
             // we want to interrupt the reader thread as it may be blocked listening to the socket;
             // this is only called if the reader thread doesn't shut itself down
-            
+
             // While it would be nice to be able to handle wacky cases requiring reader-side
             // shutdown, doing so causes consternation on the other end's writer which suddenly
             // loses its connection.  So, we rely on the writer side to take us down.
@@ -562,7 +718,197 @@ public class BlockingCommunicator extends Communicator
         }
     }
 
-    /** This is used to terminate the writer thread. */
+    /**
+     * Handles the general flow of reading datagrams.
+     */
+    protected class DatagramReader extends LoopingThread
+    {
+        protected void willStart ()
+        {
+            try {
+                connect();
+            } catch (IOException ioe) {
+                Log.warning("Failed to open datagram channel [error=" + ioe + "].");
+                shutdown();
+            }
+        }
+
+        protected void connect ()
+            throws IOException
+        {
+            // create a selector to be used only for the initial connection
+            _selector = Selector.open();
+
+            // create and register the channel
+            _datagramChannel = DatagramChannel.open();
+            _datagramChannel.configureBlocking(false);
+            _datagramChannel.register(_selector, SelectionKey.OP_READ, null);
+
+            // create the message digest
+            try {
+                _digest = MessageDigest.getInstance("MD5");
+            } catch (NoSuchAlgorithmException nsae) {
+                Log.warning("Missing MD5 algorithm.");
+                shutdown();
+                return;
+            }
+            _secret = _client.getCredentials().getDatagramSecret().getBytes("UTF-8");
+
+            // create our various streams
+            _bout = new ByteBufferOutputStream();
+            _uout = new UnreliableObjectOutputStream(_bout);
+            ByteBufferInputStream bin = new ByteBufferInputStream(_buf);
+            UnreliableObjectInputStream uin = new UnreliableObjectInputStream(bin);
+            uin.setClassLoader(_loader);
+
+            // create the datagram sequencer
+            _sequencer = new DatagramSequencer(uin, _uout);
+
+            // try each port in turn
+            int cport = -1;
+            for (int port : _client.getDatagramPorts()) {
+                boolean connected = connect(port);
+                if (!isRunning()) {
+                    return; // cancelled
+
+                } else if (connected) {
+                    cport = port;
+                    break;
+                }
+            }
+
+            // close the selector and return the channel to blocking mode
+            _selector.close();
+            _selector = null;
+            _datagramChannel.configureBlocking(true);
+
+            // check if we managed to establish a connection
+            if (cport > 0) {
+                Log.info("Datagram connection established [port=" + cport + "].");
+
+                // start up the writer thread
+                _datagramWriter = new DatagramWriter();
+                _datagramWriter.start();
+
+            } else {
+                Log.info("Failed to establish datagram connection.");
+                shutdown();
+            }
+        }
+
+        protected boolean connect (int port)
+            throws IOException
+        {
+            _datagramChannel.connect(new InetSocketAddress(_client.getHostname(), port));
+            for (int ii = 0; ii < DATAGRAM_ATTEMPTS_PER_PORT; ii++) {
+                // send a ping datagram
+                sendDatagram(new PingRequest());
+
+                // wait for a response
+                int resp = _selector.select(DATAGRAM_RESPONSE_WAIT);
+                if (!isRunning()) {
+                    return false; // cancelled
+
+                } else if (resp > 0) {
+                    DownstreamMessage msg = receiveDatagram();
+                    return true;
+                }
+            }
+            _datagramChannel.disconnect();
+            return false;
+        }
+
+        protected void iterate ()
+        {
+            DownstreamMessage msg = null;
+
+            try {
+                // read the next message from the socket
+                msg = receiveDatagram();
+
+                // process the message if it wasn't dropped
+                if (msg != null) {
+                    processMessage(msg);
+                }
+
+            } catch (AsynchronousCloseException ace) {
+                // somebody set up us the bomb! we've been interrupted which means that we're being
+                // shut down, so we just report it and return from iterate() like a good monkey
+                Log.debug("Datagram reader thread woken up in time to die.");
+
+            } catch (IOException ioe) {
+                Log.warning("Error receiving datagram [error=" + ioe + "].");
+
+            } catch (Exception e) {
+                Log.warning("Error processing message [msg=" + msg + ", error=" + e + "].");
+            }
+        }
+
+        protected void handleIterateFailure (Exception e)
+        {
+            Log.warning("Uncaught exception in datagram reader thread.");
+            Log.logStackTrace(e);
+        }
+
+        protected void didShutdown ()
+        {
+            datagramReaderDidExit();
+        }
+
+        protected void kick ()
+        {
+            // if we have a selector, wake it up
+            if (_selector != null) {
+                _selector.wakeup();
+            }
+        }
+    }
+
+    /**
+     * Handles the general flow of writing datagrams.
+     */
+    protected class DatagramWriter extends LoopingThread
+    {
+        protected void iterate ()
+        {
+            // fetch the next message from the queue
+            UpstreamMessage msg = _dataq.get();
+
+            // if this is a termination message, we're being requested to exit, so we want to bail
+            // now rather than continuing
+            if (msg instanceof TerminationMessage) {
+                return;
+            }
+
+            try {
+                // write the message out the socket
+                sendDatagram(msg);
+
+            } catch (IOException ioe) {
+                Log.warning("Error sending datagram [error=" + ioe + "].");
+            }
+        }
+
+        protected void handleIterateFailure (Exception e)
+        {
+            Log.warning("Uncaught exception in datagram writer thread.");
+            Log.logStackTrace(e);
+        }
+
+        protected void didShutdown ()
+        {
+            datagramWriterDidExit();
+        }
+
+        protected void kick ()
+        {
+            // post a bogus message to the outgoing queue to ensure that the writer thread notices
+            // that it's time to go
+            _dataq.append(new TerminationMessage());
+        }
+    }
+
+    /** This is used to terminate the writer threads. */
     protected static class TerminationMessage extends UpstreamMessage
     {
     }
@@ -570,8 +916,15 @@ public class BlockingCommunicator extends Communicator
     protected Reader _reader;
     protected Writer _writer;
 
+    protected DatagramReader _datagramReader;
+    protected DatagramWriter _datagramWriter;
+
     protected SocketChannel _channel;
     protected Queue<UpstreamMessage> _msgq = new Queue<UpstreamMessage>();
+
+    protected Selector _selector;
+    protected DatagramChannel _datagramChannel;
+    protected Queue<UpstreamMessage> _dataq = new Queue<UpstreamMessage>();
 
     protected long _lastWrite;
     protected Exception _logonError;
@@ -584,6 +937,23 @@ public class BlockingCommunicator extends Communicator
     protected FramedInputStream _fin;
     protected ObjectInputStream _oin;
 
+    /** We use these to write our upstream datagrams. */
+    protected ByteBufferOutputStream _bout;
+    protected UnreliableObjectOutputStream _uout;
+    protected MessageDigest _digest;
+    protected byte[] _secret;
+
+    /** We use these to read our downstream datagrams. */
+    protected ByteBuffer _buf = ByteBuffer.allocateDirect(Client.MAX_DATAGRAM_SIZE);
+
+    protected DatagramSequencer _sequencer;
+
     protected ClientDObjectMgr _omgr;
     protected ClassLoader _loader;
+
+    /** The number of times per port to try to establish a datagram "connection." */
+    protected static final int DATAGRAM_ATTEMPTS_PER_PORT = 10;
+
+    /** The number of milliseconds to wait for a response datagram. */
+    protected static final long DATAGRAM_RESPONSE_WAIT = 1000L;
 }

@@ -63,6 +63,14 @@ public abstract class Credentials implements Streamable
         _username = name;
     }
 
+    /**
+     * Returns a string to use in a hash on the datagram contents to authenticate client datagrams.
+     */
+    public String getDatagramSecret ()
+    {
+        return "";
+    }
+
     // documentation inherited
     public int hashCode ()
     {

@@ -42,6 +42,12 @@ public abstract class UpstreamMessage extends SimpleStreamableObject
     public transient long received;
 
     /**
+     * When sending, this acts as a hint that the message may be transmitted as a datagram.
+     * When receiving, it indicates that the message was received as a datagram.
+     */
+    public transient boolean datagram;
+
+    /**
      * Each upstream message derived class must provide a zero argument
      * constructor so that it can be unserialized when read from the
      * network.

@@ -47,6 +47,12 @@ public class UsernamePasswordCreds extends Credentials
         return _password;
     }
 
+    @Override // documentation inherited
+    public String getDatagramSecret ()
+    {
+        return _password;
+    }
+
     // documentation inherited
     public int hashCode ()
     {

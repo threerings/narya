@@ -38,6 +38,12 @@ public abstract class DownstreamMessage extends SimpleStreamableObject
     public short messageId = -1;
 
     /**
+     * When sending, this acts as a hint that the message may be transmitted as a datagram.
+     * When receiving, it indicates that the message was received as a datagram.
+     */
+    public transient boolean datagram;
+
+    /**
      * Generates a string representation of this instance.
      */
     public String toString ()
