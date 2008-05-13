@@ -37,6 +37,9 @@ import com.threerings.util.StreamableArrayList;
 public class BootstrapData
     implements Streamable
 {
+    /** The unique id of the client's connection. */
+    public var connectionId :int;
+
     /** The oid of this client's associated distributed object. */
     public var clientOid :int;
 
@@ -53,6 +56,7 @@ public class BootstrapData
     // documentation inherited from interface Streamable
     public function readObject (ins :ObjectInputStream) :void
     {
+        connectionId = ins.readInt();
         clientOid = ins.readInt();
         services = (ins.readObject() as StreamableArrayList);
     }
