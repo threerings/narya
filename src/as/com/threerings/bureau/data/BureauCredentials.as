@@ -43,7 +43,7 @@ public class BureauCredentials extends Credentials
      */
     public function BureauCredentials (token :String)
     {
-        super(null);
+        super(new Name("@@bureau:" + token + "@@"));
         sessionToken = token;
     }
 
