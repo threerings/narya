@@ -151,6 +151,7 @@
   <!-- wipes the entire build directory clean -->
   <target name="distclean" depends="common-clean">
     <delete dir="${deploy.dir}"/>
+    <delete failonerror="false" file="src/as/com/threerings/util/env/Environment.as"/>
   </target>
 
   <!-- common clean tasks -->
