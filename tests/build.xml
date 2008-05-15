@@ -121,9 +121,7 @@
       </filterchain>
     </loadfile>
     <java classname="macromedia.asc.embedding.Main" fork="true" failonerror="true">
-      <classpath>
-        <fileset dir="../lib" includes="asc.jar"/>
-      </classpath>
+      <classpath refid="classpath"/>
       <arg value="-AS3"/>
       <arg value="-strict"/>
       <arg value="-import"/>
@@ -234,9 +232,7 @@
     unless="thane_client_up_to_date" depends="abclib,bureau-check-thane-client"
 	description="Compiles the thane client for testing the bureau library">
     <java classname="macromedia.asc.embedding.Main" fork="true" failonerror="true">
-      <classpath>
-        <fileset dir="../lib" includes="asc.jar"/>
-      </classpath>
+      <classpath refid="classpath"/>
       <arg value="-AS3"/>
       <arg value="-strict"/>
       <arg value="-import"/>
