@@ -226,9 +226,7 @@
       </filterchain>
     </loadfile>
     <java classname="macromedia.asc.embedding.Main" fork="true" failonerror="true">
-      <classpath>
-        <fileset dir="lib" includes="asc.jar"/>
-      </classpath>
+      <classpath refid="classpath"/>
       <arg value="-AS3"/>
       <arg value="-strict"/>
       <arg value="-d"/>

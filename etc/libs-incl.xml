@@ -3,6 +3,7 @@
 <project name="library-dependencies">
   <fileset dir="${libs.dir}" id="narya.libs">
     <include name="ant.jar"/>
+    <include name="asc.jar"/>
     <include name="commons-collections.jar"/>
     <include name="commons-io.jar"/>
     <include name="commons-lang.jar"/>
