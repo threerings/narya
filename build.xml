@@ -207,14 +207,18 @@
 
   <!-- checks whether our Flash library needs building -->
   <target name="checkabclib">
-    <condition property="no_build_abclib">
+    <available property="asc.present"
+     classname="macromedia.asc.embedding.ScriptCompiler" classpathref="classpath"/>
+    <condition property="no_build_abclib"><or>
+      <not><available classname="macromedia.asc.embedding.ScriptCompiler"
+                      classpathref="classpath"/></not>
       <uptodate targetfile="${deploy.dir}/${lib.name}lib.abc">
         <srcfiles dir="src/as" includes="**/*.as"/>
         <srcfiles dir="src/as" includes="**/Environment.as-tm"/>
         <srcfiles dir="etc" includes="asc-files.txt"/>
         <srcfiles dir="lib" includes="*.abc"/>
       </uptodate>
-    </condition>
+    </or></condition>
   </target>
 
   <!-- builds our Flash library -->
