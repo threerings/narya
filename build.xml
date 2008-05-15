@@ -207,8 +207,6 @@
 
   <!-- checks whether our Flash library needs building -->
   <target name="checkabclib">
-    <available property="asc.present"
-     classname="macromedia.asc.embedding.ScriptCompiler" classpathref="classpath"/>
     <condition property="no_build_abclib"><or>
       <not><available classname="macromedia.asc.embedding.ScriptCompiler"
                       classpathref="classpath"/></not>
