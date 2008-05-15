@@ -143,6 +143,7 @@
   <target name="clean" depends="common-clean">
     <delete dir="${deploy.dir}/classes"/>
     <delete dir="${deploy.dir}/docs"/>
+    <delete failonerror="false" file="src/as/com/threerings/util/env/Environment.as"/>
     <delete failonerror="false"><fileset dir="${deploy.dir}" includes="*.jar"/></delete>
     <delete failonerror="false"><fileset dir="${deploy.dir}" includes="*.swc"/></delete>
   </target>
