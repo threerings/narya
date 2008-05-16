@@ -257,6 +257,10 @@ public abstract class InvocationTask extends Task
         {
             TransportHint hint = method.getAnnotation(TransportHint.class);
             if (hint == null) {
+                // inherit hint from interface annotation
+                hint = method.getDeclaringClass().getAnnotation(TransportHint.class);
+            }
+            if (hint == null) {
                 return "Transport.DEFAULT";
             }
             return "Transport.getInstance(Transport.Type." +

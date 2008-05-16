@@ -210,6 +210,10 @@ public class GenDObjectTask extends Task
 
             // determine the type of transport
             TransportHint hint = f.getAnnotation(TransportHint.class);
+            if (hint == null) {
+                // inherit hint from class annotation
+                hint = f.getDeclaringClass().getAnnotation(TransportHint.class);
+            }
             String transport;
             if (hint == null) {
                 transport = "DEFAULT";
