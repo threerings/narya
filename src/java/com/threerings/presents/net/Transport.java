@@ -21,8 +21,6 @@
 
 package com.threerings.presents.net;
 
-import java.util.EnumMap;
-
 import com.samskivert.util.HashIntMap;
 
 /**
@@ -141,23 +139,27 @@ public class Transport
         // of instances and use Transport objects as keys (as in examples of the flyweight
         // pattern).  however, doing it this way avoids the need to create a new object on lookup
         if (_unordered == null) {
-            _unordered = new EnumMap<Type, Transport>(Type.class);
-            _ordered = new EnumMap<Type, HashIntMap<Transport>>(Type.class);
+            int length = Type.values().length;
+            _unordered = new Transport[length];
+            @SuppressWarnings("unchecked") HashIntMap<Transport>[] ordered =
+                (HashIntMap<Transport>[])new HashIntMap[length];
+            _ordered = ordered;
         }
 
         // for unordered transport, we map on the type alone
+        int idx = type.ordinal();
         if (!type.isOrdered()) {
-            Transport instance = _unordered.get(type);
+            Transport instance = _unordered[idx];
             if (instance == null) {
-                _unordered.put(type, instance = new Transport(type));
+                _unordered[idx] = instance = new Transport(type);
             }
             return instance;
         }
 
         // for ordered transport, we map on the type and channel
-        HashIntMap<Transport> instances = _ordered.get(type);
+        HashIntMap<Transport> instances = _ordered[idx];
         if (instances == null) {
-            _ordered.put(type, instances = new HashIntMap<Transport>());
+            _ordered[idx] = instances = new HashIntMap<Transport>();
         }
         Transport instance = instances.get(channel);
         if (instance == null) {
@@ -248,9 +250,10 @@ public class Transport
     /** The transport channel. */
     protected int _channel;
 
-    /** Unordered instances mapped by type. */
-    protected static EnumMap<Type, Transport> _unordered;
+    /** Unordered instances mapped by type (would use {@link java.util.EnumMap}, but it doesn't
+     * work with Retroweaver). */
+    protected static Transport[] _unordered;
 
     /** Ordered instances mapped by type and channel. */
-    protected static EnumMap<Type, HashIntMap<Transport>> _ordered;
+    protected static HashIntMap<Transport>[] _ordered;
 }
