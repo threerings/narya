@@ -21,14 +21,12 @@
 
 package com.threerings.presents.net;
 
-import com.threerings.io.SimpleStreamableObject;
-
 /**
  * This class encapsulates a message in the distributed object protocol
  * that flows from the client to the server.  Upstream messages include
  * object subscription, event forwarding and session management.
  */
-public abstract class UpstreamMessage extends SimpleStreamableObject
+public abstract class UpstreamMessage extends Message
 {
     /**
      * This is a unique (within the context of a reasonable period of
@@ -40,12 +38,6 @@ public abstract class UpstreamMessage extends SimpleStreamableObject
 
     /** A timestamp indicating when this upstream message was received. */
     public transient long received;
-
-    /**
-     * When sending, this acts as a hint that the message may be transmitted as a datagram.
-     * When receiving, it indicates that the message was received as a datagram.
-     */
-    public transient boolean datagram;
 
     /**
      * Each upstream message derived class must provide a zero argument

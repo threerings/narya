@@ -2,7 +2,7 @@
 // $Id$
 //
 // Narya library - tools for developing networked games
-// Copyright (C) 2002-2007 Three Rings Design, Inc., All Rights Reserved
+// Copyright (C) 2002-2008 Three Rings Design, Inc., All Rights Reserved
 // http://www.threerings.net/code/narya/
 //
 // This library is free software; you can redistribute it and/or modify it
@@ -19,27 +19,26 @@
 // License along with this library; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 
-package com.threerings.presents.net;
+package com.threerings.presents.annotation;
+
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Target;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+
+import com.threerings.presents.net.Transport;
 
 /**
- * This class encapsulates a message in the distributed object protocol
- * that flows from the server to the client. Downstream messages include
- * object subscription, event forwarding and session management.
+ * An annotation indicating the type of transport desired for a distributed object
+ * class, field, or method.
  */
-public abstract class DownstreamMessage extends Message
+@Target({ ElementType.FIELD, ElementType.METHOD, ElementType.TYPE })
+@Retention(RetentionPolicy.RUNTIME)
+public @interface TransportHint
 {
-    /**
-     * The message id of the upstream message with which this downstream
-     * message is associated (or -1 if it is not associated with any
-     * upstream message).
-     */
-    public short messageId = -1;
+    /** The type of transport to use. */
+    Transport.Type type () default Transport.Type.RELIABLE_ORDERED;
 
-    /**
-     * Generates a string representation of this instance.
-     */
-    public String toString ()
-    {
-        return "[msgid=" + messageId + "]";
-    }
+    /** For ordered transport types, the channel to use. */
+    int channel () default 0;
 }

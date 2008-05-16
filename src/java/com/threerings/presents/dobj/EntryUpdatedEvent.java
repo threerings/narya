@@ -25,6 +25,8 @@ import com.samskivert.util.StringUtil;
 
 import com.threerings.presents.Log;
 
+import com.threerings.presents.net.Transport;
+
 /**
  * An entry updated event is dispatched when an entry of a {@link DSet} is updated. It can also be
  * constructed to request the update of an entry and posted to the dobjmgr.
@@ -44,7 +46,22 @@ public class EntryUpdatedEvent<T extends DSet.Entry> extends NamedEvent
      */
     public EntryUpdatedEvent (int targetOid, String name, T entry, T oldEntry)
     {
-        super(targetOid, name);
+        this(targetOid, name, entry, oldEntry, Transport.DEFAULT);
+    }
+
+    /**
+     * Constructs a new entry updated event on the specified target object for the specified set
+     * name and with the supplied updated entry.
+     *
+     * @param targetOid the object id of the object to whose set we will add an entry.
+     * @param name the name of the attribute in which to update the specified entry.
+     * @param entry the entry to update.
+     * @param oldEntry the previous value of the entry.
+     * @param transport a hint as to the type of transport desired for the event.
+     */
+    public EntryUpdatedEvent (int targetOid, String name, T entry, T oldEntry, Transport transport)
+    {
+        super(targetOid, name, transport);
         _entry = entry;
         _oldEntry = oldEntry;
     }
@@ -101,7 +118,8 @@ public class EntryUpdatedEvent<T extends DSet.Entry> extends NamedEvent
     protected void notifyListener (Object listener)
     {
         if (listener instanceof SetListener) {
-            ((SetListener)listener).entryUpdated(this);
+            @SuppressWarnings("unchecked") SetListener<T> setlist = (SetListener<T>)listener;
+            setlist.entryUpdated(this);
         }
     }
 

@@ -20,7 +20,7 @@ public class ${name}Sender extends InvocationSender
     {
         sendNotification(
             target, ${name}Decoder.RECEIVER_CODE, ${name}Decoder.$m.code,
-            new Object[] { $m.getWrappedArgList(false) });
+            new Object[] { $m.getWrappedArgList(false) }, $m.transport);
     }
 
 #end

@@ -39,6 +39,7 @@ import com.threerings.presents.client.InvocationService;
 import com.threerings.presents.data.ClientObject;
 import com.threerings.presents.data.InvocationMarshaller;
 import com.threerings.presents.dobj.InvocationResponseEvent;
+import com.threerings.presents.net.Transport;
 import com.threerings.presents.server.InvocationDispatcher;
 import com.threerings.presents.server.InvocationException;
 import com.threerings.presents.server.InvocationProvider;
@@ -46,11 +47,11 @@ import com.threerings.presents.server.InvocationProvider;
 /**
  * An Ant task for generating invocation service marshalling and
  * unmarshalling classes.
- * TODO: when generating the imports for exported action script files, there are just enough 
+ * TODO: when generating the imports for exported action script files, there are just enough
  * conversions of primitive types (e.g. float -> Number), array types (e.g. int[] -> TypedArray)
  * and three rings utility types (e.g. float -> Float) to make the existing serivces work. It
  * should be possible to create a complete list of these conversions so that future services
- * can be generated without problems. 
+ * can be generated without problems.
  */
 public class GenServiceTask extends InvocationTask
 {
@@ -61,7 +62,7 @@ public class GenServiceTask extends InvocationTask
 
         public ComparableArrayList<ServiceMethod> methods =
             new ComparableArrayList<ServiceMethod>();
-        
+
         /** Contains all imports required for the parameters of the methods in this listener. */
         public ImportSet imports = new ImportSet();
 
@@ -77,12 +78,12 @@ public class GenServiceTask extends InvocationTask
                     continue;
                 }
                 if (_verbose) {
-                    System.out.println("Adding " + m + ", imports are " + 
+                    System.out.println("Adding " + m + ", imports are " +
                         StringUtil.toString(imports));
                 }
                 methods.add(new ServiceMethod(m, imports));
                 if (_verbose) {
-                    System.out.println("Added " + m + ", imports are " + 
+                    System.out.println("Added " + m + ", imports are " +
                         StringUtil.toString(imports));
                 }
             }
@@ -137,7 +138,7 @@ public class GenServiceTask extends InvocationTask
     protected void processService (File source, Class service)
     {
         System.out.println("Processing " + service.getName() + "...");
-        
+
         // verify that the service class name is as we expect it to be
         if (!service.getName().endsWith("Service")) {
             System.err.println("Cannot process '" + service.getName() + "':");
@@ -167,7 +168,7 @@ public class GenServiceTask extends InvocationTask
             sdesc.spackage, ".client", ".data");
 
         // ----------- Part I - java marshaller
-        
+
         // start with all imports (service methods and listener methods)
         ImportSet imports = sdesc.constructAllImports();
 
@@ -175,30 +176,31 @@ public class GenServiceTask extends InvocationTask
         imports.add(sdesc.service);
         imports.add(Client.class);
         imports.add(InvocationMarshaller.class);
+        imports.add(Transport.class);
 
         // if any listeners are to be present, they need the response event
         if (sdesc.listeners.size() > 0) {
             imports.add(InvocationResponseEvent.class);
         }
-        
+
         // import classes contained in arrays
         imports.translateClassArrays();
-        
+
         // get rid of java.lang stuff and primitives
         imports.removeGlobals();
-        
+
         // get rid of all arrays (they are automatic in java)
         imports.removeArrays();
-        
+
         // for each listener type, also import the corresponding marshaller
-        imports.duplicateAndMunge("*Listener", 
+        imports.duplicateAndMunge("*Listener",
             "Service", "Marshaller",
             "Listener", "Marshaller",
             ".client.", ".data.");
 
         // import the parent class of Foo$Bar
         imports.swapInnerClassesForParents();
-        
+
         // remove imports in our own package
         imports.removeSamePackage(mpackage);
 
@@ -234,15 +236,15 @@ public class GenServiceTask extends InvocationTask
 
         // start with the service method imports
         imports = sdesc.imports.clone();
-        
+
         // add some things that marshallers just need
         imports.add(sdesc.service);
         imports.add(Client.class);
         imports.add(InvocationMarshaller.class);
-        
+
         // replace inner classes with action script equivalents
         imports.translateInnerClasses();
-        
+
         // replace primitive types with OOO types (required for unboxing)
         imports.replace("byte", "com.threerings.util.Byte");
         imports.replace("int", "com.threerings.util.Integer");
@@ -268,7 +270,7 @@ public class GenServiceTask extends InvocationTask
 
         // get rid of java.lang stuff and any remaining primitives
         imports.removeGlobals();
-        
+
         if (imports.removeAll("[L*") > 0) {
             imports.add("com.threerings.io.TypedArray");
         }
@@ -304,20 +306,20 @@ public class GenServiceTask extends InvocationTask
 
                 // start imports with just those used by listener methods
                 imports = listener.imports.clone();
-                
+
                 // always need the super class and the listener class
                 imports.add(imlm);
                 imports.add(listener.listener);
-                
+
                 // replace '$' with '_' for action script naming convention
                 imports.translateInnerClasses();
-                
+
                 // convert primitive java types to ooo util types
                 imports.replace("long", "com.threerings.util.Long");
 
                 // get rid of remaining primitives and java.lang types
                 imports.removeGlobals();
-                
+
                 // remove imports in our own package
                 imports.removeSamePackage(mpackage);
 
@@ -359,7 +361,7 @@ public class GenServiceTask extends InvocationTask
 
         // get rid of primitives and java.lang classes
         imports.removeGlobals();
-        
+
         // get rid of remaining arrays
         imports.removeArrays();
 
@@ -394,20 +396,20 @@ public class GenServiceTask extends InvocationTask
 
                 // start with just the imports needed by listener methods
                 imports = listener.imports.clone();
-                
+
                 // add things needed by all listeners
                 imports.add(isil);
                 imports.add(listener.listener);
-                
+
                 // change Foo$Bar to Foo_Bar
                 imports.translateInnerClasses();
-                
-                // convert java primitive types to ooo util types 
+
+                // convert java primitive types to ooo util types
                 imports.replace("long", "com.threerings.util.Long");
-                
+
                 // get rid of remaining primitives and java.lang types
                 imports.removeGlobals();
-                
+
                 // remove imports in our own package
                 imports.removeSamePackage(sdesc.spackage);
 
@@ -450,29 +452,29 @@ public class GenServiceTask extends InvocationTask
         // swap Client for ClientObject
         imports.add(ClientObject.class);
         imports.remove(Client.class);
-        
+
         // add some classes required for all dispatchers
         imports.add(InvocationMarshaller.class);
         imports.add(InvocationDispatcher.class);
         imports.add(InvocationException.class);
-        
+
         // import classes contained in arrays
         imports.translateClassArrays();
-        
+
         // get rid of primitives and java.lang types
         imports.removeGlobals();
-        
+
         // get rid of arrays
         imports.removeArrays();
 
         // import the Marshaller corresponding to the service
-        imports.addMunged(sdesc.service, 
+        imports.addMunged(sdesc.service,
             "Service", "Marshaller",
             ".client.", ".data.");
 
         // import Foo instead of Foo$Bar
         imports.swapInnerClassesForParents();
-        
+
         // remove imports in our own package
         imports.removeSamePackage(dpackage);
 
@@ -504,7 +506,7 @@ public class GenServiceTask extends InvocationTask
         if (_verbose) {
             System.out.println("Generating provider");
         }
-        
+
         String name = StringUtil.replace(sdesc.sname, "Service", "");
         String mpackage = StringUtil.replace(
             sdesc.spackage, ".client", ".server");
@@ -515,24 +517,24 @@ public class GenServiceTask extends InvocationTask
         // swap Client for ClientObject
         imports.add(ClientObject.class);
         imports.remove(Client.class);
-        
+
         // import superclass
         imports.add(InvocationProvider.class);
-        
-        // any method that takes a listener may throw this 
+
+        // any method that takes a listener may throw this
         if (sdesc.hasAnyListenerArgs()) {
             imports.add(InvocationException.class);
         }
-        
+
         // import classes contained in arrays
         imports.translateClassArrays();
-        
+
         // get rid of primitives and java.lang types
         imports.removeGlobals();
-        
+
         // get rid of arrays
         imports.removeArrays();
-        
+
         // import Foo instead of Foo$Bar
         imports.swapInnerClassesForParents();
 
@@ -593,19 +595,19 @@ public class GenServiceTask extends InvocationTask
                     }
                 }
                 if (_verbose) {
-                    System.out.println("Adding " + m + ", imports are " + 
+                    System.out.println("Adding " + m + ", imports are " +
                         StringUtil.toString(imports));
                 }
                 methods.add(new ServiceMethod(m, imports));
                 if (_verbose) {
-                    System.out.println("Added " + m + ", imports are " + 
+                    System.out.println("Added " + m + ", imports are " +
                         StringUtil.toString(imports));
                 }
             }
             listeners.sort();
             methods.sort();
         }
-        
+
         /**
          * Checks if any of the service method arguments are listener types.
          */
@@ -640,7 +642,7 @@ public class GenServiceTask extends InvocationTask
         ComparableArrayList<ServiceListener> listeners =
             new ComparableArrayList<ServiceListener>();
     }
-    
+
     /** The path to our ActionScript source files. */
     protected File _asroot;
 

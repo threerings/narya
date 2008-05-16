@@ -35,6 +35,8 @@ import com.threerings.presents.client.InvocationService;
 import com.threerings.presents.dobj.DObjectManager;
 import com.threerings.presents.dobj.InvocationResponseEvent;
 
+import com.threerings.presents.net.Transport;
+
 /**
  * Provides a base from which all invocation service marshallers extend.  Handles functionality
  * common to all marshallers.
@@ -69,6 +71,10 @@ public class InvocationMarshaller
          * valid on the server. */
         public transient DObjectManager omgr;
 
+        /** The transport mode through which the request was received.  This is only valid on the
+         * server. */
+        public transient Transport transport;
+
         /**
          * Set an identifier for the invocation that this listener is used for, so we can report it
          * if we are never responded-to.
@@ -92,7 +98,7 @@ public class InvocationMarshaller
         {
             _invId = null;
             omgr.postEvent(new InvocationResponseEvent(
-                               callerOid, requestId, REQUEST_FAILED_RSPID, new Object[] { cause }));
+                callerOid, requestId, REQUEST_FAILED_RSPID, new Object[] { cause }, transport));
         }
 
         /**
@@ -130,7 +136,7 @@ public class InvocationMarshaller
         }
 
         /** On the server, the id of the invocation method. */
-        protected transient String _invId; 
+        protected transient String _invId;
     }
 
     /**
@@ -146,8 +152,8 @@ public class InvocationMarshaller
         public void requestProcessed ()
         {
             _invId = null;
-            omgr.postEvent(
-                new InvocationResponseEvent(callerOid, requestId, REQUEST_PROCESSED, null));
+            omgr.postEvent(new InvocationResponseEvent(
+                callerOid, requestId, REQUEST_PROCESSED, null, transport));
         }
 
         // documentation inherited
@@ -178,7 +184,7 @@ public class InvocationMarshaller
         {
             _invId = null;
             omgr.postEvent(new InvocationResponseEvent(
-                               callerOid, requestId, REQUEST_PROCESSED, new Object[] { result }));
+                callerOid, requestId, REQUEST_PROCESSED, new Object[] { result }, transport));
         }
 
         // documentation inherited
@@ -248,7 +254,16 @@ public class InvocationMarshaller
      */
     protected void sendRequest (Client client, int methodId, Object[] args)
     {
-        client.getInvocationDirector().sendRequest(_invOid, _invCode, methodId, args);
+        sendRequest(client, methodId, args, Transport.DEFAULT);
+    }
+
+    /**
+     * Called by generated invocation marshaller code; packages up and sends the specified
+     * invocation service request.
+     */
+    protected void sendRequest (Client client, int methodId, Object[] args, Transport transport)
+    {
+        client.getInvocationDirector().sendRequest(_invOid, _invCode, methodId, args, transport);
     }
 
     /** The oid of the invocation object, where invocation service requests are sent. */

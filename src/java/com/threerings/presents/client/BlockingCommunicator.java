@@ -61,6 +61,7 @@ import com.threerings.presents.net.DownstreamMessage;
 import com.threerings.presents.net.LogoffRequest;
 import com.threerings.presents.net.PingRequest;
 import com.threerings.presents.net.PongResponse;
+import com.threerings.presents.net.Transport;
 import com.threerings.presents.net.UpstreamMessage;
 import com.threerings.presents.util.DatagramSequencer;
 
@@ -163,7 +164,7 @@ public class BlockingCommunicator extends Communicator
     public void postMessage (UpstreamMessage msg)
     {
         // post as datagram if hinted and possible
-        if (msg.datagram && _datagramWriter != null) {
+        if (!msg.getTransport().isReliable() && _datagramWriter != null) {
             _dataq.append(msg);
         } else {
             _msgq.append(msg);
@@ -486,6 +487,7 @@ public class BlockingCommunicator extends Communicator
         if (_datagramChannel.read(_buf) <= 0) {
             throw new IOException("No datagram available to read.");
         }
+        _buf.flip();
 
         // decode through the sequencer
         try {
@@ -493,7 +495,6 @@ public class BlockingCommunicator extends Communicator
             if (msg == null) {
                 return null; // received out of order
             }
-            msg.datagram = true;
             if (debugLogMessages()) {
                 Log.info("DATAGRAM " + msg);
             }
@@ -802,7 +803,7 @@ public class BlockingCommunicator extends Communicator
             _datagramChannel.connect(new InetSocketAddress(_client.getHostname(), port));
             for (int ii = 0; ii < DATAGRAM_ATTEMPTS_PER_PORT; ii++) {
                 // send a ping datagram
-                sendDatagram(new PingRequest());
+                sendDatagram(new PingRequest(Transport.UNRELIABLE_UNORDERED));
 
                 // wait for a response
                 int resp = _selector.select(DATAGRAM_RESPONSE_WAIT);

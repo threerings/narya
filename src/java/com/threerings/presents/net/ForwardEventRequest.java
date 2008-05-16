@@ -49,6 +49,19 @@ public class ForwardEventRequest extends UpstreamMessage
         return _event;
     }
 
+    @Override // documentation inherited
+    public void setTransport (Transport transport)
+    {
+        // the event handles the transport
+        _event.setTransport(transport);
+    }
+
+    @Override // documentation inherited
+    public Transport getTransport ()
+    {
+        return _event.getTransport();
+    }
+
     public String toString ()
     {
         return "[type=FWD, evt=" + _event + "]";

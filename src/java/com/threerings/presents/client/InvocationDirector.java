@@ -45,6 +45,8 @@ import com.threerings.presents.dobj.MessageEvent;
 import com.threerings.presents.dobj.ObjectAccessException;
 import com.threerings.presents.dobj.Subscriber;
 
+import com.threerings.presents.net.Transport;
+
 /**
  * Handles the client side management of the invocation services.
  */
@@ -196,6 +198,16 @@ public class InvocationDirector
      */
     public void sendRequest (int invOid, int invCode, int methodId, Object[] args)
     {
+        sendRequest(invOid, invCode, methodId, args, Transport.DEFAULT);
+    }
+
+    /**
+     * Requests that the specified invocation request be packaged up and sent to the supplied
+     * invocation oid.
+     */
+    public void sendRequest (
+        int invOid, int invCode, int methodId, Object[] args, Transport transport)
+    {
         if (_clobj == null) {
             Log.warning("Dropping invocation request on shutdown director [code=" + invCode +
                         ", methodId=" + methodId + "].");
@@ -218,7 +230,8 @@ public class InvocationDirector
         }
 
         // create an invocation request event
-        InvocationRequestEvent event = new InvocationRequestEvent(invOid, invCode, methodId, args);
+        InvocationRequestEvent event =
+            new InvocationRequestEvent(invOid, invCode, methodId, args, transport);
 
         // because invocation directors are used on the server, we set the source oid here so that
         // invocation requests are properly attributed to the right client object when created by

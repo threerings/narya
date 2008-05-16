@@ -25,6 +25,8 @@ import java.util.List;
 
 import com.threerings.util.StreamableArrayList;
 
+import com.threerings.presents.net.Transport;
+
 /**
  * Used to manage and submit groups of events on a collection of
  * distributed objects in a single transaction.
@@ -91,13 +93,18 @@ public class CompoundEvent extends DEvent
 
         // then post this event onto the queue (but only if we actually
         // accumulated some events)
-        switch (_events.size()) {
+        int size = _events.size();
+        switch (size) {
         case 0: // nothing doing
             break;
         case 1: // no point in being compound
             _omgr.postEvent(_events.get(0));
             break;
         default: // now we're talking
+            _transport = _events.get(0).getTransport();
+            for (int ii = 1; ii < size; ii++) {
+                _transport = _events.get(ii).getTransport().combine(_transport);
+            }
             _omgr.postEvent(this);
             break;
         }
@@ -136,6 +143,15 @@ public class CompoundEvent extends DEvent
         int ecount = _events.size();
         for (int i = 0; i < ecount; i++) {
             _events.get(i).setTargetOid(targetOid);
+        }
+    }
+
+    @Override // from DEvent
+    public void setTransport (Transport transport)
+    {
+        super.setTransport(transport);
+        for (int ii = 0, nn = _events.size(); ii < nn; ii++) {
+            _events.get(ii).setTransport(transport);
         }
     }
 

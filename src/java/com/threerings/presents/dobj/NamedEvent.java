@@ -21,6 +21,8 @@
 
 package com.threerings.presents.dobj;
 
+import com.threerings.presents.net.Transport;
+
 /**
  * A common parent class for all events that are associated with a name
  * (in some cases a field name, in other cases just an identifying name).
@@ -36,7 +38,20 @@ public abstract class NamedEvent extends DEvent
      */
     public NamedEvent (int targetOid, String name)
     {
-        super(targetOid);
+        this(targetOid, name, Transport.DEFAULT);
+    }
+
+    /**
+     * Constructs a new named event for the specified target object with
+     * the supplied attribute name.
+     *
+     * @param targetOid the object id of the object in question.
+     * @param name the name associated with this event.
+     * @param transport a hint as to the type of transport desired for the event.
+     */
+    public NamedEvent (int targetOid, String name, Transport transport)
+    {
+        super(targetOid, transport);
         _name = name;
     }
 

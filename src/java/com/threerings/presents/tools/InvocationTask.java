@@ -34,6 +34,7 @@ import java.util.List;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 
+import org.apache.tools.ant.AntClassLoader;
 import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.DirectoryScanner;
 import org.apache.tools.ant.Task;
@@ -45,6 +46,9 @@ import org.apache.velocity.app.VelocityEngine;
 
 import com.samskivert.util.StringUtil;
 import com.samskivert.velocity.VelocityUtil;
+
+import com.threerings.presents.annotation.TransportHint;
+import com.threerings.presents.net.Transport;
 
 import com.threerings.presents.client.InvocationService.InvocationListener;
 
@@ -90,7 +94,7 @@ public abstract class InvocationTask extends Task
         }
     }
 
-    /** Used to keep track of invocation service methods or listener 
+    /** Used to keep track of invocation service methods or listener
      *  methods. */
     public class ServiceMethod implements Comparable<ServiceMethod>
     {
@@ -101,13 +105,13 @@ public abstract class InvocationTask extends Task
 
         /**
          * Creates a new service method.
-         * @param method the method to inspect 
+         * @param method the method to inspect
          * @param imports will be filled with the types required by the method
          */
         public ServiceMethod (Method method, ImportSet imports)
         {
             this.method = method;
-            
+
             // we need to look through our arguments and note any needed
             // imports in the supplied table
             Class<?>[] args = method.getParameterTypes();
@@ -249,6 +253,16 @@ public abstract class InvocationTask extends Task
             return buf.toString();
         }
 
+        public String getTransport ()
+        {
+            TransportHint hint = method.getAnnotation(TransportHint.class);
+            if (hint == null) {
+                return "Transport.DEFAULT";
+            }
+            return "Transport.getInstance(Transport.Type." +
+                hint.type().name() + ", " + hint.channel() + ")";
+        }
+
         protected String boxArgument (Class<?> clazz, int index)
         {
             if (_ilistener.isAssignableFrom(clazz)) {
@@ -306,6 +320,11 @@ public abstract class InvocationTask extends Task
     {
         _cloader = ClasspathUtils.getClassLoaderForPath(
             getProject(), pathref);
+
+        // set the parent of the classloader to be the classloader used to load this task,
+        // rather than the classloader used to load Ant, so that we have access to Narya
+        // classes like TransportHint
+        ((AntClassLoader)_cloader).setParent(getClass().getClassLoader());
     }
 
     /** Performs the actual work of the task. */
@@ -405,7 +424,7 @@ public abstract class InvocationTask extends Task
 
     /** Show extra output if set. */
     protected boolean _verbose;
-    
+
     /** Used to do our own classpath business. */
     protected ClassLoader _cloader;
 

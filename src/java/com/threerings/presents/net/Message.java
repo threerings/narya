@@ -1,5 +1,5 @@
 //
-// $Id$
+// $Id: DownstreamMessage.java 5090 2008-05-13 21:12:39Z andrzej $
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2007 Three Rings Design, Inc., All Rights Reserved
@@ -21,49 +21,30 @@
 
 package com.threerings.presents.net;
 
-import com.threerings.presents.dobj.DEvent;
+import com.threerings.io.SimpleStreamableObject;
 
-public class EventNotification extends DownstreamMessage
+/**
+ * The superclass of {@link UpstreamMessage} and {@link DownstreamMessage}.
+ */
+public abstract class Message extends SimpleStreamableObject
 {
     /**
-     * Zero argument constructor used when unserializing an instance.
+     * Sets the message transport parameters.  For messages received over the network, these
+     * describe the mode of transport over which the message was received.  When sending messages,
+     * they act as a hint as to the type of transport desired.  Calling this method may have no
+     * effect, depending on whether non-default modes of transport are supported for this message
+     * type.
      */
-    public EventNotification ()
+    public void setTransport (Transport transport)
     {
-        super();
+        // no-op by default
     }
 
     /**
-     * Constructs an event notification for the supplied event.
+     * Returns the message transport parameters.
      */
-    public EventNotification (DEvent event)
-    {
-        _event = event;
-    }
-
-    public DEvent getEvent ()
-    {
-        return _event;
-    }
-
-    @Override // documentation inherited
-    public void setTransport (Transport transport)
-    {
-        // the event handles the transport
-        _event.setTransport(transport);
-    }
-
-    @Override // documentation inherited
     public Transport getTransport ()
     {
-        return _event.getTransport();
+        return Transport.DEFAULT;
     }
-
-    public String toString ()
-    {
-        return "[type=EVT, evt=" + _event + "]";
-    }
-
-    /** The event which we are forwarding. */
-    protected DEvent _event;
 }

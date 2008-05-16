@@ -23,6 +23,8 @@ package com.threerings.presents.dobj;
 
 import com.threerings.io.Streamable;
 
+import com.threerings.presents.net.Transport;
+
 /**
  * A distributed object event is dispatched whenever any modification is made to a distributed
  * object. It can also be dispatched purely for notification purposes, without making any
@@ -46,7 +48,18 @@ public abstract class DEvent implements Streamable
      */
     public DEvent (int targetOid)
     {
+        this(targetOid, Transport.DEFAULT);
+    }
+
+    /**
+     * Constructs a new distributed object event that pertains to the specified distributed object.
+     *
+     * @param transport a hint as to the type of transport desired for the event.
+     */
+    public DEvent (int targetOid, Transport transport)
+    {
         _toid = targetOid;
+        _transport = transport;
     }
 
     /**
@@ -122,6 +135,24 @@ public abstract class DEvent implements Streamable
     }
 
     /**
+     * Sets the transport parameters.  For events received over the network, these indicate the
+     * mode of transport over which the event was received.  When an event is sent over the
+     * network, these act as a hint as to the type of transport desired.
+     */
+    public void setTransport (Transport transport)
+    {
+        _transport = transport;
+    }
+
+    /**
+     * Returns the transport parameters.
+     */
+    public Transport getTransport ()
+    {
+        return _transport;
+    }
+
+    /**
      * Events with associated listener interfaces should implement this function and notify the
      * supplied listener if it implements their event listening interface. For example, the {@link
      * AttributeChangedEvent} will notify listeners that implement {@link AttributeChangeListener}.
@@ -152,6 +183,9 @@ public abstract class DEvent implements Streamable
     {
         buf.append("targetOid=").append(_toid);
         buf.append(", sourceOid=").append(_soid);
+        if (_transport != Transport.DEFAULT) {
+            buf.append(", transport=").append(_transport);
+        }
     }
 
     /** The oid of the object that is the target of this event. */
@@ -159,6 +193,9 @@ public abstract class DEvent implements Streamable
 
     /** The oid of the client that generated this event. */
     protected transient int _soid = -1;
+
+    /** The transport parameters. */
+    protected transient Transport _transport = Transport.DEFAULT;
 
     /** Used to differentiate between null meaning we haven't initialized our old value and null
      * being the actual old value. */

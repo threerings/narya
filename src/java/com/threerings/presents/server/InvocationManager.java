@@ -42,6 +42,8 @@ import com.threerings.presents.dobj.InvocationRequestEvent;
 import com.threerings.presents.dobj.ObjectAccessException;
 import com.threerings.presents.dobj.RootDObjectManager;
 
+import com.threerings.presents.net.Transport;
+
 /**
  * The invocation services provide client to server invocations (service requests) and server to
  * client invocations (responses and notifications). Via this mechanism, the client can make
@@ -183,7 +185,7 @@ public class InvocationManager
     /**
      * Get the class that is being used to dispatch the specified
      * invocation code, for informational purposes.
-     * 
+     *
      * @return the Class, or null if no dispatcher is registered with
      * the specified code.
      */
@@ -201,7 +203,7 @@ public class InvocationManager
         if (event instanceof InvocationRequestEvent) {
             InvocationRequestEvent ire = (InvocationRequestEvent)event;
             dispatchRequest(ire.getSourceOid(), ire.getInvCode(),
-                            ire.getMethodId(), ire.getArgs());
+                            ire.getMethodId(), ire.getArgs(), ire.getTransport());
         }
     }
 
@@ -211,7 +213,7 @@ public class InvocationManager
      * registered invocation dispatcher.
      */
     protected void dispatchRequest (
-        int clientOid, int invCode, int methodId, Object[] args)
+        int clientOid, int invCode, int methodId, Object[] args, Transport transport)
     {
         // make sure the client is still around
         ClientObject source = (ClientObject)_omgr.getObject(clientOid);
@@ -243,6 +245,7 @@ public class InvocationManager
             if (arg instanceof ListenerMarshaller) {
                 ListenerMarshaller list = (ListenerMarshaller)arg;
                 list.omgr = _omgr;
+                list.transport = transport;
                 // keep track of the listener we'll inform if anything
                 // goes horribly awry
                 if (rlist == null) {

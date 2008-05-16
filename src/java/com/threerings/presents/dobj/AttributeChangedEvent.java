@@ -27,6 +27,8 @@ import java.util.HashMap;
 
 import com.samskivert.util.StringUtil;
 
+import com.threerings.presents.net.Transport;
+
 /**
  * An attribute changed event is dispatched when a single attribute of a distributed object has
  * changed. It can also be constructed to request an attribute change on an object and posted to
@@ -162,7 +164,24 @@ public class AttributeChangedEvent extends NamedEvent
      */
     protected AttributeChangedEvent (int targetOid, String name, Object value, Object oldValue)
     {
-        super(targetOid, name);
+        this(targetOid, name, value, oldValue, Transport.DEFAULT);
+    }
+
+    /**
+     * Constructs a new attribute changed event on the specified target object with the supplied
+     * attribute name and value. <em>Do not construct these objects by hand.</em> Use {@link
+     * DObject#changeAttribute} instead.
+     *
+     * @param targetOid the object id of the object whose attribute has changed.
+     * @param name the name of the attribute (data member) that has changed.
+     * @param value the new value of the attribute (in the case of primitive types, the
+     * reflection-defined object-alternative is used).
+     * @param transport a hint as to the type of transport desired for the event.
+     */
+    protected AttributeChangedEvent (
+        int targetOid, String name, Object value, Object oldValue, Transport transport)
+    {
+        super(targetOid, name, transport);
         _value = value;
         _oldValue = oldValue;
     }

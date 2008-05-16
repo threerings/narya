@@ -376,7 +376,6 @@ public abstract class Connection implements NetEventHandler
                 return; // received out of order
             }
             msg.received = when;
-            msg.datagram = true;
             _handler.handleMessage(msg);
 
         } catch (ClassNotFoundException cnfe) {

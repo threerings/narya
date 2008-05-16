@@ -28,6 +28,8 @@ import com.threerings.presents.client.InvocationReceiver.Registration;
 import com.threerings.presents.data.ClientObject;
 import com.threerings.presents.dobj.InvocationNotificationEvent;
 
+import com.threerings.presents.net.Transport;
+
 /**
  * Provides basic functionality used by all invocation sender classes.
  */
@@ -39,6 +41,16 @@ public abstract class InvocationSender
      */
     public static void sendNotification (
         ClientObject target, String receiverCode, int methodId, Object[] args)
+    {
+        sendNotification(target, receiverCode, methodId, args, Transport.DEFAULT);
+    }
+
+    /**
+     * Requests that the specified invocation notification be packaged up and sent to the supplied
+     * target client.
+     */
+    public static void sendNotification (
+        ClientObject target, String receiverCode, int methodId, Object[] args, Transport transport)
     {
         // convert the receiver hash id into the code used on this
         // specific client
@@ -55,7 +67,8 @@ public abstract class InvocationSender
 
             // create and dispatch an invocation notification event
             target.postEvent(
-                new InvocationNotificationEvent(target.getOid(), rreg.receiverId, methodId, args));
+                new InvocationNotificationEvent(
+                    target.getOid(), rreg.receiverId, methodId, args, transport));
         }
     }
 }

@@ -42,11 +42,12 @@ public class PongResponse extends DownstreamMessage
      * Constructs a pong response which will use the supplied ping time to
      * establish the end-to-end processing delay introduced by the server.
      */
-    public PongResponse (long pingStamp)
+    public PongResponse (long pingStamp, Transport transport)
     {
         // save this for when we are serialized in preparation for
         // delivery over the network
         _pingStamp = pingStamp;
+        _transport = transport;
     }
 
     /**
@@ -112,9 +113,21 @@ public class PongResponse extends DownstreamMessage
         in.defaultReadObject();
     }
 
+    @Override // documentation inherited
+    public void setTransport (Transport transport)
+    {
+        _transport = transport;
+    }
+
+    @Override // documentation inherited
+    public Transport getTransport ()
+    {
+        return _transport;
+    }
+
     public String toString ()
     {
-        return "[type=PONG, msgid=" + messageId + "]";
+        return "[type=PONG, msgid=" + messageId + ", transport=" + _transport + "]";
     }
 
     /** The ping unpack stamp provided at construct time to this pong
@@ -135,4 +148,7 @@ public class PongResponse extends DownstreamMessage
      * is to get a timestamp as close as possible to when the packet was
      * received on the network). */
     protected transient long _unpackStamp;
+
+    /** The transport parameters. */
+    protected transient Transport _transport = Transport.DEFAULT;
 }

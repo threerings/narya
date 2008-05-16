@@ -42,6 +42,14 @@ public class PingRequest extends UpstreamMessage
     }
 
     /**
+     * Creates a new ping request using the specified transport.
+     */
+    public PingRequest (Transport transport)
+    {
+        _transport = transport;
+    }
+
+    /**
      * Returns a timestamp that was obtained when this packet was encoded
      * by the low-level networking code.
      */
@@ -85,9 +93,21 @@ public class PingRequest extends UpstreamMessage
         in.defaultReadObject();
     }
 
+    @Override // documentation inherited
+    public void setTransport (Transport transport)
+    {
+        _transport = transport;
+    }
+
+    @Override // documentation inherited
+    public Transport getTransport ()
+    {
+        return _transport;
+    }
+
     public String toString ()
     {
-        return "[type=PING, msgid=" + messageId + "]";
+        return "[type=PING, msgid=" + messageId + ", transport=" + _transport + "]";
     }
 
     /** A time stamp obtained when we serialize this object. */
@@ -97,4 +117,7 @@ public class PingRequest extends UpstreamMessage
      * is to get a timestamp as close as possible to when the packet was
      * received on the network). */
     protected transient long _unpackStamp;
+
+    /** The transport parameters. */
+    protected transient Transport _transport = Transport.DEFAULT;
 }

@@ -46,6 +46,7 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 
+import org.apache.tools.ant.AntClassLoader;
 import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.DirectoryScanner;
 import org.apache.tools.ant.Task;
@@ -60,6 +61,9 @@ import com.samskivert.util.ObjectUtil;
 import com.samskivert.util.SortableArrayList;
 import com.samskivert.util.StringUtil;
 import com.samskivert.velocity.VelocityUtil;
+
+import com.threerings.presents.annotation.TransportHint;
+import com.threerings.presents.net.Transport;
 
 import com.threerings.presents.dobj.DObject;
 import com.threerings.presents.dobj.DSet;
@@ -85,6 +89,11 @@ public class GenDObjectTask extends Task
     {
         _cloader = ClasspathUtils.getClassLoaderForPath(
             getProject(), pathref);
+
+        // set the parent of the classloader to be the classloader used to load this task,
+        // rather than the classloader used to load Ant, so that we have access to Narya
+        // classes like TransportHint
+        ((AntClassLoader)_cloader).setParent(getClass().getClassLoader());
     }
 
     /** Performs the actual work of the task. */
@@ -107,6 +116,7 @@ public class GenDObjectTask extends Task
             _doclass = _cloader.loadClass(DObject.class.getName());
             _dsclass = _cloader.loadClass(DSet.class.getName());
             _olclass = _cloader.loadClass(OidList.class.getName());
+
         } catch (Exception e) {
             throw new BuildException("Can't resolve InvocationListener", e);
         }
@@ -197,6 +207,18 @@ public class GenDObjectTask extends Task
             ctx.put("clonefield", GenUtil.cloneArgument(_dsclass, f, "value"));
             ctx.put("capfield", StringUtil.unStudlyName(fname).toUpperCase());
             ctx.put("upfield", StringUtils.capitalize(fname));
+
+            // determine the type of transport
+            TransportHint hint = f.getAnnotation(TransportHint.class);
+            String transport;
+            if (hint == null) {
+                transport = "DEFAULT";
+            } else {
+                transport = "getInstance(\n" +
+                    "                com.threerings.presents.net.Transport.Type." +
+                        hint.type().name() + ", " + hint.channel() + ")";
+            }
+            ctx.put("transport", "com.threerings.presents.net.Transport." + transport);
 
             // if this field is an array, we need its component types
             if (ftype.isArray()) {

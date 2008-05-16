@@ -37,6 +37,7 @@ import com.threerings.io.Streamable;
 import com.threerings.util.TrackedObject;
 
 import com.threerings.presents.Log;
+import com.threerings.presents.net.Transport;
 
 /**
  * The distributed object forms the foundation of the Presents system. All information shared among
@@ -250,7 +251,7 @@ public class DObject
     public void setAccessController (AccessController controller)
     {
         _controller = controller;
-    }        
+    }
 
     /**
      * Returns a reference to the access controller in use by this object or null if none has been
@@ -524,11 +525,21 @@ public class DObject
     }
 
     /**
-     * Posts a message event on this distrubuted object.
+     * Posts a message event on this distributed object.
      */
     public void postMessage (String name, Object... args)
     {
-        postEvent(new MessageEvent(_oid, name, args));
+        postMessage(Transport.DEFAULT, name, args);
+    }
+
+    /**
+     * Posts a message event on this distributed object.
+     *
+     * @param transport a hint as to the type of transport desired for the message.
+     */
+    public void postMessage (Transport transport, String name, Object... args)
+    {
+        postEvent(new MessageEvent(_oid, name, args, transport));
     }
 
     /**
@@ -683,7 +694,7 @@ public class DObject
                 _tevent.commit();
             }
         }
-    }        
+    }
 
     /**
      * Returns true if this object is in the middle of a transaction or false if it is not.
@@ -714,7 +725,7 @@ public class DObject
         } else {
             _tevent.cancel();
         }
-    }        
+    }
 
     /**
      * Removes this object from participation in any transaction in which it might be taking part.
@@ -737,8 +748,17 @@ public class DObject
      */
     protected void requestAttributeChange (String name, Object value, Object oldValue)
     {
+        requestAttributeChange(name, value, oldValue, Transport.DEFAULT);
+    }
+
+    /**
+     * Called by derived instances when an attribute setter method was called.
+     */
+    protected void requestAttributeChange (
+        String name, Object value, Object oldValue, Transport transport)
+    {
         // dispatch an attribute changed event
-        postEvent(new AttributeChangedEvent(_oid, name, value, oldValue));
+        postEvent(new AttributeChangedEvent(_oid, name, value, oldValue, transport));
     }
 
     /**
@@ -746,9 +766,18 @@ public class DObject
      */
     protected void requestElementUpdate (String name, int index, Object value, Object oldValue)
     {
+        requestElementUpdate(name, index, value, oldValue, Transport.DEFAULT);
+    }
+
+    /**
+     * Called by derived instances when an element updater method was called.
+     */
+    protected void requestElementUpdate (
+        String name, int index, Object value, Object oldValue, Transport transport)
+    {
         // dispatch an attribute changed event
         postEvent(new ElementUpdatedEvent(
-                      _oid, name, value, oldValue, index));
+                      _oid, name, value, oldValue, index, transport));
     }
 
     /**
@@ -811,6 +840,15 @@ public class DObject
      */
     protected <T extends DSet.Entry> void requestEntryUpdate (String name, DSet<T> set, T entry)
     {
+        requestEntryUpdate(name, set, entry, Transport.DEFAULT);
+    }
+
+    /**
+     * Calls by derived instances when a set updater method was called.
+     */
+    protected <T extends DSet.Entry> void requestEntryUpdate (
+        String name, DSet<T> set, T entry, Transport transport)
+    {
         // if we're on the authoritative server, we update the set immediately
         T oldEntry = null;
         if (_omgr != null && _omgr.isManager(this)) {
@@ -820,7 +858,7 @@ public class DObject
             }
         }
         // dispatch an entry updated event
-        postEvent(new EntryUpdatedEvent<T>(_oid, name, entry, oldEntry));
+        postEvent(new EntryUpdatedEvent<T>(_oid, name, entry, oldEntry, transport));
     }
 
     /**

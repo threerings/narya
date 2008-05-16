@@ -850,7 +850,7 @@ public class ConnectionManager extends LoopingThread
 
         try {
             // send it as a datagram if hinted and possible
-            if (msg.datagram && conn.getDatagramAddress() != null) {
+            if (!msg.getTransport().isReliable() && conn.getDatagramAddress() != null) {
                 postDatagram(conn, msg);
                 return;
             }

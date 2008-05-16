@@ -38,6 +38,7 @@ import com.samskivert.util.StringUtil;
 
 import com.threerings.presents.client.InvocationDecoder;
 import com.threerings.presents.data.ClientObject;
+import com.threerings.presents.net.Transport;
 import com.threerings.presents.server.InvocationSender;
 
 /**
@@ -85,7 +86,7 @@ public class GenReceiverTask extends InvocationTask
             methods.add(new ServiceMethod(m, imports));
         }
         methods.sort();
-        
+
         // get rid of primitives and java.lang types
         imports.removeGlobals();
 
@@ -106,6 +107,7 @@ public class GenReceiverTask extends InvocationTask
         CollectionUtil.addAll(implist, imports);
         checkedAdd(implist, ClientObject.class.getName());
         checkedAdd(implist, InvocationSender.class.getName());
+        checkedAdd(implist, Transport.class.getName());
         String dname = StringUtil.replace(rname, "Receiver", "Decoder");
         checkedAdd(implist, rpackage + "." + dname);
         implist.sort();

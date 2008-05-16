@@ -32,7 +32,7 @@ public class ${name}Marshaller extends InvocationMarshaller
             _invId = null;
             omgr.postEvent(new InvocationResponseEvent(
                                callerOid, requestId, $lm.code,
-                               new Object[] { $lm.getWrappedArgList(false) }));
+                               new Object[] { $lm.getWrappedArgList(false) }, transport));
         }
 
 #end
@@ -71,7 +71,7 @@ public class ${name}Marshaller extends InvocationMarshaller
 #end
         sendRequest(arg1, $m.code, new Object[] {
             $m.getWrappedArgList(true)
-        });
+        }, $m.transport);
     }
 #end
 }

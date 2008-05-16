@@ -23,6 +23,8 @@ package com.threerings.presents.dobj;
 
 import com.samskivert.util.StringUtil;
 
+import com.threerings.presents.net.Transport;
+
 /**
  * A message event is used to dispatch a message to all subscribers of a
  * distributed object without actually changing any of the fields of the
@@ -46,7 +48,23 @@ public class MessageEvent extends NamedEvent
      */
     public MessageEvent (int targetOid, String name, Object[] args)
     {
-        super(targetOid, name);
+        this(targetOid, name, args, Transport.DEFAULT);
+    }
+
+    /**
+     * Constructs a new message event on the specified target object with
+     * the supplied name and arguments.
+     *
+     * @param targetOid the object id of the object whose attribute has
+     * changed.
+     * @param name the name of the message event.
+     * @param args the arguments for this message. This array should
+     * contain only values of valid distributed object types.
+     * @param transport a hint as to the type of transport desired for the event.
+     */
+    public MessageEvent (int targetOid, String name, Object[] args, Transport transport)
+    {
+        super(targetOid, name, transport);
         _args = args;
     }
 

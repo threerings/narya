@@ -23,6 +23,8 @@ package com.threerings.presents.dobj;
 
 import com.samskivert.util.StringUtil;
 
+import com.threerings.presents.net.Transport;
+
 /**
  * Used to dispatch an invocation response from the server to the client.
  *
@@ -44,7 +46,25 @@ public class InvocationResponseEvent extends DEvent
     public InvocationResponseEvent (
         int targetOid, int requestId, int methodId, Object[] args)
     {
-        super(targetOid);
+        this(targetOid, requestId, methodId, args, Transport.DEFAULT);
+    }
+
+    /**
+     * Constructs a new invocation response event on the specified target
+     * object with the supplied code, method and arguments.
+     *
+     * @param targetOid the object id of the object on which the event is
+     * to be dispatched.
+     * @param requestId the id of the request to which we are responding.
+     * @param methodId the method to be invoked.
+     * @param args the arguments for the method. This array should contain
+     * only values of valid distributed object types.
+     * @param transport a hint as to the type of transport desired for the event.
+     */
+    public InvocationResponseEvent (
+        int targetOid, int requestId, int methodId, Object[] args, Transport transport)
+    {
+        super(targetOid, transport);
         _requestId = (short)requestId;
         _methodId = (byte)methodId;
         _args = args;

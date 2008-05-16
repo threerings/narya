@@ -30,6 +30,9 @@ import java.util.Set;
 import com.threerings.io.UnreliableObjectInputStream;
 import com.threerings.io.UnreliableObjectOutputStream;
 
+import com.threerings.presents.net.Message;
+import com.threerings.presents.net.Transport;
+
 /**
  * Used on both the client and the server to handle the encoding and decoding of sequenced
  * datagrams.
@@ -48,7 +51,7 @@ public class DatagramSequencer
     /**
      * Writes a datagram to the underlying stream.
      */
-    public synchronized void writeDatagram (Object datagram)
+    public synchronized void writeDatagram (Message datagram)
         throws IOException
     {
         // first write the sequence and acknowledge numbers
@@ -79,7 +82,7 @@ public class DatagramSequencer
      * @return the contents of the datagram, or <code>null</code> if the datagram was received
      * out-of-order.
      */
-    public synchronized Object readDatagram ()
+    public synchronized Message readDatagram ()
         throws IOException, ClassNotFoundException
     {
         // read in the sequence number and determine if it's out-of-order
@@ -104,8 +107,10 @@ public class DatagramSequencer
         }
         _sendrecs.subList(0, remove).clear();
 
-        // read and return the contents of the datagram
-        return _uin.readObject();
+        // read the contents of the datagram, note the transport, and return
+        Message datagram = (Message)_uin.readObject();
+        datagram.setTransport(Transport.UNRELIABLE_ORDERED);
+        return datagram;
     }
 
     /**

@@ -95,7 +95,8 @@ public class EntryAddedEvent<T extends DSet.Entry> extends NamedEvent
     protected void notifyListener (Object listener)
     {
         if (listener instanceof SetListener) {
-            ((SetListener)listener).entryAdded(this);
+            @SuppressWarnings("unchecked") SetListener<T> setlist = (SetListener<T>)listener;
+            setlist.entryAdded(this);
         }
     }
 

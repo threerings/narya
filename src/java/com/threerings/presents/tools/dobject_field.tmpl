@@ -10,7 +10,8 @@
     {
         $type ovalue = this.$field;
         requestAttributeChange(
-            $capfield, $wrapfield, $wrapofield);
+            $capfield, $wrapfield, $wrapofield,
+            $transport);
         this.$field = $clonefield;
     }
 #if ($elemtype)
@@ -28,7 +29,8 @@
     {
         $elemtype ovalue = this.$field[index];
         requestElementUpdate(
-            $capfield, index, $wrapelem, $wrapoelem);
+            $capfield, index, $wrapelem, $wrapoelem,
+            $transport);
         this.$field[index] = value;
     }
 #end
