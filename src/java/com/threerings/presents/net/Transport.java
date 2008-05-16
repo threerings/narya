@@ -21,6 +21,8 @@
 
 package com.threerings.presents.net;
 
+import java.util.HashMap;
+
 import com.samskivert.util.HashIntMap;
 
 /**
@@ -139,27 +141,23 @@ public class Transport
         // of instances and use Transport objects as keys (as in examples of the flyweight
         // pattern).  however, doing it this way avoids the need to create a new object on lookup
         if (_unordered == null) {
-            int length = Type.values().length;
-            _unordered = new Transport[length];
-            @SuppressWarnings("unchecked") HashIntMap<Transport>[] ordered =
-                (HashIntMap<Transport>[])new HashIntMap[length];
-            _ordered = ordered;
+            _unordered = new HashMap<Type, Transport>();
+            _ordered = new HashMap<Type, HashIntMap<Transport>>();
         }
 
         // for unordered transport, we map on the type alone
-        int idx = type.ordinal();
         if (!type.isOrdered()) {
-            Transport instance = _unordered[idx];
+            Transport instance = _unordered.get(type);
             if (instance == null) {
-                _unordered[idx] = instance = new Transport(type);
+                _unordered.put(type, instance = new Transport(type));
             }
             return instance;
         }
 
         // for ordered transport, we map on the type and channel
-        HashIntMap<Transport> instances = _ordered[idx];
+        HashIntMap<Transport> instances = _ordered.get(type);
         if (instances == null) {
-            _ordered[idx] = instances = new HashIntMap<Transport>();
+            _ordered.put(type, instances = new HashIntMap<Transport>());
         }
         Transport instance = instances.get(channel);
         if (instance == null) {
@@ -252,8 +250,8 @@ public class Transport
 
     /** Unordered instances mapped by type (would use {@link java.util.EnumMap}, but it doesn't
      * work with Retroweaver). */
-    protected static Transport[] _unordered;
+    protected static HashMap<Type, Transport> _unordered;
 
     /** Ordered instances mapped by type and channel. */
-    protected static HashIntMap<Transport>[] _ordered;
+    protected static HashMap<Type, HashIntMap<Transport>> _ordered;
 }
