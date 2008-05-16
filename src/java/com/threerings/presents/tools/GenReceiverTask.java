@@ -87,6 +87,10 @@ public class GenReceiverTask extends InvocationTask
         }
         methods.sort();
 
+        // Adjust any bits that want to import arrays to instead import their element classes.
+        imports.translateClassArrays();
+        imports.removeArrays();
+        
         // get rid of primitives and java.lang types
         imports.removeGlobals();
 
