@@ -78,7 +78,7 @@ public class CommandEvent extends Event
             // never cancelled, so we complain.
             if (disp == null || disp.dispatchEvent(event)) {
                 Log.getLog(CommandEvent).warning("Unhandled controller command " +
-                    "[cmd=" + cmd + ", arg=" + arg + "].");
+                    "[cmd=" + cmd + ", arg=" + arg + ", disp=" + disp + "].");
             }
 
         } else {
