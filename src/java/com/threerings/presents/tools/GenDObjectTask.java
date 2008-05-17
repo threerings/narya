@@ -219,7 +219,7 @@ public class GenDObjectTask extends Task
                 transport = "DEFAULT";
             } else {
                 transport = "getInstance(\n" +
-                    "                com.threerings.presents.net.Transport.Type." +
+                    "                com.threerings.presents.net.TransportType." +
                         hint.type().name() + ", " + hint.channel() + ")";
             }
             ctx.put("transport", "com.threerings.presents.net.Transport." + transport);
