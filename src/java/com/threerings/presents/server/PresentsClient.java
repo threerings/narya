@@ -557,7 +557,7 @@ public class PresentsClient
         if (rec != null) {
             rec.unsubscribe();
         } else {
-            log.warning("Requested to unmap non-existent subscription [oid=" + oid + "].");
+            log.warning("Missing subscription in unmap [client=" + this + ", oid=" + oid + "].");
         }
     }
 
