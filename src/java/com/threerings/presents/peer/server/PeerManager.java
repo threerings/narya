@@ -33,7 +33,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.logging.Level;
 
-import com.samskivert.io.PersistenceException;
+import com.samskivert.jdbc.RepositoryUnit;
+import com.samskivert.jdbc.WriteOnlyUnit;
 import com.samskivert.jdbc.depot.PersistenceContext;
 import com.samskivert.util.ArrayIntSet;
 import com.samskivert.util.ChainedResultListener;
@@ -215,15 +216,9 @@ public class PeerManager
         // register ourselves with the node table
         _self = new NodeRecord(
             _nodeName, hostName, (publicHostName == null) ? hostName : publicHostName, port);
-        _invoker.postUnit(new Invoker.Unit("registerNode") {
-            public boolean invoke () {
-                try {
-                    _noderepo.updateNode(_self);
-                } catch (PersistenceException pe) {
-                    log.warning("Failed to register node record [rec=" + _self +
-                                ", error=" + pe + "].");
-                }
-                return false;
+        _invoker.postUnit(new WriteOnlyUnit("registerNode(" + _self + ")") {
+            public void invokePersist () throws Exception {
+                _noderepo.updateNode(_self);
             }
         });
 
@@ -702,15 +697,9 @@ public class PeerManager
         PresentsServer.clmgr.removeClientObserver(this);
 
         // clear our record from the node table
-        _invoker.postUnit(new Invoker.Unit("deleteNode") {
-            public boolean invoke () {
-                try {
-                    _noderepo.deleteNode(_nodeName);
-                } catch (PersistenceException pe) {
-                    log.warning("Failed to delete node record [nodeName=" + _nodeName +
-                                ", error=" + pe + "].");
-                }
-                return false;
+        _invoker.postUnit(new WriteOnlyUnit("deleteNode(" + _nodeName + ")") {
+            public void invokePersist () throws Exception {
+                _noderepo.deleteNode(_nodeName);
             }
         });
 
@@ -803,21 +792,14 @@ public class PeerManager
     protected void refreshPeers ()
     {
         // load up information on our nodes
-        _invoker.postUnit(new Invoker.Unit("refreshPeers") {
-            public boolean invoke () {
-                try {
-                    // let the world know that we're alive
-                    _noderepo.heartbeatNode(_nodeName);
-                    // then load up all the peer records
-                    _nodes = _noderepo.loadNodes();
-                    return true;
-                } catch (PersistenceException pe) {
-                    log.warning("Failed to load node records: " + pe + ".");
-                    // we'll just try again next time
-                    return false;
-                }
+        _invoker.postUnit(new RepositoryUnit("refreshPeers") {
+            public void invokePersist () throws Exception {
+                // let the world know that we're alive
+                _noderepo.heartbeatNode(_nodeName);
+                // then load up all the peer records
+                _nodes = _noderepo.loadNodes();
             }
-            public void handleResult () {
+            public void handleSuccess() {
                 for (NodeRecord record : _nodes) {
                     if (record.nodeName.equals(_nodeName)) {
                         continue;

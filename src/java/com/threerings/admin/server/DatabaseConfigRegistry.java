@@ -24,6 +24,7 @@ package com.threerings.admin.server;
 import java.util.HashMap;
 
 import com.samskivert.io.PersistenceException;
+import com.samskivert.jdbc.WriteOnlyUnit;
 import com.samskivert.jdbc.depot.PersistenceContext;
 import com.samskivert.util.Invoker;
 import com.samskivert.util.StringUtil;
@@ -288,16 +289,10 @@ public class DatabaseConfigRegistry extends ConfigRegistry
 
         protected void setAndFlush (final String field, final String value) {
             _data.put(field, value);
-            _invoker.postUnit(new Invoker.Unit() {
-                public boolean invoke () {
-                    try {
-                        _repo.updateConfig(_node, _path, field, value);
-                    } catch (PersistenceException pe) {
-                        Log.warning("Failed to update object configuration [path=" + _path +
-                                    ", field=" + field + ", value=" + value + "].");
-                        Log.logStackTrace(pe);
-                    }
-                    return false;
+            String iname = "updateConfig(" + _path + ", " + field + ", value=" + value + ")";
+            _invoker.postUnit(new WriteOnlyUnit(iname) {
+                public void invokePersist () throws Exception {
+                    _repo.updateConfig(_node, _path, field, value);
                 }
             });
         }
