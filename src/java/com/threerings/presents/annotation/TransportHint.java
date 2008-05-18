@@ -26,7 +26,7 @@ import java.lang.annotation.Target;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
-import com.threerings.presents.net.TransportType;
+import com.threerings.presents.net.Transport;
 
 /**
  * An annotation indicating the type of transport desired for a distributed object
@@ -37,7 +37,7 @@ import com.threerings.presents.net.TransportType;
 public @interface TransportHint
 {
     /** The type of transport to use. */
-    TransportType type () default TransportType.RELIABLE_ORDERED;
+    Transport.Type type () default Transport.Type.RELIABLE_ORDERED;
 
     /** For ordered transport types, the channel to use. */
     int channel () default 0;

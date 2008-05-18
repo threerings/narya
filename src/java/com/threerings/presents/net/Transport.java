@@ -21,8 +21,6 @@
 
 package com.threerings.presents.net;
 
-import java.util.HashMap;
-
 import com.samskivert.util.HashIntMap;
 
 /**
@@ -32,21 +30,94 @@ import com.samskivert.util.HashIntMap;
  */
 public class Transport
 {
+    /**
+     * The available types of transport.
+     */
+    public enum Type
+    {
+        /**
+         * Messages are neither guaranteed to arrive nor, if they do arrive, to arrive in order
+         * and without duplicates.  Functionally identical to UDP.
+         */
+        UNRELIABLE_UNORDERED(false, false) {
+            public Type combine (Type other) {
+                return other; // we defer to all
+            }
+        },
+
+        /**
+         * Messages are not guaranteed to arrive, but if they do arrive, then they will arrive in
+         * order and without duplicates.  In other words, out-of-order packets will be dropped.
+         */
+        UNRELIABLE_ORDERED(false, true) {
+            public Type combine (Type other) {
+                return other.isReliable() ? RELIABLE_ORDERED : this;
+            }
+        },
+
+        /**
+         * Messages are guaranteed to arrive eventually, but they are not guaranteed to arrive in
+         * order.
+         */
+        RELIABLE_UNORDERED(true, false) {
+            public Type combine (Type other) {
+                return other.isOrdered() ? RELIABLE_ORDERED : this;
+            }
+        },
+
+        /**
+         * Messages are guaranteed to arrive, and will arrive in the order in which they are sent.
+         * Functionally identical to TCP.
+         */
+        RELIABLE_ORDERED(true, true) {
+            public Type combine (Type other) {
+                return this; // we override all
+            }
+        };
+
+        /**
+         * Checks whether this transport type guarantees that messages will be delivered.
+         */
+        public boolean isReliable ()
+        {
+            return _reliable;
+        }
+
+        /**
+         * Checks whether this transport type guarantees that messages will be received in the
+         * order in which they were sent, if they are received at all.
+         */
+        public boolean isOrdered ()
+        {
+            return _ordered;
+        }
+
+        /**
+         * Returns a transport type that combines the requirements of this type with those of the
+         * specified other type.
+         */
+        public abstract Type combine (Type other);
+
+        Type (boolean reliable, boolean ordered)
+        {
+            _reliable = reliable;
+            _ordered = ordered;
+        }
+
+        protected boolean _reliable, _ordered;
+    }    
+    
     /** The unreliable/unordered mode of transport. */
-    public static final Transport UNRELIABLE_UNORDERED = getInstance(
-        TransportType.UNRELIABLE_UNORDERED);
+    public static final Transport UNRELIABLE_UNORDERED = getInstance(Type.UNRELIABLE_UNORDERED);
 
     /** The unreliable/ordered mode on the default channel. */
-    public static final Transport UNRELIABLE_ORDERED = getInstance(
-        TransportType.UNRELIABLE_ORDERED, 0);
+    public static final Transport UNRELIABLE_ORDERED = getInstance(Type.UNRELIABLE_ORDERED, 0);
 
     /** The reliable/unordered mode. */
-    public static final Transport RELIABLE_UNORDERED = getInstance(
-        TransportType.RELIABLE_UNORDERED);
+    public static final Transport RELIABLE_UNORDERED = getInstance(Type.RELIABLE_UNORDERED);
 
     /** The reliable/ordered mode on the default channel. */
-    public static final Transport RELIABLE_ORDERED = getInstance(
-        TransportType.RELIABLE_ORDERED, 0);
+    public static final Transport RELIABLE_ORDERED = getInstance(Type.RELIABLE_ORDERED, 0);
 
     /** The default mode of transport. */
     public static final Transport DEFAULT = RELIABLE_ORDERED;
@@ -54,7 +125,7 @@ public class Transport
     /**
      * Returns the shared instance with the specified parameters.
      */
-    public static Transport getInstance (TransportType type)
+    public static Transport getInstance (Type type)
     {
         return getInstance(type, 0);
     }
@@ -62,29 +133,33 @@ public class Transport
     /**
      * Returns the shared instance with the specified parameters.
      */
-    public static Transport getInstance (TransportType type, int channel)
+    public static Transport getInstance (Type type, int channel)
     {
         // were there more parameters in transport objects, it would be better to have a single map
         // of instances and use Transport objects as keys (as in examples of the flyweight
         // pattern).  however, doing it this way avoids the need to create a new object on lookup
         if (_unordered == null) {
-            _unordered = new HashMap<TransportType, Transport>();
-            _ordered = new HashMap<TransportType, HashIntMap<Transport>>();
+            int length = Type.values().length;
+            _unordered = new Transport[length];
+            @SuppressWarnings("unchecked") HashIntMap<Transport>[] ordered =
+                (HashIntMap<Transport>[])new HashIntMap[length];
+            _ordered = ordered;
         }
 
         // for unordered transport, we map on the type alone
+        int idx = type.ordinal();
         if (!type.isOrdered()) {
-            Transport instance = _unordered.get(type);
+            Transport instance = _unordered[idx];
             if (instance == null) {
-                _unordered.put(type, instance = new Transport(type));
+                _unordered[idx] = instance = new Transport(type);
             }
             return instance;
         }
 
         // for ordered transport, we map on the type and channel
-        HashIntMap<Transport> instances = _ordered.get(type);
+        HashIntMap<Transport> instances = _ordered[idx];
         if (instances == null) {
-            _ordered.put(type, instances = new HashIntMap<Transport>());
+            _ordered[idx] = instances = new HashIntMap<Transport>();
         }
         Transport instance = instances.get(channel);
         if (instance == null) {
@@ -96,7 +171,7 @@ public class Transport
     /**
      * Returns the type of transport.
      */
-    public TransportType getType ()
+    public Type getType ()
     {
         return _type;
     }
@@ -158,27 +233,27 @@ public class Transport
         return "[type=" + _type + ", channel=" + _channel + "]";
     }
 
-    protected Transport (TransportType type)
+    protected Transport (Type type)
     {
         this(type, 0);
     }
 
-    protected Transport (TransportType type, int channel)
+    protected Transport (Type type, int channel)
     {
         _type = type;
         _channel = channel;
     }
 
     /** The type of transport. */
-    protected TransportType _type;
+    protected Type _type;
 
     /** The transport channel. */
     protected int _channel;
 
     /** Unordered instances mapped by type (would use {@link java.util.EnumMap}, but it doesn't
      * work with Retroweaver). */
-    protected static HashMap<TransportType, Transport> _unordered;
+    protected static Transport[] _unordered;
 
     /** Ordered instances mapped by type and channel. */
-    protected static HashMap<TransportType, HashIntMap<Transport>> _ordered;
+    protected static HashIntMap<Transport>[] _ordered;
 }

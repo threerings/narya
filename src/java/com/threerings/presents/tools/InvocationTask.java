@@ -263,7 +263,7 @@ public abstract class InvocationTask extends Task
             if (hint == null) {
                 return "Transport.DEFAULT";
             }
-            return "Transport.getInstance(TransportType." +
+            return "Transport.getInstance(Transport.Type." +
                 hint.type().name() + ", " + hint.channel() + ")";
         }
 
