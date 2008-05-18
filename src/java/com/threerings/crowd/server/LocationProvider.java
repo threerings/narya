@@ -144,7 +144,7 @@ public class LocationProvider
                     pmgr.buildOccupantInfo(source);
 
                     // set the body's new location
-                    source.setLocation(place);
+                    source.willEnterPlace(place, plobj);
 
                     // add the body oid to the place object's occupant list
                     plobj.addToOccupants(bodoid);
@@ -179,19 +179,20 @@ public class LocationProvider
         }
 
         // remove them from the occupant list
+        PlaceObject plobj = null;
         try {
-            PlaceObject pold = (PlaceObject)_omgr.getObject(oldloc.placeOid);
-            if (pold != null) {
+            plobj = (PlaceObject)_omgr.getObject(oldloc.placeOid);
+            if (plobj != null) {
                 Integer key = Integer.valueOf(bodoid);
-                pold.startTransaction();
+                plobj.startTransaction();
                 try {
                     // remove their occupant info (which is keyed on oid)
-                    pold.removeFromOccupantInfo(key);
+                    plobj.removeFromOccupantInfo(key);
                     // and remove them from the occupant list
-                    pold.removeFromOccupants(bodoid);
+                    plobj.removeFromOccupants(bodoid);
 
                 } finally {
-                    pold.commitTransaction();
+                    plobj.commitTransaction();
                 }
 
             } else {
@@ -205,7 +206,7 @@ public class LocationProvider
         }
 
         // clear out their location
-        source.setLocation(null);
+        source.didLeavePlace(plobj);
     }
 
     /**

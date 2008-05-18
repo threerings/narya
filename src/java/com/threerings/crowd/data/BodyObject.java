@@ -129,9 +129,32 @@ public class BodyObject extends ClientObject
      * Creates a blank occupant info instance that will used to publish information about the
      * various bodies occupying a place.
      */
-    public OccupantInfo createOccupantInfo (PlaceObject placeObject)
+    public OccupantInfo createOccupantInfo (PlaceObject plobj)
     {
         return new OccupantInfo(this);
+    }
+
+    /**
+     * Called when this body is about to enter the specified place. Configures our {@link
+     * #location} field.
+     *
+     * @param place the identifying information for the place we are entering.
+     * @param plobj the distributed object for the place we are entering.
+     */
+    public void willEnterPlace (Place place, PlaceObject plobj)
+    {
+        setLocation(place);
+    }
+
+    /**
+     * Called when this body has left its occupied place. Clears our {@link #location} field.
+     *
+     * @param plobj the distributed object for the place we just departed. This might be null if
+     * the place object has been destroyed.
+     */
+    public void didLeavePlace (PlaceObject plobj)
+    {
+        setLocation(null);
     }
 
     // documentation inherited
