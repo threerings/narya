@@ -295,7 +295,8 @@
     <jar destfile="${deploy.dir}/${lib.name}-base.jar">
       <fileset dir="${classes.dir}" includes="com/threerings/NaryaLog**"/>
       <fileset dir="${classes.dir}" includes="com/threerings/io/**"/>
-      <fileset dir="${classes.dir}" includes="com/threerings/util/**"/>
+      <fileset dir="${classes.dir}" includes="com/threerings/util/**"
+          excludes="**/*.c,**/Makefile,**/*.h"/>
     </jar>
     <jar destfile="${deploy.dir}/${lib.name}-distrib.jar">
       <fileset dir="${classes.dir}" includes="com/threerings/presents/**"/>
