@@ -69,24 +69,57 @@ if summary:
         createCount, confirm.len(), fail.len(), orphanCount,
         (float(orphanCount) * 100 / createCount))
 
+class Path:
+    def __init__(self, name, *transitions):
+        self.transitions = transitions
+        self.name = name
+        self.id = None
 
-validPaths = [
-    [pending, destroy],
-    [pending, delayCreate, confirm, destroy, dconfirm],
-    [pending, delayCreate, destroy, confirm, dconfirm],
-    [create, confirm, destroy, dconfirm],
-    [create, destroy, confirm, dconfirm],
-]
+    def describe (self, now):
+        '''Describe a path, including a description of the time since the last change'''
+        names = ", ".join(map(lambda t: t.name, self.transitions))
+        if self.id != None and len(self.transitions) > 0:
+            time = self.transitions[-1].ids[self.id][0].group('time')
+            time = parseTime(time)
+            names = "%s (%s ago)" % (names, describeTimeDelta(now - time))
+        return "%s: %s" % (self.name, names)
 
-def findPath (id):
-    path = []
-    for trans in transitions:
-        if not trans.ids.has_key(id): continue
-        path.append(trans)
-    path.sort(lambda a, b: a.ids[id][1] - b.ids[id][1])
-    return path
+    @staticmethod
+    def calculate (id):
+        '''Determine the sequence of transitions taken by an agent'''
+        path = []
+        for trans in transitions:
+            if not trans.ids.has_key(id): continue
+            path.append(trans)
+        path.sort(lambda a, b: a.ids[id][1] - b.ids[id][1])
+        path = Path("Agent " + id, *path)
+        path.id = id
+        return path
+
+class PathSequence:
+    def __init__(self, *paths):
+        self.paths = paths
+
+    def match (self, path):
+        path = path.transitions
+        for i in range(0, len(self.paths)):
+            myPath = self.paths[i].transitions
+            if path == myPath:
+                return ("exact", self.paths[i])
+            if path == myPath[0:len(path)]:
+                return ("partial", self.paths[i])
+        return None
+
+validPaths = PathSequence(
+    Path("Aborted", pending, destroy),
+    Path("Pending-normal", pending, delayCreate, confirm, destroy, dconfirm),
+    Path("Pending-stillborn", pending, delayCreate, destroy, confirm, dconfirm),
+    Path("Normal", create, confirm, destroy, dconfirm),
+    Path("Stillborn", create, destroy, confirm, dconfirm),
+)
 
 def describeTimeDelta (delta):
+    '''Quick english description of a time interval'''
     seconds = delta.seconds
     if delta.days > 0:
         desc = "%d days"
@@ -98,17 +131,6 @@ def describeTimeDelta (delta):
         desc = "%s seconds" % seconds
     return desc
 
-def describePath (id, now, path):
-    names = ", ".join(map(lambda p: p.name, path))
-    if id != None and len(path) > 0:
-        time = path[-1].ids[id][0].group('time')
-        time = parseTime(time)
-        names = "%s (%s ago)" % (names, describeTimeDelta(now - time))
-    return names
-
-def describeId (id, now):
-    path = findPath(id)
-    print "ID %s: %s" % (id, describePath(id, now, path))
 
 def getAllIds ():
     all = {}
@@ -119,28 +141,32 @@ def getAllIds ():
     all.sort(lambda a, b: int(a) - int(b))
     return all
 
-def matchPath (path, pathSeq):
-    for i in range(0, len(pathSeq)):
-        if path == pathSeq[i]:
-            return "exact"
-        if path == pathSeq[i][0:len(path)]:
-            return "partial"
-    return None
-
 def getBureau (id, path):
+    # Can't get this since t is on a different log line and we only match single lines
     return "??"
 
 def checkAll (ids, now, verbose=False):
+    completedPathCounts = {}
+
     for id in ids:
         if verbose: print "Checking %s" % id
-        path = findPath(id)
-        match = matchPath(path, validPaths)
+
+        path = Path.calculate(id)
+        if verbose: print path.describe(now)
+
+        match = validPaths.match(path)
+        if verbose: print match
+
         if match == None:
-            print "Path for id %s (bureau %s) invalid: %s" % (id, getBureau(id, path), describePath(id, now, path))
-        elif match == "partial":
-            print "Path for id %s (bureau %s) partially matched: %s" % (id, getBureau(id, path), describePath(id, now, path))
-        elif verbose:
-            print describePath(id, now, path)
+            print "Invalid path: %s" % path.describe(now)
+        elif match[0] == "partial":
+            print "Incomplete path: %s" % path.describe(now)
+        elif match[0] == "exact":
+            completedPathCounts[match[1]] = completedPathCounts.get(match[1], 0) + 1
+    
+    for path in validPaths.paths:
+        count = completedPathCounts.get(path, 0)
+        print "Path %s completed %d times" % (path.name, count)
 
 print "Checking"
 checkAll(getAllIds(), lastTimeInLog)
