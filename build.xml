@@ -210,7 +210,7 @@
     <condition property="no_build_abclib"><or>
       <not><available classname="macromedia.asc.embedding.ScriptCompiler"
                       classpathref="classpath"/></not>
-      <uptodate targetfile="${deploy.dir}/${lib.name}lib.abc">
+      <uptodate targetfile="${deploy.dir}/${lib.name}-abc.abc">
         <srcfiles dir="src/as" includes="**/*.as"/>
         <srcfiles dir="src/as" includes="**/Environment.as-tm"/>
         <srcfiles dir="etc" includes="asc-files.txt"/>
@@ -242,7 +242,7 @@
       <arg value="src/as/com/threerings/util/env/Environment.as"/>
     </java>
     <move file="src/as/com/threerings/util/env/Environment.abc"
-          tofile="${deploy.dir}/${lib.name}lib.abc"/>
+          tofile="${deploy.dir}/${lib.name}-abc.abc"/>
     <delete file="src/as/com/threerings/util/env/Environment.as"/>
   </target>
 
@@ -302,6 +302,7 @@
       <fileset dir="${classes.dir}" includes="com/threerings/presents/**"/>
       <fileset dir="${classes.dir}" includes="com/threerings/crowd/**"/>
       <fileset dir="${classes.dir}" includes="com/threerings/admin/**"/>
+      <fileset dir="${classes.dir}" includes="com/threerings/bureau/**"/>
     </jar>
     <jar destfile="${deploy.dir}/${lib.name}-tests.jar">
       <fileset dir="tests/${classes.dir}" includes="com/threerings/**"/>

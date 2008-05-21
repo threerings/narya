@@ -105,6 +105,7 @@
       <uptodate targetfile="${deploy.dir}/testslib.abc">
         <srcfiles dir="../lib" includes="builtin.abc"/>
         <srcfiles dir="../lib" includes="thane.abc"/>
+        <srcfiles dir="../dist" includes="narya-abc.abc"/>
         <srcfiles dir="etc" includes="etc/asc-files.txt"/>
         <srcfiles dir="src/as" includes="**/*.as"/>
       </uptodate>
@@ -129,7 +130,7 @@
       <arg value="-import"/>
       <arg value="../lib/thane.abc"/>
       <arg value="-import"/>
-      <arg value="../dist/naryalib.abc"/>
+      <arg value="../dist/narya-abc.abc"/>
       <arg line="${ascfiles}"/>
       <arg value="src/as/Lib.as"/>
     </java>
@@ -240,7 +241,7 @@
       <arg value="-import"/>
       <arg value="../lib/thane.abc"/>
       <arg value="-import"/>
-      <arg value="../dist/naryalib.abc"/>
+      <arg value="../dist/narya-abc.abc"/>
       <arg value="-import"/>
       <arg value="dist/testslib.abc"/>
       <arg value="src/as/com/threerings/bureau/client/TestClientMain.as"/>
@@ -264,8 +265,8 @@
       <sysproperty key="numBureaus" value="2"/>
       <sysproperty key="maxOps" value="5"/>
       <sysproperty key="createChance" value="70"/>
-      <sysproperty key="minDelay" value="3000"/>
-      <sysproperty key="maxDelay" value="5000"/>
+      <sysproperty key="minDelay" value="1000"/>
+      <sysproperty key="maxDelay" value="3000"/>
       <sysproperty key="seed" value="0"/>
       <sysproperty key="clientTarget" value="bureau-run-thane-client"/>
     </java>
@@ -287,9 +288,9 @@
   <!-- runs the thane test client -->
   <target name="bureau-run-thane-client" depends="bureau-compile-thane-client"
 	description="Runs the thane client for testing the bureau library">
-    <exec executable="/export/thane/tamarin-central/objdir-debug/thane/avmthane">
+    <exec executable="/export/thane/tamarin-central/dist/thane/avmthane">
       <!--arg value="-Dverbose"/-->
-      <arg value="../dist/naryalib.abc"/>
+      <arg value="../dist/narya-abc.abc"/>
       <arg value="dist/testslib.abc"/>
       <arg value="dist/TestClientMain.abc"/>
       <arg value="--"/>
