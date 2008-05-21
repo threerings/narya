@@ -352,7 +352,6 @@ public class PresentsClient
             return;
         }
 
-
         // finish up our regular business
         sessionWillStart();
         sendBootstrap();
