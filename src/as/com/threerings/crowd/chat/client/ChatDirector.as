@@ -51,6 +51,7 @@ import com.threerings.crowd.data.PlaceObject;
 import com.threerings.crowd.util.CrowdContext;
 
 import com.threerings.crowd.chat.data.ChatCodes;
+import com.threerings.crowd.chat.data.ChatMarshaller;
 import com.threerings.crowd.chat.data.ChatMessage;
 import com.threerings.crowd.chat.data.SystemMessage;
 import com.threerings.crowd.chat.data.TellFeedbackMessage;
@@ -97,6 +98,9 @@ public class ChatDirector extends BasicDirector
         registerCommandHandler(msg, "think", new ThinkHandler());
 //        registerCommandHandler(msg, "tell", new TellHandler());
         registerCommandHandler(msg, "broadcast", new BroadcastHandler());
+
+        // ensure that the compiler includes these necessary symbols
+        var i :int = ChatMarshaller.AWAY;
     }
 
     /**

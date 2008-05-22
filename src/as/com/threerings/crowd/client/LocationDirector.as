@@ -39,6 +39,7 @@ import com.threerings.presents.dobj.SubscriberAdapter;
 import com.threerings.crowd.data.BodyObject;
 import com.threerings.crowd.data.CrowdCodes;
 import com.threerings.crowd.data.LocationCodes;
+import com.threerings.crowd.data.LocationMarshaller;
 import com.threerings.crowd.data.PlaceConfig;
 import com.threerings.crowd.data.PlaceObject;
 import com.threerings.crowd.util.CrowdContext;
@@ -66,8 +67,10 @@ public class LocationDirector extends BasicDirector
         _cctx = ctx;
 
         // register for location notifications
-        _cctx.getClient().getInvocationDirector().registerReceiver(
-            new LocationDecoder(this));
+        _cctx.getClient().getInvocationDirector().registerReceiver(new LocationDecoder(this));
+
+        // ensure that the compiler includes these necessary symbols
+        var i :int = LocationMarshaller.LEAVE_PLACE;
     }
 
     /**

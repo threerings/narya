@@ -32,6 +32,7 @@ import com.threerings.util.MethodQueue;
 import com.threerings.presents.client.InvocationService_ConfirmListener;
 import com.threerings.presents.data.ClientObject;
 import com.threerings.presents.data.InvocationCodes;
+import com.threerings.presents.data.TimeBaseMarshaller;
 
 import com.threerings.presents.dobj.DObjectManager;
 
@@ -51,6 +52,9 @@ public class Client extends EventDispatcher
     public function Client (creds :Credentials)
     {
         _creds = creds;
+
+        // ensure that the compiler includes these necessary symbols
+        var i :int = TimeBaseMarshaller.GET_TIME_OID;
     }
 
     /**
