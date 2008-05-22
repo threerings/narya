@@ -216,13 +216,14 @@ public class GenDObjectTask extends Task
             }
             String transport;
             if (hint == null) {
-                transport = "DEFAULT";
+                transport = "";
             } else {
-                transport = "getInstance(\n" +
+                transport = ",\n" +
+                    "            com.threerings.presents.net.Transport.getInstance(\n" +
                     "                com.threerings.presents.net.Transport.Type." +
                         hint.type().name() + ", " + hint.channel() + ")";
             }
-            ctx.put("transport", "com.threerings.presents.net.Transport." + transport);
+            ctx.put("transport", transport);
 
             // if this field is an array, we need its component types
             if (ftype.isArray()) {
