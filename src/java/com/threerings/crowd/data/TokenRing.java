@@ -24,8 +24,9 @@ package com.threerings.crowd.data;
 import com.threerings.io.SimpleStreamableObject;
 
 /**
- * Defines access control tokens that convey certain privileges to users (see {@link
- * BodyObject#checkAccess}).
+ * Defines access control tokens that convey certain privileges to users.
+ *
+ * @see BodyObject#checkAccess
  */
 public class TokenRing extends SimpleStreamableObject
 {

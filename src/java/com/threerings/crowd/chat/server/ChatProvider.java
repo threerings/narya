@@ -52,7 +52,7 @@ import com.threerings.crowd.chat.data.UserMessage;
  * The chat provider handles the server side of the chat-related invocation services.
  */
 public class ChatProvider
-    implements ChatCodes, InvocationProvider
+    implements InvocationProvider
 {
     /** Interface to allow an auto response to a tell message. */
     public static interface TellAutoResponder
@@ -128,13 +128,10 @@ public class ChatProvider
         throws InvocationException
     {
         // ensure that the caller has normal chat privileges
-        BodyObject source = (BodyObject)caller;
-        String errmsg = source.checkAccess(CHAT_ACCESS, null);
-        if (errmsg != null) {
-            throw new InvocationException(errmsg);
-        }
+        InvocationException.requireAccess(caller, ChatCodes.CHAT_ACCESS);
 
         // deliver the tell message to the target
+        BodyObject source = (BodyObject)caller;
         deliverTell(createTellMessage(source, message), target, listener);
 
         // inform the auto-responder if needed
@@ -151,11 +148,8 @@ public class ChatProvider
         throws InvocationException
     {
         // make sure the requesting user has broadcast privileges
+        InvocationException.requireAccess(caller, ChatCodes.BROADCAST_ACCESS);
         BodyObject body = (BodyObject)caller;
-        String errmsg = body.checkAccess(BROADCAST_ACCESS, null);
-        if (errmsg != null) {
-            throw new InvocationException(errmsg);
-        }
         broadcast(body.getVisibleName(), null, message, false, true);
     }
 
@@ -215,12 +209,12 @@ public class ChatProvider
             if (_chatForwarder != null && _chatForwarder.forwardTell(message, target, listener)) {
                 return;
             }
-            throw new InvocationException(USER_NOT_ONLINE);
+            throw new InvocationException(ChatCodes.USER_NOT_ONLINE);
         }
 
         if (tobj.status == OccupantInfo.DISCONNECTED) {
             String errmsg = MessageBundle.compose(
-                USER_DISCONNECTED, TimeUtil.getTimeOrderString(
+                ChatCodes.USER_DISCONNECTED, TimeUtil.getTimeOrderString(
                     System.currentTimeMillis() - tobj.statusTime, TimeUtil.SECOND));
             throw new InvocationException(errmsg);
         }
@@ -275,7 +269,7 @@ public class ChatProvider
             }
 
         } else {
-            SpeakUtil.sendSpeak(object, from, bundle, msg, BROADCAST_MODE);
+            SpeakUtil.sendSpeak(object, from, bundle, msg, ChatCodes.BROADCAST_MODE);
         }
     }
 

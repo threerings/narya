@@ -23,11 +23,37 @@ package com.threerings.presents.server;
 
 import com.threerings.util.MessageBundle;
 
+import com.threerings.presents.data.ClientObject;
+import com.threerings.presents.data.Permission;
+
 /**
  * Used to report failures when executing service requests.
  */
 public class InvocationException extends Exception
 {
+    /**
+     * Requires that the specified client have the specified permissions.
+     *
+     * @throws InvocationException if they do not.
+     */
+    public static void requireAccess (ClientObject clobj, Permission perm, Object context)
+        throws InvocationException
+    {
+        String errmsg = clobj.checkAccess(perm, context);
+        if (errmsg != null) {
+            throw new InvocationException(errmsg);
+        }
+    }
+
+    /**
+     * A version of {@link #requireAccess} that takes no context.
+     */
+    public static void requireAccess (ClientObject clobj, Permission perm)
+        throws InvocationException
+    {
+        requireAccess(clobj, perm);
+    }
+
     /**
      * Constructs an invocation exception with the supplied cause code
      * string.

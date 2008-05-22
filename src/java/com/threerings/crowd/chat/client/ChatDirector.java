@@ -1358,7 +1358,7 @@ public class ChatDirector extends BasicDirector
 
         public boolean checkAccess (BodyObject user)
         {
-            return user.checkAccess(ChatCodes.BROADCAST_ACCESS, null) == null;
+            return user.checkAccess(ChatCodes.BROADCAST_ACCESS) == null;
         }
     }
 

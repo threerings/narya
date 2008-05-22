@@ -27,10 +27,8 @@ import com.threerings.presents.dobj.DObject;
 import com.threerings.presents.dobj.DSet;
 
 /**
- * Every client in the system has an associated client object to which
- * only they subscribe. The client object can be used to deliver messages
- * solely to a particular client as well as to publish client-specific
- * data.
+ * A distributed object to which only the client subscribes. Used to deliver messages solely to a
+ * particular client as well as to publish client-specific data.
  */
 public class ClientObject extends DObject
 {
@@ -39,14 +37,12 @@ public class ClientObject extends DObject
     public static final String RECEIVERS = "receivers";
     // AUTO-GENERATED: FIELDS END
 
-    /** The name of a message event delivered to the client when they
-     * switch usernames (and therefore user objects). */
+    /** The name of a message event delivered to the client when they switch usernames (and
+     * therefore user objects). */
     public static final String CLOBJ_CHANGED = "!clobj_changed!";
 
-    /** Used to publish all invocation service receivers registered on
-     * this client. */
-    public DSet<InvocationReceiver.Registration> receivers =
-        new DSet<InvocationReceiver.Registration>();
+    /** Used to publish all invocation service receivers registered on this client. */
+    public DSet<InvocationReceiver.Registration> receivers = DSet.newDSet();
 
     /**
      * Returns a short string identifying this client.
@@ -54,6 +50,27 @@ public class ClientObject extends DObject
     public String who ()
     {
         return "(" + getOid() + ")";
+    }
+
+    /**
+     * Checks whether or not this client has access to the specified feature. Forms the basis of an
+     * extensible fine-grained permissions system.
+     *
+     * @return null if the user has access, a fully-qualified translatable message string
+     * indicating the reason for denial of access (or just {@link InvocationCodes#ACCESS_DENIED} if
+     * you don't want to be specific).
+     */
+    public String checkAccess (Permission feature, Object context)
+    {
+        return InvocationCodes.ACCESS_DENIED;
+    }
+
+    /**
+     * A version of {@link #checkAccess(Permission,Object} that provides no context.
+     */
+    public String checkAccess (Permission feature)
+    {
+        return checkAccess(feature, null);
     }
 
     /**
@@ -80,9 +97,6 @@ public class ClientObject extends DObject
 //                  ", refs=" + (_references-1) + "].");
         return (--_references > 0);
     }
-
-    /** Used to reference count resolved client objects. */
-    protected transient int _references;
 
     // AUTO-GENERATED: METHODS START
     /**
@@ -133,4 +147,7 @@ public class ClientObject extends DObject
         this.receivers = clone;
     }
     // AUTO-GENERATED: METHODS END
+
+    /** Used to reference count resolved client objects. */
+    protected transient int _references;
 }

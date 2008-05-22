@@ -66,6 +66,22 @@ public class DSet<E extends DSet.Entry>
     }
 
     /**
+     * Creates a new DSet of the appropriate generic type.
+     */
+    public static <E extends DSet.Entry> DSet<E> newDSet ()
+    {
+        return new DSet<E>();
+    }
+
+    /**
+     * Creates a new DSet of the appropriate generic type.
+     */
+    public static <E extends DSet.Entry> DSet<E> newDSet (Iterable<E> source)
+    {
+        return new DSet<E>(source);
+    }
+
+    /**
      * Creates a distributed set and populates it with values from the supplied iterator. This
      * should be done before the set is unleashed into the wild distributed object world because no
      * associated entry added events will be generated. Additionally, this operation does not check
