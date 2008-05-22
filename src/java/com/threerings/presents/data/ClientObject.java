@@ -61,24 +61,24 @@ public class ClientObject extends DObject
     }
 
     /**
-     * Checks whether or not this client has access to the specified feature.
+     * Checks whether or not this client has the specified permission.
      *
      * @return null if the user has access, a fully-qualified translatable message string
      * indicating the reason for denial of access.
      *
      * @see PermissionPolicy
      */
-    public String checkAccess (Permission feature, Object context)
+    public String checkAccess (Permission perm, Object context)
     {
-        return _permPolicy.checkAccess(this, feature, context);
+        return _permPolicy.checkAccess(this, perm, context);
     }
 
     /**
      * A version of {@link #checkAccess(Permission,Object} that provides no context.
      */
-    public String checkAccess (Permission feature)
+    public String checkAccess (Permission perm)
     {
-        return checkAccess(feature, null);
+        return checkAccess(perm, null);
     }
 
     /**

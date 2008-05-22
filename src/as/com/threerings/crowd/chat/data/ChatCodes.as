@@ -22,6 +22,7 @@
 package com.threerings.crowd.chat.data {
 
 import com.threerings.presents.data.InvocationCodes;
+import com.threerings.presents.data.Permission;
 
 import com.threerings.crowd.data.BodyObject;
 
@@ -40,13 +41,11 @@ public class ChatCodes extends InvocationCodes
     /** The message identifier for a chat notification message. */
     public static const CHAT_NOTIFICATION :String = "chat";
 
-    /** The access control identifier for normal chat privileges. See
-     * {@link BodyObject#checkAccess}. */
-    public static const CHAT_ACCESS :String = "crowd.chat.chat";
+    /** The access control identifier for normal chat privileges. */
+    public static const CHAT_ACCESS :Permission = new Permission();
 
-    /** The access control identifier for broadcast chat privileges. See
-     * {@link BodyObject#checkAccess}. */
-    public static const BROADCAST_ACCESS :String = "crowd.chat.broadcast";
+    /** The access control identifier for broadcast chat privileges. */
+    public static const BROADCAST_ACCESS :Permission = new Permission();
 
     /** The configuration key for idle time. */
     public static const IDLE_TIME_KEY :String = "narya.chat.idle_time";

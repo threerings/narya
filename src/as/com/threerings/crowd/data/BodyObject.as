@@ -76,27 +76,6 @@ public class BodyObject extends ClientObject
     public var awayMessage :String;
 
     /**
-     * Checks whether or not this user has access to the specified feature. Currently used by the
-     * chat system to regulate access to chat broadcasts but also forms the basis of an extensible
-     * fine-grained permissions system.
-     *
-     * @return null if the user has access, a fully-qualified translatable message string
-     * indicating the reason for denial of access (or just {@link InvocationCodes#ACCESS_DENIED} if
-     * you don't want to be specific).
-     */
-    public function checkAccess (feature :String, context :Object) :String
-    {
-        // our default access control policy; how quaint
-        if (ChatCodes.BROADCAST_ACCESS == feature) {
-            return getTokens().isAdmin() ? null : InvocationCodes.ACCESS_DENIED;
-        } else if (ChatCodes.CHAT_ACCESS == feature) {
-            return null;
-        } else {
-            return InvocationCodes.ACCESS_DENIED;
-        }
-    }
-
-    /**
      * Returns this user's access control tokens.
      */
     public function getTokens () :TokenRing

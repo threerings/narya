@@ -84,6 +84,8 @@ com/threerings/presents/data/InvocationMarshaller_ConfirmMarshaller.as
 com/threerings/presents/data/InvocationMarshaller_ResultMarshaller.as
 com/threerings/presents/data/TimeBaseMarshaller.as
 com/threerings/presents/data/TimeBaseMarshaller_GotTimeBaseMarshaller.as
+com/threerings/presents/data/Permission.as
+com/threerings/presents/data/PermissionPolicy.as
 com/threerings/presents/dobj/AttributeChangeListener.as
 com/threerings/presents/dobj/AttributeChangedEvent.as
 com/threerings/presents/dobj/ChangeListener.as

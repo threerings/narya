@@ -57,6 +57,19 @@ public class ClientObject extends DObject
         return "(" + getOid() + ")";
     }
 
+    /**
+     * Checks whether or not this client has the specified permission.
+     *
+     * @return null if the user has access, a fully-qualified translatable message string
+     * indicating the reason for denial of access.
+     *
+     * @see PermissionPolicy
+     */
+    public function checkAccess (perm :Permission, context :Object = null) :String
+    {
+        return _permPolicy.checkAccess(this, perm, context);
+    }
+
     // AUTO-GENERATED: METHODS START
     public function addToReceivers (elem :DSet_Entry) :void
     {
@@ -91,6 +104,9 @@ public class ClientObject extends DObject
     {
         super.readObject(ins);
         receivers = (ins.readObject() as DSet);
+        _permPolicy = (ins.readObject() as PermissionPolicy);
     }
+
+    protected var _permPolicy :PermissionPolicy;
 }
 }
