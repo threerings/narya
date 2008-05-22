@@ -2,7 +2,7 @@
 // $Id$
 //
 // Narya library - tools for developing networked games
-// Copyright (C) 2002-2007 Three Rings Design, Inc., All Rights Reserved
+// Copyright (C) 2002-2008 Three Rings Design, Inc., All Rights Reserved
 // http://www.threerings.net/code/narya/
 //
 // This library is free software; you can redistribute it and/or modify it
@@ -19,39 +19,33 @@
 // License along with this library; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 
-package com.threerings.crowd.server;
+package com.threerings.crowd.data;
 
 import com.threerings.presents.data.ClientObject;
+import com.threerings.presents.data.Permission;
 import com.threerings.presents.data.PermissionPolicy;
-import com.threerings.presents.server.ClientResolver;
 
-import com.threerings.crowd.data.BodyObject;
-import com.threerings.crowd.data.CrowdPermissionPolicy;
+import com.threerings.crowd.chat.data.ChatCodes;
 
 /**
- * Used to configure crowd-specific client object data.
+ * Implements some Crowd permissions.
  */
-public class CrowdClientResolver extends ClientResolver
+public class CrowdPermissionPolicy extends PermissionPolicy
 {
-    @Override // from ClientResolver
-    public ClientObject createClientObject ()
+    @Override // from PermissionPolicy
+    public String checkAccess (ClientObject clobj, Permission perm, Object context)
     {
-        return new BodyObject();
-    }
+        if (!(clobj instanceof BodyObject)) {
+            return super.checkAccess(clobj, perm, context);
+        }
 
-    @Override // from ClientResolver
-    public PermissionPolicy createPermissionPolicy ()
-    {
-        return new CrowdPermissionPolicy();
-    }
-
-    @Override // from ClientResolver
-    protected void resolveClientData (ClientObject clobj)
-        throws Exception
-    {
-        super.resolveClientData(clobj);
-
-        // just fill in the username
-        ((BodyObject)clobj).username = _username;
+        BodyObject body = (BodyObject)clobj;
+        if (perm == ChatCodes.BROADCAST_ACCESS) {
+            return body.getTokens().isAdmin() ? null : ACCESS_DENIED;
+        } else if (perm == ChatCodes.CHAT_ACCESS) {
+            return null;
+        } else {
+            return super.checkAccess(clobj, perm, context);
+        }
     }
 }

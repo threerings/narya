@@ -26,12 +26,11 @@ import com.threerings.io.SimpleStreamableObject;
 /**
  * Defines access control tokens that convey certain privileges to users.
  *
- * @see BodyObject#checkAccess
+ * @see CrowdPermissionPolicy
  */
 public class TokenRing extends SimpleStreamableObject
 {
-    /** Indicates that this user is an administrator and can do things like broadcast, shutdown the
-     * server and whatnot. */
+    /** Indicates that this user is an administrator. */
     public static final int ADMIN = (1 << 0);
 
     /**

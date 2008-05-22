@@ -28,6 +28,7 @@ import com.threerings.util.Name;
 
 import com.threerings.presents.Log;
 import com.threerings.presents.data.ClientObject;
+import com.threerings.presents.data.PermissionPolicy;
 import com.threerings.presents.dobj.DObject;
 import com.threerings.presents.dobj.ObjectAccessException;
 
@@ -64,6 +65,14 @@ public class ClientResolver extends Invoker.Unit
     public ClientObject createClientObject ()
     {
         return new ClientObject();
+    }
+
+    /**
+     * Creates a permission policy for use by our client.
+     */
+    public PermissionPolicy createPermissionPolicy ()
+    {
+        return new PermissionPolicy();
     }
 
     /**

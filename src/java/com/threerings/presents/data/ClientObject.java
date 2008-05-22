@@ -45,6 +45,14 @@ public class ClientObject extends DObject
     public DSet<InvocationReceiver.Registration> receivers = DSet.newDSet();
 
     /**
+     * Configures this client with a permissions policy. This is done during client resolution.
+     */
+    public void setPermissionPolicy (PermissionPolicy policy)
+    {
+        _permPolicy = policy;
+    }
+
+    /**
      * Returns a short string identifying this client.
      */
     public String who ()
@@ -53,16 +61,16 @@ public class ClientObject extends DObject
     }
 
     /**
-     * Checks whether or not this client has access to the specified feature. Forms the basis of an
-     * extensible fine-grained permissions system.
+     * Checks whether or not this client has access to the specified feature.
      *
      * @return null if the user has access, a fully-qualified translatable message string
-     * indicating the reason for denial of access (or just {@link InvocationCodes#ACCESS_DENIED} if
-     * you don't want to be specific).
+     * indicating the reason for denial of access.
+     *
+     * @see PermissionPolicy
      */
     public String checkAccess (Permission feature, Object context)
     {
-        return InvocationCodes.ACCESS_DENIED;
+        return _permPolicy.checkAccess(this, feature, context);
     }
 
     /**
@@ -147,6 +155,9 @@ public class ClientObject extends DObject
         this.receivers = clone;
     }
     // AUTO-GENERATED: METHODS END
+
+    /** Handles our fine-grained permissions. */
+    protected PermissionPolicy _permPolicy;
 
     /** Used to reference count resolved client objects. */
     protected transient int _references;

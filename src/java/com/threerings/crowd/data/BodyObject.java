@@ -24,10 +24,7 @@ package com.threerings.crowd.data;
 import com.threerings.util.Name;
 
 import com.threerings.presents.data.ClientObject;
-import com.threerings.presents.data.InvocationCodes;
-import com.threerings.presents.data.Permission;
 
-import com.threerings.crowd.chat.data.ChatCodes;
 import com.threerings.crowd.chat.data.SpeakObject;
 
 /**
@@ -135,18 +132,6 @@ public class BodyObject extends ClientObject
     public void didLeavePlace (PlaceObject plobj)
     {
         setLocation(null);
-    }
-
-    @Override // from ClientObject
-    public String checkAccess (Permission perm, Object context)
-    {
-        if (perm == ChatCodes.BROADCAST_ACCESS) {
-            return getTokens().isAdmin() ? null : ChatCodes.ACCESS_DENIED;
-        } else if (perm == ChatCodes.CHAT_ACCESS) {
-            return null;
-        } else {
-            return super.checkAccess(perm, context);
-        }
     }
 
     // documentation inherited

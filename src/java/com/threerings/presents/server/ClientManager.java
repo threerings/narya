@@ -268,8 +268,9 @@ public class ClientManager
             final ClientResolver fclr = clr;
             PresentsServer.omgr.postRunnable(new Runnable() {
                 public void run () {
-                    fclr.objectAvailable(
-                        PresentsServer.omgr.registerObject(fclr.createClientObject()));
+                    ClientObject clobj = fclr.createClientObject();
+                    clobj.setPermissionPolicy(fclr.createPermissionPolicy());
+                    fclr.objectAvailable(PresentsServer.omgr.registerObject(clobj));
                 }
             });
 
