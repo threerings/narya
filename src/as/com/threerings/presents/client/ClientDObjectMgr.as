@@ -248,8 +248,7 @@ public class ClientDObjectMgr
         }
         // log.debug("Got object: pendReq=" + req);
 
-        for (var ii :int = 0; ii < req.targets.length; ii++) {
-            var target :Subscriber = (req.targets[ii] as Subscriber);
+        for each (var target :Subscriber in req.targets) {
             // log.debug("Notifying subscriber: " + target);
             // add them as a subscriber
             obj.addSubscriber(target);
@@ -271,8 +270,7 @@ public class ClientDObjectMgr
             return;
         }
 
-        for (var ii :int = 0; ii < req.targets.length; ii++) {
-            var target :Subscriber = req.targets[ii];
+        for each (var target :Subscriber in req.targets) {
             // and let them know that the object is in
             target.requestFailed(oid, new ObjectAccessError(message));
         }
