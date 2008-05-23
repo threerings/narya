@@ -18,7 +18,6 @@ com/threerings/util/EmbeddedSwfLoader.as
 com/threerings/util/HashObjectMap.as
 com/threerings/util/HashSet.as
 com/threerings/util/KeyboardCodes.as
-com/threerings/util/langBoolean.as
 com/threerings/util/LineSegment.as
 com/threerings/util/MapProxyObject.as
 com/threerings/util/MultiLoader.as
