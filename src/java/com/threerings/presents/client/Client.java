@@ -561,8 +561,10 @@ public class Client
         _connectionId = data.connectionId;
         _cloid = data.clientOid;
 
-        // notify the communicator that we got our bootstrap data
-        _comm.gotBootstrap();
+        // notify the communicator that we got our bootstrap data (if we have one)
+        if (_comm != null) {
+            _comm.gotBootstrap();
+        }
 
         // initialize our invocation director
         _invdir.init(omgr, _cloid, this);
