@@ -205,14 +205,14 @@
     <delete file="src/as/com/threerings/util/env/Environment.as"/>
   </target>
 
-  <!-- checks whether our Flash library needs building -->
+  <!-- checks whether our thane library needs building -->
   <target name="checkabclib">
     <condition property="no_build_abclib"><or>
       <not><available classname="macromedia.asc.embedding.ScriptCompiler"
                       classpathref="classpath"/></not>
       <uptodate targetfile="${deploy.dir}/${lib.name}-abc.abc">
         <srcfiles dir="src/as" includes="**/*.as"/>
-        <srcfiles dir="src/as" includes="**/Environment.as-tm"/>
+        <srcfiles dir="src/as/com/threerings/util/env" includes="Environment.as-tm"/>
         <srcfiles dir="etc" includes="asc-files.txt"/>
         <srcfiles dir="lib" includes="*.abc"/>
       </uptodate>
@@ -221,28 +221,20 @@
 
   <!-- builds our Flash library -->
   <target name="abclib" unless="no_build_abclib" depends="checkabclib">
+    <taskdef name="asc" classname="flex.ant.AscLibTask" classpathref="classpath"/>
     <copy overwrite="true" file="src/as/com/threerings/util/env/Environment.as-tm"
           tofile="src/as/com/threerings/util/env/Environment.as"/>
-    <loadfile property="ascfiles" srcFile="etc/asc-files.txt">
-      <filterchain>
-        <prefixlines prefix="-in src/as/"/>
-        <tokenfilter delimOutput=" "/>
-      </filterchain>
-    </loadfile>
-    <java classname="macromedia.asc.embedding.Main" fork="true" failonerror="true">
-      <classpath refid="classpath"/>
-      <arg value="-AS3"/>
-      <arg value="-strict"/>
-      <arg value="-d"/>
-      <arg value="-import"/>
-      <arg value="lib/builtin.abc"/>
-      <arg value="-import"/>
-      <arg value="lib/thane.abc"/>
-      <arg line="${ascfiles}"/>
-      <arg value="src/as/com/threerings/util/env/Environment.as"/>
-    </java>
-    <move file="src/as/com/threerings/util/env/Environment.abc"
-          tofile="${deploy.dir}/${lib.name}-abc.abc"/>
+    <asc as3="true" strict="true" classpathref="classpath"
+            outdir="${deploy.dir}" out="${lib.name}-abc">
+      <import dir="lib">
+        <include name="builtin.abc"/>
+        <include name="thane.abc"/>
+      </import>
+      <filespec dir="src/as">
+        <includesfile name="etc/asc-files.txt"/>
+        <include name="com/threerings/util/env/Environment.as"/>
+      </filespec>
+    </asc>
     <delete file="src/as/com/threerings/util/env/Environment.as"/>
   </target>
 
