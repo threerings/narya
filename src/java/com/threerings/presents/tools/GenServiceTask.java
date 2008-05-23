@@ -317,6 +317,11 @@ public class GenServiceTask extends InvocationTask
                 // convert primitive java types to ooo util types
                 imports.replace("long", "com.threerings.util.Long");
 
+                // convert object arrays to typed arrays
+                if (imports.removeAll("[L*") > 0) {
+                    imports.add("com.threerings.io.TypedArray");
+                }
+
                 // get rid of remaining primitives and java.lang types
                 imports.removeGlobals();
 
@@ -403,6 +408,11 @@ public class GenServiceTask extends InvocationTask
 
                 // change Foo$Bar to Foo_Bar
                 imports.translateInnerClasses();
+
+                // use a typed array for any arrays of objects
+                if (imports.removeAll("[L*") > 0) {
+                    imports.add("com.threerings.io.TypedArray");
+                }
 
                 // convert java primitive types to ooo util types
                 imports.replace("long", "com.threerings.util.Long");
