@@ -219,13 +219,14 @@
     </or></condition>
   </target>
 
-  <!-- builds our Flash library -->
+  <!-- builds our thane library -->
   <target name="abclib" unless="no_build_abclib" depends="checkabclib">
     <taskdef name="asc" classname="flex.ant.AscLibTask" classpathref="classpath"/>
     <copy overwrite="true" file="src/as/com/threerings/util/env/Environment.as-tm"
           tofile="src/as/com/threerings/util/env/Environment.as"/>
+    <dirname property="abs.deploy.dir" file="${deploy.dir}/somefile.txt"/>
     <asc as3="true" strict="true" classpathref="classpath"
-            outdir="${deploy.dir}" out="${lib.name}-abc">
+            outdir="${abs.deploy.dir}" out="${lib.name}-abc">
       <import dir="lib">
         <include name="builtin.abc"/>
         <include name="thane.abc"/>
