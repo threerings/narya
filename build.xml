@@ -213,7 +213,7 @@
       <uptodate targetfile="${deploy.dir}/${lib.name}-abc.abc">
         <srcfiles dir="src/as" includes="**/*.as"/>
         <srcfiles dir="src/as/com/threerings/util/env" includes="Environment.as-tm"/>
-        <srcfiles dir="etc" includes="asc-files.txt"/>
+        <srcfiles dir="etc" includes="exclude-asc-files.txt"/>
         <srcfiles dir="lib" includes="*.abc"/>
       </uptodate>
     </or></condition>
@@ -231,8 +231,8 @@
         <include name="thane.abc"/>
       </import>
       <filespec dir="src/as">
-        <includesfile name="etc/asc-files.txt"/>
-        <include name="com/threerings/util/env/Environment.as"/>
+        <include name="**/*.as"/>
+        <excludesfile name="etc/exclude-asc-files.txt"/>
       </filespec>
     </asc>
     <delete file="src/as/com/threerings/util/env/Environment.as"/>
