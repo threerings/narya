@@ -80,10 +80,27 @@ public class ClientObject extends DObject
     {
         return checkAccess(perm, null);
     }
+    
+    /**
+     * Convenience wrapper around {@link #checkAccess} that simply returns a boolean indicating
+     * whether or not this client has the permission rather than an explanation.
+     */
+    public boolean hasAccess (Permission perm, Object context)
+    {
+        return checkAccess(perm, context) == null;
+    }
+    
+    /**
+     * Convenience wrapper around {@link #checkAccess} that simply returns a boolean indicating
+     * whether or not this client has the permission rather than an explanation.
+     */
+    public boolean hasAccess (Permission perm)
+    {
+        return checkAccess(perm) == null;
+    }
 
     /**
-     * Used for reference counting client objects, adds a reference to
-     * this object.
+     * Used for reference counting client objects, adds a reference to this object.
      */
     public synchronized void reference ()
     {
