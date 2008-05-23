@@ -237,6 +237,8 @@
       </filespec>
     </asc>
     <delete file="src/as/com/threerings/util/env/Environment.as"/>
+    <copy overwrite="true" file="lib/thane.abc" todir="${deploy.dir}"/>
+    <copy overwrite="true" file="lib/builtin.abc" todir="${deploy.dir}"/>
   </target>
 
   <!-- build the native libraries -->
