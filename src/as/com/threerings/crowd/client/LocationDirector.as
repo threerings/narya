@@ -38,7 +38,6 @@ import com.threerings.presents.dobj.SubscriberAdapter;
 
 import com.threerings.crowd.data.BodyObject;
 import com.threerings.crowd.data.CrowdCodes;
-import com.threerings.crowd.data.LocationCodes;
 import com.threerings.crowd.data.LocationMarshaller;
 import com.threerings.crowd.data.PlaceConfig;
 import com.threerings.crowd.data.PlaceObject;

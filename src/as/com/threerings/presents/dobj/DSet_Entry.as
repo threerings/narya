@@ -21,8 +21,6 @@
 
 package com.threerings.presents.dobj {
 
-import com.threerings.util.Equalable;
-
 import com.threerings.io.Streamable;
 
 public interface DSet_Entry extends Streamable

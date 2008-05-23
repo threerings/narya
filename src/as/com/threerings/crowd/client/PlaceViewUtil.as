@@ -71,10 +71,6 @@ public class PlaceViewUtil
     private static function dispatch (
             root :Object, plobj :PlaceObject, funct :String) :void
     {
-        if (!(root is DisplayObject)) {
-            return;
-        }
-
         // much of the code in here is adapted from
         // com.threerings.flash.DisplayUtil, which we cannot access because
         // it's in the nenya package. So sad, too bad.
@@ -88,6 +84,10 @@ public class PlaceViewUtil
                     "[component=" + root + ", plobj=" + plobj + "].");
                 log.logStackTrace(e);
             }
+        }
+
+        if (!(root is DisplayObject)) {
+            return;
         }
 
         if (root is DisplayObjectContainer) {

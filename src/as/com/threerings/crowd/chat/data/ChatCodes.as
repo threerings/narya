@@ -26,9 +26,6 @@ import com.threerings.presents.data.Permission;
 
 import com.threerings.crowd.data.BodyObject;
 
-import com.threerings.crowd.chat.client.ChatDirector;
-import com.threerings.crowd.chat.client.SpeakService;
-
 /**
  * Contains codes used by the chat invocation services.
  */
