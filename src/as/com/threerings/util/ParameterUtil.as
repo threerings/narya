@@ -30,6 +30,8 @@ import flash.events.IOErrorEvent;
 import flash.net.URLLoader;
 import flash.net.URLRequest;
 
+import flash.system.Capabilities;
+
 /**
  * A utility for loading parameters from an XML file when run from
  * the local filesystem.
@@ -59,8 +61,10 @@ public class ParameterUtil
      */
     public static function getInfoParameters (loaderInfo :LoaderInfo, callback :Function) :void
     {
+        var url :String = loaderInfo.url;
+
         // ensure that it's initialized...
-        if (loaderInfo.url == null) {
+        if (url == null) {
             // Create a function to wait until the loaded object is initialized
             var initWaiter :Function = function (event :Event) :void {
                 loaderInfo.removeEventListener(Event.INIT, initWaiter);
@@ -82,13 +86,24 @@ public class ParameterUtil
 
         // Simply use the parameters in the loaderInfo if we were not
         // loaded from a file.
-        if (0 != loaderInfo.url.indexOf("file:")) {
+        if (0 != url.indexOf("file:")) {
             callback(loaderInfo.parameters);
             return;
         }
+        // else, let's try loading parameters.xml
 
-        // If we were loaded from a file, read our parameters from the
-        // parameters.xml file.
+        // assume only windows uses the wrong slash
+        var fileSep :String = (-1 != Capabilities.os.indexOf("Windows")) ? "\\" : "/";
+        var dex :int = url.lastIndexOf(fileSep);
+        var paramUrl :String;
+        if (dex == -1) {
+            paramUrl = "file:";
+        } else {
+            paramUrl = url.substring(0, dex + 1);
+        }
+        paramUrl += "parameters.xml";
+        Log.getLog(ParameterUtil).info("Trying to load parameters from " + paramUrl);
+
         var loader :URLLoader = new URLLoader();
         loader.addEventListener(IOErrorEvent.IO_ERROR,
             function (event :Event) :void {
@@ -106,7 +121,7 @@ public class ParameterUtil
                 callback(params);
             }
         );
-        loader.load(new URLRequest("file:parameters.xml"));
+        loader.load(new URLRequest(paramUrl));
     }
 
     /**
