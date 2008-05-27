@@ -33,8 +33,11 @@ public class AgentObject extends DObject
     /** The field name of the <code>bureauType</code> field. */
     public static const BUREAU_TYPE :String = "bureauType";
 
-    /** The field name of the <code>agentCode</code> field. */
-    public static const AGENT_CODE :String = "agentCode";
+    /** The field name of the <code>code</code> field. */
+    public static const CODE :String = "code";
+
+    /** The field name of the <code>className</code> field. */
+    public static const CLASS_NAME :String = "className";
     // AUTO-GENERATED: FIELDS END
 
     /** The id of the bureau the agent is running in. This is normally a unique id corresponding
@@ -48,7 +51,11 @@ public class AgentObject extends DObject
 
     /** The location of the code for the agent. This could be a URL to an action script file or
      *  some other description that the bureau can use to load and execute the agent's code. */
-    public var agentCode :String;
+    public var code :String;
+
+    /** The main class within the code to use when launching an agent. Whther this value is 
+     *  used depends on the type of bureau and will be resolve in the bureau client. */
+    public var className :String;
 
     // AUTO-GENERATED: METHODS START
     /**
@@ -84,19 +91,35 @@ public class AgentObject extends DObject
     }
 
     /**
-     * Requests that the <code>agentCode</code> field be set to the
+     * Requests that the <code>code</code> field be set to the
      * specified value. The local value will be updated immediately and an
      * event will be propagated through the system to notify all listeners
      * that the attribute did change. Proxied copies of this object (on
      * clients) will apply the value change when they received the
      * attribute changed notification.
      */
-    public function setAgentCode (value :String) :void
+    public function setCode (value :String) :void
     {
-        var ovalue :String = this.agentCode;
+        var ovalue :String = this.code;
         requestAttributeChange(
-            AGENT_CODE, value, ovalue);
-        this.agentCode = value;
+            CODE, value, ovalue);
+        this.code = value;
+    }
+
+    /**
+     * Requests that the <code>className</code> field be set to the
+     * specified value. The local value will be updated immediately and an
+     * event will be propagated through the system to notify all listeners
+     * that the attribute did change. Proxied copies of this object (on
+     * clients) will apply the value change when they received the
+     * attribute changed notification.
+     */
+    public function setClassName (value :String) :void
+    {
+        var ovalue :String = this.className;
+        requestAttributeChange(
+            CLASS_NAME, value, ovalue);
+        this.className = value;
     }
     // AUTO-GENERATED: METHODS END
 
@@ -106,7 +129,8 @@ public class AgentObject extends DObject
         super.readObject(ins);
         bureauId = ins.readField(String) as String;
         bureauType = ins.readField(String) as String;
-        agentCode = ins.readField(String) as String;
+        code = ins.readField(String) as String;
+        className = ins.readField(String) as String;
     }
 }
 }
