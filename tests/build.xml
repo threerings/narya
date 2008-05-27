@@ -103,39 +103,30 @@
   <target name="check-abclib">
     <condition property="abclib_up_to_date">
       <uptodate targetfile="${deploy.dir}/testslib.abc">
-        <srcfiles dir="../lib" includes="builtin.abc"/>
-        <srcfiles dir="../lib" includes="thane.abc"/>
-        <srcfiles dir="../dist" includes="narya-abc.abc"/>
-        <srcfiles dir="etc" includes="etc/asc-files.txt"/>
+        <srcfiles dir="../lib" includes="*.abc"/>
+        <srcfiles dir="../dist" includes="*.abc"/>
         <srcfiles dir="src/as" includes="**/*.as"/>
       </uptodate>
     </condition>
   </target>
 
   <!-- builds our Flash (abc) library -->
-  <target name="abclib" unless="abclib_up_to_date" depends="check-abclib"
+  <target name="abclib" unless="abclib_up_to_date" depends="check-abclib,prepare"
     description="Build the abc library for tests classes">
-    <loadfile property="ascfiles" srcFile="etc/asc-files.txt">
-      <filterchain>
-        <prefixlines prefix="-in src/as/"/>
-        <tokenfilter delimOutput=" "/>
-      </filterchain>
-    </loadfile>
-    <java classname="macromedia.asc.embedding.Main" fork="true" failonerror="true">
-      <classpath refid="classpath"/>
-      <arg value="-AS3"/>
-      <arg value="-strict"/>
-      <arg value="-import"/>
-      <arg value="../lib/builtin.abc"/>
-      <arg value="-import"/>
-      <arg value="../lib/thane.abc"/>
-      <arg value="-import"/>
-      <arg value="../dist/narya-abc.abc"/>
-      <arg line="${ascfiles}"/>
-      <arg value="src/as/Lib.as"/>
-    </java>
-    <move file="src/as/Lib.abc"
-          tofile="${deploy.dir}/testslib.abc"/>
+    <taskdef name="asc" classname="flex.ant.AscLibTask" classpathref="classpath"/>
+    <dirname property="abs.deploy.dir" file="${deploy.dir}/somefile.txt"/>
+    <asc as3="true" strict="true" classpathref="classpath"
+            outdir="${abs.deploy.dir}" out="testslib">
+      <import dir="../dist">
+        <include name="builtin.abc"/>
+        <include name="thane.abc"/>
+        <include name="narya-abc.abc"/>
+      </import>
+      <filespec dir="src/as">
+        <include name="**/*.as"/>
+        <exclude name="**/*Main.as"/>
+      </filespec>
+    </asc>
   </target>
 
   <!-- test the component metadata bundling process -->
@@ -232,21 +223,19 @@
   <target name="bureau-compile-thane-client" 
     unless="thane_client_up_to_date" depends="abclib,bureau-check-thane-client"
 	description="Compiles the thane client for testing the bureau library">
-    <java classname="macromedia.asc.embedding.Main" fork="true" failonerror="true">
-      <classpath refid="classpath"/>
-      <arg value="-AS3"/>
-      <arg value="-strict"/>
-      <arg value="-import"/>
-      <arg value="../lib/builtin.abc"/>
-      <arg value="-import"/>
-      <arg value="../lib/thane.abc"/>
-      <arg value="-import"/>
-      <arg value="../dist/narya-abc.abc"/>
-      <arg value="-import"/>
-      <arg value="dist/testslib.abc"/>
-      <arg value="src/as/com/threerings/bureau/client/TestClientMain.as"/>
-    </java>
-    <move file="src/as/com/threerings/bureau/client/TestClientMain.abc" todir="dist"/>
+    <taskdef name="ascx" classname="flex.ant.AscTask" classpathref="classpath"/>
+    <ascx as3="true" strict="true" classpathref="classpath">
+      <import dir="..">
+        <include name="dist/builtin.abc"/>
+        <include name="dist/thane.abc"/>
+        <include name="dist/narya-abc.abc"/>
+        <include name="tests/dist/testslib.abc"/>
+      </import>
+      <filespec dir="src/as">
+        <include name="com/threerings/bureau/client/TestClientMain.as"/>
+      </filespec>
+    </ascx>
+    <move overwrite="true" file="src/as/com/threerings/bureau/client/TestClientMain.abc" todir="dist"/>
   </target>
 
   <target name="bureau-runserver" depends="compile"
