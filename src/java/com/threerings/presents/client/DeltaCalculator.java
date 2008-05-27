@@ -23,9 +23,10 @@ package com.threerings.presents.client;
 
 import java.util.Arrays;
 
-import com.threerings.presents.Log;
 import com.threerings.presents.net.PingRequest;
 import com.threerings.presents.net.PongResponse;
+
+import static com.threerings.presents.Log.log;
 
 /**
  * Used to compute the client/server time delta, attempting to account for
@@ -95,7 +96,7 @@ public class DeltaCalculator
         // minus the server's send time (plus network delay): dT = C - S
         _deltas[_iter] = recv - (server + nettime);
 
-        Log.debug("Calculated delta [delay=" + delay +
+        log.debug("Calculated delta [delay=" + delay +
                   ", nettime=" + nettime + ", delta=" + _deltas[_iter] +
                   ", rtt=" + (recv-send) + "].");
 

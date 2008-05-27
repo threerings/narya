@@ -22,7 +22,6 @@
 package com.threerings.admin.server;
 
 import java.util.ArrayList;
-import java.util.logging.Level;
 
 import com.samskivert.io.PersistenceException;
 import com.samskivert.jdbc.depot.PersistenceContext;
@@ -79,7 +78,7 @@ public class PeeredDatabaseConfigRegistry extends DatabaseConfigRegistry
                 object.changeAttribute(change.left, change.right);
                 _pendingSyncs.add(change.left);
             } catch (Exception e) {
-                log.log(Level.WARNING, "Config attribute sync failed " + change + ".", e);
+                log.warning("Config attribute sync failed " + change + ".", e);
             }
         }
 

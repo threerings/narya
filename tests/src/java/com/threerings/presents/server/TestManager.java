@@ -7,9 +7,10 @@ import java.util.ArrayList;
 
 import com.samskivert.util.StringUtil;
 
-import com.threerings.presents.Log;
 import com.threerings.presents.client.TestService;
 import com.threerings.presents.data.ClientObject;
+
+import static com.threerings.presents.Log.log;
 
 /**
  * Implements the server side of the TestProvider interface.
@@ -22,7 +23,7 @@ public class TestManager
         TestService.TestOidListener listener)
         throws InvocationException
     {
-        Log.info("Handling get test oid [src=" + caller + "].");
+        log.info("Handling get test oid [src=" + caller + "].");
 
         // issue a test notification just for kicks
         TestSender.sendTest(caller, 1, "two");
@@ -35,7 +36,7 @@ public class TestManager
         ArrayList<Integer> three, TestService.TestFuncListener listener)
         throws InvocationException
     {
-        Log.info("Test request [one=" + one + ", two=" + two +
+        log.info("Test request [one=" + one + ", two=" + two +
             ", three=" + StringUtil.toString(three) + "].");
 
         // and issue a response to this invocation request

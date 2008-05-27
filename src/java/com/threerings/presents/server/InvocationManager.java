@@ -30,7 +30,6 @@ import com.samskivert.util.StringUtil;
 import com.threerings.io.Streamable;
 import com.threerings.util.StreamableArrayList;
 
-import com.threerings.presents.Log;
 import com.threerings.presents.data.ClientObject;
 import com.threerings.presents.data.InvocationMarshaller.ListenerMarshaller;
 import com.threerings.presents.data.InvocationMarshaller;
@@ -43,6 +42,8 @@ import com.threerings.presents.dobj.ObjectAccessException;
 import com.threerings.presents.dobj.RootDObjectManager;
 
 import com.threerings.presents.net.Transport;
+
+import static com.threerings.presents.Log.log;
 
 /**
  * The invocation services provide client to server invocations (service requests) and server to
@@ -154,13 +155,13 @@ public class InvocationManager
     public void clearDispatcher (InvocationMarshaller marsh)
     {
         if (marsh == null) {
-            Log.warning("Refusing to unregister null marshaller.");
+            log.warning("Refusing to unregister null marshaller.");
             Thread.dumpStack();
             return;
         }
 
         if (_dispatchers.remove(marsh.getInvocationCode()) == null) {
-            Log.warning("Requested to remove unregistered marshaller? " +
+            log.warning("Requested to remove unregistered marshaller? " +
                         "[marsh=" + marsh + "].");
             Thread.dumpStack();
         }
@@ -218,7 +219,7 @@ public class InvocationManager
         // make sure the client is still around
         ClientObject source = (ClientObject)_omgr.getObject(clientOid);
         if (source == null) {
-            Log.info("Client no longer around for invocation " +
+            log.info("Client no longer around for invocation " +
                      "request [clientOid=" + clientOid +
                      ", code=" + invCode + ", methId=" + methodId +
                      ", args=" + StringUtil.toString(args) + "].");
@@ -228,7 +229,7 @@ public class InvocationManager
         // look up the dispatcher
         InvocationDispatcher disp = _dispatchers.get(invCode);
         if (disp == null) {
-            Log.info("Received invocation request but dispatcher " +
+            log.info("Received invocation request but dispatcher " +
                      "registration was already cleared [code=" + invCode +
                      ", methId=" + methodId +
                      ", args=" + StringUtil.toString(args) + ", marsh=" +
@@ -271,7 +272,7 @@ public class InvocationManager
                 rlist.requestFailed(ie.getMessage());
 
             } else {
-                Log.warning("Service request failed but we've got no " +
+                log.warning("Service request failed but we've got no " +
                             "listener to inform of the failure " +
                             "[caller=" + source.who() + ", code=" + invCode +
                             ", dispatcher=" + disp + ", methodId=" + methodId +
@@ -280,10 +281,9 @@ public class InvocationManager
             }
 
         } catch (Throwable t) {
-            Log.warning("Dispatcher choked [disp=" + disp +
+            log.warning("Dispatcher choked [disp=" + disp +
                         ", caller=" + source.who() + ", methId=" + methodId +
-                        ", args=" + StringUtil.toString(args) + "].");
-            Log.logStackTrace(t);
+                        ", args=" + StringUtil.toString(args) + "].", t);
 
             // avoid logging an error when the listener notices that it's
             // been ignored.

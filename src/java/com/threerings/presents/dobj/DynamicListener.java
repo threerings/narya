@@ -24,7 +24,6 @@ package com.threerings.presents.dobj;
 import java.lang.reflect.Method;
 
 import java.util.HashMap;
-import java.util.logging.Level;
 
 import com.samskivert.util.MethodFinder;
 import com.samskivert.util.StringUtil;
@@ -110,7 +109,7 @@ public class DynamicListener
             try {
                 method.invoke(_target, arguments);
             } catch (Exception e) {
-                log.log(Level.WARNING, "Failed to dispatch event callback " +
+                log.warning("Failed to dispatch event callback " +
                     name + "(" + StringUtil.toString(arguments) + ").", e);
             }
         }

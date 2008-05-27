@@ -21,11 +21,14 @@
 
 package com.threerings.bureau.server;
 
-import com.samskivert.util.OneLineLogFormatter;
-import com.google.common.collect.Lists;
-import com.threerings.bureau.data.AgentObject;
 import java.util.List;
 import java.util.Random;
+
+import com.google.common.collect.Lists;
+
+import com.threerings.bureau.data.AgentObject;
+
+import static com.threerings.bureau.Log.log;
 
 /**
  * Uses a TestServer to pound on the BureauRegistry. Sends random sequences of
@@ -43,11 +46,11 @@ public class RegistryTester
     {
         String val = System.getProperty(name);
         if (val == null) {
-            TestServer.log.info("Property " + name + " is " + defaultVal);
+            log.info("Property " + name + " is " + defaultVal);
             return defaultVal;
         }
         int ival = Integer.parseInt(val);
-        TestServer.log.info("Property " + name + " is " + ival);
+        log.info("Property " + name + " is " + ival);
         return ival;
     }
 
@@ -56,9 +59,6 @@ public class RegistryTester
      */
     public static void main (String[] args)
     {
-        // make log pretty
-        OneLineLogFormatter.configureDefaultHandler();
-
         TestServer server = new TestServer();
         RegistryTester tester = new RegistryTester(server);
 
@@ -68,8 +68,7 @@ public class RegistryTester
             server.run();
 
         } catch (Exception e) {
-            TestServer.log.warning("Unable to initialize server.");
-            TestServer.logStackTrace(e);
+            log.warning("Unable to initialize server.", e);
         }
     }
 
@@ -95,7 +94,7 @@ public class RegistryTester
         // TODO: this is not called on Ctrl-C, need a way to shut down gracefully
         TestServer.registerShutdowner(new TestServer.Shutdowner() {
             public void shutdown () {
-                TestServer.log.info("Shutting down tests");
+                log.info("Shutting down tests");
                 _stop = true;
             }
         });
@@ -110,9 +109,9 @@ public class RegistryTester
 
         Thread thread = new Thread("Registry test thread") {
             public void run () {
-                TestServer.log.info(getName() + " started");
+                log.info(getName() + " started");
                 runTestThread();
-                TestServer.log.info(getName() + " stopped");
+                log.info(getName() + " stopped");
             }
         };
         thread.start();
@@ -139,17 +138,17 @@ public class RegistryTester
         _rng1 = new Random(seed);
         _rng2 = new Random(seed);
 
-        TestServer.log.info("Running tests, seed is " + seed);
+        log.info("Running tests, seed is " + seed);
 
         // runnable that generates N requests to create or destroy agents
         Runnable createOrDestroyAgents = new Runnable() {
             public void run () {
                 int ops = 1 + _rng1.nextInt(_maxOps);
-                TestServer.log.info("Starting " + ops + " agent requests");
+                log.info("Starting " + ops + " agent requests");
                 for (int i = 0; i < ops; ++i) {
                     randomlyCreateOrDestroyAgent();
                 }
-                TestServer.log.info("Finished " + ops + " agent requests");
+                log.info("Finished " + ops + " agent requests");
             }
         };
 
@@ -188,13 +187,13 @@ public class RegistryTester
         if (size >= _maxAgents ||
             (size != 0 && _rng1.nextInt(100) >= _createChance)) {
             AgentObject toRemove = _agents.remove(_rng1.nextInt(size));
-            TestServer.log.info("Removing agent " + toRemove.getOid());
+            log.info("Removing agent " + toRemove.getOid());
             TestServer.breg.destroyAgent(toRemove);
         }
         else {
             AgentObject added = create(_rng1.nextInt(_numBureaus) + 1);
             _agents.add(added);
-            TestServer.log.info("Added agent " + added.getOid());
+            log.info("Added agent " + added.getOid());
         }
     }
 

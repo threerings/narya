@@ -31,7 +31,6 @@ import com.threerings.presents.data.ClientObject;
 import com.threerings.presents.dobj.DObject;
 import com.threerings.presents.server.InvocationProvider;
 
-import com.threerings.crowd.Log;
 import com.threerings.crowd.data.BodyObject;
 import com.threerings.crowd.server.CrowdServer;
 
@@ -41,6 +40,8 @@ import com.threerings.crowd.chat.data.ChatMessage;
 import com.threerings.crowd.chat.data.SpeakObject;
 import com.threerings.crowd.chat.data.SystemMessage;
 import com.threerings.crowd.chat.data.UserMessage;
+
+import static com.threerings.crowd.Log.log;
 
 /**
  * Provides the back-end of the chat speaking facilities.
@@ -174,7 +175,7 @@ public class SpeakUtil
     public static void sendMessage (DObject speakObj, ChatMessage msg)
     {
         if (speakObj == null) {
-            Log.warning("Dropping speak message, no speak obj '" + msg + "'.");
+            log.warning("Dropping speak message, no speak obj '" + msg + "'.");
             Thread.dumpStack();
             return;
         }
@@ -192,7 +193,7 @@ public class SpeakUtil
             _messageMapper.message = null;
 
         } else {
-            Log.info("Unable to note listeners [dclass=" + speakObj.getClass() +
+            log.info("Unable to note listeners [dclass=" + speakObj.getClass() +
                      ", msg=" + msg + "].");
         }
     }

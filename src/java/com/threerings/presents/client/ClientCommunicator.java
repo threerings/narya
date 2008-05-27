@@ -32,8 +32,9 @@ import com.samskivert.swing.RuntimeAdjust;
 import com.samskivert.util.IntListUtil;
 import com.samskivert.util.Interval;
 
-import com.threerings.presents.Log;
 import com.threerings.presents.data.AuthCodes;
+
+import static com.threerings.presents.Log.log;
 
 /**
  * Customizes the blocking communicator with some things that we only do on users' machines (where
@@ -78,7 +79,7 @@ public class ClientCommunicator extends BlockingCommunicator
         for (int ii = 0; ii < ports.length; ii++) {
             int port = ports[(ii+ppidx)%ports.length];
             int nextPort = ports[(ii+ppidx+1)%ports.length];
-            Log.info("Connecting [host=" + host + ", port=" + port + "].");
+            log.info("Connecting [host=" + host + ", port=" + port + "].");
             InetSocketAddress addr = new InetSocketAddress(host, port);
             try {
                 synchronized (this) {

@@ -23,11 +23,12 @@ package com.threerings.presents.util;
 
 import com.samskivert.util.StringUtil;
 
-import com.threerings.presents.Log;
 import com.threerings.presents.dobj.DObject;
 import com.threerings.presents.dobj.DObjectManager;
 import com.threerings.presents.dobj.ObjectAccessException;
 import com.threerings.presents.dobj.Subscriber;
+
+import static com.threerings.presents.Log.log;
 
 /**
  * A class that safely handles the asynchronous subscription to a
@@ -73,7 +74,7 @@ public class SafeSubscriber<T extends DObject>
     public void subscribe (DObjectManager omgr)
     {
         if (_active) {
-            Log.warning("Active safesub asked to resubscribe " + this + ".");
+            log.warning("Active safesub asked to resubscribe " + this + ".");
             Thread.dumpStack();
             return;
         }
@@ -84,7 +85,7 @@ public class SafeSubscriber<T extends DObject>
         // make sure we dont have an object reference (which should be
         // logically impossible)
         if (_object != null) {
-            Log.warning("Incroyable! A safesub has an object and was " +
+            log.warning("Incroyable! A safesub has an object and was " +
                         "non-active!? " + this + ".");
             Thread.dumpStack();
             // make do in the face of insanity
@@ -122,7 +123,7 @@ public class SafeSubscriber<T extends DObject>
             if (_object == null && !_pending) {
                 return;
             }
-            Log.warning("Inactive safesub asked to unsubscribe " + this + ".");
+            log.warning("Inactive safesub asked to unsubscribe " + this + ".");
             Thread.dumpStack();
         }
 
@@ -132,7 +133,7 @@ public class SafeSubscriber<T extends DObject>
         if (_pending) {
             // make sure we don't have an object reference
             if (_object != null) {
-                Log.warning("Incroyable! A safesub has an object and is " +
+                log.warning("Incroyable! A safesub has an object and is " +
                             "pending!? " + this + ".");
                 Thread.dumpStack();
             } else {
@@ -144,7 +145,7 @@ public class SafeSubscriber<T extends DObject>
 
         // make sure we have our object
         if (_object == null) {
-            Log.warning("Zut alors! A safesub _was_ active and not " +
+            log.warning("Zut alors! A safesub _was_ active and not " +
                         "pending yet has no object!? " + this + ".");
             Thread.dumpStack();
             // nothing to do since we're apparently already unsubscribed
@@ -161,13 +162,13 @@ public class SafeSubscriber<T extends DObject>
     {
         // make sure life is not too cruel
         if (_object != null) {
-            Log.warning("Madre de dios! Our object came available but " +
+            log.warning("Madre de dios! Our object came available but " +
                         "we've already got one!? " + this);
             // go ahead and pitch the old one, God knows what's going on
             _object = null;
         }
         if (!_pending) {
-            Log.warning("J.C. on a pogo stick! Our object came available " +
+            log.warning("J.C. on a pogo stick! Our object came available " +
                         "but we're not pending!? " + this);
             // go with our badselves, it's the only way
         }
@@ -197,7 +198,7 @@ public class SafeSubscriber<T extends DObject>
     {
         // do the right thing with our pending state
         if (!_pending) {
-            Log.warning("Criminy creole! Our subscribe failed but we're " +
+            log.warning("Criminy creole! Our subscribe failed but we're " +
                         "not pending!? " + this);
             // go with our badselves, it's the only way
         }

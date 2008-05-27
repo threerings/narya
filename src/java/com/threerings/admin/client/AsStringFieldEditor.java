@@ -29,7 +29,7 @@ import com.samskivert.util.StringUtil;
 import com.threerings.presents.dobj.DObject;
 import com.threerings.presents.util.PresentsContext;
 
-import com.threerings.admin.Log;
+import static com.threerings.admin.Log.log;
 
 /**
  * Used to display and edit a particular distributed object field.
@@ -89,7 +89,7 @@ public class AsStringFieldEditor extends FieldEditor
             return new Boolean(_value.getText().equalsIgnoreCase("true"));
 
         } else {
-            Log.warning("Unknown field type '" + _field.getName() + "': " +
+            log.warning("Unknown field type '" + _field.getName() + "': " +
                         _field.getType().getName() + ".");
             return null;
         }

@@ -23,8 +23,9 @@ package com.threerings.crowd.client;
 
 import java.awt.Container;
 
-import com.threerings.crowd.Log;
 import com.threerings.crowd.data.PlaceObject;
+
+import static com.threerings.crowd.Log.log;
 
 /**
  * Provides a mechanism for dispatching notifications to all user
@@ -51,9 +52,8 @@ public class PlaceViewUtil
             try {
                 ((PlaceView)root).willEnterPlace(plobj);
             } catch (Exception e) {
-                Log.warning("Component choked on willEnterPlace() " +
-                            "[component=" + root + ", plobj=" + plobj + "].");
-                Log.logStackTrace(e);
+                log.warning("Component choked on willEnterPlace() " +
+                            "[component=" + root + ", plobj=" + plobj + "].", e);
             }
         }
 
@@ -84,9 +84,8 @@ public class PlaceViewUtil
             try {
                 ((PlaceView)root).didLeavePlace(plobj);
             } catch (Exception e) {
-                Log.warning("Component choked on didLeavePlace() " +
-                            "[component=" + root + ", plobj=" + plobj + "].");
-                Log.logStackTrace(e);
+                log.warning("Component choked on didLeavePlace() " +
+                            "[component=" + root + ", plobj=" + plobj + "].", e);
             }
         }
 

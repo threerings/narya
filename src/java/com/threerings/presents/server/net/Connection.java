@@ -44,11 +44,12 @@ import com.threerings.io.ObjectOutputStream;
 import com.threerings.io.UnreliableObjectInputStream;
 import com.threerings.io.UnreliableObjectOutputStream;
 
-import com.threerings.presents.Log;
 import com.threerings.presents.net.DownstreamMessage;
 import com.threerings.presents.net.PingRequest;
 import com.threerings.presents.net.UpstreamMessage;
 import com.threerings.presents.util.DatagramSequencer;
+
+import static com.threerings.presents.Log.log;
 
 /**
  * The base connection class implements the net event handler interface and processes raw incoming
@@ -166,7 +167,7 @@ public abstract class Connection implements NetEventHandler
     {
         // we shouldn't be closed twice
         if (isClosed()) {
-            Log.warning("Attempted to re-close connection " + this + ".");
+            log.warning("Attempted to re-close connection " + this + ".");
             Thread.dumpStack();
             return;
         }
@@ -186,7 +187,7 @@ public abstract class Connection implements NetEventHandler
     {
         // if we're already closed, then something is seriously funny
         if (isClosed()) {
-            Log.warning("Failure reported on closed connection " + this + ".");
+            log.warning("Failure reported on closed connection " + this + ".");
             Thread.dumpStack();
             return;
         }
@@ -264,11 +265,11 @@ public abstract class Connection implements NetEventHandler
             return;
         }
 
-        Log.debug("Closing channel " + this + ".");
+        log.debug("Closing channel " + this + ".");
         try {
             _channel.close();
         } catch (IOException ioe) {
-            Log.warning("Error closing connection [conn=" + this + ", error=" + ioe + "].");
+            log.warning("Error closing connection [conn=" + this + ", error=" + ioe + "].");
         }
 
         // clear out our references to prevent repeat closings
@@ -314,7 +315,7 @@ public abstract class Connection implements NetEventHandler
             close();
 
         } catch (ClassNotFoundException cnfe) {
-            Log.warning("Error reading message from socket [channel=" +
+            log.warning("Error reading message from socket [channel=" +
                         StringUtil.safeToString(_channel) + ", error=" + cnfe + "].");
             // deal with the failure
             String errmsg = "Unable to decode incoming message.";
@@ -324,7 +325,7 @@ public abstract class Connection implements NetEventHandler
             // don't log a warning for the ever-popular "the client dropped the connection" failure
             String msg = ioe.getMessage();
             if (msg == null || msg.indexOf("reset by peer") == -1) {
-                Log.warning("Error reading message from socket [channel=" +
+                log.warning("Error reading message from socket [channel=" +
                             StringUtil.safeToString(_channel) + ", error=" + ioe + "].");
             }
             // deal with the failure
@@ -344,7 +345,7 @@ public abstract class Connection implements NetEventHandler
             try {
                 _digest = MessageDigest.getInstance("MD5");
             } catch (NoSuchAlgorithmException nsae) {
-                Log.warning("Missing MD5 algorithm.");
+                log.warning("Missing MD5 algorithm.");
                 return;
             }
             ByteBufferInputStream bin = new ByteBufferInputStream(buf);
@@ -360,7 +361,7 @@ public abstract class Connection implements NetEventHandler
         buf.position(4);
         for (int ii = 0; ii < 8; ii++) {
             if (hash[ii] != buf.get()) {
-                Log.warning("Datagram failed hash check [connectionId=" + _connectionId +
+                log.warning("Datagram failed hash check [connectionId=" + _connectionId +
                     ", source=" + source + "].");
                 return;
             }
@@ -379,10 +380,10 @@ public abstract class Connection implements NetEventHandler
             _handler.handleMessage(msg);
 
         } catch (ClassNotFoundException cnfe) {
-            Log.warning("Error reading datagram [error=" + cnfe + "].");
+            log.warning("Error reading datagram [error=" + cnfe + "].");
 
         } catch (IOException ioe) {
-            Log.warning("Error reading datagram [error=" + ioe + "].");
+            log.warning("Error reading datagram [error=" + ioe + "].");
         }
     }
 
@@ -396,7 +397,7 @@ public abstract class Connection implements NetEventHandler
         if (isClosed()) {
             return true;
         }
-        Log.info("Disconnecting non-communicative client [conn=" + this +
+        log.info("Disconnecting non-communicative client [conn=" + this +
                  ", idle=" + idleMillis + "ms].");
         return true;
     }

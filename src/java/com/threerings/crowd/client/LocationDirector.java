@@ -21,8 +21,6 @@
 
 package com.threerings.crowd.client;
 
-import java.util.logging.Level;
-
 import com.samskivert.util.ObserverList;
 import com.samskivert.util.ObserverList.ObserverOp;
 import com.samskivert.util.ResultListener;
@@ -262,7 +260,7 @@ public class LocationDirector extends BasicDirector
             try {
                 _controller.mayLeavePlace(_plobj);
             } catch (Exception e) {
-                log.log(Level.WARNING, "Place controller choked in mayLeavePlace " +
+                log.warning("Place controller choked in mayLeavePlace " +
                         "[plobj=" + _plobj + "].", e);
             }
         }
@@ -324,7 +322,7 @@ public class LocationDirector extends BasicDirector
             _subber.subscribe(_ctx.getDObjectManager());
 
         } catch (Exception e) {
-            log.log(Level.WARNING, "Failed to create place controller [config=" + config + "].", e);
+            log.warning("Failed to create place controller [config=" + config + "].", e);
             handleFailure(_placeId, LocationCodes.E_INTERNAL_ERROR);
         }
     }
@@ -347,7 +345,7 @@ public class LocationDirector extends BasicDirector
             try {
                 _controller.didLeavePlace(_plobj);
             } catch (Exception e) {
-                log.log(Level.WARNING, "Place controller choked in didLeavePlace " +
+                log.warning("Place controller choked in didLeavePlace " +
                         "[plobj=" + _plobj + "].", e);
             }
         }
@@ -461,7 +459,7 @@ public class LocationDirector extends BasicDirector
             try {
                 _controller.willEnterPlace(_plobj);
             } catch (Exception e) {
-                log.log(Level.WARNING, "Controller choked in willEnterPlace " +
+                log.warning("Controller choked in willEnterPlace " +
                         "[place=" + _plobj + "].", e);
             }
         }

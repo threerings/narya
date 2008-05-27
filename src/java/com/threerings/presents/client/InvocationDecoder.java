@@ -22,7 +22,8 @@
 package com.threerings.presents.client;
 
 import com.samskivert.util.StringUtil;
-import com.threerings.presents.Log;
+
+import static com.threerings.presents.Log.log;
 
 /**
  * Provides the basic functionality used to dispatch invocation
@@ -45,7 +46,7 @@ public abstract class InvocationDecoder
      */
     public void dispatchNotification (int methodId, Object[] args)
     {
-        Log.warning("Requested to dispatch unknown method " +
+        log.warning("Requested to dispatch unknown method " +
                     "[receiver=" + receiver + ", methodId=" + methodId +
                     ", args=" + StringUtil.toString(args) + "].");
     }

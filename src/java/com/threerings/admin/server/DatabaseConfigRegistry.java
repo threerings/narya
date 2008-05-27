@@ -31,8 +31,9 @@ import com.samskivert.util.StringUtil;
 
 import com.threerings.presents.dobj.DObject;
 
-import com.threerings.admin.Log;
 import com.threerings.admin.server.persist.ConfigRepository;
+
+import static com.threerings.admin.Log.log;
 
 /**
  * Implements the {@link ConfigRegistry} using a JDBC database as a persistent store for the
@@ -130,8 +131,7 @@ public class DatabaseConfigRegistry extends ConfigRegistry
             try {
                 _data = _repo.loadConfig(_node, _path);
             } catch (PersistenceException pe) {
-                Log.warning("Failed to load object configuration [path=" + _path + "].");
-                Log.logStackTrace(pe);
+                log.warning("Failed to load object configuration [path=" + _path + "].", pe);
                 _data = new HashMap<String,String>();
             }
 

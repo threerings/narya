@@ -5,12 +5,13 @@ import com.threerings.bureau.data.BureauCodes;
 import com.samskivert.util.IntMap;
 import com.samskivert.util.IntMaps;
 import com.threerings.bureau.data.AgentObject;
-import com.threerings.bureau.Log;
 import com.threerings.bureau.util.BureauContext;
 import com.threerings.presents.client.Client;
 import com.threerings.presents.dobj.Subscriber;
 import com.threerings.presents.util.SafeSubscriber;
 import com.threerings.presents.dobj.ObjectAccessException;
+
+import static com.threerings.bureau.Log.log;
 
 /**
  * Allows the server to create and destroy agents on a client.
@@ -48,7 +49,7 @@ public abstract class BureauDirector extends BasicDirector
             }
         };
 
-        Log.info("Subscribing to object " + agentId);
+        log.info("Subscribing to object " + agentId);
 
         SafeSubscriber<AgentObject> subscriber = 
             new SafeSubscriber<AgentObject>(agentId, delegator);
@@ -65,19 +66,18 @@ public abstract class BureauDirector extends BasicDirector
         agent = _agents.remove(agentId);
 
         if (agent == null) {
-            Log.warning("Lost an agent, id " + agentId);
+            log.warning("Lost an agent, id " + agentId);
         }
         else {
             try {
                 agent.stop();
             }
             catch (Throwable t) {
-                Log.warning("Stopping an agent caused an exception");
-                Log.logStackTrace(t);
+                log.warning("Stopping an agent caused an exception", t);
             }
             SafeSubscriber<AgentObject> subscriber = _subscribers.remove(agentId);
             if (subscriber == null) {
-                Log.warning("Lost a subscriber for agent " + agent);
+                log.warning("Lost a subscriber for agent " + agent);
             }
             else {
                 subscriber.unsubscribe(_ctx.getDObjectManager());
@@ -93,7 +93,7 @@ public abstract class BureauDirector extends BasicDirector
     {
         int oid = agentObject.getOid();
 
-        Log.info("Object " + oid + " now available");
+        log.info("Object " + oid + " now available");
 
         Agent agent;
         try {
@@ -102,8 +102,7 @@ public abstract class BureauDirector extends BasicDirector
             agent.start();
         }
         catch (Throwable t) {
-            Log.warning("Could not create agent [obj=" + agentObject + "]");
-            Log.logStackTrace(t);
+            log.warning("Could not create agent [obj=" + agentObject + "]", t);
             _bureauService.agentCreationFailed(_ctx.getClient(), oid);
             return;
         }
@@ -117,8 +116,7 @@ public abstract class BureauDirector extends BasicDirector
      */
     protected synchronized void requestFailed (int oid, ObjectAccessException cause)
     {
-        Log.warning("Could not subscribe to agent [oid=" + oid + "]");
-        Log.logStackTrace(cause);
+        log.warning("Could not subscribe to agent [oid=" + oid + "]", cause);
     }
 
     @Override // from BasicDirector

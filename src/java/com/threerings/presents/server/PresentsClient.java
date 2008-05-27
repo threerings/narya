@@ -25,7 +25,6 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.util.HashMap;
 import java.util.TimeZone;
-import java.util.logging.Level;
 
 import com.samskivert.util.HashIntMap;
 import com.samskivert.util.ResultListener;
@@ -247,7 +246,7 @@ public class PresentsClient
             }
 
             public void resolutionFailed (Name username, Exception reason) {
-                log.log(Level.WARNING, "Unable to resolve new client object [oldname=" + _username +
+                log.warning("Unable to resolve new client object [oldname=" + _username +
                         ", newname=" + username + ", reason=" + reason + "].", reason);
 
                 // let our listener know we're hosed
@@ -308,7 +307,7 @@ public class PresentsClient
             try {
                 sessionDidEnd();
             } catch (Exception e) {
-                log.log(Level.WARNING, "Choked in sessionDidEnd " + this + ".", e);
+                log.warning("Choked in sessionDidEnd " + this + ".", e);
             }
 
             // release (and destroy) our client object
@@ -364,7 +363,7 @@ public class PresentsClient
     public void resolutionFailed (Name username, Exception reason)
     {
         // urk; nothing to do but complain and get the f**k out of dodge
-        log.log(Level.WARNING, "Unable to resolve client [username=" + username + "].", reason);
+        log.warning("Unable to resolve client [username=" + username + "].", reason);
 
         // end the session now to prevent danglage
         endSession();
@@ -990,7 +989,7 @@ public class PresentsClient
     {
         public void dispatch (final PresentsClient client, UpstreamMessage msg)
         {
-            log.fine("Client requested logoff " + client + ".");
+            log.debug("Client requested logoff " + client + ".");
             client.safeEndSession();
         }
     }

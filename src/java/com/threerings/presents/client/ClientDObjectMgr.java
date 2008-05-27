@@ -35,9 +35,10 @@ import com.samskivert.util.StringUtil;
 import com.samskivert.util.IntMap;
 import com.samskivert.util.Interval;
 
-import com.threerings.presents.Log;
 import com.threerings.presents.dobj.*;
 import com.threerings.presents.net.*;
+
+import static com.threerings.presents.Log.log;
 
 /**
  * The client distributed object manager manages a set of proxy objects which mirror the
@@ -165,7 +166,7 @@ public class ClientDObjectMgr
             } else if (obj instanceof UnsubscribeResponse) {
                 int oid = ((UnsubscribeResponse)obj).getOid();
                 if (_dead.remove(oid) == null) {
-                    Log.warning("Received unsub ACK from unknown object [oid=" + oid + "].");
+                    log.warning("Received unsub ACK from unknown object [oid=" + oid + "].");
                 }
 
             } else if (obj instanceof FailureResponse) {
@@ -221,7 +222,7 @@ public class ClientDObjectMgr
         DObject target = _ocache.get(remoteOid);
         if (target == null) {
             if (!_dead.containsKey(remoteOid)) {
-                Log.warning("Unable to dispatch event on non-proxied object " + event + ".");
+                log.warning("Unable to dispatch event on non-proxied object " + event + ".");
             }
             return;
         }
@@ -277,8 +278,7 @@ public class ClientDObjectMgr
             }
 
         } catch (Exception e) {
-            Log.warning("Failure processing event [event=" + event + ", target=" + target + "].");
-            Log.logStackTrace(e);
+            log.warning("Failure processing event", "event", event, "target", target, e);
         }
     }
 
@@ -298,7 +298,7 @@ public class ClientDObjectMgr
         // let the penders know that the object is available
         PendingRequest<?> req = _penders.remove(obj.getOid());
         if (req == null) {
-            Log.warning("Got object, but no one cares?! [oid=" + obj.getOid() +
+            log.warning("Got object, but no one cares?! [oid=" + obj.getOid() +
                         ", obj=" + obj + "].");
             return;
         }
@@ -321,7 +321,7 @@ public class ClientDObjectMgr
         // let the penders know that the object is not available
         PendingRequest<?> req = _penders.remove(oid);
         if (req == null) {
-            Log.warning("Failed to get object, but no one cares?! [oid=" + oid + "].");
+            log.warning("Failed to get object, but no one cares?! [oid=" + oid + "].");
             return;
         }
 
@@ -383,7 +383,7 @@ public class ClientDObjectMgr
             dobj.removeSubscriber(target);
 
         } else {
-            Log.info("Requested to remove subscriber from non-proxied object [oid=" + oid +
+            log.info("Requested to remove subscriber from non-proxied object [oid=" + oid +
                      ", sub=" + target + "].");
         }
     }
@@ -505,9 +505,9 @@ public class ClientDObjectMgr
     /** A debug hook that allows the dumping of all objects in the object table out to the log. */
     protected DebugChords.Hook DUMP_OTABLE_HOOK = new DebugChords.Hook() {
         public void invoke () {
-            Log.info("Dumping " + _ocache.size() + " objects:");
+            log.info("Dumping " + _ocache.size() + " objects:");
             for (DObject obj : _ocache.values()) {
-                Log.info(obj.getClass().getName() + " " + obj);
+                log.info(obj.getClass().getName() + " " + obj);
             }
         }
     };

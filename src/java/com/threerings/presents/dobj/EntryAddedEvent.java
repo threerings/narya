@@ -23,7 +23,7 @@ package com.threerings.presents.dobj;
 
 import com.samskivert.util.StringUtil;
 
-import com.threerings.presents.Log;
+import static com.threerings.presents.Log.log;
 
 /**
  * An entry added event is dispatched when an entry is added to a {@link DSet} attribute of a

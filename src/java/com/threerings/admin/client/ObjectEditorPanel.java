@@ -37,8 +37,9 @@ import com.threerings.presents.dobj.Subscriber;
 import com.threerings.presents.util.PresentsContext;
 import com.threerings.presents.util.SafeSubscriber;
 
-import com.threerings.admin.Log;
 import com.threerings.admin.data.ConfigObject;
+
+import static com.threerings.admin.Log.log;
 
 /**
  * Used to edit the distributed object fields of a particular
@@ -111,7 +112,7 @@ public class ObjectEditorPanel extends ScrollablePanel
             }
 
         } catch (SecurityException se) {
-            Log.warning("Unable to introspect DObject!? " + se);
+            log.warning("Unable to introspect DObject!? " + se);
         }
 
         SwingUtil.refresh(this);
@@ -120,7 +121,7 @@ public class ObjectEditorPanel extends ScrollablePanel
     // documentation inherited from interface
     public void requestFailed (int oid, ObjectAccessException cause)
     {
-        Log.warning("Unable to subscribe to config object: " + cause);
+        log.warning("Unable to subscribe to config object: " + cause);
     }
 
     protected PresentsContext _ctx;

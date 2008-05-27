@@ -32,9 +32,10 @@ import com.threerings.presents.dobj.DObjectManager;
 import com.threerings.presents.dobj.ObjectAccessException;
 import com.threerings.presents.dobj.Subscriber;
 
-import com.threerings.admin.Log;
 import com.threerings.admin.data.AdminCodes;
 import com.threerings.admin.data.ConfigObject;
+
+import static com.threerings.admin.Log.log;
 
 /**
  * Handles subscribing to admin config objects.
@@ -84,7 +85,7 @@ public class ConfigObjectManager implements AdminService.ConfigInfoListener
     // documentation inherited from interface AdminService.ConfigInfoListener
     public void requestFailed (String reason)
     {
-        Log.warning("Oh bugger, we didn't get the config data: " + reason);
+        log.warning("Oh bugger, we didn't get the config data: " + reason);
     }
 
     /**
@@ -121,7 +122,7 @@ public class ConfigObjectManager implements AdminService.ConfigInfoListener
 
         // documentation inherited from interface Subscriber
         public void requestFailed (int oid, ObjectAccessException cause) {
-            Log.warning("Unable to subscribe to config object " + _key);
+            log.warning("Unable to subscribe to config object " + _key);
         }
 
         /**

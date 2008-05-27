@@ -36,8 +36,9 @@ import com.samskivert.util.StringUtil;
 import com.threerings.io.Streamable;
 import com.threerings.util.TrackedObject;
 
-import com.threerings.presents.Log;
 import com.threerings.presents.net.Transport;
+
+import static com.threerings.presents.Log.log;
 
 /**
  * The distributed object forms the foundation of the Presents system. All information shared among
@@ -164,8 +165,8 @@ public class DObject
             _scount++;
 
         } else {
-            Log.warning("Refusing subscriber that's already in the list [dobj=" + which() +
-                        ", subscriber=" + sub + "]");
+            log.warning("Refusing subscriber that's already in the list", "dobj", which(),
+                        "subscriber", sub);
             Thread.dumpStack();
         }
     }
@@ -225,7 +226,7 @@ public class DObject
         if (els != null) {
             _listeners = els;
         } else {
-            Log.warning("Refusing repeat listener registration [dobj=" + which() +
+            log.warning("Refusing repeat listener registration [dobj=" + which() +
                         ", list=" + listener + "]");
             Thread.dumpStack();
         }
@@ -357,7 +358,7 @@ public class DObject
         // clear the lock from the list
         if (ListUtil.clear(_locks, name) == null) {
             // complain if we didn't find the lock
-            Log.info("Unable to clear non-existent lock [lock=" + name + ", dobj=" + this + "].");
+            log.info("Unable to clear non-existent lock [lock=" + name + ", dobj=" + this + "].");
         }
     }
 
@@ -438,9 +439,8 @@ public class DObject
                 }
 
             } catch (Exception e) {
-                Log.warning("Listener choked during notification [list=" + listener +
-                            ", event=" + event + "].");
-                Log.logStackTrace(e);
+                log.warning("Listener choked during notification [list=" + listener +
+                            ", event=" + event + "].", e);
             }
         }
     }
@@ -464,9 +464,7 @@ public class DObject
                     ((ProxySubscriber)sub).eventReceived(event);
                 }
             } catch (Exception e) {
-                Log.warning("Proxy choked during notification [sub=" + sub +
-                            ", event=" + event + "].");
-                Log.logStackTrace(e);
+                log.warning("Proxy choked during notification", "sub", sub, "event", event, e);
             }
         }
     }
@@ -555,7 +553,7 @@ public class DObject
             _omgr.postEvent(event);
 
         } else {
-            Log.info("Dropping event for non- or no longer managed object [oid=" + getOid() +
+            log.info("Dropping event for non- or no longer managed object [oid=" + getOid() +
                      ", class=" + getClass().getName() + ", event=" + event + "].");
         }
     }
@@ -734,7 +732,7 @@ public class DObject
     {
         // sanity check
         if (_tcount != 0) {
-            Log.warning("Transaction cleared with non-zero nesting count [dobj=" + this + "].");
+            log.warning("Transaction cleared with non-zero nesting count", "dobj", this);
             _tcount = 0;
         }
 
@@ -827,7 +825,7 @@ public class DObject
         if (_omgr != null && _omgr.isManager(this)) {
             oldEntry = set.removeKey(key);
             if (oldEntry == null) {
-                Log.warning("Requested to remove non-element [set=" + name + ", key=" + key + "].");
+                log.warning("Requested to remove non-element", "set", name, "key", key);
                 Thread.dumpStack();
             }
         }

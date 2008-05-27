@@ -21,7 +21,7 @@
 
 package com.threerings.presents.dobj;
 
-import com.threerings.presents.Log;
+import static com.threerings.presents.Log.log;
 
 /**
  * An entry removed event is dispatched when an entry is removed from a {@link DSet} attribute of a
@@ -88,7 +88,7 @@ public class EntryRemovedEvent<T extends DSet.Entry> extends NamedEvent
             _oldEntry = set.removeKey(_key);
             if (_oldEntry == null) {
                 // complain if there was actually nothing there
-                Log.warning("No matching entry to remove [key=" + _key + ", set=" + set + "].");
+                log.warning("No matching entry to remove [key=" + _key + ", set=" + set + "].");
                 return false;
             }
         }

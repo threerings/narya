@@ -27,10 +27,11 @@ import java.nio.channels.SocketChannel;
 
 import com.samskivert.util.StringUtil;
 
-import com.threerings.presents.Log;
 import com.threerings.presents.net.AuthRequest;
 import com.threerings.presents.net.AuthResponse;
 import com.threerings.presents.net.UpstreamMessage;
+
+import static com.threerings.presents.Log.log;
 
 /**
  * The authing connection manages the client connection until
@@ -66,7 +67,7 @@ public class AuthingConnection extends Connection
             _cmgr.getAuthenticator().authenticateConnection(this);
 
         } catch (ClassCastException cce) {
-            Log.warning("Received non-authreq message during " +
+            log.warning("Received non-authreq message during " +
                         "authentication process [conn=" + this +
                         ", msg=" + msg + "].");
         }

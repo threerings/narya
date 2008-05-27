@@ -27,7 +27,6 @@ import java.util.Iterator;
 import com.samskivert.util.HashIntMap;
 import com.samskivert.util.StringUtil;
 
-import com.threerings.presents.Log;
 import com.threerings.presents.client.InvocationReceiver.Registration;
 
 import com.threerings.presents.data.ClientObject;
@@ -46,6 +45,8 @@ import com.threerings.presents.dobj.ObjectAccessException;
 import com.threerings.presents.dobj.Subscriber;
 
 import com.threerings.presents.net.Transport;
+
+import static com.threerings.presents.Log.log;
 
 /**
  * Handles the client side management of the invocation services.
@@ -67,7 +68,7 @@ public class InvocationDirector
     {
         // sanity check
         if (_clobj != null) {
-            Log.warning("Zoiks, client object around during invmgr init!");
+            log.warning("Zoiks, client object around during invmgr init!");
             cleanup();
         }
 
@@ -97,7 +98,7 @@ public class InvocationDirector
 
             public void requestFailed (int oid, ObjectAccessException cause) {
                 // aiya! we were unable to subscribe to the client object.  we're hosed!
-                Log.warning("Invocation director unable to subscribe to client object " +
+                log.warning("Invocation director unable to subscribe to client object " +
                             "[cloid=" + cloid + ", cause=" + cause + "]!");
                 _client.getClientObjectFailed(cause);
             }
@@ -151,7 +152,7 @@ public class InvocationDirector
         if (_clobj != null) {
             Registration rreg = _clobj.receivers.get(receiverCode);
             if (rreg == null) {
-                Log.warning("Receiver unregistered for which we have no id to code mapping " +
+                log.warning("Receiver unregistered for which we have no id to code mapping " +
                             "[code=" + receiverCode + "].");
             } else {
                 Object decoder = _receivers.remove(rreg.receiverId);
@@ -209,7 +210,7 @@ public class InvocationDirector
         int invOid, int invCode, int methodId, Object[] args, Transport transport)
     {
         if (_clobj == null) {
-            Log.warning("Dropping invocation request on shutdown director [code=" + invCode +
+            log.warning("Dropping invocation request on shutdown director [code=" + invCode +
                         ", methodId=" + methodId + "].");
             return;
         }
@@ -273,7 +274,7 @@ public class InvocationDirector
         // look up the invocation marshaller registered for that response
         ListenerMarshaller listener = _listeners.remove(reqId);
         if (listener == null) {
-            Log.warning("Received invocation response for which we have no registered listener " +
+            log.warning("Received invocation response for which we have no registered listener " +
                         "[reqId=" + reqId + ", methId=" + methodId + ", args=" +
                         StringUtil.toString(args) + "]. It is possible that this listener was " +
                         "flushed because the response did not arrive within " +
@@ -288,9 +289,8 @@ public class InvocationDirector
         try {
             listener.dispatchResponse(methodId, args);
         } catch (Throwable t) {
-            Log.warning("Invocation response listener choked [listener=" + listener +
-                        ", methId=" + methodId + ", args=" + StringUtil.toString(args) + "].");
-            Log.logStackTrace(t);
+            log.warning("Invocation response listener choked [listener=" + listener +
+                        ", methId=" + methodId + ", args=" + StringUtil.toString(args) + "].", t);
         }
 
         // flush expired listeners periodically
@@ -309,7 +309,7 @@ public class InvocationDirector
         // look up the decoder registered for this receiver
         InvocationDecoder decoder = _receivers.get(receiverId);
         if (decoder == null) {
-            Log.warning("Received notification for which we have no registered receiver " +
+            log.warning("Received notification for which we have no registered receiver " +
                         "[recvId=" + receiverId + ", methodId=" + methodId +
                         ", args=" + StringUtil.toString(args) + "].");
             return;
@@ -321,9 +321,8 @@ public class InvocationDirector
         try {
             decoder.dispatchNotification(methodId, args);
         } catch (Throwable t) {
-            Log.warning("Invocation notification receiver choked [receiver=" + decoder.receiver +
-                        ", methId=" + methodId + ", args=" + StringUtil.toString(args) + "].");
-            Log.logStackTrace(t);
+            log.warning("Invocation notification receiver choked [receiver=" + decoder.receiver +
+                        ", methId=" + methodId + ", args=" + StringUtil.toString(args) + "].", t);
         }
     }
 
@@ -362,7 +361,7 @@ public class InvocationDirector
             }
 
             public void requestFailed (int oid, ObjectAccessException cause) {
-                Log.warning("Aiya! Unable to subscribe to changed client object [cloid=" + oid +
+                log.warning("Aiya! Unable to subscribe to changed client object [cloid=" + oid +
                             ", cause=" + cause + "].");
             }
         });

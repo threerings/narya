@@ -27,9 +27,10 @@ import com.threerings.presents.data.ClientObject;
 import com.threerings.presents.dobj.DObject;
 import com.threerings.presents.server.InvocationManager;
 
-import com.threerings.crowd.Log;
 import com.threerings.crowd.chat.data.ChatCodes;
 import com.threerings.crowd.data.BodyObject;
+
+import static com.threerings.crowd.Log.log;
 
 /**
  * Wires up the {@link SpeakService} to a particular distributed object. A server entity can make
@@ -86,7 +87,7 @@ public class SpeakHandler
         // ensure that the speaker is valid
         if ((mode == ChatCodes.BROADCAST_MODE) ||
             (_validator != null && !_validator.isValidSpeaker(_speakObj, caller, mode))) {
-            Log.warning("Refusing invalid speak request [caller=" + caller.who() +
+            log.warning("Refusing invalid speak request [caller=" + caller.who() +
                         ", speakObj=" + _speakObj.which() +
                         ", message=" + message + ", mode=" + mode + "].");
 

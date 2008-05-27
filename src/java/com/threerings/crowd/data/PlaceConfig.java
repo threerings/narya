@@ -26,8 +26,9 @@ import com.samskivert.util.StringUtil;
 import com.threerings.io.SimpleStreamableObject;
 import com.threerings.util.ActionScript;
 
-import com.threerings.crowd.Log;
 import com.threerings.crowd.client.PlaceController;
+
+import static com.threerings.crowd.Log.log;
 
 /**
  * The place config class encapsulates the configuration information for a
@@ -67,14 +68,12 @@ public abstract class PlaceConfig extends SimpleStreamableObject
                 "PlaceConfig.createController() must be overridden.");
         }
 
-        Log.warning("Providing backwards compatibility. PlaceConfig." +
+        log.warning("Providing backwards compatibility. PlaceConfig." +
                     "createController() should be overridden directly.");
         try {
             return (PlaceController)cclass.newInstance();
         } catch (Exception e) {
-            Log.warning("Failed to instantiate controller class '" +
-                        cclass + "'.");
-            Log.logStackTrace(e);
+            log.warning("Failed to instantiate controller class '" + cclass + "'.", e);
             return null;
         }
     }

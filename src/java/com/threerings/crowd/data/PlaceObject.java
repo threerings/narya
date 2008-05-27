@@ -31,9 +31,10 @@ import com.threerings.presents.dobj.DSet;
 import com.threerings.presents.dobj.OidList;
 import com.threerings.presents.dobj.ServerMessageEvent;
 
-import com.threerings.crowd.Log;
 import com.threerings.crowd.chat.data.SpeakMarshaller;
 import com.threerings.crowd.chat.data.SpeakObject;
+
+import static com.threerings.crowd.Log.log;
 
 /**
  * A distributed object that contains information on a place that is occupied by bodies. This place
@@ -131,8 +132,7 @@ public class PlaceObject extends DObject
                 }
             }
         } catch (Throwable t) {
-            Log.warning("PlaceObject.getOccupantInfo choked.");
-            Log.logStackTrace(t);
+            log.warning("PlaceObject.getOccupantInfo choked.", t);
         }
         return null;
     }

@@ -51,7 +51,6 @@ import com.threerings.io.ObjectOutputStream;
 import com.threerings.io.UnreliableObjectInputStream;
 import com.threerings.io.UnreliableObjectOutputStream;
 
-import com.threerings.presents.Log;
 import com.threerings.presents.data.AuthCodes;
 import com.threerings.presents.dobj.DObjectManager;
 import com.threerings.presents.net.AuthRequest;
@@ -64,6 +63,8 @@ import com.threerings.presents.net.PongResponse;
 import com.threerings.presents.net.Transport;
 import com.threerings.presents.net.UpstreamMessage;
 import com.threerings.presents.util.DatagramSequencer;
+
+import static com.threerings.presents.Log.log;
 
 /**
  * The client performs all network I/O on separate threads (one for reading and one for
@@ -193,7 +194,7 @@ public class BlockingCommunicator extends Communicator
      */
     protected synchronized void logonSucceeded (AuthResponseData data)
     {
-        Log.debug("Logon succeeded: " + data);
+        log.debug("Logon succeeded: " + data);
 
         // create our distributed object manager
         _omgr = new ClientDObjectMgr(this, _client);
@@ -224,8 +225,7 @@ public class BlockingCommunicator extends Communicator
             return;
         }
 
-        Log.info("Connection failed: " + ioe);
-        Log.logStackTrace(ioe);
+        log.info("Connection failed", ioe);
 
         // let the client know that things went south
         _client.notifyObservers(Client.CLIENT_CONNECTION_FAILED, ioe);
@@ -245,7 +245,7 @@ public class BlockingCommunicator extends Communicator
             return;
         }
 
-        Log.debug("Connection closed.");
+        log.debug("Connection closed.");
         // now do the whole logoff thing
         logoff();
     }
@@ -267,7 +267,7 @@ public class BlockingCommunicator extends Communicator
             _client.cleanup(_logonError);
         }
 
-        Log.debug("Reader thread exited.");
+        log.debug("Reader thread exited.");
     }
 
     /**
@@ -277,7 +277,7 @@ public class BlockingCommunicator extends Communicator
     {
         // clear out our writer reference
         _writer = null;
-        Log.debug("Writer thread exited.");
+        log.debug("Writer thread exited.");
 
         // let the client observers know that we're logged off
         _client.notifyObservers(Client.CLIENT_DID_LOGOFF, null);
@@ -299,12 +299,12 @@ public class BlockingCommunicator extends Communicator
     protected void closeChannel ()
     {
         if (_channel != null) {
-            Log.debug("Closing socket channel.");
+            log.debug("Closing socket channel.");
 
             try {
                 _channel.close();
             } catch (IOException ioe) {
-                Log.warning("Error closing failed socket: " + ioe);
+                log.warning("Error closing failed socket: " + ioe);
             }
             _channel = null;
 
@@ -326,7 +326,7 @@ public class BlockingCommunicator extends Communicator
             closeDatagramChannel();
         }
 
-        Log.debug("Datagram reader thread exited.");
+        log.debug("Datagram reader thread exited.");
     }
 
     /**
@@ -336,7 +336,7 @@ public class BlockingCommunicator extends Communicator
     {
         // clear out our writer reference
         _datagramWriter = null;
-        Log.debug("Datagram writer thread exited.");
+        log.debug("Datagram writer thread exited.");
 
         closeDatagramChannel();
     }
@@ -350,17 +350,17 @@ public class BlockingCommunicator extends Communicator
             try {
                 _selector.close();
             } catch (IOException ioe) {
-                Log.warning("Error closing selector: " + ioe);
+                log.warning("Error closing selector: " + ioe);
             }
             _selector = null;
         }
         if (_datagramChannel != null) {
-            Log.debug("Closing datagram socket channel.");
+            log.debug("Closing datagram socket channel.");
 
             try {
                 _datagramChannel.close();
             } catch (IOException ioe) {
-                Log.warning("Error closing datagram socket: " + ioe);
+                log.warning("Error closing datagram socket: " + ioe);
             }
             _datagramChannel = null;
 
@@ -377,7 +377,7 @@ public class BlockingCommunicator extends Communicator
         throws IOException
     {
         if (debugLogMessages()) {
-            Log.info("SEND " + msg);
+            log.info("SEND " + msg);
         }
 
         // first we write the message so that we can measure it's length
@@ -389,11 +389,11 @@ public class BlockingCommunicator extends Communicator
             ByteBuffer buffer = _fout.frameAndReturnBuffer();
             if (buffer.limit() > 4096) {
                 String txt = StringUtil.truncate(String.valueOf(msg), 80, "...");
-                Log.info("Whoa, writin' a big one [msg=" + txt + ", size=" + buffer.limit() + "].");
+                log.info("Whoa, writin' a big one [msg=" + txt + ", size=" + buffer.limit() + "].");
             }
             int wrote = _channel.write(buffer);
             if (wrote != buffer.limit()) {
-                Log.warning("Aiya! Couldn't write entire message [msg=" + msg +
+                log.warning("Aiya! Couldn't write entire message [msg=" + msg +
                             ", size=" + buffer.limit() + ", wrote=" + wrote + "].");
 //             } else {
 //                 Log.info("Wrote " + wrote + " bytes.");
@@ -425,7 +425,7 @@ public class BlockingCommunicator extends Communicator
         ByteBuffer buf = _bout.flip();
         int size = buf.remaining();
         if (size > Client.MAX_DATAGRAM_SIZE) {
-            Log.warning("Dropping oversized datagram [size=" + size +
+            log.warning("Dropping oversized datagram [size=" + size +
                 ", msg=" + msg + "].");
             return;
         }
@@ -466,7 +466,7 @@ public class BlockingCommunicator extends Communicator
         try {
             DownstreamMessage msg = (DownstreamMessage)_oin.readObject();
             if (debugLogMessages()) {
-                Log.info("RECEIVE " + msg);
+                log.info("RECEIVE " + msg);
             }
             return msg;
 
@@ -496,7 +496,7 @@ public class BlockingCommunicator extends Communicator
                 return null; // received out of order
             }
             if (debugLogMessages()) {
-                Log.info("DATAGRAM " + msg);
+                log.info("DATAGRAM " + msg);
             }
             return msg;
 
@@ -521,7 +521,7 @@ public class BlockingCommunicator extends Communicator
     {
         // the default implementation just connects to the first port and does no cycling
         int port = _client.getPorts()[0];
-        Log.info("Connecting [host=" + host + ", port=" + port + "].");
+        log.info("Connecting [host=" + host + ", port=" + port + "].");
         synchronized (BlockingCommunicator.this) {
             _channel = SocketChannel.open(new InetSocketAddress(host, port));
         }
@@ -554,8 +554,7 @@ public class BlockingCommunicator extends Communicator
                 logon();
 
             } catch (Exception e) {
-                Log.debug("Logon failed: " + e);
-                // Log.logStackTrace(e);
+                log.debug("Logon failed: " + e);
                 // once we're shutdown we'll report this error
                 _logonError = e;
                 // terminate our communicator thread
@@ -596,10 +595,10 @@ public class BlockingCommunicator extends Communicator
             sendMessage(req);
 
             // now wait for the auth response
-            Log.debug("Waiting for auth response.");
+            log.debug("Waiting for auth response.");
             AuthResponse rsp = (AuthResponse)receiveMessage();
             AuthResponseData data = rsp.getData();
-            Log.debug("Got auth response: " + data);
+            log.debug("Got auth response: " + data);
 
             // if the auth request failed, we want to let the communicator know by throwing a logon
             // exception
@@ -627,7 +626,7 @@ public class BlockingCommunicator extends Communicator
             } catch (InterruptedIOException iioe) {
                 // somebody set up us the bomb! we've been interrupted which means that we're being
                 // shut down, so we just report it and return from iterate() like a good monkey
-                Log.debug("Reader thread woken up in time to die.");
+                log.debug("Reader thread woken up in time to die.");
 
             } catch (EOFException eofe) {
                 // let the communicator know that our connection was closed
@@ -642,14 +641,13 @@ public class BlockingCommunicator extends Communicator
                 shutdown();
 
             } catch (Exception e) {
-                Log.warning("Error processing message [msg=" + msg + ", error=" + e + "].");
+                log.warning("Error processing message [msg=" + msg + ", error=" + e + "].");
             }
         }
 
         protected void handleIterateFailure (Exception e)
         {
-            Log.warning("Uncaught exception it reader thread.");
-            Log.logStackTrace(e);
+            log.warning("Uncaught exception it reader thread.", e);
         }
 
         protected void didShutdown ()
@@ -702,8 +700,7 @@ public class BlockingCommunicator extends Communicator
 
         protected void handleIterateFailure (Exception e)
         {
-            Log.warning("Uncaught exception it writer thread.");
-            Log.logStackTrace(e);
+            log.warning("Uncaught exception it writer thread.", e);
         }
 
         protected void didShutdown ()
@@ -729,7 +726,7 @@ public class BlockingCommunicator extends Communicator
             try {
                 connect();
             } catch (IOException ioe) {
-                Log.warning("Failed to open datagram channel [error=" + ioe + "].");
+                log.warning("Failed to open datagram channel [error=" + ioe + "].");
                 shutdown();
             }
         }
@@ -749,7 +746,7 @@ public class BlockingCommunicator extends Communicator
             try {
                 _digest = MessageDigest.getInstance("MD5");
             } catch (NoSuchAlgorithmException nsae) {
-                Log.warning("Missing MD5 algorithm.");
+                log.warning("Missing MD5 algorithm.");
                 shutdown();
                 return;
             }
@@ -785,14 +782,14 @@ public class BlockingCommunicator extends Communicator
 
             // check if we managed to establish a connection
             if (cport > 0) {
-                Log.info("Datagram connection established [port=" + cport + "].");
+                log.info("Datagram connection established [port=" + cport + "].");
 
                 // start up the writer thread
                 _datagramWriter = new DatagramWriter();
                 _datagramWriter.start();
 
             } else {
-                Log.info("Failed to establish datagram connection.");
+                log.info("Failed to establish datagram connection.");
                 shutdown();
             }
         }
@@ -835,20 +832,19 @@ public class BlockingCommunicator extends Communicator
             } catch (AsynchronousCloseException ace) {
                 // somebody set up us the bomb! we've been interrupted which means that we're being
                 // shut down, so we just report it and return from iterate() like a good monkey
-                Log.debug("Datagram reader thread woken up in time to die.");
+                log.debug("Datagram reader thread woken up in time to die.");
 
             } catch (IOException ioe) {
-                Log.warning("Error receiving datagram [error=" + ioe + "].");
+                log.warning("Error receiving datagram [error=" + ioe + "].");
 
             } catch (Exception e) {
-                Log.warning("Error processing message [msg=" + msg + ", error=" + e + "].");
+                log.warning("Error processing message [msg=" + msg + ", error=" + e + "].");
             }
         }
 
         protected void handleIterateFailure (Exception e)
         {
-            Log.warning("Uncaught exception in datagram reader thread.");
-            Log.logStackTrace(e);
+            log.warning("Uncaught exception in datagram reader thread.", e);
         }
 
         protected void didShutdown ()
@@ -886,14 +882,13 @@ public class BlockingCommunicator extends Communicator
                 sendDatagram(msg);
 
             } catch (IOException ioe) {
-                Log.warning("Error sending datagram [error=" + ioe + "].");
+                log.warning("Error sending datagram [error=" + ioe + "].");
             }
         }
 
         protected void handleIterateFailure (Exception e)
         {
-            Log.warning("Uncaught exception in datagram writer thread.");
-            Log.logStackTrace(e);
+            log.warning("Uncaught exception in datagram writer thread.", e);
         }
 
         protected void didShutdown ()

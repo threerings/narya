@@ -30,11 +30,12 @@ import com.threerings.presents.dobj.RootDObjectManager;
 import com.threerings.presents.server.InvocationException;
 import com.threerings.presents.server.InvocationManager;
 
-import com.threerings.crowd.Log;
 import com.threerings.crowd.data.CrowdCodes;
 import com.threerings.crowd.data.Place;
 import com.threerings.crowd.data.PlaceConfig;
 import com.threerings.crowd.data.PlaceObject;
+
+import static com.threerings.crowd.Log.log;
 
 /**
  * The place registry keeps track of all of the active places in the server. It should be used to
@@ -197,9 +198,8 @@ public class PlaceRegistry
             pmgr.init(this, _invmgr, _omgr, config);
 
         } catch (Exception e) {
-            Log.logStackTrace(e);
-            throw new InstantiationException(
-                "Error creating place manager [config=" + config + "].");
+            log.warning(e);
+            throw new InstantiationException("Error creating PlaceManager for " + config);
         }
 
         // give the manager an opportunity to abort the whole process if it fails any permissions
@@ -226,8 +226,7 @@ public class PlaceRegistry
             pmgr.startup(plobj);
 
         } catch (Exception e) {
-            Log.warning("Error starting place manager [obj=" + plobj + ", pmgr=" + pmgr + "].");
-            Log.logStackTrace(e);
+            log.warning("Error starting place manager [obj=" + plobj + ", pmgr=" + pmgr + "].", e);
         }
 
         return pmgr;
@@ -241,7 +240,7 @@ public class PlaceRegistry
         int ploid = pmgr.getPlaceObject().getOid();
         // remove it from the table
         if (_pmgrs.remove(ploid) == null) {
-            Log.warning("Requested to unmap unmapped place manager [pmgr=" + pmgr + "].");
+            log.warning("Requested to unmap unmapped place manager [pmgr=" + pmgr + "].");
 
 //         } else {
 //             Log.info("Unmapped place manager [class=" + pmgr.getClass().getName() +

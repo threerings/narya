@@ -26,7 +26,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Level;
 
 import com.samskivert.util.AuditLogger;
 import com.samskivert.util.HashIntMap;
@@ -331,8 +330,7 @@ public class PresentsDObjectMgr
             handleFatalError(unit, e);
 
         } catch (Throwable t) {
-            log.log(Level.WARNING,
-                    "Execution unit failed [unit=" + StringUtil.safeToString(unit) + "].", t);
+            log.warning("Execution unit failed", "unit", unit, t);
         }
 
         // compute the elapsed time in microseconds
@@ -340,9 +338,8 @@ public class PresentsDObjectMgr
 
         // report excessively long units
         if (elapsed > 500000 && !(unit instanceof LongRunnable)) {
-            log.warning("Long dobj unit [u=" + StringUtil.safeToString(unit) +
-                        " (" + StringUtil.shortClassName(unit) + ")" +
-                        ", time=" + (elapsed/1000) + "ms].");
+            log.warning("Long dobj unit " + StringUtil.shortClassName(unit), "unit", unit,
+                        "time", (elapsed/1000) + "ms");
         }
 
         // periodically sample and record the time spent processing a unit
@@ -380,7 +377,7 @@ public class PresentsDObjectMgr
         // look up the target object
         DObject target = _objects.get(event.getTargetOid());
         if (target == null) {
-            log.fine("Compound event target no longer exists [event=" + event + "].");
+            log.debug("Compound event target no longer exists [event=" + event + "].");
             return;
         }
 
@@ -411,7 +408,7 @@ public class PresentsDObjectMgr
         // look up the target object
         DObject target = _objects.get(event.getTargetOid());
         if (target == null) {
-            log.fine("Event target no longer exists [event=" + event + "].");
+            log.debug("Event target no longer exists [event=" + event + "].");
             return;
         }
 
@@ -462,7 +459,7 @@ public class PresentsDObjectMgr
             handleFatalError(event, e);
 
         } catch (Throwable t) {
-            log.log(Level.WARNING, "Failure processing event [event=" + event +
+            log.warning("Failure processing event [event=" + event +
                     ", target=" + target + "].", t);
         }
 
@@ -481,7 +478,7 @@ public class PresentsDObjectMgr
         if (_fatalThrottle.throttleOp()) {
             throw error;
         }
-        log.log(Level.WARNING, "Fatal error caused by '" + causer + "': " + error, error);
+        log.warning("Fatal error caused by '" + causer + "': " + error, error);
     }
 
     /**
@@ -772,7 +769,7 @@ public class PresentsDObjectMgr
         try {
             sub.objectAvailable(obj);
         } catch (Exception e) {
-            log.log(Level.WARNING, "Subscriber choked during object available " +
+            log.warning("Subscriber choked during object available " +
                     "[obj=" + StringUtil.safeToString(obj) + ", sub=" + sub + "].", e);
         }
     }

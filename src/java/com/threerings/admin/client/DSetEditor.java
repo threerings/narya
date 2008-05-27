@@ -40,7 +40,6 @@ import com.samskivert.util.ClassUtil;
 import com.samskivert.util.ComparableArrayList;
 import com.samskivert.util.ListUtil;
 
-import com.threerings.presents.Log;
 import com.threerings.presents.dobj.AttributeChangeListener;
 import com.threerings.presents.dobj.AttributeChangedEvent;
 import com.threerings.presents.dobj.DObject;
@@ -49,6 +48,8 @@ import com.threerings.presents.dobj.EntryAddedEvent;
 import com.threerings.presents.dobj.EntryRemovedEvent;
 import com.threerings.presents.dobj.EntryUpdatedEvent;
 import com.threerings.presents.dobj.SetListener;
+
+import static com.threerings.presents.Log.log;
 
 /**
  * Allows simple editing of DSets within a distributed object.

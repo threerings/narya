@@ -34,7 +34,7 @@ import com.threerings.io.ObjectInputStream;
 import com.threerings.io.ObjectOutputStream;
 import com.threerings.io.Streamable;
 
-import com.threerings.presents.Log;
+import static com.threerings.presents.Log.log;
 
 /**
  * The distributed set class provides a means by which an unordered set of objects can be
@@ -199,7 +199,7 @@ public class DSet<E extends DSet.Entry>
         // the crazy sanity checks
         if (_size < 0 ||_size > _entries.length ||
             (_size > 0 && _entries[_size-1] == null)) {
-            Log.warning("DSet in a bad way [size=" + _size +
+            log.warning("DSet in a bad way [size=" + _size +
                         ", entries=" + StringUtil.toString(_entries) + "].");
             Thread.dumpStack();
         }
@@ -221,7 +221,7 @@ public class DSet<E extends DSet.Entry>
                     throw new ConcurrentModificationException();
                 }
                 if (_ssize != _size) {
-                    Log.warning("Size changed during iteration [ssize=" + _ssize +
+                    log.warning("Size changed during iteration [ssize=" + _ssize +
                                 ", nsize=" + _size +
                                 ", entsries=" + StringUtil.toString(_entries) + "].");
                     Thread.dumpStack();
@@ -273,7 +273,7 @@ public class DSet<E extends DSet.Entry>
 
         // if the element is already in the set, bail now
         if (eidx >= 0) {
-            Log.warning("Refusing to add duplicate entry [entry=" + elem + ", set=" + this + "].");
+            log.warning("Refusing to add duplicate entry [entry=" + elem + ", set=" + this + "].");
             return false;
         }
 
@@ -285,7 +285,7 @@ public class DSet<E extends DSet.Entry>
         if (_size >= elength) {
             // sanity check
             if (elength > 2048) {
-                Log.warning("Requested to expand to questionably large size [l=" + elength + "].");
+                log.warning("Requested to expand to questionably large size [l=" + elength + "].");
                 Thread.dumpStack();
             }
 
@@ -331,7 +331,7 @@ public class DSet<E extends DSet.Entry>
     {
         // don't fail, but generate a warning if we're passed a null key
         if (key == null) {
-            Log.warning("Requested to remove null key.");
+            log.warning("Requested to remove null key.");
             Thread.dumpStack();
             return null;
         }

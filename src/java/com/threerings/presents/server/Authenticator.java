@@ -21,8 +21,6 @@
 
 package com.threerings.presents.server;
 
-import java.util.logging.Level;
-
 import com.samskivert.io.PersistenceException;
 
 import com.samskivert.util.Invoker;
@@ -69,7 +67,7 @@ public abstract class Authenticator
                 try {
                     processAuthentication(conn, rsp);
                 } catch (Exception e) { // Persistence or Runtime
-                    log.log(Level.WARNING, "Error authenticating user [areq=" + req + "].", e);
+                    log.warning("Error authenticating user [areq=" + req + "].", e);
                     rdata.code = AuthCodes.SERVER_ERROR;
                 }
                 return true;

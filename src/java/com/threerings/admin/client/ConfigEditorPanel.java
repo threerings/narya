@@ -30,7 +30,7 @@ import com.samskivert.swing.VGroupLayout;
 
 import com.threerings.presents.util.PresentsContext;
 
-import com.threerings.admin.Log;
+import static com.threerings.admin.Log.log;
 
 /**
  * Fetches a list of the configuration objects in use by the server and
@@ -111,7 +111,7 @@ public class ConfigEditorPanel extends JPanel
     // documentation inherited from interface
     public void requestFailed (String reason)
     {
-        Log.warning("Failed to get config info [reason=" + reason + "].");
+        log.warning("Failed to get config info [reason=" + reason + "].");
     }
 
     /** Our client context. */

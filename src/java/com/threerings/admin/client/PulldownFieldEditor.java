@@ -30,7 +30,7 @@ import com.samskivert.util.ObjectUtil;
 import com.threerings.presents.dobj.DObject;
 import com.threerings.presents.util.PresentsContext;
 
-import com.threerings.admin.Log;
+import static com.threerings.admin.Log.log;
 
 /**
  * Allows editing of a dobj field using a pulldown.
@@ -132,7 +132,7 @@ public class PulldownFieldEditor extends FieldEditor
         }
 
         // cause shit to blow up minorly
-        Log.warning("Value in dobj is not settable, disabling choice.");
+        log.warning("Value in dobj is not settable, disabling choice.");
         Thread.dumpStack();
         _value.setEnabled(false);
     }

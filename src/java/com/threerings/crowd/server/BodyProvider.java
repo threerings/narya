@@ -26,11 +26,12 @@ import com.threerings.presents.server.InvocationException;
 import com.threerings.presents.server.InvocationManager;
 import com.threerings.presents.server.InvocationProvider;
 
-import com.threerings.crowd.Log;
 import com.threerings.crowd.data.BodyObject;
 import com.threerings.crowd.data.CrowdCodes;
 import com.threerings.crowd.data.OccupantInfo;
 import com.threerings.crowd.data.Place;
+
+import static com.threerings.crowd.Log.log;
 
 /**
  * Provides the server-side side of the body-related invocation services.
@@ -76,7 +77,7 @@ public class BodyProvider
         }
 
         // update their status!
-        Log.debug("Setting user idle state [user=" + bobj.username + ", status=" + nstatus + "].");
+        log.debug("Setting user idle state [user=" + bobj.username + ", status=" + nstatus + "].");
         updateOccupantStatus(bobj, bobj.location, nstatus);
     }
 

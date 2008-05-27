@@ -30,7 +30,7 @@ import com.threerings.util.Name;
 import com.threerings.presents.client.Client;
 import com.threerings.presents.net.UsernamePasswordCreds;
 
-import com.threerings.crowd.Log;
+import static com.threerings.crowd.Log.log;
 
 /**
  * The main point of entry for the Jabber client application. It creates
@@ -62,7 +62,7 @@ public class JabberApp
         Client client = _client.getContext().getClient();
 
         // pass them on to the client
-        Log.info("Using [server=" + server + "].");
+        log.info("Using [server=" + server + "].");
         client.setServer(server, Client.DEFAULT_SERVER_PORTS);
 
         // configure the client with some credentials and logon
@@ -96,8 +96,7 @@ public class JabberApp
             // initialize the app
             app.init();
         } catch (IOException ioe) {
-            Log.warning("Error initializing application.");
-            Log.logStackTrace(ioe);
+            log.warning("Error initializing application.", ioe);
         }
 
         // and run it

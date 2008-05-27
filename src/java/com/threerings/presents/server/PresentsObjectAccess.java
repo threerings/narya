@@ -21,7 +21,6 @@
 
 package com.threerings.presents.server;
 
-import com.threerings.presents.Log;
 import com.threerings.presents.data.ClientObject;
 import com.threerings.presents.dobj.AccessController;
 import com.threerings.presents.dobj.DEvent;
@@ -30,6 +29,8 @@ import com.threerings.presents.dobj.InvocationRequestEvent;
 import com.threerings.presents.dobj.MessageEvent;
 import com.threerings.presents.dobj.NamedEvent;
 import com.threerings.presents.dobj.Subscriber;
+
+import static com.threerings.presents.Log.log;
 
 /**
  * Defines the various object access controllers used by the Presents server.
@@ -76,7 +77,7 @@ public class PresentsObjectAccess
             if (sub instanceof PresentsClient) {
                 allowed = ((PresentsClient)sub).getClientObject() == object;
                 if (!allowed) {
-                    Log.warning("Refusing ClientObject subscription request " +
+                    log.warning("Refusing ClientObject subscription request " +
                                 "[obj=" + ((ClientObject)object).who() + ", sub=" + sub + "].");
                 }
             }

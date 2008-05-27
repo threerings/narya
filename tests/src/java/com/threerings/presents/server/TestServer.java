@@ -21,9 +21,10 @@
 
 package com.threerings.presents.server;
 
-import com.threerings.presents.Log;
 import com.threerings.presents.data.TestObject;
 import com.threerings.presents.dobj.*;
+
+import static com.threerings.presents.Log.log;
 
 public class TestServer extends PresentsServer
 {
@@ -52,8 +53,7 @@ public class TestServer extends PresentsServer
             server.init();
             server.run();
         } catch (Exception e) {
-            Log.warning("Unable to initialize server.");
-            Log.logStackTrace(e);
+            log.warning("Unable to initialize server.", e);
         }
     }
 }

@@ -43,7 +43,7 @@ import com.threerings.presents.dobj.DObject;
 import com.threerings.presents.dobj.ObjectAccessException;
 import com.threerings.presents.util.PresentsContext;
 
-import com.threerings.admin.Log;
+import static com.threerings.admin.Log.log;
 
 /**
  * Used to display and edit a particular distributed object field.
@@ -107,7 +107,7 @@ public abstract class FieldEditor extends JPanel
             try {
                 _object.changeAttribute(_field.getName(), value);
             } catch (ObjectAccessException oae) {
-                Log.warning("Failed to update field " + _field.getName() +
+                log.warning("Failed to update field " + _field.getName() +
                             ": "+ oae);
             }
         }
@@ -128,7 +128,7 @@ public abstract class FieldEditor extends JPanel
         try {
             dvalue = getDisplayValue();
         } catch (Exception e) {
-            Log.warning("Failed to parse display value " + e + ".");
+            log.warning("Failed to parse display value " + e + ".");
             displayValue(getValue());
         }
         updateBorder(!ObjectUtil.equals(dvalue, getValue()));
@@ -154,7 +154,7 @@ public abstract class FieldEditor extends JPanel
         try {
             return _field.get(_object);
         } catch (Exception e) {
-            Log.warning("Failed to fetch field [field=" + _field +
+            log.warning("Failed to fetch field [field=" + _field +
                         ", object=" + _object + ", error=" + e + "].");
             return null;
         }

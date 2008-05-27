@@ -24,7 +24,6 @@ package com.threerings.presents.server;
 import java.util.HashMap;
 import com.samskivert.util.ResultListener;
 
-import com.threerings.presents.Log;
 import com.threerings.presents.client.TimeBaseService.GotTimeBaseListener;
 
 import com.threerings.presents.data.ClientObject;
@@ -32,6 +31,8 @@ import com.threerings.presents.data.TimeBaseCodes;
 import com.threerings.presents.data.TimeBaseObject;
 
 import com.threerings.presents.dobj.RootDObjectManager;
+
+import static com.threerings.presents.Log.log;
 
 /**
  * Provides the server-side of the time base services. The time base services provide a means by

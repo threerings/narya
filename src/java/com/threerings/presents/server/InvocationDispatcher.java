@@ -23,9 +23,10 @@ package com.threerings.presents.server;
 
 import com.samskivert.util.StringUtil;
 
-import com.threerings.presents.Log;
 import com.threerings.presents.data.ClientObject;
 import com.threerings.presents.data.InvocationMarshaller;
+
+import static com.threerings.presents.Log.log;
 
 /**
  * Provides the base class via which invocation service requests are
@@ -49,7 +50,7 @@ public abstract class InvocationDispatcher
         ClientObject source, int methodId, Object[] args)
         throws InvocationException
     {
-        Log.warning("Requested to dispatch unknown method " +
+        log.warning("Requested to dispatch unknown method " +
                     "[provider=" + provider +
                     ", sourceOid=" + source.getOid() +
                     ", methodId=" + methodId +

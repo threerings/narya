@@ -3,9 +3,10 @@
 
 package com.threerings.crowd.server;
 
-import com.threerings.crowd.Log;
 import com.threerings.crowd.data.JabberConfig;
 import com.threerings.crowd.data.PlaceObject;
+
+import static com.threerings.crowd.Log.log;
 
 /**
  * A basic server that creates a single room and sticks everyone in it
@@ -30,8 +31,7 @@ public class JabberServer extends CrowdServer
             server.init();
             server.run();
         } catch (Exception e) {
-            Log.warning("Unable to initialize server.");
-            Log.logStackTrace(e);
+            log.warning("Unable to initialize server.", e);
         }
     }
 

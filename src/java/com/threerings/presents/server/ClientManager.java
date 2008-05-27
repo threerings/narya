@@ -25,7 +25,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.logging.Level;
 
 import com.samskivert.util.Interval;
 import com.samskivert.util.ObserverList;
@@ -119,7 +118,7 @@ public class ClientManager
                 try {
                     pc.shutdown();
                 } catch (Exception e) {
-                    log.log(Level.WARNING, "Client choked in shutdown() [client=" +
+                    log.warning("Client choked in shutdown() [client=" +
                             StringUtil.safeToString(pc) + "].", e);
                 }
             }
@@ -298,7 +297,7 @@ public class ClientManager
             return;
         }
 
-        log.fine("Destroying client " + clobj.who() + ".");
+        log.debug("Destroying client " + clobj.who() + ".");
 
         // we're all clear to go; remove the mapping
         _objmap.remove(username);
@@ -402,7 +401,7 @@ public class ClientManager
         // remove the client from the connection map
         PresentsClient client = _conmap.remove(conn);
         if (client != null) {
-            log.fine("Unmapped client [client=" + client + ", conn=" + conn + "].");
+            log.debug("Unmapped client [client=" + client + ", conn=" + conn + "].");
             // let the client know the connection went away
             client.wasUnmapped();
 
@@ -497,7 +496,7 @@ public class ClientManager
                          ", dtime=" + (now-client.getNetworkStamp()) + "ms].");
                 client.endSession();
             } catch (Exception e) {
-                log.log(Level.WARNING, "Choke while flushing client [victim=" + client + "].", e);
+                log.warning("Choke while flushing client [victim=" + client + "].", e);
             }
         }
     }
@@ -515,7 +514,7 @@ public class ClientManager
                 _clop.apply(clobj);
 
             } catch (Exception e) {
-                log.log(Level.WARNING, "Client op failed [username=" + username +
+                log.warning("Client op failed [username=" + username +
                         ", clop=" + _clop + "].", e);
 
             } finally {

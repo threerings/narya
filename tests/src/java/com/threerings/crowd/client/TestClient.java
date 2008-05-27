@@ -32,9 +32,10 @@ import com.threerings.presents.client.*;
 import com.threerings.presents.dobj.DObjectManager;
 import com.threerings.presents.net.*;
 
-import com.threerings.crowd.Log;
 import com.threerings.crowd.chat.client.ChatDirector;
 import com.threerings.crowd.util.CrowdContext;
+
+import static com.threerings.crowd.Log.log;
 
 public class TestClient
     implements RunQueue, ClientObserver
@@ -89,7 +90,7 @@ public class TestClient
 
     public void clientDidLogon (Client client)
     {
-        Log.info("Client did logon [client=" + client + "].");
+        log.info("Client did logon [client=" + client + "].");
 
         // request to move to a place
         _ctx.getLocationDirector().moveTo(15);
@@ -97,30 +98,30 @@ public class TestClient
 
     public void clientObjectDidChange (Client client)
     {
-        Log.info("Client object did change [client=" + client + "].");
+        log.info("Client object did change [client=" + client + "].");
     }
 
     public void clientFailedToLogon (Client client, Exception cause)
     {
-        Log.info("Client failed to logon [client=" + client +
+        log.info("Client failed to logon [client=" + client +
                  ", cause=" + cause + "].");
     }
 
     public void clientConnectionFailed (Client client, Exception cause)
     {
-        Log.info("Client connection failed [client=" + client +
+        log.info("Client connection failed [client=" + client +
                  ", cause=" + cause + "].");
     }
 
     public boolean clientWillLogoff (Client client)
     {
-        Log.info("Client will logoff [client=" + client + "].");
+        log.info("Client will logoff [client=" + client + "].");
         return true;
     }
 
     public void clientDidLogoff (Client client)
     {
-        Log.info("Client did logoff [client=" + client + "].");
+        log.info("Client did logoff [client=" + client + "].");
         System.exit(0);
     }
 

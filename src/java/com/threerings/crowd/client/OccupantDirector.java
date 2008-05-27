@@ -33,10 +33,11 @@ import com.threerings.presents.dobj.EntryRemovedEvent;
 import com.threerings.presents.dobj.EntryUpdatedEvent;
 import com.threerings.presents.dobj.SetListener;
 
-import com.threerings.crowd.Log;
 import com.threerings.crowd.data.OccupantInfo;
 import com.threerings.crowd.data.PlaceObject;
 import com.threerings.crowd.util.CrowdContext;
+
+import static com.threerings.crowd.Log.log;
 
 /**
  * The occupant director listens for occupants of places to enter and

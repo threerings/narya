@@ -25,8 +25,6 @@ import com.samskivert.util.StringUtil;
 
 import com.threerings.io.Streamable;
 
-import com.threerings.presents.Log;
-
 import com.threerings.presents.client.Client;
 import com.threerings.presents.client.InvocationService.ConfirmListener;
 import com.threerings.presents.client.InvocationService.ResultListener;
@@ -36,6 +34,8 @@ import com.threerings.presents.dobj.DObjectManager;
 import com.threerings.presents.dobj.InvocationResponseEvent;
 
 import com.threerings.presents.net.Transport;
+
+import static com.threerings.presents.Log.log;
 
 /**
  * Provides a base from which all invocation service marshallers extend.  Handles functionality
@@ -110,7 +110,7 @@ public class InvocationMarshaller
                 listener.requestFailed((String)args[0]);
 
             } else {
-                Log.warning("Requested to dispatch unknown invocation response " +
+                log.warning("Requested to dispatch unknown invocation response " +
                             "[listener=" + listener + ", methodId=" + methodId +
                             ", args=" + StringUtil.toString(args) + "].");
             }
@@ -130,7 +130,7 @@ public class InvocationMarshaller
             throws Throwable
         {
             if (_invId != null && getClass() != ListenerMarshaller.class) {
-                Log.warning("Invocation listener never responded to: " + _invId);
+                log.warning("Invocation listener never responded to: " + _invId);
             }
             super.finalize();
         }

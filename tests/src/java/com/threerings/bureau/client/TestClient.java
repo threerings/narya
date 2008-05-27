@@ -22,12 +22,13 @@
 package com.threerings.bureau.client;
 
 import com.samskivert.util.OneLineLogFormatter;
-import com.threerings.bureau.Log;
 import com.samskivert.util.Queue;
 import com.samskivert.util.StringUtil;
 import com.threerings.bureau.client.BureauDirector;
 import com.threerings.bureau.data.AgentObject;
 import com.samskivert.util.RunQueue;
+
+import static com.threerings.bureau.Log.log;
 
 /**
  * Extends bureau client minimally and provides a static main function to create a client and 
@@ -91,12 +92,12 @@ public class TestClient extends BureauClient
     {
         public void start ()
         {
-            Log.info("Starting agent " + StringUtil.toString(_agentObj));
+            log.info("Starting agent " + StringUtil.toString(_agentObj));
         }
 
         public void stop ()
         {
-            Log.info("Stopping agent " + StringUtil.toString(_agentObj));
+            log.info("Stopping agent " + StringUtil.toString(_agentObj));
         }
     }
 

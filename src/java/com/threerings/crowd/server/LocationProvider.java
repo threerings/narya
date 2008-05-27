@@ -30,7 +30,6 @@ import com.threerings.presents.server.InvocationManager;
 import com.threerings.presents.server.InvocationProvider;
 import com.threerings.presents.server.PresentsClient;
 
-import com.threerings.crowd.Log;
 import com.threerings.crowd.client.LocationService;
 import com.threerings.crowd.data.BodyObject;
 import com.threerings.crowd.data.LocationCodes;
@@ -38,6 +37,8 @@ import com.threerings.crowd.data.Place;
 import com.threerings.crowd.data.PlaceConfig;
 import com.threerings.crowd.data.PlaceObject;
 import com.threerings.crowd.server.CrowdServer;
+
+import static com.threerings.crowd.Log.log;
 
 /**
  * This class provides the server end of the location services.
@@ -96,7 +97,7 @@ public class LocationProvider
         // make sure the place in question actually exists
         PlaceManager pmgr = _plreg.getPlaceManager(placeOid);
         if (pmgr == null) {
-            Log.info("Requested to move to non-existent place [who=" + source.who() +
+            log.info("Requested to move to non-existent place [who=" + source.who() +
                      ", placeOid=" + placeOid + "].");
             throw new InvocationException(NO_SUCH_PLACE);
         }
@@ -105,7 +106,7 @@ public class LocationProvider
         // because we don't need to update anything in distributed object world
         Place place = pmgr.getLocation();
         if (place.equals(source.location)) {
-            Log.debug("Going along with client request to move to where they already are " +
+            log.debug("Going along with client request to move to where they already are " +
                       "[source=" + source.who() + ", place=" + place + "].");
             return pmgr.getConfig();
         }
@@ -196,12 +197,12 @@ public class LocationProvider
                 }
 
             } else {
-                Log.info("Body's prior location no longer around? [boid=" + bodoid +
+                log.info("Body's prior location no longer around? [boid=" + bodoid +
                          ", place=" + oldloc + "].");
             }
 
         } catch (ClassCastException cce) {
-            Log.warning("Body claims to occupy non-PlaceObject!? [boid=" + bodoid +
+            log.warning("Body claims to occupy non-PlaceObject!? [boid=" + bodoid +
                         ", place=" + oldloc + ", error=" + cce + "].");
         }
 

@@ -21,8 +21,6 @@
 
 package com.threerings.presents.util;
 
-import java.util.logging.Level;
-
 import com.samskivert.util.Invoker;
 
 import com.threerings.presents.client.InvocationService;
@@ -73,7 +71,7 @@ public abstract class PersistingUnit extends Invoker.Unit
         if (error instanceof InvocationException) {
             _listener.requestFailed(error.getMessage());
         } else {
-            log.log(Level.WARNING, getFailureMessage(), error);
+            log.warning(getFailureMessage(), error);
             _listener.requestFailed(InvocationCodes.INTERNAL_ERROR);
         }
     }

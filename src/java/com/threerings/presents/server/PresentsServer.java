@@ -22,7 +22,6 @@
 package com.threerings.presents.server;
 
 import java.util.ArrayList;
-import java.util.logging.Level;
 
 import com.samskivert.util.Interval;
 import com.samskivert.util.ObserverList;
@@ -123,7 +122,7 @@ public class PresentsServer
                     Runnable trun = (Runnable)tmclass.newInstance();
                     trun.run();
                 } catch (Exception e) {
-                    log.log(Level.WARNING, "Unable to invoke test module '" + testmod + "'.", e);
+                    log.warning("Unable to invoke test module '" + testmod + "'.", e);
                 }
             }
 
@@ -132,7 +131,7 @@ public class PresentsServer
             server.run();
 
         } catch (Exception e) {
-            log.log(Level.WARNING, "Unable to initialize server.", e);
+            log.warning("Unable to initialize server.", e);
             System.exit(-1);
         }
     }
@@ -305,7 +304,7 @@ public class PresentsServer
             try {
                 rptr.appendReport(report, now, sinceLast, reset);
             } catch (Throwable t) {
-                log.log(Level.WARNING, "Reporter choked [rptr=" + rptr + "].", t);
+                log.warning("Reporter choked [rptr=" + rptr + "].", t);
             }
         }
 

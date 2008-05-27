@@ -30,7 +30,7 @@ import com.samskivert.util.StringUtil;
 
 import com.threerings.util.Name;
 
-import com.threerings.crowd.Log;
+import static com.threerings.crowd.Log.log;
 
 /**
  * A chat filter that can filter out curse words from user chat.
@@ -150,7 +150,7 @@ public abstract class CurseFilter implements ChatFilter
             String mapping = st.nextToken();
             StringTokenizer st2 = new StringTokenizer(mapping, "=");
             if (st2.countTokens() != 2) {
-                Log.warning("Something looks wrong in the x.cursewords " +
+                log.warning("Something looks wrong in the x.cursewords " +
                     "properties (" + mapping + "), skipping.");
                 continue;
             }

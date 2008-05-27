@@ -31,7 +31,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.logging.Level;
 
 import com.samskivert.jdbc.RepositoryUnit;
 import com.samskivert.jdbc.WriteOnlyUnit;
@@ -162,7 +161,7 @@ public class PeerManager
             try {
                 execute();
             } catch (Throwable t) {
-                log.log(Level.WARNING, getClass().getName() + " failed.");
+                log.warning(getClass().getName() + " failed.");
             }
         }
 
@@ -335,7 +334,7 @@ public class PeerManager
             oout.writeObject(action);
             actionBytes = bout.toByteArray();
         } catch (Exception e) {
-            log.log(Level.WARNING, "Failed to serialize node action [action=" + action + "].", e);
+            log.warning("Failed to serialize node action [action=" + action + "].", e);
             return;
         }
 
@@ -603,7 +602,7 @@ public class PeerManager
                 }
             }
             public void requestFailed (Exception cause) {
-                log.log(Level.WARNING, "Lock acquisition failed [lock=" + lock + "].", cause);
+                log.warning("Lock acquisition failed [lock=" + lock + "].", cause);
                 operation.fail(null);
             }
         });
@@ -731,7 +730,7 @@ public class PeerManager
             action = (NodeAction)oin.readObject();
             action.invoke();
         } catch (Exception e) {
-            log.log(Level.WARNING, "Failed to execute node action [from=" + caller.who() +
+            log.warning("Failed to execute node action [from=" + caller.who() +
                     ", action=" + action + ", serializedSize=" + serializedAction.length + "].");
         }
     }
@@ -807,7 +806,7 @@ public class PeerManager
                     try {
                         refreshPeer(record);
                     } catch (Exception e) {
-                        log.log(Level.WARNING, "Failure refreshing peer " + record + ".", e);
+                        log.warning("Failure refreshing peer " + record + ".", e);
                     }
                 }
             }

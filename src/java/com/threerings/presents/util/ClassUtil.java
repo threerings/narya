@@ -27,7 +27,7 @@ import java.util.HashMap;
 import com.samskivert.util.MethodFinder;
 import com.samskivert.util.StringUtil;
 
-import com.threerings.presents.Log;
+import static com.threerings.presents.Log.log;
 
 /**
  * Class related utility functions.
@@ -80,11 +80,11 @@ public class ClassUtil
 
         } catch (NoSuchMethodException nsme) {
             // nothing to do here but fall through and return null
-            Log.info("No such method [name=" + name + ", tclass=" + tclass.getName() + 
+            log.info("No such method [name=" + name + ", tclass=" + tclass.getName() + 
                      ", args=" + StringUtil.toString(args) + ", error=" + nsme + "].");
 
         } catch (SecurityException se) {
-            Log.warning("Unable to look up method? [tclass=" + tclass.getName() +
+            log.warning("Unable to look up method? [tclass=" + tclass.getName() +
                         ", mname=" + name + "].");
         }
 

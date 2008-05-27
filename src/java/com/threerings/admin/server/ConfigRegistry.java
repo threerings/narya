@@ -30,7 +30,6 @@ import java.util.HashMap;
 
 import com.samskivert.io.ByteArrayOutInputStream;
 import com.samskivert.util.StringUtil;
-import com.threerings.admin.Log;
 import com.threerings.io.ObjectInputStream;
 import com.threerings.io.ObjectOutputStream;
 import com.threerings.io.Streamable;
@@ -46,6 +45,8 @@ import com.threerings.presents.dobj.EntryRemovedEvent;
 import com.threerings.presents.dobj.EntryUpdatedEvent;
 import com.threerings.presents.dobj.ObjectAccessException;
 import com.threerings.presents.dobj.SetListener;
+
+import static com.threerings.admin.Log.log;
 
 /**
  * Provides a registry of configuration distributed objects. Using distributed object to store
@@ -166,7 +167,7 @@ public abstract class ConfigRegistry
                 object.addListener(this);
 
             } catch (SecurityException se) {
-                Log.warning("Unable to reflect on " + cclass.getName() + ": " + se + ". " +
+                log.warning("Unable to reflect on " + cclass.getName() + ": " + se + ". " +
                             "Refusing to monitor object.");
             }
         }
@@ -196,7 +197,7 @@ public abstract class ConfigRegistry
             try {
                 value = object.getAttribute(event.getName());
             } catch (ObjectAccessException oae) {
-                Log.warning("Exception getting field [name=" + event.getName() +
+                log.warning("Exception getting field [name=" + event.getName() +
                             ", exception=" + oae + "].");
                 return;
             }
@@ -239,7 +240,7 @@ public abstract class ConfigRegistry
             } else if (value instanceof long[]) {
                 setValue(key, (long[]) value);
             } else {
-                Log.info("Unable to flush config obj change [cobj=" + object.getClass().getName() +
+                log.info("Unable to flush config obj change [cobj=" + object.getClass().getName() +
                          ", key=" + key + ", type=" + value.getClass().getName() +
                          ", value=" + value + "].");
             }
@@ -314,18 +315,18 @@ public abstract class ConfigRegistry
                             serialize(key, nameToKey(key), deserializedValue);
                         }
                     } catch (Exception e) {
-                        Log.warning("Failure decoding config value [type=" + type +
+                        log.warning("Failure decoding config value [type=" + type +
                                     ", field=" + field + ", exception=" + e + "].");
                     }
 
                 } else {
-                    Log.warning("Can't init field of unknown type " +
+                    log.warning("Can't init field of unknown type " +
                                 "[cobj=" + object.getClass().getName() + ", key=" + key +
                                 ", type=" + type.getName() + "].");
                 }
 
             } catch (IllegalAccessException iae) {
-                Log.warning("Can't set field [cobj=" + object.getClass().getName() +
+                log.warning("Can't set field [cobj=" + object.getClass().getName() +
                             ", key=" + key + ", error=" + iae + "].");
             }
         }
@@ -340,7 +341,7 @@ public abstract class ConfigRegistry
             try {
                 value = object.getAttribute(attributeName);
             } catch (ObjectAccessException oae) {
-                Log.warning("Exception getting field [name=" + attributeName +
+                log.warning("Exception getting field [name=" + attributeName +
                             ", error=" + oae + "].");
                 return;
             }
@@ -348,7 +349,7 @@ public abstract class ConfigRegistry
             if (value instanceof Streamable) {
                 serialize(attributeName, key, value);
             } else {
-                Log.info("Unable to flush config obj change [cobj=" + object.getClass().getName() +
+                log.info("Unable to flush config obj change [cobj=" + object.getClass().getName() +
                          ", key=" + key + ", type=" + value.getClass().getName() +
                          ", value=" + value + "].");
             }
@@ -366,7 +367,7 @@ public abstract class ConfigRegistry
                 oout.flush();
                 setValue(key, StringUtil.hexlate(out.toByteArray()));
             } catch (IOException ioe) {
-                Log.info("Error serializing value " + value);
+                log.info("Error serializing value " + value);
             }
         }
 

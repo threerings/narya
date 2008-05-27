@@ -49,7 +49,6 @@ import com.threerings.util.MessageManager;
 import com.threerings.util.Name;
 import com.threerings.util.TimeUtil;
 
-import com.threerings.crowd.Log;
 import com.threerings.crowd.client.LocationObserver;
 import com.threerings.crowd.data.BodyObject;
 import com.threerings.crowd.data.CrowdCodes;
@@ -62,6 +61,8 @@ import com.threerings.crowd.chat.data.SystemMessage;
 import com.threerings.crowd.chat.data.TellFeedbackMessage;
 import com.threerings.crowd.chat.data.UserMessage;
 import com.threerings.crowd.chat.data.UserSystemMessage;
+
+import static com.threerings.crowd.Log.log;
 
 /**
  * The chat director is the client side coordinator of all chat related services. It handles both
@@ -148,7 +149,7 @@ public class ChatDirector extends BasicDirector
 
         // register our default chat handlers
         if (_bundle == null || _msgmgr == null) {
-            Log.warning("Null bundle or message manager given to ChatDirector");
+            log.warning("Null bundle or message manager given to ChatDirector");
             return;
         }
         registerCommandHandlers();
@@ -1001,7 +1002,7 @@ public class ChatDirector extends BasicDirector
         if (bundle != null && _msgmgr != null) {
             MessageBundle msgb = _msgmgr.getBundle(bundle);
             if (msgb == null) {
-                Log.warning("No message bundle available to translate message " +
+                log.warning("No message bundle available to translate message " +
                             "[bundle=" + bundle + ", message=" + message + "].");
             } else {
                 message = msgb.xlate(message);

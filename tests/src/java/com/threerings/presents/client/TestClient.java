@@ -28,10 +28,11 @@ import com.samskivert.util.RunQueue;
 
 import com.threerings.util.Name;
 
-import com.threerings.presents.Log;
 import com.threerings.presents.data.TestObject;
 import com.threerings.presents.dobj.*;
 import com.threerings.presents.net.*;
+
+import static com.threerings.presents.Log.log;
 
 /**
  * A standalone test client.
@@ -74,7 +75,7 @@ public class TestClient
 
     public void clientDidLogon (Client client)
     {
-        Log.info("Client did logon [client=" + client + "].");
+        log.info("Client did logon [client=" + client + "].");
 
         // register ourselves as a test notification receiver
         client.getInvocationDirector().registerReceiver(new TestDecoder(this));
@@ -89,10 +90,10 @@ public class TestClient
         three.add(5);
         service.test(client, "one", 2, three, new TestService.TestFuncListener() {
             public void testSucceeded (String one, int two) {
-                Log.info("Got test response [one=" + one + ", two=" + two + "].");
+                log.info("Got test response [one=" + one + ", two=" + two + "].");
             }
             public void requestFailed (String reason) {
-                Log.info("Urk! Request failed [reason=" + reason + "].");
+                log.info("Urk! Request failed [reason=" + reason + "].");
             }
         });
 
@@ -102,25 +103,25 @@ public class TestClient
 
     public void clientObjectDidChange (Client client)
     {
-        Log.info("Client object did change [client=" + client + "].");
+        log.info("Client object did change [client=" + client + "].");
     }
 
     public void clientDidLogoff (Client client)
     {
-        Log.info("Client did logoff [client=" + client + "].");
+        log.info("Client did logoff [client=" + client + "].");
         System.exit(0);
     }
 
     public void objectAvailable (TestObject object)
     {
         object.addListener(this);
-        Log.info("Object available: " + object);
+        log.info("Object available: " + object);
         object.setBar("lawl!");
     }
 
     public void requestFailed (int oid, ObjectAccessException cause)
     {
-        Log.info("Object unavailable [oid=" + oid +
+        log.info("Object unavailable [oid=" + oid +
                  ", reason=" + cause + "].");
         // nothing to do, so might as well logoff
         _client.logoff(true);
@@ -128,7 +129,7 @@ public class TestClient
 
     public void eventReceived (DEvent event)
     {
-        Log.info("Got event [event=" + event + "].");
+        log.info("Got event [event=" + event + "].");
 
         // request that we log off
         _client.logoff(true);
@@ -144,13 +145,13 @@ public class TestClient
     // documentation inherited from interface
     public void requestFailed (String reason)
     {
-        Log.info("Urk! Request failed [reason=" + reason + "].");
+        log.info("Urk! Request failed [reason=" + reason + "].");
     }
 
     // documentation inherited from interface
     public void receivedTest (int one, String two)
     {
-        Log.info("Received test notification [one=" + one +
+        log.info("Received test notification [one=" + one +
                  ", two=" + two + "].");
     }
 

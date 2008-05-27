@@ -33,9 +33,10 @@ import com.threerings.presents.server.InvocationManager;
 import com.threerings.presents.server.PresentsClient;
 import com.threerings.presents.server.PresentsServer;
 
-import com.threerings.crowd.Log;
 import com.threerings.crowd.chat.server.ChatProvider;
 import com.threerings.crowd.data.BodyObject;
+
+import static com.threerings.crowd.Log.log;
 
 /**
  * The crowd server extends the presents server by configuring it to use the
@@ -143,8 +144,7 @@ public class CrowdServer extends PresentsServer
             server.init();
             server.run();
         } catch (Exception e) {
-            Log.warning("Unable to initialize server.");
-            Log.logStackTrace(e);
+            log.warning("Unable to initialize server.", e);
         }
     }
 

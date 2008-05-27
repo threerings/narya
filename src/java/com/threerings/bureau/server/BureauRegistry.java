@@ -35,34 +35,35 @@ import com.samskivert.util.Invoker;
 import com.samskivert.util.ProcessLogger;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
-import com.threerings.bureau.Log;
 
-/** 
- *  Abstracts the launching and termination of external processes (bureaus) that host instances of 
+import static com.threerings.bureau.Log.log;
+
+/**
+ *  Abstracts the launching and termination of external processes (bureaus) that host instances of
  *  server-side code (agents).
  */
-public class BureauRegistry 
+public class BureauRegistry
 {
     /**
      * Defines the commands that are responsible for invoking a bureau. Instances are associated to
-     * bureau types by the server on startup. The instances are used whenever the registry needs to 
+     * bureau types by the server on startup. The instances are used whenever the registry needs to
      * launch a bureau for an agent with the assocated bureau type.
      * @see setCommandGenerator
      */
     public static interface CommandGenerator
     {
-        /** 
-         * Launches a new bureau using the given server connect-back url and other information. 
+        /**
+         * Launches a new bureau using the given server connect-back url and other information.
          * Called by the registry when it decides a new bureau is needed.
-         * @param serverNameAndPort the name and port the bureau should use to connect back to the 
+         * @param serverNameAndPort the name and port the bureau should use to connect back to the
          * server, e.g. server.com:47624
          * @param bureauId the id of the bureau being launched
          * @param token the token string to use for the credentials when logging in
          * @return the builder, ready to launch
          */
         String[] createCommand (
-            String serverNameAndPort, 
-            String bureauId, 
+            String serverNameAndPort,
+            String bureauId,
             String token);
     }
 
@@ -70,8 +71,8 @@ public class BureauRegistry
      * Creates a new registry, prepared to provide bureau services.
      */
     public BureauRegistry (
-        String serverNameAndPort, 
-        InvocationManager invmgr, 
+        String serverNameAndPort,
+        InvocationManager invmgr,
         RootDObjectManager omgr,
         Invoker invoker)
     {
@@ -96,13 +97,13 @@ public class BureauRegistry
         };
 
         _invmgr.registerDispatcher(
-            new BureauDispatcher(provider), 
+            new BureauDispatcher(provider),
             BureauCodes.BUREAU_GROUP);
     }
 
     /**
-     * Registers a command generator for a given type. When an agent is started and no bureaus are 
-     * running, the <code>bureauType</code> is used to determine the <code>CommandGenerator</code> 
+     * Registers a command generator for a given type. When an agent is started and no bureaus are
+     * running, the <code>bureauType</code> is used to determine the <code>CommandGenerator</code>
      * instance to call.
      * @param bureauType the type of bureau that will be launched
      * @param cmdGenerator the generator to be used for bureaus of <code>bureauType</code>
@@ -110,7 +111,7 @@ public class BureauRegistry
     public void setCommandGenerator (String bureauType, CommandGenerator cmdGenerator)
     {
         if (_generators.get(bureauType) != null) {
-            Log.warning("Generator for type already exists [type=" + 
+            log.warning("Generator for type already exists [type=" +
                 bureauType + "]");
             return;
         }
@@ -118,7 +119,7 @@ public class BureauRegistry
         _generators.put(bureauType, cmdGenerator);
     }
 
-    /** 
+    /**
      * Starts a new agent using the data in the given object, creating a new bureau if necessary.
      */
     public void startAgent (AgentObject agent)
@@ -128,7 +129,7 @@ public class BureauRegistry
 
             _omgr.registerObject(agent);
 
-            Log.info("Bureau ready, sending createAgent " + 
+            log.info("Bureau ready, sending createAgent " +
                 StringUtil.toString(agent));
 
             BureauSender.createAgent(bureau.clientObj, agent.getOid());
@@ -143,12 +144,12 @@ public class BureauRegistry
 
             CommandGenerator generator = _generators.get(agent.bureauType);
             if (generator == null) {
-                Log.warning("CommandGenerator not found for agent's " + 
+                log.warning("CommandGenerator not found for agent's " +
                        "bureau type " + StringUtil.toString(agent));
                 return;
             }
 
-            Log.info("Creating new bureau " + 
+            log.info("Creating new bureau " +
                 StringUtil.toString(agent.bureauId) + " " +
                 StringUtil.toString(generator));
 
@@ -161,7 +162,7 @@ public class BureauRegistry
                     _serverNameAndPort, agent.bureauId, ""));
 
             bureau.builder.redirectErrorStream(true);
-            
+
             _invoker.postUnit(new Launcher(bureau));
 
             _bureaus.put(agent.bureauId, bureau);
@@ -170,13 +171,13 @@ public class BureauRegistry
         _omgr.registerObject(agent);
         bureau.agentStates.put(agent, Bureau.PENDING);
 
-        Log.info("Bureau not ready, pending agent " + 
+        log.info("Bureau not ready, pending agent " +
             StringUtil.toString(agent));
-        
+
         bureau.summarize();
     }
 
-    /** 
+    /**
      * Destroys a previously started agent using the data in the given object.
      */
     public void destroyAgent (AgentObject agent)
@@ -187,7 +188,7 @@ public class BureauRegistry
             return;
         }
 
-        Log.info("Destroying agent " + StringUtil.toString(agent));
+        log.info("Destroying agent " + StringUtil.toString(agent));
 
         // transition the agent to a new state and perform the effect of the transition
         switch (found.state) {
@@ -209,8 +210,8 @@ public class BureauRegistry
 
         case Bureau.DESTROYED:
         case Bureau.STILL_BORN:
-            Log.warning("Acknowledging a request to destory an agent, but agent " +
-                "is in state " + found.state + ", ignoring request " + 
+            log.warning("Acknowledging a request to destory an agent, but agent " +
+                "is in state " + found.state + ", ignoring request " +
                 StringUtil.toString(found.agent));
             break;
         }
@@ -219,14 +220,14 @@ public class BureauRegistry
     }
 
     /**
-     * Callback for when the bureau client acknowledges starting up. Starts all pending agents and 
+     * Callback for when the bureau client acknowledges starting up. Starts all pending agents and
      * causes subsequent agent start requests to be sent directly to the bureau.
      */
     protected void bureauInitialized (ClientObject client, String bureauId)
     {
         final Bureau bureau = _bureaus.get(bureauId);
         if (bureau == null) {
-            Log.warning("Acknowledging initialization of non-existent bureau " + 
+            log.warning("Acknowledging initialization of non-existent bureau " +
                 StringUtil.toString(bureauId));
             return;
         }
@@ -239,13 +240,13 @@ public class BureauRegistry
             }
         });
 
-        Log.info("Bureau created " + StringUtil.toString(bureau) + 
+        log.info("Bureau created " + StringUtil.toString(bureau) +
             ", launching pending agents");
 
         // find all pending agents
         Set<AgentObject> pending = Sets.newHashSet();
 
-        for (Map.Entry<AgentObject, Integer> entry : 
+        for (Map.Entry<AgentObject, Integer> entry :
             bureau.agentStates.entrySet()) {
 
             if (entry.getValue() == Bureau.PENDING) {
@@ -255,7 +256,7 @@ public class BureauRegistry
 
         // create them
         for (AgentObject agent : pending) {
-            Log.info("Creating agent " + StringUtil.toString(agent));
+            log.info("Creating agent " + StringUtil.toString(agent));
             BureauSender.createAgent(bureau.clientObj, agent.getOid());
             bureau.agentStates.put(agent, Bureau.STARTED);
         }
@@ -273,7 +274,7 @@ public class BureauRegistry
             return;
         }
 
-        Log.info("Agent creation confirmed " + StringUtil.toString(found.agent));
+        log.info("Agent creation confirmed " + StringUtil.toString(found.agent));
 
         switch (found.state) {
         case Bureau.STARTED:
@@ -288,7 +289,7 @@ public class BureauRegistry
         case Bureau.PENDING:
         case Bureau.RUNNING:
         case Bureau.DESTROYED:
-            Log.warning("Received acknowledgement of the creation of an " + 
+            log.warning("Received acknowledgement of the creation of an " +
                 "agent in state " + found.state + ", ignoring request " +
                 StringUtil.toString(found.agent));
             break;
@@ -307,7 +308,7 @@ public class BureauRegistry
             return;
         }
 
-        Log.info("Agent creation failed " + StringUtil.toString(found.agent));
+        log.info("Agent creation failed " + StringUtil.toString(found.agent));
 
         switch (found.state) {
         case Bureau.STARTED:
@@ -318,7 +319,7 @@ public class BureauRegistry
         case Bureau.PENDING:
         case Bureau.RUNNING:
         case Bureau.DESTROYED:
-            Log.warning("Received acknowledgement of creation failure for " + 
+            log.warning("Received acknowledgement of creation failure for " +
                 "agent in state " + found.state + ", ignoring request " +
                 StringUtil.toString(found.agent));
             break;
@@ -336,8 +337,8 @@ public class BureauRegistry
         if (found == null) {
             return;
         }
-        
-        Log.info("Agent destruction confirmed " + StringUtil.toString(found.agent));
+
+        log.info("Agent destruction confirmed " + StringUtil.toString(found.agent));
 
         switch (found.state) {
         case Bureau.DESTROYED:
@@ -348,8 +349,8 @@ public class BureauRegistry
         case Bureau.STARTED:
         case Bureau.RUNNING:
         case Bureau.STILL_BORN:
-            Log.warning("Acknowledging agent destruction, but state is " + 
-                found.state + ", ignoring request " + 
+            log.warning("Acknowledging agent destruction, but state is " +
+                found.state + ", ignoring request " +
                 StringUtil.toString(found.agent));
             break;
         }
@@ -357,12 +358,12 @@ public class BureauRegistry
         found.bureau.summarize();
     }
 
-    /** 
+    /**
      * Callback for when a client is destroyed.
      */
     protected void clientDestroyed (Bureau bureau)
     {
-        Log.info("Client destroyed, destroying all agents " + 
+        log.info("Client destroyed, destroying all agents " +
             StringUtil.toString(bureau));
 
         // clean up any agents attached to this bureau
@@ -378,13 +379,13 @@ public class BureauRegistry
     {
         com.threerings.presents.dobj.DObject dobj = _omgr.getObject(agentId);
         if (dobj == null) {
-            Log.warning("Non-existent agent in " + resolver +
+            log.warning("Non-existent agent in " + resolver +
                 " [agentId=" + agentId + "]");
             return null;
         }
 
         if (!(dobj instanceof AgentObject)) {
-            Log.warning("Object not an agent in " + resolver + 
+            log.warning("Object not an agent in " + resolver +
                 " " + StringUtil.toString(dobj));
             return null;
         }
@@ -392,20 +393,20 @@ public class BureauRegistry
         AgentObject agent = (AgentObject)dobj;
         Bureau bureau = _bureaus.get(agent.bureauId);
         if (bureau == null) {
-            Log.warning("Bureau not found for agent in " + resolver +
+            log.warning("Bureau not found for agent in " + resolver +
                 " " + StringUtil.toString(agent));
             return null;
         }
 
         if (!bureau.agentStates.containsKey(agent)) {
-            Log.warning("Bureau does not have agent in " + resolver + 
+            log.warning("Bureau does not have agent in " + resolver +
                 " " + StringUtil.toString(agent));
             return null;
         }
 
         if (client != null && bureau.clientObj != client) {
-            Log.warning("Masquerading request in " + resolver + 
-                " " + StringUtil.toString(agent) + 
+            log.warning("Masquerading request in " + resolver +
+                " " + StringUtil.toString(agent) +
                 " " + StringUtil.toString(bureau.clientObj) +
                 " " + StringUtil.toString(client));
             return null;
@@ -421,7 +422,7 @@ public class BureauRegistry
     {
         Launcher (Bureau bureau)
         {
-            super("Launcher for " + bureau + 
+            super("Launcher for " + bureau +
                 StringUtil.toString(bureau.builder.command()));
             _bureau = bureau;
         }
@@ -430,26 +431,20 @@ public class BureauRegistry
         {
             try {
                 _result = _bureau.builder.start();
-
                 // log the output of the process and prefix with bureau id
-                ProcessLogger.copyMergedOutput(
-                    Log.log, _bureau.bureauId, _result);
-            }
-            catch (Exception e) {
-                Log.warning("Could not launch process for bureau " + 
-                    StringUtil.toString(_bureau));
-                Log.logStackTrace(e);
-            }
+                ProcessLogger.copyMergedOutput(log, _bureau.bureauId, _result);
 
+            } catch (Exception e) {
+                log.warning("Could not launch process", "bureau", _bureau, e);
+            }
             return true;
         }
-        
+
         public void handleResult ()
         {
             _bureau.process = _result;
             _bureau.builder = null;
-            Log.info("Bureau launched " + 
-                StringUtil.toString(_bureau));
+            log.info("Bureau launched", "bureau", _bureau);
         }
 
         protected Bureau _bureau;
@@ -460,8 +455,8 @@ public class BureauRegistry
     protected static class FoundAgent
     {
         FoundAgent (
-           Bureau bureau, 
-           AgentObject agent, 
+           Bureau bureau,
+           AgentObject agent,
            int state)
         {
             this.bureau = bureau;
@@ -493,7 +488,7 @@ public class BureauRegistry
         // Agent ack'ed, now live and hosting, ready to tell other clients
         static final int RUNNING = 2;
 
-        // Agent destruction requested, waiting for acknowledge (after which the agent is removed 
+        // Agent destruction requested, waiting for acknowledge (after which the agent is removed
         // from the Bureau, so has no state)
         static final int DESTROYED = 3;
 
@@ -512,7 +507,7 @@ public class BureauRegistry
         // with this id should be associated with one instance
         String bureauId;
 
-        // The client object of the bureau that has opened a dobj connection to 
+        // The client object of the bureau that has opened a dobj connection to
         // the registry
         ClientObject clientObj;
 
@@ -560,7 +555,7 @@ public class BureauRegistry
             StringBuilder str = new StringBuilder();
             str.append("Bureau ").append(bureauId).append(" [");
             agentSummary(str).append("]");
-            Log.info(str.toString());
+            log.info(str.toString());
         }
     }
 

@@ -21,8 +21,6 @@
 
 package com.threerings.presents.server;
 
-import java.util.logging.Level;
-
 import com.samskivert.io.PersistenceException;
 
 import com.samskivert.util.Invoker;
@@ -75,7 +73,7 @@ public class Rejector extends PresentsServer
             server.init();
             server.run();
         } catch (Exception e) {
-            log.log(Level.WARNING, "Unable to initialize server.", e);
+            log.warning("Unable to initialize server.", e);
         }
     }
 

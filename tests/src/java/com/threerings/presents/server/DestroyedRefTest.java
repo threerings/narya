@@ -24,9 +24,10 @@ package com.threerings.presents.server;
 import junit.framework.Test;
 import junit.framework.TestCase;
 
-import com.threerings.presents.Log;
 import com.threerings.presents.data.TestObject;
 import com.threerings.presents.dobj.*;
+
+import static com.threerings.presents.Log.log;
 
 /**
  * Tests that the dobjmgr will not allow a destroyed object to be added to
@@ -51,7 +52,7 @@ public class DestroyedRefTest extends TestCase
 
         // when we get the attribute change, we can exit
         if (event instanceof ObjectDestroyedEvent) {
-            Log.info("The upcoming object added event should be rejected.");
+            log.info("The upcoming object added event should be rejected.");
 
         } else if (event instanceof ObjectAddedEvent &&
                    toid == _objtwo.getOid()) {
@@ -78,7 +79,7 @@ public class DestroyedRefTest extends TestCase
         // add object one to object two twice in a row to make sure repeated
         // adds don't result in the object being listed twice
         _objtwo.addToList(_objone.getOid());
-        Log.info("The following addToList() should be ignored.");
+        log.info("The following addToList() should be ignored.");
         _objtwo.addToList(_objone.getOid());
 
         // now that we have both objects, try to set up the reference.  first

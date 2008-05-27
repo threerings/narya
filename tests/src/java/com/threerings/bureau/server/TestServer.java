@@ -22,36 +22,24 @@
 package com.threerings.bureau.server;
 
 import com.threerings.presents.server.PresentsServer;
-import com.samskivert.util.OneLineLogFormatter;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+
+import static com.threerings.bureau.Log.log;
 
 /**
  * Extends a presents server to include a bureau registry.
  */
 public class TestServer extends PresentsServer
 {
-    /** We dispatch our log messages through this logger. */
-    public static Logger log = Logger.getLogger(TestServer.class.getName());
-
     /**
      * The bureau registry for the server. Will be null until <code>init</code> is called.
      */
     public static BureauRegistry breg;
-
-    public static void logStackTrace (Throwable t)
-    {
-        log.log(Level.WARNING, t.getMessage(), t);
-    }
 
     /**
      * Creates a new server and runs it.
      */
     public static void main (String[] args)
     {
-        // make log pretty
-        OneLineLogFormatter.configureDefaultHandler();
-
         final TestServer server = new TestServer();
         try {
             server.init();
@@ -59,8 +47,7 @@ public class TestServer extends PresentsServer
             server.run();
 
         } catch (Exception e) {
-            log.warning("Unable to initialize server.");
-            logStackTrace(e);
+            log.warning("Unable to initialize server.", e);
         }
     }
 

@@ -24,7 +24,6 @@ package com.threerings.crowd.server;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Level;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -51,7 +50,6 @@ import com.threerings.presents.dobj.SetAdapter;
 import com.threerings.presents.server.InvocationManager;
 import com.threerings.presents.server.PresentsDObjectMgr;
 
-import com.threerings.crowd.Log;
 import com.threerings.crowd.data.BodyObject;
 import com.threerings.crowd.data.OccupantInfo;
 import com.threerings.crowd.data.Place;
@@ -61,6 +59,8 @@ import com.threerings.crowd.data.PlaceObject;
 import com.threerings.crowd.chat.data.SpeakMarshaller;
 import com.threerings.crowd.chat.server.SpeakDispatcher;
 import com.threerings.crowd.chat.server.SpeakHandler;
+
+import static com.threerings.crowd.Log.log;
 
 /**
  * The place manager is the server-side entity that handles all place-related interaction. It
@@ -309,9 +309,8 @@ public class PlaceManager
             return info;
 
         } catch (Exception e) {
-            Log.warning("Failure building occupant info [where=" + where() +
-                        ", body=" + body + "].");
-            Log.logStackTrace(e);
+            log.warning("Failure building occupant info [where=" + where() +
+                        ", body=" + body + "].", e);
             return null;
         }
     }
@@ -546,9 +545,7 @@ public class PlaceManager
      */
     protected void bodyEntered (final int bodyOid)
     {
-        if (Log.log.getLevel() == Level.FINE) {
-            Log.debug("Body entered [where=" + where() + ", oid=" + bodyOid + "].");
-        }
+        log.debug("Body entered", "where", where(), "oid", bodyOid);
 
         // let our delegates know what's up
         applyToDelegates(new DelegateOp() {
@@ -566,9 +563,7 @@ public class PlaceManager
      */
     protected void bodyLeft (final int bodyOid)
     {
-        if (Log.log.getLevel() == Level.FINE) {
-            Log.debug("Body left [where=" + where() + ", oid=" + bodyOid + "].");
-        }
+        log.debug("Body left", "where", where(), "oid", bodyOid);
 
         // if their occupant info hasn't been removed (which may be the case if they logged off
         // rather than left via a MoveTo request), we need to get it on out of here
@@ -643,7 +638,7 @@ public class PlaceManager
         if (idlePeriod > 0L && _shutdownInterval == null) {
             _shutdownInterval = new Interval((PresentsDObjectMgr)_omgr) {
                 public void expired () {
-                    Log.debug("Unloading idle place '" + where () + "'.");
+                    log.debug("Unloading idle place '" + where () + "'.");
                     shutdown();
                 }
             };

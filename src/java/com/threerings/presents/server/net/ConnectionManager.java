@@ -39,7 +39,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Set;
-import java.util.logging.Level;
 
 import com.samskivert.util.*;
 
@@ -286,7 +285,7 @@ public class ConnectionManager extends LoopingThread
                 log.info("Server listening on " + isa + ".");
 
             } catch (IOException ioe) {
-                log.log(Level.WARNING, "Failure listening to socket on port '" +
+                log.warning("Failure listening to socket on port '" +
                         _ports[ii] + "'.", ioe);
                 _failure = ioe;
             }
@@ -339,7 +338,7 @@ public class ConnectionManager extends LoopingThread
                 log.info("Server accepting datagrams on " + isa + ".");
 
             } catch (IOException ioe) {
-                log.log(Level.WARNING, "Failure opening datagram channel on port '" +
+                log.warning("Failure opening datagram channel on port '" +
                     port + "'.", ioe);
             }
         }
@@ -459,14 +458,14 @@ public class ConnectionManager extends LoopingThread
                                 conn.getAuthRequest(), conn.getAuthResponse());
 
             } catch (IOException ioe) {
-                log.log(Level.WARNING, "Failure upgrading authing connection to running.", ioe);
+                log.warning("Failure upgrading authing connection to running.", ioe);
             }
         }
 
         Set<SelectionKey> ready = null;
         try {
             // check for incoming network events
-//             log.fine("Selecting from " + StringUtil.toString(_selector.keys()) + " (" +
+//             log.debug("Selecting from " + StringUtil.toString(_selector.keys()) + " (" +
 //                       SELECT_LOOP_TIME + ").");
             int ecount = _selector.select(SELECT_LOOP_TIME);
             ready = _selector.selectedKeys();
@@ -482,7 +481,7 @@ public class ConnectionManager extends LoopingThread
         } catch (IOException ioe) {
             if ("Invalid argument".equals(ioe.getMessage())) {
                 // what is this, anyway?
-                log.log(Level.WARNING, "Failure select()ing.", ioe);
+                log.warning("Failure select()ing.", ioe);
             } else {
                 log.warning("Failure select()ing [ioe=" + ioe + "].");
             }
@@ -492,7 +491,7 @@ public class ConnectionManager extends LoopingThread
             // this block of code deals with a bug in the _selector that we observed on 2005-05-02,
             // instead of looping indefinitely after things go pear-shaped, shut us down in an
             // orderly fashion
-            log.log(Level.WARNING, "Failure select()ing.", re);
+            log.warning("Failure select()ing.", re);
             if (_runtimeExceptionCount++ >= 20) {
                 log.warning("Too many errors, bailing.");
                 shutdown();
@@ -532,7 +531,7 @@ public class ConnectionManager extends LoopingThread
                 }
 
             } catch (Exception e) {
-                log.log(Level.WARNING, "Error processing network data: " + handler + ".", e);
+                log.warning("Error processing network data: " + handler + ".", e);
 
                 // if you freak out here, you go straight in the can
                 if (handler != null && handler instanceof Connection) {
@@ -681,7 +680,7 @@ public class ConnectionManager extends LoopingThread
         try {
             return _datagramChannel.send(_databuf, target) > 0;
         } catch (IOException ioe) {
-            log.log(Level.WARNING, "Failed to send datagram.", ioe);
+            log.warning("Failed to send datagram.", ioe);
             return false;
         }
     }
@@ -699,7 +698,7 @@ public class ConnectionManager extends LoopingThread
     protected void handleIterateFailure (Exception e)
     {
         // log the exception
-        log.log(Level.WARNING, "ConnectionManager.iterate() uncaught exception.", e);
+        log.warning("ConnectionManager.iterate() uncaught exception.", e);
     }
 
     // documentation inherited
@@ -712,7 +711,7 @@ public class ConnectionManager extends LoopingThread
         try {
             _ssocket.socket().close();
         } catch (IOException ioe) {
-            log.log(Level.WARNING, "Failed to close listening socket.", ioe);
+            log.warning("Failed to close listening socket.", ioe);
         }
 
         // and the datagram socket, if any
@@ -752,7 +751,7 @@ public class ConnectionManager extends LoopingThread
                 return;
             }
 
-//             log.fine("Accepted connection " + channel + ".");
+//             log.debug("Accepted connection " + channel + ".");
 
             // create a new authing connection object to manage the authentication of this client
             // connection and register it with our selection set
@@ -767,7 +766,7 @@ public class ConnectionManager extends LoopingThread
 
         } catch (IOException ioe) {
             // no need to complain this happens in the normal course of events
-//             log.log(Level.WARNING, "Failure accepting new connection.", ioe);
+//             log.warning("Failure accepting new connection.", ioe);
         }
 
         // make sure we don't leak a socket if something went awry
@@ -792,7 +791,7 @@ public class ConnectionManager extends LoopingThread
         try {
             source = (InetSocketAddress)listener.receive(_databuf);
         } catch (IOException ioe) {
-            log.log(Level.WARNING, "Failure receiving datagram.", ioe);
+            log.warning("Failure receiving datagram.", ioe);
             return 0;
         }
 
@@ -873,7 +872,7 @@ public class ConnectionManager extends LoopingThread
             _outq.append(new Tuple<Connection,byte[]>(conn, data));
 
         } catch (Exception e) {
-            log.log(Level.WARNING, "Failure flattening message [conn=" + conn +
+            log.warning("Failure flattening message [conn=" + conn +
                     ", msg=" + msg + "].", e);
         }
     }

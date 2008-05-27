@@ -119,7 +119,7 @@ public class PeerNode
         // if our client hasn't updated its record since we last tried to logon, then just
         // chill
         if ((_lastConnectStamp - _record.lastUpdated.getTime()) > STALE_INTERVAL) {
-            log.fine("Not reconnecting to stale client [record=" + _record +
+            log.debug("Not reconnecting to stale client [record=" + _record +
                      ", lastTry=" + new Date(_lastConnectStamp) + "].");
             return;
         }

@@ -26,11 +26,12 @@ import java.util.ArrayList;
 import com.samskivert.util.Invoker;
 import com.threerings.util.Name;
 
-import com.threerings.presents.Log;
 import com.threerings.presents.data.ClientObject;
 import com.threerings.presents.data.PermissionPolicy;
 import com.threerings.presents.dobj.DObject;
 import com.threerings.presents.dobj.ObjectAccessException;
+
+import static com.threerings.presents.Log.log;
 
 /**
  * Used to resolve client data when a user starts a session (or when some other entity needs access
@@ -121,8 +122,7 @@ public class ClientResolver extends Invoker.Unit
                     _clobj.reference();
                     crl.clientResolved(_username, _clobj);
                 } catch (Exception e) {
-                    Log.warning("Client resolution listener choked in clientResolved() " + crl);
-                    Log.logStackTrace(e);
+                    log.warning("Client resolution listener choked in clientResolved() " + crl, e);
                 }
             }
 
@@ -172,9 +172,8 @@ public class ClientResolver extends Invoker.Unit
             try {
                 crl.resolutionFailed(_username, cause);
             } catch (Exception e) {
-                Log.warning("Client resolution listener choked in resolutionFailed() [crl=" + crl +
-                            ", username=" + _username + ", cause=" + cause + "].");
-                Log.logStackTrace(e);
+                log.warning("Client resolution listener choked in resolutionFailed() [crl=" + crl +
+                            ", username=" + _username + ", cause=" + cause + "].", e);
             }
         }
     }

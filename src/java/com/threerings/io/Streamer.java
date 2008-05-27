@@ -35,7 +35,6 @@ import java.security.PrivilegedActionException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.logging.Level;
 
 import com.samskivert.util.ClassUtil;
 import com.samskivert.util.StringUtil;

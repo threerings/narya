@@ -26,7 +26,7 @@ import java.util.Iterator;
 import com.samskivert.util.Invoker;
 import com.samskivert.util.StringUtil;
 
-import com.threerings.presents.Log;
+import static com.threerings.presents.Log.log;
 
 /**
  * Extends the generic {@link Invoker} and integrates it a bit more into
@@ -172,7 +172,7 @@ public class PresentsInvoker extends Invoker
                 // otherwise end it, and complain if we're ending it
                 // because of passes
                 if (_passCount >= MAX_PASSES) {
-                    Log.warning("Shutdown Unit passed 50 times without " +
+                    log.warning("Shutdown Unit passed 50 times without " +
                                 "finishing, shutting down harshly.");
                 }
                 doShutdown();
@@ -185,7 +185,7 @@ public class PresentsInvoker extends Invoker
         protected boolean checkLoops ()
         {
             if (_loopCount > MAX_LOOPS) {
-                Log.warning("Shutdown Unit looped on one thread 10000 times " +
+                log.warning("Shutdown Unit looped on one thread 10000 times " +
                             "without finishing, shutting down harshly.");
                 doShutdown();
                 return true;

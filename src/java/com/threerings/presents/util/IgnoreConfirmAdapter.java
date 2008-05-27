@@ -23,10 +23,11 @@ package com.threerings.presents.util;
 
 import com.samskivert.util.ResultListener;
 
-import com.threerings.presents.Log;
 import com.threerings.presents.client.InvocationService;
 import com.threerings.presents.data.InvocationCodes;
 import com.threerings.presents.server.InvocationException;
+
+import static com.threerings.presents.Log.log;
 
 /**
  * Adapts the response from a {@link ResultListener} to a {@link ConfirmListener} wherein the
@@ -56,7 +57,7 @@ public class IgnoreConfirmAdapter<T> implements ResultListener<T>
         if (cause instanceof InvocationException) {
             _listener.requestFailed(cause.getMessage());
         } else {
-            Log.logStackTrace(cause);
+            log.warning(cause);
             _listener.requestFailed(InvocationCodes.INTERNAL_ERROR);
         }
     }

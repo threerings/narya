@@ -23,9 +23,9 @@ package com.threerings.presents.dobj;
 
 import com.samskivert.util.StringUtil;
 
-import com.threerings.presents.Log;
-
 import com.threerings.presents.net.Transport;
+
+import static com.threerings.presents.Log.log;
 
 /**
  * An entry updated event is dispatched when an entry of a {@link DSet} is updated. It can also be
@@ -107,7 +107,7 @@ public class EntryUpdatedEvent<T extends DSet.Entry> extends NamedEvent
             _oldEntry = set.update(_entry);
             if (_oldEntry == null) {
                 // complain if we didn't update anything
-                Log.warning("No matching entry to update [entry=" + this + ", set=" + set + "].");
+                log.warning("No matching entry to update [entry=" + this + ", set=" + set + "].");
                 return false;
             }
         }

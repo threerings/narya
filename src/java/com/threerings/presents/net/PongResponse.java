@@ -26,7 +26,7 @@ import java.io.IOException;
 import com.threerings.io.ObjectInputStream;
 import com.threerings.io.ObjectOutputStream;
 
-import com.threerings.presents.Log;
+import static com.threerings.presents.Log.log;
 
 public class PongResponse extends DownstreamMessage
 {
@@ -90,7 +90,7 @@ public class PongResponse extends DownstreamMessage
         // the time spent between unpacking the ping and packing the pong
         // is the processing delay
         if (_pingStamp == 0L) {
-            Log.warning("Pong response written that was not constructed " +
+            log.warning("Pong response written that was not constructed " +
                         "with a valid ping stamp [rsp=" + this + "].");
             _processDelay = 0;
         } else {
