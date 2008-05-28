@@ -21,20 +21,19 @@
 
 package com.threerings.presents.client;
 
-import com.samskivert.util.Log;
+import com.samskivert.util.Logger;
 
 /**
- * Implements the basic {@link InvocationService.InvocationListener} and
- * logs the failure.
+ * Implements the basic {@link InvocationService.InvocationListener} and logs the failure.
  */
 public class LoggingListener
     implements InvocationService.InvocationListener
 {
     /**
-     * Constructs a listener that will report the supplied error message
-     * along with the reason for failure to the supplied log object.
+     * Constructs a listener that will report the supplied error message along with the reason for
+     * failure to the supplied log object.
      */
-    public LoggingListener (Log log, String errmsg)
+    public LoggingListener (Logger log, String errmsg)
     {
         _log = log;
         _errmsg = errmsg;
@@ -46,6 +45,6 @@ public class LoggingListener
         _log.warning(_errmsg + " [reason=" + reason + "].");
     }
 
-    protected Log _log;
+    protected Logger _log;
     protected String _errmsg;
 }
