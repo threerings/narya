@@ -21,6 +21,12 @@
 
 package com.threerings.presents.client {
 
+/**
+ * ResultAdapter... I mean Wrapper!
+ *
+ * Flash cannot cope with two classes with the same basename in the same .swc
+ * and there's already a ResultAdapter in util/.
+ */
 public class ResultWrapper extends InvocationAdapter
     implements InvocationService_ResultListener
 {
