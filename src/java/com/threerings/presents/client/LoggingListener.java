@@ -21,6 +21,7 @@
 
 package com.threerings.presents.client;
 
+import com.samskivert.util.Log;
 import com.samskivert.util.Logger;
 
 /**
@@ -33,18 +34,33 @@ public class LoggingListener
      * Constructs a listener that will report the supplied error message along with the reason for
      * failure to the supplied log object.
      */
-    public LoggingListener (Logger log, String errmsg)
+    public LoggingListener (Log log, String errmsg)
     {
         _log = log;
+        _errmsg = errmsg;
+    }
+
+    /**
+     * Constructs a listener that will report the supplied error message along with the reason for
+     * failure to the supplied log object.
+     */
+    public LoggingListener (Logger log, String errmsg)
+    {
+        _logger = log;
         _errmsg = errmsg;
     }
 
     // documentation inherited from interface
     public void requestFailed (String reason)
     {
-        _log.warning(_errmsg + " [reason=" + reason + "].");
+        if (_logger != null) {
+            _logger.warning(_errmsg + " [reason=" + reason + "].");
+        } else {
+            _log.warning(_errmsg + " [reason=" + reason + "].");
+        }
     }
 
-    protected Logger _log;
+    protected Log _log;
+    protected Logger _logger;
     protected String _errmsg;
 }
