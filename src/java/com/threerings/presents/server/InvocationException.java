@@ -51,7 +51,7 @@ public class InvocationException extends Exception
     public static void requireAccess (ClientObject clobj, Permission perm)
         throws InvocationException
     {
-        requireAccess(clobj, perm);
+        requireAccess(clobj, perm, null);
     }
 
     /**
