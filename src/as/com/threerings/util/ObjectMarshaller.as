@@ -86,7 +86,8 @@ public class ObjectMarshaller
 
         var data :ByteArray = encode(obj, false) as ByteArray;
         if (maxLength >= 0 && data != null && data.length > maxLength) {
-            throw new ArgumentError("Cannot encode data of size " + data.length + " bytes. May be at most " + maxLength + " bytes.");
+            throw new ArgumentError("Cannot encode data of size " + data.length + " bytes. " +
+                                    "May be at most " + maxLength + " bytes.");
         }
 
         return data;
