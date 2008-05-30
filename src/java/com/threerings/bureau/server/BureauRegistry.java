@@ -157,9 +157,10 @@ public class BureauRegistry
             bureau.bureauId = agent.bureauId;
 
             // schedule the bureau to be kicked off
+            String token = generateToken();
             bureau.builder = new ProcessBuilder(
                 generator.createCommand(
-                    _serverNameAndPort, agent.bureauId, ""));
+                    _serverNameAndPort, agent.bureauId, token));
 
             bureau.builder.redirectErrorStream(true);
 
@@ -413,6 +414,16 @@ public class BureauRegistry
         }
 
         return new FoundAgent(bureau, agent, bureau.agentStates.get(agent));
+    }
+
+    /**
+     * Create a hard-to-guess token that the bureau can use to authenticate itself when it tries 
+     * to log in.
+     */
+    protected String generateToken ()
+    {
+        // TODO: implement
+        return "hard-to-guess-token";
     }
 
     /**
