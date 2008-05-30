@@ -8,8 +8,10 @@ com/threerings/presents/net/Credentials.as
 com/threerings/presents/data/InvocationMarshaller.as
 com/threerings/presents/util/PresentsContext.as
 com/threerings/crowd/chat/client/CommandHandler.as
+com/threerings/util/HashMap.as
 com/threerings/presents/client/InvocationService_InvocationListener.as
 com/threerings/presents/client/InvocationAdapter.as
+com/threerings/presents/data/Permission.as
 com/threerings/presents/data/InvocationMarshaller_ListenerMarshaller.as
 com/threerings/crowd/chat/data/SystemMessage.as
 com/threerings/crowd/chat/data/UserMessage.as
@@ -25,4 +27,3 @@ com/threerings/presents/dobj/MessageEvent.as
 com/threerings/presents/net/UpstreamMessage.as
 com/threerings/presents/net/DownstreamMessage.as
 com/threerings/util/Equalable.as
-com/threerings/util/HashMap.as

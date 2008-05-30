@@ -229,6 +229,7 @@
         <include name="builtin.abc"/>
         <include name="thane.abc"/>
       </import>
+      <in dir="src/as" includes="com/threerings/util/env/Environment.as"/>
       <in dir="src/as"><includesfile name="etc/asc-files-00.txt"/></in>
       <in dir="src/as"><includesfile name="etc/asc-files-01.txt"/></in>
       <in dir="src/as"><includesfile name="etc/asc-files-02.txt"/></in>

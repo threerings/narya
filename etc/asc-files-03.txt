@@ -95,7 +95,6 @@ com/threerings/presents/data/AuthCodes.as
 com/threerings/presents/data/ConMgrStats.as
 com/threerings/presents/data/InvocationMarshaller_ConfirmMarshaller.as
 com/threerings/presents/data/InvocationMarshaller_ResultMarshaller.as
-com/threerings/presents/data/Permission.as
 com/threerings/presents/data/PermissionPolicy.as
 com/threerings/presents/data/TimeBaseMarshaller.as
 com/threerings/presents/data/TimeBaseMarshaller_GotTimeBaseMarshaller.as
