@@ -31,6 +31,21 @@ package com.threerings.util {
 public class ArrayUtil
 {
     /**
+     * Creates a new Array and fills it with a default value.
+     * @param size the size of the array
+     * @param val the value to store at each index of the Array
+     */
+    public static function create (size :uint, val :* = null) :Array
+    {
+        var arr :Array = new Array(size);
+        for (var ii :uint = 0; ii < size; ii++) {
+            arr[ii] = val;
+        }
+
+        return arr;
+    }
+
+    /**
      * Creates a shallow copy of the array.
      *
      * @internal TODO: add support for copy ranges and deep copies?
