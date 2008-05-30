@@ -93,6 +93,8 @@ public class ConnectionManager extends LoopingThread
     public ConnectionManager (int[] ports, int[] datagramPorts)
         throws IOException
     {
+        super("ConnectionManager");
+
         _ports = ports;
         _datagramPorts = datagramPorts;
         _selector = SelectorProvider.provider().openSelector();
