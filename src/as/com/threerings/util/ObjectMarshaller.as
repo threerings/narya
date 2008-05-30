@@ -77,11 +77,19 @@ public class ObjectMarshaller
 
     /**
      * Validate the value and encode it. Arrays are not broken-up.
+     * @param maxLength The maximum size of the data after encoding,
+     *                  or -1 if no size restriction.
      */
-    public static function validateAndEncode (obj :Object) :ByteArray
+    public static function validateAndEncode (obj :Object, maxLength :int = -1) :ByteArray
     {
         validateValue(obj);
-        return encode(obj, false) as ByteArray;
+
+        var data :ByteArray = encode(obj, false) as ByteArray;
+        if (maxLength >= 0 && data != null && data.length > maxLength) {
+            throw new ArgumentError("Cannot encode data of size " + data.length + " bytes. May be at most " + maxLength + " bytes.");
+        }
+
+        return data;
     }
 
     /**
