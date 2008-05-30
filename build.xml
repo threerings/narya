@@ -213,7 +213,7 @@
       <uptodate targetfile="${deploy.dir}/${lib.name}-abc.abc">
         <srcfiles dir="src/as" includes="**/*.as"/>
         <srcfiles dir="src/as/com/threerings/util/env" includes="Environment.as-tm"/>
-        <srcfiles dir="etc" includes="exclude-asc-files.txt"/>
+        <srcfiles dir="etc" includes="asc-files-*.txt"/>
         <srcfiles dir="lib" includes="*.abc"/>
       </uptodate>
     </or></condition>
@@ -221,22 +221,22 @@
 
   <!-- builds our thane library -->
   <target name="abclib" unless="no_build_abclib" depends="checkabclib">
-    <taskdef name="asc" classname="flex.ant.AscLibTask" classpathref="classpath"/>
+    <taskdef name="asc" classname="flex.ant.AscTask" classpathref="classpath"/>
     <copy overwrite="true" file="src/as/com/threerings/util/env/Environment.as-tm"
           tofile="src/as/com/threerings/util/env/Environment.as"/>
-    <dirname property="abs.deploy.dir" file="${deploy.dir}/somefile.txt"/>
-    <asc as3="true" strict="true" classpathref="classpath"
-            outdir="${abs.deploy.dir}" out="${lib.name}-abc">
+    <asc as3="true" strict="true" classpathref="classpath" use="AS3">
       <import dir="lib">
         <include name="builtin.abc"/>
         <include name="thane.abc"/>
       </import>
-      <filespec dir="src/as">
-        <include name="**/*.as"/>
-        <excludesfile name="etc/exclude-asc-files.txt"/>
-      </filespec>
+      <in dir="src/as"><includesfile name="etc/asc-files-00.txt"/></in>
+      <in dir="src/as"><includesfile name="etc/asc-files-01.txt"/></in>
+      <in dir="src/as"><includesfile name="etc/asc-files-02.txt"/></in>
+      <in dir="src/as"><includesfile name="etc/asc-files-03.txt"/></in>
+      <filespec dir="etc" includes="empty.as"/>
     </asc>
     <delete file="src/as/com/threerings/util/env/Environment.as"/>
+    <move overwrite="true" file="etc/empty.abc" tofile="${deploy.dir}/${lib.name}-abc.abc"/>
     <copy overwrite="true" file="lib/thane.abc" todir="${deploy.dir}"/>
     <copy overwrite="true" file="lib/builtin.abc" todir="${deploy.dir}"/>
   </target>

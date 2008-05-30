@@ -1,0 +1,3 @@
+com/threerings/presents/dobj/DObject.as
+com/threerings/crowd/chat/data/ChatMessage.as
+com/threerings/presents/dobj/NamedEvent.as
