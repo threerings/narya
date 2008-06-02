@@ -39,13 +39,10 @@ public class BureauClient extends Client
     public function BureauClient (token :String, bureauId :String)
     {
         super(null);
-
         _bureauId = bureauId;
-
         var creds :BureauCredentials = new BureauCredentials(_bureauId);
         creds.sessionToken = token;
         _creds = creds;
-
         _ctx = createContext();
         _director = createDirector();
     }

@@ -39,19 +39,25 @@ public class BureauCredentials extends Credentials
     public var sessionToken :String;
 
     /**
+     * The id of the bureau logging in.
+     */
+    public var bureauId :String;
+
+    /**
      * Creates new credentials for a specific bureau.
      */
-    public function BureauCredentials (token :String)
+    public function BureauCredentials (bureauId :String)
     {
-        super(new Name("@@bureau:" + token + "@@"));
-        sessionToken = token;
+        super(new Name("@@bureau:" + bureauId + "@@"));
+        this.bureauId = bureauId;
     }
 
     /** @inheritDoc */
     override protected function toStringBuf (buf :StringBuilder) :void
     {
         super.toStringBuf(buf);
-        buf.append(" token=").append(sessionToken);
+        buf.append(" bureauId=").append(bureauId).
+            append(" token=").append(sessionToken);
     }
 
     // from interface Streamable
@@ -59,6 +65,7 @@ public class BureauCredentials extends Credentials
     {
         super.readObject(ins);
         sessionToken = (ins.readField(String) as String);
+        bureauId = (ins.readField(String) as String);
     }
 
     // from interface Streamable
@@ -66,6 +73,7 @@ public class BureauCredentials extends Credentials
     {
         super.writeObject(out);
         out.writeField(sessionToken);
+        out.writeField(bureauId);
     }
 }
 }

@@ -25,6 +25,7 @@ import java.util.Map;
 import java.util.Set;
 import com.threerings.bureau.data.AgentObject;
 import com.threerings.bureau.data.BureauCodes;
+import com.threerings.bureau.data.BureauCredentials;
 import com.threerings.presents.data.ClientObject;
 import com.threerings.presents.dobj.RootDObjectManager;
 import com.threerings.presents.dobj.ObjectDeathListener;
@@ -68,6 +69,21 @@ public class BureauRegistry
     }
 
     /**
+     * Thrown when a bureau could not be authenticated.
+     */
+    public static class AuthenticationException extends Exception
+    {
+        /** 
+         * Creates a new authentication exception with a message explaining why the client could 
+         * not be authenticated as a bureau.
+         */
+        public AuthenticationException (String message)
+        {
+            super(message);
+        }
+    }
+
+    /**
      * Creates a new registry, prepared to provide bureau services.
      */
     public BureauRegistry (
@@ -99,6 +115,30 @@ public class BureauRegistry
         _invmgr.registerDispatcher(
             new BureauDispatcher(provider),
             BureauCodes.BUREAU_GROUP);
+    }
+
+    /**
+     * Check the credentials to make sure this is one of our bureaus.
+     */
+    public void authenticate (BureauCredentials creds)
+        throws AuthenticationException
+    {
+        Bureau bureau = _bureaus.get(creds.bureauId);
+        if (bureau == null) {
+            throw new AuthenticationException(
+                "Bureau " + creds.bureauId + " not found");
+        }
+
+        if (bureau.clientObj != null) {
+            throw new AuthenticationException(
+                "Bureau " + creds.bureauId + " already logged in");
+        }
+
+        if (!bureau.token.equals(creds.sessionToken)) {
+            throw new AuthenticationException(
+                "Bureau " + creds.bureauId + 
+                " does not match credentials token");
+        }
     }
 
     /**
@@ -155,12 +195,12 @@ public class BureauRegistry
 
             bureau = new Bureau();
             bureau.bureauId = agent.bureauId;
+            bureau.token = generateToken();
 
             // schedule the bureau to be kicked off
-            String token = generateToken();
             bureau.builder = new ProcessBuilder(
                 generator.createCommand(
-                    _serverNameAndPort, agent.bureauId, token));
+                    _serverNameAndPort, agent.bureauId, bureau.token));
 
             bureau.builder.redirectErrorStream(true);
 
@@ -513,6 +553,9 @@ public class BureauRegistry
 
         // non-null once the bureau is scheduled but not yet kicked off
         ProcessBuilder builder;
+
+        // The token given to this bureau for authentication
+        String token;
 
         // The bureau's key in the map of bureaus. All requests for this bureau
         // with this id should be associated with one instance

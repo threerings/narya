@@ -36,6 +36,20 @@ public class BureauCredentials extends Credentials
     public String sessionToken;
 
     /**
+     * The id of the bureau logging in.
+     */
+    public String bureauId;
+
+    /**
+     * Test if a given name object matches the name that we generate.
+     */
+    public static boolean isBureau (Name name)
+    {
+        String normal = name.getNormal();
+        return normal.startsWith("@@bureau:") && normal.endsWith("@@");
+    }
+
+    /**
      * Creates an empty credentials for streaming. Should not be used directly.
      */
     public BureauCredentials ()
@@ -48,18 +62,14 @@ public class BureauCredentials extends Credentials
     public BureauCredentials (String bureauId)
     {
         super(new Name("@@bureau:" + bureauId + "@@"));
+        this.bureauId = bureauId;
     }
 
     @Override // inherit documentation
     protected void toString (StringBuilder buf)
     {
         super.toString(buf);
-        buf.append(" token=").append(sessionToken);
-    }
-
-    // inherit documentation - from Object
-    public String toString ()
-    {
-        return super.toString() + ", token=" + sessionToken;
+        buf.append(" id=").append(bureauId).
+            append(" token=").append(sessionToken);
     }
 }

@@ -41,13 +41,10 @@ public abstract class BureauClient extends Client
     public BureauClient (String token, String bureauId, RunQueue runQueue)
     {
         super(null, runQueue);
-
         _bureauId = bureauId;
-
         BureauCredentials creds = new BureauCredentials(_bureauId);
         creds.sessionToken = token;
         _creds = creds;
-
         _ctx = createContext();
         _director = createDirector();
     }
