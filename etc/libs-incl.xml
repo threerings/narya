@@ -14,5 +14,8 @@
     <include name="retroweaver-all-1.2.2.jar"/>
     <include name="samskivert.jar"/>
     <include name="velocity-1.5-dev.jar"/>
+    <include name="tamarin-builtin*.abc"/>
+    <include name="thane*.abc"/>
+    <include name="http*.abc"/>
   </fileset>
 </project>

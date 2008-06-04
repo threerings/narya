@@ -214,7 +214,7 @@
         <srcfiles dir="src/as" includes="**/*.as"/>
         <srcfiles dir="src/as/com/threerings/util/env" includes="Environment.as-tm"/>
         <srcfiles dir="etc" includes="asc-files-*.txt"/>
-        <srcfiles dir="lib" includes="*.abc"/>
+        <srcfiles dir="${deploy.dir}/lib" includes="*.abc"/>
       </uptodate>
     </or></condition>
   </target>
@@ -225,9 +225,9 @@
     <copy overwrite="true" file="src/as/com/threerings/util/env/Environment.as-tm"
           tofile="src/as/com/threerings/util/env/Environment.as"/>
     <asc as3="true" strict="true" classpathref="classpath" use="AS3">
-      <import dir="lib">
-        <include name="builtin.abc"/>
-        <include name="thane.abc"/>
+      <import dir="${deploy.dir}/lib">
+        <include name="tamarin-builtin*.abc"/>
+        <include name="thane*.abc"/>
       </import>
       <in dir="src/as" includes="com/threerings/util/env/Environment.as"/>
       <in dir="src/as"><includesfile name="etc/asc-files-00.txt"/></in>
@@ -238,8 +238,6 @@
     </asc>
     <delete file="src/as/com/threerings/util/env/Environment.as"/>
     <move overwrite="true" file="etc/empty.abc" tofile="${deploy.dir}/${lib.name}-abc.abc"/>
-    <copy overwrite="true" file="lib/thane.abc" todir="${deploy.dir}"/>
-    <copy overwrite="true" file="lib/builtin.abc" todir="${deploy.dir}"/>
   </target>
 
   <!-- build the native libraries -->
