@@ -38,6 +38,9 @@ public class AgentObject extends DObject
 
     /** The field name of the <code>className</code> field. */
     public static const CLASS_NAME :String = "className";
+
+    /** The field name of the <code>clientOid</code> field. */
+    public static const CLIENT_OID :String = "clientOid";
     // AUTO-GENERATED: FIELDS END
 
     /** The id of the bureau the agent is running in. This is normally a unique id corresponding
@@ -57,71 +60,91 @@ public class AgentObject extends DObject
      *  used depends on the type of bureau and will be resolve in the bureau client. */
     public var className :String;
 
+    /** The id of the client running this agent (only set after the agent is assigned to a 
+     *  bureau and is running). */
+    public var clientOid :int;
+
     // AUTO-GENERATED: METHODS START
-    /**
-     * Requests that the <code>bureauId</code> field be set to the
-     * specified value. The local value will be updated immediately and an
-     * event will be propagated through the system to notify all listeners
-     * that the attribute did change. Proxied copies of this object (on
-     * clients) will apply the value change when they received the
-     * attribute changed notification.
-     */
-    public function setBureauId (value :String) :void
-    {
-        var ovalue :String = this.bureauId;
-        requestAttributeChange(
-            BUREAU_ID, value, ovalue);
-        this.bureauId = value;
-    }
+//     /**
+//      * Requests that the <code>bureauId</code> field be set to the
+//      * specified value. The local value will be updated immediately and an
+//      * event will be propagated through the system to notify all listeners
+//      * that the attribute did change. Proxied copies of this object (on
+//      * clients) will apply the value change when they received the
+//      * attribute changed notification.
+//      */
+//     public function setBureauId (value :String) :void
+//     {
+//         var ovalue :String = this.bureauId;
+//         requestAttributeChange(
+//             BUREAU_ID, value, ovalue);
+//         this.bureauId = value;
+//     }
 
-    /**
-     * Requests that the <code>bureauType</code> field be set to the
-     * specified value. The local value will be updated immediately and an
-     * event will be propagated through the system to notify all listeners
-     * that the attribute did change. Proxied copies of this object (on
-     * clients) will apply the value change when they received the
-     * attribute changed notification.
-     */
-    public function setBureauType (value :String) :void
-    {
-        var ovalue :String = this.bureauType;
-        requestAttributeChange(
-            BUREAU_TYPE, value, ovalue);
-        this.bureauType = value;
-    }
+//     /**
+//      * Requests that the <code>bureauType</code> field be set to the
+//      * specified value. The local value will be updated immediately and an
+//      * event will be propagated through the system to notify all listeners
+//      * that the attribute did change. Proxied copies of this object (on
+//      * clients) will apply the value change when they received the
+//      * attribute changed notification.
+//      */
+//     public function setBureauType (value :String) :void
+//     {
+//         var ovalue :String = this.bureauType;
+//         requestAttributeChange(
+//             BUREAU_TYPE, value, ovalue);
+//         this.bureauType = value;
+//     }
 
-    /**
-     * Requests that the <code>code</code> field be set to the
-     * specified value. The local value will be updated immediately and an
-     * event will be propagated through the system to notify all listeners
-     * that the attribute did change. Proxied copies of this object (on
-     * clients) will apply the value change when they received the
-     * attribute changed notification.
-     */
-    public function setCode (value :String) :void
-    {
-        var ovalue :String = this.code;
-        requestAttributeChange(
-            CODE, value, ovalue);
-        this.code = value;
-    }
+//     /**
+//      * Requests that the <code>code</code> field be set to the
+//      * specified value. The local value will be updated immediately and an
+//      * event will be propagated through the system to notify all listeners
+//      * that the attribute did change. Proxied copies of this object (on
+//      * clients) will apply the value change when they received the
+//      * attribute changed notification.
+//      */
+//     public function setCode (value :String) :void
+//     {
+//         var ovalue :String = this.code;
+//         requestAttributeChange(
+//             CODE, value, ovalue);
+//         this.code = value;
+//     }
 
-    /**
-     * Requests that the <code>className</code> field be set to the
-     * specified value. The local value will be updated immediately and an
-     * event will be propagated through the system to notify all listeners
-     * that the attribute did change. Proxied copies of this object (on
-     * clients) will apply the value change when they received the
-     * attribute changed notification.
-     */
-    public function setClassName (value :String) :void
-    {
-        var ovalue :String = this.className;
-        requestAttributeChange(
-            CLASS_NAME, value, ovalue);
-        this.className = value;
-    }
-    // AUTO-GENERATED: METHODS END
+//     /**
+//      * Requests that the <code>className</code> field be set to the
+//      * specified value. The local value will be updated immediately and an
+//      * event will be propagated through the system to notify all listeners
+//      * that the attribute did change. Proxied copies of this object (on
+//      * clients) will apply the value change when they received the
+//      * attribute changed notification.
+//      */
+//     public function setClassName (value :String) :void
+//     {
+//         var ovalue :String = this.className;
+//         requestAttributeChange(
+//             CLASS_NAME, value, ovalue);
+//         this.className = value;
+//     }
+
+//     /**
+//      * Requests that the <code>clientOid</code> field be set to the
+//      * specified value. The local value will be updated immediately and an
+//      * event will be propagated through the system to notify all listeners
+//      * that the attribute did change. Proxied copies of this object (on
+//      * clients) will apply the value change when they received the
+//      * attribute changed notification.
+//      */
+//     public function setClientOid (value :int) :void
+//     {
+//         var ovalue :int = this.clientOid;
+//         requestAttributeChange(
+//             CLIENT_OID, Integer.valueOf(value), Integer.valueOf(ovalue));
+//         this.clientOid = value;
+//     }
+//     // AUTO-GENERATED: METHODS END
 
     // from interface Streamable
     override public function readObject (ins :ObjectInputStream) :void
@@ -131,6 +154,7 @@ public class AgentObject extends DObject
         bureauType = ins.readField(String) as String;
         code = ins.readField(String) as String;
         className = ins.readField(String) as String;
+        clientOid = ins.readInt();
     }
 }
 }

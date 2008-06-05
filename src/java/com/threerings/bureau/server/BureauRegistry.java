@@ -320,6 +320,7 @@ public class BureauRegistry
         switch (found.state) {
         case Bureau.STARTED:
             found.bureau.agentStates.put(found.agent, Bureau.RUNNING);
+            found.agent.setClientOid(client.getOid());
             break;
 
         case Bureau.STILL_BORN:

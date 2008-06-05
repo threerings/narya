@@ -37,6 +37,9 @@ public class AgentObject extends DObject
 
     /** The field name of the <code>className</code> field. */
     public static final String CLASS_NAME = "className";
+
+    /** The field name of the <code>clientOid</code> field. */
+    public static final String CLIENT_OID = "clientOid";
     // AUTO-GENERATED: FIELDS END
 
     /** The id of the bureau the agent is running in. This is normally a unique id corresponding
@@ -55,6 +58,10 @@ public class AgentObject extends DObject
     /** The main class within the code to use when launching an agent. Whther this value is 
      *  used depends on the type of bureau and will be resolve in the bureau client. */
     public String className;
+
+    /** The id of the client running this agent (only set after the agent is assigned to a 
+     *  bureau and run). */
+    public int clientOid;
 
     // AUTO-GENERATED: METHODS START
     /**
@@ -119,6 +126,22 @@ public class AgentObject extends DObject
         requestAttributeChange(
             CLASS_NAME, value, ovalue);
         this.className = value;
+    }
+
+    /**
+     * Requests that the <code>clientOid</code> field be set to the
+     * specified value. The local value will be updated immediately and an
+     * event will be propagated through the system to notify all listeners
+     * that the attribute did change. Proxied copies of this object (on
+     * clients) will apply the value change when they received the
+     * attribute changed notification.
+     */
+    public void setClientOid (int value)
+    {
+        int ovalue = this.clientOid;
+        requestAttributeChange(
+            CLIENT_OID, Integer.valueOf(value), Integer.valueOf(ovalue));
+        this.clientOid = value;
     }
     // AUTO-GENERATED: METHODS END
 }
