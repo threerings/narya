@@ -16,6 +16,5 @@
     <include name="velocity-1.5-dev.jar"/>
     <include name="tamarin-builtin*.abc"/>
     <include name="thane*.abc"/>
-    <include name="http*.abc"/>
   </fileset>
 </project>
