@@ -28,6 +28,7 @@ import com.google.common.collect.Lists;
 import com.google.inject.Guice;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
+import com.google.inject.Singleton;
 
 import com.threerings.bureau.data.AgentObject;
 
@@ -42,6 +43,7 @@ import static com.threerings.bureau.Log.log;
  * TODO: add more types of testing
  * TODO: allow a quitAfter configuration parameter to shut down automatically
  */
+@Singleton
 public class RegistryTester
 {
     /**

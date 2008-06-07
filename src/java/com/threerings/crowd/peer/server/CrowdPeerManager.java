@@ -22,6 +22,7 @@
 package com.threerings.crowd.peer.server;
 
 import com.google.inject.Inject;
+import com.google.inject.Singleton;
 
 import com.threerings.util.Name;
 
@@ -49,6 +50,7 @@ import com.threerings.crowd.peer.data.CrowdPeerMarshaller;
 /**
  * Extends the standard peer manager and bridges certain Crowd services.
  */
+@Singleton
 public class CrowdPeerManager extends PeerManager
     implements CrowdPeerProvider, ChatProvider.ChatForwarder
 {

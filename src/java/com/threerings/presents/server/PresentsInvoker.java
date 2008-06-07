@@ -24,6 +24,7 @@ package com.threerings.presents.server;
 import java.util.Iterator;
 
 import com.google.inject.Inject;
+import com.google.inject.Singleton;
 
 import com.samskivert.util.Invoker;
 import com.samskivert.util.StringUtil;
@@ -33,6 +34,7 @@ import static com.threerings.presents.Log.log;
 /**
  * Extends the generic {@link Invoker} and integrates it a bit more into the Presents system.
  */
+@Singleton
 public class PresentsInvoker extends Invoker
     implements ShutdownManager.Shutdowner, ReportManager.Reporter
 {
