@@ -30,13 +30,15 @@ import com.samskivert.util.StringUtil;
 
 import com.threerings.util.MessageBundle;
 
+import com.threerings.presents.dobj.RootDObjectManager;
+
 import static com.threerings.presents.Log.log;
 
 /**
- * Handles scheduling and execution of automated server reboots. Note that this
- * service simply shuts down the server and assumes it will be automatically
- * restarted by some external entity. It is generally useful to run a server
- * from a script that automatically restarts it when it terminates.
+ * Handles scheduling and execution of automated server reboots. Note that this service simply
+ * shuts down the server and assumes it will be automatically restarted by some external entity. It
+ * is generally useful to run a server from a script that automatically restarts it when it
+ * terminates.
  */
 public abstract class RebootManager
 {
@@ -58,15 +60,6 @@ public abstract class RebootManager
          * the shutdown.
          */
         public void shutdownPlanned (int warningsLeft, long msLeft);
-    }
-
-    /**
-     * Creates a reboot manager that will shutdown the supplied server when the
-     * time comes.
-     */
-    public RebootManager (PresentsServer server)
-    {
-        _server = server;
     }
 
     /**
@@ -154,7 +147,7 @@ public abstract class RebootManager
         // should issue the first pre-reboot warning
         _rebootSoon = false;
         long firstWarnTime = (_nextReboot - (WARNINGS[0] * 60 * 1000)) - now;
-        _interval = new Interval(PresentsServer.omgr) {
+        _interval = new Interval(_omgr) {
             public void expired () {
                 doWarning(0);
             }
@@ -185,6 +178,15 @@ public abstract class RebootManager
             throw new IllegalArgumentException(
                 "no such lockId (" + lockId + ")");
         }
+    }
+
+    /**
+     * Provides us with our dependencies.
+     */
+    protected RebootManager (PresentsServer server, RootDObjectManager omgr)
+    {
+        _server = server;
+        _omgr = omgr;
     }
 
     /**
@@ -239,7 +241,7 @@ public abstract class RebootManager
             new Interval() { // Note: This interval does not run on the dobj thread
                 public void expired () {
                     // ...but we then post a LongRunnable...
-                    PresentsServer.omgr.postRunnable(new PresentsDObjectMgr.LongRunnable() {
+                    _omgr.postRunnable(new PresentsDObjectMgr.LongRunnable() {
                         public void run () {
                             _server.shutdown();
                         }
@@ -263,7 +265,7 @@ public abstract class RebootManager
         }
 
         // schedule the next warning
-        _interval = new Interval(PresentsServer.omgr) {
+        _interval = new Interval(_omgr) {
             public void expired () {
                 doWarning(level + 1);
             }
@@ -285,7 +287,7 @@ public abstract class RebootManager
         log.info("Reboot delayed due to outstanding locks: " +
                  StringUtil.toString(_rebootLocks.elements()));
         broadcast("m.reboot_delayed");
-        _interval = new Interval(PresentsServer.omgr) {
+        _interval = new Interval(_omgr) {
             public void expired () {
                 doWarning(WARNINGS.length);
             }
@@ -313,6 +315,9 @@ public abstract class RebootManager
     /** The server we will reboot. */
     protected PresentsServer _server;
 
+    /** Our distributed object manager. */
+    protected RootDObjectManager _omgr;
+
     /** The time at which our next reboot is scheduled or 0L. */
     protected long _nextReboot;
 
@@ -326,9 +331,7 @@ public abstract class RebootManager
     protected Interval _interval;
 
     /** A list of PendingShutdownObservers. */
-    protected ObserverList<PendingShutdownObserver> _observers =
-        new ObserverList<PendingShutdownObserver>(
-            ObserverList.FAST_UNSAFE_NOTIFY);
+    protected ObserverList<PendingShutdownObserver> _observers = ObserverList.newFastUnsafe();
 
     /** The next reboot lock id. */
     protected int _nextRebootLockId = 0;

@@ -25,6 +25,7 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
+import com.google.inject.Singleton;
 
 import com.samskivert.util.Invoker;
 import com.samskivert.util.RunQueue;
@@ -34,6 +35,8 @@ import com.threerings.presents.annotation.EventQueue;
 import com.threerings.presents.annotation.MainInvoker;
 import com.threerings.presents.client.Client;
 import com.threerings.presents.dobj.AccessController;
+import com.threerings.presents.dobj.DObjectManager;
+import com.threerings.presents.dobj.RootDObjectManager;
 import com.threerings.presents.server.net.ConnectionManager;
 
 import static com.threerings.presents.Log.log;
@@ -46,14 +49,17 @@ import static com.threerings.presents.Log.log;
  * available in the <code>PresentsServer</code> class. These will be configured when the singleton
  * instance is initialized.
  */
+@Singleton
 public class PresentsServer
 {
     /** Configures dependencies needed by the Presents services. */
     public static class Module extends AbstractModule
     {
         @Override protected void configure () {
-            bind(Invoker.class).annotatedWith(MainInvoker.class).to(ServerInvoker.class);
+            bind(Invoker.class).annotatedWith(MainInvoker.class).to(PresentsInvoker.class);
             bind(RunQueue.class).annotatedWith(EventQueue.class).to(PresentsDObjectMgr.class);
+            bind(DObjectManager.class).to(PresentsDObjectMgr.class);
+            bind(RootDObjectManager.class).to(PresentsDObjectMgr.class);
         }
     }
 
@@ -255,20 +261,6 @@ public class PresentsServer
      */
     protected void invokerDidShutdown ()
     {
-    }
-
-    /** Integrates the main invoker thread with the distributed object thread so that they can
-     * coordinate the shutdown process to ensure that all (barring infinite loops) invoker units
-     * and distributed object events are processed before the server shuts down. */
-    protected static class ServerInvoker extends PresentsInvoker
-    {
-        @Inject public ServerInvoker (PresentsDObjectMgr omgr, ReportManager repmgr) {
-            super(omgr, repmgr);
-        }
-        @Override protected void didShutdown () {
-            _server.invokerDidShutdown();
-        }
-        @Inject protected PresentsServer _server;
     }
 
     /** The manager of distributed objects. */

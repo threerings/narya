@@ -25,6 +25,7 @@ import java.util.Iterator;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+import com.google.inject.Singleton;
 
 import com.threerings.util.Name;
 
@@ -45,6 +46,7 @@ import static com.threerings.crowd.Log.log;
  * The crowd server extends the presents server by configuring it to use the
  * extensions provided by the crowd layer to support crowd services.
  */
+@Singleton
 public class CrowdServer extends PresentsServer
 {
     /** Configures dependencies needed by the Crowd services. */
@@ -52,7 +54,7 @@ public class CrowdServer extends PresentsServer
     {
         @Override protected void configure () {
             super.configure();
-            // nada
+            bind(PresentsServer.class).to(CrowdServer.class);
         }
     }
 

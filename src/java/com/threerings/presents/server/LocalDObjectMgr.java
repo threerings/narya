@@ -24,6 +24,8 @@ package com.threerings.presents.server;
 import java.awt.EventQueue;
 
 import com.google.inject.Inject;
+import com.google.inject.Singleton;
+
 import com.threerings.presents.dobj.DEvent;
 import com.threerings.presents.dobj.DObject;
 import com.threerings.presents.dobj.DObjectManager;
@@ -34,6 +36,7 @@ import com.threerings.presents.dobj.Subscriber;
  * that it can run in a client with a GUI and provide a "light" server for local operation of a
  * normally distributed application.
  */
+@Singleton
 public class LocalDObjectMgr extends PresentsDObjectMgr
 {
     /**

@@ -121,6 +121,12 @@ public class PresentsInvoker extends Invoker
         }
     }
 
+    @Override // from Invoker
+    protected void didShutdown ()
+    {
+        _server.invokerDidShutdown();
+    }
+
     /**
      * This gets posted back and forth between the invoker and DObjectMgr until both of their
      * queues are empty and they can both be safely shutdown.
@@ -222,6 +228,9 @@ public class PresentsInvoker extends Invoker
 
     /** The distributed object manager with which we interoperate. */
     protected PresentsDObjectMgr _omgr;
+
+    /** The server we're working for. */
+    @Inject protected PresentsServer _server;
 
     /** The largest queue size since our last report. */
     protected long _maxQueueSize;
