@@ -67,6 +67,7 @@ import com.threerings.presents.util.DatagramSequencer;
 import com.threerings.presents.server.Authenticator;
 import com.threerings.presents.server.PresentsDObjectMgr;
 import com.threerings.presents.server.ReportManager;
+import com.threerings.presents.server.ShutdownManager;
 
 import static com.threerings.presents.Log.log;
 
@@ -78,14 +79,15 @@ import static com.threerings.presents.Log.log;
  */
 @Singleton
 public class ConnectionManager extends LoopingThread
-    implements ReportManager.Reporter
+    implements ShutdownManager.Shutdowner, ReportManager.Reporter
 {
     /**
      * Creates a connection manager instance. Don't call this, Guice will do it for you.
      */
-    @Inject public ConnectionManager (ReportManager repmgr)
+    @Inject public ConnectionManager (ShutdownManager shutmgr, ReportManager repmgr)
     {
         super("ConnectionManager");
+        shutmgr.registerShutdowner(this);
         repmgr.registerReporter(this);
     }
 

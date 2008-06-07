@@ -52,7 +52,7 @@ public abstract class AbstractSignalHandler
     protected void termReceived ()
     {
         log.info("Shutdown initiated by TERM signal.");
-        _server.queueShutdown();
+        _shutmgr.queueShutdown();
     }
 
     /**
@@ -61,7 +61,7 @@ public abstract class AbstractSignalHandler
     protected void intReceived ()
     {
         log.info("Shutdown initiated by INT signal.");
-        _server.queueShutdown();
+        _shutmgr.queueShutdown();
     }
 
     /**
@@ -72,6 +72,6 @@ public abstract class AbstractSignalHandler
         log.info(_repmgr.generateReport());
     }
 
-    @Inject protected PresentsServer _server;
+    @Inject protected ShutdownManager _shutmgr;
     @Inject protected ReportManager _repmgr;
 }

@@ -51,6 +51,7 @@ import static com.threerings.presents.Log.log;
  */
 @Singleton
 public class PresentsServer
+    implements ShutdownManager.Shutdowner
 {
     /** Configures dependencies needed by the Presents services. */
     public static class Module extends AbstractModule
@@ -141,6 +142,9 @@ public class PresentsServer
             injector.getInstance(NativeSignalHandler.class).init();
         }
 
+        // register with the shutdown manager to provide legacy centralized shutdown support
+        _shutmgr.registerShutdowner(this);
+
         // configure the dobject manager with our access controller
         _omgr.setDefaultAccessController(createDefaultObjectAccessController());
 
@@ -221,36 +225,9 @@ public class PresentsServer
         omgr.run();
     }
 
-    /**
-     * Requests that the server shut down. All registered shutdown participants will be shut down,
-     * following which the server process will be terminated.
-     */
+    // from interface ShutdownManager.Shutdowner
     public void shutdown ()
     {
-        // shutdown all registered shutdowners
-        _shutmgr.shutdown();
-
-        // shut down the connection manager (this will cease all network activity but not actually
-        // close the connections)
-        if (_conmgr.isRunning()) {
-            _conmgr.shutdown();
-        }
-
-        // finally shut down the invoker and dobj manager (The invoker does both for us.)
-        invoker.shutdown();
-    }
-
-    /**
-     * Queues up a request to shutdown on the dobjmgr thread. This method may be safely called from
-     * any thread.
-     */
-    public void queueShutdown ()
-    {
-        omgr.postRunnable(new Runnable() {
-            public void run () {
-                shutdown();
-            }
-        });
     }
 
     /**

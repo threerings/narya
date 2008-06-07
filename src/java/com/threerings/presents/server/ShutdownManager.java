@@ -21,9 +21,13 @@
 
 package com.threerings.presents.server;
 
+import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
 import com.samskivert.util.ObserverList;
+import com.samskivert.util.RunQueue;
+
+import com.threerings.presents.annotation.EventQueue;
 
 import static com.threerings.presents.Log.log;
 
@@ -42,6 +46,11 @@ public class ShutdownManager
         public void shutdown ();
     }
 
+    @Inject ShutdownManager (@EventQueue RunQueue dobjq)
+    {
+        _dobjq = dobjq;
+    }
+
     /**
      * Registers an entity that will be notified when the server is shutting down.
      */
@@ -58,6 +67,22 @@ public class ShutdownManager
         _downers.remove(downer);
     }
 
+    /**
+     * Queues up a request to shutdown on the dobjmgr thread. This method may be safely called from
+     * any thread.
+     */
+    public void queueShutdown ()
+    {
+        _dobjq.postRunnable(new Runnable() {
+            public void run () {
+                shutdown();
+            }
+        });
+    }
+
+    /**
+     * Shuts down all shutdowners immediately on the caller's thread.
+     */
     public void shutdown ()
     {
         ObserverList<Shutdowner> downers = _downers;
@@ -75,6 +100,9 @@ public class ShutdownManager
             }
         });
     }
+
+    /** The queue we'll use to get onto the dobjmgr thread before shutting down. */
+    protected RunQueue _dobjq;
 
     /** A list of shutdown participants. */
     protected static ObserverList<Shutdowner> _downers = ObserverList.newSafeInOrder();

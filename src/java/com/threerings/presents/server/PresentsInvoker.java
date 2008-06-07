@@ -34,16 +34,14 @@ import static com.threerings.presents.Log.log;
  * Extends the generic {@link Invoker} and integrates it a bit more into the Presents system.
  */
 public class PresentsInvoker extends Invoker
-    implements ReportManager.Reporter
+    implements ShutdownManager.Shutdowner, ReportManager.Reporter
 {
-    /**
-     * Creates an invoker that will post results to the supplied
-     * distributed object manager.
-     */
-    @Inject public PresentsInvoker (PresentsDObjectMgr omgr, ReportManager repmgr)
+    @Inject public PresentsInvoker (PresentsDObjectMgr omgr, ShutdownManager shutmgr,
+                                    ReportManager repmgr)
     {
         super("presents.Invoker", omgr);
         _omgr = omgr;
+        shutmgr.registerShutdowner(this);
         if (PERF_TRACK) {
             repmgr.registerReporter(this);
         }

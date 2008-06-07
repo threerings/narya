@@ -54,7 +54,7 @@ public class CrowdServer extends PresentsServer
     {
         @Override protected void configure () {
             super.configure();
-            bind(PresentsServer.class).to(CrowdServer.class);
+            // nada (yet)
         }
     }
 
