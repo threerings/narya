@@ -51,7 +51,6 @@ import static com.threerings.presents.Log.log;
  */
 @Singleton
 public class PresentsServer
-    implements ShutdownManager.Shutdowner
 {
     /** Configures dependencies needed by the Presents services. */
     public static class Module extends AbstractModule
@@ -142,9 +141,6 @@ public class PresentsServer
             injector.getInstance(NativeSignalHandler.class).init();
         }
 
-        // register with the shutdown manager to provide legacy centralized shutdown support
-        _shutmgr.registerShutdowner(this);
-
         // configure the dobject manager with our access controller
         _omgr.setDefaultAccessController(createDefaultObjectAccessController());
 
@@ -223,11 +219,6 @@ public class PresentsServer
         });
         // invoke the dobjmgr event loop
         omgr.run();
-    }
-
-    // from interface ShutdownManager.Shutdowner
-    public void shutdown ()
-    {
     }
 
     /**

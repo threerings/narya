@@ -183,9 +183,9 @@ public abstract class RebootManager
     /**
      * Provides us with our dependencies.
      */
-    protected RebootManager (PresentsServer server, RootDObjectManager omgr)
+    protected RebootManager (ShutdownManager shutmgr, RootDObjectManager omgr)
     {
-        _server = server;
+        _shutmgr = shutmgr;
         _omgr = omgr;
     }
 
@@ -233,8 +233,7 @@ public abstract class RebootManager
             }
 
             // that's it! do the reboot
-            log.info("Performing automatic server reboot/shutdown, " +
-                     "as scheduled by: " + _initiator);
+            log.info("Performing automatic server reboot/shutdown, as scheduled by: " + _initiator);
             broadcast("m.rebooting_now");
 
             // wait 1 second, then do it
@@ -243,7 +242,7 @@ public abstract class RebootManager
                     // ...but we then post a LongRunnable...
                     _omgr.postRunnable(new PresentsDObjectMgr.LongRunnable() {
                         public void run () {
-                            _server.shutdown();
+                            _shutmgr.shutdown();
                         }
                     });
                 }
@@ -312,8 +311,8 @@ public abstract class RebootManager
         });
     }
 
-    /** The server we will reboot. */
-    protected PresentsServer _server;
+    /** Our shutdown manager, which is how we will reboot. */
+    protected ShutdownManager _shutmgr;
 
     /** Our distributed object manager. */
     protected RootDObjectManager _omgr;
