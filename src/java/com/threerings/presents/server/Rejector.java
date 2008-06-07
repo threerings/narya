@@ -21,6 +21,9 @@
 
 package com.threerings.presents.server;
 
+import com.google.inject.Guice;
+import com.google.inject.Injector;
+
 import com.samskivert.io.PersistenceException;
 
 import com.samskivert.util.Invoker;
@@ -39,12 +42,12 @@ import static com.threerings.presents.Log.log;
  */
 public class Rejector extends PresentsServer
 {
-    // documentation inherited
-    public void init ()
+    @Override // from PresentsServer
+    public void init (Injector injector)
         throws Exception
     {
-        super.init();
-        conmgr.setAuthenticator(new RejectingAuthenticator());
+        super.init(injector);
+        _conmgr.setAuthenticator(new RejectingAuthenticator());
     }
 
     // documentation inherited
@@ -68,9 +71,10 @@ public class Rejector extends PresentsServer
             _errmsg = MessageBundle.tcompose(_errmsg, eargs);
         }
 
-        Rejector server = new Rejector();
+        Injector injector = Guice.createInjector(new Module());
+        Rejector server = injector.getInstance(Rejector.class);
         try {
-            server.init();
+            server.init(injector);
             server.run();
         } catch (Exception e) {
             log.warning("Unable to initialize server.", e);

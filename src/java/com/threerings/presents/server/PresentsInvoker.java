@@ -23,43 +23,41 @@ package com.threerings.presents.server;
 
 import java.util.Iterator;
 
+import com.google.inject.Inject;
+
 import com.samskivert.util.Invoker;
 import com.samskivert.util.StringUtil;
 
 import static com.threerings.presents.Log.log;
 
 /**
- * Extends the generic {@link Invoker} and integrates it a bit more into
- * the Presents system.
+ * Extends the generic {@link Invoker} and integrates it a bit more into the Presents system.
  */
 public class PresentsInvoker extends Invoker
-    implements PresentsServer.Reporter
+    implements ReportManager.Reporter
 {
     /**
      * Creates an invoker that will post results to the supplied
      * distributed object manager.
      */
-    public PresentsInvoker (PresentsDObjectMgr omgr)
+    @Inject public PresentsInvoker (PresentsDObjectMgr omgr, ReportManager repmgr)
     {
         super("presents.Invoker", omgr);
         _omgr = omgr;
         if (PERF_TRACK) {
-            PresentsServer.registerReporter(this);
+            repmgr.registerReporter(this);
         }
     }
 
-    /**
-     * Will do a sophisticated shutdown of both itself and the DObjectManager
-     * thread.
-     */
+    @Override // from Invoker
     public void shutdown ()
     {
+        // this will do a sophisticated shutdown of both ourself and the dobjmgr
         _queue.append(new ShutdownUnit());
     }
 
-    // documentation inherited from interface
-    public void appendReport (
-        StringBuilder buf, long now, long sinceLast, boolean reset)
+    // from interface ReportManager.Reporter
+    public void appendReport (StringBuilder buf, long now, long sinceLast, boolean reset)
     {
         buf.append("* presents.util.Invoker:\n");
         int qsize = _queue.size();
@@ -93,7 +91,7 @@ public class PresentsInvoker extends Invoker
         }
     }
 
-    // documentation inherited
+    @Override // from Invoker
     protected void willInvokeUnit (Unit unit, long start)
     {
         super.willInvokeUnit(unit, start);
@@ -111,7 +109,7 @@ public class PresentsInvoker extends Invoker
         }
     }
 
-    // documentation inherited
+    @Override // from Invoker
     protected void didInvokeUnit (Unit unit, long start)
     {
         super.didInvokeUnit(unit, start);
@@ -124,9 +122,8 @@ public class PresentsInvoker extends Invoker
     }
 
     /**
-     * This unit gets posted back and forth between the invoker and DObjectMgr
-     * until both of their queues are empty and they can both be safely
-     * shutdown.
+     * This gets posted back and forth between the invoker and DObjectMgr until both of their
+     * queues are empty and they can both be safely shutdown.
      */
     protected class ShutdownUnit extends Unit
     {

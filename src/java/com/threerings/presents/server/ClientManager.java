@@ -22,9 +22,14 @@
 package com.threerings.presents.server;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
 
 import com.samskivert.util.Interval;
 import com.samskivert.util.ObserverList;
@@ -49,9 +54,10 @@ import static com.threerings.presents.Log.log;
  * thread (to notify of connections showing up or going away) and from the dobjmgr thread (when
  * clients are given the boot for application-defined reasons).
  */
+@Singleton
 public class ClientManager
     implements ConnectionObserver, ClientResolutionListener,
-               PresentsServer.Reporter, PresentsServer.Shutdowner
+               ReportManager.Reporter, ShutdownManager.Shutdowner
 {
     /**
      * Used by {@link #applyToClient}.
@@ -89,25 +95,26 @@ public class ClientManager
     /**
      * Constructs a client manager that will interact with the supplied connection manager.
      */
-    public ClientManager (ConnectionManager conmgr)
+    @Inject public ClientManager (ConnectionManager conmgr, ReportManager repmgr,
+                                  ShutdownManager shutmgr)
     {
         // register ourselves as a connection observer
         conmgr.addConnectionObserver(this);
 
         // start up an interval that will check for expired clients and flush them from the bowels
         // of the server
-        new Interval(PresentsServer.omgr) {
+        new Interval(_omgr) {
             public void expired () {
                 flushClients();
             }
         }.schedule(CLIENT_FLUSH_INTERVAL, true);
 
         // register as a "state of server" reporter and a shutdowner
-        PresentsServer.registerReporter(this);
-        PresentsServer.registerShutdowner(this);
+        repmgr.registerReporter(this);
+        shutmgr.registerShutdowner(this);
     }
 
-    // documentation inherited from interface
+    // from interface ShutdownManager.Shutdowner
     public void shutdown ()
     {
         log.info("Client manager shutting down [ccount=" + _usermap.size() + "].");
@@ -237,7 +244,7 @@ public class ClientManager
             // report that the client is resolved on the dobjmgr thread to provide equivalent
             // behavior to the case where we actually have to do the resolution
             clobj.reference();
-            PresentsServer.omgr.postRunnable(new Runnable() {
+            _omgr.postRunnable(new Runnable() {
                 public void run () {
                     listener.clientResolved(username, clobj);
                 }
@@ -265,11 +272,11 @@ public class ClientManager
             // create and register our client object and give it back to the client resolver; we
             // need to do this on the dobjmgr thread since we're registering an object
             final ClientResolver fclr = clr;
-            PresentsServer.omgr.postRunnable(new Runnable() {
+            _omgr.postRunnable(new Runnable() {
                 public void run () {
                     ClientObject clobj = fclr.createClientObject();
                     clobj.setPermissionPolicy(fclr.createPermissionPolicy());
-                    fclr.objectAvailable(PresentsServer.omgr.registerObject(clobj));
+                    fclr.objectAvailable(_omgr.registerObject(clobj));
                 }
             });
 
@@ -303,7 +310,7 @@ public class ClientManager
         _objmap.remove(username);
 
         // and destroy the object itself
-        PresentsServer.omgr.destroyObject(clobj.getOid());
+        _omgr.destroyObject(clobj.getOid());
     }
 
     /**
@@ -411,7 +418,7 @@ public class ClientManager
         }
     }
 
-    // documentation inherited from interface PresentsServer.Reporter
+    // documentation inherited from interface ReportManager.Reporter
     public void appendReport (StringBuilder report, long now, long sinceLast, boolean reset)
     {
         report.append("* presents.ClientManager:\n");
@@ -477,7 +484,7 @@ public class ClientManager
      */
     protected void flushClients ()
     {
-        ArrayList<PresentsClient> victims = new ArrayList<PresentsClient>();
+        List<PresentsClient> victims = Lists.newArrayList();
         long now = System.currentTimeMillis();
 
         // first build a list of our victims
@@ -530,23 +537,25 @@ public class ClientManager
     }
 
     /** A mapping from auth username to client instances. */
-    protected HashMap<Name,PresentsClient> _usermap = new HashMap<Name,PresentsClient>();
+    protected Map<Name,PresentsClient> _usermap = Maps.newHashMap();
 
     /** A mapping from connections to client instances. */
-    protected HashMap<Connection,PresentsClient> _conmap = new HashMap<Connection,PresentsClient>();
+    protected Map<Connection,PresentsClient> _conmap = Maps.newHashMap();
 
     /** A mapping from usernames to client object instances. */
-    protected HashMap<Name,ClientObject> _objmap = new HashMap<Name,ClientObject>();
+    protected Map<Name,ClientObject> _objmap = Maps.newHashMap();
 
     /** A mapping of pending client resolvers. */
-    protected HashMap<Name,ClientResolver> _penders = new HashMap<Name,ClientResolver>();
+    protected Map<Name,ClientResolver> _penders = Maps.newHashMap();
 
     /** The client class in use. */
     protected ClientFactory _factory = ClientFactory.DEFAULT;
 
     /** Tracks registered {@link ClientObserver}s. */
-    protected ObserverList<ClientObserver> _clobservers =
-        new ObserverList<ClientObserver>(ObserverList.SAFE_IN_ORDER_NOTIFY);
+    protected ObserverList<ClientObserver> _clobservers = ObserverList.newSafeInOrder();
+
+    // our injected dependencies
+    @Inject protected PresentsDObjectMgr _omgr;
 
     /** The frequency with which we check for expired clients. */
     protected static final long CLIENT_FLUSH_INTERVAL = 60 * 1000L;

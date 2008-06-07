@@ -21,6 +21,9 @@
 
 package com.threerings.presents.server;
 
+import com.google.inject.Guice;
+import com.google.inject.Injector;
+
 import com.threerings.presents.data.TestObject;
 import com.threerings.presents.dobj.*;
 
@@ -30,13 +33,13 @@ public class TestServer extends PresentsServer
 {
     public static TestObject testobj;
 
-    public void init ()
+    public void init (Injector injector)
         throws Exception
     {
-        super.init();
+        super.init(injector);
 
         // register our test provider
-        invmgr.registerDispatcher(new TestDispatcher(new TestManager()), "test");
+        _invmgr.registerDispatcher(new TestDispatcher(new TestManager()), "test");
 
         // create a test object
         testobj = omgr.registerObject(new TestObject());
@@ -48,9 +51,10 @@ public class TestServer extends PresentsServer
 
     public static void main (String[] args)
     {
-        TestServer server = new TestServer();
+        Injector injector = Guice.createInjector(new Module());
+        TestServer server = injector.getInstance(TestServer.class);
         try {
-            server.init();
+            server.init(injector);
             server.run();
         } catch (Exception e) {
             log.warning("Unable to initialize server.", e);

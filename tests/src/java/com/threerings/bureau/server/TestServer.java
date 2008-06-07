@@ -21,6 +21,9 @@
 
 package com.threerings.bureau.server;
 
+import com.google.inject.Guice;
+import com.google.inject.Injector;
+
 import com.threerings.presents.server.PresentsServer;
 
 import static com.threerings.bureau.Log.log;
@@ -40,9 +43,10 @@ public class TestServer extends PresentsServer
      */
     public static void main (String[] args)
     {
-        final TestServer server = new TestServer();
+        Injector injector = Guice.createInjector(new Module());
+        TestServer server = injector.getInstance(TestServer.class);
         try {
-            server.init();
+            server.init(injector);
             setClientTarget("bureau-runclient");
             server.run();
 
@@ -51,20 +55,20 @@ public class TestServer extends PresentsServer
         }
     }
 
-    // inherit documentation - from PresentsServer
-    public void init ()
+    @Override // from PresentsServer
+    public void init (Injector injector)
         throws Exception
     {
-        super.init();
+        super.init(injector);
         breg = new BureauRegistry("localhost:47624", invmgr, omgr, invoker);
     }
     
-    static public void setClientTarget (String target)
+    public static void setClientTarget (String target)
     {
         breg.setCommandGenerator("test", antCommandGenerator(target));
     }
     
-    static public BureauRegistry.CommandGenerator antCommandGenerator (
+    public static BureauRegistry.CommandGenerator antCommandGenerator (
         final String target)
     {
         return new BureauRegistry.CommandGenerator() {

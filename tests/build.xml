@@ -129,73 +129,8 @@
     <move overwrite="true" file="../etc/empty.abc" tofile="${deploy.dir}/testslib.abc"/>
   </target>
 
-  <!-- test the component metadata bundling process -->
-  <target name="cbundles" description="Build component bundles.">
-    <!-- define our tasks -->
-    <taskdef name="metabundle"
-      classname="com.threerings.cast.bundle.tools.MetadataBundlerTask"
-      classpathref="classpath"/>
-    <taskdef name="cbundle"
-      classname="com.threerings.cast.bundle.tools.ComponentBundlerTask"
-      classpathref="classpath"/>
-
-    <!-- build the metadata bundles -->
-    <metabundle actiondef="${cbundle.dir}/actions.xml"
-      classdef="${cbundle.dir}/classes.xml"
-      target="${cbundle.dir}/metadata.jar"/>
-
-    <!-- blow away the components map file so that we get a consistent -->
-    <!-- mapping every time-->
-    <delete file="${cbundle.dir}/components.map"/>         
-
-    <!-- build the component bundles -->
-    <cbundle actiondef="${cbundle.dir}/actions.xml"
-      target="${cbundle.dir}/pirate/components.jar"
-      mapfile="${cbundle.dir}/components.map"
-      root="${cbundle.dir}/pirate">
-      <fileset dir="${cbundle.dir}/pirate" includes="**/*.png"
-        excludes="components/**"/>
-    </cbundle>
-    <cbundle actiondef="${cbundle.dir}/actions.xml"
-      target="${cbundle.dir}/vessel/components.jar"
-      mapfile="${cbundle.dir}/components.map"
-      root="${cbundle.dir}/vessel">
-      <fileset dir="${cbundle.dir}/vessel" includes="**/*.png"
-        excludes="components/**"/>
-    </cbundle>
-  </target>
-
-  <!-- test the tileset bundling process -->
-  <target name="tsbundles" description="Build tileset bundles.">
-    <!-- blow away the tilesetid map file so that we get a consistent -->
-    <!-- mapping every time-->
-    <delete file="${tbundle.dir}/tilesets.map"/>         
-
-    <!-- build the tileset bundles -->
-    <taskdef name="tilebundle"
-      classname="com.threerings.media.tile.bundle.tools.TileSetBundlerTask"
-      classpathref="classpath"/>
-    <tilebundle config="${tbundle.dir}/bundler-config.xml"
-      mapfile="${tbundle.dir}/tilesets.map">
-      <fileset dir="${tbundle.dir}/ground" includes="**/*.xml"/>
-    </tilebundle>
-    <tilebundle config="${tbundle.dir}/bundler-config.xml"
-      mapfile="${tbundle.dir}/tilesets.map">
-      <fileset dir="${tbundle.dir}/objects" includes="**/*.xml"/>
-    </tilebundle>
-
-    <!-- build the fringe configurations -->
-    <taskdef name="conffringe"
-      classname="com.threerings.miso.tile.tools.CompileFringeConfigurationTask"
-      classpathref="classpath"/>
-    <conffringe
-     tilesetmap="${tbundle.dir}/tilesets.map"
-     fringedef="rsrc/config/miso/tile/fringeconf.xml"
-     target="rsrc/config/miso/tile/fringeconf.dat"/>
-  </target>
-
   <!-- run the tests -->
-  <target name="test" depends="compile,cbundles,tsbundles"
+  <target name="test" depends="compile"
     description="Run the tests.">
     <junit printsummary="no" haltonfailure="yes" fork="${junit.fork}">
       <classpath refid="classpath"/>
@@ -233,7 +168,8 @@
       </import>
       <filespec dir="src/as" includes="com/threerings/bureau/client/TestClientMain.as"/>
     </asc>
-    <move overwrite="true" file="src/as/com/threerings/bureau/client/TestClientMain.abc" todir="dist"/>
+    <move overwrite="true" todir="dist"
+          file="src/as/com/threerings/bureau/client/TestClientMain.abc"/>
   </target>
 
   <target name="bureau-runserver" depends="compile"
@@ -242,7 +178,6 @@
       <classpath refid="classpath"/>
     </java>
   </target>
-
 
   <target name="bureau-testregistry" depends="compile"
     description="Run the bureau test server and tests the registry.">

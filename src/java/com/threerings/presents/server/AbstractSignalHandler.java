@@ -21,6 +21,8 @@
 
 package com.threerings.presents.server;
 
+import com.google.inject.Inject;
+
 import static com.threerings.presents.Log.log;
 
 /**
@@ -28,9 +30,11 @@ import static com.threerings.presents.Log.log;
  */
 public abstract class AbstractSignalHandler
 {
-    public boolean init (PresentsServer server)
+    /**
+     * Initializes this signal handler.
+     */
+    public boolean init ()
     {
-        _server = server;
         return registerHandlers();
     }
 
@@ -65,8 +69,9 @@ public abstract class AbstractSignalHandler
      */
     protected void hupReceived ()
     {
-        log.info(PresentsServer.generateReport());
+        log.info(_repmgr.generateReport());
     }
 
-    protected PresentsServer _server;
+    @Inject protected PresentsServer _server;
+    @Inject protected ReportManager _repmgr;
 }

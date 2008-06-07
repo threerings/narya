@@ -21,43 +21,29 @@
 
 package com.threerings.presents.server;
 
-import junit.framework.Test;
-import junit.framework.TestCase;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+
+import atunit.AtUnit;
+import atunit.Container;
+import atunit.Unit;
+
+import com.google.inject.Inject;
 
 import com.threerings.presents.data.TestObject;
 import com.threerings.presents.dobj.*;
 
+import static org.junit.Assert.*;
+
 /**
  * A simple test case for the dobjmgr.
  */
-public class DOMTest extends TestCase
+@RunWith(AtUnit.class)
+@Container(Container.Option.GUICE)
+public class DOMTest
     implements AttributeChangeListener, ElementUpdateListener
 {
-    public DOMTest ()
-    {
-        super(DOMTest.class.getName());
-    }
-
-    public void attributeChanged (AttributeChangedEvent event)
-    {
-        assertTrue(fields[_fcount] + " == " + values[_fcount],
-                   event.getName().equals(fields[_fcount]) &&
-                   event.getValue().equals(values[_fcount]));
-
-        // shutdown once we receive our last update
-        if (++_fcount == fields.length) {
-            _omgr.harshShutdown();
-        }
-    }
-
-    public void elementUpdated (ElementUpdatedEvent event)
-    {
-//         Log.info("Element updated " + event);
-//         Log.info(StringUtil.toString(_test.ints));
-//         Log.info(StringUtil.toString(_test.strings));
-    }
-
-    public void runTest ()
+    @Test public void runTest ()
     {
         // request that a new TestObject be registered
         _test = _omgr.registerObject(new TestObject());
@@ -87,27 +73,35 @@ public class DOMTest extends TestCase
         _omgr.run();
     }
 
-    public static Test suite ()
+    // from interface AttributeChangeListener
+    public void attributeChanged (AttributeChangedEvent event)
     {
-        return new DOMTest();
+        assertTrue(fields[_fcount] + " == " + values[_fcount],
+                   event.getName().equals(fields[_fcount]) &&
+                   event.getValue().equals(values[_fcount]));
+
+        // shutdown once we receive our last update
+        if (++_fcount == fields.length) {
+            _omgr.harshShutdown();
+        }
     }
 
-    public static void main (String[] args)
+    // from interface ElementUpdateListener
+    public void elementUpdated (ElementUpdatedEvent event)
     {
-        DOMTest test = new DOMTest();
-        test.runTest();
+//         Log.info("Element updated " + event);
+//         Log.info(StringUtil.toString(_test.ints));
+//         Log.info(StringUtil.toString(_test.strings));
     }
 
     protected int _fcount = 0;
     protected TestObject _test;
 
     // the fields that will change in attribute changed events
-    protected Object[] fields = {
-        TestObject.FOO, TestObject.BAR, TestObject.FOO, TestObject.BAR };
+    protected Object[] fields = { TestObject.FOO, TestObject.BAR, TestObject.FOO, TestObject.BAR };
 
     // the values we'll receive via attribute changed events
-    protected Object[] values = {
-        new Integer(99), "hoopie", new Integer(25), "howdy" };
+    protected Object[] values = { new Integer(99), "hoopie", new Integer(25), "howdy" };
 
-    protected static PresentsDObjectMgr _omgr = new PresentsDObjectMgr();
+    @Inject @Unit protected PresentsDObjectMgr _omgr;
 }

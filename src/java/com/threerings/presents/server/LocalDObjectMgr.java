@@ -23,6 +23,7 @@ package com.threerings.presents.server;
 
 import java.awt.EventQueue;
 
+import com.google.inject.Inject;
 import com.threerings.presents.dobj.DEvent;
 import com.threerings.presents.dobj.DObject;
 import com.threerings.presents.dobj.DObjectManager;
@@ -35,6 +36,14 @@ import com.threerings.presents.dobj.Subscriber;
  */
 public class LocalDObjectMgr extends PresentsDObjectMgr
 {
+    /**
+     * Creates the dobjmgr and prepares it for operation.
+     */
+    @Inject public LocalDObjectMgr (ReportManager repmgr)
+    {
+        super(repmgr);
+    }
+
     /**
      * Creates a {@link DObjectManager} that posts directly to this local object manager, but first
      * sets the source oid of all events to properly identify them with the supplied client oid.

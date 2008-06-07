@@ -22,14 +22,17 @@
 package com.threerings.presents.server;
 
 import java.lang.reflect.*;
-import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import com.google.common.collect.Maps;
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
+
 import com.samskivert.util.AuditLogger;
-import com.samskivert.util.HashIntMap;
 import com.samskivert.util.Histogram;
+import com.samskivert.util.IntMap;
+import com.samskivert.util.IntMaps;
 import com.samskivert.util.Interval;
 import com.samskivert.util.Invoker;
 import com.samskivert.util.Queue;
@@ -51,11 +54,12 @@ import static com.threerings.presents.Log.log;
  * thus provides a method to be invoked by the application main thread which won't return until the
  * manager has been requested to shut down.
  */
+@Singleton
 public class PresentsDObjectMgr
-    implements RootDObjectManager, RunQueue, PresentsServer.Reporter
+    implements RootDObjectManager, RunQueue, ReportManager.Reporter
 {
     /** Contains operational statistics that are tracked by the distributed object manager between
-     * {@link PresentsServer#Reporter} intervals. The snapshot for the most recently completed
+     * {@link ReportManager#Reporter} intervals. The snapshot for the most recently completed
      * period can be requested via {@link #getStats()}. . */
     public static class Stats
     {
@@ -77,17 +81,21 @@ public class PresentsDObjectMgr
     /**
      * Creates the dobjmgr and prepares it for operation.
      */
-    public PresentsDObjectMgr ()
+    @Inject public PresentsDObjectMgr (ReportManager repmgr)
     {
-        // we create a dummy object to live as oid zero and we'll use that for some internal event
-        // trickery
+        // create a dummy object to live as oid zero and use that for some internal event trickery
         DObject dummy = new DObject();
         dummy.setOid(0);
         dummy.setManager(this);
         _objects.put(0, new DObject());
 
-        // register ourselves as a state of server reporter
-        PresentsServer.registerReporter(this);
+        // register ourselves as a state of server reporter and also tell the report manager that
+        // we're providing the runqueue for it to do its business
+        repmgr.registerReporter(this);
+        repmgr.init(this);
+
+        // register our event helpers
+        registerEventHelpers();
     }
 
     /**
@@ -112,8 +120,7 @@ public class PresentsDObjectMgr
         _defaultController = controller;
 
         // switch all objects from the old default (null, usually) to the new default.
-        for (Iterator itr = _objects.elements(); itr.hasNext(); ) {
-            DObject obj = (DObject) itr.next();
+        for (DObject obj : _objects.values()) {
             if (oldDefault == obj.getAccessController()) {
                 obj.setAccessController(controller);
             }
@@ -290,6 +297,235 @@ public class PresentsDObjectMgr
     }
 
     /**
+     * Requests that the dobjmgr shut itself down soon- you may want to try using {@link
+     * Invoker#shutdown} which will make sure that both the Invoker and DObjectMgr are empty and
+     * then shut them both down.
+     */
+    public void harshShutdown ()
+    {
+        postRunnable(new Runnable() {
+            public void run () {
+                _running = false;
+            }
+        });
+    }
+
+    /**
+     * Dumps collected profiling information to the system log.
+     */
+    public void dumpUnitProfiles ()
+    {
+        for (Map.Entry<String,UnitProfile> entry : _profiles.entrySet()) {
+            log.info("P: " + entry.getKey() + " => " + entry.getValue());
+        }
+    }
+
+    /**
+     * Called as a helper for <code>ObjectDestroyedEvent</code> events. It removes the object from
+     * the object table.
+     *
+     * @return true if the event should be dispatched, false if it should be aborted.
+     */
+    public boolean objectDestroyed (DEvent event, DObject target)
+    {
+        int oid = target.getOid();
+
+//         log.info("Removing destroyed object from table [oid=" + oid + "].");
+
+        // remove the object from the table
+        _objects.remove(oid);
+
+        // inactivate the object
+        target.setManager(null);
+
+        // deal with any remaining oid lists that reference this object
+        Reference[] refs = _refs.remove(oid);
+        if (refs != null) {
+            for (int i = 0; i < refs.length; i++) {
+                // skip empty spots
+                if (refs[i] == null) {
+                    continue;
+                }
+
+                Reference ref = refs[i];
+                DObject reffer = _objects.get(ref.reffingOid);
+
+                // ensure that the referencing object is still around
+                if (reffer != null) {
+                    // post an object removed event to clear the reference
+                    postEvent(new ObjectRemovedEvent(ref.reffingOid, ref.field, oid));
+//                     log.info("Forcing removal " + ref + ".");
+
+                } else {
+                    log.info("Dangling reference from inactive object " + ref + ".");
+                }
+            }
+        }
+
+        // if this object has any oid list fields that are still referencing other objects, we need
+        // to clear out those references
+        Class oclass = target.getClass();
+        Field[] fields = oclass.getFields();
+        for (int f = 0; f < fields.length; f++) {
+            Field field = fields[f];
+
+            // ignore static and non-public fields
+            int mods = field.getModifiers();
+            if ((mods & Modifier.STATIC) != 0 || (mods & Modifier.PUBLIC) == 0) {
+                continue;
+            }
+
+            // ignore non-oidlist fields
+            if (!OidList.class.isAssignableFrom(field.getType())) {
+                continue;
+            }
+
+            try {
+                OidList list = (OidList)field.get(target);
+                for (int i = 0; i < list.size(); i++) {
+                    clearReference(target, field.getName(), list.get(i));
+                }
+
+            } catch (Exception e) {
+                log.warning("Unable to clean up after oid list field [target=" + target +
+                            ", field=" + field + "].");
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * Called as a helper for <code>ObjectAddedEvent</code> events. It updates the object/oid list
+     * tracking structures.
+     *
+     * @return true if the event should be dispatched, false if it should be aborted.
+     */
+    public boolean objectAdded (DEvent event, DObject target)
+    {
+        ObjectAddedEvent oae = (ObjectAddedEvent)event;
+        int oid = oae.getOid();
+
+        // ensure that the target object exists
+        if (!_objects.containsKey(oid)) {
+            log.info("Rejecting object added event of non-existent object " +
+                     "[refferOid=" + target.getOid() + ", reffedOid=" + oid + "].");
+            return false;
+        }
+
+        // get the reference vector for the referenced object. we use bare arrays rather than
+        // something like an array list to conserve memory. there will be many objects and
+        // references
+        Reference[] refs = _refs.get(oid);
+        if (refs == null) {
+            refs = new Reference[DEFREFVEC_SIZE];
+            _refs.put(oid, refs);
+        }
+
+        // determine where to add the reference
+        Reference ref = new Reference(target.getOid(), oae.getName(), oid);
+        int rpos = -1;
+        for (int i = 0; i < refs.length; i++) {
+            if (ref.equals(refs[i])) {
+                log.warning("Ignoring request to track existing reference " + ref + ".");
+                return true;
+            } else if (refs[i] == null && rpos == -1) {
+                rpos = i;
+            }
+        }
+
+        // expand the refvec if necessary
+        if (rpos == -1) {
+            Reference[] nrefs = new Reference[refs.length*2];
+            System.arraycopy(refs, 0, nrefs, 0, refs.length);
+            rpos = refs.length;
+            _refs.put(oid, refs = nrefs);
+        }
+
+        // finally add the reference
+        refs[rpos] = ref;
+
+//        log.info("Tracked reference " + ref + ".");
+        return true;
+    }
+
+    /**
+     * Called as a helper for <code>ObjectRemovedEvent</code> events. It updates the object/oid
+     * list tracking structures.
+     *
+     * @return true if the event should be dispatched, false if it should be aborted.
+     */
+    public boolean objectRemoved (DEvent event, DObject target)
+    {
+        ObjectRemovedEvent ore = (ObjectRemovedEvent)event;
+        String field = ore.getName();
+        int toid = target.getOid();
+        int oid = ore.getOid();
+
+//        log.info("Processing object removed [from=" + toid + ", roid=" + toid + "].");
+
+        // get the reference vector for the referenced object
+        Reference[] refs = _refs.get(oid);
+        if (refs == null) {
+            // this can happen normally when an object is destroyed. it will remove itself from the
+            // reference system and then generate object removed events for all of its referencees.
+            // so we opt not to log anything in this case
+
+//             log.info("Object removed without reference to track it [toid=" + toid +
+//                      ", field=" + field + ", oid=" + oid + "].");
+            return true;
+        }
+
+        // look for the matching reference
+        for (int i = 0; i < refs.length; i++) {
+            Reference ref = refs[i];
+            if (ref != null && ref.equals(toid, field)) {
+//                log.info("Removed reference " + refs[i] + ".");
+                refs[i] = null;
+                return true;
+            }
+        }
+
+        log.warning("Unable to locate reference for removal [reffingOid=" + toid +
+                    ", field=" + field + ", reffedOid=" + oid + "].");
+        return true;
+    }
+
+    /**
+     * Should not need to be called except by the invoker during shutdown to ensure that things are
+     * proceeding smoothly.
+     */
+    public boolean queueIsEmpty ()
+    {
+        return !_evqueue.hasElements();
+    }
+
+    // from interface ReportManager.Reporter
+    public void appendReport (StringBuilder report, long now, long sinceLast, boolean reset)
+    {
+        report.append("* presents.PresentsDObjectMgr:\n");
+        int queueSize = _evqueue.size();
+        report.append("- Queue size: ").append(queueSize).append("\n");
+        report.append("- Max queue size: ").append(_current.maxQueueSize).append("\n");
+        report.append("- Units executed: ").append(_current.eventCount).append("\n");
+
+        if (UNIT_PROF_ENABLED) {
+            report.append("- Unit profiles: ").append(_profiles.size()).append("\n");
+            for (Map.Entry<String,UnitProfile> entry : _profiles.entrySet()) {
+                report.append("  ").append(entry.getKey());
+                report.append(" ").append(entry.getValue()).append("\n");
+            }
+        }
+
+        // roll over stats
+        if (reset) {
+            _recent = _current;
+            _current = new Stats();
+            _current.maxQueueSize = queueSize;
+        }
+    }
+
+    /**
      * Processes a single unit from the queue.
      */
     protected void processUnit (Object unit)
@@ -352,7 +588,7 @@ public class PresentsDObjectMgr
                 cname = StringUtil.shortClassName(ival);
             } else if (unit instanceof InvocationRequestEvent) {
                 InvocationRequestEvent ire = (InvocationRequestEvent)unit;
-                Class c = PresentsServer.invmgr.getDispatcherClass(ire.getInvCode());
+                Class c = _invmgr.getDispatcherClass(ire.getInvCode());
                 cname = (c == null) ? "dobj.InvocationRequestEvent:(no longer registered)" :
                     StringUtil.shortClassName(c) + ":" + ire.getMethodId();
             } else {
@@ -482,105 +718,6 @@ public class PresentsDObjectMgr
     }
 
     /**
-     * Requests that the dobjmgr shut itself down soon- you may want to try using {@link
-     * Invoker#shutdown} which will make sure that both the Invoker and DObjectMgr are empty and
-     * then shut them both down.
-     */
-    public void harshShutdown ()
-    {
-        postRunnable(new Runnable() {
-            public void run () {
-                _running = false;
-            }
-        });
-    }
-
-    /**
-     * Dumps collected profiling information to the system log.
-     */
-    public void dumpUnitProfiles ()
-    {
-        for (Map.Entry<String,UnitProfile> entry : _profiles.entrySet()) {
-            log.info("P: " + entry.getKey() + " => " + entry.getValue());
-        }
-    }
-
-    /**
-     * Called as a helper for <code>ObjectDestroyedEvent</code> events. It removes the object from
-     * the object table.
-     *
-     * @return true if the event should be dispatched, false if it should be aborted.
-     */
-    public boolean objectDestroyed (DEvent event, DObject target)
-    {
-        int oid = target.getOid();
-
-//         log.info("Removing destroyed object from table [oid=" + oid + "].");
-
-        // remove the object from the table
-        _objects.remove(oid);
-
-        // inactivate the object
-        target.setManager(null);
-
-        // deal with any remaining oid lists that reference this object
-        Reference[] refs = _refs.remove(oid);
-        if (refs != null) {
-            for (int i = 0; i < refs.length; i++) {
-                // skip empty spots
-                if (refs[i] == null) {
-                    continue;
-                }
-
-                Reference ref = refs[i];
-                DObject reffer = _objects.get(ref.reffingOid);
-
-                // ensure that the referencing object is still around
-                if (reffer != null) {
-                    // post an object removed event to clear the reference
-                    postEvent(new ObjectRemovedEvent(ref.reffingOid, ref.field, oid));
-//                     log.info("Forcing removal " + ref + ".");
-
-                } else {
-                    log.info("Dangling reference from inactive object " + ref + ".");
-                }
-            }
-        }
-
-        // if this object has any oid list fields that are still referencing other objects, we need
-        // to clear out those references
-        Class oclass = target.getClass();
-        Field[] fields = oclass.getFields();
-        for (int f = 0; f < fields.length; f++) {
-            Field field = fields[f];
-
-            // ignore static and non-public fields
-            int mods = field.getModifiers();
-            if ((mods & Modifier.STATIC) != 0 || (mods & Modifier.PUBLIC) == 0) {
-                continue;
-            }
-
-            // ignore non-oidlist fields
-            if (!OidList.class.isAssignableFrom(field.getType())) {
-                continue;
-            }
-
-            try {
-                OidList list = (OidList)field.get(target);
-                for (int i = 0; i < list.size(); i++) {
-                    clearReference(target, field.getName(), list.get(i));
-                }
-
-            } catch (Exception e) {
-                log.warning("Unable to clean up after oid list field [target=" + target +
-                            ", field=" + field + "].");
-            }
-        }
-
-        return true;
-    }
-
-    /**
      * Called by <code>objectDestroyed</code>; clears out the tracking info for a reference by the
      * supplied object to the specified oid via the specified field.
      */
@@ -615,111 +752,6 @@ public class PresentsDObjectMgr
         }
     }
 
-    /**
-     * Called as a helper for <code>ObjectAddedEvent</code> events. It updates the object/oid list
-     * tracking structures.
-     *
-     * @return true if the event should be dispatched, false if it should be aborted.
-     */
-    public boolean objectAdded (DEvent event, DObject target)
-    {
-        ObjectAddedEvent oae = (ObjectAddedEvent)event;
-        int oid = oae.getOid();
-
-        // ensure that the target object exists
-        if (!_objects.containsKey(oid)) {
-            log.info("Rejecting object added event of non-existent object " +
-                     "[refferOid=" + target.getOid() + ", reffedOid=" + oid + "].");
-            return false;
-        }
-
-        // get the reference vector for the referenced object. we use bare arrays rather than
-        // something like an array list to conserve memory. there will be many objects and
-        // references
-        Reference[] refs = _refs.get(oid);
-        if (refs == null) {
-            refs = new Reference[DEFREFVEC_SIZE];
-            _refs.put(oid, refs);
-        }
-
-        // determine where to add the reference
-        Reference ref = new Reference(target.getOid(), oae.getName(), oid);
-        int rpos = -1;
-        for (int i = 0; i < refs.length; i++) {
-            if (ref.equals(refs[i])) {
-                log.warning("Ignoring request to track existing reference " + ref + ".");
-                return true;
-            } else if (refs[i] == null && rpos == -1) {
-                rpos = i;
-            }
-        }
-
-        // expand the refvec if necessary
-        if (rpos == -1) {
-            Reference[] nrefs = new Reference[refs.length*2];
-            System.arraycopy(refs, 0, nrefs, 0, refs.length);
-            rpos = refs.length;
-            _refs.put(oid, refs = nrefs);
-        }
-
-        // finally add the reference
-        refs[rpos] = ref;
-
-//        log.info("Tracked reference " + ref + ".");
-        return true;
-    }
-
-    /**
-     * Called as a helper for <code>ObjectRemovedEvent</code> events. It updates the object/oid
-     * list tracking structures.
-     *
-     * @return true if the event should be dispatched, false if it should be aborted.
-     */
-    public boolean objectRemoved (DEvent event, DObject target)
-    {
-        ObjectRemovedEvent ore = (ObjectRemovedEvent)event;
-        String field = ore.getName();
-        int toid = target.getOid();
-        int oid = ore.getOid();
-
-//        log.info("Processing object removed [from=" + toid + ", roid=" + toid + "].");
-
-        // get the reference vector for the referenced object
-        Reference[] refs = _refs.get(oid);
-        if (refs == null) {
-            // this can happen normally when an object is destroyed. it will remove itself from the
-            // reference system and then generate object removed events for all of its referencees.
-            // so we opt not to log anything in this case
-
-//             log.info("Object removed without reference to track it [toid=" + toid +
-//                      ", field=" + field + ", oid=" + oid + "].");
-            return true;
-        }
-
-        // look for the matching reference
-        for (int i = 0; i < refs.length; i++) {
-            Reference ref = refs[i];
-            if (ref != null && ref.equals(toid, field)) {
-//                log.info("Removed reference " + refs[i] + ".");
-                refs[i] = null;
-                return true;
-            }
-        }
-
-        log.warning("Unable to locate reference for removal [reffingOid=" + toid +
-                    ", field=" + field + ", reffedOid=" + oid + "].");
-        return true;
-    }
-
-    /**
-     * Should not need to be called except by the invoker during shutdown to ensure that things are
-     * proceeding smoothly.
-     */
-    public boolean queueIsEmpty ()
-    {
-        return !_evqueue.hasElements();
-    }
-
     protected synchronized boolean isRunning ()
     {
         return _running;
@@ -735,28 +767,26 @@ public class PresentsDObjectMgr
         return _nextOid;
     }
 
-    // from interface PresentsServer.Reporter
-    public void appendReport (StringBuilder report, long now, long sinceLast, boolean reset)
+    /**
+     * Registers our event helper methods.
+     */
+    protected void registerEventHelpers ()
     {
-        report.append("* presents.PresentsDObjectMgr:\n");
-        int queueSize = _evqueue.size();
-        report.append("- Queue size: ").append(queueSize).append("\n");
-        report.append("- Max queue size: ").append(_current.maxQueueSize).append("\n");
-        report.append("- Units executed: ").append(_current.eventCount).append("\n");
+        Class[] ptypes = new Class[] { DEvent.class, DObject.class };
+        Method method;
 
-        if (UNIT_PROF_ENABLED) {
-            report.append("- Unit profiles: ").append(_profiles.size()).append("\n");
-            for (Map.Entry<String,UnitProfile> entry : _profiles.entrySet()) {
-                report.append("  ").append(entry.getKey());
-                report.append(" ").append(entry.getValue()).append("\n");
-            }
-        }
+        try {
+            method = PresentsDObjectMgr.class.getMethod("objectDestroyed", ptypes);
+            _helpers.put(ObjectDestroyedEvent.class, method);
 
-        // roll over stats
-        if (reset) {
-            _recent = _current;
-            _current = new Stats();
-            _current.maxQueueSize = queueSize;
+            method = PresentsDObjectMgr.class.getMethod("objectAdded", ptypes);
+            _helpers.put(ObjectAddedEvent.class, method);
+
+            method = PresentsDObjectMgr.class.getMethod("objectRemoved", ptypes);
+            _helpers.put(ObjectRemovedEvent.class, method);
+
+        } catch (Exception e) {
+            log.warning("Unable to register event helpers [error=" + e + "].");
         }
     }
 
@@ -847,29 +877,6 @@ public class PresentsDObjectMgr
     }
 
     /**
-     * Registers our event helper methods.
-     */
-    protected static void registerEventHelpers ()
-    {
-        Class[] ptypes = new Class[] { DEvent.class, DObject.class };
-        Method method;
-
-        try {
-            method = PresentsDObjectMgr.class.getMethod("objectDestroyed", ptypes);
-            _helpers.put(ObjectDestroyedEvent.class, method);
-
-            method = PresentsDObjectMgr.class.getMethod("objectAdded", ptypes);
-            _helpers.put(ObjectAddedEvent.class, method);
-
-            method = PresentsDObjectMgr.class.getMethod("objectRemoved", ptypes);
-            _helpers.put(ObjectRemovedEvent.class, method);
-
-        } catch (Exception e) {
-            log.warning("Unable to register event helpers [error=" + e + "].");
-        }
-    }
-
-    /**
      * Used to track references of objects in oid lists.
      */
     protected static class Reference
@@ -947,7 +954,7 @@ public class PresentsDObjectMgr
     protected Queue<Object> _evqueue = new Queue<Object>();
 
     /** The managed distributed objects table. */
-    protected HashIntMap<DObject> _objects = new HashIntMap<DObject>();
+    protected IntMap<DObject> _objects = IntMaps.newHashIntMap();
 
     /** Used to assign a unique oid to each distributed object. */
     protected int _nextOid = 0;
@@ -960,27 +967,32 @@ public class PresentsDObjectMgr
     protected Throttle _fatalThrottle = new Throttle(30, 60*1000L);
 
     /** Used to track oid list references of distributed objects. */
-    protected HashIntMap<Reference[]> _refs = new HashIntMap<Reference[]>();
+    protected IntMap<Reference[]> _refs = IntMaps.newHashIntMap();
 
     /** The default access controller to use when creating distributed objects. */
     protected AccessController _defaultController;
 
     /** Maintains proxy information for any proxied distributed objects. */
-    protected HashIntMap<ProxyReference> _proxies = new HashIntMap<ProxyReference>();
+    protected IntMap<ProxyReference> _proxies = IntMaps.newHashIntMap();
 
-    /** We keep track of which thread is executing the event loop so that other services can
-     * enforce restrictions on code that should or should not be called from the event dispatch
-     * thread. */
+    /** keeps Track of which thread is executing the event loop so that other services can enforce
+     * restrictions on code that should or should not be called from the event dispatch thread. */
     protected Thread _dobjThread;
 
     /** A monotonically increasing counter used to assign an id to all dispatched events. */
     protected long _nextEventId = 1;
 
     /** Used to profile our events and runnable units. */
-    protected HashMap<String,UnitProfile> _profiles = new HashMap<String,UnitProfile>();
+    protected Map<String,UnitProfile> _profiles = Maps.newHashMap();
 
     /** Used to track runtime statistics. */
     protected Stats _recent = new Stats(), _current = _recent;
+
+    /** Maps event classes to helpers that perform additional processing for particular events. */
+    protected Map<Class,Method> _helpers = Maps.newHashMap();
+
+    // injected dependencies
+    @Inject protected InvocationManager _invmgr;
 
     /** Whether or not unit profiling is enabled. */
     protected static final boolean UNIT_PROF_ENABLED = false;
@@ -990,9 +1002,4 @@ public class PresentsDObjectMgr
 
     /** The default size of an oid list refs vector. */
     protected static final int DEFREFVEC_SIZE = 4;
-
-    /** This table maps event classes to helper methods that perform some additional processing for
-     * particular events. */
-    protected static HashMap<Class,Method> _helpers = new HashMap<Class,Method>();
-    static { registerEventHelpers(); }
 }

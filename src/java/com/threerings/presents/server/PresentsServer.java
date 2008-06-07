@@ -21,13 +21,17 @@
 
 package com.threerings.presents.server;
 
-import java.util.ArrayList;
+import com.google.inject.AbstractModule;
+import com.google.inject.Guice;
+import com.google.inject.Inject;
+import com.google.inject.Injector;
 
-import com.samskivert.util.Interval;
-import com.samskivert.util.ObserverList;
-import com.samskivert.util.StringUtil;
+import com.samskivert.util.Invoker;
+import com.samskivert.util.RunQueue;
 import com.samskivert.util.SystemInfo;
 
+import com.threerings.presents.annotation.EventQueue;
+import com.threerings.presents.annotation.MainInvoker;
 import com.threerings.presents.client.Client;
 import com.threerings.presents.dobj.AccessController;
 import com.threerings.presents.server.net.ConnectionManager;
@@ -44,74 +48,40 @@ import static com.threerings.presents.Log.log;
  */
 public class PresentsServer
 {
-    /** Used to generate "state of the server" reports. See {@link #registerReporter}. */
-    public static interface Reporter
+    /** Configures dependencies needed by the Presents services. */
+    public static class Module extends AbstractModule
     {
-        /**
-         * Requests that this reporter append its report to the supplied string buffer.
-         *
-         * @param buffer the string buffer to which the report text should be appended.
-         * @param now the time at which the report generation began, in epoch millis.
-         * @param sinceLast number of milliseconds since the last time we generated a report.
-         * @param reset if true, all accumulating stats should be reset, if false they should be
-         * allowed to continue to accumulate.
-         */
-        public void appendReport (StringBuilder buffer, long now, long sinceLast, boolean reset);
+        @Override protected void configure () {
+            bind(Invoker.class).annotatedWith(MainInvoker.class).to(ServerInvoker.class);
+            bind(RunQueue.class).annotatedWith(EventQueue.class).to(PresentsDObjectMgr.class);
+        }
     }
 
-    /** Implementers of this interface will be notified when the server is shutting down. */
-    public static interface Shutdowner
-    {
-        /**
-         * Called when the server is shutting down.
-         */
-        public void shutdown ();
-    }
-
-    /** The manager of network connections. */
+    /** OBSOLETE! Don't use me. */
     public static ConnectionManager conmgr;
 
-    /** The manager of clients. */
+    /** OBSOLETE! Don't use me. */
     public static ClientManager clmgr;
 
-    /** The distributed object manager. */
+    /** OBSOLETE! Don't use me. */
     public static PresentsDObjectMgr omgr;
 
-    /** The invocation manager. */
+    /** OBSOLETE! Don't use me. */
     public static InvocationManager invmgr;
 
-    /** This is used to invoke background tasks that should not be allowed to tie up the
-     * distributed object manager thread. This is generally used to talk to databases and other
-     * (relatively) slow entities. */
-    public static PresentsInvoker invoker;
-
-    /**
-     * Registers an entity that will be notified when the server is shutting down.
-     */
-    public static void registerShutdowner (Shutdowner downer)
-    {
-        _downers.add(downer);
-    }
-
-    /**
-     * Unregisters the shutdowner from hearing when the server is shutdown.
-     */
-    public static void unregisterShutdowner (Shutdowner downer)
-    {
-        _downers.remove(downer);
-    }
+    /** OBSOLETE! Don't use me. */
+    public static Invoker invoker;
 
     /**
      * The default entry point for the server.
      */
     public static void main (String[] args)
     {
-        log.info("Presents server starting...");
-
-        PresentsServer server = new PresentsServer();
+        Injector injector = Guice.createInjector(new Module());
+        PresentsServer server = injector.getInstance(PresentsServer.class);
         try {
             // initialize the server
-            server.init();
+            server.init(injector);
 
             // check to see if we should load and invoke a test module before running the server
             String testmod = System.getProperty("test_module");
@@ -139,9 +109,16 @@ public class PresentsServer
     /**
      * Initializes all of the server services and prepares for operation.
      */
-    public void init ()
+    public void init (Injector injector)
         throws Exception
     {
+        // populate our legacy statics
+        conmgr = _conmgr;
+        clmgr = _clmgr;
+        omgr = _omgr;
+        invmgr = _invmgr;
+        invoker = _invoker;
+
         // output general system information
         SystemInfo si = new SystemInfo();
         log.info("Starting up server [os=" + si.osToString() + ", jvm=" + si.jvmToString() +
@@ -150,48 +127,26 @@ public class PresentsServer
         // register SIGTERM, SIGINT (ctrl-c) and a SIGHUP handlers
         boolean registered = false;
         try {
-            registered = new SunSignalHandler().init(this);
+            registered = injector.getInstance(SunSignalHandler.class).init();
         } catch (Throwable t) {
             log.warning("Unable to register Sun signal handlers [error=" + t + "].");
         }
         if (!registered) {
-            new NativeSignalHandler().init(this);
+            injector.getInstance(NativeSignalHandler.class).init();
         }
 
-        // create our distributed object manager
-        omgr = createDObjectManager();
-
         // configure the dobject manager with our access controller
-        omgr.setDefaultAccessController(createDefaultObjectAccessController());
+        _omgr.setDefaultAccessController(createDefaultObjectAccessController());
 
-        // create and start up our invoker
-        invoker = new PresentsInvoker(omgr) {
-            protected void didShutdown () {
-                invokerDidShutdown();
-            }
-        };
-        invoker.start();
+        // start the main invoker thread
+        _invoker.start();
 
-        // create our connection manager
-        conmgr = new ConnectionManager(getListenPorts(), getDatagramPorts());
-        conmgr.setAuthenticator(createAuthenticator());
-
-        // create our client manager
-        clmgr = createClientManager(conmgr);
-
-        // create our invocation manager
-        invmgr = new InvocationManager(omgr);
+        // configure our connection manager
+        _conmgr.init(getListenPorts(), getDatagramPorts());
+        _conmgr.setAuthenticator(createAuthenticator());
 
         // initialize the time base services
         TimeBaseProvider.init(invmgr, omgr);
-
-        // queue up an interval which will generate reports
-        _reportInterval = new Interval(omgr) {
-            public void expired () {
-                logReport(generateReport(System.currentTimeMillis(), true));
-            }
-        };
-        _reportInterval.schedule(REPORT_INTERVAL, true);
     }
 
     /**
@@ -202,21 +157,21 @@ public class PresentsServer
         return new DummyAuthenticator();
     }
 
-    /**
-     * Creates the client manager to be used on this server.
-     */
-    protected ClientManager createClientManager (ConnectionManager conmgr)
-    {
-        return new ClientManager(conmgr);
-    }
+//     /**
+//      * Creates the client manager to be used on this server.
+//      */
+//     protected ClientManager createClientManager (ConnectionManager conmgr)
+//     {
+//         return new ClientManager(conmgr);
+//     }
 
-    /**
-     * Creates the distributed object manager to be used on this server.
-     */
-    protected PresentsDObjectMgr createDObjectManager ()
-    {
-        return new PresentsDObjectMgr();
-    }
+//     /**
+//      * Creates the distributed object manager to be used on this server.
+//      */
+//     protected PresentsDObjectMgr createDObjectManager ()
+//     {
+//         return new PresentsDObjectMgr();
+//     }
 
     /**
      * Defines the default object access policy for all {@link DObject} instances. The default
@@ -253,92 +208,11 @@ public class PresentsServer
         omgr.postRunnable(new Runnable() {
             public void run () {
                 // start up the connection manager
-                conmgr.start();
+                _conmgr.start();
             }
         });
         // invoke the dobjmgr event loop
         omgr.run();
-    }
-
-    /**
-     * A report is generated by the presents server periodically in which server entities can
-     * participate by registering a {@link Reporter} with this method.
-     */
-    public static void registerReporter (Reporter reporter)
-    {
-        _reporters.add(reporter);
-    }
-
-    /**
-     * Generates a report for all system services registered as a {@link Reporter}.
-     */
-    public static String generateReport ()
-    {
-        return generateReport(System.currentTimeMillis(), false);
-    }
-
-    /**
-     * Generates and logs a "state of server" report.
-     */
-    protected static String generateReport (long now, boolean reset)
-    {
-        long sinceLast = now - _lastReportStamp;
-        long uptime = now - _serverStartTime;
-        StringBuilder report = new StringBuilder("State of server report:\n");
-
-        report.append("- Uptime: ");
-        report.append(StringUtil.intervalToString(uptime)).append("\n");
-        report.append("- Report period: ");
-        report.append(StringUtil.intervalToString(sinceLast)).append("\n");
-
-        // report on the state of memory
-        Runtime rt = Runtime.getRuntime();
-        long total = rt.totalMemory(), max = rt.maxMemory();
-        long used = (total - rt.freeMemory());
-        report.append("- Memory: ").append(used/1024).append("k used, ");
-        report.append(total/1024).append("k total, ");
-        report.append(max/1024).append("k max\n");
-
-        for (int ii = 0; ii < _reporters.size(); ii++) {
-            Reporter rptr = _reporters.get(ii);
-            try {
-                rptr.appendReport(report, now, sinceLast, reset);
-            } catch (Throwable t) {
-                log.warning("Reporter choked [rptr=" + rptr + "].", t);
-            }
-        }
-
-        /* The following Interval debug methods are no longer supported,
-         * but they could be added back easily if needed.
-        report.append("* samskivert.Interval:\n");
-        report.append("- Registered intervals: ");
-        report.append(Interval.registeredIntervalCount());
-        report.append("\n- Fired since last report: ");
-        report.append(Interval.getAndClearFiredIntervals());
-        report.append("\n");
-        */
-
-        // strip off the final newline
-        int blen = report.length();
-        if (report.charAt(blen-1) == '\n') {
-            report.delete(blen-1, blen);
-        }
-
-        // only reset the last report time if this is a periodic report
-        if (reset) {
-            _lastReportStamp = now;
-        }
-
-        return report.toString();
-    }
-
-    /**
-     * Logs the state of the server report via the default logging mechanism.  Derived classes may
-     * wish to log the state of the server report via a different means.
-     */
-    protected void logReport (String report)
-    {
-        log.info(report);
     }
 
     /**
@@ -347,25 +221,13 @@ public class PresentsServer
      */
     public void shutdown ()
     {
-        ObserverList<Shutdowner> downers = _downers;
-        if (downers == null) {
-            log.warning("Refusing repeat shutdown request.");
-            return;
-        }
-        _downers = null;
-
-        // shut down all shutdown participants
-        downers.apply(new ObserverList.ObserverOp<Shutdowner>() {
-            public boolean apply (Shutdowner downer) {
-                downer.shutdown();
-                return true;
-            }
-        });
+        // shutdown all registered shutdowners
+        _shutmgr.shutdown();
 
         // shut down the connection manager (this will cease all network activity but not actually
         // close the connections)
-        if (conmgr.isRunning()) {
-            conmgr.shutdown();
+        if (_conmgr.isRunning()) {
+            _conmgr.shutdown();
         }
 
         // finally shut down the invoker and dobj manager (The invoker does both for us.)
@@ -395,22 +257,39 @@ public class PresentsServer
     {
     }
 
-    /** Our interval that generates "state of server" reports. */
-    protected Interval _reportInterval;
+    /** Integrates the main invoker thread with the distributed object thread so that they can
+     * coordinate the shutdown process to ensure that all (barring infinite loops) invoker units
+     * and distributed object events are processed before the server shuts down. */
+    protected static class ServerInvoker extends PresentsInvoker
+    {
+        @Inject public ServerInvoker (PresentsDObjectMgr omgr, ReportManager repmgr) {
+            super(omgr, repmgr);
+        }
+        @Override protected void didShutdown () {
+            _server.invokerDidShutdown();
+        }
+        @Inject protected PresentsServer _server;
+    }
 
-    /** The time at which the server was started. */
-    protected static long _serverStartTime = System.currentTimeMillis();
+    /** The manager of distributed objects. */
+    @Inject protected PresentsDObjectMgr _omgr;
 
-    /** The last time at which {@link #generateReport} was run. */
-    protected static long _lastReportStamp = _serverStartTime;
+    /** The manager of network connections. */
+    @Inject protected ConnectionManager _conmgr;
 
-    /** Used to generate "state of server" reports. */
-    protected static ArrayList<Reporter> _reporters = new ArrayList<Reporter>();
+    /** The manager of clients. */
+    @Inject protected ClientManager _clmgr;
 
-    /** A list of shutdown participants. */
-    protected static ObserverList<Shutdowner> _downers =
-        new ObserverList<Shutdowner>(ObserverList.SAFE_IN_ORDER_NOTIFY);
+    /** The manager of invocation services. */
+    @Inject protected InvocationManager _invmgr;
 
-    /** The frequency with which we generate "state of server" reports. */
-    protected static final long REPORT_INTERVAL = 15 * 60 * 1000L;
+    /** Handles orderly shutdown of our managers, etc. */
+    @Inject protected ShutdownManager _shutmgr;
+
+    /** Handles generation of state of the server reports. */
+    @Inject protected ReportManager _repmgr;
+
+    /** Used to invoke background tasks that should not be allowed to tie up the distributed object
+     * manager thread (generally talking to databases and other relatively slow entities). */
+    @Inject @MainInvoker protected Invoker _invoker;
 }

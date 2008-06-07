@@ -21,65 +21,34 @@
 
 package com.threerings.presents.server;
 
-import junit.framework.Test;
-import junit.framework.TestCase;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+
+import atunit.AtUnit;
+import atunit.Container;
+import atunit.Unit;
+
+import com.google.inject.Inject;
 
 import com.threerings.presents.data.TestObject;
 import com.threerings.presents.dobj.*;
 
+import static org.junit.Assert.*;
+
 /**
  * Tests the oid list reference tracking code.
  */
-public class RefTest extends TestCase
-    implements EventListener
+@RunWith(AtUnit.class)
+@Container(Container.Option.GUICE)
+public class RefTest
 {
-    public static Test suite ()
-    {
-        return new RefTest();
-    }
-
-    public RefTest ()
-    {
-        super(RefTest.class.getName());
-    }
-
-    public void eventReceived (DEvent event)
-    {
-        // Log.info("Got event: " + event);
-        int toid = event.getTargetOid();
-
-        // once we receive the second object added we can destroy the
-        // target object to see if the reference is cleaned up
-        if (event instanceof ObjectAddedEvent &&
-            toid == _objtwo.getOid()) {
-            // Log.info("Destroying object two " + _objtwo + ".");
-            _objtwo.destroy();
-
-        } else if (event instanceof ObjectDestroyedEvent) {
-            if (toid == _objtwo.getOid()) {
-                // Log.info("List won't yet be empty: " + _objone.list);
-                assertTrue("List not empty", _objone.list.size() > 0);
-            } else {
-                // Log.info("Other object destroyed.");
-                // go bye bye
-                _omgr.harshShutdown();
-            }
-
-        } else if (event instanceof ObjectRemovedEvent) {
-            // Log.info("List should be empty: " + _objone.list);
-            assertTrue("List empty", _objone.list.size() == 0);
-            // finally destroy the other object to complete the circle
-            _objone.destroy();
-        }
-    }
-
-    public void runTest ()
+    @Test public void runTest ()
     {
         // create two test objects
         _objone = _omgr.registerObject(new TestObject());
-        _objone.addListener(this);
+        _objone.addListener(_listener);
         _objtwo = _omgr.registerObject(new TestObject());
-        _objtwo.addListener(this);
+        _objtwo.addListener(_listener);
 
         // now that we have both objects, set up the references
         _objone.addToList(_objtwo.getOid());
@@ -89,8 +58,39 @@ public class RefTest extends TestCase
         _omgr.run();
     }
 
+    protected EventListener _listener = new EventListener() {
+        public void eventReceived (DEvent event) {
+            // Log.info("Got event: " + event);
+            int toid = event.getTargetOid();
+
+            // once we receive the second object added we can destroy the
+            // target object to see if the reference is cleaned up
+            if (event instanceof ObjectAddedEvent &&
+                toid == _objtwo.getOid()) {
+                // Log.info("Destroying object two " + _objtwo + ".");
+                _objtwo.destroy();
+
+            } else if (event instanceof ObjectDestroyedEvent) {
+                if (toid == _objtwo.getOid()) {
+                    // Log.info("List won't yet be empty: " + _objone.list);
+                    assertTrue("List not empty", _objone.list.size() > 0);
+                } else {
+                    // Log.info("Other object destroyed.");
+                    // go bye bye
+                    _omgr.harshShutdown();
+                }
+
+            } else if (event instanceof ObjectRemovedEvent) {
+                // Log.info("List should be empty: " + _objone.list);
+                assertTrue("List empty", _objone.list.size() == 0);
+                // finally destroy the other object to complete the circle
+                _objone.destroy();
+            }
+        }
+    };
+
     protected TestObject _objone;
     protected TestObject _objtwo;
 
-    protected static PresentsDObjectMgr _omgr = new PresentsDObjectMgr();
+    @Inject @Unit protected PresentsDObjectMgr _omgr;
 }

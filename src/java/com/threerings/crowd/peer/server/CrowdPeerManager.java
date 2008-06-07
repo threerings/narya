@@ -21,11 +21,14 @@
 
 package com.threerings.crowd.peer.server;
 
+import com.google.inject.Inject;
+
 import com.threerings.util.Name;
 
 import com.threerings.presents.data.ClientObject;
 import com.threerings.presents.server.InvocationException;
 import com.threerings.presents.server.PresentsClient;
+import com.threerings.presents.server.ShutdownManager;
 
 import com.threerings.presents.peer.data.ClientInfo;
 import com.threerings.presents.peer.data.NodeObject;
@@ -49,6 +52,14 @@ import com.threerings.crowd.peer.data.CrowdPeerMarshaller;
 public class CrowdPeerManager extends PeerManager
     implements CrowdPeerProvider, ChatProvider.ChatForwarder
 {
+    /**
+     * Creates an uninitialized peer manager.
+     */
+    @Inject public CrowdPeerManager (ShutdownManager shutmgr)
+    {
+        super(shutmgr);
+    }
+
     // from interface CrowdPeerProvider
     public void deliverTell (ClientObject caller, UserMessage message,
                              Name target, ChatService.TellListener listener)

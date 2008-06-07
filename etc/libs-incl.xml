@@ -3,11 +3,13 @@
 <project name="library-dependencies">
   <fileset dir="${libs.dir}" id="narya.libs">
     <include name="ant.jar"/>
+    <include name="atunit.jar"/>
     <include name="asc.jar"/>
     <include name="flexTasks.jar"/>
     <include name="commons-collections.jar"/>
     <include name="commons-io.jar"/>
     <include name="commons-lang.jar"/>
+    <include name="guice.jar"/>
     <include name="google-collect.jar"/>
     <include name="javassist.jar"/>
     <include name="junit4.jar"/>

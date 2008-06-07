@@ -3,6 +3,9 @@
 
 package com.threerings.crowd.server;
 
+import com.google.inject.Guice;
+import com.google.inject.Injector;
+
 import com.threerings.crowd.data.JabberConfig;
 import com.threerings.crowd.data.PlaceObject;
 
@@ -15,10 +18,10 @@ import static com.threerings.crowd.Log.log;
 public class JabberServer extends CrowdServer
 {
     // documentation inherited
-    public void init ()
+    public void init (Injector injector)
         throws Exception
     {
-        super.init();
+        super.init(injector);
 
         // create a single location
         _pmgr = plreg.createPlace(new JabberConfig());
@@ -26,9 +29,11 @@ public class JabberServer extends CrowdServer
 
     public static void main (String[] args)
     {
-        JabberServer server = new JabberServer();
+        Injector injector = Guice.createInjector(new Module());
+        JabberServer server = injector.getInstance(JabberServer.class);
+
         try {
-            server.init();
+            server.init(injector);
             server.run();
         } catch (Exception e) {
             log.warning("Unable to initialize server.", e);

@@ -25,8 +25,13 @@ import java.util.List;
 import java.util.Random;
 
 import com.google.common.collect.Lists;
+import com.google.inject.Guice;
+import com.google.inject.Inject;
+import com.google.inject.Injector;
 
 import com.threerings.bureau.data.AgentObject;
+
+import com.threerings.presents.server.ShutdownManager;
 
 import static com.threerings.bureau.Log.log;
 
@@ -59,11 +64,12 @@ public class RegistryTester
      */
     public static void main (String[] args)
     {
-        TestServer server = new TestServer();
-        RegistryTester tester = new RegistryTester(server);
+        Injector injector = Guice.createInjector(new TestServer.Module());
+        TestServer server = injector.getInstance(TestServer.class);
+        RegistryTester tester = injector.getInstance(RegistryTester.class);
 
         try {
-            server.init();
+            server.init(injector);
             tester.start();
             server.run();
 
@@ -75,7 +81,7 @@ public class RegistryTester
     /**
      * Creates a new registry tester.
      */
-    public RegistryTester (TestServer server)
+    @Inject public RegistryTester (TestServer server, ShutdownManager shutmgr)
     {
         _server = server;
 
@@ -92,7 +98,7 @@ public class RegistryTester
 
         // stop the tests when the server shuts down
         // TODO: this is not called on Ctrl-C, need a way to shut down gracefully
-        TestServer.registerShutdowner(new TestServer.Shutdowner() {
+        shutmgr.registerShutdowner(new ShutdownManager.Shutdowner() {
             public void shutdown () {
                 log.info("Shutting down tests");
                 _stop = true;

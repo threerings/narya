@@ -21,11 +21,19 @@
 
 package com.threerings.presents.server;
 
-import junit.framework.Test;
-import junit.framework.TestCase;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+
+import atunit.AtUnit;
+import atunit.Container;
+import atunit.Unit;
+
+import com.google.inject.Inject;
 
 import com.threerings.presents.data.TestObject;
 import com.threerings.presents.dobj.*;
+
+import static org.junit.Assert.*;
 
 import static com.threerings.presents.Log.log;
 
@@ -33,48 +41,17 @@ import static com.threerings.presents.Log.log;
  * Tests that the dobjmgr will not allow a destroyed object to be added to
  * an oid list.
  */
-public class DestroyedRefTest extends TestCase
-    implements EventListener
+@RunWith(AtUnit.class)
+@Container(Container.Option.GUICE)
+public class DestroyedRefTest
 {
-    public static Test suite ()
-    {
-        return new DestroyedRefTest();
-    }
-
-    public DestroyedRefTest ()
-    {
-        super(DestroyedRefTest.class.getName());
-    }
-
-    public void eventReceived (DEvent event)
-    {
-        int toid = event.getTargetOid();
-
-        // when we get the attribute change, we can exit
-        if (event instanceof ObjectDestroyedEvent) {
-            log.info("The upcoming object added event should be rejected.");
-
-        } else if (event instanceof ObjectAddedEvent &&
-                   toid == _objtwo.getOid()) {
-            assertTrue("list should contain only one oid",
-                       _objtwo.list.size() == 1);
-
-        } else if (event instanceof AttributeChangedEvent) {
-            // go bye bye
-            _omgr.harshShutdown();
-
-        } else {
-            fail("Got unexpected event: " + event);
-        }
-    }
-
-    public void runTest ()
+    @Test public void runTest ()
     {
         // create two test objects
         _objone = _omgr.registerObject(new TestObject());
-        _objone.addListener(this);
+        _objone.addListener(_listener);
         _objtwo = _omgr.registerObject(new TestObject());
-        _objtwo.addListener(this);
+        _objtwo.addListener(_listener);
 
         // add object one to object two twice in a row to make sure repeated
         // adds don't result in the object being listed twice
@@ -95,7 +72,30 @@ public class DestroyedRefTest extends TestCase
         _omgr.run();
     }
 
+    protected EventListener _listener = new EventListener() {
+        public void eventReceived (DEvent event) {
+            int toid = event.getTargetOid();
+
+            // when we get the attribute change, we can exit
+            if (event instanceof ObjectDestroyedEvent) {
+                log.info("The upcoming object added event should be rejected.");
+
+            } else if (event instanceof ObjectAddedEvent &&
+                       toid == _objtwo.getOid()) {
+                assertTrue("list should contain only one oid",
+                           _objtwo.list.size() == 1);
+
+            } else if (event instanceof AttributeChangedEvent) {
+                // go bye bye
+                _omgr.harshShutdown();
+
+            } else {
+                fail("Got unexpected event: " + event);
+            }
+        }
+    };
+
     protected TestObject _objone, _objtwo;
 
-    protected static PresentsDObjectMgr _omgr = new PresentsDObjectMgr();
+    @Inject @Unit protected PresentsDObjectMgr _omgr;
 }

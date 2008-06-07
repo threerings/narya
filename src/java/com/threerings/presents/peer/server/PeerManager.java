@@ -32,6 +32,10 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 
+import com.google.common.collect.Maps;
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
+
 import com.samskivert.jdbc.RepositoryUnit;
 import com.samskivert.jdbc.WriteOnlyUnit;
 import com.samskivert.jdbc.depot.PersistenceContext;
@@ -49,7 +53,6 @@ import com.samskivert.util.Tuple;
 import com.threerings.io.Streamable;
 import com.threerings.util.Name;
 
-import com.threerings.presents.client.Client;
 import com.threerings.presents.data.ClientObject;
 import com.threerings.presents.dobj.DObject;
 import com.threerings.presents.dobj.EntryAddedEvent;
@@ -58,10 +61,15 @@ import com.threerings.presents.dobj.EntryUpdatedEvent;
 import com.threerings.presents.dobj.ObjectAccessException;
 import com.threerings.presents.dobj.SetListener;
 import com.threerings.presents.dobj.Subscriber;
+
+import com.threerings.presents.client.Client;
 import com.threerings.presents.server.ClientManager;
 import com.threerings.presents.server.InvocationException;
+import com.threerings.presents.server.InvocationManager;
 import com.threerings.presents.server.PresentsClient;
-import com.threerings.presents.server.PresentsServer;
+import com.threerings.presents.server.PresentsDObjectMgr;
+import com.threerings.presents.server.ShutdownManager;
+import com.threerings.presents.server.net.ConnectionManager;
 
 import com.threerings.presents.peer.data.ClientInfo;
 import com.threerings.presents.peer.data.NodeObject;
@@ -77,8 +85,9 @@ import static com.threerings.presents.Log.log;
  * client connection to the other servers and subscribes to the {@link NodeObject} of all peer
  * servers and uses those objects to communicate cross-node information.
  */
+@Singleton
 public class PeerManager
-    implements PeerProvider, ClientManager.ClientObserver, PresentsServer.Shutdowner
+    implements PeerProvider, ClientManager.ClientObserver, ShutdownManager.Shutdowner
 {
     /**
      * Used by entities that wish to know when cached data has become stale due to a change on
@@ -169,6 +178,14 @@ public class PeerManager
     }
 
     /**
+     * Creates an uninitialized peer manager.
+     */
+    @Inject public PeerManager (ShutdownManager shutmgr)
+    {
+        shutmgr.registerShutdowner(this);
+    }
+
+    /**
      * Returns the distributed object that represents this node to its peers.
      */
     public NodeObject getNodeObject ()
@@ -202,14 +219,11 @@ public class PeerManager
         _sharedSecret = sharedSecret;
 
         // wire ourselves into the server
-        PresentsServer.registerShutdowner(this);
-        PresentsServer.conmgr.setAuthenticator(
-            new PeerAuthenticator(this, PresentsServer.conmgr.getAuthenticator()));
-        PresentsServer.clmgr.setClientFactory(
-            new PeerClientFactory(this, PresentsServer.clmgr.getClientFactory()));
+        _conmgr.setAuthenticator(new PeerAuthenticator(this, _conmgr.getAuthenticator()));
+        _clmgr.setClientFactory(new PeerClientFactory(this, _clmgr.getClientFactory()));
 
         // create our node object
-        _nodeobj = PresentsServer.omgr.registerObject(createNodeObject());
+        _nodeobj = _omgr.registerObject(createNodeObject());
         _nodeobj.setNodeName(nodeName);
 
         // register ourselves with the node table
@@ -223,10 +237,10 @@ public class PeerManager
 
         // set the invocation service
         _nodeobj.setPeerService(
-            (PeerMarshaller)PresentsServer.invmgr.registerDispatcher(new PeerDispatcher(this)));
+            (PeerMarshaller)_invmgr.registerDispatcher(new PeerDispatcher(this)));
 
         // register ourselves as a client observer
-        PresentsServer.clmgr.addClientObserver(this);
+        _clmgr.addClientObserver(this);
 
         // and start our peer refresh interval
         _peerRefresher.schedule(5000L, 60*1000L);
@@ -317,8 +331,8 @@ public class PeerManager
     public void invokeNodeAction (final NodeAction action)
     {
         // if we're not on the dobjmgr thread, get there
-        if (!PresentsServer.omgr.isDispatchThread()) {
-            PresentsServer.omgr.postRunnable(new Runnable() {
+        if (!_omgr.isDispatchThread()) {
+            _omgr.postRunnable(new Runnable() {
                 public void run () {
                     invokeNodeAction(action);
                 }
@@ -384,7 +398,7 @@ public class PeerManager
                 // make a note of this proxy mapping
                 _proxies.put(key, new Tuple<Subscriber<?>,DObject>(this, object));
                 // map the object into our local oid space
-                PresentsServer.omgr.registerProxyObject(object, peer.getDObjectManager());
+                _omgr.registerProxyObject(object, peer.getDObjectManager());
                 // then tell the caller about the (now remapped) oid
                 listener.requestCompleted(object.getOid());
             }
@@ -408,7 +422,7 @@ public class PeerManager
         }
 
         // clear out the local object manager's proxy mapping
-        PresentsServer.omgr.clearProxyObject(remoteOid, bits.right);
+        _omgr.clearProxyObject(remoteOid, bits.right);
 
         final Client peer = getPeerClient(nodeName);
         if (peer == null) {
@@ -681,19 +695,19 @@ public class PeerManager
         _nodeobj.setCacheData(new NodeObject.CacheData(cache, data));
     }
 
-    // from interface PresentsServer.Shutdowner
+    // from interface ShutdownManager.Shutdowner
     public void shutdown ()
     {
         // clear out our invocation service
         if (_nodeobj != null) {
-            PresentsServer.invmgr.clearDispatcher(_nodeobj.peerService);
+            _invmgr.clearDispatcher(_nodeobj.peerService);
         }
 
         // stop our peer refresher interval
         _peerRefresher.cancel();
 
         // clear out our client observer registration
-        PresentsServer.clmgr.removeClientObserver(this);
+        _clmgr.removeClientObserver(this);
 
         // clear our record from the node table
         _invoker.postUnit(new WriteOnlyUnit("deleteNode(" + _nodeName + ")") {
@@ -1004,7 +1018,7 @@ public class PeerManager
             _remoids = (ArrayIntSet)_suboids.clone();
 
             // schedule a timeout to act if something goes wrong
-            (_timeout = new Interval(PresentsServer.omgr) {
+            (_timeout = new Interval(_omgr) {
                 public void expired () {
                     log.warning("Lock handler timed out, acting anyway [lock=" + _lock +
                                 ", acquire=" + _acquire + "].");
@@ -1198,19 +1212,23 @@ public class PeerManager
 
     /** Contains a mapping of proxied objects to subscriber instances. */
     protected HashMap<Tuple<String,Integer>,Tuple<Subscriber<?>,DObject>> _proxies =
-        new HashMap<Tuple<String,Integer>,Tuple<Subscriber<?>,DObject>>();
+        Maps.newHashMap();
 
     /** Our stale cache observers. */
-    protected HashMap<String, ObserverList<StaleCacheObserver>> _cacheobs =
-        new HashMap<String, ObserverList<StaleCacheObserver>>();
+    protected HashMap<String, ObserverList<StaleCacheObserver>> _cacheobs = Maps.newHashMap();
 
     /** Listeners for dropped locks. */
     protected ObserverList<DroppedLockObserver> _dropobs =
         new ObserverList<DroppedLockObserver>(ObserverList.FAST_UNSAFE_NOTIFY);
 
     /** Locks in the process of resolution. */
-    protected HashMap<NodeObject.Lock, LockHandler> _locks =
-        new HashMap<NodeObject.Lock, LockHandler>();
+    protected HashMap<NodeObject.Lock, LockHandler> _locks = Maps.newHashMap();
+
+    // our service dependencies
+    @Inject protected ConnectionManager _conmgr;
+    @Inject protected ClientManager _clmgr;
+    @Inject protected PresentsDObjectMgr _omgr;
+    @Inject protected InvocationManager _invmgr;
 
     /** We wait this long for peer ratification to complete before acquiring/releasing the lock. */
     protected static final long LOCK_TIMEOUT = 5000L;

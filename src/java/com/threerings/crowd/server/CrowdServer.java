@@ -23,6 +23,9 @@ package com.threerings.crowd.server;
 
 import java.util.Iterator;
 
+import com.google.inject.Guice;
+import com.google.inject.Injector;
+
 import com.threerings.util.Name;
 
 import com.threerings.presents.dobj.RootDObjectManager;
@@ -44,6 +47,15 @@ import static com.threerings.crowd.Log.log;
  */
 public class CrowdServer extends PresentsServer
 {
+    /** Configures dependencies needed by the Crowd services. */
+    public static class Module extends PresentsServer.Module
+    {
+        @Override protected void configure () {
+            super.configure();
+            // nada
+        }
+    }
+
     /** The place registry. */
     public static PlaceRegistry plreg;
 
@@ -53,11 +65,10 @@ public class CrowdServer extends PresentsServer
     /**
      * Initializes all of the server services and prepares for operation.
      */
-    public void init ()
+    public void init (Injector injector)
         throws Exception
     {
-        // do the presents server initialization
-        super.init();
+        super.init(injector);
 
         // configure the client manager to use our bits
         clmgr.setClientFactory(new ClientFactory() {
@@ -139,9 +150,10 @@ public class CrowdServer extends PresentsServer
 
     public static void main (String[] args)
     {
-        CrowdServer server = new CrowdServer();
+        Injector injector = Guice.createInjector(new Module());
+        CrowdServer server = injector.getInstance(CrowdServer.class);
         try {
-            server.init();
+            server.init(injector);
             server.run();
         } catch (Exception e) {
             log.warning("Unable to initialize server.", e);

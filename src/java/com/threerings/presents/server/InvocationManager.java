@@ -21,9 +21,14 @@
 
 package com.threerings.presents.server;
 
-import java.util.HashMap;
+import java.util.Map;
 
-import com.samskivert.util.HashIntMap;
+import com.google.common.collect.Maps;
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
+
+import com.samskivert.util.IntMaps;
+import com.samskivert.util.IntMap;
 import com.samskivert.util.LRUHashMap;
 import com.samskivert.util.StringUtil;
 
@@ -39,7 +44,6 @@ import com.threerings.presents.dobj.DObject;
 import com.threerings.presents.dobj.EventListener;
 import com.threerings.presents.dobj.InvocationRequestEvent;
 import com.threerings.presents.dobj.ObjectAccessException;
-import com.threerings.presents.dobj.RootDObjectManager;
 
 import com.threerings.presents.net.Transport;
 
@@ -62,6 +66,7 @@ import static com.threerings.presents.Log.log;
  * provides a mechanism by which responses and asynchronous notification invocations can be
  * delivered to the client.
  */
+@Singleton
 public class InvocationManager
     implements EventListener
 {
@@ -70,16 +75,16 @@ public class InvocationManager
      * operate its invocation services. Generally only one invocation manager should be operational
      * in a particular system.
      */
-    public InvocationManager (RootDObjectManager omgr)
+    @Inject public InvocationManager (PresentsDObjectMgr omgr)
     {
         _omgr = omgr;
 
         // create the object on which we'll listen for invocation requests
-        DObject invobj = omgr.registerObject(new DObject());
+        DObject invobj = _omgr.registerObject(new DObject());
         invobj.addListener(this);
         _invoid = invobj.getOid();
 
-//         Log.info("Created invocation service object [oid=" + _invoid + "].");
+//         log.info("Created invocation service object [oid=" + _invoid + "].");
     }
 
     /**
@@ -143,7 +148,7 @@ public class InvocationManager
 
         _recentRegServices.put(Integer.valueOf(invCode), marsh.getClass().getName());
 
-//        Log.info("Registered service [marsh=" + marsh + "].");
+//        log.info("Registered service [marsh=" + marsh + "].");
         return marsh;
     }
 
@@ -199,7 +204,7 @@ public class InvocationManager
     // documentation inherited from interface
     public void eventReceived (DEvent event)
     {
-//         Log.info("Event received " + event + ".");
+//         log.info("Event received " + event + ".");
 
         if (event instanceof InvocationRequestEvent) {
             InvocationRequestEvent ire = (InvocationRequestEvent)event;
@@ -255,7 +260,7 @@ public class InvocationManager
             }
         }
 
-//         Log.debug("Dispatching invreq [caller=" + source.who() +
+//         log.debug("Dispatching invreq [caller=" + source.who() +
 //                   ", disp=" + disp + ", methId=" + methodId +
 //                   ", args=" + StringUtil.toString(args) + "].");
 
@@ -301,29 +306,24 @@ public class InvocationManager
         return _invCode++;
     }
 
-    // debugging action...
-    protected static final LRUHashMap<Integer,String> _recentRegServices =
-        new LRUHashMap<Integer,String>(10000);
-
-    /** The distributed object manager with which we're working. */
-    protected RootDObjectManager _omgr;
-
     /** The object id of the object on which we receive invocation service requests. */
     protected int _invoid = -1;
 
     /** Used to generate monotonically increasing provider ids. */
     protected int _invCode;
 
+    /** The distribted object manager we're working with. */
+    protected PresentsDObjectMgr _omgr;
+
     /** A table of invocation dispatchers each mapped by a unique code. */
-    protected HashIntMap<InvocationDispatcher> _dispatchers =
-        new HashIntMap<InvocationDispatcher>();
+    protected IntMap<InvocationDispatcher> _dispatchers = IntMaps.newHashIntMap();
 
-    /** A mapping from bootstrap group to lists of services that are to be provided to clients at
-     * boot time. */
-    protected HashMap<String,StreamableArrayList<InvocationMarshaller>> _bootlists =
-        new HashMap<String,StreamableArrayList<InvocationMarshaller>>();
+    /** Maps bootstrap group to lists of services to be provided to clients at boot time. */
+    protected Map<String,StreamableArrayList<InvocationMarshaller>> _bootlists = Maps.newHashMap();
 
-    /** The text that is appended to the procedure name when automatically generating a failure
-     * response. */
+    // debugging action...
+    protected final Map<Integer,String> _recentRegServices = new LRUHashMap<Integer,String>(10000);
+
+    /** The text appended to the procedure name when generating a failure response. */
     protected static final String FAILED_SUFFIX = "Failed";
 }

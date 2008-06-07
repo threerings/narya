@@ -32,15 +32,27 @@ import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 import java.nio.channels.spi.SelectorProvider;
+import java.util.ArrayList;
+import java.util.List;
 
 import java.net.InetSocketAddress;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.Set;
 
-import com.samskivert.util.*;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
+
+import com.samskivert.util.IntMap;
+import com.samskivert.util.IntMaps;
+import com.samskivert.util.LoopingThread;
+import com.samskivert.util.Queue;
+import com.samskivert.util.ResultListener;
+import com.samskivert.util.StringUtil;
+import com.samskivert.util.Tuple;
 
 import com.threerings.io.FramingOutputStream;
 import com.threerings.io.ObjectOutputStream;
@@ -53,7 +65,8 @@ import com.threerings.presents.net.DownstreamMessage;
 import com.threerings.presents.util.DatagramSequencer;
 
 import com.threerings.presents.server.Authenticator;
-import com.threerings.presents.server.PresentsServer;
+import com.threerings.presents.server.PresentsDObjectMgr;
+import com.threerings.presents.server.ReportManager;
 
 import static com.threerings.presents.Log.log;
 
@@ -63,38 +76,36 @@ import static com.threerings.presents.Log.log;
  * closely with the connection manager because network I/O is done via a poll()-like mechanism
  * rather than via threads.
  */
+@Singleton
 public class ConnectionManager extends LoopingThread
-    implements PresentsServer.Reporter
+    implements ReportManager.Reporter
 {
     /**
-     * Constructs and initialized a connection manager (binding the socket on which it will listen
-     * for client connections).
+     * Creates a connection manager instance. Don't call this, Guice will do it for you.
      */
-    public ConnectionManager (int port)
-        throws IOException
-    {
-        this(new int[] { port });
-    }
-
-    /**
-     * Constructs and initialized a connection manager (binding socket on which it will listen for
-     * client connections to each of the specified ports).
-     */
-    public ConnectionManager (int[] ports)
-        throws IOException
-    {
-        this(ports, new int[0]);
-    }
-
-    /**
-     * Constructs and initialized a connection manager (binding socket on which it will listen for
-     * client connections to each of the specified ports).
-     */
-    public ConnectionManager (int[] ports, int[] datagramPorts)
-        throws IOException
+    @Inject public ConnectionManager (ReportManager repmgr)
     {
         super("ConnectionManager");
+        repmgr.registerReporter(this);
+    }
 
+    /**
+     * Constructs and initialized a connection manager (binding socket on which it will listen for
+     * client connections to each of the specified ports).
+     */
+    public void init (int[] ports)
+        throws IOException
+    {
+        init(ports, new int[0]);
+    }
+
+    /**
+     * Constructs and initialized a connection manager (binding socket on which it will listen for
+     * client connections to each of the specified ports).
+     */
+    public void init (int[] ports, int[] datagramPorts)
+        throws IOException
+    {
         _ports = ports;
         _datagramPorts = datagramPorts;
         _selector = SelectorProvider.provider().openSelector();
@@ -102,9 +113,6 @@ public class ConnectionManager extends LoopingThread
         // create our stats record
         _stats = new ConMgrStats();
         _lastStats = new ConMgrStats();
-
-        // register as a "state of server" reporter
-        PresentsServer.registerReporter(this);
     }
 
     /**
@@ -207,7 +215,7 @@ public class ConnectionManager extends LoopingThread
         _authq.append(conn);
     }
 
-    // documentation inherited from interface PresentsServer.Reporter
+    // documentation inherited from interface ReportManager.Reporter
     public void appendReport (
         StringBuilder report, long now, long sinceLast, boolean reset)
     {
@@ -842,7 +850,7 @@ public class ConnectionManager extends LoopingThread
         }
 
         // more sanity check; messages must only be posted from the dobjmgr thread
-        if (!PresentsServer.omgr.isDispatchThread()) {
+        if (!_omgr.isDispatchThread()) {
             log.warning("Message posted on non-distributed object thread [conn=" + conn +
                         ", msg=" + msg + ", thread=" + Thread.currentThread() + "].");
             Thread.dumpStack();
@@ -1029,6 +1037,15 @@ public class ConnectionManager extends LoopingThread
         protected int _msgs, _partials;
     }
 
+    /** Used to create an overflow queue on the first partial write. */
+    protected PartialWriteHandler _oflowHandler = new PartialWriteHandler() {
+        public void handlePartialWrite (Connection conn, ByteBuffer msgbuf) {
+            // if we couldn't write all the data for this message, we'll need to establish an
+            // overflow queue
+            _oflowqs.put(conn, new OverflowQueue(conn, msgbuf));
+        }
+    };
+
     protected int[] _ports, _datagramPorts;
     protected Authenticator _author;
     protected Selector _selector;
@@ -1040,11 +1057,10 @@ public class ConnectionManager extends LoopingThread
     protected int _runtimeExceptionCount;
 
     /** Maps selection keys to network event handlers. */
-    protected HashMap<SelectionKey,NetEventHandler> _handlers =
-        new HashMap<SelectionKey,NetEventHandler>();
+    protected Map<SelectionKey,NetEventHandler> _handlers = Maps.newHashMap();
 
     /** Connections mapped by identifier. */
-    protected HashIntMap<Connection> _connections = new HashIntMap<Connection>();
+    protected IntMap<Connection> _connections = IntMaps.newHashIntMap();
 
     protected Queue<Connection> _deathq = new Queue<Connection>();
     protected Queue<AuthingConnection> _authq = new Queue<AuthingConnection>();
@@ -1056,9 +1072,9 @@ public class ConnectionManager extends LoopingThread
     protected ByteBuffer _outbuf = ByteBuffer.allocateDirect(64 * 1024);
     protected ByteBuffer _databuf = ByteBuffer.allocateDirect(Client.MAX_DATAGRAM_SIZE);
 
-    protected HashMap<Connection,OverflowQueue> _oflowqs = new HashMap<Connection,OverflowQueue>();
+    protected Map<Connection,OverflowQueue> _oflowqs = Maps.newHashMap();
 
-    protected ArrayList<ConnectionObserver> _observers = new ArrayList<ConnectionObserver>();
+    protected List<ConnectionObserver> _observers = Lists.newArrayList();
 
     /** Bytes in and out in the last reporting period. */
     protected long _bytesIn, _bytesOut;
@@ -1075,14 +1091,8 @@ public class ConnectionManager extends LoopingThread
     /** A runnable to execute when the connection manager thread exits. */
     protected volatile Runnable _onExit;
 
-    /** Used to create an overflow queue on the first partial write. */
-    protected PartialWriteHandler _oflowHandler = new PartialWriteHandler() {
-        public void handlePartialWrite (Connection conn, ByteBuffer msgbuf) {
-            // if we couldn't write all the data for this message, we'll need to establish an
-            // overflow queue
-            _oflowqs.put(conn, new OverflowQueue(conn, msgbuf));
-        }
-    };
+    // injected dependencies
+    @Inject protected PresentsDObjectMgr _omgr;
 
     /** How long we wait for network events before checking our running flag to see if we should
      * still be running. We don't want to loop too tightly, but we need to make sure we don't sit
