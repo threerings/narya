@@ -23,6 +23,8 @@ package com.threerings.admin.server;
 
 import java.util.HashMap;
 
+import com.google.inject.Singleton;
+
 import com.samskivert.io.PersistenceException;
 import com.samskivert.jdbc.WriteOnlyUnit;
 import com.samskivert.jdbc.depot.PersistenceContext;
@@ -42,6 +44,7 @@ import static com.threerings.admin.Log.log;
  * data from the database. This ensures that systems initialized after the config registry can
  * safely make use of configuration information.
  */
+@Singleton
 public class DatabaseConfigRegistry extends ConfigRegistry
 {
     /**

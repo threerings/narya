@@ -24,6 +24,7 @@ package com.threerings.crowd.chat.server;
 import java.util.Iterator;
 
 import com.google.inject.Inject;
+import com.google.inject.Singleton;
 
 import com.samskivert.util.StringUtil;
 import com.threerings.util.MessageBundle;
@@ -53,6 +54,7 @@ import com.threerings.crowd.chat.data.UserMessage;
 /**
  * The chat provider handles the server side of the chat-related invocation services.
  */
+@Singleton
 public class ChatProvider
     implements InvocationProvider
 {

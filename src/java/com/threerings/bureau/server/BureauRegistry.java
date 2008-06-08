@@ -23,19 +23,24 @@ package com.threerings.bureau.server;
 
 import java.util.Map;
 import java.util.Set;
-import com.threerings.bureau.data.AgentObject;
-import com.threerings.bureau.data.BureauCodes;
-import com.threerings.bureau.data.BureauCredentials;
-import com.threerings.presents.data.ClientObject;
-import com.threerings.presents.dobj.RootDObjectManager;
-import com.threerings.presents.dobj.ObjectDeathListener;
-import com.threerings.presents.dobj.ObjectDestroyedEvent;
-import com.threerings.presents.server.InvocationManager;
+
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
+import com.google.inject.Singleton;
+
 import com.samskivert.util.StringUtil;
 import com.samskivert.util.Invoker;
 import com.samskivert.util.ProcessLogger;
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
+
+import com.threerings.presents.data.ClientObject;
+import com.threerings.presents.dobj.ObjectDeathListener;
+import com.threerings.presents.dobj.ObjectDestroyedEvent;
+import com.threerings.presents.dobj.RootDObjectManager;
+import com.threerings.presents.server.InvocationManager;
+
+import com.threerings.bureau.data.AgentObject;
+import com.threerings.bureau.data.BureauCodes;
+import com.threerings.bureau.data.BureauCredentials;
 
 import static com.threerings.bureau.Log.log;
 
@@ -43,6 +48,7 @@ import static com.threerings.bureau.Log.log;
  *  Abstracts the launching and termination of external processes (bureaus) that host instances of
  *  server-side code (agents).
  */
+@Singleton
 public class BureauRegistry
 {
     /**

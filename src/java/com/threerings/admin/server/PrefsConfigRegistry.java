@@ -21,13 +21,17 @@
 
 package com.threerings.admin.server;
 
+import com.google.inject.Singleton;
+
 import com.samskivert.util.PrefsConfig;
+
 import com.threerings.presents.dobj.DObject;
 
 /**
  * Implements the {@link ConfigRegistry} using the Java preferences system as a persistent store
  * for the configuration information (see {@link Config} for more information on how that works).
  */
+@Singleton
 public class PrefsConfigRegistry extends ConfigRegistry
 {
     @Override // from ConfigRegistry

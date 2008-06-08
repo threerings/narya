@@ -25,6 +25,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import com.google.inject.Inject;
+import com.google.inject.Singleton;
 
 import com.samskivert.util.IntMap;
 import com.samskivert.util.IntMaps;
@@ -46,6 +47,7 @@ import static com.threerings.crowd.Log.log;
  * create new places and it will take care of instantiating and initializing a place manager to
  * manage newly created places.
  */
+@Singleton
 public class PlaceRegistry
     implements ShutdownManager.Shutdowner
 {

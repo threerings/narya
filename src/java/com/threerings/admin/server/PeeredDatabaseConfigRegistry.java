@@ -23,6 +23,8 @@ package com.threerings.admin.server;
 
 import java.util.ArrayList;
 
+import com.google.inject.Singleton;
+
 import com.samskivert.io.PersistenceException;
 import com.samskivert.jdbc.depot.PersistenceContext;
 import com.samskivert.util.Invoker;
@@ -41,6 +43,7 @@ import static com.threerings.admin.Log.log;
  * A database backed config registry that registers with the peer system and synchronizes with its
  * peers when configuration fields are changed.
  */
+@Singleton
 public class PeeredDatabaseConfigRegistry extends DatabaseConfigRegistry
 {
     public PeeredDatabaseConfigRegistry (PersistenceContext ctx, Invoker invoker,
