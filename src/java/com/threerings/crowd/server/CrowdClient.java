@@ -42,7 +42,7 @@ public class CrowdClient extends PresentsClient
         if (_clobj != null) {
             // note that the user is disconnected
             BodyObject bobj = (BodyObject)_clobj;
-            BodyProvider.updateOccupantStatus(bobj, bobj.location, OccupantInfo.DISCONNECTED);
+            CrowdServer.bodyman.updateOccupantStatus(bobj, bobj.location, OccupantInfo.DISCONNECTED);
         }
     }
 
@@ -53,7 +53,7 @@ public class CrowdClient extends PresentsClient
 
         // note that the user's active once more
         BodyObject bobj = (BodyObject)_clobj;
-        BodyProvider.updateOccupantStatus(bobj, bobj.location, OccupantInfo.ACTIVE);
+        CrowdServer.bodyman.updateOccupantStatus(bobj, bobj.location, OccupantInfo.ACTIVE);
     }
 
     // documentation inherited
@@ -68,7 +68,7 @@ public class CrowdClient extends PresentsClient
 
         // reset our status in case this object remains around until they start their next session
         // (which could happen very soon)
-        BodyProvider.updateOccupantStatus(body, null, OccupantInfo.ACTIVE);
+        CrowdServer.bodyman.updateOccupantStatus(body, null, OccupantInfo.ACTIVE);
 
         // clear our chat history
         if (body != null) {

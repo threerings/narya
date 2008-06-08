@@ -72,7 +72,6 @@
       </fileset>
       <providerless service="ChatService"/>
       <providerless service="LocationService"/>
-      <providerless service="BodyService"/>
       <providerless service="SimulatorService"/>
       <providerless service="TimeBaseService"/>
     </service>

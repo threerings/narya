@@ -21,18 +21,21 @@
 
 package com.threerings.crowd.chat.server;
 
-import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 
 import com.samskivert.util.ObserverList;
 import com.threerings.util.Name;
 
 import com.threerings.presents.data.ClientObject;
 import com.threerings.presents.dobj.DObject;
+import com.threerings.presents.dobj.RootDObjectManager;
 import com.threerings.presents.server.InvocationProvider;
 
 import com.threerings.crowd.data.BodyObject;
-import com.threerings.crowd.server.CrowdServer;
 
 import com.threerings.crowd.chat.client.SpeakService;
 import com.threerings.crowd.chat.data.ChatCodes;
@@ -188,8 +191,10 @@ public class SpeakUtil
             return;
 
         } else if (speakObj instanceof SpeakObject) {
+            _messageMapper.omgr = (RootDObjectManager)speakObj.getManager();
             _messageMapper.message = (UserMessage)msg;
             ((SpeakObject)speakObj).applyToListeners(_messageMapper);
+            _messageMapper.omgr = null;
             _messageMapper.message = null;
 
         } else {
@@ -202,9 +207,9 @@ public class SpeakUtil
      * Returns a list of {@link ChatMessage} objects to which this user has been privy in the
      * recent past.
      */
-    public static ArrayList<ChatMessage> getChatHistory (Name username)
+    public static List<ChatMessage> getChatHistory (Name username)
     {
-        ArrayList<ChatMessage> history = getHistoryList(username);
+        List<ChatMessage> history = getHistoryList(username);
         pruneHistory(System.currentTimeMillis(), history);
         return history;
     }
@@ -231,7 +236,7 @@ public class SpeakUtil
 
         for (Name username : usernames) {
             // add the message to this user's chat history
-            ArrayList<ChatMessage> history = getHistoryList(username);
+            List<ChatMessage> history = getHistoryList(username);
             history.add(msg);
 
             // if the history is big enough, potentially prune it (we always prune when asked for
@@ -272,11 +277,11 @@ public class SpeakUtil
     /**
      * Returns this user's chat history, creating one if necessary.
      */
-    protected static ArrayList<ChatMessage> getHistoryList (Name username)
+    protected static List<ChatMessage> getHistoryList (Name username)
     {
-        ArrayList<ChatMessage> history = _histories.get(username);
+        List<ChatMessage> history = _histories.get(username);
         if (history == null) {
-            _histories.put(username, history = new ArrayList<ChatMessage>());
+            _histories.put(username, history = Lists.newArrayList());
         }
         return history;
     }
@@ -284,7 +289,7 @@ public class SpeakUtil
     /**
      * Prunes all messages from this history which are expired.
      */
-    protected static void pruneHistory (long now, ArrayList<ChatMessage> history)
+    protected static void pruneHistory (long now, List<ChatMessage> history)
     {
         int prunepos = 0;
         for (int ll = history.size(); prunepos < ll; prunepos++) {
@@ -299,10 +304,11 @@ public class SpeakUtil
     /** Used to note the recipients of a chat message. */
     protected static class MessageMapper implements SpeakObject.ListenerOp
     {
+        public RootDObjectManager omgr;
         public UserMessage message;
 
         public void apply (int bodyOid) {
-            DObject dobj = CrowdServer.omgr.getObject(bodyOid);
+            DObject dobj = omgr.getObject(bodyOid);
             if (dobj != null && dobj instanceof BodyObject) {
                 noteMessage(((BodyObject)dobj).getVisibleName(), message);
             }
@@ -332,15 +338,13 @@ public class SpeakUtil
     }
     
     /** Recent chat history for the server. */
-    protected static HashMap<Name,ArrayList<ChatMessage>> _histories =
-        new HashMap<Name,ArrayList<ChatMessage>>();
+    protected static Map<Name,List<ChatMessage>> _histories = Maps.newHashMap();
 
     /** Used to note the recipients of a chat message. */
     protected static MessageMapper _messageMapper = new MessageMapper();
 
     /** A list of {@link MessageObserver}s. */
-    protected static ObserverList<MessageObserver> _messageObs =
-        new ObserverList<MessageObserver>(ObserverList.FAST_UNSAFE_NOTIFY);
+    protected static ObserverList<MessageObserver> _messageObs = ObserverList.newFastUnsafe();
 
     /** Used to notify our {@link MessageObserver}s. */
     protected static MessageObserverOp _messageOp = new MessageObserverOp();

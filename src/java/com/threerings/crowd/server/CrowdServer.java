@@ -64,6 +64,9 @@ public class CrowdServer extends PresentsServer
     /** Our chat provider. */
     public static ChatProvider chatprov;
 
+    /** Our body manager. */
+    public static BodyManager bodyman;
+
     /**
      * Initializes all of the server services and prepares for operation.
      */
@@ -75,6 +78,7 @@ public class CrowdServer extends PresentsServer
         // LEGACY: set up our legacy static references
         plreg = _plreg;
         chatprov = _chatprov;
+        bodyman = _bodyman;
 
         // configure the client manager to use our bits
         clmgr.setClientFactory(new ClientFactory() {
@@ -88,9 +92,6 @@ public class CrowdServer extends PresentsServer
 
         // create our body locator
         _lookup = createBodyLocator();
-
-        // initialize the body services
-        BodyProvider.init(invmgr);
     }
 
     /**
@@ -150,6 +151,9 @@ public class CrowdServer extends PresentsServer
 
     /** Handles the creation and tracking of place managers. */
     @Inject protected PlaceRegistry _plreg;
+
+    /** Handles body-related invocation services. */
+    @Inject protected BodyManager _bodyman;
 
     /** Provides chat-related invocation services. */
     @Inject protected ChatProvider _chatprov;

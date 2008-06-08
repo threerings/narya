@@ -28,6 +28,7 @@ import com.threerings.util.Name;
 
 import com.threerings.presents.data.ClientObject;
 import com.threerings.presents.server.InvocationException;
+import com.threerings.presents.server.InvocationManager;
 import com.threerings.presents.server.PresentsClient;
 import com.threerings.presents.server.ShutdownManager;
 
@@ -41,7 +42,6 @@ import com.threerings.crowd.chat.data.ChatMessage;
 import com.threerings.crowd.chat.data.UserMessage;
 import com.threerings.crowd.chat.server.ChatProvider;
 import com.threerings.crowd.data.BodyObject;
-import com.threerings.crowd.server.CrowdServer;
 
 import com.threerings.crowd.peer.data.CrowdClientInfo;
 import com.threerings.crowd.peer.data.CrowdNodeObject;
@@ -68,7 +68,7 @@ public class CrowdPeerManager extends PeerManager
         throws InvocationException
     {
         // we just forward the message as if it originated on this server
-        CrowdServer.chatprov.deliverTell(message, target, listener);
+        _chatprov.deliverTell(message, target, listener);
     }
 
     // from interface CrowdPeerProvider
@@ -76,7 +76,7 @@ public class CrowdPeerManager extends PeerManager
                                   boolean attention)
     {
         // deliver the broadcast locally on this server
-        CrowdServer.chatprov.broadcast(from, bundle, msg, attention, false);
+        _chatprov.broadcast(from, bundle, msg, attention, false);
     }
 
     // from interface ChatProvider.ChatForwarder
@@ -116,11 +116,11 @@ public class CrowdPeerManager extends PeerManager
 
         // unregister our invocation service
         if (_nodeobj != null) {
-            CrowdServer.invmgr.clearDispatcher(((CrowdNodeObject)_nodeobj).crowdPeerService);
+            _invmgr.clearDispatcher(((CrowdNodeObject)_nodeobj).crowdPeerService);
         }
 
         // clear our chat forwarder registration
-        CrowdServer.chatprov.setChatForwarder(null);
+        _chatprov.setChatForwarder(null);
     }
 
     @Override // documentation inherited
@@ -151,10 +151,12 @@ public class CrowdPeerManager extends PeerManager
         // register and initialize our invocation service
         CrowdNodeObject cnobj = (CrowdNodeObject)_nodeobj;
         cnobj.setCrowdPeerService(
-            (CrowdPeerMarshaller)CrowdServer.invmgr.registerDispatcher(
-                new CrowdPeerDispatcher(this)));
+            (CrowdPeerMarshaller)_invmgr.registerDispatcher(new CrowdPeerDispatcher(this)));
 
         // register ourselves as a chat forwarder
-        CrowdServer.chatprov.setChatForwarder(this);
+        _chatprov.setChatForwarder(this);
     }
+
+    @Inject protected InvocationManager _invmgr;
+    @Inject protected ChatProvider _chatprov;
 }
