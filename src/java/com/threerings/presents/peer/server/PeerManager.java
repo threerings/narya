@@ -839,7 +839,7 @@ public class PeerManager
     {
         PeerNode peer = _peers.get(record.nodeName);
         if (peer == null) {
-            _peers.put(record.nodeName, peer = createPeerNode(record));
+            _peers.put(record.nodeName, peer = createPeerNode());
             peer.init(this, _omgr, record);
         }
         peer.refresh(record);
@@ -942,7 +942,7 @@ public class PeerManager
     /**
      * Creates a {@link PeerNode} to manage our connection to the specified peer.
      */
-    protected PeerNode createPeerNode (NodeRecord record)
+    protected PeerNode createPeerNode ()
     {
         return new PeerNode();
     }
