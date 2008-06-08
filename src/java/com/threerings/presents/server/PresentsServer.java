@@ -58,7 +58,7 @@ public class PresentsServer
     {
         @Override protected void configure () {
             bind(Invoker.class).annotatedWith(MainInvoker.class).to(PresentsInvoker.class);
-            bind(Invoker.class).annotatedWith(AuthInvoker.class).to(PresentsInvoker.class);
+            bind(Invoker.class).annotatedWith(AuthInvoker.class).to(PresentsAuthInvoker.class);
             bind(RunQueue.class).annotatedWith(EventQueue.class).to(PresentsDObjectMgr.class);
             bind(DObjectManager.class).to(PresentsDObjectMgr.class);
             bind(RootDObjectManager.class).to(PresentsDObjectMgr.class);
@@ -146,8 +146,9 @@ public class PresentsServer
         // configure the dobject manager with our access controller
         _omgr.setDefaultAccessController(createDefaultObjectAccessController());
 
-        // start the main invoker thread
+        // start the main and auth invoker threads
         _invoker.start();
+        _authInvoker.start();
 
         // configure our connection manager
         _conmgr.init(getListenPorts(), getDatagramPorts());
@@ -229,4 +230,7 @@ public class PresentsServer
     /** Used to invoke background tasks that should not be allowed to tie up the distributed object
      * manager thread (generally talking to databases and other relatively slow entities). */
     @Inject @MainInvoker protected Invoker _invoker;
+
+    /** Used to invoke authentication tasks. */
+    @Inject @AuthInvoker protected Invoker _authInvoker;
 }
