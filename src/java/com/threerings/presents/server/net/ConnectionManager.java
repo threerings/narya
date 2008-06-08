@@ -68,6 +68,7 @@ import com.threerings.presents.util.DatagramSequencer;
 
 import com.threerings.presents.server.Authenticator;
 import com.threerings.presents.server.ChainedAuthenticator;
+import com.threerings.presents.server.DummyAuthenticator;
 import com.threerings.presents.server.PresentsDObjectMgr;
 import com.threerings.presents.server.ReportManager;
 import com.threerings.presents.server.ShutdownManager;
@@ -1052,7 +1053,7 @@ public class ConnectionManager extends LoopingThread
     /** Handles client authentication. The base authenticator is injected but optional services
      * like the PeerManager may replace this authenticator with one that intercepts certain types
      * of authentication and then passes normal authentications through. */
-    @Inject protected Authenticator _author;
+    @Inject(optional=true) protected Authenticator _author = new DummyAuthenticator();
 
     protected int[] _ports, _datagramPorts;
     protected Selector _selector;
