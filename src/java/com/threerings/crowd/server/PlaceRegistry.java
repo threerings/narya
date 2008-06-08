@@ -24,11 +24,15 @@ package com.threerings.crowd.server;
 import java.util.Iterator;
 import java.util.List;
 
-import com.samskivert.util.HashIntMap;
+import com.google.inject.Inject;
+
+import com.samskivert.util.IntMap;
+import com.samskivert.util.IntMaps;
 
 import com.threerings.presents.dobj.RootDObjectManager;
 import com.threerings.presents.server.InvocationException;
 import com.threerings.presents.server.InvocationManager;
+import com.threerings.presents.server.ShutdownManager;
 
 import com.threerings.crowd.data.CrowdCodes;
 import com.threerings.crowd.data.Place;
@@ -43,6 +47,7 @@ import static com.threerings.crowd.Log.log;
  * manage newly created places.
  */
 public class PlaceRegistry
+    implements ShutdownManager.Shutdowner
 {
     /** Used in conjunction with {@link #createPlace}. */
     public static interface PreStartupHook
@@ -58,8 +63,11 @@ public class PlaceRegistry
      * Creates and initializes the place registry. This is called by the server during its
      * initialization phase.
      */
-    public PlaceRegistry (InvocationManager invmgr, RootDObjectManager omgr)
+    @Inject public PlaceRegistry (ShutdownManager shutmgr, InvocationManager invmgr,
+                                  RootDObjectManager omgr)
     {
+        shutmgr.registerShutdowner(this);
+
         // create and register our location provider
         locprov = new LocationProvider(invmgr, omgr, this);
         invmgr.registerDispatcher(new LocationDispatcher(locprov), CrowdCodes.CROWD_GROUP);
@@ -171,6 +179,20 @@ public class PlaceRegistry
         return _pmgrs.values().iterator();
     }
 
+    // from interface ShutdownManager.Shutdowner
+    public void shutdown ()
+    {
+        // shut down all active places
+        for (Iterator<PlaceManager> iter = enumeratePlaceManagers(); iter.hasNext(); ) {
+            PlaceManager pmgr = iter.next();
+            try {
+                pmgr.shutdown();
+            } catch (Exception e) {
+                log.warning("Place manager failed shutting down [where=" + pmgr.where() + "].", e);
+            }
+        }
+    }
+
     /**
      * Creates a place manager using the supplied config, adds the supplied list of delegates, runs
      * the supplied pre-startup hook and finally returns it.
@@ -255,5 +277,5 @@ public class PlaceRegistry
     protected RootDObjectManager _omgr;
 
     /** A mapping from place object id to place manager. */
-    protected HashIntMap<PlaceManager> _pmgrs = new HashIntMap<PlaceManager>();
+    protected IntMap<PlaceManager> _pmgrs = IntMaps.newHashIntMap();
 }
