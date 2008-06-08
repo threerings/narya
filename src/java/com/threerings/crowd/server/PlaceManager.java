@@ -36,7 +36,6 @@ import com.samskivert.util.StringUtil;
 import com.threerings.presents.data.ClientObject;
 import com.threerings.presents.dobj.AccessController;
 import com.threerings.presents.dobj.DObject;
-import com.threerings.presents.dobj.DObjectManager;
 import com.threerings.presents.dobj.DynamicListener;
 import com.threerings.presents.dobj.EntryUpdatedEvent;
 import com.threerings.presents.dobj.MessageEvent;
@@ -46,9 +45,9 @@ import com.threerings.presents.dobj.ObjectDeathListener;
 import com.threerings.presents.dobj.ObjectDestroyedEvent;
 import com.threerings.presents.dobj.ObjectRemovedEvent;
 import com.threerings.presents.dobj.OidListListener;
+import com.threerings.presents.dobj.RootDObjectManager;
 import com.threerings.presents.dobj.SetAdapter;
 import com.threerings.presents.server.InvocationManager;
-import com.threerings.presents.server.PresentsDObjectMgr;
 
 import com.threerings.crowd.data.BodyObject;
 import com.threerings.crowd.data.OccupantInfo;
@@ -168,8 +167,7 @@ public class PlaceManager
     {
         // update the canonical copy
         _occInfo.put(occInfo.getBodyOid(), occInfo);
-        // clone the canonical copy and send out an event updating the distributed set with that
-        // clone
+        // clone the canonical copy and send an event updating the distributed set with that clone
         _plobj.updateOccupantInfo((OccupantInfo)occInfo.clone());
     }
 
@@ -177,7 +175,7 @@ public class PlaceManager
      * Called by the place registry after creating this place manager.
      */
     public void init (PlaceRegistry registry, InvocationManager invmgr,
-                      DObjectManager omgr, PlaceConfig config)
+                      RootDObjectManager omgr, PlaceConfig config)
     {
         _registry = registry;
         _invmgr = invmgr;
@@ -263,7 +261,7 @@ public class PlaceManager
     public void shutdown ()
     {
         // destroy the object and everything will follow from that
-        CrowdServer.omgr.destroyObject(_plobj.getOid());
+        _omgr.destroyObject(_plobj.getOid());
 
         // clear out our services
         if (_plobj.speakService != null) {
@@ -349,7 +347,7 @@ public class PlaceManager
             // the first argument should be the client object of the caller or null if it is
             // a server-originated event
             int srcoid = event.getSourceOid();
-            DObject source = (srcoid <= 0) ? null : CrowdServer.omgr.getObject(srcoid);
+            DObject source = (srcoid <= 0) ? null : _omgr.getObject(srcoid);
             Object[] args = event.getArgs(), nargs;
             if (args == null) {
                 nargs = new Object[] { source };
@@ -636,7 +634,7 @@ public class PlaceManager
         // queue up a shutdown interval, unless we've already got one.
         long idlePeriod = idleUnloadPeriod();
         if (idlePeriod > 0L && _shutdownInterval == null) {
-            _shutdownInterval = new Interval((PresentsDObjectMgr)_omgr) {
+            _shutdownInterval = new Interval(_omgr) {
                 public void expired () {
                     log.debug("Unloading idle place '" + where () + "'.");
                     shutdown();
@@ -693,7 +691,7 @@ public class PlaceManager
     protected InvocationManager _invmgr;
 
     /** A distributed object manager for doing dobj stuff. */
-    protected DObjectManager _omgr;
+    protected RootDObjectManager _omgr;
 
     /** A reference to the place object that we manage. */
     protected PlaceObject _plobj;

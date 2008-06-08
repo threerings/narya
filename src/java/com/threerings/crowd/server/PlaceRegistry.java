@@ -25,6 +25,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import com.google.inject.Inject;
+import com.google.inject.Injector;
 import com.google.inject.Singleton;
 
 import com.samskivert.util.IntMap;
@@ -57,39 +58,32 @@ public class PlaceRegistry
         public void invoke (PlaceManager plmgr);
     }
 
-    /** The location provider used by the place registry to provide location-related invocation
-     * services. */
-    public LocationProvider locprov;
-
     /**
      * Creates and initializes the place registry. This is called by the server during its
      * initialization phase.
      */
-    @Inject public PlaceRegistry (ShutdownManager shutmgr, InvocationManager invmgr,
-                                  RootDObjectManager omgr)
+    @Inject public PlaceRegistry (ShutdownManager shutmgr)
     {
         shutmgr.registerShutdowner(this);
-
-        // create and register our location provider
-        locprov = new LocationProvider(invmgr, omgr, this);
-        invmgr.registerDispatcher(new LocationDispatcher(locprov), CrowdCodes.CROWD_GROUP);
-
-        // we'll need these later
-        _omgr = omgr;
-        _invmgr = invmgr;
     }
 
     /**
-     * By overriding this method, it is possible to customize the place registry to cause it to
-     * load the classes associated with a particular place via a custom class loader. That loader
-     * may enforce restricted privileges or obtain the classes from some special source.
-     *
-     * @return the class loader to use when instantiating the {@link PlaceManager} associated with
-     * the supplied {@link PlaceConfig}. This method <em>must not</em> return null.
+     * Provides the place registry with access to an injector that it can use to create {@link
+     * PlaceManager} instances with all dependencies resolved. This is called by the {@link
+     * CrowdServer} during the server initialization phase.
      */
-    public ClassLoader getClassLoader (PlaceConfig config)
+    public void setInjector (Injector injector)
     {
-        return getClass().getClassLoader();
+        _injector = injector;
+    }
+
+    /**
+     * Returns the place manager associated with the specified place object id or null if no such
+     * place exists.
+     */
+    public PlaceManager getPlaceManager (int placeOid)
+    {
+        return _pmgrs.get(placeOid);
     }
 
     /**
@@ -140,15 +134,6 @@ public class PlaceRegistry
         throws InstantiationException, InvocationException
     {
         return createPlace(config, null, hook);
-    }
-
-    /**
-     * Returns the place manager associated with the specified place object id or null if no such
-     * place exists.
-     */
-    public PlaceManager getPlaceManager (int placeOid)
-    {
-        return _pmgrs.get(placeOid);
     }
 
     /**
@@ -204,12 +189,10 @@ public class PlaceRegistry
         throws InstantiationException, InvocationException
     {
         PlaceManager pmgr = null;
-        ClassLoader loader = getClassLoader(config);
 
         try {
             // create a place manager using the class supplied in the place config
-            pmgr = (PlaceManager)Class.forName(
-                config.getManagerClassName(), true, loader).newInstance();
+            pmgr = createPlaceManager(config);
 
             // if we have delegates, add them
             if (delegates != null) {
@@ -226,8 +209,7 @@ public class PlaceRegistry
             throw new InstantiationException("Error creating PlaceManager for " + config);
         }
 
-        // give the manager an opportunity to abort the whole process if it fails any permissions
-        // checks
+        // let the manager abort the whole process if it fails any permissions checks
         String errmsg = pmgr.checkPermissions();
         if (errmsg != null) {
             // give the place manager a chance to clean up after its early initialization process
@@ -257,6 +239,20 @@ public class PlaceRegistry
     }
 
     /**
+     * Creates an instance of a {@link PlaceManager} using the information in the supplied place
+     * config. Derived classes may wish to specialize this process for certain places for example
+     * loading user supplied place management code from a special class loader that sandboxes their
+     * code.
+     */
+    protected PlaceManager createPlaceManager (PlaceConfig config)
+        throws Exception
+    {
+        @SuppressWarnings("unchecked") Class<? extends PlaceManager> clazz =
+            (Class<? extends PlaceManager>) Class.forName(config.getManagerClassName());
+        return _injector.getInstance(clazz);
+    }
+
+    /**
      * Called by the place manager when it has been shut down.
      */
     protected void unmapPlaceManager (PlaceManager pmgr)
@@ -273,10 +269,13 @@ public class PlaceRegistry
     }
 
     /** The invocation manager with which we operate. */
-    protected InvocationManager _invmgr;
+    @Inject protected InvocationManager _invmgr;
 
     /** The distributed object manager with which we operate. */
-    protected RootDObjectManager _omgr;
+    @Inject protected RootDObjectManager _omgr;
+
+    /** We use this to inject dependencies into place managers that we create. */
+    protected Injector _injector;
 
     /** A mapping from place object id to place manager. */
     protected IntMap<PlaceManager> _pmgrs = IntMaps.newHashIntMap();

@@ -67,6 +67,9 @@ public class CrowdServer extends PresentsServer
     /** Our body manager. */
     public static BodyManager bodyman;
 
+    /** Our location manager. */
+    public static LocationManager locman;
+
     /**
      * Initializes all of the server services and prepares for operation.
      */
@@ -79,6 +82,7 @@ public class CrowdServer extends PresentsServer
         plreg = _plreg;
         chatprov = _chatprov;
         bodyman = _bodyman;
+        locman = _locman;
 
         // configure the client manager to use our bits
         clmgr.setClientFactory(new ClientFactory() {
@@ -89,6 +93,9 @@ public class CrowdServer extends PresentsServer
                 return new CrowdClientResolver();
             }
         });
+
+        // configure the place registry with the injector
+        _plreg.setInjector(injector);
 
         // create our body locator
         _lookup = createBodyLocator();
@@ -154,6 +161,9 @@ public class CrowdServer extends PresentsServer
 
     /** Handles body-related invocation services. */
     @Inject protected BodyManager _bodyman;
+
+    /** Handles location-related invocation services. */
+    @Inject protected LocationManager _locman;
 
     /** Provides chat-related invocation services. */
     @Inject protected ChatProvider _chatprov;

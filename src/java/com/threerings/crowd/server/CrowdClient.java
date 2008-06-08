@@ -84,6 +84,6 @@ public class CrowdClient extends PresentsClient
      */
     protected void clearLocation (BodyObject bobj)
     {
-        CrowdServer.plreg.locprov.leaveOccupiedPlace(bobj);
+        CrowdServer.locman.leaveOccupiedPlace(bobj);
     }
 }

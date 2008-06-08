@@ -30,9 +30,10 @@ import com.google.inject.Inject;
 import com.google.inject.Injector;
 import com.google.inject.Singleton;
 
-import com.threerings.bureau.data.AgentObject;
-
+import com.threerings.presents.dobj.RootDObjectManager;
 import com.threerings.presents.server.ShutdownManager;
+
+import com.threerings.bureau.data.AgentObject;
 
 import static com.threerings.bureau.Log.log;
 
@@ -173,11 +174,11 @@ public class RegistryTester
             }
 
             // create or destroy some agents
-            TestServer.omgr.postRunnable(createOrDestroyAgents);
+            _omgr.postRunnable(createOrDestroyAgents);
         }
 
         // clean up
-        TestServer.omgr.postRunnable(new Runnable() {
+        _omgr.postRunnable(new Runnable() {
             public void run () {
                 for (AgentObject obj : _agents) {
                     TestServer.breg.destroyAgent(obj);
@@ -216,6 +217,8 @@ public class RegistryTester
         TestServer.breg.startAgent(obj);
         return obj;
     }
+
+    @Inject protected RootDObjectManager _omgr;
 
     protected TestServer _server;
     protected boolean _stop;
