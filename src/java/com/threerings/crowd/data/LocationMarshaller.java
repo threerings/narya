@@ -25,6 +25,7 @@ import com.threerings.crowd.client.LocationService;
 import com.threerings.presents.client.Client;
 import com.threerings.presents.data.InvocationMarshaller;
 import com.threerings.presents.dobj.InvocationResponseEvent;
+import com.threerings.presents.net.Transport;
 
 /**
  * Provides the implementation of the {@link LocationService} interface
@@ -52,7 +53,7 @@ public class LocationMarshaller extends InvocationMarshaller
             _invId = null;
             omgr.postEvent(new InvocationResponseEvent(
                                callerOid, requestId, MOVE_SUCCEEDED,
-                               new Object[] { arg1 }));
+                               new Object[] { arg1 }, transport));
         }
 
         @Override // from InvocationMarshaller

@@ -26,6 +26,7 @@ import com.threerings.presents.client.Client;
 import com.threerings.presents.client.InvocationService;
 import com.threerings.presents.data.InvocationMarshaller;
 import com.threerings.presents.dobj.InvocationResponseEvent;
+import com.threerings.presents.net.Transport;
 import com.threerings.util.Name;
 
 /**
@@ -54,7 +55,7 @@ public class ChatMarshaller extends InvocationMarshaller
             _invId = null;
             omgr.postEvent(new InvocationResponseEvent(
                                callerOid, requestId, TELL_SUCCEEDED,
-                               new Object[] { Long.valueOf(arg1), arg2 }));
+                               new Object[] { Long.valueOf(arg1), arg2 }, transport));
         }
 
         @Override // from InvocationMarshaller

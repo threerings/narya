@@ -24,6 +24,7 @@ package com.threerings.presents.data;
 import com.threerings.presents.client.Client;
 import com.threerings.presents.client.TimeBaseService;
 import com.threerings.presents.dobj.InvocationResponseEvent;
+import com.threerings.presents.net.Transport;
 
 /**
  * Provides the implementation of the {@link TimeBaseService} interface
@@ -51,7 +52,7 @@ public class TimeBaseMarshaller extends InvocationMarshaller
             _invId = null;
             omgr.postEvent(new InvocationResponseEvent(
                                callerOid, requestId, GOT_TIME_OID,
-                               new Object[] { Integer.valueOf(arg1) }));
+                               new Object[] { Integer.valueOf(arg1) }, transport));
         }
 
         @Override // from InvocationMarshaller
