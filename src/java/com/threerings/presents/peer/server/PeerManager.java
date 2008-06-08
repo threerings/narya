@@ -34,7 +34,6 @@ import java.util.List;
 
 import com.google.common.collect.Maps;
 import com.google.inject.Inject;
-import com.google.inject.Singleton;
 
 import com.samskivert.jdbc.RepositoryUnit;
 import com.samskivert.jdbc.WriteOnlyUnit;
@@ -85,8 +84,7 @@ import static com.threerings.presents.Log.log;
  * client connection to the other servers and subscribes to the {@link NodeObject} of all peer
  * servers and uses those objects to communicate cross-node information.
  */
-@Singleton
-public class PeerManager
+public abstract class PeerManager
     implements PeerProvider, ClientManager.ClientObserver, ShutdownManager.Shutdowner
 {
     /**
