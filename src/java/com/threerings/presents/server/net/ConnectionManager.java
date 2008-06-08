@@ -48,6 +48,7 @@ import com.google.inject.Singleton;
 
 import com.samskivert.util.IntMap;
 import com.samskivert.util.IntMaps;
+import com.samskivert.util.Invoker;
 import com.samskivert.util.LoopingThread;
 import com.samskivert.util.Queue;
 import com.samskivert.util.ResultListener;
@@ -57,6 +58,7 @@ import com.samskivert.util.Tuple;
 import com.threerings.io.FramingOutputStream;
 import com.threerings.io.ObjectOutputStream;
 
+import com.threerings.presents.annotation.AuthInvoker;
 import com.threerings.presents.client.Client;
 import com.threerings.presents.data.ConMgrStats;
 import com.threerings.presents.net.AuthRequest;
@@ -65,6 +67,7 @@ import com.threerings.presents.net.DownstreamMessage;
 import com.threerings.presents.util.DatagramSequencer;
 
 import com.threerings.presents.server.Authenticator;
+import com.threerings.presents.server.ChainedAuthenticator;
 import com.threerings.presents.server.PresentsDObjectMgr;
 import com.threerings.presents.server.ReportManager;
 import com.threerings.presents.server.ShutdownManager;
@@ -129,22 +132,13 @@ public class ConnectionManager extends LoopingThread
     }
 
     /**
-     * Specifies the authenticator that should be used by the connection manager to authenticate
-     * logon requests.
+     * Adds an authenticator to the authentication chain. This authenticator will be offered a
+     * chance to authenticate incoming connections in lieu of the main autuenticator.
      */
-    public void setAuthenticator (Authenticator author)
+    public void addChainedAuthenticator (ChainedAuthenticator author)
     {
-        // say hello to our new authenticator
+        author.setChainedAuthenticator(_author);
         _author = author;
-        _author.setConnectionManager(this);
-    }
-
-    /**
-     * Returns the entity that is being used to authenticate connections.
-     */
-    public Authenticator getAuthenticator ()
-    {
-        return _author;
     }
 
     /**
@@ -209,12 +203,19 @@ public class ConnectionManager extends LoopingThread
     }
 
     /**
-     * Called by the authenticator to indicate that a connection was successfully authenticated.
+     * Performs the authentication process on the specified connection. This is called by {@link
+     * AuthingConnection} itself once it receives its auth request.
      */
-    public void connectionDidAuthenticate (AuthingConnection conn)
+    public void authenticateConnection (AuthingConnection conn)
     {
-        // slap this sucker onto the authenticated connections queue
-        _authq.append(conn);
+        _author.authenticateConnection(_authInvoker, conn, new ResultListener<AuthingConnection>() {
+            public void requestCompleted (AuthingConnection conn) {
+                _authq.append(conn);
+            }
+            public void requestFailed (Exception cause) {
+                // this never happens
+            }
+        });
     }
 
     // documentation inherited from interface ReportManager.Reporter
@@ -1048,8 +1049,12 @@ public class ConnectionManager extends LoopingThread
         }
     };
 
+    /** Handles client authentication. The base authenticator is injected but optional services
+     * like the PeerManager may replace this authenticator with one that intercepts certain types
+     * of authentication and then passes normal authentications through. */
+    @Inject protected Authenticator _author;
+
     protected int[] _ports, _datagramPorts;
-    protected Authenticator _author;
     protected Selector _selector;
     protected ServerSocketChannel _ssocket;
     protected DatagramChannel _datagramChannel;
@@ -1093,7 +1098,10 @@ public class ConnectionManager extends LoopingThread
     /** A runnable to execute when the connection manager thread exits. */
     protected volatile Runnable _onExit;
 
-    // injected dependencies
+    /** The invoker on which we do our authenticating. */
+    @Inject @AuthInvoker protected Invoker _authInvoker;
+
+    /** The distributed object manager with which we operate. */
     @Inject protected PresentsDObjectMgr _omgr;
 
     /** How long we wait for network events before checking our running flag to see if we should

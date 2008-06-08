@@ -31,6 +31,7 @@ import com.samskivert.util.Invoker;
 import com.samskivert.util.RunQueue;
 import com.samskivert.util.SystemInfo;
 
+import com.threerings.presents.annotation.AuthInvoker;
 import com.threerings.presents.annotation.EventQueue;
 import com.threerings.presents.annotation.MainInvoker;
 import com.threerings.presents.client.Client;
@@ -57,9 +58,11 @@ public class PresentsServer
     {
         @Override protected void configure () {
             bind(Invoker.class).annotatedWith(MainInvoker.class).to(PresentsInvoker.class);
+            bind(Invoker.class).annotatedWith(AuthInvoker.class).to(PresentsInvoker.class);
             bind(RunQueue.class).annotatedWith(EventQueue.class).to(PresentsDObjectMgr.class);
             bind(DObjectManager.class).to(PresentsDObjectMgr.class);
             bind(RootDObjectManager.class).to(PresentsDObjectMgr.class);
+            bind(Authenticator.class).to(DummyAuthenticator.class);
         }
     }
 
@@ -149,35 +152,10 @@ public class PresentsServer
 
         // configure our connection manager
         _conmgr.init(getListenPorts(), getDatagramPorts());
-        _conmgr.setAuthenticator(createAuthenticator());
 
         // initialize the time base services
         TimeBaseProvider.init(invmgr, omgr);
     }
-
-    /**
-     * Creates the client Authenticator to be used on this server.
-     */
-    protected Authenticator createAuthenticator ()
-    {
-        return new DummyAuthenticator();
-    }
-
-//     /**
-//      * Creates the client manager to be used on this server.
-//      */
-//     protected ClientManager createClientManager (ConnectionManager conmgr)
-//     {
-//         return new ClientManager(conmgr);
-//     }
-
-//     /**
-//      * Creates the distributed object manager to be used on this server.
-//      */
-//     protected PresentsDObjectMgr createDObjectManager ()
-//     {
-//         return new PresentsDObjectMgr();
-//     }
 
     /**
      * Defines the default object access policy for all {@link DObject} instances. The default

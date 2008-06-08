@@ -31,6 +31,7 @@ import com.threerings.presents.net.AuthRequest;
 import com.threerings.presents.net.AuthResponse;
 import com.threerings.presents.net.AuthResponseData;
 import com.threerings.presents.server.Authenticator;
+import com.threerings.presents.server.ChainedAuthenticator;
 import com.threerings.presents.server.net.AuthingConnection;
 
 import com.threerings.presents.peer.net.PeerCreds;
@@ -41,33 +42,20 @@ import static com.threerings.presents.Log.log;
  * Handles authentication of peer servers and passes non-peer authentication requests through to a
  * normal authenticator.
  */
-public class PeerAuthenticator extends Authenticator
+public class PeerAuthenticator extends ChainedAuthenticator
 {
-    /**
-     * Creates an authenticator that will handle peer authentications and pass non-peer
-     * authentications through to the supplied delegate.
-     */
-    public PeerAuthenticator (PeerManager nodemgr, Authenticator delegate)
+    public PeerAuthenticator (PeerManager nodemgr)
     {
         _peermgr = nodemgr;
-        _delegate = delegate;
     }
 
-    @Override
-    public void authenticateConnection (AuthingConnection conn)
+    @Override // from abstract ChainedAuthenticator
+    protected boolean shouldHandleConnection (AuthingConnection conn)
     {
-        // if this is a peer server, we check their credentials specially
-        AuthRequest req = conn.getAuthRequest();
-        if (req.getCredentials() instanceof PeerCreds) {
-            super.authenticateConnection(conn);
-
-        } else {
-            // otherwise pass the request on to our delegate
-            _delegate.authenticateConnection(conn);
-        }
+        return (conn.getAuthRequest().getCredentials() instanceof PeerCreds);
     }
 
-    // from abstract Authenticator
+    @Override // from abstract Authenticator
     protected void processAuthentication (AuthingConnection conn, AuthResponse rsp)
         throws PersistenceException
     {

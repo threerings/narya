@@ -30,6 +30,7 @@ import com.threerings.presents.client.BlockingCommunicator;
 import com.threerings.presents.client.Client;
 import com.threerings.presents.client.ClientObserver;
 import com.threerings.presents.client.Communicator;
+import com.threerings.presents.server.PresentsDObjectMgr;
 import com.threerings.presents.server.PresentsServer;
 
 import com.threerings.presents.dobj.AttributeChangeListener;
@@ -55,11 +56,12 @@ public class PeerNode
     /** This peer's node object. */
     public NodeObject nodeobj;
 
-    public PeerNode (PeerManager peermgr, NodeRecord record)
+    public void init (PeerManager peermgr, PresentsDObjectMgr omgr, NodeRecord record)
     {
         _peermgr = peermgr;
+        _omgr = omgr;
         _record = record;
-        _client = new Client(null, PresentsServer.omgr) {
+        _client = new Client(null, _omgr) {
             protected void convertFromRemote (DObject target, DEvent event) {
                 super.convertFromRemote(target, event);
                 // rewrite the event's target oid using the oid currently configured on the
@@ -68,7 +70,7 @@ public class PeerNode
                 event.setTargetOid(target.getOid());
                 // assign an eventId to this event so that our stale event detection code can
                 // properly deal with it
-                event.eventId = PresentsServer.omgr.getNextEventId(true);
+                event.eventId = PeerNode.this._omgr.getNextEventId(true);
             }
             protected Communicator createCommunicator () {
                 // TODO: make a custom communicator that uses the ClientManager NIO system to do
@@ -268,6 +270,7 @@ public class PeerNode
     }
 
     protected PeerManager _peermgr;
+    protected PresentsDObjectMgr _omgr;
     protected NodeRecord _record;
     protected Client _client;
     protected long _lastConnectStamp;

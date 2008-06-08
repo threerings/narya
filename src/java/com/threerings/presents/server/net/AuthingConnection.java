@@ -64,7 +64,7 @@ public class AuthingConnection extends Connection
             _authreq = (AuthRequest)msg;
 
             // post ourselves for processing by the authmgr
-            _cmgr.getAuthenticator().authenticateConnection(this);
+            _cmgr.authenticateConnection(this);
 
         } catch (ClassCastException cce) {
             log.warning("Received non-authreq message during " +

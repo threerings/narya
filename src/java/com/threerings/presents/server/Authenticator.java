@@ -24,7 +24,9 @@ package com.threerings.presents.server;
 import com.samskivert.io.PersistenceException;
 
 import com.samskivert.util.Invoker;
+import com.samskivert.util.ResultListener;
 
+import com.threerings.presents.annotation.MainInvoker;
 import com.threerings.presents.data.AuthCodes;
 
 import com.threerings.presents.net.AuthRequest;
@@ -44,25 +46,17 @@ import static com.threerings.presents.Log.log;
 public abstract class Authenticator
 {
     /**
-     * Called by the connection manager to give us a reference to it for reporting authenticated
-     * connections.
-     */
-    public void setConnectionManager (ConnectionManager conmgr)
-    {
-        _conmgr = conmgr;
-    }
-
-    /**
      * Called by the connection management code when an authenticating connection has received its
      * authentication request from the client.
      */
-    public void authenticateConnection (final AuthingConnection conn)
+    public void authenticateConnection (Invoker invoker, final AuthingConnection conn,
+                                        final ResultListener<AuthingConnection> onComplete)
     {
         final AuthRequest req = conn.getAuthRequest();
         final AuthResponseData rdata = createResponseData();
         final AuthResponse rsp = new AuthResponse(rdata);
 
-        getInvoker().postUnit(new Invoker.Unit("authenticateConnection") {
+        invoker.postUnit(new Invoker.Unit("authenticateConnection") {
             public boolean invoke() {
                 try {
                     processAuthentication(conn, rsp);
@@ -84,19 +78,10 @@ public abstract class Authenticator
                 // if the authentication request was granted, let the connection manager know that
                 // we just authed
                 if (AuthResponseData.SUCCESS.equals(rdata.code)) {
-                    _conmgr.connectionDidAuthenticate(conn);
+                    onComplete.requestCompleted(conn);
                 }
             }
         });
-    }
-
-    /**
-     * Return the invoker on which to process the authentication. The default implementation
-     * returns PresentsServer.invoker.
-     */
-    protected Invoker getInvoker ()
-    {
-        return PresentsServer.invoker;
     }
 
     /**
@@ -117,7 +102,4 @@ public abstract class Authenticator
      */
     protected abstract void processAuthentication (AuthingConnection conn, AuthResponse rsp)
         throws PersistenceException;
-
-    /** The connection manager with which we're working. */
-    protected ConnectionManager _conmgr;
 }

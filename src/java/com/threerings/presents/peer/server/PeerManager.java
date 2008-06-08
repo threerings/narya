@@ -219,7 +219,7 @@ public class PeerManager
         _sharedSecret = sharedSecret;
 
         // wire ourselves into the server
-        _conmgr.setAuthenticator(new PeerAuthenticator(this, _conmgr.getAuthenticator()));
+        _conmgr.addChainedAuthenticator(new PeerAuthenticator(this));
         _clmgr.setClientFactory(new PeerClientFactory(this, _clmgr.getClientFactory()));
 
         // create our node object
@@ -840,6 +840,7 @@ public class PeerManager
         PeerNode peer = _peers.get(record.nodeName);
         if (peer == null) {
             _peers.put(record.nodeName, peer = createPeerNode(record));
+            peer.init(this, _omgr, record);
         }
         peer.refresh(record);
     }
@@ -943,7 +944,7 @@ public class PeerManager
      */
     protected PeerNode createPeerNode (NodeRecord record)
     {
-        return new PeerNode(this, record);
+        return new PeerNode();
     }
 
     /**

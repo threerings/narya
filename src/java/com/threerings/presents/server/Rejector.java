@@ -42,12 +42,13 @@ import static com.threerings.presents.Log.log;
  */
 public class Rejector extends PresentsServer
 {
-    @Override // from PresentsServer
-    public void init (Injector injector)
-        throws Exception
+    /** Configures dependencies needed by the Rejector. */
+    public static class Module extends PresentsServer.Module
     {
-        super.init(injector);
-        _conmgr.setAuthenticator(new RejectingAuthenticator());
+        @Override protected void configure () {
+            super.configure();
+            bind(Authenticator.class).to(RejectingAuthenticator.class);
+        }
     }
 
     // documentation inherited

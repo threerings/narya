@@ -98,8 +98,10 @@ public class ClientManager
     @Inject public ClientManager (ConnectionManager conmgr, ReportManager repmgr,
                                   ShutdownManager shutmgr)
     {
-        // register ourselves as a connection observer
+        // register as a connection observer, a "state of server" reporter and a shutdowner
         conmgr.addConnectionObserver(this);
+        repmgr.registerReporter(this);
+        shutmgr.registerShutdowner(this);
 
         // start up an interval that will check for expired clients and flush them from the bowels
         // of the server
@@ -108,10 +110,6 @@ public class ClientManager
                 flushClients();
             }
         }.schedule(CLIENT_FLUSH_INTERVAL, true);
-
-        // register as a "state of server" reporter and a shutdowner
-        repmgr.registerReporter(this);
-        shutmgr.registerShutdowner(this);
     }
 
     // from interface ShutdownManager.Shutdowner
