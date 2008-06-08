@@ -23,6 +23,8 @@ package com.threerings.crowd.chat.server;
 
 import java.util.Iterator;
 
+import com.google.inject.Inject;
+
 import com.samskivert.util.StringUtil;
 import com.threerings.util.MessageBundle;
 import com.threerings.util.Name;
@@ -81,6 +83,15 @@ public class ChatProvider
     }
 
     /**
+     * Creates and registers this chat provider.
+     */
+    @Inject public ChatProvider (InvocationManager invmgr)
+    {
+        // register a chat provider with the invocation manager
+        invmgr.registerDispatcher(new ChatDispatcher(this), CrowdCodes.CROWD_GROUP);
+    }
+
+    /**
      * Set an object to which all broadcasts should be sent, rather than iterating over the place
      * objects and sending to each of them.
      *
@@ -110,15 +121,6 @@ public class ChatProvider
     public void setChatForwarder (ChatForwarder forwarder)
     {
         _chatForwarder = forwarder;
-    }
-
-    /**
-     * Initializes the chat services and registers a chat provider with the invocation manager.
-     */
-    public void init (InvocationManager invmgr, DObjectManager omgr)
-    {
-        // register a chat provider with the invocation manager
-        invmgr.registerDispatcher(new ChatDispatcher(this), CrowdCodes.CROWD_GROUP);
     }
 
     /**
