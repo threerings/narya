@@ -60,7 +60,7 @@ public class TestServer extends PresentsServer
         throws Exception
     {
         super.init(injector);
-        breg = new BureauRegistry("localhost:47624", invmgr, omgr, invoker);
+        breg = new BureauRegistry("localhost:47624", _invmgr, _omgr, _invoker);
     }
     
     public static void setClientTarget (String target)

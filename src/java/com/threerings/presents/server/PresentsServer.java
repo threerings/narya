@@ -65,21 +65,6 @@ public class PresentsServer
         }
     }
 
-    /** OBSOLETE! Don't use me. */
-    public static ConnectionManager conmgr;
-
-    /** OBSOLETE! Don't use me. */
-    public static ClientManager clmgr;
-
-    /** OBSOLETE! Don't use me. */
-    public static PresentsDObjectMgr omgr;
-
-    /** OBSOLETE! Don't use me. */
-    public static InvocationManager invmgr;
-
-    /** OBSOLETE! Don't use me. */
-    public static Invoker invoker;
-
     /**
      * The default entry point for the server.
      */
@@ -120,13 +105,6 @@ public class PresentsServer
     public void init (Injector injector)
         throws Exception
     {
-        // populate our legacy statics
-        conmgr = _conmgr;
-        clmgr = _clmgr;
-        omgr = _omgr;
-        invmgr = _invmgr;
-        invoker = _invoker;
-
         // output general system information
         SystemInfo si = new SystemInfo();
         log.info("Starting up server [os=" + si.osToString() + ", jvm=" + si.jvmToString() +
@@ -150,11 +128,14 @@ public class PresentsServer
         _invoker.start();
         _authInvoker.start();
 
+        // provide our client manager with the injector it needs
+        _clmgr.setInjector(injector);
+
         // configure our connection manager
         _conmgr.init(getListenPorts(), getDatagramPorts());
 
         // initialize the time base services
-        TimeBaseProvider.init(invmgr, omgr);
+        TimeBaseProvider.init(_invmgr, _omgr);
     }
 
     /**
@@ -189,14 +170,14 @@ public class PresentsServer
     {
         // post a unit that will start up the connection manager when everything else in the
         // dobjmgr queue is processed
-        omgr.postRunnable(new Runnable() {
+        _omgr.postRunnable(new Runnable() {
             public void run () {
                 // start up the connection manager
                 _conmgr.start();
             }
         });
         // invoke the dobjmgr event loop
-        omgr.run();
+        _omgr.run();
     }
 
     /**

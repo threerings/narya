@@ -21,15 +21,20 @@
 
 package com.threerings.presents.server;
 
-import java.util.ArrayList;
+import java.util.List;
+
+import com.google.common.collect.Lists;
+import com.google.inject.Inject;
 
 import com.samskivert.util.Invoker;
 import com.threerings.util.Name;
 
+import com.threerings.presents.annotation.MainInvoker;
 import com.threerings.presents.data.ClientObject;
 import com.threerings.presents.data.PermissionPolicy;
 import com.threerings.presents.dobj.DObject;
 import com.threerings.presents.dobj.ObjectAccessException;
+import com.threerings.presents.dobj.RootDObjectManager;
 
 import static com.threerings.presents.Log.log;
 
@@ -84,7 +89,7 @@ public class ClientResolver extends Invoker.Unit
         // we've got our object, so shunt ourselves over to the invoker thread to perform database
         // loading
         _clobj = object;
-        PresentsServer.invoker.postUnit(this);
+        _invoker.postUnit(this);
     }
 
     // documentation inherited
@@ -128,7 +133,7 @@ public class ClientResolver extends Invoker.Unit
 
         } else {
             // destroy the dangling user object
-            PresentsServer.omgr.destroyObject(_clobj.getOid());
+            _omgr.destroyObject(_clobj.getOid());
 
             // let our listener know that we're hosed
             reportFailure(_failure);
@@ -182,12 +187,14 @@ public class ClientResolver extends Invoker.Unit
     protected Name _username;
 
     /** The entities to notify of success or failure. */
-    protected ArrayList<ClientResolutionListener> _listeners =
-        new ArrayList<ClientResolutionListener>();
+    protected List<ClientResolutionListener> _listeners = Lists.newArrayList();
 
     /** The resolving client object. */
     protected ClientObject _clobj;
 
     /** A place to keep an exception around for a moment. */
     protected Exception _failure;
+
+    @Inject @MainInvoker Invoker _invoker;
+    @Inject RootDObjectManager _omgr;
 }

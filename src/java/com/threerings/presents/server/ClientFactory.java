@@ -27,29 +27,30 @@ import com.threerings.presents.data.ClientObject;
 import com.threerings.presents.net.AuthRequest;
 
 /**
- * Used to create a {@link PresentsClient} instance to manage an authenticated
- * client.
+ * Used to determine what type of {@link PresentsClient} to use to manage an authenticated client
+ * as well the type of {@link ClientResolver} to use when resolving clients' runtime data.
  */
 public interface ClientFactory
 {
     /** The default client factory. */
     public static ClientFactory DEFAULT = new ClientFactory () {
-        public PresentsClient createClient (AuthRequest areq) {
-            return new PresentsClient();
+        public Class<? extends PresentsClient> getClientClass (AuthRequest areq) {
+            return PresentsClient.class;
         }
-        public ClientResolver createClientResolver (Name username) {
-            return new ClientResolver();
+        public Class<? extends ClientResolver> getClientResolverClass (Name username) {
+            return ClientResolver.class;
         }
     };
 
     /**
-     * Creates an uninitialized client instance for the client that has
-     * authenticated using the supplied request.
+     * Returns the {@link PresentsClient} derived class to use for the session that authenticated
+     * with the supplied request.
      */
-    public PresentsClient createClient (AuthRequest areq);
+    public Class<? extends PresentsClient> getClientClass (AuthRequest areq);
 
     /**
-     * Requests a resolver for the client identified by the specified username.
+     * Returns the {@link ClientResolver} derived class to use to resolve a client with the
+     * specified username.
      */
-    public ClientResolver createClientResolver (Name username);
+    public Class <? extends ClientResolver> getClientResolverClass (Name username);
 }

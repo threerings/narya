@@ -26,6 +26,7 @@ import java.net.InetAddress;
 import java.util.HashMap;
 import java.util.TimeZone;
 
+import com.google.inject.Inject;
 import com.samskivert.util.HashIntMap;
 import com.samskivert.util.ResultListener;
 import com.samskivert.util.Throttle;
@@ -60,6 +61,7 @@ import com.threerings.presents.net.PongResponse;
 import com.threerings.presents.net.UnsubscribeResponse;
 
 import com.threerings.presents.server.net.Connection;
+import com.threerings.presents.server.net.ConnectionManager;
 import com.threerings.presents.server.net.MessageHandler;
 
 import static com.threerings.presents.Log.log;
@@ -196,7 +198,7 @@ public class PresentsClient
                     log.warning("Client disappeared before we could complete the switch to a " +
                                 "new client object [ousername=" + _username +
                                 ", nusername=" + username + "].");
-                    _cmgr.releaseClientObject(username);
+                    _clmgr.releaseClientObject(username);
                     Exception error = new Exception("Early withdrawal");
                     resolutionFailed(username, error);
                     return;
@@ -230,7 +232,7 @@ public class PresentsClient
                 _clobj.postMessage(ClientObject.CLOBJ_CHANGED, args);
 
                 // release our old client object; this will destroy it
-                _cmgr.releaseClientObject(_username);
+                _clmgr.releaseClientObject(_username);
 
                 // update our internal fields
                 _username = username;
@@ -257,7 +259,7 @@ public class PresentsClient
         };
 
         // resolve the new client object
-        _cmgr.resolveClientObject(username, clr);
+        _clmgr.resolveClientObject(username, clr);
     }
 
     /**
@@ -271,7 +273,7 @@ public class PresentsClient
      */
     public boolean updateUsername (Name username)
     {
-        if (_cmgr.renameClientObject(_username, username)) {
+        if (_clmgr.renameClientObject(_username, username)) {
             _username = username;
             return true;
         }
@@ -297,7 +299,7 @@ public class PresentsClient
             // go ahead and clear out our connection now to prevent funniness
             setConnection(null);
             // have the connection manager close our connection when it is next convenient
-            PresentsServer.conmgr.closeConnection(conn);
+            _conmgr.closeConnection(conn);
         }
 
         // if we don't have a client object, we failed to resolve in the first place, in which case
@@ -311,11 +313,11 @@ public class PresentsClient
             }
 
             // release (and destroy) our client object
-            _cmgr.releaseClientObject(_username);
+            _clmgr.releaseClientObject(_username);
         }
 
         // let the client manager know that we're audi 5000
-        _cmgr.clientSessionDidEnd(this);
+        _clmgr.clientSessionDidEnd(this);
 
         // clear out the client object so that we know the session is over
         _clobj = null;
@@ -356,7 +358,7 @@ public class PresentsClient
         sendBootstrap();
 
         // let the client manager know that we're operational
-        _cmgr.clientSessionDidStart(this);
+        _clmgr.clientSessionDidStart(this);
     }
 
     // from interface ClientResolutionListener
@@ -420,10 +422,8 @@ public class PresentsClient
      * Initializes this client instance with the specified username, connection instance and client
      * object and begins a client session.
      */
-    protected void startSession (
-        ClientManager cmgr, AuthRequest req, Connection conn, Object authdata)
+    protected void startSession (AuthRequest req, Connection conn, Object authdata)
     {
-        _cmgr = cmgr;
         _areq = req;
         _authdata = authdata;
         setConnection(conn);
@@ -432,7 +432,7 @@ public class PresentsClient
         assignStartingUsername();
 
         // resolve our client object before we get fully underway
-        cmgr.resolveClientObject(_username, this);
+        _clmgr.resolveClientObject(_username, this);
 
         // make a note of our session start time
         _sessionStamp = System.currentTimeMillis();
@@ -481,7 +481,7 @@ public class PresentsClient
         }
 
         // we need to get onto the dobj thread so that we can finalize resumption of the session
-        PresentsServer.omgr.postRunnable(new Runnable() {
+        _omgr.postRunnable(new Runnable() {
             public void run () {
                 // now that we're on the dobjmgr thread we can resume our session resumption
                 finishResumeSession();
@@ -516,7 +516,7 @@ public class PresentsClient
      */
     protected void safeEndSession ()
     {
-        PresentsServer.omgr.postRunnable(new Runnable() {
+        _omgr.postRunnable(new Runnable() {
             public void run () {
                 endSession();
             }
@@ -679,7 +679,7 @@ public class PresentsClient
             log.warning("Client provided no invocation service boot groups? " + this);
             data.services = new StreamableArrayList<InvocationMarshaller>();
         } else {
-            data.services = PresentsServer.invmgr.getBootstrapServices(_areq.getBootGroups());
+            data.services = _invmgr.getBootstrapServices(_areq.getBootGroups());
         }
     }
 
@@ -699,7 +699,7 @@ public class PresentsClient
         // that we do this *after* we clear out our connection reference. once the connection ref
         // is null, no more subscriptions will be processed (even those that were queued up before
         // the connection went away)
-        PresentsServer.omgr.postRunnable(new Runnable() {
+        _omgr.postRunnable(new Runnable() {
             public void run () {
                 sessionConnectionClosed();
             }
@@ -773,7 +773,7 @@ public class PresentsClient
      * the supplied message to this client. */
     protected final void safePostMessage (final DownstreamMessage msg)
     {
-        PresentsServer.omgr.postRunnable(new Runnable() {
+        _omgr.postRunnable(new Runnable() {
             public void run () {
                 postMessage(msg);
             }
@@ -851,7 +851,7 @@ public class PresentsClient
         public void objectAvailable (DObject object)
         {
             if (postMessage(new ObjectResponse<DObject>(object))) {
-                _firstEventId = PresentsServer.omgr.getNextEventId(false);
+                _firstEventId = _omgr.getNextEventId(false);
                 this.object = object;
                 synchronized (_subscrips) {
                     // make a note of this new subscription
@@ -918,7 +918,7 @@ public class PresentsClient
 //             log.info("Subscribing [client=" + client + ", oid=" + req.getOid() + "].");
 
             // forward the subscribe request to the omgr for processing
-            PresentsServer.omgr.subscribeToObject(req.getOid(), client.createProxySubscriber());
+            client._omgr.subscribeToObject(req.getOid(), client.createProxySubscriber());
         }
     }
 
@@ -965,7 +965,7 @@ public class PresentsClient
 //             log.info("Forwarding event [client=" + client + ", event=" + fevt + "].");
 
             // forward the event to the omgr for processing
-            PresentsServer.omgr.postEvent(fevt);
+            client._omgr.postEvent(fevt);
         }
     }
 
@@ -994,7 +994,11 @@ public class PresentsClient
         }
     }
 
-    protected ClientManager _cmgr;
+    @Inject protected ClientManager _clmgr;
+    @Inject protected ConnectionManager _conmgr;
+    @Inject protected PresentsDObjectMgr _omgr;
+    @Inject protected InvocationManager _invmgr;
+
     protected AuthRequest _areq;
     protected Object _authdata;
     protected Name _username;

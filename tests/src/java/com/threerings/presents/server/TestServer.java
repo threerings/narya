@@ -42,7 +42,7 @@ public class TestServer extends PresentsServer
         _invmgr.registerDispatcher(new TestDispatcher(new TestManager()), "test");
 
         // create a test object
-        testobj = omgr.registerObject(new TestObject());
+        testobj = _omgr.registerObject(new TestObject());
         testobj.longs.add(System.currentTimeMillis());
         long value = Integer.MAX_VALUE;
         value++;

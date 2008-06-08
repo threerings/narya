@@ -21,6 +21,9 @@
 
 package com.threerings.crowd.server;
 
+import com.threerings.presents.dobj.RootDObjectManager;
+import com.threerings.presents.server.InvocationManager;
+
 import com.threerings.crowd.data.OccupantInfo;
 import com.threerings.crowd.data.PlaceConfig;
 import com.threerings.crowd.data.PlaceObject;
@@ -41,9 +44,11 @@ public class PlaceManagerDelegate
      * Called by the place manager when this delegate is registered with it. This will happen
      * before any calls to {@link #didInit}, etc.
      */
-    public void setPlaceManager (PlaceManager plmgr)
+    public void init (PlaceManager plmgr, RootDObjectManager omgr, InvocationManager invmgr)
     {
         _plmgr = plmgr;
+        _omgr = omgr;
+        _invmgr = invmgr;
     }
 
     /**
@@ -105,4 +110,10 @@ public class PlaceManagerDelegate
 
     /** A reference to the manager for which we are delegating. */
     protected PlaceManager _plmgr;
+
+    /** A reference to our distributed object manager. */
+    protected RootDObjectManager _omgr;
+
+    /** A reference to our invocation manager. */
+    protected InvocationManager _invmgr;
 }

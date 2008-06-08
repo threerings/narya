@@ -31,37 +31,35 @@ import com.threerings.presents.server.PresentsClient;
 import com.threerings.presents.peer.net.PeerCreds;
 
 /**
- * Handles resolution of peer servers and passes non-peer resolution requests
- * through to a normal factory.
+ * Handles resolution of peer servers and passes non-peer resolution requests through to a normal
+ * factory.
  */
 public class PeerClientFactory implements ClientFactory
 {
-    public PeerClientFactory (PeerManager peermgr, ClientFactory delegate)
+    public PeerClientFactory (ClientFactory delegate)
     {
-        _peermgr = peermgr;
         _delegate = delegate;
     }
 
     // documentation inherited from interface ClientFactory
-    public PresentsClient createClient (AuthRequest areq)
+    public Class<? extends PresentsClient> getClientClass (AuthRequest areq)
     {
         if (areq.getCredentials() instanceof PeerCreds) {
-            return new PeerClient(_peermgr);
+            return PeerClient.class;
         } else {
-            return _delegate.createClient(areq);
+            return _delegate.getClientClass(areq);
         }
     }
 
     // documentation inherited from interface ClientFactory
-    public ClientResolver createClientResolver (Name username)
+    public Class<? extends ClientResolver> getClientResolverClass (Name username)
     {
         if (username.toString().startsWith(PeerCreds.PEER_PREFIX)) {
-            return new PeerClientResolver();
+            return PeerClientResolver.class;
         } else {
-            return _delegate.createClientResolver(username);
+            return _delegate.getClientResolverClass(username);
         }
     }
 
-    protected PeerManager _peermgr;
     protected ClientFactory _delegate;
 }

@@ -220,7 +220,7 @@ public class PeerManager
 
         // wire ourselves into the server
         _conmgr.addChainedAuthenticator(new PeerAuthenticator(this));
-        _clmgr.setClientFactory(new PeerClientFactory(this, _clmgr.getClientFactory()));
+        _clmgr.setClientFactory(new PeerClientFactory(_clmgr.getClientFactory()));
 
         // create our node object
         _nodeobj = _omgr.registerObject(createNodeObject());

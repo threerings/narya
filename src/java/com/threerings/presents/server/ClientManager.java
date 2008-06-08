@@ -29,6 +29,7 @@ import java.util.Map;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.inject.Inject;
+import com.google.inject.Injector;
 import com.google.inject.Singleton;
 
 import com.samskivert.util.Interval;
@@ -110,6 +111,15 @@ public class ClientManager
                 flushClients();
             }
         }.schedule(CLIENT_FLUSH_INTERVAL, true);
+    }
+
+    /**
+     * Configures the injector we'll use to resolve dependencies for {@link PresentsClient}
+     * instances.
+     */
+    public void setInjector (Injector injector)
+    {
+        _injector = injector;
     }
 
     // from interface ShutdownManager.Shutdowner
@@ -261,7 +271,7 @@ public class ClientManager
         try {
             // create a client resolver instance which will create our client object, populate it
             // and notify the listeners
-            clr = _factory.createClientResolver(username);
+            clr = _injector.getInstance(_factory.getClientResolverClass(username));
             clr.init(username);
             clr.addResolutionListener(this);
             clr.addResolutionListener(listener);
@@ -368,8 +378,8 @@ public class ClientManager
         } else {
             log.info("Session initiated [username=" + username + ", conn=" + conn + "].");
             // create a new client and stick'em in the table
-            client = _factory.createClient(req);
-            client.startSession(this, req, conn, rsp.authdata);
+            client = _injector.getInstance(_factory.getClientClass(req));
+            client.startSession(req, conn, rsp.authdata);
 
             // map their client instance
             synchronized (_usermap) {
@@ -534,6 +544,9 @@ public class ClientManager
         protected ClientOp _clop;
     }
 
+    /** Used to resolve dependencies in {@link PresentClient} instances that we create. */
+    protected Injector _injector;
+
     /** A mapping from auth username to client instances. */
     protected Map<Name,PresentsClient> _usermap = Maps.newHashMap();
 
@@ -546,7 +559,7 @@ public class ClientManager
     /** A mapping of pending client resolvers. */
     protected Map<Name,ClientResolver> _penders = Maps.newHashMap();
 
-    /** The client class in use. */
+    /** Lets us know what sort of client classes to use. */
     protected ClientFactory _factory = ClientFactory.DEFAULT;
 
     /** Tracks registered {@link ClientObserver}s. */

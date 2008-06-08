@@ -21,6 +21,7 @@
 
 package com.threerings.presents.peer.server;
 
+import com.google.inject.Inject;
 import com.samskivert.util.Throttle;
 
 import com.threerings.presents.dobj.DObject;
@@ -41,7 +42,7 @@ public class PeerClient extends PresentsClient
      * Creates a peer client and provides it with a reference to the peer
      * manager. This is only done by the {@link PeerClientFactory}.
      */
-    protected PeerClient (PeerManager peermgr)
+    @Inject public PeerClient (PeerManager peermgr)
     {
         _peermgr = peermgr;
     }

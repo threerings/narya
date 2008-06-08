@@ -27,16 +27,20 @@ import com.google.inject.Guice;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
 import com.google.inject.Singleton;
+import com.samskivert.util.Invoker;
 
 import com.threerings.util.Name;
 
 import com.threerings.presents.dobj.RootDObjectManager;
 import com.threerings.presents.net.AuthRequest;
 import com.threerings.presents.server.ClientFactory;
+import com.threerings.presents.server.ClientManager;
 import com.threerings.presents.server.ClientResolver;
 import com.threerings.presents.server.InvocationManager;
 import com.threerings.presents.server.PresentsClient;
+import com.threerings.presents.server.PresentsDObjectMgr;
 import com.threerings.presents.server.PresentsServer;
+import com.threerings.presents.server.net.ConnectionManager;
 
 import com.threerings.crowd.chat.server.ChatProvider;
 import com.threerings.crowd.data.BodyObject;
@@ -58,17 +62,32 @@ public class CrowdServer extends PresentsServer
         }
     }
 
-    /** The place registry. */
+    /** OBSOLETE! Don't use me. */
     public static PlaceRegistry plreg;
 
-    /** Our chat provider. */
+    /** OBSOLETE! Don't use me. */
     public static ChatProvider chatprov;
 
-    /** Our body manager. */
+    /** OBSOLETE! Don't use me. */
     public static BodyManager bodyman;
 
-    /** Our location manager. */
+    /** OBSOLETE! Don't use me. */
     public static LocationManager locman;
+
+    /** OBSOLETE! Don't use me. */
+    public static ConnectionManager conmgr;
+
+    /** OBSOLETE! Don't use me. */
+    public static ClientManager clmgr;
+
+    /** OBSOLETE! Don't use me. */
+    public static PresentsDObjectMgr omgr;
+
+    /** OBSOLETE! Don't use me. */
+    public static InvocationManager invmgr;
+
+    /** OBSOLETE! Don't use me. */
+    public static Invoker invoker;
 
     /**
      * Initializes all of the server services and prepares for operation.
@@ -79,18 +98,23 @@ public class CrowdServer extends PresentsServer
         super.init(injector);
 
         // LEGACY: set up our legacy static references
+        conmgr = _conmgr;
+        clmgr = _clmgr;
+        omgr = _omgr;
+        invmgr = _invmgr;
+        invoker = _invoker;
         plreg = _plreg;
         chatprov = _chatprov;
         bodyman = _bodyman;
         locman = _locman;
 
         // configure the client manager to use our bits
-        clmgr.setClientFactory(new ClientFactory() {
-            public PresentsClient createClient (AuthRequest areq) {
-                return new CrowdClient();
+        _clmgr.setClientFactory(new ClientFactory() {
+            public Class<? extends PresentsClient> getClientClass (AuthRequest areq) {
+                return CrowdClient.class;
             }
-            public ClientResolver createClientResolver (Name username) {
-                return new CrowdClientResolver();
+            public Class<? extends ClientResolver> getClientResolverClass (Name username) {
+                return CrowdClientResolver.class;
             }
         });
 
@@ -111,19 +135,9 @@ public class CrowdServer extends PresentsServer
         return new BodyLocator() {
             public BodyObject get (Name visibleName) {
                 // by default visibleName is username
-                return (BodyObject)clmgr.getClientObject(visibleName);
+                return (BodyObject)_clmgr.getClientObject(visibleName);
             }
         };
-    }
-
-    /**
-     * Enumerates the body objects for all active users on the server.  This should only be called
-     * from the dobjmgr thread.  The caller had best be certain they know what they're doing, since
-     * this should only be necessary for use in rather special circumstances.
-     */
-    public static Iterator enumerateBodies ()
-    {
-        return clmgr.enumerateClientObjects();
     }
 
     /**
