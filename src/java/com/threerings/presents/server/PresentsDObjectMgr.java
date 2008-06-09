@@ -991,8 +991,8 @@ public class PresentsDObjectMgr
     /** Maps event classes to helpers that perform additional processing for particular events. */
     protected Map<Class,Method> _helpers = Maps.newHashMap();
 
-    // injected dependencies
-    @Inject protected InvocationManager _invmgr;
+    /** Used to resolve unit names when profiling. Injected by the invmgr when it's created. */
+    protected InvocationManager _invmgr;
 
     /** Whether or not unit profiling is enabled. */
     protected static final boolean UNIT_PROF_ENABLED = false;

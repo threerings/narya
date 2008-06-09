@@ -44,7 +44,6 @@ import com.threerings.presents.dobj.DObject;
 import com.threerings.presents.dobj.EventListener;
 import com.threerings.presents.dobj.InvocationRequestEvent;
 import com.threerings.presents.dobj.ObjectAccessException;
-import com.threerings.presents.dobj.RootDObjectManager;
 
 import com.threerings.presents.net.Transport;
 
@@ -76,9 +75,10 @@ public class InvocationManager
      * operate its invocation services. Generally only one invocation manager should be operational
      * in a particular system.
      */
-    @Inject public InvocationManager (RootDObjectManager omgr)
+    @Inject public InvocationManager (PresentsDObjectMgr omgr)
     {
         _omgr = omgr;
+        _omgr._invmgr = this;
 
         // create the object on which we'll listen for invocation requests
         DObject invobj = _omgr.registerObject(new DObject());
@@ -314,7 +314,7 @@ public class InvocationManager
     protected int _invCode;
 
     /** The distributed object manager we're working with. */
-    protected RootDObjectManager _omgr;
+    protected PresentsDObjectMgr _omgr;
 
     /** A table of invocation dispatchers each mapped by a unique code. */
     protected IntMap<InvocationDispatcher> _dispatchers = IntMaps.newHashIntMap();
