@@ -44,6 +44,7 @@ import com.threerings.presents.dobj.DObject;
 import com.threerings.presents.dobj.EventListener;
 import com.threerings.presents.dobj.InvocationRequestEvent;
 import com.threerings.presents.dobj.ObjectAccessException;
+import com.threerings.presents.dobj.RootDObjectManager;
 
 import com.threerings.presents.net.Transport;
 
@@ -75,7 +76,7 @@ public class InvocationManager
      * operate its invocation services. Generally only one invocation manager should be operational
      * in a particular system.
      */
-    @Inject public InvocationManager (PresentsDObjectMgr omgr)
+    @Inject public InvocationManager (RootDObjectManager omgr)
     {
         _omgr = omgr;
 
@@ -312,8 +313,8 @@ public class InvocationManager
     /** Used to generate monotonically increasing provider ids. */
     protected int _invCode;
 
-    /** The distribted object manager we're working with. */
-    protected PresentsDObjectMgr _omgr;
+    /** The distributed object manager we're working with. */
+    protected RootDObjectManager _omgr;
 
     /** A table of invocation dispatchers each mapped by a unique code. */
     protected IntMap<InvocationDispatcher> _dispatchers = IntMaps.newHashIntMap();
