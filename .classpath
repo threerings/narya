@@ -7,7 +7,7 @@
 	<classpathentry exported="true" kind="var" path="EXT_LIBS_DIR/commons-lang.jar"/>
 	<classpathentry kind="var" path="EXT_LIBS_DIR/javassist.jar"/>
 	<classpathentry exported="true" kind="var" path="EXT_LIBS_DIR/google-collect.jar"/>
-	<classpathentry kind="var" path="EXT_LIBS_DIR/guice.jar"/>
-	<classpathentry kind="var" path="EXT_LIBS_DIR/atunit.jar"/>
+	<classpathentry exported="true" kind="var" path="EXT_LIBS_DIR/guice.jar"/>
+	<classpathentry exported="true" kind="var" path="EXT_LIBS_DIR/atunit.jar"/>
 	<classpathentry kind="output" path="tests/dist/classes"/>
 </classpath>
