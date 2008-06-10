@@ -182,6 +182,13 @@ public class PlaceManager
         _omgr = omgr;
         _config = config;
 
+        // initialize our delegates
+        applyToDelegates(new DelegateOp() {
+            public void apply (PlaceManagerDelegate delegate) {
+                delegate.init(PlaceManager.this, _omgr, _invmgr);
+            }
+        });
+
         // let derived classes do initialization stuff
         didInit();
     }
@@ -194,7 +201,10 @@ public class PlaceManager
         if (_delegates == null) {
             _delegates = Lists.newArrayList();
         }
-        delegate.init(this, _omgr, _invmgr);
+        if (_omgr != null) {
+            delegate.init(this, _omgr, _invmgr);
+            delegate.didInit(_config);
+        }
         _delegates.add(delegate);
     }
 
