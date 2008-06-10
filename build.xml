@@ -185,7 +185,7 @@
     <copy file="etc/aslib-config.xml.in" tofile="${deploy.dir}/aslib-config.xml">
       <filterset>
         <filter token="flex_sdk_dir" value="${flexsdk.dir}"/>
-        <filter token="lib_name_dir" value="${lib.name}"/>
+        <filter token="lib_name" value="${lib.name}"/>
       </filterset>
     </copy>
     <copy overwrite="true" file="src/as/com/threerings/util/env/Environment.as-fp"
