@@ -31,7 +31,6 @@ import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.SocketChannel;
 
-import java.net.ConnectException;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 
@@ -51,15 +50,12 @@ import com.threerings.io.ObjectOutputStream;
 import com.threerings.io.UnreliableObjectInputStream;
 import com.threerings.io.UnreliableObjectOutputStream;
 
-import com.threerings.presents.data.AuthCodes;
-import com.threerings.presents.dobj.DObjectManager;
 import com.threerings.presents.net.AuthRequest;
 import com.threerings.presents.net.AuthResponse;
 import com.threerings.presents.net.AuthResponseData;
 import com.threerings.presents.net.DownstreamMessage;
 import com.threerings.presents.net.LogoffRequest;
 import com.threerings.presents.net.PingRequest;
-import com.threerings.presents.net.PongResponse;
 import com.threerings.presents.net.Transport;
 import com.threerings.presents.net.UpstreamMessage;
 import com.threerings.presents.util.DatagramSequencer;
@@ -541,6 +537,7 @@ public class BlockingCommunicator extends Communicator
     {
         public Reader ()
         {
+            super("BlockingCommunicatorReader");
         }
 
         protected void willStart ()
@@ -675,6 +672,11 @@ public class BlockingCommunicator extends Communicator
      */
     protected class Writer extends LoopingThread
     {
+        
+        public Writer(){
+            super("BlockingCommunicatorWriter");
+        }
+        
         protected void iterate ()
         {
             // fetch the next message from the queue
