@@ -28,6 +28,12 @@ import com.threerings.io.Streamable;
  * allow duplicate ids. This class is not synchronized, with the
  * expectation that all modifications of instances will take place on the
  * dobjmgr thread.
+ *
+ * <ul>
+ * <li> Do not use an OidList to store a set of ints. OidList has special meaning inside
+ * of the dobj system, namely:
+ * <li> When an object is destroyed, its oid is automagically removed from any OidLists.
+ * </ul>
  */
 public class OidList implements Streamable
 {
