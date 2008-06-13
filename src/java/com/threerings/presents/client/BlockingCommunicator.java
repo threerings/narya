@@ -537,7 +537,7 @@ public class BlockingCommunicator extends Communicator
     {
         public Reader ()
         {
-            super("BlockingCommunicatorReader");
+            super("BlockingCommunicator_Reader");
         }
 
         protected void willStart ()
@@ -672,9 +672,9 @@ public class BlockingCommunicator extends Communicator
      */
     protected class Writer extends LoopingThread
     {
-        
-        public Writer(){
-            super("BlockingCommunicatorWriter");
+        public Writer()
+        {
+            super("BlockingCommunicator_Writer");
         }
         
         protected void iterate ()
@@ -723,6 +723,11 @@ public class BlockingCommunicator extends Communicator
      */
     protected class DatagramReader extends LoopingThread
     {
+        public DatagramReader ()
+        {
+            super("BlockingCommunicator_DatagramReader");
+        }
+
         protected void willStart ()
         {
             try {
@@ -868,6 +873,11 @@ public class BlockingCommunicator extends Communicator
      */
     protected class DatagramWriter extends LoopingThread
     {
+        public DatagramWriter ()
+        {
+            super("BlockingCommunicator_DatagramWriter");
+        }
+
         protected void iterate ()
         {
             // fetch the next message from the queue
