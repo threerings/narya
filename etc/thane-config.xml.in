@@ -42,7 +42,7 @@
       <es>false</es>
       <!-- compiler.external-library-path: list of SWC files or directories to compile against but to omit from linking-->
       <external-library-path>
-         <path-element>lib/thane-0.0-SNAPSHOT.swc</path-element>
+         <path-element>lib/thane@extdep_suffix@.swc</path-element>
       </external-library-path>
       <fonts>
          <!-- compiler.fonts.advanced-anti-aliasing: enables advanced anti-aliasing for embedded fonts, which provides greater clarity for small fonts.-->

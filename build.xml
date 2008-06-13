@@ -196,6 +196,7 @@
     <copy file="etc/thane-config.xml.in" tofile="${deploy.dir}/thane-config.xml">
       <filterset>
         <filter token="flex_sdk_dir" value="${flexsdk.dir}"/>
+        <filter token="extdep_suffix" value="${extdep.suffix}"/>
       </filterset>
     </copy>
     <!-- Build Environment.as for the Flash Player -->
