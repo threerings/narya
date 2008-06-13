@@ -282,7 +282,7 @@
   <target name="all" depends="clean,prepare,compile,aslib,abclib,ninstall,javadoc,tests,dist"/>
 
   <!-- builds our distribution files (war and jar) -->
-  <target name="dist" depends="prepare,compile,procstream,aslib,abclib,ninstall,tests">
+  <target name="dist" depends="prepare,compile,procstream,aslib,ninstall,tests">
     <!-- build our various jar files -->
     <jar destfile="${deploy.dir}/${lib.name}-base.jar">
       <fileset dir="${classes.dir}" includes="com/threerings/NaryaLog**"/>
