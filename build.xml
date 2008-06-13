@@ -173,10 +173,10 @@
         <uptodate targetfile="${deploy.dir}/${lib.name}lib.swc">
           <srcfiles dir="src/as" includes="**/*.as"/>
         </uptodate>
-        <uptodate targetfile="${deploy.dir}/playerEnv.swc">
+        <uptodate targetfile="${deploy.dir}/player-env.swc">
           <srcfiles dir="src/player" includes="**/*.as"/>
         </uptodate>
-        <uptodate targetfile="${deploy.dir}/thaneEnv.swc">
+        <uptodate targetfile="${deploy.dir}/thane-env.swc">
           <srcfiles dir="src/thane" includes="**/*.as"/>
         </uptodate>
       </and>
@@ -206,7 +206,7 @@
       <arg value="-compiler.source-path=src/player/"/>
       <arg value="-include-sources=src/player/"/>
       <arg value="-output"/>
-      <arg value="${deploy.dir}/playerEnv.swc"/>
+      <arg value="${deploy.dir}/player-env.swc"/>
     </java>
     <!-- Build Environment.as for Thane -->
     <java jar="${flexsdk.dir}/lib/compc.jar" fork="true" failonerror="true">
@@ -216,7 +216,7 @@
       <arg value="-compiler.source-path=src/thane/"/>
       <arg value="-include-sources=src/thane/"/>
       <arg value="-output"/>
-      <arg value="${deploy.dir}/thaneEnv.swc"/>
+      <arg value="${deploy.dir}/thane-env.swc"/>
     </java>
     <!-- Build Narya -->
     <java jar="${flexsdk.dir}/lib/compc.jar" fork="true" failonerror="true">
@@ -224,7 +224,7 @@
       <arg value="${deploy.dir}/aslib-config.xml"/>
       <arg value="-compiler.optimize"/>
       <arg value="-compiler.source-path=src/as/"/>
-      <arg value="-compiler.external-library-path+=${deploy.dir}/playerEnv.swc"/>
+      <arg value="-compiler.external-library-path+=${deploy.dir}/player-env.swc"/>
       <arg value="-include-sources=src/as/"/>
       <arg value="-output"/>
       <arg value="${deploy.dir}/${lib.name}lib.swc"/>
