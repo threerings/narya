@@ -22,8 +22,7 @@
 package com.threerings.util.env {
 
 import flash.utils.describeType;
-
-import com.threerings.util.ClassUtil;
+import flash.utils.getDefinitionByName;
 
 /**
  * Flash Player specific implementation of Environment.
@@ -69,7 +68,7 @@ public class Environment
         var exts :XMLList = typeInfo.child("extendsClass").attribute("type");
         var type :String;
         for each (type in exts) {
-            if (asClass == ClassUtil.getClassByName(type)) {
+            if (asClass == getClassByName(type)) {
                 return true;
             }
         }
@@ -78,12 +77,22 @@ public class Environment
         var imps :XMLList = typeInfo.child("implementsInterface")
             .attribute("type");
         for each (type in imps) {
-            if (asClass == ClassUtil.getClassByName(type)) {
+            if (asClass == getClassByName(type)) {
                 return true;
             }
         }
 
         return false;
     }
+
+    private static function getClassByName (cname :String) :Class
+    {
+        try {
+            return (getDefinitionByName(cname.replace("::", ".")) as Class);
+
+        } catch (error :ReferenceError) { }
+        return null;
+    }
 }
 }
+

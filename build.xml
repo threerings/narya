@@ -141,7 +141,6 @@
   <target name="clean" depends="common-clean">
     <delete dir="${deploy.dir}/classes"/>
     <delete dir="${deploy.dir}/docs"/>
-    <delete failonerror="false" file="src/as/com/threerings/util/env/Environment.as"/>
     <delete failonerror="false"><fileset dir="${deploy.dir}" includes="*.jar"/></delete>
     <delete failonerror="false"><fileset dir="${deploy.dir}" includes="*.swc"/></delete>
   </target>
@@ -149,7 +148,6 @@
   <!-- wipes the entire build directory clean -->
   <target name="distclean" depends="common-clean">
     <delete dir="${deploy.dir}"/>
-    <delete failonerror="false" file="src/as/com/threerings/util/env/Environment.as"/>
   </target>
 
   <!-- common clean tasks -->
@@ -174,7 +172,12 @@
       <and>
         <uptodate targetfile="${deploy.dir}/${lib.name}lib.swc">
           <srcfiles dir="src/as" includes="**/*.as"/>
-          <srcfiles dir="src/as" includes="**/Environment.as-fp"/>
+        </uptodate>
+        <uptodate targetfile="${deploy.dir}/playerEnv.swc">
+          <srcfiles dir="src/player" includes="**/*.as"/>
+        </uptodate>
+        <uptodate targetfile="${deploy.dir}/thaneEnv.swc">
+          <srcfiles dir="src/thane" includes="**/*.as"/>
         </uptodate>
       </and>
     </or></condition>
@@ -182,60 +185,51 @@
 
   <!-- builds our Flash library -->
   <target name="aslib" unless="no_build_aslib" depends="checkaslib">
+    <!-- Generate aslib-config.xml for Flash Player and general compilation -->
     <copy file="etc/aslib-config.xml.in" tofile="${deploy.dir}/aslib-config.xml">
       <filterset>
         <filter token="flex_sdk_dir" value="${flexsdk.dir}"/>
         <filter token="lib_name" value="${lib.name}"/>
       </filterset>
     </copy>
-    <copy overwrite="true" file="src/as/com/threerings/util/env/Environment.as-fp"
-          tofile="src/as/com/threerings/util/env/Environment.as"/>
+    <!-- Generate thane-config.xml for targetting Thane -->
+    <copy file="etc/thane-config.xml.in" tofile="${deploy.dir}/thane-config.xml">
+      <filterset>
+        <filter token="flex_sdk_dir" value="${flexsdk.dir}"/>
+      </filterset>
+    </copy>
+    <!-- Build Environment.as for the Flash Player -->
+    <java jar="${flexsdk.dir}/lib/compc.jar" fork="true" failonerror="true">
+      <arg value="-load-config"/>
+      <arg value="${deploy.dir}/aslib-config.xml"/>
+      <arg value="-compiler.optimize"/>
+      <arg value="-compiler.source-path=src/player/"/>
+      <arg value="-include-sources=src/player/"/>
+      <arg value="-output"/>
+      <arg value="${deploy.dir}/playerEnv.swc"/>
+    </java>
+    <!-- Build Environment.as for Thane -->
+    <java jar="${flexsdk.dir}/lib/compc.jar" fork="true" failonerror="true">
+      <arg value="-load-config"/>
+      <arg value="${deploy.dir}/thane-config.xml"/>
+      <arg value="-compiler.optimize"/>
+      <arg value="-compiler.source-path=src/thane/"/>
+      <arg value="-include-sources=src/thane/"/>
+      <arg value="-output"/>
+      <arg value="${deploy.dir}/thaneEnv.swc"/>
+    </java>
+    <!-- Build Narya -->
     <java jar="${flexsdk.dir}/lib/compc.jar" fork="true" failonerror="true">
       <arg value="-load-config"/>
       <arg value="${deploy.dir}/aslib-config.xml"/>
       <arg value="-compiler.optimize"/>
       <arg value="-compiler.source-path=src/as/"/>
+      <arg value="-compiler.external-library-path+=${deploy.dir}/playerEnv.swc"/>
       <arg value="-include-sources=src/as/"/>
       <arg value="-output"/>
       <arg value="${deploy.dir}/${lib.name}lib.swc"/>
     </java>
     <delete file="${deploy.dir}/aslib-config.xml"/>
-    <delete file="src/as/com/threerings/util/env/Environment.as"/>
-  </target>
-
-  <!-- checks whether our thane library needs building -->
-  <target name="checkabclib">
-    <condition property="no_build_abclib"><or>
-      <not><available classname="macromedia.asc.embedding.ScriptCompiler"
-                      classpathref="classpath"/></not>
-      <uptodate targetfile="${deploy.dir}/${lib.name}-abc.abc">
-        <srcfiles dir="src/as" includes="**/*.as"/>
-        <srcfiles dir="src/as/com/threerings/util/env" includes="Environment.as-tm"/>
-        <srcfiles dir="etc" includes="asc-files-*.txt"/>
-        <srcfiles dir="${deploy.dir}/lib" includes="*.abc"/>
-      </uptodate>
-    </or></condition>
-  </target>
-
-  <!-- builds our thane library -->
-  <target name="abclib" unless="no_build_abclib" depends="checkabclib">
-    <taskdef name="asc" classname="flex.ant.AscTask" classpathref="classpath"/>
-    <copy overwrite="true" file="src/as/com/threerings/util/env/Environment.as-tm"
-          tofile="src/as/com/threerings/util/env/Environment.as"/>
-    <asc as3="true" strict="true" classpathref="classpath" use="AS3">
-      <import dir="${deploy.dir}/lib">
-        <include name="tamarin-builtin*.abc"/>
-        <include name="thane*.abc"/>
-      </import>
-      <in dir="src/as" includes="com/threerings/util/env/Environment.as"/>
-      <in dir="src/as"><includesfile name="etc/asc-files-00.txt"/></in>
-      <in dir="src/as"><includesfile name="etc/asc-files-01.txt"/></in>
-      <in dir="src/as"><includesfile name="etc/asc-files-02.txt"/></in>
-      <in dir="src/as"><includesfile name="etc/asc-files-03.txt"/></in>
-      <filespec dir="etc" includes="empty.as"/>
-    </asc>
-    <delete file="src/as/com/threerings/util/env/Environment.as"/>
-    <move overwrite="true" file="etc/empty.abc" tofile="${deploy.dir}/${lib.name}-abc.abc"/>
   </target>
 
   <!-- build the native libraries -->
@@ -279,7 +273,7 @@
   </target>
 
   <!-- a target for rebuilding everything -->
-  <target name="all" depends="clean,prepare,compile,aslib,abclib,ninstall,javadoc,tests,dist"/>
+  <target name="all" depends="clean,prepare,compile,aslib,ninstall,javadoc,tests,dist"/>
 
   <!-- builds our distribution files (war and jar) -->
   <target name="dist" depends="prepare,compile,procstream,aslib,ninstall,tests">
