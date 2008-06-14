@@ -1,2 +1,0 @@
-com/threerings/util/Log.as
-com/threerings/presents/dobj/DEvent.as
