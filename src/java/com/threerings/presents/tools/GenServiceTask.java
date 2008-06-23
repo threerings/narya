@@ -360,6 +360,9 @@ public class GenServiceTask extends InvocationTask
         imports.replace("[B", "flash.utils.ByteArray");
         imports.replace("[I", "com.threerings.io.TypedArray");
 
+        // convert java primitive types to ooo util types
+        imports.replace("java.lang.Integer", "com.threerings.util.Integer");
+
         if (imports.removeAll("[L*") > 0) {
             imports.add("com.threerings.io.TypedArray");
         }
