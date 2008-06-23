@@ -21,6 +21,7 @@
 
 package com.threerings.crowd.data {
 
+import com.threerings.util.ClassUtil;
 import com.threerings.util.Cloneable;
 import com.threerings.util.Integer;
 import com.threerings.util.Name;
@@ -97,7 +98,11 @@ public class OccupantInfo extends SimpleStreamableObject
      */
     public function clone () :Object
     {
-        throw new Error("Clone not implemented. Implement if you need it.");
+        var that :OccupantInfo = ClassUtil.newInstance(this) as OccupantInfo;
+        that.bodyOid = this.bodyOid;
+        that.username = this.username;
+        that.status = this.status;
+        return that;
     }
 
     // documentation inherited from interface DSet_Entry
