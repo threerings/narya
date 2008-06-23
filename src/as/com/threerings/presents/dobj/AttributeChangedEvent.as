@@ -24,8 +24,8 @@ package com.threerings.presents.dobj {
 import com.threerings.io.ObjectInputStream;
 import com.threerings.io.ObjectOutputStream;
 
+import com.threerings.util.Boxed;
 import com.threerings.util.StringBuilder;
-import com.threerings.util.Wrapped;
 
 /**
  * An attribute changed event is dispatched when a single attribute of a
@@ -126,8 +126,8 @@ public class AttributeChangedEvent extends NamedEvent
         _value = ins.readObject();
 
         // possibly convert the value
-        if (_value is Wrapped) {
-            _value = (_value as Wrapped).unwrap();
+        if (_value is Boxed) {
+            _value = (_value as Boxed).unbox();
         }
     }
 

@@ -25,7 +25,7 @@ package com.threerings.util {
  * Equivalent to java.lang.Short.
  */
 public class Short
-    implements Equalable, Wrapped
+    implements Equalable, Boxed
 {
     /** The minimum possible short value. */
     public static const MIN_VALUE :int = -Math.pow(2, 15);
@@ -52,8 +52,8 @@ public class Short
         return (other is Short) && (value === (other as Short).value);
     }
 
-    // from Wrapped
-    public function unwrap () :Object
+    // from Boxed
+    public function unbox () :Object
     {
         return value;
     }

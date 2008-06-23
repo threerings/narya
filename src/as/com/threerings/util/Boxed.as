@@ -22,13 +22,13 @@
 package com.threerings.util {
 
 /**
- * An interface implemented by our wrapper classes.
+ * An interface implemented by our "boxed" data classes.
  */
-public interface Wrapped
+public interface Boxed
 {
     /**
-     * Return the wrapped value.
+     * Return the unboxed value.
      */
-    function unwrap () :Object;
+    function unbox () :Object;
 }
 }

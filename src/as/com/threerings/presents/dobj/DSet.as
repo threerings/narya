@@ -234,6 +234,12 @@ public class DSet
     // documentation inherited from interface Streamable
     public function writeObject (out :ObjectOutputStream) :void
     {
+        if (_entries.length > 0) {
+            Log.getLog(this).warning("Error! We can't send DSets back to the server until we " +
+                "fix up the actionscript implementation!");
+            Log.dumpStack();
+        }
+
         out.writeInt(_entries.length);
         for (var ii :int = 0; ii < _entries.length; ii++) {
             out.writeObject(_entries[ii]);

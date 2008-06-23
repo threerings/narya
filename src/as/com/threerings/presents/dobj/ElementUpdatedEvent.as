@@ -24,8 +24,8 @@ package com.threerings.presents.dobj {
 import com.threerings.io.ObjectInputStream;
 import com.threerings.io.ObjectOutputStream;
 
+import com.threerings.util.Boxed;
 import com.threerings.util.StringBuilder;
-import com.threerings.util.Wrapped;
 
 /**
  * An element updated event is dispatched when an element of an array
@@ -118,8 +118,8 @@ public class ElementUpdatedEvent extends NamedEvent
         _value = ins.readObject();
         _index = ins.readInt();
 
-        if (_value is Wrapped) {
-            _value = (_value as Wrapped).unwrap();
+        if (_value is Boxed) {
+            _value = (_value as Boxed).unbox();
         }
     }
 

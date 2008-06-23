@@ -25,7 +25,7 @@ package com.threerings.util {
  * Equivalent to java.lang.Byte.
  */
 public class Byte
-    implements Equalable, Wrapped
+    implements Equalable, Boxed
 {
     public var value :int;
 
@@ -45,8 +45,8 @@ public class Byte
         return (other is Byte) && (value === (other as Byte).value);
     }
 
-    // from Wrapped
-    public function unwrap () :Object
+    // from Boxed
+    public function unbox () :Object
     {
         return value;
     }

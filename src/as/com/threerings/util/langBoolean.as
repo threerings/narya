@@ -29,7 +29,7 @@ import com.threerings.io.Streamable;
  * Equivalent to java.lang.Boolean.
  */
 public class langBoolean
-    implements Equalable, Streamable, Wrapped
+    implements Equalable, Streamable, Boxed
 {
     public var value :Boolean;
 
@@ -62,8 +62,8 @@ public class langBoolean
         value = ins.readBoolean();
     }
 
-    // from Wrapped
-    public function unwrap () :Object
+    // from Boxed
+    public function unbox () :Object
     {
         return value;
     }

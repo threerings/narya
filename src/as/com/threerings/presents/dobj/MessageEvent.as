@@ -25,8 +25,8 @@ import com.threerings.io.ObjectInputStream;
 import com.threerings.io.ObjectOutputStream;
 import com.threerings.io.TypedArray;
 
+import com.threerings.util.Boxed;
 import com.threerings.util.StringBuilder;
-import com.threerings.util.Wrapped;
 
 /**
  * A message event is used to dispatch a message to all subscribers of a
@@ -119,8 +119,8 @@ public class MessageEvent extends NamedEvent
 
         if (_args != null) {
             for (var ii :int = _args.length - 1; ii >= 0; ii--) {
-                if (_args[ii] is Wrapped) {
-                    _args[ii] = (_args[ii] as Wrapped).unwrap();
+                if (_args[ii] is Boxed) {
+                    _args[ii] = (_args[ii] as Boxed).unbox();
                 }
             }
         }

@@ -24,9 +24,9 @@ package com.threerings.presents.dobj {
 import com.threerings.io.ObjectInputStream;
 import com.threerings.io.ObjectOutputStream;
 
+import com.threerings.util.Boxed;
 import com.threerings.util.Log;
 import com.threerings.util.StringBuilder;
-import com.threerings.util.Wrapped;
 
 /**
  * An entry removed event is dispatched when an entry is removed from a
@@ -125,8 +125,8 @@ public class EntryRemovedEvent extends NamedEvent
         super.readObject(ins);
         _key = ins.readObject();
 
-        if (_key is Wrapped) {
-            _key = (_key as Wrapped).unwrap();
+        if (_key is Boxed) {
+            _key = (_key as Boxed).unbox();
         }
     }
 

@@ -21,7 +21,7 @@
 
 package com.threerings.presents.data {
 
-import com.threerings.util.Wrapped;
+import com.threerings.util.Boxed;
 
 import com.threerings.presents.client.InvocationService_ResultListener;
 
@@ -36,8 +36,8 @@ public class InvocationMarshaller_ResultMarshaller
         switch (methodId) {
         case REQUEST_PROCESSED:
             var result :Object = args[0];
-            if (result is Wrapped) {
-                result = (result as Wrapped).unwrap();
+            if (result is Boxed) {
+                result = (result as Boxed).unbox();
             }
             (listener as InvocationService_ResultListener).requestProcessed(
                 result);

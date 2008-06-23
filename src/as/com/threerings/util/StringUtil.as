@@ -417,9 +417,13 @@ public class StringUtil
             return null;
         }
         var ba :ByteArray = new ByteArray();
-        for (var ii :int = 0; ii < s.length; ii++) {
-            ba[ii] = int(s.charCodeAt(ii)) & 0xFF;
-        }
+//        if (true) {
+            for (var ii :int = 0; ii < s.length; ii++) {
+                ba[ii] = int(s.charCodeAt(ii)) & 0xFF;
+            }
+//        } else {
+//            ba.writeUTFBytes(s);
+//        }
         return ba;
     }
 

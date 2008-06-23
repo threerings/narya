@@ -25,7 +25,7 @@ package com.threerings.util {
  * Equivalent to java.lang.Float.
  */
 public class Float
-    implements Equalable, Wrapped
+    implements Equalable, Boxed
 {
     public var value :Number;
 
@@ -45,8 +45,8 @@ public class Float
         return (other is Float) && (value === (other as Float).value);
     }
 
-    // from Wrapped
-    public function unwrap () :Object
+    // from Boxed
+    public function unbox () :Object
     {
         return value;
     }

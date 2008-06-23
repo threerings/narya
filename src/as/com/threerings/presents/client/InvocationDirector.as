@@ -24,9 +24,9 @@ package com.threerings.presents.client {
 import flash.errors.IllegalOperationError;
 import flash.utils.getTimer; // function import
 
+import com.threerings.util.Boxed;
 import com.threerings.util.HashMap;
 import com.threerings.util.Log;
-import com.threerings.util.Wrapped;
 
 import com.threerings.presents.data.InvocationMarshaller_ListenerMarshaller;
 
@@ -243,7 +243,7 @@ public class InvocationDirector
             return;
         }
 
-        unwrapArgs(args);
+        unboxArgs(args);
 
 //         log.info("Dispatching invocation response [listener=" + listener +
 //                  ", methId=" + methodId + ", args=" + StringUtil.toString(args) + "].");
@@ -280,7 +280,7 @@ public class InvocationDirector
             return;
         }
 
-        unwrapArgs(args);
+        unboxArgs(args);
 
 //         log.info("Dispatching invocation notification [receiver=" + decoder.receiver +
 //                  ", methodId=" + methodId + ", args=" + StringUtil.toString(args) + "].");
@@ -326,14 +326,14 @@ public class InvocationDirector
     }
 
     /**
-     * Unwrap any arguments that have arrived from the server in wrapped types.
+     * Unbox any arguments that have arrived from the server in boxed types.
      */
-    protected function unwrapArgs (args :Array) :void
+    protected function unboxArgs (args :Array) :void
     {
         if (args != null) {
             for (var ii :int = 0; ii < args.length; ii++) {
-                if (args[ii] is Wrapped) {
-                    args[ii] = (args[ii] as Wrapped).unwrap();
+                if (args[ii] is Boxed) {
+                    args[ii] = (args[ii] as Boxed).unbox();
                 }
             }
         }
