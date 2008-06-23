@@ -125,26 +125,25 @@ public class BureauRegistry
 
     /**
      * Check the credentials to make sure this is one of our bureaus.
+     * @return null if all's well, otherwise a string describing the authentication failure
      */
-    public void authenticate (BureauCredentials creds)
-        throws AuthenticationException
+    public String checkToken (BureauCredentials creds)
     {
         Bureau bureau = _bureaus.get(creds.bureauId);
         if (bureau == null) {
-            throw new AuthenticationException(
-                "Bureau " + creds.bureauId + " not found");
+            return "Bureau " + creds.bureauId + " not found";
         }
 
         if (bureau.clientObj != null) {
-            throw new AuthenticationException(
-                "Bureau " + creds.bureauId + " already logged in");
+            return "Bureau " + creds.bureauId + " already logged in";
         }
 
         if (!bureau.token.equals(creds.sessionToken)) {
-            throw new AuthenticationException(
-                "Bureau " + creds.bureauId + 
-                " does not match credentials token");
+            return "Bureau " + creds.bureauId + 
+                " does not match credentials token";
         }
+
+        return null;
     }
 
     /**
