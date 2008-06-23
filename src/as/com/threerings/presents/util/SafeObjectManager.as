@@ -38,10 +38,10 @@ public class SafeObjectManager
     /**
      * Creates a new manager. The optional available and failed parameters are callbacks
      * that must match the {@link Subscriber} interface methods.
-     * @param omgr the underlying object manager to use for request objects from
+     * @param omgr the underlying object manager to use for requesting objects
      * @param log sink for warnings and info messages
      * @param available optional callback for when an object becomes available
-     * @param failed options callback for when a subscription request fails
+     * @param failed optional callback for when a subscription request fails
      */
     public function SafeObjectManager (
         omgr :DObjectManager, 
@@ -92,8 +92,12 @@ public class SafeObjectManager
         }
 
         _log.info("Unsubscribing from " + entry.sub);
-        entry.obj.removeListener(_objectDeathListenerAdapter);
-        entry.sub.unsubscribe(_omgr);
+        if (entry.obj != null) {
+            entry.obj.removeListener(_objectDeathListenerAdapter);
+        }
+        if (!entry.destroyed && !entry.failed) {
+            entry.sub.unsubscribe(_omgr);
+        }
         entry.obj = null;
 
         delete _entries[oid];
@@ -161,7 +165,7 @@ public class SafeObjectManager
             _log.warning("Object " + oid + " failed without request?!");
 
         } else {
-            delete _entries[oid];
+            entry.failed = true;
 
         }
 
@@ -174,7 +178,7 @@ public class SafeObjectManager
     }
 
     /** Notifies the manager that the server has destroyed an object */
-    protected function objectDestroyed (event :ObjectDestroyedEvent) :void
+    protected function destroyed (event :ObjectDestroyedEvent) :void
     {
         var oid :int = event.getTargetOid();
         
@@ -183,7 +187,8 @@ public class SafeObjectManager
             _log.warning("Unsubscribed object notified of destroy");
 
         } else {
-            delete _entries[oid];
+            entry.destroyed = true;
+            entry.obj = null;
         }
 
         _log.info("Object " + oid + " destroyed");
@@ -196,7 +201,7 @@ public class SafeObjectManager
     protected var _adapter :SubscriberAdapter = 
         new SubscriberAdapter(available, failed);
     protected var _objectDeathListenerAdapter :ObjectDeathListenerAdapter = 
-        new ObjectDeathListenerAdapter(objectDestroyed);
+        new ObjectDeathListenerAdapter(destroyed);
     protected var _entries :Dictionary = new Dictionary();
 }
 
@@ -212,6 +217,8 @@ class Entry
 {
     public var sub :SafeSubscriber;
     public var obj :DObject;
+    public var destroyed :Boolean;
+    public var failed :Boolean;
 
     public function Entry (subscriber :SafeSubscriber)
     {
