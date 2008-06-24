@@ -12,9 +12,9 @@ import flash.utils.Timer;
 /**
  * Dispatched when a set element expires.
  *
- * @eventType com.threerings.util.ElementExpiredEvent.ELEMENT_EXPIRED
+ * @eventType com.threerings.util.ExpiringSet.ELEMENT_EXPIRED
  */
-[Event(name="ElementExpired", type="com.threerings.util.ElementExpiredEvent")]
+[Event(name="ElementExpired", type="com.threerings.util.ValueEvent")]
 
 /**
  * Data structure that keeps its elements for a short time, and then removes them automatically.
@@ -24,6 +24,9 @@ import flash.utils.Timer;
 public class ExpiringSet extends EventDispatcher
     implements Set
 {
+    /** The even that is dispatched when a member of this set expires. */
+    public static const ELEMENT_EXPIRED :String = "ElementExpired";
+
     /**
      * Initializes the expiring set.
      *
@@ -51,7 +54,7 @@ public class ExpiringSet extends EventDispatcher
 
     /**
      * Calling this function will not expire the elements, it simply removes them. No 
-     * ElementExpiredEvent will be dispatched.
+     * ValueEvent will be dispatched.
      */
     public function clear () :void
     {
@@ -140,7 +143,7 @@ public class ExpiringSet extends EventDispatcher
         while (headIsExpired(now)) {
             // pop the head off the queue and dispatch an event
             var head :ExpiringElement = _data.shift() as ExpiringElement;
-            dispatchEvent(new ElementExpiredEvent(head.element));
+            dispatchEvent(new ValueEvent(ELEMENT_EXPIRED, head.element));
         }
 
         // empty check
