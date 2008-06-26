@@ -41,7 +41,10 @@ public class CommandEvent extends Event
             var fn :Function = (cmdOrFn as Function);
             // build our args array
             var args :Array;
-            if (arg is Array) {
+            if (arg == null) {
+                args = null;
+
+            } else if (arg is Array) {
                 // if we were passed an array, treat it as the arg array.
                 // Note: if you want to pass a single array param, you've
                 // got to wrap it in another array, so sorry.
