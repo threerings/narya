@@ -21,8 +21,6 @@
 
 package com.threerings.crowd.server;
 
-import java.util.Iterator;
-
 import com.google.inject.Guice;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
@@ -31,7 +29,6 @@ import com.samskivert.util.Invoker;
 
 import com.threerings.util.Name;
 
-import com.threerings.presents.dobj.RootDObjectManager;
 import com.threerings.presents.net.AuthRequest;
 import com.threerings.presents.server.ClientFactory;
 import com.threerings.presents.server.ClientManager;
@@ -120,33 +117,6 @@ public class CrowdServer extends PresentsServer
 
         // configure the place registry with the injector
         _plreg.setInjector(injector);
-
-        // create our body locator
-        _lookup = createBodyLocator();
-    }
-
-    /**
-     * Allow derived instances to create a custom {@link BodyLocator}. If the system opts not to
-     * use {@link BodyObject#username} as a user's visible name, it will need to provide a custom
-     * {@link BodyLocator}.
-     */
-    protected BodyLocator createBodyLocator ()
-    {
-        return new BodyLocator() {
-            public BodyObject get (Name visibleName) {
-                // by default visibleName is username
-                return (BodyObject)_clmgr.getClientObject(visibleName);
-            }
-        };
-    }
-
-    /**
-     * Looks up the {@link BodyObject} for the user with the specified visible name, returns null
-     * if they are not online. This should only be called from the dobjmgr thread.
-     */
-    public static BodyObject lookupBody (Name visibleName)
-    {
-        return _lookup.get(visibleName);
     }
 
     public static void main (String[] args)
@@ -161,15 +131,6 @@ public class CrowdServer extends PresentsServer
         }
     }
 
-    /** An interface that allows server extensions to reconfigure the body lookup process. See
-     * {@link #lookupBody}, {@link #createBodyLocator}. */
-    protected static interface BodyLocator
-    {
-        /** Returns the body object for the user with the specified visible name, or null if they
-         * are not online. This will only be called from the dobjmgr thread. */
-        public BodyObject get (Name visibleName);
-    }
-
     /** Handles the creation and tracking of place managers. */
     @Inject protected PlaceRegistry _plreg;
 
@@ -181,9 +142,6 @@ public class CrowdServer extends PresentsServer
 
     /** Provides chat-related invocation services. */
     @Inject protected ChatProvider _chatprov;
-
-    /** Used to look up {@link BodyObject} instance for online users. See {@link #lookupBody}. */
-    protected static BodyLocator _lookup;
 
     /** The config key for our list of invocation provider mappings. */
     protected final static String PROVIDERS_KEY = "providers";

@@ -36,7 +36,6 @@ import com.threerings.presents.server.InvocationException;
 import com.threerings.presents.server.InvocationManager;
 import com.threerings.presents.server.ShutdownManager;
 
-import com.threerings.crowd.data.CrowdCodes;
 import com.threerings.crowd.data.Place;
 import com.threerings.crowd.data.PlaceConfig;
 import com.threerings.crowd.data.PlaceObject;
@@ -202,7 +201,7 @@ public class PlaceRegistry
             }
 
             // let the pmgr know about us and its configuration
-            pmgr.init(this, _invmgr, _omgr, config);
+            pmgr.init(this, _invmgr, _omgr, _locator, config);
 
         } catch (Exception e) {
             log.warning(e);
@@ -273,6 +272,9 @@ public class PlaceRegistry
 
     /** The distributed object manager with which we operate. */
     @Inject protected RootDObjectManager _omgr;
+
+    /** Used to look body objects up by name. */
+    @Inject protected BodyLocator _locator;
 
     /** We use this to inject dependencies into place managers that we create. */
     protected Injector _injector;

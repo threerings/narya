@@ -55,7 +55,6 @@ import com.threerings.crowd.data.Place;
 import com.threerings.crowd.data.PlaceConfig;
 import com.threerings.crowd.data.PlaceObject;
 
-import com.threerings.crowd.chat.data.SpeakMarshaller;
 import com.threerings.crowd.chat.server.SpeakDispatcher;
 import com.threerings.crowd.chat.server.SpeakHandler;
 
@@ -174,12 +173,13 @@ public class PlaceManager
     /**
      * Called by the place registry after creating this place manager.
      */
-    public void init (PlaceRegistry registry, InvocationManager invmgr,
-                      RootDObjectManager omgr, PlaceConfig config)
+    public void init (PlaceRegistry registry, InvocationManager invmgr, RootDObjectManager omgr,
+                      BodyLocator locator, PlaceConfig config)
     {
         _registry = registry;
         _invmgr = invmgr;
         _omgr = omgr;
+        _locator = locator;
         _config = config;
 
         // initialize our delegates
@@ -246,7 +246,7 @@ public class PlaceManager
         // we usually want to create and register a speaker service instance that clients can use
         // to speak in this place
         if (shouldCreateSpeakService()) {
-            plobj.setSpeakService((SpeakMarshaller)_invmgr.registerDispatcher(
+            plobj.setSpeakService(_invmgr.registerDispatcher(
                                       new SpeakDispatcher(new SpeakHandler(plobj, this))));
         }
 
@@ -702,6 +702,9 @@ public class PlaceManager
 
     /** A distributed object manager for doing dobj stuff. */
     protected RootDObjectManager _omgr;
+
+    /** Used to look up body objects by name. */
+    protected BodyLocator _locator;
 
     /** A reference to the place object that we manage. */
     protected PlaceObject _plobj;

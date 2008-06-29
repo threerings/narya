@@ -34,7 +34,6 @@ import com.threerings.util.TimeUtil;
 import com.threerings.presents.client.InvocationService.InvocationListener;
 import com.threerings.presents.data.ClientObject;
 import com.threerings.presents.dobj.DObject;
-import com.threerings.presents.dobj.DObjectManager;
 
 import com.threerings.presents.server.InvocationException;
 import com.threerings.presents.server.InvocationManager;
@@ -44,7 +43,9 @@ import com.threerings.crowd.data.BodyObject;
 import com.threerings.crowd.data.CrowdCodes;
 import com.threerings.crowd.data.OccupantInfo;
 import com.threerings.crowd.data.PlaceObject;
+import com.threerings.crowd.server.BodyLocator;
 import com.threerings.crowd.server.CrowdServer;
+import com.threerings.crowd.server.PlaceRegistry;
 
 import com.threerings.crowd.chat.client.ChatService.TellListener;
 import com.threerings.crowd.chat.client.ChatService;
@@ -140,7 +141,7 @@ public class ChatProvider
 
         // inform the auto-responder if needed
         BodyObject targobj;
-        if (_autoRespond != null && (targobj = CrowdServer.lookupBody(target)) != null) {
+        if (_autoRespond != null && (targobj = _locator.lookupBody(target)) != null) {
             _autoRespond.sentTell(source, targobj, message);
         }
     }
@@ -185,9 +186,8 @@ public class ChatProvider
             broadcastTo(_broadcastObject, from, bundle, msg, attention);
 
         } else {
-            Iterator iter = CrowdServer.plreg.enumeratePlaces();
-            while (iter.hasNext()) {
-                PlaceObject plobj = (PlaceObject)iter.next();
+            for (Iterator<PlaceObject> iter = _plreg.enumeratePlaces(); iter.hasNext(); ) {
+                PlaceObject plobj = iter.next();
                 if (plobj.shouldBroadcast()) {
                     broadcastTo(plobj, from, bundle, msg, attention);
                 }
@@ -207,7 +207,7 @@ public class ChatProvider
         throws InvocationException
     {
         // make sure the target user is online
-        BodyObject tobj = CrowdServer.lookupBody(target);
+        BodyObject tobj = _locator.lookupBody(target);
         if (tobj == null) {
             // if we have a forwarder configured, try forwarding the tell
             if (_chatForwarder != null && _chatForwarder.forwardTell(message, target, listener)) {
@@ -276,6 +276,12 @@ public class ChatProvider
             SpeakUtil.sendSpeak(object, from, bundle, msg, ChatCodes.BROADCAST_MODE);
         }
     }
+
+    /** Provides access to place managers. */
+    @Inject protected PlaceRegistry _plreg;
+
+    /** Used to look up body objects by name. */
+    @Inject protected BodyLocator _locator;
 
     /** Generates auto-responses to tells. May be null. */
     protected TellAutoResponder _autoRespond;
