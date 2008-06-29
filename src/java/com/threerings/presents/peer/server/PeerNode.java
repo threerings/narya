@@ -31,7 +31,6 @@ import com.threerings.presents.client.Client;
 import com.threerings.presents.client.ClientObserver;
 import com.threerings.presents.client.Communicator;
 import com.threerings.presents.server.PresentsDObjectMgr;
-import com.threerings.presents.server.PresentsServer;
 
 import com.threerings.presents.dobj.AttributeChangeListener;
 import com.threerings.presents.dobj.AttributeChangedEvent;
@@ -42,7 +41,6 @@ import com.threerings.presents.dobj.Subscriber;
 
 import com.threerings.presents.peer.data.NodeObject;
 import com.threerings.presents.peer.net.PeerBootstrapData;
-import com.threerings.presents.peer.net.PeerCreds;
 import com.threerings.presents.peer.server.persist.NodeRecord;
 
 import static com.threerings.presents.Log.log;

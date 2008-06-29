@@ -23,8 +23,6 @@ package com.threerings.presents.peer.server;
 
 import com.samskivert.io.PersistenceException;
 
-import com.samskivert.util.Invoker;
-
 import com.threerings.presents.data.AuthCodes;
 
 import com.threerings.presents.net.AuthRequest;
