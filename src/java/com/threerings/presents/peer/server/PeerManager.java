@@ -27,13 +27,12 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import com.google.common.collect.Maps;
 import com.google.inject.Inject;
+import com.google.inject.Injector;
 
 import com.samskivert.jdbc.RepositoryUnit;
 import com.samskivert.jdbc.WriteOnlyUnit;
@@ -42,16 +41,15 @@ import com.samskivert.util.ArrayIntSet;
 import com.samskivert.util.ChainedResultListener;
 import com.samskivert.util.Interval;
 import com.samskivert.util.Invoker;
-import com.samskivert.util.ObjectUtil;
 import com.samskivert.util.ObserverList;
 import com.samskivert.util.ResultListener;
 import com.samskivert.util.ResultListenerList;
-import com.samskivert.util.StringUtil;
 import com.samskivert.util.Tuple;
 
 import com.threerings.io.Streamable;
 import com.threerings.util.Name;
 
+import com.threerings.presents.annotation.MainInvoker;
 import com.threerings.presents.data.ClientObject;
 import com.threerings.presents.dobj.DObject;
 import com.threerings.presents.dobj.EntryAddedEvent;
@@ -63,7 +61,6 @@ import com.threerings.presents.dobj.Subscriber;
 
 import com.threerings.presents.client.Client;
 import com.threerings.presents.server.ClientManager;
-import com.threerings.presents.server.InvocationException;
 import com.threerings.presents.server.InvocationManager;
 import com.threerings.presents.server.PresentsClient;
 import com.threerings.presents.server.PresentsDObjectMgr;
@@ -72,7 +69,6 @@ import com.threerings.presents.server.net.ConnectionManager;
 
 import com.threerings.presents.peer.data.ClientInfo;
 import com.threerings.presents.peer.data.NodeObject;
-import com.threerings.presents.peer.data.PeerMarshaller;
 import com.threerings.presents.peer.net.PeerCreds;
 import com.threerings.presents.peer.server.persist.NodeRecord;
 import com.threerings.presents.peer.server.persist.NodeRepository;
@@ -197,8 +193,6 @@ public abstract class PeerManager
      * bits, so this should not be called until <em>after</em> the main server has set up its
      * client factory and authenticator.
      *
-     * @param ctx used to communicate with the database.
-     * @param invoker we will perform all database operations on the supplied invoker thread.
      * @param nodeName this node's unique name.
      * @param sharedSecret a shared secret used to allow the peers to authenticate with one
      * another.
@@ -208,11 +202,10 @@ public abstract class PeerManager
      * network than the communication between real clients and the various peer servers).
      * @param port the port on which other nodes should connect to us.
      */
-    public void init (PersistenceContext ctx, Invoker invoker, String nodeName,
-                      String sharedSecret, String hostName, String publicHostName, int port)
+    public void init (Injector injector, String nodeName, String sharedSecret,
+                      String hostName, String publicHostName, int port)
     {
-        _invoker = invoker;
-        _noderepo = new NodeRepository(ctx);
+        _injector = injector;
         _nodeName = nodeName;
         _sharedSecret = sharedSecret;
 
@@ -234,8 +227,7 @@ public abstract class PeerManager
         });
 
         // set the invocation service
-        _nodeobj.setPeerService(
-            (PeerMarshaller)_invmgr.registerDispatcher(new PeerDispatcher(this)));
+        _nodeobj.setPeerService(_invmgr.registerDispatcher(new PeerDispatcher(this)));
 
         // register ourselves as a client observer
         _clmgr.addClientObserver(this);
@@ -352,6 +344,7 @@ public abstract class PeerManager
 
         // invoke the action on our local server if appropriate
         if (action.isApplicable(_nodeobj)) {
+            _injector.injectMembers(action);
             action.invoke();
         }
 
@@ -740,6 +733,7 @@ public abstract class PeerManager
             ObjectInputStream oin =
                 new ObjectInputStream(new ByteArrayInputStream(serializedAction));
             action = (NodeAction)oin.readObject();
+            _injector.injectMembers(action);
             action.invoke();
         } catch (Exception e) {
             log.warning("Failed to execute node action [from=" + caller.who() +
@@ -1192,13 +1186,6 @@ public abstract class PeerManager
         protected Interval _timeout;
     }
 
-    protected String _nodeName, _sharedSecret;
-    protected NodeRecord _self;
-    protected Invoker _invoker;
-    protected NodeRepository _noderepo;
-    protected NodeObject _nodeobj;
-    protected HashMap<String,PeerNode> _peers = new HashMap<String,PeerNode>();
-
     // (this need not use a runqueue as all it will do is post an invoker unit)
     protected Interval _peerRefresher = new Interval() {
         public void expired () {
@@ -1206,28 +1193,36 @@ public abstract class PeerManager
         }
     };
 
+    protected String _nodeName, _sharedSecret;
+    protected NodeRecord _self;
+    protected NodeObject _nodeobj;
+    protected Map<String,PeerNode> _peers = Maps.newHashMap();
+
+    /** Used to resolve dependencies in unserialized {@link NodeAction} instances. */
+    protected Injector _injector;
+
     /** The client oids of all peers subscribed to the node object. */
     protected ArrayIntSet _suboids = new ArrayIntSet();
 
     /** Contains a mapping of proxied objects to subscriber instances. */
-    protected HashMap<Tuple<String,Integer>,Tuple<Subscriber<?>,DObject>> _proxies =
-        Maps.newHashMap();
+    protected Map<Tuple<String,Integer>,Tuple<Subscriber<?>,DObject>> _proxies = Maps.newHashMap();
 
     /** Our stale cache observers. */
-    protected HashMap<String, ObserverList<StaleCacheObserver>> _cacheobs = Maps.newHashMap();
+    protected Map<String, ObserverList<StaleCacheObserver>> _cacheobs = Maps.newHashMap();
 
     /** Listeners for dropped locks. */
-    protected ObserverList<DroppedLockObserver> _dropobs =
-        new ObserverList<DroppedLockObserver>(ObserverList.FAST_UNSAFE_NOTIFY);
+    protected ObserverList<DroppedLockObserver> _dropobs = ObserverList.newFastUnsafe();
 
     /** Locks in the process of resolution. */
-    protected HashMap<NodeObject.Lock, LockHandler> _locks = Maps.newHashMap();
+    protected Map<NodeObject.Lock, LockHandler> _locks = Maps.newHashMap();
 
     // our service dependencies
     @Inject protected ConnectionManager _conmgr;
     @Inject protected ClientManager _clmgr;
     @Inject protected PresentsDObjectMgr _omgr;
     @Inject protected InvocationManager _invmgr;
+    @Inject protected @MainInvoker Invoker _invoker;
+    @Inject protected NodeRepository _noderepo;
 
     /** We wait this long for peer ratification to complete before acquiring/releasing the lock. */
     protected static final long LOCK_TIMEOUT = 5000L;
