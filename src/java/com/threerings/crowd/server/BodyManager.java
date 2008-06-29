@@ -24,9 +24,7 @@ package com.threerings.crowd.server;
 import com.google.inject.Inject;
 
 import com.threerings.presents.data.ClientObject;
-import com.threerings.presents.server.InvocationException;
 import com.threerings.presents.server.InvocationManager;
-import com.threerings.presents.server.InvocationProvider;
 
 import com.threerings.crowd.data.BodyObject;
 import com.threerings.crowd.data.CrowdCodes;
@@ -68,8 +66,7 @@ public class BodyManager
      */
     public void updateOccupantInfo (BodyObject body, Place location, OccupantInfoOp occop)
     {
-        PlaceManager pmgr = (location == null) ? null :
-            CrowdServer.plreg.getPlaceManager(location.placeOid);
+        PlaceManager pmgr = (location == null) ? null : _plreg.getPlaceManager(location.placeOid);
         if (pmgr == null) {
             return;
         }
@@ -120,4 +117,7 @@ public class BodyManager
         log.debug("Setting user idle state [user=" + bobj.username + ", status=" + nstatus + "].");
         updateOccupantStatus(bobj, bobj.location, nstatus);
     }
+
+    /** Provides access to place managers. */
+    @Inject protected PlaceRegistry _plreg;
 }

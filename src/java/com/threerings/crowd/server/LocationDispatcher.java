@@ -24,14 +24,13 @@ package com.threerings.crowd.server;
 import com.threerings.crowd.client.LocationService;
 import com.threerings.crowd.data.LocationMarshaller;
 import com.threerings.presents.data.ClientObject;
-import com.threerings.presents.data.InvocationMarshaller;
 import com.threerings.presents.server.InvocationDispatcher;
 import com.threerings.presents.server.InvocationException;
 
 /**
  * Dispatches requests to the {@link LocationProvider}.
  */
-public class LocationDispatcher extends InvocationDispatcher
+public class LocationDispatcher extends InvocationDispatcher<LocationMarshaller>
 {
     /**
      * Creates a dispatcher that may be registered to dispatch invocation
@@ -43,7 +42,7 @@ public class LocationDispatcher extends InvocationDispatcher
     }
 
     @Override // documentation inherited
-    public InvocationMarshaller createMarshaller ()
+    public LocationMarshaller createMarshaller ()
     {
         return new LocationMarshaller();
     }

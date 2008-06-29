@@ -21,8 +21,6 @@
 
 package com.threerings.crowd.client;
 
-import java.util.Iterator;
-
 import com.samskivert.util.ObserverList;
 import com.threerings.util.Name;
 
@@ -37,7 +35,6 @@ import com.threerings.crowd.data.OccupantInfo;
 import com.threerings.crowd.data.PlaceObject;
 import com.threerings.crowd.util.CrowdContext;
 
-import static com.threerings.crowd.Log.log;
 
 /**
  * The occupant director listens for occupants of places to enter and

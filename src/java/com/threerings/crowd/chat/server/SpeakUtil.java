@@ -30,14 +30,11 @@ import com.google.common.collect.Maps;
 import com.samskivert.util.ObserverList;
 import com.threerings.util.Name;
 
-import com.threerings.presents.data.ClientObject;
 import com.threerings.presents.dobj.DObject;
 import com.threerings.presents.dobj.RootDObjectManager;
-import com.threerings.presents.server.InvocationProvider;
 
 import com.threerings.crowd.data.BodyObject;
 
-import com.threerings.crowd.chat.client.SpeakService;
 import com.threerings.crowd.chat.data.ChatCodes;
 import com.threerings.crowd.chat.data.ChatMessage;
 import com.threerings.crowd.chat.data.SpeakObject;

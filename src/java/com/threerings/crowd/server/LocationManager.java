@@ -30,7 +30,6 @@ import com.threerings.presents.dobj.RootDObjectManager;
 import com.threerings.presents.server.ClientManager;
 import com.threerings.presents.server.InvocationException;
 import com.threerings.presents.server.InvocationManager;
-import com.threerings.presents.server.InvocationProvider;
 import com.threerings.presents.server.PresentsClient;
 
 import com.threerings.crowd.client.LocationService;
@@ -40,7 +39,6 @@ import com.threerings.crowd.data.LocationCodes;
 import com.threerings.crowd.data.Place;
 import com.threerings.crowd.data.PlaceConfig;
 import com.threerings.crowd.data.PlaceObject;
-import com.threerings.crowd.server.CrowdServer;
 
 import static com.threerings.crowd.Log.log;
 

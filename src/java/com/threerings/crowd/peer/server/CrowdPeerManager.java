@@ -37,14 +37,12 @@ import com.threerings.presents.peer.server.PeerManager;
 import com.threerings.presents.peer.server.PeerNode;
 
 import com.threerings.crowd.chat.client.ChatService;
-import com.threerings.crowd.chat.data.ChatMessage;
 import com.threerings.crowd.chat.data.UserMessage;
 import com.threerings.crowd.chat.server.ChatProvider;
 import com.threerings.crowd.data.BodyObject;
 
 import com.threerings.crowd.peer.data.CrowdClientInfo;
 import com.threerings.crowd.peer.data.CrowdNodeObject;
-import com.threerings.crowd.peer.data.CrowdPeerMarshaller;
 
 /**
  * Extends the standard peer manager and bridges certain Crowd services.
@@ -148,8 +146,7 @@ public class CrowdPeerManager extends PeerManager
 
         // register and initialize our invocation service
         CrowdNodeObject cnobj = (CrowdNodeObject)_nodeobj;
-        cnobj.setCrowdPeerService(
-            (CrowdPeerMarshaller)_invmgr.registerDispatcher(new CrowdPeerDispatcher(this)));
+        cnobj.setCrowdPeerService(_invmgr.registerDispatcher(new CrowdPeerDispatcher(this)));
 
         // register ourselves as a chat forwarder
         _chatprov.setChatForwarder(this);

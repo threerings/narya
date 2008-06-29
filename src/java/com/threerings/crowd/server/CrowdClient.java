@@ -21,13 +21,13 @@
 
 package com.threerings.crowd.server;
 
-import com.threerings.presents.dobj.AccessController;
+import com.google.inject.Inject;
+
 import com.threerings.presents.server.PresentsClient;
 
 import com.threerings.crowd.chat.server.SpeakUtil;
 import com.threerings.crowd.data.BodyObject;
 import com.threerings.crowd.data.OccupantInfo;
-import com.threerings.crowd.server.CrowdServer;
 
 /**
  * The crowd client extends the presents client with crowd-specific client handling.
@@ -42,7 +42,7 @@ public class CrowdClient extends PresentsClient
         if (_clobj != null) {
             // note that the user is disconnected
             BodyObject bobj = (BodyObject)_clobj;
-            CrowdServer.bodyman.updateOccupantStatus(bobj, bobj.location, OccupantInfo.DISCONNECTED);
+            _bodyman.updateOccupantStatus(bobj, bobj.location, OccupantInfo.DISCONNECTED);
         }
     }
 
@@ -53,7 +53,7 @@ public class CrowdClient extends PresentsClient
 
         // note that the user's active once more
         BodyObject bobj = (BodyObject)_clobj;
-        CrowdServer.bodyman.updateOccupantStatus(bobj, bobj.location, OccupantInfo.ACTIVE);
+        _bodyman.updateOccupantStatus(bobj, bobj.location, OccupantInfo.ACTIVE);
     }
 
     // documentation inherited
@@ -68,7 +68,7 @@ public class CrowdClient extends PresentsClient
 
         // reset our status in case this object remains around until they start their next session
         // (which could happen very soon)
-        CrowdServer.bodyman.updateOccupantStatus(body, null, OccupantInfo.ACTIVE);
+        _bodyman.updateOccupantStatus(body, null, OccupantInfo.ACTIVE);
 
         // clear our chat history
         if (body != null) {
@@ -84,6 +84,9 @@ public class CrowdClient extends PresentsClient
      */
     protected void clearLocation (BodyObject bobj)
     {
-        CrowdServer.locman.leaveOccupiedPlace(bobj);
+        _locman.leaveOccupiedPlace(bobj);
     }
+
+    @Inject protected BodyManager _bodyman;
+    @Inject protected LocationManager _locman;
 }

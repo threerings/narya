@@ -32,7 +32,6 @@ import com.threerings.util.Name;
 import com.threerings.crowd.util.CrowdContext;
 
 import com.threerings.presents.client.BasicDirector;
-import com.threerings.presents.client.Client;
 
 /**
  * Manages the mutelist.

@@ -23,14 +23,13 @@ package com.threerings.crowd.server;
 
 import com.threerings.crowd.data.BodyMarshaller;
 import com.threerings.presents.data.ClientObject;
-import com.threerings.presents.data.InvocationMarshaller;
 import com.threerings.presents.server.InvocationDispatcher;
 import com.threerings.presents.server.InvocationException;
 
 /**
  * Dispatches requests to the {@link BodyProvider}.
  */
-public class BodyDispatcher extends InvocationDispatcher
+public class BodyDispatcher extends InvocationDispatcher<BodyMarshaller>
 {
     /**
      * Creates a dispatcher that may be registered to dispatch invocation
@@ -42,7 +41,7 @@ public class BodyDispatcher extends InvocationDispatcher
     }
 
     @Override // documentation inherited
-    public InvocationMarshaller createMarshaller ()
+    public BodyMarshaller createMarshaller ()
     {
         return new BodyMarshaller();
     }

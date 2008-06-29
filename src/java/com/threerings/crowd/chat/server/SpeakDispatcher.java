@@ -23,14 +23,13 @@ package com.threerings.crowd.chat.server;
 
 import com.threerings.crowd.chat.data.SpeakMarshaller;
 import com.threerings.presents.data.ClientObject;
-import com.threerings.presents.data.InvocationMarshaller;
 import com.threerings.presents.server.InvocationDispatcher;
 import com.threerings.presents.server.InvocationException;
 
 /**
  * Dispatches requests to the {@link SpeakProvider}.
  */
-public class SpeakDispatcher extends InvocationDispatcher
+public class SpeakDispatcher extends InvocationDispatcher<SpeakMarshaller>
 {
     /**
      * Creates a dispatcher that may be registered to dispatch invocation
@@ -42,7 +41,7 @@ public class SpeakDispatcher extends InvocationDispatcher
     }
 
     @Override // documentation inherited
-    public InvocationMarshaller createMarshaller ()
+    public SpeakMarshaller createMarshaller ()
     {
         return new SpeakMarshaller();
     }

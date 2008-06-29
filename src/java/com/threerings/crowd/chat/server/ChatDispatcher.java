@@ -25,7 +25,6 @@ import com.threerings.crowd.chat.client.ChatService;
 import com.threerings.crowd.chat.data.ChatMarshaller;
 import com.threerings.presents.client.InvocationService;
 import com.threerings.presents.data.ClientObject;
-import com.threerings.presents.data.InvocationMarshaller;
 import com.threerings.presents.server.InvocationDispatcher;
 import com.threerings.presents.server.InvocationException;
 import com.threerings.util.Name;
@@ -33,7 +32,7 @@ import com.threerings.util.Name;
 /**
  * Dispatches requests to the {@link ChatProvider}.
  */
-public class ChatDispatcher extends InvocationDispatcher
+public class ChatDispatcher extends InvocationDispatcher<ChatMarshaller>
 {
     /**
      * Creates a dispatcher that may be registered to dispatch invocation
@@ -45,7 +44,7 @@ public class ChatDispatcher extends InvocationDispatcher
     }
 
     @Override // documentation inherited
-    public InvocationMarshaller createMarshaller ()
+    public ChatMarshaller createMarshaller ()
     {
         return new ChatMarshaller();
     }
