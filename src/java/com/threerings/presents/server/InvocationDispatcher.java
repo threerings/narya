@@ -29,25 +29,23 @@ import com.threerings.presents.data.InvocationMarshaller;
 import static com.threerings.presents.Log.log;
 
 /**
- * Provides the base class via which invocation service requests are
- * dispatched.
+ * Provides the base class via which invocation service requests are dispatched.
  */
-public abstract class InvocationDispatcher
+public abstract class InvocationDispatcher<T extends InvocationMarshaller>
 {
     /** The invocation provider for whom we're dispatching. */
     public InvocationProvider provider;
 
     /**
-     * Creates an instance of the appropriate {@link InvocationMarshaller}
-     * derived class for use with this dispatcher.
+     * Creates an instance of the appropriate {@link InvocationMarshaller} derived class for use
+     * with this dispatcher.
      */
-    public abstract InvocationMarshaller createMarshaller ();
+    public abstract T createMarshaller ();
 
     /**
      * Dispatches the specified method to our provider.
      */
-    public void dispatchRequest (
-        ClientObject source, int methodId, Object[] args)
+    public void dispatchRequest (ClientObject source, int methodId, Object[] args)
         throws InvocationException
     {
         log.warning("Requested to dispatch unknown method " +

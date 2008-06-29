@@ -29,7 +29,7 @@ import com.threerings.presents.data.TimeBaseMarshaller;
 /**
  * Dispatches requests to the {@link TimeBaseProvider}.
  */
-public class TimeBaseDispatcher extends InvocationDispatcher
+public class TimeBaseDispatcher extends InvocationDispatcher<TimeBaseMarshaller>
 {
     /**
      * Creates a dispatcher that may be registered to dispatch invocation
@@ -41,7 +41,7 @@ public class TimeBaseDispatcher extends InvocationDispatcher
     }
 
     @Override // documentation inherited
-    public InvocationMarshaller createMarshaller ()
+    public TimeBaseMarshaller createMarshaller ()
     {
         return new TimeBaseMarshaller();
     }

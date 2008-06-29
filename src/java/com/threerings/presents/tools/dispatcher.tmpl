@@ -7,7 +7,7 @@ import $import;
 /**
  * Dispatches requests to the {@link ${name}Provider}.
  */
-public class ${name}Dispatcher extends InvocationDispatcher
+public class ${name}Dispatcher extends InvocationDispatcher<${name}Marshaller>
 {
     /**
      * Creates a dispatcher that may be registered to dispatch invocation
@@ -19,7 +19,7 @@ public class ${name}Dispatcher extends InvocationDispatcher
     }
 
     @Override // documentation inherited
-    public InvocationMarshaller createMarshaller ()
+    public ${name}Marshaller createMarshaller ()
     {
         return new ${name}Marshaller();
     }

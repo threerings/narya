@@ -23,7 +23,6 @@ package com.threerings.presents.peer.data;
 
 import com.threerings.presents.client.Client;
 import com.threerings.presents.data.InvocationMarshaller;
-import com.threerings.presents.net.Transport;
 import com.threerings.presents.peer.client.PeerService;
 
 /**

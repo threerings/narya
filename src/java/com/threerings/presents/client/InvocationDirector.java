@@ -33,7 +33,6 @@ import com.threerings.presents.data.ClientObject;
 import com.threerings.presents.data.InvocationMarshaller.ListenerMarshaller;
 
 import com.threerings.presents.dobj.DEvent;
-import com.threerings.presents.dobj.DObject;
 import com.threerings.presents.dobj.DObjectManager;
 import com.threerings.presents.dobj.DSet;
 import com.threerings.presents.dobj.EventListener;

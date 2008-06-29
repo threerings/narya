@@ -102,7 +102,7 @@ public class InvocationManager
      *
      * @param dispatcher the dispatcher to be registered.
      */
-    public InvocationMarshaller registerDispatcher (InvocationDispatcher dispatcher)
+    public <T extends InvocationMarshaller> T registerDispatcher (InvocationDispatcher<T> dispatcher)
     {
         return registerDispatcher(dispatcher, null);
     }
@@ -110,8 +110,8 @@ public class InvocationManager
     /**
      * @Deprecated use {@link #registerDispatcher(InvocationDispatcher)}.
      */
-    public InvocationMarshaller registerDispatcher (
-        InvocationDispatcher dispatcher, boolean bootstrap)
+    public <T extends InvocationMarshaller> T registerDispatcher (
+        InvocationDispatcher<T> dispatcher, boolean bootstrap)
     {
         return registerDispatcher(dispatcher, null);
     }
@@ -126,13 +126,14 @@ public class InvocationManager
      * groups. You must collect shared dispatchers into as fine grained a set of groups as
      * necessary and have different types of clients specify the list of groups they need.
      */
-    public InvocationMarshaller registerDispatcher (InvocationDispatcher dispatcher, String group)
+    public <T extends InvocationMarshaller> T registerDispatcher (
+        InvocationDispatcher<T> dispatcher, String group)
     {
         // get the next invocation code
         int invCode = nextInvCode();
 
         // create the marshaller and initialize it
-        InvocationMarshaller marsh = dispatcher.createMarshaller();
+        T marsh = dispatcher.createMarshaller();
         marsh.init(_invoid, invCode);
 
         // register the dispatcher

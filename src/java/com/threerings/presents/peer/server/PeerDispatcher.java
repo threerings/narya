@@ -22,7 +22,6 @@
 package com.threerings.presents.peer.server;
 
 import com.threerings.presents.data.ClientObject;
-import com.threerings.presents.data.InvocationMarshaller;
 import com.threerings.presents.peer.data.NodeObject;
 import com.threerings.presents.peer.data.PeerMarshaller;
 import com.threerings.presents.server.InvocationDispatcher;
@@ -31,7 +30,7 @@ import com.threerings.presents.server.InvocationException;
 /**
  * Dispatches requests to the {@link PeerProvider}.
  */
-public class PeerDispatcher extends InvocationDispatcher
+public class PeerDispatcher extends InvocationDispatcher<PeerMarshaller>
 {
     /**
      * Creates a dispatcher that may be registered to dispatch invocation
@@ -43,7 +42,7 @@ public class PeerDispatcher extends InvocationDispatcher
     }
 
     @Override // documentation inherited
-    public InvocationMarshaller createMarshaller ()
+    public PeerMarshaller createMarshaller ()
     {
         return new PeerMarshaller();
     }
