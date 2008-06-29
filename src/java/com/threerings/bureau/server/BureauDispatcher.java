@@ -30,7 +30,7 @@ import com.threerings.presents.server.InvocationException;
 /**
  * Dispatches requests to the {@link BureauProvider}.
  */
-public class BureauDispatcher extends InvocationDispatcher
+public class BureauDispatcher extends InvocationDispatcher<BureauMarshaller>
 {
     /**
      * Creates a dispatcher that may be registered to dispatch invocation
@@ -42,7 +42,7 @@ public class BureauDispatcher extends InvocationDispatcher
     }
 
     @Override // documentation inherited
-    public InvocationMarshaller createMarshaller ()
+    public BureauMarshaller createMarshaller ()
     {
         return new BureauMarshaller();
     }
