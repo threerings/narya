@@ -2,7 +2,7 @@
 // $Id$
 //
 // Narya library - tools for developing networked games
-// Copyright (C) 2002-2006 Three Rings Design, Inc., All Rights Reserved
+// Copyright (C) 2002-2008 Three Rings Design, Inc., All Rights Reserved
 // http://www.threerings.net/code/narya/
 //
 // This library is free software; you can redistribute it and/or modify it
@@ -25,14 +25,12 @@ import com.threerings.presents.client.TestService;
 import com.threerings.presents.data.ClientObject;
 import com.threerings.presents.data.InvocationMarshaller;
 import com.threerings.presents.data.TestMarshaller;
-import com.threerings.presents.server.InvocationDispatcher;
-import com.threerings.presents.server.InvocationException;
 import java.util.ArrayList;
 
 /**
  * Dispatches requests to the {@link TestProvider}.
  */
-public class TestDispatcher extends InvocationDispatcher
+public class TestDispatcher extends InvocationDispatcher<TestMarshaller>
 {
     /**
      * Creates a dispatcher that may be registered to dispatch invocation
@@ -43,13 +41,14 @@ public class TestDispatcher extends InvocationDispatcher
         this.provider = provider;
     }
 
-    // documentation inherited
-    public InvocationMarshaller createMarshaller ()
+    @Override // documentation inherited
+    public TestMarshaller createMarshaller ()
     {
         return new TestMarshaller();
     }
 
-    @SuppressWarnings("unchecked") // documentation inherited
+    @SuppressWarnings("unchecked")
+    @Override // documentation inherited
     public void dispatchRequest (
         ClientObject source, int methodId, Object[] args)
         throws InvocationException

@@ -2,7 +2,7 @@
 // $Id$
 //
 // Narya library - tools for developing networked games
-// Copyright (C) 2002-2006 Three Rings Design, Inc., All Rights Reserved
+// Copyright (C) 2002-2008 Three Rings Design, Inc., All Rights Reserved
 // http://www.threerings.net/code/narya/
 //
 // This library is free software; you can redistribute it and/or modify it
@@ -23,8 +23,8 @@ package com.threerings.presents.data;
 
 import com.threerings.presents.client.Client;
 import com.threerings.presents.client.TestService;
-import com.threerings.presents.data.InvocationMarshaller;
 import com.threerings.presents.dobj.InvocationResponseEvent;
+import com.threerings.presents.net.Transport;
 import java.util.ArrayList;
 
 /**
@@ -37,7 +37,9 @@ import java.util.ArrayList;
 public class TestMarshaller extends InvocationMarshaller
     implements TestService
 {
-    // documentation inherited
+    /**
+     * Marshalls results to implementations of {@link TestFuncListener}.
+     */
     public static class TestFuncMarshaller extends ListenerMarshaller
         implements TestFuncListener
     {
@@ -45,16 +47,16 @@ public class TestMarshaller extends InvocationMarshaller
          * responses. */
         public static final int TEST_SUCCEEDED = 1;
 
-        // documentation inherited from interface
+        // from interface TestFuncMarshaller
         public void testSucceeded (String arg1, int arg2)
         {
             _invId = null;
             omgr.postEvent(new InvocationResponseEvent(
                                callerOid, requestId, TEST_SUCCEEDED,
-                               new Object[] { arg1, Integer.valueOf(arg2) }));
+                               new Object[] { arg1, Integer.valueOf(arg2) }, transport));
         }
 
-        // documentation inherited
+        @Override // from InvocationMarshaller
         public void dispatchResponse (int methodId, Object[] args)
         {
             switch (methodId) {
@@ -70,7 +72,9 @@ public class TestMarshaller extends InvocationMarshaller
         }
     }
 
-    // documentation inherited
+    /**
+     * Marshalls results to implementations of {@link TestOidListener}.
+     */
     public static class TestOidMarshaller extends ListenerMarshaller
         implements TestOidListener
     {
@@ -78,16 +82,16 @@ public class TestMarshaller extends InvocationMarshaller
          * responses. */
         public static final int GOT_TEST_OID = 1;
 
-        // documentation inherited from interface
+        // from interface TestOidMarshaller
         public void gotTestOid (int arg1)
         {
             _invId = null;
             omgr.postEvent(new InvocationResponseEvent(
                                callerOid, requestId, GOT_TEST_OID,
-                               new Object[] { Integer.valueOf(arg1) }));
+                               new Object[] { Integer.valueOf(arg1) }, transport));
         }
 
-        // documentation inherited
+        @Override // from InvocationMarshaller
         public void dispatchResponse (int methodId, Object[] args)
         {
             switch (methodId) {
@@ -106,7 +110,7 @@ public class TestMarshaller extends InvocationMarshaller
     /** The method id used to dispatch {@link #getTestOid} requests. */
     public static final int GET_TEST_OID = 1;
 
-    // documentation inherited from interface
+    // from interface TestService
     public void getTestOid (Client arg1, TestService.TestOidListener arg2)
     {
         TestMarshaller.TestOidMarshaller listener2 = new TestMarshaller.TestOidMarshaller();
@@ -119,7 +123,7 @@ public class TestMarshaller extends InvocationMarshaller
     /** The method id used to dispatch {@link #test} requests. */
     public static final int TEST = 2;
 
-    // documentation inherited from interface
+    // from interface TestService
     public void test (Client arg1, String arg2, int arg3, ArrayList<java.lang.Integer> arg4, TestService.TestFuncListener arg5)
     {
         TestMarshaller.TestFuncMarshaller listener5 = new TestMarshaller.TestFuncMarshaller();
@@ -128,5 +132,4 @@ public class TestMarshaller extends InvocationMarshaller
             arg2, Integer.valueOf(arg3), arg4, listener5
         });
     }
-
 }

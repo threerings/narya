@@ -22,7 +22,9 @@
 package com.threerings.bureau.server;
 
 import com.google.inject.Guice;
+import com.google.inject.Inject;
 import com.google.inject.Injector;
+import com.google.inject.Singleton;
 
 import com.threerings.presents.server.PresentsServer;
 
@@ -31,13 +33,9 @@ import static com.threerings.bureau.Log.log;
 /**
  * Extends a presents server to include a bureau registry.
  */
+@Singleton
 public class TestServer extends PresentsServer
 {
-    /**
-     * The bureau registry for the server. Will be null until <code>init</code> is called.
-     */
-    public static BureauRegistry breg;
-
     /**
      * Creates a new server and runs it.
      */
@@ -47,7 +45,7 @@ public class TestServer extends PresentsServer
         TestServer server = injector.getInstance(TestServer.class);
         try {
             server.init(injector);
-            setClientTarget("bureau-runclient");
+            server.setClientTarget("bureau-runclient");
             server.run();
 
         } catch (Exception e) {
@@ -55,38 +53,34 @@ public class TestServer extends PresentsServer
         }
     }
 
+    public static BureauRegistry.CommandGenerator antCommandGenerator (final String target)
+    {
+        return new BureauRegistry.CommandGenerator() {
+            public String[] createCommand (String serverNameAndPort, String bureauId, String token) {
+                int colon = serverNameAndPort.indexOf(':');
+                return new String[] {
+                    "ant",
+                    "-DserverName=" + serverNameAndPort.substring(0, colon),
+                    "-DserverPort=" + serverNameAndPort.substring(colon + 1),
+                    "-DbureauId=" + bureauId,
+                    "-Dtoken=" + token,
+                    target };
+            }
+        };
+    }
+
     @Override // from PresentsServer
     public void init (Injector injector)
         throws Exception
     {
         super.init(injector);
-        breg = new BureauRegistry("localhost:47624", _invmgr, _omgr, _invoker);
+        _bureauReg.init("localhost:47624");
     }
-    
-    public static void setClientTarget (String target)
-    {
-        breg.setCommandGenerator("test", antCommandGenerator(target));
-    }
-    
-    public static BureauRegistry.CommandGenerator antCommandGenerator (
-        final String target)
-    {
-        return new BureauRegistry.CommandGenerator() {
-            public String[] createCommand (
-                String serverNameAndPort, 
-                String bureauId, 
-                String token) {
-                
-                int colon = serverNameAndPort.indexOf(':');
-                String [] cmd = {"ant", 
-                    "-DserverName=" + serverNameAndPort.substring(0, colon),
-                    "-DserverPort=" + serverNameAndPort.substring(colon + 1),
-                    "-DbureauId=" + bureauId,
-                    "-Dtoken=" + token,
-                    target};
 
-                return cmd;
-            }
-        };        
+    public void setClientTarget (String target)
+    {
+        _bureauReg.setCommandGenerator("test", antCommandGenerator(target));
     }
+
+    @Inject protected BureauRegistry _bureauReg;
 }

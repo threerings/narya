@@ -114,7 +114,7 @@ public class RegistryTester
      */
     public void start ()
     {
-        TestServer.setClientTarget(_clientTarget);
+        _server.setClientTarget(_clientTarget);
 
         Thread thread = new Thread("Registry test thread") {
             public void run () {
@@ -181,7 +181,7 @@ public class RegistryTester
         _omgr.postRunnable(new Runnable() {
             public void run () {
                 for (AgentObject obj : _agents) {
-                    TestServer.breg.destroyAgent(obj);
+                    _bureauReg.destroyAgent(obj);
                 }
             }
         });
@@ -197,7 +197,7 @@ public class RegistryTester
             (size != 0 && _rng1.nextInt(100) >= _createChance)) {
             AgentObject toRemove = _agents.remove(_rng1.nextInt(size));
             log.info("Removing agent " + toRemove.getOid());
-            TestServer.breg.destroyAgent(toRemove);
+            _bureauReg.destroyAgent(toRemove);
         }
         else {
             AgentObject added = create(_rng1.nextInt(_numBureaus) + 1);
@@ -214,11 +214,12 @@ public class RegistryTester
         AgentObject obj = new AgentObject();
         obj.bureauType = "test";
         obj.bureauId = "test-" + bureau;
-        TestServer.breg.startAgent(obj);
+        _bureauReg.startAgent(obj);
         return obj;
     }
 
     @Inject protected RootDObjectManager _omgr;
+    @Inject protected BureauRegistry _bureauReg;
 
     protected TestServer _server;
     protected boolean _stop;
