@@ -25,7 +25,6 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 
 import javax.swing.BorderFactory;
-import javax.swing.JPanel;
 
 import com.samskivert.swing.ScrollablePanel;
 import com.samskivert.swing.VGroupLayout;

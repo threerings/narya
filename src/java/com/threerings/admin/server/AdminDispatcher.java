@@ -24,14 +24,13 @@ package com.threerings.admin.server;
 import com.threerings.admin.client.AdminService;
 import com.threerings.admin.data.AdminMarshaller;
 import com.threerings.presents.data.ClientObject;
-import com.threerings.presents.data.InvocationMarshaller;
 import com.threerings.presents.server.InvocationDispatcher;
 import com.threerings.presents.server.InvocationException;
 
 /**
  * Dispatches requests to the {@link AdminProvider}.
  */
-public class AdminDispatcher extends InvocationDispatcher
+public class AdminDispatcher extends InvocationDispatcher<AdminMarshaller>
 {
     /**
      * Creates a dispatcher that may be registered to dispatch invocation
@@ -43,7 +42,7 @@ public class AdminDispatcher extends InvocationDispatcher
     }
 
     @Override // documentation inherited
-    public InvocationMarshaller createMarshaller ()
+    public AdminMarshaller createMarshaller ()
     {
         return new AdminMarshaller();
     }

@@ -31,11 +31,9 @@ import java.lang.reflect.Field;
 import javax.swing.BorderFactory;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JTextField;
 
 import com.samskivert.swing.HGroupLayout;
 import com.samskivert.util.ObjectUtil;
-import com.samskivert.util.StringUtil;
 
 import com.threerings.presents.dobj.AttributeChangeListener;
 import com.threerings.presents.dobj.AttributeChangedEvent;

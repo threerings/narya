@@ -23,11 +23,8 @@ package com.threerings.admin.client;
 
 import java.util.HashMap;
 
-import com.samskivert.util.StringUtil;
-
 import com.threerings.presents.client.Client;
 import com.threerings.presents.client.ClientAdapter;
-import com.threerings.presents.dobj.DObject;
 import com.threerings.presents.dobj.DObjectManager;
 import com.threerings.presents.dobj.ObjectAccessException;
 import com.threerings.presents.dobj.Subscriber;

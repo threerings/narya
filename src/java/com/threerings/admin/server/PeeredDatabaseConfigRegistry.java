@@ -29,7 +29,6 @@ import com.samskivert.io.PersistenceException;
 import com.samskivert.jdbc.depot.PersistenceContext;
 import com.samskivert.util.Invoker;
 
-import com.threerings.io.SimpleStreamableObject;
 import com.threerings.io.Streamable;
 import com.threerings.util.StreamableTuple;
 

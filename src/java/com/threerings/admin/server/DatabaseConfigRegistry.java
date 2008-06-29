@@ -89,7 +89,6 @@ public class DatabaseConfigRegistry extends ConfigRegistry
         this(ctx, invoker, node, false);
     }
 
-
     /**
      * Creates a configuration registry and prepares it for operation.
      *

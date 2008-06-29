@@ -78,7 +78,6 @@ public class ConfigRecord extends PersistentRecord
     @Column(name="VALUE", type="TEXT")
     public String value;
 
-
     /**
      * An empty constructor for unmarshalling.
      */
