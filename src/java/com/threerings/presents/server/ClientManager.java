@@ -468,8 +468,7 @@ public class ClientManager
 
         // sanity check just because we can
         if (rc == null) {
-            log.warning("Unregistered client ended session " + client + ".");
-            Thread.dumpStack();
+            log.warning("Unregistered client ended session " + client + ".", new Exception());
         } else if (rc != client) {
             log.warning("Different clients with same username!? " +
                         "[c1=" + rc + ", c2=" + client + "].");
