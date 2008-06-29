@@ -26,12 +26,14 @@ import java.util.Set;
 
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
 import com.samskivert.util.StringUtil;
 import com.samskivert.util.Invoker;
 import com.samskivert.util.ProcessLogger;
 
+import com.threerings.presents.annotation.MainInvoker;
 import com.threerings.presents.data.ClientObject;
 import com.threerings.presents.dobj.ObjectDeathListener;
 import com.threerings.presents.dobj.ObjectDestroyedEvent;
@@ -90,20 +92,11 @@ public class BureauRegistry
     }
 
     /**
-     * Creates a new registry, prepared to provide bureau services.
+     * Creates an uninitialized registry.
      */
-    public BureauRegistry (
-        String serverNameAndPort,
-        InvocationManager invmgr,
-        RootDObjectManager omgr,
-        Invoker invoker)
+    @Inject public BureauRegistry (InvocationManager invmgr)
     {
-        _serverNameAndPort = serverNameAndPort;
-        _invmgr = invmgr;
-        _omgr = omgr;
-        _invoker = invoker;
-
-        BureauProvider provider = new BureauProvider () {
+        invmgr.registerDispatcher(new BureauDispatcher(new BureauProvider () {
             public void bureauInitialized (ClientObject client, String bureauId) {
                 BureauRegistry.this.bureauInitialized(client, bureauId);
             }
@@ -116,11 +109,15 @@ public class BureauRegistry
             public void agentDestroyed (ClientObject client, int agentId) {
                 BureauRegistry.this.agentDestroyed(client, agentId);
             }
-        };
+        }), BureauCodes.BUREAU_GROUP);
+    }
 
-        _invmgr.registerDispatcher(
-            new BureauDispatcher(provider),
-            BureauCodes.BUREAU_GROUP);
+    /**
+     * Provides the Bureau registry with necessary runtime configuration.
+     */
+    public void init (String serverNameAndPort)
+    {
+        _serverNameAndPort = serverNameAndPort;
     }
 
     /**
@@ -621,9 +618,9 @@ public class BureauRegistry
     }
 
     protected String _serverNameAndPort;
-    protected InvocationManager _invmgr;
-    protected RootDObjectManager _omgr;
-    protected Invoker _invoker;
     protected Map<String, CommandGenerator> _generators = Maps.newHashMap();
     protected Map<String, Bureau> _bureaus = Maps.newHashMap();
+
+    @Inject protected RootDObjectManager _omgr;
+    @Inject protected @MainInvoker Invoker _invoker;
 }
