@@ -28,7 +28,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import com.samskivert.util.HashIntMap;
 import com.samskivert.util.StringUtil;
 
 import static com.threerings.NaryaLog.log;

@@ -22,7 +22,6 @@
 package com.threerings.util;
 
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 
 import com.samskivert.util.Tuple;

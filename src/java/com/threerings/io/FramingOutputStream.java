@@ -21,9 +21,6 @@
 
 package com.threerings.io;
 
-import java.io.OutputStream;
-
-import java.nio.BufferOverflowException;
 import java.nio.ByteBuffer;
 
 /**

@@ -28,16 +28,13 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 
 import java.security.AccessController;
-import java.security.PrivilegedAction;
 import java.security.PrivilegedExceptionAction;
 import java.security.PrivilegedActionException;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.HashMap;
 
 import com.samskivert.util.ClassUtil;
-import com.samskivert.util.StringUtil;
 
 import static com.threerings.NaryaLog.log;
 
