@@ -139,6 +139,23 @@ public class PresentsServer
     }
 
     /**
+     * Starts up all of the server services and enters the main server event loop.
+     */
+    public void run ()
+    {
+        // post a unit that will start up the connection manager when everything else in the
+        // dobjmgr queue is processed
+        _omgr.postRunnable(new Runnable() {
+            public void run () {
+                // start up the connection manager
+                _conmgr.start();
+            }
+        });
+        // invoke the dobjmgr event loop
+        _omgr.run();
+    }
+
+    /**
      * Defines the default object access policy for all {@link DObject} instances. The default
      * default policy is to allow all subscribers but reject all modifications by the client.
      */
@@ -161,23 +178,6 @@ public class PresentsServer
     protected int[] getDatagramPorts ()
     {
         return Client.DEFAULT_DATAGRAM_PORTS;
-    }
-
-    /**
-     * Starts up all of the server services and enters the main server event loop.
-     */
-    public void run ()
-    {
-        // post a unit that will start up the connection manager when everything else in the
-        // dobjmgr queue is processed
-        _omgr.postRunnable(new Runnable() {
-            public void run () {
-                // start up the connection manager
-                _conmgr.start();
-            }
-        });
-        // invoke the dobjmgr event loop
-        _omgr.run();
     }
 
     /**
