@@ -23,9 +23,10 @@ package com.threerings.presents.server;
 
 import java.io.IOException;
 import java.net.InetAddress;
-import java.util.HashMap;
+import java.util.Map;
 import java.util.TimeZone;
 
+import com.google.common.collect.Maps;
 import com.google.inject.Inject;
 import com.samskivert.util.HashIntMap;
 import com.samskivert.util.ResultListener;
@@ -1026,8 +1027,7 @@ public class PresentsClient
     protected int _messagesDropped;
 
     /** A mapping of message dispatchers. */
-    protected static HashMap<Class<?>,MessageDispatcher> _disps =
-        new HashMap<Class<?>,MessageDispatcher>();
+    protected static Map<Class<?>,MessageDispatcher> _disps = Maps.newHashMap();
 
     /** The amount of time after disconnection a user is allowed before their session is forcibly
      * ended. */
