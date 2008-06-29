@@ -21,7 +21,6 @@
 
 package com.threerings.presents.net;
 
-import java.io.EOFException;
 import java.io.IOException;
 import java.util.TimeZone;
 

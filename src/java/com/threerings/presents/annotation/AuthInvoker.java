@@ -28,8 +28,6 @@ import java.lang.annotation.Target;
 
 import com.google.inject.BindingAnnotation;
 
-import com.samskivert.util.Invoker;
-
 /**
  * An annotation that identifies the invoker on which we do client authentication. This would
  * generally only be used to bind the auth invoker to a different invoker than the default (which

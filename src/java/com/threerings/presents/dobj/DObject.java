@@ -21,20 +21,16 @@
 
 package com.threerings.presents.dobj;
 
-import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap;
 
-import org.apache.commons.lang.StringUtils;
-
 import com.samskivert.util.ListUtil;
 import com.samskivert.util.StringUtil;
 
 import com.threerings.io.Streamable;
-import com.threerings.util.TrackedObject;
 
 import com.threerings.presents.net.Transport;
 

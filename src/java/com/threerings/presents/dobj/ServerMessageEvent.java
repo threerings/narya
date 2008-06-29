@@ -21,8 +21,6 @@
 
 package com.threerings.presents.dobj;
 
-import com.samskivert.util.StringUtil;
-
 /**
  * A message event that only goes to the server. If generated on the server then it never leaves
  * the server.
