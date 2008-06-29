@@ -25,6 +25,9 @@ import java.sql.Timestamp;
 import java.util.List;
 import java.util.Set;
 
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
+
 import com.samskivert.io.PersistenceException;
 import com.samskivert.jdbc.depot.DepotRepository;
 import com.samskivert.jdbc.depot.PersistenceContext;
@@ -33,12 +36,13 @@ import com.samskivert.jdbc.depot.PersistentRecord;
 /**
  * Used to share information on active nodes in a Presents server cluster.
  */
+@Singleton
 public class NodeRepository extends DepotRepository
 {
     /**
      * Constructs a new repository with the specified persistence context.
      */
-    public NodeRepository (PersistenceContext ctx)
+    @Inject public NodeRepository (PersistenceContext ctx)
     {
         super(ctx);
     }
