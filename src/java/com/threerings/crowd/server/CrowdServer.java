@@ -59,33 +59,6 @@ public class CrowdServer extends PresentsServer
         }
     }
 
-    /** OBSOLETE! Don't use me. */
-    public static PlaceRegistry plreg;
-
-    /** OBSOLETE! Don't use me. */
-    public static ChatProvider chatprov;
-
-    /** OBSOLETE! Don't use me. */
-    public static BodyManager bodyman;
-
-    /** OBSOLETE! Don't use me. */
-    public static LocationManager locman;
-
-    /** OBSOLETE! Don't use me. */
-    public static ConnectionManager conmgr;
-
-    /** OBSOLETE! Don't use me. */
-    public static ClientManager clmgr;
-
-    /** OBSOLETE! Don't use me. */
-    public static PresentsDObjectMgr omgr;
-
-    /** OBSOLETE! Don't use me. */
-    public static InvocationManager invmgr;
-
-    /** OBSOLETE! Don't use me. */
-    public static Invoker invoker;
-
     /**
      * Initializes all of the server services and prepares for operation.
      */
@@ -93,17 +66,6 @@ public class CrowdServer extends PresentsServer
         throws Exception
     {
         super.init(injector);
-
-        // LEGACY: set up our legacy static references
-        conmgr = _conmgr;
-        clmgr = _clmgr;
-        omgr = _omgr;
-        invmgr = _invmgr;
-        invoker = _invoker;
-        plreg = _plreg;
-        chatprov = _chatprov;
-        bodyman = _bodyman;
-        locman = _locman;
 
         // configure the client manager to use our bits
         _clmgr.setClientFactory(new ClientFactory() {
