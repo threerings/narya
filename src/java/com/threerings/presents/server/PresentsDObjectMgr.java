@@ -276,6 +276,30 @@ public class PresentsDObjectMgr
     }
 
     /**
+     * Ensures that the calling thread is the distributed object event dispatch thread, throwing an
+     * {@link IllegalStateException} if it is not.
+     */
+    public void requireEventThread ()
+    {
+        if (!isDispatchThread()) {
+            String errmsg = "This method must be called on the dobj event thread.";
+            throw new IllegalStateException(errmsg);
+        }
+    }
+
+    /**
+     * Ensures that the calling thread <em>is not</em> the distributed object event dispatch
+     * thread, throwing an {@link IllegalStateException} if it is.
+     */
+    public void refuseEventThread ()
+    {
+        if (isDispatchThread()) {
+            String errmsg = "This method must not be called on the dobj event thread.";
+            throw new IllegalStateException(errmsg);
+        }
+    }
+
+    /**
      * Runs the dobjmgr event loop until it is requested to exit. This should be called from the
      * main application thread.
      */
