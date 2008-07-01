@@ -21,10 +21,10 @@
 
 package com.threerings.util {
 
+import com.threerings.util.env.Environment;
+
 import flash.utils.ByteArray;
 import flash.utils.Dictionary;
-
-import com.threerings.util.env.Environment;
 
 public class StringUtil
 {
@@ -237,7 +237,7 @@ public class StringUtil
     }
 
     /**
-     * Utility function that strips whitespace from the ends of a String.
+     * Utility function that strips whitespace from the beginning and end of a String.
      */
     public static function trim (str :String) :String
     {
@@ -254,6 +254,19 @@ public class StringUtil
         } else {
             return "";
         }
+    }
+
+    /**
+     * Utility function that strips whitespace from the end of a String.
+     */
+    public static function trimEnd (str :String) :String
+    {
+        var endIdx :int = str.length - 1;
+        while (isWhitespace(str.charAt(endIdx))) {
+            endIdx--;
+        }
+
+        return (endIdx >= 0 ? str.slice(0, endIdx + 1) : "");
     }
 
     /**
@@ -493,7 +506,7 @@ public class StringUtil
             str += "\n";
         }
         return str;
-        
+
     }
 
 
