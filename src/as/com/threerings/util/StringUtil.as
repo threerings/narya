@@ -241,19 +241,23 @@ public class StringUtil
      */
     public static function trim (str :String) :String
     {
+        return trimEnd(trimBeginning(str));
+    }
+
+    /**
+     * Utility function that strips whitespace from the beginning of a String.
+     */
+    public static function trimBeginning (str :String) :String
+    {
         var startIdx :int = 0;
-        var endIdx :int = str.length - 1;
+        // this works because charAt() with an invalid index returns "", which is not whitespace
         while (isWhitespace(str.charAt(startIdx))) {
             startIdx++;
         }
-        while (endIdx > startIdx && isWhitespace(str.charAt(endIdx))) {
-            endIdx--;
-        }
-        if (endIdx >= startIdx) {
-            return str.slice(startIdx, endIdx + 1);
-        } else {
-            return "";
-        }
+
+        // TODO: is this optimization necessary? It's possible that str.slice() does the same
+        // check and just returns 'str' if it's the full length
+        return (startIdx > 0) ? str.slice(startIdx, str.length) : str;
     }
 
     /**
@@ -261,12 +265,15 @@ public class StringUtil
      */
     public static function trimEnd (str :String) :String
     {
-        var endIdx :int = str.length - 1;
-        while (isWhitespace(str.charAt(endIdx))) {
+        var endIdx :int = str.length;
+        // this works because charAt() with an invalid index returns "", which is not whitespace
+        while (isWhitespace(str.charAt(endIdx - 1))) {
             endIdx--;
         }
 
-        return (endIdx >= 0 ? str.slice(0, endIdx + 1) : "");
+        // TODO: is this optimization necessary? It's possible that str.slice() does the same
+        // check and just returns 'str' if it's the full length
+        return (endIdx < str.length) ? str.slice(0, endIdx) : str;
     }
 
     /**
