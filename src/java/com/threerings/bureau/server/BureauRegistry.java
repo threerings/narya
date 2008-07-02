@@ -23,6 +23,7 @@ package com.threerings.bureau.server;
 
 import java.util.Map;
 import java.util.Set;
+import java.io.IOException;
 
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
@@ -54,41 +55,38 @@ import static com.threerings.bureau.Log.log;
 public class BureauRegistry
 {
     /**
-     * Defines the commands that are responsible for invoking a bureau. Instances are associated to
-     * bureau types by the server on startup. The instances are used whenever the registry needs to
-     * launch a bureau for an agent with the assocated bureau type.
-     * @see setCommandGenerator
+     * Defines how a bureau is launched. Instances are associated to bureau types by the server on 
+     * startup. The instances are used whenever the registry needs to launch a bureau for an agent 
+     * with the assocated bureau type.
+     */
+    public static interface Launcher
+    {
+        /**
+         * Kicks off a new bureau. This method will always be called on the unit invocation
+         * thread since it may do extensive I/O.
+         * @param bureauId the id of the bureau being launched
+         * @param token the secret string for the bureau to use in its credentials
+         */
+        void launchBureau (String bureauId, String token)
+            throws IOException;
+    }
+
+    /**
+     * Defines how to generate a command to launch a bureau in a local process.
+     * @see #setCommandGenerator
+     * @see Launcher
      */
     public static interface CommandGenerator
     {
         /**
-         * Launches a new bureau using the given server connect-back url and other information.
-         * Called by the registry when it decides a new bureau is needed.
-         * @param serverNameAndPort the name and port the bureau should use to connect back to the
-         * server, e.g. server.com:47624
+         * Creates the command line to launch a new bureau using the given information.
+         * Called by the registry when a new bureau is needed whose type was registered
+         * with <code>setCommandGenerator</code>.
          * @param bureauId the id of the bureau being launched
          * @param token the token string to use for the credentials when logging in
-         * @return the builder, ready to launch
+         * @return command line arguments, including executable name
          */
-        String[] createCommand (
-            String serverNameAndPort,
-            String bureauId,
-            String token);
-    }
-
-    /**
-     * Thrown when a bureau could not be authenticated.
-     */
-    public static class AuthenticationException extends Exception
-    {
-        /** 
-         * Creates a new authentication exception with a message explaining why the client could 
-         * not be authenticated as a bureau.
-         */
-        public AuthenticationException (String message)
-        {
-            super(message);
-        }
+        String[] createCommand (String bureauId, String token);
     }
 
     /**
@@ -115,9 +113,8 @@ public class BureauRegistry
     /**
      * Provides the Bureau registry with necessary runtime configuration.
      */
-    public void init (String serverNameAndPort)
+    public void init ()
     {
-        _serverNameAndPort = serverNameAndPort;
     }
 
     /**
@@ -150,15 +147,43 @@ public class BureauRegistry
      * @param bureauType the type of bureau that will be launched
      * @param cmdGenerator the generator to be used for bureaus of <code>bureauType</code>
      */
-    public void setCommandGenerator (String bureauType, CommandGenerator cmdGenerator)
+    public void setCommandGenerator (
+        String bureauType, 
+        final CommandGenerator cmdGenerator)
     {
-        if (_generators.get(bureauType) != null) {
-            log.warning("Generator for type already exists [type=" +
+        setLauncher(bureauType, new Launcher () {
+            public void launchBureau (String bureauId, String token) 
+                throws IOException {
+                ProcessBuilder builder = new ProcessBuilder(
+                    cmdGenerator.createCommand(bureauId, token));
+                builder.redirectErrorStream(true);
+                Process process = builder.start();
+                // log the output of the process and prefix with bureau id
+                ProcessLogger.copyMergedOutput(log, bureauId, process);
+            }
+
+            public String toString () {
+                return "DefaultLauncher for " + cmdGenerator;
+            }
+        });
+    }
+
+    /**
+     * Registers a launcher for a given type. When an agent is started and no bureaus are
+     * running, the <code>bureauType</code> is used to determine the <code>Launcher</code>
+     * instance to call.
+     * @param bureauType the type of bureau that will be launched
+     * @param launcher the launcher to be used for bureaus of <code>bureauType</code>
+     */
+    public void setLauncher (String bureauType, Launcher launcher)
+    {
+        if (_launchers.get(bureauType) != null) {
+            log.warning("Launcher for type already exists [type=" +
                 bureauType + "]");
             return;
         }
 
-        _generators.put(bureauType, cmdGenerator);
+        _launchers.put(bureauType, launcher);
     }
 
     /**
@@ -184,29 +209,24 @@ public class BureauRegistry
 
         if (bureau == null) {
 
-            CommandGenerator generator = _generators.get(agent.bureauType);
-            if (generator == null) {
-                log.warning("CommandGenerator not found for agent's " +
+            Launcher launcher = _launchers.get(agent.bureauType);
+            if (launcher == null) {
+                log.warning("Launcher not found for agent's " +
                        "bureau type " + StringUtil.toString(agent));
                 return;
             }
 
             log.info("Creating new bureau " +
                 StringUtil.toString(agent.bureauId) + " " +
-                StringUtil.toString(generator));
+                StringUtil.toString(launcher));
 
             bureau = new Bureau();
             bureau.bureauId = agent.bureauId;
             bureau.token = generateToken(bureau.bureauId);
 
-            // schedule the bureau to be kicked off
-            bureau.builder = new ProcessBuilder(
-                generator.createCommand(
-                    _serverNameAndPort, agent.bureauId, bureau.token));
+            bureau.launcher = launcher;
 
-            bureau.builder.redirectErrorStream(true);
-
-            _invoker.postUnit(new Launcher(bureau));
+            _invoker.postUnit(new LauncherUnit(bureau));
 
             _bureaus.put(agent.bureauId, bureau);
         }
@@ -473,32 +493,30 @@ public class BureauRegistry
     /**
      * Invoker unit to launch a bureau's process, then assign the result on the main thread.
      */
-    protected static class Launcher extends Invoker.Unit
+    protected static class LauncherUnit extends Invoker.Unit
     {
-        Launcher (Bureau bureau)
+        LauncherUnit (Bureau bureau)
         {
-            super("Launcher for " + bureau +
-                StringUtil.toString(bureau.builder.command()));
+            super("LauncherUnit for " + bureau + ": " + 
+                StringUtil.toString(bureau.launcher));
             _bureau = bureau;
         }
 
         public boolean invoke ()
         {
             try {
-                _result = _bureau.builder.start();
-                // log the output of the process and prefix with bureau id
-                ProcessLogger.copyMergedOutput(log, _bureau.bureauId, _result);
+                _bureau.launch();
 
             } catch (Exception e) {
-                log.warning("Could not launch process", "bureau", _bureau, e);
+                log.warning("Could not launch bureau", e);
             }
             return true;
         }
 
         public void handleResult ()
         {
-            _bureau.process = _result;
-            _bureau.builder = null;
+            _bureau.launched = true;
+            _bureau.launcher = null;
             log.info("Bureau launched", "bureau", _bureau);
         }
 
@@ -552,11 +570,11 @@ public class BureauRegistry
 
         // }
 
-        // non-null once the bureau is kicked off
-        Process process;
-
         // non-null once the bureau is scheduled but not yet kicked off
-        ProcessBuilder builder;
+        Launcher launcher;
+
+        // non-null once the bureau is kicked off
+        boolean launched;
 
         // The token given to this bureau for authentication
         String token;
@@ -582,7 +600,8 @@ public class BureauRegistry
             else {
                 builder.append(clientObj.getOid());
             }
-            builder.append(", process=").append(process);
+            builder.append(", launcher=").append(launcher);
+            builder.append(", launched=").append(launched);
             builder.append(", totalAgents=").append(agentStates.size());
             agentSummary(builder.append(", ")).append("]");
             return builder.toString();
@@ -615,10 +634,15 @@ public class BureauRegistry
             agentSummary(str).append("]");
             log.info(str.toString());
         }
+
+        void launch ()
+            throws IOException
+        {
+            launcher.launchBureau(bureauId, token);
+        }
     }
 
-    protected String _serverNameAndPort;
-    protected Map<String, CommandGenerator> _generators = Maps.newHashMap();
+    protected Map<String, Launcher> _launchers = Maps.newHashMap();
     protected Map<String, Bureau> _bureaus = Maps.newHashMap();
 
     @Inject protected RootDObjectManager _omgr;

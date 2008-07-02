@@ -231,6 +231,7 @@
       <arg value="${deploy.dir}/${lib.name}lib.swc"/>
     </java>
     <delete file="${deploy.dir}/aslib-config.xml"/>
+    <delete file="${deploy.dir}/thane-config.xml"/>
   </target>
 
   <!-- build the native libraries -->

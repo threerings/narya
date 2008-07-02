@@ -56,12 +56,11 @@ public class TestServer extends PresentsServer
     public static BureauRegistry.CommandGenerator antCommandGenerator (final String target)
     {
         return new BureauRegistry.CommandGenerator() {
-            public String[] createCommand (String serverNameAndPort, String bureauId, String token) {
-                int colon = serverNameAndPort.indexOf(':');
+            public String[] createCommand (String bureauId, String token) {
                 return new String[] {
                     "ant",
-                    "-DserverName=" + serverNameAndPort.substring(0, colon),
-                    "-DserverPort=" + serverNameAndPort.substring(colon + 1),
+                    "-DserverName=localhost",
+                    "-DserverPort=47624",
                     "-DbureauId=" + bureauId,
                     "-Dtoken=" + token,
                     target };
@@ -74,7 +73,7 @@ public class TestServer extends PresentsServer
         throws Exception
     {
         super.init(injector);
-        _bureauReg.init("localhost:47624");
+        _bureauReg.init();
     }
 
     public void setClientTarget (String target)
