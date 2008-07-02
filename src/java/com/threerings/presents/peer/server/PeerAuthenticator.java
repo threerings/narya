@@ -71,5 +71,4 @@ public class PeerAuthenticator extends ChainedAuthenticator
     }
 
     protected PeerManager _peermgr;
-    protected Authenticator _delegate;
 }
