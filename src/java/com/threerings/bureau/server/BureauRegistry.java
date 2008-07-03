@@ -39,6 +39,7 @@ import com.threerings.presents.data.ClientObject;
 import com.threerings.presents.dobj.ObjectDeathListener;
 import com.threerings.presents.dobj.ObjectDestroyedEvent;
 import com.threerings.presents.dobj.RootDObjectManager;
+import com.threerings.presents.server.ClientManager;
 import com.threerings.presents.server.InvocationManager;
 
 import com.threerings.bureau.data.AgentObject;
@@ -115,6 +116,16 @@ public class BureauRegistry
      */
     public void init ()
     {
+    }
+
+    /**
+     * Install the bureau client factory in the manager, delegating to the current factory
+     * for non-bureau connections.
+     */
+    public void addClientFactory (ClientManager clmgr)
+    {
+        clmgr.setClientFactory(
+            new BureauClientFactory(clmgr.getClientFactory()));
     }
 
     /**
