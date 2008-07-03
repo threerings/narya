@@ -41,17 +41,15 @@ public abstract class CurseFilter implements ChatFilter
     public enum Mode { DROP, COMIC, VERNACULAR, UNFILTERED; }
 
     /**
-     * Creates a curse filter. The curse words should be a string in the
-     * following format:
+     * Creates a curse filter. The curse words should be a string in the following format:
      *
      * <pre>
      * *penis*=John_Thomas shit*=barnacle muff=britches
      * </pre>
      *
-     * The key/value pairs are separated by spaces, * matches word characters
-     * and the value after the = is the string into which to convert the text
-     * when converting to the vernacular. Underscores in the target string will
-     * be turned into spaces.
+     * The key/value pairs are separated by spaces, * matches word characters and the value after
+     * the = is the string into which to convert the text when converting to the vernacular.
+     * Underscores in the target string will be turned into spaces.
      *
      * <p> And stopWords should be in the following format:
      *
@@ -68,8 +66,7 @@ public abstract class CurseFilter implements ChatFilter
     }
 
     /**
-     * The client will need to provide a way to look up our current chat filter
-     * mode.
+     * The client will need to provide a way to look up our current chat filter mode.
      */
     public abstract Mode getFilterMode ();
 
@@ -106,10 +103,10 @@ public abstract class CurseFilter implements ChatFilter
 
                 case VERNACULAR:
                     String vernacular = _vernacular[ii];
-                    if (Character.isUpperCase(m.group(2).charAt(0))) {
-                        vernacular = new String(
-                            Character.toUpperCase(vernacular.charAt(0)) +
-                            vernacular.substring(1));
+                    if (Character.isUpperCase(m.group(2).codePointAt(0))) {
+                        int firstCharLen = Character.charCount(vernacular.codePointAt(0));
+                        vernacular = vernacular.substring(0, firstCharLen).toUpperCase() +
+                                     vernacular.substring(firstCharLen);
                     }
                     m.appendReplacement(outbuf, 
                         StringUtil.replace(_replacements[ii], " ", vernacular));
@@ -150,8 +147,8 @@ public abstract class CurseFilter implements ChatFilter
             String mapping = st.nextToken();
             StringTokenizer st2 = new StringTokenizer(mapping, "=");
             if (st2.countTokens() != 2) {
-                log.warning("Something looks wrong in the x.cursewords " +
-                    "properties (" + mapping + "), skipping.");
+                log.warning("Something looks wrong in the x.cursewords properties (" + 
+                    mapping + "), skipping.");
                 continue;
             }
             String curse = st2.nextToken();
@@ -173,8 +170,7 @@ public abstract class CurseFilter implements ChatFilter
                 s += "$3";
             }
 
-            String pattern = "\\b" +
-                StringUtil.replace(p, " ", "(" + curse + ")") + "\\b";
+            String pattern = "\\b" + StringUtil.replace(p, " ", "(" + curse + ")") + "\\b";
             Pattern pat = Pattern.compile(pattern, Pattern.CASE_INSENSITIVE);
             _matchers[ii] = pat.matcher("");
             _replacements[ii] = s;
@@ -219,8 +215,7 @@ public abstract class CurseFilter implements ChatFilter
         return buf.toString();
     }
 
-    /** A matcher that will always cause a message to be dropped if it
-     * matches. */
+    /** A matcher that will always cause a message to be dropped if it matches. */
     protected Matcher _stopMatcher;
 
     /** Matchers for each curseword. */
