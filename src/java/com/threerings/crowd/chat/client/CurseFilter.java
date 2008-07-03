@@ -97,8 +97,7 @@ public abstract class CurseFilter implements ChatFilter
 
                 case COMIC: default:
                     m.appendReplacement(outbuf,
-                        StringUtil.replace(_replacements[ii], " ", 
-                            comicChars(_comicLength[ii])));
+                        StringUtil.replace(_replacements[ii], " ",  comicChars(_comicLength[ii])));
                     break;
 
                 case VERNACULAR:
@@ -171,11 +170,11 @@ public abstract class CurseFilter implements ChatFilter
             }
 
             String pattern = "\\b" + StringUtil.replace(p, " ", "(" + curse + ")") + "\\b";
-            Pattern pat = Pattern.compile(pattern, Pattern.CASE_INSENSITIVE);
+            Pattern pat = Pattern.compile(pattern, Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE);
             _matchers[ii] = pat.matcher("");
             _replacements[ii] = s;
             _vernacular[ii] = st2.nextToken().replace('_', ' ');
-            _comicLength[ii] = curse.length();
+            _comicLength[ii] = curse.codePointCount(0, curse.length());
         }
     }
 
@@ -193,8 +192,7 @@ public abstract class CurseFilter implements ChatFilter
             } else {
                 pattern += "|";
             }
-            pattern += "\\b" +
-                StringUtil.replace(st.nextToken(), "*", "[A-Za-z]*") + "\\b";
+            pattern += "\\b" + StringUtil.replace(st.nextToken(), "*", "[A-Za-z]*") + "\\b";
         }
         pattern += ").*";
 
