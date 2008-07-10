@@ -21,8 +21,6 @@
 
 package com.threerings.util {
 
-import flash.system.ApplicationDomain;
-
 import flash.utils.describeType;
 import flash.utils.getQualifiedClassName;
 import flash.utils.getDefinitionByName;
@@ -64,9 +62,9 @@ public class ClassUtil
      * Return a new instance that is the same class as the specified
      * object. The class must have a zero-arg constructor.
      */
-    public static function newInstance (obj :Object, appDom :ApplicationDomain = null) :Object
+    public static function newInstance (obj :Object) :Object
     {
-        var clazz :Class = getClass(obj, appDom);
+        var clazz :Class = getClass(obj);
         return new clazz();
     }
 
@@ -75,26 +73,18 @@ public class ClassUtil
         return (getQualifiedClassName(obj1) == getQualifiedClassName(obj2));
     }
 
-    public static function getClass (obj :Object, appDom :ApplicationDomain = null) :Class
+    public static function getClass (obj :Object) :Class
     {
-        return getClassByName(getQualifiedClassName(obj), appDom);
+        if (obj.constructor is Class) {
+            return Class(obj.constructor);
+        }
+        return getClassByName(getQualifiedClassName(obj));
     }
 
-    public static function getClassByName (cname :String, appDom :ApplicationDomain = null) :Class
+    public static function getClassByName (cname :String) :Class
     {
         try {
-            cname = cname.replace("::", ".");
-            if (appDom != null) {
-                try {
-                    var c :Class = appDom.getDefinition(cname) as Class;
-                    if (c != null) {
-                        return c;
-                    }
-                } catch (err :Error) {
-                    // fall through
-                }
-            }
-            return (getDefinitionByName(cname) as Class);
+            return (getDefinitionByName(cname.replace("::", ".")) as Class);
 
         } catch (error :ReferenceError) {
             var log :Log = Log.getLog(ClassUtil);
