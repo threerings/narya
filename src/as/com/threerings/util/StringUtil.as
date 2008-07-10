@@ -45,7 +45,7 @@ public class StringUtil
     }
 
     /**
-     * Is the specified string null or does it contain only whitespace?
+     * Is the specified string null, empty, or does it contain only whitespace?
      */
     public static function isBlank (str :String) :Boolean
     {
