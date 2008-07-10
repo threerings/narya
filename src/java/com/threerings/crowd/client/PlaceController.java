@@ -222,6 +222,7 @@ public abstract class PlaceController extends Controller
      */
     protected void addDelegate (PlaceControllerDelegate delegate)
     {
+        ratifyDelegate(delegate);
         if (_delegates == null) {
             _delegates = new ArrayList<PlaceControllerDelegate>();
         }
@@ -264,6 +265,14 @@ public abstract class PlaceController extends Controller
                 }
             }
         }
+    }
+
+    /**
+     * Protects against programmer error.
+     */
+    protected void ratifyDelegate (PlaceControllerDelegate delegate)
+    {
+        // nothing to do here, all PlaceControllerDelegates are safe for us
     }
 
     /** A reference to the active client context. */

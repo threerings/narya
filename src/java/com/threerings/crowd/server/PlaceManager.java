@@ -198,6 +198,7 @@ public class PlaceManager
      */
     public void addDelegate (PlaceManagerDelegate delegate)
     {
+        ratifyDelegate(delegate);
         if (_delegates == null) {
             _delegates = Lists.newArrayList();
         }
@@ -673,6 +674,14 @@ public class PlaceManager
     protected long idleUnloadPeriod ()
     {
         return 5 * 60 * 1000L;
+    }
+
+    /**
+     * Protects against programmer error.
+     */
+    protected void ratifyDelegate (PlaceManagerDelegate delegate)
+    {
+        // nothing to do here, all PlaceManagerDelegates are safe for us
     }
 
     /**
