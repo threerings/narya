@@ -38,6 +38,25 @@ import com.threerings.crowd.util.CrowdContext;
 public abstract class PlaceController extends Controller
 {
     /**
+     * Used to call methods in delegates.
+     */
+    public static abstract class DelegateOp
+    {
+        public DelegateOp (Class<? extends PlaceControllerDelegate> delegateClass) {
+            _delegateClass = delegateClass;
+        }
+
+        /** Applies an operation to the supplied delegate. */
+        public abstract void apply (PlaceControllerDelegate delegate);
+
+        public boolean shouldApply (PlaceControllerDelegate delegate) {
+            return _delegateClass.isInstance(delegate);
+        }
+
+        protected Class<? extends PlaceControllerDelegate> _delegateClass;
+    }
+
+    /**
      * Initializes this place controller with a reference to the context
      * that they can use to access client services and to the
      * configuration record for this place. The controller should create
@@ -60,7 +79,7 @@ public abstract class PlaceController extends Controller
         _view = createPlaceView(_ctx);
 
         // initialize our delegates
-        applyToDelegates(new DelegateOp() {
+        applyToDelegates(new DelegateOp(PlaceControllerDelegate.class) {
             public void apply (PlaceControllerDelegate delegate) {
                 delegate.init(_ctx, _config);
             }
@@ -142,7 +161,7 @@ public abstract class PlaceController extends Controller
         }
 
         // let our delegates know what's up 
-        applyToDelegates(new DelegateOp() {
+        applyToDelegates(new DelegateOp(PlaceControllerDelegate.class) {
             public void apply (PlaceControllerDelegate delegate) {
                 delegate.willEnterPlace(plobj);
             }
@@ -163,7 +182,7 @@ public abstract class PlaceController extends Controller
     public void mayLeavePlace (final PlaceObject plobj)
     {
         // let our delegates know what's up 
-        applyToDelegates(new DelegateOp() {
+        applyToDelegates(new DelegateOp(PlaceControllerDelegate.class) {
             public void apply (PlaceControllerDelegate delegate) {
                 delegate.mayLeavePlace(plobj);
             }
@@ -180,7 +199,7 @@ public abstract class PlaceController extends Controller
     public void didLeavePlace (final PlaceObject plobj)
     {
         // let our delegates know what's up 
-        applyToDelegates(new DelegateOp() {
+        applyToDelegates(new DelegateOp(PlaceControllerDelegate.class) {
             public void apply (PlaceControllerDelegate delegate) {
                 delegate.didLeavePlace(plobj);
             }
@@ -206,7 +225,7 @@ public abstract class PlaceController extends Controller
         final boolean[] handled = new boolean[1];
 
         // let our delegates have a crack at the action
-        applyToDelegates(new DelegateOp() {
+        applyToDelegates(new DelegateOp(PlaceControllerDelegate.class) {
             public void apply (PlaceControllerDelegate delegate) {
                 // we take advantage of short-circuiting here
                 handled[0] = handled[0] || delegate.handleAction(action);
@@ -222,19 +241,10 @@ public abstract class PlaceController extends Controller
      */
     protected void addDelegate (PlaceControllerDelegate delegate)
     {
-        ratifyDelegate(delegate);
         if (_delegates == null) {
             _delegates = new ArrayList<PlaceControllerDelegate>();
         }
         _delegates.add(delegate);
-    }
-
-    /**
-     * Used to call methods in delegates.
-     */
-    protected static interface DelegateOp
-    {
-        public void apply (PlaceControllerDelegate delegate);
     }
 
     /**
@@ -243,36 +253,13 @@ public abstract class PlaceController extends Controller
     protected void applyToDelegates (DelegateOp op)
     {
         if (_delegates != null) {
-            int dcount = _delegates.size();
-            for (int i = 0; i < dcount; i++) {
-                op.apply(_delegates.get(i));
-            }
-        }
-    }
-
-    /**
-     * Applies the supplied operation to the registered delegates that
-     * derive from the specified class.
-     */
-    protected void applyToDelegates (Class<?> dclass, DelegateOp op)
-    {
-        if (_delegates != null) {
-            int dcount = _delegates.size();
-            for (int i = 0; i < dcount; i++) {
-                PlaceControllerDelegate delegate = _delegates.get(i);
-                if (dclass.isAssignableFrom(delegate.getClass())) {
+            for (int ii = 0, ll = _delegates.size(); ii < ll; ii++) {
+                PlaceControllerDelegate delegate = _delegates.get(ii);
+                if (op.shouldApply(delegate)) {
                     op.apply(delegate);
                 }
             }
         }
-    }
-
-    /**
-     * Protects against programmer error.
-     */
-    protected void ratifyDelegate (PlaceControllerDelegate delegate)
-    {
-        // nothing to do here, all PlaceControllerDelegates are safe for us
     }
 
     /** A reference to the active client context. */

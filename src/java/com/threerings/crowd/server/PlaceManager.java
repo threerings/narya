@@ -99,9 +99,20 @@ public class PlaceManager
     /**
      * Used to call methods on this place manager's delegates.
      */
-    public static interface DelegateOp
+    public static abstract class DelegateOp
     {
-        public void apply (PlaceManagerDelegate delegate);
+        public DelegateOp (Class<? extends PlaceManagerDelegate> delegateClass) {
+            _delegateClass = delegateClass;
+        }
+
+        /** Applies an operation to the supplied delegate. */
+        public abstract void apply (PlaceManagerDelegate delegate);
+
+        public boolean shouldApply (PlaceManagerDelegate delegate) {
+            return _delegateClass.isInstance(delegate);
+        }
+
+        protected Class<? extends PlaceManagerDelegate> _delegateClass;
     }
 
     /**
@@ -143,9 +154,8 @@ public class PlaceManager
     public void applyToOccupants (OccupantOp op)
     {
         if (_plobj != null) {
-            Iterator iter = _plobj.occupantInfo.iterator();
-            while (iter.hasNext()) {
-                op.apply((OccupantInfo)iter.next());
+            for (OccupantInfo info : _plobj.occupantInfo) {
+                op.apply(info);
             }
         }
     }
@@ -183,7 +193,7 @@ public class PlaceManager
         _config = config;
 
         // initialize our delegates
-        applyToDelegates(new DelegateOp() {
+        applyToDelegates(new DelegateOp(PlaceManagerDelegate.class) {
             public void apply (PlaceManagerDelegate delegate) {
                 delegate.init(PlaceManager.this, _omgr, _invmgr);
             }
@@ -198,7 +208,6 @@ public class PlaceManager
      */
     public void addDelegate (PlaceManagerDelegate delegate)
     {
-        ratifyDelegate(delegate);
         if (_delegates == null) {
             _delegates = Lists.newArrayList();
         }
@@ -215,9 +224,11 @@ public class PlaceManager
     public void applyToDelegates (DelegateOp op)
     {
         if (_delegates != null) {
-            int dcount = _delegates.size();
-            for (int i = 0; i < dcount; i++) {
-                op.apply(_delegates.get(i));
+            for (int ii = 0, ll = _delegates.size(); ii < ll; ii++) {
+                PlaceManagerDelegate delegate = _delegates.get(ii);
+                if (op.shouldApply(delegate)) {
+                    op.apply(delegate);
+                }
             }
         }
     }
@@ -472,7 +483,7 @@ public class PlaceManager
     protected void didInit ()
     {
         // initialize our delegates
-        applyToDelegates(new DelegateOp() {
+        applyToDelegates(new DelegateOp(PlaceManagerDelegate.class) {
             public void apply (PlaceManagerDelegate delegate) {
                 delegate.didInit(_config);
             }
@@ -513,7 +524,7 @@ public class PlaceManager
     protected void didStartup ()
     {
         // let our delegates know that we've started up
-        applyToDelegates(new DelegateOp() {
+        applyToDelegates(new DelegateOp(PlaceManagerDelegate.class) {
             public void apply (PlaceManagerDelegate delegate) {
                 delegate.didStartup(_plobj);
             }
@@ -532,7 +543,7 @@ public class PlaceManager
         _plobj.removeListener(_bodyUpdater);
 
         // let our delegates know that we've shut down
-        applyToDelegates(new DelegateOp() {
+        applyToDelegates(new DelegateOp(PlaceManagerDelegate.class) {
             public void apply (PlaceManagerDelegate delegate) {
                 delegate.didShutdown();
             }
@@ -557,7 +568,7 @@ public class PlaceManager
         log.debug("Body entered", "where", where(), "oid", bodyOid);
 
         // let our delegates know what's up
-        applyToDelegates(new DelegateOp() {
+        applyToDelegates(new DelegateOp(PlaceManagerDelegate.class) {
             public void apply (PlaceManagerDelegate delegate) {
                 delegate.bodyEntered(bodyOid);
             }
@@ -585,7 +596,7 @@ public class PlaceManager
         OccupantInfo leaver = _occInfo.remove(bodyOid);
 
         // let our delegates know what's up
-        applyToDelegates(new DelegateOp() {
+        applyToDelegates(new DelegateOp(PlaceManagerDelegate.class) {
             public void apply (PlaceManagerDelegate delegate) {
                 delegate.bodyLeft(bodyOid);
             }
@@ -611,7 +622,7 @@ public class PlaceManager
     protected void bodyUpdated (final OccupantInfo info)
     {
         // let our delegates know what's up
-        applyToDelegates(new DelegateOp() {
+        applyToDelegates(new DelegateOp(PlaceManagerDelegate.class) {
             public void apply (PlaceManagerDelegate delegate) {
                 delegate.bodyUpdated(info);
             }
@@ -626,7 +637,7 @@ public class PlaceManager
     protected void placeBecameEmpty ()
     {
         // let our delegates know what's up
-        applyToDelegates(new DelegateOp() {
+        applyToDelegates(new DelegateOp(PlaceManagerDelegate.class) {
             public void apply (PlaceManagerDelegate delegate) {
                 delegate.placeBecameEmpty();
             }
@@ -674,14 +685,6 @@ public class PlaceManager
     protected long idleUnloadPeriod ()
     {
         return 5 * 60 * 1000L;
-    }
-
-    /**
-     * Protects against programmer error.
-     */
-    protected void ratifyDelegate (PlaceManagerDelegate delegate)
-    {
-        // nothing to do here, all PlaceManagerDelegates are safe for us
     }
 
     /**
