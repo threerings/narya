@@ -176,7 +176,6 @@ public class GenServiceTask extends InvocationTask
         imports.add(sdesc.service);
         imports.add(Client.class);
         imports.add(InvocationMarshaller.class);
-        imports.add(Transport.class);
 
         // if any listeners are to be present, they need the response event
         if (sdesc.listeners.size() > 0) {
@@ -467,7 +466,6 @@ public class GenServiceTask extends InvocationTask
         imports.remove(Client.class);
 
         // add some classes required for all dispatchers
-        imports.add(InvocationMarshaller.class);
         imports.add(InvocationDispatcher.class);
         imports.add(InvocationException.class);
 

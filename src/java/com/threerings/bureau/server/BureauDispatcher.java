@@ -23,7 +23,6 @@ package com.threerings.bureau.server;
 
 import com.threerings.bureau.data.BureauMarshaller;
 import com.threerings.presents.data.ClientObject;
-import com.threerings.presents.data.InvocationMarshaller;
 import com.threerings.presents.server.InvocationDispatcher;
 import com.threerings.presents.server.InvocationException;
 

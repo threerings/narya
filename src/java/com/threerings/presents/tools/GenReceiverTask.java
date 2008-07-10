@@ -111,7 +111,6 @@ public class GenReceiverTask extends InvocationTask
         CollectionUtil.addAll(implist, imports);
         checkedAdd(implist, ClientObject.class.getName());
         checkedAdd(implist, InvocationSender.class.getName());
-        checkedAdd(implist, Transport.class.getName());
         String dname = StringUtil.replace(rname, "Receiver", "Decoder");
         checkedAdd(implist, rpackage + "." + dname);
         implist.sort();
