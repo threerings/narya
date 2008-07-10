@@ -21,6 +21,8 @@
 
 package com.threerings.crowd.data {
 
+import flash.system.ApplicationDomain;
+
 import com.threerings.util.ClassUtil;
 import com.threerings.util.Cloneable;
 import com.threerings.util.Integer;
@@ -98,7 +100,8 @@ public class OccupantInfo extends SimpleStreamableObject
      */
     public function clone () :Object
     {
-        var that :OccupantInfo = ClassUtil.newInstance(this) as OccupantInfo;
+        var that :OccupantInfo =
+            ClassUtil.newInstance(this, ApplicationDomain.currentDomain) as OccupantInfo;
         that.bodyOid = this.bodyOid;
         that.username = this.username;
         that.status = this.status;
