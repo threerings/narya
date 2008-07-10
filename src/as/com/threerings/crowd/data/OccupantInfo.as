@@ -101,7 +101,7 @@ public class OccupantInfo extends SimpleStreamableObject
     public function clone () :Object
     {
         var that :OccupantInfo =
-            ClassUtil.newInstance(this, ApplicationDomain.currentDomain) as OccupantInfo;
+            ClassUtil.newInstance(this) as OccupantInfo;
         that.bodyOid = this.bodyOid;
         that.username = this.username;
         that.status = this.status;
