@@ -52,7 +52,7 @@ public class Util
 
         if (defaults != null) {
             for (prop in defaults) {
-                if (!(prop in initProps)) {
+                if (initProps == null || !(prop in initProps)) {
                     target[prop] = defaults[prop];
                 }
             }
