@@ -36,5 +36,21 @@ public class RandomUtil
         // since we're dealing with floats, it's possible that a rounding error left us here
         return 0; // TODO: largest weighted? Re-pick?
     }
+
+    /**
+     * Picks a random object from the supplied array of values. Even weight is given to all
+     * elements of the array.
+     *
+     * @return a randomly selected item or null if the array is null or of length zero.
+     */
+    public static function pickRandom (values :Array, randomFn :Function = null) :Object
+    {
+        if (values == null || values.length == 0) {
+            return null;
+        } else {
+            var rand :Number = (randomFn == null) ? Math.random() : randomFn();
+            return values[Math.floor(rand * values.length)];
+        }
+    }
 }
 }
