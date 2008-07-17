@@ -724,7 +724,6 @@ public class ChatDirector extends BasicDirector
 
         // if there was an originating speaker, see if we want to hear it
         if (speaker != null) {
-            
             // We pre-translate this message here because we're about to filter it.
             //  And if we filter first, we could end up filtering keys.
             msg.message = xlate(msg.bundle, msg.message);
