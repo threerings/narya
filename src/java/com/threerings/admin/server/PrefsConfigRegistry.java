@@ -51,64 +51,84 @@ public class PrefsConfigRegistry extends ConfigRegistry
             this.config = new PrefsConfig(path);
         }
 
+        @Override
         protected boolean getValue (String field, boolean defval) {
             return config.getValue(field, defval);
         }
+        @Override
         protected short getValue (String field, short defval) {
             return (short)config.getValue(field, defval);
         }
+        @Override
         protected int getValue (String field, int defval) {
             return config.getValue(field, defval);
         }
+        @Override
         protected long getValue (String field, long defval) {
             return config.getValue(field, defval);
         }
+        @Override
         protected float getValue (String field, float defval) {
             return config.getValue(field, defval);
         }
+        @Override
         protected String getValue (String field, String defval) {
             return config.getValue(field, defval);
         }
+        @Override
         protected int[] getValue (String field, int[] defval) {
             return config.getValue(field, defval);
         }
+        @Override
         protected float[] getValue (String field, float[] defval) {
             return config.getValue(field, defval);
         }
+        @Override
         protected long[] getValue (String field, long[] defval) {
             return config.getValue(field, defval);
         }
+        @Override
         protected String[] getValue (String field, String[] defval) {
             return config.getValue(field, defval);
         }
 
+        @Override
         protected void setValue (String field, boolean value) {
             config.setValue(field, value);
         }
+        @Override
         protected void setValue (String field, short value) {
             config.setValue(field, value);
         }
+        @Override
         protected void setValue (String field, int value) {
             config.setValue(field, value);
         }
+        @Override
         protected void setValue (String field, long value) {
             config.setValue(field, value);
         }
+        @Override
         protected void setValue (String field, float value) {
             config.setValue(field, value);
         }
+        @Override
         protected void setValue (String field, String value) {
             config.setValue(field, value);
         }
+        @Override
         protected void setValue (String field, int[] value) {
             config.setValue(field, value);
         }
+        @Override
         protected void setValue (String field, float[] value) {
             config.setValue(field, value);
         }
+        @Override
         protected void setValue (String field, long[] value) {
             config.setValue(field, value);
         }
+        @Override
         protected void setValue (String field, String[] value) {
             config.setValue(field, value);
         }

@@ -141,7 +141,7 @@ public abstract class FieldMarshaller
             _streamer = streamer;
         }
 
-        // documentation inherited
+        @Override
         public void readField (Field field, Object target, ObjectInputStream in)
             throws Exception
         {
@@ -154,7 +154,7 @@ public abstract class FieldMarshaller
             }
         }
 
-        // documentation inherited
+        @Override
         public void writeField (Field field, Object source, ObjectOutputStream out)
             throws Exception
         {
@@ -167,6 +167,7 @@ public abstract class FieldMarshaller
             }
         }
 
+        @Override
         public String toString ()
         {
             return "StreamerMarshaller:" + _streamer.toString();
@@ -187,14 +188,14 @@ public abstract class FieldMarshaller
             _writer = writer;
         }
 
-        // documentation inherited
+        @Override
         public void readField (Field field, Object target, ObjectInputStream in)
             throws Exception
         {
             _reader.invoke(target, in);
         }
 
-        // documentation inherited
+        @Override
         public void writeField (Field field, Object source, ObjectOutputStream out)
             throws Exception
         {
@@ -215,10 +216,12 @@ public abstract class FieldMarshaller
 
         // create a generic marshaller for streamable instances
         FieldMarshaller gmarsh = new FieldMarshaller() {
+            @Override
             public void readField (Field field, Object target, ObjectInputStream in)
                 throws Exception {
                 field.set(target, in.readObject());
             }
+            @Override
             public void writeField (Field field, Object source, ObjectOutputStream out)
                 throws Exception {
                 out.writeObject(field.get(source));
@@ -234,90 +237,108 @@ public abstract class FieldMarshaller
 
         // create marshallers for the primitive types
         _marshallers.put(Boolean.TYPE, new FieldMarshaller() {
+            @Override
             public void readField (Field field, Object target, ObjectInputStream in)
                 throws Exception {
                 field.setBoolean(target, in.readBoolean());
             }
+            @Override
             public void writeField (Field field, Object source, ObjectOutputStream out)
                 throws Exception {
                 out.writeBoolean(field.getBoolean(source));
             }
         });
         _marshallers.put(Byte.TYPE, new FieldMarshaller() {
+            @Override
             public void readField (Field field, Object target, ObjectInputStream in)
                 throws Exception {
                 field.setByte(target, in.readByte());
             }
+            @Override
             public void writeField (Field field, Object source, ObjectOutputStream out)
                 throws Exception {
                 out.writeByte(field.getByte(source));
             }
         });
         _marshallers.put(Character.TYPE, new FieldMarshaller() {
+            @Override
             public void readField (Field field, Object target, ObjectInputStream in)
                 throws Exception {
                 field.setChar(target, in.readChar());
             }
+            @Override
             public void writeField (Field field, Object source, ObjectOutputStream out)
                 throws Exception {
                 out.writeChar(field.getChar(source));
             }
         });
         _marshallers.put(Short.TYPE, new FieldMarshaller() {
+            @Override
             public void readField (Field field, Object target, ObjectInputStream in)
                 throws Exception {
                 field.setShort(target, in.readShort());
             }
+            @Override
             public void writeField (Field field, Object source, ObjectOutputStream out)
                 throws Exception {
                 out.writeShort(field.getShort(source));
             }
         });
         _marshallers.put(Integer.TYPE, new FieldMarshaller() {
+            @Override
             public void readField (Field field, Object target, ObjectInputStream in)
                 throws Exception {
                 field.setInt(target, in.readInt());
             }
+            @Override
             public void writeField (Field field, Object source, ObjectOutputStream out)
                 throws Exception {
                 out.writeInt(field.getInt(source));
             }
         });
         _marshallers.put(Long.TYPE, new FieldMarshaller() {
+            @Override
             public void readField (Field field, Object target, ObjectInputStream in)
                 throws Exception {
                 field.setLong(target, in.readLong());
             }
+            @Override
             public void writeField (Field field, Object source, ObjectOutputStream out)
                 throws Exception {
                 out.writeLong(field.getLong(source));
             }
         });
         _marshallers.put(Float.TYPE, new FieldMarshaller() {
+            @Override
             public void readField (Field field, Object target, ObjectInputStream in)
                 throws Exception {
                 field.setFloat(target, in.readFloat());
             }
+            @Override
             public void writeField (Field field, Object source, ObjectOutputStream out)
                 throws Exception {
                 out.writeFloat(field.getFloat(source));
             }
         });
         _marshallers.put(Double.TYPE, new FieldMarshaller() {
+            @Override
             public void readField (Field field, Object target, ObjectInputStream in)
                 throws Exception {
                 field.setDouble(target, in.readDouble());
             }
+            @Override
             public void writeField (Field field, Object source, ObjectOutputStream out)
                 throws Exception {
                 out.writeDouble(field.getDouble(source));
             }
         });
         _marshallers.put(Date.class, new FieldMarshaller() {
+            @Override
             public void readField (Field field, Object target, ObjectInputStream in)
                 throws Exception {
                 field.set(target, new Date(in.readLong()));
             }
+            @Override
             public void writeField (Field field, Object source, ObjectOutputStream out)
                 throws Exception {
                 out.writeLong(((Date)field.get(source)).getTime());

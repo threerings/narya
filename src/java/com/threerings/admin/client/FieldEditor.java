@@ -65,7 +65,7 @@ public abstract class FieldEditor extends JPanel
         updateBorder(false);
     }
 
-    // documentation inherited
+    @Override
     public void addNotify ()
     {
         super.addNotify();
@@ -75,6 +75,7 @@ public abstract class FieldEditor extends JPanel
         displayValue(getValue());
     }
 
+    @Override
     public void removeNotify ()
     {
         super.removeNotify();

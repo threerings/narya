@@ -71,13 +71,13 @@ public class EntryAddedEvent<T extends DSet.Entry> extends NamedEvent
         return _entry;
     }
 
-    @Override // from DEvent
+    @Override
     public boolean alreadyApplied ()
     {
         return _alreadyApplied;
     }
 
-    @Override // from DEvent
+    @Override
     public boolean applyToObject (DObject target)
         throws ObjectAccessException
     {
@@ -89,7 +89,7 @@ public class EntryAddedEvent<T extends DSet.Entry> extends NamedEvent
         return true;
     }
 
-    // documentation inherited
+    @Override
     protected void notifyListener (Object listener)
     {
         if (listener instanceof SetListener) {
@@ -98,7 +98,7 @@ public class EntryAddedEvent<T extends DSet.Entry> extends NamedEvent
         }
     }
 
-    // documentation inherited
+    @Override
     protected void toString (StringBuilder buf)
     {
         buf.append("ELADD:");

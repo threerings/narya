@@ -213,9 +213,7 @@ public class SafeSubscriber<T extends DObject>
         }
     }
 
-    /**
-     * Returns a string representation of this instance.
-     */
+    @Override
     public String toString ()
     {
         return "[oid=" + _oid +

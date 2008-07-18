@@ -43,8 +43,6 @@ import com.threerings.presents.dobj.DEvent;
 import com.threerings.presents.dobj.DObject;
 import com.threerings.presents.dobj.EventListener;
 import com.threerings.presents.dobj.InvocationRequestEvent;
-import com.threerings.presents.dobj.ObjectAccessException;
-
 import com.threerings.presents.net.Transport;
 
 import static com.threerings.presents.Log.log;

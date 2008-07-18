@@ -31,6 +31,7 @@ public class LogoffRequest extends UpstreamMessage
         super();
     }
 
+    @Override
     public String toString ()
     {
         return "[type=LOGOFF, msgid=" + messageId + "]";

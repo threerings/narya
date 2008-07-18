@@ -72,7 +72,7 @@ public class ObjectEditorPanel extends ScrollablePanel
         _safesub.subscribe(_ctx.getDObjectManager());
     }
 
-    // documentation inherited from interface
+    @Override
     public boolean getScrollableTracksViewportWidth ()
     {
         return true;

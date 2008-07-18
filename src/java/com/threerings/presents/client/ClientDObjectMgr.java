@@ -66,6 +66,7 @@ public class ClientDObjectMgr
 
         // register a flush interval
         new Interval(client.getRunQueue()) {
+            @Override
             public void expired () {
                 flushObjects();
             }
@@ -440,6 +441,7 @@ public class ClientDObjectMgr
             this.subscribe = subscribe;
         }
 
+        @Override
         public String toString ()
         {
             return StringUtil.fieldsToString(this);

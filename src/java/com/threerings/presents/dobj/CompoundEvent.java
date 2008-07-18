@@ -122,7 +122,7 @@ public class CompoundEvent extends DEvent
         _events.clear();
     }
 
-    @Override // from DEvent
+    @Override
     public void setSourceOid (int sourceOid)
     {
         super.setSourceOid(sourceOid);
@@ -134,7 +134,7 @@ public class CompoundEvent extends DEvent
         }
     }
 
-    @Override // from DEvent
+    @Override
     public void setTargetOid (int targetOid)
     {
         super.setTargetOid(targetOid);
@@ -146,7 +146,7 @@ public class CompoundEvent extends DEvent
         }
     }
 
-    @Override // from DEvent
+    @Override
     public void setTransport (Transport transport)
     {
         super.setTransport(transport);
@@ -155,7 +155,7 @@ public class CompoundEvent extends DEvent
         }
     }
 
-    @Override // from DEvent
+    @Override
     public boolean applyToObject (DObject target)
         throws ObjectAccessException
     {
@@ -174,7 +174,7 @@ public class CompoundEvent extends DEvent
         }
     }
 
-    // documentation inherited
+    @Override
     protected void toString (StringBuilder buf)
     {
         buf.append("COMPOUND:");

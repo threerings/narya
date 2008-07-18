@@ -114,7 +114,7 @@ public class AttributeChangedEvent extends NamedEvent
         return ((Double)_value).doubleValue();
     }
 
-    @Override // from DEvent
+    @Override
     public boolean alreadyApplied ()
     {
         // if we have an old value, that means we're running on the master server and we have
@@ -122,7 +122,7 @@ public class AttributeChangedEvent extends NamedEvent
         return (_oldValue != UNSET_OLD_VALUE);
     }
 
-    @Override // from DEvent
+    @Override
     public boolean applyToObject (DObject target)
         throws ObjectAccessException
     {
@@ -184,7 +184,7 @@ public class AttributeChangedEvent extends NamedEvent
         _oldValue = oldValue;
     }
 
-    // documentation inherited
+    @Override
     protected void notifyListener (Object listener)
     {
         if (listener instanceof AttributeChangeListener) {
@@ -192,7 +192,7 @@ public class AttributeChangedEvent extends NamedEvent
         }
     }
 
-    // documentation inherited
+    @Override
     protected void toString (StringBuilder buf)
     {
         buf.append("CHANGE:");

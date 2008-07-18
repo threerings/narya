@@ -72,13 +72,13 @@ public class EntryRemovedEvent<T extends DSet.Entry> extends NamedEvent
         return _oldEntry;
     }
 
-    @Override // from DEvent
+    @Override
     public boolean alreadyApplied ()
     {
         return (_oldEntry != UNSET_OLD_ENTRY);
     }
 
-    @Override // from DEvent
+    @Override
     public boolean applyToObject (DObject target)
         throws ObjectAccessException
     {
@@ -95,7 +95,7 @@ public class EntryRemovedEvent<T extends DSet.Entry> extends NamedEvent
         return true;
     }
 
-    // documentation inherited
+    @Override
     protected void notifyListener (Object listener)
     {
         if (listener instanceof SetListener) {
@@ -104,7 +104,7 @@ public class EntryRemovedEvent<T extends DSet.Entry> extends NamedEvent
         }
     }
 
-    // documentation inherited
+    @Override
     protected void toString (StringBuilder buf)
     {
         buf.append("ELREM:");

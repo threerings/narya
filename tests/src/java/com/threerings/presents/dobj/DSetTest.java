@@ -43,6 +43,7 @@ public class DSetTest extends TestCase
             return _value;
         }
 
+        @Override
         public String toString ()
         {
             return _value.toString();
@@ -56,6 +57,7 @@ public class DSetTest extends TestCase
         super(DSetTest.class.getName());
     }
 
+    @Override
     public void runTest ()
     {
         ArrayList<TestEntry> seed = new ArrayList<TestEntry>();

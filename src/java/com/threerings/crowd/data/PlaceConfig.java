@@ -89,7 +89,7 @@ public abstract class PlaceConfig extends SimpleStreamableObject
      */
     public abstract String getManagerClassName ();
 
-    // documentation inherited
+    @Override
     @ActionScript(name="toStringBuilder")
     protected void toString (StringBuilder buf)
     {

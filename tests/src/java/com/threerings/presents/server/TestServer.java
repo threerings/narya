@@ -25,14 +25,13 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 
 import com.threerings.presents.data.TestObject;
-import com.threerings.presents.dobj.*;
-
 import static com.threerings.presents.Log.log;
 
 public class TestServer extends PresentsServer
 {
     public static TestObject testobj;
 
+    @Override
     public void init (Injector injector)
         throws Exception
     {

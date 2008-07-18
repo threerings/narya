@@ -148,6 +148,7 @@ public abstract class RebootManager
         _rebootSoon = false;
         long firstWarnTime = (_nextReboot - (WARNINGS[0] * 60 * 1000)) - now;
         _interval = new Interval(_omgr) {
+            @Override
             public void expired () {
                 doWarning(0);
             }
@@ -238,6 +239,7 @@ public abstract class RebootManager
 
             // wait 1 second, then do it
             new Interval() { // Note: This interval does not run on the dobj thread
+                @Override
                 public void expired () {
                     // ...but we then post a LongRunnable...
                     _omgr.postRunnable(new PresentsDObjectMgr.LongRunnable() {
@@ -265,6 +267,7 @@ public abstract class RebootManager
 
         // schedule the next warning
         _interval = new Interval(_omgr) {
+            @Override
             public void expired () {
                 doWarning(level + 1);
             }
@@ -287,6 +290,7 @@ public abstract class RebootManager
                  StringUtil.toString(_rebootLocks.elements()));
         broadcast("m.reboot_delayed");
         _interval = new Interval(_omgr) {
+            @Override
             public void expired () {
                 doWarning(WARNINGS.length);
             }

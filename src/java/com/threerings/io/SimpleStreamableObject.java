@@ -31,9 +31,7 @@ import com.threerings.util.ActionScript;
  */
 public class SimpleStreamableObject implements Streamable
 {
-    /**
-     * Generates a string representation of this instance.
-     */
+    @Override
     public String toString ()
     {
         StringBuilder buf = new StringBuilder("[");

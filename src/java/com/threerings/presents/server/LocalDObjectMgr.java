@@ -75,13 +75,13 @@ public class LocalDObjectMgr extends PresentsDObjectMgr
         };
     }
 
-    // documentation inherited
+    @Override
     public synchronized boolean isDispatchThread ()
     {
         return EventQueue.isDispatchThread();
     }
 
-    // documentation inherited
+    @Override
     public void postEvent (final DEvent event)
     {
         EventQueue.invokeLater(new Runnable() {
@@ -91,7 +91,7 @@ public class LocalDObjectMgr extends PresentsDObjectMgr
         });
     }
 
-    // documentation inherited
+    @Override
     public void postRunnable (Runnable unit)
     {
         // we just pass this right on to the AWT event queue rather than running them through

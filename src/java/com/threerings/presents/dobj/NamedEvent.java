@@ -71,6 +71,7 @@ public abstract class NamedEvent extends DEvent
         return _name;
     }
 
+    @Override
     protected void toString (StringBuilder buf)
     {
         super.toString(buf);

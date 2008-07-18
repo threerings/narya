@@ -171,6 +171,7 @@ public class SignalManager
         // make sure the signal dispatcher thread is started
         if (_haveLibrary && _sigdis == null) {
             _sigdis = new Thread("SignalDispatcher") {
+                @Override
                 public void run () {
                     log.info("Dispatching signals...");
                     dispatchSignals();

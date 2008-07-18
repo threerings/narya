@@ -51,6 +51,7 @@ public class NativeSignalHandler extends AbstractSignalHandler
         return true;
     }
 
+    @Override
     protected boolean registerHandlers ()
     {
         if (!SignalManager.servicesAvailable()) {

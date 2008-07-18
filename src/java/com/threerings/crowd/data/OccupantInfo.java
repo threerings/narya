@@ -92,9 +92,7 @@ public class OccupantInfo extends SimpleStreamableObject
         return bodyOid;
     }
 
-    /**
-     * Generates a cloned copy of this instance.
-     */
+    @Override
     public Object clone ()
     {
         try {

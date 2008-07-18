@@ -75,7 +75,7 @@ public class ConfigEditorPanel extends JPanel
         service.getConfigInfo(_ctx.getClient(), this);
     }
 
-    // documentation inherited
+    @Override
     public void removeNotify ()
     {
         super.removeNotify();

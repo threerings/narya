@@ -24,7 +24,6 @@ package com.threerings.presents.data;
 import com.threerings.presents.client.Client;
 import com.threerings.presents.client.TestService;
 import com.threerings.presents.dobj.InvocationResponseEvent;
-import com.threerings.presents.net.Transport;
 import java.util.ArrayList;
 
 /**

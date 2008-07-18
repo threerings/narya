@@ -29,7 +29,6 @@ import com.google.common.collect.Maps;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
-import com.samskivert.util.AuditLogger;
 import com.samskivert.util.Histogram;
 import com.samskivert.util.IntMap;
 import com.samskivert.util.IntMaps;
@@ -845,11 +844,13 @@ public class PresentsDObjectMgr
             _action = action;
         }
 
+        @Override
         public boolean isPrivate ()
         {
             return true;
         }
 
+        @Override
         public boolean applyToObject (DObject target)
             throws ObjectAccessException
         {
@@ -930,6 +931,7 @@ public class PresentsDObjectMgr
             return (this.reffingOid == reffingOid && this.field.equals(field));
         }
 
+        @Override
         public String toString ()
         {
             return "[reffingOid=" + reffingOid + ", field=" + field +
@@ -947,6 +949,7 @@ public class PresentsDObjectMgr
             _histo.addValue((int)elapsed);
         }
 
+        @Override
         public String toString ()
         {
             int count = _histo.size();

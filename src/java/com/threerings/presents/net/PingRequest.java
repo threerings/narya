@@ -105,6 +105,7 @@ public class PingRequest extends UpstreamMessage
         return _transport;
     }
 
+    @Override
     public String toString ()
     {
         return "[type=PING, msgid=" + messageId + ", transport=" + _transport + "]";

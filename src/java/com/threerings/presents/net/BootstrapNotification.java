@@ -52,6 +52,7 @@ public class BootstrapNotification extends DownstreamMessage
         return _data;
     }
 
+    @Override
     public String toString ()
     {
         return "[type=BOOT, msgid=" + messageId + ", data=" + _data + "]";

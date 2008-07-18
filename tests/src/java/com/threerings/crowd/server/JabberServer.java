@@ -7,8 +7,6 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 
 import com.threerings.crowd.data.JabberConfig;
-import com.threerings.crowd.data.PlaceObject;
-
 import static com.threerings.crowd.Log.log;
 
 /**

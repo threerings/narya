@@ -24,7 +24,6 @@ package com.threerings.presents.server.net;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.nio.channels.Channel;
 import java.nio.channels.DatagramChannel;
 import java.nio.channels.SelectableChannel;
 import java.nio.channels.SelectionKey;
@@ -52,7 +51,6 @@ import com.samskivert.util.Invoker;
 import com.samskivert.util.LoopingThread;
 import com.samskivert.util.Queue;
 import com.samskivert.util.ResultListener;
-import com.samskivert.util.StringUtil;
 import com.samskivert.util.Tuple;
 
 import com.threerings.io.FramingOutputStream;
@@ -281,7 +279,7 @@ public class ConnectionManager extends LoopingThread
         }
     }
 
-    // documentation inherited
+    @Override
     protected void willStart ()
     {
         int successes = 0;
@@ -414,6 +412,7 @@ public class ConnectionManager extends LoopingThread
     /**
      * Performs the select loop. This is the body of the conmgr thread.
      */
+    @Override
     protected void iterate ()
     {
         long iterStamp = System.currentTimeMillis();
@@ -708,14 +707,14 @@ public class ConnectionManager extends LoopingThread
         _stats.bytesOut += bytes;
     }
 
-    // documentation inherited
+    @Override
     protected void handleIterateFailure (Exception e)
     {
         // log the exception
         log.warning("ConnectionManager.iterate() uncaught exception.", e);
     }
 
-    // documentation inherited
+    @Override
     protected void didShutdown ()
     {
         // take one last crack at the outgoing message queue
@@ -1026,9 +1025,7 @@ public class ConnectionManager extends LoopingThread
             _partial.flip();
         }
 
-        /**
-         * Returns a string representation of this instance.
-         */
+        @Override
         public String toString ()
         {
             return "[conn=" + conn + ", partials=" + _partials + ", msgs=" + _msgs + "]";

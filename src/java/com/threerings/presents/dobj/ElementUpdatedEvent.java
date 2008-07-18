@@ -153,13 +153,13 @@ public class ElementUpdatedEvent extends NamedEvent
         return ((Double)_value).doubleValue();
     }
 
-    @Override // from DEvent
+    @Override
     public boolean alreadyApplied ()
     {
         return (_oldValue != UNSET_OLD_VALUE);
     }
 
-    @Override // from DEvent
+    @Override
     public boolean applyToObject (DObject target)
         throws ObjectAccessException
     {
@@ -191,7 +191,7 @@ public class ElementUpdatedEvent extends NamedEvent
         return true;
     }
 
-    // documentation inherited
+    @Override
     protected void notifyListener (Object listener)
     {
         if (listener instanceof ElementUpdateListener) {
@@ -199,7 +199,7 @@ public class ElementUpdatedEvent extends NamedEvent
         }
     }
 
-    // documentation inherited
+    @Override
     protected void toString (StringBuilder buf)
     {
         buf.append("UPDATE:");

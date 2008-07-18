@@ -52,6 +52,7 @@ public abstract class UpstreamMessage extends Message
         this.messageId = nextMessageId();
     }
 
+    @Override
     public String toString ()
     {
         return "[msgid=" + messageId + "]";

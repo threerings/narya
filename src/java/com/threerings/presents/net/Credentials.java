@@ -71,13 +71,13 @@ public abstract class Credentials implements Streamable
         return "";
     }
 
-    // documentation inherited
+    @Override
     public int hashCode ()
     {
         return _username.hashCode();
     }
 
-    // documentation inherited
+    @Override
     public boolean equals (Object other)
     {
         if (other instanceof Credentials) {
@@ -87,9 +87,7 @@ public abstract class Credentials implements Streamable
         }
     }
 
-    /**
-     * Generates a string representation of this instance.
-     */
+    @Override
     public String toString ()
     {
         StringBuilder buf = new StringBuilder("[");

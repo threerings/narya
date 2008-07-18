@@ -26,8 +26,6 @@ import com.samskivert.util.StringUtil;
 import com.threerings.io.Streamable;
 
 import com.threerings.presents.client.Client;
-import com.threerings.presents.client.InvocationService.ConfirmListener;
-import com.threerings.presents.client.InvocationService.ResultListener;
 import com.threerings.presents.client.InvocationService;
 
 import com.threerings.presents.dobj.DObjectManager;
@@ -116,16 +114,14 @@ public class InvocationMarshaller
             }
         }
 
-        /**
-         * Generates a string representation of this instance.
-         */
+        @Override
         public String toString ()
         {
             return "[callerOid=" + callerOid + ", reqId=" + requestId +
                 ", type=" + getClass().getName() + "]";
         }
 
-        // documentation inherited
+        @Override
         protected void finalize ()
             throws Throwable
         {
@@ -156,7 +152,7 @@ public class InvocationMarshaller
                 callerOid, requestId, REQUEST_PROCESSED, null, transport));
         }
 
-        // documentation inherited
+        @Override
         public void dispatchResponse (int methodId, Object[] args)
         {
             switch (methodId) {
@@ -187,7 +183,7 @@ public class InvocationMarshaller
                 callerOid, requestId, REQUEST_PROCESSED, new Object[] { result }, transport));
         }
 
-        // documentation inherited
+        @Override
         public void dispatchResponse (int methodId, Object[] args)
         {
             switch (methodId) {
@@ -240,9 +236,7 @@ public class InvocationMarshaller
         }
     }
 
-    /**
-     * Generates a string representation of this instance.
-     */
+    @Override
     public String toString ()
     {
         return "[invOid=" + _invOid + ", code=" + _invCode + ", type=" + getClass().getName() + "]";

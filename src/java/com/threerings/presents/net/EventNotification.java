@@ -59,6 +59,7 @@ public class EventNotification extends DownstreamMessage
         return _event.getTransport();
     }
 
+    @Override
     public String toString ()
     {
         return "[type=EVT, evt=" + _event + "]";

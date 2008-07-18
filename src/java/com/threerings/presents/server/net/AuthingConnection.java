@@ -101,9 +101,7 @@ public class AuthingConnection extends Connection
         _authrsp = authrsp;
     }
 
-    /**
-     * Generates a string representation of this instance.
-     */
+    @Override
     public String toString ()
     {
         return "[mode=AUTHING, addr=" +

@@ -102,9 +102,7 @@ public class InvocationResponseEvent extends DEvent
         return _args;
     }
 
-    /**
-     * Applies this attribute change to the object.
-     */
+    @Override
     public boolean applyToObject (DObject target)
         throws ObjectAccessException
     {
@@ -112,13 +110,13 @@ public class InvocationResponseEvent extends DEvent
         return true;
     }
 
-    // documentation inherited
+    @Override
     protected void notifyListener (Object listener)
     {
         // nothing to do here
     }
 
-    // documentation inherited
+    @Override
     protected void toString (StringBuilder buf)
     {
         buf.append("IRSP:");

@@ -193,6 +193,7 @@ public class PlaceManager
 
         // initialize our delegates
         applyToDelegates(new DelegateOp(PlaceManagerDelegate.class) {
+            @Override
             public void apply (PlaceManagerDelegate delegate) {
                 delegate.init(PlaceManager.this, _omgr, _invmgr);
             }
@@ -442,6 +443,7 @@ public class PlaceManager
      *
      * @see #toString(StringBuilder)
      */
+    @Override
     public String toString ()
     {
         StringBuilder buf = new StringBuilder();
@@ -483,6 +485,7 @@ public class PlaceManager
     {
         // initialize our delegates
         applyToDelegates(new DelegateOp(PlaceManagerDelegate.class) {
+            @Override
             public void apply (PlaceManagerDelegate delegate) {
                 delegate.didInit(_config);
             }
@@ -524,6 +527,7 @@ public class PlaceManager
     {
         // let our delegates know that we've started up
         applyToDelegates(new DelegateOp(PlaceManagerDelegate.class) {
+            @Override
             public void apply (PlaceManagerDelegate delegate) {
                 delegate.didStartup(_plobj);
             }
@@ -543,6 +547,7 @@ public class PlaceManager
 
         // let our delegates know that we've shut down
         applyToDelegates(new DelegateOp(PlaceManagerDelegate.class) {
+            @Override
             public void apply (PlaceManagerDelegate delegate) {
                 delegate.didShutdown();
             }
@@ -568,6 +573,7 @@ public class PlaceManager
 
         // let our delegates know what's up
         applyToDelegates(new DelegateOp(PlaceManagerDelegate.class) {
+            @Override
             public void apply (PlaceManagerDelegate delegate) {
                 delegate.bodyEntered(bodyOid);
             }
@@ -596,6 +602,7 @@ public class PlaceManager
 
         // let our delegates know what's up
         applyToDelegates(new DelegateOp(PlaceManagerDelegate.class) {
+            @Override
             public void apply (PlaceManagerDelegate delegate) {
                 delegate.bodyLeft(bodyOid);
             }
@@ -622,6 +629,7 @@ public class PlaceManager
     {
         // let our delegates know what's up
         applyToDelegates(new DelegateOp(PlaceManagerDelegate.class) {
+            @Override
             public void apply (PlaceManagerDelegate delegate) {
                 delegate.bodyUpdated(info);
             }
@@ -637,6 +645,7 @@ public class PlaceManager
     {
         // let our delegates know what's up
         applyToDelegates(new DelegateOp(PlaceManagerDelegate.class) {
+            @Override
             public void apply (PlaceManagerDelegate delegate) {
                 delegate.placeBecameEmpty();
             }
@@ -656,6 +665,7 @@ public class PlaceManager
         long idlePeriod = idleUnloadPeriod();
         if (idlePeriod > 0L && _shutdownInterval == null) {
             _shutdownInterval = new Interval(_omgr) {
+                @Override
                 public void expired () {
                     log.debug("Unloading idle place '" + where () + "'.");
                     shutdown();
@@ -698,6 +708,7 @@ public class PlaceManager
 
     /** Listens for occupant updates. */
     protected SetAdapter _bodyUpdater = new SetAdapter() {
+        @Override
         public void entryUpdated (EntryUpdatedEvent event) {
             if (event.getName().equals(PlaceObject.OCCUPANT_INFO)) {
                 bodyUpdated((OccupantInfo)event.getEntry());

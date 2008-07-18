@@ -85,14 +85,14 @@ public class BasicStreamers
     /** Streams {@link Boolean} instances. */
     public static class BooleanStreamer extends BasicStreamer
     {
-        // documentation inherited
+        @Override
         public Object createObject (ObjectInputStream in)
             throws IOException
         {
             return Boolean.valueOf(in.readBoolean());
         }
 
-        // documentation inherited
+        @Override
         public void writeObject (Object object, ObjectOutputStream out, boolean useWriter)
             throws IOException
         {
@@ -103,14 +103,14 @@ public class BasicStreamers
     /** Streams {@link Byte} instances. */
     public static class ByteStreamer extends BasicStreamer
     {
-        // documentation inherited
+        @Override
         public Object createObject (ObjectInputStream in)
             throws IOException
         {
             return Byte.valueOf(in.readByte());
         }
 
-        // documentation inherited
+        @Override
         public void writeObject (Object object, ObjectOutputStream out, boolean useWriter)
             throws IOException
         {
@@ -121,14 +121,14 @@ public class BasicStreamers
     /** Streams {@link Short} instances. */
     public static class ShortStreamer extends BasicStreamer
     {
-        // documentation inherited
+        @Override
         public Object createObject (ObjectInputStream in)
             throws IOException
         {
             return Short.valueOf(in.readShort());
         }
 
-        // documentation inherited
+        @Override
         public void writeObject (Object object, ObjectOutputStream out, boolean useWriter)
             throws IOException
         {
@@ -139,13 +139,13 @@ public class BasicStreamers
     /** Streams {@link Character} instances. */
     public static class CharacterStreamer extends BasicStreamer
     {
-        // documentation inherited
+        @Override
         public Object createObject (ObjectInputStream in)throws IOException
         {
             return Character.valueOf(in.readChar());
         }
 
-        // documentation inherited
+        @Override
         public void writeObject (Object object, ObjectOutputStream out, boolean useWriter)
             throws IOException
         {
@@ -156,14 +156,14 @@ public class BasicStreamers
     /** Streams {@link Integer} instances. */
     public static class IntegerStreamer extends BasicStreamer
     {
-        // documentation inherited
+        @Override
         public Object createObject (ObjectInputStream in)
             throws IOException
         {
             return Integer.valueOf(in.readInt());
         }
 
-        // documentation inherited
+        @Override
         public void writeObject (Object object, ObjectOutputStream out, boolean useWriter)
             throws IOException
         {
@@ -174,14 +174,14 @@ public class BasicStreamers
     /** Streams {@link Long} instances. */
     public static class LongStreamer extends BasicStreamer
     {
-        // documentation inherited
+        @Override
         public Object createObject (ObjectInputStream in)
             throws IOException
         {
             return Long.valueOf(in.readLong());
         }
 
-        // documentation inherited
+        @Override
         public void writeObject (Object object, ObjectOutputStream out, boolean useWriter)
             throws IOException
         {
@@ -192,14 +192,14 @@ public class BasicStreamers
     /** Streams {@link Float} instances. */
     public static class FloatStreamer extends BasicStreamer
     {
-        // documentation inherited
+        @Override
         public Object createObject (ObjectInputStream in)
             throws IOException
         {
             return Float.valueOf(in.readFloat());
         }
 
-        // documentation inherited
+        @Override
         public void writeObject (Object object, ObjectOutputStream out, boolean useWriter)
             throws IOException
         {
@@ -210,14 +210,14 @@ public class BasicStreamers
     /** Streams {@link Double} instances. */
     public static class DoubleStreamer extends BasicStreamer
     {
-        // documentation inherited
+        @Override
         public Object createObject (ObjectInputStream in)
             throws IOException
         {
             return Double.valueOf(in.readDouble());
         }
 
-        // documentation inherited
+        @Override
         public void writeObject (Object object, ObjectOutputStream out, boolean useWriter)
             throws IOException
         {
@@ -228,14 +228,14 @@ public class BasicStreamers
     /** Streams {@link String} instances. */
     public static class StringStreamer extends BasicStreamer
     {
-        // documentation inherited
+        @Override
         public Object createObject (ObjectInputStream in)
             throws IOException
         {
             return in.readUTF();
         }
 
-        // documentation inherited
+        @Override
         public void writeObject (Object object, ObjectOutputStream out, boolean useWriter)
             throws IOException
         {
@@ -246,14 +246,14 @@ public class BasicStreamers
     /** Streams arrays of booleans. */
     public static class BooleanArrayStreamer extends BasicStreamer
     {
-        // documentation inherited
+        @Override
         public Object createObject (ObjectInputStream in)
             throws IOException
         {
             return readBooleanArray(in);
         }
 
-        // documentation inherited
+        @Override
         public void writeObject (Object object, ObjectOutputStream out, boolean useWriter)
             throws IOException
         {
@@ -264,14 +264,14 @@ public class BasicStreamers
     /** Streams arrays of bytes. */
     public static class ByteArrayStreamer extends BasicStreamer
     {
-        // documentation inherited
+        @Override
         public Object createObject (ObjectInputStream in)
             throws IOException
         {
             return readByteArray(in);
         }
 
-        // documentation inherited
+        @Override
         public void writeObject (Object object, ObjectOutputStream out, boolean useWriter)
             throws IOException
         {
@@ -282,14 +282,14 @@ public class BasicStreamers
     /** Streams arrays of shorts. */
     public static class ShortArrayStreamer extends BasicStreamer
     {
-        // documentation inherited
+        @Override
         public Object createObject (ObjectInputStream in)
             throws IOException
         {
             return readShortArray(in);
         }
 
-        // documentation inherited
+        @Override
         public void writeObject (Object object, ObjectOutputStream out, boolean useWriter)
             throws IOException
         {
@@ -300,14 +300,14 @@ public class BasicStreamers
     /** Streams arrays of chars. */
     public static class CharArrayStreamer extends BasicStreamer
     {
-        // documentation inherited
+        @Override
         public Object createObject (ObjectInputStream in)
             throws IOException
         {
             return readCharArray(in);
         }
 
-        // documentation inherited
+        @Override
         public void writeObject (Object object, ObjectOutputStream out, boolean useWriter)
             throws IOException
         {
@@ -318,14 +318,14 @@ public class BasicStreamers
     /** Streams arrays of ints. */
     public static class IntArrayStreamer extends BasicStreamer
     {
-        // documentation inherited
+        @Override
         public Object createObject (ObjectInputStream in)
             throws IOException
         {
             return readIntArray(in);
         }
 
-        // documentation inherited
+        @Override
         public void writeObject (Object object, ObjectOutputStream out, boolean useWriter)
             throws IOException
         {
@@ -336,14 +336,14 @@ public class BasicStreamers
     /** Streams arrays of longs. */
     public static class LongArrayStreamer extends BasicStreamer
     {
-        // documentation inherited
+        @Override
         public Object createObject (ObjectInputStream in)
             throws IOException
         {
             return readLongArray(in);
         }
 
-        // documentation inherited
+        @Override
         public void writeObject (Object object, ObjectOutputStream out, boolean useWriter)
             throws IOException
         {
@@ -354,14 +354,14 @@ public class BasicStreamers
     /** Streams arrays of floats. */
     public static class FloatArrayStreamer extends BasicStreamer
     {
-        // documentation inherited
+        @Override
         public Object createObject (ObjectInputStream in)
             throws IOException
         {
             return readFloatArray(in);
         }
 
-        // documentation inherited
+        @Override
         public void writeObject (Object object, ObjectOutputStream out, boolean useWriter)
             throws IOException
         {
@@ -372,14 +372,14 @@ public class BasicStreamers
     /** Streams arrays of doubles. */
     public static class DoubleArrayStreamer extends BasicStreamer
     {
-        // documentation inherited
+        @Override
         public Object createObject (ObjectInputStream in)
             throws IOException
         {
             return readDoubleArray(in);
         }
 
-        // documentation inherited
+        @Override
         public void writeObject (Object object, ObjectOutputStream out, boolean useWriter)
             throws IOException
         {
@@ -390,14 +390,14 @@ public class BasicStreamers
     /** Streams arrays of Object instances. */
     public static class ObjectArrayStreamer extends BasicStreamer
     {
-        // documentation inherited
+        @Override
         public Object createObject (ObjectInputStream in)
             throws IOException, ClassNotFoundException
         {
             return readObjectArray(in);
         }
 
-        // documentation inherited
+        @Override
         public void writeObject (Object object, ObjectOutputStream out, boolean useWriter)
             throws IOException
         {
@@ -408,14 +408,14 @@ public class BasicStreamers
     /** Streams {@link List} instances. */
     public static class ListStreamer extends BasicStreamer
     {
-        // documentation inherited
+        @Override
         public Object createObject (ObjectInputStream in)
             throws IOException, ClassNotFoundException
         {
             return readList(in);
         }
 
-        // documentation inherited
+        @Override
         public void writeObject (Object object, ObjectOutputStream out, boolean useWriter)
             throws IOException
         {
@@ -426,6 +426,7 @@ public class BasicStreamers
     /** Streams {@link String} instances. */
     public static class BasicStreamer extends Streamer
     {
+        @Override
         public void readObject (Object object, ObjectInputStream in, boolean useReader)
             throws IOException, ClassNotFoundException
         {

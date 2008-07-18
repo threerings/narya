@@ -24,13 +24,12 @@ package com.threerings.presents.server;
 import com.samskivert.util.RunAnywhere;
 import com.samskivert.util.SignalUtil;
 
-import static com.threerings.presents.Log.log;
-
 /**
  * Handles signals using Sun's undocumented Signal class.
  */
 public class SunSignalHandler extends AbstractSignalHandler
 {
+    @Override
     protected boolean registerHandlers ()
     {
         SignalUtil.register(SignalUtil.Number.TERM, new SignalUtil.Handler() {

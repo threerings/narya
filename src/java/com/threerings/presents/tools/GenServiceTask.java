@@ -94,6 +94,7 @@ public class GenServiceTask extends InvocationTask
             return getName().compareTo(other.getName());
         }
 
+        @Override
         public boolean equals (Object other)
         {
             return getClass().equals(other.getClass()) &&
@@ -134,6 +135,7 @@ public class GenServiceTask extends InvocationTask
     }
 
     // documentation inherited
+    @Override
     protected void processService (File source, Class service)
     {
         System.out.println("Processing " + service.getName() + "...");

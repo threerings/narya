@@ -21,8 +21,6 @@
 
 package com.threerings.util;
 
-import java.util.regex.Pattern;
-
 import com.threerings.io.SimpleStreamableObject;
 
 /**
@@ -99,18 +97,19 @@ public class Name extends SimpleStreamableObject
     /**
      * Returns the unprocessed name as a string.
      */
+    @Override
     public String toString ()
     {
         return _name;
     }
 
-    @Override // from Object
+    @Override
     public int hashCode ()
     {
         return getNormal().hashCode();
     }
 
-    @Override // from Object
+    @Override
     public boolean equals (Object other)
     {
         if (other != null) {

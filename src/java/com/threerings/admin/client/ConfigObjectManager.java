@@ -44,14 +44,17 @@ public class ConfigObjectManager implements AdminService.ConfigInfoListener
         _serverconfig = new HashMap<String, ConfigObject>();
         _client = client;
         _client.addClientObserver(new ClientAdapter() {
+            @Override
             public void clientWillLogon (Client client) {
                 client.addServiceGroup(AdminCodes.ADMIN_GROUP);
             }
+            @Override
             public void clientDidLogon (Client client) {
                 _dobjmgr = _client.getDObjectManager();
                 _service = client.requireService(AdminService.class);
                 getConfigInfo();
             }
+            @Override
             public void clientDidLogoff (Client client) {
                 // Clean up our subscription to the server's configuration
                 for (int ii = 0; ii < _csubscribers.length; ii++) {

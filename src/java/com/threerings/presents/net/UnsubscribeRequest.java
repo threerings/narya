@@ -48,6 +48,7 @@ public class UnsubscribeRequest extends UpstreamMessage
         return _oid;
     }
 
+    @Override
     public String toString ()
     {
         return "[type=UNSUB, msgid=" + messageId + ", oid=" + _oid + "]";

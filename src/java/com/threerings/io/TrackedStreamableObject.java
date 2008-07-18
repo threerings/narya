@@ -33,9 +33,7 @@ import com.threerings.util.TrackedObject;
 public class TrackedStreamableObject extends TrackedObject
     implements Streamable
 {
-    /**
-     * Generates a string representation of this instance.
-     */
+    @Override
     public String toString ()
     {
         StringBuilder buf = new StringBuilder("[");

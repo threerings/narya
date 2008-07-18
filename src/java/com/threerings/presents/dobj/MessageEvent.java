@@ -94,9 +94,7 @@ public class MessageEvent extends NamedEvent
         _args = args;
     }
 
-    /**
-     * Applies this attribute change to the object.
-     */
+    @Override
     public boolean applyToObject (DObject target)
         throws ObjectAccessException
     {
@@ -104,7 +102,7 @@ public class MessageEvent extends NamedEvent
         return true;
     }
 
-    // documentation inherited
+    @Override
     protected void notifyListener (Object listener)
     {
         if (listener instanceof MessageListener) {
@@ -112,7 +110,7 @@ public class MessageEvent extends NamedEvent
         }
     }
 
-    // documentation inherited
+    @Override
     protected void toString (StringBuilder buf)
     {
         buf.append("MSG:");

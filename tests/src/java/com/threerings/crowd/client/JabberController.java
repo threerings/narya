@@ -10,6 +10,7 @@ import com.threerings.crowd.util.CrowdContext;
  */
 public class JabberController extends PlaceController
 {
+    @Override
     protected PlaceView createPlaceView (CrowdContext ctx)
     {
         return new JabberPanel(ctx);

@@ -37,7 +37,6 @@ import org.apache.tools.ant.types.FileSet;
 import com.threerings.io.SimpleStreamableObject;
 import com.threerings.io.Streamable;
 
-import com.threerings.presents.data.InvocationMarshaller;
 import com.threerings.presents.dobj.DObject;
 
 /**
@@ -55,9 +54,7 @@ public class GenStreamableTask extends Task
         _filesets.add(set);
     }
 
-    /**
-     * Performs the actual work of the task.
-     */
+    @Override
     public void execute () throws BuildException
     {
         for (FileSet fs : _filesets) {

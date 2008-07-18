@@ -80,6 +80,7 @@ public abstract class PlaceController extends Controller
 
         // initialize our delegates
         applyToDelegates(new DelegateOp(PlaceControllerDelegate.class) {
+            @Override
             public void apply (PlaceControllerDelegate delegate) {
                 delegate.init(_ctx, _config);
             }
@@ -162,6 +163,7 @@ public abstract class PlaceController extends Controller
 
         // let our delegates know what's up 
         applyToDelegates(new DelegateOp(PlaceControllerDelegate.class) {
+            @Override
             public void apply (PlaceControllerDelegate delegate) {
                 delegate.willEnterPlace(plobj);
             }
@@ -183,6 +185,7 @@ public abstract class PlaceController extends Controller
     {
         // let our delegates know what's up 
         applyToDelegates(new DelegateOp(PlaceControllerDelegate.class) {
+            @Override
             public void apply (PlaceControllerDelegate delegate) {
                 delegate.mayLeavePlace(plobj);
             }
@@ -200,6 +203,7 @@ public abstract class PlaceController extends Controller
     {
         // let our delegates know what's up 
         applyToDelegates(new DelegateOp(PlaceControllerDelegate.class) {
+            @Override
             public void apply (PlaceControllerDelegate delegate) {
                 delegate.didLeavePlace(plobj);
             }
@@ -220,12 +224,14 @@ public abstract class PlaceController extends Controller
      * should be sure to call <code>super.handleAction</code> for events
      * they don't specifically handle.
      */
+    @Override
     public boolean handleAction (final ActionEvent action)
     {
         final boolean[] handled = new boolean[1];
 
         // let our delegates have a crack at the action
         applyToDelegates(new DelegateOp(PlaceControllerDelegate.class) {
+            @Override
             public void apply (PlaceControllerDelegate delegate) {
                 // we take advantage of short-circuiting here
                 handled[0] = handled[0] || delegate.handleAction(action);

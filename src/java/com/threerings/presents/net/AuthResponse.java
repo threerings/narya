@@ -66,6 +66,7 @@ public class AuthResponse extends DownstreamMessage
         _data = data;
     }
 
+    @Override
     public String toString ()
     {
         return "[type=ARSP, msgid=" + messageId + ", data=" + _data + "]";

@@ -197,6 +197,7 @@ public class BureauRegistry
                 ProcessLogger.copyMergedOutput(log, bureauId, process);
             }
 
+            @Override
             public String toString () {
                 return "DefaultLauncher for " + cmdGenerator;
             }
@@ -586,6 +587,7 @@ public class BureauRegistry
             _bureau = bureau;
         }
 
+        @Override
         public boolean invoke ()
         {
             try {
@@ -597,6 +599,7 @@ public class BureauRegistry
             return true;
         }
 
+        @Override
         public void handleResult ()
         {
             _bureau.launched = true;
@@ -677,6 +680,7 @@ public class BureauRegistry
         // The states of the various agents allocated to this bureau
         Map<AgentObject, Integer> agentStates = Maps.newHashMap();
 
+        @Override
         public String toString ()
         {
             StringBuilder builder = new StringBuilder();

@@ -653,7 +653,7 @@ public class ChatDirector extends BasicDirector
         }
     }
 
-    // documentation inherited
+    @Override
     public void clientDidLogon (Client client)
     {
         super.clientDidLogon(client);
@@ -662,7 +662,7 @@ public class ChatDirector extends BasicDirector
         addAuxiliarySource(_clobj = client.getClientObject(), USER_CHAT_TYPE);
     }
 
-    // documentation inherited
+    @Override
     public void clientObjectDidChange (Client client)
     {
         super.clientObjectDidChange(client);
@@ -674,7 +674,7 @@ public class ChatDirector extends BasicDirector
         clearDisplays();
     }
 
-    // documentation inherited
+    @Override
     public void clientDidLogoff (Client client)
     {
         super.clientDidLogoff(client);
@@ -1038,13 +1038,13 @@ public class ChatDirector extends BasicDirector
         return (type == null) ? PLACE_CHAT_TYPE : type;
     }
 
-    @Override // from BasicDirector
+    @Override
     protected void registerServices (Client client)
     {
         client.addServiceGroup(CrowdCodes.CROWD_GROUP);
     }
 
-    @Override // from BasicDirector
+    @Override
     protected void fetchServices (Client client)
     {
         // get a handle on our chat service
@@ -1110,6 +1110,7 @@ public class ChatDirector extends BasicDirector
     /** Implements <code>/help</code>. */
     protected class HelpHandler extends CommandHandler
     {
+        @Override
         public String handleCommand (SpeakService speakSvc, String command,
                                      String args, String[] history)
         {
@@ -1161,6 +1162,7 @@ public class ChatDirector extends BasicDirector
     /** Implements <code>/clear</code>. */
     protected class ClearHandler extends CommandHandler
     {
+        @Override
         public String handleCommand (SpeakService speakSvc, String command,
                                      String args, String[] history)
         {
@@ -1172,6 +1174,7 @@ public class ChatDirector extends BasicDirector
     /** Implements <code>/speak</code>. */
     protected class SpeakHandler extends CommandHandler
     {
+        @Override
         public String handleCommand (SpeakService speakSvc, String command,
                                      String args, String[] history)
         {
@@ -1189,6 +1192,7 @@ public class ChatDirector extends BasicDirector
     /** Implements <code>/emote</code>. */
     protected class EmoteHandler extends CommandHandler
     {
+        @Override
         public String handleCommand (SpeakService speakSvc, String command,
                                      String args, String[] history)
         {
@@ -1204,6 +1208,7 @@ public class ChatDirector extends BasicDirector
     /** Implements <code>/think</code>. */
     protected class ThinkHandler extends CommandHandler
     {
+        @Override
         public String handleCommand (SpeakService speakSvc, String command,
                                      String args, String[] history)
         {
@@ -1219,6 +1224,7 @@ public class ChatDirector extends BasicDirector
     /** Implements <code>/tell</code>. */
     protected class TellHandler extends CommandHandler
     {
+        @Override
         public String handleCommand (SpeakService speakSvc, final String command,
                                      String args, String[] history)
         {
@@ -1339,6 +1345,7 @@ public class ChatDirector extends BasicDirector
     /** Implements <code>/broadcast</code>. */
     protected class BroadcastHandler extends CommandHandler
     {
+        @Override
         public String handleCommand (SpeakService speakSvc, String command,
                                      String args, String[] history)
         {
@@ -1362,6 +1369,7 @@ public class ChatDirector extends BasicDirector
             return ChatCodes.SUCCESS;
         }
 
+        @Override
         public boolean checkAccess (BodyObject user)
         {
             return user.checkAccess(ChatCodes.BROADCAST_ACCESS) == null;

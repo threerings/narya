@@ -49,7 +49,7 @@ public class AsStringFieldEditor extends FieldEditor
         _value.addFocusListener(this);
     }
 
-    // documentation inherited
+    @Override
     protected Object getDisplayValue ()
         throws Exception
     {
@@ -95,7 +95,7 @@ public class AsStringFieldEditor extends FieldEditor
         }
     }
 
-    // documentation inherited
+    @Override
     protected void displayValue (Object value)
     {
         _value.setText(StringUtil.toString(value, "", ""));

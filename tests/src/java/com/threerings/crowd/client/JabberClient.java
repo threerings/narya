@@ -71,6 +71,7 @@ public class JabberClient
 
         // log off when they close the window
         _frame.addWindowListener(new WindowAdapter() {
+            @Override
             public void windowClosing (WindowEvent evt) {
                 // if we're logged on, log off
                 if (_client.isLoggedOn()) {

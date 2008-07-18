@@ -975,6 +975,7 @@ public class ActionScriptSource
         writer.flush();
     }
 
+    @Override
     public String toString ()
     {
         StringBuilder builder = new StringBuilder();

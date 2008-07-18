@@ -21,8 +21,6 @@
 
 package com.threerings.presents.server;
 
-import java.util.Iterator;
-
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
@@ -134,6 +132,7 @@ public class PresentsInvoker extends Invoker
     protected class ShutdownUnit extends Unit
     {
         // run on the invoker thread
+        @Override
         public boolean invoke ()
         {
             if (checkLoops()) {
@@ -154,6 +153,7 @@ public class PresentsInvoker extends Invoker
         }
 
         // run on the dobj thread
+        @Override
         public void handleResult ()
         {
             if (checkLoops()) {
@@ -206,6 +206,7 @@ public class PresentsInvoker extends Invoker
 
             // end the invoker thread
             postUnit(new Unit() {
+                @Override
                 public boolean invoke () {
                     _running = false;
                     return false;

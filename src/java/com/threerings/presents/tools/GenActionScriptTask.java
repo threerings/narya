@@ -21,16 +21,12 @@
 
 package com.threerings.presents.tools;
 
-import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
-import java.io.StringWriter;
-
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 
@@ -40,15 +36,10 @@ import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.DirectoryScanner;
 import org.apache.tools.ant.Task;
 import org.apache.tools.ant.types.FileSet;
-import org.apache.tools.ant.types.Reference;
-import org.apache.tools.ant.util.ClasspathUtils;
-
 import org.apache.commons.io.IOUtils;
 
-import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.VelocityEngine;
 
-import com.samskivert.util.StringUtil;
 import com.samskivert.velocity.VelocityUtil;
 
 import com.threerings.io.Streamable;
@@ -94,6 +85,7 @@ public class GenActionScriptTask extends Task
     /**
      * Performs the actual work of the task.
      */
+    @Override
     public void execute () throws BuildException
     {
         try {

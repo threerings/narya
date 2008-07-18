@@ -63,9 +63,7 @@ public class ObjectAddedEvent extends NamedEvent
         return _oid;
     }
 
-    /**
-     * Applies this event to the object.
-     */
+    @Override
     public boolean applyToObject (DObject target)
         throws ObjectAccessException
     {
@@ -74,7 +72,7 @@ public class ObjectAddedEvent extends NamedEvent
         return true;
     }
 
-    // documentation inherited
+    @Override
     protected void notifyListener (Object listener)
     {
         if (listener instanceof OidListListener) {
@@ -82,7 +80,7 @@ public class ObjectAddedEvent extends NamedEvent
         }
     }
 
-    // documentation inherited
+    @Override
     protected void toString (StringBuilder buf)
     {
         buf.append("OBJADD:");

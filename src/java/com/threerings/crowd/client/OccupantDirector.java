@@ -107,7 +107,7 @@ public class OccupantDirector extends BasicDirector
         return (_place == null) ? null : _place.getOccupantInfo(username);
     }
 
-    // documentation inherited from interface
+    @Override
     public void clientDidLogoff (Client client)
     {
         // clear things out

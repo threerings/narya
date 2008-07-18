@@ -162,9 +162,7 @@ public abstract class DEvent implements Streamable
         // the default is to do nothing
     }
 
-    /**
-     * Constructs and returns a string representation of this event.
-     */
+    @Override
     public String toString ()
     {
         StringBuilder buf = new StringBuilder();

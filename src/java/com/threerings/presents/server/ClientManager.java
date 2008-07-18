@@ -107,6 +107,7 @@ public class ClientManager
         // start up an interval that will check for expired clients and flush them from the bowels
         // of the server
         new Interval(_omgr) {
+            @Override
             public void expired () {
                 flushClients();
             }

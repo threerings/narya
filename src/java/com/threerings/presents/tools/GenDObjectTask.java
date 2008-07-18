@@ -21,11 +21,7 @@
 
 package com.threerings.presents.tools;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.StringWriter;
 
@@ -35,15 +31,6 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-
-import java.util.regex.Pattern;
-import java.util.regex.Matcher;
-
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 
 import org.apache.tools.ant.AntClassLoader;
@@ -57,14 +44,10 @@ import org.apache.tools.ant.util.ClasspathUtils;
 import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.VelocityEngine;
 
-import com.samskivert.util.ObjectUtil;
-import com.samskivert.util.SortableArrayList;
 import com.samskivert.util.StringUtil;
 import com.samskivert.velocity.VelocityUtil;
 
 import com.threerings.presents.annotation.TransportHint;
-import com.threerings.presents.net.Transport;
-
 import com.threerings.presents.dobj.DObject;
 import com.threerings.presents.dobj.DSet;
 import com.threerings.presents.dobj.OidList;
@@ -96,7 +79,7 @@ public class GenDObjectTask extends Task
         ((AntClassLoader)_cloader).setParent(getClass().getClassLoader());
     }
 
-    /** Performs the actual work of the task. */
+    @Override
     public void execute () throws BuildException
     {
         if (_cloader == null) {

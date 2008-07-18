@@ -52,6 +52,7 @@ public class PeerClient extends PresentsClient
      * bootstrap data classes that contain extra bootstrap information, if
      * desired.
      */
+    @Override
     protected BootstrapData createBootstrapData ()
     {
         return new PeerBootstrapData();
@@ -67,6 +68,7 @@ public class PeerClient extends PresentsClient
      * thread which means that object manipulations are OK, but client
      * instance manipulations must be done carefully.
      */
+    @Override
     protected void populateBootstrapData (BootstrapData data)
     {
         super.populateBootstrapData(data);

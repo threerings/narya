@@ -79,9 +79,7 @@ public class InstrumentStreamableTask extends Task
         _outdir = outdir;
     }
 
-    /**
-     * Performs the actual work of the task.
-     */
+    @Override
     public void execute () throws BuildException
     {
         // configure our ClassPool with our classpath

@@ -26,7 +26,6 @@ import com.samskivert.io.PersistenceException;
 import com.samskivert.util.Invoker;
 import com.samskivert.util.ResultListener;
 
-import com.threerings.presents.annotation.MainInvoker;
 import com.threerings.presents.data.AuthCodes;
 
 import com.threerings.presents.net.AuthRequest;
@@ -34,8 +33,6 @@ import com.threerings.presents.net.AuthResponse;
 import com.threerings.presents.net.AuthResponseData;
 
 import com.threerings.presents.server.net.AuthingConnection;
-import com.threerings.presents.server.net.ConnectionManager;
-
 import static com.threerings.presents.Log.log;
 
 /**
@@ -57,6 +54,7 @@ public abstract class Authenticator
         final AuthResponse rsp = new AuthResponse(rdata);
 
         invoker.postUnit(new Invoker.Unit("authenticateConnection") {
+            @Override
             public boolean invoke() {
                 try {
                     processAuthentication(conn, rsp);
@@ -67,6 +65,7 @@ public abstract class Authenticator
                 return true;
             }
 
+            @Override
             public void handleResult () {
                 // stuff a reference to the auth response into the connection so that we have
                 // access to it later in the authentication process

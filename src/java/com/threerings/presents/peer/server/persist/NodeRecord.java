@@ -119,9 +119,7 @@ public class NodeRecord extends PersistentRecord
         this.nodeName = nodeName;
     }
 
-    /**
-     * Generates a string representation of this instance.
-     */
+    @Override
     public String toString ()
     {
         return StringUtil.fieldsToString(this);

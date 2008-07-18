@@ -57,7 +57,7 @@ public class PulldownFieldEditor extends FieldEditor
             value = val;
         }
 
-        // documentation inherited
+        @Override
         public String toString ()
         {
             return _name;
@@ -95,21 +95,21 @@ public class PulldownFieldEditor extends FieldEditor
         addChoice(new Choice(name, choice));
     }
 
-    // documentation inherited
+    @Override
     public void addNotify ()
     {
         super.addNotify();
         _value.addActionListener(this);
     }
 
-    // documentation inherited
+    @Override
     public void removeNotify ()
     {
         _value.removeActionListener(this);
         super.removeNotify();
     }
 
-    // documentation inherited
+    @Override
     protected Object getDisplayValue ()
         throws Exception
     {
@@ -120,7 +120,7 @@ public class PulldownFieldEditor extends FieldEditor
         return ((Choice)obj).value;
     }
 
-    // documentation inherited
+    @Override
     protected void displayValue (Object value)
     {
         for (int ii = _value.getItemCount() - 1; ii >= 0; ii--) {

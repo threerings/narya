@@ -44,7 +44,7 @@ public class TrackedObject
         incrementInstanceCount();
     }
 
-    // documentation inherited
+    @Override
     protected Object clone ()
         throws CloneNotSupportedException
     {
@@ -67,6 +67,7 @@ public class TrackedObject
     }
 
     /** Records that this object was collected. */
+    @Override
     protected void finalize ()
         throws Throwable
     {

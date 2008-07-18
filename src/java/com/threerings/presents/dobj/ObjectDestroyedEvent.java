@@ -49,7 +49,7 @@ public class ObjectDestroyedEvent extends DEvent
     {
     }
 
-    // documentation inherited
+    @Override
     public boolean applyToObject (DObject target)
         throws ObjectAccessException
     {
@@ -58,7 +58,7 @@ public class ObjectDestroyedEvent extends DEvent
         return true;
     }
 
-    // documentation inherited
+    @Override
     protected void notifyListener (Object listener)
     {
         if (listener instanceof ObjectDeathListener) {
@@ -66,7 +66,7 @@ public class ObjectDestroyedEvent extends DEvent
         }
     }
 
-    // documentation inherited
+    @Override
     protected void toString (StringBuilder buf)
     {
         buf.append("DESTROY:");

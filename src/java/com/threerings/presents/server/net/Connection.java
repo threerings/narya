@@ -36,7 +36,6 @@ import java.security.NoSuchAlgorithmException;
 import com.samskivert.util.StringUtil;
 
 import com.threerings.io.ByteBufferInputStream;
-import com.threerings.io.ByteBufferOutputStream;
 import com.threerings.io.FramedInputStream;
 import com.threerings.io.FramingOutputStream;
 import com.threerings.io.ObjectInputStream;

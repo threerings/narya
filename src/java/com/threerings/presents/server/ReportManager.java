@@ -30,8 +30,6 @@ import com.samskivert.util.Interval;
 import com.samskivert.util.RunQueue;
 import com.samskivert.util.StringUtil;
 
-import com.threerings.presents.annotation.EventQueue;
-
 import static com.threerings.presents.Log.log;
 
 /**
@@ -62,6 +60,7 @@ public class ReportManager
     {
         // queue up an interval which will generate reports
         _reportInterval = new Interval(rqueue) {
+            @Override
             public void expired () {
                 logReport(generateReport(System.currentTimeMillis(), true));
             }

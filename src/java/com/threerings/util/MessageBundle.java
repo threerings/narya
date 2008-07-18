@@ -403,9 +403,7 @@ public class MessageBundle
         }
     }
 
-    /**
-     * Returns a string representation of this instance.
-     */
+    @Override
     public String toString ()
     {
         return "[bundle=" + _bundle + ", path=" + _path + "]";

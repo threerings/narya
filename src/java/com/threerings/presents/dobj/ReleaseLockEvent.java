@@ -54,7 +54,7 @@ public class ReleaseLockEvent extends NamedEvent
     {
     }
 
-    // documentation inherited
+    @Override
     public boolean isPrivate ()
     {
         // we need only run on the server; no need to propagate to proxies
@@ -64,6 +64,7 @@ public class ReleaseLockEvent extends NamedEvent
     /**
      * Applies this lock release to the object.
      */
+    @Override
     public boolean applyToObject (DObject target)
         throws ObjectAccessException
     {
@@ -73,6 +74,7 @@ public class ReleaseLockEvent extends NamedEvent
         return false;
     }
 
+    @Override
     protected void toString (StringBuilder buf)
     {
         buf.append("UNLOCK:");

@@ -23,8 +23,6 @@ package com.threerings.presents.server;
 
 import com.samskivert.io.PersistenceException;
 
-import com.samskivert.util.Invoker;
-
 import com.threerings.presents.net.AuthResponse;
 import com.threerings.presents.net.AuthResponseData;
 import com.threerings.presents.server.net.AuthingConnection;
@@ -36,7 +34,7 @@ import static com.threerings.presents.Log.log;
  */
 public class DummyAuthenticator extends Authenticator
 {
-    // from abstract Authenticator
+    @Override
     protected void processAuthentication (AuthingConnection conn, AuthResponse rsp)
         throws PersistenceException
     {

@@ -35,9 +35,7 @@ public abstract class DownstreamMessage extends Message
      */
     public short messageId = -1;
 
-    /**
-     * Generates a string representation of this instance.
-     */
+    @Override
     public String toString ()
     {
         return "[msgid=" + messageId + "]";

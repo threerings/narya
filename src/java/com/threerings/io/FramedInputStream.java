@@ -193,6 +193,7 @@ public class FramedInputStream extends InputStream
      * @return the next byte of data, or <code>-1</code> if the end of the
      * stream has been reached.
      */
+    @Override
     public int read ()
     {
         return (_buffer.remaining() > 0) ? (_buffer.get() & 0xFF) : -1;
@@ -221,6 +222,7 @@ public class FramedInputStream extends InputStream
      * <code>-1</code> if there is no more data because the end of the
      * stream has been reached.
      */
+    @Override
     public int read (byte[] b, int off, int len)
     {
         // if they want no bytes, we give them no bytes; this is
@@ -252,6 +254,7 @@ public class FramedInputStream extends InputStream
      *
      * @return the actual number of bytes skipped.
      */
+    @Override
     public long skip (long n)
     {
         throw new UnsupportedOperationException();
@@ -264,6 +267,7 @@ public class FramedInputStream extends InputStream
      * @return the number of bytes remaining to be read from the buffered
      * frame.
      */
+    @Override
     public int available ()
     {
         return _buffer.remaining();
@@ -273,6 +277,7 @@ public class FramedInputStream extends InputStream
      * Always returns false as framed input streams do not support
      * marking.
      */
+    @Override
     public boolean markSupported ()
     {
         return false;
@@ -281,6 +286,7 @@ public class FramedInputStream extends InputStream
     /**
      * Does nothing, as marking is not supported.
      */
+    @Override
     public void mark (int readAheadLimit)
     {
         // not supported; do nothing
@@ -289,6 +295,7 @@ public class FramedInputStream extends InputStream
     /**
      * Resets the buffer to the beginning of the buffered frames.
      */
+    @Override
     public void reset ()
     {
         // position our buffer at the beginning of the frame data

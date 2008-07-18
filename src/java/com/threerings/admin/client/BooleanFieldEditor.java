@@ -59,14 +59,14 @@ public class BooleanFieldEditor extends FieldEditor
         _value.addFocusListener(this);
     }
 
-    // documentation inherited
+    @Override
     protected Object getDisplayValue ()
         throws Exception
     {
         return Boolean.valueOf(_value.isSelected());
     }
 
-    // documentation inherited
+    @Override
     protected void displayValue (Object value)
     {
         _value.setSelected(Boolean.TRUE.equals(value));

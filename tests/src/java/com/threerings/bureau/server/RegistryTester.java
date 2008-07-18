@@ -121,6 +121,7 @@ public class RegistryTester
         _server.setClientTarget(_clientTarget);
 
         Thread thread = new Thread("Registry test thread") {
+            @Override
             public void run () {
                 log.info(getName() + " started");
                 runTestThread();

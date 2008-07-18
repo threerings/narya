@@ -409,14 +409,13 @@ public class DSet<E extends DSet.Entry>
     /**
      * Generates a shallow copy of this object.
      */
+    @Override
     public Object clone ()
     {
         return typedClone();
     }
 
-    /**
-     * Generates a string representation of this set instance.
-     */
+    @Override
     public String toString ()
     {
         StringBuilder buf = new StringBuilder("(");

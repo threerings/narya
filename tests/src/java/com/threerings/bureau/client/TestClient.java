@@ -90,11 +90,13 @@ public class TestClient extends BureauClient
      */
     static protected class TestAgent extends Agent
     {
+        @Override
         public void start ()
         {
             log.info("Starting agent " + StringUtil.toString(_agentObj));
         }
 
+        @Override
         public void stop ()
         {
             log.info("Stopping agent " + StringUtil.toString(_agentObj));
@@ -118,11 +120,13 @@ public class TestClient extends BureauClient
     }
 
     // overridden - creates a simple director
+    @Override
     protected BureauDirector createDirector ()
     {
         // just use our test agent exclusively - in the real world, the agent created would depend 
         // on the object's type and/or properties
         return new BureauDirector(_ctx) {
+            @Override
             public Agent createAgent (AgentObject agentObj) {
                 return new TestAgent();
             }

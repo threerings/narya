@@ -50,6 +50,7 @@ public class FailureResponse extends DownstreamMessage
         return _message;
     }
 
+    @Override
     public String toString ()
     {
         return "[type=FAIL, msgid=" + messageId + ", oid=" + _oid + ", msg=" + _message + "]";

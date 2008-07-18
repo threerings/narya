@@ -32,8 +32,6 @@ import com.threerings.util.Name;
 import com.threerings.presents.annotation.MainInvoker;
 import com.threerings.presents.data.ClientObject;
 import com.threerings.presents.data.PermissionPolicy;
-import com.threerings.presents.dobj.DObject;
-import com.threerings.presents.dobj.ObjectAccessException;
 import com.threerings.presents.dobj.RootDObjectManager;
 
 import static com.threerings.presents.Log.log;
@@ -92,7 +90,7 @@ public class ClientResolver extends Invoker.Unit
         _invoker.postUnit(this);
     }
 
-    // documentation inherited
+    @Override
     public boolean invoke ()
     {
         try {
@@ -105,7 +103,7 @@ public class ClientResolver extends Invoker.Unit
         return true;
     }
 
-    // documentation inherited
+    @Override
     public void handleResult ()
     {
         // if we haven't failed, finish resolution on the dobj thread
@@ -140,7 +138,7 @@ public class ClientResolver extends Invoker.Unit
         }
     }
 
-    // documentation inherited
+    @Override
     public String toString ()
     {
         return "ClientResolver:" + _username;

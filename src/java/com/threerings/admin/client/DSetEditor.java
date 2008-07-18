@@ -121,7 +121,7 @@ public class DSetEditor extends JPanel
         return (DSet.Entry)_table.getSelectedObject();
     }
 
-    // documentation inherited
+    @Override
     public Dimension getPreferredSize ()
     {
         Dimension d = super.getPreferredSize();
@@ -129,7 +129,7 @@ public class DSetEditor extends JPanel
         return d;
     }
 
-    // documentation inherited
+    @Override
     public void addNotify ()
     {
         super.addNotify();
@@ -140,7 +140,7 @@ public class DSetEditor extends JPanel
         refreshData();
     }
 
-    // documentation inherited
+    @Override
     public void removeNotify ()
     {
         _setter.removeListener(this);

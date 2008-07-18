@@ -540,6 +540,7 @@ public class BlockingCommunicator extends Communicator
             super("BlockingCommunicator_Reader");
         }
 
+        @Override
         protected void willStart ()
         {
             // first we connect and authenticate with the server
@@ -609,6 +610,7 @@ public class BlockingCommunicator extends Communicator
 
         // now that we're authenticated, we manage the reading half of things by continuously
         // reading messages from the socket and processing them
+        @Override
         protected void iterate ()
         {
             DownstreamMessage msg = null;
@@ -642,17 +644,20 @@ public class BlockingCommunicator extends Communicator
             }
         }
 
+        @Override
         protected void handleIterateFailure (Exception e)
         {
             log.warning("Uncaught exception it reader thread.", e);
         }
 
+        @Override
         protected void didShutdown ()
         {
             // let the communicator know when we finally go away
             readerDidExit();
         }
 
+        @Override
         protected void kick ()
         {
             // we want to interrupt the reader thread as it may be blocked listening to the socket;
@@ -677,6 +682,7 @@ public class BlockingCommunicator extends Communicator
             super("BlockingCommunicator_Writer");
         }
         
+        @Override
         protected void iterate ()
         {
             // fetch the next message from the queue
@@ -700,16 +706,19 @@ public class BlockingCommunicator extends Communicator
             }
         }
 
+        @Override
         protected void handleIterateFailure (Exception e)
         {
             log.warning("Uncaught exception it writer thread.", e);
         }
 
+        @Override
         protected void didShutdown ()
         {
             writerDidExit();
         }
 
+        @Override
         protected void kick ()
         {
             // post a bogus message to the outgoing queue to ensure that the writer thread notices
@@ -728,6 +737,7 @@ public class BlockingCommunicator extends Communicator
             super("BlockingCommunicator_DatagramReader");
         }
 
+        @Override
         protected void willStart ()
         {
             try {
@@ -823,6 +833,7 @@ public class BlockingCommunicator extends Communicator
             return false;
         }
 
+        @Override
         protected void iterate ()
         {
             DownstreamMessage msg = null;
@@ -849,16 +860,19 @@ public class BlockingCommunicator extends Communicator
             }
         }
 
+        @Override
         protected void handleIterateFailure (Exception e)
         {
             log.warning("Uncaught exception in datagram reader thread.", e);
         }
 
+        @Override
         protected void didShutdown ()
         {
             datagramReaderDidExit();
         }
 
+        @Override
         protected void kick ()
         {
             // if we have a selector, wake it up
@@ -878,6 +892,7 @@ public class BlockingCommunicator extends Communicator
             super("BlockingCommunicator_DatagramWriter");
         }
 
+        @Override
         protected void iterate ()
         {
             // fetch the next message from the queue
@@ -898,16 +913,19 @@ public class BlockingCommunicator extends Communicator
             }
         }
 
+        @Override
         protected void handleIterateFailure (Exception e)
         {
             log.warning("Uncaught exception in datagram writer thread.", e);
         }
 
+        @Override
         protected void didShutdown ()
         {
             datagramWriterDidExit();
         }
 
+        @Override
         protected void kick ()
         {
             // post a bogus message to the outgoing queue to ensure that the writer thread notices

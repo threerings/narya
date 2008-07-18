@@ -47,19 +47,19 @@ public class UsernamePasswordCreds extends Credentials
         return _password;
     }
 
-    @Override // documentation inherited
+    @Override
     public String getDatagramSecret ()
     {
         return _password;
     }
 
-    // documentation inherited
+    @Override
     public int hashCode ()
     {
         return super.hashCode() ^ _password.hashCode();
     }
 
-    // documentation inherited
+    @Override
     public boolean equals (Object other)
     {
         if (other instanceof UsernamePasswordCreds) {
@@ -71,7 +71,7 @@ public class UsernamePasswordCreds extends Credentials
         }
     }
 
-    // documentation inherited
+    @Override
     protected void toString (StringBuilder buf)
     {
         super.toString(buf);

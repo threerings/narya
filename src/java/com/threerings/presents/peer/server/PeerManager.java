@@ -220,6 +220,7 @@ public abstract class PeerManager
         _self = new NodeRecord(
             _nodeName, hostName, (publicHostName == null) ? hostName : publicHostName, port);
         _invoker.postUnit(new WriteOnlyUnit("registerNode(" + _self + ")") {
+            @Override
             public void invokePersist () throws Exception {
                 _noderepo.updateNode(_self);
             }
@@ -701,6 +702,7 @@ public abstract class PeerManager
 
         // clear our record from the node table
         _invoker.postUnit(new WriteOnlyUnit("deleteNode(" + _nodeName + ")") {
+            @Override
             public void invokePersist () throws Exception {
                 _noderepo.deleteNode(_nodeName);
             }
@@ -797,12 +799,14 @@ public abstract class PeerManager
     {
         // load up information on our nodes
         _invoker.postUnit(new RepositoryUnit("refreshPeers") {
+            @Override
             public void invokePersist () throws Exception {
                 // let the world know that we're alive
                 _noderepo.heartbeatNode(_nodeName);
                 // then load up all the peer records
                 _nodes = _noderepo.loadNodes();
             }
+            @Override
             public void handleSuccess() {
                 for (NodeRecord record : _nodes) {
                     if (record.nodeName.equals(_nodeName)) {
@@ -815,6 +819,7 @@ public abstract class PeerManager
                     }
                 }
             }
+            @Override
             public long getLongThreshold () {
                 return 700L;
             }
@@ -1011,6 +1016,7 @@ public abstract class PeerManager
 
             // schedule a timeout to act if something goes wrong
             (_timeout = new Interval(_omgr) {
+                @Override
                 public void expired () {
                     log.warning("Lock handler timed out, acting anyway [lock=" + _lock +
                                 ", acquire=" + _acquire + "].");
@@ -1187,6 +1193,7 @@ public abstract class PeerManager
 
     // (this need not use a runqueue as all it will do is post an invoker unit)
     protected Interval _peerRefresher = new Interval() {
+        @Override
         public void expired () {
             refreshPeers();
         }

@@ -40,6 +40,7 @@ public class Transport
          * and without duplicates.  Functionally identical to UDP.
          */
         UNRELIABLE_UNORDERED(false, false) {
+            @Override
             public Type combine (Type other) {
                 return other; // we defer to all
             }
@@ -50,6 +51,7 @@ public class Transport
          * order and without duplicates.  In other words, out-of-order packets will be dropped.
          */
         UNRELIABLE_ORDERED(false, true) {
+            @Override
             public Type combine (Type other) {
                 return other.isReliable() ? RELIABLE_ORDERED : this;
             }
@@ -60,6 +62,7 @@ public class Transport
          * order.
          */
         RELIABLE_UNORDERED(true, false) {
+            @Override
             public Type combine (Type other) {
                 return other.isOrdered() ? RELIABLE_ORDERED : this;
             }
@@ -70,6 +73,7 @@ public class Transport
          * Functionally identical to TCP.
          */
         RELIABLE_ORDERED(true, true) {
+            @Override
             public Type combine (Type other) {
                 return this; // we override all
             }

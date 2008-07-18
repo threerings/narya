@@ -140,6 +140,7 @@ public class DatabaseConfigRegistry extends ConfigRegistry
             super.init();
         }
 
+        @Override
         protected boolean getValue (String field, boolean defval) {
             String value = _data.get(field);
             if (value != null) {
@@ -148,6 +149,7 @@ public class DatabaseConfigRegistry extends ConfigRegistry
             return defval;
         }
 
+        @Override
         protected short getValue (String field, short defval) {
             String value = _data.get(field);
             try {
@@ -160,6 +162,7 @@ public class DatabaseConfigRegistry extends ConfigRegistry
             return defval;
         }
 
+        @Override
         protected int getValue (String field, int defval) {
             String value = _data.get(field);
             try {
@@ -172,6 +175,7 @@ public class DatabaseConfigRegistry extends ConfigRegistry
             return defval;
         }
 
+        @Override
         protected long getValue (String field, long defval) {
             String value = _data.get(field);
             try {
@@ -184,6 +188,7 @@ public class DatabaseConfigRegistry extends ConfigRegistry
             return defval;
         }
 
+        @Override
         protected float getValue (String field, float defval) {
             String value = _data.get(field);
             try {
@@ -196,11 +201,13 @@ public class DatabaseConfigRegistry extends ConfigRegistry
             return defval;
         }
 
+        @Override
         protected String getValue (String field, String defval) {
             String value = _data.get(field);
             return (value == null) ? defval : value;
         }
 
+        @Override
         protected int[] getValue (String field, int[] defval) {
             String value = _data.get(field);
             try {
@@ -216,6 +223,7 @@ public class DatabaseConfigRegistry extends ConfigRegistry
             return defval;
         }
 
+        @Override
         protected float[] getValue (String field, float[] defval) {
             String value = _data.get(field);
             try {
@@ -231,6 +239,7 @@ public class DatabaseConfigRegistry extends ConfigRegistry
             return defval;
         }
 
+        @Override
         protected long[] getValue (String field, long[] defval) {
             String value = _data.get(field);
             try {
@@ -246,6 +255,7 @@ public class DatabaseConfigRegistry extends ConfigRegistry
             return defval;
         }
 
+        @Override
         protected String[] getValue (String field, String[] defval) {
             String value = _data.get(field);
             try {
@@ -258,33 +268,43 @@ public class DatabaseConfigRegistry extends ConfigRegistry
             return defval;
         }
 
+        @Override
         protected void setValue (String field, boolean value) {
             setAndFlush(field, String.valueOf(value));
         }
+        @Override
         protected void setValue (String field, short value) {
             setAndFlush(field, String.valueOf(value));
         }
+        @Override
         protected void setValue (String field, int value) {
             setAndFlush(field, String.valueOf(value));
         }
+        @Override
         protected void setValue (String field, long value) {
             setAndFlush(field, String.valueOf(value));
         }
+        @Override
         protected void setValue (String field, float value) {
             setAndFlush(field, String.valueOf(value));
         }
+        @Override
         protected void setValue (String field, String value) {
             setAndFlush(field, value);
         }
+        @Override
         protected void setValue (String field, int[] value) {
             setAndFlush(field, StringUtil.toString(value, "", ""));
         }
+        @Override
         protected void setValue (String field, float[] value) {
             setAndFlush(field, StringUtil.toString(value, "", ""));
         }
+        @Override
         protected void setValue (String field, long[] value) {
             setAndFlush(field, StringUtil.toString(value, "", ""));
         }
+        @Override
         protected void setValue (String field, String[] value) {
             setAndFlush(field, StringUtil.joinEscaped(value));
         }
@@ -293,6 +313,7 @@ public class DatabaseConfigRegistry extends ConfigRegistry
             _data.put(field, value);
             String iname = "updateConfig(" + _path + ", " + field + ", value=" + value + ")";
             _invoker.postUnit(new WriteOnlyUnit(iname) {
+                @Override
                 public void invokePersist () throws Exception {
                     _repo.updateConfig(_node, _path, field, value);
                 }

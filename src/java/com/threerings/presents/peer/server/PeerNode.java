@@ -60,6 +60,7 @@ public class PeerNode
         _omgr = omgr;
         _record = record;
         _client = new Client(null, _omgr) {
+            @Override
             protected void convertFromRemote (DObject target, DEvent event) {
                 super.convertFromRemote(target, event);
                 // rewrite the event's target oid using the oid currently configured on the
@@ -70,6 +71,7 @@ public class PeerNode
                 // properly deal with it
                 event.eventId = PeerNode.this._omgr.getNextEventId(true);
             }
+            @Override
             protected Communicator createCommunicator () {
                 // TODO: make a custom communicator that uses the ClientManager NIO system to do
                 // its I/O instead of using two threads and blocking socket I/O

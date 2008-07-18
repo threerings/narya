@@ -34,7 +34,7 @@ import com.threerings.crowd.data.OccupantInfo;
  */
 public class CrowdClient extends PresentsClient
 {
-    // documentation inherited
+    @Override
     protected void sessionConnectionClosed ()
     {
         super.sessionConnectionClosed();
@@ -46,7 +46,7 @@ public class CrowdClient extends PresentsClient
         }
     }
 
-    // documentation inherited
+    @Override
     protected void sessionWillResume ()
     {
         super.sessionWillResume();
@@ -56,7 +56,7 @@ public class CrowdClient extends PresentsClient
         _bodyman.updateOccupantStatus(bobj, bobj.location, OccupantInfo.ACTIVE);
     }
 
-    // documentation inherited
+    @Override
     protected void sessionDidEnd ()
     {
         super.sessionDidEnd();

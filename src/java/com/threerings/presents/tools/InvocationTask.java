@@ -48,8 +48,6 @@ import com.samskivert.util.StringUtil;
 import com.samskivert.velocity.VelocityUtil;
 
 import com.threerings.presents.annotation.TransportHint;
-import com.threerings.presents.net.Transport;
-
 import com.threerings.presents.client.InvocationService.InvocationListener;
 
 /**
@@ -331,7 +329,7 @@ public abstract class InvocationTask extends Task
         ((AntClassLoader)_cloader).setParent(getClass().getClassLoader());
     }
 
-    /** Performs the actual work of the task. */
+    @Override
     public void execute () throws BuildException
     {
         if (_cloader == null) {

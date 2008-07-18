@@ -31,14 +31,10 @@ import java.util.Date;
 import java.util.Map;
 import java.util.Properties;
 
-import com.samskivert.util.StringUtil;
-
 import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.DirectoryScanner;
 import org.apache.tools.ant.Task;
 import org.apache.tools.ant.types.FileSet;
-import org.apache.tools.ant.types.Reference;
-import org.apache.tools.ant.util.ClasspathUtils;
 
 /**
  * Generates our own ResourceBundle classes.
@@ -58,6 +54,7 @@ public class GenActionScriptBundlesTask extends Task
         _asroot = asroot;
     }
 
+    @Override
     public void execute ()
         throws BuildException
     {

@@ -26,12 +26,10 @@ import com.google.inject.Injector;
 
 import com.samskivert.io.PersistenceException;
 
-import com.samskivert.util.Invoker;
 import com.samskivert.util.StringUtil;
 import com.threerings.util.MessageBundle;
 
 import com.threerings.presents.net.AuthResponse;
-import com.threerings.presents.net.AuthResponseData;
 import com.threerings.presents.server.net.AuthingConnection;
 
 import static com.threerings.presents.Log.log;
@@ -51,7 +49,7 @@ public class Rejector extends PresentsServer
         }
     }
 
-    // documentation inherited
+    @Override
     protected int[] getListenPorts ()
     {
         return _ports;
@@ -87,7 +85,7 @@ public class Rejector extends PresentsServer
      */
     protected class RejectingAuthenticator extends Authenticator
     {
-        // from abstract Authenticator
+        @Override
         protected void processAuthentication (AuthingConnection conn, AuthResponse rsp)
             throws PersistenceException
         {

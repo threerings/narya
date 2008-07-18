@@ -48,6 +48,7 @@ public class SubscribeRequest extends UpstreamMessage
         return _oid;
     }
 
+    @Override
     public String toString ()
     {
         return "[type=SUB, msgid=" + messageId + ", oid=" + _oid + "]";

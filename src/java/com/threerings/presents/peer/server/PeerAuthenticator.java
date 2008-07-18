@@ -28,7 +28,6 @@ import com.threerings.presents.data.AuthCodes;
 import com.threerings.presents.net.AuthRequest;
 import com.threerings.presents.net.AuthResponse;
 import com.threerings.presents.net.AuthResponseData;
-import com.threerings.presents.server.Authenticator;
 import com.threerings.presents.server.ChainedAuthenticator;
 import com.threerings.presents.server.net.AuthingConnection;
 

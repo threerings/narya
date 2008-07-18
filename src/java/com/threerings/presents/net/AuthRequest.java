@@ -82,9 +82,7 @@ public class AuthRequest extends UpstreamMessage
         return _bootGroups;
     }
 
-    /**
-     * Generates a string representation of this instance.
-     */
+    @Override
     public String toString ()
     {
         return "[type=AREQ, msgid=" + messageId + ", creds=" + _creds +

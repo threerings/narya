@@ -51,6 +51,7 @@ public class RunningConnection extends Connection
     {
     }
 
+    @Override
     public String toString ()
     {
         return "[mode=RUNNING, id=" + (hashCode() % 1000) +

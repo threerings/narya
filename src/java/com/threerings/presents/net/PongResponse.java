@@ -125,6 +125,7 @@ public class PongResponse extends DownstreamMessage
         return _transport;
     }
 
+    @Override
     public String toString ()
     {
         return "[type=PONG, msgid=" + messageId + ", transport=" + _transport + "]";

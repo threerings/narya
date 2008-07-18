@@ -144,6 +144,7 @@ public class ClientCommunicator extends BlockingCommunicator
             _nextPort = nextPort;
         }
 
+        @Override
         public void expired () {
             if (clearPPI(false)) {
                 setPrefPort(_key, _thisPort);

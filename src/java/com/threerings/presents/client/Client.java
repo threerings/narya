@@ -425,9 +425,11 @@ public class Client
         // appropriate
         if (_tickInterval == null) {
             _tickInterval = new Interval(_runQueue) {
+                @Override
                 public void expired () {
                     tick();
                 }
+                @Override
                 public String toString () {
                     return "Client.tickInterval";
                 }
@@ -897,6 +899,7 @@ public class Client
             }
         }
 
+        @Override
         public void clientDidClear (Client client)
         {
             // configure the client to point to the new server and logon
@@ -910,6 +913,7 @@ public class Client
             }
         }
 
+        @Override
         public void clientDidLogon (Client client)
         {
             removeClientObserver(this);
@@ -918,6 +922,7 @@ public class Client
             }
         }
 
+        @Override
         public void clientFailedToLogon (Client client, Exception cause)
         {
             removeClientObserver(this);

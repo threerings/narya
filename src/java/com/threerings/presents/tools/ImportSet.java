@@ -91,9 +91,7 @@ public class ImportSet
         _imports.add(name);
     }
 
-    /**
-     * Makes a copy of this import set. 
-     */ 
+    @Override
     public ImportSet clone ()
     {
         ImportSet newset = new ImportSet();
@@ -322,7 +320,7 @@ public class ImportSet
         return list;
     }
 
-    @Override // from Object
+    @Override
     public String toString ()
     {
         return StringUtil.toString(_imports);

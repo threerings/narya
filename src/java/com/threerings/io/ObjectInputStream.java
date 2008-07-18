@@ -230,9 +230,7 @@ public class ObjectInputStream extends DataInputStream
         _streamer.readObject(_current, this, false);
     }
 
-    /**
-     * Generates a string representation of this instance.
-     */
+    @Override
     public String toString ()
     {
         return "[hash=" + hashCode() + ", mappings=" + _classmap.size() +

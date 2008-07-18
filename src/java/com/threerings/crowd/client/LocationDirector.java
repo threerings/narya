@@ -393,7 +393,7 @@ public class LocationDirector extends BasicDirector
         }
     }
 
-    // documentation inherited from interface
+    @Override
     public void clientDidLogon (Client client)
     {
         super.clientDidLogon(client);
@@ -412,7 +412,7 @@ public class LocationDirector extends BasicDirector
         client.getDObjectManager().subscribeToObject(cloid, sub);
     }
 
-    // documentation inherited from interface
+    @Override
     public void clientDidLogoff (Client client)
     {
         super.clientDidLogoff(client);
@@ -432,13 +432,13 @@ public class LocationDirector extends BasicDirector
         _lservice = null;
     }
 
-    @Override // from BasicDirector
+    @Override
     protected void registerServices (Client client)
     {
         client.addServiceGroup(CrowdCodes.CROWD_GROUP);
     }
 
-    // documentation inherited
+    @Override
     protected void fetchServices (Client client)
     {
         // obtain our service handle

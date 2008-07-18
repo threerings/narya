@@ -13,12 +13,14 @@ import com.threerings.crowd.data.PlaceConfig;
 public class JabberConfig extends PlaceConfig
 {
     // documentation inherited
+    @Override
     public PlaceController createController ()
     {
         return new JabberController();
     }
 
     // documentation inherited
+    @Override
     public String getManagerClassName ()
     {
         // nothing special needed on the server side

@@ -87,6 +87,7 @@ public class StreamableTest extends TestCase
             _fizzle = in.readInt();
         }
 
+        @Override
         protected void toString (StringBuilder buf)
         {
             super.toString(buf);
@@ -101,6 +102,7 @@ public class StreamableTest extends TestCase
         super(StreamableTest.class.getName());
     }
 
+    @Override
     public void runTest ()
     {
         try {
