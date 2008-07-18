@@ -29,6 +29,9 @@ import com.threerings.util.Name;
  */
 public class BureauCredentials extends Credentials
 {
+    public static String PREFIX = "@@bureau:";
+    public static String SUFFIX = "@@";
+
     /**
      * The token to pass to the server when logging in. This is usually just passed to the bureau 
      * on the command line to guard against outside connections being established.
@@ -46,7 +49,22 @@ public class BureauCredentials extends Credentials
     public static boolean isBureau (Name name)
     {
         String normal = name.getNormal();
-        return normal.startsWith("@@bureau:") && normal.endsWith("@@");
+        return normal.startsWith(PREFIX) && normal.endsWith(SUFFIX);
+    }
+
+    /**
+     * Extract the buerauId from the name that we generate.
+     */
+    public static String extractBureauId (Name name)
+    {
+        String normal = name.getNormal();
+        int prefixPos = normal.indexOf(PREFIX);
+        int suffixPos = normal.lastIndexOf(SUFFIX);
+        if (prefixPos != 0 || suffixPos != normal.length() - SUFFIX.length()) {
+            return null;
+        }
+
+        return normal.substring(prefixPos + PREFIX.length(), suffixPos);
     }
 
     /**

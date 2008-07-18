@@ -41,6 +41,7 @@ import com.threerings.presents.dobj.ObjectDestroyedEvent;
 import com.threerings.presents.dobj.RootDObjectManager;
 import com.threerings.presents.server.ClientManager;
 import com.threerings.presents.server.InvocationManager;
+import com.threerings.presents.server.PresentsClient;
 
 import com.threerings.bureau.data.AgentObject;
 import com.threerings.bureau.data.BureauCodes;
@@ -112,17 +113,40 @@ public class BureauRegistry
     }
 
     /**
-     * Provides the Bureau registry with necessary runtime configuration.
+     * Provides the Bureau registry with necessary runtime configuration. Inserts the bureau
+     * client factory into the client manager and registers observers to track the progress
+     * of launched bureaus.
      */
     public void init ()
     {
+        _clmgr.addClientObserver(new ClientManager.ClientObserver() {
+            public void clientSessionDidStart (PresentsClient client) {
+                String id = BureauCredentials.extractBureauId(client.getUsername());
+                if (id != null) {
+                    sessionDidStart(client, id);
+                }
+            }
+            public void clientSessionDidEnd (PresentsClient client) {
+                String id = BureauCredentials.extractBureauId(client.getUsername());
+                if (id != null) {
+                    sessionDidEnd(client, id);
+                }
+            }
+        });
+
+        // add the client factory, but later, after all the other modules have been initialized
+        _omgr.postRunnable(new Runnable() {
+            public void run () {
+                addClientFactory(_clmgr);
+            }
+        });
     }
 
     /**
      * Install the bureau client factory in the manager, delegating to the current factory
      * for non-bureau connections.
      */
-    public void addClientFactory (ClientManager clmgr)
+    @Deprecated public void addClientFactory (ClientManager clmgr)
     {
         clmgr.setClientFactory(
             new BureauClientFactory(clmgr.getClientFactory()));
@@ -294,6 +318,50 @@ public class BureauRegistry
     }
 
     /**
+     * Returns the active session for a bureau of the given id.
+     */
+    public PresentsClient lookupClient (String bureauId)
+    {
+        Bureau bureau = _bureaus.get(bureauId);
+        if (bureau == null) {
+            return null;
+        }
+        return bureau.client;
+    }
+
+    protected void sessionDidStart (PresentsClient client, String id)
+    {
+        Bureau bureau = _bureaus.get(id);
+        if (bureau == null) {
+            log.warning("Starting session for unknoqn bureau", "id", id, "client", client);
+            return;
+        }
+        if (bureau.client != null) {
+            log.warning(
+                "Multiple sessions for the same bureau", "id", id, "client", client, "bureau", 
+                bureau);
+        }
+        bureau.client = client;
+    }
+
+    protected void sessionDidEnd (PresentsClient client, String id)
+    {
+        Bureau bureau = _bureaus.get(id);
+        if (bureau == null) {
+            log.warning("Ending session for unknown bureau", "id", id, "client", client);
+            return;
+        }
+        if (bureau.client == null) {
+            log.warning(
+                "Multiple logouts from the same bureau", "id", id, "client", client, "bureau", 
+                bureau);
+        }
+        bureau.client = null;
+
+        clientDestroyed(bureau);
+    }
+
+    /**
      * Callback for when the bureau client acknowledges starting up. Starts all pending agents and
      * causes subsequent agent start requests to be sent directly to the bureau.
      */
@@ -444,6 +512,11 @@ public class BureauRegistry
         // clean up any agents attached to this bureau
         for (AgentObject agent : bureau.agentStates.keySet()) {
             _omgr.destroyObject(agent.getOid());
+        }
+        bureau.agentStates.clear();
+
+        if (_bureaus.remove(bureau.bureauId) == null) {
+            log.info("Bureau not found to remove", "bureau", bureau);
         }
     }
 
@@ -598,6 +671,9 @@ public class BureauRegistry
         // the registry
         ClientObject clientObj;
 
+        // The client session
+        PresentsClient client;
+
         // The states of the various agents allocated to this bureau
         Map<AgentObject, Integer> agentStates = Maps.newHashMap();
 
@@ -658,4 +734,5 @@ public class BureauRegistry
 
     @Inject protected RootDObjectManager _omgr;
     @Inject protected @MainInvoker Invoker _invoker;
+    @Inject protected ClientManager _clmgr;
 }
