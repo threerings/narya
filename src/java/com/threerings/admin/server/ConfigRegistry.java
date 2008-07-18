@@ -33,7 +33,6 @@ import com.samskivert.util.StringUtil;
 import com.threerings.io.ObjectInputStream;
 import com.threerings.io.ObjectOutputStream;
 import com.threerings.io.Streamable;
-import com.threerings.presents.dobj.AccessController;
 import com.threerings.presents.dobj.AttributeChangeListener;
 import com.threerings.presents.dobj.AttributeChangedEvent;
 import com.threerings.presents.dobj.DObject;
@@ -79,7 +78,7 @@ public abstract class ConfigRegistry
 
     /**
      * Creates a ConfigRegistry.
-     * 
+     *
      * @param transitioning if true, serialized Streamable instances stored in the registry will
      * be written back out immediately to allow them to be transitioned to new class names.
      */
@@ -143,9 +142,9 @@ public abstract class ConfigRegistry
     {
         public DObject object;
 
-        public ObjectRecord (DObject object)
+        public ObjectRecord (DObject obj)
         {
-            this.object = object;
+            object = obj;
         }
 
         public void init ()
@@ -238,7 +237,7 @@ public abstract class ConfigRegistry
             } else if (value instanceof String[]) {
                 setValue(key, (String[])value);
             } else if (value instanceof long[]) {
-                setValue(key, (long[]) value);
+                setValue(key, (long[])value);
             } else {
                 log.info("Unable to flush config obj change [cobj=" + object.getClass().getName() +
                          ", key=" + key + ", type=" + value.getClass().getName() +
@@ -310,7 +309,7 @@ public abstract class ConfigRegistry
                         Object deserializedValue = oin.readObject();
                         field.set(object, deserializedValue);
                         if (_transitioning) {
-                            // Use serialize rather than serializeAttribute so we don't get 
+                            // Use serialize rather than serializeAttribute so we don't get
                             // ObjectAccessExceptions
                             serialize(key, nameToKey(key), deserializedValue);
                         }
@@ -404,8 +403,8 @@ public abstract class ConfigRegistry
     }
 
     /** A mapping from identifying key to config object. */
-    protected HashMap<String,ObjectRecord> _configs = new HashMap<String,ObjectRecord>();
-    
+    protected HashMap<String, ObjectRecord> _configs = new HashMap<String, ObjectRecord>();
+
     /** If we need to transition serialized Streamables to a new class format in init.. */
     protected boolean _transitioning;
 }

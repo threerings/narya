@@ -39,9 +39,9 @@ import static com.threerings.admin.Log.log;
  */
 public class ConfigObjectManager implements AdminService.ConfigInfoListener
 {
-    public ConfigObjectManager(Client client)
+    public ConfigObjectManager (Client client)
     {
-        _serverconfig = new HashMap<String,ConfigObject>();
+        _serverconfig = new HashMap<String, ConfigObject>();
         _client = client;
         _client.addClientObserver(new ClientAdapter() {
             public void clientWillLogon (Client client) {
@@ -62,7 +62,7 @@ public class ConfigObjectManager implements AdminService.ConfigInfoListener
     }
 
     /**
-     * Returns the ConfigObject identified by the given key
+     * Returns the ConfigObject identified by the given key.
      */
     public ConfigObject getServerConfig (String key)
     {
@@ -87,16 +87,16 @@ public class ConfigObjectManager implements AdminService.ConfigInfoListener
 
     /**
      * Convenience: generate a getConfigInfo request to the AdminService from the external class,
-     * instead from within the anonymous inner class
+     * instead from within the anonymous inner class.
      */
-    protected void getConfigInfo()
+    protected void getConfigInfo ()
     {
         _service.getConfigInfo(_client, this);
     }
 
     /**
      * This class takes care of the details of subscribing to and placing an individual
-     * ConfigObject that the server knows about into a HashMap
+     * ConfigObject that the server knows about into a HashMap.
      */
     protected class ConfigObjectSubscriber implements Subscriber<ConfigObject>
     {
@@ -133,28 +133,28 @@ public class ConfigObjectManager implements AdminService.ConfigInfoListener
             _serverconfig.remove(_key);
         }
 
-        /** The object that we are tracking */
+        /** The object that we are tracking. */
         protected ConfigObject _cobj;
 
-        /** The name of the config object that we are subscribing to */
+        /** The name of the config object to which we are subscribing. */
         protected String _key;
 
-        /** The oid of the object that we're tracking */
+        /** The oid of the object that we're tracking. */
         protected int _oid;
     }
 
-    /** An array of handlers that each subscribe to a single ConfigObject */
+    /** An array of handlers that each subscribe to a single ConfigObject. */
     protected ConfigObjectSubscriber[] _csubscribers;
 
-    /** Our local copy of the server-side runtime configuration */
-    protected HashMap<String,ConfigObject> _serverconfig;
+    /** Our local copy of the server-side runtime configuration. */
+    protected HashMap<String, ConfigObject> _serverconfig;
 
-    /** Our distributed object manager */
+    /** Our distributed object manager. */
     protected DObjectManager _dobjmgr;
 
-    /** Our admin service that we're using to fetch data */
+    /** Our admin service that we're using to fetch data. */
     protected AdminService _service;
 
-    /** Our client object */
+    /** Our client object. */
     protected Client _client;
 }

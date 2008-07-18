@@ -36,7 +36,6 @@ import com.google.inject.Injector;
 
 import com.samskivert.jdbc.RepositoryUnit;
 import com.samskivert.jdbc.WriteOnlyUnit;
-import com.samskivert.jdbc.depot.PersistenceContext;
 import com.samskivert.util.ArrayIntSet;
 import com.samskivert.util.ChainedResultListener;
 import com.samskivert.util.Interval;

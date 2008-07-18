@@ -35,7 +35,7 @@ import com.threerings.presents.dobj.DObject;
 import com.threerings.presents.util.PresentsContext;
 
 /**
- * Provides "editing" of boolean fields
+ * Provides "editing" of boolean fields.
  */
 public class BooleanFieldEditor extends FieldEditor
 {

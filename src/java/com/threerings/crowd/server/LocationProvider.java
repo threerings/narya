@@ -34,11 +34,11 @@ public interface LocationProvider extends InvocationProvider
     /**
      * Handles a {@link LocationService#leavePlace} request.
      */
-    public void leavePlace (ClientObject caller);
+    void leavePlace (ClientObject caller);
 
     /**
      * Handles a {@link LocationService#moveTo} request.
      */
-    public void moveTo (ClientObject caller, int arg1, LocationService.MoveListener arg2)
+    void moveTo (ClientObject caller, int arg1, LocationService.MoveListener arg2)
         throws InvocationException;
 }

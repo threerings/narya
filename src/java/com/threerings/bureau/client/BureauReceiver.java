@@ -29,7 +29,7 @@ import com.threerings.presents.client.InvocationReceiver;
 public interface BureauReceiver extends InvocationReceiver
 {
     /**
-     * Creates a new agent. Implementors should create a new {@link Agent} and give it access to 
+     * Creates a new agent. Implementors should create a new {@link Agent} and give it access to
      * the {@link AgentObject} referred to by the <code>agentId</code> parameter and must notify
      * the service that the agent has been created using {@link BureauService#agentCreated}.
      * @param client the client receiving the request
@@ -38,11 +38,11 @@ public interface BureauReceiver extends InvocationReceiver
     void createAgent (int agentId);
 
     /**
-     * Destroys a previously created agent. Implementors should destroy the agent that was created 
+     * Destroys a previously created agent. Implementors should destroy the agent that was created
      * by the call to <code>createAgent</code> with the same agent id and must notify
      * the service that the agent has been created using {@link BureauService#agentDestroyed}.
      * @param client the client receiving the request
-     * @param agentId the id of the <code>AgentObject</code> whose <code>Agent</code> 
+     * @param agentId the id of the <code>AgentObject</code> whose <code>Agent</code>
      * should be destroyed
      */
     void destroyAgent (int agentId);

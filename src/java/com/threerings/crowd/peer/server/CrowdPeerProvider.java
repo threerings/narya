@@ -36,11 +36,11 @@ public interface CrowdPeerProvider extends InvocationProvider
     /**
      * Handles a {@link CrowdPeerService#deliverBroadcast} request.
      */
-    public void deliverBroadcast (ClientObject caller, Name arg1, String arg2, String arg3, boolean arg4);
+    void deliverBroadcast (ClientObject caller, Name arg1, String arg2, String arg3, boolean arg4);
 
     /**
      * Handles a {@link CrowdPeerService#deliverTell} request.
      */
-    public void deliverTell (ClientObject caller, UserMessage arg1, Name arg2, ChatService.TellListener arg3)
+    void deliverTell (ClientObject caller, UserMessage arg1, Name arg2, ChatService.TellListener arg3)
         throws InvocationException;
 }

@@ -24,7 +24,7 @@ package com.threerings.bureau.client;
 import com.threerings.presents.client.Client;
 import com.threerings.presents.client.InvocationService;
 
-/** 
+/**
  * Interface for the bureau to communicate with the server.
  */
 public interface BureauService extends InvocationService

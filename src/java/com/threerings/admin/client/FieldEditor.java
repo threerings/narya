@@ -105,8 +105,7 @@ public abstract class FieldEditor extends JPanel
             try {
                 _object.changeAttribute(_field.getName(), value);
             } catch (ObjectAccessException oae) {
-                log.warning("Failed to update field " + _field.getName() +
-                            ": "+ oae);
+                log.warning("Failed to update field " + _field.getName() + ": " + oae);
             }
         }
     }

@@ -59,10 +59,10 @@ public class DatabaseConfigRegistry extends ConfigRegistry
     {
         this(ctx, invoker, false);
     }
-    
+
     /**
      * Creates a configuration registry and prepares it for operation.
-     * 
+     *
      * @param ctx will provide access to our database.
      * @param invoker this will be used to perform all database activity (except first time
      * initialization) so as to avoid blocking the distributed object thread.

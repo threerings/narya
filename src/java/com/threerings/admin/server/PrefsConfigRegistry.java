@@ -40,6 +40,7 @@ public class PrefsConfigRegistry extends ConfigRegistry
         return new PrefsObjectRecord(path, object);
     }
 
+    /** Stores preferences using the Java preferences system. */
     protected class PrefsObjectRecord extends ObjectRecord
     {
         public PrefsConfig config;

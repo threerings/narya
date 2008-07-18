@@ -78,13 +78,13 @@ public class AsStringFieldEditor extends FieldEditor
 
         } else if (_field.getType().equals(int[].class)) {
             return StringUtil.parseIntArray(_value.getText());
-            
+
         } else if (_field.getType().equals(float[].class)) {
             return StringUtil.parseFloatArray(_value.getText());
 
         } else if (_field.getType().equals(long[].class)) {
             return StringUtil.parseLongArray(_value.getText());
-            
+
         } else if (_field.getType().equals(Boolean.TYPE)) {
             return new Boolean(_value.getText().equalsIgnoreCase("true"));
 

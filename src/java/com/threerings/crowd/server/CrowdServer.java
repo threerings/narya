@@ -25,22 +25,16 @@ import com.google.inject.Guice;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
 import com.google.inject.Singleton;
-import com.samskivert.util.Invoker;
 
 import com.threerings.util.Name;
 
 import com.threerings.presents.net.AuthRequest;
 import com.threerings.presents.server.ClientFactory;
-import com.threerings.presents.server.ClientManager;
 import com.threerings.presents.server.ClientResolver;
-import com.threerings.presents.server.InvocationManager;
 import com.threerings.presents.server.PresentsClient;
-import com.threerings.presents.server.PresentsDObjectMgr;
 import com.threerings.presents.server.PresentsServer;
-import com.threerings.presents.server.net.ConnectionManager;
 
 import com.threerings.crowd.chat.server.ChatProvider;
-import com.threerings.crowd.data.BodyObject;
 
 import static com.threerings.crowd.Log.log;
 

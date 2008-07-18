@@ -32,5 +32,5 @@ public interface BodyProvider extends InvocationProvider
     /**
      * Handles a {@link BodyService#setIdle} request.
      */
-    public void setIdle (ClientObject caller, boolean arg1);
+    void setIdle (ClientObject caller, boolean arg1);
 }

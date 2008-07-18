@@ -31,7 +31,7 @@ public class BureauAuthenticator extends ChainedAuthenticator
 
     @Override // from Authenticator
     protected void processAuthentication (
-        AuthingConnection conn, 
+        AuthingConnection conn,
         AuthResponse rsp)
     {
         AuthRequest req = conn.getAuthRequest();
@@ -42,7 +42,7 @@ public class BureauAuthenticator extends ChainedAuthenticator
             rsp.getData().code = AuthResponseData.SUCCESS;
 
         } else {
-            log.warning("Received invalid bureau auth request [creds=" + 
+            log.warning("Received invalid bureau auth request [creds=" +
                 creds + "], problem: " + problem);
             rsp.getData().code = AuthCodes.SERVER_ERROR;
         }

@@ -48,13 +48,13 @@ public class PulldownFieldEditor extends FieldEditor
         /**
          * Construct a pulldown choice.
          */
-        public Choice (String displayName, Object value)
+        public Choice (String displayName, Object val)
         {
             if (displayName == null) {
                 throw new NullPointerException("displayName cannot be null.");
             }
             _name = displayName;
-            this.value = value;
+            value = val;
         }
 
         // documentation inherited
@@ -117,14 +117,14 @@ public class PulldownFieldEditor extends FieldEditor
         if (obj == null) {
             return null;
         }
-        return ((Choice) obj).value;
+        return ((Choice)obj).value;
     }
 
     // documentation inherited
     protected void displayValue (Object value)
     {
         for (int ii = _value.getItemCount() - 1; ii >= 0; ii--) {
-            Choice choice = (Choice) _value.getItemAt(ii);
+            Choice choice = (Choice)_value.getItemAt(ii);
             if (ObjectUtil.equals(value, choice.value)) {
                 _value.setSelectedIndex(ii);
                 return;

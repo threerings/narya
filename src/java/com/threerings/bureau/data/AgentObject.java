@@ -23,6 +23,9 @@ package com.threerings.bureau.data;
 
 import com.threerings.presents.dobj.DObject;
 
+/**
+ * Contains information for configuring and communicating with an agent.
+ */
 public class AgentObject extends DObject
 {
     // AUTO-GENERATED: FIELDS START
@@ -55,11 +58,11 @@ public class AgentObject extends DObject
      *  some other description that the bureau can use to load and execute the agent's code. */
     public String code;
 
-    /** The main class within the code to use when launching an agent. Whther this value is 
+    /** The main class within the code to use when launching an agent. Whther this value is
      *  used depends on the type of bureau and will be resolve in the bureau client. */
     public String className;
 
-    /** The id of the client running this agent (only set after the agent is assigned to a 
+    /** The id of the client running this agent (only set after the agent is assigned to a
      *  bureau and run). */
     public int clientOid;
 

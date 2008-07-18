@@ -38,7 +38,6 @@ import com.samskivert.util.StringUtil;
 
 import com.threerings.presents.client.InvocationDecoder;
 import com.threerings.presents.data.ClientObject;
-import com.threerings.presents.net.Transport;
 import com.threerings.presents.server.InvocationSender;
 
 /**

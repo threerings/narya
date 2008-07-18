@@ -30,7 +30,6 @@ import com.samskivert.swing.ScrollablePanel;
 import com.samskivert.swing.VGroupLayout;
 import com.samskivert.swing.util.SwingUtil;
 
-import com.threerings.presents.dobj.DObject;
 import com.threerings.presents.dobj.ObjectAccessException;
 import com.threerings.presents.dobj.Subscriber;
 import com.threerings.presents.util.PresentsContext;
@@ -60,8 +59,8 @@ public class ObjectEditorPanel extends ScrollablePanel
     public ObjectEditorPanel (PresentsContext ctx, String key, int oid)
     {
         super(new VGroupLayout(VGroupLayout.NONE, VGroupLayout.STRETCH,
-                               5, VGroupLayout.TOP));
-        setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+                               VGroupLayout.DEFAULT_GAP, VGroupLayout.TOP));
+        setBorder(BorderFactory.createEmptyBorder(BORDER, BORDER, BORDER, BORDER));
 
         // keep this business around
         _ctx = ctx;
@@ -127,4 +126,6 @@ public class ObjectEditorPanel extends ScrollablePanel
     protected String _key;
     protected SafeSubscriber<ConfigObject> _safesub;
     protected ConfigObject _object;
+
+    protected static final int BORDER = 5;
 }

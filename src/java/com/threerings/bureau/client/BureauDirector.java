@@ -51,7 +51,7 @@ public abstract class BureauDirector extends BasicDirector
 
         log.info("Subscribing to object " + agentId);
 
-        SafeSubscriber<AgentObject> subscriber = 
+        SafeSubscriber<AgentObject> subscriber =
             new SafeSubscriber<AgentObject>(agentId, delegator);
         _subscribers.put(agentId, subscriber);
         subscriber.subscribe(_ctx.getDObjectManager());
@@ -67,19 +67,16 @@ public abstract class BureauDirector extends BasicDirector
 
         if (agent == null) {
             log.warning("Lost an agent, id " + agentId);
-        }
-        else {
+        } else {
             try {
                 agent.stop();
-            }
-            catch (Throwable t) {
+            } catch (Throwable t) {
                 log.warning("Stopping an agent caused an exception", t);
             }
             SafeSubscriber<AgentObject> subscriber = _subscribers.remove(agentId);
             if (subscriber == null) {
                 log.warning("Lost a subscriber for agent " + agent);
-            }
-            else {
+            } else {
                 subscriber.unsubscribe(_ctx.getDObjectManager());
             }
             _bureauService.agentDestroyed(_ctx.getClient(), agentId);
@@ -87,7 +84,8 @@ public abstract class BureauDirector extends BasicDirector
     }
 
     /**
-     * Callback for when the a request to subscribe to an object finishes and the object is available.
+     * Callback for when the a request to subscribe to an object finishes and the object is
+     * available.
      */
     protected synchronized void objectAvailable (AgentObject agentObject)
     {
@@ -100,13 +98,12 @@ public abstract class BureauDirector extends BasicDirector
             agent = createAgent(agentObject);
             agent.init(agentObject);
             agent.start();
-        }
-        catch (Throwable t) {
+        } catch (Throwable t) {
             log.warning("Could not create agent [obj=" + agentObject + "]", t);
             _bureauService.agentCreationFailed(_ctx.getClient(), oid);
             return;
         }
-        
+
         _agents.put(oid, agent);
         _bureauService.agentCreated(_ctx.getClient(), oid);
     }
@@ -127,9 +124,8 @@ public abstract class BureauDirector extends BasicDirector
         // Require the bureau services
         client.addServiceGroup(BureauCodes.BUREAU_GROUP);
 
-        // Set up our decoder so we can receive method calls
-        // from the server
-        BureauReceiver receiver = new BureauReceiver () {
+        // Set up our decoder so we can receive method calls from the server
+        BureauReceiver receiver = new BureauReceiver() {
             public void createAgent (int agentId) {
                 BureauDirector.this.createAgent(agentId);
             }
@@ -151,8 +147,8 @@ public abstract class BureauDirector extends BasicDirector
     }
 
     /**
-     * Called when it is time to create an Agent. Subclasses should read the 
-     * <code>agentObject</code>'s type and/or properties to determine what kind of Agent to 
+     * Called when it is time to create an Agent. Subclasses should read the
+     * <code>agentObject</code>'s type and/or properties to determine what kind of Agent to
      * create.
      * @param agentObj the distributed and object
      * @return a new Agent that will govern the distributed object
@@ -162,6 +158,6 @@ public abstract class BureauDirector extends BasicDirector
     protected BureauContext _ctx;
     protected BureauService _bureauService;
     protected IntMap<Agent> _agents = IntMaps.newHashIntMap();
-    protected IntMap<SafeSubscriber<AgentObject>> _subscribers = 
+    protected IntMap<SafeSubscriber<AgentObject>> _subscribers =
         IntMaps.newHashIntMap();
 }

@@ -28,7 +28,7 @@ import com.threerings.bureau.util.BureauContext;
 import com.threerings.presents.dobj.DObjectManager;
 import com.samskivert.util.Config;
 
-/** 
+/**
  * Represents a client embedded in a bureau.
  */
 public abstract class BureauClient extends Client
@@ -53,7 +53,7 @@ public abstract class BureauClient extends Client
 
     protected BureauContext createContext ()
     {
-        return new BureauContext () {
+        return new BureauContext() {
             public BureauDirector getBureauDirector () {
                 return _director;
             }

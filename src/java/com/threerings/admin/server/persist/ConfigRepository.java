@@ -45,7 +45,7 @@ public class ConfigRepository extends DepotRepository
 
     /**
      * Loads up the configuration data for the specified object.
-     * 
+     *
      * @return a map containing field/value pairs for all stored configuration data.
      */
     public HashMap<String,String> loadConfig (String node, String object)

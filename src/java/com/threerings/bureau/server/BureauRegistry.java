@@ -57,8 +57,8 @@ import static com.threerings.bureau.Log.log;
 public class BureauRegistry
 {
     /**
-     * Defines how a bureau is launched. Instances are associated to bureau types by the server on 
-     * startup. The instances are used whenever the registry needs to launch a bureau for an agent 
+     * Defines how a bureau is launched. Instances are associated to bureau types by the server on
+     * startup. The instances are used whenever the registry needs to launch a bureau for an agent
      * with the assocated bureau type.
      */
     public static interface Launcher
@@ -168,7 +168,7 @@ public class BureauRegistry
         }
 
         if (!bureau.token.equals(creds.sessionToken)) {
-            return "Bureau " + creds.bureauId + 
+            return "Bureau " + creds.bureauId +
                 " does not match credentials token";
         }
 
@@ -183,11 +183,11 @@ public class BureauRegistry
      * @param cmdGenerator the generator to be used for bureaus of <code>bureauType</code>
      */
     public void setCommandGenerator (
-        String bureauType, 
+        String bureauType,
         final CommandGenerator cmdGenerator)
     {
         setLauncher(bureauType, new Launcher () {
-            public void launchBureau (String bureauId, String token) 
+            public void launchBureau (String bureauId, String token)
                 throws IOException {
                 ProcessBuilder builder = new ProcessBuilder(
                     cmdGenerator.createCommand(bureauId, token));
@@ -338,7 +338,7 @@ public class BureauRegistry
         }
         if (bureau.client != null) {
             log.warning(
-                "Multiple sessions for the same bureau", "id", id, "client", client, "bureau", 
+                "Multiple sessions for the same bureau", "id", id, "client", client, "bureau",
                 bureau);
         }
         bureau.client = client;
@@ -353,7 +353,7 @@ public class BureauRegistry
         }
         if (bureau.client == null) {
             log.warning(
-                "Multiple logouts from the same bureau", "id", id, "client", client, "bureau", 
+                "Multiple logouts from the same bureau", "id", id, "client", client, "bureau",
                 bureau);
         }
         bureau.client = null;
@@ -564,12 +564,12 @@ public class BureauRegistry
     }
 
     /**
-     * Create a hard-to-guess token that the bureau can use to authenticate itself when it tries 
+     * Create a hard-to-guess token that the bureau can use to authenticate itself when it tries
      * to log in.
      */
     protected String generateToken (String bureauId)
     {
-        String tokenSource = bureauId + "@" + 
+        String tokenSource = bureauId + "@" +
             System.currentTimeMillis() + "r" + Math.random();
         return StringUtil.md5hex(tokenSource);
     }
@@ -581,7 +581,7 @@ public class BureauRegistry
     {
         LauncherUnit (Bureau bureau)
         {
-            super("LauncherUnit for " + bureau + ": " + 
+            super("LauncherUnit for " + bureau + ": " +
                 StringUtil.toString(bureau.launcher));
             _bureau = bureau;
         }

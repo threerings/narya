@@ -125,7 +125,7 @@ public class DSetEditor extends JPanel
     public Dimension getPreferredSize ()
     {
         Dimension d = super.getPreferredSize();
-        d.height = Math.min(d.height, 200);
+        d.height = Math.min(d.height, MIN_HEIGHT);
         return d;
     }
 
@@ -193,8 +193,8 @@ public class DSetEditor extends JPanel
     // documentation inherited from interface ActionListener
     public void actionPerformed (ActionEvent event)
     {
-        CommandEvent ce = (CommandEvent) event;
-        _setter.updateSet(_setName, (DSet.Entry) ce.getArgument());
+        CommandEvent ce = (CommandEvent)event;
+        _setter.updateSet(_setName, (DSet.Entry)ce.getArgument());
     }
 
     protected void refreshData ()
@@ -223,4 +223,7 @@ public class DSetEditor extends JPanel
 
     /** The table used to edit. */
     protected ObjectEditorTable _table;
+
+    /** The minimum height for our editor UI. */
+    protected static final int MIN_HEIGHT = 200;
 }

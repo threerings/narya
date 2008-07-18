@@ -38,11 +38,11 @@ public interface AdminService extends InvocationService
          * Delivers a successful response to a {@link #getConfigInfo}
          * request.
          */
-        public void gotConfigInfo (String[] keys, int[] oids);
+        void gotConfigInfo (String[] keys, int[] oids);
     }
 
     /**
      * Requests the list of config objects.
      */
-    public void getConfigInfo (Client client, ConfigInfoListener listener);
+    void getConfigInfo (Client client, ConfigInfoListener listener);
 }

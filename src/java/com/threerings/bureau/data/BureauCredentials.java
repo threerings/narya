@@ -29,11 +29,11 @@ import com.threerings.util.Name;
  */
 public class BureauCredentials extends Credentials
 {
-    public static String PREFIX = "@@bureau:";
-    public static String SUFFIX = "@@";
+    public static final String PREFIX = "@@bureau:";
+    public static final String SUFFIX = "@@";
 
     /**
-     * The token to pass to the server when logging in. This is usually just passed to the bureau 
+     * The token to pass to the server when logging in. This is usually just passed to the bureau
      * on the command line to guard against outside connections being established.
      */
     public String sessionToken;

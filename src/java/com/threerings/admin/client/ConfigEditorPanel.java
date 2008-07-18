@@ -58,7 +58,7 @@ public class ConfigEditorPanel extends JPanel
         _defaultPane = defaultPane;
 
         setLayout(new VGroupLayout(VGroupLayout.STRETCH, VGroupLayout.STRETCH,
-                                   5, VGroupLayout.CENTER));
+                                   VGroupLayout.DEFAULT_GAP, VGroupLayout.CENTER));
 
         // create our objects tabbed pane
         add(_oeditors = new JTabbedPane(JTabbedPane.LEFT));

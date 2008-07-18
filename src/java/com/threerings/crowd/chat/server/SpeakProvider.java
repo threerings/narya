@@ -32,5 +32,5 @@ public interface SpeakProvider extends InvocationProvider
     /**
      * Handles a {@link SpeakService#speak} request.
      */
-    public void speak (ClientObject caller, String arg1, byte arg2);
+    void speak (ClientObject caller, String arg1, byte arg2);
 }

@@ -32,20 +32,20 @@ public interface BureauProvider extends InvocationProvider
     /**
      * Handles a {@link BureauService#agentCreated} request.
      */
-    public void agentCreated (ClientObject caller, int arg1);
+    void agentCreated (ClientObject caller, int arg1);
 
     /**
      * Handles a {@link BureauService#agentCreationFailed} request.
      */
-    public void agentCreationFailed (ClientObject caller, int arg1);
+    void agentCreationFailed (ClientObject caller, int arg1);
 
     /**
      * Handles a {@link BureauService#agentDestroyed} request.
      */
-    public void agentDestroyed (ClientObject caller, int arg1);
+    void agentDestroyed (ClientObject caller, int arg1);
 
     /**
      * Handles a {@link BureauService#bureauInitialized} request.
      */
-    public void bureauInitialized (ClientObject caller, String arg1);
+    void bureauInitialized (ClientObject caller, String arg1);
 }

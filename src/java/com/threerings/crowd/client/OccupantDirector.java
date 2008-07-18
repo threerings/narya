@@ -35,7 +35,6 @@ import com.threerings.crowd.data.OccupantInfo;
 import com.threerings.crowd.data.PlaceObject;
 import com.threerings.crowd.util.CrowdContext;
 
-
 /**
  * The occupant director listens for occupants of places to enter and
  * exit, and dispatches notices to interested parties about these events.

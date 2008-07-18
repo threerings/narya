@@ -28,6 +28,9 @@ import com.samskivert.jdbc.depot.annotation.Entity;
 import com.samskivert.jdbc.depot.annotation.Id;
 import com.samskivert.jdbc.depot.expression.ColumnExp;
 
+/**
+ * Stores information about a configuration entry in the database.
+ */
 @Entity(name="CONFIG")
 public class ConfigRecord extends PersistentRecord
 {

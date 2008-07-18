@@ -44,7 +44,6 @@ import com.threerings.crowd.data.CrowdCodes;
 import com.threerings.crowd.data.OccupantInfo;
 import com.threerings.crowd.data.PlaceObject;
 import com.threerings.crowd.server.BodyLocator;
-import com.threerings.crowd.server.CrowdServer;
 import com.threerings.crowd.server.PlaceRegistry;
 
 import com.threerings.crowd.chat.client.ChatService.TellListener;
