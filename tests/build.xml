@@ -238,12 +238,13 @@
       <classpath refid="classpath"/>
       <sysproperty key="maxAgents" value="10"/>
       <sysproperty key="numBureaus" value="2"/>
+      <sysproperty key="killBureauChance" value="2"/>
       <sysproperty key="maxOps" value="5"/>
       <sysproperty key="createChance" value="70"/>
       <sysproperty key="minDelay" value="1000"/>
       <sysproperty key="maxDelay" value="3000"/>
       <sysproperty key="seed" value="0"/>
-      <sysproperty key="clientTarget" value="bureau-run-thane-client"/>
+      <sysproperty key="clientTarget" value="bureau-runclient"/>
     </java>
   </target>
 

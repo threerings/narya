@@ -21,6 +21,7 @@
 
 package com.threerings.bureau.server;
 
+import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
 
@@ -31,9 +32,11 @@ import com.google.inject.Injector;
 import com.google.inject.Singleton;
 
 import com.threerings.presents.dobj.RootDObjectManager;
+import com.threerings.presents.server.PresentsClient;
 import com.threerings.presents.server.ShutdownManager;
 
 import com.threerings.bureau.data.AgentObject;
+import com.threerings.bureau.data.BureauCredentials;
 
 import static com.threerings.bureau.Log.log;
 
@@ -91,6 +94,7 @@ public class RegistryTester
         _maxAgents = intProp("maxAgents", 500);
         _numBureaus = intProp("numBureaus", 5);
         _maxOps = intProp("maxOps", 5);
+        _killBureauChance = intProp("killBureauChance", 1);
         _createChance = intProp("createChance", 70);
         _minDelay = intProp("minDelay", 500);
         _maxDelay = intProp("maxDelay", 2000);
@@ -150,12 +154,12 @@ public class RegistryTester
         log.info("Running tests, seed is " + seed);
 
         // runnable that generates N requests to create or destroy agents
-        Runnable createOrDestroyAgents = new Runnable() {
+        Runnable doOp = new Runnable() {
             public void run () {
                 int ops = 1 + _rng1.nextInt(_maxOps);
                 log.info("Starting " + ops + " agent requests");
                 for (int i = 0; i < ops; ++i) {
-                    randomlyCreateOrDestroyAgent();
+                    randomlyDoOperation();
                 }
                 log.info("Finished " + ops + " agent requests");
             }
@@ -174,7 +178,7 @@ public class RegistryTester
             }
 
             // create or destroy some agents
-            _omgr.postRunnable(createOrDestroyAgents);
+            _omgr.postRunnable(doOp);
         }
 
         // clean up
@@ -188,6 +192,55 @@ public class RegistryTester
     }
 
     /**
+     * Chooses between killing a bureau connection or creating or destroying an agent.
+     */
+    protected void randomlyDoOperation ()
+    {
+        if (_rng1.nextInt(100) < _killBureauChance) {
+            log.info("Killing a bureau");
+            PresentsClient bureau = getRandomBureau();
+            if (bureau == null) {
+                log.info("No bureaus to kill right now");
+                return;
+            }
+
+            String id = BureauCredentials.extractBureauId(bureau.getUsername());
+            log.info("Killing bureau " + id);
+            bureau.endSession();
+
+            for (Iterator<AgentObject> i = _agents.iterator(); i.hasNext();) {
+                AgentObject agent = i.next();
+                if (agent.bureauId.equals(id)) {
+                    log.info("Removing agent " + agent.getOid());
+                    i.remove();
+                }
+            }
+        } else {
+            randomlyCreateOrDestroyAgent();
+        }
+    }
+
+    protected PresentsClient getRandomBureau ()
+    {
+        boolean[] tried = new boolean[_numBureaus];
+        for (int dead = 0; dead < _numBureaus;) {
+            int index = _rng1.nextInt(_numBureaus);
+            if (tried[index]) {
+                continue;
+            }
+            String id = "test-" + (index + 1);
+            PresentsClient client = _bureauReg.lookupClient(id);
+            if (client == null) {
+                ++dead;
+            } else {
+                return client;
+            }
+            tried[index] = true;
+        }
+        return null;
+    }
+
+    /**
      * Does what the name says using the configuration values.
      */
     protected void randomlyCreateOrDestroyAgent ()
@@ -196,13 +249,13 @@ public class RegistryTester
         if (size >= _maxAgents ||
             (size != 0 && _rng1.nextInt(100) >= _createChance)) {
             AgentObject toRemove = _agents.remove(_rng1.nextInt(size));
-            log.info("Removing agent " + toRemove.getOid());
+            log.info("Destroying agent " + toRemove.getOid());
             _bureauReg.destroyAgent(toRemove);
         }
         else {
             AgentObject added = create(_rng1.nextInt(_numBureaus) + 1);
             _agents.add(added);
-            log.info("Added agent " + added.getOid());
+            log.info("Created agent " + added.getOid());
         }
     }
 
@@ -235,6 +288,9 @@ public class RegistryTester
 
     // number of operations to perform in one dobj queue task
     protected int _maxOps;
+
+    // chance of killing a buerau (if one exists)
+    protected int _killBureauChance;
 
     // chance of creating a new agent if limit has not been reached
     protected int _createChance;
