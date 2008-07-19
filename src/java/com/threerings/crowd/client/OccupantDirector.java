@@ -176,8 +176,8 @@ public class OccupantDirector extends BasicDirector
         }
 
         // now let the occupant observers know what's up
-        final OccupantInfo info = (OccupantInfo) event.getEntry();
-        final OccupantInfo oinfo = (OccupantInfo) event.getOldEntry();
+        final OccupantInfo info = (OccupantInfo)event.getEntry();
+        final OccupantInfo oinfo = (OccupantInfo)event.getOldEntry();
         _observers.apply(new ObserverList.ObserverOp<OccupantObserver>() {
             public boolean apply (OccupantObserver observer) {
                 observer.occupantUpdated(oinfo, info);
@@ -197,7 +197,7 @@ public class OccupantDirector extends BasicDirector
         }
 
         // let the occupant observers know what's up
-        final OccupantInfo oinfo = (OccupantInfo) event.getOldEntry();
+        final OccupantInfo oinfo = (OccupantInfo)event.getOldEntry();
         _observers.apply(new ObserverList.ObserverOp<OccupantObserver>() {
             public boolean apply (OccupantObserver observer) {
                 observer.occupantLeft(oinfo);

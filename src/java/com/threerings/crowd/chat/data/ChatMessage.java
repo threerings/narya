@@ -66,10 +66,10 @@ public abstract class ChatMessage
      * Once this message reaches the client, the information contained within is changed around a
      * bit.
      */
-    public void setClientInfo (String msg, String localtype)
+    public void setClientInfo (String msg, String ltype)
     {
         message = msg;
-        this.localtype = localtype;
+        localtype = ltype;
         bundle = null;
         timestamp = System.currentTimeMillis();
     }

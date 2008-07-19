@@ -25,7 +25,7 @@ import com.threerings.presents.util.PresentsContext;
 import com.threerings.bureau.client.BureauDirector;
 
 /**
- * Defines the objects held on a bureau client. This includes usual set of objects found on a 
+ * Defines the objects held on a bureau client. This includes usual set of objects found on a
  * standard presents client.
  */
 public interface BureauContext extends PresentsContext

@@ -57,7 +57,7 @@ public class SpeakUtil
         /**
          * Called for each player that hears a particular chat message.
          */
-        public void messageDelivered (Name hearer, UserMessage message);
+        void messageDelivered (Name hearer, UserMessage message);
     }
 
     /**
@@ -333,9 +333,9 @@ public class SpeakUtil
         protected Name _hearer;
         protected UserMessage _message;
     }
-    
+
     /** Recent chat history for the server. */
-    protected static Map<Name,List<ChatMessage>> _histories = Maps.newHashMap();
+    protected static Map<Name, List<ChatMessage>> _histories = Maps.newHashMap();
 
     /** Used to note the recipients of a chat message. */
     protected static MessageMapper _messageMapper = new MessageMapper();

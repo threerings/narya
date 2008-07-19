@@ -33,12 +33,12 @@ public interface OccupantObserver
     /**
      * Called when a body enters the place.
      */
-    public void occupantEntered (OccupantInfo info);
+    void occupantEntered (OccupantInfo info);
 
     /**
      * Called when a body leaves the place.
      */
-    public void occupantLeft (OccupantInfo info);
+    void occupantLeft (OccupantInfo info);
 
     /**
      * Called when an occupant is updated.
@@ -46,5 +46,5 @@ public interface OccupantObserver
      * @param oldinfo the occupant info prior to the update.
      * @param newinfo the newly update info record.
      */
-    public void occupantUpdated (OccupantInfo oldinfo, OccupantInfo newinfo);
+    void occupantUpdated (OccupantInfo oldinfo, OccupantInfo newinfo);
 }

@@ -35,5 +35,5 @@ public interface LocationReceiver extends InvocationReceiver
      * and the client is then responsible for generating a {@link
      * LocationService#moveTo} request to move to the new location.
      */
-    public void forcedMove (int placeId);
+    void forcedMove (int placeId);
 }

@@ -65,7 +65,7 @@ public class ChatProvider
          * Called following the delivery of <code>message</code> from <code>teller</code> to
          * <code>tellee</code>.
          */
-        public void sentTell (BodyObject teller, BodyObject tellee, String message);
+        void sentTell (BodyObject teller, BodyObject tellee, String message);
     }
 
     /** Used to forward certain types of chat messages between servers in a multi-server setup. */
@@ -76,12 +76,12 @@ public class ChatProvider
          *
          * @return true if the tell was delivered, false otherwise.
          */
-        public boolean forwardTell (UserMessage message, Name target, TellListener listener);
+        boolean forwardTell (UserMessage message, Name target, TellListener listener);
 
         /**
          * Requests that the supplied broadcast message be delivered on other servers.
          */
-        public void forwardBroadcast (Name from, String bundle, String msg, boolean attention);
+        void forwardBroadcast (Name from, String bundle, String msg, boolean attention);
     }
 
     /**

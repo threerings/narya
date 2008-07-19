@@ -48,11 +48,10 @@ public class SpeakHandler
     public static interface SpeakerValidator
     {
         /**
-         * Should return true if the supplied speaker is allowed to speak
-         * via the speak provider with which this validator was
-         * registered.
+         * Should return true if the supplied speaker is allowed to speak via the speak provider
+         * with which this validator was registered.
          */
-        public boolean isValidSpeaker (DObject speakObj, ClientObject speaker, byte mode);
+        boolean isValidSpeaker (DObject speakObj, ClientObject speaker, byte mode);
     }
 
     /**

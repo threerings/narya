@@ -60,7 +60,7 @@ public class LocationDirector extends BasicDirector
          * Should instruct the client to move to the last known working location (as well as clean
          * up after the failed moveTo request).
          */
-        public void recoverFailedMove (int placeId);
+        void recoverFailedMove (int placeId);
     }
 
     /**

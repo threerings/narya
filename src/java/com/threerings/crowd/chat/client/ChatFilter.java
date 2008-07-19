@@ -38,5 +38,5 @@ public interface ChatFilter
      *
      * @return the filtered message, or null to block it completely.
      */
-    public String filter (String msg, Name otherUser, boolean outgoing);
+    String filter (String msg, Name otherUser, boolean outgoing);
 }

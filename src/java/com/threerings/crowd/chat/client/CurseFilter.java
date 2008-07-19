@@ -90,7 +90,7 @@ public abstract class CurseFilter implements ChatFilter
         for (int ii=0, nn=_matchers.length; ii < nn; ii++) {
             Matcher m = _matchers[ii];
             m.reset(inbuf);
-            while (m.find()) { 
+            while (m.find()) {
                 switch (level) {
                 case DROP:
                     return null;
@@ -107,7 +107,7 @@ public abstract class CurseFilter implements ChatFilter
                         vernacular = vernacular.substring(0, firstCharLen).toUpperCase() +
                                      vernacular.substring(firstCharLen);
                     }
-                    m.appendReplacement(outbuf, 
+                    m.appendReplacement(outbuf,
                         StringUtil.replace(_replacements[ii], " ", vernacular));
                     break;
                 }
@@ -146,7 +146,7 @@ public abstract class CurseFilter implements ChatFilter
             String mapping = st.nextToken();
             StringTokenizer st2 = new StringTokenizer(mapping, "=");
             if (st2.countTokens() != 2) {
-                log.warning("Something looks wrong in the x.cursewords properties (" + 
+                log.warning("Something looks wrong in the x.cursewords properties (" +
                     mapping + "), skipping.");
                 continue;
             }
@@ -201,7 +201,7 @@ public abstract class CurseFilter implements ChatFilter
     }
 
     /**
-     * Return a comicy replacement of the specified length;
+     * Return a comicy replacement of the specified length.
      */
     protected String comicChars (int length)
     {
@@ -229,5 +229,5 @@ public abstract class CurseFilter implements ChatFilter
     protected String[] _vernacular;
 
     /** Comic replacement characters. */
-    protected String[] COMIC_CHARS = { "!", "@", "#", "%", "&", "*" };
+    protected static final String[] COMIC_CHARS = { "!", "@", "#", "%", "&", "*" };
 }

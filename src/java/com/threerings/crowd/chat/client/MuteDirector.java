@@ -50,7 +50,7 @@ public class MuteDirector extends BasicDirector
         /**
          * The specified player was added or removed from the mutelist.
          */
-        public void muteChanged (Name playername, boolean nowMuted);
+        void muteChanged (Name playername, boolean nowMuted);
     }
 
     /**
@@ -122,8 +122,7 @@ public class MuteDirector extends BasicDirector
      */
     public void setMuted (Name username, boolean mute)
     {
-        boolean changed = mute ? _mutelist.add(username)
-                               : _mutelist.remove(username);
+        boolean changed = mute ? _mutelist.add(username) : _mutelist.remove(username);
         String feedback;
         if (mute) {
             feedback = "m.muted";
@@ -132,8 +131,7 @@ public class MuteDirector extends BasicDirector
         }
 
         // always give some feedback to the user
-        _chatdir.displayFeedback(null,
-            MessageBundle.tcompose(feedback, username));
+        _chatdir.displayFeedback(null, MessageBundle.tcompose(feedback, username));
 
         // if the mutelist actually changed, notify observers
         if (changed) {
@@ -144,8 +142,7 @@ public class MuteDirector extends BasicDirector
     /**
      * @return a list of the currently muted players.
      *
-     * This list may be out of date immediately upon returning from this
-     * method.
+     * This list may be out of date immediately upon returning from this method.
      */
     public Name[] getMuted ()
     {

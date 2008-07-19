@@ -48,7 +48,7 @@ public interface ChatService extends InvocationService
          * @param awayMessage the away message configured by the told
          * player or null if they have no away message.
          */
-        public void tellSucceeded (long idleTime, String awayMessage);
+        void tellSucceeded (long idleTime, String awayMessage);
     }
 
     /**
@@ -61,8 +61,7 @@ public interface ChatService extends InvocationService
      * @param message the contents of the message.
      * @param listener the reference that will receive the tell response.
      */
-    public void tell (Client client, Name target, String message,
-                      TellListener listener);
+    void tell (Client client, Name target, String message, TellListener listener);
 
     /**
      * Requests that a message be broadcast to all users in the system.
@@ -71,12 +70,11 @@ public interface ChatService extends InvocationService
      * @param message the contents of the message.
      * @param listener the reference that will receive a failure response.
      */
-    public void broadcast (Client client, String message,
-                           InvocationListener listener);
+    void broadcast (Client client, String message, InvocationListener listener);
 
     /**
      * Sets this client's away message. If the message is null or the
      * empty string, the away message will be cleared.
      */
-    public void away (Client client, String message);
+    void away (Client client, String message);
 }

@@ -80,7 +80,7 @@ public class ChatDirector extends BasicDirector
         /**
          * Called when the list of chatters has been changed.
          */
-        public void chattersUpdated (Iterator chatternames);
+        void chattersUpdated (Iterator chatternames);
     }
 
     /**
@@ -92,13 +92,13 @@ public class ChatDirector extends BasicDirector
         /**
          * Returns whether the username may be added to the chatters list.
          */
-        public boolean isChatterValid (Name username);
+        boolean isChatterValid (Name username);
     }
 
     /**
      * Used to implement a slash command (e.g. <code>/who</code>).
      */
-    public static abstract class CommandHandler
+    public abstract static class CommandHandler
     {
         /**
          * Handles the specified chat command.
@@ -390,17 +390,17 @@ public class ChatDirector extends BasicDirector
             int sidx = text.indexOf(" ");
             if (sidx != -1) {
                 command = text.substring(1, sidx).toLowerCase();
-                args = text.substring(sidx+1).trim();
+                args = text.substring(sidx + 1).trim();
             }
 
-            HashMap<String,CommandHandler> possibleCommands = getCommandHandlers(command);
+            HashMap<String, CommandHandler> possibleCommands = getCommandHandlers(command);
             switch (possibleCommands.size()) {
             case 0:
                 StringTokenizer tok = new StringTokenizer(text);
                 return MessageBundle.tcompose("m.unknown_command", tok.nextToken());
 
             case 1:
-                Map.Entry<String,CommandHandler> entry =
+                Map.Entry<String, CommandHandler> entry =
                     possibleCommands.entrySet().iterator().next();
                 String cmdName = entry.getKey();
                 CommandHandler cmd = entry.getValue();
@@ -535,7 +535,8 @@ public class ChatDirector extends BasicDirector
             }
 
             protected void success () {
-                dispatchMessage(new TellFeedbackMessage(target, message, false), ChatCodes.PLACE_CHAT_TYPE);
+                dispatchMessage(new TellFeedbackMessage(target, message, false),
+                                ChatCodes.PLACE_CHAT_TYPE);
                 addChatter(target);
                 if (rl != null) {
                     rl.requestCompleted(target);
@@ -647,7 +648,7 @@ public class ChatDirector extends BasicDirector
     public void messageReceived (MessageEvent event)
     {
         if (CHAT_NOTIFICATION.equals(event.getName())) {
-            ChatMessage msg = (ChatMessage) event.getArgs()[0];
+            ChatMessage msg = (ChatMessage)event.getArgs()[0];
             String localtype = getLocalType(event.getTargetOid());
             processReceivedMessage(msg, localtype);
         }
@@ -708,7 +709,7 @@ public class ChatDirector extends BasicDirector
         String autoResponse = null;
         Name speaker = null;
         Name speakerDisplay = null;
-        byte mode = (byte) -1;
+        byte mode = (byte)-1;
 
         // figure out if the message was triggered by another user
         if (msg instanceof UserMessage) {
@@ -728,7 +729,7 @@ public class ChatDirector extends BasicDirector
             //  And if we filter first, we could end up filtering keys.
             msg.message = xlate(msg.bundle, msg.message);
             msg.bundle = null;
-            
+
             if ((msg.message = filter(msg.message, speaker, false)) == null) {
                 return;
             }
@@ -948,11 +949,11 @@ public class ChatDirector extends BasicDirector
      * Returns a hashmap containing all command handlers that match the specified command (i.e. the
      * specified command is a prefix of their registered command string).
      */
-    protected HashMap<String,CommandHandler> getCommandHandlers (String command)
+    protected HashMap<String, CommandHandler> getCommandHandlers (String command)
     {
-        HashMap<String,CommandHandler> matches = new HashMap<String,CommandHandler>();
+        HashMap<String, CommandHandler> matches = new HashMap<String, CommandHandler>();
         BodyObject user = (BodyObject)_ctx.getClient().getClientObject();
-        for (Map.Entry<String,CommandHandler> entry : _handlers.entrySet()) {
+        for (Map.Entry<String, CommandHandler> entry : _handlers.entrySet()) {
             String cmd = entry.getKey();
             if (!cmd.startsWith(command)) {
                 continue;
@@ -1131,7 +1132,7 @@ public class ChatDirector extends BasicDirector
             }
 
             // handle "/help help" and "/help someboguscommand"
-            HashMap<String,CommandHandler> possibleCommands = getCommandHandlers(hcmd);
+            HashMap<String, CommandHandler> possibleCommands = getCommandHandlers(hcmd);
             if (hcmd.equals("help") || possibleCommands.isEmpty()) {
                 possibleCommands = getCommandHandlers("");
                 possibleCommands.remove("help"); // remove help from the list
@@ -1260,7 +1261,7 @@ public class ChatDirector extends BasicDirector
 
             // clear out from the history any tells that are mistypes
             for (Iterator iter = _history.iterator(); iter.hasNext(); ) {
-                String hist = (String) iter.next();
+                String hist = (String)iter.next();
                 if (hist.startsWith("/" + command)) {
                     String harg = hist.substring(command.length() + 1).trim();
                     // we blow away any historic tells that have msg content
@@ -1419,18 +1420,18 @@ public class ChatDirector extends BasicDirector
     protected ObserverList<ChatterObserver> _chatterObservers =
         new ObserverList<ChatterObserver>(ObserverList.SAFE_IN_ORDER_NOTIFY);
 
-    /** Registered chat command handlers. */
-    protected static HashMap<String,CommandHandler> _handlers =
-        new HashMap<String,CommandHandler>();
-
-    /** A history of chat commands. */
-    protected static ArrayList<String> _history = new ArrayList<String>();
-
     /** Operation used to filter chat messages. */
     protected FilterMessageOp _filterMessageOp = new FilterMessageOp();
 
     /** Operation used to display chat messages. */
     protected DisplayMessageOp _displayMessageOp = new DisplayMessageOp();
+
+    /** Registered chat command handlers. */
+    protected static HashMap<String, CommandHandler> _handlers =
+        new HashMap<String, CommandHandler>();
+
+    /** A history of chat commands. */
+    protected static ArrayList<String> _history = new ArrayList<String>();
 
     /** The maximum number of chatter usernames to track. */
     protected static final int MAX_CHATTERS = 6;

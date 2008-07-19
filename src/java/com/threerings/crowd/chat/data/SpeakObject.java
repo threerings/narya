@@ -24,9 +24,8 @@ package com.threerings.crowd.chat.data;
 import com.threerings.util.Name;
 
 /**
- * Provides a mechanism by which the speak service can identify chat
- * listeners so as to maintain a recent history of all chat traffic on the
- * server.
+ * Provides a mechanism by which the speak service can identify chat listeners so as to maintain a
+ * recent history of all chat traffic on the server.
  */
 public interface SpeakObject
 {
@@ -34,16 +33,15 @@ public interface SpeakObject
     public static interface ListenerOp
     {
         /** Call this method if you only have access to body oids. */
-        public void apply (int bodyOid);
+        void apply (int bodyOid);
 
         /** Call this method if you can provide usernames directly. */
-        public void apply (Name username);
+        void apply (Name username);
     }
 
     /**
-     * The speak service will call this every time a chat message is
-     * delivered on this speak object to note the listeners that
-     * received the message.
+     * The speak service will call this every time a chat message is delivered on this speak object
+     * to note the listeners that received the message.
      */
-    public void applyToListeners (ListenerOp op);
+    void applyToListeners (ListenerOp op);
 }

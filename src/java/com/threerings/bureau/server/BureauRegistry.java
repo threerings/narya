@@ -96,7 +96,7 @@ public class BureauRegistry
      */
     @Inject public BureauRegistry (InvocationManager invmgr)
     {
-        invmgr.registerDispatcher(new BureauDispatcher(new BureauProvider () {
+        invmgr.registerDispatcher(new BureauDispatcher(new BureauProvider() {
             public void bureauInitialized (ClientObject client, String bureauId) {
                 BureauRegistry.this.bureauInitialized(client, bureauId);
             }
@@ -186,7 +186,7 @@ public class BureauRegistry
         String bureauType,
         final CommandGenerator cmdGenerator)
     {
-        setLauncher(bureauType, new Launcher () {
+        setLauncher(bureauType, new Launcher() {
             public void launchBureau (String bureauId, String token)
                 throws IOException {
                 ProcessBuilder builder = new ProcessBuilder(
@@ -291,7 +291,6 @@ public class BureauRegistry
 
         // transition the agent to a new state and perform the effect of the transition
         switch (found.state) {
-
         case Bureau.PENDING:
             found.bureau.agentStates.remove(found.agent);
             // !TODO: is the the right place to destroy it?
@@ -611,7 +610,7 @@ public class BureauRegistry
         protected Process _result;
     }
 
-    // Models the results of searching for an agent
+    /** Models the results of searching for an agent. */
     protected static class FoundAgent
     {
         FoundAgent (
@@ -634,7 +633,7 @@ public class BureauRegistry
         int state;
     }
 
-    // Models a bureau, including the process handle, all running agents and their states
+    /** Models a bureau, including the process handle, all running agents and their states. */
     protected static class Bureau
     {
         // Agent states {
@@ -687,8 +686,7 @@ public class BureauRegistry
             builder.append("[Bureau id=").append(bureauId).append(", client=");
             if (clientObj == null) {
                 builder.append("null");
-            }
-            else {
+            } else {
                 builder.append(clientObj.getOid());
             }
             builder.append(", launcher=").append(launcher);
@@ -705,7 +703,7 @@ public class BureauRegistry
 
         StringBuilder agentSummary (StringBuilder str)
         {
-            int counts[] = {0, 0, 0, 0, 0};
+            int[] counts = {0, 0, 0, 0, 0};
             for (Map.Entry<AgentObject, Integer> me : agentStates.entrySet()) {
                 counts[me.getValue()]++;
             }

@@ -33,7 +33,7 @@ public interface ChatDisplay
     /**
      * Called to clear the chat display.
      */
-    public void clear ();
+    void clear ();
 
     /**
      * Called to display a chat message.
@@ -42,6 +42,6 @@ public interface ChatDisplay
      * already displayed this message, false otherwise.
      *
      * @return true if the message was displayed, false if not.
-     */ 
-    public boolean displayMessage (ChatMessage msg, boolean alreadyDisplayed);
+     */
+    boolean displayMessage (ChatMessage msg, boolean alreadyDisplayed);
 }

@@ -44,7 +44,7 @@ public interface LocationObserver
      * @return true if it's OK for the location to change, false if the
      * change request should be aborted.
      */
-    public boolean locationMayChange (int placeId);
+    boolean locationMayChange (int placeId);
 
     /**
      * Called when we have switched to a new location.
@@ -52,7 +52,7 @@ public interface LocationObserver
      * @param place the place object that represents the new location or
      * null if we have switched to no location.
      */
-    public void locationDidChange (PlaceObject place);
+    void locationDidChange (PlaceObject place);
 
     /**
      * This is called on all location observers when a location change
@@ -63,5 +63,5 @@ public interface LocationObserver
      * @param reason the reason code that explains why the location change
      * request was rejected or otherwise failed.
      */
-    public void locationChangeFailed (int placeId, String reason);
+    void locationChangeFailed (int placeId, String reason);
 }

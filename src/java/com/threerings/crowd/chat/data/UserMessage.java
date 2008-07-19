@@ -79,6 +79,7 @@ public class UserMessage extends ChatMessage
         case ChatCodes.EMOTE_MODE: return "m.emote_format";
         case ChatCodes.SHOUT_MODE: return "m.shout_format";
         case ChatCodes.BROADCAST_MODE: return "m.broadcast_format";
+        default: // fall through
         }
 
         if (ChatCodes.USER_CHAT_TYPE.equals(localtype)) {
