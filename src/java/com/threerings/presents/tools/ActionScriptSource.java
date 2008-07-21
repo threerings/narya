@@ -652,6 +652,10 @@ public class ActionScriptSource
             case POSTCLASS:
                 System.err.println("J: Post-class junk: " + line);
                 break;
+
+            case POSTPKG:
+                System.err.println("J: Post-pkg junk: " + line);
+                break;
             }
         }
         bin.close();
