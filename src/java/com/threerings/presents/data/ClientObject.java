@@ -80,7 +80,7 @@ public class ClientObject extends DObject
     {
         return checkAccess(perm, null);
     }
-    
+
     /**
      * Convenience wrapper around {@link #checkAccess} that simply returns a boolean indicating
      * whether or not this client has the permission rather than an explanation.
@@ -89,7 +89,7 @@ public class ClientObject extends DObject
     {
         return checkAccess(perm, context) == null;
     }
-    
+
     /**
      * Convenience wrapper around {@link #checkAccess} that simply returns a boolean indicating
      * whether or not this client has the permission rather than an explanation.
@@ -164,10 +164,10 @@ public class ClientObject extends DObject
      * change. Proxied copies of this object (on clients) will apply the
      * value change when they received the attribute changed notification.
      */
-    public void setReceivers (DSet<com.threerings.presents.client.InvocationReceiver.Registration> value)
+    public void setReceivers (DSet<InvocationReceiver.Registration> value)
     {
         requestAttributeChange(RECEIVERS, value, this.receivers);
-        @SuppressWarnings("unchecked") DSet<com.threerings.presents.client.InvocationReceiver.Registration> clone =
+        @SuppressWarnings("unchecked") DSet<InvocationReceiver.Registration> clone =
             (value == null) ? null : value.typedClone();
         this.receivers = clone;
     }

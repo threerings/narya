@@ -206,10 +206,10 @@ public class PlaceObject extends DObject
      * change. Proxied copies of this object (on clients) will apply the
      * value change when they received the attribute changed notification.
      */
-    public void setOccupantInfo (DSet<com.threerings.crowd.data.OccupantInfo> value)
+    public void setOccupantInfo (DSet<OccupantInfo> value)
     {
         requestAttributeChange(OCCUPANT_INFO, value, this.occupantInfo);
-        @SuppressWarnings("unchecked") DSet<com.threerings.crowd.data.OccupantInfo> clone =
+        @SuppressWarnings("unchecked") DSet<OccupantInfo> clone =
             (value == null) ? null : value.typedClone();
         this.occupantInfo = clone;
     }

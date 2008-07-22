@@ -222,10 +222,10 @@ public class NodeObject extends DObject
      * change. Proxied copies of this object (on clients) will apply the
      * value change when they received the attribute changed notification.
      */
-    public void setClients (DSet<com.threerings.presents.peer.data.ClientInfo> value)
+    public void setClients (DSet<ClientInfo> value)
     {
         requestAttributeChange(CLIENTS, value, this.clients);
-        @SuppressWarnings("unchecked") DSet<com.threerings.presents.peer.data.ClientInfo> clone =
+        @SuppressWarnings("unchecked") DSet<ClientInfo> clone =
             (value == null) ? null : value.typedClone();
         this.clients = clone;
     }
@@ -270,10 +270,10 @@ public class NodeObject extends DObject
      * change. Proxied copies of this object (on clients) will apply the
      * value change when they received the attribute changed notification.
      */
-    public void setLocks (DSet<com.threerings.presents.peer.data.NodeObject.Lock> value)
+    public void setLocks (DSet<NodeObject.Lock> value)
     {
         requestAttributeChange(LOCKS, value, this.locks);
-        @SuppressWarnings("unchecked") DSet<com.threerings.presents.peer.data.NodeObject.Lock> clone =
+        @SuppressWarnings("unchecked") DSet<NodeObject.Lock> clone =
             (value == null) ? null : value.typedClone();
         this.locks = clone;
     }
