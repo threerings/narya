@@ -211,7 +211,7 @@ public class GenDObjectTask extends Task
             // if this field is an array, we need its component types
             if (ftype.isArray()) {
                 Class<?> etype = ftype.getComponentType();
-                ctx.put("elemtype", GenUtil.simpleName(etype, null));
+                ctx.put("elemtype", GenUtil.simpleName(etype));
                 ctx.put("wrapelem", GenUtil.boxArgument(etype, "value"));
                 ctx.put("wrapoelem", GenUtil.boxArgument(etype, "ovalue"));
             }
@@ -219,8 +219,7 @@ public class GenDObjectTask extends Task
             // if this field is a generic DSet, we need its bound type
             if (_dsclass.isAssignableFrom(ftype)) {
                 Type t = f.getGenericType();
-                // we need to walk up the heirarchy until we get to the
-                // parameterized DSet
+                // we need to walk up the heirarchy until we get to the parameterized DSet
                 while (t instanceof Class<?>) {
                     t = ((Class<?>)t).getGenericSuperclass();
                 }
@@ -228,8 +227,7 @@ public class GenDObjectTask extends Task
                     ParameterizedType pt = (ParameterizedType)t;
                     if (pt.getActualTypeArguments().length > 0) {
                         ctx.put("etype", GenUtil.simpleName(
-                                    (Class<?>)pt.getActualTypeArguments()[0],
-                                    null));
+                                    (Class<?>)pt.getActualTypeArguments()[0]));
                     }
                 } else {
                     ctx.put("etype", "DSet.Entry");

@@ -110,28 +110,28 @@ public class GenUtil extends com.samskivert.util.GenUtil
      * "Unboxes" the supplied argument, ie. turning an <code>Integer</code> object into an
      * <code>int</code>.
      */
-    public static String unboxArgument (Class<?> clazz, Type type, String name)
+    public static String unboxArgument (Type type, String name)
     {
-        if (clazz == Boolean.TYPE) {
+        if (Boolean.TYPE.equals(type)) {
             return "((Boolean)" + name + ").booleanValue()";
-        } else if (clazz == Byte.TYPE) {
+        } else if (Byte.TYPE.equals(type)) {
             return "((Byte)" + name + ").byteValue()";
-        } else if (clazz == Character.TYPE) {
+        } else if (Character.TYPE.equals(type)) {
             return "((Character)" + name + ").charValue()";
-        } else if (clazz == Short.TYPE) {
+        } else if (Short.TYPE.equals(type)) {
             return "((Short)" + name + ").shortValue()";
-        } else if (clazz == Integer.TYPE) {
+        } else if (Integer.TYPE.equals(type)) {
             return "((Integer)" + name + ").intValue()";
-        } else if (clazz == Long.TYPE) {
+        } else if (Long.TYPE.equals(type)) {
             return "((Long)" + name + ").longValue()";
-        } else if (clazz == Float.TYPE) {
+        } else if (Float.TYPE.equals(type)) {
             return "((Float)" + name + ").floatValue()";
-        } else if (clazz == Double.TYPE) {
+        } else if (Double.TYPE.equals(type)) {
             return "((Double)" + name + ").doubleValue()";
-        } else if (clazz.equals(Object.class)) {
+        } else if (Object.class.equals(type)) {
             return name; // no need to cast object
         } else {
-            return "(" + simpleName(clazz, type) + ")" + name;
+            return "(" + simpleName(type) + ")" + name;
         }
     }
 
@@ -188,16 +188,16 @@ public class GenUtil extends com.samskivert.util.GenUtil
     /**
      * Potentially clones the supplied argument if it is the type that needs such treatment.
      */
-    public static String cloneArgument (Class<?> dsclazz, Field f, String name)
+    public static String cloneArgument (Class<?> dsclazz, Field field, String name)
     {
-        Class<?> clazz = f.getType();
+        Class<?> clazz = field.getType();
         if (dsclazz.equals(clazz)) {
             return "(" + name + " == null) ? null : " + name + ".typedClone()";
         } else if (clazz.isArray()) {
             return "(" + name + " == null) ? null : " + name + ".clone()";
         } else if (dsclazz.isAssignableFrom(clazz)) {
             return "(" + name + " == null) ? null : " +
-                "(" + simpleName(f) + ")" + name + ".clone()";
+                "(" + simpleName(field) + ")" + name + ".clone()";
         } else {
             return name;
         }
