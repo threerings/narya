@@ -56,14 +56,14 @@ public class ClientCommunicator extends BlockingCommunicator
     protected void setPrefPort (String key, int port) {
         PresentsPrefs.config.setValue(key, port);
     }
-    
+
     /**
      * Gets our preferred connection port via our preferences mechanism.
      */
     protected int getPrefPort (String key, int defaultPort) {
         return PresentsPrefs.config.getValue(key, defaultPort);
     }
-    
+
     @Override // from BlockingCommunicator
     protected void openChannel (InetAddress host)
         throws IOException

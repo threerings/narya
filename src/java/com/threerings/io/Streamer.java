@@ -475,7 +475,7 @@ public class Streamer
      */
     protected static void createStreamers ()
     {
-        _streamers = new HashMap<Class,Streamer>();
+        _streamers = new HashMap<Class, Streamer>();
 
         // register all of the basic streamers
         int bscount = BasicStreamers.BSTREAMER_TYPES.length;
@@ -506,7 +506,7 @@ public class Streamer
     protected Method _writer;
 
     /** Contains the mapping from class names to configured streamer instances. */
-    protected static HashMap<Class,Streamer> _streamers;
+    protected static HashMap<Class, Streamer> _streamers;
 
     /** The name of the custom reader method. */
     protected static final String READER_METHOD_NAME = "readObject";

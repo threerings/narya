@@ -21,9 +21,6 @@
 
 package com.threerings.presents.client;
 
-import com.threerings.presents.client.Client;
-import com.threerings.presents.client.InvocationService;
-
 /**
  * Provides a means by which to obtain access to a time base object which can be used to convert
  * delta times into absolute times.

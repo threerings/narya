@@ -62,7 +62,14 @@ public class ClientDObjectMgr
         _client = client;
 
         // register a debug hook for dumping all objects in the distributed object table
-        DebugChords.registerHook(DUMP_OTABLE_MODMASK, DUMP_OTABLE_KEYCODE, DUMP_OTABLE_HOOK);
+        DebugChords.registerHook(DUMP_OTABLE_MODMASK, DUMP_OTABLE_KEYCODE, new DebugChords.Hook() {
+            public void invoke () {
+                log.info("Dumping " + _ocache.size() + " objects:");
+                for (DObject obj : _ocache.values()) {
+                    log.info(obj.getClass().getName() + " " + obj);
+                }
+            }
+        });
 
         // register a flush interval
         new Interval(client.getRunQueue()) {
@@ -448,6 +455,7 @@ public class ClientDObjectMgr
         }
     }
 
+    /** Represents a pending subscription request. */
     protected static final class PendingRequest<T extends DObject>
     {
         public int oid;
@@ -499,20 +507,10 @@ public class ClientDObjectMgr
     protected HashIntMap<PendingRequest<?>> _penders = new HashIntMap<PendingRequest<?>>();
 
     /** A mapping from distributed object class to flush delay. */
-    protected HashMap<Class<?>,Long> _delays = new HashMap<Class<?>,Long>();
+    protected HashMap<Class<?>, Long> _delays = new HashMap<Class<?>, Long>();
 
     /** A set of objects waiting to be flushed. */
     protected HashIntMap<FlushRecord> _flushes = new HashIntMap<FlushRecord>();
-
-    /** A debug hook that allows the dumping of all objects in the object table out to the log. */
-    protected DebugChords.Hook DUMP_OTABLE_HOOK = new DebugChords.Hook() {
-        public void invoke () {
-            log.info("Dumping " + _ocache.size() + " objects:");
-            for (DObject obj : _ocache.values()) {
-                log.info(obj.getClass().getName() + " " + obj);
-            }
-        }
-    };
 
     /** The modifiers for our dump table debug hook (Alt+Shift). */
     protected static int DUMP_OTABLE_MODMASK = KeyEvent.ALT_DOWN_MASK|KeyEvent.SHIFT_DOWN_MASK;

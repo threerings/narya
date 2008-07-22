@@ -64,7 +64,7 @@ public class ObjectInputStream extends DataInputStream
     public void addTranslation (String oldname, String newname)
     {
         if (_translations == null) {
-            _translations = new HashMap<String,String>();
+            _translations = new HashMap<String, String>();
         }
         _translations.put(oldname, newname);
     }
@@ -251,7 +251,7 @@ public class ObjectInputStream extends DataInputStream
     protected ClassLoader _loader = getClass().getClassLoader();
 
     /** An optional set of class name translations to use when unserializing objects. */
-    protected HashMap<String,String> _translations;
+    protected HashMap<String, String> _translations;
 
     /** Used to activate verbose debug logging. */
     protected static final boolean STREAM_DEBUG = false;

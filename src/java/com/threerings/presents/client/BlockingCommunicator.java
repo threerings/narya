@@ -457,7 +457,9 @@ public class BlockingCommunicator extends Communicator
         // of the frame from the network, in which case we simply call it again because we can't do
         // anything until it has a whole frame; it will throw an exception if it hits EOF or if
         // something goes awry)
-        while (!_fin.readFrame(_channel));
+        while (!_fin.readFrame(_channel)) {
+            // noop!
+        }
 
         try {
             DownstreamMessage msg = (DownstreamMessage)_oin.readObject();
@@ -677,11 +679,11 @@ public class BlockingCommunicator extends Communicator
      */
     protected class Writer extends LoopingThread
     {
-        public Writer()
+        public Writer ()
         {
             super("BlockingCommunicator_Writer");
         }
-        
+
         @Override
         protected void iterate ()
         {
@@ -977,7 +979,7 @@ public class BlockingCommunicator extends Communicator
     protected ClientDObjectMgr _omgr;
     protected ClassLoader _loader;
 
-    /** The number of times per port to try to establish a datagram "connection." */
+    /** The number of times per port to try to establish a datagram "connection". */
     protected static final int DATAGRAM_ATTEMPTS_PER_PORT = 10;
 
     /** The number of milliseconds to wait for a response datagram. */

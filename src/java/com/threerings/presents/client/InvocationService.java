@@ -29,7 +29,7 @@ package com.threerings.presents.client;
  * <pre>
  * public interface LocationService extends InvocationService
  * {
- *     
+ *
  *     // Used to communicate responses to moveTo() requests.
  *     public interface MoveListener extends InvocationListener
  *     {
