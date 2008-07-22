@@ -21,6 +21,7 @@
 
 package com.threerings.crowd.server;
 
+import com.threerings.crowd.client.BodyService;
 import com.threerings.presents.data.ClientObject;
 import com.threerings.presents.server.InvocationProvider;
 

@@ -56,15 +56,13 @@ public class PeerDispatcher extends InvocationDispatcher<PeerMarshaller>
         switch (methodId) {
         case PeerMarshaller.INVOKE_ACTION:
             ((PeerProvider)provider).invokeAction(
-                source,
-                (byte[])args[0]
+                source, (byte[])args[0]
             );
             return;
 
         case PeerMarshaller.RATIFY_LOCK_ACTION:
             ((PeerProvider)provider).ratifyLockAction(
-                source,
-                (NodeObject.Lock)args[0], ((Boolean)args[1]).booleanValue()
+                source, (NodeObject.Lock)args[0], ((Boolean)args[1]).booleanValue()
             );
             return;
 

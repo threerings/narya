@@ -92,7 +92,7 @@ public class PlaceManager
          * @param event the message event received.
          * @param pmgr the place manager for which the message is being handled.
          */
-        public void handleEvent (MessageEvent event, PlaceManager pmgr);
+        void handleEvent (MessageEvent event, PlaceManager pmgr);
     }
 
     /**
@@ -667,7 +667,7 @@ public class PlaceManager
             _shutdownInterval = new Interval(_omgr) {
                 @Override
                 public void expired () {
-                    log.debug("Unloading idle place '" + where () + "'.");
+                    log.debug("Unloading idle place '" + where() + "'.");
                     shutdown();
                 }
             };
@@ -735,7 +735,7 @@ public class PlaceManager
     protected PlaceConfig _config;
 
     /** Message handlers are used to process message events. */
-    protected Map<String,MessageHandler> _msghandlers;
+    protected Map<String, MessageHandler> _msghandlers;
 
     /** A list of the delegates in use by this manager. */
     protected List<PlaceManagerDelegate> _delegates;

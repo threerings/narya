@@ -56,8 +56,7 @@ public class AdminDispatcher extends InvocationDispatcher<AdminMarshaller>
         switch (methodId) {
         case AdminMarshaller.GET_CONFIG_INFO:
             ((AdminProvider)provider).getConfigInfo(
-                source,
-                (AdminService.ConfigInfoListener)args[0]
+                source, (AdminService.ConfigInfoListener)args[0]
             );
             return;
 

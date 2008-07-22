@@ -54,8 +54,7 @@ public class TimeBaseDispatcher extends InvocationDispatcher<TimeBaseMarshaller>
         switch (methodId) {
         case TimeBaseMarshaller.GET_TIME_OID:
             ((TimeBaseProvider)provider).getTimeOid(
-                source,
-                (String)args[0], (TimeBaseService.GotTimeBaseListener)args[1]
+                source, (String)args[0], (TimeBaseService.GotTimeBaseListener)args[1]
             );
             return;
 

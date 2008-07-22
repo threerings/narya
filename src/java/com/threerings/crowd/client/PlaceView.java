@@ -64,7 +64,7 @@ public interface PlaceView
      *
      * @param plobj the place object that was just entered.
      */
-    public void willEnterPlace (PlaceObject plobj);
+    void willEnterPlace (PlaceObject plobj);
 
     /**
      * Called after the client has left a place and needs to clean up
@@ -72,5 +72,5 @@ public interface PlaceView
      *
      * @param plobj the place object that was just left.
      */
-    public void didLeavePlace (PlaceObject plobj);
+    void didLeavePlace (PlaceObject plobj);
 }

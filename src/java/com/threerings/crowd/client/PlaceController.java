@@ -154,14 +154,14 @@ public abstract class PlaceController extends Controller
         // keep a handle on our place object
         _plobj = plobj;
 
-        if (_view != null ) {
+        if (_view != null) {
             // let the UI hierarchy know that we've got our place
             PlaceViewUtil.dispatchWillEnterPlace(_view, plobj);
             // and display the user interface
             _ctx.setPlaceView(_view);
         }
 
-        // let our delegates know what's up 
+        // let our delegates know what's up
         applyToDelegates(new DelegateOp(PlaceControllerDelegate.class) {
             @Override
             public void apply (PlaceControllerDelegate delegate) {
@@ -183,7 +183,7 @@ public abstract class PlaceController extends Controller
      */
     public void mayLeavePlace (final PlaceObject plobj)
     {
-        // let our delegates know what's up 
+        // let our delegates know what's up
         applyToDelegates(new DelegateOp(PlaceControllerDelegate.class) {
             @Override
             public void apply (PlaceControllerDelegate delegate) {
@@ -201,7 +201,7 @@ public abstract class PlaceController extends Controller
      */
     public void didLeavePlace (final PlaceObject plobj)
     {
-        // let our delegates know what's up 
+        // let our delegates know what's up
         applyToDelegates(new DelegateOp(PlaceControllerDelegate.class) {
             @Override
             public void apply (PlaceControllerDelegate delegate) {
@@ -210,7 +210,7 @@ public abstract class PlaceController extends Controller
         });
 
         // let the UI hierarchy know that we're outta here
-        if (_view != null ) {
+        if (_view != null) {
             PlaceViewUtil.dispatchDidLeavePlace(_view, plobj);
             _ctx.clearPlaceView(_view);
             _view = null;

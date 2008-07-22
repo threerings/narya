@@ -55,8 +55,7 @@ public class BodyDispatcher extends InvocationDispatcher<BodyMarshaller>
         switch (methodId) {
         case BodyMarshaller.SET_IDLE:
             ((BodyProvider)provider).setIdle(
-                source,
-                ((Boolean)args[0]).booleanValue()
+                source, ((Boolean)args[0]).booleanValue()
             );
             return;
 

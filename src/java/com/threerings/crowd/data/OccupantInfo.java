@@ -26,8 +26,6 @@ import com.threerings.util.Name;
 
 import com.threerings.presents.dobj.DSet;
 
-import com.threerings.crowd.data.BodyObject;
-
 /**
  * The occupant info object contains all of the information about an occupant of a place that
  * should be shared with other occupants of the place. These objects are stored in the place object

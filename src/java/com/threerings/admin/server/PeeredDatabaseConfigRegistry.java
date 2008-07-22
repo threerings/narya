@@ -59,6 +59,7 @@ public class PeeredDatabaseConfigRegistry extends DatabaseConfigRegistry
         return new PeerDatabaseObjectRecord(path, object);
     }
 
+    /** Stores settings in a database and broadcasts changes to peers. */
     protected class PeerDatabaseObjectRecord extends DatabaseObjectRecord
         implements PeerManager.StaleCacheObserver
     {
@@ -71,8 +72,8 @@ public class PeeredDatabaseConfigRegistry extends DatabaseConfigRegistry
         // from interface PeerManager.StaleCacheObserver
         public void changedCacheData (Streamable data)
         {
-            @SuppressWarnings("unchecked") StreamableTuple<String,Object> change =
-                (StreamableTuple<String,Object>)data;
+            @SuppressWarnings("unchecked") StreamableTuple<String, Object> change =
+                (StreamableTuple<String, Object>)data;
 
             // note that we should ignore the attribute change event we're about to generate
             // because it is not a real configuration change but rather a sync
@@ -112,7 +113,7 @@ public class PeeredDatabaseConfigRegistry extends DatabaseConfigRegistry
         {
             // broadcast to the other nodes that this value has changed
             _peermgr.broadcastStaleCacheData(
-                PEER_CACHE_PREFIX + _path, new StreamableTuple<String,Object>(field, value));
+                PEER_CACHE_PREFIX + _path, new StreamableTuple<String, Object>(field, value));
         }
 
         protected ArrayList<String> _pendingSyncs = new ArrayList<String>();

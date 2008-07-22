@@ -21,7 +21,6 @@
 
 package com.threerings.crowd.client;
 
-import com.threerings.crowd.client.LocationReceiver;
 import com.threerings.presents.client.InvocationDecoder;
 
 /**

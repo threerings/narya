@@ -22,7 +22,6 @@
 package com.threerings.crowd.server;
 
 import com.threerings.crowd.client.LocationDecoder;
-import com.threerings.crowd.client.LocationReceiver;
 import com.threerings.presents.data.ClientObject;
 import com.threerings.presents.server.InvocationSender;
 

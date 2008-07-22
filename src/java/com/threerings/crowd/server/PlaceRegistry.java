@@ -53,7 +53,7 @@ public class PlaceRegistry
     /** Used in conjunction with {@link #createPlace}. */
     public static interface PreStartupHook
     {
-        public void invoke (PlaceManager plmgr);
+        void invoke (PlaceManager plmgr);
     }
 
     /**
@@ -87,7 +87,7 @@ public class PlaceRegistry
     /**
      * Creates and registers a new place manager with no delegates.
      *
-     * @see #createPlace(PlaceConfig,List<PlaceManagerDelegate>)
+     * @see #createPlace(PlaceConfig,List)
      */
     public PlaceManager createPlace (PlaceConfig config)
         throws InstantiationException, InvocationException

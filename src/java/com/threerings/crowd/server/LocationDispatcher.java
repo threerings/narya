@@ -56,14 +56,13 @@ public class LocationDispatcher extends InvocationDispatcher<LocationMarshaller>
         switch (methodId) {
         case LocationMarshaller.LEAVE_PLACE:
             ((LocationProvider)provider).leavePlace(
-                source                
+                source
             );
             return;
 
         case LocationMarshaller.MOVE_TO:
             ((LocationProvider)provider).moveTo(
-                source,
-                ((Integer)args[0]).intValue(), (LocationService.MoveListener)args[1]
+                source, ((Integer)args[0]).intValue(), (LocationService.MoveListener)args[1]
             );
             return;
 

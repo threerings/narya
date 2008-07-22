@@ -48,7 +48,7 @@ public class BodyManager
          * @return true if changes were made and thus the object should be published anew to the
          * place object, false if no publish should be done.
          */
-        public boolean update (OccupantInfo oinfo);
+        boolean update (OccupantInfo oinfo);
     }
 
     /**

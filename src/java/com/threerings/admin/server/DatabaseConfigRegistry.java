@@ -115,6 +115,7 @@ public class DatabaseConfigRegistry extends ConfigRegistry
         return new DatabaseObjectRecord(path, object);
     }
 
+    /** Stores settings in a database. */
     protected class DatabaseObjectRecord extends ObjectRecord
     {
         public DatabaseObjectRecord (String path, DObject object)
@@ -134,7 +135,7 @@ public class DatabaseConfigRegistry extends ConfigRegistry
                 _data = _repo.loadConfig(_node, _path);
             } catch (PersistenceException pe) {
                 log.warning("Failed to load object configuration [path=" + _path + "].", pe);
-                _data = new HashMap<String,String>();
+                _data = new HashMap<String, String>();
             }
 
             super.init();
@@ -321,7 +322,7 @@ public class DatabaseConfigRegistry extends ConfigRegistry
         }
 
         protected String _path;
-        protected HashMap<String,String> _data;
+        protected HashMap<String, String> _data;
     }
 
     protected ConfigRepository _repo;

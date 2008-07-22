@@ -1260,8 +1260,8 @@ public class ChatDirector extends BasicDirector
             }
 
             // clear out from the history any tells that are mistypes
-            for (Iterator iter = _history.iterator(); iter.hasNext(); ) {
-                String hist = (String)iter.next();
+            for (Iterator<String> iter = _history.iterator(); iter.hasNext(); ) {
+                String hist = iter.next();
                 if (hist.startsWith("/" + command)) {
                     String harg = hist.substring(command.length() + 1).trim();
                     // we blow away any historic tells that have msg content

@@ -48,7 +48,7 @@ public class ConfigRepository extends DepotRepository
      *
      * @return a map containing field/value pairs for all stored configuration data.
      */
-    public HashMap<String,String> loadConfig (String node, String object)
+    public HashMap<String, String> loadConfig (String node, String object)
         throws PersistenceException
     {
         HashMap<String, String> data = new HashMap<String, String>();

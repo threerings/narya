@@ -58,22 +58,19 @@ public class ChatDispatcher extends InvocationDispatcher<ChatMarshaller>
         switch (methodId) {
         case ChatMarshaller.AWAY:
             ((ChatProvider)provider).away(
-                source,
-                (String)args[0]
+                source, (String)args[0]
             );
             return;
 
         case ChatMarshaller.BROADCAST:
             ((ChatProvider)provider).broadcast(
-                source,
-                (String)args[0], (InvocationService.InvocationListener)args[1]
+                source, (String)args[0], (InvocationService.InvocationListener)args[1]
             );
             return;
 
         case ChatMarshaller.TELL:
             ((ChatProvider)provider).tell(
-                source,
-                (Name)args[0], (String)args[1], (ChatService.TellListener)args[2]
+                source, (Name)args[0], (String)args[1], (ChatService.TellListener)args[2]
             );
             return;
 

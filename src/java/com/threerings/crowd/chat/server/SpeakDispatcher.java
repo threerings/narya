@@ -55,8 +55,7 @@ public class SpeakDispatcher extends InvocationDispatcher<SpeakMarshaller>
         switch (methodId) {
         case SpeakMarshaller.SPEAK:
             ((SpeakProvider)provider).speak(
-                source,
-                (String)args[0], ((Byte)args[1]).byteValue()
+                source, (String)args[0], ((Byte)args[1]).byteValue()
             );
             return;
 

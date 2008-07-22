@@ -21,7 +21,6 @@
 
 package com.threerings.bureau.client;
 
-import com.threerings.bureau.client.BureauReceiver;
 import com.threerings.presents.client.InvocationDecoder;
 
 /**

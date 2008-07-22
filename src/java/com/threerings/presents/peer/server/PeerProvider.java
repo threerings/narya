@@ -22,6 +22,7 @@
 package com.threerings.presents.peer.server;
 
 import com.threerings.presents.data.ClientObject;
+import com.threerings.presents.peer.client.PeerService;
 import com.threerings.presents.peer.data.NodeObject;
 import com.threerings.presents.server.InvocationProvider;
 

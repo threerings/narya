@@ -55,29 +55,25 @@ public class BureauDispatcher extends InvocationDispatcher<BureauMarshaller>
         switch (methodId) {
         case BureauMarshaller.AGENT_CREATED:
             ((BureauProvider)provider).agentCreated(
-                source,
-                ((Integer)args[0]).intValue()
+                source, ((Integer)args[0]).intValue()
             );
             return;
 
         case BureauMarshaller.AGENT_CREATION_FAILED:
             ((BureauProvider)provider).agentCreationFailed(
-                source,
-                ((Integer)args[0]).intValue()
+                source, ((Integer)args[0]).intValue()
             );
             return;
 
         case BureauMarshaller.AGENT_DESTROYED:
             ((BureauProvider)provider).agentDestroyed(
-                source,
-                ((Integer)args[0]).intValue()
+                source, ((Integer)args[0]).intValue()
             );
             return;
 
         case BureauMarshaller.BUREAU_INITIALIZED:
             ((BureauProvider)provider).bureauInitialized(
-                source,
-                (String)args[0]
+                source, (String)args[0]
             );
             return;
 
