@@ -21,6 +21,9 @@
 
 package com.threerings.presents.net;
 
+/**
+ * Requests to end a subscription to a particular distributed object.
+ */
 public class UnsubscribeRequest extends UpstreamMessage
 {
     /**

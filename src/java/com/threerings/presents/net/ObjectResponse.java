@@ -23,6 +23,11 @@ package com.threerings.presents.net;
 
 import com.threerings.presents.dobj.DObject;
 
+/**
+ * Contains a distributed object to which the client has subscribed.
+ *
+ * @param <T> the type of object delivered by the response.
+ */
 public class ObjectResponse<T extends DObject>
     extends DownstreamMessage
 {

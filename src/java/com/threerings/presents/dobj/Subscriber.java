@@ -37,6 +37,8 @@ package com.threerings.presents.dobj;
  * @see AttributeChangeListener
  * @see SetListener
  * @see OidListListener
+ *
+ * @param <T> the type object being subscribed to.
  */
 public interface Subscriber<T extends DObject>
 {

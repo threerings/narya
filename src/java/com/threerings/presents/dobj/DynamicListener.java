@@ -44,7 +44,7 @@ public class DynamicListener
     {
         this(target, new MethodFinder(target.getClass()));
     }
-    
+
     /**
      * Creates a listener that dynamically dispatches events on the supplied
      * target using the methods in finder.
@@ -140,5 +140,5 @@ public class DynamicListener
     protected MethodFinder _finder;
 
     /** A cache of already resolved methods. */
-    protected HashMap<String,Method> _mcache = new HashMap<String,Method>();
+    protected HashMap<String, Method> _mcache = new HashMap<String, Method>();
 }

@@ -77,7 +77,7 @@ public class NodeRecord extends PersistentRecord
     /** Increment this value if you modify the definition of this persistent
      * object in a way that will result in a change to its SQL counterpart. */
     public static final int SCHEMA_VERSION = 1;
-    
+
     /** The unique name assigned to this node. */
     @Id
     @Column(name="NODE_NAME", length=64)

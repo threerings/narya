@@ -376,7 +376,7 @@ public abstract class PeerManager
             return;
         }
 
-        final Tuple<String,Integer> key = new Tuple<String,Integer>(nodeName, remoteOid);
+        final Tuple<String, Integer> key = new Tuple<String, Integer>(nodeName, remoteOid);
         if (_proxies.containsKey(key)) {
             String errmsg = "Cannot proxy already proxied object [key=" + key + "].";
             listener.requestFailed(new ObjectAccessException(errmsg));
@@ -387,7 +387,7 @@ public abstract class PeerManager
         peer.getDObjectManager().subscribeToObject(remoteOid, new Subscriber<T>() {
             public void objectAvailable (T object) {
                 // make a note of this proxy mapping
-                _proxies.put(key, new Tuple<Subscriber<?>,DObject>(this, object));
+                _proxies.put(key, new Tuple<Subscriber<?>, DObject>(this, object));
                 // map the object into our local oid space
                 _omgr.registerProxyObject(object, peer.getDObjectManager());
                 // then tell the caller about the (now remapped) oid
@@ -405,8 +405,8 @@ public abstract class PeerManager
      */
     public void unproxyRemoteObject (String nodeName, int remoteOid)
     {
-        Tuple<String,Integer> key = new Tuple<String,Integer>(nodeName, remoteOid);
-        Tuple<Subscriber<?>,DObject> bits = _proxies.remove(key);
+        Tuple<String, Integer> key = new Tuple<String, Integer>(nodeName, remoteOid);
+        Tuple<Subscriber<?>, DObject> bits = _proxies.remove(key);
         if (bits == null) {
             log.warning("Requested to clear unknown proxy [key=" + key + "].");
             return;
@@ -807,7 +807,7 @@ public abstract class PeerManager
                 _nodes = _noderepo.loadNodes();
             }
             @Override
-            public void handleSuccess() {
+            public void handleSuccess () {
                 for (NodeRecord record : _nodes) {
                     if (record.nodeName.equals(_nodeName)) {
                         continue;
@@ -1202,7 +1202,7 @@ public abstract class PeerManager
     protected String _nodeName, _sharedSecret;
     protected NodeRecord _self;
     protected NodeObject _nodeobj;
-    protected Map<String,PeerNode> _peers = Maps.newHashMap();
+    protected Map<String, PeerNode> _peers = Maps.newHashMap();
 
     /** Used to resolve dependencies in unserialized {@link NodeAction} instances. */
     protected Injector _injector;
@@ -1211,7 +1211,8 @@ public abstract class PeerManager
     protected ArrayIntSet _suboids = new ArrayIntSet();
 
     /** Contains a mapping of proxied objects to subscriber instances. */
-    protected Map<Tuple<String,Integer>,Tuple<Subscriber<?>,DObject>> _proxies = Maps.newHashMap();
+    protected Map<Tuple<String, Integer>, Tuple<Subscriber<?>, DObject>> _proxies =
+        Maps.newHashMap();
 
     /** Our stale cache observers. */
     protected Map<String, ObserverList<StaleCacheObserver>> _cacheobs = Maps.newHashMap();

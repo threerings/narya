@@ -913,7 +913,7 @@ public class DObject
     protected transient boolean _deathWish = false;
 
     /** Maintains a mapping of sorted field arrays for each distributed object class. */
-    protected static HashMap<Class,Field[]> _ftable = new HashMap<Class,Field[]>();
+    protected static HashMap<Class, Field[]> _ftable = new HashMap<Class, Field[]>();
 
     /** Used to sort and search {@link #_fields}. */
     protected static final Comparator<Field> FIELD_COMP = new Comparator<Field>() {

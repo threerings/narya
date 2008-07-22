@@ -21,6 +21,9 @@
 
 package com.threerings.presents.net;
 
+/**
+ * Requests to subscribe to a particular distributed object.
+ */
 public class SubscribeRequest extends UpstreamMessage
 {
     /**

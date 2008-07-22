@@ -23,6 +23,9 @@ package com.threerings.presents.net;
 
 import com.threerings.presents.dobj.DEvent;
 
+/**
+ * Forwards an event to the server for dispatch.
+ */
 public class ForwardEventRequest extends UpstreamMessage
 {
     /**

@@ -23,6 +23,9 @@ package com.threerings.presents.net;
 
 import com.threerings.util.Name;
 
+/**
+ * Extends the basic credentials with a password.
+ */
 public class UsernamePasswordCreds extends Credentials
 {
     /**

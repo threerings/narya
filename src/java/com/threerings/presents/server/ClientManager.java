@@ -42,7 +42,10 @@ import com.threerings.presents.data.ClientObject;
 import com.threerings.presents.net.AuthRequest;
 import com.threerings.presents.net.AuthResponse;
 import com.threerings.presents.net.Credentials;
-import com.threerings.presents.server.net.*;
+import com.threerings.presents.server.net.AuthingConnection;
+import com.threerings.presents.server.net.Connection;
+import com.threerings.presents.server.net.ConnectionManager;
+import com.threerings.presents.server.net.ConnectionObserver;
 
 import static com.threerings.presents.Log.log;
 
@@ -323,8 +326,8 @@ public class ClientManager
     }
 
     /**
-     * Renames a currently connected client from <code>oldname</code> to <code>newname</code>
-     * 
+     * Renames a currently connected client from <code>oldname</code> to <code>newname</code>.
+     *
      * @return true if the client was found and renamed.
      */
     protected boolean renameClientObject (Name oldname, Name newname)
@@ -548,16 +551,16 @@ public class ClientManager
     protected Injector _injector;
 
     /** A mapping from auth username to client instances. */
-    protected Map<Name,PresentsClient> _usermap = Maps.newHashMap();
+    protected Map<Name, PresentsClient> _usermap = Maps.newHashMap();
 
     /** A mapping from connections to client instances. */
-    protected Map<Connection,PresentsClient> _conmap = Maps.newHashMap();
+    protected Map<Connection, PresentsClient> _conmap = Maps.newHashMap();
 
     /** A mapping from usernames to client object instances. */
-    protected Map<Name,ClientObject> _objmap = Maps.newHashMap();
+    protected Map<Name, ClientObject> _objmap = Maps.newHashMap();
 
     /** A mapping of pending client resolvers. */
-    protected Map<Name,ClientResolver> _penders = Maps.newHashMap();
+    protected Map<Name, ClientResolver> _penders = Maps.newHashMap();
 
     /** Lets us know what sort of client classes to use. */
     protected ClientFactory _factory = ClientFactory.DEFAULT;

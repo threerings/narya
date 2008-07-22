@@ -28,6 +28,10 @@ import com.threerings.io.ObjectOutputStream;
 
 import static com.threerings.presents.Log.log;
 
+/**
+ * Let's the client know the server heard its ping (and that the server and connection are still
+ * alive).
+ */
 public class PongResponse extends DownstreamMessage
 {
     /**
@@ -39,20 +43,19 @@ public class PongResponse extends DownstreamMessage
     }
 
     /**
-     * Constructs a pong response which will use the supplied ping time to
-     * establish the end-to-end processing delay introduced by the server.
+     * Constructs a pong response which will use the supplied ping time to establish the end-to-end
+     * processing delay introduced by the server.
      */
     public PongResponse (long pingStamp, Transport transport)
     {
-        // save this for when we are serialized in preparation for
-        // delivery over the network
+        // save this for when we are serialized in preparation for delivery over the network
         _pingStamp = pingStamp;
         _transport = transport;
     }
 
     /**
-     * Returns the time at which this packet was packed for delivery in
-     * the time frame of the server that sent the packet.
+     * Returns the time at which this packet was packed for delivery in the time frame of the
+     * server that sent the packet.
      */
     public long getPackStamp ()
     {
@@ -60,9 +63,9 @@ public class PongResponse extends DownstreamMessage
     }
 
     /**
-     * Returns the number of milliseconds that elapsed between the time
-     * that the ping which instigated this pong was read from the network
-     * and the time that this pong was written to the network.
+     * Returns the number of milliseconds that elapsed between the time that the ping which
+     * instigated this pong was read from the network and the time that this pong was written to
+     * the network.
      */
     public int getProcessDelay ()
     {
@@ -70,8 +73,8 @@ public class PongResponse extends DownstreamMessage
     }
 
     /**
-     * Returns a timestamp that was obtained when this packet was decoded
-     * by the low-level networking code.
+     * Returns a timestamp that was obtained when this packet was decoded by the low-level
+     * networking code.
      */
     public long getUnpackStamp ()
     {
@@ -87,8 +90,7 @@ public class PongResponse extends DownstreamMessage
         // make a note of the time at which we were packed
         _packStamp = System.currentTimeMillis();
 
-        // the time spent between unpacking the ping and packing the pong
-        // is the processing delay
+        // the time spent between unpacking the ping and packing the pong is the processing delay
         if (_pingStamp == 0L) {
             log.warning("Pong response written that was not constructed " +
                         "with a valid ping stamp [rsp=" + this + "].");
@@ -106,8 +108,8 @@ public class PongResponse extends DownstreamMessage
     public void readObject (ObjectInputStream in)
         throws IOException, ClassNotFoundException
     {
-        // grab a timestamp noting when we were decoded from a raw buffer
-        // after being received over the network
+        // grab a timestamp noting when we were decoded from a raw buffer after being received over
+        // the network
         _unpackStamp = System.currentTimeMillis();
 
         in.defaultReadObject();
@@ -131,23 +133,19 @@ public class PongResponse extends DownstreamMessage
         return "[type=PONG, msgid=" + messageId + ", transport=" + _transport + "]";
     }
 
-    /** The ping unpack stamp provided at construct time to this pong
-     * response; only valid on the sending process, not the receiving
-     * process. */
+    /** The ping unpack stamp provided at construct time to this pong response; only valid on the
+     * sending process, not the receiving process. */
     protected transient long _pingStamp;
 
-    /** The timestamp obtained immediately before this packet was sent out
-     * over the network. */
+    /** The timestamp obtained immediately before this packet was sent out over the network. */
     protected long _packStamp;
 
-    /** The delay in milliseconds between the time that the ping request
-     * was read from the network and the time the pong response was
-     * written to the network. */
+    /** The delay in milliseconds between the time that the ping request was read from the network
+     * and the time the pong response was written to the network. */
     protected int _processDelay;
 
-    /** A time stamp obtained when we unserialize this object (the intent
-     * is to get a timestamp as close as possible to when the packet was
-     * received on the network). */
+    /** A time stamp obtained when we unserialize this object (the intent is to get a timestamp as
+     * close as possible to when the packet was received on the network). */
     protected transient long _unpackStamp;
 
     /** The transport parameters. */

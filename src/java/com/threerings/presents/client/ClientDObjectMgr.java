@@ -35,8 +35,25 @@ import com.samskivert.util.StringUtil;
 import com.samskivert.util.IntMap;
 import com.samskivert.util.Interval;
 
-import com.threerings.presents.dobj.*;
-import com.threerings.presents.net.*;
+import com.threerings.presents.dobj.CompoundEvent;
+import com.threerings.presents.dobj.DEvent;
+import com.threerings.presents.dobj.DObject;
+import com.threerings.presents.dobj.DObjectManager;
+import com.threerings.presents.dobj.ObjectAccessException;
+import com.threerings.presents.dobj.ObjectDestroyedEvent;
+import com.threerings.presents.dobj.Subscriber;
+
+import com.threerings.presents.net.BootstrapData;
+import com.threerings.presents.net.BootstrapNotification;
+import com.threerings.presents.net.DownstreamMessage;
+import com.threerings.presents.net.EventNotification;
+import com.threerings.presents.net.FailureResponse;
+import com.threerings.presents.net.ForwardEventRequest;
+import com.threerings.presents.net.ObjectResponse;
+import com.threerings.presents.net.PongResponse;
+import com.threerings.presents.net.SubscribeRequest;
+import com.threerings.presents.net.UnsubscribeRequest;
+import com.threerings.presents.net.UnsubscribeResponse;
 
 import static com.threerings.presents.Log.log;
 

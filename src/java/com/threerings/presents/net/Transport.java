@@ -25,8 +25,8 @@ import com.samskivert.util.HashIntMap;
 
 /**
  * Message transport parameters.  These include the type of transport and the channel (used to
- * define independent streams for ordered transport), and may eventually include message
- * priority, etc.
+ * define independent streams for ordered transport), and may eventually include message priority,
+ * etc.
  */
 public class Transport
 {
@@ -109,8 +109,8 @@ public class Transport
         }
 
         protected boolean _reliable, _ordered;
-    }    
-    
+    }
+
     /** The unreliable/unordered mode of transport. */
     public static final Transport UNRELIABLE_UNORDERED = getInstance(Type.UNRELIABLE_UNORDERED);
 

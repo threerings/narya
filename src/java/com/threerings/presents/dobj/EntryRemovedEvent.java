@@ -29,6 +29,9 @@ import static com.threerings.presents.Log.log;
  * posted to the dobjmgr.
  *
  * @see DObjectManager#postEvent
+ *
+ * @param <T> the type of entry being handled by this event. This must match the type on the set
+ * that generated this event.
  */
 public class EntryRemovedEvent<T extends DSet.Entry> extends NamedEvent
 {

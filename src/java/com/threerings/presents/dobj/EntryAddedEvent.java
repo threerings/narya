@@ -29,6 +29,9 @@ import com.samskivert.util.StringUtil;
  * posted to the dobjmgr.
  *
  * @see DObjectManager#postEvent
+ *
+ * @param <T> the type of entry being handled by this event. This must match the type on the set
+ * that generated this event.
  */
 public class EntryAddedEvent<T extends DSet.Entry> extends NamedEvent
 {

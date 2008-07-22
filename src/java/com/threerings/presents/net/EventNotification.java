@@ -23,6 +23,9 @@ package com.threerings.presents.net;
 
 import com.threerings.presents.dobj.DEvent;
 
+/**
+ * Contains an event forwarded from the server.
+ */
 public class EventNotification extends DownstreamMessage
 {
     /**

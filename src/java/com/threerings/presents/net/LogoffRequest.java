@@ -21,6 +21,9 @@
 
 package com.threerings.presents.net;
 
+/**
+ * Requests to end our session with the server.
+ */
 public class LogoffRequest extends UpstreamMessage
 {
     /**

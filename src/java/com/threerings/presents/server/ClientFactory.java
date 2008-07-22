@@ -32,7 +32,7 @@ import com.threerings.presents.net.AuthRequest;
 public interface ClientFactory
 {
     /** The default client factory. */
-    public static ClientFactory DEFAULT = new ClientFactory () {
+    public static ClientFactory DEFAULT = new ClientFactory() {
         public Class<? extends PresentsClient> getClientClass (AuthRequest areq) {
             return PresentsClient.class;
         }

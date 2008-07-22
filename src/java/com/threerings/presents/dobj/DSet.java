@@ -28,7 +28,6 @@ import java.util.ConcurrentModificationException;
 import java.util.Iterator;
 
 import com.samskivert.util.ArrayUtil;
-import com.samskivert.util.StringUtil;
 
 import com.threerings.io.ObjectInputStream;
 import com.threerings.io.ObjectOutputStream;
@@ -49,6 +48,8 @@ import static com.threerings.presents.Log.log;
  * case of entry removal, only the key for the entry to be removed will be transmitted with the
  * removal event to save network bandwidth. Lastly, the object returned by {@link Entry#getKey}
  * must be a {@link Streamable} type.
+ *
+ * @param <E> the type of entry stored in this set.
  */
 public class DSet<E extends DSet.Entry>
     implements Iterable<E>, Streamable, Cloneable
@@ -197,10 +198,8 @@ public class DSet<E extends DSet.Entry>
     public Iterator<E> iterator ()
     {
         // the crazy sanity checks
-        if (_size < 0 ||_size > _entries.length ||
-            (_size > 0 && _entries[_size-1] == null)) {
-            log.warning("DSet in a bad way [size=" + _size +
-                        ", entries=" + StringUtil.toString(_entries) + "].");
+        if (_size < 0 || _size > _entries.length || (_size > 0 && _entries[_size-1] == null)) {
+            log.warning("DSet in a bad way", "size", _size, "entries", _entries);
             Thread.dumpStack();
         }
 
@@ -221,9 +220,8 @@ public class DSet<E extends DSet.Entry>
                     throw new ConcurrentModificationException();
                 }
                 if (_ssize != _size) {
-                    log.warning("Size changed during iteration [ssize=" + _ssize +
-                                ", nsize=" + _size +
-                                ", entsries=" + StringUtil.toString(_entries) + "].");
+                    log.warning("Size changed during iteration", "ssize", _ssize, "nsize", _size,
+                                "entries", _entries);
                     Thread.dumpStack();
                 }
             }
@@ -460,6 +458,7 @@ public class DSet<E extends DSet.Entry>
         }
     }
 
+    /** Used to search for keys. */
     protected static class KeyWrapper implements DSet.Entry
     {
         public KeyWrapper (Comparable key) {

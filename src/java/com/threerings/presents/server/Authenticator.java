@@ -55,7 +55,7 @@ public abstract class Authenticator
 
         invoker.postUnit(new Invoker.Unit("authenticateConnection") {
             @Override
-            public boolean invoke() {
+            public boolean invoke () {
                 try {
                     processAuthentication(conn, rsp);
                 } catch (Exception e) { // Persistence or Runtime

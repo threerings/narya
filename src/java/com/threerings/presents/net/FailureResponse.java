@@ -21,6 +21,9 @@
 
 package com.threerings.presents.net;
 
+/**
+ * Communicates failure to subscribe to an object.
+ */
 public class FailureResponse extends DownstreamMessage
 {
     /**
