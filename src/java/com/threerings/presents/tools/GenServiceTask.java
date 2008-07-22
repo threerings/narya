@@ -520,8 +520,7 @@ public class GenServiceTask extends InvocationTask
         }
 
         String name = StringUtil.replace(sdesc.sname, "Service", "");
-        String mpackage = StringUtil.replace(
-            sdesc.spackage, ".client", ".server");
+        String mpackage = StringUtil.replace(sdesc.spackage, ".client", ".server");
 
         // start with imports required by service methods
         ImportSet imports = sdesc.imports.clone();
@@ -530,8 +529,9 @@ public class GenServiceTask extends InvocationTask
         imports.add(ClientObject.class);
         imports.remove(Client.class);
 
-        // import superclass
+        // import superclass and service
         imports.add(InvocationProvider.class);
+        imports.add(sdesc.service);
 
         // any method that takes a listener may throw this
         if (sdesc.hasAnyListenerArgs()) {
@@ -577,12 +577,21 @@ public class GenServiceTask extends InvocationTask
         }
     }
 
-    // rolls up everything needed for the generate* methods
+    /** Rolls up everything needed for the generate* methods. */
     protected class ServiceDescription
     {
-        ServiceDescription (Class service)
+        public Class service;
+        public String sname;
+        public String spackage;
+        public ImportSet imports = new ImportSet();
+        public ComparableArrayList<ServiceMethod> methods =
+            new ComparableArrayList<ServiceMethod>();
+        public ComparableArrayList<ServiceListener> listeners =
+            new ComparableArrayList<ServiceListener>();
+
+        public ServiceDescription (Class serviceClass)
         {
-            this.service = service;
+            service = serviceClass;
             sname = service.getSimpleName();
             spackage = service.getPackage().getName();
 
@@ -623,7 +632,7 @@ public class GenServiceTask extends InvocationTask
         /**
          * Checks if any of the service method arguments are listener types.
          */
-        boolean hasAnyListenerArgs ()
+        public boolean hasAnyListenerArgs ()
         {
             for (ServiceMethod sm : methods) {
                 if (!sm.listenerArgs.isEmpty()) {
@@ -636,7 +645,7 @@ public class GenServiceTask extends InvocationTask
         /**
          * Constructs a union of the imports of the service methods and all listener methods.
          */
-        ImportSet constructAllImports ()
+        public ImportSet constructAllImports ()
         {
             ImportSet allimports = imports.clone();
             for (ServiceListener listener : listeners) {
@@ -644,15 +653,6 @@ public class GenServiceTask extends InvocationTask
             }
             return allimports;
         }
-
-        Class service;
-        String sname;
-        String spackage;
-        ImportSet imports = new ImportSet();
-        ComparableArrayList<ServiceMethod> methods =
-            new ComparableArrayList<ServiceMethod>();
-        ComparableArrayList<ServiceListener> listeners =
-            new ComparableArrayList<ServiceListener>();
     }
 
     /** The path to our ActionScript source files. */
