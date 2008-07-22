@@ -26,7 +26,7 @@ package com.threerings.io;
  * instances and read from {@link ObjectInputStream} instances.
  *
  * <p> All non-<code>transient</code> fields will be automatically written and restored for a
- * {@link Streamable} instance. Classes that wish to stream non-public fields or customize the
+ * {@link Streamable} instance. Classes that wish to stream transient fields or customize the
  * streaming process should implement methods with the following signatures:
  *
  * <p><code>
