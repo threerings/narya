@@ -21,8 +21,9 @@
 
 package com.threerings.presents.net;
 
+import java.util.List;
+
 import com.threerings.io.SimpleStreamableObject;
-import com.threerings.util.StreamableArrayList;
 
 import com.threerings.presents.data.InvocationMarshaller;
 
@@ -40,5 +41,5 @@ public class BootstrapData extends SimpleStreamableObject
     public int clientOid;
 
     /** A list of handles to invocation services. */
-    public StreamableArrayList<InvocationMarshaller> services;
+    public List<InvocationMarshaller> services;
 }

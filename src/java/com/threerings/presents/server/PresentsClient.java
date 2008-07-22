@@ -26,13 +26,14 @@ import java.net.InetAddress;
 import java.util.Map;
 import java.util.TimeZone;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.inject.Inject;
+
 import com.samskivert.util.HashIntMap;
 import com.samskivert.util.ResultListener;
 import com.samskivert.util.Throttle;
 import com.threerings.util.Name;
-import com.threerings.util.StreamableArrayList;
 
 import com.threerings.presents.data.ClientObject;
 import com.threerings.presents.data.InvocationMarshaller;
@@ -676,11 +677,11 @@ public class PresentsClient
         data.clientOid = _clobj.getOid();
 
         // fill in the list of bootstrap services
-        data.services = new StreamableArrayList<InvocationMarshaller>();
         if (_areq.getBootGroups() == null) {
             log.warning("Client provided no invocation service boot groups? " + this);
+            data.services = Lists.newArrayList();
         } else {
-            data.services.addAll(_invmgr.getBootstrapServices(_areq.getBootGroups()));
+            data.services = _invmgr.getBootstrapServices(_areq.getBootGroups());
         }
     }
 
