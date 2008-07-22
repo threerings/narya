@@ -22,7 +22,7 @@
 package com.threerings.presents.util;
 
 import java.lang.reflect.Method;
-import java.util.HashMap;
+import java.util.Map;
 
 import com.samskivert.util.MethodFinder;
 import com.samskivert.util.StringUtil;
@@ -43,7 +43,7 @@ public class ClassUtil
      * @return the method with the specified name or null if no method with that name could be
      * found.
      */
-    public static Method getMethod (String name, Object target, HashMap<String,Method> cache)
+    public static Method getMethod (String name, Object target, Map<String, Method> cache)
     {
         Class tclass = target.getClass();
         String key = tclass.getName() + ":" + name;
@@ -80,7 +80,7 @@ public class ClassUtil
 
         } catch (NoSuchMethodException nsme) {
             // nothing to do here but fall through and return null
-            log.info("No such method [name=" + name + ", tclass=" + tclass.getName() + 
+            log.info("No such method [name=" + name + ", tclass=" + tclass.getName() +
                      ", args=" + StringUtil.toString(args) + ", error=" + nsme + "].");
 
         } catch (SecurityException se) {

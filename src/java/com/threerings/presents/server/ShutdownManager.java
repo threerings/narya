@@ -48,6 +48,7 @@ public class ShutdownManager
         void shutdown ();
     }
 
+    /** Constraints for use with {@link #addConstraint}. */
     public static enum Constraint { RUNS_BEFORE, RUNS_AFTER };
 
     @Inject ShutdownManager (@EventQueue RunQueue dobjq)
@@ -75,7 +76,6 @@ public class ShutdownManager
      * Adds a constraint that a certain shutdowner must be run before another.
      */
     public void addConstraint (Shutdowner lhs, Constraint constraint, Shutdowner rhs)
-        throws IllegalArgumentException
     {
         if (lhs == null || rhs == null) {
             throw new IllegalArgumentException("Cannot add constraint about null shutdowner.");

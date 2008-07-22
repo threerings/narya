@@ -325,9 +325,8 @@ public class MessageBundle
             }
         }
 
-        return (msg != null) ?
-            MessageFormat.format(MessageUtil.escape(msg), args)
-            : (key + StringUtil.toString(args));
+        return (msg != null) ? MessageFormat.format(MessageUtil.escape(msg), args) :
+            (key + StringUtil.toString(args));
     }
 
     /**

@@ -28,7 +28,7 @@ import java.util.Random;
 
 /**
  * Maintained for backwards compatibility with old Game Gardens games.
- * 
+ *
  * @deprecated moved to {@link com.samskivert.util.RandomUtil}.
  */
 @Deprecated

@@ -21,8 +21,10 @@
 
 package com.threerings.presents.server;
 
+import java.util.List;
 import java.util.Map;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
@@ -33,7 +35,6 @@ import com.samskivert.util.LRUHashMap;
 import com.samskivert.util.StringUtil;
 
 import com.threerings.io.Streamable;
-import com.threerings.util.StreamableArrayList;
 
 import com.threerings.presents.data.ClientObject;
 import com.threerings.presents.data.InvocationMarshaller.ListenerMarshaller;
@@ -100,7 +101,8 @@ public class InvocationManager
      *
      * @param dispatcher the dispatcher to be registered.
      */
-    public <T extends InvocationMarshaller> T registerDispatcher (InvocationDispatcher<T> dispatcher)
+    public <T extends InvocationMarshaller> T registerDispatcher (
+        InvocationDispatcher<T> dispatcher)
     {
         return registerDispatcher(dispatcher, null);
     }
@@ -139,9 +141,9 @@ public class InvocationManager
 
         // if it's a bootstrap service, slap it in the list
         if (group != null) {
-            StreamableArrayList<InvocationMarshaller> list = _bootlists.get(group);
+            List<InvocationMarshaller> list = _bootlists.get(group);
             if (list == null) {
-                _bootlists.put(group, list = new StreamableArrayList<InvocationMarshaller>());
+                _bootlists.put(group, list = Lists.newArrayList());
             }
             list.add(marsh);
         }
@@ -175,12 +177,11 @@ public class InvocationManager
     /**
      * Constructs a list of all bootstrap services registered in any of the supplied groups.
      */
-    public StreamableArrayList<InvocationMarshaller> getBootstrapServices (String[] bootGroups)
+    public List<InvocationMarshaller> getBootstrapServices (String[] bootGroups)
     {
-        StreamableArrayList<InvocationMarshaller> services =
-            new StreamableArrayList<InvocationMarshaller>();
+        List<InvocationMarshaller> services = Lists.newArrayList();
         for (String group : bootGroups) {
-            StreamableArrayList<InvocationMarshaller> list = _bootlists.get(group);
+            List<InvocationMarshaller> list = _bootlists.get(group);
             if (list != null) {
                 services.addAll(list);
             }
@@ -319,10 +320,11 @@ public class InvocationManager
     protected IntMap<InvocationDispatcher> _dispatchers = IntMaps.newHashIntMap();
 
     /** Maps bootstrap group to lists of services to be provided to clients at boot time. */
-    protected Map<String,StreamableArrayList<InvocationMarshaller>> _bootlists = Maps.newHashMap();
+    protected Map<String, List<InvocationMarshaller>> _bootlists = Maps.newHashMap();
 
     // debugging action...
-    protected final Map<Integer,String> _recentRegServices = new LRUHashMap<Integer,String>(10000);
+    protected final Map<Integer, String> _recentRegServices =
+        new LRUHashMap<Integer, String>(10000);
 
     /** The text appended to the procedure name when generating a failure response. */
     protected static final String FAILED_SUFFIX = "Failed";

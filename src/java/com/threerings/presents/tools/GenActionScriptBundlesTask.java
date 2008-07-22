@@ -56,7 +56,6 @@ public class GenActionScriptBundlesTask extends Task
 
     @Override
     public void execute ()
-        throws BuildException
     {
         // boilerplate
         for (FileSet fs : _filesets) {

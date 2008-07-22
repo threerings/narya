@@ -21,7 +21,9 @@
 
 package com.threerings.presents.server;
 
-import java.lang.reflect.*;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.util.List;
 import java.util.Map;
 
@@ -39,7 +41,20 @@ import com.samskivert.util.RunQueue;
 import com.samskivert.util.StringUtil;
 import com.samskivert.util.Throttle;
 
-import com.threerings.presents.dobj.*;
+import com.threerings.presents.dobj.AccessController;
+import com.threerings.presents.dobj.CompoundEvent;
+import com.threerings.presents.dobj.DEvent;
+import com.threerings.presents.dobj.DObject;
+import com.threerings.presents.dobj.DObjectManager;
+import com.threerings.presents.dobj.InvocationRequestEvent;
+import com.threerings.presents.dobj.NoSuchObjectException;
+import com.threerings.presents.dobj.ObjectAccessException;
+import com.threerings.presents.dobj.ObjectAddedEvent;
+import com.threerings.presents.dobj.ObjectDestroyedEvent;
+import com.threerings.presents.dobj.ObjectRemovedEvent;
+import com.threerings.presents.dobj.OidList;
+import com.threerings.presents.dobj.RootDObjectManager;
+import com.threerings.presents.dobj.Subscriber;
 
 import static com.threerings.presents.Log.log;
 
@@ -338,7 +353,7 @@ public class PresentsDObjectMgr
      */
     public void dumpUnitProfiles ()
     {
-        for (Map.Entry<String,UnitProfile> entry : _profiles.entrySet()) {
+        for (Map.Entry<String, UnitProfile> entry : _profiles.entrySet()) {
             log.info("P: " + entry.getKey() + " => " + entry.getValue());
         }
     }
@@ -534,7 +549,7 @@ public class PresentsDObjectMgr
 
         if (UNIT_PROF_ENABLED) {
             report.append("- Unit profiles: ").append(_profiles.size()).append("\n");
-            for (Map.Entry<String,UnitProfile> entry : _profiles.entrySet()) {
+            for (Map.Entry<String, UnitProfile> entry : _profiles.entrySet()) {
                 report.append("  ").append(entry.getKey());
                 report.append(" ").append(entry.getValue()).append("\n");
             }
@@ -910,15 +925,13 @@ public class PresentsDObjectMgr
         public String field;
         public int reffedOid;
 
-        public Reference (int reffingOid, String field, int reffedOid)
-        {
+        public Reference (int reffingOid, String field, int reffedOid) {
             this.reffingOid = reffingOid;
             this.field = field;
             this.reffedOid = reffedOid;
         }
 
-        public boolean equals (Reference other)
-        {
+        public boolean equals (Reference other) {
             if (other == null) {
                 return false;
             } else {
@@ -926,14 +939,15 @@ public class PresentsDObjectMgr
             }
         }
 
-        public boolean equals (int reffingOid, String field)
-        {
-            return (this.reffingOid == reffingOid && this.field.equals(field));
+        public boolean equals (int oReffingOid, String oField) {
+            return (reffingOid == oReffingOid && field.equals(oField));
         }
 
-        @Override
-        public String toString ()
-        {
+        @Override public int hashCode () {
+            return reffingOid ^ field.hashCode();
+        }
+
+        @Override public String toString () {
             return "[reffingOid=" + reffingOid + ", field=" + field +
                 ", reffedOid=" + reffedOid + "]";
         }
@@ -1010,13 +1024,13 @@ public class PresentsDObjectMgr
     protected long _nextEventId = 1;
 
     /** Used to profile our events and runnable units. */
-    protected Map<String,UnitProfile> _profiles = Maps.newHashMap();
+    protected Map<String, UnitProfile> _profiles = Maps.newHashMap();
 
     /** Used to track runtime statistics. */
     protected Stats _recent = new Stats(), _current = _recent;
 
     /** Maps event classes to helpers that perform additional processing for particular events. */
-    protected Map<Class,Method> _helpers = Maps.newHashMap();
+    protected Map<Class, Method> _helpers = Maps.newHashMap();
 
     /** Used to resolve unit names when profiling. Injected by the invmgr when it's created. */
     protected InvocationManager _invmgr;

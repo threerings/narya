@@ -33,6 +33,7 @@ import com.threerings.io.Streamable;
  * the list must also be of streamable types.
  *
  * @see Streamable
+ * @param <E> the type of elements stored in this list.
  */
 public class StreamableArrayList<E> extends ArrayList<E>
     implements Streamable

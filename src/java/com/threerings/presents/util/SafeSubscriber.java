@@ -35,6 +35,8 @@ import static com.threerings.presents.Log.log;
  * distributed object when it is not know if the subscription will
  * complete before the subscriber decides they no longer wish to be
  * subscribed.
+ *
+ * @param <T> the type of object to which we are subscribing.
  */
 public class SafeSubscriber<T extends DObject>
     implements Subscriber<T>

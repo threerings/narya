@@ -27,10 +27,9 @@ import com.threerings.util.StreamableArrayList;
 import com.threerings.presents.data.InvocationMarshaller;
 
 /**
- * A <code>BootstrapData</code> object is communicated back to the client
- * after authentication has succeeded and after the server is fully
- * prepared to deal with the client. It contains information the client
- * will need to interact with the server.
+ * A <code>BootstrapData</code> object is communicated back to the client after authentication has
+ * succeeded and after the server is fully prepared to deal with the client. It contains
+ * information the client will need to interact with the server.
  */
 public class BootstrapData extends SimpleStreamableObject
 {

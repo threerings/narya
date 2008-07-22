@@ -78,17 +78,18 @@ public class ActionScriptSource
             definition = definition.substring(0, definition.length()-1) + " = " + initValue + ";";
         }
 
-        public void setComment (String comment) {
-            if (comment.indexOf("@Override") != -1) {
-                comment = comment.replaceAll("@Override ?", "");
-                comment = comment.replaceFirst("// //", "//"); // handle // @Override // comment
+        public void setComment (String newComment) {
+            if (newComment.indexOf("@Override") != -1) {
+                newComment = newComment.replaceAll("@Override ?", "");
+                // handle // @Override // comment
+                newComment = newComment.replaceFirst("// //", "//");
                 definition = "override " + definition;
             }
             // trim blank lines from start
-            while (comment.startsWith("\n")) {
-                comment = comment.substring(1);
+            while (newComment.startsWith("\n")) {
+                newComment = newComment.substring(1);
             }
-            this.comment = StringUtil.isBlank(comment) ? "" : comment;
+            comment = StringUtil.isBlank(newComment) ? "" : newComment;
         }
 
         public void write (PrintWriter writer) {
@@ -1035,6 +1036,7 @@ public class ActionScriptSource
         return true;
     }
 
+    /** Denotes various phases of class file parsing. */
     protected static enum Mode { PREAMBLE, IMPORTS, CLASSCOMMENT, CLASSDECL,
                                  CLASSBODY, METHODBODY, POSTCLASS, POSTPKG };
 

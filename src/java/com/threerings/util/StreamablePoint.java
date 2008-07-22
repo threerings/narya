@@ -25,6 +25,9 @@ import java.awt.Point;
 
 import com.threerings.io.Streamable;
 
+/**
+ * A point that can be sent over the network.
+ */
 public class StreamablePoint extends Point
     implements Streamable
 {

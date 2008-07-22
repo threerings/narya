@@ -33,6 +33,8 @@ import static com.threerings.presents.Log.log;
  * Adapts the response from a {@link ResultListener} to an InvocationService.ResultListener if the
  * failure is an instance of {@link InvocationException} the message will be passed on to the
  * result listener, otherwise they will be provided with {@link InvocationCodes#INTERNAL_ERROR}.
+ *
+ * @param <T> the type of result expected by the listener.
  */
 public class ResultAdapter<T> implements ResultListener<T>
 {

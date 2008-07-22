@@ -80,7 +80,7 @@ public class InstrumentStreamableTask extends Task
     }
 
     @Override
-    public void execute () throws BuildException
+    public void execute ()
     {
         // configure our ClassPool with our classpath
         for (Path path : _paths) {
@@ -311,7 +311,7 @@ public class InstrumentStreamableTask extends Task
         if (field.getType().isPrimitive()) {
             return body;
         } else {
-            return "if (ins.readBoolean()) {\n" + 
+            return "if (ins.readBoolean()) {\n" +
                 "        " + body + "\n" +
                 "    } else {\n" +
                 "        " + field.getName() + " = null;\n" +

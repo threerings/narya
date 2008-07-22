@@ -33,6 +33,7 @@ import com.threerings.io.Streamable;
  * streamable types.
  *
  * @see Streamable
+ * @param <E> the type of element stored in this set.
  */
 public class StreamableHashSet<E> extends HashSet<E>
     implements Streamable

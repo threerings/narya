@@ -34,6 +34,8 @@ import static com.threerings.presents.Log.log;
  * result is ignored. If the failure is an instance fo {@link InvocationException} the message will
  * be passed on to the confirm listener, otherwise they will be provided with {@link
  * InvocationCodes#INTERNAL_ERROR}.
+ *
+ * @param <T> the type of result expected by the listener.
  */
 public class IgnoreConfirmAdapter<T> implements ResultListener<T>
 {

@@ -30,6 +30,8 @@ import com.threerings.io.Streamable;
  * must also be of streamable types.
  *
  * @see Streamable
+ * @param <L> the type of the left-hand side of this tuple.
+ * @param <R> the type of the right-hand side of this tuple.
  */
 public class StreamableTuple<L, R> extends Tuple<L, R>
     implements Streamable

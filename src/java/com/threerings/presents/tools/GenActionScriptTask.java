@@ -86,7 +86,7 @@ public class GenActionScriptTask extends Task
      * Performs the actual work of the task.
      */
     @Override
-    public void execute () throws BuildException
+    public void execute ()
     {
         try {
             _velocity = VelocityUtil.createEngine();

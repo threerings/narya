@@ -34,8 +34,10 @@ import com.threerings.io.Streamable;
  * in the map must also be of streamable types.
  *
  * @see Streamable
+ * @param <K> the type of key stored in this map.
+ * @param <V> the type of value stored in this map.
  */
-public class StreamableHashMap<K,V> extends HashMap<K,V>
+public class StreamableHashMap<K, V> extends HashMap<K, V>
     implements Streamable
 {
     /**
@@ -64,7 +66,7 @@ public class StreamableHashMap<K,V> extends HashMap<K,V>
     {
         int ecount = size();
         out.writeInt(ecount);
-        for (Map.Entry<K,V> entry : entrySet()) {
+        for (Map.Entry<K, V> entry : entrySet()) {
             out.writeObject(entry.getKey());
             out.writeObject(entry.getValue());
         }

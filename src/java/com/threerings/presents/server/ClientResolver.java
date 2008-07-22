@@ -193,6 +193,7 @@ public class ClientResolver extends Invoker.Unit
     /** A place to keep an exception around for a moment. */
     protected Exception _failure;
 
-    @Inject @MainInvoker Invoker _invoker;
-    @Inject RootDObjectManager _omgr;
+    // dependencies
+    protected @Inject @MainInvoker Invoker _invoker;
+    protected @Inject RootDObjectManager _omgr;
 }

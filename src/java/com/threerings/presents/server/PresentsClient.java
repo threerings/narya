@@ -538,7 +538,7 @@ public class PresentsClient
      */
     protected void handleThrottleExceeded ()
     {
-        log.warning("Client sent more than 100 messages in 10 seconds, disconnecting " + this + ".");
+        log.warning("Client sent more than 100 msgs in 10 seconds, disconnecting " + this + ".");
         safeEndSession();
         _throttle = null;
     }
@@ -676,11 +676,11 @@ public class PresentsClient
         data.clientOid = _clobj.getOid();
 
         // fill in the list of bootstrap services
+        data.services = new StreamableArrayList<InvocationMarshaller>();
         if (_areq.getBootGroups() == null) {
             log.warning("Client provided no invocation service boot groups? " + this);
-            data.services = new StreamableArrayList<InvocationMarshaller>();
         } else {
-            data.services = _invmgr.getBootstrapServices(_areq.getBootGroups());
+            data.services.addAll(_invmgr.getBootstrapServices(_areq.getBootGroups()));
         }
     }
 
@@ -847,20 +847,20 @@ public class PresentsClient
         }
 
         // from interface ProxySubscriber
-        public void objectAvailable (DObject object)
+        public void objectAvailable (DObject dobj)
         {
-            if (postMessage(new ObjectResponse<DObject>(object))) {
+            if (postMessage(new ObjectResponse<DObject>(dobj))) {
                 _firstEventId = _omgr.getNextEventId(false);
-                this.object = object;
+                object = dobj;
                 synchronized (_subscrips) {
                     // make a note of this new subscription
-                    _subscrips.put(object.getOid(), this);
+                    _subscrips.put(dobj.getOid(), this);
                 }
-                subscribedToObject(object);
+                subscribedToObject(dobj);
 
             } else {
                 // if we failed to send the object response, unsubscribe
-                object.removeSubscriber(this);
+                dobj.removeSubscriber(this);
             }
         }
 
@@ -903,7 +903,7 @@ public class PresentsClient
         /**
          * Dispatch the supplied message for the specified client.
          */
-        public void dispatch (PresentsClient client, UpstreamMessage mge);
+        void dispatch (PresentsClient client, UpstreamMessage mge);
     }
 
     /**
@@ -1025,7 +1025,7 @@ public class PresentsClient
     protected int _messagesDropped;
 
     /** A mapping of message dispatchers. */
-    protected static Map<Class<?>,MessageDispatcher> _disps = Maps.newHashMap();
+    protected static Map<Class<?>, MessageDispatcher> _disps = Maps.newHashMap();
 
     /** The amount of time after disconnection a user is allowed before their session is forcibly
      * ended. */

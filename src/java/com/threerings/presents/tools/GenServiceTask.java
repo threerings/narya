@@ -101,6 +101,12 @@ public class GenServiceTask extends InvocationTask
                 listener.equals(((ServiceListener)other).listener);
         }
 
+        @Override
+        public int hashCode ()
+        {
+            return listener.getName().hashCode();
+        }
+
         public String getName ()
         {
             String name = GenUtil.simpleName(listener);

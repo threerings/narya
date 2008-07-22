@@ -326,7 +326,7 @@ public abstract class InvocationTask extends Task
     }
 
     @Override
-    public void execute () throws BuildException
+    public void execute ()
     {
         if (_cloader == null) {
             String errmsg = "This task requires a 'classpathref' attribute " +

@@ -202,8 +202,7 @@ public class MessageManager
     protected ClassLoader _loader;
 
     /** A cache of instantiated message bundles. */
-    protected HashMap<String,MessageBundle> _cache =
-        new HashMap<String,MessageBundle>();
+    protected HashMap<String, MessageBundle> _cache = new HashMap<String, MessageBundle>();
 
     /** Our top-level message bundle, from which others obtain messages if
      * they can't find them within themselves. */

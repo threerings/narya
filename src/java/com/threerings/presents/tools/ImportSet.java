@@ -31,17 +31,17 @@ import com.samskivert.util.ComparableArrayList;
 import com.samskivert.util.StringUtil;
 
 /**
- * Manages a set of strings to be used as a set of imports. Provides useful functions for 
+ * Manages a set of strings to be used as a set of imports. Provides useful functions for
  * manipulating the set and sorts results.
- * 
- * <p>Some methods in this class use a variable length String parameter 'replace'. This is a 
- * convenience for easily specifying multiple find/replace pairs. For example, to replace "Foo" 
- * with "Bar" and "123" with "ABC", a function can be called with the 4 arguments "Foo", "Bar", 
+ *
+ * <p>Some methods in this class use a variable length String parameter 'replace'. This is a
+ * convenience for easily specifying multiple find/replace pairs. For example, to replace "Foo"
+ * with "Bar" and "123" with "ABC", a function can be called with the 4 arguments "Foo", "Bar",
  * "123", "ABC" for the String... replace argument.
- * 
- * <p>A few methods also use a "pattern" string parameter that is used to match a class name. 
- * This is a dumbed down regular expression (to avoid many \.) where "*" means .* and no other 
- * characters have special meaning. The pattern is also implicitly enclosed with ^$ so that the 
+ *
+ * <p>A few methods also use a "pattern" string parameter that is used to match a class name.
+ * This is a dumbed down regular expression (to avoid many \.) where "*" means .* and no other
+ * characters have special meaning. The pattern is also implicitly enclosed with ^$ so that the
  * pattern must match the class name in its entirity. Callers will mostly use this to specify a
  * prefix like "something*" or a suffix like "*something".
  */
@@ -75,9 +75,9 @@ public class ImportSet
     {
         _imports.addAll(other._imports);
     }
-    
+
     /**
-     * Adds a class' name to the imports but first performs the given list of search/replaces as 
+     * Adds a class' name to the imports but first performs the given list of search/replaces as
      * described above.
      * @param clazz the class whose name is munged and added
      * @param replace array of pairs to search/replace on the name before adding
@@ -85,8 +85,8 @@ public class ImportSet
     public void addMunged (Class<?> clazz, String... replace)
     {
         String name = clazz.getName();
-        for (int i = 0 ; i < replace.length; i+=2) {
-            name = name.replace(replace[i], replace[i + 1]);
+        for (int ii = 0; ii < replace.length; ii += 2) {
+            name = name.replace(replace[ii], replace[ii+1]);
         }
         _imports.add(name);
     }
@@ -98,7 +98,7 @@ public class ImportSet
         newset.addAll(this);
         return newset;
     }
-    
+
     /**
      * Gets rid of primitive and java.lang imports.
      */
@@ -109,13 +109,12 @@ public class ImportSet
             String name = i.next();
             if (name.indexOf('.') == -1) {
                 i.remove();
-            }
-            else if (name.startsWith("java.lang")) {
+            } else if (name.startsWith("java.lang")) {
                 i.remove();
             }
         }
     }
-    
+
     /**
      * Gets rid of array imports.
      */
@@ -123,7 +122,7 @@ public class ImportSet
     {
         return removeAll("[*");
     }
-    
+
     /**
      * Remove all classes that are in the same package.
      * @param pkg package to remove
@@ -133,13 +132,13 @@ public class ImportSet
         Iterator<String> i = _imports.iterator();
         while (i.hasNext()) {
             String name = i.next();
-            if (name.startsWith(pkg) && 
+            if (name.startsWith(pkg) &&
                 name.indexOf('.', pkg.length() + 1) == -1) {
                     i.remove();
             }
         }
     }
-    
+
     /**
      * Replaces inner class imports (those with a '$') with an import of the parent class.
      */
@@ -155,12 +154,12 @@ public class ImportSet
                 declarers.add(name.substring(0, dollar));
             }
         }
-        
+
         addAll(declarers);
     }
 
     /**
-     * Replace all inner classes' separator characters ('$') with an underscore ('_') for use 
+     * Replace all inner classes' separator characters ('$') with an underscore ('_') for use
      * when generating ActionScript.
      */
     public void translateInnerClasses ()
@@ -175,10 +174,10 @@ public class ImportSet
                 inner.add(name.replace("$", "_"));
             }
         }
-        
+
         addAll(inner);
     }
-    
+
     /**
      * Inserts imports for the non-primitive classes contained in all array imports.
      */
@@ -194,7 +193,7 @@ public class ImportSet
                 arrayTypes.add(name.substring(bracket + 2, name.length() - 1));
             }
         }
-        
+
         addAll(arrayTypes);
     }
 
@@ -220,7 +219,7 @@ public class ImportSet
     }
 
     /**
-     * Re-adds the most recently popped import to the set. If a null value was pushed, does 
+     * Re-adds the most recently popped import to the set. If a null value was pushed, does
      * nothing.
      * @throws IndexOutOfBoundsException if there is nothing to pop
      */
@@ -231,7 +230,7 @@ public class ImportSet
             _imports.add(front);
         }
     }
-    
+
     /**
      * Removes the name of a class from the imports.
      * @param clazz the class whose name should be removed
@@ -240,9 +239,9 @@ public class ImportSet
     {
         _imports.remove(clazz.getName());
     }
-    
+
     /**
-     * Replaces any import exactly each find string with the corresponding replace string. 
+     * Replaces any import exactly each find string with the corresponding replace string.
      * See the description above.
      * @param replace array of pairs for search/replace
      */
@@ -282,12 +281,12 @@ public class ImportSet
         }
         return removed;
     }
-    
+
     /**
-     * Adds a new munged import for each existing import that matches a pattern. The new entry is 
-     * a copy of the old entry but modified according to the given find/replace pairs (see 
+     * Adds a new munged import for each existing import that matches a pattern. The new entry is
+     * a copy of the old entry but modified according to the given find/replace pairs (see
      * description above).
-     * @param pattern to qualify imports to duplicate 
+     * @param pattern to qualify imports to duplicate
      * @param replace pairs to find/replace on the new import
      */
     public void duplicateAndMunge (String pattern, String... replace)
@@ -301,7 +300,7 @@ public class ImportSet
         }
         for (String name : toMunge) {
             String newname = name;
-            for (int i = 0; i < replace.length; i+=2) {
+            for (int i = 0; i < replace.length; i += 2) {
                 newname = newname.replace(replace[i], replace[i + 1]);
             }
             _imports.add(newname);
@@ -336,8 +335,7 @@ public class ImportSet
         StringBuilder pattern = new StringBuilder();
         pattern.append("^");
 
-        while (true)
-        {
+        while (true) {
             String[] parts = _splitter.split(input, 2);
             pattern.append(Pattern.quote(parts[0]));
             if (parts.length == 1) {
@@ -347,8 +345,7 @@ public class ImportSet
             String wildcard = input.substring(length, length + 1);
             if (wildcard.equals("*")) {
                 pattern.append(".*");
-            }
-            else {
+            } else {
                 System.err.println("Bad wildcard " + wildcard);
             }
             input = parts[1];
@@ -360,6 +357,6 @@ public class ImportSet
 
     protected HashSet<String> _imports = new HashSet<String>();
     protected List<String> _pushed = new ArrayList<String>();
-    
+
     protected static Pattern _splitter = Pattern.compile("\\*");
 }

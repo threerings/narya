@@ -110,7 +110,7 @@ public abstract class PersistingUnit extends Invoker.Unit
      * If the listener is known to be a ResultListener, this will cast it and report that the
      * request was processed.
      */
-    protected void reportRequestProcessed (Object result )
+    protected void reportRequestProcessed (Object result)
     {
         ((InvocationService.ResultListener)_listener).requestProcessed(result);
     }

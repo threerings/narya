@@ -38,6 +38,7 @@ import com.threerings.io.Streamable;
  * that can be streamed.
  *
  * @see Streamable
+ * @param <E> the type of enum being stored in this set.
  */
 public class StreamableEnumSet<E extends Enum<E>> extends AbstractSet<E>
     implements Cloneable, Streamable

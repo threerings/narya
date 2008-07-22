@@ -55,7 +55,7 @@ public class GenStreamableTask extends Task
     }
 
     @Override
-    public void execute () throws BuildException
+    public void execute ()
     {
         for (FileSet fs : _filesets) {
             DirectoryScanner ds = fs.getDirectoryScanner(getProject());

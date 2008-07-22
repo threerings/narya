@@ -77,7 +77,6 @@ public class DependencyGraph<T>
      * Records a new dependency of the dependant upon the dependee.
      */
     public void addDependency (T dependant, T dependee)
-        throws IllegalArgumentException
     {
         _orphans.remove(dependant);
         DependencyNode<T> dependantNode = _nodes.get(dependant);
@@ -132,6 +131,7 @@ public class DependencyGraph<T>
     /** Nodes in the graph with no parents/dependencies. */
     protected ArrayList<T> _orphans = new ArrayList<T>();
 
+    /** Represents a node in our dependency graph. */
     protected class DependencyNode<T>
     {
         public T content;

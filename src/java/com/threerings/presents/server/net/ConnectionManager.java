@@ -283,7 +283,7 @@ public class ConnectionManager extends LoopingThread
     protected void willStart ()
     {
         int successes = 0;
-        IOException _failure = null;
+        IOException failure = null;
         for (int ii = 0; ii < _ports.length; ii++) {
             try {
                 // create a listening socket and add it to the select set
@@ -299,7 +299,7 @@ public class ConnectionManager extends LoopingThread
             } catch (IOException ioe) {
                 log.warning("Failure listening to socket on port '" +
                         _ports[ii] + "'.", ioe);
-                _failure = ioe;
+                failure = ioe;
             }
         }
 
@@ -332,7 +332,7 @@ public class ConnectionManager extends LoopingThread
         // if we failed to listen on at least one port, give up the ghost
         if (successes == 0) {
             if (_startlist != null) {
-                _startlist.requestFailed(_failure);
+                _startlist.requestFailed(failure);
             }
             return;
         }
@@ -581,7 +581,7 @@ public class ConnectionManager extends LoopingThread
         }
 
         // then send any new messages
-        Tuple<Connection,byte[]> tup;
+        Tuple<Connection, byte[]> tup;
         while ((tup = _outq.getNonBlocking()) != null) {
             Connection conn = tup.left;
 
@@ -882,7 +882,7 @@ public class ConnectionManager extends LoopingThread
 //             log.info("Flattened " + msg + " into " + data.length + " bytes.");
 
             // and slap both on the queue
-            _outq.append(new Tuple<Connection,byte[]>(conn, data));
+            _outq.append(new Tuple<Connection, byte[]>(conn, data));
 
         } catch (Exception e) {
             log.warning("Failure flattening message [conn=" + conn +
@@ -1017,7 +1017,7 @@ public class ConnectionManager extends LoopingThread
         }
 
         // documentation inherited
-        public void handlePartialWrite (Connection conn, ByteBuffer buffer)
+        public void handlePartialWrite (Connection wconn, ByteBuffer buffer)
         {
             // set up our _partial buffer
             _partial = ByteBuffer.allocateDirect(buffer.remaining());
@@ -1062,7 +1062,7 @@ public class ConnectionManager extends LoopingThread
     protected int _runtimeExceptionCount;
 
     /** Maps selection keys to network event handlers. */
-    protected Map<SelectionKey,NetEventHandler> _handlers = Maps.newHashMap();
+    protected Map<SelectionKey, NetEventHandler> _handlers = Maps.newHashMap();
 
     /** Connections mapped by identifier. */
     protected IntMap<Connection> _connections = IntMaps.newHashIntMap();
@@ -1070,14 +1070,14 @@ public class ConnectionManager extends LoopingThread
     protected Queue<Connection> _deathq = new Queue<Connection>();
     protected Queue<AuthingConnection> _authq = new Queue<AuthingConnection>();
 
-    protected Queue<Tuple<Connection,byte[]>> _outq = new Queue<Tuple<Connection,byte[]>>();
-    protected Queue<Tuple<Connection,byte[]>> _dataq = new Queue<Tuple<Connection,byte[]>>();
+    protected Queue<Tuple<Connection, byte[]>> _outq = new Queue<Tuple<Connection, byte[]>>();
+    protected Queue<Tuple<Connection, byte[]>> _dataq = new Queue<Tuple<Connection, byte[]>>();
     protected FramingOutputStream _framer;
     protected ByteArrayOutputStream _flattener;
     protected ByteBuffer _outbuf = ByteBuffer.allocateDirect(64 * 1024);
     protected ByteBuffer _databuf = ByteBuffer.allocateDirect(Client.MAX_DATAGRAM_SIZE);
 
-    protected Map<Connection,OverflowQueue> _oflowqs = Maps.newHashMap();
+    protected Map<Connection, OverflowQueue> _oflowqs = Maps.newHashMap();
 
     protected List<ConnectionObserver> _observers = Lists.newArrayList();
 
