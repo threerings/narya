@@ -26,12 +26,10 @@ import com.threerings.io.ObjectOutputStream;
 import com.threerings.io.Streamable;
 
 import com.threerings.util.Log;
-import com.threerings.util.StreamableArrayList;
 
 /**
- * A BoostrapData object is communicated back to the client
- * after authentication has succeeded and after the server is fully
- * prepared to deal with the client. It contains information the client
+ * A BoostrapData object is communicated back to the client after authentication has succeeded and
+ * after the server is fully prepared to deal with the client. It contains information the client
  * will need to interact with the server.
  */
 public class BootstrapData
@@ -44,13 +42,12 @@ public class BootstrapData
     public var clientOid :int;
 
     /** A list of handles to invocation services. */
-    public var services :StreamableArrayList;
+    public var services :Array;
 
     // documentation inherited from interface Streamable
     public function writeObject (out :ObjectOutputStream) :void
     {
-        Log.getLog(this).warning(
-            "This is client code: BootstrapData shouldn't be written");
+        Log.getLog(this).warning("This is client code: BootstrapData shouldn't be written");
     }
 
     // documentation inherited from interface Streamable
@@ -58,7 +55,7 @@ public class BootstrapData
     {
         connectionId = ins.readInt();
         clientOid = ins.readInt();
-        services = (ins.readObject() as StreamableArrayList);
+        services = (ins.readObject() as Array);
     }
 }
 }
