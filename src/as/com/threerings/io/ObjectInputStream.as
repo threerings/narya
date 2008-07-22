@@ -83,7 +83,7 @@ public class ObjectInputStream
                     log.warning("OMG, cannot stream " + jname);
                     return null;
                 }
-//                log.debug("Got streamer (" + streamer + ")");
+                if (DEBUG) log.debug(DEBUG_ID + "Got streamer (" + streamer + ")");
 
                 var cname :String = Translations.getFromServer(jname);
                 cmap = new ClassMapping(code, cname, streamer);
