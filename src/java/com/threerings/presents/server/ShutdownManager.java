@@ -45,7 +45,7 @@ public class ShutdownManager
         /**
          * Called when the server is shutting down.
          */
-        public void shutdown ();
+        void shutdown ();
     }
 
     public static enum Constraint { RUNS_BEFORE, RUNS_AFTER };

@@ -41,7 +41,7 @@ public interface NetEventHandler
      * @return the number of bytes read from the network as a result of
      * handling this event.
      */
-    public int handleEvent (long when);
+    int handleEvent (long when);
 
     /**
      * Called to ensure that this channel has not been idle for longer
@@ -50,5 +50,5 @@ public interface NetEventHandler
      * @return true if the handler is idle (in which case it will be
      * closed shortly), false if it is not.
      */
-    public boolean checkIdle (long now);
+    boolean checkIdle (long now);
 }

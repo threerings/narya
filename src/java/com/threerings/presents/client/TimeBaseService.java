@@ -25,8 +25,8 @@ import com.threerings.presents.client.Client;
 import com.threerings.presents.client.InvocationService;
 
 /**
- * Provides a means by which to obtain access to a time base object which
- * can be used to convert delta times into absolute times.
+ * Provides a means by which to obtain access to a time base object which can be used to convert
+ * delta times into absolute times.
  */
 public interface TimeBaseService extends InvocationService
 {
@@ -36,15 +36,13 @@ public interface TimeBaseService extends InvocationService
     public static interface GotTimeBaseListener extends InvocationListener
     {
         /**
-         * Communicates the result of a successful {@link #getTimeOid}
-         * request.
+         * Communicates the result of a successful {@link #getTimeOid} request.
          */
-        public void gotTimeOid (int timeOid);
+        void gotTimeOid (int timeOid);
     }
 
     /**
      * Requests the oid of the specified time base object be fetched.
      */
-    public void getTimeOid (
-        Client client, String timeBase, GotTimeBaseListener listener);
+    void getTimeOid (Client client, String timeBase, GotTimeBaseListener listener);
 }

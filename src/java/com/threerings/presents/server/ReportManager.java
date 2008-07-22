@@ -50,7 +50,7 @@ public class ReportManager
          * @param reset if true, all accumulating stats should be reset, if false they should be
          * allowed to continue to accumulate.
          */
-        public void appendReport (StringBuilder buffer, long now, long sinceLast, boolean reset);
+        void appendReport (StringBuilder buffer, long now, long sinceLast, boolean reset);
     }
 
     /**

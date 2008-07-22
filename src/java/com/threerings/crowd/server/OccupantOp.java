@@ -32,5 +32,5 @@ public interface OccupantOp
     /**
      * Called with the occupant info for each occupant in the location.
      */
-    public void apply (OccupantInfo info);
+    void apply (OccupantInfo info);
 }

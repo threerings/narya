@@ -37,5 +37,5 @@ public interface ElementUpdateListener extends ChangeListener
      *
      * @param event The event that was dispatched on the object.
      */
-    public void elementUpdated (ElementUpdatedEvent event);
+    void elementUpdated (ElementUpdatedEvent event);
 }

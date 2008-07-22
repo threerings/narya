@@ -141,7 +141,7 @@ public class SignalManager
          * @return true if the signal handler should remain registered, false if it should be
          * removed.
          */
-        public boolean signalReceived (int signal);
+        boolean signalReceived (int signal);
     }
 
     /**

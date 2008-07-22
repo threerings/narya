@@ -33,5 +33,5 @@ public interface MessageHandler
      * Called when a complete message has been parsed from incoming
      * network data.
      */
-    public void handleMessage (UpstreamMessage message);
+    void handleMessage (UpstreamMessage message);
 }

@@ -142,7 +142,7 @@ public class PlaceRegistry
     {
         final Iterator<PlaceManager> itr = _pmgrs.values().iterator();
         return new Iterator<PlaceObject>() {
-            public boolean hasNext (){
+            public boolean hasNext () {
                 return itr.hasNext();
             }
             public PlaceObject next () {
@@ -246,7 +246,7 @@ public class PlaceRegistry
         throws Exception
     {
         @SuppressWarnings("unchecked") Class<? extends PlaceManager> clazz =
-            (Class<? extends PlaceManager>) Class.forName(config.getManagerClassName());
+            (Class<? extends PlaceManager>)Class.forName(config.getManagerClassName());
         return _injector.getInstance(clazz);
     }
 

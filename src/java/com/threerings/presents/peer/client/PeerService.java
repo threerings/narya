@@ -35,10 +35,10 @@ public interface PeerService extends InvocationService
      * Informs the node that the sending peer ratifies its acquisition or release of the specified
      * lock.
      */
-    public void ratifyLockAction (Client client, Lock lock, boolean acquire);
+    void ratifyLockAction (Client client, Lock lock, boolean acquire);
 
     /**
      * Requests that the specified action be invoked on this server.
      */
-    public void invokeAction (Client client, byte[] serializedAction);
+    void invokeAction (Client client, byte[] serializedAction);
 }

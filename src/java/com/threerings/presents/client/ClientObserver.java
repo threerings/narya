@@ -54,19 +54,19 @@ public interface ClientObserver extends SessionObserver
      * we are simply reporting intermediate status (we might be falling back to an alternative port
      * or delaying our auto-retry attempt due to server overload).
      */
-    public void clientFailedToLogon (Client client, Exception cause);
+    void clientFailedToLogon (Client client, Exception cause);
 
     /**
      * Called when the connection to the server went away for some unexpected reason. This will be
      * followed by a call to {@link #clientDidLogoff}.
      */
-    public void clientConnectionFailed (Client client, Exception cause);
+    void clientConnectionFailed (Client client, Exception cause);
 
     /**
      * Called when an abortable logoff request is made. If the observer returns false from this
      * method, the client will abort the logoff request.
      */
-    public boolean clientWillLogoff (Client client);
+    boolean clientWillLogoff (Client client);
 
     /**
      * Called after the client is completely logged off from a successful session and is ready to
@@ -74,5 +74,5 @@ public interface ClientObserver extends SessionObserver
      * terminated, not after a logon attempt failed as that failure will be reported by {@link
      * #clientFailedToLogon}.
      */
-    public void clientDidClear (Client client);
+    void clientDidClear (Client client);
 }

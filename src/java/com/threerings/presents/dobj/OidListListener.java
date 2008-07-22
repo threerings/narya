@@ -36,7 +36,7 @@ public interface OidListListener extends ChangeListener
      *
      * @param event The event that was dispatched on the object.
      */
-    public void objectAdded (ObjectAddedEvent event);
+    void objectAdded (ObjectAddedEvent event);
 
     /**
      * Called when an object removed event has been dispatched on an
@@ -45,5 +45,5 @@ public interface OidListListener extends ChangeListener
      *
      * @param event The event that was dispatched on the object.
      */
-    public void objectRemoved (ObjectRemovedEvent event);
+    void objectRemoved (ObjectRemovedEvent event);
 }

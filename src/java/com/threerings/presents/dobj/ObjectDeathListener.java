@@ -22,18 +22,17 @@
 package com.threerings.presents.dobj;
 
 /**
- * Implemented by entites which wish to hear about object destruction
- * events.
+ * Implemented by entites which wish to hear about object destruction events.
  *
  * @see DObject#addListener
  */
 public interface ObjectDeathListener extends ChangeListener
 {
     /**
-     * Called when this object has been destroyed. This will be called
-     * <em>after</em> the event has been applied to the object.
+     * Called when this object has been destroyed. This will be called <em>after</em> the event has
+     * been applied to the object.
      *
      * @param event The event that was dispatched on the object.
      */
-    public void objectDestroyed (ObjectDestroyedEvent event);
+    void objectDestroyed (ObjectDestroyedEvent event);
 }

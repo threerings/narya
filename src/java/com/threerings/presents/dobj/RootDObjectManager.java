@@ -35,7 +35,7 @@ public interface RootDObjectManager extends DObjectManager, RunQueue
      * Looks up and returns the requested distributed object in the dobj table, returning null if
      * no object exists with that oid.
      */
-    public DObject getObject (int oid);
+    DObject getObject (int oid);
 
     /**
      * Registers a distributed object instance of the supplied class with the system and assigns it
@@ -44,7 +44,7 @@ public interface RootDObjectManager extends DObjectManager, RunQueue
      *
      * @return the registered object for the caller's convenience.
      */
-    public <T extends DObject> T registerObject (T object);
+    <T extends DObject> T registerObject (T object);
 
     /**
      * Requests that the specified object be destroyed. Once destroyed an object is removed from
@@ -52,5 +52,5 @@ public interface RootDObjectManager extends DObjectManager, RunQueue
      *
      * @param oid The object id of the distributed object to be destroyed.
      */
-    public void destroyObject (int oid);
+    void destroyObject (int oid);
 }

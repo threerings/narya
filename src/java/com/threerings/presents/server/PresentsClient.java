@@ -90,14 +90,14 @@ public class PresentsClient
          *
          * @param rl when this method is finished with its business and the old client object can
          * be destroyed, the result listener should be called. */
-        public void changeReported (ClientObject newObji, ResultListener rl);
+        void changeReported (ClientObject newObji, ResultListener rl);
 
         /** Called when the user change is completed, the old client object is destroyed and all
          * updates are committed. */
-        public void changeCompleted (ClientObject newObj);
+        void changeCompleted (ClientObject newObj);
 
         /** Called if some failure occurs during the user change process. */
-        public void changeFailed (Exception cause);
+        void changeFailed (Exception cause);
     }
 
     /**

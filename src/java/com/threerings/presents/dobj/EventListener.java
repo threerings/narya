@@ -39,5 +39,5 @@ public interface EventListener extends ChangeListener
      *
      * @param event The event that was dispatched on the object.
      */
-    public void eventReceived (DEvent event);
+    void eventReceived (DEvent event);
 }

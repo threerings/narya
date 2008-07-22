@@ -45,11 +45,11 @@ public interface ClientFactory
      * Returns the {@link PresentsClient} derived class to use for the session that authenticated
      * with the supplied request.
      */
-    public Class<? extends PresentsClient> getClientClass (AuthRequest areq);
+    Class<? extends PresentsClient> getClientClass (AuthRequest areq);
 
     /**
      * Returns the {@link ClientResolver} derived class to use to resolve a client with the
      * specified username.
      */
-    public Class <? extends ClientResolver> getClientResolverClass (Name username);
+    Class <? extends ClientResolver> getClientResolverClass (Name username);
 }

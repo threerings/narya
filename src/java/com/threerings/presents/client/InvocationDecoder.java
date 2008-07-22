@@ -21,23 +21,19 @@
 
 package com.threerings.presents.client;
 
-import com.samskivert.util.StringUtil;
-
 import static com.threerings.presents.Log.log;
 
 /**
- * Provides the basic functionality used to dispatch invocation
- * notification events.
+ * Provides the basic functionality used to dispatch invocation notification events.
  */
 public abstract class InvocationDecoder
 {
-    /** The receiver for which we're decoding and dipatching
-     * notifications. */
+    /** The receiver for which we're decoding and dipatching notifications. */
     public InvocationReceiver receiver;
 
     /**
-     * Returns the generated hash code that is used to identify this
-     * invocation notification service.
+     * Returns the generated hash code that is used to identify this invocation notification
+     * service.
      */
     public abstract String getReceiverCode ();
 
@@ -46,8 +42,7 @@ public abstract class InvocationDecoder
      */
     public void dispatchNotification (int methodId, Object[] args)
     {
-        log.warning("Requested to dispatch unknown method " +
-                    "[receiver=" + receiver + ", methodId=" + methodId +
-                    ", args=" + StringUtil.toString(args) + "].");
+        log.warning("Requested to dispatch unknown method", "receiver", receiver,
+                    "methodId", methodId, "args", args);
     }
 }

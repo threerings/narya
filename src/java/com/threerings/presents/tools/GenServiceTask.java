@@ -110,8 +110,7 @@ public class GenServiceTask extends InvocationTask
         }
     }
 
-    /** Used to track services for which we should not generate a provider
-     * interface. */
+    /** Used to track services for which we should not generate a provider interface. */
     public class Providerless
     {
         public void setService (String className)

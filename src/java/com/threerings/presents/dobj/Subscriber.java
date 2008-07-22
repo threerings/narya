@@ -49,7 +49,7 @@ public interface Subscriber<T extends DObject>
      *
      * @see DObjectManager#subscribeToObject
      */
-    public void objectAvailable (T object);
+    void objectAvailable (T object);
 
     /**
      * Called when a subscription request has failed. The nature of the
@@ -58,5 +58,5 @@ public interface Subscriber<T extends DObject>
      *
      * @see DObjectManager#subscribeToObject
      */
-    public void requestFailed (int oid, ObjectAccessException cause);
+    void requestFailed (int oid, ObjectAccessException cause);
 }

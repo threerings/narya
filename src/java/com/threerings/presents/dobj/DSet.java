@@ -62,7 +62,7 @@ public class DSet<E extends DSet.Entry>
          * Each entry provide an associated key which is used to determine its uniqueness in the
          * set. See the {@link DSet} class documentation for further information.
          */
-        public Comparable getKey ();
+        Comparable getKey ();
     }
 
     /**

@@ -59,7 +59,7 @@ public abstract class RebootManager
          * @param msLeft the approximate number of milliseconds left prior to
          * the shutdown.
          */
-        public void shutdownPlanned (int warningsLeft, long msLeft);
+        void shutdownPlanned (int warningsLeft, long msLeft);
     }
 
     /**

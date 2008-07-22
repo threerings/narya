@@ -68,12 +68,12 @@ public class ClientManager
         /**
          * Called with the resolved client object.
          */
-        public void apply (ClientObject clobj);
+        void apply (ClientObject clobj);
 
         /**
          * Called if the client resolution fails.
          */
-        public void resolutionFailed (Exception e);
+        void resolutionFailed (Exception e);
     }
 
     /**
@@ -84,13 +84,13 @@ public class ClientManager
         /**
          * Called when a client has authenticated and been resolved and has started their session.
          */
-        public void clientSessionDidStart (PresentsClient client);
+        void clientSessionDidStart (PresentsClient client);
 
         /**
          * Called when a client has logged off or been forcibly logged off due to inactivity and
          * has thus ended their session.
          */
-        public void clientSessionDidEnd (PresentsClient client);
+        void clientSessionDidEnd (PresentsClient client);
     }
 
     /**

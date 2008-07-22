@@ -91,7 +91,7 @@ public abstract class PeerManager
         /**
          * Called when some possibly cached data has changed on one of our peer servers.
          */
-        public void changedCacheData (Streamable data);
+        void changedCacheData (Streamable data);
     }
 
     /**
@@ -103,25 +103,25 @@ public abstract class PeerManager
         /**
          * Called when this node has been forced to drop a lock.
          */
-        public void droppedLock (NodeObject.Lock lock);
+        void droppedLock (NodeObject.Lock lock);
     }
 
     /** Used by {@link #lookupNodeDatum}. */
     public static interface Lookup<T>
     {
-        public T lookup (NodeObject nodeobj);
+        T lookup (NodeObject nodeobj);
     }
 
     /** Used by {@link #applyToNodes}. */
     public static interface Operation
     {
-        public void apply (NodeObject nodeobj);
+        void apply (NodeObject nodeobj);
     }
 
     /** Used by {@link #invokeOnNodes}. */
     public static interface Function
     {
-        public void invoke (Client client, NodeObject nodeobj);
+        void invoke (Client client, NodeObject nodeobj);
     }
 
     /**
@@ -134,13 +134,13 @@ public abstract class PeerManager
          * Called when the resource lock was acquired successfully. The lock will be released
          * immediately after this function call finishes.
          */
-        public void run ();
+        void run ();
 
         /**
          * Called when the resource lock was not acquired successfully, with the name of the peer
          * who is holding the lock (or null in case of a generic failure).
          */
-        public void fail (String peerName);
+        void fail (String peerName);
     }
 
     /**

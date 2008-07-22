@@ -37,17 +37,17 @@ public interface CrowdContext extends PresentsContext
     /**
      * Returns a reference to the location director.
      */
-    public LocationDirector getLocationDirector ();
+    LocationDirector getLocationDirector ();
 
     /**
      * Returns a reference to the occupant director.
      */
-    public OccupantDirector getOccupantDirector ();
+    OccupantDirector getOccupantDirector ();
 
     /**
      * Provides access to the chat director.
      */
-    public ChatDirector getChatDirector ();
+    ChatDirector getChatDirector ();
 
     /**
      * When the client enters a new place, the location director creates a
@@ -64,12 +64,12 @@ public interface CrowdContext extends PresentsContext
      * won't be displayed (via a call to this function) until we have
      * fully entered the place and are ready for user interaction.
      */
-    public void setPlaceView (PlaceView view);
+    void setPlaceView (PlaceView view);
 
     /**
      * When the client leaves a place, the place controller will remove
      * any place view it set previously via {@link #setPlaceView} with a
      * call to this method.
      */
-    public void clearPlaceView (PlaceView view);
+    void clearPlaceView (PlaceView view);
 }

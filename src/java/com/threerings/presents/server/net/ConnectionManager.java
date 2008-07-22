@@ -945,7 +945,7 @@ public class ConnectionManager extends LoopingThread
     /** Used to handle partial writes in {@link #writeMessage}. */
     protected static interface PartialWriteHandler
     {
-        public void handlePartialWrite (Connection conn, ByteBuffer buffer);
+        void handlePartialWrite (Connection conn, ByteBuffer buffer);
     }
 
     /**

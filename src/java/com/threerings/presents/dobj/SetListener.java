@@ -40,7 +40,7 @@ public interface SetListener<T extends DSet.Entry> extends ChangeListener
      *
      * @param event The event that was dispatched on the object.
      */
-    public void entryAdded (EntryAddedEvent<T> event);
+    void entryAdded (EntryAddedEvent<T> event);
 
     /**
      * Called when an entry updated event has been dispatched on an
@@ -49,7 +49,7 @@ public interface SetListener<T extends DSet.Entry> extends ChangeListener
      *
      * @param event The event that was dispatched on the object.
      */
-    public void entryUpdated (EntryUpdatedEvent<T> event);
+    void entryUpdated (EntryUpdatedEvent<T> event);
 
     /**
      * Called when an entry removed event has been dispatched on an
@@ -58,5 +58,5 @@ public interface SetListener<T extends DSet.Entry> extends ChangeListener
      *
      * @param event The event that was dispatched on the object.
      */
-    public void entryRemoved (EntryRemovedEvent<T> event);
+    void entryRemoved (EntryRemovedEvent<T> event);
 }

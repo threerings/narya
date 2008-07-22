@@ -46,8 +46,7 @@ public interface ConnectionObserver
      * @param req The auth request provided by the client.
      * @param rsp The auth response provided to the client.
      */
-    public void connectionEstablished (
-        Connection conn, AuthRequest req, AuthResponse rsp);
+    void connectionEstablished (Connection conn, AuthRequest req, AuthResponse rsp);
 
     /**
      * Called if a connection fails for any reason. If a connection fails,
@@ -58,12 +57,12 @@ public interface ConnectionObserver
      * @param conn The connection in that failed.
      * @param fault The exception associated with the failure.
      */
-    public void connectionFailed (Connection conn, IOException fault);
+    void connectionFailed (Connection conn, IOException fault);
 
     /**
      * Called when a connection has been closed in an orderly manner.
      *
      * @param conn The recently closed connection.
      */
-    public void connectionClosed (Connection conn);
+    void connectionClosed (Connection conn);
 }

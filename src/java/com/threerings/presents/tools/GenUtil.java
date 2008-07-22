@@ -229,8 +229,7 @@ public class GenUtil extends com.samskivert.util.GenUtil
 
         // make sure we found something
         if (name == null) {
-            throw new IOException(
-                "Unable to locate class or interface name in " + source + ".");
+            throw new IOException("Unable to locate class or interface name in " + source + ".");
         }
 
         // prepend the package name to get a name we can Class.forName()

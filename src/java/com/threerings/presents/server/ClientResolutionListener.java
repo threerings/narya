@@ -34,10 +34,10 @@ public interface ClientResolutionListener
     /**
      * Called when resolution completed successfully.
      */
-    public void clientResolved (Name username, ClientObject clobj);
+    void clientResolved (Name username, ClientObject clobj);
 
     /**
      * Called when resolution fails.
      */
-    public void resolutionFailed (Name username, Exception reason);
+    void resolutionFailed (Name username, Exception reason);
 }
