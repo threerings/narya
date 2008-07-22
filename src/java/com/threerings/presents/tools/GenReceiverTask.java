@@ -41,8 +41,7 @@ import com.threerings.presents.data.ClientObject;
 import com.threerings.presents.server.InvocationSender;
 
 /**
- * An Ant task for generating invocation receiver marshalling and unmarshalling
- * classes.
+ * An Ant task for generating invocation receiver marshalling and unmarshalling classes.
  */
 public class GenReceiverTask extends InvocationTask
 {
@@ -61,17 +60,12 @@ public class GenReceiverTask extends InvocationTask
         // verify that the receiver class name is as we expect it to be
         if (!rname.endsWith("Receiver")) {
             System.err.println("Cannot process '" + rname + "':");
-            System.err.println(
-                "Receiver classes must be named SomethingReceiver.");
+            System.err.println("Receiver classes must be named SomethingReceiver.");
             return;
         }
 
         ImportSet imports = new ImportSet();
-        ComparableArrayList<ServiceMethod> methods =
-            new ComparableArrayList<ServiceMethod>();
-
-        // we need to import the receiver itself
-        imports.add(receiver);
+        ComparableArrayList<ServiceMethod> methods = new ComparableArrayList<ServiceMethod>();
 
         // look through and locate our receiver methods
         Method[] methdecls = receiver.getDeclaredMethods();
@@ -89,14 +83,12 @@ public class GenReceiverTask extends InvocationTask
         // Adjust any bits that want to import arrays to instead import their element classes.
         imports.translateClassArrays();
         imports.removeArrays();
-        
+
         // get rid of primitives and java.lang types
         imports.removeGlobals();
 
-        generateSender(source, rname, rpackage, methods,
-                       imports.toList().iterator());
-        generateDecoder(source, rname, rpackage, methods,
-                        imports.toList().iterator());
+        generateSender(source, rname, rpackage, methods, imports.toList().iterator());
+        generateDecoder(source, rname, rpackage, methods, imports.toList().iterator());
     }
 
     protected void generateSender (File source, String rname, String rpackage,
