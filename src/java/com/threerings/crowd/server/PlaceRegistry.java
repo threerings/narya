@@ -104,7 +104,8 @@ public class PlaceRegistry
      * derived class that should be instantiated to manage the place will be determined from the
      * config object.
      * @param delegates a list of {@link PlaceManagerDelegate} instances to be registered with the
-     * manager prior to it being initialized and started up.
+     * manager prior to it being initialized and started up. <em>Note:</em> these delegates will
+     * have dependencies injected into them prior to registering them with the manager.
      *
      * @return a reference to the place manager, which will have been configured with its place
      * object and started up (via a call to {@link PlaceManager#startup}.
@@ -179,8 +180,8 @@ public class PlaceRegistry
     }
 
     /**
-     * Creates a place manager using the supplied config, adds the supplied list of delegates, runs
-     * the supplied pre-startup hook and finally returns it.
+     * Creates a place manager using the supplied config, injects dependencies into and registers
+     * the supplied list of delegates, runs the supplied pre-startup hook and finally returns it.
      */
     protected PlaceManager createPlace (PlaceConfig config, List<PlaceManagerDelegate> delegates,
                                         PreStartupHook hook)
@@ -192,9 +193,10 @@ public class PlaceRegistry
             // create a place manager using the class supplied in the place config
             pmgr = createPlaceManager(config);
 
-            // if we have delegates, add them
+            // if we have delegates, inject their dependencies and add them
             if (delegates != null) {
                 for (PlaceManagerDelegate delegate : delegates) {
+                    _injector.injectMembers(delegate);
                     pmgr.addDelegate(delegate);
                 }
             }
