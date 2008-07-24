@@ -36,8 +36,6 @@ import com.samskivert.util.ProcessLogger;
 
 import com.threerings.presents.annotation.MainInvoker;
 import com.threerings.presents.data.ClientObject;
-import com.threerings.presents.dobj.ObjectDeathListener;
-import com.threerings.presents.dobj.ObjectDestroyedEvent;
 import com.threerings.presents.dobj.RootDObjectManager;
 import com.threerings.presents.server.ClientManager;
 import com.threerings.presents.server.InvocationManager;
@@ -365,12 +363,6 @@ public class BureauRegistry
         }
 
         bureau.clientObj = client;
-
-        bureau.clientObj.addListener(new ObjectDeathListener() {
-            public void objectDestroyed (ObjectDestroyedEvent e) {
-                BureauRegistry.this.clientDestroyed(bureau);
-            }
-        });
 
         log.info("Bureau created " + StringUtil.toString(bureau) +
             ", launching pending agents");
