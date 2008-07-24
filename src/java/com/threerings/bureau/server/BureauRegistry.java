@@ -137,19 +137,9 @@ public class BureauRegistry
         // add the client factory, but later, after all the other modules have been initialized
         _omgr.postRunnable(new Runnable() {
             public void run () {
-                addClientFactory(_clmgr);
+                _clmgr.setClientFactory(new BureauClientFactory(_clmgr.getClientFactory()));
             }
         });
-    }
-
-    /**
-     * Install the bureau client factory in the manager, delegating to the current factory
-     * for non-bureau connections.
-     */
-    @Deprecated public void addClientFactory (ClientManager clmgr)
-    {
-        clmgr.setClientFactory(
-            new BureauClientFactory(clmgr.getClientFactory()));
     }
 
     /**
