@@ -30,6 +30,8 @@ import com.google.common.collect.Sets;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
+import com.samskivert.util.Interval;
+import com.samskivert.util.RunQueue;
 import com.samskivert.util.StringUtil;
 import com.samskivert.util.Invoker;
 import com.samskivert.util.ProcessLogger;
@@ -166,13 +168,31 @@ public class BureauRegistry
     /**
      * Registers a command generator for a given type. When an agent is started and no bureaus are
      * running, the <code>bureauType</code> is used to determine the <code>CommandGenerator</code>
-     * instance to call.
+     * instance to call. The registry will wait indefinitely for the bureau to connect back.
      * @param bureauType the type of bureau that will be launched
      * @param cmdGenerator the generator to be used for bureaus of <code>bureauType</code>
      */
     public void setCommandGenerator (
         String bureauType,
         final CommandGenerator cmdGenerator)
+    {
+        
+    }
+    
+    /**
+     * Registers a command generator for a given type. When an agent is started and no bureaus are
+     * running, the <code>bureauType</code> is used to determine the <code>CommandGenerator</code>
+     * instance to call. If the launched bureau does not connect within the given number of 
+     * milliseconds, it will be logged as an error and future attempts to launch the bureau
+     * will try launching the command again.
+     * @param bureauType the type of bureau that will be launched
+     * @param cmdGenerator the generator to be used for bureaus of <code>bureauType</code>
+     * @param timeout milliseconds to wait for the bureau or 0 to wait forever
+     */
+    public void setCommandGenerator (
+        String bureauType,
+        final CommandGenerator cmdGenerator,
+        int timeout)
     {
         setLauncher(bureauType, new Launcher() {
             public void launchBureau (String bureauId, String token)
@@ -189,24 +209,40 @@ public class BureauRegistry
             public String toString () {
                 return "DefaultLauncher for " + cmdGenerator;
             }
-        });
+        }, timeout);
     }
 
     /**
      * Registers a launcher for a given type. When an agent is started and no bureaus are
      * running, the <code>bureauType</code> is used to determine the <code>Launcher</code>
-     * instance to call.
+     * instance to call. The registry will wait indefinitely for the launched bureau
+     * to connect back. 
      * @param bureauType the type of bureau that will be launched
      * @param launcher the launcher to be used for bureaus of <code>bureauType</code>
      */
     public void setLauncher (String bureauType, Launcher launcher)
+    {
+        setLauncher(bureauType, launcher, 0);
+    }
+
+    /**
+     * Registers a launcher for a given type. When an agent is started and no bureaus are
+     * running, the <code>bureauType</code> is used to determine the <code>Launcher</code>
+     * instance to call. If the launched bureau does not connect within the given number of 
+     * milliseconds, it will be logged as an error and future attempts to launch the bureau
+     * will invoke the <code>launch</code> method again.
+     * @param bureauType the type of bureau that will be launched
+     * @param launcher the launcher to be used for bureaus of <code>bureauType</code>
+     * @param timeout milliseconds to wait for the bureau or 0 to wait forever
+     */
+    public void setLauncher (String bureauType, Launcher launcher, int timeout)
     {
         if (_launchers.get(bureauType) != null) {
             log.warning("Launcher for type already exists", "type", bureauType);
             return;
         }
 
-        _launchers.put(bureauType, launcher);
+        _launchers.put(bureauType, new LauncherEntry(launcher, timeout));
     }
 
     /**
@@ -231,20 +267,20 @@ public class BureauRegistry
 
         if (bureau == null) {
 
-            Launcher launcher = _launchers.get(agent.bureauType);
-            if (launcher == null) {
+            LauncherEntry launcherEntry = _launchers.get(agent.bureauType);
+            if (launcherEntry == null) {
                 log.warning("Launcher not found", "agent", agent);
                 return;
             }
 
-            log.info("Creating new bureau", "bureauId", agent.bureauId, "launcher", launcher);
+            log.info("Creating new bureau", "bureauId", agent.bureauId, "launcher", launcherEntry);
 
             bureau = new Bureau();
             bureau.bureauId = agent.bureauId;
             bureau.token = generateToken(bureau.bureauId);
-            bureau.launcher = launcher;
+            bureau.launcherEntry = launcherEntry;
 
-            _invoker.postUnit(new LauncherUnit(bureau));
+            _invoker.postUnit(new LauncherUnit(bureau, _omgr));
 
             _bureaus.put(agent.bureauId, bureau);
         }
@@ -525,16 +561,36 @@ public class BureauRegistry
             System.currentTimeMillis() + "r" + Math.random();
         return StringUtil.md5hex(tokenSource);
     }
+    
+    /**
+     * Called by the launcher unit timeout time after launching.
+     * @param bureau bureau whose launch occurred
+     */
+    protected void launchTimeoutExpired (Bureau bureau)
+    {
+        if (bureau.clientObj != null) {
+            // all's well, ignore
+            return;
+        }
+        
+        if (!_bureaus.containsKey(bureau.bureauId)) {
+            // bureau has already managed to get destroyed before the launch timeout, ignore
+            return;
+        }
+
+        log.warning("Bureau failed to launch", "bureau", bureau);
+        _bureaus.remove(bureau.bureauId);
+    }
 
     /**
      * Invoker unit to launch a bureau's process, then assign the result on the main thread.
      */
-    protected static class LauncherUnit extends Invoker.Unit
+    protected class LauncherUnit extends Invoker.Unit
     {
-        LauncherUnit (Bureau bureau)
+        LauncherUnit (Bureau bureau, RunQueue runQueue)
         {
             super("LauncherUnit for " + bureau + ": " +
-                StringUtil.toString(bureau.launcher));
+                StringUtil.toString(bureau.launcherEntry));
             _bureau = bureau;
         }
 
@@ -553,15 +609,41 @@ public class BureauRegistry
         @Override
         public void handleResult ()
         {
+            int timeout = _bureau.launcherEntry.timeout;
+            if (timeout != 0) {
+                new Interval(_runQueue) {
+                    public void expired () {
+                        launchTimeoutExpired(_bureau);
+                    }
+                }.schedule(timeout);
+            }
             _bureau.launched = true;
-            _bureau.launcher = null;
+            _bureau.launcherEntry = null;
             log.info("Bureau launched", "bureau", _bureau);
         }
 
         protected Bureau _bureau;
         protected Process _result;
+        protected RunQueue _runQueue;
     }
 
+    protected static class LauncherEntry
+    {
+        public Launcher launcher;
+        public int timeout;
+        
+        public LauncherEntry (Launcher launcher, int timeout)
+        {
+            this.launcher = launcher;
+            this.timeout = timeout;
+        }
+        
+        public String toString ()
+        {
+            return StringUtil.fieldsToString(this);
+        }
+    }
+    
     protected enum AgentState
     {
         // Not yet stated, waiting for bureau to ack
@@ -604,7 +686,7 @@ public class BureauRegistry
     protected static class Bureau
     {
         // non-null once the bureau is scheduled but not yet kicked off
-        Launcher launcher;
+        LauncherEntry launcherEntry;
 
         // non-null once the bureau is kicked off
         boolean launched;
@@ -636,7 +718,7 @@ public class BureauRegistry
             } else {
                 builder.append(clientObj.getOid());
             }
-            builder.append(", launcher=").append(launcher);
+            builder.append(", launcherEntry=").append(launcherEntry);
             builder.append(", launched=").append(launched);
             builder.append(", totalAgents=").append(agentStates.size());
             agentSummary(builder.append(", ")).append("]");
@@ -674,11 +756,12 @@ public class BureauRegistry
         void launch ()
             throws IOException
         {
-            launcher.launchBureau(bureauId, token);
+            launcherEntry.launcher.launchBureau(bureauId, token);
+            
         }
     }
 
-    protected Map<String, Launcher> _launchers = Maps.newHashMap();
+    protected Map<String, LauncherEntry> _launchers = Maps.newHashMap();
     protected Map<String, Bureau> _bureaus = Maps.newHashMap();
 
     @Inject protected RootDObjectManager _omgr;
