@@ -202,8 +202,7 @@ public class BureauRegistry
     public void setLauncher (String bureauType, Launcher launcher)
     {
         if (_launchers.get(bureauType) != null) {
-            log.warning("Launcher for type already exists [type=" +
-                bureauType + "]");
+            log.warning("Launcher for type already exists", "type", bureauType);
             return;
         }
 
@@ -220,11 +219,10 @@ public class BureauRegistry
 
             _omgr.registerObject(agent);
 
-            log.info("Bureau ready, sending createAgent " +
-                StringUtil.toString(agent));
+            log.info("Bureau ready, sending createAgent", "agent", agent);
 
             BureauSender.createAgent(bureau.clientObj, agent.getOid());
-            bureau.agentStates.put(agent, Bureau.STARTED);
+            bureau.agentStates.put(agent, AgentState.STARTED);
 
             bureau.summarize();
 
@@ -235,19 +233,15 @@ public class BureauRegistry
 
             Launcher launcher = _launchers.get(agent.bureauType);
             if (launcher == null) {
-                log.warning("Launcher not found for agent's " +
-                       "bureau type " + StringUtil.toString(agent));
+                log.warning("Launcher not found", "agent", agent);
                 return;
             }
 
-            log.info("Creating new bureau " +
-                StringUtil.toString(agent.bureauId) + " " +
-                StringUtil.toString(launcher));
+            log.info("Creating new bureau", "bureauId", agent.bureauId, "launcher", launcher);
 
             bureau = new Bureau();
             bureau.bureauId = agent.bureauId;
             bureau.token = generateToken(bureau.bureauId);
-
             bureau.launcher = launcher;
 
             _invoker.postUnit(new LauncherUnit(bureau));
@@ -256,10 +250,9 @@ public class BureauRegistry
         }
 
         _omgr.registerObject(agent);
-        bureau.agentStates.put(agent, Bureau.PENDING);
+        bureau.agentStates.put(agent, AgentState.PENDING);
 
-        log.info("Bureau not ready, pending agent " +
-            StringUtil.toString(agent));
+        log.info("Bureau not ready, pending agent", "agent", agent);
 
         bureau.summarize();
     }
@@ -275,31 +268,26 @@ public class BureauRegistry
             return;
         }
 
-        log.info("Destroying agent " + StringUtil.toString(agent));
+        log.info("Destroying agent", "agent", agent);
 
         // transition the agent to a new state and perform the effect of the transition
-        switch (found.state) {
-        case Bureau.PENDING:
+        if (found.state == AgentState.PENDING) {
             found.bureau.agentStates.remove(found.agent);
             // !TODO: is the the right place to destroy it?
             _omgr.destroyObject(found.agent.getOid());
-            break;
 
-        case Bureau.STARTED:
-            found.bureau.agentStates.put(found.agent, Bureau.STILL_BORN);
-            break;
+        } else if (found.state == AgentState.STARTED) {
+            found.bureau.agentStates.put(found.agent, AgentState.STILL_BORN);
 
-        case Bureau.RUNNING:
+        } else if (found.state == AgentState.RUNNING) {
             BureauSender.destroyAgent(found.bureau.clientObj, agent.getOid());
-            found.bureau.agentStates.put(found.agent, Bureau.DESTROYED);
-            break;
+            found.bureau.agentStates.put(found.agent, AgentState.DESTROYED);
 
-        case Bureau.DESTROYED:
-        case Bureau.STILL_BORN:
-            log.warning("Acknowledging a request to destory an agent, but agent " +
-                "is in state " + found.state + ", ignoring request " +
-                StringUtil.toString(found.agent));
-            break;
+        } else if (found.state == AgentState.DESTROYED ||
+            found.state == AgentState.STILL_BORN) {
+            log.warning(
+                "Ignoring request to destroy agent in unexpected state", "state", found.state, 
+                "agent", found.agent);
         }
 
         found.bureau.summarize();
@@ -321,7 +309,7 @@ public class BureauRegistry
     {
         Bureau bureau = _bureaus.get(id);
         if (bureau == null) {
-            log.warning("Starting session for unknoqn bureau", "id", id, "client", client);
+            log.warning("Starting session for unknown bureau", "id", id, "client", client);
             return;
         }
         if (bureau.client != null) {
@@ -357,32 +345,30 @@ public class BureauRegistry
     {
         final Bureau bureau = _bureaus.get(bureauId);
         if (bureau == null) {
-            log.warning("Acknowledging initialization of non-existent bureau " +
-                StringUtil.toString(bureauId));
+            log.warning("Initialization of non-existent bureau", "bureauId", bureauId);
             return;
         }
 
         bureau.clientObj = client;
 
-        log.info("Bureau created " + StringUtil.toString(bureau) +
-            ", launching pending agents");
+        log.info("Bureau created, launching pending agents", "bureau", bureau);
 
         // find all pending agents
         Set<AgentObject> pending = Sets.newHashSet();
 
-        for (Map.Entry<AgentObject, Integer> entry :
+        for (Map.Entry<AgentObject, AgentState> entry :
             bureau.agentStates.entrySet()) {
 
-            if (entry.getValue() == Bureau.PENDING) {
+            if (entry.getValue() == AgentState.PENDING) {
                 pending.add(entry.getKey());
             }
         }
 
         // create them
         for (AgentObject agent : pending) {
-            log.info("Creating agent " + StringUtil.toString(agent));
+            log.info("Creating agent", "agent", agent);
             BureauSender.createAgent(bureau.clientObj, agent.getOid());
-            bureau.agentStates.put(agent, Bureau.STARTED);
+            bureau.agentStates.put(agent, AgentState.STARTED);
         }
 
         bureau.summarize();
@@ -398,26 +384,22 @@ public class BureauRegistry
             return;
         }
 
-        log.info("Agent creation confirmed " + StringUtil.toString(found.agent));
+        log.info("Agent creation confirmed", "agent", found.agent);
 
-        switch (found.state) {
-        case Bureau.STARTED:
-            found.bureau.agentStates.put(found.agent, Bureau.RUNNING);
+        if (found.state == AgentState.STARTED) {
+            found.bureau.agentStates.put(found.agent, AgentState.RUNNING);
             found.agent.setClientOid(client.getOid());
-            break;
 
-        case Bureau.STILL_BORN:
+        } else if (found.state == AgentState.STILL_BORN) {
             BureauSender.destroyAgent(found.bureau.clientObj, agentId);
-            found.bureau.agentStates.put(found.agent, Bureau.DESTROYED);
-            break;
+            found.bureau.agentStates.put(found.agent, AgentState.DESTROYED);
 
-        case Bureau.PENDING:
-        case Bureau.RUNNING:
-        case Bureau.DESTROYED:
-            log.warning("Received acknowledgement of the creation of an " +
-                "agent in state " + found.state + ", ignoring request " +
-                StringUtil.toString(found.agent));
-            break;
+        } else if (found.state == AgentState.PENDING ||
+            found.state == AgentState.RUNNING ||
+            found.state == AgentState.DESTROYED) {
+            log.warning(
+                "Ignoring confirmation of creation of an agent in an unexpected state", "state", 
+                found.state, "agent", found.agent);
         }
 
         found.bureau.summarize();
@@ -433,21 +415,18 @@ public class BureauRegistry
             return;
         }
 
-        log.info("Agent creation failed " + StringUtil.toString(found.agent));
+        log.info("Agent creation failed", "agent", found.agent);
 
-        switch (found.state) {
-        case Bureau.STARTED:
-        case Bureau.STILL_BORN:
+        if (found.state == AgentState.STARTED ||
+            found.state == AgentState.STILL_BORN) {
             found.bureau.agentStates.remove(found.agent);
-            break;
 
-        case Bureau.PENDING:
-        case Bureau.RUNNING:
-        case Bureau.DESTROYED:
-            log.warning("Received acknowledgement of creation failure for " +
-                "agent in state " + found.state + ", ignoring request " +
-                StringUtil.toString(found.agent));
-            break;
+        } else if (found.state == AgentState.PENDING ||
+            found.state == AgentState.RUNNING ||
+            found.state == AgentState.DESTROYED) {
+            log.warning(
+                "Ignoring failure of creation of an agent in an unexpected state", "state",
+                found.state, "agent", found.agent);
         }
 
         found.bureau.summarize();
@@ -463,21 +442,18 @@ public class BureauRegistry
             return;
         }
 
-        log.info("Agent destruction confirmed " + StringUtil.toString(found.agent));
+        log.info("Agent destruction confirmed", "agent", found.agent);
 
-        switch (found.state) {
-        case Bureau.DESTROYED:
+        if (found.state == AgentState.DESTROYED) {
             found.bureau.agentStates.remove(found.agent);
-            break;
-
-        case Bureau.PENDING:
-        case Bureau.STARTED:
-        case Bureau.RUNNING:
-        case Bureau.STILL_BORN:
-            log.warning("Acknowledging agent destruction, but state is " +
-                found.state + ", ignoring request " +
-                StringUtil.toString(found.agent));
-            break;
+        
+        } else if (found.state == AgentState.PENDING || 
+            found.state == AgentState.STARTED ||
+            found.state == AgentState.RUNNING ||
+            found.state == AgentState.STILL_BORN) {
+            log.warning(
+                "Ignoring confirmation of destruction of agent in unexpected state", "state",
+                found.state, "agent", found.agent);
         }
 
         found.bureau.summarize();
@@ -488,8 +464,7 @@ public class BureauRegistry
      */
     protected void clientDestroyed (Bureau bureau)
     {
-        log.info("Client destroyed, destroying all agents " +
-            StringUtil.toString(bureau));
+        log.info("Client destroyed, destroying all agents", "bureau", bureau);
 
         // clean up any agents attached to this bureau
         for (AgentObject agent : bureau.agentStates.keySet()) {
@@ -509,36 +484,31 @@ public class BureauRegistry
     {
         com.threerings.presents.dobj.DObject dobj = _omgr.getObject(agentId);
         if (dobj == null) {
-            log.warning("Non-existent agent in " + resolver +
-                " [agentId=" + agentId + "]");
+            log.warning("Non-existent agent", "function", resolver, "agentId", agentId);
             return null;
         }
 
         if (!(dobj instanceof AgentObject)) {
-            log.warning("Object not an agent in " + resolver +
-                " " + StringUtil.toString(dobj));
+            log.warning("Object not an agent", "function", resolver, "obj", dobj);
             return null;
         }
 
         AgentObject agent = (AgentObject)dobj;
         Bureau bureau = _bureaus.get(agent.bureauId);
         if (bureau == null) {
-            log.warning("Bureau not found for agent in " + resolver +
-                " " + StringUtil.toString(agent));
+            log.warning("Bureau not found for agent", "function", resolver, "agent", agent);
             return null;
         }
 
         if (!bureau.agentStates.containsKey(agent)) {
-            log.warning("Bureau does not have agent in " + resolver +
-                " " + StringUtil.toString(agent));
+            log.warning("Bureau does not have agent", "function", resolver, "agent", agent);
             return null;
         }
 
         if (client != null && bureau.clientObj != client) {
-            log.warning("Masquerading request in " + resolver +
-                " " + StringUtil.toString(agent) +
-                " " + StringUtil.toString(bureau.clientObj) +
-                " " + StringUtil.toString(client));
+            log.warning(
+                "Masquerading request", "function", resolver, "agent", agent, "client", 
+                bureau.clientObj, "client", client);
             return null;
         }
 
@@ -592,13 +562,28 @@ public class BureauRegistry
         protected Process _result;
     }
 
+    protected enum AgentState
+    {
+        // Not yet stated, waiting for bureau to ack
+        PENDING,
+        // Bureau acked, agent told to start
+        STARTED,
+        // Agent ack'ed, now live and hosting, ready to tell other clients
+        RUNNING,
+        // Agent destruction requested, waiting for acknowledge (after which the agent is removed
+        // from the Bureau, so has no state)
+        DESTROYED,
+        // Edge case: destroy request prior to RUNNING
+        STILL_BORN
+    }
+
     /** Models the results of searching for an agent. */
     protected static class FoundAgent
     {
         FoundAgent (
            Bureau bureau,
            AgentObject agent,
-           int state)
+           AgentState state)
         {
             this.bureau = bureau;
             this.agent = agent;
@@ -612,32 +597,12 @@ public class BureauRegistry
         AgentObject agent;
 
         // The state of the agent
-        int state;
+        AgentState state;
     }
 
     /** Models a bureau, including the process handle, all running agents and their states. */
     protected static class Bureau
     {
-        // Agent states {
-
-        // Not yet stated, waiting for bureau to ack
-        static final int PENDING = 0;
-
-        // Bureau acked, agent told to start
-        static final int STARTED = 1;
-
-        // Agent ack'ed, now live and hosting, ready to tell other clients
-        static final int RUNNING = 2;
-
-        // Agent destruction requested, waiting for acknowledge (after which the agent is removed
-        // from the Bureau, so has no state)
-        static final int DESTROYED = 3;
-
-        // Edge case: destroy request prior to RUNNING
-        static final int STILL_BORN = 4;
-
-        // }
-
         // non-null once the bureau is scheduled but not yet kicked off
         Launcher launcher;
 
@@ -659,7 +624,7 @@ public class BureauRegistry
         PresentsClient client;
 
         // The states of the various agents allocated to this bureau
-        Map<AgentObject, Integer> agentStates = Maps.newHashMap();
+        Map<AgentObject, AgentState> agentStates = Maps.newHashMap();
 
         @Override
         public String toString ()
@@ -685,16 +650,16 @@ public class BureauRegistry
 
         StringBuilder agentSummary (StringBuilder str)
         {
-            int[] counts = {0, 0, 0, 0, 0};
-            for (Map.Entry<AgentObject, Integer> me : agentStates.entrySet()) {
-                counts[me.getValue()]++;
+            int[] counts = new int[AgentState.values().length];
+            for (Map.Entry<AgentObject, AgentState> me : agentStates.entrySet()) {
+                counts[me.getValue().ordinal()]++;
             }
-
-            str.append(counts[PENDING]).append(" pending, ").
-                append(counts[STARTED]).append(" started, ").
-                append(counts[RUNNING]).append(" running, ").
-                append(counts[DESTROYED]).append(" destroyed, ").
-                append(counts[STILL_BORN]).append(" still born");
+            for (AgentState state : AgentState.values()) {
+                if (state.ordinal() > 0) {
+                    str.append(", ");
+                }
+                str.append(counts[state.ordinal()]).append(" ").append(state.name());
+            }
             return str;
         }
 
