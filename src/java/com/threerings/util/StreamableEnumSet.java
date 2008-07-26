@@ -246,7 +246,7 @@ public class StreamableEnumSet<E extends Enum<E>> extends AbstractSet<E>
     {
         try {
             // make a deep clone of the contents
-            StreamableEnumSet cset = (StreamableEnumSet)super.clone();
+            @SuppressWarnings("unchecked") StreamableEnumSet<E> cset = (StreamableEnumSet<E>)super.clone();
             cset._contents = _contents.clone();
             return cset;
 

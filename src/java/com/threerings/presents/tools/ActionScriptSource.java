@@ -737,7 +737,7 @@ public class ActionScriptSource
                         line = slurpUntil(bin, line, ";", false);
                     }
 
-                    String fieldName = m.group(1);
+//                     String fieldName = m.group(1);
 
                     // TODO: update the comment?
                     accum.setLength(0);

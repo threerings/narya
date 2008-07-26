@@ -827,7 +827,7 @@ public class BlockingCommunicator extends Communicator
                     return false; // cancelled
 
                 } else if (resp > 0) {
-                    DownstreamMessage msg = receiveDatagram();
+                    receiveDatagram();
                     return true;
                 }
             }

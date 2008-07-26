@@ -36,7 +36,6 @@ import com.samskivert.util.Throttle;
 import com.threerings.util.Name;
 
 import com.threerings.presents.data.ClientObject;
-import com.threerings.presents.data.InvocationMarshaller;
 
 import com.threerings.presents.dobj.DEvent;
 import com.threerings.presents.dobj.DObject;

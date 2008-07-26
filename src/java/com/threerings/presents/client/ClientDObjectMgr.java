@@ -439,7 +439,7 @@ public class ClientDObjectMgr
         for (Iterator<IntMap.IntEntry<FlushRecord>> iter = _flushes.intEntrySet().iterator();
              iter.hasNext(); ) {
             IntMap.IntEntry<FlushRecord> entry = iter.next();
-            int oid = entry.getIntKey();
+//             int oid = entry.getIntKey();
             FlushRecord rec = entry.getValue();
             if (rec.expire <= now) {
                 iter.remove();

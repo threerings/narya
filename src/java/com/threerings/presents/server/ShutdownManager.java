@@ -21,7 +21,6 @@
 
 package com.threerings.presents.server;
 
-
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 

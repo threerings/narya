@@ -47,16 +47,15 @@ import com.threerings.presents.dobj.SetListener;
 /**
  * Allows simple editing of DSets within a distributed object.
  */
-public class DSetEditor extends JPanel
-    implements AttributeChangeListener, SetListener, ActionListener
+public class DSetEditor<E extends DSet.Entry> extends JPanel
+    implements AttributeChangeListener, SetListener<E>, ActionListener
 {
     /**
      * Construct a DSet editor to merely display the specified set.
      *
      * @param setter The object that contains the set.
      * @param setName The name of the set in the object.
-     * @param entryClass the Class of the DSet.Entry elements contained in the
-     *                   set.
+     * @param entryClass the Class of the DSet.Entry elements contained in the set.
      */
     public DSetEditor (DObject setter, String setName, Class entryClass)
     {
@@ -68,10 +67,8 @@ public class DSetEditor extends JPanel
      *
      * @param setter The object that contains the set.
      * @param setName The name of the set in the object.
-     * @param entryClass the Class of the DSet.Entry elements contained in the
-     *                   set.
-     * @param editableFields the names of the fields in the entryClass that
-     *                       should be editable.
+     * @param entryClass the Class of the DSet.Entry elements contained in the set.
+     * @param editableFields the names of the fields in the entryClass that should be editable.
      */
     public DSetEditor (DObject setter, String setName, Class entryClass,
                        String[] editableFields)
@@ -84,15 +81,12 @@ public class DSetEditor extends JPanel
      *
      * @param setter The object that contains the set.
      * @param setName The name of the set in the object.
-     * @param entryClass the Class of the DSet.Entry elements contained in the
-     *                   set.
-     * @param editableFields the names of the fields in the entryClass that
-     *                       should be editable.
+     * @param entryClass the Class of the DSet.Entry elements contained in the set.
+     * @param editableFields the names of the fields in the entryClass that should be editable.
      * @param interp The FieldInterpreter to use.
      */
     public DSetEditor (DObject setter, String setName, Class entryClass,
-                       String[] editableFields,
-                       ObjectEditorTable.FieldInterpreter interp)
+                       String[] editableFields, ObjectEditorTable.FieldInterpreter interp)
     {
         super(new BorderLayout());
 
@@ -149,10 +143,10 @@ public class DSetEditor extends JPanel
     }
 
     // documentation inherited from interface SetListener
-    public void entryAdded (EntryAddedEvent event)
+    public void entryAdded (EntryAddedEvent<E> event)
     {
         if (event.getName().equals(_setName)) {
-            DSet.Entry entry = event.getEntry();
+            E entry = event.getEntry();
             @SuppressWarnings("unchecked") Comparable<Object> key = entry.getKey();
             int index = _keys.insertSorted(key);
             _table.insertDatum(entry, index);
@@ -160,7 +154,7 @@ public class DSetEditor extends JPanel
     }
 
     // documentation inherited from interface SetListener
-    public void entryRemoved (EntryRemovedEvent event)
+    public void entryRemoved (EntryRemovedEvent<E> event)
     {
         if (event.getName().equals(_setName)) {
             Comparable key = event.getKey();
@@ -171,10 +165,10 @@ public class DSetEditor extends JPanel
     }
 
     // documentation inherited from interface SetListener
-    public void entryUpdated (EntryUpdatedEvent event)
+    public void entryUpdated (EntryUpdatedEvent<E> event)
     {
         if (event.getName().equals(_setName)) {
-            DSet.Entry entry = event.getEntry();
+            E entry = event.getEntry();
             int index = _keys.indexOf(entry.getKey());
             _table.updateDatum(entry, index);
         }
@@ -200,7 +194,7 @@ public class DSetEditor extends JPanel
     protected void refreshData ()
     {
         _keys = new ComparableArrayList<Comparable<Object>>();
-        DSet.Entry[] entries =  new DSet.Entry[_set.size()];
+        @SuppressWarnings("unchecked") E[] entries =  (E[])new DSet.Entry[_set.size()];
         _set.toArray(entries);
         for (int ii = 0; ii < entries.length; ii++) {
             @SuppressWarnings("unchecked") Comparable<Object> key = entries[ii].getKey();
@@ -216,7 +210,7 @@ public class DSetEditor extends JPanel
     protected String _setName;
 
     /** The set itself. */
-    protected DSet<?> _set;
+    protected DSet<E> _set;
 
     /** An array we use to track our entries' positions by key. */
     protected ComparableArrayList<Comparable<Object>> _keys;

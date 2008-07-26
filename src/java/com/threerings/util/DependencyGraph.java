@@ -51,9 +51,7 @@ public class DependencyGraph<T>
     public T removeAvailableElement ()
     {
         T elem = _orphans.get(0);
-        DependencyNode<T> node = _nodes.get(elem);
         remove(elem);
-
         return elem;
     }
 
@@ -132,17 +130,17 @@ public class DependencyGraph<T>
     protected ArrayList<T> _orphans = new ArrayList<T>();
 
     /** Represents a node in our dependency graph. */
-    protected class DependencyNode<T>
+    protected class DependencyNode<DT>
     {
-        public T content;
-        public ArrayList<DependencyNode<T>> parents;
-        public ArrayList<DependencyNode<T>> children;
+        public DT content;
+        public ArrayList<DependencyNode<DT>> parents;
+        public ArrayList<DependencyNode<DT>> children;
 
-        public DependencyNode (T contents)
+        public DependencyNode (DT contents)
         {
             this.content = contents;
-            this.parents = new ArrayList<DependencyNode<T>>();
-            this.children = new ArrayList<DependencyNode<T>>();
+            this.parents = new ArrayList<DependencyNode<DT>>();
+            this.children = new ArrayList<DependencyNode<DT>>();
         }
     }
 }

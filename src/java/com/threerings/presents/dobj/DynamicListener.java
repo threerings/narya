@@ -120,7 +120,6 @@ public class DynamicListener
      */
     protected Method resolveMethod (String name, Object[] arguments)
     {
-        Class clazz = _target.getClass();
         Class[] ptypes = new Class[arguments.length];
         for (int ii = 0; ii < arguments.length; ii++) {
             ptypes[ii] = arguments[ii] == null ?
