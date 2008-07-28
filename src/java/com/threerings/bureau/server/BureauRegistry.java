@@ -176,7 +176,7 @@ public class BureauRegistry
         String bureauType,
         final CommandGenerator cmdGenerator)
     {
-        
+        setCommandGenerator(bureauType, cmdGenerator, 0);
     }
     
     /**
