@@ -612,7 +612,7 @@ public class BureauRegistry
             int timeout = _bureau.launcherEntry.timeout;
             if (timeout != 0) {
                 new Interval(_runQueue) {
-                    public void expired () {
+                    @Override public void expired () {
                         launchTimeoutExpired(_bureau);
                     }
                 }.schedule(timeout);
@@ -638,6 +638,7 @@ public class BureauRegistry
             this.timeout = timeout;
         }
         
+        @Override
         public String toString ()
         {
             return StringUtil.fieldsToString(this);

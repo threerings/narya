@@ -23,10 +23,8 @@ package com.threerings.presents.tools;
 
 import java.io.File;
 import java.io.IOException;
-
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
-
 import java.util.ArrayList;
 
 import org.apache.tools.ant.DirectoryScanner;
@@ -35,7 +33,6 @@ import org.apache.tools.ant.types.FileSet;
 
 import com.threerings.io.SimpleStreamableObject;
 import com.threerings.io.Streamable;
-
 import com.threerings.presents.dobj.DObject;
 
 /**

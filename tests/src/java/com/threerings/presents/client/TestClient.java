@@ -80,8 +80,7 @@ public class TestClient
         // register ourselves as a test notification receiver
         client.getInvocationDirector().registerReceiver(new TestDecoder(this));
 
-        TestService service = (TestService)
-            client.requireService(TestService.class);
+        TestService service = client.requireService(TestService.class);
 
         // send a test request
         ArrayList<Integer> three = new ArrayList<Integer>();
