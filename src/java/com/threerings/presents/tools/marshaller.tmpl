@@ -69,9 +69,10 @@ public class ${name}Marshaller extends InvocationMarshaller
         $la.marshaller listener$la.index = new ${la.marshaller}();
         listener${la.index}.listener = arg$la.index;
 #end
-        sendRequest(arg1, $m.code, new Object[] {
+        sendRequest(arg1, $m.code, new Object[] {#if($m.hasArgs(true))
+
             $m.getWrappedArgList(true)
-        }$m.transport);
+        #end}$m.transport);
     }
 #end
 }
