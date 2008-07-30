@@ -142,7 +142,7 @@ public class GenDObjectTask extends Task
     }
 
     /** Processes a resolved distributed object class instance. */
-    protected void processObject (File source, Class oclass)
+    protected void processObject (File source, Class<?> oclass)
     {
         // make sure we extend distributed object
         if (!_doclass.isAssignableFrom(oclass) || _doclass.equals(oclass)) {
@@ -226,8 +226,7 @@ public class GenDObjectTask extends Task
                 if (t instanceof ParameterizedType) {
                     ParameterizedType pt = (ParameterizedType)t;
                     if (pt.getActualTypeArguments().length > 0) {
-                        ctx.put("etype", GenUtil.simpleName(
-                                    (Class<?>)pt.getActualTypeArguments()[0]));
+                        ctx.put("etype", GenUtil.simpleName(pt.getActualTypeArguments()[0]));
                     }
                 } else {
                     ctx.put("etype", "DSet.Entry");

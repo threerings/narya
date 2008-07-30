@@ -85,7 +85,7 @@ public class OccupantInfo extends SimpleStreamableObject
     }
 
     // documentation inherited
-    public Comparable getKey ()
+    public Comparable<?> getKey ()
     {
         return bodyOid;
     }

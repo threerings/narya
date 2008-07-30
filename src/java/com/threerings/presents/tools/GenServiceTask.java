@@ -57,7 +57,7 @@ public class GenServiceTask extends InvocationTask
     /** Used to keep track of custom InvocationListener derivations. */
     public class ServiceListener implements Comparable<ServiceListener>
     {
-        public Class listener;
+        public Class<?> listener;
 
         public ComparableArrayList<ServiceMethod> methods =
             new ComparableArrayList<ServiceMethod>();
@@ -65,7 +65,7 @@ public class GenServiceTask extends InvocationTask
         /** Contains all imports required for the parameters of the methods in this listener. */
         public ImportSet imports = new ImportSet();
 
-        public ServiceListener (Class service, Class listener)
+        public ServiceListener (Class<?> service, Class<?> listener)
         {
             this.listener = listener;
             Method[] methdecls = listener.getDeclaredMethods();
@@ -141,7 +141,7 @@ public class GenServiceTask extends InvocationTask
 
     // documentation inherited
     @Override
-    protected void processService (File source, Class service)
+    protected void processService (File source, Class<?> service)
     {
         System.out.println("Processing " + service.getName() + "...");
 
@@ -303,7 +303,7 @@ public class GenServiceTask extends InvocationTask
 
             // ----------- Part III - as listener marshallers
 
-            Class imlm = InvocationMarshaller.ListenerMarshaller.class;
+            Class<?> imlm = InvocationMarshaller.ListenerMarshaller.class;
 
             // now generate ActionScript versions of our listener marshallers
             // because those have to be in separate files
@@ -401,7 +401,7 @@ public class GenServiceTask extends InvocationTask
 
             // ----------- Part V - as service listeners
 
-            Class isil = InvocationService.InvocationListener.class;
+            Class<?> isil = InvocationService.InvocationListener.class;
 
             // also generate ActionScript versions of any inner listener
             // interfaces because those have to be in separate files
@@ -585,7 +585,7 @@ public class GenServiceTask extends InvocationTask
     /** Rolls up everything needed for the generate* methods. */
     protected class ServiceDescription
     {
-        public Class service;
+        public Class<?> service;
         public String sname;
         public String spackage;
         public ImportSet imports = new ImportSet();
@@ -594,7 +594,7 @@ public class GenServiceTask extends InvocationTask
         public ComparableArrayList<ServiceListener> listeners =
             new ComparableArrayList<ServiceListener>();
 
-        public ServiceDescription (Class serviceClass)
+        public ServiceDescription (Class<?> serviceClass)
         {
             service = serviceClass;
             sname = service.getSimpleName();
@@ -611,7 +611,7 @@ public class GenServiceTask extends InvocationTask
                     continue;
                 }
                 // check this method for custom listener declarations
-                Class[] args = m.getParameterTypes();
+                Class<?>[] args = m.getParameterTypes();
                 for (int aa = 0; aa < args.length; aa++) {
                     if (_ilistener.isAssignableFrom(args[aa]) &&
                         GenUtil.simpleName(args[aa]).startsWith(sname + ".")) {

@@ -36,7 +36,7 @@ public class ClientInfo extends SimpleStreamableObject
     public Name username;
 
     // documentation inherited from interface DSet.Entry
-    public Comparable getKey ()
+    public Comparable<?> getKey ()
     {
         return username;
     }

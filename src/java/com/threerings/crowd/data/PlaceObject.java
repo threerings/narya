@@ -21,8 +21,6 @@
 
 package com.threerings.crowd.data;
 
-import java.util.Iterator;
-
 import com.threerings.util.Name;
 
 import com.threerings.presents.dobj.DObject;
@@ -124,9 +122,7 @@ public class PlaceObject extends DObject
     public OccupantInfo getOccupantInfo (Name username)
     {
         try {
-            Iterator iter = occupantInfo.iterator();
-            while (iter.hasNext()) {
-                OccupantInfo info = (OccupantInfo)iter.next();
+            for (OccupantInfo info : occupantInfo) {
                 if (info.username.equals(username)) {
                     return info;
                 }
@@ -181,7 +177,7 @@ public class PlaceObject extends DObject
      * the <code>occupantInfo</code> set. The set will not change until the
      * event is actually propagated through the system.
      */
-    public void removeFromOccupantInfo (Comparable key)
+    public void removeFromOccupantInfo (Comparable<?> key)
     {
         requestEntryRemove(OCCUPANT_INFO, occupantInfo, key);
     }
@@ -209,8 +205,7 @@ public class PlaceObject extends DObject
     public void setOccupantInfo (DSet<OccupantInfo> value)
     {
         requestAttributeChange(OCCUPANT_INFO, value, this.occupantInfo);
-        @SuppressWarnings("unchecked") DSet<OccupantInfo> clone =
-            (value == null) ? null : value.typedClone();
+        DSet<OccupantInfo> clone = (value == null) ? null : value.typedClone();
         this.occupantInfo = clone;
     }
 

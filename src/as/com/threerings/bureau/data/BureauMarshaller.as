@@ -27,7 +27,7 @@ import com.threerings.presents.data.InvocationMarshaller;
 import com.threerings.util.Integer;
 
 /**
- * Provides the implementation of the {@link BureauService} interface
+ * Provides the implementation of the <code>BureauService</code> interface
  * that marshalls the arguments and delivers the request to the provider
  * on the server. Also provides an implementation of the response listener
  * interfaces that marshall the response arguments and deliver them back
@@ -36,7 +36,7 @@ import com.threerings.util.Integer;
 public class BureauMarshaller extends InvocationMarshaller
     implements BureauService
 {
-    /** The method id used to dispatch {@link #agentCreated} requests. */
+    /** The method id used to dispatch <code>agentCreated</code> requests. */
     public static const AGENT_CREATED :int = 1;
 
     // from interface BureauService
@@ -47,7 +47,7 @@ public class BureauMarshaller extends InvocationMarshaller
         ]);
     }
 
-    /** The method id used to dispatch {@link #agentCreationFailed} requests. */
+    /** The method id used to dispatch <code>agentCreationFailed</code> requests. */
     public static const AGENT_CREATION_FAILED :int = 2;
 
     // from interface BureauService
@@ -58,7 +58,7 @@ public class BureauMarshaller extends InvocationMarshaller
         ]);
     }
 
-    /** The method id used to dispatch {@link #agentDestroyed} requests. */
+    /** The method id used to dispatch <code>agentDestroyed</code> requests. */
     public static const AGENT_DESTROYED :int = 3;
 
     // from interface BureauService
@@ -69,7 +69,7 @@ public class BureauMarshaller extends InvocationMarshaller
         ]);
     }
 
-    /** The method id used to dispatch {@link #bureauInitialized} requests. */
+    /** The method id used to dispatch <code>bureauInitialized</code> requests. */
     public static const BUREAU_INITIALIZED :int = 4;
 
     // from interface BureauService

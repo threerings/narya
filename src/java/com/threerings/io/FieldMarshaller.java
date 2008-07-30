@@ -79,7 +79,7 @@ public abstract class FieldMarshaller
             }
         }
 
-        Class ftype = field.getType();
+        Class<?> ftype = field.getType();
         if (ftype.isInterface()) {
             // if the class is a pure interface, use Object.
             ftype = Object.class;
@@ -212,7 +212,7 @@ public abstract class FieldMarshaller
     protected static void createMarshallers ()
     {
         // create our table
-        _marshallers = new HashMap<Class, FieldMarshaller>();
+        _marshallers = new HashMap<Class<?>, FieldMarshaller>();
 
         // create a generic marshaller for streamable instances
         FieldMarshaller gmarsh = new FieldMarshaller() {
@@ -354,11 +354,11 @@ public abstract class FieldMarshaller
     }
 
     /** Contains a mapping from field type to field marshaller instance for that type. */
-    protected static HashMap<Class, FieldMarshaller> _marshallers;
+    protected static HashMap<Class<?>, FieldMarshaller> _marshallers;
 
     /** Defines the signature to a custom field reader method. */
-    protected static final Class[] READER_ARGS = { ObjectInputStream.class };
+    protected static final Class<?>[] READER_ARGS = { ObjectInputStream.class };
 
     /** Defines the signature to a custom field writer method. */
-    protected static final Class[] WRITER_ARGS = { ObjectOutputStream.class };
+    protected static final Class<?>[] WRITER_ARGS = { ObjectOutputStream.class };
 }

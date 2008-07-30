@@ -34,6 +34,7 @@ import java.security.PrivilegedActionException;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import com.google.common.collect.Lists;
 
@@ -54,7 +55,7 @@ public class Streamer
     /**
      * Returns true if the supplied target class can be streamed using a streamer.
      */
-    public synchronized static boolean isStreamable (Class target)
+    public synchronized static boolean isStreamable (Class<?> target)
     {
         while (true) {
             // if we've got a streamer for it, it's good
@@ -82,10 +83,10 @@ public class Streamer
      * object's natural class, but for enum values, that might be its declaring class as enums use
      * classes in a way that would otherwise pollute our id to class mapping space.
      */
-    public static Class getStreamerClass (Object object)
+    public static Class<?> getStreamerClass (Object object)
     {
         return (object instanceof Enum) ?
-            ((Enum)object).getDeclaringClass() : object.getClass();
+            ((Enum<?>)object).getDeclaringClass() : object.getClass();
     }
 
     /**
@@ -100,7 +101,7 @@ public class Streamer
      * {@link Streamable} and is not one of the basic object types (@see {@link
      * ObjectOutputStream}).
      */
-    public synchronized static Streamer getStreamer (final Class target)
+    public synchronized static Streamer getStreamer (final Class<?> target)
         throws IOException
     {
         // if we have not yet initialized ourselves, do so now
@@ -211,7 +212,7 @@ public class Streamer
         // if someone serializes an enum to a file and then adds a value to the enum, changing the
         // ordinal assignments)
         if (_target.isEnum()) {
-            out.writeUTF(((Enum)object).name());
+            out.writeUTF(((Enum<?>)object).name());
             return;
         }
 
@@ -262,8 +263,9 @@ public class Streamer
                 if (ObjectInputStream.STREAM_DEBUG) {
                     log.info(in.hashCode() + ": Creating enum '" + _target.getName() + "'.");
                 }
-                @SuppressWarnings("unchecked") Object value = Enum.valueOf(_target, in.readUTF());
-                return value;
+                @SuppressWarnings("unchecked") Class<EnumReader> eclass =
+                    (Class<EnumReader>)_target;
+                return Enum.valueOf(eclass, in.readUTF());
 
             } else {
                 if (ObjectInputStream.STREAM_DEBUG) {
@@ -482,7 +484,7 @@ public class Streamer
      */
     protected static void createStreamers ()
     {
-        _streamers = new HashMap<Class, Streamer>();
+        _streamers = new HashMap<Class<?>, Streamer>();
 
         // register all of the basic streamers
         int bscount = BasicStreamers.BSTREAMER_TYPES.length;
@@ -491,9 +493,12 @@ public class Streamer
                            BasicStreamers.BSTREAMER_INSTANCES[ii]);
         }
     }
+    
+    /** Used to coerce the type system into quietude when reading enums from the wire. */
+    protected static enum EnumReader { NOT_USED };
 
     /** The class for which this streamer instance is configured. */
-    protected Class _target;
+    protected Class<?> _target;
 
     /** If our target class is an array, this is a reference to a streamer that can stream our
      * array elements, otherwise it is null. */
@@ -513,7 +518,7 @@ public class Streamer
     protected Method _writer;
 
     /** Contains the mapping from class names to configured streamer instances. */
-    protected static HashMap<Class, Streamer> _streamers;
+    protected static Map<Class<?>, Streamer> _streamers;
 
     /** A simple predicate to filter "NotStreamable" members from a Streamable object's fields. */
     protected static final Predicate<Field> _isStreamableFieldPred = new Predicate<Field>() {
@@ -526,11 +531,11 @@ public class Streamer
     protected static final String READER_METHOD_NAME = "readObject";
 
     /** The argument list for the custom reader method. */
-    protected static final Class[] READER_ARGS = { ObjectInputStream.class };
+    protected static final Class<?>[] READER_ARGS = { ObjectInputStream.class };
 
     /** The name of the custom writer method. */
     protected static final String WRITER_METHOD_NAME = "writeObject";
 
     /** The argument list for the custom writer method. */
-    protected static final Class[] WRITER_ARGS = { ObjectOutputStream.class };
+    protected static final Class<?>[] WRITER_ARGS = { ObjectOutputStream.class };
 }

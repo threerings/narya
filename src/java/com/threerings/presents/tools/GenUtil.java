@@ -53,7 +53,7 @@ public class GenUtil extends com.samskivert.util.GenUtil
     public static String simpleASName (Class<?> clazz)
     {
         if (clazz.isArray()) {
-            Class compoType = clazz.getComponentType();
+            Class<?> compoType = clazz.getComponentType();
             if (Byte.TYPE.equals(compoType)) {
                 return "ByteArray";
             } else if (Object.class.equals(compoType)) {

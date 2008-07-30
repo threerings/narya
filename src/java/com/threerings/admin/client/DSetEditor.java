@@ -57,7 +57,7 @@ public class DSetEditor<E extends DSet.Entry> extends JPanel
      * @param setName The name of the set in the object.
      * @param entryClass the Class of the DSet.Entry elements contained in the set.
      */
-    public DSetEditor (DObject setter, String setName, Class entryClass)
+    public DSetEditor (DObject setter, String setName, Class<?> entryClass)
     {
         this(setter, setName, entryClass, null);
     }
@@ -70,7 +70,7 @@ public class DSetEditor<E extends DSet.Entry> extends JPanel
      * @param entryClass the Class of the DSet.Entry elements contained in the set.
      * @param editableFields the names of the fields in the entryClass that should be editable.
      */
-    public DSetEditor (DObject setter, String setName, Class entryClass,
+    public DSetEditor (DObject setter, String setName, Class<?> entryClass,
                        String[] editableFields)
     {
         this(setter, setName, entryClass, editableFields, null);
@@ -85,7 +85,7 @@ public class DSetEditor<E extends DSet.Entry> extends JPanel
      * @param editableFields the names of the fields in the entryClass that should be editable.
      * @param interp The FieldInterpreter to use.
      */
-    public DSetEditor (DObject setter, String setName, Class entryClass,
+    public DSetEditor (DObject setter, String setName, Class<?> entryClass,
                        String[] editableFields, ObjectEditorTable.FieldInterpreter interp)
     {
         super(new BorderLayout());
@@ -147,8 +147,7 @@ public class DSetEditor<E extends DSet.Entry> extends JPanel
     {
         if (event.getName().equals(_setName)) {
             E entry = event.getEntry();
-            @SuppressWarnings("unchecked") Comparable<Object> key = entry.getKey();
-            int index = _keys.insertSorted(key);
+            int index = _keys.insertSorted(getKey(entry));
             _table.insertDatum(entry, index);
         }
     }
@@ -157,7 +156,7 @@ public class DSetEditor<E extends DSet.Entry> extends JPanel
     public void entryRemoved (EntryRemovedEvent<E> event)
     {
         if (event.getName().equals(_setName)) {
-            Comparable key = event.getKey();
+            Comparable<?> key = event.getKey();
             int index = _keys.indexOf(key);
             _keys.remove(index);
             _table.removeDatum(index);
@@ -197,10 +196,15 @@ public class DSetEditor<E extends DSet.Entry> extends JPanel
         @SuppressWarnings("unchecked") E[] entries =  (E[])new DSet.Entry[_set.size()];
         _set.toArray(entries);
         for (int ii = 0; ii < entries.length; ii++) {
-            @SuppressWarnings("unchecked") Comparable<Object> key = entries[ii].getKey();
-            _keys.insertSorted(key);
+            _keys.insertSorted(getKey(entries[ii]));
         }
         _table.setData(entries); // this works because DSet itself is sorted
+    }
+
+    @SuppressWarnings("unchecked")
+    protected static Comparable<Object> getKey (DSet.Entry entry)
+    {
+        return (Comparable<Object>)entry.getKey();
     }
 
     /** The object that contains the set we're displaying. */

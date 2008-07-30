@@ -401,7 +401,7 @@ public class ClientDObjectMgr
      * This is guaranteed to be invoked via the invoker and can safely do main thread type things
      * like call back to the subscriber.
      */
-    protected void doUnsubscribe (int oid, Subscriber target)
+    protected void doUnsubscribe (int oid, Subscriber<?> target)
     {
         DObject dobj = _ocache.get(oid);
         if (dobj != null) {

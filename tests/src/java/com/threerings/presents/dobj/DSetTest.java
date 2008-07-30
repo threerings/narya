@@ -38,7 +38,7 @@ public class DSetTest extends TestCase
             _value = new Integer(value);
         }
 
-        public Comparable getKey ()
+        public Comparable<?> getKey ()
         {
             return _value;
         }

@@ -28,10 +28,10 @@ package com.threerings.io;
 class ClassMapping
 {
     public short code;
-    public Class sclass;
+    public Class<?> sclass;
     public Streamer streamer;
 
-    public ClassMapping (short code, Class sclass, Streamer streamer)
+    public ClassMapping (short code, Class<?> sclass, Streamer streamer)
     {
         this.code = code;
         this.sclass = sclass;

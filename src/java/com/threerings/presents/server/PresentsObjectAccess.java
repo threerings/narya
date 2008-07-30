@@ -44,7 +44,7 @@ public class PresentsObjectAccess
     public static AccessController DEFAULT = new AccessController()
     {
         // documentation inherited from interface
-        public boolean allowSubscribe (DObject object, Subscriber subscriber)
+        public boolean allowSubscribe (DObject object, Subscriber<?> subscriber)
         {
             // allow anyone to subscribe
             return true;
@@ -70,12 +70,13 @@ public class PresentsObjectAccess
     public static AccessController CLIENT = new AccessController()
     {
         // documentation inherited from interface
-        public boolean allowSubscribe (DObject object, Subscriber sub)
+        public boolean allowSubscribe (DObject object, Subscriber<?> sub)
         {
             boolean allowed = true;
             // if the subscriber is a client, ensure that they are this same user
-            if (sub instanceof PresentsClient) {
-                allowed = ((PresentsClient)sub).getClientObject() == object;
+            if (PresentsClient.class.isInstance(sub)) {
+                @SuppressWarnings("unchecked") PresentsClient client = (PresentsClient)sub;
+                allowed = (client.getClientObject() == object);
                 if (!allowed) {
                     log.warning("Refusing ClientObject subscription request " +
                                 "[obj=" + ((ClientObject)object).who() + ", sub=" + sub + "].");

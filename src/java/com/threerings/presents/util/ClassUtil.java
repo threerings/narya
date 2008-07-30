@@ -45,7 +45,7 @@ public class ClassUtil
      */
     public static Method getMethod (String name, Object target, Map<String, Method> cache)
     {
-        Class tclass = target.getClass();
+        Class<?> tclass = target.getClass();
         String key = tclass.getName() + ":" + name;
         Method method = cache.get(key);
 
@@ -71,7 +71,7 @@ public class ClassUtil
      */
     public static Method getMethod (String name, Object target, Object[] args)
     {
-        Class tclass = target.getClass();
+        Class<?> tclass = target.getClass();
         Method meth = null;
 
         try {
@@ -98,7 +98,7 @@ public class ClassUtil
      * @return the method with the specified name or null if no method with that name could be
      * found.
      */
-    public static Method findMethod (Class clazz, String name)
+    public static Method findMethod (Class<?> clazz, String name)
     {
         Method[] methods = clazz.getMethods();
         for (int i = 0; i < methods.length; i++) {

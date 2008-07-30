@@ -31,7 +31,7 @@ import com.threerings.util.Long;
 public class ChatMarshaller_TellMarshaller
     extends InvocationMarshaller_ListenerMarshaller
 {
-    /** The method id used to dispatch {@link #tellSucceeded} responses. */
+    /** The method id used to dispatch <code>tellSucceeded</code> responses. */
     public static const TELL_SUCCEEDED :int = 1;
 
     // from InvocationMarshaller_ListenerMarshaller

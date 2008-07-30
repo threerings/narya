@@ -70,7 +70,7 @@ public class StreamableEnumSet<E extends Enum<E>> extends AbstractSet<E>
     public static <E extends Enum<E>> StreamableEnumSet<E> copyOf (Collection<E> s)
     {
         if (s instanceof StreamableEnumSet) {
-            @SuppressWarnings("unchecked") StreamableEnumSet<E> set = (StreamableEnumSet<E>)s;
+            StreamableEnumSet<E> set = (StreamableEnumSet<E>)s;
             return copyOf(set);
         }
         if (s.isEmpty()) {
@@ -197,7 +197,7 @@ public class StreamableEnumSet<E extends Enum<E>> extends AbstractSet<E>
         if (!_elementType.isInstance(o)) {
             return false;
         }
-        int ordinal = ((Enum)o).ordinal();
+        int ordinal = ((Enum<?>)o).ordinal();
         int idx = ordinal >> 3, mask = 1 << (ordinal & 0x07);
         return (_contents[idx] & mask) != 0;
     }
@@ -222,7 +222,7 @@ public class StreamableEnumSet<E extends Enum<E>> extends AbstractSet<E>
         if (!_elementType.isInstance(o)) {
             return false;
         }
-        int ordinal = ((Enum)o).ordinal();
+        int ordinal = ((Enum<?>)o).ordinal();
         int idx = ordinal >> 3, mask = 1 << (ordinal & 0x07);
         if ((_contents[idx] & mask) != 0) {
             _contents[idx] &= ~mask;

@@ -33,7 +33,7 @@ public interface AccessController
      * Should return true if the supplied subscriber is allowed to
      * subscribe to the specified object.
      */
-    boolean allowSubscribe (DObject object, Subscriber subscriber);
+    boolean allowSubscribe (DObject object, Subscriber<?> subscriber);
 
     /**
      * Should return true if the supplied event is legal for dispatch on

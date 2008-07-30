@@ -111,7 +111,7 @@ public class GenStreamableTask extends Task
         StringBuffer writebuf = new StringBuffer(WRITE_OPEN);
 
         // see if our parent also implements Streamable
-        Class supster = sclass.getSuperclass();
+        Class<?> supster = sclass.getSuperclass();
         do {
             if (isStreamableClass(supster)) {
                 readbuf.append("        super.readObject(ins);\n");
@@ -174,9 +174,9 @@ public class GenStreamableTask extends Task
         }
     }
 
-    protected boolean isStreamableClass (Class clazz)
+    protected boolean isStreamableClass (Class<?> clazz)
     {
-        for (Class iface : clazz.getInterfaces()) {
+        for (Class<?> iface : clazz.getInterfaces()) {
             if (Streamable.class.equals(iface)) {
                 return !SimpleStreamableObject.class.equals(clazz);
             }

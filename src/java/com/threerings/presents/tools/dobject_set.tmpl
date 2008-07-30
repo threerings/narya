@@ -13,7 +13,7 @@
      * the <code>$field</code> set. The set will not change until the
      * event is actually propagated through the system.
      */
-    public void removeFrom$upfield (Comparable key)
+    public void removeFrom$upfield (Comparable<?> key)
     {
         requestEntryRemove($capfield, $field, key);
     }
@@ -41,7 +41,6 @@
     public void set$upfield ($type value)
     {
         requestAttributeChange($capfield, value, this.$field);
-        @SuppressWarnings("unchecked") $type clone =
-            $clonefield;
+        $type clone = $clonefield;
         this.$field = clone;
     }

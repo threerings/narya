@@ -46,7 +46,7 @@ import com.threerings.presents.server.InvocationSender;
 public class GenReceiverTask extends InvocationTask
 {
     @Override
-    protected void processService (File source, Class receiver)
+    protected void processService (File source, Class<?> receiver)
     {
         System.out.println("Processing " + receiver.getName() + "...");
         String rname = receiver.getName();
@@ -92,7 +92,7 @@ public class GenReceiverTask extends InvocationTask
     }
 
     protected void generateSender (File source, String rname, String rpackage,
-                                   List methods, Iterator<String> imports)
+                                   List<?> methods, Iterator<String> imports)
     {
         String name = StringUtil.replace(rname, "Receiver", "");
         String spackage = StringUtil.replace(rpackage, ".client", ".server");
@@ -130,8 +130,7 @@ public class GenReceiverTask extends InvocationTask
     }
 
     protected void generateDecoder (
-        File source, String rname, String rpackage, List methods,
-        Iterator<String> imports)
+        File source, String rname, String rpackage, List<?> methods, Iterator<String> imports)
     {
         String name = StringUtil.replace(rname, "Receiver", "");
 

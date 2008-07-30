@@ -47,7 +47,6 @@ public class LocationDispatcher extends InvocationDispatcher<LocationMarshaller>
         return new LocationMarshaller();
     }
 
-    @SuppressWarnings("unchecked")
     @Override // documentation inherited
     public void dispatchRequest (
         ClientObject source, int methodId, Object[] args)

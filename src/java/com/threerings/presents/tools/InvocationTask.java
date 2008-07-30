@@ -61,7 +61,7 @@ public abstract class InvocationTask extends Task
     {
         public int index;
 
-        public Class listener;
+        public Class<?> listener;
 
         public ListenerArgument (int index, Class<?> listener)
         {
@@ -274,7 +274,7 @@ public abstract class InvocationTask extends Task
         protected String unboxArgument (Type type, int index, boolean listenerMode)
         {
             if (listenerMode && (type instanceof Class) &&
-                _ilistener.isAssignableFrom((Class)type)) {
+                _ilistener.isAssignableFrom((Class<?>)type)) {
                 return "listener" + index;
             } else {
                 return GenUtil.unboxArgument(type, "args[" + index + "]");
@@ -385,7 +385,7 @@ public abstract class InvocationTask extends Task
     }
 
     /** Processes a resolved invocation service class instance. */
-    protected abstract void processService (File source, Class service);
+    protected abstract void processService (File source, Class<?> service);
 
     protected void writeFile (String path, String data)
         throws IOException

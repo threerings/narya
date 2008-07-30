@@ -27,7 +27,7 @@ import com.threerings.presents.data.InvocationMarshaller;
 import com.threerings.util.langBoolean;
 
 /**
- * Provides the implementation of the {@link BodyService} interface
+ * Provides the implementation of the <code>BodyService</code> interface
  * that marshalls the arguments and delivers the request to the provider
  * on the server. Also provides an implementation of the response listener
  * interfaces that marshall the response arguments and deliver them back
@@ -36,7 +36,7 @@ import com.threerings.util.langBoolean;
 public class BodyMarshaller extends InvocationMarshaller
     implements BodyService
 {
-    /** The method id used to dispatch {@link #setIdle} requests. */
+    /** The method id used to dispatch <code>setIdle</code> requests. */
     public static const SET_IDLE :int = 1;
 
     // from interface BodyService

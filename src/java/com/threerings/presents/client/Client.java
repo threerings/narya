@@ -252,7 +252,7 @@ public class Client
      * matches. <em>Note also:</em> this method cannot be called until after the client has
      * established a connection with the server and the distributed object manager is available.
      */
-    public void registerFlushDelay (Class objclass, long delay)
+    public void registerFlushDelay (Class<?> objclass, long delay)
     {
         ClientDObjectMgr omgr = (ClientDObjectMgr)getDObjectManager();
         omgr.registerFlushDelay(objclass, delay);

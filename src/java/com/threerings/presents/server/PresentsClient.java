@@ -90,7 +90,7 @@ public class PresentsClient
          *
          * @param rl when this method is finished with its business and the old client object can
          * be destroyed, the result listener should be called. */
-        void changeReported (ClientObject newObji, ResultListener rl);
+        void changeReported (ClientObject newObji, ResultListener<Void> rl);
 
         /** Called when the user change is completed, the old client object is destroyed and all
          * updates are committed. */
@@ -210,8 +210,8 @@ public class PresentsClient
 
                 // let the caller know that we've got some new business
                 if (ucl != null) {
-                    ucl.changeReported(clobj, new ResultListener() {
-                        public void requestCompleted (Object result) {
+                    ucl.changeReported(clobj, new ResultListener<Void>() {
+                        public void requestCompleted (Void result) {
                             finishResolved(username, clobj);
                         }
                         public void requestFailed (Exception cause) {

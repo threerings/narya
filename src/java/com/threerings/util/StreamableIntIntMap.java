@@ -22,7 +22,6 @@
 package com.threerings.util;
 
 import java.io.IOException;
-import java.util.Iterator;
 
 import com.samskivert.util.IntIntMap;
 
@@ -65,8 +64,7 @@ public class StreamableIntIntMap extends IntIntMap
     {
         int ecount = size();
         out.writeInt(ecount);
-        for (Iterator itr = entrySet().iterator(); itr.hasNext(); ) {
-            IntIntEntry entry = (IntIntEntry) itr.next();
+        for (IntIntEntry entry : entrySet()) {
             out.writeInt(entry.getIntKey());
             out.writeInt(entry.getIntValue());
         }

@@ -34,7 +34,7 @@ public class CrowdClientInfo extends ClientInfo
     public Name visibleName;
 
     @Override // documentation inherited
-    public Comparable getKey ()
+    public Comparable<?> getKey ()
     {
         // the PeerManager works in such a way that we can override our client
         // info key and things still work properly; all inter-server

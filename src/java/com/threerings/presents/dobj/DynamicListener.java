@@ -33,8 +33,8 @@ import static com.threerings.presents.Log.log;
 /**
  * Maps distributed object events to methods using reflection.
  */
-public class DynamicListener
-    implements AttributeChangeListener, ElementUpdateListener, SetListener
+public class DynamicListener<T extends DSet.Entry>
+    implements AttributeChangeListener, ElementUpdateListener, SetListener<T>
 {
     /**
      * Creates a listener that dynamically dispatches events on the supplied
@@ -70,21 +70,21 @@ public class DynamicListener
     }
 
     // from interface SetListener
-    public void entryAdded (EntryAddedEvent event)
+    public void entryAdded (EntryAddedEvent<T> event)
     {
         dispatchMethod(event.getName() + "Added",
             new Object[] { event.getEntry() });
     }
 
     // from interface SetListener
-    public void entryUpdated (EntryUpdatedEvent event)
+    public void entryUpdated (EntryUpdatedEvent<T> event)
     {
         dispatchMethod(event.getName() + "Updated",
             new Object[] { event.getEntry() });
     }
 
     // from interface SetListener
-    public void entryRemoved (EntryRemovedEvent event)
+    public void entryRemoved (EntryRemovedEvent<T> event)
     {
         dispatchMethod(event.getName() + "Removed",
             new Object[] { event.getKey() });
@@ -120,7 +120,7 @@ public class DynamicListener
      */
     protected Method resolveMethod (String name, Object[] arguments)
     {
-        Class[] ptypes = new Class[arguments.length];
+        Class<?>[] ptypes = new Class<?>[arguments.length];
         for (int ii = 0; ii < arguments.length; ii++) {
             ptypes[ii] = arguments[ii] == null ?
                 null : arguments[ii].getClass();

@@ -35,6 +35,7 @@ import com.samskivert.util.StringUtil;
 import com.threerings.presents.data.ClientObject;
 import com.threerings.presents.dobj.AccessController;
 import com.threerings.presents.dobj.DObject;
+import com.threerings.presents.dobj.DSet;
 import com.threerings.presents.dobj.DynamicListener;
 import com.threerings.presents.dobj.EntryUpdatedEvent;
 import com.threerings.presents.dobj.MessageEvent;
@@ -381,13 +382,13 @@ public class PlaceManager
 
             // Lazily create our dispatcher now that it's actually getting a message
             if (_dispatcher == null) {
-                Class clazz = getClass();
+                Class<?> clazz = getClass();
                 MethodFinder finder = _dispatcherFinders.get(clazz);
                 if (finder == null) {
                     finder = new MethodFinder(clazz);
                     _dispatcherFinders.put(clazz, finder);
                 }
-                _dispatcher = new DynamicListener(this, finder);
+                _dispatcher = new DynamicListener<DSet.Entry>(this, finder);
             }
             _dispatcher.dispatchMethod(event.getName(), nargs);
         }
@@ -707,11 +708,11 @@ public class PlaceManager
     }
 
     /** Listens for occupant updates. */
-    protected SetAdapter _bodyUpdater = new SetAdapter() {
+    protected SetAdapter<OccupantInfo> _bodyUpdater = new SetAdapter<OccupantInfo>() {
         @Override
-        public void entryUpdated (EntryUpdatedEvent event) {
+        public void entryUpdated (EntryUpdatedEvent<OccupantInfo> event) {
             if (event.getName().equals(PlaceObject.OCCUPANT_INFO)) {
-                bodyUpdated((OccupantInfo)event.getEntry());
+                bodyUpdated(event.getEntry());
             }
         }
     };
@@ -748,7 +749,7 @@ public class PlaceManager
     protected Interval _shutdownInterval;
 
     /** Used to do method lookup magic when we receive message events. */
-    protected DynamicListener _dispatcher;
+    protected DynamicListener<?> _dispatcher;
 
     /** Maps from a PlaceManager subclass to a MethodFinder for it. When there are many many
      * instances of a PlaceManager in existence, having a MethodFinder instance for each gets quite

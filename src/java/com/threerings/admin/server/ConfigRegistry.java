@@ -67,7 +67,6 @@ import static com.threerings.admin.Log.log;
 */
 public abstract class ConfigRegistry
 {
-
     /**
      * Creates a ConfigRegistry that isn't transitioning.
      */
@@ -138,7 +137,7 @@ public abstract class ConfigRegistry
      * Contains all necessary info for a configuration object registration.
      */
     protected abstract class ObjectRecord
-        implements AttributeChangeListener, SetListener, ElementUpdateListener
+        implements AttributeChangeListener, SetListener<DSet.Entry>, ElementUpdateListener
     {
         public DObject object;
 
@@ -150,7 +149,7 @@ public abstract class ConfigRegistry
         public void init ()
         {
             // read in the initial configuration settings from the persistent config repository
-            Class cclass = object.getClass();
+            Class<?> cclass = object.getClass();
             try {
                 Field[] fields = cclass.getFields();
                 for (int ii = 0; ii < fields.length; ii++) {
@@ -172,19 +171,19 @@ public abstract class ConfigRegistry
         }
 
         // from SetListener
-        public void entryAdded (EntryAddedEvent event)
+        public void entryAdded (EntryAddedEvent<DSet.Entry> event)
         {
             serializeAttribute(event.getName());
         }
 
         // from SetListener
-        public void entryUpdated (EntryUpdatedEvent event)
+        public void entryUpdated (EntryUpdatedEvent<DSet.Entry> event)
         {
             serializeAttribute(event.getName());
         }
 
         // from SetListener
-        public void entryRemoved (EntryRemovedEvent event)
+        public void entryRemoved (EntryRemovedEvent<DSet.Entry> event)
         {
             serializeAttribute(event.getName());
         }
@@ -252,7 +251,7 @@ public abstract class ConfigRegistry
         protected void initField (Field field)
         {
             String key = nameToKey(field.getName());
-            Class type = field.getType();
+            Class<?> type = field.getType();
 
             try {
                 if (type.equals(Boolean.TYPE)) {

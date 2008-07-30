@@ -81,7 +81,7 @@ public class PresentsServer
             if (testmod != null) {
                 try {
                     log.info("Invoking test module [mod=" + testmod + "].");
-                    Class tmclass = Class.forName(testmod);
+                    Class<?> tmclass = Class.forName(testmod);
                     Runnable trun = (Runnable)tmclass.newInstance();
                     trun.run();
                 } catch (Exception e) {

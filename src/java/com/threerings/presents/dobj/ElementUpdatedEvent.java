@@ -167,7 +167,7 @@ public class ElementUpdatedEvent extends NamedEvent
             try {
                 // fetch the array field from the object
                 Field field = target.getClass().getField(_name);
-                Class ftype = field.getType();
+                Class<?> ftype = field.getType();
 
                 // sanity check
                 if (!ftype.isArray()) {

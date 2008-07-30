@@ -59,7 +59,7 @@ public class DatagramSequencer
         _uout.writeInt(_lastReceived);
 
         // make sure the mapped class set is clear
-        Set<Class> mappedClasses = _uout.getMappedClasses();
+        Set<Class<?>> mappedClasses = _uout.getMappedClasses();
         mappedClasses.clear();
 
         // write the object
@@ -69,7 +69,7 @@ public class DatagramSequencer
         if (mappedClasses.isEmpty()) {
             mappedClasses = null;
         } else {
-            _uout.setMappedClasses(new HashSet<Class>());
+            _uout.setMappedClasses(new HashSet<Class<?>>());
         }
 
         // record the transmission
@@ -123,9 +123,9 @@ public class DatagramSequencer
 
         /** The set of classes for which mappings were included in the datagram (or
          * <code>null</code> for none). */
-        public Set<Class> mappedClasses;
+        public Set<Class<?>> mappedClasses;
 
-        public SendRecord (int number, Set<Class> mappedClasses)
+        public SendRecord (int number, Set<Class<?>> mappedClasses)
         {
             this.number = number;
             this.mappedClasses = mappedClasses;

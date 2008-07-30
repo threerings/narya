@@ -51,7 +51,7 @@ public class ImportSet
      * Adds the given class' name to the set of imports.
      * @param clazz the class to add
      */
-    public void add (Class clazz)
+    public void add (Class<?> clazz)
     {
         _imports.add(clazz.getName());
     }

@@ -28,7 +28,7 @@ import com.threerings.presents.data.InvocationMarshaller;
 import com.threerings.util.Integer;
 
 /**
- * Provides the implementation of the {@link LocationService} interface
+ * Provides the implementation of the <code>LocationService</code> interface
  * that marshalls the arguments and delivers the request to the provider
  * on the server. Also provides an implementation of the response listener
  * interfaces that marshall the response arguments and deliver them back
@@ -37,7 +37,7 @@ import com.threerings.util.Integer;
 public class LocationMarshaller extends InvocationMarshaller
     implements LocationService
 {
-    /** The method id used to dispatch {@link #leavePlace} requests. */
+    /** The method id used to dispatch <code>leavePlace</code> requests. */
     public static const LEAVE_PLACE :int = 1;
 
     // from interface LocationService
@@ -48,7 +48,7 @@ public class LocationMarshaller extends InvocationMarshaller
         ]);
     }
 
-    /** The method id used to dispatch {@link #moveTo} requests. */
+    /** The method id used to dispatch <code>moveTo</code> requests. */
     public static const MOVE_TO :int = 2;
 
     // from interface LocationService

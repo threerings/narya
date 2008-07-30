@@ -74,7 +74,7 @@ public interface InvocationReceiver
         }
 
         // documentation inherited from interface
-        public Comparable getKey ()
+        public Comparable<?> getKey ()
         {
             return receiverCode;
         }

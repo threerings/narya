@@ -25,6 +25,7 @@ import java.io.OutputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.Map;
 
 import static com.threerings.NaryaLog.log;
 
@@ -71,11 +72,11 @@ public class ObjectOutputStream extends DataOutputStream
 
         // create our classmap if necessary
         if (_classmap == null) {
-            _classmap = new HashMap<Class, ClassMapping>();
+            _classmap = new HashMap<Class<?>, ClassMapping>();
         }
 
         // otherwise, look up the class mapping record
-        Class sclass = Streamer.getStreamerClass(object);
+        Class<?> sclass = Streamer.getStreamerClass(object);
         ClassMapping cmap = _classmap.get(sclass);
 
         // create a class mapping for this class if we've not got one
@@ -108,7 +109,7 @@ public class ObjectOutputStream extends DataOutputStream
     /**
      * Creates and returns a new class mapping.
      */
-    protected ClassMapping createClassMapping (short code, Class sclass, Streamer streamer)
+    protected ClassMapping createClassMapping (short code, Class<?> sclass, Streamer streamer)
     {
         return new ClassMapping(code, sclass, streamer);
     }
@@ -135,7 +136,7 @@ public class ObjectOutputStream extends DataOutputStream
     /**
      * Writes out the mapping for a class.
      */
-    protected void writeClassMapping (int code, Class sclass)
+    protected void writeClassMapping (int code, Class<?> sclass)
         throws IOException
     {
         writeShort(code);
@@ -200,7 +201,7 @@ public class ObjectOutputStream extends DataOutputStream
 
     /** Used to map classes to numeric codes and the {@link Streamer} instance used to write
      * them. */
-    protected HashMap<Class, ClassMapping> _classmap;
+    protected Map<Class<?>, ClassMapping> _classmap;
 
     /** A counter used to assign codes to streamed classes. */
     protected short _nextCode = 1;
@@ -212,5 +213,5 @@ public class ObjectOutputStream extends DataOutputStream
     protected Streamer _streamer;
 
     /** An optional set of class name translations to use when serializing objects. */
-    protected HashMap<String, String> _translations;
+    protected Map<String, String> _translations;
 }

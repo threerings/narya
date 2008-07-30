@@ -989,7 +989,7 @@ public abstract class PeerManager
      * Handles a lock in a state of resolution.
      */
     protected class LockHandler
-        implements SetListener
+        implements SetListener<NodeObject.Lock>
     {
         /** Listeners waiting for resolution. */
         public ResultListenerList<String> listeners = new ResultListenerList<String>();
@@ -1116,7 +1116,7 @@ public abstract class PeerManager
         }
 
         // documentation inherited from interface SetListener
-        public void entryAdded (EntryAddedEvent event)
+        public void entryAdded (EntryAddedEvent<NodeObject.Lock> event)
         {
             if (_acquire && event.getName().equals(NodeObject.LOCKS) &&
                 event.getEntry().equals(_lock)) {
@@ -1125,7 +1125,7 @@ public abstract class PeerManager
         }
 
         // documentation inherited from interface SetListener
-        public void entryRemoved (EntryRemovedEvent event)
+        public void entryRemoved (EntryRemovedEvent<NodeObject.Lock> event)
         {
             if (!_acquire && event.getName().equals(NodeObject.LOCKS) &&
                 event.getOldEntry().equals(_lock)) {
@@ -1134,7 +1134,7 @@ public abstract class PeerManager
         }
 
         // documentation inherited from interface SetListener
-        public void entryUpdated (EntryUpdatedEvent event)
+        public void entryUpdated (EntryUpdatedEvent<NodeObject.Lock> event)
         {
             if (!_acquire && event.getName().equals(NodeObject.LOCKS) &&
                 event.getEntry().equals(_lock)) {

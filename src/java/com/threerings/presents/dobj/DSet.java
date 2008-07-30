@@ -63,7 +63,7 @@ public class DSet<E extends DSet.Entry>
          * Each entry provide an associated key which is used to determine its uniqueness in the
          * set. See the {@link DSet} class documentation for further information.
          */
-        Comparable getKey ();
+        Comparable<?> getKey ();
     }
 
     /**
@@ -80,6 +80,17 @@ public class DSet<E extends DSet.Entry>
     public static <E extends DSet.Entry> DSet<E> newDSet (Iterable<E> source)
     {
         return new DSet<E>(source);
+    }
+
+    /**
+     * Compares the first comparable to the second. This is useful to avoid type safety warnings 
+     * when dealing with the keys of {@link DSet.Entry} values.
+     */
+    public static int compare (Comparable<?> c1, Comparable<?> c2)
+    {
+        @SuppressWarnings("unchecked") Comparable<Object> cc1 = (Comparable<Object>)c1;
+        @SuppressWarnings("unchecked") Comparable<Object> cc2 = (Comparable<Object>)c2;
+        return cc1.compareTo(cc2);
     }
 
     /**
@@ -161,7 +172,7 @@ public class DSet<E extends DSet.Entry>
      * Returns true if an entry in the set has a key that <code>equals()</code> the supplied
      * key. Returns false otherwise.
      */
-    public boolean containsKey (Comparable key)
+    public boolean containsKey (Comparable<?> key)
     {
         return get(key) != null;
     }
@@ -170,7 +181,7 @@ public class DSet<E extends DSet.Entry>
      * Returns the entry that matches (<code>getKey().equals(key)</code>) the specified key or null
      * if no entry could be found that matches the key.
      */
-    public E get (Comparable key)
+    public E get (Comparable<?> key)
     {
         // determine where we'll be adding the new element
         int eidx = ArrayUtil.binarySearch(_entries, 0, _size, new KeyWrapper(key), ENTRY_COMP);
@@ -325,7 +336,7 @@ public class DSet<E extends DSet.Entry>
      *
      * @return the old matching entry if found and removed, null if not found.
      */
-    protected E removeKey (Comparable key)
+    protected E removeKey (Comparable<?> key)
     {
         // don't fail, but generate a warning if we're passed a null key
         if (key == null) {
@@ -461,13 +472,13 @@ public class DSet<E extends DSet.Entry>
     /** Used to search for keys. */
     protected static class KeyWrapper implements DSet.Entry
     {
-        public KeyWrapper (Comparable key) {
+        public KeyWrapper (Comparable<?> key) {
             _key = key;
         }
-        public Comparable getKey () {
+        public Comparable<?> getKey () {
             return _key;
         }
-        protected Comparable _key;
+        protected Comparable<?> _key;
     }
 
     /** The entries of the set (in a sparse array). */
@@ -485,8 +496,7 @@ public class DSet<E extends DSet.Entry>
     /** Used for lookups and to keep the set contents sorted on insertions. */
     protected static Comparator<Entry> ENTRY_COMP = new Comparator<Entry>() {
         public int compare (Entry e1, Entry e2) {
-            @SuppressWarnings("unchecked") int val = e1.getKey().compareTo(e2.getKey());
-            return val;
+            return DSet.compare(e1.getKey(), e2.getKey());
         }
     };
 }

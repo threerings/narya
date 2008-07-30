@@ -21,8 +21,9 @@
 
 package com.threerings.util;
 
-import java.util.HashMap;
 import java.util.Map;
+
+import com.google.common.collect.Maps;
 
 import com.samskivert.util.Tuple;
 
@@ -56,7 +57,7 @@ public class TrackedObject
     /** Records that this object came into existence. */
     protected final void incrementInstanceCount ()
     {
-        Class clazz = getClass();
+        Class<?> clazz = getClass();
         synchronized (_map) {
             int[] count = _map.get(clazz);
             if (count == null) {
@@ -71,7 +72,7 @@ public class TrackedObject
     protected void finalize ()
         throws Throwable
     {
-        Class clazz = getClass();
+        Class<?> clazz = getClass();
         synchronized (_map) {
             int[] count = _map.get(clazz);
             if (count != null) {
@@ -90,23 +91,23 @@ public class TrackedObject
      * instances and an <code>int[]</code> array that represent the number
      * of outstanding instance of all {@link TrackedObject}s in the VM.
      */
-    public static Tuple<Class[], int[]> getSnapshot ()
+    public static Tuple<Class<?>[], int[]> getSnapshot ()
     {
-        Class[] classes = null;
+        Class<?>[] classes = null;
         int[] counts = null;
         synchronized (_map) {
             classes = new Class[_map.size()];
             counts = new int[_map.size()];
             int idx = 0;
-            for (Map.Entry<Class, int[]> entry : _map.entrySet()) {
+            for (Map.Entry<Class<?>, int[]> entry : _map.entrySet()) {
                 classes[idx] = entry.getKey();
                 counts[idx] = entry.getValue()[0];
                 idx++;
             }
         }
-        return new Tuple<Class[], int[]>(classes, counts);
+        return new Tuple<Class<?>[], int[]>(classes, counts);
     }
 
     /** Tracks a mapping from {@link Class} object to active count. */
-    protected static HashMap<Class, int[]> _map = new HashMap<Class, int[]>();
+    protected static Map<Class<?>, int[]> _map = Maps.newHashMap();
 }

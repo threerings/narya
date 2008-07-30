@@ -30,7 +30,7 @@ import com.threerings.presents.data.InvocationMarshaller_ListenerMarshaller;
 public class LocationMarshaller_MoveMarshaller
     extends InvocationMarshaller_ListenerMarshaller
 {
-    /** The method id used to dispatch {@link #moveSucceeded} responses. */
+    /** The method id used to dispatch <code>moveSucceeded</code> responses. */
     public static const MOVE_SUCCEEDED :int = 1;
 
     // from InvocationMarshaller_ListenerMarshaller

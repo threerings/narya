@@ -113,8 +113,8 @@ public class Name extends SimpleStreamableObject
     public boolean equals (Object other)
     {
         if (other != null) {
-            Class c = getClass();
-            Class oc = other.getClass();
+            Class<?> c = getClass();
+            Class<?> oc = other.getClass();
             // we have to be of the same derived class but we don't want to
             // wig out if the classes were loaded from different class loaders
             if (c == oc || c.getName().equals(oc.getName())) {

@@ -139,7 +139,7 @@ public class ClientObject extends DObject
      * the <code>receivers</code> set. The set will not change until the
      * event is actually propagated through the system.
      */
-    public void removeFromReceivers (Comparable key)
+    public void removeFromReceivers (Comparable<?> key)
     {
         requestEntryRemove(RECEIVERS, receivers, key);
     }
@@ -167,8 +167,7 @@ public class ClientObject extends DObject
     public void setReceivers (DSet<InvocationReceiver.Registration> value)
     {
         requestAttributeChange(RECEIVERS, value, this.receivers);
-        @SuppressWarnings("unchecked") DSet<InvocationReceiver.Registration> clone =
-            (value == null) ? null : value.typedClone();
+        DSet<InvocationReceiver.Registration> clone = (value == null) ? null : value.typedClone();
         this.receivers = clone;
     }
     // AUTO-GENERATED: METHODS END

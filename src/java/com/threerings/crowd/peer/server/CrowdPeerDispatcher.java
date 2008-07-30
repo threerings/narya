@@ -49,7 +49,6 @@ public class CrowdPeerDispatcher extends InvocationDispatcher<CrowdPeerMarshalle
         return new CrowdPeerMarshaller();
     }
 
-    @SuppressWarnings("unchecked")
     @Override // documentation inherited
     public void dispatchRequest (
         ClientObject source, int methodId, Object[] args)

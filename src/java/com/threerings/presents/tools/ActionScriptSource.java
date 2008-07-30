@@ -184,7 +184,7 @@ public class ActionScriptSource
         return builder.toString();
     }
 
-    public static String createActionScriptDeclaration (Constructor ctor, boolean needsNoArg)
+    public static String createActionScriptDeclaration (Constructor<?> ctor, boolean needsNoArg)
     {
         int mods = ctor.getModifiers();
         StringBuilder builder = new StringBuilder();
@@ -262,7 +262,7 @@ public class ActionScriptSource
         return builder.toString();
     }
 
-    public static String toActionScriptType (Class type, boolean isField)
+    public static String toActionScriptType (Class<?> type, boolean isField)
     {
         if (type.isArray()) {
             if (Byte.TYPE.equals(type.getComponentType())) {
@@ -294,11 +294,11 @@ public class ActionScriptSource
         return toSimpleName(type.getName());
     }
 
-    public ActionScriptSource (Class jclass)
+    public ActionScriptSource (Class<?> jclass)
     {
         packageName = jclass.getPackage().getName();
         className = jclass.getName().substring(packageName.length()+1);
-        Class sclass = jclass.getSuperclass();
+        Class<?> sclass = jclass.getSuperclass();
         if (sclass != null && !sclass.getName().equals("java.lang.Object")) {
             superClassName = toSimpleName(sclass.getName());
         }
@@ -306,7 +306,7 @@ public class ActionScriptSource
 
         // note our implemented interfaces
         ArrayList<String> ifaces = new ArrayList<String>();
-        for (Class iclass : jclass.getInterfaces()) {
+        for (Class<?> iclass : jclass.getInterfaces()) {
             // we cannot use the FooCodes interface pattern in ActionScript so we just nix it
             if (iclass.getName().endsWith("Codes")) {
                 continue;

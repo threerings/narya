@@ -202,7 +202,7 @@ public abstract class DEvent implements Streamable
     /** Used to differentiate between null meaning we haven't initialized our old entry and null
      * being the actual old entry. */
     protected static final DSet.Entry UNSET_OLD_ENTRY = new DSet.Entry() {
-        public Comparable getKey () {
+        public Comparable<?> getKey () {
             return null;
         }
     };

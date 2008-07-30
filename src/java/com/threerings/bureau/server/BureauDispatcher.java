@@ -46,7 +46,6 @@ public class BureauDispatcher extends InvocationDispatcher<BureauMarshaller>
         return new BureauMarshaller();
     }
 
-    @SuppressWarnings("unchecked")
     @Override // documentation inherited
     public void dispatchRequest (
         ClientObject source, int methodId, Object[] args)

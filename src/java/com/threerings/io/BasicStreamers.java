@@ -35,7 +35,7 @@ import java.util.RandomAccess;
 public class BasicStreamers
 {
     /** An array of types for all of the basic streamers. */
-    public static Class[] BSTREAMER_TYPES = {
+    public static Class<?>[] BSTREAMER_TYPES = {
         Boolean.class,
         Byte.class,
         Short.class,
@@ -419,7 +419,7 @@ public class BasicStreamers
         public void writeObject (Object object, ObjectOutputStream out, boolean useWriter)
             throws IOException
         {
-            writeList(out, (List)object);
+            writeList(out, (List<?>)object);
         }
     }
 
@@ -538,7 +538,7 @@ public class BasicStreamers
         return value;
     }
 
-    public static ArrayList readList (ObjectInputStream ins)
+    public static ArrayList<?> readList (ObjectInputStream ins)
         throws IOException, ClassNotFoundException
     {
         int ecount = ins.readInt();
@@ -637,7 +637,7 @@ public class BasicStreamers
         }
     }
 
-    public static void writeList (ObjectOutputStream out, List value)
+    public static void writeList (ObjectOutputStream out, List<?> value)
         throws IOException
     {
         int ecount = value.size();

@@ -29,7 +29,7 @@ public class UnreliableObjectOutputStream extends ObjectOutputStream
      * Sets the reference to the set that will hold the classes for which mappings have been
      * written.
      */
-    public void setMappedClasses (Set<Class> mappedClasses)
+    public void setMappedClasses (Set<Class<?>> mappedClasses)
     {
         _mappedClasses = mappedClasses;
     }
@@ -37,7 +37,7 @@ public class UnreliableObjectOutputStream extends ObjectOutputStream
     /**
      * Returns a reference to the set of classes for which mappings have been written.
      */
-    public Set<Class> getMappedClasses ()
+    public Set<Class<?>> getMappedClasses ()
     {
         return _mappedClasses;
     }
@@ -46,7 +46,7 @@ public class UnreliableObjectOutputStream extends ObjectOutputStream
      * Notes that the receiver has received the mappings for a group of classes, and thus that from
      * now on, only the class codes need be sent.
      */
-    public void noteMappingsReceived (Collection<Class> sclasses)
+    public void noteMappingsReceived (Collection<Class<?>> sclasses)
     {
         // sanity check
         if (_classmap == null) {
@@ -54,7 +54,7 @@ public class UnreliableObjectOutputStream extends ObjectOutputStream
         }
 
         // make each class's code positive to signify that we no longer need to send metadata
-        for (Class sclass : sclasses) {
+        for (Class<?> sclass : sclasses) {
             ClassMapping cmap = _classmap.get(sclass);
             if (cmap == null) {
                 throw new RuntimeException("No class mapping for " + sclass.getName());
@@ -64,7 +64,7 @@ public class UnreliableObjectOutputStream extends ObjectOutputStream
     }
 
     @Override // documentation inherited
-    protected ClassMapping createClassMapping (short code, Class sclass, Streamer streamer)
+    protected ClassMapping createClassMapping (short code, Class<?> sclass, Streamer streamer)
     {
         // the negative class code indicates that we must rewrite the metadata for the first
         // instance in each go-round; when we are notified that the other side has cached the
@@ -98,7 +98,7 @@ public class UnreliableObjectOutputStream extends ObjectOutputStream
     }
 
     @Override // documentation inherited
-    protected void writeClassMapping (int code, Class sclass)
+    protected void writeClassMapping (int code, Class<?> sclass)
         throws IOException
     {
         super.writeClassMapping(code, sclass);
@@ -108,5 +108,5 @@ public class UnreliableObjectOutputStream extends ObjectOutputStream
     }
 
     /** The set of classes for which we have written mappings. */
-    protected Set<Class> _mappedClasses = new HashSet<Class>();
+    protected Set<Class<?>> _mappedClasses = new HashSet<Class<?>>();
 }

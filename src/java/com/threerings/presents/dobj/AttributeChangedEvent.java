@@ -131,7 +131,7 @@ public class AttributeChangedEvent extends NamedEvent
             _oldValue = target.getAttribute(_name);
             Object value = _value;
             if (value != null) {
-                Class vclass = value.getClass();
+                Class<?> vclass = value.getClass();
                 if (vclass.isPrimitive()) {
                     // do nothing; we check this to avoid the more expensive isAssignableFrom check
                     // on primitives which are far and away the most common case
@@ -141,7 +141,7 @@ public class AttributeChangedEvent extends NamedEvent
                     System.arraycopy(value, 0, clone, 0, length);
                     value = clone;
                 } else if (DSet.class.isAssignableFrom(vclass)) {
-                    value = ((DSet)value).clone();
+                    value = ((DSet<?>)value).clone();
                 }
             }
             // pass the new value on to the object

@@ -44,7 +44,7 @@ public class EntryRemovedEvent<T extends DSet.Entry> extends NamedEvent
      * @param key the entry key that identifies the entry to remove.
      * @param oldEntry the previous value of the entry.
      */
-    public EntryRemovedEvent (int targetOid, String name, Comparable key, T oldEntry)
+    public EntryRemovedEvent (int targetOid, String name, Comparable<?> key, T oldEntry)
     {
         super(targetOid, name);
         _key = key;
@@ -62,7 +62,7 @@ public class EntryRemovedEvent<T extends DSet.Entry> extends NamedEvent
     /**
      * Returns the key that identifies the entry that has been removed.
      */
-    public Comparable getKey ()
+    public Comparable<?> getKey ()
     {
         return _key;
     }
@@ -115,7 +115,7 @@ public class EntryRemovedEvent<T extends DSet.Entry> extends NamedEvent
         buf.append(", key=").append(_key);
     }
 
-    protected Comparable _key;
+    protected Comparable<?> _key;
 
     @SuppressWarnings("unchecked")
     protected transient T _oldEntry = (T)UNSET_OLD_ENTRY;

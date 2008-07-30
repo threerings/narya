@@ -26,7 +26,7 @@ import com.threerings.presents.client.TimeBaseService;
 import com.threerings.presents.client.TimeBaseService_GotTimeBaseListener;
 
 /**
- * Provides the implementation of the {@link TimeBaseService} interface
+ * Provides the implementation of the <code>TimeBaseService</code> interface
  * that marshalls the arguments and delivers the request to the provider
  * on the server. Also provides an implementation of the response listener
  * interfaces that marshall the response arguments and deliver them back
@@ -35,7 +35,7 @@ import com.threerings.presents.client.TimeBaseService_GotTimeBaseListener;
 public class TimeBaseMarshaller extends InvocationMarshaller
     implements TimeBaseService
 {
-    /** The method id used to dispatch {@link #getTimeOid} requests. */
+    /** The method id used to dispatch <code>getTimeOid</code> requests. */
     public static const GET_TIME_OID :int = 1;
 
     // from interface TimeBaseService

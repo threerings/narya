@@ -95,7 +95,7 @@ public class GenActionScriptBundlesTask extends Task
         if (true) {
             // create an array with all the values, then populate in a loop
             out.println("        var data :Array = [");
-            for (Map.Entry entry : props.entrySet()) {
+            for (Map.Entry<Object, Object> entry : props.entrySet()) {
                 String key = saveConvert((String) entry.getKey());
                 String val = saveConvert((String) entry.getValue());
                 out.println("            \"" + key + "\", \"" + val + "\",");
@@ -110,7 +110,7 @@ public class GenActionScriptBundlesTask extends Task
             // alternate impl: just set each value directly. For non-trivial
             // resource bundles, this generates a larger class after compilation
             out.println("        var o :Object = new Object();");
-            for (Map.Entry entry : props.entrySet()) {
+            for (Map.Entry<Object, Object> entry : props.entrySet()) {
                 String key = saveConvert((String) entry.getKey());
                 String val = saveConvert((String) entry.getValue());
                 out.println("        o[\"" + key + "\"] = \"" + val + "\";");

@@ -78,7 +78,7 @@ public class PresentsInvoker extends Invoker
             for (Object key : _tracker.keySet()) {
                 UnitProfile profile = _tracker.get(key);
                 if (key instanceof Class) {
-                    key = StringUtil.shortClassName((Class)key);
+                    key = StringUtil.shortClassName((Class<?>)key);
                 }
                 buf.append("  ").append(key).append(" ");
                 buf.append(profile).append("\n");

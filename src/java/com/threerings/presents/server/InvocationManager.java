@@ -196,7 +196,7 @@ public class InvocationManager
      * @return the Class, or null if no dispatcher is registered with
      * the specified code.
      */
-    public Class getDispatcherClass (int invCode)
+    public Class<?> getDispatcherClass (int invCode)
     {
         Object dispatcher = _dispatchers.get(invCode);
         return (dispatcher == null) ? null : dispatcher.getClass();
@@ -233,7 +233,7 @@ public class InvocationManager
         }
 
         // look up the dispatcher
-        InvocationDispatcher disp = _dispatchers.get(invCode);
+        InvocationDispatcher<?> disp = _dispatchers.get(invCode);
         if (disp == null) {
             log.info("Received invocation request but dispatcher " +
                      "registration was already cleared [code=" + invCode +
@@ -317,7 +317,7 @@ public class InvocationManager
     protected PresentsDObjectMgr _omgr;
 
     /** A table of invocation dispatchers each mapped by a unique code. */
-    protected IntMap<InvocationDispatcher> _dispatchers = IntMaps.newHashIntMap();
+    protected IntMap<InvocationDispatcher<?>> _dispatchers = IntMaps.newHashIntMap();
 
     /** Maps bootstrap group to lists of services to be provided to clients at boot time. */
     protected Map<String, List<InvocationMarshaller>> _bootlists = Maps.newHashMap();

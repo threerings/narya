@@ -25,7 +25,9 @@ import java.lang.reflect.Field;
 
 import java.util.Arrays;
 import java.util.Comparator;
-import java.util.HashMap;
+import java.util.Map;
+
+import com.google.common.collect.Maps;
 
 import com.samskivert.util.ListUtil;
 import com.samskivert.util.StringUtil;
@@ -151,7 +153,7 @@ public class DObject
      *
      * @see DObjectManager#subscribeToObject
      */
-    public void addSubscriber (Subscriber sub)
+    public void addSubscriber (Subscriber<?> sub)
     {
         // only add the subscriber if they're not already there
         Object[] subs = ListUtil.testAndAddRef(_subs, sub);
@@ -175,7 +177,7 @@ public class DObject
      *
      * @see DObjectManager#unsubscribeFromObject
      */
-    public void removeSubscriber (Subscriber sub)
+    public void removeSubscriber (Subscriber<?> sub)
     {
         if (ListUtil.clearRef(_subs, sub) != null) {
             // if we removed something, check to see if we just removed the last subscriber from
@@ -291,7 +293,7 @@ public class DObject
     /**
      * Request to have the specified key removed from the specified DSet.
      */
-    public void removeFromSet (String setName, Comparable key)
+    public void removeFromSet (String setName, Comparable<?> key)
     {
         requestEntryRemove(setName, getSet(setName), key);
     }
@@ -377,7 +379,7 @@ public class DObject
      *
      * @return true if the subscriber has access to the object, false if they do not.
      */
-    public boolean checkPermissions (Subscriber sub)
+    public boolean checkPermissions (Subscriber<?> sub)
     {
         if (_controller != null) {
             return _controller.allowSubscribe(this, sub);
@@ -814,7 +816,7 @@ public class DObject
      * Calls by derived instances when a set remover method was called.
      */
     protected <T extends DSet.Entry> void requestEntryRemove (
-        String name, DSet<T> set, Comparable key)
+        String name, DSet<T> set, Comparable<?> key)
     {
         // if we're on the authoritative server, we update the set immediately
         T oldEntry = null;
@@ -913,7 +915,7 @@ public class DObject
     protected transient boolean _deathWish = false;
 
     /** Maintains a mapping of sorted field arrays for each distributed object class. */
-    protected static HashMap<Class, Field[]> _ftable = new HashMap<Class, Field[]>();
+    protected static Map<Class<?>, Field[]> _ftable = Maps.newHashMap();
 
     /** Used to sort and search {@link #_fields}. */
     protected static final Comparator<Field> FIELD_COMP = new Comparator<Field>() {

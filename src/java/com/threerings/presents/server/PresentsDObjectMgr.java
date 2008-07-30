@@ -402,7 +402,7 @@ public class PresentsDObjectMgr
 
         // if this object has any oid list fields that are still referencing other objects, we need
         // to clear out those references
-        Class oclass = target.getClass();
+        Class<?> oclass = target.getClass();
         Field[] fields = oclass.getFields();
         for (int f = 0; f < fields.length; f++) {
             Field field = fields[f];
@@ -626,7 +626,7 @@ public class PresentsDObjectMgr
                 cname = StringUtil.shortClassName(ival);
             } else if (unit instanceof InvocationRequestEvent) {
                 InvocationRequestEvent ire = (InvocationRequestEvent)unit;
-                Class c = _invmgr.getDispatcherClass(ire.getInvCode());
+                Class<?> c = _invmgr.getDispatcherClass(ire.getInvCode());
                 cname = (c == null) ? "dobj.InvocationRequestEvent:(no longer registered)" :
                     StringUtil.shortClassName(c) + ":" + ire.getMethodId();
             } else {
@@ -645,7 +645,7 @@ public class PresentsDObjectMgr
      */
     protected void processCompoundEvent (CompoundEvent event)
     {
-        List events = event.getEvents();
+        List<DEvent> events = event.getEvents();
         int ecount = events.size();
 
         // look up the target object
@@ -657,7 +657,7 @@ public class PresentsDObjectMgr
 
         // check the permissions on all of the events
         for (int ii = 0; ii < ecount; ii++) {
-            DEvent sevent = (DEvent)events.get(ii);
+            DEvent sevent = events.get(ii);
             if (!target.checkPermissions(sevent)) {
                 log.warning("Event failed permissions check [event=" + sevent +
                             ", target=" + target + "].");
@@ -667,7 +667,7 @@ public class PresentsDObjectMgr
 
         // dispatch the events
         for (int ii = 0; ii < ecount; ii++) {
-            dispatchEvent((DEvent)events.get(ii), target);
+            dispatchEvent(events.get(ii), target);
         }
 
         // always notify proxies of compound events
@@ -810,7 +810,7 @@ public class PresentsDObjectMgr
      */
     protected void registerEventHelpers ()
     {
-        Class[] ptypes = new Class[] { DEvent.class, DObject.class };
+        Class<?>[] ptypes = new Class<?>[] { DEvent.class, DObject.class };
         Method method;
 
         try {
@@ -1030,7 +1030,7 @@ public class PresentsDObjectMgr
     protected Stats _recent = new Stats(), _current = _recent;
 
     /** Maps event classes to helpers that perform additional processing for particular events. */
-    protected Map<Class, Method> _helpers = Maps.newHashMap();
+    protected Map<Class<?>, Method> _helpers = Maps.newHashMap();
 
     /** Used to resolve unit names when profiling. Injected by the invmgr when it's created. */
     protected InvocationManager _invmgr;

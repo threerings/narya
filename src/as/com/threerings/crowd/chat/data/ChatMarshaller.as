@@ -30,7 +30,7 @@ import com.threerings.presents.data.InvocationMarshaller_ListenerMarshaller;
 import com.threerings.util.Name;
 
 /**
- * Provides the implementation of the {@link ChatService} interface
+ * Provides the implementation of the <code>ChatService</code> interface
  * that marshalls the arguments and delivers the request to the provider
  * on the server. Also provides an implementation of the response listener
  * interfaces that marshall the response arguments and deliver them back
@@ -39,7 +39,7 @@ import com.threerings.util.Name;
 public class ChatMarshaller extends InvocationMarshaller
     implements ChatService
 {
-    /** The method id used to dispatch {@link #away} requests. */
+    /** The method id used to dispatch <code>away</code> requests. */
     public static const AWAY :int = 1;
 
     // from interface ChatService
@@ -50,7 +50,7 @@ public class ChatMarshaller extends InvocationMarshaller
         ]);
     }
 
-    /** The method id used to dispatch {@link #broadcast} requests. */
+    /** The method id used to dispatch <code>broadcast</code> requests. */
     public static const BROADCAST :int = 2;
 
     // from interface ChatService
@@ -63,7 +63,7 @@ public class ChatMarshaller extends InvocationMarshaller
         ]);
     }
 
-    /** The method id used to dispatch {@link #tell} requests. */
+    /** The method id used to dispatch <code>tell</code> requests. */
     public static const TELL :int = 3;
 
     // from interface ChatService

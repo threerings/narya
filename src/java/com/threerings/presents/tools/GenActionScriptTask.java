@@ -246,7 +246,7 @@ public class GenActionScriptTask extends Task
         return !Modifier.isStatic(mods) && !Modifier.isTransient(mods);
     }
 
-    protected String toReadObject (Class type)
+    protected String toReadObject (Class<?> type)
     {
         if (type.equals(String.class)) {
             return "(ins.readField(String) as String)";
@@ -296,7 +296,7 @@ public class GenActionScriptTask extends Task
         }
     }
 
-    protected String toWriteObject (Class type, String name)
+    protected String toWriteObject (Class<?> type, String name)
     {
         if (type.equals(Integer.class)) {
             return "writeObject(new Integer(" + name + "))";

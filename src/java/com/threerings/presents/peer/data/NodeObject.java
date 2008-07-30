@@ -65,13 +65,13 @@ public class NodeObject extends DObject
         public String type;
 
         /** The resource identifier, which can be <code>null</code> for singleton resources. */
-        public Comparable id;
+        public Comparable<?> id;
 
         public Lock ()
         {
         }
 
-        public Lock (String type, Comparable id)
+        public Lock (String type, Comparable<?> id)
         {
             this.type = type;
             this.id = id;
@@ -84,12 +84,11 @@ public class NodeObject extends DObject
             if (v1 != 0 || id == null) {
                 return v1;
             }
-            @SuppressWarnings("unchecked") int v2 = id.compareTo(olock.id);
-            return v2;
+            return DSet.compare(id, olock.id);
         }
 
         // documentation inherited from interface DSet.Entry
-        public Comparable getKey ()
+        public Comparable<?> getKey ()
         {
             return this;
         }
@@ -197,7 +196,7 @@ public class NodeObject extends DObject
      * the <code>clients</code> set. The set will not change until the
      * event is actually propagated through the system.
      */
-    public void removeFromClients (Comparable key)
+    public void removeFromClients (Comparable<?> key)
     {
         requestEntryRemove(CLIENTS, clients, key);
     }
@@ -225,8 +224,7 @@ public class NodeObject extends DObject
     public void setClients (DSet<ClientInfo> value)
     {
         requestAttributeChange(CLIENTS, value, this.clients);
-        @SuppressWarnings("unchecked") DSet<ClientInfo> clone =
-            (value == null) ? null : value.typedClone();
+        DSet<ClientInfo> clone = (value == null) ? null : value.typedClone();
         this.clients = clone;
     }
 
@@ -245,7 +243,7 @@ public class NodeObject extends DObject
      * the <code>locks</code> set. The set will not change until the
      * event is actually propagated through the system.
      */
-    public void removeFromLocks (Comparable key)
+    public void removeFromLocks (Comparable<?> key)
     {
         requestEntryRemove(LOCKS, locks, key);
     }
@@ -273,8 +271,7 @@ public class NodeObject extends DObject
     public void setLocks (DSet<NodeObject.Lock> value)
     {
         requestAttributeChange(LOCKS, value, this.locks);
-        @SuppressWarnings("unchecked") DSet<NodeObject.Lock> clone =
-            (value == null) ? null : value.typedClone();
+        DSet<NodeObject.Lock> clone = (value == null) ? null : value.typedClone();
         this.locks = clone;
     }
 

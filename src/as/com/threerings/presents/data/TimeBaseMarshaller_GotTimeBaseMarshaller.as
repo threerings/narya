@@ -29,7 +29,7 @@ import com.threerings.presents.client.TimeBaseService_GotTimeBaseListener;
 public class TimeBaseMarshaller_GotTimeBaseMarshaller
     extends InvocationMarshaller_ListenerMarshaller
 {
-    /** The method id used to dispatch {@link #gotTimeOid} responses. */
+    /** The method id used to dispatch <code>gotTimeOid</code> responses. */
     public static const GOT_TIME_OID :int = 1;
 
     // from InvocationMarshaller_ListenerMarshaller

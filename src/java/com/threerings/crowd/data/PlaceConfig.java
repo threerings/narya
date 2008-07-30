@@ -52,7 +52,7 @@ public abstract class PlaceConfig extends SimpleStreamableObject
      * @deprecated Override {@link #createController} directly.
      */
     @Deprecated
-    public Class getControllerClass ()
+    public Class<?> getControllerClass ()
     {
         return null;
     }
@@ -62,7 +62,7 @@ public abstract class PlaceConfig extends SimpleStreamableObject
      */
     public PlaceController createController ()
     {
-        Class cclass = getControllerClass();
+        Class<?> cclass = getControllerClass();
         if (cclass == null) {
             throw new RuntimeException(
                 "PlaceConfig.createController() must be overridden.");

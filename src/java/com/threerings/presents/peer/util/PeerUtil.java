@@ -52,13 +52,13 @@ public class PeerUtil
         S createProviderProxy (Class<S> clazz, final T svc, final Client client)
     {
         return clazz.cast(Proxy.newProxyInstance(
-            clazz.getClassLoader(), new Class[] { clazz },
+            clazz.getClassLoader(), new Class<?>[] { clazz },
             new InvocationHandler() {
                 public Object invoke (Object proxy, Method method, Object[] args)
                     throws Throwable {
                     Method smethod = _pmethods.get(method);
                     if (smethod == null) {
-                        Class[] ptypes = method.getParameterTypes();
+                        Class<?>[] ptypes = method.getParameterTypes();
                         ptypes[0] = Client.class;
                         _pmethods.put(method, smethod = svc.getClass().getMethod(
                             method.getName(), ptypes));

@@ -80,7 +80,7 @@ public class ChatDirector extends BasicDirector
         /**
          * Called when the list of chatters has been changed.
          */
-        void chattersUpdated (Iterator chatternames);
+        void chattersUpdated (Iterator<Name> chatternames);
     }
 
     /**

@@ -43,10 +43,11 @@ public class CrowdObjectAccess
     public static AccessController PLACE = new AccessController()
     {
         // documentation inherited from interface
-        public boolean allowSubscribe (DObject object, Subscriber sub)
+        public boolean allowSubscribe (DObject object, Subscriber<?> sub)
         {
-            if (sub instanceof CrowdClient) {
-                ClientObject co = ((CrowdClient)sub).getClientObject();
+            if (CrowdClient.class.isInstance(sub)) {
+                @SuppressWarnings("unchecked") ClientObject co =
+                    ((CrowdClient)sub).getClientObject();
                 return ((PlaceObject)object).occupants.contains(co.getOid());
             }
             return true;

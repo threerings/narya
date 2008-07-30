@@ -166,7 +166,7 @@ public class ObjectInputStream extends DataInputStream
         throws IOException, ClassNotFoundException
     {
         // resolve the class and streamer
-        Class sclass = Class.forName(cname, true, _loader);
+        Class<?> sclass = Class.forName(cname, true, _loader);
         Streamer streamer = Streamer.getStreamer(sclass);
         if (STREAM_DEBUG) {
             log.info(hashCode() + ": New class '" + cname + "' [code=" + code + "].");
