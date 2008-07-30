@@ -5,7 +5,7 @@ import $import;
 #end
 
 /**
- * Provides the implementation of the {@link ${name}Service} interface
+ * Provides the implementation of the <code>${name}Service</code> interface
  * that marshalls the arguments and delivers the request to the provider
  * on the server. Also provides an implementation of the response listener
  * interfaces that marshall the response arguments and deliver them back
@@ -18,7 +18,7 @@ public class ${name}Marshaller extends InvocationMarshaller
 #if ($velocityCount > 1)
 
 #end
-    /** The method id used to dispatch {@link #$m.method.name} requests. */
+    /** The method id used to dispatch <code>$m.method.name</code> requests. */
     public static const $m.code :int = $velocityCount;
 
     // from interface ${name}Service

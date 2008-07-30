@@ -11,7 +11,7 @@ public class ${name}Marshaller_${listener.name}Marshaller
     extends InvocationMarshaller_ListenerMarshaller
 {
 #foreach ($lm in $listener.methods)
-    /** The method id used to dispatch {@link #$lm.method.name} responses. */
+    /** The method id used to dispatch <code>$lm.method.name</code> responses. */
     public static const $lm.code :int = $velocityCount;
 
 #end
