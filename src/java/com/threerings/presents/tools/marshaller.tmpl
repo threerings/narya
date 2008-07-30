@@ -16,7 +16,7 @@ public class ${name}Marshaller extends InvocationMarshaller
 {
 #foreach ($l in $listeners)
     /**
-     * Marshalls results to implementations of {@link ${l.name}Listener}.
+     * Marshalls results to implementations of {@link ${name}Service.${l.name}Listener}.
      */
     public static class ${l.name}Marshaller extends ListenerMarshaller
         implements ${l.name}Listener
