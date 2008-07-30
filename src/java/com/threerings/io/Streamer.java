@@ -32,9 +32,10 @@ import java.security.PrivilegedExceptionAction;
 import java.security.PrivilegedActionException;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+
+import com.google.common.collect.Lists;
 
 import com.samskivert.util.ClassUtil;
 import com.samskivert.util.Predicate;
@@ -459,7 +460,7 @@ public class Streamer
         }
 
         // reflect on all the object's fields and remove all marked with NotStreamable
-        ArrayList<Field> fieldList = new ArrayList<Field>();
+        List<Field> fieldList = Lists.newArrayList();
         ClassUtil.getFields(target, fieldList);
         _isStreamableFieldPred.filter(fieldList);
         _fields = fieldList.toArray(new Field[fieldList.size()]);
