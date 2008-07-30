@@ -75,7 +75,7 @@ public class PresentsObjectAccess
             boolean allowed = true;
             // if the subscriber is a client, ensure that they are this same user
             if (PresentsClient.class.isInstance(sub)) {
-                @SuppressWarnings("unchecked") PresentsClient client = (PresentsClient)sub;
+                PresentsClient client = PresentsClient.class.cast(sub);
                 allowed = (client.getClientObject() == object);
                 if (!allowed) {
                     log.warning("Refusing ClientObject subscription request " +

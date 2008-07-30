@@ -46,8 +46,7 @@ public class CrowdObjectAccess
         public boolean allowSubscribe (DObject object, Subscriber<?> sub)
         {
             if (CrowdClient.class.isInstance(sub)) {
-                @SuppressWarnings("unchecked") ClientObject co =
-                    ((CrowdClient)sub).getClientObject();
+                ClientObject co = CrowdClient.class.cast(sub).getClientObject();
                 return ((PlaceObject)object).occupants.contains(co.getOid());
             }
             return true;
