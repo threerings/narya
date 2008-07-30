@@ -32,9 +32,12 @@ import java.security.PrivilegedExceptionAction;
 import java.security.PrivilegedActionException;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 import com.samskivert.util.ClassUtil;
+import com.samskivert.util.Predicate;
 
 import static com.threerings.NaryaLog.log;
 
@@ -456,7 +459,20 @@ public class Streamer
         }
 
         // reflect on all the object's fields
-        _fields = ClassUtil.getFields(target);
+        ArrayList<Field> fieldList = new ArrayList<Field>();
+        ClassUtil.getFields(target, fieldList);
+
+        // remove all NotStreamable fields from the list of fields
+        if (_isStreamableFieldPred == null) {
+            _isStreamableFieldPred = new Predicate<Field>() {
+                public boolean isMatch (Field obj) {
+                    return (obj.getAnnotation(NotStreamable.class) == null);
+                }
+            };
+        }
+        _isStreamableFieldPred.filter(fieldList);
+
+        _fields = fieldList.toArray(new Field[fieldList.size()]);
         int fcount = _fields.length;
 
         // obtain field marshallers for all of our fields
@@ -504,6 +520,8 @@ public class Streamer
     /** A reference to the <code>writeObject</code> method if one is defined by our target
      * class. */
     protected Method _writer;
+
+    protected static Predicate<Field> _isStreamableFieldPred;
 
     /** Contains the mapping from class names to configured streamer instances. */
     protected static HashMap<Class, Streamer> _streamers;
