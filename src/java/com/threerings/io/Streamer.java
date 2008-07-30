@@ -458,20 +458,10 @@ public class Streamer
             // nothing to worry about, we just don't have one
         }
 
-        // reflect on all the object's fields
+        // reflect on all the object's fields and remove all marked with NotStreamable
         ArrayList<Field> fieldList = new ArrayList<Field>();
         ClassUtil.getFields(target, fieldList);
-
-        // remove all NotStreamable fields from the list of fields
-        if (_isStreamableFieldPred == null) {
-            _isStreamableFieldPred = new Predicate<Field>() {
-                public boolean isMatch (Field obj) {
-                    return (obj.getAnnotation(NotStreamable.class) == null);
-                }
-            };
-        }
         _isStreamableFieldPred.filter(fieldList);
-
         _fields = fieldList.toArray(new Field[fieldList.size()]);
         int fcount = _fields.length;
 
@@ -521,10 +511,15 @@ public class Streamer
      * class. */
     protected Method _writer;
 
-    protected static Predicate<Field> _isStreamableFieldPred;
-
     /** Contains the mapping from class names to configured streamer instances. */
     protected static HashMap<Class, Streamer> _streamers;
+
+    /** A simple predicate to filter "NotStreamable" members from a Streamable object's fields. */
+    protected static final Predicate<Field> _isStreamableFieldPred = new Predicate<Field>() {
+        public boolean isMatch (Field obj) {
+            return (obj.getAnnotation(NotStreamable.class) == null);
+        }
+    };
 
     /** The name of the custom reader method. */
     protected static final String READER_METHOD_NAME = "readObject";
