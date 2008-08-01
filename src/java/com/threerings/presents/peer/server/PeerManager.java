@@ -474,7 +474,7 @@ public abstract class PeerManager
     public void acquireLock (final NodeObject.Lock lock, final ResultListener<String> listener)
     {
         // wait until any pending resolution is complete
-        queryLock(lock, new ChainedResultListener<String>(listener) {
+        queryLock(lock, new ChainedResultListener<String, String>(listener) {
             public void requestCompleted (String result) {
                 if (result == null) {
                     if (_suboids.isEmpty()) {
@@ -498,7 +498,7 @@ public abstract class PeerManager
     public void releaseLock (final NodeObject.Lock lock, final ResultListener<String> listener)
     {
         // wait until any pending resolution is complete
-        queryLock(lock, new ChainedResultListener<String>(listener) {
+        queryLock(lock, new ChainedResultListener<String, String>(listener) {
             public void requestCompleted (String result) {
                 if (_nodeName.equals(result)) {
                     if (_suboids.isEmpty()) {
