@@ -224,7 +224,7 @@ public class LocationDirector extends BasicDirector
      * @return true if everyone is happy with the move, false if it was vetoed by one of the
      * location observers.
      */
-    public boolean mayMoveTo (final int placeId, ResultListener<Object> rl)
+    public boolean mayMoveTo (final int placeId, ResultListener<PlaceConfig> rl)
     {
         final boolean[] vetoed = new boolean[1];
         _observers.apply(new ObserverOp<LocationObserver>() {
@@ -583,7 +583,7 @@ public class LocationDirector extends BasicDirector
     protected FailureHandler _failureHandler;
 
     /** A listener that wants to know if we succeeded or how we failed to move.  */
-    protected ResultListener<Object> _moveListener;
+    protected ResultListener<PlaceConfig> _moveListener;
 
     /** The operation used to inform observers that the location changed. */
     protected ObserverOp<LocationObserver> _didChangeOp = new ObserverOp<LocationObserver>() {
