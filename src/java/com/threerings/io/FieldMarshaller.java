@@ -52,6 +52,7 @@ public abstract class FieldMarshaller
      * Returns a field marshaller appropriate for the supplied field or null if no marshaller
      * exists for the type contained by the field in question.
      */
+    @SuppressWarnings("null")
     public static FieldMarshaller getFieldMarshaller (Field field)
     {
         if (_marshallers == null) {
