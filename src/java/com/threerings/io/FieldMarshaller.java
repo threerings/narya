@@ -64,18 +64,22 @@ public abstract class FieldMarshaller
             try {
                 reader = field.getDeclaringClass().getMethod(
                     getReaderMethodName(field.getName()), READER_ARGS);
-                writer = field.getDeclaringClass().getMethod(
-                    getWriterMethodName(field.getName()), WRITER_ARGS);
-                return new MethodFieldMarshaller(reader, writer);
             } catch (NoSuchMethodException nsme) {
                 // no problem
             }
-            // To get to this code path, either an exception was thrown when fetching reader or
-            // when fetching writer... either way writer is guaranteed to be null.
-            if (reader != null) {
-                log.warning("Class contains a custom field reader, but not a writer",
-                            "class", field.getDeclaringClass().getName(), "field", field.getName(),
-                            "reader", reader);
+            try {
+                writer = field.getDeclaringClass().getMethod(
+                    getWriterMethodName(field.getName()), WRITER_ARGS);
+            } catch (NoSuchMethodException nsme) {
+                // no problem
+            }
+            if (reader != null && writer != null) {
+                return new MethodFieldMarshaller(reader, writer);
+            }
+            if (reader == null || writer == null) {
+                log.warning("Class contains one but not both custom field reader and writer" +
+                            "class", field.getDeclaringClass().getName(), "field=", field.getName(),
+                            "reader", reader, "writer", writer);
                 // fall through to using reflection on the fields...
             }
         }
