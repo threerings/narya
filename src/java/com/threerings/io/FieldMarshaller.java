@@ -75,8 +75,7 @@ public abstract class FieldMarshaller
             }
             if (reader != null && writer != null) {
                 return new MethodFieldMarshaller(reader, writer);
-            }
-            if (reader == null || writer == null) {
+            } else if (reader == null || writer == null) {
                 log.warning("Class contains one but not both custom field reader and writer" +
                             "class", field.getDeclaringClass().getName(), "field=", field.getName(),
                             "reader", reader, "writer", writer);
