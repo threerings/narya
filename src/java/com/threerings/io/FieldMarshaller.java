@@ -52,7 +52,6 @@ public abstract class FieldMarshaller
      * Returns a field marshaller appropriate for the supplied field or null if no marshaller
      * exists for the type contained by the field in question.
      */
-    @SuppressWarnings("null")
     public static FieldMarshaller getFieldMarshaller (Field field)
     {
         if (_marshallers == null) {
@@ -71,11 +70,12 @@ public abstract class FieldMarshaller
             } catch (NoSuchMethodException nsme) {
                 // no problem
             }
-            if ((reader != null || writer != null) && (reader == null || writer == null)) {
-                log.warning("Class contains one but not both custom field reader and writer " +
-                            "[class=" + field.getDeclaringClass().getName() +
-                            ", field=" + field.getName() + ", reader=" + reader +
-                            ", writer=" + writer + "].");
+            // To get to this code path, either an exception was thrown when fetching reader or
+            // when fetching writer... either way writer is guaranteed to be null.
+            if (reader != null) {
+                log.warning("Class contains a custom field reader, but not a writer",
+                            "class", field.getDeclaringClass().getName(), "field", field.getName(),
+                            "reader", reader);
                 // fall through to using reflection on the fields...
             }
         }
