@@ -37,6 +37,9 @@ public class ${name}Marshaller extends InvocationMarshaller
 
 #end
         @Override // from InvocationMarshaller
+#if ($l.hasParameterizedMethodArgs())
+        @SuppressWarnings("unchecked")
+#end
         public void dispatchResponse (int methodId, Object[] args)
         {
             switch (methodId) {

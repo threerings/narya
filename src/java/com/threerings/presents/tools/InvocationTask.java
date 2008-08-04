@@ -26,9 +26,11 @@ import java.io.FileReader;
 import java.io.IOException;
 
 import java.lang.reflect.Method;
+import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.apache.commons.io.FileUtils;
@@ -43,6 +45,9 @@ import org.apache.tools.ant.types.Reference;
 import org.apache.tools.ant.util.ClasspathUtils;
 
 import org.apache.velocity.app.VelocityEngine;
+
+import com.google.common.base.Predicate;
+import com.google.common.collect.Iterables;
 
 import com.samskivert.util.StringUtil;
 import com.samskivert.velocity.VelocityUtil;
@@ -92,14 +97,12 @@ public abstract class InvocationTask extends Task
         }
     }
 
-    /** Used to keep track of invocation service methods or listener
-     *  methods. */
+    /** Used to keep track of invocation service methods or listener methods. */
     public class ServiceMethod implements Comparable<ServiceMethod>
     {
         public Method method;
 
-        public ArrayList<ListenerArgument> listenerArgs =
-            new ArrayList<ListenerArgument>();
+        public List<ListenerArgument> listenerArgs = new ArrayList<ListenerArgument>();
 
         /**
          * Creates a new service method.
@@ -209,6 +212,17 @@ public abstract class InvocationTask extends Task
             return (method.getParameterTypes().length > (skipFirst ? 1 : 0));
         }
 
+        public boolean hasParameterizedArgs ()
+        {
+            return Iterables.any(
+                Arrays.asList(method.getGenericParameterTypes()), new Predicate<Type>() {
+                public boolean apply (Type type) {
+                    // TODO: might eventually need to handle generic arrays and wildcard types
+                    return (type instanceof ParameterizedType);
+                }
+            });
+        }
+
         public int compareTo (ServiceMethod other)
         {
             return getCode().compareTo(other.getCode());
@@ -240,8 +254,7 @@ public abstract class InvocationTask extends Task
                 if (listenerMode && _ilistener.isAssignableFrom(args[ii])) {
                     arg = "listener" + argidx;
                 } else {
-                    arg = GenUtil.unboxASArgument(
-                        args[ii], "args[" + argidx + "]");
+                    arg = GenUtil.unboxASArgument(args[ii], "args[" + argidx + "]");
                 }
                 buf.append(arg);
             }
@@ -415,7 +428,7 @@ public abstract class InvocationTask extends Task
     }
 
     /** A list of filesets that contain tile images. */
-    protected ArrayList<FileSet> _filesets = new ArrayList<FileSet>();
+    protected List<FileSet> _filesets = new ArrayList<FileSet>();
 
     /** A header to put on all generated source files. */
     protected String _header;

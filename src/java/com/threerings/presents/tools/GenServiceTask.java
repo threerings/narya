@@ -31,6 +31,9 @@ import java.util.HashSet;
 
 import org.apache.velocity.VelocityContext;
 
+import com.google.common.base.Predicate;
+import com.google.common.collect.Iterables;
+
 import com.samskivert.util.ComparableArrayList;
 import com.samskivert.util.StringUtil;
 
@@ -89,6 +92,27 @@ public class GenServiceTask extends InvocationTask
             methods.sort();
         }
 
+        /**
+         * Checks whether any of our methods have parameterized types.
+         */
+        public boolean hasParameterizedMethodArgs ()
+        {
+            return Iterables.any(methods, new Predicate<ServiceMethod>() {
+                public boolean apply (ServiceMethod sm) {
+                    return sm.hasParameterizedArgs();
+                }
+            });
+        }
+
+        public String getName ()
+        {
+            String name = GenUtil.simpleName(listener);
+            name = StringUtil.replace(name, "Listener", "");
+            int didx = name.indexOf(".");
+            return name.substring(didx+1);
+        }
+
+        // from interface Comparable<ServiceListener>
         public int compareTo (ServiceListener other)
         {
             return getName().compareTo(other.getName());
@@ -105,14 +129,6 @@ public class GenServiceTask extends InvocationTask
         public int hashCode ()
         {
             return listener.getName().hashCode();
-        }
-
-        public String getName ()
-        {
-            String name = GenUtil.simpleName(listener);
-            name = StringUtil.replace(name, "Listener", "");
-            int didx = name.indexOf(".");
-            return name.substring(didx+1);
         }
     }
 
@@ -148,8 +164,7 @@ public class GenServiceTask extends InvocationTask
         // verify that the service class name is as we expect it to be
         if (!service.getName().endsWith("Service")) {
             System.err.println("Cannot process '" + service.getName() + "':");
-            System.err.println(
-                "Service classes must be named SomethingService.");
+            System.err.println("Service classes must be named SomethingService.");
             return;
         }
 
@@ -170,8 +185,7 @@ public class GenServiceTask extends InvocationTask
         String sname = sdesc.sname;
         String name = StringUtil.replace(sname, "Service", "");
         String mname = StringUtil.replace(sname, "Service", "Marshaller");
-        String mpackage = StringUtil.replace(
-            sdesc.spackage, ".client", ".data");
+        String mpackage = StringUtil.replace(sdesc.spackage, ".client", ".data");
 
         // ----------- Part I - java marshaller
 
@@ -231,8 +245,8 @@ public class GenServiceTask extends InvocationTask
             e.printStackTrace(System.err);
         }
 
-        // if we're not configured with an ActionScript source root, don't
-        // generate the ActionScript versions
+        // if we're not configured with an ActionScript source root, don't generate the
+        // ActionScript versions
         if (_asroot == null) {
             return;
         }
@@ -308,7 +322,6 @@ public class GenServiceTask extends InvocationTask
             // now generate ActionScript versions of our listener marshallers
             // because those have to be in separate files
             for (ServiceListener listener : sdesc.listeners) {
-
                 // start imports with just those used by listener methods
                 imports = listener.imports.clone();
 
@@ -435,8 +448,7 @@ public class GenServiceTask extends InvocationTask
                 ctx.put("listener", listener);
 
                 sw = new StringWriter();
-                _velocity.mergeTemplate(
-                    AS_LISTENER_SERVICE_TMPL, "UTF-8", ctx, sw);
+                _velocity.mergeTemplate(AS_LISTENER_SERVICE_TMPL, "UTF-8", ctx, sw);
                 String amlpath = _asroot + File.separator + sppath +
                     File.separator + sname + "_" +
                     listener.getName() + "Listener.as";
@@ -637,12 +649,11 @@ public class GenServiceTask extends InvocationTask
          */
         public boolean hasAnyListenerArgs ()
         {
-            for (ServiceMethod sm : methods) {
-                if (!sm.listenerArgs.isEmpty()) {
-                    return true;
+            return Iterables.any(methods, new Predicate<ServiceMethod>() {
+                public boolean apply (ServiceMethod sm) {
+                    return !sm.listenerArgs.isEmpty();
                 }
-            }
-            return false;
+            });
         }
 
         /**
