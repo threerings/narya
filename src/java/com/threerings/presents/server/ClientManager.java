@@ -465,19 +465,20 @@ public class ClientManager
     protected void clientSessionDidEnd (final PresentsClient client)
     {
         // remove the client from the username map
+        Name username = client.getCredentials().getUsername();
         PresentsClient rc;
         synchronized (_usermap) {
-            rc = _usermap.remove(client.getCredentials().getUsername());
+            rc = _usermap.remove(username);
         }
 
         // sanity check just because we can
         if (rc == null) {
-            log.warning("Unregistered client ended session " + client + ".", new Exception());
+            log.warning("Unregistered client ended session", "username", username, "client", client,
+                        new Exception());
         } else if (rc != client) {
-            log.warning("Different clients with same username!? " +
-                        "[c1=" + rc + ", c2=" + client + "].");
+            log.warning("Different clients with same username!?", "c1", rc, "c2", client);
         } else {
-            log.info("Ending session " + client + ".");
+            log.info("Ending session", "username", username, "client", client);
         }
 
         // notify the observers that the session is ended
