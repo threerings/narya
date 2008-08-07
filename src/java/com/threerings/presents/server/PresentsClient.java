@@ -23,7 +23,6 @@ package com.threerings.presents.server;
 
 import java.io.IOException;
 import java.net.InetAddress;
-import java.util.Date;
 import java.util.Map;
 import java.util.TimeZone;
 
@@ -557,10 +556,8 @@ public class PresentsClient
         }
         if (rec != null) {
             rec.unsubscribe();
-            _subhist.put(oid, "Unmapped at " + new Date()); // TEMP
         } else {
-            log.warning("Missing subscription in unmap", "client", this, "oid", oid,
-                        "history", _subhist.get(oid));
+            log.warning("Missing subscription in unmap", "client", this, "oid", oid);
         }
     }
 
@@ -570,13 +567,11 @@ public class PresentsClient
      */
     protected void clearSubscrips (boolean verbose)
     {
-        String now = new Date().toString();
         for (ClientProxy rec : _subscrips.values()) {
             if (verbose) {
                 log.info("Clearing subscription", "client", this, "obj", rec.object.getOid());
             }
             rec.unsubscribe();
-            _subhist.put(rec.object.getOid(), "Cleared at " + now); // TEMP
         }
         _subscrips.clear();
     }
@@ -860,7 +855,6 @@ public class PresentsClient
                 synchronized (_subscrips) {
                     // make a note of this new subscription
                     _subscrips.put(dobj.getOid(), this);
-                    _subhist.put(dobj.getOid(), "Mapped at " + new Date()); // TEMP
                 }
                 subscribedToObject(dobj);
 
@@ -1010,7 +1004,6 @@ public class PresentsClient
     protected Connection _conn;
     protected ClientObject _clobj;
     protected IntMap<ClientProxy> _subscrips = IntMaps.newHashIntMap();
-    protected IntMap<String> _subhist = IntMaps.newHashIntMap(); // TEMP
     protected ClassLoader _loader;
 
     /** The time at which this client started their session. */
