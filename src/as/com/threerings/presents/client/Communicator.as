@@ -144,14 +144,11 @@ public class Communicator
 
     protected function shutdown (logonError :Error) :void
     {
-        _client.notifyObservers(ClientEvent.CLIENT_DID_LOGOFF, null);
-
         if (_socket != null)  {
             try {
                 _socket.close();
             } catch (err :Error) {
-                Log.getLog(this).warning(
-                    "Error closing failed socket [error=" + err + "].");
+                Log.getLog(this).warning("Error closing failed socket [error=" + err + "].");
             }
             removeListeners();
             _socket = null;
@@ -161,14 +158,14 @@ public class Communicator
             _outBuffer = null;
         }
 
+        _client.notifyObservers(ClientEvent.CLIENT_DID_LOGOFF, null);
         _client.cleanup(logonError);
     }
 
     protected function sendMessage (msg :UpstreamMessage) :void
     {
         if (_outStream == null) {
-            Log.getLog(this).warning(
-                "No socket, dropping msg [msg=" + msg + "].");
+            Log.getLog(this).warning("No socket, dropping msg [msg=" + msg + "].");
             return;
         }
 
