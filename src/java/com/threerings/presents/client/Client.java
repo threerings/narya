@@ -503,8 +503,10 @@ public class Client
         }
 
         // kill our tick interval
-        _tickInterval.cancel();
-        _tickInterval = null;
+        if (_tickInterval != null) {
+            _tickInterval.cancel();
+            _tickInterval = null;
+        }
 
         // ask the communicator to send a logoff message and disconnect from the server
         _comm.logoff();
