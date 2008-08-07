@@ -619,7 +619,9 @@ public class ChatDirector extends BasicDirector
         removeAuxiliarySource(_clobj);
         addAuxiliarySource(_clobj = event.getClient().getClientObject(), ChatCodes.USER_CHAT_TYPE);
 
-        clientLeftOrChanged();
+        if (clearChatOnClientExit()) {
+            clearDisplays();
+        }
     }
 
     // documentation inherited
@@ -635,6 +637,10 @@ public class ChatDirector extends BasicDirector
         // in fact, clear out all auxiliary sources
         _auxes.clear();
 
+        if (clearChatOnClientExit()) {
+            clearDisplays();
+        }
+
         // clear out the list of people we've chatted with
         _chatters.length = 0;
         notifyChatterObservers();
@@ -644,16 +650,6 @@ public class ChatDirector extends BasicDirector
 
         // clear our service
         _cservice = null;
-
-        clientLeftOrChanged();
-    }
-
-    /**
-     * Overridable.
-     */
-    protected function clientLeftOrChanged () :void
-    {
-        clearDisplays();
     }
 
     /**
@@ -985,6 +981,12 @@ public class ChatDirector extends BasicDirector
     {
         // get a handle on our chat service
         _cservice = (client.requireService(ChatService) as ChatService);
+    }
+
+    /** Overrideable. */
+    protected function clearChatOnClientExit () :Boolean
+    {
+        return true;
     }
 
     /** Our active chat context. */
