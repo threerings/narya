@@ -23,9 +23,6 @@ package com.threerings.presents.peer.server;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.io.Serializable;
 
 import java.util.List;
 import java.util.Map;
@@ -45,6 +42,8 @@ import com.samskivert.util.ResultListener;
 import com.samskivert.util.ResultListenerList;
 import com.samskivert.util.Tuple;
 
+import com.threerings.io.ObjectInputStream;
+import com.threerings.io.ObjectOutputStream;
 import com.threerings.io.Streamable;
 import com.threerings.util.Name;
 
@@ -151,7 +150,7 @@ public abstract class PeerManager
      * anonymously because that will maintain an implicit non-transient reference to its containing
      * class which will then also be serialized (assuming it is even serializable).
      */
-    public static abstract class NodeAction implements Serializable
+    public static abstract class NodeAction implements Streamable
     {
         /** Returns true if this action should be executed on the specified node. This will be
          * called on the originating server to decide whether or not to deliver the action to the
