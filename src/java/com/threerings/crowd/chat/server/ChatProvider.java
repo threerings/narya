@@ -126,7 +126,7 @@ public class ChatProvider
     }
 
     /**
-     * Processes a request from a client to deliver a tell message to another client.
+     * Processes a {@link ChatService#tell} request.
      */
     public void tell (ClientObject caller, Name target, String message, TellListener listener)
         throws InvocationException

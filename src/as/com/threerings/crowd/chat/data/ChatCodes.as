@@ -36,7 +36,10 @@ public class ChatCodes extends InvocationCodes
     public static const SUCCESS :String = "success";
 
     /** The message identifier for a chat notification message. */
-    public static const CHAT_NOTIFICATION :String = "chat";
+    public static const CHAT_NOTIFICATION :String = "crowd.chat";
+
+    /** The message identifier for a chat channel notification message. */
+    public static const CHAT_CHANENL_NOTIFICATION :String = "crowd.chat.channel";
 
     /** The access control identifier for normal chat privileges. */
     public static const CHAT_ACCESS :Permission = new Permission();

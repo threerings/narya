@@ -37,7 +37,10 @@ public interface ChatCodes extends InvocationCodes
     public static final String SUCCESS = "success";
 
     /** The message identifier for a chat notification message. */
-    public static final String CHAT_NOTIFICATION = "chat";
+    public static final String CHAT_NOTIFICATION = "crowd.chat";
+
+    /** The message identifier for a chat channel notification message. */
+    public static final String CHAT_CHANNEL_NOTIFICATION = "crowd.chat.channel";
 
     /** The access control identifier for normal chat privileges. */
     public static final Permission CHAT_ACCESS = new Permission();
