@@ -36,7 +36,7 @@ public class TimeBaseMarshaller extends InvocationMarshaller
     implements TimeBaseService
 {
     /**
-     * Marshalls results to implementations of {@link GotTimeBaseListener}.
+     * Marshalls results to implementations of {@link TimeBaseService.GotTimeBaseListener}.
      */
     public static class GotTimeBaseMarshaller extends ListenerMarshaller
         implements GotTimeBaseListener
