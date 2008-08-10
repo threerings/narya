@@ -271,7 +271,7 @@ public abstract class PeerManager
      * the objects unless you really know what you're doing. more likely it will summarize
      * information contained therein.
      */
-    public void applyToNodes (Function<NodeObject, Void> op)
+    public void applyToNodes (Function<NodeObject,Void> op)
     {
         op.apply(_nodeobj);
         for (PeerNode peer : _peers.values()) {
@@ -312,10 +312,9 @@ public abstract class PeerManager
      *
      * @param onDropped a runnable to be executed if the action was not invoked on the local server
      * or any peer node due to failing to match any of the nodes. The runnable will be executed on
-     * the dobj event thread and will be passed the node action that was not invoked.
+     * the dobj event thread.
      */
-    public <T extends NodeAction> void invokeNodeAction (
-        final T action, final Function<T,Void> onDropped)
+    public void invokeNodeAction (final NodeAction action, final Runnable onDropped)
     {
         // if we're not on the dobjmgr thread, get there
         if (!_omgr.isDispatchThread()) {
@@ -348,7 +347,7 @@ public abstract class PeerManager
 
         // if we did not invoke the action on any node, call the onDropped handler
         if (!invoked && onDropped != null) {
-            onDropped.apply(action);
+            onDropped.run();
         }
     }
 
