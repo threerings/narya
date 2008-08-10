@@ -27,6 +27,7 @@ import java.io.ByteArrayOutputStream;
 import java.util.List;
 import java.util.Map;
 
+import com.google.common.base.Function;
 import com.google.common.collect.Maps;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
@@ -103,24 +104,6 @@ public abstract class PeerManager
          * Called when this node has been forced to drop a lock.
          */
         void droppedLock (NodeObject.Lock lock);
-    }
-
-    /** Used by {@link #lookupNodeDatum}. */
-    public static interface Lookup<T>
-    {
-        T lookup (NodeObject nodeobj);
-    }
-
-    /** Used by {@link #applyToNodes}. */
-    public static interface Operation
-    {
-        void apply (NodeObject nodeobj);
-    }
-
-    /** Used by {@link #invokeOnNodes}. */
-    public static interface Function
-    {
-        void invoke (Client client, NodeObject nodeobj);
     }
 
     /**
@@ -253,8 +236,8 @@ public abstract class PeerManager
      */
     public ClientInfo locateClient (final Name key)
     {
-        return lookupNodeDatum(new Lookup<ClientInfo>() {
-            public ClientInfo lookup (NodeObject nodeobj) {
+        return lookupNodeDatum(new Function<NodeObject,ClientInfo>() {
+            public ClientInfo apply (NodeObject nodeobj) {
                 return nodeobj.clients.get(key);
             }
         });
@@ -265,9 +248,9 @@ public abstract class PeerManager
      * arbitrary order and the first non-null value returned by the supplied lookup operation is
      * returned to the caller. Null if all lookup operations returned null.
      */
-    public <T> T lookupNodeDatum (Lookup<T> op)
+    public <T> T lookupNodeDatum (Function<NodeObject,T> op)
     {
-        T value = op.lookup(_nodeobj);
+        T value = op.apply(_nodeobj);
         if (value != null) {
             return value;
         }
@@ -275,7 +258,7 @@ public abstract class PeerManager
             if (peer.nodeobj == null) {
                 continue;
             }
-            value = op.lookup(peer.nodeobj);
+            value = op.apply(peer.nodeobj);
             if (value != null) {
                 return value;
             }
@@ -288,7 +271,7 @@ public abstract class PeerManager
      * the objects unless you really know what you're doing. more likely it will summarize
      * information contained therein.
      */
-    public void applyToNodes (Operation op)
+    public void applyToNodes (Function<NodeObject, Void> op)
     {
         op.apply(_nodeobj);
         for (PeerNode peer : _peers.values()) {
@@ -303,11 +286,11 @@ public abstract class PeerManager
      * that needs to call an invocation service method on a remote node should use this mechanism
      * to locate the appropriate node (or nodes) and call the desired method.
      */
-    public void invokeOnNodes (Function func)
+    public void invokeOnNodes (Function<Tuple<Client,NodeObject>,Void> func)
     {
         for (PeerNode peer : _peers.values()) {
             if (peer.nodeobj != null) {
-                func.invoke(peer.getClient(), peer.nodeobj);
+                func.apply(Tuple.create(peer.getClient(), peer.nodeobj));
             }
         }
     }
@@ -319,39 +302,65 @@ public abstract class PeerManager
      */
     public void invokeNodeAction (final NodeAction action)
     {
+        invokeNodeAction(action, null);
+    }
+
+    /**
+     * Invokes the supplied action on this and any other server that it indicates is appropriate.
+     * The action will be executed on the distributed object thread, but this method does not need
+     * to be called from the distributed object thread.
+     *
+     * @param onDropped a runnable to be executed if the action was not invoked on the local server
+     * or any peer node due to failing to match any of the nodes. The runnable will be executed on
+     * the dobj event thread and will be passed the node action that was not invoked.
+     */
+    public <T extends NodeAction> void invokeNodeAction (
+        final T action, final Function<T,Void> onDropped)
+    {
         // if we're not on the dobjmgr thread, get there
         if (!_omgr.isDispatchThread()) {
             _omgr.postRunnable(new Runnable() {
                 public void run () {
-                    invokeNodeAction(action);
+                    invokeNodeAction(action, onDropped);
                 }
             });
             return;
         }
 
         // first serialize the action to make sure we can
-        byte[] actionBytes;
-        try {
-            ByteArrayOutputStream bout = new ByteArrayOutputStream();
-            ObjectOutputStream oout = new ObjectOutputStream(bout);
-            oout.writeObject(action);
-            actionBytes = bout.toByteArray();
-        } catch (Exception e) {
-            log.warning("Failed to serialize node action [action=" + action + "].", e);
-            return;
-        }
+        byte[] actionBytes = flattenAction(action);
 
         // invoke the action on our local server if appropriate
+        boolean invoked = false;
         if (action.isApplicable(_nodeobj)) {
             _injector.injectMembers(action);
             action.invoke();
+            invoked = true;
         }
 
         // now send it to any remote node that is also appropriate
         for (PeerNode peer : _peers.values()) {
             if (peer.nodeobj != null && action.isApplicable(peer.nodeobj)) {
                 peer.nodeobj.peerService.invokeAction(peer.getClient(), actionBytes);
+                invoked = true;
             }
+        }
+
+        // if we did not invoke the action on any node, call the onDropped handler
+        if (!invoked && onDropped != null) {
+            onDropped.apply(action);
+        }
+    }
+
+    /**
+     * Invokes a node action on a specific node <em>without</em> executing {@link
+     * NodeAction#isApplicable} to determine whether the action is applicable.
+     */
+    public void invokeNodeAction (String nodeName, NodeAction action)
+    {
+        PeerNode peer = _peers.get(nodeName);
+        if (peer != null) {
+            peer.nodeobj.peerService.invokeAction(peer.getClient(), flattenAction(action));
         }
     }
 
@@ -375,7 +384,7 @@ public abstract class PeerManager
             return;
         }
 
-        final Tuple<String, Integer> key = new Tuple<String, Integer>(nodeName, remoteOid);
+        final Tuple<String, Integer> key = Tuple.create(nodeName, remoteOid);
         if (_proxies.containsKey(key)) {
             String errmsg = "Cannot proxy already proxied object [key=" + key + "].";
             listener.requestFailed(new ObjectAccessException(errmsg));
@@ -404,7 +413,7 @@ public abstract class PeerManager
      */
     public void unproxyRemoteObject (String nodeName, int remoteOid)
     {
-        Tuple<String, Integer> key = new Tuple<String, Integer>(nodeName, remoteOid);
+        Tuple<String,Integer> key = Tuple.create(nodeName, remoteOid);
         Tuple<Subscriber<?>, DObject> bits = _proxies.remove(key);
         if (bits == null) {
             log.warning("Requested to clear unknown proxy [key=" + key + "].");
@@ -985,6 +994,22 @@ public abstract class PeerManager
     }
 
     /**
+     * Flattens the supplied node action into bytes.
+     */
+    protected byte[] flattenAction (NodeAction action)
+    {
+        try {
+            ByteArrayOutputStream bout = new ByteArrayOutputStream();
+            ObjectOutputStream oout = new ObjectOutputStream(bout);
+            oout.writeObject(action);
+            return bout.toByteArray();
+        } catch (Exception e) {
+            throw new IllegalArgumentException(
+                "Failed to serialize node action [action=" + action + "].", e);
+        }
+    }
+
+    /**
      * Handles a lock in a state of resolution.
      */
     protected class LockHandler
@@ -1201,7 +1226,7 @@ public abstract class PeerManager
     protected String _nodeName, _sharedSecret;
     protected NodeRecord _self;
     protected NodeObject _nodeobj;
-    protected Map<String, PeerNode> _peers = Maps.newHashMap();
+    protected Map<String,PeerNode> _peers = Maps.newHashMap();
 
     /** Used to resolve dependencies in unserialized {@link NodeAction} instances. */
     protected Injector _injector;
@@ -1210,8 +1235,7 @@ public abstract class PeerManager
     protected ArrayIntSet _suboids = new ArrayIntSet();
 
     /** Contains a mapping of proxied objects to subscriber instances. */
-    protected Map<Tuple<String, Integer>, Tuple<Subscriber<?>, DObject>> _proxies =
-        Maps.newHashMap();
+    protected Map<Tuple<String,Integer>,Tuple<Subscriber<?>,DObject>> _proxies = Maps.newHashMap();
 
     /** Our stale cache observers. */
     protected Map<String, ObserverList<StaleCacheObserver>> _cacheobs = Maps.newHashMap();
