@@ -709,10 +709,8 @@ public class BlockingCommunicator extends Communicator
                 sendMessage(msg);
 
             } catch (IOException ioe) {
-                // let the communicator know if we have any problems
-                connectionFailed(ioe);
-                // and bail
-                shutdown();
+                connectionFailed(ioe); // let the communicator know
+                super.shutdown(); // and bail immediately (which is why we call super)
             }
         }
 
