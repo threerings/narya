@@ -685,14 +685,22 @@ public class BlockingCommunicator extends Communicator
         }
 
         @Override
+        public synchronized void shutdown ()
+        {
+            // we want to finish off what's in our queue before we actually shutdown
+            postMessage(new TerminationMessage());
+        }
+
+        @Override
         protected void iterate ()
         {
             // fetch the next message from the queue
             UpstreamMessage msg = _msgq.get();
 
-            // if this is a termination message, we're being requested to exit, so we want to bail
-            // now rather than continuing
+            // if this is a termination message, we're being requested to exit, so we call
+            // super.shutdown() to mark ourselves as not running and then return
             if (msg instanceof TerminationMessage) {
+                super.shutdown();
                 return;
             }
 
@@ -718,14 +726,6 @@ public class BlockingCommunicator extends Communicator
         protected void didShutdown ()
         {
             writerDidExit();
-        }
-
-        @Override
-        protected void kick ()
-        {
-            // post a bogus message to the outgoing queue to ensure that the writer thread notices
-            // that it's time to go
-            postMessage(new TerminationMessage());
         }
     }
 
