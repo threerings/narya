@@ -145,7 +145,7 @@ public abstract class PeerManager
             try {
                 execute();
             } catch (Throwable t) {
-                log.warning(getClass().getName() + " failed.");
+                log.warning(getClass().getName() + " failed.", t);
             }
         }
 
