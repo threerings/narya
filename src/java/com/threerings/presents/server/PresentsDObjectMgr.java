@@ -291,13 +291,15 @@ public class PresentsDObjectMgr
 
     /**
      * Ensures that the calling thread is the distributed object event dispatch thread, throwing an
-     * {@link IllegalStateException} if it is not.
+     * {@link IllegalStateException} if it is not. <em>Note:</em> before the manager is started up,
+     * all calls to this method will succeed, as things that take place during server
+     * initialization are considered safe and only after the distributed object manager (and the
+     * event thread is established) will we require it.
      */
-    public void requireEventThread ()
+    public synchronized void requireEventThread ()
     {
-        if (!isDispatchThread()) {
-            String errmsg = "This method must be called on the dobj event thread.";
-            throw new IllegalStateException(errmsg);
+        if (_dobjThread != null && !isDispatchThread()) {
+            throw new IllegalStateException("This method must be called on the dobj event thread.");
         }
     }
 
@@ -308,8 +310,8 @@ public class PresentsDObjectMgr
     public void refuseEventThread ()
     {
         if (isDispatchThread()) {
-            String errmsg = "This method must not be called on the dobj event thread.";
-            throw new IllegalStateException(errmsg);
+            throw new IllegalStateException(
+                "This method must not be called on the dobj event thread.");
         }
     }
 
