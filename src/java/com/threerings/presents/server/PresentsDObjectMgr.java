@@ -293,8 +293,8 @@ public class PresentsDObjectMgr
      * Ensures that the calling thread is the distributed object event dispatch thread, throwing an
      * {@link IllegalStateException} if it is not. <em>Note:</em> before the manager is started up,
      * all calls to this method will succeed, as things that take place during server
-     * initialization are considered safe and only after the distributed object manager (and the
-     * event thread is established) will we require it.
+     * initialization are considered safe and only after the distributed object manager is started
+     * (and the event thread is established) will we require it.
      */
     public synchronized void requireEventThread ()
     {
