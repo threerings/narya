@@ -22,6 +22,7 @@
 package com.threerings.crowd.server;
 
 import com.google.inject.Inject;
+import com.google.inject.Singleton;
 
 import com.threerings.presents.data.ClientObject;
 import com.threerings.presents.server.InvocationManager;
@@ -36,6 +37,7 @@ import static com.threerings.crowd.Log.log;
 /**
  * Handles body related services.
  */
+@Singleton
 public class BodyManager
     implements BodyProvider
 {
