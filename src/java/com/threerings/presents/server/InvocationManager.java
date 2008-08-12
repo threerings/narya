@@ -129,6 +129,8 @@ public class InvocationManager
     public <T extends InvocationMarshaller> T registerDispatcher (
         InvocationDispatcher<T> dispatcher, String group)
     {
+        _omgr.requireEventThread(); // sanity check
+
         // get the next invocation code
         int invCode = nextInvCode();
 
@@ -155,12 +157,13 @@ public class InvocationManager
     }
 
     /**
-     * Clears out a dispatcher registration. This should be called to free
-     * up resources when an invocation service is no longer going to be
-     * used.
+     * Clears out a dispatcher registration. This should be called to free up resources when an
+     * invocation service is no longer going to be used.
      */
     public void clearDispatcher (InvocationMarshaller marsh)
     {
+        _omgr.requireEventThread(); // sanity check
+
         if (marsh == null) {
             log.warning("Refusing to unregister null marshaller.");
             Thread.dumpStack();
@@ -190,8 +193,8 @@ public class InvocationManager
     }
 
     /**
-     * Get the class that is being used to dispatch the specified
-     * invocation code, for informational purposes.
+     * Get the class that is being used to dispatch the specified invocation code, for
+     * informational purposes.
      *
      * @return the Class, or null if no dispatcher is registered with
      * the specified code.
@@ -215,9 +218,8 @@ public class InvocationManager
     }
 
     /**
-     * Called when we receive an invocation request message. Dispatches
-     * the request to the appropriate invocation provider via the
-     * registered invocation dispatcher.
+     * Called when we receive an invocation request message. Dispatches the request to the
+     * appropriate invocation provider via the registered invocation dispatcher.
      */
     protected void dispatchRequest (
         int clientOid, int invCode, int methodId, Object[] args, Transport transport)
@@ -243,8 +245,7 @@ public class InvocationManager
             return;
         }
 
-        // scan the args, initializing any listeners and keeping track of
-        // the "primary" listener
+        // scan the args, initializing any listeners and keeping track of the "primary" listener
         ListenerMarshaller rlist = null;
         int acount = args.length;
         for (int ii = 0; ii < acount; ii++) {
@@ -291,8 +292,7 @@ public class InvocationManager
                         ", caller=" + source.who() + ", methId=" + methodId +
                         ", args=" + StringUtil.toString(args) + "].", t);
 
-            // avoid logging an error when the listener notices that it's
-            // been ignored.
+            // avoid logging an error when the listener notices that it's been ignored.
             if (rlist != null) {
                 rlist.setNoResponse();
             }
@@ -322,9 +322,9 @@ public class InvocationManager
     /** Maps bootstrap group to lists of services to be provided to clients at boot time. */
     protected Map<String, List<InvocationMarshaller>> _bootlists = Maps.newHashMap();
 
-    // debugging action...
-    protected final Map<Integer, String> _recentRegServices =
-        new LRUHashMap<Integer, String>(10000);
+    /** Tracks recently registered services so that we can complain informatively if a request
+     * comes in on a service we don't know about. */
+    protected final Map<Integer, String> _recentRegServices = new LRUHashMap<Integer, String>(10000);
 
     /** The text appended to the procedure name when generating a failure response. */
     protected static final String FAILED_SUFFIX = "Failed";
