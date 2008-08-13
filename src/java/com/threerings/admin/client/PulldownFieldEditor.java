@@ -132,8 +132,7 @@ public class PulldownFieldEditor extends FieldEditor
         }
 
         // cause shit to blow up minorly
-        log.warning("Value in dobj is not settable, disabling choice.");
-        Thread.dumpStack();
+        log.warning("Value in dobj is not settable, disabling choice.", new Exception());
         _value.setEnabled(false);
     }
 

@@ -847,16 +847,14 @@ public class ConnectionManager extends LoopingThread
     {
         // sanity check
         if (conn == null || msg == null) {
-            log.warning("postMessage() bogosity [conn=" + conn + ", msg=" + msg + "].");
-            Thread.dumpStack();
+            log.warning("postMessage() bogosity", "conn", conn, "msg", msg, new Exception());
             return;
         }
 
         // more sanity check; messages must only be posted from the dobjmgr thread
         if (!_omgr.isDispatchThread()) {
-            log.warning("Message posted on non-distributed object thread [conn=" + conn +
-                        ", msg=" + msg + ", thread=" + Thread.currentThread() + "].");
-            Thread.dumpStack();
+            log.warning("Message posted on non-distributed object thread", "conn", conn,
+                        "msg", msg, "thread", Thread.currentThread(), new Exception());
             // let it through though as we don't want to break things unnecessarily
         }
 

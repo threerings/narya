@@ -76,8 +76,7 @@ public class SafeSubscriber<T extends DObject>
     public void subscribe (DObjectManager omgr)
     {
         if (_active) {
-            log.warning("Active safesub asked to resubscribe " + this + ".");
-            Thread.dumpStack();
+            log.warning("Active safesub asked to resubscribe " + this + ".", new Exception());
             return;
         }
 
@@ -88,8 +87,7 @@ public class SafeSubscriber<T extends DObject>
         // logically impossible)
         if (_object != null) {
             log.warning("Incroyable! A safesub has an object and was " +
-                        "non-active!? " + this + ".");
-            Thread.dumpStack();
+                        "non-active!? " + this + ".", new Exception());
             // make do in the face of insanity
             _subscriber.objectAvailable(_object);
             return;
@@ -125,8 +123,7 @@ public class SafeSubscriber<T extends DObject>
             if (_object == null && !_pending) {
                 return;
             }
-            log.warning("Inactive safesub asked to unsubscribe " + this + ".");
-            Thread.dumpStack();
+            log.warning("Inactive safesub asked to unsubscribe " + this + ".", new Exception());
         }
 
         // note that we no longer desire to be subscribed
@@ -136,8 +133,7 @@ public class SafeSubscriber<T extends DObject>
             // make sure we don't have an object reference
             if (_object != null) {
                 log.warning("Incroyable! A safesub has an object and is " +
-                            "pending!? " + this + ".");
-                Thread.dumpStack();
+                            "pending!? " + this + ".", new Exception());
             } else {
                 // nothing to do but wait for the subscription to complete
                 // at which point we'll pitch the object post-haste
@@ -148,8 +144,7 @@ public class SafeSubscriber<T extends DObject>
         // make sure we have our object
         if (_object == null) {
             log.warning("Zut alors! A safesub _was_ active and not " +
-                        "pending yet has no object!? " + this + ".");
-            Thread.dumpStack();
+                        "pending yet has no object!? " + this + ".", new Exception());
             // nothing to do since we're apparently already unsubscribed
             return;
         }

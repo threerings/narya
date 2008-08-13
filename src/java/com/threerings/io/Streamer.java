@@ -113,9 +113,8 @@ public class Streamer
         if (stream == null) {
             // make sure this is a streamable class
             if (!isStreamable(target)) {
-                Thread.dumpStack();
-                throw new IOException("Requested to stream invalid class '" +
-                                      target.getName() + "'");
+                throw new IOException(
+                    "Requested to stream invalid class '" + target.getName() + "'");
             }
 
             // create a streamer for this class and cache it

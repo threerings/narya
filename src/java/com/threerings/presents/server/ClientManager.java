@@ -306,8 +306,8 @@ public class ClientManager
     {
         ClientObject clobj = _objmap.get(username);
         if (clobj == null) {
-            log.warning("Requested to release unmapped client object [username=" + username + "].");
-            Thread.dumpStack();
+            log.warning("Requested to release unmapped client object", "username", username,
+                        new Exception());
             return;
         }
 
@@ -334,8 +334,8 @@ public class ClientManager
     {
         ClientObject clobj = _objmap.remove(oldname);
         if (clobj == null) {
-            log.warning("Requested to rename unmapped client object [username=" + oldname + "].");
-            Thread.dumpStack();
+            log.warning("Requested to rename unmapped client object", "username", oldname,
+                        new Exception());
             return false;
         }
         _objmap.put(newname, clobj);
@@ -409,8 +409,7 @@ public class ClientManager
             client.connectionFailed(fault);
 
         } else if (!(conn instanceof AuthingConnection)) {
-            log.info("Unmapped connection failed? [conn=" + conn + ", fault=" + fault + "].");
-            Thread.dumpStack();
+            log.info("Unmapped connection failed?", "conn", conn, "fault", fault, new Exception());
         }
     }
 

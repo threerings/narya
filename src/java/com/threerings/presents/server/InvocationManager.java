@@ -165,15 +165,13 @@ public class InvocationManager
         _omgr.requireEventThread(); // sanity check
 
         if (marsh == null) {
-            log.warning("Refusing to unregister null marshaller.");
-            Thread.dumpStack();
+            log.warning("Refusing to unregister null marshaller.", new Exception());
             return;
         }
 
         if (_dispatchers.remove(marsh.getInvocationCode()) == null) {
             log.warning("Requested to remove unregistered marshaller? " +
-                        "[marsh=" + marsh + "].");
-            Thread.dumpStack();
+                        "[marsh=" + marsh + "].", new Exception());
         }
     }
 

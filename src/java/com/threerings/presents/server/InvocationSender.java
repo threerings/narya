@@ -21,8 +21,6 @@
 
 package com.threerings.presents.server;
 
-import com.samskivert.util.StringUtil;
-
 import com.threerings.presents.client.InvocationReceiver.Registration;
 import com.threerings.presents.data.ClientObject;
 import com.threerings.presents.dobj.InvocationNotificationEvent;
@@ -57,14 +55,13 @@ public abstract class InvocationSender
         // specific client
         Registration rreg = target.receivers.get(receiverCode);
         if (rreg == null) {
-            log.warning("Unable to locate receiver for invocation service notification " +
-                        "[clobj=" + target.who() + ", code=" + receiverCode +
-                        ", methId=" + methodId + ", args=" + StringUtil.toString(args) + "].");
-            Thread.dumpStack();
+            log.warning("Unable to locate receiver for invocation service notification",
+                        "clobj", target.who(), "code", receiverCode, "methId", methodId,
+                        "args", args, new Exception());
 
         } else {
-//             Log.info("Sending notification [target=" + target + ", code=" + receiverCode +
-//                      ", methodId=" + methodId + ", args=" + StringUtil.toString(args) + "].");
+//             log.info("Sending notification", "target", target, "code", receiverCode,
+//                      "methodId", methodId, "args", args);
 
             // create and dispatch an invocation notification event
             target.postEvent(

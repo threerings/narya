@@ -175,8 +175,7 @@ public class SpeakUtil
     public static void sendMessage (DObject speakObj, ChatMessage msg)
     {
         if (speakObj == null) {
-            log.warning("Dropping speak message, no speak obj '" + msg + "'.");
-            Thread.dumpStack();
+            log.warning("Dropping speak message, no speak obj '" + msg + "'.", new Exception());
             return;
         }
 

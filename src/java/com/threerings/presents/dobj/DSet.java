@@ -210,8 +210,7 @@ public class DSet<E extends DSet.Entry>
     {
         // the crazy sanity checks
         if (_size < 0 || _size > _entries.length || (_size > 0 && _entries[_size-1] == null)) {
-            log.warning("DSet in a bad way", "size", _size, "entries", _entries);
-            Thread.dumpStack();
+            log.warning("DSet in a bad way", "size", _size, "entries", _entries, new Exception());
         }
 
         return new Iterator<E>() {
@@ -232,8 +231,7 @@ public class DSet<E extends DSet.Entry>
                 }
                 if (_ssize != _size) {
                     log.warning("Size changed during iteration", "ssize", _ssize, "nsize", _size,
-                                "entries", _entries);
-                    Thread.dumpStack();
+                                "entries", _entries, new Exception());
                 }
             }
             protected int _index = 0;
@@ -282,7 +280,8 @@ public class DSet<E extends DSet.Entry>
 
         // if the element is already in the set, bail now
         if (eidx >= 0) {
-            log.warning("Refusing to add duplicate entry [entry=" + elem + ", set=" + this + "].");
+            log.warning("Refusing to add duplicate entry", "entry", elem, "set", this,
+                        new Exception());
             return false;
         }
 
@@ -294,8 +293,8 @@ public class DSet<E extends DSet.Entry>
         if (_size >= elength) {
             // sanity check
             if (elength > 2048) {
-                log.warning("Requested to expand to questionably large size [l=" + elength + "].");
-                Thread.dumpStack();
+                log.warning("Requested to expand to questionably large size", "l", elength,
+                            new Exception());
             }
 
             // create a new array and copy our data into it
@@ -340,8 +339,7 @@ public class DSet<E extends DSet.Entry>
     {
         // don't fail, but generate a warning if we're passed a null key
         if (key == null) {
-            log.warning("Requested to remove null key.");
-            Thread.dumpStack();
+            log.warning("Requested to remove null key.", new Exception());
             return null;
         }
 

@@ -122,11 +122,9 @@ public class ObjectInputStream extends DataInputStream
                 // sanity check
                 if (cmap == null) {
                     // this will help with debugging
-                    log.warning("Internal stream error, no class metadata [code=" + code +
-                                ", ois=" + this + "].");
-                    Thread.dumpStack();
-                    log.warning(
-                        "ObjectInputStream mappings " + StringUtil.toString(_classmap) + ".");
+                    log.warning("Internal stream error, no class metadata", "code", code,
+                                "ois", this, new Exception());
+                    log.warning("ObjectInputStream mappings", "map", _classmap);
                     String errmsg = "Read object code for which we have no registered class " +
                         "metadata [code=" + code + "]";
                     throw new RuntimeException(errmsg);

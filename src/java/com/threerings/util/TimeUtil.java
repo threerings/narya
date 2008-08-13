@@ -47,10 +47,9 @@ public class TimeUtil
     protected static final byte MAX_UNIT = DAY;
 
     /**
-     * Get a translatable string specifying the magnitude of the specified
-     * duration. Results will be between "1 second" and "X hours", with
-     * all times rounded to the nearest unit. "0 units" will never be
-     * displayed, the minimum is 1.
+     * Get a translatable string specifying the magnitude of the specified duration. Results will
+     * be between "1 second" and "X hours", with all times rounded to the nearest unit. "0 units"
+     * will never be displayed, the minimum is 1.
      */
     public static String getTimeOrderString (long duration, byte minUnit)
     {
@@ -58,12 +57,11 @@ public class TimeUtil
     }
 
     /**
-     * Get a translatable string specifying the magnitude of the specified
-     * duration, with the units of time bounded between the minimum and
-     * maximum specified. "0 units" will never be returned, the minimum is 1.
+     * Get a translatable string specifying the magnitude of the specified duration, with the units
+     * of time bounded between the minimum and maximum specified. "0 units" will never be returned,
+     * the minimum is 1.
      */
-    public static String getTimeOrderString (
-        long duration, byte minUnit, byte maxUnit)
+    public static String getTimeOrderString (long duration, byte minUnit, byte maxUnit)
     {
         // enforce sanity
         minUnit = (byte) Math.min(minUnit, maxUnit);
@@ -85,8 +83,7 @@ public class TimeUtil
     }
 
     /**
-     * Get a translatable string specifying the duration, down to the
-     * minimum granularity.
+     * Get a translatable string specifying the duration, down to the minimum granularity.
      */
     public static String getTimeString (long duration, byte minUnit)
     {
@@ -117,8 +114,7 @@ public class TimeUtil
     }
 
     /**
-     * Internal method to get the quantity for the specified unit.
-     * (Not very OO)
+     * Internal method to get the quantity for the specified unit.  (Not very OO)
      */
     protected static int getQuantityPerUnit (byte unit)
     {
@@ -132,8 +128,7 @@ public class TimeUtil
     }
 
     /**
-     * Internal method to get the translation key for the specified unit.
-     * (Not very OO)
+     * Internal method to get the translation key for the specified unit.  (Not very OO)
      */
     protected static String getTransKey (byte unit)
     {

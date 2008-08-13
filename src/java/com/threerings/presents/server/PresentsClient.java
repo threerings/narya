@@ -874,8 +874,8 @@ public class PresentsClient
         public void eventReceived (DEvent event)
         {
             if (event instanceof PresentsDObjectMgr.AccessObjectEvent) {
-                log.warning("Ignoring event that shouldn't be forwarded " + event + ".");
-                Thread.dumpStack();
+                log.warning("Ignoring event that shouldn't be forwarded " + event + ".",
+                            new Exception());
                 return;
             }
 

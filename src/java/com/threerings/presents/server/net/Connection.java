@@ -166,8 +166,7 @@ public abstract class Connection implements NetEventHandler
     {
         // we shouldn't be closed twice
         if (isClosed()) {
-            log.warning("Attempted to re-close connection " + this + ".");
-            Thread.dumpStack();
+            log.warning("Attempted to re-close connection " + this + ".", new Exception());
             return;
         }
 
@@ -186,8 +185,7 @@ public abstract class Connection implements NetEventHandler
     {
         // if we're already closed, then something is seriously funny
         if (isClosed()) {
-            log.warning("Failure reported on closed connection " + this + ".");
-            Thread.dumpStack();
+            log.warning("Failure reported on closed connection " + this + ".", new Exception());
             return;
         }
 

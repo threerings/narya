@@ -164,8 +164,7 @@ public class DObject
 
         } else {
             log.warning("Refusing subscriber that's already in the list", "dobj", which(),
-                        "subscriber", sub);
-            Thread.dumpStack();
+                        "subscriber", sub, new Exception());
         }
     }
 
@@ -225,8 +224,7 @@ public class DObject
             _listeners = els;
         } else {
             log.warning("Refusing repeat listener registration [dobj=" + which() +
-                        ", list=" + listener + "]");
-            Thread.dumpStack();
+                        ", list=" + listener + "]", new Exception());
         }
     }
 
@@ -802,10 +800,7 @@ public class DObject
         // if we're on the authoritative server, we update the set immediately
         boolean alreadyApplied = false;
         if (_omgr != null && _omgr.isManager(this)) {
-            if (!set.add(entry)) {
-                // DSet will have logged a warning
-                Thread.dumpStack();
-            }
+            set.add(entry);
             alreadyApplied = true;
         }
         // dispatch an entry added event
@@ -823,8 +818,8 @@ public class DObject
         if (_omgr != null && _omgr.isManager(this)) {
             oldEntry = set.removeKey(key);
             if (oldEntry == null) {
-                log.warning("Requested to remove non-element", "set", name, "key", key);
-                Thread.dumpStack();
+                log.warning("Requested to remove non-element", "set", name, "key", key,
+                            new Exception());
             }
         }
         // dispatch an entry removed event
@@ -850,7 +845,8 @@ public class DObject
         if (_omgr != null && _omgr.isManager(this)) {
             oldEntry = set.update(entry);
             if (oldEntry == null) {
-                Thread.dumpStack();
+                log.warning("Set update had no old entry", "name", name, "entry", entry,
+                            new Exception());
             }
         }
         // dispatch an entry updated event

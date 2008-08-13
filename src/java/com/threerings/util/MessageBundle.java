@@ -247,9 +247,7 @@ public class MessageBundle
         }
 
         if (reportMissing) {
-            log.warning("Missing translation message " +
-                        "[bundle=" + _path + ", key=" + key + "].");
-            Thread.dumpStack();
+            log.warning("Missing translation message", "bundle", _path, "key", key, new Exception());
         }
 
         return null;
@@ -319,9 +317,8 @@ public class MessageBundle
                 }
 
             } else {
-                log.warning("Missing translation message " +
-                            "[bundle=" + _path + ", key=" + key + "].");
-                Thread.dumpStack();
+                log.warning("Missing translation message", "bundle", _path, "key", key,
+                            new Exception());
             }
         }
 

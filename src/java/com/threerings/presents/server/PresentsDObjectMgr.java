@@ -218,9 +218,8 @@ public class PresentsDObjectMgr
     public <T extends DObject> T registerObject (T object)
     {
         if (_dobjThread != null && !isDispatchThread()) {
-            log.warning("Registering DObject on non-dobject thread: " +
-                "[class=" + object.getClass().getName() + "]");
-            Thread.dumpStack();
+            log.warning("Registering DObject on non-dobject thread",
+                        "class", object.getClass().getName(), new Exception());
         }
 
         int oid = getNextOid();
