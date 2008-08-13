@@ -23,9 +23,11 @@ package com.threerings.presents.dobj;
 
 import java.io.IOException;
 
+import java.util.AbstractSet;
 import java.util.Comparator;
 import java.util.ConcurrentModificationException;
 import java.util.Iterator;
+import java.util.Set;
 
 import com.samskivert.util.ArrayUtil;
 
@@ -254,6 +256,31 @@ public class DSet<E extends DSet.Entry>
         }
         System.arraycopy(_entries, 0, array, 0, array.length);
         return array;
+    }
+
+    /**
+     * Creates an <b>immutable</b> view of this distributed set as a Java set.
+     */
+    public Set<E> toSet ()
+    {
+        return new AbstractSet<E>() {
+            @Override public boolean add (E o) {
+                throw new UnsupportedOperationException();
+            }
+            @Override public boolean remove (Object o) {
+                throw new UnsupportedOperationException();
+            }
+            @Override public boolean contains (Object o) {
+                @SuppressWarnings("unchecked") E elem = (E)o;
+                return DSet.this.contains(elem);
+            }
+            @Override public Iterator<E> iterator () {
+                return DSet.this.iterator();
+            }
+            @Override public int size () {
+                return DSet.this.size();
+            }
+        };
     }
 
     /**
