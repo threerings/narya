@@ -261,7 +261,7 @@ public class DSet<E extends DSet.Entry>
     /**
      * Creates an <b>immutable</b> view of this distributed set as a Java set.
      */
-    public Set<E> toSet ()
+    public Set<E> asSet ()
     {
         return new AbstractSet<E>() {
             @Override public boolean add (E o) {
