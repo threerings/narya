@@ -98,6 +98,14 @@ public class ShutdownManager
     }
 
     /**
+     * Returns true if we're in the process of shutting down.
+     */
+    public boolean isShuttingDown ()
+    {
+        return _downers == null;
+    }
+
+    /**
      * Shuts down all shutdowners immediately on the caller's thread.
      */
     public void shutdown ()
