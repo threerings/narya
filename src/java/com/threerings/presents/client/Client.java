@@ -545,6 +545,37 @@ public class Client
         notifyObservers(CLIENT_DID_LOGOFF, null);
         cleanup(null); // this will set _standalone to false
     }
+    
+    // from Object
+    public String toString ()
+    {
+        StringBuilder builder = new StringBuilder();
+        builder.append(getClass().getSimpleName()).append(" [");
+        fieldsToString(builder);
+        builder.append("]");
+        return builder.toString();
+    }
+
+    /**
+     * Adds text representation of fields to the builder. The results will be placed between 
+     * brackets by <code>toString</code>.
+     */
+    public void fieldsToString (StringBuilder builder)
+    {
+        builder.append("hostname=").append(_hostname);
+        if (_ports != null && _ports.length > 0) {
+            builder.append(", ports=");
+            StringUtil.toString(builder, _ports);
+        }
+        if (_datagramPorts != null && _datagramPorts.length > 0) {
+            builder.append(", datagramPorts=");
+            StringUtil.toString(builder, _datagramPorts);
+        }
+        builder.append(", clOid=").append(_cloid);
+        builder.append(", connId=").append(_connectionId);
+        builder.append(", creds=");
+        StringUtil.toString(_creds);
+    }
 
     /**
      * Called by the {@link ClientDObjectMgr} when our bootstrap notification arrives. If the
