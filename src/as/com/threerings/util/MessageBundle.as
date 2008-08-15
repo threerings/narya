@@ -190,22 +190,14 @@ public class MessageBundle
         }
 
         // look up our message string, selecting the proper plurality
-        // string if our first argument is an Integer
+        // string if our first argument can be coaxed into an integer
         var msg :String = getResourceString(key + getSuffix(args), false);
 
-        // if the base key is not found, look to see if we should try to
-        // convert our first argument to an Integer and try again
+        // if the suffixed key was not found, just try the original key
         if (msg == null) {
-            if (getResourceString(key + ".n", false) != null) {
-                // try converting the first arg to an int
-                try {
-                    args[0] = StringUtil.parseInteger(args[0]);
-                    msg = getResourceString(key + getSuffix(args), false);
-                } catch (err :Error) {
-                    // fall through...
-                }
-            }
-            // if the msg is still null, we have a problem
+            msg = getResourceString(key, false);
+
+            // if the msg is still missing, we have a problem
             if (msg == null) {
                 Log.getLog(this).warning("Missing translation message " +
                             "[bundle=" + _path + ", key=" + key + "].");
@@ -221,15 +213,17 @@ public class MessageBundle
     /**
      * A helper function for {@link #get(String,Object[])} that allows us
      * to automatically perform plurality processing if our first argument
-     * is an {@link Integer}.
+     * can be coaxed to an {@link Integer}.
      */
     protected function getSuffix (args :Array) :String
     {
-        if (args.length > 0 && args[0] is int) {
+        if (args.length > 0) {
+            var count :int = int(args[0]);
             switch (args[0]) {
-            case 0: return ".0";
-            case 1: return ".1";
-            default: return ".n";
+                case NaN: break; // Fall out
+                case 0: return ".0";
+                case 1: return ".1";
+                default: return ".n";
             }
         }
         return "";

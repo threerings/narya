@@ -300,30 +300,18 @@ public class MessageBundle
         // if the base key is not found, look to see if we should try to
         // convert our first argument to an Integer and try again
         if (msg == null) {
-            if (getResourceString(key + ".n", false) != null) {
-                try {
-                    // args could be a String[], we need to turn it into
-                    // an Object[]
-                    Object[] newargs = new Object[args.length];
-                    System.arraycopy(args, 1, newargs, 1, args.length - 1);
-                    newargs[0] = new Integer(args[0].toString());
-                    args = newargs;
-                    msg = getResourceString(key + getSuffix(args));
-                } catch (Exception e) {
-                    log.warning("Failure doing automatic plural handling " +
-                                "[bundle=" + _path + ", key=" + key +
-                                ", args=" + StringUtil.toString(args) +
-                                ", error=" + e + "].");
-                }
+            msg = getResourceString(key, false);
 
-            } else {
+            if (msg == null) {
                 log.warning("Missing translation message", "bundle", _path, "key", key,
                             new Exception());
+
+                // return something bogus
+                return (key + StringUtil.toString(args));
             }
         }
 
-        return (msg != null) ? MessageFormat.format(MessageUtil.escape(msg), args) :
-            (key + StringUtil.toString(args));
+        return MessageFormat.format(MessageUtil.escape(msg), args);
     }
 
     /**
@@ -338,15 +326,21 @@ public class MessageBundle
     /**
      * A helper function for {@link #get(String,Object[])} that allows us
      * to automatically perform plurality processing if our first argument
-     * is an {@link Integer}.
+     * can be coaxed to an {@link Integer}.
      */
     protected String getSuffix (Object[] args)
     {
-        if (args[0] instanceof Integer) {
-            switch (((Integer)args[0]).intValue()) {
-            case 0: return ".0";
-            case 1: return ".1";
-            default: return ".n";
+        if (args.length > 0) {
+            try {
+                int count = (args[0] instanceof Integer) ? (Integer)args[0] :
+                    Integer.parseInt(args[0].toString());
+                switch (count) {
+                    case 0: return ".0";
+                    case 1: return ".1";
+                    default: return ".n";
+                }
+            } catch (NumberFormatException e) {
+                // Fall out
             }
         }
         return "";
