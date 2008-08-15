@@ -58,6 +58,19 @@ public class MessageBundleTest extends TestCase
                 fail("xlate failed: " + output);
             }
 
+            // Counting sheep
+            assertEquals("No sheep",
+                bundle.xlate(MessageBundle.compose("m.sheep", MessageBundle.taint(0))));
+            assertEquals("One sheep",
+                bundle.xlate(MessageBundle.compose("m.sheep", MessageBundle.taint(1))));
+            assertEquals("666 sheeps",
+                bundle.xlate(MessageBundle.compose("m.sheep", MessageBundle.taint("666"))));
+            assertEquals("Don't suffix me",
+                bundle.xlate(MessageBundle.compose("m.sheep", MessageBundle.taint("zzz"))));
+
+            assertEquals("7x12", bundle.xlate(MessageBundle.compose("m.coord",
+                MessageBundle.taint(7), MessageBundle.taint(12))));
+
         } catch (Exception e) {
             fail("Test failed: " + e);
         }
