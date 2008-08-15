@@ -293,14 +293,15 @@ public class MessageBundle
             return qbundle.get(getUnqualifiedKey(key), args);
         }
 
-        // look up our message string, selecting the proper plurality
-        // string if our first argument is an Integer
-        String msg = getResourceString(key + getSuffix(args), false);
+        // Select the proper suffix if our first argument can be coaxed into an integer
+        String suffix = getSuffix(args);
+        String msg = getResourceString(key + suffix, false);
 
-        // if the base key is not found, look to see if we should try to
-        // convert our first argument to an Integer and try again
         if (msg == null) {
-            msg = getResourceString(key, false);
+            if (suffix != "") {
+                // Try the original key
+                msg = getResourceString(key, false);
+            }
 
             if (msg == null) {
                 log.warning("Missing translation message", "bundle", _path, "key", key,

@@ -189,13 +189,15 @@ public class MessageBundle
             return qbundle.get(getUnqualifiedKey(key), args);
         }
 
-        // look up our message string, selecting the proper plurality
-        // string if our first argument can be coaxed into an integer
-        var msg :String = getResourceString(key + getSuffix(args), false);
+        // Select the proper suffix if our first argument can be coaxed into an integer
+        var suffix :String = getSuffix(args);
+        var msg :String = getResourceString(key + suffix, false);
 
-        // if the suffixed key was not found, just try the original key
         if (msg == null) {
-            msg = getResourceString(key, false);
+            if (suffix != "") {
+                // Try the original key
+                msg = getResourceString(key, false);
+            }
 
             // if the msg is still missing, we have a problem
             if (msg == null) {
