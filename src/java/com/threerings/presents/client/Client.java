@@ -545,8 +545,8 @@ public class Client
         notifyObservers(CLIENT_DID_LOGOFF, null);
         cleanup(null); // this will set _standalone to false
     }
-    
-    // from Object
+
+    @Override
     public String toString ()
     {
         StringBuilder builder = new StringBuilder();
@@ -557,7 +557,7 @@ public class Client
     }
 
     /**
-     * Adds text representation of fields to the builder. The results will be placed between 
+     * Adds text representation of fields to the builder. The results will be placed between
      * brackets by <code>toString</code>.
      */
     public void fieldsToString (StringBuilder builder)
