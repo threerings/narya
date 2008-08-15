@@ -298,6 +298,8 @@ public class MessageBundle
         String msg = getResourceString(key + suffix, false);
 
         if (msg == null) {
+            // Playing with fire: This only works because it's the same "" reference we return from getSuffix()
+            // Don't try this at home. Keep out of reach of children. If swallowed, consult StringUtil.isBlank()
             if (suffix != "") {
                 // Try the original key
                 msg = getResourceString(key, false);
