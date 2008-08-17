@@ -230,7 +230,7 @@ public class Communicator
             Log.getLog(this).warning(
                 "Beans! We didn't fully read a frame, surely there's " +
                 "a bug in some streaming code. " +
-                "[bytesLeftOver=" + frameData.bytesAvailable + "].");
+                "[bytesLeftOver=" + frameData.bytesAvailable + ", msg=" + msg + "].");
         }
 
         if (_omgr != null) {
