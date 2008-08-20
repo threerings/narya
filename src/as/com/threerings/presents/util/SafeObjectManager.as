@@ -37,11 +37,12 @@ public class SafeObjectManager
 {
     /**
      * Creates a new manager. The optional available and failed parameters are callbacks
-     * that must match the {@link Subscriber} interface methods.
+     * that must match the <code>Subscriber</code> interface methods.
      * @param omgr the underlying object manager to use for requesting objects
      * @param log sink for warnings and info messages
      * @param available optional callback for when an object becomes available
      * @param failed optional callback for when a subscription request fails
+     * @see Subscriber
      */
     public function SafeObjectManager (
         omgr :DObjectManager, 
@@ -58,13 +59,20 @@ public class SafeObjectManager
 
     /**
      * Safely requests the given object from the manager. If an <code>available</code> callback was 
-     * provided to {#link #SafeObjectManager}, it will be invoked when the request is fulfilled. If
-     * a <code>failed</code> callback was provided, it will be invoked if the request fails. After 
-     * and only after the request succeeds, {@link #getObject} will return the object when called
-     * with this id.
+     * provided to the constructor, it will be invoked when the request is fulfilled. If a 
+     * <code>failed</code> callback was provided, it will be invoked if the request fails. After 
+     * and only after the request succeeds, <code>getObj</code> will return the object when called
+     * with this id. The optional callbacks must match the signatures of the ones from 
+     * <code>Subscriber</code>. If provided, they will be called in addition to the ones provided to
+     * <code>SafeObjectManager</code>.
      * @param oid the id of the object to request.
+     * @param available an optional callback to be invoked when the object is ready
+     * @param failed an optional callback to be invoked if the request fails
      */
-    public function subscribe (oid :int) :void
+    public function subscribe (
+        oid :int, 
+        available :Function=null, 
+        failed :Function=null) :void
     {
         if (_entries[oid] != null ) {
             _log.warning("Object " + oid + " already subscribed");
@@ -73,13 +81,15 @@ public class SafeObjectManager
 
         var sub :SafeSubscriber = new SafeSubscriber(oid, _adapter);
         var entry :Entry = new Entry(sub);
+        entry.availableFn = available;
+        entry.failedFn = failed;
         sub.subscribe(_omgr);
         _log.info("Subscribing to " + sub);
         _entries[oid] = entry;
     }
 
     /**
-     * Safely notifies the manager that an object is no longer needed. The {@link #getObject} 
+     * Safely notifies the manager that an object is no longer needed. The <code>getObj</code> 
      * call will subsequently return null for this id.
      * @param oid the id of the object that is no longer needed
      */
@@ -124,9 +134,9 @@ public class SafeObjectManager
 
     /**
      * Accesses an object. This returns non-null if the object corresponding to the id has been 
-     * subscribed using {@link #subscribe} and the subscription was completed successfully. It
+     * subscribed using <code>subscribe</code> and the subscription was completed successfully. It
      * will return null if the subscription has not yet succeeded or the object has been 
-     * unsubscribed using {@link #unsubscribe} or {@link #unsubscribeAll}.
+     * unsubscribed using <code>unsubscribe</code> or <code>unsubscribeAll</code>.
      */
     public function getObj (oid :int) :DObject
     {
@@ -155,6 +165,10 @@ public class SafeObjectManager
         if (_available != null) {
             _available(obj);
         }
+
+        if (entry.availableFn != null) {
+            entry.availableFn(obj);
+        }
     }
 
     /** Notifies the manager that an object subscription request has failed */
@@ -166,7 +180,6 @@ public class SafeObjectManager
 
         } else {
             entry.failed = true;
-
         }
 
         _log.warning("Failed to subscribe to object " + oid);
@@ -174,6 +187,10 @@ public class SafeObjectManager
 
         if (_failed != null) {
             _failed(oid, cause);
+        }
+
+        if (entry.failedFn != null) {
+            entry.failedFn(oid, cause);
         }
     }
 
@@ -219,6 +236,8 @@ class Entry
     public var obj :DObject;
     public var destroyed :Boolean;
     public var failed :Boolean;
+    public var availableFn :Function;
+    public var failedFn :Function;
 
     public function Entry (subscriber :SafeSubscriber)
     {
