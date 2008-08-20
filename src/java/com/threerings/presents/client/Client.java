@@ -574,7 +574,7 @@ public class Client
         builder.append(", clOid=").append(_cloid);
         builder.append(", connId=").append(_connectionId);
         builder.append(", creds=");
-        StringUtil.toString(_creds);
+        StringUtil.toString(builder, _creds);
     }
 
     /**
