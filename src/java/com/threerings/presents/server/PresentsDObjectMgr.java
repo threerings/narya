@@ -73,7 +73,7 @@ public class PresentsDObjectMgr
     implements RootDObjectManager, RunQueue, ReportManager.Reporter
 {
     /** Contains operational statistics that are tracked by the distributed object manager between
-     * {@link ReportManager#Reporter} intervals. The snapshot for the most recently completed
+     * {@link ReportManager.Reporter} intervals. The snapshot for the most recently completed
      * period can be requested via {@link #getStats()}. . */
     public static class Stats
     {
@@ -380,13 +380,12 @@ public class PresentsDObjectMgr
         // deal with any remaining oid lists that reference this object
         Reference[] refs = _refs.remove(oid);
         if (refs != null) {
-            for (int i = 0; i < refs.length; i++) {
+            for (Reference ref : refs) {
                 // skip empty spots
-                if (refs[i] == null) {
+                if (ref == null) {
                     continue;
                 }
 
-                Reference ref = refs[i];
                 DObject reffer = _objects.get(ref.reffingOid);
 
                 // ensure that the referencing object is still around
@@ -405,9 +404,7 @@ public class PresentsDObjectMgr
         // to clear out those references
         Class<?> oclass = target.getClass();
         Field[] fields = oclass.getFields();
-        for (int f = 0; f < fields.length; f++) {
-            Field field = fields[f];
-
+        for (Field field : fields) {
             // ignore static and non-public fields
             int mods = field.getModifiers();
             if ((mods & Modifier.STATIC) != 0 || (mods & Modifier.PUBLIC) == 0) {

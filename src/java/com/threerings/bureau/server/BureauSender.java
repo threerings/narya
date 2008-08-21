@@ -22,6 +22,7 @@
 package com.threerings.bureau.server;
 
 import com.threerings.bureau.client.BureauDecoder;
+import com.threerings.bureau.client.BureauReceiver;
 import com.threerings.presents.data.ClientObject;
 import com.threerings.presents.server.InvocationSender;
 

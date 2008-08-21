@@ -45,7 +45,7 @@ public class ElementUpdatedEvent extends NamedEvent
      * @param name the name of the attribute (data member) for which an element has changed.
      * @param value the new value of the element (in the case of primitive types, the
      * reflection-defined object-alternative is used).
-     * @param oldValue the previous value of the element (in the case of primitive types, the
+     * @param ovalue the previous value of the element (in the case of primitive types, the
      * reflection-defined object-alternative is used).
      * @param index the index in the array of the updated element.
      */
@@ -62,7 +62,7 @@ public class ElementUpdatedEvent extends NamedEvent
      * @param name the name of the attribute (data member) for which an element has changed.
      * @param value the new value of the element (in the case of primitive types, the
      * reflection-defined object-alternative is used).
-     * @param oldValue the previous value of the element (in the case of primitive types, the
+     * @param ovalue the previous value of the element (in the case of primitive types, the
      * reflection-defined object-alternative is used).
      * @param index the index in the array of the updated element.
      * @param transport a hint as to the type of transport desired for the event.

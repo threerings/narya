@@ -74,7 +74,7 @@ public class LocationManager
      *
      * @return the config object for the new location.
      *
-     * @exception ServiceFaildException thrown if the move was not successful for some reason
+     * @exception InvocationException thrown if the move was not successful for some reason
      * (which will be communicated as an error code in the exception's message data).
      */
     public PlaceConfig moveTo (BodyObject source, int placeOid)

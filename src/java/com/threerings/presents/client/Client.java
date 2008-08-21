@@ -451,7 +451,7 @@ public class Client
      * user of the failure and then simply call {@link #logon} to attempt to reconnect to the old
      * server.
      *
-     * @param observer an observer that will be notified when we have successfully logged onto the
+     * @param obs an observer that will be notified when we have successfully logged onto the
      * other server, or if the move failed.
      */
     public void moveToServer (String hostname, int[] ports, InvocationService.ConfirmListener obs)
@@ -470,7 +470,7 @@ public class Client
      * user of the failure and then simply call {@link #logon} to attempt to reconnect to the old
      * server.
      *
-     * @param observer an observer that will be notified when we have successfully logged onto the
+     * @param obs an observer that will be notified when we have successfully logged onto the
      * other server, or if the move failed.
      */
     public void moveToServer (

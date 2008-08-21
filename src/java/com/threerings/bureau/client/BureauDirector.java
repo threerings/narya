@@ -5,6 +5,7 @@ import com.threerings.bureau.data.BureauCodes;
 import com.samskivert.util.IntMap;
 import com.samskivert.util.IntMaps;
 import com.threerings.bureau.data.AgentObject;
+import com.threerings.bureau.server.BureauRegistry;
 import com.threerings.bureau.util.BureauContext;
 import com.threerings.presents.client.Client;
 import com.threerings.presents.dobj.Subscriber;

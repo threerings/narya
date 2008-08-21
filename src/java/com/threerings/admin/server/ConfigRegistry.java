@@ -33,6 +33,7 @@ import com.samskivert.util.StringUtil;
 import com.threerings.io.ObjectInputStream;
 import com.threerings.io.ObjectOutputStream;
 import com.threerings.io.Streamable;
+import com.threerings.presents.dobj.AccessController;
 import com.threerings.presents.dobj.AttributeChangeListener;
 import com.threerings.presents.dobj.AttributeChangedEvent;
 import com.threerings.presents.dobj.DObject;
@@ -152,13 +153,13 @@ public abstract class ConfigRegistry
             Class<?> cclass = object.getClass();
             try {
                 Field[] fields = cclass.getFields();
-                for (int ii = 0; ii < fields.length; ii++) {
-                    int mods = fields[ii].getModifiers();
+                for (Field field : fields) {
+                    int mods = field.getModifiers();
                     if ((mods & Modifier.STATIC) != 0 || (mods & Modifier.PUBLIC) == 0 ||
                         (mods & Modifier.TRANSIENT) != 0) {
                         continue;
                     }
-                    initField(fields[ii]);
+                    initField(field);
                 }
 
                 // listen for attribute updates

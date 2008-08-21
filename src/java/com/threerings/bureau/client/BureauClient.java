@@ -35,7 +35,6 @@ public abstract class BureauClient extends Client
 {
     /**
      * Creates a new client.
-     * @param creds the credentials supplied during connection
      * @param runQueue the place to post tasks required by clients
      */
     public BureauClient (String token, String bureauId, RunQueue runQueue)

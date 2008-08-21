@@ -27,6 +27,7 @@ import com.threerings.presents.data.ClientObject;
 import com.threerings.presents.dobj.DObject;
 import com.threerings.presents.server.InvocationManager;
 
+import com.threerings.crowd.chat.client.SpeakService;
 import com.threerings.crowd.chat.data.ChatCodes;
 import com.threerings.crowd.data.BodyObject;
 

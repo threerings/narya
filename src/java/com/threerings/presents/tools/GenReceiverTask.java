@@ -69,8 +69,7 @@ public class GenReceiverTask extends InvocationTask
 
         // look through and locate our receiver methods
         Method[] methdecls = receiver.getDeclaredMethods();
-        for (int ii = 0; ii < methdecls.length; ii++) {
-            Method m = methdecls[ii];
+        for (Method m : methdecls) {
             // receiver interface methods must be public and abstract
             if (!Modifier.isPublic(m.getModifiers()) &&
                 !Modifier.isAbstract(m.getModifiers())) {
@@ -104,6 +103,7 @@ public class GenReceiverTask extends InvocationTask
         checkedAdd(implist, InvocationSender.class.getName());
         String dname = StringUtil.replace(rname, "Receiver", "Decoder");
         checkedAdd(implist, rpackage + "." + dname);
+        checkedAdd(implist, rpackage + "." + rname);
         implist.sort();
 
         VelocityContext ctx = new VelocityContext();

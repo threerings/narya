@@ -547,7 +547,7 @@ public class ClientManager
         protected ClientOp _clop;
     }
 
-    /** Used to resolve dependencies in {@link PresentClient} instances that we create. */
+    /** Used to resolve dependencies in {@link PresentsClient} instances that we create. */
     protected Injector _injector;
 
     /** A mapping from auth username to client instances. */

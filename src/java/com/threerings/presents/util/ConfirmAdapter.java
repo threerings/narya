@@ -21,11 +21,16 @@
 
 package com.threerings.presents.util;
 
+import com.samskivert.util.ResultListener;
+
 import com.threerings.presents.client.InvocationService;
+import com.threerings.presents.client.InvocationService.ConfirmListener;
+import com.threerings.presents.data.InvocationCodes;
+import com.threerings.presents.server.InvocationException;
 
 /**
  * Adapts the response from a {@link ResultListener} to a {@link ConfirmListener} if the failure is
- * an instance fo {@link InvocationException} the message will be passed on to the confirm
+ * an instance of {@link InvocationException} the message will be passed on to the confirm
  * listener, otherwise they will be provided with {@link InvocationCodes#INTERNAL_ERROR}.
  */
 public class ConfirmAdapter extends IgnoreConfirmAdapter<Void>

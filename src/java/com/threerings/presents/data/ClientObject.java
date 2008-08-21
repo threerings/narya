@@ -74,7 +74,7 @@ public class ClientObject extends DObject
     }
 
     /**
-     * A version of {@link #checkAccess(Permission,Object} that provides no context.
+     * A version of {@link #checkAccess(Permission,Object)} that provides no context.
      */
     public String checkAccess (Permission perm)
     {

@@ -24,6 +24,7 @@ package com.threerings.presents.util;
 import com.samskivert.util.ResultListener;
 
 import com.threerings.presents.client.InvocationService;
+import com.threerings.presents.client.InvocationService.ConfirmListener;
 import com.threerings.presents.data.InvocationCodes;
 import com.threerings.presents.server.InvocationException;
 

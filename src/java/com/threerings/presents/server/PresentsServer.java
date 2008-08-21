@@ -36,6 +36,7 @@ import com.threerings.presents.annotation.EventQueue;
 import com.threerings.presents.annotation.MainInvoker;
 import com.threerings.presents.client.Client;
 import com.threerings.presents.dobj.AccessController;
+import com.threerings.presents.dobj.DObject;
 import com.threerings.presents.dobj.DObjectManager;
 import com.threerings.presents.dobj.RootDObjectManager;
 import com.threerings.presents.server.net.ConnectionManager;

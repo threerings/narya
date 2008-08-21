@@ -130,7 +130,7 @@ public class JabberClient
     }
 
     /**
-     * Creates the {@link JabberContext} implementation that will be
+     * Creates the {@link CrowdContext} implementation that will be
      * passed around to all of the client code. Derived classes may wish
      * to override this and create some extended context implementation.
      */

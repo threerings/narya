@@ -25,6 +25,7 @@ import com.samskivert.util.Invoker;
 import com.samskivert.util.ResultListener;
 
 import com.threerings.presents.server.net.AuthingConnection;
+import com.threerings.presents.server.net.ConnectionManager;
 
 /**
  * Handles certain special kinds of authentications and passes the remainder through to the default

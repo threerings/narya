@@ -453,8 +453,7 @@ public class DObject
             return;
         }
 
-        for (int ii = 0, ll = _subs.length; ii < ll; ii++) {
-            Object sub = _subs[ii];
+        for (Object sub : _subs) {
             try {
                 if (sub != null && sub instanceof ProxySubscriber) {
                     ((ProxySubscriber)sub).eventReceived(event);
@@ -569,7 +568,7 @@ public class DObject
      * distributed object manager. This is called by the distributed object manager when an object
      * is created and registered with the system.
      *
-     * @see DObjectManager#createObject
+     * @see RootDObjectManager#registerObject(DObject)
      */
     public void setManager (DObjectManager omgr)
     {
@@ -580,7 +579,7 @@ public class DObject
      * Don't call this function. It is called by the distributed object manager when an object is
      * created and registered with the system.
      *
-     * @see DObjectManager#createObject
+     * @see RootDObjectManager#registerObject(DObject)
      */
     public void setOid (int oid)
     {

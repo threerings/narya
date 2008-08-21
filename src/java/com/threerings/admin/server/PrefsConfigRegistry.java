@@ -23,6 +23,7 @@ package com.threerings.admin.server;
 
 import com.google.inject.Singleton;
 
+import com.samskivert.util.Config;
 import com.samskivert.util.PrefsConfig;
 
 import com.threerings.presents.dobj.DObject;

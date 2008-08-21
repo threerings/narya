@@ -136,7 +136,7 @@ public class InvocationMarshaller
     }
 
     /**
-     * Defines a marshaller for the standard {@link ConfirmListener}.
+     * Defines a marshaller for the standard {@link InvocationService.ConfirmListener}.
      */
     public static class ConfirmMarshaller extends ListenerMarshaller
         implements ConfirmListener
@@ -167,7 +167,7 @@ public class InvocationMarshaller
     }
 
     /**
-     * Defines a marshaller for the standard {@link ResultListener}.
+     * Defines a marshaller for the standard {@link InvocationService.ResultListener}.
      */
     public static class ResultMarshaller extends ListenerMarshaller
         implements ResultListener
