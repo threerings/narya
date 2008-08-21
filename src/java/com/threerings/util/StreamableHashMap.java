@@ -41,6 +41,14 @@ public class StreamableHashMap<K, V> extends HashMap<K, V>
     implements Streamable
 {
     /**
+     * Creates an empty StreamableHashMap
+     */
+    public static <K, V> StreamableHashMap<K, V> newMap ()
+    {
+        return new StreamableHashMap<K, V>();
+    }
+
+    /**
      * Constructs an empty hash map with the specified number of hash
      * buckets.
      */
