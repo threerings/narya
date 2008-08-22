@@ -3,11 +3,18 @@
 	<classpathentry excluding="**/.svn/" kind="src" output="dist/classes" path="src/java"/>
 	<classpathentry excluding="**/.svn/" kind="src" output="tests/dist/classes" path="tests/src/java"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/samskivert"/>
 	<classpathentry exported="true" kind="var" path="EXT_LIBS_DIR/commons-lang.jar"/>
 	<classpathentry kind="var" path="EXT_LIBS_DIR/javassist.jar"/>
 	<classpathentry exported="true" kind="var" path="EXT_LIBS_DIR/google-collect.jar"/>
 	<classpathentry exported="true" kind="var" path="EXT_LIBS_DIR/guice.jar"/>
 	<classpathentry exported="true" kind="var" path="EXT_LIBS_DIR/atunit.jar"/>
+	<classpathentry exported="true" kind="var" path="EXT_LIBS_DIR/samskivert.jar"/>
+	<classpathentry exported="true" kind="var" path="EXT_LIBS_DIR/ant.jar"/>
+	<classpathentry exported="true" kind="var" path="EXT_LIBS_DIR/velocity-1.5-dev.jar"/>
+	<classpathentry exported="true" kind="var" path="EXT_LIBS_DIR/commons-io.jar"/>
+	<classpathentry exported="true" kind="var" path="EXT_LIBS_DIR/junit4.jar"/>
+	<classpathentry exported="true" kind="var" path="EXT_LIBS_DIR/commons-digester.jar"/>
+	<classpathentry exported="true" kind="var" path="EXT_LIBS_DIR/commons-logging.jar"/>
+	<classpathentry exported="true" kind="var" path="EXT_LIBS_DIR/log4j.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
