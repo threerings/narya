@@ -213,7 +213,7 @@ public class Log
             // cache miss- copy some parent spec's level...
             var modSpec :String = spec;
             do {
-                var dex :int = modSpec.indexOf(".");
+                var dex :int = modSpec.lastIndexOf(".");
                 if (dex == -1) {
                     modSpec = "";
                 } else {
