@@ -89,6 +89,19 @@ public class CommandEvent extends Event
         }
     }
 
+    /**
+     * Configure a bridge from something like a pop-up window to an alternate target.
+     */
+    public static function configureBridge (source :IEventDispatcher, target :IEventDispatcher) :void
+    {
+        source.addEventListener(COMMAND,
+            function (event :CommandEvent) :void {
+                event.markAsHandled();
+                dispatch(target, event.command, event.arg);
+            },
+            false, -1);
+    }
+
     /** The command. */
     public var command :String;
 
