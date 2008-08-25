@@ -333,7 +333,7 @@ public class MessageBundle
      */
     protected String getSuffix (Object[] args)
     {
-        if (args.length > 0) {
+        if (args.length > 0 && args[0] != null) {
             try {
                 int count = (args[0] instanceof Integer) ? (Integer)args[0] :
                     Integer.parseInt(args[0].toString());
