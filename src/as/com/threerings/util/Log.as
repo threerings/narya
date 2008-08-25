@@ -41,6 +41,13 @@ import flash.utils.getQualifiedClassName;
  */
 public class Log
 {
+    /** Log level constants. */
+    public static const DEBUG :int = 0;
+    public static const INFO :int = 1;
+    public static const WARNING :int = 2;
+    public static const OFF :int = 3;
+    // if you add to this, update LEVEL_NAMES at the bottom...
+
     /**
      * Retrieve a Log for the specififed class.
      *
@@ -92,10 +99,42 @@ public class Log
     }
 
     /**
+     * Set the log level for the specified package/file.
+     *
+     * @param spec The smallest prefix desired to configure a log level.
+     * For example, you can set the global level with Log.setLevel("", Log.INFO);
+     * Then you can Log.setLevel("com.foo.game", Log.DEBUG). Now, everything
+     * logs at INFO level except for classes within com.foo.game, which is at DEBUG.
+     */
+    public static function setLevel (spec :String, level :int) :void
+    {
+        _setLevels[spec] = level;
+        resetLevels();
+    }
+
+    /**
+     * Parses a String in the form of ":info;com.foo.game:debug;com.bar.util:warning"
+     *
+     * Semicolons separate modules, colons separate a module name from the log level.
+     * An empty string specifies the top-level (global) module.
+     */
+    public static function setLevels (settingString :String) :void
+    {
+        for (var module :String in settingString.split(";")) {
+            var setting :Array = module.split(":");
+            _setLevels[setting[0]] = stringToLevel(String(setting[1]));
+        }
+        resetLevels();
+    }
+
+    /**
      * @private
      */
     public function Log (spec :String)
     {
+        if (spec == null) { // what!?
+            spec = "";
+        }
         _spec = spec;
     }
 
@@ -104,7 +143,7 @@ public class Log
      */
     public function debug (... messages) :void
     {
-        doLog("[debug]", messages);
+        doLog(DEBUG, messages);
     }
 
     /**
@@ -112,7 +151,7 @@ public class Log
      */
     public function info (... messages) :void
     {
-        doLog("[INFO]", messages);
+        doLog(INFO, messages);
     }
 
     /**
@@ -120,7 +159,7 @@ public class Log
      */
     public function warning (... messages) :void
     {
-        doLog("[WARNING]", messages);
+        doLog(WARNING, messages);
     }
 
     /**
@@ -131,9 +170,12 @@ public class Log
         warning(error.getStackTrace());
     }
 
-    protected function doLog (level :String, messages :Array) :void
+    protected function doLog (level :int, messages :Array) :void
     {
-        messages.unshift(getTimeStamp(), level, _spec);
+        if (level < getLevel(_spec)) {
+            return; // we don't want to log it!
+        }
+        messages.unshift(getTimeStamp(), LEVEL_NAMES[level], _spec);
         trace.apply(null, messages);
 
         // possibly also dispatch to any other log targets.
@@ -160,10 +202,67 @@ public class Log
             StringUtil.prepad(String(d.milliseconds), 3, "0");
     }
 
+    /**
+     * Get the logging level for the specified spec.
+     */
+    protected static function getLevel (spec :String) :int
+    {
+        // we probably already have the level cached for this spec
+        var obj :Object = _levels[spec];
+        if (obj == null) {
+            // cache miss- copy some parent spec's level...
+            var modSpec :String = spec;
+            do {
+                var dex :int = modSpec.indexOf(".");
+                if (dex == -1) {
+                    modSpec = "";
+                } else {
+                    modSpec = modSpec.substring(0, dex);
+                }
+                obj = _levels[modSpec];
+                if (obj != null) {
+                    // we found the level we should use, copy it and break
+                    _levels[spec] = obj;
+                    break;
+                }
+            } while (modSpec != ""); // if we break here, we'll int(null) and return DEBUG..
+        }
+        return int(obj);
+    }
+
+    /**
+     * Reset (clear) the log level cache to the set levels.
+     */
+    protected static function resetLevels () :void
+    {
+        _levels = {};
+        for (var spec :String in _setLevels) {
+            _levels[spec] = _setLevels[spec];
+        }
+    }
+
+    protected static function stringToLevel (s :String) :int
+    {
+        switch (s.toLowerCase()) {
+        default: // default to DEBUG
+        case "debug": return DEBUG;
+        case "info": return INFO;
+        case "warning": return WARNING;
+        case "off": return OFF;
+        }
+    }
+
     /** Our log specification. */
     protected var _spec :String;
 
     protected static var _targets :Array = [];
-}
 
+    protected static var _levels :Object;
+
+    protected static var _setLevels :Object = { "": DEBUG }; // global: debug
+    resetLevels(); // statically reset the levels to the setLevels when the class first starts...
+
+    /** The names of each level. The last one isn't used, it corresponds with OFF. */
+    protected static const LEVEL_NAMES :Array = [ "[debug]", "[INFO]", "[WARNING]", false ];
+}
 }
