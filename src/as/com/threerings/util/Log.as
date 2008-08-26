@@ -120,7 +120,7 @@ public class Log
      */
     public static function setLevels (settingString :String) :void
     {
-        for (var module :String in settingString.split(";")) {
+        for each (var module :String in settingString.split(";")) {
             var setting :Array = module.split(":");
             _setLevels[setting[0]] = stringToLevel(String(setting[1]));
         }
