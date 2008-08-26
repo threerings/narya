@@ -212,33 +212,31 @@ public class Log
         if (obj == null) {
             // cache miss- copy some parent spec's level...
             var modSpec :String = spec;
-            do {
+            while (true) {
+                obj = _setLevels[modSpec];
+                if (obj != null || modSpec == "") {
+                    // bail if we found a setting or get to the top level,
+                    // but always save the level from _setLevels into _levels
+                    _levels[spec] = int(obj); // if obj was null, this will become 0 (DEBUG)
+                    break;
+                }
                 var dex :int = modSpec.lastIndexOf(".");
                 if (dex == -1) {
                     modSpec = "";
                 } else {
                     modSpec = modSpec.substring(0, dex);
                 }
-                obj = _levels[modSpec];
-                if (obj != null) {
-                    // we found the level we should use, copy it and break
-                    _levels[spec] = obj;
-                    break;
-                }
-            } while (modSpec != ""); // if we break here, we'll int(null) and return DEBUG..
+            }
         }
         return int(obj);
     }
 
     /**
-     * Reset (clear) the log level cache to the set levels.
+     * Reset (clear) the log level cache.
      */
     protected static function resetLevels () :void
     {
         _levels = {};
-        for (var spec :String in _setLevels) {
-            _levels[spec] = _setLevels[spec];
-        }
     }
 
     protected static function stringToLevel (s :String) :int
@@ -257,10 +255,11 @@ public class Log
 
     protected static var _targets :Array = [];
 
-    protected static var _levels :Object;
+    /** A cache of log levels, copied from _setLevels. */
+    protected static var _levels :Object = {};
 
+    /** The configured log levels. */
     protected static var _setLevels :Object = { "": DEBUG }; // global: debug
-    resetLevels(); // statically reset the levels to the setLevels when the class first starts...
 
     /** The names of each level. The last one isn't used, it corresponds with OFF. */
     protected static const LEVEL_NAMES :Array = [ "[debug]", "[INFO]", "[WARNING]", false ];
