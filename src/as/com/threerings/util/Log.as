@@ -26,6 +26,17 @@ import flash.utils.getQualifiedClassName;
 /**
  * A simple logging mechanism.
  *
+ * Log instances are created for modules, and the logging level can be configured per
+ * module in a hierarchical fashion.
+ *
+ * Typically, you should create a module name based on the full path to a class:
+ * calling getLog() and passing an object or Class will do this. Alternattely, you
+ * may create a Log to share in several classes in a package, in which case the
+ * module name can be like "com.foocorp.games.bunnywar". Finally, you can just
+ * create made-up module names like "mygame" or "util", but this is not recommended.
+ * You really should name things based on your packages, and your packages should be
+ * named according to Sun's recommendations for Java packages.
+ *
  * Typical usage for creating a Log to be used by the entire class would be:
  * public class MyClass
  * {
@@ -49,15 +60,16 @@ public class Log
     // if you add to this, update LEVEL_NAMES at the bottom...
 
     /**
-     * Retrieve a Log for the specififed class.
+     * Retrieve a Log for the specified module.
      *
-     * @param spec can be any Object or Class specifier.
+     * @param moduleSpec can be a String of the module name, or any Object or Class to
+     * have the module name be the full package and name of the class (recommended).
      */
-    public static function getLog (spec :*) :Log
+    public static function getLog (moduleSpec :*) :Log
     {
-        // let's just use the full classname
-        var path :String = getQualifiedClassName(spec).replace("::", ".");
-        return new Log(path);
+        const module :String = (moduleSpec is String) ? String(moduleSpec)
+            : getQualifiedClassName(moduleSpec).replace("::", ".");
+        return new Log(module);
     }
 
     /**
@@ -99,17 +111,17 @@ public class Log
     }
 
     /**
-     * Set the log level for the specified package/file.
+     * Set the log level for the specified module.
      *
-     * @param spec The smallest prefix desired to configure a log level.
+     * @param module The smallest prefix desired to configure a log level.
      * For example, you can set the global level with Log.setLevel("", Log.INFO);
      * Then you can Log.setLevel("com.foo.game", Log.DEBUG). Now, everything
-     * logs at INFO level except for classes within com.foo.game, which is at DEBUG.
+     * logs at INFO level except for modules within com.foo.game, which is at DEBUG.
      */
-    public static function setLevel (spec :String, level :int) :void
+    public static function setLevel (module :String, level :int) :void
     {
-        _setLevels[spec] = level;
-        resetLevels();
+        _setLevels[module] = level;
+        _levels = {}; // reset cached levels
     }
 
     /**
@@ -124,18 +136,18 @@ public class Log
             var setting :Array = module.split(":");
             _setLevels[setting[0]] = stringToLevel(String(setting[1]));
         }
-        resetLevels();
+        _levels = {}; // reset cached levels
     }
 
     /**
+     * Use Log.getLog();
+     *
      * @private
      */
-    public function Log (spec :String)
+    public function Log (module :String)
     {
-        if (spec == null) { // what!?
-            spec = "";
-        }
-        _spec = spec;
+        if (module == null) module = "";
+        _module = module;
     }
 
     /**
@@ -172,10 +184,10 @@ public class Log
 
     protected function doLog (level :int, messages :Array) :void
     {
-        if (level < getLevel(_spec)) {
+        if (level < getLevel(_module)) {
             return; // we don't want to log it!
         }
-        messages.unshift(getTimeStamp(), LEVEL_NAMES[level], _spec);
+        messages.unshift(getTimeStamp(), LEVEL_NAMES[level], _module);
         trace.apply(null, messages);
 
         // possibly also dispatch to any other log targets.
@@ -203,40 +215,28 @@ public class Log
     }
 
     /**
-     * Get the logging level for the specified spec.
+     * Get the logging level for the specified module.
      */
-    protected static function getLevel (spec :String) :int
+    protected static function getLevel (module :String) :int
     {
-        // we probably already have the level cached for this spec
-        var obj :Object = _levels[spec];
-        if (obj == null) {
-            // cache miss- copy some parent spec's level...
-            var modSpec :String = spec;
+        // we probably already have the level cached for this module
+        var lev :Object = _levels[module];
+        if (lev == null) {
+            // cache miss- copy some parent module's level...
+            var ancestor :String = module;
             while (true) {
-                obj = _setLevels[modSpec];
-                if (obj != null || modSpec == "") {
+                lev = _setLevels[ancestor];
+                if (lev != null || ancestor == "") {
                     // bail if we found a setting or get to the top level,
                     // but always save the level from _setLevels into _levels
-                    _levels[spec] = int(obj); // if obj was null, this will become 0 (DEBUG)
+                    _levels[module] = int(lev); // if lev was null, this will become 0 (DEBUG)
                     break;
                 }
-                var dex :int = modSpec.lastIndexOf(".");
-                if (dex == -1) {
-                    modSpec = "";
-                } else {
-                    modSpec = modSpec.substring(0, dex);
-                }
+                var dex :int = ancestor.lastIndexOf(".");
+                ancestor = (dex == -1) ? "" : ancestor.substring(0, dex);
             }
         }
-        return int(obj);
-    }
-
-    /**
-     * Reset (clear) the log level cache.
-     */
-    protected static function resetLevels () :void
-    {
-        _levels = {};
+        return int(lev);
     }
 
     protected static function stringToLevel (s :String) :int
@@ -250,9 +250,10 @@ public class Log
         }
     }
 
-    /** Our log specification. */
-    protected var _spec :String;
+    /** The module to which this log instance applies. */
+    protected var _module :String;
 
+    /** Other registered LogTargets, besides the trace log. */
     protected static var _targets :Array = [];
 
     /** A cache of log levels, copied from _setLevels. */
