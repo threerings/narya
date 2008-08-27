@@ -25,6 +25,7 @@ import com.threerings.util.env.Environment;
 
 import flash.utils.ByteArray;
 import flash.utils.Dictionary;
+import flash.utils.getQualifiedClassName;
 
 public class StringUtil
 {
@@ -303,7 +304,8 @@ public class StringUtil
             return String(obj);
         }
 
-        if (obj is Array || Util.isPlainObject(obj)) {
+        var isDictionary :Boolean = obj is Dictionary;
+        if (obj is Array || isDictionary || Util.isPlainObject(obj)) {
             if (refs == null) {
                 refs = new Dictionary();
 
@@ -333,7 +335,7 @@ public class StringUtil
                     }
                     s += prop + "=>" + toString(obj[prop], refs);
                 }
-                return "Object(" + s + ")";
+                return (isDictionary ? "Dictionary" : "Object") + "(" + s + ")";
             }
 
         } else if (obj is XML) {
