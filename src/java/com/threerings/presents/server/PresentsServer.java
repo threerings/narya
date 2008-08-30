@@ -58,11 +58,18 @@ public class PresentsServer
     public static class Module extends AbstractModule
     {
         @Override protected void configure () {
-            bind(Invoker.class).annotatedWith(MainInvoker.class).to(PresentsInvoker.class);
-            bind(Invoker.class).annotatedWith(AuthInvoker.class).to(PresentsAuthInvoker.class);
+            bindInvokers();
             bind(RunQueue.class).annotatedWith(EventQueue.class).to(PresentsDObjectMgr.class);
             bind(DObjectManager.class).to(PresentsDObjectMgr.class);
             bind(RootDObjectManager.class).to(PresentsDObjectMgr.class);
+        }
+
+        /**
+         * Binds just the invokers so this can be overridden if desired.
+         */
+        protected void bindInvokers() {
+            bind(Invoker.class).annotatedWith(MainInvoker.class).to(PresentsInvoker.class);
+            bind(Invoker.class).annotatedWith(AuthInvoker.class).to(PresentsAuthInvoker.class);
         }
     }
 
