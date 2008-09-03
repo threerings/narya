@@ -24,7 +24,6 @@ package com.threerings.admin.server.persist;
 import java.util.HashMap;
 import java.util.Set;
 
-import com.samskivert.io.PersistenceException;
 import com.samskivert.jdbc.depot.DepotRepository;
 import com.samskivert.jdbc.depot.PersistenceContext;
 import com.samskivert.jdbc.depot.PersistentRecord;
@@ -49,7 +48,6 @@ public class ConfigRepository extends DepotRepository
      * @return a map containing field/value pairs for all stored configuration data.
      */
     public HashMap<String, String> loadConfig (String node, String object)
-        throws PersistenceException
     {
         HashMap<String, String> data = new HashMap<String, String>();
         Where where = new Where(ConfigRecord.OBJECT_C, object, ConfigRecord.NODE_C, node);
@@ -63,7 +61,6 @@ public class ConfigRepository extends DepotRepository
      * Updates the specified configuration datum.
      */
     public void updateConfig (String node, String object, String field, String value)
-        throws PersistenceException
     {
         store(new ConfigRecord(node, object, field, value));
     }

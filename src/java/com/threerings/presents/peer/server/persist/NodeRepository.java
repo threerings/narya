@@ -28,7 +28,6 @@ import java.util.Set;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
-import com.samskivert.io.PersistenceException;
 import com.samskivert.jdbc.depot.DepotRepository;
 import com.samskivert.jdbc.depot.PersistenceContext;
 import com.samskivert.jdbc.depot.PersistentRecord;
@@ -51,7 +50,6 @@ public class NodeRepository extends DepotRepository
      * Returns a list of all nodes registered in the repository.
      */
     public List<NodeRecord> loadNodes ()
-        throws PersistenceException
     {
         return findAll(NodeRecord.class);
     }
@@ -60,7 +58,6 @@ public class NodeRepository extends DepotRepository
      * Updates the supplied node record, inserting it into the database if necessary.
      */
     public void updateNode (NodeRecord record)
-        throws PersistenceException
     {
         record.lastUpdated = new Timestamp(System.currentTimeMillis());
         store(record);
@@ -71,7 +68,6 @@ public class NodeRepository extends DepotRepository
      * alive and well.
      */
     public void heartbeatNode (String nodeName)
-        throws PersistenceException
     {
         updatePartial(NodeRecord.class, nodeName, new Object[] {
             NodeRecord.LAST_UPDATED, new Timestamp(System.currentTimeMillis())
@@ -82,7 +78,6 @@ public class NodeRepository extends DepotRepository
      * Deletes the identified node record.
      */
     public void deleteNode (String nodeName)
-        throws PersistenceException
     {
         // INDEX: Full primary key.
         delete(NodeRecord.class, nodeName);

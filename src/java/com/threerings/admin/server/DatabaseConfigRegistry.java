@@ -25,8 +25,8 @@ import java.util.HashMap;
 
 import com.google.inject.Singleton;
 
-import com.samskivert.io.PersistenceException;
 import com.samskivert.jdbc.WriteOnlyUnit;
+import com.samskivert.jdbc.depot.DatabaseException;
 import com.samskivert.jdbc.depot.PersistenceContext;
 import com.samskivert.util.Invoker;
 import com.samskivert.util.StringUtil;
@@ -55,7 +55,6 @@ public class DatabaseConfigRegistry extends ConfigRegistry
      * initialization) so as to avoid blocking the distributed object thread.
      */
     public DatabaseConfigRegistry (PersistenceContext ctx, Invoker invoker)
-        throws PersistenceException
     {
         this(ctx, invoker, false);
     }
@@ -69,7 +68,6 @@ public class DatabaseConfigRegistry extends ConfigRegistry
      * @param transitioning if the values in the database need to be transitioned to a new format
      */
     public DatabaseConfigRegistry (PersistenceContext ctx, Invoker invoker, boolean transitioning)
-        throws PersistenceException
     {
         this(ctx, invoker, "", transitioning);
     }
@@ -84,7 +82,6 @@ public class DatabaseConfigRegistry extends ConfigRegistry
      * separate configs, then specify a node for each server
      */
     public DatabaseConfigRegistry (PersistenceContext ctx, Invoker invoker, String node)
-        throws PersistenceException
     {
         this(ctx, invoker, node, false);
     }
@@ -100,8 +97,7 @@ public class DatabaseConfigRegistry extends ConfigRegistry
      * @param transitioning if the values in the database need to be transitioned to a new format
      */
     public DatabaseConfigRegistry (PersistenceContext ctx, Invoker invoker, String node,
-            boolean transitioning)
-        throws PersistenceException
+                                   boolean transitioning)
     {
         super(transitioning);
         _repo = new ConfigRepository(ctx);
@@ -133,7 +129,7 @@ public class DatabaseConfigRegistry extends ConfigRegistry
             // can predictably make use of the configuration information that we load
             try {
                 _data = _repo.loadConfig(_node, _path);
-            } catch (PersistenceException pe) {
+            } catch (DatabaseException pe) {
                 log.warning("Failed to load object configuration [path=" + _path + "].", pe);
                 _data = new HashMap<String, String>();
             }
