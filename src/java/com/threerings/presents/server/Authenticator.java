@@ -21,8 +21,6 @@
 
 package com.threerings.presents.server;
 
-import com.samskivert.io.PersistenceException;
-
 import com.samskivert.util.Invoker;
 import com.samskivert.util.ResultListener;
 
@@ -58,7 +56,7 @@ public abstract class Authenticator
             public boolean invoke () {
                 try {
                     processAuthentication(conn, rsp);
-                } catch (Exception e) { // Persistence or Runtime
+                } catch (Exception e) {
                     log.warning("Error authenticating user [areq=" + req + "].", e);
                     rdata.code = AuthCodes.SERVER_ERROR;
                 }
@@ -100,5 +98,5 @@ public abstract class Authenticator
      * created by {@link #createResponseData}.
      */
     protected abstract void processAuthentication (AuthingConnection conn, AuthResponse rsp)
-        throws PersistenceException;
+        throws Exception;
 }
