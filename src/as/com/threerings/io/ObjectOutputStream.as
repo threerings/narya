@@ -27,6 +27,7 @@ import flash.utils.IDataOutput;
 import com.threerings.util.ClassUtil;
 import com.threerings.util.HashMap;
 import com.threerings.util.Log;
+import com.threerings.util.Long;
 import com.threerings.util.Short;
 
 public class ObjectOutputStream
@@ -162,6 +163,11 @@ public class ObjectOutputStream
         //throws IOError
     {
         _targ.writeFloat(value);
+    }
+
+    public function writeLong (value :Long) :void
+    {
+        writeBareObject(value);
     }
 
     public function writeInt (value :int) :void

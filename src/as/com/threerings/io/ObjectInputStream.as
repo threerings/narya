@@ -29,6 +29,7 @@ import flash.utils.IDataInput;
 
 import com.threerings.util.ClassUtil;
 import com.threerings.util.Log;
+import com.threerings.util.Long;
 
 public class ObjectInputStream
 {
@@ -207,6 +208,13 @@ public class ObjectInputStream
         //throws IOError
     {
         return _source.readFloat();
+    }
+
+    public function readLong () :Long
+    {
+        const result :Long = new Long();
+        readBareObject(result);
+        return result;
     }
 
     public function readInt () :int

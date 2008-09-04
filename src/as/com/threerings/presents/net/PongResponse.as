@@ -56,10 +56,7 @@ public class PongResponse extends DownstreamMessage
         _unpackStamp = getTimer();
         super.readObject(ins);
 
-        // TODO: Figure out how we're really going to cope with longs
-        _packStamp = new Long();
-        ins.readBareObject(_packStamp);
-
+        _packStamp = ins.readLong();
         _processDelay = ins.readInt();
     }
 
