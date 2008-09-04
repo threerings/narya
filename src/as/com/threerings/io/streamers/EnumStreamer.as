@@ -19,17 +19,34 @@
 // License along with this library; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 
-package com.threerings.io {
+package com.threerings.io.streamers {
 
-public class ClassMapping
+import com.threerings.util.Enum;
+
+import com.threerings.io.ObjectInputStream;
+import com.threerings.io.ObjectOutputStream;
+import com.threerings.io.Streamer;
+
+public class EnumStreamer extends Streamer
 {
-    public var code :int;
-    public var streamer :Streamer;
-
-    public function ClassMapping (code :int, streamer :Streamer)
+    public function EnumStreamer (enumClass :Class, jname :String = null)
     {
-        this.code = code;
-        this.streamer = streamer;
+        super(enumClass, jname);
+    }
+
+    override public function createObject (ins :ObjectInputStream) :Object
+    {
+        return Enum.valueOf(_target, ins.readUTF());
+    }
+
+    override public function writeObject (obj :Object, out :ObjectOutputStream) :void
+    {
+        out.writeUTF((obj as Enum).name());
+    }
+
+    override public function readObject (obj :Object, ins :ObjectInputStream) :void
+    {
+        // unneeded, done in createObject
     }
 }
 }

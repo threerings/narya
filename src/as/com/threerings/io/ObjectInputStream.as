@@ -79,16 +79,15 @@ public class ObjectInputStream
                 var jname :String = readUTF();
 //                log.debug("read jname: " + jname);
                 var streamer :Streamer = Streamer.getStreamerByJavaName(jname);
-                if (streamer == Streamer.BAD_STREAMER) {
+                if (streamer == null) {
                     log.warning("OMG, cannot stream " + jname);
                     return null;
                 }
                 if (DEBUG) log.debug(DEBUG_ID + "Got streamer (" + streamer + ")");
 
-                var cname :String = Translations.getFromServer(jname);
-                cmap = new ClassMapping(code, cname, streamer);
+                cmap = new ClassMapping(code, streamer);
                 _classMap[code] = cmap;
-                if (DEBUG) log.debug(DEBUG_ID + "Created mapping: (" + code + "): " + cname);
+                if (DEBUG) log.debug(DEBUG_ID + "Created mapping: (" + code + "): " + jname);
 
             } else {
                 cmap = (_classMap[code] as ClassMapping);
@@ -97,19 +96,13 @@ public class ObjectInputStream
                         "registered class metadata [code=" + code + "].");
                 }
                 if (DEBUG) {
-                    log.debug(DEBUG_ID + "Read known code: (" + code + ": " + cmap.classname + ")");
+                    log.debug(DEBUG_ID + "Read known code: (" + code + ": " +
+                        cmap.streamer.getJavaClassName() + ")");
                 }
             }
 
 //            log.debug("Creating object sleeve...");
-            var target :Object;
-            if (cmap.streamer === null) {
-                var clazz :Class = ClassUtil.getClassByName(cmap.classname);
-                target = new clazz();
-
-            } else {
-                target = cmap.streamer.createObject(this);
-            }
+            var target :Object = cmap.streamer.createObject(this);
             //log.debug("Reading object...");
             readBareObjectImpl(target, cmap.streamer);
             if (DEBUG) log.debug(DEBUG_ID + "Read object: " + target);
@@ -129,12 +122,6 @@ public class ObjectInputStream
 
     public function readBareObjectImpl (obj :Object, streamer :Streamer) :void
     {
-        // streamable objects
-        if (streamer == null) {
-            (obj as Streamable).readObject(this);
-            return;
-        }
-
         _current = obj;
         _streamer = streamer;
         try {
@@ -156,35 +143,21 @@ public class ObjectInputStream
     public function readField (type :Object) :Object
         //throws IOError
     {
-        if (readBoolean()) {
-            var streamer :Streamer = (type is Class)
-                ? Streamer.getStreamerByClass(type as Class)
-                : Streamer.getStreamerByJavaName(type as String);
-
-            if (streamer == Streamer.BAD_STREAMER) {
-                throw new Error("Cannot field stream " + type);
-            }
-
-            var obj :Object;
-            if (streamer != null) {
-                obj = streamer.createObject(this);
-
-            } else { 
-                // create the streamable object, either by class or name
-                var c :Class;
-                if (type is Class) {
-                    c = (type as Class);
-                } else {
-                    c = ClassUtil.getClassByName(
-                        Translations.getFromServer(type as String));
-                }
-                obj = new c();
-            }
-
-            readBareObjectImpl(obj, streamer);
-            return obj;
+        if (!readBoolean()) {
+            return null;
         }
-        return null;
+
+        var streamer :Streamer = (type is Class)
+            ? Streamer.getStreamerByClass(type as Class)
+            : Streamer.getStreamerByJavaName(type as String);
+
+        if (streamer == null) {
+            throw new Error("Cannot field stream " + type);
+        }
+
+        var obj :Object = streamer.createObject(this);
+        readBareObjectImpl(obj, streamer);
+        return obj;
     }
 
     public function defaultReadObject () :void

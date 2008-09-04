@@ -24,10 +24,12 @@ package com.threerings.io {
 import flash.utils.ByteArray;
 
 import com.threerings.util.ClassUtil;
+import com.threerings.util.Enum;
 
 import com.threerings.io.streamers.ArrayStreamer;
 import com.threerings.io.streamers.ByteStreamer;
 import com.threerings.io.streamers.ByteArrayStreamer;
+import com.threerings.io.streamers.EnumStreamer;
 import com.threerings.io.streamers.FloatStreamer;
 import com.threerings.io.streamers.IntegerStreamer;
 import com.threerings.io.streamers.LongStreamer;
@@ -37,14 +39,8 @@ import com.threerings.io.streamers.StringStreamer;
 
 public class Streamer
 {
-    public static const BAD_STREAMER :Streamer = new Streamer(null, null);
-
     public static function getStreamer (obj :Object) :Streamer
     {
-        if (obj is Streamable) {
-            return null;
-        }
-
         initStreamers();
 
         var streamer :Streamer;
@@ -54,34 +50,54 @@ public class Streamer
             }
         }
 
+        // from here on out we're creating new streamers
+
         if (obj is TypedArray) {
             streamer = new ArrayStreamer((obj as TypedArray).getJavaType());
-            _streamers.push(streamer);
-            return streamer;
+
+        } else if (obj is Enum) {
+            streamer = new EnumStreamer(ClassUtil.getClass(obj));
+
+        } else if (obj is Streamable) {
+            streamer = new Streamer(ClassUtil.getClass(obj));
+
+        } else {
+            return null;
         }
 
-        return BAD_STREAMER;
+        // add the new streamer and return it
+        _streamers.push(streamer);
+        return streamer;
     }
 
     public static function getStreamerByClass (clazz :Class) :Streamer
     {
         initStreamers();
 
-        if (ClassUtil.isAssignableAs(Streamable, clazz)) {
-            return null; // Streamable
-        }
-
         if (clazz === TypedArray) {
             throw new Error("Broken, TODO");
         }
 
-        for each (var streamer :Streamer in _streamers) {
+        var streamer :Streamer;
+        for each (streamer in _streamers) {
             if (streamer.isStreamerForClass(clazz)) {
                 return streamer;
             }
         }
 
-        return BAD_STREAMER;
+        if (ClassUtil.isAssignableAs(Enum, clazz)) {
+            streamer = new EnumStreamer(clazz);
+
+        } else if (ClassUtil.isAssignableAs(Streamable, clazz)) {
+            streamer = new Streamer(clazz);
+
+        } else {
+            return null;
+        }
+
+        // add the new streamer and return it
+        _streamers.push(streamer);
+        return streamer;
     }
 
     public static function getStreamerByJavaName (jname :String) :Streamer
@@ -103,26 +119,33 @@ public class Streamer
         // see if it's an array that we unstream using an ArrayStreamer
         if (jname.charAt(0) === "[") {
             streamer = new ArrayStreamer(jname);
-            _streamers.push(streamer);
-            return streamer;
+
+        } else {
+            // otherwise see if it represents a Streamable
+            var clazz :Class = ClassUtil.getClassByName(Translations.getFromServer(jname));
+
+            if (ClassUtil.isAssignableAs(Enum, clazz)) {
+                streamer = new EnumStreamer(clazz, jname);
+
+            } else if (ClassUtil.isAssignableAs(Streamable, clazz)) {
+                streamer = new Streamer(clazz, jname);
+
+            } else {
+                return null;
+            }
         }
 
-        // otherwise see if it represents a Streamable
-        var clazz :Class = ClassUtil.getClassByName(
-            Translations.getFromServer(jname));
-        if (ClassUtil.isAssignableAs(Streamable, clazz)) {
-            return null; // it's streamable
-        }
-
-        return BAD_STREAMER;
+        // add the good new streamer
+        _streamers.push(streamer);
+        return streamer;
     }
 
     /** This should be a protected constructor. */
-    public function Streamer (targ :Class, jname :String)
+    public function Streamer (targ :Class, jname :String = null)
         //throws IOError
     {
         _target = targ;
-        _jname = jname;
+        _jname = (jname != null) ? jname : Translations.getToServer(ClassUtil.getClassName(targ));
     }
 
     public function isStreamerFor (obj :Object) :Boolean
@@ -146,7 +169,7 @@ public class Streamer
     public function writeObject (obj :Object, out :ObjectOutputStream) :void
         //throws IOError
     {
-        throw new Error("Abstract");
+        (obj as Streamable).writeObject(out);
     }
 
     public function createObject (ins :ObjectInputStream) :Object
@@ -159,7 +182,7 @@ public class Streamer
     public function readObject (obj :Object, ins :ObjectInputStream) :void
         //throws IOError
     {
-        throw new Error("Abstract");
+        (obj as Streamable).readObject(ins);
     }
 
     /**

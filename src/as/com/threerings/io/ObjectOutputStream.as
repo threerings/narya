@@ -59,12 +59,11 @@ public class ObjectOutputStream
         // create a class mapping if we've not got one
         if (cmap == null) {
             var streamer :Streamer = Streamer.getStreamer(obj);
-            // streamer may be null to indicate a Streamable object
-            if (streamer == Streamer.BAD_STREAMER) {
+            if (streamer == null) {
                 throw new Error("Unable to stream " + cname);
             }
 
-            cmap = new ClassMapping(_nextCode++, cname, streamer);
+            cmap = new ClassMapping(_nextCode++, streamer);
             _classMap.put(cname, cmap);
 
             if (_nextCode > Short.MAX_VALUE) {
@@ -76,8 +75,7 @@ public class ObjectOutputStream
             }
 
             writeShort(-cmap.code);
-            writeUTF((streamer == null) ? Translations.getToServer(cname)
-                                        : streamer.getJavaClassName());
+            writeUTF(streamer.getJavaClassName());
 
         } else {
             writeShort(cmap.code);
@@ -94,12 +92,6 @@ public class ObjectOutputStream
 
     public function writeBareObjectImpl (obj :Object, streamer :Streamer) :void
     {
-        // if it's Streamable, it goes straight through
-        if (streamer == null) {
-            obj.writeObject(this); // obj is a Streamable
-            return;
-        }
-
         // otherwise, stream it!
         _current = obj;
         _streamer = streamer;
