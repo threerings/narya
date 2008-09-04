@@ -41,8 +41,7 @@ public class Translations
         return (asName == null) ? javaName.replace("$", "_") : asName;
     }
 
-    public static function addTranslation (
-            asName :String, javaName :String) :void
+    public static function addTranslation (asName :String, javaName :String) :void
     {
         _toServer.put(asName, javaName);
         _fromServer.put(javaName, asName);
