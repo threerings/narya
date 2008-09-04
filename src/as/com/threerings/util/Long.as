@@ -98,18 +98,7 @@ public class Long
     // from Equalable
     public function equals (other :Object) :Boolean
     {
-        var that :Long = (other as Long);
-        if (that == null || this.bytes.length != 8 || that.bytes.length != 8) {
-            return false;
-        }
-
-        // byte-wise comparison
-        for (var ii :int = 0; ii < 8; ii++) {
-            if (this.bytes[ii] != that.bytes[ii]) {
-                return false;
-            }
-        }
-        return true;
+        return (other is Long) && Util.equals(this.bytes, Long(other).bytes);
     }
 }
 }
