@@ -150,7 +150,7 @@ public class Streamer
 
     public function isStreamerFor (obj :Object) :Boolean
     {
-        return (obj is _target); // scripting langs are weird
+        return isStreamerForClass(ClassUtil.getClass(obj));
     }
 
     public function isStreamerForClass (clazz :Class) :Boolean
