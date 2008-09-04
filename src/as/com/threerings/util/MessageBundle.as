@@ -219,13 +219,17 @@ public class MessageBundle
      */
     protected function getSuffix (args :Array) :String
     {
-        if (args.length > 0) {
-            var count :int = int(args[0]);
-            switch (args[0]) {
-                case NaN: break; // Fall out
-                case 0: return ".0";
-                case 1: return ".1";
-                default: return ".n";
+        if (args.length > 0 && args[0] != null) {
+            try {
+                var count :int = (args[0] is int) ? int(args[0]) :
+                    StringUtil.parseInteger(String(args[0]));
+                switch (count) {
+                    case 0: return ".0";
+                    case 1: return ".1";
+                    default: return ".n";
+                }
+            } catch (err :ArgumentError) {
+                // fall out
             }
         }
         return "";
