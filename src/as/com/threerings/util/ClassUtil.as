@@ -100,6 +100,11 @@ public class ClassUtil
             return true;
         }
 
+        // all enums are final, even if you forget to make your enum class final, you punk
+        if (isAssignableAs(Enum, type)) {
+            return true;
+        }
+
         // TODO: there's currently no way to determine final from the class
         // I thought examining the prototype might do it, but no dice.
         // Fuckers!
