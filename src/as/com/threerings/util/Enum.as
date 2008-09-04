@@ -25,7 +25,7 @@ import flash.utils.Dictionary;
 
 /**
  * Base enum class for actionscript. Works pretty much like enums in Java, only you've got
- * to do one or two things
+ * to do one or two things.
  *
  * To use, you'll want to subclass and have something like the following:
  *
@@ -46,6 +46,13 @@ import flash.utils.Dictionary;
  *         return Enum.values(Foo);
  *     }
  * }
+ *
+ * Important notes:
+ *  - make your class final
+ *  - create a constructor that merely calls super
+ *  - declare your enum constants const, and with the same String as their name.
+ *  - call finishedEnumerating() at the end of your constants.
+ *  - implement a static values() method for extra points, as above.
  */
 public class Enum
     implements Hashable, Comparable
@@ -58,12 +65,21 @@ public class Enum
         const clazz :Class = ClassUtil.getClass(this);
         if (Boolean(_blocked[clazz])) {
             throw new Error("You may not just construct an enum!");
+
+        } else if (name == null) {
+            throw new ArgumentError("null is invalid.");
         }
 
         var list :Array = _enums[clazz] as Array;
         if (list == null) {
             list = [];
             _enums[clazz] = list;
+        } else {
+            for each (var enum :Enum in list) {
+                if (enum.name() === name) {
+                    throw new ArgumentError("Duplicate enum: " + name);
+                }
+            }
         }
         list.push(this);
 
