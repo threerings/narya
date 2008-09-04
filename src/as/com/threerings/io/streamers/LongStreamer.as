@@ -42,15 +42,13 @@ public class LongStreamer extends Streamer
         return new Long();
     }
 
-    override public function writeObject (obj :Object, out :ObjectOutputStream)
-            :void
+    override public function writeObject (obj :Object, out :ObjectOutputStream) :void
     {
         var longy :Long = (obj as Long);
         out.writeBytes(longy.bytes, 0, longy.bytes.length);
     }
 
-    override public function readObject (obj :Object, ins :ObjectInputStream)
-            :void
+    override public function readObject (obj :Object, ins :ObjectInputStream) :void
     {
         var longy :Long = (obj as Long);
         ins.readBytes(longy.bytes, 0, longy.bytes.length);

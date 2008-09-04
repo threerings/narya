@@ -42,15 +42,13 @@ public class IntegerStreamer extends Streamer
         return new Integer(ins.readInt());
     }
 
-    override public function writeObject (obj :Object, out :ObjectOutputStream)
-            :void
+    override public function writeObject (obj :Object, out :ObjectOutputStream) :void
     {
         var inty :Integer = (obj as Integer);
         out.writeInt(inty.value);
     }
 
-    override public function readObject (obj :Object, ins :ObjectInputStream)
-            :void
+    override public function readObject (obj :Object, ins :ObjectInputStream) :void
     {
         // unneeded, done in createObject
     }

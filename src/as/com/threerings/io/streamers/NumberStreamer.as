@@ -40,15 +40,13 @@ public class NumberStreamer extends Streamer
         return ins.readDouble();
     }
 
-    override public function writeObject (obj :Object, out :ObjectOutputStream)
-            :void
+    override public function writeObject (obj :Object, out :ObjectOutputStream) :void
     {
         var n :Number = (obj as Number);
         out.writeDouble(n);
     }
 
-    override public function readObject (obj :Object, ins :ObjectInputStream)
-            :void
+    override public function readObject (obj :Object, ins :ObjectInputStream) :void
     {
         // nothing here, the Number is fully read in createObject()
     }

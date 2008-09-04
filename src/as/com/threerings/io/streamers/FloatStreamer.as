@@ -42,15 +42,13 @@ public class FloatStreamer extends Streamer
         return new Float(ins.readFloat());
     }
 
-    override public function writeObject (obj :Object, out :ObjectOutputStream)
-            :void
+    override public function writeObject (obj :Object, out :ObjectOutputStream) :void
     {
         var float :Float = (obj as Float);
         out.writeFloat(float.value);
     }
 
-    override public function readObject (obj :Object, ins :ObjectInputStream)
-            :void
+    override public function readObject (obj :Object, ins :ObjectInputStream) :void
     {
         // unneeded, done in createObject
     }

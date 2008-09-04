@@ -42,15 +42,13 @@ public class ByteStreamer extends Streamer
         return new Byte(ins.readByte());
     }
 
-    override public function writeObject (obj :Object, out :ObjectOutputStream)
-            :void
+    override public function writeObject (obj :Object, out :ObjectOutputStream) :void
     {
         var byte :Byte = (obj as Byte);
         out.writeByte(byte.value);
     }
 
-    override public function readObject (obj :Object, ins :ObjectInputStream)
-            :void
+    override public function readObject (obj :Object, ins :ObjectInputStream) :void
     {
         // unneeded, done in createObject
     }

@@ -44,16 +44,14 @@ public class ByteArrayStreamer extends Streamer
         return bytes;
     }
 
-    override public function writeObject (obj :Object, out :ObjectOutputStream)
-            :void
+    override public function writeObject (obj :Object, out :ObjectOutputStream) :void
     {
         var bytes :ByteArray = (obj as ByteArray);
         out.writeInt(bytes.length);
         out.writeBytes(bytes);
     }
 
-    override public function readObject (obj :Object, ins :ObjectInputStream)
-            :void
+    override public function readObject (obj :Object, ins :ObjectInputStream) :void
     {
         var bytes :ByteArray = (obj as ByteArray);
         ins.readBytes(bytes, 0, bytes.length);

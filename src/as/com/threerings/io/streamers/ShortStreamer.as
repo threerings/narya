@@ -42,15 +42,13 @@ public class ShortStreamer extends Streamer
         return new Short(ins.readShort());
     }
 
-    override public function writeObject (obj :Object, out :ObjectOutputStream)
-            :void
+    override public function writeObject (obj :Object, out :ObjectOutputStream) :void
     {
         var short :Short = (obj as Short);
         out.writeShort(short.value);
     }
 
-    override public function readObject (obj :Object, ins :ObjectInputStream)
-            :void
+    override public function readObject (obj :Object, ins :ObjectInputStream) :void
     {
         // unneeded, done in createObject
     }
