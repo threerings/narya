@@ -52,6 +52,7 @@ import flash.utils.Dictionary;
  *  - create a constructor that merely calls super
  *  - declare your enum constants const, and with the same String as their name.
  *  - call finishedEnumerating() at the end of your constants.
+ *  - your enum objects should be immutable
  *  - implement a static values() method for extra points, as above.
  */
 public class Enum
@@ -97,6 +98,10 @@ public class Enum
 
     /**
      * Get the ordinal of this enum.
+     * Note that you should not use the ordinal in normal cases, as it may change if a new
+     * enum is defined. Ordinals should only be used if you are writing a data structure
+     * that generically handles enums in an efficient manner, and you are never persisting
+     * anything where the ordinal can change.
      */
     public function ordinal () :int
     {
@@ -155,7 +160,7 @@ public class Enum
         if (arr == null) {
             throw new ArgumentError("Not an enum [class=" + clazz + "].");
         }
-        return arr;
+        return arr.concat(); // return a copy, so that callers may not fuxor
     }
 
     /**
