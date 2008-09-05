@@ -63,8 +63,14 @@ public class FrameReader extends EventDispatcher
                 "socketHasData(" + _socket.bytesAvailable + ")");
         }
 
-        while (_socket.bytesAvailable >= HEADER_SIZE) {
+        while (_socket.bytesAvailable > 0) {
             if (_curData == null) {
+                if (_socket.bytesAvailable < HEADER_SIZE) {
+                    // if there are less bytes available than a header, let's
+                    // just leave them on the socket until we can read the length
+                    // all at once
+                    return;
+                }
                 // the length specified is the length of the entire frame,
                 // including the length of the bytes used to encode the length.
                 // (I think this is pretty silly).
