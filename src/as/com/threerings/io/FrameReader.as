@@ -62,45 +62,35 @@ public class FrameReader extends EventDispatcher
             Log.getLog(this).debug(
                 "socketHasData(" + _socket.bytesAvailable + ")");
         }
-        if (_curData == null) {
-            if (_socket.bytesAvailable < HEADER_SIZE) {
-                // if there are less bytes available than a header, let's
-                // just leave them on the socket until we can read the length
-                // all at once
-                return;
+
+        while (_socket.bytesAvailable >= HEADER_SIZE) {
+            if (_curData == null) {
+                // the length specified is the length of the entire frame,
+                // including the length of the bytes used to encode the length.
+                // (I think this is pretty silly).
+                // So for our purposes we subtract 4 bytes so we know how much
+                // more data is in the frame.
+                _length = _socket.readInt() - HEADER_SIZE;
+                _curData = new ByteArray();
+                _curData.endian = Endian.BIG_ENDIAN;
             }
-            // the length specified is the length of the entire frame,
-            // including the length of the bytes used to encode the length.
-            // (I think this is pretty silly).
-            // So for our purposes we subtract 4 bytes so we know how much
-            // more data is in the frame.
-            _length = _socket.readInt() - HEADER_SIZE;
-            _curData = new ByteArray();
-            _curData.endian = Endian.BIG_ENDIAN;
-        }
 
-        // read bytes: either as much as possible or up to the end of the frame
-        var toRead :int = Math.min(_length - _curData.length,
-            _socket.bytesAvailable);
-        // Just in case, if the amount needed is 0, don't do anything!
-        // Passing 0 causes it to read *all available bytes*.
-        if (toRead != 0) {
-            _socket.readBytes(_curData, _curData.length, toRead);
-        }
-
-        if (_length === _curData.length) {
-            // we have now read a complete frame, let us dispatch the data
-            _curData.position = 0; // move the read pointer to the beginning
-            if (ObjectInputStream.DEBUG) {
-                Log.getLog(this).debug("+ FrameAvailable");
+            // read bytes: either as much as possible or up to the end of the frame
+            var toRead :int = Math.min(_length - _curData.length, _socket.bytesAvailable);
+            // Just in case, if the amount needed is 0, don't do anything!
+            // Passing 0 causes it to read *all available bytes*.
+            if (toRead != 0) {
+                _socket.readBytes(_curData, _curData.length, toRead);
             }
-            dispatchEvent(new FrameAvailableEvent(_curData));
-            _curData = null; // clear, so we know we need to first read length
 
-            // there's a good chance there's more on the socket, recurse
-            // now to read it
-            if (_socket.bytesAvailable >= HEADER_SIZE) {
-                readAvailable();
+            if (_length === _curData.length) {
+                // we have now read a complete frame, let us dispatch the data
+                _curData.position = 0; // move the read pointer to the beginning
+                if (ObjectInputStream.DEBUG) {
+                    Log.getLog(this).debug("+ FrameAvailable");
+                }
+                dispatchEvent(new FrameAvailableEvent(_curData));
+                _curData = null; // clear, so we know we need to first read length
             }
         }
     }
