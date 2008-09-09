@@ -348,10 +348,14 @@ public class StringUtil
     /**
      * Return a string containing all the public fields of the object
      */
-    public static function fieldsToString (buf :StringBuilder, obj :Object) :void
+    public static function fieldsToString (
+        buf :StringBuilder, obj :Object, fieldNames :Array=null) :void
     {
+        if (fieldNames == null) {
+            fieldNames = Environment.enumerateFields(obj);
+        }
         var appended :Boolean = false;
-        for each (var varName :String in Environment.enumerateFields(obj)) {
+        for each (var varName :String in fieldNames) {
             if (appended) {
                 buf.append(", ");
             }
@@ -363,12 +367,12 @@ public class StringUtil
     /**
      * Return a pretty basic toString of the supplied Object.
      */
-    public static function simpleToString (obj :Object) :String
+    public static function simpleToString (obj :Object, fieldNames :Array=null) :String
     {
         var buf :StringBuilder = new StringBuilder("[");
         buf.append(ClassUtil.tinyClassName(obj));
         buf.append("(");
-        fieldsToString(buf, obj);
+        fieldsToString(buf, obj, fieldNames);
         return buf.append(")]").toString();
     }
 
