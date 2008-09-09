@@ -347,9 +347,11 @@ public class StringUtil
 
     /**
      * Return a string containing all the public fields of the object
+     *
+     * @param fieldNames the names of fields to print, or null to print all.
      */
     public static function fieldsToString (
-        buf :StringBuilder, obj :Object, fieldNames :Array=null) :void
+        buf :StringBuilder, obj :Object, fieldNames :Array = null) :void
     {
         if (fieldNames == null) {
             fieldNames = Environment.enumerateFields(obj);
@@ -366,8 +368,10 @@ public class StringUtil
 
     /**
      * Return a pretty basic toString of the supplied Object.
+     *
+     * @param fieldNames the names of fields to print, or null to print all.
      */
-    public static function simpleToString (obj :Object, fieldNames :Array=null) :String
+    public static function simpleToString (obj :Object, fieldNames :Array = null) :String
     {
         var buf :StringBuilder = new StringBuilder("[");
         buf.append(ClassUtil.tinyClassName(obj));
