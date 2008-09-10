@@ -348,6 +348,8 @@ public class StringUtil
     /**
      * Return a string containing all the public fields of the object
      *
+     * @param buf the StringBuilder to which to append
+     * @param obj the object to be inspected
      * @param fieldNames the names of fields to print, or null to print all.
      */
     public static function fieldsToString (
@@ -369,6 +371,7 @@ public class StringUtil
     /**
      * Return a pretty basic toString of the supplied Object.
      *
+     * @param obj the object to be string'd
      * @param fieldNames the names of fields to print, or null to print all.
      */
     public static function simpleToString (obj :Object, fieldNames :Array = null) :String
