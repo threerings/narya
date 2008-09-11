@@ -54,7 +54,7 @@ import flash.utils.Dictionary;
  *
  * Important notes:
  *  - make your class final
- *  - create a constructor that merely calls super
+ *  - create a constructor that calls super(name)
  *  - declare your enum constants const, and with the same String as their name.
  *  - call finishedEnumerating() at the end of your constants.
  *  - your enum objects should be immutable
