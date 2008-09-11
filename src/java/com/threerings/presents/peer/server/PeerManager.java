@@ -332,8 +332,7 @@ public abstract class PeerManager
         // invoke the action on our local server if appropriate
         boolean invoked = false;
         if (action.isApplicable(_nodeobj)) {
-            _injector.injectMembers(action);
-            action.invoke();
+            invokeAction(null, actionBytes);
             invoked = true;
         }
 
