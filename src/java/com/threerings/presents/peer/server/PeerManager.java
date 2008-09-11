@@ -743,7 +743,8 @@ public abstract class PeerManager
             _injector.injectMembers(action);
             action.invoke();
         } catch (Exception e) {
-            log.warning("Failed to execute node action", "from", caller.who(),
+            log.warning("Failed to execute node action",
+                        "from", (caller == null) ? "self" : caller.who(),
                         "action", action, "serializedSize", serializedAction.length, e);
         }
     }
