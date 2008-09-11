@@ -41,6 +41,11 @@ import flash.utils.Dictionary;
  *         super(name);
  *     }
  *
+ *     public static function valueOf (name :String) :Foo
+ *     {
+ *         return Enum.valueOf(Foo, name);
+ *     }
+ *
  *     public static function values () :Array
  *     {
  *         return Enum.values(Foo);
@@ -53,7 +58,7 @@ import flash.utils.Dictionary;
  *  - declare your enum constants const, and with the same String as their name.
  *  - call finishedEnumerating() at the end of your constants.
  *  - your enum objects should be immutable
- *  - implement a static values() method for extra points, as above.
+ *  - implement a static valueOf() and values() methods for extra points, as above.
  */
 public class Enum
     implements Hashable, Comparable
@@ -176,10 +181,10 @@ public class Enum
     protected var _name :String;
 
     /** An array of enums for each enum class. */
-    protected static const _enums :Dictionary = new Dictionary(true); 
+    private static const _enums :Dictionary = new Dictionary(true); 
 
     /** Is further instantiation of enum constants for a class allowed? */
-    protected static const _blocked :Dictionary = new Dictionary(true);
+    private static const _blocked :Dictionary = new Dictionary(true);
 
     finishedEnumerating(Enum); // do not allow any enums in this base class
 }
