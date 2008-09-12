@@ -526,7 +526,7 @@ public class PresentsClient
     }
 
     /**
-     * Creates our incoming messaeg throttle.
+     * Creates our incoming message throttle.
      */
     protected Throttle createIncomingMessageThrottle ()
     {
