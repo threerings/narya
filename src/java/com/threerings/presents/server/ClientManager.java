@@ -64,7 +64,7 @@ public class ClientManager
                ReportManager.Reporter, ShutdownManager.Shutdowner
 {
     /**
-     * Used by {@link #applyToClient}.
+     * Used by {@link ClientManager#applyToClient}.
      */
     public static interface ClientOp
     {
@@ -519,7 +519,7 @@ public class ClientManager
         }
     }
 
-    /** Used by {@link #applyToClient}. */
+    /** Used by {@link ClientManager#applyToClient}. */
     protected class ClientOpResolver
         implements ClientResolutionListener
     {

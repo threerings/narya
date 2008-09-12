@@ -41,7 +41,7 @@ import static com.threerings.crowd.Log.log;
 public class BodyManager
     implements BodyProvider
 {
-    /** Used by {@link #updateOccupantInfo}. */
+    /** Used by {@link BodyManager#updateOccupantInfo}. */
     public static interface OccupantInfoOp
     {
         /**

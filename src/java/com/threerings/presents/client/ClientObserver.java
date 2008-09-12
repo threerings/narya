@@ -25,10 +25,10 @@ package com.threerings.presents.client;
  * A client observer is a more detailed version of the {@link SessionObserver} for entities that
  * are interested in more detail about the logon/logoff process.
  *
- * <p> In the normal course of affairs, {@link #clientDidLogon} will be called after the client
- * successfully logs on to the server and {@link #clientDidLogoff} will be called after the client
- * logs off of the server. If logon fails for any reson, {@link #clientFailedToLogon} will be
- * called to explain the failure.
+ * <p> In the normal course of affairs, {@link SessionObserver#clientDidLogon} will be called after
+ * the client successfully logs on to the server and {@link SessionObserver#clientDidLogoff} will
+ * be called after the client logs off of the server. If logon fails for any reason,
+ * {@link #clientFailedToLogon} will be called to explain the failure.
  *
  * <p> {@link #clientWillLogoff} will only be called when an abortable logoff is requested (like
  * when the user clicks on a logoff button of some sort). It will not be called during
@@ -38,8 +38,9 @@ package com.threerings.presents.client;
  * calls {@link #clientWillLogoff}</em>).
  *
  * <p> If the client connection fails unexpectedly, {@link #clientConnectionFailed} will be called
- * to let the observers know that we lost our connection to the server. {@link #clientDidLogoff}
- * will be called immediately afterwards as a normal logoff procedure is effected.
+ * to let the observers know that we lost our connection to the server.
+ * {@link SessionObserver#clientDidLogoff} will be called immediately afterwards as a normal logoff
+ * procedure is effected.
  */
 public interface ClientObserver extends SessionObserver
 {
@@ -58,7 +59,7 @@ public interface ClientObserver extends SessionObserver
 
     /**
      * Called when the connection to the server went away for some unexpected reason. This will be
-     * followed by a call to {@link #clientDidLogoff}.
+     * followed by a call to {@link SessionObserver#clientDidLogoff}.
      */
     void clientConnectionFailed (Client client, Exception cause);
 

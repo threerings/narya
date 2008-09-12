@@ -59,7 +59,7 @@ public class BureauRegistry
     /**
      * Defines how a bureau is launched. Instances are associated to bureau types by the server on
      * startup. The instances are used whenever the registry needs to launch a bureau for an agent
-     * with the assocated bureau type.
+     * with the associated bureau type.
      */
     public static interface Launcher
     {
@@ -75,7 +75,7 @@ public class BureauRegistry
 
     /**
      * Defines how to generate a command to launch a bureau in a local process.
-     * @see #setCommandGenerator
+     * @see #setCommandGenerator(String,CommandGenerator,int)
      * @see Launcher
      */
     public static interface CommandGenerator
@@ -172,17 +172,15 @@ public class BureauRegistry
      * @param bureauType the type of bureau that will be launched
      * @param cmdGenerator the generator to be used for bureaus of <code>bureauType</code>
      */
-    public void setCommandGenerator (
-        String bureauType,
-        final CommandGenerator cmdGenerator)
+    public void setCommandGenerator (String bureauType, final CommandGenerator cmdGenerator)
     {
         setCommandGenerator(bureauType, cmdGenerator, 0);
     }
-    
+
     /**
      * Registers a command generator for a given type. When an agent is started and no bureaus are
      * running, the <code>bureauType</code> is used to determine the <code>CommandGenerator</code>
-     * instance to call. If the launched bureau does not connect within the given number of 
+     * instance to call. If the launched bureau does not connect within the given number of
      * milliseconds, it will be logged as an error and future attempts to launch the bureau
      * will try launching the command again.
      * @param bureauType the type of bureau that will be launched
@@ -190,9 +188,7 @@ public class BureauRegistry
      * @param timeout milliseconds to wait for the bureau or 0 to wait forever
      */
     public void setCommandGenerator (
-        String bureauType,
-        final CommandGenerator cmdGenerator,
-        int timeout)
+        String bureauType, final CommandGenerator cmdGenerator, int timeout)
     {
         setLauncher(bureauType, new Launcher() {
             public void launchBureau (String bureauId, String token)
@@ -216,7 +212,7 @@ public class BureauRegistry
      * Registers a launcher for a given type. When an agent is started and no bureaus are
      * running, the <code>bureauType</code> is used to determine the <code>Launcher</code>
      * instance to call. The registry will wait indefinitely for the launched bureau
-     * to connect back. 
+     * to connect back.
      * @param bureauType the type of bureau that will be launched
      * @param launcher the launcher to be used for bureaus of <code>bureauType</code>
      */
@@ -228,7 +224,7 @@ public class BureauRegistry
     /**
      * Registers a launcher for a given type. When an agent is started and no bureaus are
      * running, the <code>bureauType</code> is used to determine the <code>Launcher</code>
-     * instance to call. If the launched bureau does not connect within the given number of 
+     * instance to call. If the launched bureau does not connect within the given number of
      * milliseconds, it will be logged as an error and future attempts to launch the bureau
      * will invoke the <code>launch</code> method again.
      * @param bureauType the type of bureau that will be launched
@@ -322,7 +318,7 @@ public class BureauRegistry
         } else if (found.state == AgentState.DESTROYED ||
             found.state == AgentState.STILL_BORN) {
             log.warning(
-                "Ignoring request to destroy agent in unexpected state", "state", found.state, 
+                "Ignoring request to destroy agent in unexpected state", "state", found.state,
                 "agent", found.agent);
         }
 
@@ -434,7 +430,7 @@ public class BureauRegistry
             found.state == AgentState.RUNNING ||
             found.state == AgentState.DESTROYED) {
             log.warning(
-                "Ignoring confirmation of creation of an agent in an unexpected state", "state", 
+                "Ignoring confirmation of creation of an agent in an unexpected state", "state",
                 found.state, "agent", found.agent);
         }
 
@@ -482,8 +478,8 @@ public class BureauRegistry
 
         if (found.state == AgentState.DESTROYED) {
             found.bureau.agentStates.remove(found.agent);
-        
-        } else if (found.state == AgentState.PENDING || 
+
+        } else if (found.state == AgentState.PENDING ||
             found.state == AgentState.STARTED ||
             found.state == AgentState.RUNNING ||
             found.state == AgentState.STILL_BORN) {
@@ -543,7 +539,7 @@ public class BureauRegistry
 
         if (client != null && bureau.clientObj != client) {
             log.warning(
-                "Masquerading request", "function", resolver, "agent", agent, "client", 
+                "Masquerading request", "function", resolver, "agent", agent, "client",
                 bureau.clientObj, "client", client);
             return null;
         }
@@ -561,7 +557,7 @@ public class BureauRegistry
             System.currentTimeMillis() + "r" + Math.random();
         return StringUtil.md5hex(tokenSource);
     }
-    
+
     /**
      * Called by the launcher unit timeout time after launching.
      * @param bureau bureau whose launch occurred
@@ -572,7 +568,7 @@ public class BureauRegistry
             // all's well, ignore
             return;
         }
-        
+
         if (!_bureaus.containsKey(bureau.bureauId)) {
             // bureau has already managed to get destroyed before the launch timeout, ignore
             return;
@@ -631,20 +627,20 @@ public class BureauRegistry
     {
         public Launcher launcher;
         public int timeout;
-        
+
         public LauncherEntry (Launcher launcher, int timeout)
         {
             this.launcher = launcher;
             this.timeout = timeout;
         }
-        
+
         @Override
         public String toString ()
         {
             return StringUtil.fieldsToString(this);
         }
     }
-    
+
     protected enum AgentState
     {
         // Not yet stated, waiting for bureau to ack
@@ -758,7 +754,7 @@ public class BureauRegistry
             throws IOException
         {
             launcherEntry.launcher.launchBureau(bureauId, token);
-            
+
         }
     }
 

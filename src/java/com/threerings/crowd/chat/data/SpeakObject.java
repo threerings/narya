@@ -29,7 +29,7 @@ import com.threerings.util.Name;
  */
 public interface SpeakObject
 {
-    /** Used in conjunction with {@link #applyToListeners}. */
+    /** Used in conjunction with {@link SpeakObject#applyToListeners}. */
     public static interface ListenerOp
     {
         /** Call this method if you only have access to body oids. */

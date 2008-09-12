@@ -50,7 +50,7 @@ import static com.threerings.crowd.Log.log;
 public class PlaceRegistry
     implements ShutdownManager.Shutdowner
 {
-    /** Used in conjunction with {@link #createPlace}. */
+    /** Used in conjunction with {@link PlaceRegistry#createPlace(PlaceConfig,PreStartupHook)}. */
     public static interface PreStartupHook
     {
         void invoke (PlaceManager plmgr);

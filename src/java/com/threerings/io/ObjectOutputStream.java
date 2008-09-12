@@ -154,7 +154,7 @@ public class ObjectOutputStream extends DataOutputStream
      * Writes a {@link Streamable} instance or one of the support object types <em>without
      * associated class metadata</em> to the output stream. The caller is responsible for knowing
      * the exact class of the written object, creating an instance of such and calling {@link
-     * ObjectInputStream#readBareObject} to read its data from the stream.
+     * ObjectInputStream#readBareObject(Object)} to read its data from the stream.
      *
      * @param object the object to be written. It cannot be <code>null</code>.
      */

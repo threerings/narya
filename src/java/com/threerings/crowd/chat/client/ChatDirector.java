@@ -864,7 +864,7 @@ public class ChatDirector extends BasicDirector
         return buf.toString();
     }
 
-    /** Helper function for {@link #mogrifyChat}. */
+    /** Helper function for {@link #mogrifyChat(String,boolean,boolean)}. */
     protected StringBuffer mogrifyChat (
         StringBuffer buf, boolean transformsAllowed, boolean capFirst)
     {
@@ -1152,9 +1152,9 @@ public class ChatDirector extends BasicDirector
                 Object[] commands = possibleCommands.keySet().toArray();
                 Arrays.sort(commands);
                 String commandList = "";
-                for (int ii = 0; ii < commands.length; ii++) {
-                    commandList += " /" + commands[ii];
-                }
+                for (Object element : commands) {
+                        commandList += " /" + element;
+                    }
                 return MessageBundle.tcompose("m.usage_help", commandList);
             }
         }

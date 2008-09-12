@@ -284,21 +284,20 @@ public class ConnectionManager extends LoopingThread
     {
         int successes = 0;
         IOException failure = null;
-        for (int ii = 0; ii < _ports.length; ii++) {
+        for (int port : _ports) {
             try {
                 // create a listening socket and add it to the select set
                 _ssocket = ServerSocketChannel.open();
                 _ssocket.configureBlocking(false);
 
-                InetSocketAddress isa = new InetSocketAddress(_ports[ii]);
+                InetSocketAddress isa = new InetSocketAddress(port);
                 _ssocket.socket().bind(isa);
                 registerChannel(_ssocket);
                 successes++;
                 log.info("Server listening on " + isa + ".");
 
             } catch (IOException ioe) {
-                log.warning("Failure listening to socket on port '" +
-                        _ports[ii] + "'.", ioe);
+                log.warning("Failure listening to socket on port '" + port + "'.", ioe);
                 failure = ioe;
             }
         }
@@ -940,7 +939,7 @@ public class ConnectionManager extends LoopingThread
         notifyObservers(CONNECTION_CLOSED, conn, null, null);
     }
 
-    /** Used to handle partial writes in {@link #writeMessage}. */
+    /** Used to handle partial writes in {@link ConnectionManager#writeMessage}. */
     protected static interface PartialWriteHandler
     {
         void handlePartialWrite (Connection conn, ByteBuffer buffer);

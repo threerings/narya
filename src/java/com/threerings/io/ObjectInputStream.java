@@ -182,7 +182,7 @@ public class ObjectInputStream extends DataInputStream
 
     /**
      * Reads an object from the input stream that was previously written with {@link
-     * ObjectOutputStream#writeBareObject}.
+     * ObjectOutputStream#writeBareObject(Object)}.
      *
      * @param object the object to be populated from data on the stream.  It cannot be
      * <code>null</code>.
@@ -195,7 +195,7 @@ public class ObjectInputStream extends DataInputStream
 
     /**
      * Reads an object from the input stream that was previously written with {@link
-     * ObjectOutputStream#writeBareObject}.
+     * ObjectOutputStream#writeBareObject(Object,Streamer,boolean)}.
      */
     protected void readBareObject (Object object, Streamer streamer, boolean useReader)
         throws IOException, ClassNotFoundException

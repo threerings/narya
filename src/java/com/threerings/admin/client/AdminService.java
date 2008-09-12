@@ -30,13 +30,12 @@ import com.threerings.presents.client.InvocationService;
 public interface AdminService extends InvocationService
 {
     /**
-     * Used to communicate a response to a {@link #getConfigInfo} request.
+     * Used to communicate a response to a {@link AdminService#getConfigInfo} request.
      */
     public static interface ConfigInfoListener extends InvocationListener
     {
         /**
-         * Delivers a successful response to a {@link #getConfigInfo}
-         * request.
+         * Delivers a successful response to a {@link AdminService#getConfigInfo} request.
          */
         void gotConfigInfo (String[] keys, int[] oids);
     }

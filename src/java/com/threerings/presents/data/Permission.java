@@ -22,7 +22,8 @@
 package com.threerings.presents.data;
 
 /**
- * A value class used by {@link ClientObject#checkAccess} to do fine-grained access control.
+ * A value class used by {@link ClientObject#checkAccess(Permission)} to do fine-grained access
+ * control.
  */
 public class Permission
 {

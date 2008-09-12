@@ -108,7 +108,7 @@ public abstract class PeerManager
 
     /**
      * Wraps an operation that needs a shared resource lock to be acquired before it can be
-     * performed, and released after it completes. Used by {@link #performWithLock}.
+     * performed, and released after it completes. Used by {@link PeerManager#performWithLock}.
      */
     public static interface LockedOperation
     {

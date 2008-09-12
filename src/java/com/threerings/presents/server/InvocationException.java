@@ -46,7 +46,7 @@ public class InvocationException extends Exception
     }
 
     /**
-     * A version of {@link #requireAccess} that takes no context.
+     * A version of {@link #requireAccess(ClientObject,Permission,Object)} that takes no context.
      */
     public static void requireAccess (ClientObject clobj, Permission perm)
         throws InvocationException
@@ -55,8 +55,7 @@ public class InvocationException extends Exception
     }
 
     /**
-     * Constructs an invocation exception with the supplied cause code
-     * string.
+     * Constructs an invocation exception with the supplied cause code string.
      */
     public InvocationException (String cause)
     {
@@ -66,8 +65,7 @@ public class InvocationException extends Exception
     /**
      * Constructs an invocation exception with the supplied cause code
      * string and qualifying message bundle. The error code will be
-     * qualified with the message bundle (see {@link
-     * MessageBundle#qualify}).
+     * qualified with the message bundle (see {@link MessageBundle#qualify}).
      */
     public InvocationException (String bundle, String code)
     {

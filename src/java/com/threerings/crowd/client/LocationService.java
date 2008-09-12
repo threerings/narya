@@ -34,12 +34,12 @@ import com.threerings.crowd.data.PlaceConfig;
 public interface LocationService extends InvocationService
 {
     /**
-     * Used to communicate responses to {@link #moveTo} requests.
+     * Used to communicate responses to {@link LocationService#moveTo} requests.
      */
     public static interface MoveListener extends InvocationListener
     {
         /**
-         * Called in response to a successful {@link #moveTo} request.
+         * Called in response to a successful {@link LocationService#moveTo} request.
          */
         void moveSucceeded (PlaceConfig config);
     }

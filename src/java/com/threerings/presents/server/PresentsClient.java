@@ -82,7 +82,7 @@ import static com.threerings.presents.Log.log;
 public class PresentsClient
     implements MessageHandler, ClientResolutionListener
 {
-    /** Used by {@link #setUsername} to report success or failure. */
+    /** Used by {@link PresentsClient#setUsername} to report success or failure. */
     public static interface UserChangeListener
     {
         /** Called when the new client object has been resolved and the new client object reported

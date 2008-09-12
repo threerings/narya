@@ -27,7 +27,7 @@ import com.threerings.util.TrackedObject;
 
 /**
  * A simple serializable object implements the {@link Streamable}
- * interface and provides a default {@link #toString} implementation which
+ * interface and provides a default {@link Object#toString} implementation which
  * outputs all public members.
  */
 public class TrackedStreamableObject extends TrackedObject

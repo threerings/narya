@@ -100,7 +100,7 @@ public class ConfigRecord extends PersistentRecord
 
     // AUTO-GENERATED: METHODS START
     /**
-     * Create and return a primary {@link Key} to identify a {@link #ConfigRecord}
+     * Create and return a primary {@link Key} to identify a {@link ConfigRecord}
      * with the supplied key values.
      */
     public static Key<ConfigRecord> getKey (String node, String object, String field)

@@ -36,17 +36,16 @@ import com.threerings.presents.client.InvocationService;
 public interface ChatService extends InvocationService
 {
     /**
-     * Used to communicate the response to a {@link #tell} request.
+     * Used to communicate the response to a {@link ChatService#tell} request.
      */
     public static interface TellListener extends InvocationListener
     {
         /**
-         * Communicates the response to a {@link #tell} request.
+         * Communicates the response to a {@link ChatService#tell} request.
          *
-         * @param idleTime the number of ms the tellee has been idle or 0L
-         * if they are not idle.
-         * @param awayMessage the away message configured by the told
-         * player or null if they have no away message.
+         * @param idleTime the number of ms the tellee has been idle or 0L if they are not idle.
+         * @param awayMessage the away message configured by the told player or null if they have
+         * no away message.
          */
         void tellSucceeded (long idleTime, String awayMessage);
     }
@@ -56,8 +55,7 @@ public interface ChatService extends InvocationService
      * equal to <code>target</code>.
      *
      * @param client a connected, operational client instance.
-     * @param target the username of the user to which the tell message
-     * should be delivered.
+     * @param target the username of the user to which the tell message should be delivered.
      * @param message the contents of the message.
      * @param listener the reference that will receive the tell response.
      */

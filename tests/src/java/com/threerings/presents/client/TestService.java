@@ -28,19 +28,18 @@ import java.util.ArrayList;
  */
 public interface TestService extends InvocationService
 {
-    /** Used to dispatch responses to {@link #test} requests. */
+    /** Used to dispatch responses to {@link TestService#test} requests. */
     public static interface TestFuncListener extends InvocationListener
     {
-        /** Informs listener of successful {@link #test} request. */
+        /** Informs listener of successful {@link TestService#test} request. */
         public void testSucceeded (String one, int two);
     }
 
     /** Issues a test request. */
     public void test (
-        Client client, String one, int two, ArrayList<Integer> three,
-        TestFuncListener listener);
+        Client client, String one, int two, ArrayList<Integer> three, TestFuncListener listener);
 
-    /** Used to dispatch responses to {@link #getTestOid} requests. */
+    /** Used to dispatch responses to {@link TestService#getTestOid} requests. */
     public static interface TestOidListener extends InvocationListener
     {
         /** Communicates test oid to listener. */

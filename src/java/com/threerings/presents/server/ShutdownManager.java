@@ -47,7 +47,7 @@ public class ShutdownManager
         void shutdown ();
     }
 
-    /** Constraints for use with {@link #addConstraint}. */
+    /** Constraints for use with {@link ShutdownManager#addConstraint}. */
     public static enum Constraint { RUNS_BEFORE, RUNS_AFTER };
 
     @Inject ShutdownManager (@EventQueue RunQueue dobjq)

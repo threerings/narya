@@ -28,12 +28,12 @@ package com.threerings.presents.client;
 public interface TimeBaseService extends InvocationService
 {
     /**
-     * Used to communicated the result of a {@link #getTimeOid} request.
+     * Used to communicated the result of a {@link TimeBaseService#getTimeOid} request.
      */
     public static interface GotTimeBaseListener extends InvocationListener
     {
         /**
-         * Communicates the result of a successful {@link #getTimeOid} request.
+         * Communicates the result of a successful {@link TimeBaseService#getTimeOid} request.
          */
         void gotTimeOid (int timeOid);
     }

@@ -82,8 +82,8 @@ public class ClientObject extends DObject
     }
 
     /**
-     * Convenience wrapper around {@link #checkAccess} that simply returns a boolean indicating
-     * whether or not this client has the permission rather than an explanation.
+     * Convenience wrapper around {@link #checkAccess(Permission,Object)} that simply returns a
+     * boolean indicating whether or not this client has the permission rather than an explanation.
      */
     public boolean hasAccess (Permission perm, Object context)
     {
@@ -91,8 +91,8 @@ public class ClientObject extends DObject
     }
 
     /**
-     * Convenience wrapper around {@link #checkAccess} that simply returns a boolean indicating
-     * whether or not this client has the permission rather than an explanation.
+     * Convenience wrapper around {@link #checkAccess(Permission)} that simply returns a boolean
+     * indicating whether or not this client has the permission rather than an explanation.
      */
     public boolean hasAccess (Permission perm)
     {
