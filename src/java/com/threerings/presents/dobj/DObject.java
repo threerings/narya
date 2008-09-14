@@ -44,7 +44,7 @@ import static com.threerings.presents.Log.log;
  * listeners. These listeners have access to the object or a proxy of the object and therefore have
  * access to the data stored in the object's members at all times.
  *
- * <p> Additionally, an object as a set of subscribers. Subscribers manage the lifespan of the
+ * <p> Additionally, an object has a set of subscribers. Subscribers manage the lifespan of the
  * object; while a subscriber is subscribed, the listeners registered with an object will be
  * notified of events. When the subscriber unsubscribes, the object becomes non-live and the
  * listeners are no longer notified. <em>Note:</em> on the server, object subscription is merely a
@@ -54,7 +54,7 @@ import static com.threerings.presents.Log.log;
  *
  * <p> When there is any change to the the object's fields data, an event is generated which is
  * dispatched to all listeners of the object, notifying them of that change and effecting that
- * change to the copy of the object maintained at each client. In this way, both a respository of
+ * change to the copy of the object maintained at each client. In this way, both a repository of
  * shared information and a mechanism for asynchronous notification are made available as a
  * fundamental application building blocks.
  *
