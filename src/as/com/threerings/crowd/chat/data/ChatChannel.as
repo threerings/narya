@@ -42,7 +42,7 @@ public /*abstract*/ class ChatChannel extends SimpleStreamableObject
     // from interface Equalable
     public function equals (other :Object) :Boolean
     {
-        throw new Error("abstract");
+        return compareTo(other) == 0;
     }
 
     // from interface DSet_Entry
