@@ -521,7 +521,7 @@ public class Streamer
 
     /** A simple predicate to filter "NotStreamable" members from a Streamable object's fields. */
     protected static final Predicate<Field> _isStreamableFieldPred = new Predicate<Field>() {
-        @Override public boolean apply (Field obj) {
+        public boolean apply (Field obj) {
             return (obj.getAnnotation(NotStreamable.class) == null);
         }
     };
