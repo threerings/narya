@@ -30,8 +30,7 @@ package com.threerings.presents.client {
 public class ResultWrapper extends InvocationAdapter
     implements InvocationService_ResultListener
 {
-    public function ResultWrapper (
-        failed :Function, processed :Function = null)
+    public function ResultWrapper (failed :Function, processed :Function)
     {
         super(failed);
         _processed = processed;
@@ -40,9 +39,7 @@ public class ResultWrapper extends InvocationAdapter
     // documentation inherited from interface ResultListener
     public function requestProcessed (result :Object) :void
     {
-        if (_processed != null) {
-            _processed(result);
-        }
+        _processed(result);
     }
 
     protected var _processed :Function;
