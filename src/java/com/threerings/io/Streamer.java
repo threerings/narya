@@ -36,10 +36,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.google.common.base.Predicate;
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 
 import com.samskivert.util.ClassUtil;
-import com.samskivert.util.Predicate;
 
 import static com.threerings.NaryaLog.log;
 
@@ -461,10 +462,9 @@ public class Streamer
         }
 
         // reflect on all the object's fields and remove all marked with NotStreamable
-        List<Field> fieldList = Lists.newArrayList();
-        ClassUtil.getFields(target, fieldList);
-        _isStreamableFieldPred.filter(fieldList);
-        _fields = fieldList.toArray(new Field[fieldList.size()]);
+        List<Field> fields = Lists.newArrayList();
+        ClassUtil.getFields(target, fields);
+        _fields = Iterables.newArray(Iterables.filter(fields, _isStreamableFieldPred), Field.class);
         int fcount = _fields.length;
 
         // obtain field marshallers for all of our fields
@@ -521,7 +521,7 @@ public class Streamer
 
     /** A simple predicate to filter "NotStreamable" members from a Streamable object's fields. */
     protected static final Predicate<Field> _isStreamableFieldPred = new Predicate<Field>() {
-        @Override public boolean isMatch (Field obj) {
+        @Override public boolean apply (Field obj) {
             return (obj.getAnnotation(NotStreamable.class) == null);
         }
     };
