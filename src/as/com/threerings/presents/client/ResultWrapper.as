@@ -40,7 +40,9 @@ public class ResultWrapper extends InvocationAdapter
     // documentation inherited from interface ResultListener
     public function requestProcessed (result :Object) :void
     {
-        _processed(result);
+        if (_processed != null) {
+            _processed(result);
+        }
     }
 
     protected var _processed :Function;
