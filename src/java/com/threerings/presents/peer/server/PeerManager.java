@@ -359,6 +359,8 @@ public abstract class PeerManager
         PeerNode peer = _peers.get(nodeName);
         if (peer != null) {
             peer.nodeobj.peerService.invokeAction(peer.getClient(), flattenAction(action));
+        } else if (nodeName.equals(_nodeName)) {
+            invokeAction(null, flattenAction(action));
         }
     }
 
@@ -695,6 +697,10 @@ public abstract class PeerManager
     // from interface ShutdownManager.Shutdowner
     public void shutdown ()
     {
+        if (_nodeName == null) { // sanity check
+            throw new IllegalStateException("Shutting down PeerManager that was never initialized.");
+        }
+
         // clear out our invocation service
         if (_nodeobj != null) {
             _invmgr.clearDispatcher(_nodeobj.peerService);
