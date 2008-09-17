@@ -50,6 +50,7 @@ import com.threerings.crowd.data.CrowdCodes;
 import com.threerings.crowd.data.PlaceObject;
 import com.threerings.crowd.util.CrowdContext;
 
+import com.threerings.crowd.chat.data.ChatChannel;
 import com.threerings.crowd.chat.data.ChatCodes;
 import com.threerings.crowd.chat.data.ChatMarshaller;
 import com.threerings.crowd.chat.data.ChatMessage;
@@ -595,9 +596,12 @@ public class ChatDirector extends BasicDirector
     public function messageReceived (event :MessageEvent) :void
     {
         if (ChatCodes.CHAT_NOTIFICATION === event.getName()) {
-            var msg :ChatMessage = (event.getArgs()[0] as ChatMessage);
-            var localtype :String = getLocalType(event.getTargetOid());
-            processReceivedMessage(msg, localtype);
+            processReceivedMessage(event.getArgs()[0] as ChatMessage,
+                getLocalType(event.getTargetOid()));
+
+        } else if (ChatCodes.CHAT_CHANNEL_NOTIFICATION === event.getName()) {
+            processReceivedMessage(event.getArgs()[1] as ChatMessage,
+                getChannelLocalType(event.getArgs()[0] as ChatChannel));
         }
     }
         
@@ -968,6 +972,14 @@ public class ChatDirector extends BasicDirector
     {
         var typ :String = (_auxes.get(oid) as String);
         return (typ == null) ? ChatCodes.PLACE_CHAT_TYPE : typ;
+    }
+
+    /**
+     * Returns the local type for a chat channel message.
+     */
+    protected function getChannelLocalType (channel :ChatChannel) :String
+    {
+        throw new Error("Users of the chat channel system must implement getChannelLocalType()");
     }
 
     // from BasicDirector

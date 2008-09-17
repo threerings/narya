@@ -24,6 +24,7 @@ package com.threerings.crowd.chat.data {
 import com.threerings.io.SimpleStreamableObject;
 import com.threerings.util.Comparable;
 import com.threerings.util.Equalable;
+import com.threerings.util.Hashable;
 
 import com.threerings.presents.dobj.DSet_Entry;
 
@@ -31,10 +32,16 @@ import com.threerings.presents.dobj.DSet_Entry;
  * Represents a chat channel.
  */
 public /*abstract*/ class ChatChannel extends SimpleStreamableObject
-    implements Comparable, Equalable, DSet_Entry
+    implements Comparable, Hashable, Equalable, DSet_Entry
 {
     // from interface Comparable
     public function compareTo (other :Object) :int
+    {
+        throw new Error("abstract");
+    }
+
+    // from interface Hashable
+    public function hashCode () :int
     {
         throw new Error("abstract");
     }
