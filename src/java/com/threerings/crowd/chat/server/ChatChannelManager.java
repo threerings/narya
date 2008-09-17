@@ -278,7 +278,7 @@ public abstract class ChatChannelManager
             return ((CrowdNodeObject)nodeobj).hostedChannels.contains(_channel);
         }
         protected ChatChannel _channel;
-        @Inject protected ChatChannelManager _channelMan;
+        @Inject protected transient ChatChannelManager _channelMan;
     }
 
     /** Informs the server hosting a channel that a body has been added to or removed from the
