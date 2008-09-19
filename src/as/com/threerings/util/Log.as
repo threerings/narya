@@ -157,6 +157,11 @@ public class Log
      * of parameters is printed in key/value form, the benefit being that if no log
      * message is generated then toString() will not be called on the values.
      * A final parameter may be an Error, in which case the stack trace is printed.
+     *
+     * @example
+     * <listing version="3.0">
+     *    log.debug("Message", "key1", value1, "key2", value2, optionalError);
+     * </listing>
      */
     public function debug (... args) :void
     {
@@ -170,6 +175,11 @@ public class Log
      * of parameters is printed in key/value form, the benefit being that if no log
      * message is generated then toString() will not be called on the values.
      * A final parameter may be an Error, in which case the stack trace is printed.
+     *
+     * @example
+     * <listing version="3.0">
+     *    log.info("Message", "key1", value1, "key2", value2, optionalError);
+     * </listing>
      */
     public function info (... args) :void
     {
@@ -183,6 +193,11 @@ public class Log
      * of parameters is printed in key/value form, the benefit being that if no log
      * message is generated then toString() will not be called on the values.
      * A final parameter may be an Error, in which case the stack trace is printed.
+     *
+     * @example
+     * <listing version="3.0">
+     *    log.warning("Message", "key1", value1, "key2", value2, optionalError);
+     * </listing>
      */
     public function warning (... args) :void
     {
