@@ -46,8 +46,8 @@ import flash.utils.getQualifiedClassName;
  * OR, if you just need a one-off Log:
  *     protected function doStuff (thingy :Thingy) :void
  *     {
- *          if (thingy == null) {
- *              Log.getLog(this).warn("thiny is null!");
+ *          if (!isValid(thingy)) {
+ *              Log.getLog(this).warn("Invalid thingy specified", "thingy", thingy);
  *              ....
  */
 public class Log
@@ -152,51 +152,90 @@ public class Log
 
     /**
      * Log a message with 'debug' priority.
+     *
+     * @param args The first argument is the actual message to log. After that, each pair
+     * of parameters is printed in key/value form, the benefit being that if no log
+     * message is generated then toString() will not be called on the values.
+     * A final parameter may be an Error, in which case the stack trace is printed.
      */
-    public function debug (... messages) :void
+    public function debug (... args) :void
     {
-        doLog(DEBUG, messages);
+        doLog(DEBUG, args);
     }
 
     /**
      * Log a message with 'info' priority.
+     *
+     * @param args The first argument is the actual message to log. After that, each pair
+     * of parameters is printed in key/value form, the benefit being that if no log
+     * message is generated then toString() will not be called on the values.
+     * A final parameter may be an Error, in which case the stack trace is printed.
      */
-    public function info (... messages) :void
+    public function info (... args) :void
     {
-        doLog(INFO, messages);
+        doLog(INFO, args);
     }
 
     /**
-     * Log a message with 'debug' priority.
+     * Log a message with 'warning' priority.
+     *
+     * @param args The first argument is the actual message to log. After that, each pair
+     * of parameters is printed in key/value form, the benefit being that if no log
+     * message is generated then toString() will not be called on the values.
+     * A final parameter may be an Error, in which case the stack trace is printed.
      */
-    public function warning (... messages) :void
+    public function warning (... args) :void
     {
-        doLog(WARNING, messages);
+        doLog(WARNING, args);
     }
 
     /**
-     * Log a message with 'debug' priority.
+     * Log just a stack trace with 'warning' priority.
      */
     public function logStackTrace (error :Error) :void
     {
         warning(error.getStackTrace());
     }
 
-    protected function doLog (level :int, messages :Array) :void
+    protected function doLog (level :int, args :Array) :void
     {
         if (level < getLevel(_module)) {
             return; // we don't want to log it!
         }
-        messages.unshift(getTimeStamp(), LEVEL_NAMES[level], _module);
-        trace.apply(null, messages);
-
+        var logMessage :String = formatMessage(level, args);
+        trace(logMessage);
         // possibly also dispatch to any other log targets.
-        if (_targets.length > 0) {
-            var asOne :String = messages.join(" ");
-            for each (var target :LogTarget in _targets) {
-                target.log(asOne);
+        for each (var target :LogTarget in _targets) {
+            target.log(logMessage);
+        }
+    }
+
+    protected function formatMessage (level :int, args :Array) :String
+    {
+        var msg :String = getTimeStamp() + " " + LEVEL_NAMES[level] + ": " + _module;
+        if (args.length > 0) {
+            msg += " " + String(args[0]); // the primary log message
+            var err :Error = null;
+            if (args.length % 2 == 0) { // there's one extra arg
+                var lastArg :Object = args.pop();
+                if (lastArg is Error) {
+                    err = lastArg as Error; // ok, it's an error, we like those
+                } else {
+                    args.push(lastArg, ""); // what? Well, cope by pushing it back with a ""
+                }
+            }
+            if (args.length > 1) {
+                for (var ii :int = 1; ii < args.length; ii += 2) {
+                    msg += (ii == 1) ? " [" : ", ";
+                    msg += String(args[ii]) + "=" + String(args[ii + 1]);
+                }
+                msg += "]";
+            }
+            if (err != null) {
+                msg += "\n" + err.getStackTrace();
             }
         }
+        return msg;
     }
 
     protected function getTimeStamp () :String
