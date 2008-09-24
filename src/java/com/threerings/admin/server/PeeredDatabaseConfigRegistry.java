@@ -23,6 +23,7 @@ package com.threerings.admin.server;
 
 import java.util.ArrayList;
 
+import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
 import com.samskivert.io.PersistenceException;
@@ -32,6 +33,7 @@ import com.samskivert.util.Invoker;
 import com.threerings.io.Streamable;
 import com.threerings.util.StreamableTuple;
 
+import com.threerings.presents.annotation.MainInvoker;
 import com.threerings.presents.dobj.AttributeChangedEvent;
 import com.threerings.presents.dobj.DObject;
 import com.threerings.presents.peer.server.PeerManager;
@@ -45,9 +47,8 @@ import static com.threerings.admin.Log.log;
 @Singleton
 public class PeeredDatabaseConfigRegistry extends DatabaseConfigRegistry
 {
-    public PeeredDatabaseConfigRegistry (PersistenceContext ctx, Invoker invoker,
-                                         PeerManager peermgr)
-        throws PersistenceException
+    @Inject public PeeredDatabaseConfigRegistry (
+        PersistenceContext ctx, @MainInvoker Invoker invoker, PeerManager peermgr)
     {
         super(ctx, invoker, "");
         _peermgr = peermgr;
