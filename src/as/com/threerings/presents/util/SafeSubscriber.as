@@ -214,7 +214,7 @@ public class SafeSubscriber implements Subscriber
      */
     public function toString () :String
     {
-        return "[oid=" + _oid + ", active=" + _active + ", pending=" + _pending + ", ]";
+        return "[oid=" + _oid + ", active=" + _active + ", pending=" + _pending + "]";
     }
 
     protected var _oid :int
