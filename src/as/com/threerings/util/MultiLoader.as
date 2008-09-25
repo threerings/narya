@@ -129,16 +129,8 @@ public class MultiLoader
             var l :Loader = new Loader();
             var lc :LoaderContext = new LoaderContext(false, appDom);
             try {
-                // In Air players, LoaderContext has an additional property that dictates whether
-                // a Loader is allowed to load bytes that contain executable code (SWFs).  Since 
-                // that is the default for non-air runtimes, and that is the expected behavior 
-                // for MultiLoader, we set the property to true if it's found in the current 
-                // runtime's LoaderContext.
-                Object(lc)["allowLoadBytesCodeExecution"] = true;
-            } catch (err :Error) {
-                // throw this away, it merely indicates the property was not found on the 
-                // LoaderContext.
-            }
+                Object(lc)["allowLoadBytesCodeExecution"] = true; // AIR compatibility
+            } catch (err :Error) { /* We must not be in AIR! */ }
             // now we only need handle the two cases
             if (source is URLRequest) {
                 l.load(URLRequest(source), lc);
