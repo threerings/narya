@@ -56,7 +56,8 @@ public class Log
     public static const DEBUG :int = 0;
     public static const INFO :int = 1;
     public static const WARNING :int = 2;
-    public static const OFF :int = 3;
+    public static const ERROR :int = 3;
+    public static const OFF :int = 4;
     // if you add to this, update LEVEL_NAMES and stringToLevel() at the bottom...
 
     /**
@@ -205,7 +206,26 @@ public class Log
     }
 
     /**
+     * Log a message with 'error' priority.
+     *
+     * @param args The first argument is the actual message to log. After that, each pair
+     * of parameters is printed in key/value form, the benefit being that if no log
+     * message is generated then toString() will not be called on the values.
+     * A final parameter may be an Error, in which case the stack trace is printed.
+     *
+     * @example
+     * <listing version="3.0">
+     *    log.error("Message", "key1", value1, "key2", value2, optionalError);
+     * </listing>
+     */
+    public function error (... args) :void
+    {
+        doLog(ERROR, args);
+    }
+
+    /**
      * Log just a stack trace with 'warning' priority.
+     * Deprecated, sorta. Just use warning("Message", error);
      */
     public function logStackTrace (error :Error) :void
     {
@@ -300,6 +320,7 @@ public class Log
         case "debug": return DEBUG;
         case "info": return INFO;
         case "warning": case "warn": return WARNING;
+        case "error": return ERROR;
         case "off": return OFF;
         }
     }
@@ -317,6 +338,6 @@ public class Log
     protected static var _setLevels :Object = { "": DEBUG }; // global: debug
 
     /** The outputted names of each level. The last one isn't used, it corresponds with OFF. */
-    protected static const LEVEL_NAMES :Array = [ "debug", "INFO", "WARNING", false ];
+    protected static const LEVEL_NAMES :Array = [ "debug", "INFO", "WARN", "ERROR", false ];
 }
 }
