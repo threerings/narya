@@ -279,8 +279,8 @@ public class Log
         // return d.toLocaleTimeString();
 
         // format it like the date format in our java logs
-        return d.fullYear + "/" +
-            StringUtil.prepad(String(d.month + 1), 2, "0") + "/" +
+        return d.fullYear + "-" +
+            StringUtil.prepad(String(d.month + 1), 2, "0") + "-" +
             StringUtil.prepad(String(d.date), 2, "0") + " " +
             StringUtil.prepad(String(d.hours), 2, "0") + ":" +
             StringUtil.prepad(String(d.minutes), 2, "0") + ":" +
