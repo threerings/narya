@@ -316,7 +316,7 @@ public class Log
     /** The configured log levels. */
     protected static var _setLevels :Object = { "": DEBUG }; // global: debug
 
-    /** The names of each level. The last one isn't used, it corresponds with OFF. */
-    protected static const LEVEL_NAMES :Array = [ "[debug]", "[INFO]", "[WARNING]", false ];
+    /** The outputted names of each level. The last one isn't used, it corresponds with OFF. */
+    protected static const LEVEL_NAMES :Array = [ "debug", "INFO", "WARNING", false ];
 }
 }
