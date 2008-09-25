@@ -57,7 +57,7 @@ public class Log
     public static const INFO :int = 1;
     public static const WARNING :int = 2;
     public static const OFF :int = 3;
-    // if you add to this, update LEVEL_NAMES at the bottom...
+    // if you add to this, update LEVEL_NAMES and stringToLevel() at the bottom...
 
     /**
      * Retrieve a Log for the specified module.
@@ -264,7 +264,7 @@ public class Log
             StringUtil.prepad(String(d.date), 2, "0") + " " +
             StringUtil.prepad(String(d.hours), 2, "0") + ":" +
             StringUtil.prepad(String(d.minutes), 2, "0") + ":" +
-            StringUtil.prepad(String(d.seconds), 2, "0") + ":" +
+            StringUtil.prepad(String(d.seconds), 2, "0") + "," +
             StringUtil.prepad(String(d.milliseconds), 3, "0");
     }
 
@@ -299,7 +299,7 @@ public class Log
         default: // default to DEBUG
         case "debug": return DEBUG;
         case "info": return INFO;
-        case "warning": return WARNING;
+        case "warning": case "warn": return WARNING;
         case "off": return OFF;
         }
     }
