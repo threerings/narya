@@ -54,6 +54,14 @@ public class StringUtil
     }
 
     /**
+     * Return the specified String, or "" if it is null.
+     */
+    public static function deNull (str :String) :String
+    {
+        return (str == null) ? "" : str;
+    }
+
+    /**
      * Does the specified string end with the specified substring.
      */
     public static function endsWith (str :String, substr :String) :Boolean
