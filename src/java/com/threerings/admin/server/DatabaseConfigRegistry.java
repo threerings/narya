@@ -23,6 +23,7 @@ package com.threerings.admin.server;
 
 import java.util.HashMap;
 
+import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
 import com.samskivert.jdbc.WriteOnlyUnit;
@@ -31,6 +32,7 @@ import com.samskivert.jdbc.depot.PersistenceContext;
 import com.samskivert.util.Invoker;
 import com.samskivert.util.StringUtil;
 
+import com.threerings.presents.annotation.MainInvoker;
 import com.threerings.presents.dobj.DObject;
 
 import com.threerings.admin.server.persist.ConfigRepository;
@@ -54,7 +56,7 @@ public class DatabaseConfigRegistry extends ConfigRegistry
      * @param invoker this will be used to perform all database activity (except first time
      * initialization) so as to avoid blocking the distributed object thread.
      */
-    public DatabaseConfigRegistry (PersistenceContext ctx, Invoker invoker)
+    @Inject public DatabaseConfigRegistry (PersistenceContext ctx, @MainInvoker Invoker invoker)
     {
         this(ctx, invoker, false);
     }
