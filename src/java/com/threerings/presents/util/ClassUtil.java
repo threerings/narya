@@ -22,6 +22,7 @@
 package com.threerings.presents.util;
 
 import java.lang.reflect.Method;
+
 import java.util.Map;
 
 import com.samskivert.util.MethodFinder;

@@ -21,11 +21,12 @@
 
 package com.threerings.util;
 
-import java.text.MessageFormat;
 import java.util.Collection;
 import java.util.Enumeration;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
+
+import java.text.MessageFormat;
 
 import com.samskivert.text.MessageUtil;
 import com.samskivert.util.StringUtil;

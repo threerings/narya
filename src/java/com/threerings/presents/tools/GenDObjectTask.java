@@ -21,14 +21,16 @@
 
 package com.threerings.presents.tools;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.StringWriter;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+
 import java.util.ArrayList;
+
+import java.io.File;
+import java.io.IOException;
+import java.io.StringWriter;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.tools.ant.AntClassLoader;

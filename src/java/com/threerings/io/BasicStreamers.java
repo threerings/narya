@@ -21,11 +21,12 @@
 
 package com.threerings.io;
 
-import java.io.EOFException;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.RandomAccess;
+
+import java.io.EOFException;
+import java.io.IOException;
 
 /**
  * Code to read and write basic object types (like arrays of primitives, {@link Integer} instances,

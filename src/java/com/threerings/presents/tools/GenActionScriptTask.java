@@ -21,15 +21,17 @@
 
 package com.threerings.presents.tools;
 
+import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
+
+import java.util.ArrayList;
+
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.lang.reflect.Field;
-import java.lang.reflect.Modifier;
-import java.util.ArrayList;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.tools.ant.BuildException;

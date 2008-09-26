@@ -24,6 +24,7 @@ package com.threerings.io;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.ReflectPermission;
+
 import java.util.Date;
 import java.util.HashMap;
 

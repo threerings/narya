@@ -21,10 +21,11 @@
 
 package com.threerings.presents.server;
 
-import java.io.IOException;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+
+import java.io.IOException;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;

@@ -21,8 +21,9 @@
 
 package com.threerings.presents.net;
 
-import java.io.IOException;
 import java.util.TimeZone;
+
+import java.io.IOException;
 
 import com.threerings.io.ObjectInputStream;
 

@@ -21,19 +21,21 @@
 
 package com.threerings.presents.client;
 
+import java.net.InetAddress;
+import java.net.InetSocketAddress;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+
 import java.io.EOFException;
 import java.io.IOException;
 import java.io.InterruptedIOException;
-import java.net.InetAddress;
-import java.net.InetSocketAddress;
+
 import java.nio.ByteBuffer;
 import java.nio.channels.AsynchronousCloseException;
 import java.nio.channels.DatagramChannel;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.SocketChannel;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 
 import com.samskivert.util.LoopingThread;
 import com.samskivert.util.Queue;

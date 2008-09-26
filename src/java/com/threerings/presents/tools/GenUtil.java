@@ -21,14 +21,16 @@
 
 package com.threerings.presents.tools;
 
+import java.lang.reflect.Field;
+import java.lang.reflect.Type;
+
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
-import java.lang.reflect.Field;
-import java.lang.reflect.Type;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import com.samskivert.util.StringUtil;
 

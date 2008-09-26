@@ -22,6 +22,7 @@
 package com.threerings.presents.server.net;
 
 import java.io.IOException;
+
 import java.nio.channels.SelectionKey;
 import java.nio.channels.SocketChannel;
 

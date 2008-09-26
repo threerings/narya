@@ -21,13 +21,14 @@
 
 package com.threerings.util;
 
-import java.io.IOException;
 import java.util.AbstractSet;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.ConcurrentModificationException;
 import java.util.EnumSet;
 import java.util.Iterator;
+
+import java.io.IOException;
 
 import com.threerings.io.ObjectInputStream;
 import com.threerings.io.ObjectOutputStream;

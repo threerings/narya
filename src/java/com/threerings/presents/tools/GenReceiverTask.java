@@ -21,12 +21,14 @@
 
 package com.threerings.presents.tools;
 
-import java.io.File;
-import java.io.StringWriter;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+
 import java.util.Iterator;
 import java.util.List;
+
+import java.io.File;
+import java.io.StringWriter;
 
 import org.apache.velocity.VelocityContext;
 

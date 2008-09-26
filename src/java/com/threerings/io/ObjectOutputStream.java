@@ -21,11 +21,12 @@
 
 package com.threerings.io;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.util.HashMap;
-import java.util.Map;
 
 import static com.threerings.NaryaLog.log;
 

@@ -21,10 +21,11 @@
 
 package com.threerings.presents.peer.server;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.util.List;
 import java.util.Map;
+
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 
 import com.google.common.base.Function;
 import com.google.common.collect.Maps;

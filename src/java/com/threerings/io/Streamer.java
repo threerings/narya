@@ -21,7 +21,6 @@
 
 package com.threerings.io;
 
-import java.io.IOException;
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -30,9 +29,12 @@ import java.lang.reflect.Modifier;
 import java.security.AccessController;
 import java.security.PrivilegedActionException;
 import java.security.PrivilegedExceptionAction;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import java.io.IOException;
 
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;

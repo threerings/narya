@@ -21,10 +21,12 @@
 
 package com.threerings.presents.server;
 
-import java.io.IOException;
 import java.net.InetAddress;
+
 import java.util.Map;
 import java.util.TimeZone;
+
+import java.io.IOException;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;

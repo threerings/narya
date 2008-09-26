@@ -21,9 +21,10 @@
 
 package com.threerings.bureau.server;
 
-import java.io.IOException;
 import java.util.Map;
 import java.util.Set;
+
+import java.io.IOException;
 
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;

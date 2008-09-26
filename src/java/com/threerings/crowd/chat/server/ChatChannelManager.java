@@ -34,6 +34,7 @@ import com.google.inject.Singleton;
 import com.samskivert.util.ArrayIntSet;
 import com.samskivert.util.IntSet;
 import com.samskivert.util.Interval;
+
 import com.threerings.util.Name;
 
 import com.threerings.presents.annotation.AnyThread;
@@ -45,15 +46,14 @@ import com.threerings.presents.server.InvocationManager;
 import com.threerings.presents.server.PresentsDObjectMgr;
 import com.threerings.presents.server.ShutdownManager;
 
+import com.threerings.crowd.chat.data.ChatChannel;
+import com.threerings.crowd.chat.data.ChatCodes;
+import com.threerings.crowd.chat.data.UserMessage;
 import com.threerings.crowd.data.BodyObject;
 import com.threerings.crowd.data.CrowdCodes;
 import com.threerings.crowd.peer.data.CrowdClientInfo;
 import com.threerings.crowd.peer.data.CrowdNodeObject;
 import com.threerings.crowd.peer.server.CrowdPeerManager;
-
-import com.threerings.crowd.chat.data.ChatChannel;
-import com.threerings.crowd.chat.data.ChatCodes;
-import com.threerings.crowd.chat.data.UserMessage;
 
 import static com.threerings.crowd.Log.log;
 

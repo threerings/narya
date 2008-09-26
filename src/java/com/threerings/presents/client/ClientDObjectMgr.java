@@ -21,11 +21,12 @@
 
 package com.threerings.presents.client;
 
-import java.awt.event.KeyEvent;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+
+import java.awt.event.KeyEvent;
 
 import com.samskivert.util.DebugChords;
 import com.samskivert.util.HashIntMap;

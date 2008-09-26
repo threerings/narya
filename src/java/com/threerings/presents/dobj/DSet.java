@@ -21,12 +21,13 @@
 
 package com.threerings.presents.dobj;
 
-import java.io.IOException;
 import java.util.AbstractSet;
 import java.util.Comparator;
 import java.util.ConcurrentModificationException;
 import java.util.Iterator;
 import java.util.Set;
+
+import java.io.IOException;
 
 import com.samskivert.util.ArrayUtil;
 

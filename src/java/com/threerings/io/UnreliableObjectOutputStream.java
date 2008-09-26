@@ -3,11 +3,12 @@
 
 package com.threerings.io;
 
-import java.io.IOException;
-import java.io.OutputStream;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
+
+import java.io.IOException;
+import java.io.OutputStream;
 
 /**
  * Extends {@link ObjectOutputStream} for use in unreliable channels, where we must transmit class

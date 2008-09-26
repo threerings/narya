@@ -21,8 +21,9 @@
 
 package com.threerings.util;
 
-import java.io.IOException;
 import java.util.HashSet;
+
+import java.io.IOException;
 
 import com.threerings.io.ObjectInputStream;
 import com.threerings.io.ObjectOutputStream;

@@ -5,6 +5,7 @@ package com.threerings.io;
 
 import java.io.IOException;
 import java.io.InputStream;
+
 import java.nio.BufferUnderflowException;
 import java.nio.ByteBuffer;
 import java.nio.InvalidMarkException;

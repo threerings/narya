@@ -21,13 +21,14 @@
 
 package com.threerings.presents.tools;
 
+import java.util.ArrayList;
+import java.util.HashSet;
+
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.HashSet;
 
 import javassist.CannotCompileException;
 import javassist.ClassPool;
