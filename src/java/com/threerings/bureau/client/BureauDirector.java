@@ -1,16 +1,18 @@
 package com.threerings.bureau.client;
 
-import com.threerings.presents.client.BasicDirector;
-import com.threerings.bureau.data.BureauCodes;
 import com.samskivert.util.IntMap;
 import com.samskivert.util.IntMaps;
-import com.threerings.bureau.data.AgentObject;
-import com.threerings.bureau.server.BureauRegistry;
-import com.threerings.bureau.util.BureauContext;
+
+import com.threerings.presents.client.BasicDirector;
 import com.threerings.presents.client.Client;
+import com.threerings.presents.dobj.ObjectAccessException;
 import com.threerings.presents.dobj.Subscriber;
 import com.threerings.presents.util.SafeSubscriber;
-import com.threerings.presents.dobj.ObjectAccessException;
+
+import com.threerings.bureau.data.AgentObject;
+import com.threerings.bureau.data.BureauCodes;
+import com.threerings.bureau.server.BureauRegistry;
+import com.threerings.bureau.util.BureauContext;
 
 import static com.threerings.bureau.Log.log;
 

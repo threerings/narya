@@ -22,15 +22,14 @@
 package com.threerings.crowd.client;
 
 import com.samskivert.util.ObserverList;
-import com.samskivert.util.ObserverList.ObserverOp;
 import com.samskivert.util.ResultListener;
+import com.samskivert.util.ObserverList.ObserverOp;
 
 import com.threerings.presents.client.BasicDirector;
 import com.threerings.presents.client.Client;
-import com.threerings.presents.util.SafeSubscriber;
-
 import com.threerings.presents.dobj.ObjectAccessException;
 import com.threerings.presents.dobj.Subscriber;
+import com.threerings.presents.util.SafeSubscriber;
 
 import com.threerings.crowd.data.BodyObject;
 import com.threerings.crowd.data.CrowdCodes;

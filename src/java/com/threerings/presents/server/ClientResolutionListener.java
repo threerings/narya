@@ -21,8 +21,9 @@
 
 package com.threerings.presents.server;
 
-import com.threerings.presents.data.ClientObject;
 import com.threerings.util.Name;
+
+import com.threerings.presents.data.ClientObject;
 
 /**
  * Entites that wish to resolve client objects must implement this

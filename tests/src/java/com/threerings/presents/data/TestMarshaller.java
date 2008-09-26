@@ -21,10 +21,11 @@
 
 package com.threerings.presents.data;
 
+import java.util.ArrayList;
+
 import com.threerings.presents.client.Client;
 import com.threerings.presents.client.TestService;
 import com.threerings.presents.dobj.InvocationResponseEvent;
-import java.util.ArrayList;
 
 /**
  * Provides the implementation of the {@link TestService} interface

@@ -23,7 +23,8 @@ package com.threerings.presents.data;
 
 import java.util.ArrayList;
 
-import com.threerings.presents.dobj.*;
+import com.threerings.presents.dobj.DObject;
+import com.threerings.presents.dobj.OidList;
 
 /**
  * A test distributed object.

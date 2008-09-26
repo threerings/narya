@@ -24,6 +24,7 @@ package com.threerings.crowd.chat.data;
 import com.samskivert.util.StringUtil;
 
 import com.threerings.io.Streamable;
+
 import com.threerings.util.ActionScript;
 
 /**

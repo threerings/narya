@@ -22,15 +22,15 @@
 package com.threerings.presents.client;
 
 import java.io.IOException;
-
 import java.net.ConnectException;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.nio.channels.SocketChannel;
 
-import com.samskivert.swing.RuntimeAdjust;
 import com.samskivert.util.IntListUtil;
 import com.samskivert.util.Interval;
+
+import com.samskivert.swing.RuntimeAdjust;
 
 import com.threerings.presents.data.AuthCodes;
 

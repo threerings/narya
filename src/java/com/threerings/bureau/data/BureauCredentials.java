@@ -21,8 +21,9 @@
 
 package com.threerings.bureau.data;
 
-import com.threerings.presents.net.Credentials;
 import com.threerings.util.Name;
+
+import com.threerings.presents.net.Credentials;
 
 /**
  * Extends the basic credentials to provide bureau-specific fields.

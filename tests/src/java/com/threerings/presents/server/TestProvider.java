@@ -21,9 +21,10 @@
 
 package com.threerings.presents.server;
 
+import java.util.ArrayList;
+
 import com.threerings.presents.client.TestService;
 import com.threerings.presents.data.ClientObject;
-import java.util.ArrayList;
 
 /**
  * Defines the server-side of the {@link TestService}.

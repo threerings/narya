@@ -22,6 +22,7 @@
 package com.threerings.io;
 
 import com.samskivert.util.StringUtil;
+
 import com.threerings.util.ActionScript;
 
 /**

@@ -33,6 +33,7 @@ import org.apache.tools.ant.types.FileSet;
 
 import com.threerings.io.SimpleStreamableObject;
 import com.threerings.io.Streamable;
+
 import com.threerings.presents.dobj.DObject;
 
 /**

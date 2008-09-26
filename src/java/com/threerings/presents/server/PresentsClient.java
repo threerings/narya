@@ -34,34 +34,30 @@ import com.samskivert.util.IntMap;
 import com.samskivert.util.IntMaps;
 import com.samskivert.util.ResultListener;
 import com.samskivert.util.Throttle;
+
 import com.threerings.util.Name;
 
 import com.threerings.presents.data.ClientObject;
-
 import com.threerings.presents.dobj.DEvent;
 import com.threerings.presents.dobj.DObject;
 import com.threerings.presents.dobj.ObjectAccessException;
 import com.threerings.presents.dobj.ProxySubscriber;
-
 import com.threerings.presents.net.AuthRequest;
 import com.threerings.presents.net.BootstrapData;
 import com.threerings.presents.net.BootstrapNotification;
 import com.threerings.presents.net.Credentials;
+import com.threerings.presents.net.DownstreamMessage;
 import com.threerings.presents.net.EventNotification;
-import com.threerings.presents.net.UpstreamMessage;
-
+import com.threerings.presents.net.FailureResponse;
 import com.threerings.presents.net.ForwardEventRequest;
 import com.threerings.presents.net.LogoffRequest;
+import com.threerings.presents.net.ObjectResponse;
 import com.threerings.presents.net.PingRequest;
+import com.threerings.presents.net.PongResponse;
 import com.threerings.presents.net.SubscribeRequest;
 import com.threerings.presents.net.UnsubscribeRequest;
-
-import com.threerings.presents.net.DownstreamMessage;
-import com.threerings.presents.net.FailureResponse;
-import com.threerings.presents.net.ObjectResponse;
-import com.threerings.presents.net.PongResponse;
 import com.threerings.presents.net.UnsubscribeResponse;
-
+import com.threerings.presents.net.UpstreamMessage;
 import com.threerings.presents.server.net.Connection;
 import com.threerings.presents.server.net.ConnectionManager;
 import com.threerings.presents.server.net.MessageHandler;

@@ -26,11 +26,13 @@ import java.awt.EventQueue;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.IOException;
+
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
 import com.samskivert.util.Config;
 import com.samskivert.util.RunQueue;
+
 import com.threerings.util.MessageManager;
 
 import com.threerings.presents.client.Client;

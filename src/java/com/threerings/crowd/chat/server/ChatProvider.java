@@ -27,6 +27,7 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
 import com.samskivert.util.StringUtil;
+
 import com.threerings.util.MessageBundle;
 import com.threerings.util.Name;
 import com.threerings.util.TimeUtil;
@@ -34,22 +35,20 @@ import com.threerings.util.TimeUtil;
 import com.threerings.presents.client.InvocationService.InvocationListener;
 import com.threerings.presents.data.ClientObject;
 import com.threerings.presents.dobj.DObject;
-
 import com.threerings.presents.server.InvocationException;
 import com.threerings.presents.server.InvocationManager;
 import com.threerings.presents.server.InvocationProvider;
 
+import com.threerings.crowd.chat.client.ChatService;
+import com.threerings.crowd.chat.client.ChatService.TellListener;
+import com.threerings.crowd.chat.data.ChatCodes;
+import com.threerings.crowd.chat.data.UserMessage;
 import com.threerings.crowd.data.BodyObject;
 import com.threerings.crowd.data.CrowdCodes;
 import com.threerings.crowd.data.OccupantInfo;
 import com.threerings.crowd.data.PlaceObject;
 import com.threerings.crowd.server.BodyLocator;
 import com.threerings.crowd.server.PlaceRegistry;
-
-import com.threerings.crowd.chat.client.ChatService.TellListener;
-import com.threerings.crowd.chat.client.ChatService;
-import com.threerings.crowd.chat.data.ChatCodes;
-import com.threerings.crowd.chat.data.UserMessage;
 
 /**
  * The chat provider handles the server side of the chat-related invocation services.

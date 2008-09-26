@@ -21,12 +21,14 @@
 
 package com.threerings.bureau.client;
 
-import com.threerings.presents.client.Client;
+import com.samskivert.util.Config;
 import com.samskivert.util.RunQueue;
+
+import com.threerings.presents.client.Client;
+import com.threerings.presents.dobj.DObjectManager;
+
 import com.threerings.bureau.data.BureauCredentials;
 import com.threerings.bureau.util.BureauContext;
-import com.threerings.presents.dobj.DObjectManager;
-import com.samskivert.util.Config;
 
 /**
  * Represents a client embedded in a bureau.

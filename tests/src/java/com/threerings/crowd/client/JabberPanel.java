@@ -4,6 +4,7 @@
 package com.threerings.crowd.client;
 
 import java.awt.BorderLayout;
+
 import javax.swing.JPanel;
 
 import com.threerings.crowd.data.PlaceObject;

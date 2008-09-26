@@ -21,8 +21,6 @@
 
 package com.threerings.presents.client;
 
-import static com.threerings.presents.Log.log;
-
 import java.util.HashSet;
 
 import com.samskivert.util.Interval;
@@ -30,6 +28,7 @@ import com.samskivert.util.ObserverList;
 import com.samskivert.util.RunAnywhere;
 import com.samskivert.util.RunQueue;
 import com.samskivert.util.StringUtil;
+
 import com.threerings.presents.client.InvocationService.ConfirmListener;
 import com.threerings.presents.data.AuthCodes;
 import com.threerings.presents.data.ClientObject;
@@ -42,6 +41,8 @@ import com.threerings.presents.net.BootstrapData;
 import com.threerings.presents.net.Credentials;
 import com.threerings.presents.net.PingRequest;
 import com.threerings.presents.net.PongResponse;
+
+import static com.threerings.presents.Log.log;
 
 /**
  * Through the client object, a connection to the system is established and maintained. The client

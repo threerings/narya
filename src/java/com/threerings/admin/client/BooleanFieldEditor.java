@@ -26,9 +26,8 @@ import java.lang.reflect.Field;
 import javax.swing.JCheckBox;
 import javax.swing.JPanel;
 
-import com.samskivert.swing.HGroupLayout;
-
 import com.samskivert.swing.GroupLayout;
+import com.samskivert.swing.HGroupLayout;
 import com.samskivert.swing.Spacer;
 
 import com.threerings.presents.dobj.DObject;

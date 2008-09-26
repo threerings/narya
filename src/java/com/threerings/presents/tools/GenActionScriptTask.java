@@ -29,20 +29,19 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
-
 import java.util.ArrayList;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.DirectoryScanner;
 import org.apache.tools.ant.Task;
 import org.apache.tools.ant.types.FileSet;
-import org.apache.commons.io.IOUtils;
-
 import org.apache.velocity.app.VelocityEngine;
 
 import com.samskivert.velocity.VelocityUtil;
 
 import com.threerings.io.Streamable;
+
 import com.threerings.util.ActionScript;
 
 import com.threerings.presents.data.InvocationMarshaller;

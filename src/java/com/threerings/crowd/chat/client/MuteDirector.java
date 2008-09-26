@@ -29,9 +29,9 @@ import com.samskivert.util.ObserverList;
 import com.threerings.util.MessageBundle;
 import com.threerings.util.Name;
 
-import com.threerings.crowd.util.CrowdContext;
-
 import com.threerings.presents.client.BasicDirector;
+
+import com.threerings.crowd.util.CrowdContext;
 
 /**
  * Manages the mutelist.

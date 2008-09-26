@@ -25,8 +25,8 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 
 import com.samskivert.io.PersistenceException;
-
 import com.samskivert.util.StringUtil;
+
 import com.threerings.util.MessageBundle;
 
 import com.threerings.presents.net.AuthResponse;

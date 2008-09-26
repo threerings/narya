@@ -21,8 +21,6 @@
 
 package com.threerings.presents.client;
 
-import com.threerings.presents.client.InvocationDecoder;
-import com.threerings.presents.client.TestReceiver;
 
 /**
  * Dispatches calls to a {@link TestReceiver} instance.

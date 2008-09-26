@@ -1,5 +1,5 @@
 //
-// $Id: TestSender.java,v 1.2 2004/08/27 02:21:04 mdb Exp $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved
@@ -24,7 +24,6 @@ package com.threerings.presents.server;
 import com.threerings.presents.client.TestDecoder;
 import com.threerings.presents.client.TestReceiver;
 import com.threerings.presents.data.ClientObject;
-import com.threerings.presents.server.InvocationSender;
 
 /**
  * Used to issue notifications to a {@link TestReceiver} instance on a

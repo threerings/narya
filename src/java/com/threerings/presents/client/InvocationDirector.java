@@ -28,10 +28,8 @@ import com.samskivert.util.HashIntMap;
 import com.samskivert.util.StringUtil;
 
 import com.threerings.presents.client.InvocationReceiver.Registration;
-
 import com.threerings.presents.data.ClientObject;
 import com.threerings.presents.data.InvocationMarshaller.ListenerMarshaller;
-
 import com.threerings.presents.dobj.DEvent;
 import com.threerings.presents.dobj.DObjectManager;
 import com.threerings.presents.dobj.DSet;
@@ -42,7 +40,6 @@ import com.threerings.presents.dobj.InvocationResponseEvent;
 import com.threerings.presents.dobj.MessageEvent;
 import com.threerings.presents.dobj.ObjectAccessException;
 import com.threerings.presents.dobj.Subscriber;
-
 import com.threerings.presents.net.Transport;
 
 import static com.threerings.presents.Log.log;

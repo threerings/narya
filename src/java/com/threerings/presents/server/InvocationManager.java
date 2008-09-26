@@ -29,17 +29,16 @@ import com.google.common.collect.Maps;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
-import com.samskivert.util.IntMaps;
 import com.samskivert.util.IntMap;
+import com.samskivert.util.IntMaps;
 import com.samskivert.util.LRUHashMap;
 import com.samskivert.util.StringUtil;
 
 import com.threerings.io.Streamable;
 
 import com.threerings.presents.data.ClientObject;
-import com.threerings.presents.data.InvocationMarshaller.ListenerMarshaller;
 import com.threerings.presents.data.InvocationMarshaller;
-
+import com.threerings.presents.data.InvocationMarshaller.ListenerMarshaller;
 import com.threerings.presents.dobj.DEvent;
 import com.threerings.presents.dobj.DObject;
 import com.threerings.presents.dobj.EventListener;

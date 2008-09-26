@@ -31,9 +31,13 @@ import atunit.Unit;
 import com.google.inject.Inject;
 
 import com.threerings.presents.data.TestObject;
-import com.threerings.presents.dobj.*;
+import com.threerings.presents.dobj.DEvent;
+import com.threerings.presents.dobj.EventListener;
+import com.threerings.presents.dobj.ObjectAddedEvent;
+import com.threerings.presents.dobj.ObjectDestroyedEvent;
+import com.threerings.presents.dobj.ObjectRemovedEvent;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Tests the oid list reference tracking code.

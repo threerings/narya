@@ -27,10 +27,8 @@ import com.threerings.io.Streamable;
 
 import com.threerings.presents.client.Client;
 import com.threerings.presents.client.InvocationService;
-
 import com.threerings.presents.dobj.DObjectManager;
 import com.threerings.presents.dobj.InvocationResponseEvent;
-
 import com.threerings.presents.net.Transport;
 
 import static com.threerings.presents.Log.log;

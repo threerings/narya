@@ -28,9 +28,10 @@ import com.samskivert.util.RunQueue;
 import com.threerings.util.MessageManager;
 import com.threerings.util.Name;
 
-import com.threerings.presents.client.*;
+import com.threerings.presents.client.Client;
+import com.threerings.presents.client.ClientObserver;
 import com.threerings.presents.dobj.DObjectManager;
-import com.threerings.presents.net.*;
+import com.threerings.presents.net.UsernamePasswordCreds;
 
 import com.threerings.crowd.chat.client.ChatDirector;
 import com.threerings.crowd.util.CrowdContext;

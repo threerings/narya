@@ -25,6 +25,7 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 
 import com.threerings.presents.data.TestObject;
+
 import static com.threerings.presents.Log.log;
 
 public class TestServer extends PresentsServer

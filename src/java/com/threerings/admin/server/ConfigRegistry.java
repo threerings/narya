@@ -30,9 +30,11 @@ import java.util.HashMap;
 
 import com.samskivert.io.ByteArrayOutInputStream;
 import com.samskivert.util.StringUtil;
+
 import com.threerings.io.ObjectInputStream;
 import com.threerings.io.ObjectOutputStream;
 import com.threerings.io.Streamable;
+
 import com.threerings.presents.dobj.AccessController;
 import com.threerings.presents.dobj.AttributeChangeListener;
 import com.threerings.presents.dobj.AttributeChangedEvent;

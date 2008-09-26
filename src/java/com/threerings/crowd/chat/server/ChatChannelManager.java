@@ -132,6 +132,7 @@ public abstract class ChatChannelManager
 
         // create and start our idle channel closer (always be closing)
         _closer = new Interval(omgr) {
+            @Override
             public void expired () {
                 closeIdleChannels();
             }

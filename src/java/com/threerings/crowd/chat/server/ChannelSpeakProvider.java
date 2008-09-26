@@ -21,10 +21,11 @@
 
 package com.threerings.crowd.chat.server;
 
-import com.threerings.crowd.chat.client.ChannelSpeakService;
-import com.threerings.crowd.chat.data.ChatChannel;
 import com.threerings.presents.data.ClientObject;
 import com.threerings.presents.server.InvocationProvider;
+
+import com.threerings.crowd.chat.client.ChannelSpeakService;
+import com.threerings.crowd.chat.data.ChatChannel;
 
 /**
  * Defines the server-side of the {@link ChannelSpeakService}.

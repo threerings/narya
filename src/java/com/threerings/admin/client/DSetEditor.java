@@ -30,10 +30,10 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 
+import com.samskivert.util.ComparableArrayList;
+
 import com.samskivert.swing.ObjectEditorTable;
 import com.samskivert.swing.event.CommandEvent;
-
-import com.samskivert.util.ComparableArrayList;
 
 import com.threerings.presents.dobj.AttributeChangeListener;
 import com.threerings.presents.dobj.AttributeChangedEvent;

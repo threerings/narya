@@ -23,10 +23,10 @@ package com.threerings.bureau.client;
 
 import com.samskivert.util.OneLineLogFormatter;
 import com.samskivert.util.Queue;
-import com.samskivert.util.StringUtil;
-import com.threerings.bureau.client.BureauDirector;
-import com.threerings.bureau.data.AgentObject;
 import com.samskivert.util.RunQueue;
+import com.samskivert.util.StringUtil;
+
+import com.threerings.bureau.data.AgentObject;
 
 import static com.threerings.bureau.Log.log;
 

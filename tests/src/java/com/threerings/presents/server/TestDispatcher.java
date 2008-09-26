@@ -21,10 +21,11 @@
 
 package com.threerings.presents.server;
 
+import java.util.ArrayList;
+
 import com.threerings.presents.client.TestService;
 import com.threerings.presents.data.ClientObject;
 import com.threerings.presents.data.TestMarshaller;
-import java.util.ArrayList;
 
 /**
  * Dispatches requests to the {@link TestProvider}.

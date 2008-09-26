@@ -21,10 +21,11 @@
 
 package com.threerings.crowd.chat.server;
 
-import com.threerings.crowd.chat.data.SpeakMarshaller;
 import com.threerings.presents.data.ClientObject;
 import com.threerings.presents.server.InvocationDispatcher;
 import com.threerings.presents.server.InvocationException;
+
+import com.threerings.crowd.chat.data.SpeakMarshaller;
 
 /**
  * Dispatches requests to the {@link SpeakProvider}.

@@ -22,7 +22,6 @@
 package com.threerings.presents.data;
 
 import com.threerings.presents.client.InvocationReceiver;
-
 import com.threerings.presents.dobj.DObject;
 import com.threerings.presents.dobj.DSet;
 

@@ -5,7 +5,6 @@ package com.threerings.crowd.data;
 
 import com.threerings.crowd.client.JabberController;
 import com.threerings.crowd.client.PlaceController;
-import com.threerings.crowd.data.PlaceConfig;
 
 /**
  * Defines the necessary bits for our chat room.

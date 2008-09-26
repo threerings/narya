@@ -29,8 +29,11 @@ import com.samskivert.util.RunQueue;
 import com.threerings.util.Name;
 
 import com.threerings.presents.data.TestObject;
-import com.threerings.presents.dobj.*;
-import com.threerings.presents.net.*;
+import com.threerings.presents.dobj.DEvent;
+import com.threerings.presents.dobj.EventListener;
+import com.threerings.presents.dobj.ObjectAccessException;
+import com.threerings.presents.dobj.Subscriber;
+import com.threerings.presents.net.UsernamePasswordCreds;
 
 import static com.threerings.presents.Log.log;
 

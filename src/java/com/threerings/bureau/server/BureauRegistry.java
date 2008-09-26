@@ -21,9 +21,9 @@
 
 package com.threerings.bureau.server;
 
+import java.io.IOException;
 import java.util.Map;
 import java.util.Set;
-import java.io.IOException;
 
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
@@ -31,10 +31,10 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
 import com.samskivert.util.Interval;
-import com.samskivert.util.RunQueue;
-import com.samskivert.util.StringUtil;
 import com.samskivert.util.Invoker;
 import com.samskivert.util.ProcessLogger;
+import com.samskivert.util.RunQueue;
+import com.samskivert.util.StringUtil;
 
 import com.threerings.presents.annotation.MainInvoker;
 import com.threerings.presents.data.ClientObject;

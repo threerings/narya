@@ -31,9 +31,12 @@ import atunit.Unit;
 import com.google.inject.Inject;
 
 import com.threerings.presents.data.TestObject;
-import com.threerings.presents.dobj.*;
+import com.threerings.presents.dobj.AttributeChangeListener;
+import com.threerings.presents.dobj.AttributeChangedEvent;
+import com.threerings.presents.dobj.ElementUpdateListener;
+import com.threerings.presents.dobj.ElementUpdatedEvent;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertTrue;
 
 /**
  * A simple test case for the dobjmgr.

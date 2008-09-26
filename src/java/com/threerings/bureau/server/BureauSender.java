@@ -21,10 +21,11 @@
 
 package com.threerings.bureau.server;
 
-import com.threerings.bureau.client.BureauDecoder;
-import com.threerings.bureau.client.BureauReceiver;
 import com.threerings.presents.data.ClientObject;
 import com.threerings.presents.server.InvocationSender;
+
+import com.threerings.bureau.client.BureauDecoder;
+import com.threerings.bureau.client.BureauReceiver;
 
 /**
  * Used to issue notifications to a {@link BureauReceiver} instance on a

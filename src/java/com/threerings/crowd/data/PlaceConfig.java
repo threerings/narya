@@ -24,6 +24,7 @@ package com.threerings.crowd.data;
 import com.samskivert.util.StringUtil;
 
 import com.threerings.io.SimpleStreamableObject;
+
 import com.threerings.util.ActionScript;
 
 import com.threerings.crowd.client.PlaceController;

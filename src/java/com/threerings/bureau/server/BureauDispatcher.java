@@ -21,10 +21,11 @@
 
 package com.threerings.bureau.server;
 
-import com.threerings.bureau.data.BureauMarshaller;
 import com.threerings.presents.data.ClientObject;
 import com.threerings.presents.server.InvocationDispatcher;
 import com.threerings.presents.server.InvocationException;
+
+import com.threerings.bureau.data.BureauMarshaller;
 
 /**
  * Dispatches requests to the {@link BureauProvider}.

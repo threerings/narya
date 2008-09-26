@@ -23,6 +23,7 @@ package com.threerings.crowd.client;
 
 import java.awt.event.ActionEvent;
 import java.util.ArrayList;
+
 import com.samskivert.swing.Controller;
 
 import com.threerings.crowd.data.PlaceConfig;

@@ -22,11 +22,11 @@
 package com.threerings.crowd.util;
 
 import com.threerings.presents.util.PresentsContext;
+
+import com.threerings.crowd.chat.client.ChatDirector;
 import com.threerings.crowd.client.LocationDirector;
 import com.threerings.crowd.client.OccupantDirector;
 import com.threerings.crowd.client.PlaceView;
-
-import com.threerings.crowd.chat.client.ChatDirector;
 
 /**
  * The crowd context provides access to the various managers, etc. that

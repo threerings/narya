@@ -30,18 +30,16 @@ import com.threerings.presents.client.BlockingCommunicator;
 import com.threerings.presents.client.Client;
 import com.threerings.presents.client.ClientObserver;
 import com.threerings.presents.client.Communicator;
-import com.threerings.presents.server.PresentsDObjectMgr;
-
 import com.threerings.presents.dobj.AttributeChangeListener;
 import com.threerings.presents.dobj.AttributeChangedEvent;
 import com.threerings.presents.dobj.DEvent;
 import com.threerings.presents.dobj.DObject;
 import com.threerings.presents.dobj.ObjectAccessException;
 import com.threerings.presents.dobj.Subscriber;
-
 import com.threerings.presents.peer.data.NodeObject;
 import com.threerings.presents.peer.net.PeerBootstrapData;
 import com.threerings.presents.peer.server.persist.NodeRecord;
+import com.threerings.presents.server.PresentsDObjectMgr;
 
 import static com.threerings.presents.Log.log;
 

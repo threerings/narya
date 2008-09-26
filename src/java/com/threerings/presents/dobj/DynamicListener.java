@@ -22,7 +22,6 @@
 package com.threerings.presents.dobj;
 
 import java.lang.reflect.Method;
-
 import java.util.HashMap;
 
 import com.samskivert.util.MethodFinder;

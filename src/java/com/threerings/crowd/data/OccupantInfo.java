@@ -22,6 +22,7 @@
 package com.threerings.crowd.data;
 
 import com.threerings.io.SimpleStreamableObject;
+
 import com.threerings.util.Name;
 
 import com.threerings.presents.dobj.DSet;

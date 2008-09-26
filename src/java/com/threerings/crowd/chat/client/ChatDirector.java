@@ -37,6 +37,11 @@ import com.samskivert.util.ObserverList;
 import com.samskivert.util.ResultListener;
 import com.samskivert.util.StringUtil;
 
+import com.threerings.util.MessageBundle;
+import com.threerings.util.MessageManager;
+import com.threerings.util.Name;
+import com.threerings.util.TimeUtil;
+
 import com.threerings.presents.client.BasicDirector;
 import com.threerings.presents.client.Client;
 import com.threerings.presents.data.ClientObject;
@@ -44,23 +49,17 @@ import com.threerings.presents.dobj.DObject;
 import com.threerings.presents.dobj.MessageEvent;
 import com.threerings.presents.dobj.MessageListener;
 
-import com.threerings.util.MessageBundle;
-import com.threerings.util.MessageManager;
-import com.threerings.util.Name;
-import com.threerings.util.TimeUtil;
-
-import com.threerings.crowd.client.LocationObserver;
-import com.threerings.crowd.data.BodyObject;
-import com.threerings.crowd.data.CrowdCodes;
-import com.threerings.crowd.data.PlaceObject;
-import com.threerings.crowd.util.CrowdContext;
-
 import com.threerings.crowd.chat.data.ChatCodes;
 import com.threerings.crowd.chat.data.ChatMessage;
 import com.threerings.crowd.chat.data.SystemMessage;
 import com.threerings.crowd.chat.data.TellFeedbackMessage;
 import com.threerings.crowd.chat.data.UserMessage;
 import com.threerings.crowd.chat.data.UserSystemMessage;
+import com.threerings.crowd.client.LocationObserver;
+import com.threerings.crowd.data.BodyObject;
+import com.threerings.crowd.data.CrowdCodes;
+import com.threerings.crowd.data.PlaceObject;
+import com.threerings.crowd.util.CrowdContext;
 
 import static com.threerings.crowd.Log.log;
 

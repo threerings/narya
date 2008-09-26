@@ -22,6 +22,7 @@
 package com.threerings.presents.server.net;
 
 import java.io.IOException;
+
 import com.threerings.presents.net.AuthRequest;
 import com.threerings.presents.net.AuthResponse;
 

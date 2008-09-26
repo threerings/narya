@@ -5,7 +5,6 @@ package com.threerings.io;
 
 import java.io.IOException;
 import java.io.OutputStream;
-
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;

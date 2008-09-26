@@ -24,14 +24,12 @@ package com.threerings.presents.peer.server;
 import com.samskivert.io.PersistenceException;
 
 import com.threerings.presents.data.AuthCodes;
-
 import com.threerings.presents.net.AuthRequest;
 import com.threerings.presents.net.AuthResponse;
 import com.threerings.presents.net.AuthResponseData;
+import com.threerings.presents.peer.net.PeerCreds;
 import com.threerings.presents.server.ChainedAuthenticator;
 import com.threerings.presents.server.net.AuthingConnection;
-
-import com.threerings.presents.peer.net.PeerCreds;
 
 import static com.threerings.presents.Log.log;
 

@@ -23,10 +23,8 @@ package com.threerings.presents.tools;
 
 import java.io.File;
 import java.io.StringWriter;
-
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
-
 import java.util.HashSet;
 
 import org.apache.velocity.VelocityContext;

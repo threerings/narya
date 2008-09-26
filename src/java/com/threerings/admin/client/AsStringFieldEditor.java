@@ -22,6 +22,7 @@
 package com.threerings.admin.client;
 
 import java.lang.reflect.Field;
+
 import javax.swing.JTextField;
 
 import com.samskivert.util.StringUtil;

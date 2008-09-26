@@ -23,13 +23,11 @@ package com.threerings.presents.server.net;
 
 import java.io.EOFException;
 import java.io.IOException;
-
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.SocketChannel;
-
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 

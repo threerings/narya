@@ -24,7 +24,6 @@ package com.threerings.presents.server;
 import com.threerings.presents.client.InvocationReceiver.Registration;
 import com.threerings.presents.data.ClientObject;
 import com.threerings.presents.dobj.InvocationNotificationEvent;
-
 import com.threerings.presents.net.Transport;
 
 import static com.threerings.presents.Log.log;

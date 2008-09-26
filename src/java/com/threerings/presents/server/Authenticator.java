@@ -25,12 +25,11 @@ import com.samskivert.util.Invoker;
 import com.samskivert.util.ResultListener;
 
 import com.threerings.presents.data.AuthCodes;
-
 import com.threerings.presents.net.AuthRequest;
 import com.threerings.presents.net.AuthResponse;
 import com.threerings.presents.net.AuthResponseData;
-
 import com.threerings.presents.server.net.AuthingConnection;
+
 import static com.threerings.presents.Log.log;
 
 /**

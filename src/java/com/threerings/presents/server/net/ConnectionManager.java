@@ -23,6 +23,7 @@ package com.threerings.presents.server.net;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.DatagramChannel;
 import java.nio.channels.SelectableChannel;
@@ -32,11 +33,8 @@ import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 import java.nio.channels.spi.SelectorProvider;
 import java.util.ArrayList;
-import java.util.List;
-
-import java.net.InetSocketAddress;
-
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -62,14 +60,13 @@ import com.threerings.presents.data.ConMgrStats;
 import com.threerings.presents.net.AuthRequest;
 import com.threerings.presents.net.AuthResponse;
 import com.threerings.presents.net.DownstreamMessage;
-import com.threerings.presents.util.DatagramSequencer;
-
 import com.threerings.presents.server.Authenticator;
 import com.threerings.presents.server.ChainedAuthenticator;
 import com.threerings.presents.server.DummyAuthenticator;
 import com.threerings.presents.server.PresentsDObjectMgr;
 import com.threerings.presents.server.ReportManager;
 import com.threerings.presents.server.ShutdownManager;
+import com.threerings.presents.util.DatagramSequencer;
 
 import static com.threerings.presents.Log.log;
 

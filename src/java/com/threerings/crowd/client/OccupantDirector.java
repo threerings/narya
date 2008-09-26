@@ -22,6 +22,7 @@
 package com.threerings.crowd.client;
 
 import com.samskivert.util.ObserverList;
+
 import com.threerings.util.Name;
 
 import com.threerings.presents.client.BasicDirector;

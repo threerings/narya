@@ -26,11 +26,12 @@ import java.util.HashMap;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
+import com.samskivert.util.Invoker;
+import com.samskivert.util.StringUtil;
+
 import com.samskivert.jdbc.WriteOnlyUnit;
 import com.samskivert.jdbc.depot.DatabaseException;
 import com.samskivert.jdbc.depot.PersistenceContext;
-import com.samskivert.util.Invoker;
-import com.samskivert.util.StringUtil;
 
 import com.threerings.presents.annotation.MainInvoker;
 import com.threerings.presents.dobj.DObject;

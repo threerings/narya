@@ -27,8 +27,9 @@ import com.google.inject.Singleton;
 import com.samskivert.util.ObserverList;
 import com.samskivert.util.RunQueue;
 
-import com.threerings.presents.annotation.EventQueue;
 import com.threerings.util.DependencyGraph;
+
+import com.threerings.presents.annotation.EventQueue;
 
 import static com.threerings.presents.Log.log;
 

@@ -22,7 +22,6 @@
 package com.threerings.presents.client;
 
 import java.awt.event.KeyEvent;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -30,10 +29,10 @@ import java.util.List;
 
 import com.samskivert.util.DebugChords;
 import com.samskivert.util.HashIntMap;
-import com.samskivert.util.Queue;
-import com.samskivert.util.StringUtil;
 import com.samskivert.util.IntMap;
 import com.samskivert.util.Interval;
+import com.samskivert.util.Queue;
+import com.samskivert.util.StringUtil;
 
 import com.threerings.presents.dobj.CompoundEvent;
 import com.threerings.presents.dobj.DEvent;
@@ -42,7 +41,6 @@ import com.threerings.presents.dobj.DObjectManager;
 import com.threerings.presents.dobj.ObjectAccessException;
 import com.threerings.presents.dobj.ObjectDestroyedEvent;
 import com.threerings.presents.dobj.Subscriber;
-
 import com.threerings.presents.net.BootstrapData;
 import com.threerings.presents.net.BootstrapNotification;
 import com.threerings.presents.net.DownstreamMessage;

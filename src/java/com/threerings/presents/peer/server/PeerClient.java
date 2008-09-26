@@ -22,14 +22,14 @@
 package com.threerings.presents.peer.server;
 
 import com.google.inject.Inject;
+
 import com.samskivert.util.Throttle;
 
 import com.threerings.presents.dobj.DObject;
 import com.threerings.presents.net.BootstrapData;
-import com.threerings.presents.server.PresentsClient;
-
 import com.threerings.presents.peer.data.NodeObject;
 import com.threerings.presents.peer.net.PeerBootstrapData;
+import com.threerings.presents.server.PresentsClient;
 
 import static com.threerings.presents.Log.log;
 

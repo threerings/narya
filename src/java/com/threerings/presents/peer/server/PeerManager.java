@@ -23,7 +23,6 @@ package com.threerings.presents.peer.server;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-
 import java.util.List;
 import java.util.Map;
 
@@ -32,8 +31,6 @@ import com.google.common.collect.Maps;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
 
-import com.samskivert.jdbc.RepositoryUnit;
-import com.samskivert.jdbc.WriteOnlyUnit;
 import com.samskivert.util.ArrayIntSet;
 import com.samskivert.util.ChainedResultListener;
 import com.samskivert.util.Interval;
@@ -43,12 +40,17 @@ import com.samskivert.util.ResultListener;
 import com.samskivert.util.ResultListenerList;
 import com.samskivert.util.Tuple;
 
+import com.samskivert.jdbc.RepositoryUnit;
+import com.samskivert.jdbc.WriteOnlyUnit;
+
 import com.threerings.io.ObjectInputStream;
 import com.threerings.io.ObjectOutputStream;
 import com.threerings.io.Streamable;
+
 import com.threerings.util.Name;
 
 import com.threerings.presents.annotation.MainInvoker;
+import com.threerings.presents.client.Client;
 import com.threerings.presents.data.ClientObject;
 import com.threerings.presents.dobj.DObject;
 import com.threerings.presents.dobj.EntryAddedEvent;
@@ -57,20 +59,17 @@ import com.threerings.presents.dobj.EntryUpdatedEvent;
 import com.threerings.presents.dobj.ObjectAccessException;
 import com.threerings.presents.dobj.SetListener;
 import com.threerings.presents.dobj.Subscriber;
-
-import com.threerings.presents.client.Client;
+import com.threerings.presents.peer.data.ClientInfo;
+import com.threerings.presents.peer.data.NodeObject;
+import com.threerings.presents.peer.net.PeerCreds;
+import com.threerings.presents.peer.server.persist.NodeRecord;
+import com.threerings.presents.peer.server.persist.NodeRepository;
 import com.threerings.presents.server.ClientManager;
 import com.threerings.presents.server.InvocationManager;
 import com.threerings.presents.server.PresentsClient;
 import com.threerings.presents.server.PresentsDObjectMgr;
 import com.threerings.presents.server.ShutdownManager;
 import com.threerings.presents.server.net.ConnectionManager;
-
-import com.threerings.presents.peer.data.ClientInfo;
-import com.threerings.presents.peer.data.NodeObject;
-import com.threerings.presents.peer.net.PeerCreds;
-import com.threerings.presents.peer.server.persist.NodeRecord;
-import com.threerings.presents.peer.server.persist.NodeRepository;
 
 import static com.threerings.presents.Log.log;
 

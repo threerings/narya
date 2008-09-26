@@ -26,21 +26,19 @@ import com.google.inject.Inject;
 import com.threerings.util.Name;
 
 import com.threerings.presents.data.ClientObject;
+import com.threerings.presents.peer.data.ClientInfo;
+import com.threerings.presents.peer.data.NodeObject;
+import com.threerings.presents.peer.server.PeerManager;
+import com.threerings.presents.peer.server.PeerNode;
 import com.threerings.presents.server.InvocationException;
 import com.threerings.presents.server.InvocationManager;
 import com.threerings.presents.server.PresentsClient;
 import com.threerings.presents.server.ShutdownManager;
 
-import com.threerings.presents.peer.data.ClientInfo;
-import com.threerings.presents.peer.data.NodeObject;
-import com.threerings.presents.peer.server.PeerManager;
-import com.threerings.presents.peer.server.PeerNode;
-
 import com.threerings.crowd.chat.client.ChatService;
 import com.threerings.crowd.chat.data.UserMessage;
 import com.threerings.crowd.chat.server.ChatProvider;
 import com.threerings.crowd.data.BodyObject;
-
 import com.threerings.crowd.peer.data.CrowdClientInfo;
 import com.threerings.crowd.peer.data.CrowdNodeObject;
 

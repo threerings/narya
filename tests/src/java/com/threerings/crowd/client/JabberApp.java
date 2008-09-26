@@ -22,9 +22,11 @@
 package com.threerings.crowd.client;
 
 import java.io.IOException;
+
 import javax.swing.JFrame;
 
 import com.samskivert.swing.util.SwingUtil;
+
 import com.threerings.util.Name;
 
 import com.threerings.presents.client.Client;

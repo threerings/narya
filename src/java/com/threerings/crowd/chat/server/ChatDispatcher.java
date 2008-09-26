@@ -21,13 +21,15 @@
 
 package com.threerings.crowd.chat.server;
 
-import com.threerings.crowd.chat.client.ChatService;
-import com.threerings.crowd.chat.data.ChatMarshaller;
+import com.threerings.util.Name;
+
 import com.threerings.presents.client.InvocationService;
 import com.threerings.presents.data.ClientObject;
 import com.threerings.presents.server.InvocationDispatcher;
 import com.threerings.presents.server.InvocationException;
-import com.threerings.util.Name;
+
+import com.threerings.crowd.chat.client.ChatService;
+import com.threerings.crowd.chat.data.ChatMarshaller;
 
 /**
  * Dispatches requests to the {@link ChatProvider}.

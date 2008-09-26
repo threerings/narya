@@ -22,6 +22,7 @@
 package com.threerings.admin.data;
 
 import java.lang.reflect.Field;
+
 import javax.swing.JPanel;
 
 import com.threerings.presents.dobj.DObject;

@@ -21,9 +21,10 @@
 
 package com.threerings.crowd.server;
 
-import com.threerings.crowd.client.BodyService;
 import com.threerings.presents.data.ClientObject;
 import com.threerings.presents.server.InvocationProvider;
+
+import com.threerings.crowd.client.BodyService;
 
 /**
  * Defines the server-side of the {@link BodyService}.

@@ -1,12 +1,13 @@
 package com.threerings.bureau.server;
 
-import com.threerings.bureau.data.BureauCredentials;
 import com.threerings.presents.data.AuthCodes;
 import com.threerings.presents.net.AuthRequest;
 import com.threerings.presents.net.AuthResponse;
 import com.threerings.presents.net.AuthResponseData;
 import com.threerings.presents.server.ChainedAuthenticator;
 import com.threerings.presents.server.net.AuthingConnection;
+
+import com.threerings.bureau.data.BureauCredentials;
 
 import static com.threerings.bureau.Log.log;
 

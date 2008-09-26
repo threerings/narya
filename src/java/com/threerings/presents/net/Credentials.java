@@ -22,6 +22,7 @@
 package com.threerings.presents.net;
 
 import com.threerings.io.Streamable;
+
 import com.threerings.util.Name;
 
 /**

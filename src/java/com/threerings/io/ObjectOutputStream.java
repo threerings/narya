@@ -21,9 +21,9 @@
 
 package com.threerings.io;
 
-import java.io.OutputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.util.HashMap;
 import java.util.Map;
 

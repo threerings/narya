@@ -24,18 +24,15 @@ package com.threerings.presents.tools;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
-
 import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
-
 import org.apache.tools.ant.AntClassLoader;
 import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.DirectoryScanner;
@@ -43,13 +40,13 @@ import org.apache.tools.ant.Task;
 import org.apache.tools.ant.types.FileSet;
 import org.apache.tools.ant.types.Reference;
 import org.apache.tools.ant.util.ClasspathUtils;
-
 import org.apache.velocity.app.VelocityEngine;
 
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 
 import com.samskivert.util.StringUtil;
+
 import com.samskivert.velocity.VelocityUtil;
 
 import com.threerings.presents.annotation.TransportHint;

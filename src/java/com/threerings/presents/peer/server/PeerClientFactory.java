@@ -24,11 +24,10 @@ package com.threerings.presents.peer.server;
 import com.threerings.util.Name;
 
 import com.threerings.presents.net.AuthRequest;
+import com.threerings.presents.peer.net.PeerCreds;
 import com.threerings.presents.server.ClientFactory;
 import com.threerings.presents.server.ClientResolver;
 import com.threerings.presents.server.PresentsClient;
-
-import com.threerings.presents.peer.net.PeerCreds;
 
 /**
  * Handles resolution of peer servers and passes non-peer resolution requests through to a normal

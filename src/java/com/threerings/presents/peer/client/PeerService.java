@@ -23,7 +23,6 @@ package com.threerings.presents.peer.client;
 
 import com.threerings.presents.client.Client;
 import com.threerings.presents.client.InvocationService;
-
 import com.threerings.presents.peer.data.NodeObject.Lock;
 
 /**

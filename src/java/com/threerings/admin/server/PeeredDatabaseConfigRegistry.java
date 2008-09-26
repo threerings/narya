@@ -26,11 +26,12 @@ import java.util.ArrayList;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
-import com.samskivert.io.PersistenceException;
-import com.samskivert.jdbc.depot.PersistenceContext;
 import com.samskivert.util.Invoker;
 
+import com.samskivert.jdbc.depot.PersistenceContext;
+
 import com.threerings.io.Streamable;
+
 import com.threerings.util.StreamableTuple;
 
 import com.threerings.presents.annotation.MainInvoker;

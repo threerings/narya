@@ -22,12 +22,11 @@
 package com.threerings.presents.server;
 
 import java.util.HashMap;
-import com.threerings.presents.client.TimeBaseService.GotTimeBaseListener;
 
+import com.threerings.presents.client.TimeBaseService.GotTimeBaseListener;
 import com.threerings.presents.data.ClientObject;
 import com.threerings.presents.data.TimeBaseCodes;
 import com.threerings.presents.data.TimeBaseObject;
-
 import com.threerings.presents.dobj.RootDObjectManager;
 
 /**
