@@ -281,7 +281,7 @@ public class PresentsClient
     }
 
     /**
-     * Returns the client object that is associated with this client.
+     * returns the client object that is associated with this client.
      */
     public ClientObject getClientObject ()
     {
@@ -291,6 +291,7 @@ public class PresentsClient
     /**
      * Forcibly terminates a client's session. This must be called from the dobjmgr thread.
      */
+    @EventThread
     public void endSession ()
     {
         // queue up a request for our connection to be closed (if we have a connection, that is)
@@ -493,6 +494,7 @@ public class PresentsClient
      * This is called from the dobjmgr thread to complete the session resumption. We call some call
      * backs and send the bootstrap info to the client.
      */
+    @EventThread
     protected void finishResumeSession ()
     {
         // if we have no client object for whatever reason; we're hosed, shut ourselves down
@@ -514,6 +516,7 @@ public class PresentsClient
     /**
      * Queues up a runnable on the object manager thread where we can safely end the session.
      */
+    @AnyThread
     protected void safeEndSession ()
     {
         _omgr.postRunnable(new Runnable() {
@@ -583,6 +586,7 @@ public class PresentsClient
      * <p><em>Note:</em> This function will be called on the dobjmgr thread which means that object
      * manipulations are OK, but client instance manipulations must done carefully.
      */
+    @EventThread
     protected void sessionWillStart ()
     {
         // configure a specific access controller for the client object
@@ -598,6 +602,7 @@ public class PresentsClient
      * <p><em>Note:</em> This function will be called on the dobjmgr thread which means that object
      * manipulations are OK, but client instance manipulations must done carefully.
      */
+    @EventThread
     protected void sessionWillResume ()
     {
     }
@@ -610,6 +615,7 @@ public class PresentsClient
      * <p><em>Note:</em> This function will be called on the dobjmgr thread which means that object
      * manipulations are OK, but client instance manipulations must done carefully.
      */
+    @EventThread
     protected void sessionDidEnd ()
     {
         // clear out our subscriptions so that we don't get a complaint about inability to forward
@@ -620,6 +626,7 @@ public class PresentsClient
     /**
      * Called to inform derived classes when the client has subscribed to a distributed object.
      */
+    @EventThread
     protected void subscribedToObject (DObject object)
     {
     }
@@ -627,6 +634,7 @@ public class PresentsClient
     /**
      * Called to inform derived classes when the client has unsubscribed from a distributed object.
      */
+    @EventThread
     protected void unsubscribedFromObject (DObject object)
     {
     }
@@ -710,6 +718,7 @@ public class PresentsClient
      * closed and unmapped. If the user logged off before closing their connection, this will be
      * preceded by a call to {@link #sessionDidEnd}.
      */
+    @EventThread
     protected void sessionConnectionClosed ()
     {
         // clear out our dobj subscriptions in case they weren't cleared by a call to sessionDidEnd
