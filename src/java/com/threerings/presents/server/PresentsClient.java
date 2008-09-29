@@ -39,6 +39,8 @@ import com.samskivert.util.Throttle;
 
 import com.threerings.util.Name;
 
+import com.threerings.presents.annotation.AnyThread;
+import com.threerings.presents.annotation.EventThread;
 import com.threerings.presents.data.ClientObject;
 import com.threerings.presents.dobj.DEvent;
 import com.threerings.presents.dobj.DObject;
