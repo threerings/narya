@@ -252,7 +252,7 @@ public class BureauRegistry
 
             _omgr.registerObject(agent);
 
-            log.info("Bureau ready, sending createAgent", "agent", agent);
+            log.info("Bureau ready, sending createAgent", "agent", agent.which());
 
             BureauSender.createAgent(bureau.clientObj, agent.getOid());
             bureau.agentStates.put(agent, AgentState.STARTED);
@@ -266,7 +266,7 @@ public class BureauRegistry
 
             LauncherEntry launcherEntry = _launchers.get(agent.bureauType);
             if (launcherEntry == null) {
-                log.warning("Launcher not found", "agent", agent);
+                log.warning("Launcher not found", "agent", agent.which());
                 return;
             }
 
@@ -285,7 +285,7 @@ public class BureauRegistry
         _omgr.registerObject(agent);
         bureau.agentStates.put(agent, AgentState.PENDING);
 
-        log.info("Bureau not ready, pending agent", "agent", agent);
+        log.info("Bureau not ready, pending agent", "agent", agent.which());
 
         bureau.summarize();
     }
@@ -301,7 +301,7 @@ public class BureauRegistry
             return;
         }
 
-        log.info("Destroying agent", "agent", agent);
+        log.info("Destroying agent", "agent", agent.which());
 
         // transition the agent to a new state and perform the effect of the transition
         if (found.state == AgentState.PENDING) {
@@ -318,9 +318,8 @@ public class BureauRegistry
 
         } else if (found.state == AgentState.DESTROYED ||
             found.state == AgentState.STILL_BORN) {
-            log.warning(
-                "Ignoring request to destroy agent in unexpected state", "state", found.state,
-                "agent", found.agent);
+            log.warning("Ignoring request to destroy agent in unexpected state",
+                        "state", found.state, "agent", found.agent.which());
         }
 
         found.bureau.summarize();
@@ -346,9 +345,8 @@ public class BureauRegistry
             return;
         }
         if (bureau.client != null) {
-            log.warning(
-                "Multiple sessions for the same bureau", "id", id, "client", client, "bureau",
-                bureau);
+            log.warning("Multiple sessions for the same bureau", "id", id, "client", client,
+                        "bureau", bureau);
         }
         bureau.client = client;
     }
@@ -361,9 +359,8 @@ public class BureauRegistry
             return;
         }
         if (bureau.client == null) {
-            log.warning(
-                "Multiple logouts from the same bureau", "id", id, "client", client, "bureau",
-                bureau);
+            log.warning("Multiple logouts from the same bureau", "id", id, "client", client,
+                        "bureau", bureau);
         }
         bureau.client = null;
 
@@ -399,7 +396,7 @@ public class BureauRegistry
 
         // create them
         for (AgentObject agent : pending) {
-            log.info("Creating agent", "agent", agent);
+            log.info("Creating agent", "agent", agent.which());
             BureauSender.createAgent(bureau.clientObj, agent.getOid());
             bureau.agentStates.put(agent, AgentState.STARTED);
         }
@@ -417,7 +414,7 @@ public class BureauRegistry
             return;
         }
 
-        log.info("Agent creation confirmed", "agent", found.agent);
+        log.info("Agent creation confirmed", "agent", found.agent.which());
 
         if (found.state == AgentState.STARTED) {
             found.bureau.agentStates.put(found.agent, AgentState.RUNNING);
@@ -430,9 +427,8 @@ public class BureauRegistry
         } else if (found.state == AgentState.PENDING ||
             found.state == AgentState.RUNNING ||
             found.state == AgentState.DESTROYED) {
-            log.warning(
-                "Ignoring confirmation of creation of an agent in an unexpected state", "state",
-                found.state, "agent", found.agent);
+            log.warning("Ignoring confirmation of creation of an agent in an unexpected state",
+                        "state", found.state, "agent", found.agent.which());
         }
 
         found.bureau.summarize();
@@ -448,7 +444,7 @@ public class BureauRegistry
             return;
         }
 
-        log.info("Agent creation failed", "agent", found.agent);
+        log.info("Agent creation failed", "agent", found.agent.which());
 
         if (found.state == AgentState.STARTED ||
             found.state == AgentState.STILL_BORN) {
@@ -457,9 +453,8 @@ public class BureauRegistry
         } else if (found.state == AgentState.PENDING ||
             found.state == AgentState.RUNNING ||
             found.state == AgentState.DESTROYED) {
-            log.warning(
-                "Ignoring failure of creation of an agent in an unexpected state", "state",
-                found.state, "agent", found.agent);
+            log.warning("Ignoring failure of creation of an agent in an unexpected state",
+                        "state", found.state, "agent", found.agent.which());
         }
 
         found.bureau.summarize();
@@ -475,7 +470,7 @@ public class BureauRegistry
             return;
         }
 
-        log.info("Agent destruction confirmed", "agent", found.agent);
+        log.info("Agent destruction confirmed", "agent", found.agent.which());
 
         if (found.state == AgentState.DESTROYED) {
             found.bureau.agentStates.remove(found.agent);
@@ -484,9 +479,8 @@ public class BureauRegistry
             found.state == AgentState.STARTED ||
             found.state == AgentState.RUNNING ||
             found.state == AgentState.STILL_BORN) {
-            log.warning(
-                "Ignoring confirmation of destruction of agent in unexpected state", "state",
-                found.state, "agent", found.agent);
+            log.warning("Ignoring confirmation of destruction of agent in unexpected state",
+                        "state", found.state, "agent", found.agent.which());
         }
 
         found.bureau.summarize();
@@ -522,26 +516,25 @@ public class BureauRegistry
         }
 
         if (!(dobj instanceof AgentObject)) {
-            log.warning("Object not an agent", "function", resolver, "obj", dobj);
+            log.warning("Object not an agent", "function", resolver, "obj", dobj.getClass());
             return null;
         }
 
         AgentObject agent = (AgentObject)dobj;
         Bureau bureau = _bureaus.get(agent.bureauId);
         if (bureau == null) {
-            log.warning("Bureau not found for agent", "function", resolver, "agent", agent);
+            log.warning("Bureau not found for agent", "function", resolver, "agent", agent.which());
             return null;
         }
 
         if (!bureau.agentStates.containsKey(agent)) {
-            log.warning("Bureau does not have agent", "function", resolver, "agent", agent);
+            log.warning("Bureau does not have agent", "function", resolver, "agent", agent.which());
             return null;
         }
 
         if (client != null && bureau.clientObj != client) {
-            log.warning(
-                "Masquerading request", "function", resolver, "agent", agent, "client",
-                bureau.clientObj, "client", client);
+            log.warning("Masquerading request", "function", resolver, "agent", agent.which(),
+                        "client", bureau.clientObj, "client", client);
             return null;
         }
 
@@ -660,11 +653,7 @@ public class BureauRegistry
     /** Models the results of searching for an agent. */
     protected static class FoundAgent
     {
-        FoundAgent (
-           Bureau bureau,
-           AgentObject agent,
-           AgentState state)
-        {
+        FoundAgent (Bureau bureau, AgentObject agent, AgentState state) {
             this.bureau = bureau;
             this.agent = agent;
             this.state = state;

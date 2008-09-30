@@ -66,6 +66,15 @@ public class AgentObject extends DObject
      *  bureau and run). */
     public int clientOid;
 
+    /**
+     * Returns a brief string that identifies this agent. Use this instead of {@link #toString}
+     * when you wish to report an agent object in a log message.
+     */
+    public String which ()
+    {
+        return "[bid=" + bureauId + ", type=" + bureauType + "]";
+    }
+
     // AUTO-GENERATED: METHODS START
     /**
      * Requests that the <code>bureauId</code> field be set to the
