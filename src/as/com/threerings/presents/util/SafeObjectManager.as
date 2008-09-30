@@ -38,17 +38,16 @@ public class SafeObjectManager
     /**
      * Creates a new manager. The optional available and failed parameters are callbacks
      * that must match the <code>Subscriber</code> interface methods.
+     *
      * @param omgr the underlying object manager to use for requesting objects
      * @param log sink for warnings and info messages
      * @param available optional callback for when an object becomes available
      * @param failed optional callback for when a subscription request fails
+     *
      * @see Subscriber
      */
     public function SafeObjectManager (
-        omgr :DObjectManager, 
-        log :Log,
-        available :Function = null,
-        failed :Function = null)
+        omgr :DObjectManager, log :Log, available :Function = null, failed :Function = null)
     {
         _omgr = omgr;
         _log = log;
@@ -70,9 +69,7 @@ public class SafeObjectManager
      * @param failed an optional callback to be invoked if the request fails
      */
     public function subscribe (
-        oid :int, 
-        available :Function=null, 
-        failed :Function=null) :void
+        oid :int, available :Function=null, failed :Function=null) :void
     {
         if (_entries[oid] != null ) {
             _log.warning("Object " + oid + " already subscribed");
@@ -84,7 +81,7 @@ public class SafeObjectManager
         entry.availableFn = available;
         entry.failedFn = failed;
         sub.subscribe(_omgr);
-        _log.info("Subscribing to " + sub);
+        // _log.info("Subscribing to " + sub);
         _entries[oid] = entry;
     }
 
@@ -101,7 +98,7 @@ public class SafeObjectManager
             return;
         }
 
-        _log.info("Unsubscribing from " + entry.sub);
+        // _log.info("Unsubscribing from " + entry.sub);
         if (entry.obj != null) {
             entry.obj.removeListener(_objectDeathListenerAdapter);
         }
@@ -118,7 +115,7 @@ public class SafeObjectManager
      */
     public function unsubscribeAll () :void
     {
-        _log.info("Unsubscribing all objects");
+        // _log.info("Unsubscribing all objects");
 
         // get the keys (integer ids of subscribed objects)
         var ids :Array = new Array();
@@ -156,7 +153,7 @@ public class SafeObjectManager
             _log.warning("Object " + obj.getOid() + " available without request?!");
 
         } else {
-            _log.info("Object " + obj.getOid() + " now available");
+            // _log.info("Object " + obj.getOid() + " now available");
             entry.obj = obj;
         }
 
@@ -208,22 +205,19 @@ public class SafeObjectManager
             entry.obj = null;
         }
 
-        _log.info("Object " + oid + " destroyed");
+        // _log.info("Object " + oid + " destroyed");
     }
 
     protected var _omgr :DObjectManager;
     protected var _log :Log;
     protected var _available :Function;
     protected var _failed :Function;
-    protected var _adapter :SubscriberAdapter = 
-        new SubscriberAdapter(available, failed);
+    protected var _adapter :SubscriberAdapter = new SubscriberAdapter(available, failed);
     protected var _objectDeathListenerAdapter :ObjectDeathListenerAdapter = 
         new ObjectDeathListenerAdapter(destroyed);
     protected var _entries :Dictionary = new Dictionary();
 }
-
 }
-
 
 import com.threerings.presents.dobj.DObject;
 import com.threerings.presents.dobj.ObjectDeathListener;
