@@ -74,6 +74,7 @@ public class TestServer extends PresentsServer
     {
         super.init(injector);
         _bureauReg.init();
+        _bureauReg.setDefaultClientFactory();
     }
 
     public void setClientTarget (String target)

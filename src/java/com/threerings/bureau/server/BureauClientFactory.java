@@ -32,7 +32,9 @@ import com.threerings.bureau.data.BureauCredentials;
 
 /**
  * Handles resolution of bureaus and passes non-bureau resolution requests through to a normal
- * factory.
+ * factory. For bureaus, creates base class instances {@link PresentsClient} and
+ * {@link ClientObject}.
+ * @see BureauRegistry#setDefaultClientFactory()
  */
 public class BureauClientFactory implements ClientFactory
 {
