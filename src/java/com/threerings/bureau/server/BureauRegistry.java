@@ -33,7 +33,6 @@ import com.google.inject.Singleton;
 
 import com.samskivert.util.Interval;
 import com.samskivert.util.Invoker;
-import com.samskivert.util.ProcessLogger;
 import com.samskivert.util.RunQueue;
 import com.samskivert.util.StringUtil;
 
@@ -47,6 +46,7 @@ import com.threerings.presents.server.PresentsClient;
 import com.threerings.bureau.data.AgentObject;
 import com.threerings.bureau.data.BureauCodes;
 import com.threerings.bureau.data.BureauCredentials;
+import com.threerings.bureau.util.BureauLogRedirector;
 
 import static com.threerings.bureau.Log.log;
 
@@ -204,7 +204,7 @@ public class BureauRegistry
                 builder.redirectErrorStream(true);
                 Process process = builder.start();
                 // log the output of the process and prefix with bureau id
-                ProcessLogger.copyMergedOutput(log, bureauId, process);
+                new BureauLogRedirector(bureauId, process.getInputStream());
             }
 
             @Override
