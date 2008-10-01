@@ -23,7 +23,6 @@ package com.threerings.bureau.server;
 
 import com.threerings.util.Name;
 
-import com.threerings.presents.data.ClientObject;
 import com.threerings.presents.net.AuthRequest;
 import com.threerings.presents.server.ClientFactory;
 import com.threerings.presents.server.ClientResolver;
@@ -34,7 +33,7 @@ import com.threerings.bureau.data.BureauCredentials;
 /**
  * Handles resolution of bureaus and passes non-bureau resolution requests through to a normal
  * factory. For bureaus, creates base class instances {@link PresentsClient} and
- * {@link ClientObject}.
+ * {@link ClientResolver}.
  * @see BureauRegistry#setDefaultClientFactory()
  */
 public class BureauClientFactory implements ClientFactory
