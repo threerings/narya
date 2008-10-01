@@ -1,5 +1,5 @@
 //
-// $Id: JabberClient.java 3283 2004-12-22 19:23:00Z ray $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2004 Three Rings Design, Inc., All Rights Reserved

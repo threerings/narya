@@ -1,5 +1,5 @@
 //
-// $Id: AuthRequest.java 4641 2007-03-31 02:35:49Z mdb $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2007 Three Rings Design, Inc., All Rights Reserved

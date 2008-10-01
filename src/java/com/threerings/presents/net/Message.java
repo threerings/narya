@@ -1,5 +1,5 @@
 //
-// $Id: DownstreamMessage.java 5090 2008-05-13 21:12:39Z andrzej $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2007 Three Rings Design, Inc., All Rights Reserved

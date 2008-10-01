@@ -58,7 +58,7 @@ public class AgentObject extends DObject
      *  some other description that the bureau can use to load and execute the agent's code. */
     public String code;
 
-    /** The main class within the code to use when launching an agent. Whther this value is
+    /** The main class within the code to use when launching an agent. Whether this value is
      *  used depends on the type of bureau and will be resolve in the bureau client. */
     public String className;
 
@@ -67,9 +67,10 @@ public class AgentObject extends DObject
     public int clientOid;
 
     /**
-     * Returns a brief string that identifies this agent. Use this instead of {@link #toString}
-     * when you wish to report an agent object in a log message.
+     * Returns a brief string that identifies this agent. Use this instead of
+     * {@link Object#toString} when you wish to report an agent object in a log message.
      */
+    @Override
     public String which ()
     {
         return "[bid=" + bureauId + ", type=" + bureauType + "]";

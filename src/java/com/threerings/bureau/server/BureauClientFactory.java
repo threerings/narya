@@ -23,6 +23,7 @@ package com.threerings.bureau.server;
 
 import com.threerings.util.Name;
 
+import com.threerings.presents.data.ClientObject;
 import com.threerings.presents.net.AuthRequest;
 import com.threerings.presents.server.ClientFactory;
 import com.threerings.presents.server.ClientResolver;

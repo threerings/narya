@@ -1,5 +1,5 @@
 //
-// $Id: StreamableHashSet.java 4893 2007-12-03 21:07:34Z dhoover $
+// $Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2007 Three Rings Design, Inc., All Rights Reserved
