@@ -383,7 +383,7 @@ public class PresentsClient
         // first time through we end our session, subsequently _throttle is null and we just drop
         // any messages that come in until we've fully shutdown
         if (_throttle == null) {
-//             log.info("Dropping message from force-quit client [conn=" + _conn +
+//             log.info("Dropping message from force-quit client [conn=" + getConnection() +
 //                      ", msg=" + message + "].");
             return;
 
@@ -678,7 +678,13 @@ public class PresentsClient
     protected void populateBootstrapData (BootstrapData data)
     {
         // give them the connection id
-        data.connectionId = _conn.getConnectionId();
+        Connection conn = getConnection();
+        if (conn != null) {
+            data.connectionId = conn.getConnectionId();
+        } else {
+            log.warning("Client connection disappeared before we could send bootstrap response.");
+            return; // stop here as we're just going to throw away this bootstrap
+        }
 
         // and the client object id
         data.clientOid = _clobj.getOid();
@@ -830,7 +836,7 @@ public class PresentsClient
     protected void toString (StringBuilder buf)
     {
         buf.append("username=").append(_username);
-        buf.append(", conn=").append(_conn);
+        buf.append(", conn=").append(getConnection());
         buf.append(", who=").append(_username);
         buf.append(", in=").append(_messagesIn);
         buf.append(", out=").append(_messagesOut);
