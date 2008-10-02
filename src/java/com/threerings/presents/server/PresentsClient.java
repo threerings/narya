@@ -198,8 +198,7 @@ public class PresentsClient
                 // switching, so freak out
                 if (_clobj == null) {
                     log.warning("Client disappeared before we could complete the switch to a " +
-                                "new client object [ousername=" + _username +
-                                ", nusername=" + username + "].");
+                                "new client object", "ousername", _username, "nusername", username);
                     _clmgr.releaseClientObject(username);
                     Exception error = new Exception("Early withdrawal");
                     resolutionFailed(username, error);
@@ -682,7 +681,8 @@ public class PresentsClient
         if (conn != null) {
             data.connectionId = conn.getConnectionId();
         } else {
-            log.warning("Client connection disappeared before we could send bootstrap response.");
+            log.warning("Connection disappeared before we could send bootstrap response.",
+                        "client", this);
             return; // stop here as we're just going to throw away this bootstrap
         }
 
