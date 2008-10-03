@@ -81,7 +81,7 @@ public class SafeObjectManager
         entry.availableFn = available;
         entry.failedFn = failed;
         sub.subscribe(_omgr);
-        // _log.info("Subscribing to " + sub);
+        _log.info("Subscribing to " + sub);
         _entries[oid] = entry;
     }
 
@@ -98,7 +98,7 @@ public class SafeObjectManager
             return;
         }
 
-        // _log.info("Unsubscribing from " + entry.sub);
+        _log.info("Unsubscribing from " + entry.sub);
         if (entry.obj != null) {
             entry.obj.removeListener(_objectDeathListenerAdapter);
         }
@@ -115,7 +115,7 @@ public class SafeObjectManager
      */
     public function unsubscribeAll () :void
     {
-        // _log.info("Unsubscribing all objects");
+        _log.info("Unsubscribing all objects");
 
         // get the keys (integer ids of subscribed objects)
         var ids :Array = new Array();
@@ -153,7 +153,7 @@ public class SafeObjectManager
             _log.warning("Object " + obj.getOid() + " available without request?!");
 
         } else {
-            // _log.info("Object " + obj.getOid() + " now available");
+            _log.info("Object " + obj.getOid() + " now available");
             entry.obj = obj;
         }
 
@@ -205,7 +205,7 @@ public class SafeObjectManager
             entry.obj = null;
         }
 
-        // _log.info("Object " + oid + " destroyed");
+        _log.info("Object " + oid + " destroyed");
     }
 
     protected var _omgr :DObjectManager;
