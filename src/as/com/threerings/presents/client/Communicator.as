@@ -145,10 +145,12 @@ public class Communicator
     protected function shutdown (logonError :Error) :void
     {
         if (_socket != null)  {
-            try {
-                _socket.close();
-            } catch (err :Error) {
-                Log.getLog(this).warning("Error closing failed socket [error=" + err + "].");
+            if (_socket.connected) {
+                try {
+                    _socket.close();
+                } catch (err :Error) {
+                    Log.getLog(this).warning("Error closing failed socket [error=" + err + "].");
+                }
             }
             removeListeners();
             _socket = null;
@@ -288,7 +290,7 @@ public class Communicator
      */
     protected function socketClosed (event :Event) :void
     {
-        Log.getLog(this).warning("socket was closed: " + event);
+        Log.getLog(this).info("socket was closed: " + event);
         _client.notifyObservers(ClientEvent.CLIENT_CONNECTION_FAILED);
         logoff();
     }
