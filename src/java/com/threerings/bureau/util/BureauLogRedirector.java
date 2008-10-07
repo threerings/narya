@@ -54,6 +54,23 @@ public class BureauLogRedirector
         thread.start();
     }
 
+    /**
+     * Gets the bureau id this was created with.
+     */
+    public String getBureauId ()
+    {
+        return _bureauId;
+    }
+
+    /**
+     * Returns true if the redirector is still active. Normally this indicates that the launched
+     * process is still running.
+     */
+    public boolean isRunning ()
+    {
+        return _reader != null;
+    }
+
     protected void copyLoop ()
     {
         String line;
@@ -66,6 +83,7 @@ public class BureauLogRedirector
             log.warning("Failed to read bureau output", "bureauId", _bureauId, e);
         } finally {
             StreamUtil.close(_reader);
+            _reader = null;
         }
     }
 
