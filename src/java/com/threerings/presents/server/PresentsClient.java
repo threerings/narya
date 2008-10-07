@@ -37,7 +37,6 @@ import com.samskivert.util.IntMap;
 import com.samskivert.util.IntMaps;
 import com.samskivert.util.Interval;
 import com.samskivert.util.ResultListener;
-import com.samskivert.util.RunQueue;
 import com.samskivert.util.Throttle;
 
 import com.threerings.util.Name;
