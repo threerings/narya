@@ -61,4 +61,9 @@ public class VariableThrottle extends Throttle
         }
         _ops = ops;
     }
+    
+    public String toString ()
+    {
+        return "VariableThrottle [" + _ops.length + " per " + _period + "ms]";
+    }
 }
