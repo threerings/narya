@@ -118,7 +118,12 @@ public class TestClient
     {
         object.addListener(this);
         log.info("Object available: " + object);
-        object.setBar("lawl!");
+        object.postMessage("lawl!");
+
+        // try blowing through our message limit
+        for (int ii = 0; ii < 2*Client.DEFAULT_MAX_MSG_RATE[0]+5; ii++) {
+            object.postMessage("ZOMG!", new Integer(ii));
+        }
     }
 
     public void requestFailed (int oid, ObjectAccessException cause)
@@ -133,8 +138,8 @@ public class TestClient
     {
         log.info("Got event [event=" + event + "].");
 
-        // request that we log off
-        _client.logoff(true);
+//         // request that we log off
+//         _client.logoff(true);
     }
 
     // documentation inherited from interface

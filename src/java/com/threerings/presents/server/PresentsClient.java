@@ -23,7 +23,7 @@ package com.threerings.presents.server;
 
 import java.net.InetAddress;
 
-import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.TimeZone;
 
@@ -35,7 +35,6 @@ import com.google.inject.Inject;
 
 import com.samskivert.util.IntMap;
 import com.samskivert.util.IntMaps;
-import com.samskivert.util.Interval;
 import com.samskivert.util.ResultListener;
 import com.samskivert.util.Throttle;
 
@@ -43,6 +42,7 @@ import com.threerings.util.Name;
 
 import com.threerings.presents.annotation.AnyThread;
 import com.threerings.presents.annotation.EventThread;
+import com.threerings.presents.client.Client;
 import com.threerings.presents.data.ClientObject;
 import com.threerings.presents.dobj.DEvent;
 import com.threerings.presents.dobj.DObject;
@@ -61,8 +61,10 @@ import com.threerings.presents.net.ObjectResponse;
 import com.threerings.presents.net.PingRequest;
 import com.threerings.presents.net.PongResponse;
 import com.threerings.presents.net.SubscribeRequest;
+import com.threerings.presents.net.ThrottleUpdatedMessage;
 import com.threerings.presents.net.UnsubscribeRequest;
 import com.threerings.presents.net.UnsubscribeResponse;
+import com.threerings.presents.net.UpdateThrottleMessage;
 import com.threerings.presents.net.UpstreamMessage;
 import com.threerings.presents.server.net.Connection;
 import com.threerings.presents.server.net.ConnectionManager;
@@ -175,6 +177,32 @@ public class PresentsClient
     }
 
     /**
+     * Configures the rate at which incoming messages are throttled for this client. This will
+     * communicate the new limit to the client and begin enforcing the limit when the client has
+     * acknowledged the new limit.
+     *
+     * <p><em>Note:</em> this means that a hacked client can refuse to ACK message rate reductions
+     * and continue to use the most generous rate ever assigned to it.  Don't increase the throttle
+     * beyond the default for untrusted clients. This mechanism exists so that trusted clients can
+     * have their throttle relaxed in a robust manner which will not result in disconnects if the
+     * client happens to be at or near the throttle limit when the throttle is reduced.
+     *
+     * @param messages the number of messages allowed in the period.
+     * @param period the throttle period (in milliseconds).
+     */
+    @EventThread
+    public void setIncomingMessageThrottle (int messages, long period)
+    {
+        // we do a couple of things to make sure we don't accidentally hit our throttle: we use 2x
+        // messages/period so that if the client sends all of its messages in 1ms and then tries to
+        // send another full batch in the final ms after the throttle lets up, we don't freak out
+        // if we disagree about that ms and we reduce the client's message count by one
+        _pendingThrottles.add(new int[] { 2*messages, (int)(2*period) });
+        postMessage(new UpdateThrottleMessage(messages-1, period));
+        // when we get a ThrottleUpdatedMessage from the client, we'll apply the new throttle
+    }
+
+    /**
      * <em>Danger:</em> this method is not for general consumption. This changes the username of
      * the client, but should only be done very early in a user's session, when you know that no
      * one has mapped the user based on their username or has in any other way made use of their
@@ -194,8 +222,7 @@ public class PresentsClient
     public void setUsername (Name username, final UserChangeListener ucl)
     {
         ClientResolutionListener clr = new ClientResolutionListener() {
-            public void clientResolved (final Name username, final ClientObject clobj)
-            {
+            public void clientResolved (final Name username, final ClientObject clobj) {
                 // if they old client object is gone by now, they ended their session while we were
                 // switching, so freak out
                 if (_clobj == null) {
@@ -228,8 +255,7 @@ public class PresentsClient
             /**
              * Finish the final phase of the switch.
              */
-            protected void finishResolved (Name username, ClientObject clobj)
-            {
+            protected void finishResolved (Name username, ClientObject clobj) {
                 // let the client know that the rug has been yanked out from under their ass
                 Object[] args = new Object[] { Integer.valueOf(clobj.getOid()) };
                 _clobj.postMessage(ClientObject.CLOBJ_CHANGED, args);
@@ -325,11 +351,6 @@ public class PresentsClient
 
         // clear out the client object so that we know the session is over
         _clobj = null;
-
-        // Cancel overflow processing
-        if (_overflow != null) {
-            _overflow.stop();
-        }
     }
 
     /**
@@ -393,62 +414,10 @@ public class PresentsClient
 //                      ", msg=" + message + "].");
             return;
 
-        } else if (_overflow != null && _overflow.size() > 0) {
-            // We've got some overflow, the new message has to dispatch after those
-            if (_overflow.size() >= _overflow.limit) {
-                // Can't take any more overflow, bail out
-                handleThrottleExceeded();
-
-            } else {
-                _overflow.enqueue(message);
-                _overflow.start();
-            }
-            return;
-
         } else if (_throttle.throttleOp(message.received)) {
-            // We're throttled, check if overflow is allowed
-            if (_overflow != null && _overflow.limit > 0) {
-                // Enter overflow mode and save message for later
-                _overflow.enqueue(message);
-                _overflow.start();
-                return;
-            }
-
             handleThrottleExceeded();
         }
 
-        dispatch(message);
-    }
-
-    /**
-     * Process the overflowed messages one at a time as long as the throttle will let us.
-     */
-    protected void handleOverflowMessages ()
-    {
-        // Special case, we've already reached our limit since overflow was kicked off
-        if (_throttle == null) {
-            _overflow.stop();
-            return;
-        }
-
-        long now = System.currentTimeMillis();
-        while (true) {
-            // We're done, the next message will be business as usual
-            if (_overflow.size() == 0) {
-                _overflow.stop();
-                return;
-            }
-
-            // Dispatch the next message if it isn't throttled
-            if (_throttle.throttleOp(now)) {
-                return;
-            }
-            dispatch(_overflow.dequeue());
-        }
-    }
-
-    protected void dispatch (UpstreamMessage message)
-    {
         // we dispatch to a message dispatcher that is specialized for the particular class of
         // message that we received
         MessageDispatcher disp = _disps.get(message.getClass());
@@ -587,13 +556,13 @@ public class PresentsClient
     }
 
     /**
-     * Creates our incoming message throttle. Subclasses can override this to customize the message
-     * rate limit.
+     * Creates our incoming message throttle. Use {@link #setIncomingMessageThrottle} to adjust the
+     * throttle for running clients.
      */
     protected Throttle createIncomingMessageThrottle ()
     {
-        // more than 100 messages in 10 seconds and you're audi like 5000
-        return new Throttle(DEFAULT_THROTTLE_MESSAGE_LIMIT, DEFAULT_THROTTLE_TIME_LIMIT);
+        // see setIncomingMessageThrottle for more details on all of this
+        return new Throttle(2*Client.DEFAULT_MAX_MSG_RATE[0], 2*Client.DEFAULT_MAX_MSG_RATE[1]);
     }
 
     /**
@@ -601,24 +570,10 @@ public class PresentsClient
      */
     protected void handleThrottleExceeded ()
     {
-        log.warning(
-            "Client exceeded message limit, disconnecting", "client", this, "throttle", _throttle);
+        log.warning("Client exceeded incoming message throttle, disconnecting",
+                    "client", this, "throttle", _throttle);
         safeEndSession();
         _throttle = null;
-    }
-
-    /**
-     * Allow throttled messages to hang around until permitted to send.
-     */
-    protected void setOverflowLimit (int limit)
-    {
-        if (_overflow == null) {
-            if (limit == 0) {
-                return;
-            }
-            _overflow = new Overflow();
-        }
-        _overflow.limit = limit;
     }
 
     /**
@@ -884,8 +839,7 @@ public class PresentsClient
         // don't log dropped messages unless we're dropping a lot of them (meaning something is
         // still queueing messages up for this dead client even though it shouldn't be)
         if (++_messagesDropped % 50 == 0) {
-            log.warning("Dropping many messages? [client=" + this +
-                        ", count=" + _messagesDropped + "].");
+            log.warning("Dropping many messages?", "client", this, "count", _messagesDropped);
         }
 
         // make darned sure we don't have any remaining subscriptions
@@ -895,6 +849,26 @@ public class PresentsClient
             clearSubscrips(_messagesDropped > 10);
         }
         return false;
+    }
+
+    /**
+     * Notifies this client that its throttle was updated.
+     */
+    protected void throttleUpdated ()
+    {
+        _omgr.postRunnable(new Runnable() {
+            public void run () {
+                if (_pendingThrottles.size() == 0) {
+                    log.warning("Received throttleUpdated but have no pending throttles",
+                                "client", this);
+                    return;
+                }
+                int[] data = _pendingThrottles.remove(0);
+                log.info("Applying updated throttle", "client", this,
+                         "msgs", data[0], "period", data[1]);
+                _throttle.reinit(data[0], data[1]);
+            }
+        });
     }
 
     @Override
@@ -1072,80 +1046,27 @@ public class PresentsClient
     }
 
     /**
+     * Processes throttle updated messages.
+     */
+    protected static class ThrottleUpdatedDispatcher implements MessageDispatcher
+    {
+        public void dispatch (final PresentsClient client, UpstreamMessage msg)
+        {
+            log.debug("Client ACKed throttle update", "client", client);
+            client.throttleUpdated();
+        }
+    }
+
+    /**
      * Processes logoff requests.
      */
     protected static class LogoffDispatcher implements MessageDispatcher
     {
         public void dispatch (final PresentsClient client, UpstreamMessage msg)
         {
-            log.debug("Client requested logoff " + client + ".");
+            log.debug("Client requested logoff", "client", client);
             client.safeEndSession();
         }
-    }
-
-    /**
-     * Contains information about message overflow.
-     */
-    protected class Overflow
-    {
-        /** Maxmimum size of queue before disconnection. */
-        public int limit;
-
-        /**
-         * Starts processing the overflowed messages every so often.
-         */
-        public void start ()
-        {
-            if (_interval == null) {
-                _interval = new Interval(_omgr) {
-                    @Override public void expired () {
-                        handleOverflowMessages();
-                    }
-                };
-                _interval.schedule(OVERFLOW_CHECK_INTERVAL, true);
-            }
-        }
-
-        /**
-         * Stops processing overflowed messages.
-         */
-        public void stop ()
-        {
-            if (_interval != null) {
-                _interval.cancel();
-                _interval = null;
-            }
-        }
-
-        /**
-         * Gets the number of overflowed messages.
-         */
-        public int size ()
-        {
-            return _queue.size();
-        }
-
-        /**
-         * Adds a message to the end of the queue.
-         */
-        public void enqueue (UpstreamMessage message)
-        {
-            _queue.add(message);
-        }
-
-        /**
-         * Removes and returns the least recently added message.
-         */
-        public UpstreamMessage dequeue ()
-        {
-            return _queue.remove();
-        }
-
-        /** Interval for checking the queue. */
-        protected Interval _interval;
-
-        /** Previously throttled messages waiting to be sent. */
-        protected LinkedList<UpstreamMessage> _queue = new LinkedList<UpstreamMessage>();
     }
 
     @Inject protected ClientManager _clmgr;
@@ -1174,8 +1095,8 @@ public class PresentsClient
     /** Prevent the client from sending too many messages too frequently. */
     protected Throttle _throttle = createIncomingMessageThrottle();
 
-    /** Overflow data, null unless active. */
-    protected Overflow _overflow;
+    /** Used to keep throttles around until we know the client is ready for us to apply them. */
+    protected List<int[]> _pendingThrottles = Lists.newArrayList();
 
     // keep these for kicks and giggles
     protected int _messagesIn;
@@ -1188,15 +1109,6 @@ public class PresentsClient
     /** The amount of time after disconnection a user is allowed before their session is forcibly
      * ended. */
     protected static final long FLUSH_TIME = 7 * 60 * 1000L;
-
-    /** Maximum number of messages in allowed in a time period. */
-    protected static final int DEFAULT_THROTTLE_MESSAGE_LIMIT = 100;
-
-    /** Time period over which the message limit applies. */
-    protected static final long DEFAULT_THROTTLE_TIME_LIMIT = 10*1000;
-
-    /** Time between checks of the overflow queue. */
-    protected static final int OVERFLOW_CHECK_INTERVAL = 250;
 
     // register our message dispatchers
     static {

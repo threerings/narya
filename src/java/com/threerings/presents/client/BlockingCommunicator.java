@@ -704,6 +704,15 @@ public class BlockingCommunicator extends Communicator
                 return;
             }
 
+            // make sure we're not exceeding our outgoing throttle rate
+            while (_client.getOutgoingMessageThrottle().throttleOp()) {
+                try {
+                    Thread.sleep(2);
+                } catch (InterruptedException ie) {
+                    // no problem
+                }
+            }
+
             try {
                 // write the message out the socket
                 sendMessage(msg);

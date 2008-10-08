@@ -28,6 +28,7 @@ import com.samskivert.util.ObserverList;
 import com.samskivert.util.RunAnywhere;
 import com.samskivert.util.RunQueue;
 import com.samskivert.util.StringUtil;
+import com.samskivert.util.Throttle;
 
 import com.threerings.presents.client.InvocationService.ConfirmListener;
 import com.threerings.presents.data.AuthCodes;
@@ -41,6 +42,7 @@ import com.threerings.presents.net.BootstrapData;
 import com.threerings.presents.net.Credentials;
 import com.threerings.presents.net.PingRequest;
 import com.threerings.presents.net.PongResponse;
+import com.threerings.presents.net.ThrottleUpdatedMessage;
 
 import static com.threerings.presents.Log.log;
 
@@ -60,6 +62,9 @@ public class Client
     /** The maximum size of a datagram. */
     public static final int MAX_DATAGRAM_SIZE = 1500;
 
+    /** Our default maximum outgoing message rate as { messages, milliseconds }. */
+    public static final int[] DEFAULT_MAX_MSG_RATE = { 50, 5*1000 };
+
     /**
      * Constructs a client object with the supplied credentials and RunQueue. The creds will be
      * used to authenticate with any server to which this client attempts to connect. The RunQueue
@@ -77,6 +82,10 @@ public class Client
     {
         _creds = creds;
         _runQueue = runQueue;
+
+        // initialize our default throttle; we use a slightly lowered rate from the default to
+        // avoid edge cases where we and the server disagree about a single millisecond
+        _outThrottle = new Throttle(DEFAULT_MAX_MSG_RATE[0]-1, DEFAULT_MAX_MSG_RATE[1]);
     }
 
     /**
@@ -632,6 +641,25 @@ public class Client
     }
 
     /**
+     * Configures the outgoing message throttle. This is done when the server informs us that a new
+     * rate is in effect.
+     */
+    protected synchronized void setOutgoingMessageThrottle (int msgs, long period)
+    {
+        log.info("Updating outgoing message throttle", "msgs", msgs, "period", period);
+        _outThrottle.reinit(msgs, period);
+        _comm.postMessage(new ThrottleUpdatedMessage());
+    }
+
+    /**
+     * Returns our outgoing message throttle. Used by the communicator's writer.
+     */
+    protected synchronized Throttle getOutgoingMessageThrottle ()
+    {
+        return _outThrottle;
+    }
+
+    /**
      * Called every five seconds; ensures that we ping the server if we haven't communicated in a
      * long while and periodically resyncs the client and server clock deltas.
      */
@@ -1045,6 +1073,9 @@ public class Client
 
     /** Our tick interval id. */
     protected Interval _tickInterval;
+
+    /** Our outgoing message throttle. */
+    protected Throttle _outThrottle = new Throttle(DEFAULT_MAX_MSG_RATE[0], DEFAULT_MAX_MSG_RATE[1]);
 
     /** How often we recompute our time offset from the server. */
     protected static final long CLOCK_SYNC_INTERVAL = 600 * 1000L;

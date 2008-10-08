@@ -53,6 +53,7 @@ import com.threerings.presents.net.PongResponse;
 import com.threerings.presents.net.SubscribeRequest;
 import com.threerings.presents.net.UnsubscribeRequest;
 import com.threerings.presents.net.UnsubscribeResponse;
+import com.threerings.presents.net.UpdateThrottleMessage;
 
 import static com.threerings.presents.Log.log;
 
@@ -198,6 +199,10 @@ public class ClientDObjectMgr
 
             } else if (obj instanceof PongResponse) {
                 _client.gotPong((PongResponse)obj);
+
+            } else if (obj instanceof UpdateThrottleMessage) {
+                UpdateThrottleMessage upmsg = (UpdateThrottleMessage)obj;
+                _client.setOutgoingMessageThrottle(upmsg.messages, upmsg.period);
 
             } else if (obj instanceof ObjectAction<?>) {
                 ObjectAction<?> act = (ObjectAction<?>)obj;
