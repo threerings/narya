@@ -202,7 +202,7 @@ public class ClientDObjectMgr
 
             } else if (obj instanceof UpdateThrottleMessage) {
                 UpdateThrottleMessage upmsg = (UpdateThrottleMessage)obj;
-                _client.setOutgoingMessageThrottle(upmsg.messages, upmsg.period);
+                _client.setOutgoingMessageThrottle(upmsg.messagesPerSec);
 
             } else if (obj instanceof ObjectAction<?>) {
                 ObjectAction<?> act = (ObjectAction<?>)obj;

@@ -121,7 +121,7 @@ public class TestClient
         object.postMessage("lawl!");
 
         // try blowing through our message limit
-        for (int ii = 0; ii < 2*Client.DEFAULT_MAX_MSG_RATE[0]+5; ii++) {
+        for (int ii = 0; ii < 15*Client.DEFAULT_MSGS_PER_SECOND; ii++) {
             object.postMessage("ZOMG!", new Integer(ii));
         }
     }

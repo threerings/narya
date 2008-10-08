@@ -186,19 +186,12 @@ public class PresentsClient
      * beyond the default for untrusted clients. This mechanism exists so that trusted clients can
      * have their throttle relaxed in a robust manner which will not result in disconnects if the
      * client happens to be at or near the throttle limit when the throttle is reduced.
-     *
-     * @param messages the number of messages allowed in the period.
-     * @param period the throttle period (in milliseconds).
      */
     @EventThread
-    public void setIncomingMessageThrottle (int messages, long period)
+    public void setIncomingMessageThrottle (int messagesPerSec)
     {
-        // we do a couple of things to make sure we don't accidentally hit our throttle: we use 2x
-        // messages/period so that if the client sends all of its messages in 1ms and then tries to
-        // send another full batch in the final ms after the throttle lets up, we don't freak out
-        // if we disagree about that ms and we reduce the client's message count by one
-        _pendingThrottles.add(new int[] { 2*messages, (int)(2*period) });
-        postMessage(new UpdateThrottleMessage(messages-1, period));
+        _pendingThrottles.add(messagesPerSec);
+        postMessage(new UpdateThrottleMessage(messagesPerSec));
         // when we get a ThrottleUpdatedMessage from the client, we'll apply the new throttle
     }
 
@@ -562,7 +555,7 @@ public class PresentsClient
     protected Throttle createIncomingMessageThrottle ()
     {
         // see setIncomingMessageThrottle for more details on all of this
-        return new Throttle(2*Client.DEFAULT_MAX_MSG_RATE[0], 2*Client.DEFAULT_MAX_MSG_RATE[1]);
+        return new Throttle(10*Client.DEFAULT_MSGS_PER_SECOND+1, 10*1000L);
     }
 
     /**
@@ -863,10 +856,14 @@ public class PresentsClient
                                 "client", this);
                     return;
                 }
-                int[] data = _pendingThrottles.remove(0);
-                log.info("Applying updated throttle", "client", this,
-                         "msgs", data[0], "period", data[1]);
-                _throttle.reinit(data[0], data[1]);
+                int messagesPerSec = _pendingThrottles.remove(0);
+                log.info("Applying updated throttle", "client", this, "msgsPerSec", messagesPerSec);
+                // we set our hard throttle over a 10 second period instead of a 1 second period to
+                // account for periods of network congestion that might cause otherwise properly
+                // throttled messages to bunch up while they're "on the wire"; we also add a one
+                // message buffer so that if the client is right up against the limit, we don't end
+                // up quibbling over a couple of milliseconds
+                _throttle.reinit(10*messagesPerSec+1, 10*1000L);
             }
         });
     }
@@ -1096,7 +1093,7 @@ public class PresentsClient
     protected Throttle _throttle = createIncomingMessageThrottle();
 
     /** Used to keep throttles around until we know the client is ready for us to apply them. */
-    protected List<int[]> _pendingThrottles = Lists.newArrayList();
+    protected List<Integer> _pendingThrottles = Lists.newArrayList();
 
     // keep these for kicks and giggles
     protected int _messagesIn;

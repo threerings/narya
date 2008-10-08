@@ -26,24 +26,19 @@ package com.threerings.presents.net;
  */
 public class UpdateThrottleMessage extends DownstreamMessage
 {
-    /** The number of messages allowed per throttle period. */
-    public final int messages;
-
-    /** The throttle period. */
-    public final long period;
+    /** The number of messages allowed per second. */
+    public final int messagesPerSec;
 
     /**
      * Zero argument constructor used when unserializing an instance.
      */
     public UpdateThrottleMessage ()
     {
-        this.messages = 0;
-        this.period = 0;
+        this.messagesPerSec = 0;
     }
 
-    public UpdateThrottleMessage (int messages, long period)
+    public UpdateThrottleMessage (int messagesPerSec)
     {
-        this.messages = messages;
-        this.period = period;
+        this.messagesPerSec = messagesPerSec;
     }
 }

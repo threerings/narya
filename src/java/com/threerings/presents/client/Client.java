@@ -62,8 +62,8 @@ public class Client
     /** The maximum size of a datagram. */
     public static final int MAX_DATAGRAM_SIZE = 1500;
 
-    /** Our default maximum outgoing message rate as { messages, milliseconds }. */
-    public static final int[] DEFAULT_MAX_MSG_RATE = { 50, 5*1000 };
+    /** Our default maximum outgoing message rate in messages per second. */
+    public static final int DEFAULT_MSGS_PER_SECOND = 10;
 
     /**
      * Constructs a client object with the supplied credentials and RunQueue. The creds will be
@@ -82,10 +82,6 @@ public class Client
     {
         _creds = creds;
         _runQueue = runQueue;
-
-        // initialize our default throttle; we use a slightly lowered rate from the default to
-        // avoid edge cases where we and the server disagree about a single millisecond
-        _outThrottle = new Throttle(DEFAULT_MAX_MSG_RATE[0]-1, DEFAULT_MAX_MSG_RATE[1]);
     }
 
     /**
@@ -644,10 +640,10 @@ public class Client
      * Configures the outgoing message throttle. This is done when the server informs us that a new
      * rate is in effect.
      */
-    protected synchronized void setOutgoingMessageThrottle (int msgs, long period)
+    protected synchronized void setOutgoingMessageThrottle (int msgsPerSec)
     {
-        log.info("Updating outgoing message throttle", "msgs", msgs, "period", period);
-        _outThrottle.reinit(msgs, period);
+        log.info("Updating outgoing message throttle", "msgsPerSec", msgsPerSec);
+        _outThrottle.reinit(msgsPerSec, 1000L);
         _comm.postMessage(new ThrottleUpdatedMessage());
     }
 
@@ -1075,7 +1071,7 @@ public class Client
     protected Interval _tickInterval;
 
     /** Our outgoing message throttle. */
-    protected Throttle _outThrottle;
+    protected Throttle _outThrottle = new Throttle(DEFAULT_MSGS_PER_SECOND, 1000L);
 
     /** How often we recompute our time offset from the server. */
     protected static final long CLOCK_SYNC_INTERVAL = 600 * 1000L;
