@@ -35,7 +35,7 @@ public class VariableThrottle extends Throttle
     {
         super(operations, period);
     }
-    
+
     /**
      * Updates the number of operations for this throttle to a new maximum, retaining the current
      * history of operations if the limit is being increased and truncating the oldest operations
@@ -61,7 +61,8 @@ public class VariableThrottle extends Throttle
         }
         _ops = ops;
     }
-    
+
+    @Override
     public String toString ()
     {
         return "VariableThrottle [" + _ops.length + " per " + _period + "ms]";

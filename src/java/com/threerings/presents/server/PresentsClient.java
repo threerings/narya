@@ -325,7 +325,7 @@ public class PresentsClient
 
         // clear out the client object so that we know the session is over
         _clobj = null;
-        
+
         // Cancel overflow processing
         if (_overflow != null) {
             _overflow.stop();
@@ -416,7 +416,7 @@ public class PresentsClient
 
             handleThrottleExceeded();
         }
-        
+
         dispatch(message);
     }
 
@@ -446,7 +446,7 @@ public class PresentsClient
             dispatch(_overflow.dequeue());
         }
     }
-    
+
     protected void dispatch (UpstreamMessage message)
     {
         // we dispatch to a message dispatcher that is specialized for the particular class of
@@ -1082,7 +1082,7 @@ public class PresentsClient
             client.safeEndSession();
         }
     }
-    
+
     /**
      * Contains information about message overflow.
      */
@@ -1090,7 +1090,7 @@ public class PresentsClient
     {
         /** Maxmimum size of queue before disconnection. */
         public int limit;
-        
+
         /**
          * Starts processing the overflowed messages every so often.
          */
@@ -1098,7 +1098,7 @@ public class PresentsClient
         {
             if (_interval == null) {
                 _interval = new Interval(_omgr) {
-                    public void expired () {
+                    @Override public void expired () {
                         handleOverflowMessages();
                     }
                 };
@@ -1147,7 +1147,7 @@ public class PresentsClient
         /** Previously throttled messages waiting to be sent. */
         protected LinkedList<UpstreamMessage> _queue = new LinkedList<UpstreamMessage>();
     }
-    
+
     @Inject protected ClientManager _clmgr;
     @Inject protected ConnectionManager _conmgr;
     @Inject protected PresentsDObjectMgr _omgr;

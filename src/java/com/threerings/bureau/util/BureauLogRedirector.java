@@ -47,7 +47,7 @@ public class BureauLogRedirector
         _bureauId = bureauId;
         _reader = new BufferedReader(new InputStreamReader(input));
         Thread thread = new Thread(bureauId) {
-            public void run () {
+            @Override public void run () {
                 copyLoop();
             }};
         thread.setDaemon(true);
