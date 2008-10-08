@@ -1075,7 +1075,7 @@ public class Client
     protected Interval _tickInterval;
 
     /** Our outgoing message throttle. */
-    protected Throttle _outThrottle = new Throttle(DEFAULT_MAX_MSG_RATE[0], DEFAULT_MAX_MSG_RATE[1]);
+    protected Throttle _outThrottle;
 
     /** How often we recompute our time offset from the server. */
     protected static final long CLOCK_SYNC_INTERVAL = 600 * 1000L;
