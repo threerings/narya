@@ -61,7 +61,6 @@ import com.threerings.presents.net.ObjectResponse;
 import com.threerings.presents.net.PingRequest;
 import com.threerings.presents.net.PongResponse;
 import com.threerings.presents.net.SubscribeRequest;
-import com.threerings.presents.net.ThrottleUpdatedMessage;
 import com.threerings.presents.net.UnsubscribeRequest;
 import com.threerings.presents.net.UnsubscribeResponse;
 import com.threerings.presents.net.UpdateThrottleMessage;
