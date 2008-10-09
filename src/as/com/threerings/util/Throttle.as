@@ -62,7 +62,7 @@ public class Throttle
      */
     public function Throttle (operations :int, period :int)
     {
-        _ops = makeArray(operations);
+        _ops = ArrayUtil.create(operations, 0);
         _period = period;
     }
 
@@ -76,7 +76,7 @@ public class Throttle
      */
     public function reinit (operations :int, period :int) :void
     {
-        var ops :Array = makeArray(operations);
+        var ops :Array = ArrayUtil.create(operations, 0);
         // copy up to 'operations' of our most recent operations into our new array
         for (var ii :int = 0; ii < operations; ii++) {
             ops[operations-ii-1] = _ops[(_oldestOp + _ops.length - ii - 1) % _ops.length];
@@ -158,15 +158,6 @@ public class Throttle
     {
         var oldest :int = getTimer() - _ops[_oldestOp];
         return _ops.length + " ops per " + _period + "ms (oldest " + oldest + ")";
-    }
-
-    protected function makeArray (operations :int) :Array
-    {
-        var ops :Array = new Array(operations);
-        for (var ii :int =  0; ii < operations; ii++) {
-            ops[ii] = 0;
-        }
-        return ops;
     }
 
     protected var _ops :Array;
