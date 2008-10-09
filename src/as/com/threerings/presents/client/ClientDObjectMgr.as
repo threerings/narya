@@ -48,6 +48,7 @@ import com.threerings.presents.net.PongResponse;
 import com.threerings.presents.net.SubscribeRequest;
 import com.threerings.presents.net.UnsubscribeRequest;
 import com.threerings.presents.net.UnsubscribeResponse;
+import com.threerings.presents.net.UpdateThrottleMessage;
 
 /**
  * The client distributed object manager manages a set of proxy objects
@@ -170,6 +171,9 @@ public class ClientDObjectMgr
 
         } else if (msg is PongResponse) {
             _client.gotPong(msg as PongResponse);
+
+        } else if (msg is UpdateThrottleMessage) {
+            _client.setOutgoingMessageThrottle((msg as UpdateThrottleMessage).messagesPerSec);
         }
     }
 

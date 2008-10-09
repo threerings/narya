@@ -28,6 +28,7 @@ import flash.utils.Timer;
 
 import com.threerings.util.Log;
 import com.threerings.util.MethodQueue;
+import com.threerings.util.Throttle;
 
 import com.threerings.presents.client.InvocationService_ConfirmListener;
 import com.threerings.presents.data.ClientObject;
@@ -41,11 +42,15 @@ import com.threerings.presents.net.BootstrapData;
 import com.threerings.presents.net.Credentials;
 import com.threerings.presents.net.PingRequest;
 import com.threerings.presents.net.PongResponse;
+import com.threerings.presents.net.ThrottleUpdatedMessage;
 
 public class Client extends EventDispatcher
 {
     /** The default port on which the server listens for client connections. */
     public static const DEFAULT_SERVER_PORTS :Array = [ 47624 ];
+
+    /** Our default maximum outgoing message rate in messages per second. */
+    public static const DEFAULT_MSGS_PER_SECOND :int = 10;
 
     private static const log :Log = Log.getLog(Client);
 
@@ -390,6 +395,34 @@ public class Client extends EventDispatcher
         notifyObservers(ClientEvent.CLIENT_OBJECT_CHANGED);
     }
 
+    /**
+     * Convenience method to dispatch a client event to any listeners and return the result of
+     * dispatchEvent.
+     */
+    public function notifyObservers (evtCode :String, cause :Error = null) :Boolean
+    {
+        return dispatchEvent(new ClientEvent(evtCode, this, cause));
+    }
+
+    /**
+     * Called by the omgr when we receive a pong packet.
+     */
+    internal function gotPong (pong :PongResponse) :void
+    {
+        // TODO: compute time delta?
+    }
+
+    internal function setOutgoingMessageThrottle (messagesPerSec :int) :void
+    {
+        _outThrottle.reinit(messagesPerSec, 1000);
+        _comm.postMessage(new ThrottleUpdatedMessage());
+    }
+
+    internal function getOutgoingMessageThrottle () :Throttle
+    {
+        return _outThrottle;
+    }
+
     internal function cleanup (logonError :Error) :void
     {
         // clear out our references
@@ -411,24 +444,6 @@ public class Client extends EventDispatcher
 
         // clear out any server switcher reference
         _switcher = null;
-    }
-
-    /**
-     * Called by the omgr when we receive a pong packet.
-     */
-    public function gotPong (pong :PongResponse) :void
-    {
-        // TODO: compute time delta?
-    }
-
-    /**
-     * Convenience method to dispatch a client event to any listeners
-     * and return the result of dispatchEvent.
-     */
-    public function notifyObservers (evtCode :String, cause :Error = null)
-            :Boolean
-    {
-        return dispatchEvent(new ClientEvent(evtCode, this, cause));
     }
 
     /** The credentials we used to authenticate with the server. */
@@ -458,9 +473,8 @@ public class Client extends EventDispatcher
     /** The entity that manages our network communications. */
     protected var _comm :Communicator;
 
-    /** Our list of client observers. */
-//    protected var _observers :ObserverList =
-//        new ObserverList(ObserverList.SAFE_IN_ORDER_NOTIFY);
+    /** Our outgoing message throttle. */
+    protected var _outThrottle :Throttle = new Throttle(DEFAULT_MSGS_PER_SECOND, 1000);
 
     /** The set of bootstrap service groups this client cares about. */
     protected var _bootGroups :Array = new Array(InvocationCodes.GLOBAL_GROUP);
@@ -477,15 +491,5 @@ public class Client extends EventDispatcher
     /** Used to temporarily track our server switcher so that we can tell when we're logging off
      * whether or not we're switching servers or actually ending our session. */
     protected var _switcher :ServerSwitcher;
-
-    // client observer constants
-    /*
-    internal static const CLIENT_DID_LOGON :int = 0;
-    internal static const CLIENT_FAILED_TO_LOGON :int = 1;
-    internal static const CLIENT_OBJECT_CHANGED :int = 2;
-    internal static const CLIENT_CONNECTION_FAILED :int = 3;
-    internal static const CLIENT_WILL_LOGOFF :int = 4;
-    internal static const CLIENT_DID_LOGOFF :int = 5;
-    */
 }
 }
