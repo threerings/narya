@@ -62,7 +62,7 @@ public class Throttle
      */
     public function Throttle (operations :int, period :int)
     {
-        _ops = new Array(operations);
+        _ops = makeArray(operations);
         _period = period;
     }
 
@@ -72,11 +72,11 @@ public class Throttle
      * if the limit is decreased.
      *
      * @param operations the new maximum number of operations.
-     * @param period the new period.
+     * @param period the new period (in milliseconds).
      */
     public function reinit (operations :int, period :int) :void
     {
-        var ops :Array = new Array(operations);
+        var ops :Array = makeArray(operations);
         // copy up to 'operations' of our most recent operations into our new array
         for (var ii :int = 0; ii < operations; ii++) {
             ops[operations-ii-1] = _ops[(_oldestOp + _ops.length - ii - 1) % _ops.length];
@@ -125,8 +125,7 @@ public class Throttle
     {
         // if the oldest operation was performed less than _period ago, we need to throttle
         var elapsed :int = timeStamp - _ops[_oldestOp];
-        // if negative time elapsed, we must be running on windows; let's just cope by not
-        // throttling
+        // cope with negative time elapsed (shouldn't happen) by not throttling
         return (elapsed >= 0 && elapsed < _period);
     }
 
@@ -159,6 +158,15 @@ public class Throttle
     {
         var oldest :int = getTimer() - _ops[_oldestOp];
         return _ops.length + " ops per " + _period + "ms (oldest " + oldest + ")";
+    }
+
+    protected function makeArray (operations :int) :Array
+    {
+        var ops :Array = new Array(operations);
+        for (var ii :int =  0; ii < operations; ii++) {
+            ops[ii] = 0;
+        }
+        return ops;
     }
 
     protected var _ops :Array;
