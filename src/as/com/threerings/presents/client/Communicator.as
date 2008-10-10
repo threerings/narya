@@ -22,14 +22,14 @@
 package com.threerings.presents.client {
 
 import flash.errors.IOError;
-
 import flash.events.Event;
 import flash.events.IOErrorEvent;
+import flash.events.TimerEvent;
 
 import flash.net.Socket;
-
 import flash.utils.ByteArray;
 import flash.utils.Endian;
+import flash.utils.Timer;
 
 import com.threerings.util.Log;
 
@@ -59,11 +59,28 @@ public class Communicator
         _outBuffer = new ByteArray();
         _outBuffer.endian = Endian.BIG_ENDIAN;
         _outStream = new ObjectOutputStream(_outBuffer);
-
         _inStream = new ObjectInputStream();
+
+        // start up our message writer
+        _writer = new Timer(1);
+        _writer.addEventListener(TimerEvent.TIMER, sendPendingMessages);
+        _writer.start();
 
         _portIdx = 0;
         logonToPort();
+    }
+
+    public function logoff () :void
+    {
+        if (_socket == null) {
+            return;
+        }
+        postMessage(new LogoffRequest());
+    }
+
+    public function postMessage (msg :UpstreamMessage) :void
+    {
+        _outq.push(msg);
     }
 
     /**
@@ -80,8 +97,7 @@ public class Communicator
                 return false;
             }
             if (_portIdx != 0) {
-                _client.reportLogonTribulations(
-                    new LogonError(AuthCodes.TRYING_NEXT_PORT, true));
+                _client.reportLogonTribulations(new LogonError(AuthCodes.TRYING_NEXT_PORT, true));
 
                 removeListeners();
             }
@@ -94,8 +110,7 @@ public class Communicator
             _socket.addEventListener(Event.CLOSE, socketClosed);
 
             _frameReader = new FrameReader(_socket);
-            _frameReader.addEventListener(FrameAvailableEvent.FRAME_AVAILABLE,
-                inputFrameReceived);
+            _frameReader.addEventListener(FrameAvailableEvent.FRAME_AVAILABLE, inputFrameReceived);
         }
 
         var host :String = _client.getHostname();
@@ -108,8 +123,7 @@ public class Communicator
             _portIdx = -1; // indicate that we're no longer trying new ports
 
         } else {
-            Log.getLog(this).info(
-                "Connecting [host=" + host + ", port=" + port + "].");
+            log.info("Connecting [host=" + host + ", port=" + port + "].");
             _socket.connect(host, port);
         }
 
@@ -122,24 +136,7 @@ public class Communicator
         _socket.removeEventListener(IOErrorEvent.IO_ERROR, socketError);
         _socket.removeEventListener(Event.CLOSE, socketClosed);
 
-        _frameReader.removeEventListener(FrameAvailableEvent.FRAME_AVAILABLE,
-            inputFrameReceived);
-    }
-
-    public function logoff () :void
-    {
-        if (_socket == null) {
-            return;
-        }
-
-        sendMessage(new LogoffRequest());
-
-        shutdown(null);
-    }
-
-    public function postMessage (msg :UpstreamMessage) :void
-    {
-        sendMessage(msg); // send it now: we have no out queue
+        _frameReader.removeEventListener(FrameAvailableEvent.FRAME_AVAILABLE, inputFrameReceived);
     }
 
     protected function shutdown (logonError :Error) :void
@@ -149,7 +146,7 @@ public class Communicator
                 try {
                     _socket.close();
                 } catch (err :Error) {
-                    Log.getLog(this).warning("Error closing failed socket [error=" + err + "].");
+                    log.warning("Error closing failed socket [error=" + err + "].");
                 }
             }
             removeListeners();
@@ -160,21 +157,59 @@ public class Communicator
             _outBuffer = null;
         }
 
+        if (_writer != null) {
+            _writer.stop();
+            _writer = null;
+        }
+
         _client.notifyObservers(ClientEvent.CLIENT_DID_LOGOFF, null);
         _client.cleanup(logonError);
     }
 
+    /**
+     * Sends all pending messages from our outgoing message queue. If we hit our throttle while
+     * sending, we stop and wait for the next time around when we'll try sending them again.
+     */
+    protected function sendPendingMessages (event :TimerEvent) :void
+    {
+        while (_outq.length > 0) {
+            // if we've exceeded our throttle, stop for now
+            if (_client.getOutgoingMessageThrottle().throttleOp()) {
+                if (_tqsize != _outq.length) {
+                    // only log when our outq size changes
+                    _tqsize = _outq.length;
+                    log.info("Throttling outgoing messages", "queue", _outq.length,
+                             "throttle", _client.getOutgoingMessageThrottle());
+                }
+                return;
+            }
+            _tqsize = 0;
+
+            // grab the next message from the queue and send it
+            var msg :UpstreamMessage = (_outq.shift() as UpstreamMessage);
+            sendMessage(msg);
+
+            // if this was a logoff request, shutdown
+            if (msg is LogoffRequest) {
+                shutdown(null);
+            }
+        }
+    }
+
+    /**
+     * Writes a single message to our outgoing socket.
+     */
     protected function sendMessage (msg :UpstreamMessage) :void
     {
         if (_outStream == null) {
-            Log.getLog(this).warning("No socket, dropping msg [msg=" + msg + "].");
+            log.warning("No socket, dropping msg [msg=" + msg + "].");
             return;
         }
 
         // write the message (ends up in _outBuffer)
         _outStream.writeObject(msg);
 
-//        Log.debug("outBuffer: " + StringUtil.unhexlate(_outBuffer));
+//         Log.debug("outBuffer: " + StringUtil.unhexlate(_outBuffer));
 
         // Frame it by writing the length, then the bytes.
         // We add 4 to the length, because the length is of the entire frame
@@ -192,47 +227,25 @@ public class Communicator
     }
 
     /**
-     * Returns the time at which we last sent a packet to the server.
-     */
-    internal function getLastWrite () :uint
-    {
-        return _lastWrite;
-    }
-
-    /**
-     * Makes a note of the time at which we last communicated with the server.
-     */
-    internal function updateWriteStamp () :void
-    {
-        _lastWrite = flash.utils.getTimer();
-    }
-
-    /**
-     * Called when a frame of data from the server is ready to be
-     * decoded into a DownstreamMessage.
+     * Called when a frame of data from the server is ready to be decoded into a DownstreamMessage.
      */
     protected function inputFrameReceived (event :FrameAvailableEvent) :void
     {
         // convert the frame data into a message from the server
         var frameData :ByteArray = event.getFrameData();
-        //Log.debug("length of in frame: " + frameData.length);
-        //Log.debug("inBuffer: " + StringUtil.unhexlate(frameData));
         _inStream.setSource(frameData);
         var msg :DownstreamMessage;
         try {
             msg = (_inStream.readObject() as DownstreamMessage);
         } catch (e :Error) {
-            var log :Log = Log.getLog(this);
             log.warning("Error processing downstream message: " + e);
             log.logStackTrace(e);
             return;
         }
 
         if (frameData.bytesAvailable > 0) {
-            Log.getLog(this).warning(
-                "Beans! We didn't fully read a frame, surely there's " +
-                "a bug in some streaming code. " +
-                "[bytesLeftOver=" + frameData.bytesAvailable + ", msg=" + msg + "].");
+            log.warning("Beans! We didn't fully read a frame, is there a bug in some streaming " +
+                "code? [bytesLeftOver=" + frameData.bytesAvailable + ", msg=" + msg + "].");
         }
 
         if (_omgr != null) {
@@ -241,7 +254,7 @@ public class Communicator
             return;
         }
 
-        // Otherwise, this would be the AuthResponse to our logon attempt.
+        // otherwise, this would be the AuthResponse to our logon attempt
         var rsp :AuthResponse = (msg as AuthResponse);
         var data :AuthResponseData = rsp.getData();
         if (data.code !== AuthResponseData.SUCCESS) {
@@ -261,9 +274,8 @@ public class Communicator
     {
         logonToPort(true);
         // well that's great! let's logon
-        var req :AuthRequest = new AuthRequest(
-            _client.getCredentials(), _client.getVersion(), _client.getBootGroups());
-        sendMessage(req);
+        postMessage(new AuthRequest(_client.getCredentials(), _client.getVersion(),
+                                    _client.getBootGroups()));
     }
 
     /**
@@ -280,9 +292,9 @@ public class Communicator
         }
 
         // total failure
-        Log.getLog(this).warning("socket error: " + event + ", target=" + event.target);
+        log.warning("Socket error: " + event, "target", event.target);
         Log.dumpStack();
-        shutdown(new Error("socket closed unexpectedly."));
+        shutdown(new Error("Socket closed unexpectedly."));
     }
 
     /**
@@ -290,9 +302,25 @@ public class Communicator
      */
     protected function socketClosed (event :Event) :void
     {
-        Log.getLog(this).info("socket was closed: " + event);
+        log.info("Socket was closed: " + event);
         _client.notifyObservers(ClientEvent.CLIENT_CONNECTION_FAILED);
-        logoff();
+        shutdown(null);
+    }
+
+    /**
+     * Returns the time at which we last sent a packet to the server.
+     */
+    internal function getLastWrite () :uint
+    {
+        return _lastWrite;
+    }
+
+    /**
+     * Makes a note of the time at which we last communicated with the server.
+     */
+    internal function updateWriteStamp () :void
+    {
+        _lastWrite = flash.utils.getTimer();
     }
 
     protected var _client :Client;
@@ -305,8 +333,13 @@ public class Communicator
     protected var _frameReader :FrameReader;
 
     protected var _socket :Socket;
-
     protected var _lastWrite :uint;
+
+    protected var _outq :Array = new Array();
+    protected var _writer :Timer;
+    protected var _tqsize :int = 0;
+
+    protected const log :Log = Log.getLog(this);
 
     /** The current port we'll try to connect to. */
     protected var _portIdx :int = -1;
