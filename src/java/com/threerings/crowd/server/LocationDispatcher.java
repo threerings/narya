@@ -21,12 +21,11 @@
 
 package com.threerings.crowd.server;
 
+import com.threerings.crowd.client.LocationService;
+import com.threerings.crowd.data.LocationMarshaller;
 import com.threerings.presents.data.ClientObject;
 import com.threerings.presents.server.InvocationDispatcher;
 import com.threerings.presents.server.InvocationException;
-
-import com.threerings.crowd.client.LocationService;
-import com.threerings.crowd.data.LocationMarshaller;
 
 /**
  * Dispatches requests to the {@link LocationProvider}.

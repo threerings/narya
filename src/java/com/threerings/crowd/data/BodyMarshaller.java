@@ -21,10 +21,9 @@
 
 package com.threerings.crowd.data;
 
+import com.threerings.crowd.client.BodyService;
 import com.threerings.presents.client.Client;
 import com.threerings.presents.data.InvocationMarshaller;
-
-import com.threerings.crowd.client.BodyService;
 
 /**
  * Provides the implementation of the {@link BodyService} interface

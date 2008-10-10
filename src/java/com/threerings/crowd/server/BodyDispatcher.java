@@ -21,11 +21,10 @@
 
 package com.threerings.crowd.server;
 
+import com.threerings.crowd.data.BodyMarshaller;
 import com.threerings.presents.data.ClientObject;
 import com.threerings.presents.server.InvocationDispatcher;
 import com.threerings.presents.server.InvocationException;
-
-import com.threerings.crowd.data.BodyMarshaller;
 
 /**
  * Dispatches requests to the {@link BodyProvider}.
