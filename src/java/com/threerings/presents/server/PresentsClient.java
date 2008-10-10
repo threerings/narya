@@ -61,6 +61,7 @@ import com.threerings.presents.net.ObjectResponse;
 import com.threerings.presents.net.PingRequest;
 import com.threerings.presents.net.PongResponse;
 import com.threerings.presents.net.SubscribeRequest;
+import com.threerings.presents.net.ThrottleUpdatedMessage;
 import com.threerings.presents.net.UnsubscribeRequest;
 import com.threerings.presents.net.UnsubscribeResponse;
 import com.threerings.presents.net.UpdateThrottleMessage;
@@ -1112,6 +1113,7 @@ public class PresentsClient
         _disps.put(UnsubscribeRequest.class, new UnsubscribeDispatcher());
         _disps.put(ForwardEventRequest.class, new ForwardEventDispatcher());
         _disps.put(PingRequest.class, new PingDispatcher());
+        _disps.put(ThrottleUpdatedMessage.class, new ThrottleUpdatedDispatcher());
         _disps.put(LogoffRequest.class, new LogoffDispatcher());
     }
 }
