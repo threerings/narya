@@ -93,7 +93,7 @@ public class SpeakHandler
 
         } else {
             // issue the speak message on our speak object
-            SpeakUtil.sendSpeak(_speakObj, source.getVisibleName(), null, message, mode);
+            SpeakUtil.sendSpeak(_speakObj, source.getChatName(), null, message, mode);
         }
     }
 

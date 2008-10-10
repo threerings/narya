@@ -94,12 +94,21 @@ public class BodyObject extends ClientObject
     }
 
     /**
-     * Returns the name that should be displayed to other users and used for the chat system. The
+     * Returns the name that should be displayed to other users. The
      * default is to use {@link #username}.
      */
     public Name getVisibleName ()
     {
         return username;
+    }
+
+    /**
+     * Returns the name that should be used for the chat system. The
+     * default is to use {@link #username}.
+     */
+    public Name getChatName ()
+    {
+        return getVisibleName();
     }
 
     /**
