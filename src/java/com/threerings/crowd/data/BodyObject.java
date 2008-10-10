@@ -34,9 +34,6 @@ public class BodyObject extends ClientObject
     implements SpeakObject
 {
     // AUTO-GENERATED: FIELDS START
-    /** The field name of the <code>username</code> field. */
-    public static final String USERNAME = "username";
-
     /** The field name of the <code>location</code> field. */
     public static final String LOCATION = "location";
 
@@ -46,13 +43,6 @@ public class BodyObject extends ClientObject
     /** The field name of the <code>awayMessage</code> field. */
     public static final String AWAY_MESSAGE = "awayMessage";
     // AUTO-GENERATED: FIELDS END
-
-    /**
-     * The username associated with this body object. This should not be used directly; in general
-     * {@link #getVisibleName} should be used unless you specifically know that you want the
-     * username.
-     */
-    public Name username;
 
     /**
      * Identifies the place currently occupied by this body. null if they currently occupy no
@@ -94,8 +84,8 @@ public class BodyObject extends ClientObject
     }
 
     /**
-     * Returns the name that should be displayed to other users. The
-     * default is to use {@link #username}.
+     * Returns the name that should be displayed to other users. The default is to use {@link
+     * #username}.
      */
     public Name getVisibleName ()
     {
@@ -103,8 +93,8 @@ public class BodyObject extends ClientObject
     }
 
     /**
-     * Returns the name that should be used for the chat system. The
-     * default is to use {@link #username}.
+     * Returns the name that should be used for the chat system. The default is to use {@link
+     * #username}.
      */
     public Name getChatName ()
     {
@@ -159,22 +149,6 @@ public class BodyObject extends ClientObject
     }
 
     // AUTO-GENERATED: METHODS START
-    /**
-     * Requests that the <code>username</code> field be set to the
-     * specified value. The local value will be updated immediately and an
-     * event will be propagated through the system to notify all listeners
-     * that the attribute did change. Proxied copies of this object (on
-     * clients) will apply the value change when they received the
-     * attribute changed notification.
-     */
-    public void setUsername (Name value)
-    {
-        Name ovalue = this.username;
-        requestAttributeChange(
-            USERNAME, value, ovalue);
-        this.username = value;
-    }
-
     /**
      * Requests that the <code>location</code> field be set to the
      * specified value. The local value will be updated immediately and an

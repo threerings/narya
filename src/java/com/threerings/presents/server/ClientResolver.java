@@ -154,7 +154,8 @@ public class ClientResolver extends Invoker.Unit
     protected void resolveClientData (ClientObject clobj)
         throws Exception
     {
-        // nothing to do by default
+        // fill in the username
+        clobj.username = _username;
     }
 
     /**

@@ -44,14 +44,4 @@ public class CrowdClientResolver extends ClientResolver
     {
         return new CrowdPermissionPolicy();
     }
-
-    @Override // from ClientResolver
-    protected void resolveClientData (ClientObject clobj)
-        throws Exception
-    {
-        super.resolveClientData(clobj);
-
-        // just fill in the username
-        ((BodyObject)clobj).username = _username;
-    }
 }

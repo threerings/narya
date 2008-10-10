@@ -21,6 +21,8 @@
 
 package com.threerings.presents.data;
 
+import com.threerings.util.Name;
+
 import com.threerings.presents.client.InvocationReceiver;
 import com.threerings.presents.dobj.DObject;
 import com.threerings.presents.dobj.DSet;
@@ -32,6 +34,9 @@ import com.threerings.presents.dobj.DSet;
 public class ClientObject extends DObject
 {
     // AUTO-GENERATED: FIELDS START
+    /** The field name of the <code>username</code> field. */
+    public static final String USERNAME = "username";
+
     /** The field name of the <code>receivers</code> field. */
     public static final String RECEIVERS = "receivers";
     // AUTO-GENERATED: FIELDS END
@@ -39,6 +44,9 @@ public class ClientObject extends DObject
     /** The name of a message event delivered to the client when they switch usernames (and
      * therefore user objects). */
     public static final String CLOBJ_CHANGED = "!clobj_changed!";
+
+    /** This client's authentication username. */
+    public Name username;
 
     /** Used to publish all invocation service receivers registered on this client. */
     public DSet<InvocationReceiver.Registration> receivers = DSet.newDSet();
@@ -56,7 +64,7 @@ public class ClientObject extends DObject
      */
     public String who ()
     {
-        return "(" + getOid() + ")";
+        return "(" + username + ":" + getOid() + ")";
     }
 
     /**
@@ -123,6 +131,22 @@ public class ClientObject extends DObject
     }
 
     // AUTO-GENERATED: METHODS START
+    /**
+     * Requests that the <code>username</code> field be set to the
+     * specified value. The local value will be updated immediately and an
+     * event will be propagated through the system to notify all listeners
+     * that the attribute did change. Proxied copies of this object (on
+     * clients) will apply the value change when they received the
+     * attribute changed notification.
+     */
+    public void setUsername (Name value)
+    {
+        Name ovalue = this.username;
+        requestAttributeChange(
+            USERNAME, value, ovalue);
+        this.username = value;
+    }
+
     /**
      * Requests that the specified entry be added to the
      * <code>receivers</code> set. The set will not change until the event is
