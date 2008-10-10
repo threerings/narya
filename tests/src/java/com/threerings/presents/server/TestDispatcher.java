@@ -21,11 +21,11 @@
 
 package com.threerings.presents.server;
 
-import java.util.ArrayList;
-
+import com.threerings.presents.client.InvocationService;
 import com.threerings.presents.client.TestService;
 import com.threerings.presents.data.ClientObject;
 import com.threerings.presents.data.TestMarshaller;
+import java.util.List;
 
 /**
  * Dispatches requests to the {@link TestProvider}.
@@ -47,7 +47,6 @@ public class TestDispatcher extends InvocationDispatcher<TestMarshaller>
         return new TestMarshaller();
     }
 
-    @SuppressWarnings("unchecked")
     @Override // documentation inherited
     public void dispatchRequest (
         ClientObject source, int methodId, Object[] args)
@@ -56,15 +55,19 @@ public class TestDispatcher extends InvocationDispatcher<TestMarshaller>
         switch (methodId) {
         case TestMarshaller.GET_TEST_OID:
             ((TestProvider)provider).getTestOid(
-                source,
-                (TestService.TestOidListener)args[0]
+                source, (TestService.TestOidListener)args[0]
+            );
+            return;
+
+        case TestMarshaller.GIVE_ME_THE_POWER:
+            ((TestProvider)provider).giveMeThePower(
+                source, (InvocationService.ConfirmListener)args[0]
             );
             return;
 
         case TestMarshaller.TEST:
             ((TestProvider)provider).test(
-                source,
-                (String)args[0], ((Integer)args[1]).intValue(), (ArrayList<java.lang.Integer>)args[2], (TestService.TestFuncListener)args[3]
+                source, (String)args[0], ((Integer)args[1]).intValue(), (List<Integer>)args[2], (TestService.TestFuncListener)args[3]
             );
             return;
 

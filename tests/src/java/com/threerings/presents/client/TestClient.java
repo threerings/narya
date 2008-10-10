@@ -31,6 +31,7 @@ import com.threerings.util.Name;
 import com.threerings.presents.data.TestObject;
 import com.threerings.presents.dobj.DEvent;
 import com.threerings.presents.dobj.EventListener;
+import com.threerings.presents.dobj.MessageEvent;
 import com.threerings.presents.dobj.ObjectAccessException;
 import com.threerings.presents.dobj.Subscriber;
 import com.threerings.presents.net.UsernamePasswordCreds;
@@ -49,12 +50,14 @@ public class TestClient
         _client = client;
     }
 
+    // from interface RunQueue
     public void postRunnable (Runnable run)
     {
         // queue it on up
         _queue.append(run);
     }
 
+    // from interface RunQueue
     public boolean isDispatchThread ()
     {
         return _main == Thread.currentThread();
@@ -71,11 +74,13 @@ public class TestClient
         }
     }
 
+    // from interface SessionObserver
     public void clientWillLogon (Client client)
     {
         client.addServiceGroup("test");
     }
 
+    // from interface SessionObserver
     public void clientDidLogon (Client client)
     {
         log.info("Client did logon [client=" + client + "].");
@@ -103,29 +108,50 @@ public class TestClient
         service.getTestOid(client, this);
     }
 
+    // from interface SessionObserver
     public void clientObjectDidChange (Client client)
     {
         log.info("Client object did change [client=" + client + "].");
     }
 
+    // from interface SessionObserver
     public void clientDidLogoff (Client client)
     {
         log.info("Client did logoff [client=" + client + "].");
         System.exit(0);
     }
 
-    public void objectAvailable (TestObject object)
+    // from interface Subscriber
+    public void objectAvailable (final TestObject object)
     {
         object.addListener(this);
         log.info("Object available: " + object);
         object.postMessage("lawl!");
 
         // try blowing through our message limit
-        for (int ii = 0; ii < 15*Client.DEFAULT_MSGS_PER_SECOND; ii++) {
+        for (int ii = 0; ii < 4*Client.DEFAULT_MSGS_PER_SECOND; ii++) {
             object.postMessage("ZOMG!", new Integer(ii));
         }
+
+        // ask for the power
+        TestService service = _client.requireService(TestService.class);
+        service.giveMeThePower(_client, new TestService.ConfirmListener() {
+            public void requestProcessed () {
+                log.info("We have the power!");
+                // now try blowing through our message limit again
+                for (int ii = 0; ii < 8*Client.DEFAULT_MSGS_PER_SECOND; ii++) {
+                    object.postMessage("ZOMG!", new Integer(ii));
+                }
+                // and finally shutdown
+                object.postMessage("shutdown");
+            }
+            public void requestFailed (String cause) {
+                log.warning("Dang, no power! " + cause);
+            }
+        });
     }
 
+    // from interface Subscriber
     public void requestFailed (int oid, ObjectAccessException cause)
     {
         log.info("Object unavailable [oid=" + oid +
@@ -134,12 +160,15 @@ public class TestClient
         _client.logoff(true);
     }
 
+    // from interface EventListener
     public void eventReceived (DEvent event)
     {
         log.info("Got event [event=" + event + "].");
 
-//         // request that we log off
-//         _client.logoff(true);
+        if (event instanceof MessageEvent && ((MessageEvent)event).getName().equals("shutdown")) {
+            // request that we log off
+            _client.logoff(true);
+        }
     }
 
     // documentation inherited from interface

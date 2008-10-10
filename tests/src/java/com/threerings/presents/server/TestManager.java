@@ -3,12 +3,15 @@
 
 package com.threerings.presents.server;
 
-import java.util.ArrayList;
+import java.util.List;
+
+import com.google.inject.Inject;
 
 import com.samskivert.util.StringUtil;
 
 import com.threerings.presents.client.TestService;
 import com.threerings.presents.data.ClientObject;
+import com.threerings.presents.server.ClientManager;
 
 import static com.threerings.presents.Log.log;
 
@@ -32,8 +35,8 @@ public class TestManager
     }
 
     // from interface TestProvider
-    public void test (ClientObject caller, String one, int two,
-        ArrayList<Integer> three, TestService.TestFuncListener listener)
+    public void test (ClientObject caller, String one, int two, List<Integer> three,
+                      TestService.TestFuncListener listener)
         throws InvocationException
     {
         log.info("Test request [one=" + one + ", two=" + two +
@@ -42,4 +45,14 @@ public class TestManager
         // and issue a response to this invocation request
         listener.testSucceeded(one, two);
     }
+
+    // from interface TestProvider
+    public void giveMeThePower (ClientObject caller, TestService.ConfirmListener listener)
+    {
+        log.info("Giving " + caller.who() + " the power!");
+        _clmgr.getClient(caller.username).setIncomingMessageThrottle(20);
+        listener.requestProcessed();
+    }
+
+    @Inject protected ClientManager _clmgr;
 }

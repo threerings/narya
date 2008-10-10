@@ -21,7 +21,7 @@
 
 package com.threerings.presents.client;
 
-import java.util.ArrayList;
+import java.util.List;
 
 /**
  * A test of the invocation services.
@@ -35,10 +35,6 @@ public interface TestService extends InvocationService
         public void testSucceeded (String one, int two);
     }
 
-    /** Issues a test request. */
-    public void test (
-        Client client, String one, int two, ArrayList<Integer> three, TestFuncListener listener);
-
     /** Used to dispatch responses to {@link TestService#getTestOid} requests. */
     public static interface TestOidListener extends InvocationListener
     {
@@ -46,6 +42,13 @@ public interface TestService extends InvocationService
         public void gotTestOid (int testOid);
     }
 
+    /** Issues a test request. */
+    public void test (Client client, String one, int two, List<Integer> three,
+                      TestFuncListener listener);
+
     /** Issues a request for the test oid. */
     public void getTestOid (Client client, TestOidListener listener);
+
+    /** Tests upping the client's maximum message rate. */
+    public void giveMeThePower (Client client, ConfirmListener listener);
 }

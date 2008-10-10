@@ -39,7 +39,8 @@ public class TestServer extends PresentsServer
         super.init(injector);
 
         // register our test provider
-        _invmgr.registerDispatcher(new TestDispatcher(new TestManager()), "test");
+        _invmgr.registerDispatcher(
+            new TestDispatcher(injector.getInstance(TestManager.class)), "test");
 
         // create a test object
         testobj = _omgr.registerObject(new TestObject());

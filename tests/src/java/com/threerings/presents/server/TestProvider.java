@@ -21,10 +21,10 @@
 
 package com.threerings.presents.server;
 
-import java.util.ArrayList;
-
+import com.threerings.presents.client.InvocationService;
 import com.threerings.presents.client.TestService;
 import com.threerings.presents.data.ClientObject;
+import java.util.List;
 
 /**
  * Defines the server-side of the {@link TestService}.
@@ -34,12 +34,18 @@ public interface TestProvider extends InvocationProvider
     /**
      * Handles a {@link TestService#getTestOid} request.
      */
-    public void getTestOid (ClientObject caller, TestService.TestOidListener arg1)
+    void getTestOid (ClientObject caller, TestService.TestOidListener arg1)
+        throws InvocationException;
+
+    /**
+     * Handles a {@link TestService#giveMeThePower} request.
+     */
+    void giveMeThePower (ClientObject caller, InvocationService.ConfirmListener arg1)
         throws InvocationException;
 
     /**
      * Handles a {@link TestService#test} request.
      */
-    public void test (ClientObject caller, String arg1, int arg2, ArrayList<java.lang.Integer> arg3, TestService.TestFuncListener arg4)
+    void test (ClientObject caller, String arg1, int arg2, List<Integer> arg3, TestService.TestFuncListener arg4)
         throws InvocationException;
 }

@@ -21,11 +21,11 @@
 
 package com.threerings.presents.data;
 
-import java.util.ArrayList;
-
 import com.threerings.presents.client.Client;
+import com.threerings.presents.client.InvocationService;
 import com.threerings.presents.client.TestService;
 import com.threerings.presents.dobj.InvocationResponseEvent;
+import java.util.List;
 
 /**
  * Provides the implementation of the {@link TestService} interface
@@ -120,11 +120,24 @@ public class TestMarshaller extends InvocationMarshaller
         });
     }
 
-    /** The method id used to dispatch {@link #test} requests. */
-    public static final int TEST = 2;
+    /** The method id used to dispatch {@link #giveMeThePower} requests. */
+    public static final int GIVE_ME_THE_POWER = 2;
 
     // from interface TestService
-    public void test (Client arg1, String arg2, int arg3, ArrayList<java.lang.Integer> arg4, TestService.TestFuncListener arg5)
+    public void giveMeThePower (Client arg1, InvocationService.ConfirmListener arg2)
+    {
+        InvocationMarshaller.ConfirmMarshaller listener2 = new InvocationMarshaller.ConfirmMarshaller();
+        listener2.listener = arg2;
+        sendRequest(arg1, GIVE_ME_THE_POWER, new Object[] {
+            listener2
+        });
+    }
+
+    /** The method id used to dispatch {@link #test} requests. */
+    public static final int TEST = 3;
+
+    // from interface TestService
+    public void test (Client arg1, String arg2, int arg3, List<Integer> arg4, TestService.TestFuncListener arg5)
     {
         TestMarshaller.TestFuncMarshaller listener5 = new TestMarshaller.TestFuncMarshaller();
         listener5.listener = arg5;
