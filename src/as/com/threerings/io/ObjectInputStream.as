@@ -30,7 +30,6 @@ import flash.utils.IDataInput;
 import com.threerings.util.ClassUtil;
 import com.threerings.util.Log;
 import com.threerings.util.Long;
-import com.threerings.util.safeCast;
 
 public class ObjectInputStream
 {
