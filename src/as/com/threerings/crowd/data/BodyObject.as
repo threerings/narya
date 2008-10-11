@@ -180,7 +180,7 @@ public class BodyObject extends ClientObject
     override public function readObject (ins :ObjectInputStream) :void
     {
         super.readObject(ins);
-        location = (ins.readObject() as Place);
+        location = (ins.readObject(Place) as Place);
         status = ins.readByte();
         awayMessage = (ins.readField(String) as String);
     }

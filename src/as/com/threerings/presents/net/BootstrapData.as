@@ -55,7 +55,7 @@ public class BootstrapData
     {
         connectionId = ins.readInt();
         clientOid = ins.readInt();
-        services = (ins.readObject() as Array);
+        services = (ins.readObject(Array) as Array);
     }
 }
 }

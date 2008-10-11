@@ -118,7 +118,7 @@ public class OccupantInfo extends SimpleStreamableObject
     {
         super.readObject(ins);
         bodyOid = (ins.readField(Integer) as Integer).value;
-        username = (ins.readObject() as Name);
+        username = (ins.readObject(Name) as Name);
         status = ins.readByte();
     }
 

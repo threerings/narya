@@ -51,7 +51,7 @@ public class UserSystemMessage extends SystemMessage
     override public function readObject (ins :ObjectInputStream) :void
     {
         super.readObject(ins);
-        speaker = (ins.readObject() as Name);
+        speaker = (ins.readObject(Name) as Name);
     }
 
     // from interface Streamable

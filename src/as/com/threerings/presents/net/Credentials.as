@@ -57,7 +57,7 @@ public /* abstract */ class Credentials
     public function readObject (ins :ObjectInputStream) :void
         //throws IOError
     {
-    	_username = (ins.readObject() as Name);
+    	_username = (ins.readObject(Name) as Name);
     }
 
     public function toString () :String

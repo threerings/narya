@@ -108,9 +108,9 @@ public class ClientObject extends DObject
     override public function readObject (ins :ObjectInputStream) :void
     {
         super.readObject(ins);
-        username = (ins.readObject() as Name);
-        receivers = (ins.readObject() as DSet);
-        _permPolicy = (ins.readObject() as PermissionPolicy);
+        username = (ins.readObject(Name) as Name);
+        receivers = (ins.readObject(DSet) as DSet);
+        _permPolicy = (ins.readObject(PermissionPolicy) as PermissionPolicy);
     }
 
     protected var _permPolicy :PermissionPolicy;

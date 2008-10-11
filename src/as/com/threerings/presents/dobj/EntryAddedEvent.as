@@ -104,7 +104,7 @@ public class EntryAddedEvent extends NamedEvent
     override public function readObject (ins :ObjectInputStream) :void
     {
         super.readObject(ins);
-        _entry = (ins.readObject() as DSet_Entry);
+        _entry = (ins.readObject(DSet_Entry) as DSet_Entry);
     }
 
     protected var _entry :DSet_Entry;

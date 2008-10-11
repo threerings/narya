@@ -33,7 +33,7 @@ public class BootstrapNotification extends DownstreamMessage
     override public function readObject (ins :ObjectInputStream) :void
     {
         super.readObject(ins);
-        _data = (ins.readObject() as BootstrapData);
+        _data = (ins.readObject(BootstrapData) as BootstrapData);
     }
 
     /** The data associated with this notification. */

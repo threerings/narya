@@ -34,7 +34,7 @@ public class AuthResponse extends DownstreamMessage
     override public function readObject (ins :ObjectInputStream) :void
     {
         super.readObject(ins);
-        _data = (ins.readObject() as AuthResponseData);
+        _data = (ins.readObject(AuthResponseData) as AuthResponseData);
     }
 
     protected var _data :AuthResponseData;

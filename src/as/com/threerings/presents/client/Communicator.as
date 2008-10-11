@@ -236,7 +236,7 @@ public class Communicator
         _inStream.setSource(frameData);
         var msg :DownstreamMessage;
         try {
-            msg = (_inStream.readObject() as DownstreamMessage);
+            msg = (_inStream.readObject(DownstreamMessage) as DownstreamMessage);
         } catch (e :Error) {
             log.warning("Error processing downstream message: " + e);
             log.logStackTrace(e);
