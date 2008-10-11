@@ -30,6 +30,7 @@ import flash.utils.IDataInput;
 import com.threerings.util.ClassUtil;
 import com.threerings.util.Log;
 import com.threerings.util.Long;
+import com.threerings.util.safeCast;
 
 public class ObjectInputStream
 {
@@ -54,7 +55,14 @@ public class ObjectInputStream
         _source = source;
     }
 
-    public function readObject () :Object
+    /**
+     * Attempts to read the next object from the stream. If a type is passed and the read object's
+     * type doesn't match, a warning is printed and null returned. The method does not throw,
+     * presumably to allow the client to hobble along until second order symptoms are observed.
+     * @param type optional type to check the read object against
+     * @return null if the object could not be read or is of the wrong type
+     */
+    public function readObject (type :Class = null) :Object
         //throws IOError
     {
         var DEBUG_ID :String = "[" + (++_debugObjectCounter) + "] ";
@@ -107,6 +115,10 @@ public class ObjectInputStream
             //log.debug("Reading object...");
             readBareObjectImpl(target, cmap.streamer);
             if (DEBUG) log.debug(DEBUG_ID + "Read object: " + target);
+            if (type != null && !(target is type)) {
+                log.warning("Type mismatch", "expected", type, "read", ClassUtil.getClass(target));
+                return null;
+            }
             return target;
 
         } catch (me :MemoryError) {
