@@ -21,6 +21,8 @@
 
 package com.threerings.presents.data {
 
+import com.threerings.util.Name;
+
 import com.threerings.presents.dobj.DObject;
 import com.threerings.presents.dobj.DSet;
 import com.threerings.presents.dobj.DSet_Entry;
@@ -45,6 +47,9 @@ public class ClientObject extends DObject
      * switch usernames (and therefore user objects). */
     public static const CLOBJ_CHANGED :String = "!clobj_changed!";
 
+    /** The authenticated user name of this client. */
+    public var username :Name;
+
     /** Used to publish all invocation service receivers registered on
      * this client. */
     public var receivers :DSet;
@@ -54,7 +59,7 @@ public class ClientObject extends DObject
      */
     public function who () :String
     {
-        return "(" + getOid() + ")";
+        return "(" + username + ":" + getOid() + ")";
     }
 
     /**
@@ -103,6 +108,7 @@ public class ClientObject extends DObject
     override public function readObject (ins :ObjectInputStream) :void
     {
         super.readObject(ins);
+        username = (ins.readObject() as Name);
         receivers = (ins.readObject() as DSet);
         _permPolicy = (ins.readObject() as PermissionPolicy);
     }

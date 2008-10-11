@@ -33,14 +33,11 @@ import com.threerings.io.ObjectInputStream;
 import com.threerings.io.ObjectOutputStream;
 
 /**
- * The basic user object class for Crowd users. Bodies have a username, a location and a status.
+ * The basic user object class for Crowd users. Bodies have a location and a status.
  */
 public class BodyObject extends ClientObject
 {
     // AUTO-GENERATED: FIELDS START
-    /** The field name of the <code>username</code> field. */
-    public static const USERNAME :String = "username";
-
     /** The field name of the <code>location</code> field. */
     public static const LOCATION :String = "location";
 
@@ -50,13 +47,6 @@ public class BodyObject extends ClientObject
     /** The field name of the <code>awayMessage</code> field. */
     public static const AWAY_MESSAGE :String = "awayMessage";
     // AUTO-GENERATED: FIELDS END
-
-    /**
-     * The username associated with this body object. This should not be used directly; in general
-     * {@link #getVisibleName} should be used unless you specifically know that you want the
-     * username.
-     */
-    public var username :Name;
 
     /**
      * The oid of the place currently occupied by this body or -1 if they currently occupy no
@@ -84,8 +74,9 @@ public class BodyObject extends ClientObject
     }
 
     /**
-     * Returns the name that should be displayed to other users and used for
-     * the chat system. The default is to use {@link #username}.
+     * Returns the name that should be displayed to other users. The default is to use
+     * <code>username</code>.
+     * @see com.threerings.presents.data.ClientObject#username
      */
     public function getVisibleName () :Name
     {
@@ -189,8 +180,6 @@ public class BodyObject extends ClientObject
     override public function readObject (ins :ObjectInputStream) :void
     {
         super.readObject(ins);
-
-        username = (ins.readObject() as Name);
         location = (ins.readObject() as Place);
         status = ins.readByte();
         awayMessage = (ins.readField(String) as String);
