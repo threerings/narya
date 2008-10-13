@@ -112,7 +112,7 @@ public class CompoundEvent extends DEvent
     override public function readObject (ins :ObjectInputStream) :void
     {
         super.readObject(ins);
-        _events = (ins.readObject(StreamableArrayList) as StreamableArrayList);
+        _events = StreamableArrayList(ins.readObject());
     }
 
     /** A list of the events associated with this compound event. */

@@ -53,7 +53,7 @@ public class ClientInfo extends SimpleStreamableObject
     override public function readObject (ins :ObjectInputStream) :void
     {
         super.readObject(ins);
-        username = (ins.readObject(Name) as Name);
+        username = Name(ins.readObject());
     }
 
     // from interface Streamable

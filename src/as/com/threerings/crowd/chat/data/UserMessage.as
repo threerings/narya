@@ -78,7 +78,7 @@ public class UserMessage extends ChatMessage
     override public function readObject (ins :ObjectInputStream) :void
     {
         super.readObject(ins);
-        speaker = (ins.readObject(Name) as Name);
+        speaker = Name(ins.readObject());
         mode = ins.readByte();
     }
 

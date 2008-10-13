@@ -51,7 +51,7 @@ public class CrowdClientInfo extends ClientInfo
     override public function readObject (ins :ObjectInputStream) :void
     {
         super.readObject(ins);
-        visibleName = (ins.readObject(Name) as Name);
+        visibleName = Name(ins.readObject());
     }
 
     // from interface Streamable

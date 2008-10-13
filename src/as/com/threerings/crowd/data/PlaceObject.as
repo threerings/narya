@@ -206,9 +206,9 @@ public class PlaceObject extends DObject
     override public function readObject (ins :ObjectInputStream) :void
     {
         super.readObject(ins);
-        occupants = (ins.readObject(OidList) as OidList);
-        occupantInfo = (ins.readObject(DSet) as DSet);
-        speakService = (ins.readObject(SpeakMarshaller) as SpeakMarshaller);
+        occupants = OidList(ins.readObject());
+        occupantInfo = DSet(ins.readObject());
+        speakService = SpeakMarshaller(ins.readObject());
     }
 }
 }

@@ -56,10 +56,10 @@ public class ObjectInputStream
 
     /**
      * Attempts to read the next object from the stream. If a type is passed and the read object's
-     * type doesn't match, a warning is printed and null returned. The method does not throw,
-     * presumably to allow the client to hobble along until second order symptoms are observed.
+     * type doesn't match, a <code>TypeError</code> is thrown.
      * @param type optional type to check the read object against
-     * @return null if the object could not be read or is of the wrong type
+     * @throws TypeError if the object is read successfully but is the wrong type
+     * @return null if the object could not be read (or is actually null)
      */
     public function readObject (type :Class = null) :Object
         //throws IOError
@@ -115,8 +115,8 @@ public class ObjectInputStream
             readBareObjectImpl(target, cmap.streamer);
             if (DEBUG) log.debug(DEBUG_ID + "Read object: " + target);
             if (type != null && !(target is type)) {
-                log.warning("Type mismatch", "expected", type, "read", ClassUtil.getClass(target));
-                return null;
+                throw new TypeError(
+                    "Cannot convert " + ClassUtil.getClass(target) + " to " + type);
             }
             return target;
 
