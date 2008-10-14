@@ -200,7 +200,11 @@ public class PlaceManager
         });
 
         // let derived classes do initialization stuff
-        didInit();
+        try {
+            didInit();
+        } catch (Throwable t) {
+            log.warning("Manager choked in didInit()", "where", where(), t);
+        }
     }
 
     /**
@@ -270,7 +274,11 @@ public class PlaceManager
         plobj.setAccessController(getAccessController());
 
         // let our derived classes do their thang
-        didStartup();
+        try {
+            didStartup();
+        } catch (Throwable t) {
+            log.warning("Manager choked in didStartup()", "where", where(), t);
+        }
 
         // since we start empty, we need to immediately assume shutdown
         checkShutdownInterval();
@@ -416,7 +424,11 @@ public class PlaceManager
         _registry.unmapPlaceManager(this);
 
         // let our derived classes and delegates shut themselves down
-        didShutdown();
+        try {
+            didShutdown();
+        } catch (Throwable t) {
+            log.warning("Manager choked in didShutdown()", "where", where(), t);
+        }
     }
 
     // documentation inherited from interface
