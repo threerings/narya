@@ -107,6 +107,10 @@ public class PresentsServer
         }
     }
 
+    /** Legacy static reference to the main distributed object manager. Don't use this. If you're
+     * writing a game, use {@link PlaceManager#_omgr}. */
+    @Deprecated public static RootDObjectManager omgr;
+
     /**
      * Initializes all of the server services and prepares for operation.
      */
@@ -128,6 +132,9 @@ public class PresentsServer
         if (!registered) {
             injector.getInstance(NativeSignalHandler.class).init();
         }
+
+        // initialize our deprecated legacy static references
+        omgr = _omgr;
 
         // configure the dobject manager with our access controller
         _omgr.setDefaultAccessController(createDefaultObjectAccessController());
