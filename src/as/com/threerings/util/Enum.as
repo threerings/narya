@@ -31,8 +31,8 @@ import flash.utils.Dictionary;
  *
  * public final class Foo extends Enum
  * {
- *     public static const ONE = new Foo("ONE");
- *     public static const TWO = new Foo("TWO");
+ *     public static const ONE :Foo = new Foo("ONE");
+ *     public static const TWO :Foo = new Foo("TWO");
  *     finishedEnumerating(Foo);
  *
  *     // {at}private
@@ -43,7 +43,7 @@ import flash.utils.Dictionary;
  *
  *     public static function valueOf (name :String) :Foo
  *     {
- *         return Enum.valueOf(Foo, name);
+ *         return Enum.valueOf(Foo, name) as Foo;
  *     }
  *
  *     public static function values () :Array
