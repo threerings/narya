@@ -109,7 +109,7 @@ public class PresentsServer
 
     /** Legacy static reference to the main distributed object manager. Don't use this. If you're
      * writing a game, use {@link PlaceManager#_omgr}. */
-    @Deprecated public static RootDObjectManager omgr;
+    @Deprecated public static PresentsDObjectMgr omgr;
 
     /**
      * Initializes all of the server services and prepares for operation.
