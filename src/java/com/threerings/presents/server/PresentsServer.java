@@ -108,11 +108,11 @@ public class PresentsServer
     }
 
     /** Legacy static reference to the main distributed object manager. Don't use this. If you're
-     * writing a game, use {@link PlaceManager#_omgr}. */
+     * writing a game, use {@link #_omgr}. */
     @Deprecated public static PresentsDObjectMgr omgr;
 
     /** Legacy static reference to the invocation manager. Don't use this. If you're
-     * writing a game, use {@link PlaceManager#_invmgr}. */
+     * writing a game, use {@link #_invmgr}. */
     @Deprecated public static InvocationManager invmgr;
 
     /**
