@@ -41,6 +41,8 @@ import com.threerings.presents.dobj.DObjectManager;
 import com.threerings.presents.dobj.RootDObjectManager;
 import com.threerings.presents.server.net.ConnectionManager;
 
+import com.threerings.crowd.server.PlaceManager;
+
 import static com.threerings.presents.Log.log;
 
 /**
@@ -108,11 +110,11 @@ public class PresentsServer
     }
 
     /** Legacy static reference to the main distributed object manager. Don't use this. If you're
-     * writing a game, use {@link #_omgr}. */
+     * writing a game, use {@link PlaceManager#_omgr}. */
     @Deprecated public static PresentsDObjectMgr omgr;
 
     /** Legacy static reference to the invocation manager. Don't use this. If you're
-     * writing a game, use {@link #_invmgr}. */
+     * writing a game, use {@link PlaceManager#_invmgr}. */
     @Deprecated public static InvocationManager invmgr;
 
     /**
