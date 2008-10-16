@@ -24,6 +24,8 @@ package com.threerings.bureau.util;
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.text.DateFormat;
+import java.util.Date;
 
 import com.samskivert.io.StreamUtil;
 import com.samskivert.util.Logger;
@@ -38,14 +40,26 @@ import static com.threerings.bureau.Log.log;
 public class BureauLogRedirector
 {
     /**
-     * Creates a new redirector.
+     * Creates a new redirector with no size limit.
      * @param bureauId the id of the bureau being redirected - this will become the thread name
      * @param input the stream that is the output of the bureau process
      */
     public BureauLogRedirector (String bureauId, InputStream input)
     {
+        this(bureauId, input, 0);
+    }
+
+    /**
+     * Creates a new redirector.
+     * @param bureauId the id of the bureau being redirected - this will become the thread name
+     * @param input the stream that is the output of the bureau process
+     * @param limit approximate limit for the total characters written to the logger
+     */
+    public BureauLogRedirector (String bureauId, InputStream input, int limit)
+    {
         _bureauId = bureauId;
         _reader = new BufferedReader(new InputStreamReader(input));
+        _limit = limit;
         Thread thread = new Thread(bureauId) {
             @Override public void run () {
                 copyLoop();
@@ -63,6 +77,41 @@ public class BureauLogRedirector
     }
 
     /**
+     * Gets the total number of characters written to the log.
+     */
+    public int getWritten ()
+    {
+        return _written;
+    }
+
+    /**
+     * Gets the character limit associated with the log.
+     */
+    public int getLimit ()
+    {
+        return _limit;
+    }
+
+    /**
+     * Resets the redirector's truncation status and allows additional output up to the given
+     * character limit.
+     */
+    public synchronized void reset (int limit)
+    {
+        _written = 0;
+        _truncated = false;
+        _limit = limit;
+    }
+
+    /**
+     * Tests if this redirector has stopped copying lines due to the size limit being exceeded.
+     */
+    public boolean isTruncated ()
+    {
+        return _truncated;
+    }
+
+    /**
      * Returns true if the redirector is still active. Normally this indicates that the launched
      * process is still running.
      */
@@ -76,8 +125,30 @@ public class BureauLogRedirector
         String line;
         try {
             while ((line = _reader.readLine()) != null) {
-                // this should get prefixed by the thread name
-                _target.info(line);
+                int length = line.length();
+                boolean showTrunc = false;
+
+                synchronized (this) {
+                    if (_truncated) {
+                        line = null;
+                    } else if (_limit > 0 && _written + length > _limit) {
+                        _truncated = true;
+                        showTrunc = true;
+                        line = null;
+                    }
+                }
+
+                if (line != null) {
+                    _target.info(line); // this should get prefixed by the thread name
+                    _written += length;
+
+                } else if (showTrunc) {
+                    DateFormat format = 
+                        DateFormat.getDateTimeInstance(DateFormat.FULL, DateFormat.FULL);
+                    _target.info(
+                        format.format(new Date()) + 
+                            ": Size limit reached, suppressing further output");
+                }
             }
         } catch (Exception e) {
             log.warning("Failed to read bureau output", "bureauId", _bureauId, e);
@@ -89,6 +160,9 @@ public class BureauLogRedirector
 
     protected String _bureauId;
     protected BufferedReader _reader;
+    protected int _limit;
+    protected int _written;
+    protected boolean _truncated;
 
     protected static Logger _target = Logger.getLogger(BureauLogRedirector.class);
 }
