@@ -137,6 +137,31 @@ public class StringUtil
     }
 
     /**
+     * Format the specified number, nicely, with commas.
+     * TODO: format specifyer, locale handling, etc. We'll probably move this into a
+     * NumberFormat-style class.
+     */
+    public static function formatNumber (n :Number) :String
+    {
+        var postfix :String = "";
+        var s :String = n.toString(); // use standard to-stringing
+
+        // move any fractional portion to the postfix
+        const dex :int = s.lastIndexOf(".");
+        if (dex != -1) {
+            postfix = s.substring(dex);
+            s = s.substring(0, dex);
+        }
+
+        // hackily add commas
+        while (s.length > 3) {
+            postfix = "," + s.substring(s.length - 3) + postfix;
+            s = s.substring(0, s.length - 3);
+        }
+        return s + postfix;
+    }
+
+    /**
      * Parse a Number from a String, throwing an ArgumentError if there are any
      * invalid characters.
      *
@@ -146,8 +171,6 @@ public class StringUtil
      */
     public static function parseNumber (str :String) :Number
     {
-        var originalString :String = str;
-
         if (str == null) {
             throw new ArgumentError("Cannot parseNumber(null)");
         }
@@ -160,6 +183,10 @@ public class StringUtil
         } else if (str == "NaN") {
             return NaN;
         }
+
+        const originalString :String = str;
+        str = str.replace(",", "");
+        const noCommas :String = str;
 
         // validate all characters before the "e"
         str = validateDecimal(str, true, true);
@@ -175,7 +202,7 @@ public class StringUtil
         }
 
         // let Flash do the actual conversion
-        return parseFloat(originalString);
+        return parseFloat(noCommas);
     }
 
     /**
@@ -541,7 +568,8 @@ public class StringUtil
     /**
      * Internal helper function for parseNumber.
      */
-    protected static function validateDecimal (str :String, allowDot :Boolean, allowTrailingE :Boolean) :String
+    protected static function validateDecimal (
+        str :String, allowDot :Boolean, allowTrailingE :Boolean) :String
     {
         // skip the leading minus
         if (str.charAt(0) == "-") {
