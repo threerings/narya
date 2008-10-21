@@ -21,13 +21,14 @@
 
 package com.threerings.admin.client;
 
+import java.util.Comparator;
+
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 
 import com.samskivert.util.QuickSort;
-
 import com.samskivert.swing.VGroupLayout;
 
 import com.threerings.presents.util.PresentsContext;
@@ -95,11 +96,21 @@ public class ConfigEditorPanel extends JPanel
     /**
      * Called in response to our getConfigInfo server-side service request.
      */
-    public void gotConfigInfo (String[] keys, int[] oids)
+    public void gotConfigInfo (final String[] keys, final int[] oids)
     {
-        QuickSort.sort(keys);
+        Integer indexes[] = new Integer[keys.length];
+        for (int ii = 0; ii < indexes.length; ii++) {
+            indexes[ii] = ii;
+        }
+
+        QuickSort.sort(indexes, new Comparator<Integer>() {
+            public int compare (Integer i1, Integer i2) {
+                return keys[i1].compareTo(keys[i2]);
+            }
+        });
+
         // create object editor panels for each of the categories
-        for (int ii = 0; ii < keys.length; ii++) {
+        for (Integer ii : indexes) {
             ObjectEditorPanel panel = new ObjectEditorPanel(_ctx, keys[ii], oids[ii]);
             JScrollPane scrolly = new JScrollPane(panel);
             _oeditors.addTab(keys[ii], scrolly);
