@@ -26,6 +26,8 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 
+import com.samskivert.util.QuickSort;
+
 import com.samskivert.swing.VGroupLayout;
 
 import com.threerings.presents.util.PresentsContext;
@@ -91,15 +93,14 @@ public class ConfigEditorPanel extends JPanel
     }
 
     /**
-     * Called in response to our getConfigInfo server-side service
-     * request.
+     * Called in response to our getConfigInfo server-side service request.
      */
     public void gotConfigInfo (String[] keys, int[] oids)
     {
+        QuickSort.sort(keys);
         // create object editor panels for each of the categories
         for (int ii = 0; ii < keys.length; ii++) {
-            ObjectEditorPanel panel =
-                new ObjectEditorPanel(_ctx, keys[ii], oids[ii]);
+            ObjectEditorPanel panel = new ObjectEditorPanel(_ctx, keys[ii], oids[ii]);
             JScrollPane scrolly = new JScrollPane(panel);
             _oeditors.addTab(keys[ii], scrolly);
             if (keys[ii].equals(_defaultPane)) {
