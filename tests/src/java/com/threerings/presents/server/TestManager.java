@@ -7,8 +7,6 @@ import java.util.List;
 
 import com.google.inject.Inject;
 
-import com.samskivert.util.StringUtil;
-
 import com.threerings.presents.client.TestService;
 import com.threerings.presents.data.ClientObject;
 import com.threerings.presents.server.ClientManager;
@@ -39,8 +37,7 @@ public class TestManager
                       TestService.TestFuncListener listener)
         throws InvocationException
     {
-        log.info("Test request [one=" + one + ", two=" + two +
-            ", three=" + StringUtil.toString(three) + "].");
+        log.info("Test request", "one", one, "two", two, "three", three);
 
         // and issue a response to this invocation request
         listener.testSucceeded(one, two);
