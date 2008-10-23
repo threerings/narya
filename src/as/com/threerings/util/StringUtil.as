@@ -285,6 +285,10 @@ public class StringUtil
      */
     public static function trimBeginning (str :String) :String
     {
+        if (str == null) {
+            return null;
+        }
+
         var startIdx :int = 0;
         // this works because charAt() with an invalid index returns "", which is not whitespace
         while (isWhitespace(str.charAt(startIdx))) {
@@ -301,6 +305,10 @@ public class StringUtil
      */
     public static function trimEnd (str :String) :String
     {
+        if (str == null) {
+            return null;
+        }
+
         var endIdx :int = str.length;
         // this works because charAt() with an invalid index returns "", which is not whitespace
         while (isWhitespace(str.charAt(endIdx - 1))) {
