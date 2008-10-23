@@ -497,7 +497,8 @@ public class ChatDirector extends BasicDirector
      * @param msg the contents of the tell message.
      * @param rl an optional result listener if you'd like to be notified of success or failure.
      */
-    public void requestTell (final Name target, String msg, final ResultListener<Name> rl)
+    public <T extends Name> void requestTell (
+        final T target, String msg, final ResultListener<T> rl)
     {
         // make sure they can say what they want to say
         final String message = filter(msg, target, true);
