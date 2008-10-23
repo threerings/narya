@@ -1061,7 +1061,7 @@ public class PresentsClient
     {
         public void dispatch (final PresentsClient client, UpstreamMessage msg)
         {
-            log.debug("Client requested logoff", "client", client);
+            log.info("Client requested logoff", "client", client);
             client.safeEndSession();
         }
     }
