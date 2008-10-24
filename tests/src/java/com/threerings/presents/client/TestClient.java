@@ -129,8 +129,15 @@ public class TestClient
         object.postMessage("lawl!");
 
         // try blowing through our message limit
-        for (int ii = 0; ii < 4*Client.DEFAULT_MSGS_PER_SECOND; ii++) {
-            object.postMessage("ZOMG!", new Integer(ii));
+        for (int tt = 0; tt < 15; tt++) {
+            log.info("Go speed messages, go! " + tt);
+            for (int ii = 0; ii < 2*Client.DEFAULT_MSGS_PER_SECOND; ii++) {
+                object.postMessage("ZOMG!", new Integer(ii));
+            }
+            try {
+                Thread.sleep(1000L);
+            } catch (Exception e) {
+            }
         }
 
         // ask for the power
