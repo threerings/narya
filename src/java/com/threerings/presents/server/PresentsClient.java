@@ -555,7 +555,7 @@ public class PresentsClient
     protected Throttle createIncomingMessageThrottle ()
     {
         // see throttleUpdated() for details on these numbers
-        return new Throttle(10*Client.DEFAULT_MSGS_PER_SECOND+1, 10*1000L);
+        return new Throttle(10*(Client.DEFAULT_MSGS_PER_SECOND+1), 10*1000L);
     }
 
     /**
