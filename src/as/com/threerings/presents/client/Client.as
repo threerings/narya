@@ -54,12 +54,12 @@ public class Client extends EventDispatcher
 
     private static const log :Log = Log.getLog(Client);
 
+    // statically reference classes we require
+    TimeBaseMarshaller;
+
     public function Client (creds :Credentials)
     {
         _creds = creds;
-
-        // ensure that the compiler includes these necessary symbols
-        var i :int = TimeBaseMarshaller.GET_TIME_OID;
     }
 
     /**

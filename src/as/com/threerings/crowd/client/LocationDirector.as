@@ -52,7 +52,8 @@ import com.threerings.crowd.util.CrowdContext;
 public class LocationDirector extends BasicDirector
     implements Subscriber, LocationReceiver
 {
-    private static const log :Log = Log.getLog(LocationDirector);
+    // statically reference classes we require
+    LocationMarshaller;
 
     /**
      * Constructs a location director which will configure itself for operation using the supplied
@@ -67,9 +68,6 @@ public class LocationDirector extends BasicDirector
 
         // register for location notifications
         _cctx.getClient().getInvocationDirector().registerReceiver(new LocationDecoder(this));
-
-        // ensure that the compiler includes these necessary symbols
-        var i :int = LocationMarshaller.LEAVE_PLACE;
     }
 
     /**
@@ -539,6 +537,8 @@ public class LocationDirector extends BasicDirector
             (obs as LocationObserver).locationChangeFailed(placeId, reason);
         });
     }
+
+    protected const log :Log = Log.getLog(this);
 
     /** The context through which we access needed services. */
     protected var _cctx :CrowdContext;

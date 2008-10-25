@@ -66,6 +66,9 @@ import com.threerings.crowd.chat.data.UserSystemMessage;
 public class ChatDirector extends BasicDirector
     implements LocationObserver, MessageListener
 {
+    // statically reference classes we require
+    ChatMarshaller;
+
     /**
      * Creates a chat director and initializes it with the supplied context. The chat director will
      * register itself as a location observer so that it can automatically process place
@@ -99,9 +102,6 @@ public class ChatDirector extends BasicDirector
         registerCommandHandler(msg, "think", new ThinkHandler());
 //        registerCommandHandler(msg, "tell", new TellHandler());
         registerCommandHandler(msg, "broadcast", new BroadcastHandler());
-
-        // ensure that the compiler includes these necessary symbols
-        var i :int = ChatMarshaller.AWAY;
     }
 
     /**

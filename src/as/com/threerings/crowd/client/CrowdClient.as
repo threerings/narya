@@ -34,13 +34,13 @@ import com.threerings.crowd.data.CrowdPermissionPolicy;
  */
 public class CrowdClient extends Client
 {
+    // statically reference classes we require
+    BodyMarshaller;
+    CrowdPermissionPolicy;
+
     public function CrowdClient (creds :Credentials)
     {
         super(creds);
-
-        // ensure that the compiler includes these necessary symbols
-        var i :int = BodyMarshaller.SET_IDLE;
-        var c :Class = CrowdPermissionPolicy;
     }
 }
 }
