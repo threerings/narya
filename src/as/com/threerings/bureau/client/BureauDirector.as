@@ -1,18 +1,20 @@
 package com.threerings.bureau.client {
 
+import com.threerings.util.HashMap;
+import com.threerings.util.Log;
+
 import com.threerings.presents.client.BasicDirector;
-import com.threerings.presents.data.ClientObject;
-import com.threerings.bureau.data.BureauCodes;
-import com.threerings.bureau.data.AgentObject;
-import com.threerings.bureau.Log;
-import com.threerings.bureau.util.BureauContext;
 import com.threerings.presents.client.Client;
+import com.threerings.presents.client.ClientEvent;
+import com.threerings.presents.data.ClientObject;
+import com.threerings.presents.dobj.ObjectAccessError;
 import com.threerings.presents.dobj.Subscriber;
 import com.threerings.presents.dobj.SubscriberAdapter;
 import com.threerings.presents.util.SafeSubscriber;
-import com.threerings.presents.dobj.ObjectAccessError;
-import com.threerings.util.HashMap;
-import com.threerings.presents.client.ClientEvent;
+
+import com.threerings.bureau.data.AgentObject;
+import com.threerings.bureau.data.BureauCodes;
+import com.threerings.bureau.util.BureauContext;
 
 /**
  * Allows the server to create and destroy agents on a client.
@@ -44,7 +46,7 @@ public class BureauDirector extends BasicDirector
         var delegator :Subscriber = 
             new SubscriberAdapter(objectAvailable, requestFailed);
 
-        Log.info("Subscribing to object " + agentId);
+        log.info("Subscribing to object", "agentId", agentId);
 
         var subscriber :SafeSubscriber = 
             new SafeSubscriber(agentId, delegator);
@@ -61,19 +63,17 @@ public class BureauDirector extends BasicDirector
         agent = _agents.remove(agentId);
 
         if (agent == null) {
-            Log.warning("Lost an agent, id " + agentId);
+            log.warning("Lost an agent", "id", agentId);
         }
         else {
             try {
                 agent.stop();
-            }
-            catch (e :Error) {
-                Log.warning("Stopping an agent caused an exception");
-                Log.logStackTrace(e);
+            } catch (e :Error) {
+                log.warning("Stopping an agent caused an exception", e);
             }
             var subscriber :SafeSubscriber = _subscribers.remove(agentId);
             if (subscriber == null) {
-                Log.warning("Lost a subscriber for agent " + agent);
+                log.warning("Lost a subscriber for agent", "agent", agent);
             }
             else {
                 subscriber.unsubscribe(_ctx.getDObjectManager());
@@ -89,7 +89,7 @@ public class BureauDirector extends BasicDirector
     {
         var oid :int = agentObject.getOid();
 
-        Log.info("Object " + oid + " now available");
+        log.info("Object available", "oid", oid);
 
         var agent :Agent;
         try {
@@ -98,8 +98,7 @@ public class BureauDirector extends BasicDirector
             agent.start();
         }
         catch (e :Error) {
-            Log.warning("Could not create agent [obj=" + agentObject + "]");
-            Log.logStackTrace(e);
+            log.warning("Could not create agent", "obj", agentObject, e);
             _bureauService.agentCreationFailed(_ctx.getClient(), oid);
             return;
         }
@@ -113,8 +112,7 @@ public class BureauDirector extends BasicDirector
      */
     protected function requestFailed (oid :int, cause :ObjectAccessError) :void
     {
-        Log.warning("Could not subscribe to agent [oid=" + oid + "]");
-        Log.logStackTrace(cause);
+        log.warning("Could not subscribe to agent", "oid", oid, cause);
     }
 
     // from BasicDirector
@@ -153,6 +151,9 @@ public class BureauDirector extends BasicDirector
     {
         throw new Error("Abstract function");
     }
+
+    /** Create a logger for the entire package.. */
+    protected const log :Log = Log.getLog("com.threerings.bureau");
 
     protected var _bureauService :BureauService;
     protected var _agents :HashMap = new HashMap();
