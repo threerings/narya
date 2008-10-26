@@ -65,7 +65,7 @@ public class ReportManager
         _reportInterval = new Interval(rqueue) {
             @Override
             public void expired () {
-                logReport(generateReport(System.currentTimeMillis(), true));
+                logReport(LOG_REPORT_HEADER + generateReport(System.currentTimeMillis(), true));
             }
         };
         _reportInterval.schedule(REPORT_INTERVAL, true);
@@ -95,7 +95,7 @@ public class ReportManager
     {
         long sinceLast = now - _lastReportStamp;
         long uptime = now - _serverStartTime;
-        StringBuilder report = new StringBuilder("State of server report:\n");
+        StringBuilder report = new StringBuilder();
 
         report.append("- Uptime: ");
         report.append(StringUtil.intervalToString(uptime)).append("\n");
@@ -166,4 +166,7 @@ public class ReportManager
 
     /** The frequency with which we generate "state of server" reports. */
     protected static final long REPORT_INTERVAL = 15 * 60 * 1000L;
+
+    /** The header to prefix to our logged reports. */
+    protected static final String LOG_REPORT_HEADER = "State of server report:\n";
 }
