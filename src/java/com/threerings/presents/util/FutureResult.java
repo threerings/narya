@@ -118,52 +118,52 @@ public class FutureResult<V>
         }
 
         public void innerSet (V v) {
-	    for (;;) {
-		int s = getState();
-		if (s == RAN) {
-		    return;
+            for (;;) {
+                int s = getState();
+                if (s == RAN) {
+                    return;
                 }
                 if (s == CANCELLED) {
                     releaseShared(0);
                     return;
                 }
-		if (compareAndSetState(s, RAN)) {
+                if (compareAndSetState(s, RAN)) {
                     _result = v;
                     releaseShared(0);
-		    return;
+                    return;
                 }
             }
         }
 
         public void innerSetException (Throwable t) {
-	    for (;;) {
-		int s = getState();
-		if (s == RAN) {
-		    return;
+            for (;;) {
+                int s = getState();
+                if (s == RAN) {
+                    return;
                 }
                 if (s == CANCELLED) {
                     releaseShared(0);
                     return;
                 }
-		if (compareAndSetState(s, RAN)) {
+                if (compareAndSetState(s, RAN)) {
                     _exception = t;
                     _result = null;
                     releaseShared(0);
-		    return;
+                    return;
                 }
-	    }
+            }
         }
 
         public boolean innerCancel (boolean mayInterruptIfRunning) {
-	    for (;;) {
-		int s = getState();
-		if (ranOrCancelled(s)) {
-		    return false;
+            for (;;) {
+                int s = getState();
+                if (ranOrCancelled(s)) {
+                    return false;
                 }
-		if (compareAndSetState(s, CANCELLED)) {
-		    break;
+                if (compareAndSetState(s, CANCELLED)) {
+                    break;
                 }
-	    }
+            }
             releaseShared(0);
             return true;
         }
