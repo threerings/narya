@@ -158,16 +158,13 @@ public class BureauRegistry
         if (bureau == null) {
             return "Bureau " + creds.bureauId + " not found";
         }
-
         if (bureau.clientObj != null) {
             return "Bureau " + creds.bureauId + " already logged in";
         }
-
         if (!bureau.token.equals(creds.sessionToken)) {
             return "Bureau " + creds.bureauId +
                 " does not match credentials token";
         }
-
         return null;
     }
 
@@ -254,21 +251,16 @@ public class BureauRegistry
     {
         Bureau bureau = _bureaus.get(agent.bureauId);
         if (bureau != null && bureau.ready()) {
-
             _omgr.registerObject(agent);
 
             log.info("Bureau ready, sending createAgent", "agent", agent.which());
-
             BureauSender.createAgent(bureau.clientObj, agent.getOid());
             bureau.agentStates.put(agent, AgentState.STARTED);
-
             bureau.summarize();
-
             return;
         }
 
         if (bureau == null) {
-
             LauncherEntry launcherEntry = _launchers.get(agent.bureauType);
             if (launcherEntry == null) {
                 log.warning("Launcher not found", "agent", agent.which());
@@ -276,14 +268,11 @@ public class BureauRegistry
             }
 
             log.info("Creating new bureau", "bureauId", agent.bureauId, "launcher", launcherEntry);
-
             bureau = new Bureau();
             bureau.bureauId = agent.bureauId;
             bureau.token = generateToken(bureau.bureauId);
             bureau.launcherEntry = launcherEntry;
-
             _invoker.postUnit(new LauncherUnit(bureau, _omgr));
-
             _bureaus.put(agent.bureauId, bureau);
         }
 
@@ -291,7 +280,6 @@ public class BureauRegistry
         bureau.agentStates.put(agent, AgentState.PENDING);
 
         log.info("Bureau not ready, pending agent", "agent", agent.which());
-
         bureau.summarize();
     }
 
@@ -301,7 +289,6 @@ public class BureauRegistry
     public void destroyAgent (AgentObject agent)
     {
         FoundAgent found = resolve(null, agent.getOid(), "destroyAgent");
-
         if (found == null) {
             return;
         }
@@ -552,8 +539,7 @@ public class BureauRegistry
      */
     protected String generateToken (String bureauId)
     {
-        String tokenSource = bureauId + "@" +
-            System.currentTimeMillis() + "r" + Math.random();
+        String tokenSource = bureauId + "@" + System.currentTimeMillis() + "r" + Math.random();
         return StringUtil.md5hex(tokenSource);
     }
 
@@ -564,8 +550,7 @@ public class BureauRegistry
     protected void launchTimeoutExpired (Bureau bureau)
     {
         if (bureau.clientObj != null) {
-            // all's well, ignore
-            return;
+            return; // all's well, ignore
         }
 
         if (!_bureaus.containsKey(bureau.bureauId)) {
@@ -582,19 +567,14 @@ public class BureauRegistry
      */
     protected class LauncherUnit extends Invoker.Unit
     {
-        LauncherUnit (Bureau bureau, RunQueue runQueue)
-        {
-            super("LauncherUnit for " + bureau + ": " +
-                StringUtil.toString(bureau.launcherEntry));
+        LauncherUnit (Bureau bureau, RunQueue runQueue) {
+            super("LauncherUnit for " + bureau + ": " + StringUtil.toString(bureau.launcherEntry));
             _bureau = bureau;
         }
 
-        @Override
-        public boolean invoke ()
-        {
+        @Override public boolean invoke () {
             try {
                 _bureau.launch();
-
             } catch (Exception e) {
                 log.warning("Could not launch bureau", e);
             }
@@ -602,8 +582,7 @@ public class BureauRegistry
         }
 
         @Override
-        public void handleResult ()
-        {
+        public void handleResult () {
             int timeout = _bureau.launcherEntry.timeout;
             if (timeout != 0) {
                 new Interval(_runQueue) {
@@ -627,15 +606,13 @@ public class BureauRegistry
         public Launcher launcher;
         public int timeout;
 
-        public LauncherEntry (Launcher launcher, int timeout)
-        {
+        public LauncherEntry (Launcher launcher, int timeout) {
             this.launcher = launcher;
             this.timeout = timeout;
         }
 
         @Override
-        public String toString ()
-        {
+        public String toString () {
             return StringUtil.fieldsToString(this);
         }
     }
@@ -701,8 +678,7 @@ public class BureauRegistry
         Map<AgentObject, AgentState> agentStates = Maps.newHashMap();
 
         @Override
-        public String toString ()
-        {
+        public String toString () {
             StringBuilder builder = new StringBuilder();
             builder.append("[Bureau id=").append(bureauId).append(", client=");
             if (clientObj == null) {
@@ -717,13 +693,11 @@ public class BureauRegistry
             return builder.toString();
         }
 
-        boolean ready ()
-        {
+        boolean ready () {
             return clientObj != null;
         }
 
-        StringBuilder agentSummary (StringBuilder str)
-        {
+        StringBuilder agentSummary (StringBuilder str) {
             int[] counts = new int[AgentState.values().length];
             for (Map.Entry<AgentObject, AgentState> me : agentStates.entrySet()) {
                 counts[me.getValue().ordinal()]++;
@@ -737,17 +711,14 @@ public class BureauRegistry
             return str;
         }
 
-        void summarize ()
-        {
+        void summarize () {
             StringBuilder str = new StringBuilder();
             str.append("Bureau ").append(bureauId).append(" [");
             agentSummary(str).append("]");
             log.info(str.toString());
         }
 
-        void launch ()
-            throws IOException
-        {
+        void launch () throws IOException {
             launcherEntry.launcher.launchBureau(bureauId, token);
 
         }
