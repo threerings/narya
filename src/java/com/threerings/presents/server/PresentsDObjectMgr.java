@@ -544,7 +544,8 @@ public class PresentsDObjectMgr
         int queueSize = _evqueue.size();
         report.append("- Queue size: ").append(queueSize).append("\n");
         report.append("- Max queue size: ").append(_current.maxQueueSize).append("\n");
-        report.append("- Units executed: ").append(_current.eventCount).append("\n");
+        report.append("- Units executed: ").append(_current.eventCount);
+        report.append(" (").append(1000*_current.eventCount/sinceLast).append("/s)\n");
 
         if (UNIT_PROF_ENABLED) {
             report.append("- Unit profiles: ").append(_profiles.size()).append("\n");

@@ -243,12 +243,14 @@ public class ConnectionManager extends LoopingThread
         report.append("- Network input: ");
         report.append(bytesIn).append(" bytes, ");
         report.append(msgsIn).append(" msgs, ");
+        report.append(msgsIn*1000/sinceLast).append(" mps, ");
         long avgIn = (msgsIn == 0) ? 0 : (bytesIn/msgsIn);
         report.append(avgIn).append(" avg size, ");
         report.append(bytesIn*1000/sinceLast).append(" bps\n");
         report.append("- Network output: ");
         report.append(bytesOut).append(" bytes, ");
         report.append(msgsOut).append(" msgs, ");
+        report.append(msgsOut*1000/sinceLast).append(" mps, ");
         long avgOut = (msgsOut == 0) ? 0 : (bytesOut/msgsOut);
         report.append(avgOut).append(" avg size, ");
         report.append(bytesOut*1000/sinceLast).append(" bps\n");

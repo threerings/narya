@@ -62,7 +62,8 @@ public class PresentsInvoker extends Invoker
         buf.append("- Queue size: ").append(qsize).append("\n");
         synchronized (this) {
             buf.append("- Max queue size: ").append(_maxQueueSize).append("\n");
-            buf.append("- Units executed: ").append(_unitsRun).append("\n");
+            buf.append("- Units executed: ").append(_unitsRun);
+            buf.append(" (").append(1000*_unitsRun/sinceLast).append("/s)\n");
             if (_currentUnit != null) {
                 String uname = StringUtil.safeToString(_currentUnit);
                 buf.append("- Current unit: ").append(uname).append(" ");
