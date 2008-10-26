@@ -21,9 +21,11 @@
 
 package com.threerings.presents.peer.server;
 
+import com.threerings.presents.client.InvocationService;
 import com.threerings.presents.data.ClientObject;
 import com.threerings.presents.peer.client.PeerService;
 import com.threerings.presents.peer.data.NodeObject;
+import com.threerings.presents.server.InvocationException;
 import com.threerings.presents.server.InvocationProvider;
 
 /**
@@ -31,6 +33,12 @@ import com.threerings.presents.server.InvocationProvider;
  */
 public interface PeerProvider extends InvocationProvider
 {
+    /**
+     * Handles a {@link PeerService#generateReport} request.
+     */
+    void generateReport (ClientObject caller, InvocationService.ResultListener arg1)
+        throws InvocationException;
+
     /**
      * Handles a {@link PeerService#invokeAction} request.
      */

@@ -40,4 +40,9 @@ public interface PeerService extends InvocationService
      * Requests that the specified action be invoked on this server.
      */
     void invokeAction (Client client, byte[] serializedAction);
+
+    /**
+     * Generates a server status report for this peer and returns it to the supplied listener.
+     */
+    void generateReport (Client client, ResultListener listener);
 }

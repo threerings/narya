@@ -22,6 +22,7 @@
 package com.threerings.presents.peer.data;
 
 import com.threerings.presents.client.Client;
+import com.threerings.presents.client.InvocationService;
 import com.threerings.presents.data.InvocationMarshaller;
 import com.threerings.presents.peer.client.PeerService;
 
@@ -35,8 +36,21 @@ import com.threerings.presents.peer.client.PeerService;
 public class PeerMarshaller extends InvocationMarshaller
     implements PeerService
 {
+    /** The method id used to dispatch {@link #generateReport} requests. */
+    public static final int GENERATE_REPORT = 1;
+
+    // from interface PeerService
+    public void generateReport (Client arg1, InvocationService.ResultListener arg2)
+    {
+        InvocationMarshaller.ResultMarshaller listener2 = new InvocationMarshaller.ResultMarshaller();
+        listener2.listener = arg2;
+        sendRequest(arg1, GENERATE_REPORT, new Object[] {
+            listener2
+        });
+    }
+
     /** The method id used to dispatch {@link #invokeAction} requests. */
-    public static final int INVOKE_ACTION = 1;
+    public static final int INVOKE_ACTION = 2;
 
     // from interface PeerService
     public void invokeAction (Client arg1, byte[] arg2)
@@ -47,7 +61,7 @@ public class PeerMarshaller extends InvocationMarshaller
     }
 
     /** The method id used to dispatch {@link #ratifyLockAction} requests. */
-    public static final int RATIFY_LOCK_ACTION = 2;
+    public static final int RATIFY_LOCK_ACTION = 3;
 
     // from interface PeerService
     public void ratifyLockAction (Client arg1, NodeObject.Lock arg2, boolean arg3)

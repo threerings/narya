@@ -21,6 +21,7 @@
 
 package com.threerings.presents.peer.server;
 
+import com.threerings.presents.client.InvocationService;
 import com.threerings.presents.data.ClientObject;
 import com.threerings.presents.peer.data.NodeObject;
 import com.threerings.presents.peer.data.PeerMarshaller;
@@ -53,6 +54,12 @@ public class PeerDispatcher extends InvocationDispatcher<PeerMarshaller>
         throws InvocationException
     {
         switch (methodId) {
+        case PeerMarshaller.GENERATE_REPORT:
+            ((PeerProvider)provider).generateReport(
+                source, (InvocationService.ResultListener)args[0]
+            );
+            return;
+
         case PeerMarshaller.INVOKE_ACTION:
             ((PeerProvider)provider).invokeAction(
                 source, (byte[])args[0]
