@@ -153,7 +153,7 @@ public class BureauDirector extends BasicDirector
     }
 
     /** Create a logger for the entire package.. */
-    protected const log :Log = Log.getLog("com.threerings.bureau");
+    protected var log :Log = Log.getLog("com.threerings.bureau");
 
     protected var _bureauService :BureauService;
     protected var _agents :HashMap = new HashMap();
