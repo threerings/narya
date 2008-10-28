@@ -670,6 +670,14 @@ public class DObject
     }
 
     /**
+     * Returns an enumeration over our local attributes.
+     */
+    public Iterable<Object> getLocals ()
+    {
+        return Arrays.asList(_locattrs);
+    }
+
+    /**
      * Generates a concise string representation of this object.
      */
     public String which ()
