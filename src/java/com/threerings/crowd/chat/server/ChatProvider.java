@@ -39,14 +39,15 @@ import com.threerings.presents.server.InvocationException;
 import com.threerings.presents.server.InvocationManager;
 import com.threerings.presents.server.InvocationProvider;
 
-import com.threerings.crowd.chat.client.ChatService;
 import com.threerings.crowd.chat.client.ChatService.TellListener;
+import com.threerings.crowd.chat.client.ChatService;
 import com.threerings.crowd.chat.data.ChatCodes;
 import com.threerings.crowd.chat.data.UserMessage;
 import com.threerings.crowd.data.BodyObject;
 import com.threerings.crowd.data.CrowdCodes;
 import com.threerings.crowd.data.OccupantInfo;
 import com.threerings.crowd.data.PlaceObject;
+import com.threerings.crowd.server.BodyLocal;
 import com.threerings.crowd.server.BodyLocator;
 import com.threerings.crowd.server.PlaceRegistry;
 
@@ -217,7 +218,8 @@ public class ChatProvider
         if (tobj.status == OccupantInfo.DISCONNECTED) {
             String errmsg = MessageBundle.compose(
                 ChatCodes.USER_DISCONNECTED, TimeUtil.getTimeOrderString(
-                    System.currentTimeMillis() - tobj.statusTime, TimeUtil.SECOND));
+                    System.currentTimeMillis() - tobj.getLocal(BodyLocal.class).statusTime,
+                    TimeUtil.SECOND));
             throw new InvocationException(errmsg);
         }
 
@@ -227,7 +229,7 @@ public class ChatProvider
         // let the teller know it went ok
         long idle = 0L;
         if (tobj.status == OccupantInfo.IDLE) {
-            idle = System.currentTimeMillis() - tobj.statusTime;
+            idle = System.currentTimeMillis() - tobj.getLocal(BodyLocal.class).statusTime;
         }
         String awayMessage = null;
         if (!StringUtil.isBlank(tobj.awayMessage)) {

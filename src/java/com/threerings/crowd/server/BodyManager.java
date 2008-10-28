@@ -89,7 +89,7 @@ public class BodyManager
         if (body.status != status) {
             // update the status in their body object
             body.setStatus(status);
-            body.statusTime = System.currentTimeMillis();
+            body.getLocal(BodyLocal.class).statusTime = System.currentTimeMillis();
         }
 
         updateOccupantInfo(body, location, new OccupantInfoOp() {

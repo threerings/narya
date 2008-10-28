@@ -56,12 +56,6 @@ public class BodyObject extends ClientObject
     public byte status;
 
     /**
-     * The time at which the {@link #status} field was last updated. This is only available on the
-     * server.
-     */
-    public transient long statusTime;
-
-    /**
      * If non-null, this contains a message to be auto-replied whenever another user delivers a
      * tell message to this user.
      */
