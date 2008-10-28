@@ -654,7 +654,7 @@ public class DObject
     }
 
     /**
-     * Retrieves a local attribute for the supplied key. See {@link #setLocalAttribute} for
+     * Retrieves a local attribute for the supplied key. See {@link #setLocal} for
      * information on key polymorphism. Returns null if no attribute is found that matches the
      * supplied key.
      */
