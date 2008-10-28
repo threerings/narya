@@ -21,7 +21,7 @@
 
 package com.threerings.presents.server;
 
-import com.threerings.io.Streamable;
+import com.threerings.io.SimpleStreamableObject;
 
 import com.threerings.presents.data.ClientObject;
 
@@ -32,8 +32,7 @@ import com.threerings.presents.data.ClientObject;
  * <p> Note: this object implements streamable so that it can be cleanly passed between servers in
  * a peered environment. It is never sent to the client.
  */
-public class ClientLocal
-    implements Streamable
+public class ClientLocal extends SimpleStreamableObject
 {
     // nothing to track at this level
 }
