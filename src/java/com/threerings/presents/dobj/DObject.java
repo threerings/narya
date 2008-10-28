@@ -29,6 +29,7 @@ import java.util.Map;
 
 import com.google.common.collect.Maps;
 
+import com.samskivert.util.ArrayUtil;
 import com.samskivert.util.ListUtil;
 import com.samskivert.util.StringUtil;
 
@@ -587,6 +588,88 @@ public class DObject
     }
 
     /**
+     * Configures a local attribute on this object. Local attributes are not sent over the network
+     * and are thus only available on the server or client that set the attribute. Local attributes
+     * are keyed by the class of the value being set as an attribute (the expectation is that local
+     * attributes will be encapsulated into helper classes).
+     *
+     * <p> Also note that it is illegal to replace the value of a local attribute. Attempting to
+     * set a local attribute that already contains a value will fail. This is intended to catch
+     * programmer error as early as possible. You may clear a local attribute by setting it to null
+     * and then it can be set to a new value.
+     *
+     * <p> Lastly, note that key polymorphism is implemented to allow a lower level framework to
+     * define a local attribute and users of that framework to extend the attribute class and have
+     * it returned whether the derived or base class is used to look up the attribute. For example:
+     *
+     * <pre>
+     * class BaseLocalAttr {
+     *     public int foo;
+     * }
+     * class DerivedLocalAttr extends BaseLocalAttr {
+     *     public int bar;
+     * }
+     *
+     * // simple usage
+     * DObject o1 = new DObject();
+     * BaseLocalAttr base = new BaseLocalAttr();
+     * o1.setLocalAttribute(BaseLocalAttr.class, base);
+     * assertSame(o1.getLocalAttribute(BaseLocalAttr.class), base); // true
+     *
+     * // polymorphic usage
+     * DObject o2 = new DObject();
+     * DerivedLocalAttr derived = new DerivedLocalAttr();
+     * o2.setLocalAttribute(DerivedLocalAttr.class, derived);
+     * BaseLocalAttr upcasted = derived;
+     * assertSame(o2.getLocalAttribute(DerivedLocalAttr.class), derived); // true
+     * assertSame(o2.getLocalAttribute(BaseLocalAttr.class), upcasted); // true
+     *
+     * // cannot overwrite already set attribute
+     * DObject o3 = new DObject();
+     * o3.setLocalAttribute(DerivedLocalAttr.class, derived);
+     * o3.setLocalAttribute(DerivedLocalAttr.class, new DerivedLocalAttr()); // will fail
+     * o3.setLocalAttribute(BaseLocalAttr.class, new BaseLocalAttr()); // will fail
+     * </pre>
+     *
+     * @exception IllegalStateException thrown if an attempt is made to set a local attribute that
+     * already contains a non-null value with any non-null value.
+     */
+    public <T> void setLocalAttribute (Class<T> key, T attr)
+    {
+        // locate any existing attribute that matches our key
+        for (int ii = 0, ll = _locattrs.length; ii < ll; ii++) {
+            if (key.isInstance(_locattrs[ii])) {
+                if (attr != null) {
+                    throw new IllegalStateException(
+                        "Attribute already exists that matches the supplied key " +
+                        "[key=" + key + ", have=" + _locattrs[ii].getClass());
+                }
+                _locattrs = ArrayUtil.splice(_locattrs, ii, 1);
+                return;
+            }
+        }
+
+        // append our attribute to the end of the list
+        _locattrs = ArrayUtil.append(_locattrs, attr);
+    }
+
+    /**
+     * Retrieves a local attribute for the supplied key. See {@link #setLocalAttribute} for
+     * information on key polymorphism. Returns null if no attribute is found that matches the
+     * supplied key.
+     */
+    public <T> T getLocalAttribute (Class<T> key)
+    {
+        for (Object attr : _locattrs) {
+            if (key.isInstance(attr)) {
+                @SuppressWarnings("unchecked") T casted = (T)attr;
+                return casted;
+            }
+        }
+        return null;
+    }
+
+    /**
      * Generates a concise string representation of this object.
      */
     public String which ()
@@ -909,6 +992,9 @@ public class DObject
     /** Indicates whether we want to be destroyed when our last subscriber is removed. */
     protected transient boolean _deathWish = false;
 
+    /** Any local attributes configured on this object or null. */
+    protected transient Object[] _locattrs = NO_ATTRS;
+
     /** Maintains a mapping of sorted field arrays for each distributed object class. */
     protected static Map<Class<?>, Field[]> _ftable = Maps.newHashMap();
 
@@ -918,4 +1004,7 @@ public class DObject
             return f1.getName().compareTo(f2.getName());
         }
     };
+
+    /** Simplifies code for objects that have no local attributes. */
+    protected static final Object[] NO_ATTRS = {};
 }
