@@ -68,10 +68,11 @@ public class DSetTest extends TestCase
         seed.add(new TestEntry(32));
 
         DSet<TestEntry> set = new DSet<TestEntry>(seed.iterator());
-        System.out.println(set.add(new TestEntry(15)) + ": " + set);
-        System.out.println(set.add(new TestEntry(9)) + ": " + set);
-        System.out.println(set.remove(new TestEntry(32)) + ": " + set);
-        System.out.println(set.add(new TestEntry(32)) + ": " + set);
+        assertFalse(set.add(new TestEntry(15)));
+        assertTrue(set.add(new TestEntry(9)));
+        assertTrue(set.remove(new TestEntry(32)));
+        assertFalse(set.remove(new TestEntry(32)));
+        assertTrue(set.add(new TestEntry(32)));
     }
 
     public static Test suite ()
