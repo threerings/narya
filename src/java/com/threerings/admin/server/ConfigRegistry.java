@@ -29,6 +29,7 @@ import java.util.HashMap;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 
 import com.samskivert.io.ByteArrayOutInputStream;
 import com.samskivert.util.StringUtil;
@@ -136,6 +137,14 @@ public abstract class ConfigRegistry
     protected ObjectInputStream createObjectInputStream (InputStream bin)
     {
         return new ObjectInputStream(bin);
+    }
+
+    /**
+     * Create an ObjectOutputStream to write serialized config entries.
+     */
+    protected ObjectOutputStream createObjectOutputStream (OutputStream bin)
+    {
+        return new ObjectOutputStream(bin);
     }
 
     /**
