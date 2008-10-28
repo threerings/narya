@@ -23,6 +23,7 @@ package com.threerings.crowd.server;
 
 import com.threerings.presents.data.ClientObject;
 import com.threerings.presents.data.PermissionPolicy;
+import com.threerings.presents.server.ClientLocal;
 import com.threerings.presents.server.ClientResolver;
 
 import com.threerings.crowd.data.BodyObject;
@@ -37,6 +38,12 @@ public class CrowdClientResolver extends ClientResolver
     public ClientObject createClientObject ()
     {
         return new BodyObject();
+    }
+
+    @Override
+    public ClientLocal createLocalAttribute ()
+    {
+        return new BodyLocal();
     }
 
     @Override // from ClientResolver

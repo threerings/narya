@@ -367,7 +367,6 @@ public class PresentsClient
     {
         // we'll be keeping this bad boy
         _clobj = clobj;
-        _clobj.setLocal(ClientLocal.class, createLocalAttribute());
 
         // if our connection was closed while we were resolving our client object, then just
         // abandon ship
@@ -422,14 +421,6 @@ public class PresentsClient
 
         // otherwise pass the message on to the dispatcher
         disp.dispatch(this, message);
-    }
-
-    /**
-     * Creates a record that will be maintained only on the server to track client related bits.
-     */
-    protected ClientLocal createLocalAttribute ()
-    {
-        return new ClientLocal();
     }
 
     /**

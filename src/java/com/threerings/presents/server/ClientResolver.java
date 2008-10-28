@@ -73,6 +73,14 @@ public class ClientResolver extends Invoker.Unit
     }
 
     /**
+     * Creates a record that will be maintained only on the server to track client related bits.
+     */
+    public ClientLocal createLocalAttribute ()
+    {
+        return new ClientLocal();
+    }
+
+    /**
      * Creates a permission policy for use by our client.
      */
     public PermissionPolicy createPermissionPolicy ()

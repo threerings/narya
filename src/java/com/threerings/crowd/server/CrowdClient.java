@@ -23,7 +23,6 @@ package com.threerings.crowd.server;
 
 import com.google.inject.Inject;
 
-import com.threerings.presents.server.ClientLocal;
 import com.threerings.presents.server.PresentsClient;
 
 import com.threerings.crowd.chat.server.SpeakUtil;
@@ -35,12 +34,6 @@ import com.threerings.crowd.data.OccupantInfo;
  */
 public class CrowdClient extends PresentsClient
 {
-    @Override
-    protected ClientLocal createLocalAttribute ()
-    {
-        return new BodyLocal();
-    }
-
     @Override
     protected void sessionConnectionClosed ()
     {
