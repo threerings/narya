@@ -25,8 +25,10 @@ import java.lang.reflect.Field;
 
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.List;
 import java.util.Map;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Maps;
 
 import com.samskivert.util.ArrayUtil;
@@ -670,11 +672,11 @@ public class DObject
     }
 
     /**
-     * Returns an enumeration over our local attributes.
+     * Returns an array containing our local attributes.
      */
-    public Iterable<Object> getLocals ()
+    public List<Object> getLocals ()
     {
-        return Arrays.asList(_locattrs);
+        return ImmutableList.of(_locattrs);
     }
 
     /**
