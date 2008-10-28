@@ -613,28 +613,28 @@ public class DObject
      * // simple usage
      * DObject o1 = new DObject();
      * BaseLocalAttr base = new BaseLocalAttr();
-     * o1.setLocalAttribute(BaseLocalAttr.class, base);
-     * assertSame(o1.getLocalAttribute(BaseLocalAttr.class), base); // true
+     * o1.setLocal(BaseLocalAttr.class, base);
+     * assertSame(o1.getLocal(BaseLocalAttr.class), base); // true
      *
      * // polymorphic usage
      * DObject o2 = new DObject();
      * DerivedLocalAttr derived = new DerivedLocalAttr();
-     * o2.setLocalAttribute(DerivedLocalAttr.class, derived);
+     * o2.setLocal(DerivedLocalAttr.class, derived);
      * BaseLocalAttr upcasted = derived;
-     * assertSame(o2.getLocalAttribute(DerivedLocalAttr.class), derived); // true
-     * assertSame(o2.getLocalAttribute(BaseLocalAttr.class), upcasted); // true
+     * assertSame(o2.getLocal(DerivedLocalAttr.class), derived); // true
+     * assertSame(o2.getLocal(BaseLocalAttr.class), upcasted); // true
      *
      * // cannot overwrite already set attribute
      * DObject o3 = new DObject();
-     * o3.setLocalAttribute(DerivedLocalAttr.class, derived);
-     * o3.setLocalAttribute(DerivedLocalAttr.class, new DerivedLocalAttr()); // will fail
-     * o3.setLocalAttribute(BaseLocalAttr.class, new BaseLocalAttr()); // will fail
+     * o3.setLocal(DerivedLocalAttr.class, derived);
+     * o3.setLocal(DerivedLocalAttr.class, new DerivedLocalAttr()); // will fail
+     * o3.setLocal(BaseLocalAttr.class, new BaseLocalAttr()); // will fail
      * </pre>
      *
      * @exception IllegalStateException thrown if an attempt is made to set a local attribute that
      * already contains a non-null value with any non-null value.
      */
-    public <T> void setLocalAttribute (Class<T> key, T attr)
+    public <T> void setLocal (Class<T> key, T attr)
     {
         // locate any existing attribute that matches our key
         for (int ii = 0, ll = _locattrs.length; ii < ll; ii++) {
@@ -658,7 +658,7 @@ public class DObject
      * information on key polymorphism. Returns null if no attribute is found that matches the
      * supplied key.
      */
-    public <T> T getLocalAttribute (Class<T> key)
+    public <T> T getLocal (Class<T> key)
     {
         for (Object attr : _locattrs) {
             if (key.isInstance(attr)) {

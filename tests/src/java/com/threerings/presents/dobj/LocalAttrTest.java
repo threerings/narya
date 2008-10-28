@@ -24,8 +24,8 @@ public class LocalAttrTest
     {
         DObject o1 = new DObject();
         BaseLocalAttr base = new BaseLocalAttr();
-        o1.setLocalAttribute(BaseLocalAttr.class, base);
-        assertSame(o1.getLocalAttribute(BaseLocalAttr.class), base);
+        o1.setLocal(BaseLocalAttr.class, base);
+        assertSame(o1.getLocal(BaseLocalAttr.class), base);
     }
 
     @Test public void testPoly ()
@@ -33,22 +33,22 @@ public class LocalAttrTest
         // polymorphic usage
         DObject o2 = new DObject();
         DerivedLocalAttr derived = new DerivedLocalAttr();
-        o2.setLocalAttribute(DerivedLocalAttr.class, derived);
+        o2.setLocal(DerivedLocalAttr.class, derived);
         BaseLocalAttr upcasted = derived;
-        assertSame(o2.getLocalAttribute(DerivedLocalAttr.class), derived);
-        assertSame(o2.getLocalAttribute(BaseLocalAttr.class), upcasted);
+        assertSame(o2.getLocal(DerivedLocalAttr.class), derived);
+        assertSame(o2.getLocal(BaseLocalAttr.class), upcasted);
 
         // cannot overwrite already set attribute
         DObject o3 = new DObject();
-        o3.setLocalAttribute(DerivedLocalAttr.class, derived);
+        o3.setLocal(DerivedLocalAttr.class, derived);
         try {
-            o3.setLocalAttribute(DerivedLocalAttr.class, new DerivedLocalAttr());
+            o3.setLocal(DerivedLocalAttr.class, new DerivedLocalAttr());
             fail("Object allowed attribute overwrite.");
         } catch (IllegalStateException ise) {
             // good
         }
         try {
-            o3.setLocalAttribute(BaseLocalAttr.class, new BaseLocalAttr());
+            o3.setLocal(BaseLocalAttr.class, new BaseLocalAttr());
             fail("Object allowed polymorhic attribute overwrite.");
         } catch (IllegalStateException ise) {
             // good
@@ -59,13 +59,13 @@ public class LocalAttrTest
     {
         DObject o1 = new DObject();
         BaseLocalAttr base = new BaseLocalAttr();
-        o1.setLocalAttribute(BaseLocalAttr.class, base);
-        assertSame(o1.getLocalAttribute(BaseLocalAttr.class), base);
-        o1.setLocalAttribute(BaseLocalAttr.class, null);
-        assertNull(o1.getLocalAttribute(BaseLocalAttr.class));
+        o1.setLocal(BaseLocalAttr.class, base);
+        assertSame(o1.getLocal(BaseLocalAttr.class), base);
+        o1.setLocal(BaseLocalAttr.class, null);
+        assertNull(o1.getLocal(BaseLocalAttr.class));
         BaseLocalAttr nbase = new BaseLocalAttr();
-        o1.setLocalAttribute(BaseLocalAttr.class, nbase);
-        assertNotSame(o1.getLocalAttribute(BaseLocalAttr.class), base);
-        assertSame(o1.getLocalAttribute(BaseLocalAttr.class), nbase);
+        o1.setLocal(BaseLocalAttr.class, nbase);
+        assertNotSame(o1.getLocal(BaseLocalAttr.class), base);
+        assertSame(o1.getLocal(BaseLocalAttr.class), nbase);
     }
 }
