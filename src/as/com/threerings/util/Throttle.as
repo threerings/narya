@@ -77,9 +77,12 @@ public class Throttle
     public function reinit (operations :int, period :int) :void
     {
         var ops :Array = ArrayUtil.create(operations, 0);
-        // copy up to 'operations' of our most recent operations into our new array
-        for (var ii :int = 0; ii < operations; ii++) {
-            ops[operations-ii-1] = _ops[(_oldestOp + _ops.length - ii - 1) % _ops.length];
+        // copy as much as we can of our most recent operations into our new array
+        var copyCount :int = Math.min(operations, _ops.length);
+        var srcOffset :int = _oldestOp + _ops.length*2 - 1; // need *2 to prevent copying _ops[-1]
+        var destOffset :int = operations-1;
+        for (var ii :int = 0; ii < copyCount; ii++) {
+            ops[destOffset-ii] = _ops[(srcOffset-ii) % _ops.length];
         }
         _oldestOp = Math.max(0, operations-_ops.length);
         _ops = ops;
@@ -158,6 +161,19 @@ public class Throttle
     {
         var oldest :int = getTimer() - _ops[_oldestOp];
         return _ops.length + " ops per " + _period + "ms (oldest " + oldest + ")";
+    }
+
+    /**
+     * For debugging, includes the age of all operations.
+     */
+    public function opsToString () :String
+    {
+        var now :int = getTimer();
+        var ages :Array = []
+        for (var ii :int = 0; ii < _ops.length; ++ii) {
+            ages.push(now - _ops[(_oldestOp + ii) % _ops.length]);
+        }
+        return "[" + StringUtil.toString(ages) + "] [Oldest idx = " + _oldestOp + "]";
     }
 
     protected var _ops :Array;
