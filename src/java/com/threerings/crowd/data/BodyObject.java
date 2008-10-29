@@ -87,15 +87,6 @@ public class BodyObject extends ClientObject
     }
 
     /**
-     * Returns the name that should be used for the chat system. The default is to use {@link
-     * #username}.
-     */
-    public Name getChatName ()
-    {
-        return getVisibleName();
-    }
-
-    /**
      * Creates a blank occupant info instance that will used to publish information about the
      * various bodies occupying a place.
      */

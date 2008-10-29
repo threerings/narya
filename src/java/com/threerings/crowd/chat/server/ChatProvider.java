@@ -154,7 +154,7 @@ public class ChatProvider
         // make sure the requesting user has broadcast privileges
         InvocationException.requireAccess(caller, ChatCodes.BROADCAST_ACCESS);
         BodyObject body = (BodyObject)caller;
-        broadcast(body.getChatName(), null, message, false, true);
+        broadcast(body.getVisibleName(), null, message, false, true);
     }
 
     /**
@@ -256,7 +256,7 @@ public class ChatProvider
      */
     protected UserMessage createTellMessage (BodyObject source, String message)
     {
-        return new UserMessage(source.getChatName(), message);
+        return new UserMessage(source.getVisibleName(), message);
     }
 
     /**

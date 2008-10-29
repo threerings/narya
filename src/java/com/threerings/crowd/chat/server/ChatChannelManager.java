@@ -90,7 +90,7 @@ public abstract class ChatChannelManager
     public void speak (ClientObject caller, final ChatChannel channel, String message, byte mode)
     {
         final UserMessage umsg = new UserMessage(
-            ((BodyObject)caller).getChatName(), null, message, mode);
+            ((BodyObject)caller).getVisibleName(), null, message, mode);
 
         // if we're hosting this channel, dispatch it directly
         if (_channels.containsKey(channel)) {
