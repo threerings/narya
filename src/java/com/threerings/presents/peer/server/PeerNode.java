@@ -189,7 +189,7 @@ public class PeerNode
     // documentation inherited from interface ClientObserver
     public void clientDidLogoff (Client client)
     {
-        _peermgr.peerDidLogoff(this);
+        _peermgr.disconnectedFromPeer(this);
         nodeobj = null;
     }
 
@@ -206,7 +206,7 @@ public class PeerNode
         nodeobj = object;
         nodeobj.addListener(this);
 
-        _peermgr.peerDidLogon(this);
+        _peermgr.connectedToPeer(this);
     }
 
     // documentation inherited from interface Subscriber

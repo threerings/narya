@@ -977,9 +977,9 @@ public abstract class PeerManager
     }
 
     /**
-     * Called when a peer connects to this server.
+     * Called when we have established a connection to the supplied peer.
      */
-    protected void peerDidLogon (PeerNode peer)
+    protected void connectedToPeer (PeerNode peer)
     {
         // check for lock conflicts
         for (NodeObject.Lock lock : peer.nodeobj.locks) {
@@ -998,9 +998,9 @@ public abstract class PeerManager
     }
 
     /**
-     * Called when a peer disconnects from this server.
+     * Called when a ended our session with the supplied peer.
      */
-    protected void peerDidLogoff (PeerNode peer)
+    protected void disconnectedFromPeer (PeerNode peer)
     {
         // clear any locks held by that peer
         for (LockHandler handler : _locks.values().toArray(new LockHandler[_locks.size()])) {
