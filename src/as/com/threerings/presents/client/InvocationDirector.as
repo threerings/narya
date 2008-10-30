@@ -27,6 +27,7 @@ import flash.utils.getTimer; // function import
 import com.threerings.util.Boxed;
 import com.threerings.util.HashMap;
 import com.threerings.util.Log;
+import com.threerings.util.Short;
 
 import com.threerings.presents.data.InvocationMarshaller_ListenerMarshaller;
 
@@ -340,11 +341,22 @@ public class InvocationDirector
     }
 
     /**
-     * Used to generate monotonically increasing invocation request ids.
+     * Used to generate (almost) monotonically increasing invocation request ids. The ids wrap
+     * around to Short.MIN_VALUE after Short.MAX_VALUE is reached.
      */
     protected function nextRequestId () :int
     {
-        return _requestId++;
+        // post increment with wraparound - this is necessary because the request id is
+        // serialized as a java short in all instances. since action script does not appear
+        // to support sign extension, wraparound in the integer domain explicitly. This will
+        // make the values in our _listeners map reliable. Cleverer ways to wrapround may exist.
+        var current :int = _requestId;
+        if (_requestId == Short.MAX_VALUE) { // x7fff
+            _requestId = -Short.MIN_VALUE; // x8000
+        } else {
+            _requestId++;
+        }
+        return current;
     }
 
     /**
