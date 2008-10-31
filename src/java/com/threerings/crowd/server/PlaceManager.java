@@ -75,7 +75,7 @@ import static com.threerings.crowd.Log.log;
  * well as through event listeners.
  */
 public class PlaceManager
-    implements MessageListener, OidListListener, ObjectDeathListener, SpeakHandler.SpeakerValidator
+    implements MessageListener, SpeakHandler.SpeakerValidator
 {
     /**
      * An interface used to allow the registration of standard message handlers to be invoked by
@@ -269,6 +269,8 @@ public class PlaceManager
         // we'll need to hear about place object events
         plobj.addListener(this);
         plobj.addListener(_bodyUpdater);
+        plobj.addListener(_occListener);
+        plobj.addListener(_deathListener);
 
         // configure this place's access controller
         plobj.setAccessController(getAccessController());
@@ -401,36 +403,6 @@ public class PlaceManager
         }
     }
 
-    // from interface OidListListener
-    public void objectAdded (ObjectAddedEvent event)
-    {
-        if (event.getName().equals(PlaceObject.OCCUPANTS)) {
-            bodyEntered(event.getOid());
-        }
-    }
-
-    // from interface OidListListener
-    public void objectRemoved (ObjectRemovedEvent event)
-    {
-        if (event.getName().equals(PlaceObject.OCCUPANTS)) {
-            bodyLeft(event.getOid());
-        }
-    }
-
-    // from interface ObjectDeathListener
-    public void objectDestroyed (ObjectDestroyedEvent event)
-    {
-        // unregister ourselves
-        _registry.unmapPlaceManager(this);
-
-        // let our derived classes and delegates shut themselves down
-        try {
-            didShutdown();
-        } catch (Throwable t) {
-            log.warning("Manager choked in didShutdown()", "where", where(), t);
-        }
-    }
-
     // documentation inherited from interface
     public boolean isValidSpeaker (DObject speakObj, ClientObject speaker, byte mode)
     {
@@ -556,6 +528,8 @@ public class PlaceManager
         // clear out our listenership
         _plobj.removeListener(this);
         _plobj.removeListener(_bodyUpdater);
+        _plobj.removeListener(_occListener);
+        _plobj.removeListener(_deathListener);
 
         // let our delegates know that we've shut down
         applyToDelegates(new DelegateOp(PlaceManagerDelegate.class) {
@@ -614,8 +588,7 @@ public class PlaceManager
 
         // let our delegates know what's up
         applyToDelegates(new DelegateOp(PlaceManagerDelegate.class) {
-            @Override
-            public void apply (PlaceManagerDelegate delegate) {
+            @Override public void apply (PlaceManagerDelegate delegate) {
                 delegate.bodyLeft(bodyOid);
             }
         });
@@ -724,6 +697,35 @@ public class PlaceManager
         public void entryUpdated (EntryUpdatedEvent<OccupantInfo> event) {
             if (event.getName().equals(PlaceObject.OCCUPANT_INFO)) {
                 bodyUpdated(event.getEntry());
+            }
+        }
+    };
+
+    /** Listens for body entry and departure. */
+    protected OidListListener _occListener = new OidListListener() {
+        public void objectAdded (ObjectAddedEvent event) {
+            if (event.getName().equals(PlaceObject.OCCUPANTS)) {
+                bodyEntered(event.getOid());
+            }
+        }
+        public void objectRemoved (ObjectRemovedEvent event) {
+            if (event.getName().equals(PlaceObject.OCCUPANTS)) {
+                bodyLeft(event.getOid());
+            }
+        }
+    };
+
+    /** Listens for death of our place object. */
+    protected ObjectDeathListener _deathListener = new ObjectDeathListener() {
+        public void objectDestroyed (ObjectDestroyedEvent event) {
+            // unregister ourselves
+            _registry.unmapPlaceManager(PlaceManager.this);
+
+            // let our derived classes and delegates shut themselves down
+            try {
+                didShutdown();
+            } catch (Throwable t) {
+                log.warning("Manager choked in didShutdown()", "where", where(), t);
             }
         }
     };
