@@ -23,6 +23,7 @@ package com.threerings.presents.util;
 
 import com.samskivert.util.StringUtil;
 
+import com.threerings.presents.dobj.ChangeListener;
 import com.threerings.presents.dobj.DObject;
 import com.threerings.presents.dobj.DObjectManager;
 import com.threerings.presents.dobj.ObjectAccessException;
@@ -31,10 +32,9 @@ import com.threerings.presents.dobj.Subscriber;
 import static com.threerings.presents.Log.log;
 
 /**
- * A class that safely handles the asynchronous subscription to a
- * distributed object when it is not know if the subscription will
- * complete before the subscriber decides they no longer wish to be
- * subscribed.
+ * A class that safely handles the asynchronous subscription to a distributed object when it is
+ * not know if the subscription will complete before the subscriber decides they no longer wish to
+ * be subscribed.
  *
  * @param <T> the type of object to which we are subscribing.
  */
@@ -42,10 +42,12 @@ public class SafeSubscriber<T extends DObject>
     implements Subscriber<T>
 {
     /**
-     * Creates a safe subscriber for the specified distributed object
-     * which will interact with the specified subscriber.
+     * Creates a safe subscriber for the specified distributed object which will interact with the
+     * specified subscriber. If any listeners are given, they'll be added as listeners to the
+     * distributed object after the subscriber is told it's available, and will be removed when
+     * unsubscribing from the object.
      */
-    public SafeSubscriber (int oid, Subscriber<T> subscriber)
+    public SafeSubscriber (int oid, Subscriber<T> subscriber, ChangeListener...listeners)
     {
         // make sure they're not fucking us around
         if (oid <= 0) {
@@ -149,6 +151,11 @@ public class SafeSubscriber<T extends DObject>
             return;
         }
 
+        // clear out any listeners we added
+        for (ChangeListener listener : _listeners) {
+            _object.removeListener(listener);
+        }
+
         // finally effect our unsubscription
         _object = null;
         omgr.unsubscribeFromObject(_oid, this);
@@ -188,6 +195,9 @@ public class SafeSubscriber<T extends DObject>
         // otherwise the air is fresh and clean and we can do our job
         _object = object;
         _subscriber.objectAvailable(object);
+        for (ChangeListener listener : _listeners) {
+            _object.addListener(listener);
+        }
     }
 
     // documentation inherited from interface
@@ -219,6 +229,7 @@ public class SafeSubscriber<T extends DObject>
             ", dobj=" + StringUtil.shortClassName(_object) + "]";
     }
 
+    protected ChangeListener[] _listeners;
     protected int _oid;
     protected Subscriber<T> _subscriber;
     protected T _object;
