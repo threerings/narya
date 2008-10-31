@@ -61,6 +61,7 @@ public class SafeSubscriber<T extends DObject>
 
         _oid = oid;
         _subscriber = subscriber;
+        _listeners = listeners;
     }
 
     /**
