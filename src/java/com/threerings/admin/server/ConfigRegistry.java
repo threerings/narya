@@ -373,7 +373,7 @@ public abstract class ConfigRegistry
         protected void serialize (String name, String key, Object value)
         {
             ByteArrayOutInputStream out = new ByteArrayOutInputStream();
-            ObjectOutputStream oout = new ObjectOutputStream(out);
+            ObjectOutputStream oout = createObjectOutputStream(out);
             try {
                 oout.writeObject(value);
                 oout.flush();
