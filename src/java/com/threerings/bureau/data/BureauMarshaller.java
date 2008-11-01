@@ -68,8 +68,19 @@ public class BureauMarshaller extends InvocationMarshaller
         });
     }
 
+    /** The method id used to dispatch {@link #bureauError} requests. */
+    public static final int BUREAU_ERROR = 4;
+
+    // from interface BureauService
+    public void bureauError (Client arg1, String arg2)
+    {
+        sendRequest(arg1, BUREAU_ERROR, new Object[] {
+            arg2
+        });
+    }
+
     /** The method id used to dispatch {@link #bureauInitialized} requests. */
-    public static final int BUREAU_INITIALIZED = 4;
+    public static final int BUREAU_INITIALIZED = 5;
 
     // from interface BureauService
     public void bureauInitialized (Client arg1, String arg2)

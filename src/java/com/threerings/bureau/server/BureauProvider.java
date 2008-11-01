@@ -46,6 +46,11 @@ public interface BureauProvider extends InvocationProvider
     void agentDestroyed (ClientObject caller, int arg1);
 
     /**
+     * Handles a {@link BureauService#bureauError} request.
+     */
+    void bureauError (ClientObject caller, String arg1);
+
+    /**
      * Handles a {@link BureauService#bureauInitialized} request.
      */
     void bureauInitialized (ClientObject caller, String arg1);

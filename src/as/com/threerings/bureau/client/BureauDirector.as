@@ -39,6 +39,14 @@ public class BureauDirector extends BasicDirector
     }
 
     /**
+     * Lets the server know that a fatal error has occurred and the bureau needs to be terminated.
+     */
+    public function fatalError (message :String) :void
+    {
+        _bureauService.bureauError(_ctx.getClient(), message);
+    }
+
+    /**
      * Creates a new agent when the server requests it.
      */
     protected function createAgentFromId (agentId :int) :void

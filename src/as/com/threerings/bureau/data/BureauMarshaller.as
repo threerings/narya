@@ -69,8 +69,19 @@ public class BureauMarshaller extends InvocationMarshaller
         ]);
     }
 
+    /** The method id used to dispatch <code>bureauError</code> requests. */
+    public static const BUREAU_ERROR :int = 4;
+
+    // from interface BureauService
+    public function bureauError (arg1 :Client, arg2 :String) :void
+    {
+        sendRequest(arg1, BUREAU_ERROR, [
+            arg2
+        ]);
+    }
+
     /** The method id used to dispatch <code>bureauInitialized</code> requests. */
-    public static const BUREAU_INITIALIZED :int = 4;
+    public static const BUREAU_INITIALIZED :int = 5;
 
     // from interface BureauService
     public function bureauInitialized (arg1 :Client, arg2 :String) :void

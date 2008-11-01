@@ -101,6 +101,9 @@ public class BureauRegistry
             public void bureauInitialized (ClientObject client, String bureauId) {
                 BureauRegistry.this.bureauInitialized(client, bureauId);
             }
+            public void bureauError (ClientObject caller, String message) {
+                BureauRegistry.this.bureauError(caller, message);
+            }
             public void agentCreated (ClientObject client, int agentId) {
                 BureauRegistry.this.agentCreated(client, agentId);
             }
@@ -396,6 +399,22 @@ public class BureauRegistry
         bureau.summarize();
     }
 
+    protected void bureauError (ClientObject caller, String message)
+    {
+        for (Bureau bureau : _bureaus.values()) {
+            if (bureau.clientObj == caller) {
+                log.info(
+                    "Bureau error occurred", "caller", caller.who(), "message", message,
+                    "bureau", bureau.bureauId);
+                bureau.client.endSession();
+                return;
+            }
+        }
+        log.warning(
+            "Bureau error occurred in unregistered bureau", "caller", caller.who(),
+            "message", message);
+    }
+    
     /**
      * Callback for when the bureau client acknowledges the creation of an agent.
      */

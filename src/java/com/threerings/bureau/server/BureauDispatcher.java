@@ -70,6 +70,12 @@ public class BureauDispatcher extends InvocationDispatcher<BureauMarshaller>
             );
             return;
 
+        case BureauMarshaller.BUREAU_ERROR:
+            ((BureauProvider)provider).bureauError(
+                source, (String)args[0]
+            );
+            return;
+
         case BureauMarshaller.BUREAU_INITIALIZED:
             ((BureauProvider)provider).bureauInitialized(
                 source, (String)args[0]

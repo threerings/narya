@@ -39,6 +39,9 @@ public interface BureauService extends InvocationService
     function agentDestroyed (arg1 :Client, arg2 :int) :void;
 
     // from Java interface BureauService
+    function bureauError (arg1 :Client, arg2 :String) :void;
+
+    // from Java interface BureauService
     function bureauInitialized (arg1 :Client, arg2 :String) :void;
 }
 }
