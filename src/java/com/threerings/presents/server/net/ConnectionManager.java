@@ -446,7 +446,7 @@ public class ConnectionManager extends LoopingThread
         // send any messages that are waiting on the outgoing overflow and message queues
         sendOutgoingMessages(iterStamp);
 
-        // if we have been shutdown, but we're stick around because the DObjectManager is still
+        // if we have been shutdown, but we're still around because the DObjectManager is still
         // running (and we want to deliver any outgoing events queued up during shutdown), then we
         // stop here, because we've delivered outgoing events on this tick and all that remains
         // below is accepting new connections and receiving incoming messages, neither of which we
