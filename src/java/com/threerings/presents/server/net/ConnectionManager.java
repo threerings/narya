@@ -857,7 +857,7 @@ public class ConnectionManager extends LoopingThread
     void postMessage (Connection conn, DownstreamMessage msg)
     {
         if (!isRunning()) {
-            throw new IllegalStateException("Connection manager has been shutdown");
+            log.warning("Posting message to inactive connection manager", new Exception());
         }
         
         // sanity check

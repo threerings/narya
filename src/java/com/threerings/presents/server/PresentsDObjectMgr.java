@@ -202,7 +202,7 @@ public class PresentsDObjectMgr
     public void postEvent (DEvent event)
     {
         if (!_running) {
-            throw new IllegalStateException("Object manager has been shutdown");
+            log.warning("Posting message to inactive object manager", new Exception());
         }
 
         // assign the event's id and append it to the queue
@@ -278,7 +278,7 @@ public class PresentsDObjectMgr
     public void postRunnable (Runnable unit)
     {
         if (!_running) {
-            throw new IllegalStateException("Object manager has been shutdown");
+            log.warning("Posting runnable to inactive object manager", new Exception());
         }
 
         // just append it to the queue
