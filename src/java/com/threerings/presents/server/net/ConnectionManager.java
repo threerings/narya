@@ -866,7 +866,8 @@ public class ConnectionManager extends LoopingThread
     void postMessage (Connection conn, DownstreamMessage msg)
     {
         if (!isRunning()) {
-            log.warning("Posting message to inactive connection manager", new Exception());
+            log.warning(
+                "Posting message to inactive connection manager", "msg", msg, new Exception());
         }
 
         // sanity check

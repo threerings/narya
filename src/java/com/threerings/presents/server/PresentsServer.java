@@ -161,14 +161,8 @@ public class PresentsServer
         
         // Make the client manager shut down before the invoker and dobj threads. This will help
         // application code to avoid long chains of shutdown constraints (e.g. msoy bureau manager).
-        // TODO: is this check needed?
-        if (_invoker instanceof PresentsInvoker) {
-            _shutmgr.addConstraint(
-                _clmgr, ShutdownManager.Constraint.RUNS_BEFORE, (PresentsInvoker)_invoker);
-
-        } else {
-            log.warning("Invoker is not a PresentsInvoker", "invoker", _invoker);
-        }
+        _shutmgr.addConstraint(
+            _clmgr, ShutdownManager.Constraint.RUNS_BEFORE, (PresentsInvoker)_invoker);
     }
 
     /**

@@ -202,7 +202,8 @@ public class PresentsDObjectMgr
     public void postEvent (DEvent event)
     {
         if (!_running) {
-            log.warning("Posting message to inactive object manager", new Exception());
+            log.warning(
+                "Posting message to inactive object manager", "event", event, new Exception());
         }
 
         // assign the event's id and append it to the queue
@@ -278,7 +279,8 @@ public class PresentsDObjectMgr
     public void postRunnable (Runnable unit)
     {
         if (!_running) {
-            log.warning("Posting runnable to inactive object manager", new Exception());
+            log.warning(
+                "Posting runnable to inactive object manager", "unit", unit, new Exception());
         }
 
         // just append it to the queue
