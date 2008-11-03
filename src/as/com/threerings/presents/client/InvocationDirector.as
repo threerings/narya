@@ -352,7 +352,7 @@ public class InvocationDirector
         // make the values in our _listeners map reliable. Cleverer ways to wrapround may exist.
         var current :int = _requestId;
         if (_requestId == Short.MAX_VALUE) { // x7fff
-            _requestId = -Short.MIN_VALUE; // x8000
+            _requestId = Short.MIN_VALUE; // x8000
         } else {
             _requestId++;
         }
