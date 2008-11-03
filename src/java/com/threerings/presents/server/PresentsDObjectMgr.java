@@ -201,6 +201,10 @@ public class PresentsDObjectMgr
     // from interface DObjectManager
     public void postEvent (DEvent event)
     {
+        if (!_running) {
+            throw new IllegalStateException("Object manager has been shutdown");
+        }
+
         // assign the event's id and append it to the queue
         event.eventId = getNextEventId(true);
         _evqueue.append(event);
@@ -273,6 +277,10 @@ public class PresentsDObjectMgr
      */
     public void postRunnable (Runnable unit)
     {
+        if (!_running) {
+            throw new IllegalStateException("Object manager has been shutdown");
+        }
+
         // just append it to the queue
         _evqueue.append(unit);
     }
@@ -564,6 +572,15 @@ public class PresentsDObjectMgr
     }
 
     /**
+     * Tests if the event processing thread is still running. This is required by the
+     * {@link ConnectionManager} to ensure messages posted just before or during shutdown are sent.
+     */
+    public synchronized boolean isRunning ()
+    {
+        return _running;
+    }
+
+    /**
      * Processes a single unit from the queue.
      */
     protected void processUnit (Object unit)
@@ -788,11 +805,6 @@ public class PresentsDObjectMgr
 //        } else {
 //            log.info("Cleared out reference " + ref + ".");
         }
-    }
-
-    protected synchronized boolean isRunning ()
-    {
-        return _running;
     }
 
     protected int getNextOid ()

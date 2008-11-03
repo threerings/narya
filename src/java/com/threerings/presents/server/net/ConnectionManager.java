@@ -255,6 +255,13 @@ public class ConnectionManager extends LoopingThread
         report.append(avgOut).append(" avg size, ");
         report.append(bytesOut*1000/sinceLast).append(" bps\n");
     }
+    
+    @Override // from LoopingThread
+    public boolean isRunning ()
+    {
+        // Prevent exiting our thread until the object manager is done.
+        return super.isRunning() || _omgr.isRunning();
+    }
 
     /**
      * Notifies the connection observers of a connection event. Used internally.
@@ -722,6 +729,9 @@ public class ConnectionManager extends LoopingThread
         sendOutgoingMessages(System.currentTimeMillis());
 
         // unbind our listening socket
+        // Note: because we wait for the object manager to exit before we do, we will still be
+        // accepting connections as long as there are events pending.
+        // TODO: consider shutting down the listen socker earlier, like in the shutdown method
         try {
             _ssocket.socket().close();
         } catch (IOException ioe) {
@@ -846,6 +856,10 @@ public class ConnectionManager extends LoopingThread
      */
     void postMessage (Connection conn, DownstreamMessage msg)
     {
+        if (!isRunning()) {
+            throw new IllegalStateException("Connection manager has been shutdown");
+        }
+        
         // sanity check
         if (conn == null || msg == null) {
             log.warning("postMessage() bogosity", "conn", conn, "msg", msg, new Exception());
