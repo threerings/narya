@@ -255,7 +255,7 @@ public class ConnectionManager extends LoopingThread
         report.append(avgOut).append(" avg size, ");
         report.append(bytesOut*1000/sinceLast).append(" bps\n");
     }
-    
+
     @Override // from LoopingThread
     public boolean isRunning ()
     {
@@ -445,6 +445,15 @@ public class ConnectionManager extends LoopingThread
 
         // send any messages that are waiting on the outgoing overflow and message queues
         sendOutgoingMessages(iterStamp);
+
+        // if we have been shutdown, but we're stick around because the DObjectManager is still
+        // running (and we want to deliver any outgoing events queued up during shutdown), then we
+        // stop here, because we've delivered outgoing events on this tick and all that remains
+        // below is accepting new connections and receiving incoming messages, neither of which we
+        // want to do during the shutdown process
+        if (!super.isRunning()) {
+            return;
+        }
 
         // check for connections that have completed authentication
         AuthingConnection conn;
@@ -859,7 +868,7 @@ public class ConnectionManager extends LoopingThread
         if (!isRunning()) {
             log.warning("Posting message to inactive connection manager", new Exception());
         }
-        
+
         // sanity check
         if (conn == null || msg == null) {
             log.warning("postMessage() bogosity", "conn", conn, "msg", msg, new Exception());
