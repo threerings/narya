@@ -26,5 +26,19 @@ package com.threerings.presents.net;
  */
 public class ThrottleUpdatedMessage extends UpstreamMessage
 {
-    // nothing needed
+    /** The number of messages allowed per second. */
+    public final int messagesPerSec;
+
+    /**
+     * Zero argument constructor used when unserializing an instance.
+     */
+    public ThrottleUpdatedMessage ()
+    {
+        this.messagesPerSec = 0;
+    }
+
+    public ThrottleUpdatedMessage (int messagesPerSec)
+    {
+        this.messagesPerSec = messagesPerSec;
+    }
 }

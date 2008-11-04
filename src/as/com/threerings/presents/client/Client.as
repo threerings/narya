@@ -414,8 +414,14 @@ public class Client extends EventDispatcher
 
     internal function setOutgoingMessageThrottle (messagesPerSec :int) :void
     {
+        _comm.postMessage(new ThrottleUpdatedMessage(messagesPerSec));
+    }
+
+    internal function finalizeOutgoingMessageThrottle (messagesPerSec :int) :void
+    {
+        // when the throttle update message goes out to the server
         _outThrottle.reinit(messagesPerSec, 1000);
-        _comm.postMessage(new ThrottleUpdatedMessage());
+        log.info("Updated outgoing throttle", "messagesPerSec", messagesPerSec);
     }
 
     internal function getOutgoingMessageThrottle () :Throttle

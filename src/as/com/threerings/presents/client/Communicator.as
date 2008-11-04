@@ -45,6 +45,7 @@ import com.threerings.presents.net.AuthResponseData;
 import com.threerings.presents.net.DownstreamMessage;
 import com.threerings.presents.net.LogoffRequest;
 import com.threerings.presents.net.UpstreamMessage;
+import com.threerings.presents.net.ThrottleUpdatedMessage;
 
 public class Communicator
 {
@@ -192,6 +193,8 @@ public class Communicator
             // if this was a logoff request, shutdown
             if (msg is LogoffRequest) {
                 shutdown(null);
+            } else if (msg is ThrottleUpdatedMessage) {
+                _client.finalizeOutgoingMessageThrottle(ThrottleUpdatedMessage(msg).messagesPerSec);
             }
         }
     }

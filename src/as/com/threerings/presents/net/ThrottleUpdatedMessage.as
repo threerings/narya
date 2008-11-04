@@ -21,10 +21,25 @@
 
 package com.threerings.presents.net {
 
+import com.threerings.io.ObjectOutputStream;
+
 /**
  * Notifies the server that the client has received its UpdateThrottleMessage.
  */
 public class ThrottleUpdatedMessage extends UpstreamMessage
 {
+    /** The number of messages allowed per second. */
+    public var messagesPerSec :int;
+
+    public function ThrottleUpdatedMessage (messagesPerSec :int = 0)
+    {
+        this.messagesPerSec = messagesPerSec;
+    }
+
+    override public function writeObject (outs :ObjectOutputStream) :void
+    {
+        super.writeObject(outs);
+        outs.writeInt(messagesPerSec);
+    }
 }
 }
