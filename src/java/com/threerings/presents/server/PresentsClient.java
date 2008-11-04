@@ -190,7 +190,9 @@ public class PresentsClient
     @EventThread
     public void setIncomingMessageThrottle (int messagesPerSec)
     {
-        _pendingThrottles.add(messagesPerSec);
+        synchronized(_pendingThrottles) {
+            _pendingThrottles.add(messagesPerSec);
+        }
         postMessage(new UpdateThrottleMessage(messagesPerSec));
         // when we get a ThrottleUpdatedMessage from the client, we'll apply the new throttle
     }
@@ -849,23 +851,23 @@ public class PresentsClient
      */
     protected void throttleUpdated ()
     {
-        _omgr.postRunnable(new Runnable() {
-            public void run () {
-                if (_pendingThrottles.size() == 0) {
-                    log.warning("Received throttleUpdated but have no pending throttles",
-                                "client", this);
-                    return;
-                }
-                int messagesPerSec = _pendingThrottles.remove(0);
-                log.info("Applying updated throttle", "client", this, "msgsPerSec", messagesPerSec);
-                // we set our hard throttle over a 10 second period instead of a 1 second period to
-                // account for periods of network congestion that might cause otherwise properly
-                // throttled messages to bunch up while they're "on the wire"; we also add a one
-                // message buffer so that if the client is right up against the limit, we don't end
-                // up quibbling over a couple of milliseconds
-                _throttle.reinit(10*messagesPerSec+1, 10*1000L);
+        int messagesPerSec;
+        synchronized(_pendingThrottles) {
+            if (_pendingThrottles.size() == 0) {
+                log.warning("Received throttleUpdated but have no pending throttles",
+                            "client", this);
+                return;
             }
-        });
+            messagesPerSec = _pendingThrottles.remove(0);
+        }
+
+        log.info("Applying updated throttle", "client", this, "msgsPerSec", messagesPerSec);
+        // We set our hard throttle over a 10 second period instead of a 1 second period to
+        // account for periods of network congestion that might cause otherwise properly
+        // throttled messages to bunch up while they're "on the wire"; we also add a one
+        // message buffer so that if the client is right up against the limit, we don't end
+        // up quibbling over a couple of milliseconds
+        _throttle.reinit(10*messagesPerSec+1, 10*1000L);
     }
 
     @Override
