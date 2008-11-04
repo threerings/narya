@@ -228,6 +228,14 @@ public class ArrayUtil
         return true;
     }
 
+    /**
+     * Copy a segment of one array to another.
+     * @param src the array to copy from
+     * @param srcoffset the position in the source array to begin copying from
+     * @param dst the array to copy into
+     * @param dstoffset the position in the destition array to begin copying into
+     * @param count the number of elements to copy
+     */
     public static function copy (
         src :Array, srcoffset :uint, dst :Array, dstoffset :uint, count :uint) :void
     {

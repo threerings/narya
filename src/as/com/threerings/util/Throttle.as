@@ -83,6 +83,7 @@ public class Throttle
             // copy to a larger buffer, leaving zeroes at the beginning
             oldestOp = _oldestOp + operations - _ops.length;
             ArrayUtil.copy(_ops, 0, ops, 0, _oldestOp);
+            ArrayUtil.copy(_ops, _oldestOp, ops, oldestOp, _ops.length - _oldestOp);
 
         } else if (operations < _ops.length) {
             // copy to a smaller buffer, truncating older operations
