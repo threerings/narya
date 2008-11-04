@@ -78,9 +78,7 @@
          <max-glyphs-per-face>1000</max-glyphs-per-face>
       </fonts>
       <!-- compiler.headless-server: a flag to set when Flex is running on a server without a display-->
-      <!-- compiler.headless-server usage:
-      <headless-server>boolean</headless-server>
-      -->
+      <headless-server>true</headless-server>
       <!-- compiler.include-libraries: a list of libraries (SWCs) to completely include in the SWF-->
       <!-- compiler.include-libraries usage:
       <include-libraries>
