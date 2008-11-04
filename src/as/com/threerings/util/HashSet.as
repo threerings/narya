@@ -76,6 +76,13 @@ public class HashSet
         return (_hashMap.containsKey(o));
     }
 
+    public function forEach (fn :Function) :void
+    {
+        _hashMap.forEach(function (key :Object, val :Object) :void {
+            fn(key);
+        });
+    }
+
     public function size () :int
     {
         return (_hashMap.size());

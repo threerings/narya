@@ -41,6 +41,9 @@ public interface Set
     /** Returns true if this set contains the specified element. */
     function contains (o :Object) :Boolean;
 
+    /** Call the specified function, which accepts an element as an argument. */
+    function forEach (fn :Function) :void;
+
     /** Retuns the number of elements in this set. */
     function size () :int; // @TSC - should this be uint?
 
