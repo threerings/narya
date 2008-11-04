@@ -263,11 +263,11 @@ public class HashMap
     }
 
     /** @inheritDoc */
-    public function forEach (fn :Function, thisObject :* = null) :void
+    public function forEach (fn :Function) :void
     {
         if (_simpleData != null) {
             for (var key :Object in _simpleData) {
-                fn.call(thisObject, key, _simpleData[key]);
+                fn(key, _simpleData[key]);
             }
         }
 
@@ -275,7 +275,7 @@ public class HashMap
             for (var ii :int = _entries.length - 1; ii >= 0; ii--) {
                 for (var e :Entry = (_entries[ii] as Entry); e != null;
                         e = e.next) {
-                    fn.call(thisObject, e.getOriginalKey(), e.value);
+                    fn(e.getOriginalKey(), e.value);
                 }
             }
         }

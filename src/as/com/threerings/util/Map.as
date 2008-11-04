@@ -46,7 +46,7 @@ public interface Map
      * Call the specified function, which accepts two args: key and value,
      * for every mapping.
      */
-    function forEach (fn :Function, thisObject :* = null) :void;
+    function forEach (fn :Function) :void;
 
     /**
      * Returns true if this map contains no elements.

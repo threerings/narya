@@ -77,11 +77,11 @@ public class SortedHashMap extends HashMap
         return vals;
     }
 
-    override public function forEach (fn :Function, thisObject :* = null) :void
+    override public function forEach (fn :Function) :void
     {
         var keys :Array = keys();
         for each (var key :Object in keys) {
-            fn.call(thisObject, key, get(key));
+            fn(key, get(key));
         }
     }
 

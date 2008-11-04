@@ -76,10 +76,10 @@ public class HashSet
         return (_hashMap.containsKey(o));
     }
 
-    public function forEach (fn :Function, thisObject :* = null) :void
+    public function forEach (fn :Function) :void
     {
         _hashMap.forEach(function (key :Object, val :Object) :void {
-            fn.call(thisObject, key);
+            fn(key);
         });
     }
 

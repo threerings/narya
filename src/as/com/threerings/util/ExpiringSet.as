@@ -63,10 +63,10 @@ public class ExpiringSet extends EventDispatcher
     }
 
     // from Set
-    public function forEach (fn :Function, thisObject :* = null) :void
+    public function forEach (fn :Function) :void
     {
         for each (var e :ExpiringElement in _data) {
-            fn.call(thisObject, e);
+            fn(e);
         }
     }
 
