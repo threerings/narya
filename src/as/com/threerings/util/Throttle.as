@@ -77,14 +77,21 @@ public class Throttle
     public function reinit (operations :int, period :int) :void
     {
         var ops :Array = ArrayUtil.create(operations, 0);
-        // copy as much as we can of our most recent operations into our new array
-        var copyCount :int = Math.min(operations, _ops.length);
-        var srcOffset :int = _oldestOp + _ops.length*2 - 1; // need *2 to prevent copying _ops[-1]
-        var destOffset :int = operations-1;
-        for (var ii :int = 0; ii < copyCount; ii++) {
-            ops[destOffset-ii] = _ops[(srcOffset-ii) % _ops.length];
+        var ii :int;
+        var oldestOp :int;
+        if (operations > _ops.length) {
+            // copy to a larger buffer, leaving zeroes at the beginning
+            oldestOp = _oldestOp + operations - _ops.length;
+            ArrayUtil.copy(_ops, 0, ops, 0, _oldestOp);
+
+        } else if (operations < _ops.length) {
+            // copy to a smaller buffer, truncating older operations
+            oldestOp = (_oldestOp + _ops.length - operations) % _ops.length;
+            var endCount :int = Math.min(_ops.length - oldestOp, operations);
+            ArrayUtil.copy(_ops, oldestOp, ops, 0, endCount);
+            ArrayUtil.copy(_ops, 0, ops, endCount, operations - endCount);
+            _oldestOp = 0;
         }
-        _oldestOp = Math.max(0, operations-_ops.length);
         _ops = ops;
         _period = period;
     }
@@ -171,7 +178,7 @@ public class Throttle
         var now :int = getTimer();
         var ages :Array = []
         for (var ii :int = 0; ii < _ops.length; ++ii) {
-            ages.push(now - _ops[(_oldestOp + ii) % _ops.length]);
+            ages.push(now - _ops[ii]);
         }
         return "[" + StringUtil.toString(ages) + "] [Oldest idx = " + _oldestOp + "]";
     }

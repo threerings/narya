@@ -228,6 +228,14 @@ public class ArrayUtil
         return true;
     }
 
+    public static function copy (
+        src :Array, srcoffset :uint, dst :Array, dstoffset :uint, count :uint) :void
+    {
+        for (var ii :uint = 0; ii < count; ++ii) {
+            dst[dstoffset++] = src[srcoffset++];
+        }
+    }
+
     /**
      * Implementation of remove methods.
      */
