@@ -86,10 +86,9 @@ public class Throttle
             ArrayUtil.copy(_ops, _oldestOp, ops, oldestOp, _ops.length - _oldestOp);
 
         } else if (operations < _ops.length) {
-            // copy to a smaller buffer, truncating older operations
-            oldestOp = (_oldestOp + _ops.length - operations) % _ops.length;
-            var endCount :int = Math.min(_ops.length - oldestOp, operations);
-            ArrayUtil.copy(_ops, oldestOp, ops, 0, endCount);
+            // if we're truncating, copy the first (oldest) stamps into ops[0..]
+            var endCount :int = Math.min(_ops.length - _oldestOp, operations);
+            ArrayUtil.copy(_ops, _oldestOp, ops, 0, endCount);
             ArrayUtil.copy(_ops, 0, ops, endCount, operations - endCount);
             _oldestOp = 0;
         }
