@@ -68,7 +68,7 @@ public class Throttle
 
     /**
      * Updates the number of operations for this throttle to a new maximum, retaining the current
-     * history of operations if the limit is being increased and truncating the oldest operations
+     * history of operations if the limit is being increased and truncating the newest operations
      * if the limit is decreased.
      *
      * @param operations the new maximum number of operations.
@@ -76,24 +76,25 @@ public class Throttle
      */
     public function reinit (operations :int, period :int) :void
     {
-        var ops :Array = ArrayUtil.create(operations, 0);
-        var ii :int;
-        var oldestOp :int;
-        if (operations > _ops.length) {
-            // copy to a larger buffer, leaving zeroes at the beginning
-            oldestOp = _oldestOp + operations - _ops.length;
-            ArrayUtil.copy(_ops, 0, ops, 0, _oldestOp);
-            ArrayUtil.copy(_ops, _oldestOp, ops, oldestOp, _ops.length - _oldestOp);
-
-        } else if (operations < _ops.length) {
-            // if we're truncating, copy the first (oldest) stamps into ops[0..]
-            var endCount :int = Math.min(_ops.length - _oldestOp, operations);
-            ArrayUtil.copy(_ops, _oldestOp, ops, 0, endCount);
-            ArrayUtil.copy(_ops, 0, ops, endCount, operations - endCount);
-            _oldestOp = 0;
-        }
-        _ops = ops;
         _period = period;
+        if (operations != _ops.length) {
+            var ops :Array = ArrayUtil.create(operations, 0);
+
+            if (operations > _ops.length) {
+                // copy to a larger buffer, leaving zeroes at the beginning
+                var oldestOp :int = _oldestOp + operations - _ops.length;
+                ArrayUtil.copy(_ops, 0, ops, 0, _oldestOp);
+                ArrayUtil.copy(_ops, _oldestOp, ops, oldestOp, _ops.length - _oldestOp);
+
+            } else {
+                // if we're truncating, copy the first (oldest) stamps into ops[0..]
+                var endCount :int = Math.min(_ops.length - _oldestOp, operations);
+                ArrayUtil.copy(_ops, _oldestOp, ops, 0, endCount);
+                ArrayUtil.copy(_ops, 0, ops, endCount, operations - endCount);
+                _oldestOp = 0;
+            }
+            _ops = ops;
+        }
     }
 
     /**
