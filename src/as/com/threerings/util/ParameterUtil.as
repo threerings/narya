@@ -92,9 +92,7 @@ public class ParameterUtil
         }
         // else, let's try loading parameters.xml
 
-        // assume only windows uses the wrong slash
-        var fileSep :String = (-1 != Capabilities.os.indexOf("Windows")) ? "\\" : "/";
-        var dex :int = url.lastIndexOf(fileSep);
+        var dex :int = url.lastIndexOf("/");
         var paramUrl :String;
         if (dex == -1) {
             paramUrl = "file:";
