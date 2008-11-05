@@ -30,8 +30,6 @@ import flash.events.IOErrorEvent;
 import flash.net.URLLoader;
 import flash.net.URLRequest;
 
-import flash.system.Capabilities;
-
 /**
  * A utility for loading parameters from an XML file when run from
  * the local filesystem.
