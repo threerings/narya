@@ -575,7 +575,7 @@ public class PresentsDObjectMgr
 
     /**
      * Tests if the event processing thread is still running. This is required by the
-     * {@link ConnectionManager} to ensure messages posted just before or during shutdown are sent.
+     * ConnectionManager to ensure messages posted just before or during shutdown are sent.
      */
     public synchronized boolean isRunning ()
     {

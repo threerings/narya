@@ -83,10 +83,10 @@ import static com.threerings.presents.Log.log;
  * without synchronization. This does not overlap with its other client duties which are called
  * from the conmgr thread and therefore also need not be synchronized.
  */
-public class PresentsClient
+public class PresentsSession
     implements MessageHandler, ClientResolutionListener
 {
-    /** Used by {@link PresentsClient#setUsername} to report success or failure. */
+    /** Used by {@link PresentsSession#setUsername} to report success or failure. */
     public static interface UserChangeListener
     {
         /** Called when the new client object has been resolved and the new client object reported
@@ -106,7 +106,7 @@ public class PresentsClient
     }
 
     /**
-     * Returns the credentials used to authenticate this client.
+     * Returns the credentials used to authenticate this session.
      */
     public Credentials getCredentials ()
     {
@@ -114,7 +114,7 @@ public class PresentsClient
     }
 
     /**
-     * Returns the time zone in which this client is operating.
+     * Returns the time zone in which the client is operating.
      */
     public TimeZone getTimeZone ()
     {
@@ -122,8 +122,8 @@ public class PresentsClient
     }
 
     /**
-     * Returns true if this client has been disconnected for sufficiently long that its session
-     * should be forcibly ended.
+     * Returns true if this session has been disconnected for sufficiently long that it should be
+     * forcibly ended.
      */
     public boolean checkExpired (long now)
     {
@@ -164,7 +164,7 @@ public class PresentsClient
     }
 
     /**
-     * Configures this client with a custom class loader that will be used when unserializing
+     * Configures this session with a custom class loader that will be used when unserializing
      * classes from the network.
      */
     public void setClassLoader (ClassLoader loader)
@@ -966,7 +966,7 @@ public class PresentsClient
         /**
          * Dispatch the supplied message for the specified client.
          */
-        void dispatch (PresentsClient client, UpstreamMessage mge);
+        void dispatch (PresentsSession client, UpstreamMessage mge);
     }
 
     /**
@@ -974,7 +974,7 @@ public class PresentsClient
      */
     protected static class SubscribeDispatcher implements MessageDispatcher
     {
-        public void dispatch (PresentsClient client, UpstreamMessage msg)
+        public void dispatch (PresentsSession client, UpstreamMessage msg)
         {
             SubscribeRequest req = (SubscribeRequest)msg;
 //             log.info("Subscribing [client=" + client + ", oid=" + req.getOid() + "].");
@@ -989,7 +989,7 @@ public class PresentsClient
      */
     protected static class UnsubscribeDispatcher implements MessageDispatcher
     {
-        public void dispatch (PresentsClient client, UpstreamMessage msg)
+        public void dispatch (PresentsSession client, UpstreamMessage msg)
         {
             UnsubscribeRequest req = (UnsubscribeRequest)msg;
             int oid = req.getOid();
@@ -1009,7 +1009,7 @@ public class PresentsClient
      */
     protected static class ForwardEventDispatcher implements MessageDispatcher
     {
-        public void dispatch (PresentsClient client, UpstreamMessage msg)
+        public void dispatch (PresentsSession client, UpstreamMessage msg)
         {
             ForwardEventRequest req = (ForwardEventRequest)msg;
             DEvent fevt = req.getEvent();
@@ -1036,7 +1036,7 @@ public class PresentsClient
      */
     protected static class PingDispatcher implements MessageDispatcher
     {
-        public void dispatch (PresentsClient client, UpstreamMessage msg)
+        public void dispatch (PresentsSession client, UpstreamMessage msg)
         {
             // send a pong response using the transport with which the message was received
             PingRequest req = (PingRequest)msg;
@@ -1049,7 +1049,7 @@ public class PresentsClient
      */
     protected static class ThrottleUpdatedDispatcher implements MessageDispatcher
     {
-        public void dispatch (final PresentsClient client, UpstreamMessage msg)
+        public void dispatch (final PresentsSession client, UpstreamMessage msg)
         {
             log.debug("Client ACKed throttle update", "client", client);
             client.throttleUpdated();
@@ -1061,7 +1061,7 @@ public class PresentsClient
      */
     protected static class LogoffDispatcher implements MessageDispatcher
     {
-        public void dispatch (final PresentsClient client, UpstreamMessage msg)
+        public void dispatch (final PresentsSession client, UpstreamMessage msg)
         {
             log.debug("Client requested logoff", "client", client);
             client.safeEndSession();

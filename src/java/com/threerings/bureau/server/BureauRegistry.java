@@ -41,7 +41,7 @@ import com.threerings.presents.data.ClientObject;
 import com.threerings.presents.dobj.RootDObjectManager;
 import com.threerings.presents.server.ClientManager;
 import com.threerings.presents.server.InvocationManager;
-import com.threerings.presents.server.PresentsClient;
+import com.threerings.presents.server.PresentsSession;
 
 import com.threerings.bureau.data.AgentObject;
 import com.threerings.bureau.data.BureauCodes;
@@ -125,13 +125,13 @@ public class BureauRegistry
     public void init ()
     {
         _clmgr.addClientObserver(new ClientManager.ClientObserver() {
-            public void clientSessionDidStart (PresentsClient client) {
+            public void clientSessionDidStart (PresentsSession client) {
                 String id = BureauCredentials.extractBureauId(client.getUsername());
                 if (id != null) {
                     sessionDidStart(client, id);
                 }
             }
-            public void clientSessionDidEnd (PresentsClient client) {
+            public void clientSessionDidEnd (PresentsSession client) {
                 String id = BureauCredentials.extractBureauId(client.getUsername());
                 if (id != null) {
                     sessionDidEnd(client, id);
@@ -323,7 +323,7 @@ public class BureauRegistry
     /**
      * Returns the active session for a bureau of the given id.
      */
-    public PresentsClient lookupClient (String bureauId)
+    public PresentsSession lookupClient (String bureauId)
     {
         Bureau bureau = _bureaus.get(bureauId);
         if (bureau == null) {
@@ -332,7 +332,7 @@ public class BureauRegistry
         return bureau.client;
     }
 
-    protected void sessionDidStart (PresentsClient client, String id)
+    protected void sessionDidStart (PresentsSession client, String id)
     {
         Bureau bureau = _bureaus.get(id);
         if (bureau == null) {
@@ -346,7 +346,7 @@ public class BureauRegistry
         bureau.client = client;
     }
 
-    protected void sessionDidEnd (PresentsClient client, String id)
+    protected void sessionDidEnd (PresentsSession client, String id)
     {
         Bureau bureau = _bureaus.get(id);
         if (bureau == null) {
@@ -691,7 +691,7 @@ public class BureauRegistry
         ClientObject clientObj;
 
         // The client session
-        PresentsClient client;
+        PresentsSession client;
 
         // The states of the various agents allocated to this bureau
         Map<AgentObject, AgentState> agentStates = Maps.newHashMap();

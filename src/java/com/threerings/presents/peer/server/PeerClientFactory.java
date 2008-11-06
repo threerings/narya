@@ -27,7 +27,7 @@ import com.threerings.presents.net.AuthRequest;
 import com.threerings.presents.peer.net.PeerCreds;
 import com.threerings.presents.server.ClientFactory;
 import com.threerings.presents.server.ClientResolver;
-import com.threerings.presents.server.PresentsClient;
+import com.threerings.presents.server.PresentsSession;
 
 /**
  * Handles resolution of peer servers and passes non-peer resolution requests through to a normal
@@ -41,10 +41,10 @@ public class PeerClientFactory implements ClientFactory
     }
 
     // documentation inherited from interface ClientFactory
-    public Class<? extends PresentsClient> getClientClass (AuthRequest areq)
+    public Class<? extends PresentsSession> getClientClass (AuthRequest areq)
     {
         if (areq.getCredentials() instanceof PeerCreds) {
-            return PeerClient.class;
+            return PeerSession.class;
         } else {
             return _delegate.getClientClass(areq);
         }

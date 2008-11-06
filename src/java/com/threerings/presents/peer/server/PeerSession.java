@@ -29,28 +29,27 @@ import com.threerings.presents.dobj.DObject;
 import com.threerings.presents.net.BootstrapData;
 import com.threerings.presents.peer.data.NodeObject;
 import com.threerings.presents.peer.net.PeerBootstrapData;
-import com.threerings.presents.server.PresentsClient;
+import com.threerings.presents.server.PresentsSession;
 
 import static com.threerings.presents.Log.log;
 
 /**
- * Manages a peer connection.
+ * Manages a peer session.
  */
-public class PeerClient extends PresentsClient
+public class PeerSession extends PresentsSession
 {
     /**
-     * Creates a peer client and provides it with a reference to the peer
-     * manager. This is only done by the {@link PeerClientFactory}.
+     * Creates a peer session and provides it with a reference to the peer manager. This is only
+     * done by the {@link PeerClientFactory}.
      */
-    @Inject public PeerClient (PeerManager peermgr)
+    @Inject public PeerSession (PeerManager peermgr)
     {
         _peermgr = peermgr;
     }
 
     /**
-     * Derived client classes can override this member to create derived
-     * bootstrap data classes that contain extra bootstrap information, if
-     * desired.
+     * Derived classes can override this member to create derived bootstrap data classes that
+     * contain extra bootstrap information, if desired.
      */
     @Override
     protected BootstrapData createBootstrapData ()
@@ -59,14 +58,12 @@ public class PeerClient extends PresentsClient
     }
 
     /**
-     * Derived client classes can override this member to populate the
-     * bootstrap data with additional information. They should be sure to
-     * call <code>super.populateBootstrapData</code> before doing their
-     * own populating, however.
+     * Derived classes can override this member to populate the bootstrap data with additional
+     * information. They should be sure to call <code>super.populateBootstrapData</code> before
+     * doing their own populating, however.
      *
-     * <p><em>Note:</em> This function will be called on the dobjmgr
-     * thread which means that object manipulations are OK, but client
-     * instance manipulations must be done carefully.
+     * <p><em>Note:</em> This function will be called on the dobjmgr thread which means that object
+     * manipulations are OK, but client instance manipulations must be done carefully.
      */
     @Override
     protected void populateBootstrapData (BootstrapData data)
@@ -87,7 +84,7 @@ public class PeerClient extends PresentsClient
         _cloid = _clobj.getOid();
     }
 
-    @Override // from PresentsClient
+    @Override // from PresentsSession
     protected void subscribedToObject (DObject object)
     {
         super.subscribedToObject(object);
@@ -96,7 +93,7 @@ public class PeerClient extends PresentsClient
         }
     }
 
-    @Override // from PresentsClient
+    @Override // from PresentsSession
     protected void unsubscribedFromObject (DObject object)
     {
         super.unsubscribedFromObject(object);
@@ -105,14 +102,14 @@ public class PeerClient extends PresentsClient
         }
     }
 
-    @Override // from PresentsClient
+    @Override // from PresentsSession
     protected Throttle createIncomingMessageThrottle ()
     {
         // more than 100 messages per second and we complain about it
         return new Throttle(100, 1000L);
     }
 
-    @Override // from PresentsClient
+    @Override // from PresentsSession
     protected void handleThrottleExceeded ()
     {
         long now = System.currentTimeMillis();

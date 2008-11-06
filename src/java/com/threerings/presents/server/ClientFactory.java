@@ -26,15 +26,15 @@ import com.threerings.util.Name;
 import com.threerings.presents.net.AuthRequest;
 
 /**
- * Used to determine what type of {@link PresentsClient} to use to manage an authenticated client
+ * Used to determine what type of {@link PresentsSession} to use to manage an authenticated client
  * as well the type of {@link ClientResolver} to use when resolving clients' runtime data.
  */
 public interface ClientFactory
 {
     /** The default client factory. */
     public static ClientFactory DEFAULT = new ClientFactory() {
-        public Class<? extends PresentsClient> getClientClass (AuthRequest areq) {
-            return PresentsClient.class;
+        public Class<? extends PresentsSession> getClientClass (AuthRequest areq) {
+            return PresentsSession.class;
         }
         public Class<? extends ClientResolver> getClientResolverClass (Name username) {
             return ClientResolver.class;
@@ -42,10 +42,10 @@ public interface ClientFactory
     };
 
     /**
-     * Returns the {@link PresentsClient} derived class to use for the session that authenticated
+     * Returns the {@link PresentsSession} derived class to use for the session that authenticated
      * with the supplied request.
      */
-    Class<? extends PresentsClient> getClientClass (AuthRequest areq);
+    Class<? extends PresentsSession> getClientClass (AuthRequest areq);
 
     /**
      * Returns the {@link ClientResolver} derived class to use to resolve a client with the

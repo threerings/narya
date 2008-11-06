@@ -64,7 +64,7 @@ import com.threerings.presents.data.ClientObject;
 import com.threerings.presents.server.ClientManager;
 import com.threerings.presents.server.InvocationException;
 import com.threerings.presents.server.InvocationManager;
-import com.threerings.presents.server.PresentsClient;
+import com.threerings.presents.server.PresentsSession;
 import com.threerings.presents.server.PresentsDObjectMgr;
 import com.threerings.presents.server.ReportManager;
 import com.threerings.presents.server.ShutdownManager;
@@ -643,7 +643,7 @@ public abstract class PeerManager
     }
 
     /**
-     * Called by {@link PeerClient}s when clients subscribe to the {@link NodeObject}.
+     * Called by {@link PeerSession}s when clients subscribe to the {@link NodeObject}.
      */
     public void clientSubscribedToNode (int cloid)
     {
@@ -651,7 +651,7 @@ public abstract class PeerManager
     }
 
     /**
-     * Called by {@link PeerClient}s when clients unsubscribe from the {@link NodeObject}.
+     * Called by {@link PeerSession}s when clients unsubscribe from the {@link NodeObject}.
      */
     public void clientUnsubscribedFromNode (int cloid)
     {
@@ -768,7 +768,7 @@ public abstract class PeerManager
     }
 
     // from interface ClientManager.ClientObserver
-    public void clientSessionDidStart (PresentsClient client)
+    public void clientSessionDidStart (PresentsSession client)
     {
         if (ignoreClient(client)) {
             return;
@@ -790,7 +790,7 @@ public abstract class PeerManager
     }
 
     // from interface ClientManager.ClientObserver
-    public void clientSessionDidEnd (PresentsClient client)
+    public void clientSessionDidEnd (PresentsSession client)
     {
         if (ignoreClient(client)) {
             return;
@@ -872,10 +872,10 @@ public abstract class PeerManager
      * the beginning and end of the client session, so this method should return the same value
      * both times.
      */
-    protected boolean ignoreClient (PresentsClient client)
+    protected boolean ignoreClient (PresentsSession client)
     {
         // if this is another peer, don't publish their info
-        return (client instanceof PeerClient);
+        return (client instanceof PeerSession);
     }
 
     /**
@@ -947,7 +947,7 @@ public abstract class PeerManager
     /**
      * Initializes the supplied client info for the supplied client.
      */
-    protected void initClientInfo (PresentsClient client, ClientInfo info)
+    protected void initClientInfo (PresentsSession client, ClientInfo info)
     {
         info.username = client.getCredentials().getUsername();
     }
@@ -955,7 +955,7 @@ public abstract class PeerManager
     /**
      * Called when a client ends their session to clear their information from our node object.
      */
-    protected void clearClientInfo (PresentsClient client, ClientInfo info)
+    protected void clearClientInfo (PresentsSession client, ClientInfo info)
     {
         _nodeobj.removeFromClients(info.getKey());
     }

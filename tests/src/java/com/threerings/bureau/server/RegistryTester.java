@@ -32,7 +32,7 @@ import com.google.inject.Injector;
 import com.google.inject.Singleton;
 
 import com.threerings.presents.dobj.RootDObjectManager;
-import com.threerings.presents.server.PresentsClient;
+import com.threerings.presents.server.PresentsSession;
 import com.threerings.presents.server.ShutdownManager;
 
 import com.threerings.bureau.data.AgentObject;
@@ -199,7 +199,7 @@ public class RegistryTester
     {
         if (_rng1.nextInt(100) < _killBureauChance) {
             log.info("Killing a bureau");
-            PresentsClient bureau = getRandomBureau();
+            PresentsSession bureau = getRandomBureau();
             if (bureau == null) {
                 log.info("No bureaus to kill right now");
                 return;
@@ -221,7 +221,7 @@ public class RegistryTester
         }
     }
 
-    protected PresentsClient getRandomBureau ()
+    protected PresentsSession getRandomBureau ()
     {
         boolean[] tried = new boolean[_numBureaus];
         for (int dead = 0; dead < _numBureaus;) {
@@ -230,7 +230,7 @@ public class RegistryTester
                 continue;
             }
             String id = "test-" + (index + 1);
-            PresentsClient client = _bureauReg.lookupClient(id);
+            PresentsSession client = _bureauReg.lookupClient(id);
             if (client == null) {
                 ++dead;
             } else {

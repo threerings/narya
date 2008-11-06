@@ -31,7 +31,7 @@ import com.threerings.util.Name;
 import com.threerings.presents.net.AuthRequest;
 import com.threerings.presents.server.ClientFactory;
 import com.threerings.presents.server.ClientResolver;
-import com.threerings.presents.server.PresentsClient;
+import com.threerings.presents.server.PresentsSession;
 import com.threerings.presents.server.PresentsServer;
 
 import com.threerings.crowd.chat.server.ChatProvider;
@@ -64,8 +64,8 @@ public class CrowdServer extends PresentsServer
 
         // configure the client manager to use our bits
         _clmgr.setClientFactory(new ClientFactory() {
-            public Class<? extends PresentsClient> getClientClass (AuthRequest areq) {
-                return CrowdClient.class;
+            public Class<? extends PresentsSession> getClientClass (AuthRequest areq) {
+                return CrowdSession.class;
             }
             public Class<? extends ClientResolver> getClientResolverClass (Name username) {
                 return CrowdClientResolver.class;

@@ -23,16 +23,16 @@ package com.threerings.crowd.server;
 
 import com.google.inject.Inject;
 
-import com.threerings.presents.server.PresentsClient;
+import com.threerings.presents.server.PresentsSession;
 
 import com.threerings.crowd.chat.server.SpeakUtil;
 import com.threerings.crowd.data.BodyObject;
 import com.threerings.crowd.data.OccupantInfo;
 
 /**
- * The crowd client extends the presents client with crowd-specific client handling.
+ * Extends the presents session with crowd-specific session handling.
  */
-public class CrowdClient extends PresentsClient
+public class CrowdSession extends PresentsSession
 {
     @Override
     protected void sessionConnectionClosed ()

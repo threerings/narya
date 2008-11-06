@@ -32,7 +32,7 @@ import com.threerings.presents.peer.server.PeerManager;
 import com.threerings.presents.peer.server.PeerNode;
 import com.threerings.presents.server.InvocationException;
 import com.threerings.presents.server.InvocationManager;
-import com.threerings.presents.server.PresentsClient;
+import com.threerings.presents.server.PresentsSession;
 import com.threerings.presents.server.ShutdownManager;
 
 import com.threerings.crowd.chat.client.ChatService;
@@ -130,7 +130,7 @@ public class CrowdPeerManager extends PeerManager
     }
 
     @Override // documentation inherited
-    protected void initClientInfo (PresentsClient client, ClientInfo info)
+    protected void initClientInfo (PresentsSession client, ClientInfo info)
     {
         super.initClientInfo(client, info);
         ((CrowdClientInfo)info).visibleName =

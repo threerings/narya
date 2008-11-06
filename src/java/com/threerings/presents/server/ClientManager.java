@@ -88,13 +88,13 @@ public class ClientManager
         /**
          * Called when a client has authenticated and been resolved and has started their session.
          */
-        void clientSessionDidStart (PresentsClient client);
+        void clientSessionDidStart (PresentsSession client);
 
         /**
          * Called when a client has logged off or been forcibly logged off due to inactivity and
          * has thus ended their session.
          */
-        void clientSessionDidEnd (PresentsClient client);
+        void clientSessionDidEnd (PresentsSession client);
     }
 
     /**
@@ -119,7 +119,7 @@ public class ClientManager
     }
 
     /**
-     * Configures the injector we'll use to resolve dependencies for {@link PresentsClient}
+     * Configures the injector we'll use to resolve dependencies for {@link PresentsSession}
      * instances.
      */
     public void setInjector (Injector injector)
@@ -134,7 +134,7 @@ public class ClientManager
 
         // inform all of our clients that they are being shut down
         synchronized (_usermap) {
-            for (PresentsClient pc : _usermap.values()) {
+            for (PresentsSession pc : _usermap.values()) {
                 try {
                     pc.shutdown();
                 } catch (Exception e) {
@@ -146,7 +146,7 @@ public class ClientManager
     }
 
     /**
-     * Configures the client manager with a factory for creating {@link PresentsClient} and {@link
+     * Configures the client manager with a factory for creating {@link PresentsSession} and {@link
      * ClientResolver} classes for authenticated client connections.
      */
     public void setClientFactory (ClientFactory factory)
@@ -216,7 +216,7 @@ public class ClientManager
      * Returns the client instance that manages the client session for the specified authentication
      * username or null if that client is not currently connected to the server.
      */
-    public PresentsClient getClient (Name authUsername)
+    public PresentsSession getClient (Name authUsername)
     {
         synchronized (_usermap) {
             return _usermap.get(authUsername);
@@ -375,7 +375,7 @@ public class ClientManager
         Name username = creds.getUsername();
 
         // see if a client is already registered with these credentials
-        PresentsClient client = getClient(username);
+        PresentsSession client = getClient(username);
 
         if (client != null) {
             log.info("Resuming session [username=" + username + ", conn=" + conn + "].");
@@ -401,7 +401,7 @@ public class ClientManager
     public synchronized void connectionFailed (Connection conn, IOException fault)
     {
         // remove the client from the connection map
-        PresentsClient client = _conmap.remove(conn);
+        PresentsSession client = _conmap.remove(conn);
         if (client != null) {
             log.info("Unmapped failed client [client=" + client + ", conn=" + conn +
                      ", fault=" + fault + "].");
@@ -419,7 +419,7 @@ public class ClientManager
     public synchronized void connectionClosed (Connection conn)
     {
         // remove the client from the connection map
-        PresentsClient client = _conmap.remove(conn);
+        PresentsSession client = _conmap.remove(conn);
         if (client != null) {
             log.debug("Unmapped client [client=" + client + ", conn=" + conn + "].");
             // let the client know the connection went away
@@ -448,7 +448,7 @@ public class ClientManager
      * Called by the client instance when it has started its session. This is called from the
      * dobjmgr thread.
      */
-    protected void clientSessionDidStart (final PresentsClient client)
+    protected void clientSessionDidStart (final PresentsSession client)
     {
         // let the observers know
         _clobservers.apply(new ObserverList.ObserverOp<ClientObserver>() {
@@ -463,11 +463,11 @@ public class ClientManager
      * Called by the client instance when the client requests a logoff. This is called from the
      * dobjmgr thread.
      */
-    protected void clientSessionDidEnd (final PresentsClient client)
+    protected void clientSessionDidEnd (final PresentsSession client)
     {
         // remove the client from the username map
         Name username = client.getCredentials().getUsername();
-        PresentsClient rc;
+        PresentsSession rc;
         synchronized (_usermap) {
             rc = _usermap.remove(username);
         }
@@ -497,12 +497,12 @@ public class ClientManager
      */
     protected void flushClients ()
     {
-        List<PresentsClient> victims = Lists.newArrayList();
+        List<PresentsSession> victims = Lists.newArrayList();
         long now = System.currentTimeMillis();
 
         // first build a list of our victims
         synchronized (_usermap) {
-            for (PresentsClient client : _usermap.values()) {
+            for (PresentsSession client : _usermap.values()) {
                 if (client.checkExpired(now)) {
                     victims.add(client);
                 }
@@ -510,7 +510,7 @@ public class ClientManager
         }
 
         // now end their sessions
-        for (PresentsClient client : victims) {
+        for (PresentsSession client : victims) {
             try {
                 log.info("Client expired, ending session [client=" + client +
                          ", dtime=" + (now-client.getNetworkStamp()) + "ms].");
@@ -549,14 +549,14 @@ public class ClientManager
         protected ClientOp _clop;
     }
 
-    /** Used to resolve dependencies in {@link PresentsClient} instances that we create. */
+    /** Used to resolve dependencies in {@link PresentsSession} instances that we create. */
     protected Injector _injector;
 
     /** A mapping from auth username to client instances. */
-    protected Map<Name, PresentsClient> _usermap = Maps.newHashMap();
+    protected Map<Name, PresentsSession> _usermap = Maps.newHashMap();
 
     /** A mapping from connections to client instances. */
-    protected Map<Connection, PresentsClient> _conmap = Maps.newHashMap();
+    protected Map<Connection, PresentsSession> _conmap = Maps.newHashMap();
 
     /** A mapping from usernames to client object instances. */
     protected Map<Name, ClientObject> _objmap = Maps.newHashMap();

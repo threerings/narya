@@ -29,7 +29,7 @@ import com.threerings.presents.dobj.RootDObjectManager;
 import com.threerings.presents.server.ClientManager;
 import com.threerings.presents.server.InvocationException;
 import com.threerings.presents.server.InvocationManager;
-import com.threerings.presents.server.PresentsClient;
+import com.threerings.presents.server.PresentsSession;
 
 import com.threerings.crowd.client.LocationService;
 import com.threerings.crowd.data.BodyObject;
@@ -111,7 +111,7 @@ public class LocationManager
         }
 
         // configure the client accordingly if the place uses a custom class loader
-        PresentsClient client = _clmgr.getClient(source.username);
+        PresentsSession client = _clmgr.getClient(source.username);
         if (client != null) {
             client.setClassLoader(pmgr.getClass().getClassLoader());
         }
