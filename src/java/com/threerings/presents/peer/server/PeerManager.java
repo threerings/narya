@@ -197,7 +197,7 @@ public abstract class PeerManager
 
         // wire ourselves into the server
         _conmgr.addChainedAuthenticator(new PeerAuthenticator(this));
-        _clmgr.setClientFactory(new PeerClientFactory(_clmgr.getClientFactory()));
+        _clmgr.setSessionFactory(new PeerSessionFactory(_clmgr.getSessionFactory()));
 
         // create our node object
         _nodeobj = _omgr.registerObject(createNodeObject());

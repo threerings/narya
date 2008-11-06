@@ -40,7 +40,7 @@ public class PeerSession extends PresentsSession
 {
     /**
      * Creates a peer session and provides it with a reference to the peer manager. This is only
-     * done by the {@link PeerClientFactory}.
+     * done by the {@link PeerSessionFactory}.
      */
     @Inject public PeerSession (PeerManager peermgr)
     {

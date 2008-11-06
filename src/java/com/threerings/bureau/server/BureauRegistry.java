@@ -120,7 +120,7 @@ public class BureauRegistry
      * Provides the Bureau registry with necessary runtime configuration. Inserts the bureau
      * client factory into the client manager and registers observers to track the progress
      * of launched bureaus.
-     * @see BureauClientFactory
+     * @see BureauSessionFactory
      */
     public void init ()
     {
@@ -145,10 +145,10 @@ public class BureauRegistry
      * client factories are in place. The installed factory will simply create presents clients and
      * client objects for bureaus.
      */
-    public void setDefaultClientFactory ()
+    public void setDefaultSessionFactory ()
     {
         // add the client factory, but later, after all the other modules have been initialized
-        _clmgr.setClientFactory(new BureauClientFactory(_clmgr.getClientFactory()));
+        _clmgr.setSessionFactory(new BureauSessionFactory(_clmgr.getSessionFactory()));
     }
 
     /**

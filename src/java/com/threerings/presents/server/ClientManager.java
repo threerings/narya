@@ -149,15 +149,15 @@ public class ClientManager
      * Configures the client manager with a factory for creating {@link PresentsSession} and {@link
      * ClientResolver} classes for authenticated client connections.
      */
-    public void setClientFactory (ClientFactory factory)
+    public void setSessionFactory (SessionFactory factory)
     {
         _factory = factory;
     }
 
     /**
-     * Returns the {@link ClientFactory} currently in use.
+     * Returns the {@link SessionFactory} currently in use.
      */
-    public ClientFactory getClientFactory ()
+    public SessionFactory getSessionFactory ()
     {
         return _factory;
     }
@@ -384,7 +384,7 @@ public class ClientManager
         } else {
             log.info("Session initiated [username=" + username + ", conn=" + conn + "].");
             // create a new client and stick'em in the table
-            client = _injector.getInstance(_factory.getClientClass(req));
+            client = _injector.getInstance(_factory.getSessionClass(req));
             client.startSession(req, conn, rsp.authdata);
 
             // map their client instance
@@ -565,7 +565,7 @@ public class ClientManager
     protected Map<Name, ClientResolver> _penders = Maps.newHashMap();
 
     /** Lets us know what sort of client classes to use. */
-    protected ClientFactory _factory = ClientFactory.DEFAULT;
+    protected SessionFactory _factory = SessionFactory.DEFAULT;
 
     /** Tracks registered {@link ClientObserver}s. */
     protected ObserverList<ClientObserver> _clobservers = ObserverList.newSafeInOrder();

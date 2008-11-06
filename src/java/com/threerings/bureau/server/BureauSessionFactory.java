@@ -24,7 +24,7 @@ package com.threerings.bureau.server;
 import com.threerings.util.Name;
 
 import com.threerings.presents.net.AuthRequest;
-import com.threerings.presents.server.ClientFactory;
+import com.threerings.presents.server.SessionFactory;
 import com.threerings.presents.server.ClientResolver;
 import com.threerings.presents.server.PresentsSession;
 
@@ -34,28 +34,28 @@ import com.threerings.bureau.data.BureauCredentials;
  * Handles resolution of bureaus and passes non-bureau resolution requests through to a normal
  * factory. For bureaus, creates base class instances {@link PresentsSession} and
  * {@link ClientResolver}.
- * @see BureauRegistry#setDefaultClientFactory()
+ * @see BureauRegistry#setDefaultSessionFactory()
  */
-public class BureauClientFactory implements ClientFactory
+public class BureauSessionFactory implements SessionFactory
 {
-    public BureauClientFactory (ClientFactory delegate)
+    public BureauSessionFactory (SessionFactory delegate)
     {
         _delegate = delegate;
     }
 
-    // from interface ClientFactory
-    public Class<? extends PresentsSession> getClientClass (AuthRequest areq)
+    // from interface SessionFactory
+    public Class<? extends PresentsSession> getSessionClass (AuthRequest areq)
     {
         // Just give bureaus a vanilla PresentsSession client for now.
         // TODO: will bureaus need a more tailored client?
         if (areq.getCredentials() instanceof BureauCredentials) {
             return PresentsSession.class;
         } else {
-            return _delegate.getClientClass(areq);
+            return _delegate.getSessionClass(areq);
         }
     }
 
-    // from interface ClientFactory
+    // from interface SessionFactory
     public Class<? extends ClientResolver> getClientResolverClass (Name username)
     {
         // Just give bureaus a vanilla ClientResolver for now.
@@ -67,5 +67,5 @@ public class BureauClientFactory implements ClientFactory
         }
     }
 
-    protected ClientFactory _delegate;
+    protected SessionFactory _delegate;
 }

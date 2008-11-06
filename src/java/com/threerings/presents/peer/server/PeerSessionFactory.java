@@ -25,7 +25,7 @@ import com.threerings.util.Name;
 
 import com.threerings.presents.net.AuthRequest;
 import com.threerings.presents.peer.net.PeerCreds;
-import com.threerings.presents.server.ClientFactory;
+import com.threerings.presents.server.SessionFactory;
 import com.threerings.presents.server.ClientResolver;
 import com.threerings.presents.server.PresentsSession;
 
@@ -33,24 +33,24 @@ import com.threerings.presents.server.PresentsSession;
  * Handles resolution of peer servers and passes non-peer resolution requests through to a normal
  * factory.
  */
-public class PeerClientFactory implements ClientFactory
+public class PeerSessionFactory implements SessionFactory
 {
-    public PeerClientFactory (ClientFactory delegate)
+    public PeerSessionFactory (SessionFactory delegate)
     {
         _delegate = delegate;
     }
 
-    // documentation inherited from interface ClientFactory
-    public Class<? extends PresentsSession> getClientClass (AuthRequest areq)
+    // documentation inherited from interface SessionFactory
+    public Class<? extends PresentsSession> getSessionClass (AuthRequest areq)
     {
         if (areq.getCredentials() instanceof PeerCreds) {
             return PeerSession.class;
         } else {
-            return _delegate.getClientClass(areq);
+            return _delegate.getSessionClass(areq);
         }
     }
 
-    // documentation inherited from interface ClientFactory
+    // documentation inherited from interface SessionFactory
     public Class<? extends ClientResolver> getClientResolverClass (Name username)
     {
         if (username.toString().startsWith(PeerCreds.PEER_PREFIX)) {
@@ -60,5 +60,5 @@ public class PeerClientFactory implements ClientFactory
         }
     }
 
-    protected ClientFactory _delegate;
+    protected SessionFactory _delegate;
 }
