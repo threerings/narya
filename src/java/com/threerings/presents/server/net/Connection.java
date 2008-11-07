@@ -248,8 +248,7 @@ public class Connection implements NetEventHandler
         buf.position(4);
         for (int ii = 0; ii < 8; ii++) {
             if (hash[ii] != buf.get()) {
-                log.warning("Datagram failed hash check [connectionId=" + _connectionId +
-                    ", source=" + source + "].");
+                log.warning("Datagram failed hash check", "id", _connectionId, "source", source);
                 return;
             }
         }
@@ -267,10 +266,10 @@ public class Connection implements NetEventHandler
             _handler.handleMessage(msg);
 
         } catch (ClassNotFoundException cnfe) {
-            log.warning("Error reading datagram [error=" + cnfe + "].");
+            log.warning("Error reading datagram", "error", cnfe);
 
         } catch (IOException ioe) {
-            log.warning("Error reading datagram [error=" + ioe + "].");
+            log.warning("Error reading datagram", "error", ioe);
         }
     }
 
@@ -310,8 +309,7 @@ public class Connection implements NetEventHandler
             close();
 
         } catch (ClassNotFoundException cnfe) {
-            log.warning("Error reading message from socket [channel=" +
-                        StringUtil.safeToString(_channel) + ", error=" + cnfe + "].");
+            log.warning("Error reading message from socket", "channel", _channel, "error", cnfe);
             // deal with the failure
             String errmsg = "Unable to decode incoming message.";
             networkFailure((IOException) new IOException(errmsg).initCause(cnfe));
@@ -320,8 +318,7 @@ public class Connection implements NetEventHandler
             // don't log a warning for the ever-popular "the client dropped the connection" failure
             String msg = ioe.getMessage();
             if (msg == null || msg.indexOf("reset by peer") == -1) {
-                log.warning("Error reading message from socket [channel=" +
-                            StringUtil.safeToString(_channel) + ", error=" + ioe + "].");
+                log.warning("Error reading message from socket", "channel", _channel, "error", ioe);
             }
             // deal with the failure
             networkFailure(ioe);
@@ -340,8 +337,7 @@ public class Connection implements NetEventHandler
         if (isClosed()) {
             return true;
         }
-        log.info("Disconnecting non-communicative client [conn=" + this +
-                 ", idle=" + idleMillis + "ms].");
+        log.info("Disconnecting non-communicative client", "conn", this, "idle", idleMillis + "ms");
         return true;
     }
 
@@ -427,7 +423,7 @@ public class Connection implements NetEventHandler
         try {
             _channel.close();
         } catch (IOException ioe) {
-            log.warning("Error closing connection [conn=" + this + ", error=" + ioe + "].");
+            log.warning("Error closing connection", "conn", this, "error", ioe);
         }
 
         // clear out our references to prevent repeat closings
