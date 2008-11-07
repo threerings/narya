@@ -21,6 +21,8 @@
 
 package com.threerings.presents.client;
 
+import com.samskivert.util.RunAnywhere;
+
 import com.threerings.presents.net.AuthResponse;
 import com.threerings.presents.net.AuthResponseData;
 import com.threerings.presents.net.Message;
@@ -79,7 +81,7 @@ public abstract class Communicator
      */
     protected synchronized void updateWriteStamp ()
     {
-        _lastWrite = System.currentTimeMillis();
+        _lastWrite = RunAnywhere.currentTimeMillis();
     }
 
     /**

@@ -425,22 +425,18 @@ public class Client
             }
         });
 
-        // otherwise create a new communicator instance and start it up.  this will initiate the
-        // logon process
+        // create a new communicator and start it up; this will initiate the logon process
         _comm = createCommunicator();
         _comm.setClassLoader(_loader);
         _comm.logon();
 
-        // register an interval that we'll use to keep the clock synced and to send pings when
-        // appropriate
+        // register an interval to keep the clock synced and to send pings when appropriate
         if (_tickInterval == null) {
             _tickInterval = new Interval(_runQueue) {
-                @Override
-                public void expired () {
+                @Override public void expired () {
                     tick();
                 }
-                @Override
-                public String toString () {
+                @Override public String toString () {
                     return "Client.tickInterval";
                 }
             };
