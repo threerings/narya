@@ -538,6 +538,9 @@ public class PlaceManager
                 delegate.didShutdown();
             }
         });
+
+        // if shutting down emptied the place and scheduled the shutdowner, clear that out
+        cancelShutdowner();
     }
 
     /**
