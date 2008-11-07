@@ -21,6 +21,7 @@
 
 package com.threerings.presents.util;
 
+import com.samskivert.util.ArrayUtil;
 import com.samskivert.util.Invoker;
 
 import com.threerings.presents.client.InvocationService;
@@ -47,6 +48,18 @@ public abstract class PersistingUnit extends Invoker.Unit
         super(name);
         _listener = listener;
     }
+    
+    /**
+     * Creates a persisting unit with the supplied name and listener and a set of key/value pairs
+     * that will be included in the failure message if this unit fails.
+     */
+    public PersistingUnit (String name, InvocationService.InvocationListener listener,
+                           Object... args)
+    {
+        super(name);
+        _listener = listener;
+        _args = args;
+    }
 
     /**
      * This method is where the unit performs its persistent actions. Any persistence exception
@@ -71,7 +84,11 @@ public abstract class PersistingUnit extends Invoker.Unit
         if (error instanceof InvocationException) {
             _listener.requestFailed(error.getMessage());
         } else {
-            log.warning("Unit threw an exception", "message", getFailureMessage(), error);
+            if (_args != null) {
+                log.warning(getFailureMessage(), ArrayUtil.append(_args, error));
+            } else {
+                log.warning(getFailureMessage(), error);
+            }
             _listener.requestFailed(InvocationCodes.INTERNAL_ERROR);
         }
     }
@@ -126,4 +143,5 @@ public abstract class PersistingUnit extends Invoker.Unit
 
     protected InvocationService.InvocationListener _listener;
     protected Exception _error;
+    protected Object[] _args;
 }
