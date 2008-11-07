@@ -204,61 +204,19 @@ public class ConnectionManager extends LoopingThread
      * @param hostname the hostname of the server to which to connect.
      * @param port the port on which to connect to the server.
      *
-     * @exception IOException thrown if an error occurs opening a connection to the supplied
-     * server. When this method returns the connection may or may not be actually connected to the
-     * server. If the asynchronous connection attempt fails, the Connection will be notified via
+     * @exception IOException thrown if an error occurs creating our socket. Everything else
+     * happens asynchronously. If the connection attempt fails, the Connection will be notified via
      * {@link Connection#networkFailure}.
      */
-    public void openOutgoingConnection (final Connection conn, String hostname, int port)
+    public void openOutgoingConnection (Connection conn, String hostname, int port)
         throws IOException
     {
-        // create a non-blocking socket channel to use for this connection
-        final SocketChannel sockchan = SocketChannel.open();
+        // create a socket channel to use for this connection, initialize it and queue it up to
+        // have the non-blocking connect process started
+        SocketChannel sockchan = SocketChannel.open();
         sockchan.configureBlocking(false);
-
-        // create our connection instance
         conn.init(this, sockchan, System.currentTimeMillis());
-        // and register our channel with the selector (if this fails, we abandon ship immediately)
-        conn.selkey = sockchan.register(_selector, SelectionKey.OP_CONNECT);
-
-        // start our connection process (now if we fail we need to clean things up)
-        try {
-            NetEventHandler handler;
-            if (sockchan.connect(new InetSocketAddress(hostname, port))) {
-                // it is possible even for a non-blocking socket to connect immediately, in which
-                // case we stick the connection in as its event handler immediately
-                handler = conn;
-
-            } else {
-                // otherwise we wire up a special event handler that will wait for our socket to
-                // finish the connection process and then wire things up fully
-                handler = new NetEventHandler() {
-                    public int handleEvent (long when) {
-                        try {
-                            if (sockchan.finishConnect()) {
-                                // great, we're ready to roll, wire up the connection
-                                conn.selkey = sockchan.register(_selector, SelectionKey.OP_READ);
-                                _handlers.put(conn.selkey, conn);
-                            }
-                        } catch (IOException ioe) {
-                            _handlers.remove(conn.selkey);
-                            _oflowqs.remove(conn);
-                            conn.connectFailure(ioe);
-                        }
-                        return 0;
-                    }
-                    public boolean checkIdle (long now) {
-                        return conn.checkIdle(now);
-                    }
-                };
-            }
-            _handlers.put(conn.selkey, handler);
-
-        } catch (IOException ioe) {
-            log.warning("Failed to initiate connection for " + sockchan + ".", ioe);
-            conn.connectFailure(ioe); // nothing else to clean up
-            throw ioe;
-        }
+        _connectq.append(Tuple.create(conn, new InetSocketAddress(hostname, port)));
     }
 
     /**
@@ -328,6 +286,64 @@ public class ConnectionManager extends LoopingThread
                 // this never happens
             }
         });
+    }
+
+    /**
+     * Starts the connection process for an outgoing connection. This is called as part of the
+     * conmgr tick for any pending outgoing connections.
+     */
+    protected void startOutgoingConnection (final Connection conn, InetSocketAddress addr)
+    {
+        final SocketChannel sockchan = conn.getChannel();
+        try {
+            // register our channel with the selector (if this fails, we abandon ship immediately)
+            conn.selkey = sockchan.register(_selector, SelectionKey.OP_CONNECT);
+
+            // start our connection process (now if we fail we need to clean things up)
+            NetEventHandler handler;
+            if (sockchan.connect(addr)) {
+                // it is possible even for a non-blocking socket to connect immediately, in which
+                // case we stick the connection in as its event handler immediately
+                handler = conn;
+
+            } else {
+                // otherwise we wire up a special event handler that will wait for our socket to
+                // finish the connection process and then wire things up fully
+                handler = new NetEventHandler() {
+                    public int handleEvent (long when) {
+                        try {
+                            if (sockchan.finishConnect()) {
+                                log.info("Connection became ready.", "conn", conn);
+                                // great, we're ready to roll, wire up the connection
+                                conn.selkey = sockchan.register(_selector, SelectionKey.OP_READ);
+                                _handlers.put(conn.selkey, conn);
+                            } else {
+                                log.info("Connection not yet ready.", "conn", conn);
+                            }
+                        } catch (IOException ioe) {
+                            handleError(ioe);
+                        }
+                        return 0;
+                    }
+                    public boolean checkIdle (long now) {
+                        return conn.checkIdle(now);
+                    }
+                    public void becameIdle () {
+                        handleError(new IOException("Pending connection became idle."));
+                    }
+                    protected void handleError (IOException ioe) {
+                        _handlers.remove(conn.selkey);
+                        _oflowqs.remove(conn);
+                        conn.connectFailure(ioe);
+                    }
+                };
+            }
+            _handlers.put(conn.selkey, handler);
+
+        } catch (IOException ioe) {
+            log.warning("Failed to initiate connection for " + sockchan + ".", ioe);
+            conn.connectFailure(ioe); // nothing else to clean up
+        }
     }
 
     /**
@@ -453,6 +469,9 @@ public class ConnectionManager extends LoopingThread
             public boolean checkIdle (long now) {
                 return false; // we're never idle
             }
+            public void becameIdle () {
+                // we're never idle
+            }
         });
     }
 
@@ -467,6 +486,9 @@ public class ConnectionManager extends LoopingThread
             }
             public boolean checkIdle (long now) {
                 return false; // we're never idle
+            }
+            public void becameIdle () {
+                // we're never idle
             }
         });
     }
@@ -498,11 +520,17 @@ public class ConnectionManager extends LoopingThread
             }
         }
 
+        // start up any outgoing connections that need to be connected
+        Tuple<Connection, InetSocketAddress> pconn;
+        while ((pconn = _connectq.getNonBlocking()) != null) {
+            startOutgoingConnection(pconn.left, pconn.right);
+        }
+
         // close connections that have had no network traffic for too long
         for (NetEventHandler handler : _handlers.values()) {
             if (handler.checkIdle(iterStamp)) {
                 // this will queue the connection for closure on our next tick
-                closeConnection((Connection)handler);
+                handler.becameIdle();
             }
         }
 
@@ -601,7 +629,8 @@ public class ConnectionManager extends LoopingThread
             try {
                 handler = _handlers.get(selkey);
                 if (handler == null) {
-                    log.warning("Received network event for unknown handler", "key", selkey);
+                    log.warning("Received network event for unknown handler",
+                                "key", selkey, "ops", selkey.readyOps());
                     // request that this key be removed from our selection set, which normally
                     // happens automatically but for some reason didn't
                     selkey.cancel();
@@ -1176,18 +1205,18 @@ public class ConnectionManager extends LoopingThread
     /** Connections mapped by identifier. */
     protected IntMap<Connection> _connections = IntMaps.newHashIntMap();
 
-    protected Queue<Connection> _deathq = new Queue<Connection>();
-    protected Queue<AuthingConnection> _authq = new Queue<AuthingConnection>();
+    protected Queue<Connection> _deathq = Queue.newQueue();
+    protected Queue<AuthingConnection> _authq = Queue.newQueue();
+    protected Queue<Tuple<Connection, InetSocketAddress>> _connectq = Queue.newQueue();
 
-    protected Queue<Tuple<Connection, byte[]>> _outq = new Queue<Tuple<Connection, byte[]>>();
-    protected Queue<Tuple<Connection, byte[]>> _dataq = new Queue<Tuple<Connection, byte[]>>();
+    protected Queue<Tuple<Connection, byte[]>> _outq = Queue.newQueue();
+    protected Queue<Tuple<Connection, byte[]>> _dataq = Queue.newQueue();
     protected FramingOutputStream _framer = new FramingOutputStream();
     protected ByteArrayOutputStream _flattener = new ByteArrayOutputStream();
     protected ByteBuffer _outbuf = ByteBuffer.allocateDirect(64 * 1024);
     protected ByteBuffer _databuf = ByteBuffer.allocateDirect(Client.MAX_DATAGRAM_SIZE);
 
     protected Map<Connection, OverflowQueue> _oflowqs = Maps.newHashMap();
-
     protected List<ConnectionObserver> _observers = Lists.newArrayList();
 
     /** Bytes in and out in the last reporting period. */

@@ -51,4 +51,10 @@ public interface NetEventHandler
      * closed shortly), false if it is not.
      */
     boolean checkIdle (long now);
+
+    /**
+     * Called if the handler is deemed to be idle. Should shutdown any associated connection and
+     * remove any registrations with the connection manager.
+     */
+    void becameIdle ();
 }

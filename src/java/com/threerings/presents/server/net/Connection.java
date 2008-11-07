@@ -330,7 +330,7 @@ public class Connection implements NetEventHandler
         return bytesIn;
     }
 
-    // documentation inherited from interface
+    // from interface NetEventHandler
     public boolean checkIdle (long now)
     {
         long idleMillis = now - _lastEvent;
@@ -343,6 +343,12 @@ public class Connection implements NetEventHandler
         log.info("Disconnecting non-communicative client [conn=" + this +
                  ", idle=" + idleMillis + "ms].");
         return true;
+    }
+
+    // from interface NetEventHandler
+    public void becameIdle ()
+    {
+        _cmgr.closeConnection(this);
     }
 
     @Override // from Object
