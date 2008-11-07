@@ -71,7 +71,7 @@ public abstract class PersistingUnit extends Invoker.Unit
         if (error instanceof InvocationException) {
             _listener.requestFailed(error.getMessage());
         } else {
-            log.warning(getFailureMessage(), error);
+            log.warning("Unit threw an exception", "message", getFailureMessage(), error);
             _listener.requestFailed(InvocationCodes.INTERNAL_ERROR);
         }
     }
