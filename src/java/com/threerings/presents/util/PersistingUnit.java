@@ -57,6 +57,9 @@ public abstract class PersistingUnit extends Invoker.Unit
                            Object... args)
     {
         super(name);
+        if (args != null && args.length % 2 == 1) {
+            throw new IllegalArgumentException("Missing key or value in key/value pair arguments.");
+        }
         _listener = listener;
         _args = args;
     }
