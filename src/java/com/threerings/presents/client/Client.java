@@ -516,12 +516,6 @@ public class Client
             return false;
         }
 
-        // kill our tick interval
-        if (_tickInterval != null) {
-            _tickInterval.cancel();
-            _tickInterval = null;
-        }
-
         // ask the communicator to send a logoff message and disconnect from the server
         _comm.logoff();
 
@@ -817,6 +811,12 @@ public class Client
                 _clobj = null;
                 _connectionId = _cloid = -1;
                 _standalone = false;
+
+                // kill our tick interval
+                if (_tickInterval != null) {
+                    _tickInterval.cancel();
+                    _tickInterval = null;
+                }
 
                 // and let our invocation director know we're logged off
                 _invdir.cleanup();
