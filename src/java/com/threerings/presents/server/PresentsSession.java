@@ -57,6 +57,7 @@ import com.threerings.presents.net.EventNotification;
 import com.threerings.presents.net.FailureResponse;
 import com.threerings.presents.net.ForwardEventRequest;
 import com.threerings.presents.net.LogoffRequest;
+import com.threerings.presents.net.Message;
 import com.threerings.presents.net.ObjectResponse;
 import com.threerings.presents.net.PingRequest;
 import com.threerings.presents.net.PongResponse;
@@ -65,10 +66,8 @@ import com.threerings.presents.net.ThrottleUpdatedMessage;
 import com.threerings.presents.net.UnsubscribeRequest;
 import com.threerings.presents.net.UnsubscribeResponse;
 import com.threerings.presents.net.UpdateThrottleMessage;
-import com.threerings.presents.net.UpstreamMessage;
 import com.threerings.presents.server.net.Connection;
 import com.threerings.presents.server.net.ConnectionManager;
-import com.threerings.presents.server.net.MessageHandler;
 
 import static com.threerings.presents.Log.log;
 
@@ -84,7 +83,7 @@ import static com.threerings.presents.Log.log;
  * from the conmgr thread and therefore also need not be synchronized.
  */
 public class PresentsSession
-    implements MessageHandler, ClientResolutionListener
+    implements Connection.MessageHandler, ClientResolutionListener
 {
     /** Used by {@link PresentsSession#setUsername} to report success or failure. */
     public static interface UserChangeListener
@@ -396,8 +395,8 @@ public class PresentsSession
         endSession();
     }
 
-    // from interface MessageHandler
-    public void handleMessage (UpstreamMessage message)
+    // from interface Connection.MessageHandler
+    public void handleMessage (Message message)
     {
         _messagesIn++; // count 'em up!
 
@@ -957,16 +956,16 @@ public class PresentsSession
     }
 
     /**
-     * Message dispatchers are used to dispatch each different type of upstream message. We can
-     * look the dispatcher up in a table and invoke it through an overloaded member which is faster
-     * (so we think) than doing a bunch of instanceofs.
+     * Message dispatchers are used to dispatch each different type of message. We can look the
+     * dispatcher up in a table and invoke it through an overloaded member which is faster (so we
+     * think) than doing a bunch of instanceofs.
      */
     protected static interface MessageDispatcher
     {
         /**
          * Dispatch the supplied message for the specified client.
          */
-        void dispatch (PresentsSession client, UpstreamMessage mge);
+        void dispatch (PresentsSession client, Message mge);
     }
 
     /**
@@ -974,7 +973,7 @@ public class PresentsSession
      */
     protected static class SubscribeDispatcher implements MessageDispatcher
     {
-        public void dispatch (PresentsSession client, UpstreamMessage msg)
+        public void dispatch (PresentsSession client, Message msg)
         {
             SubscribeRequest req = (SubscribeRequest)msg;
 //             log.info("Subscribing [client=" + client + ", oid=" + req.getOid() + "].");
@@ -989,7 +988,7 @@ public class PresentsSession
      */
     protected static class UnsubscribeDispatcher implements MessageDispatcher
     {
-        public void dispatch (PresentsSession client, UpstreamMessage msg)
+        public void dispatch (PresentsSession client, Message msg)
         {
             UnsubscribeRequest req = (UnsubscribeRequest)msg;
             int oid = req.getOid();
@@ -1009,7 +1008,7 @@ public class PresentsSession
      */
     protected static class ForwardEventDispatcher implements MessageDispatcher
     {
-        public void dispatch (PresentsSession client, UpstreamMessage msg)
+        public void dispatch (PresentsSession client, Message msg)
         {
             ForwardEventRequest req = (ForwardEventRequest)msg;
             DEvent fevt = req.getEvent();
@@ -1036,7 +1035,7 @@ public class PresentsSession
      */
     protected static class PingDispatcher implements MessageDispatcher
     {
-        public void dispatch (PresentsSession client, UpstreamMessage msg)
+        public void dispatch (PresentsSession client, Message msg)
         {
             // send a pong response using the transport with which the message was received
             PingRequest req = (PingRequest)msg;
@@ -1049,7 +1048,7 @@ public class PresentsSession
      */
     protected static class ThrottleUpdatedDispatcher implements MessageDispatcher
     {
-        public void dispatch (final PresentsSession client, UpstreamMessage msg)
+        public void dispatch (final PresentsSession client, Message msg)
         {
             log.debug("Client ACKed throttle update", "client", client);
             client.throttleUpdated();
@@ -1061,7 +1060,7 @@ public class PresentsSession
      */
     protected static class LogoffDispatcher implements MessageDispatcher
     {
-        public void dispatch (final PresentsSession client, UpstreamMessage msg)
+        public void dispatch (final PresentsSession client, Message msg)
         {
             log.debug("Client requested logoff", "client", client);
             client.safeEndSession();

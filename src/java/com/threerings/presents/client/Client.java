@@ -418,8 +418,12 @@ public class Client
             return false;
         }
 
-        // notify our observers
-        notifyObservers(CLIENT_WILL_LOGON, null);
+        // notify our observers immediately
+        _observers.apply(new ObserverOps.Session() {
+            protected void notify (SessionObserver obs) {
+                obs.clientWillLogon(Client.this);
+            }
+        });
 
         // otherwise create a new communicator instance and start it up.  this will initiate the
         // logon process
@@ -504,7 +508,15 @@ public class Client
         }
 
         // if the request is abortable, let's run it past the observers before we act upon it
-        if (abortable && notifyObservers(CLIENT_WILL_LOGOFF, null)) {
+        final boolean[] rejected = new boolean[] { false };
+        _observers.apply(new ObserverOps.Client() {
+            protected void notify (ClientObserver obs) {
+                if (!obs.clientWillLogoff(Client.this)) {
+                    rejected[0] = true;
+                }
+            }
+        });
+        if (abortable && rejected[0]) {
             return false;
         }
 
@@ -527,7 +539,12 @@ public class Client
     public String[] prepareStandaloneLogon ()
     {
         _standalone = true;
-        notifyObservers(CLIENT_WILL_LOGON, null);
+        // notify our observers immediately
+        _observers.apply(new ObserverOps.Session() {
+            protected void notify (SessionObserver obs) {
+                obs.clientWillLogon(Client.this);
+            }
+        });
         return getBootGroups();
     }
 
@@ -548,7 +565,11 @@ public class Client
      */
     public void standaloneLogoff ()
     {
-        notifyObservers(CLIENT_DID_LOGOFF, null);
+        notifyObservers(new ObserverOps.Session() {
+            protected void notify (SessionObserver obs) {
+                obs.clientDidLogoff(Client.this);
+            }
+        });
         cleanup(null); // this will set _standalone to false
     }
 
@@ -715,9 +736,9 @@ public class Client
      */
     protected void reportLogonTribulations (final LogonException cause)
     {
-        _runQueue.postRunnable(new Runnable() {
-            public void run () {
-                notifyObservers(CLIENT_FAILED_TO_LOGON, cause);
+        notifyObservers(new ObserverOps.Client() {
+            protected void notify (ClientObserver obs) {
+                obs.clientFailedToLogon(Client.this, cause);
             }
         });
     }
@@ -732,16 +753,24 @@ public class Client
         _clobj = clobj;
 
         // let the client know that logon has now fully succeeded
-        notifyObservers(CLIENT_DID_LOGON, null);
+        notifyObservers(new ObserverOps.Session() {
+            protected void notify (SessionObserver obs) {
+                obs.clientDidLogon(Client.this);
+            }
+        });
     }
 
     /**
      * Called by the invocation director if it fails to subscribe to the client object after logon.
      */
-    protected void getClientObjectFailed (Exception cause)
+    protected void getClientObjectFailed (final Exception cause)
     {
         // pass the buck onto the listeners
-        notifyObservers(CLIENT_FAILED_TO_LOGON, cause);
+        notifyObservers(new ObserverOps.Client() {
+            protected void notify (ClientObserver obs) {
+                obs.clientFailedToLogon(Client.this, cause);
+            }
+        });
     }
 
     /**
@@ -753,32 +782,23 @@ public class Client
         _cloid = _clobj.getOid();
 
         // report to our observers
-        notifyObservers(CLIENT_OBJECT_CHANGED, null);
+        notifyObservers(new ObserverOps.Session() {
+            protected void notify (SessionObserver obs) {
+                obs.clientObjectDidChange(Client.this);
+            }
+        });
     }
 
-    protected boolean notifyObservers (int code, Exception cause)
+    protected void notifyObservers (final ObserverOps.Session op)
     {
-        final Notifier noty = new Notifier(code, cause);
-        Runnable unit = new Runnable() {
-            public void run () {
-                synchronized (_observers) {
-                    _observers.apply(noty);
-                }
-            }
-        };
-
-        // we need to run immediately if this is WILL_LOGON, WILL_LOGOFF or if we have no RunQueue
-        // (which currently only happens in some really obscure circumstances where we're using a
-        // Client instance on the server so that we can sort of pretend to be a real client)
-        if (code == CLIENT_WILL_LOGON || code == CLIENT_WILL_LOGOFF || _runQueue == null) {
-            unit.run();
-            return noty.getRejected();
-
+        if (_runQueue == null) {
+            _observers.apply(op);
         } else {
-            // otherwise we can queue this notification up with our RunQueue and ensure that it's
-            // run on the proper thread
-            _runQueue.postRunnable(unit);
-            return false;
+            _runQueue.postRunnable(new Runnable() {
+                public void run () {
+                    _observers.apply(op);
+                }
+            });
         }
     }
 
@@ -809,11 +829,15 @@ public class Client
                 // now that the communicator is cleaned up; this allows a logon failure listener to
                 // immediately try another logon (hopefully with something changed like the server
                 // or port)
-                if (logonError != null) {
-                    notifyObservers(CLIENT_FAILED_TO_LOGON, logonError);
-                } else {
-                    notifyObservers(CLIENT_DID_CLEAR, null);
-                }
+                notifyObservers(new ObserverOps.Client() {
+                    protected void notify (ClientObserver obs) {
+                        if (logonError != null) {
+                            obs.clientFailedToLogon(Client.this, logonError);
+                        } else {
+                            obs.clientDidClear(Client.this);
+                        }
+                    }
+                });
             }
         });
     }
@@ -842,81 +866,6 @@ public class Client
     protected boolean debugLogMessages ()
     {
         return false;
-    }
-
-    /**
-     * Used to notify client observers of events.
-     */
-    protected class Notifier
-        implements ObserverList.ObserverOp<SessionObserver>
-    {
-        public Notifier (int code, Exception cause)
-        {
-            _code = code;
-            _cause = cause;
-            _rejected = false;
-        }
-
-        public boolean getRejected ()
-        {
-            return _rejected;
-        }
-
-        public boolean apply (SessionObserver obs)
-        {
-            switch (_code) {
-            case CLIENT_WILL_LOGON:
-                obs.clientWillLogon(Client.this);
-                break;
-
-            case CLIENT_DID_LOGON:
-                obs.clientDidLogon(Client.this);
-                break;
-
-            case CLIENT_FAILED_TO_LOGON:
-                if (obs instanceof ClientObserver) {
-                    ((ClientObserver)obs).clientFailedToLogon(Client.this, _cause);
-                }
-                break;
-
-            case CLIENT_OBJECT_CHANGED:
-                obs.clientObjectDidChange(Client.this);
-                break;
-
-            case CLIENT_CONNECTION_FAILED:
-                if (obs instanceof ClientObserver) {
-                    ((ClientObserver)obs).clientConnectionFailed(Client.this, _cause);
-                }
-                break;
-
-            case CLIENT_WILL_LOGOFF:
-                if (obs instanceof ClientObserver) {
-                    if (!((ClientObserver)obs).clientWillLogoff(Client.this)) {
-                        _rejected = true;
-                    }
-                }
-                break;
-
-            case CLIENT_DID_LOGOFF:
-                obs.clientDidLogoff(Client.this);
-                break;
-
-            case CLIENT_DID_CLEAR:
-                if (obs instanceof ClientObserver) {
-                    ((ClientObserver)obs).clientDidClear(Client.this);
-                }
-                break;
-
-            default:
-                throw new RuntimeException("Invalid code supplied to notifyObservers: " + _code);
-            }
-
-            return true;
-        }
-
-        protected int _code;
-        protected Exception _cause;
-        protected boolean _rejected;
     }
 
     /** Handles the process of switching between servers.
@@ -1037,8 +986,7 @@ public class Client
     protected int[] _datagramPorts;
 
     /** Our list of client observers. */
-    protected ObserverList<SessionObserver> _observers =
-        new ObserverList<SessionObserver>(ObserverList.SAFE_IN_ORDER_NOTIFY);
+    protected ObserverList<SessionObserver> _observers = ObserverList.newSafeInOrder();
 
     /** The entity that manages our network communications. */
     protected Communicator _comm;
@@ -1075,14 +1023,4 @@ public class Client
 
     /** How often we recompute our time offset from the server. */
     protected static final long CLOCK_SYNC_INTERVAL = 600 * 1000L;
-
-    // client observer codes
-    static final int CLIENT_WILL_LOGON = 0;
-    static final int CLIENT_DID_LOGON = 1;
-    static final int CLIENT_FAILED_TO_LOGON = 2;
-    static final int CLIENT_OBJECT_CHANGED = 3;
-    static final int CLIENT_CONNECTION_FAILED = 4;
-    static final int CLIENT_WILL_LOGOFF = 5;
-    static final int CLIENT_DID_LOGOFF = 6;
-    static final int CLIENT_DID_CLEAR = 7;
 }

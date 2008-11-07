@@ -27,7 +27,6 @@ import java.util.Date;
 
 import com.samskivert.util.ResultListenerList;
 
-import com.threerings.presents.client.BlockingCommunicator;
 import com.threerings.presents.client.Client;
 import com.threerings.presents.client.ClientObserver;
 import com.threerings.presents.client.Communicator;
@@ -41,6 +40,8 @@ import com.threerings.presents.peer.data.NodeObject;
 import com.threerings.presents.peer.net.PeerBootstrapData;
 import com.threerings.presents.peer.server.persist.NodeRecord;
 import com.threerings.presents.server.PresentsDObjectMgr;
+import com.threerings.presents.server.net.ConnectionManager;
+import com.threerings.presents.server.net.ServerCommunicator;
 
 import static com.threerings.presents.Log.log;
 
@@ -53,14 +54,17 @@ public class PeerNode
     /** This peer's node object. */
     public NodeObject nodeobj;
 
-    public void init (PeerManager peermgr, PresentsDObjectMgr omgr, NodeRecord record)
+    /**
+     * Initializes this peer node and creates its internal client.
+     */
+    public void init (PeerManager peermgr, final PresentsDObjectMgr omgr,
+                      final ConnectionManager conmgr, NodeRecord record)
     {
         _peermgr = peermgr;
         _omgr = omgr;
         _record = record;
         _client = new Client(null, _omgr) {
-            @Override
-            protected void convertFromRemote (DObject target, DEvent event) {
+            @Override protected void convertFromRemote (DObject target, DEvent event) {
                 super.convertFromRemote(target, event);
                 // rewrite the event's target oid using the oid currently configured on the
                 // distributed object (we will have it mapped in our remote server's oid space,
@@ -70,11 +74,8 @@ public class PeerNode
                 // properly deal with it
                 event.eventId = PeerNode.this._omgr.getNextEventId(true);
             }
-            @Override
-            protected Communicator createCommunicator () {
-                // TODO: make a custom communicator that uses the ClientManager NIO system to do
-                // its I/O instead of using two threads and blocking socket I/O
-                return new BlockingCommunicator(this);
+            @Override protected Communicator createCommunicator () {
+                return new ServerCommunicator(this, conmgr, omgr);
             }
         };
         _client.addClientObserver(this);
@@ -102,10 +103,8 @@ public class PeerNode
 
     public void refresh (NodeRecord record)
     {
-        // if the hostname of this node changed, kill our existing client connection and connect
-        // anew
-        if (!record.hostName.equals(_record.hostName) &&
-            _client.isActive()) {
+        // if the hostname of this node changed, kill our existing client and connect anew
+        if (!record.hostName.equals(_record.hostName) && _client.isActive()) {
             _client.logoff(false);
         }
 
@@ -120,8 +119,8 @@ public class PeerNode
         // if our client hasn't updated its record since we last tried to logon, then just
         // chill
         if ((_lastConnectStamp - _record.lastUpdated.getTime()) > STALE_INTERVAL) {
-            log.debug("Not reconnecting to stale client [record=" + _record +
-                     ", lastTry=" + new Date(_lastConnectStamp) + "].");
+            log.debug("Not reconnecting to stale client", "record", _record,
+                      "lastTry", new Date(_lastConnectStamp));
             return;
         }
 

@@ -861,7 +861,7 @@ public abstract class PeerManager
         PeerNode peer = _peers.get(record.nodeName);
         if (peer == null) {
             _peers.put(record.nodeName, peer = createPeerNode());
-            peer.init(this, _omgr, record);
+            peer.init(this, _omgr, _conmgr, record);
         }
         peer.refresh(record);
     }

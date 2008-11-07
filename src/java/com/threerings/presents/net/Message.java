@@ -28,6 +28,9 @@ import com.threerings.io.SimpleStreamableObject;
  */
 public abstract class Message extends SimpleStreamableObject
 {
+    /** A timestamp indicating when this message was received from the network. */
+    public transient long received;
+
     /**
      * Sets the message transport parameters.  For messages received over the network, these
      * describe the mode of transport over which the message was received.  When sending messages,

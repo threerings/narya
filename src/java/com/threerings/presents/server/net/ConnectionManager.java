@@ -62,7 +62,7 @@ import com.threerings.presents.client.Client;
 import com.threerings.presents.data.ConMgrStats;
 import com.threerings.presents.net.AuthRequest;
 import com.threerings.presents.net.AuthResponse;
-import com.threerings.presents.net.DownstreamMessage;
+import com.threerings.presents.net.Message;
 import com.threerings.presents.server.Authenticator;
 import com.threerings.presents.server.ChainedAuthenticator;
 import com.threerings.presents.server.DummyAuthenticator;
@@ -194,6 +194,74 @@ public class ConnectionManager extends LoopingThread
     }
 
     /**
+     * Opens an outgoing connection to the supplied address. The connection will be opened in a
+     * non-blocking manner and added to the connection manager's select set. Messages posted to the
+     * connection prior to it being actually connected to its destination will remain in the queue.
+     * If the connection fails those messages will be dropped.
+     *
+     * @param conn the connection to be initialized and opened. Callers may want to provide a
+     * {@link Connection} derived class so that they may intercept calldown methods.
+     * @param hostname the hostname of the server to which to connect.
+     * @param port the port on which to connect to the server.
+     *
+     * @exception IOException thrown if an error occurs opening a connection to the supplied
+     * server. When this method returns the connection may or may not be actually connected to the
+     * server. If the asynchronous connection attempt fails, the Connection will be notified via
+     * {@link Connection#networkFailure}.
+     */
+    public void openOutgoingConnection (final Connection conn, String hostname, int port)
+        throws IOException
+    {
+        // create a non-blocking socket channel to use for this connection
+        final SocketChannel sockchan = SocketChannel.open();
+        sockchan.configureBlocking(false);
+
+        // create our connection instance
+        conn.init(this, sockchan, System.currentTimeMillis());
+        // and register our channel with the selector (if this fails, we abandon ship immediately)
+        conn.selkey = sockchan.register(_selector, SelectionKey.OP_CONNECT);
+
+        // start our connection process (now if we fail we need to clean things up)
+        try {
+            NetEventHandler handler;
+            if (sockchan.connect(new InetSocketAddress(hostname, port))) {
+                // it is possible even for a non-blocking socket to connect immediately, in which
+                // case we stick the connection in as its event handler immediately
+                handler = conn;
+
+            } else {
+                // otherwise we wire up a special event handler that will wait for our socket to
+                // finish the connection process and then wire things up fully
+                handler = new NetEventHandler() {
+                    public int handleEvent (long when) {
+                        try {
+                            if (sockchan.finishConnect()) {
+                                // great, we're ready to roll, wire up the connection
+                                conn.selkey = sockchan.register(_selector, SelectionKey.OP_READ);
+                                _handlers.put(conn.selkey, conn);
+                            }
+                        } catch (IOException ioe) {
+                            _handlers.remove(conn.selkey);
+                            _oflowqs.remove(conn);
+                            conn.connectFailure(ioe);
+                        }
+                        return 0;
+                    }
+                    public boolean checkIdle (long now) {
+                        return conn.checkIdle(now);
+                    }
+                };
+            }
+            _handlers.put(conn.selkey, handler);
+
+        } catch (IOException ioe) {
+            log.warning("Failed to initiate connection for " + sockchan + ".", ioe);
+            conn.connectFailure(ioe); // nothing else to clean up
+            throw ioe;
+        }
+    }
+
+    /**
      * Queues a connection up to be closed on the conmgr thread.
      */
     public void closeConnection (Connection conn)
@@ -201,25 +269,8 @@ public class ConnectionManager extends LoopingThread
         _deathq.append(conn);
     }
 
-    /**
-     * Performs the authentication process on the specified connection. This is called by {@link
-     * AuthingConnection} itself once it receives its auth request.
-     */
-    public void authenticateConnection (AuthingConnection conn)
-    {
-        _author.authenticateConnection(_authInvoker, conn, new ResultListener<AuthingConnection>() {
-            public void requestCompleted (AuthingConnection conn) {
-                _authq.append(conn);
-            }
-            public void requestFailed (Exception cause) {
-                // this never happens
-            }
-        });
-    }
-
-    // documentation inherited from interface ReportManager.Reporter
-    public void appendReport (
-        StringBuilder report, long now, long sinceLast, boolean reset)
+    // from interface ReportManager.Reporter
+    public void appendReport (StringBuilder report, long now, long sinceLast, boolean reset)
     {
         ConMgrStats stats = getStats();
         int connects = stats.connects - _lastStats.connects;
@@ -261,6 +312,22 @@ public class ConnectionManager extends LoopingThread
     {
         // Prevent exiting our thread until the object manager is done.
         return super.isRunning() || _omgr.isRunning();
+    }
+
+    /**
+     * Performs the authentication process on the specified connection. This is called by {@link
+     * AuthingConnection} itself once it receives its auth request.
+     */
+    protected void authenticateConnection (AuthingConnection conn)
+    {
+        _author.authenticateConnection(_authInvoker, conn, new ResultListener<AuthingConnection>() {
+            public void requestCompleted (AuthingConnection conn) {
+                _authq.append(conn);
+            }
+            public void requestFailed (Exception cause) {
+                // this never happens
+            }
+        });
     }
 
     /**
@@ -363,10 +430,6 @@ public class ConnectionManager extends LoopingThread
             }
         }
 
-        // we'll use these for sending messages to clients
-        _framer = new FramingOutputStream();
-        _flattener = new ByteArrayOutputStream();
-
         // notify our startup listener, if we have one
         if (_startlist != null) {
             _startlist.requestCompleted(null);
@@ -461,21 +524,20 @@ public class ConnectionManager extends LoopingThread
             try {
                 // construct a new running connection to handle this connections network traffic
                 // from here on out
-                SelectionKey selkey = conn.getSelectionKey();
-                RunningConnection rconn = new RunningConnection(
-                    this, selkey, conn.getChannel(), iterStamp);
+                Connection rconn = new Connection();
+                rconn.init(this, conn.getChannel(), iterStamp);
+                rconn.selkey = conn.selkey;
 
                 // we need to keep using the same object input and output streams from the
                 // beginning of the session because they have context that needs to be preserved
                 rconn.inheritStreams(conn);
 
                 // replace the mapping in the handlers table from the old conn with the new one
-                _handlers.put(selkey, rconn);
+                _handlers.put(rconn.selkey, rconn);
 
                 // add a mapping for the connection id and set the datagram secret
                 _connections.put(rconn.getConnectionId(), rconn);
-                rconn.setDatagramSecret(
-                    conn.getAuthRequest().getCredentials().getDatagramSecret());
+                rconn.setDatagramSecret(conn.getAuthRequest().getCredentials().getDatagramSecret());
 
                 // transfer any overflow queue for that connection
                 OverflowQueue oflowHandler = _oflowqs.remove(conn);
@@ -494,9 +556,10 @@ public class ConnectionManager extends LoopingThread
 
         Set<SelectionKey> ready = null;
         try {
-            // check for incoming network events
 //             log.debug("Selecting from " + StringUtil.toString(_selector.keys()) + " (" +
 //                       SELECT_LOOP_TIME + ").");
+
+            // check for incoming network events
             int ecount = _selector.select(SELECT_LOOP_TIME);
             ready = _selector.selectedKeys();
             if (ecount == 0) {
@@ -538,8 +601,7 @@ public class ConnectionManager extends LoopingThread
             try {
                 handler = _handlers.get(selkey);
                 if (handler == null) {
-                    log.warning("Received network event but have no registered handler " +
-                                "[selkey=" + selkey + "].");
+                    log.warning("Received network event for unknown handler", "key", selkey);
                     // request that this key be removed from our selection set, which normally
                     // happens automatically but for some reason didn't
                     selkey.cancel();
@@ -592,7 +654,7 @@ public class ConnectionManager extends LoopingThread
                     }
 
                 } catch (IOException ioe) {
-                    oq.conn.handleFailure(ioe);
+                    oq.conn.networkFailure(ioe);
                 }
             }
         }
@@ -641,10 +703,15 @@ public class ConnectionManager extends LoopingThread
             return true;
         }
 
+        // if this is an asynchronous close request, queue the connection up for death
+        if (data == ASYNC_CLOSE_REQUEST) {
+            closeConnection(conn);
+            return true;
+        }
+
         // sanity check the message size
         if (data.length > 1024 * 1024) {
-            log.warning("Refusing to write absurdly large message [conn=" + conn +
-                        ", size=" + data.length + "].");
+            log.warning("Refusing to write very large message", "conn", conn, "size", data.length);
             return true;
         }
 
@@ -664,26 +731,26 @@ public class ConnectionManager extends LoopingThread
             _outbuf.put(data);
             _outbuf.flip();
 
+            // if the connection to which we're writing is not yet ready, the whole message is
+            // "leftover", so we pass it to the partial write handler
+            SocketChannel sochan = conn.getChannel();
+            if (!sochan.isConnected()) {
+                pwh.handlePartialWrite(conn, _outbuf);
+                return false;
+            }
+
             // then write the data to the socket
-            int wrote = conn.getChannel().write(_outbuf);
+            int wrote = sochan.write(_outbuf);
             noteWrite(1, wrote);
 
+            // if we didn't write our entire message, deal with the leftover bytes
             if (_outbuf.remaining() > 0) {
                 fully = false;
-//                 log.info("Partial write [conn=" + conn +
-//                          ", msg=" + StringUtil.shortClassName(outmsg) + ", wrote=" + wrote +
-//                          ", size=" + buffer.limit() + "].");
                 pwh.handlePartialWrite(conn, _outbuf);
-
-//                 } else if (wrote > 10000) {
-//                     log.info("Big write [conn=" + conn +
-//                              ", msg=" + StringUtil.shortClassName(outmsg) +
-//                              ", wrote=" + wrote + "].");
             }
 
         } catch (IOException ioe) {
-            // instruct the connection to deal with its failure
-            conn.handleFailure(ioe);
+            conn.networkFailure(ioe); // instruct the connection to deal with its failure
 
         } finally {
             _outbuf.clear();
@@ -790,8 +857,10 @@ public class ConnectionManager extends LoopingThread
             // connection and register it with our selection set
             SelectableChannel selchan = channel;
             selchan.configureBlocking(false);
-            SelectionKey selkey = selchan.register(_selector, SelectionKey.OP_READ);
-            _handlers.put(selkey, new AuthingConnection(this, selkey, channel));
+            AuthingConnection aconn = new AuthingConnection();
+            aconn.selkey = selchan.register(_selector, SelectionKey.OP_READ);
+            aconn.init(this, channel, System.currentTimeMillis());
+            _handlers.put(aconn.selkey, aconn);
             synchronized (this) {
                 _stats.connects++;
             }
@@ -863,11 +932,11 @@ public class ConnectionManager extends LoopingThread
      * which happens when forwarding an event to a client and at the completion of authentication,
      * both of which <em>must</em> happen only on the distributed object thread.
      */
-    void postMessage (Connection conn, DownstreamMessage msg)
+    void postMessage (Connection conn, Message msg)
     {
         if (!isRunning()) {
-            log.warning(
-                "Posting message to inactive connection manager", "msg", msg, new Exception());
+            log.warning("Posting message to inactive connection manager",
+                        "msg", msg, new Exception());
         }
 
         // sanity check
@@ -901,22 +970,20 @@ public class ConnectionManager extends LoopingThread
             ByteBuffer buffer = _framer.frameAndReturnBuffer();
             byte[] data = new byte[buffer.limit()];
             buffer.get(data);
-
-//             log.info("Flattened " + msg + " into " + data.length + " bytes.");
+            // log.info("Flattened " + msg + " into " + data.length + " bytes.");
 
             // and slap both on the queue
-            _outq.append(new Tuple<Connection, byte[]>(conn, data));
+            _outq.append(Tuple.create(conn, data));
 
         } catch (Exception e) {
-            log.warning("Failure flattening message [conn=" + conn +
-                    ", msg=" + msg + "].", e);
+            log.warning("Failure flattening message", "conn", conn, "msg", msg, e);
         }
     }
 
     /**
      * Helper function for {@link #postMessage}; handles posting the message as a datagram.
      */
-    void postDatagram (Connection conn, DownstreamMessage msg)
+    void postDatagram (Connection conn, Message msg)
         throws Exception
     {
         _flattener.reset();
@@ -929,7 +996,20 @@ public class ConnectionManager extends LoopingThread
         byte[] data = _flattener.toByteArray();
 
         // slap it on the queue
-        _dataq.append(new Tuple<Connection, byte[]>(conn, data));
+        _dataq.append(Tuple.create(conn, data));
+    }
+
+    /**
+     * Posts a fake message to this connection's outgoing message queue that will cause the
+     * connection to be closed when this message is reached. This is only used by outgoing
+     * connections to ensure that they finish sending their queued outgoing messages before closing
+     * their connection. Incoming connections tend only to be closed at the request of the client
+     * or in case of delinquincy. In neither circumstance do we need to flush the client's outgoing
+     * queue before closing.
+     */
+    void postAsyncClose (Connection conn)
+    {
+        _outq.append(Tuple.create(conn, ASYNC_CLOSE_REQUEST));
     }
 
     /**
@@ -939,7 +1019,7 @@ public class ConnectionManager extends LoopingThread
     {
         // remove this connection from our mappings (it is automatically removed from the Selector
         // when the socket is closed)
-        _handlers.remove(conn.getSelectionKey());
+        _handlers.remove(conn.selkey);
         _connections.remove(conn.getConnectionId());
         _oflowqs.remove(conn);
         synchronized (this) {
@@ -957,7 +1037,7 @@ public class ConnectionManager extends LoopingThread
     {
         // remove this connection from our mappings (it is automatically removed from the Selector
         // when the socket is closed)
-        _handlers.remove(conn.getSelectionKey());
+        _handlers.remove(conn.selkey);
         _connections.remove(conn.getConnectionId());
         _oflowqs.remove(conn);
 
@@ -1012,8 +1092,14 @@ public class ConnectionManager extends LoopingThread
         {
             // write any partial message if we have one
             if (_partial != null) {
+                // if our outgoing channel is still not ready, then bail immediately
+                SocketChannel sochan = conn.getChannel();
+                if (!sochan.isConnected()) {
+                    return false;
+                }
+
                 // write all we can of our partial buffer
-                int wrote = conn.getChannel().write(_partial);
+                int wrote = sochan.write(_partial);
                 noteWrite(0, wrote);
 
                 if (_partial.remaining() == 0) {
@@ -1095,8 +1181,8 @@ public class ConnectionManager extends LoopingThread
 
     protected Queue<Tuple<Connection, byte[]>> _outq = new Queue<Tuple<Connection, byte[]>>();
     protected Queue<Tuple<Connection, byte[]>> _dataq = new Queue<Tuple<Connection, byte[]>>();
-    protected FramingOutputStream _framer;
-    protected ByteArrayOutputStream _flattener;
+    protected FramingOutputStream _framer = new FramingOutputStream();
+    protected ByteArrayOutputStream _flattener = new ByteArrayOutputStream();
     protected ByteBuffer _outbuf = ByteBuffer.allocateDirect(64 * 1024);
     protected ByteBuffer _databuf = ByteBuffer.allocateDirect(Client.MAX_DATAGRAM_SIZE);
 
@@ -1135,4 +1221,7 @@ public class ConnectionManager extends LoopingThread
     protected static final int CONNECTION_ESTABLISHED = 0;
     protected static final int CONNECTION_FAILED = 1;
     protected static final int CONNECTION_CLOSED = 2;
+
+    /** Used to denote asynchronous close requests. */
+    protected static final byte[] ASYNC_CLOSE_REQUEST = new byte[0];
 }

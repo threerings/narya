@@ -2,7 +2,7 @@
 // $Id$
 //
 // Narya library - tools for developing networked games
-// Copyright (C) 2002-2007 Three Rings Design, Inc., All Rights Reserved
+// Copyright (C) 2002-2008 Three Rings Design, Inc., All Rights Reserved
 // http://www.threerings.net/code/narya/
 //
 // This library is free software; you can redistribute it and/or modify it
@@ -19,19 +19,31 @@
 // License along with this library; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 
-package com.threerings.presents.server.net;
+package com.threerings.presents.client;
 
-import com.threerings.presents.net.UpstreamMessage;
+import com.samskivert.util.ObserverList;
 
 /**
- * After the connection object has parsed an entire upstream message, it
- * passes it on to its message handler.
+ * Used to notify session and client observers.
  */
-public interface MessageHandler
+public class ObserverOps
 {
-    /**
-     * Called when a complete message has been parsed from incoming
-     * network data.
-     */
-    void handleMessage (UpstreamMessage message);
+    public abstract static class Session implements ObserverList.ObserverOp<SessionObserver>
+    {
+        public boolean apply (SessionObserver obs) {
+            notify(obs);
+            return true;
+        }
+        protected abstract void notify (SessionObserver obs);
+    }
+
+    public abstract static class Client extends Session
+    {
+        @Override public void notify (SessionObserver obs) {
+            if (obs instanceof ClientObserver) {
+                notify((ClientObserver)obs);
+            }
+        }
+        protected abstract void notify (ClientObserver obs);
+    }
 }

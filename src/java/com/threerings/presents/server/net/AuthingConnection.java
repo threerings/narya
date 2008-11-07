@@ -21,62 +21,37 @@
 
 package com.threerings.presents.server.net;
 
-import java.io.IOException;
-
-import java.nio.channels.SelectionKey;
-import java.nio.channels.SocketChannel;
-
-import com.samskivert.util.StringUtil;
-
 import com.threerings.presents.net.AuthRequest;
 import com.threerings.presents.net.AuthResponse;
-import com.threerings.presents.net.UpstreamMessage;
+import com.threerings.presents.net.Message;
 
 import static com.threerings.presents.Log.log;
 
 /**
- * The authing connection manages the client connection until
- * authentication has completed (for better or for worse).
+ * The authing connection manages the client connection until authentication has completed (for
+ * better or for worse).
  */
 public class AuthingConnection extends Connection
-    implements MessageHandler
 {
-    /**
-     * Creates a new authing connection object that will manage the
-     * authentication process for the suppled client socket.
-     */
-    public AuthingConnection (ConnectionManager cmgr, SelectionKey selkey,
-                              SocketChannel channel)
-        throws IOException
+    public AuthingConnection ()
     {
-        super(cmgr, selkey, channel, System.currentTimeMillis());
-
-        // we are our own message handler
-        setMessageHandler(this);
+        setMessageHandler(new MessageHandler() {
+            public void handleMessage (Message msg) {
+                try {
+                    // keep a handle on our auth request
+                    _authreq = (AuthRequest)msg;
+                    // post ourselves for processing by the authmgr
+                    _cmgr.authenticateConnection(AuthingConnection.this);
+                } catch (ClassCastException cce) {
+                    log.warning("Received non-authreq message during authentication process",
+                                "conn", AuthingConnection.this, "msg", msg);
+                }
+            }
+        });
     }
 
     /**
-     * Called when a new message has arrived from the client.
-     */
-    public void handleMessage (UpstreamMessage msg)
-    {
-        try {
-            // keep a handle on our auth request
-            _authreq = (AuthRequest)msg;
-
-            // post ourselves for processing by the authmgr
-            _cmgr.authenticateConnection(this);
-
-        } catch (ClassCastException cce) {
-            log.warning("Received non-authreq message during " +
-                        "authentication process [conn=" + this +
-                        ", msg=" + msg + "].");
-        }
-    }
-
-    /**
-     * Returns a reference to the auth request currently being processed
-     * by this authing connection.
+     * Returns a reference to the auth request currently being processed.
      */
     public AuthRequest getAuthRequest ()
     {
@@ -84,8 +59,8 @@ public class AuthingConnection extends Connection
     }
 
     /**
-     * Returns the auth response delivered to the client (only valid after
-     * the auth request has been processed.
+     * Returns the auth response delivered to the client (only valid after the auth request has
+     * been processed.
      */
     public AuthResponse getAuthResponse ()
     {
@@ -93,9 +68,8 @@ public class AuthingConnection extends Connection
     }
 
     /**
-     * Stores a reference to the auth response delivered to this
-     * connection. This is called by the auth manager after delivering the
-     * auth response to the client.
+     * Stores a reference to the auth response delivered to this connection. This is called by the
+     * auth manager after delivering the auth response to the client.
      */
     public void setAuthResponse (AuthResponse authrsp)
     {
@@ -105,8 +79,7 @@ public class AuthingConnection extends Connection
     @Override
     public String toString ()
     {
-        return "[mode=AUTHING, addr=" +
-            StringUtil.toString(_channel.socket().getInetAddress()) + "]";
+        return "[mode=AUTHING, addr=" + getInetAddress() + "]";
     }
 
     protected AuthRequest _authreq;

@@ -183,17 +183,10 @@ public class BlockingCommunicator extends Communicator
         return _lastWrite;
     }
 
-    /**
-     * Callback called by the reader when the authentication process completes successfully. Here
-     * we extract the bootstrap information for the client and start up the writer thread to manage
-     * the other half of our bi-directional message stream.
-     */
+    @Override // from Communicator
     protected synchronized void logonSucceeded (AuthResponseData data)
     {
-        log.debug("Logon succeeded: " + data);
-
-        // create our distributed object manager
-        _omgr = new ClientDObjectMgr(this, _client);
+        super.logonSucceeded(data);
 
         // create a new writer thread and start it up
         if (_writer != null) {
@@ -201,19 +194,13 @@ public class BlockingCommunicator extends Communicator
         }
         _writer = new Writer();
         _writer.start();
-
-        // fill the auth data into the client's local field so that it can be requested by external
-        // entities
-        _client._authData = data;
-
-        // wait for the bootstrap notification before we claim that we're actually logged on
     }
 
     /**
      * Callback called by the reader or writer thread when something goes awry with our socket
      * connection to the server.
      */
-    protected synchronized void connectionFailed (IOException ioe)
+    protected synchronized void connectionFailed (final IOException ioe)
     {
         // make sure the socket isn't already closed down (meaning we've already dealt with the
         // failed connection)
@@ -224,7 +211,11 @@ public class BlockingCommunicator extends Communicator
         log.info("Connection failed", ioe);
 
         // let the client know that things went south
-        _client.notifyObservers(Client.CLIENT_CONNECTION_FAILED, ioe);
+        notifyClientObservers(new ObserverOps.Client() {
+            protected void notify (ClientObserver obs) {
+                obs.clientConnectionFailed(_client, ioe);
+            }
+        });
 
         // and request that we go through the motions of logging off
         logoff();
@@ -260,7 +251,7 @@ public class BlockingCommunicator extends Communicator
             closeChannel();
 
             // let the client know when we finally go away
-            _client.cleanup(_logonError);
+            clientCleanup(_logonError);
         }
 
         log.debug("Reader thread exited.");
@@ -276,7 +267,11 @@ public class BlockingCommunicator extends Communicator
         log.debug("Writer thread exited.");
 
         // let the client observers know that we're logged off
-        _client.notifyObservers(Client.CLIENT_DID_LOGOFF, null);
+        notifyClientObservers(new ObserverOps.Session() {
+            protected void notify (SessionObserver obs) {
+                obs.clientDidLogoff(_client);
+            }
+        });
 
         // now that the writer thread has gone away, we can safely close our socket and let the
         // client know that the logoff process has completed
@@ -284,7 +279,7 @@ public class BlockingCommunicator extends Communicator
 
         // let the client know when we finally go away
         if (_reader == null) {
-            _client.cleanup(_logonError);
+            clientCleanup(_logonError);
         }
     }
 
@@ -440,14 +435,6 @@ public class BlockingCommunicator extends Communicator
     }
 
     /**
-     * Makes a note of the time at which we last communicated with the server.
-     */
-    protected synchronized void updateWriteStamp ()
-    {
-        _lastWrite = System.currentTimeMillis();
-    }
-
-    /**
      * Reads a new message from the socket (blocking until a message has arrived).
      */
     protected DownstreamMessage receiveMessage ()
@@ -504,16 +491,6 @@ public class BlockingCommunicator extends Communicator
         }
     }
 
-    /**
-     * Callback called by the reader thread when it has parsed a new message from the socket and
-     * wishes to have it processed.
-     */
-    protected void processMessage (DownstreamMessage msg)
-    {
-        // post this message to the dobjmgr queue
-        _omgr.processMessage(msg);
-    }
-
     protected void openChannel (InetAddress host)
         throws IOException
     {
@@ -545,13 +522,17 @@ public class BlockingCommunicator extends Communicator
         @Override
         protected void willStart ()
         {
-            // first we connect and authenticate with the server
             try {
                 // connect to the server
                 connect();
 
-                // then authenticate
-                logon();
+                // construct an auth request and send it
+                sendMessage(new AuthRequest(_client.getCredentials(), _client.getVersion(),
+                                            _client.getBootGroups()));
+
+                // now wait for the auth response
+                log.debug("Waiting for auth response.");
+                gotAuthResponse((AuthResponse)receiveMessage());
 
             } catch (Exception e) {
                 log.debug("Logon failed: " + e);
@@ -584,30 +565,6 @@ public class BlockingCommunicator extends Communicator
             _oin = new ObjectInputStream(_fin);
             _oin.setClassLoader(_loader);
             _oout = new ObjectOutputStream(_fout);
-        }
-
-        protected void logon ()
-            throws IOException, LogonException
-        {
-            // construct an auth request and send it
-            AuthRequest req = new AuthRequest(
-                _client.getCredentials(), _client.getVersion(), _client.getBootGroups());
-            sendMessage(req);
-
-            // now wait for the auth response
-            log.debug("Waiting for auth response.");
-            AuthResponse rsp = (AuthResponse)receiveMessage();
-            AuthResponseData data = rsp.getData();
-            log.debug("Got auth response: " + data);
-
-            // if the auth request failed, we want to let the communicator know by throwing a logon
-            // exception
-            if (!data.code.equals(AuthResponseData.SUCCESS)) {
-                throw new LogonException(data.code);
-            }
-
-            // we're all clear. let the communicator know that we're in
-            logonSucceeded(data);
         }
 
         // now that we're authenticated, we manage the reading half of things by continuously
@@ -961,7 +918,6 @@ public class BlockingCommunicator extends Communicator
     protected DatagramChannel _datagramChannel;
     protected Queue<UpstreamMessage> _dataq = new Queue<UpstreamMessage>();
 
-    protected long _lastWrite;
     protected Exception _logonError;
 
     /** We use this to frame our upstream messages. */
@@ -983,7 +939,6 @@ public class BlockingCommunicator extends Communicator
 
     protected DatagramSequencer _sequencer;
 
-    protected ClientDObjectMgr _omgr;
     protected ClassLoader _loader;
 
     /** The number of times per port to try to establish a datagram "connection". */

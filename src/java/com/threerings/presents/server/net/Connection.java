@@ -43,34 +43,39 @@ import com.threerings.io.ObjectOutputStream;
 import com.threerings.io.UnreliableObjectInputStream;
 import com.threerings.io.UnreliableObjectOutputStream;
 
-import com.threerings.presents.net.DownstreamMessage;
+import com.threerings.presents.net.Message;
 import com.threerings.presents.net.PingRequest;
-import com.threerings.presents.net.UpstreamMessage;
 import com.threerings.presents.util.DatagramSequencer;
 
 import static com.threerings.presents.Log.log;
 
 /**
  * The base connection class implements the net event handler interface and processes raw incoming
- * network data into a stream of parsed <code>UpstreamMessage</code> objects. It also provides the
- * means to send messages to the client and facilities for checking delinquency.
+ * network data into a stream of parsed {@link Message} objects. It also provides the means to send
+ * messages to the client and facilities for checking delinquency.
  */
-public abstract class Connection implements NetEventHandler
+public class Connection implements NetEventHandler
 {
+    /** Used with {@link #setMessageHandler}. */
+    public static interface MessageHandler {
+        /** Called when a complete message has been parsed from incoming network data. */
+        void handleMessage (Message message);
+    }
+
+    /** The key used by the NIO code to track this connection. */
+    public SelectionKey selkey;
+
     /**
-     * Constructs a connection object that is associated with the supplied socket.
+     * Initializes a connection object with a socket and related info.
      *
      * @param cmgr The connection manager with which this connection is associated.
-     * @param selkey the key used by the NIO code to track this connection.
      * @param channel The socket channel from which we'll be reading messages.
      * @param createStamp The time at which this connection was created.
      */
-    public Connection (ConnectionManager cmgr, SelectionKey selkey, SocketChannel channel,
-                       long createStamp)
+    public void init (ConnectionManager cmgr, SocketChannel channel, long createStamp)
         throws IOException
     {
         _cmgr = cmgr;
-        _selkey = selkey;
         _channel = channel;
         _lastEvent = createStamp;
         _connectionId = ++_lastConnectionId;
@@ -102,14 +107,6 @@ public abstract class Connection implements NetEventHandler
     public int getConnectionId ()
     {
         return _connectionId;
-    }
-
-    /**
-     * Returns the selection key associated with our socket channel.
-     */
-    public SelectionKey getSelectionKey ()
-    {
-        return _selkey;
     }
 
     /**
@@ -178,10 +175,39 @@ public abstract class Connection implements NetEventHandler
     }
 
     /**
-     * Called when there is a failure reading or writing on this connection. We notify the
+     * Queues up a request to have this connection closed by the connection manager once all
+     * messages in its queue have been written to its target.
+     */
+    public void asyncClose ()
+    {
+        _cmgr.postAsyncClose(this);
+    }
+
+    /**
+     * Posts a message for delivery to this connection. The message will be delivered by the conmgr
+     * thread as soon as it gets to it.
+     */
+    public void postMessage (Message msg)
+    {
+        // pass this along to the connection manager
+        _cmgr.postMessage(this, msg);
+    }
+
+    /**
+     * Called when an outgoing socket experiences a connect failure. The connection manager will
+     * have cleaned up the partial registration needed during the connect process, so we are only
+     * responsible for closing our socket.
+     */
+    public void connectFailure (IOException ioe)
+    {
+        closeSocket();
+    }
+
+    /**
+     * Called when there is a failure reading or writing to this connection. We notify the
      * connection manager and close ourselves down.
      */
-    public void handleFailure (IOException ioe)
+    public void networkFailure (IOException ioe)
     {
         // if we're already closed, then something is seriously funny
         if (isClosed()) {
@@ -194,6 +220,135 @@ public abstract class Connection implements NetEventHandler
 
         // and close our socket
         closeSocket();
+    }
+
+    /**
+     * Processes a datagram sent to this connection.
+     */
+    public void handleDatagram (InetSocketAddress source, ByteBuffer buf, long when)
+    {
+        // lazily create our various bits and bobs
+        if (_digest == null) {
+            try {
+                _digest = MessageDigest.getInstance("MD5");
+            } catch (NoSuchAlgorithmException nsae) {
+                log.warning("Missing MD5 algorithm.");
+                return;
+            }
+            ByteBufferInputStream bin = new ByteBufferInputStream(buf);
+            _sequencer = new DatagramSequencer(
+                new UnreliableObjectInputStream(bin),
+                new UnreliableObjectOutputStream(_cmgr.getFlattener()));
+        }
+
+        // verify the hash
+        buf.position(12);
+        _digest.update(buf);
+        byte[] hash = _digest.digest(_datagramSecret);
+        buf.position(4);
+        for (int ii = 0; ii < 8; ii++) {
+            if (hash[ii] != buf.get()) {
+                log.warning("Datagram failed hash check [connectionId=" + _connectionId +
+                    ", source=" + source + "].");
+                return;
+            }
+        }
+
+        // update our target address
+        _datagramAddress = source;
+
+        // read the contents through the sequencer
+        try {
+            Message msg = _sequencer.readDatagram();
+            if (msg == null) {
+                return; // received out of order
+            }
+            msg.received = when;
+            _handler.handleMessage(msg);
+
+        } catch (ClassNotFoundException cnfe) {
+            log.warning("Error reading datagram [error=" + cnfe + "].");
+
+        } catch (IOException ioe) {
+            log.warning("Error reading datagram [error=" + ioe + "].");
+        }
+    }
+
+    // from interface NetEventHandler
+    public int handleEvent (long when)
+    {
+        // make a note that we received an event as of this time
+        _lastEvent = when;
+
+        int bytesIn = 0;
+        try {
+            // we're lazy about creating our input streams because we may be inheriting them from
+            // our authing connection and we don't want to unnecessarily create them in that case
+            if (_fin == null) {
+                _fin = new FramedInputStream();
+                _oin = new ObjectInputStream(_fin);
+                if (_loader != null) {
+                    _oin.setClassLoader(_loader);
+                }
+            }
+
+            // there may be more than one frame in the buffer, so we keep reading them until we run
+            // out of data
+            while (_fin.readFrame(_channel)) {
+                // make a note of how many bytes are in this frame (including the frame length
+                // bytes which aren't reported in available())
+                bytesIn = _fin.available() + 4;
+                // parse the message and pass it on
+                Message msg = (Message)_oin.readObject();
+                msg.received = when;
+//                 Log.info("Read message " + msg + ".");
+                _handler.handleMessage(msg);
+            }
+
+        } catch (EOFException eofe) {
+            // close down the socket gracefully
+            close();
+
+        } catch (ClassNotFoundException cnfe) {
+            log.warning("Error reading message from socket [channel=" +
+                        StringUtil.safeToString(_channel) + ", error=" + cnfe + "].");
+            // deal with the failure
+            String errmsg = "Unable to decode incoming message.";
+            networkFailure((IOException) new IOException(errmsg).initCause(cnfe));
+
+        } catch (IOException ioe) {
+            // don't log a warning for the ever-popular "the client dropped the connection" failure
+            String msg = ioe.getMessage();
+            if (msg == null || msg.indexOf("reset by peer") == -1) {
+                log.warning("Error reading message from socket [channel=" +
+                            StringUtil.safeToString(_channel) + ", error=" + ioe + "].");
+            }
+            // deal with the failure
+            networkFailure(ioe);
+        }
+
+        return bytesIn;
+    }
+
+    // documentation inherited from interface
+    public boolean checkIdle (long now)
+    {
+        long idleMillis = now - _lastEvent;
+        if (idleMillis < PingRequest.PING_INTERVAL + LATENCY_GRACE) {
+            return false;
+        }
+        if (isClosed()) {
+            return true;
+        }
+        log.info("Disconnecting non-communicative client [conn=" + this +
+                 ", idle=" + idleMillis + "ms].");
+        return true;
+    }
+
+    @Override // from Object
+    public String toString ()
+    {
+        return "[id=" + (hashCode() % 1000) + ", addr=" + getInetAddress() + "]";
     }
 
     /**
@@ -270,147 +425,10 @@ public abstract class Connection implements NetEventHandler
         }
 
         // clear out our references to prevent repeat closings
-        _selkey = null;
         _channel = null;
     }
 
-    /**
-     * Called when our client socket has data available for reading.
-     */
-    public int handleEvent (long when)
-    {
-        // make a note that we received an event as of this time
-        _lastEvent = when;
-
-        int bytesIn = 0;
-        try {
-            // we're lazy about creating our input streams because we may be inheriting them from
-            // our authing connection and we don't want to unnecessarily create them in that case
-            if (_fin == null) {
-                _fin = new FramedInputStream();
-                _oin = new ObjectInputStream(_fin);
-                if (_loader != null) {
-                    _oin.setClassLoader(_loader);
-                }
-            }
-
-            // there may be more than one frame in the buffer, so we keep reading them until we run
-            // out of data
-            while (_fin.readFrame(_channel)) {
-                // make a note of how many bytes are in this frame (including the frame length
-                // bytes which aren't reported in available())
-                bytesIn = _fin.available() + 4;
-                // parse the message and pass it on
-                UpstreamMessage msg = (UpstreamMessage)_oin.readObject();
-                msg.received = when;
-//                 Log.info("Read message " + msg + ".");
-                _handler.handleMessage(msg);
-            }
-
-        } catch (EOFException eofe) {
-            // close down the socket gracefully
-            close();
-
-        } catch (ClassNotFoundException cnfe) {
-            log.warning("Error reading message from socket [channel=" +
-                        StringUtil.safeToString(_channel) + ", error=" + cnfe + "].");
-            // deal with the failure
-            String errmsg = "Unable to decode incoming message.";
-            handleFailure((IOException) new IOException(errmsg).initCause(cnfe));
-
-        } catch (IOException ioe) {
-            // don't log a warning for the ever-popular "the client dropped the connection" failure
-            String msg = ioe.getMessage();
-            if (msg == null || msg.indexOf("reset by peer") == -1) {
-                log.warning("Error reading message from socket [channel=" +
-                            StringUtil.safeToString(_channel) + ", error=" + ioe + "].");
-            }
-            // deal with the failure
-            handleFailure(ioe);
-        }
-
-        return bytesIn;
-    }
-
-    /**
-     * Processes a datagram sent to this connection.
-     */
-    public void handleDatagram (InetSocketAddress source, ByteBuffer buf, long when)
-    {
-        // lazily create our various bits and bobs
-        if (_digest == null) {
-            try {
-                _digest = MessageDigest.getInstance("MD5");
-            } catch (NoSuchAlgorithmException nsae) {
-                log.warning("Missing MD5 algorithm.");
-                return;
-            }
-            ByteBufferInputStream bin = new ByteBufferInputStream(buf);
-            _sequencer = new DatagramSequencer(
-                new UnreliableObjectInputStream(bin),
-                new UnreliableObjectOutputStream(_cmgr.getFlattener()));
-        }
-
-        // verify the hash
-        buf.position(12);
-        _digest.update(buf);
-        byte[] hash = _digest.digest(_datagramSecret);
-        buf.position(4);
-        for (int ii = 0; ii < 8; ii++) {
-            if (hash[ii] != buf.get()) {
-                log.warning("Datagram failed hash check [connectionId=" + _connectionId +
-                    ", source=" + source + "].");
-                return;
-            }
-        }
-
-        // update our target address
-        _datagramAddress = source;
-
-        // read the contents through the sequencer
-        try {
-            UpstreamMessage msg = (UpstreamMessage)_sequencer.readDatagram();
-            if (msg == null) {
-                return; // received out of order
-            }
-            msg.received = when;
-            _handler.handleMessage(msg);
-
-        } catch (ClassNotFoundException cnfe) {
-            log.warning("Error reading datagram [error=" + cnfe + "].");
-
-        } catch (IOException ioe) {
-            log.warning("Error reading datagram [error=" + ioe + "].");
-        }
-    }
-
-    // documentation inherited from interface
-    public boolean checkIdle (long now)
-    {
-        long idleMillis = now - _lastEvent;
-        if (idleMillis < PingRequest.PING_INTERVAL + LATENCY_GRACE) {
-            return false;
-        }
-        if (isClosed()) {
-            return true;
-        }
-        log.info("Disconnecting non-communicative client [conn=" + this +
-                 ", idle=" + idleMillis + "ms].");
-        return true;
-    }
-
-    /**
-     * Posts a downstream message for delivery to this connection. The message will be delivered by
-     * the conmgr thread as soon as it gets to it.
-     */
-    public void postMessage (DownstreamMessage msg)
-    {
-        // pass this along to the connection manager
-        _cmgr.postMessage(this, msg);
-    }
-
     protected ConnectionManager _cmgr;
-    protected SelectionKey _selkey;
     protected SocketChannel _channel;
 
     protected long _lastEvent;

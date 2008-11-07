@@ -22,27 +22,22 @@
 package com.threerings.presents.net;
 
 /**
- * This class encapsulates a message in the distributed object protocol
- * that flows from the client to the server.  Upstream messages include
- * object subscription, event forwarding and session management.
+ * This class encapsulates a message in the distributed object protocol that flows from the client
+ * to the server.  Upstream messages include object subscription, event forwarding and session
+ * management.
  */
 public abstract class UpstreamMessage extends Message
 {
     /**
-     * This is a unique (within the context of a reasonable period of
-     * time) identifier assigned to each upstream message. The message ids
-     * are used to correlate a downstream response message to the
-     * appropriate upstream request message.
+     * This is a unique (within the context of a reasonable period of time) identifier assigned to
+     * each upstream message. The message ids are used to correlate a downstream response message
+     * to the appropriate upstream request message.
      */
     public short messageId;
 
-    /** A timestamp indicating when this upstream message was received. */
-    public transient long received;
-
     /**
-     * Each upstream message derived class must provide a zero argument
-     * constructor so that it can be unserialized when read from the
-     * network.
+     * Each upstream message derived class must provide a zero argument constructor so that it can
+     * be unserialized when read from the network.
      */
     public UpstreamMessage ()
     {
@@ -59,8 +54,7 @@ public abstract class UpstreamMessage extends Message
     }
 
     /**
-     * Returns the next message id suitable for use by an upstream
-     * message.
+     * Returns the next message id suitable for use by an upstream message.
      */
     protected static synchronized short nextMessageId ()
     {
@@ -69,8 +63,8 @@ public abstract class UpstreamMessage extends Message
     }
 
     /**
-     * This is used to generate monotonically increasing message ids on
-     * the client as new messages are generated.
+     * This is used to generate monotonically increasing message ids on the client as new messages
+     * are generated.
      */
     protected static short _nextMessageId;
 }

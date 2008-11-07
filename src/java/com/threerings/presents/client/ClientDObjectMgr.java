@@ -44,10 +44,10 @@ import com.threerings.presents.dobj.ObjectDestroyedEvent;
 import com.threerings.presents.dobj.Subscriber;
 import com.threerings.presents.net.BootstrapData;
 import com.threerings.presents.net.BootstrapNotification;
-import com.threerings.presents.net.DownstreamMessage;
 import com.threerings.presents.net.EventNotification;
 import com.threerings.presents.net.FailureResponse;
 import com.threerings.presents.net.ForwardEventRequest;
+import com.threerings.presents.net.Message;
 import com.threerings.presents.net.ObjectResponse;
 import com.threerings.presents.net.PongResponse;
 import com.threerings.presents.net.SubscribeRequest;
@@ -157,10 +157,10 @@ public class ClientDObjectMgr
     }
 
     /**
-     * Called by the communicator when a downstream message arrives from the network layer. We
-     * queue it up for processing and request some processing time on the main thread.
+     * Called by the communicator when a message arrives from the network layer. We queue it up for
+     * processing and request some processing time on the main thread.
      */
-    public void processMessage (DownstreamMessage msg)
+    public void processMessage (Message msg)
     {
         // append it to our queue
         _actions.append(msg);
@@ -211,6 +211,9 @@ public class ClientDObjectMgr
                 } else {
                     doUnsubscribe(act.oid, act.target);
                 }
+
+            } else {
+                log.warning("Unknown action", "action", obj);
             }
         }
     }
