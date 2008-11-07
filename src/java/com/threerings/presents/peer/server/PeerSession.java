@@ -82,6 +82,18 @@ public class PeerSession extends PresentsSession
 
         // save the client oid so we know it even after the object itself is cleared out
         _cloid = _clobj.getOid();
+
+        // let the peer manager know that we're here
+        _peermgr.peerStartedSession(this);
+    }
+
+    @Override // documentation inherited
+    protected void sessionDidEnd ()
+    {
+        super.sessionDidEnd();
+
+        // let the peer manager know that we're audi
+        _peermgr.peerEndedSession(this);
     }
 
     @Override // from PresentsSession

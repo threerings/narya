@@ -977,6 +977,24 @@ public abstract class PeerManager
     }
 
     /**
+     * Called when a peer connects to this server.
+     */
+    protected void peerStartedSession (PeerSession session)
+    {
+        // this may be the first we've heard of this guy, so let's refresh our peers and
+        // potentially connect right back to him
+        refreshPeers();
+    }
+
+    /**
+     * Called when a peer's session with this server ends.
+     */
+    protected void peerEndedSession (PeerSession session)
+    {
+        // nothing presently
+    }
+
+    /**
      * Called when we have established a connection to the supplied peer.
      */
     protected void connectedToPeer (PeerNode peer)
@@ -1234,8 +1252,7 @@ public abstract class PeerManager
 
     // (this need not use a runqueue as all it will do is post an invoker unit)
     protected Interval _peerRefresher = new Interval() {
-        @Override
-        public void expired () {
+        @Override public void expired () {
             refreshPeers();
         }
     };
