@@ -313,7 +313,6 @@ public class ConnectionManager extends LoopingThread
                     public int handleEvent (long when) {
                         try {
                             if (sockchan.finishConnect()) {
-                                log.info("Connection became ready.", "conn", conn);
                                 // great, we're ready to roll, wire up the connection
                                 conn.selkey = sockchan.register(_selector, SelectionKey.OP_READ);
                                 _handlers.put(conn.selkey, conn);
