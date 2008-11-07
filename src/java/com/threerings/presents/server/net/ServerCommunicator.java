@@ -63,6 +63,13 @@ public class ServerCommunicator extends Communicator
         // we assume server entities have no firewall issues and can connect on the first port
         try {
             Connection conn = new Connection() {
+                @Override public void postMessage (Message msg) {
+                    super.postMessage(msg);
+                    // outgoing traffic on this connection is used to prevent idleness
+                    _lastEvent = System.currentTimeMillis();
+                    // TODO: shouldn't PongResponse handle this?
+                }
+
                 @Override public void connectFailure (IOException ioe) {
                     _logonError = ioe; // report this as a logon failure
                     super.connectFailure(ioe);
