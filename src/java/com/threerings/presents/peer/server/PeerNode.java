@@ -27,6 +27,7 @@ import java.util.Date;
 
 import com.samskivert.util.ResultListenerList;
 
+import com.threerings.presents.client.BlockingCommunicator;
 import com.threerings.presents.client.Client;
 import com.threerings.presents.client.ClientObserver;
 import com.threerings.presents.client.Communicator;
@@ -75,7 +76,8 @@ public class PeerNode
                 event.eventId = PeerNode.this._omgr.getNextEventId(true);
             }
             @Override protected Communicator createCommunicator () {
-                return new ServerCommunicator(this, conmgr, omgr);
+                // return new ServerCommunicator(this, conmgr, omgr);
+                return new BlockingCommunicator(this);
             }
         };
         _client.addClientObserver(this);
