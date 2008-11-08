@@ -23,9 +23,7 @@ package com.threerings.presents.client;
 
 import java.util.ArrayList;
 
-import com.samskivert.util.Queue;
-import com.samskivert.util.RunQueue;
-
+import com.samskivert.util.BasicRunQueue;
 import com.threerings.util.Name;
 
 import com.threerings.presents.data.TestObject;
@@ -42,36 +40,12 @@ import static com.threerings.presents.Log.log;
  * A standalone test client.
  */
 public class TestClient
-    implements RunQueue, SessionObserver, Subscriber<TestObject>, EventListener,
+    implements SessionObserver, Subscriber<TestObject>, EventListener,
                TestService.TestOidListener, TestReceiver
 {
     public void setClient (Client client)
     {
         _client = client;
-    }
-
-    // from interface RunQueue
-    public void postRunnable (Runnable run)
-    {
-        // queue it on up
-        _queue.append(run);
-    }
-
-    // from interface RunQueue
-    public boolean isDispatchThread ()
-    {
-        return _main == Thread.currentThread();
-    }
-
-    public void run ()
-    {
-        _main = Thread.currentThread();
-
-        // loop over our queue, running the runnables
-        while (true) {
-            Runnable run = _queue.get();
-            run.run();
-        }
     }
 
     // from interface SessionObserver
@@ -203,16 +177,15 @@ public class TestClient
         TestClient tclient = new TestClient();
         UsernamePasswordCreds creds =
             new UsernamePasswordCreds(new Name("test"), "test");
-        Client client = new Client(creds, tclient);
+        BasicRunQueue rqueue = new BasicRunQueue();
+        Client client = new Client(creds, rqueue);
         tclient.setClient(client);
         client.addClientObserver(tclient);
         client.setServer("localhost", Client.DEFAULT_SERVER_PORTS);
         client.logon();
         // start up our event processing loop
-        tclient.run();
+        rqueue.run();
     }
 
-    protected Thread _main;
-    protected Queue<Runnable> _queue = new Queue<Runnable>();
     protected Client _client;
 }

@@ -21,9 +21,8 @@
 
 package com.threerings.crowd.client;
 
+import com.samskivert.util.BasicRunQueue;
 import com.samskivert.util.Config;
-import com.samskivert.util.Queue;
-import com.samskivert.util.RunQueue;
 
 import com.threerings.util.MessageManager;
 import com.threerings.util.Name;
@@ -39,7 +38,7 @@ import com.threerings.crowd.util.CrowdContext;
 import static com.threerings.crowd.Log.log;
 
 public class TestClient
-    implements RunQueue, ClientObserver
+    implements ClientObserver
 {
     public TestClient (String username)
     {
@@ -47,8 +46,7 @@ public class TestClient
         _ctx = createContext();
 
         // create the handles on our various services
-        _client = new Client(
-            new UsernamePasswordCreds(new Name(username), "test"), this);
+        _client = new Client(new UsernamePasswordCreds(new Name(username), "test"), _rqueue);
         _locdir = new LocationDirector(_ctx);
         _occdir = new OccupantDirector(_ctx);
         _chatdir = new ChatDirector(_ctx, new MessageManager("rsrc"), "global");
@@ -62,27 +60,11 @@ public class TestClient
 
     public void run ()
     {
-        _main = Thread.currentThread();
-
         // log on
         _client.logon();
 
         // loop over our queue, running the runnables
-        while (true) {
-            Runnable run = _queue.get();
-            run.run();
-        }
-    }
-
-    public void postRunnable (Runnable run)
-    {
-        // queue it on up
-        _queue.append(run);
-    }
-
-    public boolean isDispatchThread ()
-    {
-        return _main == Thread.currentThread();
+        _rqueue.run();
     }
 
     public void clientWillLogon (Client client)
@@ -193,6 +175,5 @@ public class TestClient
     protected OccupantDirector _occdir;
     protected ChatDirector _chatdir;
 
-    protected Thread _main;
-    protected Queue<Runnable> _queue = new Queue<Runnable>();
+    protected BasicRunQueue _rqueue = new BasicRunQueue();
 }

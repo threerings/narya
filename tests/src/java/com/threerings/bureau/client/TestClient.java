@@ -21,9 +21,8 @@
 
 package com.threerings.bureau.client;
 
+import com.samskivert.util.BasicRunQueue;
 import com.samskivert.util.OneLineLogFormatter;
-import com.samskivert.util.Queue;
-import com.samskivert.util.RunQueue;
 import com.samskivert.util.StringUtil;
 
 import com.threerings.bureau.data.AgentObject;
@@ -36,7 +35,7 @@ import static com.threerings.bureau.Log.log;
  */
 public class TestClient extends BureauClient
 {
-    public static void main (String args[])
+    public static void main (String[] args)
         throws java.net.MalformedURLException
     {
         // make log pretty
@@ -52,53 +51,20 @@ public class TestClient extends BureauClient
         client.logon();
 
         // run it
-        client.run();
+        ((BasicRunQueue)client.getRunQueue()).run();
     }
 
     /**
-     * Implements most basic run queue. Required to instantate a client. 
-     */
-    static protected class SimpleRunQueue implements RunQueue
-    {
-        public void postRunnable (Runnable r)
-        {
-            _queue.append(r);
-        }
-
-        public boolean isDispatchThread ()
-        {
-            return _main == Thread.currentThread();
-        }
-
-        public void run ()
-        {
-            _main = Thread.currentThread();
-
-            while (true) {
-                Runnable r = _queue.get();
-                r.run();
-            }
-        }
-
-        protected Thread _main;
-        protected Queue<Runnable> _queue = new Queue<Runnable>();
-    }
-
-    /**
-     * The agent class used by our director. Does not actually load any code, just logs the 
+     * The agent class used by our director. Does not actually load any code, just logs the
      * start/stop requests.
      */
-    static protected class TestAgent extends Agent
+    protected static class TestAgent extends Agent
     {
-        @Override
-        public void start ()
-        {
+        @Override public void start () {
             log.info("Starting agent " + StringUtil.toString(_agentObj));
         }
 
-        @Override
-        public void stop ()
-        {
+        @Override public void stop () {
             log.info("Stopping agent " + StringUtil.toString(_agentObj));
         }
     }
@@ -108,15 +74,7 @@ public class TestClient extends BureauClient
      */
     protected TestClient (String token, String bureauId)
     {
-        super(token, bureauId, new SimpleRunQueue());
-    }
-
-    /**
-     * Runs the event loop.
-     */
-    protected void run ()
-    {
-        ((SimpleRunQueue)_runQueue).run();
+        super(token, bureauId, new BasicRunQueue());
     }
 
     // overridden - creates a simple director
@@ -126,12 +84,9 @@ public class TestClient extends BureauClient
         // just use our test agent exclusively - in the real world, the agent created would depend 
         // on the object's type and/or properties
         return new BureauDirector(_ctx) {
-            @Override
-            public Agent createAgent (AgentObject agentObj) {
+            @Override public Agent createAgent (AgentObject agentObj) {
                 return new TestAgent();
             }
         };
     }
-
 }
-

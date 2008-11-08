@@ -24,7 +24,6 @@ package com.threerings.crowd.client;
 import java.io.IOException;
 
 import java.awt.BorderLayout;
-import java.awt.EventQueue;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 
@@ -50,7 +49,7 @@ import com.threerings.crowd.util.CrowdContext;
  * extended context implementation.
  */
 public class JabberClient
-    implements RunQueue, SessionObserver
+    implements SessionObserver
 {
     /**
      * Initializes a new client and provides it with a frame in which to
@@ -74,8 +73,7 @@ public class JabberClient
 
         // log off when they close the window
         _frame.addWindowListener(new WindowAdapter() {
-            @Override
-            public void windowClosing (WindowEvent evt) {
+            @Override public void windowClosing (WindowEvent evt) {
                 // if we're logged on, log off
                 if (_client.isLoggedOn()) {
                     _client.logoff(true);
@@ -153,26 +151,13 @@ public class JabberClient
         throws IOException
     {
         // create the handles on our various services
-        _client = new Client(null, this);
+        _client = new Client(null, RunQueue.AWT);
 
         // create our managers and directors
         _locdir = new LocationDirector(_ctx);
         _occdir = new OccupantDirector(_ctx);
         _msgmgr = new MessageManager(MESSAGE_MANAGER_PREFIX);
         _chatdir = new ChatDirector(_ctx, _msgmgr, null);
-    }
-
-    // documentation inherited from interface RunQueue
-    public void postRunnable (Runnable run)
-    {
-        // queue it on up on the awt thread
-        EventQueue.invokeLater(run);
-    }
-
-    // documentation inherited from interface RunQueue
-    public boolean isDispatchThread ()
-    {
-        return EventQueue.isDispatchThread();
     }
 
     /**
