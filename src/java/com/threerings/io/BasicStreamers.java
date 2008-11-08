@@ -227,7 +227,7 @@ public class BasicStreamers
         }
     }
 
-    /** Streams {@link Class} instances. */
+    /** Streams {@link Class} instances (but only those that represent streamable classes). */
     public static class ClassStreamer extends BasicStreamer
     {
         @Override
