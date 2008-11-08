@@ -89,12 +89,12 @@ public class ClientDObjectMgr
         });
 
         // register a flush interval
-        new Interval(client.getRunQueue()) {
-            @Override
-            public void expired () {
+        _flusher = new Interval(client.getRunQueue()) {
+            @Override public void expired () {
                 flushObjects();
             }
-        }.schedule(FLUSH_INTERVAL, true);
+        };
+        _flusher.schedule(FLUSH_INTERVAL, true);
     }
 
     // documentation inherited from interface
@@ -162,10 +162,14 @@ public class ClientDObjectMgr
      */
     public void processMessage (Message msg)
     {
-        // append it to our queue
-        _actions.append(msg);
-        // and queue ourselves up to be run
-        _client.getRunQueue().postRunnable(this);
+        if (_client.getRunQueue().isRunning()) {
+            // append it to our queue
+            _actions.append(msg);
+            // and queue ourselves up to be run
+            _client.getRunQueue().postRunnable(this);
+        } else {
+            log.info("Dropping message as RunQueue is shutdown", "msg", msg);
+        }
     }
 
     /**
@@ -230,15 +234,20 @@ public class ClientDObjectMgr
             }
         }
         _penders.clear();
+        _flusher.cancel();
     }
 
-    protected <T extends DObject> void queueAction (
-        int oid, Subscriber<T> target, boolean subscribe)
+    protected <T extends DObject> void queueAction (int oid, Subscriber<T> target, boolean subscribe)
     {
-        // queue up an action
-        _actions.append(new ObjectAction<T>(oid, target, subscribe));
-        // and queue up the omgr to get invoked on the invoker thread
-        _client.getRunQueue().postRunnable(this);
+        if (_client.getRunQueue().isRunning()) {
+            // queue up an action
+            _actions.append(new ObjectAction<T>(oid, target, subscribe));
+            // and queue up the omgr to get invoked on the invoker thread
+            _client.getRunQueue().postRunnable(this);
+        } else {
+            log.info("Dropping subscribe action as RunQueue is stopped",
+                     "oid", oid, "subscribe", subscribe);
+        }
     }
 
     /**
@@ -517,6 +526,9 @@ public class ClientDObjectMgr
 
     /** A reference to our client instance. */
     protected Client _client;
+
+    /** Periodically calls {@link #flushObject}. */
+    protected Interval _flusher;
 
     /** Our primary dispatch queue. */
     protected Queue<Object> _actions = new Queue<Object>();
