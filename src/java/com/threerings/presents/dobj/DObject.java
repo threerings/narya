@@ -651,7 +651,12 @@ public class DObject
             }
         }
 
-        // append our attribute to the end of the list
+        // if we were trying to clear out an attribute but didn't find it, then stop here
+        if (attr == null) {
+            return;
+        }
+
+        // otherwise append our attribute to the end of the list
         _locattrs = ArrayUtil.append(_locattrs, attr);
     }
 
