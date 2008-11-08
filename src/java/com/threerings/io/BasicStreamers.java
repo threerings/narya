@@ -44,6 +44,7 @@ public class BasicStreamers
         Long.class,
         Float.class,
         Double.class,
+        Class.class,
         String.class,
         boolean[].class,
         byte[].class,
@@ -68,6 +69,7 @@ public class BasicStreamers
         new LongStreamer(),
         new FloatStreamer(),
         new DoubleStreamer(),
+        new ClassStreamer(),
         new StringStreamer(),
         new BooleanArrayStreamer(),
         new ByteArrayStreamer(),
@@ -222,6 +224,24 @@ public class BasicStreamers
             throws IOException
         {
             out.writeDouble(((Double)object).doubleValue());
+        }
+    }
+
+    /** Streams {@link Class} instances. */
+    public static class ClassStreamer extends BasicStreamer
+    {
+        @Override
+        public Object createObject (ObjectInputStream in)
+            throws IOException, ClassNotFoundException
+        {
+            return in.readClassMapping().sclass;
+        }
+
+        @Override
+        public void writeObject (Object object, ObjectOutputStream out, boolean useWriter)
+            throws IOException
+        {
+            out.writeClassMapping((Class)object);
         }
     }
 

@@ -71,13 +71,25 @@ public class ObjectOutputStream extends DataOutputStream
             return;
         }
 
+        // otherwise, write the class mapping, then the bare object
+        Class<?> sclass = Streamer.getStreamerClass(object);
+        ClassMapping cmap = writeClassMapping(sclass);
+        writeBareObject(object, cmap.streamer, true);
+    }
+
+    /**
+     * Retrieves or creates the class mapping for the supplied class, writes it out to the stream,
+     * and returns a reference to it.
+     */
+    protected ClassMapping writeClassMapping (Class<?> sclass)
+        throws IOException
+    {
         // create our classmap if necessary
         if (_classmap == null) {
             _classmap = new HashMap<Class<?>, ClassMapping>();
         }
 
-        // otherwise, look up the class mapping record
-        Class<?> sclass = Streamer.getStreamerClass(object);
+        // look up the class mapping record
         ClassMapping cmap = _classmap.get(sclass);
 
         // create a class mapping for this class if we've not got one
@@ -103,8 +115,7 @@ public class ObjectOutputStream extends DataOutputStream
         } else {
             writeExistingClassMapping(cmap);
         }
-
-        writeBareObject(object, cmap.streamer, true);
+        return cmap;
     }
 
     /**

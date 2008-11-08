@@ -76,59 +76,14 @@ public class ObjectInputStream extends DataInputStream
     public Object readObject ()
         throws IOException, ClassNotFoundException
     {
-        ClassMapping cmap;
-
-        // create our classmap if necessary
-        if (_classmap == null) {
-            _classmap = new ArrayList<ClassMapping>();
-            // insert a zeroth element
-            _classmap.add(null);
-        }
-
         try {
-            // read in the class code for this instance
-            short code = readShort();
-
-            // a zero code indicates a null value
-            if (code == 0) {
+            // read the class mapping
+            ClassMapping cmap = readClassMapping();
+            if (cmap == null) {
                 if (STREAM_DEBUG) {
                     log.info(hashCode() + ": Read null.");
                 }
                 return null;
-
-            // if the code is negative, that means that we've never seen it before and class
-            // metadata follows
-            } else if (code < 0) {
-                // first swap the code into positive-land
-                code *= -1;
-
-                // read in the class metadata
-                String cname = readUTF();
-                // if we have a translation (used to cope when serialized classes are renamed) use
-                // it
-                if (_translations != null) {
-                    String tname = _translations.get(cname);
-                    if (tname != null) {
-                        cname = tname;
-                    }
-                }
-
-                // create the class mapping
-                cmap = mapClass(code, cname);
-
-            } else {
-                cmap = _classmap.get(code);
-
-                // sanity check
-                if (cmap == null) {
-                    // this will help with debugging
-                    log.warning("Internal stream error, no class metadata", "code", code,
-                                "ois", this, new Exception());
-                    log.warning("ObjectInputStream mappings", "map", _classmap);
-                    String errmsg = "Read object code for which we have no registered class " +
-                        "metadata [code=" + code + "]";
-                    throw new RuntimeException(errmsg);
-                }
             }
 
             if (STREAM_DEBUG) {
@@ -142,6 +97,65 @@ public class ObjectInputStream extends DataInputStream
 
         } catch (OutOfMemoryError oome) {
             throw (IOException)new IOException("Malformed object data").initCause(oome);
+        }
+    }
+
+    /**
+     * Reads a class mapping from the stream.
+     *
+     * @return the class mapping, or <code>null</code> to represent a null value.
+     */
+    protected ClassMapping readClassMapping ()
+        throws IOException, ClassNotFoundException
+    {
+        // create our classmap if necessary
+        if (_classmap == null) {
+            _classmap = new ArrayList<ClassMapping>();
+            // insert a zeroth element
+            _classmap.add(null);
+        }
+
+        // read in the class code for this instance
+        short code = readShort();
+
+        // a zero code indicates a null value
+        if (code == 0) {
+            return null;
+
+        // if the code is negative, that means that we've never seen it before and class
+        // metadata follows
+        } else if (code < 0) {
+            // first swap the code into positive-land
+            code *= -1;
+
+            // read in the class metadata
+            String cname = readUTF();
+            // if we have a translation (used to cope when serialized classes are renamed) use
+            // it
+            if (_translations != null) {
+                String tname = _translations.get(cname);
+                if (tname != null) {
+                    cname = tname;
+                }
+            }
+
+            // create the class mapping
+            return mapClass(code, cname);
+
+        } else {
+            ClassMapping cmap = _classmap.get(code);
+
+            // sanity check
+            if (cmap == null) {
+                // this will help with debugging
+                log.warning("Internal stream error, no class metadata", "code", code,
+                            "ois", this, new Exception());
+                log.warning("ObjectInputStream mappings", "map", _classmap);
+                String errmsg = "Read object code for which we have no registered class " +
+                    "metadata [code=" + code + "]";
+                throw new RuntimeException(errmsg);
+            }
+            return cmap;
         }
     }
 
