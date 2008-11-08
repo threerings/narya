@@ -316,6 +316,7 @@ public class ConnectionManager extends LoopingThread
                                 // great, we're ready to roll, wire up the connection
                                 conn.selkey = sockchan.register(_selector, SelectionKey.OP_READ);
                                 _handlers.put(conn.selkey, conn);
+                                log.info("Outgoing connection ready", "conn", conn);
                             }
                         } catch (IOException ioe) {
                             handleError(ioe);
