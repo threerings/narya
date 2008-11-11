@@ -233,6 +233,7 @@ public class ConnectionManager extends LoopingThread
         ConMgrStats stats = getStats();
         int connects = stats.connects - _lastStats.connects;
         int disconnects = stats.disconnects - _lastStats.disconnects;
+        int closes = stats.closes - _lastStats.closes;
         long bytesIn = stats.bytesIn - _lastStats.bytesIn;
         long bytesOut = stats.bytesOut - _lastStats.bytesOut;
         long msgsIn = stats.msgsIn - _lastStats.msgsIn;
@@ -248,7 +249,8 @@ public class ConnectionManager extends LoopingThread
         report.append("* presents.net.ConnectionManager:\n");
         report.append("- Network connections: ");
         report.append(connects).append(" connects, ");
-        report.append(disconnects).append(" disconnects\n");
+        report.append(disconnects).append(" disconnects, ");
+        report.append(closes).append(" closes\n");
         report.append("- Network input: ");
         report.append(bytesIn).append(" bytes, ");
         report.append(msgsIn).append(" msgs, ");
@@ -508,6 +510,12 @@ public class ConnectionManager extends LoopingThread
     {
         long iterStamp = System.currentTimeMillis();
 
+        // note whether or not we're generating 
+        boolean generateDebugReport = (iterStamp - _lastDebugStamp > DEBUG_REPORT_INTERVAL);
+        if (DEBUG_REPORT && generateDebugReport) {
+            _lastDebugStamp = iterStamp;
+        }
+
         // close any connections that have been queued up to die
         Connection dconn;
         while ((dconn = _deathq.getNonBlocking()) != null) {
@@ -537,14 +545,27 @@ public class ConnectionManager extends LoopingThread
 
         // if we have been shutdown, but we're still around because the DObjectManager is still
         // running (and we want to deliver any outgoing events queued up during shutdown), then we
-        // stop here, because we've delivered outgoing events on this tick and all that remains
-        // below is accepting new connections and receiving incoming messages, neither of which we
-        // want to do during the shutdown process
-        if (!super.isRunning()) {
-            return;
+        // don't process authenticated connections or read incoming network events; the only thing
+        // we want to do during the shutdown phase is send outgoing messages to existing clients
+        if (super.isRunning()) {
+            // check for connections that have completed authentication
+            processAuthedConnections(iterStamp);
+
+            // listen for and process incoming network events
+            processIncomingEvents(iterStamp);
         }
 
-        // check for connections that have completed authentication
+        if (DEBUG_REPORT && generateDebugReport) {
+            log.info("CONMGR status " + getStats());
+        }
+    }
+
+    /**
+     * Converts connections that have completed the authentication process into full running
+     * connections and notifies observers that a new connection has been established.
+     */
+    protected void processAuthedConnections (long iterStamp)
+    {
         AuthingConnection conn;
         while ((conn = _authq.getNonBlocking()) != null) {
             try {
@@ -579,7 +600,14 @@ public class ConnectionManager extends LoopingThread
                 log.warning("Failure upgrading authing connection to running.", ioe);
             }
         }
+    }
 
+    /**
+     * Checks for any network events on our set of sockets and passes those events down to their
+     * associated {@link NetEventHandler}s for processing.
+     */
+    protected void processIncomingEvents (long iterStamp)
+    {
         Set<SelectionKey> ready = null;
         try {
 //             log.debug("Selecting from " + StringUtil.toString(_selector.keys()) + " (" +
@@ -640,11 +668,9 @@ public class ConnectionManager extends LoopingThread
                 int got = handler.handleEvent(iterStamp);
                 if (got != 0) {
                     synchronized (this) {
-                        _bytesIn += got;
                         _stats.bytesIn += got;
                         // we know that the handlers only report having read bytes when they have a
                         // whole message, so we can count thusly
-                        _msgsIn++;
                         _stats.msgsIn++;
                     }
                 }
@@ -812,8 +838,6 @@ public class ConnectionManager extends LoopingThread
     /** Called by {@link #writeMessage} and friends when they write data over the network. */
     protected final synchronized void noteWrite (int msgs, int bytes)
     {
-        _msgsOut += msgs;
-        _bytesOut += bytes;
         _stats.msgsOut += msgs;
         _stats.bytesOut += bytes;
     }
@@ -1067,6 +1091,9 @@ public class ConnectionManager extends LoopingThread
         _handlers.remove(conn.selkey);
         _connections.remove(conn.getConnectionId());
         _oflowqs.remove(conn);
+        synchronized (this) {
+            _stats.closes++;
+        }
 
         // let our observers know what's up
         notifyObservers(CONNECTION_CLOSED, conn, null, null);
@@ -1217,17 +1244,14 @@ public class ConnectionManager extends LoopingThread
     protected Map<Connection, OverflowQueue> _oflowqs = Maps.newHashMap();
     protected List<ConnectionObserver> _observers = Lists.newArrayList();
 
-    /** Bytes in and out in the last reporting period. */
-    protected long _bytesIn, _bytesOut;
-
-    /** Messages read and written in the last reporting period. */
-    protected int _msgsIn, _msgsOut;
-
     /** Our current runtime stats. */
     protected ConMgrStats _stats;
 
     /** A snapshot of our runtime stats as of our last report. */
     protected ConMgrStats _lastStats;
+
+    /** Used to periodically report connection manager activity when in debug mode. */
+    protected long _lastDebugStamp;
 
     /** A runnable to execute when the connection manager thread exits. */
     protected volatile Runnable _onExit;
@@ -1251,4 +1275,10 @@ public class ConnectionManager extends LoopingThread
 
     /** Used to denote asynchronous close requests. */
     protected static final byte[] ASYNC_CLOSE_REQUEST = new byte[0];
+
+    /** Whether or not debug reporting is activated .*/
+    protected static final boolean DEBUG_REPORT = true;
+
+    /** Report our activity every 30 seconds. */
+    protected static final long DEBUG_REPORT_INTERVAL = 30*1000L;
 }

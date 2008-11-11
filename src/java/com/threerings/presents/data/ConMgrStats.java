@@ -49,6 +49,9 @@ public class ConMgrStats extends SimpleStreamableObject
     /** The number of disconnection events since the server started up. */
     public int disconnects;
 
+    /** The number of socket closes since the server started up. */
+    public int closes;
+
     /** The number of bytes read since the server started up. */
     public long bytesIn;
 
