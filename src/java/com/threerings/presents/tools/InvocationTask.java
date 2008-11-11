@@ -52,6 +52,7 @@ import com.samskivert.util.StringUtil;
 import com.samskivert.velocity.VelocityUtil;
 
 import com.threerings.presents.annotation.TransportHint;
+import com.threerings.presents.net.Transport;
 import com.threerings.presents.client.InvocationService.InvocationListener;
 
 /**
@@ -128,6 +129,11 @@ public abstract class InvocationTask extends Task
                 }
 
                 imports.add(args[ii]);
+            }
+
+            // import Transport if used
+            if (!StringUtil.isBlank(getTransport())) {
+                imports.add(Transport.class);
             }
         }
 
