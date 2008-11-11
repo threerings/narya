@@ -231,6 +231,7 @@ public class ConnectionManager extends LoopingThread
     public void appendReport (StringBuilder report, long now, long sinceLast, boolean reset)
     {
         ConMgrStats stats = getStats();
+        long eventCount = stats.eventCount - _lastStats.eventCount;
         int connects = stats.connects - _lastStats.connects;
         int disconnects = stats.disconnects - _lastStats.disconnects;
         int closes = stats.closes - _lastStats.closes;
@@ -248,6 +249,7 @@ public class ConnectionManager extends LoopingThread
 
         report.append("* presents.net.ConnectionManager:\n");
         report.append("- Network connections: ");
+        report.append(eventCount).append(" events, ");
         report.append(connects).append(" connects, ");
         report.append(disconnects).append(" disconnects, ");
         report.append(closes).append(" closes\n");
@@ -609,14 +611,15 @@ public class ConnectionManager extends LoopingThread
     protected void processIncomingEvents (long iterStamp)
     {
         Set<SelectionKey> ready = null;
+        int eventCount;
         try {
 //             log.debug("Selecting from " + StringUtil.toString(_selector.keys()) + " (" +
 //                       SELECT_LOOP_TIME + ").");
 
             // check for incoming network events
-            int ecount = _selector.select(SELECT_LOOP_TIME);
+            eventCount = _selector.select(SELECT_LOOP_TIME);
             ready = _selector.selectedKeys();
-            if (ecount == 0) {
+            if (eventCount == 0) {
                 if (ready.size() == 0) {
                     return;
                 } else {
@@ -627,10 +630,9 @@ public class ConnectionManager extends LoopingThread
 
         } catch (IOException ioe) {
             if ("Invalid argument".equals(ioe.getMessage())) {
-                // what is this, anyway?
-                log.warning("Failure select()ing.", ioe);
+                log.warning("Failure select()ing.", ioe); // no stack trace needed
             } else {
-                log.warning("Failure select()ing [ioe=" + ioe + "].");
+                log.warning("Failure select()ing", "ioe", ioe);
             }
             return;
 
@@ -649,7 +651,7 @@ public class ConnectionManager extends LoopingThread
         _runtimeExceptionCount = 0;
 
         // process those events
-//         log.info("Ready set " + StringUtil.toString(ready) + ".");
+        long bytesIn = 0, msgsIn = 0;
         for (SelectionKey selkey : ready) {
             NetEventHandler handler = null;
             try {
@@ -667,12 +669,10 @@ public class ConnectionManager extends LoopingThread
 
                 int got = handler.handleEvent(iterStamp);
                 if (got != 0) {
-                    synchronized (this) {
-                        _stats.bytesIn += got;
-                        // we know that the handlers only report having read bytes when they have a
-                        // whole message, so we can count thusly
-                        _stats.msgsIn++;
-                    }
+                    bytesIn += got;
+                    // we know that the handlers only report having read bytes when they have a
+                    // whole message, so we can count thusly
+                    msgsIn++;
                 }
 
             } catch (Exception e) {
@@ -684,6 +684,14 @@ public class ConnectionManager extends LoopingThread
                 }
             }
         }
+
+        // update our stats
+        synchronized (this) {
+            _stats.eventCount += eventCount;
+            _stats.bytesIn += bytesIn;
+            _stats.msgsIn += msgsIn;
+        }
+
         ready.clear();
     }
 
@@ -896,8 +904,7 @@ public class ConnectionManager extends LoopingThread
         try {
             channel = listener.accept();
             if (channel == null) {
-                // in theory this shouldn't happen because we got an ACCEPT_READY event, but better
-                // safe than sorry
+                // in theory this shouldn't happen because we got an ACCEPT_READY event...
                 log.info("Psych! Got ACCEPT_READY, but no connection.");
                 return;
             }
@@ -918,8 +925,8 @@ public class ConnectionManager extends LoopingThread
             return;
 
         } catch (IOException ioe) {
-            // no need to complain this happens in the normal course of events
-//             log.warning("Failure accepting new connection.", ioe);
+            // no need to generate a warning because this happens in the normal course of events
+            log.info("Failure accepting new connection: " + ioe);
         }
 
         // make sure we don't leak a socket if something went awry

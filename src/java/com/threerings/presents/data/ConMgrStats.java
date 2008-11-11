@@ -43,6 +43,9 @@ public class ConMgrStats extends SimpleStreamableObject
     /** The overflow queue size. This is a snapshot at the time the stats are requested. */
     public int overQueueSize;
 
+    /** The number of raw network events (sockets reporting ACCEPT or READY). */
+    public long eventCount;
+
     /** The number of connection events since the server started up. */
     public int connects;
 
@@ -59,10 +62,10 @@ public class ConMgrStats extends SimpleStreamableObject
     public long bytesOut;
 
     /** The number of messages read since the server started up. */
-    public int msgsIn;
+    public long msgsIn;
 
     /** The number of messages written since the server started up. */
-    public int msgsOut;
+    public long msgsOut;
 
     @Override // from Object
     public Object clone ()
