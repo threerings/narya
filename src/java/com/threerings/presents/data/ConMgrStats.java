@@ -29,6 +29,12 @@ import com.threerings.io.SimpleStreamableObject;
 public class ConMgrStats extends SimpleStreamableObject
     implements Cloneable
 {
+    /** The number of mapped connections. This is a snapshot at the time the stats are requested. */
+    public int connectionCount;
+
+    /** The number of net event handlers. This is a snapshot at the time the stats are requested. */
+    public int handlerCount;
+
     /** The size of the queue of waiting to auth sockets. This is a snapshot at the time the stats
      * are requested. */
     public int authQueueSize;

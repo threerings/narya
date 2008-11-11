@@ -149,6 +149,8 @@ public class ConnectionManager extends LoopingThread
     public synchronized ConMgrStats getStats ()
     {
         // fill in our snapshot values
+        _stats.connectionCount = _connections.size();
+        _stats.handlerCount = _handlers.size();
         _stats.authQueueSize = _authq.size();
         _stats.deathQueueSize = _deathq.size();
         _stats.outQueueSize = _outq.size();
@@ -217,6 +219,9 @@ public class ConnectionManager extends LoopingThread
 
         report.append("* presents.net.ConnectionManager:\n");
         report.append("- Network connections: ");
+        report.append(stats.connectionCount).append(" connections, ");
+        report.append(stats.handlerCount).append(" handlers\n");
+        report.append("- Network activity: ");
         report.append(eventCount).append(" events, ");
         report.append(connects).append(" connects, ");
         report.append(disconnects).append(" disconnects, ");
