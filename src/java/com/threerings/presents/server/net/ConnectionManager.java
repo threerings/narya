@@ -54,8 +54,11 @@ import com.samskivert.util.Queue;
 import com.samskivert.util.ResultListener;
 import com.samskivert.util.Tuple;
 
+import com.threerings.io.ByteBufferInputStream;
 import com.threerings.io.FramingOutputStream;
 import com.threerings.io.ObjectOutputStream;
+import com.threerings.io.UnreliableObjectInputStream;
+import com.threerings.io.UnreliableObjectOutputStream;
 
 import com.threerings.presents.annotation.AuthInvoker;
 import com.threerings.presents.client.Client;
@@ -293,6 +296,16 @@ public class ConnectionManager extends LoopingThread
     }
 
     /**
+     * Creates a datagram sequencer for use by a {@link Connection}.
+     */
+    protected DatagramSequencer createDatagramSequencer ()
+    {
+        return new DatagramSequencer(
+            new UnreliableObjectInputStream(new ByteBufferInputStream(_databuf)),
+            new UnreliableObjectOutputStream(_flattener));
+    }
+
+    /**
      * Starts the connection process for an outgoing connection. This is called as part of the
      * conmgr tick for any pending outgoing connections.
      */
@@ -493,15 +506,6 @@ public class ConnectionManager extends LoopingThread
                 // we're never idle
             }
         });
-    }
-
-    /**
-     * Returns a reference to the output stream used to flatten messages into byte arrays.  Should
-     * only be called by {@link Connection}.
-     */
-    protected ByteArrayOutputStream getFlattener ()
-    {
-        return _flattener;
     }
 
     /**
@@ -850,49 +854,6 @@ public class ConnectionManager extends LoopingThread
         _stats.bytesOut += bytes;
     }
 
-    @Override
-    protected void handleIterateFailure (Exception e)
-    {
-        // log the exception
-        log.warning("ConnectionManager.iterate() uncaught exception.", e);
-    }
-
-    @Override
-    protected void didShutdown ()
-    {
-        // take one last crack at the outgoing message queue
-        sendOutgoingMessages(System.currentTimeMillis());
-
-        // unbind our listening socket
-        // Note: because we wait for the object manager to exit before we do, we will still be
-        // accepting connections as long as there are events pending.
-        // TODO: consider shutting down the listen socker earlier, like in the shutdown method
-        try {
-            _ssocket.socket().close();
-        } catch (IOException ioe) {
-            log.warning("Failed to close listening socket.", ioe);
-        }
-
-        // and the datagram socket, if any
-        if (_datagramChannel != null) {
-            _datagramChannel.socket().close();
-        }
-
-        // report if there's anything left on the outgoing message queue
-        if (_outq.size() > 0) {
-            log.warning("Connection Manager failed to deliver " + _outq.size() + " message(s).");
-        }
-
-        // run our on-exit handler if we have one
-        Runnable onExit = _onExit;
-        if (onExit != null) {
-            log.info("Connection Manager thread exited (running onExit).");
-            onExit.run();
-        } else {
-            log.info("Connection Manager thread exited.");
-        }
-    }
-
     /**
      * Called by our net event handler when a new connection is ready to be accepted on our
      * listening socket.
@@ -990,7 +951,7 @@ public class ConnectionManager extends LoopingThread
      * which happens when forwarding an event to a client and at the completion of authentication,
      * both of which <em>must</em> happen only on the distributed object thread.
      */
-    void postMessage (Connection conn, Message msg)
+    protected void postMessage (Connection conn, Message msg)
     {
         if (!isRunning()) {
             log.warning("Posting message to inactive connection manager",
@@ -1041,7 +1002,7 @@ public class ConnectionManager extends LoopingThread
     /**
      * Helper function for {@link #postMessage}; handles posting the message as a datagram.
      */
-    void postDatagram (Connection conn, Message msg)
+    protected void postDatagram (Connection conn, Message msg)
         throws Exception
     {
         _flattener.reset();
@@ -1065,7 +1026,7 @@ public class ConnectionManager extends LoopingThread
      * or in case of delinquincy. In neither circumstance do we need to flush the client's outgoing
      * queue before closing.
      */
-    void postAsyncClose (Connection conn)
+    protected void postAsyncClose (Connection conn)
     {
         _outq.append(Tuple.create(conn, ASYNC_CLOSE_REQUEST));
     }
@@ -1073,7 +1034,7 @@ public class ConnectionManager extends LoopingThread
     /**
      * Called by a connection if it experiences a network failure.
      */
-    void connectionFailed (Connection conn, IOException ioe)
+    protected void connectionFailed (Connection conn, IOException ioe)
     {
         // remove this connection from our mappings (it is automatically removed from the Selector
         // when the socket is closed)
@@ -1091,7 +1052,7 @@ public class ConnectionManager extends LoopingThread
     /**
      * Called by a connection when it discovers that it's closed.
      */
-    void connectionClosed (Connection conn)
+    protected void connectionClosed (Connection conn)
     {
         // remove this connection from our mappings (it is automatically removed from the Selector
         // when the socket is closed)
@@ -1104,6 +1065,49 @@ public class ConnectionManager extends LoopingThread
 
         // let our observers know what's up
         notifyObservers(CONNECTION_CLOSED, conn, null, null);
+    }
+
+    @Override
+    protected void handleIterateFailure (Exception e)
+    {
+        // log the exception
+        log.warning("ConnectionManager.iterate() uncaught exception.", e);
+    }
+
+    @Override
+    protected void didShutdown ()
+    {
+        // take one last crack at the outgoing message queue
+        sendOutgoingMessages(System.currentTimeMillis());
+
+        // unbind our listening socket
+        // Note: because we wait for the object manager to exit before we do, we will still be
+        // accepting connections as long as there are events pending.
+        // TODO: consider shutting down the listen socker earlier, like in the shutdown method
+        try {
+            _ssocket.socket().close();
+        } catch (IOException ioe) {
+            log.warning("Failed to close listening socket.", ioe);
+        }
+
+        // and the datagram socket, if any
+        if (_datagramChannel != null) {
+            _datagramChannel.socket().close();
+        }
+
+        // report if there's anything left on the outgoing message queue
+        if (_outq.size() > 0) {
+            log.warning("Connection Manager failed to deliver " + _outq.size() + " message(s).");
+        }
+
+        // run our on-exit handler if we have one
+        Runnable onExit = _onExit;
+        if (onExit != null) {
+            log.info("Connection Manager thread exited (running onExit).");
+            onExit.run();
+        } else {
+            log.info("Connection Manager thread exited.");
+        }
     }
 
     /** Used to handle partial writes in {@link ConnectionManager#writeMessage}. */
@@ -1243,6 +1247,7 @@ public class ConnectionManager extends LoopingThread
 
     protected Queue<Tuple<Connection, byte[]>> _outq = Queue.newQueue();
     protected Queue<Tuple<Connection, byte[]>> _dataq = Queue.newQueue();
+
     protected FramingOutputStream _framer = new FramingOutputStream();
     protected ByteArrayOutputStream _flattener = new ByteArrayOutputStream();
     protected ByteBuffer _outbuf = ByteBuffer.allocateDirect(64 * 1024);
