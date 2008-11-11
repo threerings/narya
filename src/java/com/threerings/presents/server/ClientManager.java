@@ -45,8 +45,6 @@ import com.threerings.presents.net.AuthResponse;
 import com.threerings.presents.net.Credentials;
 import com.threerings.presents.server.net.AuthingConnection;
 import com.threerings.presents.server.net.Connection;
-import com.threerings.presents.server.net.ConnectionManager;
-import com.threerings.presents.server.net.ConnectionObserver;
 
 import static com.threerings.presents.Log.log;
 
@@ -61,8 +59,7 @@ import static com.threerings.presents.Log.log;
  */
 @Singleton
 public class ClientManager
-    implements ConnectionObserver, ClientResolutionListener,
-               ReportManager.Reporter, ShutdownManager.Shutdowner
+    implements ClientResolutionListener, ReportManager.Reporter, ShutdownManager.Shutdowner
 {
     /**
      * Used by {@link ClientManager#applyToClient}.
@@ -100,11 +97,8 @@ public class ClientManager
     /**
      * Constructs a client manager that will interact with the supplied connection manager.
      */
-    @Inject public ClientManager (ConnectionManager conmgr, ReportManager repmgr,
-                                  ShutdownManager shutmgr)
+    @Inject public ClientManager (ReportManager repmgr, ShutdownManager shutmgr)
     {
-        // register as a connection observer, a "state of server" reporter and a shutdowner
-        conmgr.addConnectionObserver(this);
         repmgr.registerReporter(this);
         shutmgr.registerShutdowner(this);
 
@@ -367,7 +361,9 @@ public class ClientManager
         _penders.remove(username);
     }
 
-    // from interface ConnectionObserver
+    /**
+     * Called by the connection manager to let us know when a new connection has been established.
+     */
     public synchronized void connectionEstablished (
         Connection conn, AuthRequest req, AuthResponse rsp)
     {
@@ -397,7 +393,9 @@ public class ClientManager
         _conmap.put(conn, client);
     }
 
-    // from interface ConnectionObserver
+    /**
+     * Called by the connection manager to let us know when a connection has failed.
+     */
     public synchronized void connectionFailed (Connection conn, IOException fault)
     {
         // remove the client from the connection map
@@ -415,7 +413,9 @@ public class ClientManager
         }
     }
 
-    // from interface ConnectionObserver
+    /**
+     * Called by the connection manager to let us know when a connection has been closed.
+     */
     public synchronized void connectionClosed (Connection conn)
     {
         // remove the client from the connection map

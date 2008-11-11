@@ -734,15 +734,19 @@ public class PresentsSession
         // clear out our connection reference
         setConnection(null);
 
-        // clear out our subscriptions. we need to do this on the dobjmgr thread. it is important
-        // that we do this *after* we clear out our connection reference. once the connection ref
-        // is null, no more subscriptions will be processed (even those that were queued up before
-        // the connection went away)
-        _omgr.postRunnable(new Runnable() {
-            public void run () {
-                sessionConnectionClosed();
-            }
-        });
+        // if we are being closed after the omgr has shutdown, then just stop here; the whole world
+        // is about to come to a screeching halt anyway
+        if (_omgr.isRunning()) {
+            // clear out our subscriptions: we need to do this on the dobjmgr thread. it is
+            // important that we do this *after* we clear out our connection reference. once the
+            // connection ref is null, no more subscriptions will be processed (even those that
+            // were queued up before the connection went away)
+            _omgr.postRunnable(new Runnable() {
+                public void run () {
+                    sessionConnectionClosed();
+                }
+            });
+        }
     }
 
     /**

@@ -25,7 +25,6 @@ import java.net.InetSocketAddress;
 
 import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -41,7 +40,6 @@ import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 import java.nio.channels.spi.SelectorProvider;
 
-import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
@@ -68,6 +66,7 @@ import com.threerings.presents.net.AuthResponse;
 import com.threerings.presents.net.Message;
 import com.threerings.presents.server.Authenticator;
 import com.threerings.presents.server.ChainedAuthenticator;
+import com.threerings.presents.server.ClientManager;
 import com.threerings.presents.server.DummyAuthenticator;
 import com.threerings.presents.server.PresentsDObjectMgr;
 import com.threerings.presents.server.ReportManager;
@@ -160,29 +159,6 @@ public class ConnectionManager extends LoopingThread
             }
         }
         return (ConMgrStats)_stats.clone();
-    }
-
-    /**
-     * Adds the specified connection observer to the observers list.  Connection observers will be
-     * notified of connection-related events. An observer will not be added to the list twice.
-     *
-     * @see ConnectionObserver
-     */
-    public void addConnectionObserver (ConnectionObserver observer)
-    {
-        synchronized (_observers) {
-            _observers.add(observer);
-        }
-    }
-
-    /**
-     * Removes the specified connection observer from the observers list.
-     */
-    public void removeConnectionObserver (ConnectionObserver observer)
-    {
-        synchronized (_observers) {
-            _observers.remove(observer);
-        }
     }
 
     /**
@@ -350,31 +326,6 @@ public class ConnectionManager extends LoopingThread
         }
     }
 
-    /**
-     * Notifies the connection observers of a connection event. Used internally.
-     */
-    protected void notifyObservers (
-        int code, Connection conn, Object arg1, Object arg2)
-    {
-        synchronized (_observers) {
-            for (ConnectionObserver obs : _observers) {
-                switch (code) {
-                case CONNECTION_ESTABLISHED:
-                    obs.connectionEstablished(conn, (AuthRequest)arg1, (AuthResponse)arg2);
-                    break;
-                case CONNECTION_FAILED:
-                    obs.connectionFailed(conn, (IOException)arg1);
-                    break;
-                case CONNECTION_CLOSED:
-                    obs.connectionClosed(conn);
-                    break;
-                default:
-                    throw new RuntimeException("Invalid code supplied to notifyObservers: " + code);
-                }
-            }
-        }
-    }
-
     @Override
     protected void willStart ()
     {
@@ -497,9 +448,9 @@ public class ConnectionManager extends LoopingThread
     @Override
     protected void iterate ()
     {
-        long iterStamp = System.currentTimeMillis();
+        final long iterStamp = System.currentTimeMillis();
 
-        // note whether or not we're generating 
+        // note whether or not we're generating a debug report
         boolean generateDebugReport = (iterStamp - _lastDebugStamp > DEBUG_REPORT_INTERVAL);
         if (DEBUG_REPORT && generateDebugReport) {
             _lastDebugStamp = iterStamp;
@@ -515,12 +466,6 @@ public class ConnectionManager extends LoopingThread
             }
         }
 
-        // start up any outgoing connections that need to be connected
-        Tuple<Connection, InetSocketAddress> pconn;
-        while ((pconn = _connectq.getNonBlocking()) != null) {
-            startOutgoingConnection(pconn.left, pconn.right);
-        }
-
         // close connections that have had no network traffic for too long
         for (NetEventHandler handler : _handlers.values()) {
             if (handler.checkIdle(iterStamp)) {
@@ -532,11 +477,17 @@ public class ConnectionManager extends LoopingThread
         // send any messages that are waiting on the outgoing overflow and message queues
         sendOutgoingMessages(iterStamp);
 
-        // if we have been shutdown, but we're still around because the DObjectManager is still
-        // running (and we want to deliver any outgoing events queued up during shutdown), then we
-        // don't process authenticated connections or read incoming network events; the only thing
-        // we want to do during the shutdown phase is send outgoing messages to existing clients
+        // we may be in the middle of shutting down (in which case super.isRunning() is false but
+        // isRunning() is true); this is because we stick around until the dobject manager is
+        // totally done so that we can send shutdown-related events out to our clients; during
+        // those last moments we don't want to accept new connections or read any incoming messages
         if (super.isRunning()) {
+            // start up any outgoing connections that need to be connected
+            Tuple<Connection, InetSocketAddress> pconn;
+            while ((pconn = _connectq.getNonBlocking()) != null) {
+                startOutgoingConnection(pconn.left, pconn.right);
+            }
+
             // check for connections that have completed authentication
             processAuthedConnections(iterStamp);
 
@@ -551,7 +502,7 @@ public class ConnectionManager extends LoopingThread
 
     /**
      * Converts connections that have completed the authentication process into full running
-     * connections and notifies observers that a new connection has been established.
+     * connections and notifies the client manager that new connections have been established.
      */
     protected void processAuthedConnections (long iterStamp)
     {
@@ -581,9 +532,8 @@ public class ConnectionManager extends LoopingThread
                     _oflowqs.put(rconn, oflowHandler);
                 }
 
-                // and let our observers know about our new connection
-                notifyObservers(CONNECTION_ESTABLISHED, rconn,
-                                conn.getAuthRequest(), conn.getAuthResponse());
+                // and let the client manager know about our new connection
+                _clmgr.connectionEstablished(rconn, conn.getAuthRequest(), conn.getAuthResponse());
 
             } catch (IOException ioe) {
                 log.warning("Failure upgrading authing connection to running.", ioe);
@@ -1028,8 +978,8 @@ public class ConnectionManager extends LoopingThread
             _stats.disconnects++;
         }
 
-        // let our observers know what's up
-        notifyObservers(CONNECTION_FAILED, conn, ioe, null);
+        // let the client manager know what's up
+        _clmgr.connectionFailed(conn, ioe);
     }
 
     /**
@@ -1046,8 +996,8 @@ public class ConnectionManager extends LoopingThread
             _stats.closes++;
         }
 
-        // let our observers know what's up
-        notifyObservers(CONNECTION_CLOSED, conn, null, null);
+        // let the client manager know what's up
+        _clmgr.connectionClosed(conn);
     }
 
     @Override
@@ -1236,7 +1186,6 @@ public class ConnectionManager extends LoopingThread
     protected ByteBuffer _databuf = ByteBuffer.allocateDirect(Client.MAX_DATAGRAM_SIZE);
 
     protected Map<Connection, OverflowQueue> _oflowqs = Maps.newHashMap();
-    protected List<ConnectionObserver> _observers = Lists.newArrayList();
 
     /** Our current runtime stats. */
     protected ConMgrStats _stats;
@@ -1253,6 +1202,7 @@ public class ConnectionManager extends LoopingThread
     // some dependencies
     @Inject @AuthInvoker protected Invoker _authInvoker;
     @Inject protected PresentsDObjectMgr _omgr;
+    @Inject protected ClientManager _clmgr;
     @Inject protected ShutdownManager _shutmgr;
 
     /** How long we wait for network events before checking our running flag to see if we should
@@ -1260,11 +1210,6 @@ public class ConnectionManager extends LoopingThread
      * around listening for incoming network events too long when there are outgoing messages in
      * the queue. */
     protected static final int SELECT_LOOP_TIME = 100;
-
-    // codes for notifyObservers()
-    protected static final int CONNECTION_ESTABLISHED = 0;
-    protected static final int CONNECTION_FAILED = 1;
-    protected static final int CONNECTION_CLOSED = 2;
 
     /** Used to denote asynchronous close requests. */
     protected static final byte[] ASYNC_CLOSE_REQUEST = new byte[0];
