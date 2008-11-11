@@ -123,17 +123,6 @@ public class ConnectionManager extends LoopingThread
     }
 
     /**
-     * Configures the connection manager with an entity that will be informed of the success or
-     * failure of the connection manager initialization process. <em>Note:</em> the callback
-     * methods will be called on the connection manager thread, so be careful not to do anything on
-     * those methods that will conflict with activities on the dobjmgr thread, etc.
-     */
-    public void setStartupListener (ResultListener<Object> rl)
-    {
-        _startlist = rl;
-    }
-
-    /**
      * Adds an authenticator to the authentication chain. This authenticator will be offered a
      * chance to authenticate incoming connections in lieu of the main autuenticator.
      */
@@ -437,9 +426,8 @@ public class ConnectionManager extends LoopingThread
 
         // if we failed to listen on at least one port, give up the ghost
         if (successes == 0) {
-            if (_startlist != null) {
-                _startlist.requestFailed(failure);
-            }
+            log.warning("ConnectionManager failed to bind to any ports. Shutting down.");
+            _shutmgr.queueShutdown();
             return;
         }
 
@@ -459,11 +447,6 @@ public class ConnectionManager extends LoopingThread
                 log.warning("Failure opening datagram channel on port '" +
                     port + "'.", ioe);
             }
-        }
-
-        // notify our startup listener, if we have one
-        if (_startlist != null) {
-            _startlist.requestCompleted(null);
         }
     }
 
@@ -1230,7 +1213,6 @@ public class ConnectionManager extends LoopingThread
     protected Selector _selector;
     protected ServerSocketChannel _ssocket;
     protected DatagramChannel _datagramChannel;
-    protected ResultListener<Object> _startlist;
 
     /** Counts consecutive runtime errors in select(). */
     protected int _runtimeExceptionCount;
@@ -1268,11 +1250,10 @@ public class ConnectionManager extends LoopingThread
     /** A runnable to execute when the connection manager thread exits. */
     protected volatile Runnable _onExit;
 
-    /** The invoker on which we do our authenticating. */
+    // some dependencies
     @Inject @AuthInvoker protected Invoker _authInvoker;
-
-    /** The distributed object manager with which we operate. */
     @Inject protected PresentsDObjectMgr _omgr;
+    @Inject protected ShutdownManager _shutmgr;
 
     /** How long we wait for network events before checking our running flag to see if we should
      * still be running. We don't want to loop too tightly, but we need to make sure we don't sit
