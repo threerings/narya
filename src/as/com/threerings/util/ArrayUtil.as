@@ -209,6 +209,45 @@ public class ArrayUtil
     }
 
     /**
+     * Removes the first element in the array for which the specified predicate returns true.
+     *
+     * @param pred a Function of the form: function (element :*) :Boolean
+     *
+     * @return true if an element was removed, false otherwise.
+     */
+    public static function removeFirstIf (arr :Array, pred :Function) :Boolean
+    {
+        return removeIfImpl(arr, pred, true);
+    }
+
+    /**
+     * Removes the last element in the array for which the specified predicate returns true.
+     *
+     * @param pred a Function of the form: function (element :*) :Boolean
+     *
+     * @return true if an element was removed, false otherwise.
+     */
+    public static function removeLastIf (arr :Array, pred :Function) :Boolean
+    {
+        arr.reverse();
+        var removed :Boolean = removeFirstIf(arr, pred);
+        arr.reverse();
+        return removed;
+    }
+
+    /**
+     * Removes all elements in the array for which the specified predicate returns true.
+     *
+     * @param pred a Function of the form: function (element :*) :Boolean
+     *
+     * @return true if an element was removed, false otherwise.
+     */
+    public static function removeAllIf (arr :Array, pred :Function) :Boolean
+    {
+        return removeIfImpl(arr, pred, false);
+    }
+
+    /**
      * Do the two arrays contain elements that are all equals()?
      */
     public static function equals (ar1 :Array, ar2 :Array) :Boolean
@@ -250,9 +289,17 @@ public class ArrayUtil
     private static function removeImpl (
         arr :Array, element :Object, firstOnly :Boolean) :Boolean
     {
+        return removeIfImpl(arr, createEqualsPred(element), firstOnly);
+    }
+
+    /**
+     * Implementation of removeIf methods.
+     */
+    private static function removeIfImpl (arr :Array, pred :Function, firstOnly :Boolean) :Boolean
+    {
         var removed :Boolean = false;
         for (var ii :int = 0; ii < arr.length; ii++) {
-            if (Util.equals(arr[ii], element)) {
+            if (pred(arr[ii])) {
                 arr.splice(ii--, 1);
                 if (firstOnly) {
                     return true;
@@ -261,6 +308,13 @@ public class ArrayUtil
             }
         }
         return removed;
+    }
+
+    private static function createEqualsPred (element :Object) :Function
+    {
+        return function (other :Object) :Boolean {
+            return Util.equals(other, element);
+        }
     }
 }
 }
