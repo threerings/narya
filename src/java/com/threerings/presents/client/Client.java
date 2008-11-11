@@ -419,9 +419,9 @@ public class Client
         }
 
         // notify our observers immediately
-        _observers.apply(new ObserverOps.Session() {
+        _observers.apply(new ObserverOps.Session(this) {
             protected void notify (SessionObserver obs) {
-                obs.clientWillLogon(Client.this);
+                obs.clientWillLogon(_client);
             }
         });
 
@@ -505,9 +505,9 @@ public class Client
 
         // if the request is abortable, let's run it past the observers before we act upon it
         final boolean[] rejected = new boolean[] { false };
-        _observers.apply(new ObserverOps.Client() {
+        _observers.apply(new ObserverOps.Client(this) {
             protected void notify (ClientObserver obs) {
-                if (!obs.clientWillLogoff(Client.this)) {
+                if (!obs.clientWillLogoff(_client)) {
                     rejected[0] = true;
                 }
             }
@@ -530,9 +530,9 @@ public class Client
     {
         _standalone = true;
         // notify our observers immediately
-        _observers.apply(new ObserverOps.Session() {
+        _observers.apply(new ObserverOps.Session(this) {
             protected void notify (SessionObserver obs) {
-                obs.clientWillLogon(Client.this);
+                obs.clientWillLogon(_client);
             }
         });
         return getBootGroups();
@@ -555,9 +555,9 @@ public class Client
      */
     public void standaloneLogoff ()
     {
-        notifyObservers(new ObserverOps.Session() {
+        notifyObservers(new ObserverOps.Session(this) {
             protected void notify (SessionObserver obs) {
-                obs.clientDidLogoff(Client.this);
+                obs.clientDidLogoff(_client);
             }
         });
         cleanup(null); // this will set _standalone to false
@@ -726,9 +726,9 @@ public class Client
      */
     protected void reportLogonTribulations (final LogonException cause)
     {
-        notifyObservers(new ObserverOps.Client() {
+        notifyObservers(new ObserverOps.Client(this) {
             protected void notify (ClientObserver obs) {
-                obs.clientFailedToLogon(Client.this, cause);
+                obs.clientFailedToLogon(_client, cause);
             }
         });
     }
@@ -743,9 +743,9 @@ public class Client
         _clobj = clobj;
 
         // let the client know that logon has now fully succeeded
-        notifyObservers(new ObserverOps.Session() {
+        notifyObservers(new ObserverOps.Session(this) {
             protected void notify (SessionObserver obs) {
-                obs.clientDidLogon(Client.this);
+                obs.clientDidLogon(_client);
             }
         });
     }
@@ -756,9 +756,9 @@ public class Client
     protected void getClientObjectFailed (final Exception cause)
     {
         // pass the buck onto the listeners
-        notifyObservers(new ObserverOps.Client() {
+        notifyObservers(new ObserverOps.Client(this) {
             protected void notify (ClientObserver obs) {
-                obs.clientFailedToLogon(Client.this, cause);
+                obs.clientFailedToLogon(_client, cause);
             }
         });
     }
@@ -772,9 +772,9 @@ public class Client
         _cloid = _clobj.getOid();
 
         // report to our observers
-        notifyObservers(new ObserverOps.Session() {
+        notifyObservers(new ObserverOps.Session(this) {
             protected void notify (SessionObserver obs) {
-                obs.clientObjectDidChange(Client.this);
+                obs.clientObjectDidChange(_client);
             }
         });
     }
@@ -825,12 +825,12 @@ public class Client
                 // now that the communicator is cleaned up; this allows a logon failure listener to
                 // immediately try another logon (hopefully with something changed like the server
                 // or port)
-                notifyObservers(new ObserverOps.Client() {
+                notifyObservers(new ObserverOps.Client(Client.this) {
                     protected void notify (ClientObserver obs) {
                         if (logonError != null) {
-                            obs.clientFailedToLogon(Client.this, logonError);
+                            obs.clientFailedToLogon(_client, logonError);
                         } else {
-                            obs.clientDidClear(Client.this);
+                            obs.clientDidClear(_client);
                         }
                     }
                 });

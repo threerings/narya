@@ -76,7 +76,7 @@ public class ServerCommunicator extends Communicator
                 }
 
                 @Override public void networkFailure (final IOException ioe) {
-                    notifyClientObservers(new ObserverOps.Client() {
+                    notifyClientObservers(new ObserverOps.Client(_client) {
                         protected void notify (ClientObserver obs) {
                             obs.clientConnectionFailed(_client, ioe);
                         }
@@ -185,7 +185,7 @@ public class ServerCommunicator extends Communicator
     {
         if (_logonError == null) {
             // we were logged on successfully, so report didLogoff first
-            notifyClientObservers(new ObserverOps.Session() {
+            notifyClientObservers(new ObserverOps.Session(_client) {
                 protected void notify (SessionObserver obs) {
                     obs.clientDidLogoff(_client);
                 }
