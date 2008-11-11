@@ -347,9 +347,9 @@ public class PresentsDObjectMgr
     }
 
     /**
-     * Requests that the dobjmgr shut itself down soon- you may want to try using {@link
-     * Invoker#shutdown} which will make sure that both the Invoker and DObjectMgr are empty and
-     * then shut them both down.
+     * Requests that the dobjmgr shut itself down directly. You may want to try using {@link
+     * PresentsInvoker#shutdown} which will make sure that both the Invoker and DObjectMgr are
+     * empty and then shut them both down.
      */
     public void harshShutdown ()
     {
