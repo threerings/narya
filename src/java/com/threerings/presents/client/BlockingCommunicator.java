@@ -211,9 +211,10 @@ public class BlockingCommunicator extends Communicator
         log.info("Connection failed", ioe);
 
         // let the client know that things went south
+        final Client client = _client;
         notifyClientObservers(new ObserverOps.Client() {
             protected void notify (ClientObserver obs) {
-                obs.clientConnectionFailed(_client, ioe);
+                obs.clientConnectionFailed(client, ioe);
             }
         });
 
@@ -267,9 +268,10 @@ public class BlockingCommunicator extends Communicator
         log.debug("Writer thread exited.");
 
         // let the client observers know that we're logged off
+        final Client client = _client;
         notifyClientObservers(new ObserverOps.Session() {
             protected void notify (SessionObserver obs) {
-                obs.clientDidLogoff(_client);
+                obs.clientDidLogoff(client);
             }
         });
 
