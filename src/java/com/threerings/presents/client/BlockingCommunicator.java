@@ -601,7 +601,7 @@ public class BlockingCommunicator extends Communicator
                 shutdown();
 
             } catch (Exception e) {
-                log.warning("Error processing message [msg=" + msg + ", error=" + e + "].");
+                log.warning("Error processing message", "msg", msg, e);
             }
         }
 
