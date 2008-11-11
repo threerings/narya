@@ -129,6 +129,7 @@ public abstract class ChatChannelManager
                                           ShutdownManager shutmgr)
     {
         invmgr.registerDispatcher(new ChannelSpeakDispatcher(this), CrowdCodes.CROWD_GROUP);
+        shutmgr.registerShutdowner(this);
 
         // create and start our idle channel closer (always be closing)
         _closer = new Interval(omgr) {
