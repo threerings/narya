@@ -28,13 +28,10 @@ import java.security.NoSuchAlgorithmException;
 
 import java.io.EOFException;
 import java.io.IOException;
-import java.io.OutputStream;
 
 import java.nio.ByteBuffer;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.SocketChannel;
-
-import com.samskivert.util.StringUtil;
 
 import com.threerings.io.FramedInputStream;
 import com.threerings.io.FramingOutputStream;

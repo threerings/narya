@@ -420,7 +420,7 @@ public class Client
 
         // notify our observers immediately
         _observers.apply(new ObserverOps.Session(this) {
-            protected void notify (SessionObserver obs) {
+            @Override protected void notify (SessionObserver obs) {
                 obs.clientWillLogon(_client);
             }
         });
@@ -506,7 +506,7 @@ public class Client
         // if the request is abortable, let's run it past the observers before we act upon it
         final boolean[] rejected = new boolean[] { false };
         _observers.apply(new ObserverOps.Client(this) {
-            protected void notify (ClientObserver obs) {
+            @Override protected void notify (ClientObserver obs) {
                 if (!obs.clientWillLogoff(_client)) {
                     rejected[0] = true;
                 }
@@ -531,7 +531,7 @@ public class Client
         _standalone = true;
         // notify our observers immediately
         _observers.apply(new ObserverOps.Session(this) {
-            protected void notify (SessionObserver obs) {
+            @Override protected void notify (SessionObserver obs) {
                 obs.clientWillLogon(_client);
             }
         });
@@ -556,7 +556,7 @@ public class Client
     public void standaloneLogoff ()
     {
         notifyObservers(new ObserverOps.Session(this) {
-            protected void notify (SessionObserver obs) {
+            @Override protected void notify (SessionObserver obs) {
                 obs.clientDidLogoff(_client);
             }
         });
@@ -727,7 +727,7 @@ public class Client
     protected void reportLogonTribulations (final LogonException cause)
     {
         notifyObservers(new ObserverOps.Client(this) {
-            protected void notify (ClientObserver obs) {
+            @Override protected void notify (ClientObserver obs) {
                 obs.clientFailedToLogon(_client, cause);
             }
         });
@@ -744,7 +744,7 @@ public class Client
 
         // let the client know that logon has now fully succeeded
         notifyObservers(new ObserverOps.Session(this) {
-            protected void notify (SessionObserver obs) {
+            @Override protected void notify (SessionObserver obs) {
                 obs.clientDidLogon(_client);
             }
         });
@@ -757,7 +757,7 @@ public class Client
     {
         // pass the buck onto the listeners
         notifyObservers(new ObserverOps.Client(this) {
-            protected void notify (ClientObserver obs) {
+            @Override protected void notify (ClientObserver obs) {
                 obs.clientFailedToLogon(_client, cause);
             }
         });
@@ -773,7 +773,7 @@ public class Client
 
         // report to our observers
         notifyObservers(new ObserverOps.Session(this) {
-            protected void notify (SessionObserver obs) {
+            @Override protected void notify (SessionObserver obs) {
                 obs.clientObjectDidChange(_client);
             }
         });
@@ -826,7 +826,7 @@ public class Client
                 // immediately try another logon (hopefully with something changed like the server
                 // or port)
                 notifyObservers(new ObserverOps.Client(Client.this) {
-                    protected void notify (ClientObserver obs) {
+                    @Override protected void notify (ClientObserver obs) {
                         if (logonError != null) {
                             obs.clientFailedToLogon(_client, logonError);
                         } else {

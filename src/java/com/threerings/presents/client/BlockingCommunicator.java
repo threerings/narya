@@ -212,7 +212,7 @@ public class BlockingCommunicator extends Communicator
 
         // let the client know that things went south
         notifyClientObservers(new ObserverOps.Client(_client) {
-            protected void notify (ClientObserver obs) {
+            @Override protected void notify (ClientObserver obs) {
                 obs.clientConnectionFailed(_client, ioe);
             }
         });
@@ -268,7 +268,7 @@ public class BlockingCommunicator extends Communicator
 
         // let the client observers know that we're logged off
         notifyClientObservers(new ObserverOps.Session(_client) {
-            protected void notify (SessionObserver obs) {
+            @Override protected void notify (SessionObserver obs) {
                 obs.clientDidLogoff(_client);
             }
         });

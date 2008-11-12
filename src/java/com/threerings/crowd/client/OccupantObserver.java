@@ -24,9 +24,9 @@ package com.threerings.crowd.client;
 import com.threerings.crowd.data.OccupantInfo;
 
 /**
- * An entity that is interested in hearing about bodies that enter and
- * leave a location (as well as disconnect and reconnect) can implement
- * this interface and register itself with the {@link OccupantDirector}.
+ * An entity that is interested in hearing about bodies that enter and leave a location (as well
+ * as disconnect and reconnect) can implement this interface and register itself with the
+ * {@link OccupantDirector}.
  */
 public interface OccupantObserver
 {

@@ -226,8 +226,8 @@ public class DObject
         if (els != null) {
             _listeners = els;
         } else {
-            log.warning("Refusing repeat listener registration [dobj=" + which() +
-                        ", list=" + listener + "]", new Exception());
+            log.warning("Refusing repeat listener registration",
+                "dobj", which(), "list", listener, new Exception());
         }
     }
 

@@ -61,8 +61,6 @@ import com.threerings.io.UnreliableObjectOutputStream;
 import com.threerings.presents.annotation.AuthInvoker;
 import com.threerings.presents.client.Client;
 import com.threerings.presents.data.ConMgrStats;
-import com.threerings.presents.net.AuthRequest;
-import com.threerings.presents.net.AuthResponse;
 import com.threerings.presents.net.Message;
 import com.threerings.presents.server.Authenticator;
 import com.threerings.presents.server.ChainedAuthenticator;
@@ -335,7 +333,6 @@ public class ConnectionManager extends LoopingThread
     protected void willStart ()
     {
         int successes = 0;
-        IOException failure = null;
         for (int port : _ports) {
             try {
                 // create a listening socket and add it to the select set
@@ -350,7 +347,6 @@ public class ConnectionManager extends LoopingThread
 
             } catch (IOException ioe) {
                 log.warning("Failure listening to socket on port '" + port + "'.", ioe);
-                failure = ioe;
             }
         }
 

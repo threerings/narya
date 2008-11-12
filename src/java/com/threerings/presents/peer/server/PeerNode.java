@@ -42,7 +42,6 @@ import com.threerings.presents.peer.net.PeerBootstrapData;
 import com.threerings.presents.peer.server.persist.NodeRecord;
 import com.threerings.presents.server.PresentsDObjectMgr;
 import com.threerings.presents.server.net.ConnectionManager;
-import com.threerings.presents.server.net.ServerCommunicator;
 
 import static com.threerings.presents.Log.log;
 
