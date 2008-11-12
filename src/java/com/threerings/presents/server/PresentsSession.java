@@ -372,7 +372,7 @@ public class PresentsSession
         // if our connection was closed while we were resolving our client object, then just
         // abandon ship
         if (getConnection() == null) {
-            log.info("Session ended before client object could be resolved: " + this + ".");
+            log.info("Session ended before client object could be resolved " + this + ".");
             endSession();
             return;
         }
@@ -500,7 +500,7 @@ public class PresentsSession
         // session
         if (_clobj == null) {
             log.info("Rapid-fire reconnect caused us to arrive in resumeSession() before the " +
-                     "original session resolved its client object: " + this + ".");
+                     "original session resolved its client object " + this + ".");
             return;
         }
 
@@ -522,7 +522,7 @@ public class PresentsSession
     {
         // if we have no client object for whatever reason; we're hosed, shut ourselves down
         if (_clobj == null) {
-            log.info("Missing client object for resuming session. Killing session.");
+            log.info("Missing client object for resuming session " + this + ".");
             endSession();
             return;
         }
@@ -542,11 +542,15 @@ public class PresentsSession
     @AnyThread
     protected void safeEndSession ()
     {
-        _omgr.postRunnable(new Runnable() {
-            public void run () {
-                endSession();
-            }
-        });
+        if (!_omgr.isRunning()) {
+            log.info("Dropping end session request as we're shutting down " + this + ".");
+        } else {
+            _omgr.postRunnable(new Runnable() {
+                public void run () {
+                    endSession();
+                }
+            });
+        }
     }
 
     /**
