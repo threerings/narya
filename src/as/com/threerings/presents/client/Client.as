@@ -267,13 +267,6 @@ public class Client extends EventDispatcher
         _comm = new Communicator(this);
         callLater(_comm.logon);
 
-        // it is safe, however, to start up our tick interval immediately
-        if (_tickInterval == null) {
-            _tickInterval = new Timer(5000);
-            _tickInterval.addEventListener(TimerEvent.TIMER, tick);
-            _tickInterval.start();
-        }
-
         return true;
     }
 
@@ -320,10 +313,12 @@ public class Client extends EventDispatcher
         if (abortable && !notifyObservers(ClientEvent.CLIENT_WILL_LOGOFF)) {
             return false;
         }
-
-        _tickInterval.stop();
-        _tickInterval = null;
-
+        
+        if (_tickInterval != null) {
+            _tickInterval.stop();
+            _tickInterval = null;
+        }
+        
         _comm.logoff();
         return true;
     }
@@ -372,7 +367,16 @@ public class Client extends EventDispatcher
      */
     public function gotClientObject (clobj :ClientObject) :void
     {
+        // keep our client object around
         _clobj = clobj;
+
+        // and start up our tick interval (which will send pings when necessary)
+        if (_tickInterval == null) {
+            _tickInterval = new Timer(5000);
+            _tickInterval.addEventListener(TimerEvent.TIMER, tick);
+            _tickInterval.start();
+        }
+        
         notifyObservers(ClientEvent.CLIENT_DID_LOGON);
     }
 
