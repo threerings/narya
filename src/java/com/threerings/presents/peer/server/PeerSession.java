@@ -47,25 +47,13 @@ public class PeerSession extends PresentsSession
         _peermgr = peermgr;
     }
 
-    /**
-     * Derived classes can override this member to create derived bootstrap data classes that
-     * contain extra bootstrap information, if desired.
-     */
-    @Override
+    @Override // from PresentsSession
     protected BootstrapData createBootstrapData ()
     {
         return new PeerBootstrapData();
     }
 
-    /**
-     * Derived classes can override this member to populate the bootstrap data with additional
-     * information. They should be sure to call <code>super.populateBootstrapData</code> before
-     * doing their own populating, however.
-     *
-     * <p><em>Note:</em> This function will be called on the dobjmgr thread which means that object
-     * manipulations are OK, but client instance manipulations must be done carefully.
-     */
-    @Override
+    @Override // from PresentsSession
     protected void populateBootstrapData (BootstrapData data)
     {
         super.populateBootstrapData(data);
@@ -75,7 +63,7 @@ public class PeerSession extends PresentsSession
         pdata.nodeOid = _peermgr.getNodeObject().getOid();
     }
 
-    @Override // documentation inherited
+    @Override // from PresentsSession
     protected void sessionWillStart ()
     {
         super.sessionWillStart();
@@ -86,8 +74,22 @@ public class PeerSession extends PresentsSession
         // let the peer manager know that we're here
         _peermgr.peerStartedSession(this);
     }
+    
+    @Override // from PresentsSession
+    protected void sessionConnectionClosed ()
+    {
+        super.sessionConnectionClosed();
 
-    @Override // documentation inherited
+        // if we lose contact with our peer and we have not already ended our session, end it now;
+        // we don't want to wait 8 minutes for it to reconnect, there's no need to preserve its
+        // session state and there is need to let the peer manager know it's gone ASAP
+        if (_clobj != null) {
+            log.info("Lost connection to peer, ending session " + this + ".");
+            endSession();
+        }
+    }
+
+    @Override // from PresentsSession
     protected void sessionDidEnd ()
     {
         super.sessionDidEnd();
