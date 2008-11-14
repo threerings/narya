@@ -62,10 +62,6 @@ public class Communicator
         _outStream = new ObjectOutputStream(_outBuffer);
         _inStream = new ObjectInputStream();
 
-        // create our message writer
-        _writer = new Timer(1);
-        _writer.addEventListener(TimerEvent.TIMER, sendPendingMessages);
-
         _portIdx = 0;
         logonToPort();
     }
@@ -80,6 +76,9 @@ public class Communicator
 
     public function postMessage (msg :UpstreamMessage) :void
     {
+        if (_writer == null) {
+            log.warning("Posting message prior to opening socket", "msg", msg);
+        }
         _outq.push(msg);
     }
 
@@ -114,7 +113,6 @@ public class Communicator
         }
 
         var host :String = _client.getHostname();
-        var pportKey :String = host + ".preferred_port";
         var pport :int = ports[0];
         var ppidx :int = Math.max(0, ports.indexOf(pport));
         var port :int = (ports[(_portIdx + ppidx) % ports.length] as int);
@@ -276,12 +274,28 @@ public class Communicator
     {
         logonToPort(true);
         
+        // check for a logoff message
+        for each (var message :UpstreamMessage in _outq) {
+            if (message is LogoffRequest) {
+                // don't bother authing, just bail
+                log.info("Logged off prior to socket opening, shutting down");
+                shutdown(null);
+                return;
+            }
+        }
+
+        // kick off our writer thread now that we know we're ready to write 
+        _writer = new Timer(1);
+        _writer.addEventListener(TimerEvent.TIMER, sendPendingMessages);
+        _writer.start();
+
+        // clear the queue, the server doesn't like anything sent prior to auth
+        _outq.length = 0;
+
         // well that's great! let's logon
+        log.info("Posting auth request");
         postMessage(new AuthRequest(_client.getCredentials(), _client.getVersion(),
                                     _client.getBootGroups()));
-
-        // start up our writer thread now that we know we're ready to write
-        _writer.start();
     }
 
     /**
