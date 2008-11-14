@@ -241,7 +241,7 @@ public class BasicStreamers
         public void writeObject (Object object, ObjectOutputStream out, boolean useWriter)
             throws IOException
         {
-            out.writeClassMapping((Class)object);
+            out.writeClassMapping((Class<?>)object);
         }
     }
 
