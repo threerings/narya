@@ -293,7 +293,6 @@ public class Communicator
         _outq.length = 0;
 
         // well that's great! let's logon
-        log.info("Posting auth request");
         postMessage(new AuthRequest(_client.getCredentials(), _client.getVersion(),
                                     _client.getBootGroups()));
     }
