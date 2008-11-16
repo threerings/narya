@@ -24,10 +24,10 @@ package com.threerings.admin.server.persist;
 import java.util.HashMap;
 import java.util.Set;
 
-import com.samskivert.jdbc.depot.DepotRepository;
-import com.samskivert.jdbc.depot.PersistenceContext;
-import com.samskivert.jdbc.depot.PersistentRecord;
-import com.samskivert.jdbc.depot.clause.Where;
+import com.samskivert.depot.DepotRepository;
+import com.samskivert.depot.PersistenceContext;
+import com.samskivert.depot.PersistentRecord;
+import com.samskivert.depot.clause.Where;
 
 /**
  * Stores configuration information in a database table.

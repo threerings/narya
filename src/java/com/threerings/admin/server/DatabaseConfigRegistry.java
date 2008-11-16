@@ -30,8 +30,8 @@ import com.samskivert.util.Invoker;
 import com.samskivert.util.StringUtil;
 
 import com.samskivert.jdbc.WriteOnlyUnit;
-import com.samskivert.jdbc.depot.DatabaseException;
-import com.samskivert.jdbc.depot.PersistenceContext;
+import com.samskivert.depot.DatabaseException;
+import com.samskivert.depot.PersistenceContext;
 
 import com.threerings.presents.annotation.MainInvoker;
 import com.threerings.presents.dobj.DObject;

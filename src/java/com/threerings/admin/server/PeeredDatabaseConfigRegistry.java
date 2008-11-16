@@ -28,7 +28,7 @@ import com.google.inject.Singleton;
 
 import com.samskivert.util.Invoker;
 
-import com.samskivert.jdbc.depot.PersistenceContext;
+import com.samskivert.depot.PersistenceContext;
 
 import com.threerings.io.Streamable;
 
