@@ -4,7 +4,6 @@
 	<classpathentry excluding="**/.svn/" kind="src" output="tests/dist/classes" path="tests/src/java"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="var" path="EXT_LIBS_DIR/javassist.jar"/>
-	<classpathentry exported="true" kind="var" path="EXT_LIBS_DIR/google-collect.jar"/>
 	<classpathentry exported="true" kind="var" path="EXT_LIBS_DIR/guice.jar"/>
 	<classpathentry exported="true" kind="var" path="EXT_LIBS_DIR/atunit.jar"/>
 	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/depot"/>
