@@ -1216,7 +1216,7 @@ public class ConnectionManager extends LoopingThread
     protected static final byte[] ASYNC_CLOSE_REQUEST = new byte[0];
 
     /** Whether or not debug reporting is activated .*/
-    protected static final boolean DEBUG_REPORT = true;
+    protected static final boolean DEBUG_REPORT = false;
 
     /** Report our activity every 30 seconds. */
     protected static final long DEBUG_REPORT_INTERVAL = 30*1000L;
