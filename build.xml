@@ -266,16 +266,18 @@
     </copy>
   </target>
 
-  <!-- builds the various tests -->
+  <!-- runs our tests -->
   <target name="tests">
-    <ant dir="tests" target="compile"/>
+    <ant dir="tests" target="tests"/>
   </target>
 
   <!-- a target for rebuilding everything -->
-  <target name="all" depends="clean,prepare,compile,aslib,ninstall,javadoc,tests,dist"/>
+  <target name="all" depends="clean,prepare,compile,aslib,ninstall,javadoc,dist"/>
 
   <!-- builds our distribution files (war and jar) -->
-  <target name="dist" depends="prepare,compile,procstream,aslib,ninstall,tests">
+  <target name="dist" depends="prepare,compile,procstream,aslib,ninstall">
+    <!-- build our tests since that isn't otherwise normally done -->
+    <ant dir="tests" target="compile"/>
     <!-- build our various jar files -->
     <jar destfile="${deploy.dir}/${lib.name}-base.jar">
       <fileset dir="${classes.dir}" includes="com/threerings/NaryaLog**"/>
@@ -284,7 +286,8 @@
           excludes="**/*.c,**/Makefile,**/*.h"/>
     </jar>
     <jar destfile="${deploy.dir}/${lib.name}-distrib.jar">
-      <fileset dir="${classes.dir}" includes="com/threerings/presents/**" excludes="**/*.html,**/*.png"/>
+      <fileset dir="${classes.dir}" includes="com/threerings/presents/**"
+               excludes="**/*.html,**/*.png"/>
       <fileset dir="${classes.dir}" includes="com/threerings/crowd/**"/>
       <fileset dir="${classes.dir}" includes="com/threerings/admin/**"/>
       <fileset dir="${classes.dir}" includes="com/threerings/bureau/**"/>

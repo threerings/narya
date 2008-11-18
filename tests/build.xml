@@ -29,7 +29,7 @@
   </path>
 
   <!-- generates additional methods for distributed object classes -->
-  <target name="gendobj" depends="prepare"> 
+  <target name="gendobj" depends="prepare">
     <taskdef name="dobj"
              classname="com.threerings.presents.tools.GenDObjectTask"
              classpathref="classpath"/>
@@ -47,7 +47,7 @@
 
   <!-- generates marshaller and dispatcher classes for all invocation -->
   <!-- service declarations -->
-  <target name="genservice"> 
+  <target name="genservice">
     <taskdef name="service" classpathref="classpath"
              classname="com.threerings.presents.tools.GenServiceTask"/>
     <!-- make sure the service class files are all compiled -->
@@ -64,7 +64,7 @@
 
   <!-- generates sender and decoder classes for all invocation -->
   <!-- receiver declarations -->
-  <target name="genreceiver"> 
+  <target name="genreceiver">
     <taskdef name="receiver" classpathref="classpath"
              classname="com.threerings.presents.tools.GenReceiverTask"/>
     <!-- make sure the receiver class files are all compiled -->
@@ -121,7 +121,7 @@
         </uptodate>
       </and>
     </or></condition>
-    <available property="extdep.suffix" value="-0.0-SNAPSHOT" 
+    <available property="extdep.suffix" value="-0.0-SNAPSHOT"
       filepath="../dist/lib" file="thane-0.0-SNAPSHOT.swc"/>
   </target>
 
@@ -162,9 +162,8 @@
     </java>
   </target>
 
-
   <!-- run the tests -->
-  <target name="test" depends="compile"
+  <target name="tests" depends="compile"
     description="Run the tests.">
     <junit printsummary="no" haltonfailure="yes" fork="${junit.fork}">
       <classpath refid="classpath"/>
@@ -190,11 +189,11 @@
   </target>
 
   <!-- builds the bureau thane test client -->
-  <target name="bureau-compile-thane-client" 
+  <target name="bureau-compile-thane-client"
     unless="no_build_thane_client" depends="aslib,bureau-check-thane-client"
     description="Compiles the thane client for testing the bureau library">
 
-    <dirname property="abs.flexsdk.dir" file="${flexsdk.dir}/somefile.txt"/> 
+    <dirname property="abs.flexsdk.dir" file="${flexsdk.dir}/somefile.txt"/>
     <copy file="etc/thane-config.xml.in" tofile="${deploy.dir}/thane-config.xml">
       <filterset>
         <filter token="flex_sdk_dir" value="${abs.flexsdk.dir}"/>
