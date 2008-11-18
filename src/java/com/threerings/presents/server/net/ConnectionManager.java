@@ -184,7 +184,7 @@ public class ConnectionManager extends LoopingThread
         SocketChannel sockchan = SocketChannel.open();
         sockchan.configureBlocking(false);
         conn.init(this, sockchan, System.currentTimeMillis());
-        _connectq.append(Tuple.create(conn, new InetSocketAddress(hostname, port)));
+        _connectq.append(Tuple.newTuple(conn, new InetSocketAddress(hostname, port)));
     }
 
     /**
@@ -926,7 +926,7 @@ public class ConnectionManager extends LoopingThread
             // log.info("Flattened " + msg + " into " + data.length + " bytes.");
 
             // and slap both on the queue
-            _outq.append(Tuple.create(conn, data));
+            _outq.append(Tuple.newTuple(conn, data));
 
         } catch (Exception e) {
             log.warning("Failure flattening message", "conn", conn, "msg", msg, e);
@@ -949,7 +949,7 @@ public class ConnectionManager extends LoopingThread
         byte[] data = _flattener.toByteArray();
 
         // slap it on the queue
-        _dataq.append(Tuple.create(conn, data));
+        _dataq.append(Tuple.newTuple(conn, data));
     }
 
     /**
@@ -962,7 +962,7 @@ public class ConnectionManager extends LoopingThread
      */
     protected void postAsyncClose (Connection conn)
     {
-        _outq.append(Tuple.create(conn, ASYNC_CLOSE_REQUEST));
+        _outq.append(Tuple.newTuple(conn, ASYNC_CLOSE_REQUEST));
     }
 
     /**

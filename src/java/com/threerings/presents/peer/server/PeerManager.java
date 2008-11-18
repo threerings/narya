@@ -295,7 +295,7 @@ public abstract class PeerManager
     {
         for (PeerNode peer : _peers.values()) {
             if (peer.nodeobj != null) {
-                func.apply(Tuple.create(peer.getClient(), peer.nodeobj));
+                func.apply(Tuple.newTuple(peer.getClient(), peer.nodeobj));
             }
         }
     }
@@ -389,7 +389,7 @@ public abstract class PeerManager
             return;
         }
 
-        final Tuple<String, Integer> key = Tuple.create(nodeName, remoteOid);
+        final Tuple<String, Integer> key = Tuple.newTuple(nodeName, remoteOid);
         if (_proxies.containsKey(key)) {
             String errmsg = "Cannot proxy already proxied object [key=" + key + "].";
             listener.requestFailed(new ObjectAccessException(errmsg));
@@ -418,7 +418,7 @@ public abstract class PeerManager
      */
     public void unproxyRemoteObject (String nodeName, int remoteOid)
     {
-        Tuple<String,Integer> key = Tuple.create(nodeName, remoteOid);
+        Tuple<String,Integer> key = Tuple.newTuple(nodeName, remoteOid);
         Tuple<Subscriber<?>, DObject> bits = _proxies.remove(key);
         if (bits == null) {
             log.warning("Requested to clear unknown proxy [key=" + key + "].");
