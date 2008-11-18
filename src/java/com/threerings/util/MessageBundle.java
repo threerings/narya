@@ -203,6 +203,28 @@ public class MessageBundle
     }
 
     /**
+     * Adds all keys for messages whose key starts with the specified prefix to the
+     * supplied collection.
+     *
+     * @param includeParent if true, messages from our parent bundle (and its
+     * parent bundle, all the way up the chain will be included).
+     */
+    public void getAllKeys (String prefix, Collection<String> keys,
+                        boolean includeParent)
+    {
+        Enumeration<String> iter = _bundle.getKeys();
+        while (iter.hasMoreElements()) {
+            String key = iter.nextElement();
+            if (key.startsWith(prefix)) {
+                keys.add(key);
+            }
+        }
+        if (includeParent && _parent != null) {
+            _parent.getAllKeys(prefix, keys, includeParent);
+        }
+    }
+
+    /**
      * Returns true if we have a translation mapping for the supplied key,
      * false if not.
      */
