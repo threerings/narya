@@ -28,6 +28,8 @@ import java.io.IOException;
 import junit.framework.Test;
 import junit.framework.TestCase;
 
+import com.threerings.util.StreamableTuple;
+
 /**
  * Tests the {@link Streamable} class.
  */
@@ -116,23 +118,30 @@ public class StreamableTest extends TestCase
             oout.writeObject(w);
             w.string1 = "three";
             oout.writeObject(w);
+            oout.writeObject(StreamableTuple.newTuple("left", "right"));
 
             byte[] data = bout.toByteArray();
 //             System.out.println(data.length + " bytes were written.");
 
             ByteArrayInputStream bin = new ByteArrayInputStream(data);
             ObjectInputStream oin = new ObjectInputStream(bin);
-//             System.out.println(oin.readObject());
-//             System.out.println(oin.readObject());
-//             System.out.println(oin.readObject());
-            oin.readObject();
-            oin.readObject();
-            oin.readObject();
+            readObject(oin); // widget
+            readObject(oin); // modified widget
+            readObject(oin); // again modified widget
+            readObject(oin); // streamable tuple
 
         } catch (Exception e) {
             e.printStackTrace();
             fail("Urk " + e);
         }
+    }
+
+    protected Object readObject (ObjectInputStream oin)
+        throws Exception
+    {
+        Object object = oin.readObject();
+        System.out.println(object);
+        return object;
     }
 
     public static Test suite ()
