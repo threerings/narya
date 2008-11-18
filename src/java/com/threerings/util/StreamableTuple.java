@@ -37,10 +37,11 @@ public class StreamableTuple<L, R> extends Tuple<L, R>
     implements Streamable
 {
     /**
-     * Constructs a blank tuple.
+     * Creates a tuple with the specified two objects.
      */
-    public StreamableTuple ()
+    public static <L, R> StreamableTuple<L, R> newTuple (L left, R right)
     {
+        return new StreamableTuple<L, R>(left, right);
     }
 
     /**
@@ -49,5 +50,13 @@ public class StreamableTuple<L, R> extends Tuple<L, R>
     public StreamableTuple (L left, R right)
     {
         super(left, right);
+    }
+
+    /**
+     * Don't use this constructor! It's only for unstreaming.
+     */
+    public StreamableTuple ()
+    {
+        super(null, null);
     }
 }
