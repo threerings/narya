@@ -1,4 +1,4 @@
-﻿//
+//
 // $Id$
 //
 // Narya library - tools for developing networked games
