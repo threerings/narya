@@ -1,4 +1,4 @@
-//
+﻿//
 // $Id$
 //
 // Narya library - tools for developing networked games
@@ -96,7 +96,7 @@ public class HashMap
         var hkey :Hashable = keyFor(key);
         var hash :int = hkey.hashCode();
         var index :int = indexFor(hash);
-        var e :Entry = (_entries[index] as Entry);
+        var e :HashMap_Entry = (_entries[index] as HashMap_Entry);
         while (e != null) {
             if (e.hash == hash && e.key.equals(hkey)) {
                 return e.value;
@@ -138,8 +138,8 @@ public class HashMap
         var hkey :Hashable = keyFor(key);
         var hash :int = hkey.hashCode();
         var index :int = indexFor(hash);
-        var firstEntry :Entry = (_entries[index] as Entry);
-        for (var e :Entry = firstEntry; e != null; e = e.next) {
+        var firstEntry :HashMap_Entry = (_entries[index] as HashMap_Entry);
+        for (var e :HashMap_Entry = firstEntry; e != null; e = e.next) {
             if (e.hash == hash && e.key.equals(hkey)) {
                 oldValue = e.value;
                 e.value = value;
@@ -147,7 +147,7 @@ public class HashMap
             }
         }
 
-        _entries[index] = new Entry(hash, hkey, value, firstEntry);
+        _entries[index] = new HashMap_Entry(hash, hkey, value, firstEntry);
         _entriesSize++;
         // check to see if we should grow the map
         if (_entriesSize > _entries.length * _loadFactor) {
@@ -180,11 +180,11 @@ public class HashMap
         var hkey :Hashable = keyFor(key);
         var hash :int = hkey.hashCode();
         var index :int = indexFor(hash);
-        var prev :Entry = (_entries[index] as Entry);
-        var e :Entry = prev;
+        var prev :HashMap_Entry = (_entries[index] as HashMap_Entry);
+        var e :HashMap_Entry = prev;
 
         while (e != null) {
-            var next :Entry = e.next;
+            var next :HashMap_Entry = e.next;
             if (e.hash == hash && e.key.equals(hkey)) {
                 if (prev == e) {
                     _entries[index] = next;
@@ -227,7 +227,7 @@ public class HashMap
         // get the more complex keys
         if (_entries != null) {
             for (var ii :int = _entries.length - 1; ii >= 0; ii--) {
-                for (var e :Entry = (_entries[ii] as Entry); e != null;
+                for (var e :HashMap_Entry = (_entries[ii] as HashMap_Entry); e != null;
                         e = e.next) {
                     keys.push(e.getOriginalKey());
                 }
@@ -252,7 +252,7 @@ public class HashMap
         // get the more complex properties
         if (_entries != null) {
             for (var ii :int = _entries.length - 1; ii >= 0; ii--) {
-                for (var e :Entry = (_entries[ii] as Entry); e != null;
+                for (var e :HashMap_Entry = (_entries[ii] as HashMap_Entry); e != null;
                         e = e.next) {
                     vals.push(e.value);
                 }
@@ -273,7 +273,7 @@ public class HashMap
 
         if (_entries != null) {
             for (var ii :int = _entries.length - 1; ii >= 0; ii--) {
-                for (var e :Entry = (_entries[ii] as Entry); e != null;
+                for (var e :HashMap_Entry = (_entries[ii] as HashMap_Entry); e != null;
                         e = e.next) {
                     fn(e.getOriginalKey(), e.value);
                 }
@@ -295,7 +295,7 @@ public class HashMap
                 "for HashMap created without hashing functions.");
 
         } else {
-            return new KeyWrapper(key, _equalsFn, _hashFn);
+            return new HashMap_KeyWrapper(key, _equalsFn, _hashFn);
         }
     }
 
@@ -332,11 +332,11 @@ public class HashMap
 
         // place all the old entries in the new map
         for (var ii :int = 0; ii < oldEntries.length; ii++) {
-            var e :Entry = (oldEntries[ii] as Entry);
+            var e :HashMap_Entry = (oldEntries[ii] as HashMap_Entry);
             while (e != null) {
-                var next :Entry = e.next;
+                var next :HashMap_Entry = e.next;
                 var index :int = indexFor(e.hash);
-                e.next = (_entries[index] as Entry);
+                e.next = (_entries[index] as HashMap_Entry);
                 _entries[index] = e;
                 e = next;
             }
@@ -370,73 +370,3 @@ public class HashMap
 
 } // end: package com.threerings.util
 
-import com.threerings.util.Hashable;
-
-class Entry
-{
-    public var key :Hashable;
-    public var value :Object;
-    public var hash :int;
-    public var next :Entry;
-
-    public function Entry (hash :int, key :Hashable, value :Object, next :Entry)
-    {
-        this.hash = hash;
-        this.key = key;
-        this.value = value;
-        this.next = next;
-    }
-
-    /**
-     * Get the original key used to store this entry.
-     */
-    public function getOriginalKey () :Object
-    {
-        if (key is KeyWrapper) {
-            return (key as KeyWrapper).key;
-        }
-        return key;
-    }
-}
-
-class KeyWrapper
-    implements Hashable
-{
-    public var key :Object;
-
-    public function KeyWrapper (
-            key :Object, equalsFn :Function, hashFn :Function)
-    {
-        this.key = key;
-        _equalsFn = equalsFn;
-        var hashValue :* = hashFn(key);
-        if (hashValue is String) {
-            var uid :String = (hashValue as String);
-            // examine at most 32 characters of the string
-            var inc :int = int(Math.max(1, Math.ceil(uid.length / 32)));
-            for (var ii :int = 0; ii < uid.length; ii += inc) {
-                _hash = (_hash << 1) ^ int(uid.charCodeAt(ii));
-            }
-
-        } else {
-            _hash = int(hashValue);
-        }
-    }
-
-    // documentation inherited from interface Hashable
-    public function equals (other :Object) :Boolean
-    {
-        return (other is KeyWrapper) &&
-            Boolean(_equalsFn(key, (other as KeyWrapper).key));
-    }
-
-    // documentation inherited from interface Hashable
-    public function hashCode () :int
-    {
-        return _hash;
-    }
-
-    protected var _key :Object;
-    protected var _hash :int;
-    protected var _equalsFn :Function;
-}
