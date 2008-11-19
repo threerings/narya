@@ -252,6 +252,8 @@ public class BureauRegistry
      */
     public void startAgent (AgentObject agent)
     {
+        agent.setLocal(AgentData.class, new AgentData());
+
         Bureau bureau = _bureaus.get(agent.bureauId);
         if (bureau != null && bureau.ready()) {
             _omgr.registerObject(agent);
@@ -301,13 +303,13 @@ public class BureauRegistry
         // transition the agent to a new state and perform the effect of the transition
         if (found.state == AgentState.PENDING) {
             found.bureau.agentStates.remove(found.agent);
-            // !TODO: is the the right place to destroy it?
             _omgr.destroyObject(found.agent.getOid());
 
         } else if (found.state == AgentState.STARTED) {
             found.bureau.agentStates.put(found.agent, AgentState.STILL_BORN);
 
         } else if (found.state == AgentState.RUNNING) {
+            // TODO: have a timeout for this in case the client is misbehaving or hung
             BureauSender.destroyAgent(found.bureau.clientObj, agent.getOid());
             found.bureau.agentStates.put(found.agent, AgentState.DESTROYED);
 
@@ -332,6 +334,18 @@ public class BureauRegistry
         return bureau.client;
     }
 
+    /**
+     * If this agent's bureau encountered an error on launch, return it.
+     */
+    public Exception getLaunchError (AgentObject agentObj)
+    {
+        AgentData data = agentObj.getLocal(AgentData.class);
+        if (data == null) {
+            return null;
+        }
+        return data.launchError;
+    }
+    
     protected void sessionDidStart (PresentsSession client, String id)
     {
         Bureau bureau = _bureaus.get(id);
@@ -432,6 +446,7 @@ public class BureauRegistry
             found.agent.setClientOid(client.getOid());
 
         } else if (found.state == AgentState.STILL_BORN) {
+            // TODO: have a timeout for this in case the client is misbehaving or hung
             BureauSender.destroyAgent(found.bureau.clientObj, agentId);
             found.bureau.agentStates.put(found.agent, AgentState.DESTROYED);
 
@@ -460,6 +475,7 @@ public class BureauRegistry
         if (found.state == AgentState.STARTED ||
             found.state == AgentState.STILL_BORN) {
             found.bureau.agentStates.remove(found.agent);
+            _omgr.destroyObject(found.agent.getOid());
 
         } else if (found.state == AgentState.PENDING ||
             found.state == AgentState.RUNNING ||
@@ -485,6 +501,7 @@ public class BureauRegistry
 
         if (found.state == AgentState.DESTROYED) {
             found.bureau.agentStates.remove(found.agent);
+            _omgr.destroyObject(found.agent.getOid());
 
         } else if (found.state == AgentState.PENDING ||
             found.state == AgentState.STARTED ||
@@ -576,8 +593,27 @@ public class BureauRegistry
             // bureau has already managed to get destroyed before the launch timeout, ignore
             return;
         }
+        
+        handleLaunchError(bureau, null, "timeout");
+    }
+    
+    /**
+     * Called when something goes wrong with launching a bureau.
+     */
+    protected void handleLaunchError (Bureau bureau, Exception error, String cause)
+    {
+        if (cause == null && error != null) {
+            cause = error.getMessage();
+        }
+        log.info("Bureau failed to launch", "bureau", bureau, "cause", cause);
 
-        log.warning("Bureau failed to launch", "bureau", bureau);
+        // clean up any agents attached to this bureau
+        for (AgentObject agent : bureau.agentStates.keySet()) {
+            agent.getLocal(AgentData.class).launchError = error;
+            _omgr.destroyObject(agent.getOid());
+        }
+        bureau.agentStates.clear();
+        
         _bureaus.remove(bureau.bureauId);
     }
 
@@ -595,28 +631,34 @@ public class BureauRegistry
             try {
                 _bureau.launch();
             } catch (Exception e) {
-                log.warning("Could not launch bureau", e);
+                _error = e;
             }
             return true;
         }
 
         @Override
         public void handleResult () {
-            int timeout = _bureau.launcherEntry.timeout;
-            if (timeout != 0) {
-                new Interval(_runQueue) {
-                    @Override public void expired () {
-                        launchTimeoutExpired(_bureau);
-                    }
-                }.schedule(timeout);
+            if (_error == null) {
+                // bureau launched ok, but it may still not connect. wait for timeout
+                int timeout = _bureau.launcherEntry.timeout;
+                if (timeout != 0) {
+                    new Interval(_runQueue) {
+                        @Override public void expired () {
+                            launchTimeoutExpired(_bureau);
+                        }
+                    }.schedule(timeout);
+                }
+                _bureau.launched = true;
+                _bureau.launcherEntry = null;
+                log.info("Bureau launch requested", "bureau", _bureau);
+
+            } else {
+                handleLaunchError(_bureau, _error, null);
             }
-            _bureau.launched = true;
-            _bureau.launcherEntry = null;
-            log.info("Bureau launched", "bureau", _bureau);
         }
 
         protected Bureau _bureau;
-        protected Process _result;
+        protected Exception _error;
         protected RunQueue _runQueue;
     }
 
@@ -739,10 +781,14 @@ public class BureauRegistry
 
         void launch () throws IOException {
             launcherEntry.launcher.launchBureau(bureauId, token);
-
         }
     }
 
+    protected static class AgentData
+    {
+        Exception launchError;
+    }
+    
     protected Map<String, LauncherEntry> _launchers = Maps.newHashMap();
     protected Map<String, Bureau> _bureaus = Maps.newHashMap();
 
