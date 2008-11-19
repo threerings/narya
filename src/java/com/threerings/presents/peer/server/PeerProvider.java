@@ -36,7 +36,7 @@ public interface PeerProvider extends InvocationProvider
     /**
      * Handles a {@link PeerService#generateReport} request.
      */
-    void generateReport (ClientObject caller, InvocationService.ResultListener arg1)
+    void generateReport (ClientObject caller, String arg1, InvocationService.ResultListener arg2)
         throws InvocationException;
 
     /**

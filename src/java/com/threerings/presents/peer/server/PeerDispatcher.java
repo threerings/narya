@@ -56,7 +56,7 @@ public class PeerDispatcher extends InvocationDispatcher<PeerMarshaller>
         switch (methodId) {
         case PeerMarshaller.GENERATE_REPORT:
             ((PeerProvider)provider).generateReport(
-                source, (InvocationService.ResultListener)args[0]
+                source, (String)args[0], (InvocationService.ResultListener)args[1]
             );
             return;
 

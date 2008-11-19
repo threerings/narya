@@ -42,7 +42,12 @@ public interface PeerService extends InvocationService
     void invokeAction (Client client, byte[] serializedAction);
 
     /**
-     * Generates a server status report for this peer and returns it to the supplied listener.
+     * Generates a server status report for this peer and returns it to the supplied listener. The
+     * result must be a string.
+     *
+     * @param type the default implementation always generates a state of the server report, but
+     * derived classes can request different report types from their peers to take advantage of
+     * this convenient mechanism for collecting per-peer data.
      */
-    void generateReport (Client client, ResultListener listener);
+    void generateReport (Client client, String type, ResultListener listener);
 }

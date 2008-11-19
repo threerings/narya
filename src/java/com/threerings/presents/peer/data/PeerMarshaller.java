@@ -40,12 +40,12 @@ public class PeerMarshaller extends InvocationMarshaller
     public static final int GENERATE_REPORT = 1;
 
     // from interface PeerService
-    public void generateReport (Client arg1, InvocationService.ResultListener arg2)
+    public void generateReport (Client arg1, String arg2, InvocationService.ResultListener arg3)
     {
-        InvocationMarshaller.ResultMarshaller listener2 = new InvocationMarshaller.ResultMarshaller();
-        listener2.listener = arg2;
+        InvocationMarshaller.ResultMarshaller listener3 = new InvocationMarshaller.ResultMarshaller();
+        listener3.listener = arg3;
         sendRequest(arg1, GENERATE_REPORT, new Object[] {
-            listener2
+            arg2, listener3
         });
     }
 
