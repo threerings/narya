@@ -69,7 +69,7 @@ public abstract class AbstractSignalHandler
      */
     protected void hupReceived ()
     {
-        log.info(_repmgr.generateReport());
+        log.info(_repmgr.generateReport(ReportManager.DEFAULT_TYPE));
     }
 
     @Inject protected ShutdownManager _shutmgr;

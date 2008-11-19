@@ -765,7 +765,7 @@ public abstract class PeerManager
                                 PeerService.ResultListener listener)
         throws InvocationException
     {
-        listener.requestProcessed(_repmgr.generateReport());
+        listener.requestProcessed(_repmgr.generateReport(type));
     }
 
     // from interface ClientManager.ClientObserver

@@ -45,9 +45,7 @@ public interface PeerService extends InvocationService
      * Generates a server status report for this peer and returns it to the supplied listener. The
      * result must be a string.
      *
-     * @param type the default implementation always generates a state of the server report, but
-     * derived classes can request different report types from their peers to take advantage of
-     * this convenient mechanism for collecting per-peer data.
+     * @param type the type of report to generate. See ReportManager for more information.
      */
     void generateReport (Client client, String type, ResultListener listener);
 }
