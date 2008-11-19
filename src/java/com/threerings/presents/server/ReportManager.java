@@ -94,6 +94,14 @@ public class ReportManager
     }
 
     /**
+     * Generate a default state of server report.
+     */
+    public String generateReport ()
+    {
+        return generateReport(DEFAULT_TYPE);
+    }
+
+    /**
      * Generates a report for all system services registered as a {@link Reporter}.
      */
     public String generateReport (String type)
