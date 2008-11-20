@@ -87,9 +87,9 @@ public class Log
      * A convenience function for quickly printing a stack trace
      * to the log, useful for debugging.
      */
-    public static function dumpStack () :void
+    public static function dumpStack (msg :String = "dumpStack") :void
     {
-        testing(new Error("dumpStack").getStackTrace());
+        testing(new Error(msg).getStackTrace());
     }
 
     /**
