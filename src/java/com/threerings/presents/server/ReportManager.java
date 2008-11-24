@@ -21,9 +21,6 @@
 
 package com.threerings.presents.server;
 
-import java.util.List;
-
-import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Multimaps;
 import com.google.inject.Singleton;
@@ -154,7 +151,7 @@ public class ReportManager
 
         // strip off the final newline
         int blen = report.length();
-        if (report.charAt(blen-1) == '\n') {
+        if (report.length() > 0 && report.charAt(blen-1) == '\n') {
             report.delete(blen-1, blen);
         }
 
