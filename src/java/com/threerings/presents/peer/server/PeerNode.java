@@ -62,6 +62,7 @@ public class PeerNode
     {
         _peermgr = peermgr;
         _omgr = omgr;
+        _conmgr = conmgr;
         _record = record;
         _client = new Client(null, _omgr) {
             @Override protected void convertFromRemote (DObject target, DEvent event) {
@@ -75,8 +76,7 @@ public class PeerNode
                 event.eventId = PeerNode.this._omgr.getNextEventId(true);
             }
             @Override protected Communicator createCommunicator () {
-                // return new ServerCommunicator(this, conmgr, omgr);
-                return new BlockingCommunicator(this);
+                return PeerNode.this.createCommunicator(this);
             }
         };
         _client.addClientObserver(this);
@@ -268,8 +268,16 @@ public class PeerNode
         return nodeName1.compareTo(nodeName2) < 0;
     }
 
+    // TEMP: allow our communicator to be customized until we sort out our FreeBSD VM problems
+    protected Communicator createCommunicator (Client client)
+    {
+        // return new ServerCommunicator(client, _conmgr, _omgr);
+        return new BlockingCommunicator(client);
+    }
+
     protected PeerManager _peermgr;
     protected PresentsDObjectMgr _omgr;
+    protected ConnectionManager _conmgr;
     protected NodeRecord _record;
     protected Client _client;
     protected long _lastConnectStamp;
