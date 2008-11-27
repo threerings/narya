@@ -43,21 +43,17 @@ import static com.threerings.presents.Log.log;
 public abstract class RebootManager
 {
     /**
-     * An interface for receiving notifications about pending automated
-     * shutdowns.
+     * An interface for receiving notifications about pending automated shutdowns.
      */
     public static interface PendingShutdownObserver
     {
         /**
-         * Called prior to an automated shutdown. NOTE that the shutdown
-         * is not guaranteed to happen, this interface is merely for
-         * notification purposes.
+         * Called prior to an automated shutdown. NOTE that the shutdown is not guaranteed to
+         * happen, this interface is merely for notification purposes.
          *
-         * @param warningsLeft The number of warnings left prior to the
-         * shutdown. This value will be 0 on the last warning, usually 1-2
-         * minutes prior to the actual shutdown.
-         * @param msLeft the approximate number of milliseconds left prior to
-         * the shutdown.
+         * @param warningsLeft The number of warnings left prior to the shutdown. This value will
+         * be 0 on the last warning, usually 1-2 minutes prior to the actual shutdown.
+         * @param msLeft the approximate number of milliseconds left prior to the shutdown.
          */
         void shutdownPlanned (int warningsLeft, long msLeft);
     }
@@ -162,8 +158,7 @@ public abstract class RebootManager
     public int preventReboot (String whereFrom)
     {
         if (whereFrom == null) {
-            throw new IllegalArgumentException(
-                "whereFrom must be descriptive.");
+            throw new IllegalArgumentException("whereFrom must be descriptive.");
         }
         int lockId = _nextRebootLockId++;
         _rebootLocks.put(lockId, whereFrom);
@@ -176,8 +171,7 @@ public abstract class RebootManager
     public void allowReboot (int lockId)
     {
         if (null == _rebootLocks.remove(lockId)) {
-            throw new IllegalArgumentException(
-                "no such lockId (" + lockId + ")");
+            throw new IllegalArgumentException("no such lockId (" + lockId + ")");
         }
     }
 
@@ -191,8 +185,7 @@ public abstract class RebootManager
     }
 
     /**
-     * Broadcasts a message to everyone on the server. The following
-     * messages will be broadcast:
+     * Broadcasts a message to everyone on the server. The following messages will be broadcast:
      * <ul><li> m.rebooting_now
      *     <li> m.reboot_warning (minutes) (message or m.reboot_msg_standard)
      *     <li> m.reboot_delayed
@@ -201,8 +194,8 @@ public abstract class RebootManager
     protected abstract void broadcast (String message);
 
     /**
-     * Returns the frequency in days of our automatic reboots, or -1 to disable
-     * automatically scheduled reboots.
+     * Returns the frequency in days of our automatic reboots, or -1 to disable automatically
+     * scheduled reboots.
      */
     protected abstract int getDayFrequency ();
 
@@ -212,8 +205,8 @@ public abstract class RebootManager
     protected abstract int getRebootHour ();
 
     /**
-     * Returns true if the reboot manager should avoid scheduling automated
-     * reboots on the weekends.
+     * Returns true if the reboot manager should avoid scheduling automated reboots on the
+     * weekends.
      */
     protected abstract boolean getSkipWeekends ();
 
@@ -221,6 +214,20 @@ public abstract class RebootManager
      * Returns a custom message to be used when broadcasting a pending reboot.
      */
     protected abstract String getCustomRebootMessage ();
+
+    /**
+     * Composes the given reboot message with the minutes and either the custom or standard details
+     * about the pending reboot.
+     */
+    protected String getRebootMessage (String key, int minutes)
+    {
+        String msg = getCustomRebootMessage();
+        if (StringUtil.isBlank(msg)) {
+            msg = "m.reboot_msg_standard";
+        }
+
+        return MessageBundle.compose(key, MessageBundle.taint("" + minutes), msg);
+    }
 
     /**
      * Do a warning, schedule the next.
@@ -253,14 +260,8 @@ public abstract class RebootManager
         }
 
         // issue the warning
-        String msg = getCustomRebootMessage();
-        if (StringUtil.isBlank(msg)) {
-            msg = "m.reboot_msg_standard";
-        }
         int minutes = WARNINGS[level];
-        msg = MessageBundle.compose(
-            "m.reboot_warning", MessageBundle.taint("" + minutes), msg);
-        broadcast(msg);
+        broadcast(getRebootMessage("m.reboot_warning", minutes));
         if (level < WARNINGS.length - 1) {
             minutes -= WARNINGS[level + 1];
         }
@@ -277,8 +278,8 @@ public abstract class RebootManager
     }
 
     /**
-     * Check to see if there are outstanding reboot locks that may delay the
-     * reboot, returning false if there are none.
+     * Check to see if there are outstanding reboot locks that may delay the reboot, returning
+     * false if there are none.
      */
     protected boolean checkLocks ()
     {
@@ -306,8 +307,7 @@ public abstract class RebootManager
     {
         final int warningsLeft = WARNINGS.length - level - 1;
         final long msLeft = 1000L * 60L * WARNINGS[level];
-        _observers.apply(
-            new ObserverList.ObserverOp<PendingShutdownObserver>() {
+        _observers.apply(new ObserverList.ObserverOp<PendingShutdownObserver>() {
             public boolean apply (PendingShutdownObserver observer) {
                 observer.shutdownPlanned(warningsLeft, msLeft);
                 return true;
