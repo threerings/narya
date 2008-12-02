@@ -23,6 +23,7 @@ package com.threerings.presents.peer.server.persist;
 
 import java.sql.Timestamp;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
@@ -32,6 +33,7 @@ import com.google.inject.Singleton;
 import com.samskivert.depot.DepotRepository;
 import com.samskivert.depot.PersistenceContext;
 import com.samskivert.depot.PersistentRecord;
+import com.samskivert.depot.clause.QueryClause;
 
 /**
  * Used to share information on active nodes in a Presents server cluster.
@@ -52,7 +54,9 @@ public class NodeRepository extends DepotRepository
      */
     public List<NodeRecord> loadNodes ()
     {
-        return findAll(NodeRecord.class);
+        // we specifically avoid caching this query because we want the servers to always see the
+        // most up to date set of nodes
+        return findAll(NodeRecord.class, true, Collections.<QueryClause>emptySet());
     }
 
     /**
