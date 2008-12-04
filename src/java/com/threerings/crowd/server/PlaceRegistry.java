@@ -36,6 +36,8 @@ import com.threerings.presents.server.InvocationException;
 import com.threerings.presents.server.InvocationManager;
 import com.threerings.presents.server.ShutdownManager;
 
+import com.threerings.crowd.data.BodyObject;
+import com.threerings.crowd.data.OccupantInfo;
 import com.threerings.crowd.data.PlaceConfig;
 import com.threerings.crowd.data.PlaceObject;
 
@@ -163,6 +165,21 @@ public class PlaceRegistry
     public Iterator<PlaceManager> enumeratePlaceManagers ()
     {
         return _pmgrs.values().iterator();
+    }
+
+    /**
+     * Locates the {@link PlaceManager} that manages the place occupied by the supplied body,
+     * obtains the canonical {@link OccupantInfo} record for that body, runs your updater to effect
+     * any desired modifications to the occupant info record and then broadcasts the updates by
+     * calling {@link PlaceManager#updateOccupantInfo}.
+     *
+     * @return true if the update was sent, false if the supplied body is not currently in a place.
+     */
+    public <T extends OccupantInfo> boolean updateOccupantInfo (
+        BodyObject body, PlaceManager.OccInfoUpdater<T> updater)
+    {
+        PlaceManager pmgr = getPlaceManager(body.getPlaceOid());
+        return (pmgr == null) ? false : pmgr.updateOccupantInfo(body.getOid(), updater);
     }
 
     // from interface ShutdownManager.Shutdowner
