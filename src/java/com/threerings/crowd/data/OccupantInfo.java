@@ -70,7 +70,7 @@ public class OccupantInfo extends SimpleStreamableObject
     /** An update to dispatch when an occupant's name changes. */
     public static class NameUpdater implements Updater<OccupantInfo>
     {
-        public NameUpdate (Name name) {
+        public NameUpdater (Name name) {
             _name = name;
         }
         public boolean update (OccupantInfo info) {
