@@ -30,7 +30,6 @@ import com.threerings.presents.server.InvocationManager;
 import com.threerings.crowd.data.BodyObject;
 import com.threerings.crowd.data.CrowdCodes;
 import com.threerings.crowd.data.OccupantInfo;
-import com.threerings.crowd.data.Place;
 
 import static com.threerings.crowd.Log.log;
 
