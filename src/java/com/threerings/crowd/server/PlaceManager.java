@@ -312,32 +312,21 @@ public class PlaceManager
     }
 
     /**
-     * Builds an {@link OccupantInfo} record for the specified body object and inserts it into our
-     * place object. This is called by the location services when a body enters a place. If a
-     * derived class wishes to perform custom actions when an occupant is being inserted into a
-     * room, they should override {@link #insertOccupantInfo}, if they want to react to a body
-     * having entered, they should override {@link #bodyEntered}.
+     * This is called to inform the manager that a body is on the way in.
      */
-    public OccupantInfo buildOccupantInfo (BodyObject body)
+    public void bodyWillEnter (BodyObject body)
     {
-        try {
-            // create a new occupant info instance
-            OccupantInfo info = body.createOccupantInfo(_plobj);
+        // create a new occupant info instance
+        OccupantInfo info = body.createOccupantInfo(_plobj);
 
-            // insert the occupant info into our canonical table; this is done in a method so that
-            // derived classes
-            insertOccupantInfo(info, body);
+        // insert the occupant info into our canonical table
+        _occInfo.put(info.getBodyOid(), info);
 
-            // clone the canonical copy and insert it into the DSet
-            _plobj.addToOccupantInfo((OccupantInfo)info.clone());
+        // clone the canonical copy and insert it into the DSet
+        _plobj.addToOccupantInfo((OccupantInfo)info.clone());
 
-            return info;
-
-        } catch (Exception e) {
-            log.warning("Failure building occupant info [where=" + where() +
-                        ", body=" + body + "].", e);
-            return null;
-        }
+        // add the body oid to our place object's occupant list
+        _plobj.addToOccupants(body.getOid());
     }
 
     /**
@@ -536,16 +525,6 @@ public class PlaceManager
 
         // if shutting down emptied the place and scheduled the shutdowner, clear that out
         cancelShutdowner();
-    }
-
-    /**
-     * Called when an occupant is being added to this place. This will be before the call to {@link
-     * #bodyEntered} and gives the derived class a chance to set up additional information about
-     * the occupant that might not be tracked in the occupant info.
-     */
-    protected void insertOccupantInfo (OccupantInfo info, BodyObject body)
-    {
-        _occInfo.put(info.getBodyOid(), info);
     }
 
     /**

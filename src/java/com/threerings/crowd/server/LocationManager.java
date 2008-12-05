@@ -128,14 +128,11 @@ public class LocationManager
                     // remove them from any previous location
                     leaveOccupiedPlace(source);
 
-                    // generate a new occinfo record (which will add it to the target location)
-                    pmgr.buildOccupantInfo(source);
+                    // let the place manager know that we're coming in
+                    pmgr.bodyWillEnter(source);
 
-                    // set the body's new location
+                    // let the body object know that it's going in
                     source.willEnterPlace(place, plobj);
-
-                    // add the body oid to the place object's occupant list
-                    plobj.addToOccupants(bodoid);
 
                 } finally {
                     source.commitTransaction();
