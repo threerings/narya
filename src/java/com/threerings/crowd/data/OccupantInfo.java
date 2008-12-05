@@ -55,6 +55,18 @@ public class OccupantInfo extends SimpleStreamableObject
     /** Maps status codes to human readable strings. */
     public static final String[] X_STATUS = { "active", "idle", "discon" };
 
+    /** Used by PlaceManager.updateOccupantInfo. */
+    public static interface Updater<T extends OccupantInfo>
+    {
+        /**
+         * Make whatever changes are desired to your {@link OccupantInfo} here.
+         *
+         * @return true if the record was modified and should be published, false if no
+         * modifications were made (it will not be published).
+         */
+        public boolean update (T info);
+    }
+
     /** The body object id of this occupant (and our entry key). */
     public Integer bodyOid;
 

@@ -114,15 +114,6 @@ public class PlaceManager
         protected Class<? extends PlaceManagerDelegate> _delegateClass;
     }
 
-    /** Used with {@link #updateOccupantInfo}. */
-    public static interface OccInfoUpdater<T extends OccupantInfo>
-    {
-        /**
-         * Make whatever changes are desired to your {@link OccupantInfo} here.
-         */
-        public void update (T info);
-    }
-
     /**
      * Returns a reference to our place configuration object.
      */
@@ -148,15 +139,6 @@ public class PlaceManager
     }
 
     /**
-     * Returns the occupant info record for the user with the specified body oid, if they are an
-     * occupant of this room. Returns null otherwise.
-     */
-    public OccupantInfo getOccupantInfo (int bodyOid)
-    {
-        return _occInfo.get(bodyOid);
-    }
-
-    /**
      * Applies the supplied occupant operation to each occupant currently present in this place.
      */
     public void applyToOccupants (OccupantOp op)
@@ -169,44 +151,26 @@ public class PlaceManager
     }
 
     /**
-     * Updates the occupant info for this room occupant. <em>Note:</em> This must be used rather
-     * than setting the occupant info directly to avoid possible complications due to rapid fire
-     * changes to a user's occupant info. The occupant info record supplied to this method must be
-     * one returned from {@link #getOccupantInfo}. For example:
-     *
-     * <pre>
-     * OccupantInfo info = _plmgr.getOccupantInfo(bodyOid);
-     * // ... modifications made to 'info'
-     * _plmgr.updateOccupantInfo(info);
-     * </pre>
-     */
-    public void updateOccupantInfo (OccupantInfo occInfo)
-    {
-        // update the canonical copy
-        _occInfo.put(occInfo.getBodyOid(), occInfo);
-        // clone the canonical copy and send an event updating the distributed set with that clone
-        _plobj.updateOccupantInfo((OccupantInfo)occInfo.clone());
-    }
-
-    /**
      * Calls the supplied updater on the canonical occupant info record for the specified body
      * (which must be an occupant of this place) and broadcasts the update to all other occupants.
      *
      * @return true if the updater was called and the update sent, false if the body could not be
-     * located (was not an occupant of this place).
+     * located (was not an occupant of this place) or the updater made no modifications.
      *
      * @exception ClassCastException thrown if the type of the supplied updater does not match the
      * type of {@link OccupantInfo} record used for the occupant. Caveat utilitor.
      */
     public <T extends OccupantInfo> boolean updateOccupantInfo (
-        int bodyOid, OccInfoUpdater<T> updater)
+        int bodyOid, OccupantInfo.Updater<T> updater)
     {
-        @SuppressWarnings("unchecked") T info = (T)getOccupantInfo(bodyOid);
-        if (info == null) {
+        @SuppressWarnings("unchecked") T info = (T)_occInfo.get(bodyOid);
+        if (info == null || !updater.update(info)) {
             return false;
         }
-        updater.update(info);
-        updateOccupantInfo(info);
+        // update the canonical copy
+        _occInfo.put(info.getBodyOid(), info);
+        // clone the canonical copy and send an event updating the distributed set with that clone
+        _plobj.updateOccupantInfo((OccupantInfo)info.clone());
         return true;
     }
 

@@ -41,18 +41,6 @@ import static com.threerings.crowd.Log.log;
 public class BodyManager
     implements BodyProvider
 {
-    /** Used by {@link BodyManager#updateOccupantInfo}. */
-    public static interface OccupantInfoOp
-    {
-        /**
-         * Updates the supplied occupant info record.
-         *
-         * @return true if changes were made and thus the object should be published anew to the
-         * place object, false if no publish should be done.
-         */
-        boolean update (OccupantInfo oinfo);
-    }
-
     /**
      * Constructs and initializes the body manager.
      */
@@ -63,27 +51,21 @@ public class BodyManager
 
     /**
      * Locates the specified body's occupant info in the specified location, applies the supplied
-     * occuapnt info operation to it and then broadcasts the updated info (assuming the occop
+     * occupant info operation to it and then broadcasts the updated info (assuming the occop
      * returned true indicating that an update was made).
      */
-    public void updateOccupantInfo (BodyObject body, Place location, OccupantInfoOp occop)
+    public <T extends OccupantInfo> boolean updateOccupantInfo (
+        BodyObject body, OccupantInfo.Updater<T> updater)
     {
-        PlaceManager pmgr = (location == null) ? null : _plreg.getPlaceManager(location.placeOid);
-        if (pmgr == null) {
-            return;
-        }
-
-        OccupantInfo info = pmgr.getOccupantInfo(body.getOid());
-        if (info != null && occop.update(info)) {
-            pmgr.updateOccupantInfo(info);
-        }
+        PlaceManager pmgr = _plreg.getPlaceManager(body.getPlaceOid());
+        return (pmgr == null) ? false : pmgr.updateOccupantInfo(body.getOid(), updater);
     }
 
     /**
      * Updates the connection status for the given body object's occupant info in the specified
      * location.
      */
-    public void updateOccupantStatus (BodyObject body, Place location, final byte status)
+    public void updateOccupantStatus (BodyObject body, final byte status)
     {
         // no need to NOOP
         if (body.status != status) {
@@ -92,14 +74,13 @@ public class BodyManager
             body.getLocal(BodyLocal.class).statusTime = System.currentTimeMillis();
         }
 
-        updateOccupantInfo(body, location, new OccupantInfoOp() {
+        updateOccupantInfo(body, new OccupantInfo.Updater<OccupantInfo>() {
             public boolean update (OccupantInfo info) {
-                if (info.status != status) {
-                    info.status = status;
-                    return true;
-                } else {
+                if (info.status == status) {
                     return false;
                 }
+                info.status = status;
+                return true;
             }
         });
     }
@@ -117,7 +98,7 @@ public class BodyManager
 
         // update their status!
         log.debug("Setting user idle state [user=" + bobj.username + ", status=" + nstatus + "].");
-        updateOccupantStatus(bobj, bobj.location, nstatus);
+        updateOccupantStatus(bobj, nstatus);
     }
 
     /** Provides access to place managers. */
