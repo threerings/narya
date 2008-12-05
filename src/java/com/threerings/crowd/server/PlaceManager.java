@@ -316,17 +316,21 @@ public class PlaceManager
      */
     public void bodyWillEnter (BodyObject body)
     {
-        // create a new occupant info instance
+        // create a new occupant info instance and insert it into our canonical table
         OccupantInfo info = body.createOccupantInfo(_plobj);
-
-        // insert the occupant info into our canonical table
         _occInfo.put(info.getBodyOid(), info);
 
-        // clone the canonical copy and insert it into the DSet
-        _plobj.addToOccupantInfo((OccupantInfo)info.clone());
+        _plobj.startTransaction();
+        try {
+            // clone the canonical copy and insert it into the DSet
+            _plobj.addToOccupantInfo((OccupantInfo)info.clone());
 
-        // add the body oid to our place object's occupant list
-        _plobj.addToOccupants(body.getOid());
+            // add the body oid to our place object's occupant list
+            _plobj.addToOccupants(body.getOid());
+
+        } finally {
+            _plobj.commitTransaction();
+        }
     }
 
     /**
