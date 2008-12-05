@@ -67,6 +67,22 @@ public class OccupantInfo extends SimpleStreamableObject
         public boolean update (T info);
     }
 
+    /** An update to dispatch when an occupant's name changes. */
+    public static class NameUpdate implements Updater<OccupantInfo>
+    {
+        public NameUpdate (Name name) {
+            _name = name;
+        }
+        public boolean update (OccupantInfo info) {
+            if (info.username.equals(_name)) {
+                return false;
+            }
+            info.username = _name;
+            return true;
+        }
+        protected Name _name;
+    }
+
     /** The body object id of this occupant (and our entry key). */
     public Integer bodyOid;
 
