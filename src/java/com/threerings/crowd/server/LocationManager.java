@@ -79,8 +79,6 @@ public class LocationManager
     public PlaceConfig moveTo (BodyObject source, int placeOid)
         throws InvocationException
     {
-        int bodoid = source.getOid();
-
         // make sure the place in question actually exists
         PlaceManager pmgr = _plreg.getPlaceManager(placeOid);
         if (pmgr == null) {
