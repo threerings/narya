@@ -27,7 +27,7 @@ package com.threerings.presents.client {
 public class ResultAdapter extends InvocationAdapter
     implements InvocationService_ResultListener
 {
-    public function ResultAdapter (failed :Function, processed :Function)
+    public function ResultAdapter (processed :Function, failed :Function)
     {
         super(failed);
         _processed = processed;

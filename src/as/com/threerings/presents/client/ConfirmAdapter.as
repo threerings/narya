@@ -24,8 +24,11 @@ package com.threerings.presents.client {
 public class ConfirmAdapter extends InvocationAdapter
     implements InvocationService_ConfirmListener
 {
-    public function ConfirmAdapter (
-        failed :Function, processed :Function = null)
+    /**
+     * Construct a confirm adapter.
+     * The processed function may be null.
+     */
+    public function ConfirmAdapter (processed :Function, failed :Function)
     {
         super(failed);
         _processed = processed;
