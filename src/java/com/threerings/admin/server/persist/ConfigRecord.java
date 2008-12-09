@@ -78,7 +78,7 @@ public class ConfigRecord extends PersistentRecord
     @Column(name="FIELD", length=64)
     public String field;
 
-    @Column(name="VALUE", type="TEXT")
+    @Column(name="VALUE", length=65535)
     public String value;
 
     /**
