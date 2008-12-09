@@ -35,7 +35,7 @@ public class CommandEvent extends Event
      * Use this method to dispatch CommandEvents.
      */
     public static function dispatch (
-            disp :IEventDispatcher, cmdOrFn :Object, arg :Object = null) :void
+        disp :IEventDispatcher, cmdOrFn :Object, arg :Object = null) :void
     {
         if (cmdOrFn is Function) {
             var fn :Function = (cmdOrFn as Function);
@@ -53,23 +53,31 @@ public class CommandEvent extends Event
             } else {
                 args = [ arg ];
             }
+
+            // now trying calling it
+            var err :Error = null;
             try {
                 fn.apply(null, args);
-            } catch (err :Error) {
-                if (arg == null) {
-                    try {
-                        // try with no args
-                        fn();
-                        err = null; // on success, clear the error
-                    } catch (err2 :Error) {
-                        err = err2;
-                    }
-                }
-                if (err != null) {
-                    var log :Log = Log.getLog(CommandEvent);
-                    log.warning("Unable to call command callback, stack trace follows.");
-                    log.logStackTrace(err);
-                }
+
+// Commented out 2008-12-09 by Ray. I'm not sure we need this, it seems you can pass args
+// to an argless function without error.
+//            } catch (ae :ArgumentError) {
+//                if (arg is Boolean) {
+//                    // try with no args
+//                    try {
+//                        fn();
+//                    } catch (e2 :Error) {
+//                        err = e2;
+//                    }
+//                } else {
+//                    err = ae;
+//                }
+
+            } catch (e :Error) {
+                err = e;
+            }
+            if (err != null) {
+                Log.getLog(CommandEvent).warning("Unable to call callback.", err);
             }
 
         } else if (cmdOrFn is String) {
@@ -80,8 +88,8 @@ public class CommandEvent extends Event
             // Dispatch it. A return value of true means that the event was
             // never cancelled, so we complain.
             if (disp == null || disp.dispatchEvent(event)) {
-                Log.getLog(CommandEvent).warning("Unhandled controller command " +
-                    "[cmd=" + cmd + ", arg=" + arg + ", disp=" + disp + "].");
+                Log.getLog(CommandEvent).warning("Unhandled controller command",
+                    "cmd", cmd, "arg", arg, "disp", disp);
             }
 
         } else {
@@ -92,7 +100,8 @@ public class CommandEvent extends Event
     /**
      * Configure a bridge from something like a pop-up window to an alternate target.
      */
-    public static function configureBridge (source :IEventDispatcher, target :IEventDispatcher) :void
+    public static function configureBridge (
+        source :IEventDispatcher, target :IEventDispatcher) :void
     {
         source.addEventListener(COMMAND,
             function (event :CommandEvent) :void {
