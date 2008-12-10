@@ -322,12 +322,7 @@ public class PlaceManager
 
         _plobj.startTransaction();
         try {
-            // clone the canonical copy and insert it into the DSet
-            _plobj.addToOccupantInfo((OccupantInfo)info.clone());
-
-            // add the body oid to our place object's occupant list
-            _plobj.addToOccupants(body.getOid());
-
+            addOccupantInfo((OccupantInfo)info.clone());
         } finally {
             _plobj.commitTransaction();
         }
@@ -578,6 +573,21 @@ public class PlaceManager
         if (shouldDeclareEmpty(leaver)) {
             placeBecameEmpty();
         }
+    }
+
+    /**
+     * Adds this occupant's info to the {@link PlaceObject}. This is called in a transaction on the
+     * place object so if a derived class needs to add additional information for an occupant it
+     * should override this method. It may opt to add the information before calling super if it
+     * wishes to rely on its information being configured when {@link #bodyAdded} is called.
+     */
+    protected void addOccupantInfo (OccupantInfo info)
+    {
+        // clone the canonical copy and insert it into the DSet
+        _plobj.addToOccupantInfo(info);
+
+        // add the body oid to our place object's occupant list
+        _plobj.addToOccupants(info.getBodyOid());
     }
 
     /**
