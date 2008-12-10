@@ -1047,6 +1047,7 @@ public class PresentsSession
         {
             // send a pong response using the transport with which the message was received
             PingRequest req = (PingRequest)msg;
+            log.info("Got ping, ponging", "client", client._username);
             client.safePostMessage(new PongResponse(req.getUnpackStamp(), req.getTransport()));
         }
     }

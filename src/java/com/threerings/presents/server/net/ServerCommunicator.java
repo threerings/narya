@@ -35,6 +35,7 @@ import com.threerings.presents.net.AuthResponse;
 import com.threerings.presents.net.AuthResponseData;
 import com.threerings.presents.net.LogoffRequest;
 import com.threerings.presents.net.Message;
+import com.threerings.presents.net.PingRequest;
 import com.threerings.presents.net.UpstreamMessage;
 
 import static com.threerings.presents.Log.log;
@@ -66,8 +67,12 @@ public class ServerCommunicator extends Communicator
                 @Override public void postMessage (Message msg) {
                     super.postMessage(msg);
                     // outgoing traffic on this connection is used to prevent idleness
-                    _lastEvent = System.currentTimeMillis();
                     // TODO: shouldn't PongResponse handle this?
+                    _lastEvent = System.currentTimeMillis();
+                    // TEMP: debug
+                    if (msg instanceof PingRequest) {
+                        log.info("Pinging on server comm " + msg);
+                    }
                 }
 
                 @Override public void connectFailure (IOException ioe) {
