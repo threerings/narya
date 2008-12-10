@@ -37,6 +37,8 @@ import com.google.common.collect.Iterables;
 import com.samskivert.util.ComparableArrayList;
 import com.samskivert.util.StringUtil;
 
+import com.threerings.util.ActionScript;
+
 import com.threerings.presents.client.Client;
 import com.threerings.presents.client.InvocationService;
 import com.threerings.presents.data.ClientObject;
@@ -168,15 +170,18 @@ public class GenServiceTask extends InvocationTask
             return;
         }
 
+        ActionScript asa = service.getAnnotation(ActionScript.class);
+        boolean skipAS = (asa != null) && asa.omit();
+
         ServiceDescription desc = new ServiceDescription(service);
-        generateMarshaller(source, desc);
+        generateMarshaller(source, desc, skipAS);
         generateDispatcher(source, desc);
         if (!_providerless.contains(service.getSimpleName())) {
             generateProvider(source, desc);
         }
     }
 
-    protected void generateMarshaller (File source, ServiceDescription sdesc)
+    protected void generateMarshaller (File source, ServiceDescription sdesc, boolean skipAS)
     {
         if (_verbose) {
             System.out.println("Generating marshaller");
@@ -247,7 +252,7 @@ public class GenServiceTask extends InvocationTask
 
         // if we're not configured with an ActionScript source root, don't generate the
         // ActionScript versions
-        if (_asroot == null) {
+        if (_asroot == null || skipAS) {
             return;
         }
 
