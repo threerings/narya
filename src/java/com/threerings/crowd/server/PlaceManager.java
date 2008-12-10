@@ -322,7 +322,7 @@ public class PlaceManager
 
         _plobj.startTransaction();
         try {
-            addOccupantInfo((OccupantInfo)info.clone());
+            addOccupantInfo(body, (OccupantInfo)info.clone());
         } finally {
             _plobj.commitTransaction();
         }
@@ -581,13 +581,13 @@ public class PlaceManager
      * should override this method. It may opt to add the information before calling super if it
      * wishes to rely on its information being configured when {@link #bodyAdded} is called.
      */
-    protected void addOccupantInfo (OccupantInfo info)
+    protected void addOccupantInfo (BodyObject body, OccupantInfo info)
     {
         // clone the canonical copy and insert it into the DSet
         _plobj.addToOccupantInfo(info);
 
         // add the body oid to our place object's occupant list
-        _plobj.addToOccupants(info.getBodyOid());
+        _plobj.addToOccupants(body.getOid());
     }
 
     /**
