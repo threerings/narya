@@ -76,10 +76,13 @@ public class Communicator
 
     public function postMessage (msg :UpstreamMessage) :void
     {
-        if (_writer == null) {
+        _outq.push(msg);
+        if (_writer != null) {
+            sendPendingMessages(null);
+
+        } else {
             log.warning("Posting message prior to opening socket", "msg", msg);
         }
-        _outq.push(msg);
     }
 
     /**
@@ -173,15 +176,14 @@ public class Communicator
         while (_outq.length > 0) {
             // if we've exceeded our throttle, stop for now
             if (_client.getOutgoingMessageThrottle().throttleOp()) {
-                if (_tqsize != _outq.length) {
-                    // only log when our outq size changes
-                    _tqsize = _outq.length;
+                if (!_notedThrottle) {
                     log.info("Throttling outgoing messages", "queue", _outq.length,
                              "throttle", _client.getOutgoingMessageThrottle());
+                    _notedThrottle = true;
                 }
                 return;
             }
-            _tqsize = 0;
+            _notedThrottle = false;
 
             // grab the next message from the queue and send it
             var msg :UpstreamMessage = (_outq.shift() as UpstreamMessage);
@@ -356,7 +358,7 @@ public class Communicator
 
     protected var _outq :Array = new Array();
     protected var _writer :Timer;
-    protected var _tqsize :int = 0;
+    protected var _notedThrottle :Boolean = false;
 
     protected const log :Log = Log.getLog(this);
 
