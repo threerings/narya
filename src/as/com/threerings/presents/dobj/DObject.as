@@ -83,9 +83,8 @@ public class DObject // extends EventDispatcher
             _listeners = [ ];
 
         } else if (_listeners.indexOf(listener) != -1) {
-            log.warning("Refusing repeat listener registration " +
-                "[dobj=" + which() + ", list=" + listener + "].");
-            log.logStackTrace(new Error());
+            log.warning("Refusing repeat listener registration",
+                "dobj", which(), "list", listener, new Error());
             return;
         }
         _listeners.push(listener);
@@ -121,9 +120,8 @@ public class DObject // extends EventDispatcher
                     (listener as EventListener).eventReceived(event);
                 }
             } catch (e :Error) {
-                log.warning("Listener choked during notification " +
-                    "[list=" + listener + ", event=" + event + "].");
-                log.logStackTrace(e);
+                log.warning("Listener choked during notification",
+                    "list", listener, "event", event, e);
             }
         }
     }
@@ -149,9 +147,8 @@ public class DObject // extends EventDispatcher
             _omgr.postEvent(event);
 
         } else {
-            log.warning("Unable to post event, object has no omgr " +
-                "[oid=" + getOid() + ", class=" + ClassUtil.getClassName(this) +
-                ", event=" + event + "].");
+            log.warning("Unable to post event, object has no omgr",
+                "oid", getOid(), "class", ClassUtil.getClassName(this), "event", event);
         }
     }
 
@@ -286,7 +283,7 @@ public class DObject // extends EventDispatcher
     {
         // sanity check
         if (_tcount != 0) {
-            log.warning("Transaction cleared with non-zero nesting count [dobj=" + this + "].");
+            log.warning("Transaction cleared with non-zero nesting count", "dobj", this);
             _tcount = 0;
         }
 
