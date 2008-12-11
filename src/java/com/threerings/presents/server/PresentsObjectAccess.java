@@ -75,11 +75,10 @@ public class PresentsObjectAccess
         {
             // if the subscriber is a client, ensure that they are this same user
             if (ProxySubscriber.class.isInstance(sub)) {
-                ProxySubscriber proxy = ProxySubscriber.class.cast(sub);
-                if (proxy.getClientObject() != object) {
-                    log.warning("Refusing ClientObject subscription request " +
-                                "[obj=" + ((ClientObject)object).who() +
-                                ", sub=" + proxy.getClientObject().who() + "].");
+                ClientObject clobj = ProxySubscriber.class.cast(sub).getClientObject();
+                if (clobj != object) {
+                    log.warning("Refusing ClientObject subscription request",
+                                "obj", ((ClientObject)object).who(), "sub", clobj.who());
                     return false;
                 }
             }
