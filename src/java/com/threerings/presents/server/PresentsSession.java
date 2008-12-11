@@ -960,6 +960,12 @@ public class PresentsSession
             postMessage(new EventNotification(event));
         }
 
+        // from interface ProxySubscriber
+        public ClientObject getClientObject ()
+        {
+            return PresentsSession.this.getClientObject();
+        }
+
         protected long _firstEventId;
     }
 

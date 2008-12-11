@@ -21,6 +21,8 @@
 
 package com.threerings.presents.dobj;
 
+import com.threerings.presents.data.ClientObject;
+
 /**
  * Defines a special kind of subscriber that proxies events for a subordinate distributed object
  * manager. All events dispatched on objects with which this subscriber is registered are passed
@@ -36,4 +38,9 @@ public interface ProxySubscriber extends Subscriber<DObject>
      * @param event The event that was dispatched on the object.
      */
     void eventReceived (DEvent event);
+
+    /**
+     * Returns the client object that represents the subscriber for whom we are proxying.
+     */
+    ClientObject getClientObject ();
 }

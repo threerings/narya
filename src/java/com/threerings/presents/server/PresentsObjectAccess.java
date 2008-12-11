@@ -28,6 +28,7 @@ import com.threerings.presents.dobj.DObject;
 import com.threerings.presents.dobj.InvocationRequestEvent;
 import com.threerings.presents.dobj.MessageEvent;
 import com.threerings.presents.dobj.NamedEvent;
+import com.threerings.presents.dobj.ProxySubscriber;
 import com.threerings.presents.dobj.Subscriber;
 
 import static com.threerings.presents.Log.log;
@@ -72,17 +73,17 @@ public class PresentsObjectAccess
         // documentation inherited from interface
         public boolean allowSubscribe (DObject object, Subscriber<?> sub)
         {
-            boolean allowed = true;
             // if the subscriber is a client, ensure that they are this same user
-            if (PresentsSession.class.isInstance(sub)) {
-                PresentsSession client = PresentsSession.class.cast(sub);
-                allowed = (client.getClientObject() == object);
-                if (!allowed) {
+            if (ProxySubscriber.class.isInstance(sub)) {
+                ProxySubscriber proxy = ProxySubscriber.class.cast(sub);
+                if (proxy.getClientObject() != object) {
                     log.warning("Refusing ClientObject subscription request " +
-                                "[obj=" + ((ClientObject)object).who() + ", sub=" + sub + "].");
+                                "[obj=" + ((ClientObject)object).who() +
+                                ", sub=" + proxy.getClientObject().who() + "].");
+                    return false;
                 }
             }
-            return allowed;
+            return true;
         }
 
         // documentation inherited from interface
