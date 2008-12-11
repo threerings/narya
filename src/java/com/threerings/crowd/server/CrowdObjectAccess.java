@@ -25,6 +25,7 @@ import com.threerings.presents.data.ClientObject;
 import com.threerings.presents.dobj.AccessController;
 import com.threerings.presents.dobj.DEvent;
 import com.threerings.presents.dobj.DObject;
+import com.threerings.presents.dobj.ProxySubscriber;
 import com.threerings.presents.dobj.Subscriber;
 import com.threerings.presents.server.PresentsObjectAccess;
 
@@ -45,8 +46,8 @@ public class CrowdObjectAccess
         // documentation inherited from interface
         public boolean allowSubscribe (DObject object, Subscriber<?> sub)
         {
-            if (CrowdSession.class.isInstance(sub)) {
-                ClientObject co = CrowdSession.class.cast(sub).getClientObject();
+            if (ProxySubscriber.class.isInstance(sub)) {
+                ClientObject co = ProxySubscriber.class.cast(sub).getClientObject();
                 return ((PlaceObject)object).occupants.contains(co.getOid());
             }
             return true;
