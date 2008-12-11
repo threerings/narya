@@ -34,7 +34,7 @@ import com.threerings.util.Long;
 public class ObjectInputStream
 {
     /** Enables verbose object I/O debugging. */
-    public static const DEBUG :Boolean = true;
+    public static const DEBUG :Boolean = false;
 
     public static const log :Log = Log.getLog(ObjectInputStream);
 
