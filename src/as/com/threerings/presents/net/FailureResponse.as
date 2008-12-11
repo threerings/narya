@@ -44,7 +44,7 @@ public class FailureResponse extends DownstreamMessage
     {
         super.readObject(ins);
         _oid = ins.readInt();
-        _message = ins.readUTF();
+        _message = ins.readField(String) as String;
     }
 
     protected var _oid :int;
