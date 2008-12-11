@@ -74,8 +74,8 @@ public class PresentsObjectAccess
         public boolean allowSubscribe (DObject object, Subscriber<?> sub)
         {
             // if the subscriber is a client, ensure that they are this same user
-            if (ProxySubscriber.class.isInstance(sub)) {
-                ClientObject clobj = ProxySubscriber.class.cast(sub).getClientObject();
+            if (sub instanceof ProxySubscriber) {
+                ClientObject clobj = ((ProxySubscriber)sub).getClientObject();
                 if (clobj != object) {
                     log.warning("Refusing ClientObject subscription request",
                                 "obj", ((ClientObject)object).who(), "sub", clobj.who());

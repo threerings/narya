@@ -46,8 +46,8 @@ public class CrowdObjectAccess
         // documentation inherited from interface
         public boolean allowSubscribe (DObject object, Subscriber<?> sub)
         {
-            if (ProxySubscriber.class.isInstance(sub)) {
-                ClientObject co = ProxySubscriber.class.cast(sub).getClientObject();
+            if (sub instanceof ProxySubscriber) {
+                ClientObject co = ((ProxySubscriber)sub).getClientObject();
                 return ((PlaceObject)object).occupants.contains(co.getOid());
             }
             return true;
