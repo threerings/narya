@@ -36,6 +36,7 @@ import com.threerings.presents.net.AuthResponseData;
 import com.threerings.presents.net.LogoffRequest;
 import com.threerings.presents.net.Message;
 import com.threerings.presents.net.PingRequest;
+import com.threerings.presents.net.PongResponse;
 import com.threerings.presents.net.UpstreamMessage;
 
 import static com.threerings.presents.Log.log;
@@ -180,7 +181,10 @@ public class ServerCommunicator extends Communicator
         // now we can route all messages to the ClientDObjectMgr
         _conn.setMessageHandler(new Connection.MessageHandler() {
             public void handleMessage (Message message) {
-                _omgr.processMessage(message);
+                if (PING_DEBUG && message instanceof PongResponse) {
+                    log.info("Got pong from server " + message);
+                }
+                processMessage(message);
             }
         });
     }
