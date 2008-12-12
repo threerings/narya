@@ -1,8 +1,8 @@
 //
-// $Id$
+// $Id: $
 //
 // Narya library - tools for developing networked games
-// Copyright (C) 2002-2008 Three Rings Design, Inc., All Rights Reserved
+// Copyright (C) 2002-2007 Three Rings Design, Inc., All Rights Reserved
 // http://www.threerings.net/code/narya/
 //
 // This library is free software; you can redistribute it and/or modify it
@@ -19,14 +19,21 @@
 // License along with this library; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 
-package com.threerings.bureau.data {
+package com.threerings.bureau.server;
 
 import com.threerings.presents.data.ClientObject;
+import com.threerings.presents.server.ClientResolver;
+
+import com.threerings.bureau.data.BureauClientObject;
 
 /**
- * An object representing a Bureau connection. This is currently just a marker class.
+ * Used to configure crowd-specific client object data.
  */
-public class BureauClientObject extends ClientObject
+public class BureauClientResolver extends ClientResolver
 {
-}
+    @Override // from ClientResolver
+    public ClientObject createClientObject ()
+    {
+        return new BureauClientObject();
+    }
 }

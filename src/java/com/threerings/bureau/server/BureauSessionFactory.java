@@ -58,10 +58,8 @@ public class BureauSessionFactory implements SessionFactory
     // from interface SessionFactory
     public Class<? extends ClientResolver> getClientResolverClass (Name username)
     {
-        // Just give bureaus a vanilla ClientResolver for now.
-        // TODO: will bureaus need specific resolution?
         if (BureauCredentials.isBureau(username)) {
-            return ClientResolver.class;
+            return BureauClientResolver.class;
         } else {
             return _delegate.getClientResolverClass(username);
         }

@@ -619,6 +619,7 @@ public class PresentsSession
     protected void sessionWillStart ()
     {
         // configure a specific access controller for the client object
+        log.info("Setting access controller to PresentsObjectAccess.CLIENT");
         _clobj.setAccessController(PresentsObjectAccess.CLIENT);
     }
 

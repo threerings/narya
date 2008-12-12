@@ -29,6 +29,7 @@ import com.threerings.presents.dobj.ProxySubscriber;
 import com.threerings.presents.dobj.Subscriber;
 import com.threerings.presents.server.PresentsObjectAccess;
 
+import com.threerings.bureau.data.BureauClientObject;
 import com.threerings.crowd.data.PlaceObject;
 
 /**
@@ -59,4 +60,23 @@ public class CrowdObjectAccess
             return PresentsObjectAccess.DEFAULT.allowDispatch(object, event);
         }
     };
+
+    /**
+     * Extends the access control in {@link #PLACE} to allow Bureau clients to subscribe.
+     */
+    public static AccessController BUREAU_ACCESS_PLACE = new AccessController() {
+        public boolean allowSubscribe (DObject object, Subscriber<?> sub) {
+            if (sub instanceof ProxySubscriber) {
+                ClientObject co = ((ProxySubscriber)sub).getClientObject();
+                if (co instanceof BureauClientObject) {
+                    return true;
+                }
+            }
+            return PLACE.allowSubscribe(object, sub);
+        }
+        public boolean allowDispatch (DObject object, DEvent event) {
+            return PLACE.allowDispatch(object, event);
+        }
+    };
+
 }

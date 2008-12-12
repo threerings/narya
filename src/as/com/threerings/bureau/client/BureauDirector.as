@@ -6,13 +6,13 @@ import com.threerings.util.Log;
 import com.threerings.presents.client.BasicDirector;
 import com.threerings.presents.client.Client;
 import com.threerings.presents.client.ClientEvent;
-import com.threerings.presents.data.ClientObject;
 import com.threerings.presents.dobj.ObjectAccessError;
 import com.threerings.presents.dobj.Subscriber;
 import com.threerings.presents.dobj.SubscriberAdapter;
 import com.threerings.presents.util.SafeSubscriber;
 
 import com.threerings.bureau.data.AgentObject;
+import com.threerings.bureau.data.BureauClientObject;
 import com.threerings.bureau.data.BureauCodes;
 import com.threerings.bureau.util.BureauContext;
 
@@ -22,6 +22,8 @@ import com.threerings.bureau.util.BureauContext;
  */
 public class BureauDirector extends BasicDirector
 {
+    BureauClientObject;
+
     /**
      * Creates a new BureauDirector.
      */
