@@ -59,14 +59,24 @@ public abstract class RebootManager
     }
 
     /**
-     * Finish initialization of the manager.
+     * Finishes initialization of the manager.
      */
     public void init ()
+    {
+        scheduleRegularReboot();
+    }
+
+    /**
+     * Schedules our next regularly scheduled reboot.
+     *
+     * @return true if a reboot was scheduled, false if regularly scheduled reboots are disabled.
+     */
+    public boolean scheduleRegularReboot ()
     {
         // maybe schedule an automatic reboot based on our configuration
         int freq = getDayFrequency();
         if (freq == -1) {
-            return;
+            return false;
         }
 
         Calendar cal = Calendar.getInstance();
@@ -95,6 +105,7 @@ public abstract class RebootManager
         }
 
         scheduleReboot(cal.getTimeInMillis(), "automatic");
+        return true;
     }
 
     /**
