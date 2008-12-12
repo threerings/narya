@@ -69,8 +69,7 @@ public class ServerCommunicator extends Communicator
                     // outgoing traffic on this connection is used to prevent idleness
                     // TODO: shouldn't PongResponse handle this?
                     _lastEvent = System.currentTimeMillis();
-                    // TEMP: debug
-                    if (msg instanceof PingRequest) {
+                    if (PING_DEBUG && msg instanceof PingRequest) { // TEMP
                         log.info("Pinging on server comm " + msg);
                     }
                 }
@@ -205,4 +204,7 @@ public class ServerCommunicator extends Communicator
     protected ClientDObjectMgr _omgr;
     protected ClassLoader _loader;
     protected Exception _logonError;
+
+    // TEMP
+    protected static final boolean PING_DEBUG = Boolean.getBoolean("ping_debug");
 }

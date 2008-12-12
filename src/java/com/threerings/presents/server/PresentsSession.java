@@ -1053,7 +1053,9 @@ public class PresentsSession
         {
             // send a pong response using the transport with which the message was received
             PingRequest req = (PingRequest)msg;
-            log.info("Got ping, ponging", "client", client._username);
+            if (PING_DEBUG) {
+                log.info("Got ping, ponging", "client", client._username);
+            }
             client.safePostMessage(new PongResponse(req.getUnpackStamp(), req.getTransport()));
         }
     }
@@ -1122,6 +1124,9 @@ public class PresentsSession
     /** The amount of time after disconnection a user is allowed before their session is forcibly
      * ended. */
     protected static final long FLUSH_TIME = 7 * 60 * 1000L;
+
+    // TEMP
+    protected static final boolean PING_DEBUG = Boolean.getBoolean("ping_debug");
 
     // register our message dispatchers
     static {
