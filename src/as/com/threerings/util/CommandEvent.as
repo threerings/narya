@@ -55,28 +55,9 @@ public class CommandEvent extends Event
             }
 
             // now trying calling it
-            var err :Error = null;
             try {
                 fn.apply(null, args);
-
-// Commented out 2008-12-09 by Ray. I'm not sure we need this, it seems you can pass args
-// to an argless function without error.
-//            } catch (ae :ArgumentError) {
-//                if (arg is Boolean) {
-//                    // try with no args
-//                    try {
-//                        fn();
-//                    } catch (e2 :Error) {
-//                        err = e2;
-//                    }
-//                } else {
-//                    err = ae;
-//                }
-
-            } catch (e :Error) {
-                err = e;
-            }
-            if (err != null) {
+            } catch (err :Error) {
                 Log.getLog(CommandEvent).warning("Unable to call callback.", err);
             }
 
