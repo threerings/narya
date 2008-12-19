@@ -56,6 +56,9 @@ public class CommandEvent extends Event
 
             // now trying calling it
             try {
+                // TODO: Tim Conkling has determined that fn.length will tell you the required
+                // number of args to a function. We may be able to do something smarter here
+                // with that, but I'll wait until it's a problem.
                 fn.apply(null, args);
             } catch (err :Error) {
                 Log.getLog(CommandEvent).warning("Unable to call callback.", err);
