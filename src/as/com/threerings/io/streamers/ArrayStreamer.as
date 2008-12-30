@@ -61,35 +61,16 @@ public class ArrayStreamer extends Streamer
             _elementType = Boolean;
 
         } else {
-            Log.getLog(this).warning("Other array types are " +
-                "currently not handled yet [jname=" + jname + "].");
+            Log.getLog(this).warning("Other array types are not yet handled", "jname", jname);
             throw new Error("Don't know how to stream '" + jname + "' instances.");
         }
     }
 
-    override public function isStreamerFor (obj :Object) :Boolean
+    override public function getClass () :Class
     {
-        if (obj is TypedArray) {
-            // TypedArrays need the same element type
-            return ((obj as TypedArray).getJavaType() === _jname);
-
-        } else {
-            // any other array is streamed as Object[]
-            return (obj is Array) && (_jname === "[Ljava.lang.Object;");
-        }
-    }
-
-    override public function isStreamerForClass (clazz :Class) :Boolean
-    {
-        if (clazz == TypedArray) {
-            return false; // TODO: we're kinda fucked for finding a streamer
-            // by class for TypedArrays here. The caller should be passing
-            // the java name.
-
-        } else {
-            return ClassUtil.isAssignableAs(Array, clazz) &&
-                (_jname === "[Ljava.lang.Object;");
-        }
+        // this is a little weird, but basically, we don't want to be registered for Array
+        // unless we're the basic Object array streamer.
+        return (_jname == "[Ljava.lang.Object;") ? Array : null;
     }
 
     override public function createObject (ins :ObjectInputStream) :Object

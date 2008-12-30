@@ -72,7 +72,7 @@ public class ObjectOutputStream
             }
 
             if (ObjectInputStream.DEBUG) {
-                log.debug("Assigning class code [code=" + cmap.code + ", class=" + cname + "].");
+                log.debug("Assigning class code", "code", cmap.code, "class", cname);
             }
 
             writeShort(-cmap.code);

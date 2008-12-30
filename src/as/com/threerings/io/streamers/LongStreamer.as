@@ -37,11 +37,6 @@ public class LongStreamer extends Streamer
         super(Long, "java.lang.Long");
     }
 
-    override public function createObject (ins :ObjectInputStream) :Object
-    {
-        return new Long();
-    }
-
     override public function writeObject (obj :Object, out :ObjectOutputStream) :void
     {
         var longy :Long = (obj as Long);

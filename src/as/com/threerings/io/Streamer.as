@@ -22,6 +22,7 @@
 package com.threerings.io {
 
 import flash.utils.ByteArray;
+import flash.utils.Dictionary;
 
 import com.threerings.util.ClassUtil;
 import com.threerings.util.Enum;
@@ -41,33 +42,11 @@ public class Streamer
 {
     public static function getStreamer (obj :Object) :Streamer
     {
-        initStreamers();
-
-        var streamer :Streamer;
-        for each (streamer in _streamers) {
-            if (streamer.isStreamerFor(obj)) {
-                return streamer;
-            }
-        }
-
-        // from here on out we're creating new streamers
-
         if (obj is TypedArray) {
-            streamer = new ArrayStreamer((obj as TypedArray).getJavaType());
-
-        } else if (obj is Enum) {
-            streamer = new EnumStreamer(ClassUtil.getClass(obj));
-
-        } else if (obj is Streamable) {
-            streamer = new Streamer(ClassUtil.getClass(obj));
-
+            return getStreamerByJavaName(TypedArray(obj).getJavaType());
         } else {
-            return null;
+            return getStreamerByClass(ClassUtil.getClass(obj));
         }
-
-        // add the new streamer and return it
-        _streamers.push(streamer);
-        return streamer;
     }
 
     public static function getStreamerByClass (clazz :Class) :Streamer
@@ -78,11 +57,9 @@ public class Streamer
             throw new Error("Broken, TODO");
         }
 
-        var streamer :Streamer;
-        for each (streamer in _streamers) {
-            if (streamer.isStreamerForClass(clazz)) {
-                return streamer;
-            }
+        var streamer :Streamer = _byClass[clazz] as Streamer;
+        if (streamer != null) {
+            return streamer;
         }
 
         if (ClassUtil.isAssignableAs(Enum, clazz)) {
@@ -96,7 +73,7 @@ public class Streamer
         }
 
         // add the new streamer and return it
-        _streamers.push(streamer);
+        registerStreamer(streamer);
         return streamer;
     }
 
@@ -109,11 +86,9 @@ public class Streamer
         }
 
         // see if we have a streamer for it
-        var streamer :Streamer;
-        for each (streamer in _streamers) {
-            if (streamer.getJavaClassName() === jname) {
-                return streamer;
-            }
+        var streamer :Streamer = _byJName[jname] as Streamer;
+        if (streamer != null) {
+            return streamer;
         }
 
         // see if it's an array that we unstream using an ArrayStreamer
@@ -136,7 +111,7 @@ public class Streamer
         }
 
         // add the good new streamer
-        _streamers.push(streamer);
+        registerStreamer(streamer);
         return streamer;
     }
 
@@ -148,22 +123,20 @@ public class Streamer
         _jname = (jname != null) ? jname : Translations.getToServer(ClassUtil.getClassName(targ));
     }
 
-    public function isStreamerFor (obj :Object) :Boolean
-    {
-        return isStreamerForClass(ClassUtil.getClass(obj));
-    }
-
-    public function isStreamerForClass (clazz :Class) :Boolean
-    {
-        return (clazz == _target);
-    }
-
     /**
      * Return the String to use to identify the class that we're streaming.
      */
     public function getJavaClassName () :String
     {
         return _jname;
+    }
+
+    /**
+     * Return the Class identifying that which we stream, or null to not be registered.
+     */
+    public function getClass () :Class
+    {
+        return _target;
     }
 
     public function writeObject (obj :Object, out :ObjectOutputStream) :void
@@ -185,6 +158,16 @@ public class Streamer
         (obj as Streamable).readObject(ins);
     }
 
+    protected static function registerStreamer (st :Streamer) :void
+    {
+        _byJName[st.getJavaClassName()] = st;
+        trace(": registered " + st.getJavaClassName());
+        var c :Class = st.getClass();
+        if (c != null) {
+            _byClass[c] = st;
+        }
+    }
+
     /**
      * Initialize our streamers. This cannot simply be done statically
      * because we cannot instantiate a subclass when this class is still
@@ -192,20 +175,15 @@ public class Streamer
      */
     private static function initStreamers () :void
     {
-        if (_streamers == null) {
-            // Init like this so that _streamers is not null asap.
-            _streamers = [];
-            // We could add each one by one, so that any later streamers
-            // can find and use the earlier ones as delegates.
-            _streamers.push(new StringStreamer(),
-                new NumberStreamer(),
-                new ByteStreamer(),
-                new ShortStreamer(),
-                new IntegerStreamer(),
-                new LongStreamer(),
-                new FloatStreamer(),
-                new ArrayStreamer(),
-                new ByteArrayStreamer());
+        if (_byJName != null) {
+            return;
+        }
+        _byJName = new Dictionary();
+        _byClass = new Dictionary();
+        for each (var c :Class in
+                [ StringStreamer, NumberStreamer, ByteStreamer, IntegerStreamer, LongStreamer,
+                  FloatStreamer, ArrayStreamer, ByteArrayStreamer ]) {
+            registerStreamer(Streamer(new c()));
         }
     }
 
@@ -213,7 +191,7 @@ public class Streamer
 
     protected var _jname :String;
 
-    /** Just a list of our standard streamers. */
-    protected static var _streamers :Array;
+    protected static var _byClass :Dictionary;
+    protected static var _byJName :Dictionary;
 }
 }
