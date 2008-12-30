@@ -154,7 +154,8 @@ public class StringUtil
         }
 
         // hackily add commas
-        while (s.length > 3) {
+        var prefixLength :int = (n < 0) ? 1 : 0;
+        while (s.length - prefixLength > 3) {
             postfix = "," + s.substring(s.length - 3) + postfix;
             s = s.substring(0, s.length - 3);
         }
