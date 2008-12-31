@@ -159,10 +159,11 @@ public class ObjectInputStream
             return null;
         }
 
-        var streamer :Streamer = (type is Class)
-            ? Streamer.getStreamerByClass(type as Class)
-            : Streamer.getStreamerByJavaName(type as String);
-
+        var jname :String = type as String;
+        if (type is Class) {
+            jname = Translations.getToServer(ClassUtil.getClassName(type));
+        }
+        var streamer :Streamer = Streamer.getStreamerByJavaName(jname);
         if (streamer == null) {
             throw new Error("Cannot field stream " + type);
         }

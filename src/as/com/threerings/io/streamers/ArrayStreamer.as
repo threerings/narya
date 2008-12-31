@@ -66,13 +66,6 @@ public class ArrayStreamer extends Streamer
         }
     }
 
-    override public function getClass () :Class
-    {
-        // this is a little weird, but basically, we don't want to be registered for Array
-        // unless we're the basic Object array streamer.
-        return (_jname == "[Ljava.lang.Object;") ? Array : null;
-    }
-
     override public function createObject (ins :ObjectInputStream) :Object
     {
         var ta :TypedArray = new TypedArray(_jname);

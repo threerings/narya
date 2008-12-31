@@ -56,11 +56,12 @@ public class Translations
     // initialize some standard classes
     addTranslation("Object", "java.lang.Object");
     addTranslation("String", "java.lang.String");
-    addTranslation("flash.utils.ByteArray", "[B");
     addTranslation("com.threerings.util.langBoolean", "java.lang.Boolean");
     addTranslation("com.threerings.util.Byte", "java.lang.Byte");
     addTranslation("com.threerings.util.Integer", "java.lang.Integer");
     addTranslation("com.threerings.util.Long", "java.lang.Long");
     addTranslation("com.threerings.util.Float", "java.lang.Float");
+    addTranslation("Array", "[Ljava.lang.Object;");
+    addTranslation("flash.utils.ByteArray", "[B");
 }
 }

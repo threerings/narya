@@ -42,39 +42,13 @@ public class Streamer
 {
     public static function getStreamer (obj :Object) :Streamer
     {
+        var jname :String;
         if (obj is TypedArray) {
-            return getStreamerByJavaName(TypedArray(obj).getJavaType());
+            jname = TypedArray(obj).getJavaType();
         } else {
-            return getStreamerByClass(ClassUtil.getClass(obj));
+            jname = Translations.getToServer(ClassUtil.getClassName(obj));
         }
-    }
-
-    public static function getStreamerByClass (clazz :Class) :Streamer
-    {
-        initStreamers();
-
-        if (clazz === TypedArray) {
-            throw new Error("Broken, TODO");
-        }
-
-        var streamer :Streamer = _byClass[clazz] as Streamer;
-        if (streamer != null) {
-            return streamer;
-        }
-
-        if (ClassUtil.isAssignableAs(Enum, clazz)) {
-            streamer = new EnumStreamer(clazz);
-
-        } else if (ClassUtil.isAssignableAs(Streamable, clazz)) {
-            streamer = new Streamer(clazz);
-
-        } else {
-            return null;
-        }
-
-        // add the new streamer and return it
-        registerStreamer(streamer);
-        return streamer;
+        return getStreamerByJavaName(jname);
     }
 
     public static function getStreamerByJavaName (jname :String) :Streamer
@@ -97,6 +71,9 @@ public class Streamer
 
         } else {
             // otherwise see if it represents a Streamable
+            // usually this is called from ObjectInputStream, but when it's called from
+            // ObjectOutputStream it's a bit annoying, because we started with a class/object.
+            // But: the code is smaller, so that wins
             var clazz :Class = ClassUtil.getClassByName(Translations.getFromServer(jname));
 
             if (ClassUtil.isAssignableAs(Enum, clazz)) {
@@ -131,14 +108,6 @@ public class Streamer
         return _jname;
     }
 
-    /**
-     * Return the Class identifying that which we stream, or null to not be registered.
-     */
-    public function getClass () :Class
-    {
-        return _target;
-    }
-
     public function writeObject (obj :Object, out :ObjectOutputStream) :void
         //throws IOError
     {
@@ -161,11 +130,6 @@ public class Streamer
     protected static function registerStreamer (st :Streamer) :void
     {
         _byJName[st.getJavaClassName()] = st;
-        trace(": registered " + st.getJavaClassName());
-        var c :Class = st.getClass();
-        if (c != null) {
-            _byClass[c] = st;
-        }
     }
 
     /**
@@ -179,7 +143,6 @@ public class Streamer
             return;
         }
         _byJName = new Dictionary();
-        _byClass = new Dictionary();
         for each (var c :Class in
                 [ StringStreamer, NumberStreamer, ByteStreamer, IntegerStreamer, LongStreamer,
                   FloatStreamer, ArrayStreamer, ByteArrayStreamer ]) {
@@ -191,7 +154,6 @@ public class Streamer
 
     protected var _jname :String;
 
-    protected static var _byClass :Dictionary;
     protected static var _byJName :Dictionary;
 }
 }
