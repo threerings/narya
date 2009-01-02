@@ -1049,7 +1049,7 @@ public class PresentsDObjectMgr
     protected InvocationManager _invmgr;
 
     /** Whether or not unit profiling is enabled. */
-    protected static final boolean UNIT_PROF_ENABLED = false;
+    protected static final boolean UNIT_PROF_ENABLED = true;
 
     /** The frequency with which we take a profiling sample. */
     protected static final int UNIT_PROF_INTERVAL = 100;
