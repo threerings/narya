@@ -642,14 +642,14 @@ public class ConnectionManager extends LoopingThread
     {
         // first attempt to send any messages waiting on the overflow queues
         if (_oflowqs.size() > 0) {
-            Iterator<OverflowQueue> oqiter = _oflowqs.values().iterator();
-            while (oqiter.hasNext()) {
-                OverflowQueue oq = oqiter.next();
+            // do this on a snapshot as a network failure writing oflow queue messages will result
+            // in the queue being removed from _oflowqs via the connectionFailed() code path
+            for (OverflowQueue oq : _oflowqs.values().toArray(new OverflowQueue[_oflowqs.size()])) {
                 try {
                     // try writing the messages in this overflow queue
                     if (oq.writeOverflowMessages(iterStamp)) {
                         // if they were all written, we can remove it
-                        oqiter.remove();
+                        _oflowqs.remove(oq.conn);
                     }
 
                 } catch (IOException ioe) {
