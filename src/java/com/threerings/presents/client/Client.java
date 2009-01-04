@@ -794,6 +794,13 @@ public class Client
 
     protected synchronized void cleanup (final Exception logonError)
     {
+        // kill our tick interval here, otherwise we may get a tick call after the runnable below
+        // has finished
+        if (_tickInterval != null) {
+            _tickInterval.cancel();
+            _tickInterval = null;
+        }
+
         // we know that prior to the call to this method, the observers were notified with
         // CLIENT_DID_LOGOFF; that may not have been invoked yet, so we don't want to clear out our
         // communicator reference immediately; instead we queue up a runnable unit to do so to
@@ -811,12 +818,6 @@ public class Client
                 _clobj = null;
                 _connectionId = _cloid = -1;
                 _standalone = false;
-
-                // kill our tick interval
-                if (_tickInterval != null) {
-                    _tickInterval.cancel();
-                    _tickInterval = null;
-                }
 
                 // and let our invocation director know we're logged off
                 _invdir.cleanup();
