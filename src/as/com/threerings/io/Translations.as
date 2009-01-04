@@ -63,5 +63,7 @@ public class Translations
     addTranslation("com.threerings.util.Float", "java.lang.Float");
     addTranslation("Array", "[Ljava.lang.Object;");
     addTranslation("flash.utils.ByteArray", "[B");
+    addTranslation("int", "java.lang.Double"); // we'd rather not have this one
+    addTranslation("Number", "java.lang.Double");
 }
 }
