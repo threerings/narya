@@ -85,13 +85,13 @@ public class ClientManager
         /**
          * Called when a client has authenticated and been resolved and has started their session.
          */
-        void clientSessionDidStart (PresentsSession client);
+        void clientSessionDidStart (PresentsSession session);
 
         /**
          * Called when a client has logged off or been forcibly logged off due to inactivity and
          * has thus ended their session.
          */
-        void clientSessionDidEnd (PresentsSession client);
+        void clientSessionDidEnd (PresentsSession session);
     }
 
     /**
