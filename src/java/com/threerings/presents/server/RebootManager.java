@@ -104,7 +104,7 @@ public abstract class RebootManager
             }
         }
 
-        scheduleReboot(cal.getTimeInMillis(), "automatic");
+        scheduleReboot(cal.getTimeInMillis(), AUTOMATIC_INITIATOR);
         return true;
     }
 
@@ -358,4 +358,6 @@ public abstract class RebootManager
      * nextReboot field is changed, to prevent accidentally causing instant
      * server reboots. */
     public static final int[] WARNINGS = { 30, 20, 15, 10, 5, 2 };
+
+    protected static final String AUTOMATIC_INITIATOR = "automatic";
 }
