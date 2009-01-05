@@ -39,7 +39,7 @@ public class ReportManager
 {
     /**
      * Used to generate "state of the server" reports.
-     * See {@link ReportManager#registerReporter}.
+     * See {@link ReportManager#registerReporter(Reporter)}.
      * */
     public static interface Reporter
     {
@@ -178,7 +178,7 @@ public class ReportManager
     /** The time at which the server was started. */
     protected long _serverStartTime = System.currentTimeMillis();
 
-    /** The last time at which {@link #generateReport(long,boolean)} was run. */
+    /** The last time at which {@link #generateReport(String,long,boolean)} was run. */
     protected long _lastReportStamp = _serverStartTime;
 
     /** Used to generate "state of server" reports. */

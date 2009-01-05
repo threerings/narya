@@ -51,7 +51,7 @@ import static com.threerings.presents.Log.log;
  */
 public class Connection implements NetEventHandler
 {
-    /** Used with {@link #setMessageHandler}. */
+    /** Used with {@link Connection#setMessageHandler}. */
     public static interface MessageHandler {
         /** Called when a complete message has been parsed from incoming network data. */
         void handleMessage (Message message);
