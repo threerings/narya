@@ -332,6 +332,9 @@ public class LocationDirector extends BasicDirector
                 _controller = null;
             }
 
+            // let the chat director know that we're leaving this place
+            _cctx.getChatDirector().leftLocation(_plobj);
+
             // unsubscribe from our old place object
             _cctx.getDObjectManager().unsubscribeFromObject(_plobj.getOid(), this);
             _plobj = null;
@@ -467,6 +470,9 @@ public class LocationDirector extends BasicDirector
             }
         }
 
+        // let the chat director know that we're entering this place
+        _cctx.getChatDirector().enteredLocation(_plobj);
+
         // let our observers know that all is well on the western front
         _observers.apply(didChangeOp);
     }
@@ -558,8 +564,7 @@ public class LocationDirector extends BasicDirector
     /** The place controller in effect for our current place. */
     protected var _controller :PlaceController;
 
-    /** The oid of the place for which we have an outstanding moveTo request, or -1 if we have no
-     * outstanding request. */
+    /** The place oid to whihc we have an outstanding moveTo request, or -1 if we have none. */
     protected var _pendingPlaceId :int = -1;
 
     /** The oid of the place we previously occupied. */
@@ -574,8 +579,7 @@ public class LocationDirector extends BasicDirector
     /** A listener that wants to know if we succeeded or how we failed to move.  */
     protected var _moveListener :ResultListener;
 
-    /** We require that a moveTo request be outstanding for one minute before it is declared to be
-     * stale. */
+    /** Allow a moveTo request be outstanding for one minute before it is declared to be stale. */
     protected static const STALE_REQUEST_DURATION :int = 60 * 1000;
 }
 }

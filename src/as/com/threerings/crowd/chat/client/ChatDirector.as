@@ -44,7 +44,6 @@ import com.threerings.util.MessageManager;
 import com.threerings.util.Name;
 import com.threerings.util.TimeUtil;
 
-import com.threerings.crowd.client.LocationObserver;
 import com.threerings.crowd.data.BodyObject;
 import com.threerings.crowd.data.CrowdCodes;
 import com.threerings.crowd.data.PlaceObject;
@@ -64,15 +63,13 @@ import com.threerings.crowd.chat.data.UserSystemMessage;
  * place constrained chat as well as direct messaging.
  */
 public class ChatDirector extends BasicDirector
-    implements LocationObserver, MessageListener
+    implements MessageListener
 {
     // statically reference classes we require
     ChatMarshaller;
 
     /**
-     * Creates a chat director and initializes it with the supplied context. The chat director will
-     * register itself as a location observer so that it can automatically process place
-     * constrained chat.
+     * Creates a chat director and initializes it with the supplied context.
      *
      * @param msgmgr the message manager via which we do our translations.
      * @param bundle the message bundle from which we obtain our chat-related translation strings.
@@ -86,11 +83,8 @@ public class ChatDirector extends BasicDirector
         _msgmgr = msgmgr;
         _bundle = bundle;
 
-        // register ourselves as a location observer
-        _cctx.getLocationDirector().addLocationObserver(this);
-
         if (_bundle == null || _msgmgr == null) {
-            Log.getLog(this).warning("Null bundle or message manager given to ChatDirector");
+            log.warning("Null bundle or message manager given to ChatDirector");
             return;
         }
         var msg :MessageBundle = _msgmgr.getBundle(_bundle);
@@ -564,32 +558,38 @@ public class ChatDirector extends BasicDirector
         return mogrifyChatImpl(text, false, true);
     }
 
-    // documentation inherited from interface LocationObserver
-    public function locationMayChange (placeId :int) :Boolean
+    /**
+     * Called by a LocationDirector when we enter a new location to configure our place chat.
+     */
+    public function enteredLocation (place :PlaceObject) :void
     {
-        // we accept all location change requests
-        return true;
-    }
+        if (place == null) {
+            log.warning("enteredLocation must be passed a non-null place object!");
+            return;
+        }
 
-    // documentation inherited from interface LocationObserver
-    public function locationDidChange (place :PlaceObject) :void
-    {
+        // nix our old location if we have one
         if (_place != null) {
-            // unlisten to our old object
-            _place.removeListener(this);
+            leftLocation(_place);
         }
 
         // listen to the new object
         _place = place;
-        if (_place != null) {
-            _place.addListener(this);
-        }
+        _place.addListener(this);
     }
 
-    // documentation inherited from interface LocationObserver
-    public function locationChangeFailed (placeId :int, reason :String) :void
+    /**
+     * Called by a LocationDirector when we leave our current place.
+     */
+    public function leftLocation (place :PlaceObject) :void
     {
-        // nothing we care about
+        // if this is our current place chat, then stop listening to it
+        if (place == _place) {
+            _place.removeListener(this);
+            _place = null;
+        } else {
+            log.warning("leftLocation called with unknown place?", "have", _place, "left", place);
+        }
     }
 
     // documentation inherited from interface MessageListener
@@ -649,8 +649,7 @@ public class ChatDirector extends BasicDirector
         _chatters.length = 0;
         notifyChatterObservers();
 
-        // clear the _place
-        locationDidChange(null);
+        // the location director will call leftLocation() when we logoff
 
         // clear our service
         _cservice = null;
@@ -942,8 +941,8 @@ public class ChatDirector extends BasicDirector
         if (bundle != null && _msgmgr != null) {
             var msgb :MessageBundle = _msgmgr.getBundle(bundle);
             if (msgb == null) {
-                Log.getLog(this).warning("No message bundle available to translate message " +
-                                         "[bundle=" + bundle + ", message=" + message + "].");
+                log.warning("No message bundle available to translate message",
+                    "bundle", bundle, "message", message);
             } else {
                 message = msgb.xlate(message);
             }
@@ -1000,6 +999,9 @@ public class ChatDirector extends BasicDirector
     {
         return true;
     }
+
+    /** Log this! */
+    protected const log :Log = Log.getLog(this);
 
     /** Our active chat context. */
     protected var _cctx :CrowdContext;
