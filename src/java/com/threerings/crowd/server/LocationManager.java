@@ -115,28 +115,19 @@ public class LocationManager
         }
 
         try {
-            PlaceObject plobj = pmgr.getPlaceObject();
-
-            // the doubly nested try catch is to prevent failure if one or the other of the
-            // transactions fails to start
-            plobj.startTransaction();
+            source.startTransaction();
             try {
-                source.startTransaction();
-                try {
-                    // remove them from any previous location
-                    leaveOccupiedPlace(source);
+                // remove them from any previous location
+                leaveOccupiedPlace(source);
 
-                    // let the place manager know that we're coming in
-                    pmgr.bodyWillEnter(source);
+                // let the place manager know that we're coming in
+                pmgr.bodyWillEnter(source);
 
-                    // let the body object know that it's going in
-                    source.willEnterPlace(place, plobj);
+                // let the body object know that it's going in
+                source.willEnterPlace(place, pmgr.getPlaceObject());
 
-                } finally {
-                    source.commitTransaction();
-                }
             } finally {
-                plobj.commitTransaction();
+                source.commitTransaction();
             }
 
         } finally {
@@ -154,42 +145,22 @@ public class LocationManager
     public void leaveOccupiedPlace (BodyObject source)
     {
         Place oldloc = source.location;
-        int bodoid = source.getOid();
-
-        // nothing to do if they weren't previously in some location
         if (oldloc == null) {
+            return; // nothing to do if they weren't previously in some location
+        }
+
+        PlaceManager pmgr = _plreg.getPlaceManager(oldloc.placeOid);
+        if (pmgr == null) {
+            log.warning("Body requested to leave no longer existent place?",
+                        "boid", source.getOid(), "place", oldloc);
             return;
         }
 
-        // remove them from the occupant list
-        PlaceObject plobj = null;
-        try {
-            plobj = (PlaceObject)_omgr.getObject(oldloc.placeOid);
-            if (plobj != null) {
-                Integer key = Integer.valueOf(bodoid);
-                plobj.startTransaction();
-                try {
-                    // remove their occupant info (which is keyed on oid)
-                    plobj.removeFromOccupantInfo(key);
-                    // and remove them from the occupant list
-                    plobj.removeFromOccupants(bodoid);
-
-                } finally {
-                    plobj.commitTransaction();
-                }
-
-            } else {
-                log.info("Body's prior location no longer around? [boid=" + bodoid +
-                         ", place=" + oldloc + "].");
-            }
-
-        } catch (ClassCastException cce) {
-            log.warning("Body claims to occupy non-PlaceObject!? [boid=" + bodoid +
-                        ", place=" + oldloc + ", error=" + cce + "].");
-        }
+        // tell the place manager that they're on the way out
+        pmgr.bodyWillLeave(source);
 
         // clear out their location
-        source.didLeavePlace(plobj);
+        source.didLeavePlace(pmgr.getPlaceObject());
     }
 
     /**

@@ -32,7 +32,6 @@ public class BodyLocal extends ClientLocal
 {
     /**
      * The time at which the {@link BodyObject#status} field was last updated.
-     * This is only available on the server.
      */
     public long statusTime;
 }

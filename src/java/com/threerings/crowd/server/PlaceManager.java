@@ -312,7 +312,10 @@ public class PlaceManager
     }
 
     /**
-     * This is called to inform the manager that a body is on the way in.
+     * This is called to inform the manager that a body is on the way in. This is called at the
+     * very beginning of the entry process before the client is informed that it is allowed to
+     * enter. This will be followed by a call to {@link #bodyEntered} once all events relating to
+     * body entry have been processed.
      */
     public void bodyWillEnter (BodyObject body)
     {
@@ -323,6 +326,23 @@ public class PlaceManager
         _plobj.startTransaction();
         try {
             addOccupantInfo(body, (OccupantInfo)info.clone());
+        } finally {
+            _plobj.commitTransaction();
+        }
+    }
+
+    /**
+     * Called to inform a manager that a body is about to leave this place. This will be followed
+     * by a call to {@link #bodyLeft} once all events relating to body entry have been processed.
+     */
+    public void bodyWillLeave (BodyObject body)
+    {
+        _plobj.startTransaction();
+        try {
+            // remove their occupant info (which is keyed on oid)
+            _plobj.removeFromOccupantInfo(body.getOid());
+            // and remove them from the occupant list
+            _plobj.removeFromOccupants(body.getOid());
         } finally {
             _plobj.commitTransaction();
         }
