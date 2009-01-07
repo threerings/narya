@@ -126,6 +126,22 @@ public class ChatDirector extends BasicDirector
     }
 
     /**
+     * Add the supplied chat snooper to hear about chat arriving from the server, pre-filtered.
+     */
+    public function addChatSnooper (snooper :ChatSnooper) :void
+    {
+        _snoopers.add(snooper);
+    }
+
+    /**
+     * Remove the specified snooper.
+     */
+    public function removeChatSnooper (snooper :ChatSnooper) :void
+    {
+        _snoopers.remove(snooper);
+    }
+
+    /**
      * Adds the specified chat filter to the list of filters.  All chat requests and receipts will
      * be filtered with all filters before they being sent or dispatched locally.
      */
@@ -316,7 +332,7 @@ public class ChatDirector extends BasicDirector
      */
     public function dispatchMessage (message :ChatMessage, localType :String) :void
     {
-        message.setClientInfo(xlate(message.bundle, message.message), localType);
+        setClientInfo(message, localType);
         dispatchPreparedMessage(message);
     }
 
@@ -674,13 +690,17 @@ public class ChatDirector extends BasicDirector
             speaker = (msg as UserSystemMessage).speaker;
         }
 
+        // Translate and timestamp the message. This would happen during dispatch but we
+        // need to do it ahead of filtering.
+        setClientInfo(msg, localtype);
+
+        // inform the "snoopers"
+        _snoopers.apply(function (snooper :ChatSnooper) :void {
+            snooper.snoopChat(msg);
+        });
+
         // if there was an originating speaker, see if we want to hear it
         if (speaker != null) {
-            // We pre-translate this message here because we're about to filter it.
-            //  And if we filter first, we could end up filtering keys.
-            msg.message = xlate(msg.bundle, msg.message);
-            msg.bundle = null;
-
             if ((msg.message = filter(msg.message, speaker, false)) == null) {
                 return;
             }
@@ -934,6 +954,16 @@ public class ChatDirector extends BasicDirector
     }
 
     /**
+     * Set the "client info" on the specified message, if not already set.
+     */
+    protected function setClientInfo (msg :ChatMessage, localType :String) :void
+    {
+        if (msg.localtype == null) {
+            msg.setClientInfo(xlate(msg.bundle, msg.message), localType);
+        }
+    }
+
+    /**
      * Translates the specified message using the specified bundle.
      */
     protected function xlate (bundle :String, message :String) :String
@@ -1026,6 +1056,9 @@ public class ChatDirector extends BasicDirector
 
     /** A list of registered chat filters. */
     protected var _filters :ObserverList = new ObserverList();
+
+    /** A list of registered chat snoopers. */
+    protected var _snoopers :ObserverList = new ObserverList();
 
     /** A mapping from auxiliary chat objects to the types under which they are registered. */
     protected var _auxes :HashMap = new HashMap();
