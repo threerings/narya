@@ -363,7 +363,7 @@ public class ChatDirector extends BasicDirector
      */
     public void dispatchMessage (ChatMessage message, String localType)
     {
-        message.setClientInfo(xlate(message.bundle, message.message), localType);
+        setClientInfo(message, localType);
         dispatchPreparedMessage(message);
     }
 
@@ -723,13 +723,12 @@ public class ChatDirector extends BasicDirector
             speakerDisplay = speaker;
         }
 
+        // Translate and timestamp the message. This would happen during dispatch but we
+        // need to do it ahead of filtering.
+        setClientInfo(msg, localtype);
+
         // if there was an originating speaker, see if we want to hear it
         if (speaker != null) {
-            // We pre-translate this message here because we're about to filter it.
-            //  And if we filter first, we could end up filtering keys.
-            msg.message = xlate(msg.bundle, msg.message);
-            msg.bundle = null;
-
             if ((msg.message = filter(msg.message, speaker, false)) == null) {
                 return;
             }
@@ -998,6 +997,16 @@ public class ChatDirector extends BasicDirector
                 return true;
             }
         });
+    }
+
+    /**
+     * Set the "client info" on the specified message, if not already set.
+     */
+    protected void setClientInfo (ChatMessage msg, String localType)
+    {
+        if (msg.localtype == null) {
+            msg.setClientInfo(xlate(msg.bundle, msg.message), localType);
+        }
     }
 
     /**
