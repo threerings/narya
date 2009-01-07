@@ -56,7 +56,7 @@ public class NodeRepository extends DepotRepository
     {
         // we specifically avoid caching this query because we want the servers to always see the
         // most up to date set of nodes
-        return findAll(NodeRecord.class, true, Collections.<QueryClause>emptySet());
+        return findAll(NodeRecord.class, CacheStrategy.NONE, Collections.<QueryClause>emptySet());
     }
 
     /**
