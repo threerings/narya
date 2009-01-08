@@ -39,40 +39,12 @@ import com.samskivert.depot.expression.ColumnExp;
 public class NodeRecord extends PersistentRecord
 {
     // AUTO-GENERATED: FIELDS START
-    /** The column identifier for the {@link #nodeName} field. */
-    public static final String NODE_NAME = "nodeName";
-
-    /** The qualified column identifier for the {@link #nodeName} field. */
-    public static final ColumnExp NODE_NAME_C =
-        new ColumnExp(NodeRecord.class, NODE_NAME);
-
-    /** The column identifier for the {@link #hostName} field. */
-    public static final String HOST_NAME = "hostName";
-
-    /** The qualified column identifier for the {@link #hostName} field. */
-    public static final ColumnExp HOST_NAME_C =
-        new ColumnExp(NodeRecord.class, HOST_NAME);
-
-    /** The column identifier for the {@link #publicHostName} field. */
-    public static final String PUBLIC_HOST_NAME = "publicHostName";
-
-    /** The qualified column identifier for the {@link #publicHostName} field. */
-    public static final ColumnExp PUBLIC_HOST_NAME_C =
-        new ColumnExp(NodeRecord.class, PUBLIC_HOST_NAME);
-
-    /** The column identifier for the {@link #port} field. */
-    public static final String PORT = "port";
-
-    /** The qualified column identifier for the {@link #port} field. */
-    public static final ColumnExp PORT_C =
-        new ColumnExp(NodeRecord.class, PORT);
-
-    /** The column identifier for the {@link #lastUpdated} field. */
-    public static final String LAST_UPDATED = "lastUpdated";
-
-    /** The qualified column identifier for the {@link #lastUpdated} field. */
-    public static final ColumnExp LAST_UPDATED_C =
-        new ColumnExp(NodeRecord.class, LAST_UPDATED);
+    public static final Class<NodeRecord> _R = NodeRecord.class;
+    public static final ColumnExp NODE_NAME = colexp(_R, "nodeName");
+    public static final ColumnExp HOST_NAME = colexp(_R, "hostName");
+    public static final ColumnExp PUBLIC_HOST_NAME = colexp(_R, "publicHostName");
+    public static final ColumnExp PORT = colexp(_R, "port");
+    public static final ColumnExp LAST_UPDATED = colexp(_R, "lastUpdated");
     // AUTO-GENERATED: FIELDS END
 
     /** Increment this value if you modify the definition of this persistent
@@ -135,7 +107,7 @@ public class NodeRecord extends PersistentRecord
     {
         return new Key<NodeRecord>(
                 NodeRecord.class,
-                new String[] { NODE_NAME },
+                new ColumnExp[] { NODE_NAME },
                 new Comparable[] { nodeName });
     }
     // AUTO-GENERATED: METHODS END

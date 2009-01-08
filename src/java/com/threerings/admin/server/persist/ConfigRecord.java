@@ -35,33 +35,11 @@ import com.samskivert.depot.expression.ColumnExp;
 public class ConfigRecord extends PersistentRecord
 {
     // AUTO-GENERATED: FIELDS START
-    /** The column identifier for the {@link #node} field. */
-    public static final String NODE = "node";
-
-    /** The qualified column identifier for the {@link #node} field. */
-    public static final ColumnExp NODE_C =
-        new ColumnExp(ConfigRecord.class, NODE);
-
-    /** The column identifier for the {@link #object} field. */
-    public static final String OBJECT = "object";
-
-    /** The qualified column identifier for the {@link #object} field. */
-    public static final ColumnExp OBJECT_C =
-        new ColumnExp(ConfigRecord.class, OBJECT);
-
-    /** The column identifier for the {@link #field} field. */
-    public static final String FIELD = "field";
-
-    /** The qualified column identifier for the {@link #field} field. */
-    public static final ColumnExp FIELD_C =
-        new ColumnExp(ConfigRecord.class, FIELD);
-
-    /** The column identifier for the {@link #value} field. */
-    public static final String VALUE = "value";
-
-    /** The qualified column identifier for the {@link #value} field. */
-    public static final ColumnExp VALUE_C =
-        new ColumnExp(ConfigRecord.class, VALUE);
+    public static final Class<ConfigRecord> _R = ConfigRecord.class;
+    public static final ColumnExp NODE = colexp(_R, "node");
+    public static final ColumnExp OBJECT = colexp(_R, "object");
+    public static final ColumnExp FIELD = colexp(_R, "field");
+    public static final ColumnExp VALUE = colexp(_R, "value");
     // AUTO-GENERATED: FIELDS END
 
     public static final int SCHEMA_VERSION = 2;
@@ -107,7 +85,7 @@ public class ConfigRecord extends PersistentRecord
     {
         return new Key<ConfigRecord>(
                 ConfigRecord.class,
-                new String[] { NODE, OBJECT, FIELD },
+                new ColumnExp[] { NODE, OBJECT, FIELD },
                 new Comparable[] { node, object, field });
     }
     // AUTO-GENERATED: METHODS END

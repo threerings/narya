@@ -22,7 +22,7 @@
 
   <!-- generates fields for persistent record classes -->
   <target name="genrecord" depends="prepare">
-    <taskdef name="grecord" classname="com.samskivert.jdbc.depot.tools.GenRecordTask"
+    <taskdef name="grecord" classname="com.samskivert.depot.tools.GenRecordTask"
              classpathref="classpath"/>
     <!-- make sure the record class files are all compiled -->
     <javac srcdir="src/java" destdir="${classes.dir}" debug="on" optimize="${build.optimize}"

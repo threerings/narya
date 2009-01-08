@@ -50,7 +50,7 @@ public class ConfigRepository extends DepotRepository
     public HashMap<String, String> loadConfig (String node, String object)
     {
         HashMap<String, String> data = new HashMap<String, String>();
-        Where where = new Where(ConfigRecord.OBJECT_C, object, ConfigRecord.NODE_C, node);
+        Where where = new Where(ConfigRecord.OBJECT, object, ConfigRecord.NODE, node);
         for (ConfigRecord record : findAll(ConfigRecord.class, where)) {
             data.put(record.field, record.value);
         }
