@@ -37,7 +37,6 @@ import com.threerings.crowd.data.CrowdCodes;
 import com.threerings.crowd.data.LocationCodes;
 import com.threerings.crowd.data.Place;
 import com.threerings.crowd.data.PlaceConfig;
-import com.threerings.crowd.data.PlaceObject;
 
 import static com.threerings.crowd.Log.log;
 
