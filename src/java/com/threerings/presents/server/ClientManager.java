@@ -369,16 +369,18 @@ public class ClientManager
     {
         Credentials creds = req.getCredentials();
         Name username = creds.getUsername();
+        String type = username.getClass().getName();
+        type = type.substring(type.lastIndexOf(".")+1);
 
         // see if a client is already registered with these credentials
         PresentsSession client = getClient(username);
 
         if (client != null) {
-            log.info("Resuming session [username=" + username + ", conn=" + conn + "].");
+            log.info("Resuming session", "type", type, "who", username, "conn", conn);
             client.resumeSession(req, conn);
 
         } else {
-            log.info("Session initiated [username=" + username + ", conn=" + conn + "].");
+            log.info("Session initiated", "who", username, "conn", conn);
             // create a new client and stick'em in the table
             client = _injector.getInstance(_factory.getSessionClass(req));
             client.startSession(req, conn, rsp.authdata);
