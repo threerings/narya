@@ -369,8 +369,7 @@ public class ClientManager
     {
         Credentials creds = req.getCredentials();
         Name username = creds.getUsername();
-        String type = username.getClass().getName();
-        type = type.substring(type.lastIndexOf(".")+1);
+        String type = username.getClass().getSimpleName();
 
         // see if a client is already registered with these credentials
         PresentsSession client = getClient(username);
@@ -380,7 +379,7 @@ public class ClientManager
             client.resumeSession(req, conn);
 
         } else {
-            log.info("Session initiated", "who", username, "conn", conn);
+            log.info("Session initiated", "type", type, "who", username, "conn", conn);
             // create a new client and stick'em in the table
             client = _injector.getInstance(_factory.getSessionClass(req));
             client.startSession(req, conn, rsp.authdata);
@@ -465,10 +464,11 @@ public class ClientManager
      * Called by the client instance when the client requests a logoff. This is called from the
      * dobjmgr thread.
      */
-    protected void clientSessionDidEnd (final PresentsSession client)
+    protected void clientSessionDidEnd (final PresentsSession session)
     {
         // remove the client from the username map
-        Name username = client.getCredentials().getUsername();
+        Name username = session.getCredentials().getUsername();
+        String type = username.getClass().getSimpleName();
         PresentsSession rc;
         synchronized (_usermap) {
             rc = _usermap.remove(username);
@@ -476,18 +476,18 @@ public class ClientManager
 
         // sanity check just because we can
         if (rc == null) {
-            log.warning("Unregistered client ended session", "username", username, "client", client,
-                        new Exception());
-        } else if (rc != client) {
-            log.warning("Different clients with same username!?", "c1", rc, "c2", client);
+            log.warning("Unregistered client ended session", "type", type, "who", username,
+                        "session", session, new Exception());
+        } else if (rc != session) {
+            log.warning("Different clients with same username!?", "c1", rc, "c2", session);
         } else {
-            log.info("Ending session", "username", username, "client", client);
+            log.info("Ending session", "type", type, "who", username, "session", session);
         }
 
         // notify the observers that the session is ended
         _clobservers.apply(new ObserverList.ObserverOp<ClientObserver>() {
             public boolean apply (ClientObserver observer) {
-                observer.clientSessionDidEnd(client);
+                observer.clientSessionDidEnd(session);
                 return true;
             }
         });
