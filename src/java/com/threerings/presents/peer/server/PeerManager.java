@@ -28,6 +28,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 
 import com.google.common.base.Function;
+import com.google.common.base.Predicate;
 import com.google.common.collect.Maps;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
@@ -290,14 +291,20 @@ public abstract class PeerManager
      * Invokes the supplied function on <em>all</em> node objects (except the local node). A caller
      * that needs to call an invocation service method on a remote node should use this mechanism
      * to locate the appropriate node (or nodes) and call the desired method.
+     *
+     * @return the number of times the invoked function returned true.
      */
-    public void invokeOnNodes (Function<Tuple<Client,NodeObject>,Void> func)
+    public int invokeOnNodes (Function<Tuple<Client,NodeObject>,Boolean> func)
     {
+        int invoked = 0;
         for (PeerNode peer : _peers.values()) {
             if (peer.nodeobj != null) {
-                func.apply(Tuple.newTuple(peer.getClient(), peer.nodeobj));
+                if (func.apply(Tuple.newTuple(peer.getClient(), peer.nodeobj))) {
+                    invoked++;
+                }
             }
         }
+        return invoked;
     }
 
     /**
