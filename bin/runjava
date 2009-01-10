@@ -20,7 +20,7 @@ chomp($machtype);
 my $arch = "$machtype-$ostype";
 
 # add our native libraries to the runtime library path
-my $libs = "$root/lib/$arch";
+my $libs = "$root/dist/lib/$arch";
 my $libpath = $ENV{"LD_LIBRARY_PATH"};
 
 if (defined $libpath) {
@@ -32,8 +32,8 @@ if (defined $libpath) {
 # put everything in our class path
 my $classpath = "-classpath $root/dist/classes";
 
-# add zip and jar files from our lib/ directory and the system lib/ directory
-my @dirs = ( "$root/lib", $ENV{"JAVA_LIBS"} );
+# add zip and jar files from our dist/lib/ directory
+my @dirs = ( "$root/dist/lib" );
 foreach $dir (@dirs) {
     next unless (defined $dir);
     if (opendir(DIR, $dir)) {
