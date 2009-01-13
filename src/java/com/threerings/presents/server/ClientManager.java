@@ -97,14 +97,15 @@ public class ClientManager
     /**
      * Constructs a client manager that will interact with the supplied connection manager.
      */
-    @Inject public ClientManager (ReportManager repmgr, ShutdownManager shutmgr)
+    @Inject public ClientManager (
+        ReportManager repmgr, ShutdownManager shutmgr, PresentsDObjectMgr omgr)
     {
         repmgr.registerReporter(this);
         shutmgr.registerShutdowner(this);
 
         // start up an interval that will check for expired clients and flush them from the bowels
         // of the server
-        new Interval(_omgr) {
+        new Interval(omgr) {
             @Override
             public void expired () {
                 flushClients();
