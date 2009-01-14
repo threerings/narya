@@ -105,12 +105,13 @@ public class ClientManager
 
         // start up an interval that will check for expired clients and flush them from the bowels
         // of the server
-        new Interval(omgr) {
+        _flushClients = new Interval(omgr) {
             @Override
             public void expired () {
                 flushClients();
             }
-        }.schedule(CLIENT_FLUSH_INTERVAL, true);
+        };
+        _flushClients.schedule(CLIENT_FLUSH_INTERVAL, true);
     }
 
     /**
@@ -126,6 +127,8 @@ public class ClientManager
     public void shutdown ()
     {
         log.info("Client manager shutting down [ccount=" + _usermap.size() + "].");
+
+        _flushClients.cancel();
 
         // inform all of our clients that they are being shut down
         synchronized (_usermap) {
@@ -572,6 +575,9 @@ public class ClientManager
 
     /** Tracks registered {@link ClientObserver}s. */
     protected ObserverList<ClientObserver> _clobservers = ObserverList.newSafeInOrder();
+
+    /** Interval to flush expired clients. */
+    protected Interval _flushClients;
 
     // our injected dependencies
     @Inject protected PresentsDObjectMgr _omgr;
