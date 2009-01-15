@@ -271,8 +271,8 @@ public class PresentsSession
             }
 
             public void resolutionFailed (Name username, Exception reason) {
-                log.warning("Unable to resolve new client object [oldname=" + _username +
-                        ", newname=" + username + ", reason=" + reason + "].", reason);
+                log.warning("Unable to resolve new client object",
+                    "oldname", _username, "newname", username, "reason", reason, reason);
 
                 // let our listener know we're hosed
                 if (ucl != null) {
@@ -389,7 +389,7 @@ public class PresentsSession
     public void resolutionFailed (Name username, Exception reason)
     {
         // urk; nothing to do but complain and get the f**k out of dodge
-        log.warning("Unable to resolve client [username=" + username + "].", reason);
+        log.warning("Unable to resolve client", "username", username, reason);
 
         // end the session now to prevent danglage
         endSession();
@@ -416,7 +416,7 @@ public class PresentsSession
         // message that we received
         MessageDispatcher disp = _disps.get(message.getClass());
         if (disp == null) {
-            log.warning("No dispatcher for message [msg=" + message + "].");
+            log.warning("No dispatcher for message", "msg", message);
             return;
         }
 
@@ -482,7 +482,7 @@ public class PresentsSession
         // check to see if we've already got a connection object, in which case it's probably stale
         Connection oldconn = getConnection();
         if (oldconn != null && !oldconn.isClosed()) {
-            log.info("Closing stale connection [old=" + oldconn + ", new=" + conn + "].");
+            log.info("Closing stale connection", "old", oldconn, "new", conn);
             // close the old connection (which results in everything being properly unregistered)
             oldconn.close();
         }
