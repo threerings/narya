@@ -985,6 +985,19 @@ public abstract class PeerManager
     }
 
     /**
+     * Called when we hear about a client logging on to another node.
+     */
+    protected void clientLoggedOnOtherNode (String nodeName, ClientInfo clinfo)
+    {
+        PresentsSession session = _clmgr.getClient(clinfo.username);
+        if (session != null) {
+            log.info("Booting user that has connected on another node",
+                "username", clinfo.username, "otherNode", nodeName);
+            session.endSession();
+        }
+    }
+
+    /**
      * Called when a peer connects to this server.
      */
     protected void peerStartedSession (PeerSession session)

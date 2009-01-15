@@ -35,8 +35,14 @@ import com.threerings.presents.dobj.AttributeChangeListener;
 import com.threerings.presents.dobj.AttributeChangedEvent;
 import com.threerings.presents.dobj.DEvent;
 import com.threerings.presents.dobj.DObject;
+import com.threerings.presents.dobj.DSet;
+import com.threerings.presents.dobj.EntryAddedEvent;
+import com.threerings.presents.dobj.EntryRemovedEvent;
+import com.threerings.presents.dobj.EntryUpdatedEvent;
 import com.threerings.presents.dobj.ObjectAccessException;
+import com.threerings.presents.dobj.SetListener;
 import com.threerings.presents.dobj.Subscriber;
+import com.threerings.presents.peer.data.ClientInfo;
 import com.threerings.presents.peer.data.NodeObject;
 import com.threerings.presents.peer.net.PeerBootstrapData;
 import com.threerings.presents.peer.server.persist.NodeRecord;
@@ -49,7 +55,7 @@ import static com.threerings.presents.Log.log;
  * Contains all runtime information for one of our peer nodes.
  */
 public class PeerNode
-    implements ClientObserver, Subscriber<NodeObject>, AttributeChangeListener
+    implements ClientObserver, Subscriber<NodeObject>
 {
     /** This peer's node object. */
     public NodeObject nodeobj;
@@ -190,6 +196,8 @@ public class PeerNode
     public void clientDidLogoff (Client client)
     {
         _peermgr.disconnectedFromPeer(this);
+        nodeobj.removeListener(_listener);
+        _listener = null;
         nodeobj = null;
     }
 
@@ -204,7 +212,7 @@ public class PeerNode
     {
         // listen for lock and cache updates
         nodeobj = object;
-        nodeobj.addListener(this);
+        nodeobj.addListener(_listener = createListener());
 
         _peermgr.connectedToPeer(this);
     }
@@ -214,49 +222,6 @@ public class PeerNode
     {
         log.warning("Failed to subscribe to peer's node object " +
                     "[peer=" + _record + ", cause=" + cause + "].");
-    }
-
-    // documentation inherited from interface AttributeChangeListener
-    public void attributeChanged (AttributeChangedEvent event)
-    {
-        String name = event.getName();
-        if (name.equals(NodeObject.ACQUIRING_LOCK)) {
-            NodeObject.Lock lock = nodeobj.acquiringLock;
-            PeerManager.LockHandler handler = _peermgr.getLockHandler(lock);
-            if (handler == null) {
-                if (_peermgr.getNodeObject().locks.contains(lock)) {
-                    log.warning("Peer trying to acquire lock owned by this node " +
-                                "[lock=" + lock + ", node=" + _record.nodeName + "].");
-                    return;
-                }
-                _peermgr.createLockHandler(this, lock, true);
-                return;
-            }
-
-            // if the other node has priority, we're done
-            if (hasPriority(handler.getNodeName(), _record.nodeName)) {
-                return;
-            }
-
-            // this node has priority, so cancel the existing handler and take over its listeners
-            ResultListenerList<String> olisteners = handler.listeners;
-            handler.cancel();
-            handler = _peermgr.createLockHandler(this, lock, true);
-            handler.listeners = olisteners;
-
-        } else if (name.equals(NodeObject.RELEASING_LOCK)) {
-            NodeObject.Lock lock = nodeobj.releasingLock;
-            PeerManager.LockHandler handler = _peermgr.getLockHandler(lock);
-            if (handler == null) {
-                _peermgr.createLockHandler(this, lock, false);
-            } else {
-                log.warning("Received request to release resolving lock [node=" +
-                            _record.nodeName + ", handler=" + handler + "].");
-            }
-
-        } else if (name.equals(NodeObject.CACHE_DATA)) {
-            _peermgr.changedCacheData(nodeobj.cacheData.cache, nodeobj.cacheData.data);
-        }
     }
 
     /**
@@ -275,10 +240,91 @@ public class PeerNode
         return new BlockingCommunicator(client);
     }
 
+    /**
+     * Create the NodeObjectListener to use. Overrideable.
+     */
+    protected NodeObjectListener createListener ()
+    {
+        return new NodeObjectListener();
+    }
+
+    /**
+     * Listens to node object changes.
+     */
+    protected class NodeObjectListener
+        implements AttributeChangeListener, SetListener<DSet.Entry>
+    {
+        // documentation inherited from interface AttributeChangeListener
+        public void attributeChanged (AttributeChangedEvent event)
+        {
+            String name = event.getName();
+            if (name.equals(NodeObject.ACQUIRING_LOCK)) {
+                NodeObject.Lock lock = nodeobj.acquiringLock;
+                PeerManager.LockHandler handler = _peermgr.getLockHandler(lock);
+                if (handler == null) {
+                    if (_peermgr.getNodeObject().locks.contains(lock)) {
+                        log.warning("Peer trying to acquire lock owned by this node " +
+                                    "[lock=" + lock + ", node=" + _record.nodeName + "].");
+                        return;
+                    }
+                    _peermgr.createLockHandler(PeerNode.this, lock, true);
+                    return;
+                }
+
+                // if the other node has priority, we're done
+                if (hasPriority(handler.getNodeName(), _record.nodeName)) {
+                    return;
+                }
+
+                // this node has priority, so cancel the existing handler and take over
+                // its listeners
+                ResultListenerList<String> olisteners = handler.listeners;
+                handler.cancel();
+                handler = _peermgr.createLockHandler(PeerNode.this, lock, true);
+                handler.listeners = olisteners;
+
+            } else if (name.equals(NodeObject.RELEASING_LOCK)) {
+                NodeObject.Lock lock = nodeobj.releasingLock;
+                PeerManager.LockHandler handler = _peermgr.getLockHandler(lock);
+                if (handler == null) {
+                    _peermgr.createLockHandler(PeerNode.this, lock, false);
+                } else {
+                    log.warning("Received request to release resolving lock",
+                       "node", _record.nodeName, "handler", handler);
+                }
+
+            } else if (name.equals(NodeObject.CACHE_DATA)) {
+                _peermgr.changedCacheData(nodeobj.cacheData.cache, nodeobj.cacheData.data);
+            }
+        }
+
+        // documentation inherited from interface SetListener
+        public void entryAdded (EntryAddedEvent<DSet.Entry> event)
+        {
+            String name = event.getName();
+            if (NodeObject.CLIENTS.equals(name)) {
+                _peermgr.clientLoggedOnOtherNode(getNodeName(), (ClientInfo)event.getEntry());
+            }
+        }
+
+        // documentation inherited from interface SetListener
+        public void entryUpdated (EntryUpdatedEvent<DSet.Entry> event)
+        {
+            // nada
+        }
+
+        // documentation inherited from interface SetListener
+        public void entryRemoved (EntryRemovedEvent<DSet.Entry> event)
+        {
+            // nada
+        }
+    } // END: class NodeObjectListener
+
     protected PeerManager _peermgr;
     protected PresentsDObjectMgr _omgr;
     protected ConnectionManager _conmgr;
     protected NodeRecord _record;
+    protected NodeObjectListener _listener;
     protected Client _client;
     protected long _lastConnectStamp;
 
