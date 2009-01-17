@@ -72,10 +72,14 @@ public abstract class PersistingUnit extends Invoker.Unit
         throws Exception;
 
     /**
-     * Handles the success case, which by default is to do nothing.
+     * Handles the success case, which by default posts a response to a ConfirmListener.
+     * If you need something else, or to repond to a ResultListener, you'll need to override this.
      */
     public void handleSuccess ()
     {
+        if (_listener instanceof InvocationService.ConfirmListener) {
+            reportRequestProcessed();
+        }
     }
 
     /**
