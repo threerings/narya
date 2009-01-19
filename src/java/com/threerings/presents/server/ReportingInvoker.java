@@ -53,7 +53,7 @@ public class ReportingInvoker extends Invoker
         synchronized (this) {
             buf.append("- Max queue size: ").append(_maxQueueSize).append("\n");
             buf.append("- Units executed: ").append(_unitsRun);
-            long runPerSec = (sinceLast == 0) ? 0 : 1000*_unitsRun/sinceLast;
+            long runPerSec = (sinceLast == 0) ? 0 : 1000l*_unitsRun/sinceLast;
             buf.append(" (").append(runPerSec).append("/s)\n");
             if (_currentUnit != null) {
                 String uname = StringUtil.safeToString(_currentUnit);
