@@ -25,7 +25,6 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
 import com.samskivert.util.Invoker;
-import com.samskivert.util.StringUtil;
 
 import static com.threerings.presents.Log.log;
 
@@ -33,18 +32,15 @@ import static com.threerings.presents.Log.log;
  * Extends the generic {@link Invoker} and integrates it a bit more into the Presents system.
  */
 @Singleton
-public class PresentsInvoker extends Invoker
-    implements ShutdownManager.Shutdowner, ReportManager.Reporter
+public class PresentsInvoker extends ReportingInvoker
+    implements ShutdownManager.Shutdowner
 {
     @Inject public PresentsInvoker (PresentsDObjectMgr omgr, ShutdownManager shutmgr,
                                     ReportManager repmgr)
     {
-        super("presents.Invoker", omgr);
+        super("presents.Invoker", omgr, repmgr);
         _omgr = omgr;
         shutmgr.registerShutdowner(this);
-        if (PERF_TRACK) {
-            repmgr.registerReporter(this);
-        }
     }
 
     @Override // from Invoker
@@ -52,73 +48,6 @@ public class PresentsInvoker extends Invoker
     {
         // this will do a sophisticated shutdown of both ourself and the dobjmgr
         _queue.append(new ShutdownUnit());
-    }
-
-    // from interface ReportManager.Reporter
-    public void appendReport (StringBuilder buf, long now, long sinceLast, boolean reset)
-    {
-        buf.append("* presents.util.Invoker:\n");
-        int qsize = _queue.size();
-        buf.append("- Queue size: ").append(qsize).append("\n");
-        synchronized (this) {
-            buf.append("- Max queue size: ").append(_maxQueueSize).append("\n");
-            buf.append("- Units executed: ").append(_unitsRun);
-            long runPerSec = (sinceLast == 0) ? 0 : 1000*_unitsRun/sinceLast;
-            buf.append(" (").append(runPerSec).append("/s)\n");
-            if (_currentUnit != null) {
-                String uname = StringUtil.safeToString(_currentUnit);
-                buf.append("- Current unit: ").append(uname).append(" ");
-                buf.append(now-_currentUnitStart).append("ms\n");
-            }
-            if (reset) {
-                _maxQueueSize = qsize;
-                _unitsRun = 0;
-            }
-        }
-
-        if (PresentsDObjectMgr.UNIT_PROF_ENABLED) {
-            for (Object key : _tracker.keySet()) {
-                UnitProfile profile = _tracker.get(key);
-                if (key instanceof Class) {
-                    key = StringUtil.shortClassName((Class<?>)key);
-                }
-                buf.append("  ").append(key).append(" ");
-                buf.append(profile).append("\n");
-                if (reset) {
-                    profile.clear();
-                }
-            }
-        }
-    }
-
-    @Override // from Invoker
-    protected void willInvokeUnit (Unit unit, long start)
-    {
-        super.willInvokeUnit(unit, start);
-
-        int queueSize = _queue.size();
-        synchronized (this) {
-            // keep track of the largest queue size we've seen
-            if (queueSize > _maxQueueSize) {
-                _maxQueueSize = queueSize;
-            }
-
-            // note the currently invoking unit
-            _currentUnit = unit;
-            _currentUnitStart = start;
-        }
-    }
-
-    @Override // from Invoker
-    protected void didInvokeUnit (Unit unit, long start)
-    {
-        super.didInvokeUnit(unit, start);
-
-        synchronized (this) {
-            // clear out our currently invoking unit
-            _currentUnit = null;
-            _currentUnitStart = 0L;
-        }
     }
 
     @Override // from Invoker
@@ -234,13 +163,4 @@ public class PresentsInvoker extends Invoker
 
     /** The server we're working for. */
     @Inject protected PresentsServer _server;
-
-    /** The largest queue size since our last report. */
-    protected long _maxQueueSize;
-
-    /** Records the currently invoking unit. */
-    protected Object _currentUnit;
-
-    /** The time at which our current unit started. */
-    protected long _currentUnitStart;
 }
