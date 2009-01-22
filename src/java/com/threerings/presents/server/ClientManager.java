@@ -306,8 +306,7 @@ public class ClientManager
     {
         ClientObject clobj = _objmap.get(username);
         if (clobj == null) {
-            log.info("Requested to release unmapped client object", "username", username,
-                        new Exception());
+            log.info("Requested to release unmapped client object", "username", username);
             return;
         }
 
