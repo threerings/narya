@@ -306,7 +306,7 @@ public class ClientManager
     {
         ClientObject clobj = _objmap.get(username);
         if (clobj == null) {
-            log.warning("Requested to release unmapped client object", "username", username,
+            log.info("Requested to release unmapped client object", "username", username,
                         new Exception());
             return;
         }
@@ -480,12 +480,13 @@ public class ClientManager
 
         // sanity check just because we can
         if (rc == null) {
-            log.warning("Unregistered client ended session", "type", type, "who", username,
-                        "session", session, new Exception());
+            log.info("Ending session: unregistered!", "type", type, "session", session);
+
         } else if (rc != session) {
-            log.warning("Different clients with same username!?", "c1", rc, "c2", session);
+            log.info("Ending session: multiple!", "type", type, "s1", rc, "s2", session);
+
         } else {
-            log.info("Ending session", "type", type, "who", username, "session", session);
+            log.info("Ending session", "type", type, "session", session);
         }
 
         // notify the observers that the session is ended
