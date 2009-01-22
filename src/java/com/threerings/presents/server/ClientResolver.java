@@ -46,6 +46,13 @@ import static com.threerings.presents.Log.log;
 public class ClientResolver extends Invoker.Unit
 {
     /**
+     * Thrown during resolution if the client disconnects.
+     */
+    public static class ClientDisconnectedException extends Exception
+    {
+    }
+
+    /**
      * Initiailizes this instance.
      *
      * @param username the username of the user to be resolved.
@@ -191,6 +198,17 @@ public class ClientResolver extends Invoker.Unit
         }
     }
 
+    /**
+     * Throws an exception if the client being resolved is no longer connected.
+     */
+    protected void enforceConnected ()
+        throws ClientDisconnectedException
+    {
+        if (_clmgr.getClient(_username) == null) {
+            throw new ClientDisconnectedException();
+        }
+    }
+
     /** The name of the user whose client object is being resolved. */
     protected Name _username;
 
@@ -206,4 +224,5 @@ public class ClientResolver extends Invoker.Unit
     // dependencies
     protected @Inject @MainInvoker Invoker _invoker;
     protected @Inject RootDObjectManager _omgr;
+    protected @Inject ClientManager _clmgr;
 }

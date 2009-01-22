@@ -388,8 +388,13 @@ public class PresentsSession
     // from interface ClientResolutionListener
     public void resolutionFailed (Name username, Exception reason)
     {
-        // urk; nothing to do but complain and get the f**k out of dodge
-        log.warning("Unable to resolve client", "username", username, reason);
+        if (reason instanceof ClientResolver.ClientDisconnectedException) {
+            log.info("Client disconnected during resolution", "username", username);
+
+        } else {
+            // urk; nothing to do but complain and get the f**k out of dodge
+            log.warning("Unable to resolve client", "username", username, reason);
+        }
 
         // end the session now to prevent danglage
         endSession();
