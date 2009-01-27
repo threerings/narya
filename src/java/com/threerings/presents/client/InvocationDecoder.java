@@ -28,7 +28,7 @@ import static com.threerings.presents.Log.log;
  */
 public abstract class InvocationDecoder
 {
-    /** The receiver for which we're decoding and dipatching notifications. */
+    /** The receiver for which we're decoding and dispatching notifications. */
     public InvocationReceiver receiver;
 
     /**

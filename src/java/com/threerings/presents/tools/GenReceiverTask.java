@@ -79,6 +79,9 @@ public class GenReceiverTask extends InvocationTask
         }
         methods.sort();
 
+        // import Foo instead of Foo$Bar
+        imports.swapInnerClassesForParents();
+
         // Adjust any bits that want to import arrays to instead import their element classes.
         imports.translateClassArrays();
         imports.removeArrays();
