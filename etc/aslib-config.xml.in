@@ -42,7 +42,7 @@
       <es>false</es>
       <!-- compiler.external-library-path: list of SWC files or directories to compile against but to omit from linking-->
       <external-library-path>
-         <path-element>@flex_sdk_dir@/frameworks/libs/player/9/playerglobal.swc</path-element>
+         <path-element>@flex_sdk_dir@/frameworks/libs/player/{targetPlayerMajorVersion}/playerglobal.swc</path-element>
          <path-element>@flex_sdk_dir@/frameworks/libs</path-element>
          <path-element>@flex_sdk_dir@/frameworks/libs/player</path-element>
          <path-element>@flex_sdk_dir@/frameworks/locale/{locale}</path-element>
@@ -345,17 +345,15 @@
    -->
    <runtime-shared-library-path>
       <path-element>../lib/flex_sdk/frameworks/libs/framework.swc</path-element>
-      <rsl-url>framework_3.0.189825.swz</rsl-url>
+      <rsl-url>framework_3.2.0.3958.swz</rsl-url>
       <policy-file-url></policy-file-url>
-      <rsl-url>framework_3.0.189825.swf</rsl-url>
+      <rsl-url>framework_3.2.0.3958.swf</rsl-url>
       <policy-file-url></policy-file-url>
    </runtime-shared-library-path>
    <!-- static-link-runtime-shared-libraries: statically link the libraries specified by the -runtime-shared-libraries-path option.-->
    <static-link-runtime-shared-libraries>true</static-link-runtime-shared-libraries>
    <!-- target-player: specifies the version of the player the application is targeting. Features requiring a later version will not be compiled into the application. The minimum value supported is "9.0.0".-->
-   <!-- target-player usage:
-   <target-player>version</target-player>
-   -->
+   <target-player>10.0.0</target-player>
    <!-- use-network: toggle whether the SWF is flagged for access to network resources-->
    <use-network>true</use-network>
    <!-- verify-digests: verifies the libraries loaded at runtime are the correct ones.-->
