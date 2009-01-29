@@ -353,7 +353,7 @@
    <!-- static-link-runtime-shared-libraries: statically link the libraries specified by the -runtime-shared-libraries-path option.-->
    <static-link-runtime-shared-libraries>true</static-link-runtime-shared-libraries>
    <!-- target-player: specifies the version of the player the application is targeting. Features requiring a later version will not be compiled into the application. The minimum value supported is "9.0.0".-->
-   <target-player>10.0.0</target-player>
+   <target-player>9.0.115</target-player>
    <!-- use-network: toggle whether the SWF is flagged for access to network resources-->
    <use-network>true</use-network>
    <!-- verify-digests: verifies the libraries loaded at runtime are the correct ones.-->
