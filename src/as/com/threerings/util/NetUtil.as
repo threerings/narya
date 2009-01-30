@@ -30,11 +30,15 @@ public class NetUtil
      * Convenience method to load a web page in the browser window without
      * having to worry about SecurityErrors in various conditions.
      *
+     * @param url a String or a URLRequest.
+     * @param preferredWindow the browser tab/window identifier in which to load. If you
+     * specify a non-null window and it causes a security error, the request is retried with null.
+     *
      * @return true if the url was able to be loaded.
      */
-    public static function navigateToURL (url :String, preferredWindow :String = "_self") :Boolean
+    public static function navigateToURL (url :*, preferredWindow :String = "_self") :Boolean
     {
-        var ureq :URLRequest = new URLRequest(url);
+        var ureq :URLRequest = (url is URLRequest) ? URLRequest(url) : new URLRequest(String(url));
         while (true) {
             try {
                 flash.net.navigateToURL(ureq, preferredWindow);
