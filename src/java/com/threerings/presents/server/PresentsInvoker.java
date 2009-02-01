@@ -35,8 +35,8 @@ import static com.threerings.presents.Log.log;
 public class PresentsInvoker extends ReportingInvoker
     implements ShutdownManager.Shutdowner
 {
-    @Inject public PresentsInvoker (PresentsDObjectMgr omgr, ShutdownManager shutmgr,
-                                    ReportManager repmgr)
+    @Inject public PresentsInvoker (
+        PresentsDObjectMgr omgr, ShutdownManager shutmgr, ReportManager repmgr)
     {
         super("presents.Invoker", omgr, repmgr);
         _omgr = omgr;
@@ -46,7 +46,10 @@ public class PresentsInvoker extends ReportingInvoker
     @Override // from Invoker
     public void shutdown ()
     {
-        // this will do a sophisticated shutdown of both ourself and the dobjmgr
+        // this will do a sophisticated shutdown of both ourself and the dobjmgr; note: we
+        // specifically avoid setting _shutdownRequested as it's OK for units to be posted to the
+        // PresentsInvoker during the shutdown phase, we just delay shutdown until we're able to
+        // make it to the shutdown unit without queueing up more units for processing
         _queue.append(new ShutdownUnit());
     }
 
@@ -95,19 +98,18 @@ public class PresentsInvoker extends ReportingInvoker
                 _loopCount++;
                 _omgr.postRunnable(this);
 
-            // if the invoker still has stuff and we're still under the pass
-            // limit, go ahead and pass it back to the invoker
+            // if the invoker still has stuff and we're still under the pass limit, go ahead and
+            // pass it back to the invoker
             } else if (_queue.hasElements() && (_passCount < MAX_PASSES)) {
                 // pass the buck back to the invoker
                 _loopCount = 0;
                 postUnit(this);
 
             } else {
-                // otherwise end it, and complain if we're ending it
-                // because of passes
+                // otherwise end it, and complain if we're ending it because of passes
                 if (_passCount >= MAX_PASSES) {
-                    log.warning("Shutdown Unit passed 50 times without " +
-                                "finishing, shutting down harshly.");
+                    log.warning("Shutdown Unit passed 50 times without finishing, shutting down " +
+                                "harshly.");
                 }
                 doShutdown();
             }
@@ -119,8 +121,8 @@ public class PresentsInvoker extends ReportingInvoker
         protected boolean checkLoops ()
         {
             if (_loopCount > MAX_LOOPS) {
-                log.warning("Shutdown Unit looped on one thread 10000 times " +
-                            "without finishing, shutting down harshly.");
+                log.warning("Shutdown Unit looped on one thread 10000 times without finishing, " +
+                            "shutting down harshly.");
                 doShutdown();
                 return true;
             }
