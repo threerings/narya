@@ -74,7 +74,12 @@ public class OccupantInfo extends SimpleStreamableObject
             _name = name;
         }
         public boolean update (OccupantInfo info) {
-            if (info.username.equals(_name)) {
+            // The behaviour here used to be to compare the names themselves against one another
+            // using equals(), but was changed to accommodate the idea of display name changing
+            // while fundamental identity stays the same -- case in point, Whirled's MemberName
+            // bases equal()ity on an integer identifier. TODO: investigate whether this is a
+            // reasonable assumption and whether the behaviour change might break something.
+            if (info.username.getNormal().equals(_name.getNormal())) {
                 return false;
             }
             info.username = _name;
