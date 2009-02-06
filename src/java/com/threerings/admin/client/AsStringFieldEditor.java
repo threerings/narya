@@ -59,6 +59,14 @@ public class AsStringFieldEditor extends FieldEditor
             _field.getType().equals(Integer.TYPE)) {
             return new Integer(text);
 
+        } else if (_field.getType().equals(Short.class) ||
+            _field.getType().equals(Short.TYPE)) {
+            return new Short(text);
+
+        } else if (_field.getType().equals(Byte.class) ||
+            _field.getType().equals(Byte.TYPE)) {
+            return new Byte(text);
+
         } else if (_field.getType().equals(Long.class) ||
                    _field.getType().equals(Long.TYPE)) {
             return new Long(text);
