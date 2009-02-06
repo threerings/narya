@@ -98,8 +98,8 @@ public class Throttle
     }
 
     /**
-     * Registers an attempt at an operation and returns true if the operation should be performed
-     * or false if it should be throttled (meaning N operations have already been performed in the
+     * Registers an attempt at an operation and returns false if the operation should be performed
+     * or true if it should be throttled (meaning N operations have already been performed in the
      * last M seconds).
      *
      * @return true if the throttle is activated, false if the operation can proceed.
@@ -110,8 +110,8 @@ public class Throttle
     }
 
     /**
-     * Registers an attempt at an operation and returns true if the operation should be performed
-     * or false if it should be throttled (meaning N operations have already been performed in the
+     * Registers an attempt at an operation and returns false if the operation should be performed
+     * or true if it should be throttled (meaning N operations have already been performed in the
      * last M seconds).
      *
      * @param timeStamp the timestamp at which this operation is being attempted.
