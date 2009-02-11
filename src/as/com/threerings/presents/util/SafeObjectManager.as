@@ -72,7 +72,7 @@ public class SafeObjectManager
         oid :int, available :Function=null, failed :Function=null) :void
     {
         if (_entries[oid] != null ) {
-            _log.warning("Object " + oid + " already subscribed");
+            _log.warning("Object already subscribed", "oid", oid);
             return;
         }
 
@@ -81,7 +81,7 @@ public class SafeObjectManager
         entry.availableFn = available;
         entry.failedFn = failed;
         sub.subscribe(_omgr);
-        _log.info("Subscribing to " + sub);
+        _log.debug("Subscribing", "sub", sub);
         _entries[oid] = entry;
     }
 
@@ -94,11 +94,11 @@ public class SafeObjectManager
     {
         var entry :Entry = _entries[oid] as Entry;
         if (entry == null) {
-            _log.warning("Object " + oid + " not subscribed");
+            _log.warning("Object not subscribed", "oid", oid);
             return;
         }
 
-        _log.info("Unsubscribing from " + entry.sub);
+        _log.debug("Unsubscribing", "sub", entry.sub);
         if (entry.obj != null) {
             entry.obj.removeListener(_objectDeathListenerAdapter);
         }
@@ -115,7 +115,7 @@ public class SafeObjectManager
      */
     public function unsubscribeAll () :void
     {
-        _log.info("Unsubscribing all objects");
+        _log.debug("Unsubscribing all objects");
 
         // get the keys (integer ids of subscribed objects)
         var ids :Array = new Array();
@@ -150,10 +150,10 @@ public class SafeObjectManager
     {
         var entry :Entry = _entries[obj.getOid()];
         if (entry == null) {
-            _log.warning("Object " + obj.getOid() + " available without request?!");
+            _log.warning("Object available without request", "obj", obj.which());
 
         } else {
-            _log.info("Object " + obj.getOid() + " now available");
+            _log.debug("Object now available", "obj", obj.which());
             entry.obj = obj;
         }
 
@@ -173,14 +173,13 @@ public class SafeObjectManager
     {
         var entry :Entry = _entries[oid];
         if (entry == null) {
-            _log.warning("Object " + oid + " failed without request?!");
+            _log.warning("Object failed without request", "oid", oid);
 
         } else {
             entry.failed = true;
         }
 
-        _log.warning("Failed to subscribe to object " + oid);
-        _log.logStackTrace(cause);
+        _log.warning("Failed to subscribe", "oid", oid, cause);
 
         if (_failed != null) {
             _failed(oid, cause);
@@ -198,14 +197,14 @@ public class SafeObjectManager
         
         var entry :Entry = _entries[oid] as Entry;
         if (entry == null) {
-            _log.warning("Unsubscribed object notified of destroy");
+            _log.warning("Unsubscribed object notified of destroy", "oid", oid);
 
         } else {
             entry.destroyed = true;
             entry.obj = null;
         }
 
-        _log.info("Object " + oid + " destroyed");
+        _log.debug("Object destroyed", "oid", destroyed);
     }
 
     protected var _omgr :DObjectManager;
