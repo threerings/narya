@@ -625,6 +625,7 @@ public class BureauRegistry
         LauncherUnit (Bureau bureau, RunQueue runQueue) {
             super("LauncherUnit for " + bureau + ": " + StringUtil.toString(bureau.launcherEntry));
             _bureau = bureau;
+            _runQueue = runQueue;
         }
 
         @Override public boolean invoke () {
