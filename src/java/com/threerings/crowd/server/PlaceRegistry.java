@@ -66,16 +66,6 @@ public class PlaceRegistry
     }
 
     /**
-     * Provides the place registry with access to an injector that it can use to create {@link
-     * PlaceManager} instances with all dependencies resolved. This is called by the {@link
-     * CrowdServer} during the server initialization phase.
-     */
-    public void setInjector (Injector injector)
-    {
-        _injector = injector;
-    }
-
-    /**
      * Returns the place manager associated with the specified place object id or null if no such
      * place exists.
      */
@@ -268,6 +258,9 @@ public class PlaceRegistry
         }
     }
 
+    /** We use this to inject dependencies into place managers that we create. */
+    @Inject protected Injector _injector;
+
     /** The invocation manager with which we operate. */
     @Inject protected InvocationManager _invmgr;
 
@@ -276,9 +269,6 @@ public class PlaceRegistry
 
     /** Used to look body objects up by name. */
     @Inject protected BodyLocator _locator;
-
-    /** We use this to inject dependencies into place managers that we create. */
-    protected Injector _injector;
 
     /** A mapping from place object id to place manager. */
     protected IntMap<PlaceManager> _pmgrs = IntMaps.newHashIntMap();

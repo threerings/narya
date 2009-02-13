@@ -71,9 +71,6 @@ public class CrowdServer extends PresentsServer
                 return CrowdClientResolver.class;
             }
         });
-
-        // configure the place registry with the injector
-        _plreg.setInjector(injector);
     }
 
     public static void main (String[] args)
