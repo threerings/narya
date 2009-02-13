@@ -192,7 +192,7 @@ public class PlaceRegistry
             }
 
             // let the pmgr know about us and its configuration
-            pmgr.init(this, _invmgr, _omgr, _locator, config);
+            pmgr.init(this, _invmgr, _omgr, selectLocator(config), config);
 
         } catch (Exception e) {
             log.warning(e);
@@ -240,6 +240,14 @@ public class PlaceRegistry
         @SuppressWarnings("unchecked") Class<? extends PlaceManager> clazz =
             (Class<? extends PlaceManager>)Class.forName(config.getManagerClassName());
         return _injector.getInstance(clazz);
+    }
+
+    /**
+     * Selects the body locator to be used by the PlaceManager created for the supplied config.
+     */
+    protected BodyLocator selectLocator (PlaceConfig config)
+    {
+        return _locator;
     }
 
     /**
