@@ -389,11 +389,11 @@ public class PresentsSession
     public void resolutionFailed (Name username, Exception reason)
     {
         if (reason instanceof ClientResolver.ClientDisconnectedException) {
-            log.info("Client disconnected during resolution", "username", username);
+            log.info("Client disconnected during resolution", "who", who());
 
         } else {
             // urk; nothing to do but complain and get the f**k out of dodge
-            log.warning("Unable to resolve client", "username", username, reason);
+            log.warning("Unable to resolve client", "who", who(), reason);
         }
 
         // end the session now to prevent danglage
@@ -890,12 +890,18 @@ public class PresentsSession
         return buf.append("]").toString();
     }
 
+    protected String who ()
+    {
+        return (_username == null) ? "null" :
+            (_username.getClass().getSimpleName() + "(" + _username + ")");
+    }
+
     /**
      * Derived classes override this to augment stringification.
      */
     protected void toString (StringBuilder buf)
     {
-        buf.append("who=").append(_username);
+        buf.append("who=").append(who());
         buf.append(", conn=").append(getConnection());
         buf.append(", in=").append(_messagesIn);
         buf.append(", out=").append(_messagesOut);
