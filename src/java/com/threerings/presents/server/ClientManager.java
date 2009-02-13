@@ -479,13 +479,13 @@ public class ClientManager
 
         // sanity check just because we can
         if (rc == null) {
-            log.info("Ending session: unregistered!", "type", type, "session", session);
+            log.info("Ending session: unregistered!", "session", session);
 
         } else if (rc != session) {
-            log.info("Ending session: multiple!", "type", type, "s1", rc, "s2", session);
+            log.info("Ending session: multiple!", "s1", rc, "s2", session);
 
         } else {
-            log.info("Ending session", "type", type, "session", session);
+            log.info("Ending session", "session", session);
         }
 
         // notify the observers that the session is ended
@@ -518,7 +518,7 @@ public class ClientManager
         // now end their sessions
         for (PresentsSession client : victims) {
             try {
-                log.info("Client expired, ending session [client=" + client +
+                log.info("Client expired, ending session [session=" + client +
                          ", dtime=" + (now-client.getNetworkStamp()) + "ms].");
                 client.endSession();
             } catch (Exception e) {
