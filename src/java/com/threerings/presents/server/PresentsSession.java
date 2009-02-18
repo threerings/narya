@@ -338,10 +338,14 @@ public class PresentsSession
 
             // release (and destroy) our client object
             _clmgr.releaseClientObject(_username);
+
+            // we only report that our session started if we managed to resolve our client object,
+            // so we only report that it ended in the same circumstance
+            _clmgr.clientSessionDidEnd(this);
         }
 
-        // let the client manager know that we're audi 5000
-        _clmgr.clientSessionDidEnd(this);
+        // we always want to clear ourselves out of the client manager
+        _clmgr.clearSession(this);
 
         // clear out the client object so that we know the session is over
         _clobj = null;

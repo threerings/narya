@@ -39,6 +39,7 @@ import com.samskivert.util.StringUtil;
 
 import com.threerings.util.Name;
 
+import com.threerings.presents.annotation.EventThread;
 import com.threerings.presents.data.ClientObject;
 import com.threerings.presents.net.AuthRequest;
 import com.threerings.presents.net.AuthResponse;
@@ -449,9 +450,9 @@ public class ClientManager
     }
 
     /**
-     * Called by the client instance when it has started its session. This is called from the
-     * dobjmgr thread.
+     * Called by PresentsSession when it has started its session.
      */
+    @EventThread
     protected void clientSessionDidStart (final PresentsSession client)
     {
         // let the observers know
@@ -464,10 +465,25 @@ public class ClientManager
     }
 
     /**
-     * Called by the client instance when the client requests a logoff. This is called from the
-     * dobjmgr thread.
+     * Called by PresentsSession when it has ended its session.
      */
+    @EventThread
     protected void clientSessionDidEnd (final PresentsSession session)
+    {
+        // notify the observers that the session is ended
+        _clobservers.apply(new ObserverList.ObserverOp<ClientObserver>() {
+            public boolean apply (ClientObserver observer) {
+                observer.clientSessionDidEnd(session);
+                return true;
+            }
+        });
+    }
+
+    /**
+     * Called by PresentsSession to let us know that we can clear it entirely out of the system.
+     */
+    @EventThread
+    protected void clearSession (PresentsSession session)
     {
         // remove the client from the username map
         Name username = session.getCredentials().getUsername();
@@ -479,22 +495,12 @@ public class ClientManager
 
         // sanity check just because we can
         if (rc == null) {
-            log.info("Ending session: unregistered!", "session", session);
-
+            log.info("Cleared session: unregistered!", "session", session);
         } else if (rc != session) {
-            log.info("Ending session: multiple!", "s1", rc, "s2", session);
-
+            log.info("Cleared session: multiple!", "s1", rc, "s2", session);
         } else {
-            log.info("Ending session", "session", session);
+            log.info("Cleared session", "session", session);
         }
-
-        // notify the observers that the session is ended
-        _clobservers.apply(new ObserverList.ObserverOp<ClientObserver>() {
-            public boolean apply (ClientObserver observer) {
-                observer.clientSessionDidEnd(session);
-                return true;
-            }
-        });
     }
 
     /**
