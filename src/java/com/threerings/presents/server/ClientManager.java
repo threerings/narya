@@ -482,7 +482,6 @@ public class ClientManager
     /**
      * Called by PresentsSession to let us know that we can clear it entirely out of the system.
      */
-    @EventThread
     protected void clearSession (PresentsSession session)
     {
         // remove the client from the username map
