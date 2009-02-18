@@ -150,6 +150,27 @@ public class MultiLoader
     }
 
     /**
+     * Loads classes into the specified ApplicationDomain.
+     * The complete callback receives either the same ApplicationDomain or no arguments.
+     */
+    public static function loadClasses (
+        sources :Object, appDom :ApplicationDomain, completeCallback :Function) :void
+    {
+        var complete :Function = function (retval :Object) :void {
+            switch (completeCallback.length) {
+            default:
+                completeCallback();
+                break;
+            case 1:
+                completeCallback(appDom);
+                break;
+            }
+        };
+
+        getLoaders(sources, complete, false, appDom);
+    }
+
+    /**
      * Coordinate loading some asynchronous objects.
      *
      * @param sources An Array, Dictionary, or Object of sources, or just a single source.
