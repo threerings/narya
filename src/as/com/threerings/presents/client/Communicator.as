@@ -62,8 +62,7 @@ public class Communicator
         _outStream = new ObjectOutputStream(_outBuffer);
         _inStream = new ObjectInputStream();
 
-        _portIdx = 0;
-        logonToPort();
+        attemptLogon(0);
     }
 
     public function logoff () :void
@@ -86,47 +85,37 @@ public class Communicator
     }
 
     /**
-     * This method is strangely named, and it does two things which is
-     * bad style. Either log on to the next port, or save that the port
-     * we just logged on to was a good one.
+     * Attempts to logon on using the port at the specified index.
      */
-    protected function logonToPort (logonWasSuccessful :Boolean = false) :Boolean
+    protected function attemptLogon (portIdx :int) :Boolean
     {
         var ports :Array = _client.getPorts();
-
-        if (!logonWasSuccessful) {
-            if (_portIdx >= ports.length) {
-                return false;
-            }
-            if (_portIdx != 0) {
-                _client.reportLogonTribulations(new LogonError(AuthCodes.TRYING_NEXT_PORT, true));
-
-                removeListeners();
-            }
-
-            // create the socket and set up listeners
-            _socket = new Socket();
-            _socket.endian = Endian.BIG_ENDIAN;
-            _socket.addEventListener(Event.CONNECT, socketOpened);
-            _socket.addEventListener(IOErrorEvent.IO_ERROR, socketError);
-            _socket.addEventListener(Event.CLOSE, socketClosed);
-
-            _frameReader = new FrameReader(_socket);
-            _frameReader.addEventListener(FrameAvailableEvent.FRAME_AVAILABLE, inputFrameReceived);
+        _portIdx = portIdx; // note the port we're about to try
+        if (_portIdx >= ports.length) {
+            return false;
         }
+        if (_portIdx != 0) {
+            _client.reportLogonTribulations(new LogonError(AuthCodes.TRYING_NEXT_PORT, true));
+            removeListeners();
+        }
+
+        // create the socket and set up listeners
+        _socket = new Socket();
+        _socket.endian = Endian.BIG_ENDIAN;
+        _socket.addEventListener(Event.CONNECT, socketOpened);
+        _socket.addEventListener(IOErrorEvent.IO_ERROR, socketError);
+        _socket.addEventListener(Event.CLOSE, socketClosed);
+
+        _frameReader = new FrameReader(_socket);
+        _frameReader.addEventListener(FrameAvailableEvent.FRAME_AVAILABLE, inputFrameReceived);
 
         var host :String = _client.getHostname();
         var pport :int = ports[0];
         var ppidx :int = Math.max(0, ports.indexOf(pport));
         var port :int = (ports[(_portIdx + ppidx) % ports.length] as int);
 
-        if (logonWasSuccessful) {
-            _portIdx = -1; // indicate that we're no longer trying new ports
-
-        } else {
-            log.info("Connecting [host=" + host + ", port=" + port + "].");
-            _socket.connect(host, port);
-        }
+        log.info("Connecting [host=" + host + ", port=" + port + "].");
+        _socket.connect(host, port);
 
         return true;
     }
@@ -274,8 +263,10 @@ public class Communicator
      */
     protected function socketOpened (event :Event) :void
     {
-        logonToPort(true);
-        
+        // reset our port index now that we're successfully logged on; this way if the socket
+        // fails, we won't think that we're in the middle of trying to logon
+        _portIdx = -1;
+
         // check for a logoff message
         for each (var message :UpstreamMessage in _outq) {
             if (message is LogoffRequest) {
@@ -286,7 +277,7 @@ public class Communicator
             }
         }
 
-        // kick off our writer thread now that we know we're ready to write 
+        // kick off our writer thread now that we know we're ready to write
         _writer = new Timer(1);
         _writer.addEventListener(TimerEvent.TIMER, sendPendingMessages);
         _writer.start();
@@ -304,10 +295,9 @@ public class Communicator
      */
     protected function socketError (event :IOErrorEvent) :void
     {
-        // if we're trying ports, try the next one.
+        // if we're still trying ports, try the next one.
         if (_portIdx != -1) {
-            _portIdx++;
-            if (logonToPort()) {
+            if (attemptLogon(_portIdx+1)) {
                 return;
             }
         }
