@@ -47,9 +47,8 @@ public class BureauSessionFactory implements SessionFactory
     public Class<? extends PresentsSession> getSessionClass (AuthRequest areq)
     {
         // Just give bureaus a vanilla PresentsSession client for now.
-        // TODO: will bureaus need a more tailored client?
         if (areq.getCredentials() instanceof BureauCredentials) {
-            return PresentsSession.class;
+            return BureauSession.class;
         } else {
             return _delegate.getSessionClass(areq);
         }
