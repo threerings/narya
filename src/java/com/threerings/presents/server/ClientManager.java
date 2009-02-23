@@ -486,7 +486,6 @@ public class ClientManager
     {
         // remove the client from the username map
         Name username = session.getCredentials().getUsername();
-        String type = username.getClass().getSimpleName();
         PresentsSession rc;
         synchronized (_usermap) {
             rc = _usermap.remove(username);
