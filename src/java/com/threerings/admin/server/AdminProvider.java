@@ -22,6 +22,7 @@
 package com.threerings.admin.server;
 
 import com.threerings.presents.data.ClientObject;
+import com.threerings.presents.server.InvocationException;
 import com.threerings.presents.server.InvocationManager;
 import com.threerings.presents.server.InvocationProvider;
 
@@ -47,6 +48,7 @@ public class AdminProvider implements InvocationProvider
      * Handles a request for the list of config objects.
      */
     public void getConfigInfo (ClientObject caller, AdminService.ConfigInfoListener listener)
+        throws InvocationException
     {
         // we don't have to validate the request because the user can't do anything with the keys
         // or oids unless they're an admin (we put the burden of doing that checking on the creator
