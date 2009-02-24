@@ -906,8 +906,8 @@ public class ConnectionManager extends LoopingThread
 
         try {
             // send it as a datagram if hinted and possible
-            if (!msg.getTransport().isReliable() && conn.getDatagramAddress() != null) {
-                postDatagram(conn, msg);
+            if (!msg.getTransport().isReliable() && conn.getDatagramAddress() != null &&
+                    postDatagram(conn, msg)) {
                 return;
             }
 
@@ -934,8 +934,10 @@ public class ConnectionManager extends LoopingThread
 
     /**
      * Helper function for {@link #postMessage}; handles posting the message as a datagram.
+     *
+     * @return true if the datagram was successfully posted, false if it was too big.
      */
-    protected void postDatagram (Connection conn, Message msg)
+    protected boolean postDatagram (Connection conn, Message msg)
         throws Exception
     {
         _flattener.reset();
@@ -944,11 +946,18 @@ public class ConnectionManager extends LoopingThread
         DatagramSequencer sequencer = conn.getDatagramSequencer();
         sequencer.writeDatagram(msg);
 
+        // if the message is too big, we must fall back to sending it through the stream channel
+        if (_flattener.size() > Client.MAX_DATAGRAM_SIZE) {
+            return false;
+        }
+
         // extract as a byte array
         byte[] data = _flattener.toByteArray();
 
         // slap it on the queue
         _dataq.append(Tuple.newTuple(conn, data));
+
+        return true;
     }
 
     /**

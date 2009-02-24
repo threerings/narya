@@ -60,7 +60,7 @@ public class Client
     public static final int[] DEFAULT_DATAGRAM_PORTS = { };
 
     /** The maximum size of a datagram. */
-    public static final int MAX_DATAGRAM_SIZE = 1500;
+    public static final int MAX_DATAGRAM_SIZE = 8192;
 
     /** Our default maximum outgoing message rate in messages per second. */
     public static final int DEFAULT_MSGS_PER_SECOND = 10;
