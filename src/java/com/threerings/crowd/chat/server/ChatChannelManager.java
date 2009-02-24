@@ -278,7 +278,8 @@ public abstract class ChatChannelManager
         while (iter.hasNext()) {
             Map.Entry<ChatChannel, ChannelInfo> entry = iter.next();
             if (now - entry.getValue().lastMessage > IDLE_CHANNEL_CLOSE_TIME) {
-                ((CrowdNodeObject)_peerMan.getNodeObject()).removeFromHostedChannels(entry.getKey());
+                ((CrowdNodeObject)_peerMan.getNodeObject()).removeFromHostedChannels(
+                    entry.getKey());
                 iter.remove();
             }
         }
