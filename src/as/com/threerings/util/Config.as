@@ -45,6 +45,9 @@ public class Config extends EventDispatcher
         setPath(path);
     }
 
+    /**
+     * Set the path, if null then we aren't persisting settings.
+     */
     public function setPath (path :String) :void
     {
         _so = (path == null) ? null : SharedObject.getLocal("config_" + path, "/");
@@ -54,6 +57,14 @@ public class Config extends EventDispatcher
         for (var n :String in _data) {
             dispatchEvent(new ConfigValueSetEvent(n, _data[n]));
         }
+    }
+
+    /**
+     * Are we persisting settings?
+     */
+    public function isPersisting () :Boolean
+    {
+        return (_so != null);
     }
 
     /**
