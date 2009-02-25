@@ -42,7 +42,18 @@ public class Config extends EventDispatcher
      */
     public function Config (path :String)
     {
-        _so = SharedObject.getLocal("config_" + path, "/");
+        setPath(path);
+    }
+
+    public function setPath (path :String) :void
+    {
+        _so = (path == null) ? null : SharedObject.getLocal("config_" + path, "/");
+        _data = (_so == null) ? {} : _so.data;
+
+        // dispatch events for all settings
+        for (var n :String in _data) {
+            dispatchEvent(new ConfigValueSetEvent(n, _data[n]));
+        }
     }
 
     /**
@@ -50,7 +61,7 @@ public class Config extends EventDispatcher
      */
     public function getValue (name :String, defValue :Object) :Object
     {
-        var val :* = _so.data[name];
+        var val :* = _data[name];
         return (val === undefined) ? defValue : val;
     }
 
@@ -59,8 +70,10 @@ public class Config extends EventDispatcher
      */
     public function setValue (name :String, value :Object) :void
     {
-        _so.data[name] = value;
-        _so.flush(); // flushing is not strictly necessary
+        _data[name] = value;
+        if (_so != null) {
+            _so.flush(); // flushing is not strictly necessary
+        }
 
         // dispatch an event corresponding
         dispatchEvent(new ConfigValueSetEvent(name, value));
@@ -68,11 +81,15 @@ public class Config extends EventDispatcher
 
     /**
      * Remove any set value for the specified preference.
+     * This does not dispatch an event because this would only be done to remove an
+     * obsolete preference.
      */
     public function remove (name :String) :void
     {
-        delete _so.data[name];
-        _so.flush(); // flushing is not strictly necessary
+        delete _data[name];
+        if (_so != null) {
+            _so.flush(); // flushing is not strictly necessary
+        }
     }
 
     /**
@@ -86,6 +103,13 @@ public class Config extends EventDispatcher
      */
     public function ensureCapacity (kilobytes :int, rl :ResultListener) :void
     {
+        if (_so == null) {
+            if (rl != null) {
+                rl.requestCompleted(this);
+            }
+            return;
+        }
+
         // flush with the size, see if we're cool
         var result :String = _so.flush(1024 * kilobytes);
         if (rl == null) {
@@ -119,5 +143,8 @@ public class Config extends EventDispatcher
 
     /** The shared object that contains our preferences. */
     protected var _so :SharedObject;
+
+    /** The object in which we store things, usually _so.data. */
+    protected var _data :Object;
 }
 }
