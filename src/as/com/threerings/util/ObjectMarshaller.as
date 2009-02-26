@@ -66,7 +66,6 @@ public class ObjectMarshaller
             return dest;
         }
 
-
         var bytes :ByteArray = new ByteArray();
         bytes.endian = Endian.BIG_ENDIAN;
         bytes.objectEncoding = ObjectEncoding.AMF3;
@@ -125,15 +124,12 @@ public class ObjectMarshaller
             return dest;
         }
         var bytes :ByteArray = (encoded as ByteArray);
-        // re-set the position in case we're decoding the actual same byte
-        // array used to encode (and not a network reconstruction)
-        bytes.position = 0;
 
         // Work around dictionary idiocy. Holy shit. See note in encode().
         const isDict :Boolean = (bytes[0] === DICTIONARY_MARKER);
-        if (isDict) {
-            bytes.position = 1; // advance past our special marker
-        }
+        // re-set the position in case we're decoding the actual same byte
+        // array used to encode (and not a network reconstruction)
+        bytes.position = isDict ? 1 : 0;
 
         bytes.endian = Endian.BIG_ENDIAN;
         bytes.objectEncoding = ObjectEncoding.AMF3;
