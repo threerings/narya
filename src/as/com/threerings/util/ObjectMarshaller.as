@@ -66,11 +66,26 @@ public class ObjectMarshaller
             return dest;
         }
 
-        // TODO: Our own encoding, that takes into account
-        // the ApplicationDomain.. ACK
+
         var bytes :ByteArray = new ByteArray();
         bytes.endian = Endian.BIG_ENDIAN;
         bytes.objectEncoding = ObjectEncoding.AMF3;
+        // FIX, Because adobe is FUCKING IT UP as usual.
+        // It seems that with flash 10, they "enhanced" AMF3 encoding. That's great and all,
+        // except when we try to send this data back to a flash 9 player, which can't read it.
+        // Guess what, asshats? If you change the encoding spec, IT'S NOT THE SAME VERSION ANYMORE.
+        // Thanks for breaking all our code where we explicitly set AMF3, even though
+        // it's currently the default.
+        if (obj is Dictionary) {
+            var asArray :Array = [];
+            for (var key :* in obj) {
+                asArray.push(key);
+                asArray.push(obj[key]);
+            }
+            obj = asArray;
+            // then insert our special marker byte before writing this array
+            bytes.writeByte(DICTIONARY_MARKER);
+        }
         bytes.writeObject(obj);
         return bytes;
     }
@@ -114,11 +129,24 @@ public class ObjectMarshaller
         // array used to encode (and not a network reconstruction)
         bytes.position = 0;
 
-        // TODO: Our own decoding, that takes into account
-        // the ApplicationDomain.. ACK
+        // Work around dictionary idiocy. Holy shit. See note in encode().
+        const isDict :Boolean = (bytes[0] === DICTIONARY_MARKER);
+        if (isDict) {
+            bytes.position = 1; // advance past our special marker
+        }
+
         bytes.endian = Endian.BIG_ENDIAN;
         bytes.objectEncoding = ObjectEncoding.AMF3;
-        return bytes.readObject();
+        var decoded :Object = bytes.readObject();
+        if (isDict) {
+            var decodedArray :Array = decoded as Array;
+            var asDict :Dictionary = new Dictionary();
+            for (var jj :int = 0; jj < decodedArray.length; jj += 2) {
+                asDict[decodedArray[jj]] = decodedArray[jj + 1];
+            }
+            decoded = asDict;
+        }
+        return decoded;
     }
 
     /**
@@ -193,6 +221,9 @@ public class ObjectMarshaller
         return null; // it all checks out!
     }
 
+    // hope and pray that they don't revamp amf3 again and start using this byte. Assholes.
+    public static const DICTIONARY_MARKER :int = 99;
+
     /**
      * Our static initializer.
      */
@@ -205,6 +236,7 @@ public class ObjectMarshaller
     staticInit();
 
     /** Non-simple classes that we allow, as long as they are not subclassed. */
-    protected static const VALID_CLASSES :Array = [ "flash.utils.ByteArray", "flash.geom.Point", "flash.geom.Rectangle" ];
+    protected static const VALID_CLASSES :Array = [
+        "flash.utils.ByteArray", "flash.geom.Point", "flash.geom.Rectangle" ];
 }
 }
