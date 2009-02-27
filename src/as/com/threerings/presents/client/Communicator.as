@@ -114,7 +114,7 @@ public class Communicator
         var ppidx :int = Math.max(0, ports.indexOf(pport));
         var port :int = (ports[(_portIdx + ppidx) % ports.length] as int);
 
-        log.info("Connecting [host=" + host + ", port=" + port + "].");
+        log.info("Connecting", "host", host, "port", port, "svcs", _client.getBootGroups());
         _socket.connect(host, port);
 
         return true;
@@ -277,6 +277,11 @@ public class Communicator
             }
         }
 
+        // send our authentication request (do so directly rather than putting it on the outgoing
+        // write queue)
+        sendMessage(new AuthRequest(_client.getCredentials(), _client.getVersion(),
+                                    _client.getBootGroups()));
+
         // kick off our writer thread now that we know we're ready to write
         _writer = new Timer(1);
         _writer.addEventListener(TimerEvent.TIMER, sendPendingMessages);
@@ -284,10 +289,6 @@ public class Communicator
 
         // clear the queue, the server doesn't like anything sent prior to auth
         _outq.length = 0;
-
-        // well that's great! let's logon
-        postMessage(new AuthRequest(_client.getCredentials(), _client.getVersion(),
-                                    _client.getBootGroups()));
     }
 
     /**
