@@ -31,47 +31,58 @@ import com.threerings.io.Streamable;
 public class langBoolean
     implements Equalable, Streamable, Boxed
 {
-    public var value :Boolean;
-
     public static function valueOf (val :Boolean) :langBoolean
     {
         return new langBoolean(val);
     }
 
-    public function langBoolean (value :Boolean = false)
+    /**
+     * Access the immutable value.
+     */
+    public function get value () :Boolean
     {
-        this.value = value;
+        return _value;
+    }
+
+    /**
+     * Constructor.
+     */
+    public function langBoolean (boolValue :Boolean = false)
+    {
+        _value = boolValue;
     }
 
     // from Equalable
     public function equals (other :Object) :Boolean
     {
         return (other is langBoolean) &&
-            (value === (other as langBoolean).value);
+            (_value === (other as langBoolean).value);
     }
 
     // from Streamable
     public function writeObject (out :ObjectOutputStream) :void
     {
-        out.writeBoolean(value);
+        out.writeBoolean(_value);
     }
 
     // from Streamable
     public function readObject (ins :ObjectInputStream) :void
     {
-        value = ins.readBoolean();
+        _value = ins.readBoolean();
     }
 
     // from Boxed
     public function unbox () :Object
     {
-        return value;
+        return _value;
     }
 
     // cannot use the override keyword on toString() because actionscript is stupid
     public function toString () :String
     {
-        return value.toString();
+        return _value.toString();
     }
+
+    protected var _value :Boolean;
 }
 }

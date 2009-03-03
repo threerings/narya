@@ -27,34 +27,45 @@ package com.threerings.util {
 public class Byte
     implements Equalable, Boxed
 {
-    public var value :int;
-
     public static function valueOf (val :int) :Byte
     {
         return new Byte(val);
     }
 
-    public function Byte (value :int)
+    /**
+     * Access the immutable value.
+     */
+    public function get value () :int
     {
-        this.value = value;
+        return _value;
+    }
+
+    /**
+     * Constructor.
+     */
+    public function Byte (byteValue :int)
+    {
+        _value = byteValue;
     }
 
     // from Equalable
     public function equals (other :Object) :Boolean
     {
-        return (other is Byte) && (value === (other as Byte).value);
+        return (other is Byte) && (_value === (other as Byte).value);
     }
 
     // from Boxed
     public function unbox () :Object
     {
-        return value;
+        return _value;
     }
 
     // override
     public function toString () :String
     {
-        return "Byte(" + value + ")";
+        return "Byte(" + _value + ")";
     }
+
+    protected var _value :int;
 }
 }

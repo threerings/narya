@@ -33,29 +33,36 @@ public class Short
     /** The maximum possible short value. */
     public static const MAX_VALUE :int = (Math.pow(2, 15) - 1);
 
-    /** The value of this short. */
-    public var value :int;
-
     public static function valueOf (val :int) :Short
     {
         return new Short(val);
     }
 
-    public function Short (value :int)
+    /**
+     * Access the immutable value.
+     */
+    public function get value () :int
     {
-        this.value = value;
+        return _value;
+    }
+
+    public function Short (shortValue :int)
+    {
+        _value = shortValue;
     }
 
     // from Equalable
     public function equals (other :Object) :Boolean
     {
-        return (other is Short) && (value === (other as Short).value);
+        return (other is Short) && (_value === (other as Short).value);
     }
 
     // from Boxed
     public function unbox () :Object
     {
-        return value;
+        return _value;
     }
+
+    protected var _value :int;
 }
 }

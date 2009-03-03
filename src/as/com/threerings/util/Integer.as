@@ -32,34 +32,43 @@ package com.threerings.util {
 public class Integer
     implements Equalable, Boxed
 {
-    public var value :int;
-
     public static function valueOf (val :int) :Integer
     {
         return new Integer(val);
     }
 
-    public function Integer (value :int)
+    /**
+     * Access the immutable value.
+     */
+    public function get value () :int
     {
-        this.value = value;
+        return _value;
+    }
+
+    /**
+     * Constructor.
+     */
+    public function Integer (intValue :int)
+    {
+        _value = intValue;
     }
 
     // from Equalable
     public function equals (other :Object) :Boolean
     {
-        return (other is Integer) && (value === (other as Integer).value);
+        return (other is Integer) && (_value === (other as Integer).value);
     }
 
     // from Boxed
     public function unbox () :Object
     {
-        return value;
+        return _value;
     }
 
     // cannot use the override keyword on toString() because actionscript is stupid
     public function toString () :String
     {
-        return value.toString();
+        return _value.toString();
     }
 
     /**
@@ -69,5 +78,8 @@ public class Integer
     {
         return (val1 > val2) ? 1 : (val1 == val2 ? 0 : -1);
     }
+
+    protected var _value :int;
+
 }
 }

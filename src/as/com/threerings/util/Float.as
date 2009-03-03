@@ -27,28 +27,39 @@ package com.threerings.util {
 public class Float
     implements Equalable, Boxed
 {
-    public var value :Number;
-
     public static function valueOf (val :Number) :Float
     {
         return new Float(val);
     }
 
-    public function Float (value :Number)
+    /**
+     * Access the immutable value.
+     */
+    public function get value () :Number
     {
-        this.value = value;
+        return _value;
+    }
+
+    /**
+     * Constructor.
+     */
+    public function Float (floatValue :Number)
+    {
+        _value = floatValue;
     }
 
     // from Equalable
     public function equals (other :Object) :Boolean
     {
-        return (other is Float) && (value === (other as Float).value);
+        return (other is Float) && (_value === (other as Float).value);
     }
 
     // from Boxed
     public function unbox () :Object
     {
-        return value;
+        return _value;
     }
+
+    protected var _value :Number;
 }
 }
