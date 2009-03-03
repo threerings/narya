@@ -75,6 +75,11 @@ public class ObjectMarshaller
         // Guess what, asshats? If you change the encoding spec, IT'S NOT THE SAME VERSION ANYMORE.
         // Thanks for breaking all our code where we explicitly set AMF3, even though
         // it's currently the default.
+        // TODO: find out what's doing it. I can't create a small test case- it seems to
+        // only booch inside Whirled. Even using the viewer seems to always work.
+        // I suspect it's a SecurityDomain/ApplicationDomain thing that's doing it, but
+        // have tried correcting for or erasing those differences and I still have the problem.
+        // Sometime.
         if (obj is Dictionary) {
             var asArray :Array = [];
             for (var key :* in obj) {
