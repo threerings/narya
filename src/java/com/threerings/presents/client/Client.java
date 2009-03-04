@@ -370,7 +370,7 @@ public class Client
      */
     public long fromServerTime (long stamp)
     {
-        // when we calcuated our time delta, we did it such that: C - S = dT, thus to convert
+        // when we calculated our time delta, we did it such that: C - S = dT, thus to convert
         // server to client time we do: C = S + dT
         return stamp + _serverDelta;
     }
@@ -380,7 +380,7 @@ public class Client
      */
     public long toServerTime (long stamp)
     {
-        // when we calcuated our time delta, we did it such that: C - S = dT, thus to convert
+        // when we calculated our time delta, we did it such that: C - S = dT, thus to convert
         // server to client time we do: S = C - dT
         return stamp - _serverDelta;
     }
@@ -911,9 +911,8 @@ public class Client
             setServer(_hostname, _ports, _datagramPorts);
 
             if (!logon()) {
-                log.warning("logon() failed during server switch? [hostname=" + _hostname +
-                            ", ports=" + StringUtil.toString(_ports) + ", datagramPorts=" +
-                            StringUtil.toString(_datagramPorts) + "].");
+                log.warning("logon() failed during server switch?",
+                    "hostname", _hostname, "ports", _ports, "datagramPorts", _datagramPorts);
                 clientFailedToLogon(Client.this, new Exception("logon() failed?"));
             }
         }
@@ -964,7 +963,7 @@ public class Client
     /** The unique id of our connection. */
     protected int _connectionId = -1;
 
-    /** Our client distribted object id. */
+    /** Our client distributed object id. */
     protected int _cloid = -1;
 
     /** Our client distributed object. */
