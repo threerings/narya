@@ -180,17 +180,6 @@ public class Client extends EventDispatcher
     }
 
     /**
-     * Returns true if we're in the process of switching servers, false if we're not. This will
-     * only return true following the call to {@link #switchServers}, through the did logoff
-     * notification and the did clear notification. During the did logon notification for the new
-     * server or logon failure for same, we will not show as switching.
-     */
-    public function isSwitchingServers () :Boolean
-    {
-        return _switcher != null;
-    }
-
-    /**
      * Returns the set of bootstrap service groups needed by this client.
      */
     public function getBootGroups () :Array
@@ -308,9 +297,15 @@ public class Client extends EventDispatcher
             return true;
         }
 
+        // if this is an externally initiated logoff request, clear our active session status
+        if (_switcher == null) {
+            _activeSession = false;
+        }
+
         // if the request is abortable, let's run it past the observers.  if any of them call
         // preventDefault() then the logoff will be cancelled
         if (abortable && !notifyObservers(ClientEvent.CLIENT_WILL_LOGOFF)) {
+            _activeSession = true; // restore our active session status
             return false;
         }
         
@@ -378,6 +373,10 @@ public class Client extends EventDispatcher
         }
         
         notifyObservers(ClientEvent.CLIENT_DID_LOGON);
+
+        // now that we've logged on at least once, we're in the middle of an active session and
+        // will remain so until we receive an externally initiated logoff request
+        _activeSession = true;
     }
 
     /**
@@ -405,7 +404,7 @@ public class Client extends EventDispatcher
      */
     public function notifyObservers (evtCode :String, cause :Error = null) :Boolean
     {
-        return dispatchEvent(new ClientEvent(evtCode, this, cause));
+        return dispatchEvent(new ClientEvent(evtCode, this, _activeSession, cause));
     }
 
     /**
@@ -497,6 +496,11 @@ public class Client extends EventDispatcher
 
     /** Ticks. */
     protected var _tickInterval :Timer;
+
+    /** This flag is used to distinguish our *first* willLogon/didLogon and a caller-initiated
+     * willLogoff/didLogoff from similar events generated during server switches. Thus it is true
+     * for most of a normal client session. */
+    protected var _activeSession :Boolean;
 
     /** Used to temporarily track our server switcher so that we can tell when we're logging off
      * whether or not we're switching servers or actually ending our session. */

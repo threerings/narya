@@ -36,11 +36,12 @@ public class ClientEvent extends Event
     public static const CLIENT_DID_LOGOFF :String = "clientDidLogoff";
     public static const CLIENT_DID_CLEAR :String = "clientDidClear";
 
-    public function ClientEvent (type :String, client :Client,
-            cause :Error = null)
+    public function ClientEvent (
+        type :String, client :Client, isSwitching :Boolean, cause :Error = null)
     {
         super(type, false, (type === CLIENT_WILL_LOGOFF));
         _client = client;
+        _isSwitching = isSwitching;
         _cause = cause;
     }
 
@@ -54,13 +55,25 @@ public class ClientEvent extends Event
         return _cause;
     }
 
+    /**
+     * Returns true if the client is currently switching servers rather than starting a fresh
+     * session or ending a session due to user requested logoff.
+     */
+    public function isSwitchingServers () :Boolean
+    {
+        return _isSwitching;
+    }
+
     override public function clone () :Event
     {
-        return new ClientEvent(type, _client, _cause);
+        return new ClientEvent(type, _client, _isSwitching, _cause);
     }
 
     /** The client that generated this client event. */
     protected var _client :Client;
+
+    /** Whether or not we're currently switching servers. */
+    protected var _isSwitching :Boolean;
 
     /** The error that caused this event, if applicable. */
     protected var _cause :Error;
