@@ -21,11 +21,13 @@
 
 package com.threerings.presents.server;
 
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
 import java.io.IOException;
+import java.net.InetAddress;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -177,6 +179,23 @@ public class ClientManager
         synchronized (_usermap) {
             return _usermap.size();
         }
+    }
+
+    /**
+     * Returns all sessions logged in from the given IP in the form returned from
+     * {@link InetAddress#getAddress()}.
+     */
+    public List<PresentsSession> getSessionsForAddress (byte[] addr)
+    {
+        List<PresentsSession> sessions = Lists.newArrayListWithExpectedSize(1);
+        synchronized (_usermap) {
+            for (PresentsSession session : _usermap.values()) {
+                if (Arrays.equals(addr, session.getInetAddress().getAddress())) {
+                    sessions.add(session);
+                }
+            }
+        }
+        return sessions;
     }
 
     /**
