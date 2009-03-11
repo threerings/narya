@@ -809,7 +809,15 @@ public abstract class PeerManager
         Name username = client.getCredentials().getUsername();
         for (ClientInfo clinfo : _nodeobj.clients) {
             if (clinfo.username.equals(username)) {
-                clearClientInfo(client, clinfo);
+                _nodeobj.startTransaction();
+                try {
+                    // we clear our client info in a transaction so that derived classes can remove
+                    // other things from the NodeObject and we'll send that out to all of our peers
+                    // in a single compound event
+                    clearClientInfo(client, clinfo);
+                } finally {
+                    _nodeobj.commitTransaction();
+                }
                 return;
             }
         }
