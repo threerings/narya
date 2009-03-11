@@ -21,6 +21,9 @@
 
 package com.threerings.crowd.peer.server;
 
+import java.util.Map;
+
+import com.google.common.collect.Maps;
 import com.google.inject.Inject;
 
 import com.threerings.util.Name;
@@ -77,13 +80,20 @@ public class CrowdPeerManager extends PeerManager
     public boolean forwardTell (UserMessage message, Name target,
                                 ChatService.TellListener listener)
     {
+        // look up their auth username from their visible name
+        Name username = _viztoauth.get(target);
+        if (username == null) {
+            return false; // sorry kid, don't know ya
+        }
+
         // look through our peers to see if the target user is online on one of them
         for (PeerNode peer : _peers.values()) {
             CrowdNodeObject cnobj = (CrowdNodeObject)peer.nodeobj;
             if (cnobj == null) {
                 continue;
             }
-            CrowdClientInfo cinfo = (CrowdClientInfo)cnobj.clients.get(target);
+            // we have to use auth username to look up their ClientInfo
+            CrowdClientInfo cinfo = (CrowdClientInfo)cnobj.clients.get(username);
             if (cinfo != null) {
                 cnobj.crowdPeerService.deliverTell(peer.getClient(), message, target, listener);
                 return true;
@@ -103,7 +113,7 @@ public class CrowdPeerManager extends PeerManager
         }
     }
 
-    @Override // documentation inherited
+    @Override // from PeerManager
     public void shutdown ()
     {
         super.shutdown();
@@ -117,19 +127,19 @@ public class CrowdPeerManager extends PeerManager
         _chatprov.setChatForwarder(null);
     }
 
-    @Override // documentation inherited
+    @Override // from PeerManager
     protected NodeObject createNodeObject ()
     {
         return new CrowdNodeObject();
     }
 
-    @Override // documentation inherited
+    @Override // from PeerManager
     protected ClientInfo createClientInfo ()
     {
         return new CrowdClientInfo();
     }
 
-    @Override // documentation inherited
+    @Override // from PeerManager
     protected void initClientInfo (PresentsSession client, ClientInfo info)
     {
         super.initClientInfo(client, info);
@@ -137,7 +147,7 @@ public class CrowdPeerManager extends PeerManager
             ((BodyObject)client.getClientObject()).getVisibleName();
     }
 
-    @Override // documentation inherited
+    @Override // from PeerManager
     protected void didInit ()
     {
         super.didInit();
@@ -149,6 +159,33 @@ public class CrowdPeerManager extends PeerManager
         // register ourselves as a chat forwarder
         _chatprov.setChatForwarder(this);
     }
+
+    @Override // from PeerManager
+    protected void clientLoggedOn (String nodeName, ClientInfo clinfo)
+    {
+        super.clientLoggedOn(nodeName, clinfo);
+
+        // keep a mapping from visibleName to auth username
+        if (clinfo instanceof CrowdClientInfo) {
+            CrowdClientInfo ccinfo = (CrowdClientInfo)clinfo;
+            _viztoauth.put(ccinfo.visibleName, ccinfo.username);
+        }
+    }
+
+    @Override // from PeerManager
+    protected void clientLoggedOff (String nodeName, ClientInfo clinfo)
+    {
+        super.clientLoggedOff(nodeName, clinfo);
+
+        // update our mapping from visibleName to auth username
+        if (clinfo instanceof CrowdClientInfo) {
+            CrowdClientInfo ccinfo = (CrowdClientInfo)clinfo;
+            _viztoauth.remove(ccinfo.visibleName);
+        }
+    }
+
+    /** A mapping of visible name to username for all clients on all *remote* nodes. */
+    protected Map<Name, Name> _viztoauth = Maps.newHashMap();
 
     @Inject protected InvocationManager _invmgr;
     @Inject protected ChatProvider _chatprov;

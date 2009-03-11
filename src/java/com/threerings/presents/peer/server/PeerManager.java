@@ -986,7 +986,7 @@ public abstract class PeerManager
     /**
      * Called when we hear about a client logging on to another node.
      */
-    protected void clientLoggedOnOtherNode (String nodeName, ClientInfo clinfo)
+    protected void clientLoggedOn (String nodeName, ClientInfo clinfo)
     {
         PresentsSession session = _clmgr.getClient(clinfo.username);
         if (session != null) {
@@ -994,6 +994,14 @@ public abstract class PeerManager
                 "username", clinfo.username, "otherNode", nodeName);
             session.endSession();
         }
+    }
+
+    /**
+     * Called when we hear about a client logging off of another node.
+     */
+    protected void clientLoggedOff (String nodeName, ClientInfo clinfo)
+    {
+        // nothing to do by default
     }
 
     /**

@@ -255,8 +255,7 @@ public class PeerNode
         implements AttributeChangeListener, SetListener<DSet.Entry>
     {
         // documentation inherited from interface AttributeChangeListener
-        public void attributeChanged (AttributeChangedEvent event)
-        {
+        public void attributeChanged (AttributeChangedEvent event) {
             String name = event.getName();
             if (name.equals(NodeObject.ACQUIRING_LOCK)) {
                 NodeObject.Lock lock = nodeobj.acquiringLock;
@@ -299,24 +298,24 @@ public class PeerNode
         }
 
         // documentation inherited from interface SetListener
-        public void entryAdded (EntryAddedEvent<DSet.Entry> event)
-        {
+        public void entryAdded (EntryAddedEvent<DSet.Entry> event) {
             String name = event.getName();
             if (NodeObject.CLIENTS.equals(name)) {
-                _peermgr.clientLoggedOnOtherNode(getNodeName(), (ClientInfo)event.getEntry());
+                _peermgr.clientLoggedOn(getNodeName(), (ClientInfo)event.getEntry());
             }
         }
 
         // documentation inherited from interface SetListener
-        public void entryUpdated (EntryUpdatedEvent<DSet.Entry> event)
-        {
+        public void entryUpdated (EntryUpdatedEvent<DSet.Entry> event) {
             // nada
         }
 
         // documentation inherited from interface SetListener
-        public void entryRemoved (EntryRemovedEvent<DSet.Entry> event)
-        {
-            // nada
+        public void entryRemoved (EntryRemovedEvent<DSet.Entry> event) {
+            String name = event.getName();
+            if (NodeObject.CLIENTS.equals(name)) {
+                _peermgr.clientLoggedOff(getNodeName(), (ClientInfo)event.getOldEntry());
+            }
         }
     } // END: class NodeObjectListener
 
