@@ -144,18 +144,7 @@ public class MessageManager
         }
 
         // if it's not cached, we'll need to resolve it
-        String fqpath = _prefix + path;
-        ResourceBundle rbundle = null;
-        try {
-            if (_loader != null) {
-                rbundle = ResourceBundle.getBundle(fqpath, _locale, _loader);
-            } else {
-                rbundle = ResourceBundle.getBundle(fqpath, _locale);
-            }
-        } catch (MissingResourceException mre) {
-            log.warning("Unable to resolve resource bundle " +
-                        "[path=" + fqpath + ", locale=" + _locale + "].");
-        }
+        ResourceBundle rbundle = loadBundle(_prefix + path);
 
         // if the resource bundle contains a special resource, we'll
         // interpret that as a derivation of MessageBundle to instantiate
@@ -165,8 +154,7 @@ public class MessageManager
             try {
                 mbclass = rbundle.getString(MBUNDLE_CLASS_KEY).trim();
                 if (!StringUtil.isBlank(mbclass)) {
-                    bundle = (MessageBundle)
-                        Class.forName(mbclass).newInstance();
+                    bundle = (MessageBundle)Class.forName(mbclass).newInstance();
                 }
 
             } catch (MissingResourceException mre) {
@@ -190,6 +178,23 @@ public class MessageManager
         bundle.init(this, path, rbundle, _global);
         _cache.put(path, bundle);
         return bundle;
+    }
+
+    /**
+     * Loads a bundle from the given path, or returns null if it can't be found.
+     */
+    protected ResourceBundle loadBundle (String path)
+    {
+        try {
+            if (_loader != null) {
+                return ResourceBundle.getBundle(path, _locale, _loader);
+            }
+            return ResourceBundle.getBundle(path, _locale);
+        } catch (MissingResourceException mre) {
+            log.warning("Unable to resolve resource bundle", "path", path, "locale", _locale,
+                mre);
+            return null;
+        }
     }
 
     /** The prefix we prepend to resource paths prior to loading. */
