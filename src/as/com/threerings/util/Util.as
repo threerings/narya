@@ -88,6 +88,32 @@ public class Util
     }
 
     /**
+     * Get an array containing the property keys of the specified object, in their
+     * natural iteration order.
+     */
+    public static function keys (obj :Object) :Array
+    {
+        var arr :Array = [];
+        for (var k :* in obj) { // no "each": iterate over keys
+            arr.push(k);
+        }
+        return arr;
+    }
+
+    /**
+     * Get an array containing the property values of the specified object, in their
+     * natural iteration order.
+     */
+    public static function values (obj :Object) :Array
+    {
+        var arr :Array = [];
+        for each (var v :* in obj) { // "each" iterates over values
+            arr.push(v);
+        }
+        return arr;
+    }
+
+    /**
      * Parse the 'value' object into XML safely. This is equivalent to <code>new XML(value)</code>
      * but offers protection from other code that may have changing the default settings
      * used for parsing XML. Also, if you would like to use non-standard parsing settings

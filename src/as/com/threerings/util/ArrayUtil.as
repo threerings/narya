@@ -46,32 +46,6 @@ public class ArrayUtil
     }
 
     /**
-     * Get an array containing the property keys of the specified object, in their
-     * natural iteration order.
-     */
-    public static function keys (obj :Object) :Array
-    {
-        var arr :Array = [];
-        for (var k :* in obj) { // no "each": iterate over keys
-            arr.push(k);
-        }
-        return arr;
-    }
-
-    /**
-     * Get an array containing the property values of the specified object, in their
-     * natural iteration order.
-     */
-    public static function values (obj :Object) :Array
-    {
-        var arr :Array = [];
-        for each (var v :* in obj) { // "each" iterates over values
-            arr.push(v);
-        }
-        return arr;
-    }
-
-    /**
      * Creates a shallow copy of the array.
      *
      * @internal TODO: add support for copy ranges and deep copies?
