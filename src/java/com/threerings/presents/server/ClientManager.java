@@ -190,7 +190,11 @@ public class ClientManager
         List<PresentsSession> sessions = Lists.newArrayListWithExpectedSize(1);
         synchronized (_usermap) {
             for (PresentsSession session : _usermap.values()) {
-                if (Arrays.equals(addr, session.getInetAddress().getAddress())) {
+                InetAddress sessionAddr = session.getInetAddress();
+                if (sessionAddr == null) {
+                    continue;
+                }
+                if (Arrays.equals(addr, sessionAddr.getAddress())) {
                     sessions.add(session);
                 }
             }
