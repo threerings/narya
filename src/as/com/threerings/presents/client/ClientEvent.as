@@ -30,8 +30,7 @@ public class ClientEvent extends Event
     public static const CLIENT_FAILED_TO_LOGON :String = "clientFailedLogon";
     public static const CLIENT_OBJECT_CHANGED :String = "clobjChanged";
     public static const CLIENT_CONNECTION_FAILED :String = "clientConnFailed";
-    /** The logoff itself can be cancelled if a listener calls
-     * preventDefault() on this event. */
+    /** The logoff itself can be cancelled if a listener calls preventDefault() on this event. */
     public static const CLIENT_WILL_LOGOFF :String = "clientWillLogoff";
     public static const CLIENT_DID_LOGOFF :String = "clientDidLogoff";
     public static const CLIENT_DID_CLEAR :String = "clientDidClear";

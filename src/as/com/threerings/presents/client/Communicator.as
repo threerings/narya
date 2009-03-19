@@ -152,7 +152,12 @@ public class Communicator
             _writer = null;
         }
 
-        _client.notifyObservers(ClientEvent.CLIENT_DID_LOGOFF, null);
+        // if we never got our client object, we never dispatched a DID_LOGON and therefore we
+        // don't want to dispatch a DID_LOGOFF, the observers basically never know anything ever
+        // happened
+        if (_client.getClientObject() != null) {
+            _client.notifyObservers(ClientEvent.CLIENT_DID_LOGOFF, null);
+        }
         _client.cleanup(logonError);
     }
 
@@ -306,7 +311,7 @@ public class Communicator
         // total failure
         log.warning("Socket error: " + event, "target", event.target);
         Log.dumpStack();
-        shutdown(new Error("Socket closed unexpectedly."));
+        shutdown(new Error(AuthCodes.NETWORK_ERROR));
     }
 
     /**
@@ -316,7 +321,10 @@ public class Communicator
     {
         log.info("Socket was closed: " + event);
         _client.notifyObservers(ClientEvent.CLIENT_CONNECTION_FAILED);
-        shutdown(null);
+        // if we hadn't loaded our client object yet, behave as if this was a logon failure because
+        // we failed before we dispatched a DID_LOGON
+        var wasLoggedOn :Boolean = (_client.getClientObject() != null);
+        shutdown(wasLoggedOn ? null : new LogonError(AuthCodes.NETWORK_ERROR));
     }
 
     /**

@@ -26,22 +26,24 @@ package com.threerings.presents.data {
  */
 public class AuthCodes
 {
-    /** A code indicating that no user exists with the specified
-     * username. */
+    /** A code indicating that no user exists with the specified username. */
     public static const NO_SUCH_USER :String = "m.no_such_user";
 
     /** A code indicating that the supplied password was invalid. */
     public static const INVALID_PASSWORD :String = "m.invalid_password";
 
-    /** A code indicating that an internal server error occurred while
-     * trying to log the user on. */
+    /** A code indicating that an internal server error occurred while trying to log the user
+     * on. */
     public static const SERVER_ERROR :String = "m.server_error";
+
+    /** A code indicating that a network error occurred while trying to log the user on. */
+    public static const NETWORK_ERROR :String = "m.network_error";
 
     /** A code indicating that the server is not available at the moment. */
     public static const SERVER_UNAVAILABLE :String = "m.server_unavailable";
 
-    /** A code indicating that we failed to connect to the server on a port and
-     * are trying the next port in the list. */
+    /** A code indicating that we failed to connect to the server on a port and are trying the next
+     * port in the list. */
     public static const TRYING_NEXT_PORT :String = "m.trying_next_port";
 }
 }
