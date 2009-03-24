@@ -79,8 +79,7 @@ public class Config extends EventDispatcher
     /**
      * Returns the value specified.
      */
-    public function setValue (
-        name :String, value :Object, notify :Boolean = true, flush :Boolean = true) :void
+    public function setValue (name :String, value :Object, flush :Boolean = true) :void
     {
         _data[name] = value;
         if (flush && _so != null) {
@@ -88,9 +87,7 @@ public class Config extends EventDispatcher
         }
 
         // dispatch an event corresponding
-        if (notify) {
-            dispatchEvent(new ConfigValueSetEvent(name, value));
-        }
+        dispatchEvent(new ConfigValueSetEvent(name, value));
     }
 
     /**
