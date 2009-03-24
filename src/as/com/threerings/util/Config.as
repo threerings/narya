@@ -79,15 +79,18 @@ public class Config extends EventDispatcher
     /**
      * Returns the value specified.
      */
-    public function setValue (name :String, value :Object) :void
+    public function setValue (
+        name :String, value :Object, notify :Boolean = true, flush :Boolean = true) :void
     {
         _data[name] = value;
-        if (_so != null) {
+        if (flush && _so != null) {
             _so.flush(); // flushing is not strictly necessary
         }
 
         // dispatch an event corresponding
-        dispatchEvent(new ConfigValueSetEvent(name, value));
+        if (notify) {
+            dispatchEvent(new ConfigValueSetEvent(name, value));
+        }
     }
 
     /**
