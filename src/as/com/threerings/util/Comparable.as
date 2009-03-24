@@ -23,6 +23,11 @@ package com.threerings.util {
 
 public interface Comparable
 {
+    /**
+     * Compare this object to the other one, and return 0 if they're equal,
+     * -1 if this object is less than the other, or 1 if this object is greater.
+     * Note: Please use [-1, 0, 1] to be compatible with flex Sort objects.
+     */
     function compareTo (other :Object) :int;
 }
 }
