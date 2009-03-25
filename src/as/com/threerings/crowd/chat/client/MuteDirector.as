@@ -95,18 +95,15 @@ public class MuteDirector extends BasicDirector
     /**
      * Mute or unmute the specified user.
      */
-    public function setMuted (username :Name, mute :Boolean) :void
+    public function setMuted (username :Name, mute :Boolean, giveFeedback :Boolean = true) :void
     {
         var changed :Boolean = mute ? _mutelist.add(username) : _mutelist.remove(username);
-        var feedback :String;
-        if (mute) {
-            feedback = "m.muted";
-        } else {
-            feedback = changed ? "m.unmuted" : "m.notmuted";
-        }
 
-        // always give some feedback to the user
-        _chatdir.displayFeedback(null, MessageBundle.tcompose(feedback, username));
+        if (giveFeedback) {
+            var feedback :String = mute ? "m.muted"
+                : (changed ? "m.unmuted" : "m.notmuted");
+            _chatdir.displayFeedback(null, MessageBundle.tcompose(feedback, username));
+        }
 
         // if the mutelist actually changed, notify observers
         if (changed) {
