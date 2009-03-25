@@ -37,7 +37,7 @@ public interface CrowdPeerProvider extends InvocationProvider
     /**
      * Handles a {@link CrowdPeerService#deliverBroadcast} request.
      */
-    void deliverBroadcast (ClientObject caller, Name arg1, String arg2, String arg3, boolean arg4);
+    void deliverBroadcast (ClientObject caller, Name arg1, byte arg2, String arg3, String arg4);
 
     /**
      * Handles a {@link CrowdPeerService#deliverTell} request.

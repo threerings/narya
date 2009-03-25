@@ -42,6 +42,7 @@ import com.threerings.presents.server.InvocationProvider;
 import com.threerings.crowd.chat.client.ChatService.TellListener;
 import com.threerings.crowd.chat.client.ChatService;
 import com.threerings.crowd.chat.data.ChatCodes;
+import com.threerings.crowd.chat.data.SystemMessage;
 import com.threerings.crowd.chat.data.UserMessage;
 import com.threerings.crowd.data.BodyObject;
 import com.threerings.crowd.data.CrowdCodes;
@@ -81,7 +82,7 @@ public class ChatProvider
         /**
          * Requests that the supplied broadcast message be delivered on other servers.
          */
-        void forwardBroadcast (Name from, String bundle, String msg, boolean attention);
+        void forwardBroadcast (Name from, byte levelOrMode, String bundle, String msg);
     }
 
     /**
@@ -181,20 +182,31 @@ public class ChatProvider
      */
     public void broadcast (Name from, String bundle, String msg, boolean attention, boolean forward)
     {
+        byte levelOrMode = (from != null) ? ChatCodes.BROADCAST_MODE
+            : (attention ? SystemMessage.ATTENTION : SystemMessage.INFO);
+        broadcast(from, levelOrMode, bundle, msg, forward);
+    }
+
+    /**
+     * Broadcast with support for a customizable level or mode.
+     * @param levelOrMode if from is null, it's an attentionLevel, else it's a mode code.
+     */
+    public void broadcast (Name from, byte levelOrMode, String bundle, String msg, boolean forward)
+    {
         if (_broadcastObject != null) {
-            broadcastTo(_broadcastObject, from, bundle, msg, attention);
+            broadcastTo(_broadcastObject, from, levelOrMode, bundle, msg);
 
         } else {
             for (Iterator<PlaceObject> iter = _plreg.enumeratePlaces(); iter.hasNext(); ) {
                 PlaceObject plobj = iter.next();
                 if (plobj.shouldBroadcast()) {
-                    broadcastTo(plobj, from, bundle, msg, attention);
+                    broadcastTo(plobj, from, levelOrMode, bundle, msg);
                 }
             }
         }
 
         if (forward && _chatForwarder != null) {
-            _chatForwarder.forwardBroadcast(from, bundle, msg, attention);
+            _chatForwarder.forwardBroadcast(from, levelOrMode, bundle, msg);
         }
     }
 
@@ -262,18 +274,14 @@ public class ChatProvider
     /**
      * Direct a broadcast to the specified object.
      */
-    protected void broadcastTo (DObject object, Name from, String bundle, String msg,
-                                boolean attention)
+    protected void broadcastTo (
+        DObject object, Name from, byte levelOrMode, String bundle, String msg)
     {
         if (from == null) {
-            if (attention) {
-                SpeakUtil.sendAttention(object, bundle, msg);
-            } else {
-                SpeakUtil.sendInfo(object, bundle, msg);
-            }
+            SpeakUtil.sendSystem(object, bundle, msg, levelOrMode /* level */);
 
         } else {
-            SpeakUtil.sendSpeak(object, from, bundle, msg, ChatCodes.BROADCAST_MODE);
+            SpeakUtil.sendSpeak(object, from, bundle, msg, levelOrMode /* mode */);
         }
     }
 

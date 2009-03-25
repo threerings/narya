@@ -69,11 +69,11 @@ public class CrowdPeerManager extends PeerManager
     }
 
     // from interface CrowdPeerProvider
-    public void deliverBroadcast (ClientObject caller, Name from, String bundle, String msg,
-                                  boolean attention)
+    public void deliverBroadcast (
+        ClientObject caller, Name from, byte levelOrMode, String bundle, String msg)
     {
         // deliver the broadcast locally on this server
-        _chatprov.broadcast(from, bundle, msg, attention, false);
+        _chatprov.broadcast(from, levelOrMode, bundle, msg, false);
     }
 
     // from interface ChatProvider.ChatForwarder
@@ -103,12 +103,12 @@ public class CrowdPeerManager extends PeerManager
     }
 
     // from interface ChatProvider.ChatForwarder
-    public void forwardBroadcast (Name from, String bundle, String msg, boolean attention)
+    public void forwardBroadcast (Name from, byte levelOrMode, String bundle, String msg)
     {
         for (PeerNode peer : _peers.values()) {
             if (peer.nodeobj != null) {
                 ((CrowdNodeObject)peer.nodeobj).crowdPeerService.deliverBroadcast(
-                    peer.getClient(), from, bundle, msg, attention);
+                    peer.getClient(), from, levelOrMode, bundle, msg);
             }
         }
     }

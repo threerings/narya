@@ -57,7 +57,7 @@ public class CrowdPeerDispatcher extends InvocationDispatcher<CrowdPeerMarshalle
         switch (methodId) {
         case CrowdPeerMarshaller.DELIVER_BROADCAST:
             ((CrowdPeerProvider)provider).deliverBroadcast(
-                source, (Name)args[0], (String)args[1], (String)args[2], ((Boolean)args[3]).booleanValue()
+                source, (Name)args[0], ((Byte)args[1]).byteValue(), (String)args[2], (String)args[3]
             );
             return;
 

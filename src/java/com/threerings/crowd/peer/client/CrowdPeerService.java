@@ -44,5 +44,5 @@ public interface CrowdPeerService extends InvocationService
     /**
      * Dispatches a broadcast message on this peer.
      */
-    void deliverBroadcast (Client client, Name from, String bundle, String msg, boolean attention);
+    void deliverBroadcast (Client client, Name from, byte levelOrMode, String bundle, String msg);
 }
