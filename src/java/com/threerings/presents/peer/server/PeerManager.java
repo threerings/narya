@@ -1035,19 +1035,26 @@ public abstract class PeerManager
      */
     protected void connectedToPeer (PeerNode peer)
     {
+        String nodeName = peer.getNodeName();
+
         // check for lock conflicts
         for (NodeObject.Lock lock : peer.nodeobj.locks) {
             PeerManager.LockHandler handler = _locks.get(lock);
             if (handler != null) {
-                log.warning("Client hijacked lock in process of resolution [handler=" + handler +
-                            ", node=" + peer.getNodeName() + "].");
-                handler.clientHijackedLock(peer.getNodeName());
+                log.warning("Client hijacked lock in process of resolution",
+                   "handler", handler, "node", nodeName);
+                handler.clientHijackedLock(nodeName);
 
             } else if (_nodeobj.locks.contains(lock)) {
-                log.warning("Client hijacked lock owned by this node [lock=" + lock +
-                            ", node=" + peer.getNodeName() + "].");
+                log.warning("Client hijacked lock owned by this node",
+                   "lock", lock, "node", nodeName);
                 droppedLock(lock);
             }
+        }
+
+        // indicate that all these clients have logged on
+        for (ClientInfo clinfo : peer.nodeobj.clients) {
+            clientLoggedOn(nodeName, clinfo);
         }
     }
 
@@ -1056,11 +1063,18 @@ public abstract class PeerManager
      */
     protected void disconnectedFromPeer (PeerNode peer)
     {
+        String nodeName = peer.getNodeName();
+
         // clear any locks held by that peer
         for (LockHandler handler : _locks.values().toArray(new LockHandler[_locks.size()])) {
-            if (handler.getNodeName().equals(peer.getNodeName())) {
+            if (handler.getNodeName().equals(nodeName)) {
                 handler.clientDidLogoff();
             }
+        }
+
+        // indicate that these clients have left
+        for (ClientInfo clinfo : peer.nodeobj.clients) {
+            clientLoggedOff(nodeName, clinfo);
         }
     }
 

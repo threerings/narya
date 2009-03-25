@@ -184,19 +184,6 @@ public class CrowdPeerManager extends PeerManager
         }
     }
 
-    @Override // from PeerManager
-    protected void connectedToPeer (PeerNode peer)
-    {
-        super.connectedToPeer(peer);
-
-        for (ClientInfo clinfo : peer.nodeobj.clients) {
-            if (clinfo instanceof CrowdClientInfo) {
-                CrowdClientInfo ccinfo = (CrowdClientInfo)clinfo;
-                _viztoauth.put(ccinfo.visibleName, ccinfo.username);
-            }
-        }
-    }
-
     /** A mapping of visible name to username for all clients on all *remote* nodes. */
     protected Map<Name, Name> _viztoauth = Maps.newHashMap();
 
