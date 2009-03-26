@@ -81,12 +81,11 @@ public class ClassUtil
 
         } catch (NoSuchMethodException nsme) {
             // nothing to do here but fall through and return null
-            log.info("No such method [name=" + name + ", tclass=" + tclass.getName() +
-                     ", args=" + StringUtil.toString(args) + ", error=" + nsme + "].");
+            log.info("No such method", "name", name, "tclass", tclass.getName(), "args", args,
+                     "error", nsme);
 
         } catch (SecurityException se) {
-            log.warning("Unable to look up method? [tclass=" + tclass.getName() +
-                        ", mname=" + name + "].");
+            log.warning("Unable to look up method?", "tclass", tclass.getName(), "mname", name);
         }
 
         return meth;

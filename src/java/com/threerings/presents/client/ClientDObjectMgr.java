@@ -195,7 +195,7 @@ public class ClientDObjectMgr
             } else if (obj instanceof UnsubscribeResponse) {
                 int oid = ((UnsubscribeResponse)obj).getOid();
                 if (_dead.remove(oid) == null) {
-                    log.warning("Received unsub ACK from unknown object [oid=" + oid + "].");
+                    log.warning("Received unsub ACK from unknown object", "oid", oid);
                 }
 
             } else if (obj instanceof FailureResponse) {
@@ -339,8 +339,7 @@ public class ClientDObjectMgr
         // let the penders know that the object is available
         PendingRequest<?> req = _penders.remove(obj.getOid());
         if (req == null) {
-            log.warning("Got object, but no one cares?! [oid=" + obj.getOid() +
-                        ", obj=" + obj + "].");
+            log.warning("Got object, but no one cares?!", "oid", obj.getOid(), "obj", obj);
             return;
         }
 
@@ -362,7 +361,7 @@ public class ClientDObjectMgr
         // let the penders know that the object is not available
         PendingRequest<?> req = _penders.remove(oid);
         if (req == null) {
-            log.warning("Failed to get object, but no one cares?! [oid=" + oid + "].");
+            log.warning("Failed to get object, but no one cares?!", "oid", oid);
             return;
         }
 
@@ -424,8 +423,8 @@ public class ClientDObjectMgr
             dobj.removeSubscriber(target);
 
         } else {
-            log.info("Requested to remove subscriber from non-proxied object [oid=" + oid +
-                     ", sub=" + target + "].");
+            log.info("Requested to remove subscriber from non-proxied object", "oid", oid,
+                     "sub", target);
         }
     }
 

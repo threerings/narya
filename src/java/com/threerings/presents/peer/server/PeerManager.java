@@ -427,7 +427,7 @@ public abstract class PeerManager
         Tuple<String,Integer> key = Tuple.newTuple(nodeName, remoteOid);
         Tuple<Subscriber<?>, DObject> bits = _proxies.remove(key);
         if (bits == null) {
-            log.warning("Requested to clear unknown proxy [key=" + key + "].");
+            log.warning("Requested to clear unknown proxy", "key", key);
             return;
         }
 
@@ -436,7 +436,7 @@ public abstract class PeerManager
 
         final Client peer = getPeerClient(nodeName);
         if (peer == null) {
-            log.warning("Unable to unsubscribe from proxy, missing peer [key=" + key + "].");
+            log.warning("Unable to unsubscribe from proxy, missing peer", "key", key);
             return;
         }
 
@@ -528,8 +528,8 @@ public abstract class PeerManager
                     }
                 } else {
                     if (result != null) {
-                        log.warning("Tried to release lock held by another peer [lock=" + lock +
-                                    ", owner=" + result + "].");
+                        log.warning("Tried to release lock held by another peer", "lock", lock,
+                                    "owner", result);
                     }
                     listener.requestCompleted(result);
                 }
@@ -550,8 +550,8 @@ public abstract class PeerManager
         // make sure we're releasing it
         LockHandler handler = _locks.get(lock);
         if (handler == null || !handler.getNodeName().equals(_nodeName) || handler.isAcquiring()) {
-            log.warning("Tried to reacquire lock not being released [lock=" + lock +
-                        ", handler=" + handler + "].");
+            log.warning("Tried to reacquire lock not being released", "lock", lock,
+                        "handler", handler);
             return;
         }
 
@@ -621,12 +621,12 @@ public abstract class PeerManager
                     // some other peer beat us to it
                     operation.fail(nodeName);
                     if (nodeName == null) {
-                        log.warning("Lock acquired by null? [lock=" + lock + "].");
+                        log.warning("Lock acquired by null?", "lock", lock);
                     }
                 }
             }
             public void requestFailed (Exception cause) {
-                log.warning("Lock acquisition failed [lock=" + lock + "].", cause);
+                log.warning("Lock acquisition failed", "lock", lock, cause);
                 operation.fail(null);
             }
         });
@@ -787,8 +787,8 @@ public abstract class PeerManager
 
         // sanity check
         if (_nodeobj.clients.contains(clinfo)) {
-            log.warning("Received clientSessionDidStart() for already registered client!? " +
-                        "[old=" + _nodeobj.clients.get(clinfo.getKey()) + ", new=" + clinfo + "].");
+            log.warning("Received clientSessionDidStart() for already registered client!?",
+                        "old", _nodeobj.clients.get(clinfo.getKey()), "new", clinfo);
             // go ahead and update the record
             _nodeobj.updateClients(clinfo);
         } else {
@@ -821,7 +821,7 @@ public abstract class PeerManager
                 return;
             }
         }
-        log.warning("Session ended for unregistered client [who=" + username + "].");
+        log.warning("Session ended for unregistered client", "who", username);
     }
 
     /**
@@ -1127,8 +1127,8 @@ public abstract class PeerManager
             (_timeout = new Interval(_omgr) {
                 @Override
                 public void expired () {
-                    log.warning("Lock handler timed out, acting anyway [lock=" + _lock +
-                                ", acquire=" + _acquire + "].");
+                    log.warning("Lock handler timed out, acting anyway", "lock", _lock,
+                                "acquire", _acquire);
                     activate();
                 }
             }).schedule(LOCK_TIMEOUT);
@@ -1175,8 +1175,8 @@ public abstract class PeerManager
                 return;
             }
             if (!_remoids.remove(caller.getOid())) {
-                log.warning("Received unexpected ratification [handler=" + this +
-                            ", who=" + caller.who() + "].");
+                log.warning("Received unexpected ratification", "handler", this,
+                            "who", caller.who());
             }
             maybeActivate();
         }

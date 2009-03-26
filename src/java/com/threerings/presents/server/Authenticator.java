@@ -56,7 +56,7 @@ public abstract class Authenticator
                 try {
                     processAuthentication(conn, rsp);
                 } catch (Exception e) {
-                    log.warning("Error authenticating user [areq=" + req + "].", e);
+                    log.warning("Error authenticating user", "areq", req, e);
                     rdata.code = AuthCodes.SERVER_ERROR;
                 }
                 return true;

@@ -45,7 +45,7 @@ public class NativeSignalHandler extends AbstractSignalHandler
             hupReceived();
             break;
         default:
-            log.warning("Received unknown signal [signo=" + signo + "].");
+            log.warning("Received unknown signal", "signo", signo);
             break;
         }
         return true;

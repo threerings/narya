@@ -161,8 +161,8 @@ public class MessageManager
                 // nothing to worry about
 
             } catch (Throwable t) {
-                log.warning("Failure instantiating custom message bundle " +
-                            "[mbclass=" + mbclass + ", error=" + t + "].");
+                log.warning("Failure instantiating custom message bundle", "mbclass", mbclass,
+                            "error", t);
             }
         }
 

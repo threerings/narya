@@ -1017,8 +1017,8 @@ public class ChatDirector extends BasicDirector
         if (bundle != null && _msgmgr != null) {
             MessageBundle msgb = _msgmgr.getBundle(bundle);
             if (msgb == null) {
-                log.warning("No message bundle available to translate message " +
-                            "[bundle=" + bundle + ", message=" + message + "].");
+                log.warning("No message bundle available to translate message", "bundle", bundle,
+                            "message", message);
             } else {
                 message = msgb.xlate(message);
             }

@@ -140,13 +140,13 @@ public class LocationDirector extends BasicDirector
             // if the pending request has been outstanding more than a minute, go ahead and let
             // this new one through in an attempt to recover from dropped moveTo requests
             if (refuse) {
-                log.warning("Refusing moveTo; We have a request outstanding " +
-                            "[ppid=" + _pendingPlaceId + ", npid=" + placeId + "].");
+                log.warning("Refusing moveTo; We have a request outstanding",
+                            "ppid", _pendingPlaceId, "npid", placeId);
                 return false;
 
             } else {
-                log.warning("Overriding stale moveTo request [ppid=" + _pendingPlaceId +
-                            ", npid=" + placeId + "].");
+                log.warning("Overriding stale moveTo request", "ppid", _pendingPlaceId,
+                            "npid", placeId);
             }
         }
 
@@ -166,7 +166,7 @@ public class LocationDirector extends BasicDirector
                 // clear out our pending request oid
                 int placeId = _pendingPlaceId;
                 _pendingPlaceId = -1;
-                log.info("moveTo failed [pid=" + placeId + ", reason=" + reason + "].");
+                log.info("moveTo failed", "pid", placeId, "reason", reason);
                 // let our observers know that something has gone horribly awry
                 handleFailure(placeId, reason);
             }
@@ -258,8 +258,7 @@ public class LocationDirector extends BasicDirector
             try {
                 _controller.mayLeavePlace(_plobj);
             } catch (Exception e) {
-                log.warning("Place controller choked in mayLeavePlace " +
-                        "[plobj=" + _plobj + "].", e);
+                log.warning("Place controller choked in mayLeavePlace", "plobj", _plobj, e);
             }
         }
     }
@@ -296,7 +295,7 @@ public class LocationDirector extends BasicDirector
         try {
             _controller = createController(config);
             if (_controller == null) {
-                log.warning("Place config returned null controller [config=" + config + "].");
+                log.warning("Place config returned null controller", "config", config);
                 return;
             }
             _controller.init(_ctx, config);
@@ -308,8 +307,8 @@ public class LocationDirector extends BasicDirector
                 }
                 public void requestFailed (int oid, ObjectAccessException cause) {
                     // aiya! we were unable to fetch our new place object; something is badly wrong
-                    log.warning("Aiya! Unable to fetch place object for new location [plid=" + oid +
-                                ", reason=" + cause + "].");
+                    log.warning("Aiya! Unable to fetch place object for new location", "plid", oid,
+                                "reason", cause);
                     // clear out our half initialized place info
                     int placeId = _placeId;
                     _placeId = -1;
@@ -320,7 +319,7 @@ public class LocationDirector extends BasicDirector
             _subber.subscribe(_ctx.getDObjectManager());
 
         } catch (Exception e) {
-            log.warning("Failed to create place controller [config=" + config + "].", e);
+            log.warning("Failed to create place controller", "config", config, e);
             handleFailure(_placeId, LocationCodes.E_INTERNAL_ERROR);
         }
     }
@@ -343,8 +342,7 @@ public class LocationDirector extends BasicDirector
             try {
                 _controller.didLeavePlace(_plobj);
             } catch (Exception e) {
-                log.warning("Place controller choked in didLeavePlace " +
-                        "[plobj=" + _plobj + "].", e);
+                log.warning("Place controller choked in didLeavePlace", "plobj", _plobj, e);
             }
         }
 
@@ -404,7 +402,7 @@ public class LocationDirector extends BasicDirector
             }
             public void requestFailed (int oid, ObjectAccessException cause) {
                 log.warning("Location director unable to fetch body object; all has gone " +
-                            "horribly wrong [cause=" + cause + "].");
+                            "horribly wrong", "cause", cause);
             }
         };
         int cloid = client.getClientOid();
@@ -457,8 +455,7 @@ public class LocationDirector extends BasicDirector
             try {
                 _controller.willEnterPlace(_plobj);
             } catch (Exception e) {
-                log.warning("Controller choked in willEnterPlace " +
-                        "[place=" + _plobj + "].", e);
+                log.warning("Controller choked in willEnterPlace", "place", _plobj, e);
             }
         }
 
@@ -479,12 +476,12 @@ public class LocationDirector extends BasicDirector
         // just finish up what we're doing and assume that the repeated move request was the
         // spurious one as it would be in the case of lag causing rapid-fire repeat requests
         if (movePending()) {
-            log.info("Dropping forced move because we have a move pending " +
-                     "[pendId=" + _pendingPlaceId + ", reqId=" + placeId + "].");
+            log.info("Dropping forced move because we have a move pending",
+                     "pendId", _pendingPlaceId, "reqId", placeId);
             return;
         }
 
-        log.info("Moving at request of server [placeId=" + placeId + "].");
+        log.info("Moving at request of server", "placeId", placeId);
         // clear out our old place information
         mayLeavePlace();
         didLeavePlace();
@@ -505,8 +502,8 @@ public class LocationDirector extends BasicDirector
         if (_failureHandler != null) {
             log.warning("Requested to set failure handler, but we've already got one. The " +
                         "conflicting entities will likely need to perform more sophisticated " +
-                        "coordination to deal with failures. [old=" + _failureHandler +
-                        ", new=" + handler + "].");
+                        "coordination to deal with failures.",
+                        "old", _failureHandler, "new", handler);
 
         } else {
             _failureHandler = handler;

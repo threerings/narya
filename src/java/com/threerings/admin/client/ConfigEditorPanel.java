@@ -123,7 +123,7 @@ public class ConfigEditorPanel extends JPanel
     // documentation inherited from interface
     public void requestFailed (String reason)
     {
-        log.warning("Failed to get config info [reason=" + reason + "].");
+        log.warning("Failed to get config info", "reason", reason);
     }
 
     /** Our client context. */

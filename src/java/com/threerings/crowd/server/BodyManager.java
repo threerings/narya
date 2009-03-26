@@ -96,7 +96,7 @@ public class BodyManager
         }
 
         // update their status!
-        log.debug("Setting user idle state [user=" + bobj.username + ", status=" + nstatus + "].");
+        log.debug("Setting user idle state", "user", bobj.username, "status", nstatus);
         updateOccupantStatus(bobj, nstatus);
     }
 

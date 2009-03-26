@@ -298,8 +298,7 @@ public abstract class RebootManager
             return false;
         }
 
-        log.info("Reboot delayed due to outstanding locks: " +
-                 StringUtil.toString(_rebootLocks.elements()));
+        log.info("Reboot delayed due to outstanding locks", "locks", _rebootLocks.elements());
         broadcast("m.reboot_delayed");
         _interval = new Interval(_omgr) {
             @Override

@@ -102,7 +102,7 @@ public abstract class BureauDirector extends BasicDirector
             agent.init(agentObject);
             agent.start();
         } catch (Throwable t) {
-            log.warning("Could not create agent [obj=" + agentObject + "]", t);
+            log.warning("Could not create agent", "obj", agentObject, t);
             _bureauService.agentCreationFailed(_ctx.getClient(), oid);
             return;
         }
@@ -116,7 +116,7 @@ public abstract class BureauDirector extends BasicDirector
      */
     protected synchronized void requestFailed (int oid, ObjectAccessException cause)
     {
-        log.warning("Could not subscribe to agent [oid=" + oid + "]", cause);
+        log.warning("Could not subscribe to agent", "oid", oid, cause);
     }
 
     @Override // from BasicDirector

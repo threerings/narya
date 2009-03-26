@@ -209,8 +209,7 @@ public abstract class ConfigRegistry
             try {
                 value = object.getAttribute(event.getName());
             } catch (ObjectAccessException oae) {
-                log.warning("Exception getting field [name=" + event.getName() +
-                            ", exception=" + oae + "].");
+                log.warning("Exception getting field", "name", event.getName(), "exception", oae);
                 return;
             }
             updateValue(event.getName(), value);
@@ -252,9 +251,8 @@ public abstract class ConfigRegistry
             } else if (value instanceof long[]) {
                 setValue(key, (long[])value);
             } else {
-                log.info("Unable to flush config obj change [cobj=" + object.getClass().getName() +
-                         ", key=" + key + ", type=" + value.getClass().getName() +
-                         ", value=" + value + "].");
+                log.info("Unable to flush config obj change", "cobj", object.getClass().getName(),
+                         "key", key, "type", value.getClass().getName(), "value", value);
             }
         }
 
@@ -327,19 +325,19 @@ public abstract class ConfigRegistry
                             serialize(key, nameToKey(key), deserializedValue);
                         }
                     } catch (Exception e) {
-                        log.warning("Failure decoding config value [type=" + type +
-                                    ", field=" + field + ", exception=" + e + "].");
+                        log.warning("Failure decoding config value", "type", type, "field", field,
+                                    "exception", e);
                     }
 
                 } else {
-                    log.warning("Can't init field of unknown type " +
-                                "[cobj=" + object.getClass().getName() + ", key=" + key +
-                                ", type=" + type.getName() + "].");
+                    log.warning("Can't init field of unknown type",
+                                "cobj", object.getClass().getName(), "key", key,
+                                "type", type.getName());
                 }
 
             } catch (IllegalAccessException iae) {
-                log.warning("Can't set field [cobj=" + object.getClass().getName() +
-                            ", key=" + key + ", error=" + iae + "].");
+                log.warning("Can't set field", "cobj", object.getClass().getName(), "key", key,
+                            "error", iae);
             }
         }
 
@@ -353,17 +351,15 @@ public abstract class ConfigRegistry
             try {
                 value = object.getAttribute(attributeName);
             } catch (ObjectAccessException oae) {
-                log.warning("Exception getting field [name=" + attributeName +
-                            ", error=" + oae + "].");
+                log.warning("Exception getting field", "name", attributeName, "error", oae);
                 return;
             }
 
             if (value instanceof Streamable) {
                 serialize(attributeName, key, value);
             } else {
-                log.info("Unable to flush config obj change [cobj=" + object.getClass().getName() +
-                         ", key=" + key + ", type=" + value.getClass().getName() +
-                         ", value=" + value + "].");
+                log.info("Unable to flush config obj change", "cobj", object.getClass().getName(),
+                         "key", key, "type", value.getClass().getName(), "value", value);
             }
         }
 

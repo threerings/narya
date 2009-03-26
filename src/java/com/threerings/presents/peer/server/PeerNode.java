@@ -220,8 +220,7 @@ public class PeerNode
     // documentation inherited from interface Subscriber
     public void requestFailed (int oid, ObjectAccessException cause)
     {
-        log.warning("Failed to subscribe to peer's node object " +
-                    "[peer=" + _record + ", cause=" + cause + "].");
+        log.warning("Failed to subscribe to peer's node object", "peer", _record, "cause", cause);
     }
 
     /**
@@ -262,8 +261,8 @@ public class PeerNode
                 PeerManager.LockHandler handler = _peermgr.getLockHandler(lock);
                 if (handler == null) {
                     if (_peermgr.getNodeObject().locks.contains(lock)) {
-                        log.warning("Peer trying to acquire lock owned by this node " +
-                                    "[lock=" + lock + ", node=" + _record.nodeName + "].");
+                        log.warning("Peer trying to acquire lock owned by this node", "lock", lock,
+                                    "node", _record.nodeName);
                         return;
                     }
                     _peermgr.createLockHandler(PeerNode.this, lock, true);

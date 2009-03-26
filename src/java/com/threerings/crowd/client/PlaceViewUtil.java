@@ -52,8 +52,8 @@ public class PlaceViewUtil
             try {
                 ((PlaceView)root).willEnterPlace(plobj);
             } catch (Exception e) {
-                log.warning("Component choked on willEnterPlace() " +
-                            "[component=" + root + ", plobj=" + plobj + "].", e);
+                log.warning("Component choked on willEnterPlace()", "component", root,
+                            "plobj", plobj, e);
             }
         }
 
@@ -84,8 +84,8 @@ public class PlaceViewUtil
             try {
                 ((PlaceView)root).didLeavePlace(plobj);
             } catch (Exception e) {
-                log.warning("Component choked on didLeavePlace() " +
-                            "[component=" + root + ", plobj=" + plobj + "].", e);
+                log.warning("Component choked on didLeavePlace()", "component", root,
+                            "plobj", plobj, e);
             }
         }
 

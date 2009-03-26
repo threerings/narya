@@ -48,10 +48,7 @@ public abstract class InvocationDispatcher<T extends InvocationMarshaller>
     public void dispatchRequest (ClientObject source, int methodId, Object[] args)
         throws InvocationException
     {
-        log.warning("Requested to dispatch unknown method " +
-                    "[provider=" + provider +
-                    ", sourceOid=" + source.getOid() +
-                    ", methodId=" + methodId +
-                    ", args=" + StringUtil.toString(args) + "].");
+        log.warning("Requested to dispatch unknown method", "provider", provider,
+                    "sourceOid", source.getOid(), "methodId", methodId, "args", args);
     }
 }

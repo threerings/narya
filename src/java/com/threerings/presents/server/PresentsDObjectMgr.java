@@ -156,8 +156,8 @@ public class PresentsDObjectMgr
         // originating manager after converting them back to the original oid
         _proxies.put(object.getOid(), new ProxyReference(origObjectId, omgr));
         // TEMP: report what we're doing as we're seeing funny business
-        log.info("Registered proxy object [type=" + object.getClass().getName() +
-                 ", remoid=" + origObjectId + ", locoid=" + object.getOid() + "].");
+        log.info("Registered proxy object", "type", object.getClass().getName(),
+                 "remoid", origObjectId, "locoid", object.getOid());
     }
 
     /**
@@ -168,12 +168,12 @@ public class PresentsDObjectMgr
     public void clearProxyObject (int origObjectId, DObject object)
     {
         if (_proxies.remove(object.getOid()) == null) {
-            log.warning("Missing proxy mapping for cleared proxy [ooid=" + origObjectId + "].");
+            log.warning("Missing proxy mapping for cleared proxy", "ooid", origObjectId);
         }
         _objects.remove(object.getOid());
         // TEMP: report what we're doing as we're seeing funny business
-        log.info("Clearing proxy object [type=" + object.getClass().getName() +
-                 ", remoid=" + origObjectId + ", locoid=" + object.getOid() + "].");
+        log.info("Clearing proxy object", "type", object.getClass().getName(),
+                 "remoid", origObjectId, "locoid", object.getOid());
     }
 
     // from interface DObjectManager
@@ -201,8 +201,8 @@ public class PresentsDObjectMgr
     public void postEvent (DEvent event)
     {
         if (!_running) {
-            log.warning(
-                "Posting message to inactive object manager", "event", event, new Exception());
+            log.warning("Posting message to inactive object manager", "event", event,
+                        new Exception());
         }
 
         // assign the event's id and append it to the queue
@@ -237,7 +237,7 @@ public class PresentsDObjectMgr
         // insert it into the table
         _objects.put(oid, object);
 
-//         log.info("Registered object [obj=" + object + "].");
+//         log.info("Registered object", "obj", object);
 
         return object;
     }
@@ -278,8 +278,8 @@ public class PresentsDObjectMgr
     public void postRunnable (Runnable unit)
     {
         if (!_running) {
-            log.warning(
-                "Posting runnable to inactive object manager", "unit", unit, new Exception());
+            log.warning("Posting runnable to inactive object manager", "unit", unit,
+                        new Exception());
         }
 
         // just append it to the queue
@@ -379,7 +379,7 @@ public class PresentsDObjectMgr
     {
         int oid = target.getOid();
 
-//         log.info("Removing destroyed object from table [oid=" + oid + "].");
+//         log.info("Removing destroyed object from table", "oid", oid);
 
         // remove the object from the table
         _objects.remove(oid);
@@ -433,8 +433,8 @@ public class PresentsDObjectMgr
                 }
 
             } catch (Exception e) {
-                log.warning("Unable to clean up after oid list field [target=" + target +
-                            ", field=" + field + "].");
+                log.warning("Unable to clean up after oid list field", "target", target,
+                            "field", field);
             }
         }
 
@@ -454,8 +454,8 @@ public class PresentsDObjectMgr
 
         // ensure that the target object exists
         if (!_objects.containsKey(oid)) {
-            log.info("Rejecting object added event of non-existent object " +
-                     "[refferOid=" + target.getOid() + ", reffedOid=" + oid + "].");
+            log.info("Rejecting object added event of non-existent object",
+                     "refferOid", target.getOid(), "reffedOid", oid);
             return false;
         }
 
@@ -508,7 +508,7 @@ public class PresentsDObjectMgr
         int toid = target.getOid();
         int oid = ore.getOid();
 
-//        log.info("Processing object removed [from=" + toid + ", roid=" + toid + "].");
+//        log.info("Processing object removed", "from", toid, "roid", toid);
 
         // get the reference vector for the referenced object
         Reference[] refs = _refs.get(oid);
@@ -517,8 +517,8 @@ public class PresentsDObjectMgr
             // reference system and then generate object removed events for all of its referencees.
             // so we opt not to log anything in this case
 
-//             log.info("Object removed without reference to track it [toid=" + toid +
-//                      ", field=" + field + ", oid=" + oid + "].");
+//             log.info("Object removed without reference to track it", "toid", toid,
+//                      "field", field, "oid", oid);
             return true;
         }
 
@@ -532,8 +532,8 @@ public class PresentsDObjectMgr
             }
         }
 
-        log.warning("Unable to locate reference for removal [reffingOid=" + toid +
-                    ", field=" + field + ", reffedOid=" + oid + "].");
+        log.warning("Unable to locate reference for removal", "reffingOid", toid, "field", field,
+                    "reffedOid", oid);
         return true;
     }
 
@@ -669,7 +669,7 @@ public class PresentsDObjectMgr
         // look up the target object
         DObject target = _objects.get(event.getTargetOid());
         if (target == null) {
-            log.debug("Compound event target no longer exists [event=" + event + "].");
+            log.debug("Compound event target no longer exists", "event", event);
             return;
         }
 
@@ -677,8 +677,7 @@ public class PresentsDObjectMgr
         for (int ii = 0; ii < ecount; ii++) {
             DEvent sevent = events.get(ii);
             if (!target.checkPermissions(sevent)) {
-                log.warning("Event failed permissions check [event=" + sevent +
-                            ", target=" + target + "].");
+                log.warning("Event failed permissions check", "event", sevent, "target", target);
                 return;
             }
         }
@@ -700,14 +699,13 @@ public class PresentsDObjectMgr
         // look up the target object
         DObject target = _objects.get(event.getTargetOid());
         if (target == null) {
-            log.debug("Event target no longer exists [event=" + event + "].");
+            log.debug("Event target no longer exists", "event", event);
             return;
         }
 
         // check the event's permissions
         if (!target.checkPermissions(event)) {
-            log.warning("Event failed permissions check [event=" + event +
-                        ", target=" + target + "].");
+            log.warning("Event failed permissions check", "event", event, "target", target);
             return;
         }
 
@@ -751,8 +749,7 @@ public class PresentsDObjectMgr
             handleFatalError(event, e);
 
         } catch (Throwable t) {
-            log.warning("Failure processing event [event=" + event +
-                    ", target=" + target + "].", t);
+            log.warning("Failure processing event", "event", event, "target", target, t);
         }
 
         // track the number of events dispatched
@@ -799,9 +796,8 @@ public class PresentsDObjectMgr
         // to the referred object which no longer exists; so we don't complain about non- existent
         // references if the referree is already destroyed
         if (ref == null && _objects.containsKey(reffedOid)) {
-            log.warning("Requested to clear out non-existent reference " +
-                        "[refferOid=" + reffer.getOid() + ", field=" + field +
-                        ", reffedOid=" + reffedOid + "].");
+            log.warning("Requested to clear out non-existent reference",
+                        "refferOid", reffer.getOid(), "field", field, "reffedOid", reffedOid);
 
 //        } else {
 //            log.info("Cleared out reference " + ref + ".");
@@ -837,7 +833,7 @@ public class PresentsDObjectMgr
             _helpers.put(ObjectRemovedEvent.class, method);
 
         } catch (Exception e) {
-            log.warning("Unable to register event helpers [error=" + e + "].");
+            log.warning("Unable to register event helpers", "error", e);
         }
     }
 
@@ -850,8 +846,8 @@ public class PresentsDObjectMgr
         try {
             sub.objectAvailable(obj);
         } catch (Exception e) {
-            log.warning("Subscriber choked during object available " +
-                    "[obj=" + StringUtil.safeToString(obj) + ", sub=" + sub + "].", e);
+            log.warning("Subscriber choked during object available",
+                        "obj", StringUtil.safeToString(obj), "sub", sub, e);
         }
     }
 

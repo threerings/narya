@@ -81,8 +81,8 @@ public class LocationManager
         // make sure the place in question actually exists
         PlaceManager pmgr = _plreg.getPlaceManager(placeOid);
         if (pmgr == null) {
-            log.info("Requested to move to non-existent place [who=" + source.who() +
-                     ", placeOid=" + placeOid + "].");
+            log.info("Requested to move to non-existent place", "who", source.who(),
+                     "placeOid", placeOid);
             throw new InvocationException(NO_SUCH_PLACE);
         }
 
@@ -90,8 +90,8 @@ public class LocationManager
         // because we don't need to update anything in distributed object world
         Place place = pmgr.getLocation();
         if (place.equals(source.location)) {
-            log.debug("Going along with client request to move to where they already are " +
-                      "[source=" + source.who() + ", place=" + place + "].");
+            log.debug("Going along with client request to move to where they already are",
+                      "source", source.who(), "place", place);
             return pmgr.getConfig();
         }
 

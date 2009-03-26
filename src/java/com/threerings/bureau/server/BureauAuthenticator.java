@@ -43,8 +43,8 @@ public class BureauAuthenticator extends ChainedAuthenticator
             rsp.getData().code = AuthResponseData.SUCCESS;
 
         } else {
-            log.warning("Received invalid bureau auth request [creds=" +
-                creds + "], problem: " + problem);
+            log.warning("Received invalid bureau auth request",
+                        "creds", creds + "], problem: " + problem);
             rsp.getData().code = AuthCodes.SERVER_ERROR;
         }
     }

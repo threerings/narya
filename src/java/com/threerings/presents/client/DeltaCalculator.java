@@ -96,9 +96,8 @@ public class DeltaCalculator
         // minus the server's send time (plus network delay): dT = C - S
         _deltas[_iter] = recv - (server + nettime);
 
-        log.debug("Calculated delta [delay=" + delay +
-                  ", nettime=" + nettime + ", delta=" + _deltas[_iter] +
-                  ", rtt=" + (recv-send) + "].");
+        log.debug("Calculated delta", "delay", delay, "nettime", nettime, "delta", _deltas[_iter],
+                  "rtt", (recv-send));
 
         return (++_iter >= CLOCK_SYNC_PING_COUNT);
     }

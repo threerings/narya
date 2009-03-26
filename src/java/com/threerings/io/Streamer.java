@@ -153,7 +153,7 @@ public class Streamer
         if (useWriter && _writer != null) {
             try {
                 if (ObjectInputStream.STREAM_DEBUG) {
-                    log.info("Writing with writer [class=" + _target.getName() + "].");
+                    log.info("Writing with writer", "class", _target.getName());
                 }
                 _writer.invoke(object, new Object[] { out });
 
@@ -228,8 +228,7 @@ public class Streamer
             }
             try {
                 if (ObjectInputStream.STREAM_DEBUG) {
-                    log.info("Writing field [class=" + _target.getName() +
-                             ", field=" + field.getName() + "].");
+                    log.info("Writing field", "class", _target.getName(), "field", field.getName());
                 }
                 fm.writeField(field, object, out);
             } catch (Exception e) {
@@ -382,8 +381,8 @@ public class Streamer
                 if (in.available() > 0) {
                     fm.readField(field, object, in);
                 } else {
-                    log.info("Streamed instance missing field (probably newly added) " +
-                             "[class=" + _target.getName() + ", field=" + field.getName() + "].");
+                    log.info("Streamed instance missing field (probably newly added)",
+                             "class", _target.getName(), "field", field.getName());
                 }
             } catch (Exception e) {
                 String errmsg = "Failure reading streamable field [class=" + _target.getName() +
@@ -427,8 +426,8 @@ public class Streamer
         try {
             isInner = (_target.getDeclaringClass() != null);
         } catch (Throwable t) {
-            log.warning("Failure checking innerness of class [class=" + _target.getName() +
-                        ", error=" + t + "].");
+            log.warning("Failure checking innerness of class", "class", _target.getName(),
+                        "error", t);
         }
         if (isInner && !isStatic) {
             throw new IllegalArgumentException(

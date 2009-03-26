@@ -62,7 +62,7 @@ public class PeerAuthenticator extends ChainedAuthenticator
             rsp.getData().code = AuthResponseData.SUCCESS;
 
         } else {
-            log.warning("Received invalid peer auth request? [creds=" + pcreds + "].");
+            log.warning("Received invalid peer auth request?", "creds", pcreds);
             rsp.getData().code = AuthCodes.SERVER_ERROR;
         }
     }

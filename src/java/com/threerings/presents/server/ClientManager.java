@@ -129,7 +129,7 @@ public class ClientManager
     // from interface ShutdownManager.Shutdowner
     public void shutdown ()
     {
-        log.info("Client manager shutting down [ccount=" + _usermap.size() + "].");
+        log.info("Client manager shutting down", "ccount", _usermap.size());
 
         _flushClients.cancel();
 
@@ -139,8 +139,8 @@ public class ClientManager
                 try {
                     pc.shutdown();
                 } catch (Exception e) {
-                    log.warning("Client choked in shutdown() [client=" +
-                            StringUtil.safeToString(pc) + "].", e);
+                    log.warning("Client choked in shutdown()",
+                                "client", StringUtil.safeToString(pc), e);
                 }
             }
         }
@@ -429,8 +429,7 @@ public class ClientManager
         // remove the client from the connection map
         PresentsSession client = _conmap.remove(conn);
         if (client != null) {
-            log.info("Unmapped failed client [client=" + client + ", conn=" + conn +
-                     ", fault=" + fault + "].");
+            log.info("Unmapped failed client", "client", client, "conn", conn, "fault", fault);
             // let the client know the connection went away
             client.wasUnmapped();
             // and let the client know things went haywire
@@ -449,7 +448,7 @@ public class ClientManager
         // remove the client from the connection map
         PresentsSession client = _conmap.remove(conn);
         if (client != null) {
-            log.debug("Unmapped client [client=" + client + ", conn=" + conn + "].");
+            log.debug("Unmapped client", "client", client, "conn", conn);
             // let the client know the connection went away
             client.wasUnmapped();
 
@@ -545,11 +544,11 @@ public class ClientManager
         // now end their sessions
         for (PresentsSession client : victims) {
             try {
-                log.info("Client expired, ending session [session=" + client +
-                         ", dtime=" + (now-client.getNetworkStamp()) + "ms].");
+                log.info("Client expired, ending session", "session", client,
+                         "dtime", (now-client.getNetworkStamp()) + "ms].");
                 client.endSession();
             } catch (Exception e) {
-                log.warning("Choke while flushing client [victim=" + client + "].", e);
+                log.warning("Choke while flushing client", "victim", client, e);
             }
         }
     }
@@ -567,8 +566,7 @@ public class ClientManager
                 _clop.apply(clobj);
 
             } catch (Exception e) {
-                log.warning("Client op failed [username=" + username +
-                        ", clop=" + _clop + "].", e);
+                log.warning("Client op failed", "username", username, "clop", _clop, e);
 
             } finally {
                 releaseClientObject(username);

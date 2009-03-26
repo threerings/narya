@@ -110,7 +110,7 @@ public class EntryUpdatedEvent<T extends DSet.Entry> extends NamedEvent
             _oldEntry = set.update(_entry);
             if (_oldEntry == null) {
                 // complain if we didn't update anything
-                log.warning("No matching entry to update [entry=" + this + ", set=" + set + "].");
+                log.warning("No matching entry to update", "entry", this, "set", set);
                 return false;
             }
         }

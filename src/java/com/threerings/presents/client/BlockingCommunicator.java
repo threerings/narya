@@ -380,12 +380,12 @@ public class BlockingCommunicator extends Communicator
             ByteBuffer buffer = _fout.frameAndReturnBuffer();
             if (buffer.limit() > 4096) {
                 String txt = StringUtil.truncate(String.valueOf(msg), 80, "...");
-                log.info("Whoa, writin' a big one [msg=" + txt + ", size=" + buffer.limit() + "].");
+                log.info("Whoa, writin' a big one", "msg", txt, "size", buffer.limit());
             }
             int wrote = _channel.write(buffer);
             if (wrote != buffer.limit()) {
-                log.warning("Aiya! Couldn't write entire message [msg=" + msg +
-                            ", size=" + buffer.limit() + ", wrote=" + wrote + "].");
+                log.warning("Aiya! Couldn't write entire message", "msg", msg,
+                            "size", buffer.limit(), "wrote", wrote);
 //             } else {
 //                 Log.info("Wrote " + wrote + " bytes.");
             }
@@ -416,8 +416,7 @@ public class BlockingCommunicator extends Communicator
         ByteBuffer buf = _bout.flip();
         int size = buf.remaining();
         if (size > Client.MAX_DATAGRAM_SIZE) {
-            log.warning("Dropping oversized datagram [size=" + size +
-                ", msg=" + msg + "].");
+            log.warning("Dropping oversized datagram", "size", size, "msg", msg);
             return;
         }
 
@@ -496,7 +495,7 @@ public class BlockingCommunicator extends Communicator
     {
         // the default implementation just connects to the first port and does no cycling
         int port = _client.getPorts()[0];
-        log.info("Connecting [host=" + host + ", port=" + port + "].");
+        log.info("Connecting", "host", host, "port", port);
         synchronized (BlockingCommunicator.this) {
             _channel = SocketChannel.open(new InetSocketAddress(host, port));
         }
@@ -709,7 +708,7 @@ public class BlockingCommunicator extends Communicator
             try {
                 connect();
             } catch (IOException ioe) {
-                log.warning("Failed to open datagram channel [error=" + ioe + "].");
+                log.warning("Failed to open datagram channel", "error", ioe);
                 shutdown();
             }
         }
@@ -765,7 +764,7 @@ public class BlockingCommunicator extends Communicator
 
             // check if we managed to establish a connection
             if (cport > 0) {
-                log.info("Datagram connection established [port=" + cport + "].");
+                log.info("Datagram connection established", "port", cport);
 
                 // start up the writer thread
                 _datagramWriter = new DatagramWriter();
@@ -819,10 +818,10 @@ public class BlockingCommunicator extends Communicator
                 log.debug("Datagram reader thread woken up in time to die.");
 
             } catch (IOException ioe) {
-                log.warning("Error receiving datagram [error=" + ioe + "].");
+                log.warning("Error receiving datagram", "error", ioe);
 
             } catch (Exception e) {
-                log.warning("Error processing message [msg=" + msg + ", error=" + e + "].");
+                log.warning("Error processing message", "msg", msg, "error", e);
             }
         }
 
@@ -875,7 +874,7 @@ public class BlockingCommunicator extends Communicator
                 sendDatagram(msg);
 
             } catch (IOException ioe) {
-                log.warning("Error sending datagram [error=" + ioe + "].");
+                log.warning("Error sending datagram", "error", ioe);
             }
         }
 

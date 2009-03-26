@@ -92,8 +92,8 @@ public class PongResponse extends DownstreamMessage
 
         // the time spent between unpacking the ping and packing the pong is the processing delay
         if (_pingStamp == 0L) {
-            log.warning("Pong response written that was not constructed " +
-                        "with a valid ping stamp [rsp=" + this + "].");
+            log.warning("Pong response written that was not constructed with a valid ping stamp",
+                        "rsp", this);
             _processDelay = 0;
         } else {
             _processDelay = (int)(_packStamp - _pingStamp);

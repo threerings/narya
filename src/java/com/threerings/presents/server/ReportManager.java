@@ -135,7 +135,7 @@ public class ReportManager
             try {
                 rptr.appendReport(report, now, sinceLast, reset);
             } catch (Throwable t) {
-                log.warning("Reporter choked [rptr=" + rptr + "].", t);
+                log.warning("Reporter choked", "rptr", rptr, t);
             }
         }
 

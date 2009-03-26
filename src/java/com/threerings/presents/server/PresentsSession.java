@@ -413,8 +413,8 @@ public class PresentsSession
         // first time through we end our session, subsequently _throttle is null and we just drop
         // any messages that come in until we've fully shutdown
         if (_throttle == null) {
-//             log.info("Dropping message from force-quit client [conn=" + getConnection() +
-//                      ", msg=" + message + "].");
+//             log.info("Dropping message from force-quit client", "conn", getConnection(),
+//                      "msg", message);
             return;
 
         } else if (_throttle.throttleOp(message.received)) {
@@ -855,8 +855,8 @@ public class PresentsSession
 
         // make darned sure we don't have any remaining subscriptions
         if (_subscrips.size() > 0) {
-//             log.warning("Clearing stale subscriptions [client=" + this +
-//                         ", subscrips=" + _subscrips.size() + "].");
+//             log.warning("Clearing stale subscriptions", "client", this,
+//                         "subscrips", _subscrips.size());
             clearSubscrips(_messagesDropped > 10);
         }
         return false;
@@ -1004,7 +1004,7 @@ public class PresentsSession
         public void dispatch (PresentsSession client, Message msg)
         {
             SubscribeRequest req = (SubscribeRequest)msg;
-//             log.info("Subscribing [client=" + client + ", oid=" + req.getOid() + "].");
+//             log.info("Subscribing", "client", client, "oid", req.getOid());
 
             // forward the subscribe request to the omgr for processing
             client._omgr.subscribeToObject(req.getOid(), client.createProxySubscriber());
@@ -1020,7 +1020,7 @@ public class PresentsSession
         {
             UnsubscribeRequest req = (UnsubscribeRequest)msg;
             int oid = req.getOid();
-//             log.info("Unsubscribing " + client + " [oid=" + oid + "].");
+//             log.info("Unsubscribing " + client + "", "oid", oid);
 
             // unsubscribe from the object and clear out our proxy
             client.unmapSubscrip(oid);
@@ -1051,7 +1051,7 @@ public class PresentsSession
             // fill in the proper source oid
             fevt.setSourceOid(clobj.getOid());
 
-//             log.info("Forwarding event [client=" + client + ", event=" + fevt + "].");
+//             log.info("Forwarding event", "client", client, "event", fevt);
 
             // forward the event to the omgr for processing
             client._omgr.postEvent(fevt);

@@ -90,7 +90,7 @@ public class PresentsServer
             String testmod = System.getProperty("test_module");
             if (testmod != null) {
                 try {
-                    log.info("Invoking test module [mod=" + testmod + "].");
+                    log.info("Invoking test module", "mod", testmod);
                     Class<?> tmclass = Class.forName(testmod);
                     Runnable trun = (Runnable)tmclass.newInstance();
                     trun.run();
@@ -125,15 +125,15 @@ public class PresentsServer
     {
         // output general system information
         SystemInfo si = new SystemInfo();
-        log.info("Starting up server [os=" + si.osToString() + ", jvm=" + si.jvmToString() +
-                 ", mem=" + si.memoryToString() + "].");
+        log.info("Starting up server", "os", si.osToString(), "jvm", si.jvmToString(),
+                 "mem", si.memoryToString());
 
         // register SIGTERM, SIGINT (ctrl-c) and a SIGHUP handlers
         boolean registered = false;
         try {
             registered = injector.getInstance(SunSignalHandler.class).init();
         } catch (Throwable t) {
-            log.warning("Unable to register Sun signal handlers [error=" + t + "].");
+            log.warning("Unable to register Sun signal handlers", "error", t);
         }
         if (!registered) {
             injector.getInstance(NativeSignalHandler.class).init();

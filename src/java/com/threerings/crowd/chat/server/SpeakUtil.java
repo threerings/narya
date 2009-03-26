@@ -194,8 +194,7 @@ public class SpeakUtil
             _messageMapper.message = null;
 
         } else {
-            log.info("Unable to note listeners [dclass=" + speakObj.getClass() +
-                     ", msg=" + msg + "].");
+            log.info("Unable to note listeners", "dclass", speakObj.getClass(), "msg", msg);
         }
     }
 

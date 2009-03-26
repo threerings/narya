@@ -83,7 +83,7 @@ public class InvocationManager
         invobj.addListener(this);
         _invoid = invobj.getOid();
 
-//         log.info("Created invocation service object [oid=" + _invoid + "].");
+//         log.info("Created invocation service object", "oid", _invoid);
     }
 
     /**
@@ -151,7 +151,7 @@ public class InvocationManager
 
         _recentRegServices.put(Integer.valueOf(invCode), marsh.getClass().getName());
 
-//        log.info("Registered service [marsh=" + marsh + "].");
+//        log.info("Registered service", "marsh", marsh);
         return marsh;
     }
 
@@ -169,8 +169,8 @@ public class InvocationManager
         }
 
         if (_dispatchers.remove(marsh.getInvocationCode()) == null) {
-            log.warning("Requested to remove unregistered marshaller? " +
-                        "[marsh=" + marsh + "].", new Exception());
+            log.warning("Requested to remove unregistered marshaller?", "marsh", marsh,
+                        new Exception());
         }
     }
 
@@ -224,21 +224,17 @@ public class InvocationManager
         // make sure the client is still around
         ClientObject source = (ClientObject)_omgr.getObject(clientOid);
         if (source == null) {
-            log.info("Client no longer around for invocation " +
-                     "request [clientOid=" + clientOid +
-                     ", code=" + invCode + ", methId=" + methodId +
-                     ", args=" + StringUtil.toString(args) + "].");
+            log.info("Client no longer around for invocation request", "clientOid", clientOid,
+                     "code", invCode, "methId", methodId, "args", args);
             return;
         }
 
         // look up the dispatcher
         InvocationDispatcher<?> disp = _dispatchers.get(invCode);
         if (disp == null) {
-            log.info("Received invocation request but dispatcher " +
-                     "registration was already cleared [code=" + invCode +
-                     ", methId=" + methodId +
-                     ", args=" + StringUtil.toString(args) + ", marsh=" +
-                     _recentRegServices.get(Integer.valueOf(invCode)) + "].");
+            log.info("Received invocation request but dispatcher registration was already cleared",
+                     "code", invCode, "methId", methodId, "args", args,
+                     "marsh", _recentRegServices.get(Integer.valueOf(invCode)));
             return;
         }
 
@@ -259,9 +255,8 @@ public class InvocationManager
             }
         }
 
-//         log.debug("Dispatching invreq [caller=" + source.who() +
-//                   ", disp=" + disp + ", methId=" + methodId +
-//                   ", args=" + StringUtil.toString(args) + "].");
+//         log.debug("Dispatching invreq", "caller", source.who(), "disp", disp,
+//                   "methId", methodId, "args", args);
 
         // dispatch the request
         try {
@@ -276,18 +271,14 @@ public class InvocationManager
                 rlist.requestFailed(ie.getMessage());
 
             } else {
-                log.warning("Service request failed but we've got no " +
-                            "listener to inform of the failure " +
-                            "[caller=" + source.who() + ", code=" + invCode +
-                            ", dispatcher=" + disp + ", methodId=" + methodId +
-                            ", args=" + StringUtil.toString(args) +
-                            ", error=" + ie + "].");
+                log.warning("Service request failed but we've got no listener to inform of " +
+                            "the failure", "caller", source.who(), "code", invCode,
+                            "dispatcher", disp, "methodId", methodId, "args", args, "error", ie);
             }
 
         } catch (Throwable t) {
-            log.warning("Dispatcher choked [disp=" + disp +
-                        ", caller=" + source.who() + ", methId=" + methodId +
-                        ", args=" + StringUtil.toString(args) + "].", t);
+            log.warning("Dispatcher choked", "disp", disp, "caller", source.who(),
+                        "methId", methodId, "args", args, t);
 
             // avoid logging an error when the listener notices that it's been ignored.
             if (rlist != null) {
@@ -321,7 +312,8 @@ public class InvocationManager
 
     /** Tracks recently registered services so that we can complain informatively if a request
      * comes in on a service we don't know about. */
-    protected final Map<Integer, String> _recentRegServices = new LRUHashMap<Integer, String>(10000);
+    protected final Map<Integer, String> _recentRegServices =
+        new LRUHashMap<Integer, String>(10000);
 
     /** The text appended to the procedure name when generating a failure response. */
     protected static final String FAILED_SUFFIX = "Failed";

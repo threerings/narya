@@ -181,7 +181,7 @@ public class ObjectInputStream extends DataInputStream
         Class<?> sclass = Class.forName(cname, true, _loader);
         Streamer streamer = Streamer.getStreamer(sclass);
         if (STREAM_DEBUG) {
-            log.info(hashCode() + ": New class '" + cname + "' [code=" + code + "].");
+            log.info(hashCode() + ": New class '" + cname + "'", "code", code);
         }
 
         // sanity check

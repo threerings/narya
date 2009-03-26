@@ -192,8 +192,8 @@ public class ClientResolver extends Invoker.Unit
             try {
                 crl.resolutionFailed(_username, cause);
             } catch (Exception e) {
-                log.warning("Client resolution listener choked in resolutionFailed() [crl=" + crl +
-                            ", username=" + _username + ", cause=" + cause + "].", e);
+                log.warning("Client resolution listener choked in resolutionFailed()", "crl", crl,
+                            "username", _username, "cause", cause, e);
             }
         }
     }

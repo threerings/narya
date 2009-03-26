@@ -100,8 +100,8 @@ public class ObjectOutputStream extends DataOutputStream
             // constructor because we want to be sure not to call _nextCode++ if getStreamer()
             // throws an exception
             if (ObjectInputStream.STREAM_DEBUG) {
-                log.info(hashCode() + ": Creating class mapping [code=" + _nextCode +
-                         ", class=" + sclass.getName() + "].");
+                log.info(hashCode() + ": Creating class mapping", "code", _nextCode,
+                         "class", sclass.getName());
             }
             cmap = createClassMapping(_nextCode++, sclass, streamer);
             _classmap.put(sclass, cmap);
@@ -205,7 +205,7 @@ public class ObjectOutputStream extends DataOutputStream
             throw new RuntimeException("defaultWriteObject() called illegally.");
         }
 
-//         log.info("Writing default [cmap=" + _streamer + ", current=" + _current + "].");
+//         log.info("Writing default", "cmap", _streamer, "current", _current);
 
         // write the instance data
         _streamer.writeObject(_current, this, false);

@@ -357,7 +357,7 @@ public class DObject
         // clear the lock from the list
         if (ListUtil.clear(_locks, name) == null) {
             // complain if we didn't find the lock
-            log.info("Unable to clear non-existent lock [lock=" + name + ", dobj=" + this + "].");
+            log.info("Unable to clear non-existent lock", "lock", name, "dobj", this);
         }
     }
 
@@ -438,8 +438,8 @@ public class DObject
                 }
 
             } catch (Exception e) {
-                log.warning("Listener choked during notification [list=" + listener +
-                            ", event=" + event + "].", e);
+                log.warning("Listener choked during notification", "list", listener,
+                            "event", event, e);
             }
         }
     }
@@ -551,8 +551,8 @@ public class DObject
             _omgr.postEvent(event);
 
         } else {
-            log.info("Dropping event for non- or no longer managed object [oid=" + getOid() +
-                     ", class=" + getClass().getName() + ", event=" + event + "].");
+            log.info("Dropping event for non- or no longer managed object", "oid", getOid(),
+                     "class", getClass().getName(), "event", event);
         }
     }
 

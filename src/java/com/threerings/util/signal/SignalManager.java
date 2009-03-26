@@ -189,8 +189,8 @@ public class SignalManager
     {
         ObserverList<SignalHandler> list = _handlers.get(signal);
         if (list == null || !list.contains(handler)) {
-            log.warning("Requested to remove non-registered handler [signal=" + signal +
-                        ", handler=" + handler + "].");
+            log.warning("Requested to remove non-registered handler", "signal", signal,
+                        "handler", handler);
             return;
         }
         list.remove(handler);

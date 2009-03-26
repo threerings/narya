@@ -395,8 +395,7 @@ public class ConnectionManager extends LoopingThread
                 log.info("Server accepting datagrams on " + isa + ".");
 
             } catch (IOException ioe) {
-                log.warning("Failure opening datagram channel on port '" +
-                    port + "'.", ioe);
+                log.warning("Failure opening datagram channel on port '" + port + "'.", ioe);
             }
         }
     }
@@ -550,8 +549,7 @@ public class ConnectionManager extends LoopingThread
         Set<SelectionKey> ready = null;
         int eventCount;
         try {
-//             log.debug("Selecting from " + StringUtil.toString(_selector.keys()) + " (" +
-//                       SELECT_LOOP_TIME + ").");
+//             log.debug("Selecting from " + _selector.keys() + " (" + SELECT_LOOP_TIME + ").");
 
             // check for incoming network events
             eventCount = _selector.select(SELECT_LOOP_TIME);
@@ -602,7 +600,7 @@ public class ConnectionManager extends LoopingThread
                     continue;
                 }
 
-//                 log.info("Got event [selkey=" + selkey + ", handler=" + handler + "].");
+//                 log.info("Got event", "selkey", selkey, "handler", handler);
 
                 int got = handler.handleEvent(iterStamp);
                 if (got != 0) {
@@ -668,8 +666,8 @@ public class ConnectionManager extends LoopingThread
             if (oqueue != null) {
                 int size = oqueue.size();
                 if ((size > 500) && (size % 50 == 0)) {
-                    log.warning("Aiya, big overflow queue for " + conn + " [size=" + size +
-                                ", adding=" + tup.right + "].");
+                    log.warning("Aiya, big overflow queue for " + conn + "", "size", size,
+                                "adding", tup.right);
                 }
                 oqueue.add(tup.right);
                 continue;
@@ -717,7 +715,7 @@ public class ConnectionManager extends LoopingThread
         if (data.length > _outbuf.capacity()) {
             // increase the buffer size in large increments
             int ncapacity = Math.max(_outbuf.capacity() << 1, data.length);
-            log.info("Expanding output buffer size [nsize=" + ncapacity + "].");
+            log.info("Expanding output buffer size", "nsize", ncapacity);
             _outbuf = ByteBuffer.allocateDirect(ncapacity);
         }
 
@@ -766,7 +764,7 @@ public class ConnectionManager extends LoopingThread
     {
         InetSocketAddress target = conn.getDatagramAddress();
         if (target == null) {
-            log.warning("No address to send datagram [conn=" + conn + "].");
+            log.warning("No address to send datagram", "conn", conn);
             return false;
         }
 
@@ -859,8 +857,7 @@ public class ConnectionManager extends LoopingThread
         // id, authentication hash, and a class reference)
         int size = _databuf.flip().remaining();
         if (size < 14) {
-            log.warning("Received undersized datagram [source=" + source +
-                ", size=" + size + "].");
+            log.warning("Received undersized datagram", "source", source, "size", size);
             return 0;
         }
 
@@ -870,8 +867,8 @@ public class ConnectionManager extends LoopingThread
         if (conn != null) {
             conn.handleDatagram(source, _databuf, when);
         } else {
-            log.warning("Received datagram for unknown connection [id=" + connectionId +
-                ", source=" + source + "].");
+            log.warning("Received datagram for unknown connection", "id", connectionId,
+                        "source", source);
         }
 
         // return the size of the datagram
@@ -1113,8 +1110,8 @@ public class ConnectionManager extends LoopingThread
                     _partial = null;
                     _partials++;
                 } else {
-//                     log.info("Still going [conn=" + conn + ", wrote=" + wrote +
-//                              ", remain=" + _partial.remaining() + "].");
+//                     log.info("Still going", "conn", conn, "wrote", wrote,
+//                              "remain", _partial.remaining());
                     return false;
                 }
             }

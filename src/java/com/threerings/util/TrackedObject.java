@@ -78,8 +78,7 @@ public class TrackedObject
             if (count != null) {
                 count[0]--;
             } else {
-                log.warning("Finalized TrackedObject missing counter! " +
-                            "[class=" + clazz + "].");
+                log.warning("Finalized TrackedObject missing counter!", "class", clazz);
             }
         }
 

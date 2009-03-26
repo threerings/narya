@@ -154,8 +154,7 @@ public abstract class FieldEditor extends JPanel
         try {
             return _field.get(_object);
         } catch (Exception e) {
-            log.warning("Failed to fetch field [field=" + _field +
-                        ", object=" + _object + ", error=" + e + "].");
+            log.warning("Failed to fetch field", "field", _field, "object", _object, "error", e);
             return null;
         }
     }

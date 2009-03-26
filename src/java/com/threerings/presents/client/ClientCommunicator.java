@@ -81,7 +81,7 @@ public class ClientCommunicator extends BlockingCommunicator
         for (int ii = 0; ii < ports.length; ii++) {
             int port = ports[(ii+ppidx)%ports.length];
             int nextPort = ports[(ii+ppidx+1)%ports.length];
-            log.info("Connecting [host=" + host + ", port=" + port + "].");
+            log.info("Connecting", "host", host, "port", port);
             InetSocketAddress addr = new InetSocketAddress(host, port);
             try {
                 synchronized (this) {

@@ -164,7 +164,7 @@ public class PlaceRegistry
             try {
                 pmgr.shutdown();
             } catch (Exception e) {
-                log.warning("Place manager failed shutting down [where=" + pmgr.where() + "].", e);
+                log.warning("Place manager failed shutting down", "where", pmgr.where(), e);
             }
         }
     }
@@ -222,7 +222,7 @@ public class PlaceRegistry
             pmgr.startup(plobj);
 
         } catch (Exception e) {
-            log.warning("Error starting place manager [obj=" + plobj + ", pmgr=" + pmgr + "].", e);
+            log.warning("Error starting place manager", "obj", plobj, "pmgr", pmgr, e);
         }
 
         return pmgr;
@@ -258,7 +258,7 @@ public class PlaceRegistry
         int ploid = pmgr.getPlaceObject().getOid();
         // remove it from the table
         if (_pmgrs.remove(ploid) == null) {
-            log.warning("Requested to unmap unmapped place manager [pmgr=" + pmgr + "].");
+            log.warning("Requested to unmap unmapped place manager", "pmgr", pmgr);
 
 //         } else {
 //             Log.info("Unmapped place manager [class=" + pmgr.getClass().getName() +
