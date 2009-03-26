@@ -150,7 +150,7 @@ public class InvocationDirector
                 log.warning("Receiver unregistered for which we have no id to code mapping",
                             "code", receiverCode);
             } else {
-//                 Object decoder = _receivers.remove(rreg.receiverId);
+                _receivers.remove(rreg.receiverId);
 //                 Log.info("Cleared receiver " + StringUtil.shortClassName(decoder) +
 //                          " " + rreg + ".");
             }
