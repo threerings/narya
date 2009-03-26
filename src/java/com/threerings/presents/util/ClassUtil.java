@@ -26,7 +26,6 @@ import java.lang.reflect.Method;
 import java.util.Map;
 
 import com.samskivert.util.MethodFinder;
-import com.samskivert.util.StringUtil;
 
 import static com.threerings.presents.Log.log;
 

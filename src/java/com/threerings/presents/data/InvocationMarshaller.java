@@ -21,8 +21,6 @@
 
 package com.threerings.presents.data;
 
-import com.samskivert.util.StringUtil;
-
 import com.threerings.io.Streamable;
 
 import com.threerings.presents.client.Client;

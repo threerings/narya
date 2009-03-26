@@ -25,7 +25,6 @@ import java.util.ArrayList;
 import java.util.Iterator;
 
 import com.samskivert.util.HashIntMap;
-import com.samskivert.util.StringUtil;
 
 import com.threerings.presents.client.InvocationReceiver.Registration;
 import com.threerings.presents.data.ClientObject;

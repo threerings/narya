@@ -21,8 +21,6 @@
 
 package com.threerings.presents.server;
 
-import com.samskivert.util.StringUtil;
-
 import com.threerings.presents.data.ClientObject;
 import com.threerings.presents.data.InvocationMarshaller;
 
