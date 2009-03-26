@@ -49,6 +49,7 @@ import com.threerings.presents.dobj.RootDObjectManager;
 import com.threerings.presents.dobj.SetAdapter;
 import com.threerings.presents.server.InvocationManager;
 
+import com.threerings.crowd.chat.data.ChatCodes;
 import com.threerings.crowd.chat.server.SpeakDispatcher;
 import com.threerings.crowd.chat.server.SpeakHandler;
 import com.threerings.crowd.data.BodyObject;
@@ -409,7 +410,17 @@ public class PlaceManager
     // documentation inherited from interface
     public boolean isValidSpeaker (DObject speakObj, ClientObject speaker, byte mode)
     {
-        // only allow people in the room to speak
+        // have a whitelist for valid modes (no broadcasting, that's done elsewhere)
+        switch (mode) {
+        default:
+            return false;
+        case ChatCodes.DEFAULT_MODE:
+        case ChatCodes.THINK_MODE:
+        case ChatCodes.EMOTE_MODE:
+        case ChatCodes.SHOUT_MODE:
+            break;
+        }
+        // only allow people in the room to speak.
         return _plobj.occupants.contains(speaker.getOid());
     }
 
