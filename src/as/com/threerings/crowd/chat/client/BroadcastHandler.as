@@ -21,6 +21,7 @@
 
 package com.threerings.crowd.chat.client {
 
+import com.threerings.util.MessageBundle;
 import com.threerings.util.Name;
 import com.threerings.util.ResultListener;
 import com.threerings.util.StringUtil;
@@ -42,13 +43,16 @@ public class BroadcastHandler extends CommandHandler
         // mogrify and verify length
         var chatdir :ChatDirector = ctx.getChatDirector();
         args = chatdir.mogrifyChat(args);
+        args = chatdir.filter(args, null, true);
+        if (args == null) {
+            return MessageBundle.compose("m.broadcast_failed", "m.filtered");
+        }
         var err :String = chatdir.checkLength(args);
         if (err != null) {
             return err;
         }
 
-        // do the broadcast
-        chatdir.requestBroadcast(args);
+        doBroadcast(ctx, args);
 
         history[0] = cmd + " ";
         return ChatCodes.SUCCESS;
@@ -57,6 +61,14 @@ public class BroadcastHandler extends CommandHandler
     override public function checkAccess (user :BodyObject) :Boolean
     {
         return (null == user.checkAccess(ChatCodes.BROADCAST_ACCESS, null));
+    }
+
+    /**
+     * Actually do the broadcast.
+     */
+    protected function doBroadcast (ctx :CrowdContext, msg :String) :void
+    {
+        ctx.getChatDirector().requestBroadcast(msg);
     }
 }
 }

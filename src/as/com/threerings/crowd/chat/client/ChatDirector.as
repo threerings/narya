@@ -437,12 +437,7 @@ public class ChatDirector extends BasicDirector
      */
     public function requestBroadcast (message :String) :void
     {
-        message = filter(message, null, true);
-        if (message == null) {
-            displayFeedback(_bundle, MessageBundle.compose("m.broadcast_failed", "m.filtered"));
-            return;
-        }
-
+        // filtering is now done in the broadcast handler, not here. Java code may differ.
         var failure :Function = function (reason :String) :void {
             reason = MessageBundle.compose("m.broadcast_failed", reason);
             displayFeedback(_bundle, reason);
