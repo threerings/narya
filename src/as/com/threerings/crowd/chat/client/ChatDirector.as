@@ -1068,10 +1068,10 @@ public class ChatDirector extends BasicDirector
     protected var _chatterObservers :ObserverList = new ObserverList();
 
     /** Registered chat command handlers. */
-    protected static const _handlers :HashMap = new HashMap();
+    protected const _handlers :HashMap = new HashMap();
 
     /** A history of chat commands. */
-    protected static const _history :Array = new Array();
+    protected const _history :Array = new Array();
 
     /** The maximum number of chatter usernames to track. */
     protected static const MAX_CHATTERS :int = 6;
