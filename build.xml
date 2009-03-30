@@ -266,6 +266,23 @@
     </copy>
   </target>
 
+  <!-- builds the ActionScript documention -->
+  <target name="asdoc" unless="no_build_aslib" depends="checkaslib">
+    <mkdir dir="${deploy.dir}/asdocs"/>
+    <java classpath="${flexsdk.dir}/lib/asdoc.jar" classname="flex2.tools.ASDoc" fork="true">
+      <jvmarg value="-Xmx1024m"/>
+      <jvmarg value="-Dsun.io.useCanonCashes=false"/>
+      <jvmarg value="-Xbootclasspath/p:${flexsdk.dir}/asdoc/lib/xalan.jar"/>
+      <jvmarg value="-Dos.name=Windows"/>
+      <arg value="+flexlib=${flexsdk.dir}/frameworks"/>
+      <arg line="-library-path ${flexsdk.dir}/frameworks/libs"/>
+      <arg line="-templates-path ${flexsdk.dir}/asdoc/templates"/>
+      <arg line="-doc-sources src/as"/>
+      <arg line="-doc-sources src/player"/>
+      <arg line="-output ${deploy.dir}/asdocs"/>
+    </java>
+  </target>
+
   <!-- runs our tests -->
   <target name="tests">
     <ant dir="tests" target="tests"/>
