@@ -273,7 +273,6 @@
       <jvmarg value="-Xmx1024m"/>
       <jvmarg value="-Dsun.io.useCanonCashes=false"/>
       <jvmarg value="-Xbootclasspath/p:${flexsdk.dir}/asdoc/lib/xalan.jar"/>
-      <jvmarg value="-Dos.name=Windows"/>
       <arg value="+flexlib=${flexsdk.dir}/frameworks"/>
       <arg line="-library-path ${flexsdk.dir}/frameworks/libs"/>
       <arg line="-templates-path ${flexsdk.dir}/asdoc/templates"/>
