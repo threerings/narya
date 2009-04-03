@@ -45,6 +45,14 @@ public class FrameReader extends EventDispatcher
     }
 
     /**
+     * Stop listening on the socket.
+     */
+    public function shutdown () :void
+    {
+        _socket.removeEventListener(ProgressEvent.SOCKET_DATA, socketHasData);
+    }
+
+    /**
      * Called when our socket has data that we can read.
      */
     protected function socketHasData (event :ProgressEvent) :void
@@ -52,7 +60,7 @@ public class FrameReader extends EventDispatcher
         try {
             readAvailable();
         } catch (e :Error) {
-            Log.getLog(this).warning("Error reading socket data [e=" + e + "].");
+            Log.getLog(this).warning("Error reading socket data", e);
         }
     }
 

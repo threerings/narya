@@ -24,6 +24,7 @@ package com.threerings.presents.client {
 import flash.errors.IOError;
 import flash.events.Event;
 import flash.events.IOErrorEvent;
+import flash.events.SecurityErrorEvent;
 import flash.events.TimerEvent;
 
 import flash.net.Socket;
@@ -104,6 +105,7 @@ public class Communicator
         _socket.endian = Endian.BIG_ENDIAN;
         _socket.addEventListener(Event.CONNECT, socketOpened);
         _socket.addEventListener(IOErrorEvent.IO_ERROR, socketError);
+        _socket.addEventListener(SecurityErrorEvent.SECURITY_ERROR, socketError);
         _socket.addEventListener(Event.CLOSE, socketClosed);
 
         _frameReader = new FrameReader(_socket);
@@ -124,9 +126,11 @@ public class Communicator
     {
         _socket.removeEventListener(Event.CONNECT, socketOpened);
         _socket.removeEventListener(IOErrorEvent.IO_ERROR, socketError);
+        _socket.removeEventListener(SecurityErrorEvent.SECURITY_ERROR, socketError);
         _socket.removeEventListener(Event.CLOSE, socketClosed);
 
         _frameReader.removeEventListener(FrameAvailableEvent.FRAME_AVAILABLE, inputFrameReceived);
+        _frameReader.shutdown();
     }
 
     protected function shutdown (logonError :Error) :void
@@ -299,7 +303,7 @@ public class Communicator
     /**
      * Called when there is an io error with the socket.
      */
-    protected function socketError (event :IOErrorEvent) :void
+    protected function socketError (event :Event) :void
     {
         // if we're still trying ports, try the next one.
         if (_portIdx != -1) {
