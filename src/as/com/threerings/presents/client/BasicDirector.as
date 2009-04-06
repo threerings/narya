@@ -21,6 +21,8 @@
 
 package com.threerings.presents.client {
 
+import flash.events.EventDispatcher;
+
 import com.threerings.presents.util.PresentsContext;
 
 /**
@@ -30,7 +32,7 @@ import com.threerings.presents.util.PresentsContext;
  * clean up after themselves when the client logs off (by overriding
  * {@link #clientDidLogoff}).
  */
-public class BasicDirector
+public class BasicDirector extends EventDispatcher
     implements SessionObserver
 {
     /**
