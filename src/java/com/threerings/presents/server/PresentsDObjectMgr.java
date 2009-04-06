@@ -70,7 +70,7 @@ import static com.threerings.presents.Log.log;
  */
 @Singleton
 public class PresentsDObjectMgr
-    implements RootDObjectManager, RunQueue, ReportManager.Reporter
+    implements RootDObjectManager, RunQueue
 {
     /** Contains operational statistics that are tracked by the distributed object manager between
      * {@link ReportManager.Reporter} intervals. The snapshot for the most recently completed
@@ -103,9 +103,39 @@ public class PresentsDObjectMgr
         dummy.setManager(this);
         _objects.put(0, new DObject());
 
-        // register ourselves as a state of server reporter and also tell the report manager that
-        // we're providing the runqueue for it to do its business
-        repmgr.registerReporter(this);
+        // register a couple of reports with the report manager
+        repmgr.registerReporter(ReportManager.DEFAULT_TYPE, new ReportManager.Reporter() {
+            public void appendReport (StringBuilder report, long now, long elapsed, boolean reset) {
+                report.append("* presents.PresentsDObjectMgr:\n");
+                int queueSize = _evqueue.size();
+                report.append("- Queue size: ").append(queueSize).append("\n");
+                report.append("- Max queue size: ").append(_current.maxQueueSize).append("\n");
+                report.append("- Units executed: ").append(_current.eventCount);
+                report.append(" (").append(1000*_current.eventCount/elapsed).append("/s)\n");
+                // roll over stats
+                if (reset) {
+                    _recent = _current;
+                    _current = new Stats();
+                    _current.maxQueueSize = queueSize;
+                }
+            }
+        });
+        repmgr.registerReporter(ReportManager.PROFILE_TYPE, new ReportManager.Reporter() {
+            public void appendReport (StringBuilder report, long now, long elapsed, boolean reset) {
+                report.append("* presents.PresentsDObjectMgr:\n");
+                if (UNIT_PROF_ENABLED) {
+                    report.append("- Unit profiles: ").append(_profiles.size()).append("\n");
+                    for (Map.Entry<String, UnitProfile> entry : _profiles.entrySet()) {
+                        report.append("  ").append(entry.getKey());
+                        report.append(" ").append(entry.getValue()).append("\n");
+                    }
+                } else {
+                    report.append("- Unit profiles disabled.\n");
+                }
+            }
+        });
+
+        // also tell the report manager that we're providing the runqueue for it to do its business
         repmgr.init(this);
 
         // register our event helpers
@@ -544,32 +574,6 @@ public class PresentsDObjectMgr
     public boolean queueIsEmpty ()
     {
         return !_evqueue.hasElements();
-    }
-
-    // from interface ReportManager.Reporter
-    public void appendReport (StringBuilder report, long now, long sinceLast, boolean reset)
-    {
-        report.append("* presents.PresentsDObjectMgr:\n");
-        int queueSize = _evqueue.size();
-        report.append("- Queue size: ").append(queueSize).append("\n");
-        report.append("- Max queue size: ").append(_current.maxQueueSize).append("\n");
-        report.append("- Units executed: ").append(_current.eventCount);
-        report.append(" (").append(1000*_current.eventCount/sinceLast).append("/s)\n");
-
-        if (UNIT_PROF_ENABLED) {
-            report.append("- Unit profiles: ").append(_profiles.size()).append("\n");
-            for (Map.Entry<String, UnitProfile> entry : _profiles.entrySet()) {
-                report.append("  ").append(entry.getKey());
-                report.append(" ").append(entry.getValue()).append("\n");
-            }
-        }
-
-        // roll over stats
-        if (reset) {
-            _recent = _current;
-            _current = new Stats();
-            _current.maxQueueSize = queueSize;
-        }
     }
 
     /**

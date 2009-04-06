@@ -58,6 +58,9 @@ public class ReportManager
     /** A string constant representing the default report. */
     public static final String DEFAULT_TYPE = "";
 
+    /** A string constant representing a report with detailed profiling information. */
+    public static final String PROFILE_TYPE = "";
+
     /**
      * Starts up our periodic report generation task on the supplied run queue.
      */
