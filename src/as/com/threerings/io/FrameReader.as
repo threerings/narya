@@ -67,11 +67,10 @@ public class FrameReader extends EventDispatcher
     protected function readAvailable () :void
     {
         if (ObjectInputStream.DEBUG) {
-            Log.getLog(this).debug(
-                "socketHasData(" + _socket.bytesAvailable + ")");
+            Log.getLog(this).debug("socketHasData(" + _socket.bytesAvailable + ")");
         }
 
-        while (_socket.bytesAvailable > 0) {
+        while (_socket.connected && _socket.bytesAvailable > 0) {
             if (_curData == null) {
                 if (_socket.bytesAvailable < HEADER_SIZE) {
                     // if there are less bytes available than a header, let's
