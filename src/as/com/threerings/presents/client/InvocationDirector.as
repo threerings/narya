@@ -181,6 +181,10 @@ public class InvocationDirector
      */
     public function sendRequest (invOid :int, invCode :int, methodId :int, args :Array) :void
     {
+        if (_clobj == null) { // sanitus checkem
+            throw new Error("Can't send invocation request, have no ClientObject.");
+        }
+
         // configure any invocation listener marshallers among the args
         for each (var arg :Object in args) {
             if (arg is InvocationMarshaller_ListenerMarshaller) {
