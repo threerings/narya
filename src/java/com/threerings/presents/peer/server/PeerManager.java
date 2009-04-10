@@ -1035,9 +1035,8 @@ public abstract class PeerManager
      */
     protected void connectedToPeer (PeerNode peer)
     {
-        String nodeName = peer.getNodeName();
-
         // check for lock conflicts
+        String nodeName = peer.getNodeName();
         for (NodeObject.Lock lock : peer.nodeobj.locks) {
             PeerManager.LockHandler handler = _locks.get(lock);
             if (handler != null) {
@@ -1051,11 +1050,6 @@ public abstract class PeerManager
                 droppedLock(lock);
             }
         }
-
-        // indicate that all these clients have logged on
-        for (ClientInfo clinfo : peer.nodeobj.clients) {
-            clientLoggedOn(nodeName, clinfo);
-        }
     }
 
     /**
@@ -1063,18 +1057,12 @@ public abstract class PeerManager
      */
     protected void disconnectedFromPeer (PeerNode peer)
     {
-        String nodeName = peer.getNodeName();
-
         // clear any locks held by that peer
+        String nodeName = peer.getNodeName();
         for (LockHandler handler : _locks.values().toArray(new LockHandler[_locks.size()])) {
             if (handler.getNodeName().equals(nodeName)) {
                 handler.clientDidLogoff();
             }
-        }
-
-        // indicate that these clients have left
-        for (ClientInfo clinfo : peer.nodeobj.clients) {
-            clientLoggedOff(nodeName, clinfo);
         }
     }
 
