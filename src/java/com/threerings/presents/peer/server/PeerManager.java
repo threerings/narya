@@ -877,7 +877,7 @@ public abstract class PeerManager
         if (peer == null) {
             peer = _injector.getInstance(getPeerNodeClass());
             _peers.put(record.nodeName, peer);
-            peer.init(this, _omgr, _conmgr, record);
+            peer.init(record);
         }
         peer.refresh(record);
     }

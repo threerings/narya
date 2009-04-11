@@ -65,12 +65,8 @@ public class PeerNode
     /**
      * Initializes this peer node and creates its internal client.
      */
-    public void init (PeerManager peermgr, final PresentsDObjectMgr omgr,
-                      final ConnectionManager conmgr, NodeRecord record)
+    public void init (NodeRecord record)
     {
-        _peermgr = peermgr;
-        _omgr = omgr;
-        _conmgr = conmgr;
         _record = record;
         _client = new Client(null, _omgr) {
             @Override protected void convertFromRemote (DObject target, DEvent event) {
@@ -330,13 +326,14 @@ public class PeerNode
         }
     } // END: class NodeObjectListener
 
-    protected PeerManager _peermgr;
-    protected PresentsDObjectMgr _omgr;
-    protected ConnectionManager _conmgr;
     protected NodeRecord _record;
     protected NodeObjectListener _listener;
     protected Client _client;
     protected long _lastConnectStamp;
+
+    @Inject protected PeerManager _peermgr;
+    @Inject protected PresentsDObjectMgr _omgr;
+    @Inject protected ConnectionManager _conmgr;
 
     /** The amount of time after which a node record can be considered out of date and invalid. */
     protected static final long STALE_INTERVAL = 5L * 60L * 1000L;
