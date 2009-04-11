@@ -875,7 +875,8 @@ public abstract class PeerManager
     {
         PeerNode peer = _peers.get(record.nodeName);
         if (peer == null) {
-            _peers.put(record.nodeName, peer = createPeerNode());
+            peer = _injector.getInstance(getPeerNodeClass());
+            _peers.put(record.nodeName, peer);
             peer.init(this, _omgr, _conmgr, record);
         }
         peer.refresh(record);
@@ -978,9 +979,9 @@ public abstract class PeerManager
     /**
      * Creates a {@link PeerNode} to manage our connection to the specified peer.
      */
-    protected PeerNode createPeerNode ()
+    protected Class<? extends PeerNode> getPeerNodeClass ()
     {
-        return new PeerNode();
+        return PeerNode.class;
     }
 
     /**

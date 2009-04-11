@@ -25,6 +25,8 @@ import java.net.ConnectException;
 
 import java.util.Date;
 
+import com.google.inject.Inject;
+
 import com.samskivert.util.ResultListenerList;
 
 import com.threerings.presents.client.BlockingCommunicator;
