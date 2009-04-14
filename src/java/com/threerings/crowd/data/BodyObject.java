@@ -118,10 +118,10 @@ public class BodyObject extends ClientObject
         setLocation(null);
     }
 
-    // documentation inherited
+    // from interface SpeakObject
     public void applyToListeners (ListenerOp op)
     {
-        op.apply(getOid());
+        op.apply(getVisibleName());
     }
 
     @Override
