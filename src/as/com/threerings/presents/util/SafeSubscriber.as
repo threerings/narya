@@ -29,28 +29,24 @@ import com.threerings.presents.dobj.ObjectAccessError;
 import com.threerings.presents.dobj.Subscriber;
 
 /**
- * A class that safely handles the asynchronous subscription to a
- * distributed object when it is not know if the subscription will
- * complete before the subscriber decides they no longer wish to be
+ * A class that safely handles the asynchronous subscription to a distributed object when it is not
+ * know if the subscription will complete before the subscriber decides they no longer wish to be
  * subscribed.
  */
 public class SafeSubscriber implements Subscriber
 {
-    private static const log :Log = Log.getLog(SafeSubscriber);
     /**
-     * Creates a safe subscriber for the specified distributed object
-     * which will interact with the specified subscriber.
+     * Creates a safe subscriber for the specified distributed object which will interact with the
+     * specified subscriber.
      */
     public function SafeSubscriber (oid :int, subscriber :Subscriber)
     {
         // make sure they're not fucking us around
         if (oid <= 0) {
-            throw new ArgumentError(
-                "Invalid oid provided to safesub [oid=" + oid + "]");
+            throw new ArgumentError("Invalid oid provided to safesub [oid=" + oid + "]");
         }
         if (subscriber == null) {
-            throw new ArgumentError(
-                "Null subscriber provided to safesub [oid=" + oid + "]");
+            throw new ArgumentError("Null subscriber provided to safesub [oid=" + oid + "]");
         }
 
         _oid = oid;
@@ -58,8 +54,8 @@ public class SafeSubscriber implements Subscriber
     }
 
     /**
-     * Returns true if we are currently subscribed to our object (or in
-     * the process of obtaining a subscription).
+     * Returns true if we are currently subscribed to our object (or in the process of obtaining a
+     * subscription).
      */
     public function isActive () :Boolean
     {
@@ -72,54 +68,50 @@ public class SafeSubscriber implements Subscriber
     public function subscribe (omgr :DObjectManager) :void
     {
         if (_active) {
-            log.warning("Active safesub asked to resubscribe " + this + ".");
+            log.warning("Active safesub asked to resubscribe " + this);
             return;
         }
 
         // note that we are now again in the "wishing to be subscribed" state
         _active = true;
 
-        // make sure we dont have an object reference (which should be
-        // logically impossible)
+        // make sure we dont have an object reference (which should be logically impossible)
         if (_object != null) {
-            log.warning("Incroyable! A safesub has an object and was " +
-                        "non-active!? " + this + ".");
+            log.warning("Incroyable! A safesub has an object and was non-active!? " + this);
             // make do in the face of insanity
             _subscriber.objectAvailable(_object);
             return;
         }
 
         if (_pending) {
-            // we were previously asked to subscribe, then they asked to
-            // unsubscribe and now they've asked to subscribe again, all
-            // before the original subscription even completed; we need do
-            // nothing here except as the original subscription request
-            // will eventually come through and all will be well
+            // we were previously asked to subscribe, then they asked to unsubscribe and now
+            // they've asked to subscribe again, all before the original subscription even
+            // completed; we need do nothing here except as the original subscription request will
+            // eventually come through and all will be well
             return;
         }
 
-        // we're not pending and we just became active, that means we need
-        // to request to subscribe to our object
+        // we're not pending and we just became active, that means we need to request to subscribe
+        // to our object
         _pending = true;
         omgr.subscribeToObject(_oid, this);
     }
 
     /**
-     * Terminates the object subscription. If the initial subscription has
-     * not yet completed, the desire to terminate will be noted and the
-     * subscription will be terminated as soon as it completes.
+     * Terminates the object subscription. If the initial subscription has not yet completed, the
+     * desire to terminate will be noted and the subscription will be terminated as soon as it
+     * completes.
      */
     public function unsubscribe (omgr :DObjectManager) :void
     {
         if (!_active) {
-            // we may be non-active and have no object which could mean
-            // that subscription failed; in which case we don't want to
-            // complain about anything, just quietly ignore the
+            // we may be non-active and have no object which could mean that subscription failed;
+            // in which case we don't want to complain about anything, just quietly ignore the
             // unsubscribe request
             if (_object == null && !_pending) {
                 return;
             }
-            log.warning("Inactive safesub asked to unsubscribe " + this + ".");
+            log.warning("Inactive safesub asked to unsubscribe " + this);
             Log.dumpStack();
         }
 
@@ -129,21 +121,17 @@ public class SafeSubscriber implements Subscriber
         if (_pending) {
             // make sure we don't have an object reference
             if (_object != null) {
-                log.warning("Incroyable! A safesub has an object and is " +
-                            "pending!? " + this + ".");
-                Log.dumpStack();
+                log.warning("Have an object and am pending!? " + this, new Error());
             } else {
-                // nothing to do but wait for the subscription to complete
-                // at which point we'll pitch the object post-haste
+                // nothing to do but wait for the subscription to complete at which point we'll
+                // pitch the object post-haste
                 return;
             }
         }
 
         // make sure we have our object
         if (_object == null) {
-            log.warning("Zut alors! A safesub _was_ active and not " +
-                        "pending yet has no object!? " + this + ".");
-            Log.dumpStack();
+            log.warning("Was active and not pending yet have no object!? " + this, new Error());
             // nothing to do since we're apparently already unsubscribed
             return;
         }
@@ -158,14 +146,12 @@ public class SafeSubscriber implements Subscriber
     {
         // make sure life is not too cruel
         if (_object != null) {
-            log.warning("Madre de dios! Our object came available but " +
-                        "we've already got one!? " + this);
+            log.warning("Our object came available but we've already got one!? " + this);
             // go ahead and pitch the old one, God knows what's going on
             _object = null;
         }
         if (!_pending) {
-            log.warning("J.C. on a pogo stick! Our object came available " +
-                        "but we're not pending!? " + this);
+            log.warning("Our object came available but we're not pending!? " + this);
             // go with our badselves, it's the only way
         }
 
@@ -175,9 +161,8 @@ public class SafeSubscriber implements Subscriber
         // if we are no longer active, we don't want this damned thing
         if (!_active) {
             var omgr :DObjectManager = object.getManager();
-            // if the object's manager is null, that means the object is
-            // already destroyed and we need not trouble ourselves with
-            // unsubscription as it has already been pitched to the dogs
+            // if the object's manager is null, that means the object is already destroyed and we
+            // need not trouble ourselves with unsubscription as it has already been pitched
             if (omgr != null) {
                 omgr.unsubscribeFromObject(_oid, this);
             }
@@ -194,16 +179,15 @@ public class SafeSubscriber implements Subscriber
     {
         // do the right thing with our pending state
         if (!_pending) {
-            log.warning("Criminy creole! Our subscribe failed but we're " +
-                        "not pending!? " + this);
+            log.warning("Criminy creole! Our subscribe failed but we're not pending!? " + this);
             // go with our badselves, it's the only way
         }
         _pending = false;
 
         // if we're active, let our subscriber know that the shit hit the fan
         if (_active) {
-            // deactivate ourselves as we never got our object (and thus
-            // the real subscriber need not call unsubscribe())
+            // deactivate ourselves as we never got our object (and thus the real subscriber need
+            // not call unsubscribe())
             _active = false;
             _subscriber.requestFailed(oid, cause);
         }
@@ -222,5 +206,7 @@ public class SafeSubscriber implements Subscriber
     protected var _object :DObject;;
     protected var _active :Boolean;
     protected var _pending :Boolean;
+
+    private static const log :Log = Log.getLog(SafeSubscriber);
 }
 }
