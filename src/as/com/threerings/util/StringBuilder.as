@@ -34,9 +34,7 @@ public class StringBuilder
      */
     public function append (... args) :StringBuilder
     {
-        for each (var o :Object in args) {
-            _buf += String(o);
-        }
+        _buf += args.join("");
         return this;
     }
 
