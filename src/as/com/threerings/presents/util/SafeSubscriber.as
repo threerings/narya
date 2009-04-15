@@ -50,8 +50,11 @@ public class SafeSubscriber implements Subscriber
         if (oid <= 0) {
             throw new ArgumentError("Invalid oid provided to safesub [oid=" + oid + "]");
         }
-        if (subscriber == null) {
-            throw new ArgumentError("Null subscriber provided to safesub [oid=" + oid + "]");
+        if (onAvailable == null) {
+            throw new ArgumentError("Null onAvailable provided to safesub [oid=" + oid + "]");
+        }
+        if (onFailure == null) {
+            throw new ArgumentError("Null onFailure provided to safesub [oid=" + oid + "]");
         }
 
         _oid = oid;
