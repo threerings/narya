@@ -19,25 +19,25 @@ public class ImmutableProxyObject extends Proxy
         _throwErrors = throwErrors;
     }
 
-    public function hasOwnProperty (name :String) :Boolean
-    {
-        return _source.hasOwnProperty(name);
-    }
-
-    public function isPrototypeOf (theClass :Object) :Boolean
-    {
-        return _source.isPrototypeOf(theClass);
-    }
-
-    public function propertyIsEnumerable (name :String) :Boolean
-    {
-        return _source.propertyIsEnumerable(name);
-    }
-
-    public function setPropertyIsEnumerable (name :String, isEnum :Boolean = true) :void
-    {
-        immutable();
-    }
+//    public function hasOwnProperty (name :String) :Boolean
+//    {
+//        return _source.hasOwnProperty(name);
+//    }
+//
+//    public function isPrototypeOf (theClass :Object) :Boolean
+//    {
+//        return _source.isPrototypeOf(theClass);
+//    }
+//
+//    public function propertyIsEnumerable (name :String) :Boolean
+//    {
+//        return _source.propertyIsEnumerable(name);
+//    }
+//
+//    public function setPropertyIsEnumerable (name :String, isEnum :Boolean = true) :void
+//    {
+//        immutable();
+//    }
 
     public function toString () :String
     {
