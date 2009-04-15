@@ -7,8 +7,6 @@ import com.threerings.presents.client.BasicDirector;
 import com.threerings.presents.client.Client;
 import com.threerings.presents.client.ClientEvent;
 import com.threerings.presents.dobj.ObjectAccessError;
-import com.threerings.presents.dobj.Subscriber;
-import com.threerings.presents.dobj.SubscriberAdapter;
 import com.threerings.presents.util.SafeSubscriber;
 
 import com.threerings.bureau.data.AgentObject;
@@ -53,13 +51,10 @@ public class BureauDirector extends BasicDirector
      */
     protected function createAgentFromId (agentId :int) :void
     {
-        var delegator :Subscriber = 
-            new SubscriberAdapter(objectAvailable, requestFailed);
-
         log.info("Subscribing to object", "agentId", agentId);
 
-        var subscriber :SafeSubscriber = 
-            new SafeSubscriber(agentId, delegator);
+        var subscriber :SafeSubscriber =
+            new SafeSubscriber(agentId, objectAvailable, requestFailed);
         _subscribers.put(agentId, subscriber);
         subscriber.subscribe(_ctx.getDObjectManager());
     }

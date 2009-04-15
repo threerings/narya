@@ -37,9 +37,14 @@ public class SafeSubscriber implements Subscriber
 {
     /**
      * Creates a safe subscriber for the specified distributed object which will interact with the
-     * specified subscriber.
+     * supplied callback functions.
+     *
+     * @param onAvailable a function to be called when the object in question is available. Looks
+     * like: function (obj :DObject) :void
+     * @param onFailure a function to be called if the subscription request fails. Looks like:
+     * function (oid :int, error :ObjectAccessError) :void
      */
-    public function SafeSubscriber (oid :int, subscriber :Subscriber)
+    public function SafeSubscriber (oid :int, onAvailable :Function, onFailure :Function)
     {
         // make sure they're not fucking us around
         if (oid <= 0) {
@@ -50,7 +55,8 @@ public class SafeSubscriber implements Subscriber
         }
 
         _oid = oid;
-        _subscriber = subscriber;
+        _onAvailable = onAvailable;
+        _onFailure = onFailure;
     }
 
     /**
@@ -79,7 +85,7 @@ public class SafeSubscriber implements Subscriber
         if (_object != null) {
             log.warning("Incroyable! A safesub has an object and was non-active!? " + this);
             // make do in the face of insanity
-            _subscriber.objectAvailable(_object);
+            _onAvailable(_object);
             return;
         }
 
@@ -171,7 +177,7 @@ public class SafeSubscriber implements Subscriber
 
         // otherwise the air is fresh and clean and we can do our job
         _object = object;
-        _subscriber.objectAvailable(object);
+        _onAvailable(object);
     }
 
     // documentation inherited from interface
@@ -189,7 +195,7 @@ public class SafeSubscriber implements Subscriber
             // deactivate ourselves as we never got our object (and thus the real subscriber need
             // not call unsubscribe())
             _active = false;
-            _subscriber.requestFailed(oid, cause);
+            _onFailure(oid, cause);
         }
     }
 
@@ -202,7 +208,8 @@ public class SafeSubscriber implements Subscriber
     }
 
     protected var _oid :int
-    protected var _subscriber :Subscriber;
+    protected var _onAvailable :Function;
+    protected var _onFailure :Function;
     protected var _object :DObject;;
     protected var _active :Boolean;
     protected var _pending :Boolean;

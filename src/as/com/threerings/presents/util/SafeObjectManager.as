@@ -55,28 +55,27 @@ public class SafeObjectManager
         _failed = failed;
     }
 
-
     /**
-     * Safely requests the given object from the manager. If an <code>available</code> callback was 
-     * provided to the constructor, it will be invoked when the request is fulfilled. If a 
-     * <code>failed</code> callback was provided, it will be invoked if the request fails. After 
+     * Safely requests the given object from the manager. If an <code>available</code> callback was
+     * provided to the constructor, it will be invoked when the request is fulfilled. If a
+     * <code>failed</code> callback was provided, it will be invoked if the request fails. After
      * and only after the request succeeds, <code>getObj</code> will return the object when called
-     * with this id. The optional callbacks must match the signatures of the ones from 
-     * <code>Subscriber</code>. If provided, they will be called in addition to the ones provided to
-     * <code>SafeObjectManager</code>.
+     * with this id. The optional callbacks must match the signatures of the ones from
+     * <code>Subscriber</code>. If provided, they will be called in addition to the ones provided
+     * to <code>SafeObjectManager</code>.
+     *
      * @param oid the id of the object to request.
      * @param available an optional callback to be invoked when the object is ready
      * @param failed an optional callback to be invoked if the request fails
      */
-    public function subscribe (
-        oid :int, available :Function=null, failed :Function=null) :void
+    public function subscribe (oid :int, available :Function=null, failed :Function=null) :void
     {
         if (_entries[oid] != null ) {
             _log.warning("Object already subscribed", "oid", oid);
             return;
         }
 
-        var sub :SafeSubscriber = new SafeSubscriber(oid, _adapter);
+        var sub :SafeSubscriber = new SafeSubscriber(oid, onAvailable, onFailed);
         var entry :Entry = new Entry(sub);
         entry.availableFn = available;
         entry.failedFn = failed;
@@ -86,8 +85,9 @@ public class SafeObjectManager
     }
 
     /**
-     * Safely notifies the manager that an object is no longer needed. The <code>getObj</code> 
+     * Safely notifies the manager that an object is no longer needed. The <code>getObj</code>
      * call will subsequently return null for this id.
+     *
      * @param oid the id of the object that is no longer needed
      */
     public function unsubscribe (oid :int) :void
@@ -100,7 +100,7 @@ public class SafeObjectManager
 
         _log.debug("Unsubscribing", "sub", entry.sub);
         if (entry.obj != null) {
-            entry.obj.removeListener(_objectDeathListenerAdapter);
+            entry.obj.removeListener(_odlist);
         }
         if (!entry.destroyed && !entry.failed) {
             entry.sub.unsubscribe(_omgr);
@@ -130,9 +130,9 @@ public class SafeObjectManager
     }
 
     /**
-     * Accesses an object. This returns non-null if the object corresponding to the id has been 
+     * Accesses an object. This returns non-null if the object corresponding to the id has been
      * subscribed using <code>subscribe</code> and the subscription was completed successfully. It
-     * will return null if the subscription has not yet succeeded or the object has been 
+     * will return null if the subscription has not yet succeeded or the object has been
      * unsubscribed using <code>unsubscribe</code> or <code>unsubscribeAll</code>.
      */
     public function getObj (oid :int) :DObject
@@ -146,30 +146,27 @@ public class SafeObjectManager
     }
 
     /** Notifies the manager that an object subscription request has succeeded */
-    protected function available (obj :DObject) :void
+    protected function onAvailable (obj :DObject) :void
     {
         var entry :Entry = _entries[obj.getOid()];
         if (entry == null) {
             _log.warning("Object available without request", "obj", obj.which());
-
         } else {
             _log.debug("Object now available", "obj", obj.which());
             entry.obj = obj;
         }
 
-        obj.addListener(_objectDeathListenerAdapter);
-
+        obj.addListener(_odlist);
         if (_available != null) {
             _available(obj);
         }
-
         if (entry.availableFn != null) {
             entry.availableFn(obj);
         }
     }
 
     /** Notifies the manager that an object subscription request has failed */
-    protected function failed (oid :int, cause :ObjectAccessError) :void
+    protected function onFailed (oid :int, cause :ObjectAccessError) :void
     {
         var entry :Entry = _entries[oid];
         if (entry == null) {
@@ -194,7 +191,7 @@ public class SafeObjectManager
     protected function destroyed (event :ObjectDestroyedEvent) :void
     {
         var oid :int = event.getTargetOid();
-        
+
         var entry :Entry = _entries[oid] as Entry;
         if (entry == null) {
             _log.warning("Unsubscribed object notified of destroy", "oid", oid);
@@ -211,9 +208,7 @@ public class SafeObjectManager
     protected var _log :Log;
     protected var _available :Function;
     protected var _failed :Function;
-    protected var _adapter :SubscriberAdapter = new SubscriberAdapter(available, failed);
-    protected var _objectDeathListenerAdapter :ObjectDeathListenerAdapter = 
-        new ObjectDeathListenerAdapter(destroyed);
+    protected var _odlist :ObjectDeathListenerAdapter = new ObjectDeathListenerAdapter(destroyed);
     protected var _entries :Dictionary = new Dictionary();
 }
 }
