@@ -193,13 +193,16 @@ public class PeerNode
     // documentation inherited from interface ClientObserver
     public void clientDidLogoff (Client client)
     {
-        String nodeName = getNodeName();
-        for (ClientInfo clinfo : nodeobj.clients) {
-            _peermgr.clientLoggedOff(nodeName, clinfo);
+        if (nodeobj != null) {
+            String nodeName = getNodeName();
+            for (ClientInfo clinfo : nodeobj.clients) {
+                _peermgr.clientLoggedOff(nodeName, clinfo);
+            }
+
+            nodeobj.removeListener(_listener);
         }
 
         _peermgr.disconnectedFromPeer(this);
-        nodeobj.removeListener(_listener);
         _listener = null;
         nodeobj = null;
     }
