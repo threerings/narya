@@ -131,7 +131,7 @@ public class HashMap
 
         // lazy-create the array holding other hashables
         if (_entries == null) {
-            _entries = new Array();
+            _entries = [];
             _entries.length = DEFAULT_BUCKETS;
         }
 
@@ -215,50 +215,20 @@ public class HashMap
     /** @inheritDoc */
     public function keys () :Array
     {
-        var keys :Array = new Array();
-
-        // get the simple keys first
-        if (_simpleData != null) {
-            for (var key :* in _simpleData) {
-                keys.push(key);
-            }
-        }
-
-        // get the more complex keys
-        if (_entries != null) {
-            for (var ii :int = _entries.length - 1; ii >= 0; ii--) {
-                for (var e :HashMap_Entry = (_entries[ii] as HashMap_Entry); e != null;
-                        e = e.next) {
-                    keys.push(e.getOriginalKey());
-                }
-            }
-        }
-
+        var keys :Array = [];
+        forEach(function (k :*, v :*) :void {
+            keys.push(k);
+        });
         return keys;
     }
 
     /** @inheritDoc */
     public function values () :Array
     {
-        var vals :Array = new Array();
-
-        // get the simple properties first
-        if (_simpleData != null) {
-            for each (var value :* in _simpleData) {
-                vals.push(value);
-            }
-        }
-
-        // get the more complex properties
-        if (_entries != null) {
-            for (var ii :int = _entries.length - 1; ii >= 0; ii--) {
-                for (var e :HashMap_Entry = (_entries[ii] as HashMap_Entry); e != null;
-                        e = e.next) {
-                    vals.push(e.value);
-                }
-            }
-        }
-
+        var vals :Array = [];
+        forEach(function (k :*, v :*) :void {
+            vals.push(v);
+        });
         return vals;
     }
 
@@ -328,7 +298,7 @@ public class HashMap
     protected function resize (newSize :int) :void
     {
         var oldEntries :Array = _entries;
-        _entries = new Array();
+        _entries = [];
         _entries.length = newSize;
 
         // place all the old entries in the new map
