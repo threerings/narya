@@ -24,10 +24,10 @@ public class WeakValueHashMap extends HashMap
     override public function get (key :Object) :*
     {
         var result :* = super.get(key);
-        if (result is WeakReference) { // could also just be undefined
+        if (result is WeakReference) { // could also just be undefined or null
             result = WeakReference(result).get();
             if (result === undefined) {
-                remove(key);
+                super.remove(key);
             }
         }
         return result;
@@ -36,6 +36,7 @@ public class WeakValueHashMap extends HashMap
     /** @inheritDoc */
     override public function put (key :Object, value :Object) :*
     {
+        // store nulls directly
         return unwrap(super.put(key, (value == null) ? null : new WeakReference(value)));
     }
 
