@@ -196,10 +196,9 @@ public class ObjectMarshaller
             }
             // then, continue on with sub-property check (below)
 
-
         } else {
             var type :String = typeof(value);
-            if (type == "number" || type == "string" || type == "boolean" ) {
+            if (type == "number" || type == "string" || type == "boolean" || type == "xml") {
                 return null; // kosher!
             }
             if (-1 != VALID_CLASSES.indexOf(ClassUtil.getClassName(value))) {
