@@ -60,6 +60,19 @@ public class Util
     }
 
     /**
+     * Return a var-args function that will attempt to pass only the arguments accepted by the
+     * passed-in function. Does not work if the passed-in function is varargs, and anyway
+     * then you don't need adapting, do you?
+     */
+    public static function adapt (fn :Function) :Function
+    {
+        return function (... args) :* {
+            args.length = fn.length; // fit the args to the fn, filling in 'undefined' if growing
+            return fn.apply(null, args);
+        }
+    }
+
+    /**
      * Returns true if the specified object is just a regular old associative hash.
      */
     public static function isPlainObject (obj :Object) :Boolean
