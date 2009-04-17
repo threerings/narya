@@ -69,12 +69,10 @@ public class SortedHashMap extends HashMap
 
     override public function values () :Array
     {
-        var keys :Array = keys();
-        var vals :Array = new Array();
-        for each (var key :Object in keys) {
-            vals.push(get(key));
-        }
-        return vals;
+        // not very optimal, we need to look up each value from the sorted keys.
+        return keys().map(function (key :Object, ... rest) :Object {
+            return get(key);
+        });
     }
 
     override public function forEach (fn :Function) :void

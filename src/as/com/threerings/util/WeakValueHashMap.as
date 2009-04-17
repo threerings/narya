@@ -49,28 +49,19 @@ public class WeakValueHashMap extends HashMap
     /** @inheritDoc */
     override public function size () :int
     {
-        prune();
+        forEach0(function (k :*, v: *) :void {});
         return super.size(); // alternately, we could prune and increment a count for all present..
     }
 
-    /** @inheritDoc */
-    override public function forEach (fn :Function) :void
-    {
-        prune(fn); // just prune & run the forEach at the same time
-    }
-
-    /**
-     * Prune garbage collected values from the map, optionally calling a function for each
-     * found key/value pair.
-     */
-    protected function prune (fn :Function = null) :void
+    /** @private */
+    override protected function forEach0 (fn :Function) :void
     {
         var removeKeys :Array = [];
-        super.forEach(function (key :*, value :WeakReference) :void {
+        super.forEach0(function (key :*, value :WeakReference) :void {
             var rawVal :* = (value == null) ? null : value.get();
             if (rawVal === undefined) {
                 removeKeys.push(key);
-            } else if (fn != null) {
+            } else {
                 fn(key, rawVal);
             }
         });
@@ -81,6 +72,7 @@ public class WeakValueHashMap extends HashMap
 
     /**
      * Unwrap a possible WeakReference for returning to the user.
+     * @private
      */
     protected function unwrap (val :*) :*
     {

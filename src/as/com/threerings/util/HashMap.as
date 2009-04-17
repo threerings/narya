@@ -216,7 +216,7 @@ public class HashMap
     public function keys () :Array
     {
         var keys :Array = [];
-        forEach(function (k :*, v :*) :void {
+        forEach0(function (k :*, v :*) :void {
             keys.push(k);
         });
         return keys;
@@ -226,7 +226,7 @@ public class HashMap
     public function values () :Array
     {
         var vals :Array = [];
-        forEach(function (k :*, v :*) :void {
+        forEach0(function (k :*, v :*) :void {
             vals.push(v);
         });
         return vals;
@@ -234,6 +234,15 @@ public class HashMap
 
     /** @inheritDoc */
     public function forEach (fn :Function) :void
+    {
+        forEach0(fn);
+    }
+
+    /**
+     * Internal forEach.
+     * @private
+     */
+    protected function forEach0 (fn :Function) :void
     {
         if (_simpleData != null) {
             for (var key :Object in _simpleData) {
