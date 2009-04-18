@@ -814,6 +814,7 @@ public class Client
 
                 // clear out our references
                 _comm = null;
+                _bstrap = null;
                 _omgr = null;
                 _clobj = null;
                 _connectionId = _cloid = -1;
