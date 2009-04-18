@@ -436,6 +436,7 @@ public class Client extends EventDispatcher
     {
         // clear out our references
         _comm = null;
+        _bstrap = null;
         _omgr = null;
         _clobj = null;
         _cloid = -1;
