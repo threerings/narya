@@ -261,7 +261,7 @@ public class PlaceManager
         // to speak in this place
         if (shouldCreateSpeakService()) {
             plobj.setSpeakService(
-                registerDispatcher(new SpeakDispatcher(new SpeakHandler(plobj, this))));
+                addDispatcher(new SpeakDispatcher(new SpeakHandler(plobj, this))));
         }
 
         // we'll need to hear about place object events
@@ -562,7 +562,7 @@ public class PlaceManager
      * Registers an invocation dispatcher and notes the registration such that it will be
      * automatically cleared when this manager shuts down.
      */
-    protected <T extends InvocationMarshaller> T registerDispatcher (InvocationDispatcher<T> disp)
+    protected <T extends InvocationMarshaller> T addDispatcher (InvocationDispatcher<T> disp)
     {
         T marsh = _invmgr.registerDispatcher(disp);
         _marshallers.add(marsh);
@@ -788,7 +788,7 @@ public class PlaceManager
     /** A list of the delegates in use by this manager. */
     protected List<PlaceManagerDelegate> _delegates;
 
-    /** A list of services registered with {@link #registerDispatcher} which will be automatically
+    /** A list of services registered with {@link #addDispatcher} which will be automatically
      * cleared when this manager shuts down. */
     protected List<InvocationMarshaller> _marshallers = Lists.newArrayList();
 
