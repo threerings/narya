@@ -116,7 +116,7 @@ public class PlaceManagerDelegate
      */
     protected <T extends InvocationMarshaller> T addDispatcher (InvocationDispatcher<T> disp)
     {
-        return _plmgr.registerDispatcher(disp);
+        return _plmgr.addDispatcher(disp);
     }
 
     /** A reference to the manager for which we are delegating. */
