@@ -111,7 +111,11 @@ public class PresentsDObjectMgr
                 report.append("- Queue size: ").append(queueSize).append("\n");
                 report.append("- Max queue size: ").append(_current.maxQueueSize).append("\n");
                 report.append("- Units executed: ").append(_current.eventCount);
-                report.append(" (").append(1000*_current.eventCount/elapsed).append("/s)\n");
+                if (elapsed != 0) {
+                    report.append(" (").append(1000*_current.eventCount/elapsed).append("/s)\n");
+                } else {
+                    report.append(" (inf/s)\n");
+                }
                 // roll over stats
                 if (reset) {
                     _recent = _current;
