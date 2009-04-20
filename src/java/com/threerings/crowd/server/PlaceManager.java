@@ -33,6 +33,7 @@ import com.samskivert.util.MethodFinder;
 import com.samskivert.util.StringUtil;
 
 import com.threerings.presents.data.ClientObject;
+import com.threerings.presents.data.InvocationMarshaller;
 import com.threerings.presents.dobj.AccessController;
 import com.threerings.presents.dobj.DObject;
 import com.threerings.presents.dobj.DSet;
@@ -47,6 +48,7 @@ import com.threerings.presents.dobj.ObjectRemovedEvent;
 import com.threerings.presents.dobj.OidListListener;
 import com.threerings.presents.dobj.RootDObjectManager;
 import com.threerings.presents.dobj.SetAdapter;
+import com.threerings.presents.server.InvocationDispatcher;
 import com.threerings.presents.server.InvocationManager;
 
 import com.threerings.crowd.chat.data.ChatCodes;
@@ -258,8 +260,8 @@ public class PlaceManager
         // we usually want to create and register a speaker service instance that clients can use
         // to speak in this place
         if (shouldCreateSpeakService()) {
-            plobj.setSpeakService(_invmgr.registerDispatcher(
-                                      new SpeakDispatcher(new SpeakHandler(plobj, this))));
+            plobj.setSpeakService(
+                registerDispatcher(new SpeakDispatcher(new SpeakHandler(plobj, this))));
         }
 
         // we'll need to hear about place object events
@@ -290,12 +292,6 @@ public class PlaceManager
     {
         // destroy the object and everything will follow from that
         _omgr.destroyObject(_plobj.getOid());
-
-        // clear out our services
-        if (_plobj.speakService != null) {
-            _invmgr.clearDispatcher(_plobj.speakService);
-            _plobj.speakService = null;
-        }
 
         // make sure we don't have any shutdowner in the queue
         cancelShutdowner();
@@ -545,6 +541,11 @@ public class PlaceManager
         _plobj.removeListener(_occListener);
         _plobj.removeListener(_deathListener);
 
+        // clear out our invocation service registrations
+        for (InvocationMarshaller marsh : _marshallers) {
+            _invmgr.clearDispatcher(marsh);
+        }
+
         // let our delegates know that we've shut down
         applyToDelegates(new DelegateOp(PlaceManagerDelegate.class) {
             @Override
@@ -555,6 +556,17 @@ public class PlaceManager
 
         // if shutting down emptied the place and scheduled the shutdowner, clear that out
         cancelShutdowner();
+    }
+
+    /**
+     * Registers an invocation dispatcher and notes the registration such that it will be
+     * automatically cleared when this manager shuts down.
+     */
+    protected <T extends InvocationMarshaller> T registerDispatcher (InvocationDispatcher<T> disp)
+    {
+        T marsh = _invmgr.registerDispatcher(disp);
+        _marshallers.add(marsh);
+        return marsh;
     }
 
     /**
@@ -775,6 +787,10 @@ public class PlaceManager
 
     /** A list of the delegates in use by this manager. */
     protected List<PlaceManagerDelegate> _delegates;
+
+    /** A list of services registered with {@link #registerDispatcher} which will be automatically
+     * cleared when this manager shuts down. */
+    protected List<InvocationMarshaller> _marshallers = Lists.newArrayList();
 
     /** Used to keep a canonical copy of the occupant info records. */
     protected HashIntMap<OccupantInfo> _occInfo = new HashIntMap<OccupantInfo>();
