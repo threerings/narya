@@ -80,9 +80,7 @@ public dynamic class TypedArray extends Array
      */
     public function addAll (other :Array) :TypedArray
     {
-        for (var ii :int = 0; ii < other.length; ii++) {
-            push(other[ii]);
-        }
+        push.apply(this, other);
         return this;
     }
 
@@ -96,9 +94,7 @@ public dynamic class TypedArray extends Array
     {
         var clazz :Class = ClassUtil.getClass(this);
         var copy :TypedArray = new clazz(_jtype);
-        for (var ii :int = length - 1; ii >= 0; ii--) {
-            copy[ii] = this[ii];
-        }
+        copy.addAll(this);
         return copy;
     }
 
