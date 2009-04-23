@@ -55,9 +55,13 @@ public dynamic class TypedArray extends Array
     /**
      * A factory method to create a TypedArray for holding objects of the specified type.
      */
-    public static function create (of :Class) :TypedArray
+    public static function create (of :Class, initialValues :Array = null) :TypedArray
     {
-        return new TypedArray(getJavaType(of));
+        var ta :TypedArray = new TypedArray(getJavaType(of));
+        if (initialValues != null) {
+            ta.addAll(initialValues);
+        }
+        return ta;
     }
 
     /**
