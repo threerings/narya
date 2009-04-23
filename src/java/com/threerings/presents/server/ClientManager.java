@@ -211,6 +211,14 @@ public class ClientManager
     }
 
     /**
+     * Returns an iterable over all active client objects.
+     */
+    public Iterable<ClientObject> clientObjects ()
+    {
+        return _objmap.values();
+    }
+
+    /**
      * Enumerates all active client objects.
      */
     public Iterator<ClientObject> enumerateClientObjects ()
