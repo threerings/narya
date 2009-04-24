@@ -83,7 +83,7 @@ public class InvocationManager
         invobj.addListener(this);
         _invoid = invobj.getOid();
 
-//         log.info("Created invocation service object", "oid", _invoid);
+        log.debug("Created invocation service object", "oid", _invoid);
     }
 
     /**
@@ -151,7 +151,7 @@ public class InvocationManager
 
         _recentRegServices.put(Integer.valueOf(invCode), marsh.getClass().getName());
 
-//        log.info("Registered service", "marsh", marsh);
+        log.debug("Registered service", "code", invCode, "marsh", marsh);
         return marsh;
     }
 
@@ -205,7 +205,7 @@ public class InvocationManager
     // documentation inherited from interface
     public void eventReceived (DEvent event)
     {
-//         log.info("Event received " + event + ".");
+        log.debug("Event received", "event", event);
 
         if (event instanceof InvocationRequestEvent) {
             InvocationRequestEvent ire = (InvocationRequestEvent)event;
@@ -255,8 +255,8 @@ public class InvocationManager
             }
         }
 
-//         log.debug("Dispatching invreq", "caller", source.who(), "disp", disp,
-//                   "methId", methodId, "args", args);
+        log.debug("Dispatching invreq", "caller", source.who(), "disp", disp,
+                  "methId", methodId, "args", args);
 
         // dispatch the request
         try {
