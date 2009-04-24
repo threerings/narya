@@ -251,7 +251,7 @@ public class PresentsSession
              */
             protected void finishResolved (Name username, ClientObject clobj) {
                 // let the client know that the rug has been yanked out from under their ass
-                Object[] args = new Object[] { Integer.valueOf(clobj.getOid()) };
+                Object[] args = new Object[] { clobj.getOid() };
                 _clobj.postMessage(ClientObject.CLOBJ_CHANGED, args);
 
                 // release our old client object; this will destroy it

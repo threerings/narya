@@ -463,7 +463,7 @@ public class Streamer
         // reflect on all the object's fields and remove all marked with NotStreamable
         List<Field> fields = Lists.newArrayList();
         ClassUtil.getFields(target, fields);
-        _fields = Iterables.newArray(Iterables.filter(fields, _isStreamableFieldPred), Field.class);
+        _fields = Iterables.toArray(Iterables.filter(fields, _isStreamableFieldPred), Field.class);
         int fcount = _fields.length;
 
         // obtain field marshallers for all of our fields

@@ -21,8 +21,8 @@
 
 package com.threerings.presents.server;
 
+import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
-import com.google.common.collect.Multimaps;
 import com.google.inject.Singleton;
 
 import com.samskivert.util.Interval;
@@ -185,7 +185,7 @@ public class ReportManager
     protected long _lastReportStamp = _serverStartTime;
 
     /** Used to generate "state of server" reports. */
-    protected Multimap<String, Reporter> _reporters = Multimaps.newArrayListMultimap();
+    protected Multimap<String, Reporter> _reporters = ArrayListMultimap.create();
 
     /** The frequency with which we generate "state of server" reports. */
     protected static final long REPORT_INTERVAL = 15 * 60 * 1000L;
