@@ -93,6 +93,41 @@ public class ArrayUtil
     }
 
     /**
+     * Inserts an object into a sorted Array in its correct, sorted location.
+     *
+     * @param comp a function that takes two objects in the array and returns -1 if the first
+     * object should appear before the second in the container, 1 if it should appear after,
+     * and 0 if the order does not matter. If omitted, Comparators.COMPARABLE is used and
+     * the array elements should be Comparable objects.
+     *
+     * @return the index of the inserted item
+     */
+    public static function sortedInsert (arr :Array, val :*, comp :Function = null) :int
+    {
+        if (comp == null) {
+            comp = Comparators.COMPARABLE;
+        }
+
+        var insertedIdx :int = -1;
+        var nn :int = arr.length;
+        for (var ii :int = 0; ii < nn; ii++) {
+            var compVal :* = arr[ii];
+            if (comp(val, compVal) <= 0) {
+                arr.splice(ii, 0, val);
+                insertedIdx = ii;
+                break;
+            }
+        }
+
+        if (insertedIdx < 0) {
+            arr.push(val);
+            insertedIdx = arr.length - 1;
+        }
+
+        return insertedIdx;
+    }
+
+    /**
      * Randomly shuffle the elements in the specified array.
      *
      * @param rando a random number generator to use, or null if you don't care.
