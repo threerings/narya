@@ -29,7 +29,6 @@ import com.google.inject.Inject;
 
 import com.samskivert.util.ResultListenerList;
 
-import com.threerings.presents.client.BlockingCommunicator;
 import com.threerings.presents.client.Client;
 import com.threerings.presents.client.ClientObserver;
 import com.threerings.presents.client.Communicator;
@@ -50,6 +49,7 @@ import com.threerings.presents.peer.net.PeerBootstrapData;
 import com.threerings.presents.peer.server.persist.NodeRecord;
 import com.threerings.presents.server.PresentsDObjectMgr;
 import com.threerings.presents.server.net.ConnectionManager;
+import com.threerings.presents.server.net.ServerCommunicator;
 
 import static com.threerings.presents.Log.log;
 
@@ -243,11 +243,9 @@ public class PeerNode
         return nodeName1.compareTo(nodeName2) < 0;
     }
 
-    // TEMP: allow our communicator to be customized until we sort out our FreeBSD VM problems
     protected Communicator createCommunicator (Client client)
     {
-        // return new ServerCommunicator(client, _conmgr, _omgr);
-        return new BlockingCommunicator(client);
+        return new ServerCommunicator(client, _conmgr, _omgr);
     }
 
     /**
