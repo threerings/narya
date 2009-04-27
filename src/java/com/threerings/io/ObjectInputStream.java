@@ -143,7 +143,7 @@ public class ObjectInputStream extends DataInputStream
             return mapClass(code, cname);
 
         } else {
-            ClassMapping cmap = _classmap.get(code);
+            ClassMapping cmap = (code < _classmap.size()) ? _classmap.get(code) : null;
 
             // sanity check
             if (cmap == null) {

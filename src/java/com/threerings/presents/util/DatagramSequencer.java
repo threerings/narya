@@ -101,7 +101,7 @@ public class DatagramSequencer
                 break;
             }
             remove++;
-            if (sendrec.mappedClasses != null) {
+            if (sendrec.number == received && sendrec.mappedClasses != null) {
                 _uout.noteMappingsReceived(sendrec.mappedClasses);
             }
         }
