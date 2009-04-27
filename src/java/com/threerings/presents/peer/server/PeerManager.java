@@ -273,7 +273,7 @@ public abstract class PeerManager
 
     /**
      * Applies the supplied operation to all {@link NodeObject}s. The operation should not modify
-     * the objects unless you really know what you're doing. more likely it will summarize
+     * the objects unless you really know what you're doing. More likely it will summarize
      * information contained therein.
      */
     public void applyToNodes (Function<NodeObject,Void> op)
