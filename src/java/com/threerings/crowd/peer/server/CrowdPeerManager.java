@@ -21,9 +21,6 @@
 
 package com.threerings.crowd.peer.server;
 
-import java.util.Map;
-
-import com.google.common.collect.Maps;
 import com.google.inject.Inject;
 
 import com.threerings.util.Name;
@@ -48,7 +45,7 @@ import com.threerings.crowd.peer.data.CrowdNodeObject;
 /**
  * Extends the standard peer manager and bridges certain Crowd services.
  */
-public class CrowdPeerManager extends PeerManager
+public abstract class CrowdPeerManager extends PeerManager
     implements CrowdPeerProvider, ChatProvider.ChatForwarder
 {
     /**
@@ -81,7 +78,7 @@ public class CrowdPeerManager extends PeerManager
                                 ChatService.TellListener listener)
     {
         // look up their auth username from their visible name
-        Name username = _viztoauth.get(target);
+        Name username = authFromViz(target);
         if (username == null) {
             return false; // sorry kid, don't know ya
         }
@@ -160,32 +157,11 @@ public class CrowdPeerManager extends PeerManager
         _chatprov.setChatForwarder(this);
     }
 
-    @Override // from PeerManager
-    protected void clientLoggedOn (String nodeName, ClientInfo clinfo)
-    {
-        super.clientLoggedOn(nodeName, clinfo);
-
-        // keep a mapping from visibleName to auth username
-        if (clinfo instanceof CrowdClientInfo) {
-            CrowdClientInfo ccinfo = (CrowdClientInfo)clinfo;
-            _viztoauth.put(ccinfo.visibleName, ccinfo.username);
-        }
-    }
-
-    @Override // from PeerManager
-    protected void clientLoggedOff (String nodeName, ClientInfo clinfo)
-    {
-        super.clientLoggedOff(nodeName, clinfo);
-
-        // update our mapping from visibleName to auth username
-        if (clinfo instanceof CrowdClientInfo) {
-            CrowdClientInfo ccinfo = (CrowdClientInfo)clinfo;
-            _viztoauth.remove(ccinfo.visibleName);
-        }
-    }
-
-    /** A mapping of visible name to username for all clients on all *remote* nodes. */
-    protected Map<Name, Name> _viztoauth = Maps.newHashMap();
+    /**
+     * Converts a visible name to an authentication name. If this method returns null, the chat
+     * system will act as if the vizname in question is not online.
+     */
+    protected abstract Name authFromViz (Name vizname);
 
     @Inject protected InvocationManager _invmgr;
     @Inject protected ChatProvider _chatprov;
