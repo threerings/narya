@@ -30,6 +30,14 @@ import flash.utils.getQualifiedClassName;
 public class StringUtil
 {
     /**
+     * Compares two String values, returning -1, 0, or 1.
+     */
+    public static function compare (s1 :String, s2 :String) :int
+    {
+        return (s1 > s2) ? 1 : (s1 == s2 ? 0 : -1);
+    }
+
+    /**
      * Get a reasonable hash code for the specified String.
      */
     public static function hashCode (str :String) :int
