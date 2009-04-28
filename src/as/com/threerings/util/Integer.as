@@ -72,7 +72,7 @@ public class Integer
     }
 
     /**
-     * Compares to int values in an overflow safe manner.
+     * Compares two int values in an overflow safe manner.
      */
     public static function compare (val1 :int, val2 :int) :int
     {
