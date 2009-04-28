@@ -44,10 +44,9 @@ public class StringUtil
     {
         var code :int = 0;
         if (str != null) {
-            // sample at most 8 chars
-            var lastChar :int = Math.min(8, str.length);
-            for (var ii :int = 0; ii < lastChar; ii++) {
-                code = code * 31 + str.charCodeAt(ii);
+            // hash identically to Java's String.hashCode(), for various reasons
+            for (var ii :int = 0; ii < str.length; ii++) {
+                code = 31 * code + str.charCodeAt(ii);
             }
         }
         return code;
