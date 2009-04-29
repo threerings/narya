@@ -31,8 +31,8 @@ import com.threerings.io.ObjectOutputStream;
 import com.threerings.io.Streamable;
 
 /**
- * A {@link HashMap} extension that can be streamed. The keys and values
- * in the map must also be of streamable types.
+ * A {@link HashMap} extension that can be streamed. The keys and values in the map must also be
+ * of streamable types.
  *
  * @see Streamable
  * @param <K> the type of key stored in this map.
@@ -42,7 +42,7 @@ public class StreamableHashMap<K, V> extends HashMap<K, V>
     implements Streamable
 {
     /**
-     * Creates an empty StreamableHashMap
+     * Creates an empty StreamableHashMap.
      */
     public static <K, V> StreamableHashMap<K, V> newMap ()
     {
@@ -50,8 +50,15 @@ public class StreamableHashMap<K, V> extends HashMap<K, V>
     }
 
     /**
-     * Constructs an empty hash map with the specified number of hash
-     * buckets.
+     * Creates StreamableHashMap populated with the same values as the provided Map.
+     */
+    public static <K, V> StreamableHashMap<K, V> newMap (Map<? extends K, ? extends V> map)
+    {
+        return new StreamableHashMap<K, V>(map);
+    }
+
+    /**
+     * Constructs an empty hash map with the specified number of hash buckets.
      */
     public StreamableHashMap (int buckets, float loadFactor)
     {
@@ -59,12 +66,20 @@ public class StreamableHashMap<K, V> extends HashMap<K, V>
     }
 
     /**
-     * Constructs an empty hash map with the default number of hash
-     * buckets.
+     * Constructs an empty hash map with the default number of hash buckets.
      */
     public StreamableHashMap ()
     {
         super();
+    }
+
+    /**
+     * Constructs a hash map with the default number of hash buckets, populated with the same
+     * values as the provided Map.
+     */
+    public StreamableHashMap (Map<? extends K, ? extends V> map)
+    {
+        super(map);
     }
 
     /**
