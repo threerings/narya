@@ -72,9 +72,7 @@ import static com.threerings.presents.Log.log;
 public class PresentsDObjectMgr
     implements RootDObjectManager, RunQueue
 {
-    /** Contains operational statistics that are tracked by the distributed object manager between
-     * {@link ReportManager.Reporter} intervals. The snapshot for the most recently completed
-     * period can be requested via {@link #getStats()}. . */
+    /** Returned by {@link #getStats}. */
     public static class Stats
     {
         /** The largest size of the distributed object queue during the period. */
@@ -107,20 +105,15 @@ public class PresentsDObjectMgr
         repmgr.registerReporter(ReportManager.DEFAULT_TYPE, new ReportManager.Reporter() {
             public void appendReport (StringBuilder report, long now, long elapsed, boolean reset) {
                 report.append("* presents.PresentsDObjectMgr:\n");
+                Stats stats = getStats(reset);
                 int queueSize = _evqueue.size();
                 report.append("- Queue size: ").append(queueSize).append("\n");
-                report.append("- Max queue size: ").append(_current.maxQueueSize).append("\n");
-                report.append("- Units executed: ").append(_current.eventCount);
+                report.append("- Max queue size: ").append(stats.maxQueueSize).append("\n");
+                report.append("- Units executed: ").append(stats.eventCount);
                 if (elapsed != 0) {
-                    report.append(" (").append(_current.eventCount/(elapsed/1000)).append("/s)\n");
+                    report.append(" (").append(stats.eventCount/(elapsed/1000)).append("/s)\n");
                 } else {
                     report.append(" (inf/s)\n");
-                }
-                // roll over stats
-                if (reset) {
-                    _recent = _current;
-                    _current = new Stats();
-                    _current.maxQueueSize = queueSize;
                 }
             }
         });
@@ -294,10 +287,20 @@ public class PresentsDObjectMgr
     }
 
     /**
-     * Returns the runtime statistics for the most recently completed reporting period.
+     * Returns a recent snapshot of runtime statistics tracked by the distributed object manager.
+     *
+     * @param snapshot if true, the current stats will be snapshotted and reset and the new
+     * snapshot will be returned. If false, the previous snapshot will be returned. If no snapshot
+     * has ever been taken, the current stats that have been accumulting since the JVM start will
+     * be returned.
      */
-    public Stats getStats ()
+    public Stats getStats (boolean snapshot)
     {
+        if (snapshot) {
+            _recent = _current;
+            _current = new Stats();
+            _current.maxQueueSize = _evqueue.size();
+        }
         return _recent;
     }
 

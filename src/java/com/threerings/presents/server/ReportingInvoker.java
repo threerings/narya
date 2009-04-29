@@ -31,6 +31,12 @@ import com.samskivert.util.StringUtil;
  */
 public class ReportingInvoker extends Invoker
 {
+    public static class Stats
+    {
+        public int unitsRun;
+        public int maxQueueSize;
+    }
+
     /**
      * Creates a new reporting invoker. The instance will be registered with the report manager
      * if profiling is enabled ({@link Invoker#PERF_TRACK}).
@@ -44,6 +50,26 @@ public class ReportingInvoker extends Invoker
         }
     }
 
+    /**
+     * Returns a recent snapshot of runtime statistics tracked by the invoker.
+     *
+     * @param snapshot if true, the current stats will be snapshotted and reset and the new
+     * snapshot will be returned. If false, the previous snapshot will be returned. If no snapshot
+     * has ever been taken, the current stats that have been accumulting since the JVM start will
+     * be returned.
+     */
+    public Stats getStats (boolean snapshot)
+    {
+        synchronized (this) {
+            if (snapshot) {
+                _recent = _current;
+                _current = new Stats();
+                _current.maxQueueSize = _queue.size();
+            }
+            return _recent;
+        }
+    }
+
     @Override // from Invoker
     protected void willInvokeUnit (Unit unit, long start)
     {
@@ -52,9 +78,10 @@ public class ReportingInvoker extends Invoker
         int queueSize = _queue.size();
         synchronized (this) {
             // keep track of the largest queue size we've seen
-            if (queueSize > _maxQueueSize) {
-                _maxQueueSize = queueSize;
+            if (queueSize > _current.maxQueueSize) {
+                _current.maxQueueSize = queueSize;
             }
+            _current.unitsRun++;
 
             // note the currently invoking unit
             _currentUnit = unit;
@@ -81,18 +108,15 @@ public class ReportingInvoker extends Invoker
             int qsize = _queue.size();
             buf.append("- Queue size: ").append(qsize).append("\n");
             synchronized (this) {
-                buf.append("- Max queue size: ").append(_maxQueueSize).append("\n");
-                buf.append("- Units executed: ").append(_unitsRun);
-                long runPerSec = (sinceLast == 0) ? 0 : _unitsRun/(sinceLast/1000);
+                Stats stats = getStats(reset);
+                buf.append("- Max queue size: ").append(stats.maxQueueSize).append("\n");
+                buf.append("- Units executed: ").append(stats.unitsRun);
+                long runPerSec = (sinceLast == 0) ? 0 : stats.unitsRun/(sinceLast/1000);
                 buf.append(" (").append(runPerSec).append("/s)\n");
                 if (_currentUnit != null) {
                     String uname = StringUtil.safeToString(_currentUnit);
                     buf.append("- Current unit: ").append(uname).append(" ");
                     buf.append(now-_currentUnitStart).append("ms\n");
-                }
-                if (reset) {
-                    _maxQueueSize = qsize;
-                    _unitsRun = 0;
                 }
             }
         }
@@ -120,8 +144,8 @@ public class ReportingInvoker extends Invoker
         }
     };
 
-    /** The largest queue size since our last report. */
-    protected long _maxQueueSize;
+    /** Used to track runtime statistics. */
+    protected Stats _recent = new Stats(), _current = _recent;
 
     /** Records the currently invoking unit. */
     protected Object _currentUnit;
