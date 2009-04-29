@@ -272,11 +272,9 @@ public class ClientManager
     }
 
     /**
-     * Requests that the client object for the specified user be resolved.  If the client object is
-     * already resolved, the request will be processed immediately, otherwise the appropriate
-     * client object will be instantiated and populated by the registered client resolver (which
-     * may involve talking to databases). <em>Note:</em> this <b>must</b> be paired with a call to
-     * {@link #releaseClientObject} when the caller is finished with the client object.
+     * Requests that the client object for the specified user be resolved. <em>Note:</em> this
+     * <b>must</b> be paired with a call to {@link #releaseClientObject} when the caller is
+     * finished with the client object.
      */
     public synchronized void resolveClientObject (
         final Name username, final ClientResolutionListener listener)
