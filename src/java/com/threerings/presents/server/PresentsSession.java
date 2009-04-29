@@ -826,8 +826,10 @@ public class PresentsSession
         return _conn;
     }
 
-    /** Callable from non-dobjmgr thread, this queues up a runnable on the dobjmgr thread to post
-     * the supplied message to this client. */
+    /**
+     * Callable from non-dobjmgr thread, this queues up a runnable on the dobjmgr thread to post
+     * the supplied message to this client.
+     */
     protected final void safePostMessage (final DownstreamMessage msg)
     {
         _omgr.postRunnable(new Runnable() {
@@ -838,7 +840,7 @@ public class PresentsSession
     }
 
     /** Queues a message for delivery to the client. */
-    protected final boolean postMessage (DownstreamMessage msg)
+    protected boolean postMessage (DownstreamMessage msg)
     {
         Connection conn = getConnection();
         if (conn != null) {
