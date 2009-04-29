@@ -23,6 +23,7 @@ package com.threerings.presents.peer.server;
 
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicLong;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -155,6 +156,43 @@ public abstract class PeerManager
         }
 
         protected abstract void execute ();
+    }
+
+    /** Returned by {@link #getStats}. */
+    public static class Stats implements Cloneable
+    {
+        /** The number of locks this node has acquired. */
+        public long locksAcquired;
+
+        /** The number of milliseconds spent waiting to acquire locks. */
+        public long lockAcquireWait;
+
+        /** The number of locks this node has released. */
+        public long locksReleased;
+
+        /** The number of locks this node has had hijacked. */
+        public long locksHijacked;
+
+        /** The number of lock requests that have timed out. */
+        public long lockTimeouts;
+
+        /** The number of node actions we've invoked. */
+        public long nodeActionsInvoked;
+
+        /** The total number of messages received from all of our peers. This is updated on the
+         * conmgr thread which is why it's atomic. */
+        public AtomicLong peerMessagesIn = new AtomicLong(0);
+
+        /** The total number of messages sent to all of our peers. */
+        public long peerMessagesOut;
+
+        @Override public Stats clone () {
+            try {
+                return (Stats)super.clone();
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        }
     }
 
     /**
@@ -359,6 +397,10 @@ public abstract class PeerManager
         if (!invoked && onDropped != null) {
             onDropped.run();
         }
+
+        if (invoked) {
+            _stats.nodeActionsInvoked++; // stats!
+        }
     }
 
     /**
@@ -497,8 +539,7 @@ public abstract class PeerManager
             public void requestCompleted (String result) {
                 if (result == null) {
                     if (_suboids.isEmpty()) {
-                        _nodeobj.addToLocks(lock);
-                        listener.requestCompleted(_nodeName);
+                        lockAcquired(lock, 0L, listener);
                     } else {
                         _locks.put(lock, new LockHandler(lock, true, listener));
                     }
@@ -521,8 +562,7 @@ public abstract class PeerManager
             public void requestCompleted (String result) {
                 if (_nodeName.equals(result)) {
                     if (_suboids.isEmpty()) {
-                        _nodeobj.removeFromLocks(lock);
-                        listener.requestCompleted(null);
+                        lockReleased(lock, listener);
                     } else {
                         _locks.put(lock, new LockHandler(lock, false, listener));
                     }
@@ -705,11 +745,20 @@ public abstract class PeerManager
         _nodeobj.setCacheData(new NodeObject.CacheData(cache, data));
     }
 
+    /**
+     * Returns a snapshot of runtime statistics tracked by the peer manager.
+     */
+    public Stats getStats ()
+    {
+        return _stats.clone();
+    }
+
     // from interface ShutdownManager.Shutdowner
     public void shutdown ()
     {
         if (_nodeName == null) { // sanity check
-            throw new IllegalStateException("Shutting down PeerManager that was never initialized.");
+            throw new IllegalStateException(
+                "Shutting down PeerManager that was never initialized.");
         }
 
         // clear out our invocation service
@@ -952,6 +1001,7 @@ public abstract class PeerManager
     protected void droppedLock (final NodeObject.Lock lock)
     {
         _nodeobj.removeFromLocks(lock);
+        _stats.locksHijacked++;
         _dropobs.apply(new ObserverList.ObserverOp<DroppedLockObserver>() {
             public boolean apply (DroppedLockObserver observer) {
                 observer.droppedLock(lock);
@@ -1021,6 +1071,8 @@ public abstract class PeerManager
         // this may be the first we've heard of this guy, so let's refresh our peers and
         // potentially connect right back to him
         refreshPeers();
+        // pass our stats record in so that it can count up messages in/out
+        session.setStats(_stats);
     }
 
     /**
@@ -1028,7 +1080,7 @@ public abstract class PeerManager
      */
     protected void peerEndedSession (PeerSession session)
     {
-        // nothing presently
+        // nada
     }
 
     /**
@@ -1083,6 +1135,21 @@ public abstract class PeerManager
         }
     }
 
+    protected void lockAcquired (NodeObject.Lock lock, long wait, ResultListener<String> listener)
+    {
+        _nodeobj.addToLocks(lock);
+        _stats.locksAcquired++;
+        _stats.lockAcquireWait += wait;
+        listener.requestCompleted(_nodeName);
+    }
+
+    protected void lockReleased (NodeObject.Lock lock, ResultListener<String> listener)
+    {
+        _nodeobj.removeFromLocks(lock);
+        _stats.locksReleased++;
+        listener.requestCompleted(null);
+    }
+
     /**
      * Handles a lock in a state of resolution.
      */
@@ -1118,6 +1185,7 @@ public abstract class PeerManager
                 public void expired () {
                     log.warning("Lock handler timed out, acting anyway", "lock", _lock,
                                 "acquire", _acquire);
+                    _stats.lockTimeouts++;
                     activate();
                 }
             }).schedule(LOCK_TIMEOUT);
@@ -1198,6 +1266,7 @@ public abstract class PeerManager
         {
             cancel();
             _locks.remove(_lock);
+            _stats.locksHijacked++;
             listeners.requestCompleted(nodeName);
         }
 
@@ -1264,11 +1333,9 @@ public abstract class PeerManager
         {
             _locks.remove(_lock);
             if (_acquire) {
-                _nodeobj.addToLocks(_lock);
-                listeners.requestCompleted(_nodeName);
+                lockAcquired(_lock, System.currentTimeMillis() - _startStamp, listeners);
             } else {
-                _nodeobj.removeFromLocks(_lock);
-                listeners.requestCompleted(null);
+                lockReleased(_lock, listeners);
             }
         }
 
@@ -1287,6 +1354,7 @@ public abstract class PeerManager
         protected boolean _acquire;
         protected ArrayIntSet _remoids;
         protected Interval _timeout;
+        protected long _startStamp = System.currentTimeMillis();
     }
 
     // (this need not use a runqueue as all it will do is post an invoker unit)
@@ -1318,6 +1386,9 @@ public abstract class PeerManager
 
     /** Locks in the process of resolution. */
     protected Map<NodeObject.Lock, LockHandler> _locks = Maps.newHashMap();
+
+    /** Used to track runtime statistics. */
+    protected Stats _stats = new Stats();
 
     // our service dependencies
     @Inject protected ConnectionManager _conmgr;

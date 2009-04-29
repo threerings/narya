@@ -27,6 +27,8 @@ import com.samskivert.util.Throttle;
 
 import com.threerings.presents.dobj.DObject;
 import com.threerings.presents.net.BootstrapData;
+import com.threerings.presents.net.DownstreamMessage;
+import com.threerings.presents.net.Message;
 import com.threerings.presents.peer.data.NodeObject;
 import com.threerings.presents.peer.net.PeerBootstrapData;
 import com.threerings.presents.server.PresentsSession;
@@ -45,6 +47,21 @@ public class PeerSession extends PresentsSession
     @Inject public PeerSession (PeerManager peermgr)
     {
         _peermgr = peermgr;
+    }
+
+    /**
+     * Passes in a stats instance that this peer can use to note when it trafficks.
+     */
+    public void setStats (PeerManager.Stats stats)
+    {
+        _stats = stats;
+    }
+
+    @Override // from PresentsSession
+    public void handleMessage (Message message)
+    {
+        super.handleMessage(message);
+        _stats.peerMessagesIn.incrementAndGet();
     }
 
     @Override // from PresentsSession
@@ -99,6 +116,16 @@ public class PeerSession extends PresentsSession
     }
 
     @Override // from PresentsSession
+    protected final boolean postMessage (DownstreamMessage msg)
+    {
+        if (!super.postMessage(msg)) {
+            return false;
+        }
+        _stats.peerMessagesOut++;
+        return true;
+    }
+
+    @Override // from PresentsSession
     protected void subscribedToObject (DObject object)
     {
         super.subscribedToObject(object);
@@ -134,6 +161,7 @@ public class PeerSession extends PresentsSession
     }
 
     protected PeerManager _peermgr;
+    protected PeerManager.Stats _stats;
     protected int _cloid;
     protected long _nextThrottleWarning;
 }
