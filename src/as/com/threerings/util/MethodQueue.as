@@ -57,8 +57,8 @@ public class MethodQueue
                 fn.apply(null, args);
 
             } catch (e :Error) {
-                Log.getLog(MethodQueue).warning("Error calling deferred method " +
-                    "[e=" + e + ", fn=" + fn + ", args=" + args + "].");
+                Log.getLog(MethodQueue).warning(
+                    "Error calling deferred method", "fn", fn, "args", args, e);
             }
         }
 
