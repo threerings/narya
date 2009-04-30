@@ -255,6 +255,8 @@ public class Log
                 var lastArg :Object = args.pop();
                 if (lastArg is Error) {
                     err = lastArg as Error; // ok, it's an error, we like those
+                } else if (lastArg == null) { // assume it's an error that's just null
+                    args.push("error", lastArg); // print "error=null"
                 } else {
                     args.push(lastArg, ""); // what? Well, cope by pushing it back with a ""
                 }
