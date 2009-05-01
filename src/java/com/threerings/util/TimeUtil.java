@@ -47,6 +47,19 @@ public class TimeUtil
     protected static final byte MAX_UNIT = DAY;
 
     /**
+     * Returns (in seconds) the time elapsed between the supplied start and end timestamps (which
+     * must be in milliseconds). Partial seconds are truncated, not rounded.
+     */
+    public static int elapsedSeconds (long startStamp, long endStamp)
+    {
+        if (endStamp < startStamp) {
+            throw new IllegalArgumentException("End time must be after start time " +
+                                               "[start=" + startStamp + ", end=" + endStamp + "]");
+        }
+        return (int)((endStamp - startStamp)/1000L);
+    }
+
+    /**
      * Get a translatable string specifying the magnitude of the specified duration. Results will
      * be between "1 second" and "X hours", with all times rounded to the nearest unit. "0 units"
      * will never be displayed, the minimum is 1.
