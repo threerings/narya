@@ -126,7 +126,7 @@ public class PresentsSession
      */
     public boolean checkExpired (long now)
     {
-        return (getConnection() == null && (now - _networkStamp > FLUSH_TIME));
+        return (getConnection() == null && (now - _networkStamp > getFlushTime()));
     }
 
     /**
@@ -903,6 +903,15 @@ public class PresentsSession
     }
 
     /**
+     * Returns the duration (in milliseconds) after which a disconnected session will be terminated
+     * and flushed.
+     */
+    protected long getFlushTime ()
+    {
+        return DEFAULT_FLUSH_TIME;
+    }
+
+    /**
      * Derived classes override this to augment stringification.
      */
     protected void toString (StringBuilder buf)
@@ -1137,9 +1146,8 @@ public class PresentsSession
     /** A mapping of message dispatchers. */
     protected static Map<Class<?>, MessageDispatcher> _disps = Maps.newHashMap();
 
-    /** The amount of time after disconnection a user is allowed before their session is forcibly
-     * ended. */
-    protected static final long FLUSH_TIME = 7 * 60 * 1000L;
+    /** Default period a user is allowed after disconn before their session is forcibly ended. */
+    protected static final long DEFAULT_FLUSH_TIME = 7 * 60 * 1000L;
 
     // TEMP
     protected static final boolean PING_DEBUG = Boolean.getBoolean("ping_debug");
