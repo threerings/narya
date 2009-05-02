@@ -188,13 +188,13 @@ public abstract class CurseFilter implements ChatFilter
         String pattern = "";
         while (st.hasMoreTokens()) {
             if ("".equals(pattern)) {
-                pattern += ".*(";
+                pattern += "(";
             } else {
                 pattern += "|";
             }
             pattern += "\\b" + StringUtil.replace(st.nextToken(), "*", "[A-Za-z]*") + "\\b";
         }
-        pattern += ").*";
+        pattern += ")";
 
         Pattern pat = Pattern.compile(pattern, Pattern.CASE_INSENSITIVE);
         _stopMatcher = pat.matcher("");
