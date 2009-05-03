@@ -191,14 +191,14 @@ public /*abstract*/ class CurseFilter implements ChatFilter
                 continue;
             }
             if ("" == pattern) {
-                pattern += ".*(";
+                pattern += "(";
             } else {
                 pattern += "|";
             }
             pattern += "\\b" +
                 token.replace(/\*/g, "[A-Za-z]*") + "\\b";
         }
-        pattern += ").*";
+        pattern += ")";
 
         _stopExp = new RegExp(pattern, "i");
     }
