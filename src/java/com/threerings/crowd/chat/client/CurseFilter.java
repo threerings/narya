@@ -75,7 +75,7 @@ public abstract class CurseFilter implements ChatFilter
     {
         // first, check against the drop-always list
         _stopMatcher.reset(msg);
-        if (_stopMatcher.matches()) {
+        if (_stopMatcher.find()) {
             return null;
         }
 
