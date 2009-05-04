@@ -22,7 +22,6 @@
 package com.threerings.presents.server;
 
 import java.lang.reflect.Field;
-import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 
 import java.util.List;
@@ -737,12 +736,10 @@ public class PresentsDObjectMgr
         boolean notify = true; // assume always notify
         try {
             // do any internal management necessary based on this event
-            Method helper = _helpers.get(event.getClass());
+            EventHelper helper = _helpers.get(event.getClass());
             if (helper != null) {
-                // invoke the helper method
-                Object rv = helper.invoke(this, new Object[] { event, target });
                 // if helper returns false, we abort event processing
-                if (!((Boolean)rv).booleanValue()) {
+                if (!helper.invoke(event, target)) {
                     return false;
                 }
             }
@@ -830,18 +827,22 @@ public class PresentsDObjectMgr
      */
     protected void registerEventHelpers ()
     {
-        Class<?>[] ptypes = new Class<?>[] { DEvent.class, DObject.class };
-        Method method;
-
         try {
-            method = PresentsDObjectMgr.class.getMethod("objectDestroyed", ptypes);
-            _helpers.put(ObjectDestroyedEvent.class, method);
-
-            method = PresentsDObjectMgr.class.getMethod("objectAdded", ptypes);
-            _helpers.put(ObjectAddedEvent.class, method);
-
-            method = PresentsDObjectMgr.class.getMethod("objectRemoved", ptypes);
-            _helpers.put(ObjectRemovedEvent.class, method);
+            _helpers.put(ObjectDestroyedEvent.class, new EventHelper () {
+                public boolean invoke (DEvent event, DObject target) {
+                    return objectDestroyed(event, target);
+                }
+            });
+            _helpers.put(ObjectAddedEvent.class, new EventHelper() {
+                public boolean invoke (DEvent event, DObject target) {
+                    return objectAdded(event, target);
+                }
+            });
+            _helpers.put(ObjectRemovedEvent.class, new EventHelper() {
+                public boolean invoke (DEvent event, DObject target) {
+                    return objectRemoved(event, target);
+                }
+            });
 
         } catch (Exception e) {
             log.warning("Unable to register event helpers", "error", e);
@@ -1008,6 +1009,12 @@ public class PresentsDObjectMgr
         }
     }
 
+    /** Does some helpy bits for certain events. */
+    protected static interface EventHelper
+    {
+        public boolean invoke (DEvent event, DObject target);
+    }
+
     /** A flag indicating that the event dispatcher is still running. */
     protected boolean _running = true;
 
@@ -1050,7 +1057,7 @@ public class PresentsDObjectMgr
     protected Stats _recent = new Stats(), _current = _recent;
 
     /** Maps event classes to helpers that perform additional processing for particular events. */
-    protected Map<Class<?>, Method> _helpers = Maps.newHashMap();
+    protected Map<Class<?>, EventHelper> _helpers = Maps.newHashMap();
 
     /** Used to resolve unit names when profiling. Injected by the invmgr when it's created. */
     protected InvocationManager _invmgr;
