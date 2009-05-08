@@ -69,6 +69,24 @@ public class DSet<E extends DSet.Entry>
     }
 
     /**
+     * A quick and easy DSet.Entry that holds some sort of Comparable.
+     *
+     * Remember: this type must also be {@link Streamable}.
+     */
+    public static class KeyWrapper<T extends Comparable<?>> implements DSet.Entry
+    {
+        public KeyWrapper (T key) {
+            _key = key;
+        }
+
+        public T getKey () {
+            return _key;
+        }
+
+        protected T _key;
+    }
+
+    /**
      * Creates a new DSet of the appropriate generic type.
      */
     public static <E extends DSet.Entry> DSet<E> newDSet ()
@@ -85,7 +103,7 @@ public class DSet<E extends DSet.Entry>
     }
 
     /**
-     * Compares the first comparable to the second. This is useful to avoid type safety warnings 
+     * Compares the first comparable to the second. This is useful to avoid type safety warnings
      * when dealing with the keys of {@link DSet.Entry} values.
      */
     public static int compare (Comparable<?> c1, Comparable<?> c2)
@@ -138,9 +156,9 @@ public class DSet<E extends DSet.Entry>
      */
     public DSet (E[] source)
     {
-        for (int ii = 0; ii < source.length; ii++) {
-            if (source[ii] != null) {
-                add(source[ii]);
+        for (E element : source) {
+            if (element != null) {
+                add(element);
             }
         }
     }
@@ -186,7 +204,8 @@ public class DSet<E extends DSet.Entry>
     public E get (Comparable<?> key)
     {
         // determine where we'll be adding the new element
-        int eidx = ArrayUtil.binarySearch(_entries, 0, _size, new KeyWrapper(key), ENTRY_COMP);
+        int eidx = ArrayUtil.binarySearch(
+            _entries, 0, _size, new KeyWrapper<Comparable<?>>(key), ENTRY_COMP);
         return (eidx < 0) ? null : _entries[eidx];
     }
 
@@ -371,7 +390,8 @@ public class DSet<E extends DSet.Entry>
         }
 
         // look up this entry's position in our set
-        int eidx = ArrayUtil.binarySearch(_entries, 0, _size, new KeyWrapper(key), ENTRY_COMP);
+        int eidx = ArrayUtil.binarySearch(
+            _entries, 0, _size, new KeyWrapper<Comparable<?>>(key), ENTRY_COMP);
 
         // if we found it, remove it
         if (eidx >= 0) {
@@ -454,8 +474,7 @@ public class DSet<E extends DSet.Entry>
     {
         StringBuilder buf = new StringBuilder("(");
         String prefix = "";
-        for (int i = 0; i < _entries.length; i++) {
-            Entry elem = _entries[i];
+        for (E elem : _entries) {
             if (elem != null) {
                 buf.append(prefix);
                 prefix = ", ";
@@ -492,18 +511,6 @@ public class DSet<E extends DSet.Entry>
             @SuppressWarnings("unchecked") E entry = (E)in.readObject();
             _entries[ii] = entry;
         }
-    }
-
-    /** Used to search for keys. */
-    protected static class KeyWrapper implements DSet.Entry
-    {
-        public KeyWrapper (Comparable<?> key) {
-            _key = key;
-        }
-        public Comparable<?> getKey () {
-            return _key;
-        }
-        protected Comparable<?> _key;
     }
 
     /** The entries of the set (in a sparse array). */
