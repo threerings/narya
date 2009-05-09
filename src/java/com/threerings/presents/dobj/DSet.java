@@ -75,6 +75,9 @@ public class DSet<E extends DSet.Entry>
      */
     public static class KeyWrapper<T extends Comparable<?>> implements DSet.Entry
     {
+        // Zero arg constructor for unserialization
+        public KeyWrapper () { }
+
         public KeyWrapper (T key) {
             _key = key;
         }
