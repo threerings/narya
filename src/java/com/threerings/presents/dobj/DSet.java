@@ -69,27 +69,6 @@ public class DSet<E extends DSet.Entry>
     }
 
     /**
-     * A quick and easy DSet.Entry that holds some sort of Comparable.
-     *
-     * Remember: this type must also be {@link Streamable}.
-     */
-    public static class KeyWrapper<T extends Comparable<?>> implements DSet.Entry
-    {
-        // Zero arg constructor for unserialization
-        public KeyWrapper () { }
-
-        public KeyWrapper (T key) {
-            _key = key;
-        }
-
-        public T getKey () {
-            return _key;
-        }
-
-        protected T _key;
-    }
-
-    /**
      * Creates a new DSet of the appropriate generic type.
      */
     public static <E extends DSet.Entry> DSet<E> newDSet ()
@@ -208,7 +187,7 @@ public class DSet<E extends DSet.Entry>
     {
         // determine where we'll be adding the new element
         int eidx = ArrayUtil.binarySearch(
-            _entries, 0, _size, new KeyWrapper<Comparable<?>>(key), ENTRY_COMP);
+            _entries, 0, _size, new SimpleEntry<Comparable<?>>(key), ENTRY_COMP);
         return (eidx < 0) ? null : _entries[eidx];
     }
 
@@ -394,7 +373,7 @@ public class DSet<E extends DSet.Entry>
 
         // look up this entry's position in our set
         int eidx = ArrayUtil.binarySearch(
-            _entries, 0, _size, new KeyWrapper<Comparable<?>>(key), ENTRY_COMP);
+            _entries, 0, _size, new SimpleEntry<Comparable<?>>(key), ENTRY_COMP);
 
         // if we found it, remove it
         if (eidx >= 0) {
