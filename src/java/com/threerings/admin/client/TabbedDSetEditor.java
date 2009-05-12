@@ -71,7 +71,7 @@ public class TabbedDSetEditor<E extends DSet.Entry> extends JPanel
             }
         } catch (IllegalAccessException iae) {
             throw new IllegalArgumentException(Logger.format(
-                "Could not access group field on entry", "groupField", groupField, iae));
+                "Could not access group field on entry", "groupField", groupField), iae);
         }
 
         JTabbedPane tabs = new JTabbedPane();
