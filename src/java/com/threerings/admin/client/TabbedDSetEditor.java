@@ -53,24 +53,23 @@ public class TabbedDSetEditor<E extends DSet.Entry> extends JPanel
     public static abstract class EntryGrouper<E extends DSet.Entry>
     {
         /**
-         * Record & return the group for a given entry.
+         * Subclasses implement the actual logic to figure out a group names from an entry here.
          */
-        public String getGroup (E entry)
-        {
-            String group = computeGroup(entry);
-            _allGroups.add(group);
-            return group;
-        }
+        protected abstract String[] computeGroups (E entry);
 
         /**
-         * Subclasses implement the actual logic to figure out a group name from an entry here.
+         * Returns a predicate that returns true if the given entry is in the given group.
          */
-        protected abstract String computeGroup (E entry);
-
         protected Predicate<E> getPredicate (final String group) {
             return new Predicate<E>() {
                 public boolean apply (E entry) {
-                    return group.equals(getGroup(entry));
+                    String[] groups = computeGroups(entry);
+                    for (String g: groups) {
+                        if (g.equals(group)) {
+                            return true;
+                        }
+                    }
+                    return false;
                 }
             };
         }
@@ -81,7 +80,10 @@ public class TabbedDSetEditor<E extends DSet.Entry> extends JPanel
          */
         public void computeGroups (Iterable<E> entries) {
             for (E entry : entries) {
-                getGroup(entry);
+                String[] groups = computeGroups(entry);
+                for (String group : groups) {
+                    _allGroups.add(group);
+                }
             }
         }
 
@@ -116,18 +118,17 @@ public class TabbedDSetEditor<E extends DSet.Entry> extends JPanel
         }
 
         @Override
-        protected String computeGroup (E entry) {
+        protected String[] computeGroups (E entry) {
             try {
-                return StringUtil.toString(_field.get(entry));
+                return new String[] { StringUtil.toString(_field.get(entry)) };
             } catch (IllegalAccessException iae) {
                 // This ain't good, but let's soldier on.
-                return "<bogus>";
+                return new String[] { "<bogus>" };
             }
         }
 
         protected final Field _field;
     }
-
 
     /**
      * Convenience function to make an edittor that groups based on the values of a given field.
