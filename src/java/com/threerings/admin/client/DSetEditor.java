@@ -2,7 +2,7 @@
 // $Id$
 //
 // Narya library - tools for developing networked games
-// Copyright (C) 2002-2007 Three Rings Design, Inc., All Rights Reserved
+// Copyright (C) 2002-2009 Three Rings Design, Inc., All Rights Reserved
 // http://www.threerings.net/code/narya/
 //
 // This library is free software; you can redistribute it and/or modify it
@@ -25,10 +25,16 @@ import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.ArrayList;
+import java.util.Iterator;
 
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
+
+import com.google.common.base.Predicate;
+import com.google.common.collect.Iterators;
+import com.google.common.collect.Lists;
 
 import com.samskivert.util.ComparableArrayList;
 
@@ -55,7 +61,7 @@ public class DSetEditor<E extends DSet.Entry> extends JPanel
      *
      * @param setter The object that contains the set.
      * @param setName The name of the set in the object.
-     * @param entryClass the Class of the DSet.Entry elements contained in the set.
+     * @param entryClass The Class of the DSet.Entry elements contained in the set.
      */
     public DSetEditor (DObject setter, String setName, Class<?> entryClass)
     {
@@ -67,11 +73,11 @@ public class DSetEditor<E extends DSet.Entry> extends JPanel
      *
      * @param setter The object that contains the set.
      * @param setName The name of the set in the object.
-     * @param entryClass the Class of the DSet.Entry elements contained in the set.
+     * @param entryClass The Class of the DSet.Entry elements contained in the set.
      * @param editableFields the names of the fields in the entryClass that should be editable.
      */
-    public DSetEditor (DObject setter, String setName, Class<?> entryClass,
-                       String[] editableFields)
+    public DSetEditor (
+        DObject setter, String setName, Class<?> entryClass, String[] editableFields)
     {
         this(setter, setName, entryClass, editableFields, null);
     }
@@ -82,17 +88,36 @@ public class DSetEditor<E extends DSet.Entry> extends JPanel
      * @param setter The object that contains the set.
      * @param setName The name of the set in the object.
      * @param entryClass the Class of the DSet.Entry elements contained in the set.
-     * @param editableFields the names of the fields in the entryClass that should be editable.
+     * @param editableFields The names of the fields in the entryClass that should be editable.
      * @param interp The FieldInterpreter to use.
      */
-    public DSetEditor (DObject setter, String setName, Class<?> entryClass,
-                       String[] editableFields, ObjectEditorTable.FieldInterpreter interp)
+    public DSetEditor (
+        DObject setter, String setName, Class<?> entryClass, String[] editableFields,
+        ObjectEditorTable.FieldInterpreter interp)
+    {
+        this(setter, setName, entryClass, editableFields, interp, null);
+    }
+
+    /**
+     * Construct a DSetEditor that only displays entries that match the given Predicate.
+     *
+     * @param setter The object that contains the set.
+     * @param setName The name of the set in the object.
+     * @param entryClass The Class of the DSet.Entry elements contained in the set.
+     * @param editableFields The names of the fields in the entryClass that should be editable.
+     * @param interp The FieldInterpreter to use.
+     * @param entryFilter The Predicate to use.
+     */
+    public DSetEditor (
+        DObject setter, String setName, Class<?> entryClass, String[] editableFields,
+        ObjectEditorTable.FieldInterpreter interp, Predicate<E> entryFilter)
     {
         super(new BorderLayout());
 
         _setter = setter;
         _setName = setName;
         _set = _setter.getSet(setName);
+        _entryFilter = entryFilter;
 
         _table = new ObjectEditorTable(entryClass, editableFields, interp);
 
@@ -142,13 +167,34 @@ public class DSetEditor<E extends DSet.Entry> extends JPanel
         super.removeNotify();
     }
 
+    /**
+     * Handles the addition of an entry, assuming our filter allows it.
+     */
+    protected void addEntry (E entry)
+    {
+        if (_entryFilter == null || _entryFilter.apply(entry)) {
+            int index = _keys.insertSorted(getKey(entry));
+            _table.insertDatum(entry, index);
+        }
+    }
+
+    /**
+     * Takes care of removing a key from
+     */
+    protected void removeKey (Comparable<?> key)
+    {
+        int index = _keys.indexOf(key);
+        if (index != -1) {
+            _keys.remove(index);
+            _table.removeDatum(index);
+        }
+    }
+
     // documentation inherited from interface SetListener
     public void entryAdded (EntryAddedEvent<E> event)
     {
         if (event.getName().equals(_setName)) {
-            E entry = event.getEntry();
-            int index = _keys.insertSorted(getKey(entry));
-            _table.insertDatum(entry, index);
+            addEntry(event.getEntry());
         }
     }
 
@@ -156,10 +202,7 @@ public class DSetEditor<E extends DSet.Entry> extends JPanel
     public void entryRemoved (EntryRemovedEvent<E> event)
     {
         if (event.getName().equals(_setName)) {
-            Comparable<?> key = event.getKey();
-            int index = _keys.indexOf(key);
-            _keys.remove(index);
-            _table.removeDatum(index);
+            removeKey(event.getKey());
         }
     }
 
@@ -169,7 +212,18 @@ public class DSetEditor<E extends DSet.Entry> extends JPanel
         if (event.getName().equals(_setName)) {
             E entry = event.getEntry();
             int index = _keys.indexOf(entry.getKey());
-            _table.updateDatum(entry, index);
+            if (index != -1) {
+                // We have it, so either update or remove
+                if (_entryFilter == null || _entryFilter.apply(entry)) {
+                    _table.updateDatum(entry, index);
+
+                } else {
+                    removeKey(entry.getKey());
+                }
+            } else {
+                // We DON'T have it, so try to add it in case we care about it
+                addEntry(entry);
+            }
         }
     }
 
@@ -193,10 +247,26 @@ public class DSetEditor<E extends DSet.Entry> extends JPanel
     protected void refreshData ()
     {
         _keys = new ComparableArrayList<Comparable<Object>>();
-        @SuppressWarnings("unchecked") E[] entries =  (E[])new DSet.Entry[_set.size()];
-        _set.toArray(entries);
-        for (int ii = 0; ii < entries.length; ii++) {
-            _keys.insertSorted(getKey(entries[ii]));
+        E[] entries;
+
+        if (_entryFilter == null) {
+            @SuppressWarnings("unchecked") E[] tmp = (E[])new DSet.Entry[_set.size()];
+            entries = tmp;
+            _set.toArray(entries);
+
+        } else {
+            // Do some shuffling to get out a filtered array.
+            Iterator<E> itr = Iterators.filter(_set.iterator(), _entryFilter);
+            ArrayList<E> list = Lists.newArrayList();
+            Iterators.addAll(list, itr);
+
+            @SuppressWarnings("unchecked") E[] tmp = (E[])new DSet.Entry[list.size()];
+            entries = tmp;
+            list.toArray(entries);
+        }
+
+        for (E entry : entries) {
+            _keys.insertSorted(getKey(entry));
         }
         _table.setData(entries); // this works because DSet itself is sorted
     }
@@ -212,6 +282,9 @@ public class DSetEditor<E extends DSet.Entry> extends JPanel
 
     /** The name of the set in that object. */
     protected String _setName;
+
+    /** An optional predicate to decide whether actually care about displaying a given entry. */
+    protected Predicate<E> _entryFilter;
 
     /** The set itself. */
     protected DSet<E> _set;
