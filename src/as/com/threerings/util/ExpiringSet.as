@@ -35,6 +35,8 @@ public class ExpiringSet extends EventDispatcher
     public function ExpiringSet (ttl :Number)
     {
         _ttl = Math.round(ttl * 1000);
+        _timer = new Timer(_ttl, 1);
+        _timer.addEventListener(TimerEvent.TIMER, checkTimer);
     }
 
     /**
@@ -44,12 +46,6 @@ public class ExpiringSet extends EventDispatcher
     public function get ttl () :Number
     {
         return _ttl / 1000;  
-    }
-
-    // from Set
-    public function isEmpty () :Boolean
-    {
-        return size() == 0;
     }
 
     /**
@@ -66,7 +62,7 @@ public class ExpiringSet extends EventDispatcher
     public function forEach (fn :Function) :void
     {
         for each (var e :ExpiringElement in _data) {
-            fn(e);
+            fn(e.element);
         }
     }
 
@@ -77,14 +73,17 @@ public class ExpiringSet extends EventDispatcher
     }
 
     // from Set
+    public function isEmpty () :Boolean
+    {
+        return size() == 0;
+    }
+
+    // from Set
     public function contains (o :Object) :Boolean
     {
-        for each (var e :ExpiringElement in _data) {
-            if (e.objectEquals(o)) {
-                return true;
-            }
-        }
-        return false;
+        return _data.some(function (e :ExpiringElement, ... ignored) :Boolean {
+            return e.objectEquals(o);
+        });
     }
     
     /**
@@ -95,13 +94,9 @@ public class ExpiringSet extends EventDispatcher
     public function add (o :Object) :Boolean
     {
         var added :Boolean = true;
-        var element :ExpiringElement;
-        var expire :int = getTimer() + _ttl;
         for (var ii :int = 0; ii < _data.length; ii++) {
-            if ((_data[ii] as ExpiringElement).objectEquals(o)) {
-                // already contained - update expire time and remove from current position.
-                element = _data[ii] as ExpiringElement;
-                element.expirationTime = expire;
+            if (ExpiringElement(_data[ii]).objectEquals(o)) {
+                // already contained, remove this one and re-add at end
                 _data.splice(ii, 1);
                 added = false;
                 break;
@@ -110,8 +105,13 @@ public class ExpiringSet extends EventDispatcher
 
         // push the item onto the queue. since each element has the same TTL, elements end up 
         // being ordered by their expiration time.
-        _data.push(element || new ExpiringElement(o, expire));
-        checkTimer();
+        _data.push(new ExpiringElement(o, getTimer() + _ttl));
+        if (_data.length == 1) {
+            // set up the timer to remove this one element, otherwise it was already running
+            _timer.reset();
+            _timer.delay = _ttl;
+            _timer.start();
+        }
         return added;
     }
 
@@ -121,13 +121,11 @@ public class ExpiringSet extends EventDispatcher
         // pull the item from anywhere in the queue.  If we remove the first element, the timer
         // will harmlessly NOOP when it wakes up
         for (var ii :int = 0; ii < _data.length; ii++) {
-            var e :ExpiringElement = _data[ii] as ExpiringElement;
-            if (e.objectEquals(o)) {
+            if (ExpiringElement(_data[ii]).objectEquals(o)) {
                 _data.splice(ii, 1);
                 return true;
             }
         }
-
         return false;
     }
 
@@ -137,56 +135,33 @@ public class ExpiringSet extends EventDispatcher
      */
     public function toArray () :Array
     {
-        var elements :Array = [];
-        for each (var element :ExpiringElement in _data) {
-            elements.push(element.element);
-        }
-        return elements;
+        return _data.map(function (e :ExpiringElement, ... ignored) :Object {
+            return e.element;
+        });
     }
 
-    protected function checkTimer (...ignored) :void
+    /**
+     * Remove probably just one element from the front of the expiration queue, and
+     * schedule a wakeup for the time to the new head's expiration time.
+     */
+    protected function checkTimer (... ignored) :void
     {
-        // expiration check
         var now :int = getTimer();
-        while (headIsExpired(now)) {
-            // pop the head off the queue and dispatch an event
-            var head :ExpiringElement = _data.shift() as ExpiringElement;
-            dispatchEvent(new ValueEvent(ELEMENT_EXPIRED, head.element));
-        }
+        while (_data.length > 0) {
+            var e :ExpiringElement = ExpiringElement(_data[0]);
+            var timeToExpire :int = e.expirationTime - now;
+            if (timeToExpire <= 0) {
+                _data.shift(); // remove it
+                dispatchEvent(new ValueEvent(ELEMENT_EXPIRED, e.element)); // notify
 
-        // empty check
-        if (isEmpty()) {
-            return;
+            } else {
+                // the head element is not yet expired
+                _timer.reset();
+                _timer.delay = timeToExpire;
+                _timer.start();
+                break;
+            }
         }
-
-        // if the timer is already running, and we're not empty, we want to just let it finish
-        // its current delay, and set up a new one then
-        if (_timer != null && _timer.running) {
-            return;
-        }
-
-        // sanity check
-        var delay :int = (_data[0] as ExpiringElement).expirationTime - now;
-        if (delay <= 0) {
-            // blow up
-            log.warning("calculated delay after expiring elements is invalid! [" + delay + "]");
-            return;
-        }
-
-        // set up next delay
-        if (_timer == null) {
-            _timer = new Timer(delay, 1);
-            _timer.addEventListener(TimerEvent.TIMER, checkTimer);
-        } else {
-            _timer.delay = delay;
-            _timer.reset();
-        }
-        _timer.start();
-    }
-
-    protected function headIsExpired (now :int) :Boolean
-    {
-        return isEmpty() ? false : (_data[0] as ExpiringElement).isExpired(now);
     }
 
     protected static const log :Log = Log.getLog(ExpiringSet);
@@ -195,7 +170,7 @@ public class ExpiringSet extends EventDispatcher
     protected /* final */ var _ttl :int;
 
     /** Array of ExpiringElement instances, sorted by expiration time. */
-    protected var _data :Array = new Array();
+    protected var _data :Array = [];
 
     protected var _timer :Timer;
 }
@@ -212,11 +187,6 @@ class ExpiringElement
     {
         this.element = element;
         this.expirationTime = expiration;
-    }
-
-    public function isExpired (now :int) :Boolean
-    {
-        return expirationTime <= now;
     }
 
     public function objectEquals (element :Object) :Boolean
