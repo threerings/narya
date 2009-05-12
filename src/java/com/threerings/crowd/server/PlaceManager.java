@@ -41,6 +41,7 @@ import com.threerings.presents.dobj.DynamicListener;
 import com.threerings.presents.dobj.EntryUpdatedEvent;
 import com.threerings.presents.dobj.MessageEvent;
 import com.threerings.presents.dobj.MessageListener;
+import com.threerings.presents.dobj.NamedSetAdapter;
 import com.threerings.presents.dobj.ObjectAddedEvent;
 import com.threerings.presents.dobj.ObjectDeathListener;
 import com.threerings.presents.dobj.ObjectDestroyedEvent;
@@ -726,12 +727,11 @@ public class PlaceManager
     }
 
     /** Listens for occupant updates. */
-    protected SetAdapter<OccupantInfo> _bodyUpdater = new SetAdapter<OccupantInfo>() {
+    protected SetAdapter<OccupantInfo> _bodyUpdater =
+        new NamedSetAdapter<OccupantInfo>(PlaceObject.OCCUPANT_INFO) {
         @Override
-        public void entryUpdated (EntryUpdatedEvent<OccupantInfo> event) {
-            if (event.getName().equals(PlaceObject.OCCUPANT_INFO)) {
-                bodyUpdated(event.getEntry());
-            }
+        public void namedEntryUpdated (EntryUpdatedEvent<OccupantInfo> event) {
+            bodyUpdated(event.getEntry());
         }
     };
 
