@@ -108,8 +108,8 @@ public class GenDObjectTask extends Task
             DirectoryScanner ds = fs.getDirectoryScanner(getProject());
             File fromDir = fs.getDir(getProject());
             String[] srcFiles = ds.getIncludedFiles();
-            for (int f = 0; f < srcFiles.length; f++) {
-                processObject(new File(fromDir, srcFiles[f]));
+            for (String srcFile : srcFiles) {
+                processObject(new File(fromDir, srcFile));
             }
         }
     }
@@ -153,8 +153,7 @@ public class GenDObjectTask extends Task
         // determine which fields we need to deal with
         ArrayList<Field> flist = new ArrayList<Field>();
         Field[] fields = oclass.getDeclaredFields();
-        for (int ii = 0; ii < fields.length; ii++) {
-            Field f = fields[ii];
+        for (Field f : fields) {
             int mods = f.getModifiers();
             if (!Modifier.isPublic(mods) ||
                 Modifier.isStatic(mods) ||

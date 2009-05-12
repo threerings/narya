@@ -31,39 +31,35 @@ import com.samskivert.util.StringUtil;
 import static com.threerings.NaryaLog.log;
 
 /**
- * The message manager provides a thin wrapper around Java's built-in
- * localization support, supporting a policy of dividing up localization
- * resources into logical units, all of the translations for which are
- * contained in a single messages file.
+ * The message manager provides a thin wrapper around Java's built-in localization support,
+ * supporting a policy of dividing up localization resources into logical units, all of the
+ * translations for which are contained in a single messages file.
  *
- * <p> The message manager assumes that the locale remains constant for
- * the duration of its operation. If the locale were to change during the
- * operation of the client, a call to {@link #setLocale} should be made to
- * inform the message manager of the new locale (which will clear the
- * message bundle cache).
+ * <p> The message manager assumes that the locale remains constant for the duration of its
+ * operation. If the locale were to change during the operation of the client, a call to
+ * {@link #setLocale} should be made to inform the message manager of the new locale (which will
+ * clear the message bundle cache).
  */
 public class MessageManager
 {
-    /** The name of the global resource bundle (which other bundles revert
-     * to if they can't locate a message within themselves). It must be
-     * named <code>global.properties</code> and live at the top of the
-     * bundle hierarchy. */
+    /**
+     * The name of the global resource bundle (which other bundles revert to if they can't locate
+     * a message within themselves). It must be named <code>global.properties</code> and live at
+     * the top of the bundle hierarchy.
+     */
     public static final String GLOBAL_BUNDLE = "global";
 
     /**
-     * Constructs a message manager with the supplied resource prefix and
-     * the default locale. The prefix will be prepended to the path of all
-     * resource bundles prior to their resolution. For example, if a
-     * prefix of <code>rsrc.messages</code> was provided and a message
-     * bundle with the name <code>game.chess</code> was later requested,
-     * the message manager would attempt to load a resource bundle with
-     * the path <code>rsrc.messages.game.chess</code> and would eventually
-     * search for a file in the classpath with the path
+     * Constructs a message manager with the supplied resource prefix and the default locale. The
+     * prefix will be prepended to the path of all resource bundles prior to their resolution. For
+     * example, if a prefix of <code>rsrc.messages</code> was provided and a message bundle with
+     * the name <code>game.chess</code> was later requested, the message manager would attempt to
+     * load a resource bundle with the path <code>rsrc.messages.game.chess</code> and would
+     * eventually search for a file in the classpath with the path
      * <code>rsrc/messages/game/chess.properties</code>.
      *
-     * <p> See the documentation for {@link
-     * ResourceBundle#getBundle(String,Locale,ClassLoader)} for a more
-     * detailed explanation of how resource bundle paths are resolved.
+     * <p> See the documentation for {@link ResourceBundle#getBundle(String,Locale,ClassLoader)}
+     * for a more detailed explanation of how resource bundle paths are resolved.
      */
     public MessageManager (String resourcePrefix)
     {
@@ -84,10 +80,9 @@ public class MessageManager
     }
 
     /**
-     * Get the locale that is being used to translate messages.
-     * This may be useful if using standard translations, for example
-     * new SimpleDateFormat("EEEE", getLocale()) to get the name of a weekday
-     * that matches the language being used for all other client translations.
+     * Get the locale that is being used to translate messages. This may be useful if using
+     * standard translations, for example new SimpleDateFormat("EEEE", getLocale()) to get the
+     * name of a weekday that matches the language being used for all other client translations.
      */
     public Locale getLocale ()
     {
@@ -95,9 +90,8 @@ public class MessageManager
     }
 
     /**
-     * Sets the locale to the specified locale. Subsequent message bundles
-     * fetched via the message manager will use the new locale. The
-     * message bundle cache will also be cleared.
+     * Sets the locale to the specified locale. Subsequent message bundles fetched via the message
+     * manager will use the new locale. The message bundle cache will also be cleared.
      */
     public void setLocale (Locale locale)
     {
@@ -106,8 +100,7 @@ public class MessageManager
     }
 
     /**
-     * Sets the appropriate resource prefix for where to find subsequent
-     *  message bundles.
+     * Sets the appropriate resource prefix for where to find subsequent message bundles.
      */
     public void setPrefix (String resourcePrefix)
     {
@@ -118,8 +111,7 @@ public class MessageManager
     }
 
     /**
-     * Allows a custom classloader to be configured for locating
-     * translation resources.
+     * Allows a custom classloader to be configured for locating translation resources.
      */
     public void setClassLoader (ClassLoader loader)
     {
@@ -127,13 +119,11 @@ public class MessageManager
     }
 
     /**
-     * Fetches the message bundle for the specified path. If no bundle can
-     * be located with the specified path, a special bundle is returned
-     * that returns the untranslated message identifiers instead of an
-     * associated translation. This is done so that error code to handle a
-     * failed bundle load need not be replicated wherever bundles are
-     * used. Instead an error will be logged and the requesting service
-     * can continue to function in an impaired state.
+     * Fetches the message bundle for the specified path. If no bundle can be located with the
+     * specified path, a special bundle is returned that returns the untranslated message
+     * identifiers instead of an associated translation. This is done so that error code to handle
+     * a failed bundle load need not be replicated wherever bundles are used. Instead an error
+     * will be logged and the requesting service can continue to function in an impaired state.
      */
     public MessageBundle getBundle (String path)
     {
@@ -146,9 +136,8 @@ public class MessageManager
         // if it's not cached, we'll need to resolve it
         ResourceBundle rbundle = loadBundle(_prefix + path);
 
-        // if the resource bundle contains a special resource, we'll
-        // interpret that as a derivation of MessageBundle to instantiate
-        // for handling that class
+        // if the resource bundle contains a special resource, we'll interpret that as a derivation
+        // of MessageBundle to instantiate for handling that class
         if (rbundle != null) {
             String mbclass = null;
             try {
@@ -166,15 +155,14 @@ public class MessageManager
             }
         }
 
-        // if there was no custom class, or we failed to instantiate the
-        // custom class, use a standard message bundle
+        // if there was no custom class, or we failed to instantiate the custom class, use a
+        // standard message bundle
         if (bundle == null) {
             bundle = new MessageBundle();
         }
 
-        // initialize our message bundle, cache it and return it (if we
-        // couldn't resolve the bundle, the message bundle will cope with
-        // it's null resource bundle)
+        // initialize our message bundle, cache it and return it (if we couldn't resolve the
+        // bundle, the message bundle will cope with its null resource bundle)
         bundle.init(this, path, rbundle, _global);
         _cache.put(path, bundle);
         return bundle;
