@@ -66,8 +66,9 @@ public class TestDispatcher extends InvocationDispatcher<TestMarshaller>
             return;
 
         case TestMarshaller.TEST:
+            @SuppressWarnings("unchecked") List<Integer> list = (List<Integer>)args[2];
             ((TestProvider)provider).test(
-                source, (String)args[0], ((Integer)args[1]).intValue(), (List<Integer>)args[2], (TestService.TestFuncListener)args[3]
+                source, (String)args[0], ((Integer)args[1]).intValue(), list, (TestService.TestFuncListener)args[3]
             );
             return;
 
