@@ -22,7 +22,8 @@
 package com.threerings.admin.client;
 
 import java.lang.reflect.Field;
-import java.util.HashSet;
+import java.util.Comparator;
+import java.util.Set;
 
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
@@ -30,7 +31,9 @@ import javax.swing.JTabbedPane;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Sets;
 
+import com.samskivert.util.Comparators;
 import com.samskivert.util.Logger;
+import com.samskivert.util.QuickSort;
 import com.samskivert.util.StringUtil;
 
 import com.samskivert.swing.ObjectEditorTable;
@@ -45,57 +48,134 @@ import com.threerings.presents.dobj.DSet;
 public class TabbedDSetEditor<E extends DSet.Entry> extends JPanel
 {
     /**
+     * Used to divide various entires into different groups.
+     */
+    public static abstract class EntryGrouper<E extends DSet.Entry>
+    {
+        /**
+         * Record & return the group for a given entry.
+         */
+        public String getGroup (E entry)
+        {
+            String group = computeGroup(entry);
+            _allGroups.add(group);
+            return group;
+        }
+
+        /**
+         * Subclasses implement the actual logic to figure out a group name from an entry here.
+         */
+        protected abstract String computeGroup (E entry);
+
+        protected Predicate<E> getPredicate (final String group) {
+            return new Predicate<E>() {
+                public boolean apply (E entry) {
+                    return group.equals(getGroup(entry));
+                }
+            };
+        }
+
+        /**
+         * Grinds through the
+         * @param entries
+         */
+        public void computeGroups (Iterable<E> entries) {
+            for (E entry : entries) {
+                getGroup(entry);
+            }
+        }
+
+        /**
+         * Returns all the groups we know about, ordered as they should be displayed.
+         */
+        public String[] getAllGroups () {
+            String[] list = _allGroups.toArray(new String[_allGroups.size()]);
+            QuickSort.sort(list, getComparator());
+
+            return list;
+        }
+
+        protected Comparator<Object> getComparator () {
+            return Comparators.LEXICAL_CASE_INSENSITIVE;
+        }
+
+
+        protected Set<String> _allGroups = Sets.newHashSet();
+    }
+
+    public static class FieldGrouper<E extends DSet.Entry> extends EntryGrouper<E>
+    {
+        public FieldGrouper (String fieldName, Class<?> entryClass) {
+            try {
+                _field = entryClass.getField(fieldName);
+            } catch (NoSuchFieldException nsfe) {
+                throw new IllegalArgumentException(Logger.format(
+                    "Group field not found in prototype class!",
+                    "proto", entryClass, "groupField", fieldName));
+            }
+        }
+
+        @Override
+        protected String computeGroup (E entry) {
+            try {
+                return StringUtil.toString(_field.get(entry));
+            } catch (IllegalAccessException iae) {
+                // This ain't good, but let's soldier on.
+                return "<bogus>";
+            }
+        }
+
+        protected final Field _field;
+    }
+
+
+    /**
+     * Convenience function to make an edittor that groups based on the values of a given field.
+     */
+    public TabbedDSetEditor (
+        DObject setter, String setName, Class<?> entryClass, String[] editableFields,
+        ObjectEditorTable.FieldInterpreter interp, String groupField)
+    {
+        this(setter, setName, entryClass, editableFields, interp,
+            new FieldGrouper<E>(groupField, entryClass));
+    }
+
+    /**
      * A set of tabs containing DSetEditors grouping entries by the String value stored in
      * a given field of the Entry.
      */
     public TabbedDSetEditor (
-        DObject setter, String setName, Class<?> entryClass,
-        String[] editableFields, ObjectEditorTable.FieldInterpreter interp, String groupField)
+        DObject setter, String setName, Class<?> entryClass, String[] editableFields,
+        ObjectEditorTable.FieldInterpreter interp, EntryGrouper<E> grouper)
     {
-        DSet<E> set = setter.getSet(setName);
-
-        Field field;
-
-        try {
-            field = entryClass.getField(groupField);
-        } catch (NoSuchFieldException nsfe) {
-            throw new IllegalArgumentException(Logger.format(
-                "Group field not found in prototype class!",
-                "proto", entryClass, "groupField", groupField));
-        }
-
-        HashSet<String> groups = Sets.newHashSet();
-        try {
-            for (E entry : set) {
-                groups.add(StringUtil.toString(field.get(entry)));
-            }
-        } catch (IllegalAccessException iae) {
-            throw new IllegalArgumentException(Logger.format(
-                "Could not access group field on entry", "groupField", groupField), iae);
-        }
+        grouper.computeGroups(setter.<E>getSet(setName));
 
         JTabbedPane tabs = new JTabbedPane();
         add(tabs);
 
+        String[] groups = grouper.getAllGroups();
         for (String group : groups) {
-            tabs.addTab(group, new DSetEditor<E>(setter, setName, entryClass, editableFields,
-                interp, createPredicate(field, group)));
+            tabs.addTab(group,
+                createEditor(setter, setName, entryClass, editableFields, interp, grouper, group));
         }
     }
 
-    protected Predicate<E> createPredicate (final Field field, final String group)
+    /**
+     * Creates a DSetEditor for displaying the given group.
+     */
+    protected DSetEditor<E> createEditor (
+        DObject setter, String setName, Class<?> entryClass, String[] editableFields,
+        ObjectEditorTable.FieldInterpreter interp, EntryGrouper<E> grouper, String group)
     {
-        return new Predicate<E>() {
-            public boolean apply (E entry) {
-                String val = null;
-                try {
-                    val = StringUtil.toString(field.get(entry));
-                } catch (IllegalAccessException iae) {
-                    // Badness, but let's just compare to the null string and be done
-                }
+        return new DSetEditor<E>(setter, setName, entryClass, editableFields,
+                interp, getDisplayFields(group), grouper.getPredicate(group));
+    }
 
-                return group.equals(val);
-            }
-        };
+    /**
+     * Choose which fields to display for the given group.
+     */
+    protected String[] getDisplayFields (String group)
+    {
+        return null; // Override to display only a subset
     }
 }

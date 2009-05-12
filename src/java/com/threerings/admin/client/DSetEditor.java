@@ -95,7 +95,7 @@ public class DSetEditor<E extends DSet.Entry> extends JPanel
         DObject setter, String setName, Class<?> entryClass, String[] editableFields,
         ObjectEditorTable.FieldInterpreter interp)
     {
-        this(setter, setName, entryClass, editableFields, interp, null);
+        this(setter, setName, entryClass, editableFields, interp, null, null);
     }
 
     /**
@@ -106,11 +106,12 @@ public class DSetEditor<E extends DSet.Entry> extends JPanel
      * @param entryClass The Class of the DSet.Entry elements contained in the set.
      * @param editableFields The names of the fields in the entryClass that should be editable.
      * @param interp The FieldInterpreter to use.
+     * @param displayFields The fields to display, or null for all.
      * @param entryFilter The Predicate to use.
      */
     public DSetEditor (
         DObject setter, String setName, Class<?> entryClass, String[] editableFields,
-        ObjectEditorTable.FieldInterpreter interp, Predicate<E> entryFilter)
+        ObjectEditorTable.FieldInterpreter interp, String[] displayFields, Predicate<E> entryFilter)
     {
         super(new BorderLayout());
 
@@ -119,7 +120,7 @@ public class DSetEditor<E extends DSet.Entry> extends JPanel
         _set = _setter.getSet(setName);
         _entryFilter = entryFilter;
 
-        _table = new ObjectEditorTable(entryClass, editableFields, interp);
+        _table = new ObjectEditorTable(entryClass, editableFields, interp, displayFields);
 
         add(new JScrollPane(_table), BorderLayout.CENTER);
     }
