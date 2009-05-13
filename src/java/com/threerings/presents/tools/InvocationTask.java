@@ -21,9 +21,11 @@
 
 package com.threerings.presents.tools;
 
+import java.lang.reflect.GenericArrayType;
 import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.lang.reflect.WildcardType;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -47,6 +49,7 @@ import org.apache.velocity.app.VelocityEngine;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 
+import com.samskivert.util.Logger;
 import com.samskivert.util.StringUtil;
 
 import com.samskivert.velocity.VelocityUtil;
@@ -113,8 +116,7 @@ public abstract class InvocationTask extends Task
         {
             this.method = method;
 
-            // we need to look through our arguments and note any needed
-            // imports in the supplied table
+            // if this method has listener arguments, we need to add listener argument info for them
             Class<?>[] args = method.getParameterTypes();
             for (int ii = 0; ii < args.length; ii++) {
                 Class<?> arg = args[ii];
@@ -122,18 +124,45 @@ public abstract class InvocationTask extends Task
                     arg = arg.getComponentType();
                 }
 
-                // if this is a listener, we need to add a listener
-                // argument info for it
                 if (_ilistener.isAssignableFrom(arg)) {
                     listenerArgs.add(new ListenerArgument(ii, arg));
                 }
+            }
 
-                imports.add(args[ii]);
+            // we need to look through our arguments and note any needed imports in the supplied
+            // table
+            for (Type type : method.getGenericParameterTypes()) {
+                addImportsForType(type, imports);
             }
 
             // import Transport if used
             if (!StringUtil.isBlank(getTransport())) {
                 imports.add(Transport.class);
+            }
+        }
+
+        protected void addImportsForType (Type type, ImportSet imports)
+        {
+            if (type instanceof Class) {
+                imports.add((Class<?>)type);
+            } else if (type instanceof ParameterizedType) {
+                imports.add((Class<?>)((ParameterizedType)type).getRawType());
+                for (Type param : ((ParameterizedType)type).getActualTypeArguments()) {
+                    addImportsForType(param, imports);
+                }
+            } else if (type instanceof WildcardType) {
+                for (Type upper : ((WildcardType)type).getUpperBounds()) {
+                    addImportsForType(upper, imports);
+                }
+                for (Type lower : ((WildcardType)type).getLowerBounds()) {
+                    addImportsForType(lower, imports);
+                }
+            } else if (type instanceof GenericArrayType) {
+                addImportsForType(((GenericArrayType)type).getGenericComponentType(), imports);
+            } else {
+                System.err.println(Logger.format(
+                    "Unhandled Type in adding imports for a service", "type", type, "typeClass",
+                    type.getClass()));
             }
         }
 
@@ -368,8 +397,8 @@ public abstract class InvocationTask extends Task
             DirectoryScanner ds = fs.getDirectoryScanner(getProject());
             File fromDir = fs.getDir(getProject());
             String[] srcFiles = ds.getIncludedFiles();
-            for (int f = 0; f < srcFiles.length; f++) {
-                processService(new File(fromDir, srcFiles[f]));
+            for (String srcFile : srcFiles) {
+                processService(new File(fromDir, srcFile));
             }
         }
     }
