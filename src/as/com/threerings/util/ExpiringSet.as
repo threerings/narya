@@ -18,6 +18,8 @@ import flash.utils.Timer;
 
 /**
  * Data structure that keeps its elements for a short time, and then removes them automatically.
+ * Note that expirations are done based on Timer granularity, so you may pull a value out
+ * that technicaly should be expired, but only by a few milliseconds.
  *
  * All operations are O(n), including add().
  */
@@ -30,12 +32,12 @@ public class ExpiringSet extends EventDispatcher
     /**
      * Initializes the expiring set.
      *
-     * @param ttl Time to live value for set elements, in seconds.
+     * @param ttl Time to live value for set elements, in milliseconds.
      * @param expireHandler a function to be conveniently registered as an event listener.
      */
-    public function ExpiringSet (ttl :Number, expireHandler :Function = null)
+    public function ExpiringSet (ttl :int, expireHandler :Function = null)
     {
-        _ttl = Math.round(ttl * 1000);
+        _ttl = ttl;
         _timer = new Timer(_ttl, 1);
         _timer.addEventListener(TimerEvent.TIMER, checkTimer);
 
@@ -48,9 +50,9 @@ public class ExpiringSet extends EventDispatcher
      * Returns the time to live value for this ExpiringSet.  This value cannot be changed after
      * set creation.
      */
-    public function get ttl () :Number
+    public function get ttl () :int
     {
-        return _ttl / 1000;  
+        return _ttl;
     }
 
     /**
