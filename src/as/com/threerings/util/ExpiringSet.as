@@ -61,6 +61,7 @@ public class ExpiringSet extends EventDispatcher
     {
         // simply trunate the data array
         _data.length = 0;
+        _timer.stop();
     }
 
     // from Set
