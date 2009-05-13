@@ -31,12 +31,17 @@ public class ExpiringSet extends EventDispatcher
      * Initializes the expiring set.
      *
      * @param ttl Time to live value for set elements, in seconds.
+     * @param expireHandler a function to be conveniently registered as an event listener.
      */
-    public function ExpiringSet (ttl :Number)
+    public function ExpiringSet (ttl :Number, expireHandler :Function = null)
     {
         _ttl = Math.round(ttl * 1000);
         _timer = new Timer(_ttl, 1);
         _timer.addEventListener(TimerEvent.TIMER, checkTimer);
+
+        if (expireHandler != null) {
+            addEventListener(ELEMENT_EXPIRED, expireHandler);
+        }
     }
 
     /**
