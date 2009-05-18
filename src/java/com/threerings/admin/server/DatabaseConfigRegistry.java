@@ -309,8 +309,12 @@ public class DatabaseConfigRegistry extends ConfigRegistry
             setAndFlush(field, StringUtil.joinEscaped(value));
         }
 
-        protected void setAndFlush (final String field, final String value) {
+        protected void setAndFlush (String field, String value) {
             _data.put(field, value);
+            flush(field, value);
+        }
+
+        protected void flush (final String field, final String value) {
             String iname = "updateConfig(" + _path + ", " + field + ", value=" + value + ")";
             _invoker.postUnit(new WriteOnlyUnit(iname) {
                 @Override
