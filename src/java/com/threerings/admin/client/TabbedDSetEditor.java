@@ -23,12 +23,14 @@ package com.threerings.admin.client;
 
 import java.lang.reflect.Field;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.Set;
 
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 
 import com.google.common.base.Predicate;
+import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 
 import com.samskivert.util.Comparators;
@@ -38,14 +40,21 @@ import com.samskivert.util.StringUtil;
 
 import com.samskivert.swing.ObjectEditorTable;
 
+import com.threerings.presents.dobj.AttributeChangeListener;
+import com.threerings.presents.dobj.AttributeChangedEvent;
 import com.threerings.presents.dobj.DObject;
 import com.threerings.presents.dobj.DSet;
+import com.threerings.presents.dobj.EntryAddedEvent;
+import com.threerings.presents.dobj.EntryRemovedEvent;
+import com.threerings.presents.dobj.EntryUpdatedEvent;
+import com.threerings.presents.dobj.SetListener;
 
 /**
  * Allows simple editing of DSets within a distributed object and easily groups entries into tabs
  * based on the content of some field.
  */
 public class TabbedDSetEditor<E extends DSet.Entry> extends JPanel
+    implements AttributeChangeListener, SetListener<E>
 {
     /**
      * Used to divide various entires into different groups.
@@ -149,16 +158,33 @@ public class TabbedDSetEditor<E extends DSet.Entry> extends JPanel
         DObject setter, String setName, Class<?> entryClass, String[] editableFields,
         ObjectEditorTable.FieldInterpreter interp, EntryGrouper<E> grouper)
     {
-        grouper.computeGroups(setter.<E>getSet(setName));
+        // Stash all this for later
+        _setter = setter;
+        _setName = setName;
+        _entryClass = entryClass;
+        _editableFields = editableFields;
+        _interp = interp;
+        _grouper = grouper;
 
-        JTabbedPane tabs = new JTabbedPane();
-        add(tabs);
+        _tabs = new JTabbedPane();
+        add(_tabs);
+    }
 
-        String[] groups = grouper.getAllGroups();
+    protected void computeTabs ()
+    {
+        _grouper.computeGroups(_setter.<E>getSet(_setName));
+        String[] groups = _grouper.getAllGroups();
+
         for (String group : groups) {
-            tabs.addTab(group,
-                createEditor(setter, setName, entryClass, editableFields, interp, grouper, group));
+            if (!_editors.containsKey(group)) {
+                DSetEditor<E> editor =  createEditor(
+                    _setter, _setName, _entryClass, _editableFields, _interp, _grouper, group);
+                _tabs.add(group, editor);
+                _editors.put(group, editor);
+            }
         }
+
+        // TODO: Prune any now-empty tabs
     }
 
     /**
@@ -179,4 +205,59 @@ public class TabbedDSetEditor<E extends DSet.Entry> extends JPanel
     {
         return null; // Override to display only a subset
     }
+
+    @Override
+    public void addNotify ()
+    {
+        super.addNotify();
+        _setter.addListener(this);
+
+        // populate our tabs
+        computeTabs();
+    }
+
+    @Override
+    public void removeNotify ()
+    {
+        _setter.removeListener(this);
+        super.removeNotify();
+    }
+
+    public void attributeChanged (AttributeChangedEvent event)
+    {
+        if (event.getName().equals(_setName)) {
+            computeTabs();
+        }
+    }
+
+    public void entryAdded (EntryAddedEvent<E> event)
+    {
+        if (event.getName().equals(_setName)) {
+            computeTabs();
+        }
+    }
+
+    public void entryRemoved (EntryRemovedEvent<E> event)
+    {
+        if (event.getName().equals(_setName)) {
+            computeTabs();
+        }
+    }
+
+    public void entryUpdated (EntryUpdatedEvent<E> event)
+    {
+        if (event.getName().equals(_setName)) {
+            computeTabs();
+        }
+    }
+
+    protected final DObject _setter;
+    protected final String _setName;
+    protected final Class<?> _entryClass;
+    protected final String[] _editableFields;
+    protected final ObjectEditorTable.FieldInterpreter _interp;
+    protected final EntryGrouper<E> _grouper;
+
+    protected JTabbedPane _tabs;
+    protected HashMap<String, DSetEditor<E>> _editors = Maps.newHashMap();
 }
