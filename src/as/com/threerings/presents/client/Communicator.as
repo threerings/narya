@@ -86,6 +86,16 @@ public class Communicator
     }
 
     /**
+     * Detects if the communicator currently has an open channel to the server. This is guaranteed
+     * to return false while the logoff event is being dispatched. It also returns true during
+     * authentication, but prior to the client appearing to be logged on.
+     */
+    public function isConnected () :Boolean
+    {
+        return _writer != null;
+    }
+
+    /**
      * Attempts to logon on using the port at the specified index.
      */
     protected function attemptLogon (portIdx :int) :Boolean

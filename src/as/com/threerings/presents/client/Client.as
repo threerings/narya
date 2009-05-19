@@ -235,6 +235,15 @@ public class Client extends EventDispatcher
     }
 
     /**
+     * Detects if the client is currently connected to the server. This can sometimes return false
+     * even though <code>isLoggedOn</code> returns true.
+     */
+    public function isConnected () :Boolean
+    {
+        return _comm != null && _comm.isConnected();
+    }
+
+    /**
      * Requests that this client connect and logon to the server with which it was previously
      * configured.
      *
