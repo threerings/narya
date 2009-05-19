@@ -127,7 +127,7 @@ public class ShutdownManager
         // shut down all shutdown participants
         downers.apply(new ObserverList.ObserverOp<Shutdowner>() {
             public boolean apply (Shutdowner downer) {
-                log.info("Calling shutdown registrant", "downer", downer);
+                log.debug("Calling shutdown registrant", "downer", downer);
                 downer.shutdown();
                 return true;
             }
