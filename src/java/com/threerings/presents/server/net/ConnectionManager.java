@@ -62,6 +62,7 @@ import com.threerings.presents.client.Client;
 import com.threerings.presents.data.ConMgrStats;
 import com.threerings.presents.net.Message;
 import com.threerings.presents.net.PongResponse;
+import com.threerings.presents.net.Transport;
 import com.threerings.presents.server.Authenticator;
 import com.threerings.presents.server.ChainedAuthenticator;
 import com.threerings.presents.server.ClientManager;
@@ -923,6 +924,9 @@ public class ConnectionManager extends LoopingThread
                 return;
             }
 
+            // note the actual transport
+            msg.noteActualTransport(Transport.RELIABLE_ORDERED);
+
             _framer.resetFrame();
 
             // flatten this message using the connection's output stream
@@ -962,6 +966,9 @@ public class ConnectionManager extends LoopingThread
         if (_flattener.size() > Client.MAX_DATAGRAM_SIZE) {
             return false;
         }
+
+        // note the actual transport
+        msg.noteActualTransport(Transport.UNRELIABLE_UNORDERED);
 
         // extract as a byte array
         byte[] data = _flattener.toByteArray();

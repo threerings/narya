@@ -62,6 +62,12 @@ public class EventNotification extends DownstreamMessage
         return _event.getTransport();
     }
 
+    @Override // documentation inherited
+    public void noteActualTransport (Transport transport)
+    {
+        _event.noteActualTransport(transport);
+    }
+
     @Override
     public String toString ()
     {

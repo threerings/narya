@@ -153,6 +153,23 @@ public abstract class DEvent implements Streamable
     }
 
     /**
+     * Notes the actual transport with which the event was transmitted.
+     */
+    public void noteActualTransport (Transport transport)
+    {
+        _actualTransport = transport;
+    }
+
+    /**
+     * Returns the actual transport with which the event was transmitted, or <code>null</code> if
+     * not yet known.
+     */
+    public Transport getActualTransport ()
+    {
+        return _actualTransport;
+    }
+
+    /**
      * Events with associated listener interfaces should implement this function and notify the
      * supplied listener if it implements their event listening interface. For example, the {@link
      * AttributeChangedEvent} will notify listeners that implement {@link AttributeChangeListener}.
@@ -194,6 +211,9 @@ public abstract class DEvent implements Streamable
 
     /** The transport parameters. */
     protected transient Transport _transport = Transport.DEFAULT;
+
+    /** The actual transport with which the event was transmitted (null if as yet unknown). */
+    protected transient Transport _actualTransport;
 
     /** Used to differentiate between null meaning we haven't initialized our old value and null
      * being the actual old value. */

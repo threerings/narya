@@ -50,4 +50,14 @@ public abstract class Message extends SimpleStreamableObject
     {
         return Transport.DEFAULT;
     }
+
+    /**
+     * For messages sent over the network, this notes the actual type of transport used to deliver
+     * the message.  This may not be the same as the hinted transport for various reasons (message
+     * too large to send as datagram, no datagram connection established, etc.)
+     */
+    public void noteActualTransport (Transport transport)
+    {
+        // no-op by default
+    }
 }
