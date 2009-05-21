@@ -56,6 +56,7 @@ import com.threerings.presents.net.AuthResponseData;
 import com.threerings.presents.net.DownstreamMessage;
 import com.threerings.presents.net.LogoffRequest;
 import com.threerings.presents.net.PingRequest;
+import com.threerings.presents.net.TransmitDatagramsRequest;
 import com.threerings.presents.net.Transport;
 import com.threerings.presents.net.UpstreamMessage;
 import com.threerings.presents.util.DatagramSequencer;
@@ -765,6 +766,9 @@ public class BlockingCommunicator extends Communicator
             // check if we managed to establish a connection
             if (cport > 0) {
                 log.info("Datagram connection established", "port", cport);
+
+                // notify the server
+                postMessage(new TransmitDatagramsRequest());
 
                 // start up the writer thread
                 _datagramWriter = new DatagramWriter();

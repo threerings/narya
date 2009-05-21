@@ -122,6 +122,22 @@ public class Connection implements NetEventHandler
     }
 
     /**
+     * Sets whether we should transmit datagrams.
+     */
+    public void setTransmitDatagrams (boolean transmit)
+    {
+        _transmitDatagrams = transmit;
+    }
+
+    /**
+     * Checks whether we should transmit datagrams.
+     */
+    public boolean getTransmitDatagrams ()
+    {
+        return _transmitDatagrams;
+    }
+
+    /**
      * Returns the address to which datagrams should be sent or null if no datagram address has
      * been established.
      */
@@ -435,6 +451,7 @@ public class Connection implements NetEventHandler
 
     protected InetSocketAddress _datagramAddress;
     protected byte[] _datagramSecret;
+    protected boolean _transmitDatagrams;
 
     protected MessageDigest _digest;
     protected DatagramSequencer _sequencer;

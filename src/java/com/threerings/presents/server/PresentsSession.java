@@ -63,6 +63,7 @@ import com.threerings.presents.net.PingRequest;
 import com.threerings.presents.net.PongResponse;
 import com.threerings.presents.net.SubscribeRequest;
 import com.threerings.presents.net.ThrottleUpdatedMessage;
+import com.threerings.presents.net.TransmitDatagramsRequest;
 import com.threerings.presents.net.UnsubscribeRequest;
 import com.threerings.presents.net.UnsubscribeResponse;
 import com.threerings.presents.net.UpdateThrottleMessage;
@@ -1086,6 +1087,18 @@ public class PresentsSession
     }
 
     /**
+     * Processes datagram transmission requests.
+     */
+    protected static class TransmitDatagramsDispatcher implements MessageDispatcher
+    {
+        public void dispatch (PresentsSession client, Message msg)
+        {
+            log.debug("Client requested datagram transmission", "client", client);
+            client.getConnection().setTransmitDatagrams(true);
+        }
+    }
+
+    /**
      * Processes throttle updated messages.
      */
     protected static class ThrottleUpdatedDispatcher implements MessageDispatcher
@@ -1158,6 +1171,7 @@ public class PresentsSession
         _disps.put(UnsubscribeRequest.class, new UnsubscribeDispatcher());
         _disps.put(ForwardEventRequest.class, new ForwardEventDispatcher());
         _disps.put(PingRequest.class, new PingDispatcher());
+        _disps.put(TransmitDatagramsRequest.class, new TransmitDatagramsDispatcher());
         _disps.put(ThrottleUpdatedMessage.class, new ThrottleUpdatedDispatcher());
         _disps.put(LogoffRequest.class, new LogoffDispatcher());
     }

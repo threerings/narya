@@ -61,6 +61,7 @@ import com.threerings.presents.annotation.AuthInvoker;
 import com.threerings.presents.client.Client;
 import com.threerings.presents.data.ConMgrStats;
 import com.threerings.presents.net.Message;
+import com.threerings.presents.net.PongResponse;
 import com.threerings.presents.server.Authenticator;
 import com.threerings.presents.server.ChainedAuthenticator;
 import com.threerings.presents.server.ClientManager;
@@ -902,9 +903,11 @@ public class ConnectionManager extends LoopingThread
         }
 
         try {
-            // send it as a datagram if hinted and possible
-            if (!msg.getTransport().isReliable() && conn.getDatagramAddress() != null &&
-                    postDatagram(conn, msg)) {
+            // send it as a datagram if hinted and possible (pongs must be sent as part of the
+            // negotation process)
+            if (!msg.getTransport().isReliable() &&
+                    (conn.getTransmitDatagrams() || msg instanceof PongResponse) &&
+                        postDatagram(conn, msg)) {
                 return;
             }
 
