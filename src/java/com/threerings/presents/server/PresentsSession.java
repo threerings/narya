@@ -164,6 +164,15 @@ public class PresentsSession
     }
 
     /**
+     * Checks whether the client has requested that datagram transmission be enabled.
+     */
+    public boolean getTransmitDatagrams ()
+    {
+        Connection conn = getConnection();
+        return conn != null && conn.getTransmitDatagrams();
+    }
+
+    /**
      * Configures this session with a custom class loader that will be used when unserializing
      * classes from the network.
      */
