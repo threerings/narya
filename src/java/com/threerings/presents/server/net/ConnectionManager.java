@@ -681,7 +681,7 @@ public class ConnectionManager extends LoopingThread
                 int size = oqueue.size();
                 if ((size > 500) && (size % 50 == 0)) {
                     log.warning("Aiya, big overflow queue for " + conn + "", "size", size,
-                                "adding", tup.right);
+                                "bytes", tup.right.length);
                 }
                 oqueue.add(tup.right);
                 continue;
