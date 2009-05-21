@@ -110,8 +110,19 @@ public class ConnectionManager extends LoopingThread
     public void init (int[] ports, int[] datagramPorts)
         throws IOException
     {
+        init(ports, datagramPorts, null);
+    }
+
+    /**
+     * Constructs and initialized a connection manager (binding socket on which it will listen for
+     * client connections to each of the specified ports).
+     */
+    public void init (int[] ports, int[] datagramPorts, String datagramHostname)
+        throws IOException
+    {
         _ports = ports;
         _datagramPorts = datagramPorts;
+        _datagramHostname = datagramHostname;
         _selector = SelectorProvider.provider().openSelector();
 
         // create our stats record
@@ -390,7 +401,8 @@ public class ConnectionManager extends LoopingThread
                 _datagramChannel = DatagramChannel.open();
                 _datagramChannel.configureBlocking(false);
 
-                InetSocketAddress isa = new InetSocketAddress(port);
+                InetSocketAddress isa = (_datagramHostname == null) ?
+                    new InetSocketAddress(port) : new InetSocketAddress(_datagramHostname, port);
                 _datagramChannel.socket().bind(isa);
                 registerChannel(_datagramChannel);
                 log.info("Server accepting datagrams on " + isa + ".");
@@ -1169,6 +1181,7 @@ public class ConnectionManager extends LoopingThread
     @Inject(optional=true) protected Authenticator _author = new DummyAuthenticator();
 
     protected int[] _ports, _datagramPorts;
+    protected String _datagramHostname;
     protected Selector _selector;
     protected ServerSocketChannel _ssocket;
     protected DatagramChannel _datagramChannel;

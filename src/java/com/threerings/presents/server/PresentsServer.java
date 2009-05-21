@@ -154,11 +154,11 @@ public class PresentsServer
         _clmgr.setInjector(injector);
 
         // configure our connection manager
-        _conmgr.init(getListenPorts(), getDatagramPorts());
+        _conmgr.init(getListenPorts(), getDatagramPorts(), getDatagramHostname());
 
         // initialize the time base services
         TimeBaseProvider.init(_invmgr, _omgr);
-        
+
         // Make the client manager shut down before the invoker and dobj threads. This will help
         // application code to avoid long chains of shutdown constraints (e.g. msoy bureau manager).
         _shutmgr.addConstraint(
@@ -205,6 +205,15 @@ public class PresentsServer
     protected int[] getDatagramPorts ()
     {
         return Client.DEFAULT_DATAGRAM_PORTS;
+    }
+
+    /**
+     * Returns the hostname for which the connection manager will listen for datagrams, or
+     * <code>null</code> to bind to the wildcard address.
+     */
+    protected String getDatagramHostname ()
+    {
+        return null;
     }
 
     /**
