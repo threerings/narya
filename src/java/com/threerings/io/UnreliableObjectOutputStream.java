@@ -43,10 +43,27 @@ public class UnreliableObjectOutputStream extends ObjectOutputStream
     }
 
     /**
-     * Notes that the receiver has received the mappings for a group of classes, and thus that from
-     * now on, only the class codes need be sent.
+     * Sets the reference to the set that will hold the pooled strings for which mappings have been
+     * written.
      */
-    public void noteMappingsReceived (Collection<Class<?>> sclasses)
+    public void setMappedInterns (Set<String> mappedInterns)
+    {
+        _mappedInterns = mappedInterns;
+    }
+
+    /**
+     * Returns a reference to the set of pooled strings for which mappings have been written.
+     */
+    public Set<String> getMappedInterns ()
+    {
+        return _mappedInterns;
+    }
+
+    /**
+     * Notes that the receiver has received the mappings for a group of classes and thus that from
+     * now on, only the codes need be sent.
+     */
+    public void noteClassMappingsReceived (Collection<Class<?>> sclasses)
     {
         // sanity check
         if (_classmap == null) {
@@ -61,6 +78,74 @@ public class UnreliableObjectOutputStream extends ObjectOutputStream
             }
             cmap.code = (short)Math.abs(cmap.code);
         }
+    }
+
+    /**
+     * Notes that the receiver has received the mappings for a group of interns and thus that from
+     * now on, only the codes need be sent.
+     */
+    public void noteInternMappingsReceived (Collection<String> sinterns)
+    {
+        // sanity check
+        if (_internmap == null) {
+            throw new RuntimeException("Missing intern map");
+        }
+
+        // make each intern's code positive to signify that we no longer need to send metadata
+        for (String sintern : sinterns) {
+            Short code = _internmap.get(sintern);
+            if (code == null) {
+                throw new RuntimeException("No intern mapping for " + sintern);
+            }
+            short scode = code;
+            if (scode < 0) {
+                _internmap.put(sintern, (short)-code);
+            }
+        }
+    }
+
+    @Override // documentation inherited
+    protected Short createInternMapping (short code)
+    {
+        // the negative intern code indicates that we must rewrite the metadata for the first
+        // instance in each go-round; when we are notified that the other side has cached the
+        // mapping, we can simply write the (positive) code
+        return (short)-code;
+    }
+
+    @Override // documentation inherited
+    protected void writeNewInternMapping (short code, String value)
+        throws IOException
+    {
+        writeInternMapping(code, value);
+    }
+
+    @Override // documentation inherited
+    protected void writeExistingInternMapping (short code, String value)
+        throws IOException
+    {
+        // if the other side has received the mapping, we need only send the reference
+        if (code > 0) {
+            writeShort(code);
+
+        // likewise if we've written the value once this go-round
+        } else if (_mappedInterns.contains(value)) {
+            writeShort(-code);
+
+        // otherwise, we must retransmit the mapping
+        } else {
+            writeInternMapping(code, value);
+        }
+    }
+
+    @Override // documentation inherited
+    protected void writeInternMapping (int code, String value)
+        throws IOException
+    {
+        super.writeInternMapping(code, value);
+
+        // note that we've written the mapping
+        _mappedInterns.add(value);
     }
 
     @Override // documentation inherited
@@ -109,4 +194,7 @@ public class UnreliableObjectOutputStream extends ObjectOutputStream
 
     /** The set of classes for which we have written mappings. */
     protected Set<Class<?>> _mappedClasses = new HashSet<Class<?>>();
+
+    /** The set of pooled strings for which we have written mappings. */
+    protected Set<String> _mappedInterns = new HashSet<String>();
 }

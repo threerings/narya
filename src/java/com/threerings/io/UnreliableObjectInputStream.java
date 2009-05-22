@@ -43,4 +43,25 @@ public class UnreliableObjectInputStream extends ObjectInputStream
         _classmap.set(code, cmap);
         return cmap;
     }
+
+    @Override // documentation inherited
+    protected void mapIntern (short code, String value)
+    {
+        // see if we already have a mapping
+        String ovalue = (code < _internmap.size()) ? _internmap.get(code) : null;
+        if (ovalue != null) {
+            // sanity check
+            if (!ovalue.equals(value)) {
+                throw new RuntimeException(
+                    "Received mapping for intern that conflicts with existing mapping " +
+                    "[code=" + code + ", ovalue=" + ovalue + ", nvalue=" + value + "]");
+            }
+            return;
+        }
+        // insert null entries for missing mappings
+        for (int ii = 0, nn = (code + 1) - _internmap.size(); ii < nn; ii++) {
+            _internmap.add(null);
+        }
+        _internmap.set(code, value);
+    }
 }

@@ -101,6 +101,64 @@ public class ObjectInputStream extends DataInputStream
     }
 
     /**
+     * Reads a pooled string value from the input stream.
+     */
+    public String readIntern ()
+        throws IOException
+    {
+        // create our intern map if necessary
+        if (_internmap == null) {
+            _internmap = new ArrayList<String>();
+            // insert a zeroth element
+            _internmap.add(null);
+        }
+
+        // read in the intern code for this instance
+        short code = readShort();
+
+        // a zero code indicates a null value
+        if (code == 0) {
+            return null;
+
+        // if the code is negative, that means that we've never seen if before and value follows
+        } else if (code < 0) {
+            // first swap the code into positive-land
+            code *= -1;
+
+            // read in the value
+            String value = readUTF().intern();
+
+            // create the mapping and return the value
+            mapIntern(code, value);
+            return value;
+
+        } else {
+            String value = (code < _internmap.size()) ? _internmap.get(code) : null;
+
+            // sanity check
+            if (value == null) {
+                // this will help with debugging
+                log.warning("Internal stream error, no intern value", "code", code,
+                            "ois", this, new Exception());
+                log.warning("ObjectInputStream mappings", "map", _internmap);
+                String errmsg = "Read intern code for which we have no registered value " +
+                    "metadata [code=" + code + "]";
+                throw new RuntimeException(errmsg);
+            }
+            return value;
+        }
+    }
+
+    /**
+     * Adds the intern mapping for the specified code and value.
+     */
+    protected void mapIntern (short code, String value)
+        throws IOException
+    {
+        _internmap.add(code, value);
+    }
+
+    /**
      * Reads a class mapping from the stream.
      *
      * @return the class mapping, or <code>null</code> to represent a null value.
@@ -252,6 +310,9 @@ public class ObjectInputStream extends DataInputStream
     /** Used to map classes to numeric codes and the {@link Streamer} instance used to write
      * them. */
     protected ArrayList<ClassMapping> _classmap;
+
+    /** Maps numeric codes to pooled strings. */
+    protected ArrayList<String> _internmap;
 
     /** The object currently being read from the stream. */
     protected Object _current;

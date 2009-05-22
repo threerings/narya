@@ -90,6 +90,11 @@ public abstract class FieldMarshaller
             ftype = Object.class;
         }
 
+        // use the intern marshaller for pooled strings
+        if (ftype == String.class && field.isAnnotationPresent(Intern.class)) {
+            return _internMarshaller;
+        }
+
         // if we have an exact match, use that
         FieldMarshaller fm = _marshallers.get(ftype);
 
@@ -356,10 +361,27 @@ public abstract class FieldMarshaller
             _marshallers.put(BasicStreamers.BSTREAMER_TYPES[ii],
                              new StreamerMarshaller(BasicStreamers.BSTREAMER_INSTANCES[ii]));
         }
+
+        // create the field marshaller for pooled strings
+        _internMarshaller = new FieldMarshaller() {
+            @Override
+            public void readField (Field field, Object target, ObjectInputStream in)
+                throws Exception {
+                field.set(target, in.readIntern());
+            }
+            @Override
+            public void writeField (Field field, Object source, ObjectOutputStream out)
+                throws Exception {
+                out.writeIntern((String)field.get(source));
+            }
+        };
     }
 
     /** Contains a mapping from field type to field marshaller instance for that type. */
     protected static HashMap<Class<?>, FieldMarshaller> _marshallers;
+
+    /** The field marshaller for pooled strings. */
+    protected static FieldMarshaller _internMarshaller;
 
     /** Defines the signature to a custom field reader method. */
     protected static final Class<?>[] READER_ARGS = { ObjectInputStream.class };

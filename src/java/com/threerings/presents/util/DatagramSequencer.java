@@ -58,9 +58,11 @@ public class DatagramSequencer
         _uout.writeInt(++_lastNumber);
         _uout.writeInt(_lastReceived);
 
-        // make sure the mapped class set is clear
+        // make sure the mapped sets are clear
         Set<Class<?>> mappedClasses = _uout.getMappedClasses();
         mappedClasses.clear();
+        Set<String> mappedInterns = _uout.getMappedInterns();
+        mappedInterns.clear();
 
         // write the object
         _uout.writeObject(datagram);
@@ -72,8 +74,15 @@ public class DatagramSequencer
             _uout.setMappedClasses(new HashSet<Class<?>>());
         }
 
+        // likewise with the intern mappings
+        if (mappedInterns.isEmpty()) {
+            mappedInterns = null;
+        } else {
+            _uout.setMappedInterns(new HashSet<String>());
+        }
+
         // record the transmission
-        _sendrecs.add(new SendRecord(_lastNumber, mappedClasses));
+        _sendrecs.add(new SendRecord(_lastNumber, mappedClasses, mappedInterns));
     }
 
     /**
@@ -101,8 +110,13 @@ public class DatagramSequencer
                 break;
             }
             remove++;
-            if (sendrec.number == received && sendrec.mappedClasses != null) {
-                _uout.noteMappingsReceived(sendrec.mappedClasses);
+            if (sendrec.number == received) {
+                if (sendrec.mappedClasses != null) {
+                    _uout.noteClassMappingsReceived(sendrec.mappedClasses);
+                }
+                if (sendrec.mappedInterns != null) {
+                    _uout.noteInternMappingsReceived(sendrec.mappedInterns);
+                }
             }
         }
         _sendrecs.subList(0, remove).clear();
@@ -125,10 +139,15 @@ public class DatagramSequencer
          * <code>null</code> for none). */
         public Set<Class<?>> mappedClasses;
 
-        public SendRecord (int number, Set<Class<?>> mappedClasses)
+        /** The set of interns for which mappings were included in the datagram (or
+         * <code>null</code> for none). */
+        public Set<String> mappedInterns;
+
+        public SendRecord (int number, Set<Class<?>> mappedClasses, Set<String> mappedInterns)
         {
             this.number = number;
             this.mappedClasses = mappedClasses;
+            this.mappedInterns = mappedInterns;
         }
     }
 

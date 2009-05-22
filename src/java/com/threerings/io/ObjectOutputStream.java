@@ -78,6 +78,83 @@ public class ObjectOutputStream extends DataOutputStream
     }
 
     /**
+     * Writes a pooled string value to the output stream.
+     */
+    public void writeIntern (String value)
+        throws IOException
+    {
+        // if the value to be written is null, simply write a zero
+        if (value == null) {
+            writeShort(0);
+            return;
+        }
+
+        // create our intern map if necessary
+        if (_internmap == null) {
+            _internmap = new HashMap<String, Short>();
+        }
+
+        // look up the intern mapping record
+        Short code = _internmap.get(value);
+
+        // create a mapping for the value if we've not got one
+        if (code == null) {
+            if (ObjectInputStream.STREAM_DEBUG) {
+                log.info(hashCode() + ": Creating intern mapping", "code", _nextInternCode,
+                         "value", value);
+            }
+            code = createInternMapping(_nextInternCode++);
+            _internmap.put(value.intern(), code);
+
+            // make sure we didn't blow past our maximum intern count
+            if (_nextInternCode <= 0) {
+                throw new RuntimeException("Too many unique interns written to ObjectOutputStream");
+            }
+            writeNewInternMapping(code, value);
+
+        } else {
+            writeExistingInternMapping(code, value);
+        }
+    }
+
+    /**
+     * Creates and returns a new intern mapping.
+     */
+    protected Short createInternMapping (short code)
+    {
+        return code;
+    }
+
+    /**
+     * Writes a new intern mapping to the stream.
+     */
+    protected void writeNewInternMapping (short code, String value)
+        throws IOException
+    {
+        // writing a negative code indicates that the value will follow
+        writeInternMapping(-code, value);
+    }
+
+    /**
+     * Writes an existing intern mapping to the stream.
+     */
+    protected void writeExistingInternMapping (short code, String value)
+        throws IOException
+    {
+        writeShort(code);
+    }
+
+    /**
+     * Writes out the mapping for an intern.
+     */
+    protected void writeInternMapping (int code, String value)
+        throws IOException
+    {
+        writeShort(code);
+        writeUTF(value);
+    }
+
+    /**
      * Retrieves or creates the class mapping for the supplied class, writes it out to the stream,
      * and returns a reference to it.
      */
@@ -97,17 +174,17 @@ public class ObjectOutputStream extends DataOutputStream
             // create a streamer instance and assign a code to this class
             Streamer streamer = Streamer.getStreamer(sclass);
             // we specifically do not inline the getStreamer() call into the ClassMapping
-            // constructor because we want to be sure not to call _nextCode++ if getStreamer()
+            // constructor because we want to be sure not to call _nextClassCode++ if getStreamer()
             // throws an exception
             if (ObjectInputStream.STREAM_DEBUG) {
-                log.info(hashCode() + ": Creating class mapping", "code", _nextCode,
+                log.info(hashCode() + ": Creating class mapping", "code", _nextClassCode,
                          "class", sclass.getName());
             }
-            cmap = createClassMapping(_nextCode++, sclass, streamer);
+            cmap = createClassMapping(_nextClassCode++, sclass, streamer);
             _classmap.put(sclass, cmap);
 
             // make sure we didn't blow past our maximum class count
-            if (_nextCode <= 0) {
+            if (_nextClassCode <= 0) {
                 throw new RuntimeException("Too many unique classes written to ObjectOutputStream");
             }
             writeNewClassMapping(cmap);
@@ -215,8 +292,14 @@ public class ObjectOutputStream extends DataOutputStream
      * them. */
     protected Map<Class<?>, ClassMapping> _classmap;
 
+    /** Used to map pooled strings to numeric codes. */
+    protected Map<String, Short> _internmap;
+
     /** A counter used to assign codes to streamed classes. */
-    protected short _nextCode = 1;
+    protected short _nextClassCode = 1;
+
+    /** A counter used to assign codes to pooled strings. */
+    protected short _nextInternCode = 1;
 
     /** The object currently being written to the stream. */
     protected Object _current;
