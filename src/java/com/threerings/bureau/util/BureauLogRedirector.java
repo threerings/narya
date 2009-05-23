@@ -143,10 +143,10 @@ public class BureauLogRedirector
                     _written += length;
 
                 } else if (showTrunc) {
-                    DateFormat format = 
+                    DateFormat format =
                         DateFormat.getDateTimeInstance(DateFormat.FULL, DateFormat.FULL);
                     _target.info(
-                        format.format(new Date()) + 
+                        format.format(new Date()) +
                             ": Size limit reached, suppressing further output");
                 }
             }

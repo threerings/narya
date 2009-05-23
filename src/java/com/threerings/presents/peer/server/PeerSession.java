@@ -91,7 +91,7 @@ public class PeerSession extends PresentsSession
         // let the peer manager know that we're here
         _peermgr.peerStartedSession(this);
     }
-    
+
     @Override // from PresentsSession
     protected void sessionConnectionClosed ()
     {

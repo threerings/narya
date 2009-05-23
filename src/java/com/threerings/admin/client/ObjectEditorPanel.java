@@ -101,11 +101,11 @@ public class ObjectEditorPanel extends ScrollablePanel
         // create our field editors
         try {
             Field[] fields = object.getClass().getFields();
-            for (int ii = 0; ii < fields.length; ii++) {
+            for (Field field : fields) {
                 // if the field is anything but a plain old public field,
                 // we don't want to edit it
-                if (fields[ii].getModifiers() == Modifier.PUBLIC) {
-                    add(_object.getEditor(_ctx, fields[ii]));
+                if (field.getModifiers() == Modifier.PUBLIC) {
+                    add(_object.getEditor(_ctx, field));
                 }
             }
 

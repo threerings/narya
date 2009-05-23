@@ -35,7 +35,7 @@ public interface BureauService extends InvocationService
      * @see BureauReceiver
      */
     void bureauInitialized (Client client, String bureauId);
-    
+
     /**
      * Notifies the server that this bureau has encountered a critical error and needs to be shut
      * down.

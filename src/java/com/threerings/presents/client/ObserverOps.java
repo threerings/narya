@@ -33,12 +33,12 @@ public class ObserverOps
         public Session (com.threerings.presents.client.Client client) {
             _client = client;
         }
-        
+
         public boolean apply (SessionObserver obs) {
             notify(obs);
             return true;
         }
-        
+
         protected abstract void notify (SessionObserver obs);
 
         protected com.threerings.presents.client.Client _client;
@@ -49,13 +49,13 @@ public class ObserverOps
         public Client (com.threerings.presents.client.Client client) {
             super(client);
         }
-        
+
         @Override public void notify (SessionObserver obs) {
             if (obs instanceof ClientObserver) {
                 notify((ClientObserver)obs);
             }
         }
-        
+
         protected abstract void notify (ClientObserver obs);
     }
 }

@@ -345,7 +345,7 @@ public class BureauRegistry
         }
         return data.launchError;
     }
-    
+
     protected void sessionDidStart (PresentsSession client, String id)
     {
         Bureau bureau = _bureaus.get(id);
@@ -428,7 +428,7 @@ public class BureauRegistry
             "Bureau error occurred in unregistered bureau", "caller", caller.who(),
             "message", message);
     }
-    
+
     /**
      * Callback for when the bureau client acknowledges the creation of an agent.
      */
@@ -593,10 +593,10 @@ public class BureauRegistry
             // bureau has already managed to get destroyed before the launch timeout, ignore
             return;
         }
-        
+
         handleLaunchError(bureau, null, "timeout");
     }
-    
+
     /**
      * Called when something goes wrong with launching a bureau.
      */
@@ -613,7 +613,7 @@ public class BureauRegistry
             _omgr.destroyObject(agent.getOid());
         }
         bureau.agentStates.clear();
-        
+
         _bureaus.remove(bureau.bureauId);
     }
 
@@ -789,7 +789,7 @@ public class BureauRegistry
     {
         Exception launchError;
     }
-    
+
     protected Map<String, LauncherEntry> _launchers = Maps.newHashMap();
     protected Map<String, Bureau> _bureaus = Maps.newHashMap();
 

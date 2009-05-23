@@ -48,7 +48,7 @@ public abstract class PersistingUnit extends Invoker.Unit
         super(name);
         _listener = listener;
     }
-    
+
     /**
      * Creates a persisting unit with the supplied name and listener and a set of key/value pairs
      * that will be included in the failure message if this unit fails.
