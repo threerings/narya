@@ -27,7 +27,6 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.lang.reflect.WildcardType;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -48,6 +47,7 @@ import org.apache.velocity.app.VelocityEngine;
 
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
 
 import com.samskivert.util.Logger;
 import com.samskivert.util.StringUtil;
@@ -105,7 +105,7 @@ public abstract class InvocationTask extends Task
     {
         public Method method;
 
-        public List<ListenerArgument> listenerArgs = new ArrayList<ListenerArgument>();
+        public List<ListenerArgument> listenerArgs = Lists.newArrayList();
 
         /**
          * Creates a new service method.
@@ -461,7 +461,7 @@ public abstract class InvocationTask extends Task
     }
 
     /** A list of filesets that contain tile images. */
-    protected List<FileSet> _filesets = new ArrayList<FileSet>();
+    protected List<FileSet> _filesets = Lists.newArrayList();
 
     /** A header to put on all generated source files. */
     protected String _header;

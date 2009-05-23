@@ -25,6 +25,8 @@ import java.lang.reflect.Method;
 
 import java.util.HashMap;
 
+import com.google.common.collect.Maps;
+
 import com.samskivert.util.MethodFinder;
 import com.samskivert.util.StringUtil;
 
@@ -139,5 +141,5 @@ public class DynamicListener<T extends DSet.Entry>
     protected MethodFinder _finder;
 
     /** A cache of already resolved methods. */
-    protected HashMap<String, Method> _mcache = new HashMap<String, Method>();
+    protected HashMap<String, Method> _mcache = Maps.newHashMap();
 }

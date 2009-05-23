@@ -28,6 +28,8 @@ import java.util.RandomAccess;
 import java.io.EOFException;
 import java.io.IOException;
 
+import com.google.common.collect.Lists;
+
 /**
  * Code to read and write basic object types (like arrays of primitives, {@link Integer} instances,
  * {@link Double} instances, etc.).
@@ -562,7 +564,7 @@ public class BasicStreamers
         throws IOException, ClassNotFoundException
     {
         int ecount = ins.readInt();
-        ArrayList<Object> list = new ArrayList<Object>(ecount);
+        ArrayList<Object> list = Lists.newArrayListWithCapacity(ecount);
         for (int ii = 0; ii < ecount; ii++) {
             list.add(ins.readObject());
         }

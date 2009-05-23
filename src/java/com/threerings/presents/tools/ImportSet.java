@@ -21,11 +21,13 @@
 
 package com.threerings.presents.tools;
 
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.regex.Pattern;
+
+import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 
 import com.samskivert.util.ComparableArrayList;
 import com.samskivert.util.StringUtil;
@@ -247,7 +249,7 @@ public class ImportSet
      */
     public void replace (String... replace)
     {
-        HashSet<String> toAdd = new HashSet<String>();
+        HashSet<String> toAdd = Sets.newHashSet();
         Iterator<String> i = _imports.iterator();
         while (i.hasNext()) {
             String name = i.next();
@@ -292,7 +294,7 @@ public class ImportSet
     public void duplicateAndMunge (String pattern, String... replace)
     {
         Pattern pat = makePattern(pattern);
-        HashSet<String> toMunge = new HashSet<String>();
+        HashSet<String> toMunge = Sets.newHashSet();
         for (String name : _imports) {
             if (pat.matcher(name).matches()) {
                 toMunge.add(name);
@@ -355,8 +357,8 @@ public class ImportSet
         return Pattern.compile(pattern.toString());
     }
 
-    protected HashSet<String> _imports = new HashSet<String>();
-    protected List<String> _pushed = new ArrayList<String>();
+    protected HashSet<String> _imports = Sets.newHashSet();
+    protected List<String> _pushed = Lists.newArrayList();
 
     protected static Pattern _splitter = Pattern.compile("\\*");
 }

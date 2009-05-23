@@ -21,12 +21,13 @@
 
 package com.threerings.io;
 
-import java.util.HashMap;
 import java.util.Map;
 
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+
+import com.google.common.collect.Maps;
 
 import static com.threerings.NaryaLog.log;
 
@@ -53,7 +54,7 @@ public class ObjectOutputStream extends DataOutputStream
     public void addTranslation (String className, String streamedName)
     {
         if (_translations == null) {
-            _translations = new HashMap<String, String>();
+            _translations = Maps.newHashMap();
         }
         _translations.put(className, streamedName);
     }
@@ -91,7 +92,7 @@ public class ObjectOutputStream extends DataOutputStream
 
         // create our intern map if necessary
         if (_internmap == null) {
-            _internmap = new HashMap<String, Short>();
+            _internmap = Maps.newHashMap();
         }
 
         // look up the intern mapping record
@@ -163,7 +164,7 @@ public class ObjectOutputStream extends DataOutputStream
     {
         // create our classmap if necessary
         if (_classmap == null) {
-            _classmap = new HashMap<Class<?>, ClassMapping>();
+            _classmap = Maps.newHashMap();
         }
 
         // look up the class mapping record

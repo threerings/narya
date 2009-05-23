@@ -33,6 +33,8 @@ import org.apache.tools.ant.DirectoryScanner;
 import org.apache.tools.ant.Task;
 import org.apache.tools.ant.types.FileSet;
 
+import com.google.common.collect.Lists;
+
 import com.threerings.io.SimpleStreamableObject;
 import com.threerings.io.Streamable;
 
@@ -60,8 +62,8 @@ public class GenStreamableTask extends Task
             DirectoryScanner ds = fs.getDirectoryScanner(getProject());
             File fromDir = fs.getDir(getProject());
             String[] srcFiles = ds.getIncludedFiles();
-            for (int f = 0; f < srcFiles.length; f++) {
-                processClass(new File(fromDir, srcFiles[f]));
+            for (String srcFile : srcFiles) {
+                processClass(new File(fromDir, srcFile));
             }
         }
     }
@@ -243,7 +245,7 @@ public class GenStreamableTask extends Task
     }
 
     /** A list of filesets that contain tile images. */
-    protected ArrayList<FileSet> _filesets = new ArrayList<FileSet>();
+    protected ArrayList<FileSet> _filesets = Lists.newArrayList();
 
     protected static final String READ_OPEN =
         "    // from interface Streamable\n" +

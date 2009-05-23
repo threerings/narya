@@ -28,6 +28,9 @@ import java.util.List;
 
 import java.awt.event.KeyEvent;
 
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+
 import com.samskivert.util.DebugChords;
 import com.samskivert.util.HashIntMap;
 import com.samskivert.util.IntMap;
@@ -491,7 +494,7 @@ public class ClientDObjectMgr
     protected static final class PendingRequest<T extends DObject>
     {
         public int oid;
-        public ArrayList<Subscriber<T>> targets = new ArrayList<Subscriber<T>>();
+        public ArrayList<Subscriber<T>> targets = Lists.newArrayList();
 
         public PendingRequest (int oid)
         {
@@ -542,7 +545,7 @@ public class ClientDObjectMgr
     protected HashIntMap<PendingRequest<?>> _penders = new HashIntMap<PendingRequest<?>>();
 
     /** A mapping from distributed object class to flush delay. */
-    protected HashMap<Class<?>, Long> _delays = new HashMap<Class<?>, Long>();
+    protected HashMap<Class<?>, Long> _delays = Maps.newHashMap();
 
     /** A set of objects waiting to be flushed. */
     protected HashIntMap<FlushRecord> _flushes = new HashIntMap<FlushRecord>();

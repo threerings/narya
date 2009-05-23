@@ -23,6 +23,8 @@ package com.threerings.crowd.chat.client;
 
 import java.util.HashSet;
 
+import com.google.common.collect.Sets;
+
 import com.samskivert.util.CollectionUtil;
 import com.samskivert.util.ObserverList;
 
@@ -183,7 +185,7 @@ public class MuteDirector extends BasicDirector
     protected ChatDirector _chatdir;
 
     /** The mutelist. */
-    protected HashSet<Name> _mutelist = new HashSet<Name>();
+    protected HashSet<Name> _mutelist = Sets.newHashSet();
 
     /** List of mutelist observers. */
     protected ObserverList<MuteObserver> _observers =

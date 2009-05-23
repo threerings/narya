@@ -27,6 +27,7 @@ import java.util.Set;
 
 import java.io.IOException;
 
+import com.google.common.collect.Lists;
 import com.threerings.io.UnreliableObjectInputStream;
 import com.threerings.io.UnreliableObjectOutputStream;
 
@@ -72,6 +73,7 @@ public class DatagramSequencer
             mappedClasses = null;
         } else {
             _uout.setMappedClasses(new HashSet<Class<?>>());
+
         }
 
         // likewise with the intern mappings
@@ -79,6 +81,7 @@ public class DatagramSequencer
             mappedInterns = null;
         } else {
             _uout.setMappedInterns(new HashSet<String>());
+
         }
 
         // record the transmission
@@ -164,5 +167,5 @@ public class DatagramSequencer
     protected int _lastReceived;
 
     /** Records of datagrams sent. */
-    protected ArrayList<SendRecord> _sendrecs = new ArrayList<SendRecord>();
+    protected ArrayList<SendRecord> _sendrecs = Lists.newArrayList();
 }

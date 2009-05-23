@@ -23,6 +23,8 @@ package com.threerings.util;
 
 import java.util.ArrayList;
 
+import com.google.common.collect.Lists;
+
 /**
  * Utility for times.
  */
@@ -104,7 +106,7 @@ public class TimeUtil
         minUnit = (byte) Math.min(minUnit, MAX_UNIT);
         duration = Math.abs(duration);
 
-        ArrayList<String> list = new ArrayList<String>();
+        ArrayList<String> list = Lists.newArrayList();
         int parts = 0; // how many parts are in the translation string?
         for (byte uu = MILLISECOND; uu <= MAX_UNIT; uu++) {
             int quantity = getQuantityPerUnit(uu);

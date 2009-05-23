@@ -30,7 +30,6 @@ import java.security.AccessController;
 import java.security.PrivilegedActionException;
 import java.security.PrivilegedExceptionAction;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -39,6 +38,7 @@ import java.io.IOException;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 
 import com.samskivert.util.ClassUtil;
 
@@ -482,7 +482,7 @@ public class Streamer
      */
     protected static void createStreamers ()
     {
-        _streamers = new HashMap<Class<?>, Streamer>();
+        _streamers = Maps.newHashMap();
 
         // register all of the basic streamers
         int bscount = BasicStreamers.BSTREAMER_TYPES.length;
@@ -491,7 +491,7 @@ public class Streamer
                            BasicStreamers.BSTREAMER_INSTANCES[ii]);
         }
     }
-    
+
     /** Used to coerce the type system into quietude when reading enums from the wire. */
     protected static enum EnumReader { NOT_USED };
 

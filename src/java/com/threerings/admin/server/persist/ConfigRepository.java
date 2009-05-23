@@ -24,6 +24,8 @@ package com.threerings.admin.server.persist;
 import java.util.HashMap;
 import java.util.Set;
 
+import com.google.common.collect.Maps;
+
 import com.samskivert.depot.DepotRepository;
 import com.samskivert.depot.PersistenceContext;
 import com.samskivert.depot.PersistentRecord;
@@ -49,7 +51,7 @@ public class ConfigRepository extends DepotRepository
      */
     public HashMap<String, String> loadConfig (String node, String object)
     {
-        HashMap<String, String> data = new HashMap<String, String>();
+        HashMap<String, String> data = Maps.newHashMap();
         Where where = new Where(ConfigRecord.OBJECT, object, ConfigRecord.NODE, node);
         for (ConfigRecord record : findAll(ConfigRecord.class, where)) {
             data.put(record.field, record.value);

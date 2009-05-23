@@ -24,6 +24,8 @@ package com.threerings.presents.client;
 import java.util.ArrayList;
 import java.util.Iterator;
 
+import com.google.common.collect.Lists;
+
 import com.samskivert.util.HashIntMap;
 
 import com.threerings.presents.client.InvocationReceiver.Registration;
@@ -424,7 +426,7 @@ public class InvocationDirector
 
     /** All registered receivers are maintained in a list so that we can assign receiver ids to
      * them when we go online. */
-    protected ArrayList<InvocationDecoder> _reclist = new ArrayList<InvocationDecoder>();
+    protected ArrayList<InvocationDecoder> _reclist = Lists.newArrayList();
 
     /** The last time we flushed our listeners. */
     protected long _lastFlushTime;

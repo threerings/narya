@@ -23,6 +23,7 @@ package com.threerings.admin.server;
 
 import java.util.HashMap;
 
+import com.google.common.collect.Maps;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
@@ -134,7 +135,7 @@ public class DatabaseConfigRegistry extends ConfigRegistry
                 _data = _repo.loadConfig(_node, _path);
             } catch (DatabaseException pe) {
                 log.warning("Failed to load object configuration", "path", _path, pe);
-                _data = new HashMap<String, String>();
+                _data = Maps.newHashMap();
             }
 
             super.init();

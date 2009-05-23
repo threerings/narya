@@ -45,6 +45,9 @@ import org.apache.tools.ant.Task;
 import org.apache.tools.ant.types.FileSet;
 import org.apache.tools.ant.types.Path;
 
+import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
+
 import com.samskivert.io.StreamUtil;
 
 import com.threerings.io.BasicStreamers;
@@ -107,8 +110,8 @@ public class InstrumentStreamableTask extends Task
             DirectoryScanner ds = fs.getDirectoryScanner(getProject());
             File fromDir = fs.getDir(getProject());
             String[] srcFiles = ds.getIncludedFiles();
-            for (int f = 0; f < srcFiles.length; f++) {
-                processClass(new File(fromDir, srcFiles[f]));
+            for (String srcFile : srcFiles) {
+                processClass(new File(fromDir, srcFile));
             }
         }
     }
@@ -145,7 +148,7 @@ public class InstrumentStreamableTask extends Task
     protected void processStreamable (File source, CtClass clazz)
         throws NotFoundException
     {
-        ArrayList<CtField> fields = new ArrayList<CtField>();
+        ArrayList<CtField> fields = Lists.newArrayList();
         for (CtField field : clazz.getDeclaredFields()) {
             int modifiers = field.getModifiers();
             if (Modifier.isStatic(modifiers) || Modifier.isTransient(modifiers) ||
@@ -155,7 +158,7 @@ public class InstrumentStreamableTask extends Task
             fields.add(field);
         }
 
-        HashSet<String> methods = new HashSet<String>();
+        HashSet<String> methods = Sets.newHashSet();
         for (CtMethod method : clazz.getMethods()) {
             methods.add(method.getName());
         }
@@ -337,10 +340,10 @@ public class InstrumentStreamableTask extends Task
     }
 
     /** A list of filesets that contain Streamable class files. */
-    protected ArrayList<FileSet> _filesets = new ArrayList<FileSet>();
+    protected ArrayList<FileSet> _filesets = Lists.newArrayList();
 
     /** A list of paths that make up our classpath. */
-    protected ArrayList<Path> _paths = new ArrayList<Path>();
+    protected ArrayList<Path> _paths = Lists.newArrayList();
 
     /** The directory to which we write our instrumented class files. */
     protected File _outdir;

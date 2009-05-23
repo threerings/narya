@@ -26,6 +26,8 @@ import java.util.Locale;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 
+import com.google.common.collect.Maps;
+
 import com.samskivert.util.StringUtil;
 
 import static com.threerings.NaryaLog.log;
@@ -195,7 +197,7 @@ public class MessageManager
     protected ClassLoader _loader;
 
     /** A cache of instantiated message bundles. */
-    protected HashMap<String, MessageBundle> _cache = new HashMap<String, MessageBundle>();
+    protected HashMap<String, MessageBundle> _cache = Maps.newHashMap();
 
     /** Our top-level message bundle, from which others obtain messages if
      * they can't find them within themselves. */

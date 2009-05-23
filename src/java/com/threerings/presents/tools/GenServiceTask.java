@@ -33,6 +33,7 @@ import org.apache.velocity.VelocityContext;
 
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
+import com.google.common.collect.Sets;
 
 import com.samskivert.util.ComparableArrayList;
 import com.samskivert.util.StringUtil;
@@ -74,8 +75,7 @@ public class GenServiceTask extends InvocationTask
         {
             this.listener = listener;
             Method[] methdecls = listener.getDeclaredMethods();
-            for (int ii = 0; ii < methdecls.length; ii++) {
-                Method m = methdecls[ii];
+            for (Method m : methdecls) {
                 // service interface methods must be public and abstract
                 if (!Modifier.isPublic(m.getModifiers()) &&
                     !Modifier.isAbstract(m.getModifiers())) {
@@ -620,8 +620,7 @@ public class GenServiceTask extends InvocationTask
             // look through and locate our service methods, also locating any
             // custom InvocationListener derivations along the way
             Method[] methdecls = service.getDeclaredMethods();
-            for (int ii = 0; ii < methdecls.length; ii++) {
-                Method m = methdecls[ii];
+            for (Method m : methdecls) {
                 // service interface methods must be public and abstract
                 if (!Modifier.isPublic(m.getModifiers()) &&
                     !Modifier.isAbstract(m.getModifiers())) {
@@ -629,10 +628,10 @@ public class GenServiceTask extends InvocationTask
                 }
                 // check this method for custom listener declarations
                 Class<?>[] args = m.getParameterTypes();
-                for (int aa = 0; aa < args.length; aa++) {
-                    if (_ilistener.isAssignableFrom(args[aa]) &&
-                        GenUtil.simpleName(args[aa]).startsWith(sname + ".")) {
-                        checkedAdd(listeners, new ServiceListener(service, args[aa]));
+                for (Class<?> arg : args) {
+                    if (_ilistener.isAssignableFrom(arg) &&
+                        GenUtil.simpleName(arg).startsWith(sname + ".")) {
+                        checkedAdd(listeners, new ServiceListener(service, arg));
                     }
                 }
                 if (_verbose) {
@@ -678,7 +677,7 @@ public class GenServiceTask extends InvocationTask
     protected File _asroot;
 
     /** Services for which we should not generate provider interfaces. */
-    protected HashSet<String> _providerless = new HashSet<String>();
+    protected HashSet<String> _providerless = Sets.newHashSet();
 
     /** Specifies the path to the marshaller template. */
     protected static final String MARSHALLER_TMPL =

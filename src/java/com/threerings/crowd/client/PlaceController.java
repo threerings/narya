@@ -25,6 +25,8 @@ import java.util.ArrayList;
 
 import java.awt.event.ActionEvent;
 
+import com.google.common.collect.Lists;
+
 import com.samskivert.swing.Controller;
 
 import com.threerings.crowd.data.PlaceConfig;
@@ -250,7 +252,7 @@ public abstract class PlaceController extends Controller
     protected void addDelegate (PlaceControllerDelegate delegate)
     {
         if (_delegates == null) {
-            _delegates = new ArrayList<PlaceControllerDelegate>();
+            _delegates = Lists.newArrayList();
         }
         _delegates.add(delegate);
     }

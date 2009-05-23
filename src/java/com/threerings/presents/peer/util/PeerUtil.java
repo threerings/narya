@@ -27,6 +27,8 @@ import java.lang.reflect.Proxy;
 
 import java.util.HashMap;
 
+import com.google.common.collect.Maps;
+
 import com.threerings.presents.client.Client;
 import com.threerings.presents.client.InvocationService;
 import com.threerings.presents.server.InvocationProvider;
@@ -70,5 +72,5 @@ public class PeerUtil
     }
 
     /** Maps provider interface methods to service interface methods. */
-    protected static HashMap<Method, Method> _pmethods = new HashMap<Method, Method>();
+    protected static HashMap<Method, Method> _pmethods = Maps.newHashMap();
 }

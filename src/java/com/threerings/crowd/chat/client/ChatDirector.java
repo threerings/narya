@@ -31,6 +31,9 @@ import java.util.StringTokenizer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+
 import com.samskivert.util.Collections;
 import com.samskivert.util.HashIntMap;
 import com.samskivert.util.ObserverList;
@@ -950,7 +953,7 @@ public class ChatDirector extends BasicDirector
      */
     protected HashMap<String, CommandHandler> getCommandHandlers (String command)
     {
-        HashMap<String, CommandHandler> matches = new HashMap<String, CommandHandler>();
+        HashMap<String, CommandHandler> matches = Maps.newHashMap();
         BodyObject user = (BodyObject)_ctx.getClient().getClientObject();
         for (Map.Entry<String, CommandHandler> entry : _handlers.entrySet()) {
             String cmd = entry.getKey();
@@ -1436,11 +1439,10 @@ public class ChatDirector extends BasicDirector
     protected DisplayMessageOp _displayMessageOp = new DisplayMessageOp();
 
     /** Registered chat command handlers. */
-    protected static HashMap<String, CommandHandler> _handlers =
-        new HashMap<String, CommandHandler>();
+    protected static HashMap<String, CommandHandler> _handlers = Maps.newHashMap();
 
     /** A history of chat commands. */
-    protected static ArrayList<String> _history = new ArrayList<String>();
+    protected static ArrayList<String> _history = Lists.newArrayList();
 
     /** The maximum number of chatter usernames to track. */
     protected static final int MAX_CHATTERS = 6;

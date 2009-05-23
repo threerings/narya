@@ -23,6 +23,7 @@ package com.threerings.admin.server;
 
 import java.util.ArrayList;
 
+import com.google.common.collect.Lists;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
@@ -118,7 +119,7 @@ public class PeeredDatabaseConfigRegistry extends DatabaseConfigRegistry
                 PEER_CACHE_PREFIX + _path, new StreamableTuple<String, Object>(field, value));
         }
 
-        protected ArrayList<String> _pendingSyncs = new ArrayList<String>();
+        protected ArrayList<String> _pendingSyncs = Lists.newArrayList();
     }
 
     protected PeerManager _peermgr;

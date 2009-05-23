@@ -23,6 +23,8 @@ package com.threerings.admin.client;
 
 import java.util.HashMap;
 
+import com.google.common.collect.Maps;
+
 import com.threerings.presents.client.Client;
 import com.threerings.presents.client.ClientAdapter;
 import com.threerings.presents.dobj.DObjectManager;
@@ -41,7 +43,7 @@ public class ConfigObjectManager implements AdminService.ConfigInfoListener
 {
     public ConfigObjectManager (Client client)
     {
-        _serverconfig = new HashMap<String, ConfigObject>();
+        _serverconfig = Maps.newHashMap();
         _client = client;
         _client.addClientObserver(new ClientAdapter() {
             @Override
@@ -57,8 +59,8 @@ public class ConfigObjectManager implements AdminService.ConfigInfoListener
             @Override
             public void clientDidLogoff (Client client) {
                 // Clean up our subscription to the server's configuration
-                for (int ii = 0; ii < _csubscribers.length; ii++) {
-                    _csubscribers[ii].cleanup();
+                for (ConfigObjectSubscriber _csubscriber : _csubscribers) {
+                    _csubscriber.cleanup();
                 }
             }
         });

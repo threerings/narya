@@ -28,6 +28,8 @@ import java.lang.reflect.ReflectPermission;
 import java.util.Date;
 import java.util.HashMap;
 
+import com.google.common.collect.Maps;
+
 import static com.threerings.NaryaLog.log;
 
 /**
@@ -222,7 +224,7 @@ public abstract class FieldMarshaller
     protected static void createMarshallers ()
     {
         // create our table
-        _marshallers = new HashMap<Class<?>, FieldMarshaller>();
+        _marshallers = Maps.newHashMap();
 
         // create a generic marshaller for streamable instances
         FieldMarshaller gmarsh = new FieldMarshaller() {

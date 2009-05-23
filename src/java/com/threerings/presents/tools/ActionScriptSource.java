@@ -36,6 +36,8 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.PrintWriter;
 
+import com.google.common.collect.Lists;
+
 import com.samskivert.util.StringUtil;
 
 import com.threerings.util.ActionScript;
@@ -116,25 +118,25 @@ public class ActionScriptSource
 
     public String[] implementedInterfaces;
 
-    public ArrayList<Member> publicConstants = new ArrayList<Member>();
+    public ArrayList<Member> publicConstants = Lists.newArrayList();
 
-    public ArrayList<Member> publicFields = new ArrayList<Member>();
+    public ArrayList<Member> publicFields = Lists.newArrayList();
 
-    public ArrayList<Member> publicStaticMethods = new ArrayList<Member>();
+    public ArrayList<Member> publicStaticMethods = Lists.newArrayList();
 
-    public ArrayList<Member> publicConstructors = new ArrayList<Member>();
+    public ArrayList<Member> publicConstructors = Lists.newArrayList();
 
-    public ArrayList<Member> publicMethods = new ArrayList<Member>();
+    public ArrayList<Member> publicMethods = Lists.newArrayList();
 
-    public ArrayList<Member> protectedConstructors = new ArrayList<Member>();
+    public ArrayList<Member> protectedConstructors = Lists.newArrayList();
 
-    public ArrayList<Member> protectedMethods = new ArrayList<Member>();
+    public ArrayList<Member> protectedMethods = Lists.newArrayList();
 
-    public ArrayList<Member> protectedStaticMethods = new ArrayList<Member>();
+    public ArrayList<Member> protectedStaticMethods = Lists.newArrayList();
 
-    public ArrayList<Member> protectedFields = new ArrayList<Member>();
+    public ArrayList<Member> protectedFields = Lists.newArrayList();
 
-    public ArrayList<Member> protectedConstants = new ArrayList<Member>();
+    public ArrayList<Member> protectedConstants = Lists.newArrayList();
 
     public static String toSimpleName (String name)
     {
@@ -306,7 +308,7 @@ public class ActionScriptSource
         isAbstract = ((jclass.getModifiers() & Modifier.ABSTRACT) != 0);
 
         // note our implemented interfaces
-        ArrayList<String> ifaces = new ArrayList<String>();
+        ArrayList<String> ifaces = Lists.newArrayList();
         for (Class<?> iclass : jclass.getInterfaces()) {
             // we cannot use the FooCodes interface pattern in ActionScript so we just nix it
             if (iclass.getName().endsWith("Codes")) {

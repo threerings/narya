@@ -23,6 +23,8 @@ package com.threerings.presents.server;
 
 import java.util.HashMap;
 
+import com.google.common.collect.Maps;
+
 import com.threerings.presents.client.TimeBaseService.GotTimeBaseListener;
 import com.threerings.presents.data.ClientObject;
 import com.threerings.presents.data.TimeBaseCodes;
@@ -91,8 +93,7 @@ public class TimeBaseProvider
     }
 
     /** Used to keep track of our time base objects. */
-    protected static HashMap<String,TimeBaseObject> _timeBases =
-        new HashMap<String,TimeBaseObject>();
+    protected static HashMap<String,TimeBaseObject> _timeBases = Maps.newHashMap();
 
     /** The invocation manager with which we interoperate. */
     protected static InvocationManager _invmgr;

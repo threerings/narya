@@ -43,6 +43,8 @@ import org.apache.tools.ant.util.ClasspathUtils;
 import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.VelocityEngine;
 
+import com.google.common.collect.Lists;
+
 import com.samskivert.util.StringUtil;
 
 import com.samskivert.velocity.VelocityUtil;
@@ -151,7 +153,7 @@ public class GenDObjectTask extends Task
         }
 
         // determine which fields we need to deal with
-        ArrayList<Field> flist = new ArrayList<Field>();
+        ArrayList<Field> flist = Lists.newArrayList();
         Field[] fields = oclass.getDeclaredFields();
         for (Field f : fields) {
             int mods = f.getModifiers();
@@ -270,7 +272,7 @@ public class GenDObjectTask extends Task
     }
 
     /** A list of filesets that contain tile images. */
-    protected ArrayList<FileSet> _filesets = new ArrayList<FileSet>();
+    protected ArrayList<FileSet> _filesets = Lists.newArrayList();
 
     /** Used to do our own classpath business. */
     protected ClassLoader _cloader;

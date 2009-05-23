@@ -23,6 +23,8 @@ package com.threerings.presents.client;
 
 import java.util.HashSet;
 
+import com.google.common.collect.Sets;
+
 import com.samskivert.util.Interval;
 import com.samskivert.util.ObserverList;
 import com.samskivert.util.RunAnywhere;
@@ -995,7 +997,7 @@ public class Client
     protected BootstrapData _bstrap;
 
     /** The set of bootstrap service groups this client cares about. */
-    protected HashSet<String> _bootGroups = new HashSet<String>(); {
+    protected HashSet<String> _bootGroups = Sets.newHashSet(); {
         _bootGroups.add(InvocationCodes.GLOBAL_GROUP);
     }
 

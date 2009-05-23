@@ -31,6 +31,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
+import com.google.common.collect.Maps;
+
 import com.samskivert.io.ByteArrayOutInputStream;
 import com.samskivert.util.StringUtil;
 
@@ -412,7 +414,7 @@ public abstract class ConfigRegistry
     }
 
     /** A mapping from identifying key to config object. */
-    protected HashMap<String, ObjectRecord> _configs = new HashMap<String, ObjectRecord>();
+    protected HashMap<String, ObjectRecord> _configs = Maps.newHashMap();
 
     /** If we need to transition serialized Streamables to a new class format in init.. */
     protected boolean _transitioning;

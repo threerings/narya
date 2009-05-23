@@ -30,6 +30,8 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 
+import com.google.common.collect.Lists;
+
 import com.samskivert.util.StringUtil;
 
 /**
@@ -46,7 +48,7 @@ public class SourceFile
     {
         // slurp our source file into newline separated strings
         BufferedReader bin = new BufferedReader(new FileReader(source));
-        ArrayList<String> llist = new ArrayList<String>();
+        ArrayList<String> llist = Lists.newArrayList();
         String line = null;
         while ((line = bin.readLine()) != null) {
             llist.add(line);

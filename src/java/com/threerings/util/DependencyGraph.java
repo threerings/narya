@@ -3,6 +3,9 @@ package com.threerings.util;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+
 /**
  * Maintains a bidirectional graph to manage the order that the items are removed.  Children
  *  must wait until their parents are accessed - thus removing an available element means that
@@ -96,8 +99,8 @@ public class DependencyGraph<T>
         DependencyNode<T> node1 = _nodes.get(elem1);
         DependencyNode<T> node2 = _nodes.get(elem2);
 
-        ArrayList<DependencyNode<T>> nodesToCheck = new ArrayList<DependencyNode<T>>();
-        ArrayList<DependencyNode<T>> nodesAlreadyChecked = new ArrayList<DependencyNode<T>>();
+        ArrayList<DependencyNode<T>> nodesToCheck = Lists.newArrayList();
+        ArrayList<DependencyNode<T>> nodesAlreadyChecked = Lists.newArrayList();
         nodesToCheck.addAll(node1.parents);
 
         // We prevent circular dependencies when we add dependencies.  Otherwise, this'd be
@@ -124,10 +127,10 @@ public class DependencyGraph<T>
     }
 
     /** All the nodes included in the graph. */
-    protected HashMap<T, DependencyNode<T>> _nodes = new HashMap<T, DependencyNode<T>>();
+    protected HashMap<T, DependencyNode<T>> _nodes = Maps.newHashMap();
 
     /** Nodes in the graph with no parents/dependencies. */
-    protected ArrayList<T> _orphans = new ArrayList<T>();
+    protected ArrayList<T> _orphans = Lists.newArrayList();
 
     /** Represents a node in our dependency graph. */
     protected class DependencyNode<DT>
@@ -139,8 +142,8 @@ public class DependencyGraph<T>
         public DependencyNode (DT contents)
         {
             this.content = contents;
-            this.parents = new ArrayList<DependencyNode<DT>>();
-            this.children = new ArrayList<DependencyNode<DT>>();
+            this.parents = Lists.newArrayList();
+            this.children = Lists.newArrayList();
         }
     }
 }

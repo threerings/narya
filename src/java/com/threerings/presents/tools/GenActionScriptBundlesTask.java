@@ -36,6 +36,8 @@ import org.apache.tools.ant.DirectoryScanner;
 import org.apache.tools.ant.Task;
 import org.apache.tools.ant.types.FileSet;
 
+import com.google.common.collect.Lists;
+
 /**
  * Generates our own ResourceBundle classes.
  *
@@ -62,9 +64,9 @@ public class GenActionScriptBundlesTask extends Task
             DirectoryScanner ds = fs.getDirectoryScanner(getProject());
             File fromDir = fs.getDir(getProject());
             String[] srcFiles = ds.getIncludedFiles();
-            for (int f = 0; f < srcFiles.length; f++) {
+            for (String srcFile : srcFiles) {
                 try {
-                    processBundle(new File(fromDir, srcFiles[f]));
+                    processBundle(new File(fromDir, srcFile));
                 } catch (IOException ioe) {
                     throw new BuildException(ioe);
                 }
@@ -162,7 +164,7 @@ public class GenActionScriptBundlesTask extends Task
         return buf.toString();
     }
 
-    protected ArrayList<FileSet> _filesets = new ArrayList<FileSet>();
+    protected ArrayList<FileSet> _filesets = Lists.newArrayList();
 
     protected File _asroot;
 }

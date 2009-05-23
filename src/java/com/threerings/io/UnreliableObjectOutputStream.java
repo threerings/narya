@@ -4,11 +4,12 @@
 package com.threerings.io;
 
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.Set;
 
 import java.io.IOException;
 import java.io.OutputStream;
+
+import com.google.common.collect.Sets;
 
 /**
  * Extends {@link ObjectOutputStream} for use in unreliable channels, where we must transmit class
@@ -193,8 +194,8 @@ public class UnreliableObjectOutputStream extends ObjectOutputStream
     }
 
     /** The set of classes for which we have written mappings. */
-    protected Set<Class<?>> _mappedClasses = new HashSet<Class<?>>();
+    protected Set<Class<?>> _mappedClasses = Sets.newHashSet();
 
     /** The set of pooled strings for which we have written mappings. */
-    protected Set<String> _mappedInterns = new HashSet<String>();
+    protected Set<String> _mappedInterns = Sets.newHashSet();
 }

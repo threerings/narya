@@ -28,6 +28,9 @@ import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+
 import com.samskivert.util.StringUtil;
 
 import static com.threerings.NaryaLog.log;
@@ -64,7 +67,7 @@ public class ObjectInputStream extends DataInputStream
     public void addTranslation (String oldname, String newname)
     {
         if (_translations == null) {
-            _translations = new HashMap<String, String>();
+            _translations = Maps.newHashMap();
         }
         _translations.put(oldname, newname);
     }
@@ -108,7 +111,7 @@ public class ObjectInputStream extends DataInputStream
     {
         // create our intern map if necessary
         if (_internmap == null) {
-            _internmap = new ArrayList<String>();
+            _internmap = Lists.newArrayList();
             // insert a zeroth element
             _internmap.add(null);
         }
@@ -168,7 +171,7 @@ public class ObjectInputStream extends DataInputStream
     {
         // create our classmap if necessary
         if (_classmap == null) {
-            _classmap = new ArrayList<ClassMapping>();
+            _classmap = Lists.newArrayList();
             // insert a zeroth element
             _classmap.add(null);
         }
