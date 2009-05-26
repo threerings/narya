@@ -77,6 +77,14 @@ public abstract class Communicator
     }
 
     /**
+     * Checks whether we should transmit datagrams.
+     */
+    public boolean getTransmitDatagrams ()
+    {
+        return false;
+    }
+
+    /**
      * Makes a note of the time at which we last communicated with the server.
      */
     protected synchronized void updateWriteStamp ()

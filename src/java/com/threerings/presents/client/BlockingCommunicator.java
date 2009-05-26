@@ -187,6 +187,12 @@ public class BlockingCommunicator extends Communicator
     }
 
     @Override // from Communicator
+    public boolean getTransmitDatagrams ()
+    {
+        return _datagramWriter != null;
+    }
+
+    @Override // from Communicator
     protected synchronized void logonSucceeded (AuthResponseData data)
     {
         super.logonSucceeded(data);

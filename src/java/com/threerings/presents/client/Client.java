@@ -398,6 +398,14 @@ public class Client
     }
 
     /**
+     * Checks whether we should transmit datagrams.
+     */
+    public synchronized boolean getTransmitDatagrams ()
+    {
+        return (_comm != null && _comm.getTransmitDatagrams());
+    }
+
+    /**
      * Returns true if we are logged on, false if we're not.
      */
     public synchronized boolean isLoggedOn ()
