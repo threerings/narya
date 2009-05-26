@@ -163,8 +163,10 @@ public class BlockingCommunicator extends Communicator
     {
         // post as datagram if hinted and possible
         if (!msg.getTransport().isReliable() && _datagramWriter != null) {
+            msg.noteActualTransport(Transport.UNRELIABLE_UNORDERED);
             _dataq.append(msg);
         } else {
+            msg.noteActualTransport(Transport.RELIABLE_ORDERED);
             _msgq.append(msg);
         }
     }
