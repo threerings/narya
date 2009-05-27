@@ -65,6 +65,7 @@ public class PresentsServer
             bind(RunQueue.class).annotatedWith(EventQueue.class).to(PresentsDObjectMgr.class);
             bind(DObjectManager.class).to(PresentsDObjectMgr.class);
             bind(RootDObjectManager.class).to(PresentsDObjectMgr.class);
+            bind(Lifecycle.class).toInstance(new Lifecycle());
         }
 
         /**
