@@ -35,6 +35,7 @@ import com.samskivert.util.ArrayIntSet;
 import com.samskivert.util.IntSet;
 import com.samskivert.util.Interval;
 
+import com.threerings.util.Lifecycle;
 import com.threerings.util.Name;
 
 import com.threerings.presents.annotation.AnyThread;
@@ -43,7 +44,6 @@ import com.threerings.presents.peer.data.ClientInfo;
 import com.threerings.presents.peer.data.NodeObject;
 import com.threerings.presents.peer.server.PeerManager;
 import com.threerings.presents.server.InvocationManager;
-import com.threerings.presents.server.LifecycleManager;
 import com.threerings.presents.server.PresentsDObjectMgr;
 
 import com.threerings.crowd.chat.data.ChatChannel;
@@ -62,7 +62,7 @@ import static com.threerings.crowd.Log.log;
  */
 @Singleton
 public abstract class ChatChannelManager
-    implements ChannelSpeakProvider, LifecycleManager.ShutdownComponent
+    implements ChannelSpeakProvider, Lifecycle.ShutdownComponent
 {
     /**
      * When a body becomes a member of a channel, this method should be called so that any server
@@ -114,7 +114,7 @@ public abstract class ChatChannelManager
         });
     }
 
-    // from interface LifecycleManager.Shutdowner
+    // from interface Lifecycle.Shutdowner
     public void shutdown ()
     {
         // stop our channel closer; always be closing... except now
@@ -126,10 +126,10 @@ public abstract class ChatChannelManager
      * Creates our singleton manager and registers our invocation service.
      */
     @Inject protected ChatChannelManager (PresentsDObjectMgr omgr, InvocationManager invmgr,
-                                          LifecycleManager lifemgr)
+                                          Lifecycle cycle)
     {
         invmgr.registerDispatcher(new ChannelSpeakDispatcher(this), CrowdCodes.CROWD_GROUP);
-        lifemgr.addComponent(this);
+        cycle.addComponent(this);
 
         // create and start our idle channel closer (always be closing)
         _closer = new Interval(omgr) {

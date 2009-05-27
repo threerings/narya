@@ -39,6 +39,7 @@ import com.samskivert.util.Interval;
 import com.samskivert.util.ObserverList;
 import com.samskivert.util.StringUtil;
 
+import com.threerings.util.Lifecycle;
 import com.threerings.util.Name;
 
 import com.threerings.presents.annotation.EventThread;
@@ -62,7 +63,7 @@ import static com.threerings.presents.Log.log;
  */
 @Singleton
 public class ClientManager
-    implements ClientResolutionListener, ReportManager.Reporter, LifecycleManager.Component
+    implements ClientResolutionListener, ReportManager.Reporter, Lifecycle.Component
 {
     /**
      * Used by {@link ClientManager#applyToClient}.
@@ -100,10 +101,10 @@ public class ClientManager
     /**
      * Constructs a client manager that will interact with the supplied connection manager.
      */
-    @Inject public ClientManager (ReportManager repmgr, LifecycleManager lifemgr)
+    @Inject public ClientManager (ReportManager repmgr, Lifecycle cycle)
     {
         repmgr.registerReporter(this);
-        lifemgr.addComponent(this);
+        cycle.addComponent(this);
     }
 
     /**
@@ -323,7 +324,7 @@ public class ClientManager
         _omgr.destroyObject(clobj.getOid());
     }
 
-    // from interface LifecycleManager.Component
+    // from interface Lifecycle.Component
     public void init ()
     {
         // start up an interval that will check for and flush expired clients
@@ -335,7 +336,7 @@ public class ClientManager
         _flushClients.schedule(CLIENT_FLUSH_INTERVAL, true);
     }
 
-    // from interface LifecycleManager.Component
+    // from interface Lifecycle.Component
     public void shutdown ()
     {
         log.info("Client manager shutting down", "ccount", _usermap.size());

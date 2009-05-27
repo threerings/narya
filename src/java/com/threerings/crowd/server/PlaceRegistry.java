@@ -30,11 +30,11 @@ import com.google.inject.Singleton;
 
 import com.samskivert.util.IntMap;
 import com.samskivert.util.IntMaps;
+import com.threerings.util.Lifecycle;
 
 import com.threerings.presents.dobj.RootDObjectManager;
 import com.threerings.presents.server.InvocationException;
 import com.threerings.presents.server.InvocationManager;
-import com.threerings.presents.server.LifecycleManager;
 
 import com.threerings.crowd.data.PlaceConfig;
 import com.threerings.crowd.data.PlaceObject;
@@ -48,7 +48,7 @@ import static com.threerings.crowd.Log.log;
  */
 @Singleton
 public class PlaceRegistry
-    implements LifecycleManager.ShutdownComponent
+    implements Lifecycle.ShutdownComponent
 {
     /** Used in conjunction with {@link PlaceRegistry#createPlace(PlaceConfig,PreStartupHook)}. */
     public static interface PreStartupHook
@@ -60,9 +60,9 @@ public class PlaceRegistry
      * Creates and initializes the place registry. This is called by the server during its
      * initialization phase.
      */
-    @Inject public PlaceRegistry (LifecycleManager lifemgr)
+    @Inject public PlaceRegistry (Lifecycle cycle)
     {
-        lifemgr.addComponent(this);
+        cycle.addComponent(this);
     }
 
     /**
@@ -155,7 +155,7 @@ public class PlaceRegistry
         return _pmgrs.values().iterator();
     }
 
-    // from interface LifecycleManager.ShutdownComponent
+    // from interface Lifecycle.ShutdownComponent
     public void shutdown ()
     {
         // shut down all active places

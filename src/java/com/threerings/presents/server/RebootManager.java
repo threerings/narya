@@ -188,9 +188,9 @@ public abstract class RebootManager
     /**
      * Provides us with our dependencies.
      */
-    protected RebootManager (LifecycleManager lmgr, RootDObjectManager omgr)
+    protected RebootManager (PresentsServer server, RootDObjectManager omgr)
     {
-        _lmgr = lmgr;
+        _server = server;
         _omgr = omgr;
     }
 
@@ -257,12 +257,7 @@ public abstract class RebootManager
             // wait 1 second, then do it
             new Interval() { // Note: This interval does not run on the dobj thread
                 @Override public void expired () {
-                    // ...but we then post a LongRunnable...
-                    _omgr.postRunnable(new PresentsDObjectMgr.LongRunnable() {
-                        public void run () {
-                            _lmgr.shutdown();
-                        }
-                    });
+                    _server.queueShutdown(); // this posts a LongRunnable
                 }
             }.schedule(1000);
             return;
@@ -321,8 +316,8 @@ public abstract class RebootManager
         });
     }
 
-    /** Our lifecycle manager, which is how we will reboot. */
-    protected LifecycleManager _lmgr;
+    /** The server that we're going to reboot. */
+    protected PresentsServer _server;
 
     /** Our distributed object manager. */
     protected RootDObjectManager _omgr;

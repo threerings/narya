@@ -49,6 +49,7 @@ import com.threerings.io.ObjectInputStream;
 import com.threerings.io.ObjectOutputStream;
 import com.threerings.io.Streamable;
 
+import com.threerings.util.Lifecycle;
 import com.threerings.util.Name;
 
 import com.threerings.presents.dobj.DObject;
@@ -65,7 +66,6 @@ import com.threerings.presents.data.ClientObject;
 import com.threerings.presents.server.ClientManager;
 import com.threerings.presents.server.InvocationException;
 import com.threerings.presents.server.InvocationManager;
-import com.threerings.presents.server.LifecycleManager;
 import com.threerings.presents.server.PresentsDObjectMgr;
 import com.threerings.presents.server.PresentsSession;
 import com.threerings.presents.server.ReportManager;
@@ -86,7 +86,7 @@ import static com.threerings.presents.Log.log;
  * servers and uses those objects to communicate cross-node information.
  */
 public abstract class PeerManager
-    implements PeerProvider, ClientManager.ClientObserver, LifecycleManager.ShutdownComponent
+    implements PeerProvider, ClientManager.ClientObserver, Lifecycle.ShutdownComponent
 {
     /**
      * Used by entities that wish to know when cached data has become stale due to a change on
@@ -198,9 +198,9 @@ public abstract class PeerManager
     /**
      * Creates an uninitialized peer manager.
      */
-    @Inject public PeerManager (LifecycleManager lifeMgr)
+    @Inject public PeerManager (Lifecycle cycle)
     {
-        lifeMgr.addComponent(this);
+        cycle.addComponent(this);
     }
 
     /**
@@ -753,7 +753,7 @@ public abstract class PeerManager
         return _stats.clone();
     }
 
-    // from interface LifecycleManager.ShutdownComponent
+    // from interface Lifecycle.ShutdownComponent
     public void shutdown ()
     {
         if (_nodeName == null) { // sanity check

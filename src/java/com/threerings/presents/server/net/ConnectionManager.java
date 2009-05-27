@@ -56,6 +56,7 @@ import com.threerings.io.FramingOutputStream;
 import com.threerings.io.ObjectOutputStream;
 import com.threerings.io.UnreliableObjectInputStream;
 import com.threerings.io.UnreliableObjectOutputStream;
+import com.threerings.util.Lifecycle;
 
 import com.threerings.presents.annotation.AuthInvoker;
 import com.threerings.presents.client.Client;
@@ -67,8 +68,8 @@ import com.threerings.presents.server.Authenticator;
 import com.threerings.presents.server.ChainedAuthenticator;
 import com.threerings.presents.server.ClientManager;
 import com.threerings.presents.server.DummyAuthenticator;
-import com.threerings.presents.server.LifecycleManager;
 import com.threerings.presents.server.PresentsDObjectMgr;
+import com.threerings.presents.server.PresentsServer;
 import com.threerings.presents.server.ReportManager;
 import com.threerings.presents.util.DatagramSequencer;
 
@@ -82,15 +83,15 @@ import static com.threerings.presents.Log.log;
  */
 @Singleton
 public class ConnectionManager extends LoopingThread
-    implements LifecycleManager.ShutdownComponent, ReportManager.Reporter
+    implements Lifecycle.ShutdownComponent, ReportManager.Reporter
 {
     /**
      * Creates a connection manager instance. Don't call this, Guice will do it for you.
      */
-    @Inject public ConnectionManager (LifecycleManager lifemgr, ReportManager repmgr)
+    @Inject public ConnectionManager (Lifecycle cycle, ReportManager repmgr)
     {
         super("ConnectionManager");
-        lifemgr.addComponent(this);
+        cycle.addComponent(this);
         repmgr.registerReporter(this);
     }
 
@@ -391,7 +392,7 @@ public class ConnectionManager extends LoopingThread
         // if we failed to listen on at least one port, give up the ghost
         if (successes == 0) {
             log.warning("ConnectionManager failed to bind to any ports. Shutting down.");
-            _lifemgr.queueShutdown();
+            _server.queueShutdown();
             return;
         }
 
@@ -1230,9 +1231,9 @@ public class ConnectionManager extends LoopingThread
 
     // some dependencies
     @Inject @AuthInvoker protected Invoker _authInvoker;
-    @Inject protected PresentsDObjectMgr _omgr;
     @Inject protected ClientManager _clmgr;
-    @Inject protected LifecycleManager _lifemgr;
+    @Inject protected PresentsDObjectMgr _omgr;
+    @Inject protected PresentsServer _server;
 
     /** How long we wait for network events before checking our running flag to see if we should
      * still be running. We don't want to loop too tightly, but we need to make sure we don't sit

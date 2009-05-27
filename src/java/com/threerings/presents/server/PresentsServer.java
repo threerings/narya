@@ -30,6 +30,7 @@ import com.google.inject.Singleton;
 import com.samskivert.util.Invoker;
 import com.samskivert.util.RunQueue;
 import com.samskivert.util.SystemInfo;
+import com.threerings.util.Lifecycle;
 
 import com.threerings.presents.annotation.AuthInvoker;
 import com.threerings.presents.annotation.EventQueue;
@@ -161,11 +162,11 @@ public class PresentsServer
 
         // make the client manager shut down before the invoker and dobj threads; this helps
         // application code to avoid long chains of shutdown constraints
-        _lifemgr.addShutdownConstraint(
-            _clmgr, LifecycleManager.Constraint.RUNS_BEFORE, (PresentsInvoker)_invoker);
+        _lifecycle.addShutdownConstraint(
+            _clmgr, Lifecycle.Constraint.RUNS_BEFORE, (PresentsInvoker)_invoker);
 
         // initialize all of our registered components
-        _lifemgr.init();
+        _lifecycle.init();
     }
 
     /**
@@ -183,6 +184,19 @@ public class PresentsServer
         });
         // invoke the dobjmgr event loop
         _omgr.run();
+    }
+
+    /**
+     * Queues up a request to shutdown on the event thread. This method may be safely called from
+     * any thread.
+     */
+    public void queueShutdown ()
+    {
+        _omgr.postRunnable(new PresentsDObjectMgr.LongRunnable() {
+            public void run () {
+                _lifecycle.shutdown();
+            }
+        });
     }
 
     /**
@@ -242,7 +256,7 @@ public class PresentsServer
     @Inject protected InvocationManager _invmgr;
 
     /** Handles orderly initialization and shutdown of our managers, etc. */
-    @Inject protected LifecycleManager _lifemgr;
+    @Inject protected Lifecycle _lifecycle;
 
     /** Handles generation of state of the server reports. */
     @Inject protected ReportManager _repmgr;

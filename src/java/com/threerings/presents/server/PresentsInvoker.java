@@ -25,6 +25,7 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
 import com.samskivert.util.Invoker;
+import com.threerings.util.Lifecycle;
 
 import static com.threerings.presents.Log.log;
 
@@ -33,17 +34,16 @@ import static com.threerings.presents.Log.log;
  */
 @Singleton
 public class PresentsInvoker extends ReportingInvoker
-    implements LifecycleManager.ShutdownComponent
+    implements Lifecycle.ShutdownComponent
 {
-    @Inject public PresentsInvoker (PresentsDObjectMgr omgr, LifecycleManager lifemgr,
-                                    ReportManager repmgr)
+    @Inject public PresentsInvoker (PresentsDObjectMgr omgr, Lifecycle cycle, ReportManager repmgr)
     {
         super("presents.Invoker", omgr, repmgr);
+        cycle.addComponent(this);
         _omgr = omgr;
-        lifemgr.addComponent(this);
     }
 
-    @Override // from Invoker, LifecycleManager.ShutdownComponent
+    @Override // from Invoker, Lifecycle.ShutdownComponent
     public void shutdown ()
     {
         // this will do a sophisticated shutdown of both ourself and the dobjmgr; note: we

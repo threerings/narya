@@ -24,16 +24,18 @@ package com.threerings.presents.server;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
+import com.threerings.util.Lifecycle;
+
 /**
  * Handles the orderly shutdown of all server services.
  *
- * @Deprecated use LifecycleManager
+ * @Deprecated use Lifecycle
  */
 @Singleton
 public class ShutdownManager
 {
     /** Implementers of this interface will be notified when the server is shutting down. */
-    public static interface Shutdowner extends LifecycleManager.ShutdownComponent
+    public static interface Shutdowner extends Lifecycle.ShutdownComponent
     {
     }
 
@@ -45,7 +47,7 @@ public class ShutdownManager
      */
     public void registerShutdowner (Shutdowner downer)
     {
-        _lifeMgr.addComponent(downer);
+        _cycle.addComponent(downer);
     }
 
     /**
@@ -53,7 +55,7 @@ public class ShutdownManager
      */
     public void unregisterShutdowner (Shutdowner downer)
     {
-        _lifeMgr.removeComponent(downer);
+        _cycle.removeComponent(downer);
     }
 
     /**
@@ -63,10 +65,10 @@ public class ShutdownManager
     {
         switch (constraint) {
         case RUNS_BEFORE:
-            _lifeMgr.addShutdownConstraint(lhs, LifecycleManager.Constraint.RUNS_BEFORE, rhs);
+            _cycle.addShutdownConstraint(lhs, Lifecycle.Constraint.RUNS_BEFORE, rhs);
             break;
         case RUNS_AFTER:
-            _lifeMgr.addShutdownConstraint(lhs, LifecycleManager.Constraint.RUNS_AFTER, rhs);
+            _cycle.addShutdownConstraint(lhs, Lifecycle.Constraint.RUNS_AFTER, rhs);
             break;
         }
     }
@@ -77,7 +79,7 @@ public class ShutdownManager
      */
     public void queueShutdown ()
     {
-        _lifeMgr.queueShutdown();
+        _server.queueShutdown();
     }
 
     /**
@@ -85,8 +87,9 @@ public class ShutdownManager
      */
     public boolean isShuttingDown ()
     {
-        return _lifeMgr.isShuttingDown();
+        return _cycle.isShuttingDown();
     }
 
-    @Inject protected LifecycleManager _lifeMgr;
+    @Inject protected Lifecycle _cycle;
+    @Inject protected PresentsServer _server;
 }

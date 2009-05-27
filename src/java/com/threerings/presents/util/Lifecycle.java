@@ -19,23 +19,19 @@
 // License along with this library; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 
-package com.threerings.presents.server;
+package com.threerings.util;
 
 import com.google.inject.Inject;
 
 import com.samskivert.util.ObserverList;
-import com.samskivert.util.RunQueue;
 import com.threerings.util.DependencyGraph;
-
-import com.threerings.presents.annotation.EventQueue;
 
 import static com.threerings.presents.Log.log;
 
 /**
- * Manages the lifecycle (initialization and shutdown) of our various server managers and other
- * entities.
+ * Manages the lifecycle (initialization and shutdown) of a collection of components.
  */
-public class LifecycleManager
+public class Lifecycle
 {
     /** An interface implemented by components which wish to participate in the lifecycle. */
     public interface BaseComponent
@@ -65,8 +61,8 @@ public class LifecycleManager
     public static enum Constraint { RUNS_BEFORE, RUNS_AFTER };
 
     /**
-     * Registers a component with the manager. This should be done during the dependency resolution
-     * phase by injecting the LifecycleManager into your constructor and calling this method there.
+     * Registers a component with the lifecycle. This should be done during dependency resolution
+     * by injecting the Lifecycle into your constructor and calling this method there.
      */
     public void addComponent (BaseComponent comp)
     {
@@ -82,7 +78,7 @@ public class LifecycleManager
     }
 
     /**
-     * Removes a component from the manager. This is generally not used.
+     * Removes a component from the lifecycle. This is generally not used.
      */
     public void removeComponent (BaseComponent comp)
     {
@@ -119,19 +115,6 @@ public class LifecycleManager
         ShutdownComponent before = (constraint == Constraint.RUNS_BEFORE) ? lhs : rhs;
         ShutdownComponent after = (constraint == Constraint.RUNS_BEFORE) ? rhs : lhs;
         _downers.addDependency(after, before);
-    }
-
-    /**
-     * Queues up a request to shutdown on the event thread. This method may be safely called from
-     * any thread.
-     */
-    public void queueShutdown ()
-    {
-        _eventQueue.postRunnable(new Runnable() {
-            public void run () {
-                shutdown();
-            }
-        });
     }
 
     /**
@@ -183,9 +166,6 @@ public class LifecycleManager
             }
         });
     }
-
-    /** The queue we'll use to get onto the event thread before shutting down. */
-    @Inject @EventQueue protected RunQueue _eventQueue;
 
     /** A dependency graph of our components arranged by initialization dependencies. */
     protected DependencyGraph<InitComponent> _initers = new DependencyGraph<InitComponent>();

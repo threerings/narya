@@ -23,6 +23,7 @@ package com.threerings.crowd.peer.server;
 
 import com.google.inject.Inject;
 
+import com.threerings.util.Lifecycle;
 import com.threerings.util.Name;
 
 import com.threerings.presents.data.ClientObject;
@@ -32,7 +33,6 @@ import com.threerings.presents.peer.server.PeerManager;
 import com.threerings.presents.peer.server.PeerNode;
 import com.threerings.presents.server.InvocationException;
 import com.threerings.presents.server.InvocationManager;
-import com.threerings.presents.server.LifecycleManager;
 import com.threerings.presents.server.PresentsSession;
 
 import com.threerings.crowd.chat.client.ChatService;
@@ -51,9 +51,9 @@ public abstract class CrowdPeerManager extends PeerManager
     /**
      * Creates an uninitialized peer manager.
      */
-    @Inject public CrowdPeerManager (LifecycleManager lifeMgr)
+    @Inject public CrowdPeerManager (Lifecycle cycle)
     {
-        super(lifeMgr);
+        super(cycle);
     }
 
     // from interface CrowdPeerProvider
