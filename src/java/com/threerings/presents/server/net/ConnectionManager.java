@@ -46,6 +46,7 @@ import com.google.inject.Singleton;
 import com.samskivert.util.IntMap;
 import com.samskivert.util.IntMaps;
 import com.samskivert.util.Invoker;
+import com.samskivert.util.Lifecycle;
 import com.samskivert.util.LoopingThread;
 import com.samskivert.util.Queue;
 import com.samskivert.util.ResultListener;
@@ -56,7 +57,6 @@ import com.threerings.io.FramingOutputStream;
 import com.threerings.io.ObjectOutputStream;
 import com.threerings.io.UnreliableObjectInputStream;
 import com.threerings.io.UnreliableObjectOutputStream;
-import com.threerings.util.Lifecycle;
 
 import com.threerings.presents.annotation.AuthInvoker;
 import com.threerings.presents.client.Client;

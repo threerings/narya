@@ -30,7 +30,7 @@ import com.google.inject.Singleton;
 
 import com.samskivert.util.IntMap;
 import com.samskivert.util.IntMaps;
-import com.threerings.util.Lifecycle;
+import com.samskivert.util.Lifecycle;
 
 import com.threerings.presents.dobj.RootDObjectManager;
 import com.threerings.presents.server.InvocationException;

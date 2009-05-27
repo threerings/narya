@@ -23,7 +23,7 @@ package com.threerings.crowd.peer.server;
 
 import com.google.inject.Inject;
 
-import com.threerings.util.Lifecycle;
+import com.samskivert.util.Lifecycle;
 import com.threerings.util.Name;
 
 import com.threerings.presents.data.ClientObject;

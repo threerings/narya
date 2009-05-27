@@ -37,6 +37,7 @@ import com.samskivert.util.ArrayIntSet;
 import com.samskivert.util.ChainedResultListener;
 import com.samskivert.util.Interval;
 import com.samskivert.util.Invoker;
+import com.samskivert.util.Lifecycle;
 import com.samskivert.util.ObserverList;
 import com.samskivert.util.ResultListener;
 import com.samskivert.util.ResultListenerList;
@@ -49,7 +50,6 @@ import com.threerings.io.ObjectInputStream;
 import com.threerings.io.ObjectOutputStream;
 import com.threerings.io.Streamable;
 
-import com.threerings.util.Lifecycle;
 import com.threerings.util.Name;
 
 import com.threerings.presents.dobj.DObject;

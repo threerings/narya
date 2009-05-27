@@ -25,7 +25,7 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
 import com.samskivert.util.Invoker;
-import com.threerings.util.Lifecycle;
+import com.samskivert.util.Lifecycle;
 
 import static com.threerings.presents.Log.log;
 

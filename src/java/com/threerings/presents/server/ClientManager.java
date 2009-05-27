@@ -36,10 +36,10 @@ import com.google.inject.Injector;
 import com.google.inject.Singleton;
 
 import com.samskivert.util.Interval;
+import com.samskivert.util.Lifecycle;
 import com.samskivert.util.ObserverList;
 import com.samskivert.util.StringUtil;
 
-import com.threerings.util.Lifecycle;
 import com.threerings.util.Name;
 
 import com.threerings.presents.annotation.EventThread;

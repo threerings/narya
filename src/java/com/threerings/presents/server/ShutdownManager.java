@@ -24,7 +24,7 @@ package com.threerings.presents.server;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
-import com.threerings.util.Lifecycle;
+import com.samskivert.util.Lifecycle;
 
 /**
  * Handles the orderly shutdown of all server services.

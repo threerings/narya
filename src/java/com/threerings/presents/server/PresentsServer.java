@@ -28,9 +28,9 @@ import com.google.inject.Injector;
 import com.google.inject.Singleton;
 
 import com.samskivert.util.Invoker;
+import com.samskivert.util.Lifecycle;
 import com.samskivert.util.RunQueue;
 import com.samskivert.util.SystemInfo;
-import com.threerings.util.Lifecycle;
 
 import com.threerings.presents.annotation.AuthInvoker;
 import com.threerings.presents.annotation.EventQueue;

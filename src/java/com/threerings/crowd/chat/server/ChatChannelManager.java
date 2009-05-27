@@ -34,8 +34,8 @@ import com.google.inject.Singleton;
 import com.samskivert.util.ArrayIntSet;
 import com.samskivert.util.IntSet;
 import com.samskivert.util.Interval;
+import com.samskivert.util.Lifecycle;
 
-import com.threerings.util.Lifecycle;
 import com.threerings.util.Name;
 
 import com.threerings.presents.annotation.AnyThread;
