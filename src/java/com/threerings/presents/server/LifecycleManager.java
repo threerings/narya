@@ -47,9 +47,6 @@ public class LifecycleManager
     {
         /** Called after dependencies have been fully resolved to initialize this component. */
         public void init ();
-
-        /** Called when the server is shutting down. */
-        public void shutdown ();
     }
 
     /** An interface implemented by components which wish to participate in the lifecycle. */
