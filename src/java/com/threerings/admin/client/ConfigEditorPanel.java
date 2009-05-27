@@ -71,6 +71,12 @@ public class ConfigEditorPanel extends JPanel
                        "but not yet committed."), VGroupLayout.FIXED);
         add(new JLabel("Press return in a modified field to commit " +
                        "the change."), VGroupLayout.FIXED);
+    }
+
+    @Override
+    public void addNotify ()
+    {
+        super.addNotify();
 
         // ship off a getConfigInfo request to find out what config
         // objects are available for editing
@@ -91,6 +97,7 @@ public class ConfigEditorPanel extends JPanel
                 scrolly.getViewport().getView();
             opanel.cleanup();
         }
+        _oeditors.removeAll();
     }
 
     /**
@@ -98,6 +105,11 @@ public class ConfigEditorPanel extends JPanel
      */
     public void gotConfigInfo (final String[] keys, final int[] oids)
     {
+        // make sure we're still added
+        if (!isDisplayable()) {
+            return;
+        }
+
         Integer indexes[] = new Integer[keys.length];
         for (int ii = 0; ii < indexes.length; ii++) {
             indexes[ii] = ii;
