@@ -33,17 +33,17 @@ import static com.threerings.presents.Log.log;
  */
 @Singleton
 public class PresentsInvoker extends ReportingInvoker
-    implements ShutdownManager.Shutdowner
+    implements LifecycleManager.ShutdownComponent
 {
-    @Inject public PresentsInvoker (
-        PresentsDObjectMgr omgr, ShutdownManager shutmgr, ReportManager repmgr)
+    @Inject public PresentsInvoker (PresentsDObjectMgr omgr, LifecycleManager lifemgr,
+                                    ReportManager repmgr)
     {
         super("presents.Invoker", omgr, repmgr);
         _omgr = omgr;
-        shutmgr.registerShutdowner(this);
+        lifemgr.addComponent(this);
     }
 
-    @Override // from Invoker
+    @Override // from Invoker, LifecycleManager.ShutdownComponent
     public void shutdown ()
     {
         // this will do a sophisticated shutdown of both ourself and the dobjmgr; note: we

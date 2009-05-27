@@ -34,7 +34,7 @@ import com.samskivert.util.IntMaps;
 import com.threerings.presents.dobj.RootDObjectManager;
 import com.threerings.presents.server.InvocationException;
 import com.threerings.presents.server.InvocationManager;
-import com.threerings.presents.server.ShutdownManager;
+import com.threerings.presents.server.LifecycleManager;
 
 import com.threerings.crowd.data.PlaceConfig;
 import com.threerings.crowd.data.PlaceObject;
@@ -48,7 +48,7 @@ import static com.threerings.crowd.Log.log;
  */
 @Singleton
 public class PlaceRegistry
-    implements ShutdownManager.Shutdowner
+    implements LifecycleManager.ShutdownComponent
 {
     /** Used in conjunction with {@link PlaceRegistry#createPlace(PlaceConfig,PreStartupHook)}. */
     public static interface PreStartupHook
@@ -60,9 +60,9 @@ public class PlaceRegistry
      * Creates and initializes the place registry. This is called by the server during its
      * initialization phase.
      */
-    @Inject public PlaceRegistry (ShutdownManager shutmgr)
+    @Inject public PlaceRegistry (LifecycleManager lifemgr)
     {
-        shutmgr.registerShutdowner(this);
+        lifemgr.addComponent(this);
     }
 
     /**
@@ -155,7 +155,7 @@ public class PlaceRegistry
         return _pmgrs.values().iterator();
     }
 
-    // from interface ShutdownManager.Shutdowner
+    // from interface LifecycleManager.ShutdownComponent
     public void shutdown ()
     {
         // shut down all active places

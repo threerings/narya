@@ -62,7 +62,7 @@ import static com.threerings.presents.Log.log;
  */
 @Singleton
 public class ClientManager
-    implements ClientResolutionListener, ReportManager.Reporter, ShutdownManager.Shutdowner
+    implements ClientResolutionListener, ReportManager.Reporter, LifecycleManager.Component
 {
     /**
      * Used by {@link ClientManager#applyToClient}.
@@ -100,21 +100,10 @@ public class ClientManager
     /**
      * Constructs a client manager that will interact with the supplied connection manager.
      */
-    @Inject public ClientManager (
-        ReportManager repmgr, ShutdownManager shutmgr, PresentsDObjectMgr omgr)
+    @Inject public ClientManager (ReportManager repmgr, LifecycleManager lifemgr)
     {
         repmgr.registerReporter(this);
-        shutmgr.registerShutdowner(this);
-
-        // start up an interval that will check for expired clients and flush them from the bowels
-        // of the server
-        _flushClients = new Interval(omgr) {
-            @Override
-            public void expired () {
-                flushClients();
-            }
-        };
-        _flushClients.schedule(CLIENT_FLUSH_INTERVAL, true);
+        lifemgr.addComponent(this);
     }
 
     /**
@@ -124,26 +113,6 @@ public class ClientManager
     public void setInjector (Injector injector)
     {
         _injector = injector;
-    }
-
-    // from interface ShutdownManager.Shutdowner
-    public void shutdown ()
-    {
-        log.info("Client manager shutting down", "ccount", _usermap.size());
-
-        _flushClients.cancel();
-
-        // inform all of our clients that they are being shut down
-        synchronized (_usermap) {
-            for (PresentsSession pc : _usermap.values()) {
-                try {
-                    pc.shutdown();
-                } catch (Exception e) {
-                    log.warning("Client choked in shutdown()",
-                                "client", StringUtil.safeToString(pc), e);
-                }
-            }
-        }
     }
 
     /**
@@ -352,6 +321,38 @@ public class ClientManager
 
         // and destroy the object itself
         _omgr.destroyObject(clobj.getOid());
+    }
+
+    // from interface LifecycleManager.Component
+    public void init ()
+    {
+        // start up an interval that will check for and flush expired clients
+        _flushClients = new Interval(_omgr) {
+            @Override public void expired () {
+                flushClients();
+            }
+        };
+        _flushClients.schedule(CLIENT_FLUSH_INTERVAL, true);
+    }
+
+    // from interface LifecycleManager.Component
+    public void shutdown ()
+    {
+        log.info("Client manager shutting down", "ccount", _usermap.size());
+
+        _flushClients.cancel();
+
+        // inform all of our clients that they are being shut down
+        synchronized (_usermap) {
+            for (PresentsSession pc : _usermap.values()) {
+                try {
+                    pc.shutdown();
+                } catch (Exception e) {
+                    log.warning("Client choked in shutdown()",
+                                "client", StringUtil.safeToString(pc), e);
+                }
+            }
+        }
     }
 
     /**

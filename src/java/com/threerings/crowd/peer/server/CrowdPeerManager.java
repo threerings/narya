@@ -32,8 +32,8 @@ import com.threerings.presents.peer.server.PeerManager;
 import com.threerings.presents.peer.server.PeerNode;
 import com.threerings.presents.server.InvocationException;
 import com.threerings.presents.server.InvocationManager;
+import com.threerings.presents.server.LifecycleManager;
 import com.threerings.presents.server.PresentsSession;
-import com.threerings.presents.server.ShutdownManager;
 
 import com.threerings.crowd.chat.client.ChatService;
 import com.threerings.crowd.chat.data.UserMessage;
@@ -51,9 +51,9 @@ public abstract class CrowdPeerManager extends PeerManager
     /**
      * Creates an uninitialized peer manager.
      */
-    @Inject public CrowdPeerManager (ShutdownManager shutmgr)
+    @Inject public CrowdPeerManager (LifecycleManager lifeMgr)
     {
-        super(shutmgr);
+        super(lifeMgr);
     }
 
     // from interface CrowdPeerProvider

@@ -1,3 +1,6 @@
+//
+// $Id$
+
 package com.threerings.util;
 
 import java.util.ArrayList;
@@ -6,12 +9,15 @@ import java.util.HashMap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
+import com.samskivert.util.ObserverList;
+
 /**
- * Maintains a bidirectional graph to manage the order that the items are removed.  Children
- *  must wait until their parents are accessed - thus removing an available element means that
- *  a node without parents (an orphan) is removed and returned and the rest of the graph is
- *  updated to reflect that removal.
- * @param <T>
+ * Maintains a bidirectional graph to manage the order that the items are removed.  Children must
+ * wait until their parents are accessed - thus removing an available element means that a node
+ * without parents (an orphan) is removed and returned and the rest of the graph is updated to
+ * reflect that removal.
+ *
+ * @param <T> the type of object maintained in the graph.
  */
 public class DependencyGraph<T>
 {
@@ -49,7 +55,7 @@ public class DependencyGraph<T>
 
     /**
      * Removes and returns an element which is available, meaning not dependent upon any other
-     *  still in the graph.
+     * still in the graph.
      */
     public T removeAvailableElement ()
     {
@@ -124,6 +130,19 @@ public class DependencyGraph<T>
         }
 
         return false;
+    }
+
+    /**
+     * Flattens this graph into an observer list in dependencys order. Empties the graph in the
+     * process.
+     */
+    public ObserverList<T> toObserverList ()
+    {
+        ObserverList<T> list = ObserverList.newSafeInOrder();
+        while (!isEmpty()) {
+            list.add(removeAvailableElement());
+        }
+        return list;
     }
 
     /** All the nodes included in the graph. */

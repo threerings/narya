@@ -24,44 +24,28 @@ package com.threerings.presents.server;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
-import com.samskivert.util.ObserverList;
-import com.samskivert.util.RunQueue;
-
-import com.threerings.util.DependencyGraph;
-
-import com.threerings.presents.annotation.EventQueue;
-
-import static com.threerings.presents.Log.log;
-
 /**
  * Handles the orderly shutdown of all server services.
+ *
+ * @Deprecated use LifecycleManager
  */
 @Singleton
 public class ShutdownManager
 {
     /** Implementers of this interface will be notified when the server is shutting down. */
-    public static interface Shutdowner
+    public static interface Shutdowner extends LifecycleManager.ShutdownComponent
     {
-        /**
-         * Called when the server is shutting down.
-         */
-        void shutdown ();
     }
 
     /** Constraints for use with {@link ShutdownManager#addConstraint}. */
     public static enum Constraint { RUNS_BEFORE, RUNS_AFTER };
-
-    @Inject ShutdownManager (@EventQueue RunQueue dobjq)
-    {
-        _dobjq = dobjq;
-    }
 
     /**
      * Registers an entity that will be notified when the server is shutting down.
      */
     public void registerShutdowner (Shutdowner downer)
     {
-        _downers.add(downer);
+        _lifeMgr.addComponent(downer);
     }
 
     /**
@@ -69,7 +53,7 @@ public class ShutdownManager
      */
     public void unregisterShutdowner (Shutdowner downer)
     {
-        _downers.remove(downer);
+        _lifeMgr.removeComponent(downer);
     }
 
     /**
@@ -77,12 +61,14 @@ public class ShutdownManager
      */
     public void addConstraint (Shutdowner lhs, Constraint constraint, Shutdowner rhs)
     {
-        if (lhs == null || rhs == null) {
-            throw new IllegalArgumentException("Cannot add constraint about null shutdowner.");
+        switch (constraint) {
+        case RUNS_BEFORE:
+            _lifeMgr.addShutdownConstraint(lhs, LifecycleManager.Constraint.RUNS_BEFORE, rhs);
+            break;
+        case RUNS_AFTER:
+            _lifeMgr.addShutdownConstraint(lhs, LifecycleManager.Constraint.RUNS_AFTER, rhs);
+            break;
         }
-        Shutdowner before = (constraint == Constraint.RUNS_BEFORE) ? lhs : rhs;
-        Shutdowner after = (constraint == Constraint.RUNS_BEFORE) ? rhs : lhs;
-        _downers.addDependency(after, before);
     }
 
     /**
@@ -91,11 +77,7 @@ public class ShutdownManager
      */
     public void queueShutdown ()
     {
-        _dobjq.postRunnable(new Runnable() {
-            public void run () {
-                shutdown();
-            }
-        });
+        _lifeMgr.queueShutdown();
     }
 
     /**
@@ -103,41 +85,8 @@ public class ShutdownManager
      */
     public boolean isShuttingDown ()
     {
-        return _downers == null;
+        return _lifeMgr.isShuttingDown();
     }
 
-    /**
-     * Shuts down all shutdowners immediately on the caller's thread.
-     */
-    public void shutdown ()
-    {
-        if (_downers == null) {
-            log.warning("Refusing repeat shutdown request.");
-            return;
-        }
-
-        ObserverList<Shutdowner> downers = ObserverList.newSafeInOrder();
-
-        while (!_downers.isEmpty()) {
-            downers.add(_downers.removeAvailableElement());
-        }
-
-        _downers = null;
-
-        // shut down all shutdown participants
-        downers.apply(new ObserverList.ObserverOp<Shutdowner>() {
-            public boolean apply (Shutdowner downer) {
-                log.debug("Calling shutdown registrant", "downer", downer);
-                downer.shutdown();
-                return true;
-            }
-        });
-    }
-
-    /** All of the registered shutdowners along with related constraints. */
-    protected DependencyGraph<Shutdowner> _downers = new DependencyGraph<Shutdowner>();
-
-    /** The queue we'll use to get onto the dobjmgr thread before shutting down. */
-    protected RunQueue _dobjq;
-
+    @Inject protected LifecycleManager _lifeMgr;
 }

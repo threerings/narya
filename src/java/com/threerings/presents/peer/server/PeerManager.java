@@ -65,10 +65,10 @@ import com.threerings.presents.data.ClientObject;
 import com.threerings.presents.server.ClientManager;
 import com.threerings.presents.server.InvocationException;
 import com.threerings.presents.server.InvocationManager;
-import com.threerings.presents.server.PresentsSession;
+import com.threerings.presents.server.LifecycleManager;
 import com.threerings.presents.server.PresentsDObjectMgr;
+import com.threerings.presents.server.PresentsSession;
 import com.threerings.presents.server.ReportManager;
-import com.threerings.presents.server.ShutdownManager;
 import com.threerings.presents.server.net.ConnectionManager;
 
 import com.threerings.presents.peer.client.PeerService;
@@ -86,7 +86,7 @@ import static com.threerings.presents.Log.log;
  * servers and uses those objects to communicate cross-node information.
  */
 public abstract class PeerManager
-    implements PeerProvider, ClientManager.ClientObserver, ShutdownManager.Shutdowner
+    implements PeerProvider, ClientManager.ClientObserver, LifecycleManager.ShutdownComponent
 {
     /**
      * Used by entities that wish to know when cached data has become stale due to a change on
@@ -198,9 +198,9 @@ public abstract class PeerManager
     /**
      * Creates an uninitialized peer manager.
      */
-    @Inject public PeerManager (ShutdownManager shutmgr)
+    @Inject public PeerManager (LifecycleManager lifeMgr)
     {
-        shutmgr.registerShutdowner(this);
+        lifeMgr.addComponent(this);
     }
 
     /**
@@ -753,7 +753,7 @@ public abstract class PeerManager
         return _stats.clone();
     }
 
-    // from interface ShutdownManager.Shutdowner
+    // from interface LifecycleManager.ShutdownComponent
     public void shutdown ()
     {
         if (_nodeName == null) { // sanity check

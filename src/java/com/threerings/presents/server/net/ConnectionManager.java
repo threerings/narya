@@ -67,9 +67,9 @@ import com.threerings.presents.server.Authenticator;
 import com.threerings.presents.server.ChainedAuthenticator;
 import com.threerings.presents.server.ClientManager;
 import com.threerings.presents.server.DummyAuthenticator;
+import com.threerings.presents.server.LifecycleManager;
 import com.threerings.presents.server.PresentsDObjectMgr;
 import com.threerings.presents.server.ReportManager;
-import com.threerings.presents.server.ShutdownManager;
 import com.threerings.presents.util.DatagramSequencer;
 
 import static com.threerings.presents.Log.log;
@@ -82,15 +82,15 @@ import static com.threerings.presents.Log.log;
  */
 @Singleton
 public class ConnectionManager extends LoopingThread
-    implements ShutdownManager.Shutdowner, ReportManager.Reporter
+    implements LifecycleManager.ShutdownComponent, ReportManager.Reporter
 {
     /**
      * Creates a connection manager instance. Don't call this, Guice will do it for you.
      */
-    @Inject public ConnectionManager (ShutdownManager shutmgr, ReportManager repmgr)
+    @Inject public ConnectionManager (LifecycleManager lifemgr, ReportManager repmgr)
     {
         super("ConnectionManager");
-        shutmgr.registerShutdowner(this);
+        lifemgr.addComponent(this);
         repmgr.registerReporter(this);
     }
 
@@ -391,7 +391,7 @@ public class ConnectionManager extends LoopingThread
         // if we failed to listen on at least one port, give up the ghost
         if (successes == 0) {
             log.warning("ConnectionManager failed to bind to any ports. Shutting down.");
-            _shutmgr.queueShutdown();
+            _lifemgr.queueShutdown();
             return;
         }
 
@@ -1232,7 +1232,7 @@ public class ConnectionManager extends LoopingThread
     @Inject @AuthInvoker protected Invoker _authInvoker;
     @Inject protected PresentsDObjectMgr _omgr;
     @Inject protected ClientManager _clmgr;
-    @Inject protected ShutdownManager _shutmgr;
+    @Inject protected LifecycleManager _lifemgr;
 
     /** How long we wait for network events before checking our running flag to see if we should
      * still be running. We don't want to loop too tightly, but we need to make sure we don't sit

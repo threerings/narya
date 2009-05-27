@@ -159,10 +159,13 @@ public class PresentsServer
         // initialize the time base services
         TimeBaseProvider.init(_invmgr, _omgr);
 
-        // Make the client manager shut down before the invoker and dobj threads. This will help
-        // application code to avoid long chains of shutdown constraints (e.g. msoy bureau manager).
-        _shutmgr.addConstraint(
-            _clmgr, ShutdownManager.Constraint.RUNS_BEFORE, (PresentsInvoker)_invoker);
+        // make the client manager shut down before the invoker and dobj threads; this helps
+        // application code to avoid long chains of shutdown constraints
+        _lifemgr.addShutdownConstraint(
+            _clmgr, LifecycleManager.Constraint.RUNS_BEFORE, (PresentsInvoker)_invoker);
+
+        // initialize all of our registered components
+        _lifemgr.init();
     }
 
     /**
@@ -238,8 +241,8 @@ public class PresentsServer
     /** The manager of invocation services. */
     @Inject protected InvocationManager _invmgr;
 
-    /** Handles orderly shutdown of our managers, etc. */
-    @Inject protected ShutdownManager _shutmgr;
+    /** Handles orderly initialization and shutdown of our managers, etc. */
+    @Inject protected LifecycleManager _lifemgr;
 
     /** Handles generation of state of the server reports. */
     @Inject protected ReportManager _repmgr;

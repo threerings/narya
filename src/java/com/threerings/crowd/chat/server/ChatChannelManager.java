@@ -43,8 +43,8 @@ import com.threerings.presents.peer.data.ClientInfo;
 import com.threerings.presents.peer.data.NodeObject;
 import com.threerings.presents.peer.server.PeerManager;
 import com.threerings.presents.server.InvocationManager;
+import com.threerings.presents.server.LifecycleManager;
 import com.threerings.presents.server.PresentsDObjectMgr;
-import com.threerings.presents.server.ShutdownManager;
 
 import com.threerings.crowd.chat.data.ChatChannel;
 import com.threerings.crowd.chat.data.ChatCodes;
@@ -62,7 +62,7 @@ import static com.threerings.crowd.Log.log;
  */
 @Singleton
 public abstract class ChatChannelManager
-    implements ChannelSpeakProvider, ShutdownManager.Shutdowner
+    implements ChannelSpeakProvider, LifecycleManager.ShutdownComponent
 {
     /**
      * When a body becomes a member of a channel, this method should be called so that any server
@@ -114,7 +114,7 @@ public abstract class ChatChannelManager
         });
     }
 
-    // from interface ShutdownManager.Shutdowner
+    // from interface LifecycleManager.Shutdowner
     public void shutdown ()
     {
         // stop our channel closer; always be closing... except now
@@ -126,15 +126,14 @@ public abstract class ChatChannelManager
      * Creates our singleton manager and registers our invocation service.
      */
     @Inject protected ChatChannelManager (PresentsDObjectMgr omgr, InvocationManager invmgr,
-                                          ShutdownManager shutmgr)
+                                          LifecycleManager lifemgr)
     {
         invmgr.registerDispatcher(new ChannelSpeakDispatcher(this), CrowdCodes.CROWD_GROUP);
-        shutmgr.registerShutdowner(this);
+        lifemgr.addComponent(this);
 
         // create and start our idle channel closer (always be closing)
         _closer = new Interval(omgr) {
-            @Override
-            public void expired () {
+            @Override public void expired () {
                 closeIdleChannels();
             }
         };

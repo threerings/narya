@@ -155,8 +155,7 @@ public abstract class RebootManager
         _rebootSoon = false;
         long firstWarnTime = (_nextReboot - (WARNINGS[0] * 60 * 1000)) - now;
         _interval = new Interval(_omgr) {
-            @Override
-            public void expired () {
+            @Override public void expired () {
                 doWarning(0);
             }
         };
@@ -189,9 +188,9 @@ public abstract class RebootManager
     /**
      * Provides us with our dependencies.
      */
-    protected RebootManager (ShutdownManager shutmgr, RootDObjectManager omgr)
+    protected RebootManager (LifecycleManager lmgr, RootDObjectManager omgr)
     {
-        _shutmgr = shutmgr;
+        _lmgr = lmgr;
         _omgr = omgr;
     }
 
@@ -257,12 +256,11 @@ public abstract class RebootManager
 
             // wait 1 second, then do it
             new Interval() { // Note: This interval does not run on the dobj thread
-                @Override
-                public void expired () {
+                @Override public void expired () {
                     // ...but we then post a LongRunnable...
                     _omgr.postRunnable(new PresentsDObjectMgr.LongRunnable() {
                         public void run () {
-                            _shutmgr.shutdown();
+                            _lmgr.shutdown();
                         }
                     });
                 }
@@ -279,8 +277,7 @@ public abstract class RebootManager
 
         // schedule the next warning
         _interval = new Interval(_omgr) {
-            @Override
-            public void expired () {
+            @Override public void expired () {
                 doWarning(level + 1);
             }
         };
@@ -301,8 +298,7 @@ public abstract class RebootManager
         log.info("Reboot delayed due to outstanding locks", "locks", _rebootLocks.elements());
         broadcast("m.reboot_delayed");
         _interval = new Interval(_omgr) {
-            @Override
-            public void expired () {
+            @Override public void expired () {
                 doWarning(WARNINGS.length);
             }
         };
@@ -325,8 +321,8 @@ public abstract class RebootManager
         });
     }
 
-    /** Our shutdown manager, which is how we will reboot. */
-    protected ShutdownManager _shutmgr;
+    /** Our lifecycle manager, which is how we will reboot. */
+    protected LifecycleManager _lmgr;
 
     /** Our distributed object manager. */
     protected RootDObjectManager _omgr;
