@@ -84,8 +84,7 @@ public class NodeRepository extends DepotRepository
      */
     public void deleteNode (String nodeName)
     {
-        // INDEX: Full primary key.
-        delete(NodeRecord.class, nodeName);
+        delete(NodeRecord.getKey(nodeName));
     }
 
     @Override // from DepotRepository
