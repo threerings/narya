@@ -74,9 +74,8 @@ public class NodeRepository extends DepotRepository
      */
     public void heartbeatNode (String nodeName)
     {
-        updatePartial(NodeRecord.class, nodeName, new Object[] {
-            NodeRecord.LAST_UPDATED, new Timestamp(System.currentTimeMillis())
-        });
+        updatePartial(NodeRecord.getKey(nodeName),
+                      NodeRecord.LAST_UPDATED, new Timestamp(System.currentTimeMillis()));
     }
 
     /**
