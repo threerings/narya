@@ -1121,8 +1121,8 @@ public class ConnectionManager extends LoopingThread
             if (_partial != null) {
                 // if our outgoing channel is still not ready, then bail immediately
                 SocketChannel sochan = conn.getChannel();
-                if (!sochan.isConnected()) {
-                    return false;
+                if (sochan == null || !sochan.isConnected()) {
+                    throw new IOException("Connection unavailable for overflow write");
                 }
 
                 // write all we can of our partial buffer
