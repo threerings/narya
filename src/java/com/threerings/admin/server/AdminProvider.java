@@ -2,7 +2,7 @@
 // $Id$
 //
 // Narya library - tools for developing networked games
-// Copyright (C) 2002-2007 Three Rings Design, Inc., All Rights Reserved
+// Copyright (C) 2002-2008 Three Rings Design, Inc., All Rights Reserved
 // http://www.threerings.net/code/narya/
 //
 // This library is free software; you can redistribute it and/or modify it
@@ -21,51 +21,19 @@
 
 package com.threerings.admin.server;
 
+import com.threerings.admin.client.AdminService;
 import com.threerings.presents.data.ClientObject;
 import com.threerings.presents.server.InvocationException;
-import com.threerings.presents.server.InvocationManager;
 import com.threerings.presents.server.InvocationProvider;
 
-import com.threerings.admin.client.AdminService;
-import com.threerings.admin.data.AdminCodes;
-
 /**
- * Provides the server-side implementation of various administrator services.
+ * Defines the server-side of the {@link AdminService}.
  */
-public class AdminProvider implements InvocationProvider
+public interface AdminProvider extends InvocationProvider
 {
     /**
-     * Constructs an admin provider and registers it with the invocation manager to handle admin
-     * services. This must be called by any server that wishes to make use of the admin services.
+     * Handles a {@link AdminService#getConfigInfo} request.
      */
-    public static void init (InvocationManager invmgr, ConfigRegistry registry)
-    {
-        invmgr.registerDispatcher(
-            new AdminDispatcher(new AdminProvider(registry)), AdminCodes.ADMIN_GROUP);
-    }
-
-    /**
-     * Handles a request for the list of config objects.
-     */
-    public void getConfigInfo (ClientObject caller, AdminService.ConfigInfoListener listener)
-        throws InvocationException
-    {
-        // we don't have to validate the request because the user can't do anything with the keys
-        // or oids unless they're an admin (we put the burden of doing that checking on the creator
-        // of the config object because we would otherwise need some mechanism to determine whether
-        // a user is an admin and we don't want to force some primitive system on the service user)
-        String[] keys = _registry.getKeys();
-        int[] oids = new int[keys.length];
-        for (int ii = 0; ii < keys.length; ii++) {
-            oids[ii] = _registry.getObject(keys[ii]).getOid();
-        }
-        listener.gotConfigInfo(keys, oids);
-    }
-
-    protected AdminProvider (ConfigRegistry registry)
-    {
-        _registry = registry;
-    }
-
-    protected ConfigRegistry _registry;
+    void getConfigInfo (ClientObject caller, AdminService.ConfigInfoListener arg1)
+        throws InvocationException;
 }

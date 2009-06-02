@@ -77,7 +77,6 @@
     <service header="lib/SOURCE_HEADER" classpathref="classpath">
       <fileset dir="src/java" includes="**/peer/**/*Service.java"/>
       <fileset dir="src/java" includes="**/admin/**/*Service.java"/>
-      <providerless service="AdminService"/>
     </service>
   </target>
 
