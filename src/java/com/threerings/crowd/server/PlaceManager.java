@@ -261,8 +261,7 @@ public class PlaceManager
         // we usually want to create and register a speaker service instance that clients can use
         // to speak in this place
         if (shouldCreateSpeakService()) {
-            plobj.setSpeakService(
-                addDispatcher(new SpeakDispatcher(new SpeakHandler(plobj, this))));
+            plobj.setSpeakService(addDispatcher(new SpeakDispatcher(createSpeakHandler(plobj))));
         }
 
         // we'll need to hear about place object events
@@ -724,6 +723,15 @@ public class PlaceManager
     {
         buf.append("place=").append(_plobj);
         buf.append(", config=").append(_config);
+    }
+
+    /**
+     * Creates the speak handler for this place. Derived classes can customize the speak handler if
+     * they so desire.
+     */
+    protected SpeakHandler createSpeakHandler (PlaceObject plobj)
+    {
+        return new SpeakHandler(plobj, this);
     }
 
     /** Listens for occupant updates. */
