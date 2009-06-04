@@ -143,6 +143,15 @@ public class GenServiceTask extends InvocationTask
         }
     }
 
+    /** Used to track services for which we should create listener adapters in actionscript. */
+    public class Adapter
+    {
+        public void setService (String className)
+        {
+            _aslistenerAdapters.add(className);
+        }
+    }
+
     /**
      * Configures the path to our ActionScript source files.
      */
@@ -151,10 +160,14 @@ public class GenServiceTask extends InvocationTask
         _asroot = asroot;
     }
 
-    // documentation inherited
     public Providerless createProviderless ()
     {
         return new Providerless();
+    }
+
+    public Adapter createAdapter ()
+    {
+        return new Adapter();
     }
 
     // documentation inherited
@@ -454,10 +467,19 @@ public class GenServiceTask extends InvocationTask
 
                 sw = new StringWriter();
                 _velocity.mergeTemplate(AS_LISTENER_SERVICE_TMPL, "UTF-8", ctx, sw);
-                String amlpath = _asroot + File.separator + sppath +
+                String aslpath = _asroot + File.separator + sppath +
                     File.separator + sname + "_" +
                     listener.getName() + "Listener.as";
-                writeFile(amlpath, sw.toString());
+                writeFile(aslpath, sw.toString());
+
+                if (_aslistenerAdapters.contains(sname)) {
+                    sw = new StringWriter();
+                    _velocity.mergeTemplate(AS_LISTENER_ADAPTER_SERVICE_TMPL, "UTF-8", ctx, sw);
+                    String aslapath = _asroot + File.separator + sppath +
+                        File.separator + sname + "_" +
+                        listener.getName() + "ListenerAdapter.as";
+                    writeFile(aslapath, sw.toString());
+                }
             }
 
         } catch (Exception e) {
@@ -679,6 +701,9 @@ public class GenServiceTask extends InvocationTask
     /** Services for which we should not generate provider interfaces. */
     protected HashSet<String> _providerless = Sets.newHashSet();
 
+    /** Services for which we should generate actionscript listener adapters. */
+    protected HashSet<String> _aslistenerAdapters = Sets.newHashSet();
+
     /** Specifies the path to the marshaller template. */
     protected static final String MARSHALLER_TMPL =
         "com/threerings/presents/tools/marshaller.tmpl";
@@ -698,6 +723,10 @@ public class GenServiceTask extends InvocationTask
     /** Specifies the path to the ActionScript listener service template. */
     protected static final String AS_LISTENER_SERVICE_TMPL =
         "com/threerings/presents/tools/service_listener_as.tmpl";
+
+    /** Specifies the path to the ActionScript listener adapter service template. */
+    protected static final String AS_LISTENER_ADAPTER_SERVICE_TMPL =
+        "com/threerings/presents/tools/service_listener_adapter_as.tmpl";
 
     /** Specifies the path to the ActionScript marshaller template. */
     protected static final String AS_MARSHALLER_TMPL =
