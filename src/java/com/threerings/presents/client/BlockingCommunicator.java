@@ -830,10 +830,10 @@ public class BlockingCommunicator extends Communicator
                 log.debug("Datagram reader thread woken up in time to die.");
 
             } catch (IOException ioe) {
-                log.warning("Error receiving datagram", "error", ioe);
+                log.warning("Error receiving datagram", ioe);
 
             } catch (Exception e) {
-                log.warning("Error processing message", "msg", msg, "error", e);
+                log.warning("Error processing message", "msg", msg, e);
             }
         }
 
