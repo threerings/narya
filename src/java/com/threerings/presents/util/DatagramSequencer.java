@@ -122,7 +122,9 @@ public class DatagramSequencer
                 }
             }
         }
-        _sendrecs.subList(0, remove).clear();
+        if (remove > 0) {
+            _sendrecs.subList(0, remove).clear();
+        }
 
         // read the contents of the datagram, note the transport, and return
         Message datagram = (Message)_uin.readObject();
