@@ -131,7 +131,7 @@ public class TestClient
         {
             return null;
         }
-        
+
         public Client getClient ()
         {
             return _client;

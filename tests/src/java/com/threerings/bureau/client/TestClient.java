@@ -30,7 +30,7 @@ import com.threerings.bureau.data.AgentObject;
 import static com.threerings.bureau.Log.log;
 
 /**
- * Extends bureau client minimally and provides a static main function to create a client and 
+ * Extends bureau client minimally and provides a static main function to create a client and
  * connect to a server given by system properties.
  */
 public class TestClient extends BureauClient
@@ -43,10 +43,10 @@ public class TestClient extends BureauClient
 
         // create the client and log on
         TestClient client = new TestClient(
-            System.getProperty("token"), 
+            System.getProperty("token"),
             System.getProperty("bureauId"));
         client.setServer(
-            System.getProperty("serverName"), 
+            System.getProperty("serverName"),
             new int[] {Integer.parseInt(System.getProperty("serverPort"))});
         client.logon();
 
@@ -81,7 +81,7 @@ public class TestClient extends BureauClient
     @Override
     protected BureauDirector createDirector ()
     {
-        // just use our test agent exclusively - in the real world, the agent created would depend 
+        // just use our test agent exclusively - in the real world, the agent created would depend
         // on the object's type and/or properties
         return new BureauDirector(_ctx) {
             @Override public Agent createAgent (AgentObject agentObj) {

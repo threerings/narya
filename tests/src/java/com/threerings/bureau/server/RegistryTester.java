@@ -42,7 +42,7 @@ import static com.threerings.bureau.Log.log;
 
 /**
  * Uses a TestServer to pound on the BureauRegistry. Sends random sequences of
- * startAgent and destroyAgent. Most aspects of the randomness are configurable using system 
+ * startAgent and destroyAgent. Most aspects of the randomness are configurable using system
  * properties.
  * TODO: add more types of testing
  * TODO: allow a quitAfter configuration parameter to shut down automatically
@@ -138,7 +138,7 @@ public class RegistryTester
     {
         _stop = true;
     }
-    
+
     /**
      * The main loop for the tests.
      */
@@ -283,7 +283,7 @@ public class RegistryTester
 
     // maximum number of agents to keep around
     protected int _maxAgents;
-    
+
     // number of bureaus to select between
     protected int _numBureaus;
 
@@ -301,7 +301,7 @@ public class RegistryTester
 
     // maximum delay between batches of requests
     protected int _maxDelay;
-    
+
     // ant target to use to kick off new bureaus
     protected String _clientTarget;
 }
