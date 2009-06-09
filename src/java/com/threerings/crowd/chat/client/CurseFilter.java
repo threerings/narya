@@ -192,12 +192,27 @@ public abstract class CurseFilter implements ChatFilter
             } else {
                 pattern += "|";
             }
-            pattern += "\\b" + StringUtil.replace(st.nextToken(), "*", "[A-Za-z]*") + "\\b";
+            pattern += getStopWordRegexp(st.nextToken());
         }
         pattern += ")";
 
-        Pattern pat = Pattern.compile(pattern, Pattern.CASE_INSENSITIVE);
-        _stopMatcher = pat.matcher("");
+        setStopPattern(pattern);
+    }
+
+    /**
+     * Sets our stop word matcher to one for the given regular expression.
+     */
+    protected void setStopPattern (String pattern)
+    {
+        _stopMatcher = Pattern.compile(pattern, Pattern.CASE_INSENSITIVE).matcher("");
+    }
+
+    /**
+     * Turns a naughty word into a regular expression to catch it.
+     */
+    protected String getStopWordRegexp (String word)
+    {
+        return "\\b" + StringUtil.replace(word, "*", "[A-Za-z]*") + "\\b";
     }
 
     /**
