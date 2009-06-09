@@ -414,7 +414,12 @@ public class StringUtil
             if (appended) {
                 buf.append(", ");
             }
-            buf.append(varName, "=", obj[varName]);
+            buf.append(varName, "=");
+            try {
+                buf.append(obj[varName]);
+            } catch (re :ReferenceError) {
+                buf.append("<ReferenceError>");
+            }
             appended = true;
         }
     }
