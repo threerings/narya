@@ -66,11 +66,14 @@ public class ConfigEditorPanel extends JPanel
         // create our objects tabbed pane
         add(_oeditors = new JTabbedPane(JTabbedPane.LEFT));
 
+        // If they don't fit, make them scroll, since wrapped vertical tabs eats insane sceen space
+        _oeditors.setTabLayoutPolicy(JTabbedPane.SCROLL_TAB_LAYOUT);
+
         // add a handy label at the bottom
-        add(new JLabel("Fields outline in red have been modified " +
-                       "but not yet committed."), VGroupLayout.FIXED);
-        add(new JLabel("Press return in a modified field to commit " +
-                       "the change."), VGroupLayout.FIXED);
+        add(new JLabel("Fields outline in red have been modified but not yet committed."),
+            VGroupLayout.FIXED);
+        add(new JLabel("Press return in a modified field to commit the change."),
+            VGroupLayout.FIXED);
     }
 
     @Override
