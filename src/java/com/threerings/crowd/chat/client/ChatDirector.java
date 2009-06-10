@@ -109,7 +109,7 @@ public class ChatDirector extends BasicDirector
          * message on.
          * @param command the slash command that was used to invoke this handler
          * (e.g. <code>/tell</code>).
-         * @param args the arguments provided along with the command (e.g.  <code>Bob hello</code>)
+         * @param args the arguments provided along with the command (e.g. <code>Bob hello</code>)
          * or <code>null</code> if no arguments were supplied.
          * @param history an in/out parameter that allows the command to modify the text that will
          * be appended to the chat history. If this is set to null, nothing will be appended.
@@ -123,8 +123,7 @@ public class ChatDirector extends BasicDirector
         /**
          * Returns true if this user should have access to this chat command.
          */
-        public boolean checkAccess (BodyObject user)
-        {
+        public boolean checkAccess (BodyObject user) {
             return true;
         }
     }
@@ -200,7 +199,7 @@ public class ChatDirector extends BasicDirector
     }
 
     /**
-     * Adds the specified chat filter to the list of filters.  All chat requests and receipts will
+     * Adds the specified chat filter to the list of filters. All chat requests and receipts will
      * be filtered with all filters before they being sent or dispatched locally.
      */
     public void addChatFilter (ChatFilter filter)
@@ -209,7 +208,7 @@ public class ChatDirector extends BasicDirector
     }
 
     /**
-     * Removes the specified chat validator from the list of chat validators.
+     * Removes the specified chat filter from the list of chat filter.
      */
     public void removeChatFilter (ChatFilter filter)
     {
@@ -259,8 +258,8 @@ public class ChatDirector extends BasicDirector
      * @param msg the message bundle via which the slash command will be translated (as
      * <code>c.</code><i>command</i>). If no translation exists the command will be
      * <code>/</code><i>command</i>.
-     * @param command the name of the command that will be used to invoke this handler
-     * (e.g. <code>tell</code> if the command will be invoked as <code>/tell</code>).
+     * @param command the name of the command that will be used to invoke this handler (e.g.
+     * <code>tell</code> if the command will be invoked as <code>/tell</code>).
      * @param handler the chat command handler itself.
      */
     public void registerCommandHandler (MessageBundle msg, String command, CommandHandler handler)
@@ -315,7 +314,7 @@ public class ChatDirector extends BasicDirector
     }
 
     /**
-     * Display a system INFO message as if it had come from the server.  The localtype of the
+     * Display a system INFO message as if it had come from the server. The localtype of the
      * message will be PLACE_CHAT_TYPE.
      *
      * Info messages are sent when something happens that was neither directly triggered by the
@@ -338,7 +337,7 @@ public class ChatDirector extends BasicDirector
     }
 
     /**
-     * Display a system FEEDBACK message as if it had come from the server.  The localtype of the
+     * Display a system FEEDBACK message as if it had come from the server. The localtype of the
      * message will be PLACE_CHAT_TYPE.
      *
      * Feedback messages are sent in direct response to a user action, usually to indicate success
@@ -350,7 +349,7 @@ public class ChatDirector extends BasicDirector
     }
 
     /**
-     * Display a system ATTENTION message as if it had come from the server.  The localtype of the
+     * Display a system ATTENTION message as if it had come from the server. The localtype of the
      * message will be PLACE_CHAT_TYPE.
      *
      * Attention messages are sent when something requires user action that did not result from
@@ -570,7 +569,7 @@ public class ChatDirector extends BasicDirector
         if (message != null) {
             message = filter(message, null, true);
             if (message == null) {
-                // they filtered away their own away message..  change it to something
+                // they filtered away their own away message... change it to something
                 message = "...";
             }
         }
@@ -838,8 +837,7 @@ public class ChatDirector extends BasicDirector
      * @param capFirst if true, the first letter of the text is capitalized. This is not desired if
      * the chat is already an emote.
      */
-    protected String mogrifyChat (
-        String text, boolean transformsAllowed, boolean capFirst)
+    protected String mogrifyChat (String text, boolean transformsAllowed, boolean capFirst)
     {
         int tlen = text.length();
         if (tlen == 0) {
