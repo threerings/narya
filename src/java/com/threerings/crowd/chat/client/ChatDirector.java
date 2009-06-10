@@ -184,52 +184,54 @@ public class ChatDirector extends BasicDirector
      * Adds the supplied chat display to the end of the chat display list. It will subsequently be
      * notified of incoming chat messages as well as tell responses.
      */
-    public void addChatDisplay (ChatDisplay display)
+    public boolean addChatDisplay (ChatDisplay display)
     {
-        _displays.add(display);
+        return _displays.add(display);
     }
 
     /**
      * Removes the specified chat display from the chat display list. The display will no longer
      * receive chat related notifications.
      */
-    public void removeChatDisplay (ChatDisplay display)
+    public boolean removeChatDisplay (ChatDisplay display)
     {
-        _displays.remove(display);
+        return _displays.remove(display);
     }
 
     /**
      * Adds the specified chat filter to the list of filters. All chat requests and receipts will
      * be filtered with all filters before they being sent or dispatched locally.
      */
-    public void addChatFilter (ChatFilter filter)
+    public boolean addChatFilter (ChatFilter filter)
     {
-        _filters.add(filter);
+        return _filters.add(filter);
     }
 
     /**
      * Removes the specified chat filter from the list of chat filter.
      */
-    public void removeChatFilter (ChatFilter filter)
+    public boolean removeChatFilter (ChatFilter filter)
     {
-        _filters.remove(filter);
+        return _filters.remove(filter);
     }
 
     /**
      * Adds an observer that watches the chatters list, and updates it immediately.
      */
-    public void addChatterObserver (ChatterObserver co)
+    public boolean addChatterObserver (ChatterObserver co)
     {
-        _chatterObservers.add(co);
+        boolean added = _chatterObservers.add(co);
         co.chattersUpdated(_chatters.listIterator());
+
+        return added;
     }
 
     /**
      * Removes an observer from the list of chatter observers.
      */
-    public void removeChatterObserver (ChatterObserver co)
+    public boolean removeChatterObserver (ChatterObserver co)
     {
-        _chatterObservers.remove(co);
+        return _chatterObservers.remove(co);
     }
 
     /**
