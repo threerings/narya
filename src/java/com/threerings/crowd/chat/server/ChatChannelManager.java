@@ -29,7 +29,6 @@ import com.google.common.base.Function;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.inject.Inject;
-import com.google.inject.Singleton;
 
 import com.samskivert.util.ArrayIntSet;
 import com.samskivert.util.IntSet;
@@ -60,7 +59,6 @@ import static com.threerings.crowd.Log.log;
 /**
  * Handles chat channel services.
  */
-@Singleton
 public abstract class ChatChannelManager
     implements ChannelSpeakProvider, Lifecycle.ShutdownComponent
 {
