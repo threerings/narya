@@ -21,6 +21,7 @@
 
 package com.threerings.admin.client;
 
+import java.awt.Component;
 import java.util.Comparator;
 
 import javax.swing.JLabel;
@@ -95,10 +96,12 @@ public class ConfigEditorPanel extends JPanel
         // when we're hidden, we want to clear out our subscriptions
         int ccount = _oeditors.getComponentCount();
         for (int ii = 0; ii < ccount; ii++) {
-            JScrollPane scrolly = (JScrollPane)_oeditors.getComponent(ii);
-            ObjectEditorPanel opanel = (ObjectEditorPanel)
-                scrolly.getViewport().getView();
-            opanel.cleanup();
+            Component comp = _oeditors.getComponent(ii);
+            if (comp instanceof JScrollPane) {
+                JScrollPane scrolly = (JScrollPane)comp;
+                ObjectEditorPanel opanel = (ObjectEditorPanel)scrolly.getViewport().getView();
+                opanel.cleanup();
+            }
         }
         _oeditors.removeAll();
     }
