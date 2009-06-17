@@ -200,12 +200,14 @@ public class SpeakUtil
 
     /**
      * Returns a list of {@link ChatMessage} objects to which this user has been privy in the
-     * recent past.
+     * recent past.  If the given name implements {@link KeepNoHistory}, null is returned.
      */
     public static List<ChatMessage> getChatHistory (Name username)
     {
         List<ChatMessage> history = getHistoryList(username);
-        pruneHistory(System.currentTimeMillis(), history);
+        if (history != null) {
+            pruneHistory(System.currentTimeMillis(), history);
+        }
         return history;
     }
 
@@ -232,6 +234,9 @@ public class SpeakUtil
         for (Name username : usernames) {
             // add the message to this user's chat history
             List<ChatMessage> history = getHistoryList(username);
+            if (history == null) {
+                continue;
+            }
             history.add(msg);
 
             // if the history is big enough, potentially prune it (we always prune when asked for
@@ -270,10 +275,14 @@ public class SpeakUtil
     }
 
     /**
-     * Returns this user's chat history, creating one if necessary.
+     * Returns this user's chat history, creating one if necessary. If the given name implements
+     * {@link KeepNoHistory}, null is returned.
      */
     protected static List<ChatMessage> getHistoryList (Name username)
     {
+        if (username instanceof KeepNoHistory) {
+            return null;
+        }
         List<ChatMessage> history = _histories.get(username);
         if (history == null) {
             _histories.put(username, history = Lists.newArrayList());
