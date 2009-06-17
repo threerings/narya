@@ -1,4 +1,6 @@
-package com.threerings.crowd.chat.server;
+package com.threerings.crowd.chat.data;
+
+import com.threerings.crowd.chat.server.SpeakUtil;
 
 /**
  * Marks a {@link Name} as disinterested in chat history such that {@link SpeakUtil} will keep no

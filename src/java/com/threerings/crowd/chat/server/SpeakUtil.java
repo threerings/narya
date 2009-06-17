@@ -36,6 +36,7 @@ import com.threerings.presents.dobj.RootDObjectManager;
 
 import com.threerings.crowd.chat.data.ChatCodes;
 import com.threerings.crowd.chat.data.ChatMessage;
+import com.threerings.crowd.chat.data.KeepNoHistory;
 import com.threerings.crowd.chat.data.SpeakObject;
 import com.threerings.crowd.chat.data.SystemMessage;
 import com.threerings.crowd.chat.data.UserMessage;
