@@ -46,7 +46,6 @@ import com.threerings.presents.annotation.EventThread;
 import com.threerings.presents.data.ClientObject;
 import com.threerings.presents.net.AuthRequest;
 import com.threerings.presents.net.AuthResponse;
-import com.threerings.presents.net.Credentials;
 import com.threerings.presents.server.net.AuthingConnection;
 import com.threerings.presents.server.net.Connection;
 
@@ -413,7 +412,6 @@ public class ClientManager
     public synchronized void connectionEstablished (
         Connection conn, Name authname, AuthRequest req, AuthResponse rsp)
     {
-        Credentials creds = req.getCredentials();
         String type = authname.getClass().getSimpleName();
 
         // see if a client is already registered with this name
