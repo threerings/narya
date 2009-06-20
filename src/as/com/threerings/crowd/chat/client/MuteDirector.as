@@ -1,8 +1,8 @@
 //
-// $Id: MuteDirector.java 5399 2008-09-26 17:29:59Z dhoover $
+// $Id$
 //
 // Narya library - tools for developing networked games
-// Copyright (C) 2002-2007 Three Rings Design, Inc., All Rights Reserved
+// Copyright (C) 2002-2009 Three Rings Design, Inc., All Rights Reserved
 // http://www.threerings.net/code/narya/
 //
 // This library is free software; you can redistribute it and/or modify it
