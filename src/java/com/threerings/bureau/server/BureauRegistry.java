@@ -42,8 +42,12 @@ import com.threerings.presents.dobj.RootDObjectManager;
 import com.threerings.presents.server.ClientManager;
 import com.threerings.presents.server.InvocationManager;
 import com.threerings.presents.server.PresentsSession;
+import com.threerings.presents.server.ServiceAuthenticator;
+import com.threerings.presents.server.SessionFactory;
+import com.threerings.presents.server.net.ConnectionManager;
 
 import com.threerings.bureau.data.AgentObject;
+import com.threerings.bureau.data.BureauAuthName;
 import com.threerings.bureau.data.BureauCodes;
 import com.threerings.bureau.data.BureauCredentials;
 import com.threerings.bureau.util.BureauLogRedirector;
@@ -95,7 +99,8 @@ public class BureauRegistry
     /**
      * Creates an uninitialized registry.
      */
-    @Inject public BureauRegistry (InvocationManager invmgr)
+    @Inject public BureauRegistry (
+        InvocationManager invmgr, ConnectionManager conmgr, ClientManager clmgr)
     {
         invmgr.registerDispatcher(new BureauDispatcher(new BureauProvider() {
             public void bureauInitialized (ClientObject client, String bureauId) {
@@ -114,41 +119,27 @@ public class BureauRegistry
                 BureauRegistry.this.agentDestroyed(client, agentId);
             }
         }), BureauCodes.BUREAU_GROUP);
-    }
-
-    /**
-     * Provides the Bureau registry with necessary runtime configuration. Inserts the bureau
-     * client factory into the client manager and registers observers to track the progress
-     * of launched bureaus.
-     * @see BureauSessionFactory
-     */
-    public void init ()
-    {
-        _clmgr.addClientObserver(new ClientManager.ClientObserver() {
+        conmgr.addChainedAuthenticator(new ServiceAuthenticator<BureauCredentials>(
+                                           BureauCredentials.class, BureauAuthName.class) {
+            protected boolean areValid (BureauCredentials creds) {
+                return checkToken(creds) == null;
+            }
+        });
+        clmgr.addSessionFactory(
+            SessionFactory.newSessionFactory(BureauCredentials.class, getSessionClass(),
+                                             BureauAuthName.class, getClientResolverClass()));
+        clmgr.addClientObserver(new ClientManager.ClientObserver() {
             public void clientSessionDidStart (PresentsSession client) {
-                String id = BureauCredentials.extractBureauId(client.getUsername());
-                if (id != null) {
-                    sessionDidStart(client, id);
+                if (client.getCredentials() instanceof BureauCredentials) {
+                    sessionDidStart(client, ((BureauCredentials)client.getCredentials()).clientId);
                 }
             }
             public void clientSessionDidEnd (PresentsSession client) {
-                String id = BureauCredentials.extractBureauId(client.getUsername());
-                if (id != null) {
-                    sessionDidEnd(client, id);
+                if (client.getCredentials() instanceof BureauCredentials) {
+                    sessionDidEnd(client, ((BureauCredentials)client.getCredentials()).clientId);
                 }
             }
         });
-    }
-
-    /**
-     * Adds the delegating client factory. Note this should be called after all application
-     * client factories are in place. The installed factory will simply create presents clients and
-     * client objects for bureaus.
-     */
-    public void setDefaultSessionFactory ()
-    {
-        // add the client factory, but later, after all the other modules have been initialized
-        _clmgr.setSessionFactory(new BureauSessionFactory(_clmgr.getSessionFactory()));
     }
 
     /**
@@ -157,16 +148,15 @@ public class BureauRegistry
      */
     public String checkToken (BureauCredentials creds)
     {
-        Bureau bureau = _bureaus.get(creds.bureauId);
+        Bureau bureau = _bureaus.get(creds.clientId);
         if (bureau == null) {
-            return "Bureau " + creds.bureauId + " not found";
+            return "Bureau " + creds.clientId + " not found";
         }
         if (bureau.clientObj != null) {
-            return "Bureau " + creds.bureauId + " already logged in";
+            return "Bureau " + creds.clientId + " already logged in";
         }
-        if (!bureau.token.equals(creds.sessionToken)) {
-            return "Bureau " + creds.bureauId +
-                " does not match credentials token";
+        if (!creds.areValid(bureau.token)) {
+            return "Bureau " + creds.clientId + " does not match credentials token";
         }
         return null;
     }
@@ -618,6 +608,22 @@ public class BureauRegistry
     }
 
     /**
+     * Returns the class used to handle bureau sessions.
+     */
+    protected Class<? extends BureauSession> getSessionClass ()
+    {
+        return BureauSession.class;
+    }
+
+    /**
+     * Returns the class used to resolve bureau client data.
+     */
+    protected Class<? extends BureauClientResolver> getClientResolverClass ()
+    {
+        return BureauClientResolver.class;
+    }
+
+    /**
      * Invoker unit to launch a bureau's process, then assign the result on the main thread.
      */
     protected class LauncherUnit extends Invoker.Unit
@@ -795,5 +801,4 @@ public class BureauRegistry
 
     @Inject protected RootDObjectManager _omgr;
     @Inject protected @MainInvoker Invoker _invoker;
-    @Inject protected ClientManager _clmgr;
 }

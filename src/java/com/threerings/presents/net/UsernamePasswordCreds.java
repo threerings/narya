@@ -24,7 +24,7 @@ package com.threerings.presents.net;
 import com.threerings.util.Name;
 
 /**
- * Extends the basic credentials with a password.
+ * Credentials that use a username and (hashed) password.
  */
 public class UsernamePasswordCreds extends Credentials
 {
@@ -33,7 +33,6 @@ public class UsernamePasswordCreds extends Credentials
      */
     public UsernamePasswordCreds ()
     {
-        super();
     }
 
     /**
@@ -41,8 +40,13 @@ public class UsernamePasswordCreds extends Credentials
      */
     public UsernamePasswordCreds (Name username, String password)
     {
-        super(username);
+        _username = username;
         _password = password;
+    }
+
+    public Name getUsername ()
+    {
+        return _username;
     }
 
     public String getPassword ()
@@ -57,29 +61,22 @@ public class UsernamePasswordCreds extends Credentials
     }
 
     @Override
-    public int hashCode ()
+    public String toString ()
     {
-        return super.hashCode() ^ _password.hashCode();
+        StringBuilder buf = new StringBuilder("[");
+        toString(buf);
+        return buf.append("]").toString();
     }
 
-    @Override
-    public boolean equals (Object other)
-    {
-        if (other instanceof UsernamePasswordCreds) {
-            UsernamePasswordCreds upcreds = (UsernamePasswordCreds)other;
-            return super.equals(other) &&
-                _password.equals(upcreds._password);
-        } else {
-            return false;
-        }
-    }
-
-    @Override
+    /**
+     * An easily extensible method via which derived classes can add to {@link #toString}'s output.
+     */
     protected void toString (StringBuilder buf)
     {
-        super.toString(buf);
+        buf.append("username=").append(_username);
         buf.append(", password=").append(_password);
     }
 
+    protected Name _username;
     protected String _password;
 }

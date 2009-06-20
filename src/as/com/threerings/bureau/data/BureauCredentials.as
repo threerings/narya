@@ -21,59 +21,19 @@
 
 package com.threerings.bureau.data {
 
-import com.threerings.presents.net.Credentials;
-import com.threerings.util.Name;
-import com.threerings.io.ObjectInputStream;
-import com.threerings.io.ObjectOutputStream;
-import com.threerings.util.StringBuilder;
+import com.threerings.presents.net.ServiceCreds;
 
 /**
  * Extends the basic credentials to provide bureau-specific fields.
  */
-public class BureauCredentials extends Credentials
+public class BureauCredentials extends ServiceCreds
 {
-    /**
-     * The token to pass to the server when logging in. This is usually just passed to the bureau
-     * on the command line to guard against outside connections being established.
-     */
-    public var sessionToken :String;
-
-    /**
-     * The id of the bureau logging in.
-     */
-    public var bureauId :String;
-
     /**
      * Creates new credentials for a specific bureau.
      */
-    public function BureauCredentials (bureauId :String)
+    public function BureauCredentials (bureauId :String = null, sharedSecret :String = null)
     {
-        super(new Name("@@bureau:" + bureauId + "@@"));
-        this.bureauId = bureauId;
-    }
-
-    /** @inheritDoc */
-    override protected function toStringBuf (buf :StringBuilder) :void
-    {
-        super.toStringBuf(buf);
-        buf.append(" bureauId=").append(bureauId).
-            append(" token=").append(sessionToken);
-    }
-
-    // from interface Streamable
-    override public function readObject (ins :ObjectInputStream) :void
-    {
-        super.readObject(ins);
-        sessionToken = (ins.readField(String) as String);
-        bureauId = (ins.readField(String) as String);
-    }
-
-    // from interface Streamable
-    override public function writeObject (out :ObjectOutputStream) :void
-    {
-        super.writeObject(out);
-        out.writeField(sessionToken);
-        out.writeField(bureauId);
+        super(bureauId, sharedSecret);
     }
 }
 }

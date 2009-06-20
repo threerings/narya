@@ -22,15 +22,20 @@
 package com.threerings.bureau.client {
 
 import com.threerings.presents.client.Client;
+import com.threerings.presents.dobj.DObjectManager;
+
+import com.threerings.bureau.data.BureauAuthName;
 import com.threerings.bureau.data.BureauCredentials;
 import com.threerings.bureau.util.BureauContext;
-import com.threerings.presents.dobj.DObjectManager;
 
 /** 
  * Represents a client embedded in a bureau.
  */
 public class BureauClient extends Client
 {
+    // statically reference classes we require
+    BureauAuthName
+
     /**
      * Creates a new client.
      * @param creds the credentials supplied during connection
@@ -40,9 +45,7 @@ public class BureauClient extends Client
     {
         super(null);
         _bureauId = bureauId;
-        var creds :BureauCredentials = new BureauCredentials(_bureauId);
-        creds.sessionToken = token;
-        _creds = creds;
+        _creds = new BureauCredentials(_bureauId, token);
         _ctx = createContext();
         _director = createDirector();
     }

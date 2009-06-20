@@ -19,5 +19,6 @@
     <include name="swfutils-ooo.jar"/>
     <include name="velocity-1.5-dev.jar"/>
     <include name="thane*.swc"/>
+    <include name="corelib.swc"/>
   </fileset>
 </project>

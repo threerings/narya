@@ -465,31 +465,18 @@ public class PresentsSession
      * Initializes this client instance with the specified username, connection instance and client
      * object and begins a client session.
      */
-    protected void startSession (AuthRequest req, Connection conn, Object authdata)
+    protected void startSession (Name authname, AuthRequest req, Connection conn, Object authdata)
     {
+        _username = authname;
         _areq = req;
         _authdata = authdata;
         setConnection(conn);
-
-        // obtain our starting username
-        assignStartingUsername();
 
         // resolve our client object before we get fully underway
         _clmgr.resolveClientObject(_username, this);
 
         // make a note of our session start time
         _sessionStamp = System.currentTimeMillis();
-    }
-
-    /**
-     * This is factored out to allow derived classes to use a different starting username than the
-     * one supplied in the user's credentials.  Generally one only wants to munge the starting
-     * username if the user will subsequently choose a "screen name" and it is desirable to avoid
-     * collision between the authentication user namespace and the screen namespace.
-     */
-    protected void assignStartingUsername ()
-    {
-        _username = getCredentials().getUsername();
     }
 
     /**

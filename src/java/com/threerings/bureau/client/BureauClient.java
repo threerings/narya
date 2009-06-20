@@ -39,13 +39,11 @@ public abstract class BureauClient extends Client
      * Creates a new client.
      * @param runQueue the place to post tasks required by clients
      */
-    public BureauClient (String token, String bureauId, RunQueue runQueue)
+    public BureauClient (String bureauId, String sharedSecret, RunQueue runQueue)
     {
         super(null, runQueue);
         _bureauId = bureauId;
-        BureauCredentials creds = new BureauCredentials(_bureauId);
-        creds.sessionToken = token;
-        _creds = creds;
+        _creds = new BureauCredentials(_bureauId, sharedSecret);
         _ctx = createContext();
         _director = createDirector();
     }

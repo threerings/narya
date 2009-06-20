@@ -21,6 +21,8 @@
 
 package com.threerings.presents.server.net;
 
+import com.threerings.util.Name;
+
 import com.threerings.presents.net.AuthRequest;
 import com.threerings.presents.net.AuthResponse;
 import com.threerings.presents.net.Message;
@@ -76,6 +78,24 @@ public class AuthingConnection extends Connection
         _authrsp = authrsp;
     }
 
+    /**
+     * Returns the username that uniquely identifies this authenticated session. This will be used
+     * to map Name -> PresentsSession in the ClientManager and used elsewhere.
+     */
+    public Name getAuthName ()
+    {
+        return _authname;
+    }
+
+    /**
+     * During the authentication process, the authenticator must establish the client's
+     * authentication username and configure it via this method.
+     */
+    public void setAuthName (Name authname)
+    {
+        _authname = authname;
+    }
+
     @Override
     public String toString ()
     {
@@ -84,4 +104,5 @@ public class AuthingConnection extends Connection
 
     protected AuthRequest _authreq;
     protected AuthResponse _authrsp;
+    protected Name _authname;
 }

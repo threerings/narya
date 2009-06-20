@@ -117,20 +117,23 @@ public class ClientManager
     }
 
     /**
-     * Configures the client manager with a factory for creating {@link PresentsSession} and {@link
-     * ClientResolver} classes for authenticated client connections.
+     * Configures the default factory for creating {@link PresentsSession} and {@link
+     * ClientResolver} classes for authenticated client connections. All factories added via {@link
+     * #addSessionFactory} will be offered a chance to handle sessions before this factory of last
+     * resort.
      */
-    public void setSessionFactory (SessionFactory factory)
+    public void setDefaultSessionFactory (SessionFactory factory)
     {
-        _factory = factory;
+        _factories.set(_factories.size()-1, factory);
     }
 
     /**
-     * Returns the {@link SessionFactory} currently in use.
+     * Adds a session factory to the chain. This factory will be offered a chance to resolve
+     * sessions before passing the buck to the next factory in the chain.
      */
-    public SessionFactory getSessionFactory ()
+    public void addSessionFactory (SessionFactory factory)
     {
-        return _factory;
+        _factories.add(0, factory);
     }
 
     /**
@@ -271,10 +274,18 @@ public class ClientManager
             return;
         }
 
+        // figure out our client resolver class
+        Class<? extends ClientResolver> resolverClass = null;
+        for (SessionFactory factory : _factories) {
+            if ((resolverClass = factory.getClientResolverClass(username)) != null) {
+                break;
+            }
+        }
+        
         try {
             // create a client resolver instance which will create our client object, populate it
             // and notify the listeners
-            clr = _injector.getInstance(_factory.getClientResolverClass(username));
+            clr = _injector.getInstance(resolverClass);
             clr.init(username);
             clr.addResolutionListener(this);
             clr.addResolutionListener(listener);
@@ -400,28 +411,34 @@ public class ClientManager
      * Called by the connection manager to let us know when a new connection has been established.
      */
     public synchronized void connectionEstablished (
-        Connection conn, AuthRequest req, AuthResponse rsp)
+        Connection conn, Name authname, AuthRequest req, AuthResponse rsp)
     {
         Credentials creds = req.getCredentials();
-        Name username = creds.getUsername();
-        String type = username.getClass().getSimpleName();
+        String type = authname.getClass().getSimpleName();
 
-        // see if a client is already registered with these credentials
-        PresentsSession client = getClient(username);
+        // see if a client is already registered with this name
+        PresentsSession client = getClient(authname);
 
         if (client != null) {
-            log.info("Resuming session", "type", type, "who", username, "conn", conn);
+            log.info("Resuming session", "type", type, "who", authname, "conn", conn);
             client.resumeSession(req, conn);
 
         } else {
-            log.info("Session initiated", "type", type, "who", username, "conn", conn);
+            log.info("Session initiated", "type", type, "who", authname, "conn", conn);
+            // figure out our session class
+            Class<? extends PresentsSession> sessionClass = null;
+            for (SessionFactory factory : _factories) {
+                if ((sessionClass = factory.getSessionClass(req)) != null) {
+                    break;
+                }
+            }
             // create a new client and stick'em in the table
-            client = _injector.getInstance(_factory.getSessionClass(req));
-            client.startSession(req, conn, rsp.authdata);
+            client = _injector.getInstance(sessionClass);
+            client.startSession(authname, req, conn, rsp.authdata);
 
             // map their client instance
             synchronized (_usermap) {
-                _usermap.put(username, client);
+                _usermap.put(authname, client);
             }
         }
 
@@ -515,10 +532,9 @@ public class ClientManager
     protected void clearSession (PresentsSession session)
     {
         // remove the client from the username map
-        Name username = session.getCredentials().getUsername();
         PresentsSession rc;
         synchronized (_usermap) {
-            rc = _usermap.remove(username);
+            rc = _usermap.remove(session.getUsername());
         }
 
         // sanity check just because we can
@@ -604,7 +620,7 @@ public class ClientManager
     protected Map<Name, ClientResolver> _penders = Maps.newHashMap();
 
     /** Lets us know what sort of client classes to use. */
-    protected SessionFactory _factory = SessionFactory.DEFAULT;
+    protected List<SessionFactory> _factories = Lists.newArrayList(SessionFactory.DEFAULT);
 
     /** Tracks registered {@link ClientObserver}s. */
     protected ObserverList<ClientObserver> _clobservers = ObserverList.newSafeInOrder();

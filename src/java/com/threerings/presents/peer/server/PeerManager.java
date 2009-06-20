@@ -69,11 +69,14 @@ import com.threerings.presents.server.InvocationManager;
 import com.threerings.presents.server.PresentsDObjectMgr;
 import com.threerings.presents.server.PresentsSession;
 import com.threerings.presents.server.ReportManager;
+import com.threerings.presents.server.ServiceAuthenticator;
+import com.threerings.presents.server.SessionFactory;
 import com.threerings.presents.server.net.ConnectionManager;
 
 import com.threerings.presents.peer.client.PeerService;
 import com.threerings.presents.peer.data.ClientInfo;
 import com.threerings.presents.peer.data.NodeObject;
+import com.threerings.presents.peer.data.PeerAuthName;
 import com.threerings.presents.peer.net.PeerCreds;
 import com.threerings.presents.peer.server.persist.NodeRecord;
 import com.threerings.presents.peer.server.persist.NodeRepository;
@@ -234,8 +237,15 @@ public abstract class PeerManager
         _sharedSecret = sharedSecret;
 
         // wire ourselves into the server
-        _conmgr.addChainedAuthenticator(new PeerAuthenticator(this));
-        _clmgr.setSessionFactory(new PeerSessionFactory(_clmgr.getSessionFactory()));
+        _conmgr.addChainedAuthenticator(
+            new ServiceAuthenticator<PeerCreds>(PeerCreds.class, PeerAuthName.class) {
+            protected boolean areValid (PeerCreds creds) {
+                return creds.areValid(_sharedSecret);
+            }
+        });
+        _clmgr.addSessionFactory(
+            SessionFactory.newSessionFactory(PeerCreds.class, PeerSession.class,
+                                             PeerAuthName.class, PeerClientResolver.class));
 
         // create our node object
         _nodeobj = _omgr.registerObject(createNodeObject());
@@ -269,8 +279,7 @@ public abstract class PeerManager
      */
     public boolean isAuthenticPeer (PeerCreds creds)
     {
-        return PeerCreds.createPassword(creds.getNodeName(), _sharedSecret).equals(
-            creds.getPassword());
+        return creds.areValid(_sharedSecret);
     }
 
     /**
@@ -855,7 +864,7 @@ public abstract class PeerManager
         // we scan through the list instead of relying on ClientInfo.getKey() because we want
         // derived classes to be able to override that for lookups that happen way more frequently
         // than logging off
-        Name username = client.getCredentials().getUsername();
+        Name username = client.getUsername();
         for (ClientInfo clinfo : _nodeobj.clients) {
             if (clinfo.username.equals(username)) {
                 _nodeobj.startTransaction();
@@ -1015,7 +1024,7 @@ public abstract class PeerManager
      */
     protected void initClientInfo (PresentsSession client, ClientInfo info)
     {
-        info.username = client.getCredentials().getUsername();
+        info.username = client.getUsername();
     }
 
     /**
@@ -1391,13 +1400,13 @@ public abstract class PeerManager
     protected Stats _stats = new Stats();
 
     // our service dependencies
-    @Inject protected ConnectionManager _conmgr;
-    @Inject protected ClientManager _clmgr;
-    @Inject protected ReportManager _repmgr;
-    @Inject protected PresentsDObjectMgr _omgr;
-    @Inject protected InvocationManager _invmgr;
     @Inject protected @MainInvoker Invoker _invoker;
+    @Inject protected ClientManager _clmgr;
+    @Inject protected ConnectionManager _conmgr;
+    @Inject protected InvocationManager _invmgr;
     @Inject protected NodeRepository _noderepo;
+    @Inject protected PresentsDObjectMgr _omgr;
+    @Inject protected ReportManager _repmgr;
 
     /** We wait this long for peer ratification to complete before acquiring/releasing the lock. */
     protected static final long LOCK_TIMEOUT = 5000L;

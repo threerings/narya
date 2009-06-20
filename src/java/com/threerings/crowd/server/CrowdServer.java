@@ -63,7 +63,7 @@ public class CrowdServer extends PresentsServer
         super.init(injector);
 
         // configure the client manager to use our bits
-        _clmgr.setSessionFactory(new SessionFactory() {
+        _clmgr.setDefaultSessionFactory(new SessionFactory() {
             public Class<? extends PresentsSession> getSessionClass (AuthRequest areq) {
                 return CrowdSession.class;
             }

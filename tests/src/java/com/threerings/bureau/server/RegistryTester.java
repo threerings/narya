@@ -205,7 +205,7 @@ public class RegistryTester
                 return;
             }
 
-            String id = BureauCredentials.extractBureauId(bureau.getUsername());
+            String id = ((BureauCredentials)bureau.getCredentials()).clientId;
             log.info("Killing bureau " + id);
             bureau.endSession();
 

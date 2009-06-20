@@ -21,36 +21,16 @@
 
 package com.threerings.presents.peer.net;
 
-import com.samskivert.util.StringUtil;
-
-import com.threerings.util.Name;
-
-import com.threerings.presents.net.UsernamePasswordCreds;
+import com.threerings.presents.net.ServiceCreds;
 
 /**
  * Used by peer servers in a cluster installation to authenticate with one another.
  */
-public class PeerCreds extends UsernamePasswordCreds
+public class PeerCreds extends ServiceCreds
 {
-    /** A prefix prepended to the node name used as a peer's username to prevent the username from
-     * colliding with a normal authenticating user's username. We assume that colons are not
-     * allowed in a normal username. */
-    public static final String PEER_PREFIX = "peer:";
-
-    /**
-     * Creates a unique password for the specified node using the supplied shared secret.
-     */
-    public static String createPassword (String nodeName, String sharedSecret)
-    {
-        return StringUtil.md5hex(nodeName + sharedSecret);
-    }
-
-    /**
-     * Creates credentials for the specified peer.
-     */
     public PeerCreds (String nodeName, String sharedSecret)
     {
-        super(new Name(PEER_PREFIX + nodeName), createPassword(nodeName, sharedSecret));
+        super(nodeName, sharedSecret);
     }
 
     /**
@@ -58,14 +38,5 @@ public class PeerCreds extends UsernamePasswordCreds
      */
     public PeerCreds ()
     {
-    }
-
-    /**
-     * Returns the node name of this authenticating peer (which does not include the {@link
-     * #PEER_PREFIX}.
-     */
-    public String getNodeName ()
-    {
-        return getUsername().toString().substring(PEER_PREFIX.length());
     }
 }

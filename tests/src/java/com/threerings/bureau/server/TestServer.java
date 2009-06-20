@@ -68,15 +68,6 @@ public class TestServer extends PresentsServer
         };
     }
 
-    @Override // from PresentsServer
-    public void init (Injector injector)
-        throws Exception
-    {
-        super.init(injector);
-        _bureauReg.init();
-        _bureauReg.setDefaultSessionFactory();
-    }
-
     public void setClientTarget (String target)
     {
         _bureauReg.setCommandGenerator("test", antCommandGenerator(target));

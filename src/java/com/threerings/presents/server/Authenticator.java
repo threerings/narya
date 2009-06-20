@@ -55,6 +55,10 @@ public abstract class Authenticator
             public boolean invoke () {
                 try {
                     processAuthentication(conn, rsp);
+                    if (AuthResponseData.SUCCESS.equals(rdata.code) &&
+                        conn.getAuthName() == null) { // fail early, fail (less) often
+                        throw new IllegalStateException("Authenticator failed to provide authname");
+                    }
                 } catch (Exception e) {
                     log.warning("Error authenticating user", "areq", req, e);
                     rdata.code = AuthCodes.SERVER_ERROR;

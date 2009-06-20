@@ -2,7 +2,7 @@
 // $Id$
 //
 // Narya library - tools for developing networked games
-// Copyright (C) 2002-2007 Three Rings Design, Inc., All Rights Reserved
+// Copyright (C) 2002-2008 Three Rings Design, Inc., All Rights Reserved
 // http://www.threerings.net/code/narya/
 //
 // This library is free software; you can redistribute it and/or modify it
@@ -19,26 +19,22 @@
 // License along with this library; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 
-package com.threerings.presents.net;
+package com.threerings.bureau.data;
 
-import com.threerings.io.Streamable;
+import com.threerings.util.Name;
 
 /**
- * Credentials are supplied by the client implementation and sent along to the server during the
- * authentication process. To provide support for a variety of authentication methods, the
- * credentials class is meant to be subclassed for the particular method (ie. password, auth
- * digest, etc.)  in use in a given system.
- *
- * <p> All derived classes should provide a no argument constructor so that they can be
- * instantiated prior to reconstruction from a data input stream.
+ * Represents an authenticated bureau client.
  */
-public abstract class Credentials implements Streamable
+public class BureauAuthName extends Name
 {
-    /**
-     * Returns a string to use in a hash on the datagram contents to authenticate client datagrams.
-     */
-    public String getDatagramSecret ()
+    public BureauAuthName (String bureauId)
     {
-        return "";
+        super(bureauId);
+    }
+
+    // used when unserializing
+    public BureauAuthName ()
+    {
     }
 }

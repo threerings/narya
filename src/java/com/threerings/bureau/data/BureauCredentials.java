@@ -21,51 +21,19 @@
 
 package com.threerings.bureau.data;
 
-import com.threerings.util.Name;
-
-import com.threerings.presents.net.Credentials;
+import com.threerings.presents.net.ServiceCreds;
 
 /**
  * Extends the basic credentials to provide bureau-specific fields.
  */
-public class BureauCredentials extends Credentials
+public class BureauCredentials extends ServiceCreds
 {
-    public static final String PREFIX = "@@bureau:";
-    public static final String SUFFIX = "@@";
-
     /**
-     * The token to pass to the server when logging in. This is usually just passed to the bureau
-     * on the command line to guard against outside connections being established.
+     * Creates new credentials for a specific bureau.
      */
-    public String sessionToken;
-
-    /**
-     * The id of the bureau logging in.
-     */
-    public String bureauId;
-
-    /**
-     * Test if a given name object matches the name that we generate.
-     */
-    public static boolean isBureau (Name name)
+    public BureauCredentials (String bureauId, String sharedSecret)
     {
-        String normal = name.getNormal();
-        return normal.startsWith(PREFIX) && normal.endsWith(SUFFIX);
-    }
-
-    /**
-     * Extract the buerauId from the name that we generate.
-     */
-    public static String extractBureauId (Name name)
-    {
-        String normal = name.getNormal();
-        int prefixPos = normal.indexOf(PREFIX);
-        int suffixPos = normal.lastIndexOf(SUFFIX);
-        if (prefixPos != 0 || suffixPos != normal.length() - SUFFIX.length()) {
-            return null;
-        }
-
-        return normal.substring(prefixPos + PREFIX.length(), suffixPos);
+        super(bureauId, sharedSecret);
     }
 
     /**
@@ -73,22 +41,5 @@ public class BureauCredentials extends Credentials
      */
     public BureauCredentials ()
     {
-    }
-
-    /**
-     * Creates new credentials for a specific bureau.
-     */
-    public BureauCredentials (String bureauId)
-    {
-        super(new Name("@@bureau:" + bureauId + "@@"));
-        this.bureauId = bureauId;
-    }
-
-    @Override // inherit documentation
-    protected void toString (StringBuilder buf)
-    {
-        super.toString(buf);
-        buf.append(" id=").append(bureauId).
-            append(" token=").append(sessionToken);
     }
 }

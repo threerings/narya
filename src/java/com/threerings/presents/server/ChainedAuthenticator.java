@@ -21,11 +21,7 @@
 
 package com.threerings.presents.server;
 
-import com.samskivert.util.Invoker;
-import com.samskivert.util.ResultListener;
-
 import com.threerings.presents.server.net.AuthingConnection;
-import com.threerings.presents.server.net.ConnectionManager;
 
 /**
  * Handles certain special kinds of authentications and passes the remainder through to the default
@@ -34,32 +30,8 @@ import com.threerings.presents.server.net.ConnectionManager;
 public abstract class ChainedAuthenticator extends Authenticator
 {
     /**
-     * Called by the {@link ConnectionManager} to initialize our delegate.
-     */
-    public void setChainedAuthenticator (Authenticator author)
-    {
-        _delegate = author;
-    }
-
-    @Override // from Authenticator
-    public void authenticateConnection (Invoker invoker, AuthingConnection conn,
-                                        ResultListener<AuthingConnection> onComplete)
-    {
-        // if we handle this sort of authentication, then do so
-        if (shouldHandleConnection(conn)) {
-            super.authenticateConnection(invoker, conn, onComplete);
-
-        } else {
-            // otherwise pass the request on to our delegate
-            _delegate.authenticateConnection(invoker, conn, onComplete);
-        }
-    }
-
-    /**
      * Derived classes should implement this method and return true if the supplied connection is
      * one that they should authenticate.
      */
-    protected abstract boolean shouldHandleConnection (AuthingConnection conn);
-
-    protected Authenticator _delegate;
+    public abstract boolean shouldHandleConnection (AuthingConnection conn);
 }

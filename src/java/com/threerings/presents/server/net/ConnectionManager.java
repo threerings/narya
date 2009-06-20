@@ -24,6 +24,7 @@ package com.threerings.presents.server.net;
 import java.net.InetSocketAddress;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -39,6 +40,7 @@ import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 import java.nio.channels.spi.SelectorProvider;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
@@ -134,12 +136,11 @@ public class ConnectionManager extends LoopingThread
 
     /**
      * Adds an authenticator to the authentication chain. This authenticator will be offered a
-     * chance to authenticate incoming connections in lieu of the main autuenticator.
+     * chance to authenticate incoming connections before falling back to the main authenticator.
      */
     public void addChainedAuthenticator (ChainedAuthenticator author)
     {
-        author.setChainedAuthenticator(_author);
-        _author = author;
+        _authors.add(author);
     }
 
     /**
@@ -266,7 +267,14 @@ public class ConnectionManager extends LoopingThread
      */
     protected void authenticateConnection (AuthingConnection conn)
     {
-        _author.authenticateConnection(_authInvoker, conn, new ResultListener<AuthingConnection>() {
+        Authenticator author = _author;
+        for (ChainedAuthenticator cauthor : _authors) {
+            if (cauthor.shouldHandleConnection(conn)) {
+                author = cauthor;
+                break;
+            }
+        }
+        author.authenticateConnection(_authInvoker, conn, new ResultListener<AuthingConnection>() {
             public void requestCompleted (AuthingConnection conn) {
                 _authq.append(conn);
             }
@@ -547,7 +555,8 @@ public class ConnectionManager extends LoopingThread
                 }
 
                 // and let the client manager know about our new connection
-                _clmgr.connectionEstablished(rconn, conn.getAuthRequest(), conn.getAuthResponse());
+                _clmgr.connectionEstablished(rconn, conn.getAuthName(), conn.getAuthRequest(),
+                                             conn.getAuthResponse());
 
             } catch (IOException ioe) {
                 log.warning("Failure upgrading authing connection to running.", ioe);
@@ -1187,6 +1196,7 @@ public class ConnectionManager extends LoopingThread
      * like the PeerManager may replace this authenticator with one that intercepts certain types
      * of authentication and then passes normal authentications through. */
     @Inject(optional=true) protected Authenticator _author = new DummyAuthenticator();
+    protected List<ChainedAuthenticator> _authors = Lists.newArrayList();
 
     protected int[] _ports, _datagramPorts;
     protected String _datagramHostname;

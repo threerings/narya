@@ -32,10 +32,15 @@ public class UsernamePasswordCreds extends Credentials
     /**
      * Construct credentials with the supplied username and password.
      */
-    public function UsernamePasswordCreds (username :Name, password :String)
+    public function UsernamePasswordCreds (username :Name = null, password :String = null)
     {
-        super(username);
+        _username = username;
         _password = password;
+    }
+
+    public function getUsername () :Name
+    {
+        return _username;
     }
 
     public function getPassword () :String
@@ -43,25 +48,36 @@ public class UsernamePasswordCreds extends Credentials
         return _password;
     }
 
+    // from Credentials
     override public function writeObject (out :ObjectOutputStream) :void
     {
-        super.writeObject(out);
+    	out.writeObject(_username);
         out.writeField(_password);
     }
 
+    // from Credentials
     override public function readObject (ins :ObjectInputStream) :void
     {
-        super.readObject(ins);
+    	_username = Name(ins.readObject());
         _password = (ins.readField(String) as String);
     }
 
-    // documentation inherited
-    override protected function toStringBuf (buf :StringBuilder) :void
+    // from Object
+    public function toString () :String
     {
-        super.toStringBuf(buf);
+        var buf :StringBuilder = new StringBuilder("[");
+        toStringBuf(buf);
+        buf.append("]");
+        return buf.toString();
+    }
+
+    protected function toStringBuf (buf :StringBuilder) :void
+    {
+        buf.append("username=", _username);
         buf.append(", password=", _password);
     }
 
+    protected var _username :Name;
     protected var _password :String;
 }
 }
