@@ -59,6 +59,8 @@ public abstract class Authenticator
                         conn.getAuthName() == null) { // fail early, fail (less) often
                         throw new IllegalStateException("Authenticator failed to provide authname");
                     }
+                } catch (AuthException e) {
+                    rdata.code = e.getMessage();
                 } catch (Exception e) {
                     log.warning("Error authenticating user", "areq", req, e);
                     rdata.code = AuthCodes.SERVER_ERROR;
@@ -102,4 +104,13 @@ public abstract class Authenticator
      */
     protected abstract void processAuthentication (AuthingConnection conn, AuthResponse rsp)
         throws Exception;
+
+    /** An exception that can be thrown during {@link #processAuthentication}. The results of
+     * {@link #getMessage} string will be filled in as the auth failure code. */
+    protected static class AuthException extends Exception
+    {
+        public AuthException (String code) {
+            super(code);
+        }
+    }
 }
