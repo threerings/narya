@@ -23,8 +23,6 @@ package com.threerings.presents.server;
 
 import java.lang.reflect.Constructor;
 
-import com.samskivert.io.PersistenceException;
-
 import com.threerings.util.Name;
 
 import com.threerings.presents.data.AuthCodes;
@@ -64,13 +62,12 @@ public abstract class ServiceAuthenticator<T extends ServiceCreds> extends Chain
 
     @Override // from abstract Authenticator
     protected void processAuthentication (AuthingConnection conn, AuthResponse rsp)
-        throws PersistenceException
+        throws Exception
     {
         T creds = _credsClass.cast(conn.getAuthRequest().getCredentials());
         if (!areValid(creds)) {
             log.warning("Received invalid service auth request?", "creds", creds);
-            rsp.getData().code = AuthCodes.SERVER_ERROR;
-            return;
+            throw new AuthException(AuthCodes.SERVER_ERROR);
         }
 
         try {
@@ -78,7 +75,7 @@ public abstract class ServiceAuthenticator<T extends ServiceCreds> extends Chain
             rsp.getData().code = AuthResponseData.SUCCESS;
         } catch (Exception e) {
             log.warning("Failed to construct auth name", "namer", _authNamer, e);
-            rsp.getData().code = AuthCodes.SERVER_ERROR;
+            throw new AuthException(AuthCodes.SERVER_ERROR);
         }
     }
 

@@ -24,9 +24,7 @@ package com.threerings.presents.server;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 
-import com.samskivert.io.PersistenceException;
 import com.samskivert.util.StringUtil;
-
 import com.threerings.util.MessageBundle;
 
 import com.threerings.presents.net.AuthResponse;
@@ -87,10 +85,10 @@ public class Rejector extends PresentsServer
     {
         @Override
         protected void processAuthentication (AuthingConnection conn, AuthResponse rsp)
-            throws PersistenceException
+            throws Exception
         {
             log.info("Rejecting request: " + conn.getAuthRequest());
-            rsp.getData().code = _errmsg;
+            throw new AuthException(_errmsg);
         }
     }
 
