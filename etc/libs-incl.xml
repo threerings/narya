@@ -6,6 +6,7 @@
     <include name="atunit.jar"/>
     <include name="asc.jar"/>
     <include name="depot.jar"/>
+    <include name="ehcache.jar"/>
     <include name="flexTasks.jar"/>
     <include name="commons-collections.jar"/>
     <include name="commons-io.jar"/>

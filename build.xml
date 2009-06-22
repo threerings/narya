@@ -20,6 +20,13 @@
     <fileset dir="${deploy.dir}/lib" includes="**/*.jar"/>
   </path>
 
+  <!-- checks the availability of certain libraries -->
+  <target name="check-available" depends="prepare">
+    <available property="ehcache.present" classpathref="classpath"
+     classname="net.sf.ehcache.CacheManager"/>
+    <echo level="info" message="EHCache: ${ehcache.present}"/>
+  </target>
+
   <!-- generates fields for persistent record classes -->
   <target name="genrecord" depends="prepare">
     <taskdef name="grecord" classname="com.samskivert.depot.tools.GenRecordTask"
@@ -155,12 +162,13 @@
   </target>
 
   <!-- build the java class files -->
-  <target name="compile" depends="prepare">
+  <target name="compile" depends="prepare,check-available">
     <javac srcdir="src/java" destdir="${classes.dir}" includeAntRuntime="false"
            debug="on" optimize="{$build.optimize}" deprecation="on" source="1.5" target="1.5">
       <classpath refid="classpath"/>
       <compilerarg value="-Xlint"/>
       <compilerarg value="-Xlint:-serial"/>
+      <exclude name="com/threerings/presents/peer/server/EHCache*" unless="ehcache.present"/>
     </javac>
   </target>
 
