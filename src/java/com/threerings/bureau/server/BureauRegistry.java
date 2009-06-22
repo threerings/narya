@@ -121,7 +121,7 @@ public class BureauRegistry
         }), BureauCodes.BUREAU_GROUP);
         conmgr.addChainedAuthenticator(new ServiceAuthenticator<BureauCredentials>(
                                            BureauCredentials.class, BureauAuthName.class) {
-            protected boolean areValid (BureauCredentials creds) {
+            @Override protected boolean areValid (BureauCredentials creds) {
                 return checkToken(creds) == null;
             }
         });

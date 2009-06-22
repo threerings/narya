@@ -34,10 +34,10 @@ public abstract class SessionFactory
 {
     /** The default client factory. */
     public static SessionFactory DEFAULT = new SessionFactory() {
-        public Class<? extends PresentsSession> getSessionClass (AuthRequest areq) {
+        @Override public Class<? extends PresentsSession> getSessionClass (AuthRequest areq) {
             return PresentsSession.class;
         }
-        public Class<? extends ClientResolver> getClientResolverClass (Name username) {
+        @Override public Class<? extends ClientResolver> getClientResolverClass (Name username) {
             return ClientResolver.class;
         }
     };
@@ -53,9 +53,10 @@ public abstract class SessionFactory
         final Class<? extends ClientResolver> resolverClass)
     {
         return new SessionFactory() {
-            public Class<? extends PresentsSession> getSessionClass (AuthRequest areq) {
+            @Override public Class<? extends PresentsSession> getSessionClass (AuthRequest areq) {
                 return credsClass.isInstance(areq.getCredentials()) ? sessionClass : null;
             }
+            @Override
             public Class <? extends ClientResolver> getClientResolverClass (Name username) {
                 return nameClass.isInstance(username) ? resolverClass : null;
             }

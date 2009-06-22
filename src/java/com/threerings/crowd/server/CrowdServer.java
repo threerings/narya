@@ -64,9 +64,11 @@ public class CrowdServer extends PresentsServer
 
         // configure the client manager to use our bits
         _clmgr.setDefaultSessionFactory(new SessionFactory() {
+            @Override
             public Class<? extends PresentsSession> getSessionClass (AuthRequest areq) {
                 return CrowdSession.class;
             }
+            @Override
             public Class<? extends ClientResolver> getClientResolverClass (Name username) {
                 return CrowdClientResolver.class;
             }

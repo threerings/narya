@@ -239,7 +239,7 @@ public abstract class PeerManager
         // wire ourselves into the server
         _conmgr.addChainedAuthenticator(
             new ServiceAuthenticator<PeerCreds>(PeerCreds.class, PeerAuthName.class) {
-            protected boolean areValid (PeerCreds creds) {
+            @Override protected boolean areValid (PeerCreds creds) {
                 return creds.areValid(_sharedSecret);
             }
         });
