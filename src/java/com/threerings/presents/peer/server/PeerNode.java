@@ -86,21 +86,41 @@ public class PeerNode
         _client.addClientObserver(this);
     }
 
+    /**
+     * Returns the {@link Client} instance that manages our connection to this peer.
+     */
     public Client getClient ()
     {
         return _client;
     }
 
+    /**
+     * Returns this peer's unique string identifier.
+     */
     public String getNodeName ()
     {
         return _record.nodeName;
     }
 
+    /**
+     * Returns the hostname for external clients to use when connecting to this peer.
+     */
     public String getPublicHostName ()
     {
         return _record.publicHostName;
     }
 
+    /**
+     * Returns the hostname for internal clients to use when connecting to this peer.
+     */
+    public String getInternalHostName ()
+    {
+        return _record.hostName;
+    }
+
+    /**
+     * Returns the port on which to connect to this peer.
+     */
     public int getPort ()
     {
         return _record.port;
