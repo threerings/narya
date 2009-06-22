@@ -127,8 +127,7 @@ public class PresentsServer
     {
         // output general system information
         SystemInfo si = new SystemInfo();
-        log.info("Starting up server", "os", si.osToString(), "jvm", si.jvmToString(),
-                 "mem", si.memoryToString());
+        log.info("Starting up server", "os", si.osToString(), "jvm", si.jvmToString());
 
         // register SIGTERM, SIGINT (ctrl-c) and a SIGHUP handlers
         boolean registered = false;
