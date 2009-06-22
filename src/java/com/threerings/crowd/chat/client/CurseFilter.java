@@ -95,7 +95,7 @@ public abstract class CurseFilter implements ChatFilter
                 case DROP:
                     return null;
 
-                case COMIC: default:
+                case COMIC:
                     m.appendReplacement(outbuf,
                         StringUtil.replace(_replacements[ii], " ",  comicChars(_comicLength[ii])));
                     break;
@@ -110,6 +110,14 @@ public abstract class CurseFilter implements ChatFilter
                     m.appendReplacement(outbuf,
                         StringUtil.replace(_replacements[ii], " ", vernacular));
                     break;
+
+                case UNFILTERED:
+                    // We returned the msg unadulterated above in this case, so it should be
+                    // impossible to wind up here, but let's enumerate it so we can let the compiler
+                    // scream about missing enum values in a switch
+                    log.warning("Omg? We're trying to filter chat even though we're unfiltered?");
+                    break;
+
                 }
             }
             if (outbuf.length() == 0) {
