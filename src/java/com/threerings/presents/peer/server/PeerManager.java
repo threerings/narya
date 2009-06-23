@@ -878,7 +878,7 @@ public abstract class PeerManager
         // we scan through the list instead of relying on ClientInfo.getKey() because we want
         // derived classes to be able to override that for lookups that happen way more frequently
         // than logging off
-        Name username = client.getUsername();
+        Name username = client.getAuthName();
         for (ClientInfo clinfo : _nodeobj.clients) {
             if (clinfo.username.equals(username)) {
                 _nodeobj.startTransaction();
@@ -1038,7 +1038,7 @@ public abstract class PeerManager
      */
     protected void initClientInfo (PresentsSession client, ClientInfo info)
     {
-        info.username = client.getUsername();
+        info.username = client.getAuthName();
     }
 
     /**

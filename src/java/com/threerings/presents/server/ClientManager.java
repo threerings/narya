@@ -532,7 +532,7 @@ public class ClientManager
         // remove the client from the username map
         PresentsSession rc;
         synchronized (_usermap) {
-            rc = _usermap.remove(session.getUsername());
+            rc = _usermap.remove(session.getAuthName());
         }
 
         // sanity check just because we can

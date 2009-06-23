@@ -147,11 +147,12 @@ public class PresentsSession
     }
 
     /**
-     * Returns the username with which this client instance is associated.
+     * Returns the username with which this client authenticated. Note: if {@link #setUsername} has
+     * been called this may differ from {@link #getClientObject}.username.
      */
-    public Name getUsername ()
+    public Name getAuthName ()
     {
-        return _username;
+        return _authname;
     }
 
     /**
@@ -231,7 +232,8 @@ public class PresentsSession
                 // switching, so freak out
                 if (_clobj == null) {
                     log.warning("Client disappeared before we could complete the switch to a " +
-                                "new client object", "ousername", _username, "nusername", username);
+                                "new client object", "ousername", clobj.username,
+                                "nusername", username);
                     _clmgr.releaseClientObject(username);
                     Exception error = new Exception("Early withdrawal");
                     resolutionFailed(username, error);
@@ -265,10 +267,9 @@ public class PresentsSession
                 _clobj.postMessage(ClientObject.CLOBJ_CHANGED, args);
 
                 // release our old client object; this will destroy it
-                _clmgr.releaseClientObject(_username);
+                _clmgr.releaseClientObject(_clobj.username);
 
                 // update our internal fields
-                _username = username;
                 _clobj = clobj;
 
                 // call down to any derived classes
@@ -282,7 +283,7 @@ public class PresentsSession
 
             public void resolutionFailed (Name username, Exception reason) {
                 log.warning("Unable to resolve new client object",
-                    "oldname", _username, "newname", username, "reason", reason, reason);
+                    "oldname", _clobj.username, "newname", username, "reason", reason, reason);
 
                 // let our listener know we're hosed
                 if (ucl != null) {
@@ -306,8 +307,7 @@ public class PresentsSession
      */
     public boolean updateUsername (Name username)
     {
-        if (_clmgr.renameClientObject(_username, username)) {
-            _username = username;
+        if (_clmgr.renameClientObject(_clobj.username, username)) {
             return true;
         }
         return false;
@@ -347,7 +347,7 @@ public class PresentsSession
             }
 
             // release (and destroy) our client object
-            _clmgr.releaseClientObject(_username);
+            _clmgr.releaseClientObject(_clobj.username);
 
             // we only report that our session started if we managed to resolve our client object,
             // so we only report that it ended in the same circumstance
@@ -467,13 +467,13 @@ public class PresentsSession
      */
     protected void startSession (Name authname, AuthRequest req, Connection conn, Object authdata)
     {
-        _username = authname;
+        _authname = authname;
         _areq = req;
         _authdata = authdata;
         setConnection(conn);
 
         // resolve our client object before we get fully underway
-        _clmgr.resolveClientObject(_username, this);
+        _clmgr.resolveClientObject(_authname, this);
 
         // make a note of our session start time
         _sessionStamp = System.currentTimeMillis();
@@ -895,8 +895,8 @@ public class PresentsSession
 
     protected String who ()
     {
-        return (_username == null) ? "null" :
-            (_username.getClass().getSimpleName() + "(" + _username + ")");
+        return (_authname == null) ? "null" :
+            (_authname.getClass().getSimpleName() + "(" + _authname + ")");
     }
 
     /**
@@ -1076,7 +1076,7 @@ public class PresentsSession
             // send a pong response using the transport with which the message was received
             PingRequest req = (PingRequest)msg;
             if (PING_DEBUG) {
-                log.info("Got ping, ponging", "client", client._username);
+                log.info("Got ping, ponging", "client", client.getAuthName());
             }
             client.safePostMessage(new PongResponse(req.getUnpackStamp(), req.getTransport()));
         }
@@ -1125,7 +1125,7 @@ public class PresentsSession
 
     protected AuthRequest _areq;
     protected Object _authdata;
-    protected Name _username;
+    protected Name _authname;
     protected Connection _conn;
     protected ClientObject _clobj;
     protected IntMap<ClientProxy> _subscrips = IntMaps.newHashIntMap();
