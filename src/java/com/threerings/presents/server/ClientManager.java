@@ -436,7 +436,9 @@ public class ClientManager
 
             // map their client instance
             synchronized (_usermap) {
-                _usermap.put(authname, client);
+                // we refetch the authname from the client for use in the map in case it decides to
+                // do something crazy like rewrite it in startSession()
+                _usermap.put(client.getAuthName(), client);
             }
         }
 
