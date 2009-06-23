@@ -52,9 +52,9 @@ import com.threerings.presents.server.net.Connection;
 import static com.threerings.presents.Log.log;
 
 /**
- * The client manager is responsible for managing the clients (surprise, surprise) which are
- * slightly more than just connections. Clients persist in the absence of connections in case a
- * user goes bye bye unintentionally and wants to reconnect and continue their session.
+ * The client manager is responsible for managing client sessions which are slightly more than just
+ * connections. Clients persist in the absence of connections in case a user goes bye bye
+ * unintentionally and wants to reconnect and continue their session.
  *
  * <p> The client manager operates with thread safety because it is called both from the conmgr
  * thread (to notify of connections showing up or going away) and from the dobjmgr thread (when
@@ -337,13 +337,13 @@ public class ClientManager
     // from interface Lifecycle.Component
     public void init ()
     {
-        // start up an interval that will check for and flush expired clients
-        _flushClients = new Interval(_omgr) {
+        // start up an interval that will check for and flush expired sessions
+        _flushSessions = new Interval(_omgr) {
             @Override public void expired () {
-                flushClients();
+                flushSessions();
             }
         };
-        _flushClients.schedule(CLIENT_FLUSH_INTERVAL, true);
+        _flushSessions.schedule(SESSION_FLUSH_INTERVAL, true);
     }
 
     // from interface Lifecycle.Component
@@ -351,7 +351,7 @@ public class ClientManager
     {
         log.info("Client manager shutting down", "ccount", _usermap.size());
 
-        _flushClients.cancel();
+        _flushSessions.cancel();
 
         // inform all of our clients that they are being shut down
         synchronized (_usermap) {
@@ -414,12 +414,12 @@ public class ClientManager
     {
         String type = authname.getClass().getSimpleName();
 
-        // see if a client is already registered with this name
-        PresentsSession client = getClient(authname);
+        // see if a session is already registered with this name
+        PresentsSession session = getClient(authname);
 
-        if (client != null) {
+        if (session != null) {
             log.info("Resuming session", "type", type, "who", authname, "conn", conn);
-            client.resumeSession(req, conn);
+            session.resumeSession(req, conn);
 
         } else {
             log.info("Session initiated", "type", type, "who", authname, "conn", conn);
@@ -430,20 +430,20 @@ public class ClientManager
                     break;
                 }
             }
-            // create a new client and stick'em in the table
-            client = _injector.getInstance(sessionClass);
-            client.startSession(authname, req, conn, rsp.authdata);
+            // create a new session and stick'em in the table
+            session = _injector.getInstance(sessionClass);
+            session.startSession(authname, req, conn, rsp.authdata);
 
-            // map their client instance
+            // map their session instance
             synchronized (_usermap) {
-                // we refetch the authname from the client for use in the map in case it decides to
-                // do something crazy like rewrite it in startSession()
-                _usermap.put(client.getAuthName(), client);
+                // we refetch the authname from the session for use in the map in case it decides
+                // to do something crazy like rewrite it in startSession()
+                _usermap.put(session.getAuthName(), session);
             }
         }
 
-        // map this connection to this client
-        _conmap.put(conn, client);
+        // map this connection to this session
+        _conmap.put(conn, session);
     }
 
     /**
@@ -451,14 +451,14 @@ public class ClientManager
      */
     public synchronized void connectionFailed (Connection conn, IOException fault)
     {
-        // remove the client from the connection map
-        PresentsSession client = _conmap.remove(conn);
-        if (client != null) {
-            log.info("Unmapped failed client", "client", client, "conn", conn, "fault", fault);
-            // let the client know the connection went away
-            client.wasUnmapped();
-            // and let the client know things went haywire
-            client.connectionFailed(fault);
+        // remove the session from the connection map
+        PresentsSession session = _conmap.remove(conn);
+        if (session != null) {
+            log.info("Unmapped failed session", "session", session, "conn", conn, "fault", fault);
+            // let the session know the connection went away
+            session.wasUnmapped();
+            // and let the session know things went haywire
+            session.connectionFailed(fault);
 
         } else if (!(conn instanceof AuthingConnection)) {
             log.info("Unmapped connection failed?", "conn", conn, "fault", fault, new Exception());
@@ -470,16 +470,16 @@ public class ClientManager
      */
     public synchronized void connectionClosed (Connection conn)
     {
-        // remove the client from the connection map
-        PresentsSession client = _conmap.remove(conn);
-        if (client != null) {
-            log.debug("Unmapped client", "client", client, "conn", conn);
-            // let the client know the connection went away
-            client.wasUnmapped();
+        // remove the session from the connection map
+        PresentsSession session = _conmap.remove(conn);
+        if (session != null) {
+            log.debug("Unmapped session", "session", session, "conn", conn);
+            // let the session know the connection went away
+            session.wasUnmapped();
 
         } else {
             log.info("Closed unmapped connection '" + conn + "'. " +
-                     "Client probably not yet authenticated.");
+                     "Session probably not yet authenticated.");
         }
     }
 
@@ -500,12 +500,12 @@ public class ClientManager
      * Called by PresentsSession when it has started its session.
      */
     @EventThread
-    protected void clientSessionDidStart (final PresentsSession client)
+    protected void clientSessionDidStart (final PresentsSession session)
     {
         // let the observers know
         _clobservers.apply(new ObserverList.ObserverOp<ClientObserver>() {
             public boolean apply (ClientObserver observer) {
-                observer.clientSessionDidStart(client);
+                observer.clientSessionDidStart(session);
                 return true;
             }
         });
@@ -531,7 +531,7 @@ public class ClientManager
      */
     protected void clearSession (PresentsSession session)
     {
-        // remove the client from the username map
+        // remove the session from the username map
         PresentsSession rc;
         synchronized (_usermap) {
             rc = _usermap.remove(session.getAuthName());
@@ -548,31 +548,31 @@ public class ClientManager
     }
 
     /**
-     * Called once per minute to check for clients that have been disconnected too long and
+     * Called once per minute to check for sessions that have been disconnected too long and
      * forcibly end their sessions.
      */
-    protected void flushClients ()
+    protected void flushSessions ()
     {
         List<PresentsSession> victims = Lists.newArrayList();
         long now = System.currentTimeMillis();
 
         // first build a list of our victims
         synchronized (_usermap) {
-            for (PresentsSession client : _usermap.values()) {
-                if (client.checkExpired(now)) {
-                    victims.add(client);
+            for (PresentsSession session : _usermap.values()) {
+                if (session.checkExpired(now)) {
+                    victims.add(session);
                 }
             }
         }
 
         // now end their sessions
-        for (PresentsSession client : victims) {
+        for (PresentsSession session : victims) {
             try {
-                log.info("Client expired, ending session", "session", client,
-                         "dtime", (now-client.getNetworkStamp()) + "ms].");
-                client.endSession();
+                log.info("Session expired, ending session", "session", session,
+                         "dtime", (now-session.getNetworkStamp()) + "ms].");
+                session.endSession();
             } catch (Exception e) {
-                log.warning("Choke while flushing client", "victim", client, e);
+                log.warning("Choke while flushing session", "victim", session, e);
             }
         }
     }
@@ -607,10 +607,10 @@ public class ClientManager
     /** Used to resolve dependencies in {@link PresentsSession} instances that we create. */
     protected Injector _injector;
 
-    /** A mapping from auth username to client instances. */
+    /** A mapping from auth username to session instances. */
     protected Map<Name, PresentsSession> _usermap = Maps.newHashMap();
 
-    /** A mapping from connections to client instances. */
+    /** A mapping from connections to session instances. */
     protected Map<Connection, PresentsSession> _conmap = Maps.newHashMap();
 
     /** A mapping from usernames to client object instances. */
@@ -619,18 +619,18 @@ public class ClientManager
     /** A mapping of pending client resolvers. */
     protected Map<Name, ClientResolver> _penders = Maps.newHashMap();
 
-    /** Lets us know what sort of client classes to use. */
+    /** Lets us know what sort of session classes to use. */
     protected List<SessionFactory> _factories = Lists.newArrayList(SessionFactory.DEFAULT);
 
     /** Tracks registered {@link ClientObserver}s. */
     protected ObserverList<ClientObserver> _clobservers = ObserverList.newSafeInOrder();
 
-    /** Interval to flush expired clients. */
-    protected Interval _flushClients;
+    /** Interval to flush expired sessions. */
+    protected Interval _flushSessions;
 
     // our injected dependencies
     @Inject protected PresentsDObjectMgr _omgr;
 
-    /** The frequency with which we check for expired clients. */
-    protected static final long CLIENT_FLUSH_INTERVAL = 60 * 1000L;
+    /** The frequency with which we check for expired sessions. */
+    protected static final long SESSION_FLUSH_INTERVAL = 60 * 1000L;
 }
