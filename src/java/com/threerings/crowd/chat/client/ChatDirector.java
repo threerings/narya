@@ -396,7 +396,7 @@ public class ChatDirector extends BasicDirector
                 args = text.substring(sidx + 1).trim();
             }
 
-            HashMap<String, CommandHandler> possibleCommands = getCommandHandlers(command);
+            Map<String, CommandHandler> possibleCommands = getCommandHandlers(command);
             switch (possibleCommands.size()) {
             case 0:
                 StringTokenizer tok = new StringTokenizer(text);
@@ -948,10 +948,11 @@ public class ChatDirector extends BasicDirector
     }
 
     /**
-     * Returns a hashmap containing all command handlers that match the specified command (i.e. the
-     * specified command is a prefix of their registered command string).
+     * Returns a map containing all command handlers that match the specified command (i.e. the
+     * specified command is a prefix of their registered command string). If there's an exact
+     * match, only that match is returned, even if the command is a prefix of other handlers.
      */
-    protected HashMap<String, CommandHandler> getCommandHandlers (String command)
+    protected Map<String, CommandHandler> getCommandHandlers (String command)
     {
         HashMap<String, CommandHandler> matches = Maps.newHashMap();
         BodyObject user = (BodyObject)_ctx.getClient().getClientObject();
@@ -963,6 +964,11 @@ public class ChatDirector extends BasicDirector
             CommandHandler handler = entry.getValue();
             if (!handler.checkAccess(user)) {
                 continue;
+            }
+            if (cmd.equals(command)) {// If we hit an exact match, it wins
+                matches.clear();
+                matches.put(cmd, handler);
+                return matches;
             }
             matches.put(cmd, handler);
         }
@@ -1144,7 +1150,7 @@ public class ChatDirector extends BasicDirector
             }
 
             // handle "/help help" and "/help someboguscommand"
-            HashMap<String, CommandHandler> possibleCommands = getCommandHandlers(hcmd);
+            Map<String, CommandHandler> possibleCommands = getCommandHandlers(hcmd);
             if (hcmd.equals("help") || possibleCommands.isEmpty()) {
                 possibleCommands = getCommandHandlers("");
                 possibleCommands.remove("help"); // remove help from the list
