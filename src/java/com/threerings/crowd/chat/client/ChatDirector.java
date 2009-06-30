@@ -957,22 +957,27 @@ public class ChatDirector extends BasicDirector
         HashMap<String, CommandHandler> matches = Maps.newHashMap();
         BodyObject user = (BodyObject)_ctx.getClient().getClientObject();
         for (Map.Entry<String, CommandHandler> entry : _handlers.entrySet()) {
-            String cmd = entry.getKey();
-            if (!cmd.startsWith(command)) {
+            if (!isCommandPrefix(command, entry.getKey(), entry.getValue(), user)) {
                 continue;
             }
-            CommandHandler handler = entry.getValue();
-            if (!handler.checkAccess(user)) {
-                continue;
-            }
-            if (cmd.equals(command)) {// If we hit an exact match, it wins
+            if (entry.getKey().equals(command)) {// If we hit an exact match, it wins
                 matches.clear();
-                matches.put(cmd, handler);
+                matches.put(entry.getKey(), entry.getValue());
                 return matches;
             }
-            matches.put(cmd, handler);
+            matches.put(entry.getKey(), entry.getValue());
         }
         return matches;
+    }
+
+    /**
+     * Returns true if <code>enteredCommand</code> equals or is a prefix of
+     * <code>handlerCommand</code> and if the handler is available for <code>user</code>.
+     */
+    protected boolean isCommandPrefix (String enteredCommand, String handlerCommand,
+        CommandHandler handler, BodyObject user)
+    {
+        return handlerCommand.startsWith(enteredCommand) && handler.checkAccess(user);
     }
 
     /**
