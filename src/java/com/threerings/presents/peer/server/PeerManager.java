@@ -215,10 +215,10 @@ public abstract class PeerManager
     }
 
     /**
-     * Initializes this peer manager and initiates the process of connecting to its peer
-     * nodes. This will also reconfigure the ConnectionManager and ClientManager with peer related
-     * bits, so this should not be called until <em>after</em> the main server has set up its
-     * client factory and authenticator.
+     * Initializes this peer manager and initiates the process of connecting to its peer nodes.
+     * This will also reconfigure the ConnectionManager and ClientManager with peer related bits,
+     * so this should not be called until <em>after</em> the main server has set up its client
+     * factory and authenticator.
      *
      * @param nodeName this node's unique name.
      * @param sharedSecret a shared secret used to allow the peers to authenticate with one
@@ -229,10 +229,9 @@ public abstract class PeerManager
      * network than the communication between real clients and the various peer servers).
      * @param port the port on which other nodes should connect to us.
      */
-    public void init (Injector injector, String nodeName, String sharedSecret,
+    public void init (String nodeName, String sharedSecret,
                       String hostName, String publicHostName, int port)
     {
-        _injector = injector;
         _nodeName = nodeName;
         _sharedSecret = sharedSecret;
 
@@ -1393,7 +1392,6 @@ public abstract class PeerManager
     protected Map<String,PeerNode> _peers = Maps.newHashMap();
 
     /** Used to resolve dependencies in unserialized {@link NodeAction} instances. */
-    protected Injector _injector;
 
     /** The client oids of all peers subscribed to the node object. */
     protected ArrayIntSet _suboids = new ArrayIntSet();
@@ -1417,6 +1415,7 @@ public abstract class PeerManager
     @Inject protected @MainInvoker Invoker _invoker;
     @Inject protected ClientManager _clmgr;
     @Inject protected ConnectionManager _conmgr;
+    @Inject protected Injector _injector;
     @Inject protected InvocationManager _invmgr;
     @Inject protected NodeRepository _noderepo;
     @Inject protected PresentsDObjectMgr _omgr;
