@@ -31,6 +31,8 @@ public class ClassUtil
 {
     /**
      * Get the full class name, e.g. "com.threerings.util.ClassUtil".
+     * Calling getClassName with a Class object will return the same value as calling it with an
+     * instance of that class. That is, getClassName(Foo) == getClassName(new Foo()).
      */
     public static function getClassName (obj :Object) :String
     {
