@@ -156,6 +156,11 @@ public class EHCachePeerCoordinator extends CacheManagerPeerProviderFactory
             return 10000;
         }
 
+        public String getScheme ()
+        {
+            return "presents_peer";
+        }
+
         protected void addCachesForNode (List<CachePeer> result, String nodeName)
         {
             String nodeHost = _peerMan.getPeerInternalHostName(nodeName);
