@@ -258,9 +258,6 @@ public class PresentsServer
     /** Handles orderly initialization and shutdown of our managers, etc. */
     @Inject protected Lifecycle _lifecycle;
 
-    /** Handles generation of state of the server reports. */
-    @Inject protected ReportManager _repmgr;
-
     /** Used to invoke background tasks that should not be allowed to tie up the distributed object
      * manager thread (generally talking to databases and other relatively slow entities). */
     @Inject @MainInvoker protected Invoker _invoker;

@@ -131,9 +131,6 @@ public class PresentsDObjectMgr
             }
         });
 
-        // also tell the report manager that we're providing the runqueue for it to do its business
-        repmgr.init(this);
-
         // register our event helpers
         registerEventHelpers();
     }

@@ -23,6 +23,7 @@ package com.threerings.presents.server;
 
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
+import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
 import com.samskivert.util.Interval;
@@ -62,12 +63,12 @@ public class ReportManager
     public static final String PROFILE_TYPE = "profile";
 
     /**
-     * Starts up our periodic report generation task on the supplied run queue.
+     * Starts up our periodic report generation task.
      */
-    public void init (RunQueue rqueue)
+    public void activatePeriodicReport ()
     {
         // queue up an interval which will generate reports
-        _reportInterval = new Interval(rqueue) {
+        _reportInterval = new Interval(_omgr) {
             @Override
             public void expired () {
                 logReport(LOG_REPORT_HEADER +
@@ -186,6 +187,9 @@ public class ReportManager
 
     /** Used to generate "state of server" reports. */
     protected Multimap<String, Reporter> _reporters = ArrayListMultimap.create();
+
+    // dependencies
+    @Inject protected PresentsDObjectMgr _omgr;
 
     /** The frequency with which we generate "state of server" reports. */
     protected static final long REPORT_INTERVAL = 15 * 60 * 1000L;
