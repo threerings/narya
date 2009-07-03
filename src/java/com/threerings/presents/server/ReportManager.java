@@ -30,6 +30,8 @@ import com.samskivert.util.Interval;
 import com.samskivert.util.RunQueue;
 import com.samskivert.util.StringUtil;
 
+import com.threerings.presents.annotation.EventQueue;
+
 import static com.threerings.presents.Log.log;
 
 /**
@@ -68,7 +70,7 @@ public class ReportManager
     public void activatePeriodicReport ()
     {
         // queue up an interval which will generate reports
-        _reportInterval = new Interval(_omgr) {
+        _reportInterval = new Interval(_dobjq) {
             @Override
             public void expired () {
                 logReport(LOG_REPORT_HEADER +
@@ -188,8 +190,8 @@ public class ReportManager
     /** Used to generate "state of server" reports. */
     protected Multimap<String, Reporter> _reporters = ArrayListMultimap.create();
 
-    // dependencies
-    @Inject protected PresentsDObjectMgr _omgr;
+    /** We need to queue up our reporting interval on this feller. */
+    @Inject protected @EventQueue RunQueue _dobjq;
 
     /** The frequency with which we generate "state of server" reports. */
     protected static final long REPORT_INTERVAL = 15 * 60 * 1000L;
