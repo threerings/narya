@@ -307,10 +307,7 @@ public class PresentsSession
      */
     public boolean updateUsername (Name username)
     {
-        if (_clmgr.renameClientObject(_clobj.username, username)) {
-            return true;
-        }
-        return false;
+        return _clmgr.renameClientObject(_clobj.username, username);
     }
 
     /**
