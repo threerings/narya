@@ -148,8 +148,8 @@ public class Enum
      */
     public static function fromOrdinal (clazz :Class, ordinal :int) :Enum
     {
-        var values :Array = (_enums[ClassUtil.getClass(clazz)] as Array);
-        if (values != null && ordinal >= 0 && ordinal < values.length) {
+        var values :Array = values(clazz);
+        if (ordinal >= 0 && ordinal < values.length) {
             return values[ordinal];
         }
         throw new ArgumentError("No such enum [class=" + clazz + ", ordinal=" + ordinal + "].");
