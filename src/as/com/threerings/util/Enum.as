@@ -144,6 +144,18 @@ public class Enum
     }
 
     /**
+     * Return the Enum of the given class with the given ordinal value.
+     */
+    public static function fromOrdinal (clazz :Class, ordinal :int) :Enum
+    {
+        var values :Array = (_enums[ClassUtil.getClass(clazz)] as Array);
+        if (values != null && ordinal >= 0 && ordinal < values.length) {
+            return values[ordinal];
+        }
+        throw new ArgumentError("No such enum [class=" + clazz + ", ordinal=" + ordinal + "].");
+    }
+
+    /**
      * Turn a String name into an Enum constant.
      */
     public static function valueOf (clazz :Class, name :String) :Enum
@@ -181,7 +193,7 @@ public class Enum
     protected var _name :String;
 
     /** An array of enums for each enum class. */
-    private static const _enums :Dictionary = new Dictionary(true); 
+    private static const _enums :Dictionary = new Dictionary(true);
 
     /** Is further instantiation of enum constants for a class allowed? */
     private static const _blocked :Dictionary = new Dictionary(true);
