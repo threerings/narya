@@ -367,6 +367,10 @@ public class DObject
      */
     public void destroy ()
     {
+        if (_oid == 0) {
+            log.warning("Denying request to destroy an uninitialized object!", new Exception());
+            return;
+        }
         postEvent(new ObjectDestroyedEvent(_oid));
     }
 

@@ -962,7 +962,7 @@ public class PresentsSession
         // from interface ProxySubscriber
         public void eventReceived (DEvent event)
         {
-            if (event instanceof PresentsDObjectMgr.AccessObjectEvent) {
+            if (event instanceof PresentsDObjectMgr.AccessObjectEvent<?>) {
                 log.warning("Ignoring event that shouldn't be forwarded " + event + ".",
                             new Exception());
                 return;

@@ -96,9 +96,9 @@ public class PresentsDObjectMgr
     {
         // create a dummy object to live as oid zero and use that for some internal event trickery
         DObject dummy = new DObject();
-        dummy.setOid(0);
+        dummy.setOid(DUMMY_OID);
         dummy.setManager(this);
-        _objects.put(0, new DObject());
+        _objects.put(DUMMY_OID, new DObject());
 
         // register a couple of reports with the report manager
         repmgr.registerReporter(ReportManager.DEFAULT_TYPE, new ReportManager.Reporter() {
@@ -268,6 +268,10 @@ public class PresentsDObjectMgr
     // from interface RootDObjectManager
     public void destroyObject (int oid)
     {
+        if (oid == DUMMY_OID) {
+            log.warning("Denying request to destroy the dummy object!", new Exception());
+            return;
+        }
         // queue up an object destroyed event
         postEvent(new ObjectDestroyedEvent(oid));
     }
@@ -411,6 +415,11 @@ public class PresentsDObjectMgr
     public boolean objectDestroyed (DEvent event, DObject target)
     {
         int oid = target.getOid();
+
+        if (oid == DUMMY_OID) {
+            log.warning("Denying attempt to destroy dummy object!", new Exception());
+            return false;
+        }
 
 //         log.info("Removing destroyed object from table", "oid", oid);
 
@@ -871,7 +880,7 @@ public class PresentsDObjectMgr
 
         public AccessObjectEvent (int oid, Subscriber<T> target, int action)
         {
-            super(0); // target the bogus object
+            super(DUMMY_OID); // target the bogus object
             _oid = oid;
             _target = target;
             _action = action;
@@ -1067,4 +1076,10 @@ public class PresentsDObjectMgr
 
     /** The default size of an oid list refs vector. */
     protected static final int DEFREFVEC_SIZE = 4;
+
+    /**
+     * The oid of the DOject created during object manager startup that isn't actually
+     * distributed.
+     */
+    protected static final int DUMMY_OID = 0;
 }
