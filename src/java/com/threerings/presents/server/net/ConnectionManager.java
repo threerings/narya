@@ -754,7 +754,7 @@ public class ConnectionManager extends LoopingThread
             // if the connection to which we're writing is not yet ready, the whole message is
             // "leftover", so we pass it to the partial write handler
             SocketChannel sochan = conn.getChannel();
-            if (!sochan.isConnected()) {
+            if (sochan.isConnectionPending()) {
                 pwh.handlePartialWrite(conn, _outbuf);
                 return false;
             }
@@ -1130,8 +1130,8 @@ public class ConnectionManager extends LoopingThread
             if (_partial != null) {
                 // if our outgoing channel is still not ready, then bail immediately
                 SocketChannel sochan = conn.getChannel();
-                if (sochan == null || !sochan.isConnected()) {
-                    throw new IOException("Connection unavailable for overflow write");
+                if (sochan == null || (!sochan.isConnected() && !sochan.isConnectionPending())) {
+                    throw new IOException("Connection unavailable for overflow write " + sochan);
                 }
 
                 // write all we can of our partial buffer
