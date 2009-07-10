@@ -25,16 +25,23 @@ import com.threerings.util.env.Environment;
 
 import flash.utils.ByteArray;
 import flash.utils.Dictionary;
-import flash.utils.getQualifiedClassName;
 
 public class StringUtil
 {
     /**
-     * Compares two String values, returning -1, 0, or 1.
+     * Compares two String values, returning -1, 0, or 1. Case-sensitive.
      */
     public static function compare (s1 :String, s2 :String) :int
     {
         return (s1 > s2) ? 1 : (s1 == s2 ? 0 : -1);
+    }
+
+    /**
+     * Compares two String values, returning -1, 0, or 1. Not case-sensitive.
+     */
+    public static function compareIgnoreCase (s1 :String, s2 :String) :int
+    {
+        return compare(s1.toLowerCase(), s2.toLowerCase());
     }
 
     /**
