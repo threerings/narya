@@ -35,7 +35,7 @@ import flash.utils.Dictionary;
  *     public static const TWO :Foo = new Foo("TWO");
  *     finishedEnumerating(Foo);
  *
- *     // {at}private
+ *     / **  {at}private * /
  *     public function Foo (name :String)
  *     {
  *         super(name);
@@ -141,18 +141,6 @@ public class Enum
             throw new ArgumentError("Not same class");
         }
         return Integer.compare(this.ordinal(), Enum(other).ordinal());
-    }
-
-    /**
-     * Return the Enum of the given class with the given ordinal value.
-     */
-    public static function fromOrdinal (clazz :Class, ordinal :int) :Enum
-    {
-        var values :Array = values(clazz);
-        if (ordinal >= 0 && ordinal < values.length) {
-            return values[ordinal];
-        }
-        throw new ArgumentError("No such enum [class=" + clazz + ", ordinal=" + ordinal + "].");
     }
 
     /**
