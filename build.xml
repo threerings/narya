@@ -51,7 +51,7 @@
       <compilerarg value="-Xlint:-serial"/>
       <include name="com/threerings/presents/tools/**"/>
     </javac>
-    <taskdef resource="com/threerings/presents/tools/presents.properties" classpathref="classpath"/>
+    <taskdef resource="com/threerings/presents/tools.properties" classpathref="classpath"/>
   </target>
 
   <!-- cleans out the intermediate build files -->
@@ -229,6 +229,7 @@
         <include name="com/threerings/admin/**"/>
         <include name="com/threerings/bureau/**"/>
         <exclude name="com/threerings/**/tools/**"/>
+        <exclude name="com/threerings/**/tools.properties"/>
         <exclude name="**/*.html,**/*.png"/>
       </fileset>
     </jar>
@@ -238,6 +239,7 @@
         <include name="com/threerings/presents/annotation/**"/>
         <include name="com/threerings/presents/dobj/**"/>
         <include name="com/threerings/**/tools/**"/>
+        <include name="com/threerings/**/tools.properties"/>
       </fileset>
       <zipfileset src="${deploy.dir}/lib/samskivert.jar"/>
       <zipfileset src="${deploy.dir}/lib/velocity-1.5-dev.jar"/>
