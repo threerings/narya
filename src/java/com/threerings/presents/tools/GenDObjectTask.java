@@ -249,8 +249,7 @@ public class GenDObjectTask extends Task
                 _velocity.mergeTemplate(
                     BASE_TMPL + tname, "UTF-8", ctx, mwriter);
             } catch (Exception e) {
-                System.err.println("Failed processing template");
-                e.printStackTrace(System.err);
+                throw new BuildException("Failed processing template", e);
             }
 
             // and append them as appropriate to the string buffers
