@@ -236,10 +236,8 @@
     <jar destfile="${deploy.dir}/${lib.name}-tools.jar">
       <fileset dir="${classes.dir}">
         <include name="com/threerings/io/**"/>
-        <include name="com/threerings/presents/annotation/**"/>
-        <include name="com/threerings/presents/dobj/**"/>
-        <include name="com/threerings/**/tools/**"/>
-        <include name="com/threerings/**/tools.properties"/>
+        <include name="com/threerings/presents/**"/>
+        <include name="com/threerings/util/**"/>
       </fileset>
       <zipfileset src="${deploy.dir}/lib/samskivert.jar"/>
       <zipfileset src="${deploy.dir}/lib/velocity-1.5-dev.jar"/>

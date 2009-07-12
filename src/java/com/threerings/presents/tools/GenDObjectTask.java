@@ -118,32 +118,25 @@ public class GenDObjectTask extends Task
     /** Processes a distributed object source file. */
     protected void processObject (File source)
     {
-        // System.err.println("Processing " + source + "...");
         // load up the file and determine it's package and classname
         String name = null;
         try {
+            // System.err.println("Processing " + source + "...");
             name = GenUtil.readClassName(source);
-        } catch (Exception e) {
-            System.err.println(
-                "Failed to parse " + source + ": " + e.getMessage());
-        }
-
-        try {
             processObject(source, _cloader.loadClass(name));
         } catch (ClassNotFoundException cnfe) {
-            System.err.println(
-                "Failed to load " + name + ".\n" +
-                "Missing class: " + cnfe.getMessage());
-            System.err.println(
-                "Be sure to set the 'classpathref' attribute to a classpath\n" +
-                "that contains your projects invocation service classes.");
+            System.err.println("Failed to load " + name + ".\n" +
+                               "Missing class: " + cnfe.getMessage());
+            System.err.println("Be sure to set the 'classpathref' attribute to a classpath\n" +
+                               "that contains your projects invocation service classes.");
         } catch (Exception e) {
-            e.printStackTrace(System.err);
+            throw new BuildException("Failed to process " + source.getName() + ": " + e, e);
         }
     }
 
     /** Processes a resolved distributed object class instance. */
     protected void processObject (File source, Class<?> oclass)
+        throws Exception
     {
         // make sure we extend distributed object
         if (!_doclass.isAssignableFrom(oclass) || _doclass.equals(oclass)) {
@@ -166,12 +159,7 @@ public class GenDObjectTask extends Task
 
         // slurp our source file into newline separated strings
         SourceFile sfile = new SourceFile();
-        try {
-            sfile.readFrom(source);
-        } catch (IOException ioe) {
-            System.err.println("Error reading '" + source + "': " + ioe);
-            return;
-        }
+        sfile.readFrom(source);
 
         // generate our fields section and our methods section
         StringBuilder fsection = new StringBuilder();
@@ -244,13 +232,8 @@ public class GenDObjectTask extends Task
             // now generate our bits
             StringWriter fwriter = new StringWriter();
             StringWriter mwriter = new StringWriter();
-            try {
-                _velocity.mergeTemplate(NAME_TMPL, "UTF-8", ctx, fwriter);
-                _velocity.mergeTemplate(
-                    BASE_TMPL + tname, "UTF-8", ctx, mwriter);
-            } catch (Exception e) {
-                throw new BuildException("Failed processing template", e);
-            }
+            _velocity.mergeTemplate(NAME_TMPL, "UTF-8", ctx, fwriter);
+            _velocity.mergeTemplate(BASE_TMPL + tname, "UTF-8", ctx, mwriter);
 
             // and append them as appropriate to the string buffers
             if (ii > 0) {
@@ -262,11 +245,7 @@ public class GenDObjectTask extends Task
         }
 
         // now bolt everything back together into a class declaration
-        try {
-            sfile.writeTo(source, fsection.toString(), msection.toString());
-        } catch (IOException ioe) {
-            System.err.println("Error writing '" + source + "': " + ioe);
-        }
+        sfile.writeTo(source, fsection.toString(), msection.toString());
     }
 
     /** A list of filesets that contain tile images. */

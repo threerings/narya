@@ -47,6 +47,7 @@ public class GenReceiverTask extends InvocationTask
 {
     @Override
     protected void processService (File source, Class<?> receiver)
+        throws Exception
     {
         System.out.println("Processing " + receiver.getName() + "...");
         String rname = receiver.getName();
@@ -95,6 +96,7 @@ public class GenReceiverTask extends InvocationTask
 
     protected void generateSender (File source, String rname, String rpackage,
                                    List<?> methods, Iterator<String> imports)
+        throws Exception
     {
         String name = StringUtil.replace(rname, "Receiver", "");
         String spackage = StringUtil.replace(rpackage, ".client", ".server");
@@ -115,25 +117,19 @@ public class GenReceiverTask extends InvocationTask
         ctx.put("methods", methods);
         ctx.put("imports", implist);
 
-        try {
-            StringWriter sw = new StringWriter();
-            _velocity.mergeTemplate(SENDER_TMPL, "UTF-8", ctx, sw);
+        StringWriter sw = new StringWriter();
+        _velocity.mergeTemplate(SENDER_TMPL, "UTF-8", ctx, sw);
 
-            // determine the path to our sender file
-            String mpath = source.getPath();
-            mpath = StringUtil.replace(mpath, "Receiver", "Sender");
-            mpath = replacePath(mpath, "/client/", "/server/");
-
-            writeFile(mpath, sw.toString());
-
-        } catch (Exception e) {
-            System.err.println("Failed processing template");
-            e.printStackTrace(System.err);
-        }
+        // determine the path to our sender file
+        String mpath = source.getPath();
+        mpath = StringUtil.replace(mpath, "Receiver", "Sender");
+        mpath = replacePath(mpath, "/client/", "/server/");
+        writeFile(mpath, sw.toString());
     }
 
-    protected void generateDecoder (
-        File source, String rname, String rpackage, List<?> methods, Iterator<String> imports)
+    protected void generateDecoder (File source, String rname, String rpackage,
+                                    List<?> methods, Iterator<String> imports)
+        throws Exception
     {
         String name = StringUtil.replace(rname, "Receiver", "");
 
@@ -150,20 +146,13 @@ public class GenReceiverTask extends InvocationTask
         ctx.put("methods", methods);
         ctx.put("imports", implist);
 
-        try {
-            StringWriter sw = new StringWriter();
-            _velocity.mergeTemplate(DECODER_TMPL, "UTF-8", ctx, sw);
+        StringWriter sw = new StringWriter();
+        _velocity.mergeTemplate(DECODER_TMPL, "UTF-8", ctx, sw);
 
-            // determine the path to our sender file
-            String mpath = source.getPath();
-            mpath = StringUtil.replace(mpath, "Receiver", "Decoder");
-
-            writeFile(mpath, sw.toString());
-
-        } catch (Exception e) {
-            System.err.println("Failed processing template");
-            e.printStackTrace(System.err);
-        }
+        // determine the path to our sender file
+        String mpath = source.getPath();
+        mpath = StringUtil.replace(mpath, "Receiver", "Decoder");
+        writeFile(mpath, sw.toString());
     }
 
     /** Specifies the path to the sender template. */

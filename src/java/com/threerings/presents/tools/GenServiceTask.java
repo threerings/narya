@@ -29,6 +29,7 @@ import java.util.HashSet;
 import java.io.File;
 import java.io.StringWriter;
 
+import org.apache.tools.ant.BuildException;
 import org.apache.velocity.VelocityContext;
 
 import com.google.common.base.Predicate;
@@ -173,6 +174,7 @@ public class GenServiceTask extends InvocationTask
     // documentation inherited
     @Override
     protected void processService (File source, Class<?> service)
+        throws Exception
     {
         System.out.println("Processing " + service.getName() + "...");
 
@@ -195,6 +197,7 @@ public class GenServiceTask extends InvocationTask
     }
 
     protected void generateMarshaller (File source, ServiceDescription sdesc, boolean skipAS)
+        throws Exception
     {
         if (_verbose) {
             System.out.println("Generating marshaller");
@@ -253,15 +256,9 @@ public class GenServiceTask extends InvocationTask
         mpath = StringUtil.replace(mpath, "Service", "Marshaller");
         mpath = replacePath(mpath, "/client/", "/data/");
 
-        try {
-            StringWriter sw = new StringWriter();
-            _velocity.mergeTemplate(MARSHALLER_TMPL, "UTF-8", ctx, sw);
-            writeFile(mpath, sw.toString());
-
-        } catch (Exception e) {
-            System.err.println("Failed processing template");
-            e.printStackTrace(System.err);
-        }
+        StringWriter sw = new StringWriter();
+        _velocity.mergeTemplate(MARSHALLER_TMPL, "UTF-8", ctx, sw);
+        writeFile(mpath, sw.toString());
 
         // if we're not configured with an ActionScript source root, don't generate the
         // ActionScript versions
@@ -321,63 +318,55 @@ public class GenServiceTask extends InvocationTask
         ctx.put("imports", imports.toList());
 
         // now generate ActionScript versions of our marshaller
-        try {
-            // make sure our marshaller directory exists
-            String mppath = mpackage.replace('.', File.separatorChar);
-            new File(_asroot + File.separator + mppath).mkdirs();
 
-            // generate an ActionScript version of our marshaller
-            String ampath = _asroot + File.separator + mppath +
-                File.separator + mname + ".as";
-            StringWriter sw = new StringWriter();
-            _velocity.mergeTemplate(AS_MARSHALLER_TMPL, "UTF-8", ctx, sw);
-            writeFile(ampath, sw.toString());
+        // make sure our marshaller directory exists
+        String mppath = mpackage.replace('.', File.separatorChar);
+        new File(_asroot + File.separator + mppath).mkdirs();
 
-            // ----------- Part III - as listener marshallers
+        // generate an ActionScript version of our marshaller
+        String ampath = _asroot + File.separator + mppath + File.separator + mname + ".as";
+        sw = new StringWriter();
+        _velocity.mergeTemplate(AS_MARSHALLER_TMPL, "UTF-8", ctx, sw);
+        writeFile(ampath, sw.toString());
 
-            Class<?> imlm = InvocationMarshaller.ListenerMarshaller.class;
+        // ----------- Part III - as listener marshallers
 
-            // now generate ActionScript versions of our listener marshallers
-            // because those have to be in separate files
-            for (ServiceListener listener : sdesc.listeners) {
-                // start imports with just those used by listener methods
-                imports = listener.imports.clone();
+        Class<?> imlm = InvocationMarshaller.ListenerMarshaller.class;
 
-                // always need the super class and the listener class
-                imports.add(imlm);
-                imports.add(listener.listener);
+        // now generate ActionScript versions of our listener marshallers
+        // because those have to be in separate files
+        for (ServiceListener listener : sdesc.listeners) {
+            // start imports with just those used by listener methods
+            imports = listener.imports.clone();
 
-                // replace '$' with '_' for action script naming convention
-                imports.translateInnerClasses();
+            // always need the super class and the listener class
+            imports.add(imlm);
+            imports.add(listener.listener);
 
-                // convert primitive java types to ooo util types
-                imports.replace("long", "com.threerings.util.Long");
+            // replace '$' with '_' for action script naming convention
+            imports.translateInnerClasses();
 
-                // convert object arrays to typed arrays
-                if (imports.removeAll("[L*") > 0) {
-                    imports.add("com.threerings.io.TypedArray");
-                }
+            // convert primitive java types to ooo util types
+            imports.replace("long", "com.threerings.util.Long");
 
-                // get rid of remaining primitives and java.lang types
-                imports.removeGlobals();
-
-                // remove imports in our own package
-                imports.removeSamePackage(mpackage);
-
-                ctx.put("imports", imports.toList());
-                ctx.put("listener", listener);
-                sw = new StringWriter();
-                _velocity.mergeTemplate(
-                    AS_LISTENER_MARSHALLER_TMPL, "UTF-8", ctx, sw);
-                String aslpath = _asroot + File.separator + mppath +
-                    File.separator + mname + "_" +
-                    listener.getName() + "Marshaller.as";
-                writeFile(aslpath, sw.toString());
+            // convert object arrays to typed arrays
+            if (imports.removeAll("[L*") > 0) {
+                imports.add("com.threerings.io.TypedArray");
             }
 
-        } catch (Exception e) {
-            System.err.println("Failed processing template");
-            e.printStackTrace(System.err);
+            // get rid of remaining primitives and java.lang types
+            imports.removeGlobals();
+
+            // remove imports in our own package
+            imports.removeSamePackage(mpackage);
+
+            ctx.put("imports", imports.toList());
+            ctx.put("listener", listener);
+            sw = new StringWriter();
+            _velocity.mergeTemplate(AS_LISTENER_MARSHALLER_TMPL, "UTF-8", ctx, sw);
+            String aslpath = _asroot + File.separator + mppath +
+                File.separator + mname + "_" + listener.getName() + "Marshaller.as";
+            writeFile(aslpath, sw.toString());
         }
 
         // ----------- Part IV - as service
@@ -418,77 +407,69 @@ public class GenServiceTask extends InvocationTask
         ctx.put("imports", imports.toList());
         ctx.put("package", sdesc.spackage);
 
-        try {
-            // make sure our service directory exists
-            String sppath = sdesc.spackage.replace('.', File.separatorChar);
-            new File(_asroot + File.separator + sppath).mkdirs();
+        // make sure our service directory exists
+        String sppath = sdesc.spackage.replace('.', File.separatorChar);
+        new File(_asroot + File.separator + sppath).mkdirs();
 
-            // generate an ActionScript version of our service
-            String aspath = _asroot + File.separator + sppath +
-                File.separator + sname + ".as";
-            StringWriter sw = new StringWriter();
-            _velocity.mergeTemplate(AS_SERVICE_TMPL, "UTF-8", ctx, sw);
-            writeFile(aspath, sw.toString());
+        // generate an ActionScript version of our service
+        String aspath = _asroot + File.separator + sppath + File.separator + sname + ".as";
+        sw = new StringWriter();
+        _velocity.mergeTemplate(AS_SERVICE_TMPL, "UTF-8", ctx, sw);
+        writeFile(aspath, sw.toString());
 
-            // ----------- Part V - as service listeners
+        // ----------- Part V - as service listeners
+        Class<?> isil = InvocationService.InvocationListener.class;
 
-            Class<?> isil = InvocationService.InvocationListener.class;
+        // also generate ActionScript versions of any inner listener
+        // interfaces because those have to be in separate files
+        for (ServiceListener listener : sdesc.listeners) {
+            // start with just the imports needed by listener methods
+            imports = listener.imports.clone();
 
-            // also generate ActionScript versions of any inner listener
-            // interfaces because those have to be in separate files
-            for (ServiceListener listener : sdesc.listeners) {
+            // add things needed by all listeners
+            imports.add(isil);
+            imports.add(listener.listener);
 
-                // start with just the imports needed by listener methods
-                imports = listener.imports.clone();
+            // change Foo$Bar to Foo_Bar
+            imports.translateInnerClasses();
 
-                // add things needed by all listeners
-                imports.add(isil);
-                imports.add(listener.listener);
-
-                // change Foo$Bar to Foo_Bar
-                imports.translateInnerClasses();
-
-                // use a typed array for any arrays of objects
-                if (imports.removeAll("[L*") > 0) {
-                    imports.add("com.threerings.io.TypedArray");
-                }
-
-                // convert java primitive types to ooo util types
-                imports.replace("long", "com.threerings.util.Long");
-
-                // get rid of remaining primitives and java.lang types
-                imports.removeGlobals();
-
-                // remove imports in our own package
-                imports.removeSamePackage(sdesc.spackage);
-
-                ctx.put("imports", imports.toList());
-                ctx.put("listener", listener);
-
-                sw = new StringWriter();
-                _velocity.mergeTemplate(AS_LISTENER_SERVICE_TMPL, "UTF-8", ctx, sw);
-                String aslpath = _asroot + File.separator + sppath +
-                    File.separator + sname + "_" +
-                    listener.getName() + "Listener.as";
-                writeFile(aslpath, sw.toString());
-
-                if (_aslistenerAdapters.contains(sname)) {
-                    sw = new StringWriter();
-                    _velocity.mergeTemplate(AS_LISTENER_ADAPTER_SERVICE_TMPL, "UTF-8", ctx, sw);
-                    String aslapath = _asroot + File.separator + sppath +
-                        File.separator + sname + "_" +
-                        listener.getName() + "ListenerAdapter.as";
-                    writeFile(aslapath, sw.toString());
-                }
+            // use a typed array for any arrays of objects
+            if (imports.removeAll("[L*") > 0) {
+                imports.add("com.threerings.io.TypedArray");
             }
 
-        } catch (Exception e) {
-            System.err.println("Failed processing template");
-            e.printStackTrace(System.err);
+            // convert java primitive types to ooo util types
+            imports.replace("long", "com.threerings.util.Long");
+
+            // get rid of remaining primitives and java.lang types
+            imports.removeGlobals();
+
+            // remove imports in our own package
+            imports.removeSamePackage(sdesc.spackage);
+
+            ctx.put("imports", imports.toList());
+            ctx.put("listener", listener);
+
+            sw = new StringWriter();
+            _velocity.mergeTemplate(AS_LISTENER_SERVICE_TMPL, "UTF-8", ctx, sw);
+            String aslpath = _asroot + File.separator + sppath +
+                File.separator + sname + "_" +
+                listener.getName() + "Listener.as";
+            writeFile(aslpath, sw.toString());
+
+            if (_aslistenerAdapters.contains(sname)) {
+                sw = new StringWriter();
+                _velocity.mergeTemplate(AS_LISTENER_ADAPTER_SERVICE_TMPL, "UTF-8", ctx, sw);
+                String aslapath = _asroot + File.separator + sppath +
+                    File.separator + sname + "_" +
+                    listener.getName() + "ListenerAdapter.as";
+                writeFile(aslapath, sw.toString());
+            }
         }
     }
 
     protected void generateDispatcher (File source, ServiceDescription sdesc)
+        throws Exception
     {
         if (_verbose) {
             System.out.println("Generating dispatcher");
@@ -540,24 +521,19 @@ public class GenServiceTask extends InvocationTask
         ctx.put("methods", sdesc.methods);
         ctx.put("imports", imports.toList());
 
-        try {
-            StringWriter sw = new StringWriter();
-            _velocity.mergeTemplate(DISPATCHER_TMPL, "UTF-8", ctx, sw);
+        StringWriter sw = new StringWriter();
+        _velocity.mergeTemplate(DISPATCHER_TMPL, "UTF-8", ctx, sw);
 
-            // determine the path to our marshaller file
-            String mpath = source.getPath();
-            mpath = StringUtil.replace(mpath, "Service", "Dispatcher");
-            mpath = replacePath(mpath, "/client/", "/server/");
+        // determine the path to our marshaller file
+        String mpath = source.getPath();
+        mpath = StringUtil.replace(mpath, "Service", "Dispatcher");
+        mpath = replacePath(mpath, "/client/", "/server/");
 
-            writeFile(mpath, sw.toString());
-
-        } catch (Exception e) {
-            System.err.println("Failed processing template");
-            e.printStackTrace(System.err);
-        }
+        writeFile(mpath, sw.toString());
     }
 
     protected void generateProvider (File source, ServiceDescription sdesc)
+        throws Exception
     {
         if (_verbose) {
             System.out.println("Generating provider");
@@ -604,21 +580,15 @@ public class GenServiceTask extends InvocationTask
         ctx.put("listeners", sdesc.listeners);
         ctx.put("imports", imports.toList());
 
-        try {
-            StringWriter sw = new StringWriter();
-            _velocity.mergeTemplate(PROVIDER_TMPL, "UTF-8", ctx, sw);
+        StringWriter sw = new StringWriter();
+        _velocity.mergeTemplate(PROVIDER_TMPL, "UTF-8", ctx, sw);
 
-            // determine the path to our provider file
-            String mpath = source.getPath();
-            mpath = StringUtil.replace(mpath, "Service", "Provider");
-            mpath = replacePath(mpath, "/client/", "/server/");
+        // determine the path to our provider file
+        String mpath = source.getPath();
+        mpath = StringUtil.replace(mpath, "Service", "Provider");
+        mpath = replacePath(mpath, "/client/", "/server/");
 
-            writeFile(mpath, sw.toString());
-
-        } catch (Exception e) {
-            System.err.println("Failed processing template");
-            e.printStackTrace(System.err);
-        }
+        writeFile(mpath, sw.toString());
     }
 
     /** Rolls up everything needed for the generate* methods. */

@@ -411,26 +411,23 @@ public abstract class InvocationTask extends Task
         try {
             name = GenUtil.readClassName(source);
         } catch (Exception e) {
-            System.err.println(
-                "Failed to parse " + source + ": " + e.getMessage());
+            throw new BuildException("Failed to parse " + source + ": " + e.getMessage());
         }
 
         try {
             processService(source, _cloader.loadClass(name));
         } catch (ClassNotFoundException cnfe) {
-            System.err.println(
-                "Failed to load " + name + ".\n" +
-                "Missing class: " + cnfe.getMessage());
-            System.err.println(
-                "Be sure to set the 'classpathref' attribute to a classpath\n" +
-                "that contains your projects invocation service classes.");
+            System.err.println("Failed to load " + name + ".\n" +
+                               "Missing class: " + cnfe.getMessage());
+            System.err.println("Be sure to set the 'classpathref' attribute to a classpath\n" +
+                               "that contains your projects invocation service classes.");
         } catch (Exception e) {
-            e.printStackTrace(System.err);
+            throw new BuildException("Failed to process " + source.getName() + ": " + e, e);
         }
     }
 
     /** Processes a resolved invocation service class instance. */
-    protected abstract void processService (File source, Class<?> service);
+    protected abstract void processService (File source, Class<?> service) throws Exception;
 
     protected void writeFile (String path, String data)
         throws IOException
