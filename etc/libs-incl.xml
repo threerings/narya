@@ -8,9 +8,6 @@
     <include name="depot.jar"/>
     <include name="ehcache.jar"/>
     <include name="flexTasks.jar"/>
-    <include name="commons-collections.jar"/>
-    <include name="commons-io.jar"/>
-    <include name="commons-lang.jar"/>
     <include name="guice.jar"/>
     <include name="google-collect.jar"/>
     <include name="javassist.jar"/>

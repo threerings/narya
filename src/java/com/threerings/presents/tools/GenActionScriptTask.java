@@ -33,7 +33,6 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 
-import org.apache.commons.io.IOUtils;
 import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.DirectoryScanner;
 import org.apache.tools.ant.Task;
@@ -42,6 +41,7 @@ import org.apache.velocity.app.VelocityEngine;
 
 import com.google.common.collect.Lists;
 
+import com.samskivert.io.StreamUtil;
 import com.samskivert.velocity.VelocityUtil;
 
 import com.threerings.io.Streamable;
@@ -79,7 +79,7 @@ public class GenActionScriptTask extends Task
     public void setHeader (File header)
     {
         try {
-            _header = IOUtils.toString(new FileReader(header));
+            _header = StreamUtil.toString(new FileReader(header));
         } catch (IOException ioe) {
             System.err.println("Unabled to load header '" + header + ": " + ioe.getMessage());
         }

@@ -32,7 +32,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.StringWriter;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.tools.ant.AntClassLoader;
 import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.DirectoryScanner;
@@ -190,7 +189,7 @@ public class GenDObjectTask extends Task
             ctx.put("wrapofield", GenUtil.boxArgument(ftype, "ovalue"));
             ctx.put("clonefield", GenUtil.cloneArgument(_dsclass, f, "value"));
             ctx.put("capfield", StringUtil.unStudlyName(fname).toUpperCase());
-            ctx.put("upfield", StringUtils.capitalize(fname));
+            ctx.put("upfield", StringUtil.capitalize(fname));
 
             // determine the type of transport
             TransportHint hint = f.getAnnotation(TransportHint.class);

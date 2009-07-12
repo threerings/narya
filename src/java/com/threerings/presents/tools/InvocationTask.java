@@ -33,9 +33,8 @@ import java.util.List;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.PrintWriter;
 
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
 import org.apache.tools.ant.AntClassLoader;
 import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.DirectoryScanner;
@@ -49,9 +48,9 @@ import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 
+import com.samskivert.io.StreamUtil;
 import com.samskivert.util.Logger;
 import com.samskivert.util.StringUtil;
-
 import com.samskivert.velocity.VelocityUtil;
 
 import com.threerings.presents.annotation.TransportHint;
@@ -345,7 +344,7 @@ public abstract class InvocationTask extends Task
     public void setHeader (File header)
     {
         try {
-            _header = IOUtils.toString(new FileReader(header));
+            _header = StreamUtil.toString(new FileReader(header));
         } catch (IOException ioe) {
             System.err.println("Unabled to load header '" + header + ": " +
                                ioe.getMessage());
@@ -442,7 +441,7 @@ public abstract class InvocationTask extends Task
         if (_header != null) {
             data = _header + data;
         }
-        FileUtils.writeStringToFile(new File(path), data, "UTF-8");
+        new PrintWriter(new File(path), "UTF-8").append(data).close();
     }
 
     protected static <T> void checkedAdd (List<T> list, T value)
