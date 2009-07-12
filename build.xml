@@ -27,107 +27,6 @@
     <echo level="info" message="EHCache: ${ehcache.present}"/>
   </target>
 
-  <!-- generates fields for persistent record classes -->
-  <target name="genrecord" depends="prepare">
-    <taskdef name="grecord" classname="com.samskivert.depot.tools.GenRecordTask"
-             classpathref="classpath"/>
-    <!-- make sure the record class files are all compiled -->
-    <javac srcdir="src/java" destdir="${classes.dir}" debug="on" optimize="${build.optimize}"
-           deprecation="on" source="1.5" target="1.5">
-      <classpath refid="classpath"/>
-      <include name="**/*Record.java"/>
-    </javac>
-    <!-- now update the source files -->
-    <grecord classpathref="classpath">
-      <fileset dir="src/java" includes="**/*Record.java"/>
-    </grecord>
-  </target>
-
-  <!-- generates additional methods for distributed object classes -->
-  <target name="gendobj" depends="prepare"> 
-    <taskdef name="dobj" classpathref="classpath"
-             classname="com.threerings.presents.tools.GenDObjectTask"/>
-    <!-- make sure the dobject class files are all compiled -->
-    <javac srcdir="src/java" destdir="${classes.dir}" includeAntRuntime="false" debug="on"
-           optimize="${build.optimize}" deprecation="on" source="1.5" target="1.5">
-      <classpath refid="classpath"/>
-      <include name="**/*Object.java"/>
-    </javac>
-    <!-- now generate the associated files -->
-    <dobj classpathref="classpath">
-      <fileset dir="src/java" includes="**/*Object.java"/>
-    </dobj>
-  </target>
-
-  <!-- generates marshaller and dispatcher classes for all invocation service declarations -->
-  <target name="genservice"> 
-    <taskdef name="service" classpathref="classpath"
-             classname="com.threerings.presents.tools.GenServiceTask"/>
-    <!-- make sure the service class files are all compiled -->
-    <javac srcdir="src/java" destdir="${classes.dir}" includeAntRuntime="false" debug="on"
-           optimize="${build.optimize}" deprecation="on" source="1.5" target="1.5">
-      <classpath refid="classpath"/>
-      <include name="**/*Service.java"/>
-      <exclude name="**/InvocationService.java"/>
-    </javac>
-    <!-- now generate the associated files -->
-    <service header="lib/SOURCE_HEADER" asroot="src/as" classpathref="classpath">
-      <fileset dir="src/java" includes="**/*Service.java">
-        <exclude name="**/InvocationService.java"/>
-        <exclude name="**/peer/**"/>
-        <exclude name="**/admin/**"/>
-      </fileset>
-      <providerless service="ChatService"/>
-      <providerless service="SimulatorService"/>
-      <providerless service="TimeBaseService"/>
-    </service>
-    <service header="lib/SOURCE_HEADER" classpathref="classpath">
-      <fileset dir="src/java" includes="**/peer/**/*Service.java"/>
-      <fileset dir="src/java" includes="**/admin/**/*Service.java"/>
-    </service>
-  </target>
-
-  <!-- generates sender and decoder classes for all invocation receiver declarations -->
-  <target name="genreceiver"> 
-    <taskdef name="receiver" classpathref="classpath"
-             classname="com.threerings.presents.tools.GenReceiverTask"/>
-    <!-- make sure the receiver class files are all compiled -->
-    <javac srcdir="src/java" destdir="${classes.dir}" includeAntRuntime="false"
-           debug="on" optimize="${build.optimize}" deprecation="on" source="1.5" target="1.5">
-      <classpath refid="classpath"/>
-      <include name="**/*Receiver.java"/>
-      <exclude name="**/InvocationReceiver.java"/>
-    </javac>
-    <!-- now generate the associated files -->
-    <receiver header="lib/SOURCE_HEADER" classpathref="classpath">
-      <fileset dir="src/java" includes="**/*Receiver.java"
-        excludes="**/InvocationReceiver.java"/>
-    </receiver>
-  </target>
-
-  <!-- adds readField and writeField methods to Stremable classes -->
-  <target name="procstream">
-    <taskdef name="instream" classpathref="classpath"
-             classname="com.threerings.presents.tools.InstrumentStreamableTask"/>
-    <!-- now instrument the associated files -->
-    <instream outdir="${classes.dir}">
-      <path refid="classpath"/>
-      <fileset dir="${classes.dir}" includes="**/data/*.class"/>
-      <fileset dir="${classes.dir}" includes="**/net/*.class"/>
-      <fileset dir="${classes.dir}" includes="**/dobj/*.class"/>
-      <fileset dir="${classes.dir}" includes="**/util/*.class"/>
-    </instream>
-  </target>
-
-  <!-- generates ActionScript versions of our Streamable classes -->
-  <target name="genascript">
-    <taskdef name="genscript" classpathref="classpath"
-             classname="com.threerings.presents.tools.GenActionScriptTask"/>
-    <genscript header="lib/SOURCE_HEADER" asroot="src/as">
-      <fileset dir="src/java" includes="**/data/*.java"/>
-    </genscript>
-  </target>
-
   <!-- prepares the application directories -->
   <target name="prepare">
     <mkdir dir="${deploy.dir}"/>
@@ -141,6 +40,18 @@
     <copy todir="${deploy.dir}/lib" flatten="true">
       <fileset refid="${lib.name}.libs"/>
     </copy>
+  </target>
+
+  <!-- makes sure our tools are compiled and defines the ant tasks -->
+  <target name="preptools" depends="prepare">
+    <javac srcdir="src/java" destdir="${classes.dir}" includeAntRuntime="false"
+           debug="on" optimize="{$build.optimize}" deprecation="on" source="1.5" target="1.5">
+      <classpath refid="classpath"/>
+      <compilerarg value="-Xlint"/>
+      <compilerarg value="-Xlint:-serial"/>
+      <include name="com/threerings/presents/tools/**"/>
+    </javac>
+    <taskdef resource="com/threerings/presents/tools/presents.properties" classpathref="classpath"/>
   </target>
 
   <!-- cleans out the intermediate build files -->
@@ -303,21 +214,130 @@
     <ant dir="tests" target="compile"/>
     <!-- build our various jar files -->
     <jar destfile="${deploy.dir}/${lib.name}-base.jar">
-      <fileset dir="${classes.dir}" includes="com/threerings/NaryaLog**"/>
-      <fileset dir="${classes.dir}" includes="com/threerings/io/**"/>
-      <fileset dir="${classes.dir}" includes="com/threerings/util/**"
-          excludes="**/*.c,**/Makefile,**/*.h"/>
+      <fileset dir="${classes.dir}">
+        <include name="com/threerings/NaryaLog**"/>
+        <include name="com/threerings/io/**"/>
+        <include name="com/threerings/util/**"/>
+        <exclude name="com/threerings/**/tools/**"/>
+        <exclude name="**/*.c,**/Makefile,**/*.h"/>
+      </fileset>
     </jar>
     <jar destfile="${deploy.dir}/${lib.name}-distrib.jar">
-      <fileset dir="${classes.dir}" includes="com/threerings/presents/**"
-               excludes="**/*.html,**/*.png"/>
-      <fileset dir="${classes.dir}" includes="com/threerings/crowd/**"/>
-      <fileset dir="${classes.dir}" includes="com/threerings/admin/**"/>
-      <fileset dir="${classes.dir}" includes="com/threerings/bureau/**"/>
+      <fileset dir="${classes.dir}">
+        <include name="com/threerings/presents/**"/>
+        <include name="com/threerings/crowd/**"/>
+        <include name="com/threerings/admin/**"/>
+        <include name="com/threerings/bureau/**"/>
+        <exclude name="com/threerings/**/tools/**"/>
+        <exclude name="**/*.html,**/*.png"/>
+      </fileset>
+    </jar>
+    <jar destfile="${deploy.dir}/${lib.name}-tools.jar">
+      <fileset dir="${classes.dir}">
+        <include name="com/threerings/io/**"/>
+        <include name="com/threerings/presents/annotation/**"/>
+        <include name="com/threerings/presents/dobj/**"/>
+        <include name="com/threerings/**/tools/**"/>
+      </fileset>
+      <zipfileset src="${deploy.dir}/lib/samskivert.jar"/>
+      <zipfileset src="${deploy.dir}/lib/velocity-1.5-dev.jar"/>
+      <zipfileset src="${deploy.dir}/lib/javassist.jar"/>
+      <zipfileset src="${deploy.dir}/lib/google-collect.jar"/>
     </jar>
     <jar destfile="${deploy.dir}/${lib.name}-tests.jar">
       <fileset dir="tests/${classes.dir}" includes="com/threerings/**"/>
     </jar>
+  </target>
+
+  <!-- generates fields for persistent record classes -->
+  <target name="genrecord" depends="prepare">
+    <taskdef name="grecord" classname="com.samskivert.depot.tools.GenRecordTask"
+             classpathref="classpath"/>
+    <!-- make sure the record class files are all compiled -->
+    <javac srcdir="src/java" destdir="${classes.dir}" debug="on" optimize="${build.optimize}"
+           deprecation="on" source="1.5" target="1.5">
+      <classpath refid="classpath"/>
+      <include name="**/*Record.java"/>
+    </javac>
+    <!-- now update the source files -->
+    <grecord classpathref="classpath">
+      <fileset dir="src/java" includes="**/*Record.java"/>
+    </grecord>
+  </target>
+
+  <!-- generates additional methods for distributed object classes -->
+  <target name="gendobj" depends="preptools"> 
+    <!-- make sure the dobject class files are all compiled -->
+    <javac srcdir="src/java" destdir="${classes.dir}" includeAntRuntime="false" debug="on"
+           optimize="${build.optimize}" deprecation="on" source="1.5" target="1.5">
+      <classpath refid="classpath"/>
+      <include name="**/*Object.java"/>
+    </javac>
+    <!-- now generate the associated files -->
+    <gendobj classpathref="classpath">
+      <fileset dir="src/java" includes="**/*Object.java"/>
+    </gendobj>
+  </target>
+
+  <!-- generates marshaller and dispatcher classes for all invocation service declarations -->
+  <target name="genservice" depends="preptools"> 
+    <!-- make sure the service class files are all compiled -->
+    <javac srcdir="src/java" destdir="${classes.dir}" includeAntRuntime="false" debug="on"
+           optimize="${build.optimize}" deprecation="on" source="1.5" target="1.5">
+      <classpath refid="classpath"/>
+      <include name="**/*Service.java"/>
+      <exclude name="**/InvocationService.java"/>
+    </javac>
+    <!-- now generate the associated files -->
+    <genservice header="lib/SOURCE_HEADER" asroot="src/as" classpathref="classpath">
+      <fileset dir="src/java" includes="**/*Service.java">
+        <exclude name="**/InvocationService.java"/>
+        <exclude name="**/peer/**"/>
+        <exclude name="**/admin/**"/>
+      </fileset>
+      <providerless service="ChatService"/>
+      <providerless service="SimulatorService"/>
+      <providerless service="TimeBaseService"/>
+    </genservice>
+    <genservice header="lib/SOURCE_HEADER" classpathref="classpath">
+      <fileset dir="src/java" includes="**/peer/**/*Service.java"/>
+      <fileset dir="src/java" includes="**/admin/**/*Service.java"/>
+    </genservice>
+  </target>
+
+  <!-- generates sender and decoder classes for all invocation receiver declarations -->
+  <target name="genreceiver" depends="preptools">
+    <!-- make sure the receiver class files are all compiled -->
+    <javac srcdir="src/java" destdir="${classes.dir}" includeAntRuntime="false"
+           debug="on" optimize="${build.optimize}" deprecation="on" source="1.5" target="1.5">
+      <classpath refid="classpath"/>
+      <include name="**/*Receiver.java"/>
+      <exclude name="**/InvocationReceiver.java"/>
+    </javac>
+    <!-- now generate the associated files -->
+    <genreceiver header="lib/SOURCE_HEADER" classpathref="classpath">
+      <fileset dir="src/java" includes="**/*Receiver.java"
+        excludes="**/InvocationReceiver.java"/>
+    </genreceiver>
+  </target>
+
+  <!-- adds readField and writeField methods to Stremable classes -->
+  <target name="procstream" depends="preptools">
+    <!-- now instrument the associated files -->
+    <instream outdir="${classes.dir}">
+      <path refid="classpath"/>
+      <fileset dir="${classes.dir}" includes="**/data/*.class"/>
+      <fileset dir="${classes.dir}" includes="**/net/*.class"/>
+      <fileset dir="${classes.dir}" includes="**/dobj/*.class"/>
+      <fileset dir="${classes.dir}" includes="**/util/*.class"/>
+    </instream>
+  </target>
+
+  <!-- generates ActionScript versions of our Streamable classes -->
+  <target name="genascript" depends="preptools">
+    <genascript header="lib/SOURCE_HEADER" asroot="src/as">
+      <fileset dir="src/java" includes="**/data/*.java"/>
+    </genascript>
   </target>
 
   <!-- various bits used by the retroweaver tasks -->
