@@ -1136,6 +1136,9 @@ public class ConnectionManager extends LoopingThread
             if (_partial != null) {
                 // if our outgoing channel is gone or closed, then bail immediately
                 SocketChannel sochan = conn.getChannel();
+                if (sochan.isConnectionPending()) {
+                    return false; // not ready to write to this connection yet
+                }
                 if (sochan == null || (!sochan.isConnected() && !sochan.isConnectionPending())) {
                     throw new IOException("Connection unavailable for overflow write " + sochan);
                 }
