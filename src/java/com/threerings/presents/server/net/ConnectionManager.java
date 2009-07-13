@@ -33,6 +33,7 @@ import java.io.IOException;
 
 import java.nio.ByteBuffer;
 import java.nio.channels.DatagramChannel;
+import java.nio.channels.NotYetConnectedException;
 import java.nio.channels.SelectableChannel;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
@@ -768,6 +769,11 @@ public class ConnectionManager extends LoopingThread
                 fully = false;
                 pwh.handlePartialWrite(conn, _outbuf);
             }
+
+        } catch (NotYetConnectedException nyce) {
+            // this should be caught by isConnectionPending() but awesomely it's not
+            pwh.handlePartialWrite(conn, _outbuf);
+            return false;
 
         } catch (IOException ioe) {
             conn.networkFailure(ioe); // instruct the connection to deal with its failure
