@@ -38,6 +38,9 @@ public class NodeObject extends DObject
     /** The field name of the <code>nodeName</code> field. */
     public static final String NODE_NAME = "nodeName";
 
+    /** The field name of the <code>bootStamp</code> field. */
+    public static final String BOOT_STAMP = "bootStamp";
+
     /** The field name of the <code>peerService</code> field. */
     public static final String PEER_SERVICE = "peerService";
 
@@ -130,6 +133,9 @@ public class NodeObject extends DObject
     /** The node name of this peer. */
     public String nodeName;
 
+    /** The time that this node's JVM started up. */
+    public long bootStamp;
+
     /** The service used to make requests of the node. */
     public PeerMarshaller peerService;
 
@@ -163,6 +169,22 @@ public class NodeObject extends DObject
         requestAttributeChange(
             NODE_NAME, value, ovalue);
         this.nodeName = value;
+    }
+
+    /**
+     * Requests that the <code>bootStamp</code> field be set to the
+     * specified value. The local value will be updated immediately and an
+     * event will be propagated through the system to notify all listeners
+     * that the attribute did change. Proxied copies of this object (on
+     * clients) will apply the value change when they received the
+     * attribute changed notification.
+     */
+    public void setBootStamp (long value)
+    {
+        long ovalue = this.bootStamp;
+        requestAttributeChange(
+            BOOT_STAMP, Long.valueOf(value), Long.valueOf(ovalue));
+        this.bootStamp = value;
     }
 
     /**

@@ -249,6 +249,7 @@ public abstract class PeerManager
         // create our node object
         _nodeobj = _omgr.registerObject(createNodeObject());
         _nodeobj.setNodeName(nodeName);
+        _nodeobj.setBootStamp(System.currentTimeMillis());
 
         // register ourselves with the node table
         _self = new NodeRecord(
