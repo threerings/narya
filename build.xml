@@ -243,6 +243,7 @@
       <zipfileset src="${deploy.dir}/lib/velocity-1.5-dev.jar"/>
       <zipfileset src="${deploy.dir}/lib/javassist.jar"/>
       <zipfileset src="${deploy.dir}/lib/google-collect.jar"/>
+      <zipfileset src="${deploy.dir}/lib/commons-collections.jar"/>
     </jar>
     <jar destfile="${deploy.dir}/${lib.name}-tests.jar">
       <fileset dir="tests/${classes.dir}" includes="com/threerings/**"/>
