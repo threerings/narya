@@ -29,7 +29,6 @@ import java.util.HashSet;
 import java.io.File;
 import java.io.StringWriter;
 
-import org.apache.tools.ant.BuildException;
 import org.apache.velocity.VelocityContext;
 
 import com.google.common.base.Predicate;
