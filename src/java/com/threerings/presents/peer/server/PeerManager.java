@@ -21,6 +21,7 @@
 
 package com.threerings.presents.peer.server;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
@@ -29,6 +30,9 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 
 import com.google.common.base.Function;
+import com.google.common.base.Predicates;
+import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
@@ -215,6 +219,17 @@ public abstract class PeerManager
     }
 
     /**
+     * Returns an iterable over our node object and that of our peers.
+     */
+    public Iterable<NodeObject> getNodeObjects ()
+    {
+        return Iterables.filter(
+            Iterables.concat(Collections.singleton(_nodeobj),
+                             Iterables.transform(_peers.values(), GET_NODE_OBJECT)),
+            Predicates.notNull());
+    }
+
+    /**
      * Initializes this peer manager and initiates the process of connecting to its peer nodes.
      * This will also reconfigure the ConnectionManager and ClientManager with peer related bits,
      * so this should not be called until <em>after</em> the main server has set up its client
@@ -302,35 +317,20 @@ public abstract class PeerManager
      */
     public <T> T lookupNodeDatum (Function<NodeObject,T> op)
     {
-        T value = op.apply(_nodeobj);
-        if (value != null) {
+        for (T value : Iterables.transform(getNodeObjects(), op)) {
             return value;
         }
-        for (PeerNode peer : _peers.values()) {
-            if (peer.nodeobj == null) {
-                continue;
-            }
-            value = op.apply(peer.nodeobj);
-            if (value != null) {
-                return value;
-            }
-        }
-        return value;
+        return null;
     }
 
     /**
-     * Applies the supplied operation to all {@link NodeObject}s. The operation should not modify
+     * Applies the supplied function to all {@link NodeObject}s. The operation should not modify
      * the objects unless you really know what you're doing. More likely it will summarize
      * information contained therein.
      */
-    public void applyToNodes (Function<NodeObject,Void> op)
+    public <T> Iterable<T> applyToNodes (Function<NodeObject,T> op)
     {
-        op.apply(_nodeobj);
-        for (PeerNode peer : _peers.values()) {
-            if (peer.nodeobj != null) {
-                op.apply(peer.nodeobj);
-            }
-        }
+        return Iterables.transform(getNodeObjects(), op);
     }
 
     /**
@@ -650,15 +650,9 @@ public abstract class PeerManager
      */
     public String queryLock (NodeObject.Lock lock)
     {
-        // look for it in our own lock set
-        if (_nodeobj.locks.contains(lock)) {
-            return _nodeName;
-        }
-
-        // then in our peers
-        for (PeerNode peer : _peers.values()) {
-            if (peer.nodeobj != null && peer.nodeobj.locks.contains(lock)) {
-                return peer.getNodeName();
+        for (NodeObject nodeobj : getNodeObjects()) {
+            if (nodeobj.locks.contains(lock)) {
+                return nodeobj.nodeName;
             }
         }
         return null;
@@ -1379,6 +1373,14 @@ public abstract class PeerManager
         protected Interval _timeout;
         protected long _startStamp = System.currentTimeMillis();
     }
+
+    /** Extracts the node object from the supplied peer. */
+    protected static final Function<PeerNode, NodeObject> GET_NODE_OBJECT =
+        new Function<PeerNode, NodeObject>() {
+        public NodeObject apply (PeerNode peer) {
+            return peer.nodeobj;
+        }
+    };
 
     // (this need not use a runqueue as all it will do is post an invoker unit)
     protected Interval _peerRefresher = new Interval() {
