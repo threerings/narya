@@ -324,16 +324,6 @@ public abstract class PeerManager
     }
 
     /**
-     * Applies the supplied function to all {@link NodeObject}s. The operation should not modify
-     * the objects unless you really know what you're doing. More likely it will summarize
-     * information contained therein.
-     */
-    public <T> Iterable<T> applyToNodes (Function<NodeObject,T> op)
-    {
-        return Iterables.transform(getNodeObjects(), op);
-    }
-
-    /**
      * Invokes the supplied function on <em>all</em> node objects (except the local node). A caller
      * that needs to call an invocation service method on a remote node should use this mechanism
      * to locate the appropriate node (or nodes) and call the desired method.

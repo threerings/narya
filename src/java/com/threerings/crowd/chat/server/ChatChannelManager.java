@@ -25,7 +25,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import com.google.common.base.Function;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.inject.Inject;
@@ -232,19 +231,16 @@ public abstract class ChatChannelManager
         // generate a mapping from node name to an array of body ids for the participants that are
         // currently on the node in question
         final Map<String,int[]> partMap = Maps.newHashMap();
-        _peerMan.applyToNodes(new Function<NodeObject,Void>() {
-            public Void apply (NodeObject nodeobj) {
-                ArrayIntSet nodeBodyIds = new ArrayIntSet();
-                for (ClientInfo clinfo : nodeobj.clients) {
-                    int bodyId = getBodyId(((CrowdClientInfo)clinfo).visibleName);
-                    if (info.participants.contains(bodyId)) {
-                        nodeBodyIds.add(bodyId);
-                    }
+        for (NodeObject nodeobj : _peerMan.getNodeObjects()) {
+            ArrayIntSet nodeBodyIds = new ArrayIntSet();
+            for (ClientInfo clinfo : nodeobj.clients) {
+                int bodyId = getBodyId(((CrowdClientInfo)clinfo).visibleName);
+                if (info.participants.contains(bodyId)) {
+                    nodeBodyIds.add(bodyId);
                 }
-                partMap.put(nodeobj.nodeName, nodeBodyIds.toIntArray());
-                return null;
             }
-        });
+            partMap.put(nodeobj.nodeName, nodeBodyIds.toIntArray());
+        }
 
         for (Map.Entry<String,int[]> entry : partMap.entrySet()) {
             _peerMan.invokeNodeAction(
