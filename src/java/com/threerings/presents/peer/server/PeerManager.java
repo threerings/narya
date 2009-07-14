@@ -316,7 +316,8 @@ public abstract class PeerManager
      */
     public <T> T lookupNodeDatum (Function<NodeObject,T> op)
     {
-        for (T value : Iterables.transform(getNodeObjects(), op)) {
+        for (T value :
+                Iterables.filter(Iterables.transform(getNodeObjects(), op), Predicates.notNull())) {
             return value;
         }
         return null;
