@@ -57,18 +57,10 @@ public class EHCachePeerCoordinator extends CacheManagerPeerProviderFactory
     /** Must correspond to what's provided to the PeerManagerCacheListener in ehcache.xml. */
     public static final int RMI_PORT = 40001;
 
-    /** Caches we boldly assume exist on each peer. */
-    public static final String[] EHCACHES = {
-        EHCacheAdapter.EHCACHE_RECORD_CACHE,
-        EHCacheAdapter.EHCACHE_SHORT_KEYSET_CACHE,
-        EHCacheAdapter.EHCACHE_LONG_KEYSET_CACHE,
-        EHCacheAdapter.EHCACHE_RESULT_CACHE
-    };
-
     public static void initWithPeers (PeerManager peerMan)
     {
         if (_instance == null) {
-            log.warning("No provider initialized -- not coordinating Whirled and EHCache peers.");
+            log.warning("No provider initialized -- not coordinating Presents and EHCache peers.");
             return;
         }
         _instance.initWithPeers(peerMan);
@@ -105,17 +97,17 @@ public class EHCachePeerCoordinator extends CacheManagerPeerProviderFactory
             throws CacheException
         {
             if (_peerMan == null) {
-                // the ehcache subsystem has fired up but Whirled is still booting;
-                // we return null here and ehcache will try again
+                // the ehcache subsystem has fired up but the server is still booting; we return
+                // null here and ehcache will try again
                 return Collections.emptyList();
             }
 
-            // list the current whirled peers
+            // list the current peers
             final List<CachePeer> result = Lists.newArrayList();
             final Set<String> nodes = Sets.newHashSet();
             for (NodeObject node : _peerMan.getNodeObjects()) {
                 if (node != _peerMan.getNodeObject()) {
-                    addCachesForNode(result, node.nodeName);
+                    addCacheForNode(result, node.nodeName, cache.getName());
                     nodes.add(node.nodeName);
                 }
             }
@@ -157,23 +149,19 @@ public class EHCachePeerCoordinator extends CacheManagerPeerProviderFactory
             return "presents_peer";
         }
 
-        protected void addCachesForNode (List<CachePeer> result, String nodeName)
+        protected void addCacheForNode (List<CachePeer> result, String nodeName, String cacheName)
         {
             String nodeHost = _peerMan.getPeerInternalHostName(nodeName);
             if (nodeHost == null) {
                 log.warning("Eek, couldn't find the public host name of peer", "node", nodeName);
                 return;
             }
-            String rmiBase = "//" + nodeHost + ":" + RMI_PORT + "/";
-
-            // for the given node, acquire a RMI handle for each known Depot cache
-            for (String cacheName : EHCACHES) {
-                try {
-                    result.add(getCache(nodeName, rmiBase + cacheName));
-                } catch (Exception e) {
-                    log.warning("Could not resolve remote peer", "host", nodeHost,
-                        "cache", cacheName, e);
-                }
+            try {
+                String rmiBase = "//" + nodeHost + ":" + RMI_PORT + "/";
+                result.add(getCache(nodeName, rmiBase + cacheName));
+            } catch (Exception e) {
+                log.warning("Could not resolve remote peer", "host", nodeHost,
+                            "cache", cacheName, e);
             }
         }
 
