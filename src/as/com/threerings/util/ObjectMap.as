@@ -39,12 +39,12 @@ public class ObjectMap
     }
 
     /** @inheritDoc */
-    public function put (key :Object, value :Object) :*;
+    public function put (key :Object, value :Object) :*
     {
         var oldVal :* = _dict[key];
         _dict[key] = value;
         if (oldVal === undefined) {
-            size++;
+            _size++;
         }
 
         return oldVal;
@@ -56,7 +56,7 @@ public class ObjectMap
         var oldVal :* = _dict[key];
         if (oldVal !== undefined) {
             delete _dict[key];
-            size--;
+            _size--;
         }
 
         return oldVal;
