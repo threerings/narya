@@ -146,7 +146,7 @@ public class EHCachePeerCoordinator extends CacheManagerPeerProviderFactory
 
         public String getScheme ()
         {
-            return "presents_peer";
+            return "RMI";
         }
 
         protected void addCacheForNode (List<CachePeer> result, String nodeName, String cacheName)
