@@ -35,7 +35,6 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 
-import com.samskivert.depot.EHCacheAdapter;
 import com.samskivert.util.Tuple;
 
 import com.threerings.presents.peer.data.NodeObject;
