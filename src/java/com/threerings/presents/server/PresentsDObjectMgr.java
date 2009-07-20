@@ -280,6 +280,7 @@ public class PresentsDObjectMgr
     public Interval newInterval (final Runnable action)
     {
         return new Interval() {
+            @Override
             public void expired () {
                 if (isRunning()) {
                     postRunnable(new Runnable() {
@@ -295,6 +296,11 @@ public class PresentsDObjectMgr
                 } else {
                     cancel();
                 }
+            }
+
+            @Override
+            public String toString() {
+                return "DObjectManagerInterval(" + action + ")";
             }
         };
     }
