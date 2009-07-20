@@ -279,10 +279,19 @@ public class PresentsDObjectMgr
     // from interface RootDObjectManager
     public Interval newInterval (final Runnable action)
     {
-        return new Interval(this) {
+        return new Interval() {
             public void expired () {
                 if (isRunning()) {
-                    action.run();
+                    postRunnable(new Runnable() {
+                        public void run () {
+                            // if we were canceled between the time that we posted this runnable
+                            // and the time the dobjmgr got around to executing us, we opt not to
+                            // actually execute our runnable because that's how Interval does it
+                            if (_task != null) {
+                                action.run();
+                            }
+                        }
+                    });
                 } else {
                     cancel();
                 }
