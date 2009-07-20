@@ -74,7 +74,7 @@ public class ReportManager
                 logReport(LOG_REPORT_HEADER +
                           generateReport(DEFAULT_TYPE, System.currentTimeMillis(), true));
             }
-        }).schedule(REPORT_INTERVAL, true);
+        }).schedule(getReportInterval(), true);
     }
 
     /**
@@ -173,6 +173,14 @@ public class ReportManager
     protected void logReport (String report)
     {
         log.info(report);
+    }
+
+    /**
+     * Returns the period on which to schedule our report generation.
+     */
+    protected long getReportInterval ()
+    {
+        return REPORT_INTERVAL;
     }
 
     /** The time at which the server was started. */
