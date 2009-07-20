@@ -35,7 +35,6 @@ import com.google.inject.Inject;
 import com.google.inject.Injector;
 import com.google.inject.Singleton;
 
-import com.samskivert.util.Interval;
 import com.samskivert.util.Lifecycle;
 import com.samskivert.util.ObserverList;
 import com.samskivert.util.StringUtil;
@@ -337,21 +336,19 @@ public class ClientManager
     // from interface Lifecycle.Component
     public void init ()
     {
-        // start up an interval that will check for and flush expired sessions
-        _flushSessions = new Interval(_omgr) {
-            @Override public void expired () {
+        // start up an interval that will check for and flush expired sessions (this will be
+        // canceled when the omgr shuts down)
+        _omgr.newInterval(new Runnable() {
+            public void run () {
                 flushSessions();
             }
-        };
-        _flushSessions.schedule(SESSION_FLUSH_INTERVAL, true);
+        }).schedule(SESSION_FLUSH_INTERVAL, true);
     }
 
     // from interface Lifecycle.Component
     public void shutdown ()
     {
         log.info("Client manager shutting down", "ccount", _usermap.size());
-
-        _flushSessions.cancel();
 
         // inform all of our clients that they are being shut down
         synchronized (_usermap) {
@@ -624,9 +621,6 @@ public class ClientManager
 
     /** Tracks registered {@link ClientObserver}s. */
     protected ObserverList<ClientObserver> _clobservers = ObserverList.newSafeInOrder();
-
-    /** Interval to flush expired sessions. */
-    protected Interval _flushSessions;
 
     // our injected dependencies
     @Inject protected PresentsDObjectMgr _omgr;

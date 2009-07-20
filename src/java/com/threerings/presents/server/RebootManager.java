@@ -154,12 +154,11 @@ public abstract class RebootManager
         // should issue the first pre-reboot warning
         _rebootSoon = false;
         long firstWarnTime = (_nextReboot - (WARNINGS[0] * 60 * 1000)) - now;
-        _interval = new Interval(_omgr) {
-            @Override public void expired () {
+        _interval = _omgr.newInterval(new Runnable() {
+            public void run () {
                 doWarning(0);
             }
-        };
-        _interval.schedule(firstWarnTime);
+        }).schedule(firstWarnTime);
     }
 
     /**
@@ -271,12 +270,11 @@ public abstract class RebootManager
         }
 
         // schedule the next warning
-        _interval = new Interval(_omgr) {
-            @Override public void expired () {
+        _interval = _omgr.newInterval(new Runnable() {
+            public void run () {
                 doWarning(level + 1);
             }
-        };
-        _interval.schedule(minutes * 60 * 1000);
+        }).schedule(minutes * 60 * 1000);
         notifyObservers(level);
     }
 
@@ -292,12 +290,11 @@ public abstract class RebootManager
 
         log.info("Reboot delayed due to outstanding locks", "locks", _rebootLocks.elements());
         broadcast("m.reboot_delayed");
-        _interval = new Interval(_omgr) {
-            @Override public void expired () {
+        _interval = _omgr.newInterval(new Runnable() {
+            public void run () {
                 doWarning(WARNINGS.length);
             }
-        };
-        _interval.schedule(60 * 1000);
+        }).schedule(60 * 1000);
         return true;
     }
 

@@ -26,11 +26,10 @@ import com.google.common.collect.Multimap;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
-import com.samskivert.util.Interval;
 import com.samskivert.util.RunQueue;
 import com.samskivert.util.StringUtil;
 
-import com.threerings.presents.annotation.EventQueue;
+import com.threerings.presents.dobj.RootDObjectManager;
 
 import static com.threerings.presents.Log.log;
 
@@ -69,15 +68,13 @@ public class ReportManager
      */
     public void activatePeriodicReport ()
     {
-        // queue up an interval which will generate reports
-        _reportInterval = new Interval(_dobjq) {
-            @Override
-            public void expired () {
+        // queue up an interval which will generate reports as long as the omgr is alive
+        _omgr.newInterval(new Runnable() {
+            public void run () {
                 logReport(LOG_REPORT_HEADER +
                           generateReport(DEFAULT_TYPE, System.currentTimeMillis(), true));
             }
-        };
-        _reportInterval.schedule(REPORT_INTERVAL, true);
+        }).schedule(REPORT_INTERVAL, true);
     }
 
     /**
@@ -178,9 +175,6 @@ public class ReportManager
         log.info(report);
     }
 
-    /** Our interval that generates "state of server" reports. */
-    protected Interval _reportInterval;
-
     /** The time at which the server was started. */
     protected long _serverStartTime = System.currentTimeMillis();
 
@@ -190,8 +184,8 @@ public class ReportManager
     /** Used to generate "state of server" reports. */
     protected Multimap<String, Reporter> _reporters = ArrayListMultimap.create();
 
-    /** We need to queue up our reporting interval on this feller. */
-    @Inject protected @EventQueue RunQueue _dobjq;
+    /** We use the root omgr to queue up our reporting interval. */
+    @Inject protected RootDObjectManager _omgr;
 
     /** The frequency with which we generate "state of server" reports. */
     protected static final long REPORT_INTERVAL = 15 * 60 * 1000L;

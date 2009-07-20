@@ -31,8 +31,6 @@ import com.google.inject.Inject;
 
 import com.samskivert.util.ArrayIntSet;
 import com.samskivert.util.IntSet;
-import com.samskivert.util.Interval;
-import com.samskivert.util.Lifecycle;
 
 import com.threerings.util.Name;
 
@@ -59,7 +57,7 @@ import static com.threerings.crowd.Log.log;
  * Handles chat channel services.
  */
 public abstract class ChatChannelManager
-    implements ChannelSpeakProvider, Lifecycle.ShutdownComponent
+    implements ChannelSpeakProvider
 {
     /**
      * When a body becomes a member of a channel, this method should be called so that any server
@@ -111,30 +109,19 @@ public abstract class ChatChannelManager
         });
     }
 
-    // from interface Lifecycle.Shutdowner
-    public void shutdown ()
-    {
-        // stop our channel closer; always be closing... except now
-        _closer.cancel();
-        _closer = null;
-    }
-
     /**
      * Creates our singleton manager and registers our invocation service.
      */
-    @Inject protected ChatChannelManager (PresentsDObjectMgr omgr, InvocationManager invmgr,
-                                          Lifecycle cycle)
+    @Inject protected ChatChannelManager (PresentsDObjectMgr omgr, InvocationManager invmgr)
     {
         invmgr.registerDispatcher(new ChannelSpeakDispatcher(this), CrowdCodes.CROWD_GROUP);
-        cycle.addComponent(this);
 
-        // create and start our idle channel closer (always be closing)
-        _closer = new Interval(omgr) {
-            @Override public void expired () {
+        // create and start our idle channel closer; this will run as long as omgr is alive
+        omgr.newInterval(new Runnable() {
+            public void run () {
                 closeIdleChannels();
             }
-        };
-        _closer.schedule(IDLE_CHANNEL_CHECK_PERIOD, true);
+        }).schedule(IDLE_CHANNEL_CHECK_PERIOD, true);
     }
 
     /**
@@ -390,9 +377,6 @@ public abstract class ChatChannelManager
         /** The time at which a message was last dispatched on this channel. */
         public long lastMessage;
     }
-
-    /** Used to close channels that have not had any activity in a few minutes. */
-    protected Interval _closer;
 
     /** Contains pending messages for all channels currently being resolved. */
     protected Map<ChatChannel,List<UserMessage>> _resolving = Maps.newHashMap();

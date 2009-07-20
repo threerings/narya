@@ -21,6 +21,7 @@
 
 package com.threerings.presents.dobj;
 
+import com.samskivert.util.Interval;
 import com.samskivert.util.RunQueue;
 
 /**
@@ -53,4 +54,16 @@ public interface RootDObjectManager extends DObjectManager, RunQueue
      * @param oid The object id of the distributed object to be destroyed.
      */
     void destroyObject (int oid);
+
+    /**
+     * Creates an {@link Interval} that runs the supplied runnable. If the root omgr is shutdown
+     * before the interval expires (or if the interval is scheduled to repeat), it will be
+     * automatically cancelled. This makes it easy to schedule fire-and-forget intervals:
+     *
+     * <pre>
+     * _omgr.newInterval(someRunnable).schedule(500); // one shot
+     * Interval ival = _omgr.newInterval(someRunnable).schedule(500, true); // repeater
+     * </pre>
+     */
+    Interval newInterval (Runnable action);
 }

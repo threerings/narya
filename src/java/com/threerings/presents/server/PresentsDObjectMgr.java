@@ -276,6 +276,20 @@ public class PresentsDObjectMgr
         postEvent(new ObjectDestroyedEvent(oid));
     }
 
+    // from interface RootDObjectManager
+    public Interval newInterval (final Runnable action)
+    {
+        return new Interval(this) {
+            public void expired () {
+                if (isRunning()) {
+                    action.run();
+                } else {
+                    cancel();
+                }
+            }
+        };
+    }
+
     /**
      * Returns the object in the object table with the specified oid or null if no object has that
      * oid. Be sure only to call this function from the dobjmgr thread and not to do anything funny

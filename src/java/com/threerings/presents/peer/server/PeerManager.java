@@ -281,8 +281,12 @@ public abstract class PeerManager
         // register ourselves as a client observer
         _clmgr.addClientObserver(this);
 
-        // and start our peer refresh interval
-        _peerRefresher.schedule(5000L, 60*1000L);
+        // and start our peer refresh interval (this lives for the lifetime of the server)
+        _omgr.newInterval(new Runnable() {
+            public void run () {
+                refreshPeers();
+            }
+        }).schedule(5000L, 60*1000L);
 
         // give derived classes an easy way to get in on the init action
         didInit();
@@ -773,9 +777,6 @@ public abstract class PeerManager
             _invmgr.clearDispatcher(_nodeobj.peerService);
         }
 
-        // stop our peer refresher interval
-        _peerRefresher.cancel();
-
         // clear out our client observer registration
         _clmgr.removeClientObserver(this);
 
@@ -1187,9 +1188,8 @@ public abstract class PeerManager
             _remoids = (ArrayIntSet)_suboids.clone();
 
             // schedule a timeout to act if something goes wrong
-            (_timeout = new Interval(_omgr) {
-                @Override
-                public void expired () {
+            _timeout = _omgr.newInterval(new Runnable () {
+                public void run () {
                     log.warning("Lock handler timed out, acting anyway", "lock", _lock,
                                 "acquire", _acquire);
                     _stats.lockTimeouts++;
@@ -1369,13 +1369,6 @@ public abstract class PeerManager
         new Function<PeerNode, NodeObject>() {
         public NodeObject apply (PeerNode peer) {
             return peer.nodeobj;
-        }
-    };
-
-    // (this need not use a runqueue as all it will do is post an invoker unit)
-    protected Interval _peerRefresher = new Interval() {
-        @Override public void expired () {
-            refreshPeers();
         }
     };
 
