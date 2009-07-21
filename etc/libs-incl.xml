@@ -2,8 +2,8 @@
 <!-- declares the libraries needed to build narya -->
 <project name="library-dependencies">
   <fileset dir="${libs.dir}" id="narya.libs">
+    <include name="aopalliance.jar"/>
     <include name="ant.jar"/>
-    <include name="atunit.jar"/>
     <include name="asc.jar"/>
     <include name="commons-collections.jar"/>
     <include name="depot.jar"/>
