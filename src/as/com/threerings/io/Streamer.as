@@ -26,6 +26,7 @@ import flash.utils.Dictionary;
 
 import com.threerings.util.ClassUtil;
 import com.threerings.util.Enum;
+import com.threerings.util.env.Environment;
 
 import com.threerings.io.streamers.ArrayStreamer;
 import com.threerings.io.streamers.ByteStreamer;
@@ -75,10 +76,10 @@ public class Streamer
             // But: the code is smaller, so that wins
             var clazz :Class = ClassUtil.getClassByName(Translations.getFromServer(jname));
 
-            if (ClassUtil.isAssignableAs(Enum, clazz)) {
+            if (Environment.isAssignableAs(Enum, clazz)) {
                 streamer = new EnumStreamer(clazz, jname);
 
-            } else if (ClassUtil.isAssignableAs(Streamable, clazz)) {
+            } else if (Environment.isAssignableAs(Streamable, clazz)) {
                 streamer = new Streamer(clazz, jname);
 
             } else {

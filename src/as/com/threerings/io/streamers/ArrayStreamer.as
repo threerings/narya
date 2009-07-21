@@ -22,7 +22,9 @@
 package com.threerings.io.streamers {
 
 import com.threerings.util.ClassUtil;
+import com.threerings.util.Enum;
 import com.threerings.util.Log;
+import com.threerings.util.env.Environment;
 
 import com.threerings.io.ArrayMask;
 import com.threerings.io.ObjectInputStream;
@@ -50,9 +52,8 @@ public class ArrayStreamer extends Streamer
             // form is "[L<class>;"
             var baseJClass :String = jname.substring(2, jname.length - 1);
             _delegate = Streamer.getStreamerByJavaName(baseJClass);
-            _elementType = ClassUtil.getClassByName(
-                Translations.getFromServer(baseJClass));
-            _isFinal = ClassUtil.isFinal(_elementType);
+            _elementType = ClassUtil.getClassByName(Translations.getFromServer(baseJClass));
+            _isFinal = isFinal(_elementType);
 
         } else if (secondChar === "I") {
             _elementType = int;
@@ -146,6 +147,23 @@ public class ArrayStreamer extends Streamer
                 arr[ii] = ins.readObject();
             } 
         }
+    }
+
+    protected static function isFinal (type :Class) :Boolean
+    {
+        if (type === String) {
+            return true;
+        }
+
+        // all enums are final, even if you forget to make your enum class final, you punk
+        if (Environment.isAssignableAs(Enum, type)) {
+            return true;
+        }
+
+        // TODO: there's currently no way to determine final from the class
+        // I thought examining the prototype might do it, but no dice.
+        // Fuckers!
+        return false;
     }
 
     /** A streamer for our elements. */
