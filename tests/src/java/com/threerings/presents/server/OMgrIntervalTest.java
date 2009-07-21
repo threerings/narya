@@ -3,10 +3,6 @@
 
 package com.threerings.presents.server;
 
-import com.google.inject.Guice;
-import com.google.inject.Inject;
-import com.google.inject.Injector;
-
 import org.junit.Test;
 import static org.junit.Assert.*;
 
