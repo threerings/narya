@@ -22,13 +22,6 @@
 package com.threerings.presents.server;
 
 import org.junit.Test;
-import org.junit.runner.RunWith;
-
-import atunit.AtUnit;
-import atunit.Container;
-import atunit.Unit;
-
-import com.google.inject.Inject;
 
 import com.threerings.presents.data.TestObject;
 import com.threerings.presents.dobj.DEvent;
@@ -42,9 +35,7 @@ import static org.junit.Assert.assertTrue;
 /**
  * Tests the oid list reference tracking code.
  */
-@RunWith(AtUnit.class)
-@Container(Container.Option.GUICE)
-public class RefTest
+public class RefTest extends PresentsTest
 {
     @Test public void runTest ()
     {
@@ -96,5 +87,5 @@ public class RefTest
     protected TestObject _objone;
     protected TestObject _objtwo;
 
-    @Inject @Unit protected PresentsDObjectMgr _omgr;
+    protected PresentsDObjectMgr _omgr = getInstance(PresentsDObjectMgr.class);
 }

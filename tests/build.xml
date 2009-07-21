@@ -163,8 +163,8 @@
   </target>
 
   <!-- run the tests -->
-  <target name="tests" depends="compile"
-    description="Run the tests.">
+  <property name="test" value=""/>
+  <target name="tests" depends="compile" description="Run the tests.">
     <junit printsummary="no" haltonfailure="yes" fork="${junit.fork}">
       <classpath refid="classpath"/>
       <sysproperty key="test_dir" value="${test.dir}"/>
@@ -172,7 +172,7 @@
       <formatter type="brief" usefile="false"/>
       <batchtest>
         <fileset dir="${src.dir}">
-          <include name="**/*Test.java"/>
+          <include name="**/*${test}Test.java"/>
         </fileset>
       </batchtest>
     </junit>

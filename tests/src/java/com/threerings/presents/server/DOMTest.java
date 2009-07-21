@@ -22,13 +22,6 @@
 package com.threerings.presents.server;
 
 import org.junit.Test;
-import org.junit.runner.RunWith;
-
-import atunit.AtUnit;
-import atunit.Container;
-import atunit.Unit;
-
-import com.google.inject.Inject;
 
 import com.threerings.presents.data.TestObject;
 import com.threerings.presents.dobj.AttributeChangeListener;
@@ -41,9 +34,7 @@ import static org.junit.Assert.assertTrue;
 /**
  * A simple test case for the dobjmgr.
  */
-@RunWith(AtUnit.class)
-@Container(Container.Option.GUICE)
-public class DOMTest
+public class DOMTest extends PresentsTestBase
     implements AttributeChangeListener, ElementUpdateListener
 {
     @Test public void runTest ()
@@ -106,5 +97,5 @@ public class DOMTest
     // the values we'll receive via attribute changed events
     protected Object[] values = { new Integer(99), "hoopie", new Integer(25), "howdy" };
 
-    @Inject @Unit protected PresentsDObjectMgr _omgr;
+    protected PresentsDObjectMgr _omgr = getInstance(PresentsDObjectMgr.class);
 }

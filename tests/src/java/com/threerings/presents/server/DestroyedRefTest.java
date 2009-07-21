@@ -22,13 +22,6 @@
 package com.threerings.presents.server;
 
 import org.junit.Test;
-import org.junit.runner.RunWith;
-
-import atunit.AtUnit;
-import atunit.Container;
-import atunit.Unit;
-
-import com.google.inject.Inject;
 
 import com.threerings.presents.data.TestObject;
 import com.threerings.presents.dobj.AttributeChangedEvent;
@@ -37,17 +30,15 @@ import com.threerings.presents.dobj.EventListener;
 import com.threerings.presents.dobj.ObjectAddedEvent;
 import com.threerings.presents.dobj.ObjectDestroyedEvent;
 
-import static com.threerings.presents.Log.log;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import static com.threerings.presents.Log.log;
+
 /**
- * Tests that the dobjmgr will not allow a destroyed object to be added to
- * an oid list.
+ * Tests that the dobjmgr will not allow a destroyed object to be added to an oid list.
  */
-@RunWith(AtUnit.class)
-@Container(Container.Option.GUICE)
-public class DestroyedRefTest
+public class DestroyedRefTest extends PresentsTestBase
 {
     @Test public void runTest ()
     {
@@ -63,9 +54,8 @@ public class DestroyedRefTest
         log.info("The following addToList() should be ignored.");
         _objtwo.addToList(_objone.getOid());
 
-        // now that we have both objects, try to set up the reference.  first
-        // we queue up a destroy event for object two, then we try to reference
-        // it on object one's oid list
+        // now that we have both objects, try to set up the reference.  first we queue up a destroy
+        // event for object two, then we try to reference it on object one's oid list
         _objtwo.destroy();
         _objone.addToList(_objtwo.getOid());
 
@@ -101,5 +91,5 @@ public class DestroyedRefTest
 
     protected TestObject _objone, _objtwo;
 
-    @Inject @Unit protected PresentsDObjectMgr _omgr;
+    protected PresentsDObjectMgr _omgr = getInstance(PresentsDObjectMgr.class);
 }
