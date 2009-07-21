@@ -35,7 +35,7 @@ import static org.junit.Assert.assertTrue;
 /**
  * Tests the oid list reference tracking code.
  */
-public class RefTest extends PresentsTest
+public class RefTest extends PresentsTestBase
 {
     @Test public void runTest ()
     {
