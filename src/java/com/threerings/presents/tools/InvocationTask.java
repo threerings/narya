@@ -188,7 +188,13 @@ public abstract class InvocationTask extends Task
                 if (buf.length() > 0) {
                     buf.append(", ");
                 }
-                buf.append(GenUtil.simpleName(ptypes[ii]));
+                String simpleName = GenUtil.simpleName(ptypes[ii]);
+                if (method.isVarArgs() && ii == ptypes.length - 1) {
+                    // Switch [] with ... for varargs
+                    buf.append(simpleName.substring(0, simpleName.length() - 2)).append("...");
+                } else {
+                    buf.append(simpleName);
+                }
                 buf.append(" arg").append(skipFirst ? ii : ii+1);
             }
             return buf.toString();
