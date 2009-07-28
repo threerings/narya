@@ -24,7 +24,7 @@ package com.threerings.presents.tools;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 
-import java.util.HashSet;
+import java.util.Set;
 
 import java.io.File;
 import java.io.StringWriter;
@@ -74,24 +74,44 @@ public class GenServiceTask extends InvocationTask
         public ServiceListener (Class<?> service, Class<?> listener)
         {
             this.listener = listener;
-            Method[] methdecls = listener.getDeclaredMethods();
-            for (Method m : methdecls) {
-                // service interface methods must be public and abstract
-                if (!Modifier.isPublic(m.getModifiers()) &&
-                    !Modifier.isAbstract(m.getModifiers())) {
-                    continue;
-                }
-                if (_verbose) {
-                    System.out.println("Adding " + m + ", imports are " +
-                        StringUtil.toString(imports));
-                }
-                methods.add(new ServiceMethod(m, imports));
-                if (_verbose) {
-                    System.out.println("Added " + m + ", imports are " +
-                        StringUtil.toString(imports));
+
+            // compute the union of all InvocationListener extensions implemented by this interface
+            Set<Class<?>> ifaces = Sets.newHashSet();
+            addInterfaces(listener, ifaces);
+
+            // add method marshallers for all methods in all interfaces (the marshaller will not
+            // extend the marshallers for its parent interfaces and will use its own codes)
+            for (Class<?> iface : ifaces) {
+                Method[] methdecls = iface.getDeclaredMethods();
+                for (Method m : methdecls) {
+                    // service interface methods must be public and abstract
+                    if (!Modifier.isPublic(m.getModifiers()) &&
+                        !Modifier.isAbstract(m.getModifiers())) {
+                        continue;
+                    }
+                    if (_verbose) {
+                        System.out.println("Adding " + m + ", imports are " +
+                                           StringUtil.toString(imports));
+                    }
+                    methods.add(new ServiceMethod(m, imports));
+                    if (_verbose) {
+                        System.out.println("Added " + m + ", imports are " +
+                                           StringUtil.toString(imports));
+                    }
                 }
             }
             methods.sort();
+        }
+
+        protected void addInterfaces (Class<?> listener, Set<Class<?>> ifaces)
+        {
+            if (!_ilistener.isAssignableFrom(listener) || _ilistener.equals(listener)) {
+                return;
+            }
+            ifaces.add(listener);
+            for (Class<?> iface : listener.getInterfaces()) {
+                addInterfaces(iface, ifaces);
+            }
         }
 
         /**
@@ -668,10 +688,10 @@ public class GenServiceTask extends InvocationTask
     protected File _asroot;
 
     /** Services for which we should not generate provider interfaces. */
-    protected HashSet<String> _providerless = Sets.newHashSet();
+    protected Set<String> _providerless = Sets.newHashSet();
 
     /** Services for which we should generate actionscript listener adapters. */
-    protected HashSet<String> _aslistenerAdapters = Sets.newHashSet();
+    protected Set<String> _aslistenerAdapters = Sets.newHashSet();
 
     /** Specifies the path to the marshaller template. */
     protected static final String MARSHALLER_TMPL =
