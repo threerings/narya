@@ -160,7 +160,7 @@ public class CronLogic
             return;
         }
         new Thread() {
-            public void run () {
+            @Override public void run () {
                 try {
                     job.run();
                 } catch (Throwable t) {
