@@ -61,6 +61,12 @@ public class CronLogic
      * <p> Note that the job will be scheduled to run at some arbitrary minute after the our based
      * on the hashcode of the name of the job class.
      *
+     * <p> Your job will be run on a separate thread and a lock will be held for the duration of
+     * the execution of your job. Do not send your job off to a different thread as the holding of
+     * the lock for some meaningful amount of time is necessary to prevent other nodes from
+     * executing your job at the same time. This will probably change in the future to be less
+     * fragile, but you still don't need to use a separate thread. </p>
+     *
      * @param job a runnable that will be executed periodically <em>on a separate thread</em>.
      * @param hourlyPeriod the number of hours between executions of this job.
      */
@@ -81,6 +87,12 @@ public class CronLogic
      *
      * <p> Note that the job will be scheduled to run at some arbitrary minute after the our based
      * on the hashcode of the name of the job class.
+     *
+     * <p> Your job will be run on a separate thread and a lock will be held for the duration of
+     * the execution of your job. Do not send your job off to a different thread as the holding of
+     * the lock for some meaningful amount of time is necessary to prevent other nodes from
+     * executing your job at the same time. This will probably change in the future to be less
+     * fragile, but you still don't need to use a separate thread. </p>
      *
      * @param job a runnable that will be executed periodically <em>on a separate thread</em>.
      * @param hour the hour of the day at which to execute this job.
