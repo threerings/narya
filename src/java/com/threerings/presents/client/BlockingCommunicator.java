@@ -336,9 +336,12 @@ public class BlockingCommunicator extends Communicator
     {
         // clear out our writer reference
         _datagramWriter = null;
-        log.debug("Datagram writer thread exited.");
 
-        closeDatagramChannel();
+        if (_datagramReader == null) {
+            closeDatagramChannel();
+        }
+
+        log.debug("Datagram writer thread exited.");
     }
 
     /**
