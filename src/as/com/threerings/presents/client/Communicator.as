@@ -96,6 +96,21 @@ public class Communicator
     }
 
     /**
+     * Detects is the communicator has a logoff request pending, i.e. will logoff in the near
+     * future.
+     */
+    public function hasPendingLogoff () :Boolean
+    {
+        // check for a logoff message
+        for each (var message :UpstreamMessage in _outq) {
+            if (message is LogoffRequest) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
      * Attempts to logon on using the port at the specified index.
      */
     protected function attemptLogon (portIdx :int) :Boolean
@@ -287,13 +302,11 @@ public class Communicator
         _portIdx = -1;
 
         // check for a logoff message
-        for each (var message :UpstreamMessage in _outq) {
-            if (message is LogoffRequest) {
-                // don't bother authing, just bail
-                log.info("Logged off prior to socket opening, shutting down");
-                shutdown(null);
-                return;
-            }
+        if (hasPendingLogoff()) {
+            // don't bother authing, just bail
+            log.info("Logged off prior to socket opening, shutting down");
+            shutdown(null);
+            return;
         }
 
         // send our authentication request (do so directly rather than putting it on the outgoing

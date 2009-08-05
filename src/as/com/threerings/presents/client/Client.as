@@ -244,6 +244,16 @@ public class Client extends EventDispatcher
     }
 
     /**
+     * Detects if we have an external logoff request waiting to go through. If the connection is
+     * being throttled, this may return true even though the client <code>isLoggedOn() &&
+     * isConnected()</code>.
+     */
+    public function isLogoffPending () :Boolean
+    {
+        return _switcher == null && _comm != null && _comm.hasPendingLogoff();
+    }
+
+    /**
      * Requests that this client connect and logon to the server with which it was previously
      * configured.
      *
