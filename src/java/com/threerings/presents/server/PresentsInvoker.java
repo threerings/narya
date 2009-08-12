@@ -95,7 +95,7 @@ public class PresentsInvoker extends ReportingInvoker
      * and the DObjectManager are all empty.
      */
     protected class EmptyingUnit extends Unit {
-        public EmptyingUnit(Runnable onEmpty) {
+        public EmptyingUnit (Runnable onEmpty) {
             _onEmpty = onEmpty;
         }
 
@@ -124,7 +124,7 @@ public class PresentsInvoker extends ReportingInvoker
                 _loopCount = 0;
                 // The invoker is empty and running this. Check if everything else is empty.
                 List<BlockingUnit> checkers =
-                    Lists.newArrayListWithExpectedSize(_interdependentInvokers.size() + 1);
+                    Lists.newArrayListWithCapacity(_interdependentInvokers.size() + 1);
                 for (Invoker invoker : _interdependentInvokers) {
                     checkers.add(new BlockingUnit(invoker));
                 }
@@ -144,8 +144,8 @@ public class PresentsInvoker extends ReportingInvoker
                             long timeChecking = System.currentTimeMillis() - checkStart;
                             if (timeChecking >= FIVE_MINUTES) {
                                 log.warning("Waited 5 minutes for the all the blocking units to "
-                                    + " to no avail.  Running onEmpty while items may remain in "
-                                    + "" + "the queue.");
+                                    + "no avail.  Running onEmpty while items may remain in "
+                                    + "the queue.");
                                 releaseCheckers(checkers);
                                 _onEmpty.run();
                                 return false;
@@ -182,7 +182,6 @@ public class PresentsInvoker extends ReportingInvoker
                             return false;
                         }
                     }
-
                 }
             }
         }
