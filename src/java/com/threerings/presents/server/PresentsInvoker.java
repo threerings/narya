@@ -21,11 +21,16 @@
 
 package com.threerings.presents.server;
 
+import java.util.List;
+
+import com.google.common.collect.Lists;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
 import com.samskivert.util.Invoker;
 import com.samskivert.util.Lifecycle;
+
+import com.threerings.presents.server.PresentsDObjectMgr.LongRunnable;
 
 import static com.threerings.presents.Log.log;
 
@@ -43,6 +48,26 @@ public class PresentsInvoker extends ReportingInvoker
         _omgr = omgr;
     }
 
+    /**
+     * Adds an invoker that may post to the PresentsInvoker and the DObjectManager and may be
+     * posted to by the PresentsInvoker and DObjectManager. This invoker will be taken into
+     * consideration by {@link #postRunnableWhenEmpty(Runnable)} and in waiting for invokers to
+     * empty out on shutdown.
+     */
+    public void addInterdependentInvoker (Invoker invoker)
+    {
+        _interdependentInvokers.add(invoker);
+    }
+
+    /**
+     * Posts the given runnable to this invoker when it, the DObjectManager and any interdependent
+     * invokers are all empty.
+     */
+    public void postRunnableWhenEmpty (Runnable onEmpty)
+    {
+        postUnit(new EmptyingUnit(onEmpty));
+    }
+
     @Override // from Invoker, Lifecycle.ShutdownComponent
     public void shutdown ()
     {
@@ -50,7 +75,13 @@ public class PresentsInvoker extends ReportingInvoker
         // specifically avoid setting _shutdownRequested as it's OK for units to be posted to the
         // PresentsInvoker during the shutdown phase, we just delay shutdown until we're able to
         // make it to the shutdown unit without queueing up more units for processing
-        _queue.append(new ShutdownUnit());
+        postRunnableWhenEmpty(new Runnable() {
+            public void run () {
+                _omgr.harshShutdown(); // end the dobj thread
+
+                // Now that things have emptied out, set _shutdownRequested and commit suicide
+                PresentsInvoker.super.shutdown();
+            }});
     }
 
     @Override // from Invoker
@@ -60,105 +91,220 @@ public class PresentsInvoker extends ReportingInvoker
     }
 
     /**
-     * This gets posted back and forth between the invoker and DObjectMgr until both of their
-     * queues are empty and they can both be safely shutdown.
+     * This gets posted to this invoker over and over again until it, any interdependent invokers
+     * and the DObjectManager are all empty.
      */
-    protected class ShutdownUnit extends Unit
-    {
-        // run on the invoker thread
+    protected class EmptyingUnit extends Unit {
+        public EmptyingUnit(Runnable onEmpty) {
+            _onEmpty = onEmpty;
+        }
+
         @Override
         public boolean invoke ()
         {
-            if (checkLoops()) {
+            if (_loopCount > MAX_LOOPS) {
+                log.warning("Emptying waiter looped on invoker 10000 times without finishing, "
+                    + "running onEmpty while items remain in the queue.");
+                _onEmpty.run();
                 return false;
 
             // if the invoker queue is not empty, we put ourselves back on it
-            } else if (_queue.hasElements()) {
+            } else if (!isEmpty()) {
                 _loopCount++;
                 postUnit(this);
                 return false;
 
+            } else if (++_passCount >= MAX_PASSES) {
+                log.warning("Emptying waiter passed 50 times without finishing, running onEmpty "
+                    + "while items remain in queue.");
+                _onEmpty.run();
+                return false;
+
             } else {
-                // the invoker is empty, let's go over to the omgr
                 _loopCount = 0;
-                _passCount++;
-                return true;
+                // The invoker is empty and running this. Check if everything else is empty.
+                List<BlockingUnit> checkers =
+                    Lists.newArrayListWithExpectedSize(_interdependentInvokers.size() + 1);
+                for (Invoker invoker : _interdependentInvokers) {
+                    checkers.add(new BlockingUnit(invoker));
+                }
+                checkers.add(new BlockingUnit());
+                long checkStart = System.currentTimeMillis();
+                while (true) {
+                    synchronized (_checkMonitor) {
+                        boolean unchecked = false;
+                        for (BlockingUnit checker : checkers) {
+                            if (!checker.run) {
+                                unchecked = true;
+                                break;
+                            }
+                        }
+
+                        if (unchecked) {
+                            long timeChecking = System.currentTimeMillis() - checkStart;
+                            if (timeChecking >= FIVE_MINUTES) {
+                                log.warning("Waited 5 minutes for the all the blocking units to "
+                                    + " to no avail.  Running onEmpty while items may remain in "
+                                    + "" + "the queue.");
+                                releaseCheckers(checkers);
+                                _onEmpty.run();
+                                return false;
+                            }
+                            // At least one checker hasn't started running yet.  We need to wait
+                            // till they're all in place before looking at emptiness.
+                            try {
+                                _checkMonitor.wait(FIVE_MINUTES - timeChecking);
+                            } catch (InterruptedException e) {
+                                // Not a problem, we'll just check on the checkers again
+                            }
+                        } else {
+                            // All the checkers are blocking their respective threads.  That means
+                            // if their queues are empty, nothing else is running.
+                            for (BlockingUnit checker : checkers) {
+                                if (!checker.isEmpty()) {
+                                    // Balls, we found an invoker with items in its queue.  Let
+                                    // everybody get back to work.
+                                    releaseCheckers(checkers);
+                                    // Post on the busy unit, so when it clears we'll post back
+                                    // here
+                                    checker.post(new Runnable() {
+                                        public void run () {
+                                            PresentsInvoker.this.postUnit(EmptyingUnit.this);
+                                        }
+                                    });
+                                    return false;
+                                }
+                            }
+                            // Everything is gloriously clean.  Stop blocking all the threads and
+                            // shut down this invoker and the DObjectManager
+                            releaseCheckers(checkers);
+                            _onEmpty.run();
+                            return false;
+                        }
+                    }
+
+                }
             }
         }
 
-        // run on the dobj thread
         @Override
-        public void handleResult ()
+        public long getLongThreshold ()
         {
-            if (checkLoops()) {
-                return;
+            return 60 * 1000;
+        }
 
-            // if the queue isn't empty, re-post
-            } else if (!_omgr.queueIsEmpty()) {
-                _loopCount++;
-                _omgr.postRunnable(this);
-
-            // if the invoker still has stuff and we're still under the pass limit, go ahead and
-            // pass it back to the invoker
-            } else if (_queue.hasElements() && (_passCount < MAX_PASSES)) {
-                // pass the buck back to the invoker
-                _loopCount = 0;
-                postUnit(this);
-
-            } else {
-                // otherwise end it, and complain if we're ending it because of passes
-                if (_passCount >= MAX_PASSES) {
-                    log.warning("Shutdown Unit passed 50 times without finishing, shutting down " +
-                                "harshly.");
+        protected void releaseCheckers (List<BlockingUnit> checkers)
+        {
+            for (BlockingUnit checker : checkers) {
+                synchronized (checker) {
+                    checker.released = true;
+                    checker.notify();
                 }
-                doShutdown();
             }
         }
 
-        /**
-         * Check to make sure we haven't looped too many times.
-         */
-        protected boolean checkLoops ()
-        {
-            if (_loopCount > MAX_LOOPS) {
-                log.warning("Shutdown Unit looped on one thread 10000 times without finishing, " +
-                            "shutting down harshly.");
-                doShutdown();
-                return true;
-            }
-
-            return false;
-        }
-
-        /**
-         * Do the actual shutdown.
-         */
-        protected void doShutdown ()
-        {
-            _omgr.harshShutdown(); // end the dobj thread
-
-            // end the invoker thread
-            postUnit(new Unit() {
-                @Override
-                public boolean invoke () {
-                    _running = false;
-                    return false;
-                }
-            });
-        }
+        /** The runnable to execute when all associated queues are empty or we've given up. */
+        protected Runnable _onEmpty;
 
         /** The number of times we've been passed to the object manager. */
-        protected int _passCount = 0;
+        protected int _passCount;
 
         /** How many times we've looped on the thread we're currently on. */
-        protected int _loopCount = 0;
+        protected int _loopCount;
 
         /** The maximum number of passes we allow before just ending things. */
         protected static final int MAX_PASSES = 50;
 
         /** The maximum number of loops we allow before just ending things. */
         protected static final int MAX_LOOPS = 10000;
+
+        protected static final long FIVE_MINUTES = 5 * 60 * 1000L;
     }
+
+    /**
+     * Runs in an Invoker or the DObjectManager and blocks it until released by EmptyingUnit.
+     */
+    protected class BlockingUnit extends Unit implements LongRunnable {
+        /**
+         * If the run method of this checker has been entered. If this is true while released is
+         * false, this checker is blocking its thread.
+         */
+        public boolean run;
+
+        /** If this checker no longer needs to block its thread. */
+        public boolean released;
+
+        public BlockingUnit ()
+        {
+            _omgr.postRunnable(this);
+        }
+
+        public BlockingUnit (Invoker invoker)
+        {
+            _invoker = invoker;
+            _invoker.postUnit(this);
+        }
+
+        public boolean isEmpty ()
+        {
+            return _invoker == null ? _omgr.queueIsEmpty() : _invoker.isEmpty();
+        }
+
+        public void post (Runnable runnable)
+        {
+            if (_invoker != null) {
+                _invoker.postRunnable(runnable);
+            } else {
+                _omgr.postRunnable(runnable);
+            }
+        }
+
+        @Override
+        public void run()
+        {
+            // Override Invoker.Unit's run altogether to allow this to be posted as a Runnable to
+            // the DObjectMgr as well.
+            run = true;
+            synchronized (_checkMonitor) {
+                _checkMonitor.notify();
+            }
+            synchronized (this) {
+                while (!released) {
+                    try {
+                        wait();
+                    } catch (InterruptedException e) {
+                        // Not a problem, we'll check our invariant
+                    }
+                }
+            }
+        }
+
+        @Override
+        public boolean invoke ()
+        {
+            run();
+            return false;
+        }
+
+        @Override
+        public long getLongThreshold ()
+        {
+            // Don't bitch about being a long invoker unless this has been blocking for longer than
+            // the EmptyingUnit timeout
+            return EmptyingUnit.FIVE_MINUTES;
+        }
+
+        protected Invoker _invoker;
+    }
+
+    /**
+     * Synchronizes between EmptyingUnit and its BlockingUnits when checking that all
+     * interdependent invokers are blocked.
+     */
+    protected Object _checkMonitor = new Object();
+
+    /** Invokers that may post to Presents and may be posted to by Presents. */
+    protected List<Invoker> _interdependentInvokers = Lists.newArrayList();
 
     /** The distributed object manager with which we interoperate. */
     protected PresentsDObjectMgr _omgr;

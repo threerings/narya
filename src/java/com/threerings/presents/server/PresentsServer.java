@@ -150,6 +150,7 @@ public class PresentsServer
         // start the main and auth invoker threads
         _invoker.start();
         _authInvoker.start();
+        ((PresentsInvoker)_invoker).addInterdependentInvoker(_authInvoker);
 
         // provide our client manager with the injector it needs
         _clmgr.setInjector(injector);
