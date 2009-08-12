@@ -21,12 +21,11 @@
 
 package com.threerings.util;
 
+import java.text.MessageFormat;
 import java.util.Collection;
 import java.util.Enumeration;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
-
-import java.text.MessageFormat;
 
 import com.samskivert.text.MessageUtil;
 import com.samskivert.util.StringUtil;
@@ -236,10 +235,11 @@ public class MessageBundle
     /**
      * Get a String from the resource bundle, or null if there was an error.
      */
-    protected String getResourceString (String key)
+    public String getResourceString (String key)
     {
         return getResourceString(key, true);
     }
+
 
     /**
      * Get a String from the resource bundle, or null if there was an
@@ -249,7 +249,7 @@ public class MessageBundle
      * @param reportMissing whether or not the method should log an error
      * if the resource didn't exist.
      */
-    protected String getResourceString (String key, boolean reportMissing)
+    public String getResourceString (String key, boolean reportMissing)
     {
         try {
             if (_bundle != null) {

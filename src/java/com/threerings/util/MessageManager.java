@@ -140,12 +140,13 @@ public class MessageManager
 
         // if the resource bundle contains a special resource, we'll interpret that as a derivation
         // of MessageBundle to instantiate for handling that class
+        MessageBundle customBundle = null;
         if (rbundle != null) {
             String mbclass = null;
             try {
                 mbclass = rbundle.getString(MBUNDLE_CLASS_KEY).trim();
                 if (!StringUtil.isBlank(mbclass)) {
-                    bundle = (MessageBundle)Class.forName(mbclass).newInstance();
+                    customBundle = (MessageBundle)Class.forName(mbclass).newInstance();
                 }
 
             } catch (MissingResourceException mre) {
@@ -157,17 +158,36 @@ public class MessageManager
             }
         }
 
-        // if there was no custom class, or we failed to instantiate the custom class, use a
-        // standard message bundle
-        if (bundle == null) {
-            bundle = new MessageBundle();
-        }
-
         // initialize our message bundle, cache it and return it (if we couldn't resolve the
         // bundle, the message bundle will cope with its null resource bundle)
-        bundle.init(this, path, rbundle, _global);
+        bundle = createBundle(path, rbundle, customBundle);
         _cache.put(path, bundle);
         return bundle;
+    }
+
+    /**
+     * Returns the bundle to use for the given path and resource bundle. If customBundle is
+     * non-null, it's an instance of the bundle class specified by the bundle itself and should be
+     * used as part of the created bundle.
+     */
+    protected MessageBundle createBundle (String path, ResourceBundle rbundle,
+        MessageBundle customBundle)
+    {
+        // if there was no custom class, or we failed to instantiate the custom class, use a
+        // standard message bundle
+        if (customBundle == null) {
+            customBundle = new MessageBundle();
+        }
+        initBundle(customBundle, path, rbundle);
+        return customBundle;
+    }
+
+    /**
+     * Initializes the given bundle with this manager and the given path and resource bundle.
+     */
+    protected void initBundle (MessageBundle bundle, String path, ResourceBundle rbundle)
+    {
+        bundle.init(this, path, rbundle, _global);
     }
 
     /**
