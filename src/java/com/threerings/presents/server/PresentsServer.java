@@ -40,6 +40,7 @@ import com.threerings.presents.dobj.AccessController;
 import com.threerings.presents.dobj.DObject;
 import com.threerings.presents.dobj.DObjectManager;
 import com.threerings.presents.dobj.RootDObjectManager;
+import com.threerings.presents.server.PresentsDObjectMgr.LongRunnable;
 import com.threerings.presents.server.net.ConnectionManager;
 
 import com.threerings.crowd.server.PlaceManager;
@@ -175,16 +176,30 @@ public class PresentsServer
      */
     public void run ()
     {
-        // post a unit that will start up the connection manager when everything else in the
-        // dobjmgr queue is processed
-        _omgr.postRunnable(new Runnable() {
+        // wait till everything in the dobjmgr queue and invokers are processed and then start the
+        // connection manager
+        ((PresentsInvoker)_invoker).postRunnableWhenEmpty(new Runnable() {
             public void run () {
-                // start up the connection manager
-                _conmgr.start();
+                // Take as long as you like opening to the public
+                _omgr.postRunnable(new LongRunnable() {
+                    public void run () {
+                        openToThePublic();
+                    }
+                });
             }
         });
         // invoke the dobjmgr event loop
         _omgr.run();
+    }
+
+    /**
+     * Opens the server for connections after the event thread is running and all the invokers are
+     * clear after starting up.
+     */
+    protected void openToThePublic ()
+    {
+        log.info("Opening the gates");
+        _conmgr.start();
     }
 
     /**
