@@ -40,9 +40,6 @@ public class ObjectInputStream
 
     public function ObjectInputStream (source :IDataInput = null, clientProps :Object = null)
     {
-        if (source == null) {
-            source = new ByteArray();
-        }
         _source = source || new ByteArray();
         _cliProps = clientProps || {};
     }
