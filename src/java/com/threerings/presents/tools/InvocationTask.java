@@ -235,11 +235,12 @@ public abstract class InvocationTask extends Task
                 if (buf.length() > 0) {
                     buf.append(", ");
                 }
+                String index = String.valueOf(skipFirst ? ii : (ii+1));
                 String arg;
                 if (_ilistener.isAssignableFrom(args[ii])) {
-                    arg = GenUtil.boxASArgument(args[ii],  "listener" + (ii+1));
+                    arg = GenUtil.boxASArgument(args[ii],  "listener" + index);
                 } else {
-                    arg = GenUtil.boxASArgument(args[ii],  "arg" + (ii+1));
+                    arg = GenUtil.boxASArgument(args[ii],  "arg" + index);
                 }
                 buf.append(arg);
             }

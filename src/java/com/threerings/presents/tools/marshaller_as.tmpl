@@ -22,13 +22,14 @@ public class ${name}Marshaller extends InvocationMarshaller
     public static const $m.code :int = $velocityCount;
 
     // from interface ${name}Service
-    public function $m.method.name ($m.getASArgList(false)) :void
+    public function $m.method.name ($m.getASArgList(true)) :void
     {
 #foreach ($la in $m.listenerArgs)
-        var listener$la.index :$la.actionScriptMarshaller = new ${la.actionScriptMarshaller}();
-        listener${la.index}.listener = arg$la.index;
+#set ($argIdx = $la.index - 1)
+        var listener$argIdx :$la.actionScriptMarshaller = new ${la.actionScriptMarshaller}();
+        listener${argIdx}.listener = arg$argIdx;
 #end
-        sendRequest(arg1, $m.code, [
+        sendRequest($m.code, [
             $m.getASWrappedArgList(true)
         ]);
     }
