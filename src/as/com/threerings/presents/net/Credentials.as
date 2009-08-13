@@ -43,7 +43,7 @@ public /* abstract */ class Credentials
     public function readObject (ins :ObjectInputStream) :void
         //throws IOError
     {
-        // nada
+        throw new Error(); // we never read Creds on the client
     }
 }
 }
