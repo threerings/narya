@@ -60,10 +60,8 @@ public class InvocationMarshaller_ListenerMarshaller
             listener.requestFailed((args[0] as String));
 
         } else {
-            Log.getLog(this).warning(
-                "Requested to dispatch unknown invocation response " + 
-                "[listener=" + listener + ", methodId=" + methodId +
-                ", args=" + args + "].");
+            Log.getLog(this).warning("Requested to dispatch unknown invocation response",
+                "listener", listener, "methodId", methodId, "args", args);
         }
     }
 

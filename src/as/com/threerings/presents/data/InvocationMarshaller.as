@@ -28,6 +28,7 @@ import com.threerings.io.ObjectOutputStream;
 import com.threerings.io.Streamable;
 
 import com.threerings.presents.client.Client;
+import com.threerings.presents.client.InvocationDirector;
 import com.threerings.presents.client.InvocationService;
 
 import com.threerings.presents.dobj.DObjectManager;
@@ -73,11 +74,9 @@ public class InvocationMarshaller
      * Called by generated invocation marshaller code; packages up and
      * sends the specified invocation service request.
      */
-    protected function sendRequest (
-            client :Client, methodId :int, args :Array) :void
+    protected function sendRequest (methodId :int, args :Array) :void
     {
-        client.getInvocationDirector().sendRequest(
-            _invOid, _invCode, methodId, args);
+        _invDir.sendRequest(_invOid, _invCode, methodId, args);
     }
 
     /**
@@ -101,6 +100,9 @@ public class InvocationMarshaller
     {
         _invOid = ins.readInt();
         _invCode = ins.readInt();
+
+        // this is sorta hacky, but so is actionscript.
+        _invDir = ins.getClientProperty("invDir");
     }
 
     /** The oid of the invocation object, where invocation service
@@ -110,5 +112,8 @@ public class InvocationMarshaller
     /** The invocation service code assigned to this service when it was
      * registered on the server. */
     protected var _invCode :int;
+
+    /** The invocation director we use. */
+    protected var _invDir :InvocationDirector;
 }
 }

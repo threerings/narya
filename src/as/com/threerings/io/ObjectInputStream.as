@@ -38,12 +38,13 @@ public class ObjectInputStream
 
     public static const log :Log = Log.getLog(ObjectInputStream);
 
-    public function ObjectInputStream (source :IDataInput = null)
+    public function ObjectInputStream (source :IDataInput = null, clientProps :Object = null)
     {
         if (source == null) {
             source = new ByteArray();
         }
-        _source = source;
+        _source = source || new ByteArray();
+        _cliProps = clientProps || {};
     }
 
     /**
@@ -52,6 +53,15 @@ public class ObjectInputStream
     public function setSource (source :IDataInput) :void
     {
         _source = source;
+    }
+
+    /**
+     * Return a "client property" with the specified name.
+     * Actionscript only.
+     */
+    public function getClientProperty (name :String) :*
+    {
+        return _cliProps[name];
     }
 
     /**
@@ -246,6 +256,9 @@ public class ObjectInputStream
     {
         return _source.readUTF();
     }
+
+    /** Named "client properties" that we can provide to deserialized objects. */
+    protected var _cliProps :Object;
 
     /** The target DataInput that we route input from. */
     protected var _source :IDataInput;

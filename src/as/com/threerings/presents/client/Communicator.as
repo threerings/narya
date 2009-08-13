@@ -61,7 +61,7 @@ public class Communicator
         _outBuffer = new ByteArray();
         _outBuffer.endian = Endian.BIG_ENDIAN;
         _outStream = new ObjectOutputStream(_outBuffer);
-        _inStream = new ObjectInputStream();
+        _inStream = new ObjectInputStream(null, { invDir: _client.getInvocationDirector() });
 
         attemptLogon(0);
     }
