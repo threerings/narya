@@ -52,14 +52,6 @@ public class ServiceCreds extends Credentials
     }
 
     // from interface Streamable
-    override public function readObject (ins :ObjectInputStream) :void
-    {
-        super.readObject(ins);
-        clientId = (ins.readField(String) as String);
-        _authToken = (ins.readField(String) as String);
-    }
-
-    // from interface Streamable
     override public function writeObject (out :ObjectOutputStream) :void
     {
         super.writeObject(out);
