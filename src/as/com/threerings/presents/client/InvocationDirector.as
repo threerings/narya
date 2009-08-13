@@ -190,7 +190,6 @@ public class InvocationDirector
             if (arg is InvocationMarshaller_ListenerMarshaller) {
                 var lm :InvocationMarshaller_ListenerMarshaller =
                     (arg as InvocationMarshaller_ListenerMarshaller);
-                lm.callerOid = _clobj.getOid();
                 lm.requestId = nextRequestId();
                 lm.mapStamp = getTimer();
 

@@ -218,7 +218,6 @@ public class InvocationDirector
             Object arg = args[ii];
             if (arg instanceof ListenerMarshaller) {
                 ListenerMarshaller lm = (ListenerMarshaller)arg;
-                lm.callerOid = _clobj.getOid();
                 lm.requestId = nextRequestId();
                 lm.mapStamp = System.currentTimeMillis();
                 // create a mapping for this marshaller so that we can properly dispatch responses

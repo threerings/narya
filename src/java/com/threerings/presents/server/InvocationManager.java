@@ -245,6 +245,7 @@ public class InvocationManager
             Object arg = args[ii];
             if (arg instanceof ListenerMarshaller) {
                 ListenerMarshaller list = (ListenerMarshaller)arg;
+                list.callerOid = clientOid;
                 list.omgr = _omgr;
                 list.transport = transport;
                 // keep track of the listener we'll inform if anything

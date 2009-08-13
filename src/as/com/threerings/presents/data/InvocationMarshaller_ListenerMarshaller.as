@@ -36,9 +36,6 @@ public class InvocationMarshaller_ListenerMarshaller
     /** The method id used to dispatch a requestFailed response. */
     public static const REQUEST_FAILED_RSPID :int = 0;
 
-    /** The oid of the invocation service requester. */
-    public var callerOid :int;
-
     /** The request id associated with this listener. */
     public var requestId :int;
 
@@ -70,14 +67,12 @@ public class InvocationMarshaller_ListenerMarshaller
      */
     public function toString () :String
     {
-        return "[callerOid=" + callerOid + ", reqId=" + requestId +
-            ", type=" + ClassUtil.getClassName(this) +  "]";
+        return "[reqId=" + requestId + ", type=" + ClassUtil.getClassName(this) +  "]";
     }
 
     // documentation inherited from interface Streamable
     public function writeObject (out :ObjectOutputStream) :void
     {
-        out.writeInt(callerOid);
         out.writeShort(requestId);
     }
 

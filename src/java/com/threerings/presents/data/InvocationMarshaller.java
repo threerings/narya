@@ -47,11 +47,11 @@ public class InvocationMarshaller
         /** The method id used to dispatch a {@link #requestFailed} response. */
         public static final int REQUEST_FAILED_RSPID = 0;
 
-        /** The oid of the invocation service requester. */
-        public int callerOid;
-
         /** The request id associated with this listener. */
         public short requestId;
+
+        /** The oid of the invocation service requester. Only used on the server. */
+        public transient int callerOid;
 
         /** The actual invocation listener associated with this marshalling listener. This is only
          * valid on the client. */
