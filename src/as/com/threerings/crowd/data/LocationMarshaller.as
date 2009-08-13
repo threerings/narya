@@ -41,9 +41,9 @@ public class LocationMarshaller extends InvocationMarshaller
     public static const LEAVE_PLACE :int = 1;
 
     // from interface LocationService
-    public function leavePlace (arg1 :Client) :void
+    public function leavePlace () :void
     {
-        sendRequest(arg1, LEAVE_PLACE, [
+        sendRequest(LEAVE_PLACE, [
             
         ]);
     }
@@ -52,12 +52,12 @@ public class LocationMarshaller extends InvocationMarshaller
     public static const MOVE_TO :int = 2;
 
     // from interface LocationService
-    public function moveTo (arg1 :Client, arg2 :int, arg3 :LocationService_MoveListener) :void
+    public function moveTo (arg1 :int, arg2 :LocationService_MoveListener) :void
     {
-        var listener3 :LocationMarshaller_MoveMarshaller = new LocationMarshaller_MoveMarshaller();
-        listener3.listener = arg3;
-        sendRequest(arg1, MOVE_TO, [
-            Integer.valueOf(arg2), listener3
+        var listener2 :LocationMarshaller_MoveMarshaller = new LocationMarshaller_MoveMarshaller();
+        listener2.listener = arg2;
+        sendRequest(MOVE_TO, [
+            Integer.valueOf(arg1), listener2
         ]);
     }
 }

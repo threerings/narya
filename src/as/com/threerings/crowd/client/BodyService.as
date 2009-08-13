@@ -30,6 +30,6 @@ import com.threerings.presents.client.InvocationService;
 public interface BodyService extends InvocationService
 {
     // from Java interface BodyService
-    function setIdle (arg1 :Client, arg2 :Boolean) :void;
+    function setIdle (arg1 :Boolean) :void;
 }
 }

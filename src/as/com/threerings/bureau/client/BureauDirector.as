@@ -56,7 +56,7 @@ public class BureauDirector extends BasicDirector
     {
         super.clientDidLogon(event);
         var id :String = BureauContext(_ctx).getBureauId();
-        _bureauService.bureauInitialized(_ctx.getClient(), id);
+        _bureauService.bureauInitialized(id);
     }
 
     /**
@@ -64,7 +64,7 @@ public class BureauDirector extends BasicDirector
      */
     public function fatalError (message :String) :void
     {
-        _bureauService.bureauError(_ctx.getClient(), message);
+        _bureauService.bureauError(message);
     }
 
     /**
@@ -104,7 +104,7 @@ public class BureauDirector extends BasicDirector
             else {
                 subscriber.unsubscribe(_ctx.getDObjectManager());
             }
-            _bureauService.agentDestroyed(_ctx.getClient(), agentId);
+            _bureauService.agentDestroyed(agentId);
         }
     }
 
@@ -125,12 +125,12 @@ public class BureauDirector extends BasicDirector
         }
         catch (e :Error) {
             log.warning("Could not create agent", "obj", agentObject, e);
-            _bureauService.agentCreationFailed(_ctx.getClient(), oid);
+            _bureauService.agentCreationFailed(oid);
             return;
         }
         
         _agents.put(oid, agent);
-        _bureauService.agentCreated(_ctx.getClient(), oid);
+        _bureauService.agentCreated(oid);
     }
 
     /**

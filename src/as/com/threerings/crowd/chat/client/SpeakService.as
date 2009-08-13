@@ -30,6 +30,6 @@ import com.threerings.presents.client.InvocationService;
 public interface SpeakService extends InvocationService
 {
     // from Java interface SpeakService
-    function speak (arg1 :Client, arg2 :String, arg3 :int) :void;
+    function speak (arg1 :String, arg2 :int) :void;
 }
 }

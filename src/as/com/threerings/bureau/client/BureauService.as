@@ -30,18 +30,18 @@ import com.threerings.presents.client.InvocationService;
 public interface BureauService extends InvocationService
 {
     // from Java interface BureauService
-    function agentCreated (arg1 :Client, arg2 :int) :void;
+    function agentCreated (arg1 :int) :void;
 
     // from Java interface BureauService
-    function agentCreationFailed (arg1 :Client, arg2 :int) :void;
+    function agentCreationFailed (arg1 :int) :void;
 
     // from Java interface BureauService
-    function agentDestroyed (arg1 :Client, arg2 :int) :void;
+    function agentDestroyed (arg1 :int) :void;
 
     // from Java interface BureauService
-    function bureauError (arg1 :Client, arg2 :String) :void;
+    function bureauError (arg1 :String) :void;
 
     // from Java interface BureauService
-    function bureauInitialized (arg1 :Client, arg2 :String) :void;
+    function bureauInitialized (arg1 :String) :void;
 }
 }

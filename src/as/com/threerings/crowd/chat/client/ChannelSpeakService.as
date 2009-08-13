@@ -31,6 +31,6 @@ import com.threerings.presents.client.InvocationService;
 public interface ChannelSpeakService extends InvocationService
 {
     // from Java interface ChannelSpeakService
-    function speak (arg1 :Client, arg2 :ChatChannel, arg3 :String, arg4 :int) :void;
+    function speak (arg1 :ChatChannel, arg2 :String, arg3 :int) :void;
 }
 }

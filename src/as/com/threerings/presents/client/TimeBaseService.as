@@ -28,6 +28,6 @@ package com.threerings.presents.client {
 public interface TimeBaseService extends InvocationService
 {
     // from Java interface TimeBaseService
-    function getTimeOid (arg1 :Client, arg2 :String, arg3 :TimeBaseService_GotTimeBaseListener) :void;
+    function getTimeOid (arg1 :String, arg2 :TimeBaseService_GotTimeBaseListener) :void;
 }
 }

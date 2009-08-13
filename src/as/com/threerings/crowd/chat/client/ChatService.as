@@ -32,12 +32,12 @@ import com.threerings.util.Name;
 public interface ChatService extends InvocationService
 {
     // from Java interface ChatService
-    function away (arg1 :Client, arg2 :String) :void;
+    function away (arg1 :String) :void;
 
     // from Java interface ChatService
-    function broadcast (arg1 :Client, arg2 :String, arg3 :InvocationService_InvocationListener) :void;
+    function broadcast (arg1 :String, arg2 :InvocationService_InvocationListener) :void;
 
     // from Java interface ChatService
-    function tell (arg1 :Client, arg2 :Name, arg3 :String, arg4 :ChatService_TellListener) :void;
+    function tell (arg1 :Name, arg2 :String, arg3 :ChatService_TellListener) :void;
 }
 }

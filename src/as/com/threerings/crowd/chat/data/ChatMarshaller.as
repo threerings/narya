@@ -43,10 +43,10 @@ public class ChatMarshaller extends InvocationMarshaller
     public static const AWAY :int = 1;
 
     // from interface ChatService
-    public function away (arg1 :Client, arg2 :String) :void
+    public function away (arg1 :String) :void
     {
-        sendRequest(arg1, AWAY, [
-            arg2
+        sendRequest(AWAY, [
+            arg1
         ]);
     }
 
@@ -54,12 +54,12 @@ public class ChatMarshaller extends InvocationMarshaller
     public static const BROADCAST :int = 2;
 
     // from interface ChatService
-    public function broadcast (arg1 :Client, arg2 :String, arg3 :InvocationService_InvocationListener) :void
+    public function broadcast (arg1 :String, arg2 :InvocationService_InvocationListener) :void
     {
-        var listener3 :InvocationMarshaller_ListenerMarshaller = new InvocationMarshaller_ListenerMarshaller();
-        listener3.listener = arg3;
-        sendRequest(arg1, BROADCAST, [
-            arg2, listener3
+        var listener2 :InvocationMarshaller_ListenerMarshaller = new InvocationMarshaller_ListenerMarshaller();
+        listener2.listener = arg2;
+        sendRequest(BROADCAST, [
+            arg1, listener2
         ]);
     }
 
@@ -67,12 +67,12 @@ public class ChatMarshaller extends InvocationMarshaller
     public static const TELL :int = 3;
 
     // from interface ChatService
-    public function tell (arg1 :Client, arg2 :Name, arg3 :String, arg4 :ChatService_TellListener) :void
+    public function tell (arg1 :Name, arg2 :String, arg3 :ChatService_TellListener) :void
     {
-        var listener4 :ChatMarshaller_TellMarshaller = new ChatMarshaller_TellMarshaller();
-        listener4.listener = arg4;
-        sendRequest(arg1, TELL, [
-            arg2, arg3, listener4
+        var listener3 :ChatMarshaller_TellMarshaller = new ChatMarshaller_TellMarshaller();
+        listener3.listener = arg3;
+        sendRequest(TELL, [
+            arg1, arg2, listener3
         ]);
     }
 }

@@ -40,10 +40,10 @@ public class BodyMarshaller extends InvocationMarshaller
     public static const SET_IDLE :int = 1;
 
     // from interface BodyService
-    public function setIdle (arg1 :Client, arg2 :Boolean) :void
+    public function setIdle (arg1 :Boolean) :void
     {
-        sendRequest(arg1, SET_IDLE, [
-            langBoolean.valueOf(arg2)
+        sendRequest(SET_IDLE, [
+            langBoolean.valueOf(arg1)
         ]);
     }
 }

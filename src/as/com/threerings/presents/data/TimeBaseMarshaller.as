@@ -39,12 +39,12 @@ public class TimeBaseMarshaller extends InvocationMarshaller
     public static const GET_TIME_OID :int = 1;
 
     // from interface TimeBaseService
-    public function getTimeOid (arg1 :Client, arg2 :String, arg3 :TimeBaseService_GotTimeBaseListener) :void
+    public function getTimeOid (arg1 :String, arg2 :TimeBaseService_GotTimeBaseListener) :void
     {
-        var listener3 :TimeBaseMarshaller_GotTimeBaseMarshaller = new TimeBaseMarshaller_GotTimeBaseMarshaller();
-        listener3.listener = arg3;
-        sendRequest(arg1, GET_TIME_OID, [
-            arg2, listener3
+        var listener2 :TimeBaseMarshaller_GotTimeBaseMarshaller = new TimeBaseMarshaller_GotTimeBaseMarshaller();
+        listener2.listener = arg2;
+        sendRequest(GET_TIME_OID, [
+            arg1, listener2
         ]);
     }
 }

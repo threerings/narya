@@ -40,10 +40,10 @@ public class SpeakMarshaller extends InvocationMarshaller
     public static const SPEAK :int = 1;
 
     // from interface SpeakService
-    public function speak (arg1 :Client, arg2 :String, arg3 :int) :void
+    public function speak (arg1 :String, arg2 :int) :void
     {
-        sendRequest(arg1, SPEAK, [
-            arg2, Byte.valueOf(arg3)
+        sendRequest(SPEAK, [
+            arg1, Byte.valueOf(arg2)
         ]);
     }
 }

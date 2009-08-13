@@ -40,10 +40,10 @@ public class BureauMarshaller extends InvocationMarshaller
     public static const AGENT_CREATED :int = 1;
 
     // from interface BureauService
-    public function agentCreated (arg1 :Client, arg2 :int) :void
+    public function agentCreated (arg1 :int) :void
     {
-        sendRequest(arg1, AGENT_CREATED, [
-            Integer.valueOf(arg2)
+        sendRequest(AGENT_CREATED, [
+            Integer.valueOf(arg1)
         ]);
     }
 
@@ -51,10 +51,10 @@ public class BureauMarshaller extends InvocationMarshaller
     public static const AGENT_CREATION_FAILED :int = 2;
 
     // from interface BureauService
-    public function agentCreationFailed (arg1 :Client, arg2 :int) :void
+    public function agentCreationFailed (arg1 :int) :void
     {
-        sendRequest(arg1, AGENT_CREATION_FAILED, [
-            Integer.valueOf(arg2)
+        sendRequest(AGENT_CREATION_FAILED, [
+            Integer.valueOf(arg1)
         ]);
     }
 
@@ -62,10 +62,10 @@ public class BureauMarshaller extends InvocationMarshaller
     public static const AGENT_DESTROYED :int = 3;
 
     // from interface BureauService
-    public function agentDestroyed (arg1 :Client, arg2 :int) :void
+    public function agentDestroyed (arg1 :int) :void
     {
-        sendRequest(arg1, AGENT_DESTROYED, [
-            Integer.valueOf(arg2)
+        sendRequest(AGENT_DESTROYED, [
+            Integer.valueOf(arg1)
         ]);
     }
 
@@ -73,10 +73,10 @@ public class BureauMarshaller extends InvocationMarshaller
     public static const BUREAU_ERROR :int = 4;
 
     // from interface BureauService
-    public function bureauError (arg1 :Client, arg2 :String) :void
+    public function bureauError (arg1 :String) :void
     {
-        sendRequest(arg1, BUREAU_ERROR, [
-            arg2
+        sendRequest(BUREAU_ERROR, [
+            arg1
         ]);
     }
 
@@ -84,10 +84,10 @@ public class BureauMarshaller extends InvocationMarshaller
     public static const BUREAU_INITIALIZED :int = 5;
 
     // from interface BureauService
-    public function bureauInitialized (arg1 :Client, arg2 :String) :void
+    public function bureauInitialized (arg1 :String) :void
     {
-        sendRequest(arg1, BUREAU_INITIALIZED, [
-            arg2
+        sendRequest(BUREAU_INITIALIZED, [
+            arg1
         ]);
     }
 }

@@ -30,9 +30,9 @@ import com.threerings.presents.client.InvocationService;
 public interface LocationService extends InvocationService
 {
     // from Java interface LocationService
-    function leavePlace (arg1 :Client) :void;
+    function leavePlace () :void;
 
     // from Java interface LocationService
-    function moveTo (arg1 :Client, arg2 :int, arg3 :LocationService_MoveListener) :void;
+    function moveTo (arg1 :int, arg2 :LocationService_MoveListener) :void;
 }
 }

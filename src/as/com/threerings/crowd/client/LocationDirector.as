@@ -178,7 +178,7 @@ public class LocationDirector extends BasicDirector
 
         // issue a moveTo request
         log.info("Issuing moveTo(" + placeId + ").");
-        _lservice.moveTo(_cctx.getClient(), placeId, new MoveAdapter(success, failure));
+        _lservice.moveTo(placeId, new MoveAdapter(success, failure));
         return true;
     }
 
@@ -213,7 +213,7 @@ public class LocationDirector extends BasicDirector
 
         // if we're not actually in a place, then no need to do anything
         if (_placeId > 0) {
-            _lservice.leavePlace(_cctx.getClient());
+            _lservice.leavePlace();
             didLeavePlace();
 
             // let our observers know that we're no longer in a location
