@@ -241,15 +241,18 @@ public class ChatDirector extends BasicDirector
     public function registerCommandHandler (
         msg :MessageBundle, command :String, handler :CommandHandler) :void
     {
-        var key :String = "c." + command;
-        if (msg.exists(key)) {
-            var tokens :Array = msg.get(key).split(/\s+/);
-            for each (var cmd :String in tokens) {
-                _handlers.put(cmd, handler);
-            }
-        } else {
-            // fall back to just using the English command
-            _handlers.put(command, handler);
+        for each (var cmd :String in getCommandAliases(msg, command)) {
+            _handlers.put(cmd, handler);
+        }
+    }
+
+    /**
+     * Unregister a chat command handler.
+     */
+    public function unregisterCommandHandler (msg :MessageBundle, command :String) :void
+    {
+        for each (var cmd :String in getCommandAliases(msg, command)) {
+            _handlers.remove(cmd);
         }
     }
 
@@ -901,6 +904,18 @@ public class ChatDirector extends BasicDirector
     internal function checkLength (msg :String) :String
     {
         return null; // TODO
+    }
+
+    /**
+     * Return the translated aliases for the specified command.
+     */
+    protected function getCommandAliases (msg :MessageBundle, cmd :String) :Array /* of String */
+    {
+        var key :String = "c." + cmd;
+        if (msg.exists(key)) {
+            return msg.get(key).split(/\s+/);
+        }
+        return [ cmd ];
     }
 
     /**
