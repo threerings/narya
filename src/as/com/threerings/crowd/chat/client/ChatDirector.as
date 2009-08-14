@@ -163,11 +163,9 @@ public class ChatDirector extends BasicDirector
      */
     public function getChatFilters () :Array
     {
-        var filters :Array = [];
-        _filters.apply(function (observer :ChatFilter) :void {
-            filters.push(observer);
-        });
-        return filters;
+        var retval :Array = [];
+        _filters.apply(retval.push);
+        return retval;
     }
 
     /**
