@@ -138,7 +138,7 @@ public abstract class Communicator
         if (_client != null) {
             _client.notifyObservers(op);
         } else {
-            log.warning("Dropping client notification. No observers.",  "op", op);
+            log.warning("Dropping client observer notification.",  "op", op);
         }
     }
 
