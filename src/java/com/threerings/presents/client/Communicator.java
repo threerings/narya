@@ -28,6 +28,8 @@ import com.threerings.presents.net.AuthResponseData;
 import com.threerings.presents.net.Message;
 import com.threerings.presents.net.UpstreamMessage;
 
+import static com.threerings.presents.Log.log;
+
 /**
  * Handles sending and receiving messages for the client.
  */
@@ -133,13 +135,19 @@ public abstract class Communicator
 
     protected void notifyClientObservers (ObserverOps.Session op)
     {
-        _client.notifyObservers(op);
+        if (_client != null) {
+            _client.notifyObservers(op);
+        } else {
+            log.warning("Dropping client notification. No observers.",  "op", op);
+        }
     }
 
     protected void clientCleanup (Exception logonError)
     {
-        _client.cleanup(logonError);
-        _client = null; // prevent any post-cleanup tomfoolery
+        if (_client != null) {
+            _client.cleanup(logonError);
+            _client = null; // prevent any post-cleanup tomfoolery
+        }
     }
 
     protected Client _client;
