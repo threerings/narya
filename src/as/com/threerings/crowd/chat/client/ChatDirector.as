@@ -729,11 +729,8 @@ public class ChatDirector extends BasicDirector
      */
     protected function dispatchPreparedMessage (message :ChatMessage) :void
     {
-        var displayed :Boolean = false;
         _displays.apply(function (disp :ChatDisplay) :void {
-            if (disp.displayMessage(message, displayed)) {
-                displayed = true;
-            }
+            disp.displayMessage(message);
         });
     }
 
