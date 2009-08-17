@@ -493,7 +493,7 @@ public class Streamer
     }
 
     /** Used to coerce the type system into quietude when reading enums from the wire. */
-    protected static enum EnumReader { NOT_USED };
+    protected static enum EnumReader { NOT_USED }
 
     /** The class for which this streamer instance is configured. */
     protected Class<?> _target;

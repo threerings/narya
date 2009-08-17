@@ -40,7 +40,7 @@ public class ShutdownManager
     }
 
     /** Constraints for use with {@link ShutdownManager#addConstraint}. */
-    public static enum Constraint { RUNS_BEFORE, RUNS_AFTER };
+    public static enum Constraint { RUNS_BEFORE, RUNS_AFTER }
 
     /**
      * Registers an entity that will be notified when the server is shutting down.

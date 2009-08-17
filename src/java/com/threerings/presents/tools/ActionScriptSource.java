@@ -1041,7 +1041,7 @@ public class ActionScriptSource
 
     /** Denotes various phases of class file parsing. */
     protected static enum Mode { PREAMBLE, IMPORTS, CLASSCOMMENT, CLASSDECL,
-                                 CLASSBODY, METHODBODY, POSTCLASS, POSTPKG };
+                                 CLASSBODY, METHODBODY, POSTCLASS, POSTPKG }
 
     protected static Pattern JPACKAGE = Pattern.compile("package\\s+(\\S+);");
 
