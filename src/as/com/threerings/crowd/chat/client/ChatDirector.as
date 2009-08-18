@@ -575,11 +575,6 @@ public class ChatDirector extends BasicDirector
      */
     public function enteredLocation (place :PlaceObject) :void
     {
-        if (place == null) {
-            log.warning("enteredLocation must be passed a non-null place object!");
-            return;
-        }
-
         // nix our old location if we have one
         if (_place != null) {
             leftLocation(_place);
@@ -599,8 +594,6 @@ public class ChatDirector extends BasicDirector
         if (place == _place) {
             _place.removeListener(this);
             _place = null;
-        } else {
-            log.warning("leftLocation called with unknown place?", "have", _place, "left", place);
         }
     }
 
