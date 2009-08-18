@@ -109,7 +109,7 @@ public class PresentsInvoker extends ReportingInvoker
                 return false;
 
             // if the invoker queue is not empty, we put ourselves back on it
-            } else if (!isEmpty()) {
+            } else if (getPendingUnits() > 0) {
                 _loopCount++;
                 postUnit(this);
                 return false;
@@ -246,7 +246,7 @@ public class PresentsInvoker extends ReportingInvoker
 
         public boolean isEmpty ()
         {
-            return _invoker == null ? _omgr.queueIsEmpty() : _invoker.isEmpty();
+            return _invoker == null ? _omgr.queueIsEmpty() : (_invoker.getPendingUnits() == 0);
         }
 
         public void post (Runnable runnable)
