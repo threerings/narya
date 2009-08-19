@@ -24,6 +24,7 @@ package com.threerings.io {
 import flash.utils.ByteArray;
 import flash.utils.Dictionary;
 
+import com.threerings.util.ByteEnum;
 import com.threerings.util.ClassUtil;
 import com.threerings.util.Enum;
 import com.threerings.util.env.Environment;
@@ -31,6 +32,7 @@ import com.threerings.util.env.Environment;
 import com.threerings.io.streamers.ArrayStreamer;
 import com.threerings.io.streamers.ByteStreamer;
 import com.threerings.io.streamers.ByteArrayStreamer;
+import com.threerings.io.streamers.ByteEnumStreamer;
 import com.threerings.io.streamers.EnumStreamer;
 import com.threerings.io.streamers.FloatStreamer;
 import com.threerings.io.streamers.IntegerStreamer;
@@ -77,7 +79,8 @@ public class Streamer
             var clazz :Class = ClassUtil.getClassByName(Translations.getFromServer(jname));
 
             if (Environment.isAssignableAs(Enum, clazz)) {
-                streamer = new EnumStreamer(clazz, jname);
+                streamer = Environment.isAssignableAs(ByteEnum, clazz) ?
+                    new ByteEnumStreamer(clazz, jname) : new EnumStreamer(clazz, jname);
 
             } else if (Environment.isAssignableAs(Streamable, clazz)) {
                 streamer = new Streamer(clazz, jname);

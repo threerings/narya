@@ -40,6 +40,8 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
+import com.samskivert.util.ByteEnum;
+import com.samskivert.util.ByteEnumUtil;
 import com.samskivert.util.ClassUtil;
 
 import static com.threerings.NaryaLog.log;
@@ -212,7 +214,11 @@ public class Streamer
         // if someone serializes an enum to a file and then adds a value to the enum, changing the
         // ordinal assignments)
         if (_target.isEnum()) {
-            out.writeUTF(((Enum<?>)object).name());
+            if (object instanceof ByteEnum) {
+                out.writeByte(((ByteEnum) object).toByte());
+            } else {
+                out.writeUTF(((Enum<?>)object).name());
+            }
             return;
         }
 
@@ -264,7 +270,11 @@ public class Streamer
                 }
                 @SuppressWarnings("unchecked") Class<EnumReader> eclass =
                     (Class<EnumReader>)_target;
-                return Enum.valueOf(eclass, in.readUTF());
+                if (ByteEnum.class.isAssignableFrom(_target)) {
+                    return ByteEnumUtil.fromByte(eclass, in.readByte());
+                } else {
+                    return Enum.valueOf(eclass, in.readUTF());
+                }
 
             } else {
                 if (ObjectInputStream.STREAM_DEBUG) {
@@ -493,7 +503,10 @@ public class Streamer
     }
 
     /** Used to coerce the type system into quietude when reading enums from the wire. */
-    protected static enum EnumReader { NOT_USED }
+    protected static enum EnumReader implements ByteEnum {
+        NOT_USED;
+        public byte toByte () { return 0; }
+    }
 
     /** The class for which this streamer instance is configured. */
     protected Class<?> _target;
