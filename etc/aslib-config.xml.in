@@ -43,7 +43,7 @@
       <!-- compiler.external-library-path: list of SWC files or directories to compile against but to omit from linking-->
       <external-library-path>
          <path-element>@flex_sdk_dir@/frameworks/libs/player/{targetPlayerMajorVersion}/playerglobal.swc</path-element>
-         <path-element>lib/ooolib.swc</path-element>
+         <path-element>lib</path-element>
          <path-element>@flex_sdk_dir@/frameworks/libs</path-element>
          <path-element>@flex_sdk_dir@/frameworks/libs/player</path-element>
          <path-element>@flex_sdk_dir@/frameworks/locale/{locale}</path-element>
