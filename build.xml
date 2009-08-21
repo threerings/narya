@@ -91,12 +91,6 @@
         <uptodate targetfile="${deploy.dir}/${lib.name}lib.swc">
           <srcfiles dir="src/as" includes="**/*.as"/>
         </uptodate>
-        <uptodate targetfile="${deploy.dir}/player-env.swc">
-          <srcfiles dir="src/player" includes="**/*.as"/>
-        </uptodate>
-        <uptodate targetfile="${deploy.dir}/thane-env.swc">
-          <srcfiles dir="src/thane" includes="**/*.as"/>
-        </uptodate>
       </and>
     </or></condition>
   </target>
@@ -110,46 +104,17 @@
         <filter token="lib_name" value="${lib.name}"/>
       </filterset>
     </copy>
-    <!-- Generate thane-config.xml for targetting Thane -->
-    <copy file="etc/thane-config.xml.in" tofile="${deploy.dir}/thane-config.xml">
-      <filterset>
-        <filter token="flex_sdk_dir" value="${flexsdk.dir}"/>
-        <filter token="extdep_suffix" value="${extdep.suffix}"/>
-      </filterset>
-    </copy>
-    <!-- Build Environment.as for the Flash Player -->
-    <java jar="${flexsdk.dir}/lib/compc.jar" fork="true" failonerror="true">
-      <arg value="-load-config"/>
-      <arg value="${deploy.dir}/aslib-config.xml"/>
-      <arg value="-compiler.optimize"/>
-      <arg value="-compiler.source-path=src/player/"/>
-      <arg value="-include-sources=src/player/"/>
-      <arg value="-output"/>
-      <arg value="${deploy.dir}/player-env.swc"/>
-    </java>
-    <!-- Build Environment.as for Thane -->
-    <java jar="${flexsdk.dir}/lib/compc.jar" fork="true" failonerror="true">
-      <arg value="-load-config"/>
-      <arg value="${deploy.dir}/thane-config.xml"/>
-      <arg value="-compiler.optimize"/>
-      <arg value="-compiler.source-path=src/thane/"/>
-      <arg value="-include-sources=src/thane/"/>
-      <arg value="-output"/>
-      <arg value="${deploy.dir}/thane-env.swc"/>
-    </java>
     <!-- Build Narya -->
     <java jar="${flexsdk.dir}/lib/compc.jar" fork="true" failonerror="true">
       <arg value="-load-config"/>
       <arg value="${deploy.dir}/aslib-config.xml"/>
       <arg value="-compiler.optimize"/>
       <arg value="-compiler.source-path=src/as/"/>
-      <arg value="-compiler.external-library-path+=${deploy.dir}/player-env.swc"/>
       <arg value="-include-sources=src/as/"/>
       <arg value="-output"/>
       <arg value="${deploy.dir}/${lib.name}lib.swc"/>
     </java>
     <delete file="${deploy.dir}/aslib-config.xml"/>
-    <delete file="${deploy.dir}/thane-config.xml"/>
   </target>
 
   <!-- build the native libraries -->
