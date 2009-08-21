@@ -24,7 +24,6 @@ package com.threerings.io.streamers {
 import com.threerings.util.ClassUtil;
 import com.threerings.util.Enum;
 import com.threerings.util.Log;
-import com.threerings.util.env.Environment;
 
 import com.threerings.io.ArrayMask;
 import com.threerings.io.ObjectInputStream;
@@ -156,7 +155,7 @@ public class ArrayStreamer extends Streamer
         }
 
         // all enums are final, even if you forget to make your enum class final, you punk
-        if (Environment.isAssignableAs(Enum, type)) {
+        if (ClassUtil.isAssignableAs(Enum, type)) {
             return true;
         }
 
