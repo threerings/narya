@@ -25,7 +25,8 @@ import flash.errors.IllegalOperationError;
 import flash.utils.getTimer; // function import
 
 import com.threerings.util.Boxed;
-import com.threerings.util.HashMap;
+import com.threerings.util.Map;
+import com.threerings.util.Maps;
 import com.threerings.util.Log;
 import com.threerings.util.Short;
 
@@ -410,10 +411,10 @@ public class InvocationDirector
 
     /** Used to keep track of invocation service listeners which will receive responses from
      * invocation service requests. */
-    protected var _listeners :HashMap = new HashMap();
+    protected var _listeners :Map = Maps.newMapOf(int);
 
     /** Used to keep track of invocation notification receivers. */
-    protected var _receivers :HashMap = new HashMap();
+    protected var _receivers :Map = Maps.newMapOf(int);
 
     /** A count of how deeply nested we are in transaction land. */
     protected var _tcount :int;

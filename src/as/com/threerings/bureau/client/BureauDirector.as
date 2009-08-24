@@ -21,7 +21,8 @@
 
 package com.threerings.bureau.client {
 
-import com.threerings.util.HashMap;
+import com.threerings.util.Map;
+import com.threerings.util.Maps;
 import com.threerings.util.Log;
 
 import com.threerings.presents.client.BasicDirector;
@@ -182,8 +183,8 @@ public class BureauDirector extends BasicDirector
     protected var log :Log = Log.getLog("com.threerings.bureau");
 
     protected var _bureauService :BureauService;
-    protected var _agents :HashMap = new HashMap();
-    protected var _subscribers :HashMap = new HashMap();
+    protected var _agents :Map = Maps.newMapOf(int);
+    protected var _subscribers :Map = Maps.newMapOf(int);
 }
 }
 

@@ -45,5 +45,45 @@ public /* abstract */ class Credentials
     {
         throw new Error(); // we never read Creds on the client
     }
+
+    /*
+    // main
+    public function toString (joiner :Joiner = null) :String
+    {
+        if (joiner == null) {
+            return toString(new Joiner("ClassName"));
+        }
+        return joiner.add("baz", bit, "count", 33).toString();
+    }
+
+    // subclass
+    override public function toString (joiner :Joiner = null) :String
+    {
+        if (joiner != null) {
+            joiner.add("foo", bar);
+        }
+        return super.toString(joiner);
+    }
+
+
+    // -----
+
+    public function toString () :String
+    {
+        return join(new Joiner(this)).toString();
+    }
+
+    protected function join (joiner :Joiner) :Joiner
+    {
+        return joiner.add(
+            "baz", bit, "count", 33);
+    }
+
+    override protected join (joiner :Joiner) :Joiner
+    {
+        return super.join(joiner).add(
+            "foo", bar);
+    }
+    */
 }
 }

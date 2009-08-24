@@ -27,7 +27,8 @@ import flash.utils.Timer;
 import flash.utils.getTimer; // function import
 
 import com.threerings.util.ClassUtil;
-import com.threerings.util.HashMap;
+import com.threerings.util.Map;
+import com.threerings.util.Maps;
 import com.threerings.util.Log;
 
 import com.threerings.presents.dobj.CompoundEvent;
@@ -377,19 +378,19 @@ public class ClientDObjectMgr
     protected var _client :Client;
 
     /** All of the distributed objects that are active on this client. */
-    protected var _ocache :HashMap = new HashMap();
+    protected var _ocache :Map = Maps.newMapOf(int);
 
     /** Objects that have been marked for death. */
-    protected var _dead :HashMap = new HashMap();
+    protected var _dead :Map = Maps.newMapOf(int);
 
     /** Pending object subscriptions. */
-    protected var _penders :HashMap = new HashMap();
+    protected var _penders :Map = Maps.newMapOf(int);
 
     /** A mapping from distributed object class to flush delay. */
-    protected var _delays :HashMap = new HashMap();
+    protected var _delays :Map = Maps.newMapOf(int);
 
     /** A set of objects waiting to be flushed. */
-    protected var _flushes :HashMap = new HashMap();
+    protected var _flushes :Map = Maps.newMapOf(int);
 
     /** Flushes objects every now and again. */
     protected var _flushInterval :Timer;

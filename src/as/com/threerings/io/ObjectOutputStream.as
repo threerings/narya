@@ -25,7 +25,8 @@ import flash.utils.ByteArray;
 import flash.utils.IDataOutput;
 
 import com.threerings.util.ClassUtil;
-import com.threerings.util.HashMap;
+import com.threerings.util.Map;
+import com.threerings.util.Maps;
 import com.threerings.util.Log;
 import com.threerings.util.Long;
 import com.threerings.util.Short;
@@ -205,6 +206,6 @@ public class ObjectOutputStream
     protected var _streamer :Streamer;
 
     /** A map of classname to ClassMapping info. */
-    protected var _classMap :HashMap = new HashMap();
+    protected var _classMap :Map = Maps.newMapOf(String);
 }
 }

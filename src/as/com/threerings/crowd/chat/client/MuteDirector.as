@@ -21,10 +21,11 @@
 
 package com.threerings.crowd.chat.client {
 
-import com.threerings.util.HashSet;
 import com.threerings.util.MessageBundle;
 import com.threerings.util.Name;
 import com.threerings.util.ObserverList;
+import com.threerings.util.Set;
+import com.threerings.util.Sets;
 
 import com.threerings.presents.client.BasicDirector;
 
@@ -152,7 +153,7 @@ public class MuteDirector extends BasicDirector
     protected var _chatdir :ChatDirector;
 
     /** The mutelist. */
-    protected var _mutelist :HashSet = new HashSet();
+    protected var _mutelist :Set = Sets.newSetOf(Name);
 
     /** List of mutelist observers. */
     protected var _observers :ObserverList = new ObserverList(ObserverList.FAST_UNSAFE_NOTIFY);
