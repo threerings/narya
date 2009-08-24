@@ -70,7 +70,7 @@ public class StreamableHashMap extends ForwardingMap
         } else {
             // shit!
             Log.getLog(this).warning("Empty StreamableHashMap read, guessing DictionaryMap.");
-            _source = Maps.newDictionaryMap();
+            _source = Maps.newMapOf(Object);
         }
     }
 }
