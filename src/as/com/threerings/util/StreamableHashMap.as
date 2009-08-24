@@ -25,13 +25,24 @@ import com.threerings.io.ObjectInputStream;
 import com.threerings.io.ObjectOutputStream;
 import com.threerings.io.Streamable;
 
+import com.threerings.util.Log;
+import com.threerings.util.Maps;
+import com.threerings.util.maps.ForwardingMap;
+
 /**
  * A {@link HashMap} that can be sent over the wire, bearing in mind that all keys and values must
  * be primitives or implement {@link Streamable}.
  */
-public class StreamableHashMap extends HashMap
+public class StreamableHashMap extends ForwardingMap
     implements Streamable
 {
+    public function StreamableHashMap (keyClazz :Class = null)
+    {
+        if (keyClazz != null) {
+            super(Maps.newMapOf(keyClazz));
+        }
+    }
+
     // documentation inherited from interface Streamable
     public function writeObject (out :ObjectOutputStream) :void
     {
@@ -46,8 +57,20 @@ public class StreamableHashMap extends HashMap
     public function readObject (ins :ObjectInputStream) :void
     {
         var ecount :int = ins.readInt();
-        for (var ii :int = 0; ii < ecount; ii++) {
-            put(ins.readObject(), ins.readObject());
+        if (ecount > 0) {
+            // guess the type of map based on the first key
+            var key :Object = ins.readObject();
+            _source = Maps.newMapOf(ClassUtil.getClass(key));
+            put(key, ins.readObject());
+            // now read the rest
+            for (var ii :int = 1; ii < ecount; ii++) {
+                put(ins.readObject(), ins.readObject());
+            }
+
+        } else {
+            // shit!
+            Log.getLog(this).warning("Empty StreamableHashMap read, guessing DictionaryMap.");
+            _source = Maps.newDictionaryMap();
         }
     }
 }
