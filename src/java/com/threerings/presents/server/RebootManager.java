@@ -23,10 +23,12 @@ package com.threerings.presents.server;
 
 import java.util.Calendar;
 
+import com.samskivert.util.Calendars;
 import com.samskivert.util.HashIntMap;
 import com.samskivert.util.Interval;
 import com.samskivert.util.ObserverList;
 import com.samskivert.util.StringUtil;
+import com.samskivert.util.Calendars.Builder;
 
 import com.threerings.util.MessageBundle;
 
@@ -79,12 +81,7 @@ public abstract class RebootManager
             return false;
         }
 
-        Calendar cal = Calendar.getInstance();
-        cal.add(Calendar.DATE, freq);
-        cal.set(Calendar.HOUR_OF_DAY, getRebootHour());
-        cal.clear(Calendar.MINUTE);
-        cal.clear(Calendar.SECOND);
-        cal.clear(Calendar.MILLISECOND);
+        Builder cal = Calendars.now().zeroTime().setHour(getRebootHour()).addDays(freq);
 
         // maybe avoid weekends
         if (getSkipWeekends()) {
@@ -92,19 +89,19 @@ public abstract class RebootManager
             switch (dow) {
             case Calendar.SATURDAY:
                 if (freq > 1) {
-                    cal.add(Calendar.DATE, -1);
+                    cal.addDays(-1);
                 }
                 break;
 
             case Calendar.SUNDAY:
                 if (freq > 2) {
-                    cal.add(Calendar.DATE, -2);
+                    cal.addDays(-2);
                 }
                 break;
             }
         }
 
-        scheduleReboot(cal.getTimeInMillis(), AUTOMATIC_INITIATOR);
+        scheduleReboot(cal.toTime(), AUTOMATIC_INITIATOR);
         return true;
     }
 

@@ -25,7 +25,6 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
-
 import com.google.common.collect.Maps;
 
 import com.samskivert.util.StringUtil;
