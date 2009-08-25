@@ -30,8 +30,9 @@ import com.threerings.util.Maps;
 import com.threerings.util.maps.ForwardingMap;
 
 /**
- * A {@link HashMap} that can be sent over the wire, bearing in mind that all keys and values must
- * be primitives or implement {@link Streamable}.
+ * A @see com.threerings.util.Map that can be sent over the wire,
+ * bearing in mind that all keys and values must
+ * be primitives or implement @see com.threerings.io.Streamable
  */
 public class StreamableHashMap extends ForwardingMap
     implements Streamable
