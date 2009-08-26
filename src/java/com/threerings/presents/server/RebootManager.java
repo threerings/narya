@@ -81,7 +81,7 @@ public abstract class RebootManager
             return false;
         }
 
-        Builder cal = Calendars.now().zeroTime().setHour(getRebootHour()).addDays(freq);
+        Builder cal = Calendars.now().zeroTime().addHours(getRebootHour()).addDays(freq);
 
         // maybe avoid weekends
         if (getSkipWeekends()) {
