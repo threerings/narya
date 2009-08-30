@@ -25,7 +25,6 @@ import com.threerings.io.ObjectInputStream;
 import com.threerings.io.ObjectOutputStream;
 import com.threerings.io.Streamable;
 
-import com.threerings.util.Log;
 import com.threerings.util.Maps;
 import com.threerings.util.maps.ForwardingMap;
 
@@ -71,9 +70,7 @@ public class StreamableHashMap extends ForwardingMap
             }
 
         } else {
-            // shit!
-            Log.getLog(this).warning("Empty StreamableHashMap read, guessing DictionaryMap.");
-            _source = Maps.newMapOf(Object);
+            _source = Maps.newMapOf(String); // hope for the best
         }
     }
 }
