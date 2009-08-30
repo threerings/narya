@@ -72,7 +72,7 @@ public class CronLogic
      */
     public void scheduleEvery (int hourlyPeriod, Runnable job)
     {
-        int minOfHour = job.getClass().toString().hashCode() % 60;
+        int minOfHour = Math.abs(job.getClass().toString().hashCode()) % 60;
         int minOfDay = 0;
         synchronized (_jobs) {
             while (minOfDay < 24*60) {
@@ -99,7 +99,7 @@ public class CronLogic
      */
     public void scheduleAt (int hour, Runnable job)
     {
-        int minOfHour = job.getClass().toString().hashCode() % 60;
+        int minOfHour = Math.abs(job.getClass().toString().hashCode()) % 60;
         synchronized (_jobs) {
             _jobs.put(hour * 60 + minOfHour, job);
         }
