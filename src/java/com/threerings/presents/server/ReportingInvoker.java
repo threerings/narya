@@ -111,7 +111,7 @@ public class ReportingInvoker extends Invoker
                 Stats stats = getStats(reset);
                 buf.append("- Max queue size: ").append(stats.maxQueueSize).append("\n");
                 buf.append("- Units executed: ").append(stats.unitsRun);
-                long runPerSec = (sinceLast == 0) ? 0 : stats.unitsRun/(sinceLast/1000);
+                long runPerSec = stats.unitsRun/Math.max(1, sinceLast/1000);
                 buf.append(" (").append(runPerSec).append("/s)\n");
                 if (_currentUnit != null) {
                     String uname = StringUtil.safeToString(_currentUnit);
