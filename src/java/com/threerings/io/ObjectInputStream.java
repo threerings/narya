@@ -239,7 +239,9 @@ public class ObjectInputStream extends DataInputStream
         throws IOException, ClassNotFoundException
     {
         // resolve the class and streamer
-        Class<?> sclass = Class.forName(cname, true, _loader);
+        ClassLoader loader = (_loader != null) ? _loader :
+            Thread.currentThread().getContextClassLoader();
+        Class<?> sclass = Class.forName(cname, true, loader);
         Streamer streamer = Streamer.getStreamer(sclass);
         if (STREAM_DEBUG) {
             log.info(hashCode() + ": New class '" + cname + "'", "code", code);
@@ -323,8 +325,8 @@ public class ObjectInputStream extends DataInputStream
     /** The streamer being used currently. */
     protected Streamer _streamer;
 
-    /** The class loader we use to instantiate objects. */
-    protected ClassLoader _loader = getClass().getClassLoader();
+    /** If set, an overridden class loader used to instantiate objects. */
+    protected ClassLoader _loader;
 
     /** An optional set of class name translations to use when unserializing objects. */
     protected HashMap<String, String> _translations;
