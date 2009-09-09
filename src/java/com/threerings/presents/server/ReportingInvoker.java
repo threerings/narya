@@ -82,6 +82,7 @@ public class ReportingInvoker extends Invoker
                 _current.maxQueueSize = queueSize;
             }
             _current.unitsRun++;
+            _totalUnitsRun++;
 
             // note the currently invoking unit
             _currentUnit = unit;
@@ -111,6 +112,7 @@ public class ReportingInvoker extends Invoker
                 Stats stats = getStats(reset);
                 buf.append("- Max queue size: ").append(stats.maxQueueSize).append("\n");
                 buf.append("- Units executed: ").append(stats.unitsRun);
+                buf.append("- Total units executed: ").append(_totalUnitsRun);
                 long runPerSec = stats.unitsRun/Math.max(1, sinceLast/1000);
                 buf.append(" (").append(runPerSec).append("/s)\n");
                 if (_currentUnit != null) {
@@ -146,6 +148,9 @@ public class ReportingInvoker extends Invoker
 
     /** Used to track runtime statistics. */
     protected Stats _recent = new Stats(), _current = _recent;
+
+    /** The total number of units run. */
+    protected int _totalUnitsRun;
 
     /** Records the currently invoking unit. */
     protected Object _currentUnit;
