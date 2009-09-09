@@ -97,7 +97,7 @@ public class EHCachePeerCoordinator extends CacheManagerPeerProviderFactory
         {
             if (_peerMan == null) {
                 // the ehcache subsystem has fired up but the server is still booting; we return
-                // null here and ehcache will try again
+                // empty here and ehcache will try again
                 return Collections.emptyList();
             }
 
