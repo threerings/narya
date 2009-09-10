@@ -420,7 +420,7 @@ public class ConnectionManager extends LoopingThread
     protected InetSocketAddress getAddress (int port)
     {
         return StringUtil.isBlank(_bindHostname) ?
-            new InetSocketAddress(port) : new InetSocketAddress(_datagramHostname, port);
+            new InetSocketAddress(port) : new InetSocketAddress(_bindHostname, port);
     }
 
     /** Helper function for {@link #willStart}. */
@@ -1208,7 +1208,6 @@ public class ConnectionManager extends LoopingThread
 
     protected int[] _ports, _datagramPorts;
     protected String _bindHostname;
-    protected String _datagramHostname;
     protected Selector _selector;
     protected ServerSocketChannel _ssocket;
     protected DatagramChannel _datagramChannel;
