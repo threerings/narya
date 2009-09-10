@@ -198,7 +198,6 @@ public class PresentsServer
      */
     protected void openToThePublic ()
     {
-        log.info("Opening the gates");
         _conmgr.start();
     }
 
