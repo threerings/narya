@@ -401,6 +401,7 @@ public class PresentsDObjectMgr
         // make a note of the thread that's processing events
         synchronized (this) {
             _dobjThread = Thread.currentThread();
+            _running = true;
         }
 
         while (isRunning()) {
@@ -1051,7 +1052,7 @@ public class PresentsDObjectMgr
     }
 
     /** A flag indicating that the event dispatcher is still running. */
-    protected boolean _running = true;
+    protected boolean _running;
 
     /** The event queue via which all events are processed. */
     protected Queue<Object> _evqueue = new Queue<Object>();
