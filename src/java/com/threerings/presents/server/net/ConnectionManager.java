@@ -115,7 +115,7 @@ public class ConnectionManager extends LoopingThread
         Preconditions.checkArgument(ports != null, "Ports must be non-null.");
         Preconditions.checkArgument(datagramPorts != null, "Datagram ports must be non-null. " +
                                     "Pass a zero-length array to bind no datagram ports.");
-        Preconditions.checkState(!isRunning(), "Must initialize before starting.");
+        Preconditions.checkState(!super.isRunning(), "Must initialize before starting.");
 
         _bindHostname = bindHostname;
         _ports = ports;
