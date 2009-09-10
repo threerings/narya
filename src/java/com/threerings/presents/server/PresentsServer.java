@@ -157,7 +157,7 @@ public class PresentsServer
         _clmgr.setInjector(injector);
 
         // configure our connection manager
-        _conmgr.init(getListenPorts(), getDatagramPorts(), getDatagramHostname());
+        _conmgr.init(getBindHostname(), getListenPorts(), getDatagramPorts());
 
         // initialize the time base services
         TimeBaseProvider.init(_invmgr, _omgr);
@@ -225,6 +225,15 @@ public class PresentsServer
     }
 
     /**
+     * Returns the hostname on which the connection manager will listen for TCP and datagram
+     * traffic, or <code>null</code> to bind to the wildcard address.
+     */
+    protected String getBindHostname ()
+    {
+        return null;
+    }
+
+    /**
      * Returns the port on which the connection manager will listen for client connections.
      */
     protected int[] getListenPorts ()
@@ -238,15 +247,6 @@ public class PresentsServer
     protected int[] getDatagramPorts ()
     {
         return Client.DEFAULT_DATAGRAM_PORTS;
-    }
-
-    /**
-     * Returns the hostname for which the connection manager will listen for datagrams, or
-     * <code>null</code> to bind to the wildcard address.
-     */
-    protected String getDatagramHostname ()
-    {
-        return null;
     }
 
     /**

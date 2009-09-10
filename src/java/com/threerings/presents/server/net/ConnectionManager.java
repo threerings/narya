@@ -41,6 +41,7 @@ import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 import java.nio.channels.spi.SelectorProvider;
 
+import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.inject.Inject;
@@ -53,6 +54,7 @@ import com.samskivert.util.Lifecycle;
 import com.samskivert.util.LoopingThread;
 import com.samskivert.util.Queue;
 import com.samskivert.util.ResultListener;
+import com.samskivert.util.StringUtil;
 import com.samskivert.util.Tuple;
 
 import com.threerings.io.ByteBufferInputStream;
@@ -99,35 +101,25 @@ public class ConnectionManager extends LoopingThread
     }
 
     /**
-     * Constructs and initialized a connection manager (binding socket on which it will listen for
-     * client connections to each of the specified ports).
+     * Configures the connection manager with the hostname and ports on which it will listen for
+     * socket connections and datagram packets. This must be called before the connection manager
+     * is started (via {@via #start}) as the sockets will be bound at that time.
+     *
+     * @param bindHostname the port to which to bind our sockets or null to bind to all interfaces.
+     * @param ports the ports on which to listen for TCP connection.
+     * @param datagramPorts the ports on which to listen for datagram packets.
      */
-    public void init (int[] ports)
+    public void init (String bindHostname, int[] ports, int[] datagramPorts)
         throws IOException
     {
-        init(ports, new int[0]);
-    }
+        Preconditions.checkArgument(ports != null, "Ports must be non-null.");
+        Preconditions.checkArgument(datagramPorts != null, "Datagram ports must be non-null. " +
+                                    "Pass a zero-length array to bind no datagram ports.");
+        Preconditions.checkState(!isRunning(), "Must initialize before starting.");
 
-    /**
-     * Constructs and initialized a connection manager (binding socket on which it will listen for
-     * client connections to each of the specified ports).
-     */
-    public void init (int[] ports, int[] datagramPorts)
-        throws IOException
-    {
-        init(ports, datagramPorts, null);
-    }
-
-    /**
-     * Constructs and initialized a connection manager (binding socket on which it will listen for
-     * client connections to each of the specified ports).
-     */
-    public void init (int[] ports, int[] datagramPorts, String datagramHostname)
-        throws IOException
-    {
+        _bindHostname = bindHostname;
         _ports = ports;
         _datagramPorts = datagramPorts;
-        _datagramHostname = datagramHostname;
         _selector = SelectorProvider.provider().openSelector();
 
         // create our stats record
@@ -361,14 +353,15 @@ public class ConnectionManager extends LoopingThread
                 _ssocket = ServerSocketChannel.open();
                 _ssocket.configureBlocking(false);
 
-                InetSocketAddress isa = new InetSocketAddress(port);
+                InetSocketAddress isa = getAddress(port);
                 _ssocket.socket().bind(isa);
                 registerChannel(_ssocket);
                 successes++;
                 log.info("Server listening on " + isa + ".");
 
             } catch (IOException ioe) {
-                log.warning("Failure listening to socket on port '" + port + "'.", ioe);
+                log.warning("Failure listening to socket", "hostname", _bindHostname,
+                            "port", port, ioe);
             }
         }
 
@@ -411,17 +404,23 @@ public class ConnectionManager extends LoopingThread
                 // create a channel and add it to the select set
                 _datagramChannel = DatagramChannel.open();
                 _datagramChannel.configureBlocking(false);
-
-                InetSocketAddress isa = (_datagramHostname == null) ?
-                    new InetSocketAddress(port) : new InetSocketAddress(_datagramHostname, port);
+                InetSocketAddress isa = getAddress(port);
                 _datagramChannel.socket().bind(isa);
                 registerChannel(_datagramChannel);
                 log.info("Server accepting datagrams on " + isa + ".");
 
             } catch (IOException ioe) {
-                log.warning("Failure opening datagram channel on port '" + port + "'.", ioe);
+                log.warning("Failure opening datagram channel", "hostname", _bindHostname,
+                            "port", port, ioe);
             }
         }
+    }
+
+    /** Helper function for creating proper bindable socket addresses. */
+    protected InetSocketAddress getAddress (int port)
+    {
+        return StringUtil.isBlank(_bindHostname) ?
+            new InetSocketAddress(port) : new InetSocketAddress(_datagramHostname, port);
     }
 
     /** Helper function for {@link #willStart}. */
@@ -1208,6 +1207,7 @@ public class ConnectionManager extends LoopingThread
     protected List<ChainedAuthenticator> _authors = Lists.newArrayList();
 
     protected int[] _ports, _datagramPorts;
+    protected String _bindHostname;
     protected String _datagramHostname;
     protected Selector _selector;
     protected ServerSocketChannel _ssocket;
