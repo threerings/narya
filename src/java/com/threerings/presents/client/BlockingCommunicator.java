@@ -398,8 +398,9 @@ public class BlockingCommunicator extends Communicator
             if (wrote != buffer.limit()) {
                 log.warning("Aiya! Couldn't write entire message", "msg", msg,
                             "size", buffer.limit(), "wrote", wrote);
-//             } else {
+            } else {
 //                 Log.info("Wrote " + wrote + " bytes.");
+                _client.getMessageTracker().messageSent(false, wrote, msg);
             }
 
         } finally {
@@ -443,6 +444,9 @@ public class BlockingCommunicator extends Communicator
 
         // send the datagram
         _datagramChannel.write(buf);
+
+        // notify the tracker
+        _client.getMessageTracker().messageSent(true, size, msg);
     }
 
     /**
@@ -460,10 +464,12 @@ public class BlockingCommunicator extends Communicator
         }
 
         try {
+            int size = _fin.available();
             DownstreamMessage msg = (DownstreamMessage)_oin.readObject();
             if (debugLogMessages()) {
                 log.info("RECEIVE " + msg);
             }
+            _client.getMessageTracker().messageReceived(false, size, msg);
             return msg;
 
         } catch (ClassNotFoundException cnfe) {
@@ -480,7 +486,8 @@ public class BlockingCommunicator extends Communicator
     {
         // clear the buffer and read a datagram
         _buf.clear();
-        if (_datagramChannel.read(_buf) <= 0) {
+        int size = _datagramChannel.read(_buf);
+        if (size <= 0) {
             throw new IOException("No datagram available to read.");
         }
         _buf.flip();
@@ -494,6 +501,7 @@ public class BlockingCommunicator extends Communicator
             if (debugLogMessages()) {
                 log.info("DATAGRAM " + msg);
             }
+            _client.getMessageTracker().messageReceived(true, size, msg);
             return msg;
 
         } catch (ClassNotFoundException cnfe) {

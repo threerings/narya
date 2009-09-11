@@ -228,6 +228,17 @@ public class Client
     }
 
     /**
+     * Installs (or clears) a message tracker that will be notified on message transmission and
+     * receipt for the purpose of statistics tracking.
+     *
+     * @param tracker the new tracker to install, or <code>null</code> to clear the tracker.
+     */
+    public void setMessageTracker (MessageTracker tracker)
+    {
+        _messageTracker = (tracker == null) ? MessageTracker.NOOP : tracker;
+    }
+
+    /**
      * Returns the data associated with our authentication response. Users of the Presents system
      * may wish to communicate authentication related information to their client by extending and
      * augmenting {@link AuthResponseData}.
@@ -677,6 +688,14 @@ public class Client
     }
 
     /**
+     * Returns a reference to the message tracker to notify on message transmission and receipt.
+     */
+    protected MessageTracker getMessageTracker ()
+    {
+        return _messageTracker;
+    }
+
+    /**
      * Called every five seconds; ensures that we ping the server if we haven't communicated in a
      * long while and periodically resyncs the client and server clock deltas.
      */
@@ -1027,6 +1046,9 @@ public class Client
 
     /** Our outgoing message throttle. */
     protected Throttle _outThrottle = new Throttle(DEFAULT_MSGS_PER_SECOND, 1000L);
+
+    /** The tracker to notify on message transmission or receipt. */
+    protected volatile MessageTracker _messageTracker = MessageTracker.NOOP;
 
     /** How often we recompute our time offset from the server. */
     protected static final long CLOCK_SYNC_INTERVAL = 600 * 1000L;
