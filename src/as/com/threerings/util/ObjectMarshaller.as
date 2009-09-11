@@ -156,9 +156,19 @@ public class ObjectMarshaller
     public static function validateValue (value :Object) :void
         // throws ArgumentError
     {
-        var s :String = getValidationError(value);
-        if (s != null) {
-            throw new ArgumentError(s);
+        try {
+            var s :String = getValidationError(value);
+            if (s != null) {
+                throw new ArgumentError(s);
+            }
+
+        } catch (e :Error) {
+            switch (e.errorID) {
+            case 1023: // stack overflow: oh well. Even if fed valid input this can happen.
+                break;
+            default:
+                throw e; // re-throw
+            }
         }
     }
 
