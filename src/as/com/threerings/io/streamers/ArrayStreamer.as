@@ -21,16 +21,17 @@
 
 package com.threerings.io.streamers {
 
-import com.threerings.util.ClassUtil;
-import com.threerings.util.Enum;
-import com.threerings.util.Log;
-
 import com.threerings.io.ArrayMask;
 import com.threerings.io.ObjectInputStream;
 import com.threerings.io.ObjectOutputStream;
 import com.threerings.io.Streamer;
 import com.threerings.io.Translations;
 import com.threerings.io.TypedArray;
+import com.threerings.util.ClassUtil;
+import com.threerings.util.Enum;
+import com.threerings.util.Integer;
+import com.threerings.util.Log;
+import com.threerings.util.langBoolean;
 
 /**
  * A Streamer for Array objects.
@@ -139,18 +140,18 @@ public class ArrayStreamer extends Streamer
                     ins.readBareObjectImpl(target, _delegate);
                     arr[ii] = target;
                 }
-            } 
+            }
 
         } else {
             for (ii = 0; ii < arr.length; ii++) {
                 arr[ii] = ins.readObject();
-            } 
+            }
         }
     }
 
     protected static function isFinal (type :Class) :Boolean
     {
-        if (type === String) {
+        if (type === String || type === Integer || type === langBoolean) {
             return true;
         }
 
