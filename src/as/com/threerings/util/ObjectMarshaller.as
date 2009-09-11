@@ -156,11 +156,9 @@ public class ObjectMarshaller
     public static function validateValue (value :Object) :void
         // throws ArgumentError
     {
+        var s :String;
         try {
-            var s :String = getValidationError(value);
-            if (s != null) {
-                throw new ArgumentError(s);
-            }
+            s = getValidationError(value);
 
         } catch (e :Error) {
             switch (e.errorID) {
@@ -169,6 +167,9 @@ public class ObjectMarshaller
             default:
                 throw e; // re-throw
             }
+        }
+        if (s != null) {
+            throw new ArgumentError(s);
         }
     }
 
