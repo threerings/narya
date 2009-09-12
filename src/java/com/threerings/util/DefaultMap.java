@@ -93,6 +93,15 @@ public class DefaultMap<K, V> extends ForwardingMap<K, V>
         return new DefaultMap<K, V>(delegate, creator);
     }
 
+    /**
+     * Creates a default map backed by the supplied map using the supplied default creator.
+     */
+    public DefaultMap (Map<K, V> delegate, Creator<K, V> creator)
+    {
+        _delegate = delegate;
+        _creator = creator;
+    }
+
     @Override // from Map
     public V get (Object key)
     {
@@ -103,12 +112,6 @@ public class DefaultMap<K, V> extends ForwardingMap<K, V>
             put(tkey, value = _creator.create(tkey));
         }
         return value;
-    }
-
-    protected DefaultMap (Map<K, V> delegate, Creator<K, V> creator)
-    {
-        _delegate = delegate;
-        _creator = creator;
     }
 
     @Override // from ForwardingMap
