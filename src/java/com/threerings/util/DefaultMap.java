@@ -31,10 +31,10 @@ import com.google.common.collect.Maps;
 
 /**
  * Provides a map implementation that automatically creates, and inserts into the map, a default
- * value for keys with no value when a value is fetched via the {@link #get} method. Note that this
- * map must assume that all keys supplied to {@link #get} are valid instances of the type specified
- * by K as those keys will be used in a subsequent call to {@link #put}. Thus you must not call
- * {@link #get} with a key of invalid type or you will cause your map to become unsound.
+ * value for any key fetched via the {@link #get} method which has no value. Note that this map
+ * must assume that all keys supplied to {@link #get} are valid instances of the type specified by
+ * K as those keys will be used in a subsequent call to {@link #put}. Thus you must not call {@link
+ * #get} with a key of invalid type or you will cause your map to become unsound.
  */
 public class DefaultMap<K, V> extends ForwardingMap<K, V>
 {
