@@ -101,7 +101,7 @@ public class EntryRemovedEvent<T extends DSet.Entry> extends NamedEvent
     @Override
     protected void notifyListener (Object listener)
     {
-        if (listener instanceof SetListener) {
+        if (listener instanceof SetListener<?>) {
             @SuppressWarnings("unchecked") SetListener<T> setlist = (SetListener<T>)listener;
             setlist.entryRemoved(this);
         }

@@ -88,7 +88,7 @@ public class Streamer
      */
     public static Class<?> getStreamerClass (Object object)
     {
-        return (object instanceof Enum) ?
+        return (object instanceof Enum<?>) ?
             ((Enum<?>)object).getDeclaringClass() : object.getClass();
     }
 

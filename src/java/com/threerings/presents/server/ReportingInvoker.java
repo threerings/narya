@@ -131,7 +131,7 @@ public class ReportingInvoker extends Invoker
             if (PresentsDObjectMgr.UNIT_PROF_ENABLED) {
                 for (Object key : _tracker.keySet()) {
                     UnitProfile profile = _tracker.get(key);
-                    if (key instanceof Class) {
+                    if (key instanceof Class<?>) {
                         key = StringUtil.shortClassName((Class<?>)key);
                     }
                     buf.append("  ").append(key).append(" ");

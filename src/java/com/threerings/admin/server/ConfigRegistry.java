@@ -222,7 +222,7 @@ public abstract class ConfigRegistry
         {
             // mirror this configuration update to the persistent config
             Object value = event.getValue();
-            if (value instanceof DSet) {
+            if (value instanceof DSet<?>) {
                 serializeAttribute(event.getName());
             } else {
                 updateValue(event.getName(), value);

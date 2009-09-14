@@ -142,7 +142,7 @@ public abstract class InvocationTask extends Task
 
         protected void addImportsForType (Type type, ImportSet imports)
         {
-            if (type instanceof Class) {
+            if (type instanceof Class<?>) {
                 imports.add((Class<?>)type);
             } else if (type instanceof ParameterizedType) {
                 imports.add((Class<?>)((ParameterizedType)type).getRawType());
@@ -326,7 +326,7 @@ public abstract class InvocationTask extends Task
 
         protected String unboxArgument (Type type, int index, boolean listenerMode)
         {
-            if (listenerMode && (type instanceof Class) &&
+            if (listenerMode && (type instanceof Class<?>) &&
                 _ilistener.isAssignableFrom((Class<?>)type)) {
                 return "listener" + index;
             } else {
