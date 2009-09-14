@@ -35,6 +35,10 @@ public class PermissionPolicy
      * Returns null if the specified client has the specified permission, an error code explaining
      * the lack of access if they do not. {@link InvocationCodes#ACCESS_DENIED} should be returned
      * if no more specific explanation is available.
+     *
+     * @param clobj the client
+     * @param perm what permission they'd like to know if they have
+     * @param context potential context for the request, if that matters
      */
     public String checkAccess (ClientObject clobj, Permission perm, Object context)
     {
