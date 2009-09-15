@@ -29,6 +29,7 @@ import com.threerings.util.ClassUtil;
 import com.threerings.util.Enum;
 
 import com.threerings.io.streamers.ArrayStreamer;
+import com.threerings.io.streamers.BooleanStreamer;
 import com.threerings.io.streamers.ByteStreamer;
 import com.threerings.io.streamers.ByteArrayStreamer;
 import com.threerings.io.streamers.ByteEnumStreamer;
@@ -147,7 +148,7 @@ public class Streamer
         _byJName = new Dictionary();
         for each (var c :Class in
                 [ StringStreamer, NumberStreamer, ByteStreamer, IntegerStreamer, LongStreamer,
-                  FloatStreamer, ArrayStreamer, ByteArrayStreamer ]) {
+                  FloatStreamer, ArrayStreamer, ByteArrayStreamer, BooleanStreamer ]) {
             registerStreamer(Streamer(new c()));
         }
     }
