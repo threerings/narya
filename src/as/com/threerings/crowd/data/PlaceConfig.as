@@ -21,9 +21,6 @@
 
 package com.threerings.crowd.data {
 
-import com.threerings.util.ClassUtil;
-import com.threerings.util.StringBuilder;
-
 import com.threerings.io.ObjectInputStream;
 import com.threerings.io.ObjectOutputStream;
 import com.threerings.io.SimpleStreamableObject;
@@ -82,14 +79,6 @@ public /*abstract*/ class PlaceConfig extends SimpleStreamableObject
     public function getManagerClassName () :String
     {
         return null; // not used
-    }
-
-    // documentation inherited
-    override protected function toStringBuilder (buf :StringBuilder) :void
-    {
-        buf.append("type=").append(ClassUtil.shortClassName(this));
-        buf.append(", ");
-        super.toStringBuilder(buf);
     }
 }
 }
