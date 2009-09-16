@@ -26,8 +26,8 @@ import flash.errors.IllegalOperationError;
 import flash.events.EventDispatcher;
 
 import com.threerings.util.ClassUtil;
+import com.threerings.util.Joiner;
 import com.threerings.util.Log;
-import com.threerings.util.StringBuilder;
 
 import com.threerings.io.ObjectInputStream;
 import com.threerings.io.ObjectOutputStream;
@@ -157,34 +157,33 @@ public class DObject // extends EventDispatcher
      */
     public function which () :String
     {
-        var buf :StringBuilder = new StringBuilder();
-        whichBuf(buf);
-        return buf.toString();
+        var j :Joiner = Joiner.createFor(this);
+        whichJoiner(j);
+        return j.toString();
     }
 
     /**
      * Used to briefly describe this distributed object.
      */
-    protected function whichBuf (buf :StringBuilder) :void
+    protected function whichJoiner (j :Joiner) :void
     {
-        buf.append(ClassUtil.shortClassName(this), ":", _oid);
+        j.addArgs(_oid);
     }
 
     // documentation inherited
     public function toString () :String
     {
-        var buf :StringBuilder = new StringBuilder("[");
-        toStringBuf(buf);
-        buf.append("]");
-        return buf.toString();
+        var j :Joiner = Joiner.createFor(this);
+        toStringJoiner(j);
+        return j.toString();
     }
 
     /**
      * Generates a string representation of this object.
      */
-    public function toStringBuf (buf :StringBuilder) :void
+    public function toStringJoiner (j :Joiner) :void
     {
-        buf.append("oid=", _oid);
+        j.add("oid", _oid);
     }
 
     /**

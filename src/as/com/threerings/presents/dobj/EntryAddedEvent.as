@@ -24,8 +24,8 @@ package com.threerings.presents.dobj {
 import com.threerings.io.ObjectInputStream;
 import com.threerings.io.ObjectOutputStream;
 
+import com.threerings.util.Joiner;
 import com.threerings.util.Log;
-import com.threerings.util.StringBuilder;
 
 /**
  * An entry added event is dispatched when an entry is added to a {@link
@@ -88,11 +88,10 @@ public class EntryAddedEvent extends NamedEvent
     }
 
     // documentation inherited
-    override protected function toStringBuf (buf :StringBuilder) :void
+    override protected function toStringJoiner (j :Joiner) :void
     {
-        buf.append("ELADD:");
-        super.toStringBuf(buf);
-        buf.append(", entry=", _entry);
+        super.toStringJoiner(j);
+        j.add("entry", _entry);
     }
 
     override public function writeObject (out :ObjectOutputStream) :void

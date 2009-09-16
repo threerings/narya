@@ -26,6 +26,8 @@ import com.adobe.crypto.MD5;
 import com.threerings.io.ObjectInputStream;
 import com.threerings.io.ObjectOutputStream;
 
+import com.threerings.util.Joiner;
+
 /**
  * Extends the basic credentials to provide bureau-specific fields.
  */
@@ -60,9 +62,10 @@ public class ServiceCreds extends Credentials
     }
 
     // from Object
-    public function toString () :String
+    override protected function toStringJoiner (j :Joiner) :void
     {
-        return "[id=" + clientId + ", token=" + _authToken + "]";
+        super.toStringJoiner(j);
+        j.add("token", _authToken);
     }
 
     /**

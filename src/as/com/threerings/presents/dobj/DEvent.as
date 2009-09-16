@@ -25,7 +25,7 @@ import com.threerings.io.ObjectInputStream;
 import com.threerings.io.ObjectOutputStream;
 import com.threerings.io.Streamable;
 
-import com.threerings.util.StringBuilder;
+import com.threerings.util.Joiner;
 
 public /* abstract */ class DEvent
     implements Streamable
@@ -96,21 +96,19 @@ public /* abstract */ class DEvent
      */
     public function toString () :String
     {
-        var buf :StringBuilder = new StringBuilder();
-        buf.append("[");
-        toStringBuf(buf);
-        buf.append("]");
-        return buf.toString();
+        var j :Joiner = Joiner.createFor(this);
+        toStringJoiner(j);
+        return j.toString();
     }
 
     /**
      * This should be overridden by derived classes (which should be sure
-     * to call <code>super.toString()</code>) to append the derived class
-     * specific event information to the string buffer.
+     * to call <code>super.toStringJoiner()</code> first) to append the derived class
+     * specific event information onto the String representation.
      */
-    protected function toStringBuf (buf :StringBuilder) :void
+    protected function toStringJoiner (j :Joiner) :void
     {
-        buf.append("targetOid=", _toid);
+        j.add("targetOid", _toid);
     }
 
     /** The oid of the object that is the target of this event. */

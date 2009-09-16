@@ -24,8 +24,8 @@ package com.threerings.presents.dobj {
 import com.threerings.io.ObjectInputStream;
 import com.threerings.io.ObjectOutputStream;
 
+import com.threerings.util.Joiner;
 import com.threerings.util.Log;
-import com.threerings.util.StringBuilder;
 
 /**
  * An entry updated event is dispatched when an entry of a {@link DSet} is
@@ -89,8 +89,7 @@ public class EntryUpdatedEvent extends NamedEvent
             _oldEntry = dset.update(_entry);
             if (_oldEntry == null) {
                 // complain if we didn't update anything
-                Log.getLog(this).warning("No matching entry to update " +
-                    "[entry=" + this + ", set=" + dset + "].");
+                Log.getLog(this).warning("No matching entry to update", "entry", this, "set", dset);
                 return false;
             }
         }
@@ -106,11 +105,10 @@ public class EntryUpdatedEvent extends NamedEvent
     }
 
     // documentation inherited
-    override protected function toStringBuf (buf :StringBuilder) :void
+    override protected function toStringJoiner (j :Joiner) :void
     {
-        buf.append("ELUPD:");
-        super.toStringBuf(buf);
-        buf.append(", entry=", _entry);
+        super.toStringJoiner(j);
+        j.add("entry", _entry);
     }
 
     override public function writeObject (out :ObjectOutputStream) :void

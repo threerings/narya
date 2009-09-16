@@ -21,8 +21,8 @@
 
 package com.threerings.presents.net {
 
+import com.threerings.util.Joiner;
 import com.threerings.util.Name;
-import com.threerings.util.StringBuilder;
 
 import com.threerings.io.ObjectInputStream;
 import com.threerings.io.ObjectOutputStream;
@@ -55,26 +55,10 @@ public class UsernamePasswordCreds extends Credentials
         out.writeField(_password);
     }
 
-    // from Credentials
-    override public function readObject (ins :ObjectInputStream) :void
+    override protected function toStringJoiner (j :Joiner) :void
     {
-    	_username = Name(ins.readObject());
-        _password = (ins.readField(String) as String);
-    }
-
-    // from Object
-    public function toString () :String
-    {
-        var buf :StringBuilder = new StringBuilder("[");
-        toStringBuf(buf);
-        buf.append("]");
-        return buf.toString();
-    }
-
-    protected function toStringBuf (buf :StringBuilder) :void
-    {
-        buf.append("username=", _username);
-        buf.append(", password=", _password);
+        j.add("username", _username, "password", _password);
+        super.toStringJoiner(j);
     }
 
     protected var _username :Name;

@@ -25,8 +25,8 @@ import com.threerings.io.ObjectInputStream;
 import com.threerings.io.ObjectOutputStream;
 
 import com.threerings.util.Boxed;
+import com.threerings.util.Joiner;
 import com.threerings.util.Log;
-import com.threerings.util.StringBuilder;
 
 /**
  * An entry removed event is dispatched when an entry is removed from a
@@ -107,11 +107,10 @@ public class EntryRemovedEvent extends NamedEvent
     }
 
     // documentation inherited
-    override protected function toStringBuf (buf :StringBuilder) :void
+    override protected function toStringJoiner (j :Joiner) :void
     {
-        buf.append("ELREM:");
-        super.toStringBuf(buf);
-        buf.append(", key=", _key);
+        super.toStringJoiner(j);
+        j.add("key", _key);
     }
 
     override public function writeObject (out :ObjectOutputStream) :void

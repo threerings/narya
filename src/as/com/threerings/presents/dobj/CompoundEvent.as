@@ -24,8 +24,8 @@ package com.threerings.presents.dobj {
 import com.threerings.io.ObjectInputStream;
 import com.threerings.io.ObjectOutputStream;
 
+import com.threerings.util.Joiner;
 import com.threerings.util.StreamableArrayList;
-import com.threerings.util.StringBuilder;
 
 /**
  * Used to manage and submit groups of events on a collection of distributed objects in a single
@@ -90,15 +90,10 @@ public class CompoundEvent extends DEvent
     }
 
     // from DObject
-    override protected function toStringBuf (buf :StringBuilder) :void
+    override protected function toStringJoiner (j :Joiner) :void
     {
-        buf.append("COMPOUND:");
-        super.toStringBuf(buf);
-
-        var nn :int = _events.size();
-        for (var ii :int = 0; ii < nn; ii++) {
-            buf.append(", ", _events.get(ii));
-        }
+        super.toStringJoiner(j);
+        j.addArgsArray(_events.asArray());
     }
 
     // from DObject

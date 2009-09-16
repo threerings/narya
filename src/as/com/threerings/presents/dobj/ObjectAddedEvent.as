@@ -24,7 +24,7 @@ package com.threerings.presents.dobj {
 import com.threerings.io.ObjectInputStream;
 import com.threerings.io.ObjectOutputStream;
 
-import com.threerings.util.StringBuilder;
+import com.threerings.util.Joiner;
 
 /**
  * An object added event is dispatched when an object is added to an
@@ -97,11 +97,10 @@ public class ObjectAddedEvent extends NamedEvent
     }
 
     // documentation inherited
-    override protected function toStringBuf (buf :StringBuilder) :void
+    override protected function toStringJoiner (j :Joiner) :void
     {
-        buf.append("OBJADD:");
-        super.toStringBuf(buf);
-        buf.append(", oid=", _oid);
+        super.toStringJoiner(j);
+        j.add("oid", _oid);
     }
 
     protected var _oid :int;

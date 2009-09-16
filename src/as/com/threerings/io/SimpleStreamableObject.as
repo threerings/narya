@@ -21,9 +21,7 @@
 
 package com.threerings.io {
 
-import com.threerings.util.ClassUtil;
-import com.threerings.util.StringBuilder;
-import com.threerings.util.StringUtil;
+import com.threerings.util.Joiner;
 
 /**
  * A simple serializable object implements the {@link Streamable}
@@ -49,19 +47,18 @@ public class SimpleStreamableObject implements Streamable
      */
     public function toString () :String
     {
-        var buf :StringBuilder = new StringBuilder("[");
-        buf.append(ClassUtil.tinyClassName(this)).append("(");
-        toStringBuilder(buf);
-        return buf.append(")]").toString();
+        var j :Joiner = Joiner.createFor(this);
+        toStringJoiner(j);
+        return j.toString();
     }
 
     /**
      * Handles the toString-ification of all public members. Derived
      * classes can override and include non-public members if desired.
      */
-    protected function toStringBuilder (buf :StringBuilder): void
+    protected function toStringJoiner (j :Joiner): void
     {
-        StringUtil.fieldsToString(buf, this);
+        j.addFields(this);
     }
 }
 }

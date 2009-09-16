@@ -21,7 +21,7 @@
 
 package com.threerings.presents.dobj {
 
-import com.threerings.util.StringBuilder;
+import com.threerings.util.Joiner;
 
 import com.threerings.io.ObjectInputStream;
 import com.threerings.io.ObjectOutputStream;
@@ -53,10 +53,10 @@ public /* abstract */ class NamedEvent extends DEvent
         return _name;
     }
 
-    override protected function toStringBuf (buf :StringBuilder) :void
+    override protected function toStringJoiner (j :Joiner) :void
     {
-        super.toStringBuf(buf);
-        buf.append(", name=", _name);
+        super.toStringJoiner(j);
+        j.add("name", _name);
     }
 
     override public function writeObject (out :ObjectOutputStream) :void

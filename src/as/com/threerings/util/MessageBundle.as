@@ -302,25 +302,24 @@ public class MessageBundle
     {
         args = Util.unfuckVarargs(args);
 
-        var buf :StringBuilder = new StringBuilder();
-        buf.append(key, "|");
+        var s :String = key + "|";
         for (var ii :int = 0; ii < args.length; ii++) {
             if (ii > 0) {
-                buf.append("|");
+                s += "|";
             }
             var arg :String = String(args[ii]);
             for (var p :int = 0; p < arg.length; p++) {
                 var ch :String = arg.charAt(p);
                 if (ch == "|") {
-                    buf.append("\\!");
+                    s += "\\!";
                 } else if (ch == "\\") {
-                    buf.append("\\\\");
+                    s += "\\\\";
                 } else {
-                    buf.append(ch);
+                    s += ch;
                 }
             }
         }
-        return buf.toString();
+        return s;
     }
 
     /**
@@ -404,19 +403,18 @@ public class MessageBundle
             return val;
         }
 
-        var buf :StringBuilder = new StringBuilder();
+        var s :String = "";
         for (var ii :int = 0; ii < val.length; ii++) {
             var ch :String = val.charAt(ii);
             if (ch != "\\" || ii == val.length-1) {
-                buf.append(ch);
+                s += ch;
             } else {
                 // look at the next character
                 ch = val.charAt(++ii);
-                buf.append((ch == "!") ? "|" : ch);
+                s += (ch == "!") ? "|" : ch;
             }
         }
-
-        return buf.toString();
+        return s;
     }
 
     /** The message manager via whom we'll resolve fully qualified

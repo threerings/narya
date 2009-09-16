@@ -26,7 +26,7 @@ import com.threerings.io.ObjectOutputStream;
 import com.threerings.io.TypedArray;
 
 import com.threerings.util.Boxed;
-import com.threerings.util.StringBuilder;
+import com.threerings.util.Joiner;
 
 /**
  * A message event is used to dispatch a message to all subscribers of a
@@ -97,11 +97,10 @@ public class MessageEvent extends NamedEvent
     }
 
     // documentation inherited
-    override protected function toStringBuf (buf :StringBuilder) :void
+    override protected function toStringJoiner (j :Joiner) :void
     {
-        buf.append("MSG:");
-        super.toStringBuf(buf);
-        buf.append(", args=", _args);
+        super.toStringJoiner(j);
+        j.add("args", _args);
     }
 
     // documentation inherited

@@ -24,7 +24,7 @@ package com.threerings.presents.dobj {
 import com.threerings.io.ObjectInputStream;
 import com.threerings.io.ObjectOutputStream;
 
-import com.threerings.util.StringBuilder;
+import com.threerings.util.Joiner;
 
 /**
  * Used to dispatch an invocation response from the server to the client.
@@ -99,13 +99,10 @@ public class InvocationResponseEvent extends DEvent
     }
 
     // documentation inherited
-    override protected function toStringBuf (buf :StringBuilder) :void
+    override protected function toStringJoiner (j :Joiner) :void
     {
-        buf.append("IRSP:");
-        super.toStringBuf(buf);
-        buf.append(", reqid=", _requestId);
-        buf.append(", methodId=", _methodId);
-        buf.append(", args=", _args);
+        super.toStringJoiner(j);
+        j.add("reqId", _requestId, "methodId", _methodId, "args", _args);
     }
 
     // documentation inherited

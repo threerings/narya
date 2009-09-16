@@ -25,7 +25,7 @@ import com.threerings.io.ObjectInputStream;
 import com.threerings.io.ObjectOutputStream;
 import com.threerings.io.TypedArray;
 
-import com.threerings.util.StringBuilder;
+import com.threerings.util.Joiner;
 
 /**
  * Used to dispatch an invocation notification from the server to a
@@ -103,13 +103,10 @@ public class InvocationNotificationEvent extends DEvent
     }
 
     // documentation inherited
-    override protected function toStringBuf (buf :StringBuilder) :void
+    override protected function toStringJoiner (j :Joiner) :void
     {
-        buf.append("INOT:");
-        super.toStringBuf(buf);
-        buf.append(", rcvId=", _receiverId);
-        buf.append(", methodId=", _methodId);
-        buf.append(", args=", _args);
+        super.toStringJoiner(j);
+        j.add("rcvId", _receiverId, "methodId", _methodId, "args", _args);
     }
 
     // documentation inherited

@@ -21,7 +21,7 @@
 
 package com.threerings.presents.dobj {
 
-import com.threerings.util.StringBuilder;
+import com.threerings.util.Joiner;
 
 import com.threerings.io.ObjectInputStream;
 import com.threerings.io.ObjectOutputStream;
@@ -99,11 +99,10 @@ public class ObjectRemovedEvent extends NamedEvent
     }
 
     // documentation inherited
-    override protected function toStringBuf (buf :StringBuilder) :void
+    override protected function toStringJoiner (j :Joiner) :void
     {
-        buf.append("OBJREM:");
-        super.toStringBuf(buf);
-        buf.append(", oid=", _oid);
+        super.toStringJoiner(j);
+        j.add("oid", _oid);
     }
 
     protected var _oid :int;

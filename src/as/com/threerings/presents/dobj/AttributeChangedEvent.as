@@ -25,7 +25,7 @@ import com.threerings.io.ObjectInputStream;
 import com.threerings.io.ObjectOutputStream;
 
 import com.threerings.util.Boxed;
-import com.threerings.util.StringBuilder;
+import com.threerings.util.Joiner;
 
 /**
  * An attribute changed event is dispatched when a single attribute of a
@@ -107,11 +107,10 @@ public class AttributeChangedEvent extends NamedEvent
     }
 
     // documentation inherited
-    override protected function toStringBuf (buf :StringBuilder) :void
+    override protected function toStringJoiner (j :Joiner) :void
     {
-        buf.append("CHANGE:");
-        super.toStringBuf(buf);
-        buf.append(", value=", _value);
+        super.toStringJoiner(j);
+        j.add("value", _value);
     }
 
     override public function writeObject (out :ObjectOutputStream) :void

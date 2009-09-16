@@ -29,8 +29,6 @@ import com.threerings.io.ObjectInputStream;
 import com.threerings.io.ObjectOutputStream;
 import com.threerings.io.TypedArray;
 
-import com.threerings.util.StringBuilder;
-
 /**
  * An oid list is used to store lists of object ids. The list will not
  * allow duplicate ids. This class is not synchronized, with the
@@ -127,11 +125,7 @@ public class OidList
 
     public function toString () :String
     {
-        var buf :StringBuilder = new StringBuilder();
-        buf.append("{");
-        buf.append(_oids.toString());
-        buf.append("}");
-        return buf.toString();
+        return "{" + _oids.toString() + "}";
     }
 
     private var _oids :TypedArray;

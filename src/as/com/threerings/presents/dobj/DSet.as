@@ -26,7 +26,6 @@ import com.threerings.util.Cloneable;
 import com.threerings.util.Equalable;
 import com.threerings.util.Iterator;
 import com.threerings.util.Log;
-import com.threerings.util.StringBuilder;
 import com.threerings.util.Util;
 
 import com.threerings.io.ObjectInputStream;
@@ -225,10 +224,7 @@ public class DSet
      */
     public function toString () :String
     {
-        var buf :StringBuilder = new StringBuilder("(");
-        buf.append(_entries.toString());
-        buf.append(")");
-        return buf.toString();
+        return "(" + _entries.toString() + ")";
     }
 
     // documentation inherited from interface Streamable

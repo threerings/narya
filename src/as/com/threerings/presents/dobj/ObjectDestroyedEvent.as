@@ -21,8 +21,6 @@
 
 package com.threerings.presents.dobj {
 
-import com.threerings.util.StringBuilder;
-
 /**
  * An object destroyed event is dispatched when an object has been removed
  * from the distributed object system. It can also be constructed to
@@ -58,13 +56,6 @@ public class ObjectDestroyedEvent extends DEvent
         if (listener is ObjectDeathListener) {
             listener.objectDestroyed(this);
         }
-    }
-
-    // documentation inherited
-    override protected function toStringBuf (buf :StringBuilder) :void
-    {
-        buf.append("DESTROY:");
-        super.toStringBuf(buf);
     }
 }
 }

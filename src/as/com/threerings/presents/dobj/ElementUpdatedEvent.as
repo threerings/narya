@@ -25,7 +25,7 @@ import com.threerings.io.ObjectInputStream;
 import com.threerings.io.ObjectOutputStream;
 
 import com.threerings.util.Boxed;
-import com.threerings.util.StringBuilder;
+import com.threerings.util.Joiner;
 
 /**
  * An element updated event is dispatched when an element of an array
@@ -132,12 +132,10 @@ public class ElementUpdatedEvent extends NamedEvent
     }
 
     // documentation inherited
-    override protected function toStringBuf (buf :StringBuilder) :void
+    override protected function toStringJoiner (j :Joiner) :void
     {
-        buf.append("UPDATE:");
-        super.toStringBuf(buf);
-        buf.append(", value=", _value);
-        buf.append(", index=", _index);
+        super.toStringJoiner(j);
+        j.add("value", _value, "index", _index);
     }
 
     protected var _value :Object;
