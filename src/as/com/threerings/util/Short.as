@@ -21,11 +21,15 @@
 
 package com.threerings.util {
 
+import com.threerings.io.ObjectInputStream;
+import com.threerings.io.ObjectOutputStream;
+import com.threerings.io.Streamable;
+
 /**
  * Equivalent to java.lang.Short.
  */
-public class Short
-    implements Equalable, Boxed
+public final class Short
+    implements Hashable, Boxed, Streamable
 {
     /** The minimum possible short value. */
     public static const MIN_VALUE :int = -Math.pow(2, 15);
@@ -46,7 +50,7 @@ public class Short
         return _value;
     }
 
-    public function Short (shortValue :int)
+    public function Short (shortValue :int = 0)
     {
         _value = shortValue;
     }
@@ -57,10 +61,28 @@ public class Short
         return (other is Short) && (_value === (other as Short).value);
     }
 
+    // from Hashable
+    public function hashCode () :int
+    {
+        return _value;
+    }
+
     // from Boxed
     public function unbox () :Object
     {
         return _value;
+    }
+
+    // from Streamable
+    public function readObject (ins :ObjectInputStream) :void
+    {
+        _value = ins.readShort();
+    }
+
+    // from Streamable
+    public function writeObject (out :ObjectOutputStream) :void
+    {
+        out.writeShort(_value);
     }
 
     protected var _value :int;

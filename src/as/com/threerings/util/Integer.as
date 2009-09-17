@@ -21,6 +21,10 @@
 
 package com.threerings.util {
 
+import com.threerings.io.ObjectInputStream;
+import com.threerings.io.ObjectOutputStream;
+import com.threerings.io.Streamable;
+
 /**
  * Equivalent to java.lang.Integer.
  */
@@ -29,8 +33,8 @@ package com.threerings.util {
 // autotranslate between int <--> java.lang.Integer and
 // Number <--> java.lang.Double. However, a Number object that refers
 // to an integer value is actually an int. Yes, it's totally fucked.
-public class Integer
-    implements Equalable, Boxed
+public final class Integer
+    implements Hashable, Boxed, Streamable
 {
     public static function valueOf (val :int) :Integer
     {
@@ -48,7 +52,7 @@ public class Integer
     /**
      * Constructor.
      */
-    public function Integer (intValue :int)
+    public function Integer (intValue :int = 0)
     {
         _value = intValue;
     }
@@ -57,6 +61,12 @@ public class Integer
     public function equals (other :Object) :Boolean
     {
         return (other is Integer) && (_value === (other as Integer).value);
+    }
+
+    // from Hashable
+    public function hashCode () :int
+    {
+        return _value;
     }
 
     // from Boxed
@@ -79,7 +89,18 @@ public class Integer
         return (val1 > val2) ? 1 : (val1 == val2 ? 0 : -1);
     }
 
-    protected var _value :int;
+    // from Streamable
+    public function readObject (ins :ObjectInputStream) :void
+    {
+        _value = ins.readInt();
+    }
 
+    // from Streamable
+    public function writeObject (out :ObjectOutputStream) :void
+    {
+        out.writeInt(_value);
+    }
+
+    protected var _value :int;
 }
 }

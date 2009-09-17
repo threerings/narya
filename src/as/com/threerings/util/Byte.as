@@ -21,11 +21,15 @@
 
 package com.threerings.util {
 
+import com.threerings.io.ObjectInputStream;
+import com.threerings.io.ObjectOutputStream;
+import com.threerings.io.Streamable;
+
 /**
  * Equivalent to java.lang.Byte.
  */
 public class Byte
-    implements Equalable, Boxed
+    implements Hashable, Boxed, Streamable
 {
     public static function valueOf (val :int) :Byte
     {
@@ -43,7 +47,7 @@ public class Byte
     /**
      * Constructor.
      */
-    public function Byte (byteValue :int)
+    public function Byte (byteValue :int = 0)
     {
         _value = byteValue;
     }
@@ -52,6 +56,12 @@ public class Byte
     public function equals (other :Object) :Boolean
     {
         return (other is Byte) && (_value === (other as Byte).value);
+    }
+
+    // from Hashable
+    public function hashCode () :int
+    {
+        return _value;
     }
 
     // from Boxed
@@ -64,6 +74,18 @@ public class Byte
     public function toString () :String
     {
         return "Byte(" + _value + ")";
+    }
+
+    // from Streamable
+    public function readObject (ins :ObjectInputStream) :void
+    {
+        _value = ins.readByte();
+    }
+
+    // from Streamable
+    public function writeObject (out :ObjectOutputStream) :void
+    {
+        out.writeByte(_value);
     }
 
     protected var _value :int;

@@ -21,11 +21,15 @@
 
 package com.threerings.util {
 
+import com.threerings.io.ObjectInputStream;
+import com.threerings.io.ObjectOutputStream;
+import com.threerings.io.Streamable;
+
 /**
  * Equivalent to java.lang.Float.
  */
-public class Float
-    implements Equalable, Boxed
+public final class Float
+    implements Hashable, Boxed, Streamable
 {
     public static function valueOf (val :Number) :Float
     {
@@ -43,7 +47,7 @@ public class Float
     /**
      * Constructor.
      */
-    public function Float (floatValue :Number)
+    public function Float (floatValue :Number = 0)
     {
         _value = floatValue;
     }
@@ -54,10 +58,28 @@ public class Float
         return (other is Float) && (_value === (other as Float).value);
     }
 
+    // from Hashable
+    public function hashCode () :int
+    {
+        return int(_value);
+    }
+
     // from Boxed
     public function unbox () :Object
     {
         return _value;
+    }
+
+    // from Streamable
+    public function readObject (ins :ObjectInputStream) :void
+    {
+        _value = ins.readFloat();
+    }
+
+    // from Streamable
+    public function writeObject (out :ObjectOutputStream) :void
+    {
+        out.writeFloat(_value);
     }
 
     protected var _value :Number;

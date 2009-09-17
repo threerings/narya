@@ -28,8 +28,8 @@ import com.threerings.io.Streamable;
 /**
  * Equivalent to java.lang.Boolean.
  */
-public class langBoolean
-    implements Equalable, Streamable, Boxed
+public final class langBoolean
+    implements Hashable, Boxed, Streamable
 {
     public static function valueOf (val :Boolean) :langBoolean
     {
@@ -57,6 +57,12 @@ public class langBoolean
     {
         return (other is langBoolean) &&
             (_value === (other as langBoolean).value);
+    }
+
+    // from Hashable
+    public function hashCode () :int
+    {
+        return _value ? 1 : 0;
     }
 
     // from Streamable
