@@ -29,8 +29,12 @@ import com.threerings.io.Translations;
 import com.threerings.io.TypedArray;
 import com.threerings.util.ClassUtil;
 import com.threerings.util.Enum;
+import com.threerings.util.Byte;
+import com.threerings.util.Float;
 import com.threerings.util.Integer;
 import com.threerings.util.Log;
+import com.threerings.util.Long;
+import com.threerings.util.Short;
 import com.threerings.util.langBoolean;
 
 /**
@@ -151,7 +155,8 @@ public class ArrayStreamer extends Streamer
 
     protected static function isFinal (type :Class) :Boolean
     {
-        if (type === String || type === Integer || type === langBoolean) {
+        if (type === String || type == Byte || type == Short || type === Integer ||
+                type == Float || type == Long || type === langBoolean) {
             return true;
         }
 
