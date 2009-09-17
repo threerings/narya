@@ -125,6 +125,11 @@ public class Streamer
         (obj as Streamable).readObject(ins);
     }
 
+    public function toString () :String
+    {
+        return "[Streamer(" + _jname + ")]";
+    }
+
     protected static function registerStreamer (st :Streamer) :void
     {
         _byJName[st.getJavaClassName()] = st;
