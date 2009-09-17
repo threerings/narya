@@ -106,7 +106,24 @@ public class ObjectOutputStream
     }
 
     /**
-     * This is equivalent to marshalling a field for which there is a basic streamer.
+     * Called to write an object reference within a Streamable object when the type of the
+     * field is a final type.
+     *
+     * @example This is how you would do it, even if s and o referred to the same String object!
+     * <listing version="3.0">
+     * public class Foo
+     *    implements Streamable
+     * {
+     *     public var o :Object;
+     *     public var s :String;
+     *   ...
+     *     public function writeObject (out :ObjectOutputStream) :void
+     *     {
+     *         out.writeObject(o);
+     *         out.writeField(s);
+     *     }
+     * }
+     * </listing>
      */
     public function writeField (val :Object) :void
         //throws IOError

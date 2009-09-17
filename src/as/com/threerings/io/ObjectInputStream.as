@@ -154,11 +154,11 @@ public class ObjectInputStream
     }
 
     /**
+     * Called to read an Object of a known final type into a Streamable object.
+     *
      * @param type either a String representing the java type,
      *             or a Class object representing the actionscript type.
      */
-    // TODO: this is the equivalent of marshalling something for which
-    // we have a basic streamer. Fill out with all the java types
     public function readField (type :Object) :Object
         //throws IOError
     {
