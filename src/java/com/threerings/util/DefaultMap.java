@@ -102,14 +102,17 @@ public class DefaultMap<K, V> extends ForwardingMap<K, V>
         _creator = creator;
     }
 
-    @Override // from Map
-    public V get (Object key)
+    /**
+     * Looks up the supplied key in the map, returning the value to which it is mapped. If the key
+     * has no mapping, a default value will be obtained for the requested key and placed into the
+     * map. The current and subsequent lookups will return that value.
+     */
+    public V fetch (K key)
     {
-        @SuppressWarnings("unchecked") K tkey = (K)key;
-        V value = super.get(key);
+        V value = get(key);
         // null is a valid value, so we check containsKey() before creating a default
         if (value == null && !containsKey(key)) {
-            put(tkey, value = _creator.create(tkey));
+            put(key, value = _creator.create(key));
         }
         return value;
     }
