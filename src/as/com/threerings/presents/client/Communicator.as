@@ -165,7 +165,7 @@ public class Communicator
                 try {
                     _socket.close();
                 } catch (err :Error) {
-                    log.warning("Error closing failed socket [error=" + err + "].");
+                    log.warning("Error closing failed socket", err);
                 }
             }
             removeListeners();
@@ -227,7 +227,7 @@ public class Communicator
     protected function sendMessage (msg :UpstreamMessage) :void
     {
         if (_outStream == null) {
-            log.warning("No socket, dropping msg [msg=" + msg + "].");
+            log.warning("No socket, dropping msg", "msg", msg);
             return;
         }
 
@@ -263,14 +263,13 @@ public class Communicator
         try {
             msg = (_inStream.readObject(DownstreamMessage) as DownstreamMessage);
         } catch (e :Error) {
-            log.warning("Error processing downstream message: " + e);
-            log.logStackTrace(e);
+            log.warning("Error processing downstream message", e);
             return;
         }
 
         if (frameData.bytesAvailable > 0) {
-            log.warning("Beans! We didn't fully read a frame, is there a bug in some streaming " +
-                "code? [bytesLeftOver=" + frameData.bytesAvailable + ", msg=" + msg + "].");
+            log.warning("Beans! We didn't fully read a frame, is there a bug in streaming code?",
+                "bytesLeftOver", frameData.bytesAvailable, "msg", msg);
         }
 
         if (_omgr != null) {
@@ -336,8 +335,7 @@ public class Communicator
         }
 
         // total failure
-        log.warning("Socket error: " + event, "target", event.target);
-        Log.dumpStack();
+        log.warning("Socket error", "event", event, "target", event.target, new Error());
         shutdown(new Error(AuthCodes.NETWORK_ERROR));
     }
 
@@ -346,7 +344,7 @@ public class Communicator
      */
     protected function socketClosed (event :Event) :void
     {
-        log.info("Socket was closed: " + event);
+        log.info("Socket was closed", "event", event);
         _client.notifyObservers(ClientEvent.CLIENT_CONNECTION_FAILED);
         // if we hadn't loaded our client object yet, behave as if this was a logon failure because
         // we failed before we dispatched a DID_LOGON
