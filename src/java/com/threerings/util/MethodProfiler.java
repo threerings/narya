@@ -112,6 +112,7 @@ public class MethodProfiler
             for (Map.Entry<String, Result> result : test4.getResults().entrySet()) {
                 log.info("Results", "name", result.getKey(), "value", result.getValue());
             }
+            break;
         }
     }
 
