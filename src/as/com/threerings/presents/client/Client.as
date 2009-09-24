@@ -327,12 +327,12 @@ public class Client extends EventDispatcher
             _activeSession = true; // restore our active session status
             return false;
         }
-        
+
         if (_tickInterval != null) {
             _tickInterval.stop();
             _tickInterval = null;
         }
-        
+
         _comm.logoff();
         return true;
     }
@@ -390,7 +390,7 @@ public class Client extends EventDispatcher
             _tickInterval.addEventListener(TimerEvent.TIMER, tick);
             _tickInterval.start();
         }
-        
+
         notifyObservers(ClientEvent.CLIENT_DID_LOGON);
 
         // now that we've logged on at least once, we're in the middle of an active session and

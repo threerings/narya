@@ -104,7 +104,7 @@ public class InvocationDirector
         }
 
         // if we're logged on, clear out any receiver id mapping
-        if (_clobj != null) { 
+        if (_clobj != null) {
             var rreg :InvocationReceiver_Registration =
                 (_clobj.receivers.get(receiverCode) as InvocationReceiver_Registration);
             if (rreg == null) {
@@ -238,7 +238,7 @@ public class InvocationDirector
      */
     protected function handleInvocationResponse (reqId :int, methodId :int, args :Array) :void
     {
-        var listener :InvocationMarshaller_ListenerMarshaller = 
+        var listener :InvocationMarshaller_ListenerMarshaller =
             (_listeners.remove(reqId) as InvocationMarshaller_ListenerMarshaller);
         if (listener == null) {
             log.warning("Received invocation response for which we have no registered listener " +
