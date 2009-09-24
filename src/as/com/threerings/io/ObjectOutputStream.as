@@ -164,11 +164,15 @@ public class ObjectOutputStream
         _targ.writeByte(value);
     }
 
-    public function writeBytes (bytes :ByteArray, offset :uint=0,
-            length :uint = 0) :void
+    public function writeBytes (bytes :ByteArray, offset :int = 0, length :int = -1) :void
         //throws IOError
     {
-        _targ.writeBytes(bytes, offset, length);
+        if (length == -1) {
+            length = bytes.length - offset;
+        }
+        if (length > 0) {
+            _targ.writeBytes(bytes, offset, length);
+        }
     }
 
     public function writeDouble (value :Number) :void
