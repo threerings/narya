@@ -60,8 +60,11 @@ public class ArrayMask
     // documentation inherited from interface Streamable
     public function readFrom (ins :ObjectInputStream) :void
     {
-        _mask.length = ins.readShort();
-        ins.readBytes(_mask, 0, _mask.length);
+        var len :int = ins.readShort();
+        _mask.length = len;
+        if (len > 0) {
+            ins.readBytes(_mask, 0, len);
+        }
     }
 
     /** The array mask. */
