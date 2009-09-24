@@ -54,7 +54,9 @@ public class ByteArrayStreamer extends Streamer
     override public function readObject (obj :Object, ins :ObjectInputStream) :void
     {
         var bytes :ByteArray = (obj as ByteArray);
-        ins.readBytes(bytes, 0, bytes.length);
+        if (bytes.length > 0) {
+            ins.readBytes(bytes, 0, bytes.length);
+        }
     }
 }
 }
