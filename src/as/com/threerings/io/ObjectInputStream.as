@@ -202,11 +202,12 @@ public class ObjectInputStream
      * Read bytes into the byte array. If length is not specified, then
      * enough bytes to fill the array (from the offset) are read.
      */
-    public function readBytes (bytes :ByteArray, offset :int = 0, length :int = -1) :void
+    public function readBytes (
+        bytes :ByteArray, offset :uint = 0, length :uint = uint.MAX_VALUE) :void
         //throws IOError
     {
         // if no length specified then fill the ByteArray
-        if (length == -1) {
+        if (length == uint.MAX_VALUE) {
             length = bytes.length - offset;
         }
         // And, if we really want to read 0 bytes then just don't do anything, because an

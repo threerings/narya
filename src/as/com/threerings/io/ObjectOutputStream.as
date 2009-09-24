@@ -164,10 +164,11 @@ public class ObjectOutputStream
         _targ.writeByte(value);
     }
 
-    public function writeBytes (bytes :ByteArray, offset :int = 0, length :int = -1) :void
+    public function writeBytes (
+        bytes :ByteArray, offset :uint = 0, length :uint = uint.MAX_VALUE) :void
         //throws IOError
     {
-        if (length == -1) {
+        if (length == uint.MAX_VALUE) {
             length = bytes.length - offset;
         }
         if (length > 0) {
