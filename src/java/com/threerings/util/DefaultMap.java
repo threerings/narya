@@ -31,10 +31,7 @@ import com.google.common.collect.Maps;
 
 /**
  * Provides a map implementation that automatically creates, and inserts into the map, a default
- * value for any key fetched via the {@link #get} method which has no value. Note that this map
- * must assume that all keys supplied to {@link #get} are valid instances of the type specified by
- * K as those keys will be used in a subsequent call to {@link #put}. Thus you must not call {@link
- * #get} with a key of invalid type or you will cause your map to become unsound.
+ * value for any value retrieved via the {@link #fetch} method which has no entry for that key.
  */
 public class DefaultMap<K, V> extends ForwardingMap<K, V>
 {
@@ -60,13 +57,24 @@ public class DefaultMap<K, V> extends ForwardingMap<K, V>
      */
     public static <K, V> DefaultMap<K, V> newInstanceMap (Map<K, V> delegate, Class<V> clazz)
     {
+        Creator<K, V> creator = newInstanceCreator(clazz);
+        return newMap(delegate, creator);
+    }
+
+
+    /**
+     * Returns a Creator that makes instances of the supplied class (using its no-args
+     * constructor) as default values.
+     */
+    public static <K, V> Creator<K, V> newInstanceCreator (Class<V> clazz) {
+
         final Constructor<V> ctor;
         try {
             ctor = clazz.getConstructor();
         } catch (NoSuchMethodException nsme) {
             throw new IllegalArgumentException(clazz + " must have a no-args constructor.");
         }
-        return newMap(delegate, new Creator<K, V>() {
+        return new Creator<K, V>() {
             public V create (K key) {
                 try {
                     return ctor.newInstance();
@@ -74,7 +82,7 @@ public class DefaultMap<K, V> extends ForwardingMap<K, V>
                     throw new RuntimeException(e);
                 }
             }
-        });
+        };
     }
 
     /**
