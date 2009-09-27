@@ -40,6 +40,7 @@ import java.nio.channels.SocketChannel;
 import com.samskivert.util.LoopingThread;
 import com.samskivert.util.Queue;
 import com.samskivert.util.StringUtil;
+import com.samskivert.util.Throttle;
 
 import com.threerings.io.ByteBufferInputStream;
 import com.threerings.io.ByteBufferOutputStream;
@@ -527,6 +528,23 @@ public class BlockingCommunicator extends Communicator
     }
 
     /**
+     * Throttles an outgoing message operation in a thread-safe manner.
+     */
+    protected void throttleOutgoingMessage ()
+    {
+        Throttle throttle = _client.getOutgoingMessageThrottle();
+        synchronized(throttle) {
+            while (throttle.throttleOp()) {
+                try {
+                    Thread.sleep(2);
+                } catch (InterruptedException ie) {
+                    // no problem
+                }
+            }
+        }
+    }
+
+    /**
      * The reader encapsulates the authentication and message reading process. It calls back to the
      * {@link Communicator} class to do things, but the general flow of the reader thread is
      * encapsulated in this class.
@@ -681,13 +699,7 @@ public class BlockingCommunicator extends Communicator
             }
 
             // make sure we're not exceeding our outgoing throttle rate
-            while (_client.getOutgoingMessageThrottle().throttleOp()) {
-                try {
-                    Thread.sleep(2);
-                } catch (InterruptedException ie) {
-                    // no problem
-                }
-            }
+            throttleOutgoingMessage();
 
             try {
                 // write the message out the socket
@@ -891,6 +903,9 @@ public class BlockingCommunicator extends Communicator
             if (msg instanceof TerminationMessage) {
                 return;
             }
+
+            // make sure we're not exceeding our outgoing throttle rate
+            throttleOutgoingMessage();
 
             try {
                 // write the message out the socket
