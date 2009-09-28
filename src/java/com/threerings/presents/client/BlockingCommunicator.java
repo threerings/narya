@@ -447,7 +447,9 @@ public class BlockingCommunicator extends Communicator
         _datagramChannel.write(buf);
 
         // notify the tracker
-        _client.getMessageTracker().messageSent(true, size, msg);
+        if (_client != null) {
+            _client.getMessageTracker().messageSent(true, size, msg);
+        }
     }
 
     /**
@@ -502,7 +504,9 @@ public class BlockingCommunicator extends Communicator
             if (debugLogMessages()) {
                 log.info("DATAGRAM " + msg);
             }
-            _client.getMessageTracker().messageReceived(true, size, msg);
+            if (_client != null) {
+                _client.getMessageTracker().messageReceived(true, size, msg);
+            }
             return msg;
 
         } catch (ClassNotFoundException cnfe) {
