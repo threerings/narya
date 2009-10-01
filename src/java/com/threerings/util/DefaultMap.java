@@ -26,6 +26,7 @@ import java.lang.reflect.Constructor;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.google.common.base.Function;
 import com.google.common.collect.ForwardingMap;
 import com.google.common.collect.Maps;
 
@@ -35,13 +36,6 @@ import com.google.common.collect.Maps;
  */
 public class DefaultMap<K, V> extends ForwardingMap<K, V>
 {
-    /** Used to create default values. */
-    public interface Creator<K, V>
-    {
-        /** Creates a new default value for the specified key. */
-        V create (K key);
-    }
-
     /**
      * Creates a default map backed by a {@link HashMap} that creates instances of the supplied
      * class (using its no-args constructor) as defaults.
@@ -57,7 +51,7 @@ public class DefaultMap<K, V> extends ForwardingMap<K, V>
      */
     public static <K, V> DefaultMap<K, V> newInstanceMap (Map<K, V> delegate, Class<V> clazz)
     {
-        Creator<K, V> creator = newInstanceCreator(clazz);
+        Function<K, V> creator = newInstanceCreator(clazz);
         return newMap(delegate, creator);
     }
 
@@ -66,7 +60,7 @@ public class DefaultMap<K, V> extends ForwardingMap<K, V>
      * Returns a Creator that makes instances of the supplied class (using its no-args
      * constructor) as default values.
      */
-    public static <K, V> Creator<K, V> newInstanceCreator (Class<V> clazz) {
+    public static <K, V> Function<K, V> newInstanceCreator (Class<V> clazz) {
 
         final Constructor<V> ctor;
         try {
@@ -74,8 +68,8 @@ public class DefaultMap<K, V> extends ForwardingMap<K, V>
         } catch (NoSuchMethodException nsme) {
             throw new IllegalArgumentException(clazz + " must have a no-args constructor.");
         }
-        return new Creator<K, V>() {
-            public V create (K key) {
+        return new Function<K, V>() {
+            public V apply (K key) {
                 try {
                     return ctor.newInstance();
                 } catch (Exception e) {
@@ -88,7 +82,7 @@ public class DefaultMap<K, V> extends ForwardingMap<K, V>
     /**
      * Creates a default map backed by a {@link HashMap} using the supplied default creator.
      */
-    public static <K, V> DefaultMap<K, V> newHashMap (Creator<K, V> creator)
+    public static <K, V> DefaultMap<K, V> newHashMap (Function<K, V> creator)
     {
         return newMap(Maps.<K, V>newHashMap(), creator);
     }
@@ -96,7 +90,7 @@ public class DefaultMap<K, V> extends ForwardingMap<K, V>
     /**
      * Creates a default map backed by the supplied map using the supplied default creator.
      */
-    public static <K, V> DefaultMap<K, V> newMap (Map<K, V> delegate, Creator<K, V> creator)
+    public static <K, V> DefaultMap<K, V> newMap (Map<K, V> delegate, Function<K, V> creator)
     {
         return new DefaultMap<K, V>(delegate, creator);
     }
@@ -104,7 +98,7 @@ public class DefaultMap<K, V> extends ForwardingMap<K, V>
     /**
      * Creates a default map backed by the supplied map using the supplied default creator.
      */
-    public DefaultMap (Map<K, V> delegate, Creator<K, V> creator)
+    public DefaultMap (Map<K, V> delegate, Function<K, V> creator)
     {
         _delegate = delegate;
         _creator = creator;
@@ -120,7 +114,7 @@ public class DefaultMap<K, V> extends ForwardingMap<K, V>
         V value = get(key);
         // null is a valid value, so we check containsKey() before creating a default
         if (value == null && !containsKey(key)) {
-            put(key, value = _creator.create(key));
+            put(key, value = _creator.apply(key));
         }
         return value;
     }
@@ -132,5 +126,5 @@ public class DefaultMap<K, V> extends ForwardingMap<K, V>
     }
 
     protected final Map<K, V> _delegate;
-    protected final Creator<K, V> _creator;
+    protected final Function<K, V> _creator;
 }
