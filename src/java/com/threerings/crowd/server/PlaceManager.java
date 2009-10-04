@@ -683,12 +683,12 @@ public class PlaceManager
         // queue up a shutdown interval, unless we've already got one.
         long idlePeriod = idleUnloadPeriod();
         if (idlePeriod > 0L && _shutdownInterval == null) {
-            _shutdownInterval = _omgr.newInterval(new Runnable() {
+            (_shutdownInterval = _omgr.newInterval(new Runnable() {
                 public void run () {
                     log.debug("Unloading idle place '" + where() + "'.");
                     shutdown();
                 }
-            }).schedule(idlePeriod);
+            })).schedule(idlePeriod);
         }
     }
 

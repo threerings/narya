@@ -1188,14 +1188,14 @@ public abstract class PeerManager
             _remoids = (ArrayIntSet)_suboids.clone();
 
             // schedule a timeout to act if something goes wrong
-            _timeout = _omgr.newInterval(new Runnable () {
+            (_timeout = _omgr.newInterval(new Runnable () {
                 public void run () {
                     log.warning("Lock handler timed out, acting anyway", "lock", _lock,
                                 "acquire", _acquire);
                     _stats.lockTimeouts++;
                     activate();
                 }
-            }).schedule(LOCK_TIMEOUT);
+            })).schedule(LOCK_TIMEOUT);
         }
 
         /**
