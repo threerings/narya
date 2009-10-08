@@ -60,6 +60,7 @@ public class MethodProfiler
         public double standardDeviation;
 
         // from Object
+        @Override
         public String toString ()
         {
             return StringUtil.fieldsToString(this);
