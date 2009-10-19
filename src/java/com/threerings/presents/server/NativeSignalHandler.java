@@ -44,6 +44,12 @@ public class NativeSignalHandler extends AbstractSignalHandler
         case SignalManager.SIGHUP:
             hupReceived();
             break;
+        case SignalManager.SIGUSR1:
+            usr1Received();
+            break;
+        case SignalManager.SIGUSR2:
+            usr2Received();
+            break;
         default:
             log.warning("Received unknown signal", "signo", signo);
             break;

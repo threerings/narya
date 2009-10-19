@@ -42,6 +42,16 @@ public class SunSignalHandler extends AbstractSignalHandler
                 intReceived();
             }
         });
+        SignalUtil.register(SignalUtil.Number.USR1, new SignalUtil.Handler() {
+            public void signalReceived (SignalUtil.Number sig) {
+                usr1Received();
+            }
+        });
+        SignalUtil.register(SignalUtil.Number.USR2, new SignalUtil.Handler() {
+            public void signalReceived (SignalUtil.Number sig) {
+                usr2Received();
+            }
+        });
         if (!RunAnywhere.isWindows()) {
             SignalUtil.register(SignalUtil.Number.HUP, new SignalUtil.Handler() {
                 public void signalReceived (SignalUtil.Number sig) {
