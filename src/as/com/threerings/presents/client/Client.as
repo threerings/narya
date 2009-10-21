@@ -26,8 +26,8 @@ import flash.events.TimerEvent;
 
 import flash.utils.Timer;
 
+import com.threerings.util.DelayUtil;
 import com.threerings.util.Log;
-import com.threerings.util.MethodQueue;
 import com.threerings.util.Throttle;
 
 import com.threerings.presents.client.InvocationService_ConfirmListener;
@@ -113,7 +113,7 @@ public class Client extends EventDispatcher
 
     public function callLater (fn :Function, args :Array = null) :void
     {
-        MethodQueue.callLater(fn, args);
+        DelayUtil.delayFrame(fn, args);
     }
 
     public function getHostname () :String
