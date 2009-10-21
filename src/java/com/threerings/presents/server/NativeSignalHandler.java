@@ -44,9 +44,6 @@ public class NativeSignalHandler extends AbstractSignalHandler
         case SignalManager.SIGHUP:
             hupReceived();
             break;
-        case SignalManager.SIGUSR1:
-            usr1Received();
-            break;
         case SignalManager.SIGUSR2:
             usr2Received();
             break;
@@ -66,6 +63,7 @@ public class NativeSignalHandler extends AbstractSignalHandler
         SignalManager.registerSignalHandler(SignalManager.SIGTERM, this);
         SignalManager.registerSignalHandler(SignalManager.SIGINT, this);
         SignalManager.registerSignalHandler(SignalManager.SIGHUP, this);
+        SignalManager.registerSignalHandler(SignalManager.SIGUSR2, this);
         return true;
     }
 }

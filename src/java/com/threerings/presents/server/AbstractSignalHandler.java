@@ -22,8 +22,6 @@
 package com.threerings.presents.server;
 
 import com.google.inject.Inject;
-import com.google.inject.name.Named;
-
 import static com.threerings.presents.Log.log;
 
 /**
@@ -73,14 +71,6 @@ public abstract class AbstractSignalHandler
         log.info(_repmgr.generateReport(ReportManager.DEFAULT_TYPE));
     }
 
-    protected void usr1Received ()
-    {
-        if (_usr1receiver != null) {
-            _usr1receiver.received();
-        }
-
-    }
-
     protected void usr2Received ()
     {
         if (_usr2receiver != null) {
@@ -88,8 +78,7 @@ public abstract class AbstractSignalHandler
         }
     }
 
-    @Inject(optional=true) @Named(SignalReceiver.USR1) protected SignalReceiver _usr1receiver;
-    @Inject(optional=true) @Named(SignalReceiver.USR2) protected SignalReceiver _usr2receiver;
+    @Inject(optional=true) protected SignalReceiver _usr2receiver;
     @Inject protected PresentsServer _server;
     @Inject protected ReportManager _repmgr;
 }
