@@ -96,15 +96,6 @@ public class DefaultMap<K, V> extends ForwardingMap<K, V>
     }
 
     /**
-     * Creates a default map backed by the supplied map using the supplied default creator.
-     */
-    public DefaultMap (Map<K, V> delegate, Function<K, V> creator)
-    {
-        _delegate = delegate;
-        _creator = creator;
-    }
-
-    /**
      * Looks up the supplied key in the map, returning the value to which it is mapped. If the key
      * has no mapping, a default value will be obtained for the requested key and placed into the
      * map. The current and subsequent lookups will return that value.
@@ -117,6 +108,15 @@ public class DefaultMap<K, V> extends ForwardingMap<K, V>
             put(key, value = _creator.apply(key));
         }
         return value;
+    }
+
+    /**
+     * Creates a default map backed by the supplied map using the supplied default creator.
+     */
+    protected DefaultMap (Map<K, V> delegate, Function<K, V> creator)
+    {
+        _delegate = delegate;
+        _creator = creator;
     }
 
     @Override // from ForwardingMap
