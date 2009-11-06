@@ -71,7 +71,8 @@ public class ObjectInputStream
      * @return the Object read, or null.
      * @throws TypeError if the object is read successfully but is the wrong type
      *
-     * @example
+     * @example This demonstrates how to type-check the objects read off the stream without
+     * having to cast them.
      * <listing version="3.0">
      *
      * public function readObject (ins :ObjectInputStream) :void
