@@ -403,6 +403,7 @@ public class ConnectionManager extends LoopingThread
             try {
                 // create a channel and add it to the select set
                 _datagramChannel = DatagramChannel.open();
+                _datagramChannel.socket().setTrafficClass(0x10); // IPTOS_LOWDELAY
                 _datagramChannel.configureBlocking(false);
                 InetSocketAddress isa = getAddress(port);
                 _datagramChannel.socket().bind(isa);

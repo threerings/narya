@@ -757,6 +757,7 @@ public class BlockingCommunicator extends Communicator
 
             // create and register the channel
             _datagramChannel = DatagramChannel.open();
+            _datagramChannel.socket().setTrafficClass(0x10); // IPTOS_LOWDELAY
             _datagramChannel.configureBlocking(false);
             _datagramChannel.register(_selector, SelectionKey.OP_READ, null);
 
