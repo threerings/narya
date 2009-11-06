@@ -70,6 +70,19 @@ public class ObjectInputStream
      * @param checkType optional type to check the read object against
      * @return the Object read, or null.
      * @throws TypeError if the object is read successfully but is the wrong type
+     *
+     * @example
+     * <listing version="3.0">
+     *
+     * public function readObject (ins :ObjectInputStream) :void
+     * {
+     *     _scoops = ins.readObject(Array);
+     *     _coneType = ins.readObject(Cone);
+     * }
+     *
+     * protected var _scoops :Array;
+     * protected var _coneType :Cone;
+     * </listing>
      */
     public function readObject (checkType :Class = null) :*
         //throws IOError
