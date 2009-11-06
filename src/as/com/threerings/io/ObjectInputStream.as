@@ -62,13 +62,16 @@ public class ObjectInputStream
     }
 
     /**
-     * Attempts to read the next object from the stream. If a type is passed and the read object's
-     * type doesn't match, a <code>TypeError</code> is thrown.
-     * @param type optional type to check the read object against
+     * Reads the next Object (or null) from the stream and returns it as * so that you may assign
+     * to any variable without casting. It is strongly recommended that you pass a 'checkType'
+     * parameter so that the type of the Object is verified to be what you believe it to be,
+     * thus helping you detect streaming errors as quickly as possible.
+     *
+     * @param checkType optional type to check the read object against
+     * @return the Object read, or null.
      * @throws TypeError if the object is read successfully but is the wrong type
-     * @return null if the object could not be read (or is actually null)
      */
-    public function readObject (type :Class = null) :Object
+    public function readObject (checkType :Class = null) :*
         //throws IOError
     {
         var DEBUG_ID :String = "[" + (++_debugObjectCounter) + "] ";
@@ -121,9 +124,9 @@ public class ObjectInputStream
             //log.debug("Reading object...");
             readBareObjectImpl(target, cmap.streamer);
             if (DEBUG) log.debug(DEBUG_ID + "Read object: " + target);
-            if (type != null && !(target is type)) {
+            if (checkType != null && !(target is checkType)) {
                 throw new TypeError(
-                    "Cannot convert " + ClassUtil.getClass(target) + " to " + type);
+                    "Cannot convert " + ClassUtil.getClass(target) + " to " + checkType);
             }
             return target;
 
