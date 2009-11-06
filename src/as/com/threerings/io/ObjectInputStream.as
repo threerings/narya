@@ -176,7 +176,7 @@ public class ObjectInputStream
      * @param type either a String representing the java type,
      *             or a Class object representing the actionscript type.
      */
-    public function readField (type :Object) :Object
+    public function readField (type :Object) :*
         //throws IOError
     {
         if (!readBoolean()) {
