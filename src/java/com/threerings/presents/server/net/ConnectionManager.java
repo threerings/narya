@@ -137,6 +137,15 @@ public class ConnectionManager extends LoopingThread
     }
 
     /**
+     * Sets the number of milliseconds to block in the select() method before checking for outgoing
+     * messages.
+     */
+    public void setSelectLoopTime (int time)
+    {
+        _selectLoopTime = time;
+    }
+
+    /**
      * Instructs us to execute the specified runnable when the connection manager thread exits.
      * <em>Note:</em> this will be executed on the connection manager thread, so don't do anything
      * dangerous. Only one action may be specified and it may be cleared by calling this method
@@ -574,10 +583,10 @@ public class ConnectionManager extends LoopingThread
         Set<SelectionKey> ready = null;
         int eventCount;
         try {
-//             log.debug("Selecting from " + _selector.keys() + " (" + SELECT_LOOP_TIME + ").");
+//             log.debug("Selecting from " + _selector.keys() + " (" + _selectLoopTime + ").");
 
             // check for incoming network events
-            eventCount = _selector.select(SELECT_LOOP_TIME);
+            eventCount = _selector.select(_selectLoopTime);
             ready = _selector.selectedKeys();
             if (eventCount == 0) {
                 if (ready.size() == 0) {
@@ -1245,6 +1254,12 @@ public class ConnectionManager extends LoopingThread
     /** Used to periodically report connection manager activity when in debug mode. */
     protected long _lastDebugStamp;
 
+    /** How long we wait for network events before checking our running flag to see if we should
+     * still be running. We don't want to loop too tightly, but we need to make sure we don't sit
+     * around listening for incoming network events too long when there are outgoing messages in
+     * the queue. */
+    protected volatile int _selectLoopTime = 100;
+
     /** A runnable to execute when the connection manager thread exits. */
     protected volatile Runnable _onExit;
 
@@ -1253,12 +1268,6 @@ public class ConnectionManager extends LoopingThread
     @Inject protected ClientManager _clmgr;
     @Inject protected PresentsDObjectMgr _omgr;
     @Inject protected PresentsServer _server;
-
-    /** How long we wait for network events before checking our running flag to see if we should
-     * still be running. We don't want to loop too tightly, but we need to make sure we don't sit
-     * around listening for incoming network events too long when there are outgoing messages in
-     * the queue. */
-    protected static final int SELECT_LOOP_TIME = 100;
 
     /** Used to denote asynchronous close requests. */
     protected static final byte[] ASYNC_CLOSE_REQUEST = new byte[0];
