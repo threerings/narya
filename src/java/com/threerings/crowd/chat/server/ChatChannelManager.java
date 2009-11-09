@@ -85,7 +85,7 @@ public abstract class ChatChannelManager
     public void speak (ClientObject caller, final ChatChannel channel, String message, byte mode)
     {
         final UserMessage umsg = new UserMessage(
-            ((BodyObject)caller).getVisibleName(), null, message, mode);
+            intern(channel), ((BodyObject)caller).getVisibleName(), null, message, mode);
 
         // if we're hosting this channel, dispatch it directly
         if (_channels.containsKey(channel)) {
@@ -169,6 +169,7 @@ public abstract class ChatChannelManager
     {
         // map the participants of our now resolved channel
         ChannelInfo info = new ChannelInfo();
+        info.channel = channel;
         info.participants = parts;
         _channels.put(channel, info);
 
@@ -243,6 +244,7 @@ public abstract class ChatChannelManager
         for (int bodyId : bodyIds) {
             BodyObject bobj = getBodyObject(bodyId);
             if (bobj != null && shouldDeliverSpeak(channel, message, bobj)) {
+                SpeakUtil.recordToChatHistory(message, bobj.username);
                 bobj.postMessage(ChatCodes.CHAT_CHANNEL_NOTIFICATION, channel, message);
             }
         }
@@ -273,6 +275,19 @@ public abstract class ChatChannelManager
     protected boolean shouldDeliverSpeak (ChatChannel channel, UserMessage message, BodyObject body)
     {
         return true;
+    }
+
+    /**
+     * Returns a widely referenced instance equivalent to the given channel, if one is available.
+     * This reduces memory usage since clients send new channel instances with each message.
+     */
+    protected ChatChannel intern (ChatChannel channel)
+    {
+        ChannelInfo chinfo = _channels.get(channel);
+        if (chinfo != null) {
+            return chinfo.channel;
+        }
+        return channel;
     }
 
     /**
@@ -371,6 +386,9 @@ public abstract class ChatChannelManager
     /** Contains metadata for a particular channel. */
     protected static class ChannelInfo
     {
+        /** The channel this info is for. */
+        public ChatChannel channel;
+
         /** The body ids of the participants of this channel. */
         public IntSet participants;
 
