@@ -85,7 +85,7 @@ public abstract class ChatChannelManager
     public void speak (ClientObject caller, final ChatChannel channel, String message, byte mode)
     {
         final UserMessage umsg = new UserMessage(
-            intern(channel), ((BodyObject)caller).getVisibleName(), null, message, mode);
+            ((BodyObject)caller).getVisibleName(), null, message, mode);
 
         // if we're hosting this channel, dispatch it directly
         if (_channels.containsKey(channel)) {
@@ -241,10 +241,11 @@ public abstract class ChatChannelManager
      */
     protected void deliverSpeak (ChatChannel channel, UserMessage message, int[] bodyIds)
     {
+        channel = intern(channel);
         for (int bodyId : bodyIds) {
             BodyObject bobj = getBodyObject(bodyId);
             if (bobj != null && shouldDeliverSpeak(channel, message, bobj)) {
-                SpeakUtil.recordToChatHistory(message, bobj.username);
+                SpeakUtil.recordToChatHistory(channel, message, bobj.getVisibleName());
                 bobj.postMessage(ChatCodes.CHAT_CHANNEL_NOTIFICATION, channel, message);
             }
         }

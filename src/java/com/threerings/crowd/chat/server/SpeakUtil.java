@@ -34,6 +34,7 @@ import com.threerings.util.Name;
 import com.threerings.presents.dobj.DObject;
 import com.threerings.presents.dobj.RootDObjectManager;
 
+import com.threerings.crowd.chat.data.ChatChannel;
 import com.threerings.crowd.chat.data.ChatCodes;
 import com.threerings.crowd.chat.data.ChatMessage;
 import com.threerings.crowd.chat.data.KeepNoHistory;
@@ -59,6 +60,31 @@ public class SpeakUtil
          * Called for each player that hears a particular chat message.
          */
         void messageDelivered (Name hearer, UserMessage message);
+    }
+
+    /**
+     * Recorded parcel of chat for historical purposes, maintained by
+     * {@link #recordToChatHistory(UserMessage, Name...)},
+     * {@link #recordToChatHistory(ChatChannel, UserMessage, Name...)},
+     * {@link #getChatHistory(Name)}, and {@link #clearHistory(Name)}.
+     */
+    public static class ChatHistoryEntry
+    {
+        /** The channel on which the message was sent, of null if the channel manager was not
+         * used. */ 
+        public ChatChannel channel;
+
+        /** The message sent. */
+        public ChatMessage message;
+
+        /**
+         * Creates a new history entry.
+         */
+        public ChatHistoryEntry (ChatChannel channel, ChatMessage message)
+        {
+            this.channel = channel;
+            this.message = message;
+        }
     }
 
     /**
@@ -203,9 +229,9 @@ public class SpeakUtil
      * Returns a list of {@link ChatMessage} objects to which this user has been privy in the
      * recent past.  If the given name implements {@link KeepNoHistory}, null is returned.
      */
-    public static List<ChatMessage> getChatHistory (Name username)
+    public static List<ChatHistoryEntry> getChatHistory (Name username)
     {
-        List<ChatMessage> history = getHistoryList(username);
+        List<ChatHistoryEntry> history = getHistoryList(username);
         if (history != null) {
             pruneHistory(System.currentTimeMillis(), history);
         }
@@ -222,10 +248,11 @@ public class SpeakUtil
     }
 
     /**
-     * Records the specified message to the specified users' chat histories.  If {@link
+     * Records the specified channel and message to the specified users' chat histories.  If {@link
      * ChatMessage#timestamp} is not already filled in, it will be.
      */
-    public static void recordToChatHistory (UserMessage msg, Name... usernames)
+    public static void recordToChatHistory (
+        ChatChannel channel, UserMessage msg, Name... usernames)
     {
         // fill in the message's time stamp if necessary
         if (msg.timestamp == 0L) {
@@ -234,11 +261,11 @@ public class SpeakUtil
 
         for (Name username : usernames) {
             // add the message to this user's chat history
-            List<ChatMessage> history = getHistoryList(username);
+            List<ChatHistoryEntry> history = getHistoryList(username);
             if (history == null) {
                 continue;
             }
-            history.add(msg);
+            history.add(new ChatHistoryEntry(channel, msg));
 
             // if the history is big enough, potentially prune it (we always prune when asked for
             // the history, so this is just to balance memory usage with CPU expense)
@@ -259,7 +286,7 @@ public class SpeakUtil
             msg.timestamp = System.currentTimeMillis();
         }
 
-        recordToChatHistory(msg, username);
+        recordToChatHistory(null, msg, username);
         // Log.info("Noted that " + username + " heard " + msg + ".");
 
         // notify any message observers
@@ -279,12 +306,12 @@ public class SpeakUtil
      * Returns this user's chat history, creating one if necessary. If the given name implements
      * {@link KeepNoHistory}, null is returned.
      */
-    protected static List<ChatMessage> getHistoryList (Name username)
+    protected static List<ChatHistoryEntry> getHistoryList (Name username)
     {
         if (username instanceof KeepNoHistory) {
             return null;
         }
-        List<ChatMessage> history = _histories.get(username);
+        List<ChatHistoryEntry> history = _histories.get(username);
         if (history == null) {
             _histories.put(username, history = Lists.newArrayList());
         }
@@ -294,12 +321,12 @@ public class SpeakUtil
     /**
      * Prunes all messages from this history which are expired.
      */
-    protected static void pruneHistory (long now, List<ChatMessage> history)
+    protected static void pruneHistory (long now, List<ChatHistoryEntry> history)
     {
         int prunepos = 0;
         for (int ll = history.size(); prunepos < ll; prunepos++) {
-            ChatMessage msg = history.get(prunepos);
-            if (now - msg.timestamp < HISTORY_EXPIRATION) {
+            ChatHistoryEntry entry = history.get(prunepos);
+            if (now - entry.message.timestamp < HISTORY_EXPIRATION) {
                 break; // stop when we get to the first valid message
             }
         }
@@ -343,7 +370,7 @@ public class SpeakUtil
     }
 
     /** Recent chat history for the server. */
-    protected static Map<Name, List<ChatMessage>> _histories = Maps.newHashMap();
+    protected static Map<Name, List<ChatHistoryEntry>> _histories = Maps.newHashMap();
 
     /** Used to note the recipients of a chat message. */
     protected static MessageMapper _messageMapper = new MessageMapper();

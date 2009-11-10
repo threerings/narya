@@ -34,9 +34,6 @@ public class UserMessage extends ChatMessage
     /** The mode of the message. @see ChatCodes.DEFAULT_MODE */
     public byte mode;
 
-    /** The channel of the message, or null if not set. */
-    public ChatChannel channel;
-
     /**
      * For unserialization.
      */
@@ -45,32 +42,24 @@ public class UserMessage extends ChatMessage
     }
 
     /**
+     * Construct a user message.
+     */
+    public UserMessage (Name speaker, String bundle, String message, byte mode)
+    {
+        super(message, bundle);
+        this.speaker = speaker;
+        this.mode = mode;
+    }
+
+    /**
      * Constructs a user message for a player originated tell (which has no bundle and is in the
      * default mode).
      */
     public UserMessage (Name speaker, String message)
     {
-        this(speaker, null, message, ChatCodes.DEFAULT_MODE);
-    }
-
-    /**
-     * Construct a user message.
-     */
-    public UserMessage (Name speaker, String bundle, String message, byte mode)
-    {
-        this(null, speaker, bundle, message, mode);
-    }
-
-    /**
-     * Construct a user message that was spoken using the channel system.
-     */
-    public UserMessage (
-        ChatChannel channel, Name speaker, String bundle, String message, byte mode)
-    {
-        super(message, bundle);
-        this.channel = channel;
+        super(message, null);
         this.speaker = speaker;
-        this.mode = mode;
+        this.mode = ChatCodes.DEFAULT_MODE;
     }
 
     /**

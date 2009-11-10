@@ -609,7 +609,7 @@ public class ChatDirector extends BasicDirector
                 getChannelLocalType(event.getArgs()[0] as ChatChannel));
         }
     }
-        
+
     // documentation inherited
     override public function clientDidLogon (event :ClientEvent) :void
     {
