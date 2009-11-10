@@ -237,10 +237,10 @@ public abstract class CrowdPeerManager extends PeerManager
                 final PeerNode fpeer = peer;
                 ((CrowdNodeObject)peer.nodeobj).crowdPeerService.getChatHistory(
                     peer.getClient(), _user, new InvocationService.ResultListener() {
-                        @Override public void requestProcessed (Object result) {
+                        public void requestProcessed (Object result) {
                             processed(fpeer, result);
                         }
-                        @Override public void requestFailed (String cause) {
+                        public void requestFailed (String cause) {
                             failed(fpeer, cause);
                         }
                     });
@@ -315,14 +315,14 @@ public abstract class CrowdPeerManager extends PeerManager
 
     protected static final Predicate<ChatHistoryEntry> IS_USER_MESSAGE =
         new Predicate<ChatHistoryEntry>() {
-        @Override public boolean apply (ChatHistoryEntry entry) {
+        public boolean apply (ChatHistoryEntry entry) {
             return entry.message instanceof UserMessage;
         }
     };
 
     protected static final Comparator<ChatHistoryEntry> SORT_BY_TIMESTAMP =
         new Comparator<ChatHistoryEntry>() {
-        @Override public int compare (ChatHistoryEntry e1, ChatHistoryEntry e2) {
+        public int compare (ChatHistoryEntry e1, ChatHistoryEntry e2) {
             return Comparators.compare(e1.message.timestamp, e2.message.timestamp);
         }
     };
