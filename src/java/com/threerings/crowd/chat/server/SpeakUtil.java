@@ -42,6 +42,7 @@ import com.threerings.crowd.chat.data.SpeakObject;
 import com.threerings.crowd.chat.data.SystemMessage;
 import com.threerings.crowd.chat.data.UserMessage;
 import com.threerings.crowd.data.BodyObject;
+import com.threerings.io.Streamable;
 
 import static com.threerings.crowd.Log.log;
 
@@ -69,6 +70,7 @@ public class SpeakUtil
      * {@link #getChatHistory(Name)}, and {@link #clearHistory(Name)}.
      */
     public static class ChatHistoryEntry
+        implements Streamable
     {
         /** The channel on which the message was sent, of null if the channel manager was not
          * used. */ 
@@ -76,6 +78,11 @@ public class SpeakUtil
 
         /** The message sent. */
         public ChatMessage message;
+
+        /** For deserialization. */
+        public ChatHistoryEntry ()
+        {
+        }
 
         /**
          * Creates a new history entry.
