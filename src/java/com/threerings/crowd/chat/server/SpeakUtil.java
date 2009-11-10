@@ -65,7 +65,6 @@ public class SpeakUtil
 
     /**
      * Recorded parcel of chat for historical purposes, maintained by
-     * {@link #recordToChatHistory(UserMessage, Name...)},
      * {@link #recordToChatHistory(ChatChannel, UserMessage, Name...)},
      * {@link #getChatHistory(Name)}, and {@link #clearHistory(Name)}.
      */
@@ -73,7 +72,7 @@ public class SpeakUtil
         implements Streamable
     {
         /** The channel on which the message was sent, of null if the channel manager was not
-         * used. */ 
+         * used. */
         public ChatChannel channel;
 
         /** The message sent. */
