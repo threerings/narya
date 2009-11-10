@@ -21,15 +21,24 @@
 
 package com.threerings.crowd.peer.server;
 
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Set;
+
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
+import com.google.common.collect.Sets;
 import com.google.inject.Inject;
 import com.google.inject.internal.Lists;
 
+import com.samskivert.util.Comparators;
+import com.samskivert.util.Interval;
 import com.samskivert.util.Lifecycle;
+import com.samskivert.util.ResultListener;
 import com.threerings.util.Name;
 
-import com.threerings.presents.client.InvocationService.ResultListener;
+import com.threerings.presents.client.InvocationService;
 import com.threerings.presents.data.ClientObject;
 import com.threerings.presents.peer.data.ClientInfo;
 import com.threerings.presents.peer.data.NodeObject;
@@ -48,12 +57,27 @@ import com.threerings.crowd.data.BodyObject;
 import com.threerings.crowd.peer.data.CrowdClientInfo;
 import com.threerings.crowd.peer.data.CrowdNodeObject;
 
+import static com.threerings.crowd.Log.log;
+
 /**
  * Extends the standard peer manager and bridges certain Crowd services.
  */
 public abstract class CrowdPeerManager extends PeerManager
     implements CrowdPeerProvider, ChatProvider.ChatForwarder
 {
+    /**
+     * Value asynchronously returned by {@link #collectChatHistory} after polling all peer nodes.
+     */
+    public static class ChatHistoryResult
+    {
+        /** The set of nodes that either did not reply within the timeout, or had a failure. */
+        public Set<String> failedNodes;
+
+        /** The things in the user's chat history, aggregated from all nodes and sorted by
+         * timestamp. */
+        public List<ChatHistoryEntry> history;
+    }
+
     /**
      * Creates an uninitialized peer manager.
      */
@@ -80,7 +104,8 @@ public abstract class CrowdPeerManager extends PeerManager
     }
 
     // from interface CrowdPeerProvider
-    public void getChatHistory (ClientObject caller, Name user, ResultListener lner)
+    public void getChatHistory (
+        ClientObject caller, Name user, InvocationService.ResultListener lner)
         throws InvocationException
     {
         lner.requestProcessed(Lists.newArrayList(Iterables.filter(
@@ -122,6 +147,16 @@ public abstract class CrowdPeerManager extends PeerManager
                     peer.getClient(), from, levelOrMode, bundle, msg);
             }
         }
+    }
+
+    /**
+     * Collects all chat messages heard by the given user on all peers. Must be called on the
+     * dobj event thread.
+     */
+    public void collectChatHistory (Name user, ResultListener<ChatHistoryResult> lner)
+    {
+        _omgr.requireEventThread();
+        new ChatHistoryCollector(user, lner).collect();
     }
 
     @Override // from PeerManager
@@ -177,6 +212,104 @@ public abstract class CrowdPeerManager extends PeerManager
      */
     protected abstract Name authFromViz (Name vizname);
 
+    /**
+     * Asynchronously collects the chat history from all nodes for a given user.
+     * TODO: refactor node parts into base class similar to PeerManager.NodeAction
+     */
+    protected class ChatHistoryCollector
+    {
+        public ChatHistoryCollector (Name user, ResultListener<ChatHistoryResult> listener)
+        {
+            _user = user;
+            _listener = listener;
+
+            _result = new ChatHistoryResult();
+            _result.failedNodes = Sets.newHashSet();
+            _waiting = Sets.newHashSet();
+        }
+
+        public void collect ()
+        {
+            _result.history = Lists.newArrayList(
+                Iterables.filter(SpeakUtil.getChatHistory(_user), IS_USER_MESSAGE));
+
+            for (PeerNode peer : _peers.values()) {
+                final PeerNode fpeer = peer;
+                ((CrowdNodeObject)peer.nodeobj).crowdPeerService.getChatHistory(
+                    peer.getClient(), _user, new InvocationService.ResultListener() {
+                        @Override public void requestProcessed (Object result) {
+                            processed(fpeer, result);
+                        }
+                        @Override public void requestFailed (String cause) {
+                            failed(fpeer, cause);
+                        }
+                    });
+                _waiting.add(peer.getNodeName());
+            }
+
+            // timeout in 5 seconds if we haven't heard back from all nodes
+            final long TIMEOUT = 5 * 1000;
+            if (!maybeComplete()) {
+                new Interval(_omgr) {
+                    @Override public void expired () {
+                        checkTimeout();
+                    }
+                }.schedule(TIMEOUT);
+            }
+        }
+
+        protected void processed (PeerNode node, Object result)
+        {
+            String name = node.getNodeName();
+            if (!_waiting.remove(name)) {
+                log.warning("Double chat history response from node", "name", name);
+                return;
+            }
+
+            @SuppressWarnings("unchecked")
+            List<ChatHistoryEntry> nodeMessages = (List<ChatHistoryEntry>)result;
+            _result.history.addAll(nodeMessages);
+            maybeComplete();
+        }
+
+        protected void failed (PeerNode node, String cause)
+        {
+            String name = node.getNodeName();
+            _result.failedNodes.add(name);
+
+            if (_waiting.remove(name)) {
+                maybeComplete();
+            } else {
+                log.warning("Double chat history response from node", "name", name);
+            }
+        }
+
+        protected boolean maybeComplete ()
+        {
+            if (!_waiting.isEmpty()) {
+                return false;
+            }
+
+            Collections.sort(_result.history, SORT_BY_TIMESTAMP);
+            _listener.requestCompleted(_result);
+            return true;
+        }
+
+        protected void checkTimeout ()
+        {
+            if (!_waiting.isEmpty()) {
+                _result.failedNodes.addAll(_waiting);
+                _waiting.clear();
+                maybeComplete();
+            }
+        }
+
+        protected Name _user;
+        protected ResultListener<ChatHistoryResult> _listener;
+        protected ChatHistoryResult _result;
+        protected Set<String> _waiting;
+    }
+
     @Inject protected InvocationManager _invmgr;
     @Inject protected ChatProvider _chatprov;
 
@@ -184,6 +317,13 @@ public abstract class CrowdPeerManager extends PeerManager
         new Predicate<ChatHistoryEntry>() {
         @Override public boolean apply (ChatHistoryEntry entry) {
             return entry.message instanceof UserMessage;
+        }
+    };
+
+    protected static final Comparator<ChatHistoryEntry> SORT_BY_TIMESTAMP =
+        new Comparator<ChatHistoryEntry>() {
+        @Override public int compare (ChatHistoryEntry e1, ChatHistoryEntry e2) {
+            return Comparators.compare(e1.message.timestamp, e2.message.timestamp);
         }
     };
 }
