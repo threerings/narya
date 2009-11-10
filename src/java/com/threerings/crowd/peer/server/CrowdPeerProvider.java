@@ -24,6 +24,7 @@ package com.threerings.crowd.peer.server;
 import com.threerings.crowd.chat.client.ChatService;
 import com.threerings.crowd.chat.data.UserMessage;
 import com.threerings.crowd.peer.client.CrowdPeerService;
+import com.threerings.presents.client.InvocationService;
 import com.threerings.presents.data.ClientObject;
 import com.threerings.presents.server.InvocationException;
 import com.threerings.presents.server.InvocationProvider;
@@ -43,5 +44,11 @@ public interface CrowdPeerProvider extends InvocationProvider
      * Handles a {@link CrowdPeerService#deliverTell} request.
      */
     void deliverTell (ClientObject caller, UserMessage arg1, Name arg2, ChatService.TellListener arg3)
+        throws InvocationException;
+
+    /**
+     * Handles a {@link CrowdPeerService#getChatHistory} request.
+     */
+    void getChatHistory (ClientObject caller, Name arg1, InvocationService.ResultListener arg2)
         throws InvocationException;
 }

@@ -28,6 +28,7 @@ import com.threerings.presents.client.InvocationService;
 
 import com.threerings.crowd.chat.client.ChatService;
 import com.threerings.crowd.chat.data.UserMessage;
+import com.threerings.crowd.chat.server.SpeakUtil;
 
 /**
  * Bridges certain Crowd services between peers in a cluster configuration.
@@ -45,4 +46,10 @@ public interface CrowdPeerService extends InvocationService
      * Dispatches a broadcast message on this peer.
      */
     void deliverBroadcast (Client client, Name from, byte levelOrMode, String bundle, String msg);
+
+    /**
+     * Obtains the messages that the user has heard on this peer. On success, the listener will
+     * receive a {@code List} of {@link SpeakUtil.ChatHistoryEntry} instances.
+     */
+    void getChatHistory (Client caller, Name user, ResultListener lner);
 }

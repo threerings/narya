@@ -21,11 +21,15 @@
 
 package com.threerings.crowd.peer.server;
 
+import com.google.common.base.Predicate;
+import com.google.common.collect.Iterables;
 import com.google.inject.Inject;
+import com.google.inject.internal.Lists;
 
 import com.samskivert.util.Lifecycle;
 import com.threerings.util.Name;
 
+import com.threerings.presents.client.InvocationService.ResultListener;
 import com.threerings.presents.data.ClientObject;
 import com.threerings.presents.peer.data.ClientInfo;
 import com.threerings.presents.peer.data.NodeObject;
@@ -38,6 +42,8 @@ import com.threerings.presents.server.PresentsSession;
 import com.threerings.crowd.chat.client.ChatService;
 import com.threerings.crowd.chat.data.UserMessage;
 import com.threerings.crowd.chat.server.ChatProvider;
+import com.threerings.crowd.chat.server.SpeakUtil;
+import com.threerings.crowd.chat.server.SpeakUtil.ChatHistoryEntry;
 import com.threerings.crowd.data.BodyObject;
 import com.threerings.crowd.peer.data.CrowdClientInfo;
 import com.threerings.crowd.peer.data.CrowdNodeObject;
@@ -71,6 +77,14 @@ public abstract class CrowdPeerManager extends PeerManager
     {
         // deliver the broadcast locally on this server
         _chatprov.broadcast(from, levelOrMode, bundle, msg, false);
+    }
+
+    // from interface CrowdPeerProvider
+    public void getChatHistory (ClientObject caller, Name user, ResultListener lner)
+        throws InvocationException
+    {
+        lner.requestProcessed(Lists.newArrayList(Iterables.filter(
+            SpeakUtil.getChatHistory(user), IS_USER_MESSAGE)));
     }
 
     // from interface ChatProvider.ChatForwarder
@@ -165,4 +179,11 @@ public abstract class CrowdPeerManager extends PeerManager
 
     @Inject protected InvocationManager _invmgr;
     @Inject protected ChatProvider _chatprov;
+
+    protected static final Predicate<ChatHistoryEntry> IS_USER_MESSAGE =
+        new Predicate<ChatHistoryEntry>() {
+        @Override public boolean apply (ChatHistoryEntry entry) {
+            return entry.message instanceof UserMessage;
+        }
+    };
 }
