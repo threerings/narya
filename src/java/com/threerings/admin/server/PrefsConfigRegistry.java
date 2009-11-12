@@ -57,6 +57,10 @@ public class PrefsConfigRegistry extends ConfigRegistry
             return config.getValue(field, defval);
         }
         @Override
+        protected byte getValue (String field, byte defval) {
+            return (byte)config.getValue(field, defval);
+        }
+        @Override
         protected short getValue (String field, short defval) {
             return (short)config.getValue(field, defval);
         }

@@ -272,6 +272,10 @@ public abstract class ConfigRegistry
                     boolean defval = field.getBoolean(object);
                     field.setBoolean(object, getValue(key, defval));
 
+                } else if (type.equals(Byte.TYPE)) {
+                    byte defval = field.getByte(object);
+                    field.setByte(object, getValue(key, defval));
+
                 } else if (type.equals(Short.TYPE)) {
                     short defval = field.getShort(object);
                     field.setShort(object, getValue(key, defval));
@@ -391,6 +395,7 @@ public abstract class ConfigRegistry
         }
 
         protected abstract boolean getValue (String field, boolean defval);
+        protected abstract byte getValue (String field, byte defval);
         protected abstract short getValue (String field, short defval);
         protected abstract int getValue (String field, int defval);
         protected abstract long getValue (String field, long defval);

@@ -142,6 +142,19 @@ public class DatabaseConfigRegistry extends ConfigRegistry
         }
 
         @Override
+        protected byte getValue (String field, byte defval) {
+            String value = _data.get(field);
+            try {
+                if (value != null) {
+                    return Byte.parseByte(value);
+                }
+            } catch (Exception e) {
+                // ignore bogus values and return the default
+            }
+            return defval;
+        }
+
+        @Override
         protected boolean getValue (String field, boolean defval) {
             String value = _data.get(field);
             if (value != null) {
