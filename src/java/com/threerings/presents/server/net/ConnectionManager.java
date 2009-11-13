@@ -906,8 +906,8 @@ public class ConnectionManager extends LoopingThread
         if (conn != null) {
             conn.handleDatagram(source, _databuf, when);
         } else {
-            log.warning("Received datagram for unknown connection", "id", connectionId,
-                        "source", source);
+            log.debug("Received datagram for unknown connection", "id", connectionId,
+                      "source", source);
         }
 
         // return the size of the datagram
