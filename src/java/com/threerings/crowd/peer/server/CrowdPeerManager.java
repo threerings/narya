@@ -28,9 +28,9 @@ import java.util.Set;
 
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.google.inject.Inject;
-import com.google.inject.internal.Lists;
 
 import com.samskivert.util.Comparators;
 import com.samskivert.util.Interval;
