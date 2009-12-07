@@ -21,6 +21,8 @@
 
 package com.threerings.presents.dobj;
 
+import java.util.concurrent.Executor;
+
 import com.samskivert.util.Interval;
 import com.samskivert.util.RunQueue;
 
@@ -30,7 +32,7 @@ import com.samskivert.util.RunQueue;
  * distributed objects in question. VMs that operate proxies of objects can only implement the
  * basic distributed object manager interface.
  */
-public interface RootDObjectManager extends DObjectManager, RunQueue
+public interface RootDObjectManager extends DObjectManager, RunQueue, Executor
 {
     /**
      * Looks up and returns the requested distributed object in the dobj table, returning null if

@@ -27,6 +27,8 @@ import java.lang.reflect.Modifier;
 import java.util.List;
 import java.util.Map;
 
+import java.util.concurrent.Executor;
+
 import com.google.common.collect.Maps;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
@@ -69,7 +71,7 @@ import static com.threerings.presents.Log.log;
  */
 @Singleton
 public class PresentsDObjectMgr
-    implements RootDObjectManager, RunQueue
+    implements RootDObjectManager, RunQueue, Executor
 {
     /** Returned by {@link #getStats}. */
     public static class Stats
@@ -331,6 +333,12 @@ public class PresentsDObjectMgr
             _current.maxQueueSize = _evqueue.size();
         }
         return _recent;
+    }
+
+    // from Executor
+    public void execute (Runnable command)
+    {
+        postRunnable(command);
     }
 
     /**
