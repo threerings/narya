@@ -22,7 +22,6 @@
 package com.threerings.presents.server;
 
 import java.util.List;
-import java.util.concurrent.Executor;
 
 import com.google.common.collect.Lists;
 import com.google.inject.Inject;
@@ -44,7 +43,7 @@ public class PresentsInvoker extends ReportingInvoker
 {
     @Inject public PresentsInvoker (PresentsDObjectMgr omgr, Lifecycle cycle, ReportManager repmgr)
     {
-        super("presents.Invoker", (Executor)omgr, repmgr);
+        super("presents.Invoker", omgr, repmgr);
         cycle.addComponent(this);
         _omgr = omgr;
     }

@@ -24,7 +24,6 @@ package com.threerings.presents.server;
 import java.util.concurrent.Executor;
 
 import com.samskivert.util.Invoker;
-import com.samskivert.util.RunQueue;
 import com.samskivert.util.StringUtil;
 
 /**
@@ -37,15 +36,6 @@ public class ReportingInvoker extends Invoker
     {
         public int unitsRun;
         public int maxQueueSize;
-    }
-
-    /**
-     * Creates a new reporting invoker. The instance will be registered with the report manager
-     * if profiling is enabled ({@link Invoker#PERF_TRACK}).
-     */
-    public ReportingInvoker (String name, RunQueue resultsQueue, ReportManager repmgr)
-    {
-        this(name, new RunQueue.AsExecutor(resultsQueue), repmgr);
     }
 
     /**
