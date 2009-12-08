@@ -21,6 +21,8 @@
 
 package com.threerings.presents.server;
 
+import java.util.concurrent.Executor;
+
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
@@ -34,7 +36,7 @@ public class PresentsAuthInvoker extends ReportingInvoker
 {
     @Inject public PresentsAuthInvoker (PresentsDObjectMgr omgr, ReportManager repmgr)
     {
-        super("presents.AuthInvoker", omgr, repmgr);
+        super("presents.AuthInvoker", (Executor)omgr, repmgr);
         setDaemon(true);
     }
 }

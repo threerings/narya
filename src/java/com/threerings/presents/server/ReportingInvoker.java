@@ -21,6 +21,8 @@
 
 package com.threerings.presents.server;
 
+import java.util.concurrent.Executor;
+
 import com.samskivert.util.Invoker;
 import com.samskivert.util.RunQueue;
 import com.samskivert.util.StringUtil;
@@ -43,7 +45,16 @@ public class ReportingInvoker extends Invoker
      */
     public ReportingInvoker (String name, RunQueue resultsQueue, ReportManager repmgr)
     {
-        super(name, resultsQueue);
+        this(name, new RunQueue.AsExecutor(resultsQueue), repmgr);
+    }
+
+    /**
+     * Creates a new reporting invoker. The instance will be registered with the report manager
+     * if profiling is enabled ({@link Invoker#PERF_TRACK}).
+     */
+    public ReportingInvoker (String name, Executor receiver, ReportManager repmgr)
+    {
+        super(name, receiver);
         if (PERF_TRACK) {
             repmgr.registerReporter(ReportManager.DEFAULT_TYPE, _defrep);
             repmgr.registerReporter(ReportManager.PROFILE_TYPE, _profrep);
