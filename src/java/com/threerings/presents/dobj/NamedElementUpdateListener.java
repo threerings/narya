@@ -25,7 +25,7 @@ package com.threerings.presents.dobj;
  * An ElementUpdateListener that listens for changes with a given name and calls
  * namedElementUpdated when they occur.
  */
-public class NamedElementUpdateListener
+public abstract class NamedElementUpdateListener
     implements ElementUpdateListener
 {
     /**
@@ -43,10 +43,7 @@ public class NamedElementUpdateListener
         }
     }
 
-    public void namedElementUpdated (ElementUpdatedEvent event)
-    {
-        // Override to provide functionality
-    }
+    abstract protected void namedElementUpdated (ElementUpdatedEvent event);
 
     protected final String _name;
 }
