@@ -157,6 +157,17 @@ public class PresentsInvoker extends ReportingInvoker
                             } catch (InterruptedException e) {
                                 // Not a problem, we'll just check on the checkers again
                             }
+
+                            // While we were waiting on the various invokers, one of them might have
+                            //  given us something to do, in which case we really shouldn't be
+                            //  continuing on with this...
+                            if (getPendingUnits() > 0) {
+                                _loopCount++;
+                                releaseCheckers(checkers);
+                                postUnit(this);
+                                return false;
+                            }
+
                         } else {
                             // All the checkers are blocking their respective threads.  That means
                             // if their queues are empty, nothing else is running.
