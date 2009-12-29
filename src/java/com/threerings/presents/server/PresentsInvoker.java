@@ -142,8 +142,8 @@ public class PresentsInvoker extends ReportingInvoker
 
                         if (unchecked) {
                             long timeChecking = System.currentTimeMillis() - checkStart;
-                            if (timeChecking >= FIVE_MINUTES) {
-                                log.warning("Waited 5 minutes for the all the blocking units to "
+                            if (timeChecking >= CHECK_TIMEOUT) {
+                                log.warning("Waited 5 minutes for all the blocking units to "
                                     + "no avail.  Running onEmpty while items may remain in "
                                     + "the queue.");
                                 releaseCheckers(checkers);
@@ -153,19 +153,9 @@ public class PresentsInvoker extends ReportingInvoker
                             // At least one checker hasn't started running yet.  We need to wait
                             // till they're all in place before looking at emptiness.
                             try {
-                                _checkMonitor.wait(FIVE_MINUTES - timeChecking);
+                                _checkMonitor.wait(CHECK_TIMEOUT - timeChecking);
                             } catch (InterruptedException e) {
                                 // Not a problem, we'll just check on the checkers again
-                            }
-
-                            // While we were waiting on the various invokers, one of them might have
-                            //  given us something to do, in which case we really shouldn't be
-                            //  continuing on with this...
-                            if (getPendingUnits() > 0) {
-                                _loopCount++;
-                                releaseCheckers(checkers);
-                                postUnit(this);
-                                return false;
                             }
 
                         } else {
@@ -186,10 +176,17 @@ public class PresentsInvoker extends ReportingInvoker
                                     return false;
                                 }
                             }
-                            // Everything is gloriously clean.  Stop blocking all the threads and
-                            // shut down this invoker and the DObjectManager
+                            // All of the checkers are clean, so they can go back to their business
                             releaseCheckers(checkers);
-                            _onEmpty.run();
+                            if (getPendingUnits() > 0) {
+                                // While we were waiting on the various invokers, one of them gave
+                                // us something to do. We need to process that and try again.
+                                postUnit(this);
+                            } else {
+                                // Everything is gloriously clean. Shut down this invoker and the
+                                // DObjectManager
+                                _onEmpty.run();
+                            }
                             return false;
                         }
                     }
@@ -228,7 +225,7 @@ public class PresentsInvoker extends ReportingInvoker
         /** The maximum number of loops we allow before just ending things. */
         protected static final int MAX_LOOPS = 10000;
 
-        protected static final long FIVE_MINUTES = 5 * 60 * 1000L;
+        protected static final long CHECK_TIMEOUT = 5 * 60 * 1000L;
     }
 
     /**
@@ -301,7 +298,7 @@ public class PresentsInvoker extends ReportingInvoker
         {
             // Don't bitch about being a long invoker unless this has been blocking for longer than
             // the EmptyingUnit timeout
-            return EmptyingUnit.FIVE_MINUTES;
+            return EmptyingUnit.CHECK_TIMEOUT;
         }
 
         protected Invoker _invoker;
