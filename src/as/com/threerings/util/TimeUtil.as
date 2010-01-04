@@ -2,7 +2,7 @@
 // $Id$
 //
 // Flash Utils library - general purpose ActionScript utility code
-// Copyright (C) 2007-2009 Three Rings Design, Inc., All Rights Reserved
+// Copyright (C) 2007-2010 Three Rings Design, Inc., All Rights Reserved
 // http://www.threerings.net/code/ooolib/
 //
 // This library is free software; you can redistribute it and/or modify it
