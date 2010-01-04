@@ -3,7 +3,11 @@
 	<classpathentry excluding="**/.svn/" kind="src" output="dist/classes" path="src/java"/>
 	<classpathentry excluding="**/.svn/" kind="src" output="tests/dist/classes" path="tests/src/java"/>
 	<classpathentry kind="var" path="EXT_LIBS_DIR/javassist.jar"/>
-	<classpathentry exported="true" kind="var" path="EXT_LIBS_DIR/guice.jar"/>
+	<classpathentry exported="true" kind="var" path="EXT_LIBS_DIR/guice.jar">
+		<accessrules>
+			<accessrule kind="nonaccessible" pattern="com/google/inject/internal/**"/>
+		</accessrules>
+	</classpathentry>
 	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/depot"/>
 	<classpathentry exported="true" kind="var" path="EXT_LIBS_DIR/commons-lang.jar"/>
 	<classpathentry exported="true" kind="var" path="EXT_LIBS_DIR/atunit.jar">
