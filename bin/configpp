@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: configpp,v 1.2 2003/07/31 22:38:25 mdb Exp $
+# $Id$
 #
 # Preprocesses a configuration file (a .dop file, for instance), executing
 # any include directives located in the file.

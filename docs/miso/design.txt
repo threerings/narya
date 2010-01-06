@@ -1,6 +1,6 @@
 # Miso Notes -*- mode: outline -*-
 #
-# $Id: design.txt,v 1.5 2003/02/04 03:33:38 mdb Exp $
+# $Id$
 
 * Notes
 Consider making MISO sufficiently sophisticated to allow the cluster stuff
