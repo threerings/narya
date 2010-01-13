@@ -252,17 +252,17 @@ public class GenActionScriptTask extends Task
     protected String toReadObject (Class<?> type)
     {
         if (type.equals(String.class)) {
-            return "(ins.readField(String) as String)";
+            return "ins.readField(String)";
 
         } else if (type.equals(Integer.class) ||
                    type.equals(Short.class) ||
                    type.equals(Byte.class)) {
             String name = ActionScriptSource.toSimpleName(type.getName());
-            return "(ins.readField(" + name + ") as " + name + ").value";
+            return "ins.readField(" + name + ").value";
 
         } else if (type.equals(Long.class)) {
             String name = ActionScriptSource.toSimpleName(type.getName());
-            return "(ins.readField(" + name + ") as " + name + ")";
+            return "ins.readField(" + name + ")";
 
         } else if (type.equals(Boolean.TYPE)) {
             return "ins.readBoolean()";
@@ -287,15 +287,14 @@ public class GenActionScriptTask extends Task
 
         } else if (type.isArray()) {
             if (Byte.TYPE.equals(type.getComponentType())) {
-                return "(ins.readField(ByteArray) as ByteArray)";
+                return "ins.readField(ByteArray)";
 
             } else {
-                return "(ins.readObject() as TypedArray)";
+                return "ins.readObject(TypedArray)";
             }
 
         } else {
-            return "(ins.readObject() as " +
-                ActionScriptSource.toSimpleName(type.getName()) + ")";
+            return "ins.readObject(" + ActionScriptSource.toSimpleName(type.getName()) + ")";
         }
     }
 
