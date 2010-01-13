@@ -125,12 +125,12 @@ public class OccupantInfo extends SimpleStreamableObject
     }
 
     @Override
-    public Object clone ()
+    public OccupantInfo clone ()
     {
         try {
-            return super.clone();
+            return (OccupantInfo) super.clone();
         } catch (CloneNotSupportedException cnse) {
-            throw new RuntimeException(cnse);
+            throw new AssertionError(cnse);
         }
     }
 }

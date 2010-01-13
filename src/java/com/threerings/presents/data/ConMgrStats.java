@@ -74,12 +74,12 @@ public class ConMgrStats extends SimpleStreamableObject
     public long msgsOut;
 
     @Override // from Object
-    public Object clone ()
+    public ConMgrStats clone ()
     {
         try {
-            return super.clone();
+            return (ConMgrStats) super.clone();
         } catch (CloneNotSupportedException cnse) {
-            throw new RuntimeException(cnse);
+            throw new AssertionError(cnse);
         }
     }
 }

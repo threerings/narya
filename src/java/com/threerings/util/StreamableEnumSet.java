@@ -88,9 +88,7 @@ public class StreamableEnumSet<E extends Enum<E>> extends AbstractSet<E>
      */
     public static <E extends Enum<E>> StreamableEnumSet<E> copyOf (StreamableEnumSet<E> s)
     {
-        @SuppressWarnings("unchecked") StreamableEnumSet<E> set =
-            (StreamableEnumSet<E>)s.clone();
-        return set;
+        return s.clone();
     }
 
     /**
@@ -243,16 +241,17 @@ public class StreamableEnumSet<E extends Enum<E>> extends AbstractSet<E>
     }
 
     @Override // documentation inherited
-    public Object clone ()
+    public StreamableEnumSet<E> clone ()
     {
         try {
             // make a deep clone of the contents
-            @SuppressWarnings("unchecked") StreamableEnumSet<E> cset = (StreamableEnumSet<E>)super.clone();
+            @SuppressWarnings("unchecked")
+            StreamableEnumSet<E> cset = (StreamableEnumSet<E>)super.clone();
             cset._contents = _contents.clone();
             return cset;
 
         } catch (CloneNotSupportedException e) {
-            return null; // won't happen
+            throw new AssertionError(e); // won't happen
         }
     }
 

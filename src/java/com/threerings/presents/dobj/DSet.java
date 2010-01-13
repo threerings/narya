@@ -438,7 +438,7 @@ public class DSet<E extends DSet.Entry>
             nset._modCount = 0;
             return nset;
         } catch (CloneNotSupportedException cnse) {
-            throw new RuntimeException(cnse);
+            throw new AssertionError(cnse);
         }
     }
 
@@ -446,7 +446,7 @@ public class DSet<E extends DSet.Entry>
      * Generates a shallow copy of this object.
      */
     @Override
-    public Object clone ()
+    public DSet<E> clone ()
     {
         return typedClone();
     }
