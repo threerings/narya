@@ -174,7 +174,7 @@ public class ConnectionManager extends LoopingThread
                 _stats.overQueueSize += oq.size();
             }
         }
-        return (ConMgrStats)_stats.clone();
+        return _stats.clone();
     }
 
     /**

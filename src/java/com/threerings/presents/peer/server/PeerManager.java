@@ -1185,7 +1185,7 @@ public abstract class PeerManager
 
             // take a snapshot of the set of subscriber client oids; we will act when all of them
             // ratify
-            _remoids = (ArrayIntSet)_suboids.clone();
+            _remoids = _suboids.clone();
 
             // schedule a timeout to act if something goes wrong
             (_timeout = _omgr.newInterval(new Runnable () {

@@ -186,8 +186,7 @@ public class MessageBundle
      * @param includeParent if true, messages from our parent bundle (and its
      * parent bundle, all the way up the chain will be included).
      */
-    public void getAll (String prefix, Collection<String> messages,
-                        boolean includeParent)
+    public void getAll (String prefix, Collection<String> messages, boolean includeParent)
     {
         Enumeration<String> iter = _bundle.getKeys();
         while (iter.hasMoreElements()) {
@@ -208,8 +207,7 @@ public class MessageBundle
      * @param includeParent if true, messages from our parent bundle (and its
      * parent bundle, all the way up the chain will be included).
      */
-    public void getAllKeys (String prefix, Collection<String> keys,
-                        boolean includeParent)
+    public void getAllKeys (String prefix, Collection<String> keys, boolean includeParent)
     {
         Enumeration<String> iter = _bundle.getKeys();
         while (iter.hasMoreElements()) {

@@ -174,7 +174,7 @@ public class PlaceManager
         // update the canonical copy
         _occInfo.put(info.getBodyOid(), info);
         // clone the canonical copy and send an event updating the distributed set with that clone
-        _plobj.updateOccupantInfo((OccupantInfo)info.clone());
+        _plobj.updateOccupantInfo(info.clone());
         return true;
     }
 
@@ -322,7 +322,7 @@ public class PlaceManager
 
         _plobj.startTransaction();
         try {
-            addOccupantInfo(body, (OccupantInfo)info.clone());
+            addOccupantInfo(body, info.clone());
         } finally {
             _plobj.commitTransaction();
         }
