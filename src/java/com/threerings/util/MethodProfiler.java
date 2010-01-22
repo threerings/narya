@@ -21,9 +21,9 @@
 
 package com.threerings.util;
 
-import java.util.HashMap;
 import java.util.Map;
 
+import com.google.common.collect.MapMaker;
 import com.google.common.collect.Maps;
 import com.samskivert.util.StringUtil;
 
@@ -51,13 +51,13 @@ public class MethodProfiler
         }
 
         /** Number of method calls sampled. */
-        public int numSamples;
+        public final int numSamples;
 
         /** Average time spent in the method. */
-        public double averageTime;
+        public final double averageTime;
 
         /** Standard deviation from the average. */
-        public double standardDeviation;
+        public final double standardDeviation;
 
         // from Object
         @Override
@@ -118,29 +118,16 @@ public class MethodProfiler
     }
 
     /**
-     * Creates a new profiler.
-     */
-    public MethodProfiler ()
-    {
-    }
-
-    /**
      * Gets all method results so far.
      */
     public Map<String, Result> getResults ()
     {
-        HashMap<String, MethodProfile> profiles = new HashMap<String, MethodProfile>();
-        synchronized (_profiles) {
-            profiles.putAll(_profiles);
-        }
-
-        HashMap<String, Result> results = new HashMap<String, Result>();
-        for (Map.Entry<String, MethodProfile> entry : profiles.entrySet()) {
+        Map<String, Result> results = Maps.newHashMapWithExpectedSize(_profiles.size());
+        for (Map.Entry<String, RunningStats> entry : _profiles.entrySet()) {
             synchronized (entry.getValue()) {
-                results.put(entry.getKey(), entry.getValue().toResult());
+                results.put(entry.getKey(), toResult(entry.getValue()));
             }
         }
-
         return results;
     }
 
@@ -204,9 +191,7 @@ public class MethodProfiler
      */
     public void reset ()
     {
-        synchronized (_profiles) {
-            _profiles.clear();
-        }
+        _profiles.clear();
     }
 
     /**
@@ -214,16 +199,9 @@ public class MethodProfiler
      */
     protected void recordTime (String method, double elapsedMs)
     {
-        MethodProfile profile;
-        synchronized (_profiles) {
-            profile = _profiles.get(method);
-            if (profile == null) {
-                _profiles.put(method, profile = new MethodProfile());
-            }
-        }
-
-        synchronized (profile) {
-            profile.addSample(elapsedMs);
+        RunningStats stats = _profiles.get(method);
+        synchronized (stats) {
+            stats.addSample(elapsedMs);
         }
     }
 
@@ -321,47 +299,25 @@ public class MethodProfiler
     }
 
     /**
-     * Holds the aggregate information about all the calls to a given method. The caller is
-     * expected to perform all thread coordination.
-     */
-    protected static class MethodProfile
-    {
-        /**
-         * Records a new elapsed time spent in the method.
-         */
-        public void addSample (double time)
-        {
-            // From http://en.wikipedia.org/wiki/Algorithms_for_calculating_variance#On-line_algorithm
-            _numSamples++;
-            double deltaToOld = time - _average;
-            _average += deltaToOld / _numSamples;
-            double deltaToNew = time - _average;
-            _varianceSum += deltaToOld * deltaToNew;
-        }
-
-        /**
-         * Calculates the results of the the profile.
-         */
-        public Result toResult ()
-        {
-            return new Result(_numSamples, _average, Math.sqrt(_varianceSum / _numSamples));
-        }
-
-        protected int _numSamples;
-        protected double _average;
-        protected double _varianceSum;
-    }
-
-    /**
      * Runs the method profile stat collection with the given samples and logs the result.
      */
     protected static void simpleSampleTest (String name, double... samples)
     {
-        MethodProfile prof = new MethodProfile();
+        RunningStats stats = new RunningStats();
         for (double sample : samples) {
-            prof.addSample(sample);
+            stats.addSample(sample);
         }
-        log.info(name, "results", prof.toResult());
+        log.info(name, "results", toResult(stats));
+    }
+
+
+
+    /**
+     * Calculates the results of the the profile.
+     */
+    protected static Result toResult (RunningStats stats)
+    {
+        return new Result(stats.getNumSamples(), stats.getMean(), stats.getStandardDeviation());
     }
 
     /** Set of active methods in the current thread. */
@@ -371,6 +327,7 @@ public class MethodProfiler
         }
     };
 
-    /** Profiles by method name. */
-    protected HashMap<String, MethodProfile> _profiles = Maps.newHashMap();
+    /** Stats by method name. */
+    protected final Map<String, RunningStats> _profiles =
+        new MapMaker().makeComputingMap(DefaultMap.newInstanceCreator(RunningStats.class));
 }
