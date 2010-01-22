@@ -331,17 +331,12 @@ public class MethodProfiler
          */
         public void addSample (double time)
         {
-            if (_numSamples == 0) {
-                _numSamples = 1;
-                _average = time;
-                _variance = 0;
-                return;
-            }
-            _numSamples = _numSamples + 1;
-            double oldAverage = _average;
-            _average += (time - _average) / _numSamples;
-            double baseVariance = time - oldAverage;
-            _variance += (_numSamples - 1) * baseVariance * baseVariance / _numSamples;
+            // From http://en.wikipedia.org/wiki/Algorithms_for_calculating_variance#On-line_algorithm
+            _numSamples++;
+            double deltaToOld = time - _average;
+            _average += deltaToOld / _numSamples;
+            double deltaToNew = time - _average;
+            _varianceSum += deltaToOld * deltaToNew;
         }
 
         /**
@@ -349,12 +344,12 @@ public class MethodProfiler
          */
         public Result toResult ()
         {
-            return new Result(_numSamples, _average, Math.sqrt(_variance / _numSamples));
+            return new Result(_numSamples, _average, Math.sqrt(_varianceSum / _numSamples));
         }
 
         protected int _numSamples;
         protected double _average;
-        protected double _variance;
+        protected double _varianceSum;
     }
 
     /**
