@@ -17,6 +17,28 @@ public class RunningStats
         _mean += deltaToOld / _numSamples;
         double deltaToNew = sample - _mean;
         _varianceSum += deltaToOld * deltaToNew;
+        if (sample < _min) {
+            _min = sample;
+        }
+        if (sample > _max) {
+            _max = sample;
+        }
+    }
+
+    /**
+     * Returns the minimum sample added or {@link Double#MAX_VALUE} if no samples have been added.
+     */
+    public double getMin ()
+    {
+        return _min;
+    }
+
+    /**
+     * Returns the maximum sample added or {@link Double#MIN_VALUE} if no samples have been added.
+     */
+    public double getMax ()
+    {
+        return _max;
     }
 
     public double getVariance ()
@@ -45,4 +67,5 @@ public class RunningStats
     protected int _numSamples;
     protected double _mean;
     protected double _varianceSum;
+    protected double _max = Double.MIN_VALUE, _min = Double.MAX_VALUE;
 }
