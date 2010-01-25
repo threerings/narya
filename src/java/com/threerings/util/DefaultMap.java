@@ -57,7 +57,7 @@ public class DefaultMap<K, V> extends ForwardingMap<K, V>
 
 
     /**
-     * Returns a Creator that makes instances of the supplied class (using its no-args
+     * Returns a Function that makes instances of the supplied class (using its no-args
      * constructor) as default values.
      */
     public static <K, V> Function<K, V> newInstanceCreator (Class<V> clazz) {
