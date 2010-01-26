@@ -767,9 +767,8 @@ public abstract class PeerManager
     // from interface Lifecycle.ShutdownComponent
     public void shutdown ()
     {
-        if (_nodeName == null) { // sanity check
-            throw new IllegalStateException(
-                "Shutting down PeerManager that was never initialized.");
+        if (_nodeName == null) { // never initialized
+            return;
         }
 
         // clear out our invocation service
