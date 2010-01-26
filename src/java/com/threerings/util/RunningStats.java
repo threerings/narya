@@ -67,5 +67,5 @@ public class RunningStats
     protected int _numSamples;
     protected double _mean;
     protected double _varianceSum;
-    protected double _max = Double.MIN_VALUE, _min = Double.MAX_VALUE;
+    protected double _max = Double.NEGATIVE_INFINITY, _min = Double.POSITIVE_INFINITY;
 }
