@@ -80,6 +80,9 @@ public interface ChatCodes extends InvocationCodes
      * broadcast. */
     public static final byte BROADCAST_MODE = 4;
 
+    /** The last chat mode defined in the interface. */
+    public static final byte LAST_MODE = BROADCAST_MODE;
+
     /** String translations for the various chat modes. */
     public static final String[] XLATE_MODES = {
         "default", "think", "emote", "shout", "broadcast"
