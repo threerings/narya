@@ -158,6 +158,11 @@ public class MethodProfiler
         long elapsed = nanos - method.entryTime;
         recordTime(method.fullName(), (double)elapsed / 1000000);
         method.name = null;
+        // Clear the ThreadLocal after we've profiled our whole stack to prevent our class loader
+        // from hanging around
+        if (_stack.get().size() == 0) {
+            _stack.remove();
+        }
     }
 
     /**
