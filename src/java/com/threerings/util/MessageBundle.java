@@ -331,7 +331,7 @@ public class MessageBundle
      * A helper function for {@link #get(String,Object[])} that allows us to automatically perform
      * plurality processing if our first argument can be coaxed to an {@link Integer}.
      */
-    protected String getSuffix (Object[] args)
+    public String getSuffix (Object[] args)
     {
         if (args.length > 0 && args[0] != null) {
             try {
