@@ -55,7 +55,6 @@ public class DefaultMap<K, V> extends ForwardingMap<K, V>
         return newMap(delegate, creator);
     }
 
-
     /**
      * Returns a Function that makes instances of the supplied class (using its no-args
      * constructor) as default values.
