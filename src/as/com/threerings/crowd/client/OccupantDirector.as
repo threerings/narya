@@ -21,7 +21,6 @@
 
 package com.threerings.crowd.client {
 
-import com.threerings.util.Iterator;
 import com.threerings.util.ObserverList;
 import com.threerings.util.Name;
 
