@@ -40,7 +40,6 @@ import com.samskivert.util.ComparableArrayList;
 
 import com.samskivert.swing.ObjectEditorTable;
 import com.samskivert.swing.event.CommandEvent;
-
 import com.threerings.presents.dobj.AttributeChangeListener;
 import com.threerings.presents.dobj.AttributeChangedEvent;
 import com.threerings.presents.dobj.DObject;
@@ -54,8 +53,16 @@ import com.threerings.presents.dobj.SetListener;
  * Allows simple editing of DSets within a distributed object.
  */
 public class DSetEditor<E extends DSet.Entry> extends JPanel
-    implements AttributeChangeListener, SetListener<E>, ActionListener
+    implements ActionListener
 {
+    public interface Accessor<F extends DSet.Entry>
+    {
+        void added ();
+        void removed ();
+        void updateEntry (String setName, DSet.Entry entry);
+        ObjectEditorTable.FieldInterpreter getInterp (ObjectEditorTable.FieldInterpreter interp);
+    }
+
     /**
      * Construct a DSet editor to merely display the specified set.
      *
@@ -115,13 +122,24 @@ public class DSetEditor<E extends DSet.Entry> extends JPanel
     {
         super(new BorderLayout());
 
-        _setter = setter;
         _setName = setName;
-        _set = _setter.getSet(setName);
         _entryFilter = entryFilter;
 
-        _table = new ObjectEditorTable(entryClass, editableFields, interp, displayFields);
+        _entryClass = entryClass;
+        _editableFields = editableFields;
+        _interp = interp;
+        _displayFields = displayFields;
 
+        setAccessor(new DObjectAccessor<E>(setter, setName));
+
+    }
+
+    public void setAccessor (Accessor accessor)
+    {
+        removeAll();
+        _accessor = accessor;
+        _table = new ObjectEditorTable(_entryClass, _editableFields, _accessor.getInterp(_interp),
+            _displayFields);
         add(new JScrollPane(_table), BorderLayout.CENTER);
     }
 
@@ -153,17 +171,14 @@ public class DSetEditor<E extends DSet.Entry> extends JPanel
     public void addNotify ()
     {
         super.addNotify();
-        _setter.addListener(this);
+        _accessor.added();
         _table.addActionListener(this);
-
-        // populate the table
-        refreshData();
     }
 
     @Override
     public void removeNotify ()
     {
-        _setter.removeListener(this);
+        _accessor.removed();
         _table.removeActionListener(this);
         super.removeNotify();
     }
@@ -191,85 +206,27 @@ public class DSetEditor<E extends DSet.Entry> extends JPanel
         }
     }
 
-    // documentation inherited from interface SetListener
-    public void entryAdded (EntryAddedEvent<E> event)
-    {
-        if (event.getName().equals(_setName)) {
-            addEntry(event.getEntry());
-        }
-    }
-
-    // documentation inherited from interface SetListener
-    public void entryRemoved (EntryRemovedEvent<E> event)
-    {
-        if (event.getName().equals(_setName)) {
-            removeKey(event.getKey());
-        }
-    }
-
-    // documentation inherited from interface SetListener
-    public void entryUpdated (EntryUpdatedEvent<E> event)
-    {
-        if (event.getName().equals(_setName)) {
-            E entry = event.getEntry();
-            int index = _keys.indexOf(entry.getKey());
-            if (index != -1) {
-                // We have it, so either update or remove
-                if (_entryFilter == null || _entryFilter.apply(entry)) {
-                    _table.updateDatum(entry, index);
-
-                } else {
-                    removeKey(entry.getKey());
-                }
-            } else {
-                // We DON'T have it, so try to add it in case we care about it
-                addEntry(entry);
-            }
-        }
-    }
-
-    // documentation inherited from interface SetListener
-    public void attributeChanged (AttributeChangedEvent event)
-    {
-        if (event.getName().equals(_setName)) {
-            // the whole set changed so we need to refetch it from the object
-            _set = _setter.getSet(_setName);
-            refreshData();
-        }
-    }
-
     // documentation inherited from interface ActionListener
     public void actionPerformed (ActionEvent event)
     {
         CommandEvent ce = (CommandEvent)event;
-        _setter.updateSet(_setName, (DSet.Entry)ce.getArgument());
+        _accessor.updateEntry(_setName, (DSet.Entry)ce.getArgument());
     }
 
-    protected void refreshData ()
+    public void setData (ComparableArrayList<Comparable<Object>> keys, Object[] data)
     {
-        _keys = new ComparableArrayList<Comparable<Object>>();
-        E[] entries;
+        _keys = keys;
+        _table.setData(data);
+    }
 
-        if (_entryFilter == null) {
-            @SuppressWarnings("unchecked") E[] tmp = (E[])new DSet.Entry[_set.size()];
-            entries = tmp;
-            _set.toArray(entries);
+    public Predicate<E> getFilter ()
+    {
+        return _entryFilter;
+    }
 
-        } else {
-            // Do some shuffling to get out a filtered array.
-            Iterator<E> itr = Iterators.filter(_set.iterator(), _entryFilter);
-            ArrayList<E> list = Lists.newArrayList();
-            Iterators.addAll(list, itr);
-
-            @SuppressWarnings("unchecked") E[] tmp = (E[])new DSet.Entry[list.size()];
-            entries = tmp;
-            list.toArray(entries);
-        }
-
-        for (E entry : entries) {
-            _keys.insertSorted(getKey(entry));
-        }
-        _table.setData(entries); // this works because DSet itself is sorted
+    public String getSetName ()
+    {
+        return _setName;
     }
 
     @SuppressWarnings("unchecked")
@@ -278,8 +235,135 @@ public class DSetEditor<E extends DSet.Entry> extends JPanel
         return (Comparable<Object>)entry.getKey();
     }
 
-    /** The object that contains the set we're displaying. */
-    protected DObject _setter;
+    protected class DObjectAccessor<F extends E>
+        implements AttributeChangeListener, SetListener<F>, Accessor<F>
+    {
+        public DObjectAccessor (DObject obj, String setName)
+        {
+            _obj = obj;
+            _setName = setName;
+        }
+
+        public ObjectEditorTable.FieldInterpreter getInterp (
+            ObjectEditorTable.FieldInterpreter interp)
+        {
+            return interp;
+        }
+
+        public void added ()
+        {
+            _obj.addListener(this);
+            refreshSet();
+            refreshData();
+        }
+
+        public void removed ()
+        {
+            _obj.removeListener(this);
+        }
+
+        public void refreshSet ()
+        {
+            _set = _obj.getSet(_setName);
+        }
+
+        public void updateEntry (String setName, DSet.Entry entry)
+        {
+            _obj.updateSet(setName, entry);
+        }
+
+        // documentation inherited from interface SetListener
+        public void entryAdded (EntryAddedEvent<F> event)
+        {
+            if (event.getName().equals(_setName)) {
+                addEntry(event.getEntry());
+            }
+        }
+
+        // documentation inherited from interface SetListener
+        public void entryRemoved (EntryRemovedEvent<F> event)
+        {
+            if (event.getName().equals(_setName)) {
+                removeKey(event.getKey());
+            }
+        }
+
+        protected void refreshData ()
+        {
+            ComparableArrayList<Comparable<Object>> keys =
+                new ComparableArrayList<Comparable<Object>>();
+            E[] entries;
+
+            if (_entryFilter == null) {
+                entries = createArray();
+
+            } else {
+                // Do some shuffling to get out a filtered array.
+                Iterator<F> itr = Iterators.filter(iterator(), _entryFilter);
+                ArrayList<F> list = Lists.newArrayList();
+                Iterators.addAll(list, itr);
+
+                @SuppressWarnings("unchecked") F[] tmp = (F[])new DSet.Entry[list.size()];
+                entries = tmp;
+                list.toArray(entries);
+            }
+
+            for (E entry : entries) {
+                keys.insertSorted(getKey(entry));
+            }
+            setData(keys, entries); // this works because DSet itself is sorted
+        }
+
+        // documentation inherited from interface SetListener
+        public void entryUpdated (EntryUpdatedEvent<F> event)
+        {
+            if (event.getName().equals(_setName)) {
+                E entry = event.getEntry();
+                int index = _keys.indexOf(entry.getKey());
+                if (index != -1) {
+                    // We have it, so either update or remove
+                    if (_entryFilter == null || _entryFilter.apply(entry)) {
+                        _table.updateDatum(entry, index);
+
+                    } else {
+                        removeKey(entry.getKey());
+                    }
+                } else {
+                    // We DON'T have it, so try to add it in case we care about it
+                    addEntry(entry);
+                }
+            }
+        }
+
+        // documentation inherited from interface SetListener
+        public void attributeChanged (AttributeChangedEvent event)
+        {
+            if (event.getName().equals(_setName)) {
+                // the whole set changed so we need to refetch it from the object
+                refreshSet();
+                refreshData();
+            }
+        }
+
+        public E[] createArray ()
+        {
+            @SuppressWarnings("unchecked") F[] tmp = (F[])new DSet.Entry[_set.size()];
+            F[] entries = tmp;
+            _set.toArray(entries);
+            return entries;
+        }
+
+        public Iterator<F> iterator ()
+        {
+            return _set.iterator();
+        }
+
+        protected DObject _obj;
+
+        protected DSet<F> _set;
+
+        protected String _setName;
+    }
 
     /** The name of the set in that object. */
     protected String _setName;
@@ -287,14 +371,19 @@ public class DSetEditor<E extends DSet.Entry> extends JPanel
     /** An optional predicate to decide whether actually care about displaying a given entry. */
     protected Predicate<E> _entryFilter;
 
-    /** The set itself. */
-    protected DSet<E> _set;
+    /** Provides access to our data we're editing. */
+    protected Accessor<E> _accessor;
+
+    /** The table used to edit. */
+    protected ObjectEditorTable _table;
 
     /** An array we use to track our entries' positions by key. */
     protected ComparableArrayList<Comparable<Object>> _keys;
 
-    /** The table used to edit. */
-    protected ObjectEditorTable _table;
+    protected Class<?> _entryClass;
+    protected String[] _editableFields;
+    protected ObjectEditorTable.FieldInterpreter _interp;
+    protected String[] _displayFields;
 
     /** The minimum height for our editor UI. */
     protected static final int MIN_HEIGHT = 200;

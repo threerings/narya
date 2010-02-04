@@ -51,11 +51,20 @@ import static com.threerings.admin.Log.log;
 public abstract class FieldEditor extends JPanel
     implements AttributeChangeListener, ActionListener, FocusListener
 {
+    /** The interface defining how the editor interacts with its data. */
+    public interface Accessor
+    {
+        void added ();
+        void removed ();
+        void set (Field field, Object value);
+        Object get (Field field);
+    }
+
     public FieldEditor (PresentsContext ctx, Field field, DObject object)
     {
         _ctx = ctx;
         _field = field;
-        _object = object;
+        setAccessor(new DObjectAccessor(object));
 
         // create our interface elements
         setLayout(new HGroupLayout(HGroupLayout.STRETCH));
@@ -67,13 +76,18 @@ public abstract class FieldEditor extends JPanel
         updateBorder(false);
     }
 
+    public void setAccessor (Accessor accessor)
+    {
+        _accessor = accessor;
+    }
+
     @Override
     public void addNotify ()
     {
         super.addNotify();
 
         // listen to the object while we're visible
-        _object.addListener(FieldEditor.this);
+        _accessor.added();
         displayValue(getValue());
     }
 
@@ -83,11 +97,17 @@ public abstract class FieldEditor extends JPanel
         super.removeNotify();
 
         // stop listening when we're hidden
-        _object.removeListener(FieldEditor.this);
+        _accessor.removed();
     }
 
     // documentation inherited from interface
     public void attributeChanged (AttributeChangedEvent event)
+    {
+        noteUpdatedExternally();
+    }
+
+    /** Update ourselves to reflect a change from outside the editor. */
+    public void noteUpdatedExternally ()
     {
         displayValue(getValue());
         updateBorder(false);
@@ -105,11 +125,7 @@ public abstract class FieldEditor extends JPanel
 
         // submit an attribute changed event with the new value
         if (!ObjectUtil.equals(value, getValue())) {
-            try {
-                _object.changeAttribute(_field.getName(), value);
-            } catch (ObjectAccessException oae) {
-                log.warning("Failed to update field " + _field.getName() + ": " + oae);
-            }
+            _accessor.set(_field, value);
         }
     }
 
@@ -151,12 +167,7 @@ public abstract class FieldEditor extends JPanel
      */
     protected Object getValue ()
     {
-        try {
-            return _field.get(_object);
-        } catch (Exception e) {
-            log.warning("Failed to fetch field", "field", _field, "object", _object, "error", e);
-            return null;
-        }
+        return _accessor.get(_field);
     }
 
     /**
@@ -172,8 +183,51 @@ public abstract class FieldEditor extends JPanel
         }
     }
 
+    /**
+     *  A simple accessor that knows how to interact with a DObject - this is normally what is used.
+     */
+    protected class DObjectAccessor
+        implements Accessor
+    {
+        public DObjectAccessor (DObject obj)
+        {
+            _obj = obj;
+        }
+
+        public void added ()
+        {
+            _obj.addListener(FieldEditor.this);
+        }
+
+        public void removed ()
+        {
+            _obj.removeListener(FieldEditor.this);
+        }
+
+        public void set (Field field, Object value)
+        {
+            try {
+                _obj.changeAttribute(field.getName(), value);
+            } catch (ObjectAccessException oae) {
+                log.warning("Failed to update field " + field.getName() + ": " + oae);
+            }
+        }
+
+        public Object get (Field field)
+        {
+            try {
+                return field.get(_obj);
+            } catch (Exception e) {
+                log.warning("Failed to fetch field", "field", field, "object", _obj, "error", e);
+                return null;
+            }
+        }
+
+        protected DObject _obj;
+    }
+
     protected PresentsContext _ctx;
     protected Field _field;
-    protected DObject _object;
+    protected Accessor _accessor;
     protected JLabel _label;
 }

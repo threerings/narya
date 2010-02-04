@@ -56,6 +56,11 @@ import com.threerings.presents.dobj.SetListener;
 public class TabbedDSetEditor<E extends DSet.Entry> extends JPanel
     implements AttributeChangeListener, SetListener<E>
 {
+    public interface AccessorFactory
+    {
+        public DSetEditor.Accessor createAccessor (DSetEditor editor);
+    }
+
     /**
      * Used to divide various entires into different groups.
      */
@@ -170,6 +175,11 @@ public class TabbedDSetEditor<E extends DSet.Entry> extends JPanel
         add(_tabs);
     }
 
+    public void setAccessorFactory (AccessorFactory accessorFactory)
+    {
+        _accessorFactory = accessorFactory;
+    }
+
     protected void computeTabs ()
     {
         _grouper.computeGroups(_setter.<E>getSet(_setName));
@@ -179,6 +189,9 @@ public class TabbedDSetEditor<E extends DSet.Entry> extends JPanel
             if (!_editors.containsKey(group)) {
                 DSetEditor<E> editor =  createEditor(
                     _setter, _setName, _entryClass, _editableFields, _interp, _grouper, group);
+                if (_accessorFactory != null) {
+                    editor.setAccessor(_accessorFactory.createAccessor(editor));
+                }
                 _tabs.add(group, editor);
                 _editors.put(group, editor);
             }
@@ -257,6 +270,7 @@ public class TabbedDSetEditor<E extends DSet.Entry> extends JPanel
     protected final String[] _editableFields;
     protected final ObjectEditorTable.FieldInterpreter _interp;
     protected final EntryGrouper<E> _grouper;
+    protected AccessorFactory _accessorFactory;
 
     protected JTabbedPane _tabs;
     protected HashMap<String, DSetEditor<E>> _editors = Maps.newHashMap();
