@@ -246,7 +246,7 @@ public class NodeObject extends DObject
     public void setClients (DSet<ClientInfo> value)
     {
         requestAttributeChange(CLIENTS, value, this.clients);
-        DSet<ClientInfo> clone = (value == null) ? null : value.typedClone();
+        DSet<ClientInfo> clone = (value == null) ? null : value.clone();
         this.clients = clone;
     }
 
@@ -293,7 +293,7 @@ public class NodeObject extends DObject
     public void setLocks (DSet<NodeObject.Lock> value)
     {
         requestAttributeChange(LOCKS, value, this.locks);
-        DSet<NodeObject.Lock> clone = (value == null) ? null : value.typedClone();
+        DSet<NodeObject.Lock> clone = (value == null) ? null : value.clone();
         this.locks = clone;
     }
 

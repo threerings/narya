@@ -105,7 +105,7 @@ public class CrowdNodeObject extends NodeObject
     public void setHostedChannels (DSet<ChatChannel> value)
     {
         requestAttributeChange(HOSTED_CHANNELS, value, this.hostedChannels);
-        DSet<ChatChannel> clone = (value == null) ? null : value.typedClone();
+        DSet<ChatChannel> clone = (value == null) ? null : value.clone();
         this.hostedChannels = clone;
     }
     // AUTO-GENERATED: METHODS END

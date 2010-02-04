@@ -190,7 +190,7 @@ public class ClientObject extends DObject
     public void setReceivers (DSet<InvocationReceiver.Registration> value)
     {
         requestAttributeChange(RECEIVERS, value, this.receivers);
-        DSet<InvocationReceiver.Registration> clone = (value == null) ? null : value.typedClone();
+        DSet<InvocationReceiver.Registration> clone = (value == null) ? null : value.clone();
         this.receivers = clone;
     }
     // AUTO-GENERATED: METHODS END
