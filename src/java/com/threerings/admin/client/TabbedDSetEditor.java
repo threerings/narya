@@ -61,7 +61,7 @@ public class TabbedDSetEditor<E extends DSet.Entry> extends JPanel
      */
     public interface AccessorFactory
     {
-        public DSetEditor.Accessor createAccessor (DSetEditor editor);
+        public <E extends DSet.Entry> DSetEditor.Accessor<E> createAccessor (DSetEditor<E> editor);
     }
 
     /**

@@ -140,7 +140,7 @@ public class DSetEditor<E extends DSet.Entry> extends JPanel
     /**
      * Sets the logic for how this editor interacts with its underlying data.
      */
-    public void setAccessor (Accessor accessor)
+    public void setAccessor (Accessor<E> accessor)
     {
         removeAll();
         _accessor = accessor;
