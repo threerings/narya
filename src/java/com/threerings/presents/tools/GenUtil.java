@@ -191,9 +191,7 @@ public class GenUtil extends com.samskivert.util.GenUtil
     public static String cloneArgument (Class<?> dsclazz, Field field, String name)
     {
         Class<?> clazz = field.getType();
-        if (dsclazz.equals(clazz)) {
-            return "(" + name + " == null) ? null : " + name + ".typedClone()";
-        } else if (clazz.isArray()) {
+        if (clazz.isArray() || dsclazz.equals(clazz)) {
             return "(" + name + " == null) ? null : " + name + ".clone()";
         } else if (dsclazz.isAssignableFrom(clazz)) {
             return "(" + name + " == null) ? null : " +

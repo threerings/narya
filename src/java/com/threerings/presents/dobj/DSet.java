@@ -427,8 +427,20 @@ public class DSet<E extends DSet.Entry>
 
     /**
      * Generates a shallow copy of this object in a type safe manner.
+     *
+     * @deprecated clone() works just fine now.
      */
+    @Deprecated
     public DSet<E> typedClone ()
+    {
+        return clone();
+    }
+
+    /**
+     * Generates a shallow copy of this object.
+     */
+    @Override
+    public DSet<E> clone ()
     {
         try {
             @SuppressWarnings("unchecked") DSet<E> nset = (DSet<E>)super.clone();
@@ -440,15 +452,6 @@ public class DSet<E extends DSet.Entry>
         } catch (CloneNotSupportedException cnse) {
             throw new AssertionError(cnse);
         }
-    }
-
-    /**
-     * Generates a shallow copy of this object.
-     */
-    @Override
-    public DSet<E> clone ()
-    {
-        return typedClone();
     }
 
     @Override
