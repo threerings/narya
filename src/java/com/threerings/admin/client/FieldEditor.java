@@ -76,6 +76,9 @@ public abstract class FieldEditor extends JPanel
         updateBorder(false);
     }
 
+    /**
+     * Sets the plugin for how we interact with our data.
+     */
     public void setAccessor (Accessor accessor)
     {
         _accessor = accessor;

@@ -56,6 +56,9 @@ import com.threerings.presents.dobj.SetListener;
 public class TabbedDSetEditor<E extends DSet.Entry> extends JPanel
     implements AttributeChangeListener, SetListener<E>
 {
+    /**
+     * Defines how DSetEditor data-access plugins should be created.
+     */
     public interface AccessorFactory
     {
         public DSetEditor.Accessor createAccessor (DSetEditor editor);
@@ -175,6 +178,9 @@ public class TabbedDSetEditor<E extends DSet.Entry> extends JPanel
         add(_tabs);
     }
 
+    /**
+     * Assigns the factory that creates data-access plugins for our set our DSetEditors.
+     */
     public void setAccessorFactory (AccessorFactory accessorFactory)
     {
         _accessorFactory = accessorFactory;

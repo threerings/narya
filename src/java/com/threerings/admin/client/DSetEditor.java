@@ -55,6 +55,9 @@ import com.threerings.presents.dobj.SetListener;
 public class DSetEditor<E extends DSet.Entry> extends JPanel
     implements ActionListener
 {
+    /**
+     * An interface for a plugin defining how the editor interacts with its underlying data.
+     */
     public interface Accessor<F extends DSet.Entry>
     {
         void added ();
@@ -134,6 +137,9 @@ public class DSetEditor<E extends DSet.Entry> extends JPanel
 
     }
 
+    /**
+     * Sets the logic for how this editor interacts with its underlying data.
+     */
     public void setAccessor (Accessor accessor)
     {
         removeAll();
