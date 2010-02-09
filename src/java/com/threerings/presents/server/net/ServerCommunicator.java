@@ -51,7 +51,6 @@ public class ServerCommunicator extends Communicator
         super(client);
         _conmgr = conmgr;
         _rootmgr = rootmgr;
-        _omgr = new ClientDObjectMgr(this, client);
     }
 
     @Override // from Communicator
@@ -205,7 +204,6 @@ public class ServerCommunicator extends Communicator
     protected ConnectionManager _conmgr;
     protected RootDObjectManager _rootmgr;
     protected Connection _conn;
-    protected ClientDObjectMgr _omgr;
     protected ClassLoader _loader;
     protected Exception _logonError;
 
