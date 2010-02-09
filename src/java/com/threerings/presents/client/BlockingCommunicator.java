@@ -447,9 +447,7 @@ public class BlockingCommunicator extends Communicator
         _datagramChannel.write(buf);
 
         // notify the tracker
-        if (_client != null) {
-            _client.getMessageTracker().messageSent(true, size, msg);
-        }
+        _client.getMessageTracker().messageSent(true, size, msg);
     }
 
     /**
