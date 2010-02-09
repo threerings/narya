@@ -310,7 +310,6 @@ public abstract class CrowdPeerManager extends PeerManager
         protected Set<String> _waiting;
     }
 
-    @Inject protected InvocationManager _invmgr;
     @Inject protected ChatProvider _chatprov;
 
     protected static final Predicate<ChatHistoryEntry> IS_USER_MESSAGE =
