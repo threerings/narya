@@ -18,13 +18,13 @@ public class ${name}Dispatcher extends InvocationDispatcher<${name}Marshaller>
         this.provider = provider;
     }
 
-    @Override // documentation inherited
+    @Override
     public ${name}Marshaller createMarshaller ()
     {
         return new ${name}Marshaller();
     }
 
-    @Override // documentation inherited
+    @Override
     public void dispatchRequest (
         ClientObject source, int methodId, Object[] args)
         throws InvocationException

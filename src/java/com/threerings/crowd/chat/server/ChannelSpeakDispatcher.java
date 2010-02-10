@@ -41,13 +41,13 @@ public class ChannelSpeakDispatcher extends InvocationDispatcher<ChannelSpeakMar
         this.provider = provider;
     }
 
-    @Override // documentation inherited
+    @Override
     public ChannelSpeakMarshaller createMarshaller ()
     {
         return new ChannelSpeakMarshaller();
     }
 
-    @Override // documentation inherited
+    @Override
     public void dispatchRequest (
         ClientObject source, int methodId, Object[] args)
         throws InvocationException

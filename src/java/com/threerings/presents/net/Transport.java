@@ -216,13 +216,13 @@ public class Transport
             (_channel == other._channel) ? _channel : 0);
     }
 
-    @Override // documentation inherited
+    @Override
     public int hashCode ()
     {
         return 31*_type.hashCode() + _channel;
     }
 
-    @Override // documentation inherited
+    @Override
     public boolean equals (Object other)
     {
         Transport otrans;
@@ -230,7 +230,7 @@ public class Transport
             otrans._channel == _channel;
     }
 
-    @Override // documentation inherited
+    @Override
     public String toString ()
     {
         return "[type=" + _type + ", channel=" + _channel + "]";

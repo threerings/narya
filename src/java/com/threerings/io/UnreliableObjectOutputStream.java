@@ -123,7 +123,7 @@ public class UnreliableObjectOutputStream extends ObjectOutputStream
         }
     }
 
-    @Override // documentation inherited
+    @Override
     protected Short createInternMapping (short code)
     {
         // the negative intern code indicates that we must rewrite the metadata for the first
@@ -132,14 +132,14 @@ public class UnreliableObjectOutputStream extends ObjectOutputStream
         return (short)-code;
     }
 
-    @Override // documentation inherited
+    @Override
     protected void writeNewInternMapping (short code, String value)
         throws IOException
     {
         writeInternMapping(code, value);
     }
 
-    @Override // documentation inherited
+    @Override
     protected void writeExistingInternMapping (short code, String value)
         throws IOException
     {
@@ -157,7 +157,7 @@ public class UnreliableObjectOutputStream extends ObjectOutputStream
         }
     }
 
-    @Override // documentation inherited
+    @Override
     protected void writeInternMapping (int code, String value)
         throws IOException
     {
@@ -167,7 +167,7 @@ public class UnreliableObjectOutputStream extends ObjectOutputStream
         _mappedInterns.add(value);
     }
 
-    @Override // documentation inherited
+    @Override
     protected ClassMapping createClassMapping (short code, Class<?> sclass, Streamer streamer)
     {
         // the negative class code indicates that we must rewrite the metadata for the first
@@ -176,14 +176,14 @@ public class UnreliableObjectOutputStream extends ObjectOutputStream
         return new ClassMapping((short)(-code), sclass, streamer);
     }
 
-    @Override // documentation inherited
+    @Override
     protected void writeNewClassMapping (ClassMapping cmap)
         throws IOException
     {
         writeClassMapping(cmap.code, cmap.sclass);
     }
 
-    @Override // documentation inherited
+    @Override
     protected void writeExistingClassMapping (ClassMapping cmap)
         throws IOException
     {
@@ -201,7 +201,7 @@ public class UnreliableObjectOutputStream extends ObjectOutputStream
         }
     }
 
-    @Override // documentation inherited
+    @Override
     protected void writeClassMapping (int code, Class<?> sclass)
         throws IOException
     {

@@ -40,13 +40,13 @@ public class BodyDispatcher extends InvocationDispatcher<BodyMarshaller>
         this.provider = provider;
     }
 
-    @Override // documentation inherited
+    @Override
     public BodyMarshaller createMarshaller ()
     {
         return new BodyMarshaller();
     }
 
-    @Override // documentation inherited
+    @Override
     public void dispatchRequest (
         ClientObject source, int methodId, Object[] args)
         throws InvocationException

@@ -39,13 +39,13 @@ public class TimeBaseDispatcher extends InvocationDispatcher<TimeBaseMarshaller>
         this.provider = provider;
     }
 
-    @Override // documentation inherited
+    @Override
     public TimeBaseMarshaller createMarshaller ()
     {
         return new TimeBaseMarshaller();
     }
 
-    @Override // documentation inherited
+    @Override
     public void dispatchRequest (
         ClientObject source, int methodId, Object[] args)
         throws InvocationException

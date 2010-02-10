@@ -41,13 +41,13 @@ public class TestDispatcher extends InvocationDispatcher<TestMarshaller>
         this.provider = provider;
     }
 
-    @Override // documentation inherited
+    @Override
     public TestMarshaller createMarshaller ()
     {
         return new TestMarshaller();
     }
 
-    @Override // documentation inherited
+    @Override
     public void dispatchRequest (
         ClientObject source, int methodId, Object[] args)
         throws InvocationException

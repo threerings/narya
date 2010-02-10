@@ -44,13 +44,13 @@ public class LocationDecoder extends InvocationDecoder
         this.receiver = receiver;
     }
 
-    @Override // documentation inherited
+    @Override
     public String getReceiverCode ()
     {
         return RECEIVER_CODE;
     }
 
-    @Override // documentation inherited
+    @Override
     public void dispatchNotification (int methodId, Object[] args)
     {
         switch (methodId) {

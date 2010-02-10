@@ -44,13 +44,13 @@ public class FramingOutputStream extends ByteBufferOutputStream
         _buffer.put(HEADER_PAD);
     }
 
-    @Override // documentation inherited
+    @Override
     public ByteBuffer flip ()
     {
         throw new UnsupportedOperationException("Use frameAndReturnBuffer() instead.");
     }
 
-    @Override // documentation inherited
+    @Override
     public void reset ()
     {
         throw new UnsupportedOperationException("Use resetFrame() instead.");

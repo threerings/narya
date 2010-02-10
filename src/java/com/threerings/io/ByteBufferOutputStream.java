@@ -66,7 +66,7 @@ public class ByteBufferOutputStream extends OutputStream
         _buffer.clear();
     }
 
-    @Override // documentation inherited
+    @Override
     public void write (int b)
     {
         try {
@@ -77,7 +77,7 @@ public class ByteBufferOutputStream extends OutputStream
         }
     }
 
-    @Override // documentation inherited
+    @Override
     public void write (byte[] b, int off, int len)
     {
         // sanity check the arguments

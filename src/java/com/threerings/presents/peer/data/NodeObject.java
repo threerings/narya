@@ -96,13 +96,13 @@ public class NodeObject extends DObject
             return this;
         }
 
-        @Override // documentation inherited
+        @Override
         public int hashCode ()
         {
             return type.hashCode() + (id == null ? 0 : id.hashCode());
         }
 
-        @Override // documentation inherited
+        @Override
         public boolean equals (Object other)
         {
             Lock olock = (Lock)other;

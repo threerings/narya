@@ -1315,7 +1315,7 @@ public abstract class PeerManager
             }
         }
 
-        @Override // documentation inherited
+        @Override
         public String toString ()
         {
             return "[node=" + getNodeName() + ", lock=" + _lock + ", acquire=" + _acquire + "]";

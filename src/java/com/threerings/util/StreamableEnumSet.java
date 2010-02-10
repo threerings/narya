@@ -149,7 +149,7 @@ public class StreamableEnumSet<E extends Enum<E>> extends AbstractSet<E>
     {
     }
 
-    @Override // documentation inherited
+    @Override
     public Iterator<E> iterator ()
     {
         return new Iterator<E>() {
@@ -184,13 +184,13 @@ public class StreamableEnumSet<E extends Enum<E>> extends AbstractSet<E>
         };
     }
 
-    @Override // documentation inherited
+    @Override
     public int size ()
     {
         return _size;
     }
 
-    @Override // documentation inherited
+    @Override
     public boolean contains (Object o)
     {
         if (!_elementType.isInstance(o)) {
@@ -201,7 +201,7 @@ public class StreamableEnumSet<E extends Enum<E>> extends AbstractSet<E>
         return (_contents[idx] & mask) != 0;
     }
 
-    @Override // documentation inherited
+    @Override
     public boolean add (E o)
     {
         int ordinal = _elementType.cast(o).ordinal();
@@ -215,7 +215,7 @@ public class StreamableEnumSet<E extends Enum<E>> extends AbstractSet<E>
         return false;
     }
 
-    @Override // documentation inherited
+    @Override
     public boolean remove (Object o)
     {
         if (!_elementType.isInstance(o)) {
@@ -232,7 +232,7 @@ public class StreamableEnumSet<E extends Enum<E>> extends AbstractSet<E>
         return false;
     }
 
-    @Override // documentation inherited
+    @Override
     public void clear ()
     {
         Arrays.fill(_contents, (byte)0);
@@ -240,7 +240,7 @@ public class StreamableEnumSet<E extends Enum<E>> extends AbstractSet<E>
         _modcount++;
     }
 
-    @Override // documentation inherited
+    @Override
     public StreamableEnumSet<E> clone ()
     {
         try {

@@ -41,13 +41,13 @@ public class LocationDispatcher extends InvocationDispatcher<LocationMarshaller>
         this.provider = provider;
     }
 
-    @Override // documentation inherited
+    @Override
     public LocationMarshaller createMarshaller ()
     {
         return new LocationMarshaller();
     }
 
-    @Override // documentation inherited
+    @Override
     public void dispatchRequest (
         ClientObject source, int methodId, Object[] args)
         throws InvocationException

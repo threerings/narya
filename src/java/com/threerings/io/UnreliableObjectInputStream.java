@@ -37,7 +37,7 @@ public class UnreliableObjectInputStream extends ObjectInputStream
         super(source);
     }
 
-    @Override // documentation inherited
+    @Override
     protected ClassMapping mapClass (short code, String cname)
         throws IOException, ClassNotFoundException
     {
@@ -62,7 +62,7 @@ public class UnreliableObjectInputStream extends ObjectInputStream
         return cmap;
     }
 
-    @Override // documentation inherited
+    @Override
     protected void mapIntern (short code, String value)
     {
         // see if we already have a mapping

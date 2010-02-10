@@ -44,13 +44,13 @@ public class CrowdPeerDispatcher extends InvocationDispatcher<CrowdPeerMarshalle
         this.provider = provider;
     }
 
-    @Override // documentation inherited
+    @Override
     public CrowdPeerMarshaller createMarshaller ()
     {
         return new CrowdPeerMarshaller();
     }
 
-    @Override // documentation inherited
+    @Override
     public void dispatchRequest (
         ClientObject source, int methodId, Object[] args)
         throws InvocationException

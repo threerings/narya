@@ -52,14 +52,14 @@ public class ForwardEventRequest extends UpstreamMessage
         return _event;
     }
 
-    @Override // documentation inherited
+    @Override
     public void setTransport (Transport transport)
     {
         // the event handles the transport
         _event.setTransport(transport);
     }
 
-    @Override // documentation inherited
+    @Override
     public Transport getTransport ()
     {
         return _event.getTransport();

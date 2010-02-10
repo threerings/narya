@@ -42,13 +42,13 @@ public class PeerDispatcher extends InvocationDispatcher<PeerMarshaller>
         this.provider = provider;
     }
 
-    @Override // documentation inherited
+    @Override
     public PeerMarshaller createMarshaller ()
     {
         return new PeerMarshaller();
     }
 
-    @Override // documentation inherited
+    @Override
     public void dispatchRequest (
         ClientObject source, int methodId, Object[] args)
         throws InvocationException

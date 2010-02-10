@@ -40,13 +40,13 @@ public class BureauDispatcher extends InvocationDispatcher<BureauMarshaller>
         this.provider = provider;
     }
 
-    @Override // documentation inherited
+    @Override
     public BureauMarshaller createMarshaller ()
     {
         return new BureauMarshaller();
     }
 
-    @Override // documentation inherited
+    @Override
     public void dispatchRequest (
         ClientObject source, int methodId, Object[] args)
         throws InvocationException

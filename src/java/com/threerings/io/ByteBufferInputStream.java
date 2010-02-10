@@ -49,7 +49,7 @@ public class ByteBufferInputStream extends InputStream
         return _buffer;
     }
 
-    @Override // documentation inherited
+    @Override
     public int read ()
     {
         try {
@@ -59,7 +59,7 @@ public class ByteBufferInputStream extends InputStream
         }
     }
 
-    @Override // documentation inherited
+    @Override
     public int read (byte[] b, int offset, int length)
         throws IOException
     {
@@ -71,7 +71,7 @@ public class ByteBufferInputStream extends InputStream
         return length;
     }
 
-    @Override // documentation inherited
+    @Override
     public long skip (long n)
         throws IOException
     {
@@ -80,25 +80,25 @@ public class ByteBufferInputStream extends InputStream
         return n;
     }
 
-    @Override // documentation inherited
+    @Override
     public int available ()
     {
         return _buffer.remaining();
     }
 
-    @Override // documentation inherited
+    @Override
     public boolean markSupported ()
     {
         return true;
     }
 
-    @Override // documentation inherited
+    @Override
     public void mark (int readLimit)
     {
         _buffer.mark();
     }
 
-    @Override // documentation inherited
+    @Override
     public void reset ()
         throws IOException
     {

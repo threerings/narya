@@ -95,13 +95,13 @@ public class PingRequest extends UpstreamMessage
         in.defaultReadObject();
     }
 
-    @Override // documentation inherited
+    @Override
     public void setTransport (Transport transport)
     {
         _transport = transport;
     }
 
-    @Override // documentation inherited
+    @Override
     public Transport getTransport ()
     {
         return _transport;

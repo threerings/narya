@@ -40,13 +40,13 @@ public class SpeakDispatcher extends InvocationDispatcher<SpeakMarshaller>
         this.provider = provider;
     }
 
-    @Override // documentation inherited
+    @Override
     public SpeakMarshaller createMarshaller ()
     {
         return new SpeakMarshaller();
     }
 
-    @Override // documentation inherited
+    @Override
     public void dispatchRequest (
         ClientObject source, int methodId, Object[] args)
         throws InvocationException

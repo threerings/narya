@@ -49,20 +49,20 @@ public class EventNotification extends DownstreamMessage
         return _event;
     }
 
-    @Override // documentation inherited
+    @Override
     public void setTransport (Transport transport)
     {
         // the event handles the transport
         _event.setTransport(transport);
     }
 
-    @Override // documentation inherited
+    @Override
     public Transport getTransport ()
     {
         return _event.getTransport();
     }
 
-    @Override // documentation inherited
+    @Override
     public void noteActualTransport (Transport transport)
     {
         _event.noteActualTransport(transport);

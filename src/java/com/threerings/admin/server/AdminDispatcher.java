@@ -41,13 +41,13 @@ public class AdminDispatcher extends InvocationDispatcher<AdminMarshaller>
         this.provider = provider;
     }
 
-    @Override // documentation inherited
+    @Override
     public AdminMarshaller createMarshaller ()
     {
         return new AdminMarshaller();
     }
 
-    @Override // documentation inherited
+    @Override
     public void dispatchRequest (
         ClientObject source, int methodId, Object[] args)
         throws InvocationException

@@ -43,13 +43,13 @@ public class ChatDispatcher extends InvocationDispatcher<ChatMarshaller>
         this.provider = provider;
     }
 
-    @Override // documentation inherited
+    @Override
     public ChatMarshaller createMarshaller ()
     {
         return new ChatMarshaller();
     }
 
-    @Override // documentation inherited
+    @Override
     public void dispatchRequest (
         ClientObject source, int methodId, Object[] args)
         throws InvocationException
