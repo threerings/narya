@@ -45,7 +45,6 @@ import com.threerings.presents.peer.data.NodeObject;
 import com.threerings.presents.peer.server.PeerManager;
 import com.threerings.presents.peer.server.PeerNode;
 import com.threerings.presents.server.InvocationException;
-import com.threerings.presents.server.InvocationManager;
 import com.threerings.presents.server.PresentsSession;
 
 import com.threerings.crowd.chat.client.ChatService;

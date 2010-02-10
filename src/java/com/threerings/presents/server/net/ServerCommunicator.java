@@ -24,7 +24,6 @@ package com.threerings.presents.server.net;
 import java.io.IOException;
 
 import com.threerings.presents.client.Client;
-import com.threerings.presents.client.ClientDObjectMgr;
 import com.threerings.presents.client.ClientObserver;
 import com.threerings.presents.client.Communicator;
 import com.threerings.presents.client.ObserverOps;
