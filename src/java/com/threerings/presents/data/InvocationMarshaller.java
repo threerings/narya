@@ -120,10 +120,13 @@ public class InvocationMarshaller
         protected void finalize ()
             throws Throwable
         {
-            if (_invId != null && getClass() != ListenerMarshaller.class) {
-                log.warning("Invocation listener never responded to: " + _invId);
+            try {
+                if (_invId != null && getClass() != ListenerMarshaller.class) {
+                    log.warning("Invocation listener never responded to: " + _invId);
+                }
+            } finally {
+                super.finalize();
             }
-            super.finalize();
         }
 
         /** On the server, the id of the invocation method. */
