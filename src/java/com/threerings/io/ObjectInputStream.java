@@ -24,9 +24,11 @@ package com.threerings.io;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -303,6 +305,27 @@ public class ObjectInputStream extends DataInputStream
 
         // read the instance data
         _streamer.readObject(_current, this, false);
+    }
+
+    /**
+     * Read a string encoded as real UTF-8 (rather than the modified format handled by
+     * {link #readUTF}).
+     */
+    public String readUnmodifiedUTF ()
+        throws IOException
+    {
+        // find out how many raw bytes of UTF8 data there is
+        int utflen = readUnsignedShort();
+        // read precisely that many into a buffer
+        byte[] bbuf = new byte[utflen];
+        in.read(bbuf);
+    
+        // decode the UTF-8 stream into a character buffer
+        char[] cbuf = new char[utflen];
+        int read = new InputStreamReader(new ByteArrayInputStream(bbuf), "UTF-8").read(cbuf);
+    
+        // create and return the string given the number of decoded characters
+        return String.copyValueOf(cbuf, 0, read);
     }
 
     @Override
