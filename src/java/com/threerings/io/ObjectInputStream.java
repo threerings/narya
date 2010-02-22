@@ -24,14 +24,15 @@ package com.threerings.io;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 
+import com.google.common.base.Charsets;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.google.common.io.LineReader;
 
 import com.samskivert.util.StringUtil;
 
@@ -314,18 +315,10 @@ public class ObjectInputStream extends DataInputStream
     public String readUnmodifiedUTF ()
         throws IOException
     {
-        // find out how many raw bytes of UTF8 data there is
-        int utflen = readUnsignedShort();
-        // read precisely that many into a buffer
-        byte[] bbuf = new byte[utflen];
-        in.read(bbuf);
-    
-        // decode the UTF-8 stream into a character buffer
-        char[] cbuf = new char[utflen];
-        int read = new InputStreamReader(new ByteArrayInputStream(bbuf), "UTF-8").read(cbuf);
-    
-        // create and return the string given the number of decoded characters
-        return String.copyValueOf(cbuf, 0, read);
+        if (_reader == null) {
+            _reader = new LineReader(new InputStreamReader(this, Charsets.UTF_8));
+        }
+        return _reader.readLine();
     }
 
     @Override
@@ -353,6 +346,8 @@ public class ObjectInputStream extends DataInputStream
 
     /** An optional set of class name translations to use when unserializing objects. */
     protected HashMap<String, String> _translations;
+
+    protected LineReader _reader;
 
     /** Used to activate verbose debug logging. */
     protected static final boolean STREAM_DEBUG = false;
