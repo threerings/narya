@@ -143,7 +143,7 @@ public class GenServiceTask extends InvocationTask
         @Override
         public boolean equals (Object other)
         {
-            return getClass().equals(other.getClass()) &&
+            return (other != null) && getClass().equals(other.getClass()) &&
                 listener.equals(((ServiceListener)other).listener);
         }
 

@@ -263,11 +263,6 @@ public abstract class InvocationTask extends Task
             });
         }
 
-        public int compareTo (ServiceMethod other)
-        {
-            return getCode().compareTo(other.getCode());
-        }
-
         public String getUnwrappedArgList (boolean listenerMode)
         {
             StringBuilder buf = new StringBuilder();
@@ -313,6 +308,24 @@ public abstract class InvocationTask extends Task
             }
             return ", Transport.getInstance(Transport.Type." +
                 hint.type().name() + ", " + hint.channel() + ")";
+        }
+
+        // from interface Comparator<ServiceMethod>
+        public int compareTo (ServiceMethod other)
+        {
+            return getCode().compareTo(other.getCode());
+        }
+
+        @Override // from Object
+        public boolean equals (Object other)
+        {
+            return (other instanceof ServiceMethod) && compareTo((ServiceMethod)other) == 0;
+        }
+
+        @Override // from Object
+        public int hashCode ()
+        {
+            return getCode().hashCode();
         }
 
         protected String boxArgument (Class<?> clazz, int index)
