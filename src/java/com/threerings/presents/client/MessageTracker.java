@@ -36,7 +36,8 @@ public interface MessageTracker
     public static final MessageTracker NOOP = new MessageTracker() {
         public void messageSent (boolean datagram, int size, UpstreamMessage msg) {
         }
-        public void messageReceived (boolean datagram, int size, DownstreamMessage msg) {
+        public void messageReceived (
+            boolean datagram, int size, DownstreamMessage msg, int missed) {
         }
     };
 
@@ -47,6 +48,9 @@ public interface MessageTracker
 
     /**
      * Notes that a message has been received.
+     *
+     * @param msg the received message, or <code>null</code> if received out of order.
+     * @param missed the number of messages missed between this message and the one before it.
      */
-    public void messageReceived (boolean datagram, int size, DownstreamMessage msg);
+    public void messageReceived (boolean datagram, int size, DownstreamMessage msg, int missed);
 }

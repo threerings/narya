@@ -102,6 +102,7 @@ public class DatagramSequencer
         if (number <= _lastReceived) {
             return null;
         }
+        _missedCount = number - _lastReceived - 1;
         _lastReceived = number;
 
         // read the acknowledge number and process all send records up to that one
@@ -130,6 +131,14 @@ public class DatagramSequencer
         Message datagram = (Message)_uin.readObject();
         datagram.setTransport(Transport.UNRELIABLE_ORDERED);
         return datagram;
+    }
+
+    /**
+     * Returns the number of datagrams missed between the last and the one before it.
+     */
+    public int getMissedCount ()
+    {
+        return _missedCount;
     }
 
     /**
@@ -167,6 +176,9 @@ public class DatagramSequencer
 
     /** The most recent sequence number received. */
     protected int _lastReceived;
+
+    /** The number of datagrams missed between the last and the one before it. */
+    protected int _missedCount;
 
     /** Records of datagrams sent. */
     protected ArrayList<SendRecord> _sendrecs = Lists.newArrayList();

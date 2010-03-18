@@ -470,7 +470,7 @@ public class BlockingCommunicator extends Communicator
             if (debugLogMessages()) {
                 log.info("RECEIVE " + msg);
             }
-            _client.getMessageTracker().messageReceived(false, size, msg);
+            _client.getMessageTracker().messageReceived(false, size, msg, 0);
             return msg;
 
         } catch (ClassNotFoundException cnfe) {
@@ -496,14 +496,15 @@ public class BlockingCommunicator extends Communicator
         // decode through the sequencer
         try {
             DownstreamMessage msg = (DownstreamMessage)_sequencer.readDatagram();
+            if (_client != null) {
+                _client.getMessageTracker().messageReceived(
+                    true, size, msg, (msg == null) ? 0 : _sequencer.getMissedCount());
+            }
             if (msg == null) {
                 return null; // received out of order
             }
             if (debugLogMessages()) {
                 log.info("DATAGRAM " + msg);
-            }
-            if (_client != null) {
-                _client.getMessageTracker().messageReceived(true, size, msg);
             }
             return msg;
 
