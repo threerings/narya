@@ -320,7 +320,7 @@ public class DSet<E extends DSet.Entry>
         int elength = _entries.length;
         if (_size >= elength) {
             // sanity check
-            if (elength > 2048) {
+            if (elength > getWarningSize()) {
                 log.warning("Requested to expand to questionably large size", "l", elength,
                             new Exception());
             }
@@ -423,6 +423,14 @@ public class DSet<E extends DSet.Entry>
         } else {
             return null;
         }
+    }
+
+    /**
+     * Returns the minimum size where we should warn that we're getting a bit large.
+     */
+    protected int getWarningSize ()
+    {
+        return 2048;
     }
 
     /**
