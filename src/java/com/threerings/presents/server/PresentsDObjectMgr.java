@@ -27,8 +27,6 @@ import java.lang.reflect.Modifier;
 import java.util.List;
 import java.util.Map;
 
-import java.util.concurrent.Executor;
-
 import com.google.common.collect.Maps;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
@@ -38,7 +36,6 @@ import com.samskivert.util.IntMap;
 import com.samskivert.util.IntMaps;
 import com.samskivert.util.Interval;
 import com.samskivert.util.Queue;
-import com.samskivert.util.RunQueue;
 import com.samskivert.util.StringUtil;
 import com.samskivert.util.Throttle;
 
@@ -71,7 +68,7 @@ import static com.threerings.presents.Log.log;
  */
 @Singleton
 public class PresentsDObjectMgr
-    implements RootDObjectManager, RunQueue, Executor
+    implements RootDObjectManager
 {
     /** Returned by {@link #getStats}. */
     public static class Stats
