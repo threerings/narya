@@ -351,7 +351,7 @@ public class MessageBundle
 
     /**
      * Obtains the translation for the specified compound message key. A compound key contains the
-     * message key followed by a tab separated list of message arguments which will be subsituted
+     * message key followed by a tab separated list of message arguments which will be substituted
      * into the translation string.
      *
      * <p> See {@link MessageFormat} for more information on how the substitution is performed. If
