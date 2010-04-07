@@ -21,6 +21,7 @@
 
 package com.threerings.presents.data;
 
+import javax.annotation.Generated;
 import com.threerings.presents.dobj.DObject;
 
 /**
@@ -41,9 +42,13 @@ public class TimeBaseObject extends DObject
 {
     // AUTO-GENERATED: FIELDS START
     /** The field name of the <code>evenBase</code> field. */
+    @Generated(value={"com.threerings.presents.tools.GenDObjectTask"},
+               date="2010-04-06T22:31:00-0700")
     public static final String EVEN_BASE = "evenBase";
 
     /** The field name of the <code>oddBase</code> field. */
+    @Generated(value={"com.threerings.presents.tools.GenDObjectTask"},
+               date="2010-04-06T22:31:00-0700")
     public static final String ODD_BASE = "oddBase";
     // AUTO-GENERATED: FIELDS END
 
@@ -137,6 +142,8 @@ public class TimeBaseObject extends DObject
      * clients) will apply the value change when they received the
      * attribute changed notification.
      */
+    @Generated(value={"com.threerings.presents.tools.GenDObjectTask"},
+               date="2010-04-06T22:31:00-0700")
     public void setEvenBase (long value)
     {
         long ovalue = this.evenBase;
@@ -153,6 +160,8 @@ public class TimeBaseObject extends DObject
      * clients) will apply the value change when they received the
      * attribute changed notification.
      */
+    @Generated(value={"com.threerings.presents.tools.GenDObjectTask"},
+               date="2010-04-06T22:31:00-0700")
     public void setOddBase (long value)
     {
         long ovalue = this.oddBase;

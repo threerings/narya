@@ -24,6 +24,7 @@ package com.threerings.admin.data;
 import java.lang.reflect.Field;
 
 import javax.swing.JPanel;
+import javax.annotation.Generated;
 
 import com.threerings.presents.dobj.DObject;
 import com.threerings.presents.util.PresentsContext;

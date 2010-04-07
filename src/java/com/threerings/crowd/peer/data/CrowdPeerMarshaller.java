@@ -21,6 +21,8 @@
 
 package com.threerings.crowd.peer.data;
 
+import javax.annotation.Generated;
+
 import com.threerings.crowd.chat.client.ChatService;
 import com.threerings.crowd.chat.data.ChatMarshaller;
 import com.threerings.crowd.chat.data.UserMessage;
@@ -37,6 +39,9 @@ import com.threerings.util.Name;
  * interfaces that marshall the response arguments and deliver them back
  * to the requesting client.
  */
+@Generated(value={"com.threerings.presents.tools.GenServiceTask"},
+           date="2010-04-06T22:31:00-0700",
+           comments="Derived from the Service class java source.")
 public class CrowdPeerMarshaller extends InvocationMarshaller
     implements CrowdPeerService
 {

@@ -21,6 +21,8 @@
 
 package com.threerings.crowd.chat.server;
 
+import javax.annotation.Generated;
+
 import com.threerings.crowd.chat.client.ChannelSpeakService;
 import com.threerings.crowd.chat.data.ChatChannel;
 import com.threerings.presents.data.ClientObject;
@@ -29,6 +31,9 @@ import com.threerings.presents.server.InvocationProvider;
 /**
  * Defines the server-side of the {@link ChannelSpeakService}.
  */
+@Generated(value={"com.threerings.presents.tools.GenServiceTask"},
+           date="2010-04-06T22:31:00-0700",
+           comments="Derived from the Service class java source.")
 public interface ChannelSpeakProvider extends InvocationProvider
 {
     /**

@@ -21,6 +21,8 @@
 
 package com.threerings.bureau.server;
 
+import javax.annotation.Generated;
+
 import com.threerings.bureau.data.BureauMarshaller;
 import com.threerings.presents.data.ClientObject;
 import com.threerings.presents.server.InvocationDispatcher;
@@ -29,6 +31,9 @@ import com.threerings.presents.server.InvocationException;
 /**
  * Dispatches requests to the {@link BureauProvider}.
  */
+@Generated(value={"com.threerings.presents.tools.GenServiceTask"},
+           date="2010-04-06T22:31:00-0700",
+           comments="Derived from the Service class java source.")
 public class BureauDispatcher extends InvocationDispatcher<BureauMarshaller>
 {
     /**

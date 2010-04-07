@@ -21,6 +21,8 @@
 
 package com.threerings.bureau.data;
 
+import javax.annotation.Generated;
+
 import com.threerings.bureau.client.BureauService;
 import com.threerings.presents.client.Client;
 import com.threerings.presents.data.InvocationMarshaller;
@@ -32,6 +34,9 @@ import com.threerings.presents.data.InvocationMarshaller;
  * interfaces that marshall the response arguments and deliver them back
  * to the requesting client.
  */
+@Generated(value={"com.threerings.presents.tools.GenServiceTask"},
+           date="2010-04-06T22:31:00-0700",
+           comments="Derived from the Service class java source.")
 public class BureauMarshaller extends InvocationMarshaller
     implements BureauService
 {

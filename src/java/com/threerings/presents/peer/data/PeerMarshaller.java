@@ -21,6 +21,8 @@
 
 package com.threerings.presents.peer.data;
 
+import javax.annotation.Generated;
+
 import com.threerings.presents.client.Client;
 import com.threerings.presents.client.InvocationService;
 import com.threerings.presents.data.InvocationMarshaller;
@@ -33,6 +35,9 @@ import com.threerings.presents.peer.client.PeerService;
  * interfaces that marshall the response arguments and deliver them back
  * to the requesting client.
  */
+@Generated(value={"com.threerings.presents.tools.GenServiceTask"},
+           date="2010-04-06T22:31:00-0700",
+           comments="Derived from the Service class java source.")
 public class PeerMarshaller extends InvocationMarshaller
     implements PeerService
 {

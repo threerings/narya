@@ -21,6 +21,7 @@
 
 package com.threerings.bureau.data;
 
+import javax.annotation.Generated;
 import com.threerings.presents.data.ClientObject;
 
 /**

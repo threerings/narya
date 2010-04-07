@@ -21,6 +21,7 @@
 
 package com.threerings.bureau.data;
 
+import javax.annotation.Generated;
 import com.threerings.presents.dobj.DObject;
 
 /**
@@ -30,18 +31,28 @@ public class AgentObject extends DObject
 {
     // AUTO-GENERATED: FIELDS START
     /** The field name of the <code>bureauId</code> field. */
+    @Generated(value={"com.threerings.presents.tools.GenDObjectTask"},
+               date="2010-04-06T22:31:00-0700")
     public static final String BUREAU_ID = "bureauId";
 
     /** The field name of the <code>bureauType</code> field. */
+    @Generated(value={"com.threerings.presents.tools.GenDObjectTask"},
+               date="2010-04-06T22:31:00-0700")
     public static final String BUREAU_TYPE = "bureauType";
 
     /** The field name of the <code>code</code> field. */
+    @Generated(value={"com.threerings.presents.tools.GenDObjectTask"},
+               date="2010-04-06T22:31:00-0700")
     public static final String CODE = "code";
 
     /** The field name of the <code>className</code> field. */
+    @Generated(value={"com.threerings.presents.tools.GenDObjectTask"},
+               date="2010-04-06T22:31:00-0700")
     public static final String CLASS_NAME = "className";
 
     /** The field name of the <code>clientOid</code> field. */
+    @Generated(value={"com.threerings.presents.tools.GenDObjectTask"},
+               date="2010-04-06T22:31:00-0700")
     public static final String CLIENT_OID = "clientOid";
     // AUTO-GENERATED: FIELDS END
 
@@ -85,6 +96,8 @@ public class AgentObject extends DObject
      * clients) will apply the value change when they received the
      * attribute changed notification.
      */
+    @Generated(value={"com.threerings.presents.tools.GenDObjectTask"},
+               date="2010-04-06T22:31:00-0700")
     public void setBureauId (String value)
     {
         String ovalue = this.bureauId;
@@ -101,6 +114,8 @@ public class AgentObject extends DObject
      * clients) will apply the value change when they received the
      * attribute changed notification.
      */
+    @Generated(value={"com.threerings.presents.tools.GenDObjectTask"},
+               date="2010-04-06T22:31:00-0700")
     public void setBureauType (String value)
     {
         String ovalue = this.bureauType;
@@ -117,6 +132,8 @@ public class AgentObject extends DObject
      * clients) will apply the value change when they received the
      * attribute changed notification.
      */
+    @Generated(value={"com.threerings.presents.tools.GenDObjectTask"},
+               date="2010-04-06T22:31:00-0700")
     public void setCode (String value)
     {
         String ovalue = this.code;
@@ -133,6 +150,8 @@ public class AgentObject extends DObject
      * clients) will apply the value change when they received the
      * attribute changed notification.
      */
+    @Generated(value={"com.threerings.presents.tools.GenDObjectTask"},
+               date="2010-04-06T22:31:00-0700")
     public void setClassName (String value)
     {
         String ovalue = this.className;
@@ -149,6 +168,8 @@ public class AgentObject extends DObject
      * clients) will apply the value change when they received the
      * attribute changed notification.
      */
+    @Generated(value={"com.threerings.presents.tools.GenDObjectTask"},
+               date="2010-04-06T22:31:00-0700")
     public void setClientOid (int value)
     {
         int ovalue = this.clientOid;

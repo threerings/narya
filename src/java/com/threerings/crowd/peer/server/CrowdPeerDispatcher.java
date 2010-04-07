@@ -21,6 +21,8 @@
 
 package com.threerings.crowd.peer.server;
 
+import javax.annotation.Generated;
+
 import com.threerings.crowd.chat.client.ChatService;
 import com.threerings.crowd.chat.data.UserMessage;
 import com.threerings.crowd.peer.data.CrowdPeerMarshaller;
@@ -33,6 +35,9 @@ import com.threerings.util.Name;
 /**
  * Dispatches requests to the {@link CrowdPeerProvider}.
  */
+@Generated(value={"com.threerings.presents.tools.GenServiceTask"},
+           date="2010-04-06T22:31:00-0700",
+           comments="Derived from the Service class java source.")
 public class CrowdPeerDispatcher extends InvocationDispatcher<CrowdPeerMarshaller>
 {
     /**
