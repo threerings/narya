@@ -1,5 +1,7 @@
 package $package;
 
+import javax.annotation.Generated;
+
 #foreach ($import in $imports)
 import $import;
 #end
@@ -7,6 +9,7 @@ import $import;
 /**
  * Defines the server-side of the {@link ${name}Service}.
  */
+${generated}
 public interface ${name}Provider extends InvocationProvider
 {
 #foreach ($m in $methods)

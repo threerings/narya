@@ -53,6 +53,7 @@ public class SourceFile
         while ((line = bin.readLine()) != null) {
             llist.add(line);
         }
+        maybeAddGeneratedImport(llist);
         _lines = llist.toArray(new String[llist.size()]);
         bin.close();
 
@@ -212,6 +213,45 @@ public class SourceFile
     {
         bout.write(line);
         bout.newLine();
+    }
+
+    /**
+     * Add an import for "@Generated", if needed.
+     */
+    protected void maybeAddGeneratedImport (ArrayList<String> lines)
+    {
+        final String IMPORT = "import javax.annotation.Generated;";
+
+        int packageLine = -1;
+        int lastJavaImport = -1;
+        int firstNonJavaImport = -1;
+        for (int ii = 0, nn = lines.size(); ii < nn; ii++) {
+            String line = lines.get(ii).trim();
+            if (line.equals(IMPORT)) {
+                return; // we already got one!
+
+            } else if (line.startsWith("package ")) {
+                packageLine = ii;
+
+            } else if (line.startsWith("import java")) {
+                lastJavaImport = ii;
+
+            } else if (firstNonJavaImport == -1 && line.startsWith("import ")) {
+                firstNonJavaImport = ii;
+            }
+        }
+
+        int insertPoint;
+        if (lastJavaImport != -1) {
+            insertPoint = lastJavaImport + 1;
+
+        } else if (firstNonJavaImport != -1) {
+            insertPoint = firstNonJavaImport;
+
+        } else {
+            insertPoint = packageLine + 1;
+        }
+        lines.add(insertPoint, IMPORT);
     }
 
     protected String[] _lines;

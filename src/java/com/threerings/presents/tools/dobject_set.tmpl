@@ -3,6 +3,7 @@
      * <code>$field</code> set. The set will not change until the event is
      * actually propagated through the system.
      */
+    ${generated}
     public void addTo$upfield ($etype elem)
     {
         requestEntryAdd($capfield, $field, elem);
@@ -13,6 +14,7 @@
      * the <code>$field</code> set. The set will not change until the
      * event is actually propagated through the system.
      */
+    ${generated}
     public void removeFrom$upfield (Comparable<?> key)
     {
         requestEntryRemove($capfield, $field, key);
@@ -23,6 +25,7 @@
      * <code>$field</code> set. The set will not change until the event is
      * actually propagated through the system.
      */
+    ${generated}
     public void update$upfield ($etype elem)
     {
         requestEntryUpdate($capfield, $field, elem$transport);
@@ -38,6 +41,7 @@
      * change. Proxied copies of this object (on clients) will apply the
      * value change when they received the attribute changed notification.
      */
+    ${generated}
     public void set$upfield ($type value)
     {
         requestAttributeChange($capfield, value, this.$field);

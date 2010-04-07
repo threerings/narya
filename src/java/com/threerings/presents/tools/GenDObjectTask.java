@@ -171,6 +171,7 @@ public class GenDObjectTask extends Task
             // create our velocity context
             VelocityContext ctx = new VelocityContext();
             ctx.put("field", fname);
+            ctx.put("generated", GenUtil.getGeneratedAnnotation(getClass(), 4));
             ctx.put("type", GenUtil.simpleName(f));
             ctx.put("wrapfield", GenUtil.boxArgument(ftype, "value"));
             ctx.put("wrapofield", GenUtil.boxArgument(ftype, "ovalue"));
