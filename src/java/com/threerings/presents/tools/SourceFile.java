@@ -120,7 +120,7 @@ public class SourceFile
                 return true;
             }
         }
-        return true;
+        return false;
     }
 
     /**
