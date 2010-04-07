@@ -36,8 +36,7 @@ import com.threerings.util.Name;
  * Dispatches requests to the {@link CrowdPeerProvider}.
  */
 @Generated(value={"com.threerings.presents.tools.GenServiceTask"},
-           date="2010-04-06T22:31:00-0700",
-           comments="Derived from the Service class java source.")
+           comments="Derived from CrowdPeerService.java.")
 public class CrowdPeerDispatcher extends InvocationDispatcher<CrowdPeerMarshaller>
 {
     /**

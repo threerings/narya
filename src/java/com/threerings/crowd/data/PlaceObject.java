@@ -45,18 +45,15 @@ public class PlaceObject extends DObject
 {
     // AUTO-GENERATED: FIELDS START
     /** The field name of the <code>occupants</code> field. */
-    @Generated(value={"com.threerings.presents.tools.GenDObjectTask"},
-               date="2010-04-06T22:31:00-0700")
+    @Generated(value={"com.threerings.presents.tools.GenDObjectTask"})
     public static final String OCCUPANTS = "occupants";
 
     /** The field name of the <code>occupantInfo</code> field. */
-    @Generated(value={"com.threerings.presents.tools.GenDObjectTask"},
-               date="2010-04-06T22:31:00-0700")
+    @Generated(value={"com.threerings.presents.tools.GenDObjectTask"})
     public static final String OCCUPANT_INFO = "occupantInfo";
 
     /** The field name of the <code>speakService</code> field. */
-    @Generated(value={"com.threerings.presents.tools.GenDObjectTask"},
-               date="2010-04-06T22:31:00-0700")
+    @Generated(value={"com.threerings.presents.tools.GenDObjectTask"})
     public static final String SPEAK_SERVICE = "speakService";
     // AUTO-GENERATED: FIELDS END
 
@@ -154,8 +151,7 @@ public class PlaceObject extends DObject
      * oid list. The list will not change until the event is actually
      * propagated through the system.
      */
-    @Generated(value={"com.threerings.presents.tools.GenDObjectTask"},
-               date="2010-04-06T22:31:00-0700")
+    @Generated(value={"com.threerings.presents.tools.GenDObjectTask"})
     public void addToOccupants (int oid)
     {
         requestOidAdd(OCCUPANTS, oid);
@@ -166,8 +162,7 @@ public class PlaceObject extends DObject
      * <code>occupants</code> oid list. The list will not change until the
      * event is actually propagated through the system.
      */
-    @Generated(value={"com.threerings.presents.tools.GenDObjectTask"},
-               date="2010-04-06T22:31:00-0700")
+    @Generated(value={"com.threerings.presents.tools.GenDObjectTask"})
     public void removeFromOccupants (int oid)
     {
         requestOidRemove(OCCUPANTS, oid);
@@ -178,8 +173,7 @@ public class PlaceObject extends DObject
      * <code>occupantInfo</code> set. The set will not change until the event is
      * actually propagated through the system.
      */
-    @Generated(value={"com.threerings.presents.tools.GenDObjectTask"},
-               date="2010-04-06T22:31:00-0700")
+    @Generated(value={"com.threerings.presents.tools.GenDObjectTask"})
     public void addToOccupantInfo (OccupantInfo elem)
     {
         requestEntryAdd(OCCUPANT_INFO, occupantInfo, elem);
@@ -190,8 +184,7 @@ public class PlaceObject extends DObject
      * the <code>occupantInfo</code> set. The set will not change until the
      * event is actually propagated through the system.
      */
-    @Generated(value={"com.threerings.presents.tools.GenDObjectTask"},
-               date="2010-04-06T22:31:00-0700")
+    @Generated(value={"com.threerings.presents.tools.GenDObjectTask"})
     public void removeFromOccupantInfo (Comparable<?> key)
     {
         requestEntryRemove(OCCUPANT_INFO, occupantInfo, key);
@@ -202,8 +195,7 @@ public class PlaceObject extends DObject
      * <code>occupantInfo</code> set. The set will not change until the event is
      * actually propagated through the system.
      */
-    @Generated(value={"com.threerings.presents.tools.GenDObjectTask"},
-               date="2010-04-06T22:31:00-0700")
+    @Generated(value={"com.threerings.presents.tools.GenDObjectTask"})
     public void updateOccupantInfo (OccupantInfo elem)
     {
         requestEntryUpdate(OCCUPANT_INFO, occupantInfo, elem);
@@ -219,8 +211,7 @@ public class PlaceObject extends DObject
      * change. Proxied copies of this object (on clients) will apply the
      * value change when they received the attribute changed notification.
      */
-    @Generated(value={"com.threerings.presents.tools.GenDObjectTask"},
-               date="2010-04-06T22:31:00-0700")
+    @Generated(value={"com.threerings.presents.tools.GenDObjectTask"})
     public void setOccupantInfo (DSet<OccupantInfo> value)
     {
         requestAttributeChange(OCCUPANT_INFO, value, this.occupantInfo);
@@ -236,8 +227,7 @@ public class PlaceObject extends DObject
      * clients) will apply the value change when they received the
      * attribute changed notification.
      */
-    @Generated(value={"com.threerings.presents.tools.GenDObjectTask"},
-               date="2010-04-06T22:31:00-0700")
+    @Generated(value={"com.threerings.presents.tools.GenDObjectTask"})
     public void setSpeakService (SpeakMarshaller value)
     {
         SpeakMarshaller ovalue = this.speakService;

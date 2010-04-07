@@ -40,8 +40,7 @@ import com.threerings.util.Name;
  * to the requesting client.
  */
 @Generated(value={"com.threerings.presents.tools.GenServiceTask"},
-           date="2010-04-06T22:31:00-0700",
-           comments="Derived from the Service class java source.")
+           comments="Derived from CrowdPeerService.java.")
 public class CrowdPeerMarshaller extends InvocationMarshaller
     implements CrowdPeerService
 {

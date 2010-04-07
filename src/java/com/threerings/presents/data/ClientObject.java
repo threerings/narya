@@ -36,13 +36,11 @@ public class ClientObject extends DObject
 {
     // AUTO-GENERATED: FIELDS START
     /** The field name of the <code>username</code> field. */
-    @Generated(value={"com.threerings.presents.tools.GenDObjectTask"},
-               date="2010-04-06T22:31:00-0700")
+    @Generated(value={"com.threerings.presents.tools.GenDObjectTask"})
     public static final String USERNAME = "username";
 
     /** The field name of the <code>receivers</code> field. */
-    @Generated(value={"com.threerings.presents.tools.GenDObjectTask"},
-               date="2010-04-06T22:31:00-0700")
+    @Generated(value={"com.threerings.presents.tools.GenDObjectTask"})
     public static final String RECEIVERS = "receivers";
     // AUTO-GENERATED: FIELDS END
 
@@ -144,8 +142,7 @@ public class ClientObject extends DObject
      * clients) will apply the value change when they received the
      * attribute changed notification.
      */
-    @Generated(value={"com.threerings.presents.tools.GenDObjectTask"},
-               date="2010-04-06T22:31:00-0700")
+    @Generated(value={"com.threerings.presents.tools.GenDObjectTask"})
     public void setUsername (Name value)
     {
         Name ovalue = this.username;
@@ -159,8 +156,7 @@ public class ClientObject extends DObject
      * <code>receivers</code> set. The set will not change until the event is
      * actually propagated through the system.
      */
-    @Generated(value={"com.threerings.presents.tools.GenDObjectTask"},
-               date="2010-04-06T22:31:00-0700")
+    @Generated(value={"com.threerings.presents.tools.GenDObjectTask"})
     public void addToReceivers (InvocationReceiver.Registration elem)
     {
         requestEntryAdd(RECEIVERS, receivers, elem);
@@ -171,8 +167,7 @@ public class ClientObject extends DObject
      * the <code>receivers</code> set. The set will not change until the
      * event is actually propagated through the system.
      */
-    @Generated(value={"com.threerings.presents.tools.GenDObjectTask"},
-               date="2010-04-06T22:31:00-0700")
+    @Generated(value={"com.threerings.presents.tools.GenDObjectTask"})
     public void removeFromReceivers (Comparable<?> key)
     {
         requestEntryRemove(RECEIVERS, receivers, key);
@@ -183,8 +178,7 @@ public class ClientObject extends DObject
      * <code>receivers</code> set. The set will not change until the event is
      * actually propagated through the system.
      */
-    @Generated(value={"com.threerings.presents.tools.GenDObjectTask"},
-               date="2010-04-06T22:31:00-0700")
+    @Generated(value={"com.threerings.presents.tools.GenDObjectTask"})
     public void updateReceivers (InvocationReceiver.Registration elem)
     {
         requestEntryUpdate(RECEIVERS, receivers, elem);
@@ -200,8 +194,7 @@ public class ClientObject extends DObject
      * change. Proxied copies of this object (on clients) will apply the
      * value change when they received the attribute changed notification.
      */
-    @Generated(value={"com.threerings.presents.tools.GenDObjectTask"},
-               date="2010-04-06T22:31:00-0700")
+    @Generated(value={"com.threerings.presents.tools.GenDObjectTask"})
     public void setReceivers (DSet<InvocationReceiver.Registration> value)
     {
         requestAttributeChange(RECEIVERS, value, this.receivers);

@@ -32,8 +32,7 @@ import com.threerings.presents.server.InvocationException;
  * Dispatches requests to the {@link SpeakProvider}.
  */
 @Generated(value={"com.threerings.presents.tools.GenServiceTask"},
-           date="2010-04-06T22:31:00-0700",
-           comments="Derived from the Service class java source.")
+           comments="Derived from SpeakService.java.")
 public class SpeakDispatcher extends InvocationDispatcher<SpeakMarshaller>
 {
     /**

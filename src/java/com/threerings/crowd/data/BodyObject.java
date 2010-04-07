@@ -36,18 +36,15 @@ public class BodyObject extends ClientObject
 {
     // AUTO-GENERATED: FIELDS START
     /** The field name of the <code>location</code> field. */
-    @Generated(value={"com.threerings.presents.tools.GenDObjectTask"},
-               date="2010-04-06T22:31:00-0700")
+    @Generated(value={"com.threerings.presents.tools.GenDObjectTask"})
     public static final String LOCATION = "location";
 
     /** The field name of the <code>status</code> field. */
-    @Generated(value={"com.threerings.presents.tools.GenDObjectTask"},
-               date="2010-04-06T22:31:00-0700")
+    @Generated(value={"com.threerings.presents.tools.GenDObjectTask"})
     public static final String STATUS = "status";
 
     /** The field name of the <code>awayMessage</code> field. */
-    @Generated(value={"com.threerings.presents.tools.GenDObjectTask"},
-               date="2010-04-06T22:31:00-0700")
+    @Generated(value={"com.threerings.presents.tools.GenDObjectTask"})
     public static final String AWAY_MESSAGE = "awayMessage";
     // AUTO-GENERATED: FIELDS END
 
@@ -149,8 +146,7 @@ public class BodyObject extends ClientObject
      * clients) will apply the value change when they received the
      * attribute changed notification.
      */
-    @Generated(value={"com.threerings.presents.tools.GenDObjectTask"},
-               date="2010-04-06T22:31:00-0700")
+    @Generated(value={"com.threerings.presents.tools.GenDObjectTask"})
     public void setLocation (Place value)
     {
         Place ovalue = this.location;
@@ -167,8 +163,7 @@ public class BodyObject extends ClientObject
      * clients) will apply the value change when they received the
      * attribute changed notification.
      */
-    @Generated(value={"com.threerings.presents.tools.GenDObjectTask"},
-               date="2010-04-06T22:31:00-0700")
+    @Generated(value={"com.threerings.presents.tools.GenDObjectTask"})
     public void setStatus (byte value)
     {
         byte ovalue = this.status;
@@ -185,8 +180,7 @@ public class BodyObject extends ClientObject
      * clients) will apply the value change when they received the
      * attribute changed notification.
      */
-    @Generated(value={"com.threerings.presents.tools.GenDObjectTask"},
-               date="2010-04-06T22:31:00-0700")
+    @Generated(value={"com.threerings.presents.tools.GenDObjectTask"})
     public void setAwayMessage (String value)
     {
         String ovalue = this.awayMessage;

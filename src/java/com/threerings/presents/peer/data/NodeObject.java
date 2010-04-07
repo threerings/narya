@@ -37,43 +37,35 @@ public class NodeObject extends DObject
 {
     // AUTO-GENERATED: FIELDS START
     /** The field name of the <code>nodeName</code> field. */
-    @Generated(value={"com.threerings.presents.tools.GenDObjectTask"},
-               date="2010-04-06T22:31:00-0700")
+    @Generated(value={"com.threerings.presents.tools.GenDObjectTask"})
     public static final String NODE_NAME = "nodeName";
 
     /** The field name of the <code>bootStamp</code> field. */
-    @Generated(value={"com.threerings.presents.tools.GenDObjectTask"},
-               date="2010-04-06T22:31:00-0700")
+    @Generated(value={"com.threerings.presents.tools.GenDObjectTask"})
     public static final String BOOT_STAMP = "bootStamp";
 
     /** The field name of the <code>peerService</code> field. */
-    @Generated(value={"com.threerings.presents.tools.GenDObjectTask"},
-               date="2010-04-06T22:31:00-0700")
+    @Generated(value={"com.threerings.presents.tools.GenDObjectTask"})
     public static final String PEER_SERVICE = "peerService";
 
     /** The field name of the <code>clients</code> field. */
-    @Generated(value={"com.threerings.presents.tools.GenDObjectTask"},
-               date="2010-04-06T22:31:00-0700")
+    @Generated(value={"com.threerings.presents.tools.GenDObjectTask"})
     public static final String CLIENTS = "clients";
 
     /** The field name of the <code>locks</code> field. */
-    @Generated(value={"com.threerings.presents.tools.GenDObjectTask"},
-               date="2010-04-06T22:31:00-0700")
+    @Generated(value={"com.threerings.presents.tools.GenDObjectTask"})
     public static final String LOCKS = "locks";
 
     /** The field name of the <code>acquiringLock</code> field. */
-    @Generated(value={"com.threerings.presents.tools.GenDObjectTask"},
-               date="2010-04-06T22:31:00-0700")
+    @Generated(value={"com.threerings.presents.tools.GenDObjectTask"})
     public static final String ACQUIRING_LOCK = "acquiringLock";
 
     /** The field name of the <code>releasingLock</code> field. */
-    @Generated(value={"com.threerings.presents.tools.GenDObjectTask"},
-               date="2010-04-06T22:31:00-0700")
+    @Generated(value={"com.threerings.presents.tools.GenDObjectTask"})
     public static final String RELEASING_LOCK = "releasingLock";
 
     /** The field name of the <code>cacheData</code> field. */
-    @Generated(value={"com.threerings.presents.tools.GenDObjectTask"},
-               date="2010-04-06T22:31:00-0700")
+    @Generated(value={"com.threerings.presents.tools.GenDObjectTask"})
     public static final String CACHE_DATA = "cacheData";
     // AUTO-GENERATED: FIELDS END
 
@@ -180,8 +172,7 @@ public class NodeObject extends DObject
      * clients) will apply the value change when they received the
      * attribute changed notification.
      */
-    @Generated(value={"com.threerings.presents.tools.GenDObjectTask"},
-               date="2010-04-06T22:31:00-0700")
+    @Generated(value={"com.threerings.presents.tools.GenDObjectTask"})
     public void setNodeName (String value)
     {
         String ovalue = this.nodeName;
@@ -198,8 +189,7 @@ public class NodeObject extends DObject
      * clients) will apply the value change when they received the
      * attribute changed notification.
      */
-    @Generated(value={"com.threerings.presents.tools.GenDObjectTask"},
-               date="2010-04-06T22:31:00-0700")
+    @Generated(value={"com.threerings.presents.tools.GenDObjectTask"})
     public void setBootStamp (long value)
     {
         long ovalue = this.bootStamp;
@@ -216,8 +206,7 @@ public class NodeObject extends DObject
      * clients) will apply the value change when they received the
      * attribute changed notification.
      */
-    @Generated(value={"com.threerings.presents.tools.GenDObjectTask"},
-               date="2010-04-06T22:31:00-0700")
+    @Generated(value={"com.threerings.presents.tools.GenDObjectTask"})
     public void setPeerService (PeerMarshaller value)
     {
         PeerMarshaller ovalue = this.peerService;
@@ -231,8 +220,7 @@ public class NodeObject extends DObject
      * <code>clients</code> set. The set will not change until the event is
      * actually propagated through the system.
      */
-    @Generated(value={"com.threerings.presents.tools.GenDObjectTask"},
-               date="2010-04-06T22:31:00-0700")
+    @Generated(value={"com.threerings.presents.tools.GenDObjectTask"})
     public void addToClients (ClientInfo elem)
     {
         requestEntryAdd(CLIENTS, clients, elem);
@@ -243,8 +231,7 @@ public class NodeObject extends DObject
      * the <code>clients</code> set. The set will not change until the
      * event is actually propagated through the system.
      */
-    @Generated(value={"com.threerings.presents.tools.GenDObjectTask"},
-               date="2010-04-06T22:31:00-0700")
+    @Generated(value={"com.threerings.presents.tools.GenDObjectTask"})
     public void removeFromClients (Comparable<?> key)
     {
         requestEntryRemove(CLIENTS, clients, key);
@@ -255,8 +242,7 @@ public class NodeObject extends DObject
      * <code>clients</code> set. The set will not change until the event is
      * actually propagated through the system.
      */
-    @Generated(value={"com.threerings.presents.tools.GenDObjectTask"},
-               date="2010-04-06T22:31:00-0700")
+    @Generated(value={"com.threerings.presents.tools.GenDObjectTask"})
     public void updateClients (ClientInfo elem)
     {
         requestEntryUpdate(CLIENTS, clients, elem);
@@ -272,8 +258,7 @@ public class NodeObject extends DObject
      * change. Proxied copies of this object (on clients) will apply the
      * value change when they received the attribute changed notification.
      */
-    @Generated(value={"com.threerings.presents.tools.GenDObjectTask"},
-               date="2010-04-06T22:31:00-0700")
+    @Generated(value={"com.threerings.presents.tools.GenDObjectTask"})
     public void setClients (DSet<ClientInfo> value)
     {
         requestAttributeChange(CLIENTS, value, this.clients);
@@ -286,8 +271,7 @@ public class NodeObject extends DObject
      * <code>locks</code> set. The set will not change until the event is
      * actually propagated through the system.
      */
-    @Generated(value={"com.threerings.presents.tools.GenDObjectTask"},
-               date="2010-04-06T22:31:00-0700")
+    @Generated(value={"com.threerings.presents.tools.GenDObjectTask"})
     public void addToLocks (NodeObject.Lock elem)
     {
         requestEntryAdd(LOCKS, locks, elem);
@@ -298,8 +282,7 @@ public class NodeObject extends DObject
      * the <code>locks</code> set. The set will not change until the
      * event is actually propagated through the system.
      */
-    @Generated(value={"com.threerings.presents.tools.GenDObjectTask"},
-               date="2010-04-06T22:31:00-0700")
+    @Generated(value={"com.threerings.presents.tools.GenDObjectTask"})
     public void removeFromLocks (Comparable<?> key)
     {
         requestEntryRemove(LOCKS, locks, key);
@@ -310,8 +293,7 @@ public class NodeObject extends DObject
      * <code>locks</code> set. The set will not change until the event is
      * actually propagated through the system.
      */
-    @Generated(value={"com.threerings.presents.tools.GenDObjectTask"},
-               date="2010-04-06T22:31:00-0700")
+    @Generated(value={"com.threerings.presents.tools.GenDObjectTask"})
     public void updateLocks (NodeObject.Lock elem)
     {
         requestEntryUpdate(LOCKS, locks, elem);
@@ -327,8 +309,7 @@ public class NodeObject extends DObject
      * change. Proxied copies of this object (on clients) will apply the
      * value change when they received the attribute changed notification.
      */
-    @Generated(value={"com.threerings.presents.tools.GenDObjectTask"},
-               date="2010-04-06T22:31:00-0700")
+    @Generated(value={"com.threerings.presents.tools.GenDObjectTask"})
     public void setLocks (DSet<NodeObject.Lock> value)
     {
         requestAttributeChange(LOCKS, value, this.locks);
@@ -344,8 +325,7 @@ public class NodeObject extends DObject
      * clients) will apply the value change when they received the
      * attribute changed notification.
      */
-    @Generated(value={"com.threerings.presents.tools.GenDObjectTask"},
-               date="2010-04-06T22:31:00-0700")
+    @Generated(value={"com.threerings.presents.tools.GenDObjectTask"})
     public void setAcquiringLock (NodeObject.Lock value)
     {
         NodeObject.Lock ovalue = this.acquiringLock;
@@ -362,8 +342,7 @@ public class NodeObject extends DObject
      * clients) will apply the value change when they received the
      * attribute changed notification.
      */
-    @Generated(value={"com.threerings.presents.tools.GenDObjectTask"},
-               date="2010-04-06T22:31:00-0700")
+    @Generated(value={"com.threerings.presents.tools.GenDObjectTask"})
     public void setReleasingLock (NodeObject.Lock value)
     {
         NodeObject.Lock ovalue = this.releasingLock;
@@ -380,8 +359,7 @@ public class NodeObject extends DObject
      * clients) will apply the value change when they received the
      * attribute changed notification.
      */
-    @Generated(value={"com.threerings.presents.tools.GenDObjectTask"},
-               date="2010-04-06T22:31:00-0700")
+    @Generated(value={"com.threerings.presents.tools.GenDObjectTask"})
     public void setCacheData (NodeObject.CacheData value)
     {
         NodeObject.CacheData ovalue = this.cacheData;

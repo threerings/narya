@@ -34,13 +34,11 @@ public class CrowdNodeObject extends NodeObject
 {
     // AUTO-GENERATED: FIELDS START
     /** The field name of the <code>crowdPeerService</code> field. */
-    @Generated(value={"com.threerings.presents.tools.GenDObjectTask"},
-               date="2010-04-06T22:31:00-0700")
+    @Generated(value={"com.threerings.presents.tools.GenDObjectTask"})
     public static final String CROWD_PEER_SERVICE = "crowdPeerService";
 
     /** The field name of the <code>hostedChannels</code> field. */
-    @Generated(value={"com.threerings.presents.tools.GenDObjectTask"},
-               date="2010-04-06T22:31:00-0700")
+    @Generated(value={"com.threerings.presents.tools.GenDObjectTask"})
     public static final String HOSTED_CHANNELS = "hostedChannels";
     // AUTO-GENERATED: FIELDS END
 
@@ -59,8 +57,7 @@ public class CrowdNodeObject extends NodeObject
      * clients) will apply the value change when they received the
      * attribute changed notification.
      */
-    @Generated(value={"com.threerings.presents.tools.GenDObjectTask"},
-               date="2010-04-06T22:31:00-0700")
+    @Generated(value={"com.threerings.presents.tools.GenDObjectTask"})
     public void setCrowdPeerService (CrowdPeerMarshaller value)
     {
         CrowdPeerMarshaller ovalue = this.crowdPeerService;
@@ -74,8 +71,7 @@ public class CrowdNodeObject extends NodeObject
      * <code>hostedChannels</code> set. The set will not change until the event is
      * actually propagated through the system.
      */
-    @Generated(value={"com.threerings.presents.tools.GenDObjectTask"},
-               date="2010-04-06T22:31:00-0700")
+    @Generated(value={"com.threerings.presents.tools.GenDObjectTask"})
     public void addToHostedChannels (ChatChannel elem)
     {
         requestEntryAdd(HOSTED_CHANNELS, hostedChannels, elem);
@@ -86,8 +82,7 @@ public class CrowdNodeObject extends NodeObject
      * the <code>hostedChannels</code> set. The set will not change until the
      * event is actually propagated through the system.
      */
-    @Generated(value={"com.threerings.presents.tools.GenDObjectTask"},
-               date="2010-04-06T22:31:00-0700")
+    @Generated(value={"com.threerings.presents.tools.GenDObjectTask"})
     public void removeFromHostedChannels (Comparable<?> key)
     {
         requestEntryRemove(HOSTED_CHANNELS, hostedChannels, key);
@@ -98,8 +93,7 @@ public class CrowdNodeObject extends NodeObject
      * <code>hostedChannels</code> set. The set will not change until the event is
      * actually propagated through the system.
      */
-    @Generated(value={"com.threerings.presents.tools.GenDObjectTask"},
-               date="2010-04-06T22:31:00-0700")
+    @Generated(value={"com.threerings.presents.tools.GenDObjectTask"})
     public void updateHostedChannels (ChatChannel elem)
     {
         requestEntryUpdate(HOSTED_CHANNELS, hostedChannels, elem);
@@ -115,8 +109,7 @@ public class CrowdNodeObject extends NodeObject
      * change. Proxied copies of this object (on clients) will apply the
      * value change when they received the attribute changed notification.
      */
-    @Generated(value={"com.threerings.presents.tools.GenDObjectTask"},
-               date="2010-04-06T22:31:00-0700")
+    @Generated(value={"com.threerings.presents.tools.GenDObjectTask"})
     public void setHostedChannels (DSet<ChatChannel> value)
     {
         requestAttributeChange(HOSTED_CHANNELS, value, this.hostedChannels);

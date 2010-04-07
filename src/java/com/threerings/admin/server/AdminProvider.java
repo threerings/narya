@@ -32,8 +32,7 @@ import com.threerings.presents.server.InvocationProvider;
  * Defines the server-side of the {@link AdminService}.
  */
 @Generated(value={"com.threerings.presents.tools.GenServiceTask"},
-           date="2010-04-06T22:31:00-0700",
-           comments="Derived from the Service class java source.")
+           comments="Derived from AdminService.java.")
 public interface AdminProvider extends InvocationProvider
 {
     /**
