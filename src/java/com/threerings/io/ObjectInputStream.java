@@ -319,11 +319,11 @@ public class ObjectInputStream extends DataInputStream
         // read precisely that many into a buffer
         byte[] bbuf = new byte[utflen];
         in.read(bbuf);
-    
+
         // decode the UTF-8 stream into a character buffer
         char[] cbuf = new char[utflen];
         int read = new InputStreamReader(new ByteArrayInputStream(bbuf), "UTF-8").read(cbuf);
-    
+
         // create and return the string given the number of decoded characters
         return String.copyValueOf(cbuf, 0, read);
     }

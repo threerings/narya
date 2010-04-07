@@ -21,7 +21,6 @@
 
 package com.threerings.presents.data;
 
-import javax.annotation.Generated;
 import com.threerings.presents.dobj.DObject;
 
 /**

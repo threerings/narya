@@ -279,7 +279,7 @@ public class ClientManager
                 break;
             }
         }
-        
+
         try {
             // create a client resolver instance which will create our client object, populate it
             // and notify the listeners
