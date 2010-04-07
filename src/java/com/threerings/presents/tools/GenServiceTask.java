@@ -265,7 +265,7 @@ public class GenServiceTask extends InvocationTask
 
         VelocityContext ctx = new VelocityContext();
         ctx.put("name", name);
-        ctx.put("generated", getGeneratedAnnotation());
+        ctx.put("generated", getGeneratedAnnotation(name));
         ctx.put("package", mpackage);
         ctx.put("methods", sdesc.methods);
         ctx.put("listeners", sdesc.listeners);
@@ -537,7 +537,7 @@ public class GenServiceTask extends InvocationTask
 
         VelocityContext ctx = new VelocityContext();
         ctx.put("name", name);
-        ctx.put("generated", getGeneratedAnnotation());
+        ctx.put("generated", getGeneratedAnnotation(name));
         ctx.put("package", dpackage);
         ctx.put("methods", sdesc.methods);
         ctx.put("imports", imports.toList());
@@ -596,7 +596,7 @@ public class GenServiceTask extends InvocationTask
 
         VelocityContext ctx = new VelocityContext();
         ctx.put("name", name);
-        ctx.put("generated", getGeneratedAnnotation());
+        ctx.put("generated", getGeneratedAnnotation(name));
         ctx.put("package", mpackage);
         ctx.put("methods", sdesc.methods);
         ctx.put("listeners", sdesc.listeners);
@@ -616,10 +616,10 @@ public class GenServiceTask extends InvocationTask
     /**
      * Helper to get the appropriate "@Generated" annotation for service classes.
      */
-    protected String getGeneratedAnnotation ()
+    protected String getGeneratedAnnotation (String name)
     {
-        return GenUtil.getGeneratedAnnotation(getClass(), 0,
-            "Derived from the Service class java source.");
+        return GenUtil.getGeneratedAnnotation(getClass(), 0, false,
+            "Derived from " + name + "Service.java.");
     }
 
     /** Rolls up everything needed for the generate* methods. */

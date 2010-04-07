@@ -246,24 +246,29 @@ public class GenUtil extends com.samskivert.util.GenUtil
      *
      * @param clazz the class doing the code generation, NOT the generation target.
      * @param indent the number of spaces that the annotation is indented.
+     * @param includeDate include the date?
      * @param comments joined by a space and used as explanatory comments.
      */
-    public static String getGeneratedAnnotation (Class<?> clazz, int indent, String... comments)
+    public static String getGeneratedAnnotation (
+        Class<?> clazz, int indent, boolean includeDate, String... comments)
     {
         final int LINE_LENGTH = 100;
         String comm = StringUtil.join(comments, " ");
         boolean hasComment = !StringUtil.isBlank(comm);
-        String anno = "@Generated(value={\"" + clazz.getName() + "\"},";
-        // ISO 8601 date
-        String date = " date=\"" +
-            new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ").format(new Date()) + "\"";
-        // wrap the date onto a new line if it's going to be too long, or if we're
-        // adding a comment (which is also on a new line)
-        if (hasComment || anno.length() + date.length() + 1 + indent > LINE_LENGTH) {
-            // put the date on a new line, space it right
-            date = "\n" + StringUtil.fill(' ', indent + 10) + date;
+        String anno = "@Generated(value={\"" + clazz.getName() + "\"}";
+        if (includeDate) {
+            anno += ",";
+            // ISO 8601 date
+            String date = " date=\"" +
+                new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ").format(new Date()) + "\"";
+            // wrap the date onto a new line if it's going to be too long, or if we're
+            // adding a comment (which is also on a new line)
+            if (hasComment || anno.length() + date.length() + 1 + indent > LINE_LENGTH) {
+                // put the date on a new line, space it right
+                date = "\n" + StringUtil.fill(' ', indent + 10) + date;
+            }
+            anno += date;
         }
-        anno += date;
         if (hasComment) {
             anno += ",\n" + StringUtil.fill(' ', indent + 11) + "comments=\"" + comm + "\"";
         }
