@@ -322,6 +322,9 @@ public class GenServiceTask extends InvocationTask
             ".client.", ".data.");
         imports.popIn();
 
+        // convert java primitive types to ooo util types
+        imports.replace(Integer.class, "com.threerings.util.Integer");
+
         // get rid of java.lang stuff and any remaining primitives
         imports.removeGlobals();
 

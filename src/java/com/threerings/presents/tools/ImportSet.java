@@ -265,6 +265,16 @@ public class ImportSet
     }
 
     /**
+     * Replace the import matchings a class name.
+     * @param pattern the class whose name to match
+     * @param replacement string to use instead
+     */
+    public void replace (Class<?> pattern, String replacement)
+    {
+        replace(pattern.getName(), replacement);
+    }
+
+    /**
      * Remove all imports matching the given pattern.
      * @param pattern the dumbed down regex to match (see description above)
      * @return the number of imports removed
