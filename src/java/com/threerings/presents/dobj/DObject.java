@@ -686,7 +686,6 @@ public class DObject
     public List<Object> getLocals ()
     {
         return ImmutableList.copyOf(_locattrs);
-        // return Collections.unmodifiableList(Arrays.asList(_locattrs));
     }
 
     /**
