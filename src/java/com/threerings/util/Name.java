@@ -127,7 +127,13 @@ public class Name extends SimpleStreamableObject
     // from interface Comparable<Name>
     public int compareTo (Name other)
     {
-        return getNormal().compareTo(other.getNormal());
+        Class<?> c = getClass();
+        Class<?> oc = other.getClass();
+        if (c == oc || c.getName().equals(oc.getName())) {
+            return getNormal().compareTo(other.getNormal());
+        } else {
+            return c.getName().compareTo(oc.getName());
+        }
     }
 
     /**
