@@ -42,8 +42,6 @@ import com.samskivert.util.StringUtil;
 
 import com.threerings.util.ActionScript;
 
-import static com.threerings.NaryaLog.log;
-
 /**
  * Primitively parses an ActionScriptSource file, allows the addition and replacement of class
  * members and handles writing out the file again.
@@ -1054,17 +1052,6 @@ public class ActionScriptSource
             writer.println("");
         }
         return true;
-    }
-
-    public static void main (String[] args)
-    {
-        test("public function asdf () :void");
-        test("public function get asdf () :void");
-    }
-
-    protected static void test (String test)
-    {
-        log.info("test", "string", test, "matches", ASFUNCTION.matcher(test).matches());
     }
 
     /** Denotes various phases of class file parsing. */
