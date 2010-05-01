@@ -21,24 +21,28 @@
 
 package com.threerings.presents.tools;
 
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
+
+import java.util.ArrayList;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
-import java.util.ArrayList;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import com.google.common.collect.Lists;
 
 import com.samskivert.util.StringUtil;
 
 import com.threerings.util.ActionScript;
+
+import static com.threerings.NaryaLog.log;
 
 /**
  * Primitively parses an ActionScriptSource file, allows the addition and replacement of class
@@ -738,12 +742,27 @@ public class ActionScriptSource
                         line = slurpUntil(bin, line, ";", false);
                     }
 
-//                     String fieldName = m.group(1);
+                    ArrayList<Member> list = publicFields;
+                    boolean isProtected = (line.indexOf("protected ") != -1);
+                    boolean isConst = (line.indexOf("const ") != -1);
+                    list = isProtected ?
+                        (isConst ? protectedConstants : protectedFields) :
+                        (isConst ? publicConstants : publicFields);
+
+                    // extract the name, replace the declaration
+                    String fieldName = m.group(1);
+                    //log.info("ASFIELD", "name", fieldName);
+                    Member member = getMember(list, fieldName);
+                    if (member == null) {
+                        System.err.println(
+                            "Have ActionScript field with no " +
+                            "Java equivalent: " + fieldName);
+                        member = new Member(fieldName, line.trim());
+                        list.add(member);
+                    }
 
                     // TODO: update the comment?
                     accum.setLength(0);
-
-                    // TODO: extract the name, replace that declaration
 
                 // see if we match a constructor declaration
                 } else if (line.indexOf("public function " + className) != -1) {
@@ -1035,6 +1054,17 @@ public class ActionScriptSource
             writer.println("");
         }
         return true;
+    }
+
+    public static void main (String[] args)
+    {
+        test("public function asdf () :void");
+        test("public function get asdf () :void");
+    }
+
+    protected static void test (String test)
+    {
+        log.info("test", "string", test, "matches", ASFUNCTION.matcher(test).matches());
     }
 
     /** Denotes various phases of class file parsing. */
