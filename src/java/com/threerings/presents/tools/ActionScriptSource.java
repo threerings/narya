@@ -347,7 +347,8 @@ public class ActionScriptSource
         // ActionScript only supports one constructor so we find the one with the most arguments
         // and we make a note whether or not we need a no argument constructor which we create
         // using default arguments
-        Constructor<?> mainctor = null;
+        // Removed by TSC - it's not clear that this is useful
+        /*Constructor<?> mainctor = null;
         boolean needsNoArg = false;
         for (Constructor<?> ctor : jclass.getConstructors()) {
             ActionScript asa = ctor.getAnnotation(ActionScript.class);
@@ -369,7 +370,7 @@ public class ActionScriptSource
                                     createActionScriptDeclaration(mainctor, needsNoArg));
             mem.body = "    {\n        TODO: IMPLEMENT ME\n    }\n";
             list.add(mem);
-        }
+        }*/
 
       METHODS:
         for (Method method : jclass.getDeclaredMethods()) {
