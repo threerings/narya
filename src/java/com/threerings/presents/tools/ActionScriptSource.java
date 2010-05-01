@@ -21,20 +21,18 @@
 
 package com.threerings.presents.tools;
 
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
-
-import java.util.ArrayList;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
+import java.util.ArrayList;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import com.google.common.collect.Lists;
 
@@ -1071,7 +1069,7 @@ public class ActionScriptSource
         ".*(?:public|protected)" +
         "(?:\\s+static)?" +
         "(?:\\s+/\\*\\s*abstract\\s*\\*/)?" +
-        "\\s+function\\s+([a-zA-Z]\\w*) \\(.*");
+        "\\s+function\\s+((?:get\\s+|set\\s+)?[a-zA-Z]\\w*) \\(.*");
 
     protected static Pattern ARRAYINIT = Pattern.compile("new (\\w+)\\[0\\]");
 }
