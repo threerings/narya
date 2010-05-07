@@ -105,12 +105,16 @@ public class ConnectionManager extends LoopingThread
      * socket connections and datagram packets. This must be called before the connection manager
      * is started (via {@via #start}) as the sockets will be bound at that time.
      *
-     * @param bindHostname the port to which to bind our sockets or null to bind to all interfaces.
+     * @param bindHostname the hostname to which we bind our sockets or null to bind to all
+     * interfaces.
+     * @param datagramHostname the hostname to which we bind our datagram socket or null to bind
+     * to all interfaces.
      * @param ports the ports on which to listen for TCP connection.
      * @param datagramPorts the ports on which to listen for datagram packets.
      */
-    public void init (String bindHostname, int[] ports, int[] datagramPorts)
-        throws IOException
+    public void init (
+        String bindHostname, String datagramHostname, int[] ports, int[] datagramPorts)
+            throws IOException
     {
         Preconditions.checkArgument(ports != null, "Ports must be non-null.");
         Preconditions.checkArgument(datagramPorts != null, "Datagram ports must be non-null. " +
@@ -118,6 +122,7 @@ public class ConnectionManager extends LoopingThread
         Preconditions.checkState(!super.isRunning(), "Must initialize before starting.");
 
         _bindHostname = bindHostname;
+        _datagramHostname = datagramHostname;
         _ports = ports;
         _datagramPorts = datagramPorts;
         _selector = SelectorProvider.provider().openSelector();
@@ -362,7 +367,7 @@ public class ConnectionManager extends LoopingThread
                 _ssocket = ServerSocketChannel.open();
                 _ssocket.configureBlocking(false);
 
-                InetSocketAddress isa = getAddress(port);
+                InetSocketAddress isa = getAddress(_bindHostname, port);
                 _ssocket.socket().bind(isa);
                 registerChannel(_ssocket);
                 successes++;
@@ -414,23 +419,23 @@ public class ConnectionManager extends LoopingThread
                 _datagramChannel = DatagramChannel.open();
                 _datagramChannel.socket().setTrafficClass(0x10); // IPTOS_LOWDELAY
                 _datagramChannel.configureBlocking(false);
-                InetSocketAddress isa = getAddress(port);
+                InetSocketAddress isa = getAddress(_datagramHostname, port);
                 _datagramChannel.socket().bind(isa);
                 registerChannel(_datagramChannel);
                 log.info("Server accepting datagrams on " + isa + ".");
 
             } catch (IOException ioe) {
-                log.warning("Failure opening datagram channel", "hostname", _bindHostname,
+                log.warning("Failure opening datagram channel", "hostname", _datagramHostname,
                             "port", port, ioe);
             }
         }
     }
 
     /** Helper function for creating proper bindable socket addresses. */
-    protected InetSocketAddress getAddress (int port)
+    protected InetSocketAddress getAddress (String hostname, int port)
     {
-        return StringUtil.isBlank(_bindHostname) ?
-            new InetSocketAddress(port) : new InetSocketAddress(_bindHostname, port);
+        return StringUtil.isBlank(hostname) ?
+            new InetSocketAddress(port) : new InetSocketAddress(hostname, port);
     }
 
     /** Helper function for {@link #willStart}. */
@@ -1217,7 +1222,7 @@ public class ConnectionManager extends LoopingThread
     protected List<ChainedAuthenticator> _authors = Lists.newArrayList();
 
     protected int[] _ports, _datagramPorts;
-    protected String _bindHostname;
+    protected String _bindHostname, _datagramHostname;
     protected Selector _selector;
     protected ServerSocketChannel _ssocket;
     protected DatagramChannel _datagramChannel;
