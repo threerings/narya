@@ -44,6 +44,8 @@ import com.google.common.collect.Lists;
 import com.samskivert.io.StreamUtil;
 import com.samskivert.velocity.VelocityUtil;
 
+import com.threerings.io.ObjectInputStream;
+import com.threerings.io.ObjectOutputStream;
 import com.threerings.io.Streamable;
 
 import com.threerings.util.ActionScript;
@@ -178,6 +180,8 @@ public class GenActionScriptTask extends Task
         // have from the Java class
         ActionScriptSource assrc = new ActionScriptSource(sclass);
         assrc.absorbJava(source);
+        assrc.imports.add(ObjectInputStream.class.getName());
+        assrc.imports.add(ObjectOutputStream.class.getName());
 
         // see if our parent also implements Streamable
         boolean needSuper = Streamable.class.isAssignableFrom(sclass.getSuperclass());

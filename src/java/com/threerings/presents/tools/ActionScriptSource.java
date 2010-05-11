@@ -27,6 +27,8 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -37,6 +39,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 
 import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 
 import com.samskivert.util.StringUtil;
 
@@ -106,7 +109,7 @@ public class ActionScriptSource
 
     public String packageName;
 
-    public String imports = "";
+    public Set<String> imports = Sets.newHashSet();
 
     public String classComment = "";
 
@@ -150,7 +153,7 @@ public class ActionScriptSource
      * Creates and returns a declaration for a field equivalent to the supplied Java field in
      * ActionScript.
      */
-    public static String createActionScriptDeclaration (String name, Field field, ActionScript asa)
+    public String createActionScriptDeclaration (String name, Field field, ActionScript asa)
     {
         int mods = field.getModifiers();
         StringBuilder builder = new StringBuilder();
@@ -187,7 +190,7 @@ public class ActionScriptSource
         return builder.toString();
     }
 
-    public static String createActionScriptDeclaration (Constructor<?> ctor, boolean needsNoArg)
+    public String createActionScriptDeclaration (Constructor<?> ctor, boolean needsNoArg)
     {
         int mods = ctor.getModifiers();
         StringBuilder builder = new StringBuilder();
@@ -224,7 +227,7 @@ public class ActionScriptSource
         return builder.toString();
     }
 
-    public static String createActionScriptDeclaration (String name, Method method)
+    public String createActionScriptDeclaration (String name, Method method)
     {
         int mods = method.getModifiers();
         StringBuilder builder = new StringBuilder();
@@ -265,16 +268,21 @@ public class ActionScriptSource
         return builder.toString();
     }
 
-    public static String toActionScriptType (Class<?> type, boolean isField)
+    public String toActionScriptType (Class<?> type, boolean isField)
     {
         if (type.isArray()) {
             if (Byte.TYPE.equals(type.getComponentType())) {
+                imports.add("flash.utils.ByteArray");
                 return "ByteArray";
             }
-            return isField ? "TypedArray" : "Array";
+            if (isField) {
+                imports.add("com.threerings.io.TypedArray");
+                return "TypedArray";
+            }
+            return "Array";
         }
 
-        if (Integer.class.equals(type) ||
+        if (Integer.TYPE.equals(type) ||
             Byte.TYPE.equals(type) ||
             Short.TYPE.equals(type) ||
             Character.TYPE.equals(type)) {
@@ -287,6 +295,7 @@ public class ActionScriptSource
         }
 
         if (Long.TYPE.equals(type)) {
+            imports.add("com.threerings.util.Long");
             return "Long";
         }
 
@@ -294,6 +303,9 @@ public class ActionScriptSource
             return "Boolean";
         }
 
+        if (!String.class.equals(type)) {
+            imports.add(type.getName());
+        }
         return toSimpleName(type.getName());
     }
 
@@ -343,34 +355,6 @@ public class ActionScriptSource
             String decl = createActionScriptDeclaration(name, field, asa);
             list.add(new Member(name, decl));
         }
-
-        // ActionScript only supports one constructor so we find the one with the most arguments
-        // and we make a note whether or not we need a no argument constructor which we create
-        // using default arguments
-        // Removed by TSC - it's not clear that this is useful
-        /*Constructor<?> mainctor = null;
-        boolean needsNoArg = false;
-        for (Constructor<?> ctor : jclass.getConstructors()) {
-            ActionScript asa = ctor.getAnnotation(ActionScript.class);
-            if (asa != null && asa.omit()) {
-                continue;
-            }
-            int params = ctor.getParameterTypes().length;
-            if (mainctor == null ||
-                params > mainctor.getParameterTypes().length) {
-                mainctor = ctor;
-            }
-            needsNoArg = needsNoArg || (params == 0);
-        }
-        if (mainctor != null) {
-            int mods = mainctor.getModifiers();
-            ArrayList<Member> list;
-            list = Modifier.isPublic(mods) ? publicConstructors : protectedConstructors;
-            Member mem = new Member(toSimpleName(mainctor.getName()),
-                                    createActionScriptDeclaration(mainctor, needsNoArg));
-            mem.body = "    {\n        TODO: IMPLEMENT ME\n    }\n";
-            list.add(mem);
-        }*/
 
       METHODS:
         for (Method method : jclass.getDeclaredMethods()) {
@@ -465,11 +449,13 @@ public class ActionScriptSource
             case IMPORTS:
                 // look for the start of the class comment
                 if (line.startsWith("/**")) {
-                    imports = accum.toString();
                     accum.setLength(0);
                     mode = Mode.CLASSCOMMENT;
                 }
-                accum.append(line).append("\n");
+                m = IMPORT.matcher(line);
+                if (m.matches()) {
+                    imports.add(m.group(1));
+                }
                 break;
 
             case CLASSCOMMENT:
@@ -704,15 +690,16 @@ public class ActionScriptSource
             case IMPORTS:
                 // look for the start of the class comment
                 if (line.startsWith("/**")) {
-                    imports = accum.toString();
                     accum.setLength(0);
                     mode = Mode.CLASSCOMMENT;
                 } else if (line.startsWith("public ")) {
-                    imports = accum.toString();
                     accum.setLength(0);
                     mode = line.endsWith("{") ? Mode.CLASSBODY : Mode.CLASSDECL;
                 }
-                accum.append(line).append("\n");
+                m = IMPORT.matcher(line);
+                if (m.matches()) {
+                    imports.add(m.group(1));
+                }
                 break;
 
             case CLASSCOMMENT:
@@ -917,7 +904,13 @@ public class ActionScriptSource
     {
         writer.print(preamble);
         writer.println("package " + packageName + " {");
-        writer.print(imports);
+        if (!imports.isEmpty()) {
+            writer.println();
+            for (String imp : imports) {
+                writer.println("import " + imp + ";");
+            }
+            writer.println();
+        }
 
         writer.print(classComment);
         writer.print("public ");
@@ -943,54 +936,52 @@ public class ActionScriptSource
 
         writer.println("{"); // start class block
 
-        boolean writtenAnything = false;
         for (Member member : publicConstants) {
-            writtenAnything = writeBlank(writtenAnything, writer);
             member.write(writer);
         }
+        writeBlank(publicConstants, writer);
 
         for (Member member : publicFields) {
-            writtenAnything = writeBlank(writtenAnything, writer);
             member.write(writer);
         }
+        writeBlank(publicFields, writer);
 
         for (Member member : publicStaticMethods) {
-            writtenAnything = writeBlank(writtenAnything, writer);
             member.write(writer);
+            writeBlank(publicStaticMethods, writer);
         }
 
         for (Member member : publicConstructors) {
-            writtenAnything = writeBlank(writtenAnything, writer);
             member.write(writer);
+            writer.println();
         }
 
         for (Member member : publicMethods) {
-            writtenAnything = writeBlank(writtenAnything, writer);
             member.write(writer);
+            writer.println();
         }
 
         for (Member member : protectedConstructors) {
-            writtenAnything = writeBlank(writtenAnything, writer);
             member.write(writer);
+            writer.println();
         }
 
         for (Member member : protectedMethods) {
-            writtenAnything = writeBlank(writtenAnything, writer);
             member.write(writer);
+            writer.println();
         }
 
         for (Member member : protectedStaticMethods) {
-            writtenAnything = writeBlank(writtenAnything, writer);
             member.write(writer);
+            writer.println();
         }
 
         for (Member member : protectedFields) {
-            writtenAnything = writeBlank(writtenAnything, writer);
             member.write(writer);
         }
+        writeBlank(protectedFields, writer);
 
         for (Member member : protectedConstants) {
-            writtenAnything = writeBlank(writtenAnything, writer);
             member.write(writer);
         }
 
@@ -1047,12 +1038,11 @@ public class ActionScriptSource
         return count;
     }
 
-    protected boolean writeBlank (boolean writtenAnything, PrintWriter writer)
+    protected void writeBlank (Collection<?> justWritten, PrintWriter writer)
     {
-        if (writtenAnything) {
-            writer.println("");
+        if (!justWritten.isEmpty()) {
+            writer.println();
         }
-        return true;
     }
 
     /** Denotes various phases of class file parsing. */
@@ -1090,4 +1080,6 @@ public class ActionScriptSource
         "\\s+function\\s+((?:get\\s+|set\\s+)?[a-zA-Z]\\w*) \\(.*");
 
     protected static Pattern ARRAYINIT = Pattern.compile("new (\\w+)\\[0\\]");
+
+    protected static Pattern IMPORT = Pattern.compile("import (.*);");
 }
