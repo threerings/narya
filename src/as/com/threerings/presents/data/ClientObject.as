@@ -63,6 +63,15 @@ public class ClientObject extends DObject
     }
 
     /**
+     * Convenience wrapper around {@link #checkAccess(Permission)} that simply returns a boolean
+     * indicating whether or not this client has the permission rather than an explanation.
+     */
+    public function hasAccess (perm :Permission) :Boolean
+    {
+        return checkAccess(perm) == null;
+    }
+
+    /**
      * Checks whether or not this client has the specified permission.
      *
      * @return null if the user has access, a fully-qualified translatable message string
