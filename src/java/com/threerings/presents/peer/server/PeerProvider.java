@@ -49,6 +49,12 @@ public interface PeerProvider extends InvocationProvider
     void invokeAction (ClientObject caller, byte[] arg1);
 
     /**
+     * Handles a {@link PeerService#invokeRequest} request.
+     */
+    void invokeRequest (ClientObject caller, byte[] arg1, InvocationService.ResultListener arg2)
+        throws InvocationException;
+
+    /**
      * Handles a {@link PeerService#ratifyLockAction} request.
      */
     void ratifyLockAction (ClientObject caller, NodeObject.Lock arg1, boolean arg2);

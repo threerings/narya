@@ -64,8 +64,21 @@ public class PeerMarshaller extends InvocationMarshaller
         });
     }
 
+    /** The method id used to dispatch {@link #invokeRequest} requests. */
+    public static final int INVOKE_REQUEST = 3;
+
+    // from interface PeerService
+    public void invokeRequest (Client arg1, byte[] arg2, InvocationService.ResultListener arg3)
+    {
+        InvocationMarshaller.ResultMarshaller listener3 = new InvocationMarshaller.ResultMarshaller();
+        listener3.listener = arg3;
+        sendRequest(arg1, INVOKE_REQUEST, new Object[] {
+            arg2, listener3
+        });
+    }
+
     /** The method id used to dispatch {@link #ratifyLockAction} requests. */
-    public static final int RATIFY_LOCK_ACTION = 3;
+    public static final int RATIFY_LOCK_ACTION = 4;
 
     // from interface PeerService
     public void ratifyLockAction (Client arg1, NodeObject.Lock arg2, boolean arg3)

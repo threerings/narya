@@ -65,6 +65,7 @@ import com.threerings.presents.dobj.Subscriber;
 
 import com.threerings.presents.annotation.MainInvoker;
 import com.threerings.presents.client.Client;
+import com.threerings.presents.client.InvocationService;
 import com.threerings.presents.data.ClientObject;
 import com.threerings.presents.server.ClientManager;
 import com.threerings.presents.server.InvocationException;
@@ -162,6 +163,20 @@ public abstract class PeerManager
         }
 
         protected abstract void execute ();
+    }
+
+    public static abstract class NodeRequest implements Streamable
+    {
+        /** Invokes the action on the target server. */
+        public void invoke (final InvocationService.ResultListener listener) {
+            try {
+                execute(listener);
+            } catch (Throwable t) {
+                log.warning(getClass().getName() + " failed.", t);
+            }
+        }
+
+        protected abstract void execute (InvocationService.ResultListener listener);
     }
 
     /** Returned by {@link #getStats}. */
@@ -417,6 +432,21 @@ public abstract class PeerManager
             peer.nodeobj.peerService.invokeAction(peer.getClient(), flattenAction(action));
         } else if (nodeName.equals(_nodeName)) {
             invokeAction(null, flattenAction(action));
+        }
+    }
+
+    /**
+     * Invokes a node request on a specific node and returns the result through the listener.
+     */
+    public void invokeNodeRequest (String nodeName, NodeRequest request,
+        InvocationService.ResultListener listener)
+    {
+        PeerNode peer = _peers.get(nodeName);
+        if (peer != null) {
+            peer.nodeobj.peerService.invokeRequest(
+                peer.getClient(), flattenRequest(request), listener);
+        } else if (nodeName.equals(_nodeName)) {
+            invokeRequest(null, flattenRequest(request), listener);
         }
     }
 
@@ -823,6 +853,26 @@ public abstract class PeerManager
     }
 
     // from interface PeerProvider
+    public void invokeRequest (ClientObject caller, byte[] serializedAction,
+        InvocationService.ResultListener listener)
+    {
+        NodeRequest request = null;
+        try {
+            ObjectInputStream oin =
+                new ObjectInputStream(new ByteArrayInputStream(serializedAction));
+            request = (NodeRequest)oin.readObject();
+            _injector.injectMembers(request);
+            request.invoke(listener);
+
+        } catch (Exception e) {
+            log.warning("Failed to execute node request",
+                        "from", (caller == null) ? "self" : caller.who(),
+                        "request", request, "serializedSize", serializedAction.length, e);
+            listener.requestFailed("Failed to execute node request");
+        }
+    }
+
+    // from interface PeerProvider
     public void generateReport (ClientObject caller, String type,
                                 PeerService.ResultListener listener)
         throws InvocationException
@@ -1139,6 +1189,22 @@ public abstract class PeerManager
         } catch (Exception e) {
             throw new IllegalArgumentException(
                 "Failed to serialize node action [action=" + action + "].", e);
+        }
+    }
+
+    /**
+     * Flattens the supplied node request into bytes.
+     */
+    protected byte[] flattenRequest (NodeRequest request)
+    {
+        try {
+            ByteArrayOutputStream bout = new ByteArrayOutputStream();
+            ObjectOutputStream oout = new ObjectOutputStream(bout);
+            oout.writeObject(request);
+            return bout.toByteArray();
+        } catch (Exception e) {
+            throw new IllegalArgumentException(
+                "Failed to serialize node request [request=" + request + "].", e);
         }
     }
 

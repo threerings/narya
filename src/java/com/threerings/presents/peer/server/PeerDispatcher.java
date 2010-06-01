@@ -70,6 +70,12 @@ public class PeerDispatcher extends InvocationDispatcher<PeerMarshaller>
             );
             return;
 
+        case PeerMarshaller.INVOKE_REQUEST:
+            ((PeerProvider)provider).invokeRequest(
+                source, (byte[])args[0], (InvocationService.ResultListener)args[1]
+            );
+            return;
+
         case PeerMarshaller.RATIFY_LOCK_ACTION:
             ((PeerProvider)provider).ratifyLockAction(
                 source, (NodeObject.Lock)args[0], ((Boolean)args[1]).booleanValue()
