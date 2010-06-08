@@ -52,12 +52,30 @@ public dynamic class TypedArray extends Array
         return "[L" + cname + ";";
     }
 
+    /** Because we have no actionscript type to check, we'll just handle this one manually. */
+    public static function getJavaShortType () :String
+    {
+        return "[S";
+    }
+
     /**
      * A factory method to create a TypedArray for holding objects of the specified type.
      */
     public static function create (of :Class, initialValues :Array = null) :TypedArray
     {
         var ta :TypedArray = new TypedArray(getJavaType(of));
+        if (initialValues != null) {
+            ta.addAll(initialValues);
+        }
+        return ta;
+    }
+
+    /**
+     * A factory method to create a TypedArray for holding data meant as java shorts.
+     */
+    public static function createShort (initialValues :Array = null) :TypedArray
+    {
+        var ta :TypedArray = new TypedArray(getJavaShortType());
         if (initialValues != null) {
             ta.addAll(initialValues);
         }

@@ -65,6 +65,9 @@ public class ArrayStreamer extends Streamer
         } else if (secondChar === "Z") {
             _elementType = Boolean;
 
+        } else if (secondChar === "S") {
+            _elementType = PrimitiveShort;
+
         } else {
             Log.getLog(this).warning("Other array types are not yet handled", "jname", jname);
             throw new Error("Don't know how to stream '" + jname + "' instances.");
@@ -87,7 +90,11 @@ public class ArrayStreamer extends Streamer
             for (ii = 0; ii < arr.length; ii++) {
                 out.writeInt(int(arr[ii]));
             }
-
+        } else if (_elementType == PrimitiveShort) {
+            for (ii = 0; ii < arr.length; ii++) {
+                out.writeShort(int(arr[ii]));
+            }
+            
         } else if (_elementType == Boolean) {
             for (ii = 0; ii < arr.length; ii++) {
                 out.writeBoolean(Boolean(arr[ii]));
@@ -124,6 +131,11 @@ public class ArrayStreamer extends Streamer
             for (ii = 0; ii < arr.length; ii++) {
                 arr[ii] = ins.readInt();
             }
+
+        } else if (_elementType == PrimitiveShort) {
+            for (ii = 0; ii < arr.length; ii++) {
+                arr[ii] = ins.readShort();
+            }            
 
         } else if (_elementType == Boolean) {
             for (ii = 0; ii < arr.length; ii++) {
@@ -181,4 +193,9 @@ public class ArrayStreamer extends Streamer
      * or if the element type is final. */
     protected var _isFinal :Boolean;
 }
+}
+
+/** A class to represent that the data in question should be handled as a java primitive short. */
+class PrimitiveShort
+{
 }
