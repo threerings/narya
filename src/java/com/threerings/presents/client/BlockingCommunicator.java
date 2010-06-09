@@ -395,7 +395,7 @@ public class BlockingCommunicator extends Communicator
                 String txt = StringUtil.truncate(String.valueOf(msg), 80, "...");
                 log.info("Whoa, writin' a big one", "msg", txt, "size", buffer.limit());
             }
-            int wrote = _channel.write(buffer);
+            int wrote = writeMessage(buffer);
             if (wrote != buffer.limit()) {
                 log.warning("Aiya! Couldn't write entire message", "msg", msg,
                             "size", buffer.limit(), "wrote", wrote);
@@ -410,6 +410,17 @@ public class BlockingCommunicator extends Communicator
 
         // make a note of our most recent write time
         updateWriteStamp();
+    }
+
+    /**
+     * Writes the message contained in the supplied buffer.
+     *
+     * @return the number of bytes written.
+     */
+    protected int writeMessage (ByteBuffer buf)
+        throws IOException
+    {
+        return _channel.write(buf);
     }
 
     /**
@@ -444,10 +455,21 @@ public class BlockingCommunicator extends Communicator
         buf.put(hash, 0, 8).rewind();
 
         // send the datagram
-        _datagramChannel.write(buf);
+        writeDatagram(buf);
 
         // notify the tracker
         _client.getMessageTracker().messageSent(true, size, msg);
+    }
+
+    /**
+     * Writes the datagram contained in the supplied buffer.
+     *
+     * @return the number of bytes written.
+     */
+    protected int writeDatagram (ByteBuffer buf)
+        throws IOException
+    {
+        return _datagramChannel.write(buf);
     }
 
     /**
@@ -460,7 +482,7 @@ public class BlockingCommunicator extends Communicator
         // of the frame from the network, in which case we simply call it again because we can't do
         // anything until it has a whole frame; it will throw an exception if it hits EOF or if
         // something goes awry)
-        while (!_fin.readFrame(_channel)) {
+        while (!readFrame()) {
             // noop!
         }
 
@@ -480,6 +502,17 @@ public class BlockingCommunicator extends Communicator
     }
 
     /**
+     * Reads a frame from the socket.
+     *
+     * @return true if a complete frame is available, false if more needs to be read.
+     */
+    protected boolean readFrame ()
+        throws IOException
+    {
+        return _fin.readFrame(_channel);
+    }
+
+    /**
      * Reads a datagram from the socket (blocking until a datagram has arrived).
      */
     protected DownstreamMessage receiveDatagram ()
@@ -487,7 +520,7 @@ public class BlockingCommunicator extends Communicator
     {
         // clear the buffer and read a datagram
         _buf.clear();
-        int size = _datagramChannel.read(_buf);
+        int size = readDatagram(_buf);
         if (size <= 0) {
             throw new IOException("No datagram available to read.");
         }
@@ -512,6 +545,17 @@ public class BlockingCommunicator extends Communicator
             throw (IOException) new IOException(
                 "Unable to decode incoming datagram.").initCause(cnfe);
         }
+    }
+
+    /**
+     * Reads a datagram into the supplied buffer.
+     *
+     * @return the number of bytes read.
+     */
+    protected int readDatagram (ByteBuffer buf)
+        throws IOException
+    {
+        return _datagramChannel.read(buf);
     }
 
     protected void openChannel (InetAddress host)
