@@ -18,7 +18,7 @@
     <include name="samskivert.jar"/>
     <include name="swfutils-ooo.jar"/>
     <include name="velocity-1.5-dev.jar"/>
-    <include name="ooolib*.swc"/>
+    <include name="aspirin.swc"/>
     <include name="corelib.swc"/>
   </fileset>
 </project>
