@@ -59,8 +59,7 @@ import com.threerings.presents.dobj.OidList;
 public class GenDObjectTask extends Task
 {
     /**
-     * Adds a nested &lt;fileset&gt; element which enumerates service
-     * declaration source files.
+     * Adds a nested &lt;fileset&gt; element which enumerates service declaration source files.
      */
     public void addFileset (FileSet set)
     {
@@ -70,8 +69,7 @@ public class GenDObjectTask extends Task
     /** Configures our classpath which we'll use to load service classes. */
     public void setClasspathref (Reference pathref)
     {
-        _cloader = ClasspathUtils.getClassLoaderForPath(
-            getProject(), pathref);
+        _cloader = ClasspathUtils.getClassLoaderForPath(getProject(), pathref);
 
         // set the parent of the classloader to be the classloader used to load this task,
         // rather than the classloader used to load Ant, so that we have access to Narya

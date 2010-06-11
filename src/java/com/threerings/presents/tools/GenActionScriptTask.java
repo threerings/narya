@@ -235,8 +235,7 @@ public class GenActionScriptTask extends Task
             assrc.publicMethods.add(member);
         }
 
-        // now we can parse existing definitions from any extant ActionScript
-        // source file
+        // now we can parse existing definitions from any extant ActionScript source file
         assrc.absorbActionScript(asfile);
 
         // make sure our parent directory exists
