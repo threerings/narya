@@ -202,31 +202,6 @@ public class DObject
     }
 
     /**
-     * Adds a listener using a weak reference that will not prevent the listener from being
-     * garbage-collected.
-     */
-    public void addWeakListener (ChangeListener listener)
-    {
-        if (getWeakListenerIndex(listener) == -1) {
-            _listeners = ListUtil.add(_listeners, new WeakListenerWrapper(listener));
-        } else {
-            log.warning("Refusing repeat weak listener registration",
-                "dobj", which(), "list", listener, new Exception());
-        }
-    }
-
-    /**
-     * Removes a weak event listener.
-     */
-    public void removeWeakListener (ChangeListener listener)
-    {
-        int idx = getWeakListenerIndex(listener);
-        if (idx != -1) {
-            _listeners[idx] = null;
-        }
-    }
-
-    /**
      * Adds an event listener to this object. The listener will be notified when any events are
      * dispatched on this object that match their particular listener interface.
      *
@@ -247,13 +222,47 @@ public class DObject
      */
     public void addListener (ChangeListener listener)
     {
+        addListener(listener, false);
+    }
+
+    /**
+     * Adds an event listener to this object. The listener will be notified when any events are
+     * dispatched on this object that match their particular listener interface.
+     *
+     * <p> Note that the entity adding itself as a listener should have obtained the object
+     * reference by subscribing to it or should be acting on behalf of some other entity that
+     * subscribed to the object, <em>and</em> that it must be sure to remove itself from the
+     * listener list (via {@link #removeListener}) when it is done because unsubscribing from the
+     * object (done by whatever entity subscribed in the first place) is not guaranteed to result
+     * in the listeners added through that subscription being automatically removed (in most cases,
+     * they definitely will not be removed).
+     *
+     * @param listener the listener to be added.
+     * @param weak if true, retain only a weak reference to the listener (do not prevent the
+     * listener from being garbage-collected).
+     *
+     * @see EventListener
+     * @see AttributeChangeListener
+     * @see SetListener
+     * @see OidListListener
+     */
+    public void addListener (ChangeListener listener, boolean weak)
+    {
         // only add the listener if they're not already there
-        Object[] els = ListUtil.testAndAddRef(_listeners, listener);
-        if (els != null) {
-            _listeners = els;
-        } else {
+        int idx = getListenerIndex(listener);
+        if (idx == -1) {
+            _listeners = ListUtil.add(_listeners,
+                weak ? new WeakListenerWrapper(listener) : listener);
+            return;
+        }
+        boolean oweak = _listeners[idx] instanceof WeakListenerWrapper;
+        if (weak == oweak) {
             log.warning("Refusing repeat listener registration",
                 "dobj", which(), "list", listener, new Exception());
+        } else {
+            log.warning("Updating listener registered under different strength.",
+                "dobj", which(), "list", listener, "oweak", oweak, "nweak", weak, new Exception());
+            _listeners[idx] = weak ? new WeakListenerWrapper(listener) : listener;
         }
     }
 
@@ -265,7 +274,10 @@ public class DObject
      */
     public void removeListener (ChangeListener listener)
     {
-        ListUtil.clearRef(_listeners, listener);
+        int idx = getListenerIndex(listener);
+        if (idx != -1) {
+            _listeners[idx] = null;
+        }
     }
 
     /**
@@ -1002,19 +1014,17 @@ public class DObject
     }
 
     /**
-     * Returns the index of the identified wrapped weak listener, or -1 if not found.
+     * Returns the index of the identified listener, or -1 if not found.
      */
-    protected int getWeakListenerIndex (ChangeListener listener)
+    protected int getListenerIndex (ChangeListener listener)
     {
         if (_listeners == null) {
             return -1;
         }
         for (int ii = 0, ll = _listeners.length; ii < ll; ii++) {
             Object olistener = _listeners[ii];
-            if (!(olistener instanceof WeakListenerWrapper)) {
-                continue;
-            }
-            if (((WeakListenerWrapper)olistener).ref.get() == listener) {
+            if (olistener == listener || (olistener instanceof WeakListenerWrapper &&
+                    ((WeakListenerWrapper)olistener).ref.get() == listener)) {
                 return ii;
             }
         }
@@ -1043,7 +1053,7 @@ public class DObject
         {
             ChangeListener listener = ref.get();
             if (listener == null) {
-                removeListener(this);
+                ListUtil.clearRef(_listeners, this);
             } else {
                 event.notifyListener(listener);
                 if (listener instanceof EventListener) {
