@@ -463,15 +463,14 @@ public class DObject
             return;
         }
 
-        int llength = _listeners.length;
-        for (int i = 0; i < llength; i++) {
-            Object listener = _listeners[i];
+        for (int ii = 0, ll = _listeners.length; ii < ll; ii++) {
+            Object listener = _listeners[ii];
             if (listener == null) {
                 continue;
             }
             if (listener instanceof WeakReference) {
                 if ((listener = ((WeakReference<?>)listener).get()) == null) {
-                    _listeners[i] = null;
+                    _listeners[ii] = null;
                     continue;
                 }
             }
