@@ -252,17 +252,17 @@ public class DObject
         int idx = getListenerIndex(listener);
         if (idx == -1) {
             _listeners = ListUtil.add(_listeners,
-                weak ? new WeakListenerWrapper(listener) : listener);
+                weak ? new WeakReference<Object>(listener) : listener);
             return;
         }
-        boolean oweak = _listeners[idx] instanceof WeakListenerWrapper;
+        boolean oweak = _listeners[idx] instanceof WeakReference;
         if (weak == oweak) {
             log.warning("Refusing repeat listener registration",
                 "dobj", which(), "list", listener, new Exception());
         } else {
             log.warning("Updating listener registered under different strength.",
                 "dobj", which(), "list", listener, "oweak", oweak, "nweak", weak, new Exception());
-            _listeners[idx] = weak ? new WeakListenerWrapper(listener) : listener;
+            _listeners[idx] = weak ? new WeakReference<Object>(listener) : listener;
         }
     }
 
@@ -468,6 +468,12 @@ public class DObject
             Object listener = _listeners[i];
             if (listener == null) {
                 continue;
+            }
+            if (listener instanceof WeakReference) {
+                if ((listener = ((WeakReference<?>)listener).get()) == null) {
+                    _listeners[i] = null;
+                    continue;
+                }
             }
 
             try {
@@ -1023,44 +1029,12 @@ public class DObject
         }
         for (int ii = 0, ll = _listeners.length; ii < ll; ii++) {
             Object olistener = _listeners[ii];
-            if (olistener == listener || (olistener instanceof WeakListenerWrapper &&
-                    ((WeakListenerWrapper)olistener).ref.get() == listener)) {
+            if (olistener == listener || (olistener instanceof WeakReference &&
+                    ((WeakReference<?>)olistener).get() == listener)) {
                 return ii;
             }
         }
         return -1;
-    }
-
-    /**
-     * A listener that wraps a weak reference to another listener.
-     */
-    protected class WeakListenerWrapper
-        implements EventListener
-    {
-        /** The weak reference to our underlying listener. */
-        public final WeakReference<ChangeListener> ref;
-
-        /**
-         * Creates a new weak listener wrapper.
-         */
-        public WeakListenerWrapper (ChangeListener listener)
-        {
-            ref = new WeakReference<ChangeListener>(listener);
-        }
-
-        // documentation inherited from interface EventListener
-        public void eventReceived (DEvent event)
-        {
-            ChangeListener listener = ref.get();
-            if (listener == null) {
-                ListUtil.clearRef(_listeners, this);
-            } else {
-                event.notifyListener(listener);
-                if (listener instanceof EventListener) {
-                    ((EventListener)listener).eventReceived(event);
-                }
-            }
-        }
     }
 
     /** Our object id. */
