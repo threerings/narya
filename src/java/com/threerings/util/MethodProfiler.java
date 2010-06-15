@@ -227,7 +227,7 @@ public class MethodProfiler
         @Override public void run ()
         {
             try {
-                for (int i = 0; i < _methodCount; ++i) {
+                for (int ii = 0; ii < _methodCount; ++ii) {
                     MethodProfiler.this.enter(_method);
                     Thread.sleep(_sleep);
                     MethodProfiler.this.exit(_method);

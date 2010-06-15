@@ -129,8 +129,8 @@ public class CompoundEvent extends DEvent
 
         // we need to propagate our source oid to our constituent events
         int ecount = _events.size();
-        for (int i = 0; i < ecount; i++) {
-            _events.get(i).setSourceOid(sourceOid);
+        for (int ii = 0; ii < ecount; ii++) {
+            _events.get(ii).setSourceOid(sourceOid);
         }
     }
 
@@ -141,8 +141,8 @@ public class CompoundEvent extends DEvent
 
         // we need to propagate our target oid to our constituent events
         int ecount = _events.size();
-        for (int i = 0; i < ecount; i++) {
-            _events.get(i).setTargetOid(targetOid);
+        for (int ii = 0; ii < ecount; ii++) {
+            _events.get(ii).setTargetOid(targetOid);
         }
     }
 
@@ -179,8 +179,8 @@ public class CompoundEvent extends DEvent
     {
         buf.append("COMPOUND:");
         super.toString(buf);
-        for (int i = 0; i < _events.size(); i++) {
-            buf.append(", ").append(_events.get(i));
+        for (int ii = 0; ii < _events.size(); ii++) {
+            buf.append(", ").append(_events.get(ii));
         }
     }
 

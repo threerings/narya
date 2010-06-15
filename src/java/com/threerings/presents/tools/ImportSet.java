@@ -312,8 +312,8 @@ public class ImportSet
         }
         for (String name : toMunge) {
             String newname = name;
-            for (int i = 0; i < replace.length; i += 2) {
-                newname = newname.replace(replace[i], replace[i + 1]);
+            for (int ii = 0; ii < replace.length; ii += 2) {
+                newname = newname.replace(replace[ii], replace[ii + 1]);
             }
             _imports.add(newname);
         }

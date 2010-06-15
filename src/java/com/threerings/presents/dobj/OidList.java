@@ -74,8 +74,8 @@ public class OidList implements Streamable
     public boolean add (int oid)
     {
         // check for existence
-        for (int i = 0; i < _size; i++) {
-            if (_oids[i] == oid) {
+        for (int ii = 0; ii < _size; ii++) {
+            if (_oids[ii] == oid) {
                 return false;
             }
         }
@@ -99,10 +99,10 @@ public class OidList implements Streamable
     public boolean remove (int oid)
     {
         // scan for the oid in question
-        for (int i = 0; i < _size; i++) {
-            if (_oids[i] == oid) {
+        for (int ii = 0; ii < _size; ii++) {
+            if (_oids[ii] == oid) {
                 // shift the rest of the list back one
-                System.arraycopy(_oids, i+1, _oids, i, --_size-i);
+                System.arraycopy(_oids, ii+1, _oids, ii, --_size-ii);
                 return true;
             }
         }
@@ -115,8 +115,8 @@ public class OidList implements Streamable
      */
     public boolean contains (int oid)
     {
-        for (int i = 0; i < _size; i++) {
-            if (_oids[i] == oid) {
+        for (int ii = 0; ii < _size; ii++) {
+            if (_oids[ii] == oid) {
                 return true;
             }
         }
@@ -138,11 +138,11 @@ public class OidList implements Streamable
     {
         StringBuilder buf = new StringBuilder();
         buf.append("{");
-        for (int i = 0; i < _size; i++) {
-            if (i > 0) {
+        for (int ii = 0; ii < _size; ii++) {
+            if (ii > 0) {
                 buf.append(", ");
             }
-            buf.append(_oids[i]);
+            buf.append(_oids[ii]);
         }
         buf.append("}");
         return buf.toString();

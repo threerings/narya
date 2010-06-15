@@ -61,8 +61,8 @@ public class PlaceViewUtil
         if (root instanceof Container) {
             Container cont = (Container)root;
             int ccount = cont.getComponentCount();
-            for (int i = 0; i < ccount; i++) {
-                dispatchWillEnterPlace(cont.getComponent(i), plobj);
+            for (int ii = 0; ii < ccount; ii++) {
+                dispatchWillEnterPlace(cont.getComponent(ii), plobj);
             }
         }
     }
@@ -93,8 +93,8 @@ public class PlaceViewUtil
         if (root instanceof Container) {
             Container cont = (Container)root;
             int ccount = cont.getComponentCount();
-            for (int i = 0; i < ccount; i++) {
-                dispatchDidLeavePlace(cont.getComponent(i), plobj);
+            for (int ii = 0; ii < ccount; ii++) {
+                dispatchDidLeavePlace(cont.getComponent(ii), plobj);
             }
         }
     }

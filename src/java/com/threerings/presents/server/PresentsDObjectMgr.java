@@ -493,8 +493,8 @@ public class PresentsDObjectMgr
 
             try {
                 OidList list = (OidList)field.get(target);
-                for (int i = 0; i < list.size(); i++) {
-                    clearReference(target, field.getName(), list.get(i));
+                for (int ii = 0; ii < list.size(); ii++) {
+                    clearReference(target, field.getName(), list.get(ii));
                 }
 
             } catch (Exception e) {
@@ -536,12 +536,12 @@ public class PresentsDObjectMgr
         // determine where to add the reference
         Reference ref = new Reference(target.getOid(), oae.getName(), oid);
         int rpos = -1;
-        for (int i = 0; i < refs.length; i++) {
-            if (ref.equals(refs[i])) {
+        for (int ii = 0; ii < refs.length; ii++) {
+            if (ref.equals(refs[ii])) {
                 log.warning("Ignoring request to track existing reference " + ref + ".");
                 return true;
-            } else if (refs[i] == null && rpos == -1) {
-                rpos = i;
+            } else if (refs[ii] == null && rpos == -1) {
+                rpos = ii;
             }
         }
 
@@ -588,11 +588,11 @@ public class PresentsDObjectMgr
         }
 
         // look for the matching reference
-        for (int i = 0; i < refs.length; i++) {
-            Reference ref = refs[i];
+        for (int ii = 0; ii < refs.length; ii++) {
+            Reference ref = refs[ii];
             if (ref != null && ref.equals(toid, field)) {
 //                log.info("Removed reference " + refs[i] + ".");
-                refs[i] = null;
+                refs[ii] = null;
                 return true;
             }
         }
@@ -818,10 +818,10 @@ public class PresentsDObjectMgr
         Reference ref = null;
 
         if (refs != null) {
-            for (int i = 0; i < refs.length; i++) {
-                if (refs[i].equals(reffer.getOid(), field)) {
-                    ref = refs[i];
-                    refs[i] = null;
+            for (int ii = 0; ii < refs.length; ii++) {
+                if (refs[ii].equals(reffer.getOid(), field)) {
+                    ref = refs[ii];
+                    refs[ii] = null;
                     break;
                 }
             }

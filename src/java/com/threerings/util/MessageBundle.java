@@ -380,13 +380,13 @@ public class MessageBundle
             String argstr = compoundKey.substring(tidx+1);
             String[] args = StringUtil.split(argstr, "|");
             // unescape and translate the arguments
-            for (int i = 0; i < args.length; i++) {
+            for (int ii = 0; ii < args.length; ii++) {
                 // if the argument is tainted, do no further translation
                 // (it might contain |s or other fun stuff)
-                if (MessageUtil.isTainted(args[i])) {
-                    args[i] = MessageUtil.unescape(MessageUtil.untaint(args[i]));
+                if (MessageUtil.isTainted(args[ii])) {
+                    args[ii] = MessageUtil.unescape(MessageUtil.untaint(args[ii]));
                 } else {
-                    args[i] = xlate(MessageUtil.unescape(args[i]));
+                    args[ii] = xlate(MessageUtil.unescape(args[ii]));
                 }
             }
             return get(key, (Object[]) args);

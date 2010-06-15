@@ -346,8 +346,8 @@ public class ClientDObjectMgr
             return;
         }
 
-        for (int i = 0; i < req.targets.size(); i++) {
-            @SuppressWarnings("unchecked") Subscriber<T> target = (Subscriber<T>)req.targets.get(i);
+        for (int ii = 0; ii < req.targets.size(); ii++) {
+            @SuppressWarnings("unchecked") Subscriber<T> target = (Subscriber<T>)req.targets.get(ii);
             // add them as a subscriber
             obj.addSubscriber(target);
             // and let them know that the object is in
@@ -368,8 +368,8 @@ public class ClientDObjectMgr
             return;
         }
 
-        for (int i = 0; i < req.targets.size(); i++) {
-            req.targets.get(i).requestFailed(oid, new ObjectAccessException(message));
+        for (int ii = 0; ii < req.targets.size(); ii++) {
+            req.targets.get(ii).requestFailed(oid, new ObjectAccessException(message));
         }
     }
 
