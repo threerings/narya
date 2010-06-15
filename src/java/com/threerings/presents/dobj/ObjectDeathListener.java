@@ -22,7 +22,7 @@
 package com.threerings.presents.dobj;
 
 /**
- * Implemented by entites which wish to hear about object destruction events.
+ * Implemented by entities which wish to hear about object destruction events.
  *
  * @see DObject#addListener
  */

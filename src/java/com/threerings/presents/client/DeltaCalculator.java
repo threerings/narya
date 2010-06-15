@@ -37,7 +37,7 @@ public class DeltaCalculator
 {
     /**
      * Constructs a delta calculator which is used to calculate the time
-     * delta between the client and server, accounding reasonably well for
+     * delta between the client and server, accounting reasonably well for
      * the delay introduced by sending a timestamp over the network from
      * the server to the client.
      */

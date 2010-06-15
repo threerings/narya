@@ -22,7 +22,7 @@
 package com.threerings.presents.dobj;
 
 /**
- * Implemented by entites which wish to hear about changes that occur to
+ * Implemented by entities which wish to hear about changes that occur to
  * oid list attributes of a particular distributed object.
  *
  * @see DObject#addListener

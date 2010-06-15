@@ -22,7 +22,7 @@
 package com.threerings.presents.dobj;
 
 /**
- * Implemented by entites which wish to hear about all events being
+ * Implemented by entities which wish to hear about all events being
  * dispatched on a particular distributed object.
  *
  * @see DObject#addListener
