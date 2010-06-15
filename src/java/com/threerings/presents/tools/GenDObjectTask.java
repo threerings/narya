@@ -53,8 +53,7 @@ import com.threerings.presents.dobj.DSet;
 import com.threerings.presents.dobj.OidList;
 
 /**
- * Generates necessary additional distributed object declarations and
- * methods.
+ * Generates necessary additional distributed object declarations and methods.
  */
 public class GenDObjectTask extends Task
 {

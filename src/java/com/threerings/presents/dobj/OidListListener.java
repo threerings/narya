@@ -22,26 +22,24 @@
 package com.threerings.presents.dobj;
 
 /**
- * Implemented by entities which wish to hear about changes that occur to
- * oid list attributes of a particular distributed object.
+ * Implemented by entities which wish to hear about changes that occur to oid list attributes of a
+ * particular distributed object.
  *
  * @see DObject#addListener
  */
 public interface OidListListener extends ChangeListener
 {
     /**
-     * Called when an object added event has been dispatched on an
-     * object. This will be called <em>after</em> the event has been
-     * applied to the object.
+     * Called when an object added event has been dispatched on an object. This will be called
+     * <em>after</em> the event has been applied to the object.
      *
      * @param event The event that was dispatched on the object.
      */
     void objectAdded (ObjectAddedEvent event);
 
     /**
-     * Called when an object removed event has been dispatched on an
-     * object. This will be called <em>after</em> the event has been
-     * applied to the object.
+     * Called when an object removed event has been dispatched on an object. This will be called
+     * <em>after</em> the event has been applied to the object.
      *
      * @param event The event that was dispatched on the object.
      */

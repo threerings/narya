@@ -900,23 +900,20 @@ public class Client
     protected class ServerSwitcher extends ClientAdapter
     {
         public ServerSwitcher (
-            String hostname, int[] ports, InvocationService.ConfirmListener obs)
-        {
+            String hostname, int[] ports, InvocationService.ConfirmListener obs) {
             this(hostname, ports, new int[0], obs);
         }
 
         public ServerSwitcher (
             String hostname, int[] ports, int[] datagramPorts,
-            InvocationService.ConfirmListener obs)
-        {
+            InvocationService.ConfirmListener obs) {
             _hostname = hostname;
             _ports = ports;
             _datagramPorts = datagramPorts;
             _observer = obs;
         }
 
-        public void switchServers ()
-        {
+        public void switchServers () {
             addClientObserver(this);
             if (!isLoggedOn()) {
                 // if we're not logged on right now, just do the switch immediately
@@ -935,8 +932,7 @@ public class Client
         }
 
         @Override
-        public void clientDidClear (Client client)
-        {
+        public void clientDidClear (Client client) {
             // configure the client to point to the new server and logon
             setServer(_hostname, _ports, _datagramPorts);
 
@@ -948,8 +944,7 @@ public class Client
         }
 
         @Override
-        public void clientDidLogon (Client client)
-        {
+        public void clientDidLogon (Client client) {
             removeClientObserver(this);
             if (_observer != null) {
                 _observer.requestProcessed();
@@ -957,8 +952,7 @@ public class Client
         }
 
         @Override
-        public void clientFailedToLogon (Client client, Exception cause)
-        {
+        public void clientFailedToLogon (Client client, Exception cause) {
             removeClientObserver(this);
             if (_oldHostname != null) { // restore our previous server and ports
                 setServer(_oldHostname, _oldPorts, _oldDatagramPorts);
