@@ -36,8 +36,6 @@ public class ObjectInputStream
     /** Enables verbose object I/O debugging. */
     public static const DEBUG :Boolean = false;
 
-    public static const log :Log = Log.getLog(ObjectInputStream);
-
     public function ObjectInputStream (source :IDataInput = null, clientProps :Object = null)
     {
         _source = source || new ByteArray();
@@ -287,5 +285,7 @@ public class ObjectInputStream
     protected var _classMap :Array = new Array();
 
     private static var _debugObjectCounter :int = 0;
+
+    private static const log :Log = Log.getLog(ObjectInputStream);
 }
 }
