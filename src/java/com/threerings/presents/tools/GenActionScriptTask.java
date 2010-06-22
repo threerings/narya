@@ -342,7 +342,7 @@ public class GenActionScriptTask extends Task
             return "writeDouble(" + name + ")";
 
         } else if (type.equals(String.class) ||
-                   (type.isArray() && Byte.TYPE.equals(type.getComponentType()))) {
+                   (type.isArray() && type.getComponentType().isPrimitive())) {
             return "writeField(" + name + ")";
 
         } else {
