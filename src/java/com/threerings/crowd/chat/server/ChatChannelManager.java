@@ -24,14 +24,13 @@ package com.threerings.crowd.chat.server;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.inject.Inject;
 
 import com.samskivert.util.ArrayIntSet;
-import com.samskivert.util.IntSet;
-
 import com.threerings.util.Name;
 
 import com.threerings.presents.annotation.AnyThread;
@@ -165,7 +164,7 @@ public abstract class ChatChannelManager
     /**
      * This should be called when a channel's participant set has been resolved.
      */
-    protected void resolutionComplete (ChatChannel channel, IntSet parts)
+    protected void resolutionComplete (ChatChannel channel, Set<Integer> parts)
     {
         // map the participants of our now resolved channel
         ChannelInfo info = new ChannelInfo();
@@ -391,7 +390,7 @@ public abstract class ChatChannelManager
         public ChatChannel channel;
 
         /** The body ids of the participants of this channel. */
-        public IntSet participants;
+        public Set<Integer> participants;
 
         /** The time at which a message was last dispatched on this channel. */
         public long lastMessage;
