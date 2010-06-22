@@ -289,13 +289,22 @@ public class GenActionScriptTask extends Task
             return "ins.readDouble()";
 
         } else if (type.isArray()) {
-            if (Byte.TYPE.equals(type.getComponentType())) {
-                return "ins.readField(ByteArray)";
-
-            } else {
+            if (!type.getComponentType().isPrimitive()) {
                 return "ins.readObject(TypedArray)";
+            } else {
+                if (Double.TYPE.equals(type.getComponentType())) {
+                    return "ins.readField(TypedArray.getJavaType(Number))";
+                } else if (Boolean.TYPE.equals(type.getComponentType())) {
+                    return "ins.readField(TypedArray.getJavaType(Boolean))";
+                } else if (Integer.TYPE.equals(type.getComponentType())) {
+                    return "ins.readField(TypedArray.getJavaType(int))";
+                } else if (Byte.TYPE.equals(type.getComponentType())) {
+                    return "ins.readField(ByteArray)";
+                } else {
+                    throw new IllegalArgumentException(type
+                        + " isn't supported to stream to actionscript");
+                }
             }
-
         } else {
             return "ins.readObject(" + ActionScriptSource.toSimpleName(type.getName()) + ")";
         }
