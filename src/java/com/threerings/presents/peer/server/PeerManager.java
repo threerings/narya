@@ -24,6 +24,7 @@ package com.threerings.presents.peer.server;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicLong;
 
 import java.io.ByteArrayInputStream;
@@ -33,6 +34,7 @@ import com.google.common.base.Function;
 import com.google.common.base.Predicates;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
 
@@ -436,18 +438,59 @@ public abstract class PeerManager
     }
 
     /**
+     * Invokes the supplied request on all servers in parallel. The request will execute on the
+     * distributed object thread, but this method does not need to be called from there.
+     *
+     * If any one node reports failure, this function reports failure. If all nodes report success,
+     * this function will report success.
+     */
+    public void invokeNodeRequest (
+        final NodeRequest request, final InvocationService.ConfirmListener listener)
+    {
+        // if we're not on the dobjmgr thread, get there
+        if (!_omgr.isDispatchThread()) {
+            _omgr.postRunnable(new Runnable() {
+                public void run () {
+                    invokeNodeRequest(request, listener);
+                }
+            });
+            return;
+        }
+
+        // build a set of node names (including the local node) to
+        final Set<String> nodes = Sets.newHashSet(_nodeobj.nodeName);
+        for (PeerNode peer : _peers.values()) {
+            nodes.add(peer.getNodeName());
+        }
+
+        // serialize the action to make sure we can
+        byte[] requestBytes = flattenRequest(request);
+
+        for (final String node : nodes) {
+            invokeNodeRequest(node, requestBytes, new InvocationService.ResultListener() {
+                @Override public void requestProcessed (Object result) {
+                    // check off this node's successful response
+                    nodes.remove(node);
+                    if (nodes.isEmpty()) {
+                        // if all nodes have responded in the affirmative, let caller know
+                        listener.requestProcessed();
+                    }
+                }
+                @Override public void requestFailed (String cause) {
+                    // let the caller know a node failed
+                    listener.requestFailed(cause);
+                }
+            });
+        }
+    }
+
+    /**
      * Invokes a node request on a specific node and returns the result through the listener.
      */
     public void invokeNodeRequest (String nodeName, NodeRequest request,
         InvocationService.ResultListener listener)
     {
-        PeerNode peer = _peers.get(nodeName);
-        if (peer != null) {
-            peer.nodeobj.peerService.invokeRequest(
-                peer.getClient(), flattenRequest(request), listener);
-        } else if (nodeName.equals(_nodeName)) {
-            invokeRequest(null, flattenRequest(request), listener);
-        }
+        invokeNodeRequest(nodeName, flattenRequest(request), listener);
     }
 
     /**
@@ -1205,6 +1248,17 @@ public abstract class PeerManager
         } catch (Exception e) {
             throw new IllegalArgumentException(
                 "Failed to serialize node request [request=" + request + "].", e);
+        }
+    }
+
+    protected void invokeNodeRequest (String nodeName, byte[] requestBytes,
+        InvocationService.ResultListener listener)
+    {
+        PeerNode peer = _peers.get(nodeName);
+        if (peer != null) {
+            peer.nodeobj.peerService.invokeRequest(peer.getClient(), requestBytes, listener);
+        } else if (nodeName.equals(_nodeName)) {
+            invokeRequest(null, requestBytes, listener);
         }
     }
 
