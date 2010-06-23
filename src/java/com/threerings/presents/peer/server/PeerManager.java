@@ -468,7 +468,7 @@ public abstract class PeerManager
 
         for (final String node : nodes) {
             invokeNodeRequest(node, requestBytes, new InvocationService.ResultListener() {
-                @Override public void requestProcessed (Object result) {
+                public void requestProcessed (Object result) {
                     // check off this node's successful response
                     nodes.remove(node);
                     if (nodes.isEmpty()) {
@@ -476,7 +476,7 @@ public abstract class PeerManager
                         listener.requestProcessed();
                     }
                 }
-                @Override public void requestFailed (String cause) {
+                public void requestFailed (String cause) {
                     // let the caller know a node failed
                     listener.requestFailed(cause);
                 }
