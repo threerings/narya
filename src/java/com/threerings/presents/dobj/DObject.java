@@ -255,7 +255,7 @@ public class DObject
                 weak ? new WeakReference<Object>(listener) : listener);
             return;
         }
-        boolean oweak = _listeners[idx] instanceof WeakReference;
+        boolean oweak = _listeners[idx] instanceof WeakReference<?>;
         if (weak == oweak) {
             log.warning("Refusing repeat listener registration",
                 "dobj", which(), "list", listener, new Exception());
@@ -468,7 +468,7 @@ public class DObject
             if (listener == null) {
                 continue;
             }
-            if (listener instanceof WeakReference) {
+            if (listener instanceof WeakReference<?>) {
                 if ((listener = ((WeakReference<?>)listener).get()) == null) {
                     _listeners[ii] = null;
                     continue;
@@ -1028,7 +1028,7 @@ public class DObject
         }
         for (int ii = 0, ll = _listeners.length; ii < ll; ii++) {
             Object olistener = _listeners[ii];
-            if (olistener == listener || (olistener instanceof WeakReference &&
+            if (olistener == listener || (olistener instanceof WeakReference<?> &&
                     ((WeakReference<?>)olistener).get() == listener)) {
                 return ii;
             }
