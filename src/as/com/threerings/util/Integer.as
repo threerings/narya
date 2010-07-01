@@ -36,6 +36,12 @@ import com.threerings.io.Streamable;
 public final class Integer
     implements Hashable, Boxed, Streamable
 {
+    /** The minimum possible int value. */
+    public static const MIN_VALUE :int = -Math.pow(2, 31);
+
+    /** The maximum possible int value. */
+    public static const MAX_VALUE :int = (Math.pow(2, 31) - 1);
+
     public static function valueOf (val :int) :Integer
     {
         return new Integer(val);
