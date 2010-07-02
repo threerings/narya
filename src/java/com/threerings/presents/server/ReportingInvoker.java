@@ -112,7 +112,7 @@ public class ReportingInvoker extends Invoker
             synchronized (this) {
                 Stats stats = getStats(reset);
                 buf.append("- Max queue size: ").append(stats.maxQueueSize).append("\n");
-                buf.append("- Units executed: ").append(stats.unitsRun);
+                buf.append("- Units executed: ").append(stats.unitsRun).append("\n");
                 buf.append("- Total units executed: ").append(_totalUnitsRun);
                 long runPerSec = stats.unitsRun/Math.max(1, sinceLast/1000);
                 buf.append(" (").append(runPerSec).append("/s)\n");
