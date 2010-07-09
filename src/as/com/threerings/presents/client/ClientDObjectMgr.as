@@ -225,9 +225,7 @@ public class ClientDObjectMgr
             }
 
         } catch (e :Error) {
-            log.warning("Failure processing event [event=" + event +
-                ", target=" + target + "].");
-            log.logStackTrace(e);
+            log.warning("Failure processing event", "event", event, "target", target, e);
         }
     }
 

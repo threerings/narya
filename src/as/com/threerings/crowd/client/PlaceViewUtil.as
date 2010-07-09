@@ -80,9 +80,8 @@ public class PlaceViewUtil
                 (root as PlaceView)[funct](plobj);
             } catch (e :Error) {
                 var log :Log = Log.getLog(PlaceViewUtil);
-                log.warning("Component choked on " + funct + "() " +
-                    "[component=" + root + ", plobj=" + plobj + "].");
-                log.logStackTrace(e);
+                log.warning("Component choked on " + funct + "() ", "component", root,
+                    "plobj", plobj, e);
             }
         }
 

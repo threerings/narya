@@ -257,9 +257,8 @@ public class InvocationDirector
         try {
             listener.dispatchResponse(methodId, args);
         } catch (e :Error) {
-            log.warning("Invocation response listener choked [listener=" + listener +
-                        ", methId=" + methodId + ", args=" + args + "].");
-            log.logStackTrace(e);
+            log.warning("Invocation response listener choked", "listener", listener,
+                "methId", methodId, "args", args, e);
         }
 
         // flush expired listeners periodically
@@ -293,9 +292,8 @@ public class InvocationDirector
         try {
             decoder.dispatchNotification(methodId, args);
         } catch (e :Error) {
-            log.warning("Invocation notification receiver choked [receiver=" + decoder.receiver +
-                        ", methId=" + methodId + ", args=" + args + "].");
-            log.logStackTrace(e);
+            log.warning("Invocation notification receiver choked", "receiver", decoder.receiver,
+                "methId", methodId, "args", args, e);
         }
     }
 
