@@ -28,24 +28,20 @@ import com.threerings.crowd.data.PlaceObject;
 import static com.threerings.crowd.Log.log;
 
 /**
- * Provides a mechanism for dispatching notifications to all user
- * interface elements in a hierarchy that implement the {@link PlaceView}
- * interface. Look at the documentation for {@link PlaceView} for more
- * explanation.
+ * Provides a mechanism for dispatching notifications to all user interface elements in a
+ * hierarchy that implement the {@link PlaceView} interface. Look at the documentation for
+ * {@link PlaceView} for more explanation.
  */
 public class PlaceViewUtil
 {
     /**
-     * Dispatches a call to {@link PlaceView#willEnterPlace} to all UI
-     * elements in the hierarchy rooted at the component provided via the
-     * <code>root</code> parameter.
+     * Dispatches a call to {@link PlaceView#willEnterPlace} to all UI elements in the hierarchy
+     * rooted at the component provided via the <code>root</code> parameter.
      *
-     * @param root the component at which to start traversing the UI
-     * hierarchy.
+     * @param root the component at which to start traversing the UI hierarchy.
      * @param plobj the place object that is about to be entered.
      */
-    public static void dispatchWillEnterPlace (
-        Object root, PlaceObject plobj)
+    public static void dispatchWillEnterPlace (Object root, PlaceObject plobj)
     {
         // dispatch the call on this component if it implements PlaceView
         if (root instanceof PlaceView) {
@@ -53,7 +49,7 @@ public class PlaceViewUtil
                 ((PlaceView)root).willEnterPlace(plobj);
             } catch (Exception e) {
                 log.warning("Component choked on willEnterPlace()", "component", root,
-                            "plobj", plobj, e);
+                    "plobj", plobj, e);
             }
         }
 
@@ -68,16 +64,13 @@ public class PlaceViewUtil
     }
 
     /**
-     * Dispatches a call to {@link PlaceView#didLeavePlace} to all UI
-     * elements in the hierarchy rooted at the component provided via the
-     * <code>root</code> parameter.
+     * Dispatches a call to {@link PlaceView#didLeavePlace} to all UI elements in the hierarchy
+     * rooted at the component provided via the <code>root</code> parameter.
      *
-     * @param root the component at which to start traversing the UI
-     * hierarchy.
+     * @param root the component at which to start traversing the UI hierarchy.
      * @param plobj the place object that is about to be entered.
      */
-    public static void dispatchDidLeavePlace (
-        Object root, PlaceObject plobj)
+    public static void dispatchDidLeavePlace (Object root, PlaceObject plobj)
     {
         // dispatch the call on this component if it implements PlaceView
         if (root instanceof PlaceView) {
@@ -85,7 +78,7 @@ public class PlaceViewUtil
                 ((PlaceView)root).didLeavePlace(plobj);
             } catch (Exception e) {
                 log.warning("Component choked on didLeavePlace()", "component", root,
-                            "plobj", plobj, e);
+                    "plobj", plobj, e);
             }
         }
 
