@@ -173,7 +173,7 @@ public class ImportSet
             int dollar = name.indexOf('$');
             if (dollar >= 0) {
                 i.remove();
-                inner.add(name.replace("$", "_"));
+                inner.add(name.replace('$', '_'));
             }
         }
 

@@ -26,8 +26,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.samskivert.util.RandomUtil;
-import com.samskivert.util.StringUtil;
-
 import com.threerings.util.Name;
 
 import static com.threerings.crowd.Log.log;
@@ -97,7 +95,7 @@ public abstract class CurseFilter implements ChatFilter
 
                 case COMIC:
                     m.appendReplacement(outbuf,
-                        StringUtil.replace(_replacements[ii], " ",  comicChars(_comicLength[ii])));
+                        _replacements[ii].replace(" ", comicChars(_comicLength[ii])));
                     break;
 
                 case VERNACULAR:
@@ -107,8 +105,7 @@ public abstract class CurseFilter implements ChatFilter
                         vernacular = vernacular.substring(0, firstCharLen).toUpperCase() +
                                      vernacular.substring(firstCharLen);
                     }
-                    m.appendReplacement(outbuf,
-                        StringUtil.replace(_replacements[ii], " ", vernacular));
+                    m.appendReplacement(outbuf, _replacements[ii].replace(" ", vernacular));
                     break;
 
                 case UNFILTERED:
@@ -177,7 +174,7 @@ public abstract class CurseFilter implements ChatFilter
                 s += "$3";
             }
 
-            String pattern = "\\b" + StringUtil.replace(p, " ", "(" + curse + ")") + "\\b";
+            String pattern = "\\b" + p.replace(" ", "(" + curse + ")") + "\\b";
             Pattern pat = Pattern.compile(pattern, Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE);
             _matchers[ii] = pat.matcher("");
             _replacements[ii] = s;
@@ -220,7 +217,7 @@ public abstract class CurseFilter implements ChatFilter
      */
     protected String getStopWordRegexp (String word)
     {
-        return "\\b" + StringUtil.replace(word, "*", "[A-Za-z]*") + "\\b";
+        return "\\b" + word.replace("*", "[A-Za-z]*") + "\\b";
     }
 
     /**

@@ -98,15 +98,15 @@ public class GenReceiverTask extends InvocationTask
                                    List<?> methods, Iterator<String> imports)
         throws Exception
     {
-        String name = StringUtil.replace(rname, "Receiver", "");
-        String spackage = StringUtil.replace(rpackage, ".client", ".server");
+        String name = rname.replace("Receiver", "");
+        String spackage = rpackage.replace(".client", ".server");
 
         // construct our imports list
         ComparableArrayList<String> implist = new ComparableArrayList<String>();
         CollectionUtil.addAll(implist, imports);
         checkedAdd(implist, ClientObject.class.getName());
         checkedAdd(implist, InvocationSender.class.getName());
-        String dname = StringUtil.replace(rname, "Receiver", "Decoder");
+        String dname = rname.replace("Receiver", "Decoder");
         checkedAdd(implist, rpackage + "." + dname);
         checkedAdd(implist, rpackage + "." + rname);
         implist.sort();
@@ -122,7 +122,7 @@ public class GenReceiverTask extends InvocationTask
 
         // determine the path to our sender file
         String mpath = source.getPath();
-        mpath = StringUtil.replace(mpath, "Receiver", "Sender");
+        mpath = mpath.replace("Receiver", "Sender");
         mpath = replacePath(mpath, "/client/", "/server/");
         writeFile(mpath, sw.toString());
     }
@@ -131,7 +131,7 @@ public class GenReceiverTask extends InvocationTask
                                     List<?> methods, Iterator<String> imports)
         throws Exception
     {
-        String name = StringUtil.replace(rname, "Receiver", "");
+        String name = rname.replace("Receiver", "");
 
         // construct our imports list
         ComparableArrayList<String> implist = new ComparableArrayList<String>();
@@ -151,7 +151,7 @@ public class GenReceiverTask extends InvocationTask
 
         // determine the path to our sender file
         String mpath = source.getPath();
-        mpath = StringUtil.replace(mpath, "Receiver", "Decoder");
+        mpath = mpath.replace("Receiver", "Decoder");
         writeFile(mpath, sw.toString());
     }
 

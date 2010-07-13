@@ -78,7 +78,7 @@ public class GenUtil extends com.samskivert.util.GenUtil
             Package pkg = clazz.getPackage();
             int offset = (pkg == null) ? 0 : pkg.getName().length()+1;
             String name = cname.substring(offset);
-            return StringUtil.replace(name, "$", "_");
+            return name.replace('$', '_');
         }
     }
 

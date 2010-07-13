@@ -94,7 +94,7 @@ public abstract class InvocationTask extends Task
             if (name.endsWith("InvocationService$InvocationListener")) {
                 return "InvocationMarshaller_ListenerMarshaller";
             } else {
-                return getMarshaller().replace(".", "_");
+                return getMarshaller().replace('.', '_');
             }
         }
     }
@@ -468,12 +468,10 @@ public abstract class InvocationTask extends Task
         }
     }
 
-    protected static String replacePath (
-        String source, String oldstr, String newstr)
+    protected static String replacePath (String source, String oldstr, String newstr)
     {
-        return StringUtil.replace(source,
-                                  oldstr.replace('/', File.separatorChar),
-                                  newstr.replace('/', File.separatorChar));
+        return source.replace(oldstr.replace('/', File.separatorChar),
+                              newstr.replace('/', File.separatorChar));
     }
 
     /** A list of filesets that contain tile images. */

@@ -129,7 +129,7 @@ public class GenServiceTask extends InvocationTask
         public String getName ()
         {
             String name = GenUtil.simpleName(listener);
-            name = StringUtil.replace(name, "Listener", "");
+            name = name.replace("Listener", "");
             int didx = name.indexOf(".");
             return name.substring(didx+1);
         }
@@ -223,9 +223,9 @@ public class GenServiceTask extends InvocationTask
         }
 
         String sname = sdesc.sname;
-        String name = StringUtil.replace(sname, "Service", "");
-        String mname = StringUtil.replace(sname, "Service", "Marshaller");
-        String mpackage = StringUtil.replace(sdesc.spackage, ".client", ".data");
+        String name = sname.replace("Service", "");
+        String mname = sname.replace("Service", "Marshaller");
+        String mpackage = sdesc.spackage.replace(".client", ".data");
 
         // ----------- Part I - java marshaller
 
@@ -273,7 +273,7 @@ public class GenServiceTask extends InvocationTask
 
         // determine the path to our marshaller file
         String mpath = source.getPath();
-        mpath = StringUtil.replace(mpath, "Service", "Marshaller");
+        mpath = mpath.replace("Service", "Marshaller");
         mpath = replacePath(mpath, "/client/", "/data/");
 
         StringWriter sw = new StringWriter();
@@ -498,9 +498,8 @@ public class GenServiceTask extends InvocationTask
             System.out.println("Generating dispatcher");
         }
 
-        String name = StringUtil.replace(sdesc.sname, "Service", "");
-        String dpackage = StringUtil.replace(
-            sdesc.spackage, ".client", ".server");
+        String name = sdesc.sname.replace("Service", "");
+        String dpackage = sdesc.spackage.replace(".client", ".server");
 
         // start with the imports required by service methods
         ImportSet imports = sdesc.imports.clone();
@@ -550,7 +549,7 @@ public class GenServiceTask extends InvocationTask
 
         // determine the path to our marshaller file
         String mpath = source.getPath();
-        mpath = StringUtil.replace(mpath, "Service", "Dispatcher");
+        mpath = mpath.replace("Service", "Dispatcher");
         mpath = replacePath(mpath, "/client/", "/server/");
 
         writeFile(mpath, sw.toString());
@@ -563,8 +562,8 @@ public class GenServiceTask extends InvocationTask
             System.out.println("Generating provider");
         }
 
-        String name = StringUtil.replace(sdesc.sname, "Service", "");
-        String mpackage = StringUtil.replace(sdesc.spackage, ".client", ".server");
+        String name = sdesc.sname.replace("Service", "");
+        String mpackage = sdesc.spackage.replace(".client", ".server");
 
         // start with imports required by service methods
         ImportSet imports = sdesc.imports.clone();
@@ -610,7 +609,7 @@ public class GenServiceTask extends InvocationTask
 
         // determine the path to our provider file
         String mpath = source.getPath();
-        mpath = StringUtil.replace(mpath, "Service", "Provider");
+        mpath = mpath.replace("Service", "Provider");
         mpath = replacePath(mpath, "/client/", "/server/");
 
         writeFile(mpath, sw.toString());
