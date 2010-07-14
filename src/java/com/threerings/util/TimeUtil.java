@@ -86,8 +86,7 @@ public class TimeUtil
             int quantity = getQuantityPerUnit(uu);
             if ((minUnit <= uu) && (duration < quantity || maxUnit == uu)) {
                 duration = Math.max(1, duration);
-                return MessageBundle.tcompose(getTransKey(uu),
-                        String.valueOf(duration));
+                return MessageBundle.tcompose(getTransKey(uu), String.valueOf(duration));
             }
             duration = Math.round(duration / quantity);
         }
@@ -102,18 +101,41 @@ public class TimeUtil
      */
     public static String getTimeString (long duration, byte minUnit)
     {
+        return getTimeString(duration, minUnit, false);
+    }
+
+    /**
+     * Get a translatable string specifying the duration, down to the minimum granularity.
+     *
+     * Normally rounds down to the nearest minUnit, but optionally rounds up.
+     */
+    public static String getTimeString (long duration, byte minUnit, boolean roundUp)
+    {
         // sanity
         minUnit = (byte) Math.min(minUnit, MAX_UNIT);
         duration = Math.abs(duration);
+
+        if (roundUp) {
+            long quantity = 1;
+            for (byte uu = MILLISECOND; uu < MAX_UNIT - 1; uu++) {
+                quantity *= getQuantityPerUnit(uu);
+            }
+
+            if (duration % quantity > 0) {
+                duration += quantity;
+            }
+        }
 
         ArrayList<String> list = Lists.newArrayList();
         int parts = 0; // how many parts are in the translation string?
         for (byte uu = MILLISECOND; uu <= MAX_UNIT; uu++) {
             int quantity = getQuantityPerUnit(uu);
             if (minUnit <= uu) {
-                list.add(MessageBundle.tcompose(getTransKey(uu),
-                            String.valueOf(duration % quantity)));
-                parts++;
+                long amt = duration % quantity;
+                if (amt != 0) {
+                    list.add(MessageBundle.tcompose(getTransKey(uu), String.valueOf(amt)));
+                    parts++;
+                }
             }
             duration /= quantity;
             if (duration <= 0 && parts > 0) {
@@ -121,8 +143,13 @@ public class TimeUtil
             }
         }
 
-        if (parts == 1) {
+        if (parts == 0) {
+            // Wow, we didn't get ANYTHING? Okay, I guess that means it's zero of our minUnit
+            return MessageBundle.tcompose(getTransKey(minUnit), 0);
+
+        } else if (parts == 1) {
             return list.get(0);
+
         } else {
             return MessageBundle.compose("m.times_" + parts, list.toArray());
         }
