@@ -21,11 +21,11 @@
 
 package com.threerings.crowd.chat.client;
 
+import java.util.Collections;
 import java.util.HashSet;
 
 import com.google.common.collect.Sets;
 
-import com.samskivert.util.CollectionUtil;
 import com.samskivert.util.ObserverList;
 
 import com.threerings.util.MessageBundle;
@@ -70,7 +70,7 @@ public class MuteDirector extends BasicDirector
     {
         this(ctx);
 
-        CollectionUtil.addAll(_mutelist, list);
+        Collections.addAll(_mutelist, list);
     }
 
     /**

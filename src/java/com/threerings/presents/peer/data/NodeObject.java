@@ -22,7 +22,8 @@
 package com.threerings.presents.peer.data;
 
 import javax.annotation.Generated;
-import com.samskivert.util.ObjectUtil;
+
+import com.google.common.base.Objects;
 
 import com.threerings.io.SimpleStreamableObject;
 import com.threerings.io.Streamable;
@@ -115,7 +116,7 @@ public class NodeObject extends DObject
         public boolean equals (Object other)
         {
             Lock olock = (Lock)other;
-            return type.equals(olock.type) && ObjectUtil.equals(id, olock.id);
+            return type.equals(olock.type) && Objects.equal(id, olock.id);
         }
     }
 

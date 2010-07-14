@@ -33,7 +33,7 @@ import javax.swing.BorderFactory;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
-import com.samskivert.util.ObjectUtil;
+import com.google.common.base.Objects;
 
 import com.samskivert.swing.HGroupLayout;
 
@@ -127,7 +127,7 @@ public abstract class FieldEditor extends JPanel
         }
 
         // submit an attribute changed event with the new value
-        if (!ObjectUtil.equals(value, getValue())) {
+        if (!Objects.equal(value, getValue())) {
             _accessor.set(_field, value);
         }
     }
@@ -150,7 +150,7 @@ public abstract class FieldEditor extends JPanel
             log.warning("Failed to parse display value " + e + ".");
             displayValue(getValue());
         }
-        updateBorder(!ObjectUtil.equals(dvalue, getValue()));
+        updateBorder(!Objects.equal(dvalue, getValue()));
     }
 
     /**

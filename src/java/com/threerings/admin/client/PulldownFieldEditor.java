@@ -25,7 +25,7 @@ import java.lang.reflect.Field;
 
 import javax.swing.JComboBox;
 
-import com.samskivert.util.ObjectUtil;
+import com.google.common.base.Objects;
 
 import com.threerings.presents.dobj.DObject;
 import com.threerings.presents.util.PresentsContext;
@@ -125,7 +125,7 @@ public class PulldownFieldEditor extends FieldEditor
     {
         for (int ii = _value.getItemCount() - 1; ii >= 0; ii--) {
             Choice choice = (Choice)_value.getItemAt(ii);
-            if (ObjectUtil.equals(value, choice.value)) {
+            if (Objects.equal(value, choice.value)) {
                 _value.setSelectedIndex(ii);
                 return;
             }

@@ -30,9 +30,9 @@ import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
+import com.google.common.primitives.Longs;
 import com.google.inject.Inject;
 
-import com.samskivert.util.Comparators;
 import com.samskivert.util.Interval;
 import com.samskivert.util.Lifecycle;
 import com.samskivert.util.ResultListener;
@@ -321,7 +321,7 @@ public abstract class CrowdPeerManager extends PeerManager
     protected static final Comparator<ChatHistoryEntry> SORT_BY_TIMESTAMP =
         new Comparator<ChatHistoryEntry>() {
         public int compare (ChatHistoryEntry e1, ChatHistoryEntry e2) {
-            return Comparators.compare(e1.message.timestamp, e2.message.timestamp);
+            return Longs.compare(e1.message.timestamp, e2.message.timestamp);
         }
     };
 }

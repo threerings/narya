@@ -30,9 +30,10 @@ import java.util.List;
 import java.io.File;
 import java.io.StringWriter;
 
+import com.google.common.collect.Iterators;
+
 import org.apache.velocity.VelocityContext;
 
-import com.samskivert.util.CollectionUtil;
 import com.samskivert.util.ComparableArrayList;
 import com.samskivert.util.StringUtil;
 
@@ -103,7 +104,7 @@ public class GenReceiverTask extends InvocationTask
 
         // construct our imports list
         ComparableArrayList<String> implist = new ComparableArrayList<String>();
-        CollectionUtil.addAll(implist, imports);
+        Iterators.addAll(implist, imports);
         checkedAdd(implist, ClientObject.class.getName());
         checkedAdd(implist, InvocationSender.class.getName());
         String dname = rname.replace("Receiver", "Decoder");
@@ -135,7 +136,7 @@ public class GenReceiverTask extends InvocationTask
 
         // construct our imports list
         ComparableArrayList<String> implist = new ComparableArrayList<String>();
-        CollectionUtil.addAll(implist, imports);
+        Iterators.addAll(implist, imports);
         checkedAdd(implist, InvocationDecoder.class.getName());
         implist.sort();
 
