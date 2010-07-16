@@ -29,11 +29,12 @@ import java.util.Set;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 
+import com.google.common.base.Functions;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Ordering;
 import com.google.common.collect.Sets;
 
-import com.samskivert.util.Comparators;
 import com.samskivert.util.Logger;
 import com.samskivert.util.QuickSort;
 import com.samskivert.util.StringUtil;
@@ -115,11 +116,15 @@ public class TabbedDSetEditor<E extends DSet.Entry> extends JPanel
         }
 
         protected Comparator<Object> getComparator () {
-            return Comparators.LEXICAL_CASE_INSENSITIVE;
+            return LEXICAL_CASE_INSENSITIVE;
         }
 
-
         protected Set<String> _allGroups = Sets.newHashSet();
+
+        protected static final Comparator<Object> LEXICAL_CASE_INSENSITIVE = Ordering
+            .from(String.CASE_INSENSITIVE_ORDER)
+            .onResultOf(Functions.toStringFunction())
+            .nullsLast();
     }
 
     public static class FieldGrouper<E extends DSet.Entry> extends EntryGrouper<E>
