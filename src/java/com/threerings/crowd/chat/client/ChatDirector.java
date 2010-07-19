@@ -425,8 +425,8 @@ public class ChatDirector extends BasicDirector
 
             default:
                 StringBuilder buf = new StringBuilder();
-                for (String cmd : Sets.newTreeSet(possibleCommands.keySet())) {
-                    buf.append(" /").append(cmd);
+                for (String pcmd : Sets.newTreeSet(possibleCommands.keySet())) {
+                    buf.append(" /").append(pcmd);
                 }
                 return MessageBundle.tcompose("m.unspecific_command", buf.toString());
             }
