@@ -33,8 +33,8 @@ import java.util.regex.Pattern;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 
-import com.samskivert.util.Collections;
 import com.samskivert.util.HashIntMap;
 import com.samskivert.util.ObserverList;
 import com.samskivert.util.ResultListener;
@@ -424,12 +424,11 @@ public class ChatDirector extends BasicDirector
                 return result;
 
             default:
-                String alternativeCommands = "";
-                Iterator<String> itr = Collections.getSortedIterator(possibleCommands.keySet());
-                while (itr.hasNext()) {
-                    alternativeCommands += " /" + itr.next();
+                StringBuilder buf = new StringBuilder();
+                for (String cmd : Sets.newTreeSet(possibleCommands.keySet())) {
+                    buf.append(" /").append(cmd);
                 }
-                return MessageBundle.tcompose("m.unspecific_command", alternativeCommands);
+                return MessageBundle.tcompose("m.unspecific_command", buf.toString());
             }
         }
 
