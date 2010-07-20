@@ -142,6 +142,15 @@ public class DatabaseConfigRegistry extends ConfigRegistry
         }
 
         @Override
+        protected boolean getValue (String field, boolean defval) {
+            String value = _data.get(field);
+            if (value != null) {
+                return "true".equalsIgnoreCase(value);
+            }
+            return defval;
+        }
+
+        @Override
         protected byte getValue (String field, byte defval) {
             String value = _data.get(field);
             try {
@@ -150,15 +159,6 @@ public class DatabaseConfigRegistry extends ConfigRegistry
                 }
             } catch (Exception e) {
                 // ignore bogus values and return the default
-            }
-            return defval;
-        }
-
-        @Override
-        protected boolean getValue (String field, boolean defval) {
-            String value = _data.get(field);
-            if (value != null) {
-                return "true".equalsIgnoreCase(value);
             }
             return defval;
         }
@@ -284,6 +284,10 @@ public class DatabaseConfigRegistry extends ConfigRegistry
 
         @Override
         protected void setValue (String field, boolean value) {
+            setAndFlush(field, String.valueOf(value));
+        }
+        @Override
+        protected void setValue (String field, byte value) {
             setAndFlush(field, String.valueOf(value));
         }
         @Override

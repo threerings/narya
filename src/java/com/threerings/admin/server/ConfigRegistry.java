@@ -234,6 +234,8 @@ public abstract class ConfigRegistry
             String key = nameToKey(name);
             if (value instanceof Boolean) {
                 setValue(key, ((Boolean)value).booleanValue());
+            } else if (value instanceof Byte) {
+                setValue(key, ((Byte)value).byteValue());
             } else if (value instanceof Short) {
                 setValue(key, ((Short)value).shortValue());
             } else if (value instanceof Integer) {
@@ -407,6 +409,7 @@ public abstract class ConfigRegistry
         protected abstract String[] getValue (String field, String[] defval);
 
         protected abstract void setValue (String field, boolean value);
+        protected abstract void setValue (String field, byte value);
         protected abstract void setValue (String field, short value);
         protected abstract void setValue (String field, int value);
         protected abstract void setValue (String field, long value);

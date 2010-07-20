@@ -102,6 +102,10 @@ public class PrefsConfigRegistry extends ConfigRegistry
             config.setValue(field, value);
         }
         @Override
+        protected void setValue (String field, byte value) {
+            config.setValue(field, value);
+        }
+        @Override
         protected void setValue (String field, short value) {
             config.setValue(field, value);
         }
