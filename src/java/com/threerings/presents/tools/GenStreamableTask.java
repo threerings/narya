@@ -112,8 +112,8 @@ public class GenStreamableTask extends Task
         }
 
         // add readObject() and writeObject() definitions
-        StringBuffer readbuf = new StringBuffer(READ_OPEN);
-        StringBuffer writebuf = new StringBuffer(WRITE_OPEN);
+        StringBuilder readbuf = new StringBuilder(READ_OPEN);
+        StringBuilder writebuf = new StringBuilder(WRITE_OPEN);
 
         // see if our parent also implements Streamable
         Class<?> supster = sclass.getSuperclass();
@@ -156,7 +156,7 @@ public class GenStreamableTask extends Task
         }
 
         // don't overwrite an existing readObject() or writeObject()
-        StringBuffer methods = new StringBuffer();
+        StringBuilder methods = new StringBuilder();
         if (!sfile.containsString("public void readObject")) {
             methods.append(readbuf);
         }
