@@ -278,7 +278,7 @@ public class ObjectInputStream
     /** The object currently being read from the stream. */
     protected var _current :Object;
 
-    /** The stramer being used currently. */
+    /** The streamer being used currently. */
     protected var _streamer :Streamer;
 
     /** A map of short class code to ClassMapping info. */
