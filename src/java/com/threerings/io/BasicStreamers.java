@@ -144,7 +144,8 @@ public class BasicStreamers
     public static class CharacterStreamer extends BasicStreamer
     {
         @Override
-        public Object createObject (ObjectInputStream in)throws IOException
+        public Object createObject (ObjectInputStream in)
+            throws IOException
         {
             return Character.valueOf(in.readChar());
         }
