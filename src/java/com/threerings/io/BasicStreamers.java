@@ -83,7 +83,7 @@ public class BasicStreamers
         new DoubleArrayStreamer(),
         new ObjectArrayStreamer(),
         new ListStreamer(),
-        new ListStreamer(),
+        new ListStreamer(),// Second ListStreamer lines up with ArrayList above
     };
 
     /** Streams {@link Boolean} instances. */

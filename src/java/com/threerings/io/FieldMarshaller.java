@@ -241,11 +241,10 @@ public abstract class FieldMarshaller
         };
         _marshallers.put(Streamable.class, gmarsh);
 
-        // use the same generic marshaller for fields declared to by type Object or Object[] with
-        // the expectation that they will contain only primitive types or Streamables; the runtime
-        // will fail informatively if we attempt to store non-Streamable objects in that field
+        // use the same generic marshaller for fields declared as Object with the expectation that
+        // they will contain only primitive types or Streamables; the runtime will fail
+        // informatively if we attempt to store non-Streamable objects in that field
         _marshallers.put(Object.class, gmarsh);
-        _marshallers.put(Object[].class, gmarsh);
 
         // create marshallers for the primitive types
         _marshallers.put(Boolean.TYPE, new FieldMarshaller() {
