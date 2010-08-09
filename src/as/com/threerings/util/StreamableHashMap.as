@@ -27,6 +27,8 @@ import com.threerings.io.Streamable;
 
 import com.threerings.util.Maps;
 import com.threerings.util.maps.ForwardingMap;
+import com.threerings.util.maps.HashMap;
+import com.threerings.util.maps.ImmutableMap;
 
 /**
  * A Map that can be sent over the wire, bearing in mind that all keys and values must
@@ -40,9 +42,7 @@ public class StreamableHashMap extends ForwardingMap
 {
     public function StreamableHashMap (keyClazz :Class = null)
     {
-        if (keyClazz != null) {
-            super(Maps.newMapOf(keyClazz));
-        }
+        super(keyClazz == null ? DEFAULT_MAP : Maps.newMapOf(keyClazz));
     }
 
     // documentation inherited from interface Streamable
@@ -73,5 +73,7 @@ public class StreamableHashMap extends ForwardingMap
             _source = Maps.newMapOf(String); // hope for the best
         }
     }
+
+    protected static const DEFAULT_MAP :Map = new ImmutableMap(new HashMap());
 }
 }
