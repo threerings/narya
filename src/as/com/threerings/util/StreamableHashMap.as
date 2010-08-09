@@ -40,6 +40,14 @@ import com.threerings.util.maps.ImmutableMap;
 public class StreamableHashMap extends ForwardingMap
     implements Streamable
 {
+    /**
+     * Creates a new StreamableHashMap.
+     *
+     * @param keyClazz The class to use as the map key. May be null, but this functionality is
+     * provided only for deserialization. A StreamableHashMap that has not been initialized
+     * properly by either a non-null keyClazz or via readObject will throw errors on write and
+     * always return null on read.
+     */
     public function StreamableHashMap (keyClazz :Class = null)
     {
         super(keyClazz == null ? DEFAULT_MAP : Maps.newMapOf(keyClazz));
