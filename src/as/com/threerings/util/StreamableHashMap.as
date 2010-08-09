@@ -27,8 +27,6 @@ import com.threerings.io.Streamable;
 
 import com.threerings.util.Maps;
 import com.threerings.util.maps.ForwardingMap;
-import com.threerings.util.maps.HashMap;
-import com.threerings.util.maps.ImmutableMap;
 
 /**
  * A Map that can be sent over the wire, bearing in mind that all keys and values must
@@ -78,10 +76,12 @@ public class StreamableHashMap extends ForwardingMap
             }
 
         } else {
-            _source = Maps.newMapOf(String); // hope for the best
+            _source = DEFAULT_MAP;
         }
     }
 
-    protected static const DEFAULT_MAP :Map = new ImmutableMap(new HashMap());
+    /** Used when we don't know the key class. Typically if a map is unstreamed it is
+     * read-only anyway, so this will work for empty maps that are unstreamed. */
+    protected static const DEFAULT_MAP :Map = Maps.newBuilder(Object).makeImmutable().build();
 }
 }
