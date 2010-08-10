@@ -493,11 +493,7 @@ public class Streamer
     protected static void createStreamers ()
     {
         _streamers = Maps.newHashMap();
-
-        // register all of the basic streamers
-        for (Map.Entry<Class<?>,Streamer> entry : BasicStreamers.BSTREAMERS.entrySet()) {
-            _streamers.put(entry.getKey(), entry.getValue());
-        }
+        _streamers.putAll(BasicStreamers.BSTREAMERS); // register all of the basic streamers
     }
 
     /** Used to coerce the type system into quietude when reading enums from the wire. */
