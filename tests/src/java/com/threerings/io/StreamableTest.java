@@ -26,14 +26,22 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import org.junit.Test;
 import static org.junit.Assert.*;
 
 import com.google.common.base.Objects;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 
 import com.samskivert.util.StringUtil;
 import com.samskivert.util.Tuple;
@@ -130,6 +138,20 @@ public class StreamableTest
         public ArrayList<Integer> arrayList = Lists.newArrayList(3, 2, 1);
         public ArrayList<Integer> nullArrayList = null;
 
+        public Collection<Integer> collection = Arrays.asList(4, 5, 6);
+        public Collection<Integer> nullCollection = null;
+
+        public Set<Integer> set = Sets.newHashSet(6, 7, 8);
+        public Set<Integer> nullSet = null;
+        public HashSet<Integer> hashSet = Sets.newHashSet(7, 8, 9);
+        public HashSet<Integer> nullHashSet = null;
+
+        public Map<Integer, String> map = ImmutableMap.of(1, "one", 2, "two", 3, "three");
+        public Map<Integer, String> nullMap = null;
+        public HashMap<String, Integer> hashMap = Maps.newHashMap(
+            ImmutableMap.of("one", 1, "two", 2, "three", 3));
+        public HashMap<String, Integer> nullHashMap = null;
+
         @Override
         public boolean equals (Object other) {
             if (!(other instanceof Widget)) {
@@ -209,7 +231,22 @@ public class StreamableTest
                 Objects.equal(list, ow.list) &&
                 Objects.equal(nullList, ow.nullList) &&
                 Objects.equal(arrayList, ow.arrayList) &&
-                Objects.equal(nullArrayList, ow.nullArrayList);
+                Objects.equal(nullArrayList, ow.nullArrayList) &&
+
+                Objects.equal(collection, ow.collection) &&
+                Objects.equal(nullCollection, ow.nullCollection) &&
+
+                Objects.equal(set, ow.set) &&
+                Objects.equal(nullSet, ow.nullSet) &&
+                Objects.equal(hashSet, ow.hashSet) &&
+                Objects.equal(nullHashSet, ow.nullHashSet) &&
+
+                Objects.equal(map, ow.map) &&
+                Objects.equal(nullMap, ow.nullMap) &&
+                Objects.equal(hashMap, ow.hashMap) &&
+                Objects.equal(nullHashMap, ow.nullHashMap) &&
+
+                true; // handy end-of-chain
         }
 
         @Override
@@ -376,5 +413,10 @@ public class StreamableTest
         "0921fb54442d18000000130000001300000000000000020f7fff400921fb54442d1800020f7fff40" +
         "0921fb54442d18010000000200020f7fff400921fb54442d1800020f7fff400921fb54442d180001" +
         "00000003fffb00116a6176612e6c616e672e496e7465676572000000010005000000020005000000" +
-        "0300010000000300050000000300050000000200050000000100");
+        "03000100000003000500000003000500000002000500000001000100000003000500000004000500" +
+        "00000500050000000600010000000300050000000600050000000700050000000800010000000300" +
+        "0500000007000500000008000500000009000100000003000500000001fffa00106a6176612e6c61" +
+        "6e672e537472696e6700036f6e650005000000020006000374776f00050000000300060005746872" +
+        "65650001000000030006000374776f000500000002000600036f6e65000500000001000600057468" +
+        "72656500050000000300");
 }
