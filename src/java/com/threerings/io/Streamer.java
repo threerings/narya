@@ -109,7 +109,8 @@ public class Streamer
     {
         // if we have not yet initialized ourselves, do so now
         if (_streamers == null) {
-            createStreamers();
+            _streamers = Maps.newHashMap();
+            _streamers.putAll(BasicStreamers.BSTREAMERS); // register all of the basic streamers
         }
 
         Streamer stream = _streamers.get(target);
@@ -485,15 +486,6 @@ public class Streamer
                          _fields[ii].getName() + ".");
             }
         }
-    }
-
-    /**
-     * Creates our streamers table and registers streamers for all of the basic types.
-     */
-    protected static void createStreamers ()
-    {
-        _streamers = Maps.newHashMap();
-        _streamers.putAll(BasicStreamers.BSTREAMERS); // register all of the basic streamers
     }
 
     /** Used to coerce the type system into quietude when reading enums from the wire. */
