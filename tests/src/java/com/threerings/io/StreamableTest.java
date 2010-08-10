@@ -26,6 +26,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 
 import org.junit.Test;
@@ -36,6 +37,8 @@ import com.google.common.collect.Lists;
 
 import com.samskivert.util.StringUtil;
 import com.samskivert.util.Tuple;
+
+import com.threerings.io.Intern;
 import com.threerings.util.StreamableTuple;
 
 /**
@@ -76,6 +79,16 @@ public class StreamableTest
         public String string1 = "one";
         public String nullString1;
 
+        @Intern public String internedString1 = "monkey butter";
+        @Intern public String nullInternedString1;
+
+        public Date date1 = new Date(42L);
+        // public Date nullDate1; // null Date is apparently not supported, interesting!
+
+        // note: must be a Streamable class
+        public Class<?> class1 = Widget.class;
+        public Class<?> nullClass1;
+
         public boolean[] bools = new boolean[] { true, false, true };
         public byte[] bytes = new byte[] { Byte.MAX_VALUE, 2, 3 };
         public short[] shorts = new short[] { Short.MAX_VALUE, 2, 3 };
@@ -101,6 +114,16 @@ public class StreamableTest
         public Wocket nullWocket1;
         public Wocket[] nullWockets;
         public Wicket[] nullWickets;
+
+        // it's legal for an Object field to contain a Streamable reference
+        public Object object1 = new Wocket();
+        public Object nullObject1 = new Wocket();
+
+        // it's legal for an Object[] field to contain an array of Streamable references; NOTE:
+        // this will come back as "new Object[] { new Wocket(), new Wocket() }", so it's not kosher
+        // to rely on the type of your array being preserved, only the type of its contents
+        public Object[] objects = new Wocket[] { new Wocket(), new Wocket() };
+        public Object[] nullObjects;
 
         public List<Integer> list = Lists.newArrayList(1, 2, 3);
         public List<Integer> nullList = null;
@@ -143,6 +166,15 @@ public class StreamableTest
                 Objects.equal(string1, ow.string1) &&
                 Objects.equal(nullString1, ow.nullString1) &&
 
+                internedString1 == ow.internedString1 &&
+                nullInternedString1 == ow.nullInternedString1 &&
+
+                Objects.equal(date1, ow.date1) &&
+                // Objects.equal(nullDate1, ow.nullDate1) &&
+
+                class1 == ow.class1 &&
+                nullClass1 == ow.nullClass1 &&
+
                 Arrays.equals(bools, ow.bools) &&
                 Arrays.equals(bytes, ow.bytes) &&
                 Arrays.equals(shorts, ow.shorts) &&
@@ -168,6 +200,11 @@ public class StreamableTest
                 Objects.equal(nullWocket1, ow.nullWocket1) &&
                 Arrays.equals(nullWockets, ow.nullWockets) &&
                 Arrays.equals(nullWickets, ow.nullWickets) &&
+
+                Objects.equal(object1, ow.object1) &&
+                Objects.equal(nullObject1, ow.nullObject1) &&
+                Arrays.equals(objects, ow.objects) &&
+                Arrays.equals(nullObjects, ow.nullObjects) &&
 
                 Objects.equal(list, ow.list) &&
                 Objects.equal(nullList, ow.nullList) &&
@@ -271,14 +308,15 @@ public class StreamableTest
         oout.writeObject(w);
         byte[] data = bout.toByteArray();
 
-        // if you add fields to Widget, uncomment this and rerun the tests to generate an updated
-        // WIRE_DATA blob
-        // System.out.println("protected static final byte[] WIRE_DATA = " +
-        //                    StringUtil.toString(data, "{", "}") + ";");
+        // uncomment this and rerun the tests to generate an updated WIRE_DATA blob:
+        // String dstr = StringUtil.wordWrap(StringUtil.hexlate(data), 80);
+        // dstr = StringUtil.join(dstr.split("\n"), "\" +\n        \"");
+        // System.out.println("    protected static final byte[] WIRE_DATA = " +
+        //                    "StringUtil.unhexlate(\n        \"" + dstr + "\");");
 
         // oddly, JUnit doesn't like comparing byte arrays directly (this fails:
         // assertEquals(WIRE_DATA, WIRE_DATA.clone())), but comparing strings is fine
-        assertEquals(StringUtil.toString(data), StringUtil.toString(WIRE_DATA));
+        assertEquals(StringUtil.hexlate(data), StringUtil.hexlate(WIRE_DATA));
 
         // make sure that we unserialize a known stream of bytes to the expected object
         ObjectInputStream oin = new ObjectInputStream(new ByteArrayInputStream(WIRE_DATA));
@@ -321,5 +359,23 @@ public class StreamableTest
         assertEquals(tup, otup);
     }
 
-    protected static final byte[] WIRE_DATA = {-1, -1, 0, 39, 99, 111, 109, 46, 116, 104, 114, 101, 101, 114, 105, 110, 103, 115, 46, 105, 111, 46, 83, 116, 114, 101, 97, 109, 97, 98, 108, 101, 84, 101, 115, 116, 36, 87, 105, 100, 103, 101, 116, 1, 127, 0, 97, 127, -1, 127, -1, -1, -1, 127, -1, -1, -1, -1, -1, -1, -1, 127, 127, -1, -1, 127, -17, -1, -1, -1, -1, -1, -1, 1, 1, 1, 127, 1, 0, 97, 1, 127, -1, 1, 127, -1, -1, -1, 1, 127, -1, -1, -1, -1, -1, -1, -1, 1, 127, 127, -1, -1, 1, 127, -17, -1, -1, -1, -1, -1, -1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 3, 111, 110, 101, 0, 1, 0, 0, 0, 3, 1, 0, 1, 1, 0, 0, 0, 3, 127, 2, 3, 1, 0, 0, 0, 3, 127, -1, 0, 2, 0, 3, 1, 0, 0, 0, 3, 0, 97, 0, 98, 0, 99, 1, 0, 0, 0, 3, 127, -1, -1, -1, 0, 0, 0, 2, 0, 0, 0, 3, 1, 0, 0, 0, 3, 127, -1, -1, -1, -1, -1, -1, -1, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 3, 1, 0, 0, 0, 3, 127, 127, -1, -1, 64, 0, 0, 0, 64, 64, 0, 0, 1, 0, 0, 0, 3, 127, -17, -1, -1, -1, -1, -1, -1, 64, 0, 0, 0, 0, 0, 0, 0, 64, 8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -1, -2, 0, 39, 99, 111, 109, 46, 116, 104, 114, 101, 101, 114, 105, 110, 103, 115, 46, 105, 111, 46, 83, 116, 114, 101, 97, 109, 97, 98, 108, 101, 84, 101, 115, 116, 36, 87, 111, 99, 107, 101, 116, 15, 127, -1, 64, 9, 33, -5, 84, 68, 45, 24, -1, -3, 0, 42, 91, 76, 99, 111, 109, 46, 116, 104, 114, 101, 101, 114, 105, 110, 103, 115, 46, 105, 111, 46, 83, 116, 114, 101, 97, 109, 97, 98, 108, 101, 84, 101, 115, 116, 36, 87, 111, 99, 107, 101, 116, 59, 0, 0, 0, 2, 0, 2, 15, 127, -1, 64, 9, 33, -5, 84, 68, 45, 24, 0, 2, 15, 127, -1, 64, 9, 33, -5, 84, 68, 45, 24, -1, -4, 0, 42, 91, 76, 99, 111, 109, 46, 116, 104, 114, 101, 101, 114, 105, 110, 103, 115, 46, 105, 111, 46, 83, 116, 114, 101, 97, 109, 97, 98, 108, 101, 84, 101, 115, 116, 36, 87, 105, 99, 107, 101, 116, 59, 0, 0, 0, 3, 0, 1, 7, 15, 127, -1, 64, 9, 33, -5, 84, 68, 45, 24, 0, 0, 0, 19, 0, 0, 0, 19, 15, 127, -1, 64, 9, 33, -5, 84, 68, 45, 24, 0, 0, 0, 19, 0, 0, 0, 19, 15, 127, -1, 64, 9, 33, -5, 84, 68, 45, 24, 0, 0, 0, 19, 0, 0, 0, 19, 0, 0, 0, 0, 0, 0, -1, -5, 0, 19, 106, 97, 118, 97, 46, 117, 116, 105, 108, 46, 65, 114, 114, 97, 121, 76, 105, 115, 116, 0, 0, 0, 3, -1, -6, 0, 17, 106, 97, 118, 97, 46, 108, 97, 110, 103, 46, 73, 110, 116, 101, 103, 101, 114, 0, 0, 0, 1, 0, 6, 0, 0, 0, 2, 0, 6, 0, 0, 0, 3, 0, 0, 1, 0, 0, 0, 3, 0, 6, 0, 0, 0, 3, 0, 6, 0, 0, 0, 2, 0, 6, 0, 0, 0, 1, 0};
+    protected static final byte[] WIRE_DATA = StringUtil.unhexlate(
+        "ffff0027636f6d2e746872656572696e67732e696f2e53747265616d61626c655465737424576964" +
+        "676574017f00617fff7fffffff7fffffffffffffff7f7fffff7fefffffffffffff0101017f010061" +
+        "017fff017fffffff017fffffffffffffff017f7fffff017fefffffffffffff000000000000000001" +
+        "00036f6e6500ffff000d6d6f6e6b6579206275747465720000000000000000002a01000100010000" +
+        "000301000101000000037f020301000000037fff0002000301000000030061006200630100000003" +
+        "7fffffff000000020000000301000000037fffffffffffffff000000000000000200000000000000" +
+        "0301000000037f7fffff400000004040000001000000037fefffffffffffff400000000000000040" +
+        "080000000000000000000000000000fffe0027636f6d2e746872656572696e67732e696f2e537472" +
+        "65616d61626c655465737424576f636b65740f7fff400921fb54442d18fffd002a5b4c636f6d2e74" +
+        "6872656572696e67732e696f2e53747265616d61626c655465737424576f636b65743b0000000200" +
+        "020f7fff400921fb54442d1800020f7fff400921fb54442d18fffc002a5b4c636f6d2e7468726565" +
+        "72696e67732e696f2e53747265616d61626c6554657374245769636b65743b000000030001070f7f" +
+        "ff400921fb54442d1800000013000000130f7fff400921fb54442d1800000013000000130f7fff40" +
+        "0921fb54442d18000000130000001300000000000000020f7fff400921fb54442d1800020f7fff40" +
+        "0921fb54442d18010000000200020f7fff400921fb54442d1800020f7fff400921fb54442d1800ff" +
+        "fb00136a6176612e7574696c2e41727261794c69737400000003fffa00116a6176612e6c616e672e" +
+        "496e7465676572000000010006000000020006000000030000010000000300060000000300060000" +
+        "000200060000000100");
 }
