@@ -35,15 +35,9 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.PrintWriter;
 
-import org.apache.tools.ant.AntClassLoader;
 import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.DirectoryScanner;
-import org.apache.tools.ant.Task;
 import org.apache.tools.ant.types.FileSet;
-import org.apache.tools.ant.types.Reference;
-import org.apache.tools.ant.util.ClasspathUtils;
-import org.apache.velocity.app.VelocityEngine;
-
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
@@ -51,8 +45,6 @@ import com.google.common.collect.Lists;
 import com.samskivert.io.StreamUtil;
 import com.samskivert.util.Logger;
 import com.samskivert.util.StringUtil;
-import com.samskivert.velocity.VelocityUtil;
-
 import com.threerings.presents.annotation.TransportHint;
 import com.threerings.presents.net.Transport;
 import com.threerings.presents.client.InvocationService.InvocationListener;
@@ -61,7 +53,7 @@ import com.threerings.presents.client.InvocationService.InvocationListener;
  * A base Ant task for generating invocation service related marshalling
  * and unmarshalling classes.
  */
-public abstract class InvocationTask extends Task
+public abstract class InvocationTask extends GenTask
 {
     /** Used to keep track of invocation service method listener arguments. */
     public class ListenerArgument
@@ -371,46 +363,11 @@ public abstract class InvocationTask extends Task
         }
     }
 
-    /**
-     * Configures to output extra information when generating code.
-     */
-    public void setVerbose (boolean verbose)
-    {
-        _verbose = verbose;
-    }
-
-    /** Configures our classpath which we'll use to load service classes. */
-    public void setClasspathref (Reference pathref)
-    {
-        _cloader = ClasspathUtils.getClassLoaderForPath(getProject(), pathref);
-
-        // set the parent of the classloader to be the classloader used to load this task, rather
-        // than the classloader used to load Ant, so that we have access to Narya classes like
-        // TransportHint
-        ((AntClassLoader)_cloader).setParent(getClass().getClassLoader());
-    }
-
     @Override
     public void execute ()
     {
-        if (_cloader == null) {
-            String errmsg = "This task requires a 'classpathref' attribute " +
-                "to be set to the project's classpath.";
-            throw new BuildException(errmsg);
-        }
-
-        try {
-            _velocity = VelocityUtil.createEngine();
-        } catch (Exception e) {
-            throw new BuildException("Failure initializing Velocity", e);
-        }
-
         // resolve the InvocationListener class using our classloader
-        try {
-            _ilistener = _cloader.loadClass(InvocationListener.class.getName());
-        } catch (Exception e) {
-            throw new BuildException("Can't resolve InvocationListener", e);
-        }
+        _ilistener = loadClass(InvocationListener.class.getName());
 
         for (FileSet fs : _filesets) {
             DirectoryScanner ds = fs.getDirectoryScanner(getProject());
@@ -434,13 +391,9 @@ public abstract class InvocationTask extends Task
             throw new BuildException("Failed to parse " + source + ": " + e.getMessage());
         }
 
+        Class<?> serviceClass = loadClass(name);
         try {
-            processService(source, _cloader.loadClass(name));
-        } catch (ClassNotFoundException cnfe) {
-            System.err.println("Failed to load " + name + ".\n" +
-                               "Missing class: " + cnfe.getMessage());
-            System.err.println("Be sure to set the 'classpathref' attribute to a classpath\n" +
-                               "that contains your projects invocation service classes.");
+            processService(source, serviceClass);
         } catch (Exception e) {
             throw new BuildException("Failed to process " + source.getName() + ": " + e, e);
         }
@@ -479,15 +432,6 @@ public abstract class InvocationTask extends Task
 
     /** A header to put on all generated source files. */
     protected String _header;
-
-    /** Show extra output if set. */
-    protected boolean _verbose;
-
-    /** Used to do our own classpath business. */
-    protected ClassLoader _cloader;
-
-    /** Used to generate source files from templates. */
-    protected VelocityEngine _velocity;
 
     /** {@link InvocationListener} resolved with the proper classloader so
      * that we can compare it to loaded derived classes. */

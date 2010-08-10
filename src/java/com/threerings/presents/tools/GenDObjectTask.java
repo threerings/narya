@@ -31,21 +31,13 @@ import java.util.ArrayList;
 import java.io.File;
 import java.io.StringWriter;
 
-import org.apache.tools.ant.AntClassLoader;
 import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.DirectoryScanner;
-import org.apache.tools.ant.Task;
 import org.apache.tools.ant.types.FileSet;
-import org.apache.tools.ant.types.Reference;
-import org.apache.tools.ant.util.ClasspathUtils;
 import org.apache.velocity.VelocityContext;
-import org.apache.velocity.app.VelocityEngine;
-
 import com.google.common.collect.Lists;
 
 import com.samskivert.util.StringUtil;
-
-import com.samskivert.velocity.VelocityUtil;
 
 import com.threerings.presents.annotation.TransportHint;
 import com.threerings.presents.dobj.DObject;
@@ -55,7 +47,7 @@ import com.threerings.presents.dobj.OidList;
 /**
  * Generates necessary additional distributed object declarations and methods.
  */
-public class GenDObjectTask extends Task
+public class GenDObjectTask extends GenTask
 {
     /**
      * Adds a nested &lt;fileset&gt; element which enumerates service declaration source files.
@@ -65,41 +57,13 @@ public class GenDObjectTask extends Task
         _filesets.add(set);
     }
 
-    /** Configures our classpath which we'll use to load service classes. */
-    public void setClasspathref (Reference pathref)
-    {
-        _cloader = ClasspathUtils.getClassLoaderForPath(getProject(), pathref);
-
-        // set the parent of the classloader to be the classloader used to load this task,
-        // rather than the classloader used to load Ant, so that we have access to Narya
-        // classes like TransportHint
-        ((AntClassLoader)_cloader).setParent(getClass().getClassLoader());
-    }
-
     @Override
     public void execute ()
     {
-        if (_cloader == null) {
-            String errmsg = "This task requires a 'classpathref' attribute " +
-                "to be set to the project's classpath.";
-            throw new BuildException(errmsg);
-        }
-
-        try {
-            _velocity = VelocityUtil.createEngine();
-        } catch (Exception e) {
-            throw new BuildException("Failure initializing Velocity", e);
-        }
-
         // resolve the DObject class using our classloader
-        try {
-            _doclass = _cloader.loadClass(DObject.class.getName());
-            _dsclass = _cloader.loadClass(DSet.class.getName());
-            _olclass = _cloader.loadClass(OidList.class.getName());
-
-        } catch (Exception e) {
-            throw new BuildException("Can't resolve InvocationListener", e);
-        }
+        _doclass = loadClass(DObject.class.getName());
+        _dsclass = loadClass(DSet.class.getName());
+        _olclass = loadClass(OidList.class.getName());
 
         for (FileSet fs : _filesets) {
             DirectoryScanner ds = fs.getDirectoryScanner(getProject());
@@ -116,17 +80,12 @@ public class GenDObjectTask extends Task
     {
         // load up the file and determine it's package and classname
         String name = null;
+        Class<?> klass = loadClass(name);
         try {
-            // System.err.println("Processing " + source + "...");
             name = GenUtil.readClassName(source);
-            processObject(source, _cloader.loadClass(name));
-        } catch (ClassNotFoundException cnfe) {
-            System.err.println("Failed to load " + name + ".\n" +
-                               "Missing class: " + cnfe.getMessage());
-            System.err.println("Be sure to set the 'classpathref' attribute to a classpath\n" +
-                               "that contains your projects invocation service classes.");
+            processObject(source, klass);
         } catch (Exception e) {
-            throw new BuildException("Failed to process " + source.getName() + ": " + e, e);
+            throw new BuildException("Failed to process " + source.getName(), e);
         }
     }
 
@@ -247,12 +206,6 @@ public class GenDObjectTask extends Task
 
     /** A list of filesets that contain tile images. */
     protected ArrayList<FileSet> _filesets = Lists.newArrayList();
-
-    /** Used to do our own classpath business. */
-    protected ClassLoader _cloader;
-
-    /** Used to generate source files from templates. */
-    protected VelocityEngine _velocity;
 
     /** {@link DObject} resolved with the proper classloader so that we
      * can compare it to loaded derived classes. */
