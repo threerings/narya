@@ -109,10 +109,6 @@ public abstract class FieldMarshaller
         }
 
         Class<?> ftype = field.getType();
-        if (ftype.isInterface()) {
-            // if the class is a pure interface, use Object.
-            ftype = Object.class;
-        }
 
         // use the intern marshaller for pooled strings
         if (ftype == String.class && field.isAnnotationPresent(Intern.class)) {
@@ -122,8 +118,8 @@ public abstract class FieldMarshaller
         // if we have an exact match, use that
         FieldMarshaller fm = _marshallers.get(ftype);
 
-        // otherwise if the class is a streamable, use the streamable marshaller
-        if (fm == null && Streamer.isStreamable(ftype)) {
+        // otherwise if the class is a pure interface or streamable, use the streamable marshaller
+        if (fm == null && (ftype.isInterface() || Streamer.isStreamable(ftype))) {
             fm = _marshallers.get(Streamable.class);
         }
 

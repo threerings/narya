@@ -22,15 +22,20 @@
 package com.threerings.io;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.RandomAccess;
+import java.util.Set;
 
 import java.io.EOFException;
 import java.io.IOException;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 
 /**
  * Code to read and write basic object types (like arrays of primitives, {@link Integer} instances,
@@ -38,30 +43,37 @@ import com.google.common.collect.Maps;
  */
 public class BasicStreamers
 {
-    public static Map<Class<?>, Streamer> BSTREAMERS = Maps.newLinkedHashMap();
-    static {
-        BSTREAMERS.put(Boolean.class, new BooleanStreamer());
-        BSTREAMERS.put(Byte.class, new ByteStreamer());
-        BSTREAMERS.put(Short.class, new ShortStreamer());
-        BSTREAMERS.put(Character.class, new CharacterStreamer());
-        BSTREAMERS.put(Integer.class, new IntegerStreamer());
-        BSTREAMERS.put(Long.class, new LongStreamer());
-        BSTREAMERS.put(Float.class, new FloatStreamer());
-        BSTREAMERS.put(Double.class, new DoubleStreamer());
-        BSTREAMERS.put(Class.class, new ClassStreamer());
-        BSTREAMERS.put(String.class, new StringStreamer());
-        BSTREAMERS.put(boolean[].class, new BooleanArrayStreamer());
-        BSTREAMERS.put(byte[].class, new ByteArrayStreamer());
-        BSTREAMERS.put(short[].class, new ShortArrayStreamer());
-        BSTREAMERS.put(char[].class, new CharArrayStreamer());
-        BSTREAMERS.put(int[].class, new IntArrayStreamer());
-        BSTREAMERS.put(long[].class, new LongArrayStreamer());
-        BSTREAMERS.put(float[].class, new FloatArrayStreamer());
-        BSTREAMERS.put(double[].class, new DoubleArrayStreamer());
-        BSTREAMERS.put(Object[].class, new ObjectArrayStreamer());
-        BSTREAMERS.put(List.class, new ListStreamer());
-        BSTREAMERS.put(ArrayList.class, new ListStreamer());
-    }
+    public static final Map<Class<?>, Streamer> BSTREAMERS =
+        ImmutableMap.<Class<?>, Streamer>builder()
+        .put(Boolean.class, new BooleanStreamer())
+        .put(Byte.class, new ByteStreamer())
+        .put(Short.class, new ShortStreamer())
+        .put(Character.class, new CharacterStreamer())
+        .put(Integer.class, new IntegerStreamer())
+        .put(Long.class, new LongStreamer())
+        .put(Float.class, new FloatStreamer())
+        .put(Double.class, new DoubleStreamer())
+        .put(Class.class, new ClassStreamer())
+        .put(String.class, Boolean.getBoolean("com.threerings.io.unmodifiedUTFStreaming")
+            ? new UnmodifiedUTFStringStreamer()
+            : new StringStreamer())
+        .put(boolean[].class, new BooleanArrayStreamer())
+        .put(byte[].class, new ByteArrayStreamer())
+        .put(short[].class, new ShortArrayStreamer())
+        .put(char[].class, new CharArrayStreamer())
+        .put(int[].class, new IntArrayStreamer())
+        .put(long[].class, new LongArrayStreamer())
+        .put(float[].class, new FloatArrayStreamer())
+        .put(double[].class, new DoubleArrayStreamer())
+        .put(Object[].class, new ObjectArrayStreamer())
+        .put(List.class, ListStreamer.INSTANCE)
+        .put(ArrayList.class, ListStreamer.INSTANCE)
+        .put(Collection.class, ListStreamer.INSTANCE)
+        .put(Set.class, SetStreamer.INSTANCE)
+        .put(HashSet.class, SetStreamer.INSTANCE)
+        .put(Map.class, MapStreamer.INSTANCE)
+        .put(HashMap.class, MapStreamer.INSTANCE)
+        .build();
 
     /** Streams {@link Boolean} instances. */
     public static class BooleanStreamer extends BasicStreamer
@@ -225,7 +237,7 @@ public class BasicStreamers
         }
     }
 
-    /** Streams {@link String} instances. */
+    /** Streams {@link String} instances, using modifiedUTF. */
     public static class StringStreamer extends BasicStreamer
     {
         @Override
@@ -240,6 +252,26 @@ public class BasicStreamers
             throws IOException
         {
             out.writeUTF((String)object);
+        }
+    }
+
+    /** Streams {@link String} instances, without using modifiedUTF. */
+    public static class UnmodifiedUTFStringStreamer extends BasicStreamer
+    {
+        @Override
+        public Object createObject (ObjectInputStream in)
+            throws IOException
+        {
+            System.err.println("Read unmodifiedUTF");
+            return in.readUnmodifiedUTF();
+        }
+
+        @Override
+        public void writeObject (Object object, ObjectOutputStream out, boolean useWriter)
+            throws IOException
+        {
+            out.writeUnmodifiedUTF((String)object);
+            System.err.println("Wrote unmodifiedUTF");
         }
     }
 
@@ -405,23 +437,113 @@ public class BasicStreamers
         }
     }
 
-    /** Streams {@link List} instances. */
-    public static class ListStreamer extends BasicStreamer
+    /** A building-block class for streaming Collections. */
+    protected abstract static class CollectionStreamer extends BasicStreamer
     {
         @Override
         public Object createObject (ObjectInputStream in)
             throws IOException, ClassNotFoundException
         {
-            return readList(in);
+            int size = in.readInt();
+            Collection<Object> coll = createCollection(size);
+            for (int ii = 0; ii < size; ii++) {
+                coll.add(in.readObject());
+            }
+            return coll;
         }
 
         @Override
         public void writeObject (Object object, ObjectOutputStream out, boolean useWriter)
             throws IOException
         {
-            writeList(out, (List<?>)object);
+            Collection<?> coll = (Collection<?>)object;
+            out.writeInt(coll.size());
+            for (Object o : coll) {
+                out.writeObject(o);
+            }
+        }
+
+        /**
+         * Called to create the collection being read.
+         *
+         * @param size the exact size of the collection.
+         */
+        protected abstract Collection<Object> createCollection (int size);
+    }
+
+    /** Streams {@link List} instances. */
+    public static class ListStreamer extends CollectionStreamer
+    {
+        /** A singleton instance. */
+        public static final ListStreamer INSTANCE = new ListStreamer();
+
+        @Override
+        protected Collection<Object> createCollection (int size)
+        {
+            return Lists.newArrayListWithCapacity(size);
         }
     }
+
+    /** Streams {@link Set} instances. */
+    public static class SetStreamer extends CollectionStreamer
+    {
+        /** A singleton instance. */
+        public static final SetStreamer INSTANCE = new SetStreamer();
+
+        @Override
+        protected Collection<Object> createCollection (int size)
+        {
+            return Sets.newHashSetWithExpectedSize(size);
+        }
+    }
+
+    /** Streams {@link Map} instances. */
+    public static class MapStreamer extends BasicStreamer
+    {
+        /** A singleton instance. */
+        public static final MapStreamer INSTANCE = new MapStreamer();
+
+        @Override
+        public Object createObject (ObjectInputStream in)
+            throws IOException, ClassNotFoundException
+        {
+            int size = in.readInt();
+            Map<Object, Object> map = createMap(size);
+            for (int ii = 0; ii < size; ii++) {
+                map.put(in.readObject(), in.readObject());
+            }
+            return map;
+        }
+
+        @Override
+        public void writeObject (Object object, ObjectOutputStream out, boolean useWriter)
+            throws IOException
+        {
+            Map<?, ?> map = (Map<?, ?>)object;
+            out.writeInt(map.size());
+            for (Map.Entry<?, ?> entry : map.entrySet()) {
+                out.writeObject(entry.getKey());
+                out.writeObject(entry.getValue());
+            }
+        }
+
+        /**
+         * Overrideable if a subclass is desired to stream a different kind of map.
+         */
+        protected Map<Object, Object> createMap (int size)
+        {
+            return Maps.newHashMapWithExpectedSize(size);
+        }
+    }
+
+//    // TODO : We can't create an EnumMap of zero size- we need to know the key class
+//    public static class EnumMapStreamer extends MapStreamer
+//    {
+//    }
+//    // TODO : We can't create an EnumSet of zero size- we need to know the key class
+//    public static class EnumSetStreamer extends CollectionStreamer
+//    {
+//    }
 
     /** Streams {@link String} instances. */
     public static class BasicStreamer extends Streamer
@@ -538,17 +660,6 @@ public class BasicStreamers
         return value;
     }
 
-    public static ArrayList<?> readList (ObjectInputStream ins)
-        throws IOException, ClassNotFoundException
-    {
-        int ecount = ins.readInt();
-        ArrayList<Object> list = Lists.newArrayListWithCapacity(ecount);
-        for (int ii = 0; ii < ecount; ii++) {
-            list.add(ins.readObject());
-        }
-        return list;
-    }
-
     public static void writeBooleanArray (ObjectOutputStream out, boolean[] value)
         throws IOException
     {
@@ -634,24 +745,6 @@ public class BasicStreamers
         out.writeInt(ecount);
         for (int ii = 0; ii < ecount; ii++) {
             out.writeObject(value[ii]);
-        }
-    }
-
-    public static void writeList (ObjectOutputStream out, List<?> value)
-        throws IOException
-    {
-        int ecount = value.size();
-        out.writeInt(ecount);
-        if (value instanceof RandomAccess) {
-            // if RandomAccess, it's faster and less garbagey this way
-            for (int ii = 0; ii < ecount; ii++) {
-                out.writeObject(value.get(ii));
-            }
-        } else {
-            // if not RandomAccess, go ahead and make an Iterator...
-            for (Object o : value) {
-                out.writeObject(o);
-            }
         }
     }
 }
