@@ -23,12 +23,14 @@ package com.threerings.io;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.RandomAccess;
 
 import java.io.EOFException;
 import java.io.IOException;
 
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 
 /**
  * Code to read and write basic object types (like arrays of primitives, {@link Integer} instances,
@@ -36,55 +38,30 @@ import com.google.common.collect.Lists;
  */
 public class BasicStreamers
 {
-    /** An array of types for all of the basic streamers. */
-    public static Class<?>[] BSTREAMER_TYPES = {
-        Boolean.class,
-        Byte.class,
-        Short.class,
-        Character.class,
-        Integer.class,
-        Long.class,
-        Float.class,
-        Double.class,
-        Class.class,
-        String.class,
-        boolean[].class,
-        byte[].class,
-        short[].class,
-        char[].class,
-        int[].class,
-        long[].class,
-        float[].class,
-        double[].class,
-        Object[].class,
-        List.class,
-        ArrayList.class,
-    };
-
-    /** An array of instances of all of the basic streamers. */
-    public static Streamer[] BSTREAMER_INSTANCES = {
-        new BooleanStreamer(),
-        new ByteStreamer(),
-        new ShortStreamer(),
-        new CharacterStreamer(),
-        new IntegerStreamer(),
-        new LongStreamer(),
-        new FloatStreamer(),
-        new DoubleStreamer(),
-        new ClassStreamer(),
-        new StringStreamer(),
-        new BooleanArrayStreamer(),
-        new ByteArrayStreamer(),
-        new ShortArrayStreamer(),
-        new CharArrayStreamer(),
-        new IntArrayStreamer(),
-        new LongArrayStreamer(),
-        new FloatArrayStreamer(),
-        new DoubleArrayStreamer(),
-        new ObjectArrayStreamer(),
-        new ListStreamer(),
-        new ListStreamer(),// Second ListStreamer lines up with ArrayList above
-    };
+    public static Map<Class<?>, Streamer> BSTREAMERS = Maps.newLinkedHashMap();
+    static {
+        BSTREAMERS.put(Boolean.class, new BooleanStreamer());
+        BSTREAMERS.put(Byte.class, new ByteStreamer());
+        BSTREAMERS.put(Short.class, new ShortStreamer());
+        BSTREAMERS.put(Character.class, new CharacterStreamer());
+        BSTREAMERS.put(Integer.class, new IntegerStreamer());
+        BSTREAMERS.put(Long.class, new LongStreamer());
+        BSTREAMERS.put(Float.class, new FloatStreamer());
+        BSTREAMERS.put(Double.class, new DoubleStreamer());
+        BSTREAMERS.put(Class.class, new ClassStreamer());
+        BSTREAMERS.put(String.class, new StringStreamer());
+        BSTREAMERS.put(boolean[].class, new BooleanArrayStreamer());
+        BSTREAMERS.put(byte[].class, new ByteArrayStreamer());
+        BSTREAMERS.put(short[].class, new ShortArrayStreamer());
+        BSTREAMERS.put(char[].class, new CharArrayStreamer());
+        BSTREAMERS.put(int[].class, new IntArrayStreamer());
+        BSTREAMERS.put(long[].class, new LongArrayStreamer());
+        BSTREAMERS.put(float[].class, new FloatArrayStreamer());
+        BSTREAMERS.put(double[].class, new DoubleArrayStreamer());
+        BSTREAMERS.put(Object[].class, new ObjectArrayStreamer());
+        BSTREAMERS.put(List.class, new ListStreamer());
+        BSTREAMERS.put(ArrayList.class, new ListStreamer());
+    }
 
     /** Streams {@link Boolean} instances. */
     public static class BooleanStreamer extends BasicStreamer

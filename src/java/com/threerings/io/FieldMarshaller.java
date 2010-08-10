@@ -27,6 +27,7 @@ import java.lang.reflect.ReflectPermission;
 
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Map;
 
 import com.google.common.collect.Maps;
 
@@ -124,6 +125,11 @@ public abstract class FieldMarshaller
         // otherwise if the class is a streamable, use the streamable marshaller
         if (fm == null && Streamer.isStreamable(ftype)) {
             fm = _marshallers.get(Streamable.class);
+        }
+
+        // sanity check
+        if (fm == null) {
+            throw new AssertionError("Requested to marshal unsupported field " + field);
         }
 
         return fm;
@@ -378,10 +384,8 @@ public abstract class FieldMarshaller
         });
 
         // create field marshallers for all of the basic types
-        int bscount = BasicStreamers.BSTREAMER_TYPES.length;
-        for (int ii = 0; ii < bscount; ii++) {
-            _marshallers.put(BasicStreamers.BSTREAMER_TYPES[ii],
-                             new StreamerMarshaller(BasicStreamers.BSTREAMER_INSTANCES[ii]));
+        for (Map.Entry<Class<?>,Streamer> entry : BasicStreamers.BSTREAMERS.entrySet()) {
+            _marshallers.put(entry.getKey(), new StreamerMarshaller(entry.getValue()));
         }
 
         // create the field marshaller for pooled strings

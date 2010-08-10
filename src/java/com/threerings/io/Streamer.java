@@ -495,10 +495,8 @@ public class Streamer
         _streamers = Maps.newHashMap();
 
         // register all of the basic streamers
-        int bscount = BasicStreamers.BSTREAMER_TYPES.length;
-        for (int ii = 0; ii < bscount; ii++) {
-            _streamers.put(BasicStreamers.BSTREAMER_TYPES[ii],
-                           BasicStreamers.BSTREAMER_INSTANCES[ii]);
+        for (Map.Entry<Class<?>,Streamer> entry : BasicStreamers.BSTREAMERS.entrySet()) {
+            _streamers.put(entry.getKey(), entry.getValue());
         }
     }
 
