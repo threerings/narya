@@ -29,6 +29,7 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.StringWriter;
 
 import org.apache.tools.ant.BuildException;
@@ -79,10 +80,14 @@ public class GenDObjectTask extends GenTask
     protected void processObject (File source)
     {
         // load up the file and determine it's package and classname
-        String name = null;
+        String name;
+        try{
+            name = GenUtil.readClassName(source);
+        } catch (IOException io) {
+            throw new BuildException("Couldn't read class name: " + source, io);
+        }
         Class<?> klass = loadClass(name);
         try {
-            name = GenUtil.readClassName(source);
             processObject(source, klass);
         } catch (Exception e) {
             throw new BuildException("Failed to process " + source.getName(), e);
