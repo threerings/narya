@@ -272,6 +272,9 @@ public class DSet<E extends DSet.Entry>
                 throw new UnsupportedOperationException();
             }
             @Override public boolean contains (Object o) {
+                if (!(o instanceof DSet.Entry)) {
+                    return false;
+                }
                 @SuppressWarnings("unchecked") E elem = (E)o;
                 return DSet.this.contains(elem);
             }
