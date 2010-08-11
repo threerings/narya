@@ -58,7 +58,7 @@ public class CompoundEvent extends DEvent
 
         _omgr = omgr;
         _target = target;
-        _events = new StreamableArrayList<DEvent>();
+        _events = StreamableArrayList.newList();
     }
 
     /**

@@ -40,8 +40,15 @@ public class StreamableHashSet<E> extends HashSet<E>
     implements Streamable
 {
     /**
-     * Constructs an empty hash set with the specified number of hash
-     * buckets.
+     * Creates an empty StreamableHashSet with the default number of hash buckets.
+     */
+    public static <E> StreamableHashSet<E> newSet ()
+    {
+        return new StreamableHashSet<E>();
+    }
+
+    /**
+     * Constructs an empty hash set with the specified number of hash buckets.
      */
     public StreamableHashSet (int buckets, float loadFactor)
     {

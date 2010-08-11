@@ -40,6 +40,14 @@ public class StreamableArrayList<E> extends ArrayList<E>
     implements Streamable
 {
     /**
+     * Creates an empty StreamableArrayList.
+     */
+    public static <E> StreamableArrayList<E> newList ()
+    {
+        return new StreamableArrayList<E>();
+    }
+
+    /**
      * Writes our custom streamable fields.
      */
     public void writeObject (ObjectOutputStream out)
