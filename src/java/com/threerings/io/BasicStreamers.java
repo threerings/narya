@@ -262,7 +262,6 @@ public class BasicStreamers
         public Object createObject (ObjectInputStream in)
             throws IOException
         {
-            System.err.println("Read unmodifiedUTF");
             return in.readUnmodifiedUTF();
         }
 
@@ -271,7 +270,6 @@ public class BasicStreamers
             throws IOException
         {
             out.writeUnmodifiedUTF((String)object);
-            System.err.println("Wrote unmodifiedUTF");
         }
     }
 
