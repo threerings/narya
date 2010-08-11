@@ -109,8 +109,7 @@ public class Streamer
     {
         // if we have not yet initialized ourselves, do so now
         if (_streamers == null) {
-            _streamers = Maps.newHashMap();
-            _streamers.putAll(BasicStreamers.BSTREAMERS); // register all of the basic streamers
+            _streamers = Maps.newHashMap(BasicStreamers.BSTREAMERS);
         }
 
         Streamer stream = _streamers.get(target);
