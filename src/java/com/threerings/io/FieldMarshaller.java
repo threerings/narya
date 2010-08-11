@@ -123,11 +123,6 @@ public abstract class FieldMarshaller
             fm = _marshallers.get(Streamable.class);
         }
 
-        // sanity check
-        if (fm == null) {
-            throw new AssertionError("Requested to marshal unsupported field " + field);
-        }
-
         return fm;
     }
 
