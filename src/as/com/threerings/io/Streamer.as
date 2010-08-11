@@ -32,7 +32,9 @@ import com.threerings.io.streamers.ArrayStreamer;
 import com.threerings.io.streamers.ByteArrayStreamer;
 import com.threerings.io.streamers.ByteEnumStreamer;
 import com.threerings.io.streamers.EnumStreamer;
+import com.threerings.io.streamers.MapStreamer;
 import com.threerings.io.streamers.NumberStreamer;
+import com.threerings.io.streamers.SetStreamer;
 import com.threerings.io.streamers.StringStreamer;
 
 public class Streamer
@@ -51,10 +53,6 @@ public class Streamer
     public static function getStreamerByJavaName (jname :String) :Streamer
     {
         initStreamers();
-        // unstream lists as simple arrays
-        if (jname == "java.util.List" || jname == "java.util.ArrayList") {
-            jname = "[Ljava.lang.Object;";
-        }
 
         // see if we have a streamer for it
         var streamer :Streamer = _byJName[jname] as Streamer;
@@ -130,9 +128,12 @@ public class Streamer
         return "[Streamer(" + _jname + ")]";
     }
 
-    protected static function registerStreamer (st :Streamer) :void
+    protected static function registerStreamer (st :Streamer, ... extraJavaNames) :void
     {
         _byJName[st.getJavaClassName()] = st;
+        for each (var name :String in extraJavaNames) {
+            _byJName[name] = st;
+        }
     }
 
     /**
@@ -146,10 +147,13 @@ public class Streamer
             return;
         }
         _byJName = new Dictionary();
-        for each (var c :Class in
-                [ StringStreamer, NumberStreamer, ArrayStreamer, ByteArrayStreamer ]) {
+        for each (var c :Class in [ StringStreamer, NumberStreamer, ByteArrayStreamer ]) {
             registerStreamer(Streamer(new c()));
         }
+        registerStreamer(ArrayStreamer.INSTANCE,
+            "java.util.List", "java.util.ArrayList", "java.util.Collection");
+        registerStreamer(SetStreamer.INSTANCE, "java.util.Set");
+        registerStreamer(MapStreamer.INSTANCE, "java.util.Map");
     }
 
     protected var _target :Class;

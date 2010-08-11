@@ -24,6 +24,7 @@ package com.threerings.util {
 import com.threerings.io.ObjectInputStream;
 import com.threerings.io.ObjectOutputStream;
 import com.threerings.io.Streamable;
+import com.threerings.io.streamers.MapStreamer;
 
 import com.threerings.util.Maps;
 import com.threerings.util.maps.ForwardingMap;
@@ -48,40 +49,19 @@ public class StreamableHashMap extends ForwardingMap
      */
     public function StreamableHashMap (keyClazz :Class = null)
     {
-        super(keyClazz == null ? DEFAULT_MAP : Maps.newMapOf(keyClazz));
+        super(keyClazz == null ? MapStreamer.DEFAULT_MAP : Maps.newMapOf(keyClazz));
     }
 
     // documentation inherited from interface Streamable
     public function writeObject (out :ObjectOutputStream) :void
     {
-        out.writeInt(size());
-        forEach(function (key :Object, value :Object) :void {
-            out.writeObject(key);
-            out.writeObject(value);
-        });
+        MapStreamer.INSTANCE.writeObject(this, out);
     }
 
     // documentation inherited from interface Streamable
     public function readObject (ins :ObjectInputStream) :void
     {
-        var ecount :int = ins.readInt();
-        if (ecount > 0) {
-            // guess the type of map based on the first key
-            var key :Object = ins.readObject();
-            _source = Maps.newMapOf(ClassUtil.getClass(key));
-            put(key, ins.readObject());
-            // now read the rest
-            for (var ii :int = 1; ii < ecount; ii++) {
-                put(ins.readObject(), ins.readObject());
-            }
-
-        } else {
-            _source = DEFAULT_MAP;
-        }
+        _source = Map(MapStreamer.INSTANCE.createObject(ins));
     }
-
-    /** Used when we don't know the key class. Typically if a map is unstreamed it is
-     * read-only anyway, so this will work for empty maps that are unstreamed. */
-    protected static const DEFAULT_MAP :Map = Maps.newBuilder(Object).makeImmutable().build();
 }
 }

@@ -42,6 +42,8 @@ import com.threerings.util.langBoolean;
  */
 public class ArrayStreamer extends Streamer
 {
+    public static const INSTANCE :ArrayStreamer = new ArrayStreamer();
+
     public function ArrayStreamer (jname :String = "[Ljava.lang.Object;")
     {
         super(TypedArray, jname);
