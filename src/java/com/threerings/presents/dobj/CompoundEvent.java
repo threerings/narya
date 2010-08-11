@@ -28,16 +28,15 @@ import com.threerings.util.StreamableArrayList;
 import com.threerings.presents.net.Transport;
 
 /**
- * Used to manage and submit groups of events on a collection of
- * distributed objects in a single transaction.
+ * Used to manage and submit groups of events on a collection of distributed objects in a single
+ * transaction.
  *
  * @see DObject#startTransaction
  */
 public class CompoundEvent extends DEvent
 {
     /**
-     * Constructs a blank compound event in preparation for
-     * unserialization.
+     * Constructs a blank compound event in preparation for unserialization.
      */
     public CompoundEvent ()
     {
@@ -62,9 +61,8 @@ public class CompoundEvent extends DEvent
     }
 
     /**
-     * Posts an event to this transaction. The event will be delivered as
-     * part of the entire transaction if it is committed or discarded if
-     * the transaction is cancelled.
+     * Posts an event to this transaction. The event will be delivered as part of the entire
+     * transaction if it is committed or discarded if the transaction is cancelled.
      */
     public void postEvent (DEvent event)
     {
@@ -73,6 +71,7 @@ public class CompoundEvent extends DEvent
 
     /**
      * Returns the list of events contained within this compound event.
+     *
      * Don't mess with it.
      */
     public List<DEvent> getEvents ()
@@ -81,10 +80,9 @@ public class CompoundEvent extends DEvent
     }
 
     /**
-     * Commits this transaction by posting this event to the distributed
-     * object event queue. All participating dobjects will have their
-     * transaction references cleared and will go back to normal
-     * operation.
+     * Commits this transaction by posting this event to the distributed object event queue. All
+     * participating dobjects will have their transaction references cleared and will go back to
+     * normal operation.
      */
     public void commit ()
     {
@@ -111,8 +109,7 @@ public class CompoundEvent extends DEvent
     }
 
     /**
-     * Cancels this transaction. All events posted to this transaction
-     * will be discarded.
+     * Cancels this transaction. All events posted to this transaction will be discarded.
      */
     public void cancel ()
     {
@@ -184,8 +181,7 @@ public class CompoundEvent extends DEvent
         }
     }
 
-    /** The object manager that we'll post ourselves to when we're
-     * committed. */
+    /** The object manager that we'll post ourselves to when we're committed. */
     protected transient DObjectManager _omgr;
 
     /** The object for which we're managing a transaction. */

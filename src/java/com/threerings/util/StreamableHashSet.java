@@ -56,8 +56,7 @@ public class StreamableHashSet<E> extends HashSet<E>
     }
 
     /**
-     * Constructs an empty hash set with the default number of hash
-     * buckets.
+     * Constructs an empty hash set with the default number of hash buckets.
      */
     public StreamableHashSet ()
     {
