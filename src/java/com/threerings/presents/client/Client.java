@@ -348,8 +348,7 @@ public class Client
         for (int ii = 0; ii < scount; ii++) {
             InvocationService service = _bstrap.services.get(ii);
             if (sclass.isInstance(service)) {
-                @SuppressWarnings("unchecked") T asSclass = (T)service;
-                return asSclass;
+                return sclass.cast(service);
             }
         }
         return null;

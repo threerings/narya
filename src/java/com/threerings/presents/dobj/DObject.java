@@ -716,8 +716,7 @@ public class DObject
     {
         for (Object attr : _locattrs) {
             if (key.isInstance(attr)) {
-                @SuppressWarnings("unchecked") T casted = (T)attr;
-                return casted;
+                return key.cast(attr);
             }
         }
         return null;
