@@ -204,18 +204,15 @@ public class GenServiceTask extends InvocationTask
             return;
         }
 
-        ActionScript asa = service.getAnnotation(ActionScript.class);
-        boolean skipAS = (asa != null) && asa.omit();
-
         ServiceDescription desc = new ServiceDescription(service);
-        generateMarshaller(source, desc, skipAS);
+        generateMarshaller(source, desc);
         generateDispatcher(source, desc);
         if (!_providerless.contains(service.getSimpleName())) {
             generateProvider(source, desc);
         }
     }
 
-    protected void generateMarshaller (File source, ServiceDescription sdesc, boolean skipAS)
+    protected void generateMarshaller (File source, ServiceDescription sdesc)
         throws Exception
     {
         if (_verbose) {
@@ -282,7 +279,7 @@ public class GenServiceTask extends InvocationTask
 
         // if we're not configured with an ActionScript source root, don't generate the
         // ActionScript versions
-        if (_asroot == null || skipAS) {
+        if (_asroot == null || sdesc.skipAS) {
             return;
         }
 
@@ -635,12 +632,15 @@ public class GenServiceTask extends InvocationTask
             new ComparableArrayList<ServiceMethod>();
         public ComparableArrayList<ServiceListener> listeners =
             new ComparableArrayList<ServiceListener>();
+        public final boolean skipAS;
 
         public ServiceDescription (Class<?> serviceClass)
         {
             service = serviceClass;
             sname = service.getSimpleName();
             spackage = service.getPackage().getName();
+            ActionScript asa = service.getAnnotation(ActionScript.class);
+            skipAS = (asa != null) && asa.omit();
 
             // look through and locate our service methods, also locating any
             // custom InvocationListener derivations along the way
