@@ -24,8 +24,9 @@ package com.threerings.presents.server;
 import java.util.List;
 import java.util.Map;
 
+import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
+import com.google.common.collect.Multimap;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
@@ -142,11 +143,7 @@ public class InvocationManager
 
         // if it's a bootstrap service, slap it in the list
         if (group != null) {
-            List<InvocationMarshaller> list = _bootlists.get(group);
-            if (list == null) {
-                _bootlists.put(group, list = Lists.newArrayList());
-            }
-            list.add(marsh);
+            _bootlists.put(group, marsh);
         }
 
         _recentRegServices.put(Integer.valueOf(invCode), marsh.getClass().getName());
@@ -181,10 +178,7 @@ public class InvocationManager
     {
         List<InvocationMarshaller> services = Lists.newArrayList();
         for (String group : bootGroups) {
-            List<InvocationMarshaller> list = _bootlists.get(group);
-            if (list != null) {
-                services.addAll(list);
-            }
+            services.addAll(_bootlists.get(group));
         }
         return services;
     }
@@ -309,7 +303,7 @@ public class InvocationManager
     protected IntMap<InvocationDispatcher<?>> _dispatchers = IntMaps.newHashIntMap();
 
     /** Maps bootstrap group to lists of services to be provided to clients at boot time. */
-    protected Map<String, List<InvocationMarshaller>> _bootlists = Maps.newHashMap();
+    protected Multimap<String, InvocationMarshaller> _bootlists = ArrayListMultimap.create();
 
     /** Tracks recently registered services so that we can complain informatively if a request
      * comes in on a service we don't know about. */
