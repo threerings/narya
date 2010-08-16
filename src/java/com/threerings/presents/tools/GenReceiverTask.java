@@ -92,7 +92,8 @@ public class GenReceiverTask extends InvocationTask
         imports.removeGlobals();
 
         generateSender(source, rname, rpackage, methods, imports.toList().iterator());
-        generateDecoder(source, rname, rpackage, methods, imports.toList().iterator());
+        generateDecoder(receiver, source, rname, rpackage, methods, imports.toList().iterator(),
+            StringUtil.md5hex(rpackage + "." + rname));
     }
 
     protected void generateSender (File source, String rname, String rpackage,
@@ -128,8 +129,8 @@ public class GenReceiverTask extends InvocationTask
         writeFile(mpath, sw.toString());
     }
 
-    protected void generateDecoder (File source, String rname, String rpackage,
-                                    List<?> methods, Iterator<String> imports)
+    protected void generateDecoder (Class<?> receiver, File source, String rname, String rpackage,
+                                    List<ServiceMethod> methods, Iterator<String> imports, String rcode)
         throws Exception
     {
         String name = rname.replace("Receiver", "");
@@ -142,7 +143,7 @@ public class GenReceiverTask extends InvocationTask
 
         VelocityContext ctx = new VelocityContext();
         ctx.put("name", name);
-        ctx.put("receiver_code", StringUtil.md5hex(rpackage + "." + rname));
+        ctx.put("receiver_code", rcode);
         ctx.put("package", rpackage);
         ctx.put("methods", methods);
         ctx.put("imports", implist);
