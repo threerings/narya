@@ -130,16 +130,7 @@ public class PresentsServer
         SystemInfo si = new SystemInfo();
         log.info("Starting up server", "os", si.osToString(), "jvm", si.jvmToString());
 
-        // register SIGTERM, SIGINT (ctrl-c) and a SIGHUP handlers
-        boolean registered = false;
-        try {
-            registered = injector.getInstance(SunSignalHandler.class).init();
-        } catch (Throwable t) {
-            log.warning("Unable to register Sun signal handlers", "error", t);
-        }
-        if (!registered) {
-            injector.getInstance(NativeSignalHandler.class).init();
-        }
+        registerSignalHandlers(injector);
 
         // initialize our deprecated legacy static references
         omgr = _omgr;
@@ -170,6 +161,20 @@ public class PresentsServer
 
         // initialize all of our registered components
         _lifecycle.init();
+    }
+
+    protected void registerSignalHandlers (Injector injector)
+    {
+        // register SIGTERM, SIGINT (ctrl-c) and a SIGHUP handlers
+        boolean registered = false;
+        try {
+            registered = injector.getInstance(SunSignalHandler.class).init();
+        } catch (Throwable t) {
+            log.warning("Unable to register Sun signal handlers", "error", t);
+        }
+        if (!registered) {
+            injector.getInstance(NativeSignalHandler.class).init();
+        }
     }
 
     /**

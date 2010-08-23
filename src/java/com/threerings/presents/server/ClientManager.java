@@ -80,7 +80,7 @@ public class ClientManager
     }
 
     /**
-     * Used by entites that wish to track when clients initiate and end sessions on this server.
+     * Used by entities that wish to track when clients initiate and end sessions on this server.
      */
     public static interface ClientObserver
     {
