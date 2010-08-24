@@ -37,7 +37,6 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
-
 import com.samskivert.util.ArrayIntSet;
 import com.samskivert.util.ChainedResultListener;
 import com.samskivert.util.Interval;
@@ -246,6 +245,17 @@ public abstract class PeerManager
     }
 
     /**
+     * Initializes this peer manager to connect to all other nodes in the NODES table. See
+     * {@link #init(String, String, String, String, int, String)} for the behavior of the method
+     * and the meaning of its parameters.
+     */
+    public void init (String nodeName, String sharedSecret, String hostName,
+        String publicHostName, int port)
+    {
+        init(nodeName, sharedSecret, hostName, publicHostName, port, "");
+    }
+
+    /**
      * Initializes this peer manager and initiates the process of connecting to its peer nodes.
      * This will also reconfigure the ConnectionManager and ClientManager with peer related bits,
      * so this should not be called until <em>after</em> the main server has set up its client
@@ -255,14 +265,18 @@ public abstract class PeerManager
      * @param sharedSecret a shared secret used to allow the peers to authenticate with one
      * another.
      * @param hostName the DNS name of the server running this node.
-     * @param publicHostName if non-null, a separate public DNS hostname by which the node is to be
-     * known to normal clients (we may want inter-peer communication to take place over a different
-     * network than the communication between real clients and the various peer servers).
+     * @param publicHostName if non-null, a separate public DNS hostname by which the node is to
+     * be known to normal clients (we may want inter-peer communication to take place over a
+     * different network than the communication between real clients and the various peer
+     * servers).
      * @param port the port on which other nodes should connect to us.
+     * @param nodeNamespace The namespace for nodes to peer with. This node will connect to other
+     * nodes with the same prefix from the NODES table.
      */
     public void init (String nodeName, String sharedSecret,
-                      String hostName, String publicHostName, int port)
+                      String hostName, String publicHostName, int port, String nodeNamespace)
     {
+        _nodeNamespace = nodeNamespace;
         _nodeName = nodeName;
         _sharedSecret = sharedSecret;
 
@@ -993,7 +1007,7 @@ public abstract class PeerManager
                 // let the world know that we're alive
                 _noderepo.heartbeatNode(_nodeName);
                 // then load up all the peer records
-                _nodes = _noderepo.loadNodes();
+                _nodes = _noderepo.loadNodes(_nodeNamespace);
             }
             @Override
             public void handleSuccess () {
@@ -1494,6 +1508,7 @@ public abstract class PeerManager
     protected String _nodeName, _sharedSecret;
     protected NodeRecord _self;
     protected NodeObject _nodeobj;
+    protected String _nodeNamespace;
     protected Map<String,PeerNode> _peers = Maps.newHashMap();
 
     /** Used to resolve dependencies in unserialized {@link NodeAction} instances. */
