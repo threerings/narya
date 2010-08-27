@@ -166,8 +166,21 @@ public abstract class PeerManager
         protected abstract void execute ();
     }
 
+    /**
+     * Encapsulates code that is meant to be executed one or more servers and return a result.
+     *
+     * <p><b>Note well</b>: the request you provide is serialized and sent to the server to which
+     * the member is currently connection. This means you MUST NOT instantiate a NodeRequest
+     * anonymously because that will maintain an implicit non-transient reference to its containing
+     * class which will then also be serialized (assuming it is even serializable).
+     */
     public static abstract class NodeRequest implements Streamable
     {
+        /** Returns true if this request should be executed on the specified node. This will be
+         * called on the originating server to decide whether or not to deliver the request to the
+         * server in question. */
+        public abstract boolean isApplicable (NodeObject nodeobj);
+
         /** Invokes the action on the target server. */
         public void invoke (final InvocationService.ResultListener listener) {
             try {
@@ -459,22 +472,33 @@ public abstract class PeerManager
      * this function will report success.
      */
     public void invokeNodeRequest (
-        final NodeRequest request, final InvocationService.ConfirmListener listener)
+        final NodeRequest request, final InvocationService.ConfirmListener listener,
+        final Runnable onDropped)
     {
         // if we're not on the dobjmgr thread, get there
         if (!_omgr.isDispatchThread()) {
             _omgr.postRunnable(new Runnable() {
                 public void run () {
-                    invokeNodeRequest(request, listener);
+                    invokeNodeRequest(request, listener, onDropped);
                 }
             });
             return;
         }
 
         // build a set of node names (including the local node) to
-        final Set<String> nodes = Sets.newHashSet(_nodeobj.nodeName);
+        final Set<String> nodes = Sets.newHashSet();
+        if (request.isApplicable(_nodeobj)) {
+            nodes.add(_nodeobj.nodeName);
+        }
         for (PeerNode peer : _peers.values()) {
-            nodes.add(peer.getNodeName());
+            if (request.isApplicable(peer.nodeobj)) {
+                nodes.add(peer.getNodeName());
+            }
+        }
+
+        if (nodes.isEmpty() && onDropped != null) {
+            onDropped.run();
+            return;
         }
 
         // serialize the action to make sure we can
