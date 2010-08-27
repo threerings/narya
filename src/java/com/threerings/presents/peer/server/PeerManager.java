@@ -485,7 +485,10 @@ public abstract class PeerManager
             return;
         }
 
-        // build a set of node names (including the local node) to
+        // serialize the action to make sure we can
+        byte[] requestBytes = flattenRequest(request);
+
+        // build a set of node names (including the local node) to which to send the request
         final Set<String> nodes = Sets.newHashSet();
         if (request.isApplicable(_nodeobj)) {
             nodes.add(_nodeobj.nodeName);
@@ -495,14 +498,10 @@ public abstract class PeerManager
                 nodes.add(peer.getNodeName());
             }
         }
-
         if (nodes.isEmpty() && onDropped != null) {
             onDropped.run();
             return;
         }
-
-        // serialize the action to make sure we can
-        byte[] requestBytes = flattenRequest(request);
 
         for (final String node : nodes) {
             invokeNodeRequest(node, requestBytes, new InvocationService.ResultListener() {
