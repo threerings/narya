@@ -953,8 +953,13 @@ public class BlockingCommunicator extends Communicator
                 return;
             }
 
-            // make sure we're not exceeding our outgoing throttle rate
-            throttleOutgoingMessage();
+            // if we're exceeding our outgoing throttle rate, drop the packet
+            Throttle throttle = _client.getOutgoingMessageThrottle();
+            synchronized(throttle) {
+                if (throttle.throttleOp()) {
+                    return;
+                }
+            }
 
             try {
                 // write the message out the socket
