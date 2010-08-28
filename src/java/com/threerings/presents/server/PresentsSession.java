@@ -200,11 +200,11 @@ public class PresentsSession
     @EventThread
     public void setIncomingMessageThrottle (int messagesPerSec)
     {
-        synchronized(_pendingThrottles) {
-            _pendingThrottles.add(messagesPerSec);
+        // store and post update immediately if connected
+        _messagesPerSec = messagesPerSec;
+        if (getConnection() != null) {
+            sendThrottleUpdate();
         }
-        postMessage(new UpdateThrottleMessage(messagesPerSec));
-        // when we get a ThrottleUpdatedMessage from the client, we'll apply the new throttle
     }
 
     /**
@@ -536,7 +536,24 @@ public class PresentsSession
         // send off a bootstrap notification immediately as we've already got our client object
         sendBootstrap();
 
+        // resend the throttle update if non-default
+        if (_messagesPerSec != Client.DEFAULT_MSGS_PER_SECOND) {
+            sendThrottleUpdate();
+        }
+
         log.info("Session resumed " + this + ".");
+    }
+
+    /**
+     * Sends the throttle update to the client.
+     */
+    protected void sendThrottleUpdate ()
+    {
+        synchronized(_pendingThrottles) {
+            _pendingThrottles.add(_messagesPerSec);
+        }
+        postMessage(new UpdateThrottleMessage(_messagesPerSec));
+        // when we get a ThrottleUpdatedMessage from the client, we'll apply the new throttle
     }
 
     /**
@@ -740,6 +757,12 @@ public class PresentsSession
     {
         // clear out our connection reference
         setConnection(null);
+
+        // reset the throttle state in case the client reconnects
+        _throttle = createIncomingMessageThrottle();
+        synchronized (_pendingThrottles) {
+            _pendingThrottles.clear();
+        }
 
         // if we are being closed after the omgr has shutdown, then just stop here; the whole world
         // is about to come to a screeching halt anyway
@@ -1137,6 +1160,9 @@ public class PresentsSession
     /** The total number of seconds for which the user was connected to the server in this
      * session. */
     protected int _connectTime;
+
+    /** The configured throttle setting (resent to reconnecting clients). */
+    protected int _messagesPerSec = Client.DEFAULT_MSGS_PER_SECOND;
 
     /** Prevent the client from sending too many messages too frequently. */
     protected Throttle _throttle = createIncomingMessageThrottle();

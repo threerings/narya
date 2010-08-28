@@ -829,6 +829,9 @@ public class Client
             _tickInterval = null;
         }
 
+        // restore the default message throttle
+        _outThrottle = new Throttle(DEFAULT_MSGS_PER_SECOND, 1000L);
+
         // we know that prior to the call to this method, the observers were notified with
         // CLIENT_DID_LOGOFF; that may not have been invoked yet, so we don't want to clear out our
         // communicator reference immediately; instead we queue up a runnable unit to do so to
