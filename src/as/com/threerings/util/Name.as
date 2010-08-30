@@ -27,7 +27,7 @@ import com.threerings.io.ObjectInputStream;
 import com.threerings.io.ObjectOutputStream;
 import com.threerings.io.Streamable;
 
-public class Name extends Object
+public class Name
     implements Comparable, Hashable, Streamable
 {
     public function Name (name :String = "")
