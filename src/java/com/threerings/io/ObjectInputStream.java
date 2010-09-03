@@ -54,7 +54,7 @@ public class ObjectInputStream extends DataInputStream
     }
 
     /**
-     * Customizes the class loader used to instnatiate objects read from the input stream.
+     * Customizes the class loader used to instantiate objects read from the input stream.
      */
     public void setClassLoader (ClassLoader loader)
     {
