@@ -1054,7 +1054,7 @@ public class ActionScriptSource
     protected static Pattern JFIELD = Pattern.compile(
         "\\s+(?:public|protected|private)" +
         "(?:\\s+static|\\s+final|\\s+transient)*" +
-        "\\s+(?:[a-zA-Z\\[\\]<>,]+)" + // type
+        "\\s+(?:[a-zA-Z\\[\\]<\\?>,]+)" + // type
         "\\s+([_a-zA-Z]\\w*)(\\s+=.*|;)");
 
     protected static Pattern JCONSTRUCTOR = Pattern.compile(
