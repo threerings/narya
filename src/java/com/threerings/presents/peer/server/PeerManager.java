@@ -471,15 +471,13 @@ public abstract class PeerManager
      * If any one node reports failure, this function reports failure. If all nodes report success,
      * this function will report success.
      */
-    public void invokeNodeRequest (
-        final NodeRequest request, final InvocationService.ConfirmListener listener,
-        final Runnable onDropped)
+    public <T> void invokeNodeRequest (final NodeRequest request, final NodeRequestsListener<T> listener)
     {
         // if we're not on the dobjmgr thread, get there
         if (!_omgr.isDispatchThread()) {
             _omgr.postRunnable(new Runnable() {
                 public void run () {
-                    invokeNodeRequest(request, listener, onDropped);
+                    invokeNodeRequest(request, listener);
                 }
             });
             return;
@@ -498,24 +496,32 @@ public abstract class PeerManager
                 nodes.add(peer.getNodeName());
             }
         }
-        if (nodes.isEmpty() && onDropped != null) {
-            onDropped.run();
+        if (nodes.isEmpty()) {
+            listener.requestsProcessed(new NodeRequestsResultImpl());
             return;
         }
 
+        final Map<String, T> results = Maps.newHashMap();
+        final Map<String, String> failures = Maps.newHashMap();
         for (final String node : nodes) {
             invokeNodeRequest(node, requestBytes, new InvocationService.ResultListener() {
                 public void requestProcessed (Object result) {
                     // check off this node's successful response
-                    nodes.remove(node);
-                    if (nodes.isEmpty()) {
-                        // if all nodes have responded in the affirmative, let caller know
-                        listener.requestProcessed();
-                    }
+                    @SuppressWarnings("unchecked")
+                    T castResult = (T) result;
+                    results.put(node, castResult);
+                    nodeDone(node);
                 }
                 public void requestFailed (String cause) {
-                    // let the caller know a node failed
-                    listener.requestFailed(cause);
+                    failures.put(node, cause);
+                    nodeDone(node);
+                }
+                protected void nodeDone (String node) {
+                    nodes.remove(node);
+                    if (nodes.isEmpty()) {
+                        // if all nodes have responded, let caller know
+                        listener.requestsProcessed(new NodeRequestsResultImpl(results, failures));
+                    }
                 }
             });
         }
@@ -1520,6 +1526,42 @@ public abstract class PeerManager
         protected long _startStamp = System.currentTimeMillis();
     }
 
+    protected static class NodeRequestsResultImpl<T>
+        implements NodeRequestsListener.NodeRequestsResult<T>
+    {
+        public NodeRequestsResultImpl (Map<String, T> results, Map<String, String> errors)
+        {
+            _results = Maps.newHashMap(results);
+            _errors = Maps.newHashMap(errors);
+        }
+
+        public NodeRequestsResultImpl ()
+        {
+            this(Collections.EMPTY_MAP, Collections.EMPTY_MAP);
+        }
+
+        @Override public Map<String, T> getNodeResults ()
+        {
+            return _results;
+        }
+
+        @Override
+        public Map<String, String> getNodeErrors ()
+        {
+            return _errors;
+        }
+
+        @Override
+        public boolean wasDropped ()
+        {
+            return _results.isEmpty() && _errors.isEmpty();
+        }
+
+        protected Map<String, T> _results;
+        protected Map<String, String> _errors;
+    }
+
+    
     /** Extracts the node object from the supplied peer. */
     protected static final Function<PeerNode, NodeObject> GET_NODE_OBJECT =
         new Function<PeerNode, NodeObject>() {
