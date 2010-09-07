@@ -26,7 +26,6 @@ import javax.annotation.Generated;
 import com.threerings.crowd.chat.client.ChatService;
 import com.threerings.crowd.chat.data.UserMessage;
 import com.threerings.crowd.peer.data.CrowdPeerMarshaller;
-import com.threerings.presents.client.InvocationService;
 import com.threerings.presents.data.ClientObject;
 import com.threerings.presents.server.InvocationDispatcher;
 import com.threerings.presents.server.InvocationException;
@@ -69,12 +68,6 @@ public class CrowdPeerDispatcher extends InvocationDispatcher<CrowdPeerMarshalle
         case CrowdPeerMarshaller.DELIVER_TELL:
             ((CrowdPeerProvider)provider).deliverTell(
                 source, (UserMessage)args[0], (Name)args[1], (ChatService.TellListener)args[2]
-            );
-            return;
-
-        case CrowdPeerMarshaller.GET_CHAT_HISTORY:
-            ((CrowdPeerProvider)provider).getChatHistory(
-                source, (Name)args[0], (InvocationService.ResultListener)args[1]
             );
             return;
 

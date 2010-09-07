@@ -28,7 +28,6 @@ import com.threerings.crowd.chat.data.ChatMarshaller;
 import com.threerings.crowd.chat.data.UserMessage;
 import com.threerings.crowd.peer.client.CrowdPeerService;
 import com.threerings.presents.client.Client;
-import com.threerings.presents.client.InvocationService;
 import com.threerings.presents.data.InvocationMarshaller;
 import com.threerings.util.Name;
 
@@ -65,19 +64,6 @@ public class CrowdPeerMarshaller extends InvocationMarshaller
         listener4.listener = arg4;
         sendRequest(arg1, DELIVER_TELL, new Object[] {
             arg2, arg3, listener4
-        });
-    }
-
-    /** The method id used to dispatch {@link #getChatHistory} requests. */
-    public static final int GET_CHAT_HISTORY = 3;
-
-    // from interface CrowdPeerService
-    public void getChatHistory (Client arg1, Name arg2, InvocationService.ResultListener arg3)
-    {
-        InvocationMarshaller.ResultMarshaller listener3 = new InvocationMarshaller.ResultMarshaller();
-        listener3.listener = arg3;
-        sendRequest(arg1, GET_CHAT_HISTORY, new Object[] {
-            arg2, listener3
         });
     }
 }

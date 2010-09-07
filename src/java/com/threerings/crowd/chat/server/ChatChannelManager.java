@@ -21,16 +21,22 @@
 
 package com.threerings.crowd.chat.server;
 
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
+import com.google.common.base.Predicate;
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.google.common.primitives.Longs;
 import com.google.inject.Inject;
 
 import com.samskivert.util.ArrayIntSet;
+import com.samskivert.util.ResultListener;
+import com.threerings.crowd.chat.server.SpeakUtil.ChatHistoryEntry;
+import com.threerings.presents.client.InvocationService;
+import com.threerings.presents.peer.server.PeerManager.NodeRequest;
+import com.threerings.presents.peer.server.NodeRequestsListener;
+import com.threerings.presents.server.InvocationException;
 import com.threerings.util.Name;
 
 import com.threerings.presents.annotation.AnyThread;
@@ -59,6 +65,19 @@ public abstract class ChatChannelManager
     implements ChannelSpeakProvider
 {
     /**
+     * Value asynchronously returned by {@link #collectChatHistory} after polling all peer nodes.
+     */
+    public static class ChatHistoryResult
+    {
+        /** The set of nodes that either did not reply within the timeout, or had a failure. */
+        public Set<String> failedNodes;
+
+        /** The things in the user's chat history, aggregated from all nodes and sorted by
+         * timestamp. */
+        public List<ChatHistoryEntry> history;
+    }
+
+    /**
      * When a body becomes a member of a channel, this method should be called so that any server
      * that happens to be hosting that channel can be told that the body in question is now a
      * participant.
@@ -78,6 +97,34 @@ public abstract class ChatChannelManager
     public void bodyRemovedFromChannel (ChatChannel channel, int bodyId)
     {
         _peerMan.invokeNodeAction(new ParticipantChanged(channel, bodyId, false));
+    }
+
+    /**
+     * Collects all chat messages heard by the given user on all peers.
+     */
+    @AnyThread
+    public void collectChatHistory (Name user, final ResultListener<ChatHistoryResult> lner)
+    {
+        _peerMan.invokeNodeRequest (
+            new ChatCollectionRequest(user), new NodeRequestsListener<List<ChatHistoryEntry>>()
+        {
+            @Override public void requestsProcessed (
+                NodeRequestsResult<List<ChatHistoryEntry>> requestResult)
+            {
+                ChatHistoryResult result = new ChatHistoryResult();
+                result.failedNodes = requestResult.getNodeErrors().keySet();
+                result.history = Lists.newArrayList();
+                for (Map.Entry<String, List<ChatHistoryEntry>> entry : requestResult.getNodeResults().entrySet()) {
+                    result.history.addAll(entry.getValue());
+                }
+                lner.requestCompleted(result);
+            }
+
+            @Override public void requestFailed (String cause)
+            {
+                lner.requestFailed(new InvocationException(cause));
+            }
+        });
     }
 
     // from interface ChannelSpeakProvider
@@ -347,6 +394,47 @@ public abstract class ChatChannelManager
         protected int _bodyId;
         protected boolean _added;
     }
+
+    protected static class ChatCollectionRequest extends NodeRequest
+    {
+        public ChatCollectionRequest (Name user)
+        {
+            _user = user;
+        }
+
+        public ChatCollectionRequest ()
+        {
+        }
+
+        @Override public boolean isApplicable (NodeObject nodeobj)
+        {
+            // poll all nodes
+            return true;
+        }
+
+        @Override protected void execute (InvocationService.ResultListener listener)
+        {
+            // find all the UserMessages for the given user and send them back
+            listener.requestProcessed(Lists.newArrayList(Iterables.filter(
+                SpeakUtil.getChatHistory(_user), IS_USER_MESSAGE)));
+        }
+
+        protected Name _user;
+    }
+    
+    protected static final Predicate<ChatHistoryEntry> IS_USER_MESSAGE =
+        new Predicate<ChatHistoryEntry>() {
+        public boolean apply (ChatHistoryEntry entry) {
+            return entry.message instanceof UserMessage;
+        }
+    };
+
+    protected static final Comparator<ChatHistoryEntry> SORT_BY_TIMESTAMP =
+        new Comparator<ChatHistoryEntry>() {
+        public int compare (ChatHistoryEntry e1, ChatHistoryEntry e2) {
+            return Longs.compare(e1.message.timestamp, e2.message.timestamp);
+        }
+    };
 
     /** Forwards a channel speak request from the server hosting the message originator to the
      * server that is hosting the channel. */

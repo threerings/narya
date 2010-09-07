@@ -46,10 +46,4 @@ public interface CrowdPeerService extends InvocationService
      * Dispatches a broadcast message on this peer.
      */
     void deliverBroadcast (Client client, Name from, byte levelOrMode, String bundle, String msg);
-
-    /**
-     * Obtains the messages that the user has heard on this peer. On success, the listener will
-     * receive a {@code List} of {@link SpeakUtil.ChatHistoryEntry} instances.
-     */
-    void getChatHistory (Client caller, Name user, ResultListener lner);
 }
