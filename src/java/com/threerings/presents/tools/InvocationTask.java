@@ -411,7 +411,11 @@ public abstract class InvocationTask extends GenTask
         if (_header != null) {
             data = _header + data;
         }
-        new PrintWriter(new File(path), "UTF-8").append(data).close();
+        File dest = new File(path);
+        if (!dest.getParentFile().exists() && !dest.getParentFile().mkdirs()) {
+            throw new BuildException("Unable to create directory for " + dest.getAbsolutePath());
+        }
+        new PrintWriter(dest, "UTF-8").append(data).close();
     }
 
     protected static <T> void checkedAdd (List<T> list, T value)
