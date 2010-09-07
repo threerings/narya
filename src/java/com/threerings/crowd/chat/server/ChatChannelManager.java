@@ -21,7 +21,12 @@
 
 package com.threerings.crowd.chat.server;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
@@ -32,24 +37,26 @@ import com.google.inject.Inject;
 
 import com.samskivert.util.ArrayIntSet;
 import com.samskivert.util.ResultListener;
-import com.threerings.crowd.chat.server.SpeakUtil.ChatHistoryEntry;
-import com.threerings.presents.client.InvocationService;
-import com.threerings.presents.peer.server.PeerManager.NodeRequest;
-import com.threerings.presents.peer.server.NodeRequestsListener;
-import com.threerings.presents.server.InvocationException;
+
 import com.threerings.util.Name;
 
 import com.threerings.presents.annotation.AnyThread;
+import com.threerings.presents.client.InvocationService;
 import com.threerings.presents.data.ClientObject;
+import com.threerings.presents.server.InvocationException;
+import com.threerings.presents.server.InvocationManager;
+import com.threerings.presents.server.PresentsDObjectMgr;
+
 import com.threerings.presents.peer.data.ClientInfo;
 import com.threerings.presents.peer.data.NodeObject;
 import com.threerings.presents.peer.server.PeerManager;
-import com.threerings.presents.server.InvocationManager;
-import com.threerings.presents.server.PresentsDObjectMgr;
+import com.threerings.presents.peer.server.PeerManager.NodeRequest;
+import com.threerings.presents.peer.server.NodeRequestsListener;
 
 import com.threerings.crowd.chat.data.ChatChannel;
 import com.threerings.crowd.chat.data.ChatCodes;
 import com.threerings.crowd.chat.data.UserMessage;
+import com.threerings.crowd.chat.server.SpeakUtil.ChatHistoryEntry;
 import com.threerings.crowd.data.BodyObject;
 import com.threerings.crowd.data.CrowdCodes;
 import com.threerings.crowd.peer.data.CrowdClientInfo;
@@ -105,26 +112,21 @@ public abstract class ChatChannelManager
     @AnyThread
     public void collectChatHistory (Name user, final ResultListener<ChatHistoryResult> lner)
     {
-        _peerMan.invokeNodeRequest (
-            new ChatCollectionRequest(user), new NodeRequestsListener<List<ChatHistoryEntry>>()
-        {
-            public void requestsProcessed (NodeRequestsResult<List<ChatHistoryEntry>> requestResult)
-            {
-                ChatHistoryResult result = new ChatHistoryResult();
-                result.failedNodes = requestResult.getNodeErrors().keySet();
-                result.history = Lists.newArrayList();
-                for (Map.Entry<String, List<ChatHistoryEntry>> entry : requestResult.getNodeResults().entrySet()) {
-                    result.history.addAll(entry.getValue());
+        NodeRequestsListener<List<ChatHistoryEntry>> listener =
+            new NodeRequestsListener<List<ChatHistoryEntry>>() {
+                public void requestsProcessed (NodeRequestsResult<List<ChatHistoryEntry>> rRes) {
+                    ChatHistoryResult chRes = new ChatHistoryResult();
+                    chRes.failedNodes = rRes.getNodeErrors().keySet();
+                    chRes.history = Lists.newArrayList(
+                        Iterables.concat(rRes.getNodeResults().values()));
+                    Collections.sort(chRes.history, SORT_BY_TIMESTAMP);
+                    lner.requestCompleted(chRes);
                 }
-                Collections.sort(result.history, SORT_BY_TIMESTAMP);
-                lner.requestCompleted(result);
-            }
-
-            public void requestFailed (String cause)
-            {
-                lner.requestFailed(new InvocationException(cause));
-            }
-        });
+                public void requestFailed (String cause) {
+                    lner.requestFailed(new InvocationException(cause));
+                }
+            };
+        _peerMan.invokeNodeRequest(new ChatCollectionRequest(user), listener);
     }
 
     // from interface ChannelSpeakProvider
