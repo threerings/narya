@@ -117,6 +117,7 @@ public abstract class ChatChannelManager
                 for (Map.Entry<String, List<ChatHistoryEntry>> entry : requestResult.getNodeResults().entrySet()) {
                     result.history.addAll(entry.getValue());
                 }
+                Collections.sort(result.history, SORT_BY_TIMESTAMP);
                 lner.requestCompleted(result);
             }
 
