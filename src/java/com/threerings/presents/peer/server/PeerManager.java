@@ -497,7 +497,7 @@ public abstract class PeerManager
             }
         }
         if (nodes.isEmpty()) {
-            listener.requestsProcessed(new NodeRequestsResultImpl());
+            listener.requestsProcessed(new NodeRequestsResultImpl<T>());
             return;
         }
 
@@ -520,7 +520,7 @@ public abstract class PeerManager
                     nodes.remove(node);
                     if (nodes.isEmpty()) {
                         // if all nodes have responded, let caller know
-                        listener.requestsProcessed(new NodeRequestsResultImpl(results, failures));
+                        listener.requestsProcessed(new NodeRequestsResultImpl<T>(results, failures));
                     }
                 }
             });
@@ -1537,21 +1537,20 @@ public abstract class PeerManager
 
         public NodeRequestsResultImpl ()
         {
-            this(Collections.EMPTY_MAP, Collections.EMPTY_MAP);
+            _results = Maps.newHashMap();
+            _errors = Maps.newHashMap();
         }
 
-        @Override public Map<String, T> getNodeResults ()
+        public Map<String, T> getNodeResults ()
         {
             return _results;
         }
 
-        @Override
         public Map<String, String> getNodeErrors ()
         {
             return _errors;
         }
 
-        @Override
         public boolean wasDropped ()
         {
             return _results.isEmpty() && _errors.isEmpty();

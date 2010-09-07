@@ -108,8 +108,7 @@ public abstract class ChatChannelManager
         _peerMan.invokeNodeRequest (
             new ChatCollectionRequest(user), new NodeRequestsListener<List<ChatHistoryEntry>>()
         {
-            @Override public void requestsProcessed (
-                NodeRequestsResult<List<ChatHistoryEntry>> requestResult)
+            public void requestsProcessed (NodeRequestsResult<List<ChatHistoryEntry>> requestResult)
             {
                 ChatHistoryResult result = new ChatHistoryResult();
                 result.failedNodes = requestResult.getNodeErrors().keySet();
@@ -121,7 +120,7 @@ public abstract class ChatChannelManager
                 lner.requestCompleted(result);
             }
 
-            @Override public void requestFailed (String cause)
+            public void requestFailed (String cause)
             {
                 lner.requestFailed(new InvocationException(cause));
             }
