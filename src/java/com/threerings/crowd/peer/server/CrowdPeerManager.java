@@ -21,24 +21,12 @@
 
 package com.threerings.crowd.peer.server;
 
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Set;
-
-import com.google.common.base.Predicate;
-import com.google.common.collect.Iterables;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
-import com.google.common.primitives.Longs;
 import com.google.inject.Inject;
 
-import com.samskivert.util.Interval;
 import com.samskivert.util.Lifecycle;
-import com.samskivert.util.ResultListener;
+
 import com.threerings.util.Name;
 
-import com.threerings.presents.client.InvocationService;
 import com.threerings.presents.data.ClientObject;
 import com.threerings.presents.peer.data.ClientInfo;
 import com.threerings.presents.peer.data.NodeObject;
@@ -50,13 +38,9 @@ import com.threerings.presents.server.PresentsSession;
 import com.threerings.crowd.chat.client.ChatService;
 import com.threerings.crowd.chat.data.UserMessage;
 import com.threerings.crowd.chat.server.ChatProvider;
-import com.threerings.crowd.chat.server.SpeakUtil;
-import com.threerings.crowd.chat.server.SpeakUtil.ChatHistoryEntry;
 import com.threerings.crowd.data.BodyObject;
 import com.threerings.crowd.peer.data.CrowdClientInfo;
 import com.threerings.crowd.peer.data.CrowdNodeObject;
-
-import static com.threerings.crowd.Log.log;
 
 /**
  * Extends the standard peer manager and bridges certain Crowd services.

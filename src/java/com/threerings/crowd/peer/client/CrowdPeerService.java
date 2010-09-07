@@ -28,7 +28,6 @@ import com.threerings.presents.client.InvocationService;
 
 import com.threerings.crowd.chat.client.ChatService;
 import com.threerings.crowd.chat.data.UserMessage;
-import com.threerings.crowd.chat.server.SpeakUtil;
 
 /**
  * Bridges certain Crowd services between peers in a cluster configuration.
