@@ -26,7 +26,8 @@ public class RunningStats
     }
 
     /**
-     * Returns the minimum sample added or {@link Double#MAX_VALUE} if no samples have been added.
+     * Returns the minimum sample added or {@link Double#POSITIVE_INFINITY} if no samples have
+     * been added.
      */
     public double getMin ()
     {
@@ -34,7 +35,8 @@ public class RunningStats
     }
 
     /**
-     * Returns the maximum sample added or {@link Double#MIN_VALUE} if no samples have been added.
+     * Returns the maximum sample added or {@link Double#NEGATIVE_INFINITY} if no samples have
+     * been added.
      */
     public double getMax ()
     {
