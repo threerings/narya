@@ -486,6 +486,12 @@ public class BlockingCommunicator extends Communicator
             // noop!
         }
 
+        if (_oin == null) {
+            // Our object input stream was taken away from us before we could do anything with the
+            //  frame, this is equivalent to being interrupted mid-frame, so indicate that.
+            throw new InterruptedIOException();
+        }
+
         try {
             int size = _fin.available();
             DownstreamMessage msg = (DownstreamMessage)_oin.readObject();
