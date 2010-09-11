@@ -503,6 +503,7 @@ public abstract class PeerManager
 
         final Map<String, T> results = Maps.newHashMap();
         final Map<String, String> failures = Maps.newHashMap();
+        final Set<String> completedNodes = Sets.newHashSet();
         for (final String node : nodes) {
             invokeNodeRequest(node, requestBytes, new InvocationService.ResultListener() {
                 public void requestProcessed (Object result) {
@@ -517,8 +518,8 @@ public abstract class PeerManager
                     nodeDone(node);
                 }
                 protected void nodeDone (String node) {
-                    nodes.remove(node);
-                    if (nodes.isEmpty()) {
+                    completedNodes.add(node);
+                    if (nodes.size() == completedNodes.size())
                         // if all nodes have responded, let caller know
                         listener.requestsProcessed(new NodeRequestsResultImpl<T>(results, failures));
                     }
