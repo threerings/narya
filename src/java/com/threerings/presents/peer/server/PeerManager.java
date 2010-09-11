@@ -519,7 +519,7 @@ public abstract class PeerManager
                 }
                 protected void nodeDone (String node) {
                     completedNodes.add(node);
-                    if (nodes.size() == completedNodes.size())
+                    if (nodes.size() == completedNodes.size()) {
                         // if all nodes have responded, let caller know
                         listener.requestsProcessed(new NodeRequestsResultImpl<T>(results, failures));
                     }
