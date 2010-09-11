@@ -37,12 +37,10 @@ import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.DirectoryScanner;
 import org.apache.tools.ant.Task;
 import org.apache.tools.ant.types.FileSet;
-import org.apache.velocity.app.VelocityEngine;
 
 import com.google.common.collect.Lists;
 
 import com.samskivert.io.StreamUtil;
-import com.samskivert.velocity.VelocityUtil;
 
 import com.threerings.io.ObjectInputStream;
 import com.threerings.io.ObjectOutputStream;
@@ -93,12 +91,6 @@ public class GenActionScriptTask extends Task
     @Override
     public void execute ()
     {
-        try {
-            _velocity = VelocityUtil.createEngine();
-        } catch (Exception e) {
-            throw new BuildException("Failure initializing Velocity", e);
-        }
-
         for (FileSet fs : _filesets) {
             DirectoryScanner ds = fs.getDirectoryScanner(getProject());
             File fromDir = fs.getDir(getProject());
@@ -358,9 +350,6 @@ public class GenActionScriptTask extends Task
 
     /** The path to our ActionScript source files. */
     protected File _asroot;
-
-    /** Used to generate source files from templates. */
-    protected VelocityEngine _velocity;
 
     protected static final String READ_SIG =
         "public function readObject (ins :ObjectInputStream) :void";
