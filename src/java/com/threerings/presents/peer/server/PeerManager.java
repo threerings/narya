@@ -25,6 +25,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
 import java.io.ByteArrayInputStream;
@@ -504,7 +505,7 @@ public abstract class PeerManager
 
         final Map<String, T> results = Maps.newHashMap();
         final Map<String, String> failures = Maps.newHashMap();
-        final Set<String> completedNodes = Sets.newHashSet();
+        final AtomicInteger completedNodes = new AtomicInteger();
         for (final String node : nodes) {
             invokeNodeRequest(node, requestBytes, new InvocationService.ResultListener() {
                 public void requestProcessed (Object result) {
@@ -519,8 +520,7 @@ public abstract class PeerManager
                     nodeDone(node);
                 }
                 protected void nodeDone (String node) {
-                    completedNodes.add(node);
-                    if (nodes.size() == completedNodes.size()) {
+                    if (completedNodes.incrementAndGet() == nodes.size()) {
                         // if all nodes have responded, let caller know
                         listener.requestsProcessed(new NodeRequestsResultImpl<T>(results, failures));
                     }
