@@ -471,7 +471,8 @@ public abstract class PeerManager
      * If any one node reports failure, this function reports failure. If all nodes report success,
      * this function will report success.
      */
-    public <T> void invokeNodeRequest (final NodeRequest request, final NodeRequestsListener<T> listener)
+    public <T> void invokeNodeRequest (
+        final NodeRequest request, final NodeRequestsListener<T> listener)
     {
         // if we're not on the dobjmgr thread, get there
         if (!_omgr.isDispatchThread()) {
