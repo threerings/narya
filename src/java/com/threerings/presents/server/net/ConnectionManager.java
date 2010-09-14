@@ -34,7 +34,6 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.DatagramChannel;
 import java.nio.channels.NotYetConnectedException;
-import java.nio.channels.SelectableChannel;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
@@ -116,20 +115,15 @@ public class ConnectionManager extends LoopingThread
         String bindHostname, String datagramHostname, int[] ports, int[] datagramPorts)
             throws IOException
     {
-        Preconditions.checkArgument(ports != null, "Ports must be non-null.");
-        Preconditions.checkArgument(datagramPorts != null, "Datagram ports must be non-null. " +
+        Preconditions.checkNotNull(ports, "Ports must be non-null.");
+        Preconditions.checkNotNull(datagramPorts, "Datagram ports must be non-null. " +
                                     "Pass a zero-length array to bind no datagram ports.");
-        Preconditions.checkState(!super.isRunning(), "Must initialize before starting.");
 
         _bindHostname = bindHostname;
         _datagramHostname = datagramHostname;
         _ports = ports;
         _datagramPorts = datagramPorts;
         _selector = SelectorProvider.provider().openSelector();
-
-        // create our stats record
-        _stats = new ConMgrStats();
-        _lastStats = new ConMgrStats();
     }
 
     /**
@@ -360,18 +354,20 @@ public class ConnectionManager extends LoopingThread
     @Override
     protected void willStart ()
     {
+        Preconditions.checkNotNull(_ports, "Must call init before starting.");
         int successes = 0;
         for (int port : _ports) {
             try {
                 // create a listening socket and add it to the select set
-                _ssocket = ServerSocketChannel.open();
-                _ssocket.configureBlocking(false);
+                ServerSocketChannel ssocket = ServerSocketChannel.open();
+                ssocket.configureBlocking(false);
 
                 InetSocketAddress isa = getAddress(_bindHostname, port);
-                _ssocket.socket().bind(isa);
-                registerChannel(_ssocket);
+                ssocket.socket().bind(isa);
+                registerChannel(ssocket);
                 successes++;
                 log.info("Server listening on " + isa + ".");
+                _ssockets.add(ssocket);
 
             } catch (IOException ioe) {
                 log.warning("Failure listening to socket", "hostname", _bindHostname,
@@ -416,12 +412,13 @@ public class ConnectionManager extends LoopingThread
         for (int port : _datagramPorts) {
             try {
                 // create a channel and add it to the select set
-                _datagramChannel = DatagramChannel.open();
-                _datagramChannel.socket().setTrafficClass(0x10); // IPTOS_LOWDELAY
-                _datagramChannel.configureBlocking(false);
+                DatagramChannel channel = DatagramChannel.open();
+                channel.socket().setTrafficClass(0x10); // IPTOS_LOWDELAY
+                channel.configureBlocking(false);
                 InetSocketAddress isa = getAddress(_datagramHostname, port);
-                _datagramChannel.socket().bind(isa);
-                registerChannel(_datagramChannel);
+                channel.socket().bind(isa);
+                registerChannel(channel);
+                _datagramChannels.add(channel);
                 log.info("Server accepting datagrams on " + isa + ".");
 
             } catch (IOException ioe) {
@@ -815,7 +812,7 @@ public class ConnectionManager extends LoopingThread
         _databuf.clear();
         _databuf.put(data).flip();
         try {
-            return _datagramChannel.send(_databuf, target) > 0;
+            return conn.getDatagramChannel().send(_databuf, target) > 0;
         } catch (IOException ioe) {
             log.warning("Failed to send datagram.", ioe);
             return false;
@@ -849,10 +846,9 @@ public class ConnectionManager extends LoopingThread
 
             // create a new authing connection object to manage the authentication of this client
             // connection and register it with our selection set
-            SelectableChannel selchan = channel;
-            selchan.configureBlocking(false);
+            channel.configureBlocking(false);
             AuthingConnection aconn = new AuthingConnection();
-            aconn.selkey = selchan.register(_selector, SelectionKey.OP_READ);
+            aconn.selkey = channel.register(_selector, SelectionKey.OP_READ);
             aconn.init(this, channel, System.currentTimeMillis());
             _handlers.put(aconn.selkey, aconn);
             synchronized (this) {
@@ -909,7 +905,7 @@ public class ConnectionManager extends LoopingThread
         int connectionId = _databuf.getInt();
         Connection conn = _connections.get(connectionId);
         if (conn != null) {
-            conn.handleDatagram(source, _databuf, when);
+            conn.handleDatagram(source, listener, _databuf, when);
         } else {
             log.debug("Received datagram for unknown connection", "id", connectionId,
                       "source", source);
@@ -1074,16 +1070,18 @@ public class ConnectionManager extends LoopingThread
         // unbind our listening socket
         // Note: because we wait for the object manager to exit before we do, we will still be
         // accepting connections as long as there are events pending.
-        // TODO: consider shutting down the listen socker earlier, like in the shutdown method
-        try {
-            _ssocket.socket().close();
-        } catch (IOException ioe) {
-            log.warning("Failed to close listening socket.", ioe);
+        // TODO: consider closing the listen sockets earlier, like in the shutdown method
+        for (ServerSocketChannel ssocket : _ssockets) {
+            try {
+                ssocket.socket().close();
+            } catch (IOException ioe) {
+                log.warning("Failed to close listening socket: " + ssocket, ioe);
+            }
         }
 
-        // and the datagram socket, if any
-        if (_datagramChannel != null) {
-            _datagramChannel.socket().close();
+        // and the datagram sockets, if any
+        for (DatagramChannel datagramChannel : _datagramChannels) {
+            datagramChannel.socket().close();
         }
 
         // report if there's anything left on the outgoing message queue
@@ -1224,8 +1222,8 @@ public class ConnectionManager extends LoopingThread
     protected int[] _ports, _datagramPorts;
     protected String _bindHostname, _datagramHostname;
     protected Selector _selector;
-    protected ServerSocketChannel _ssocket;
-    protected DatagramChannel _datagramChannel;
+    protected List<ServerSocketChannel> _ssockets = Lists.newArrayList();
+    protected List<DatagramChannel> _datagramChannels = Lists.newArrayList();
 
     /** Counts consecutive runtime errors in select(). */
     protected int _runtimeExceptionCount;
@@ -1251,10 +1249,10 @@ public class ConnectionManager extends LoopingThread
     protected Map<Connection, OverflowQueue> _oflowqs = Maps.newHashMap();
 
     /** Our current runtime stats. */
-    protected ConMgrStats _stats;
+    protected ConMgrStats _stats = new ConMgrStats();
 
     /** A snapshot of our runtime stats as of our last report. */
-    protected ConMgrStats _lastStats;
+    protected ConMgrStats _lastStats = new ConMgrStats();
 
     /** Used to periodically report connection manager activity when in debug mode. */
     protected long _lastDebugStamp;

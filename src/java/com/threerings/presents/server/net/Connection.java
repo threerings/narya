@@ -21,17 +21,16 @@
 
 package com.threerings.presents.server.net;
 
-import java.net.InetAddress;
-import java.net.InetSocketAddress;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-
 import java.io.EOFException;
 import java.io.IOException;
-
+import java.net.InetAddress;
+import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
+import java.nio.channels.DatagramChannel;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.SocketChannel;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 
 import com.threerings.io.FramedInputStream;
 import com.threerings.io.FramingOutputStream;
@@ -147,6 +146,15 @@ public class Connection implements NetEventHandler
     }
 
     /**
+     * Returns the channel through which datagrams should be sent or null if no datagram channel
+     * has been established.
+     */
+    public DatagramChannel getDatagramChannel ()
+    {
+        return _datagramChannel;
+    }
+
+    /**
      * Sets the secret string used to authenticate datagrams from the client.
      */
     public void setDatagramSecret (String secret)
@@ -236,7 +244,8 @@ public class Connection implements NetEventHandler
     /**
      * Processes a datagram sent to this connection.
      */
-    public void handleDatagram (InetSocketAddress source, ByteBuffer buf, long when)
+    public void handleDatagram (InetSocketAddress source, DatagramChannel channel,
+        ByteBuffer buf, long when)
     {
         // lazily create our various bits and bobs
         if (_digest == null) {
@@ -263,6 +272,7 @@ public class Connection implements NetEventHandler
 
         // update our target address
         _datagramAddress = source;
+        _datagramChannel = channel;
 
         // read the contents through the sequencer
         try {
@@ -450,6 +460,7 @@ public class Connection implements NetEventHandler
     protected ObjectOutputStream _oout;
 
     protected InetSocketAddress _datagramAddress;
+    protected DatagramChannel _datagramChannel;
     protected byte[] _datagramSecret;
     protected boolean _transmitDatagrams;
 
