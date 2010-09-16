@@ -50,7 +50,7 @@ public class SelectorIterable
 
             // check for incoming network events
             int eventCount =
-                _selectLoopTime == 0 ? _selector.select(_selectLoopTime) : _selector.selectNow();
+                _selectLoopTime == 0 ?  _selector.selectNow() : _selector.select(_selectLoopTime);
             Set<SelectionKey> ready = _selector.selectedKeys();
             if (eventCount == 0 && ready.size() != 0) {
                 log.warning("select() returned no selected sockets, but there are "
