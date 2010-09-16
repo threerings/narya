@@ -1,5 +1,5 @@
 //
-// $Id$
+//$Id$
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2010 Three Rings Design, Inc., All Rights Reserved
@@ -21,26 +21,20 @@
 
 package com.threerings.presents.server.net;
 
-import java.net.InetSocketAddress;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-
+import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.DatagramChannel;
 import java.nio.channels.NotYetConnectedException;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
-import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
-import java.nio.channels.spi.SelectorProvider;
 
-import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.inject.Inject;
@@ -53,7 +47,6 @@ import com.samskivert.util.Lifecycle;
 import com.samskivert.util.LoopingThread;
 import com.samskivert.util.Queue;
 import com.samskivert.util.ResultListener;
-import com.samskivert.util.StringUtil;
 import com.samskivert.util.Tuple;
 
 import com.threerings.io.ByteBufferInputStream;
@@ -77,53 +70,43 @@ import com.threerings.presents.server.PresentsServer;
 import com.threerings.presents.server.ReportManager;
 import com.threerings.presents.util.DatagramSequencer;
 
+import com.threerings.nio.DatagramAcceptor;
+import com.threerings.nio.SocketChannelAcceptor;
+import com.threerings.nio.SocketChannelAcceptor.SocketChannelHandler;
+import com.threerings.nio.DatagramAcceptor.DatagramHandler;
+import com.threerings.nio.SelectorIterable;
+import com.threerings.nio.SelectorIterable.SelectFailureHandler;
+
 import static com.threerings.presents.Log.log;
 
 /**
- * The connection manager manages the socket on which connections are received. It creates
- * connection objects to manage each individual connection, but those connection objects interact
- * closely with the connection manager because network I/O is done via a poll()-like mechanism
- * rather than via threads.
+ * Manages socket connections and datagram messages. It creates connection objects for each socket
+ * connection, but those connection objects interact closely with the connection manager because
+ * network I/O is done via a poll()-like mechanism rather than via threads.<p>
+ *
+ * ConnectionManager doesn't handle accepting tcp connections or listening for datagrams; it
+ * expects an external entity to do so and call its <code>handleSocketChannel</code> and
+ * <code>handleDatagram</code> methods.
+ *
+ * @see BindingConnectionManager
+ * @see SocketChannelAcceptor
+ * @see DatagramAcceptor
  */
 @Singleton
 public class ConnectionManager extends LoopingThread
-    implements Lifecycle.ShutdownComponent, ReportManager.Reporter
+    implements Lifecycle.ShutdownComponent, ReportManager.Reporter, DatagramHandler,
+    SocketChannelHandler
 {
     /**
-     * Creates a connection manager instance. Don't call this, Guice will do it for you.
+     * Creates a connection manager instance.
      */
     @Inject public ConnectionManager (Lifecycle cycle, ReportManager repmgr)
+        throws IOException
     {
         super("ConnectionManager");
         cycle.addComponent(this);
         repmgr.registerReporter(this);
-    }
-
-    /**
-     * Configures the connection manager with the hostname and ports on which it will listen for
-     * socket connections and datagram packets. This must be called before the connection manager
-     * is started (via {@via #start}) as the sockets will be bound at that time.
-     *
-     * @param bindHostname the hostname to which we bind our sockets or null to bind to all
-     * interfaces.
-     * @param datagramHostname the hostname to which we bind our datagram socket or null to bind
-     * to all interfaces.
-     * @param ports the ports on which to listen for TCP connection.
-     * @param datagramPorts the ports on which to listen for datagram packets.
-     */
-    public void init (
-        String bindHostname, String datagramHostname, int[] ports, int[] datagramPorts)
-            throws IOException
-    {
-        Preconditions.checkNotNull(ports, "Ports must be non-null.");
-        Preconditions.checkNotNull(datagramPorts, "Datagram ports must be non-null. " +
-                                    "Pass a zero-length array to bind no datagram ports.");
-
-        _bindHostname = bindHostname;
-        _datagramHostname = datagramHostname;
-        _ports = ports;
-        _datagramPorts = datagramPorts;
-        _selector = SelectorProvider.provider().openSelector();
+        _selectorSelector = new SelectorIterable(_selector, SELECT_LOOP_TIME, _failureHandler);
     }
 
     /**
@@ -133,15 +116,6 @@ public class ConnectionManager extends LoopingThread
     public void addChainedAuthenticator (ChainedAuthenticator author)
     {
         _authors.add(author);
-    }
-
-    /**
-     * Sets the number of milliseconds to block in the select() method before checking for outgoing
-     * messages.
-     */
-    public void setSelectLoopTime (int time)
-    {
-        _selectLoopTime = time;
     }
 
     /**
@@ -263,6 +237,76 @@ public class ConnectionManager extends LoopingThread
     }
 
     /**
+     * Called by our SocketChannelAcceptor when a new connection has been accepted on its socket.
+     */
+    public void handleSocketChannel (SocketChannel channel, long when)
+    {
+        try {
+            // create a new authing connection object to manage the authentication of this client
+            // connection and register it with our selection set
+            channel.configureBlocking(false);
+            AuthingConnection aconn = new AuthingConnection();
+            aconn.selkey = channel.register(_selector, SelectionKey.OP_READ);
+            aconn.init(this, channel, System.currentTimeMillis());
+            _handlers.put(aconn.selkey, aconn);
+            synchronized (this) {
+                _stats.connects++;
+            }
+
+        } catch (IOException ioe) {
+            // no need to generate a warning because this happens in the normal course of events
+            log.info("Failure accepting new connection: " + ioe);
+            // make sure we don't leak a socket if something went awry
+            try {
+                channel.socket().close();
+            } catch (IOException ioe2) {
+                log.warning("Failed closing aborted connection: " + ioe2);
+            }
+        }
+    }
+
+    /**
+     * Called by our DatagramAcceptor when a datagram message is ready to be read off its channel.
+     */
+    public void handleDatagram (DatagramChannel listener, long when)
+    {
+        InetSocketAddress source;
+        _databuf.clear();
+        try {
+            source = (InetSocketAddress)listener.receive(_databuf);
+        } catch (IOException ioe) {
+            log.warning("Failure receiving datagram.", ioe);
+            return;
+        }
+
+        // make sure we actually read a packet
+        if (source == null) {
+            log.info("Psych! Got READ_READY, but no datagram.");
+            return;
+        }
+
+        // flip the buffer and record the size (which must be at least 14 to contain the connection
+        // id, authentication hash, and a class reference)
+        int size = _databuf.flip().remaining();
+        if (size < 14) {
+            log.warning("Received undersized datagram", "source", source, "size", size);
+            return;
+        }
+
+        // the first four bytes are the connection id
+        int connectionId = _databuf.getInt();
+        Connection conn = _connections.get(connectionId);
+        if (conn != null) {
+            conn.handleDatagram(source, listener, _databuf, when);
+        } else {
+            log.debug("Received datagram for unknown connection", "id", connectionId,
+                      "source", source);
+        }
+
+        noteRead(size, 1, 1);
+    }
+
+    /**
      * Performs the authentication process on the specified connection. This is called by {@link
      * AuthingConnection} itself once it receives its auth request.
      */
@@ -349,131 +393,6 @@ public class ConnectionManager extends LoopingThread
             log.warning("Failed to initiate connection for " + sockchan + ".", ioe);
             conn.connectFailure(ioe); // nothing else to clean up
         }
-    }
-
-    @Override
-    protected void willStart ()
-    {
-        Preconditions.checkNotNull(_ports, "Must call init before starting.");
-        int successes = 0;
-        for (int port : _ports) {
-            try {
-                // create a listening socket and add it to the select set
-                ServerSocketChannel ssocket = ServerSocketChannel.open();
-                ssocket.configureBlocking(false);
-
-                InetSocketAddress isa = getAddress(_bindHostname, port);
-                ssocket.socket().bind(isa);
-                registerChannel(ssocket);
-                successes++;
-                log.info("Server listening on " + isa + ".");
-                _ssockets.add(ssocket);
-
-            } catch (IOException ioe) {
-                log.warning("Failure listening to socket", "hostname", _bindHostname,
-                            "port", port, ioe);
-            }
-        }
-
-        // NOTE: this is not currently working; it works but for whatever inscrutable reason the
-        // inherited channel claims to be readable immediately every time through the select() loop
-        // which causes the server to consume 100% of the CPU repeatedly ignoring the inherited
-        // channel (except when an actual connection comes in in which case it does the right
-        // thing)
-
-//         // now look to see if we were passed a socket inetd style by a
-//         // privileged parent process
-//         try {
-//             Channel inherited = System.inheritedChannel();
-//             if (inherited instanceof ServerSocketChannel) {
-//                 _ssocket = (ServerSocketChannel)inherited;
-//                 _ssocket.configureBlocking(false);
-//                 registerChannel(_ssocket);
-//                 successes++;
-//                 log.info("Server listening on " +
-//                          _ssocket.socket().getInetAddress() + ":" +
-//                          _ssocket.socket().getLocalPort() + ".");
-
-//             } else if (inherited != null) {
-//                 log.warning("Inherited non-server-socket channel " + inherited + ".");
-//             }
-//         } catch (IOException ioe) {
-//             log.warning("Failed to check for inherited channel.");
-//         }
-
-        // if we failed to listen on at least one port, give up the ghost
-        if (successes == 0) {
-            log.warning("ConnectionManager failed to bind to any ports. Shutting down.");
-            _server.queueShutdown();
-            return;
-        }
-
-        // open up the datagram ports as well
-        for (int port : _datagramPorts) {
-            try {
-                // create a channel and add it to the select set
-                DatagramChannel channel = DatagramChannel.open();
-                channel.socket().setTrafficClass(0x10); // IPTOS_LOWDELAY
-                channel.configureBlocking(false);
-                InetSocketAddress isa = getAddress(_datagramHostname, port);
-                channel.socket().bind(isa);
-                registerChannel(channel);
-                _datagramChannels.add(channel);
-                log.info("Server accepting datagrams on " + isa + ".");
-
-            } catch (IOException ioe) {
-                log.warning("Failure opening datagram channel", "hostname", _datagramHostname,
-                            "port", port, ioe);
-            }
-        }
-    }
-
-    /** Helper function for creating proper bindable socket addresses. */
-    protected InetSocketAddress getAddress (String hostname, int port)
-    {
-        return StringUtil.isBlank(hostname) ?
-            new InetSocketAddress(port) : new InetSocketAddress(hostname, port);
-    }
-
-    /** Helper function for {@link #willStart}. */
-    protected void registerChannel (final ServerSocketChannel listener)
-        throws IOException
-    {
-        // register this listening socket and map its select key to a net event handler that will
-        // accept new connections
-        SelectionKey sk = listener.register(_selector, SelectionKey.OP_ACCEPT);
-        _handlers.put(sk, new NetEventHandler() {
-            public int handleEvent (long when) {
-                acceptConnection(listener);
-                // there's no easy way to measure bytes read when accepting a connection, so we
-                // claim nothing
-                return 0;
-            }
-            public boolean checkIdle (long now) {
-                return false; // we're never idle
-            }
-            public void becameIdle () {
-                // we're never idle
-            }
-        });
-    }
-
-    /** Helper function for {@link #willStart}. */
-    protected void registerChannel (final DatagramChannel listener)
-        throws IOException
-    {
-        SelectionKey sk = listener.register(_selector, SelectionKey.OP_READ);
-        _handlers.put(sk, new NetEventHandler() {
-            public int handleEvent (long when) {
-                return readDatagram(listener, when);
-            }
-            public boolean checkIdle (long now) {
-                return false; // we're never idle
-            }
-            public void becameIdle () {
-                // we're never idle
-            }
-        });
     }
 
     /**
@@ -582,48 +501,10 @@ public class ConnectionManager extends LoopingThread
      */
     protected void processIncomingEvents (long iterStamp)
     {
-        Set<SelectionKey> ready = null;
-        int eventCount;
-        try {
-//             log.debug("Selecting from " + _selector.keys() + " (" + _selectLoopTime + ").");
-
-            // check for incoming network events
-            eventCount = _selector.select(_selectLoopTime);
-            ready = _selector.selectedKeys();
-            if (eventCount == 0) {
-                if (ready.size() == 0) {
-                    return;
-                } else {
-                    log.warning("select() returned no selected sockets, but there are " +
-                                ready.size() + " in the ready set.");
-                }
-            }
-
-        } catch (IOException ioe) {
-            if ("Invalid argument".equals(ioe.getMessage())) {
-                log.warning("Failure select()ing.", ioe); // no stack trace needed
-            } else {
-                log.warning("Failure select()ing", "ioe", ioe);
-            }
-            return;
-
-        } catch (RuntimeException re) {
-            // this block of code deals with a bug in the _selector that we observed on 2005-05-02,
-            // instead of looping indefinitely after things go pear-shaped, shut us down in an
-            // orderly fashion
-            log.warning("Failure select()ing.", re);
-            if (_runtimeExceptionCount++ >= 20) {
-                log.warning("Too many errors, bailing.");
-                shutdown();
-            }
-            return;
-        }
-        // clear the runtime error count
-        _runtimeExceptionCount = 0;
-
         // process those events
-        long bytesIn = 0, msgsIn = 0;
-        for (SelectionKey selkey : ready) {
+        long bytesIn = 0, msgsIn = 0, eventCount = 0;
+        for (SelectionKey selkey : _selectorSelector) {
+            eventCount++;
             NetEventHandler handler = null;
             try {
                 handler = _handlers.get(selkey);
@@ -656,14 +537,7 @@ public class ConnectionManager extends LoopingThread
             }
         }
 
-        // update our stats
-        synchronized (this) {
-            _stats.eventCount += eventCount;
-            _stats.bytesIn += bytesIn;
-            _stats.msgsIn += msgsIn;
-        }
-
-        ready.clear();
+        noteRead(bytesIn, msgsIn, eventCount);
     }
 
     /**
@@ -820,99 +694,18 @@ public class ConnectionManager extends LoopingThread
     }
 
     /** Called by {@link #writeMessage} and friends when they write data over the network. */
-    protected final synchronized void noteWrite (int msgs, int bytes)
+    protected synchronized void noteWrite (int msgs, int bytes)
     {
         _stats.msgsOut += msgs;
         _stats.bytesOut += bytes;
     }
 
-    /**
-     * Called by our net event handler when a new connection is ready to be accepted on our
-     * listening socket.
-     */
-    protected void acceptConnection (ServerSocketChannel listener)
+    protected synchronized void noteRead (long bytesIn, long msgsIn, long eventCount)
     {
-        SocketChannel channel = null;
-
-        try {
-            channel = listener.accept();
-            if (channel == null) {
-                // in theory this shouldn't happen because we got an ACCEPT_READY event...
-                log.info("Psych! Got ACCEPT_READY, but no connection.");
-                return;
-            }
-
-//             log.debug("Accepted connection " + channel + ".");
-
-            // create a new authing connection object to manage the authentication of this client
-            // connection and register it with our selection set
-            channel.configureBlocking(false);
-            AuthingConnection aconn = new AuthingConnection();
-            aconn.selkey = channel.register(_selector, SelectionKey.OP_READ);
-            aconn.init(this, channel, System.currentTimeMillis());
-            _handlers.put(aconn.selkey, aconn);
-            synchronized (this) {
-                _stats.connects++;
-            }
-            return;
-
-        } catch (IOException ioe) {
-            // no need to generate a warning because this happens in the normal course of events
-            log.info("Failure accepting new connection: " + ioe);
-        }
-
-        // make sure we don't leak a socket if something went awry
-        if (channel != null) {
-            try {
-                channel.socket().close();
-            } catch (IOException ioe) {
-                log.warning("Failed closing aborted connection: " + ioe);
-            }
-        }
-    }
-
-    /**
-     * Called by our net event handler when a datagram is ready to be read from the channel.
-     *
-     * @return the size of the datagram.
-     */
-    protected int readDatagram (DatagramChannel listener, long when)
-    {
-        InetSocketAddress source;
-        _databuf.clear();
-        try {
-            source = (InetSocketAddress)listener.receive(_databuf);
-        } catch (IOException ioe) {
-            log.warning("Failure receiving datagram.", ioe);
-            return 0;
-        }
-
-        // make sure we actually read a packet
-        if (source == null) {
-            log.info("Psych! Got READ_READY, but no datagram.");
-            return 0;
-        }
-
-        // flip the buffer and record the size (which must be at least 14 to contain the connection
-        // id, authentication hash, and a class reference)
-        int size = _databuf.flip().remaining();
-        if (size < 14) {
-            log.warning("Received undersized datagram", "source", source, "size", size);
-            return 0;
-        }
-
-        // the first four bytes are the connection id
-        int connectionId = _databuf.getInt();
-        Connection conn = _connections.get(connectionId);
-        if (conn != null) {
-            conn.handleDatagram(source, listener, _databuf, when);
-        } else {
-            log.debug("Received datagram for unknown connection", "id", connectionId,
-                      "source", source);
-        }
-
-        // return the size of the datagram
-        return size;
+        // update our stats
+        _stats.eventCount += eventCount;
+        _stats.bytesIn += bytesIn;
+        _stats.msgsIn += msgsIn;
     }
 
     /**
@@ -1067,23 +860,6 @@ public class ConnectionManager extends LoopingThread
         // take one last crack at the outgoing message queue
         sendOutgoingMessages(System.currentTimeMillis());
 
-        // unbind our listening socket
-        // Note: because we wait for the object manager to exit before we do, we will still be
-        // accepting connections as long as there are events pending.
-        // TODO: consider closing the listen sockets earlier, like in the shutdown method
-        for (ServerSocketChannel ssocket : _ssockets) {
-            try {
-                ssocket.socket().close();
-            } catch (IOException ioe) {
-                log.warning("Failed to close listening socket: " + ssocket, ioe);
-            }
-        }
-
-        // and the datagram sockets, if any
-        for (DatagramChannel datagramChannel : _datagramChannels) {
-            datagramChannel.socket().close();
-        }
-
         // report if there's anything left on the outgoing message queue
         if (_outq.size() > 0) {
             log.warning("Connection Manager failed to deliver " + _outq.size() + " message(s).");
@@ -1204,6 +980,14 @@ public class ConnectionManager extends LoopingThread
         protected int _msgs, _partials;
     }
 
+    protected final SelectFailureHandler _failureHandler = new SelectFailureHandler() {
+        @Override public void handleSelectFailure (Exception e) {
+            log.error("One of our selectors crapped out completely.  " +
+                "Shutting down the connection manager.", e);
+            shutdown();
+        }
+    };
+
     /** Used to create an overflow queue on the first partial write. */
     protected PartialWriteHandler _oflowHandler = new PartialWriteHandler() {
         public void handlePartialWrite (Connection conn, ByteBuffer msgbuf) {
@@ -1219,14 +1003,8 @@ public class ConnectionManager extends LoopingThread
     @Inject(optional=true) protected Authenticator _author = new DummyAuthenticator();
     protected List<ChainedAuthenticator> _authors = Lists.newArrayList();
 
-    protected int[] _ports, _datagramPorts;
-    protected String _bindHostname, _datagramHostname;
-    protected Selector _selector;
-    protected List<ServerSocketChannel> _ssockets = Lists.newArrayList();
-    protected List<DatagramChannel> _datagramChannels = Lists.newArrayList();
-
-    /** Counts consecutive runtime errors in select(). */
-    protected int _runtimeExceptionCount;
+    protected Selector _selector = Selector.open();
+    protected SelectorIterable _selectorSelector;
 
     /** Maps selection keys to network event handlers. */
     protected Map<SelectionKey, NetEventHandler> _handlers = Maps.newHashMap();
@@ -1257,12 +1035,6 @@ public class ConnectionManager extends LoopingThread
     /** Used to periodically report connection manager activity when in debug mode. */
     protected long _lastDebugStamp;
 
-    /** How long we wait for network events before checking our running flag to see if we should
-     * still be running. We don't want to loop too tightly, but we need to make sure we don't sit
-     * around listening for incoming network events too long when there are outgoing messages in
-     * the queue. */
-    protected volatile int _selectLoopTime = 100;
-
     /** A runnable to execute when the connection manager thread exits. */
     protected volatile Runnable _onExit;
 
@@ -1271,6 +1043,12 @@ public class ConnectionManager extends LoopingThread
     @Inject protected ClientManager _clmgr;
     @Inject protected PresentsDObjectMgr _omgr;
     @Inject protected PresentsServer _server;
+
+    /** How long we wait for network events before checking our running flag to see if we should
+     * still be running. We don't want to loop too tightly, but we need to make sure we don't sit
+     * around listening for incoming network events too long when there are outgoing messages in
+     * the queue. */
+    protected static final int SELECT_LOOP_TIME = 100;
 
     /** Used to denote asynchronous close requests. */
     protected static final byte[] ASYNC_CLOSE_REQUEST = new byte[0];

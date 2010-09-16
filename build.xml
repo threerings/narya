@@ -182,6 +182,7 @@
       <fileset dir="${classes.dir}">
         <include name="com/threerings/NaryaLog**"/>
         <include name="com/threerings/io/**"/>
+        <include name="com/threerings/nio/**"/>
         <include name="com/threerings/util/**"/>
         <exclude name="com/threerings/**/tools/**"/>
         <exclude name="**/*.c,**/Makefile,**/*.h"/>
@@ -232,7 +233,7 @@
   </target>
 
   <!-- generates additional methods for distributed object classes -->
-  <target name="gendobj" depends="preptools"> 
+  <target name="gendobj" depends="preptools">
     <!-- make sure the dobject class files are all compiled -->
     <javac srcdir="src/java" destdir="${classes.dir}" includeAntRuntime="false" debug="on"
            optimize="${build.optimize}" deprecation="on" source="1.5" target="1.5">
@@ -246,7 +247,7 @@
   </target>
 
   <!-- generates marshaller and dispatcher classes for all invocation service declarations -->
-  <target name="genservice" depends="preptools"> 
+  <target name="genservice" depends="preptools">
     <!-- make sure the service class files are all compiled -->
     <javac srcdir="src/java" destdir="${classes.dir}" includeAntRuntime="false" debug="on"
            optimize="${build.optimize}" deprecation="on" source="1.5" target="1.5">

@@ -41,6 +41,7 @@ import com.threerings.presents.dobj.DObject;
 import com.threerings.presents.dobj.DObjectManager;
 import com.threerings.presents.dobj.RootDObjectManager;
 import com.threerings.presents.server.PresentsDObjectMgr.LongRunnable;
+import com.threerings.presents.server.net.BindingConnectionManager;
 import com.threerings.presents.server.net.ConnectionManager;
 
 import com.threerings.crowd.server.PlaceManager;
@@ -63,10 +64,19 @@ public class PresentsServer
     {
         @Override protected void configure () {
             bindInvokers();
+            bindConnectionManager();
             bind(RunQueue.class).annotatedWith(EventQueue.class).to(PresentsDObjectMgr.class);
             bind(DObjectManager.class).to(PresentsDObjectMgr.class);
             bind(RootDObjectManager.class).to(PresentsDObjectMgr.class);
             bind(Lifecycle.class).toInstance(new Lifecycle());
+        }
+
+        /**
+         * Binds just the connection manager so this can be overridden if desired.
+         */
+        protected void bindConnectionManager()
+        {
+            bind(ConnectionManager.class).to(BindingConnectionManager.class);
         }
 
         /**
@@ -148,8 +158,10 @@ public class PresentsServer
         _clmgr.setInjector(injector);
 
         // configure our connection manager
-        _conmgr.init(getBindHostname(), getDatagramHostname(),
-            getListenPorts(), getDatagramPorts());
+        if (_conmgr instanceof BindingConnectionManager) {
+            ((BindingConnectionManager)_conmgr).init(getBindHostname(), getDatagramHostname(),
+                getListenPorts(), getDatagramPorts());
+        }
 
         // initialize the time base services
         TimeBaseProvider.init(_invmgr, _omgr);
