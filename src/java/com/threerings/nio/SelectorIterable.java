@@ -8,6 +8,8 @@ import java.io.IOException;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 
+import com.google.common.collect.Iterators;
+
 import static com.threerings.presents.Log.log;
 
 /**
@@ -38,23 +40,7 @@ public class SelectorIterable
 
     public Iterator<SelectionKey> iterator ()
     {
-        final Iterator<SelectionKey> it = select().iterator();
-        return new Iterator<SelectionKey>() {
-            public boolean hasNext () {
-                return it.hasNext();
-            }
-
-            public SelectionKey next () {
-                SelectionKey key = it.next();
-                it.remove();
-                return key;
-            }
-
-            public void remove () {
-                throw new UnsupportedOperationException(
-                    "Removing from the selected keys is done automatically on next()");
-            }
-        };
+        return Iterators.consumingIterator(select().iterator());
     }
 
     protected Set<SelectionKey> select ()
