@@ -39,7 +39,6 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-
 import com.samskivert.util.IntMap;
 import com.samskivert.util.IntMaps;
 import com.samskivert.util.Invoker;
@@ -100,13 +99,15 @@ public class ConnectionManager extends LoopingThread
     /**
      * Creates a connection manager instance.
      */
-    @Inject public ConnectionManager (Lifecycle cycle, ReportManager repmgr)
+    @Inject public ConnectionManager (Lifecycle cycle, ReportManager repmgr,
+        IncomingEventWaitHolder incomingEventWait)
         throws IOException
     {
         super("ConnectionManager");
         cycle.addComponent(this);
         repmgr.registerReporter(this);
-        _selectorSelector = new SelectorIterable(_selector, SELECT_LOOP_TIME, _failureHandler);
+        _selectorSelector = new SelectorIterable(_selector, incomingEventWait.value,
+            _failureHandler);
     }
 
     /**
@@ -996,6 +997,12 @@ public class ConnectionManager extends LoopingThread
             _oflowqs.put(conn, new OverflowQueue(conn, msgbuf));
         }
     };
+
+    /** Helper for Guice to allow the incoming event wait to be injected optionally. */
+    protected static class IncomingEventWaitHolder
+    {
+        @Inject(optional=true) @IncomingEventWait int value = SELECT_LOOP_TIME;
+    }
 
     /** Handles client authentication. The base authenticator is injected but optional services
      * like the PeerManager may replace this authenticator with one that intercepts certain types

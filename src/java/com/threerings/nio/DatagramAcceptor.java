@@ -34,12 +34,13 @@ public class DatagramAcceptor extends SelectAcceptor
      * @param failureHandler - called when the selector is irredemably broken.
      * @param hostname - the hostname to bind to or null for all interfaces
      * @param ports - the ports to bind to, or an empty array to skip binding
+     * @param selectLoopTime - the amount of time to wait in select, or 0 to skip the wait at all.
      */
     public DatagramAcceptor (DatagramHandler dgramHandler, SelectFailureHandler failureHandler,
-            String hostname, int[] ports)
+            String hostname, int[] ports, int selectLoopTime)
         throws IOException
     {
-        super(failureHandler, hostname, ports);
+        super(failureHandler, hostname, ports, selectLoopTime);
         _dgramHandler = dgramHandler;
     }
 

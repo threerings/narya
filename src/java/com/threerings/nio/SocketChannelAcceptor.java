@@ -33,12 +33,13 @@ public class SocketChannelAcceptor extends SelectAcceptor
      * @param failureHandler - called when the selector is irredemably broken.
      * @param bindHostname - the hostname to bind to or null for all interfaces
      * @param ports - the ports to bind to, or an empty array to skip binding
+     * @param selectLoopTime - the amount of time to wait in select, or 0 to skip the wait at all.
      */
     public SocketChannelAcceptor (SocketChannelHandler connectionHandler,
-        SelectFailureHandler failureHandler, String bindHostname, int[] ports)
+        SelectFailureHandler failureHandler, String bindHostname, int[] ports, int selectLoopTime)
         throws IOException
     {
-        super(failureHandler, bindHostname, ports);
+        super(failureHandler, bindHostname, ports, selectLoopTime);
 
         _connHandler = connectionHandler;
     }

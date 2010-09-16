@@ -28,7 +28,7 @@ public class SelectorIterable
 
     /**
      * Creates an iterable for the given selector's selectedKeys.
-     * @param selectLoopTime - the amount of time to wait in select.
+     * @param selectLoopTime - the amount of time to wait in select, or 0 to skip the wait at all.
      * @param handler - a callback for the Selector going awol.
      */
     public SelectorIterable (Selector selector, int selectLoopTime, SelectFailureHandler handler)
@@ -49,7 +49,8 @@ public class SelectorIterable
             // log.debug("Selecting from " + _selector.keys() + " (" + _selectLoopTime + ").");
 
             // check for incoming network events
-            int eventCount = _selector.select(_selectLoopTime);
+            int eventCount =
+                _selectLoopTime == 0 ? _selector.select(_selectLoopTime) : _selector.selectNow();
             Set<SelectionKey> ready = _selector.selectedKeys();
             if (eventCount == 0 && ready.size() != 0) {
                 log.warning("select() returned no selected sockets, but there are "

@@ -20,7 +20,8 @@ import com.threerings.nio.SelectorIterable.SelectFailureHandler;
  */
 public abstract class SelectAcceptor
 {
-    public SelectAcceptor (SelectFailureHandler failureHandler, String bindHostname, int[] ports)
+    public SelectAcceptor (SelectFailureHandler failureHandler, String bindHostname, int[] ports,
+            int selectLoopTime)
         throws IOException
     {
         Preconditions.checkNotNull(ports, "Ports must be non-null.");
@@ -28,7 +29,7 @@ public abstract class SelectAcceptor
         _bindHostname = bindHostname;
         _ports = ports;
 
-        _selectorSelector = new SelectorIterable(_selector, 100, failureHandler);
+        _selectorSelector = new SelectorIterable(_selector, selectLoopTime, failureHandler);
     }
 
     /**

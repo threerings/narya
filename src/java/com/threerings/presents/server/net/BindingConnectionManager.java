@@ -5,13 +5,11 @@ import java.io.IOException;
 import com.google.common.base.Preconditions;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-
 import com.samskivert.util.Lifecycle;
 
 import com.threerings.presents.server.ReportManager;
-
-import com.threerings.nio.SocketChannelAcceptor;
 import com.threerings.nio.DatagramAcceptor;
+import com.threerings.nio.SocketChannelAcceptor;
 
 import static com.threerings.presents.Log.log;
 
@@ -21,11 +19,11 @@ import static com.threerings.presents.Log.log;
 @Singleton
 public class BindingConnectionManager extends ConnectionManager
 {
-
-    @Inject public BindingConnectionManager (Lifecycle cycle, ReportManager repmgr)
+    @Inject public BindingConnectionManager (Lifecycle cycle, ReportManager repmgr,
+        IncomingEventWaitHolder incomingEventWait)
         throws IOException
     {
-        super(cycle, repmgr);
+        super(cycle, repmgr, incomingEventWait);
     }
 
     @Override
@@ -67,10 +65,13 @@ public class BindingConnectionManager extends ConnectionManager
         Preconditions.checkNotNull(datagramPorts, "Datagram ports must be non-null. " +
                                     "Pass a zero-length array to bind no datagram ports.");
 
+        // Listen for socket connections and datagram connections, but don't wait for anything to
+        // show up since that check is occurring as part of ConnectionManager's incoming event loop
+        // that already has a wait.
         _socketAcceptor = new SocketChannelAcceptor(this, _failureHandler, socketHostname,
-            socketPorts);
+            socketPorts, 0);
         _dgramAcceptor = new DatagramAcceptor(this, _failureHandler, datagramHostname,
-            datagramPorts);
+            datagramPorts, 0);
     }
 
     @Override
