@@ -981,7 +981,7 @@ public class ConnectionManager extends LoopingThread
     }
 
     protected final SelectFailureHandler _failureHandler = new SelectFailureHandler() {
-        @Override public void handleSelectFailure (Exception e) {
+        public void handleSelectFailure (Exception e) {
             log.error("One of our selectors crapped out completely.  " +
                 "Shutting down the connection manager.", e);
             shutdown();
