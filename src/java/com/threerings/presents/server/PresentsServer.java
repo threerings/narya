@@ -43,7 +43,6 @@ import com.threerings.presents.dobj.RootDObjectManager;
 import com.threerings.presents.server.PresentsDObjectMgr.LongRunnable;
 import com.threerings.presents.server.net.BindingConnectionManager;
 import com.threerings.presents.server.net.ConnectionManager;
-import com.threerings.presents.server.net.IncomingEventWait;
 
 import com.threerings.crowd.server.PlaceManager;
 
