@@ -1,14 +1,22 @@
 package com.threerings.nio;
 
 import java.util.List;
+import java.util.Map;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.nio.channels.SelectionKey;
+import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 
+import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.google.common.primitives.Ints;
+
+import com.samskivert.util.StringUtil;
+
 import com.threerings.nio.SelectorIterable.SelectFailureHandler;
 
 import static com.threerings.presents.Log.log;
@@ -20,8 +28,18 @@ import static com.threerings.presents.Log.log;
  * creating the acceptor to open the channels, and then tick must be called periodically to process
  * new connections.
  */
-public class SocketChannelAcceptor extends SelectAcceptor
+public class SocketChannelAcceptor
 {
+    /**
+     * Creates a address to the given host, or the wildcard host if the hostname is
+     * {@link StringUtil#blank}.
+     */
+    public static InetSocketAddress getAddress (String hostname, int port)
+    {
+        return StringUtil.isBlank(hostname) ?
+            new InetSocketAddress(port) : new InetSocketAddress(hostname, port);
+    }
+
     public interface SocketChannelHandler
     {
         void handleSocketChannel (SocketChannel channel, long when);
@@ -39,53 +57,62 @@ public class SocketChannelAcceptor extends SelectAcceptor
         SelectFailureHandler failureHandler, String bindHostname, int[] ports, int selectLoopTime)
         throws IOException
     {
-        super(failureHandler, bindHostname, ports, selectLoopTime);
+        Preconditions.checkNotNull(ports, "Ports must be non-null.");
+
+        _bindHostname = bindHostname;
+        _ports = ports;
+
+        _selectorSelector = new SelectorIterable(_selector, selectLoopTime, failureHandler);
 
         _connHandler = connectionHandler;
     }
 
-    protected void acceptConnection (ServerSocketChannel listener, long when)
+    /**
+     * Checks the selector for ready keys and passes any through to the handlers.
+     */
+    public void tick (long when)
     {
-        SocketChannel channel = null;
-        try {
-            channel = listener.accept();
-        } catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-        if (channel == null) {
-            // in theory this shouldn't happen because we got an ACCEPT_READY event...
-            log.info("Psych! Got ACCEPT_READY, but no connection.");
-            return;
-        }
+        for (SelectionKey key : _selectorSelector) {
+            ServerSocketChannel ssocket = _channels.get(key);
+            SocketChannel channel = null;
+            try {
+                channel = ssocket.accept();
+            } catch (IOException e) {
+                log.warning("Got exception on accept", e);
+                continue;
+            }
+            if (channel == null) {
+                // in theory this shouldn't happen because we got an ACCEPT_READY event...
+                log.info("Psych! Got ACCEPT_READY, but no connection.");
+                continue;
+            }
 
-//         log.debug("Accepted connection " + channel + ".");
+//             log.debug("Accepted connection " + channel + ".");
 
-        _connHandler.handleSocketChannel(channel, when);
+            _connHandler.handleSocketChannel(channel, when);
+        }
     }
 
+    public Iterable<Integer> getPorts ()
+    {
+        return Ints.asList(_ports);
+    }
 
     /**
      * Listens for socket connections on the configured addresses.
      */
     public boolean listen ()
     {
-        int successes = 0;
         for (int port : _ports) {
             try {
                 // create a listening socket and add it to the select set
                 final ServerSocketChannel ssocket = ServerSocketChannel.open();
                 ssocket.configureBlocking(false);
 
-                InetSocketAddress isa = getAddress(port);
+                InetSocketAddress isa = getAddress(_bindHostname, port);
                 ssocket.socket().bind(isa);
                 SelectionKey sk = ssocket.register(_selector, SelectionKey.OP_ACCEPT);
-                _handlers.put(sk, new SelectionHandler() {
-                    public void handle (long when) {
-                        acceptConnection(ssocket, when);
-                    }
-                });
-                successes++;
+                _channels.put(sk, ssocket);
                 log.info("Server listening on " + isa + ".");
                 _ssockets.add(ssocket);
 
@@ -122,7 +149,7 @@ public class SocketChannelAcceptor extends SelectAcceptor
 //         }
 
         // if we failed to listen on at least one port, give up the ghost
-        return successes > 0;
+        return !_channels.isEmpty();
     }
 
     public void shutdown()
@@ -139,6 +166,12 @@ public class SocketChannelAcceptor extends SelectAcceptor
         }
     }
 
+
+    protected final int[] _ports;
+    protected final String _bindHostname;
+    protected final Map<SelectionKey, ServerSocketChannel> _channels = Maps.newHashMap();
+    protected final Selector _selector = Selector.open();
+    protected final SelectorIterable _selectorSelector;
     protected final List<ServerSocketChannel> _ssockets = Lists.newArrayList();
     protected final SocketChannelHandler _connHandler;
 }

@@ -29,7 +29,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
-import java.nio.channels.DatagramChannel;
 import java.nio.channels.NotYetConnectedException;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
@@ -69,32 +68,27 @@ import com.threerings.presents.server.PresentsServer;
 import com.threerings.presents.server.ReportManager;
 import com.threerings.presents.util.DatagramSequencer;
 
-import com.threerings.nio.DatagramAcceptor;
 import com.threerings.nio.SocketChannelAcceptor;
 import com.threerings.nio.SocketChannelAcceptor.SocketChannelHandler;
-import com.threerings.nio.DatagramAcceptor.DatagramHandler;
 import com.threerings.nio.SelectorIterable;
 import com.threerings.nio.SelectorIterable.SelectFailureHandler;
 
 import static com.threerings.presents.Log.log;
 
 /**
- * Manages socket connections and datagram messages. It creates connection objects for each socket
- * connection, but those connection objects interact closely with the connection manager because
- * network I/O is done via a poll()-like mechanism rather than via threads.<p>
+ * Manages socket connections. It creates connection objects for each socket connection, but those
+ * connection objects interact closely with the connection manager because network I/O is done via
+ * a poll()-like mechanism rather than via threads.<p>
  *
- * ConnectionManager doesn't handle accepting tcp connections or listening for datagrams; it
- * expects an external entity to do so and call its <code>handleSocketChannel</code> and
- * <code>handleDatagram</code> methods.
+ * ConnectionManager doesn't handle accepting tcp connections; it expects an external entity to do
+ * so and call its <code>handleSocketChannel</code> method.
  *
  * @see BindingConnectionManager
  * @see SocketChannelAcceptor
- * @see DatagramAcceptor
  */
 @Singleton
 public class ConnectionManager extends LoopingThread
-    implements Lifecycle.ShutdownComponent, ReportManager.Reporter, DatagramHandler,
-    SocketChannelHandler
+    implements Lifecycle.ShutdownComponent, ReportManager.Reporter, SocketChannelHandler
 {
     /**
      * Creates a connection manager instance.
@@ -264,47 +258,6 @@ public class ConnectionManager extends LoopingThread
                 log.warning("Failed closing aborted connection: " + ioe2);
             }
         }
-    }
-
-    /**
-     * Called by our DatagramAcceptor when a datagram message is ready to be read off its channel.
-     */
-    public void handleDatagram (DatagramChannel listener, long when)
-    {
-        InetSocketAddress source;
-        _databuf.clear();
-        try {
-            source = (InetSocketAddress)listener.receive(_databuf);
-        } catch (IOException ioe) {
-            log.warning("Failure receiving datagram.", ioe);
-            return;
-        }
-
-        // make sure we actually read a packet
-        if (source == null) {
-            log.info("Psych! Got READ_READY, but no datagram.");
-            return;
-        }
-
-        // flip the buffer and record the size (which must be at least 14 to contain the connection
-        // id, authentication hash, and a class reference)
-        int size = _databuf.flip().remaining();
-        if (size < 14) {
-            log.warning("Received undersized datagram", "source", source, "size", size);
-            return;
-        }
-
-        // the first four bytes are the connection id
-        int connectionId = _databuf.getInt();
-        Connection conn = _connections.get(connectionId);
-        if (conn != null) {
-            conn.handleDatagram(source, listener, _databuf, when);
-        } else {
-            log.debug("Received datagram for unknown connection", "id", connectionId,
-                      "source", source);
-        }
-
-        noteRead(size, 1, 1);
     }
 
     /**
@@ -538,7 +491,12 @@ public class ConnectionManager extends LoopingThread
             }
         }
 
-        noteRead(bytesIn, msgsIn, eventCount);
+        synchronized (this) {
+            // update our stats
+            _stats.eventCount += eventCount;
+            _stats.bytesIn += bytesIn;
+            _stats.msgsIn += msgsIn;
+        }
     }
 
     /**
@@ -699,14 +657,6 @@ public class ConnectionManager extends LoopingThread
     {
         _stats.msgsOut += msgs;
         _stats.bytesOut += bytes;
-    }
-
-    protected synchronized void noteRead (long bytesIn, long msgsIn, long eventCount)
-    {
-        // update our stats
-        _stats.eventCount += eventCount;
-        _stats.bytesIn += bytesIn;
-        _stats.msgsIn += msgsIn;
     }
 
     /**
