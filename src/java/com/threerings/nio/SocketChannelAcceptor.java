@@ -31,7 +31,7 @@ public class SocketChannelAcceptor extends SelectAcceptor
      * Creates an acceptor that passes socket connections on to the given handler.
      *
      * @param failureHandler - called when the selector is irredemably broken.
-     * @param hostname - the hostname to bind to or null for all interfaces
+     * @param bindHostname - the hostname to bind to or null for all interfaces
      * @param ports - the ports to bind to, or an empty array to skip binding
      */
     public SocketChannelAcceptor (SocketChannelHandler connectionHandler,
