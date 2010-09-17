@@ -2,7 +2,7 @@ The Narya library
 -----------------
 
 The Narya library provides various facilities for making networked
-multiplayer games. It's various packages include:
+multiplayer games. Its various packages include:
 
   * geom, util, io - basic tools for doing networked I/O, data structure
     manipulation and some geometry math
