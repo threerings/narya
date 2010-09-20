@@ -40,11 +40,19 @@ import static com.threerings.presents.Log.log;
 public class SelectorIterable
     implements Iterable<SelectionKey>
 {
+    /** The maximum allowed consecutive select() failures, after which we will declare ourselves
+     * irreparably hosed. */
+    public static final int MAX_SELECT_FAILURES = 20;
+
     /**
-     * Callback for the Selector failing.
+     * An interface for hearing about catastrophic selection failure. If select fails (in a
+     * non-expected way) more than {@link #MAX_SELECT_FAILURES} times in a row, this interface will
+     * be notified. This allows a server to reboot itself in an orderly manner, rather than
+     * continue in an inoperable state.
      */
     public interface SelectFailureHandler {
-        void handleSelectFailure(Exception e);
+        /** Called to report a select() failure. */
+        void handleSelectFailure (Exception e);
     }
 
     /**
@@ -59,6 +67,7 @@ public class SelectorIterable
         _failureHandler = handler;
     }
 
+    // from interface Iterable<SelectionKey>
     public Iterator<SelectionKey> iterator ()
     {
         return Iterators.consumingIterator(select().iterator());
@@ -89,7 +98,7 @@ public class SelectorIterable
             // instead of looping indefinitely after things go pear-shaped, shut us down in an
             // orderly fashion
             log.warning("Failure select()ing.", re);
-            if (_runtimeExceptionCount++ >= 20) {
+            if (_runtimeExceptionCount++ >= MAX_SELECT_FAILURES) {
                 _failureHandler.handleSelectFailure(re);
             }
         }
@@ -97,10 +106,7 @@ public class SelectorIterable
     }
 
     protected int _runtimeExceptionCount;
-
     protected final int _selectLoopTime;
-
     protected final Selector _selector;
-
     protected final SelectFailureHandler _failureHandler;
 }

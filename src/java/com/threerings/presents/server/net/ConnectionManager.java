@@ -69,7 +69,6 @@ import com.threerings.presents.server.ReportManager;
 import com.threerings.presents.util.DatagramSequencer;
 
 import com.threerings.nio.SocketChannelAcceptor;
-import com.threerings.nio.SocketChannelAcceptor.SocketChannelHandler;
 import com.threerings.nio.SelectorIterable;
 import com.threerings.nio.SelectorIterable.SelectFailureHandler;
 
@@ -80,15 +79,16 @@ import static com.threerings.presents.Log.log;
  * connection objects interact closely with the connection manager because network I/O is done via
  * a poll()-like mechanism rather than via threads.<p>
  *
- * ConnectionManager doesn't handle accepting tcp connections; it expects an external entity to do
- * so and call its <code>handleSocketChannel</code> method.
+ * ConnectionManager doesn't directly accept TCP connections; it expects an external entity to do
+ * so and call its {@link #handleSocketChannel} method.
  *
  * @see BindingConnectionManager
  * @see SocketChannelAcceptor
  */
 @Singleton
 public class ConnectionManager extends LoopingThread
-    implements Lifecycle.ShutdownComponent, ReportManager.Reporter, SocketChannelHandler
+    implements Lifecycle.ShutdownComponent, ReportManager.Reporter,
+               SocketChannelAcceptor.SocketChannelHandler
 {
     /**
      * Creates a connection manager instance.
@@ -100,8 +100,8 @@ public class ConnectionManager extends LoopingThread
         super("ConnectionManager");
         cycle.addComponent(this);
         repmgr.registerReporter(this);
-        _selectorSelector = new SelectorIterable(_selector, incomingEventWait.value,
-            _failureHandler);
+        _selectorSelector = new SelectorIterable(
+            _selector, incomingEventWait.value, _failureHandler);
     }
 
     /**
@@ -224,16 +224,7 @@ public class ConnectionManager extends LoopingThread
         report.append(bytesOut*1000/sinceLast).append(" bps\n");
     }
 
-    @Override // from LoopingThread
-    public boolean isRunning ()
-    {
-        // Prevent exiting our thread until the object manager is done.
-        return super.isRunning() || _omgr.isRunning();
-    }
-
-    /**
-     * Called by our SocketChannelAcceptor when a new connection has been accepted on its socket.
-     */
+    // from interface SocketChannelAcceptor.SocketChannelHandler
     public void handleSocketChannel (SocketChannel channel, long when)
     {
         try {
@@ -258,6 +249,13 @@ public class ConnectionManager extends LoopingThread
                 log.warning("Failed closing aborted connection: " + ioe2);
             }
         }
+    }
+
+    @Override // from LoopingThread
+    public boolean isRunning ()
+    {
+        // Prevent exiting our thread until the object manager is done.
+        return super.isRunning() || _omgr.isRunning();
     }
 
     /**

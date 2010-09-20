@@ -42,7 +42,6 @@ import com.threerings.nio.SelectorIterable.SelectFailureHandler;
 
 import static com.threerings.presents.Log.log;
 
-
 /**
  * Listens for socket connections on a set of ports for a hostname and passes those connected
  * sockets on to a listener when they're ready. {@link #listen()} must be called after
@@ -51,6 +50,13 @@ import static com.threerings.presents.Log.log;
  */
 public class SocketChannelAcceptor
 {
+    /** Used to pass freshly accepted sockets to entities that want them. */
+    public interface SocketChannelHandler
+    {
+        /** Called when a new connection has been accepted and is ready for use. */
+        void handleSocketChannel (SocketChannel channel, long when);
+    }
+
     /**
      * Creates a address to the given host, or the wildcard host if the hostname is
      * {@link StringUtil#blank}.
@@ -59,11 +65,6 @@ public class SocketChannelAcceptor
     {
         return StringUtil.isBlank(hostname) ?
             new InetSocketAddress(port) : new InetSocketAddress(hostname, port);
-    }
-
-    public interface SocketChannelHandler
-    {
-        void handleSocketChannel (SocketChannel channel, long when);
     }
 
     /**
@@ -79,12 +80,9 @@ public class SocketChannelAcceptor
         throws IOException
     {
         Preconditions.checkNotNull(ports, "Ports must be non-null.");
-
         _bindHostname = bindHostname;
         _ports = ports;
-
         _selectorSelector = new SelectorIterable(_selector, selectLoopTime, failureHandler);
-
         _connHandler = connectionHandler;
     }
 
@@ -107,13 +105,14 @@ public class SocketChannelAcceptor
                 log.info("Psych! Got ACCEPT_READY, but no connection.");
                 continue;
             }
-
 //             log.debug("Accepted connection " + channel + ".");
-
             _connHandler.handleSocketChannel(channel, when);
         }
     }
 
+    /**
+     * Returns the ports on which we are listening for connections.
+     */
     public Iterable<Integer> getPorts ()
     {
         return Ints.asList(_ports);
@@ -173,11 +172,13 @@ public class SocketChannelAcceptor
         return !_channels.isEmpty();
     }
 
+    /**
+     * Closes all listening sockets and shuts down.
+     */
     public void shutdown()
     {
-        // unbind our listening socket
-        // Note: because we wait for the object manager to exit before we do, we will still be
-        // accepting connections as long as there are events pending.
+        // unbind our listening sockets; note: because we wait for the objmgr to exit before we do,
+        // we will still be accepting connections as long as there are events pending
         for (ServerSocketChannel ssocket : _ssockets) {
             try {
                 ssocket.socket().close();
@@ -186,7 +187,6 @@ public class SocketChannelAcceptor
             }
         }
     }
-
 
     protected final int[] _ports;
     protected final String _bindHostname;

@@ -157,10 +157,11 @@ public class PresentsServer
         // provide our client manager with the injector it needs
         _clmgr.setInjector(injector);
 
-        // configure our connection manager
+        // if we have a connection manager that handles its own socket accepting, initialize it
+        // with the hostname and ports on which to listen
         if (_conmgr instanceof BindingConnectionManager) {
-            ((BindingConnectionManager)_conmgr).init(getBindHostname(), getDatagramHostname(),
-                getListenPorts(), getDatagramPorts());
+            ((BindingConnectionManager)_conmgr).init(
+                getBindHostname(), getDatagramHostname(), getListenPorts(), getDatagramPorts());
         }
 
         // initialize the time base services

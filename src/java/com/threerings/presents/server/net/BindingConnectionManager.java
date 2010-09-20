@@ -48,7 +48,7 @@ import static com.threerings.presents.Log.log;
 public class BindingConnectionManager extends ConnectionManager
 {
     @Inject public BindingConnectionManager (Lifecycle cycle, ReportManager repmgr,
-        IncomingEventWaitHolder incomingEventWait)
+                                             IncomingEventWaitHolder incomingEventWait)
         throws IOException
     {
         super(cycle, repmgr, incomingEventWait);
@@ -89,6 +89,7 @@ public class BindingConnectionManager extends ConnectionManager
         if (!_socketAcceptor.listen()) {
             log.warning("ConnectionManager failed to bind to any ports. Shutting down.");
             _server.queueShutdown();
+
         } else {
             // open up the datagram ports as well
             for (int port : _datagramPorts) {
@@ -105,7 +106,10 @@ public class BindingConnectionManager extends ConnectionManager
     @Override
     protected void processIncomingEvents (long iterStamp)
     {
+        // first check for any new sockets, ready to be accepted
         _socketAcceptor.tick(iterStamp);
+
+        // then do our standard processing for existing connected sockets
         super.processIncomingEvents(iterStamp);
     }
 
