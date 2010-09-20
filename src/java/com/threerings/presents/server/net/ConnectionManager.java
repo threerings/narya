@@ -38,6 +38,8 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import com.google.inject.name.Named;
+
 import com.samskivert.util.IntMap;
 import com.samskivert.util.IntMaps;
 import com.samskivert.util.Invoker;
@@ -52,6 +54,7 @@ import com.threerings.io.FramingOutputStream;
 import com.threerings.io.ObjectOutputStream;
 import com.threerings.io.UnreliableObjectInputStream;
 import com.threerings.io.UnreliableObjectOutputStream;
+import com.threerings.nio.SelectorIterable;
 
 import com.threerings.presents.annotation.AuthInvoker;
 import com.threerings.presents.client.Client;
@@ -68,10 +71,6 @@ import com.threerings.presents.server.PresentsServer;
 import com.threerings.presents.server.ReportManager;
 import com.threerings.presents.util.DatagramSequencer;
 
-import com.threerings.nio.SocketChannelAcceptor;
-import com.threerings.nio.SelectorIterable;
-import com.threerings.nio.SelectorIterable.SelectFailureHandler;
-
 import static com.threerings.presents.Log.log;
 
 /**
@@ -79,29 +78,24 @@ import static com.threerings.presents.Log.log;
  * connection objects interact closely with the connection manager because network I/O is done via
  * a poll()-like mechanism rather than via threads.<p>
  *
- * ConnectionManager doesn't directly accept TCP connections; it expects an external entity to do
- * so and call its {@link #handleSocketChannel} method.
- *
- * @see BindingConnectionManager
- * @see SocketChannelAcceptor
+ * ConnectionManager doesn't directly accept TCP connections; it expects a custom derived class or
+ * external entity to do so and call its {@link #handleAcceptedSocket} method.
+ * See {@link BindingConnectionManager} for the standalone implementation.
  */
 @Singleton
 public class ConnectionManager extends LoopingThread
-    implements Lifecycle.ShutdownComponent, ReportManager.Reporter,
-               SocketChannelAcceptor.SocketChannelHandler
+    implements Lifecycle.ShutdownComponent, ReportManager.Reporter
 {
     /**
      * Creates a connection manager instance.
      */
-    @Inject public ConnectionManager (Lifecycle cycle, ReportManager repmgr,
-        IncomingEventWaitHolder incomingEventWait)
+    public ConnectionManager (Lifecycle cycle, ReportManager repmgr)
         throws IOException
     {
         super("ConnectionManager");
         cycle.addComponent(this);
         repmgr.registerReporter(this);
-        _selectorSelector = new SelectorIterable(
-            _selector, incomingEventWait.value, _failureHandler);
+        _selector = Selector.open();
     }
 
     /**
@@ -143,6 +137,39 @@ public class ConnectionManager extends LoopingThread
             }
         }
         return _stats.clone();
+    }
+
+    /**
+     * This is called to introduce a new active socket into the system. For Presents systems
+     * handling their own socket listening, this is called by the {@link BindingConnectionManager}.
+     * If Presents is embedded in another framework that handles socket acceptance, this will be
+     * called by a custom ConnectionManager derived class that integrates Presents with that
+     * system.
+     */
+    public void handleAcceptedSocket (SocketChannel channel)
+    {
+        try {
+            // create a new authing connection object to manage the authentication of this client
+            // connection and register it with our selection set
+            channel.configureBlocking(false);
+            AuthingConnection aconn = new AuthingConnection();
+            aconn.selkey = channel.register(_selector, SelectionKey.OP_READ);
+            aconn.init(this, channel, System.currentTimeMillis());
+            _handlers.put(aconn.selkey, aconn);
+            synchronized (this) {
+                _stats.connects++;
+            }
+
+        } catch (IOException ioe) {
+            // no need to generate a warning because this happens in the normal course of events
+            log.info("Failure accepting new connection: " + ioe);
+            // make sure we don't leak a socket if something went awry
+            try {
+                channel.socket().close();
+            } catch (IOException ioe2) {
+                log.warning("Failed closing aborted connection: " + ioe2);
+            }
+        }
     }
 
     /**
@@ -224,38 +251,83 @@ public class ConnectionManager extends LoopingThread
         report.append(bytesOut*1000/sinceLast).append(" bps\n");
     }
 
-    // from interface SocketChannelAcceptor.SocketChannelHandler
-    public void handleSocketChannel (SocketChannel channel, long when)
-    {
-        try {
-            // create a new authing connection object to manage the authentication of this client
-            // connection and register it with our selection set
-            channel.configureBlocking(false);
-            AuthingConnection aconn = new AuthingConnection();
-            aconn.selkey = channel.register(_selector, SelectionKey.OP_READ);
-            aconn.init(this, channel, System.currentTimeMillis());
-            _handlers.put(aconn.selkey, aconn);
-            synchronized (this) {
-                _stats.connects++;
-            }
-
-        } catch (IOException ioe) {
-            // no need to generate a warning because this happens in the normal course of events
-            log.info("Failure accepting new connection: " + ioe);
-            // make sure we don't leak a socket if something went awry
-            try {
-                channel.socket().close();
-            } catch (IOException ioe2) {
-                log.warning("Failed closing aborted connection: " + ioe2);
-            }
-        }
-    }
-
     @Override // from LoopingThread
     public boolean isRunning ()
     {
         // Prevent exiting our thread until the object manager is done.
         return super.isRunning() || _omgr.isRunning();
+    }
+
+    @Override // from LoopingThread
+    protected void willStart ()
+    {
+        super.willStart();
+
+        log.info("Creating selector selector!");
+        _selectorSelector = new SelectorIterable(
+            _selector, _selectLoopTime, new SelectorIterable.SelectFailureHandler() {
+            public void handleSelectFailure (Exception e) {
+                log.error("One of our selectors crapped out completely.  " +
+                          "Shutting down the connection manager.", e);
+                shutdown();
+            }
+        });
+    }
+
+    @Override // from LoopingThread
+    protected void iterate ()
+    {
+        // performs the select loop; this is the body of the conmgr thread
+        final long iterStamp = System.currentTimeMillis();
+
+        // note whether or not we're generating a debug report
+        boolean generateDebugReport = (iterStamp - _lastDebugStamp > DEBUG_REPORT_INTERVAL);
+        if (DEBUG_REPORT && generateDebugReport) {
+            _lastDebugStamp = iterStamp;
+        }
+
+        // close any connections that have been queued up to die
+        Connection dconn;
+        while ((dconn = _deathq.getNonBlocking()) != null) {
+            // it's possible that we caught an EOF trying to read from this connection even after
+            // it was queued up for death, so let's avoid trying to close it twice
+            if (!dconn.isClosed()) {
+                dconn.close();
+            }
+        }
+
+        // close connections that have had no network traffic for too long
+        for (NetEventHandler handler : _handlers.values()) {
+            if (handler.checkIdle(iterStamp)) {
+                // this will queue the connection for closure on our next tick
+                handler.becameIdle();
+            }
+        }
+
+        // send any messages that are waiting on the outgoing overflow and message queues
+        sendOutgoingMessages(iterStamp);
+
+        // we may be in the middle of shutting down (in which case super.isRunning() is false but
+        // isRunning() is true); this is because we stick around until the dobject manager is
+        // totally done so that we can send shutdown-related events out to our clients; during
+        // those last moments we don't want to accept new connections or read any incoming messages
+        if (super.isRunning()) {
+            // start up any outgoing connections that need to be connected
+            Tuple<Connection, InetSocketAddress> pconn;
+            while ((pconn = _connectq.getNonBlocking()) != null) {
+                startOutgoingConnection(pconn.left, pconn.right);
+            }
+
+            // check for connections that have completed authentication
+            processAuthedConnections(iterStamp);
+
+            // listen for and process incoming network events
+            processIncomingEvents(iterStamp);
+        }
+
+        if (DEBUG_REPORT && generateDebugReport) {
+            log.info("CONMGR status " + getStats());
+        }
     }
 
     /**
@@ -344,64 +416,6 @@ public class ConnectionManager extends LoopingThread
         } catch (IOException ioe) {
             log.warning("Failed to initiate connection for " + sockchan + ".", ioe);
             conn.connectFailure(ioe); // nothing else to clean up
-        }
-    }
-
-    /**
-     * Performs the select loop. This is the body of the conmgr thread.
-     */
-    @Override
-    protected void iterate ()
-    {
-        final long iterStamp = System.currentTimeMillis();
-
-        // note whether or not we're generating a debug report
-        boolean generateDebugReport = (iterStamp - _lastDebugStamp > DEBUG_REPORT_INTERVAL);
-        if (DEBUG_REPORT && generateDebugReport) {
-            _lastDebugStamp = iterStamp;
-        }
-
-        // close any connections that have been queued up to die
-        Connection dconn;
-        while ((dconn = _deathq.getNonBlocking()) != null) {
-            // it's possible that we caught an EOF trying to read from this connection even after
-            // it was queued up for death, so let's avoid trying to close it twice
-            if (!dconn.isClosed()) {
-                dconn.close();
-            }
-        }
-
-        // close connections that have had no network traffic for too long
-        for (NetEventHandler handler : _handlers.values()) {
-            if (handler.checkIdle(iterStamp)) {
-                // this will queue the connection for closure on our next tick
-                handler.becameIdle();
-            }
-        }
-
-        // send any messages that are waiting on the outgoing overflow and message queues
-        sendOutgoingMessages(iterStamp);
-
-        // we may be in the middle of shutting down (in which case super.isRunning() is false but
-        // isRunning() is true); this is because we stick around until the dobject manager is
-        // totally done so that we can send shutdown-related events out to our clients; during
-        // those last moments we don't want to accept new connections or read any incoming messages
-        if (super.isRunning()) {
-            // start up any outgoing connections that need to be connected
-            Tuple<Connection, InetSocketAddress> pconn;
-            while ((pconn = _connectq.getNonBlocking()) != null) {
-                startOutgoingConnection(pconn.left, pconn.right);
-            }
-
-            // check for connections that have completed authentication
-            processAuthedConnections(iterStamp);
-
-            // listen for and process incoming network events
-            processIncomingEvents(iterStamp);
-        }
-
-        if (DEBUG_REPORT && generateDebugReport) {
-            log.info("CONMGR status " + getStats());
         }
     }
 
@@ -929,14 +943,6 @@ public class ConnectionManager extends LoopingThread
         protected int _msgs, _partials;
     }
 
-    protected final SelectFailureHandler _failureHandler = new SelectFailureHandler() {
-        public void handleSelectFailure (Exception e) {
-            log.error("One of our selectors crapped out completely.  " +
-                "Shutting down the connection manager.", e);
-            shutdown();
-        }
-    };
-
     /** Used to create an overflow queue on the first partial write. */
     protected PartialWriteHandler _oflowHandler = new PartialWriteHandler() {
         public void handlePartialWrite (Connection conn, ByteBuffer msgbuf) {
@@ -946,19 +952,13 @@ public class ConnectionManager extends LoopingThread
         }
     };
 
-    /** Helper for Guice to allow the incoming event wait to be injected optionally. */
-    protected static class IncomingEventWaitHolder
-    {
-        @Inject(optional=true) @IncomingEventWait int value = SELECT_LOOP_TIME;
-    }
-
     /** Handles client authentication. The base authenticator is injected but optional services
      * like the PeerManager may replace this authenticator with one that intercepts certain types
      * of authentication and then passes normal authentications through. */
     @Inject(optional=true) protected Authenticator _author = new DummyAuthenticator();
     protected List<ChainedAuthenticator> _authors = Lists.newArrayList();
 
-    protected Selector _selector = Selector.open();
+    protected Selector _selector;
     protected SelectorIterable _selectorSelector;
 
     /** Maps selection keys to network event handlers. */
@@ -993,17 +993,18 @@ public class ConnectionManager extends LoopingThread
     /** A runnable to execute when the connection manager thread exits. */
     protected volatile Runnable _onExit;
 
+    /** Duration in milliseconds for which we wait for network events before checking our running
+     * flag to see if we should still be running. We don't want to loop too tightly, but we need to
+     * make sure we don't sit around listening for incoming network events too long when there are
+     * outgoing messages in the queue. */
+    @Inject(optional=true) @Named("presents.net.selectLoopTime")
+    protected int _selectLoopTime = 100;
+
     // some dependencies
     @Inject @AuthInvoker protected Invoker _authInvoker;
     @Inject protected ClientManager _clmgr;
     @Inject protected PresentsDObjectMgr _omgr;
     @Inject protected PresentsServer _server;
-
-    /** How long we wait for network events before checking our running flag to see if we should
-     * still be running. We don't want to loop too tightly, but we need to make sure we don't sit
-     * around listening for incoming network events too long when there are outgoing messages in
-     * the queue. */
-    protected static final int SELECT_LOOP_TIME = 100;
 
     /** Used to denote asynchronous close requests. */
     protected static final byte[] ASYNC_CLOSE_REQUEST = new byte[0];

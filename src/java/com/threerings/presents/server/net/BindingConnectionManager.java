@@ -27,17 +27,18 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.nio.channels.DatagramChannel;
 import java.nio.channels.SelectionKey;
+import java.nio.channels.ServerSocketChannel;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
+import com.samskivert.net.AddressUtil;
 import com.samskivert.util.Lifecycle;
+import com.samskivert.util.StringUtil;
 
 import com.threerings.presents.server.ReportManager;
-
-import com.threerings.nio.SocketChannelAcceptor;
 
 import static com.threerings.presents.Log.log;
 
@@ -47,11 +48,10 @@ import static com.threerings.presents.Log.log;
 @Singleton
 public class BindingConnectionManager extends ConnectionManager
 {
-    @Inject public BindingConnectionManager (Lifecycle cycle, ReportManager repmgr,
-                                             IncomingEventWaitHolder incomingEventWait)
+    @Inject public BindingConnectionManager (Lifecycle cycle, ReportManager repmgr)
         throws IOException
     {
-        super(cycle, repmgr, incomingEventWait);
+        super(cycle, repmgr);
     }
 
     /**
@@ -66,85 +66,127 @@ public class BindingConnectionManager extends ConnectionManager
      * @param socketPorts the ports on which to listen for TCP connection.
      * @param datagramPorts the ports on which to listen for datagram packets.
      */
-    public void init (String socketHostname, String datagramHostname, int[] socketPorts,
-        int[] datagramPorts)
+    public void init (String socketHostname, String datagramHostname,
+                      int[] socketPorts, int[] datagramPorts)
         throws IOException
     {
         Preconditions.checkNotNull(socketPorts, "Socket ports must be non-null.");
         Preconditions.checkNotNull(datagramPorts, "Datagram ports must be non-null. " +
-                                    "Pass a zero-length array to bind no datagram ports.");
+                                   "Pass a zero-length array to bind no datagram ports.");
 
-        // Listen for socket connections, but don't wait to select on them.  The connection check
-        // occurs as part of ConnectionManager's incoming event loop, which already has a wait.
-        _socketAcceptor = new SocketChannelAcceptor(this, _failureHandler, socketHostname,
-            socketPorts, 0);
-
-        _datagramPorts = datagramPorts;
+        _bindHostname = socketHostname;
+        _ports = socketPorts;
         _datagramHostname = datagramHostname;
+        _datagramPorts = datagramPorts;
     }
 
     @Override
     protected void willStart ()
     {
-        if (!_socketAcceptor.listen()) {
-            log.warning("ConnectionManager failed to bind to any ports. Shutting down.");
-            _server.queueShutdown();
+        super.willStart();
 
-        } else {
-            // open up the datagram ports as well
-            for (int port : _datagramPorts) {
-                try {
-                    acceptDatagrams(port);
-                } catch (IOException ioe) {
-                    log.warning("Failure opening datagram channel", "hostname", _datagramHostname,
-                                "port", port, ioe);
-                }
+        // open our TCP listening ports
+        int successes = 0;
+        for (int port : _ports) {
+            try {
+                acceptConnections(port);
+                successes++;
+            } catch (IOException ioe) {
+                log.warning("Failure listening to socket", "hostname", _bindHostname,
+                            "port", port, ioe);
             }
         }
-    }
+        if (successes == 0) {
+            log.warning("ConnectionManager failed to bind to any ports. Shutting down.");
+            _server.queueShutdown();
+            return;
+        }
 
-    @Override
-    protected void processIncomingEvents (long iterStamp)
-    {
-        // first check for any new sockets, ready to be accepted
-        _socketAcceptor.tick(iterStamp);
-
-        // then do our standard processing for existing connected sockets
-        super.processIncomingEvents(iterStamp);
+        // open up the datagram ports as well
+        for (int port : _datagramPorts) {
+            try {
+                acceptDatagrams(port);
+            } catch (IOException ioe) {
+                log.warning("Failure opening datagram channel", "hostname", _datagramHostname,
+                            "port", port, ioe);
+            }
+        }
     }
 
     @Override
     protected void didShutdown ()
     {
         super.didShutdown();
-
         // TODO: consider closing the listen sockets earlier, like in the shutdown method
-        _socketAcceptor.shutdown();
+
+        // unbind our listening sockets; note: because we wait for the objmgr to exit before we do,
+        // we will still be accepting connections as long as there are events pending.
+        for (ServerSocketChannel ssocket : _ssockets) {
+            try {
+                ssocket.socket().close();
+            } catch (IOException ioe) {
+                log.warning("Failed to close listening socket: " + ssocket, ioe);
+            }
+        }
+
         // unbind datagram channels, if any
         for (DatagramChannel datagramChannel : _datagramChannels) {
             datagramChannel.socket().close();
         }
     }
 
+    protected void acceptConnections (int port)
+        throws IOException
+    {
+        // create a listening socket
+        final ServerSocketChannel ssocket = ServerSocketChannel.open();
+        ssocket.configureBlocking(false);
+        InetSocketAddress isa = AddressUtil.getAddress(_bindHostname, port);
+        ssocket.socket().bind(isa);
+
+        // and add it to the select set
+        SelectionKey sk = ssocket.register(_selector, SelectionKey.OP_ACCEPT);
+        _handlers.put(sk, new NetEventHandler() {
+            public int handleEvent (long when) {
+                try {
+                    handleAcceptedSocket(ssocket.accept());
+                } catch (IOException ioe) {
+                    log.info("Failure accepting connected socket: " +ioe);
+                }
+                // there's no easy way to measure bytes read when accepting a connection, so we
+                // claim nothing
+                return 0;
+            }
+            public boolean checkIdle (long now) {
+                return false; // we're never idle
+            }
+            public void becameIdle () {
+                // we're never idle
+            }
+        });
+        _ssockets.add(ssocket);
+        log.info("Server listening on " + isa + ".");
+    }
+
     protected void acceptDatagrams (int port)
         throws IOException
     {
-        // create a channel and add it to the select set
+        // create a channel
         final DatagramChannel channel = DatagramChannel.open();
         channel.socket().setTrafficClass(0x10); // IPTOS_LOWDELAY
         channel.configureBlocking(false);
-        InetSocketAddress isa = SocketChannelAcceptor.getAddress(_datagramHostname, port);
+        InetSocketAddress isa = AddressUtil.getAddress(_datagramHostname, port);
         channel.socket().bind(isa);
+
+        // and add it to the select set
         SelectionKey sk = channel.register(_selector, SelectionKey.OP_READ);
         _handlers.put(sk, new NetEventHandler() {
             public int handleEvent (long when) {
                 return handleDatagram(channel, when);
             }
-
             public boolean checkIdle (long now) {
                 return false;// Can't be idle
             }
-
             public void becameIdle () {}
         });
         _datagramChannels.add(channel);
@@ -192,9 +234,9 @@ public class BindingConnectionManager extends ConnectionManager
         return size;
     }
 
-    protected SocketChannelAcceptor _socketAcceptor;
-    protected int[] _datagramPorts;
-    protected String _datagramHostname;
+    protected int[] _ports, _datagramPorts;
+    protected String _bindHostname, _datagramHostname;
 
-    protected final List<DatagramChannel> _datagramChannels = Lists.newArrayList();
+    protected List<ServerSocketChannel> _ssockets = Lists.newArrayList();
+    protected List<DatagramChannel> _datagramChannels = Lists.newArrayList();
 }
