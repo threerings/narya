@@ -89,7 +89,7 @@ public class ConnectionManager extends LoopingThread
     /**
      * Creates a connection manager instance.
      */
-    public ConnectionManager (Lifecycle cycle, ReportManager repmgr)
+    @Inject public ConnectionManager (Lifecycle cycle, ReportManager repmgr)
         throws IOException
     {
         super("ConnectionManager");

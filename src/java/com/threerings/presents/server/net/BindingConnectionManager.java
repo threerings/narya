@@ -36,7 +36,6 @@ import com.google.inject.Singleton;
 
 import com.samskivert.net.AddressUtil;
 import com.samskivert.util.Lifecycle;
-import com.samskivert.util.StringUtil;
 
 import com.threerings.presents.server.ReportManager;
 
