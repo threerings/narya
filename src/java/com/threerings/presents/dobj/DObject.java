@@ -547,7 +547,7 @@ public class DObject
 
         } catch (Exception e) {
             String errmsg = "setAttribute() failure [name=" + name + ", value=" + value +
-                ", vclass=" + value.getClass().getName() + "].";
+                (value == null ? "" : ", vclass=" + value.getClass().getName()) + "].";
             throw new ObjectAccessException(errmsg, e);
         }
     }
