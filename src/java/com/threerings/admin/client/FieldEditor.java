@@ -124,6 +124,7 @@ public abstract class FieldEditor extends JPanel
             value = getDisplayValue();
         } catch (Exception e) {
             updateBorder(true);
+            return;
         }
 
         // submit an attribute changed event with the new value
