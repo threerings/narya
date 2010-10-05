@@ -529,7 +529,7 @@ public class DObject
 
         } catch (Exception e) {
             String errmsg = "changeAttribute() failure [name=" + name + ", value=" + value +
-                ", vclass=" + value.getClass().getName() + "].";
+                ", vclass=" + StringUtil.shortClassName(value) + "].";
             throw new ObjectAccessException(errmsg, e);
         }
     }
@@ -547,7 +547,7 @@ public class DObject
 
         } catch (Exception e) {
             String errmsg = "setAttribute() failure [name=" + name + ", value=" + value +
-                (value == null ? "" : ", vclass=" + value.getClass().getName()) + "].";
+                ", vclass=" + StringUtil.shortClassName(value) + "].";
             throw new ObjectAccessException(errmsg, e);
         }
     }
