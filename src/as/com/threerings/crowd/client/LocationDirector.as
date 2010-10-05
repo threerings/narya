@@ -162,6 +162,8 @@ public class LocationDirector extends BasicDirector
 
             // and clear out the tracked pending oid
             _pendingPlaceId = -1;
+
+            handlePendingForcedMove();
         };
 
         // documentation inherited from interface MoveListener
@@ -174,6 +176,8 @@ public class LocationDirector extends BasicDirector
 
             // let our observers know that something has gone horribly awry
             notifyFailure(placeId, reason);
+
+            handlePendingForcedMove();
         };
 
         // issue a moveTo request
@@ -412,6 +416,7 @@ public class LocationDirector extends BasicDirector
         // clear out everything else (it's possible that we were logged off in the middle of a
         // change location request)
         _pendingPlaceId = -1;
+        _pendingForcedMoves = [];
         _previousPlaceId = -1;
         _lastRequestTime = 0;
         _lservice = null;
@@ -439,16 +444,31 @@ public class LocationDirector extends BasicDirector
     // documentation inherited from interface
     public function forcedMove (placeId :int) :void
     {
+        // if we're in the middle of a move, we can't abort it or we will screw everything up, so
+        // just finish up what we're doing and assume that the repeated move request was the
+        // spurious one as it would be in the case of lag causing rapid-fire repeat requests
+        if (movePending()) {
+            if (_pendingPlaceId == placeId) {
+                log.info("Dropping forced move because we have a move pending",
+                    "pendId", _pendingPlaceId, "reqId", placeId);
+            } else {
+                log.info("Delaying forced move because we have a move pending",
+                    "pendId", _pendingPlaceId, "reqId", placeId);
+                addPendingForcedMove(new function() :void {
+                    forcedMove(placeId);
+                });
+            }
+            return;
+        }
+
         log.info("Moving at request of server", "placeId", placeId);
 
-        if (!movePending()) {
-            // clear out our old place information
-            mayLeavePlace();
-            didLeavePlace();
-
-            // move to the new place
-            moveTo(placeId);
-        }
+        // clear out our old place information
+        mayLeavePlace();
+        didLeavePlace();
+        
+        // move to the new place
+        moveTo(placeId);
     }
 
     // documentation inherited from interface Subscriber
@@ -540,6 +560,18 @@ public class LocationDirector extends BasicDirector
         });
     }
 
+    public function addPendingForcedMove (move :Function) :void
+    {
+        _pendingForcedMoves.push(move);
+    }
+
+    protected function handlePendingForcedMove () :void
+    {
+        if (!_pendingForcedMoves.length == 0) {
+            _ctx.getClient().callLater(_pendingForcedMoves.pop());
+        }
+    }
+
     protected const log :Log = Log.getLog(this);
 
     /** The context through which we access needed services. */
@@ -574,6 +606,9 @@ public class LocationDirector extends BasicDirector
 
     /** A listener that wants to know if we succeeded or how we failed to move.  */
     protected var _moveListener :ResultListener;
+
+    /** Forced move actions we should take once we complete the move we're in the middle of. */
+    protected var _pendingForcedMoves :Array = [];
 
     /** Allow a moveTo request be outstanding for one minute before it is declared to be stale. */
     protected static const STALE_REQUEST_DURATION :int = 60 * 1000;

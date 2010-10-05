@@ -21,6 +21,10 @@
 
 package com.threerings.crowd.client;
 
+import java.util.ArrayList;
+
+import com.google.common.collect.Lists;
+
 import com.samskivert.util.ObserverList;
 import com.samskivert.util.ResultListener;
 import com.samskivert.util.ObserverList.ObserverOp;
@@ -161,6 +165,8 @@ public class LocationDirector extends BasicDirector
                 didMoveTo(_pendingPlaceId, config);
                 // and clear out the tracked pending oid
                 _pendingPlaceId = -1;
+
+                handlePendingForcedMove();
             }
             public void requestFailed (String reason) {
                 // clear out our pending request oid
@@ -169,6 +175,7 @@ public class LocationDirector extends BasicDirector
                 log.info("moveTo failed", "pid", placeId, "reason", reason);
                 // let our observers know that something has gone horribly awry
                 handleFailure(placeId, reason);
+                handlePendingForcedMove();
             }
         });
         return true;
@@ -424,6 +431,7 @@ public class LocationDirector extends BasicDirector
         // clear out everything else (it's possible that we were logged off in the middle of a
         // change location request)
         _pendingPlaceId = -1;
+        _pendingForcedMoves.clear();
         _previousPlaceId = -1;
         _lastRequestTime = 0L;
         _lservice = null;
@@ -470,14 +478,24 @@ public class LocationDirector extends BasicDirector
     }
 
     // documentation inherited from interface
-    public void forcedMove (int placeId)
+    public void forcedMove (final int placeId)
     {
         // if we're in the middle of a move, we can't abort it or we will screw everything up, so
         // just finish up what we're doing and assume that the repeated move request was the
         // spurious one as it would be in the case of lag causing rapid-fire repeat requests
         if (movePending()) {
-            log.info("Dropping forced move because we have a move pending",
-                     "pendId", _pendingPlaceId, "reqId", placeId);
+            if (_pendingPlaceId == placeId) {
+                log.info("Dropping forced move because we have a move pending",
+                    "pendId", _pendingPlaceId, "reqId", placeId);
+            } else {
+                log.info("Delaying forced move because we have a move pending",
+                    "pendId", _pendingPlaceId, "reqId", placeId);
+                addPendingForcedMove(new Runnable() {
+                    public void run () {
+                        forcedMove(placeId);
+                    }
+                });
+            }
             return;
         }
 
@@ -543,6 +561,18 @@ public class LocationDirector extends BasicDirector
         return config.createController();
     }
 
+    public void addPendingForcedMove (Runnable move)
+    {
+        _pendingForcedMoves.add(move);
+    }
+
+    protected void handlePendingForcedMove ()
+    {
+        if (!_pendingForcedMoves.isEmpty()) {
+            _ctx.getClient().getRunQueue().postRunnable(_pendingForcedMoves.remove(0));
+        }
+    }
+
     /** The context through which we access needed services. */
     protected CrowdContext _ctx;
 
@@ -580,6 +610,9 @@ public class LocationDirector extends BasicDirector
 
     /** A listener that wants to know if we succeeded or how we failed to move.  */
     protected ResultListener<PlaceConfig> _moveListener;
+
+    /** Forced move actions we should take once we complete the move we're in the middle of. */
+    protected ArrayList<Runnable> _pendingForcedMoves = Lists.newArrayList();
 
     /** The operation used to inform observers that the location changed. */
     protected ObserverOp<LocationObserver> _didChangeOp = new ObserverOp<LocationObserver>() {
