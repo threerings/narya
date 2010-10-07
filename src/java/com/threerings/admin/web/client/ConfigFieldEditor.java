@@ -74,7 +74,7 @@ public abstract class ConfigFieldEditor
                 return null;
             }
             String newValStr = newValue.toString();
-            if ((newValStr.isEmpty() && _field.valStr == null) ||newValStr.equals(_field.valStr)) {
+            if ((newValStr.size() == 0 && _field.valStr == null) ||newValStr.equals(_field.valStr)) {
                 return null;
             }
             return new ConfigField(_field.name, _field.type, newValStr);
