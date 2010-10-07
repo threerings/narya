@@ -15,7 +15,6 @@
   <property name="gwtjar.dir"  value="${deploy.dir}/gwt-jar"/>
 
   <import file="etc/libs-incl.xml"/>
-  <import file="etc/depends-incl.xml"/>
 
   <!-- declare our classpath business -->
   <path id="classpath">
