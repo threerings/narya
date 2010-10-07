@@ -27,8 +27,10 @@
     <available property="ehcache.present" classpathref="classpath"
                classname="net.sf.ehcache.CacheManager"/>
     <echo level="info" message="Have EHCache: ${ehcache.present}"/>
-    <available property="gwt.present"
-               classname="com.google.gwt.core.client.GWT" classpathref="classpath"/>
+    <condition property="gwt.present"><and>
+        <available classname="com.google.gwt.core.client.GWT" classpathref="classpath"/>
+        <available classname="com.threerings.gwt.ui.Widgets" classpathref="classpath"/>
+    </and></condition>
     <echo level="info" message="Have GWT: ${gwt.present}"/>
   </target>
 
