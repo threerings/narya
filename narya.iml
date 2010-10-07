@@ -98,6 +98,7 @@
     </orderEntry>
     <orderEntry type="module" module-name="samskivert" />
     <orderEntry type="module" module-name="aspirin" />
+    <orderEntry type="module" module-name="gwt-utils" />
     <orderEntry type="module-library">
       <library>
         <CLASSES>
@@ -120,6 +121,24 @@
       <library>
         <CLASSES>
           <root url="jar://$EXT_LIBS_DIR$/ant.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library>
+        <CLASSES>
+          <root url="jar://$EXT_LIBS_DIR$/gwt-user.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library>
+        <CLASSES>
+          <root url="jar://$EXT_LIBS_DIR$/gwt-dev.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />

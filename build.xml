@@ -12,7 +12,10 @@
   <property name="javadoc.home" value="${deploy.dir}/docs"/>
   <property name="classes.dir"  value="${deploy.dir}/classes"/>
   <property name="libs.dir"     value="lib"/>
+  <property name="gwtjar.dir"  value="${deploy.dir}/gwt-jar"/>
+
   <import file="etc/libs-incl.xml"/>
+  <import file="etc/depends-incl.xml"/>
 
   <!-- declare our classpath business -->
   <path id="classpath">
@@ -23,8 +26,11 @@
   <!-- checks the availability of certain libraries -->
   <target name="check-available" depends="prepare">
     <available property="ehcache.present" classpathref="classpath"
-     classname="net.sf.ehcache.CacheManager"/>
-    <echo level="info" message="EHCache: ${ehcache.present}"/>
+               classname="net.sf.ehcache.CacheManager"/>
+    <echo level="info" message="Have EHCache: ${ehcache.present}"/>
+    <available property="gwt.present"
+               classname="com.google.gwt.core.client.GWT" classpathref="classpath"/>
+    <echo level="info" message="Have GWT: ${gwt.present}"/>
   </target>
 
   <!-- prepares the application directories -->
@@ -58,6 +64,7 @@
   <target name="clean" depends="common-clean">
     <delete dir="${deploy.dir}/classes"/>
     <delete dir="${deploy.dir}/docs"/>
+    <delete dir="${gwtjar.dir}"/>
     <delete failonerror="false"><fileset dir="${deploy.dir}" includes="*.jar"/></delete>
     <delete failonerror="false"><fileset dir="${deploy.dir}" includes="*.swc"/></delete>
   </target>
@@ -80,6 +87,7 @@
       <compilerarg value="-Xlint"/>
       <compilerarg value="-Xlint:-serial"/>
       <exclude name="com/threerings/presents/peer/server/EHCache*" unless="ehcache.present"/>
+      <exclude name="**/web/**/*.java" unless="gwt.present"/>
     </javac>
   </target>
 
@@ -184,6 +192,7 @@
         <include name="com/threerings/io/**"/>
         <include name="com/threerings/nio/**"/>
         <include name="com/threerings/util/**"/>
+        <include name="com/threerings/web/**"/>
         <exclude name="com/threerings/**/tools/**"/>
         <exclude name="**/*.c,**/Makefile,**/*.h"/>
       </fileset>
@@ -214,6 +223,22 @@
     <jar destfile="${deploy.dir}/${lib.name}-tests.jar">
       <fileset dir="tests/${classes.dir}" includes="com/threerings/**"/>
     </jar>
+    <antcall target="dist-gwt"/>
+  </target>
+
+  <target name="dist-gwt" if="gwt.present">
+    <!-- we export a small selection of classes for use by GWT -->
+    <mkdir dir="${gwtjar.dir}"/>
+    <copy todir="${gwtjar.dir}">
+      <fileset dir="src/java">
+        <include name="**/web/server/*Exception.java"/>
+        <include name="**/web/client/*.java"/>
+        <include name="**/web/gwt/*.java"/>
+        <include name="**/web/*.gwt.xml"/>
+      </fileset>
+    </copy>
+    <jar basedir="${gwtjar.dir}" destfile="${deploy.dir}/${lib.name}-gwt.jar"/>
+    <delete dir="${gwtjar.dir}"/>
   </target>
 
   <!-- generates fields for persistent record classes -->
