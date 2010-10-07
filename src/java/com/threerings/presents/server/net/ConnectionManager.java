@@ -263,7 +263,6 @@ public class ConnectionManager extends LoopingThread
     {
         super.willStart();
 
-        log.info("Creating selector selector!");
         _selectorSelector = new SelectorIterable(
             _selector, _selectLoopTime, new SelectorIterable.SelectFailureHandler() {
             public void handleSelectFailure (Exception e) {
