@@ -27,15 +27,15 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.StringWriter;
 
 import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.DirectoryScanner;
 import org.apache.tools.ant.types.FileSet;
-import org.apache.velocity.VelocityContext;
 import com.google.common.collect.Lists;
 
 import com.samskivert.util.StringUtil;
@@ -129,16 +129,16 @@ public class GenDObjectTask extends GenTask
             Class<?> ftype = f.getType();
             String fname = f.getName();
 
-            // create our velocity context
-            VelocityContext ctx = new VelocityContext();
-            ctx.put("field", fname);
-            ctx.put("generated", GenUtil.getGeneratedAnnotation(getClass(), 4, false));
-            ctx.put("type", GenUtil.simpleName(f));
-            ctx.put("wrapfield", GenUtil.boxArgument(ftype, "value"));
-            ctx.put("wrapofield", GenUtil.boxArgument(ftype, "ovalue"));
-            ctx.put("clonefield", GenUtil.cloneArgument(_dsclass, f, "value"));
-            ctx.put("capfield", StringUtil.unStudlyName(fname).toUpperCase());
-            ctx.put("upfield", StringUtil.capitalize(fname));
+            // create a map to hold our template data
+            Map<String, Object> data = new HashMap<String, Object>();
+            data.put("field", fname);
+            data.put("generated", GenUtil.getGeneratedAnnotation(getClass(), 4, false));
+            data.put("type", GenUtil.simpleName(f));
+            data.put("wrapfield", GenUtil.boxArgument(ftype, "value"));
+            data.put("wrapofield", GenUtil.boxArgument(ftype, "ovalue"));
+            data.put("clonefield", GenUtil.cloneArgument(_dsclass, f, "value"));
+            data.put("capfield", StringUtil.unStudlyName(fname).toUpperCase());
+            data.put("upfield", StringUtil.capitalize(fname));
 
             // determine the type of transport
             TransportHint hint = f.getAnnotation(TransportHint.class);
@@ -155,14 +155,14 @@ public class GenDObjectTask extends GenTask
                     "                com.threerings.presents.net.Transport.Type." +
                         hint.type().name() + ", " + hint.channel() + ")";
             }
-            ctx.put("transport", transport);
+            data.put("transport", transport);
 
             // if this field is an array, we need its component types
             if (ftype.isArray()) {
                 Class<?> etype = ftype.getComponentType();
-                ctx.put("elemtype", GenUtil.simpleName(etype));
-                ctx.put("wrapelem", GenUtil.boxArgument(etype, "value"));
-                ctx.put("wrapoelem", GenUtil.boxArgument(etype, "ovalue"));
+                data.put("elemtype", GenUtil.simpleName(etype));
+                data.put("wrapelem", GenUtil.boxArgument(etype, "value"));
+                data.put("wrapoelem", GenUtil.boxArgument(etype, "ovalue"));
             }
 
             // if this field is a generic DSet, we need its bound type
@@ -175,10 +175,10 @@ public class GenDObjectTask extends GenTask
                 if (t instanceof ParameterizedType) {
                     ParameterizedType pt = (ParameterizedType)t;
                     if (pt.getActualTypeArguments().length > 0) {
-                        ctx.put("etype", GenUtil.simpleName(pt.getActualTypeArguments()[0]));
+                        data.put("etype", GenUtil.simpleName(pt.getActualTypeArguments()[0]));
                     }
                 } else {
-                    ctx.put("etype", "DSet.Entry");
+                    data.put("etype", "DSet.Entry");
                 }
             }
 
@@ -190,19 +190,13 @@ public class GenDObjectTask extends GenTask
                 tname = "oidlist.tmpl";
             }
 
-            // now generate our bits
-            StringWriter fwriter = new StringWriter();
-            StringWriter mwriter = new StringWriter();
-            _velocity.mergeTemplate(NAME_TMPL, "UTF-8", ctx, fwriter);
-            _velocity.mergeTemplate(BASE_TMPL + tname, "UTF-8", ctx, mwriter);
-
-            // and append them as appropriate to the string buffers
+            // append the merged templates as appropriate to the string buffers
             if (ii > 0) {
                 fsection.append("\n");
                 msection.append("\n");
             }
-            fsection.append(fwriter.toString());
-            msection.append(mwriter.toString());
+            fsection.append(mergeTemplate(NAME_TMPL, data));
+            msection.append(mergeTemplate(BASE_TMPL + tname, data));
         }
 
         // now bolt everything back together into a class declaration

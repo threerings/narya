@@ -28,11 +28,8 @@ import java.util.Iterator;
 import java.util.List;
 
 import java.io.File;
-import java.io.StringWriter;
 
 import com.google.common.collect.Iterators;
-
-import org.apache.velocity.VelocityContext;
 
 import com.samskivert.util.ComparableArrayList;
 import com.samskivert.util.StringUtil;
@@ -113,25 +110,20 @@ public class GenReceiverTask extends InvocationTask
         checkedAdd(implist, rpackage + "." + rname);
         implist.sort();
 
-        VelocityContext ctx = new VelocityContext();
-        ctx.put("name", name);
-        ctx.put("package", spackage);
-        ctx.put("methods", methods);
-        ctx.put("imports", implist);
-
-        StringWriter sw = new StringWriter();
-        _velocity.mergeTemplate(SENDER_TMPL, "UTF-8", ctx, sw);
-
         // determine the path to our sender file
         String mpath = source.getPath();
         mpath = mpath.replace("Receiver", "Sender");
         mpath = replacePath(mpath, "/client/", "/server/");
-        writeFile(mpath, sw.toString());
+        writeFile(mpath, mergeTemplate(SENDER_TMPL,
+                                       "name", name,
+                                       "package", spackage,
+                                       "methods", methods,
+                                       "imports", implist));
     }
 
     protected void generateDecoder (Class<?> receiver, File source, String rname, String rpackage,
-                                    List<ServiceMethod> methods, Iterator<String> imports, String rcode)
-        throws Exception
+                                    List<ServiceMethod> methods, Iterator<String> imports,
+                                    String rcode) throws Exception
     {
         String name = rname.replace("Receiver", "");
 
@@ -141,20 +133,15 @@ public class GenReceiverTask extends InvocationTask
         checkedAdd(implist, InvocationDecoder.class.getName());
         implist.sort();
 
-        VelocityContext ctx = new VelocityContext();
-        ctx.put("name", name);
-        ctx.put("receiver_code", rcode);
-        ctx.put("package", rpackage);
-        ctx.put("methods", methods);
-        ctx.put("imports", implist);
-
-        StringWriter sw = new StringWriter();
-        _velocity.mergeTemplate(DECODER_TMPL, "UTF-8", ctx, sw);
-
         // determine the path to our sender file
         String mpath = source.getPath();
         mpath = mpath.replace("Receiver", "Decoder");
-        writeFile(mpath, sw.toString());
+        writeFile(mpath, mergeTemplate(DECODER_TMPL,
+                                       "name", name,
+                                       "receiver_code", rcode,
+                                       "package", rpackage,
+                                       "methods", methods,
+                                       "imports", implist));
     }
 
     /** Specifies the path to the sender template. */

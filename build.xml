@@ -209,7 +209,9 @@
         <exclude name="**/*.html,**/*.png"/>
       </fileset>
     </jar>
-    <jar destfile="${deploy.dir}/${lib.name}-tools.jar">
+    <taskdef name="jarjar" classname="com.tonicsystems.jarjar.JarJarTask"
+             classpathref="classpath"/>
+    <jarjar destfile="${deploy.dir}/${lib.name}-tools.jar">
       <fileset dir="${classes.dir}">
         <include name="com/threerings/io/**"/>
         <include name="com/threerings/presents/**"/>
@@ -220,7 +222,12 @@
       <zipfileset src="${deploy.dir}/lib/javassist.jar"/>
       <zipfileset src="${deploy.dir}/lib/guava.jar"/>
       <zipfileset src="${deploy.dir}/lib/commons-collections.jar"/>
-    </jar>
+      <rule pattern="com.google.**" result="cgc.@1"/>
+      <rule pattern="org.apache.velocity.**" result="oav.@1"/>
+      <rule pattern="org.apache.commons.collections.**" result="oacc.@1"/>
+      <rule pattern="com.samskivert.**" result="cs.@1"/>
+      <rule pattern="javassist.**" result="ja.@1"/>
+    </jarjar>
     <jar destfile="${deploy.dir}/${lib.name}-tests.jar">
       <fileset dir="tests/${classes.dir}" includes="com/threerings/**"/>
     </jar>

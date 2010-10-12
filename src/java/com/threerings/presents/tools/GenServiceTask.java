@@ -24,12 +24,11 @@ package com.threerings.presents.tools;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 
 import java.io.File;
-import java.io.StringWriter;
-
-import org.apache.velocity.VelocityContext;
 
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
@@ -260,7 +259,7 @@ public class GenServiceTask extends InvocationTask
         // remove imports in our own package
         imports.removeSamePackage(mpackage);
 
-        VelocityContext ctx = new VelocityContext();
+        Map<String, Object> ctx = new HashMap<String, Object>();
         ctx.put("name", name);
         ctx.put("generated", getGeneratedAnnotation(name));
         ctx.put("package", mpackage);
@@ -272,10 +271,7 @@ public class GenServiceTask extends InvocationTask
         String mpath = source.getPath();
         mpath = mpath.replace("Service", "Marshaller");
         mpath = replacePath(mpath, "/client/", "/data/");
-
-        StringWriter sw = new StringWriter();
-        _velocity.mergeTemplate(MARSHALLER_TMPL, "UTF-8", ctx, sw);
-        writeFile(mpath, sw.toString());
+        writeFile(mpath, mergeTemplate(MARSHALLER_TMPL, ctx));
 
         // if we're not configured with an ActionScript source root, don't generate the
         // ActionScript versions
@@ -345,9 +341,7 @@ public class GenServiceTask extends InvocationTask
 
         // generate an ActionScript version of our marshaller
         String ampath = _asroot + File.separator + mppath + File.separator + mname + ".as";
-        sw = new StringWriter();
-        _velocity.mergeTemplate(AS_MARSHALLER_TMPL, "UTF-8", ctx, sw);
-        writeFile(ampath, sw.toString());
+        writeFile(ampath, mergeTemplate(AS_MARSHALLER_TMPL, ctx));
 
         // ----------- Part III - as listener marshallers
 
@@ -382,11 +376,9 @@ public class GenServiceTask extends InvocationTask
 
             ctx.put("imports", imports.toList());
             ctx.put("listener", listener);
-            sw = new StringWriter();
-            _velocity.mergeTemplate(AS_LISTENER_MARSHALLER_TMPL, "UTF-8", ctx, sw);
             String aslpath = _asroot + File.separator + mppath +
                 File.separator + mname + "_" + listener.getName() + "Marshaller.as";
-            writeFile(aslpath, sw.toString());
+            writeFile(aslpath, mergeTemplate(AS_LISTENER_MARSHALLER_TMPL, ctx));
         }
 
         // ----------- Part IV - as service
@@ -433,9 +425,7 @@ public class GenServiceTask extends InvocationTask
 
         // generate an ActionScript version of our service
         String aspath = _asroot + File.separator + sppath + File.separator + sname + ".as";
-        sw = new StringWriter();
-        _velocity.mergeTemplate(AS_SERVICE_TMPL, "UTF-8", ctx, sw);
-        writeFile(aspath, sw.toString());
+        writeFile(aspath, mergeTemplate(AS_SERVICE_TMPL, ctx));
 
         // ----------- Part V - as service listeners
         Class<?> isil = InvocationService.InvocationListener.class;
@@ -470,20 +460,14 @@ public class GenServiceTask extends InvocationTask
             ctx.put("imports", imports.toList());
             ctx.put("listener", listener);
 
-            sw = new StringWriter();
-            _velocity.mergeTemplate(AS_LISTENER_SERVICE_TMPL, "UTF-8", ctx, sw);
             String aslpath = _asroot + File.separator + sppath +
-                File.separator + sname + "_" +
-                listener.getName() + "Listener.as";
-            writeFile(aslpath, sw.toString());
+                File.separator + sname + "_" + listener.getName() + "Listener.as";
+            writeFile(aslpath, mergeTemplate(AS_LISTENER_SERVICE_TMPL, ctx));
 
             if (_aslistenerAdapters.contains(sname)) {
-                sw = new StringWriter();
-                _velocity.mergeTemplate(AS_LISTENER_ADAPTER_SERVICE_TMPL, "UTF-8", ctx, sw);
                 String aslapath = _asroot + File.separator + sppath +
-                    File.separator + sname + "_" +
-                    listener.getName() + "ListenerAdapter.as";
-                writeFile(aslapath, sw.toString());
+                    File.separator + sname + "_" + listener.getName() + "ListenerAdapter.as";
+                writeFile(aslapath, mergeTemplate(AS_LISTENER_ADAPTER_SERVICE_TMPL, ctx));
             }
         }
     }
@@ -534,22 +518,16 @@ public class GenServiceTask extends InvocationTask
         // remove imports in our own package
         imports.removeSamePackage(dpackage);
 
-        VelocityContext ctx = new VelocityContext();
-        ctx.put("name", name);
-        ctx.put("generated", getGeneratedAnnotation(name));
-        ctx.put("package", dpackage);
-        ctx.put("methods", sdesc.methods);
-        ctx.put("imports", imports.toList());
-
-        StringWriter sw = new StringWriter();
-        _velocity.mergeTemplate(DISPATCHER_TMPL, "UTF-8", ctx, sw);
-
         // determine the path to our marshaller file
         String mpath = source.getPath();
         mpath = mpath.replace("Service", "Dispatcher");
         mpath = replacePath(mpath, "/client/", "/server/");
-
-        writeFile(mpath, sw.toString());
+        writeFile(mpath, mergeTemplate(DISPATCHER_TMPL,
+                                       "name", name,
+                                       "generated", getGeneratedAnnotation(name),
+                                       "package", dpackage,
+                                       "methods", sdesc.methods,
+                                       "imports", imports.toList()));
     }
 
     protected void generateProvider (File source, ServiceDescription sdesc)
@@ -593,23 +571,17 @@ public class GenServiceTask extends InvocationTask
         // remove imports in our own package
         imports.removeSamePackage(mpackage);
 
-        VelocityContext ctx = new VelocityContext();
-        ctx.put("name", name);
-        ctx.put("generated", getGeneratedAnnotation(name));
-        ctx.put("package", mpackage);
-        ctx.put("methods", sdesc.methods);
-        ctx.put("listeners", sdesc.listeners);
-        ctx.put("imports", imports.toList());
-
-        StringWriter sw = new StringWriter();
-        _velocity.mergeTemplate(PROVIDER_TMPL, "UTF-8", ctx, sw);
-
         // determine the path to our provider file
         String mpath = source.getPath();
         mpath = mpath.replace("Service", "Provider");
         mpath = replacePath(mpath, "/client/", "/server/");
-
-        writeFile(mpath, sw.toString());
+        writeFile(mpath, mergeTemplate(PROVIDER_TMPL,
+                                       "name", name,
+                                       "generated", getGeneratedAnnotation(name),
+                                       "package", mpackage,
+                                       "methods", sdesc.methods,
+                                       "listeners", sdesc.listeners,
+                                       "imports", imports.toList()));
     }
 
     /**

@@ -21,11 +21,17 @@
 
 package com.threerings.presents.tools;
 
+import java.io.StringWriter;
+import java.util.HashMap;
+import java.util.Map;
+
 import org.apache.tools.ant.AntClassLoader;
 import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.Task;
 import org.apache.tools.ant.types.Reference;
 import org.apache.tools.ant.util.ClasspathUtils;
+
+import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.VelocityEngine;
 
 import com.samskivert.velocity.VelocityUtil;
@@ -60,6 +66,49 @@ public abstract class GenTask extends Task
         ((AntClassLoader)_cloader).setParent(getClass().getClassLoader());
     }
 
+    /**
+     * Merges the specified template using the supplied mapping of keys to objects.
+     *
+     * @param data a series of key, value pairs where the keys must be strings and the values can
+     * be any object.
+     */
+    protected String mergeTemplate (String template, Object... data)
+        throws Exception
+    {
+        VelocityContext ctx = new VelocityContext();
+        for (int ii = 0; ii < data.length; ii += 2) {
+            ctx.put((String)data[ii], data[ii+1]);
+        }
+        return mergeTemplate(template, ctx);
+    }
+
+    /**
+     * Merges the specified template using the supplied mapping of string keys to objects.
+     *
+     * @return a string containing the merged text.
+     */
+    protected String mergeTemplate (String template, Map<String, Object> data)
+        throws Exception
+    {
+        VelocityContext ctx = new VelocityContext();
+        for (Map.Entry<String, Object> entry : data.entrySet()) {
+            ctx.put(entry.getKey(), entry.getValue());
+        }
+        return mergeTemplate(template, ctx);
+    }
+
+    /**
+     * A helper function for {@link #mergeTemplate(String, Map<String, Object>)} and friends. Don't
+     * use this directly as you'll end up depending on Velocity and your code won't build.
+     */
+    protected String mergeTemplate (String template, VelocityContext ctx)
+        throws Exception
+    {
+        StringWriter writer = new StringWriter();
+        _velocity.mergeTemplate(template, "UTF-8", ctx, writer);
+        return writer.toString();
+    }
+
     protected Class<?> loadClass (String name)
     {
         if (_cloader == null) {
@@ -81,6 +130,7 @@ public abstract class GenTask extends Task
     /** Used to do our own classpath business. */
     protected ClassLoader _cloader;
 
-    /** Used to generate source files from templates. */
+    /** Used to generate source files from templates. Don't use this directly from derived classes,
+     * use {@link #mergeTemplate}. */
     protected VelocityEngine _velocity;
 }

@@ -14,6 +14,7 @@
     <include name="gwt-user.jar"/>
     <include name="gwt-utils.jar"/>
     <include name="javassist.jar"/>
+    <include name="jarjar-1.0.jar"/>
     <include name="jsr250-api.jar"/>
     <include name="junit4.jar"/>
     <include name="retroweaver-all-1.2.2.jar"/>
