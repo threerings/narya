@@ -255,7 +255,7 @@
              classpathref="classpath"/>
     <!-- make sure the record class files are all compiled -->
     <javac srcdir="src/java" destdir="${classes.dir}" debug="on" optimize="${build.optimize}"
-           deprecation="on" source="1.5" target="1.5">
+           includeAntRuntime="false" deprecation="on" source="1.5" target="1.5">
       <classpath refid="classpath"/>
       <include name="**/*Record.java"/>
     </javac>
