@@ -3,14 +3,11 @@
 
 package com.threerings.web.gwt;
 
-import com.google.gwt.user.client.rpc.IsSerializable;
-
 /**
  * An exception thrown by a remote service when it wishes to communicate a
  * particular error message to a user.
  */
 public class ServiceException extends Exception
-    implements IsSerializable
 {
     /**
      * Creates a service exception with the supplied translation message.
