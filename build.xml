@@ -223,7 +223,8 @@
       <zipfileset src="${deploy.dir}/lib/guava.jar"/>
       <zipfileset src="${deploy.dir}/lib/commons-collections.jar"/>
       <rule pattern="com.google.**" result="cgc.@1"/>
-      <rule pattern="org.apache.velocity.**" result="oav.@1"/>
+      <!-- renaming velocity borks their annoying reflective bullshit -->
+      <!-- <rule pattern="org.apache.velocity.**" result="oav.@1"/> -->
       <rule pattern="org.apache.commons.collections.**" result="oacc.@1"/>
       <rule pattern="com.samskivert.**" result="cs.@1"/>
       <rule pattern="javassist.**" result="ja.@1"/>
