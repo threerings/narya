@@ -10,6 +10,7 @@
 	</classpathentry>
 	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/depot"/>
 	<classpathentry exported="true" kind="var" path="EXT_LIBS_DIR/commons-lang.jar"/>
+	<classpathentry exported="true" kind="var" path="EXT_LIBS_DIR/gwt-user.jar"/>
 	<classpathentry exported="true" kind="var" path="EXT_LIBS_DIR/atunit.jar">
 		<accessrules>
 			<accessrule kind="nonaccessible" pattern="atunit/lib/com/google/**"/>
@@ -17,5 +18,6 @@
 	</classpathentry>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="var" path="EXT_LIBS_DIR/jsr250-api.jar"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/gwt-utils"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
