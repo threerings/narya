@@ -209,9 +209,18 @@
         <exclude name="**/*.html,**/*.png"/>
       </fileset>
     </jar>
+    <jar destfile="${deploy.dir}/${lib.name}-tools.jar">
+      <fileset dir="${classes.dir}">
+        <include name="com/threerings/**/tools/**"/>
+      </fileset>
+    </jar>
+    <jar destfile="${deploy.dir}/${lib.name}-tests.jar">
+      <fileset dir="tests/${classes.dir}" includes="com/threerings/**"/>
+    </jar>
+    <!-- build a dependencies-included version of narya-tools -->
     <taskdef name="jarjar" classname="com.tonicsystems.jarjar.JarJarTask"
              classpathref="classpath"/>
-    <jarjar destfile="${deploy.dir}/${lib.name}-tools.jar">
+    <jarjar destfile="${deploy.dir}/${lib.name}-tools-full.jar">
       <fileset dir="${classes.dir}">
         <include name="com/threerings/io/**"/>
         <include name="com/threerings/presents/**"/>
@@ -229,9 +238,6 @@
       <rule pattern="com.samskivert.**" result="cs.@1"/>
       <rule pattern="javassist.**" result="ja.@1"/>
     </jarjar>
-    <jar destfile="${deploy.dir}/${lib.name}-tests.jar">
-      <fileset dir="tests/${classes.dir}" includes="com/threerings/**"/>
-    </jar>
     <antcall target="dist-gwt"/>
   </target>
 
