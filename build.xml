@@ -212,6 +212,7 @@
     <jar destfile="${deploy.dir}/${lib.name}-tools.jar">
       <fileset dir="${classes.dir}">
         <include name="com/threerings/**/tools/**"/>
+        <include name="com/threerings/**/tools.properties"/>
       </fileset>
     </jar>
     <jar destfile="${deploy.dir}/${lib.name}-tests.jar">
