@@ -49,7 +49,8 @@ public class TestClient
         _client = new Client(new UsernamePasswordCreds(new Name(username), "test"), _rqueue);
         _locdir = new LocationDirector(_ctx);
         _occdir = new OccupantDirector(_ctx);
-        _chatdir = new ChatDirector(_ctx, new MessageManager("rsrc"), "global");
+        _msgmgr = new MessageManager("rsrc");
+        _chatdir = new ChatDirector(_ctx, "global");
 
         // we want to know about logon/logoff
         _client.addClientObserver(this);
@@ -157,6 +158,11 @@ public class TestClient
             return _chatdir;
         }
 
+        public MessageManager getMessageManager ()
+        {
+            return _msgmgr;
+        }
+
         public void setPlaceView (PlaceView view)
         {
             // nothing to do because we don't create views
@@ -173,6 +179,7 @@ public class TestClient
 
     protected LocationDirector _locdir;
     protected OccupantDirector _occdir;
+    protected MessageManager _msgmgr;
     protected ChatDirector _chatdir;
 
     protected BasicRunQueue _rqueue = new BasicRunQueue();

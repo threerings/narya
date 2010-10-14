@@ -41,7 +41,6 @@ import com.samskivert.util.ResultListener;
 import com.samskivert.util.StringUtil;
 
 import com.threerings.util.MessageBundle;
-import com.threerings.util.MessageManager;
 import com.threerings.util.Name;
 import com.threerings.util.TimeUtil;
 
@@ -136,20 +135,19 @@ public class ChatDirector extends BasicDirector
      * @param msgmgr the message manager via which we do our translations.
      * @param bundle the message bundle from which we obtain our chat-related translation strings.
      */
-    public ChatDirector (CrowdContext ctx, MessageManager msgmgr, String bundle)
+    public ChatDirector (CrowdContext ctx, String bundle)
     {
         super(ctx);
 
         // keep the context around
         _ctx = ctx;
-        _msgmgr = msgmgr;
         _bundle = bundle;
 
         // register ourselves as a location observer
         _ctx.getLocationDirector().addLocationObserver(this);
 
         // register our default chat handlers
-        if (_bundle == null || _msgmgr == null) {
+        if (_bundle == null || _ctx.getMessageManager() == null) {
             log.warning("Null bundle or message manager given to ChatDirector");
             return;
         }
@@ -161,7 +159,7 @@ public class ChatDirector extends BasicDirector
      */
     protected void registerCommandHandlers ()
     {
-        MessageBundle msg = _msgmgr.getBundle(_bundle);
+        MessageBundle msg = _ctx.getMessageManager().getBundle(_bundle);
         registerCommandHandler(msg, "help", new HelpHandler());
         registerCommandHandler(msg, "clear", new ClearHandler());
         registerCommandHandler(msg, "speak", new SpeakHandler());
@@ -906,7 +904,7 @@ public class ChatDirector extends BasicDirector
      */
     protected StringBuffer translatedReplacements (String key, StringBuffer buf)
     {
-        MessageBundle bundle = _msgmgr.getBundle(_bundle);
+        MessageBundle bundle = _ctx.getMessageManager().getBundle(_bundle);
         if (!bundle.exists(key)) {
             return buf;
         }
@@ -1027,8 +1025,8 @@ public class ChatDirector extends BasicDirector
      */
     protected String xlate (String bundle, String message)
     {
-        if (bundle != null && _msgmgr != null) {
-            MessageBundle msgb = _msgmgr.getBundle(bundle);
+        if (bundle != null && _ctx.getMessageManager() != null) {
+            MessageBundle msgb = _ctx.getMessageManager().getBundle(bundle);
             if (msgb == null) {
                 log.warning("No message bundle available to translate message", "bundle", bundle,
                             "message", message);
@@ -1404,9 +1402,6 @@ public class ChatDirector extends BasicDirector
 
     /** Provides access to chat-related server-side services. */
     protected ChatService _cservice;
-
-    /** The message manager. */
-    protected MessageManager _msgmgr;
 
     /** The bundle to use for our own internal messages. */
     protected String _bundle;

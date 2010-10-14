@@ -21,6 +21,8 @@
 
 package com.threerings.crowd.util;
 
+import com.threerings.util.MessageManager;
+
 import com.threerings.presents.util.PresentsContext;
 
 import com.threerings.crowd.chat.client.ChatDirector;
@@ -48,6 +50,12 @@ public interface CrowdContext extends PresentsContext
      * Provides access to the chat director.
      */
     ChatDirector getChatDirector ();
+
+    /**
+     * Returns a reference to the message manager used by the client to generate localized
+     * messages.
+     */
+    MessageManager getMessageManager ();
 
     /**
      * When the client enters a new place, the location director creates a
