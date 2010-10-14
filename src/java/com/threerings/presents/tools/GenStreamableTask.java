@@ -22,8 +22,6 @@
 package com.threerings.presents.tools;
 
 import java.lang.reflect.Field;
-import java.lang.reflect.Modifier;
-
 import java.util.ArrayList;
 
 import java.io.File;
@@ -35,7 +33,6 @@ import org.apache.tools.ant.types.FileSet;
 
 import com.google.common.collect.Lists;
 
-import com.threerings.io.SimpleStreamableObject;
 import com.threerings.io.Streamable;
 
 import com.threerings.presents.dobj.DObject;
@@ -104,9 +101,11 @@ public class GenStreamableTask extends Task
     protected void processClass (File source, Class<?> sclass)
         throws IOException
     {
-        // we must implement Streamable, not be a DObject and not be an interface ourselves
+        StreamableClassRequirements reqs = new StreamableClassRequirements(sclass);
+        // we must implement Streamable, not be a DObject and have some fields that need to be
+        // streamed
         if (!Streamable.class.isAssignableFrom(sclass) || DObject.class.isAssignableFrom(sclass) ||
-            Modifier.isInterface(sclass.getModifiers())) {
+                reqs.streamedFields.isEmpty()) {
             // System.err.println("Skipping " + sclass.getName() + "...");
             return;
         }
@@ -115,22 +114,11 @@ public class GenStreamableTask extends Task
         StringBuilder readbuf = new StringBuilder(READ_OPEN);
         StringBuilder writebuf = new StringBuilder(WRITE_OPEN);
 
-        // see if our parent also implements Streamable
-        Class<?> supster = sclass.getSuperclass();
-        do {
-            if (isStreamableClass(supster)) {
-                readbuf.append("        super.readObject(ins);\n");
-                writebuf.append("        super.writeObject(out);\n");
-                break;
-            }
-            supster = supster.getSuperclass();
-        } while (supster != null);
-
-        int added = 0;
-        for (Field field : sclass.getDeclaredFields()) {
-            if (!isStreamableField(field)) {
-                continue;
-            }
+        if (reqs.superclassStreamable) {
+            readbuf.append("        super.readObject(ins);\n");
+            writebuf.append("        super.writeObject(out);\n");
+        }
+        for (Field field : reqs.streamedFields) {
             readbuf.append("        ");
             readbuf.append(field.getName()).append(" = ");
             readbuf.append(toReadObject(field));
@@ -139,10 +127,6 @@ public class GenStreamableTask extends Task
             writebuf.append("        out.");
             writebuf.append(toWriteObject(field));
             writebuf.append(";\n");
-            added++;
-        }
-        if (added == 0) {
-            return; // nothing to do
         }
 
         readbuf.append(READ_CLOSE);
@@ -177,22 +161,6 @@ public class GenStreamableTask extends Task
         } catch (IOException ioe) {
             System.err.println("Error writing " + source + ": " + ioe);
         }
-    }
-
-    protected boolean isStreamableClass (Class<?> clazz)
-    {
-        for (Class<?> iface : clazz.getInterfaces()) {
-            if (Streamable.class.equals(iface)) {
-                return !SimpleStreamableObject.class.equals(clazz);
-            }
-        }
-        return false;
-    }
-
-    protected boolean isStreamableField (Field field)
-    {
-        int mods = field.getModifiers();
-        return !Modifier.isStatic(mods) && !Modifier.isTransient(mods);
     }
 
     protected String toReadObject (Field field)

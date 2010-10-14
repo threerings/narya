@@ -25,21 +25,23 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 
 import java.util.ArrayList;
+import java.util.Set;
 
 import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 
+import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.DirectoryScanner;
-import org.apache.tools.ant.Task;
 import org.apache.tools.ant.types.FileSet;
 
+import com.google.common.base.Charsets;
+import com.google.common.base.Splitter;
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
-
-import com.samskivert.io.StreamUtil;
+import com.google.common.io.Files;
 
 import com.threerings.io.ObjectInputStream;
 import com.threerings.io.ObjectOutputStream;
@@ -54,7 +56,7 @@ import com.threerings.presents.dobj.DObject;
  * Generates ActionScript versions of {@link Streamable} classes and provides routines used by the
  * {@link GenDObjectTask} to create ActionScript versions of distributed objects.
  */
-public class GenActionScriptTask extends Task
+public class GenActionScriptTask extends GenTask
 {
     /**
      * Adds a nested &lt;fileset&gt; element which enumerates streamable source files.
@@ -78,7 +80,7 @@ public class GenActionScriptTask extends Task
     public void setHeader (File header)
     {
         try {
-            _header = StreamUtil.toString(new FileReader(header));
+            _header = Files.toString(header, Charsets.UTF_8);
         } catch (IOException ioe) {
             System.err.println("Unabled to load header '" + header + ": " + ioe.getMessage());
         }
@@ -116,17 +118,11 @@ public class GenActionScriptTask extends Task
             return;
         }
 
+        Class<?> sclass = loadClass(name);
         try {
-            // in order for annotations to work, this task and all the classes it uses must be
-            // loaded from the same class loader as the classes on which we are going to
-            // introspect; this is non-ideal but unavoidable
-            processClass(source, getClass().getClassLoader().loadClass(name));
-        } catch (ClassNotFoundException cnfe) {
-            System.err.println("Failed to load " + name + ".\nMissing class: " + cnfe.getMessage());
-            System.err.println("Be sure to set the 'classpathref' attribute to a classpath\n" +
-                               "that contains your projects invocation service classes.");
+            processClass(source, sclass);
         } catch (Exception e) {
-            e.printStackTrace(System.err);
+            throw new BuildException(e);
         }
     }
 
@@ -134,7 +130,7 @@ public class GenActionScriptTask extends Task
      * Processes a resolved Streamable class instance.
      */
     protected void processClass (File source, Class<?> sclass)
-        throws IOException
+        throws Exception
     {
         // make sure we implement Streamable but don't extend DObject or InvocationMarshaller and
         // that we're a class not an interface
@@ -158,19 +154,20 @@ public class GenActionScriptTask extends Task
         } while (cclass != null);
 
         // determine the path to the corresponding action script source file
-        String path = sclass.getPackage().getName();
-        path = path.replace(".", File.separator);
-        String name = sclass.getName();
-        name = name.substring(name.lastIndexOf(".")+1);
-        path = path + File.separator + name;
+        String path = toActionScriptType(sclass, false).replace(".", File.separator);
         File asfile = new File(_asroot, path + ".as");
 
         System.err.println("Converting " + sclass.getName() + "...");
+        convert(source, sclass, asfile);
+    }
 
+    protected void convert (File javaSource, Class<?> sclass, File output)
+        throws Exception
+    {
         // parse the existing ActionScript source and generate what we don't
         // have from the Java class
         ActionScriptSource assrc = new ActionScriptSource(sclass);
-        assrc.absorbJava(source);
+        assrc.absorbJava(javaSource);
         assrc.imports.add(ObjectInputStream.class.getName());
         assrc.imports.add(ObjectOutputStream.class.getName());
 
@@ -193,7 +190,7 @@ public class GenActionScriptTask extends Task
                 continue;
             }
             body.append("        ");
-            body.append(field.getName()).append(" = ");
+            body.append(field.getName()).append(" = ins.");
             body.append(toReadObject(field.getType()));
             body.append(";\n");
             added++;
@@ -227,13 +224,13 @@ public class GenActionScriptTask extends Task
         }
 
         // now we can parse existing definitions from any extant ActionScript source file
-        assrc.absorbActionScript(asfile);
+        assrc.absorbActionScript(output);
 
         // make sure our parent directory exists
-        asfile.getParentFile().mkdirs();
+        output.getParentFile().mkdirs();
 
         // now write all that out to the target source file
-        BufferedWriter out = new BufferedWriter(new FileWriter(asfile));
+        BufferedWriter out = new BufferedWriter(new FileWriter(output));
         assrc.write(new PrintWriter(out));
     }
 
@@ -243,65 +240,123 @@ public class GenActionScriptTask extends Task
         return !Modifier.isStatic(mods) && !Modifier.isTransient(mods);
     }
 
-    protected String toReadObject (Class<?> type)
+    protected static String addImportAndGetShortType (Class<?> type, boolean isField,
+        Set<String> imports)
+    {
+        String full = toActionScriptType(type, isField);
+        if (needsActionScriptImport(type, isField)) {
+            imports.add(full);
+        }
+        return getSimpleType(full);
+    }
+
+    protected static boolean needsActionScriptImport (Class<?> type, boolean isField)
+    {
+        if (type.isArray()) {
+            return Byte.TYPE.equals(type.getComponentType()) || isField;
+        }
+        return (Long.TYPE.equals(type) || !type.isPrimitive()) && !String.class.equals(type);
+    }
+
+    protected static String toActionScriptType (Class<?> type, boolean isField)
+    {
+        if (type.isArray()) {
+            if (Byte.TYPE.equals(type.getComponentType())) {
+                return "flash.utils.ByteArray";
+            }
+            if (isField) {
+                return "com.threerings.io.TypedArray";
+            }
+            return "Array";
+        }
+
+        if (Integer.TYPE.equals(type) ||
+            Byte.TYPE.equals(type) ||
+            Short.TYPE.equals(type) ||
+            Character.TYPE.equals(type)) {
+            return "int";
+        }
+
+        if (Float.TYPE.equals(type) ||
+            Double.TYPE.equals(type)) {
+            return "Number";
+        }
+
+        if (Long.TYPE.equals(type)) {
+            return "com.threerings.util.Long";
+        }
+
+        if (Boolean.TYPE.equals(type)) {
+            return "Boolean";
+        }
+
+        return type.getName().replaceAll("\\$", "_");
+    }
+
+    public static String toReadObject (Class<?> type)
     {
         if (type.equals(String.class)) {
-            return "ins.readField(String)";
+            return "readField(String)";
 
         } else if (type.equals(Integer.class) ||
                    type.equals(Short.class) ||
                    type.equals(Byte.class)) {
             String name = ActionScriptSource.toSimpleName(type.getName());
-            return "ins.readField(" + name + ").value";
+            return "readField(" + name + ").value";
 
         } else if (type.equals(Long.class)) {
             String name = ActionScriptSource.toSimpleName(type.getName());
-            return "ins.readField(" + name + ")";
+            return "readField(" + name + ")";
 
         } else if (type.equals(Boolean.TYPE)) {
-            return "ins.readBoolean()";
+            return "readBoolean()";
 
         } else if (type.equals(Byte.TYPE)) {
-            return "ins.readByte()";
+            return "readByte()";
 
-        } else if (type.equals(Short.TYPE)) {
-            return "ins.readShort()";
+        } else if (type.equals(Short.TYPE) || type.equals(Character.TYPE)) {
+            return "readShort()";
 
         } else if (type.equals(Integer.TYPE)) {
-            return "ins.readInt()";
+            return "readInt()";
 
         } else if (type.equals(Long.TYPE)) {
-            return "new Long(ins.readInt(), ins.readInt())";
+            return "readLong()";
 
         } else if (type.equals(Float.TYPE)) {
-            return "ins.readFloat()";
+            return "readFloat()";
 
         } else if (type.equals(Double.TYPE)) {
-            return "ins.readDouble()";
+            return "readDouble()";
 
         } else if (type.isArray()) {
             if (!type.getComponentType().isPrimitive()) {
-                return "ins.readObject(TypedArray)";
+                return "readObject(TypedArray)";
             } else {
                 if (Double.TYPE.equals(type.getComponentType())) {
-                    return "ins.readField(TypedArray.getJavaType(Number))";
+                    return "readField(TypedArray.getJavaType(Number))";
                 } else if (Boolean.TYPE.equals(type.getComponentType())) {
-                    return "ins.readField(TypedArray.getJavaType(Boolean))";
+                    return "readField(TypedArray.getJavaType(Boolean))";
                 } else if (Integer.TYPE.equals(type.getComponentType())) {
-                    return "ins.readField(TypedArray.getJavaType(int))";
+                    return "readField(TypedArray.getJavaType(int))";
                 } else if (Byte.TYPE.equals(type.getComponentType())) {
-                    return "ins.readField(ByteArray)";
+                    return "readField(ByteArray)";
                 } else {
                     throw new IllegalArgumentException(type
                         + " isn't supported to stream to actionscript");
                 }
             }
         } else {
-            return "ins.readObject(" + ActionScriptSource.toSimpleName(type.getName()) + ")";
+            return "readObject(" + ActionScriptSource.toSimpleName(type.getName()) + ")";
         }
     }
 
-    protected String toWriteObject (Class<?> type, String name)
+    public static String getSimpleType(String fullType)
+    {
+        return Iterables.getLast(DOT_SPLITTER.split(fullType));
+    }
+
+    public static String toWriteObject (Class<?> type, String name)
     {
         if (type.equals(Integer.class)) {
             return "writeObject(new Integer(" + name + "))";
@@ -315,16 +370,14 @@ public class GenActionScriptTask extends Task
         } else if (type.equals(Byte.TYPE)) {
             return "writeByte(" + name + ")";
 
-        } else if (type.equals(Short.TYPE)) {
+        } else if (type.equals(Short.TYPE) || type.equals(Character.TYPE)) {
             return "writeShort(" + name + ")";
 
         } else if (type.equals(Integer.TYPE)) {
             return "writeInt(" + name + ")";
 
         } else if (type.equals(Long.TYPE)) {
-            return "writeInt(" + name + " == null ? 0 : " + name + ".low);\n" +
-                "        out.writeInt(" +
-                name + " == null ? 0 : " + name + ".high)";
+            return "writeLong(" + name + ")";
 
         } else if (type.equals(Float.TYPE)) {
             return "writeFloat(" + name + ")";
@@ -354,4 +407,6 @@ public class GenActionScriptTask extends Task
         "public function readObject (ins :ObjectInputStream) :void";
     protected static final String WRITE_SIG =
         "public function writeObject (out :ObjectOutputStream) :void";
+
+    protected static final Splitter DOT_SPLITTER = Splitter.on('.');
 }

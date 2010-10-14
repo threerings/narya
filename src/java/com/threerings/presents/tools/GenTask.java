@@ -21,16 +21,15 @@
 
 package com.threerings.presents.tools;
 
-import java.io.StringWriter;
-import java.util.HashMap;
 import java.util.Map;
+
+import java.io.StringWriter;
 
 import org.apache.tools.ant.AntClassLoader;
 import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.Task;
 import org.apache.tools.ant.types.Reference;
 import org.apache.tools.ant.util.ClasspathUtils;
-
 import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.VelocityEngine;
 

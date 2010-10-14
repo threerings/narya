@@ -1,0 +1,48 @@
+// GENERATED PREAMBLE START
+${header}
+package ${package} {
+
+#foreach ($import in $imports)
+import $import;
+#end
+// GENERATED PREAMBLE END
+
+// GENERATED CLASSDECL START
+public class ${classname} #if (!${extends.isEmpty()})extends $extends
+#end
+#if (!${implements.isEmpty()})
+    implements $implements
+#end
+{
+    public function ${classname} ()
+    {}
+// GENERATED CLASSDECL END
+
+// GENERATED STREAMING START
+#foreach ($field in $fields)
+    public var $field.name :${field.simpleType};
+#end
+
+    #if ($superclassStreamable)override #{end}public function readObject (ins :ObjectInputStream) :void
+    {
+#if ($superclassStreamable)
+        super.readObject(ins);
+#end
+#foreach ($field in $fields)
+        $field.name = ins.${field.reader};
+#end
+    }
+    
+    #if ($superclassStreamable)override #{end}public function writeObject (out :ObjectOutputStream) :void
+    {
+#if ($superclassStreamable)
+        super.writeObject(out);
+#end
+#foreach ($field in $fields)
+        out.${field.writer};
+#end
+    }
+// GENERATED STREAMING END
+
+}
+}
