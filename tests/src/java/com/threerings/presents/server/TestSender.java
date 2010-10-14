@@ -24,6 +24,7 @@ package com.threerings.presents.server;
 import com.threerings.presents.client.TestDecoder;
 import com.threerings.presents.client.TestReceiver;
 import com.threerings.presents.data.ClientObject;
+import com.threerings.presents.server.InvocationSender;
 
 /**
  * Used to issue notifications to a {@link TestReceiver} instance on a
@@ -40,8 +41,7 @@ public class TestSender extends InvocationSender
     {
         sendNotification(
             target, TestDecoder.RECEIVER_CODE, TestDecoder.RECEIVED_TEST,
-            new Object[] { new Integer(arg1), arg2 });
+            new Object[] { Integer.valueOf(arg1), arg2 });
     }
 
-    // Generated on 12:14:10 08/12/02.
 }

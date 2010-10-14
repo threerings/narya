@@ -21,6 +21,7 @@
 
 package com.threerings.presents.client;
 
+import com.threerings.presents.client.InvocationDecoder;
 
 /**
  * Dispatches calls to a {@link TestReceiver} instance.
@@ -43,14 +44,12 @@ public class TestDecoder extends InvocationDecoder
         this.receiver = receiver;
     }
 
-    // documentation inherited
     @Override
     public String getReceiverCode ()
     {
         return RECEIVER_CODE;
     }
 
-    // documentation inherited
     @Override
     public void dispatchNotification (int methodId, Object[] args)
     {
@@ -63,8 +62,7 @@ public class TestDecoder extends InvocationDecoder
 
         default:
             super.dispatchNotification(methodId, args);
+            return;
         }
     }
-
-    // Generated on 12:14:10 08/12/02.
 }
