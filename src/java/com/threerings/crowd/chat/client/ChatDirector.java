@@ -155,21 +155,6 @@ public class ChatDirector extends BasicDirector
     }
 
     /**
-     * Registers all the chat-command handlers.
-     */
-    protected void registerCommandHandlers ()
-    {
-        MessageBundle msg = _ctx.getMessageManager().getBundle(_bundle);
-        registerCommandHandler(msg, "help", new HelpHandler());
-        registerCommandHandler(msg, "clear", new ClearHandler());
-        registerCommandHandler(msg, "speak", new SpeakHandler());
-        registerCommandHandler(msg, "emote", new EmoteHandler());
-        registerCommandHandler(msg, "think", new ThinkHandler());
-        registerCommandHandler(msg, "tell", new TellHandler());
-        registerCommandHandler(msg, "broadcast", new BroadcastHandler());
-    }
-
-    /**
      * Adds the supplied chat display to the front of the chat display list. It will subsequently
      * be notified of incoming chat messages as well as tell responses.
      */
@@ -600,6 +585,21 @@ public class ChatDirector extends BasicDirector
     }
 
     /**
+     * Returns the history list containing a trailing window of messages that have passed through
+     * this chat director. The history list is created on demand so that systems which don't make
+     * use of chat history need not incur the overhead of tracking historical chat messages. Thus
+     * messages will only be added to the history <em>after</em> this method has been called at
+     * least once.
+     */
+    public HistoryList getHistory ()
+    {
+        if (_hlist == null) {
+            addChatDisplay(_hlist = new HistoryList());
+        }
+        return _hlist;
+    }
+
+    /**
      * Run a message through all the currently registered filters.
      */
     public String filter (String msg, Name otherUser, boolean outgoing)
@@ -700,6 +700,21 @@ public class ChatDirector extends BasicDirector
 
         // clear our service
         _cservice = null;
+    }
+
+    /**
+     * Registers all the chat-command handlers.
+     */
+    protected void registerCommandHandlers ()
+    {
+        MessageBundle msg = _ctx.getMessageManager().getBundle(_bundle);
+        registerCommandHandler(msg, "help", new HelpHandler());
+        registerCommandHandler(msg, "clear", new ClearHandler());
+        registerCommandHandler(msg, "speak", new SpeakHandler());
+        registerCommandHandler(msg, "emote", new EmoteHandler());
+        registerCommandHandler(msg, "think", new ThinkHandler());
+        registerCommandHandler(msg, "tell", new TellHandler());
+        registerCommandHandler(msg, "broadcast", new BroadcastHandler());
     }
 
     /**
@@ -1442,6 +1457,9 @@ public class ChatDirector extends BasicDirector
 
     /** Operation used to display chat messages. */
     protected DisplayMessageOp _displayMessageOp = new DisplayMessageOp();
+
+    /** A rolling chat history, or null if {@link #getHistory} is never called. */
+    protected HistoryList _hlist;
 
     /** Registered chat command handlers. */
     protected static HashMap<String, CommandHandler> _handlers = Maps.newHashMap();
