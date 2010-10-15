@@ -26,6 +26,7 @@ import java.lang.reflect.Modifier;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import java.io.BufferedWriter;
@@ -269,30 +270,24 @@ public class GenActionScriptTask extends GenTask
                 return "com.threerings.io.TypedArray";
             }
             return "Array";
-        }
-
-        if (Integer.TYPE.equals(type) ||
+        } else if (Map.class.isAssignableFrom(type)) {
+            return "com.threerings.util.Map";
+        } else if (Integer.TYPE.equals(type) ||
             Byte.TYPE.equals(type) ||
             Short.TYPE.equals(type) ||
             Character.TYPE.equals(type)) {
             return "int";
-        }
-
-        if (Float.TYPE.equals(type) ||
+        } else if (Float.TYPE.equals(type) ||
             Double.TYPE.equals(type)) {
             return "Number";
-        }
-
-        if (Long.TYPE.equals(type)) {
+        } else if (Long.TYPE.equals(type)) {
             return "com.threerings.util.Long";
-        }
-
-        if (Boolean.TYPE.equals(type)) {
+        } else if (Boolean.TYPE.equals(type)) {
             return "Boolean";
+        } else {
+            // inner classes are not supported by ActionScript so we _
+            return type.getName().replaceAll("\\$", "_");
         }
-
-        // inner classes are not supported by ActionScript so we _
-        return type.getName().replaceAll("\\$", "_");
     }
 
     public static String toReadObject (Class<?> type)
@@ -330,6 +325,9 @@ public class GenActionScriptTask extends GenTask
 
         } else if (type.equals(Double.TYPE)) {
             return "readDouble()";
+
+        } else if (Map.class.isAssignableFrom(type)) {
+            return "readField(MapStreamer.INSTANCE)";
 
         } else if (List.class.isAssignableFrom(type)) {
             return "readField(ArrayStreamer.INSTANCE)";
@@ -390,6 +388,9 @@ public class GenActionScriptTask extends GenTask
 
         } else if (List.class.isAssignableFrom(type)) {
             return "writeField(" + name + ", ArrayStreamer.INSTANCE)";
+
+        } else if (Map.class.isAssignableFrom(type)) {
+            return "writeField(" + name + ", MapStreamer.INSTANCE)";
 
         } else {
             return "writeObject(" + name + ")";

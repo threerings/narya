@@ -24,9 +24,11 @@ package com.threerings.presents.tools;
 import java.lang.reflect.Field;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import java.io.File;
+
 import com.google.common.base.Charsets;
 import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
@@ -96,9 +98,11 @@ public class GenActionScriptStreamableTask extends GenActionScriptTask
             this.name = f.getName();
             this.simpleType = addImportAndGetShortType(f.getType(), true, imports);
 
-            // Reading and writing Lists uses ArrayStreamer.INSTANCE directly
+            // Lists and Maps use their Streamers directly
             if (List.class.isAssignableFrom(f.getType())) {
                 imports.add("com.threerings.io.streamers.ArrayStreamer");
+            }  else if (Map.class.isAssignableFrom(f.getType())) {
+                imports.add("com.threerings.io.streamers.MapStreamer");
             }
             this.reader = toReadObject(f.getType());
             this.writer = toWriteObject(f.getType(), name);

@@ -30,8 +30,11 @@ import com.threerings.util.Long;
 import com.threerings.io.TypedArray;
 import flash.utils.ByteArray;
 import com.threerings.io.streamers.ArrayStreamer;
+import com.threerings.util.Map;
+import com.threerings.io.streamers.MapStreamer;
 // GENERATED PREAMBLE END
 
+import com.threerings.util.Maps;
 import com.threerings.util.Util;
 
 // GENERATED CLASSDECL START
@@ -66,6 +69,29 @@ public class ASStreamableSubset extends SimpleStreamableObject
         bytes.writeByte(3);
         ints = TypedArray.create(int, [1, 2, 3]);
         strings = TypedArray.create(String, ["one", "two", "three"]);
+        stringMap = Maps.newMapOf(String);
+        stringMap.put("one", "1");
+        stringMap.put("two", "2");
+        stringMap.put("three", "3");
+    }
+
+    protected static function mapEquals (m1 :Map, m2 :Map) :Boolean
+    {
+        if (m1 == m2) {
+            return true;
+        }
+        if (m1 == null) {
+            return false;
+        }
+        if (m1.size() != m2.size()) {
+            return false;
+        }
+        for each (var key :Object in m1.keys()) {
+            if (!m2.containsKey(key) || !Util.equals(m1.get(key), m2.get(key))) {
+                return false;
+            }
+        }
+        return true;
     }
 
     public function equals (o :ASStreamableSubset) :Boolean
@@ -76,7 +102,9 @@ public class ASStreamableSubset extends SimpleStreamableObject
             Util.equals(bools, o.bools) && Util.equals(bytes, o.bytes) &&
             Util.equals(ints, o.ints) && Util.equals(nullBools, o.nullBools) &&
             Util.equals(nullBytes, o.nullBytes) && Util.equals(nullInts, o.nullInts) &&
-            Util.equals(strings, o.strings) && Util.equals(nullStrings, o.nullStrings);
+            Util.equals(strings, o.strings) && Util.equals(nullStrings, o.nullStrings) &&
+            mapEquals(stringMap, o.stringMap) &&
+            mapEquals(nullStringMap, o.nullStringMap);
 
     }
 
@@ -99,6 +127,8 @@ public class ASStreamableSubset extends SimpleStreamableObject
     public var nullInts :TypedArray;
     public var strings :TypedArray;
     public var nullStrings :TypedArray;
+    public var stringMap :Map;
+    public var nullStringMap :Map;
 
     override public function readObject (ins :ObjectInputStream) :void
     {
@@ -121,6 +151,8 @@ public class ASStreamableSubset extends SimpleStreamableObject
         nullInts = ins.readField(TypedArray.getJavaType(int));
         strings = ins.readField(ArrayStreamer.INSTANCE);
         nullStrings = ins.readField(ArrayStreamer.INSTANCE);
+        stringMap = ins.readField(MapStreamer.INSTANCE);
+        nullStringMap = ins.readField(MapStreamer.INSTANCE);
     }
     
     override public function writeObject (out :ObjectOutputStream) :void
@@ -144,6 +176,8 @@ public class ASStreamableSubset extends SimpleStreamableObject
         out.writeField(nullInts);
         out.writeField(strings, ArrayStreamer.INSTANCE);
         out.writeField(nullStrings, ArrayStreamer.INSTANCE);
+        out.writeField(stringMap, MapStreamer.INSTANCE);
+        out.writeField(nullStringMap, MapStreamer.INSTANCE);
     }
 // GENERATED STREAMING END
 

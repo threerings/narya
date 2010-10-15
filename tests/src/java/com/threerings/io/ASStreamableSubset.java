@@ -23,9 +23,11 @@ package com.threerings.io;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 import com.google.common.base.Objects;
 import com.google.common.collect.Lists;
+import com.samskivert.util.Mapping;
 
 public class ASStreamableSubset extends SimpleStreamableObject
 {
@@ -52,6 +54,9 @@ public class ASStreamableSubset extends SimpleStreamableObject
     public List<String> strings = Lists.newArrayList("one", "two", "three");
     public List<String> nullStrings;
 
+    public Map<String, String> stringMap = Mapping.of("one", "1", "two", "2", "three", "3");
+    public Map<String, String> nullStringMap;
+
     @Override
     public boolean equals (Object other)
     {
@@ -76,6 +81,10 @@ public class ASStreamableSubset extends SimpleStreamableObject
             && Arrays.equals(nullInts, ow.nullInts)
             &&
 
-            Objects.equal(strings, ow.strings) && Objects.equal(nullStrings, ow.nullStrings);
+            Objects.equal(strings, ow.strings) && Objects.equal(nullStrings, ow.nullStrings)
+            &&
+
+            Objects.equal(stringMap, ow.stringMap)
+            && Objects.equal(nullStringMap, ow.nullStringMap);
     }
 }
