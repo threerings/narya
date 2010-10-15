@@ -1562,7 +1562,6 @@ public abstract class PeerManager
         protected Map<String, String> _errors;
     }
 
-    
     /** Extracts the node object from the supplied peer. */
     protected static final Function<PeerNode, NodeObject> GET_NODE_OBJECT =
         new Function<PeerNode, NodeObject>() {

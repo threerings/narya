@@ -423,7 +423,7 @@ public abstract class ChatChannelManager
 
         protected Name _user;
     }
-    
+
     protected static final Predicate<ChatHistoryEntry> IS_USER_MESSAGE =
         new Predicate<ChatHistoryEntry>() {
         public boolean apply (ChatHistoryEntry entry) {

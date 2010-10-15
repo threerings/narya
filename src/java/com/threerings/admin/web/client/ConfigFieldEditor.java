@@ -41,14 +41,12 @@ public abstract class ConfigFieldEditor
      */
     protected static class StringFieldEditor extends ConfigFieldEditor
     {
-        public StringFieldEditor (ConfigField field, Command onChange)
-        {
+        public StringFieldEditor (ConfigField field, Command onChange) {
             super(field, onChange);
         }
 
         @Override
-        protected Widget buildWidget (ConfigField field)
-        {
+        protected Widget buildWidget (ConfigField field) {
             _box = new TextBox();
             _box.setStyleName("configStringEditor");
             _box.setVisibleLength(40);
@@ -67,8 +65,7 @@ public abstract class ConfigFieldEditor
         }
 
         @Override
-        public ConfigField getModifiedField ()
-        {
+        public ConfigField getModifiedField () {
             Object newValue = _field.type.toValue(_box.getText().trim());
             if (newValue == null) {
                 return null;
@@ -82,8 +79,7 @@ public abstract class ConfigFieldEditor
         }
 
         @Override
-        protected void resetField ()
-        {
+        protected void resetField () {
             _box.setText(_field.valStr);
         }
 
@@ -95,14 +91,12 @@ public abstract class ConfigFieldEditor
      */
     protected static class CheckboxFieldEditor extends ConfigFieldEditor
     {
-        public CheckboxFieldEditor (ConfigField field, Command onChange)
-        {
+        public CheckboxFieldEditor (ConfigField field, Command onChange) {
             super(field, onChange);
         }
 
         @Override
-        protected Widget buildWidget (ConfigField field)
-        {
+        protected Widget buildWidget (ConfigField field) {
             _box = new CheckBox();
             _box.setStyleName("configCheckBoxEditor");
             resetField();
@@ -116,8 +110,7 @@ public abstract class ConfigFieldEditor
         }
 
         @Override
-        public ConfigField getModifiedField ()
-        {
+        public ConfigField getModifiedField () {
             String newValStr = Boolean.toString(_box.getValue());
             if (newValStr.equals(_field.valStr)) {
                 return null;
@@ -126,8 +119,7 @@ public abstract class ConfigFieldEditor
         }
 
         @Override
-        protected void resetField ()
-        {
+        protected void resetField () {
             _box.setValue(Boolean.valueOf(_field.valStr));
         }
 

@@ -30,8 +30,8 @@ import com.threerings.io.ObjectOutputStream;
 import com.threerings.io.Streamable;
 
 /**
- * A {@link HashIntMap} extension that can be streamed. The keys and
- * values in the map must also be of streamable types.
+ * A {@link HashIntMap} extension that can be streamed. The keys and values in the map must also
+ * be of streamable types.
  *
  * @see Streamable
  * @param <V> the type of value stored in this map.
@@ -40,8 +40,7 @@ public class StreamableHashIntMap<V> extends HashIntMap<V>
     implements Streamable
 {
     /**
-     * Constructs an empty hash int map with the specified number of hash
-     * buckets.
+     * Constructs an empty hash int map with the specified number of hash buckets.
      */
     public StreamableHashIntMap (int buckets, float loadFactor)
     {
@@ -49,8 +48,7 @@ public class StreamableHashIntMap<V> extends HashIntMap<V>
     }
 
     /**
-     * Constructs an empty hash int map with the default number of hash
-     * buckets.
+     * Constructs an empty hash int map with the default number of hash buckets.
      */
     public StreamableHashIntMap ()
     {
