@@ -20,7 +20,7 @@
     <include name="retroweaver-all-1.2.2.jar"/>
     <include name="samskivert.jar"/>
     <include name="swfutils-ooo.jar"/>
-    <include name="velocity-1.5-dev.jar"/>
+    <include name="velocity-dev.jar"/>
     <include name="aspirin.swc"/>
     <include name="asunit.swc"/>
     <include name="corelib.swc"/>
