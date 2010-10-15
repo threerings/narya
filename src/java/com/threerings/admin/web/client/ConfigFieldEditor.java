@@ -108,7 +108,7 @@ public abstract class ConfigFieldEditor
             resetField();
 
             _box.addValueChangeHandler(new ValueChangeHandler<Boolean>() {
-				public void onValueChange (ValueChangeEvent changeEvent) {
+				public void onValueChange (ValueChangeEvent<Boolean> changeEvent) {
                     updateModificationState();
                 }
             });
