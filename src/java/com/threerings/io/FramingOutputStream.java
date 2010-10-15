@@ -63,7 +63,7 @@ public class FramingOutputStream extends ByteBufferOutputStream
      */
     public ByteBuffer frameAndReturnBuffer ()
     {
-        // flip the buffer which will limit it to it's current position
+        // flip the buffer which will limit it to its current position
         _buffer.flip();
 
         // then write the frame length and rewind back to the start of the
