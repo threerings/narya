@@ -228,7 +228,7 @@
         <include name="com/threerings/util/**"/>
       </fileset>
       <zipfileset src="${deploy.dir}/lib/samskivert.jar"/>
-      <zipfileset src="${deploy.dir}/lib/velocity-1.5-dev.jar"/>
+      <zipfileset src="${deploy.dir}/lib/velocity-dev.jar"/>
       <zipfileset src="${deploy.dir}/lib/javassist.jar"/>
       <zipfileset src="${deploy.dir}/lib/guava.jar"/>
       <zipfileset src="${deploy.dir}/lib/commons-collections.jar"/>
