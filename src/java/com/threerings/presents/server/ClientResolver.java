@@ -53,7 +53,7 @@ public class ClientResolver extends Invoker.Unit
     }
 
     /**
-     * Initiailizes this instance.
+     * Initializes this instance.
      *
      * @param username the username of the user to be resolved.
      */

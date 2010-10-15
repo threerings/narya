@@ -95,6 +95,11 @@ public class GenActionScriptStreamableTask extends GenActionScriptTask
         {
             this.name = f.getName();
             this.simpleType = addImportAndGetShortType(f.getType(), true, imports);
+
+            // Reading and writing Lists uses ArrayStreamer.INSTANCE directly
+            if (List.class.isAssignableFrom(f.getType())) {
+                imports.add("com.threerings.io.streamers.ArrayStreamer");
+            }
             this.reader = toReadObject(f.getType());
             this.writer = toWriteObject(f.getType(), name);
         }

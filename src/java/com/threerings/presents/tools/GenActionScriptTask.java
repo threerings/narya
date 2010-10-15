@@ -25,6 +25,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 
 import java.io.BufferedWriter;
@@ -247,7 +248,7 @@ public class GenActionScriptTask extends GenTask
         if (needsActionScriptImport(type, isField)) {
             imports.add(full);
         }
-        return getSimpleType(full);
+        return Iterables.getLast(DOT_SPLITTER.split(full));
     }
 
     protected static boolean needsActionScriptImport (Class<?> type, boolean isField)
@@ -260,7 +261,7 @@ public class GenActionScriptTask extends GenTask
 
     protected static String toActionScriptType (Class<?> type, boolean isField)
     {
-        if (type.isArray()) {
+        if (type.isArray() || List.class.isAssignableFrom(type)) {
             if (Byte.TYPE.equals(type.getComponentType())) {
                 return "flash.utils.ByteArray";
             }
@@ -290,6 +291,7 @@ public class GenActionScriptTask extends GenTask
             return "Boolean";
         }
 
+        // inner classes are not supported by ActionScript so we _
         return type.getName().replaceAll("\\$", "_");
     }
 
@@ -329,6 +331,9 @@ public class GenActionScriptTask extends GenTask
         } else if (type.equals(Double.TYPE)) {
             return "readDouble()";
 
+        } else if (List.class.isAssignableFrom(type)) {
+            return "readField(ArrayStreamer.INSTANCE)";
+
         } else if (type.isArray()) {
             if (!type.getComponentType().isPrimitive()) {
                 return "readObject(TypedArray)";
@@ -347,13 +352,8 @@ public class GenActionScriptTask extends GenTask
                 }
             }
         } else {
-            return "readObject(" + ActionScriptSource.toSimpleName(type.getName()) + ")";
+            return "readObject(" + Iterables.getLast(DOT_SPLITTER.split(toActionScriptType(type, false))) + ")";
         }
-    }
-
-    public static String getSimpleType(String fullType)
-    {
-        return Iterables.getLast(DOT_SPLITTER.split(fullType));
     }
 
     public static String toWriteObject (Class<?> type, String name)
@@ -361,16 +361,14 @@ public class GenActionScriptTask extends GenTask
         if (type.equals(Integer.class)) {
             return "writeObject(new Integer(" + name + "))";
 
-        } else if (type.equals(Long.class)) {
-            return "writeField(" + name + ")";
-
         } else if (type.equals(Boolean.TYPE)) {
             return "writeBoolean(" + name + ")";
 
         } else if (type.equals(Byte.TYPE)) {
             return "writeByte(" + name + ")";
 
-        } else if (type.equals(Short.TYPE) || type.equals(Character.TYPE)) {
+        } else if (type.equals(Short.TYPE) ||
+                   type.equals(Character.TYPE)) {
             return "writeShort(" + name + ")";
 
         } else if (type.equals(Integer.TYPE)) {
@@ -385,9 +383,13 @@ public class GenActionScriptTask extends GenTask
         } else if (type.equals(Double.TYPE)) {
             return "writeDouble(" + name + ")";
 
-        } else if (type.equals(String.class) ||
+        } else if (type.equals(Long.class) ||
+                   type.equals(String.class) ||
                    (type.isArray() && type.getComponentType().isPrimitive())) {
             return "writeField(" + name + ")";
+
+        } else if (List.class.isAssignableFrom(type)) {
+            return "writeField(" + name + ", ArrayStreamer.INSTANCE)";
 
         } else {
             return "writeObject(" + name + ")";

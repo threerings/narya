@@ -31,6 +31,11 @@ import asunit.framework.TestCase;
 
 public class StreamableTest extends TestCase
 {
+    public function StreamableTest (name:String = null)
+    {
+        super(name);
+    }
+
     public function testStreamingToSelf ():void
     {
         var sub:ASStreamableSubset = ASStreamableSubset.createWithJavaDefaults();
@@ -49,7 +54,8 @@ public class StreamableTest extends TestCase
         var javaData:ByteArray = StringUtil.unhexlate(
             "ffff0024636f6d2e746872656572696e67732e696f2e415353747265616d61626c65537562736574" +
             "01000200000003000000000000000440a0000040180000000000000007080100036f6e6500010000" +
-            "000301000101000000030102030100000003000000010000000200000003000000");
+            "0003010001010000000301020301000000030000000100000002000000030000000100000003fffe" +
+            "00106a6176612e6c616e672e537472696e6700036f6e650002000374776f00020005746872656500");
         var input:ObjectInputStream = new ObjectInputStream(javaData);
         var read :ASStreamableSubset = input.readObject(ASStreamableSubset);
         assertTrue(sub.equals(read));

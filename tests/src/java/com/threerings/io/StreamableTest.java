@@ -345,11 +345,8 @@ public class StreamableTest
         oout.writeObject(w);
         byte[] data = bout.toByteArray();
 
-        // uncomment this and rerun the tests to generate an updated WIRE_DATA blob:
-        // String dstr = StringUtil.wordWrap(StringUtil.hexlate(data), 80);
-        // dstr = StringUtil.join(dstr.split("\n"), "\" +\n        \"");
-        // System.out.println("    protected static final byte[] WIRE_DATA = " +
-        //                    "StringUtil.unhexlate(\n        \"" + dstr + "\");");
+        // uncomment this and rerun the tests to generate an updated WIRE_DATA blob
+        // printWireData(w);
 
         // oddly, JUnit doesn't like comparing byte arrays directly (this fails:
         // assertEquals(WIRE_DATA, WIRE_DATA.clone())), but comparing strings is fine
@@ -358,6 +355,18 @@ public class StreamableTest
         // make sure that we unserialize a known stream of bytes to the expected object
         ObjectInputStream oin = new ObjectInputStream(new ByteArrayInputStream(WIRE_DATA));
         assertEquals(w, oin.readObject());
+    }
+
+    protected void printWireData (Object o)
+        throws IOException
+    {
+        ByteArrayOutputStream bout = new ByteArrayOutputStream();
+        ObjectOutputStream oout = new ObjectOutputStream(bout);
+        oout.writeObject(o);
+        String dstr = StringUtil.wordWrap(StringUtil.hexlate(bout.toByteArray()), 80);
+        dstr = StringUtil.join(dstr.split("\n"), "\" +\n        \"");
+        System.out.println("    protected static final byte[] WIRE_DATA = "
+            + "StringUtil.unhexlate(\n        \"" + dstr + "\");");
     }
 
     @Test

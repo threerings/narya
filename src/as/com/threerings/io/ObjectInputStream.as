@@ -34,7 +34,7 @@ import com.threerings.util.Long;
 public class ObjectInputStream
 {
     /** Enables verbose object I/O debugging. */
-    public static const DEBUG :Boolean = false;
+    public static const DEBUG :Boolean = true;
 
     public function ObjectInputStream (source :IDataInput = null, clientProps :Object = null)
     {
@@ -172,7 +172,8 @@ public class ObjectInputStream
      * Called to read an Object of a known final type into a Streamable object.
      *
      * @param type either a String representing the java type,
-     *             or a Class object representing the actionscript type.
+     *             a Class representing the actionscript type,
+     *             or the Streamer to be used to read the field.
      */
     public function readField (type :Object) :*
         //throws IOError
@@ -181,13 +182,18 @@ public class ObjectInputStream
             return null;
         }
 
-        var jname :String = type as String;
-        if (type is Class) {
-            jname = Translations.getToServer(ClassUtil.getClassName(type));
-        }
-        var streamer :Streamer = Streamer.getStreamerByJavaName(jname);
-        if (streamer == null) {
-            throw new Error("Cannot field stream " + type);
+        var streamer :Streamer;
+        if (type is Streamer) {
+            streamer = Streamer(type);
+        } else {
+            var jname :String = type as String;
+            if (type is Class) {
+                jname = Translations.getToServer(ClassUtil.getClassName(type));
+            }
+            streamer= Streamer.getStreamerByJavaName(jname);
+            if (streamer == null) {
+                throw new Error("Cannot field stream " + type);
+            }
         }
 
         var obj :Object = streamer.createObject(this);

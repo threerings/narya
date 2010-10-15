@@ -86,10 +86,13 @@ public class ObjectOutputStream
         writeBareObjectImpl(obj, cmap.streamer);
     }
 
-    public function writeBareObject (obj :Object) :void
+    public function writeBareObject (obj :Object, streamer :Streamer = null) :void
         //throws IOError
     {
-        writeBareObjectImpl(obj, Streamer.getStreamer(obj));
+        if (streamer == null) {
+            streamer = Streamer.getStreamer(obj);
+        }
+        writeBareObjectImpl(obj, streamer);
     }
 
     public function writeBareObjectImpl (obj :Object, streamer :Streamer) :void
@@ -125,13 +128,13 @@ public class ObjectOutputStream
      * }
      * </listing>
      */
-    public function writeField (val :Object) :void
+    public function writeField (val :Object, streamer :Streamer = null) :void
         //throws IOError
     {
         var b :Boolean = (val != null);
         writeBoolean(b);
         if (b) {
-            writeBareObject(val);
+            writeBareObject(val, streamer);
         }
     }
 
@@ -217,7 +220,7 @@ public class ObjectOutputStream
 
     /** The target DataOutput that we route things to. */
     protected var _targ :IDataOutput;
-    
+
     /** A counter used to assign codes  to streamed classes. */
     protected var _nextCode :int = 1;
 

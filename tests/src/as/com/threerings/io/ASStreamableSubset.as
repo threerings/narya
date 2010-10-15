@@ -29,6 +29,7 @@ import com.threerings.io.SimpleStreamableObject;
 import com.threerings.util.Long;
 import com.threerings.io.TypedArray;
 import flash.utils.ByteArray;
+import com.threerings.io.streamers.ArrayStreamer;
 // GENERATED PREAMBLE END
 
 import com.threerings.util.Util;
@@ -64,6 +65,7 @@ public class ASStreamableSubset extends SimpleStreamableObject
         bytes.writeByte(2);
         bytes.writeByte(3);
         ints = TypedArray.create(int, [1, 2, 3]);
+        strings = TypedArray.create(String, ["one", "two", "three"]);
     }
 
     public function equals (o :ASStreamableSubset) :Boolean
@@ -73,7 +75,8 @@ public class ASStreamableSubset extends SimpleStreamableObject
             byte8 === o.byte8 && string1 === o.string1 && nullString1 === o.nullString1 &&
             Util.equals(bools, o.bools) && Util.equals(bytes, o.bytes) &&
             Util.equals(ints, o.ints) && Util.equals(nullBools, o.nullBools) &&
-            Util.equals(nullBytes, o.nullBytes) && Util.equals(nullInts, o.nullInts);
+            Util.equals(nullBytes, o.nullBytes) && Util.equals(nullInts, o.nullInts) &&
+            Util.equals(strings, o.strings) && Util.equals(nullStrings, o.nullStrings);
 
     }
 
@@ -94,6 +97,8 @@ public class ASStreamableSubset extends SimpleStreamableObject
     public var nullBools :TypedArray;
     public var nullBytes :ByteArray;
     public var nullInts :TypedArray;
+    public var strings :TypedArray;
+    public var nullStrings :TypedArray;
 
     override public function readObject (ins :ObjectInputStream) :void
     {
@@ -114,8 +119,10 @@ public class ASStreamableSubset extends SimpleStreamableObject
         nullBools = ins.readField(TypedArray.getJavaType(Boolean));
         nullBytes = ins.readField(ByteArray);
         nullInts = ins.readField(TypedArray.getJavaType(int));
+        strings = ins.readField(ArrayStreamer.INSTANCE);
+        nullStrings = ins.readField(ArrayStreamer.INSTANCE);
     }
-
+    
     override public function writeObject (out :ObjectOutputStream) :void
     {
         super.writeObject(out);
@@ -135,6 +142,8 @@ public class ASStreamableSubset extends SimpleStreamableObject
         out.writeField(nullBools);
         out.writeField(nullBytes);
         out.writeField(nullInts);
+        out.writeField(strings, ArrayStreamer.INSTANCE);
+        out.writeField(nullStrings, ArrayStreamer.INSTANCE);
     }
 // GENERATED STREAMING END
 

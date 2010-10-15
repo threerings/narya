@@ -22,8 +22,10 @@ package com.threerings.io;
 //Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 
 import java.util.Arrays;
+import java.util.List;
 
 import com.google.common.base.Objects;
+import com.google.common.collect.Lists;
 
 public class ASStreamableSubset extends SimpleStreamableObject
 {
@@ -47,6 +49,9 @@ public class ASStreamableSubset extends SimpleStreamableObject
     public byte[] nullBytes;
     public int[] nullInts;
 
+    public List<String> strings = Lists.newArrayList("one", "two", "three");
+    public List<String> nullStrings;
+
     @Override
     public boolean equals (Object other)
     {
@@ -67,6 +72,10 @@ public class ASStreamableSubset extends SimpleStreamableObject
             Arrays.equals(bools, ow.bools) && Arrays.equals(bytes, ow.bytes)
             && Arrays.equals(ints, ow.ints) &&
 
-            Arrays.equals(nullBools, ow.nullBools) && Arrays.equals(nullBytes, ow.nullBytes);
+            Arrays.equals(nullBools, ow.nullBools) && Arrays.equals(nullBytes, ow.nullBytes)
+            && Arrays.equals(nullInts, ow.nullInts)
+            &&
+
+            Objects.equal(strings, ow.strings) && Objects.equal(nullStrings, ow.nullStrings);
     }
 }
