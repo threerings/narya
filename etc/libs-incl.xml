@@ -6,6 +6,7 @@
     <include name="ant.jar"/>
     <include name="asc.jar"/>
     <include name="commons-collections.jar"/>
+    <include name="commons-lang.jar"/>
     <include name="depot.jar"/>
     <include name="ehcache.jar"/>
     <include name="flexTasks.jar"/>
