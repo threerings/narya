@@ -80,6 +80,22 @@
     </receiver>
   </target>
 
+  <!-- generates sender and decoder classes for all invocation -->
+  <!-- receiver declarations -->
+  <target name="genascript">
+    <taskdef name="ascript" classpathref="classpath"
+             classname="com.threerings.presents.tools.GenActionScriptStreamableTask"/>
+    <!-- make sure the receiver class files are all compiled -->
+    <javac srcdir="src/java" destdir="${classes.dir}"
+           debug="on" deprecation="on" source="1.5" target="1.5">
+      <classpath refid="classpath"/>
+      <include name="**/ASStreamableSubset.java"/>
+    </javac>
+    <!-- now generate the associated files -->
+    <ascript header="../lib/SOURCE_HEADER" classpathref="classpath" asroot="src/as">
+        <fileset dir="src/java" includes="**/ASStreamableSubset.java"/>
+    </ascript>
+  </target>
   <!-- prepares the application directories -->
   <target name="prepare">
     <mkdir dir="${deploy.dir}"/>
@@ -161,6 +177,25 @@
       <arg value="${deploy.dir}/${lib.name}.swc"/>
     </java>
   </target>
+
+  <target name="astest" depends="prepare">
+    <!-- Generate astest-config.xml for Flash Player and general compilation -->
+    <copy file="etc/astest-config.xml.in" tofile="${deploy.dir}/astest-config.xml">
+      <filterset>
+        <filter token="flex_sdk_dir" value="${flexsdk.dir}"/>
+        <filter token="lib_name" value="${lib.name}"/>
+      </filterset>
+    </copy>
+    <java jar="${flexsdk.dir}/lib/mxmlc.jar" fork="true" failonerror="true">
+        <arg value="-load-config"/>
+        <arg value="${deploy.dir}/astest-config.xml"/>
+        <arg value="-source-path+=../src/as/"/>
+        <arg value="-source-path+=src/as"/>
+        <arg value="-output=dist/naryatest.swf"/>
+        <arg value="src/as/com/threerings/NaryaRunner.as"/>
+    </java>
+  </target>
+
 
   <!-- run the tests -->
   <property name="test" value=""/>
