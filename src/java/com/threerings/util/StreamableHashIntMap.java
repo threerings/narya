@@ -36,7 +36,7 @@ import com.threerings.io.Streamable;
  * @see Streamable
  * @param <V> the type of value stored in this map.
  */
-public class StreamableHashIntMap<V> extends HashIntMap<V>
+public class StreamableHashIntMap<V extends Streamable> extends HashIntMap<V>
     implements Streamable
 {
     /**

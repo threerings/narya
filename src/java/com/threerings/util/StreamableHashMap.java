@@ -38,13 +38,13 @@ import com.threerings.io.Streamable;
  * @param <K> the type of key stored in this map.
  * @param <V> the type of value stored in this map.
  */
-public class StreamableHashMap<K, V> extends HashMap<K, V>
+public class StreamableHashMap<K, V extends Streamable> extends HashMap<K, V>
     implements Streamable
 {
     /**
      * Creates an empty StreamableHashMap.
      */
-    public static <K, V> StreamableHashMap<K, V> newMap ()
+    public static <K, V extends Streamable> StreamableHashMap<K, V> newMap ()
     {
         return new StreamableHashMap<K, V>();
     }
@@ -52,7 +52,8 @@ public class StreamableHashMap<K, V> extends HashMap<K, V>
     /**
      * Creates StreamableHashMap populated with the same values as the provided Map.
      */
-    public static <K, V> StreamableHashMap<K, V> newMap (Map<? extends K, ? extends V> map)
+    public static <K, V extends Streamable> StreamableHashMap<K, V> newMap (
+        Map<? extends K, ? extends V> map)
     {
         return new StreamableHashMap<K, V>(map);
     }
