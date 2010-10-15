@@ -34,6 +34,7 @@ import com.threerings.util.Map;
 import com.threerings.io.streamers.MapStreamer;
 // GENERATED PREAMBLE END
 
+import com.threerings.util.Integer;
 import com.threerings.util.Maps;
 import com.threerings.util.Util;
 
@@ -73,25 +74,10 @@ public class ASStreamableSubset extends SimpleStreamableObject
         stringMap.put("one", "1");
         stringMap.put("two", "2");
         stringMap.put("three", "3");
-    }
-
-    protected static function mapEquals (m1 :Map, m2 :Map) :Boolean
-    {
-        if (m1 == m2) {
-            return true;
-        }
-        if (m1 == null) {
-            return false;
-        }
-        if (m1.size() != m2.size()) {
-            return false;
-        }
-        for each (var key :Object in m1.keys()) {
-            if (!m2.containsKey(key) || !Util.equals(m1.get(key), m2.get(key))) {
-                return false;
-            }
-        }
-        return true;
+        stringIntMap = Maps.newMapOf(String);
+        stringIntMap.put("one", Integer.valueOf(1));
+        stringIntMap.put("two", Integer.valueOf(2));
+        stringIntMap.put("three", Integer.valueOf(3));
     }
 
     public function equals (o :ASStreamableSubset) :Boolean
@@ -103,8 +89,8 @@ public class ASStreamableSubset extends SimpleStreamableObject
             Util.equals(ints, o.ints) && Util.equals(nullBools, o.nullBools) &&
             Util.equals(nullBytes, o.nullBytes) && Util.equals(nullInts, o.nullInts) &&
             Util.equals(strings, o.strings) && Util.equals(nullStrings, o.nullStrings) &&
-            mapEquals(stringMap, o.stringMap) &&
-            mapEquals(nullStringMap, o.nullStringMap);
+            Maps.equals(stringMap, o.stringMap) && Maps.equals(stringIntMap, o.stringIntMap)
+            Maps.equals(nullStringMap, o.nullStringMap);
 
     }
 
@@ -128,6 +114,7 @@ public class ASStreamableSubset extends SimpleStreamableObject
     public var strings :TypedArray;
     public var nullStrings :TypedArray;
     public var stringMap :Map;
+    public var stringIntMap :Map;
     public var nullStringMap :Map;
 
     override public function readObject (ins :ObjectInputStream) :void
@@ -152,6 +139,7 @@ public class ASStreamableSubset extends SimpleStreamableObject
         strings = ins.readField(ArrayStreamer.INSTANCE);
         nullStrings = ins.readField(ArrayStreamer.INSTANCE);
         stringMap = ins.readField(MapStreamer.INSTANCE);
+        stringIntMap = ins.readField(MapStreamer.INSTANCE);
         nullStringMap = ins.readField(MapStreamer.INSTANCE);
     }
     
@@ -177,6 +165,7 @@ public class ASStreamableSubset extends SimpleStreamableObject
         out.writeField(strings, ArrayStreamer.INSTANCE);
         out.writeField(nullStrings, ArrayStreamer.INSTANCE);
         out.writeField(stringMap, MapStreamer.INSTANCE);
+        out.writeField(stringIntMap, MapStreamer.INSTANCE);
         out.writeField(nullStringMap, MapStreamer.INSTANCE);
     }
 // GENERATED STREAMING END

@@ -55,6 +55,7 @@ public class ASStreamableSubset extends SimpleStreamableObject
     public List<String> nullStrings;
 
     public Map<String, String> stringMap = Mapping.of("one", "1", "two", "2", "three", "3");
+    public Map<String, Integer> stringIntMap = Mapping.of("one", 1, "two", 2, "three", 3);
     public Map<String, String> nullStringMap;
 
     @Override
@@ -84,7 +85,7 @@ public class ASStreamableSubset extends SimpleStreamableObject
             Objects.equal(strings, ow.strings) && Objects.equal(nullStrings, ow.nullStrings)
             &&
 
-            Objects.equal(stringMap, ow.stringMap)
+            Objects.equal(stringMap, ow.stringMap) && Objects.equal(stringIntMap, ow.stringIntMap)
             && Objects.equal(nullStringMap, ow.nullStringMap);
     }
 }
