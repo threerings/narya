@@ -191,7 +191,7 @@ public class GenServiceTask extends InvocationTask
 
     // documentation inherited
     @Override
-    protected void processService (File source, Class<?> service)
+    public void processClass (File source, Class<?> service)
         throws Exception
     {
         System.out.println("Processing " + service.getName() + "...");

@@ -21,17 +21,23 @@
 
 package com.threerings.presents.tools;
 
+import java.util.List;
 import java.util.Map;
 
+import java.io.File;
 import java.io.StringWriter;
 
 import org.apache.tools.ant.AntClassLoader;
 import org.apache.tools.ant.BuildException;
+import org.apache.tools.ant.DirectoryScanner;
 import org.apache.tools.ant.Task;
+import org.apache.tools.ant.types.FileSet;
 import org.apache.tools.ant.types.Reference;
 import org.apache.tools.ant.util.ClasspathUtils;
 import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.VelocityEngine;
+
+import com.google.common.collect.Lists;
 
 import com.samskivert.velocity.VelocityUtil;
 
@@ -44,6 +50,14 @@ public abstract class GenTask extends Task
         } catch (Exception e) {
             throw new BuildException("Failure initializing Velocity", e);
         }
+    }
+
+    /**
+     * Adds a nested &lt;fileset&gt; element which enumerates service declaration source files.
+     */
+    public void addFileset (FileSet set)
+    {
+        _filesets.add(set);
     }
 
     /**
@@ -63,6 +77,27 @@ public abstract class GenTask extends Task
         // than the classloader used to load Ant, so that we have access to Narya classes like
         // TransportHint
         ((AntClassLoader)_cloader).setParent(getClass().getClassLoader());
+    }
+
+    /**
+     * Performs the actual work of the task.
+     */
+    @Override
+    public void execute ()
+    {
+        for (FileSet fs : _filesets) {
+            DirectoryScanner ds = fs.getDirectoryScanner(getProject());
+            File fromDir = fs.getDir(getProject());
+            String[] srcFiles = ds.getIncludedFiles();
+            for (String srcFile : srcFiles) {
+                File source = new File(fromDir, srcFile);
+                try {
+                    processClass(source, loadClass(source));
+                } catch (Exception e) {
+                    throw new BuildException(e);
+                }
+            }
+        }
     }
 
     /**
@@ -108,6 +143,25 @@ public abstract class GenTask extends Task
         return writer.toString();
     }
 
+    /**
+     * Process a class found from the given source file that was on the filesets given to this
+     * task.
+     */
+    protected abstract void processClass (File source, Class<?> klass)
+        throws Exception;
+
+    protected Class<?> loadClass (File source)
+    {
+        // load up the file and determine it's package and classname
+        String name;
+        try {
+            name = GenUtil.readClassName(source);
+        } catch (Exception e) {
+            throw new BuildException("Failed to parse " + source + ": " + e.getMessage());
+        }
+        return loadClass(name);
+    }
+
     protected Class<?> loadClass (String name)
     {
         if (_cloader == null) {
@@ -122,6 +176,9 @@ public abstract class GenTask extends Task
                 "classpath that contains your project's presents classes.", cnfe);
         }
     }
+
+    /** A list of filesets that contain java source to be processed. */
+    protected List<FileSet> _filesets = Lists.newArrayList();
 
     /** Show extra output if set. */
     protected boolean _verbose;

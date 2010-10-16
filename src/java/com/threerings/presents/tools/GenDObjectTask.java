@@ -31,11 +31,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import java.io.File;
-import java.io.IOException;
-
-import org.apache.tools.ant.BuildException;
-import org.apache.tools.ant.DirectoryScanner;
-import org.apache.tools.ant.types.FileSet;
 import com.google.common.collect.Lists;
 
 import com.samskivert.util.StringUtil;
@@ -50,14 +45,6 @@ import com.threerings.presents.dobj.OidList;
  */
 public class GenDObjectTask extends GenTask
 {
-    /**
-     * Adds a nested &lt;fileset&gt; element which enumerates service declaration source files.
-     */
-    public void addFileset (FileSet set)
-    {
-        _filesets.add(set);
-    }
-
     @Override
     public void execute ()
     {
@@ -66,36 +53,12 @@ public class GenDObjectTask extends GenTask
         _dsclass = loadClass(DSet.class.getName());
         _olclass = loadClass(OidList.class.getName());
 
-        for (FileSet fs : _filesets) {
-            DirectoryScanner ds = fs.getDirectoryScanner(getProject());
-            File fromDir = fs.getDir(getProject());
-            String[] srcFiles = ds.getIncludedFiles();
-            for (String srcFile : srcFiles) {
-                processObject(new File(fromDir, srcFile));
-            }
-        }
-    }
-
-    /** Processes a distributed object source file. */
-    protected void processObject (File source)
-    {
-        // load up the file and determine it's package and classname
-        String name;
-        try{
-            name = GenUtil.readClassName(source);
-        } catch (IOException io) {
-            throw new BuildException("Couldn't read class name: " + source, io);
-        }
-        Class<?> klass = loadClass(name);
-        try {
-            processObject(source, klass);
-        } catch (Exception e) {
-            throw new BuildException("Failed to process " + source.getName(), e);
-        }
+        super.execute();
     }
 
     /** Processes a resolved distributed object class instance. */
-    protected void processObject (File source, Class<?> oclass)
+    @Override
+    public void processClass (File source, Class<?> oclass)
         throws Exception
     {
         // make sure we extend distributed object
@@ -202,9 +165,6 @@ public class GenDObjectTask extends GenTask
         // now bolt everything back together into a class declaration
         sfile.writeTo(source, fsection.toString(), msection.toString());
     }
-
-    /** A list of filesets that contain tile images. */
-    protected ArrayList<FileSet> _filesets = Lists.newArrayList();
 
     /** {@link DObject} resolved with the proper classloader so that we
      * can compare it to loaded derived classes. */

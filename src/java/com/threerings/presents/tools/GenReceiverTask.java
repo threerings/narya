@@ -44,7 +44,7 @@ import com.threerings.presents.server.InvocationSender;
 public class GenReceiverTask extends InvocationTask
 {
     @Override
-    protected void processService (File source, Class<?> receiver)
+    public void processClass (File source, Class<?> receiver)
         throws Exception
     {
         System.out.println("Processing " + receiver.getName() + "...");

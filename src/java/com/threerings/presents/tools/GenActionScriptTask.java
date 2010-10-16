@@ -24,7 +24,6 @@ package com.threerings.presents.tools;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -35,14 +34,9 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 
-import org.apache.tools.ant.BuildException;
-import org.apache.tools.ant.DirectoryScanner;
-import org.apache.tools.ant.types.FileSet;
-
 import com.google.common.base.Charsets;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Iterables;
-import com.google.common.collect.Lists;
 import com.google.common.io.Files;
 
 import com.threerings.io.ObjectInputStream;
@@ -60,14 +54,6 @@ import com.threerings.presents.dobj.DObject;
  */
 public class GenActionScriptTask extends GenTask
 {
-    /**
-     * Adds a nested &lt;fileset&gt; element which enumerates streamable source files.
-     */
-    public void addFileset (FileSet set)
-    {
-        _filesets.add(set);
-    }
-
     /**
      * Configures the path to our ActionScript source files.
      */
@@ -89,49 +75,10 @@ public class GenActionScriptTask extends GenTask
     }
 
     /**
-     * Performs the actual work of the task.
-     */
-    @Override
-    public void execute ()
-    {
-        for (FileSet fs : _filesets) {
-            DirectoryScanner ds = fs.getDirectoryScanner(getProject());
-            File fromDir = fs.getDir(getProject());
-            String[] srcFiles = ds.getIncludedFiles();
-            for (String srcFile : srcFiles) {
-                processClass(new File(fromDir, srcFile));
-            }
-        }
-    }
-
-    /**
-     * Processes a Streamable source file.
-     */
-    protected void processClass (File source)
-    {
-        // System.err.println("Processing " + source + "...");
-
-        // load up the file and determine it's package and classname
-        String name = null;
-        try {
-            name = GenUtil.readClassName(source);
-        } catch (Exception e) {
-            System.err.println("Failed to parse " + source + ": " + e.getMessage());
-            return;
-        }
-
-        Class<?> sclass = loadClass(name);
-        try {
-            processClass(source, sclass);
-        } catch (Exception e) {
-            throw new BuildException(e);
-        }
-    }
-
-    /**
      * Processes a resolved Streamable class instance.
      */
-    protected void processClass (File source, Class<?> sclass)
+    @Override
+    public void processClass (File source, Class<?> sclass)
         throws Exception
     {
         // make sure we implement Streamable but don't extend DObject or InvocationMarshaller and
@@ -397,9 +344,6 @@ public class GenActionScriptTask extends GenTask
         }
     }
 
-    /** A list of filesets that contain tile images. */
-    protected ArrayList<FileSet> _filesets = Lists.newArrayList();
-
     /** A header to put on all generated source files. */
     protected String _header;
 
@@ -412,4 +356,5 @@ public class GenActionScriptTask extends GenTask
         "public function writeObject (out :ObjectOutputStream) :void";
 
     protected static final Splitter DOT_SPLITTER = Splitter.on('.');
+
 }
