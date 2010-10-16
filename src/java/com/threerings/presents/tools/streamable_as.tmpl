@@ -11,11 +11,9 @@ import $import;
 public class ${classname} #if (!${extends.isEmpty()})extends $extends
 #end
 #if (!${implements.isEmpty()})
-    implements $implements
+#if (!${extends.isEmpty()})    #{end}implements $implements
 #end
 {
-    public function ${classname} ()
-    {}
 // GENERATED CLASSDECL END
 
 // GENERATED STREAMING START
