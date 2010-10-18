@@ -44,6 +44,8 @@ import com.threerings.io.ObjectOutputStream;
 import com.threerings.io.Streamable;
 
 import com.threerings.util.ActionScript;
+import com.threerings.util.StreamableArrayList;
+import com.threerings.util.StreamableHashMap;
 
 import com.threerings.presents.data.InvocationMarshaller;
 import com.threerings.presents.dobj.DObject;
@@ -207,9 +209,21 @@ public class GenActionScriptTask extends GenTask
         return (Long.TYPE.equals(type) || !type.isPrimitive()) && !String.class.equals(type);
     }
 
+    /** Returns if the given class is an implementation of Map that doesn't know about Streaming */
+    protected static boolean isNaiveMap (Class<?> type)
+    {
+        return Map.class.isAssignableFrom(type) && !type.equals(StreamableHashMap.class);
+    }
+
+    /** Returns if the given class is an implementation of List that doesn't know about Streaming */
+    protected static boolean isNaiveList (Class<?> type)
+    {
+        return List.class.isAssignableFrom(type) && !type.equals(StreamableArrayList.class);
+    }
+
     protected static String toActionScriptType (Class<?> type, boolean isField)
     {
-        if (type.isArray() || List.class.isAssignableFrom(type)) {
+        if (type.isArray() || isNaiveList(type)) {
             if (Byte.TYPE.equals(type.getComponentType())) {
                 return "flash.utils.ByteArray";
             }
@@ -217,7 +231,7 @@ public class GenActionScriptTask extends GenTask
                 return "com.threerings.io.TypedArray";
             }
             return "Array";
-        } else if (Map.class.isAssignableFrom(type)) {
+        } else if (isNaiveMap(type)) {
             return "com.threerings.util.Map";
         } else if (Integer.TYPE.equals(type) ||
             Byte.TYPE.equals(type) ||
@@ -273,10 +287,10 @@ public class GenActionScriptTask extends GenTask
         } else if (type.equals(Double.TYPE)) {
             return "readDouble()";
 
-        } else if (Map.class.isAssignableFrom(type)) {
+        } else if (isNaiveMap(type)) {
             return "readField(MapStreamer.INSTANCE)";
 
-        } else if (List.class.isAssignableFrom(type)) {
+        } else if (isNaiveList(type)) {
             return "readField(ArrayStreamer.INSTANCE)";
 
         } else if (type.isArray()) {
@@ -333,10 +347,10 @@ public class GenActionScriptTask extends GenTask
                    (type.isArray() && type.getComponentType().isPrimitive())) {
             return "writeField(" + name + ")";
 
-        } else if (List.class.isAssignableFrom(type)) {
+        } else if (isNaiveList(type)) {
             return "writeField(" + name + ", ArrayStreamer.INSTANCE)";
 
-        } else if (Map.class.isAssignableFrom(type)) {
+        } else if (isNaiveMap(type)) {
             return "writeField(" + name + ", MapStreamer.INSTANCE)";
 
         } else {

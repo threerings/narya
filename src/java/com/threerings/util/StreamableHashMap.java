@@ -26,6 +26,8 @@ import java.util.Map;
 
 import java.io.IOException;
 
+import com.samskivert.annotation.ReplacedBy;
+
 import com.threerings.io.ObjectInputStream;
 import com.threerings.io.ObjectOutputStream;
 import com.threerings.io.Streamable;
@@ -38,6 +40,7 @@ import com.threerings.io.Streamable;
  * @param <K> the type of key stored in this map.
  * @param <V> the type of value stored in this map.
  */
+@ReplacedBy("java.util.Map")
 public class StreamableHashMap<K, V> extends HashMap<K, V>
     implements Streamable
 {

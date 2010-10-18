@@ -4,7 +4,7 @@
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2010 Three Rings Design, Inc., All Rights Reserved
-// http://www.threerings.net/code/narya/
+// http://code.google.com/p/narya/
 //
 // This library is free software; you can redistribute it and/or modify it
 // under the terms of the GNU Lesser General Public License as published
@@ -30,8 +30,10 @@ import com.threerings.util.Long;
 import com.threerings.io.TypedArray;
 import flash.utils.ByteArray;
 import com.threerings.io.streamers.ArrayStreamer;
+import com.threerings.util.StreamableArrayList;
 import com.threerings.util.Map;
 import com.threerings.io.streamers.MapStreamer;
+import com.threerings.util.StreamableHashMap;
 // GENERATED PREAMBLE END
 
 import com.threerings.util.Integer;
@@ -41,8 +43,6 @@ import com.threerings.util.Util;
 // GENERATED CLASSDECL START
 public class ASStreamableSubset extends SimpleStreamableObject
 {
-    public function ASStreamableSubset ()
-    {}
 // GENERATED CLASSDECL END
 
     public static function createWithJavaDefaults () :ASStreamableSubset
@@ -85,12 +85,16 @@ public class ASStreamableSubset extends SimpleStreamableObject
         return bool1 === o.bool1 && short2 === o.short2 && int3 === o.int3 && long4.equals(o.long4) &&
             float5 === o.float5 && double6 === o.double6 && char7 === o.char7 &&
             byte8 === o.byte8 && string1 === o.string1 && nullString1 === o.nullString1 &&
+
             Util.equals(bools, o.bools) && Util.equals(bytes, o.bytes) &&
             Util.equals(ints, o.ints) && Util.equals(nullBools, o.nullBools) &&
             Util.equals(nullBytes, o.nullBytes) && Util.equals(nullInts, o.nullInts) &&
+
             Util.equals(strings, o.strings) && Util.equals(nullStrings, o.nullStrings) &&
+            Util.equals(sal, o.sal) &&
+
             Maps.equals(stringMap, o.stringMap) && Maps.equals(stringIntMap, o.stringIntMap)
-            Maps.equals(nullStringMap, o.nullStringMap);
+            Maps.equals(nullStringMap, o.nullStringMap) && Maps.equals(shm, o.shm);
 
     }
 
@@ -113,9 +117,11 @@ public class ASStreamableSubset extends SimpleStreamableObject
     public var nullInts :TypedArray;
     public var strings :TypedArray;
     public var nullStrings :TypedArray;
+    public var sal :StreamableArrayList;
     public var stringMap :Map;
     public var stringIntMap :Map;
     public var nullStringMap :Map;
+    public var shm :StreamableHashMap;
 
     override public function readObject (ins :ObjectInputStream) :void
     {
@@ -138,9 +144,11 @@ public class ASStreamableSubset extends SimpleStreamableObject
         nullInts = ins.readField(TypedArray.getJavaType(int));
         strings = ins.readField(ArrayStreamer.INSTANCE);
         nullStrings = ins.readField(ArrayStreamer.INSTANCE);
+        sal = ins.readObject(StreamableArrayList);
         stringMap = ins.readField(MapStreamer.INSTANCE);
         stringIntMap = ins.readField(MapStreamer.INSTANCE);
         nullStringMap = ins.readField(MapStreamer.INSTANCE);
+        shm = ins.readObject(StreamableHashMap);
     }
     
     override public function writeObject (out :ObjectOutputStream) :void
@@ -164,9 +172,11 @@ public class ASStreamableSubset extends SimpleStreamableObject
         out.writeField(nullInts);
         out.writeField(strings, ArrayStreamer.INSTANCE);
         out.writeField(nullStrings, ArrayStreamer.INSTANCE);
+        out.writeObject(sal);
         out.writeField(stringMap, MapStreamer.INSTANCE);
         out.writeField(stringIntMap, MapStreamer.INSTANCE);
         out.writeField(nullStringMap, MapStreamer.INSTANCE);
+        out.writeObject(shm);
     }
 // GENERATED STREAMING END
 

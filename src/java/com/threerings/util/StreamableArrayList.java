@@ -25,17 +25,20 @@ import java.util.ArrayList;
 
 import java.io.IOException;
 
+import com.samskivert.annotation.ReplacedBy;
+
 import com.threerings.io.ObjectInputStream;
 import com.threerings.io.ObjectOutputStream;
 import com.threerings.io.Streamable;
 
 /**
- * An {@link ArrayList} extension that can be streamed. The contents of
- * the list must also be of streamable types.
+ * An {@link ArrayList} extension that can be streamed. The contents of the list must also be of
+ * streamable types.
  *
  * @see Streamable
  * @param <E> the type of elements stored in this list.
  */
+@ReplacedBy("java.util.List")
 public class StreamableArrayList<E> extends ArrayList<E>
     implements Streamable
 {
