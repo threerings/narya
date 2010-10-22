@@ -24,21 +24,9 @@
   <target name="-init-maven-ant" depends="-download-maven-ant">
     <taskdef resource="org/apache/maven/artifact/ant/antlib.xml"
              uri="urn:maven-artifact-ant" classpath="${maven-ant.jar}"/>
-    <artifact:dependencies pathId="compile.classpath">
-      <dependency groupId="com.google.inject" artifactId="guice" version="2.0"/>
-      <dependency groupId="jboss" artifactId="javassist" version="3.7.ga"/>
-      <dependency groupId="com.threerings" artifactId="gwt-utils" version="1.0"/>
-      <dependency groupId="com.google.gwt" artifactId="gwt-user" version="2.0.4"/>
-      <dependency groupId="org.apache.ant" artifactId="ant" version="1.7.1"/>
-      <dependency groupId="com.samskivert" artifactId="samskivert" version="1.1"/>
-      <dependency groupId="com.samskivert" artifactId="depot" version="1.0"/>
-      <dependency groupId="net.sf.ehcache" artifactId="ehcache" version="1.6.0"/>
-      <dependency groupId="com.google.guava" artifactId="guava" version="r05"/>
-      <dependency groupId="com.samskivert" artifactId="jmustache" version="1.0"/>
-    </artifact:dependencies>
-    <artifact:dependencies pathId="testlibs.classpath">
-      <dependency groupId="junit" artifactId="junit" version="4.8.1"/>
-    </artifact:dependencies>
+    <artifact:pom id="pom" file="pom.xml"/>
+    <artifact:dependencies pathId="compile.classpath" pomRefId="pom" useScope="compile"/>
+    <artifact:dependencies pathId="testlibs.classpath" pomRefId="pom" useScope="test"/>
   </target>
 
   <target name="-prepare" depends="-init-maven-ant">
@@ -54,7 +42,6 @@
       <pathelement location="${classes.dir}"/>
     </path>
     <path id="test.classpath">
-      <path refid="compile.classpath"/>
       <path refid="testlibs.classpath"/>
       <pathelement location="${classes.dir}"/>
       <pathelement location="${tclasses.dir}"/>
