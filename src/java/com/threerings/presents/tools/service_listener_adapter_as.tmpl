@@ -1,48 +1,37 @@
-package $package {
+package {{package}} {
 
-#foreach ($import in $imports)
-import $import;
-#end
+{{#imports}}
+import {{this}};
+{{/imports}}
 
 /**
- * A functional adapter for the ${name}Service_${listener.name}Listener interface.
+ * A functional adapter for the {{name}}Service_{{listener.listenerName}}Listener interface.
  */
-public class ${name}Service_${listener.name}ListenerAdapter
-    implements ${name}Service_${listener.name}Listener
+public class {{name}}Service_{{listener.listenerName}}ListenerAdapter
+    implements {{name}}Service_{{listener.listenerName}}Listener
 {
-#set ($cparams = "")
-#foreach ($lm in $listener.methods)
-#set ($cparams = $cparams + "$lm.method.name :Function, ")
-#end
     /**
-     * Creates a new $name service $listener.name listener that will delegate to the given
-     * function(s). Any Function that is null will simply not be called.
+     * Creates a new {{name}} service {{listener.listenerName}} listener that will delegate to the
+     * given function(s). Any Function that is null will simply not be called.
      */
-    public function ${name}Service_${listener.name}ListenerAdapter (
-        ${cparams}failed :Function)
+    public function {{name}}Service_{{listener.listenerName}}ListenerAdapter (
+        {{adapterCtorArgs}}failed :Function)
     {
-#foreach ($lm in $listener.methods)
-        _$lm.method.name = $lm.method.name;
-#end
+{{#listener.methods}}
+        _{{method.name}} = {{method.name}};
+{{/listener.methods}}
         _failed = failed;
     }
-#foreach ($lm in $listener.methods)
+{{#listener.methods}}
 
-    // from Java ${name}Service_${listener.name}Listener
-    public function $lm.method.name ($lm.getASArgList(false)) :void
+    // from Java {{name}}Service_{{listener.listenerName}}Listener
+    public function {{method.name}} ({{getASArgList}}) :void
     {
-#set ($alist = "")
-#foreach ($type in $lm.method.getParameterTypes())
-#if ($velocityCount > 1)
-#set ($alist = $alist + ", ")
-#end
-#set ($alist = $alist + "arg$velocityCount")
-#end
-        if (_$lm.method.name != null) {
-            _${lm.method.name}($alist);
+        if (_{{method.name}} != null) {
+            _{{method.name}}({{getASInvokeArgList}});
         }
     }
-#end
+{{/listener.methods}}
 
     // from InvocationService_InvocationListener
     public function requestFailed (cause :String) :void
@@ -52,9 +41,9 @@ public class ${name}Service_${listener.name}ListenerAdapter
         }
     }
 
-#foreach ($lm in $listener.methods)
-    protected var _$lm.method.name :Function;
-#end
+{{#listener.methods}}
+    protected var _{{method.name}} :Function;
+{{/listener.methods}}
     protected var _failed :Function;
 }
 }

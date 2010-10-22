@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Map;
 
 import java.io.File;
+import java.io.InputStreamReader;
 import java.io.StringWriter;
 
 import org.apache.tools.ant.AntClassLoader;
@@ -34,24 +35,14 @@ import org.apache.tools.ant.Task;
 import org.apache.tools.ant.types.FileSet;
 import org.apache.tools.ant.types.Reference;
 import org.apache.tools.ant.util.ClasspathUtils;
-import org.apache.velocity.VelocityContext;
-import org.apache.velocity.app.VelocityEngine;
 
+import com.google.common.collect.Maps;
 import com.google.common.collect.Lists;
 
-import com.samskivert.velocity.VelocityUtil;
+import com.samskivert.mustache.Mustache;
 
 public abstract class GenTask extends Task
 {
-    public GenTask ()
-    {
-        try {
-            _velocity = VelocityUtil.createEngine();
-        } catch (Exception e) {
-            throw new BuildException("Failure initializing Velocity", e);
-        }
-    }
-
     /**
      * Adds a nested &lt;fileset&gt; element which enumerates service declaration source files.
      */
@@ -109,7 +100,7 @@ public abstract class GenTask extends Task
     protected String mergeTemplate (String template, Object... data)
         throws Exception
     {
-        VelocityContext ctx = new VelocityContext();
+        Map<String, Object> ctx = Maps.newHashMap();
         for (int ii = 0; ii < data.length; ii += 2) {
             ctx.put((String)data[ii], data[ii+1]);
         }
@@ -124,23 +115,8 @@ public abstract class GenTask extends Task
     protected String mergeTemplate (String template, Map<String, Object> data)
         throws Exception
     {
-        VelocityContext ctx = new VelocityContext();
-        for (Map.Entry<String, Object> entry : data.entrySet()) {
-            ctx.put(entry.getKey(), entry.getValue());
-        }
-        return mergeTemplate(template, ctx);
-    }
-
-    /**
-     * A helper function for {@link #mergeTemplate(String, Map<String, Object>)} and friends. Don't
-     * use this directly as you'll end up depending on Velocity and your code won't build.
-     */
-    protected String mergeTemplate (String template, VelocityContext ctx)
-        throws Exception
-    {
-        StringWriter writer = new StringWriter();
-        _velocity.mergeTemplate(template, "UTF-8", ctx, writer);
-        return writer.toString();
+        return Mustache.compiler().escapeHTML(false).compile(new InputStreamReader(
+            getClass().getClassLoader().getResourceAsStream(template), "UTF-8")).execute(data);
     }
 
     /**
@@ -185,8 +161,4 @@ public abstract class GenTask extends Task
 
     /** Used to do our own classpath business. */
     protected ClassLoader _cloader;
-
-    /** Used to generate source files from templates. Don't use this directly from derived classes,
-     * use {@link #mergeTemplate}. */
-    protected VelocityEngine _velocity;
 }

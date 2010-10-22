@@ -1,30 +1,30 @@
-package $package;
+package {{package}};
 
 import javax.annotation.Generated;
 
-#foreach ($import in $imports)
-import $import;
-#end
+{{#imports}}
+import {{this}};
+{{/imports}}
 
 /**
- * Dispatches requests to the {@link ${name}Provider}.
+ * Dispatches requests to the {@link {{name}}Provider}.
  */
-${generated}
-public class ${name}Dispatcher extends InvocationDispatcher<${name}Marshaller>
+{{generated}}
+public class {{name}}Dispatcher extends InvocationDispatcher<{{name}}Marshaller>
 {
     /**
      * Creates a dispatcher that may be registered to dispatch invocation
      * service requests for the specified provider.
      */
-    public ${name}Dispatcher (${name}Provider provider)
+    public {{name}}Dispatcher ({{name}}Provider provider)
     {
         this.provider = provider;
     }
 
     @Override
-    public ${name}Marshaller createMarshaller ()
+    public {{name}}Marshaller createMarshaller ()
     {
-        return new ${name}Marshaller();
+        return new {{name}}Marshaller();
     }
 
     @Override
@@ -33,14 +33,14 @@ public class ${name}Dispatcher extends InvocationDispatcher<${name}Marshaller>
         throws InvocationException
     {
         switch (methodId) {
-#foreach ($m in $methods)
-        case ${name}Marshaller.$m.code:
-            ((${name}Provider)provider).${m.method.name}(
-                source#if ($m.hasArgs(true)), #end$m.getUnwrappedArgList(false)
+{{#methods}}
+        case {{name}}Marshaller.{{code}}:
+            (({{name}}Provider)provider).{{method.name}}(
+                source{{#hasArgsSkipFirst}}, {{/hasArgsSkipFirst}}{{getUnwrappedArgList}}
             );
             return;
 
-#end
+{{/methods}}
         default:
             super.dispatchRequest(source, methodId, args);
             return;

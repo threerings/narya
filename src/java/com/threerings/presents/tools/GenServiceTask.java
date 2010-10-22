@@ -24,7 +24,9 @@ package com.threerings.presents.tools;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -32,9 +34,9 @@ import java.io.File;
 
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 
-import com.samskivert.util.ComparableArrayList;
 import com.samskivert.util.StringUtil;
 
 import com.threerings.util.ActionScript;
@@ -64,8 +66,7 @@ public class GenServiceTask extends InvocationTask
     {
         public Class<?> listener;
 
-        public ComparableArrayList<ServiceMethod> methods =
-            new ComparableArrayList<ServiceMethod>();
+        public List<ServiceMethod> methods = Lists.newArrayList();
 
         /** Contains all imports required for the parameters of the methods in this listener. */
         public ImportSet imports = new ImportSet();
@@ -99,7 +100,7 @@ public class GenServiceTask extends InvocationTask
                     }
                 }
             }
-            methods.sort();
+            Collections.sort(methods);
         }
 
         protected void addInterfaces (Class<?> listener, Set<Class<?>> ifaces)
@@ -125,7 +126,7 @@ public class GenServiceTask extends InvocationTask
             });
         }
 
-        public String getName ()
+        public String getListenerName ()
         {
             String name = GenUtil.simpleName(listener);
             name = name.replace("Listener", "");
@@ -133,10 +134,18 @@ public class GenServiceTask extends InvocationTask
             return name.substring(didx+1);
         }
 
+        public String adapterCtorArgs () {
+            StringBuilder sb = new StringBuilder();
+            for (ServiceMethod m : methods) {
+                sb.append(m.method.getName() + " :Function, ");
+            }
+            return sb.toString();
+        }
+
         // from interface Comparable<ServiceListener>
         public int compareTo (ServiceListener other)
         {
-            return getName().compareTo(other.getName());
+            return getListenerName().compareTo(other.getListenerName());
         }
 
         @Override
@@ -377,7 +386,7 @@ public class GenServiceTask extends InvocationTask
             ctx.put("imports", imports.toList());
             ctx.put("listener", listener);
             String aslpath = _asroot + File.separator + mppath +
-                File.separator + mname + "_" + listener.getName() + "Marshaller.as";
+                File.separator + mname + "_" + listener.getListenerName() + "Marshaller.as";
             writeFile(aslpath, mergeTemplate(AS_LISTENER_MARSHALLER_TMPL, ctx));
         }
 
@@ -460,13 +469,13 @@ public class GenServiceTask extends InvocationTask
             ctx.put("imports", imports.toList());
             ctx.put("listener", listener);
 
-            String aslpath = _asroot + File.separator + sppath +
-                File.separator + sname + "_" + listener.getName() + "Listener.as";
+            String aslpath = _asroot + File.separator + sppath + File.separator +
+                sname + "_" + listener.getListenerName() + "Listener.as";
             writeFile(aslpath, mergeTemplate(AS_LISTENER_SERVICE_TMPL, ctx));
 
             if (_aslistenerAdapters.contains(sname)) {
-                String aslapath = _asroot + File.separator + sppath +
-                    File.separator + sname + "_" + listener.getName() + "ListenerAdapter.as";
+                String aslapath = _asroot + File.separator + sppath + File.separator +
+                    sname + "_" + listener.getListenerName() + "ListenerAdapter.as";
                 writeFile(aslapath, mergeTemplate(AS_LISTENER_ADAPTER_SERVICE_TMPL, ctx));
             }
         }
@@ -600,10 +609,8 @@ public class GenServiceTask extends InvocationTask
         public String sname;
         public String spackage;
         public ImportSet imports = new ImportSet();
-        public ComparableArrayList<ServiceMethod> methods =
-            new ComparableArrayList<ServiceMethod>();
-        public ComparableArrayList<ServiceListener> listeners =
-            new ComparableArrayList<ServiceListener>();
+        public List<ServiceMethod> methods = Lists.newArrayList();
+        public List<ServiceListener> listeners = Lists.newArrayList();
         public final boolean skipAS;
 
         public ServiceDescription (Class<?> serviceClass)
@@ -641,8 +648,8 @@ public class GenServiceTask extends InvocationTask
                         StringUtil.toString(imports));
                 }
             }
-            listeners.sort();
-            methods.sort();
+            Collections.sort(listeners);
+            Collections.sort(methods);
         }
 
         /**

@@ -1,26 +1,26 @@
-package $package;
+package {{package}};
 
 import javax.annotation.Generated;
 
-#foreach ($import in $imports)
-import $import;
-#end
+{{#imports}}
+import {{this}};
+{{/imports}}
 
 /**
- * Defines the server-side of the {@link ${name}Service}.
+ * Defines the server-side of the {@link {{name}}Service}.
  */
-${generated}
-public interface ${name}Provider extends InvocationProvider
+{{generated}}
+public interface {{name}}Provider extends InvocationProvider
 {
-#foreach ($m in $methods)
-#if ($velocityCount > 1)
+{{#methods}}
+{{^-first}}
 
-#end
+{{/-first}}
     /**
-     * Handles a {@link ${name}Service#$m.method.name} request.
+     * Handles a {@link {{name}}Service#{{method.name}}} request.
      */
-    void $m.method.name (ClientObject caller#if ($m.hasArgs(true)), #end$m.getArgList(true))#if ($m.listenerArgs.size() > 0)
+    void {{method.name}} (ClientObject caller{{#hasArgsSkipFirst}}, {{/hasArgsSkipFirst}}{{getArgListSkipFirst}}){{^listenerArgs.isEmpty}}
 
-        throws InvocationException#end;
-#end
+        throws InvocationException{{/listenerArgs.isEmpty}};
+{{/methods}}
 }

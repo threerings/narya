@@ -9,7 +9,6 @@
 		</accessrules>
 	</classpathentry>
 	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/depot"/>
-	<classpathentry exported="true" kind="var" path="EXT_LIBS_DIR/commons-lang.jar"/>
 	<classpathentry exported="true" kind="var" path="EXT_LIBS_DIR/gwt-user.jar"/>
 	<classpathentry exported="true" kind="var" path="EXT_LIBS_DIR/atunit.jar">
 		<accessrules>

@@ -81,7 +81,8 @@ public class LocationMarshaller extends InvocationMarshaller
     // from interface LocationService
     public void leavePlace (Client arg1)
     {
-        sendRequest(arg1, LEAVE_PLACE, new Object[] {});
+        sendRequest(arg1, LEAVE_PLACE, new Object[] {
+        });
     }
 
     /** The method id used to dispatch {@link #moveTo} requests. */

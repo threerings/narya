@@ -1,28 +1,28 @@
-package $package;
+package {{package}};
 
-#foreach ($import in $imports)
-import $import;
-#end
+{{#imports}}
+import {{this}};
+{{/imports}}
 
 /**
- * Dispatches calls to a {@link ${name}Receiver} instance.
+ * Dispatches calls to a {@link {{name}}Receiver} instance.
  */
-public class ${name}Decoder extends InvocationDecoder
+public class {{name}}Decoder extends InvocationDecoder
 {
     /** The generated hash code used to identify this receiver class. */
-    public static final String RECEIVER_CODE = "$receiver_code";
+    public static final String RECEIVER_CODE = "{{receiver_code}}";
 
-#foreach ($m in $methods)
-    /** The method id used to dispatch {@link ${name}Receiver#$m.method.name}
+{{#methods}}
+    /** The method id used to dispatch {@link {{name}}Receiver#{{method.name}}}
      * notifications. */
-    public static final int $m.code = $velocityCount;
+    public static final int {{code}} = {{-index}};
 
-#end
+{{/methods}}
     /**
      * Creates a decoder that may be registered to dispatch invocation
      * service notifications to the specified receiver.
      */
-    public ${name}Decoder (${name}Receiver receiver)
+    public {{name}}Decoder ({{name}}Receiver receiver)
     {
         this.receiver = receiver;
     }
@@ -37,14 +37,14 @@ public class ${name}Decoder extends InvocationDecoder
     public void dispatchNotification (int methodId, Object[] args)
     {
         switch (methodId) {
-#foreach ($m in $methods)
-        case $m.code:
-            ((${name}Receiver)receiver).${m.method.name}(
-                $m.getUnwrappedArgList(true)
+{{#methods}}
+        case {{code}}:
+            (({{name}}Receiver)receiver).{{method.name}}(
+                {{getUnwrappedArgListAsListeners}}
             );
             return;
 
-#end
+{{/methods}}
         default:
             super.dispatchNotification(methodId, args);
             return;

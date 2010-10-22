@@ -1,44 +1,43 @@
 // GENERATED PREAMBLE START
-${header}
-package ${package} {
+{{header}}
+package {{package}} {
 
-#foreach ($import in $imports)
-import $import;
-#end
+{{#imports}}
+import {{this}};
+{{/imports}}
 // GENERATED PREAMBLE END
 
 // GENERATED CLASSDECL START
-public class ${classname} #if (!${extends.isEmpty()})extends $extends
-#end
-#if (!${implements.isEmpty()})
-#if (!${extends.isEmpty()})    #{end}implements $implements
-#end
+public class {{classname}} {{^extends.isEmpty}}extends {{#extends}}
+{{/extends.isEmpty}}
+{{^implements.isEmpty}}{{^extends.isEmpty}}    {{/extends.isEmpty}}implements {{#implements}}
+{{/implements.isEmpty}}
 {
 // GENERATED CLASSDECL END
 
 // GENERATED STREAMING START
-#foreach ($field in $fields)
-    public var $field.name :${field.simpleType};
-#end
+{{#fields}}
+    public var {{name}} :{{simpleType}};
+{{/fields}}
 
-    #if ($superclassStreamable)override #{end}public function readObject (ins :ObjectInputStream) :void
+    {{#superclassStreamable}}override {{/superclassStreamable}}public function readObject (ins :ObjectInputStream) :void
     {
-#if ($superclassStreamable)
+{{#superclassStreamable}}
         super.readObject(ins);
-#end
-#foreach ($field in $fields)
-        $field.name = ins.${field.reader};
-#end
+{{/superclassStreamable}}
+{{#fields}}
+        {{name}} = ins.{{reader}};
+{{/fields}}
     }
     
-    #if ($superclassStreamable)override #{end}public function writeObject (out :ObjectOutputStream) :void
+    {{#superclassStreamable}}override {{/superclassStreamable}}public function writeObject (out :ObjectOutputStream) :void
     {
-#if ($superclassStreamable)
+{{#superclassStreamable}}
         super.writeObject(out);
-#end
-#foreach ($field in $fields)
-        out.${field.writer};
-#end
+{{/superclassStreamable}}
+{{#fields}}
+        out.{{writer}};
+{{/fields}}
     }
 // GENERATED STREAMING END
 

@@ -1,20 +1,20 @@
-package $package {
+package {{package}} {
 
-#foreach ($import in $imports)
-import $import;
-#end
+{{#imports}}
+import {{this}};
+{{/imports}}
 
 /**
- * An ActionScript version of the Java ${name}Service interface.
+ * An ActionScript version of the Java {{name}}Service interface.
  */
-public interface ${name}Service extends InvocationService
+public interface {{name}}Service extends InvocationService
 {
-#foreach ($m in $methods)
-#if ($velocityCount > 1)
+{{#methods}}
+{{^-first}}
 
-#end
-    // from Java interface ${name}Service
-    function $m.method.name ($m.getASArgList(true)) :void;
-#end
+{{/-first}}
+    // from Java interface {{name}}Service
+    function {{method.name}} ({{getASArgListSkipFirst}}) :void;
+{{/methods}}
 }
 }

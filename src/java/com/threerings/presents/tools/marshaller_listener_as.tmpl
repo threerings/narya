@@ -1,31 +1,31 @@
-package $package {
+package {{package}} {
 
-#foreach ($import in $imports)
-import $import;
-#end
+{{#imports}}
+import {{this}};
+{{/imports}}
 
 /**
- * Marshalls instances of the ${name}Service_${listener.name}Marshaller interface.
+ * Marshalls instances of the {{name}}Service_{{listener.listenerName}}Marshaller interface.
  */
-public class ${name}Marshaller_${listener.name}Marshaller
+public class {{name}}Marshaller_{{listener.listenerName}}Marshaller
     extends InvocationMarshaller_ListenerMarshaller
 {
-#foreach ($lm in $listener.methods)
-    /** The method id used to dispatch <code>$lm.method.name</code> responses. */
-    public static const $lm.code :int = $velocityCount;
+{{#listener.methods}}
+    /** The method id used to dispatch <code>{{method.name}}</code> responses. */
+    public static const {{code}} :int = {{-index}};
 
-#end
+{{/listener.methods}}
     // from InvocationMarshaller_ListenerMarshaller
     override public function dispatchResponse (methodId :int, args :Array) :void
     {
         switch (methodId) {
-#foreach ($lm in $listener.methods)
-        case $lm.code:
-            (listener as ${name}Service_${listener.name}Listener).${lm.method.name}(
-                ${lm.getASUnwrappedArgList(true)});
+{{#listener.methods}}
+        case {{code}}:
+            (listener as {{name}}Service_{{listener.listenerName}}Listener).{{method.name}}(
+                {{getASUnwrappedArgListAsListeners}});
             return;
 
-#end
+{{/listener.methods}}
         default:
             super.dispatchResponse(methodId, args);
             return;

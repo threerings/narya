@@ -1,38 +1,38 @@
     /**
      * Requests that the specified entry be added to the
-     * <code>$field</code> set. The set will not change until the event is
+     * <code>{{field}}</code> set. The set will not change until the event is
      * actually propagated through the system.
      */
-    ${generated}
-    public void addTo$upfield ($etype elem)
+    {{generated}}
+    public void addTo{{upfield}} ({{etype}} elem)
     {
-        requestEntryAdd($capfield, $field, elem);
+        requestEntryAdd({{capfield}}, {{field}}, elem);
     }
 
     /**
      * Requests that the entry matching the supplied key be removed from
-     * the <code>$field</code> set. The set will not change until the
+     * the <code>{{field}}</code> set. The set will not change until the
      * event is actually propagated through the system.
      */
-    ${generated}
-    public void removeFrom$upfield (Comparable<?> key)
+    {{generated}}
+    public void removeFrom{{upfield}} (Comparable<?> key)
     {
-        requestEntryRemove($capfield, $field, key);
+        requestEntryRemove({{capfield}}, {{field}}, key);
     }
 
     /**
      * Requests that the specified entry be updated in the
-     * <code>$field</code> set. The set will not change until the event is
+     * <code>{{field}}</code> set. The set will not change until the event is
      * actually propagated through the system.
      */
-    ${generated}
-    public void update$upfield ($etype elem)
+    {{generated}}
+    public void update{{upfield}} ({{etype}} elem)
     {
-        requestEntryUpdate($capfield, $field, elem$transport);
+        requestEntryUpdate({{capfield}}, {{field}}, elem{{transport}});
     }
 
     /**
-     * Requests that the <code>$field</code> field be set to the
+     * Requests that the <code>{{field}}</code> field be set to the
      * specified value. Generally one only adds, updates and removes
      * entries of a distributed set, but certain situations call for a
      * complete replacement of the set value. The local value will be
@@ -41,10 +41,10 @@
      * change. Proxied copies of this object (on clients) will apply the
      * value change when they received the attribute changed notification.
      */
-    ${generated}
-    public void set$upfield ($type value)
+    {{generated}}
+    public void set{{upfield}} ({{type}} value)
     {
-        requestAttributeChange($capfield, value, this.$field);
-        $type clone = $clonefield;
-        this.$field = clone;
+        requestAttributeChange({{capfield}}, value, this.{{field}});
+        {{type}} clone = {{clonefield}};
+        this.{{field}} = clone;
     }

@@ -123,6 +123,7 @@ public class GenDObjectTask extends GenTask
             // if this field is an array, we need its component types
             if (ftype.isArray()) {
                 Class<?> etype = ftype.getComponentType();
+                data.put("have_elem", true);
                 data.put("elemtype", GenUtil.simpleName(etype));
                 data.put("wrapelem", GenUtil.boxArgument(etype, "value"));
                 data.put("wrapoelem", GenUtil.boxArgument(etype, "ovalue"));

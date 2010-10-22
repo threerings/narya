@@ -1,38 +1,37 @@
-package $package {
+package {{package}} {
 
-#foreach ($import in $imports)
-import $import;
-#end
+{{#imports}}
+import {{this}};
+{{/imports}}
 
 /**
- * Provides the implementation of the <code>${name}Service</code> interface
+ * Provides the implementation of the <code>{{name}}Service</code> interface
  * that marshalls the arguments and delivers the request to the provider
  * on the server. Also provides an implementation of the response listener
  * interfaces that marshall the response arguments and deliver them back
  * to the requesting client.
  */
-public class ${name}Marshaller extends InvocationMarshaller
-    implements ${name}Service
+public class {{name}}Marshaller extends InvocationMarshaller
+    implements {{name}}Service
 {
-#foreach ($m in $methods)
-#if ($velocityCount > 1)
+{{#methods}}
+{{^-first}}
 
-#end
-    /** The method id used to dispatch <code>$m.method.name</code> requests. */
-    public static const $m.code :int = $velocityCount;
+{{/-first}}
+    /** The method id used to dispatch <code>{{method.name}}</code> requests. */
+    public static const {{code}} :int = {{-index}};
 
-    // from interface ${name}Service
-    public function $m.method.name ($m.getASArgList(true)) :void
+    // from interface {{name}}Service
+    public function {{method.name}} ({{getASArgListSkipFirst}}) :void
     {
-#foreach ($la in $m.listenerArgs)
-#set ($argIdx = $la.index - 1)
-        var listener$argIdx :$la.actionScriptMarshaller = new ${la.actionScriptMarshaller}();
-        listener${argIdx}.listener = arg$argIdx;
-#end
-        sendRequest($m.code, [
-            $m.getASWrappedArgList(true)
+{{#listenerArgs}}
+        var listener{{indexSkipFirst}} :{{actionScriptMarshaller}} = new {{actionScriptMarshaller}}();
+        listener{{indexSkipFirst}}.listener = arg{{indexSkipFirst}};
+{{/listenerArgs}}
+        sendRequest({{code}}, [
+            {{getASWrappedArgListSkipFirst}}
         ]);
     }
-#end
+{{/methods}}
 }
 }

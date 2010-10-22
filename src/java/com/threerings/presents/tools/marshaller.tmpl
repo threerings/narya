@@ -1,58 +1,58 @@
-package $package;
+package {{package}};
 
 import javax.annotation.Generated;
 
-#foreach ($import in $imports)
-import $import;
-#end
+{{#imports}}
+import {{this}};
+{{/imports}}
 
 /**
- * Provides the implementation of the {@link ${name}Service} interface
+ * Provides the implementation of the {@link {{name}}Service} interface
  * that marshalls the arguments and delivers the request to the provider
  * on the server. Also provides an implementation of the response listener
  * interfaces that marshall the response arguments and deliver them back
  * to the requesting client.
  */
-${generated}
-public class ${name}Marshaller extends InvocationMarshaller
-    implements ${name}Service
+{{generated}}
+public class {{name}}Marshaller extends InvocationMarshaller
+    implements {{name}}Service
 {
-#foreach ($l in $listeners)
+{{#listeners}}
     /**
-     * Marshalls results to implementations of {@link ${name}Service.${l.name}Listener}.
+     * Marshalls results to implementations of {@link {{name}}Service.{{listenerName}}Listener}.
      */
-    public static class ${l.name}Marshaller extends ListenerMarshaller
-        implements ${l.name}Listener
+    public static class {{listenerName}}Marshaller extends ListenerMarshaller
+        implements {{listenerName}}Listener
     {
-#foreach ($lm in $l.methods)
-        /** The method id used to dispatch {@link #$lm.method.name}
+{{#methods}}
+        /** The method id used to dispatch {@link #{{method.name}}}
          * responses. */
-        public static final int $lm.code = $velocityCount;
+        public static final int {{code}} = {{-index}};
 
-        // from interface ${l.name}Marshaller
-        public void $lm.method.name ($lm.getArgList(false))
+        // from interface {{listenerName}}Marshaller
+        public void {{method.name}} ({{getArgList}})
         {
             _invId = null;
             omgr.postEvent(new InvocationResponseEvent(
-                               callerOid, requestId, $lm.code,
-                               new Object[] { $lm.getWrappedArgList(false) }, transport));
+                               callerOid, requestId, {{code}},
+                               new Object[] { {{getWrappedArgList}} }, transport));
         }
 
-#end
+{{/methods}}
         @Override // from InvocationMarshaller
-#if ($l.hasParameterizedMethodArgs())
+{{#hasParameterizedMethodArgs}}
         @SuppressWarnings("unchecked")
-#end
+{{/hasParameterizedMethodArgs}}
         public void dispatchResponse (int methodId, Object[] args)
         {
             switch (methodId) {
-#foreach ($lm in $l.methods)
-            case $lm.code:
-                ((${l.name}Listener)listener).${lm.method.name}(
-                    ${lm.getUnwrappedArgList(true)});
+{{#methods}}
+            case {{code}}:
+                (({{listenerName}}Listener)listener).{{method.name}}(
+                    {{getUnwrappedArgListAsListeners}});
                 return;
 
-#end
+{{/methods}}
             default:
                 super.dispatchResponse(methodId, args);
                 return;
@@ -60,25 +60,26 @@ public class ${name}Marshaller extends InvocationMarshaller
         }
     }
 
-#end
-#foreach ($m in $methods)
-#if ($velocityCount > 1)
+{{/listeners}}
+{{#methods}}
+{{^-first}}
 
-#end
-    /** The method id used to dispatch {@link #$m.method.name} requests. */
-    public static final int $m.code = $velocityCount;
+{{/-first}}
+    /** The method id used to dispatch {@link #{{method.name}}} requests. */
+    public static final int {{code}} = {{-index}};
 
-    // from interface ${name}Service
-    public void $m.method.name ($m.getArgList(false))
+    // from interface {{name}}Service
+    public void {{method.name}} ({{getArgList}})
     {
-#foreach ($la in $m.listenerArgs)
-        $la.marshaller listener$la.index = new ${la.marshaller}();
-        listener${la.index}.listener = arg$la.index;
-#end
-        sendRequest(arg1, $m.code, new Object[] {#if($m.hasArgs(true))
-
-            $m.getWrappedArgList(true)
-        #end}$m.transport);
+{{#listenerArgs}}
+        {{marshaller}} listener{{index}} = new {{marshaller}}();
+        listener{{index}}.listener = arg{{index}};
+{{/listenerArgs}}
+        sendRequest(arg1, {{code}}, new Object[] {
+{{#hasArgsSkipFirst}}
+            {{getWrappedArgListSkipFirst}}
+{{/hasArgsSkipFirst}}
+        }{{transport}});
     }
-#end
+{{/methods}}
 }

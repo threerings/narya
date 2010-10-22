@@ -1,21 +1,21 @@
-package $package {
+package {{package}} {
 
-#foreach ($import in $imports)
-import $import;
-#end
+{{#imports}}
+import {{this}};
+{{/imports}}
 
 /**
- * An ActionScript version of the Java ${name}Service_${listener.name}Listener interface.
+ * An ActionScript version of the Java {{name}}Service_{{listener.listenerName}}Listener interface.
  */
-public interface ${name}Service_${listener.name}Listener
+public interface {{name}}Service_{{listener.listenerName}}Listener
     extends InvocationService_InvocationListener
 {
-#foreach ($lm in $listener.methods)
-#if ($velocityCount > 1)
+{{#listener.methods}}
+{{^-first}}
 
-#end
-    // from Java ${name}Service_${listener.name}Listener
-    function $lm.method.name ($lm.getASArgList(false)) :void
-#end
+{{/-first}}
+    // from Java {{name}}Service_{{listener.listenerName}}Listener
+    function {{method.name}} ({{getASArgList}}) :void
+{{/listener.methods}}
 }
 }

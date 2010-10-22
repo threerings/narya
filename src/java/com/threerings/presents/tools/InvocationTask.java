@@ -56,18 +56,14 @@ public abstract class InvocationTask extends GenTask
     /** Used to keep track of invocation service method listener arguments. */
     public class ListenerArgument
     {
-        public int index;
-
         public Class<?> listener;
 
-        public ListenerArgument (int index, Class<?> listener)
-        {
-            this.index = index+1;
+        public ListenerArgument (int index, Class<?> listener) {
             this.listener = listener;
+            _index = index;
         }
 
-        public String getMarshaller ()
-        {
+        public String getMarshaller () {
             String name = GenUtil.simpleName(listener);
             // handle ye olde special case
             if (name.equals("InvocationService.InvocationListener")) {
@@ -77,8 +73,7 @@ public abstract class InvocationTask extends GenTask
             return name.replace("Listener", "Marshaller");
         }
 
-        public String getActionScriptMarshaller ()
-        {
+        public String getActionScriptMarshaller () {
             // handle ye olde special case
             String name = listener.getName();
             if (name.endsWith("InvocationService$InvocationListener")) {
@@ -87,13 +82,22 @@ public abstract class InvocationTask extends GenTask
                 return getMarshaller().replace('.', '_');
             }
         }
+
+        public int getIndex () {
+            return _index+1;
+        }
+
+        public int getIndexSkipFirst () {
+            return _index;
+        }
+
+        protected int _index;
     }
 
     /** Used to keep track of invocation service methods or listener methods. */
     public class ServiceMethod implements Comparable<ServiceMethod>
     {
         public Method method;
-
         public List<ListenerArgument> listenerArgs = Lists.newArrayList();
 
         /**
@@ -101,8 +105,7 @@ public abstract class InvocationTask extends GenTask
          * @param method the method to inspect
          * @param imports will be filled with the types required by the method
          */
-        public ServiceMethod (Method method, ImportSet imports)
-        {
+        public ServiceMethod (Method method, ImportSet imports) {
             this.method = method;
 
             // if this method has listener arguments, we need to add listener argument info for them
@@ -130,8 +133,220 @@ public abstract class InvocationTask extends GenTask
             }
         }
 
-        protected void addImportsForType (Type type, ImportSet imports)
-        {
+        public String getCode () {
+            return StringUtil.unStudlyName(method.getName()).toUpperCase();
+        }
+
+        public String getSenderMethodName () {
+            String mname = method.getName();
+            if (mname.startsWith("received")) {
+                return "send" + mname.substring("received".length());
+            } else {
+                return mname;
+            }
+        }
+
+        public String getArgListSkipFirst () {
+            return getArgList(true);
+        }
+
+        public String getArgList () {
+            return getArgList(false);
+        }
+
+        public String getArgList (boolean skipFirst) {
+            StringBuilder buf = new StringBuilder();
+            Type[] ptypes = method.getGenericParameterTypes();
+            for (int ii = skipFirst ? 1 : 0; ii < ptypes.length; ii++) {
+                if (buf.length() > 0) {
+                    buf.append(", ");
+                }
+                String simpleName = GenUtil.simpleName(ptypes[ii]);
+                if (method.isVarArgs() && ii == ptypes.length - 1) {
+                    // Switch [] with ... for varargs
+                    buf.append(simpleName.substring(0, simpleName.length() - 2)).append("...");
+                } else {
+                    buf.append(simpleName);
+                }
+                buf.append(" arg").append(skipFirst ? ii : ii+1);
+            }
+            return buf.toString();
+        }
+
+        public String getASArgListSkipFirst () {
+            return getASArgList(true);
+        }
+
+        public String getASArgList () {
+            return getASArgList(false);
+        }
+
+        public String getASArgList (boolean skipFirst) {
+            StringBuilder buf = new StringBuilder();
+            Class<?>[] args = method.getParameterTypes();
+            for (int ii = skipFirst ? 1 : 0; ii < args.length; ii++) {
+                if (buf.length() > 0) {
+                    buf.append(", ");
+                }
+                buf.append("arg").append(skipFirst ? ii : ii+1).append(" :");
+                buf.append(GenUtil.simpleASName(args[ii]));
+            }
+            return buf.toString();
+        }
+
+        public String getASInvokArgList () {
+            StringBuilder buf = new StringBuilder();
+            Class<?>[] args = method.getParameterTypes();
+            for (int ii = 0; ii < args.length; ii++) {
+                if (buf.length() > 0) {
+                    buf.append(", ");
+                }
+                buf.append("arg").append(ii);
+            }
+            return buf.toString();
+        }
+
+        public String getWrappedArgListSkipFirst () {
+            return getWrappedArgList(true);
+        }
+
+        public String getWrappedArgList () {
+            return getWrappedArgList(false);
+        }
+
+        public String getWrappedArgList (boolean skipFirst) {
+            StringBuilder buf = new StringBuilder();
+            Class<?>[] args = method.getParameterTypes();
+            for (int ii = (skipFirst ? 1 : 0); ii < args.length; ii++) {
+                if (buf.length() > 0) {
+                    buf.append(", ");
+                }
+                buf.append(boxArgument(args[ii], ii+1));
+            }
+            return buf.toString();
+        }
+
+        public String getASWrappedArgListSkipFirst () {
+            return getASWrappedArgList(true);
+        }
+
+        public String getASWrappedArgList () {
+            return getASWrappedArgList(false);
+        }
+
+        public String getASWrappedArgList (boolean skipFirst) {
+            StringBuilder buf = new StringBuilder();
+            Class<?>[] args = method.getParameterTypes();
+            for (int ii = (skipFirst ? 1 : 0); ii < args.length; ii++) {
+                if (buf.length() > 0) {
+                    buf.append(", ");
+                }
+                String index = String.valueOf(skipFirst ? ii : (ii+1));
+                String arg;
+                if (_ilistener.isAssignableFrom(args[ii])) {
+                    arg = GenUtil.boxASArgument(args[ii],  "listener" + index);
+                } else {
+                    arg = GenUtil.boxASArgument(args[ii],  "arg" + index);
+                }
+                buf.append(arg);
+            }
+            return buf.toString();
+        }
+
+        public boolean hasArgsSkipFirst () {
+            return (method.getParameterTypes().length > 1);
+        }
+
+        public boolean hasArgs () {
+            return (method.getParameterTypes().length > 0);
+        }
+
+        public boolean hasParameterizedArgs () {
+            return Iterables.any(
+                Arrays.asList(method.getGenericParameterTypes()), new Predicate<Type>() {
+                public boolean apply (Type type) {
+                    // TODO: might eventually need to handle generic arrays and wildcard types
+                    return (type instanceof ParameterizedType);
+                }
+            });
+        }
+
+        public String getUnwrappedArgListAsListeners () {
+            return getUnwrappedArgList(true);
+        }
+
+        public String getUnwrappedArgList () {
+            return getUnwrappedArgList(false);
+        }
+
+        public String getUnwrappedArgList (boolean listenerMode) {
+            StringBuilder buf = new StringBuilder();
+            Type[] ptypes = method.getGenericParameterTypes();
+            for (int ii = (listenerMode ? 0 : 1); ii < ptypes.length; ii++) {
+                if (buf.length() > 0) {
+                    buf.append(", ");
+                }
+                buf.append(unboxArgument(ptypes[ii], listenerMode ? ii : ii-1, listenerMode));
+            }
+            return buf.toString();
+        }
+
+        public String getASUnwrappedArgListAsListeners () {
+            return getASUnwrappedArgList(true);
+        }
+
+        public String getASUnwrappedArgList () {
+            return getASUnwrappedArgList(false);
+        }
+
+        public String getASUnwrappedArgList (boolean listenerMode) {
+            StringBuilder buf = new StringBuilder();
+            Class<?>[] args = method.getParameterTypes();
+            for (int ii = (listenerMode ? 0 : 1); ii < args.length; ii++) {
+                if (buf.length() > 0) {
+                    buf.append(", ");
+                }
+                String arg;
+                int argidx = listenerMode ? ii : ii-1;
+                if (listenerMode && _ilistener.isAssignableFrom(args[ii])) {
+                    arg = "listener" + argidx;
+                } else {
+                    arg = GenUtil.unboxASArgument(args[ii], "args[" + argidx + "]");
+                }
+                buf.append(arg);
+            }
+            return buf.toString();
+        }
+
+        public String getTransport () {
+            TransportHint hint = method.getAnnotation(TransportHint.class);
+            if (hint == null) {
+                // inherit hint from interface annotation
+                hint = method.getDeclaringClass().getAnnotation(TransportHint.class);
+            }
+            if (hint == null) {
+                return "";
+            }
+            return ", Transport.getInstance(Transport.Type." +
+                hint.type().name() + ", " + hint.channel() + ")";
+        }
+
+        // from interface Comparator<ServiceMethod>
+        public int compareTo (ServiceMethod other) {
+            return getCode().compareTo(other.getCode());
+        }
+
+        @Override // from Object
+        public boolean equals (Object other) {
+            return (other instanceof ServiceMethod) && compareTo((ServiceMethod)other) == 0;
+        }
+
+        @Override // from Object
+        public int hashCode () {
+            return getCode().hashCode();
+        }
+
+        protected void addImportsForType (Type type, ImportSet imports) {
             if (type instanceof Class<?>) {
                 imports.add((Class<?>)type);
             } else if (type instanceof ParameterizedType) {
@@ -155,171 +370,7 @@ public abstract class InvocationTask extends GenTask
             }
         }
 
-        public String getCode ()
-        {
-            return StringUtil.unStudlyName(method.getName()).toUpperCase();
-        }
-
-        public String getSenderMethodName ()
-        {
-            String mname = method.getName();
-            if (mname.startsWith("received")) {
-                return "send" + mname.substring("received".length());
-            } else {
-                return mname;
-            }
-        }
-
-        public String getArgList (boolean skipFirst)
-        {
-            StringBuilder buf = new StringBuilder();
-            Type[] ptypes = method.getGenericParameterTypes();
-            for (int ii = skipFirst ? 1 : 0; ii < ptypes.length; ii++) {
-                if (buf.length() > 0) {
-                    buf.append(", ");
-                }
-                String simpleName = GenUtil.simpleName(ptypes[ii]);
-                if (method.isVarArgs() && ii == ptypes.length - 1) {
-                    // Switch [] with ... for varargs
-                    buf.append(simpleName.substring(0, simpleName.length() - 2)).append("...");
-                } else {
-                    buf.append(simpleName);
-                }
-                buf.append(" arg").append(skipFirst ? ii : ii+1);
-            }
-            return buf.toString();
-        }
-
-        public String getASArgList (boolean skipFirst)
-        {
-            StringBuilder buf = new StringBuilder();
-            Class<?>[] args = method.getParameterTypes();
-            for (int ii = skipFirst ? 1 : 0; ii < args.length; ii++) {
-                if (buf.length() > 0) {
-                    buf.append(", ");
-                }
-                buf.append("arg").append(skipFirst ? ii : ii+1).append(" :");
-                buf.append(GenUtil.simpleASName(args[ii]));
-            }
-            return buf.toString();
-        }
-
-        public String getWrappedArgList (boolean skipFirst)
-        {
-            StringBuilder buf = new StringBuilder();
-            Class<?>[] args = method.getParameterTypes();
-            for (int ii = (skipFirst ? 1 : 0); ii < args.length; ii++) {
-                if (buf.length() > 0) {
-                    buf.append(", ");
-                }
-                buf.append(boxArgument(args[ii], ii+1));
-            }
-            return buf.toString();
-        }
-
-        public String getASWrappedArgList (boolean skipFirst)
-        {
-            StringBuilder buf = new StringBuilder();
-            Class<?>[] args = method.getParameterTypes();
-            for (int ii = (skipFirst ? 1 : 0); ii < args.length; ii++) {
-                if (buf.length() > 0) {
-                    buf.append(", ");
-                }
-                String index = String.valueOf(skipFirst ? ii : (ii+1));
-                String arg;
-                if (_ilistener.isAssignableFrom(args[ii])) {
-                    arg = GenUtil.boxASArgument(args[ii],  "listener" + index);
-                } else {
-                    arg = GenUtil.boxASArgument(args[ii],  "arg" + index);
-                }
-                buf.append(arg);
-            }
-            return buf.toString();
-        }
-
-        public boolean hasArgs (boolean skipFirst)
-        {
-            return (method.getParameterTypes().length > (skipFirst ? 1 : 0));
-        }
-
-        public boolean hasParameterizedArgs ()
-        {
-            return Iterables.any(
-                Arrays.asList(method.getGenericParameterTypes()), new Predicate<Type>() {
-                public boolean apply (Type type) {
-                    // TODO: might eventually need to handle generic arrays and wildcard types
-                    return (type instanceof ParameterizedType);
-                }
-            });
-        }
-
-        public String getUnwrappedArgList (boolean listenerMode)
-        {
-            StringBuilder buf = new StringBuilder();
-            Type[] ptypes = method.getGenericParameterTypes();
-            for (int ii = (listenerMode ? 0 : 1); ii < ptypes.length; ii++) {
-                if (buf.length() > 0) {
-                    buf.append(", ");
-                }
-                buf.append(unboxArgument(ptypes[ii], listenerMode ? ii : ii-1, listenerMode));
-            }
-            return buf.toString();
-        }
-
-        public String getASUnwrappedArgList (boolean listenerMode)
-        {
-            StringBuilder buf = new StringBuilder();
-            Class<?>[] args = method.getParameterTypes();
-            for (int ii = (listenerMode ? 0 : 1); ii < args.length; ii++) {
-                if (buf.length() > 0) {
-                    buf.append(", ");
-                }
-                String arg;
-                int argidx = listenerMode ? ii : ii-1;
-                if (listenerMode && _ilistener.isAssignableFrom(args[ii])) {
-                    arg = "listener" + argidx;
-                } else {
-                    arg = GenUtil.unboxASArgument(args[ii], "args[" + argidx + "]");
-                }
-                buf.append(arg);
-            }
-            return buf.toString();
-        }
-
-        public String getTransport ()
-        {
-            TransportHint hint = method.getAnnotation(TransportHint.class);
-            if (hint == null) {
-                // inherit hint from interface annotation
-                hint = method.getDeclaringClass().getAnnotation(TransportHint.class);
-            }
-            if (hint == null) {
-                return "";
-            }
-            return ", Transport.getInstance(Transport.Type." +
-                hint.type().name() + ", " + hint.channel() + ")";
-        }
-
-        // from interface Comparator<ServiceMethod>
-        public int compareTo (ServiceMethod other)
-        {
-            return getCode().compareTo(other.getCode());
-        }
-
-        @Override // from Object
-        public boolean equals (Object other)
-        {
-            return (other instanceof ServiceMethod) && compareTo((ServiceMethod)other) == 0;
-        }
-
-        @Override // from Object
-        public int hashCode ()
-        {
-            return getCode().hashCode();
-        }
-
-        protected String boxArgument (Class<?> clazz, int index)
-        {
+        protected String boxArgument (Class<?> clazz, int index) {
             if (_ilistener.isAssignableFrom(clazz)) {
                 return GenUtil.boxArgument(clazz,  "listener" + index);
             } else {
@@ -327,8 +378,7 @@ public abstract class InvocationTask extends GenTask
             }
         }
 
-        protected String unboxArgument (Type type, int index, boolean listenerMode)
-        {
+        protected String unboxArgument (Type type, int index, boolean listenerMode) {
             if (listenerMode && (type instanceof Class<?>) &&
                 _ilistener.isAssignableFrom((Class<?>)type)) {
                 return "listener" + index;
