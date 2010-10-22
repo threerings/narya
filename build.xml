@@ -132,15 +132,6 @@
     <delete file="${deploy.dir}/aslib-config.xml"/>
   </target>
 
-  <condition property="isunix"><os family="unix"/></condition>
-  <target name="ninstall" depends="-prepare" if="isunix"
-          description="Builds the native libraries.">
-    <echo level="info" message="Doing native compilation on ${os.name}..."/>
-    <exec dir="${src.dir}/com/threerings/util/signal/${os.name}" executable="make">
-       <arg line="install"/>
-    </exec>
-  </target>
-
   <target name="javadoc" depends="-prepare" description="Builds the Java documentation">
     <mkdir dir="${deploy.dir}/docs"/>
     <javadoc sourcepath="${src.dir}" packagenames="com.threerings.*"
@@ -186,10 +177,10 @@
   </target>
 
   <!-- a target for rebuilding everything -->
-  <target name="all" depends="clean,compile,aslib,ninstall,javadoc,dist"/>
+  <target name="all" depends="clean,compile,aslib,javadoc,dist"/>
 
   <!-- builds our distribution files (war and jar) -->
-  <target name="dist" depends="compile,procstream,aslib,ninstall">
+  <target name="dist" depends="compile,procstream,aslib">
     <!-- build our various jar files -->
     <jar destfile="${deploy.dir}/${lib.name}-base.jar">
       <fileset dir="${classes.dir}">
@@ -391,7 +382,6 @@
        <fileset dir=".">
          <include name="**"/>
          <exclude name="${deploy.dir}/**"/>
-         <exclude name="tests/${deploy.dir}/**"/>
          <exclude name="${lib.name}-*.zip"/>
        </fileset>
      </copy>

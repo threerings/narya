@@ -1,1 +1,0 @@
-../FreeBSD/com_threerings_util_signal_SignalManager.c

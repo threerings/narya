@@ -179,14 +179,10 @@ public class PresentsServer
     protected void registerSignalHandlers (Injector injector)
     {
         // register SIGTERM, SIGINT (ctrl-c) and a SIGHUP handlers
-        boolean registered = false;
         try {
-            registered = injector.getInstance(SunSignalHandler.class).init();
+            injector.getInstance(SunSignalHandler.class).init();
         } catch (Throwable t) {
             log.warning("Unable to register Sun signal handlers", "error", t);
-        }
-        if (!registered) {
-            injector.getInstance(NativeSignalHandler.class).init();
         }
     }
 
