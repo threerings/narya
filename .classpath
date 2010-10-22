@@ -18,5 +18,6 @@
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="var" path="EXT_LIBS_DIR/jsr250-api.jar"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/gwt-utils"/>
+	<classpathentry kind="var" path="M2_REPO/com/samskivert/jmustache/1.0/jmustache-1.0.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
