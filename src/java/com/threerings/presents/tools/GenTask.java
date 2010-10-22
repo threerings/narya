@@ -26,7 +26,6 @@ import java.util.Map;
 
 import java.io.File;
 import java.io.InputStreamReader;
-import java.io.StringWriter;
 
 import org.apache.tools.ant.AntClassLoader;
 import org.apache.tools.ant.BuildException;
