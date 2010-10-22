@@ -1,20 +1,13 @@
 <?xml version="1.0" standalone="yes"?>
 <!-- build configuration -->
 <project name="narya" default="compile" basedir="." xmlns:artifact="urn:maven-artifact-ant">
-
-  <!-- import overriding properties -->
-  <property file="build.properties"/>
-
-  <!-- configuration parameters -->
   <property name="lib.name"     value="narya"/>
   <property name="deploy.dir"   value="dist"/>
-  <property name="savedoc.dir"  value="docs"/>
-  <property name="javadoc.home" value="${deploy.dir}/docs"/>
+  <property name="src.dir"      value="src/main/java"/>
+  <property name="tsrc.dir"     value="src/test/java"/>
   <property name="classes.dir"  value="${deploy.dir}/classes"/>
-  <property name="libs.dir"     value="lib"/>
-  <property name="gwtjar.dir"  value="${deploy.dir}/gwt-jar"/>
-
-  <import file="etc/libs-incl.xml"/>
+  <property name="tclasses.dir" value="${deploy.dir}/test-classes"/>
+  <property name="gwtjar.dir"   value="${deploy.dir}/gwt-jar"/>
 
   <property name="maven-ant.vers" value="2.1.1"/>
   <property name="maven-ant.dir" value="${user.home}/.m2/ant-support"/>
@@ -31,88 +24,96 @@
   <target name="-init-maven-ant" depends="-download-maven-ant">
     <taskdef resource="org/apache/maven/artifact/ant/antlib.xml"
              uri="urn:maven-artifact-ant" classpath="${maven-ant.jar}"/>
-    <artifact:dependencies pathId="maven.classpath">
+    <artifact:dependencies pathId="compile.classpath">
+      <dependency groupId="com.google.inject" artifactId="guice" version="2.0"/>
+      <dependency groupId="jboss" artifactId="javassist" version="3.7.ga"/>
+      <dependency groupId="com.threerings" artifactId="gwt-utils" version="1.0"/>
+      <dependency groupId="com.google.gwt" artifactId="gwt-user" version="2.0.4"/>
+      <dependency groupId="org.apache.ant" artifactId="ant" version="1.7.1"/>
+      <dependency groupId="com.samskivert" artifactId="samskivert" version="1.1"/>
+      <dependency groupId="com.samskivert" artifactId="depot" version="1.0"/>
+      <dependency groupId="net.sf.ehcache" artifactId="ehcache" version="1.6.0"/>
+      <dependency groupId="com.google.guava" artifactId="guava" version="r05"/>
       <dependency groupId="com.samskivert" artifactId="jmustache" version="1.0"/>
+    </artifact:dependencies>
+    <artifact:dependencies pathId="testlibs.classpath">
+      <dependency groupId="junit" artifactId="junit" version="4.8.1"/>
     </artifact:dependencies>
   </target>
 
-  <!-- prepares the application directories -->
-  <target name="prepare" depends="-init-maven-ant">
-    <path id="classpath">
-      <path refId="maven.classpath"/>
-      <pathelement location="${classes.dir}"/>
-      <fileset dir="${deploy.dir}/lib" includes="**/*.jar"/>
-    </path>
+  <target name="-prepare" depends="-init-maven-ant">
     <mkdir dir="${deploy.dir}"/>
     <mkdir dir="${deploy.dir}/lib"/>
     <mkdir dir="${classes.dir}"/>
-    <mkdir dir="${javadoc.home}"/>
     <copy todir="${classes.dir}">
-      <fileset dir="src/java" includes="**/*.properties"/>
-      <fileset dir="src/java" includes="**/*.tmpl"/>
+      <fileset dir="${src.dir}" includes="**/*.properties"/>
+      <fileset dir="${src.dir}" includes="**/*.tmpl"/>
     </copy>
+    <path id="built.classpath">
+      <path refid="compile.classpath"/>
+      <pathelement location="${classes.dir}"/>
+    </path>
+    <path id="test.classpath">
+      <path refid="compile.classpath"/>
+      <path refid="testlibs.classpath"/>
+      <pathelement location="${classes.dir}"/>
+      <pathelement location="${tclasses.dir}"/>
+    </path>
+    <!-- TEMP: needed for ActionScript library build -->
+    <property name="libs.dir" value="lib"/>
     <copy todir="${deploy.dir}/lib" flatten="true">
-      <fileset refid="${lib.name}.libs"/>
+      <fileset dir="${libs.dir}">
+        <include name="aspirin.swc"/>
+        <include name="asunit.swc"/>
+        <include name="corelib.swc"/>
+      </fileset>
     </copy>
+    <!-- END TEMP -->
   </target>
 
-  <!-- checks the availability of certain libraries -->
-  <target name="check-available" depends="prepare">
-    <available property="ehcache.present" classpathref="classpath"
-               classname="net.sf.ehcache.CacheManager"/>
-    <echo level="info" message="Have EHCache: ${ehcache.present}"/>
-    <condition property="gwt.present"><and>
-        <available classname="com.google.gwt.core.client.GWT" classpathref="classpath"/>
-        <available classname="com.threerings.gwt.ui.Widgets" classpathref="classpath"/>
-    </and></condition>
-    <echo level="info" message="Have GWT: ${gwt.present}"/>
-  </target>
-
-  <!-- makes sure our tools are compiled and defines the ant tasks -->
-  <target name="preptools" depends="prepare">
-    <javac srcdir="src/java" destdir="${classes.dir}" includeAntRuntime="false"
-           debug="on" optimize="${build.optimize}" deprecation="on" source="1.5" target="1.5">
-      <classpath refid="classpath"/>
+  <target name="-preptools" depends="-prepare">
+    <javac srcdir="${src.dir}" destdir="${classes.dir}" includeAntRuntime="false"
+           debug="on" optimize="${build.optimize}" deprecation="on"
+           source="1.5" target="1.5" classpathref="compile.classpath">
       <compilerarg value="-Xlint"/>
       <compilerarg value="-Xlint:-serial"/>
       <include name="com/threerings/presents/tools/**"/>
     </javac>
-    <taskdef resource="com/threerings/presents/tools.properties" classpathref="classpath"/>
+    <taskdef resource="com/threerings/presents/tools.properties" classpathref="built.classpath"/>
   </target>
 
-  <!-- cleans out the intermediate build files -->
-  <target name="clean" depends="common-clean">
-    <delete dir="${deploy.dir}/classes"/>
+  <target name="clean" description="Cleans out build results">
+    <delete dir="${classes.dir}"/>
+    <delete dir="${tclasses.dir}"/>
     <delete dir="${deploy.dir}/docs"/>
     <delete dir="${gwtjar.dir}"/>
     <delete failonerror="false"><fileset dir="${deploy.dir}" includes="*.jar"/></delete>
     <delete failonerror="false"><fileset dir="${deploy.dir}" includes="*.swc"/></delete>
   </target>
 
-  <!-- wipes the entire build directory clean -->
-  <target name="distclean" depends="common-clean">
+  <target name="distclean" description="Scorched earth clean">
     <delete dir="${deploy.dir}"/>
   </target>
 
-  <!-- common clean tasks -->
-  <target name="common-clean">
-    <ant dir="tests" target="clean"/>
-  </target>
-
-  <!-- build the java class files -->
-  <target name="compile" depends="prepare,check-available">
-    <javac srcdir="src/java" destdir="${classes.dir}" includeAntRuntime="false"
-           debug="on" optimize="${build.optimize}" deprecation="on" source="1.5" target="1.5">
-      <classpath refid="classpath"/>
+  <target name="compile" depends="-prepare" description="Builds the Java code">
+    <javac srcdir="${src.dir}" destdir="${classes.dir}" includeAntRuntime="false"
+           debug="on" optimize="${build.optimize}" deprecation="on"
+           source="1.5" target="1.5" classpathref="compile.classpath">
       <compilerarg value="-Xlint"/>
       <compilerarg value="-Xlint:-serial"/>
-      <exclude name="com/threerings/presents/peer/server/EHCache*" unless="ehcache.present"/>
-      <exclude name="**/web/**/*.java" unless="gwt.present"/>
+    </javac>
+
+    <mkdir dir="${tclasses.dir}"/>
+    <copy todir="${tclasses.dir}"><fileset dir="src/test/resources" includes="**"/></copy>
+    <javac srcdir="${tsrc.dir}" destdir="${tclasses.dir}" includeAntRuntime="false"
+           debug="on" optimize="${build.optimize}" source="1.5" target="1.5"
+           encoding="utf-8" classpathref="test.classpath">
+      <compilerarg value="-Xlint"/>
+      <compilerarg value="-Xlint:-serial"/>
     </javac>
   </target>
 
-  <!-- checks whether our Flash library needs building -->
-  <target name="checkaslib">
+  <target name="-checkaslib">
     <condition property="no_build_aslib"><or>
       <not><available file="${flexsdk.dir}/lib/compc.jar"/></not>
       <and>
@@ -123,16 +124,15 @@
     </or></condition>
   </target>
 
-  <!-- builds our Flash library -->
-  <target name="aslib" unless="no_build_aslib" depends="checkaslib">
-    <!-- Generate aslib-config.xml for Flash Player and general compilation -->
+  <target name="aslib" unless="no_build_aslib" depends="-checkaslib"
+          description="Builds the ActionScript code">
+    <!-- generate aslib-config.xml for Flash Player and general compilation -->
     <copy file="etc/aslib-config.xml.in" tofile="${deploy.dir}/aslib-config.xml">
       <filterset>
         <filter token="flex_sdk_dir" value="${flexsdk.dir}"/>
         <filter token="lib_name" value="${lib.name}"/>
       </filterset>
     </copy>
-    <!-- Build Narya -->
     <java jar="${flexsdk.dir}/lib/compc.jar" fork="true" failonerror="true">
       <arg value="-load-config"/>
       <arg value="${deploy.dir}/aslib-config.xml"/>
@@ -145,22 +145,21 @@
     <delete file="${deploy.dir}/aslib-config.xml"/>
   </target>
 
-  <!-- build the native libraries -->
   <condition property="isunix"><os family="unix"/></condition>
-  <target name="ninstall" depends="prepare" if="isunix">
+  <target name="ninstall" depends="-prepare" if="isunix"
+          description="Builds the native libraries.">
     <echo level="info" message="Doing native compilation on ${os.name}..."/>
-    <exec dir="src/java/com/threerings/util/signal/${os.name}" executable="make">
+    <exec dir="${src.dir}/com/threerings/util/signal/${os.name}" executable="make">
        <arg line="install"/>
     </exec>
   </target>
 
-  <!-- build the javadoc documentation -->
-  <target name="javadoc" depends="prepare">
-    <javadoc sourcepath="src/java" packagenames="com.threerings.*"
-             destdir="${javadoc.home}" stylesheetfile="docs/stylesheet.css"
-             additionalparam="-breakiterator"
-             link="http://www.threerings.net/code/narya/docs/api">
-      <classpath refid="classpath"/>
+  <target name="javadoc" depends="-prepare" description="Builds the Java documentation">
+    <mkdir dir="${deploy.dir}/docs"/>
+    <javadoc sourcepath="${src.dir}" packagenames="com.threerings.*"
+             destdir="${deploy.dir}/docs" stylesheetfile="docs/stylesheet.css"
+             link="http://www.threerings.net/code/narya/docs/api"
+             additionalparam="-breakiterator" classpathref="compile.classpath">
       <link href="http://java.sun.com/j2se/1.5/docs/api/"/>
       <!-- ant documentation is not available online, sorry kids -->
       <link href="file:///usr/share/doc/ant-doc/javadocs"/>
@@ -168,17 +167,8 @@
     </javadoc>
   </target>
 
-  <!-- builds the javadocs and stuffs them in a directory where they -->
-  <!-- won't be blown away when we do "clean" next time -->
-  <target name="savedoc" depends="javadoc">
-    <delete dir="${savedoc.dir}/api"/>
-    <copy todir="${savedoc.dir}/api">
-      <fileset dir="${javadoc.home}" includes="**/*"/>
-    </copy>
-  </target>
-
-  <!-- builds the ActionScript documention -->
-  <target name="asdoc" unless="no_build_aslib" depends="checkaslib">
+  <target name="asdoc" unless="no_build_aslib" depends="-checkaslib"
+          description="Builds the ActionScript documention">
     <mkdir dir="${deploy.dir}/asdocs"/>
     <java classpath="${flexsdk.dir}/lib/asdoc.jar" classname="flex2.tools.ASDoc" fork="true">
       <jvmarg value="-Xmx1024m"/>
@@ -193,18 +183,26 @@
     </java>
   </target>
 
-  <!-- runs our tests -->
-  <target name="tests">
-    <ant dir="tests" target="tests"/>
+  <property name="test" value=""/>
+  <target name="tests" depends="compile" 
+          description="Runs unit tests. Use -Dtest=Foo to run only FooTest.">
+    <taskdef name="unit" classpathref="test.classpath"
+      classname="org.apache.tools.ant.taskdefs.optional.junit.JUnitTask"/>
+    <unit printsummary="off" haltonfailure="yes">
+      <classpath refid="test.classpath"/>
+      <sysproperty key="test_dir" value="${tclasses.dir}"/>
+      <formatter type="brief" usefile="false"/>
+      <batchtest>
+        <fileset dir="${tsrc.dir}" includes="**/*${test}*Test.java"/>
+      </batchtest>
+    </unit>
   </target>
 
   <!-- a target for rebuilding everything -->
-  <target name="all" depends="clean,prepare,compile,aslib,ninstall,javadoc,dist"/>
+  <target name="all" depends="clean,compile,aslib,ninstall,javadoc,dist"/>
 
   <!-- builds our distribution files (war and jar) -->
-  <target name="dist" depends="prepare,compile,procstream,aslib,ninstall">
-    <!-- build our tests since that isn't otherwise normally done -->
-    <ant dir="tests" target="compile"/>
+  <target name="dist" depends="compile,procstream,aslib,ninstall">
     <!-- build our various jar files -->
     <jar destfile="${deploy.dir}/${lib.name}-base.jar">
       <fileset dir="${classes.dir}">
@@ -235,36 +233,37 @@
       </fileset>
     </jar>
     <jar destfile="${deploy.dir}/${lib.name}-tests.jar">
-      <fileset dir="tests/${classes.dir}" includes="com/threerings/**"/>
+      <fileset dir="${tclasses.dir}" includes="com/threerings/**"/>
     </jar>
-    <artifact:dependencies filesetId="mustache.fileset">
-      <dependency groupId="com.samskivert" artifactId="jmustache" version="1.0"/>
+
+    <!-- build a batteries-included jar for our tools -->
+    <artifact:dependencies pathId="jarjar.classpath">
+      <dependency groupId="com.tonicsystems" artifactId="jarjar" version="0.6"/>
     </artifact:dependencies>
-    <!-- build a dependencies-included version of narya-tools -->
+    <artifact:dependencies filesetId="tools.fileset">
+      <dependency groupId="com.samskivert" artifactId="jmustache" version="1.0"/>
+      <dependency groupId="com.samskivert" artifactId="samskivert" version="1.0"/>
+      <dependency groupId="jboss" artifactId="javassist" version="3.7.ga"/>
+      <dependency groupId="com.google.guava" artifactId="guava" version="r05"/>
+    </artifact:dependencies>
     <taskdef name="jarjar" classname="com.tonicsystems.jarjar.JarJarTask"
-             classpathref="classpath"/>
+             classpathref="jarjar.classpath"/>
     <jarjar destfile="${deploy.dir}/${lib.name}-tools-full.jar">
       <fileset dir="${classes.dir}">
         <include name="com/threerings/io/**"/>
         <include name="com/threerings/presents/**"/>
         <include name="com/threerings/util/**"/>
       </fileset>
-      <zipfileset src="${deploy.dir}/lib/samskivert.jar"/>
-      <zipfileset refid="mustache.fileset"/>
+      <zipgroupfileset refid="tools.fileset"/>
       <rule pattern="com.samskivert.**" result="cs.@1"/>
-      <zipfileset src="${deploy.dir}/lib/javassist.jar"/>
       <rule pattern="javassist.**" result="ja.@1"/>
-      <zipfileset src="${deploy.dir}/lib/guava.jar"/>
       <rule pattern="com.google.**" result="cgc.@1"/>
     </jarjar>
-    <antcall target="dist-gwt"/>
-  </target>
 
-  <target name="dist-gwt" if="gwt.present">
     <!-- we export a small selection of classes for use by GWT -->
     <mkdir dir="${gwtjar.dir}"/>
     <copy todir="${gwtjar.dir}">
-      <fileset dir="src/java">
+      <fileset dir="${src.dir}">
         <include name="**/web/server/*Exception.java"/>
         <include name="**/web/client/*.java"/>
         <include name="**/web/gwt/*.java"/>
@@ -276,47 +275,47 @@
   </target>
 
   <!-- generates fields for persistent record classes -->
-  <target name="genrecord" depends="prepare">
+  <target name="genrecord" depends="-prepare">
     <taskdef name="grecord" classname="com.samskivert.depot.tools.GenRecordTask"
-             classpathref="classpath"/>
+             classpathref="compile.classpath"/>
     <!-- make sure the record class files are all compiled -->
-    <javac srcdir="src/java" destdir="${classes.dir}" debug="on" optimize="${build.optimize}"
-           includeAntRuntime="false" deprecation="on" source="1.5" target="1.5">
-      <classpath refid="classpath"/>
+    <javac srcdir="${src.dir}" destdir="${classes.dir}" debug="on" optimize="${build.optimize}"
+           includeAntRuntime="false" deprecation="on" source="1.5" target="1.5"
+           classpathref="compile.classpath">
       <include name="**/*Record.java"/>
     </javac>
     <!-- now update the source files -->
-    <grecord classpathref="classpath">
-      <fileset dir="src/java" includes="**/*Record.java"/>
+    <grecord classpathref="built.classpath">
+      <fileset dir="${src.dir}" includes="**/*Record.java"/>
     </grecord>
   </target>
 
-  <!-- generates additional methods for distributed object classes -->
-  <target name="gendobj" depends="preptools">
+  <target name="gendobj" depends="-preptools"
+          description="Generates additional methods for distributed object classes">
     <!-- make sure the dobject class files are all compiled -->
-    <javac srcdir="src/java" destdir="${classes.dir}" includeAntRuntime="false" debug="on"
-           optimize="${build.optimize}" deprecation="on" source="1.5" target="1.5">
-      <classpath refid="classpath"/>
+    <javac srcdir="${src.dir}" destdir="${classes.dir}" includeAntRuntime="false" debug="on"
+           optimize="${build.optimize}" deprecation="on" source="1.5" target="1.5"
+           classpathref="compile.classpath">
       <include name="**/*Object.java"/>
     </javac>
     <!-- now generate the associated files -->
-    <gendobj classpathref="classpath">
-      <fileset dir="src/java" includes="**/*Object.java"/>
+    <gendobj classpathref="built.classpath">
+      <fileset dir="${src.dir}" includes="**/*Object.java"/>
     </gendobj>
   </target>
 
-  <!-- generates marshaller and dispatcher classes for all invocation service declarations -->
-  <target name="genservice" depends="preptools">
+  <target name="genservice" depends="-preptools"
+          description="Generates marshaller and dispatcher classes for all invocation services">
     <!-- make sure the service class files are all compiled -->
-    <javac srcdir="src/java" destdir="${classes.dir}" includeAntRuntime="false" debug="on"
-           optimize="${build.optimize}" deprecation="on" source="1.5" target="1.5">
-      <classpath refid="classpath"/>
+    <javac srcdir="${src.dir}" destdir="${classes.dir}" includeAntRuntime="false" debug="on"
+           optimize="${build.optimize}" deprecation="on" source="1.5" target="1.5"
+           classpathref="compile.classpath">
       <include name="**/*Service.java"/>
       <exclude name="**/InvocationService.java"/>
     </javac>
     <!-- now generate the associated files -->
-    <genservice header="lib/SOURCE_HEADER" asroot="src/as" classpathref="classpath">
-      <fileset dir="src/java" includes="**/*Service.java">
+    <genservice header="lib/SOURCE_HEADER" asroot="src/as" classpathref="built.classpath">
+      <fileset dir="${src.dir}" includes="**/*Service.java">
         <exclude name="**/InvocationService.java"/>
         <exclude name="**/peer/**"/>
         <exclude name="**/admin/**"/>
@@ -325,33 +324,32 @@
       <providerless service="SimulatorService"/>
       <providerless service="TimeBaseService"/>
     </genservice>
-    <genservice header="lib/SOURCE_HEADER" classpathref="classpath">
-      <fileset dir="src/java" includes="**/peer/**/*Service.java"/>
-      <fileset dir="src/java" includes="**/admin/**/*Service.java"/>
+    <genservice header="lib/SOURCE_HEADER" classpathref="built.classpath">
+      <fileset dir="${src.dir}" includes="**/peer/**/*Service.java"/>
+      <fileset dir="${src.dir}" includes="**/admin/**/*Service.java"/>
     </genservice>
   </target>
 
-  <!-- generates sender and decoder classes for all invocation receiver declarations -->
-  <target name="genreceiver" depends="preptools">
+  <target name="genreceiver" depends="-preptools"
+          description="Generates sender and decoder classes for all invocation receivers">
     <!-- make sure the receiver class files are all compiled -->
-    <javac srcdir="src/java" destdir="${classes.dir}" includeAntRuntime="false"
-           debug="on" optimize="${build.optimize}" deprecation="on" source="1.5" target="1.5">
-      <classpath refid="classpath"/>
+    <javac srcdir="${src.dir}" destdir="${classes.dir}" includeAntRuntime="false"
+           debug="on" optimize="${build.optimize}" deprecation="on" source="1.5" target="1.5"
+           classpathref="compile.classpath">
       <include name="**/*Receiver.java"/>
       <exclude name="**/InvocationReceiver.java"/>
     </javac>
     <!-- now generate the associated files -->
-    <genreceiver header="lib/SOURCE_HEADER" classpathref="classpath">
-      <fileset dir="src/java" includes="**/*Receiver.java"
+    <genreceiver header="lib/SOURCE_HEADER" classpathref="built.classpath">
+      <fileset dir="${src.dir}" includes="**/*Receiver.java"
         excludes="**/InvocationReceiver.java"/>
     </genreceiver>
   </target>
 
-  <!-- adds readField and writeField methods to Stremable classes -->
-  <target name="procstream" depends="preptools">
-    <!-- now instrument the associated files -->
+  <target name="procstream" depends="-preptools"
+          description="Adds readField and writeField methods to Streamable classes">
     <instream outdir="${classes.dir}">
-      <path refid="classpath"/>
+      <path refid="built.classpath"/>
       <fileset dir="${classes.dir}" includes="**/data/*.class"/>
       <fileset dir="${classes.dir}" includes="**/net/*.class"/>
       <fileset dir="${classes.dir}" includes="**/dobj/*.class"/>
@@ -359,10 +357,10 @@
     </instream>
   </target>
 
-  <!-- generates ActionScript versions of our Streamable classes -->
-  <target name="genascript" depends="preptools">
+  <target name="genascript" depends="-preptools"
+          description="Generates ActionScript versions of our Streamable classes">
     <genascript header="lib/SOURCE_HEADER" asroot="src/as">
-      <fileset dir="src/java" includes="**/data/*.java"/>
+      <fileset dir="${src.dir}" includes="**/data/*.java"/>
     </genascript>
   </target>
 
@@ -370,24 +368,12 @@
   <property name="inpre" value="${deploy.dir}/${lib.name}"/>
   <property name="outpre" value="${deploy.dir}/retro/${lib.name}"/>
 
-  <!-- a helper task for 'retro' -->
-  <target name="vweave">
-    <taskdef name="weave" classpathref="classpath"
-             classname="com.rc.retroweaver.ant.RetroWeaverTask"/>
-    <path id="retrocp">
-      <pathelement location="/usr/local/jdk1.4/jre/lib/rt.jar"/>
-      <fileset dir="lib" includes="**/*.jar"/>
-      <fileset dir="${deploy.dir}/retro" includes="*.jar"/>
-    </path>
-    <weave inputjar="${inpre}-${which}.jar" outputjar="${outpre}-${which}.jar"
-           failonerror="true">
-      <classpath refid="retrocp"/>
-    </weave>
-  </target>
-
-  <!-- converts our 1.5 code to a 1.4 compatible format -->
-  <target name="retro" depends="dist">
-    <taskdef name="weave" classpathref="classpath"
+  <target name="retro" depends="dist"
+          description="Converts our 1.5 code to a 1.4 compatible format">
+    <artifact:dependencies pathId="retroweaver.classpath">
+      <dependency groupId="net.sourceforge.retroweaver" artifactId="retroweaver" version="1.2.3"/>
+    </artifact:dependencies>
+    <taskdef name="weave" classpathref="retroweaver.classpath"
              classname="com.rc.retroweaver.ant.RetroWeaverTask"/>
     <mkdir dir="${deploy.dir}/retro"/>
 
@@ -397,41 +383,28 @@
     <weave inputjar="${inpre}-distrib.jar" outputjar="${outpre}-distrib.jar"/>
 
     <!-- now weave again with the verifier to check for unweavable 1.5isms -->
-    <antcall target="vweave"><param name="which" value="base"/></antcall>
-    <antcall target="vweave"><param name="which" value="distrib"/></antcall>
+    <antcall target="-vweave"><param name="which" value="base"/></antcall>
+    <antcall target="-vweave"><param name="which" value="distrib"/></antcall>
   </target>
 
-  <!-- generate a class hierarchy diagram -->
-  <target name="hierviz" depends="prepare,compile">
-    <taskdef name="viztool" classname="com.samskivert.viztool.DriverTask"/>
-    <viztool visualizer="com.samskivert.viztool.hierarchy.HierarchyVisualizer"
-      pkgroot="com.threerings.miso" classes="com.threerings.miso.*"
-      output="hierviz.ps">
-      <classpath refid="classpath"/>
-    </viztool>
+  <target name="-vweave">
+    <weave inputjar="${inpre}-${which}.jar" outputjar="${outpre}-${which}.jar" failonerror="true">
+      <classpath>
+        <path refid="compile.classpath"/>
+        <pathelement location="/usr/local/jdk1.4/jre/lib/rt.jar"/>
+        <fileset dir="${deploy.dir}/retro" includes="*.jar"/>
+      </classpath>
+    </weave>
   </target>
 
-  <!-- generate a class hierarchy diagram -->
-  <target name="sumgen" depends="prepare,compile">
-    <taskdef name="viztool" classname="com.samskivert.viztool.DriverTask"/>
-    <viztool visualizer="com.samskivert.viztool.summary.SummaryVisualizer"
-      pkgroot="com.threerings.miso"
-      classes="com.threerings.miso.*Scene.*"
-      output="summary.ps">
-      <classpath refid="base.classpath"/>
-    </viztool>
-  </target>
-
-  <!-- creates a zipfile with our source distribution -->
-  <target name="snapshot">
-     <echo message="You may want to stop and run 'ant savedoc' first."/>
+  <target name="snapshot" description="Creates a zipfile with our source distribution">
      <delete file="${deploy.dir}/${lib.name}-snapshot.zip"/>
      <mkdir dir="${deploy.dir}/snapshot/${lib.name}"/>
      <copy todir="${deploy.dir}/snapshot/${lib.name}">
        <fileset dir=".">
          <include name="**"/>
-         <exclude name="dist/**"/>
-         <exclude name="tests/dist/**"/>
+         <exclude name="${deploy.dir}/**"/>
+         <exclude name="tests/${deploy.dir}/**"/>
          <exclude name="${lib.name}-*.zip"/>
        </fileset>
      </copy>

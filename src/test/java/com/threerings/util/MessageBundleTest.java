@@ -40,7 +40,7 @@ public class MessageBundleTest extends TestCase
     public void runTest ()
     {
         try {
-            String path = "rsrc.i18n.messages";
+            String path = "i18n.messages";
             ResourceBundle rbundle = ResourceBundle.getBundle(path);
             MessageBundle bundle = new MessageBundle();
             bundle.init(null, "test", rbundle, null);
