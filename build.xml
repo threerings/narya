@@ -215,8 +215,10 @@
     </jar>
 
     <!-- build a batteries-included jar for our tools -->
+    <property name="url.part" value="https://repository.jboss.org/nexus/service/local"/>
     <artifact:dependencies pathId="jarjar.classpath">
-      <dependency groupId="com.tonicsystems" artifactId="jarjar" version="0.6"/>
+      <remoteRepository id="jboss" url="${url.part}/repositories/thirdparty-releases/content/"/>
+      <dependency groupId="com.google.code" artifactId="jarjar" version="1.0"/>
     </artifact:dependencies>
     <artifact:dependencies filesetId="tools.fileset">
       <dependency groupId="com.samskivert" artifactId="jmustache" version="1.0"/>
