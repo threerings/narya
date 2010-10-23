@@ -13,7 +13,8 @@
         requestAttributeChange(
             {{capfield}}, {{wrapfield}}, {{wrapofield}}{{transport}});
         this.{{field}} = {{clonefield}};
-    }{{#have_elem}}
+    }
+{{#have_elem}}
 
     /**
      * Requests that the <code>index</code>th element of
@@ -31,4 +32,5 @@
         requestElementUpdate(
             {{capfield}}, index, {{wrapelem}}, {{wrapoelem}}{{transport}});
         this.{{field}}[index] = value;
-    }{{/have_elem}}
+    }
+{{/have_elem}}
