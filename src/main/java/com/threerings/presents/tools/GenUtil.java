@@ -133,8 +133,10 @@ public class GenUtil extends com.samskivert.util.GenUtil
             return "((Double)" + name + ").doubleValue()";
         } else if (Object.class.equals(type)) {
             return name; // no need to cast object
-        } else {
+        } else if (type instanceof Class<?>) {
             return "(" + simpleName(type) + ")" + name;
+        } else {
+            return "this.<" + simpleName(type) + ">cast(" + name + ")";
         }
     }
 

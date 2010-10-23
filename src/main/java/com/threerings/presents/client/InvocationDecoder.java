@@ -45,4 +45,13 @@ public abstract class InvocationDecoder
         log.warning("Requested to dispatch unknown method", "receiver", receiver,
                     "methodId", methodId, "args", args);
     }
+
+    /**
+     * Performs type casts in a way that works for parameterized types as well as simple types.
+     */
+    @SuppressWarnings("unchecked")
+    protected <T> T cast (Object value)
+    {
+        return (T)value;
+    }
 }
