@@ -252,6 +252,13 @@
     </copy>
     <jar basedir="${gwtjar.dir}" destfile="${deploy.dir}/${lib.name}-gwt.jar"/>
     <delete dir="${gwtjar.dir}"/>
+
+    <!-- test our narya-tools-full jar by executing it on the test objects/services -->
+    <!-- we have to fork off a new ant here because we've already defined the gen -->
+    <!-- tasks in this ant and we can't undefine them -->
+    <java fork="true" clonevm="true" classname="org.apache.tools.ant.launch.Launcher">
+      <arg value="test-tools"/>
+    </java>
   </target>
 
   <!-- generates fields for persistent record classes -->
@@ -375,6 +382,27 @@
         <fileset dir="${deploy.dir}/retro" includes="*.jar"/>
       </classpath>
     </weave>
+  </target>
+
+  <target name="test-tools" depends="-prepare">
+    <taskdef resource="com/threerings/presents/tools.properties"
+             classpath="${deploy.dir}/${lib.name}-tools-full.jar"/>
+    <gendobj classpathref="test.classpath">
+      <fileset dir="${tsrc.dir}" includes="**/*Object.java"/>
+    </gendobj>
+    <genservice header="lib/SOURCE_HEADER" classpathref="test.classpath">
+      <fileset dir="${tsrc.dir}" includes="**/*Service.java"/>
+    </genservice>
+    <genreceiver header="lib/SOURCE_HEADER" classpathref="test.classpath">
+      <fileset dir="${tsrc.dir}" includes="**/*Receiver.java"/>
+    </genreceiver>
+    <exec executable="svn" outputproperty="svn.out">
+      <arg value="diff"/>
+      <arg value="${tsrc.dir}"/>
+    </exec>
+    <fail message="Regeneration of test dobj and services resulted in diffs.">
+      <condition><not><equals arg1="" arg2="${svn.out}"/></not></condition>
+    </fail>
   </target>
 
   <target name="snapshot" description="Creates a zipfile with our source distribution">
