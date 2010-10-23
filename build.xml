@@ -181,6 +181,7 @@
 
   <!-- builds our distribution files (war and jar) -->
   <target name="dist" depends="compile,procstream,aslib">
+    <jar destfile="${deploy.dir}/${lib.name}.jar" basedir="${classes.dir}"/>
     <!-- build our various jar files -->
     <jar destfile="${deploy.dir}/${lib.name}-base.jar">
       <fileset dir="${classes.dir}">
@@ -190,7 +191,6 @@
         <include name="com/threerings/util/**"/>
         <include name="com/threerings/web/**"/>
         <exclude name="com/threerings/**/tools/**"/>
-        <exclude name="**/*.c,**/Makefile,**/*.h"/>
       </fileset>
     </jar>
     <jar destfile="${deploy.dir}/${lib.name}-distrib.jar">
