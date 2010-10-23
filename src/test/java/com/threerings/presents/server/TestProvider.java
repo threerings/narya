@@ -3,7 +3,7 @@
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2010 Three Rings Design, Inc., All Rights Reserved
-// http://www.threerings.net/code/narya/
+// http://code.google.com/p/narya/
 //
 // This library is free software; you can redistribute it and/or modify it
 // under the terms of the GNU Lesser General Public License as published
@@ -21,6 +21,8 @@
 
 package com.threerings.presents.server;
 
+import javax.annotation.Generated;
+
 import com.threerings.presents.client.InvocationService;
 import com.threerings.presents.client.TestService;
 import com.threerings.presents.data.ClientObject;
@@ -29,6 +31,8 @@ import java.util.List;
 /**
  * Defines the server-side of the {@link TestService}.
  */
+@Generated(value={"com.threerings.presents.tools.GenServiceTask"},
+           comments="Derived from TestService.java.")
 public interface TestProvider extends InvocationProvider
 {
     /**

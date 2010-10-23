@@ -3,7 +3,7 @@
 //
 // Narya library - tools for developing networked games
 // Copyright (C) 2002-2010 Three Rings Design, Inc., All Rights Reserved
-// http://www.threerings.net/code/narya/
+// http://code.google.com/p/narya/
 //
 // This library is free software; you can redistribute it and/or modify it
 // under the terms of the GNU Lesser General Public License as published
@@ -21,6 +21,8 @@
 
 package com.threerings.presents.server;
 
+import javax.annotation.Generated;
+
 import com.threerings.presents.client.InvocationService;
 import com.threerings.presents.client.TestService;
 import com.threerings.presents.data.ClientObject;
@@ -30,6 +32,8 @@ import java.util.List;
 /**
  * Dispatches requests to the {@link TestProvider}.
  */
+@Generated(value={"com.threerings.presents.tools.GenServiceTask"},
+           comments="Derived from TestService.java.")
 public class TestDispatcher extends InvocationDispatcher<TestMarshaller>
 {
     /**
@@ -66,9 +70,8 @@ public class TestDispatcher extends InvocationDispatcher<TestMarshaller>
             return;
 
         case TestMarshaller.TEST:
-            @SuppressWarnings("unchecked") List<Integer> list = (List<Integer>)args[2];
             ((TestProvider)provider).test(
-                source, (String)args[0], ((Integer)args[1]).intValue(), list, (TestService.TestFuncListener)args[3]
+                source, (String)args[0], ((Integer)args[1]).intValue(), this.<List<Integer>>cast(args[2]), (TestService.TestFuncListener)args[3]
             );
             return;
 
