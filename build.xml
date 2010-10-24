@@ -187,32 +187,6 @@
       <fileset dir="${tclasses.dir}" includes="com/threerings/crowd/client/TestClient*"/>
     </jar>
 
-    <!-- build a batteries-included jar for our tools -->
-    <property name="url.part" value="https://repository.jboss.org/nexus/service/local"/>
-    <artifact:dependencies pathId="jarjar.classpath">
-      <remoteRepository id="jboss" url="${url.part}/repositories/thirdparty-releases/content/"/>
-      <dependency groupId="com.google.code" artifactId="jarjar" version="1.0"/>
-    </artifact:dependencies>
-    <artifact:dependencies filesetId="tools.fileset">
-      <dependency groupId="com.samskivert" artifactId="jmustache" version="1.0"/>
-      <dependency groupId="com.samskivert" artifactId="samskivert" version="1.0"/>
-      <dependency groupId="jboss" artifactId="javassist" version="3.7.ga"/>
-      <dependency groupId="com.google.guava" artifactId="guava" version="r05"/>
-    </artifact:dependencies>
-    <taskdef name="jarjar" classname="com.tonicsystems.jarjar.JarJarTask"
-             classpathref="jarjar.classpath"/>
-    <jarjar destfile="${deploy.dir}/${lib.name}-tools-full.jar">
-      <fileset dir="${classes.dir}">
-        <include name="com/threerings/io/**"/>
-        <include name="com/threerings/presents/**"/>
-        <include name="com/threerings/util/**"/>
-      </fileset>
-      <zipgroupfileset refid="tools.fileset"/>
-      <rule pattern="com.samskivert.**" result="cs.@1"/>
-      <rule pattern="javassist.**" result="ja.@1"/>
-      <rule pattern="com.google.**" result="cgc.@1"/>
-    </jarjar>
-
     <!-- we export a small selection of classes for use by GWT -->
     <mkdir dir="${gwtjar.dir}"/>
     <copy todir="${gwtjar.dir}">
@@ -225,17 +199,6 @@
     </copy>
     <jar basedir="${gwtjar.dir}" destfile="${deploy.dir}/${lib.name}-gwt.jar"/>
     <delete dir="${gwtjar.dir}"/>
-
-    <!-- test our narya-tools-full jar by executing it on the test objects/services -->
-    <!-- we have to fork off a new ant here because we've already defined the gen -->
-    <!-- tasks in this ant and we can't undefine them -->
-    <artifact:dependencies pathId="ant.classpath">
-      <dependency groupId="org.apache.ant" artifactId="ant" version="1.7.1"/>
-    </artifact:dependencies>
-    <java fork="true" dir="${basedir}" failonerror="true" classpathref="ant.classpath"
-          classname="org.apache.tools.ant.launch.Launcher">
-      <arg value="test-tools"/>
-    </java>
   </target>
 
   <!-- generates fields for persistent record classes -->
@@ -359,27 +322,6 @@
         <fileset dir="${deploy.dir}/retro" includes="*.jar"/>
       </classpath>
     </weave>
-  </target>
-
-  <target name="test-tools" depends="-prepare">
-    <taskdef resource="com/threerings/presents/tools.properties"
-             classpath="${deploy.dir}/${lib.name}-tools-full.jar"/>
-    <gendobj classpathref="test.classpath">
-      <fileset dir="${tsrc.dir}" includes="**/*Object.java"/>
-    </gendobj>
-    <genservice header="lib/SOURCE_HEADER" classpathref="test.classpath">
-      <fileset dir="${tsrc.dir}" includes="**/*Service.java"/>
-    </genservice>
-    <genreceiver header="lib/SOURCE_HEADER" classpathref="test.classpath">
-      <fileset dir="${tsrc.dir}" includes="**/*Receiver.java"/>
-    </genreceiver>
-    <exec executable="svn" outputproperty="svn.out">
-      <arg value="diff"/>
-      <arg value="${tsrc.dir}"/>
-    </exec>
-    <fail message="Regeneration of test dobj and services resulted in diffs.">
-      <condition><not><equals arg1="" arg2="${svn.out}"/></not></condition>
-    </fail>
   </target>
 
   <target name="snapshot" description="Creates a zipfile with our source distribution">
