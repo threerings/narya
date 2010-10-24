@@ -1,6 +1,6 @@
 <?xml version="1.0" standalone="yes"?>
 <!-- build configuration -->
-<project name="narya" default="compile" basedir="." xmlns:artifact="urn:maven-artifact-ant">
+<project name="narya" default="compile" xmlns:artifact="urn:maven-artifact-ant">
   <property name="lib.name"     value="narya"/>
   <property name="deploy.dir"   value="dist"/>
   <property name="src.dir"      value="src/main/java"/>
@@ -181,37 +181,10 @@
 
   <!-- builds our distribution files (war and jar) -->
   <target name="dist" depends="compile,procstream,aslib">
-    <jar destfile="${deploy.dir}/${lib.name}.jar" basedir="${classes.dir}"/>
-    <!-- build our various jar files -->
-    <jar destfile="${deploy.dir}/${lib.name}-base.jar">
-      <fileset dir="${classes.dir}">
-        <include name="com/threerings/NaryaLog**"/>
-        <include name="com/threerings/io/**"/>
-        <include name="com/threerings/nio/**"/>
-        <include name="com/threerings/util/**"/>
-        <include name="com/threerings/web/**"/>
-        <exclude name="com/threerings/**/tools/**"/>
-      </fileset>
-    </jar>
-    <jar destfile="${deploy.dir}/${lib.name}-distrib.jar">
-      <fileset dir="${classes.dir}">
-        <include name="com/threerings/presents/**"/>
-        <include name="com/threerings/crowd/**"/>
-        <include name="com/threerings/admin/**"/>
-        <include name="com/threerings/bureau/**"/>
-        <exclude name="com/threerings/**/tools/**"/>
-        <exclude name="com/threerings/**/tools.properties"/>
-        <exclude name="**/*.html,**/*.png"/>
-      </fileset>
-    </jar>
-    <jar destfile="${deploy.dir}/${lib.name}-tools.jar">
-      <fileset dir="${classes.dir}">
-        <include name="com/threerings/**/tools/**"/>
-        <include name="com/threerings/**/tools.properties"/>
-      </fileset>
-    </jar>
-    <jar destfile="${deploy.dir}/${lib.name}-tests.jar">
-      <fileset dir="${tclasses.dir}" includes="com/threerings/**"/>
+    <!-- build our main jar file -->
+    <jar destfile="${deploy.dir}/${lib.name}.jar">
+      <fileset dir="${classes.dir}" includes="**"/>
+      <fileset dir="${tclasses.dir}" includes="com/threerings/crowd/client/TestClient*"/>
     </jar>
 
     <!-- build a batteries-included jar for our tools -->
@@ -256,7 +229,11 @@
     <!-- test our narya-tools-full jar by executing it on the test objects/services -->
     <!-- we have to fork off a new ant here because we've already defined the gen -->
     <!-- tasks in this ant and we can't undefine them -->
-    <java fork="true" clonevm="true" classname="org.apache.tools.ant.launch.Launcher">
+    <artifact:dependencies pathId="ant.classpath">
+      <dependency groupId="org.apache.ant" artifactId="ant" version="1.7.1"/>
+    </artifact:dependencies>
+    <java fork="true" dir="${basedir}" failonerror="true" classpathref="ant.classpath"
+          classname="org.apache.tools.ant.launch.Launcher">
       <arg value="test-tools"/>
     </java>
   </target>
