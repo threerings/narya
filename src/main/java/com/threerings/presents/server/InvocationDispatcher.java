@@ -54,8 +54,8 @@ public abstract class InvocationDispatcher<T extends InvocationMarshaller>
      * Performs type casts in a way that works for parameterized types as well as simple types.
      */
     @SuppressWarnings("unchecked")
-    protected <T> T cast (Object value)
+    protected <K> K cast (Object value)
     {
-        return (T)value;
+        return (K)value;
     }
 }
