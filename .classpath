@@ -20,6 +20,5 @@
 	<classpathentry kind="var" path="M2_REPO/junit/junit/4.8.1/junit-4.8.1.jar"/>
 	<classpathentry kind="var" path="M2_REPO/com/samskivert/samskivert/1.1/samskivert-1.1.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry kind="var" path="M2_REPO"/>
 	<classpathentry kind="output" path="dist/classes"/>
 </classpath>
