@@ -3,9 +3,9 @@
 	<classpathentry including="**/*.java" kind="src" output="dist/test-classes" path="src/test/java"/>
 	<classpathentry excluding="**/*.java" kind="src" output="dist/test-classes" path="src/test/resources"/>
 	<classpathentry including="**/*.java" kind="src" path="src/main/java"/>
-	<classpathentry combineaccessrules="false" optional="true" kind="src" path="/samskivert"/>
-	<classpathentry combineaccessrules="false" optional="true" kind="src" path="/depot"/>
-	<classpathentry combineaccessrules="false" optional="true" kind="src" path="/gwt-utils"/>
+	<classpathentry combineaccessrules="false" kind="src" optional="true" path="/samskivert"/>
+	<classpathentry combineaccessrules="false" kind="src" optional="true" path="/depot"/>
+	<classpathentry combineaccessrules="false" kind="src" optional="true" path="/gwt-utils"/>
 	<classpathentry kind="var" path="M2_REPO/org/apache/ant/ant/1.7.1/ant-1.7.1.jar"/>
 	<classpathentry kind="var" path="M2_REPO/org/apache/ant/ant-launcher/1.7.1/ant-launcher-1.7.1.jar"/>
 	<classpathentry kind="var" path="M2_REPO/aopalliance/aopalliance/1.0/aopalliance-1.0.jar"/>
@@ -14,11 +14,12 @@
 	<classpathentry kind="var" path="M2_REPO/com/google/guava/guava/r05/guava-r05.jar"/>
 	<classpathentry kind="var" path="M2_REPO/com/google/inject/guice/2.0/guice-2.0.jar"/>
 	<classpathentry kind="var" path="M2_REPO/com/google/gwt/gwt-user/2.0.4/gwt-user-2.0.4.jar"/>
-	<classpathentry kind="var" path="M2_REPO/com/threerings/gwt-utils/1.0/gwt-utils-1.0.jar"/>
+	<classpathentry kind="var" path="M2_REPO/com/threerings/gwt-utils/1.1/gwt-utils-1.1.jar"/>
 	<classpathentry kind="var" path="M2_REPO/javassist/javassist/3.8.0.GA/javassist-3.8.0.GA.jar"/>
 	<classpathentry kind="var" path="M2_REPO/com/samskivert/jmustache/1.0/jmustache-1.0.jar"/>
 	<classpathentry kind="var" path="M2_REPO/junit/junit/4.8.1/junit-4.8.1.jar"/>
 	<classpathentry kind="var" path="M2_REPO/com/samskivert/samskivert/1.1/samskivert-1.1.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="var" path="M2_REPO"/>
 	<classpathentry kind="output" path="dist/classes"/>
 </classpath>
