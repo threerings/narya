@@ -22,7 +22,6 @@
 package com.threerings.admin.client;
 
 import java.lang.reflect.Field;
-
 import javax.swing.JTextField;
 
 import com.samskivert.util.StringUtil;
@@ -108,6 +107,12 @@ public class AsStringFieldEditor extends FieldEditor
     protected void displayValue (Object value)
     {
         _value.setText(StringUtil.toString(value, "", ""));
+    }
+
+    @Override
+    protected boolean valueMatches (Object dvalue)
+    {
+        return StringUtil.toString(dvalue).equals(StringUtil.toString(getValue()));
     }
 
     protected JTextField _value;

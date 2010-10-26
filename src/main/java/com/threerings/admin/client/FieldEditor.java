@@ -22,7 +22,6 @@
 package com.threerings.admin.client;
 
 import java.lang.reflect.Field;
-
 import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -128,7 +127,7 @@ public abstract class FieldEditor extends JPanel
         }
 
         // submit an attribute changed event with the new value
-        if (!Objects.equal(value, getValue())) {
+        if (!valueMatches(value)) {
             _accessor.set(_field, value);
         }
     }
@@ -151,7 +150,13 @@ public abstract class FieldEditor extends JPanel
             log.warning("Failed to parse display value " + e + ".");
             displayValue(getValue());
         }
-        updateBorder(!Objects.equal(dvalue, getValue()));
+
+        updateBorder(!valueMatches(dvalue));
+    }
+
+    protected boolean valueMatches (Object dvalue)
+    {
+        return Objects.equal(dvalue, getValue());
     }
 
     /**
