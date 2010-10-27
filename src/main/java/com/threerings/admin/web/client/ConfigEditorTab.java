@@ -59,7 +59,7 @@ public class ConfigEditorTab extends SmartTable
 
         // wire up saving the code on click
         new ClickCallback<ConfigurationRecord>(_submit) {
-            protected boolean callService () {
+            @Override protected boolean callService () {
                 List<ConfigField> modified = Lists.newArrayList();
                 for (ConfigFieldEditor editor : _editors) {
                     ConfigField field = editor.getModifiedField();
@@ -71,7 +71,7 @@ public class ConfigEditorTab extends SmartTable
                     _key, modified.toArray(new ConfigField[modified.size()]), this);
                 return true;
             }
-            protected boolean gotResult (ConfigurationRecord result) {
+            @Override protected boolean gotResult (ConfigurationRecord result) {
                 new InfoPopup("Updated " + result.updates + " fields.").show();
                 updateTable(result);
                 return false;
