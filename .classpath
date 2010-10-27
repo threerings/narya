@@ -11,7 +11,7 @@
 	<classpathentry kind="var" path="M2_REPO/aopalliance/aopalliance/1.0/aopalliance-1.0.jar"/>
 	<classpathentry kind="var" path="M2_REPO/com/samskivert/depot/1.0/depot-1.0.jar"/>
 	<classpathentry kind="var" path="M2_REPO/net/sf/ehcache/ehcache/1.6.0/ehcache-1.6.0.jar"/>
-	<classpathentry exported="true" kind="var" path="M2_REPO/com/google/guava/guava/r05/guava-r05.jar"/>
+	<classpathentry exported="true" kind="var" path="M2_REPO/com/google/guava/guava/r07/guava-r07.jar"/>
 	<classpathentry exported="true" kind="var" path="M2_REPO/com/google/inject/guice/2.0/guice-2.0.jar"/>
 	<classpathentry kind="var" path="M2_REPO/com/google/gwt/gwt-user/2.0.4/gwt-user-2.0.4.jar"/>
 	<classpathentry kind="var" path="M2_REPO/com/threerings/gwt-utils/1.1/gwt-utils-1.1.jar"/>
