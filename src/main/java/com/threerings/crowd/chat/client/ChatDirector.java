@@ -102,6 +102,14 @@ public class ChatDirector extends BasicDirector
     public abstract static class CommandHandler
     {
         /**
+         * Returns the translatable usage message for the specified command.
+         */
+        public String getUsage (String command)
+        {
+            return MessageBundle.tcompose(_usageKey, command);
+        }
+
+        /**
          * Handles the specified chat command.
          *
          * @param speakSvc an optional SpeakService object representing the object to send the chat
@@ -125,6 +133,9 @@ public class ChatDirector extends BasicDirector
         public boolean checkAccess (BodyObject user) {
             return true;
         }
+
+        /** The command's usage message translation key. */
+        protected String _usageKey;
     }
 
     /**
@@ -249,6 +260,9 @@ public class ChatDirector extends BasicDirector
      */
     public void registerCommandHandler (MessageBundle msg, String command, CommandHandler handler)
     {
+        // the usage key is derived from the untranslated command
+        handler._usageKey = "m.usage_" + command;
+
         String key = "c." + command;
         if (msg.exists(key)) {
             StringTokenizer st = new StringTokenizer(msg.get(key));
@@ -1147,6 +1161,14 @@ public class ChatDirector extends BasicDirector
     protected class HelpHandler extends CommandHandler
     {
         @Override
+        public String getUsage (String command)
+        {
+            Map<String, CommandHandler> possibleCommands = getCommandHandlers("");
+            possibleCommands.remove(command);
+            return getUsage(command, possibleCommands);
+        }
+
+        @Override
         public String handleCommand (SpeakService speakSvc, String command,
                                      String args, String[] history)
         {
@@ -1168,30 +1190,35 @@ public class ChatDirector extends BasicDirector
 
             // handle "/help help" and "/help someboguscommand"
             Map<String, CommandHandler> possibleCommands = getCommandHandlers(hcmd);
-            if (hcmd.equals("help") || possibleCommands.isEmpty()) {
-                possibleCommands = getCommandHandlers("");
-                possibleCommands.remove("help"); // remove help from the list
+            if (_handlers.get(hcmd) == this || possibleCommands.isEmpty()) {
+                return getUsage(command);
+
+            } else if (possibleCommands.size() > 1) {
+                return getUsage(command, possibleCommands);
             }
 
             // if there is only one possible command display its usage
-            switch (possibleCommands.size()) {
-            case 1:
-                Iterator<String> itr = possibleCommands.keySet().iterator();
-                // this is a little funny, but we display the feeback message by hand and return
-                // SUCCESS so that the chat entry field doesn't think that we've failed and
-                // preserve our command text
-                displayFeedback(null, "m.usage_" + itr.next());
-                return ChatCodes.SUCCESS;
+            Map.Entry<String, CommandHandler> entry =
+                possibleCommands.entrySet().iterator().next();
+            // this is a little funny, but we display the feedback message by hand and return
+            // SUCCESS so that the chat entry field doesn't think that we've failed and
+            // preserve our command text
+            displayFeedback(null, entry.getValue().getUsage(entry.getKey()));
+            return ChatCodes.SUCCESS;
+        }
 
-            default:
-                Object[] commands = possibleCommands.keySet().toArray();
-                Arrays.sort(commands);
-                String commandList = "";
-                for (Object element : commands) {
-                        commandList += " /" + element;
-                    }
-                return MessageBundle.tcompose("m.usage_help", commandList);
+        /**
+         * Returns a usage message listing the provided commands.
+         */
+        protected String getUsage (String command, Map<String, CommandHandler> possibleCommands)
+        {
+            Object[] commands = possibleCommands.keySet().toArray();
+            Arrays.sort(commands);
+            String commandList = "";
+            for (Object element : commands) {
+                commandList += " /" + element;
             }
+            return MessageBundle.tcompose("m.usage_help", commandList, command);
         }
     }
 
@@ -1215,7 +1242,7 @@ public class ChatDirector extends BasicDirector
                                      String args, String[] history)
         {
             if (StringUtil.isBlank(args)) {
-                return "m.usage_speak";
+                return getUsage(command);
             }
             // note the command to be stored in the history
             history[0] = command + " ";
@@ -1233,7 +1260,7 @@ public class ChatDirector extends BasicDirector
                                      String args, String[] history)
         {
             if (StringUtil.isBlank(args)) {
-                return "m.usage_emote";
+                return getUsage(command);
             }
             // note the command to be stored in the history
             history[0] = command + " ";
@@ -1249,7 +1276,7 @@ public class ChatDirector extends BasicDirector
                                      String args, String[] history)
         {
             if (StringUtil.isBlank(args)) {
-                return "m.usage_think";
+                return getUsage(command);
             }
             // note the command to be stored in the history
             history[0] = command + " ";
@@ -1265,7 +1292,7 @@ public class ChatDirector extends BasicDirector
                                      String args, String[] history)
         {
             if (StringUtil.isBlank(args)) {
-                return "m.usage_tell";
+                return getUsage(command);
             }
 
             final boolean useQuotes = args.startsWith("\"");
@@ -1275,7 +1302,7 @@ public class ChatDirector extends BasicDirector
 
             // validate that we didn't eat all the tokens making the handle
             if (StringUtil.isBlank(message)) {
-                return "m.usage_tell";
+                return getUsage(command);
             }
 
             // make sure we're not trying to tell something to ourselves
@@ -1386,7 +1413,7 @@ public class ChatDirector extends BasicDirector
                                      String args, String[] history)
         {
             if (StringUtil.isBlank(args)) {
-                return "m.usage_broadcast";
+                return getUsage(command);
             }
 
             // mogrify and verify length
