@@ -140,36 +140,13 @@ public class ConnectionManager extends LoopingThread
     }
 
     /**
-     * This is called to introduce a new active socket into the system. For Presents systems
-     * handling their own socket listening, this is called by the {@link BindingConnectionManager}.
-     * If Presents is embedded in another framework that handles socket acceptance, this will be
-     * called by a custom ConnectionManager derived class that integrates Presents with that
-     * system.
+     * Introduces a new active socket into Presents from off the ConnectionManager thread. If
+     * Presents is embedded in another framework that handles socket acceptance, this will be
+     * called by its socket acceptor to get the socket into Presents to start authorization.
      */
-    public void handleAcceptedSocket (SocketChannel channel)
+    public void transferAcceptedSocket (SocketChannel channel)
     {
-        try {
-            // create a new authing connection object to manage the authentication of this client
-            // connection and register it with our selection set
-            channel.configureBlocking(false);
-            AuthingConnection aconn = new AuthingConnection();
-            aconn.selkey = channel.register(_selector, SelectionKey.OP_READ);
-            aconn.init(this, channel, System.currentTimeMillis());
-            _handlers.put(aconn.selkey, aconn);
-            synchronized (this) {
-                _stats.connects++;
-            }
-
-        } catch (IOException ioe) {
-            // no need to generate a warning because this happens in the normal course of events
-            log.info("Failure accepting new connection: " + ioe);
-            // make sure we don't leak a socket if something went awry
-            try {
-                channel.socket().close();
-            } catch (IOException ioe2) {
-                log.warning("Failed closing aborted connection: " + ioe2);
-            }
-        }
+        _acceptedq.append(channel);
     }
 
     /**
@@ -311,6 +288,11 @@ public class ConnectionManager extends LoopingThread
         // totally done so that we can send shutdown-related events out to our clients; during
         // those last moments we don't want to accept new connections or read any incoming messages
         if (super.isRunning()) {
+
+            SocketChannel accepted;
+            while ((accepted = _acceptedq.getNonBlocking()) != null) {
+                handleAcceptedSocket(accepted);
+            }
             // start up any outgoing connections that need to be connected
             Tuple<Connection, InetSocketAddress> pconn;
             while ((pconn = _connectq.getNonBlocking()) != null) {
@@ -342,6 +324,7 @@ public class ConnectionManager extends LoopingThread
                 break;
             }
         }
+
         author.authenticateConnection(_authInvoker, conn, new ResultListener<AuthingConnection>() {
             public void requestCompleted (AuthingConnection conn) {
                 _authq.append(conn);
@@ -415,6 +398,35 @@ public class ConnectionManager extends LoopingThread
         } catch (IOException ioe) {
             log.warning("Failed to initiate connection for " + sockchan + ".", ioe);
             conn.connectFailure(ioe); // nothing else to clean up
+        }
+    }
+
+    /**
+     * Starts an accepted socket down the path to authorization.
+     */
+    protected void handleAcceptedSocket (SocketChannel channel)
+    {
+        try {
+            // create a new authing connection object to manage the authentication of this client
+            // connection and register it with our selection set
+            channel.configureBlocking(false);
+            AuthingConnection aconn = new AuthingConnection();
+            aconn.selkey = channel.register(_selector, SelectionKey.OP_READ);
+            aconn.init(this, channel, System.currentTimeMillis());
+            _handlers.put(aconn.selkey, aconn);
+            synchronized (this) {
+                _stats.connects++;
+            }
+
+        } catch (IOException ioe) {
+            // no need to generate a warning because this happens in the normal course of events
+            log.info("Failure accepting new connection: " + ioe);
+            // make sure we don't leak a socket if something went awry
+            try {
+                channel.socket().close();
+            } catch (IOException ioe2) {
+                log.warning("Failed closing aborted connection: " + ioe2);
+            }
         }
     }
 
@@ -969,6 +981,7 @@ public class ConnectionManager extends LoopingThread
     protected Queue<Connection> _deathq = Queue.newQueue();
     protected Queue<AuthingConnection> _authq = Queue.newQueue();
     protected Queue<Tuple<Connection, InetSocketAddress>> _connectq = Queue.newQueue();
+    protected Queue<SocketChannel> _acceptedq = Queue.newQueue();
 
     protected Queue<Tuple<Connection, byte[]>> _outq = Queue.newQueue();
     protected Queue<Tuple<Connection, byte[]>> _dataq = Queue.newQueue();
