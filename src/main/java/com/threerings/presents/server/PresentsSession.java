@@ -811,6 +811,7 @@ public class PresentsSession
         long now = System.currentTimeMillis();
         if (_conn != null && conn == null) {
             _connectTime += ((now - _networkStamp) / 1000);
+            _messagesDropped = 0;
         }
 
         // keep a handle to the new connection
