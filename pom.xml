@@ -36,7 +36,9 @@
 
   <scm>
     <connection>scm:svn:http://narya.googlecode.com/svn/trunk/</connection>
-    <developerConnection>scm:svn:svn+ssh://src.earth.threerings.net/narya/trunk/</developerConnection>
+    <developerConnection>
+      scm:svn:svn+ssh://src.earth.threerings.net/narya/trunk/
+    </developerConnection>
     <url>http://narya.googlecode.com/svn/trunk/</url>
   </scm>
 
