@@ -4,6 +4,7 @@
   <property name="lib.name"     value="narya"/>
   <property name="deploy.dir"   value="dist"/>
   <property name="src.dir"      value="src/main/java"/>
+  <property name="rsrc.dir"      value="src/main/resources"/>
   <property name="tsrc.dir"     value="src/test/java"/>
   <property name="classes.dir"  value="${deploy.dir}/classes"/>
   <property name="tclasses.dir" value="${deploy.dir}/test-classes"/>
@@ -34,8 +35,8 @@
     <mkdir dir="${deploy.dir}/lib"/>
     <mkdir dir="${classes.dir}"/>
     <copy todir="${classes.dir}">
-      <fileset dir="${src.dir}" includes="**/*.properties"/>
-      <fileset dir="${src.dir}" includes="**/*.tmpl"/>
+      <fileset dir="${rsrc.dir}" includes="**/*.properties"/>
+      <fileset dir="${rsrc.dir}" includes="**/*.tmpl"/>
     </copy>
     <path id="built.classpath">
       <path refid="compile.classpath"/>
