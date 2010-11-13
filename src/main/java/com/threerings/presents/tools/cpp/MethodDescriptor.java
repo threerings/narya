@@ -11,7 +11,7 @@ public class MethodDescriptor
 {
     public static List<MethodDescriptor> from(List<ServiceMethod> methods) {
         return Lists.transform(methods, new Function<ServiceMethod, MethodDescriptor>() {
-            @Override public MethodDescriptor apply (ServiceMethod from) {
+            public MethodDescriptor apply (ServiceMethod from) {
                 return new MethodDescriptor(from);
             }});
     }
