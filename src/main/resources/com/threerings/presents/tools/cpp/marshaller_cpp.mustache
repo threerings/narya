@@ -1,0 +1,28 @@
+#include "presents/stable.h"
+#include "{{name}}.h"
+#include "presents/PresentsClient.h"
+{{#includes}}
+#include "{{this}}"
+{{/includes}}
+
+using namespace {{namespace}};
+
+DEFINE_STREAMABLE("{{javaName}}", {{name}});
+
+{{#methods}}
+void {{name}}::{{methodName}} ({{clientArguments}})
+{
+    typedef std::vector< Shared<Streamable> > StreamableList;
+    Shared<StreamableList> args(new StreamableList);
+{{#serviceArguments}}
+    args->push_back({{this}});
+{{/serviceArguments}}
+    args->push_back(getSharedThis());
+    client->sendRequest(invOid, invCode, {{-index}}, args);
+}
+
+{{/methods}}
+Shared<{{name}}> {{name}}::getSharedThis()
+{
+    return shared_from_this();
+}

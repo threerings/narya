@@ -1,0 +1,30 @@
+#pragma once
+
+#include "presents/Streamable.h"
+#include "presents/ObjectInputStream.h"
+#include "presents/ObjectOutputStream.h"
+#include "presents/data/InvocationMarshaller.h"
+#include "presents/streamers/StreamableStreamer.h"
+#include <boost/enable_shared_from_this.hpp>
+{{#includes}}
+#include "{{this}}"
+{{/includes}}
+
+{{#namespaces}}namespace {{this}} { {{/namespaces}}
+
+
+class {{name}} : public presents::data::InvocationMarshaller, public boost::enable_shared_from_this<{{name}}> {
+public:
+    DECLARE_STREAMABLE();
+
+    virtual ~{{name}} () {}
+
+{{#methods}}
+    void {{methodName}} ({{clientArguments}});
+{{/methods}}
+protected:
+    Shared<{{name}}> getSharedThis();
+};
+
+{{#namespaces}}
+}{{/namespaces}}

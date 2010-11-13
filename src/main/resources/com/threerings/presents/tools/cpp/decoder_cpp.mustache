@@ -1,0 +1,28 @@
+#include "presents/stable.h"
+#include "{{decoderName}}.h"
+#include "{{receiverName}}.h"
+{{#includes}}
+#include "{{this}}"
+{{/includes}}
+
+using namespace {{namespace}};
+
+{{decoderName}}::{{decoderName}} (Shared<{{receiverName}}> receiver) :
+    InvocationDecoder("{{receiverCode}}"),
+    _receiver(receiver)
+{
+}
+
+void {{decoderName}}::dispatchNotification(int8 methodId, const std::vector< Shared<Streamable> >& args)
+{
+    switch(methodId) {
+{{#methods}}
+    case {{-index}}:
+        _receiver->{{methodName}} ( {{vectorArguments}} );
+        return;
+{{/methods}}
+    default:
+        LOG_INFO("{{decoderName}} got unknown method: %d", methodId);
+        return;
+    }
+}

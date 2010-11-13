@@ -1,0 +1,20 @@
+#pragma once
+
+#include "presents/InvocationDecoder.h"
+
+{{#namespaces}}
+namespace {{this}} { {{/namespaces}}
+
+class {{receiverName}};
+
+class {{decoderName}} : public presents::InvocationDecoder {
+public:
+    {{decoderName}}(Shared<{{receiverName}}> receiver);
+    void dispatchNotification(int8 methodId, const std::vector< Shared<Streamable> >& args);
+
+protected:
+   Shared<{{receiverName}}> _receiver;
+};
+
+{{#namespaces}}
+}{{/namespaces}}

@@ -1,0 +1,29 @@
+#include "presents/stable.h"
+#include "{{name}}.h"
+{{#includes}}
+#include "{{this}}"
+{{/includes}}
+
+using namespace {{namespace}};
+
+DEFINE_STREAMABLE("{{javaName}}", {{name}});
+
+void {{name}}::readObject (ObjectInputStream& {{inStreamArg}})
+{
+{{#superclassStreamable}}
+    {{super}}::readObject(in);
+{{/superclassStreamable}}
+{{#fields}}
+    {{name}} = {{reader}};
+{{/fields}}
+}
+
+void {{name}}::writeObject (ObjectOutputStream& {{outStreamArg}}) const
+{
+{{#superclassStreamable}}
+    {{super}}::writeObject(out);
+{{/superclassStreamable}}
+{{#fields}}
+    {{writer}};
+{{/fields}}
+}

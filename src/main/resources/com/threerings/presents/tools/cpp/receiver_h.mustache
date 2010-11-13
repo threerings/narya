@@ -1,0 +1,21 @@
+#pragma once
+
+#include "{{decoderName}}.h"
+{{#includes}}
+#include "{{this}}"
+{{/includes}}
+
+{{#namespaces}}namespace {{this}} { {{/namespaces}}
+
+
+class {{receiverName}} {
+public:
+    typedef {{decoderName}} Decoder;
+
+{{#methods}}
+    virtual void {{methodName}} ({{arguments}}) = 0;
+{{/methods}}
+};
+
+{{#namespaces}}
+}{{/namespaces}}

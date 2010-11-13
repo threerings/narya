@@ -18,7 +18,7 @@
   <condition property="maven-ant.exists"><available file="${maven-ant.jar}"/></condition>
   <target name="-download-maven-ant" unless="maven-ant.exists">
     <mkdir dir="${maven-ant.dir}"/>
-    <get src="${maven-ant.url}/maven-ant-tasks-${maven-ant.vers}.jar" 
+    <get src="${maven-ant.url}/maven-ant-tasks-${maven-ant.vers}.jar"
          dest="${maven-ant.jar}" usetimestamp="true"/>
   </target>
 
@@ -36,6 +36,7 @@
     <mkdir dir="${classes.dir}"/>
     <copy todir="${classes.dir}">
       <fileset dir="${rsrc.dir}" includes="**/*.properties"/>
+      <fileset dir="${rsrc.dir}" includes="**/*.mustache"/>
       <fileset dir="${rsrc.dir}" includes="**/*.tmpl"/>
     </copy>
     <path id="built.classpath">
@@ -163,7 +164,7 @@
   </target>
 
   <property name="test" value=""/>
-  <target name="tests" depends="compile" 
+  <target name="tests" depends="compile"
           description="Runs unit tests. Use -Dtest=Foo to run only FooTest.">
     <taskdef name="unit" classpathref="test.classpath"
       classname="org.apache.tools.ant.taskdefs.optional.junit.JUnitTask"/>
@@ -241,7 +242,7 @@
       <include name="**/*Service.java"/>
       <exclude name="**/InvocationService.java"/>
     </javac>
-    <!-- now generate the associated files -->
+    <!-- generate services with an actionscript counterpart-->
     <genservice header="lib/SOURCE_HEADER" asroot="src/as" classpathref="built.classpath">
       <fileset dir="${src.dir}" includes="**/*Service.java">
         <exclude name="**/InvocationService.java"/>
@@ -252,6 +253,7 @@
       <providerless service="SimulatorService"/>
       <providerless service="TimeBaseService"/>
     </genservice>
+    <!-- generate java-only services -->
     <genservice header="lib/SOURCE_HEADER" classpathref="built.classpath">
       <fileset dir="${src.dir}" includes="**/peer/**/*Service.java"/>
       <fileset dir="${src.dir}" includes="**/admin/**/*Service.java"/>
@@ -283,6 +285,33 @@
       <fileset dir="${classes.dir}" includes="**/dobj/*.class"/>
       <fileset dir="${classes.dir}" includes="**/util/*.class"/>
     </instream>
+    <gencppstreamable classpathref="built.classpath" cpproot="src/cpp">
+      <generate class="com.threerings.presents.client.InvocationReceiver$Registration"/>
+      <generate class="com.threerings.presents.data.ClientObject"/>
+      <generate class="com.threerings.presents.data.PermissionPolicy"/>
+      <generate class="com.threerings.presents.dobj.DEvent"/>
+      <generate class="com.threerings.presents.dobj.DObject"/>
+      <generate class="com.threerings.presents.dobj.EntryAddedEvent"/>
+      <generate class="com.threerings.presents.dobj.EntryRemovedEvent"/>
+      <generate class="com.threerings.presents.dobj.InvocationNotificationEvent"/>
+      <generate class="com.threerings.presents.dobj.InvocationRequestEvent"/>
+      <generate class="com.threerings.presents.dobj.NamedEvent"/>
+      <generate class="com.threerings.presents.net.AuthRequest"/>
+      <generate class="com.threerings.presents.net.AuthResponse"/>
+      <generate class="com.threerings.presents.net.AuthResponseData"/>
+      <generate class="com.threerings.presents.net.BootstrapData"/>
+      <generate class="com.threerings.presents.net.BootstrapNotification"/>
+      <generate class="com.threerings.presents.net.Credentials"/>
+      <generate class="com.threerings.presents.net.DownstreamMessage"/>
+      <generate class="com.threerings.presents.net.EventNotification"/>
+      <generate class="com.threerings.presents.net.ForwardEventRequest"/>
+      <generate class="com.threerings.presents.net.ObjectResponse"/>
+      <generate class="com.threerings.presents.net.PingRequest"/>
+      <generate class="com.threerings.presents.net.PongResponse"/>
+      <generate class="com.threerings.presents.net.UpstreamMessage"/>
+      <generate class="com.threerings.presents.net.UsernamePasswordCreds"/>
+      <generate class="com.threerings.util.Name"/>
+    </gencppstreamable>
   </target>
 
   <target name="genascript" depends="-preptools"
