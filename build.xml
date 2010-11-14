@@ -245,6 +245,7 @@
     <!-- generate services with an actionscript counterpart-->
     <genservice header="lib/SOURCE_HEADER" asroot="src/as" classpathref="built.classpath">
       <fileset dir="${src.dir}" includes="**/*Service.java">
+        <exclude name="**/RegistrationService.java"/>
         <exclude name="**/InvocationService.java"/>
         <exclude name="**/peer/**"/>
         <exclude name="**/admin/**"/>
@@ -255,9 +256,14 @@
     </genservice>
     <!-- generate java-only services -->
     <genservice header="lib/SOURCE_HEADER" classpathref="built.classpath">
+      <fileset dir="${src.dir}" includes="**/RegistrationService.java"/>
       <fileset dir="${src.dir}" includes="**/peer/**/*Service.java"/>
-      <fileset dir="${src.dir}" includes="**/admin/**/*Service.java"/>
+      <fileset dir="${src.dir}" includes="**/admin/**/*Service.java"
+          excludes="**/gwt/ConfigService.java"/>
     </genservice>
+    <gencppservice classpathref="built.classpath" cpproot="src/cpp">
+        <fileset dir="${src.dir}" includes="**/RegistrationService.java"/>
+    </gencppservice>
   </target>
 
   <target name="genreceiver" depends="-preptools"

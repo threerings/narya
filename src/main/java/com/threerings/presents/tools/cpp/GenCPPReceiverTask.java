@@ -76,7 +76,7 @@ public class GenCPPReceiverTask extends GenReceiverTask
     protected static final String RECEIVER_HEADER_TMPL =
         "com/threerings/presents/tools/cpp/receiver_h.mustache";
     protected static final String DECODER_HEADER_TMPL =
-        "com/threerings/corpse/tools/decoder_h.mustache";
+        "com/threerings/presents/tools/cpp/decoder_h.mustache";
     protected static final String DECODER_CPP_TMPL =
         "com/threerings/presents/tools/cpp/decoder_cpp.mustache";
 }
