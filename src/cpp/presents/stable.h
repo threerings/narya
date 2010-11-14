@@ -51,6 +51,10 @@ typedef boost::signals::scoped_connection scoped_connection_t;
 #  error The current compiler is not supported.
 #endif
 
+#ifdef __APPLE__
+#include "TargetConditionals.h"
+#endif
+
 #if defined(_WIN32)
 #  define PRESENTS_HOST_LITTLE_ENDIAN
 typedef signed __int8		int8;
@@ -64,7 +68,7 @@ typedef unsigned __int64	uint64;
 typedef unsigned int        uint;
 typedef unsigned long       ulong; 
 
-#elif defined(__IPHONE__)
+#elif defined(TARGET_OS_IPHONE)
 #  define PRESENTS_IOS
 #include <MacTypes.h>
 typedef int8_t		int8;
@@ -128,7 +132,7 @@ typedef unsigned long ulong;
 #  error The current platform is not supported.
 #endif
 
-#if defined(PRESENTS_IOS) || defined(PRESENTS_MACOSX)
+#if defined(__APPLE__)
 // Apple defines __BIG_ENDIAN__ and __LITTLE_ENDIAN__
 #  if defined(__BIG_ENDIAN__)
 #    define PRESENTS_HOST_BIG_ENDIAN
