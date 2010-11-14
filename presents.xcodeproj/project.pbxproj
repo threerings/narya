@@ -505,6 +505,10 @@
 					./src/cpp,
 				);
 				ONLY_ACTIVE_ARCH = YES;
+				OTHER_CPLUSPLUSFLAGS = (
+					"-fvisibility=hidden",
+					"-fvisibility-inlines-hidden",
+				);
 				PREBINDING = NO;
 				SDKROOT = iphoneos4.2;
 				STRIP_STYLE = debugging;
