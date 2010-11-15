@@ -41,8 +41,8 @@ public class GenCPPServiceTask extends GenServiceTask
         ctx.put("listeners", sdesc.listeners);
         ctx.put("argbuilder", new CPPArgBuilder(true));
 
-        Set<String> includes = Sets.newHashSet();
-        Set<String> implIncludes = Sets.newHashSet();
+        Set<String> includes = Sets.newTreeSet();
+        Set<String> implIncludes = Sets.newTreeSet();
         for (ServiceMethod meth : sdesc.methods) {
             for (Type type : meth.method.getGenericParameterTypes()) {
                 CPPType cppType = new CPPType(type);

@@ -5,10 +5,10 @@
 #include "presents/ObjectOutputStream.h"
 #include "presents/streamers/StreamableStreamer.h"
 
-#include "presents/dobj/DObject.h"
-#include "util/Name.h"
 #include "presents/data/PermissionPolicy.h"
+#include "presents/dobj/DObject.h"
 #include "presents/dobj/DSet.h"
+#include "util/Name.h"
 
 namespace presents { namespace data { 
 

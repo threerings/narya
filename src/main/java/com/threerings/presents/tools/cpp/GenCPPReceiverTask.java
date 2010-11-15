@@ -42,8 +42,8 @@ public class GenCPPReceiverTask extends GenReceiverTask
         CPPUtil.writeTemplate(DECODER_HEADER_TMPL, _cpproot,
             CPPUtil.makePath(namespaces, dname, ".h"), ctx);
 
-        Set<String> receiverHeaderIncludes = Sets.newHashSet();
-        Set<String> decoderImplIncludes = Sets.newHashSet();
+        Set<String> receiverHeaderIncludes = Sets.newTreeSet();
+        Set<String> decoderImplIncludes = Sets.newTreeSet();
         for (ServiceMethod meth : methods) {
             for (Type type : meth.method.getGenericParameterTypes()) {
                 CPPType cppType = new CPPType(type);

@@ -5,8 +5,8 @@
 #include "presents/ObjectOutputStream.h"
 #include "presents/streamers/StreamableStreamer.h"
 
-#include "util/Name.h"
 #include "presents/net/Credentials.h"
+#include "util/Name.h"
 
 namespace presents { namespace net { 
 

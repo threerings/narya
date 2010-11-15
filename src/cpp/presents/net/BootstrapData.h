@@ -5,8 +5,8 @@
 #include "presents/ObjectOutputStream.h"
 #include "presents/streamers/StreamableStreamer.h"
 
-#include "presents/data/InvocationMarshaller.h"
 #include "presents/Streamable.h"
+#include "presents/data/InvocationMarshaller.h"
 
 namespace presents { namespace net { 
 

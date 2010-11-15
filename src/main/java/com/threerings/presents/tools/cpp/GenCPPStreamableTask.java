@@ -91,8 +91,8 @@ public class GenCPPStreamableTask extends GenTask
         ctx.put("javaName", sclass.getName());
         ctx.put("namespace", CPPUtil.makeNamespace(sclass));
 
-        Set<String> headerIncludes = Sets.newHashSet();
-        Set<String> implIncludes = Sets.newHashSet();
+        Set<String> headerIncludes = Sets.newTreeSet();
+        Set<String> implIncludes = Sets.newTreeSet();
         if (needSuper) {
             ctx.put("super", makeCPPName(sclass.getSuperclass()));
             addInclude(sclass.getSuperclass(), headerIncludes);

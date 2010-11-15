@@ -5,8 +5,8 @@
 #include "presents/ObjectOutputStream.h"
 #include "presents/streamers/StreamableStreamer.h"
 
-#include "presents/dobj/NamedEvent.h"
 #include "presents/Streamable.h"
+#include "presents/dobj/NamedEvent.h"
 
 namespace presents { namespace dobj { 
 
