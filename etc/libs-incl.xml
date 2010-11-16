@@ -1,9 +1,0 @@
-<?xml version="1.0"?>
-<!-- declares the libraries needed to build narya -->
-<project name="library-dependencies">
-  <fileset dir="${libs.dir}" id="narya.libs">
-    <include name="aspirin.swc"/>
-    <include name="asunit.swc"/>
-    <include name="corelib.swc"/>
-  </fileset>
-</project>
