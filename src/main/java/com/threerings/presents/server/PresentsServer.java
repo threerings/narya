@@ -41,10 +41,13 @@ import com.threerings.presents.dobj.DObject;
 import com.threerings.presents.dobj.DObjectManager;
 import com.threerings.presents.dobj.RootDObjectManager;
 import com.threerings.presents.server.PresentsDObjectMgr.LongRunnable;
-import com.threerings.presents.server.net.BindingConnectionManager;
-import com.threerings.presents.server.net.ConnectionManager;
+import com.threerings.presents.server.net.DatagramChannelReader;
+import com.threerings.presents.server.net.PresentsConnectionManager;
 
 import com.threerings.crowd.server.PlaceManager;
+
+import com.threerings.nio.conman.ConnectionManager;
+import com.threerings.nio.conman.ServerSocketChannelAcceptor;
 
 import static com.threerings.presents.Log.log;
 
@@ -64,19 +67,11 @@ public class PresentsServer
     {
         @Override protected void configure () {
             bindInvokers();
-            bindConnectionManager();
+            bind(ConnectionManager.class).to(PresentsConnectionManager.class);
             bind(RunQueue.class).annotatedWith(EventQueue.class).to(PresentsDObjectMgr.class);
             bind(DObjectManager.class).to(PresentsDObjectMgr.class);
             bind(RootDObjectManager.class).to(PresentsDObjectMgr.class);
             bind(Lifecycle.class).toInstance(new Lifecycle());
-        }
-
-        /**
-         * Binds just the connection manager so this can be overridden if desired.
-         */
-        protected void bindConnectionManager()
-        {
-            bind(ConnectionManager.class).to(BindingConnectionManager.class);
         }
 
         /**
@@ -157,12 +152,13 @@ public class PresentsServer
         // provide our client manager with the injector it needs
         _clmgr.setInjector(injector);
 
-        // if we have a connection manager that handles its own socket accepting, initialize it
-        // with the hostname and ports on which to listen
-        if (_conmgr instanceof BindingConnectionManager) {
-            ((BindingConnectionManager)_conmgr).init(
-                getBindHostname(), getDatagramHostname(), getListenPorts(), getDatagramPorts());
-        }
+        // Create our socket opening objects now that we know what ports we're using.
+        _socketAcceptor =
+            new ServerSocketChannelAcceptor(getBindHostname(), getListenPorts(), _conmgr);
+        _lifecycle.addComponent(_socketAcceptor);
+        _datagramReader =
+            new DatagramChannelReader(getDatagramHostname(), getDatagramPorts(), _conmgr);
+        _lifecycle.addComponent(_datagramReader);
 
         // initialize the time base services
         TimeBaseProvider.init(_invmgr, _omgr);
@@ -213,7 +209,12 @@ public class PresentsServer
      */
     protected void openToThePublic ()
     {
-        _conmgr.start();
+        if (getListenPorts().length != 0 && !_socketAcceptor.bind()) {
+            queueShutdown();
+        } else {
+            _datagramReader.bind();
+            _conmgr.start();
+        }
     }
 
     /**
@@ -257,7 +258,9 @@ public class PresentsServer
     }
 
     /**
-     * Returns the port on which the connection manager will listen for client connections.
+     * Returns the port on which the connection manager will listen for client connections or an
+     * empty array to skip binding and have an external entity transfer accepted sockets into
+     * the connection manager.
      */
     protected int[] getListenPorts ()
     {
@@ -265,7 +268,8 @@ public class PresentsServer
     }
 
     /**
-     * Returns the ports on which the connection manager will listen for datagrams.
+     * Returns the ports on which the connection manager will listen for datagrams or an empty
+     * array if no datagrams are desired.
      */
     protected int[] getDatagramPorts ()
     {
@@ -282,11 +286,15 @@ public class PresentsServer
     {
     }
 
+    protected ServerSocketChannelAcceptor _socketAcceptor;
+
+    protected DatagramChannelReader _datagramReader;
+
     /** The manager of distributed objects. */
     @Inject protected PresentsDObjectMgr _omgr;
 
     /** The manager of network connections. */
-    @Inject protected ConnectionManager _conmgr;
+    @Inject protected PresentsConnectionManager _conmgr;
 
     /** The manager of clients. */
     @Inject protected ClientManager _clmgr;

@@ -33,7 +33,7 @@ import static com.threerings.presents.Log.log;
  * The authing connection manages the client connection until authentication has completed (for
  * better or for worse).
  */
-public class AuthingConnection extends Connection
+public class AuthingConnection extends PresentsConnection
 {
     public AuthingConnection ()
     {
@@ -43,7 +43,7 @@ public class AuthingConnection extends Connection
                     // keep a handle on our auth request
                     _authreq = (AuthRequest)msg;
                     // post ourselves for processing by the authmgr
-                    _cmgr.authenticateConnection(AuthingConnection.this);
+                    _pcmgr.authenticateConnection(AuthingConnection.this);
                 } catch (ClassCastException cce) {
                     log.warning("Received non-authreq message during authentication process",
                                 "conn", AuthingConnection.this, "msg", msg);

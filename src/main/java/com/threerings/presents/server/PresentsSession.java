@@ -67,8 +67,10 @@ import com.threerings.presents.net.TransmitDatagramsRequest;
 import com.threerings.presents.net.UnsubscribeRequest;
 import com.threerings.presents.net.UnsubscribeResponse;
 import com.threerings.presents.net.UpdateThrottleMessage;
-import com.threerings.presents.server.net.Connection;
-import com.threerings.presents.server.net.ConnectionManager;
+import com.threerings.presents.server.net.PresentsConnection;
+
+import com.threerings.nio.conman.Connection;
+import com.threerings.nio.conman.ConnectionManager;
 
 import static com.threerings.presents.Log.log;
 
@@ -84,7 +86,7 @@ import static com.threerings.presents.Log.log;
  * from the conmgr thread and therefore also need not be synchronized.
  */
 public class PresentsSession
-    implements Connection.MessageHandler, ClientResolutionListener
+    implements PresentsConnection.MessageHandler, ClientResolutionListener
 {
     /** Used by {@link PresentsSession#setUsername} to report success or failure. */
     public static interface UserChangeListener
@@ -169,7 +171,7 @@ public class PresentsSession
      */
     public boolean getTransmitDatagrams ()
     {
-        Connection conn = getConnection();
+        PresentsConnection conn = getConnection();
         return conn != null && conn.getTransmitDatagrams();
     }
 
@@ -180,7 +182,7 @@ public class PresentsSession
     public void setClassLoader (ClassLoader loader)
     {
         _loader = loader;
-        Connection conn = getConnection();
+        PresentsConnection conn = getConnection();
         if (conn != null) {
             conn.setClassLoader(loader);
         }
@@ -459,10 +461,11 @@ public class PresentsSession
     }
 
     /**
-     * Initializes this client instance with the specified username, connection instance and client
-     * object and begins a client session.
+     * Initializes this client instance with the specified username, connection instance and
+     * client object and begins a client session.
      */
-    protected void startSession (Name authname, AuthRequest req, Connection conn, Object authdata)
+    protected void startSession (Name authname, AuthRequest req, PresentsConnection conn,
+        Object authdata)
     {
         _authname = authname;
         _areq = req;
@@ -480,7 +483,7 @@ public class PresentsSession
      * Called by the client manager when a new connection arrives that authenticates as this
      * already established client. This must only be called from the congmr thread.
      */
-    protected void resumeSession (AuthRequest req, Connection conn)
+    protected void resumeSession (AuthRequest req, PresentsConnection conn)
     {
         // check to see if we've already got a connection object, in which case it's probably stale
         Connection oldconn = getConnection();
@@ -804,7 +807,7 @@ public class PresentsSession
      * Sets our connection reference in a thread safe way. Also establishes the back reference to
      * us as the connection's message handler.
      */
-    protected synchronized void setConnection (Connection conn)
+    protected synchronized void setConnection (PresentsConnection conn)
     {
         // if our connection is being cleared out, record the amount of time we were connected to
         // our total connected time
@@ -839,7 +842,7 @@ public class PresentsSession
      * @return The connection instance associated with this client or null if the client is not
      * currently connected.
      */
-    protected synchronized Connection getConnection ()
+    protected synchronized PresentsConnection getConnection ()
     {
         return _conn;
     }
@@ -860,7 +863,7 @@ public class PresentsSession
     /** Queues a message for delivery to the client. */
     protected boolean postMessage (DownstreamMessage msg)
     {
-        Connection conn = getConnection();
+        PresentsConnection conn = getConnection();
         if (conn != null) {
             conn.postMessage(msg);
             _messagesOut++; // count 'em up!
@@ -1147,7 +1150,7 @@ public class PresentsSession
     protected AuthRequest _areq;
     protected Object _authdata;
     protected Name _authname;
-    protected Connection _conn;
+    protected PresentsConnection _conn;
     protected ClientObject _clobj;
     protected IntMap<ClientProxy> _subscrips = IntMaps.newHashIntMap();
     protected ClassLoader _loader;

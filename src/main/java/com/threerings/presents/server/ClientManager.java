@@ -46,7 +46,9 @@ import com.threerings.presents.data.ClientObject;
 import com.threerings.presents.net.AuthRequest;
 import com.threerings.presents.net.AuthResponse;
 import com.threerings.presents.server.net.AuthingConnection;
-import com.threerings.presents.server.net.Connection;
+import com.threerings.presents.server.net.PresentsConnection;
+
+import com.threerings.nio.conman.Connection;
 
 import static com.threerings.presents.Log.log;
 
@@ -407,7 +409,7 @@ public class ClientManager
      * Called by the connection manager to let us know when a new connection has been established.
      */
     public synchronized void connectionEstablished (
-        Connection conn, Name authname, AuthRequest req, AuthResponse rsp)
+        PresentsConnection conn, Name authname, AuthRequest req, AuthResponse rsp)
     {
         String type = authname.getClass().getSimpleName();
 

@@ -44,7 +44,7 @@ import com.threerings.presents.server.InvocationManager;
 import com.threerings.presents.server.PresentsSession;
 import com.threerings.presents.server.ServiceAuthenticator;
 import com.threerings.presents.server.SessionFactory;
-import com.threerings.presents.server.net.ConnectionManager;
+import com.threerings.presents.server.net.PresentsConnectionManager;
 
 import com.threerings.bureau.data.AgentObject;
 import com.threerings.bureau.data.BureauAuthName;
@@ -100,7 +100,7 @@ public class BureauRegistry
      * Creates an uninitialized registry.
      */
     @Inject public BureauRegistry (
-        InvocationManager invmgr, ConnectionManager conmgr, ClientManager clmgr)
+        InvocationManager invmgr, PresentsConnectionManager conmgr, ClientManager clmgr)
     {
         invmgr.registerDispatcher(new BureauDispatcher(new BureauProvider() {
             public void bureauInitialized (ClientObject client, String bureauId) {

@@ -19,92 +19,58 @@
 // License along with this library; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 
-package com.threerings.presents.server.net;
+package com.threerings.nio.conman;
 
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.NotYetConnectedException;
+import java.nio.channels.SelectableChannel;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.SocketChannel;
 
-import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.inject.Inject;
-import com.google.inject.Singleton;
 import com.google.inject.name.Named;
 
 import com.samskivert.util.IntMap;
 import com.samskivert.util.IntMaps;
-import com.samskivert.util.Invoker;
 import com.samskivert.util.Lifecycle;
 import com.samskivert.util.LoopingThread;
 import com.samskivert.util.Queue;
-import com.samskivert.util.ResultListener;
 import com.samskivert.util.Tuple;
 
-import com.threerings.io.ByteBufferInputStream;
-import com.threerings.io.FramingOutputStream;
-import com.threerings.io.ObjectOutputStream;
-import com.threerings.io.UnreliableObjectInputStream;
-import com.threerings.io.UnreliableObjectOutputStream;
+import com.threerings.presents.data.ConMgrStats;
+import com.threerings.presents.server.ReportManager;
 import com.threerings.nio.SelectorIterable;
 
-import com.threerings.presents.annotation.AuthInvoker;
-import com.threerings.presents.client.Client;
-import com.threerings.presents.data.ConMgrStats;
-import com.threerings.presents.net.Message;
-import com.threerings.presents.net.PongResponse;
-import com.threerings.presents.net.Transport;
-import com.threerings.presents.server.Authenticator;
-import com.threerings.presents.server.ChainedAuthenticator;
-import com.threerings.presents.server.ClientManager;
-import com.threerings.presents.server.DummyAuthenticator;
-import com.threerings.presents.server.PresentsDObjectMgr;
-import com.threerings.presents.server.PresentsServer;
-import com.threerings.presents.server.ReportManager;
-import com.threerings.presents.util.DatagramSequencer;
-
-import static com.threerings.presents.Log.log;
+import static com.threerings.NaryaLog.log;
 
 /**
  * Manages socket connections. It creates connection objects for each socket connection, but those
  * connection objects interact closely with the connection manager because network I/O is done via
  * a poll()-like mechanism rather than via threads.<p>
  *
- * ConnectionManager doesn't directly accept TCP connections; it expects a custom derived class or
- * external entity to do so and call its {@link #handleAcceptedSocket} method.
- * See {@link BindingConnectionManager} for the standalone implementation.
+ * ConnectionManager doesn't directly accept TCP connections; it expects
+ * {@link ServerSocketChannelAcceptor} or an external entity to do so and call its
+ * {@link #handleAcceptedSocket} method
  */
-@Singleton
-public class ConnectionManager extends LoopingThread
+public abstract class ConnectionManager extends LoopingThread
     implements Lifecycle.ShutdownComponent, ReportManager.Reporter
 {
     /**
      * Creates a connection manager instance.
      */
-    @Inject public ConnectionManager (Lifecycle cycle, ReportManager repmgr)
+    public ConnectionManager (Lifecycle cycle, ReportManager repmgr)
         throws IOException
     {
         super("ConnectionManager");
         cycle.addComponent(this);
         repmgr.registerReporter(this);
         _selector = Selector.open();
-    }
-
-    /**
-     * Adds an authenticator to the authentication chain. This authenticator will be offered a
-     * chance to authenticate incoming connections before falling back to the main authenticator.
-     */
-    public void addChainedAuthenticator (ChainedAuthenticator author)
-    {
-        _authors.add(author);
     }
 
     /**
@@ -127,7 +93,6 @@ public class ConnectionManager extends LoopingThread
         // fill in our snapshot values
         _stats.connectionCount = _connections.size();
         _stats.handlerCount = _handlers.size();
-        _stats.authQueueSize = _authq.size();
         _stats.deathQueueSize = _deathq.size();
         _stats.outQueueSize = _outq.size();
         if (_oflowqs.size() > 0) {
@@ -140,6 +105,18 @@ public class ConnectionManager extends LoopingThread
     }
 
     /**
+     * Registers <code>ops</code> on <code>chan</code> on this manager's selector and hooks
+     * <code>netEventHandler</code> up to receive events whenever the selection occurs.
+     */
+    public SelectionKey register (SelectableChannel chan, int ops, NetEventHandler netEventHandler)
+        throws IOException
+    {
+        SelectionKey key = chan.register(_selector, ops);
+        _handlers.put(key, netEventHandler);
+        return key;
+    }
+
+    /**
      * Introduces a new active socket into Presents from off the ConnectionManager thread. If
      * Presents is embedded in another framework that handles socket acceptance, this will be
      * called by its socket acceptor to get the socket into Presents to start authorization.
@@ -147,32 +124,6 @@ public class ConnectionManager extends LoopingThread
     public void transferAcceptedSocket (SocketChannel channel)
     {
         _acceptedq.append(channel);
-    }
-
-    /**
-     * Opens an outgoing connection to the supplied address. The connection will be opened in a
-     * non-blocking manner and added to the connection manager's select set. Messages posted to the
-     * connection prior to it being actually connected to its destination will remain in the queue.
-     * If the connection fails those messages will be dropped.
-     *
-     * @param conn the connection to be initialized and opened. Callers may want to provide a
-     * {@link Connection} derived class so that they may intercept calldown methods.
-     * @param hostname the hostname of the server to which to connect.
-     * @param port the port on which to connect to the server.
-     *
-     * @exception IOException thrown if an error occurs creating our socket. Everything else
-     * happens asynchronously. If the connection attempt fails, the Connection will be notified via
-     * {@link Connection#networkFailure}.
-     */
-    public void openOutgoingConnection (Connection conn, String hostname, int port)
-        throws IOException
-    {
-        // create a socket channel to use for this connection, initialize it and queue it up to
-        // have the non-blocking connect process started
-        SocketChannel sockchan = SocketChannel.open();
-        sockchan.configureBlocking(false);
-        conn.init(this, sockchan, System.currentTimeMillis());
-        _connectq.append(Tuple.newTuple(conn, new InetSocketAddress(hostname, port)));
     }
 
     /**
@@ -229,13 +180,6 @@ public class ConnectionManager extends LoopingThread
     }
 
     @Override // from LoopingThread
-    public boolean isRunning ()
-    {
-        // Prevent exiting our thread until the object manager is done.
-        return super.isRunning() || _omgr.isRunning();
-    }
-
-    @Override // from LoopingThread
     protected void willStart ()
     {
         super.willStart();
@@ -261,6 +205,7 @@ public class ConnectionManager extends LoopingThread
         if (DEBUG_REPORT && generateDebugReport) {
             _lastDebugStamp = iterStamp;
         }
+
 
         // close any connections that have been queued up to die
         Connection dconn;
@@ -289,21 +234,7 @@ public class ConnectionManager extends LoopingThread
         // those last moments we don't want to accept new connections or read any incoming messages
         if (super.isRunning()) {
 
-            SocketChannel accepted;
-            while ((accepted = _acceptedq.getNonBlocking()) != null) {
-                handleAcceptedSocket(accepted);
-            }
-            // start up any outgoing connections that need to be connected
-            Tuple<Connection, InetSocketAddress> pconn;
-            while ((pconn = _connectq.getNonBlocking()) != null) {
-                startOutgoingConnection(pconn.left, pconn.right);
-            }
-
-            // check for connections that have completed authentication
-            processAuthedConnections(iterStamp);
-
-            // listen for and process incoming network events
-            processIncomingEvents(iterStamp);
+            handleIncoming(iterStamp);
         }
 
         if (DEBUG_REPORT && generateDebugReport) {
@@ -311,109 +242,31 @@ public class ConnectionManager extends LoopingThread
         }
     }
 
-    /**
-     * Performs the authentication process on the specified connection. This is called by {@link
-     * AuthingConnection} itself once it receives its auth request.
-     */
-    protected void authenticateConnection (AuthingConnection conn)
-    {
-        Authenticator author = _author;
-        for (ChainedAuthenticator cauthor : _authors) {
-            if (cauthor.shouldHandleConnection(conn)) {
-                author = cauthor;
-                break;
-            }
+    protected void handleIncoming(long iterStamp) {
+
+        SocketChannel accepted;
+        while ((accepted = _acceptedq.getNonBlocking()) != null) {
+            handleAcceptedSocket(accepted);
         }
 
-        author.authenticateConnection(_authInvoker, conn, new ResultListener<AuthingConnection>() {
-            public void requestCompleted (AuthingConnection conn) {
-                _authq.append(conn);
-            }
-            public void requestFailed (Exception cause) {
-                // this never happens
-            }
-        });
+        // listen for and process incoming network events
+        processIncomingEvents(iterStamp);
     }
 
     /**
-     * Creates a datagram sequencer for use by a {@link Connection}.
+     * Adds a connection for the given socket to the managed set.
      */
-    protected DatagramSequencer createDatagramSequencer ()
-    {
-        return new DatagramSequencer(
-            new UnreliableObjectInputStream(new ByteBufferInputStream(_databuf)),
-            new UnreliableObjectOutputStream(_flattener));
-    }
+    protected abstract void handleAcceptedSocket (SocketChannel channel);
 
-    /**
-     * Starts the connection process for an outgoing connection. This is called as part of the
-     * conmgr tick for any pending outgoing connections.
-     */
-    protected void startOutgoingConnection (final Connection conn, InetSocketAddress addr)
-    {
-        final SocketChannel sockchan = conn.getChannel();
-        try {
-            // register our channel with the selector (if this fails, we abandon ship immediately)
-            conn.selkey = sockchan.register(_selector, SelectionKey.OP_CONNECT);
-
-            // start our connection process (now if we fail we need to clean things up)
-            NetEventHandler handler;
-            if (sockchan.connect(addr)) {
-                // it is possible even for a non-blocking socket to connect immediately, in which
-                // case we stick the connection in as its event handler immediately
-                handler = conn;
-
-            } else {
-                // otherwise we wire up a special event handler that will wait for our socket to
-                // finish the connection process and then wire things up fully
-                handler = new NetEventHandler() {
-                    public int handleEvent (long when) {
-                        try {
-                            if (sockchan.finishConnect()) {
-                                // great, we're ready to roll, wire up the connection
-                                conn.selkey = sockchan.register(_selector, SelectionKey.OP_READ);
-                                _handlers.put(conn.selkey, conn);
-                                log.info("Outgoing connection ready", "conn", conn);
-                            }
-                        } catch (IOException ioe) {
-                            handleError(ioe);
-                        }
-                        return 0;
-                    }
-                    public boolean checkIdle (long now) {
-                        return conn.checkIdle(now);
-                    }
-                    public void becameIdle () {
-                        handleError(new IOException("Pending connection became idle."));
-                    }
-                    protected void handleError (IOException ioe) {
-                        _handlers.remove(conn.selkey);
-                        _oflowqs.remove(conn);
-                        conn.connectFailure(ioe);
-                    }
-                };
-            }
-            _handlers.put(conn.selkey, handler);
-
-        } catch (IOException ioe) {
-            log.warning("Failed to initiate connection for " + sockchan + ".", ioe);
-            conn.connectFailure(ioe); // nothing else to clean up
-        }
-    }
-
-    /**
-     * Starts an accepted socket down the path to authorization.
-     */
-    protected void handleAcceptedSocket (SocketChannel channel)
+    protected void handleAcceptedSocket (SocketChannel channel, Connection conn)
     {
         try {
             // create a new authing connection object to manage the authentication of this client
             // connection and register it with our selection set
             channel.configureBlocking(false);
-            AuthingConnection aconn = new AuthingConnection();
-            aconn.selkey = channel.register(_selector, SelectionKey.OP_READ);
-            aconn.init(this, channel, System.currentTimeMillis());
-            _handlers.put(aconn.selkey, aconn);
+            conn.init(this, channel, System.currentTimeMillis());
+            conn.selkey = register(channel, SelectionKey.OP_READ, conn);
+            _handlers.put(conn.selkey, conn);
             synchronized (this) {
                 _stats.connects++;
             }
@@ -426,48 +279,6 @@ public class ConnectionManager extends LoopingThread
                 channel.socket().close();
             } catch (IOException ioe2) {
                 log.warning("Failed closing aborted connection: " + ioe2);
-            }
-        }
-    }
-
-    /**
-     * Converts connections that have completed the authentication process into full running
-     * connections and notifies the client manager that new connections have been established.
-     */
-    protected void processAuthedConnections (long iterStamp)
-    {
-        AuthingConnection conn;
-        while ((conn = _authq.getNonBlocking()) != null) {
-            try {
-                // construct a new running connection to handle this connections network traffic
-                // from here on out
-                Connection rconn = new Connection();
-                rconn.init(this, conn.getChannel(), iterStamp);
-                rconn.selkey = conn.selkey;
-
-                // we need to keep using the same object input and output streams from the
-                // beginning of the session because they have context that needs to be preserved
-                rconn.inheritStreams(conn);
-
-                // replace the mapping in the handlers table from the old conn with the new one
-                _handlers.put(rconn.selkey, rconn);
-
-                // add a mapping for the connection id and set the datagram secret
-                _connections.put(rconn.getConnectionId(), rconn);
-                rconn.setDatagramSecret(conn.getAuthRequest().getCredentials().getDatagramSecret());
-
-                // transfer any overflow queue for that connection
-                OverflowQueue oflowHandler = _oflowqs.remove(conn);
-                if (oflowHandler != null) {
-                    _oflowqs.put(rconn, oflowHandler);
-                }
-
-                // and let the client manager know about our new connection
-                _clmgr.connectionEstablished(rconn, conn.getAuthName(), conn.getAuthRequest(),
-                                             conn.getAuthResponse());
-
-            } catch (IOException ioe) {
-                log.warning("Failure upgrading authing connection to running.", ioe);
             }
         }
     }
@@ -568,11 +379,6 @@ public class ConnectionManager extends LoopingThread
             // otherwise write the message out to the client directly
             writeMessage(conn, tup.right, _oflowHandler);
         }
-
-        // send any datagrams
-        while ((tup = _dataq.getNonBlocking()) != null) {
-            writeDatagram(tup.left, tup.right);
-        }
     }
 
     /**
@@ -652,124 +458,11 @@ public class ConnectionManager extends LoopingThread
         return fully;
     }
 
-    /**
-     * Sends a datagram to the specified connection.
-     *
-     * @return true if the datagram was sent, false if we failed to send for any reason.
-     */
-    protected boolean writeDatagram (Connection conn, byte[] data)
-    {
-        InetSocketAddress target = conn.getDatagramAddress();
-        if (target == null) {
-            log.warning("No address to send datagram", "conn", conn);
-            return false;
-        }
-
-        _databuf.clear();
-        _databuf.put(data).flip();
-        try {
-            return conn.getDatagramChannel().send(_databuf, target) > 0;
-        } catch (IOException ioe) {
-            log.warning("Failed to send datagram.", ioe);
-            return false;
-        }
-    }
-
     /** Called by {@link #writeMessage} and friends when they write data over the network. */
     protected synchronized void noteWrite (int msgs, int bytes)
     {
         _stats.msgsOut += msgs;
         _stats.bytesOut += bytes;
-    }
-
-    /**
-     * Called by a connection when it has a downstream message that needs to be delivered.
-     * <em>Note:</em> this method is called as a result of a call to {@link Connection#postMessage}
-     * which happens when forwarding an event to a client and at the completion of authentication,
-     * both of which <em>must</em> happen only on the distributed object thread.
-     */
-    protected void postMessage (Connection conn, Message msg)
-    {
-        if (!isRunning()) {
-            log.warning("Posting message to inactive connection manager",
-                        "msg", msg, new Exception());
-        }
-
-        // sanity check
-        if (conn == null || msg == null) {
-            log.warning("postMessage() bogosity", "conn", conn, "msg", msg, new Exception());
-            return;
-        }
-
-        // more sanity check; messages must only be posted from the dobjmgr thread
-        if (!_omgr.isDispatchThread()) {
-            log.warning("Message posted on non-distributed object thread", "conn", conn,
-                        "msg", msg, "thread", Thread.currentThread(), new Exception());
-            // let it through though as we don't want to break things unnecessarily
-        }
-
-        try {
-            // send it as a datagram if hinted and possible (pongs must be sent as part of the
-            // negotation process)
-            if (!msg.getTransport().isReliable() &&
-                    (conn.getTransmitDatagrams() || msg instanceof PongResponse) &&
-                        postDatagram(conn, msg)) {
-                return;
-            }
-
-            // note the actual transport
-            msg.noteActualTransport(Transport.RELIABLE_ORDERED);
-
-            _framer.resetFrame();
-
-            // flatten this message using the connection's output stream
-            ObjectOutputStream oout = conn.getObjectOutputStream(_framer);
-            oout.writeObject(msg);
-            oout.flush();
-
-            // now extract that data into a byte array
-            ByteBuffer buffer = _framer.frameAndReturnBuffer();
-            byte[] data = new byte[buffer.limit()];
-            buffer.get(data);
-            // log.info("Flattened " + msg + " into " + data.length + " bytes.");
-
-            // and slap both on the queue
-            _outq.append(Tuple.newTuple(conn, data));
-
-        } catch (Exception e) {
-            log.warning("Failure flattening message", "conn", conn, "msg", msg, e);
-        }
-    }
-
-    /**
-     * Helper function for {@link #postMessage}; handles posting the message as a datagram.
-     *
-     * @return true if the datagram was successfully posted, false if it was too big.
-     */
-    protected boolean postDatagram (Connection conn, Message msg)
-        throws Exception
-    {
-        _flattener.reset();
-
-        // flatten the message using the connection's sequencer
-        DatagramSequencer sequencer = conn.getDatagramSequencer();
-        sequencer.writeDatagram(msg);
-
-        // if the message is too big, we must fall back to sending it through the stream channel
-        if (_flattener.size() > Client.MAX_DATAGRAM_SIZE) {
-            return false;
-        }
-
-        // note the actual transport
-        msg.noteActualTransport(Transport.UNRELIABLE_UNORDERED);
-
-        // extract as a byte array
-        byte[] data = _flattener.toByteArray();
-
-        // slap it on the queue
-        _dataq.append(Tuple.newTuple(conn, data));
-
-        return true;
     }
 
     /**
@@ -798,9 +491,6 @@ public class ConnectionManager extends LoopingThread
         synchronized (this) {
             _stats.disconnects++;
         }
-
-        // let the client manager know what's up
-        _clmgr.connectionFailed(conn, ioe);
     }
 
     /**
@@ -816,9 +506,6 @@ public class ConnectionManager extends LoopingThread
         synchronized (this) {
             _stats.closes++;
         }
-
-        // let the client manager know what's up
-        _clmgr.connectionClosed(conn);
     }
 
     @Override
@@ -963,12 +650,6 @@ public class ConnectionManager extends LoopingThread
         }
     };
 
-    /** Handles client authentication. The base authenticator is injected but optional services
-     * like the PeerManager may replace this authenticator with one that intercepts certain types
-     * of authentication and then passes normal authentications through. */
-    @Inject(optional=true) protected Authenticator _author = new DummyAuthenticator();
-    protected List<ChainedAuthenticator> _authors = Lists.newArrayList();
-
     protected Selector _selector;
     protected SelectorIterable _selectorSelector;
 
@@ -979,17 +660,11 @@ public class ConnectionManager extends LoopingThread
     protected IntMap<Connection> _connections = IntMaps.newHashIntMap();
 
     protected Queue<Connection> _deathq = Queue.newQueue();
-    protected Queue<AuthingConnection> _authq = Queue.newQueue();
-    protected Queue<Tuple<Connection, InetSocketAddress>> _connectq = Queue.newQueue();
     protected Queue<SocketChannel> _acceptedq = Queue.newQueue();
 
     protected Queue<Tuple<Connection, byte[]>> _outq = Queue.newQueue();
-    protected Queue<Tuple<Connection, byte[]>> _dataq = Queue.newQueue();
 
-    protected FramingOutputStream _framer = new FramingOutputStream();
-    protected ByteArrayOutputStream _flattener = new ByteArrayOutputStream();
     protected ByteBuffer _outbuf = ByteBuffer.allocateDirect(64 * 1024);
-    protected ByteBuffer _databuf = ByteBuffer.allocateDirect(Client.MAX_DATAGRAM_SIZE);
 
     protected Map<Connection, OverflowQueue> _oflowqs = Maps.newHashMap();
 
@@ -1011,12 +686,6 @@ public class ConnectionManager extends LoopingThread
      * outgoing messages in the queue. */
     @Inject(optional=true) @Named("presents.net.selectLoopTime")
     protected int _selectLoopTime = 100;
-
-    // some dependencies
-    @Inject @AuthInvoker protected Invoker _authInvoker;
-    @Inject protected ClientManager _clmgr;
-    @Inject protected PresentsDObjectMgr _omgr;
-    @Inject protected PresentsServer _server;
 
     /** Used to denote asynchronous close requests. */
     protected static final byte[] ASYNC_CLOSE_REQUEST = new byte[0];

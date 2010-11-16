@@ -23,11 +23,9 @@ package com.threerings.presents.server.net;
 
 import java.io.EOFException;
 import java.io.IOException;
-import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.DatagramChannel;
-import java.nio.channels.SelectionKey;
 import java.nio.channels.SocketChannel;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -38,17 +36,18 @@ import com.threerings.io.ObjectInputStream;
 import com.threerings.io.ObjectOutputStream;
 
 import com.threerings.presents.net.Message;
-import com.threerings.presents.net.PingRequest;
 import com.threerings.presents.util.DatagramSequencer;
+
+import com.threerings.nio.conman.Connection;
+import com.threerings.nio.conman.ConnectionManager;
 
 import static com.threerings.presents.Log.log;
 
 /**
- * The base connection class implements the net event handler interface and processes raw incoming
- * network data into a stream of parsed {@link Message} objects. It also provides the means to send
- * messages to the client and facilities for checking delinquency.
+ * Parses incoming network data into a stream of {@link Message} objects, sends messages to the
+ * client and adds datagram support to a connection.
  */
-public class Connection implements NetEventHandler
+public class PresentsConnection extends Connection
 {
     /** Used with {@link Connection#setMessageHandler}. */
     public static interface MessageHandler {
@@ -56,23 +55,16 @@ public class Connection implements NetEventHandler
         void handleMessage (Message message);
     }
 
-    /** The key used by the NIO code to track this connection. */
-    public SelectionKey selkey;
-
     /**
-     * Initializes a connection object with a socket and related info.
-     *
-     * @param cmgr The connection manager with which this connection is associated.
-     * @param channel The socket channel from which we'll be reading messages.
-     * @param createStamp The time at which this connection was created.
+     * Initializes the connection with its channel. Must be called with a
+     * {@link PresentsConnectionManager} as <code>cmgr</code>.
      */
+    @Override
     public void init (ConnectionManager cmgr, SocketChannel channel, long createStamp)
         throws IOException
     {
-        _cmgr = cmgr;
-        _channel = channel;
-        _lastEvent = createStamp;
-        _connectionId = ++_lastConnectionId;
+        super.init(cmgr, channel, createStamp);
+        _pcmgr = (PresentsConnectionManager)cmgr;
     }
 
     /**
@@ -93,31 +85,6 @@ public class Connection implements NetEventHandler
         if (_oin != null) {
             _oin.setClassLoader(loader);
         }
-    }
-
-    /**
-     * Returns the connection's unique identifier.
-     */
-    public int getConnectionId ()
-    {
-        return _connectionId;
-    }
-
-    /**
-     * Returns the non-blocking socket object used to construct this connection.
-     */
-    public SocketChannel getChannel ()
-    {
-        return _channel;
-    }
-
-    /**
-     * Returns the address associated with this connection or null if it has no underlying socket
-     * channel.
-     */
-    public InetAddress getInetAddress ()
-    {
-        return (_channel == null) ? null : _channel.socket().getInetAddress();
     }
 
     /**
@@ -167,78 +134,13 @@ public class Connection implements NetEventHandler
     }
 
     /**
-     * Returns true if this connection is closed.
-     */
-    public boolean isClosed ()
-    {
-        return (_channel == null);
-    }
-
-    /**
-     * Closes this connection and unregisters it from the connection manager. This should only be
-     * called from the conmgr thread.
-     */
-    public void close ()
-    {
-        // we shouldn't be closed twice
-        if (isClosed()) {
-            log.warning("Attempted to re-close connection " + this + ".", new Exception());
-            return;
-        }
-
-        // unregister from the select set
-        _cmgr.connectionClosed(this);
-
-        // close our socket
-        closeSocket();
-    }
-
-    /**
-     * Queues up a request to have this connection closed by the connection manager once all
-     * messages in its queue have been written to its target.
-     */
-    public void asyncClose ()
-    {
-        _cmgr.postAsyncClose(this);
-    }
-
-    /**
      * Posts a message for delivery to this connection. The message will be delivered by the conmgr
      * thread as soon as it gets to it.
      */
     public void postMessage (Message msg)
     {
         // pass this along to the connection manager
-        _cmgr.postMessage(this, msg);
-    }
-
-    /**
-     * Called when an outgoing socket experiences a connect failure. The connection manager will
-     * have cleaned up the partial registration needed during the connect process, so we are only
-     * responsible for closing our socket.
-     */
-    public void connectFailure (IOException ioe)
-    {
-        closeSocket();
-    }
-
-    /**
-     * Called when there is a failure reading or writing to this connection. We notify the
-     * connection manager and close ourselves down.
-     */
-    public void networkFailure (IOException ioe)
-    {
-        // if we're already closed, then something is seriously funny
-        if (isClosed()) {
-            log.warning("Failure reported on closed connection " + this + ".", new Exception());
-            return;
-        }
-
-        // let the connection manager know we're hosed
-        _cmgr.connectionFailed(this, ioe);
-
-        // and close our socket
-        closeSocket();
+        _pcmgr.postMessage(this, msg);
     }
 
     /**
@@ -255,7 +157,7 @@ public class Connection implements NetEventHandler
                 log.warning("Missing MD5 algorithm.");
                 return;
             }
-            _sequencer = _cmgr.createDatagramSequencer();
+            _sequencer = _pcmgr.createDatagramSequencer();
         }
 
         // verify the hash
@@ -291,7 +193,6 @@ public class Connection implements NetEventHandler
         }
     }
 
-    // from interface NetEventHandler
     public int handleEvent (long when)
     {
         // make a note that we received an event as of this time
@@ -345,32 +246,6 @@ public class Connection implements NetEventHandler
         return bytesIn;
     }
 
-    // from interface NetEventHandler
-    public boolean checkIdle (long now)
-    {
-        long idleMillis = now - _lastEvent;
-        if (idleMillis < PingRequest.PING_INTERVAL + LATENCY_GRACE) {
-            return false;
-        }
-        if (isClosed()) {
-            return true;
-        }
-        log.info("Disconnecting non-communicative client", "conn", this, "idle", idleMillis + "ms");
-        return true;
-    }
-
-    // from interface NetEventHandler
-    public void becameIdle ()
-    {
-        _cmgr.closeConnection(this);
-    }
-
-    @Override // from Object
-    public String toString ()
-    {
-        return "[id=" + (hashCode() % 1000) + ", addr=" + getInetAddress() + "]";
-    }
-
     /**
      * Returns the object input stream associated with this connection.  This should only be used
      * by the connection manager.
@@ -385,7 +260,7 @@ public class Connection implements NetEventHandler
      * is called by the connection manager when the time comes to pass streams from the authing
      * connection to the running connection.
      */
-    protected void inheritStreams (Connection other)
+    protected void inheritStreams (PresentsConnection other)
     {
         _fin = other._fin;
         _oin = other._oin;
@@ -427,34 +302,6 @@ public class Connection implements NetEventHandler
         return _sequencer;
     }
 
-    /**
-     * Closes the socket associated with this connection. This happens when we receive EOF, are
-     * requested to close down or when our connection fails.
-     */
-    protected void closeSocket ()
-    {
-        if (_channel == null) {
-            return;
-        }
-
-        log.debug("Closing channel " + this + ".");
-        try {
-            _channel.close();
-        } catch (IOException ioe) {
-            log.warning("Error closing connection", "conn", this, "error", ioe);
-        }
-
-        // clear out our references to prevent repeat closings
-        _channel = null;
-    }
-
-    protected ConnectionManager _cmgr;
-    protected SocketChannel _channel;
-
-    protected long _lastEvent;
-
-    protected int _connectionId;
-
     protected FramedInputStream _fin;
     protected ObjectInputStream _oin;
     protected ObjectOutputStream _oout;
@@ -470,10 +317,5 @@ public class Connection implements NetEventHandler
     protected MessageHandler _handler;
     protected ClassLoader _loader;
 
-    /** The last connection id assigned. */
-    protected static int _lastConnectionId;
-
-    /** The number of milliseconds beyond the ping interval that we allow a client's network
-     * connection to be idle before we forcibly disconnect them. */
-    protected static final long LATENCY_GRACE = 30 * 1000L;
+    protected PresentsConnectionManager _pcmgr;
 }

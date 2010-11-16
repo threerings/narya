@@ -48,7 +48,7 @@ import com.threerings.presents.peer.data.NodeObject;
 import com.threerings.presents.peer.net.PeerBootstrapData;
 import com.threerings.presents.peer.server.persist.NodeRecord;
 import com.threerings.presents.server.PresentsDObjectMgr;
-import com.threerings.presents.server.net.ConnectionManager;
+import com.threerings.presents.server.net.PresentsConnectionManager;
 import com.threerings.presents.server.net.ServerCommunicator;
 
 import static com.threerings.presents.Log.log;
@@ -354,7 +354,7 @@ public class PeerNode
 
     @Inject protected PeerManager _peermgr;
     @Inject protected PresentsDObjectMgr _omgr;
-    @Inject protected ConnectionManager _conmgr;
+    @Inject protected PresentsConnectionManager _conmgr;
 
     /** The amount of time after which a node record can be considered out of date and invalid. */
     protected static final long STALE_INTERVAL = 5L * 60L * 1000L;

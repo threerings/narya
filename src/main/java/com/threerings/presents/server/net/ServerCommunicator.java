@@ -45,7 +45,8 @@ import static com.threerings.presents.Log.log;
  */
 public class ServerCommunicator extends Communicator
 {
-    public ServerCommunicator (Client client, ConnectionManager conmgr, RootDObjectManager rootmgr)
+    public ServerCommunicator (Client client, PresentsConnectionManager conmgr,
+            RootDObjectManager rootmgr)
     {
         super(client);
         _conmgr = conmgr;
@@ -62,7 +63,7 @@ public class ServerCommunicator extends Communicator
 
         // we assume server entities have no firewall issues and can connect on the first port
         try {
-            Connection conn = new Connection() {
+            PresentsConnection conn = new PresentsConnection() {
                 @Override public void postMessage (Message msg) {
                     super.postMessage(msg);
                     // outgoing traffic on this connection is used to prevent idleness
@@ -92,7 +93,7 @@ public class ServerCommunicator extends Communicator
                     shutdown();
                 }
             };
-            conn.setMessageHandler(new Connection.MessageHandler() {
+            conn.setMessageHandler(new PresentsConnection.MessageHandler() {
                 public void handleMessage (Message message) {
                     try {
                         // our first message will always be an auth response
@@ -177,7 +178,7 @@ public class ServerCommunicator extends Communicator
         super.logonSucceeded(data);
 
         // now we can route all messages to the ClientDObjectMgr
-        _conn.setMessageHandler(new Connection.MessageHandler() {
+        _conn.setMessageHandler(new PresentsConnection.MessageHandler() {
             public void handleMessage (Message message) {
                 if (PING_DEBUG && message instanceof PongResponse) {
                     log.info("Got pong from server " + message);
@@ -200,9 +201,9 @@ public class ServerCommunicator extends Communicator
         clientCleanup(_logonError);
     }
 
-    protected ConnectionManager _conmgr;
+    protected PresentsConnectionManager _conmgr;
     protected RootDObjectManager _rootmgr;
-    protected Connection _conn;
+    protected PresentsConnection _conn;
     protected ClassLoader _loader;
     protected Exception _logonError;
 

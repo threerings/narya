@@ -57,6 +57,10 @@ import com.threerings.io.Streamable;
 
 import com.threerings.util.Name;
 
+import com.threerings.presents.annotation.MainInvoker;
+import com.threerings.presents.client.Client;
+import com.threerings.presents.client.InvocationService;
+import com.threerings.presents.data.ClientObject;
 import com.threerings.presents.dobj.DObject;
 import com.threerings.presents.dobj.EntryAddedEvent;
 import com.threerings.presents.dobj.EntryRemovedEvent;
@@ -64,11 +68,13 @@ import com.threerings.presents.dobj.EntryUpdatedEvent;
 import com.threerings.presents.dobj.ObjectAccessException;
 import com.threerings.presents.dobj.SetListener;
 import com.threerings.presents.dobj.Subscriber;
-
-import com.threerings.presents.annotation.MainInvoker;
-import com.threerings.presents.client.Client;
-import com.threerings.presents.client.InvocationService;
-import com.threerings.presents.data.ClientObject;
+import com.threerings.presents.peer.client.PeerService;
+import com.threerings.presents.peer.data.ClientInfo;
+import com.threerings.presents.peer.data.NodeObject;
+import com.threerings.presents.peer.data.PeerAuthName;
+import com.threerings.presents.peer.net.PeerCreds;
+import com.threerings.presents.peer.server.persist.NodeRecord;
+import com.threerings.presents.peer.server.persist.NodeRepository;
 import com.threerings.presents.server.ClientManager;
 import com.threerings.presents.server.InvocationException;
 import com.threerings.presents.server.InvocationManager;
@@ -77,15 +83,7 @@ import com.threerings.presents.server.PresentsSession;
 import com.threerings.presents.server.ReportManager;
 import com.threerings.presents.server.ServiceAuthenticator;
 import com.threerings.presents.server.SessionFactory;
-import com.threerings.presents.server.net.ConnectionManager;
-
-import com.threerings.presents.peer.client.PeerService;
-import com.threerings.presents.peer.data.ClientInfo;
-import com.threerings.presents.peer.data.NodeObject;
-import com.threerings.presents.peer.data.PeerAuthName;
-import com.threerings.presents.peer.net.PeerCreds;
-import com.threerings.presents.peer.server.persist.NodeRecord;
-import com.threerings.presents.peer.server.persist.NodeRepository;
+import com.threerings.presents.server.net.PresentsConnectionManager;
 
 import static com.threerings.presents.Log.log;
 
@@ -1599,7 +1597,7 @@ public abstract class PeerManager
     // our service dependencies
     @Inject protected @MainInvoker Invoker _invoker;
     @Inject protected ClientManager _clmgr;
-    @Inject protected ConnectionManager _conmgr;
+    @Inject protected PresentsConnectionManager _conmgr;
     @Inject protected Injector _injector;
     @Inject protected InvocationManager _invmgr;
     @Inject protected NodeRepository _noderepo;

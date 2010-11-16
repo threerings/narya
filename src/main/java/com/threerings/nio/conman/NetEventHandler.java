@@ -19,7 +19,7 @@
 // License along with this library; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 
-package com.threerings.presents.server.net;
+package com.threerings.nio.conman;
 
 /**
  * When a network event occurs, the connection manager calls the net event
@@ -29,8 +29,8 @@ package com.threerings.presents.server.net;
  * client is authenticating and the one that processes messages from
  * authenticated connections.
  *
- * <p> Utilising this interface prevents us from having to do a bunch of
- * inefficient and ugly comparisons; instead we can simply call through an
+ * <p> Using this interface prevents us from having to do a bunch of
+ * inefficient and ugly comparisons; instead we can call through an
  * interface method to the proper code.
  */
 public interface NetEventHandler
