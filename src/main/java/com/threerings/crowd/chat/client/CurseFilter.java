@@ -161,7 +161,7 @@ public abstract class CurseFilter implements ChatFilter
             String p = "";
             if (curse.startsWith("*")) {
                 curse = curse.substring(1);
-                p += "([a-zA-Z]*)";
+                p += "([\\p{L}\\p{Digit}]*)";
                 s += "$1";
             } else {
                 p += "()";
@@ -170,7 +170,7 @@ public abstract class CurseFilter implements ChatFilter
             p += " ";
             if (curse.endsWith("*")) {
                 curse = curse.substring(0, curse.length() - 1);
-                p += "([a-zA-Z]*)";
+                p += "([\\p{L}\\p{Digit}]*)";
                 s += "$3";
             }
 
