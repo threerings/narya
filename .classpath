@@ -1,21 +1,24 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
-	<classpathentry including="**/*.java" kind="src" output="dist/test-classes" path="src/test/java"/>
+	<classpathentry kind="src" path="src/main/java"/>
+	<classpathentry excluding="**/*.java" kind="src" path="src/main/resources"/>
+	<classpathentry kind="src" output="dist/test-classes" path="src/test/java"/>
 	<classpathentry excluding="**/*.java" kind="src" output="dist/test-classes" path="src/test/resources"/>
-	<classpathentry including="**/*.java" kind="src" path="src/main/java"/>
-	<classpathentry combineaccessrules="false" exported="true" kind="src" optional="true" path="/samskivert"/>
-	<classpathentry combineaccessrules="false" exported="true" kind="src" optional="true" path="/depot"/>
-	<classpathentry combineaccessrules="false" exported="true" kind="src" optional="true" path="/gwt-utils"/>
-	<classpathentry exported="true" kind="var" path="M2_REPO/aopalliance/aopalliance/1.0/aopalliance-1.0.jar"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry exported="true" kind="var" path="M2_REPO/aopalliance/aopalliance/1.0/aopalliance-1.0.jar" sourcepath="M2_REPO/aopalliance/aopalliance/1.0/aopalliance-1.0-sources.jar"/>
 	<classpathentry exported="true" kind="var" path="M2_REPO/com/google/inject/guice/2.0/guice-2.0.jar">
 		<accessrules>
 			<accessrule kind="nonaccessible" pattern="**/internal/**"/>
 		</accessrules>
 	</classpathentry>
-	<classpathentry exported="true" kind="var" path="M2_REPO/javassist/javassist/3.8.0.GA/javassist-3.8.0.GA.jar"/>
-	<classpathentry exported="true" kind="var" path="M2_REPO/com/samskivert/jmustache/1.0/jmustache-1.0.jar"/>
-	<classpathentry exported="true" kind="var" path="M2_REPO/javax/annotation/jsr250-api/1.0/jsr250-api-1.0.jar"/>
-	<classpathentry exported="true" kind="var" path="M2_REPO/com/google/guava/guava/r07/guava-r07.jar"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry exported="true" kind="var" path="M2_REPO/javassist/javassist/3.8.0.GA/javassist-3.8.0.GA.jar" sourcepath="M2_REPO/javassist/javassist/3.8.0.GA/javassist-3.8.0.GA-sources.jar"/>
+	<classpathentry exported="true" kind="var" path="M2_REPO/com/samskivert/jmustache/1.0/jmustache-1.0.jar" sourcepath="M2_REPO/com/samskivert/jmustache/1.0/jmustache-1.0-sources.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="jar:file:/Users/groves/.m2/repository/com/samskivert/jmustache/1.0/jmustache-1.0-javadoc.jar!/"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry exported="true" kind="var" path="M2_REPO/javax/annotation/jsr250-api/1.0/jsr250-api-1.0.jar" sourcepath="M2_REPO/javax/annotation/jsr250-api/1.0/jsr250-api-1.0-sources.jar"/>
+	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/depot"/>
+	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/gwt-utils"/>
 	<classpathentry kind="output" path="dist/classes"/>
 </classpath>
