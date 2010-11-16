@@ -52,7 +52,7 @@
     <property name="libs.dir" value="lib"/>
     <copy todir="${deploy.dir}/lib" flatten="true">
       <fileset dir="${libs.dir}">
-        <include name="aspirin.swc"/>
+        <include name="aspirin*.swc"/>
         <include name="asunit.swc"/>
         <include name="corelib.swc"/>
       </fileset>
