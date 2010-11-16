@@ -24,7 +24,6 @@ package com.threerings.nio;
 import java.io.IOException;
 import java.nio.channels.SocketChannel;
 
-import com.google.common.base.Charsets;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
@@ -82,7 +81,7 @@ public class PolicyServer extends ConnectionManager
         }
         policy.append("</cross-domain-policy>\n");
 
-        _policy = policy.toString().getBytes(Charsets.UTF_8);
+        _policy = policy.toString().getBytes("UTF-8");
         start();
     }
 
@@ -107,7 +106,7 @@ public class PolicyServer extends ConnectionManager
     protected void handleAcceptedSocket (SocketChannel channel)
     {
         Connection conn = new Connection() {
-            @Override public int handleEvent (long when) {
+            public int handleEvent (long when) {
                 // Ignore incoming data.  Should just be "<policy-file-request/>"
                 return 0;
             }
