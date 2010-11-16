@@ -7,7 +7,11 @@
 	<classpathentry combineaccessrules="false" exported="true" kind="src" optional="true" path="/depot"/>
 	<classpathentry combineaccessrules="false" exported="true" kind="src" optional="true" path="/gwt-utils"/>
 	<classpathentry exported="true" kind="var" path="M2_REPO/aopalliance/aopalliance/1.0/aopalliance-1.0.jar"/>
-	<classpathentry exported="true" kind="var" path="M2_REPO/com/google/inject/guice/2.0/guice-2.0.jar"/>
+	<classpathentry exported="true" kind="var" path="M2_REPO/com/google/inject/guice/2.0/guice-2.0.jar">
+		<accessrules>
+			<accessrule kind="nonaccessible" pattern="**/internal/**"/>
+		</accessrules>
+	</classpathentry>
 	<classpathentry exported="true" kind="var" path="M2_REPO/javassist/javassist/3.8.0.GA/javassist-3.8.0.GA.jar"/>
 	<classpathentry exported="true" kind="var" path="M2_REPO/com/samskivert/jmustache/1.0/jmustache-1.0.jar"/>
 	<classpathentry exported="true" kind="var" path="M2_REPO/javax/annotation/jsr250-api/1.0/jsr250-api-1.0.jar"/>
