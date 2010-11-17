@@ -36,7 +36,7 @@ import static com.threerings.presents.Log.log;
  * @param <T> the type of entry being handled by this event. This must match the type on the set
  * that generated this event.
  */
-public class EntryUpdatedEvent<T extends DSet.Entry> extends NamedEvent
+public class EntryUpdatedEvent<T extends DSet.Entry> extends EntryEvent<T>
 {
     /**
      * Constructs a new entry updated event on the specified target object for the specified set
@@ -77,17 +77,27 @@ public class EntryUpdatedEvent<T extends DSet.Entry> extends NamedEvent
     {
     }
 
+    @Override
+    public Comparable<?> getKey ()
+    {
+        return _entry.getKey();
+    }
+
     /**
-     * Returns the entry that has been updated.
+     * {@inheritDoc}
+     * This implementation never returns <code>null</code>.
      */
+    @Override
     public T getEntry ()
     {
         return _entry;
     }
 
     /**
-     * Returns the entry that was in the set prior to being updated.
+     * {@inheritDoc}
+     * This implementation never returns <code>null</code>.
      */
+    @Override
     public T getOldEntry ()
     {
         return _oldEntry;

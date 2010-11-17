@@ -33,7 +33,7 @@ import com.samskivert.util.StringUtil;
  * @param <T> the type of entry being handled by this event. This must match the type on the set
  * that generated this event.
  */
-public class EntryAddedEvent<T extends DSet.Entry> extends NamedEvent
+public class EntryAddedEvent<T extends DSet.Entry> extends EntryEvent<T>
 {
     /**
      * Constructs a new entry added event on the specified target object with the supplied set
@@ -66,12 +66,30 @@ public class EntryAddedEvent<T extends DSet.Entry> extends NamedEvent
     {
     }
 
+    @Override
+    public Comparable<?> getKey ()
+    {
+        return _entry.getKey();
+    }
+
     /**
-     * Returns the entry that has been added.
+     * {@inheritDoc}
+     * This implementation never returns <code>null</code>.
      */
+    @Override
     public T getEntry ()
     {
         return _entry;
+    }
+
+    /**
+     * {@inheritDoc}
+     * This implementation always returns <code>null</code>.
+     */
+    @Override
+    public T getOldEntry ()
+    {
+        return null;
     }
 
     @Override

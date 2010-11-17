@@ -33,7 +33,7 @@ import static com.threerings.presents.Log.log;
  * @param <T> the type of entry being handled by this event. This must match the type on the set
  * that generated this event.
  */
-public class EntryRemovedEvent<T extends DSet.Entry> extends NamedEvent
+public class EntryRemovedEvent<T extends DSet.Entry> extends EntryEvent<T>
 {
     /**
      * Constructs a new entry removed event on the specified target object with the supplied set
@@ -59,17 +59,27 @@ public class EntryRemovedEvent<T extends DSet.Entry> extends NamedEvent
     {
     }
 
-    /**
-     * Returns the key that identifies the entry that has been removed.
-     */
+    @Override
     public Comparable<?> getKey ()
     {
         return _key;
     }
 
     /**
-     * Returns the entry that was in the set prior to being updated.
+     * {@inheritDoc}
+     * This implementation always returns <code>null</code>.
      */
+    @Override
+    public T getEntry ()
+    {
+        return null;
+    }
+
+    /**
+     * {@inheritDoc}
+     * This implementation never returns <code>null</code>.
+     */
+    @Override
     public T getOldEntry ()
     {
         return _oldEntry;
