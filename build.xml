@@ -103,17 +103,18 @@
   </target>
 
   <target name="-checkaslib">
-    <condition property="no_build_aslib"><or>
+    <condition property="no_build_aslib">
       <not><available file="${flexsdk.dir}/lib/compc.jar"/></not>
-      <and>
-        <uptodate targetfile="${deploy.dir}/${lib.name}lib.swc">
-          <srcfiles dir="src/as" includes="**/*.as"/>
-        </uptodate>
-      </and>
+    </condition>
+    <condition property="no_rebuild_aslib"><or>
+      <isset property="no_build_aslib"/>
+      <uptodate targetfile="${deploy.dir}/${lib.name}lib.swc">
+        <srcfiles dir="src/as" includes="**/*.as"/>
+      </uptodate>
     </or></condition>
   </target>
 
-  <target name="aslib" unless="no_build_aslib" depends="-checkaslib"
+  <target name="aslib" unless="no_rebuild_aslib" depends="-checkaslib"
           description="Builds the ActionScript code">
     <!-- generate aslib-config.xml for Flash Player and general compilation -->
     <copy file="etc/aslib-config.xml.in" tofile="${deploy.dir}/aslib-config.xml">
@@ -157,8 +158,8 @@
       <arg value="+flexlib=${flexsdk.dir}/frameworks"/>
       <arg line="-library-path ${flexsdk.dir}/frameworks/libs"/>
       <arg line="-templates-path ${flexsdk.dir}/asdoc/templates"/>
+      <arg line="-library-path ${deploy.dir}/lib"/>
       <arg line="-doc-sources src/as"/>
-      <arg line="-doc-sources src/player"/>
       <arg line="-output ${deploy.dir}/asdocs"/>
     </java>
   </target>
