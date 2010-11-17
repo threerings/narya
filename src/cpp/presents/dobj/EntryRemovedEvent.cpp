@@ -7,12 +7,12 @@ DEFINE_STREAMABLE("com.threerings.presents.dobj.EntryRemovedEvent", EntryRemoved
 
 void EntryRemovedEvent::readObject (ObjectInputStream& in)
 {
-    presents::dobj::NamedEvent::readObject(in);
+    presents::dobj::EntryEvent::readObject(in);
     key = boost::static_pointer_cast<Streamable>(in.readObject());
 }
 
 void EntryRemovedEvent::writeObject (ObjectOutputStream& out) const
 {
-    presents::dobj::NamedEvent::writeObject(out);
+    presents::dobj::EntryEvent::writeObject(out);
     out.writeObject(key);
 }

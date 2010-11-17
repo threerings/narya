@@ -7,12 +7,12 @@ DEFINE_STREAMABLE("com.threerings.presents.dobj.EntryAddedEvent", EntryAddedEven
 
 void EntryAddedEvent::readObject (ObjectInputStream& in)
 {
-    presents::dobj::NamedEvent::readObject(in);
+    presents::dobj::EntryEvent::readObject(in);
     entry = boost::static_pointer_cast<Streamable>(in.readObject());
 }
 
 void EntryAddedEvent::writeObject (ObjectOutputStream& out) const
 {
-    presents::dobj::NamedEvent::writeObject(out);
+    presents::dobj::EntryEvent::writeObject(out);
     out.writeObject(entry);
 }

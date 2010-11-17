@@ -6,11 +6,11 @@
 #include "presents/streamers/StreamableStreamer.h"
 
 #include "presents/Streamable.h"
-#include "presents/dobj/NamedEvent.h"
+#include "presents/dobj/EntryEvent.h"
 
 namespace presents { namespace dobj { 
 
-class EntryRemovedEvent : public presents::dobj::NamedEvent {
+class EntryRemovedEvent : public presents::dobj::EntryEvent {
 public:
     DECLARE_STREAMABLE();
 
