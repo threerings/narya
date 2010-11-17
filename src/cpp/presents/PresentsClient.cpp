@@ -26,6 +26,7 @@
 #include "presents/dobj/DObject.h"
 #include "presents/dobj/DSet.h"
 #include "presents/dobj/EntryAddedEvent.h"
+#include "presents/dobj/EntryEvent.h"
 #include "presents/dobj/EntryRemovedEvent.h"
 #include "presents/dobj/EntryUpdatedEvent.h"
 #include "presents/dobj/InvocationNotificationEvent.h"
