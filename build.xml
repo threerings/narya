@@ -283,15 +283,7 @@
     </genreceiver>
   </target>
 
-  <target name="procstream" depends="-preptools"
-          description="Adds readField and writeField methods to Streamable classes">
-    <instream outdir="${classes.dir}">
-      <path refid="built.classpath"/>
-      <fileset dir="${classes.dir}" includes="**/data/*.class"/>
-      <fileset dir="${classes.dir}" includes="**/net/*.class"/>
-      <fileset dir="${classes.dir}" includes="**/dobj/*.class"/>
-      <fileset dir="${classes.dir}" includes="**/util/*.class"/>
-    </instream>
+  <target name="genstream" depends="-preptools" description="Generates C++ streamable classes.">
     <gencppstreamable classpathref="built.classpath" cpproot="src/cpp">
       <generate class="com.threerings.presents.client.InvocationReceiver$Registration"/>
       <generate class="com.threerings.presents.data.ClientObject"/>
@@ -319,6 +311,17 @@
       <generate class="com.threerings.presents.net.UsernamePasswordCreds"/>
       <generate class="com.threerings.util.Name"/>
     </gencppstreamable>
+  </target>
+
+  <target name="procstream" depends="-preptools"
+          description="Adds readField and writeField methods to Streamable classes">
+    <instream outdir="${classes.dir}">
+      <path refid="built.classpath"/>
+      <fileset dir="${classes.dir}" includes="**/data/*.class"/>
+      <fileset dir="${classes.dir}" includes="**/net/*.class"/>
+      <fileset dir="${classes.dir}" includes="**/dobj/*.class"/>
+      <fileset dir="${classes.dir}" includes="**/util/*.class"/>
+    </instream>
   </target>
 
   <target name="genascript" depends="-preptools"
