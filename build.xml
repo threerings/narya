@@ -291,7 +291,9 @@
       <generate class="com.threerings.presents.dobj.DEvent"/>
       <generate class="com.threerings.presents.dobj.DObject"/>
       <generate class="com.threerings.presents.dobj.EntryAddedEvent"/>
+      <generate class="com.threerings.presents.dobj.EntryEvent"/>
       <generate class="com.threerings.presents.dobj.EntryRemovedEvent"/>
+      <generate class="com.threerings.presents.dobj.EntryUpdatedEvent"/>
       <generate class="com.threerings.presents.dobj.InvocationNotificationEvent"/>
       <generate class="com.threerings.presents.dobj.InvocationRequestEvent"/>
       <generate class="com.threerings.presents.dobj.NamedEvent"/>

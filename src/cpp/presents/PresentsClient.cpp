@@ -27,6 +27,7 @@
 #include "presents/dobj/DSet.h"
 #include "presents/dobj/EntryAddedEvent.h"
 #include "presents/dobj/EntryRemovedEvent.h"
+#include "presents/dobj/EntryUpdatedEvent.h"
 #include "presents/dobj/InvocationNotificationEvent.h"
 #include "presents/dobj/InvocationRequestEvent.h"
 #include "presents/dobj/NamedEvent.h"
@@ -83,8 +84,10 @@ PresentsClient::PresentsClient ()
     dobj::DEvent::registerWithPresents();
     dobj::DObject::registerWithPresents();
     dobj::DSet::registerWithPresents();
+    dobj::EntryEvent::registerWithPresents();
     dobj::EntryAddedEvent::registerWithPresents();
     dobj::EntryRemovedEvent::registerWithPresents();
+    dobj::EntryUpdatedEvent::registerWithPresents();
     dobj::InvocationNotificationEvent::registerWithPresents();
     dobj::InvocationRequestEvent::registerWithPresents();
     dobj::NamedEvent::registerWithPresents();
