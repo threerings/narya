@@ -1,14 +1,11 @@
 <?xml version="1.0" standalone="yes"?>
 <!-- build configuration -->
 <project name="narya" default="compile" xmlns:artifact="urn:maven-artifact-ant">
-  <property name="lib.name"     value="narya"/>
   <property name="deploy.dir"   value="dist"/>
   <property name="src.dir"      value="src/main/java"/>
-  <property name="rsrc.dir"      value="src/main/resources"/>
   <property name="tsrc.dir"     value="src/test/java"/>
   <property name="classes.dir"  value="${deploy.dir}/classes"/>
   <property name="tclasses.dir" value="${deploy.dir}/test-classes"/>
-  <property name="gwtjar.dir"   value="${deploy.dir}/gwt-jar"/>
 
   <property name="maven-ant.vers" value="2.1.1"/>
   <property name="maven-ant.dir" value="${user.home}/.m2/ant-support"/>
@@ -35,9 +32,7 @@
     <mkdir dir="${deploy.dir}/lib"/>
     <mkdir dir="${classes.dir}"/>
     <copy todir="${classes.dir}">
-      <fileset dir="${rsrc.dir}" includes="**/*.properties"/>
-      <fileset dir="${rsrc.dir}" includes="**/*.mustache"/>
-      <fileset dir="${rsrc.dir}" includes="**/*.tmpl"/>
+      <fileset dir="src/main/resources" includes="**"/>
     </copy>
     <path id="built.classpath">
       <path refid="compile.classpath"/>
@@ -75,7 +70,6 @@
     <delete dir="${classes.dir}"/>
     <delete dir="${tclasses.dir}"/>
     <delete dir="${deploy.dir}/docs"/>
-    <delete dir="${gwtjar.dir}"/>
     <delete failonerror="false"><fileset dir="${deploy.dir}" includes="*.jar"/></delete>
     <delete failonerror="false"><fileset dir="${deploy.dir}" includes="*.swc"/></delete>
   </target>
@@ -108,7 +102,7 @@
     </condition>
     <condition property="no_rebuild_aslib"><or>
       <isset property="no_build_aslib"/>
-      <uptodate targetfile="${deploy.dir}/${lib.name}lib.swc">
+      <uptodate targetfile="${deploy.dir}/${ant.project.name}lib.swc">
         <srcfiles dir="src/as" includes="**/*.as"/>
       </uptodate>
     </or></condition>
@@ -120,7 +114,7 @@
     <copy file="etc/aslib-config.xml.in" tofile="${deploy.dir}/aslib-config.xml">
       <filterset>
         <filter token="flex_sdk_dir" value="${flexsdk.dir}"/>
-        <filter token="lib_name" value="${lib.name}"/>
+        <filter token="lib_name" value="${ant.project.name}"/>
       </filterset>
     </copy>
     <java jar="${flexsdk.dir}/lib/compc.jar" fork="true" failonerror="true">
@@ -130,7 +124,7 @@
       <arg value="-compiler.source-path=src/as/"/>
       <arg value="-include-sources=src/as/"/>
       <arg value="-output"/>
-      <arg value="${deploy.dir}/${lib.name}lib.swc"/>
+      <arg value="${deploy.dir}/${ant.project.name}lib.swc"/>
     </java>
     <delete file="${deploy.dir}/aslib-config.xml"/>
   </target>
@@ -183,13 +177,13 @@
 
   <target name="dist" depends="compile,procstream,aslib" description="Builds jar files.">
     <!-- build our main jar file -->
-    <jar destfile="${deploy.dir}/${lib.name}.jar">
+    <jar destfile="${deploy.dir}/${ant.project.name}.jar">
       <fileset dir="${classes.dir}" includes="**"/>
     </jar>
 
     <!-- we export a small selection of classes for use by GWT -->
-    <mkdir dir="${gwtjar.dir}"/>
-    <copy todir="${gwtjar.dir}">
+    <mkdir dir="${deploy.dir}/gwt-jar"/>
+    <copy todir="${deploy.dir}/gwt-jar">
       <fileset dir="${src.dir}">
         <include name="**/web/server/*Exception.java"/>
         <include name="**/web/client/*.java"/>
@@ -197,8 +191,8 @@
         <include name="**/web/*.gwt.xml"/>
       </fileset>
     </copy>
-    <jar basedir="${gwtjar.dir}" destfile="${deploy.dir}/${lib.name}-gwt.jar"/>
-    <delete dir="${gwtjar.dir}"/>
+    <jar basedir="${deploy.dir}/gwt-jar" destfile="${deploy.dir}/${ant.project.name}-gwt.jar"/>
+    <delete dir="${deploy.dir}/gwt-jar"/>
   </target>
 
   <target name="genrecord" depends="-prepare"
@@ -331,23 +325,37 @@
   </target>
 
   <target name="snapshot" description="Creates a zipfile with our source distribution">
-     <delete file="${deploy.dir}/${lib.name}-snapshot.zip"/>
-     <mkdir dir="${deploy.dir}/snapshot/${lib.name}"/>
-     <copy todir="${deploy.dir}/snapshot/${lib.name}">
+     <delete file="${deploy.dir}/${ant.project.name}-snapshot.zip"/>
+     <mkdir dir="${deploy.dir}/snapshot/${ant.project.name}"/>
+     <copy todir="${deploy.dir}/snapshot/${ant.project.name}">
        <fileset dir=".">
          <include name="**"/>
          <exclude name="${deploy.dir}/**"/>
-         <exclude name="${lib.name}-*.zip"/>
+         <exclude name="${ant.project.name}-*.zip"/>
        </fileset>
      </copy>
-     <copy todir="${deploy.dir}/snapshot/${lib.name}/lib">
+     <copy todir="${deploy.dir}/snapshot/${ant.project.name}/lib">
        <fileset dir="${deploy.dir}/lib" includes="*.jar"/>
      </copy>
-     <copy todir="${deploy.dir}/snapshot/${lib.name}/docs/api">
+     <copy todir="${deploy.dir}/snapshot/${ant.project.name}/docs/api">
        <fileset dir="${deploy.dir}/docs" includes="**"/>
      </copy>
-     <zip destfile="${deploy.dir}/${lib.name}-snapshot.zip" basedir="${deploy.dir}/snapshot"/>
+     <zip destfile="${deploy.dir}/${ant.project.name}-snapshot.zip"
+          basedir="${deploy.dir}/snapshot"/>
      <delete dir="${deploy.dir}/snapshot"/>
   </target>
 
+  <property name="maven.deploy.repo" value="file://${user.home}/.m2/repository"/>
+  <target name="maven-deploy" depends="dist,tests" 
+          description="Deploys our build artifacts to a Maven repository.">
+    <artifact:deploy file="${deploy.dir}/${ant.project.name}.jar" uniqueVersion="false">
+      <remoteRepository url="${maven.deploy.repo}"/>
+      <pom refid="pom"/>
+    </artifact:deploy>
+    <artifact:pom id="gwt-pom" file="gwt-pom.xml"/>
+    <artifact:deploy file="${deploy.dir}/${ant.project.name}-gwt.jar" uniqueVersion="false">
+      <remoteRepository url="${maven.deploy.repo}"/>
+      <pom refid="gwt-pom"/>
+    </artifact:deploy>
+  </target>
 </project>
