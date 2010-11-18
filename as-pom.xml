@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>com.threerings</groupId>
+  <artifactId>naryalib</artifactId>
+  <packaging>swc</packaging>
+  <version>1.2-SNAPSHOT</version>
+  <name>narya</name>
+  <description>Facilities for making networked multiplayer games.</description>
+  <url>http://code.google.com/p/narya/</url>
+  <issueManagement>
+    <url>http://code.google.com/p/narya/issues/list</url>
+  </issueManagement>
+
+  <repositories>
+    <repository>
+      <id>as3corelib-repo</id>
+      <url>https://github.com/samskivert/as3corelib/raw/master/repository</url>
+    </repository>
+  </repositories>
+
+  <dependencies>
+    <dependency>
+      <groupId>com.threerings</groupId>
+      <artifactId>aspirin</artifactId>
+      <version>1.6</version>
+      <scope>compile</scope>
+      <type>swc</type>
+    </dependency>
+    <dependency>
+      <groupId>com.adobe</groupId>
+      <artifactId>as3corelib</artifactId>
+      <version>0.93</version>
+      <scope>compile</scope>
+      <type>swc</type>
+    </dependency>
+  </dependencies>
+</project>

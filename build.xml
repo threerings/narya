@@ -3,6 +3,7 @@
 <project name="narya" default="compile" xmlns:artifact="urn:maven-artifact-ant">
   <property name="deploy.dir"   value="dist"/>
   <property name="src.dir"      value="src/main/java"/>
+  <property name="asrc.dir"     value="src/main/as"/>
   <property name="tsrc.dir"     value="src/test/java"/>
   <property name="classes.dir"  value="${deploy.dir}/classes"/>
   <property name="tclasses.dir" value="${deploy.dir}/test-classes"/>
@@ -43,16 +44,6 @@
       <pathelement location="${classes.dir}"/>
       <pathelement location="${tclasses.dir}"/>
     </path>
-    <!-- TEMP: needed for ActionScript library build -->
-    <property name="libs.dir" value="lib"/>
-    <copy todir="${deploy.dir}/lib" flatten="true">
-      <fileset dir="${libs.dir}">
-        <include name="aspirin*.swc"/>
-        <include name="asunit.swc"/>
-        <include name="corelib.swc"/>
-      </fileset>
-    </copy>
-    <!-- END TEMP -->
   </target>
 
   <target name="-preptools" depends="-prepare">
@@ -103,13 +94,21 @@
     <condition property="no_rebuild_aslib"><or>
       <isset property="no_build_aslib"/>
       <uptodate targetfile="${deploy.dir}/${ant.project.name}lib.swc">
-        <srcfiles dir="src/as" includes="**/*.as"/>
+        <srcfiles dir="${asrc.dir}" includes="**/*.as"/>
       </uptodate>
     </or></condition>
   </target>
 
-  <target name="aslib" unless="no_rebuild_aslib" depends="-checkaslib"
+  <target name="aslib" unless="no_rebuild_aslib" depends="-checkaslib,-prepare"
           description="Builds the ActionScript code">
+    <!-- obtain our ActionScript dependencies via Maven -->
+    <artifact:pom id="as-pom" file="as-pom.xml"/>
+    <artifact:dependencies filesetId="aslibs.fileset" pomRefId="as-pom" useScope="compile"/>
+    <copy todir="${deploy.dir}/lib">
+      <fileset refid="aslibs.fileset"/>
+      <mapper type="flatten"/>
+    </copy>
+
     <!-- generate aslib-config.xml for Flash Player and general compilation -->
     <copy file="etc/aslib-config.xml.in" tofile="${deploy.dir}/aslib-config.xml">
       <filterset>
@@ -121,8 +120,8 @@
       <arg value="-load-config"/>
       <arg value="${deploy.dir}/aslib-config.xml"/>
       <arg value="-compiler.optimize"/>
-      <arg value="-compiler.source-path=src/as/"/>
-      <arg value="-include-sources=src/as/"/>
+      <arg value="-compiler.source-path=${asrc.dir}/"/>
+      <arg value="-include-sources=${asrc.dir}/"/>
       <arg value="-output"/>
       <arg value="${deploy.dir}/${ant.project.name}lib.swc"/>
     </java>
@@ -153,7 +152,7 @@
       <arg line="-library-path ${flexsdk.dir}/frameworks/libs"/>
       <arg line="-templates-path ${flexsdk.dir}/asdoc/templates"/>
       <arg line="-library-path ${deploy.dir}/lib"/>
-      <arg line="-doc-sources src/as"/>
+      <arg line="-doc-sources ${asrc.dir}"/>
       <arg line="-output ${deploy.dir}/asdocs"/>
     </java>
   </target>
@@ -235,7 +234,7 @@
       <exclude name="**/InvocationService.java"/>
     </javac>
     <!-- generate services with an actionscript counterpart-->
-    <genservice header="lib/SOURCE_HEADER" asroot="src/as" classpathref="built.classpath">
+    <genservice header="lib/SOURCE_HEADER" asroot="${asrc.dir}" classpathref="built.classpath">
       <fileset dir="${src.dir}" includes="**/*Service.java">
         <exclude name="**/RegistrationService.java"/>
         <exclude name="**/InvocationService.java"/>
@@ -319,7 +318,7 @@
 
   <target name="genascript" depends="-preptools"
           description="Generates ActionScript versions of our Streamable classes">
-    <genascript header="lib/SOURCE_HEADER" asroot="src/as">
+    <genascript header="lib/SOURCE_HEADER" asroot="${asrc.dir}">
       <fileset dir="${src.dir}" includes="**/data/*.java"/>
     </genascript>
   </target>
@@ -356,6 +355,11 @@
     <artifact:deploy file="${deploy.dir}/${ant.project.name}-gwt.jar" uniqueVersion="false">
       <remoteRepository url="${maven.deploy.repo}"/>
       <pom refid="gwt-pom"/>
+    </artifact:deploy>
+    <artifact:pom id="as-pom" file="as-pom.xml"/>
+    <artifact:deploy file="${deploy.dir}/${ant.project.name}lib.swc" uniqueVersion="false">
+      <remoteRepository url="${maven.deploy.repo}"/>
+      <pom refid="as-pom"/>
     </artifact:deploy>
   </target>
 </project>
