@@ -84,7 +84,7 @@
     <delete dir="${deploy.dir}"/>
   </target>
 
-  <target name="compile" depends="-prepare" description="Builds the Java code">
+  <target name="compile" depends="-prepare" description="Builds the Java code.">
     <javac srcdir="${src.dir}" destdir="${classes.dir}" includeAntRuntime="false"
            debug="on" optimize="${build.optimize}" deprecation="on"
            source="1.5" target="1.5" classpathref="compile.classpath">
@@ -169,25 +169,22 @@
           description="Runs unit tests. Use -Dtest=Foo to run only FooTest.">
     <taskdef name="unit" classpathref="test.classpath"
       classname="org.apache.tools.ant.taskdefs.optional.junit.JUnitTask"/>
+    <mkdir dir="${deploy.dir}/test-reports"/>
     <unit printsummary="off" haltonfailure="yes">
       <classpath refid="test.classpath"/>
       <sysproperty key="test_dir" value="${tclasses.dir}"/>
       <formatter type="brief" usefile="false"/>
-      <batchtest>
+      <formatter type="xml"/>
+      <batchtest todir="${deploy.dir}/test-reports">
         <fileset dir="${tsrc.dir}" includes="**/*${test}*Test.java"/>
       </batchtest>
     </unit>
   </target>
 
-  <!-- a target for rebuilding everything -->
-  <target name="all" depends="clean,compile,aslib,javadoc,dist"/>
-
-  <!-- builds our distribution files (war and jar) -->
-  <target name="dist" depends="compile,procstream,aslib">
+  <target name="dist" depends="compile,procstream,aslib" description="Builds jar files.">
     <!-- build our main jar file -->
     <jar destfile="${deploy.dir}/${lib.name}.jar">
       <fileset dir="${classes.dir}" includes="**"/>
-      <fileset dir="${tclasses.dir}" includes="com/threerings/crowd/client/TestClient*"/>
     </jar>
 
     <!-- we export a small selection of classes for use by GWT -->
@@ -204,8 +201,8 @@
     <delete dir="${gwtjar.dir}"/>
   </target>
 
-  <!-- generates fields for persistent record classes -->
-  <target name="genrecord" depends="-prepare">
+  <target name="genrecord" depends="-prepare"
+          description="Generates fields for persistent record classes.">
     <taskdef name="grecord" classname="com.samskivert.depot.tools.GenRecordTask"
              classpathref="compile.classpath"/>
     <!-- make sure the record class files are all compiled -->
@@ -331,39 +328,6 @@
     <genascript header="lib/SOURCE_HEADER" asroot="src/as">
       <fileset dir="${src.dir}" includes="**/data/*.java"/>
     </genascript>
-  </target>
-
-  <!-- various bits used by the retroweaver tasks -->
-  <property name="inpre" value="${deploy.dir}/${lib.name}"/>
-  <property name="outpre" value="${deploy.dir}/retro/${lib.name}"/>
-
-  <target name="retro" depends="dist"
-          description="Converts our 1.5 code to a 1.4 compatible format">
-    <artifact:dependencies pathId="retroweaver.classpath">
-      <dependency groupId="net.sourceforge.retroweaver" artifactId="retroweaver" version="1.2.3"/>
-    </artifact:dependencies>
-    <taskdef name="weave" classpathref="retroweaver.classpath"
-             classname="com.rc.retroweaver.ant.RetroWeaverTask"/>
-    <mkdir dir="${deploy.dir}/retro"/>
-
-    <!-- we weave everything a first time without verification so that -->
-    <!-- interdependencies will resolve the second time -->
-    <weave inputjar="${inpre}-base.jar" outputjar="${outpre}-base.jar"/>
-    <weave inputjar="${inpre}-distrib.jar" outputjar="${outpre}-distrib.jar"/>
-
-    <!-- now weave again with the verifier to check for unweavable 1.5isms -->
-    <antcall target="-vweave"><param name="which" value="base"/></antcall>
-    <antcall target="-vweave"><param name="which" value="distrib"/></antcall>
-  </target>
-
-  <target name="-vweave">
-    <weave inputjar="${inpre}-${which}.jar" outputjar="${outpre}-${which}.jar" failonerror="true">
-      <classpath>
-        <path refid="compile.classpath"/>
-        <pathelement location="/usr/local/jdk1.4/jre/lib/rt.jar"/>
-        <fileset dir="${deploy.dir}/retro" includes="*.jar"/>
-      </classpath>
-    </weave>
   </target>
 
   <target name="snapshot" description="Creates a zipfile with our source distribution">

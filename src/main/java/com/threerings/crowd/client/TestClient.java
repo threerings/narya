@@ -37,6 +37,9 @@ import com.threerings.crowd.util.CrowdContext;
 
 import static com.threerings.crowd.Log.log;
 
+/**
+ * A client that is useful when doing unit testing.
+ */
 public class TestClient
     implements ClientObserver
 {
