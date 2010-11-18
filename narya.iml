@@ -1,8 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <module type="JAVA_MODULE" version="4">
+  <component name="EclipseModuleManager">
+    <varelement var="jar://$MAVEN_REPOSITORY$/aopalliance/aopalliance/1.0/aopalliance-1.0.jar!/" value="M2_REPO/aopalliance/aopalliance/1.0/aopalliance-1.0.jar" />
+    <varelement var="jar://$MAVEN_REPOSITORY$/aopalliance/aopalliance/1.0/aopalliance-1.0-sources.jar!/" value="src:M2_REPO/aopalliance/aopalliance/1.0/aopalliance-1.0-sources.jar" />
+    <varelement var="jar://$MAVEN_REPOSITORY$/com/google/inject/guice/2.0/guice-2.0.jar!/" value="M2_REPO/com/google/inject/guice/2.0/guice-2.0.jar" />
+    <varelement var="jar://$MAVEN_REPOSITORY$/javassist/javassist/3.8.0.GA/javassist-3.8.0.GA.jar!/" value="M2_REPO/javassist/javassist/3.8.0.GA/javassist-3.8.0.GA.jar" />
+    <varelement var="jar://$MAVEN_REPOSITORY$/javassist/javassist/3.8.0.GA/javassist-3.8.0.GA-sources.jar!/" value="src:M2_REPO/javassist/javassist/3.8.0.GA/javassist-3.8.0.GA-sources.jar" />
+    <varelement var="jar://$MAVEN_REPOSITORY$/com/samskivert/jmustache/1.0/jmustache-1.0.jar!/" value="M2_REPO/com/samskivert/jmustache/1.0/jmustache-1.0.jar" />
+    <varelement var="jar://$MAVEN_REPOSITORY$/com/samskivert/jmustache/1.0/jmustache-1.0-sources.jar!/" value="src:M2_REPO/com/samskivert/jmustache/1.0/jmustache-1.0-sources.jar" />
+    <varelement var="jar://$MAVEN_REPOSITORY$/javax/annotation/jsr250-api/1.0/jsr250-api-1.0.jar!/" value="M2_REPO/javax/annotation/jsr250-api/1.0/jsr250-api-1.0.jar" />
+    <varelement var="jar://$MAVEN_REPOSITORY$/javax/annotation/jsr250-api/1.0/jsr250-api-1.0-sources.jar!/" value="src:M2_REPO/javax/annotation/jsr250-api/1.0/jsr250-api-1.0-sources.jar" />
+  </component>
   <component name="FacetManager">
     <facet type="flex" name="Flex">
-      <configuration flex_sdk="Flex SDK (player 9)">
+      <configuration flex_sdk="Flex SDK (player 10) (1)">
         <option name="DO_BUILD" value="true" />
         <option name="OUTPUT_TYPE" value="Library" />
         <option name="USE_DEFAULT_SDK_CONFIG_FILE" value="true" />
@@ -12,11 +23,11 @@
         <option name="CUSTOM_CONFIG_FILE_FOR_TESTS" value="" />
         <option name="APPLICATION_ENTRY_POINT" value="" />
         <option name="MAIN_CLASS" value="" />
-        <option name="OUTPUT_FILE_NAME" value="narya.swc" />
-        <option name="USE_FACET_COMPILE_OUTPUT_PATH" value="false" />
-        <option name="FACET_COMPILE_OUTPUT_PATH" value="" />
+        <option name="OUTPUT_FILE_NAME" value="naryalib.swc" />
+        <option name="USE_FACET_COMPILE_OUTPUT_PATH" value="true" />
+        <option name="FACET_COMPILE_OUTPUT_PATH" value="$MODULE_DIR$/target" />
         <option name="INCLUDE_RESOURCE_FILES_IN_SWC" value="false" />
-        <option name="TARGET_PLAYER_VERSION" value="9.0.124" />
+        <option name="TARGET_PLAYER_VERSION" value="10" />
         <option name="STATIC_LINK_RUNTIME_SHARED_LIBRARIES" value="true" />
         <option name="USE_LOCALE_SETTINGS" value="false" />
         <option name="LOCALE" value="en_US" />
@@ -29,76 +40,75 @@
       </configuration>
     </facet>
   </component>
-  <component name="NewModuleRootManager" inherit-compiler-output="false">
-    <output url="file://$MODULE_DIR$/bin" />
+  <component name="NewModuleRootManager" inherit-compiler-output="true">
     <exclude-output />
     <content url="file://$MODULE_DIR$">
-      <sourceFolder url="file://$MODULE_DIR$/src/java" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/tests/src/java" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/test/java" isTestSource="true" />
+      <sourceFolder url="file://$MODULE_DIR$/src/test/resources" isTestSource="true" />
+      <sourceFolder url="file://$MODULE_DIR$/src/main/java" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/main/resources" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/as" isTestSource="false" />
     </content>
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="module-library">
-      <library name="javassist.jar">
+    <orderEntry type="inheritedJdk" />
+    <orderEntry type="module-library" exported="">
+      <library name="aopalliance-1.0.jar">
         <CLASSES>
-          <root url="jar://$EXT_LIBS_DIR$/javassist.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES />
-      </library>
-    </orderEntry>
-    <orderEntry type="module-library">
-      <library name="guava.jar">
-        <CLASSES>
-          <root url="jar://$EXT_LIBS_DIR$/guava.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES />
-      </library>
-    </orderEntry>
-    <orderEntry type="module-library">
-      <library name="guice.jar">
-        <CLASSES>
-          <root url="jar://$EXT_LIBS_DIR$/guice-2.0.jar!/" />
+          <root url="jar://$MAVEN_REPOSITORY$/aopalliance/aopalliance/1.0/aopalliance-1.0.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES>
-          <root url="file:///Users/zell/src/google-guice-read-only/src" />
+          <root url="jar://$MAVEN_REPOSITORY$/aopalliance/aopalliance/1.0/aopalliance-1.0-sources.jar!/" />
         </SOURCES>
       </library>
     </orderEntry>
-    <orderEntry type="module" module-name="depot" />
-    <orderEntry type="module-library">
-      <library name="commons-lang.jar">
+    <orderEntry type="module-library" exported="">
+      <library name="guice-2.0.jar">
         <CLASSES>
-          <root url="jar://$EXT_LIBS_DIR$/commons-lang.jar!/" />
+          <root url="jar://$MAVEN_REPOSITORY$/com/google/inject/guice/2.0/guice-2.0.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />
       </library>
     </orderEntry>
-    <orderEntry type="module-library">
-      <library name="atunit.jar">
+    <orderEntry type="module-library" exported="">
+      <library name="javassist-3.8.0.GA.jar">
         <CLASSES>
-          <root url="jar://$EXT_LIBS_DIR$/atunit-1.0.1.jar!/" />
+          <root url="jar://$MAVEN_REPOSITORY$/javassist/javassist/3.8.0.GA/javassist-3.8.0.GA.jar!/" />
         </CLASSES>
         <JAVADOC />
-        <SOURCES />
+        <SOURCES>
+          <root url="jar://$MAVEN_REPOSITORY$/javassist/javassist/3.8.0.GA/javassist-3.8.0.GA-sources.jar!/" />
+        </SOURCES>
       </library>
     </orderEntry>
-    <orderEntry type="inheritedJdk" />
-    <orderEntry type="module-library">
-      <library name="jsr250-api.jar">
+    <orderEntry type="module-library" exported="">
+      <library name="jmustache-1.0.jar">
         <CLASSES>
-          <root url="jar://$EXT_LIBS_DIR$/jsr250-api.jar!/" />
+          <root url="jar://$MAVEN_REPOSITORY$/com/samskivert/jmustache/1.0/jmustache-1.0.jar!/" />
+        </CLASSES>
+        <JAVADOC>
+          <root url="jar:file://Users/groves/.m2/repository/com/samskivert/jmustache/1.0/jmustache-1.0-javadoc.jar!/" />
+        </JAVADOC>
+        <SOURCES>
+          <root url="jar://$MAVEN_REPOSITORY$/com/samskivert/jmustache/1.0/jmustache-1.0-sources.jar!/" />
+        </SOURCES>
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library" exported="">
+      <library name="jsr250-api-1.0.jar">
+        <CLASSES>
+          <root url="jar://$MAVEN_REPOSITORY$/javax/annotation/jsr250-api/1.0/jsr250-api-1.0.jar!/" />
         </CLASSES>
         <JAVADOC />
-        <SOURCES />
+        <SOURCES>
+          <root url="jar://$MAVEN_REPOSITORY$/javax/annotation/jsr250-api/1.0/jsr250-api-1.0-sources.jar!/" />
+        </SOURCES>
       </library>
     </orderEntry>
-    <orderEntry type="module" module-name="samskivert" />
-    <orderEntry type="module" module-name="aspirin" />
-    <orderEntry type="module" module-name="gwt-utils" />
+    <orderEntry type="module" module-name="depot" exported="" />
+    <orderEntry type="module" module-name="gwt-utils" exported="" />
+    <orderEntry type="module" module-name="aspirin" exported="" />
     <orderEntry type="module-library">
       <library>
         <CLASSES>
@@ -109,87 +119,33 @@
       </library>
     </orderEntry>
     <orderEntry type="module-library">
-      <library>
+      <library name="AUTOGENERATED library equal to Flex SDK Flex SDK (player 10) (1)">
         <CLASSES>
-          <root url="jar://$EXT_LIBS_DIR$/ehcache.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES />
-      </library>
-    </orderEntry>
-    <orderEntry type="module-library">
-      <library>
-        <CLASSES>
-          <root url="jar://$EXT_LIBS_DIR$/ant.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES />
-      </library>
-    </orderEntry>
-    <orderEntry type="module-library">
-      <library>
-        <CLASSES>
-          <root url="jar://$EXT_LIBS_DIR$/gwt-user.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES />
-      </library>
-    </orderEntry>
-    <orderEntry type="module-library">
-      <library>
-        <CLASSES>
-          <root url="jar://$EXT_LIBS_DIR$/gwt-dev.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES />
-      </library>
-    </orderEntry>
-    <orderEntry type="module-library">
-      <library>
-        <CLASSES>
-          <root url="jar://$EXT_LIBS_DIR$/velocity-dev.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES />
-      </library>
-    </orderEntry>
-    <orderEntry type="module-library">
-      <library>
-        <CLASSES>
-          <root url="jar://$EXT_LIBS_DIR$/junit4.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES />
-      </library>
-    </orderEntry>
-    <orderEntry type="module-library">
-      <library name="AUTOGENERATED library equal to Flex SDK Flex SDK (player 9)">
-        <CLASSES>
-          <root url="jar://$MODULE_DIR$/../lib/flex_sdk_3.3.0.4852/frameworks/libs/flex.swc!/" />
-          <root url="jar://$MODULE_DIR$/../lib/flex_sdk_3.3.0.4852/frameworks/libs/framework.swc!/" />
-          <root url="jar://$MODULE_DIR$/../lib/flex_sdk_3.3.0.4852/frameworks/libs/rpc.swc!/" />
-          <root url="jar://$MODULE_DIR$/../lib/flex_sdk_3.3.0.4852/frameworks/libs/utilities.swc!/" />
-          <root url="jar://$MODULE_DIR$/../lib/flex_sdk_3.3.0.4852/frameworks/locale/en_US/airframework_rb.swc!/" />
-          <root url="jar://$MODULE_DIR$/../lib/flex_sdk_3.3.0.4852/frameworks/locale/en_US/framework_rb.swc!/" />
-          <root url="jar://$MODULE_DIR$/../lib/flex_sdk_3.3.0.4852/frameworks/locale/en_US/rpc_rb.swc!/" />
-          <root url="jar://$MODULE_DIR$/../lib/flex_sdk_3.3.0.4852/frameworks/libs/player/9/playerglobal.swc!/" />
+          <root url="jar://$FLEX_DIR$/frameworks/libs/flex.swc!/" />
+          <root url="jar://$FLEX_DIR$/frameworks/libs/framework.swc!/" />
+          <root url="jar://$FLEX_DIR$/frameworks/libs/rpc.swc!/" />
+          <root url="jar://$FLEX_DIR$/frameworks/libs/utilities.swc!/" />
+          <root url="jar://$FLEX_DIR$/frameworks/locale/en_US/airframework_rb.swc!/" />
+          <root url="jar://$FLEX_DIR$/frameworks/locale/en_US/framework_rb.swc!/" />
+          <root url="jar://$FLEX_DIR$/frameworks/locale/en_US/rpc_rb.swc!/" />
+          <root url="jar://$FLEX_DIR$/frameworks/libs/player/10/playerglobal.swc!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES>
-          <root url="file://$MODULE_DIR$/../lib/flex_sdk_3.3.0.4852/frameworks/projects/air/ApplicationUpdater/src" />
-          <root url="file://$MODULE_DIR$/../lib/flex_sdk_3.3.0.4852/frameworks/projects/air/ServiceMonitor/src" />
-          <root url="file://$MODULE_DIR$/../lib/flex_sdk_3.3.0.4852/frameworks/projects/airframework/bundles/en_US/src" />
-          <root url="file://$MODULE_DIR$/../lib/flex_sdk_3.3.0.4852/frameworks/projects/airframework/bundles/ja_JP/src" />
-          <root url="file://$MODULE_DIR$/../lib/flex_sdk_3.3.0.4852/frameworks/projects/airframework/src" />
-          <root url="file://$MODULE_DIR$/../lib/flex_sdk_3.3.0.4852/frameworks/projects/flex/src" />
-          <root url="file://$MODULE_DIR$/../lib/flex_sdk_3.3.0.4852/frameworks/projects/framework/bundles/en_US/src" />
-          <root url="file://$MODULE_DIR$/../lib/flex_sdk_3.3.0.4852/frameworks/projects/framework/bundles/ja_JP/src" />
-          <root url="file://$MODULE_DIR$/../lib/flex_sdk_3.3.0.4852/frameworks/projects/framework/src" />
-          <root url="file://$MODULE_DIR$/../lib/flex_sdk_3.3.0.4852/frameworks/projects/haloclassic/src" />
-          <root url="file://$MODULE_DIR$/../lib/flex_sdk_3.3.0.4852/frameworks/projects/rpc/bundles/en_US/src" />
-          <root url="file://$MODULE_DIR$/../lib/flex_sdk_3.3.0.4852/frameworks/projects/rpc/bundles/ja_JP/src" />
-          <root url="file://$MODULE_DIR$/../lib/flex_sdk_3.3.0.4852/frameworks/projects/rpc/src" />
-          <root url="file://$MODULE_DIR$/../lib/flex_sdk_3.3.0.4852/frameworks/projects/utilities/src" />
+          <root url="file://$FLEX_DIR$/frameworks/projects/air/ApplicationUpdater/src" />
+          <root url="file://$FLEX_DIR$/frameworks/projects/air/ServiceMonitor/src" />
+          <root url="file://$FLEX_DIR$/frameworks/projects/airframework/bundles/en_US/src" />
+          <root url="file://$FLEX_DIR$/frameworks/projects/airframework/bundles/ja_JP/src" />
+          <root url="file://$FLEX_DIR$/frameworks/projects/airframework/src" />
+          <root url="file://$FLEX_DIR$/frameworks/projects/flex/src" />
+          <root url="file://$FLEX_DIR$/frameworks/projects/framework/bundles/en_US/src" />
+          <root url="file://$FLEX_DIR$/frameworks/projects/framework/bundles/ja_JP/src" />
+          <root url="file://$FLEX_DIR$/frameworks/projects/framework/src" />
+          <root url="file://$FLEX_DIR$/frameworks/projects/haloclassic/src" />
+          <root url="file://$FLEX_DIR$/frameworks/projects/rpc/bundles/en_US/src" />
+          <root url="file://$FLEX_DIR$/frameworks/projects/rpc/bundles/ja_JP/src" />
+          <root url="file://$FLEX_DIR$/frameworks/projects/rpc/src" />
+          <root url="file://$FLEX_DIR$/frameworks/projects/utilities/src" />
         </SOURCES>
       </library>
     </orderEntry>
