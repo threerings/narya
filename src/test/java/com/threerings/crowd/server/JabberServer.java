@@ -3,12 +3,9 @@
 
 package com.threerings.crowd.server;
 
-import com.google.inject.Guice;
 import com.google.inject.Injector;
 
 import com.threerings.crowd.data.JabberConfig;
-
-import static com.threerings.crowd.Log.log;
 
 /**
  * A basic server that creates a single room and sticks everyone in it where they can chat with one
@@ -18,15 +15,7 @@ public class JabberServer extends CrowdServer
 {
     public static void main (String[] args)
     {
-        Injector injector = Guice.createInjector(new Module());
-        JabberServer server = injector.getInstance(JabberServer.class);
-
-        try {
-            server.init(injector);
-            server.run();
-        } catch (Exception e) {
-            log.warning("Unable to initialize server.", e);
-        }
+        runServer(new CrowdModule(), new PresentsServerModule(JabberServer.class));
     }
 
     @Override // from CrowdServer

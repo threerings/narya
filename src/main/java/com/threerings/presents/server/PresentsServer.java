@@ -25,6 +25,7 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
+import com.google.inject.Module;
 import com.google.inject.Singleton;
 
 import com.samskivert.util.Invoker;
@@ -63,7 +64,7 @@ import static com.threerings.presents.Log.log;
 public class PresentsServer
 {
     /** Configures dependencies needed by the Presents services. */
-    public static class Module extends AbstractModule
+    public static class PresentsModule extends AbstractModule
     {
         @Override protected void configure () {
             bindInvokers();
@@ -77,18 +78,35 @@ public class PresentsServer
         /**
          * Binds just the invokers so this can be overridden if desired.
          */
-        protected void bindInvokers() {
+        protected void bindInvokers () {
             bind(Invoker.class).annotatedWith(MainInvoker.class).to(PresentsInvoker.class);
             bind(Invoker.class).annotatedWith(AuthInvoker.class).to(PresentsAuthInvoker.class);
         }
     }
 
     /**
-     * The default entry point for the server.
+     * Binds PresentsServer to a particular class.
      */
-    public static void main (String[] args)
+    public static class PresentsServerModule extends AbstractModule
     {
-        Injector injector = Guice.createInjector(new Module());
+        public PresentsServerModule (Class<? extends PresentsServer> serverType) {
+            _serverType = serverType;
+        }
+
+        @Override protected void configure () {
+            bind(PresentsServer.class).to(_serverType);
+        }
+
+        protected final Class<? extends PresentsServer> _serverType;
+    }
+
+    /**
+     * Inits and runs the PresentsServer bound in the given modules.  This blocks until the server
+     * is shut down.
+     */
+    public static void runServer (Module... modules)
+    {
+        Injector injector = Guice.createInjector(modules);
         PresentsServer server = injector.getInstance(PresentsServer.class);
         try {
             // initialize the server
@@ -117,6 +135,14 @@ public class PresentsServer
         }
     }
 
+    /**
+     * The default entry point for the server.
+     */
+    public static void main (String[] args)
+    {
+        runServer(new PresentsModule());
+    }
+
     /** Legacy static reference to the main distributed object manager. Don't use this. If you're
      * writing a game, use {@link PlaceManager#_omgr}. */
     @Deprecated public static PresentsDObjectMgr omgr;
@@ -133,7 +159,8 @@ public class PresentsServer
     {
         // output general system information
         SystemInfo si = new SystemInfo();
-        log.info("Starting up server", "os", si.osToString(), "jvm", si.jvmToString());
+        log.info("Starting up", "server", getClass().getSimpleName(), "os", si.osToString(),
+            "jvm", si.jvmToString());
 
         registerSignalHandlers(injector);
 

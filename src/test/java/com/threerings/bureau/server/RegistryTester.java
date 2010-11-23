@@ -70,7 +70,7 @@ public class RegistryTester
      */
     public static void main (String[] args)
     {
-        Injector injector = Guice.createInjector(new TestServer.Module());
+        Injector injector = Guice.createInjector(new TestServer.PresentsModule());
         TestServer server = injector.getInstance(TestServer.class);
         RegistryTester tester = injector.getInstance(RegistryTester.class);
 

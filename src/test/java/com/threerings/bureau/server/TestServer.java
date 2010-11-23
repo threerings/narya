@@ -41,7 +41,7 @@ public class TestServer extends PresentsServer
      */
     public static void main (String[] args)
     {
-        Injector injector = Guice.createInjector(new Module());
+        Injector injector = Guice.createInjector(new PresentsModule());
         TestServer server = injector.getInstance(TestServer.class);
         try {
             server.init(injector);

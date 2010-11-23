@@ -21,9 +21,6 @@
 
 package com.threerings.presents.server;
 
-import com.google.inject.Guice;
-import com.google.inject.Injector;
-
 import com.samskivert.util.StringUtil;
 import com.threerings.util.MessageBundle;
 
@@ -39,7 +36,7 @@ import static com.threerings.presents.Log.log;
 public class Rejector extends PresentsServer
 {
     /** Configures dependencies needed by the Rejector. */
-    public static class Module extends PresentsServer.Module
+    public static class RejectorModule extends PresentsModule
     {
         @Override protected void configure () {
             super.configure();
@@ -68,14 +65,7 @@ public class Rejector extends PresentsServer
             _errmsg = MessageBundle.tcompose(_errmsg, eargs);
         }
 
-        Injector injector = Guice.createInjector(new Module());
-        Rejector server = injector.getInstance(Rejector.class);
-        try {
-            server.init(injector);
-            server.run();
-        } catch (Exception e) {
-            log.warning("Unable to initialize server.", e);
-        }
+        runServer(new RejectorModule(), new PresentsServerModule(Rejector.class));
     }
 
     /**

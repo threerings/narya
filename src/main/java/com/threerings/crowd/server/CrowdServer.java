@@ -21,7 +21,6 @@
 
 package com.threerings.crowd.server;
 
-import com.google.inject.Guice;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
 import com.google.inject.Singleton;
@@ -36,8 +35,6 @@ import com.threerings.presents.server.PresentsServer;
 
 import com.threerings.crowd.chat.server.ChatProvider;
 
-import static com.threerings.crowd.Log.log;
-
 /**
  * Extends the Presents server configuring extensions for Crowd services.
  */
@@ -45,7 +42,7 @@ import static com.threerings.crowd.Log.log;
 public class CrowdServer extends PresentsServer
 {
     /** Configures dependencies needed by the Crowd services. */
-    public static class Module extends PresentsServer.Module
+    public static class CrowdModule extends PresentsModule
     {
         @Override protected void configure () {
             super.configure();
@@ -77,14 +74,7 @@ public class CrowdServer extends PresentsServer
 
     public static void main (String[] args)
     {
-        Injector injector = Guice.createInjector(new Module());
-        CrowdServer server = injector.getInstance(CrowdServer.class);
-        try {
-            server.init(injector);
-            server.run();
-        } catch (Exception e) {
-            log.warning("Unable to initialize server.", e);
-        }
+        runServer(new CrowdModule(), new PresentsServerModule(CrowdServer.class));
     }
 
     /** Handles the creation and tracking of place managers. */

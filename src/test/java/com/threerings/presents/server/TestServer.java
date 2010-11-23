@@ -21,12 +21,9 @@
 
 package com.threerings.presents.server;
 
-import com.google.inject.Guice;
 import com.google.inject.Injector;
 
 import com.threerings.presents.data.TestObject;
-
-import static com.threerings.presents.Log.log;
 
 public class TestServer extends PresentsServer
 {
@@ -52,13 +49,6 @@ public class TestServer extends PresentsServer
 
     public static void main (String[] args)
     {
-        Injector injector = Guice.createInjector(new Module());
-        TestServer server = injector.getInstance(TestServer.class);
-        try {
-            server.init(injector);
-            server.run();
-        } catch (Exception e) {
-            log.warning("Unable to initialize server.", e);
-        }
+        runServer(new PresentsModule(), new PresentsServerModule(TestServer.class));
     }
 }

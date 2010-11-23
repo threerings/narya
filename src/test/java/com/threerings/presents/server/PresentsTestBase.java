@@ -14,7 +14,7 @@ public class PresentsTestBase
     protected <T> T getInstance (Class<T> clazz)
     {
         if (_injector == null) {
-            _injector = Guice.createInjector(new PresentsServer.Module());
+            _injector = Guice.createInjector(new PresentsServer.PresentsModule());
         }
         return _injector.getInstance(clazz);
     }
