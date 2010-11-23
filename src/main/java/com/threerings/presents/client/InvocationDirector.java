@@ -79,9 +79,6 @@ public class InvocationDirector
                 // add ourselves as an event listener
                 clobj.addListener(InvocationDirector.this);
 
-                // clear out our previous registrations
-                clobj.setReceivers(new DSet<Registration>());
-
                 // keep a handle on this bad boy
                 _clobj = clobj;
 
@@ -161,6 +158,25 @@ public class InvocationDirector
     }
 
     /**
+     * Called when we log on; generates mappings for all receivers registered prior to logon.
+     */
+    protected void assignReceiverIds ()
+    {
+        // pack all the events into a single transaction
+        _clobj.startTransaction();
+        try {
+            // clear out our previous registrations
+            _clobj.setReceivers(new DSet<Registration>());
+
+            for (InvocationDecoder decoder : _reclist) {
+                assignReceiverId(decoder);
+            }
+        } finally {
+            _clobj.commitTransaction();
+        }
+    }
+
+    /**
      * Assigns a receiver id to this decoder and publishes it in the {@link ClientObject#receivers}
      * field.
      */
@@ -172,22 +188,6 @@ public class InvocationDirector
         // and map the receiver in our receivers table
         _receivers.put(reg.receiverId, decoder);
 //         Log.info("Registered receiver " + StringUtil.shortClassName(decoder) + " " + reg + ".");
-    }
-
-    /**
-     * Called when we log on; generates mappings for all receivers registered prior to logon.
-     */
-    protected void assignReceiverIds ()
-    {
-        // pack all the set add events into a single transaction
-        _clobj.startTransaction();
-        try {
-            for (InvocationDecoder decoder : _reclist) {
-                assignReceiverId(decoder);
-            }
-        } finally {
-            _clobj.commitTransaction();
-        }
     }
 
     /**
