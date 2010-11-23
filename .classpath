@@ -6,7 +6,7 @@
 	<classpathentry excluding="**/*.java" kind="src" output="dist/test-classes" path="src/test/resources"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry exported="true" kind="var" path="M2_REPO/aopalliance/aopalliance/1.0/aopalliance-1.0.jar" sourcepath="M2_REPO/aopalliance/aopalliance/1.0/aopalliance-1.0-sources.jar"/>
-	<classpathentry exported="true" kind="var" path="M2_REPO/com/google/inject/guice/2.0/guice-2.0.jar">
+	<classpathentry exported="true" kind="var" path="M2_REPO/com/google/inject/guice/2.0/guice-2.0.jar" sourcepath="/EXT_SRC_DIR/guice.zip">
 		<accessrules>
 			<accessrule kind="nonaccessible" pattern="**/internal/**"/>
 		</accessrules>
