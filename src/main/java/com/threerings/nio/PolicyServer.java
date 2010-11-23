@@ -22,6 +22,7 @@
 package com.threerings.nio;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.nio.channels.SocketChannel;
 
 import com.google.inject.Inject;
@@ -40,7 +41,7 @@ import static com.threerings.NaryaLog.log;
 
 /**
  * Binds to a port and responds to "xmlsocket" requests on it with a policy file allowing access
- * to a given set of ports on a given hostname.
+ * to all ports on a given hostname.
  */
 @Singleton
 public class PolicyServer extends ConnectionManager
@@ -52,9 +53,11 @@ public class PolicyServer extends ConnectionManager
         super(cycle, mgr);
     }
 
-    public void init (int socketPolicyPort, String publicServerHost, int[] serverPorts,
-        int gameServerPort)
-        throws IOException
+    /**
+     * Accepts xmlsocket requests on <code>socketPolicyPort</code> and responds that
+     * <code>publicServerHost</code> may connect to any port on this host.
+     */
+    public void init (int socketPolicyPort, String publicServerHost)
     {
         _acceptor =
             new ServerSocketChannelAcceptor(publicServerHost, new int[] { socketPolicyPort }, this);
@@ -69,19 +72,15 @@ public class PolicyServer extends ConnectionManager
 
         for (String host : new String[] { publicServerHost }) {
             policy.append("  <allow-access-from domain=\"").append(host).append("\"");
-            policy.append(" to-ports=\"");
-            // allow Flash connections on our server & game ports
-            /* TODO - for now we've just opened it up.
-            for (int port : serverPorts) {
-                policyBuilder.append(port).append(",");
-            }
-            policyBuilder.append(gameServerPort).append("\"/>\n");
-            */
-            policy.append("*\"/>\n");
+            policy.append(" to-ports=\"*\"/>\n");
         }
         policy.append("</cross-domain-policy>\n");
 
-        _policy = policy.toString().getBytes("UTF-8");
+        try {
+            _policy = policy.toString().getBytes("UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            throw new IllegalStateException("UTF-8 encoding missing; this vm is broken", e);
+        }
         start();
     }
 
