@@ -129,6 +129,15 @@ public class InvocationMarshaller
             }
         }
 
+        /**
+         * Performs type casts in a way that works for parameterized types as well as simple types.
+         */
+        @SuppressWarnings("unchecked")
+        protected <K> K cast (Object value)
+        {
+            return (K)value;
+        }
+
         /** On the server, the id of the invocation method. */
         protected transient String _invId;
     }
