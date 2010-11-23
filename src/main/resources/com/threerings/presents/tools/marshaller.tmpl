@@ -40,9 +40,6 @@ public class {{name}}Marshaller extends InvocationMarshaller
 
 {{/methods}}
         @Override // from InvocationMarshaller
-{{#hasParameterizedMethodArgs}}
-        @SuppressWarnings("unchecked")
-{{/hasParameterizedMethodArgs}}
         public void dispatchResponse (int methodId, Object[] args)
         {
             switch (methodId) {
