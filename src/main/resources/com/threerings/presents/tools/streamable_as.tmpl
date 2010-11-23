@@ -8,9 +8,9 @@ import {{this}};
 // GENERATED PREAMBLE END
 
 // GENERATED CLASSDECL START
-public class {{classname}} {{^extends.isEmpty}}extends {{#extends}}
+public class {{classname}} {{^extends.isEmpty}}extends {{extends}}
 {{/extends.isEmpty}}
-{{^implements.isEmpty}}{{^extends.isEmpty}}    {{/extends.isEmpty}}implements {{#implements}}
+{{^implements.isEmpty}}{{^extends.isEmpty}}    {{/extends.isEmpty}}implements {{implements}}
 {{/implements.isEmpty}}
 {
 // GENERATED CLASSDECL END
@@ -29,7 +29,7 @@ public class {{classname}} {{^extends.isEmpty}}extends {{#extends}}
         {{name}} = ins.{{reader}};
 {{/fields}}
     }
-    
+
     {{#superclassStreamable}}override {{/superclassStreamable}}public function writeObject (out :ObjectOutputStream) :void
     {
 {{#superclassStreamable}}
