@@ -38,7 +38,7 @@ import com.samskivert.util.StringUtil;
 
 import com.threerings.io.ObjectInputStream;
 import com.threerings.io.ObjectOutputStream;
-import com.threerings.io.Streamable;
+import com.threerings.io.Streamer;
 
 import com.threerings.presents.dobj.AccessController;
 import com.threerings.presents.dobj.AttributeChangeListener;
@@ -221,12 +221,7 @@ public abstract class ConfigRegistry
         public void attributeChanged (AttributeChangedEvent event)
         {
             // mirror this configuration update to the persistent config
-            Object value = event.getValue();
-            if (value instanceof DSet<?>) {
-                serializeAttribute(event.getName());
-            } else {
-                updateValue(event.getName(), value);
-            }
+            updateValue(event.getName(), event.getValue());
         }
 
         protected void updateValue (String name, Object value)
@@ -254,6 +249,8 @@ public abstract class ConfigRegistry
                 setValue(key, (String[])value);
             } else if (value instanceof long[]) {
                 setValue(key, (long[])value);
+            } else if (value == null || Streamer.isStreamable(value.getClass())) {
+                serializeAttribute(name);
             } else {
                 log.info("Unable to flush config obj change", "cobj", object.getClass().getName(),
                          "key", key, "type", value.getClass().getName(), "value", value);
@@ -314,7 +311,7 @@ public abstract class ConfigRegistry
                     long[] defval = (long[])field.get(object);
                     field.set(object, getValue(key, defval));
 
-                } else if (Streamable.class.isAssignableFrom(type)) {
+                } else if (Streamer.isStreamable(type)) {
                     // don't freak out if the conf is blank.
                     String value = getValue(key, "");
                     if (StringUtil.isBlank(value)) {
@@ -363,7 +360,7 @@ public abstract class ConfigRegistry
                 return;
             }
 
-            if (value instanceof Streamable) {
+            if (value == null || Streamer.isStreamable(value.getClass())) {
                 serialize(attributeName, key, value);
             } else {
                 log.info("Unable to flush config obj change", "cobj", object.getClass().getName(),

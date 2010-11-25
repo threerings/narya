@@ -60,6 +60,9 @@ public class Streamer
      */
     public synchronized static boolean isStreamable (Class<?> target)
     {
+        // if we have not yet initialized ourselves, do so now
+        maybeInit();
+
         while (true) {
             // if we've got a streamer for it, it's good
             if (_streamers.containsKey(target)) {
@@ -108,9 +111,7 @@ public class Streamer
         throws IOException
     {
         // if we have not yet initialized ourselves, do so now
-        if (_streamers == null) {
-            _streamers = Maps.newHashMap(BasicStreamers.BSTREAMERS);
-        }
+        maybeInit();
 
         Streamer stream = _streamers.get(target);
         if (stream == null) {
@@ -484,6 +485,16 @@ public class Streamer
                 log.info("Using " + _marshallers[ii] + " for " + _target.getName() + "." +
                          _fields[ii].getName() + ".");
             }
+        }
+    }
+
+    /**
+     * Initializes static state if necessary.
+     */
+    protected synchronized static void maybeInit ()
+    {
+        if (_streamers == null) {
+            _streamers = Maps.newHashMap(BasicStreamers.BSTREAMERS);
         }
     }
 
