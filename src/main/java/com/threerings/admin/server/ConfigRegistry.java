@@ -319,10 +319,7 @@ public abstract class ConfigRegistry
                     }
 
                     try {
-                        ByteArrayInputStream bin =
-                            new ByteArrayInputStream(StringUtil.unhexlate(value));
-                        ObjectInputStream oin = createObjectInputStream(bin);
-                        Object deserializedValue = oin.readObject();
+                        Object deserializedValue = deserialize(value);
                         field.set(object, deserializedValue);
                         if (_transitioning) {
                             // Use serialize rather than serializeAttribute so we don't get
@@ -382,6 +379,17 @@ public abstract class ConfigRegistry
             } catch (IOException ioe) {
                 log.info("Error serializing value " + value);
             }
+        }
+
+        /**
+         * Deserializes the object contained in the specified string.
+         */
+        protected Object deserialize (String value)
+            throws Exception
+        {
+            ByteArrayInputStream bin = new ByteArrayInputStream(StringUtil.unhexlate(value));
+            ObjectInputStream oin = createObjectInputStream(bin);
+            return oin.readObject();
         }
 
         /**
