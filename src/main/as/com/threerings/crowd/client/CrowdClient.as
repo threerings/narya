@@ -38,7 +38,7 @@ public class CrowdClient extends Client
     BodyMarshaller;
     CrowdPermissionPolicy;
 
-    public function CrowdClient (creds :Credentials)
+    public function CrowdClient (creds :Credentials = null)
     {
         super(creds);
     }

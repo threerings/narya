@@ -57,7 +57,7 @@ public class Client extends EventDispatcher
     // statically reference classes we require
     TimeBaseMarshaller;
 
-    public function Client (creds :Credentials)
+    public function Client (creds :Credentials = null)
     {
         _creds = creds;
     }
