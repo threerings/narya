@@ -41,7 +41,7 @@ import static com.threerings.NaryaLog.log;
 
 /**
  * Binds to a port and responds to "xmlsocket" requests on it with a policy file allowing access
- * to all ports on a given hostname.
+ * to all ports from any host.
  */
 @Singleton
 public class PolicyServer extends ConnectionManager
@@ -54,26 +54,22 @@ public class PolicyServer extends ConnectionManager
     }
 
     /**
-     * Accepts xmlsocket requests on <code>socketPolicyPort</code> and responds that
-     * <code>publicServerHost</code> may connect to any port on this host.
+     * Accepts xmlsocket requests on <code>socketPolicyPort</code> and responds any host may
+     * connect to any port on this host.
      */
-    public void init (int socketPolicyPort, String publicServerHost)
+    public void init (int socketPolicyPort)
     {
         _acceptor =
-            new ServerSocketChannelAcceptor(publicServerHost, new int[] { socketPolicyPort }, this);
+            new ServerSocketChannelAcceptor(null, new int[] { socketPolicyPort }, this);
 
         // build the XML once and for all
-        StringBuilder policy = new StringBuilder("<?xml version=\"1.0\"?>\n").
-            append("<cross-domain-policy>\n");
+        StringBuilder policy = new StringBuilder("<cross-domain-policy>\n");
         // if we're running on 843, serve a master policy file
         if (socketPolicyPort == MASTER_PORT) {
             policy.append("  <site-control permitted-cross-domain-policies=\"master-only\"/>\n");
         }
 
-        for (String host : new String[] { publicServerHost }) {
-            policy.append("  <allow-access-from domain=\"").append(host).append("\"");
-            policy.append(" to-ports=\"*\"/>\n");
-        }
+        policy.append("  <allow-access-from domain=\"*\" to-ports=\"*\"/>\n");
         policy.append("</cross-domain-policy>\n");
 
         try {
