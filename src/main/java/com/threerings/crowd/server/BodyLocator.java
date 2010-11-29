@@ -24,6 +24,7 @@ package com.threerings.crowd.server;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
+import com.threerings.presents.data.ClientObject;
 import com.threerings.util.Name;
 
 import com.threerings.presents.annotation.EventThread;
@@ -45,7 +46,17 @@ public class BodyLocator
     public BodyObject lookupBody (Name visibleName)
     {
         // by default visibleName is username
-        return (BodyObject)_clmgr.getClientObject(visibleName);
+        return forClient(_clmgr.getClientObject(visibleName));
+    }
+
+    /**
+     * Returns the body object to be used for the given client. The default implementation
+     * assumes they are one and the same.
+     */
+    @EventThread
+    public BodyObject forClient (ClientObject client)
+    {
+        return (BodyObject)client;
     }
 
     @Inject protected ClientManager _clmgr;

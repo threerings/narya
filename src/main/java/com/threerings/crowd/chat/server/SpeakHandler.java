@@ -30,6 +30,7 @@ import com.threerings.presents.server.InvocationManager;
 import com.threerings.crowd.chat.client.SpeakService;
 import com.threerings.crowd.chat.data.ChatCodes;
 import com.threerings.crowd.data.BodyObject;
+import com.threerings.crowd.server.BodyLocator;
 
 import static com.threerings.crowd.Log.log;
 
@@ -62,8 +63,9 @@ public class SpeakHandler
      * @param validator an optional validator that can be used to prevent arbitrary users from
      * using the speech services on this object.
      */
-    public SpeakHandler (DObject speakObj, SpeakerValidator validator)
+    public SpeakHandler (BodyLocator locator, DObject speakObj, SpeakerValidator validator)
     {
+        _locator = locator;
         _speakObj = speakObj;
         _validator = validator;
     }
@@ -72,11 +74,11 @@ public class SpeakHandler
     public void speak (ClientObject caller, String message, byte mode)
     {
         // ensure that the caller has normal chat privileges
-        BodyObject source = (BodyObject)caller;
-        String errmsg = source.checkAccess(ChatCodes.CHAT_ACCESS, null);
+        BodyObject source = _locator.forClient(caller);
+        String errmsg = caller.checkAccess(ChatCodes.CHAT_ACCESS, null);
         if (errmsg != null) {
             // we normally don't listen for responses to speak messages so we can't just throw an
-            // InvocationException we have to specifically communicate the error to the user
+            // InvocationException, we have to specifically communicate the error to the user
             SpeakUtil.sendFeedback(source, MessageManager.GLOBAL_BUNDLE, errmsg);
             return;
         }
@@ -95,6 +97,9 @@ public class SpeakHandler
             SpeakUtil.sendSpeak(_speakObj, source.getVisibleName(), null, message, mode);
         }
     }
+
+    /** Used for acquiring BodyObject references from Names and ClientObjects. */
+    protected BodyLocator _locator;
 
     /** Our speech object. */
     protected DObject _speakObj;

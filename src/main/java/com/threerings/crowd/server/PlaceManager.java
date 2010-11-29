@@ -60,6 +60,10 @@ import com.threerings.crowd.data.OccupantInfo;
 import com.threerings.crowd.data.Place;
 import com.threerings.crowd.data.PlaceConfig;
 import com.threerings.crowd.data.PlaceObject;
+import com.threerings.crowd.server.CrowdObjectAccess.PlaceAccessController;
+
+import com.google.inject.Inject;
+import com.google.inject.Injector;
 
 import static com.threerings.crowd.Log.log;
 
@@ -509,7 +513,7 @@ public class PlaceManager
      */
     protected AccessController getAccessController ()
     {
-        return CrowdObjectAccess.PLACE;
+        return _injector.getInstance(PlaceAccessController.class);
     }
 
     /**
@@ -729,7 +733,7 @@ public class PlaceManager
      */
     protected SpeakHandler createSpeakHandler (PlaceObject plobj)
     {
-        return new SpeakHandler(plobj, this);
+        return new SpeakHandler(_locator, plobj, this);
     }
 
     /** Listens for occupant updates. */
@@ -770,17 +774,20 @@ public class PlaceManager
         }
     };
 
+    /** We use this to inject dependencies into our access controller. */
+    @Inject protected Injector _injector;
+
     /** A reference to the place registry with which we're registered. */
-    protected PlaceRegistry _registry;
+    @Inject protected PlaceRegistry _registry;
 
     /** The invocation manager with whom we register our game invocation services. */
-    protected InvocationManager _invmgr;
+    @Inject protected InvocationManager _invmgr;
 
     /** A distributed object manager for doing dobj stuff. */
-    protected RootDObjectManager _omgr;
+    @Inject protected RootDObjectManager _omgr;
 
     /** Used to look up body objects by name. */
-    protected BodyLocator _locator;
+    @Inject protected BodyLocator _locator;
 
     /** A reference to the place object that we manage. */
     protected PlaceObject _plobj;

@@ -32,6 +32,9 @@ import com.threerings.presents.server.PresentsObjectAccess;
 import com.threerings.bureau.data.BureauClientObject;
 import com.threerings.crowd.data.PlaceObject;
 
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
+
 /**
  * Defines the various object access controllers used by the Crowd server.
  */
@@ -42,29 +45,32 @@ public class CrowdObjectAccess
      * to subscribe to the place object and to use the {@link PresentsObjectAccess#DEFAULT}
      * modification policy.
      */
-    public static AccessController PLACE = new AccessController()
+    @Singleton
+    public static class PlaceAccessController implements AccessController
     {
-        // documentation inherited from interface
         public boolean allowSubscribe (DObject object, Subscriber<?> sub)
         {
             if (sub instanceof ProxySubscriber) {
                 ClientObject co = ((ProxySubscriber)sub).getClientObject();
-                return ((PlaceObject)object).occupants.contains(co.getOid());
+                return ((PlaceObject)object).occupants.contains(_locator.forClient(co).getOid());
             }
             return true;
         }
 
-        // documentation inherited from interface
         public boolean allowDispatch (DObject object, DEvent event)
         {
             return PresentsObjectAccess.DEFAULT.allowDispatch(object, event);
         }
+
+        @Inject protected BodyLocator _locator;
     };
 
     /**
      * Extends the access control in {@link #PLACE} to allow Bureau clients to subscribe.
      */
-    public static AccessController BUREAU_ACCESS_PLACE = new AccessController() {
+    @Singleton
+    public static class BureauAccessController extends PlaceAccessController
+    {
         public boolean allowSubscribe (DObject object, Subscriber<?> sub) {
             if (sub instanceof ProxySubscriber) {
                 ClientObject co = ((ProxySubscriber)sub).getClientObject();
@@ -72,10 +78,10 @@ public class CrowdObjectAccess
                     return true;
                 }
             }
-            return PLACE.allowSubscribe(object, sub);
+            return super.allowSubscribe(object, sub);
         }
         public boolean allowDispatch (DObject object, DEvent event) {
-            return PLACE.allowDispatch(object, event);
+            return super.allowDispatch(object, event);
         }
     };
 

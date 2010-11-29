@@ -87,7 +87,7 @@ public class BodyManager
     // from interface BodyProvider
     public void setIdle (ClientObject caller, boolean idle)
     {
-        BodyObject bobj = (BodyObject)caller;
+        BodyObject bobj = _locator.forClient(caller);
 
         // determine the body's proposed new status
         byte nstatus = (idle) ? OccupantInfo.IDLE : OccupantInfo.ACTIVE;
@@ -102,4 +102,5 @@ public class BodyManager
 
     /** Provides access to place managers. */
     @Inject protected PlaceRegistry _plreg;
+    @Inject protected BodyLocator _locator;
 }

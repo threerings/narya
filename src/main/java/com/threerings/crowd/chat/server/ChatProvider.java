@@ -136,7 +136,7 @@ public class ChatProvider
         InvocationException.requireAccess(caller, ChatCodes.CHAT_ACCESS);
 
         // deliver the tell message to the target
-        BodyObject source = (BodyObject)caller;
+        BodyObject source = _locator.forClient(caller);
         deliverTell(createTellMessage(source, message), target, listener);
 
         // inform the auto-responder if needed
@@ -154,7 +154,7 @@ public class ChatProvider
     {
         // make sure the requesting user has broadcast privileges
         InvocationException.requireAccess(caller, ChatCodes.BROADCAST_ACCESS);
-        BodyObject body = (BodyObject)caller;
+        BodyObject body = _locator.forClient(caller);
         broadcast(body.getVisibleName(), null, message, false, true);
     }
 
@@ -163,7 +163,7 @@ public class ChatProvider
      */
     public void away (ClientObject caller, String message)
     {
-        BodyObject body = (BodyObject)caller;
+        BodyObject body = _locator.forClient(caller);
         // we modify this field via an invocation service request because a body object is not
         // modifiable by the client
         body.setAwayMessage(message);

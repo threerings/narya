@@ -41,6 +41,7 @@ import com.threerings.crowd.chat.server.ChatProvider;
 import com.threerings.crowd.data.BodyObject;
 import com.threerings.crowd.peer.data.CrowdClientInfo;
 import com.threerings.crowd.peer.data.CrowdNodeObject;
+import com.threerings.crowd.server.BodyLocator;
 
 /**
  * Extends the standard peer manager and bridges certain Crowd services.
@@ -140,8 +141,8 @@ public abstract class CrowdPeerManager extends PeerManager
     protected void initClientInfo (PresentsSession client, ClientInfo info)
     {
         super.initClientInfo(client, info);
-        ((CrowdClientInfo)info).visibleName =
-            ((BodyObject)client.getClientObject()).getVisibleName();
+        BodyObject body = _locator.forClient(client.getClientObject());
+        ((CrowdClientInfo)info).visibleName = body.getVisibleName();
     }
 
     @Override // from PeerManager
@@ -164,4 +165,5 @@ public abstract class CrowdPeerManager extends PeerManager
     protected abstract Name authFromViz (Name vizname);
 
     @Inject protected ChatProvider _chatprov;
+    @Inject protected BodyLocator _locator;
 }

@@ -62,6 +62,7 @@ import com.threerings.crowd.data.CrowdCodes;
 import com.threerings.crowd.peer.data.CrowdClientInfo;
 import com.threerings.crowd.peer.data.CrowdNodeObject;
 import com.threerings.crowd.peer.server.CrowdPeerManager;
+import com.threerings.crowd.server.BodyLocator;
 
 import static com.threerings.crowd.Log.log;
 
@@ -132,8 +133,8 @@ public abstract class ChatChannelManager
     // from interface ChannelSpeakProvider
     public void speak (ClientObject caller, final ChatChannel channel, String message, byte mode)
     {
-        final UserMessage umsg = new UserMessage(
-            ((BodyObject)caller).getVisibleName(), null, message, mode);
+        BodyObject body = _locator.forClient(caller);
+        final UserMessage umsg = new UserMessage(body.getVisibleName(), null, message, mode);
 
         // if we're hosting this channel, dispatch it directly
         if (_channels.containsKey(channel)) {
@@ -494,6 +495,9 @@ public abstract class ChatChannelManager
 
     /** Provides peer services. */
     @Inject protected CrowdPeerManager _peerMan;
+
+    /** Used for acquiring BodyObject references from Names and ClientObjects. */
+    @Inject protected BodyLocator _locator;
 
     /** The period on which we check for idle channels. */
     protected static final long IDLE_CHANNEL_CHECK_PERIOD = 5 * 1000L;

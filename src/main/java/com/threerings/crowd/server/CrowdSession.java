@@ -41,7 +41,7 @@ public class CrowdSession extends PresentsSession
 
         if (_clobj != null) {
             // note that the user is disconnected
-            BodyObject bobj = (BodyObject)_clobj;
+            BodyObject bobj = _locator.forClient(_clobj);
             _bodyman.updateOccupantStatus(bobj, OccupantInfo.DISCONNECTED);
         }
     }
@@ -52,7 +52,7 @@ public class CrowdSession extends PresentsSession
         super.sessionWillResume();
 
         // note that the user's active once more
-        BodyObject bobj = (BodyObject)_clobj;
+        BodyObject bobj = _locator.forClient(_clobj);
         _bodyman.updateOccupantStatus(bobj, OccupantInfo.ACTIVE);
     }
 
@@ -61,7 +61,7 @@ public class CrowdSession extends PresentsSession
     {
         super.sessionDidEnd();
 
-        BodyObject body = (BodyObject)_clobj;
+        BodyObject body = _locator.forClient(_clobj);
 
         // clear out our location so that anyone listening will know that we've left
         clearLocation(body);
@@ -87,6 +87,7 @@ public class CrowdSession extends PresentsSession
         _locman.leaveOccupiedPlace(bobj);
     }
 
+    @Inject protected BodyLocator _locator;
     @Inject protected BodyManager _bodyman;
     @Inject protected LocationManager _locman;
 }

@@ -57,13 +57,15 @@ public class LocationManager
         throws InvocationException
     {
         // do the move and send the response
-        listener.moveSucceeded(moveTo((BodyObject)caller, placeOid));
+        BodyObject body = _locator.forClient(caller);
+        listener.moveSucceeded(moveTo(body, placeOid));
     }
 
     // from interface LocationProvider
     public void leavePlace (ClientObject caller)
     {
-        leaveOccupiedPlace((BodyObject)caller);
+        BodyObject body = _locator.forClient(caller);
+        leaveOccupiedPlace(body);
     }
 
     /**
@@ -180,6 +182,7 @@ public class LocationManager
     }
 
     @Inject protected RootDObjectManager _omgr;
-    @Inject protected PlaceRegistry _plreg;
+    @Inject protected BodyLocator _locator;
     @Inject protected ClientManager _clmgr;
+    @Inject protected PlaceRegistry _plreg;
 }
