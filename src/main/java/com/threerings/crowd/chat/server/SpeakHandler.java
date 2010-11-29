@@ -63,6 +63,19 @@ public class SpeakHandler
      * @param validator an optional validator that can be used to prevent arbitrary users from
      * using the speech services on this object.
      */
+    public SpeakHandler (DObject speakObj, SpeakerValidator validator)
+    {
+        this(null, speakObj, validator);
+    }
+
+    /**
+     * Creates a handler that will provide speech on the supplied distributed object.
+     *
+     * @param locator the object we use to look up BodyObjects from ClientObjects
+     * @param speakObj the object for which speech requests will be processed.
+     * @param validator an optional validator that can be used to prevent arbitrary users from
+     * using the speech services on this object.
+     */
     public SpeakHandler (BodyLocator locator, DObject speakObj, SpeakerValidator validator)
     {
         _locator = locator;
@@ -74,7 +87,9 @@ public class SpeakHandler
     public void speak (ClientObject caller, String message, byte mode)
     {
         // ensure that the caller has normal chat privileges
-        BodyObject source = _locator.forClient(caller);
+        BodyObject source = (_locator != null) ? _locator.forClient(caller) :
+            (BodyObject) caller;
+
         String errmsg = caller.checkAccess(ChatCodes.CHAT_ACCESS, null);
         if (errmsg != null) {
             // we normally don't listen for responses to speak messages so we can't just throw an
