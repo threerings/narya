@@ -21,6 +21,10 @@
 
 package com.threerings.crowd.server;
 
+import com.google.inject.Inject;
+import com.google.inject.Injector;
+import com.google.inject.Singleton;
+
 import com.threerings.presents.data.ClientObject;
 import com.threerings.presents.data.PermissionPolicy;
 import com.threerings.presents.server.ClientLocal;
@@ -32,6 +36,7 @@ import com.threerings.crowd.data.CrowdPermissionPolicy;
 /**
  * Used to configure crowd-specific client object data.
  */
+@Singleton
 public class CrowdClientResolver extends ClientResolver
 {
     @Override // from ClientResolver
@@ -49,6 +54,8 @@ public class CrowdClientResolver extends ClientResolver
     @Override // from ClientResolver
     public PermissionPolicy createPermissionPolicy ()
     {
-        return new CrowdPermissionPolicy();
+        return _injector.getInstance(CrowdPermissionPolicy.class);
     }
+
+    @Inject protected Injector _injector;
 }
