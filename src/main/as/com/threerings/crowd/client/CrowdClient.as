@@ -25,6 +25,7 @@ import com.threerings.presents.client.Client;
 import com.threerings.presents.net.Credentials;
 
 import com.threerings.crowd.data.BodyMarshaller;
+import com.threerings.crowd.data.BodyObject;
 import com.threerings.crowd.data.CrowdPermissionPolicy;
 
 /**
@@ -41,6 +42,16 @@ public class CrowdClient extends Client
     public function CrowdClient (creds :Credentials = null)
     {
         super(creds);
+    }
+
+    /**
+     * Returns the body this client is (currently) attached to. If you subclass this, its result
+     * should probably match whatever {@link BodyLocator#forClient} would return for this client.
+     * The default implements the historical assumption that the client object is also the body.
+     */
+    public function bodyOf () :BodyObject
+    {
+        return (getClientObject() as BodyObject);
     }
 }
 }

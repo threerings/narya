@@ -20,7 +20,7 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 
 package com.threerings.crowd.chat.client {
-
+import com.threerings.crowd.client.CrowdClient;
 import com.threerings.util.ArrayUtil;
 import com.threerings.util.Log;
 import com.threerings.util.Map;
@@ -33,7 +33,6 @@ import com.threerings.presents.client.BasicDirector;
 import com.threerings.presents.client.Client;
 import com.threerings.presents.client.ClientEvent;
 import com.threerings.presents.client.InvocationAdapter;
-import com.threerings.presents.data.ClientObject;
 import com.threerings.presents.dobj.DObject;
 import com.threerings.presents.dobj.MessageEvent;
 import com.threerings.presents.dobj.MessageListener;
@@ -67,6 +66,16 @@ public class ChatDirector extends BasicDirector
 {
     // statically reference classes we require
     ChatMarshaller;
+
+    /**
+     * Convenience method for returning the body of a client in a super safe manner, taking
+     * into account the (remote, one imagines) possibility that it might not be a CrowdClient.
+     */
+    public static function getBodyObject (client :Client) :BodyObject
+    {
+        return (client is CrowdClient) ? (client as CrowdClient).bodyOf() :
+            (client.getClientObject() as BodyObject);
+    }
 
     /**
      * Creates a chat director and initializes it with the supplied context.
@@ -452,10 +461,10 @@ public class ChatDirector extends BasicDirector
      * @param target the username of the user to which the tell message should be delivered.
      * @param msg the contents of the tell message.
      * @param rl an optional result listener if you'd like to be notified of success or failure.
-     * @param feedbackLocaltype this local type will be used for both TellFeedbackMessages, and 
+     * @param feedbackLocaltype this local type will be used for both TellFeedbackMessages, and
      *                          regular feedback that is dispatched for away/idle messages.
      */
-    public function requestTell (target :Name, msg :String, rl :ResultListener, 
+    public function requestTell (target :Name, msg :String, rl :ResultListener,
         feedbackLocaltype :String = ChatCodes.PLACE_CHAT_TYPE) :void
     {
         // make sure they can say what they want to say
@@ -615,8 +624,10 @@ public class ChatDirector extends BasicDirector
     {
         super.clientDidLogon(event);
 
-        // listen on the client object for tells
-        addAuxiliarySource(_clobj = event.getClient().getClientObject(), ChatCodes.USER_CHAT_TYPE);
+        _auxobj = getBodyObject(event.getClient());
+
+        // listen on the body object for tells
+        addAuxiliarySource(_auxobj, ChatCodes.USER_CHAT_TYPE);
     }
 
     // documentation inherited
@@ -625,8 +636,13 @@ public class ChatDirector extends BasicDirector
         super.clientObjectDidChange(event);
 
         // change what we're listening to for tells
-        removeAuxiliarySource(_clobj);
-        addAuxiliarySource(_clobj = event.getClient().getClientObject(), ChatCodes.USER_CHAT_TYPE);
+        if (_auxobj != null) {
+            removeAuxiliarySource(_auxobj);
+        }
+        _auxobj = getBodyObject(event.getClient());
+
+        // listen on the body object for tells
+        addAuxiliarySource(_auxobj, ChatCodes.USER_CHAT_TYPE);
 
         if (clearChatOnClientExit()) {
             clearDisplays();
@@ -638,11 +654,12 @@ public class ChatDirector extends BasicDirector
     {
         super.clientDidLogoff(event);
 
-        // stop listening to it for tells
-        if (_clobj != null) {
-            removeAuxiliarySource(_clobj);
-            _clobj = null;
+        if (_auxobj != null) {
+            // stop listening to it for tells
+            removeAuxiliarySource(_auxobj);
+            _auxobj = null;
         }
+
         // in fact, clear out all auxiliary sources
         _auxes.clear();
 
@@ -699,7 +716,7 @@ public class ChatDirector extends BasicDirector
                 addChatter(speaker);
 
                 // note whether or not we have an auto-response
-                var self :BodyObject = (_cctx.getClient().getClientObject() as BodyObject);
+                var self :BodyObject = getBodyObject(_cctx.getClient());
                 if (!StringUtil.isBlank(self.awayMessage)) {
                     autoResponse = self.awayMessage;
                 }
@@ -915,7 +932,7 @@ public class ChatDirector extends BasicDirector
     internal function getCommandHandlers (command :String) :Map
     {
         var matches :Map = Maps.newMapOf(String);
-        var user :BodyObject = (_cctx.getClient().getClientObject() as BodyObject);
+        var user :BodyObject = getBodyObject(_cctx.getClient());
         var keys :Array = _handlers.keys();
         for (var ii :int = 0; ii < keys.length; ii++) {
             var cmd :String = (keys[ii] as String);
@@ -1046,8 +1063,8 @@ public class ChatDirector extends BasicDirector
     /** The place object that we currently occupy. */
     protected var _place :PlaceObject;
 
-    /** The client object that we're listening to for tells. */
-    protected var _clobj :ClientObject;
+    /** The object that we're listening to for tells. */
+    protected var _auxobj :DObject;
 
     /** A list of registered chat displays. */
     protected var _displays :ObserverList = new ObserverList();

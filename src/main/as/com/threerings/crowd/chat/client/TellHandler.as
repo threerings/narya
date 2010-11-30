@@ -53,10 +53,8 @@ public class TellHandler extends CommandHandler
         }
 
         // make sure we're not trying to tell something to ourselves
-        var self :BodyObject =
-            (ctx.getClient().getClientObject() as BodyObject);
-        if (handle.toLowerCase() ===
-                self.getVisibleName().toString().toLowerCase()) {
+        var self :BodyObject = ChatDirector.getBodyObject(ctx.getClient());
+        if (handle.toLowerCase() === self.getVisibleName().toString().toLowerCase()) {
             return "m.talk_self";
         }
 
