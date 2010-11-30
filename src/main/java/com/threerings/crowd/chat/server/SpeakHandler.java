@@ -90,7 +90,7 @@ public class SpeakHandler
         BodyObject source = (_locator != null) ? _locator.forClient(caller) :
             (BodyObject) caller;
 
-        String errmsg = caller.checkAccess(ChatCodes.CHAT_ACCESS, null);
+        String errmsg = source.checkAccess(ChatCodes.CHAT_ACCESS, null);
         if (errmsg != null) {
             // we normally don't listen for responses to speak messages so we can't just throw an
             // InvocationException, we have to specifically communicate the error to the user
@@ -104,7 +104,7 @@ public class SpeakHandler
         // ensure that the speaker is valid
         if ((mode == ChatCodes.BROADCAST_MODE) ||
             (_validator != null && !_validator.isValidSpeaker(_speakObj, source, mode))) {
-            log.warning("Refusing invalid speak request", "caller", caller.who(),
+            log.warning("Refusing invalid speak request", "source", source.who(),
                         "speakObj", _speakObj.which(), "message", message, "mode", mode);
 
         } else {
