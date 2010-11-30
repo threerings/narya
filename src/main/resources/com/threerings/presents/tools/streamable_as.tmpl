@@ -35,6 +35,7 @@ public class {{classname}} {{^extends.isEmpty}}extends {{extends}}
         {{name}} = ins.{{reader}};
 {{/fields}}
     }
+{{^dobject}}
 
     {{#superclassStreamable}}override {{/superclassStreamable}}public function writeObject (out :ObjectOutputStream) :void
     {
@@ -45,6 +46,7 @@ public class {{classname}} {{^extends.isEmpty}}extends {{extends}}
         out.{{writer}};
 {{/fields}}
     }
+{{/dobject}}
 // GENERATED STREAMING END
 
 }
