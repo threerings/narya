@@ -21,30 +21,25 @@
 
 package com.threerings.crowd.data;
 
-import com.google.inject.Inject;
-import com.google.inject.Singleton;
-
 import com.threerings.presents.data.ClientObject;
 import com.threerings.presents.data.Permission;
 import com.threerings.presents.data.PermissionPolicy;
 
 import com.threerings.crowd.chat.data.ChatCodes;
-import com.threerings.crowd.server.BodyLocator;
 
 /**
  * Implements some Crowd permissions.
  */
-@Singleton
 public class CrowdPermissionPolicy extends PermissionPolicy
 {
     @Override // from PermissionPolicy
     public String checkAccess (ClientObject clobj, Permission perm, Object context)
     {
-        BodyObject body = _locator.forClient(clobj);
-        if (body == null) {
+        if (!(clobj instanceof BodyObject)) {
             return super.checkAccess(clobj, perm, context);
         }
 
+        BodyObject body = (BodyObject)clobj;
         if (perm == ChatCodes.BROADCAST_ACCESS) {
             return body.getTokens().isAdmin() ? null : ACCESS_DENIED;
         } else if (perm == ChatCodes.CHAT_ACCESS) {
@@ -53,6 +48,4 @@ public class CrowdPermissionPolicy extends PermissionPolicy
             return super.checkAccess(clobj, perm, context);
         }
     }
-
-    @Inject protected transient BodyLocator _locator;
 }

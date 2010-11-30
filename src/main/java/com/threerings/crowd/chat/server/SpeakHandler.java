@@ -103,7 +103,7 @@ public class SpeakHandler
 
         // ensure that the speaker is valid
         if ((mode == ChatCodes.BROADCAST_MODE) ||
-            (_validator != null && !_validator.isValidSpeaker(_speakObj, source, mode))) {
+            (_validator != null && !_validator.isValidSpeaker(_speakObj, caller, mode))) {
             log.warning("Refusing invalid speak request", "caller", caller.who(),
                         "speakObj", _speakObj.which(), "message", message, "mode", mode);
 
