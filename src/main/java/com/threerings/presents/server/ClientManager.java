@@ -298,7 +298,6 @@ public class ClientManager
                 public void run () {
                     ClientObject clobj = fclr.createClientObject();
                     clobj.setLocal(ClientLocal.class, fclr.createLocalAttribute());
-                    clobj.setPermissionPolicy(fclr.createPermissionPolicy());
                     fclr.objectAvailable(_omgr.registerObject(clobj));
                 }
             });

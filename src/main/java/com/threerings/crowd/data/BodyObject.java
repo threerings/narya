@@ -25,7 +25,9 @@ import javax.annotation.Generated;
 import com.threerings.util.Name;
 
 import com.threerings.presents.data.ClientObject;
+import com.threerings.presents.data.Permission;
 
+import com.threerings.crowd.chat.data.ChatCodes;
 import com.threerings.crowd.chat.data.SpeakObject;
 
 /**
@@ -208,6 +210,26 @@ public class BodyObject extends ClientObject
     protected String getStatusTranslation ()
     {
         return OccupantInfo.X_STATUS[status];
+    }
+
+    @Override
+    protected PermissionPolicy createPermissionPolicy ()
+    {
+        return new CrowdPermissionPolicy();
+    }
+
+    protected class CrowdPermissionPolicy extends PermissionPolicy
+    {
+        @Override // from PermissionPolicy
+        public String checkAccess (Permission perm, Object context) {
+            if (perm == ChatCodes.BROADCAST_ACCESS) {
+                return getTokens().isAdmin() ? null : ACCESS_DENIED;
+            } else if (perm == ChatCodes.CHAT_ACCESS) {
+                return null;
+            } else {
+                return super.checkAccess(perm, context);
+            }
+        }
     }
 
     /** The default (no tokens) access control. */

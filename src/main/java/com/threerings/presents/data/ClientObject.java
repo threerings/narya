@@ -55,14 +55,6 @@ public class ClientObject extends DObject
     public DSet<InvocationReceiver.Registration> receivers = DSet.newDSet();
 
     /**
-     * Configures this client with a permissions policy. This is done during client resolution.
-     */
-    public void setPermissionPolicy (PermissionPolicy policy)
-    {
-        _permPolicy = policy;
-    }
-
-    /**
      * Returns a short string identifying this client.
      */
     public String who ()
@@ -80,7 +72,10 @@ public class ClientObject extends DObject
      */
     public String checkAccess (Permission perm, Object context)
     {
-        return _permPolicy.checkAccess(this, perm, context);
+        if (_permPolicy == null) {
+            _permPolicy = createPermissionPolicy();
+        }
+        return _permPolicy.checkAccess(perm, context);
     }
 
     /**
@@ -203,8 +198,34 @@ public class ClientObject extends DObject
     }
     // AUTO-GENERATED: METHODS END
 
+    protected PermissionPolicy createPermissionPolicy ()
+    {
+        return new PermissionPolicy();
+    }
+
+    /**
+     * ClientObject derived classes can extend this class to provide more sophisticated permission
+     * policies, and should return their customized classes from {@link #createPermissionPolicy}.
+     * This class, and its children must <em>only</em> make use of data available in the
+     * ClientObject (and its children). Permissions may be checked on the client or server.
+     */
+    protected class PermissionPolicy implements InvocationCodes
+    {
+        /**
+         * Returns null if the specified client has the specified permission, an error code
+         * explaining the lack of access if they do not. {@link InvocationCodes#ACCESS_DENIED}
+         * should be returned if no more specific explanation is available.
+         *
+         * @param perm the permission to be checked.
+         * @param context a potential context for the request, if any.
+         */
+        public String checkAccess (Permission perm, Object context) {
+            return ACCESS_DENIED; // by default, you can't do it!
+        }
+    }
+
     /** Handles our fine-grained permissions. */
-    protected PermissionPolicy _permPolicy;
+    protected transient PermissionPolicy _permPolicy;
 
     /** Used to reference count resolved client objects. */
     protected transient int _references;

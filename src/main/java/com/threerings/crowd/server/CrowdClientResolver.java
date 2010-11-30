@@ -22,12 +22,10 @@
 package com.threerings.crowd.server;
 
 import com.threerings.presents.data.ClientObject;
-import com.threerings.presents.data.PermissionPolicy;
 import com.threerings.presents.server.ClientLocal;
 import com.threerings.presents.server.ClientResolver;
 
 import com.threerings.crowd.data.BodyObject;
-import com.threerings.crowd.data.CrowdPermissionPolicy;
 
 /**
  * Used to configure crowd-specific client object data.
@@ -44,11 +42,5 @@ public class CrowdClientResolver extends ClientResolver
     public ClientLocal createLocalAttribute ()
     {
         return new BodyLocal();
-    }
-
-    @Override // from ClientResolver
-    public PermissionPolicy createPermissionPolicy ()
-    {
-        return new CrowdPermissionPolicy();
     }
 }
