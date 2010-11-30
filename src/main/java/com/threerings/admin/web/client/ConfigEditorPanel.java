@@ -44,6 +44,7 @@ import com.threerings.gwt.util.PopupCallback;
  * The main panel of the configuration editor. All service calls are routed through here.
  * Subclass this class in your project.
  */
+@SuppressWarnings("deprecation")
 public abstract class ConfigEditorPanel extends TabPanel
     implements ConfigAccessor
 {

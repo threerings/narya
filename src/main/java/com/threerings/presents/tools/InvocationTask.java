@@ -31,7 +31,6 @@ import java.util.Arrays;
 import java.util.List;
 
 import java.io.File;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.PrintWriter;
 
@@ -40,7 +39,6 @@ import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 
-import com.samskivert.io.StreamUtil;
 import com.samskivert.util.Logger;
 import com.samskivert.util.StringUtil;
 import com.threerings.presents.annotation.TransportHint;
@@ -388,20 +386,6 @@ public abstract class InvocationTask extends GenTask
         }
     }
 
-    /**
-     * Configures us with a header file that we'll prepend to all
-     * generated source files.
-     */
-    public void setHeader (File header)
-    {
-        try {
-            _header = StreamUtil.toString(new FileReader(header));
-        } catch (IOException ioe) {
-            System.err.println("Unabled to load header '" + header + ": " +
-                               ioe.getMessage());
-        }
-    }
-
     @Override
     public void execute ()
     {
@@ -439,9 +423,6 @@ public abstract class InvocationTask extends GenTask
         return source.replace(oldstr.replace('/', File.separatorChar),
                               newstr.replace('/', File.separatorChar));
     }
-
-    /** A header to put on all generated source files. */
-    protected String _header;
 
     /** {@link InvocationListener} resolved with the proper classloader so
      * that we can compare it to loaded derived classes. */

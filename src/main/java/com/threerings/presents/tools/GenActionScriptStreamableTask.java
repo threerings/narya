@@ -22,12 +22,15 @@
 package com.threerings.presents.tools;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import java.io.File;
+
+import org.apache.tools.ant.Project;
 
 import com.google.common.base.Charsets;
 import com.google.common.base.Joiner;
@@ -36,15 +39,37 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.google.common.io.Files;
 
+import com.samskivert.util.StringUtil;
+
 import com.threerings.io.ObjectInputStream;
 import com.threerings.io.ObjectOutputStream;
+import com.threerings.io.Streamable;
 
-public class GenActionScriptStreamableTask extends GenActionScriptTask
+import com.threerings.presents.data.InvocationMarshaller;
+import com.threerings.presents.dobj.DObject;
+
+public class GenActionScriptStreamableTask extends GenTask
 {
+    /**
+     * Configures the path to our ActionScript source files.
+     */
+    public void setAsroot (File asroot)
+    {
+        _asroot = asroot;
+    }
+
     @Override
-    protected void convert (File javaSource, Class<?> sclass, File outputLocation)
+    protected void processClass (File javaSource, Class<?> sclass)
         throws Exception
     {
+        if (!Streamable.class.isAssignableFrom(sclass)
+            || InvocationMarshaller.class.isAssignableFrom(sclass)
+            || Modifier.isInterface(sclass.getModifiers())
+            || ActionScriptUtils.hasOmitAnnotation(sclass)) {
+            log("Skipping " + sclass.getName(), Project.MSG_VERBOSE);
+            return;
+        }
+        log("Generating " + sclass.getName(), Project.MSG_VERBOSE);
         // Generate the current version of the streamable
         StreamableClassRequirements reqs = new StreamableClassRequirements(sclass);
 
@@ -53,12 +78,13 @@ public class GenActionScriptStreamableTask extends GenActionScriptTask
         imports.add(ObjectOutputStream.class.getName());
         String extendsName = "";
         if (!sclass.getSuperclass().equals(Object.class)) {
-            extendsName = addImportAndGetShortType(sclass.getSuperclass(), false, imports);
+            extendsName =
+                ActionScriptUtils.addImportAndGetShortType(sclass.getSuperclass(), false, imports);
         }
 
         Set<String> implemented = Sets.newLinkedHashSet();
         for (Class<?> iface : sclass.getInterfaces()) {
-            implemented.add(addImportAndGetShortType(iface, false, imports));
+            implemented.add(ActionScriptUtils.addImportAndGetShortType(iface, false, imports));
         }
         List<ASField> fields = Lists.newArrayList();
         for (Field f : reqs.streamedFields) {
@@ -72,8 +98,10 @@ public class GenActionScriptStreamableTask extends GenActionScriptTask
             "extends", extendsName,
             "implements", Joiner.on(", ").join(implemented),
             "superclassStreamable", reqs.superclassStreamable,
-            "fields", fields);
+            "fields", fields,
+            "dobject", DObject.class.isAssignableFrom(sclass));
 
+        File outputLocation = ActionScriptUtils.createActionScriptPath(_asroot, sclass);
         if (outputLocation.exists()) {
             // Merge in the previously generated version
             String existing = Files.toString(outputLocation, Charsets.UTF_8);
@@ -92,11 +120,13 @@ public class GenActionScriptStreamableTask extends GenActionScriptTask
         public final String simpleType;
         public final String reader;
         public final String writer;
+        public final String dobjectField;
 
         public ASField (Field f, Set<String> imports)
         {
-            this.name = f.getName();
-            this.simpleType = addImportAndGetShortType(f.getType(), true, imports);
+            name = f.getName();
+            dobjectField = StringUtil.unStudlyName(name).toUpperCase();
+            simpleType = ActionScriptUtils.addImportAndGetShortType(f.getType(), true, imports);
 
             // Lists and Maps use their Streamers directly
             if (List.class.isAssignableFrom(f.getType())) {
@@ -104,8 +134,11 @@ public class GenActionScriptStreamableTask extends GenActionScriptTask
             }  else if (Map.class.isAssignableFrom(f.getType())) {
                 imports.add("com.threerings.io.streamers.MapStreamer");
             }
-            this.reader = toReadObject(f.getType());
-            this.writer = toWriteObject(f.getType(), name);
+            reader = ActionScriptUtils.toReadObject(f.getType());
+            writer = ActionScriptUtils.toWriteObject(f.getType(), name);
         }
     }
+
+    /** The path to our ActionScript source files. */
+    protected File _asroot;
 }

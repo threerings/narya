@@ -18,8 +18,14 @@ public class {{classname}} {{^extends.isEmpty}}extends {{extends}}
 // GENERATED STREAMING START
 {{#fields}}
     public var {{name}} :{{simpleType}};
-{{/fields}}
 
+{{/fields}}
+{{#dobject}}
+{{#fields}}
+    public static const {{dobjectField}} :String = "{{name}}";
+
+{{/fields}}
+{{/dobject}}
     {{#superclassStreamable}}override {{/superclassStreamable}}public function readObject (ins :ObjectInputStream) :void
     {
 {{#superclassStreamable}}

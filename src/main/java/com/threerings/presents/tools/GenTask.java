@@ -25,6 +25,8 @@ import java.util.List;
 import java.util.Map;
 
 import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
 import java.io.InputStreamReader;
 
 import org.apache.tools.ant.AntClassLoader;
@@ -38,6 +40,7 @@ import org.apache.tools.ant.util.ClasspathUtils;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Lists;
 
+import com.samskivert.io.StreamUtil;
 import com.samskivert.mustache.Mustache;
 
 public abstract class GenTask extends Task
@@ -56,6 +59,20 @@ public abstract class GenTask extends Task
     public void setVerbose (boolean verbose)
     {
         _verbose = verbose;
+    }
+
+    /**
+     * Configures us with a header file that we'll prepend to all
+     * generated source files.
+     */
+    public void setHeader (File header)
+    {
+        try {
+            _header = StreamUtil.toString(new FileReader(header));
+        } catch (IOException ioe) {
+            System.err.println("Unabled to load header '" + header + ": " +
+                               ioe.getMessage());
+        }
     }
 
     /** Configures our classpath which we'll use to load service classes. */
@@ -160,4 +177,7 @@ public abstract class GenTask extends Task
 
     /** Used to do our own classpath business. */
     protected ClassLoader _cloader;
+
+    /** A header to put on all generated source files. */
+    protected String _header;
 }

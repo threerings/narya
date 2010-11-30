@@ -24,28 +24,14 @@ package com.threerings.presents.tools;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
-import java.io.IOException;
 import java.io.PrintWriter;
-
-import com.google.common.base.Charsets;
-import com.google.common.base.Splitter;
-import com.google.common.collect.Iterables;
-import com.google.common.io.Files;
 
 import com.threerings.io.ObjectInputStream;
 import com.threerings.io.ObjectOutputStream;
 import com.threerings.io.Streamable;
-
-import com.threerings.util.ActionScript;
-import com.threerings.util.StreamableArrayList;
-import com.threerings.util.StreamableHashMap;
 
 import com.threerings.presents.data.InvocationMarshaller;
 import com.threerings.presents.dobj.DObject;
@@ -65,22 +51,10 @@ public class GenActionScriptTask extends GenTask
     }
 
     /**
-     * Configures us with a header file that we'll prepend to all generated source files.
-     */
-    public void setHeader (File header)
-    {
-        try {
-            _header = Files.toString(header, Charsets.UTF_8);
-        } catch (IOException ioe) {
-            System.err.println("Unabled to load header '" + header + ": " + ioe.getMessage());
-        }
-    }
-
-    /**
      * Processes a resolved Streamable class instance.
      */
     @Override
-    public void processClass (File source, Class<?> sclass)
+    public void processClass (File javaSource, Class<?> sclass)
         throws Exception
     {
         // make sure we implement Streamable but don't extend DObject or InvocationMarshaller and
@@ -88,33 +62,15 @@ public class GenActionScriptTask extends GenTask
         if (!Streamable.class.isAssignableFrom(sclass) ||
             DObject.class.isAssignableFrom(sclass) ||
             InvocationMarshaller.class.isAssignableFrom(sclass) ||
-            ((sclass.getModifiers() & Modifier.INTERFACE) != 0)) {
+            ((sclass.getModifiers() & Modifier.INTERFACE) != 0) ||
+            ActionScriptUtils.hasOmitAnnotation(sclass)) {
             // System.err.println("Skipping " + sclass.getName() + "...");
             return;
         }
 
-        // if we have an ActionScript(omit=true) annotation, skip this class
-        Class<?> cclass = sclass;
-        do {
-            ActionScript asa = cclass.getAnnotation(ActionScript.class);
-            if (asa != null && asa.omit()) {
-                // System.err.println("Skipping " + sclass.getName() + "...");
-                return;
-            }
-            cclass = cclass.getSuperclass();
-        } while (cclass != null);
-
-        // determine the path to the corresponding action script source file
-        String path = toActionScriptType(sclass, false).replace(".", File.separator);
-        File asfile = new File(_asroot, path + ".as");
+        File output = ActionScriptUtils.createActionScriptPath(_asroot, sclass);
 
         System.err.println("Converting " + sclass.getName() + "...");
-        convert(source, sclass, asfile);
-    }
-
-    protected void convert (File javaSource, Class<?> sclass, File output)
-        throws Exception
-    {
         // parse the existing ActionScript source and generate what we don't
         // have from the Java class
         ActionScriptSource assrc = new ActionScriptSource(sclass);
@@ -142,7 +98,7 @@ public class GenActionScriptTask extends GenTask
             }
             body.append("        ");
             body.append(field.getName()).append(" = ins.");
-            body.append(toReadObject(field.getType()));
+            body.append(ActionScriptUtils.toReadObject(field.getType()));
             body.append(";\n");
             added++;
         }
@@ -165,7 +121,7 @@ public class GenActionScriptTask extends GenTask
                 continue;
             }
             body.append("        out.");
-            body.append(toWriteObject(field.getType(), field.getName()));
+            body.append(ActionScriptUtils.toWriteObject(field.getType(), field.getName()));
             body.append(";\n");
             added++;
         }
@@ -191,176 +147,6 @@ public class GenActionScriptTask extends GenTask
         return !Modifier.isStatic(mods) && !Modifier.isTransient(mods);
     }
 
-    protected static String addImportAndGetShortType (Class<?> type, boolean isField,
-        Set<String> imports)
-    {
-        String full = toActionScriptType(type, isField);
-        if (needsActionScriptImport(type, isField)) {
-            imports.add(full);
-        }
-        return Iterables.getLast(DOT_SPLITTER.split(full));
-    }
-
-    protected static boolean needsActionScriptImport (Class<?> type, boolean isField)
-    {
-        if (type.isArray()) {
-            return Byte.TYPE.equals(type.getComponentType()) || isField;
-        }
-        return (Long.TYPE.equals(type) || !type.isPrimitive()) && !String.class.equals(type);
-    }
-
-    /** Returns if the given class is an implementation of Map that doesn't know about Streaming */
-    protected static boolean isNaiveMap (Class<?> type)
-    {
-        return Map.class.isAssignableFrom(type) && !type.equals(StreamableHashMap.class);
-    }
-
-    /** Returns if the given class is an implementation of List that doesn't know about Streaming */
-    protected static boolean isNaiveList (Class<?> type)
-    {
-        return List.class.isAssignableFrom(type) && !type.equals(StreamableArrayList.class);
-    }
-
-    protected static String toActionScriptType (Class<?> type, boolean isField)
-    {
-        if (type.isArray() || isNaiveList(type)) {
-            if (Byte.TYPE.equals(type.getComponentType())) {
-                return "flash.utils.ByteArray";
-            }
-            if (isField) {
-                return "com.threerings.io.TypedArray";
-            }
-            return "Array";
-        } else if (isNaiveMap(type)) {
-            return "com.threerings.util.Map";
-        } else if (Integer.TYPE.equals(type) ||
-            Byte.TYPE.equals(type) ||
-            Short.TYPE.equals(type) ||
-            Character.TYPE.equals(type)) {
-            return "int";
-        } else if (Float.TYPE.equals(type) ||
-            Double.TYPE.equals(type)) {
-            return "Number";
-        } else if (Long.TYPE.equals(type)) {
-            return "com.threerings.util.Long";
-        } else if (Boolean.TYPE.equals(type)) {
-            return "Boolean";
-        } else {
-            // inner classes are not supported by ActionScript so we _
-            return type.getName().replaceAll("\\$", "_");
-        }
-    }
-
-    public static String toReadObject (Class<?> type)
-    {
-        if (type.equals(String.class)) {
-            return "readField(String)";
-
-        } else if (type.equals(Integer.class) ||
-                   type.equals(Short.class) ||
-                   type.equals(Byte.class)) {
-            String name = ActionScriptSource.toSimpleName(type.getName());
-            return "readField(" + name + ").value";
-
-        } else if (type.equals(Long.class)) {
-            String name = ActionScriptSource.toSimpleName(type.getName());
-            return "readField(" + name + ")";
-
-        } else if (type.equals(Boolean.TYPE)) {
-            return "readBoolean()";
-
-        } else if (type.equals(Byte.TYPE)) {
-            return "readByte()";
-
-        } else if (type.equals(Short.TYPE) || type.equals(Character.TYPE)) {
-            return "readShort()";
-
-        } else if (type.equals(Integer.TYPE)) {
-            return "readInt()";
-
-        } else if (type.equals(Long.TYPE)) {
-            return "readLong()";
-
-        } else if (type.equals(Float.TYPE)) {
-            return "readFloat()";
-
-        } else if (type.equals(Double.TYPE)) {
-            return "readDouble()";
-
-        } else if (isNaiveMap(type)) {
-            return "readField(MapStreamer.INSTANCE)";
-
-        } else if (isNaiveList(type)) {
-            return "readField(ArrayStreamer.INSTANCE)";
-
-        } else if (type.isArray()) {
-            if (!type.getComponentType().isPrimitive()) {
-                return "readObject(TypedArray)";
-            } else {
-                if (Double.TYPE.equals(type.getComponentType())) {
-                    return "readField(TypedArray.getJavaType(Number))";
-                } else if (Boolean.TYPE.equals(type.getComponentType())) {
-                    return "readField(TypedArray.getJavaType(Boolean))";
-                } else if (Integer.TYPE.equals(type.getComponentType())) {
-                    return "readField(TypedArray.getJavaType(int))";
-                } else if (Byte.TYPE.equals(type.getComponentType())) {
-                    return "readField(ByteArray)";
-                } else {
-                    throw new IllegalArgumentException(type
-                        + " isn't supported to stream to actionscript");
-                }
-            }
-        } else {
-            return "readObject(" + Iterables.getLast(DOT_SPLITTER.split(toActionScriptType(type, false))) + ")";
-        }
-    }
-
-    public static String toWriteObject (Class<?> type, String name)
-    {
-        if (type.equals(Integer.class)) {
-            return "writeObject(new Integer(" + name + "))";
-
-        } else if (type.equals(Boolean.TYPE)) {
-            return "writeBoolean(" + name + ")";
-
-        } else if (type.equals(Byte.TYPE)) {
-            return "writeByte(" + name + ")";
-
-        } else if (type.equals(Short.TYPE) ||
-                   type.equals(Character.TYPE)) {
-            return "writeShort(" + name + ")";
-
-        } else if (type.equals(Integer.TYPE)) {
-            return "writeInt(" + name + ")";
-
-        } else if (type.equals(Long.TYPE)) {
-            return "writeLong(" + name + ")";
-
-        } else if (type.equals(Float.TYPE)) {
-            return "writeFloat(" + name + ")";
-
-        } else if (type.equals(Double.TYPE)) {
-            return "writeDouble(" + name + ")";
-
-        } else if (type.equals(Long.class) ||
-                   type.equals(String.class) ||
-                   (type.isArray() && type.getComponentType().isPrimitive())) {
-            return "writeField(" + name + ")";
-
-        } else if (isNaiveList(type)) {
-            return "writeField(" + name + ", ArrayStreamer.INSTANCE)";
-
-        } else if (isNaiveMap(type)) {
-            return "writeField(" + name + ", MapStreamer.INSTANCE)";
-
-        } else {
-            return "writeObject(" + name + ")";
-        }
-    }
-
-    /** A header to put on all generated source files. */
-    protected String _header;
-
     /** The path to our ActionScript source files. */
     protected File _asroot;
 
@@ -368,7 +154,5 @@ public class GenActionScriptTask extends GenTask
         "public function readObject (ins :ObjectInputStream) :void";
     protected static final String WRITE_SIG =
         "public function writeObject (out :ObjectOutputStream) :void";
-
-    protected static final Splitter DOT_SPLITTER = Splitter.on('.');
 
 }
