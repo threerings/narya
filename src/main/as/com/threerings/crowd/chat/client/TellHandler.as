@@ -26,6 +26,7 @@ import com.threerings.util.ResultAdapter;
 import com.threerings.util.ResultListener;
 import com.threerings.util.StringUtil;
 
+import com.threerings.crowd.client.CrowdClient;
 import com.threerings.crowd.data.BodyObject;
 import com.threerings.crowd.util.CrowdContext;
 import com.threerings.crowd.chat.data.ChatCodes;
@@ -53,7 +54,7 @@ public class TellHandler extends CommandHandler
         }
 
         // make sure we're not trying to tell something to ourselves
-        var self :BodyObject = ChatDirector.getBodyObject(ctx.getClient());
+        var self :BodyObject = (ctx.getClient() as CrowdClient).bodyOf();
         if (handle.toLowerCase() === self.getVisibleName().toString().toLowerCase()) {
             return "m.talk_self";
         }

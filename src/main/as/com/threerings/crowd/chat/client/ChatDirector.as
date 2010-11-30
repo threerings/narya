@@ -68,16 +68,6 @@ public class ChatDirector extends BasicDirector
     ChatMarshaller;
 
     /**
-     * Convenience method for returning the body of a client in a super safe manner, taking
-     * into account the (remote, one imagines) possibility that it might not be a CrowdClient.
-     */
-    public static function getBodyObject (client :Client) :BodyObject
-    {
-        return (client is CrowdClient) ? (client as CrowdClient).bodyOf() :
-            (client.getClientObject() as BodyObject);
-    }
-
-    /**
      * Creates a chat director and initializes it with the supplied context.
      *
      * @param msgmgr the message manager via which we do our translations.
@@ -624,10 +614,9 @@ public class ChatDirector extends BasicDirector
     {
         super.clientDidLogon(event);
 
-        _auxobj = getBodyObject(event.getClient());
-
+        _bodyobj = (event.getClient() as CrowdClient).bodyOf();
         // listen on the body object for tells
-        addAuxiliarySource(_auxobj, ChatCodes.USER_CHAT_TYPE);
+        addAuxiliarySource(_bodyobj, ChatCodes.USER_CHAT_TYPE);
     }
 
     // documentation inherited
@@ -636,13 +625,12 @@ public class ChatDirector extends BasicDirector
         super.clientObjectDidChange(event);
 
         // change what we're listening to for tells
-        if (_auxobj != null) {
-            removeAuxiliarySource(_auxobj);
+        if (_bodyobj != null) {
+            removeAuxiliarySource(_bodyobj);
         }
-        _auxobj = getBodyObject(event.getClient());
-
+        _bodyobj = (event.getClient() as CrowdClient).bodyOf();
         // listen on the body object for tells
-        addAuxiliarySource(_auxobj, ChatCodes.USER_CHAT_TYPE);
+        addAuxiliarySource(_bodyobj, ChatCodes.USER_CHAT_TYPE);
 
         if (clearChatOnClientExit()) {
             clearDisplays();
@@ -654,10 +642,10 @@ public class ChatDirector extends BasicDirector
     {
         super.clientDidLogoff(event);
 
-        if (_auxobj != null) {
+        if (_bodyobj != null) {
             // stop listening to it for tells
-            removeAuxiliarySource(_auxobj);
-            _auxobj = null;
+            removeAuxiliarySource(_bodyobj);
+            _bodyobj = null;
         }
 
         // in fact, clear out all auxiliary sources
@@ -716,7 +704,7 @@ public class ChatDirector extends BasicDirector
                 addChatter(speaker);
 
                 // note whether or not we have an auto-response
-                var self :BodyObject = getBodyObject(_cctx.getClient());
+                var self :BodyObject = (_cctx.getClient() as CrowdClient).bodyOf();
                 if (!StringUtil.isBlank(self.awayMessage)) {
                     autoResponse = self.awayMessage;
                 }
@@ -932,7 +920,7 @@ public class ChatDirector extends BasicDirector
     internal function getCommandHandlers (command :String) :Map
     {
         var matches :Map = Maps.newMapOf(String);
-        var user :BodyObject = getBodyObject(_cctx.getClient());
+        var user :BodyObject = (_cctx.getClient() as CrowdClient).bodyOf();
         var keys :Array = _handlers.keys();
         for (var ii :int = 0; ii < keys.length; ii++) {
             var cmd :String = (keys[ii] as String);
@@ -1064,7 +1052,7 @@ public class ChatDirector extends BasicDirector
     protected var _place :PlaceObject;
 
     /** The object that we're listening to for tells. */
-    protected var _auxobj :DObject;
+    protected var _bodyobj :DObject;
 
     /** A list of registered chat displays. */
     protected var _displays :ObserverList = new ObserverList();
