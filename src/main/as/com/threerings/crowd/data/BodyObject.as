@@ -26,6 +26,7 @@ import com.threerings.util.Name;
 
 import com.threerings.presents.data.ClientObject;
 import com.threerings.presents.data.InvocationCodes;
+import com.threerings.presents.data.PermissionPolicy;
 
 import com.threerings.crowd.chat.data.ChatCodes;
 
@@ -192,6 +193,11 @@ public class BodyObject extends ClientObject
     protected function getStatusTranslation () :String
     {
         return OccupantInfo.X_STATUS[status];
+    }
+
+    override protected function createPermissionPolicy () :PermissionPolicy
+    {
+        return new CrowdPermissionPolicy();
     }
 }
 }

@@ -28,10 +28,10 @@ import com.threerings.io.Streamable;
 /**
  * Encapsulates a fine-grained permissions policy. The default policy is to deny access to
  * everything, systems using fine-grained permissions should create a custom policy and provide it
- * at client resolution time via the ClientResolver.
+ * at client resolution time via the ClientResolver. This would be an inner class of ClientObject,
+ * but ActionScript does not support inner classes.
  */
 public class PermissionPolicy
-    implements Streamable
 {
     /**
      * Returns null if the specified client has the specified permission, an error code explaining
@@ -42,18 +42,6 @@ public class PermissionPolicy
     {
         // by default, you can't do it!
         return InvocationCodes.ACCESS_DENIED;
-    }
-
-    // from interface Streamable
-    public function writeObject (out :ObjectOutputStream) :void
-    {
-        // nothing needed
-    }
-
-    // from interface Streamable
-    public function readObject (ins :ObjectInputStream) :void
-    {
-        // nothing needed
     }
 }
 }

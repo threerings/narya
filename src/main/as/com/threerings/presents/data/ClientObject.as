@@ -81,6 +81,9 @@ public class ClientObject extends DObject
      */
     public function checkAccess (perm :Permission, context :Object = null) :String
     {
+        if (_permPolicy == null) {
+            _permPolicy = createPermissionPolicy();
+        }
         return _permPolicy.checkAccess(this, perm, context);
     }
 
@@ -119,9 +122,13 @@ public class ClientObject extends DObject
         super.readObject(ins);
         username = Name(ins.readObject());
         receivers = DSet(ins.readObject());
-        _permPolicy = PermissionPolicy(ins.readObject());
     }
 
-    protected var _permPolicy :PermissionPolicy;
+    protected function createPermissionPolicy () :PermissionPolicy
+    {
+        return new PermissionPolicy();
+    }
+
+    protected /*transient*/ var _permPolicy :PermissionPolicy;
 }
 }
