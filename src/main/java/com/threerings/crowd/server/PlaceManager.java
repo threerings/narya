@@ -778,16 +778,16 @@ public class PlaceManager
     @Inject protected Injector _injector;
 
     /** A reference to the place registry with which we're registered. */
-    @Inject protected PlaceRegistry _registry;
+    protected PlaceRegistry _registry;
 
     /** The invocation manager with whom we register our game invocation services. */
-    @Inject protected InvocationManager _invmgr;
+    protected InvocationManager _invmgr;
 
     /** A distributed object manager for doing dobj stuff. */
-    @Inject protected RootDObjectManager _omgr;
+    protected RootDObjectManager _omgr;
 
     /** Used to look up body objects by name. */
-    @Inject protected BodyLocator _locator;
+    protected BodyLocator _locator;
 
     /** A reference to the place object that we manage. */
     protected PlaceObject _plobj;
