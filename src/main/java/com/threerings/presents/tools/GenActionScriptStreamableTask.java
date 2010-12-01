@@ -133,6 +133,8 @@ public class GenActionScriptStreamableTask extends GenTask
                 imports.add("com.threerings.io.streamers.ArrayStreamer");
             }  else if (Map.class.isAssignableFrom(f.getType())) {
                 imports.add("com.threerings.io.streamers.MapStreamer");
+            } else if (Set.class.isAssignableFrom(f.getType())) {
+                imports.add("com.threerings.io.streamers.SetStreamer");
             }
             reader = ActionScriptUtils.toReadObject(f.getType());
             writer = ActionScriptUtils.toWriteObject(f.getType(), name);

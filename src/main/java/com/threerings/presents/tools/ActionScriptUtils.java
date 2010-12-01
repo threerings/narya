@@ -33,6 +33,7 @@ import com.google.common.collect.Iterables;
 import com.threerings.util.ActionScript;
 import com.threerings.util.StreamableArrayList;
 import com.threerings.util.StreamableHashMap;
+import com.threerings.util.StreamableHashSet;
 
 public class ActionScriptUtils
 {
@@ -96,6 +97,9 @@ public class ActionScriptUtils
         } else if (isNaiveList(type)) {
             return "readField(ArrayStreamer.INSTANCE)";
 
+        } else if (isNaiveSet(type)) {
+            return "readField(SetStreamer.INSTANCE)";
+
         } else if (type.isArray()) {
             if (!type.getComponentType().isPrimitive()) {
                 return "readObject(TypedArray)";
@@ -156,6 +160,9 @@ public class ActionScriptUtils
         } else if (isNaiveMap(type)) {
             return "writeField(" + name + ", MapStreamer.INSTANCE)";
 
+        } else if (isNaiveSet(type)) {
+            return "writeField(" + name + ", SetStreamer.INSTANCE)";
+
         } else {
             return "writeObject(" + name + ")";
         }
@@ -165,6 +172,11 @@ public class ActionScriptUtils
     protected static boolean isNaiveMap (Class<?> type)
     {
         return Map.class.isAssignableFrom(type) && !type.equals(StreamableHashMap.class);
+    }
+
+    protected static boolean isNaiveSet (Class<?> type)
+    {
+        return Set.class.isAssignableFrom(type) && !type.equals(StreamableHashSet.class);
     }
 
     /** Returns if the given class is an implementation of List that doesn't know about Streaming */
@@ -185,6 +197,8 @@ public class ActionScriptUtils
             return "Array";
         } else if (isNaiveMap(type)) {
             return "com.threerings.util.Map";
+        } else if (isNaiveSet(type)) {
+            return "com.threerings.util.Set";
         } else if (Integer.TYPE.equals(type) ||
             Byte.TYPE.equals(type) ||
             Short.TYPE.equals(type) ||
