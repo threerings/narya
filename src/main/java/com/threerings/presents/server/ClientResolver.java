@@ -125,16 +125,7 @@ public class ClientResolver extends Invoker.Unit
         // if we still haven't failed, then we're good to go
         if (_failure == null) {
             // and let the listeners in on the secret as well
-            for (int ii = 0, ll = _listeners.size(); ii < ll; ii++) {
-                ClientResolutionListener crl = _listeners.get(ii);
-                try {
-                    // add a reference for each listener
-                    _clobj.reference();
-                    crl.clientResolved(_username, _clobj);
-                } catch (Exception e) {
-                    log.warning("Client resolution listener choked in clientResolved() " + crl, e);
-                }
-            }
+            reportSuccess();
 
         } else {
             // destroy the dangling user object
@@ -171,6 +162,23 @@ public class ClientResolver extends Invoker.Unit
     protected void finishResolution (ClientObject clobj)
     {
         // nothing to do by default
+    }
+
+    /**
+     * Reports success to our resolution listeners.
+     */
+    protected void reportSuccess ()
+    {
+        for (int ii = 0, ll = _listeners.size(); ii < ll; ii++) {
+            ClientResolutionListener crl = _listeners.get(ii);
+            try {
+                // add a reference for each listener
+                _clobj.reference();
+                crl.clientResolved(_username, _clobj);
+            } catch (Exception e) {
+                log.warning("Client resolution listener choked in clientResolved() " + crl, e);
+            }
+        }
     }
 
     /**
