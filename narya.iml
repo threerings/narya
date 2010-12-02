@@ -88,7 +88,7 @@
           <root url="jar://$M2_REPO$/com/samskivert/jmustache/1.0/jmustache-1.0.jar!/" />
         </CLASSES>
         <JAVADOC>
-          <root url="jar:file://Users/groves/.m2/repository/com/samskivert/jmustache/1.0/jmustache-1.0-javadoc.jar!/" />
+          <root url="jar://$M2_REPO$/com/samskivert/jmustache/1.0/jmustache-1.0-javadoc.jar!/" />
         </JAVADOC>
         <SOURCES>
           <root url="jar://$M2_REPO$/com/samskivert/jmustache/1.0/jmustache-1.0-sources.jar!/" />
