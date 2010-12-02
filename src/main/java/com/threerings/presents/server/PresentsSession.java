@@ -284,8 +284,9 @@ public class PresentsSession
             }
 
             public void resolutionFailed (Name username, Exception reason) {
+                String oldName = _clobj == null ? null : _clobj.username;
                 log.warning("Unable to resolve new client object",
-                    "oldname", _clobj.username, "newname", username, "reason", reason, reason);
+                    "oldname", oldName, "newname", username, "reason", reason, reason);
 
                 // let our listener know we're hosed
                 if (ucl != null) {
