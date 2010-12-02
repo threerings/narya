@@ -82,6 +82,11 @@ public class GenActionScriptStreamableTask extends GenTask
                 ActionScriptUtils.addImportAndGetShortType(sclass.getSuperclass(), false, imports);
         }
 
+        boolean isDObject = DObject.class.isAssignableFrom(sclass);
+        if (isDObject) {
+            imports.add("org.osflash.signals.Signal");
+        }
+
         Set<String> implemented = Sets.newLinkedHashSet();
         for (Class<?> iface : sclass.getInterfaces()) {
             implemented.add(ActionScriptUtils.addImportAndGetShortType(iface, false, imports));
@@ -99,7 +104,7 @@ public class GenActionScriptStreamableTask extends GenTask
             "implements", Joiner.on(", ").join(implemented),
             "superclassStreamable", reqs.superclassStreamable,
             "fields", fields,
-            "dobject", DObject.class.isAssignableFrom(sclass));
+            "dobject", isDObject);
 
         File outputLocation = ActionScriptUtils.createActionScriptPath(_asroot, sclass);
         if (outputLocation.exists()) {

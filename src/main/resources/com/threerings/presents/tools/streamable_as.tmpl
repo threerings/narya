@@ -22,6 +22,10 @@ public class {{classname}} {{^extends.isEmpty}}extends {{extends}}
 {{/fields}}
 {{#dobject}}
 {{#fields}}
+    public var {{name}}Changed :Signal = new Signal({{simpleType}}, {{simpleType}});
+{{/fields}}
+
+{{#fields}}
     public static const {{dobjectField}} :String = "{{name}}";
 
 {{/fields}}
@@ -47,7 +51,52 @@ public class {{classname}} {{^extends.isEmpty}}extends {{extends}}
 {{/fields}}
     }
 {{/dobject}}
+
+{{#dobject}}
+    public function {{classname}} ()
+    {
+        new Signaller(this);
+    }
+{{/dobject}}
 // GENERATED STREAMING END
 
+// GENERATED CLASSFINISH START
 }
 }
+// GENERATED CLASSFINISH END
+
+{{#dobject}}
+// GENERATED SIGNALLER START
+import org.osflash.signals.Signal;
+
+import com.threerings.presents.dobj.AttributeChangedEvent;
+import com.threerings.presents.dobj.AttributeChangeListener;
+
+import {{package}}.{{classname}};
+
+class Signaller
+    implements AttributeChangeListener
+{
+    public function Signaller (obj :{{classname}})
+    {
+        _obj = obj;
+        _obj.addListener(this);
+    }
+
+    public function attributeChanged (event :AttributeChangedEvent) :void
+    {
+        var signal :Signal;
+        switch (event.getName()) {
+{{#fields}}
+            case "{{name}}":
+                signal = _obj.{{name}}Changed;
+                break;
+{{/fields}}
+        }
+        signal.dispatch(event.getValue(), event.getOldValue());
+    }
+
+    protected var _obj :{{classname}};
+}
+// GENERATED SIGNALLER END
+{{/dobject}}

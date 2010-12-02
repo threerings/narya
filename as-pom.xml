@@ -17,6 +17,10 @@
       <id>as3corelib-repo</id>
       <url>https://github.com/samskivert/as3corelib/raw/master/repository</url>
     </repository>
+    <repository>
+      <id>as3-signals-repo</id>
+      <url>https://github.com/groves/as3-signals/raw/master/repository</url>
+    </repository>
   </repositories>
 
   <dependencies>
@@ -32,6 +36,12 @@
       <artifactId>as3corelib</artifactId>
       <version>0.93</version>
       <scope>compile</scope>
+      <type>swc</type>
+    </dependency>
+    <dependency>
+      <groupId>org.osflash</groupId>
+      <artifactId>signals</artifactId>
+      <version>0.8</version>
       <type>swc</type>
     </dependency>
   </dependencies>
