@@ -355,6 +355,11 @@
       <remoteRepository url="${maven.deploy.repo}"/>
       <pom refid="pom"/>
     </artifact:deploy>
+    <artifact:pom id="tools-pom" file="tools-pom.xml"/>
+    <artifact:deploy file="${deploy.dir}/${ant.project.name}.jar" uniqueVersion="false">
+      <remoteRepository url="${maven.deploy.repo}"/>
+      <pom refid="tools-pom"/>
+    </artifact:deploy>
     <artifact:pom id="gwt-pom" file="gwt-pom.xml"/>
     <artifact:deploy file="${deploy.dir}/${ant.project.name}-gwt.jar" uniqueVersion="false">
       <remoteRepository url="${maven.deploy.repo}"/>
