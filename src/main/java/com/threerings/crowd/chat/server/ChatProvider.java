@@ -52,6 +52,8 @@ import com.threerings.crowd.server.BodyLocal;
 import com.threerings.crowd.server.BodyLocator;
 import com.threerings.crowd.server.PlaceRegistry;
 
+import static com.threerings.crowd.Log.log;
+
 /**
  * The chat provider handles the server side of the chat-related invocation services.
  */
@@ -132,11 +134,12 @@ public class ChatProvider
     public void tell (ClientObject caller, Name target, String message, TellListener listener)
         throws InvocationException
     {
+        BodyObject source = _locator.forClient(caller);
+
         // ensure that the caller has normal chat privileges
-        InvocationException.requireAccess(caller, ChatCodes.CHAT_ACCESS);
+        InvocationException.requireAccess(source, ChatCodes.CHAT_ACCESS);
 
         // deliver the tell message to the target
-        BodyObject source = _locator.forClient(caller);
         deliverTell(createTellMessage(source, message), target, listener);
 
         // inform the auto-responder if needed
@@ -152,9 +155,10 @@ public class ChatProvider
     public void broadcast (ClientObject caller, String message, InvocationListener listener)
         throws InvocationException
     {
-        // make sure the requesting user has broadcast privileges
-        InvocationException.requireAccess(caller, ChatCodes.BROADCAST_ACCESS);
         BodyObject body = _locator.forClient(caller);
+
+        // make sure the requesting user has broadcast privileges
+        InvocationException.requireAccess(body, ChatCodes.BROADCAST_ACCESS);
         broadcast(body.getVisibleName(), null, message, false, true);
     }
 
