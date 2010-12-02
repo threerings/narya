@@ -92,6 +92,8 @@ class Signaller
                 signal = _obj.{{name}}Changed;
                 break;
 {{/fields}}
+            default:
+                return;
         }
         signal.dispatch(event.getValue(), event.getOldValue());
     }
