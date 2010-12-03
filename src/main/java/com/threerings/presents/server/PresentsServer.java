@@ -129,8 +129,8 @@ public class PresentsServer
             // down)
             server.run();
 
-        } catch (Exception e) {
-            log.warning("Unable to initialize server.", e);
+        } catch (Throwable t) {
+            log.warning("Unable to initialize server.", t);
             System.exit(-1);
         }
     }
