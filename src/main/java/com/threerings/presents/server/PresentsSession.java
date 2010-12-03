@@ -874,7 +874,8 @@ public class PresentsSession
         // don't log dropped messages unless we're dropping a lot of them (meaning something is
         // still queueing messages up for this dead client even though it shouldn't be)
         if (++_messagesDropped % 50 == 0) {
-            log.warning("Dropping many messages?", "client", this, "count", _messagesDropped);
+            log.warning("Dropping many messages?", "client", this,
+                "count", _messagesDropped, "msg", msg);
         }
 
         // make darned sure we don't have any remaining subscriptions
