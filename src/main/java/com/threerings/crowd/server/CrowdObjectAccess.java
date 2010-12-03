@@ -71,6 +71,7 @@ public class CrowdObjectAccess
     @Singleton
     public static class BureauAccessController extends PlaceAccessController
     {
+        @Override
         public boolean allowSubscribe (DObject object, Subscriber<?> sub) {
             if (sub instanceof ProxySubscriber) {
                 ClientObject co = ((ProxySubscriber)sub).getClientObject();
@@ -80,6 +81,7 @@ public class CrowdObjectAccess
             }
             return super.allowSubscribe(object, sub);
         }
+        @Override
         public boolean allowDispatch (DObject object, DEvent event) {
             return super.allowDispatch(object, event);
         }
