@@ -129,6 +129,7 @@ public class GenActionScriptStreamableTask extends GenTask
         public final String writer;
         public final String dobjectField;
         public boolean dset;
+        public boolean array;
 
         public ASField (Field f, Set<String> imports)
         {
@@ -147,6 +148,7 @@ public class GenActionScriptStreamableTask extends GenTask
                 dset = true;
                 imports.add("com.threerings.presents.dobj.DSet_Entry"); // Used for signals
             }
+            array = f.getType().isArray();
             reader = ActionScriptUtils.toReadObject(f.getType());
             writer = ActionScriptUtils.toWriteObject(f.getType(), name);
         }

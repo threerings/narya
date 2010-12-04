@@ -28,6 +28,9 @@ public class {{classname}} {{^extends.isEmpty}}extends {{extends}}
     public var {{name}}Removed :Signal = new Signal(DSet_Entry);
     public var {{name}}Updated :Signal = new Signal(DSet_Entry, DSet_Entry);
 {{/dset}}
+{{#array}}
+    public var {{name}}Updated :Signal = new Signal(int, Object, Object);
+{{/array}}
 {{/fields}}
 
 {{#fields}}
@@ -76,6 +79,8 @@ import org.osflash.signals.Signal;
 
 import com.threerings.presents.dobj.AttributeChangedEvent;
 import com.threerings.presents.dobj.AttributeChangeListener;
+import com.threerings.presents.dobj.ElementUpdatedEvent;
+import com.threerings.presents.dobj.ElementUpdateListener;
 import com.threerings.presents.dobj.EntryAddedEvent;
 import com.threerings.presents.dobj.EntryRemovedEvent;
 import com.threerings.presents.dobj.EntryUpdatedEvent;
@@ -84,7 +89,7 @@ import com.threerings.presents.dobj.SetListener;
 import {{package}}.{{classname}};
 
 class Signaller
-    implements AttributeChangeListener, SetListener
+    implements AttributeChangeListener, SetListener, ElementUpdateListener
 {
     public function Signaller (obj :{{classname}})
     {
@@ -150,6 +155,21 @@ class Signaller
                 return;
         }
         signal.dispatch(event.getEntry(), event.getOldEntry());
+    }
+
+    public function elementUpdated (event :ElementUpdatedEvent) :void
+    {
+        var signal :Signal;
+        switch (event.getName()) {
+{{#fields}}{{#array}}
+            case "{{name}}":
+                signal = _obj.{{name}}Updated;
+                break;
+{{/array}}{{/fields}}
+            default:
+                return;
+        }
+        signal.dispatch(event.getIndex(), event.getValue(), event.getOldValue());
     }
 
     protected var _obj :{{classname}};
