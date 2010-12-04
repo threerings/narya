@@ -47,6 +47,7 @@ import com.threerings.io.Streamable;
 
 import com.threerings.presents.data.InvocationMarshaller;
 import com.threerings.presents.dobj.DObject;
+import com.threerings.presents.dobj.DSet;
 
 public class GenActionScriptStreamableTask extends GenTask
 {
@@ -95,6 +96,7 @@ public class GenActionScriptStreamableTask extends GenTask
         for (Field f : reqs.streamedFields) {
             fields.add(new ASField(f, imports));
         }
+
         String output = mergeTemplate("com/threerings/presents/tools/streamable_as.tmpl",
             "header", _header,
             "package", sclass.getPackage().getName(),
@@ -126,6 +128,7 @@ public class GenActionScriptStreamableTask extends GenTask
         public final String reader;
         public final String writer;
         public final String dobjectField;
+        public boolean dset;
 
         public ASField (Field f, Set<String> imports)
         {
@@ -140,6 +143,9 @@ public class GenActionScriptStreamableTask extends GenTask
                 imports.add("com.threerings.io.streamers.MapStreamer");
             } else if (Set.class.isAssignableFrom(f.getType())) {
                 imports.add("com.threerings.io.streamers.SetStreamer");
+            } else if (DSet.class.isAssignableFrom(f.getType())) {
+                dset = true;
+                imports.add("com.threerings.presents.dobj.DSet_Entry"); // Used for signals
             }
             reader = ActionScriptUtils.toReadObject(f.getType());
             writer = ActionScriptUtils.toWriteObject(f.getType(), name);

@@ -23,6 +23,11 @@ public class {{classname}} {{^extends.isEmpty}}extends {{extends}}
 {{#dobject}}
 {{#fields}}
     public var {{name}}Changed :Signal = new Signal({{simpleType}}, {{simpleType}});
+{{#dset}}
+    public var {{name}}Added :Signal = new Signal(DSet_Entry);
+    public var {{name}}Removed :Signal = new Signal(DSet_Entry);
+    public var {{name}}Updated :Signal = new Signal(DSet_Entry, DSet_Entry);
+{{/dset}}
 {{/fields}}
 
 {{#fields}}
@@ -71,11 +76,15 @@ import org.osflash.signals.Signal;
 
 import com.threerings.presents.dobj.AttributeChangedEvent;
 import com.threerings.presents.dobj.AttributeChangeListener;
+import com.threerings.presents.dobj.EntryAddedEvent;
+import com.threerings.presents.dobj.EntryRemovedEvent;
+import com.threerings.presents.dobj.EntryUpdatedEvent;
+import com.threerings.presents.dobj.SetListener;
 
 import {{package}}.{{classname}};
 
 class Signaller
-    implements AttributeChangeListener
+    implements AttributeChangeListener, SetListener
 {
     public function Signaller (obj :{{classname}})
     {
@@ -96,6 +105,51 @@ class Signaller
                 return;
         }
         signal.dispatch(event.getValue(), event.getOldValue());
+    }
+
+    public function entryAdded (event :EntryAddedEvent) :void
+    {
+        var signal :Signal;
+        switch (event.getName()) {
+{{#fields}}{{#dset}}
+            case "{{name}}":
+                signal = _obj.{{name}}Added;
+                break;
+{{/dset}}{{/fields}}
+            default:
+                return;
+        }
+        signal.dispatch(event.getEntry());
+    }
+
+    public function entryRemoved (event :EntryRemovedEvent) :void
+    {
+        var signal :Signal;
+        switch (event.getName()) {
+{{#fields}}{{#dset}}
+            case "{{name}}":
+                signal = _obj.{{name}}Removed;
+                break;
+{{/dset}}{{/fields}}
+            default:
+                return;
+        }
+        signal.dispatch(event.getOldEntry());
+    }
+
+    public function entryUpdated (event :EntryUpdatedEvent) :void
+    {
+        var signal :Signal;
+        switch (event.getName()) {
+{{#fields}}{{#dset}}
+            case "{{name}}":
+                signal = _obj.{{name}}Updated;
+                break;
+{{/dset}}{{/fields}}
+            default:
+                return;
+        }
+        signal.dispatch(event.getEntry(), event.getOldEntry());
     }
 
     protected var _obj :{{classname}};
