@@ -166,7 +166,7 @@ public class LocationManager
 
     /**
      * Forcibly moves the specified body object to the new place. This is accomplished by first
-     * removing the client from their old location and then sending the client a notification,
+     * removing the body from their old location and then sending the client a notification,
      * instructing it to move to the new location (which it does using the normal moveTo service).
      * This has the benefit that the client is removed from their old place regardless of whether
      * or not they are cooperating.  If they choose to ignore the forced move request, they will
@@ -177,8 +177,11 @@ public class LocationManager
         // first remove them from their old place
         leaveOccupiedPlace(source);
 
-        // then send a forced move notification
-        LocationSender.forcedMove(source, place.placeOid);
+        // then send a forced move notification to the body's client
+        ClientObject clobj = source.getClientObject();
+        if (clobj != null) {
+            LocationSender.forcedMove(clobj, place.placeOid);
+        }
     }
 
     @Inject protected RootDObjectManager _omgr;
