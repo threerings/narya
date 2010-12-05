@@ -91,7 +91,7 @@ public class BodyManager
 
         // determine the body's proposed new status
         byte nstatus = (idle) ? OccupantInfo.IDLE : OccupantInfo.ACTIVE;
-        if (bobj.status == nstatus) {
+        if (bobj == null || bobj.status == nstatus) {
             return; // ignore NOOP attempts
         }
 

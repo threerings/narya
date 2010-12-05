@@ -130,6 +130,16 @@ public class BodyObject extends ClientObject
         op.apply(getVisibleName());
     }
 
+    /**
+     * Return the {@link ClientObject} that represent our driving user's connection. This is
+     * the reverse operation of {@link BodyLocator#forClient} and should match it. The default
+     * implementation assumes the client object and the body object are one and the same.
+     */
+    public ClientObject getClientObject ()
+    {
+        return this;
+    }
+
     @Override
     public String who ()
     {

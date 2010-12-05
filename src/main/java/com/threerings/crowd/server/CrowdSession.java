@@ -42,7 +42,9 @@ public class CrowdSession extends PresentsSession
         if (_clobj != null) {
             // note that the user is disconnected
             BodyObject bobj = _locator.forClient(_clobj);
-            _bodyman.updateOccupantStatus(bobj, OccupantInfo.DISCONNECTED);
+            if (bobj != null) {
+                _bodyman.updateOccupantStatus(bobj, OccupantInfo.DISCONNECTED);
+            }
         }
     }
 
@@ -53,7 +55,9 @@ public class CrowdSession extends PresentsSession
 
         // note that the user's active once more
         BodyObject bobj = _locator.forClient(_clobj);
-        _bodyman.updateOccupantStatus(bobj, OccupantInfo.ACTIVE);
+        if (bobj != null) {
+            _bodyman.updateOccupantStatus(bobj, OccupantInfo.ACTIVE);
+        }
     }
 
     @Override
@@ -63,6 +67,11 @@ public class CrowdSession extends PresentsSession
 
         BodyObject body = _locator.forClient(_clobj);
 
+        // if we no longer have a body, there's nothing more to do
+        if (body == null) {
+            return;
+        }
+
         // clear out our location so that anyone listening will know that we've left
         clearLocation(body);
 
@@ -71,9 +80,7 @@ public class CrowdSession extends PresentsSession
         _bodyman.updateOccupantStatus(body, OccupantInfo.ACTIVE);
 
         // clear our chat history
-        if (body != null) {
-            SpeakUtil.clearHistory(body.getVisibleName());
-        }
+        SpeakUtil.clearHistory(body.getVisibleName());
     }
 
     /**

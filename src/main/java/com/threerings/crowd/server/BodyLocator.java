@@ -50,8 +50,10 @@ public class BodyLocator
     }
 
     /**
-     * Returns the body object to be used for the given client. The default implementation
-     * assumes they are one and the same.
+     * Returns the body object to be used for the given client. This is the reverse operation of
+     * {@link BodyObject#getClientObject} and the two should match. The default implementation
+     * assumes they are one and the same. This method should return null if the client is not
+     * currently controlling a body.
      */
     @EventThread
     public BodyObject forClient (ClientObject client)
