@@ -178,10 +178,7 @@ public class LocationManager
         leaveOccupiedPlace(source);
 
         // then send a forced move notification to the body's client
-        ClientObject clobj = source.getClientObject();
-        if (clobj != null) {
-            LocationSender.forcedMove(clobj, place.placeOid);
-        }
+        LocationSender.forcedMove(source.getClientObject(), place.placeOid);
     }
 
     @Inject protected RootDObjectManager _omgr;

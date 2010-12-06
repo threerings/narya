@@ -134,6 +134,8 @@ public class BodyObject extends ClientObject
      * Return the {@link ClientObject} that represent our driving user's connection. This is
      * the reverse operation of {@link BodyLocator#forClient} and should match it. The default
      * implementation assumes the client object and the body object are one and the same.
+     *
+     * Do not return null here once this object is in the wild.
      */
     public ClientObject getClientObject ()
     {
