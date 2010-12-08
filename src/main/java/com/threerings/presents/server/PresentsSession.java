@@ -970,9 +970,15 @@ public class PresentsSession
             if (postMessage(new ObjectResponse<DObject>(dobj))) {
                 _firstEventId = _omgr.getNextEventId(false);
                 object = dobj;
+                ClientProxy orec;
                 synchronized (_subscrips) {
                     // make a note of this new subscription
-                    _subscrips.put(dobj.getOid(), this);
+                    orec = _subscrips.put(dobj.getOid(), this);
+                }
+                if (orec != null) {
+                    log.warning("Replacing existing subscription.", "oid", dobj.getOid(),
+                        "client", PresentsSession.this);
+                    orec.unsubscribe();
                 }
                 subscribedToObject(dobj);
 
