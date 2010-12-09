@@ -20,10 +20,8 @@
          dest="${maven-ant.jar}" usetimestamp="true"/>
   </target>
 
-  <target name="-init-maven-ant" depends="-download-maven-ant"
-      unless="Maven was initted as the dependency of another task in Ant's sorry excuse for a dependency system">
-    <property name="Maven was initted as the dependency of another task in Ant's sorry excuse for a dependency system"
-        value="true"/>
+  <target name="-init-maven-ant" depends="-download-maven-ant" unless="have.maven">
+    <property name="have.maven" value="true"/>
     <taskdef resource="org/apache/maven/artifact/ant/antlib.xml"
              uri="urn:maven-artifact-ant" classpath="${maven-ant.jar}"/>
     <artifact:pom id="pom" file="pom.xml"/>
