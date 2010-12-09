@@ -29,6 +29,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.io.Reader;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -42,6 +43,7 @@ import org.apache.tools.ant.types.FileSet;
 import org.apache.tools.ant.types.Reference;
 import org.apache.tools.ant.util.ClasspathUtils;
 
+import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
@@ -142,7 +144,7 @@ public abstract class GenTask extends Task
     {
         File dest = new File(outputPath);
         if (dest.exists()) {
-            if (Files.toString(dest, UTF_8).equals(output)) {
+            if (wouldProduceSameFile(output, dest)) {
                 log("Skipping '" + outputPath + "' as it hasn't changed", Project.MSG_VERBOSE);
                 return;
             }
@@ -157,6 +159,31 @@ public abstract class GenTask extends Task
         log("Writing file " + outputPath, Project.MSG_VERBOSE);
 
         new PrintWriter(dest, "UTF-8").append(output).close();
+    }
+
+    /**
+     * Returns true if the given string has the same content as the file, sans svn prop lines.
+     */
+    protected boolean wouldProduceSameFile (String generated, File existing)
+        throws IOException
+    {
+        Iterator<String> generatedLines = Splitter.on('\n').split(generated).iterator();
+        for (String prev : Files.readLines(existing, UTF_8)) {
+            if (!generatedLines.hasNext()) {
+                return false;
+            }
+            String cur = generatedLines.next();
+            if (!prev.equals(cur) && !(prev.startsWith("// $Id") && cur.startsWith("// $Id"))) {
+                return false;
+            }
+        }
+
+        // If the generated output ends with a newline, it'll have one more next from the splitter
+        // that reading the file doesn't produce.
+        if (generatedLines.hasNext()) {
+            return generatedLines.next().equals("") && !generatedLines.hasNext();
+        }
+        return true;
     }
 
     /**
