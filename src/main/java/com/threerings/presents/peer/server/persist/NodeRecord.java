@@ -105,10 +105,10 @@ public class NodeRecord extends PersistentRecord
      */
     public static Key<NodeRecord> getKey (String nodeName)
     {
-        return new Key<NodeRecord>(
-                NodeRecord.class,
-                new ColumnExp[] { NODE_NAME },
-                new Comparable[] { nodeName });
+        return newKey(_R, nodeName);
     }
+
+    /** Register the key fields in an order matching the getKey() factory. */
+    static { registerKeyFields(NODE_NAME); }
     // AUTO-GENERATED: METHODS END
 }

@@ -83,10 +83,10 @@ public class ConfigRecord extends PersistentRecord
      */
     public static Key<ConfigRecord> getKey (String node, String object, String field)
     {
-        return new Key<ConfigRecord>(
-                ConfigRecord.class,
-                new ColumnExp[] { NODE, OBJECT, FIELD },
-                new Comparable[] { node, object, field });
+        return newKey(_R, node, object, field);
     }
+
+    /** Register the key fields in an order matching the getKey() factory. */
+    static { registerKeyFields(NODE, OBJECT, FIELD); }
     // AUTO-GENERATED: METHODS END
 }
