@@ -39,8 +39,8 @@ import com.threerings.presents.server.InvocationException;
 import com.threerings.presents.server.InvocationManager;
 import com.threerings.presents.server.InvocationProvider;
 
-import com.threerings.crowd.chat.client.ChatService.TellListener;
 import com.threerings.crowd.chat.client.ChatService;
+import com.threerings.crowd.chat.client.ChatService.TellListener;
 import com.threerings.crowd.chat.data.ChatCodes;
 import com.threerings.crowd.chat.data.SystemMessage;
 import com.threerings.crowd.chat.data.UserMessage;
@@ -51,8 +51,6 @@ import com.threerings.crowd.data.PlaceObject;
 import com.threerings.crowd.server.BodyLocal;
 import com.threerings.crowd.server.BodyLocator;
 import com.threerings.crowd.server.PlaceRegistry;
-
-import static com.threerings.crowd.Log.log;
 
 /**
  * The chat provider handles the server side of the chat-related invocation services.
