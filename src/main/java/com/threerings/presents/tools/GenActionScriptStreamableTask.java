@@ -34,7 +34,6 @@ import org.apache.tools.ant.Project;
 
 import com.google.common.base.Charsets;
 import com.google.common.base.Joiner;
-import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.google.common.io.Files;
@@ -113,12 +112,8 @@ public class GenActionScriptStreamableTask extends GenTask
             // Merge in the previously generated version
             String existing = Files.toString(outputLocation, Charsets.UTF_8);
             output = new GeneratedSourceMerger().merge(output, existing);
-        } else if (!outputLocation.getParentFile().exists()) {
-            // Make sure the directory exists before trying to write there
-            Preconditions.checkArgument(outputLocation.getParentFile().mkdirs(),
-                "Unable to create directory to write '%s'", outputLocation.getAbsolutePath());
         }
-        Files.write(output, outputLocation, Charsets.UTF_8);
+        writeFile(outputLocation.getAbsolutePath(), output);
     }
 
     protected static class ASField

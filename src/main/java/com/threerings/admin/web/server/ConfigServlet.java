@@ -91,7 +91,7 @@ public abstract class ConfigServlet extends RemoteServiceServlet
     public ConfigurationRecord updateConfiguration (final String key, final ConfigField[] updates)
         throws ServiceException
     {
-		requireAdminUser();
+        requireAdminUser();
 
         final ServletWaiter<ConfigurationRecord> waiter =
             new ServletWaiter<ConfigurationRecord>("updateConfiguration");
@@ -156,11 +156,11 @@ public abstract class ConfigServlet extends RemoteServiceServlet
      * Implemented on a project by project basis to provide a security fence for configuration
      * editing powers.
      */
-	protected abstract void requireAdminUser ()
-		throws ServiceException;
+    protected abstract void requireAdminUser ()
+        throws ServiceException;
 
     @Inject protected ConfigRegistry _confReg;
-	@Inject protected RootDObjectManager _omgr;
+    @Inject protected RootDObjectManager _omgr;
 
     protected static Map<Class<?>, FieldType> TYPES = ImmutableMap.<Class<?>, FieldType>builder()
         .put(Integer.class, FieldType.INTEGER)

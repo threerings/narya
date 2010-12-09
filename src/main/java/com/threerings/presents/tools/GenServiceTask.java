@@ -181,6 +181,14 @@ public class GenServiceTask extends InvocationTask
     }
 
     /**
+     * Configures to output extra information when generating code.
+     */
+    public void setVerbose (boolean verbose)
+    {
+        _verbose = verbose;
+    }
+
+    /**
      * Configures the path to our ActionScript source files.
      */
     public void setAsroot (File asroot)
@@ -280,7 +288,7 @@ public class GenServiceTask extends InvocationTask
         String mpath = source.getPath();
         mpath = mpath.replace("Service", "Marshaller");
         mpath = replacePath(mpath, "/client/", "/data/");
-        writeFile(mpath, mergeTemplate(MARSHALLER_TMPL, ctx));
+        writeTemplate(MARSHALLER_TMPL, mpath, ctx);
 
         // if we're not configured with an ActionScript source root, don't generate the
         // ActionScript versions
@@ -350,7 +358,7 @@ public class GenServiceTask extends InvocationTask
 
         // generate an ActionScript version of our marshaller
         String ampath = _asroot + File.separator + mppath + File.separator + mname + ".as";
-        writeFile(ampath, mergeTemplate(AS_MARSHALLER_TMPL, ctx));
+        writeTemplate(AS_MARSHALLER_TMPL, ampath, ctx);
 
         // ----------- Part III - as listener marshallers
 
@@ -387,7 +395,7 @@ public class GenServiceTask extends InvocationTask
             ctx.put("listener", listener);
             String aslpath = _asroot + File.separator + mppath +
                 File.separator + mname + "_" + listener.getListenerName() + "Marshaller.as";
-            writeFile(aslpath, mergeTemplate(AS_LISTENER_MARSHALLER_TMPL, ctx));
+            writeTemplate(AS_LISTENER_MARSHALLER_TMPL, aslpath, ctx);
         }
 
         // ----------- Part IV - as service
@@ -434,7 +442,7 @@ public class GenServiceTask extends InvocationTask
 
         // generate an ActionScript version of our service
         String aspath = _asroot + File.separator + sppath + File.separator + sname + ".as";
-        writeFile(aspath, mergeTemplate(AS_SERVICE_TMPL, ctx));
+        writeTemplate(AS_SERVICE_TMPL, aspath, ctx);
 
         // ----------- Part V - as service listeners
         Class<?> isil = InvocationService.InvocationListener.class;
@@ -471,12 +479,12 @@ public class GenServiceTask extends InvocationTask
 
             String aslpath = _asroot + File.separator + sppath + File.separator +
                 sname + "_" + listener.getListenerName() + "Listener.as";
-            writeFile(aslpath, mergeTemplate(AS_LISTENER_SERVICE_TMPL, ctx));
+            writeTemplate(AS_LISTENER_SERVICE_TMPL, aslpath, ctx);
 
             if (_aslistenerAdapters.contains(sname)) {
                 String aslapath = _asroot + File.separator + sppath + File.separator +
                     sname + "_" + listener.getListenerName() + "ListenerAdapter.as";
-                writeFile(aslapath, mergeTemplate(AS_LISTENER_ADAPTER_SERVICE_TMPL, ctx));
+                writeTemplate(AS_LISTENER_ADAPTER_SERVICE_TMPL, aslapath, ctx);
             }
         }
     }
@@ -531,12 +539,12 @@ public class GenServiceTask extends InvocationTask
         String mpath = source.getPath();
         mpath = mpath.replace("Service", "Dispatcher");
         mpath = replacePath(mpath, "/client/", "/server/");
-        writeFile(mpath, mergeTemplate(DISPATCHER_TMPL,
-                                       "name", name,
-                                       "generated", getGeneratedAnnotation(name),
-                                       "package", dpackage,
-                                       "methods", sdesc.methods,
-                                       "imports", imports.toList()));
+        writeTemplate(DISPATCHER_TMPL, mpath,
+            "name", name,
+            "generated", getGeneratedAnnotation(name),
+            "package", dpackage,
+            "methods", sdesc.methods,
+            "imports", imports.toList());
     }
 
     protected void generateProvider (File source, ServiceDescription sdesc)
@@ -584,13 +592,13 @@ public class GenServiceTask extends InvocationTask
         String mpath = source.getPath();
         mpath = mpath.replace("Service", "Provider");
         mpath = replacePath(mpath, "/client/", "/server/");
-        writeFile(mpath, mergeTemplate(PROVIDER_TMPL,
-                                       "name", name,
-                                       "generated", getGeneratedAnnotation(name),
-                                       "package", mpackage,
-                                       "methods", sdesc.methods,
-                                       "listeners", sdesc.listeners,
-                                       "imports", imports.toList()));
+        writeTemplate(PROVIDER_TMPL, mpath,
+            "name", name,
+            "generated", getGeneratedAnnotation(name),
+            "package", mpackage,
+            "methods", sdesc.methods,
+            "listeners", sdesc.listeners,
+            "imports", imports.toList());
     }
 
     /**
@@ -676,6 +684,9 @@ public class GenServiceTask extends InvocationTask
             return allimports;
         }
     }
+
+    /** Show extra output if set. */
+    protected boolean _verbose;
 
     /** The path to our ActionScript source files. */
     protected File _asroot;

@@ -21,11 +21,10 @@
 
 package com.threerings.crowd.server;
 
-import com.threerings.presents.data.ClientObject;
-import com.threerings.presents.server.InvocationSender;
-
 import com.threerings.crowd.client.LocationDecoder;
 import com.threerings.crowd.client.LocationReceiver;
+import com.threerings.presents.data.ClientObject;
+import com.threerings.presents.server.InvocationSender;
 
 /**
  * Used to issue notifications to a {@link LocationReceiver} instance on a

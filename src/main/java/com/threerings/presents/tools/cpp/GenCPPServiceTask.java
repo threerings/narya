@@ -15,7 +15,6 @@ import com.threerings.presents.tools.GenServiceTask;
 
 import static com.threerings.presents.tools.cpp.CPPUtil.makeNamespaces;
 import static com.threerings.presents.tools.cpp.CPPUtil.makePath;
-import static com.threerings.presents.tools.cpp.CPPUtil.writeTemplate;
 
 public class GenCPPServiceTask extends GenServiceTask
 {
@@ -58,9 +57,9 @@ public class GenCPPServiceTask extends GenServiceTask
             }
         }
         ctx.put("includes", implIncludes);
-        writeTemplate(CPP_TMPL, _cpproot, makePath(namespaces, name, ".cpp"), ctx);
+        writeTemplate(CPP_TMPL, makePath(_cpproot, namespaces, name, ".cpp"), ctx);
         ctx.put("includes", includes);
-        writeTemplate(HEADER_TMPL, _cpproot, makePath(namespaces, name, ".h"), ctx);
+        writeTemplate(HEADER_TMPL, makePath(_cpproot, namespaces, name, ".h"), ctx);
         super.generateMarshaller(source, sdesc);
     }
 

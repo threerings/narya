@@ -21,27 +21,34 @@
 
 package com.threerings.presents.tools;
 
-import java.util.List;
-import java.util.Map;
+import static com.google.common.base.Charsets.UTF_8;
 
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.PrintWriter;
+import java.io.Reader;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import org.apache.tools.ant.AntClassLoader;
 import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.DirectoryScanner;
+import org.apache.tools.ant.Project;
 import org.apache.tools.ant.Task;
 import org.apache.tools.ant.types.FileSet;
 import org.apache.tools.ant.types.Reference;
 import org.apache.tools.ant.util.ClasspathUtils;
 
-import com.google.common.collect.Maps;
 import com.google.common.collect.Lists;
-
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
+import com.google.common.io.Files;
 import com.samskivert.io.StreamUtil;
 import com.samskivert.mustache.Mustache;
+
 
 public abstract class GenTask extends Task
 {
@@ -51,14 +58,6 @@ public abstract class GenTask extends Task
     public void addFileset (FileSet set)
     {
         _filesets.add(set);
-    }
-
-    /**
-     * Configures to output extra information when generating code.
-     */
-    public void setVerbose (boolean verbose)
-    {
-        _verbose = verbose;
     }
 
     /**
@@ -87,11 +86,23 @@ public abstract class GenTask extends Task
     }
 
     /**
+     * Fails the build if generation would change files rather than generating
+     * code.
+     */
+    public void setChecking (boolean checking)
+    {
+        _checking = checking;
+    }
+
+    /**
      * Performs the actual work of the task.
      */
     @Override
     public void execute ()
     {
+        if (_checking) {
+            log("Only checking if generation would change files", Project.MSG_VERBOSE);
+        }
         for (FileSet fs : _filesets) {
             DirectoryScanner ds = fs.getDirectoryScanner(getProject());
             File fromDir = fs.getDir(getProject());
@@ -105,6 +116,47 @@ public abstract class GenTask extends Task
                 }
             }
         }
+        if (_checking && !_modifiedPaths.isEmpty()) {
+            throw new BuildException("Generation would produce changes!");
+        }
+
+    }
+
+    protected void writeTemplate (String templatePath, String outputPath, Object... data)
+        throws IOException
+    {
+        writeTemplate(templatePath, outputPath, createMap(data));
+    }
+
+    protected void writeTemplate (String templatePath, String outputPath, Map<String, Object> data)
+        throws IOException
+    {
+        String output = mergeTemplate(templatePath, data);
+        if (_header != null) {
+            output = _header + output;
+        }
+        writeFile(outputPath, output);
+    }
+
+    protected void writeFile (String outputPath, String output) throws IOException
+    {
+        File dest = new File(outputPath);
+        if (dest.exists()) {
+            if (Files.toString(dest, UTF_8).equals(output)) {
+                log("Skipping '" + outputPath + "' as it hasn't changed", Project.MSG_VERBOSE);
+                return;
+            }
+        } else if (!dest.getParentFile().exists() && !dest.getParentFile().mkdirs()) {
+            throw new BuildException("Unable to create directory for '" + dest.getAbsolutePath() + "'");
+        }
+        _modifiedPaths.add(outputPath);
+        if (_checking) {
+            log("Generating '" + outputPath + "' would have produced changes!", Project.MSG_ERR);
+            return;
+        }
+        log("Writing file " + outputPath, Project.MSG_VERBOSE);
+
+        new PrintWriter(dest, "UTF-8").append(output).close();
     }
 
     /**
@@ -114,13 +166,9 @@ public abstract class GenTask extends Task
      * be any object.
      */
     protected String mergeTemplate (String template, Object... data)
-        throws Exception
+        throws IOException
     {
-        Map<String, Object> ctx = Maps.newHashMap();
-        for (int ii = 0; ii < data.length; ii += 2) {
-            ctx.put((String)data[ii], data[ii+1]);
-        }
-        return mergeTemplate(template, ctx);
+        return mergeTemplate(template, createMap(data));
     }
 
     /**
@@ -129,10 +177,20 @@ public abstract class GenTask extends Task
      * @return a string containing the merged text.
      */
     protected String mergeTemplate (String template, Map<String, Object> data)
-        throws Exception
+        throws IOException
     {
-        return Mustache.compiler().escapeHTML(false).compile(new InputStreamReader(
-            getClass().getClassLoader().getResourceAsStream(template), "UTF-8")).execute(data);
+        Reader reader =
+            new InputStreamReader(getClass().getClassLoader().getResourceAsStream(template), UTF_8);
+        return Mustache.compiler().escapeHTML(false).compile(reader).execute(data);
+    }
+
+    protected Map<String, Object> createMap (Object... data)
+    {
+        Map<String, Object> ctx = Maps.newHashMap();
+        for (int ii = 0; ii < data.length; ii += 2) {
+            ctx.put((String)data[ii], data[ii+1]);
+        }
+        return ctx;
     }
 
     /**
@@ -172,12 +230,12 @@ public abstract class GenTask extends Task
     /** A list of filesets that contain java source to be processed. */
     protected List<FileSet> _filesets = Lists.newArrayList();
 
-    /** Show extra output if set. */
-    protected boolean _verbose;
-
     /** Used to do our own classpath business. */
     protected ClassLoader _cloader;
 
     /** A header to put on all generated source files. */
     protected String _header;
+
+    protected boolean _checking;
+    protected Set<String> _modifiedPaths = Sets.newHashSet();
 }

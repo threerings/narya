@@ -28,7 +28,6 @@ import java.io.File;
 import java.io.IOException;
 
 import org.apache.tools.ant.DirectoryScanner;
-import org.apache.tools.ant.Task;
 import org.apache.tools.ant.types.FileSet;
 
 import com.google.common.collect.Lists;
@@ -42,13 +41,14 @@ import com.threerings.presents.dobj.DObject;
  * Streamable} classes that have protected or private members so that they can be used in a
  * sandboxed environment.
  */
-public class GenStreamableTask extends Task
+public class GenStreamableTask extends GenTask
 {
     /**
-     * Adds a nested &lt;fileset&gt; element which enumerates streamable source files.
+     * Adds a nested &lt;fileset&gt; element which enumerates streamable source
+     * files.
      */
-    public void addFileset (FileSet set)
-    {
+    @Override
+    public void addFileset(FileSet set) {
         _filesets.add(set);
     }
 
@@ -98,6 +98,7 @@ public class GenStreamableTask extends Task
     /**
      * Processes a resolved {@link Streamable} class instance.
      */
+    @Override
     protected void processClass (File source, Class<?> sclass)
         throws IOException
     {
@@ -156,11 +157,7 @@ public class GenStreamableTask extends Task
 
         System.err.println("Converting " + sclass.getName() + "...");
 
-        try {
-            sfile.writeTo(source, null, methods.toString());
-        } catch (IOException ioe) {
-            System.err.println("Error writing " + source + ": " + ioe);
-        }
+        writeFile(source.getAbsolutePath(), sfile.generate(null, methods.toString()));
     }
 
     protected String toReadObject (Field field)

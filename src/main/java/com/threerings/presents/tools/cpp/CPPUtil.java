@@ -6,19 +6,10 @@ import java.lang.reflect.TypeVariable;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
-import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-
-import com.google.common.base.Charsets;
 import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
-import com.google.common.io.Resources;
-import com.samskivert.mustache.Mustache;
-
 import com.threerings.presents.dobj.DSet;
 
 public class CPPUtil
@@ -70,19 +61,6 @@ public class CPPUtil
         }
     }
 
-    public static void writeTemplate (String tmplPath, File root, String path,
-        Map<String, Object> ctx)
-        throws IOException
-    {
-        String tmpl =
-            Resources.toString(Resources.getResource(tmplPath), Charsets.UTF_8);
-        File file = new File(root, path);
-        file.getParentFile().mkdirs();
-        BufferedWriter out = new BufferedWriter(new FileWriter(file));
-        Mustache.compiler().escapeHTML(false).compile(tmpl).execute(ctx, out);
-        out.close();
-    }
-
     public static String makeCPPName (Class<?> sclass)
     {
         return makeCPPName(makeNamespaces(sclass), sclass.getSimpleName());
@@ -101,6 +79,17 @@ public class CPPUtil
     public static String makePath (List<String> namespaces, String className, String ext)
     {
         return Joiner.on(File.separator).join(namespaces) + File.separator + className+ ext;
+    }
+
+    public static String makePath (File root, Class<?> klass, String ext)
+    {
+        return new File(root, makePath(klass, ext)).getAbsolutePath();
+    }
+
+
+    public static String makePath (File root, List<String> namespaces, String className, String ext)
+    {
+        return new File(root, makePath(namespaces, className, ext)).getAbsolutePath();
     }
 
     public static List<String> makeNamespaces (String pack)

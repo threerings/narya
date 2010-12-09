@@ -134,10 +134,10 @@ public class GenCPPStreamableTask extends GenTask
 
         // now write all that out to the target source file
         ctx.put("includes", headerIncludes);
-        CPPUtil.writeTemplate(HEADER_TMPL, _cpproot, makePath(sclass, ".h"), ctx);
+        writeTemplate(HEADER_TMPL, makePath(_cpproot, sclass, ".h"), ctx);
 
         ctx.put("includes", implIncludes);
-        CPPUtil.writeTemplate(CPP_TMPL, _cpproot, makePath(sclass, ".cpp"), ctx);
+        writeTemplate(CPP_TMPL, makePath(_cpproot, sclass, ".cpp"), ctx);
     }
 
     protected static void addInclude (Class<?> ftype, Set<String> includes)

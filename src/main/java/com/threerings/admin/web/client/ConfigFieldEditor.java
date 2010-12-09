@@ -120,7 +120,7 @@ public abstract class ConfigFieldEditor
             resetField();
 
             _box.addValueChangeHandler(new ValueChangeHandler<Boolean>() {
-				public void onValueChange (ValueChangeEvent<Boolean> changeEvent) {
+                public void onValueChange (ValueChangeEvent<Boolean> changeEvent) {
                     updateModificationState();
                 }
             });
@@ -152,11 +152,11 @@ public abstract class ConfigFieldEditor
         _value = buildWidget(field);
 
         _name = new Label(field.name);
-		_name.setStyleName("fieldName");
+        _name.setStyleName("fieldName");
 
         _reset = new Label("X");
-		_reset.setStyleName("resetButton");
-		_reset.addClickHandler(new ClickHandler() {
+        _reset.setStyleName("resetButton");
+        _reset.addClickHandler(new ClickHandler() {
             public void onClick (ClickEvent event) {
                 resetField();
                 updateModificationState();
@@ -203,5 +203,5 @@ public abstract class ConfigFieldEditor
     protected Command _onChange;
 
     protected Label _name, _reset;
-	protected Widget _value;
+    protected Widget _value;
 }

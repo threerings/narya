@@ -31,10 +31,6 @@ import java.util.Arrays;
 import java.util.List;
 
 import java.io.File;
-import java.io.IOException;
-import java.io.PrintWriter;
-
-import org.apache.tools.ant.BuildException;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
@@ -393,22 +389,6 @@ public abstract class InvocationTask extends GenTask
         _ilistener = loadClass(InvocationListener.class.getName());
 
         super.execute();
-    }
-
-    protected void writeFile (String path, String data)
-        throws IOException
-    {
-        if (_verbose) {
-            System.out.println("Writing file " + path);
-        }
-        if (_header != null) {
-            data = _header + data;
-        }
-        File dest = new File(path);
-        if (!dest.getParentFile().exists() && !dest.getParentFile().mkdirs()) {
-            throw new BuildException("Unable to create directory for " + dest.getAbsolutePath());
-        }
-        new PrintWriter(dest, "UTF-8").append(data).close();
     }
 
     protected static <T> void checkedAdd (List<T> list, T value)

@@ -1,5 +1,7 @@
 package com.threerings.presents.tools.cpp;
 
+import static com.threerings.presents.tools.cpp.CPPUtil.makePath;
+
 import java.lang.reflect.Type;
 
 import java.util.Iterator;
@@ -39,8 +41,7 @@ public class GenCPPReceiverTask extends GenReceiverTask
         ctx.put("receiverCode", rcode);
         ctx.put("argbuilder", new CPPArgBuilder(false));
 
-        CPPUtil.writeTemplate(DECODER_HEADER_TMPL, _cpproot,
-            CPPUtil.makePath(namespaces, dname, ".h"), ctx);
+        writeTemplate(DECODER_HEADER_TMPL, makePath(_cpproot, namespaces, dname, ".h"), ctx);
 
         Set<String> receiverHeaderIncludes = Sets.newTreeSet();
         Set<String> decoderImplIncludes = Sets.newTreeSet();
@@ -60,13 +61,9 @@ public class GenCPPReceiverTask extends GenReceiverTask
         }
 
         ctx.put("includes", decoderImplIncludes);
-        CPPUtil.writeTemplate(DECODER_CPP_TMPL, _cpproot,
-            CPPUtil.makePath(namespaces, dname, ".cpp"), ctx);
-
-
+        writeTemplate(DECODER_CPP_TMPL, makePath(_cpproot, namespaces, dname, ".cpp"), ctx);
         ctx.put("includes", receiverHeaderIncludes);
-        CPPUtil.writeTemplate(RECEIVER_HEADER_TMPL, _cpproot,
-            CPPUtil.makePath(namespaces, rname, ".h"), ctx);
+        writeTemplate(RECEIVER_HEADER_TMPL, makePath(_cpproot, namespaces, rname, ".h"), ctx);
 
         super.generateDecoder(receiver, source, rname, rpackage, methods, imports, rcode);
     }

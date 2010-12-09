@@ -27,8 +27,8 @@ import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
+import java.io.StringWriter;
 
 import com.google.common.collect.Lists;
 
@@ -129,11 +129,11 @@ public class SourceFile
      * @param fsection the new "generated fields" to write to the file, or null.
      * @param msection the new "generated methods" to write to the file, or null.
      */
-    public void writeTo (File dest, String fsection, String msection)
+    public String generate (String fsection, String msection)
         throws IOException
     {
-        BufferedWriter bout = new BufferedWriter(new FileWriter(dest));
-
+        StringWriter writer = new StringWriter();
+        BufferedWriter bout = new BufferedWriter(writer);
         addOrRemoveGeneratedImport(StringUtil.deNull(fsection).contains("@Generated(") ||
             StringUtil.deNull(msection).contains("@Generated("));
 
@@ -180,6 +180,7 @@ public class SourceFile
             writeln(bout, _lines.get(ii));
         }
         bout.close();
+        return writer.toString();
     }
 
     /** Helper function for sanity checking marker existence. */

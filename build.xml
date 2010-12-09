@@ -47,6 +47,8 @@
   </target>
 
   <target name="-preptools" depends="-prepare">
+    <!-- Turn off generation checking if enablegencheck hasn't already set this property -->
+    <property name="gencheck" value="false"/>
     <javac srcdir="${src.dir}" destdir="${classes.dir}" includeAntRuntime="false"
            debug="on" optimize="${build.optimize}" deprecation="on"
            source="1.5" target="1.5" classpathref="compile.classpath">
@@ -214,6 +216,15 @@
     </grecord>
   </target>
 
+  <target name="enablegencheck"
+      description="Makes the code generators fail the build if they would produce new code">
+      <property name="gencheck" value="true"/>
+  </target>
+  <target name="gencheck" depends="enablegencheck,gencode"
+      description="Fails the build if any new code would be generated"/>
+  <target name="gencode" depends="gendobj,genservice,genreceiver,genstream"
+      description="Runs all code generators"/>
+
   <target name="gendobj" depends="-preptools"
           description="Generates additional methods for distributed object classes">
     <!-- make sure the dobject class files are all compiled -->
@@ -223,7 +234,7 @@
       <include name="**/*Object.java"/>
     </javac>
     <!-- now generate the associated files -->
-    <gendobj classpathref="built.classpath">
+    <gendobj classpathref="built.classpath" checking="${gencheck}">
       <fileset dir="${src.dir}" includes="**/*Object.java"/>
     </gendobj>
   </target>
@@ -238,7 +249,8 @@
       <exclude name="**/InvocationService.java"/>
     </javac>
     <!-- generate services with an actionscript counterpart-->
-    <genservice header="lib/SOURCE_HEADER" asroot="${asrc.dir}" classpathref="built.classpath">
+    <genservice header="lib/SOURCE_HEADER" asroot="${asrc.dir}" classpathref="built.classpath"
+        checking="${gencheck}">
       <fileset dir="${src.dir}" includes="**/*Service.java">
         <exclude name="**/RegistrationService.java"/>
         <exclude name="**/InvocationService.java"/>
@@ -250,8 +262,7 @@
       <providerless service="TimeBaseService"/>
     </genservice>
     <!-- generate java-only services -->
-    <genservice header="lib/SOURCE_HEADER" classpathref="built.classpath">
-      <fileset dir="${src.dir}" includes="**/RegistrationService.java"/>
+    <genservice header="lib/SOURCE_HEADER" classpathref="built.classpath" checking="${gencheck}">
       <fileset dir="${src.dir}" includes="**/peer/**/*Service.java"/>
       <fileset dir="${src.dir}" includes="**/admin/**/*Service.java"
           excludes="**/gwt/ConfigService.java"/>
@@ -271,17 +282,16 @@
       <exclude name="**/InvocationReceiver.java"/>
     </javac>
     <!-- now generate the associated files -->
-    <genreceiver header="lib/SOURCE_HEADER" classpathref="built.classpath">
+    <genreceiver header="lib/SOURCE_HEADER" classpathref="built.classpath" checking="${gencheck}">
       <fileset dir="${src.dir}" includes="**/*Receiver.java"
-        excludes="**/InvocationReceiver.java"/>
+        excludes="**/InvocationReceiver.java,**/SignalReceiver.java"/>
     </genreceiver>
   </target>
 
   <target name="genstream" depends="-preptools" description="Generates C++ streamable classes.">
-    <gencppstreamable classpathref="built.classpath" cpproot="src/cpp">
+    <gencppstreamable classpathref="built.classpath" cpproot="src/cpp" checking="${gencheck}">
       <generate class="com.threerings.presents.client.InvocationReceiver$Registration"/>
       <generate class="com.threerings.presents.data.ClientObject"/>
-      <generate class="com.threerings.presents.data.PermissionPolicy"/>
       <generate class="com.threerings.presents.dobj.DEvent"/>
       <generate class="com.threerings.presents.dobj.DObject"/>
       <generate class="com.threerings.presents.dobj.EntryAddedEvent"/>
@@ -320,13 +330,6 @@
     </instream>
   </target>
 
-  <target name="genascript" depends="-preptools"
-          description="Generates ActionScript versions of our Streamable classes">
-    <genascript header="lib/SOURCE_HEADER" asroot="${asrc.dir}">
-      <fileset dir="${src.dir}" includes="**/data/*.java"/>
-    </genascript>
-  </target>
-
   <target name="snapshot" description="Creates a zipfile with our source distribution">
      <delete file="${deploy.dir}/${ant.project.name}-snapshot.zip"/>
      <mkdir dir="${deploy.dir}/snapshot/${ant.project.name}"/>
@@ -349,7 +352,7 @@
   </target>
 
   <property name="maven.deploy.repo" value="file://${user.home}/.m2/repository"/>
-  <target name="maven-deploy" depends="dist,tests" 
+  <target name="maven-deploy" depends="dist,tests"
           description="Deploys our build artifacts to a Maven repository.">
     <artifact:deploy file="${deploy.dir}/${ant.project.name}.jar" uniqueVersion="false">
       <remoteRepository url="${maven.deploy.repo}"/>

@@ -21,20 +21,17 @@
 
 package com.threerings.presents.tools;
 
+import java.io.File;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-import java.io.File;
 import com.google.common.collect.Lists;
-
 import com.samskivert.util.StringUtil;
-
 import com.threerings.presents.annotation.TransportHint;
 import com.threerings.presents.dobj.DObject;
 import com.threerings.presents.dobj.DSet;
@@ -165,7 +162,7 @@ public class GenDObjectTask extends GenTask
         }
 
         // now bolt everything back together into a class declaration
-        sfile.writeTo(source, fsection.toString(), msection.toString());
+        writeFile(source.getAbsolutePath(), sfile.generate(fsection.toString(), msection.toString()));
     }
 
     /** {@link DObject} resolved with the proper classloader so that we

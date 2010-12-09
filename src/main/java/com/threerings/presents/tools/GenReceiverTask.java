@@ -114,11 +114,11 @@ public class GenReceiverTask extends InvocationTask
         String mpath = source.getPath();
         mpath = mpath.replace("Receiver", "Sender");
         mpath = replacePath(mpath, "/client/", "/server/");
-        writeFile(mpath, mergeTemplate(SENDER_TMPL,
-                                       "name", name,
-                                       "package", spackage,
-                                       "methods", methods,
-                                       "imports", implist));
+        writeTemplate(SENDER_TMPL, mpath,
+            "name", name,
+            "package", spackage,
+            "methods", methods,
+            "imports", implist);
     }
 
     protected void generateDecoder (Class<?> receiver, File source, String rname, String rpackage,
@@ -136,12 +136,12 @@ public class GenReceiverTask extends InvocationTask
         // determine the path to our sender file
         String mpath = source.getPath();
         mpath = mpath.replace("Receiver", "Decoder");
-        writeFile(mpath, mergeTemplate(DECODER_TMPL,
-                                       "name", name,
-                                       "receiver_code", rcode,
-                                       "package", rpackage,
-                                       "methods", methods,
-                                       "imports", implist));
+        writeTemplate(DECODER_TMPL, mpath,
+            "name", name,
+            "receiver_code", rcode,
+            "package", rpackage,
+            "methods", methods,
+            "imports", implist);
     }
 
     /** Specifies the path to the sender template. */
