@@ -23,7 +23,7 @@ package com.threerings.presents.dobj;
 
 import java.util.List;
 
-import com.google.common.collect.Lists;
+import com.threerings.util.StreamableArrayList;
 
 import com.threerings.presents.net.Transport;
 
@@ -57,7 +57,7 @@ public class CompoundEvent extends DEvent
 
         _omgr = omgr;
         _target = target;
-        _events = Lists.newArrayList();
+        _events = StreamableArrayList.newList();
     }
 
     /**
@@ -188,5 +188,5 @@ public class CompoundEvent extends DEvent
     protected transient DObject _target;
 
     /** A list of the events associated with this compound event. */
-    protected List<DEvent> _events;
+    protected StreamableArrayList<DEvent> _events;
 }
