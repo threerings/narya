@@ -109,7 +109,7 @@
   <target name="aslib" unless="no_rebuild_aslib" depends="-prepare,-checkaslib,-noteaslib"
           description="Builds the ActionScript code">
     <!-- obtain our ActionScript dependencies via Maven -->
-    <artifact:pom id="as-pom" file="as-pom.xml"/>
+    <artifact:pom id="as-pom" file="etc/as-pom.xml"/>
     <artifact:dependencies filesetId="aslibs.fileset" pomRefId="as-pom" useScope="compile"/>
     <copy todir="${deploy.dir}/lib">
       <fileset refid="aslibs.fileset"/>
@@ -361,17 +361,17 @@
       <remoteRepository url="${maven.deploy.repo}"/>
       <pom refid="pom"/>
     </artifact:deploy>
-    <artifact:pom id="tools-pom" file="tools-pom.xml"/>
+    <artifact:pom id="tools-pom" file="etc/tools-pom.xml"/>
     <artifact:deploy file="${deploy.dir}/${ant.project.name}.jar" uniqueVersion="false">
       <remoteRepository url="${maven.deploy.repo}"/>
       <pom refid="tools-pom"/>
     </artifact:deploy>
-    <artifact:pom id="gwt-pom" file="gwt-pom.xml"/>
+    <artifact:pom id="gwt-pom" file="etc/gwt-pom.xml"/>
     <artifact:deploy file="${deploy.dir}/${ant.project.name}-gwt.jar" uniqueVersion="false">
       <remoteRepository url="${maven.deploy.repo}"/>
       <pom refid="gwt-pom"/>
     </artifact:deploy>
-    <artifact:pom id="as-pom" file="as-pom.xml"/>
+    <artifact:pom id="as-pom" file="etc/as-pom.xml"/>
     <artifact:deploy file="${deploy.dir}/${ant.project.name}lib.swc" uniqueVersion="false">
       <remoteRepository url="${maven.deploy.repo}"/>
       <pom refid="as-pom"/>
