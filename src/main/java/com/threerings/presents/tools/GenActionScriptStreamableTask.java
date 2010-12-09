@@ -119,6 +119,7 @@ public class GenActionScriptStreamableTask extends GenTask
     protected static class ASField
     {
         public final String name;
+        public final String capitalName;
         public final String simpleType;
         public final String reader;
         public final String writer;
@@ -129,6 +130,7 @@ public class GenActionScriptStreamableTask extends GenTask
         public ASField (Field f, Set<String> imports)
         {
             name = f.getName();
+            capitalName = StringUtil.capitalize(name);
             dobjectField = StringUtil.unStudlyName(name).toUpperCase();
             simpleType = ActionScriptUtils.addImportAndGetShortType(f.getType(), true, imports);
 
