@@ -55,6 +55,13 @@ public class ActionScriptUtils
         return Iterables.getLast(DOT_SPLITTER.split(full));
     }
 
+    protected static String toSimpleName (Class<?> type)
+    {
+        String name = type.getName().substring(type.getName().lastIndexOf(".") + 1);
+        // inner classes are not supported by ActionScript so we _
+        return name.replaceAll("\\$", "_");
+    }
+
     public static String toReadObject (Class<?> type)
     {
         if (type.equals(String.class)) {
@@ -63,12 +70,10 @@ public class ActionScriptUtils
         } else if (type.equals(Integer.class) ||
                    type.equals(Short.class) ||
                    type.equals(Byte.class)) {
-            String name = ActionScriptSource.toSimpleName(type.getName());
-            return "readField(" + name + ").value";
+            return "readField(" + toSimpleName(type) + ").value";
 
         } else if (type.equals(Long.class)) {
-            String name = ActionScriptSource.toSimpleName(type.getName());
-            return "readField(" + name + ")";
+            return "readField(" + toSimpleName(type) + ")";
 
         } else if (type.equals(Boolean.TYPE)) {
             return "readBoolean()";
