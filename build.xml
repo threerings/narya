@@ -225,7 +225,7 @@
   </target>
   <target name="gencheck" depends="enablegencheck,gencode"
       description="Fails the build if any new code would be generated"/>
-  <target name="gencode" depends="gendobj,genservice,genreceiver,genstream"
+  <target name="gencode" depends="gendobj,genservice,genreceiver,gencppstream"
       description="Runs all code generators"/>
 
   <target name="gendobj" depends="-preptools"
@@ -291,7 +291,9 @@
     </genreceiver>
   </target>
 
-  <target name="genstream" depends="-preptools" description="Generates C++ streamable classes.">
+  <!-- C++ streamable generation depends on a diverse enough set of classes that we just compile
+       everything for it -->
+  <target name="gencppstream" depends="-preptools,compile" description="Generates C++ streamable classes.">
     <gencppstreamable classpathref="built.classpath" cpproot="src/cpp" checking="${gencheck}">
       <generate class="com.threerings.presents.client.InvocationReceiver$Registration"/>
       <generate class="com.threerings.presents.data.ClientObject"/>
