@@ -26,7 +26,6 @@ import java.lang.reflect.Method;
 import java.lang.reflect.ReflectPermission;
 
 import java.util.Date;
-import java.util.HashMap;
 import java.util.Map;
 
 import com.google.common.collect.Maps;
@@ -117,10 +116,20 @@ public abstract class FieldMarshaller
 
         // if we have an exact match, use that
         FieldMarshaller fm = _marshallers.get(ftype);
+        if (fm == null) {
+            Class<?> collClass = Streamer.getCollectionClass(ftype);
+            if (collClass != null && !collClass.equals(ftype)) {
+                log.warning("Specific field types are discouraged for Collections and Maps.",
+                    "class", field.getDeclaringClass(), "field", field.getName(),
+                    "type", ftype, "shouldBe", collClass);
+                fm = _marshallers.get(collClass);
+            }
 
-        // otherwise if the class is a pure interface or streamable, use the streamable marshaller
-        if (fm == null && (ftype.isInterface() || Streamer.isStreamable(ftype))) {
-            fm = _marshallers.get(Streamable.class);
+            // otherwise if the class is a pure interface or streamable,
+            // use the streamable marshaller
+            if (fm == null && (ftype.isInterface() || Streamer.isStreamable(ftype))) {
+                fm = _marshallers.get(Streamable.class);
+            }
         }
 
         return fm;
@@ -395,7 +404,7 @@ public abstract class FieldMarshaller
     }
 
     /** Contains a mapping from field type to field marshaller instance for that type. */
-    protected static HashMap<Class<?>, FieldMarshaller> _marshallers;
+    protected static Map<Class<?>, FieldMarshaller> _marshallers;
 
     /** The field marshaller for pooled strings. */
     protected static FieldMarshaller _internMarshaller;

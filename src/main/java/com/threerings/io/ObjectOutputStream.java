@@ -174,6 +174,14 @@ public class ObjectOutputStream extends DataOutputStream
 
         // create a class mapping for this class if we've not got one
         if (cmap == null) {
+            // see if we just want to use an existing class mapping
+            Class<?> collClass = Streamer.getCollectionClass(sclass);
+            if (collClass != null && !collClass.equals(sclass)) {
+                cmap = writeClassMapping(collClass);
+                _classmap.put(sclass, cmap);
+                return cmap;
+            }
+
             // create a streamer instance and assign a code to this class
             Streamer streamer = Streamer.getStreamer(sclass);
             // we specifically do not inline the getStreamer() call into the ClassMapping

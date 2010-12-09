@@ -30,8 +30,10 @@ import java.security.AccessController;
 import java.security.PrivilegedActionException;
 import java.security.PrivilegedExceptionAction;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import java.io.IOException;
 
@@ -74,9 +76,11 @@ public class Streamer
                 return true;
             }
 
-            // if it's not an array, it must be streamable
+            // if it's not an array, it must be streamable, or a Collection or Map
             if (!target.isArray()) {
-                return Streamable.class.isAssignableFrom(target);
+                return Streamable.class.isAssignableFrom(target) ||
+                    Collection.class.isAssignableFrom(target) ||
+                    Map.class.isAssignableFrom(target);
             }
 
             // otherwise extract the component type and loop back around for another check...
@@ -93,6 +97,31 @@ public class Streamer
     {
         return (object instanceof Enum<?>) ?
             ((Enum<?>)object).getDeclaringClass() : object.getClass();
+    }
+
+    /**
+     * If the specified class is not Streamable and is a Collection type, return the
+     * most specific supported Collection interface type; otherwise return null.
+     */
+    public static Class<?> getCollectionClass (Class<?> clazz)
+    {
+        if (Streamable.class.isAssignableFrom(clazz)) {
+            // the class is natively streamable, let's ignore it
+            return null;
+        }
+        if (Map.class.isAssignableFrom(clazz)) {
+            return Map.class;
+        }
+        if (Set.class.isAssignableFrom(clazz)) {
+            return Set.class;
+        }
+        if (List.class.isAssignableFrom(clazz)) {
+            return List.class;
+        }
+        if (Collection.class.isAssignableFrom(clazz)) {
+            return Collection.class;
+        }
+        return null;
     }
 
     /**
@@ -115,28 +144,37 @@ public class Streamer
 
         Streamer stream = _streamers.get(target);
         if (stream == null) {
-            // make sure this is a streamable class
-            if (!isStreamable(target)) {
-                throw new IOException(
-                    "Requested to stream invalid class '" + target.getName() + "'");
+            // see if it's a collection type
+            Class<?> collClass = getCollectionClass(target);
+            if (collClass != null) {
+                stream = getStreamer(collClass);
+
+            } else {
+                // otherwise make sure this is a streamable class
+                if (!isStreamable(target)) {
+                    throw new IOException(
+                        "Requested to stream invalid class '" + target.getName() + "'");
+                }
+                // create a streamer for this class and cache it
+                if (ObjectInputStream.STREAM_DEBUG) {
+                    log.info("Creating a streamer for '" + target.getName() + "'.");
+                }
+
+                // create our streamer in a privileged block so that it can introspect on the to be
+                // streamed class
+                try {
+                    stream = AccessController.doPrivileged(
+                        new PrivilegedExceptionAction<Streamer>() {
+                            public Streamer run () throws IOException {
+                                return new Streamer(target);
+                            }
+                        });
+                } catch (PrivilegedActionException pae) {
+                    throw (IOException) pae.getCause();
+                }
             }
 
-            // create a streamer for this class and cache it
-            if (ObjectInputStream.STREAM_DEBUG) {
-                log.info("Creating a streamer for '" + target.getName() + "'.");
-            }
-
-            // create our streamer in a privileged block so that it can introspect on the to be
-            // streamed class
-            try {
-                stream = AccessController.doPrivileged(new PrivilegedExceptionAction<Streamer>() {
-                    public Streamer run () throws IOException {
-                        return new Streamer(target);
-                    }
-                });
-            } catch (PrivilegedActionException pae) {
-                throw (IOException) pae.getCause();
-            }
+            // cache the streamer by the class type
             _streamers.put(target, stream);
         }
         return stream;
@@ -224,6 +262,9 @@ public class Streamer
         }
 
         // otherwise simply write out the fields via our field marshallers
+        if (_marshallers == null) {
+            initMarshallers();
+        }
         int fcount = _fields.length;
         for (int ii = 0; ii < fcount; ii++) {
             Field field = _fields[ii];
@@ -373,6 +414,9 @@ public class Streamer
         }
 
         // otherwise simply read the fields via our field marshallers
+        if (_marshallers == null) {
+            initMarshallers();
+        }
         int fcount = _fields.length;
         for (int ii = 0; ii < fcount; ii++) {
             Field field = _fields[ii];
@@ -457,6 +501,10 @@ public class Streamer
             }
             // and that's all we'll need
             return;
+
+        } else if (_target.isEnum()) {
+            // nothing extra for enums
+            return;
         }
 
         // look up the reader and writer methods
@@ -471,9 +519,21 @@ public class Streamer
             // nothing to worry about, we just don't have one
         }
 
+        // let's try to fail fast and initialize the marshallers now if we know
+        // we're going to need them.
+        if ((_reader == null) || (_writer == null)) {
+            initMarshallers();
+        }
+    }
+
+    /**
+     * Initialize the marshallers.
+     */
+    protected void initMarshallers ()
+    {
         // reflect on all the object's fields and remove all marked with NotStreamable
         List<Field> fields = Lists.newArrayList();
-        ClassUtil.getFields(target, fields);
+        ClassUtil.getFields(_target, fields);
         _fields = Iterables.toArray(Iterables.filter(fields, _isStreamableFieldPred), Field.class);
         int fcount = _fields.length;
 

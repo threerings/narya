@@ -21,8 +21,8 @@
 
 package com.threerings.io;
 
-import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
@@ -337,10 +337,10 @@ public class ObjectInputStream extends DataInputStream
 
     /** Used to map classes to numeric codes and the {@link Streamer} instance used to write
      * them. */
-    protected ArrayList<ClassMapping> _classmap;
+    protected List<ClassMapping> _classmap;
 
     /** Maps numeric codes to pooled strings. */
-    protected ArrayList<String> _internmap;
+    protected List<String> _internmap;
 
     /** The object currently being read from the stream. */
     protected Object _current;
@@ -352,7 +352,7 @@ public class ObjectInputStream extends DataInputStream
     protected ClassLoader _loader;
 
     /** An optional set of class name translations to use when unserializing objects. */
-    protected HashMap<String, String> _translations;
+    protected Map<String, String> _translations;
 
     /** Used to activate verbose debug logging. */
     protected static final boolean STREAM_DEBUG = false;

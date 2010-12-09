@@ -67,12 +67,9 @@ public class BasicStreamers
         .put(double[].class, new DoubleArrayStreamer())
         .put(Object[].class, new ObjectArrayStreamer())
         .put(List.class, ListStreamer.INSTANCE)
-        .put(ArrayList.class, ListStreamer.INSTANCE)
         .put(Collection.class, ListStreamer.INSTANCE)
         .put(Set.class, SetStreamer.INSTANCE)
-        .put(HashSet.class, SetStreamer.INSTANCE)
         .put(Map.class, MapStreamer.INSTANCE)
-        .put(HashMap.class, MapStreamer.INSTANCE)
         .build();
 
     /** Streams {@link Boolean} instances. */
