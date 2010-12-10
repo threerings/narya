@@ -48,10 +48,10 @@ public class GenCPPStreamableTask extends GenTask
     @Override
     public void execute ()
     {
-        super.execute();
         for (Class<?> klass : _toProcess) {
             processClass(null, klass);
         }
+        super.execute();
     }
 
     @Override
