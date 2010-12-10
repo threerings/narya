@@ -11,9 +11,8 @@ public class RegistrationManager implements RegistrationProvider
     public void registerReceiver (ClientObject caller, Registration reg)
     {
         if (caller.receivers.containsKey(reg.getKey())) {
-            caller.updateReceivers(reg);
-        } else {
-            caller.addToReceivers(reg);
+            caller.removeFromReceivers(reg.getKey());
         }
+        caller.addToReceivers(reg);
     }
 }

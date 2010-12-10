@@ -40,11 +40,11 @@ public class NodeRecord extends PersistentRecord
 {
     // AUTO-GENERATED: FIELDS START
     public static final Class<NodeRecord> _R = NodeRecord.class;
-    public static final ColumnExp NODE_NAME = colexp(_R, "nodeName");
-    public static final ColumnExp HOST_NAME = colexp(_R, "hostName");
-    public static final ColumnExp PUBLIC_HOST_NAME = colexp(_R, "publicHostName");
-    public static final ColumnExp PORT = colexp(_R, "port");
-    public static final ColumnExp LAST_UPDATED = colexp(_R, "lastUpdated");
+    public static final ColumnExp<String> NODE_NAME = colexp(_R, "nodeName");
+    public static final ColumnExp<String> HOST_NAME = colexp(_R, "hostName");
+    public static final ColumnExp<String> PUBLIC_HOST_NAME = colexp(_R, "publicHostName");
+    public static final ColumnExp<Integer> PORT = colexp(_R, "port");
+    public static final ColumnExp<Timestamp> LAST_UPDATED = colexp(_R, "lastUpdated");
     // AUTO-GENERATED: FIELDS END
 
     /** Increment this value if you modify the definition of this persistent
