@@ -164,7 +164,7 @@
 		CBEE3AAE1293C6960011359E /* EntryEvent.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EntryEvent.h; sourceTree = "<group>"; };
 		CBEE3AB21293C6A20011359E /* EntryUpdatedEvent.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = EntryUpdatedEvent.cpp; sourceTree = "<group>"; };
 		CBEE3AB31293C6A20011359E /* EntryUpdatedEvent.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EntryUpdatedEvent.h; sourceTree = "<group>"; };
-		D2AAC046055464E500DB518D /* libpresents.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libpresents.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		D2AAC046055464E500DB518D /* libnarya.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libnarya.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		F2B761A2126A5534009DF298 /* CoreFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreFoundation.framework; path = System/Library/Frameworks/CoreFoundation.framework; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
 
@@ -193,7 +193,7 @@
 		1AB674ADFE9D54B511CA2CBB /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				D2AAC046055464E500DB518D /* libpresents.a */,
+				D2AAC046055464E500DB518D /* libnarya.a */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -394,9 +394,9 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		D2AAC045055464E500DB518D /* presents */ = {
+		D2AAC045055464E500DB518D /* narya */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 1DEB91EB08733DB70010E9CD /* Build configuration list for PBXNativeTarget "presents" */;
+			buildConfigurationList = 1DEB91EB08733DB70010E9CD /* Build configuration list for PBXNativeTarget "narya" */;
 			buildPhases = (
 				D2AAC044055464E500DB518D /* Sources */,
 				F2B761A6126A5549009DF298 /* Frameworks */,
@@ -405,9 +405,9 @@
 			);
 			dependencies = (
 			);
-			name = presents;
+			name = narya;
 			productName = FModAudio;
-			productReference = D2AAC046055464E500DB518D /* libpresents.a */;
+			productReference = D2AAC046055464E500DB518D /* libnarya.a */;
 			productType = "com.apple.product-type.library.static";
 		};
 /* End PBXNativeTarget section */
@@ -415,7 +415,7 @@
 /* Begin PBXProject section */
 		08FB7793FE84155DC02AAC07 /* Project object */ = {
 			isa = PBXProject;
-			buildConfigurationList = 1DEB91EF08733DB70010E9CD /* Build configuration list for PBXProject "presents" */;
+			buildConfigurationList = 1DEB91EF08733DB70010E9CD /* Build configuration list for PBXProject "narya" */;
 			compatibilityVersion = "Xcode 3.2";
 			developmentRegion = English;
 			hasScannedForEncodings = 1;
@@ -429,7 +429,7 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				D2AAC045055464E500DB518D /* presents */,
+				D2AAC045055464E500DB518D /* narya */,
 			);
 		};
 /* End PBXProject section */
@@ -500,7 +500,7 @@
 					"$(BOOST_ROOT)",
 					./src/cpp,
 				);
-				PRODUCT_NAME = presents;
+				PRODUCT_NAME = narya;
 			};
 			name = Debug;
 		};
@@ -531,7 +531,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		1DEB91EB08733DB70010E9CD /* Build configuration list for PBXNativeTarget "presents" */ = {
+		1DEB91EB08733DB70010E9CD /* Build configuration list for PBXNativeTarget "narya" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				1DEB91EC08733DB70010E9CD /* Debug */,
@@ -539,7 +539,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Debug;
 		};
-		1DEB91EF08733DB70010E9CD /* Build configuration list for PBXProject "presents" */ = {
+		1DEB91EF08733DB70010E9CD /* Build configuration list for PBXProject "narya" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				1DEB91F008733DB70010E9CD /* Debug */,
