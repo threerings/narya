@@ -79,7 +79,7 @@ public class DSet<E extends DSet.Entry>
     /**
      * Creates a new DSet of the appropriate generic type.
      */
-    public static <E extends DSet.Entry> DSet<E> newDSet (Iterable<E> source)
+    public static <E extends DSet.Entry> DSet<E> newDSet (Iterable<? extends E> source)
     {
         return new DSet<E>(source);
     }
@@ -104,7 +104,7 @@ public class DSet<E extends DSet.Entry>
      *
      * @param source an iterator from which we will initially populate the set.
      */
-    public DSet (Iterable<E> source)
+    public DSet (Iterable<? extends E> source)
     {
         for (E e : source) {
             add(e);
@@ -120,7 +120,7 @@ public class DSet<E extends DSet.Entry>
      *
      * @param source an iterator from which we will initially populate the set.
      */
-    public DSet (Iterator<E> source)
+    public DSet (Iterator<? extends E> source)
     {
         while (source.hasNext()) {
             add(source.next());
