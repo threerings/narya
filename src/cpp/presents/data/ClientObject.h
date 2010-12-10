@@ -5,6 +5,7 @@
 #include "presents/ObjectOutputStream.h"
 #include "presents/streamers/StreamableStreamer.h"
 
+#include "presents/data/PermissionPolicy.h"
 #include "presents/dobj/DObject.h"
 #include "presents/dobj/DSet.h"
 #include "util/Name.h"
@@ -17,6 +18,7 @@ public:
 
     Shared<util::Name> username;
     Shared<presents::dobj::DSet> receivers;
+    Shared<presents::data::PermissionPolicy> ignore;
 
     virtual void readObject(ObjectInputStream& in);
     virtual void writeObject(ObjectOutputStream& out) const;
