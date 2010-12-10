@@ -31,7 +31,7 @@ import com.threerings.io.Streamable;
  * at client resolution time via the ClientResolver. This would be an inner class of ClientObject,
  * but ActionScript does not support inner classes.
  */
-public class PermissionPolicy
+public class PermissionPolicy implements Streamable
 {
     /**
      * Returns null if the specified client has the specified permission, an error code explaining
@@ -42,6 +42,16 @@ public class PermissionPolicy
     {
         // by default, you can't do it!
         return InvocationCodes.ACCESS_DENIED;
+    }
+
+    public function writeObject (out :ObjectOutputStream) :void
+    {
+        // nothing to write
+    }
+
+    public function readObject (ins :ObjectInputStream) :void
+    {
+        // nothing to read
     }
 }
 }

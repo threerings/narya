@@ -122,6 +122,8 @@ public class ClientObject extends DObject
         super.readObject(ins);
         username = Name(ins.readObject());
         receivers = DSet(ins.readObject());
+        // TEMP: read and throw away ClientObject._ignore from the Java side
+        ins.readObject();
     }
 
     protected function createPermissionPolicy () :PermissionPolicy
