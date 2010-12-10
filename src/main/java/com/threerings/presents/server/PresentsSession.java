@@ -958,6 +958,11 @@ public class PresentsSession
     {
         public DObject object;
 
+        public ClientProxy ()
+        {
+            _oconn = getConnection();
+        }
+
         public void unsubscribe ()
         {
             object.removeSubscriber(this);
@@ -967,7 +972,8 @@ public class PresentsSession
         // from interface ProxySubscriber
         public void objectAvailable (DObject dobj)
         {
-            if (postMessage(new ObjectResponse<DObject>(dobj))) {
+            // ensure that the connection is the same one that requested the subscription
+            if (getConnection() == _oconn && postMessage(new ObjectResponse<DObject>(dobj))) {
                 _firstEventId = _omgr.getNextEventId(false);
                 object = dobj;
                 ClientProxy orec;
@@ -1021,6 +1027,7 @@ public class PresentsSession
         }
 
         protected long _firstEventId;
+        protected PresentsConnection _oconn;
     }
 
     /**
