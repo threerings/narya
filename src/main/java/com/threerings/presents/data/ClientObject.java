@@ -229,8 +229,4 @@ public class ClientObject extends DObject
 
     /** Used to reference count resolved client objects. */
     protected transient int _references;
-
-    /** TEMP: a non-transient backwards compatible permission policy for extant C++ clients. */
-    protected com.threerings.presents.data.PermissionPolicy _ignore =
-        new com.threerings.presents.data.PermissionPolicy();
 }
