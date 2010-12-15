@@ -21,13 +21,11 @@
 
 package com.threerings.presents.peer.server.persist;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
 import java.sql.Timestamp;
 
-import com.google.common.collect.Lists;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
@@ -36,8 +34,7 @@ import com.samskivert.util.StringUtil;
 import com.samskivert.depot.DepotRepository;
 import com.samskivert.depot.PersistenceContext;
 import com.samskivert.depot.PersistentRecord;
-import com.samskivert.depot.clause.QueryClause;
-import com.samskivert.depot.clause.Where;
+import com.samskivert.depot.Query;
 
 /**
  * Used to share information on active nodes in a Presents server cluster.
@@ -67,16 +64,13 @@ public class NodeRepository extends DepotRepository
      */
     public List<NodeRecord> loadNodes (String namespace)
     {
-        Iterable<QueryClause> clauses;
-        if (StringUtil.isBlank(namespace)) {
-            clauses = Collections.emptyList();
-        } else {
-            QueryClause clause = new Where(NodeRecord.NODE_NAME.like(namespace + "%"));
-            clauses = Lists.newArrayList(clause);
-        }
         // we specifically avoid caching this query because we want the servers to always see the
         // most up to date set of nodes
-        return findAll(NodeRecord.class, CacheStrategy.NONE, clauses);
+        Query<NodeRecord> query = from(NodeRecord.class).noCache();
+        if (!StringUtil.isBlank(namespace)) {
+            query = query.where(NodeRecord.NODE_NAME.like(namespace + "%"));
+        }
+        return query.select();
     }
 
     /**

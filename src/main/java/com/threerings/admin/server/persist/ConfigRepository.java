@@ -29,7 +29,6 @@ import com.google.common.collect.Maps;
 import com.samskivert.depot.DepotRepository;
 import com.samskivert.depot.PersistenceContext;
 import com.samskivert.depot.PersistentRecord;
-import com.samskivert.depot.clause.Where;
 
 /**
  * Stores configuration information in a database table.
@@ -52,8 +51,8 @@ public class ConfigRepository extends DepotRepository
     public HashMap<String, String> loadConfig (String node, String object)
     {
         HashMap<String, String> data = Maps.newHashMap();
-        Where where = new Where(ConfigRecord.OBJECT, object, ConfigRecord.NODE, node);
-        for (ConfigRecord record : findAll(ConfigRecord.class, where)) {
+        for (ConfigRecord record : from(ConfigRecord.class).
+                 where(ConfigRecord.OBJECT.eq(object), ConfigRecord.NODE.eq(node)).select()) {
             data.put(record.field, record.value);
         }
         return data;
