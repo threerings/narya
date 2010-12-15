@@ -110,11 +110,11 @@ class Signaller
     {
         var signal :Signal;
         switch (event.getName()) {
-{{#fields}}
+{{#pubFields}}
             case "{{name}}":
                 signal = _obj.set{{capitalName}};
                 break;
-{{/fields}}
+{{/pubFields}}
             default:
                 return;
         }
@@ -125,11 +125,11 @@ class Signaller
     {
         var signal :Signal;
         switch (event.getName()) {
-{{#fields}}{{#dset}}
+{{#pubFields}}{{#dset}}
             case "{{name}}":
                 signal = _obj.addedTo{{capitalName}};
                 break;
-{{/dset}}{{/fields}}
+{{/dset}}{{/pubFields}}
             default:
                 return;
         }
@@ -140,11 +140,11 @@ class Signaller
     {
         var signal :Signal;
         switch (event.getName()) {
-{{#fields}}{{#dset}}
+{{#pubFields}}{{#dset}}
             case "{{name}}":
                 signal = _obj.removedFrom{{capitalName}};
                 break;
-{{/dset}}{{/fields}}
+{{/dset}}{{/pubFields}}
             default:
                 return;
         }
@@ -155,11 +155,11 @@ class Signaller
     {
         var signal :Signal;
         switch (event.getName()) {
-{{#fields}}{{#dset}}
+{{#pubFields}}{{#dset}}
             case "{{name}}":
                 signal = _obj.updated{{capitalName}};
                 break;
-{{/dset}}{{/fields}}
+{{/dset}}{{/pubFields}}
             default:
                 return;
         }
@@ -170,11 +170,11 @@ class Signaller
     {
         var signal :Signal;
         switch (event.getName()) {
-{{#fields}}{{#array}}
+{{#pubFields}}{{#array}}
             case "{{name}}":
                 signal = _obj.updated{{capitalName}};
                 break;
-{{/array}}{{/fields}}
+{{/array}}{{/pubFields}}
             default:
                 return;
         }
