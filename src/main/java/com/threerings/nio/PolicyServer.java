@@ -31,8 +31,6 @@ import com.google.inject.Singleton;
 import com.samskivert.util.Lifecycle;
 import com.samskivert.util.Tuple;
 
-import com.threerings.presents.server.ReportManager;
-
 import com.threerings.nio.conman.Connection;
 import com.threerings.nio.conman.ConnectionManager;
 import com.threerings.nio.conman.ServerSocketChannelAcceptor;
@@ -47,10 +45,10 @@ import static com.threerings.NaryaLog.log;
 public class PolicyServer extends ConnectionManager
 {
     @Inject
-    public PolicyServer (Lifecycle cycle, ReportManager mgr)
+    public PolicyServer (Lifecycle cycle)
         throws IOException
     {
-        super(cycle, mgr);
+        super(cycle);
     }
 
     /**

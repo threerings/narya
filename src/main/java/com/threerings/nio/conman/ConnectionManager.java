@@ -43,8 +43,6 @@ import com.samskivert.util.LoopingThread;
 import com.samskivert.util.Queue;
 import com.samskivert.util.Tuple;
 
-import com.threerings.presents.data.ConMgrStats;
-import com.threerings.presents.server.ReportManager;
 import com.threerings.nio.SelectorIterable;
 
 import static com.threerings.NaryaLog.log;
@@ -59,17 +57,16 @@ import static com.threerings.NaryaLog.log;
  * {@link #handleAcceptedSocket} method
  */
 public abstract class ConnectionManager extends LoopingThread
-    implements Lifecycle.ShutdownComponent, ReportManager.Reporter
+    implements Lifecycle.ShutdownComponent
 {
     /**
      * Creates a connection manager instance.
      */
-    public ConnectionManager (Lifecycle cycle, ReportManager repmgr)
+    public ConnectionManager (Lifecycle cycle)
         throws IOException
     {
         super("ConnectionManager");
         cycle.addComponent(this);
-        repmgr.registerReporter(this);
         _selector = Selector.open();
     }
 
@@ -132,51 +129,6 @@ public abstract class ConnectionManager extends LoopingThread
     public void closeConnection (Connection conn)
     {
         _deathq.append(conn);
-    }
-
-    // from interface ReportManager.Reporter
-    public void appendReport (StringBuilder report, long now, long sinceLast, boolean reset)
-    {
-        ConMgrStats stats = getStats();
-        long eventCount = stats.eventCount - _lastStats.eventCount;
-        int connects = stats.connects - _lastStats.connects;
-        int disconnects = stats.disconnects - _lastStats.disconnects;
-        int closes = stats.closes - _lastStats.closes;
-        long bytesIn = stats.bytesIn - _lastStats.bytesIn;
-        long bytesOut = stats.bytesOut - _lastStats.bytesOut;
-        long msgsIn = stats.msgsIn - _lastStats.msgsIn;
-        long msgsOut = stats.msgsOut - _lastStats.msgsOut;
-        if (reset) {
-            _lastStats = stats;
-        }
-
-        // make sure we don't div0 if this method somehow gets called twice in
-        // the same millisecond
-        sinceLast = Math.max(sinceLast, 1L);
-
-        report.append("* presents.net.ConnectionManager:\n");
-        report.append("- Network connections: ");
-        report.append(stats.connectionCount).append(" connections, ");
-        report.append(stats.handlerCount).append(" handlers\n");
-        report.append("- Network activity: ");
-        report.append(eventCount).append(" events, ");
-        report.append(connects).append(" connects, ");
-        report.append(disconnects).append(" disconnects, ");
-        report.append(closes).append(" closes\n");
-        report.append("- Network input: ");
-        report.append(bytesIn).append(" bytes, ");
-        report.append(msgsIn).append(" msgs, ");
-        report.append(msgsIn*1000/sinceLast).append(" mps, ");
-        long avgIn = (msgsIn == 0) ? 0 : (bytesIn/msgsIn);
-        report.append(avgIn).append(" avg size, ");
-        report.append(bytesIn*1000/sinceLast).append(" bps\n");
-        report.append("- Network output: ");
-        report.append(bytesOut).append(" bytes, ");
-        report.append(msgsOut).append(" msgs, ");
-        report.append(msgsOut*1000/sinceLast).append(" mps, ");
-        long avgOut = (msgsOut == 0) ? 0 : (bytesOut/msgsOut);
-        report.append(avgOut).append(" avg size, ");
-        report.append(bytesOut*1000/sinceLast).append(" bps\n");
     }
 
     @Override // from LoopingThread
@@ -670,9 +622,6 @@ public abstract class ConnectionManager extends LoopingThread
 
     /** Our current runtime stats. */
     protected ConMgrStats _stats = new ConMgrStats();
-
-    /** A snapshot of our runtime stats as of our last report. */
-    protected ConMgrStats _lastStats = new ConMgrStats();
 
     /** Used to periodically report connection manager activity when in debug mode. */
     protected long _lastDebugStamp;
