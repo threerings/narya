@@ -21,6 +21,8 @@
 
 package com.threerings.nio;
 
+import static com.threerings.NaryaLog.log;
+
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.Set;
@@ -30,8 +32,6 @@ import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 
 import com.google.common.collect.Iterators;
-
-import static com.threerings.presents.Log.log;
 
 /**
  * Exposes selected keys from {@link Selector#selectedKeys()} as an Iterable, removing them from the

@@ -21,12 +21,12 @@
 
 package com.threerings.nio.conman;
 
+import static com.threerings.NaryaLog.log;
+
 import java.io.IOException;
 import java.net.InetAddress;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.SocketChannel;
-import com.threerings.presents.net.PingRequest;
-import static com.threerings.presents.Log.log;
 
 /**
  * Implements the net event handler interface to check for delinquency and manages a client
@@ -34,6 +34,10 @@ import static com.threerings.presents.Log.log;
  */
 public abstract class Connection implements NetEventHandler
 {
+    /** The number of milliseconds of idle upstream that are allowed to elapse before the client
+     * sends a ping message to the server to let it know that we're still alive. */
+    public static final long PING_INTERVAL = 60 * 1000L;
+
     /** The key used by the NIO code to track this connection. */
     public SelectionKey selkey;
 
@@ -147,7 +151,7 @@ public abstract class Connection implements NetEventHandler
     public boolean checkIdle (long now)
     {
         long idleMillis = now - _lastEvent;
-        if (idleMillis < PingRequest.PING_INTERVAL + LATENCY_GRACE) {
+        if (idleMillis < PING_INTERVAL + LATENCY_GRACE) {
             return false;
         }
         if (isClosed()) {
