@@ -32,6 +32,7 @@ import com.threerings.presents.net.Message;
 import com.threerings.presents.peer.data.NodeObject;
 import com.threerings.presents.peer.net.PeerBootstrapData;
 import com.threerings.presents.server.PresentsSession;
+import com.threerings.presents.server.net.PresentsConnection;
 
 import static com.threerings.presents.Log.log;
 
@@ -115,9 +116,9 @@ public class PeerSession extends PresentsSession
     }
 
     @Override // from PresentsSession
-    protected final boolean postMessage (DownstreamMessage msg)
+    protected final boolean postMessage (DownstreamMessage msg, PresentsConnection expect)
     {
-        if (!super.postMessage(msg)) {
+        if (!super.postMessage(msg, expect)) {
             return false;
         }
         _stats.peerMessagesOut++;

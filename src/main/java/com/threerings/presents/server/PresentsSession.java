@@ -556,7 +556,7 @@ public class PresentsSession
         synchronized(_pendingThrottles) {
             _pendingThrottles.add(_messagesPerSec);
         }
-        postMessage(new UpdateThrottleMessage(_messagesPerSec));
+        postMessage(new UpdateThrottleMessage(_messagesPerSec), null);
         // when we get a ThrottleUpdatedMessage from the client, we'll apply the new throttle
     }
 
@@ -706,7 +706,7 @@ public class PresentsSession
         populateBootstrapData(data);
 
         // create a send bootstrap notification
-        postMessage(new BootstrapNotification(data));
+        postMessage(new BootstrapNotification(data), null);
     }
 
     /**
@@ -856,15 +856,25 @@ public class PresentsSession
     {
         _omgr.postRunnable(new Runnable() {
             public void run () {
-                postMessage(msg);
+                postMessage(msg, null);
             }
         });
     }
 
     /** Queues a message for delivery to the client. */
-    protected boolean postMessage (DownstreamMessage msg)
+    protected boolean postMessage (DownstreamMessage msg, PresentsConnection expect)
     {
         PresentsConnection conn = getConnection();
+
+        // make sure that the connection they expect us to be using is the one we're using; there
+        // are circumstances were sufficient delay between request and response gives the client
+        // time to drop their original connection and establish a new one, opening the door to
+        // major confusion
+        if (expect != null && conn != expect) {
+            return false;
+        }
+
+        // make sure we have a connection at all
         if (conn != null) {
             conn.postMessage(msg);
             _messagesOut++; // count 'em up!
@@ -958,11 +968,6 @@ public class PresentsSession
     {
         public DObject object;
 
-        public ClientProxy ()
-        {
-            _oconn = getConnection();
-        }
-
         public void unsubscribe ()
         {
             object.removeSubscriber(this);
@@ -972,8 +977,7 @@ public class PresentsSession
         // from interface ProxySubscriber
         public void objectAvailable (DObject dobj)
         {
-            // ensure that the connection is the same one that requested the subscription
-            if (getConnection() == _oconn && postMessage(new ObjectResponse<DObject>(dobj))) {
+            if (postMessage(new ObjectResponse<DObject>(dobj), _oconn)) {
                 _firstEventId = _omgr.getNextEventId(false);
                 object = dobj;
                 ClientProxy orec;
@@ -997,7 +1001,7 @@ public class PresentsSession
         // from interface ProxySubscriber
         public void requestFailed (int oid, ObjectAccessException cause)
         {
-            postMessage(new FailureResponse(oid, cause.getMessage()));
+            postMessage(new FailureResponse(oid, cause.getMessage()), _oconn);
         }
 
         // from interface ProxySubscriber
@@ -1017,7 +1021,7 @@ public class PresentsSession
                 return;
             }
 
-            postMessage(new EventNotification(event));
+            postMessage(new EventNotification(event), _oconn);
         }
 
         // from interface ProxySubscriber
@@ -1027,7 +1031,8 @@ public class PresentsSession
         }
 
         protected long _firstEventId;
-        protected PresentsConnection _oconn;
+        // the connection that was active at the time we were constructed
+        protected PresentsConnection _oconn = getConnection();
     }
 
     /**
