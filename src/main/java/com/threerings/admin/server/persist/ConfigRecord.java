@@ -36,10 +36,10 @@ public class ConfigRecord extends PersistentRecord
 {
     // AUTO-GENERATED: FIELDS START
     public static final Class<ConfigRecord> _R = ConfigRecord.class;
-    public static final ColumnExp NODE = colexp(_R, "node");
-    public static final ColumnExp OBJECT = colexp(_R, "object");
-    public static final ColumnExp FIELD = colexp(_R, "field");
-    public static final ColumnExp VALUE = colexp(_R, "value");
+    public static final ColumnExp<String> NODE = colexp(_R, "node");
+    public static final ColumnExp<String> OBJECT = colexp(_R, "object");
+    public static final ColumnExp<String> FIELD = colexp(_R, "field");
+    public static final ColumnExp<String> VALUE = colexp(_R, "value");
     // AUTO-GENERATED: FIELDS END
 
     public static final int SCHEMA_VERSION = 2;
