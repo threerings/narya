@@ -16,12 +16,12 @@ public class {{classname}} {{^extends.isEmpty}}extends {{extends}}
 // GENERATED CLASSDECL END
 
 // GENERATED STREAMING START
-{{#fields}}
+{{#pubFields}}
     public var {{name}} :{{simpleType}};
 
-{{/fields}}
+{{/pubFields}}
 {{#dobject}}
-{{#fields}}
+{{#pubFields}}
     public var set{{capitalName}} :Signal = new Signal({{simpleType}}, {{simpleType}});
 {{#dset}}
     public var addedTo{{capitalName}} :Signal = new Signal(DSet_Entry);
@@ -31,21 +31,24 @@ public class {{classname}} {{^extends.isEmpty}}extends {{extends}}
 {{#array}}
     public var updated{{capitalName}} :Signal = new Signal(int, Object, Object);
 {{/array}}
-{{/fields}}
+{{/pubFields}}
 
-{{#fields}}
+{{#pubFields}}
     public static const {{dobjectField}} :String = "{{name}}";
 
-{{/fields}}
+{{/pubFields}}
 {{/dobject}}
     {{#superclassStreamable}}override {{/superclassStreamable}}public function readObject (ins :ObjectInputStream) :void
     {
 {{#superclassStreamable}}
         super.readObject(ins);
 {{/superclassStreamable}}
-{{#fields}}
+{{#pubFields}}
         {{name}} = ins.{{reader}};
-{{/fields}}
+{{/pubFields}}
+{{#protFields}}
+        {{name}} = ins.{{reader}};
+{{/protFields}}
     }
 {{^dobject}}
 
@@ -54,9 +57,12 @@ public class {{classname}} {{^extends.isEmpty}}extends {{extends}}
 {{#superclassStreamable}}
         super.writeObject(out);
 {{/superclassStreamable}}
-{{#fields}}
+{{#pubFields}}
         out.{{writer}};
-{{/fields}}
+{{/pubFields}}
+{{#protFields}}
+        out.{{writer}};
+{{/protFields}}
     }
 {{/dobject}}
 
@@ -66,6 +72,9 @@ public class {{classname}} {{^extends.isEmpty}}extends {{extends}}
         new Signaller(this);
     }
 {{/dobject}}
+{{#protFields}}
+    protected var {{name}} :{{simpleType}};
+{{/protFields}}
 // GENERATED STREAMING END
 
 // GENERATED CLASSFINISH START

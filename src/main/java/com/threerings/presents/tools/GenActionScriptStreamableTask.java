@@ -34,6 +34,7 @@ import org.apache.tools.ant.Project;
 
 import com.google.common.base.Charsets;
 import com.google.common.base.Joiner;
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.google.common.io.Files;
@@ -91,9 +92,18 @@ public class GenActionScriptStreamableTask extends GenTask
         for (Class<?> iface : sclass.getInterfaces()) {
             implemented.add(ActionScriptUtils.addImportAndGetShortType(iface, false, imports));
         }
-        List<ASField> fields = Lists.newArrayList();
+        List<ASField> pubFields = Lists.newArrayList();
+        List<ASField> protFields = Lists.newArrayList();
         for (Field f : reqs.streamedFields) {
-            fields.add(new ASField(f, imports));
+            int mods = f.getModifiers();
+            if (Modifier.isPublic(mods)) {
+                pubFields.add(new ASField(f, imports));
+            } else if (Modifier.isProtected(mods)) {
+                protFields.add(new ASField(f, imports));
+            } else {
+                // don't care about private
+                continue;
+            }
         }
 
         String output = mergeTemplate("com/threerings/presents/tools/streamable_as.tmpl",
@@ -104,7 +114,8 @@ public class GenActionScriptStreamableTask extends GenTask
             "extends", extendsName,
             "implements", Joiner.on(", ").join(implemented),
             "superclassStreamable", reqs.superclassStreamable,
-            "fields", fields,
+            "pubFields", pubFields,
+            "protFields", protFields,
             "dobject", isDObject);
 
         File outputLocation = ActionScriptUtils.createActionScriptPath(_asroot, sclass);
