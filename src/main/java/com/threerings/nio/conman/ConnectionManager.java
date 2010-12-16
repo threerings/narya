@@ -62,12 +62,13 @@ public abstract class ConnectionManager extends LoopingThread
     /**
      * Creates a connection manager instance.
      */
-    public ConnectionManager (Lifecycle cycle)
+    public ConnectionManager (Lifecycle cycle, long idleTime)
         throws IOException
     {
         super("ConnectionManager");
         cycle.addComponent(this);
         _selector = Selector.open();
+        _idleTime = idleTime;
     }
 
     /**
@@ -216,7 +217,7 @@ public abstract class ConnectionManager extends LoopingThread
             // create a new authing connection object to manage the authentication of this client
             // connection and register it with our selection set
             channel.configureBlocking(false);
-            conn.init(this, channel, System.currentTimeMillis());
+            conn.init(this, channel, System.currentTimeMillis(), _idleTime);
             conn.selkey = register(channel, SelectionKey.OP_READ, conn);
             _handlers.put(conn.selkey, conn);
             synchronized (this) {
@@ -636,6 +637,8 @@ public abstract class ConnectionManager extends LoopingThread
     @Inject(optional=true) @Named("presents.net.selectLoopTime")
     protected int _selectLoopTime = 100;
 
+    protected final long _idleTime;
+
     /** Used to denote asynchronous close requests. */
     protected static final byte[] ASYNC_CLOSE_REQUEST = new byte[0];
 
@@ -644,4 +647,8 @@ public abstract class ConnectionManager extends LoopingThread
 
     /** Report our activity every 30 seconds. */
     protected static final long DEBUG_REPORT_INTERVAL = 30*1000L;
+
+    /** The number of milliseconds beyond the ping interval that we allow a client's network
+     * connection to be idle before we forcibly disconnect them. */
+    protected static final long LATENCY_GRACE = 30 * 1000L;
 }

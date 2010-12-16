@@ -34,9 +34,6 @@ import java.nio.channels.SocketChannel;
  */
 public abstract class Connection implements NetEventHandler
 {
-    /** The number of milliseconds of idle upstream that are allowed to elapse before the client
-     * sends a ping message to the server to let it know that we're still alive. */
-    public static final long PING_INTERVAL = 60 * 1000L;
 
     /** The key used by the NIO code to track this connection. */
     public SelectionKey selkey;
@@ -48,12 +45,14 @@ public abstract class Connection implements NetEventHandler
      * @param channel The socket channel from which we'll be reading messages.
      * @param createStamp The time at which this connection was created.
      */
-    public void init (ConnectionManager cmgr, SocketChannel channel, long createStamp)
+    public void init (ConnectionManager cmgr, SocketChannel channel, long createStamp,
+        long idleTime)
         throws IOException
     {
         _cmgr = cmgr;
         _channel = channel;
         _lastEvent = createStamp;
+        _idleTime = idleTime;
         _connectionId = ++_lastConnectionId;
     }
 
@@ -151,13 +150,13 @@ public abstract class Connection implements NetEventHandler
     public boolean checkIdle (long now)
     {
         long idleMillis = now - _lastEvent;
-        if (idleMillis < PING_INTERVAL + LATENCY_GRACE) {
+        if (idleMillis < _idleTime) {
             return false;
         }
-        if (isClosed()) {
-            return true;
+        if (!isClosed()) {
+            log.info("Disconnecting non-communicative client",
+                "conn", this, "idle", idleMillis + "ms");
         }
-        log.info("Disconnecting non-communicative client", "conn", this, "idle", idleMillis + "ms");
         return true;
     }
 
@@ -201,10 +200,8 @@ public abstract class Connection implements NetEventHandler
 
     protected int _connectionId;
 
+    protected long _idleTime;
+
     /** The last connection id assigned. */
     protected static int _lastConnectionId;
-
-    /** The number of milliseconds beyond the ping interval that we allow a client's network
-     * connection to be idle before we forcibly disconnect them. */
-    protected static final long LATENCY_GRACE = 30 * 1000L;
 }

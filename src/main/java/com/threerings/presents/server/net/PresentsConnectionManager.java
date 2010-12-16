@@ -51,6 +51,7 @@ import com.threerings.presents.annotation.AuthInvoker;
 import com.threerings.presents.client.Client;
 import com.threerings.presents.data.PresentsConMgrStats;
 import com.threerings.presents.net.Message;
+import com.threerings.presents.net.PingRequest;
 import com.threerings.presents.net.PongResponse;
 import com.threerings.presents.net.Transport;
 import com.threerings.presents.server.Authenticator;
@@ -76,7 +77,7 @@ public class PresentsConnectionManager extends ConnectionManager
     public PresentsConnectionManager (Lifecycle cycle, ReportManager repmgr)
         throws IOException
     {
-        super(cycle);
+        super(cycle, LATENCY_GRACE + PingRequest.PING_INTERVAL);
         repmgr.registerReporter(this);
         _stats = new PresentsConMgrStats();
     }
@@ -306,7 +307,7 @@ public class PresentsConnectionManager extends ConnectionManager
         // have the non-blocking connect process started
         SocketChannel sockchan = SocketChannel.open();
         sockchan.configureBlocking(false);
-        conn.init(this, sockchan, System.currentTimeMillis());
+        conn.init(this, sockchan, System.currentTimeMillis(), _idleTime);
         _connectq.append(Tuple.newTuple(conn, new InetSocketAddress(hostname, port)));
     }
 
@@ -451,7 +452,7 @@ public class PresentsConnectionManager extends ConnectionManager
                 // construct a new running connection to handle this connections network traffic
                 // from here on out
                 PresentsConnection rconn = new PresentsConnection();
-                rconn.init(this, conn.getChannel(), iterStamp);
+                rconn.init(this, conn.getChannel(), iterStamp, _idleTime);
                 rconn.selkey = conn.selkey;
 
                 // we need to keep using the same object input and output streams from the

@@ -48,7 +48,7 @@ public class PolicyServer extends ConnectionManager
     public PolicyServer (Lifecycle cycle)
         throws IOException
     {
-        super(cycle);
+        super(cycle, LATENCY_GRACE);
     }
 
     /**
