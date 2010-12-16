@@ -152,7 +152,7 @@ public abstract class Connection implements NetEventHandler
         }
         if (!isClosed()) {
             log.info("Disconnecting non-communicative client",
-                     "conn", this, "idle", (idleStamp - _lastEvent) + "ms");
+                     "conn", this, "idle", (System.currentTimeMillis() - _lastEvent) + "ms");
         }
         return true;
     }
