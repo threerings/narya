@@ -45,14 +45,12 @@ public abstract class Connection implements NetEventHandler
      * @param channel The socket channel from which we'll be reading messages.
      * @param createStamp The time at which this connection was created.
      */
-    public void init (ConnectionManager cmgr, SocketChannel channel, long createStamp,
-        long idleTime)
+    public void init (ConnectionManager cmgr, SocketChannel channel, long createStamp)
         throws IOException
     {
         _cmgr = cmgr;
         _channel = channel;
         _lastEvent = createStamp;
-        _idleTime = idleTime;
         _connectionId = ++_lastConnectionId;
     }
 
@@ -147,15 +145,14 @@ public abstract class Connection implements NetEventHandler
     }
 
     // from interface NetEventHandler
-    public boolean checkIdle (long now)
+    public boolean checkIdle (long idleStamp)
     {
-        long idleMillis = now - _lastEvent;
-        if (idleMillis < _idleTime) {
+        if (_lastEvent > idleStamp) {
             return false;
         }
         if (!isClosed()) {
             log.info("Disconnecting non-communicative client",
-                "conn", this, "idle", idleMillis + "ms");
+                     "conn", this, "idle", (idleStamp - _lastEvent) + "ms");
         }
         return true;
     }
@@ -199,8 +196,6 @@ public abstract class Connection implements NetEventHandler
     protected long _lastEvent;
 
     protected int _connectionId;
-
-    protected long _idleTime;
 
     /** The last connection id assigned. */
     protected static int _lastConnectionId;

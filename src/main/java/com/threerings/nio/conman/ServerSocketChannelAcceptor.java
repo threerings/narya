@@ -115,7 +115,7 @@ public class ServerSocketChannelAcceptor
                 // claim nothing
                 return 0;
             }
-            public boolean checkIdle (long now) {
+            public boolean checkIdle (long idleStamp) {
                 return false; // we're never idle
             }
             public void becameIdle () {

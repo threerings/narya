@@ -307,7 +307,7 @@ public class PresentsConnectionManager extends ConnectionManager
         // have the non-blocking connect process started
         SocketChannel sockchan = SocketChannel.open();
         sockchan.configureBlocking(false);
-        conn.init(this, sockchan, System.currentTimeMillis(), _idleTime);
+        conn.init(this, sockchan, System.currentTimeMillis());
         _connectq.append(Tuple.newTuple(conn, new InetSocketAddress(hostname, port)));
     }
 
@@ -346,8 +346,8 @@ public class PresentsConnectionManager extends ConnectionManager
                         }
                         return 0;
                     }
-                    public boolean checkIdle (long now) {
-                        return conn.checkIdle(now);
+                    public boolean checkIdle (long idleStamp) {
+                        return conn.checkIdle(idleStamp);
                     }
                     public void becameIdle () {
                         handleError(new IOException("Pending connection became idle."));
@@ -452,7 +452,7 @@ public class PresentsConnectionManager extends ConnectionManager
                 // construct a new running connection to handle this connections network traffic
                 // from here on out
                 PresentsConnection rconn = new PresentsConnection();
-                rconn.init(this, conn.getChannel(), iterStamp, _idleTime);
+                rconn.init(this, conn.getChannel(), iterStamp);
                 rconn.selkey = conn.selkey;
 
                 // we need to keep using the same object input and output streams from the

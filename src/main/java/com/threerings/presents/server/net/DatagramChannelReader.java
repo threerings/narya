@@ -90,8 +90,8 @@ public class DatagramChannelReader
             public int handleEvent (long when) {
                 return _conMan.handleDatagram(channel, when);
             }
-            public boolean checkIdle (long now) {
-                return false;// Can't be idle
+            public boolean checkIdle (long idleStamp) {
+                return false; // we can't be idle
             }
             public void becameIdle () {}
         });

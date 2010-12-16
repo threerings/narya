@@ -171,8 +171,9 @@ public abstract class ConnectionManager extends LoopingThread
         }
 
         // close connections that have had no network traffic for too long
+        long idleStamp = iterStamp - _idleTime;
         for (NetEventHandler handler : _handlers.values()) {
-            if (handler.checkIdle(iterStamp)) {
+            if (handler.checkIdle(idleStamp)) {
                 // this will queue the connection for closure on our next tick
                 handler.becameIdle();
             }
@@ -217,7 +218,7 @@ public abstract class ConnectionManager extends LoopingThread
             // create a new authing connection object to manage the authentication of this client
             // connection and register it with our selection set
             channel.configureBlocking(false);
-            conn.init(this, channel, System.currentTimeMillis(), _idleTime);
+            conn.init(this, channel, System.currentTimeMillis());
             conn.selkey = register(channel, SelectionKey.OP_READ, conn);
             _handlers.put(conn.selkey, conn);
             synchronized (this) {

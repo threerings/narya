@@ -60,11 +60,10 @@ public class PresentsConnection extends Connection
      * {@link PresentsConnectionManager} as <code>cmgr</code>.
      */
     @Override
-    public void init (ConnectionManager cmgr, SocketChannel channel, long createStamp,
-        long idleTime)
+    public void init (ConnectionManager cmgr, SocketChannel channel, long createStamp)
         throws IOException
     {
-        super.init(cmgr, channel, createStamp, idleTime);
+        super.init(cmgr, channel, createStamp);
         _pcmgr = (PresentsConnectionManager)cmgr;
     }
 
