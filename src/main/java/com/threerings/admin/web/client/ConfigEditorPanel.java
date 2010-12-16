@@ -26,10 +26,11 @@ import java.util.Map.Entry;
 
 import com.google.common.collect.Maps;
 
+import com.google.gwt.dom.client.Style;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.rpc.ServiceDefTarget;
-import com.google.gwt.user.client.ui.TabPanel;
+import com.google.gwt.user.client.ui.TabLayoutPanel;
 
 import com.threerings.admin.web.client.ConfigEditorTab.ConfigAccessor;
 import com.threerings.admin.web.gwt.ConfigField;
@@ -44,12 +45,24 @@ import com.threerings.gwt.util.PopupCallback;
  * The main panel of the configuration editor. All service calls are routed through here.
  * Subclass this class in your project.
  */
-@SuppressWarnings("deprecation")
-public abstract class ConfigEditorPanel extends TabPanel
+public abstract class ConfigEditorPanel extends TabLayoutPanel
     implements ConfigAccessor
 {
-    public ConfigEditorPanel ()
+    /**
+     * Create a ConfigEditorPanel with the given bar height, measured in pixels.
+     */
+    public ConfigEditorPanel (int barPixelHeight)
     {
+        this(barPixelHeight, Style.Unit.PX);
+    }
+
+    /**
+     * Create a ConfigEditorPanel with the given bar height, measured in the given unit.
+     */
+    public ConfigEditorPanel (int barHeight, Style.Unit unit)
+    {
+        super(barHeight, unit);
+
         addStyleName("configEditorPanel");
         ((ServiceDefTarget)_configsvc).setServiceEntryPoint(getServiceEntryPoint());
         _configsvc.getConfiguration(new PopupCallback<ConfigurationResult>() {
