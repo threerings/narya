@@ -21,20 +21,19 @@
 
 package com.threerings.presents.tools;
 
+import java.io.File;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
-
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
-import java.io.File;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.tools.ant.Project;
 
 import com.google.common.base.Charsets;
 import com.google.common.base.Joiner;
-import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.google.common.io.Files;
@@ -44,7 +43,6 @@ import com.samskivert.util.StringUtil;
 import com.threerings.io.ObjectInputStream;
 import com.threerings.io.ObjectOutputStream;
 import com.threerings.io.Streamable;
-
 import com.threerings.presents.data.InvocationMarshaller;
 import com.threerings.presents.dobj.DObject;
 import com.threerings.presents.dobj.DSet;
@@ -71,6 +69,14 @@ public class GenActionScriptStreamableTask extends GenTask
             return;
         }
         log("Generating " + sclass.getName(), Project.MSG_VERBOSE);
+
+        // Read the existing file in, if it exists
+        File outputLocation = ActionScriptUtils.createActionScriptPath(_asroot, sclass);
+        String existing = null;
+        if (outputLocation.exists()) {
+            existing = Files.toString(outputLocation, Charsets.UTF_8);
+        }
+
         // Generate the current version of the streamable
         StreamableClassRequirements reqs = new StreamableClassRequirements(sclass);
 
@@ -81,6 +87,13 @@ public class GenActionScriptStreamableTask extends GenTask
         if (!sclass.getSuperclass().equals(Object.class)) {
             extendsName =
                 ActionScriptUtils.addImportAndGetShortType(sclass.getSuperclass(), false, imports);
+        }
+
+        // Read the existing file's imports in. Eclipse's import organization makes
+        // it a pain to keep additional imports out of the GENERATED PREAMBLE section of
+        // class, so we just merge all the imports we find.
+        if (existing != null) {
+            addExistingImports(existing, imports);
         }
 
         boolean isDObject = DObject.class.isAssignableFrom(sclass);
@@ -118,13 +131,28 @@ public class GenActionScriptStreamableTask extends GenTask
             "protFields", protFields,
             "dobject", isDObject);
 
-        File outputLocation = ActionScriptUtils.createActionScriptPath(_asroot, sclass);
-        if (outputLocation.exists()) {
+        if (existing != null) {
             // Merge in the previously generated version
-            String existing = Files.toString(outputLocation, Charsets.UTF_8);
             output = new GeneratedSourceMerger().merge(output, existing);
         }
         writeFile(outputLocation.getAbsolutePath(), output);
+    }
+
+    protected static void addExistingImports (String asFile, Set<String> imports)
+        throws Exception
+    {
+        // Discover the location of the 'public class' declaration.
+        // We won't search past there.
+        Matcher m = AS_PUBLIC_CLASS_DECL.matcher(asFile);
+        int searchTo = asFile.length();
+        if (m.find()) {
+            searchTo = m.start();
+        }
+
+        m = AS_IMPORT.matcher(asFile.substring(0, searchTo));
+        while (m.find()) {
+            imports.add(m.group(3));
+        }
     }
 
     protected static class ASField
@@ -164,4 +192,9 @@ public class GenActionScriptStreamableTask extends GenTask
 
     /** The path to our ActionScript source files. */
     protected File _asroot;
+
+    protected static final Pattern AS_PUBLIC_CLASS_DECL = Pattern.compile("^public class(.*)$",
+        Pattern.MULTILINE);
+    protected static final Pattern AS_IMPORT = Pattern.compile("^(\\s*)import(\\s+)([^;]*);",
+        Pattern.MULTILINE);
 }
