@@ -32,6 +32,7 @@ public class {{classname}} {{^extends.isEmpty}}extends {{extends}}
     public var updated{{capitalName}} :Signal = new Signal(int, Object, Object);
 {{/array}}
 {{/pubFields}}
+    public var destroyed :Signal = new Signal();
 
 {{#pubFields}}
     public static const {{dobjectField}} :String = "{{name}}";
@@ -93,12 +94,14 @@ import com.threerings.presents.dobj.ElementUpdateListener;
 import com.threerings.presents.dobj.EntryAddedEvent;
 import com.threerings.presents.dobj.EntryRemovedEvent;
 import com.threerings.presents.dobj.EntryUpdatedEvent;
+import com.threerings.presents.dobj.ObjectDeathListener;
+import com.threerings.presents.dobj.ObjectDestroyedEvent;
 import com.threerings.presents.dobj.SetListener;
 
 import {{package}}.{{classname}};
 
 class Signaller
-    implements AttributeChangeListener, SetListener, ElementUpdateListener
+    implements AttributeChangeListener, SetListener, ElementUpdateListener, ObjectDeathListener
 {
     public function Signaller (obj :{{classname}})
     {
@@ -179,6 +182,11 @@ class Signaller
                 return;
         }
         signal.dispatch(event.getIndex(), event.getValue(), event.getOldValue());
+    }
+
+    public function objectDestroyed (event :ObjectDestroyedEvent) :void
+    {
+        _obj.destroyed.dispatch();
     }
 
     protected var _obj :{{classname}};
