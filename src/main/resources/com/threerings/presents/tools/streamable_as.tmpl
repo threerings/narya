@@ -22,14 +22,14 @@ public class {{classname}} {{^extends.isEmpty}}extends {{extends}}
 {{/pubFields}}
 {{#dobject}}
 {{#pubFields}}
-    public var set{{capitalName}} :Signal = new Signal({{simpleType}}, {{simpleType}});
+    public var {{name}}Changed :Signal = new Signal({{simpleType}}, {{simpleType}});
 {{#dset}}
-    public var addedTo{{capitalName}} :Signal = new Signal(DSet_Entry);
-    public var removedFrom{{capitalName}} :Signal = new Signal(DSet_Entry);
-    public var updated{{capitalName}} :Signal = new Signal(DSet_Entry, DSet_Entry);
+    public var {{name}}EntryAdded :Signal = new Signal(DSet_Entry);
+    public var {{name}}EntryRemoved :Signal = new Signal(DSet_Entry);
+    public var {{name}}EntryUpdated :Signal = new Signal(DSet_Entry, DSet_Entry);
 {{/dset}}
 {{#array}}
-    public var updated{{capitalName}} :Signal = new Signal(int, Object, Object);
+    public var {{name}}ElementUpdated :Signal = new Signal(int, Object, Object);
 {{/array}}
 {{/pubFields}}
     public var destroyed :Signal = new Signal();
@@ -115,7 +115,7 @@ class Signaller
         switch (event.getName()) {
 {{#pubFields}}
             case "{{name}}":
-                signal = _obj.set{{capitalName}};
+                signal = _obj.{{name}}Changed;
                 break;
 {{/pubFields}}
             default:
@@ -130,7 +130,7 @@ class Signaller
         switch (event.getName()) {
 {{#pubFields}}{{#dset}}
             case "{{name}}":
-                signal = _obj.addedTo{{capitalName}};
+                signal = _obj.{{name}}EntryAdded;
                 break;
 {{/dset}}{{/pubFields}}
             default:
@@ -145,7 +145,7 @@ class Signaller
         switch (event.getName()) {
 {{#pubFields}}{{#dset}}
             case "{{name}}":
-                signal = _obj.removedFrom{{capitalName}};
+                signal = _obj.{{name}}EntryRemoved;
                 break;
 {{/dset}}{{/pubFields}}
             default:
@@ -160,7 +160,7 @@ class Signaller
         switch (event.getName()) {
 {{#pubFields}}{{#dset}}
             case "{{name}}":
-                signal = _obj.updated{{capitalName}};
+                signal = _obj.{{name}}EntryUpdated;
                 break;
 {{/dset}}{{/pubFields}}
             default:
@@ -175,7 +175,7 @@ class Signaller
         switch (event.getName()) {
 {{#pubFields}}{{#array}}
             case "{{name}}":
-                signal = _obj.updated{{capitalName}};
+                signal = _obj.{{name}}ElementUpdated;
                 break;
 {{/array}}{{/pubFields}}
             default:
