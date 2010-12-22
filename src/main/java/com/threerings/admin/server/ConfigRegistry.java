@@ -50,7 +50,6 @@ import com.threerings.presents.dobj.ElementUpdatedEvent;
 import com.threerings.presents.dobj.EntryAddedEvent;
 import com.threerings.presents.dobj.EntryRemovedEvent;
 import com.threerings.presents.dobj.EntryUpdatedEvent;
-import com.threerings.presents.dobj.ObjectAccessException;
 import com.threerings.presents.dobj.SetListener;
 
 import static com.threerings.admin.Log.log;
@@ -207,13 +206,7 @@ public abstract class ConfigRegistry
         // from ElementUpdateListener
         public void elementUpdated (ElementUpdatedEvent event)
         {
-            Object value;
-            try {
-                value = object.getAttribute(event.getName());
-            } catch (ObjectAccessException oae) {
-                log.warning("Exception getting field", "name", event.getName(), "exception", oae);
-                return;
-            }
+            Object value = object.getAttribute(event.getName());
             updateValue(event.getName(), value);
         }
 
@@ -349,13 +342,7 @@ public abstract class ConfigRegistry
         protected void serializeAttribute (String attributeName)
         {
             String key = nameToKey(attributeName);
-            Object value;
-            try {
-                value = object.getAttribute(attributeName);
-            } catch (ObjectAccessException oae) {
-                log.warning("Exception getting field", "name", attributeName, "error", oae);
-                return;
-            }
+            Object value = object.getAttribute(attributeName);
 
             if (value == null || Streamer.isStreamable(value.getClass())) {
                 serialize(attributeName, key, value);

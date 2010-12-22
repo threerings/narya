@@ -39,7 +39,6 @@ import com.samskivert.swing.HGroupLayout;
 import com.threerings.presents.dobj.AttributeChangeListener;
 import com.threerings.presents.dobj.AttributeChangedEvent;
 import com.threerings.presents.dobj.DObject;
-import com.threerings.presents.dobj.ObjectAccessException;
 import com.threerings.presents.util.PresentsContext;
 
 import static com.threerings.admin.Log.log;
@@ -215,11 +214,7 @@ public abstract class FieldEditor extends JPanel
 
         public void set (Field field, Object value)
         {
-            try {
-                _obj.changeAttribute(field.getName(), value);
-            } catch (ObjectAccessException oae) {
-                log.warning("Failed to update field " + field.getName() + ": " + oae);
-            }
+            _obj.changeAttribute(field.getName(), value);
         }
 
         public Object get (Field field)

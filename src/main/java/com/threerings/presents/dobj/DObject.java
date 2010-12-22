@@ -23,6 +23,7 @@ package com.threerings.presents.dobj;
 
 import java.lang.ref.WeakReference;
 import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 
 import java.util.Arrays;
 import java.util.Comparator;
@@ -30,6 +31,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
 import com.samskivert.util.ArrayUtil;
@@ -124,11 +126,11 @@ public class DObject
 {
     public DObject ()
     {
-        _fields = _ftable.get(getClass());
-        if (_fields == null) {
-            _fields = getClass().getFields();
-            Arrays.sort(_fields, FIELD_COMP);
-            _ftable.put(getClass(), _fields);
+        _accessors = _atable.get(getClass());
+        if (_accessors == null) {
+            _accessors = createAccessors();
+            Arrays.sort(_accessors);
+            _atable.put(getClass(), _accessors);
         }
     }
 
@@ -305,12 +307,8 @@ public class DObject
      */
     public final <T extends DSet.Entry> DSet<T> getSet (String setName)
     {
-        try {
-            @SuppressWarnings("unchecked") DSet<T> casted = (DSet<T>)getField(setName).get(this);
-            return casted;
-        } catch (Exception e) {
-            throw new IllegalArgumentException("No such set: " + setName);
-        }
+        @SuppressWarnings("unchecked") DSet<T> casted = (DSet<T>)getAccessor(setName).get(this);
+        return casted;
     }
 
     /**
@@ -520,18 +518,10 @@ public class DObject
      * distributed fields in a generic manner.
      */
     public void changeAttribute (String name, Object value)
-        throws ObjectAccessException
     {
-        try {
-            Field f = getField(name);
-            requestAttributeChange(name, value, f.get(this));
-            f.set(this, value);
-
-        } catch (Exception e) {
-            String errmsg = "changeAttribute() failure [name=" + name + ", value=" + value +
-                ", vclass=" + StringUtil.shortClassName(value) + "].";
-            throw new ObjectAccessException(errmsg, e);
-        }
+        Accessor acc = getAccessor(name);
+        requestAttributeChange(name, value, acc.get(this));
+        acc.set(this, value);
     }
 
     /**
@@ -540,16 +530,8 @@ public class DObject
      * attribute setter methods instead.
      */
     public void setAttribute (String name, Object value)
-        throws ObjectAccessException
     {
-        try {
-            getField(name).set(this, value);
-
-        } catch (Exception e) {
-            String errmsg = "setAttribute() failure [name=" + name + ", value=" + value +
-                ", vclass=" + StringUtil.shortClassName(value) + "].";
-            throw new ObjectAccessException(errmsg, e);
-        }
+        getAccessor(name).set(this, value);
     }
 
     /**
@@ -558,13 +540,8 @@ public class DObject
      * the generated attribute getter methods instead.
      */
     public Object getAttribute (String name)
-        throws ObjectAccessException
     {
-        try {
-            return getField(name).get(this);
-        } catch (Exception e) {
-            throw new ObjectAccessException("getAttribute() failure [name=" + name + "].", e);
-        }
+        return getAccessor(name).get(this);
     }
 
     /**
@@ -997,15 +974,16 @@ public class DObject
     }
 
     /**
-     * Returns the {@link Field} with the specified name or null if there is none such.
+     * Returns the {@link Accessor} for the field with the specified name throws an {@link
+     * IllegalArgumentException}.
      */
-    protected final Field getField (String name)
+    protected final Accessor getAccessor (String name)
     {
-        int low = 0, high = _fields.length-1;
+        int low = 0, high = _accessors.length-1;
         while (low <= high) {
             int mid = (low + high) >> 1;
-            Field midVal = _fields[mid];
-            int cmp = midVal.getName().compareTo(name);
+            Accessor midVal = _accessors[mid];
+            int cmp = midVal.name.compareTo(name);
             if (cmp < 0) {
                 low = mid + 1;
             } else if (cmp > 0) {
@@ -1014,7 +992,25 @@ public class DObject
                 return midVal; // key found
             }
         }
-        return null; // key not found.
+        throw new IllegalArgumentException("No such field " + getClass().getName() + "." + name);
+    }
+
+    /**
+     * Creates the accessors that will be used to read and write this object's attributes. The
+     * default implementation assumes the object's attributes are all public fields and uses
+     * reflection to get and set their values.
+     */
+    protected Accessor[] createAccessors ()
+    {
+        Field[] fields = getClass().getFields();
+        // assume we have one static field for every non-static field
+        List<Accessor> accs = Lists.newArrayListWithExpectedSize(fields.length/2);
+        for (Field field : fields) {
+            if (!Modifier.isStatic(field.getModifiers())) { // skip static fields
+                accs.add(new Accessor.ByField(field));
+            }
+        }
+        return accs.toArray(new Accessor[accs.size()]);
     }
 
     /**
@@ -1038,8 +1034,8 @@ public class DObject
     /** Our object id. */
     protected int _oid;
 
-    /** An array of our fields, sorted for efficient lookup. */
-    protected transient Field[] _fields;
+    /** An array of our field accessors, sorted for efficient lookup. */
+    protected transient Accessor[] _accessors;
 
     /** A reference to our object manager. */
     protected transient DObjectManager _omgr;
@@ -1074,15 +1070,8 @@ public class DObject
     /** Any local attributes configured on this object or null. */
     protected transient Object[] _locattrs = NO_ATTRS;
 
-    /** Maintains a mapping of sorted field arrays for each distributed object class. */
-    protected static Map<Class<?>, Field[]> _ftable = Maps.newHashMap();
-
-    /** Used to sort and search {@link #_fields}. */
-    protected static final Comparator<Field> FIELD_COMP = new Comparator<Field>() {
-        public int compare (Field f1, Field f2) {
-            return f1.getName().compareTo(f2.getName());
-        }
-    };
+    /** Maintains a mapping of sorted accessor arrays for each distributed object class. */
+    protected static Map<Class<?>, Accessor[]> _atable = Maps.newHashMap();
 
     /** Simplifies code for objects that have no local attributes. */
     protected static final Object[] NO_ATTRS = {};

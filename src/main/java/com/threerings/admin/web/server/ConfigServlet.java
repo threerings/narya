@@ -37,7 +37,6 @@ import com.google.common.collect.Maps;
 
 import com.threerings.presents.data.InvocationCodes;
 import com.threerings.presents.dobj.DObject;
-import com.threerings.presents.dobj.ObjectAccessException;
 import com.threerings.presents.dobj.RootDObjectManager;
 
 import com.threerings.web.gwt.ServiceException;
@@ -103,12 +102,8 @@ public abstract class ConfigServlet extends RemoteServiceServlet
 
                 int updateCount = 0;
                 for (ConfigField update : updates) {
-                    try {
-                        object.changeAttribute(update.name, update.type.toValue(update.valStr));
-                        updateCount ++;
-                    } catch (ObjectAccessException oae) {
-                        log.warning("Failed to update field", "field", update.name, oae);
-                    }
+                    object.changeAttribute(update.name, update.type.toValue(update.valStr));
+                    updateCount ++;
                 }
                 object.commitTransaction();
 
