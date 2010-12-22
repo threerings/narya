@@ -206,8 +206,7 @@ public abstract class ConfigRegistry
         // from ElementUpdateListener
         public void elementUpdated (ElementUpdatedEvent event)
         {
-            Object value = object.getAttribute(event.getName());
-            updateValue(event.getName(), value);
+            updateValue(event.getName(), object.getAttribute(event.getName()));
         }
 
         // from AttributeChangeListener
