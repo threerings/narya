@@ -142,7 +142,10 @@ public abstract class CrowdPeerManager extends PeerManager
     {
         super.initClientInfo(client, info);
         BodyObject body = _locator.forClient(client.getClientObject());
-        ((CrowdClientInfo)info).visibleName = body.getVisibleName();
+        // body-less entities don't get a visibleName and so can't take part in chatting
+        if (body != null) {
+            ((CrowdClientInfo)info).visibleName = body.getVisibleName();
+        }
     }
 
     @Override // from PeerManager
