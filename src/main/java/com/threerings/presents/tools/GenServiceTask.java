@@ -247,7 +247,6 @@ public class GenServiceTask extends InvocationTask
 
         // import things marshaller will always need
         imports.add(sdesc.service);
-        imports.add(Client.class);
         imports.add(InvocationMarshaller.class);
 
         // if any listeners are to be present, they need the response event
