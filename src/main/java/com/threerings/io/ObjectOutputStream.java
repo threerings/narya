@@ -321,7 +321,6 @@ public class ObjectOutputStream extends DataOutputStream
         write(baos.toByteArray());
     }
 
-
     /** Used to map classes to numeric codes and the {@link Streamer} instance used to write
      * them. */
     protected Map<Class<?>, ClassMapping> _classmap;

@@ -51,7 +51,6 @@ import com.google.common.io.Files;
 import com.samskivert.io.StreamUtil;
 import com.samskivert.mustache.Mustache;
 
-
 public abstract class GenTask extends Task
 {
     /**

@@ -24,7 +24,6 @@ package com.threerings.crowd.data;
 import javax.annotation.Generated;
 
 import com.threerings.crowd.client.LocationService;
-import com.threerings.presents.client.Client;
 import com.threerings.presents.data.InvocationMarshaller;
 import com.threerings.presents.dobj.InvocationResponseEvent;
 

@@ -86,7 +86,6 @@ public class CPPUtil
         return new File(root, makePath(klass, ext)).getAbsolutePath();
     }
 
-
     public static String makePath (File root, List<String> namespaces, String className, String ext)
     {
         return new File(root, makePath(namespaces, className, ext)).getAbsolutePath();

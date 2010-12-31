@@ -159,7 +159,6 @@ public abstract class ConnectionManager extends LoopingThread
             _lastDebugStamp = iterStamp;
         }
 
-
         // close any connections that have been queued up to die
         Connection dconn;
         while ((dconn = _deathq.getNonBlocking()) != null) {

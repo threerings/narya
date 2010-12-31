@@ -94,7 +94,6 @@ public class ServerSocketChannelAcceptor
         }
     }
 
-
     protected void acceptConnections (int port)
         throws IOException
     {

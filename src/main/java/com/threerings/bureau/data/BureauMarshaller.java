@@ -24,7 +24,6 @@ package com.threerings.bureau.data;
 import javax.annotation.Generated;
 
 import com.threerings.bureau.client.BureauService;
-import com.threerings.presents.client.Client;
 import com.threerings.presents.data.InvocationMarshaller;
 
 /**

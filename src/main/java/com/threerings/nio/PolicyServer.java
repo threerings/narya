@@ -87,7 +87,6 @@ public class PolicyServer extends ConnectionManager
         }
     }
 
-
     @Override
     protected void didShutdown ()
     {

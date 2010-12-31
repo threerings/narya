@@ -2,7 +2,6 @@ package com.threerings.presents.data;
 
 import javax.annotation.Generated;
 
-import com.threerings.presents.client.Client;
 import com.threerings.presents.client.InvocationReceiver;
 import com.threerings.presents.client.RegistrationService;
 

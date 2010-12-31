@@ -24,7 +24,6 @@ package com.threerings.crowd.chat.data;
 import javax.annotation.Generated;
 
 import com.threerings.crowd.chat.client.SpeakService;
-import com.threerings.presents.client.Client;
 import com.threerings.presents.data.InvocationMarshaller;
 
 /**

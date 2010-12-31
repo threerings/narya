@@ -315,8 +315,6 @@ public class MethodProfiler
         log.info(name, "results", toResult(stats));
     }
 
-
-
     /**
      * Calculates the results of the the profile.
      */

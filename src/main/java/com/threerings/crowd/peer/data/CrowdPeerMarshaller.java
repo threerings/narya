@@ -27,7 +27,6 @@ import com.threerings.crowd.chat.client.ChatService;
 import com.threerings.crowd.chat.data.ChatMarshaller;
 import com.threerings.crowd.chat.data.UserMessage;
 import com.threerings.crowd.peer.client.CrowdPeerService;
-import com.threerings.presents.client.Client;
 import com.threerings.presents.data.InvocationMarshaller;
 import com.threerings.util.Name;
 

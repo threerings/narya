@@ -40,7 +40,6 @@ import com.threerings.admin.web.gwt.ConfigService.ConfigurationResult;
 import com.threerings.admin.web.gwt.ConfigServiceAsync;
 import com.threerings.gwt.util.PopupCallback;
 
-
 /**
  * The main panel of the configuration editor. All service calls are routed through here.
  * Subclass this class in your project.

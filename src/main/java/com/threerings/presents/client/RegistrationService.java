@@ -1,6 +1,5 @@
 package com.threerings.presents.client;
 
-import com.threerings.presents.client.Client;
 import com.threerings.presents.client.InvocationReceiver.Registration;
 
 /**
