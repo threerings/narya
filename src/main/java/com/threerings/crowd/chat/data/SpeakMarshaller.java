@@ -43,10 +43,10 @@ public class SpeakMarshaller extends InvocationMarshaller
     public static final int SPEAK = 1;
 
     // from interface SpeakService
-    public void speak (Client arg1, String arg2, byte arg3)
+    public void speak (String arg1, byte arg2)
     {
-        sendRequest(arg1, SPEAK, new Object[] {
-            arg2, Byte.valueOf(arg3)
+        sendRequest(SPEAK, new Object[] {
+            arg1, Byte.valueOf(arg2)
         });
     }
 }

@@ -34,5 +34,5 @@ public interface ChannelSpeakService extends InvocationService
     /**
      * Requests to speak the supplied message on the specified channel.
      */
-    public void speak (Client client, ChatChannel channel, String message, byte mode);
+    public void speak (ChatChannel channel, String message, byte mode);
 }

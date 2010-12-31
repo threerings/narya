@@ -467,7 +467,7 @@ public class ChatDirector extends BasicDirector
         }
 
         // dispatch a speak request using the supplied speak service
-        speakService.speak(_ctx.getClient(), message, mode);
+        speakService.speak(message, mode);
     }
 
     /**
@@ -482,7 +482,7 @@ public class ChatDirector extends BasicDirector
             displayFeedback(_bundle, MessageBundle.compose("m.broadcast_failed", "m.filtered"));
             return;
         }
-        _cservice.broadcast(_ctx.getClient(), message, new ChatService.InvocationListener() {
+        _cservice.broadcast(message, new ChatService.InvocationListener() {
             public void requestFailed (String reason) {
                 reason = MessageBundle.compose("m.broadcast_failed", reason);
                 displayFeedback(_bundle, reason);
@@ -555,7 +555,7 @@ public class ChatDirector extends BasicDirector
             }
         };
 
-        _cservice.tell(_ctx.getClient(), target, message, listener);
+        _cservice.tell(target, message, listener);
     }
 
     /**
@@ -572,7 +572,7 @@ public class ChatDirector extends BasicDirector
             }
         }
         // pass the buck right on along
-        _cservice.away(_ctx.getClient(), message);
+        _cservice.away(message);
     }
 
     /**

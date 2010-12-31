@@ -43,5 +43,5 @@ public interface AdminService extends InvocationService
     /**
      * Requests the list of config objects.
      */
-    void getConfigInfo (Client client, ConfigInfoListener listener);
+    void getConfigInfo (ConfigInfoListener listener);
 }

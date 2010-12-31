@@ -43,10 +43,10 @@ public class ChannelSpeakMarshaller extends InvocationMarshaller
     public static final int SPEAK = 1;
 
     // from interface ChannelSpeakService
-    public void speak (Client arg1, ChatChannel arg2, String arg3, byte arg4)
+    public void speak (ChatChannel arg1, String arg2, byte arg3)
     {
-        sendRequest(arg1, SPEAK, new Object[] {
-            arg2, arg3, Byte.valueOf(arg4)
+        sendRequest(SPEAK, new Object[] {
+            arg1, arg2, Byte.valueOf(arg3)
         });
     }
 }

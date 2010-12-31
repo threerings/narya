@@ -282,13 +282,15 @@ public class InvocationMarshaller
         _invdir.sendRequest(_invOid, _invCode, methodId, args, transport);
     }
 
-    @Deprecated /** @deprecated use client-argument-free version. */
+    /** @deprecated use client-argument-free version. */
+    @Deprecated
     protected void sendRequest (Client client, int methodId, Object[] args)
     {
         sendRequest(client, methodId, args, Transport.DEFAULT);
     }
 
-    @Deprecated /** @deprecated use client-argument-free version. */
+    /** @deprecated use client-argument-free version. */
+    @Deprecated
     protected void sendRequest (Client client, int methodId, Object[] args, Transport transport)
     {
         client.getInvocationDirector().sendRequest(_invOid, _invCode, methodId, args, transport);

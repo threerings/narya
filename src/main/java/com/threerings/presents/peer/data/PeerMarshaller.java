@@ -44,12 +44,12 @@ public class PeerMarshaller extends InvocationMarshaller
     public static final int GENERATE_REPORT = 1;
 
     // from interface PeerService
-    public void generateReport (Client arg1, String arg2, InvocationService.ResultListener arg3)
+    public void generateReport (String arg1, InvocationService.ResultListener arg2)
     {
-        InvocationMarshaller.ResultMarshaller listener3 = new InvocationMarshaller.ResultMarshaller();
-        listener3.listener = arg3;
-        sendRequest(arg1, GENERATE_REPORT, new Object[] {
-            arg2, listener3
+        InvocationMarshaller.ResultMarshaller listener2 = new InvocationMarshaller.ResultMarshaller();
+        listener2.listener = arg2;
+        sendRequest(GENERATE_REPORT, new Object[] {
+            arg1, listener2
         });
     }
 
@@ -57,10 +57,10 @@ public class PeerMarshaller extends InvocationMarshaller
     public static final int INVOKE_ACTION = 2;
 
     // from interface PeerService
-    public void invokeAction (Client arg1, byte[] arg2)
+    public void invokeAction (byte[] arg1)
     {
-        sendRequest(arg1, INVOKE_ACTION, new Object[] {
-            arg2
+        sendRequest(INVOKE_ACTION, new Object[] {
+            arg1
         });
     }
 
@@ -68,12 +68,12 @@ public class PeerMarshaller extends InvocationMarshaller
     public static final int INVOKE_REQUEST = 3;
 
     // from interface PeerService
-    public void invokeRequest (Client arg1, byte[] arg2, InvocationService.ResultListener arg3)
+    public void invokeRequest (byte[] arg1, InvocationService.ResultListener arg2)
     {
-        InvocationMarshaller.ResultMarshaller listener3 = new InvocationMarshaller.ResultMarshaller();
-        listener3.listener = arg3;
-        sendRequest(arg1, INVOKE_REQUEST, new Object[] {
-            arg2, listener3
+        InvocationMarshaller.ResultMarshaller listener2 = new InvocationMarshaller.ResultMarshaller();
+        listener2.listener = arg2;
+        sendRequest(INVOKE_REQUEST, new Object[] {
+            arg1, listener2
         });
     }
 
@@ -81,10 +81,10 @@ public class PeerMarshaller extends InvocationMarshaller
     public static final int RATIFY_LOCK_ACTION = 4;
 
     // from interface PeerService
-    public void ratifyLockAction (Client arg1, NodeObject.Lock arg2, boolean arg3)
+    public void ratifyLockAction (NodeObject.Lock arg1, boolean arg2)
     {
-        sendRequest(arg1, RATIFY_LOCK_ACTION, new Object[] {
-            arg2, Boolean.valueOf(arg3)
+        sendRequest(RATIFY_LOCK_ACTION, new Object[] {
+            arg1, Boolean.valueOf(arg2)
         });
     }
 }

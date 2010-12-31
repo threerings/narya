@@ -69,7 +69,7 @@ public class TestClient
         three.add(3);
         three.add(4);
         three.add(5);
-        service.test(client, "one", 2, three, new TestService.TestFuncListener() {
+        service.test("one", 2, three, new TestService.TestFuncListener() {
             public void testSucceeded (String one, int two) {
                 log.info("Got test response [one=" + one + ", two=" + two + "].");
             }
@@ -79,7 +79,7 @@ public class TestClient
         });
 
         // get the test object id
-        service.getTestOid(client, this);
+        service.getTestOid(this);
     }
 
     // from interface SessionObserver
@@ -116,7 +116,7 @@ public class TestClient
 
         // ask for the power
         TestService service = _client.requireService(TestService.class);
-        service.giveMeThePower(_client, new TestService.ConfirmListener() {
+        service.giveMeThePower(new TestService.ConfirmListener() {
             public void requestProcessed () {
                 log.info("We have the power!");
                 // now try blowing through our message limit again

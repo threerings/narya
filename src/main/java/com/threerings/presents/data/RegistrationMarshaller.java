@@ -22,10 +22,10 @@ public class RegistrationMarshaller extends InvocationMarshaller
     public static final int REGISTER_RECEIVER = 1;
 
     // from interface RegistrationService
-    public void registerReceiver (Client arg1, InvocationReceiver.Registration arg2)
+    public void registerReceiver (InvocationReceiver.Registration arg1)
     {
-        sendRequest(arg1, REGISTER_RECEIVER, new Object[] {
-            arg2
+        sendRequest(REGISTER_RECEIVER, new Object[] {
+            arg1
         });
     }
 }

@@ -434,7 +434,7 @@ public abstract class PeerManager
         // now send it to any remote node that is also appropriate
         for (PeerNode peer : _peers.values()) {
             if (peer.nodeobj != null && action.isApplicable(peer.nodeobj)) {
-                peer.nodeobj.peerService.invokeAction(peer.getClient(), actionBytes);
+                peer.nodeobj.peerService.invokeAction(actionBytes);
                 invoked = true;
             }
         }
@@ -457,7 +457,7 @@ public abstract class PeerManager
     {
         PeerNode peer = _peers.get(nodeName);
         if (peer != null) {
-            peer.nodeobj.peerService.invokeAction(peer.getClient(), flattenAction(action));
+            peer.nodeobj.peerService.invokeAction(flattenAction(action));
         } else if (nodeName.equals(_nodeName)) {
             invokeAction(null, flattenAction(action));
         }
@@ -1299,7 +1299,7 @@ public abstract class PeerManager
     {
         PeerNode peer = _peers.get(nodeName);
         if (peer != null) {
-            peer.nodeobj.peerService.invokeRequest(peer.getClient(), requestBytes, listener);
+            peer.nodeobj.peerService.invokeRequest(requestBytes, listener);
         } else if (nodeName.equals(_nodeName)) {
             invokeRequest(null, requestBytes, listener);
         }
@@ -1370,7 +1370,7 @@ public abstract class PeerManager
             _acquire = acquire;
 
             // ratify the action
-            peer.nodeobj.peerService.ratifyLockAction(peer.getClient(), lock, acquire);
+            peer.nodeobj.peerService.ratifyLockAction(lock, acquire);
 
             // listen for the act to take place
             peer.nodeobj.addListener(this);

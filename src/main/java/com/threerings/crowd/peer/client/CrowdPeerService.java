@@ -38,11 +38,11 @@ public interface CrowdPeerService extends InvocationService
      * Used to forward a tell request to the server on which the destination user actually
      * occupies.
      */
-    void deliverTell (Client client, UserMessage message, Name target,
+    void deliverTell (UserMessage message, Name target,
                       ChatService.TellListener listener);
 
     /**
      * Dispatches a broadcast message on this peer.
      */
-    void deliverBroadcast (Client client, Name from, byte levelOrMode, String bundle, String msg);
+    void deliverBroadcast (Name from, byte levelOrMode, String bundle, String msg);
 }

@@ -81,10 +81,10 @@ public class ChatMarshaller extends InvocationMarshaller
     public static final int AWAY = 1;
 
     // from interface ChatService
-    public void away (Client arg1, String arg2)
+    public void away (String arg1)
     {
-        sendRequest(arg1, AWAY, new Object[] {
-            arg2
+        sendRequest(AWAY, new Object[] {
+            arg1
         });
     }
 
@@ -92,12 +92,12 @@ public class ChatMarshaller extends InvocationMarshaller
     public static final int BROADCAST = 2;
 
     // from interface ChatService
-    public void broadcast (Client arg1, String arg2, InvocationService.InvocationListener arg3)
+    public void broadcast (String arg1, InvocationService.InvocationListener arg2)
     {
-        ListenerMarshaller listener3 = new ListenerMarshaller();
-        listener3.listener = arg3;
-        sendRequest(arg1, BROADCAST, new Object[] {
-            arg2, listener3
+        ListenerMarshaller listener2 = new ListenerMarshaller();
+        listener2.listener = arg2;
+        sendRequest(BROADCAST, new Object[] {
+            arg1, listener2
         });
     }
 
@@ -105,12 +105,12 @@ public class ChatMarshaller extends InvocationMarshaller
     public static final int TELL = 3;
 
     // from interface ChatService
-    public void tell (Client arg1, Name arg2, String arg3, ChatService.TellListener arg4)
+    public void tell (Name arg1, String arg2, ChatService.TellListener arg3)
     {
-        ChatMarshaller.TellMarshaller listener4 = new ChatMarshaller.TellMarshaller();
-        listener4.listener = arg4;
-        sendRequest(arg1, TELL, new Object[] {
-            arg2, arg3, listener4
+        ChatMarshaller.TellMarshaller listener3 = new ChatMarshaller.TellMarshaller();
+        listener3.listener = arg3;
+        sendRequest(TELL, new Object[] {
+            arg1, arg2, listener3
         });
     }
 }

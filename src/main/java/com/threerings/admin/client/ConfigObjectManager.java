@@ -96,7 +96,7 @@ public class ConfigObjectManager implements AdminService.ConfigInfoListener
      */
     protected void getConfigInfo ()
     {
-        _service.getConfigInfo(_client, this);
+        _service.getConfigInfo(this);
     }
 
     /**

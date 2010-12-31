@@ -52,10 +52,10 @@ public interface LocationService extends InvocationService
      * @param placeId the object id of the place object to which the body should be moved.
      * @param listener the listener that will be informed of success or failure.
      */
-    void moveTo (Client client, int placeId, MoveListener listener);
+    void moveTo (int placeId, MoveListener listener);
 
     /**
      * Requests that we leave our current place and move to nowhere land.
      */
-    void leavePlace (Client client);
+    void leavePlace ();
 }

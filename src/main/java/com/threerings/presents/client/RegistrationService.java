@@ -9,5 +9,5 @@ import com.threerings.presents.client.InvocationReceiver.Registration;
  */
 public interface RegistrationService
 {
-    void registerReceiver(Client client, Registration registration);
+    void registerReceiver(Registration registration);
 }

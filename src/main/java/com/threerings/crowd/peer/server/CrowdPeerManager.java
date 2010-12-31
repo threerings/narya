@@ -93,7 +93,7 @@ public abstract class CrowdPeerManager extends PeerManager
             // we have to use auth username to look up their ClientInfo
             CrowdClientInfo cinfo = (CrowdClientInfo)cnobj.clients.get(username);
             if (cinfo != null) {
-                cnobj.crowdPeerService.deliverTell(peer.getClient(), message, target, listener);
+                cnobj.crowdPeerService.deliverTell(message, target, listener);
                 return true;
             }
         }
@@ -106,7 +106,7 @@ public abstract class CrowdPeerManager extends PeerManager
         for (PeerNode peer : _peers.values()) {
             if (peer.nodeobj != null) {
                 ((CrowdNodeObject)peer.nodeobj).crowdPeerService.deliverBroadcast(
-                    peer.getClient(), from, levelOrMode, bundle, msg);
+                    from, levelOrMode, bundle, msg);
             }
         }
     }

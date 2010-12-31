@@ -78,12 +78,12 @@ public class TimeBaseMarshaller extends InvocationMarshaller
     public static final int GET_TIME_OID = 1;
 
     // from interface TimeBaseService
-    public void getTimeOid (Client arg1, String arg2, TimeBaseService.GotTimeBaseListener arg3)
+    public void getTimeOid (String arg1, TimeBaseService.GotTimeBaseListener arg2)
     {
-        TimeBaseMarshaller.GotTimeBaseMarshaller listener3 = new TimeBaseMarshaller.GotTimeBaseMarshaller();
-        listener3.listener = arg3;
-        sendRequest(arg1, GET_TIME_OID, new Object[] {
-            arg2, listener3
+        TimeBaseMarshaller.GotTimeBaseMarshaller listener2 = new TimeBaseMarshaller.GotTimeBaseMarshaller();
+        listener2.listener = arg2;
+        sendRequest(GET_TIME_OID, new Object[] {
+            arg1, listener2
         });
     }
 }

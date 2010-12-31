@@ -43,12 +43,12 @@ public interface TestService extends InvocationService
     }
 
     /** Issues a test request. */
-    public void test (Client client, String one, int two, List<Integer> three,
+    public void test (String one, int two, List<Integer> three,
                       TestFuncListener listener);
 
     /** Issues a request for the test oid. */
-    public void getTestOid (Client client, TestOidListener listener);
+    public void getTestOid (TestOidListener listener);
 
     /** Tests upping the client's maximum message rate. */
-    public void giveMeThePower (Client client, ConfirmListener listener);
+    public void giveMeThePower (ConfirmListener listener);
 }

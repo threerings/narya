@@ -58,7 +58,7 @@ public interface ChatService extends InvocationService
      * @param message the contents of the message.
      * @param listener the reference that will receive the tell response.
      */
-    void tell (Client client, Name target, String message, TellListener listener);
+    void tell (Name target, String message, TellListener listener);
 
     /**
      * Requests that a message be broadcast to all users in the system.
@@ -67,11 +67,11 @@ public interface ChatService extends InvocationService
      * @param message the contents of the message.
      * @param listener the reference that will receive a failure response.
      */
-    void broadcast (Client client, String message, InvocationListener listener);
+    void broadcast (String message, InvocationListener listener);
 
     /**
      * Sets this client's away message. If the message is null or the empty string, the away
      * message will be cleared.
      */
-    void away (Client client, String message);
+    void away (String message);
 }

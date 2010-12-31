@@ -79,12 +79,12 @@ public class AdminMarshaller extends InvocationMarshaller
     public static final int GET_CONFIG_INFO = 1;
 
     // from interface AdminService
-    public void getConfigInfo (Client arg1, AdminService.ConfigInfoListener arg2)
+    public void getConfigInfo (AdminService.ConfigInfoListener arg1)
     {
-        AdminMarshaller.ConfigInfoMarshaller listener2 = new AdminMarshaller.ConfigInfoMarshaller();
-        listener2.listener = arg2;
-        sendRequest(arg1, GET_CONFIG_INFO, new Object[] {
-            listener2
+        AdminMarshaller.ConfigInfoMarshaller listener1 = new AdminMarshaller.ConfigInfoMarshaller();
+        listener1.listener = arg1;
+        sendRequest(GET_CONFIG_INFO, new Object[] {
+            listener1
         });
     }
 }

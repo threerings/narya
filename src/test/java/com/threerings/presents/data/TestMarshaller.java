@@ -115,12 +115,12 @@ public class TestMarshaller extends InvocationMarshaller
     public static final int GET_TEST_OID = 1;
 
     // from interface TestService
-    public void getTestOid (Client arg1, TestService.TestOidListener arg2)
+    public void getTestOid (TestService.TestOidListener arg1)
     {
-        TestMarshaller.TestOidMarshaller listener2 = new TestMarshaller.TestOidMarshaller();
-        listener2.listener = arg2;
-        sendRequest(arg1, GET_TEST_OID, new Object[] {
-            listener2
+        TestMarshaller.TestOidMarshaller listener1 = new TestMarshaller.TestOidMarshaller();
+        listener1.listener = arg1;
+        sendRequest(GET_TEST_OID, new Object[] {
+            listener1
         });
     }
 
@@ -128,12 +128,12 @@ public class TestMarshaller extends InvocationMarshaller
     public static final int GIVE_ME_THE_POWER = 2;
 
     // from interface TestService
-    public void giveMeThePower (Client arg1, InvocationService.ConfirmListener arg2)
+    public void giveMeThePower (InvocationService.ConfirmListener arg1)
     {
-        InvocationMarshaller.ConfirmMarshaller listener2 = new InvocationMarshaller.ConfirmMarshaller();
-        listener2.listener = arg2;
-        sendRequest(arg1, GIVE_ME_THE_POWER, new Object[] {
-            listener2
+        InvocationMarshaller.ConfirmMarshaller listener1 = new InvocationMarshaller.ConfirmMarshaller();
+        listener1.listener = arg1;
+        sendRequest(GIVE_ME_THE_POWER, new Object[] {
+            listener1
         });
     }
 
@@ -141,12 +141,12 @@ public class TestMarshaller extends InvocationMarshaller
     public static final int TEST = 3;
 
     // from interface TestService
-    public void test (Client arg1, String arg2, int arg3, List<Integer> arg4, TestService.TestFuncListener arg5)
+    public void test (String arg1, int arg2, List<Integer> arg3, TestService.TestFuncListener arg4)
     {
-        TestMarshaller.TestFuncMarshaller listener5 = new TestMarshaller.TestFuncMarshaller();
-        listener5.listener = arg5;
-        sendRequest(arg1, TEST, new Object[] {
-            arg2, Integer.valueOf(arg3), arg4, listener5
+        TestMarshaller.TestFuncMarshaller listener4 = new TestMarshaller.TestFuncMarshaller();
+        listener4.listener = arg4;
+        sendRequest(TEST, new Object[] {
+            arg1, Integer.valueOf(arg2), arg3, listener4
         });
     }
 }

@@ -43,10 +43,10 @@ public class BodyMarshaller extends InvocationMarshaller
     public static final int SET_IDLE = 1;
 
     // from interface BodyService
-    public void setIdle (Client arg1, boolean arg2)
+    public void setIdle (boolean arg1)
     {
-        sendRequest(arg1, SET_IDLE, new Object[] {
-            Boolean.valueOf(arg2)
+        sendRequest(SET_IDLE, new Object[] {
+            Boolean.valueOf(arg1)
         });
     }
 }

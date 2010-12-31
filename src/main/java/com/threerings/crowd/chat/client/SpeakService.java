@@ -41,5 +41,5 @@ public interface SpeakService extends InvocationService
      * application specific manner. It's useful for differentiating
      * between regular speech, emotes, etc.
      */
-    void speak (Client client, String message, byte mode);
+    void speak (String message, byte mode);
 }

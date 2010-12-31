@@ -56,7 +56,7 @@ public abstract class BureauDirector extends BasicDirector
     public void clientDidLogon (Client client)
     {
         super.clientDidLogon(client);
-        _bureauService.bureauInitialized(_ctx.getClient(), _ctx.getBureauId());
+        _bureauService.bureauInitialized(_ctx.getBureauId());
     }
 
     /**
@@ -103,7 +103,7 @@ public abstract class BureauDirector extends BasicDirector
             } else {
                 subscriber.unsubscribe(_ctx.getDObjectManager());
             }
-            _bureauService.agentDestroyed(_ctx.getClient(), agentId);
+            _bureauService.agentDestroyed(agentId);
         }
     }
 
@@ -124,12 +124,12 @@ public abstract class BureauDirector extends BasicDirector
             agent.start();
         } catch (Throwable t) {
             log.warning("Could not create agent", "obj", agentObject, t);
-            _bureauService.agentCreationFailed(_ctx.getClient(), oid);
+            _bureauService.agentCreationFailed(oid);
             return;
         }
 
         _agents.put(oid, agent);
-        _bureauService.agentCreated(_ctx.getClient(), oid);
+        _bureauService.agentCreated(oid);
     }
 
     /**

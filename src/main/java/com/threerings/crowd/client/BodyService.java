@@ -33,5 +33,5 @@ public interface BodyService extends InvocationService
      * Requests to set the idle state of the client to the specified
      * value.
      */
-    void setIdle (Client client, boolean idle);
+    void setIdle (boolean idle);
 }

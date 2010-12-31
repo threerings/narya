@@ -34,18 +34,18 @@ public interface PeerService extends InvocationService
      * Informs the node that the sending peer ratifies its acquisition or release of the specified
      * lock.
      */
-    void ratifyLockAction (Client client, Lock lock, boolean acquire);
+    void ratifyLockAction (Lock lock, boolean acquire);
 
     /**
      * Requests that the specified action be invoked on this server.
      */
-    void invokeAction (Client client, byte[] serializedAction);
+    void invokeAction (byte[] serializedAction);
 
     /**
      * Requests that the specified request be invoked on this server and wants a confirmation
      *  when it's complete.
      */
-    void invokeRequest (Client client, byte[] serializedAction, ResultListener listener);
+    void invokeRequest (byte[] serializedAction, ResultListener listener);
 
     /**
      * Generates a server status report for this peer and returns it to the supplied listener. The
@@ -53,5 +53,5 @@ public interface PeerService extends InvocationService
      *
      * @param type the type of report to generate. See ReportManager for more information.
      */
-    void generateReport (Client client, String type, ResultListener listener);
+    void generateReport (String type, ResultListener listener);
 }

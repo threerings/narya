@@ -47,10 +47,10 @@ public class CrowdPeerMarshaller extends InvocationMarshaller
     public static final int DELIVER_BROADCAST = 1;
 
     // from interface CrowdPeerService
-    public void deliverBroadcast (Client arg1, Name arg2, byte arg3, String arg4, String arg5)
+    public void deliverBroadcast (Name arg1, byte arg2, String arg3, String arg4)
     {
-        sendRequest(arg1, DELIVER_BROADCAST, new Object[] {
-            arg2, Byte.valueOf(arg3), arg4, arg5
+        sendRequest(DELIVER_BROADCAST, new Object[] {
+            arg1, Byte.valueOf(arg2), arg3, arg4
         });
     }
 
@@ -58,12 +58,12 @@ public class CrowdPeerMarshaller extends InvocationMarshaller
     public static final int DELIVER_TELL = 2;
 
     // from interface CrowdPeerService
-    public void deliverTell (Client arg1, UserMessage arg2, Name arg3, ChatService.TellListener arg4)
+    public void deliverTell (UserMessage arg1, Name arg2, ChatService.TellListener arg3)
     {
-        ChatMarshaller.TellMarshaller listener4 = new ChatMarshaller.TellMarshaller();
-        listener4.listener = arg4;
-        sendRequest(arg1, DELIVER_TELL, new Object[] {
-            arg2, arg3, listener4
+        ChatMarshaller.TellMarshaller listener3 = new ChatMarshaller.TellMarshaller();
+        listener3.listener = arg3;
+        sendRequest(DELIVER_TELL, new Object[] {
+            arg1, arg2, listener3
         });
     }
 }

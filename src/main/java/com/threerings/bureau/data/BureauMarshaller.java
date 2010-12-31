@@ -43,10 +43,10 @@ public class BureauMarshaller extends InvocationMarshaller
     public static final int AGENT_CREATED = 1;
 
     // from interface BureauService
-    public void agentCreated (Client arg1, int arg2)
+    public void agentCreated (int arg1)
     {
-        sendRequest(arg1, AGENT_CREATED, new Object[] {
-            Integer.valueOf(arg2)
+        sendRequest(AGENT_CREATED, new Object[] {
+            Integer.valueOf(arg1)
         });
     }
 
@@ -54,10 +54,10 @@ public class BureauMarshaller extends InvocationMarshaller
     public static final int AGENT_CREATION_FAILED = 2;
 
     // from interface BureauService
-    public void agentCreationFailed (Client arg1, int arg2)
+    public void agentCreationFailed (int arg1)
     {
-        sendRequest(arg1, AGENT_CREATION_FAILED, new Object[] {
-            Integer.valueOf(arg2)
+        sendRequest(AGENT_CREATION_FAILED, new Object[] {
+            Integer.valueOf(arg1)
         });
     }
 
@@ -65,10 +65,10 @@ public class BureauMarshaller extends InvocationMarshaller
     public static final int AGENT_DESTROYED = 3;
 
     // from interface BureauService
-    public void agentDestroyed (Client arg1, int arg2)
+    public void agentDestroyed (int arg1)
     {
-        sendRequest(arg1, AGENT_DESTROYED, new Object[] {
-            Integer.valueOf(arg2)
+        sendRequest(AGENT_DESTROYED, new Object[] {
+            Integer.valueOf(arg1)
         });
     }
 
@@ -76,10 +76,10 @@ public class BureauMarshaller extends InvocationMarshaller
     public static final int BUREAU_ERROR = 4;
 
     // from interface BureauService
-    public void bureauError (Client arg1, String arg2)
+    public void bureauError (String arg1)
     {
-        sendRequest(arg1, BUREAU_ERROR, new Object[] {
-            arg2
+        sendRequest(BUREAU_ERROR, new Object[] {
+            arg1
         });
     }
 
@@ -87,10 +87,10 @@ public class BureauMarshaller extends InvocationMarshaller
     public static final int BUREAU_INITIALIZED = 5;
 
     // from interface BureauService
-    public void bureauInitialized (Client arg1, String arg2)
+    public void bureauInitialized (String arg1)
     {
-        sendRequest(arg1, BUREAU_INITIALIZED, new Object[] {
-            arg2
+        sendRequest(BUREAU_INITIALIZED, new Object[] {
+            arg1
         });
     }
 }

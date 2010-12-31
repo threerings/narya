@@ -79,9 +79,9 @@ public class LocationMarshaller extends InvocationMarshaller
     public static final int LEAVE_PLACE = 1;
 
     // from interface LocationService
-    public void leavePlace (Client arg1)
+    public void leavePlace ()
     {
-        sendRequest(arg1, LEAVE_PLACE, new Object[] {
+        sendRequest(LEAVE_PLACE, new Object[] {
         });
     }
 
@@ -89,12 +89,12 @@ public class LocationMarshaller extends InvocationMarshaller
     public static final int MOVE_TO = 2;
 
     // from interface LocationService
-    public void moveTo (Client arg1, int arg2, LocationService.MoveListener arg3)
+    public void moveTo (int arg1, LocationService.MoveListener arg2)
     {
-        LocationMarshaller.MoveMarshaller listener3 = new LocationMarshaller.MoveMarshaller();
-        listener3.listener = arg3;
-        sendRequest(arg1, MOVE_TO, new Object[] {
-            Integer.valueOf(arg2), listener3
+        LocationMarshaller.MoveMarshaller listener2 = new LocationMarshaller.MoveMarshaller();
+        listener2.listener = arg2;
+        sendRequest(MOVE_TO, new Object[] {
+            Integer.valueOf(arg1), listener2
         });
     }
 }

@@ -159,7 +159,7 @@ public class LocationDirector extends BasicDirector
 
         // issue a moveTo request
         log.info("Issuing moveTo(" + placeId + ").");
-        _lservice.moveTo(_ctx.getClient(), placeId, new LocationService.MoveListener() {
+        _lservice.moveTo(placeId, new LocationService.MoveListener() {
             public void moveSucceeded (PlaceConfig config) {
                 // handle the successful move
                 didMoveTo(_pendingPlaceId, config);
@@ -210,7 +210,7 @@ public class LocationDirector extends BasicDirector
             return false;
         }
 
-        _lservice.leavePlace(_ctx.getClient());
+        _lservice.leavePlace();
         didLeavePlace();
 
         // let our observers know that we're no longer in a location

@@ -41,5 +41,5 @@ public interface TimeBaseService extends InvocationService
     /**
      * Requests the oid of the specified time base object be fetched.
      */
-    void getTimeOid (Client client, String timeBase, GotTimeBaseListener listener);
+    void getTimeOid (String timeBase, GotTimeBaseListener listener);
 }
