@@ -10,11 +10,6 @@ import com.threerings.presents.tools.InvocationTask.ServiceMethod;
 
 public class CPPArgBuilder
 {
-    public CPPArgBuilder(boolean ignoreFirst)
-    {
-        _ignoreFirst = ignoreFirst;
-    }
-
     public String getArguments (ServiceMethod meth)
     {
         return getArguments(meth, "");
@@ -24,11 +19,11 @@ public class CPPArgBuilder
     {
         StringBuilder buf = new StringBuilder(prefix);
         Type[] ptypes = meth.method.getGenericParameterTypes();
-        for (int ii = _ignoreFirst ? 1 : 0; ii < ptypes.length; ii++) {
+        for (int ii = 0; ii < ptypes.length; ii++) {
             if (buf.length() > 0) {
                 buf.append(", ");
             }
-            buf.append(CPPUtil.getCPPType(ptypes[ii])).append(" arg").append(ii);
+            buf.append(CPPUtil.getCPPType(ptypes[ii])).append(" arg").append(ii+1);
         }
         return buf.toString();
     }
@@ -36,9 +31,9 @@ public class CPPArgBuilder
     public List<String> getArgumentNames (ServiceMethod meth)
     {
         Type[] ptypes = meth.method.getGenericParameterTypes();
-        List<String> args = Lists.newArrayListWithCapacity(ptypes.length - 1);
-        for (int ii = 1; ii < ptypes.length; ii++) {
-            args.add("arg" + ii);
+        List<String> args = Lists.newArrayListWithCapacity(ptypes.length);
+        for (int ii = 0; ii < ptypes.length; ii++) {
+            args.add("arg" + (ii+1));
         }
         return args;
     }
@@ -47,7 +42,7 @@ public class CPPArgBuilder
     {
         StringBuilder buf = new StringBuilder();
         Type[] ptypes = meth.method.getGenericParameterTypes();
-        for (int ii = _ignoreFirst ? 1 : 0; ii < ptypes.length; ii++) {
+        for (int ii = 0; ii < ptypes.length; ii++) {
             if (buf.length() > 0) {
                 buf.append(", ");
             }
@@ -61,11 +56,9 @@ public class CPPArgBuilder
     {
         Type[] ptypes = meth.method.getGenericParameterTypes();
         List<String> args = Lists.newArrayListWithCapacity(ptypes.length);
-        for (int ii = _ignoreFirst ? 1 : 0; ii < ptypes.length; ii++) {
-            args.add(new CPPType(ptypes[ii]).getAsStreamable("arg" + ii));
+        for (int ii = 0; ii < ptypes.length; ii++) {
+            args.add(new CPPType(ptypes[ii]).getAsStreamable("arg" + (ii+1)));
         }
         return args;
     }
-
-    protected final boolean _ignoreFirst;
 }

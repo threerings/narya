@@ -24,9 +24,10 @@ public class MethodDescriptor
 
     public MethodDescriptor(ServiceMethod methodSource) {
         methodName = methodSource.method.getName();
-        vectorArguments = new CPPArgBuilder(false).getArgumentsFromVector(methodSource);
-        arguments = new CPPArgBuilder(false).getArguments(methodSource);
-        clientArguments = new CPPArgBuilder(true).getArguments(methodSource, "Shared<presents::PresentsClient> client");
-        serviceArguments = new CPPArgBuilder(true).getServiceArguments(methodSource);
+        vectorArguments = new CPPArgBuilder().getArgumentsFromVector(methodSource);
+        arguments = new CPPArgBuilder().getArguments(methodSource);
+        clientArguments = new CPPArgBuilder().getArguments(
+            methodSource, "Shared<presents::PresentsClient> client");
+        serviceArguments = new CPPArgBuilder().getServiceArguments(methodSource);
     }
 }

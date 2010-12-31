@@ -38,7 +38,7 @@ public class GenCPPServiceTask extends GenServiceTask
         ctx.put("namespace", Joiner.on("::").join(namespaces));
         ctx.put("methods",  MethodDescriptor.from(sdesc.methods));
         ctx.put("listeners", sdesc.listeners);
-        ctx.put("argbuilder", new CPPArgBuilder(true));
+        ctx.put("argbuilder", new CPPArgBuilder());
 
         Set<String> includes = Sets.newTreeSet();
         Set<String> implIncludes = Sets.newTreeSet();
