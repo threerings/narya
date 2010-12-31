@@ -19,7 +19,7 @@ public interface {{name}}Provider extends InvocationProvider
     /**
      * Handles a {@link {{name}}Service#{{method.name}}} request.
      */
-    void {{method.name}} (ClientObject caller{{#hasArgsSkipFirst}}, {{/hasArgsSkipFirst}}{{getArgListSkipFirst}}){{^listenerArgs.isEmpty}}
+    void {{method.name}} (ClientObject caller{{#hasArgs}}, {{/hasArgs}}{{getArgList}}){{^listenerArgs.isEmpty}}
 
         throws InvocationException{{/listenerArgs.isEmpty}};
 {{/methods}}

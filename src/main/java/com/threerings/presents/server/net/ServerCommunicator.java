@@ -22,8 +22,11 @@
 package com.threerings.presents.server.net;
 
 import java.io.IOException;
+import java.io.InputStream;
 
+import com.threerings.io.ObjectInputStream;
 import com.threerings.presents.client.Client;
+import com.threerings.presents.client.ClientObjectInputStream;
 import com.threerings.presents.client.ClientObserver;
 import com.threerings.presents.client.Communicator;
 import com.threerings.presents.client.ObserverOps;
@@ -86,6 +89,10 @@ public class ServerCommunicator extends Communicator
                         }
                     });
                     super.networkFailure(ioe);
+                }
+
+                @Override protected ObjectInputStream createObjectInputStream (InputStream src) {
+                    return new ClientObjectInputStream(_client, src);
                 }
 
                 @Override protected void closeSocket () {

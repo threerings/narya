@@ -72,10 +72,10 @@ public class {{name}}Marshaller extends InvocationMarshaller
         {{marshaller}} listener{{index}} = new {{marshaller}}();
         listener{{index}}.listener = arg{{index}};
 {{/listenerArgs}}
-        sendRequest(arg1, {{code}}, new Object[] {
-{{#hasArgsSkipFirst}}
-            {{getWrappedArgListSkipFirst}}
-{{/hasArgsSkipFirst}}
+        sendRequest({{code}}, new Object[] {
+{{#hasArgs}}
+            {{getWrappedArgList}}
+{{/hasArgs}}
         }{{transport}});
     }
 {{/methods}}

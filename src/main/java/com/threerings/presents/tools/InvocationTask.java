@@ -27,19 +27,21 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.lang.reflect.WildcardType;
 
+import java.io.File;
 import java.util.Arrays;
 import java.util.List;
 
-import java.io.File;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 
 import com.samskivert.util.Logger;
 import com.samskivert.util.StringUtil;
+
 import com.threerings.presents.annotation.TransportHint;
-import com.threerings.presents.net.Transport;
+import com.threerings.presents.client.Client;
 import com.threerings.presents.client.InvocationService.InvocationListener;
+import com.threerings.presents.net.Transport;
 
 /**
  * A base Ant task for generating invocation service related marshalling and unmarshalling
@@ -79,10 +81,6 @@ public abstract class InvocationTask extends GenTask
 
         public int getIndex () {
             return _index+1;
-        }
-
-        public int getIndexSkipFirst () {
-            return _index;
         }
 
         protected int _index;
@@ -140,18 +138,10 @@ public abstract class InvocationTask extends GenTask
             }
         }
 
-        public String getArgListSkipFirst () {
-            return getArgList(true);
-        }
-
         public String getArgList () {
-            return getArgList(false);
-        }
-
-        public String getArgList (boolean skipFirst) {
             StringBuilder buf = new StringBuilder();
             Type[] ptypes = method.getGenericParameterTypes();
-            for (int ii = skipFirst ? 1 : 0; ii < ptypes.length; ii++) {
+            for (int ii = 0; ii < ptypes.length; ii++) {
                 if (buf.length() > 0) {
                     buf.append(", ");
                 }
@@ -162,27 +152,19 @@ public abstract class InvocationTask extends GenTask
                 } else {
                     buf.append(simpleName);
                 }
-                buf.append(" arg").append(skipFirst ? ii : ii+1);
+                buf.append(" arg").append(ii+1);
             }
             return buf.toString();
         }
 
-        public String getASArgListSkipFirst () {
-            return getASArgList(true);
-        }
-
         public String getASArgList () {
-            return getASArgList(false);
-        }
-
-        public String getASArgList (boolean skipFirst) {
             StringBuilder buf = new StringBuilder();
             Class<?>[] args = method.getParameterTypes();
-            for (int ii = skipFirst ? 1 : 0; ii < args.length; ii++) {
+            for (int ii = 0; ii < args.length; ii++) {
                 if (buf.length() > 0) {
                     buf.append(", ");
                 }
-                buf.append("arg").append(skipFirst ? ii : ii+1).append(" :");
+                buf.append("arg").append(ii+1).append(" :");
                 buf.append(GenUtil.simpleASName(args[ii]));
             }
             return buf.toString();
@@ -200,18 +182,10 @@ public abstract class InvocationTask extends GenTask
             return buf.toString();
         }
 
-        public String getWrappedArgListSkipFirst () {
-            return getWrappedArgList(true);
-        }
-
         public String getWrappedArgList () {
-            return getWrappedArgList(false);
-        }
-
-        public String getWrappedArgList (boolean skipFirst) {
             StringBuilder buf = new StringBuilder();
             Class<?>[] args = method.getParameterTypes();
-            for (int ii = (skipFirst ? 1 : 0); ii < args.length; ii++) {
+            for (int ii = 0; ii < args.length; ii++) {
                 if (buf.length() > 0) {
                     buf.append(", ");
                 }
@@ -220,22 +194,14 @@ public abstract class InvocationTask extends GenTask
             return buf.toString();
         }
 
-        public String getASWrappedArgListSkipFirst () {
-            return getASWrappedArgList(true);
-        }
-
         public String getASWrappedArgList () {
-            return getASWrappedArgList(false);
-        }
-
-        public String getASWrappedArgList (boolean skipFirst) {
             StringBuilder buf = new StringBuilder();
             Class<?>[] args = method.getParameterTypes();
-            for (int ii = (skipFirst ? 1 : 0); ii < args.length; ii++) {
+            for (int ii = 0; ii < args.length; ii++) {
                 if (buf.length() > 0) {
                     buf.append(", ");
                 }
-                String index = String.valueOf(skipFirst ? ii : (ii+1));
+                String index = String.valueOf(ii+1);
                 String arg;
                 if (_ilistener.isAssignableFrom(args[ii])) {
                     arg = GenUtil.boxASArgument(args[ii],  "listener" + index);
@@ -247,12 +213,8 @@ public abstract class InvocationTask extends GenTask
             return buf.toString();
         }
 
-        public boolean hasArgsSkipFirst () {
-            return (method.getParameterTypes().length > 1);
-        }
-
         public boolean hasArgs () {
-            return (method.getParameterTypes().length > 0);
+            return method.getParameterTypes().length > 0;
         }
 
         public boolean hasParameterizedArgs () {
@@ -276,11 +238,11 @@ public abstract class InvocationTask extends GenTask
         public String getUnwrappedArgList (boolean listenerMode) {
             StringBuilder buf = new StringBuilder();
             Type[] ptypes = method.getGenericParameterTypes();
-            for (int ii = (listenerMode ? 0 : 1); ii < ptypes.length; ii++) {
+            for (int ii = 0; ii < ptypes.length; ii++) {
                 if (buf.length() > 0) {
                     buf.append(", ");
                 }
-                buf.append(unboxArgument(ptypes[ii], listenerMode ? ii : ii-1, listenerMode));
+                buf.append(unboxArgument(ptypes[ii], ii, listenerMode));
             }
             return buf.toString();
         }
@@ -296,12 +258,12 @@ public abstract class InvocationTask extends GenTask
         public String getASUnwrappedArgList (boolean listenerMode) {
             StringBuilder buf = new StringBuilder();
             Class<?>[] args = method.getParameterTypes();
-            for (int ii = (listenerMode ? 0 : 1); ii < args.length; ii++) {
+            for (int ii = 0; ii < args.length; ii++) {
                 if (buf.length() > 0) {
                     buf.append(", ");
                 }
                 String arg;
-                int argidx = listenerMode ? ii : ii-1;
+                int argidx = ii;
                 if (listenerMode && _ilistener.isAssignableFrom(args[ii])) {
                     arg = "listener" + argidx;
                 } else {
@@ -385,8 +347,9 @@ public abstract class InvocationTask extends GenTask
     @Override
     public void execute ()
     {
-        // resolve the InvocationListener class using our classloader
+        // resolve the InvocationListener and Client classes using our classloader
         _ilistener = loadClass(InvocationListener.class.getName());
+        _iclient = loadClass(Client.class.getName());
 
         super.execute();
     }
@@ -404,7 +367,11 @@ public abstract class InvocationTask extends GenTask
                               newstr.replace('/', File.separatorChar));
     }
 
-    /** {@link InvocationListener} resolved with the proper classloader so
-     * that we can compare it to loaded derived classes. */
+    /** {@link InvocationListener} resolved with the proper classloader so that we can compare it
+     * to loaded derived classes. */
     protected Class<?> _ilistener;
+
+    /** {@link Client} resolved with the proper classloader so that we can compare it to loaded
+     * derived classes. */
+    protected Class<?> _iclient;
 }

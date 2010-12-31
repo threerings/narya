@@ -22,14 +22,14 @@ public class {{name}}Marshaller extends InvocationMarshaller
     public static const {{code}} :int = {{-index}};
 
     // from interface {{name}}Service
-    public function {{method.name}} ({{getASArgListSkipFirst}}) :void
+    public function {{method.name}} ({{getASArgList}}) :void
     {
 {{#listenerArgs}}
-        var listener{{indexSkipFirst}} :{{actionScriptMarshaller}} = new {{actionScriptMarshaller}}();
-        listener{{indexSkipFirst}}.listener = arg{{indexSkipFirst}};
+        var listener{{index}} :{{actionScriptMarshaller}} = new {{actionScriptMarshaller}}();
+        listener{{index}}.listener = arg{{index}};
 {{/listenerArgs}}
         sendRequest({{code}}, [
-            {{getASWrappedArgListSkipFirst}}
+            {{getASWrappedArgList}}
         ]);
     }
 {{/methods}}

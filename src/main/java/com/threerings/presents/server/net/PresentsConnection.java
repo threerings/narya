@@ -23,6 +23,7 @@ package com.threerings.presents.server.net;
 
 import java.io.EOFException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.DatagramChannel;
@@ -203,8 +204,7 @@ public class PresentsConnection extends Connection
             // we're lazy about creating our input streams because we may be inheriting them from
             // our authing connection and we don't want to unnecessarily create them in that case
             if (_fin == null) {
-                _fin = new FramedInputStream();
-                _oin = new ObjectInputStream(_fin);
+                _oin = createObjectInputStream(_fin = new FramedInputStream());
                 if (_loader != null) {
                     _oin.setClassLoader(_loader);
                 }
@@ -253,6 +253,15 @@ public class PresentsConnection extends Connection
     protected ObjectInputStream getObjectInputStream ()
     {
         return _oin;
+    }
+
+    /**
+     * Creates the object input stream used by this connection to communicate. This may be
+     * overridden by subclasses to create custom streams.
+     */
+    protected ObjectInputStream createObjectInputStream (InputStream src)
+    {
+        return new ObjectInputStream(src);
     }
 
     /**

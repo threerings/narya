@@ -652,7 +652,7 @@ public class BlockingCommunicator extends Communicator
             _fout = new FramingOutputStream();
 
             // create our object input and output streams
-            _oin = new ObjectInputStream(_fin);
+            _oin = new ClientObjectInputStream(_client, _fin);
             _oin.setClassLoader(_loader);
             _oout = new ObjectOutputStream(_fout);
         }

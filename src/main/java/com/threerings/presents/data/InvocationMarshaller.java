@@ -21,9 +21,14 @@
 
 package com.threerings.presents.data;
 
+import java.io.IOException;
+
+import com.threerings.io.ObjectInputStream;
 import com.threerings.io.Streamable;
 
 import com.threerings.presents.client.Client;
+import com.threerings.presents.client.ClientObjectInputStream;
+import com.threerings.presents.client.InvocationDirector;
 import com.threerings.presents.client.InvocationService;
 import com.threerings.presents.dobj.DObjectManager;
 import com.threerings.presents.dobj.InvocationResponseEvent;
@@ -243,6 +248,16 @@ public class InvocationMarshaller
         }
     }
 
+    /**
+     * A custom reader method for {@link Streamable}.
+     */
+    public void readObject (ObjectInputStream in)
+        throws IOException, ClassNotFoundException
+    {
+        in.defaultReadObject();
+        _invdir = ((ClientObjectInputStream)in).client.getInvocationDirector();
+    }
+
     @Override
     public String toString ()
     {
@@ -253,15 +268,27 @@ public class InvocationMarshaller
      * Called by generated invocation marshaller code; packages up and sends the specified
      * invocation service request.
      */
-    protected void sendRequest (Client client, int methodId, Object[] args)
+    protected void sendRequest (int methodId, Object[] args)
     {
-        sendRequest(client, methodId, args, Transport.DEFAULT);
+        sendRequest(methodId, args, Transport.DEFAULT);
     }
 
     /**
      * Called by generated invocation marshaller code; packages up and sends the specified
      * invocation service request.
      */
+    protected void sendRequest (int methodId, Object[] args, Transport transport)
+    {
+        _invdir.sendRequest(_invOid, _invCode, methodId, args, transport);
+    }
+
+    @Deprecated /** @deprecated use client-argument-free version. */
+    protected void sendRequest (Client client, int methodId, Object[] args)
+    {
+        sendRequest(client, methodId, args, Transport.DEFAULT);
+    }
+
+    @Deprecated /** @deprecated use client-argument-free version. */
     protected void sendRequest (Client client, int methodId, Object[] args, Transport transport)
     {
         client.getInvocationDirector().sendRequest(_invOid, _invCode, methodId, args, transport);
@@ -273,4 +300,8 @@ public class InvocationMarshaller
     /** The invocation service code assigned to this service when it was registered on the
      * server. */
     protected int _invCode;
+
+    /** A reference to the invocation director with whom we interoperate. This is initialized in
+     * {@link #readObject} when we're read in from the network. */
+    protected transient InvocationDirector _invdir;
 }

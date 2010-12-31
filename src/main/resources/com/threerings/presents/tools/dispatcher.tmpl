@@ -36,7 +36,7 @@ public class {{name}}Dispatcher extends InvocationDispatcher<{{name}}Marshaller>
 {{#methods}}
         case {{name}}Marshaller.{{code}}:
             (({{name}}Provider)provider).{{method.name}}(
-                source{{#hasArgsSkipFirst}}, {{/hasArgsSkipFirst}}{{getUnwrappedArgList}}
+                source{{#hasArgs}}, {{/hasArgs}}{{getUnwrappedArgList}}
             );
             return;
 
