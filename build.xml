@@ -33,6 +33,7 @@
     <mkdir dir="${deploy.dir}"/>
     <mkdir dir="${deploy.dir}/lib"/>
     <mkdir dir="${classes.dir}"/>
+    <mkdir dir="${tclasses.dir}"/>
     <copy todir="${classes.dir}">
       <fileset dir="src/main/resources" includes="**"/>
     </copy>
@@ -79,8 +80,6 @@
       <compilerarg value="-Xlint"/>
       <compilerarg value="-Xlint:-serial"/>
     </javac>
-
-    <mkdir dir="${tclasses.dir}"/>
     <copy todir="${tclasses.dir}"><fileset dir="src/test/resources" includes="**"/></copy>
     <javac srcdir="${tsrc.dir}" destdir="${tclasses.dir}" includeAntRuntime="false"
            debug="on" optimize="${build.optimize}" source="1.5" target="1.5"
@@ -249,6 +248,11 @@
       <include name="**/*Service.java"/>
       <exclude name="**/InvocationService.java"/>
     </javac>
+    <javac srcdir="${tsrc.dir}" destdir="${tclasses.dir}" includeAntRuntime="false" debug="on"
+           optimize="${build.optimize}" deprecation="on" source="1.5" target="1.5"
+           classpathref="test.classpath">
+      <include name="**/*Service.java"/>
+    </javac>
     <!-- generate services with an actionscript counterpart-->
     <genservice header="lib/SOURCE_HEADER" asroot="${asrc.dir}" classpathref="built.classpath"
         checking="${gencheck}">
@@ -267,6 +271,9 @@
       <fileset dir="${src.dir}" includes="**/peer/**/*Service.java"/>
       <fileset dir="${src.dir}" includes="**/admin/**/*Service.java"
           excludes="**/gwt/ConfigService.java"/>
+    </genservice>
+    <genservice header="lib/SOURCE_HEADER" classpathref="test.classpath" checking="${gencheck}">
+      <fileset dir="${tsrc.dir}" includes="**/*Service.java"/>
     </genservice>
     <gencppservice classpathref="built.classpath" cpproot="src/cpp">
         <fileset dir="${src.dir}" includes="**/RegistrationService.java"/>
