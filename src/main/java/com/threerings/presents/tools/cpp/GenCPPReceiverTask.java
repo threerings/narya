@@ -39,7 +39,7 @@ public class GenCPPReceiverTask extends GenReceiverTask
         ctx.put("package", rpackage);
         ctx.put("methods", MethodDescriptor.from(methods));
         ctx.put("receiverCode", rcode);
-        ctx.put("argbuilder", new CPPArgBuilder(false));
+        ctx.put("argbuilder", new CPPArgBuilder());
 
         writeTemplate(DECODER_HEADER_TMPL, makePath(_cpproot, namespaces, dname, ".h"), ctx);
 
