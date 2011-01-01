@@ -21,11 +21,16 @@
 
 package com.threerings.presents.server;
 
+import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.util.List;
 import java.util.Map;
 
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.google.common.collect.Multimap;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
@@ -38,6 +43,7 @@ import com.samskivert.util.StringUtil;
 import com.threerings.io.Streamable;
 
 import com.threerings.presents.data.ClientObject;
+import com.threerings.presents.data.InvocationCodes;
 import com.threerings.presents.data.InvocationMarshaller;
 import com.threerings.presents.data.InvocationMarshaller.ListenerMarshaller;
 import com.threerings.presents.dobj.DEvent;
@@ -93,6 +99,133 @@ public class InvocationManager
     public int getOid ()
     {
         return _invoid;
+    }
+
+    /**
+     * Registers the supplied invocation service provider.
+     *
+     * @param provider the provider to be registered.
+     * @param mclass the class of the invocation marshaller generated for the service.
+     */
+    public <T extends InvocationMarshaller> T registerProvider (
+        InvocationProvider provider, Class<T> mclass)
+    {
+        return registerProvider(provider, mclass, null);
+    }
+
+    /**
+     * Registers the supplied invocation service provider.
+     *
+     * @param provider the provider to be registered.
+     * @param mclass the class of the invocation marshaller generated for the service.
+     * @param group the bootstrap group in which this marshaller is to be registered, or null if it
+     * is not a bootstrap service. <em>Do not:</em> register a marshaller with multiple boot
+     * groups. You must collect shared marshaller into as fine grained a set of groups as necessary
+     * and have different types of clients specify the list of groups they need.
+     */
+    public <T extends InvocationMarshaller> T registerProvider (
+        final InvocationProvider provider, Class<T> mclass, String group)
+    {
+        _omgr.requireEventThread(); // sanity check
+
+        // find the invocation provider interface class (defaulting to the concrete class to cope
+        // with legacy non-interface based providers)
+        Class<?> pclass = provider.getClass();
+        String pname = mclass.getSimpleName().replaceAll("Marshaller", "Provider");
+        for (Class<?> iclass : provider.getClass().getInterfaces()) {
+            if (InvocationProvider.class.isAssignableFrom(iclass) &&
+                iclass.getSimpleName().equals(pname)) {
+                pclass = iclass;
+                break;
+            }
+        }
+
+        // determine the invocation service code mappings
+        final Map<Integer,Method> invmeths = Maps.newHashMap();
+        for (Method method : pclass.getDeclaredMethods()) {
+            Class<?>[] ptypes = method.getParameterTypes();
+            // only consider methods whose first argument is of type ClientObject; this is a
+            // non-issue if we are looking at an auto-generated FooProvider interface, but is
+            // necessary to avoid problems for legacy concrete FooProvider implementations that
+            // also happen to have overloaded methods with the same name as invocation service
+            // methods; I'm looking at you ChatProvider...
+            if (!ClientObject.class.isAssignableFrom(ptypes[0])) {
+                continue;
+            }
+            try {
+                Field code = mclass.getField(StringUtil.unStudlyName(method.getName()));
+                invmeths.put(code.getInt(null), method);
+            } catch (IllegalAccessException iae) {
+                throw new RuntimeException(iae); // Field.get failed? shouldn't happen
+            } catch (NoSuchFieldException nsfe) {
+                // not a problem, they just added some extra methods to their provider
+            }
+        }
+
+        // get the next invocation code
+        int invCode = nextInvCode();
+
+        // create a marshaller instance and initialize it
+        T marsh;
+        try {
+            marsh = mclass.newInstance();
+            marsh.init(_invoid, invCode);
+        } catch (IllegalAccessException ie) {
+            throw new RuntimeException(ie);
+        } catch (InstantiationException ie) {
+            throw new RuntimeException(ie);
+        }
+
+        // register the dispatcher
+        _dispatchers.put(invCode, new Dispatcher() {
+            public InvocationProvider getProvider () {
+                return provider;
+            }
+
+            public void dispatchRequest (ClientObject source, int methodId, Object[] args)
+                throws InvocationException {
+                // locate the method to be invoked
+                Method m = invmeths.get(methodId);
+                if (m == null) {
+                    String pclass = StringUtil.shortClassName(provider.getClass());
+                    log.warning("Requested to dispatch unknown method", "source", source.who(),
+                                "methodId", methodId, "provider", pclass, "args", args);
+                    throw new InvocationException(InvocationCodes.E_INTERNAL_ERROR);
+                }
+
+                // prepare the arguments: the ClientObject followed by the service method args
+                Object[] fargs = new Object[args.length+1];
+                System.arraycopy(args, 0, fargs, 1, args.length);
+                fargs[0] = source;
+
+                // actually invoke the method, and cope with failure
+                try {
+                    m.invoke(provider, fargs);
+                } catch (IllegalAccessException ie) {
+                    throw new RuntimeException(ie); // should never happen
+                } catch (InvocationTargetException ite) {
+                    Throwable cause = ite.getCause();
+                    if (cause instanceof InvocationException) {
+                        throw (InvocationException)cause;
+                    } else {
+                        log.warning("Invocation service method failure",
+                                    "provider", StringUtil.shortClassName(provider.getClass()),
+                                    "method", m.getName(), "args", fargs, cause);
+                        throw new InvocationException(InvocationCodes.E_INTERNAL_ERROR);
+                    }
+                }
+            }
+        });
+
+        // if it's a bootstrap service, slap it in the list
+        if (group != null) {
+            _bootlists.put(group, marsh);
+        }
+
+        _recentRegServices.put(Integer.valueOf(invCode), marsh.getClass().getName());
+
+        log.debug("Registered service", "code", invCode, "marsh", marsh);
+        return marsh;
     }
 
     /**
@@ -224,7 +357,7 @@ public class InvocationManager
         }
 
         // look up the dispatcher
-        InvocationDispatcher<?> disp = _dispatchers.get(invCode);
+        Dispatcher disp = _dispatchers.get(invCode);
         if (disp == null) {
             log.info("Received invocation request but dispatcher registration was already cleared",
                      "code", invCode, "methId", methodId, "args", args,
@@ -250,14 +383,13 @@ public class InvocationManager
             }
         }
 
-        log.debug("Dispatching invreq", "caller", source.who(), "disp", disp,
+        log.debug("Dispatching invreq", "caller", source.who(), "provider", disp.getProvider(),
                   "methId", methodId, "args", args);
 
         // dispatch the request
         try {
             if (rlist != null) {
-                rlist.setInvocationId(StringUtil.shortClassName(disp) +
-                    ", methodId=" + methodId);
+                rlist.setInvocationId(StringUtil.shortClassName(disp) + ", methodId=" + methodId);
             }
             disp.dispatchRequest(source, methodId, args);
 
@@ -268,11 +400,12 @@ public class InvocationManager
             } else {
                 log.warning("Service request failed but we've got no listener to inform of " +
                             "the failure", "caller", source.who(), "code", invCode,
-                            "dispatcher", disp, "methodId", methodId, "args", args, "error", ie);
+                            "provider", disp.getProvider(), "methodId", methodId, "args", args,
+                            "error", ie);
             }
 
         } catch (Throwable t) {
-            log.warning("Dispatcher choked", "disp", disp, "caller", source.who(),
+            log.warning("Dispatcher choked", "provider", disp.getProvider(), "caller", source.who(),
                         "methId", methodId, "args", args, t);
 
             // avoid logging an error when the listener notices that it's been ignored.
@@ -290,6 +423,12 @@ public class InvocationManager
         return _invCode++;
     }
 
+    protected interface Dispatcher {
+        public InvocationProvider getProvider ();
+        public void dispatchRequest (ClientObject source, int methodId, Object[] args)
+            throws InvocationException;
+    }
+
     /** The object id of the object on which we receive invocation service requests. */
     protected int _invoid = -1;
 
@@ -300,7 +439,7 @@ public class InvocationManager
     protected PresentsDObjectMgr _omgr;
 
     /** A table of invocation dispatchers each mapped by a unique code. */
-    protected IntMap<InvocationDispatcher<?>> _dispatchers = IntMaps.newHashIntMap();
+    protected IntMap<Dispatcher> _dispatchers = IntMaps.newHashIntMap();
 
     /** Maps bootstrap group to lists of services to be provided to clients at boot time. */
     protected Multimap<String, InvocationMarshaller> _bootlists = ArrayListMultimap.create();
