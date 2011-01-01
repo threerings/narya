@@ -149,7 +149,7 @@ public class InvocationManager
             // necessary to avoid problems for legacy concrete FooProvider implementations that
             // also happen to have overloaded methods with the same name as invocation service
             // methods; I'm looking at you ChatProvider...
-            if (!ClientObject.class.isAssignableFrom(ptypes[0])) {
+            if (ptypes.length == 0 || !ClientObject.class.isAssignableFrom(ptypes[0])) {
                 continue;
             }
             try {
