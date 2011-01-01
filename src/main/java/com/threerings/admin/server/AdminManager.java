@@ -30,6 +30,7 @@ import com.threerings.presents.server.InvocationManager;
 
 import com.threerings.admin.client.AdminService;
 import com.threerings.admin.data.AdminCodes;
+import com.threerings.admin.data.AdminMarshaller;
 
 /**
  * Handles admin stuffs.
@@ -40,7 +41,7 @@ public class AdminManager
 {
     @Inject public AdminManager (InvocationManager invmgr)
     {
-        invmgr.registerDispatcher(new AdminDispatcher(this), AdminCodes.ADMIN_GROUP);
+        invmgr.registerProvider(this, AdminMarshaller.class, AdminCodes.ADMIN_GROUP);
     }
 
     // from interface AdminProvider

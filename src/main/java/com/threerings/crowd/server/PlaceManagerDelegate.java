@@ -25,6 +25,7 @@ import com.threerings.presents.data.InvocationMarshaller;
 import com.threerings.presents.dobj.RootDObjectManager;
 import com.threerings.presents.server.InvocationDispatcher;
 import com.threerings.presents.server.InvocationManager;
+import com.threerings.presents.server.InvocationProvider;
 
 import com.threerings.crowd.data.OccupantInfo;
 import com.threerings.crowd.data.PlaceConfig;
@@ -108,6 +109,16 @@ public class PlaceManagerDelegate
     public String where ()
     {
         return _plmgr.where();
+    }
+
+    /**
+     * Registers an invocation provider and notes the registration such that it will be
+     * automatically cleared when our parent manager shuts down.
+     */
+    protected <T extends InvocationMarshaller> T addProvider (
+        InvocationProvider prov, Class<T> mclass)
+    {
+        return _plmgr.addProvider(prov, mclass);
     }
 
     /**

@@ -25,9 +25,10 @@ import java.util.HashMap;
 
 import com.google.common.collect.Maps;
 
-import com.threerings.presents.client.TimeBaseService.GotTimeBaseListener;
+import com.threerings.presents.client.TimeBaseService;
 import com.threerings.presents.data.ClientObject;
 import com.threerings.presents.data.TimeBaseCodes;
+import com.threerings.presents.data.TimeBaseMarshaller;
 import com.threerings.presents.data.TimeBaseObject;
 import com.threerings.presents.dobj.RootDObjectManager;
 
@@ -50,7 +51,7 @@ public class TimeBaseProvider
         _omgr = omgr;
 
         // register a provider instance
-        invmgr.registerDispatcher(new TimeBaseDispatcher(new TimeBaseProvider()), GLOBAL_GROUP);
+        invmgr.registerProvider(new TimeBaseProvider(), TimeBaseMarshaller.class, GLOBAL_GROUP);
     }
 
     /**
@@ -80,7 +81,8 @@ public class TimeBaseProvider
     /**
      * Processes a request from a client to fetch the oid of the specified time object.
      */
-    public void getTimeOid (ClientObject source, String timeBase, GotTimeBaseListener listener)
+    public void getTimeOid (ClientObject source, String timeBase,
+                            TimeBaseService.GotTimeBaseListener listener)
         throws InvocationException
     {
         // look up the time base object in question

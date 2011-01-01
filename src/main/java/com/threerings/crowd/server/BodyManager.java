@@ -27,6 +27,7 @@ import com.google.inject.Singleton;
 import com.threerings.presents.data.ClientObject;
 import com.threerings.presents.server.InvocationManager;
 
+import com.threerings.crowd.data.BodyMarshaller;
 import com.threerings.crowd.data.BodyObject;
 import com.threerings.crowd.data.CrowdCodes;
 import com.threerings.crowd.data.OccupantInfo;
@@ -45,7 +46,7 @@ public class BodyManager
      */
     @Inject public BodyManager (InvocationManager invmgr)
     {
-        invmgr.registerDispatcher(new BodyDispatcher(this), CrowdCodes.CROWD_GROUP);
+        invmgr.registerProvider(this, BodyMarshaller.class, CrowdCodes.CROWD_GROUP);
     }
 
     /**

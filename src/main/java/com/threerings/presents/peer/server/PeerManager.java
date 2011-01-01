@@ -72,6 +72,7 @@ import com.threerings.presents.peer.client.PeerService;
 import com.threerings.presents.peer.data.ClientInfo;
 import com.threerings.presents.peer.data.NodeObject;
 import com.threerings.presents.peer.data.PeerAuthName;
+import com.threerings.presents.peer.data.PeerMarshaller;
 import com.threerings.presents.peer.net.PeerCreds;
 import com.threerings.presents.peer.server.persist.NodeRecord;
 import com.threerings.presents.peer.server.persist.NodeRepository;
@@ -319,7 +320,7 @@ public abstract class PeerManager
         });
 
         // set the invocation service
-        _nodeobj.setPeerService(_invmgr.registerDispatcher(new PeerDispatcher(this)));
+        _nodeobj.setPeerService(_invmgr.registerProvider(this, PeerMarshaller.class));
 
         // register ourselves as a client observer
         _clmgr.addClientObserver(this);

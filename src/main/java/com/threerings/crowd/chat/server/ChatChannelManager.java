@@ -53,6 +53,7 @@ import com.threerings.presents.peer.server.PeerManager;
 import com.threerings.presents.peer.server.PeerManager.NodeRequest;
 import com.threerings.presents.peer.server.NodeRequestsListener;
 
+import com.threerings.crowd.chat.data.ChannelSpeakMarshaller;
 import com.threerings.crowd.chat.data.ChatChannel;
 import com.threerings.crowd.chat.data.ChatCodes;
 import com.threerings.crowd.chat.data.UserMessage;
@@ -163,7 +164,7 @@ public abstract class ChatChannelManager
      */
     @Inject protected ChatChannelManager (PresentsDObjectMgr omgr, InvocationManager invmgr)
     {
-        invmgr.registerDispatcher(new ChannelSpeakDispatcher(this), CrowdCodes.CROWD_GROUP);
+        invmgr.registerProvider(this, ChannelSpeakMarshaller.class, CrowdCodes.CROWD_GROUP);
 
         // create and start our idle channel closer; this will run as long as omgr is alive
         omgr.newInterval(new Runnable() {

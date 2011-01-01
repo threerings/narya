@@ -51,8 +51,10 @@ import com.threerings.presents.dobj.RootDObjectManager;
 import com.threerings.presents.dobj.SetAdapter;
 import com.threerings.presents.server.InvocationDispatcher;
 import com.threerings.presents.server.InvocationManager;
+import com.threerings.presents.server.InvocationProvider;
 
 import com.threerings.crowd.chat.data.ChatCodes;
+import com.threerings.crowd.chat.data.SpeakMarshaller;
 import com.threerings.crowd.chat.server.SpeakDispatcher;
 import com.threerings.crowd.chat.server.SpeakHandler;
 import com.threerings.crowd.data.BodyObject;
@@ -265,7 +267,7 @@ public class PlaceManager
         // we usually want to create and register a speaker service instance that clients can use
         // to speak in this place
         if (shouldCreateSpeakService()) {
-            plobj.setSpeakService(addDispatcher(new SpeakDispatcher(createSpeakHandler(plobj))));
+            plobj.setSpeakService(addProvider(createSpeakHandler(plobj), SpeakMarshaller.class));
         }
 
         // we'll need to hear about place object events
@@ -563,6 +565,18 @@ public class PlaceManager
     }
 
     /**
+     * Registers an invocation provider and notes the registration such that it will be
+     * automatically cleared when this manager shuts down.
+     */
+    protected <T extends InvocationMarshaller> T addProvider (
+        InvocationProvider prov, Class<T> mclass)
+    {
+        T marsh = _invmgr.registerProvider(prov, mclass);
+        _marshallers.add(marsh);
+        return marsh;
+    }
+
+    /**
      * Registers an invocation dispatcher and notes the registration such that it will be
      * automatically cleared when this manager shuts down.
      */
@@ -801,7 +815,7 @@ public class PlaceManager
     /** A list of the delegates in use by this manager. */
     protected List<PlaceManagerDelegate> _delegates;
 
-    /** A list of services registered with {@link #addDispatcher} which will be automatically
+    /** A list of services registered with {@link #addProvider} which will be automatically
      * cleared when this manager shuts down. */
     protected List<InvocationMarshaller> _marshallers = Lists.newArrayList();
 

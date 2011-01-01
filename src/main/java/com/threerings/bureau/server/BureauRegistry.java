@@ -50,6 +50,7 @@ import com.threerings.bureau.data.AgentObject;
 import com.threerings.bureau.data.BureauAuthName;
 import com.threerings.bureau.data.BureauCodes;
 import com.threerings.bureau.data.BureauCredentials;
+import com.threerings.bureau.data.BureauMarshaller;
 import com.threerings.bureau.util.BureauLogRedirector;
 
 import static com.threerings.bureau.Log.log;
@@ -102,7 +103,7 @@ public class BureauRegistry
     @Inject public BureauRegistry (
         InvocationManager invmgr, PresentsConnectionManager conmgr, ClientManager clmgr)
     {
-        invmgr.registerDispatcher(new BureauDispatcher(new BureauProvider() {
+        invmgr.registerProvider(new BureauProvider() {
             public void bureauInitialized (ClientObject client, String bureauId) {
                 BureauRegistry.this.bureauInitialized(client, bureauId);
             }
@@ -118,7 +119,7 @@ public class BureauRegistry
             public void agentDestroyed (ClientObject client, int agentId) {
                 BureauRegistry.this.agentDestroyed(client, agentId);
             }
-        }), BureauCodes.BUREAU_GROUP);
+        }, BureauMarshaller.class, BureauCodes.BUREAU_GROUP);
         conmgr.addChainedAuthenticator(new ServiceAuthenticator<BureauCredentials>(
                                            BureauCredentials.class, BureauAuthName.class) {
             @Override protected boolean areValid (BureauCredentials creds) {

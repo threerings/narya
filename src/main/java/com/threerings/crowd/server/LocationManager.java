@@ -35,6 +35,7 @@ import com.threerings.crowd.client.LocationService;
 import com.threerings.crowd.data.BodyObject;
 import com.threerings.crowd.data.CrowdCodes;
 import com.threerings.crowd.data.LocationCodes;
+import com.threerings.crowd.data.LocationMarshaller;
 import com.threerings.crowd.data.Place;
 import com.threerings.crowd.data.PlaceConfig;
 
@@ -49,7 +50,7 @@ public class LocationManager
 {
     @Inject public LocationManager (InvocationManager invmgr)
     {
-        invmgr.registerDispatcher(new LocationDispatcher(this), CrowdCodes.CROWD_GROUP);
+        invmgr.registerProvider(this, LocationMarshaller.class, CrowdCodes.CROWD_GROUP);
     }
 
     // from interface LocationProvider

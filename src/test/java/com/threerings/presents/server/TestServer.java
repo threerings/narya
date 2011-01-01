@@ -23,6 +23,7 @@ package com.threerings.presents.server;
 
 import com.google.inject.Injector;
 
+import com.threerings.presents.data.TestMarshaller;
 import com.threerings.presents.data.TestObject;
 
 public class TestServer extends PresentsServer
@@ -36,8 +37,8 @@ public class TestServer extends PresentsServer
         super.init(injector);
 
         // register our test provider
-        _invmgr.registerDispatcher(
-            new TestDispatcher(injector.getInstance(TestManager.class)), "test");
+        _invmgr.registerProvider(injector.getInstance(TestManager.class),
+                                 TestMarshaller.class, "test");
 
         // create a test object
         testobj = _omgr.registerObject(new TestObject());

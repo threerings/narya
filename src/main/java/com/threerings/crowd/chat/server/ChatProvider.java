@@ -39,9 +39,10 @@ import com.threerings.presents.server.InvocationException;
 import com.threerings.presents.server.InvocationManager;
 import com.threerings.presents.server.InvocationProvider;
 
-import com.threerings.crowd.chat.client.ChatService;
 import com.threerings.crowd.chat.client.ChatService.TellListener;
+import com.threerings.crowd.chat.client.ChatService;
 import com.threerings.crowd.chat.data.ChatCodes;
+import com.threerings.crowd.chat.data.ChatMarshaller;
 import com.threerings.crowd.chat.data.SystemMessage;
 import com.threerings.crowd.chat.data.UserMessage;
 import com.threerings.crowd.data.BodyObject;
@@ -91,7 +92,7 @@ public class ChatProvider
     @Inject public ChatProvider (InvocationManager invmgr)
     {
         // register a chat provider with the invocation manager
-        invmgr.registerDispatcher(new ChatDispatcher(this), CrowdCodes.CROWD_GROUP);
+        invmgr.registerProvider(this, ChatMarshaller.class, CrowdCodes.CROWD_GROUP);
     }
 
     /**
