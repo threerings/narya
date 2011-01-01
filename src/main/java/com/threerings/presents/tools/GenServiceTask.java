@@ -222,7 +222,7 @@ public class GenServiceTask extends InvocationTask
 
         ServiceDescription desc = new ServiceDescription(service);
         generateMarshaller(source, desc);
-        generateDispatcher(source, desc);
+        // generateDispatcher(source, desc); // dispatchers are no longer needed
         if (!_providerless.contains(service.getSimpleName())) {
             generateProvider(source, desc);
         }
