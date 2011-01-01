@@ -55,7 +55,6 @@ import com.threerings.presents.server.InvocationProvider;
 
 import com.threerings.crowd.chat.data.ChatCodes;
 import com.threerings.crowd.chat.data.SpeakMarshaller;
-import com.threerings.crowd.chat.server.SpeakDispatcher;
 import com.threerings.crowd.chat.server.SpeakHandler;
 import com.threerings.crowd.data.BodyObject;
 import com.threerings.crowd.data.OccupantInfo;
