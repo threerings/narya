@@ -25,8 +25,11 @@ import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -35,6 +38,7 @@ import javax.swing.JTable;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterators;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 
 import com.samskivert.util.ComparableArrayList;
 
@@ -219,7 +223,7 @@ public class DSetEditor<E extends DSet.Entry> extends JPanel
         _accessor.updateEntry(_setName, (DSet.Entry)ce.getArgument());
     }
 
-    public void setData (ComparableArrayList<Comparable<Object>> keys, Object[] data)
+    public void setData (ComparableArrayList<Comparable<Object>> keys, Collection<?> data)
     {
         _keys = keys;
         _table.setData(data);
@@ -296,28 +300,27 @@ public class DSetEditor<E extends DSet.Entry> extends JPanel
 
         protected void refreshData ()
         {
+            // add our entries to a tree map so that we get them sorted by key (optionally applying
+            // our filter in the process)
+            TreeMap<Comparable<?>,F> data = Maps.newTreeMap();
+            Iterator<F> iter = (_entryFilter == null) ? iterator() :
+                Iterators.filter(iterator(), _entryFilter);
+            while (iter.hasNext()) {
+                F entry = iter.next();
+                data.put(entry.getKey(), entry);
+            }
+
+            // now extract that data into a sorted key list and sorted value list
             ComparableArrayList<Comparable<Object>> keys =
                 new ComparableArrayList<Comparable<Object>>();
-            E[] entries;
-
-            if (_entryFilter == null) {
-                entries = createArray();
-
-            } else {
-                // Do some shuffling to get out a filtered array.
-                Iterator<F> itr = Iterators.filter(iterator(), _entryFilter);
-                ArrayList<F> list = Lists.newArrayList();
-                Iterators.addAll(list, itr);
-
-                @SuppressWarnings("unchecked") F[] tmp = (F[])new DSet.Entry[list.size()];
-                entries = tmp;
-                list.toArray(entries);
+            List<F> values = Lists.newArrayList();
+            for (Map.Entry<Comparable<?>,F> entry : data.entrySet()) {
+                @SuppressWarnings("unchecked") Comparable<Object> key =
+                    (Comparable<Object>)entry.getKey();
+                keys.add(key);
+                values.add(entry.getValue());
             }
-
-            for (E entry : entries) {
-                keys.insertSorted(getKey(entry));
-            }
-            setData(keys, entries); // this works because DSet itself is sorted
+            setData(keys, values);
         }
 
         // documentation inherited from interface SetListener
@@ -349,14 +352,6 @@ public class DSetEditor<E extends DSet.Entry> extends JPanel
                 refreshSet();
                 refreshData();
             }
-        }
-
-        public E[] createArray ()
-        {
-            @SuppressWarnings("unchecked") F[] tmp = (F[])new DSet.Entry[_set.size()];
-            F[] entries = tmp;
-            _set.toArray(entries);
-            return entries;
         }
 
         public Iterator<F> iterator ()

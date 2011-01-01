@@ -244,22 +244,6 @@ public class DSet<E extends DSet.Entry>
     }
 
     /**
-     * Copies the elements of this distributed set into the supplied array. If the array is not
-     * large enough to hold all of the elements, as many as fit into the array will be copied. If
-     * the <code>array</code> argument is null, an object array of sufficient size to contain all
-     * of the elements of this set will be created and returned.
-     */
-    public E[] toArray (E[] array)
-    {
-        if (array == null) {
-            @SuppressWarnings("unchecked") E[] copy = (E[])new Entry[size()];
-            array = copy;
-        }
-        System.arraycopy(_entries, 0, array, 0, array.length);
-        return array;
-    }
-
-    /**
      * Creates an <b>immutable</b> view of this distributed set as a Java set.
      */
     public Set<E> asSet ()
@@ -288,7 +272,28 @@ public class DSet<E extends DSet.Entry>
     }
 
     /**
-     * @deprecated use {@link #toArray(Entry[])}.
+     * Copies the elements of this distributed set into the supplied array. If the array is not
+     * large enough to hold all of the elements, as many as fit into the array will be copied. If
+     * the <code>array</code> argument is null, an object array of sufficient size to contain all
+     * of the elements of this set will be created and returned.
+     *
+     * @deprecated use {@link #clone} or add this to an {@link ArrayList}. Arrays are an untypesafe
+     * quagmire.
+     */
+    @Deprecated
+    public E[] toArray (E[] array)
+    {
+        if (array == null) {
+            @SuppressWarnings("unchecked") E[] copy = (E[])new Entry[size()];
+            array = copy;
+        }
+        System.arraycopy(_entries, 0, array, 0, array.length);
+        return array;
+    }
+
+    /**
+     * @deprecated use {@link #clone} or add this to an {@link ArrayList}. Arrays are an untypesafe
+     * quagmire.
      */
     @Deprecated
     public Object[] toArray (Object[] array)
