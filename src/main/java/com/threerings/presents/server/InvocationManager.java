@@ -142,7 +142,7 @@ public class InvocationManager
 
         // determine the invocation service code mappings
         final Map<Integer,Method> invmeths = Maps.newHashMap();
-        for (Method method : pclass.getDeclaredMethods()) {
+        for (Method method : pclass.getMethods()) {
             Class<?>[] ptypes = method.getParameterTypes();
             // only consider methods whose first argument is of type ClientObject; this is a
             // non-issue if we are looking at an auto-generated FooProvider interface, but is
