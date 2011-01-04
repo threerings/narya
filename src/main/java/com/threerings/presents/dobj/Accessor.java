@@ -38,6 +38,7 @@ public abstract class Accessor implements Comparable<Accessor> {
             this.field = field;
         }
 
+        @Override
         public Object get (DObject obj) {
             try {
                 return field.get(obj);
@@ -46,6 +47,7 @@ public abstract class Accessor implements Comparable<Accessor> {
             }
         }
 
+        @Override
         public void set (DObject obj, Object value) {
             try {
                 field.set(obj, value);
