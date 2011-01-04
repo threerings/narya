@@ -132,11 +132,14 @@ public class InvocationManager
         // with legacy non-interface based providers)
         Class<?> pclass = provider.getClass();
         String pname = mclass.getSimpleName().replaceAll("Marshaller", "Provider");
-        for (Class<?> iclass : provider.getClass().getInterfaces()) {
-            if (InvocationProvider.class.isAssignableFrom(iclass) &&
-                iclass.getSimpleName().equals(pname)) {
-                pclass = iclass;
-                break;
+      OUTER:
+        for (Class<?> sclass = pclass; sclass != null; sclass = sclass.getSuperclass()) {
+            for (Class<?> iclass : sclass.getInterfaces()) {
+                if (InvocationProvider.class.isAssignableFrom(iclass) &&
+                    iclass.getSimpleName().equals(pname)) {
+                    pclass = iclass;
+                    break OUTER;
+                }
             }
         }
 
