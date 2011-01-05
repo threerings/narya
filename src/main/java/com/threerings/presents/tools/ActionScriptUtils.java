@@ -195,11 +195,11 @@ public class ActionScriptUtils
         if (type.isArray() || isNaiveList(type)) {
             if (Byte.TYPE.equals(type.getComponentType())) {
                 return "flash.utils.ByteArray";
-            }
-            if (isField) {
+            } else if (isField) {
                 return "com.threerings.io.TypedArray";
+            } else {
+                return "Array";
             }
-            return "Array";
         } else if (isNaiveMap(type)) {
             return "com.threerings.util.Map";
         } else if (isNaiveSet(type)) {
@@ -216,6 +216,8 @@ public class ActionScriptUtils
             return "com.threerings.util.Long";
         } else if (Boolean.TYPE.equals(type)) {
             return "Boolean";
+        } else if (Cloneable.class.equals(type)) {
+            return "com.threerings.util.Cloneable";
         } else {
             // inner classes are not supported by ActionScript so we _
             return type.getName().replaceAll("\\$", "_");
