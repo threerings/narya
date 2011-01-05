@@ -32,6 +32,7 @@ public class {{classname}} {{^extends.isEmpty}}extends {{extends}}
     public var {{name}}ElementUpdated :Signal = new Signal(int, Object, Object);
 {{/array}}
 {{/pubFields}}
+    public var messageReceived :Signal = new Signal(String, Array);
     public var destroyed :Signal = new Signal();
 
 {{#pubFields}}
@@ -87,13 +88,15 @@ public class {{classname}} {{^extends.isEmpty}}extends {{extends}}
 // GENERATED SIGNALLER START
 import org.osflash.signals.Signal;
 
-import com.threerings.presents.dobj.AttributeChangedEvent;
 import com.threerings.presents.dobj.AttributeChangeListener;
-import com.threerings.presents.dobj.ElementUpdatedEvent;
+import com.threerings.presents.dobj.AttributeChangedEvent;
 import com.threerings.presents.dobj.ElementUpdateListener;
+import com.threerings.presents.dobj.ElementUpdatedEvent;
 import com.threerings.presents.dobj.EntryAddedEvent;
 import com.threerings.presents.dobj.EntryRemovedEvent;
 import com.threerings.presents.dobj.EntryUpdatedEvent;
+import com.threerings.presents.dobj.MessageEvent;
+import com.threerings.presents.dobj.MessageListener;
 import com.threerings.presents.dobj.ObjectDeathListener;
 import com.threerings.presents.dobj.ObjectDestroyedEvent;
 import com.threerings.presents.dobj.SetListener;
@@ -101,7 +104,8 @@ import com.threerings.presents.dobj.SetListener;
 import {{package}}.{{classname}};
 
 class Signaller
-    implements AttributeChangeListener, SetListener, ElementUpdateListener, ObjectDeathListener
+    implements AttributeChangeListener, SetListener, ElementUpdateListener, MessageListener,
+        ObjectDeathListener
 {
     public function Signaller (obj :{{classname}})
     {
@@ -182,6 +186,11 @@ class Signaller
                 return;
         }
         signal.dispatch(event.getIndex(), event.getValue(), event.getOldValue());
+    }
+
+    public function messageReceived (event :MessageEvent) :void
+    {
+        _obj.messageReceived.dispatch(event.getName(), event.getArgs());
     }
 
     public function objectDestroyed (event :ObjectDestroyedEvent) :void
