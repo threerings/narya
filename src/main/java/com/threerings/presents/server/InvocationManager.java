@@ -42,6 +42,7 @@ import com.samskivert.util.StringUtil;
 
 import com.threerings.io.Streamable;
 
+import com.threerings.presents.client.InvocationDirector;
 import com.threerings.presents.data.ClientObject;
 import com.threerings.presents.data.InvocationCodes;
 import com.threerings.presents.data.InvocationMarshaller;
@@ -91,6 +92,17 @@ public class InvocationManager
         _invoid = invobj.getOid();
 
         log.debug("Created invocation service object", "oid", _invoid);
+    }
+
+    /**
+     * Sets the invocation director to install in created marshallers.  This is used in standalone
+     * mode, where marshallers are not streamed (usually, the director reference is set on
+     * unstreaming).
+     */
+    public void setInvocationDirector (InvocationDirector invdir)
+    {
+        // TODO: change references in existing marshallers?
+        _invdir = invdir;
     }
 
     /**
@@ -172,7 +184,7 @@ public class InvocationManager
         T marsh;
         try {
             marsh = mclass.newInstance();
-            marsh.init(_invoid, invCode);
+            marsh.init(_invoid, invCode, _invdir);
         } catch (IllegalAccessException ie) {
             throw new RuntimeException(ie);
         } catch (InstantiationException ie) {
@@ -272,7 +284,7 @@ public class InvocationManager
 
         // create the marshaller and initialize it
         T marsh = dispatcher.createMarshaller();
-        marsh.init(_invoid, invCode);
+        marsh.init(_invoid, invCode, _invdir);
 
         // register the dispatcher
         _dispatchers.put(invCode, dispatcher);
@@ -437,6 +449,9 @@ public class InvocationManager
 
     /** Used to generate monotonically increasing provider ids. */
     protected int _invCode;
+
+    /** The invocation director reference to install in created marshallers (if any). */
+    protected InvocationDirector _invdir;
 
     /** The distributed object manager we're working with. */
     protected PresentsDObjectMgr _omgr;

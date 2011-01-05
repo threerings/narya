@@ -214,10 +214,11 @@ public class InvocationMarshaller
      * to operate in the wide world. This is called by the invocation manager when an invocation
      * provider is registered and should not be called otherwise.
      */
-    public void init (int invOid, int invCode)
+    public void init (int invOid, int invCode, InvocationDirector invDir)
     {
         _invOid = invOid;
         _invCode = invCode;
+        _invdir = invDir;
     }
 
     /**
