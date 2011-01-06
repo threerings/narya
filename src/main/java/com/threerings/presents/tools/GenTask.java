@@ -233,7 +233,7 @@ public abstract class GenTask extends Task
         try {
             name = GenUtil.readClassName(source);
         } catch (Exception e) {
-            throw new BuildException("Failed to parse " + source + ": " + e.getMessage());
+            throw new BuildException("Failed to parse " + source, e);
         }
         return loadClass(name);
     }
