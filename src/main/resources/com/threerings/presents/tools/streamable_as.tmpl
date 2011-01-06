@@ -31,6 +31,10 @@ public class {{classname}} {{^extends.isEmpty}}extends {{extends}}
 {{#array}}
     public var {{name}}ElementUpdated :Signal = new Signal(int, Object, Object);
 {{/array}}
+{{#oidList}}
+    public var {{name}}ObjectAdded :Signal = new Signal(int);
+    public var {{name}}ObjectRemoved :Signal = new Signal(int);
+{{/oidList}}
 {{/pubFields}}
     public var messageReceived :Signal = new Signal(String, Array);
     public var destroyed :Signal = new Signal();
@@ -97,15 +101,18 @@ import com.threerings.presents.dobj.EntryRemovedEvent;
 import com.threerings.presents.dobj.EntryUpdatedEvent;
 import com.threerings.presents.dobj.MessageEvent;
 import com.threerings.presents.dobj.MessageListener;
+import com.threerings.presents.dobj.ObjectAddedEvent;
 import com.threerings.presents.dobj.ObjectDeathListener;
 import com.threerings.presents.dobj.ObjectDestroyedEvent;
+import com.threerings.presents.dobj.ObjectRemovedEvent;
+import com.threerings.presents.dobj.OidListListener;
 import com.threerings.presents.dobj.SetListener;
 
 import {{package}}.{{classname}};
 
 class Signaller
     implements AttributeChangeListener, SetListener, ElementUpdateListener, MessageListener,
-        ObjectDeathListener
+        ObjectDeathListener, OidListListener
 {
     public function Signaller (obj :{{classname}})
     {
@@ -196,6 +203,36 @@ class Signaller
     public function objectDestroyed (event :ObjectDestroyedEvent) :void
     {
         _obj.destroyed.dispatch();
+    }
+
+    public function objectAdded (event:ObjectAddedEvent) :void
+    {
+        var signal :Signal;
+        switch (event.getName()) {
+{{#pubFields}}{{#oidList}}
+            case "{{name}}":
+                signal = _obj.{{name}}ObjectAdded;
+                break;
+{{/oidList}}{{/pubFields}}
+            default:
+                return;
+        }
+        signal.dispatch(event.getOid());
+    }
+
+    public function objectRemoved (event :ObjectRemovedEvent) :void
+    {
+        var signal :Signal;
+        switch (event.getName()) {
+{{#pubFields}}{{#oidList}}
+            case "{{name}}":
+                signal = _obj.{{name}}ObjectRemoved;
+                break;
+{{/oidList}}{{/pubFields}}
+            default:
+                return;
+        }
+        signal.dispatch(event.getOid());
     }
 
     protected var _obj :{{classname}};

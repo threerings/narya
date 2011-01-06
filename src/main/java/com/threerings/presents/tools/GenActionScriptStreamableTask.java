@@ -46,6 +46,7 @@ import com.threerings.io.Streamable;
 import com.threerings.presents.data.InvocationMarshaller;
 import com.threerings.presents.dobj.DObject;
 import com.threerings.presents.dobj.DSet;
+import com.threerings.presents.dobj.OidList;
 
 public class GenActionScriptStreamableTask extends GenTask
 {
@@ -165,6 +166,7 @@ public class GenActionScriptStreamableTask extends GenTask
         public final String dobjectField;
         public boolean dset;
         public boolean array;
+        public boolean oidList;
 
         public ASField (Field f, Set<String> imports)
         {
@@ -183,6 +185,8 @@ public class GenActionScriptStreamableTask extends GenTask
             } else if (DSet.class.isAssignableFrom(f.getType())) {
                 dset = true;
                 imports.add("com.threerings.presents.dobj.DSet_Entry"); // Used for signals
+            } else if (OidList.class.isAssignableFrom(f.getType())) {
+                oidList = true;
             }
             array = f.getType().isArray();
             reader = ActionScriptUtils.toReadObject(f.getType());
