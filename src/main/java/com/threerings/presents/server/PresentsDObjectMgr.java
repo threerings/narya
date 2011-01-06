@@ -96,7 +96,6 @@ public class PresentsDObjectMgr
         // create a dummy object to live as oid zero and use that for some internal event trickery
         DObject dummy = new DObject();
         dummy.setOid(DUMMY_OID);
-        dummy.setManager(this);
         _objects.put(DUMMY_OID, dummy);
 
         // register a couple of reports with the report manager
