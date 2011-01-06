@@ -29,6 +29,8 @@ import java.util.HashMap;
 
 import com.google.common.collect.Maps;
 
+import com.samskivert.util.ArrayUtil;
+
 import com.threerings.presents.client.Client;
 import com.threerings.presents.client.InvocationService;
 import com.threerings.presents.server.InvocationProvider;
@@ -61,9 +63,8 @@ public class PeerUtil
                     Method smethod = _pmethods.get(method);
                     if (smethod == null) {
                         Class<?>[] ptypes = method.getParameterTypes();
-                        ptypes[0] = Client.class;
                         _pmethods.put(method, smethod = svc.getClass().getMethod(
-                            method.getName(), ptypes));
+                            method.getName(), ArrayUtil.splice(ptypes, 0, 1)));
                     }
                     args[0] = client;
                     return smethod.invoke(svc, args);
