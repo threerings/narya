@@ -97,7 +97,7 @@ public class PresentsDObjectMgr
         DObject dummy = new DObject();
         dummy.setOid(DUMMY_OID);
         dummy.setManager(this);
-        _objects.put(DUMMY_OID, new DObject());
+        _objects.put(DUMMY_OID, dummy);
 
         // register a couple of reports with the report manager
         repmgr.registerReporter(ReportManager.DEFAULT_TYPE, new ReportManager.Reporter() {
