@@ -66,8 +66,7 @@ public class PeerUtil
                         _pmethods.put(method, smethod = svc.getClass().getMethod(
                             method.getName(), ArrayUtil.splice(ptypes, 0, 1)));
                     }
-                    args[0] = client;
-                    return smethod.invoke(svc, args);
+                    return smethod.invoke(svc, ArrayUtil.splice(args, 0, 1));
                 }
             }));
     }
