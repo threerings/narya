@@ -183,7 +183,7 @@ public class TestObject extends DObject
     @Generated(value={"com.threerings.presents.tools.GenDObjectTask"})
     public void addToList (int oid)
     {
-        requestOidAdd(LIST, oid);
+        requestOidAdd(LIST, list, oid);
     }
 
     /**
@@ -194,7 +194,7 @@ public class TestObject extends DObject
     @Generated(value={"com.threerings.presents.tools.GenDObjectTask"})
     public void removeFromList (int oid)
     {
-        requestOidRemove(LIST, oid);
+        requestOidRemove(LIST, list, oid);
     }
 
     /**

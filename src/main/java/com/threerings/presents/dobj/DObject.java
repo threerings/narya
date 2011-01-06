@@ -896,19 +896,28 @@ public class DObject
     /**
      * Calls by derived instances when an oid adder method was called.
      */
-    protected void requestOidAdd (String name, int oid)
+    protected void requestOidAdd (String name, OidList list, int oid)
     {
-        // dispatch an object added event
-        postEvent(new ObjectAddedEvent(_oid, name, oid));
+        // if we're on the authoritative server, we update the set immediately
+        boolean applyImmediately = isAuthoritative();
+        if (applyImmediately) {
+            list.add(oid);
+        }
+        postEvent(new ObjectAddedEvent(_oid, name, oid, applyImmediately));
     }
 
     /**
      * Calls by derived instances when an oid remover method was called.
      */
-    protected void requestOidRemove (String name, int oid)
+    protected void requestOidRemove (String name, OidList list, int oid)
     {
+        // if we're on the authoritative server, we update the set immediately
+        boolean applyImmediately = isAuthoritative();
+        if (applyImmediately) {
+            list.remove(oid);
+        }
         // dispatch an object removed event
-        postEvent(new ObjectRemovedEvent(_oid, name, oid));
+        postEvent(new ObjectRemovedEvent(_oid, name, oid, applyImmediately));
     }
 
     /**
@@ -917,13 +926,12 @@ public class DObject
     protected <T extends DSet.Entry> void requestEntryAdd (String name, DSet<T> set, T entry)
     {
         // if we're on the authoritative server, we update the set immediately
-        boolean alreadyApplied = false;
-        if (_omgr != null && _omgr.isManager(this)) {
+        boolean applyImmediately = isAuthoritative();
+        if (applyImmediately) {
             set.add(entry);
-            alreadyApplied = true;
         }
         // dispatch an entry added event
-        postEvent(new EntryAddedEvent<T>(_oid, name, entry, alreadyApplied));
+        postEvent(new EntryAddedEvent<T>(_oid, name, entry, applyImmediately));
     }
 
     /**
@@ -934,7 +942,7 @@ public class DObject
     {
         // if we're on the authoritative server, we update the set immediately
         T oldEntry = null;
-        if (_omgr != null && _omgr.isManager(this)) {
+        if (isAuthoritative()) {
             oldEntry = set.removeKey(key);
             if (oldEntry == null) {
                 log.warning("Requested to remove non-element", "set", name, "key", key,
@@ -961,7 +969,7 @@ public class DObject
     {
         // if we're on the authoritative server, we update the set immediately
         T oldEntry = null;
-        if (_omgr != null && _omgr.isManager(this)) {
+        if (isAuthoritative()) {
             oldEntry = set.update(entry);
             if (oldEntry == null) {
                 log.warning("Set update had no old entry", "name", name, "entry", entry,
@@ -970,6 +978,11 @@ public class DObject
         }
         // dispatch an entry updated event
         postEvent(new EntryUpdatedEvent<T>(_oid, name, entry, oldEntry, transport));
+    }
+
+    protected boolean isAuthoritative ()
+    {
+        return _omgr != null && _omgr.isManager(this);
     }
 
     /**

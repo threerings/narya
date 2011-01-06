@@ -44,8 +44,14 @@ public class ObjectRemovedEvent extends NamedEvent
      */
     public ObjectRemovedEvent (int targetOid, String name, int oid)
     {
+        this (targetOid, name, oid, false);
+    }
+
+    protected ObjectRemovedEvent (int targetOid, String name, int oid, boolean alreadyApplied)
+    {
         super(targetOid, name);
         _oid = oid;
+        _alreadyApplied = alreadyApplied;
     }
 
     /**
@@ -65,11 +71,19 @@ public class ObjectRemovedEvent extends NamedEvent
     }
 
     @Override
+    public boolean alreadyApplied ()
+    {
+        return _alreadyApplied;
+    }
+
+    @Override
     public boolean applyToObject (DObject target)
         throws ObjectAccessException
     {
-        OidList list = (OidList)target.getAttribute(_name);
-        list.remove(_oid);
+        if (!_alreadyApplied) {
+            OidList list = (OidList)target.getAttribute(_name);
+            list.remove(_oid);
+        }
         return true;
     }
 
@@ -90,4 +104,5 @@ public class ObjectRemovedEvent extends NamedEvent
     }
 
     protected int _oid;
+    protected transient boolean _alreadyApplied;
 }

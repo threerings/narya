@@ -6,7 +6,7 @@
     {{generated}}
     public void addTo{{upfield}} (int oid)
     {
-        requestOidAdd({{capfield}}, oid);
+        requestOidAdd({{capfield}}, {{field}}, oid);
     }
 
     /**
@@ -17,5 +17,5 @@
     {{generated}}
     public void removeFrom{{upfield}} (int oid)
     {
-        requestOidRemove({{capfield}}, oid);
+        requestOidRemove({{capfield}}, {{field}}, oid);
     }

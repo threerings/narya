@@ -43,8 +43,14 @@ public class ObjectAddedEvent extends NamedEvent
      */
     public ObjectAddedEvent (int targetOid, String name, int oid)
     {
+        this(targetOid, name, oid, false);
+    }
+
+    protected ObjectAddedEvent (int targetOid, String name, int oid, boolean alreadyApplied)
+    {
         super(targetOid, name);
         _oid = oid;
+        _alreadyApplied = alreadyApplied;
     }
 
     /**
@@ -64,11 +70,19 @@ public class ObjectAddedEvent extends NamedEvent
     }
 
     @Override
+    public boolean alreadyApplied ()
+    {
+        return _alreadyApplied;
+    }
+
+    @Override
     public boolean applyToObject (DObject target)
         throws ObjectAccessException
     {
-        OidList list = (OidList)target.getAttribute(_name);
-        list.add(_oid);
+        if (!_alreadyApplied) {
+            OidList list = (OidList)target.getAttribute(_name);
+            list.add(_oid);
+        }
         return true;
     }
 
@@ -89,4 +103,5 @@ public class ObjectAddedEvent extends NamedEvent
     }
 
     protected int _oid;
+    protected transient boolean _alreadyApplied;
 }
