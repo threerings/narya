@@ -170,7 +170,7 @@ public abstract class InvocationTask extends GenTask
             return buf.toString();
         }
 
-        public String getASInvokArgList () {
+        public String getASInvokeArgList () {
             StringBuilder buf = new StringBuilder();
             Class<?>[] args = method.getParameterTypes();
             for (int ii = 0; ii < args.length; ii++) {
