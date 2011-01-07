@@ -15,7 +15,7 @@ public class {{name}}Service_{{listener.listenerName}}ListenerAdapter
      * given function(s). Any Function that is null will simply not be called.
      */
     public function {{name}}Service_{{listener.listenerName}}ListenerAdapter (
-        {{adapterCtorArgs}}failed :Function)
+        {{listener.adapterCtorArgs}}failed :Function)
     {
 {{#listener.methods}}
         _{{method.name}} = {{method.name}};
