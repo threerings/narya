@@ -21,6 +21,9 @@
 
 package com.threerings.presents.dobj;
 
+import java.util.Iterator;
+import java.util.NoSuchElementException;
+
 import com.threerings.io.Streamable;
 
 /**
@@ -35,7 +38,8 @@ import com.threerings.io.Streamable;
  * <li> When an object is destroyed, its oid is automagically removed from any OidLists.
  * </ul>
  */
-public class OidList implements Streamable
+public class OidList
+    implements Streamable, Iterable<Integer>
 {
     /**
      * Creates an empty oid list.
@@ -148,11 +152,40 @@ public class OidList implements Streamable
         return buf.toString();
     }
 
+    public Iterator<Integer> iterator ()
+    {
+        return new OidIterator();
+    }
+
     private void expand ()
     {
         int[] oids = new int[_oids.length*2];
         System.arraycopy(_oids, 0, oids, 0, _oids.length);
         _oids = oids;
+    }
+
+    protected class OidIterator
+        implements Iterator<Integer>
+    {
+        public boolean hasNext ()
+        {
+            return _index < size();
+        }
+
+        public Integer next ()
+        {
+            if (!hasNext()) {
+                throw new NoSuchElementException();
+            }
+            return get(_index++);
+        }
+
+        public void remove ()
+        {
+            throw new UnsupportedOperationException();
+        }
+
+        protected int _index = 0;
     }
 
     private int[] _oids;
