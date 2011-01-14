@@ -4,7 +4,7 @@
   <groupId>com.threerings</groupId>
   <artifactId>narya</artifactId>
   <packaging>jar</packaging>
-  <version>1.4</version>
+  <version>1.5-SNAPSHOT</version>
   <name>narya</name>
   <description>Facilities for making networked multiplayer games.</description>
   <url>http://code.google.com/p/narya/</url>
