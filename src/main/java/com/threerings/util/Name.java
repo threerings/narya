@@ -112,13 +112,18 @@ public class Name extends SimpleStreamableObject
     @Override
     public boolean equals (Object other)
     {
-        if (other != null) {
+        if (other instanceof Name) {
+            Name oname = (Name)other;
+            Boolean override = overrideEquals(oname);
+            if (override != null || (override = oname.overrideEquals(this)) != null) {
+                return override;
+            }
             Class<?> c = getClass();
             Class<?> oc = other.getClass();
             // we have to be of the same derived class but we don't want to
             // wig out if the classes were loaded from different class loaders
             if (c == oc || c.getName().equals(oc.getName())) {
-                return getNormal().equals(((Name)other).getNormal());
+                return getNormal().equals(oname.getNormal());
             }
         }
         return false;
@@ -127,6 +132,12 @@ public class Name extends SimpleStreamableObject
     // from interface Comparable<Name>
     public int compareTo (Name other)
     {
+        Integer override = overrideCompareTo(other);
+        if (override != null) {
+            return override;
+        } else if ((override = other.overrideCompareTo(this)) != null) {
+            return -override;
+        }
         Class<?> c = getClass();
         Class<?> oc = other.getClass();
         if (c == oc || c.getName().equals(oc.getName())) {
@@ -148,6 +159,26 @@ public class Name extends SimpleStreamableObject
         // was named "Bad Bob". -RG
         //name = _compactor.matcher(name).replaceAll("");
         return name;
+    }
+
+    /**
+     * Gives this name a chance to override the default equality comparison in a symmetric fashion.
+     *
+     * @return the result of the comparison, or null for no override.
+     */
+    protected Boolean overrideEquals (Name other)
+    {
+        return null;
+    }
+
+    /**
+     * Gives this name a chance to override the default comparison in a symmetric fashion.
+     *
+     * @return the result of the comparison, or null for no override.
+     */
+    protected Integer overrideCompareTo (Name other)
+    {
+        return null;
     }
 
     /** The raw name text. */
