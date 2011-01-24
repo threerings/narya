@@ -256,7 +256,9 @@ public class InvocationMarshaller
         throws IOException, ClassNotFoundException
     {
         in.defaultReadObject();
-        _invdir = ((ClientObjectInputStream)in).client.getInvocationDirector();
+        if (in instanceof ClientObjectInputStream) {
+            _invdir = ((ClientObjectInputStream)in).client.getInvocationDirector();
+        }
     }
 
     @Override
