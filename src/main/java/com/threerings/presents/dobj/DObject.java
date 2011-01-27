@@ -920,6 +920,18 @@ public class DObject
         postEvent(new ObjectRemovedEvent(_oid, name, oid, applyImmediately));
     }
 
+    /** @deprecated Regenerate your DObject to remove this warning. */
+    @Deprecated protected void requestOidAdd (String name, int oid)
+    {
+        postEvent(new ObjectAddedEvent(_oid, name, oid, false));
+    }
+
+    /** @deprecated Regenerate your DObject to remove this warning. */
+    @Deprecated protected void requestOidRemove (String name, int oid)
+    {
+        postEvent(new ObjectRemovedEvent(_oid, name, oid, false));
+    }
+
     /**
      * Calls by derived instances when a set adder method was called.
      */
