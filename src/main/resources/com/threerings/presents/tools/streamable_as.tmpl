@@ -36,8 +36,6 @@ public class {{classname}} {{^extends.isEmpty}}extends {{extends}}
     public var {{name}}ObjectRemoved :Signal = new Signal(int);
 {{/oidList}}
 {{/pubFields}}
-    public var messageReceived :Signal = new Signal(String, Array);
-    public var destroyed :Signal = new Signal();
 
 {{#pubFields}}
     public static const {{dobjectField}} :String = "{{name}}";
@@ -111,8 +109,7 @@ import com.threerings.presents.dobj.SetListener;
 import {{package}}.{{classname}};
 
 class Signaller
-    implements AttributeChangeListener, SetListener, ElementUpdateListener, MessageListener,
-        ObjectDeathListener, OidListListener
+    implements AttributeChangeListener, SetListener, ElementUpdateListener, OidListListener
 {
     public function Signaller (obj :{{classname}})
     {
@@ -193,16 +190,6 @@ class Signaller
                 return;
         }
         signal.dispatch(event.getIndex(), event.getValue(), event.getOldValue());
-    }
-
-    public function messageReceived (event :MessageEvent) :void
-    {
-        _obj.messageReceived.dispatch(event.getName(), event.getArgs());
-    }
-
-    public function objectDestroyed (event :ObjectDestroyedEvent) :void
-    {
-        _obj.destroyed.dispatch();
     }
 
     public function objectAdded (event:ObjectAddedEvent) :void

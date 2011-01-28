@@ -20,6 +20,7 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 
 package com.threerings.presents.dobj {
+import org.osflash.signals.Signal;
 
 import flash.errors.IllegalOperationError;
 
@@ -37,6 +38,11 @@ public class DObject // extends EventDispatcher
     implements Streamable
 {
     private static const log :Log = Log.getLog(DObject);
+
+    public function DObject ()
+    {
+        new Signaller(this);
+    }
 
     public function getOid ():int
     {
@@ -71,6 +77,9 @@ public class DObject // extends EventDispatcher
             }
         }
     }
+
+    public const messageReceived :Signal = new Signal(String, Array);
+    public const destroyed :Signal = new Signal();
 
     public function setDestroyOnLastSubscriberRemoved (deathWish :Boolean) :void
     {
@@ -414,3 +423,33 @@ public class DObject // extends EventDispatcher
     protected var _deathWish :Boolean = false;
 }
 }
+
+import com.threerings.presents.dobj.MessageEvent;
+import com.threerings.presents.dobj.MessageListener;
+import com.threerings.presents.dobj.ObjectDeathListener;
+import com.threerings.presents.dobj.ObjectDestroyedEvent;
+
+import com.threerings.presents.dobj.DObject;
+
+class Signaller
+    implements MessageListener, ObjectDeathListener
+{
+    public function Signaller (obj :DObject)
+    {
+        _obj = obj;
+        _obj.addListener(this);
+    }
+
+    public function messageReceived (event :MessageEvent) :void
+    {
+        _obj.messageReceived.dispatch(event.getName(), event.getArgs());
+    }
+
+    public function objectDestroyed (event :ObjectDestroyedEvent) :void
+    {
+        _obj.destroyed.dispatch();
+    }
+
+    protected var _obj :DObject;
+}
+
