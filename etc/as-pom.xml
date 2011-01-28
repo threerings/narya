@@ -14,12 +14,8 @@
 
   <repositories>
     <repository>
-      <id>as3corelib-repo</id>
-      <url>https://github.com/samskivert/as3corelib/raw/master/repository</url>
-    </repository>
-    <repository>
-      <id>as3-signals-repo</id>
-      <url>https://github.com/groves/as3-signals/raw/master/repository</url>
+      <id>ooo-external</id>
+      <url>http://ooo-maven.googlecode.com/hg/repository</url>
     </repository>
   </repositories>
 
@@ -28,14 +24,12 @@
       <groupId>com.threerings</groupId>
       <artifactId>aspirin</artifactId>
       <version>1.6</version>
-      <scope>compile</scope>
       <type>swc</type>
     </dependency>
     <dependency>
       <groupId>com.adobe</groupId>
       <artifactId>as3corelib</artifactId>
       <version>0.93</version>
-      <scope>compile</scope>
       <type>swc</type>
     </dependency>
     <dependency>
