@@ -20,7 +20,6 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 
 package com.threerings.crowd.chat.client {
-import com.threerings.crowd.client.CrowdClient;
 import com.threerings.util.ArrayUtil;
 import com.threerings.util.Log;
 import com.threerings.util.Map;
@@ -43,6 +42,7 @@ import com.threerings.util.MessageManager;
 import com.threerings.util.Name;
 import com.threerings.util.TimeUtil;
 
+import com.threerings.crowd.client.CrowdClient;
 import com.threerings.crowd.data.BodyObject;
 import com.threerings.crowd.data.CrowdCodes;
 import com.threerings.crowd.data.PlaceObject;
