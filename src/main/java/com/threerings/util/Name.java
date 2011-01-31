@@ -148,17 +148,12 @@ public class Name extends SimpleStreamableObject
     }
 
     /**
-     * Returns a normalized version of the supplied name. The default
-     * implementation is case and space insensitive.
+     * Returns a normalized version of the supplied name. The default implementation is case
+     * insensitive.
      */
     protected String normalize (String name)
     {
-        name = name.toLowerCase();
-        // Originally we removed whitespace as part of normalization, but
-        // that ran aground when a player was named "Badbob" and an npp
-        // was named "Bad Bob". -RG
-        //name = _compactor.matcher(name).replaceAll("");
-        return name;
+        return name.toLowerCase();
     }
 
     /**
@@ -186,7 +181,4 @@ public class Name extends SimpleStreamableObject
 
     /** The normalized name text. */
     protected transient String _normal;
-
-    /** Used to strip spaces from names. */
-    //protected static Pattern _compactor = Pattern.compile("\\s");
 }
