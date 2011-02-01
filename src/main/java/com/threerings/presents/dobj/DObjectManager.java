@@ -32,7 +32,7 @@ public interface DObjectManager
 {
     /**
      * Returns true if this distributed object manager is the authoritative manager for the
-     * specified distributed object, or fals if we are only providing a proxy to the object.
+     * specified distributed object, or false if we are only providing a proxy to the object.
      */
     boolean isManager (DObject object);
 
