@@ -32,7 +32,7 @@ import com.samskivert.util.RunQueue;
  * distributed objects in question. VMs that operate proxies of objects can only implement the
  * basic distributed object manager interface.
  */
-public interface RootDObjectManager extends DObjectManager, RunQueue, Executor
+public interface RootDObjectManager extends DObjectManager, RunQueue, Executor, IntervalFactory
 {
     /**
      * Looks up and returns the requested distributed object in the dobj table, returning null if
