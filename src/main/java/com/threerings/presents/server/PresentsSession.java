@@ -23,6 +23,7 @@ package com.threerings.presents.server;
 
 import java.net.InetAddress;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.TimeZone;
@@ -31,6 +32,7 @@ import java.io.IOException;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 import com.google.inject.Inject;
 
 import com.samskivert.util.IntMap;
@@ -47,6 +49,7 @@ import com.threerings.presents.data.ClientObject;
 import com.threerings.presents.dobj.DEvent;
 import com.threerings.presents.dobj.DObject;
 import com.threerings.presents.dobj.ObjectAccessException;
+import com.threerings.presents.dobj.ObjectDestroyedEvent;
 import com.threerings.presents.dobj.ProxySubscriber;
 import com.threerings.presents.net.AuthRequest;
 import com.threerings.presents.net.BootstrapData;
@@ -611,7 +614,10 @@ public class PresentsSession
         if (rec != null) {
             rec.unsubscribe();
         } else {
-            log.warning("Missing subscription in unmap", "client", this, "oid", oid);
+            boolean alreadyDestroyed = _destroyedSubs.remove(oid);
+            if (!alreadyDestroyed) {
+                log.warning("Missing subscription in unmap", "client", this, "oid", oid);
+            }
         }
     }
 
@@ -1022,6 +1028,27 @@ public class PresentsSession
             }
 
             postMessage(new EventNotification(event), _oconn);
+
+            if (event instanceof ObjectDestroyedEvent) {
+                // Make sure it's cleared out.  Otherwise, client-server timing can
+                // be such that a client stays subscribed to a no-longer-managed dobj.
+                // NOTE: We keep the oid itself on the destroyedSubs list to validate against since
+                // we may get a late unsubscribe after the destruction event has gone through. Thus
+                // there is still potentially a memory leak until logoff of the oid, but the dobj
+                // itself can be collected.
+                ClientProxy sub;
+                int oid = object.getOid();
+                synchronized(_subscrips) {
+                    sub = _subscrips.remove(oid);
+                    if (sub != null) {
+                        _destroyedSubs.add(oid);
+                    }
+                }
+
+                if (sub == ClientProxy.this) {
+                    unsubscribe();
+                }
+            }
         }
 
         // from interface ProxySubscriber
@@ -1173,6 +1200,9 @@ public class PresentsSession
     protected PresentsConnection _conn;
     protected ClientObject _clobj;
     protected IntMap<ClientProxy> _subscrips = IntMaps.newHashIntMap();
+
+    /** The Oids of objects that have been destroyed while we were subscribed. */
+    protected HashSet<Integer> _destroyedSubs = Sets.newHashSet();
     protected ClassLoader _loader;
 
     /** The time at which this client started their session. */
