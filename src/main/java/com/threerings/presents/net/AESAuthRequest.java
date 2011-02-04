@@ -84,7 +84,9 @@ public class AESAuthRequest extends AuthRequest
         try {
            _contents = SecureUtil.getAESCipher(Cipher.DECRYPT_MODE, _key).doFinal(_contents);
         } catch (GeneralSecurityException gse) {
-            throw new IOException("Failed to decrypt credentials", gse);
+            IOException ioe = new IOException("Failed to decrypt credentials");
+            ioe.initCause(gse);
+            throw ioe;
         }
 
         ByteArrayInputStream byteIn = new ByteArrayInputStream(_contents);
@@ -108,13 +110,16 @@ public class AESAuthRequest extends AuthRequest
             out.writeInt(encrypted.length);
             out.write(encrypted);
         } catch (GeneralSecurityException gse) {
-            throw new IOException("Failed to encrypt credentials", gse);
+            IOException ioe = new IOException("Failed to encrypt credentials");
+            ioe.initCause(gse);
+            throw ioe;
         }
     }
 
     /**
      * Read in our encrypted contents.
      */
+    @Override
     public void readObject (ObjectInputStream in)
         throws IOException, ClassNotFoundException
     {
