@@ -48,6 +48,15 @@ public class PublicKeyCredentials extends Credentials
         _secret = SecureUtil.createRandomKey(16);
         _salt = SecureUtil.createRandomKey(4);
         _encodedSecret = SecureUtil.encryptBytes(key, _secret, _salt);
+        _secureVersion = SecureUtil.VERSION;
+    }
+
+    /**
+     * Returns the secure version the client is using.
+     */
+    public int getSecureVersion ()
+    {
+        return _secureVersion;
     }
 
     /**
@@ -80,6 +89,9 @@ public class PublicKeyCredentials extends Credentials
 
     /** Our verification salt. */
     protected byte[] _salt;
+
+    /** Our secure version. */
+    protected int _secureVersion;
 
     /** Our secret key. */
     protected transient byte[] _secret;

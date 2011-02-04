@@ -63,8 +63,10 @@ public class AuthingConnection extends PresentsConnection
                         } else {
                             // generate a server key and encode it using the client key
                             SecureResponse resp = new SecureResponse();
-                            _serverSecret = resp.createSecret(
-                                (PublicKeyCredentials)secreq.getCredentials(), key, 16);
+                            PublicKeyCredentials pkcreds =
+                                    (PublicKeyCredentials)secreq.getCredentials();
+                            _clientSecureVersion = pkcreds.getSecureVersion();
+                            _serverSecret = resp.createSecret(pkcreds, key, 16);
                             safePostMessage(resp);
                         }
                         return;
@@ -176,5 +178,10 @@ public class AuthingConnection extends PresentsConnection
     protected AuthRequest _authreq;
     protected AuthResponse _authrsp;
     protected Name _authname;
+
+    /** The random secret generating for this connection. */
     protected byte[] _serverSecret;
+
+    /** The secure version for our connecting client. */
+    protected int _clientSecureVersion;
 }

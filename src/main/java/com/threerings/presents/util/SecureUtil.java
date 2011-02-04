@@ -45,6 +45,9 @@ import static com.threerings.presents.Log.log;
  */
 public class SecureUtil
 {
+    /** The version of our security protocol (for backwards compatability with older clients). */
+    public static final int VERSION = 1;
+
     /**
      * Creates our AES cipher.
      */
