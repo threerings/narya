@@ -252,7 +252,7 @@ public class SecureUtil
             }
             return secret;
         } catch (GeneralSecurityException gse) {
-            log.warning("Failed to dencrypt bytes", gse);
+            log.warning("Failed to decrypt bytes", gse);
         }
         return null;
     }

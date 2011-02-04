@@ -239,6 +239,22 @@ public class Client
     }
 
     /**
+     * Sets if we require a secure authentication.
+     */
+    public void setRequireSecureAuth (boolean requireSecureAuth)
+    {
+        _requireSecureAuth = requireSecureAuth;
+    }
+
+    /**
+     * Returns true if we require secure authentication.
+     */
+    public boolean requireSecureAuth ()
+    {
+        return _requireSecureAuth;
+    }
+
+    /**
      * Returns the version string configured for this client.
      */
     public String getVersion ()
@@ -1028,6 +1044,9 @@ public class Client
 
     /** Our public key. */
     protected PublicKey _publicKey;
+
+    /** If we require a secure connection to send our credentials. */
+    protected boolean _requireSecureAuth = false;
 
     /** The unique id of our connection. */
     protected int _connectionId = -1;

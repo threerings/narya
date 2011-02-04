@@ -70,15 +70,11 @@ public class SecureResponse extends AuthResponse
     }
 
     /**
-     * Creates a request based on the secure response.
+     * Returns the code bytes or null for a failed state.
      */
-    public AuthRequest createAuthRequest (
-            PublicKeyCredentials pkcreds, Credentials creds, String version, String[] bootGroups)
+    public byte[] getCodeBytes (PublicKeyCredentials pkcreds)
     {
-        if (_data.code.equals(FAILED_TO_SECURE)) {
-            return new AuthRequest(creds, version, bootGroups);
-        }
-        byte[] secret = SecureUtil.xorBytes(StringUtil.unhexlate(_data.code), pkcreds.getSecret());
-        return new AESAuthRequest(secret, creds, version, bootGroups);
+        return pkcreds == null || _data.code == null || _data.code.equals(FAILED_TO_SECURE) ?
+            null : SecureUtil.xorBytes(StringUtil.unhexlate(_data.code), pkcreds.getSecret());
     }
 }

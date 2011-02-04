@@ -41,6 +41,29 @@ import com.threerings.presents.util.SecureUtil;
 public class AESAuthRequest extends AuthRequest
 {
     /**
+     * Creates an auth request, secured if able, unsecured if not.
+     */
+    public static AuthRequest createAuthRequest (
+            Credentials creds, String version, String[] bootGroups, boolean requireSecureAuth)
+    {
+        return createAuthRequest(creds, version, bootGroups, requireSecureAuth, null, null);
+    }
+
+    /**
+     * Creates an auth request, secured if able, unsecured if not.
+     */
+    public static AuthRequest createAuthRequest (
+            Credentials creds, String version, String[] bootGroups, boolean requireSecureAuth,
+            PublicKeyCredentials pkcreds, SecureResponse resp)
+    {
+        byte[] secret = resp == null ? null : resp.getCodeBytes(pkcreds);
+        if (pkcreds == null || secret == null) {
+            return new AuthRequest(requireSecureAuth ? null : creds, version, bootGroups);
+        }
+        return new AESAuthRequest(secret, creds, version, bootGroups);
+    }
+
+    /**
      * Zero argument constructor used when unserializing an instance.
      */
     public AESAuthRequest ()
