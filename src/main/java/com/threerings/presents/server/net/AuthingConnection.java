@@ -21,11 +21,24 @@
 
 package com.threerings.presents.server.net;
 
+import java.io.IOException;
+import java.security.PrivateKey;
+import java.security.SecureRandom;
+
+import com.samskivert.util.ObjectUtil;
+import com.samskivert.util.StringUtil;
+
 import com.threerings.util.Name;
 
+import com.threerings.presents.data.AuthCodes;
+import com.threerings.presents.net.AESAuthRequest;
 import com.threerings.presents.net.AuthRequest;
 import com.threerings.presents.net.AuthResponse;
+import com.threerings.presents.net.DownstreamMessage;
 import com.threerings.presents.net.Message;
+import com.threerings.presents.net.PublicKeyCredentials;
+import com.threerings.presents.net.SecureRequest;
+import com.threerings.presents.net.SecureResponse;
 
 import static com.threerings.presents.Log.log;
 
@@ -39,14 +52,59 @@ public class AuthingConnection extends PresentsConnection
     {
         setMessageHandler(new MessageHandler() {
             public void handleMessage (Message msg) {
+                if (_serverSecret == null) {
+                    // first see if the client is trying to start secure authentication
+                    try {
+                        SecureRequest secreq = (SecureRequest)msg;
+                        PrivateKey key = _pcmgr.getPrivateKey();
+                        // fail quickly if we don't support secure connections
+                        if (key == null) {
+                            safePostMessage(new SecureResponse(AuthCodes.FAILED_TO_SECURE));
+                        } else {
+                            // generate a server key and encode it using the client key
+                            SecureResponse resp = new SecureResponse();
+                            _serverSecret = resp.createSecret(
+                                (PublicKeyCredentials)secreq.getCredentials(), key, 16);
+                            safePostMessage(resp);
+                        }
+                        return;
+                    } catch (ClassCastException cce) {
+                        // Client didn't request a secure channel so proceed with normal
+                        // authentication
+                    }
+                } else {
+                    try {
+                        ((AESAuthRequest)msg).decrypt(_serverSecret);
+
+                    } catch (ClassCastException cce) {
+                        log.warning("Received non-encrypted request during secure " +
+                                "authentication process",
+                                "conn", AuthingConnection.this, "msg", msg);
+                    } catch (ClassNotFoundException cnfe) {
+                        log.warning(
+                                "Failed to decrypt request during secure authentication process",
+                                "conn", AuthingConnection.this, "msg", msg, cnfe);
+                        safePostMessage(new SecureResponse(AuthCodes.FAILED_TO_SECURE));
+                        return;
+                    } catch (IOException ioe) {
+                        log.warning(
+                                "Failed to decrypt request during secure authentication process",
+                                "conn", AuthingConnection.this, "msg", msg, ioe);
+                        safePostMessage(new SecureResponse(AuthCodes.FAILED_TO_SECURE));
+                        return;
+                    }
+                }
                 try {
                     // keep a handle on our auth request
                     _authreq = (AuthRequest)msg;
-                    // post ourselves for processing by the authmgr
-                    _pcmgr.authenticateConnection(AuthingConnection.this);
                 } catch (ClassCastException cce) {
                     log.warning("Received non-authreq message during authentication process",
                                 "conn", AuthingConnection.this, "msg", msg);
+                }
+
+                if (_authreq != null) {
+                    // post ourselves for processing by the authmgr
+                    _pcmgr.authenticateConnection(AuthingConnection.this);
                 }
             }
         });
@@ -102,7 +160,21 @@ public class AuthingConnection extends PresentsConnection
         return "[mode=AUTHING, addr=" + getInetAddress() + "]";
     }
 
+    /**
+     * Callable from non-dobjmgr thread, this queues up a runnable on the dobjmgr thread to post
+     * the supplied message to this client.
+     */
+    protected final void safePostMessage (final DownstreamMessage msg)
+    {
+        _pcmgr._omgr.postRunnable(new Runnable() {
+            public void run () {
+                postMessage(msg);
+            }
+        });
+    }
+
     protected AuthRequest _authreq;
     protected AuthResponse _authrsp;
     protected Name _authname;
+    protected byte[] _serverSecret;
 }

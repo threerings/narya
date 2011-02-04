@@ -31,6 +31,8 @@ import java.nio.channels.DatagramChannel;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.SocketChannel;
 
+import java.security.PrivateKey;
+
 import com.google.common.collect.Lists;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
@@ -61,6 +63,7 @@ import com.threerings.presents.server.DummyAuthenticator;
 import com.threerings.presents.server.PresentsDObjectMgr;
 import com.threerings.presents.server.ReportManager;
 import com.threerings.presents.util.DatagramSequencer;
+import com.threerings.presents.util.SecureUtil;
 
 import com.threerings.nio.conman.Connection;
 import com.threerings.nio.conman.ConnectionManager;
@@ -141,6 +144,38 @@ public class PresentsConnectionManager extends ConnectionManager
     public void addChainedAuthenticator (ChainedAuthenticator author)
     {
         _authors.add(author);
+    }
+
+    /**
+     * Sets the private key if the ciphers are supported.
+     *
+     * @return true if the key is set
+     */
+    public boolean setPrivateKey (PrivateKey key)
+    {
+        if (SecureUtil.ciphersSupported(key)) {
+            _privateKey = key;
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Sets the private key if the ciphers are supported.
+     *
+     * @return true if the key is set
+     */
+    public boolean setPrivateKey (String key)
+    {
+        return key == null ? false : setPrivateKey(SecureUtil.stringToRSAPrivateKey(key));
+    }
+
+    /**
+     * Returns the private key used in secure authentication.
+     */
+    public PrivateKey getPrivateKey ()
+    {
+        return _privateKey;
     }
 
     /**
@@ -522,6 +557,7 @@ public class PresentsConnectionManager extends ConnectionManager
      * of authentication and then passes normal authentications through. */
     @Inject(optional=true) protected Authenticator _author = new DummyAuthenticator();
     protected List<ChainedAuthenticator> _authors = Lists.newArrayList();
+    protected PrivateKey _privateKey;
 
     protected Queue<AuthingConnection> _authq = Queue.newQueue();
     protected Queue<Tuple<Connection, InetSocketAddress>> _connectq = Queue.newQueue();

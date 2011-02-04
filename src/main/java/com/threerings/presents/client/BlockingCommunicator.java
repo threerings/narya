@@ -25,6 +25,7 @@ import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.security.PublicKey;
 
 import java.io.EOFException;
 import java.io.IOException;
@@ -51,12 +52,16 @@ import com.threerings.io.ObjectOutputStream;
 import com.threerings.io.UnreliableObjectInputStream;
 import com.threerings.io.UnreliableObjectOutputStream;
 
+import com.threerings.presents.net.AESAuthRequest;
 import com.threerings.presents.net.AuthRequest;
 import com.threerings.presents.net.AuthResponse;
 import com.threerings.presents.net.AuthResponseData;
 import com.threerings.presents.net.DownstreamMessage;
 import com.threerings.presents.net.LogoffRequest;
 import com.threerings.presents.net.PingRequest;
+import com.threerings.presents.net.PublicKeyCredentials;
+import com.threerings.presents.net.SecureRequest;
+import com.threerings.presents.net.SecureResponse;
 import com.threerings.presents.net.TransmitDatagramsRequest;
 import com.threerings.presents.net.Transport;
 import com.threerings.presents.net.UpstreamMessage;
@@ -616,13 +621,40 @@ public class BlockingCommunicator extends Communicator
                 // connect to the server
                 connect();
 
-                // construct an auth request and send it
-                sendMessage(new AuthRequest(_client.getCredentials(), _client.getVersion(),
-                                            _client.getBootGroups()));
+                // If a public key is specified, we'll attempt to establish a secure authentication
+                // channel
+                PublicKey key = _client.getPublicKey();
+                AuthResponse response = null;
+                if (key != null) {
+                    PublicKeyCredentials pkcreds = new PublicKeyCredentials(key);
+                    sendMessage(new SecureRequest(pkcreds, _client.getVersion()));
 
-                // now wait for the auth response
-                log.debug("Waiting for auth response.");
-                gotAuthResponse((AuthResponse)receiveMessage());
+                    // now wait for the handshake
+                    log.debug("Waiting for secure response.");
+
+                    response = (AuthResponse)receiveMessage();
+                    // If we've recieved a secure response, proceed with authentication
+                    if (response instanceof SecureResponse) {
+                        sendMessage(((SecureResponse)response).createAuthRequest(
+                                    pkcreds, _client.getCredentials(),
+                                    _client.getVersion(), _client.getBootGroups()));
+
+                        // now wait for the auth response
+                        log.debug("Waiting for auth response.");
+                        response = (AuthResponse)receiveMessage();
+                    }
+
+                } else {
+                    // construct an auth request and send it
+                    sendMessage(new AuthRequest(
+                        _client.getCredentials(), _client.getVersion(), _client.getBootGroups()));
+
+                    // now wait for the auth response
+                    log.debug("Waiting for auth response.");
+                    response = (AuthResponse)receiveMessage();
+                }
+                gotAuthResponse(response);
+
 
             } catch (Exception e) {
                 log.debug("Logon failed: " + e);

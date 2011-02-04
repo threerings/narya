@@ -43,4 +43,7 @@ public interface AuthCodes
     /** A code indicating that we failed to connect to the server on a port and
      * are trying the next port in the list. */
     public static final String TRYING_NEXT_PORT = "m.trying_next_port";
+
+    /** A code indicating that we failed to establish a secure connection. */
+    public static final String FAILED_TO_SECURE = "m.failed_to_secure";
 }

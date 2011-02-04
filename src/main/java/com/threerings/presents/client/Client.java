@@ -23,6 +23,8 @@ package com.threerings.presents.client;
 
 import java.util.HashSet;
 
+import java.security.PublicKey;
+
 import com.google.common.collect.Sets;
 
 import com.samskivert.util.Interval;
@@ -45,6 +47,7 @@ import com.threerings.presents.net.Credentials;
 import com.threerings.presents.net.PingRequest;
 import com.threerings.presents.net.PongResponse;
 import com.threerings.presents.net.ThrottleUpdatedMessage;
+import com.threerings.presents.util.SecureUtil;
 
 import static com.threerings.presents.Log.log;
 
@@ -196,6 +199,43 @@ public class Client
     public void setCredentials (Credentials creds)
     {
         _creds = creds;
+    }
+
+    /**
+     * Returns the public key with which this client is currently configured to create a secure
+     * authentication channel to the server.
+     */
+    public PublicKey getPublicKey ()
+    {
+        return _publicKey;
+    }
+
+    /**
+     * Sets the public key that will be used by this client to create a secure authentication
+     * channel with the server if the ciphers are supported.  This should be done before any call
+     * to <code>logon</code>.
+     *
+     * @return true if the key is set
+     */
+    public boolean setPublicKey (PublicKey key)
+    {
+        if (SecureUtil.ciphersSupported(key)) {
+            _publicKey = key;
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Sets the public key that will be used by this client to create a secure authentication
+     * channel with the server if the ciphers are supported.  This should be done before any call
+     * to <code>logon</code>.
+     *
+     * @return true if the key is set
+     */
+    public boolean setPublicKey (String key)
+    {
+        return key == null ? false : setPublicKey(SecureUtil.stringToRSAPublicKey(key));
     }
 
     /**
@@ -985,6 +1025,9 @@ public class Client
 
     /** The data associated with our authentication response. */
     protected AuthResponseData _authData;
+
+    /** Our public key. */
+    protected PublicKey _publicKey;
 
     /** The unique id of our connection. */
     protected int _connectionId = -1;
